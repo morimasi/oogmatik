@@ -255,12 +255,12 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
                 {/* SOL PANEL (SaaS Premium Sidebar) */}
                 <div className="lg:col-span-3 flex flex-col bg-[var(--bg-paper)]/50 backdrop-blur-3xl border-r border-[var(--border-color)] shadow-[20px_0_40px_-20px_rgba(0,0,0,0.05)] z-20 overflow-hidden min-h-0">
 
-                    {/* Sticky Oluştur Butonu (Moved to Top) */}
-                    <div className="flex-none p-5 bg-[var(--bg-paper)]/90 backdrop-blur-2xl border-b border-[var(--border-color)] z-30 shadow-[0_10px_30px_rgba(0,0,0,0.05)]">
+                    {/* Sticky Oluştur Butonu (Fixed position at Top with blur) */}
+                    <div className="flex-none sticky top-0 px-5 py-6 bg-[var(--bg-paper)]/95 backdrop-blur-3xl border-b border-[var(--border-color)] z-[40] shadow-[0_4px_24px_rgba(0,0,0,0.06)]">
                         <button
                             onClick={handleGenerate}
                             disabled={!canGenerate() || isGenerating}
-                            className={`relative w-full py-4.5 rounded-2xl font-black text-sm tracking-tight text-white transition-all duration-500 flex items-center justify-center gap-3 overflow-hidden group shadow-xl ${canGenerate() && !isGenerating ? 'bg-accent hover:bg-accent shadow-accent/20 hover:translate-y-[-4px] active:scale-95 active:translate-y-0' : 'bg-[var(--bg-secondary)]/50 cursor-not-allowed text-[var(--text-muted)] shadow-none'}`}
+                            className={`relative w-full py-4.5 rounded-2xl font-black text-sm tracking-tight text-white transition-all duration-500 flex items-center justify-center gap-3 overflow-hidden group shadow-xl ${canGenerate() && !isGenerating ? 'bg-accent hover:bg-accent hover:shadow-accent/40 hover:-translate-y-1 active:scale-95 active:translate-y-0' : 'bg-[var(--bg-secondary)]/50 cursor-not-allowed text-[var(--text-muted)] shadow-none'}`}
                         >
                             {canGenerate() && !isGenerating && (
                                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-[150%] skew-x-[-20deg] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out" />
@@ -272,8 +272,8 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
                             )}
                         </button>
                         {!canGenerate() && !isGenerating && (
-                            <div className="mt-4 p-3 bg-[var(--bg-primary)] rounded-xl border border-[var(--border-color)]">
-                                <p className="text-[10px] text-[var(--text-muted)] text-center font-bold uppercase tracking-widest leading-relaxed">
+                            <div className="mt-4 p-3 bg-accent/5 rounded-2xl border border-accent/10 anim-fade-in">
+                                <p className="text-[10px] text-accent font-black text-center uppercase tracking-widest leading-relaxed">
                                     {ayarlar.sinif === null ? 'Sınıf seçimi bekleniyor' : kazanimCount === 0 ? 'Kazanım haritası tamamlanmalı' : toplamSoru < 1 ? 'Hedef: En az 1 soru' : ''}
                                 </p>
                             </div>

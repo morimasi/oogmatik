@@ -28,3 +28,6 @@ export * from './core/SmartFallbackGenerator';
 export { KavramHaritasiGenerator } from './kavramHaritasi';
 export { EsAnlamliKelimelerGenerator } from './esAnlamliKelimeler';
 export * from './sentenceFiveWOneH';
+export * from './storyAnalysis';
+export * from './storySequencing';
+export * from './missingParts';

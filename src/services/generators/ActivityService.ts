@@ -37,6 +37,11 @@ export class ActivityService {
         // 1. Manuel kayıtlı jeneratörleri (registry.ts) işle
         for (const [type, mapping] of Object.entries(ACTIVITY_GENERATOR_REGISTRY)) {
             const activityType = type as ActivityType;
+            
+            console.log(`[ActivityService] Registering generator for: ${activityType}`, { 
+                hasAI: !!mapping.ai, 
+                hasOffline: !!mapping.offline 
+            });
 
             const generator = new GenericActivityGenerator(
                 DEFAULT_MODE,

@@ -37,8 +37,25 @@ export interface StoryData extends BaseActivityData {
 }
 
 export interface StoryAnalysisData extends BaseActivityData {
-  story: string;
-  storyMap: Record<string, string>;
+  settings?: {
+    difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor';
+    topic: string;
+    analysisDepth: 'temel' | 'detaylı';
+    showStoryMap: boolean;
+  };
+  content: {
+    title: string;
+    story: string;
+    analysis: {
+      characters: { name: string; traits: string[] }[];
+      setting: { place: string; time: string };
+      conflict: string;
+      resolution: string;
+      mainIdea: string;
+      subThemes: string[];
+    };
+  };
+  questions: StoryQuestion[];
 }
 
 export interface StoryCreationPromptData extends BaseActivityData {
@@ -52,10 +69,25 @@ export interface WordsInStoryData extends BaseActivityData {
   vocabWork: { word: string; contextQuestion: string; type: 'meaning' | 'usage' }[];
 }
 
+export interface StorySequencingPanel {
+  id: string;
+  text: string;
+  correctOrder: number;
+  imagePrompt?: string;
+}
+
 export interface StorySequencingData extends BaseActivityData {
-  prompt: string;
-  panels: { id: string; description: string; order: number; imagePrompt: string }[];
-  transitionWords: string[];
+  settings?: {
+    difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor';
+    panelCount: number;
+    showTransitionWords: boolean;
+  };
+  content: {
+    title: string;
+    panels: StorySequencingPanel[];
+    transitionWords?: string[];
+    fullStory: string;
+  };
 }
 
 export interface InteractiveStoryData extends StoryData {
@@ -349,9 +381,19 @@ export interface AttentionFocusData extends BaseActivityData {
 }
 
 export interface MissingPartsData extends BaseActivityData {
-  storyWithBlanks: string[];
-  wordBank: string[];
-  answers: string[];
+  settings?: {
+    difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor';
+    blankType: 'word' | 'phrase';
+    showWordBank: boolean;
+    topic: string;
+  };
+  content: {
+    title: string;
+    paragraphs: {
+      parts: { text: string; isBlank: boolean; answer?: string }[];
+    }[];
+    wordBank: string[];
+  };
 }
 
 export interface CodeReadingData extends BaseActivityData {

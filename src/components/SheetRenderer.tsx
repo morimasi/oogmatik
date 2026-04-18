@@ -132,6 +132,9 @@ import {
   TargetSearchSheet,
 } from './sheets/attention/AttentionSheets';
 import { StoryComprehensionSheet } from './sheets/verbal/StoryComprehensionSheet';
+import { StoryAnalysisSheet } from './sheets/verbal/StoryAnalysisSheet';
+import { StorySequencingSheet } from './sheets/verbal/StorySequencingSheet';
+import { MissingPartsSheet } from './sheets/verbal/MissingPartsSheet';
 import { ReadingFlowSheet } from './sheets/verbal/ReadingFlowSheet';
 import {
   PhonologicalAwarenessSheet,
@@ -1664,6 +1667,15 @@ export const SheetRenderer = React.memo(
         break;
       case ActivityType.SENTENCE_5W1H:
         renderedSheet = <SentenceFiveWOneHSheet data={data as any} />;
+        break;
+      case ActivityType.STORY_ANALYSIS:
+        renderedSheet = <StoryAnalysisSheet data={data as unknown as StoryAnalysisData} />;
+        break;
+      case ActivityType.STORY_SEQUENCING:
+        renderedSheet = <StorySequencingSheet data={data as unknown as StorySequencingData} />;
+        break;
+      case ActivityType.MISSING_PARTS:
+        renderedSheet = <MissingPartsSheet data={data as unknown as MissingPartsData} />;
         break;
       case ActivityType.COLORFUL_SYLLABLE_READING:
         renderedSheet = <ColorfulSyllableReadingSheet data={data as any} settings={settings} />;

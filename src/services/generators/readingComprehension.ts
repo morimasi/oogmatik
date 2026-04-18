@@ -1,6 +1,6 @@
 
 import { generateWithSchema } from '../geminiClient.js';
-import { GeneratorOptions, StoryData, ReadingStroopData, SynonymAntonymMatchData, ReadingSudokuData } from '../../types.js';
+import { GeneratorOptions, StoryData, ReadingStroopData, SynonymAntonymMatchData, ReadingSudokuData, StoryAnalysisData, StorySequencingData, MissingPartsData } from '../../types.js';
 
 const PEDAGOGICAL_PROMPT = `
 [ROL: KIDEMLİ ÖZEL EĞİTİM UZMANI & PSİKOMETRİST]
@@ -273,10 +273,10 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
     return generateWithSchema(prompt, schema) as Promise<StoryData[]>;
 };
 
-export const generateStoryAnalysisFromAI = async (_o: GeneratorOptions) => [] as any;
+// generateMissingPartsFromAI yeni dosyasına taşındı.
+
 export const generateStoryCreationPromptFromAI = async (_o: GeneratorOptions) => [] as any;
 export const generateWordsInStoryFromAI = async (_o: GeneratorOptions) => [] as any;
-export const generateStorySequencingFromAI = async (_o: GeneratorOptions) => [] as any;
 export const generateProverbSayingSortFromAI = async (_o: GeneratorOptions) => [] as any;
 export const generateProverbWordChainFromAI = async (_o: GeneratorOptions) => [] as any;
 export const generateProverbFillInTheBlankFromAI = async (_o: GeneratorOptions) => [] as any;

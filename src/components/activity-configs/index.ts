@@ -27,6 +27,9 @@ import { DirectionalTrackingConfig } from './DirectionalTrackingConfig';
 import { FutoshikiConfig } from './FutoshikiConfig';
 import { AbcConnectConfig } from './AbcConnectConfig';
 import { SentenceFiveWOneHConfig } from './SentenceFiveWOneHConfig';
+import { StoryAnalysisConfig } from './StoryAnalysisConfig';
+import { StorySequencingConfig } from './StorySequencingConfig';
+import { MissingPartsConfig } from './MissingPartsConfig';
 
 import { FiveWOneHConfig } from './FiveWOneHConfig';
 import { ColorfulSyllableReadingConfig } from './ColorfulSyllableReadingConfig';
@@ -85,6 +88,9 @@ export const ActivityConfigRegistry: Record<string, any> = {
   [ActivityType.KAVRAM_HARITASI]: KavramHaritasiConfig,
   [ActivityType.ES_ANLAMLI_KELIMELER]: EsAnlamliKelimelerConfig,
   [ActivityType.SENTENCE_5W1H]: SentenceFiveWOneHConfig,
+  [ActivityType.STORY_ANALYSIS]: StoryAnalysisConfig,
+  [ActivityType.STORY_SEQUENCING]: StorySequencingConfig,
+  [ActivityType.MISSING_PARTS]: MissingPartsConfig,
 };
 
 export { EsAnlamliKelimelerConfig } from './EsAnlamliKelimelerConfig';

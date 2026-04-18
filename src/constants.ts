@@ -243,6 +243,27 @@ export const ACTIVITIES: Activity[] = [
     defaultStyle: { columns: 1 },
   },
   {
+    id: ActivityType.STORY_ANALYSIS,
+    title: 'Hikaye Analizi (Ultra Pro)',
+    description: 'Okunan metnin ana fikrini, karakterlerini ve olay örgüsünü derinlemesine analiz eden üst düzey anlama çalışması.',
+    icon: 'fa-solid fa-magnifying-glass-chart',
+    defaultStyle: { columns: 1 },
+  },
+  {
+    id: ActivityType.STORY_SEQUENCING,
+    title: 'Olay Sıralama (Hikaye)',
+    description: 'Karışık verilen olayları mantıksal ve zamansal sıraya koyarak hikaye bütünlüğü oluşturma egzersizi.',
+    icon: 'fa-solid fa-list-ol',
+    defaultStyle: { columns: 1 },
+  },
+  {
+    id: ActivityType.MISSING_PARTS,
+    title: 'Eksik Parçaları Tamamlama',
+    description: 'Bütünsel algı ve bağlamdan anlam çıkarma becerisi için metindeki veya cümledeki boşlukları mantıklı şekilde doldurma.',
+    icon: 'fa-solid fa-puzzle-piece',
+    defaultStyle: { columns: 1 },
+  },
+  {
     id: ActivityType.COLORFUL_SYLLABLE_READING,
     title: 'Renkli Hece / Odaklı Okuma',
     description:

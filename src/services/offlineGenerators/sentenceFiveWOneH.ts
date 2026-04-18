@@ -6,9 +6,9 @@ import { Sentence5W1HData, Sentence5W1HItem } from '../../types/verbal';
  * Cümlede 5N1K etkinliği için çevrimdışı (offline) içerik üreticisi.
  * Kütüphanedeki pedagojik cümleleri kullanır.
  */
-export const generateOfflineSentenceFiveWOneH = (
+export const generateOfflineSentenceFiveWOneH = async (
   options: GeneratorOptions
-): Sentence5W1HData => {
+): Promise<Sentence5W1HData> => {
   const { itemCount = 5, difficulty = 'Orta', ageGroup = '8-10' } = options;
 
   // Filtreleme (Önce zorluk ve yaş grubuna göre, bulamazsa sadece yaş grubuna göre)

@@ -1,6 +1,7 @@
-import { ActivityType, GeneratorOptions } from '../../types/core.js';
-import * as aiGenerators from './index.js';
-import * as offlineGenerators from '../offlineGenerators/index.js';
+import { ActivityType } from '../../types/activity';
+import { GeneratorOptions } from '../../types/core';
+import * as aiGenerators from './index';
+import * as offlineGenerators from '../offlineGenerators/index';
 import { INFOGRAPHIC_ADAPTERS_FIRST_10 } from './infographic/infographicAdapter.js';
 import { INFOGRAPHIC_ADAPTERS_REMAINING_84 } from './infographic/infographicFactory.js';
 
@@ -121,7 +122,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineMorphologyMatrix,
   },
   [ActivityType.MISSING_PARTS]: {
-    ai: withAI(ActivityType.MISSING_PARTS),
+    ai: aiGenerators.generateMissingPartsFromAI,
     offline: offlineGenerators.generateOfflineMissingParts,
   },
 
@@ -215,7 +216,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineAlgorithmGenerator,
   },
   [ActivityType.AI_WORKSHEET_CONVERTER]: {
-    ai: aiGenerators.generateAiWorksheetConverterFromAI,
+    ai: withAI(ActivityType.AI_WORKSHEET_CONVERTER),
     offline: withOffline(ActivityType.AI_WORKSHEET_CONVERTER),
   },
   [ActivityType.HIDDEN_PASSWORD_GRID]: {

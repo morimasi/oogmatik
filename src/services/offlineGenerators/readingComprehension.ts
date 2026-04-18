@@ -1,4 +1,4 @@
-import { ActivityType, GeneratorOptions, StoryData, StoryCreationPromptData, WordsInStoryData, StoryAnalysisData, StorySequencingData, MissingPartsData, StoryQuestion, ReadingStroopData, SynonymAntonymMatchData, ReadingSudokuData } from '../../types';
+import { ActivityType, GeneratorOptions, StoryData, StoryCreationPromptData, WordsInStoryData, StoryAnalysisData, StorySequencingData, MissingPartsData, StorySequencingPanel, StoryQuestion, ReadingStroopData, SynonymAntonymMatchData, ReadingSudokuData } from '../../types';
 import { WorksheetBuilder } from '../generators/core/WorksheetBuilder';
 import { shuffle, getRandomItems, generateSudokuGrid, getRandomInt } from './helpers';
 import { COHERENT_STORY_TEMPLATES } from '../../data/sentences';
@@ -43,8 +43,8 @@ export const generateOfflineReadingSudoku = async (options: GeneratorOptions): P
             : variant === 'visuals' ? visualPool.slice(0, gridSize)
                 : Array.from({ length: gridSize }, (_, i) => (i + 1).toString());
 
-    return Array.from({ length: worksheetCount }, () => {
-        const rawGrid = generateSudokuGrid(gridSize, difficulty);
+    return Array.from({ length: worksheetCount ?? 1 }, () => {
+        const rawGrid = generateSudokuGrid(gridSize, difficulty ?? 'Orta');
 
         // Map numbers to symbols
         const mappedGrid = rawGrid.map(row => row.map(cell => cell ? selectedSymbols[cell - 1] : null));
@@ -106,7 +106,7 @@ export const generateOfflineSynonymAntonymMatch = async (options: GeneratorOptio
 export const generateOfflineReadingStroop = async (options: GeneratorOptions): Promise<ReadingStroopData[]> => {
     const { worksheetCount, itemCount = 48, difficulty, variant = 'colors', gridSize } = options;
 
-    return Array.from({ length: worksheetCount }, () => {
+    return Array.from({ length: worksheetCount ?? 1 }, () => {
         const grid = Array.from({ length: itemCount }).map(() => {
             let text = "";
             let baseColorHex = "";
@@ -187,8 +187,8 @@ const buildBaseStory = (difficulty: string) => {
 
 export const generateOfflineStoryComprehension = async (options: GeneratorOptions): Promise<StoryData[]> => {
     const { worksheetCount, difficulty } = options;
-    return Array.from({ length: worksheetCount }, () => {
-        const { title, story, imagePrompt, template, chosenValues } = buildBaseStory(difficulty);
+    return Array.from({ length: worksheetCount ?? 1 }, () => {
+        const { title, story, imagePrompt, template, chosenValues } = buildBaseStory(difficulty ?? 'Orta');
 
         const questions: StoryQuestion[] = template.questions.map((qTemp: any) => {
             let qText = qTemp.q;
@@ -242,8 +242,8 @@ export const generateOfflineStoryComprehension = async (options: GeneratorOption
 
 export const generateOfflineStoryCreationPrompt = async (options: GeneratorOptions): Promise<StoryCreationPromptData[]> => {
     const { worksheetCount, difficulty } = options;
-    return Array.from({ length: worksheetCount }, () => {
-        const { title, imagePrompt, chosenValues } = buildBaseStory(difficulty);
+    return Array.from({ length: worksheetCount ?? 1 }, () => {
+        const { title, imagePrompt, chosenValues } = buildBaseStory(difficulty ?? 'Orta');
 
         return {
             title: `Hikaye Atölyesi: ${title}`,
@@ -264,10 +264,10 @@ export const generateOfflineStoryCreationPrompt = async (options: GeneratorOptio
 
 export const generateOfflineWordsInStory = async (options: GeneratorOptions): Promise<WordsInStoryData[]> => {
     const { worksheetCount, difficulty } = options;
-    return Array.from({ length: worksheetCount }, () => {
-        const { title: _title, story, imagePrompt, template } = buildBaseStory(difficulty);
+    return Array.from({ length: worksheetCount ?? 1 }, () => {
+        const { title: _title, story, imagePrompt, template } = buildBaseStory(difficulty ?? 'Orta');
 
-        const vocabWork = (template.vocabulary || []).map(v => ({
+        const vocabWork = (template.vocabulary || []).map((v: any) => ({
             word: v.word,
             contextQuestion: `"${v.word}" kelimesi metinde ne anlama geliyor?`,
             type: 'meaning' as const
@@ -285,76 +285,108 @@ export const generateOfflineWordsInStory = async (options: GeneratorOptions): Pr
 };
 
 export const generateOfflineStoryAnalysis = async (options: GeneratorOptions): Promise<StoryAnalysisData[]> => {
-    const { worksheetCount, difficulty } = options;
+    const { worksheetCount = 1, difficulty = 'orta' } = options;
     return Array.from({ length: worksheetCount }, () => {
-        const { title: _title, story, imagePrompt, chosenValues } = buildBaseStory(difficulty);
+        const { title, story, chosenValues, template } = buildBaseStory(difficulty);
+        
         return {
-            title: 'Hikaye Haritası',
-            instruction: "Hikayenin unsurlarını analiz et.",
-            pedagogicalNote: "Hikaye kurgusunu anlama.",
-            imagePrompt,
-            story,
-            storyMap: {
-                characters: chosenValues['character'],
-                setting: chosenValues['place'],
-                problem: "Hikayedeki sorun neydi?",
-                solution: "Sorun nasıl çözüldü?",
-                theme: "Ana fikir nedir?"
-            }
+            title: 'Kapsamlı Hikaye Analizi (Ultra Pro)',
+            instruction: "Hikayeyi dikkatlice oku ve aşağıdaki analiz tablosunu doldur.",
+            pedagogicalNote: "Hikaye haritalama, karakter analizi ve ana fikir tespiti yoluyla üst düzey okuduğunu anlama becerilerini destekler.",
+            content: {
+                title,
+                story,
+                analysis: {
+                    characters: [
+                        { name: chosenValues['character'] || 'Ana Karakter', traits: ['Meraklı', 'Azimli'] }
+                    ],
+                    setting: {
+                        place: chosenValues['place'] || 'Bilinmeyen Yer',
+                        time: 'Bir zamanlar'
+                    },
+                    conflict: 'Hikayede karşılaşılan temel zorluk nedir?',
+                    resolution: 'Bu zorluk nasıl aşıldı?',
+                    mainIdea: (template as any).mainIdea || 'Kendi yolunu bulmak.',
+                    subThemes: ['Dostluk', 'Cesaret', 'Yardımlaşma']
+                }
+            },
+            questions: template.questions.map((q: any) => ({
+                type: 'multiple-choice',
+                question: q.q,
+                answer: 'Cevap metinde gizli.'
+            }))
         };
     });
 };
 
 export const generateOfflineStorySequencing = async (options: GeneratorOptions): Promise<StorySequencingData[]> => {
-    const { worksheetCount } = options;
+    const { worksheetCount = 1, difficulty = 'orta' } = options;
     const sequences = [
-        { title: "Tohumun Büyümesi", steps: ["Tohumu ektim.", "Suladım.", "Filizlendi.", "Çiçek açtı."], img: "Plant growth" },
-        { title: "Kek Yapımı", steps: ["Malzemeleri karıştırdım.", "Kalıba döktüm.", "Fırında pişirdim.", "Dilimleyip yedim."], img: "Baking cake" },
-        { title: "Diş Fırçalama", steps: ["Macunu sürdüm.", "Dişlerimi fırçaladım.", "Ağzımı çalkaladım.", "Gülümsedim."], img: "Brushing teeth" }
+        { title: "Tohumun Yolculuğu", steps: ["Tohum toprağa düşer.", "Can suyu verilir.", "Güneşle filizlenir.", "Kocaman bir çiçek olur."], img: "Plant life cycle" },
+        { title: "Piknik Hazırlığı", steps: ["Sepet hazırlanır.", "Parka gidilir.", "Örtü serilir.", "Yemekler afiyetle yenir."], img: "Picnic prep" }
     ];
 
     return Array.from({ length: worksheetCount }, () => {
         const seq = getRandomItems(sequences, 1)[0];
-        const shuffledPanels = shuffle(seq.steps.map((s, i) => ({
-            id: `step-${i}`,
-            description: s,
-            order: i + 1,
-            imagePrompt: `${seq.img} step ${i + 1}`
-        })));
+        const panels: StorySequencingPanel[] = seq.steps.map((s, i) => ({
+            id: `p-${i}`,
+            text: s,
+            correctOrder: i + 1,
+            imagePrompt: `${seq.img} - step ${i + 1}`
+        }));
 
         return {
-            title: `Olay Sıralama: ${seq.title}`,
-            instruction: "Olayları oluş sırasına göre numaralandır.",
-            pedagogicalNote: "Kronolojik düşünme.",
-            imagePrompt: "Sequencing",
-            prompt: "Doğru sırayı bul.",
-            panels: shuffledPanels,
-            transitionWords: ["Önce", "Sonra", "Daha sonra", "En sonunda"]
+            title: 'Olay Örgüsü Sıralama (Ultra Pro)',
+            instruction: "Olayları oluş sırasına göre (1-4) numaralandırarak dizin.",
+            pedagogicalNote: "Kronolojik algı, sebep-sonuç ilişkisi kurma ve anlatı yapısını kavrama becerilerini geliştirir.",
+            content: {
+                title: seq.title,
+                panels: shuffle(panels),
+                transitionWords: ["Önce", "Sonra", "Ardından", "Son olarak"],
+                fullStory: seq.steps.join(' ')
+            },
+            settings: {
+                difficulty: difficulty as any,
+                panelCount: panels.length,
+                showTransitionWords: true
+            }
         };
     });
 };
 
 export const generateOfflineMissingParts = async (options: GeneratorOptions): Promise<MissingPartsData[]> => {
-    const { worksheetCount, difficulty } = options;
+    const { worksheetCount = 1, difficulty = 'orta' } = options;
     return Array.from({ length: worksheetCount }, () => {
-        const { title: _title, story, chosenValues, imagePrompt } = buildBaseStory(difficulty);
-
-        const words = Object.values(chosenValues);
-        let maskedStory = story;
-        words.forEach(w => {
-            maskedStory = maskedStory.replace(w, "_______");
+        const { title, story, chosenValues } = buildBaseStory(difficulty);
+        const words = Object.values(chosenValues).filter(v => typeof v === 'string');
+        
+        let maskedParts: { text: string; isBlank: boolean; answer?: string }[] = [];
+        const storyWords = story.split(' ');
+        
+        storyWords.forEach(w => {
+            const cleanWord = w.replace(/[.,!?]/g, '');
+            if (words.includes(cleanWord)) {
+                maskedParts.push({ text: '_______', isBlank: true, answer: cleanWord });
+            } else {
+                maskedParts.push({ text: w, isBlank: false });
+            }
         });
 
-        const parts = maskedStory.split('.').filter(s => s.trim().length > 0).map(s => s.trim() + '.');
-
         return {
-            title: 'Boşluk Doldurma',
-            instruction: "Hikayedeki boşlukları kutudaki kelimelerle tamamla.",
-            pedagogicalNote: "Cümle tamamlama ve anlamsal bütünlük.",
-            imagePrompt,
-            storyWithBlanks: parts,
-            wordBank: shuffle(words),
-            answers: words
+            title: 'Anlamsal Akış ve Boşluk Doldurma (Ultra Pro)',
+            instruction: "Metindeki boşlukları anlam akışına uygun kelimelerle tamamlayın.",
+            pedagogicalNote: "Leksikal erişim, bağlamsal tahmin ve anlamsal bütünlük kurma becerilerini destekler.",
+            content: {
+                title,
+                paragraphs: [{ parts: maskedParts }],
+                wordBank: shuffle([...words, 'Çeldirici 1', 'Çeldirici 2'])
+            },
+            settings: {
+                difficulty: difficulty as any,
+                blankType: 'word',
+                showWordBank: true,
+                topic: 'Genel'
+            }
         };
     });
 };
@@ -368,7 +400,7 @@ const PROVERBS = [
 ];
 
 export const generateOfflineProverbFillInTheBlank = async (o: GeneratorOptions) => {
-    return Array.from({ length: o.worksheetCount }, () => ({
+    return Array.from({ length: o.worksheetCount ?? 1 }, () => ({
         title: "Atasözü Tamamlama",
         instruction: "Eksik bırakılan atasözlerini uygun kelimelerle tamamlayın.",
         pedagogicalNote: "Kültürel farkındalık ve bağlamsal tamamlama becerisi.",
@@ -383,7 +415,7 @@ export const generateOfflineProverbFillInTheBlank = async (o: GeneratorOptions) 
 };
 
 export const generateOfflineProverbSayingSort = async (o: GeneratorOptions) => {
-    return Array.from({ length: o.worksheetCount }, () => ({
+    return Array.from({ length: o.worksheetCount ?? 1 }, () => ({
         title: "Atasözü Karışık Kelimeler",
         instruction: "Karışık verilen kelimeleri anlamlı bir atasözü oluşturacak şekilde sıralayın.",
         pedagogicalNote: "Sintaktik farkındalık ve sıralı düşünme becerisi.",

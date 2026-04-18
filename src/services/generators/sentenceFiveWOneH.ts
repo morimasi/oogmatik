@@ -10,23 +10,25 @@ import { AppError } from '../../utils/AppError';
 export const generateSentenceFiveWOneHFromAI = async (
   options: GeneratorOptions
 ): Promise<Sentence5W1HData> => {
-  const { count = 10, difficulty = 'orta', ageGroup = '8-10' } = options;
+  const { count = 12, difficulty = 'orta', ageGroup = '8-10', complexity = 'birleşik' } = options;
 
   const prompt = `
     Sen bir özel eğitim uzmanısın (disleksi ve DEHB odaklı). 
     Türkçe dil bilgisi kurallarına uygun, pedagojik değeri yüksek, ilgi çekici ve öğretici "Cümlede 5N1K" soruları üretmeni istiyorum.
 
     GÖREV:
-    - ${count} adet benzersiz ve detaylı cümle üret.
+    - ${count} adet benzersiz ve detaylı cümle üret. (A4 SAYFASINI TAM DOLDURACAK YOĞUNLUKTA)
     - Yaş grubu: ${ageGroup}
     - Zorluk seviyesi: ${difficulty}
+    - Cümle Yapısı: ${complexity} (Basit cümleler yerine daha zengin ve yan cümlecikleri olan yapılar tercih et)
     - Önemli: Her cümle MUTLAKA şu 6 öğeyi de barındırmalıdır: Kim, Ne, Nerede, Ne Zaman, Nasıl, Niçin.
+    - Tasarım: Her sayfa dopdolu olmalı, minimal boşluk bırakılmalı.
     - Her cümle için 6 adet 5N1K sorusu ve cevabı ekle.
 
     KURALLAR:
     - Cümleler tüm 5N1K öğelerine cevap verecek kadar zengin olmalı (Örn: "Ali, dün akşam okulda karnı acıktığı için sepetinden sessizce elmasını aldı.")
     - Soru tipleri: 'who', 'what', 'where', 'when', 'how', 'why' anahtarlarını kullan.
-    - Cümleler disleksi dostu olmalı (net yapı, karmaşık tamlamalardan kaçın).
+    - Cümleler disleksi dostu olmalı (Lexend fontu ile okunacağı için kelime seçimine dikkat et).
     - Cevaplar kısa ve öz olmalı.
     - MUTLAKA aşağıdaki JSON yapısında döndür.
 
