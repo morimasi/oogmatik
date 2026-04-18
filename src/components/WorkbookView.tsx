@@ -7,7 +7,7 @@ import { Toolbar } from './Toolbar';
 import { useAuthStore } from '../store/useAuthStore';
 import { useStudentStore } from '../store/useStudentStore';
 import { ActivityImporterModal } from './ActivityImporterModal';
-import { evaluateContent, generateWithSchema } from '../services/geminiClient.js';
+import { generateWithSchema } from '../services/geminiClient.js';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface WorkbookViewProps {
@@ -139,8 +139,6 @@ export const WorkbookView = ({
   const [isPrinting, setIsPrinting] = useState(false);
   const [isImporterOpen, setIsImporterOpen] = useState(false);
   const [isGeneratingPreface, setIsGeneratingPreface] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState<any | null>(null);
   const [layoutMode, setLayoutMode] = useState<'list' | 'grid'>('list');
 
   // Style Override State (Activity)
@@ -382,43 +380,6 @@ KRİTİK KURALLAR:
     }
   };
 
-  const handleAnalyzeWorkbook = async () => {
-    if (items.length === 0) {
-      alert('Önce kitapçığa en az bir sayfa ekleyin.');
-      return;
-    }
-    setIsAnalyzing(true);
-    try {
-      const compactItems = items.map((item, index) => ({
-        index: index + 1,
-        id: item.id,
-        type: item.itemType,
-        activityType: item.activityType,
-        title: item.itemType === 'divider' ? item.dividerConfig?.title : item.title,
-        pedagogicalNote: (item as any).data?.[0]?.pedagogicalNote || undefined,
-      }));
-
-      const payload = {
-        workbookTitle: settings.title,
-        studentName: settings.studentName,
-        schoolName: settings.schoolName,
-        year: settings.year,
-        activitySummary: compactItems,
-      };
-
-      const result = await evaluateContent(payload);
-      if (!result) {
-        alert('AI analizi şu anda kullanılamıyor. Lütfen daha sonra tekrar deneyin.');
-        return;
-      }
-      setAnalysisResult(result);
-    } catch (e) {
-      console.error('Workbook AI analizi hatası:', e);
-      alert('AI analizi sırasında bir hata oluştu.');
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1099,82 +1060,6 @@ KRİTİK KURALLAR:
                     </div>
                   </div>
 
-                  {/* AI Pedagojik Analiz */}
-                  <div className="mt-6 space-y-3 pt-4 border-t border-dashed" style={{ borderColor: 'var(--accent-muted)' }}>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-xs font-black uppercase tracking-widest flex items-center gap-2" style={{ color: 'var(--accent-color)' }}>
-                          <i className="fa-solid fa-brain"></i> AI Pedagojik Analiz
-                        </p>
-                        <p className="text-[10px] mt-1" style={{ color: 'var(--text-muted)' }}>
-                          Kitapçığın disleksi dostu tasarım ilkelerine uygunluğunu puanlar ve
-                          öneriler sunar.
-                        </p>
-                      </div>
-                      <button
-                        onClick={handleAnalyzeWorkbook}
-                        disabled={isAnalyzing || items.length === 0}
-                        className="px-3 py-1.5 rounded-full text-[11px] font-bold text-white shadow-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
-                        style={{ backgroundColor: 'var(--accent-color)' }}
-                      >
-                        {isAnalyzing ? (
-                          <>
-                            <i className="fa-solid fa-circle-notch fa-spin"></i>
-                            Analiz ediliyor...
-                          </>
-                        ) : (
-                          <>
-                            <i className="fa-solid fa-microscope"></i>
-                            Analiz Et
-                          </>
-                        )}
-                      </button>
-                    </div>
-
-                    {analysisResult && (
-                      <div className="p-3 rounded-xl space-y-2 text-xs" style={{ backgroundColor: 'var(--accent-muted)', border: '1px solid var(--border-color)' }}>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black text-white" style={{ backgroundColor: 'var(--accent-color)' }}>
-                              SKOR: {analysisResult.score ?? '--'}/100
-                            </span>
-                            <span className="text-[11px] font-bold" style={{ color: 'var(--text-primary)' }}>
-                              {analysisResult.verdict || 'Değerlendirme'}
-                            </span>
-                          </div>
-                        </div>
-                        {Array.isArray(analysisResult.analysis) &&
-                          analysisResult.analysis.length > 0 && (
-                            <ul className="space-y-1 max-h-40 overflow-y-auto custom-scrollbar pr-1">
-                              {analysisResult.analysis.map((item: any, idx: number) => (
-                                <li key={idx} className="flex gap-2">
-                                  <span
-                                    className={`mt-0.5 text-[10px] ${item.type === 'success'
-                                      ? 'text-emerald-500'
-                                      : item.type === 'warning'
-                                        ? 'text-amber-500'
-                                        : 'text-red-500'
-                                      }`}
-                                  >
-                                    <i className="fa-solid fa-circle"></i>
-                                  </span>
-                                  <div>
-                                    <p className="text-[11px] font-semibold" style={{ color: 'var(--text-primary)' }}>
-                                      {item.message}
-                                    </p>
-                                    {item.suggestion && (
-                                      <p className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
-                                        Öneri: {item.suggestion}
-                                      </p>
-                                    )}
-                                  </div>
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                      </div>
-                    )}
-                  </div>
                 </>
               )}
             </div>

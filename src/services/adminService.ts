@@ -4,7 +4,7 @@ import { db } from './firebaseClient.js';
 import * as firestore from "firebase/firestore";
 import { DynamicActivity, PromptTemplate, PromptSnippet, StaticContentItem, ActivityDraft, PromptVersion } from '../types/admin.js';
 import { User, UserRole, UserStatus } from '../types/core.js';
-import { generateWithSchema, evaluateContent } from './geminiClient.js';
+import { generateWithSchema } from './geminiClient.js';
 
 const { collection, doc, getDocs, setDoc, query, where, updateDoc, deleteDoc, getDoc } = firestore;
 
@@ -94,9 +94,6 @@ export const adminService = {
         return await generateWithSchema(appliedTemplate, { type: 'OBJECT' });
     },
 
-    auditActivity: async (content: any) => {
-        return await evaluateContent(content);
-    },
 
     // --- SNIPPETS ---
     getAllSnippets: async (): Promise<PromptSnippet[]> => {

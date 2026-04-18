@@ -32,8 +32,6 @@ export const PromptSimulator = ({ prompt }: { prompt: PromptTemplate }) => {
     const [variables, setVariables] = useState<Record<string, string>>({});
     const [result, setResult] = useState<WorksheetData>(null);
     const [loading, setLoading] = useState(false);
-    const [auditReport, setAuditReport] = useState<{ score: number; verdict: string; analysis: any[] } | null>(null);
-    const [isAuditing, setIsAuditing] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [viewMode, setViewMode] = useState<'preview' | 'json'>('preview');
 
@@ -74,12 +72,6 @@ export const PromptSimulator = ({ prompt }: { prompt: PromptTemplate }) => {
 
             setResult(aiResponse);
 
-            // PEDAGOJİK DENETİMİ BAŞLAT (Arka planda)
-            setIsAuditing(true);
-            adminService.auditActivity(aiResponse).then(report => {
-                setAuditReport(report);
-                setIsAuditing(false);
-            });
 
         } catch (err: any) {
             console.error("Simülasyon Hatası:", err);
@@ -147,45 +139,7 @@ export const PromptSimulator = ({ prompt }: { prompt: PromptTemplate }) => {
                     </select>
                 </div>
 
-                {/* AI PEDAGOG RAPOR KARTI */}
-                {result && (
-                    <div className="mt-4 pt-4 border-t border-zinc-800 animate-in slide-in-from-left-4 duration-500">
-                        <div className="flex items-center justify-between mb-3">
-                            <span className="text-[9px] font-black text-zinc-500 uppercase">AI PEDAGOG KARNESİ</span>
-                            {isAuditing && <span className="text-[8px] text-indigo-400 animate-pulse">Analiz ediliyor...</span>}
-                        </div>
 
-                        {auditReport ? (
-                            <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800 space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] text-zinc-400 font-bold">UYGUNLUK SKORU</span>
-                                        <span className={`text-2xl font-black ${auditReport.score >= 80 ? 'text-emerald-500' : auditReport.score >= 50 ? 'text-amber-500' : 'text-red-500'}`}>
-                                            {auditReport.score}/100
-                                        </span>
-                                    </div>
-                                    <div className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase border ${auditReport.score >= 80 ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-amber-500/10 border-amber-500/20 text-amber-400'}`}>
-                                        {auditReport.verdict}
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2 max-h-40 overflow-y-auto custom-scrollbar pr-1">
-                                    {auditReport.analysis?.map((item: any, idx: number) => (
-                                        <div key={idx} className={`p-2 rounded-lg text-[9px] border ${item.type === 'error' ? 'bg-red-500/10 border-red-500/20 text-red-300' : item.type === 'warning' ? 'bg-amber-500/10 border-amber-500/20 text-amber-300' : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-300'}`}>
-                                            <div className="font-bold mb-0.5 flex items-center gap-1.5">
-                                                <i className={`fa-solid ${item.type === 'error' ? 'fa-circle-xmark' : item.type === 'warning' ? 'fa-triangle-exclamation' : 'fa-circle-check'}`}></i>
-                                                {item.message}
-                                            </div>
-                                            {item.suggestion && <div className="opacity-70 italic pl-4">"{item.suggestion}"</div>}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        ) : (
-                            !isAuditing && <div className="text-[9px] text-zinc-600 italic text-center">Rapor oluşturulamadı.</div>
-                        )}
-                    </div>
-                )}
             </div>
 
             {/* SAĞ PANEL: ÖNİZLEME */}

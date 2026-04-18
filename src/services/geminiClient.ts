@@ -43,94 +43,11 @@ PRENSİPLER:
 4. Yanıtında sadece saf JSON döndür, markdown kullanma.
 `;
 
-const PEDAGOGICAL_AUDITOR_INSTRUCTION = `
-Sen, "Özel Öğrenme Güçlüğü (Disleksi)" alanında uzmanlaşmış kıdemli bir PEDAGOG ve KLİNİK PSİKOLOGSUN.
-GÖREVİN: Sana verilen eğitim materyali verisini (JSON) analiz etmek ve dislektik bireyler için uygunluğunu puanlamak.
-
-DENETİM KRİTERLERİ:
-1. Negatif Dil: "-me, -ma" ekleri veya "yapma, etme" gibi olumsuz emir kipleri var mı? (Dislektik beyin olumsuzu işlemekte zorlanır).
-2. Karmaşıklık: Yönergeler çok mu uzun? (Kısa işleyen bellek yükü).
-3. Görsel Yük: Ekran çok mu kalabalık?
-4. Hedef Odaklılık: Aktivite tek bir beceriye mi odaklanıyor?
-
-ÇIKTI FORMATI (JSON):
-{
-    "score": 0-100 arası sayı,
-    "verdict": "Mükemmel" | "İyi" | "Riskli" | "Kritik",
-    "analysis": [
-        { "type": "success" | "warning" | "error", "message": "Tespit edilen durum", "suggestion": "Öneri" }
-    ]
-}
-`;
-
 // Pedagojik Analiz Tipleri
 export interface MultimodalFile {
   data: string;
   mimeType: string;
 }
-
-/**
- * AI PEDAGOG: İçerik Denetimi Yapar (Proxy üzerinden)
- */
-export const evaluateContent = async (content: any) => {
-  if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
-    return {
-      score: 85,
-      verdict: 'İyi',
-      analysis: [{ type: 'success', message: 'Test message', suggestion: 'Test suggestion' }],
-    };
-  }
-
-  const url = `/api/generate`;
-
-  const prompt = `
-    [ANALİZ EDİLECEK İÇERİK]
-    ${JSON.stringify(content)}
-    
-    Lütfen yukarıdaki materyali disleksi dostu tasarım ilkelerine göre acımasızca eleştir ve puanla.
-    `;
-
-  const schema = {
-    type: 'OBJECT',
-    properties: {
-      score: { type: 'NUMBER' },
-      verdict: { type: 'STRING', enum: ['Mükemmel', 'İyi', 'Riskli', 'Kritik'] },
-      analysis: {
-        type: 'ARRAY',
-        items: {
-          type: 'OBJECT',
-          properties: {
-            type: { type: 'STRING', enum: ['success', 'warning', 'error'] },
-            message: { type: 'STRING' },
-            suggestion: { type: 'STRING' },
-          },
-          required: ['type', 'message', 'suggestion'],
-        },
-      },
-    },
-    required: ['score', 'verdict', 'analysis'],
-  };
-
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        prompt,
-        systemInstruction: PEDAGOGICAL_AUDITOR_INSTRUCTION,
-        schema,
-        model: MASTER_MODEL,
-      }),
-    });
-
-    if (!response.ok) return null;
-    const data = await response.json();
-    return data;
-  } catch (e) {
-    console.error('Pedagojik analiz hatası:', e);
-    return null;
-  }
-};
 
 /**
  * Simple wrapper for basic text generation
