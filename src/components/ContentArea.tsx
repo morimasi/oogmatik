@@ -376,32 +376,67 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                       downloadLink={
                         <button
                           onClick={async () => {
-                            // ULTRA PROFESYONEL YAZDIRMA AKIŞI
-                            const { forceRenderAllPages, ensurePrintStyle } = await import('../utils/print/CSSInjector');
-                            const { printService } = await import('../utils/printService');
-                            const store = usePaperSizeStore.getState();
-                            
-                            // 1. Tüm sayfaların render edilmesini zorla (LazyPage'leri aşar)
-                            forceRenderAllPages();
-                            // 2. Yazdırma stillerini enjekte et (Zorunlu görünürlük)
-                            ensurePrintStyle();
-
-                            // Kısa bir bekleme (Renderların tamamlanması için)
-                            setTimeout(async () => {
-                              const targetSelector = document.getElementById('print-container')
-                                ? '#print-container'
-                                : '.worksheet-page';
+                            try {
+                              console.log('--- Oogmatik Print Engine Start ---');
                               
-                              await printService.generatePdf(
-                                targetSelector,
-                                activeWorksheetTitle || 'Oogmatik_Etkinlik',
-                                { 
-                                  action: 'print', 
-                                  paperSize: store.paperSize || 'A4',
-                                  quality: 'high'
+                              // 1. Modülleri yükle
+                              const printUtils = await import('../utils/print/CSSInjector');
+                              const printHub = await import('../utils/printService');
+                              
+                              if (!printHub.printService) {
+                                console.error('PrintService not found in hub');
+                                alert('Yazdırma servisi başlatılamadı. Lütfen sayfayı yenileyin.');
+                                return;
+                              }
+
+                              const service = printHub.printService;
+                              const store = usePaperSizeStore.getState();
+                              
+                              // 2. Sayfaları görünür yap (Lazy rendering bypass)
+                              console.log('Forcing all pages to render...');
+                              printUtils.forceRenderAllPages();
+                              printUtils.ensurePrintStyle(store.paperSize || 'A4');
+
+                              // 3. Render için bekleme
+                              setTimeout(async () => {
+                                try {
+                                  // Selector önceliği: #print-container > .worksheet-page > .print-page
+                                  const selectOrder = ['#print-container', '.worksheet-page', '.print-page', '.universal-mode-canvas'];
+                                  let finalSelector = '';
+                                  
+                                  for (const sel of selectOrder) {
+                                    if (document.querySelector(sel)) {
+                                      finalSelector = sel;
+                                      break;
+                                    }
+                                  }
+
+                                  if (!finalSelector) {
+                                    console.error('No printable elements found with any known selector');
+                                    alert('Yazdırılacak içerik bulunamadı. Lütfen sayfanın yüklendiğinden emin olun.');
+                                    return;
+                                  }
+
+                                  console.log(`Executing print with selector: ${finalSelector}`);
+                                  await service.generatePdf(
+                                    finalSelector,
+                                    activeWorksheetTitle || 'Oogmatik_Dosya',
+                                    { 
+                                      action: 'print', 
+                                      paperSize: store.paperSize || 'A4',
+                                      quality: 'high'
+                                    }
+                                  );
+                                  console.log('--- Oogmatik Print Engine Success ---');
+                                } catch (innerErr: any) {
+                                  console.error('Print Execution Error:', innerErr);
+                                  alert(`Yazdırma yürütülemedi: ${innerErr.message}`);
                                 }
-                              );
-                            }, 300);
+                              }, 500);
+                            } catch (err: any) {
+                              console.error('Print Initiation Error:', err);
+                              alert(`Sistem başlatılamadı: ${err.message}`);
+                            }
                           }}
                           className="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white rounded-2xl text-xs font-black transition-all flex items-center gap-3 shadow-xl shadow-indigo-200/50 border border-white/20 active:scale-95 group"
                         >
