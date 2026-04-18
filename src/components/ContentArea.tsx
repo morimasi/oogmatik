@@ -171,7 +171,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     }
   };
   const { isEditMode, setEditMode, zoomScale, setZoomScale } = useAppStore();
-  const [processedData, setProcessedData] = useState<SingleWorksheetData[]>([]);
+
 
   // Scroller container ref
   const scrollContainerRef = useRef<HTMLDivElement>(null);
