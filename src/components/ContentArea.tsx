@@ -373,77 +373,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                       }
                       zoom={zoomScale}
                       onZoomChange={setZoomScale}
-                      downloadLink={
-                        <button
-                          onClick={async () => {
-                            try {
-                              console.log('--- Oogmatik Print Engine Start ---');
-                              
-                              // 1. Modülleri yükle
-                              const printUtils = await import('../utils/print/CSSInjector');
-                              const printHub = await import('../utils/printService');
-                              
-                              if (!printHub.printService) {
-                                console.error('PrintService not found in hub');
-                                alert('Yazdırma servisi başlatılamadı. Lütfen sayfayı yenileyin.');
-                                return;
-                              }
-
-                              const service = printHub.printService;
-                              const store = usePaperSizeStore.getState();
-                              
-                              // 2. Sayfaları görünür yap (Lazy rendering bypass)
-                              console.log('Forcing all pages to render...');
-                              printUtils.forceRenderAllPages();
-                              printUtils.ensurePrintStyle(store.paperSize || 'A4');
-
-                              // 3. Render için bekleme
-                              setTimeout(async () => {
-                                try {
-                                  // Selector önceliği: #print-container > .worksheet-page > .print-page
-                                  const selectOrder = ['#print-container', '.worksheet-page', '.print-page', '.universal-mode-canvas'];
-                                  let finalSelector = '';
-                                  
-                                  for (const sel of selectOrder) {
-                                    if (document.querySelector(sel)) {
-                                      finalSelector = sel;
-                                      break;
-                                    }
-                                  }
-
-                                  if (!finalSelector) {
-                                    console.error('No printable elements found with any known selector');
-                                    alert('Yazdırılacak içerik bulunamadı. Lütfen sayfanın yüklendiğinden emin olun.');
-                                    return;
-                                  }
-
-                                  console.log(`Executing print with selector: ${finalSelector}`);
-                                  await service.generatePdf(
-                                    finalSelector,
-                                    activeWorksheetTitle || 'Oogmatik_Dosya',
-                                    { 
-                                      action: 'print', 
-                                      paperSize: store.paperSize || 'A4',
-                                      quality: 'high'
-                                    }
-                                  );
-                                  console.log('--- Oogmatik Print Engine Success ---');
-                                } catch (innerErr: any) {
-                                  console.error('Print Execution Error:', innerErr);
-                                  alert(`Yazdırma yürütülemedi: ${innerErr.message}`);
-                                }
-                              }, 500);
-                            } catch (err: any) {
-                              console.error('Print Initiation Error:', err);
-                              alert(`Sistem başlatılamadı: ${err.message}`);
-                            }
-                          }}
-                          className="px-6 py-2.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white rounded-2xl text-xs font-black transition-all flex items-center gap-3 shadow-xl shadow-indigo-200/50 border border-white/20 active:scale-95 group"
-                        >
-                          <i className="fa-solid fa-print group-hover:rotate-12 transition-transform"></i>
-                          PROFESYONEL YAZDIR / PDF
-                        </button>
-                      }
+                      downloadLink={undefined}
 
                     >
                       <UniversalWorksheetWrapper

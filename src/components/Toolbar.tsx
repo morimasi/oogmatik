@@ -549,7 +549,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             <span className="hidden lg:inline">PDF</span>
           </button>
           <button
-            title="Yazdır"
+            title="Sistem Yazdır"
             onClick={async () => {
               try {
                 await new Promise((resolve) => setTimeout(resolve, 50));
@@ -572,6 +572,59 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           >
             <i className="fa-solid fa-print text-sm"></i>
             <span className="hidden lg:inline">Yazdır</span>
+          </button>
+          
+          {/* PROFESYONEL YAZDIRMA V2 */}
+          <button
+            title="Profesyonel Yazdır (Başlıksız/Temiz)"
+            onClick={async () => {
+              try {
+                const { forceRenderAllPages, ensurePrintStyle } = await import('../utils/print/CSSInjector');
+                const { printService } = await import('../utils/print'); // Modüler index
+                
+                // 1. Hazırlık
+                forceRenderAllPages();
+                ensurePrintStyle(paperSize);
+                
+                // 2. DOM Hazırlığı için kısa bekleme
+                setTimeout(async () => {
+                  try {
+                    const selectOrder = ['#print-container', '.worksheet-page', '.print-page', '.universal-mode-canvas'];
+                    let finalSelector = '';
+                    for (const sel of selectOrder) {
+                      if (document.querySelector(sel)) {
+                        finalSelector = sel;
+                        break;
+                      }
+                    }
+
+                    if (!finalSelector) {
+                      toast.error('Yazdırılacak içerik bulunamadı.');
+                      return;
+                    }
+
+                    await printService.generatePdf(finalSelector, settings.title || 'Oogmatik_Dosya', {
+                      action: 'print',
+                      paperSize: paperSize,
+                      quality: 'high'
+                    });
+                  } catch (innerErr) {
+                    console.error(innerErr);
+                    toast.error('Yazdırma motoru hatası.');
+                  }
+                }, 500);
+              } catch (err) {
+                console.error(err);
+                toast.error('Sistem başlatılamadı.');
+              }
+            }}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-black transition-all duration-200
+              bg-gradient-to-r from-emerald-500 text-white shadow-lg shadow-emerald-200/50
+              hover:from-emerald-600 hover:shadow-emerald-300/50 hover:scale-[1.05]
+              active:scale-95 border border-emerald-400/20 ring-1 ring-emerald-500/20"
+          >
+            <i className="fa-solid fa-file-pdf text-sm"></i>
+            <span className="hidden lg:inline">Yazdır v2</span>
           </button>
           <div className="relative" ref={snapshotMenuRef}>
             <button
