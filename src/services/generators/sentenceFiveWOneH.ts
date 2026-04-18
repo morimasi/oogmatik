@@ -28,6 +28,7 @@ export const generateSentenceFiveWOneHFromAI = async (
     KURALLAR:
     - Cümleler tüm 5N1K öğelerine cevap verecek kadar zengin olmalı (Örn: "Ali, dün akşam okulda karnı acıktığı için sepetinden sessizce elmasını aldı.")
     - Soru tipleri: 'who', 'what', 'where', 'when', 'how', 'why' anahtarlarını kullan.
+    - ÖNEMLİ: Her cümlenin ana fiilini/yüklemini (predicate) ayrıca belirt. (Örn: "aldı")
     - Cümleler disleksi dostu olmalı (Lexend fontu ile okunacağı için kelime seçimine dikkat et).
     - Cevaplar kısa ve öz olmalı.
     - MUTLAKA aşağıdaki JSON yapısında döndür.
@@ -38,6 +39,7 @@ export const generateSentenceFiveWOneHFromAI = async (
         {
           "id": "ai1",
           "sentence": "Cümle metni buraya",
+          "predicate": "Yüklem buraya",
           "difficulty": "${difficulty}",
           "ageGroup": "${ageGroup}",
           "questions": [
@@ -71,7 +73,8 @@ export const generateSentenceFiveWOneHFromAI = async (
         difficulty,
         ageGroup,
         generatedAt: new Date().toISOString(),
-        isAiGenerated: true
+        isAiGenerated: true,
+        showPredicate: options.showPredicate
       }
     };
   } catch (error: any) {

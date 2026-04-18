@@ -145,6 +145,19 @@ export const SentenceFiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChan
                             <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${options.useIcons ? 'left-7' : 'left-1'}`} />
                         </button>
                     </div>
+
+                    <div className="flex items-center justify-between">
+                        <div className="flex flex-col">
+                            <span className="text-[11px] font-bold text-zinc-700 dark:text-zinc-200">Yüklemi Göster</span>
+                            <span className="text-[10px] text-zinc-500">Soruların yanına cümlenin yüklemini ekler.</span>
+                        </div>
+                        <button 
+                            onClick={() => onChange('showPredicate', !options.showPredicate)}
+                            className={`w-12 h-6 rounded-full transition-all relative ${options.showPredicate ? 'bg-indigo-500' : 'bg-zinc-300'}`}
+                        >
+                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${options.showPredicate ? 'left-7' : 'left-1'}`} />
+                        </button>
+                    </div>
                 </div>
 
                 <div className="flex items-center gap-3 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-[1.5rem] border border-indigo-100 dark:border-indigo-800/30">

@@ -568,7 +568,7 @@ export interface FiveWOneHData extends SingleWorksheetData {
 export interface Sentence5W1HItem {
   [key: string]: unknown;
   id: string;
-  sentence: string;
+  predicate?: string;
   questions: {
     type: 'who' | 'what' | 'where' | 'when' | 'how' | 'why';
     question: string;
@@ -582,6 +582,7 @@ export interface Sentence5W1HData extends SingleWorksheetData {
     topic: string;
     itemCount: number;
     showIcons: boolean;
+    showPredicate?: boolean;
   };
   items: Sentence5W1HItem[];
 }

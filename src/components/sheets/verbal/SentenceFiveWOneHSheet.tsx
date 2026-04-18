@@ -82,7 +82,7 @@ export const SentenceFiveWOneHSheet: React.FC<Props> = ({ data }) => {
             {/* Cümle */}
             <div className="mb-3 px-3 py-2 bg-zinc-50 rounded-xl border border-zinc-100 border-l-4 border-l-indigo-500">
                 <p className="text-[12px] font-bold text-zinc-800 leading-snug">
-                    {item.sentence}
+                    {item.sentence as string}
                 </p>
             </div>
 
@@ -90,15 +90,20 @@ export const SentenceFiveWOneHSheet: React.FC<Props> = ({ data }) => {
             <div className={`grid ${item.questions.length > 3 ? 'grid-cols-2' : 'grid-cols-1'} gap-x-3 gap-y-2`}>
               {item.questions.map((q, qIdx) => (
                 <div key={qIdx} className="flex flex-col gap-1">
-                  <div className="flex items-center gap-1.5 px-1">
+                  <div className="flex items-center flex-wrap gap-1.5 px-1">
                       {getIcon(q.type)}
-                      <span className="text-[9px] font-black text-zinc-400 uppercase tracking-tighter">
+                      <span className="text-[9px] font-black text-zinc-400 uppercase tracking-tighter shrink-0">
                           {getLabel(q.type)}
                       </span>
+                      {data.settings?.showPredicate && item.predicate && (
+                        <span className="text-[8px] font-bold text-indigo-400 bg-indigo-50 px-1.5 py-0.5 rounded-md border border-indigo-100/50 animate-in fade-in slide-in-from-left-1">
+                           → {item.predicate as string}
+                        </span>
+                      )}
                   </div>
-                  <div className="h-6 border-b border-zinc-100 flex items-end pb-0.5">
+                  <div className="h-9 border-b border-zinc-100 flex items-end pb-0.5">
                       {/* Yazma Alanı Çizgisi */}
-                      <div className="w-full h-px bg-zinc-50"></div>
+                      <div className="w-full h-px bg-zinc-50/50"></div>
                   </div>
                 </div>
               ))}
