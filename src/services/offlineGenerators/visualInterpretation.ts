@@ -3,55 +3,72 @@ import { getRandomInt } from './helpers';
 
 const VISUAL_SCENES = [
     {
-        title: "Piknik Günü",
-        instruction: "Piknik karesini bir dedektif gibi inceleyin ve gizli detayları fark edin.",
+        title: "RESİM YORUMLAMA",
+        instruction: "Aşağıdaki cümleleri resme göre okuyup cevapla. Cümle Doğruysa (D) yanlışsa (Y) harfi koy.",
         imagePrompt: "A high-quality, cinematic style illustration of a family picnic in a lush green park. Golden hour lighting. A red and white checkered blanket, a basket with purple grapes and a sourdough loaf. Two children in blue and yellow shirts playing with a lime green frisbee. In the background, a small pond with three white ducks and a weeping willow tree.",
         alt: "Parkta güneşli bir günde piknik yapan aile ve göletteki ördekler.",
         pedagogicalNote: "Görsel-mekansal algı ve detay odaklı dikkat becerilerini hedefler.",
         questions: [
-            { q: "Piknik örtüsünün deseni ve rengi nedir?", type: "multiple", options: ["Kırmızı-Beyaz Kareli", "Mavi-Sarı Çizgili", "Düz Yeşil", "Pembe Puantiyeli"], answer: "Kırmızı-Beyaz Kareli", category: 'NE' },
-            { q: "Görseldeki gölette toplam kaç tane ördek yüzüyor?", type: "multiple", options: ["2", "3", "4", "5"], answer: "3", category: 'NE' },
-            { q: "Çocukların oynadığı oyuncağın (frisbee) rengi tam olarak nedir?", type: "multiple", options: ["Canlı Yeşil", "Parlak Kırmızı", "Gök Mavisi", "Turuncu"], answer: "Canlı Yeşil", category: 'NE' },
-            { q: "Sepetin içindeki ekmeğin türü nedir?", type: "open", answer: "Ekşi mayalı (Sourdough) ekmek", category: 'NE' }
+            { text: "Aile kırmızı-beyaz kareli bir örtü üzerinde piknik yapıyor.", type: "true_false", answer: "D" },
+            { text: "Sepetin içinde kırmızı elmalar var.", type: "true_false", answer: "Y" },
+            { text: "Çocuklardan biri sarı gömlek giymiş.", type: "true_false", answer: "D" },
+            { text: "Gölette dört tane beyaz göçmen kuş yüzüyor.", type: "true_false", answer: "Y" },
+            { text: "Geri planda yeşil yapraklı salkım söğüt ağacı var.", type: "true_false", answer: "D" },
+            { text: "Çocuklar mavi renkli bir topla oynuyorlar.", type: "true_false", answer: "Y" },
+            { text: "Çocukların oynadığı oyuncak canlı yeşil renktedir.", type: "true_false", answer: "D" },
+            { text: "Havada gri bulutlar var ve yağmur yağıyor.", type: "true_false", answer: "Y" }
         ]
     },
     {
-        title: "Kış Şehri Gizemi",
-        instruction: "Karla kaplı bu şehirde her şey göründüğü gibi mi? Dikkatle bak!",
+        title: "RESİM YORUMLAMA",
+        instruction: "Aşağıdaki cümleleri resme göre okuyup cevapla. Cümle Doğruysa (D) yanlışsa (Y) harfi koy.",
         imagePrompt: "Hyper-realistic winter street at dusk. Warm orange light from street lamps reflecting on fresh snow. A red vintage car is parked near a bakery. An old man in a green coat is walking a white poodle. On the bakery window, there is a golden 'Closed' sign and a small cat silhouette.",
         alt: "Karlı bir kış akşamında sokak lambaları ve kırmızı araba.",
         pedagogicalNote: "Şekil-zemin algısı ve düşük ışıkta görsel ayırım becerilerini geliştirir.",
         questions: [
-            { q: "Sokak lambalarından yayılan ışığın rengi nedir?", type: "multiple", options: ["Sıcak Turuncu", "Soğuk Mavi", "Parlak Beyaz", "Mor"], answer: "Sıcak Turuncu", category: 'NE ZAMAN' },
-            { q: "Bakery (Fırın) camında hangi hayvanın silüeti görünüyor?", type: "multiple", options: ["Kedi", "Köpek", "Kuş", "Tavşan"], answer: "Kedi", category: 'NE' },
-            { q: "Yaşlı adamın yanındaki köpeğin cinsi/rengi nedir?", type: "multiple", options: ["Beyaz Poodle", "Siyah Labrador", "Kahverengi Golden", "Gri Kurt Köpeği"], answer: "Beyaz Poodle", category: 'KİM' },
-            { q: "Park halindeki antika araba ne renktir?", type: "open", answer: "Kırmızı", category: 'NE' }
+            { text: "Fırının camında 'Kapalı' yazan altın rengi bir tabela var.", type: "true_false", answer: "D" },
+            { text: "Sokak lambalarından mavi renkli soğuk bir ışık yayılıyor.", type: "true_false", answer: "Y" },
+            { text: "Yaşlı adam yeşil bir manto giymiş.", type: "true_false", answer: "D" },
+            { text: "Fırının önünde park halinde sarı bir okul otobüsü var.", type: "true_false", answer: "Y" },
+            { text: "Yaşlı adam beyaz bir köpeği yürüyüşe çıkarmış.", type: "true_false", answer: "D" },
+            { text: "Sokaktaki karlar erimiş ve her yer çamur olmuş.", type: "true_false", answer: "Y" },
+            { text: "Fırın camındaki silüet bir kediye aittir.", type: "true_false", answer: "D" },
+            { text: "Park halindeki antika arabanın rengi kırmızıdır.", type: "true_false", answer: "D" },
+            { text: "Camın arkasında bir köpek dışarıyı izliyor.", type: "true_false", answer: "Y" }
         ]
     },
     {
-        title: "Deniz Altı Krallığı",
-        instruction: "Okyanusun derinliklerindeki sihirli dünyayı analiz et.",
+        title: "RESİM YORUMLAMA",
+        instruction: "Aşağıdaki cümleleri resme göre okuyup cevapla. Cümle Doğruysa (D) yanlışsa (Y) harfi koy.",
         imagePrompt: "Vibrant underwater coral reef scene. Deep blue water with shafts of sunlight piercing through. A large orange octopus is hiding behind purple coral. A school of neon blue fish is swimming in a spiral. A sunken wooden treasure chest is half-buried in the white sand, slightly open showing gold coins.",
         alt: "Mercan resifleri arasında saklanan ahtapot ve hazine sandığı.",
         pedagogicalNote: "Görsel tarama ve renk-biçim sabitliği becerilerini destekler.",
         questions: [
-            { q: "Turuncu ahtapot hangi renk mercanın arkasına saklanmış?", type: "multiple", options: ["Mor", "Yeşil", "Sarı", "Kırmızı"], answer: "Mor", category: 'NEREDE' },
-            { q: "Mavi balık sürüsü hangi formda yüzüyor?", type: "multiple", options: ["Sarmal (Spiral)", "Düz Hat", "Üçgen", "Dağınık"], answer: "Sarmal (Spiral)", category: 'NASIL/NİÇİN' },
-            { q: "Kumların arasına yarı gömülü duran nesne nedir?", type: "multiple", options: ["Hazine Sandığı", "Eski Bir Gemi", "Dev Bir İnci", "Denizaltı"], answer: "Hazine Sandığı", category: 'NE' },
-            { q: "Hazine sandığının içinde ne parlıyor?", type: "open", answer: "Altın sikkeler", category: 'NE' }
+            { text: "Büyük ahtapot mor renkli mercanın arkasına saklanmış.", type: "true_false", answer: "D" },
+            { text: "Hazine sandığının kapağı tamamen kapalı.", type: "true_false", answer: "Y" },
+            { text: "Mavi balıklar sarmal şeklinde yüzüyorlar.", type: "true_false", answer: "D" },
+            { text: "Kumların arasında paslı bir çapa var.", type: "true_false", answer: "Y" },
+            { text: "Ahtapotun rengi parlak turuncudur.", type: "true_false", answer: "D" },
+            { text: "Sandığın içinden gümüş sikkeler dökülüyor.", type: "true_false", answer: "Y" },
+            { text: "Hazine sandığı kısmen beyaz kuma gömülü duruyor.", type: "true_false", answer: "D" },
+            { text: "Su altı sahnesi karanlık ve ürkütücü görünüyor.", type: "true_false", answer: "Y" }
         ]
     },
     {
-        title: "Büyülü Kütüphane",
-        instruction: "Bu kütüphanede kitaplar uçuyor olabilir mi? İyi incele!",
+        title: "RESİM YORUMLAMA",
+        instruction: "Aşağıdaki cümleleri resme göre okuyup cevapla. Cümle Doğruysa (D) yanlışsa (Y) harfi koy.",
         imagePrompt: "Whimsical ancient library with floating books and glowing lanterns. High arched ceilings. A young girl with round glasses is sitting on a rolling ladder, holding a thick blue book. A small mechanical owl is perched on a stack of encyclopedias. Dust motes dancing in the light beams.",
         alt: "Uçan kitaplar ve ışıldayan fenerlerle dolu masalsı bir kütüphane.",
         pedagogicalNote: "Mekansal organizasyon ve detaylı görsel dikkat üzerine odaklanır.",
         questions: [
-            { q: "Kütüphane tavanlarının mimari şekli nasıldır?", type: "multiple", options: ["Yüksek Kemerli", "Düz ve Alçak", "Cam Tavan", "Kubbeli"], answer: "Yüksek Kemerli", category: 'NE' },
-            { q: "Merdivende oturan kızın elindeki kitap ne renktir?", type: "multiple", options: ["Mavi", "Kırmızı", "Yeşil", "Sarı"], answer: "Mavi", category: 'NE' },
-            { q: "Ansiklopedilerin üzerinde duran mekanik hayvan hangisidir?", type: "multiple", options: ["Baykuş", "Kedi", "Fare", "Ejderha"], answer: "Baykuş", category: 'NE' },
-            { q: "Işık demetlerinin içinde ne dans ediyor?", type: "open", answer: "Toz zerreleri", category: 'NE' }
+            { text: "Küçük kız yuvarlak çerçeveli gözlük takıyor.", type: "true_false", answer: "D" },
+            { text: "Ansiklopedilerin üzerinde canlı ve siyah bir kedi oturuyor.", type: "true_false", answer: "Y" },
+            { text: "Kızın elinde kalın, mavi ciltli bir kitap var.", type: "true_false", answer: "D" },
+            { text: "Kütüphanenin tavanı dümdüz ve alçaktır.", type: "true_false", answer: "Y" },
+            { text: "Kütüphanede bazı kitaplar havada uçuyor.", type: "true_false", answer: "D" },
+            { text: "Kitapların üzerinde duran kuş mekanik bir baykuştur.", type: "true_false", answer: "D" },
+            { text: "Kız yerde yumuşak bir minderin üzerinde oturuyor.", type: "true_false", answer: "Y" },
+            { text: "Odadaki ışık demetleri arasında toz zerreleri görülüyor.", type: "true_false", answer: "D" }
         ]
     }
 ];
@@ -88,3 +105,4 @@ export const generateOfflineVisualInterpretation = async (options: GeneratorOpti
         };
     }) as any;
 };
+

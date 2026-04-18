@@ -8,10 +8,9 @@ export class VisualInterpretationGenerator extends BaseGenerator<WorksheetData> 
   }
 
   protected async execute(options: GeneratorOptions): Promise<WorksheetData> {
-    const topic = options.topic || 'daily_life';
+    const topic = options.topic || 'çocuklar ve oyun';
     const difficulty = options.difficulty || 'Orta';
-    const questionStyle = options.questionStyle || 'mixed';
-    const itemCount = options.itemCount || 5;
+    const itemCount = options.itemCount || 10;
     const visualStyle = options.visualStyle || 'illustration';
     const student = options.studentContext;
 
@@ -22,30 +21,23 @@ export class VisualInterpretationGenerator extends BaseGenerator<WorksheetData> 
     }
 
     const prompt = `Sen "Disleksi ve Özel Öğrenme Güçlüğü" ve "Nöro-Pedagoji" alanında dünya çapında uzman, üst düzey bir eğitim materyali tasarımcısısın.
-Görev: Öğrencinin görsel algı, detay farkındalığı, görsel-mekansal akıl yürütme ve mantıksal çıkarım (inference) yeteneklerini en üst seviyeye taşıyan "Görsel Yorumlama ve Analiz" etkinliği üretmek.
+Görev: Öğrencinin görsel algı, detay farkındalığı ve mantıksal çıkarım yeteneklerini geliştiren "Resim Yorumlama (Doğru/Yanlış)" etkinliği üretmek.
 
 ETKİNLİK PARAMETRELERİ:
 - Tema/Konu: "${topic}" 
 - Zorluk Seviyesi: "${difficulty}" 
-- Görsel Stili: "${visualStyle}"
 - Soru Sayısı: ${itemCount}
-- Soru Tarzı: "${questionStyle}"
 
 ${studentCtx}
 
 AŞAMA 1: GÖRSEL KURGUSU (imagePrompt)
-${visualStyle === 'illustration' ? 'educational flat illustration for children, bright colors, detailed scene, Pixar style' : visualStyle === 'cartoon' ? 'colorful cartoon scene for children, fun characters' : 'detailed educational diagram with labels'} formatında İNGİLİZCE prompt yaz. 
-[KRİTİK]: Görseldeki detayların zenginliği, 5N1K sorularının derinliğini belirler. Bu yüzden sahnede en az 8-10 adet spesifik, isimlendirilebilir ve analiz edilebilir nesne/olay kurgula.
+Detaylı, çocukların ilgisini çekecek parlak renkli bir illüstrasyon (örneğin: masada oyun hamuru ile oynayan çocuklar, parkta piknik, hayvanat bahçesi vb.) için İNGİLİZCE prompt yaz.
+[KRİTİK]: Görseldeki detayların zenginliği, yazacağın Doğru/Yanlış cümlelerinin temelini oluşturacak. En az 10 spesifik detay içermeli.
 
-AŞAMA 2: PEDAGOJİK SORULAR VE 5N1K ANALİZİ
-Sorular, görseldeki spesifik detaylara odaklanmalı ve şu 5N1K yapısını mutlaka içermelidir:
-- KİM: Görseldeki karakterlerin kimliği, rolleri, kıyafetleri veya duyguları.
-- NE: Gerçekleşen olay, nesnelerin işlevi veya dikkat çekici objeler (örn: masanın üzerindeki nesne).
-- NEREDE: Mekan analizi, nesnelerin birbirine göre konumu (sağında, altında vb.).
-- NE ZAMAN: Zaman dilimi ipuçları (gölge boyu, ışık rengi, mevsim, saat).
-- NASIL/NİÇİN: Olayların oluş biçimi, mantıksal çıkarımlar ve neden-sonuç ilişkileri.
-
-Sorular disleksi dostu, kısa ve net olmalıdır. Zorluk seviyesine (${difficulty}) göre detay seviyesini ayarla.
+AŞAMA 2: DOĞRU / YANLIŞ CÜMLELERİ
+Görseldeki detaylara göre tam ${itemCount} adet kısa ve net cümle yaz. 
+Bu cümlelerin yaklaşık yarısı görselle TAMAMEN UYUMLU (Doğru - 'D'), diğer yarısı ise görselde OLMAYAN VEYA YANLIŞ olan detayları (Yanlış - 'Y') içersin.
+Cümleler disleksi dostu, karmaşık olmayan düz cümleler olmalıdır (Örn: "Çocuklar masada oturuyor.", "Sağda oturan çocuğun saçı sarı.").
 
 JSON ÇIKTI FORMATI: (Yalnızca geçerli JSON döndür)
 {
@@ -53,9 +45,9 @@ JSON ÇIKTI FORMATI: (Yalnızca geçerli JSON döndür)
     "visualStyle": "${visualStyle}",
     "difficultyLevel": "${difficulty}",
     "activityType": "VISUAL_INTERPRETATION",
-    "title": "Üst Düzey Analitik Başlık",
-    "instruction": "Öğrenciyi dedektifliğe davet eden, merak uyandırıcı yönerge.",
-    "pedagogicalNote": "Bu etkinlikte görsel ayrıştırma, figür-zemin algısı ve mantıksal çıkarım becerileri hedeflenir.",
+    "title": "RESİM YORUMLAMA",
+    "instruction": "Aşağıdaki cümleleri resme göre okuyup cevapla. Cümle Doğruysa (D) yanlışsa (Y) harfi koy.",
+    "pedagogicalNote": "Bu etkinlikte görsel ayrıştırma ve görsel detayları anlama becerileri hedeflenir.",
     "layoutArchitecture": {
         "blocks": [
             {
@@ -70,15 +62,14 @@ JSON ÇIKTI FORMATI: (Yalnızca geçerli JSON döndür)
                 "content": {
                     "items": [
                         {
-                            "q": "Görseldeki [nesne/kişi] ne renktedir?",
-                            "type": "multiple",
-                            "options": ["Seçenek 1", "Seçenek 2", "Seçenek 3", "Seçenek 4"],
-                            "answer": "Doğru Seçenek"
+                            "text": "Sarı saçlı çocuk yemek yiyiyor.",
+                            "type": "true_false",
+                            "answer": "Y"
                         },
                         {
-                            "q": "[Olay/Durum] hakkında ne söyleyebiliriz?",
-                            "type": "open",
-                            "answer": "Beklenen çıkarım"
+                            "text": "Çocuklar oyun hamurları ile oynuyor.",
+                            "type": "true_false",
+                            "answer": "D"
                         }
                     ]
                 }
@@ -90,7 +81,7 @@ JSON ÇIKTI FORMATI: (Yalnızca geçerli JSON döndür)
     // AI'dan üretimi bekle
     const generatedData = await generateCreativeMultimodal({
       prompt: prompt,
-      temperature: 0.7
+      temperature: 0.8
     });
 
     // Görsel üretimini dene
