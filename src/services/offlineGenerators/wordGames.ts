@@ -61,7 +61,6 @@ export const generateOfflineHiddenPasswordGrid = async (options: GeneratorOption
             results.push({
                 title: "Gizli Şifre Matrisi",
                 instruction: "Kutuların içindeki farklı harfleri sırasıyla bularak gizli kelimeyi oluştur.",
-                pedagogicalNote: meta.pedagogicalNote,
                 targetSkills: meta.targetSkills,
                 settings: {
                 gridSize,
@@ -166,8 +165,7 @@ export const generateOfflineWordSearch = async (options: GeneratorOptions): Prom
         results.push({
             title: `Kelime Avı: ${topic || 'Karışık'}`,
             instruction: "Listelenen kelimeleri bulmaca içinde bularak üzerini çiz.",
-            pedagogicalNote: meta.pedagogicalNote,
-            targetSkills: meta.targetSkills,
+                targetSkills: meta.targetSkills,
             grid,
             words: placedWords
         });

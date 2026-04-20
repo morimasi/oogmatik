@@ -7,7 +7,6 @@ export interface FiveWOneHLibraryEntry {
     paragraphs: string[];
     ageGroup: '5-7' | '8-10' | '11-13' | '14+';
     difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor';
-    pedagogicalNote: string;
     questions: FiveWOneHQuestion[];
 }
 
@@ -19,7 +18,6 @@ export const FIVE_W_ONE_H_LIBRARY: FiveWOneHLibraryEntry[] = [
         paragraphs: ["Sibel'in bir kedisi var. Çok iyi ve çok yaramaz bir kedi. Oyun oynamaya bayılır, oynamazsa darılır. Tüyleri bembeyaz burnu kıpkırmızı bir kedi. Kedinin adı Mırnav. Sibel onu süt ile besler. Mırnav sütü şapır şupur içer.", "Bir gün pencere açılmış. Mırnav pencereye çıkmış. Birden pencere kapanmış ve Mırnav dışarıda kalmış. Çok korkmuş. Sibel Mırnav'ın sesini duymuş. Onu içeriye almış."],
         ageGroup: '5-7',
         difficulty: 'çok kolay',
-        pedagogicalNote: "Bu aktivite okul öncesi ve 1. sınıf öğrencileri için somut nesneler ve basit olay örgüleri üzerinden temel okuma anlama becerilerini destekler.",
         questions: [
             { id: 'q1', type: 'who', questionText: 'Sibel\'in kedisinin adı nedir?', answerType: 'open_ended', correctAnswer: 'Mırnav' },
             { id: 'q2', type: 'what', questionText: 'Sibel kedisini ne ile besler?', answerType: 'open_ended', correctAnswer: 'Süt' },
@@ -36,7 +34,6 @@ export const FIVE_W_ONE_H_LIBRARY: FiveWOneHLibraryEntry[] = [
         paragraphs: ["Altan ve Ali çok iyi arkadaşlarmış. Ali'ye, babası yeni bir top almış. İki arkadaş yeni topla önce futbol, sonra yakar top, en sonunda da saydırmaca oynamışlar.", "Doyasıya eğlenmişler. Bir bakmışlar akşam olmuş. İkisi de yorgun bir şekilde evlerine dönmüşler. Zamanın nasıl geçtiğini anlamamışlar."],
         ageGroup: '8-10',
         difficulty: 'kolay',
-        pedagogicalNote: "Sosyal etkileşim ve günlük rutinler üzerinden neden-sonuç ilişkisi kurma becerisini geliştirir.",
         questions: [
             { id: 'q1', type: 'who', questionText: 'Ali\'ye topu kim almış?', answerType: 'open_ended', correctAnswer: 'Babası' },
             { id: 'q2', type: 'what', questionText: 'Ali ve Altan hangi oyunları oynamışlar?', answerType: 'open_ended', correctAnswer: 'Futbol, yakar top ve saydırmaca' },
@@ -53,7 +50,6 @@ export const FIVE_W_ONE_H_LIBRARY: FiveWOneHLibraryEntry[] = [
         paragraphs: ['Aslan ormanda uyuyormuş. Bir fare gelip aslanın vücudunun üzerinde dolaşmaya başlamış. Aslan uyanmış, fareyi yakalamış. Küçük fare yalvarmaya başlamış: "Bırak beni. Gün olur beni hatırlarsın, benim de sana bir iyiliğim dokunur." demiş. Aslan gülmüş ve fareyi bırakmış.', 'Aradan zaman geçmiş. Avcılar aslanı bir tuzağa düşürmüşler. Onu sımsıkı bağlamışlar. Fare, aslanın inlemelerini duymuş, koşarak gelmiş. İpleri kemirip aslanı kurtarmış.'],
         ageGroup: '8-10',
         difficulty: 'orta',
-        pedagogicalNote: "Klasik fabl yapısı üzerinden çıkarım yapma ve ana fikri kavrama becerilerini destekler.",
         questions: [
             { id: 'q1', type: 'who', questionText: 'İpleri kemirerek aslanı kim kurtarmış?', answerType: 'open_ended', correctAnswer: 'Fare' },
             { id: 'q2', type: 'what', questionText: 'Avcılar aslana ne yapmışlar?', answerType: 'open_ended', correctAnswer: 'Tuzağa düşürüp bağlamışlar' },
@@ -70,7 +66,6 @@ export const FIVE_W_ONE_H_LIBRARY: FiveWOneHLibraryEntry[] = [
         paragraphs: ['Bir gün tilkinin biri bir kuyuya düşmüş. Çok uğraşmış ama bir türlü kuyudan çıkamamış. O sırada oradan bir teke geçiyormuş. Teke susadığı için kuyuya bakmış. Bir de ne görsün? Kuyuda bir tilki!', 'Tilki kurnazca gülmüş, suyu bir övmüş ki tekenin ağzının suyu akmış. Tilki "Hadi durma aşağı in" deyince teke kuyuya inmiş. Suyu kana kana içtikten sonra tilkiye "Eee, nasıl çıkacağız buradan?" diye sormuş.', 'Tilki "Sen hiç merak etme. Ben buradan ikimizi de kurtarmanın yolunu biliyorum. Sen şimdi doğrulup ayaklarını duvara dayar, omuzlarını havaya dikersin. Ben de senin omuzlarına tırmanıp çıkar, sonra seni çekerim" demiş. Teke bu aklı çok beğenmiş. Tilki tekenin omuzlarına basıp kuyudan çıkmış ve hemen oradan uzaklaşmış.'],
         ageGroup: '11-13',
         difficulty: 'zor',
-        pedagogicalNote: "Karmaşık olay örgüsü ve dolaylı anlatım üzerinden ileri düzey çıkarım ve eleştirel düşünme becerilerini geliştirir.",
         questions: [
             { id: 'q1', type: 'who', questionText: 'Kuyudan kendi başına çıkan kimdir?', answerType: 'open_ended', correctAnswer: 'Tilki' },
             { id: 'q2', type: 'what', questionText: 'Tilki kuyuya neden düşmüş?', answerType: 'open_ended', correctAnswer: 'Yanlışlıkla / Bir gün düşmüş' },
@@ -87,7 +82,6 @@ export const FIVE_W_ONE_H_LIBRARY: FiveWOneHLibraryEntry[] = [
         paragraphs: ["Atatürk bir gün bir köy okuluna gitmiş. Sınıfa girdiğinde öğretmen hemen ayağa kalkmış ve yerini ona vermek istemiş.", "Atatürk \"Hayır, yerinize oturunuz ve dersinize devam ediniz. Unutmayınız ki cumhurbaşkanı bile sınıfta öğretmenden sonra gelir\" demiş. Atatürk, öğretmenlik mesleğine ve eğitime ne kadar değer verdiğini bu sözüyle göstermiş."],
         ageGroup: '11-13',
         difficulty: 'orta',
-        pedagogicalNote: "Tarihi şahsiyetler ve değerler eğitimi üzerinden ana fikir çıkarma ve toplumsal rolleri anlama becerisini destekler.",
         questions: [
             { id: 'q1', type: 'who', questionText: 'Atatürk sınıfa girdiğinde kim ayağa kalkmış?', answerType: 'open_ended', correctAnswer: 'Öğretmen' },
             { id: 'q2', type: 'what', questionText: 'Atatürk öğretmene ne demiş?', answerType: 'open_ended', correctAnswer: 'Yerinize oturunuz ve dersinize devam ediniz' },
@@ -104,7 +98,6 @@ export const FIVE_W_ONE_H_LIBRARY: FiveWOneHLibraryEntry[] = [
         paragraphs: ['Ben bir küçük damlayım. Gölde yaşıyordum. Çevremde pek çok arkadaşım vardı. Sonra hava ısındı. Bende hafifledim. Havaya çıkmaya başladım.', 'Annem bana seslendi: "Korkma! Buhar oldun. Yine buluşacağız." Anneme el salladım. Bir süre havada gezindim. Bulutlarla tanıştım.', 'Sonra hava soğudu. Birden yere düşmeye başladım. Hoop! Topraktayım artık. Toprak beni görünce çok sevindi. Sımsıkı sarıldı bana. İçine çekti beni. Toprağın içinde kaydım. Bir de ne göreyim? Yine göldeyim.'],
         ageGroup: '8-10',
         difficulty: 'orta',
-        pedagogicalNote: "Döngüsel olay örgüleri (su döngüsü) üzerinden süreç takibi ve kişiselleştirilmiş anlatımı anlama becerisini geliştirir.",
         questions: [
             { id: 'q1', type: 'who', questionText: 'Hikaye kimin ağzından anlatılmaktadır?', answerType: 'open_ended', correctAnswer: 'Küçük Damla' },
             { id: 'q2', type: 'what', questionText: 'Damla havaya çıktığında neye dönüşmüş?', answerType: 'open_ended', correctAnswer: 'Buhar' },
@@ -121,7 +114,6 @@ export const FIVE_W_ONE_H_LIBRARY: FiveWOneHLibraryEntry[] = [
         paragraphs: ["Çilli Horoz sabah erkenden kalktı. Zaten Çilli Horoz erken kalkmayı çok seviyordu. Hemen elini yüzünü yıkadı. Sabah hava çok soğuktu. Karnı çok acıkmıştı ama Çilli hemen işe koyuldu.", "Çünkü erken saatlerde Hasan Dayı'yı uyandırması gerekiyordu. Çilli Horoz uzun uzun öttü. Hasan Dayı uykusundan esneyerek uyandı. Hasan Dayı kümese gitti. Çilli Horoz'a arpa ve yem verdi. Çilli Horoz yemeğini yedi ve bahçede gezmeye başladı."],
         ageGroup: '5-7',
         difficulty: 'çok kolay',
-        pedagogicalNote: "Basit kronolojik sıralama ve günlük görevler üzerinden sorumlu davranışları anlama becerisini destekler.",
         questions: [
             { id: 'q1', type: 'who', questionText: 'Sabah erkenden kalkan kimdir?', answerType: 'open_ended', correctAnswer: 'Çilli Horoz' },
             { id: 'q2', type: 'what', questionText: 'Hasan Dayı Çilli Horoz\'a ne verdi?', answerType: 'open_ended', correctAnswer: 'Arpa ve yem' },
@@ -138,7 +130,6 @@ export const FIVE_W_ONE_H_LIBRARY: FiveWOneHLibraryEntry[] = [
         paragraphs: ['Büyük deniz kıyısındaki bir kentte vapur iskelesi ile tren garı yan yanaymış. Bir gün tren otomobile otomobilleri kıskandığını söylemiş. Otomobil ise vapurları kıskandığını eklemiş.', 'Vapur ise uçakları kıskandığını söylemiş. En sonunda uçak hepsine cevap vererek her birinin değerli olduğunu hatırlatmış.'],
         ageGroup: '11-13',
         difficulty: 'orta',
-        pedagogicalNote: "Farklı bakış açıları ve empati üzerinden öz değer ve kabullenme kavramlarını pekiştirir.",
         questions: [
             { id: 'q1', type: 'who', questionText: 'Taşıtlara "Her taşıt değerlidir" diyen kimdir?', answerType: 'open_ended', correctAnswer: 'Uçak' },
             { id: 'q2', type: 'what', questionText: 'Tren neyi kıskanmaktadır?', answerType: 'open_ended', correctAnswer: 'Otomobillerin her yere gidebilmesini' },
@@ -155,7 +146,6 @@ export const FIVE_W_ONE_H_LIBRARY: FiveWOneHLibraryEntry[] = [
         paragraphs: ['Günlerden bir gün çok susayan bir karınca, su içmek için bir derenin kenarına konmuş. Karınca yanlışlıkla suya düşmüş. Güvercin bir yaprak atarak onu kurtarmış.', 'O sırada bir avcı güvercini nişan almış. Karınca avcının ayağını ısırarak güvercini kurtarmış.'],
         ageGroup: '5-7',
         difficulty: 'kolay',
-        pedagogicalNote: "Karşılıklı yardımlaşma üzerinden sıralı olay akışı takibi becerisini geliştirir.",
         questions: [
             { id: 'q1', type: 'who', questionText: 'Avcının ayağını ısıran kimdir?', answerType: 'open_ended', correctAnswer: 'Karınca' },
             { id: 'q2', type: 'what', questionText: 'Güvercin karıncaya ne atmış?', answerType: 'open_ended', correctAnswer: 'Yaprak' },
@@ -172,7 +162,6 @@ export const FIVE_W_ONE_H_LIBRARY: FiveWOneHLibraryEntry[] = [
         paragraphs: ['Can Arı her gün yüzlerce çiçeğe konarmış ama sarı çiçeklere hiç konmazmış. Sarı Çiçek buna çok üzülürmüş.', 'Bir gün Can Arı hastalanmış. Arkadaşları onu iyileştirmek için tek bir çare olduğunu, onun da sarı çiçekte bulunan bir vitamin olduğunu öğrenmişler.', 'Sarı Çiçek tüm vitaminlerini ona vermiş. Can Arı iyileşince yaptığı hatayı anlamış ve Sarı Çiçekten özür dilemiş.'],
         ageGroup: '8-10',
         difficulty: 'orta',
-        pedagogicalNote: "Önyargıların yıkılması ve özveri temaları üzerinden duygusal okuryazarlığı destekler.",
         questions: [
             { id: 'q1', type: 'who', questionText: 'Vitaminlerini arıya veren kimdir?', answerType: 'open_ended', correctAnswer: 'Sarı Çiçek' },
             { id: 'q2', type: 'what', questionText: 'Can Arı\'yı ne iyileştirebilirmiş?', answerType: 'open_ended', correctAnswer: 'Sarı çiçekteki vitamin' },
@@ -189,7 +178,6 @@ export const FIVE_W_ONE_H_LIBRARY: FiveWOneHLibraryEntry[] = [
         paragraphs: ["Nasrettin Hoca bir gün yolculuk yaparken bir hana uğramış. Yanında bir başka yolcu daha varmış. İkisi de acıkmışlarmış. Hancı onlara pişmiş bir balık getirmiş.", "Diğer yolcu hemen balığın başını yemek istemiş. Hoca gövdeyi yemiş. Adam aç kalınca sızlanmış, hoca da ona hazırcevap bir şekilde karşılık vermiş."],
         ageGroup: '8-10',
         difficulty: 'orta',
-        pedagogicalNote: "Kültürel miras ve mizah üzerinden hazırcevaplık ve zeka kavramlarını destekler.",
         questions: [
             { id: 'q1', type: 'who', questionText: 'Balığın başını yemek isteyen kimdir?', answerType: 'open_ended', correctAnswer: 'Diğer yolcu' },
             { id: 'q2', type: 'what', questionText: 'Hancı onlara ne getirmiş?', answerType: 'open_ended', correctAnswer: 'Pişmiş bir balık' },
@@ -206,7 +194,6 @@ export const FIVE_W_ONE_H_LIBRARY: FiveWOneHLibraryEntry[] = [
         paragraphs: ['Kırmızı Balık, küçük bir gölde yaşarmış. Bir gün canı sıkılmış. Kendini derenin içinde bulmuş. Dere onu bir nehre götürmüş.', 'Nehir denizden de büyükmüş. Masmaviymiş. Üstelik suyu da tuzluymuş. Kırmızı Balık gördüğü yerlerden yorulunca gölüne dönmüş.'],
         ageGroup: '8-10',
         difficulty: 'kolay',
-        pedagogicalNote: "Coğrafi terimler (göl, dere, nehir) ve macera üzerinden mekan algısını geliştirir.",
         questions: [
             { id: 'q1', type: 'who', questionText: 'Yolculuğa çıkan kimdir?', answerType: 'open_ended', correctAnswer: 'Kırmızı Balık' },
             { id: 'q2', type: 'what', questionText: 'Kırmızı balık gittiği yerlerde ne hissetmiş?', answerType: 'open_ended', correctAnswer: 'Yorgunluk / Birçok tehlike atlatmış' },
@@ -223,7 +210,6 @@ export const FIVE_W_ONE_H_LIBRARY: FiveWOneHLibraryEntry[] = [
         paragraphs: ['Küçük ayıcık uyandı. Çok susamıştı. Annesi ona "Git dereden su iç, evde su kalmamış" dedi.', 'Küçük ayıcık kırmızı elbisesini giydi, şapkasını taktı ve dereye gitti. Suda kendisini görünce korktu ama sonra suya düşüp gerçeği anladı.'],
         ageGroup: '5-7',
         difficulty: 'çok kolay',
-        pedagogicalNote: "Görsel algı ve yansıma kavramları üzerinden temel duyguların (korku, neşe) tanınmasını sağlar.",
         questions: [
             { id: 'q1', type: 'who', questionText: 'Ayıcığın annesi ona ne demiş?', answerType: 'open_ended', correctAnswer: 'Dereden su içmesini' },
             { id: 'q2', type: 'what', questionText: 'Ayıcık dereye bakınca ne görmüş?', answerType: 'open_ended', correctAnswer: 'Sudaki kendi yansımasını' },
@@ -240,7 +226,6 @@ export const FIVE_W_ONE_H_LIBRARY: FiveWOneHLibraryEntry[] = [
         paragraphs: ["Zeki, yaz tatilinde köye gitti. Dedesi ile tarlada tohum ektiler, çit çektiler.", "Zeki tarlasına çok iyi baktı, fidan dikti. Ürünleri satıp kitap ve elbise aldı. Hem eğlendi hem çalıştı."],
         ageGroup: '8-10',
         difficulty: 'orta',
-        pedagogicalNote: "Tarım ve emek döngüsü üzerinden sorumluluk ve ödül mekanizmasını kavramayı destekler.",
         questions: [
             { id: 'q1', type: 'who', questionText: 'Zeki tarlaya kiminle gitti?', answerType: 'open_ended', correctAnswer: 'Dedesiyle' },
             { id: 'q2', type: 'what', questionText: 'Zeki parasıyla ne aldı?', answerType: 'open_ended', correctAnswer: 'Kitap ve elbise' },
@@ -257,7 +242,6 @@ export const FIVE_W_ONE_H_LIBRARY: FiveWOneHLibraryEntry[] = [
         paragraphs: ["Pazar günü Okan ve arkadaşları okul bahçesinde maç yaptılar. Okan yanlışlıkla camı kırdı.", "Çocuklar para toplayıp müdüre gittiler. Okan dürüstçe suçunu itiraf etti ve camın parasını ödediler."],
         ageGroup: '11-13',
         difficulty: 'orta',
-        pedagogicalNote: "Dürüstlük ve sorumluluk alma üzerinden karakter eğitimini destekler.",
         questions: [
             { id: 'q1', type: 'who', questionText: 'Müdüre camı kendisinin kırdığını söyleyen kimdir?', answerType: 'open_ended', correctAnswer: 'Okan' },
             { id: 'q2', type: 'what', questionText: 'Çocuklar bahçede ne yapıyorlardı?', answerType: 'open_ended', correctAnswer: 'Maç yapıyorlardı' },

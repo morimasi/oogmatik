@@ -137,7 +137,6 @@ export const generateOfflineShapeCounting = async (
       title: 'Görsel Tarama: Üçgen Avı (Geniş Saha)',
       instruction:
         'Aşağıdaki geniş alanda bulunan TÜM ÜÇGENLERİ bul ve sayısını kutucuğa yaz. Şekiller farklı boyut ve açılarda olabilir, dikkatli incele!',
-      pedagogicalNote: meta.pedagogicalNote,
       targetSkills: meta.targetSkills,
       settings: {
         difficulty: mapDifficulty(difficulty || 'Orta'),
@@ -171,8 +170,6 @@ export const generateOfflineGridDrawing = async (
       title: 'Kare Kopyalama',
       instruction:
         'Sol taraftaki deseni sağdaki boş ızgaraya noktaları ve çizgileri takip ederek kopyalayın.',
-      pedagogicalNote:
-        'Görsel-motor koordinasyon, planlama ve mekansal ilişkilendirme becerilerini geliştirir.',
       gridDim: gridSize,
       settings: {
         difficulty: mapDifficulty(difficulty || 'Orta'),
@@ -216,7 +213,6 @@ export const generateOfflineSymmetryDrawing = async (
     results.push({
       title: 'Simetri Tamamlama',
       instruction: 'Desenleri simetri eksenine göre aynadaki yansıması olacak şekilde tamamlayın.',
-      pedagogicalNote: 'Bilateral koordinasyon, görsel algı ve simetri kavramını güçlendirir.',
       gridDim: gridSize,
       settings: {
         difficulty: mapDifficulty(difficulty || 'Orta'),
@@ -310,8 +306,6 @@ export const generateOfflineFindTheDifference = async (
     results.push({
       title: 'DİKKAT VE AYRIŞTIRMA: İKİ TABLO ARASINDAKİ FARKLAR',
       instruction: `Soldaki tablo ile sağdaki tablo arasındaki ${itemCount} farkı bulup sağdakinde işaretleyin.`,
-      pedagogicalNote:
-        'Karşılaştırmalı görsel tarama, seçici dikkat ve çalışma belleğini güçlendiren profesyonel dikkat egzersizi.',
       settings: {
         difficulty: mapDifficulty(difficulty || 'Orta'),
         layout: 'side_by_side',
@@ -435,8 +429,6 @@ export const generateOfflineDirectionalTracking = async (
       title: 'YÖNSEL İZ SÜRME & ŞİFRE ÇÖZÜCÜ',
       instruction:
         'İşaretli başlangıç vektöründen okların yönünü adım adım takip edin ve bulduğunuz karakterleri sırasıyla şifre alanına yazın.',
-      pedagogicalNote:
-        'Görsel-mekansal algı, ardışık işlemleme (sequential processing) ve çalışma belleğini zorlayan profesyonel nöro-bilişsel egzersiz.',
       settings: {
         difficulty: mapDifficulty(difficulty || 'Orta'),
         layout: layout as any,
@@ -556,7 +548,6 @@ export const generateOfflineVisualOddOneOut = async (
       title: 'GÖRSEL AYRIŞTIRMA VE KETLEME (Premium)',
       instruction:
         'Her satırda diğerlerinden farklı (yönü, şekli veya türü değişik) olan öğeyi bularak işaretleyin.',
-      pedagogicalNote: meta.pedagogicalNote,
       targetSkills: meta.targetSkills,
       settings: {
         difficulty: mapDifficulty(difficulty || 'Orta'),

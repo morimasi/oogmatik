@@ -26,7 +26,6 @@ export const generateOfflineWordMemory = async (options: GeneratorOptions): Prom
         results.push({
             title: 'Kelime Hafıza',
             instruction: "1. Aşama: Kelimeleri ezberle. 2. Aşama: Test kısmında hatırladıklarını işaretle.",
-            pedagogicalNote: "Kısa süreli işitsel-sözel bellek kapasitesini ölçer.",
             memorizeTitle: 'Bunları Aklında Tut',
             testTitle: 'Aklında Tuttuklarını İşaretle',
             imagePrompt: 'Hafıza',
@@ -65,7 +64,6 @@ export const generateOfflineVisualMemory = async (options: GeneratorOptions): Pr
         results.push({
             title: 'Görsel Hafıza',
             instruction: "Görselleri dikkatlice incele. Sayfayı çevirince sadece gördüklerini bul.",
-            pedagogicalNote: "Görsel tanıma belleği ve detaylara dikkat becerisini geliştirir.",
             memorizeTitle: 'Bunları Aklında Tut',
             testTitle: 'Aklında Tuttuklarını İşaretle',
             imagePrompt: 'Görsel Hafıza',
@@ -96,7 +94,6 @@ export const generateOfflineNumberSearch = async (options: GeneratorOptions): Pr
         results.push({
             title: `Sayı Avı (${difficulty})`,
             instruction: `${range.start}'den ${range.end}'e kadar olan sayıları sırasıyla bulup daire içine al.`,
-            pedagogicalNote: "Sıralı dikkat, görsel tarama ve takip becerisi.",
             imagePrompt: 'Sayılar',
             numbers: shuffle([...targetNumbers, ...distractors]),
             range: range
@@ -135,7 +132,6 @@ export const generateOfflineFindTheDuplicateInRow = async (options: GeneratorOpt
         results.push({
             title: 'İkiliyi Bul',
             instruction: "Her satırda iki kez yazılmış olan karakteri bulun.",
-            pedagogicalNote: "Odaklanmış dikkat ve görsel ayrım.",
             imagePrompt: 'Dikkat',
             rows
         });
@@ -170,7 +166,6 @@ export const generateOfflineLetterGridTest = async (options: GeneratorOptions): 
         results.push({
             title: `Harf Izgara Testi`,
             instruction: `Satırları soldan sağa tarayarak "${targets.join(', ')}" harflerini bul ve üzerini çiz.`,
-            pedagogicalNote: "Seçici dikkat ve sürdürülebilir dikkat becerisi.",
             imagePrompt: 'Harfler',
             grid: grid,
             targetLetters: targets
@@ -187,7 +182,6 @@ export const generateOfflineBurdonTest = async (options: GeneratorOptions): Prom
         ...d,
         title: 'BURDON DİKKAT TESTİ',
         instruction: 'Her satırı soldan sağa doğru inceleyin. "a", "b", "d" ve "g" harflerini gördüğünüzde üzerini çizin.',
-        pedagogicalNote: 'Dikkat yoğunluğu ve kalitesini ölçen standart nöropsikolojik test.',
         imagePrompt: 'Test'
     }));
 };
@@ -207,7 +201,6 @@ export const generateOfflineTargetSearch = async (options: GeneratorOptions): Pr
         results.push({
             title: 'Hedef Avı',
             instruction: `Sadece "${target}" karakterlerini bul. Çeldirici "${distractor}" karakterlerine dikkat et.`,
-            pedagogicalNote: "Zorlu zemin üzerinde şekil ayırt etme (Figure-Ground Perception).",
             imagePrompt: 'Hedef',
             grid,
             target,
@@ -231,7 +224,6 @@ export const generateOfflineColorWheelMemory = async (options: GeneratorOptions)
         results.push({
             title: 'Renk Çemberi Hafızası',
             instruction: "Renk çemberindeki nesnelerin yerini ve rengini ezberle.",
-            pedagogicalNote: "Görsel-mekansal hafıza ve renk eşleştirme.",
             memorizeTitle: 'Ezberle',
             testTitle: 'Hatırla ve Yerleştir',
             imagePrompt: 'Renk',
@@ -260,7 +252,6 @@ export const generateOfflineImageComprehension = async (options: GeneratorOption
         results.push({
             title: "Resme Dikkat",
             instruction: "1. Aşama: Metni oku ve sahneyi zihninde canlandır.",
-            pedagogicalNote: "Sözel bilgiyi görselleştirebilme ve detay hatırlama.",
             memorizeTitle: "Metni Oku ve Canlandır",
             testTitle: "Soruları Cevapla",
             sceneDescription: selectedScene.scene,
@@ -300,7 +291,6 @@ export const generateOfflineCharacterMemory = async (options: GeneratorOptions):
         results.push({
             title: 'Karakter Hafıza',
             instruction: "Karakterleri ve özelliklerini ezberle.",
-            pedagogicalNote: "Yüz tanıma ve ilişkilendirme hafızası.",
             memorizeTitle: 'Karakterleri Ezberle',
             testTitle: 'Tanıdık Karakterleri İşaretle',
             imagePrompt: 'Karakter',
@@ -346,7 +336,6 @@ export const generateOfflineStroopTest = async (options: GeneratorOptions): Prom
         results.push({
             title: 'STROOP TESTİ (Renk Söyleme)',
             instruction: "DİKKAT: Yazılan kelimeyi okumayın! Kelimenin yazıldığı RENGİ yüksek sesle söyleyin.",
-            pedagogicalNote: "Dürtü kontrolü (inhibisyon), seçici dikkat and bilişsel esneklik değerlendirmesi.",
             imagePrompt: 'Renkler',
             items
         });
@@ -380,7 +369,6 @@ export const generateOfflineChaoticNumberSearch = async (options: GeneratorOptio
         results.push({
             title: 'Kaotik Sayı Avı',
             instruction: `1'den ${count}'a kadar olan sayıları sırasıyla bul ve daire içine al.`,
-            pedagogicalNote: "Karmaşık görsel zeminde sıralı takip, şekil-zemin ayrımı and görsel esneklik.",
             imagePrompt: 'Kaos',
             prompt: '',
             numbers,

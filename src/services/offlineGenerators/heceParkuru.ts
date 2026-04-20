@@ -26,8 +26,6 @@ export const generateHeceParkuru = async (options: unknown): Promise<SingleWorks
   const worksheet: SingleWorksheetData = {
     title: 'Hece Parkuru',
     instruction: 'Kelimeleri tamamlamak için boş bırakılan yerlere uygun hece veya harfleri yaz.',
-    pedagogicalNote:
-      'Görsel-işitsel eşleme ve fonolojik farkındalık becerilerini destekler. Heceleri bütünleştirme hızını artırır.',
     blocks: blocks,
   };
 

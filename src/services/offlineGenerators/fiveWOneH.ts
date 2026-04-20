@@ -43,7 +43,6 @@ export const generateOfflineFiveWOneH = async (options: GeneratorOptions): Promi
             id: `5n1k_off_${entry.id}_${Date.now()}_${i}`,
             title: entry.title,
             instruction: "Metni dikkatle oku ve yanındaki soruları cevapla.",
-            pedagogicalNote: entry.pedagogicalNote,
             content: {
                 title: entry.title,
                 text: entry.text,

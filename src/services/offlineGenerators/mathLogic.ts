@@ -61,7 +61,6 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
         pages.push({
             title: "Matematiksel Gizem",
             instruction: "Nesnelerin değerlerini denklemlerden bul ve son işlemi çöz!",
-            pedagogicalNote: "CRA modeli (Somut-Temsili-Soyut) ile cebirsel düşünme becerisini destekler.",
             puzzles
         });
     }
@@ -127,7 +126,6 @@ export const generateOfflineNumberLogicRiddles = async (options: GeneratorOption
         pages.push({
             title: "Sayı Dedektifi: Gizemli Sayılar",
             instruction: "İpuçlarını incele, tüm şartları sağlayan tek sayıyı bul!",
-            pedagogicalNote: "Mantıksal eleme ve sayı hissi becerilerini geliştirir.",
             sumTarget: total,
             puzzles
         });

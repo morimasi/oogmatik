@@ -6,7 +6,6 @@ interface EsAnlamliKelimelerData {
   activityType: ActivityType;
   title: string;
   instruction: string;
-  pedagogicalNote: string;
   pairs: { word: string; synonyms: string[] }[];
   settings: GeneratorOptions;
 }
@@ -35,7 +34,6 @@ export const generateOfflineEsAnlamliKelimeler = async (
       activityType: ActivityType.SYNONYM_ANTONYM_MATCH,
       title: 'Eş Anlamlı Kelimeler',
       instruction: 'Her kelimenin eş anlamlılarını yaz.',
-      pedagogicalNote: 'Kelime dağarcığını zenginleştirir.',
       pairs,
       settings: opts,
     });

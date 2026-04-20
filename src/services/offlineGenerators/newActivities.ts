@@ -66,7 +66,6 @@ export const generateOfflineFindLetterPair = async (options: GeneratorOptions): 
         pages.push({
             title: "Harf İkilisi Dedektifi",
             instruction: "Tabloları dikkatlice tara ve hedef ikilileri bulup daire içine al.",
-            pedagogicalNote: "Görsel ayrıştırma, hızlı tarama ve fonolojik sentez kapasitesini ölçer.",
             grids,
             settings: {
                 gridSize: Math.max(rows, cols),
@@ -94,7 +93,6 @@ export const generateOfflineFamilyRelations = async (options: GeneratorOptions):
         pages.push({
             title: "Akrabalık İlişkileri Atölyesi",
             instruction: "Aşağıdaki tanımları doğru akrabalık isimleri ile eşleştirin ve anne/baba tarafı olarak gruplandırın.",
-            pedagogicalNote: "Sosyal biliş, hiyerarşik sınıflama ve ilişkisel mantık becerilerini geliştirir.",
             pairs: selection.map(s => ({ definition: s.definition, label: s.label, side: s.side as any })),
             momRelatives,
             dadRelatives,
@@ -123,7 +121,6 @@ export const generateOfflineFamilyLogicTest = async (options: GeneratorOptions):
         pages.push({
             title: "Akrabalık Mantık Testi",
             instruction: "Aşağıdaki cümleleri okuyun. Doğru olanlar için (D), yanlış olanlar için (Y) kutusunu işaretleyin.",
-            pedagogicalNote: "Sözel muhakeme, akıl yürütme ve işleyen bellek kapasitesini destekler.",
             statements: shuffle(statements).slice(0, itemCount),
             difficulty: difficulty || 'Orta'
         });
@@ -142,7 +139,6 @@ export const generateOfflineSyllableWordBuilder = async (options: GeneratorOptio
     return Array.from({ length: worksheetCount }, () => ({
         title: "Hece Dedektifi",
         instruction: "Karışık verilen heceleri birleştirerek görsele uygun kelimeyi oluştur.",
-        pedagogicalNote: "Fonolojik sentez ve görsel-sözel ilişkilendirme.",
         words: words.map((w, i) => ({ id: i, targetWord: w.word, syllables: w.syllables, imagePrompt: w.img })),
         syllableBank: shuffle(words.flatMap(w => w.syllables))
     }));

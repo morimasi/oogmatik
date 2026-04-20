@@ -10,7 +10,6 @@ export const generateOfflineApartmentLogicPuzzle = async (options: GeneratorOpti
         activityType: 'APARTMENT_LOGIC_PUZZLE' as any,
         title: "Nerede Oturuyor?",
         instruction: "İpuçlarını okuyarak binadaki kişilerin isimlerini doğru katlara yazın.",
-        pedagogicalNote: "Mekansal akıl yürütme ve mantıksal çıkarım.",
         buildingName: "Martı Apartmanı",
         floorsCount: 3,
         residents: [

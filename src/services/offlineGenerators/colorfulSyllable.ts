@@ -9,7 +9,6 @@ export const generateOfflineColorfulSyllableReading = async (options: GeneratorO
         activityType: 'COLORFUL_SYLLABLE_READING' as any,
         title: "Renkli Hece Okuma",
         instruction: "Metni hecelerine dikkat ederek okuyun.",
-        pedagogicalNote: "Disleksi dostu heceleme ve okuma hızı çalışması.",
         content: {
             title: "Okul Heyecanı",
             paragraphs: [

@@ -2,10 +2,12 @@ import { create } from 'zustand';
 import type {
   ActivityStudioState,
   CompactA4Config,
+  ContentBlock,
   ExportSettings,
   StudioGoalConfig,
   ThemeConfig,
   WizardStep,
+  WizardStepId,
 } from '@/types/activityStudio';
 
 const initialSteps: WizardStep[] = [
@@ -35,22 +37,21 @@ export const useActivityStudioStore = create<ActivityStudioState>()((set) => ({
   themeConfig: null,
   compactA4Config: null,
   exportSettings: null,
-  pedagogicalNote: '',
   selectedLibraryItemId: undefined,
   enhancementTopic: undefined,
-  setStep: (step) =>
-    set((state) => ({
+  setStep: (step: WizardStepId) =>
+    set((state: ActivityStudioState) => ({
       currentStep: step,
-      steps: state.steps.map((item) => {
+      steps: state.steps.map((item: WizardStep) => {
         if (item.id === step) return { ...item, status: 'active' };
-        if (state.steps.findIndex((s) => s.id === item.id) < state.steps.findIndex((s) => s.id === step)) {
+        if (state.steps.findIndex((s: WizardStep) => s.id === item.id) < state.steps.findIndex((s: WizardStep) => s.id === step)) {
           return { ...item, status: 'completed' };
         }
         return { ...item, status: 'pending' };
       }),
     })),
-  updateGoal: (data) =>
-    set((state) => ({
+  updateGoal: (data: Partial<StudioGoalConfig>) =>
+    set((state: ActivityStudioState) => ({
       wizardData: {
         ...state.wizardData,
         goal: {
@@ -59,33 +60,32 @@ export const useActivityStudioStore = create<ActivityStudioState>()((set) => ({
         } as StudioGoalConfig,
       },
     })),
-  setSelectedLibraryItem: (id, topic) =>
+  setSelectedLibraryItem: (id: string, topic?: string) =>
     set({
       selectedLibraryItemId: id,
       enhancementTopic: topic,
     }),
-  setContent: (blocks) => set({ content: blocks }),
-  setThemeConfig: (config) =>
-    set((state) => ({
+  setContent: (blocks: ContentBlock[]) => set({ content: blocks }),
+  setThemeConfig: (config: Partial<ThemeConfig>) =>
+    set((state: ActivityStudioState) => ({
       themeConfig: state.themeConfig
         ? { ...state.themeConfig, ...config }
         : (config as ThemeConfig),
     })),
-  setCompactA4Config: (config) =>
-    set((state) => ({
+  setCompactA4Config: (config: Partial<CompactA4Config>) =>
+    set((state: ActivityStudioState) => ({
       compactA4Config: state.compactA4Config
         ? { ...state.compactA4Config, ...config }
         : (config as CompactA4Config),
     })),
-  setExportSettings: (settings) =>
-    set((state) => ({
+  setExportSettings: (settings: Partial<ExportSettings>) =>
+    set((state: ActivityStudioState) => ({
       exportSettings: state.exportSettings
         ? { ...state.exportSettings, ...settings }
         : (settings as ExportSettings),
     })),
-  setPedagogicalNote: (note) => set({ pedagogicalNote: note }),
-  setGenerating: (value) => set({ isGenerating: value }),
-  setError: (message) => set({ error: message }),
+  setGenerating: (value: boolean) => set({ isGenerating: value }),
+  setError: (message: string | null) => set({ error: message }),
   resetStudio: () =>
     set({
       currentStep: 'goal',
@@ -104,7 +104,6 @@ export const useActivityStudioStore = create<ActivityStudioState>()((set) => ({
       themeConfig: null,
       compactA4Config: null,
       exportSettings: null,
-      pedagogicalNote: '',
       selectedLibraryItemId: undefined,
       enhancementTopic: undefined,
     }),

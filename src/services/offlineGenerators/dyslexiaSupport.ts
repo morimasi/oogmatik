@@ -49,7 +49,6 @@ export const generateOfflineSyllableMasterLab = async (options: GeneratorOptions
         return {
             title: "Hece Ustası Laboratuvarı",
             instruction: "Hece çalışmasını yönergeye göre tamamlayın.",
-            pedagogicalNote: "Fonolojik farkındalık ve sentez becerilerini destekler.",
             mode: variant as any,
             items
         };
@@ -83,7 +82,6 @@ export const generateOfflineLetterVisualMatching = async (options: GeneratorOpti
         return {
             title: "Harf-Görsel Eşleme",
             instruction: "Harfleri, o harfle başlayan varlıkların görselleri ile eşleştirin.",
-            pedagogicalNote: "Ses-sembol ilişkisini ve fonolojik farkındalığı güçlendirir.",
             pairs,
             settings: {
                 fontFamily: fontFamily || 'OpenDyslexic',
@@ -113,7 +111,6 @@ export const generateOfflineMirrorLetters = async (options: GeneratorOptions): P
         return {
             title: "Ayna Harfler (Görsel Ayırt Etme)",
             instruction: `Birbirine benzeyen "${targetPair[0]}" ve "${targetPair[1]}" harflerini ayırt et.`,
-            pedagogicalNote: "Yönsel algı ve görsel diskriminasyon becerilerini geliştirir.",
             targetPair: targetPair.join('/'),
             rows
         };
@@ -136,7 +133,6 @@ export const generateOfflineRapidNaming = async (options: GeneratorOptions): Pro
         return {
             title: "Hızlı İsimlendirme (RAN)",
             instruction: "Gördüğün nesneleri en hızlı şekilde, soldan sağa doğru sesli olarak oku.",
-            pedagogicalNote: "Görsel uyaranları işlemleme hızı ve sözel tepki akıcılığını ölçer.",
             type: 'object',
             grid
         };
@@ -156,7 +152,6 @@ export const generateOfflineLetterDiscrimination = async (options: GeneratorOpti
         return {
             title: "Harf Ayırt Etme Testi",
             instruction: `Satırlar içindeki "${targets.join(', ')}" harflerini bul ve üzerini çiz.`,
-            pedagogicalNote: "Seçici dikkat ve görsel tarama yoğunluğunu artırır.",
             targetLetters: targets,
             rows
         };
@@ -227,7 +222,6 @@ export const generateOfflineMorphologyMatrix = async (options: GeneratorOptions)
         return {
             title: "Morfim Matrisi (Kelime İnşaatı)",
             instruction: "Kök kelimeyi uygun ekle birleştir ve yeni kelimeyi yaz.",
-            pedagogicalNote: "Kelimeleri anlamlı parçalara (morfimlere) ayırarak analiz etme yeteneğini geliştirir. Dislekside okuma stratejisi olarak kritiktir.",
             items: shuffle(items),
             difficulty
         };
@@ -274,7 +268,6 @@ export const generateOfflineReadingPyramid = async (options: GeneratorOptions): 
         return {
             title: "Akıcı Okuma Piramidi",
             instruction: "En üstten başlayarak aşağıya doğru sesli oku. Gözlerinle satırın ortasına odaklan.",
-            pedagogicalNote: "Göz sıçramalarını (saccades) ve görsel dikkat alanını (span) genişleterek okuma akıcılığını artırır.",
             pyramids,
             difficulty
         };
@@ -325,7 +318,6 @@ export const generateOfflineReadingFlow = async (options: GeneratorOptions): Pro
         results.push({
             title: "Ritmik Okuma Akıcılığı",
             instruction: "Kelimeleri ritmik bir şekilde, her satırda bir kelime ekleyerek oku.",
-            pedagogicalNote: "Görsel tarama hızını artırırken, kelime tanıma eşiğini düşürür ve okuma akıcılığını (fluency) destekler.",
             text: { paragraphs }
         });
     }
@@ -346,7 +338,6 @@ export const generateOfflinePhonologicalAwareness = async (options: GeneratorOpt
         results.push({
             title: "Fonolojik Farkındalık",
             instruction: "Sorulan ses özelliklerine uygun kelimeleri bulun.",
-            pedagogicalNote: "Sesbirimsel farkındalık ve işitsel ayrıştırma becerilerini geliştirir.",
             exercises
         });
     }
@@ -388,7 +379,6 @@ export const generateOfflineSyllableTrain = async (options: GeneratorOptions): P
             instruction: variant === 'missing'
                 ? "Trendeki eksik vagonu bulup kelimeyi tamamlayın."
                 : (variant === 'scrambled' ? "Karışık vagonları birleştirerek anlamlı kelimeyi raylara oturtun." : "Vagonlardaki heceleri birleştirip kelimeyi yüksek sesle okuyun."),
-            pedagogicalNote: "Hece sentezi (synthesis) ve fonolojik farkındalık becerilerini vagon metaforu ile görselleştirir.",
             trains
         });
     }
@@ -442,7 +432,6 @@ export const generateOfflineVisualTrackingLines = async (options: GeneratorOptio
         results.push({
             title: "Görsel Takip ve Labirent Yollar",
             instruction: "Harflerden başlayarak çizgileri takip edin ve hangi rakama ulaştığınızı kutucuklara yazın.",
-            pedagogicalNote: "Göz takip hareketlerini (saccadic movements), görsel dikkati ve el-göz koordinasyonunu geliştirir.",
             paths,
             width: 800,
             height: 450
@@ -465,7 +454,6 @@ export const generateOfflineBackwardSpelling = async (options: GeneratorOptions)
         results.push({
             title: "Geriye Doğru Heceleme",
             instruction: "Kelimeleri sondan başa doğru yazın veya okuyun.",
-            pedagogicalNote: "İşitsel çalışan bellek ve fonolojik manipülasyon.",
             items
         });
     }
@@ -489,7 +477,6 @@ export const generateOfflineCodeReading = async (options: GeneratorOptions): Pro
         results.push({
             title: "Şifre Okuma Labirenti",
             instruction: "Sembollerin karşılığı olan harfleri kullanarak şifreyi çözün.",
-            pedagogicalNote: "Sembol eşleştirme, görsel kodlama ve çalışma belleği.",
             keyMap,
             codesToSolve
         });
@@ -500,14 +487,10 @@ export const generateOfflineCodeReading = async (options: GeneratorOptions): Pro
 export const generateOfflineAttentionToQuestion = async (_o: any): Promise<AttentionToQuestionData[]> => [{
     title: 'Dikkat ve Sorular',
     instruction: 'Aşağıdaki metinde geçen tüm "b" harflerini işaretleyin.',
-    pedagogicalNote: 'Harf ayrıştırma ve sürdürülebilir dikkat.',
     subType: 'letter-cancellation'
-}];
-
-export const generateOfflineHandwritingPractice = async (_o: any): Promise<HandwritingPracticeData[]> => [{
+}, {
     title: 'Yazı Alıştırması',
     instruction: 'Noktalı çizgilerin üzerinden geçerek kelimeleri yazın.',
-    pedagogicalNote: 'İnce motor beceriler ve yazı formasyonu.',
     lines: [{ text: 'Elma', type: 'trace' }, { text: 'Armut', type: 'copy' }],
     guideType: 'dotted'
 }];

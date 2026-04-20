@@ -9,7 +9,6 @@ export const generateOfflineFinancialMarketCalculator = async (options: Generato
         activityType: 'FINANCIAL_MARKET_CALCULATOR' as any,
         title: "Pazar Yeri & Finans",
         instruction: "Ürünlerin fiyatlarını inceleyin ve sepet toplamını hesaplayın.",
-        pedagogicalNote: "Diskalkuli desteği ve temel finansal okuryazarlık.",
         currency: '₺',
         marketItems: [
             { id: '1', name: 'Elma', price: 10, unit: 'kg', icon: 'apple' },

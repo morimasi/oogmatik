@@ -286,25 +286,6 @@ export const generateExamPDF = (sinav: Sinav, config: PrintConfig = DEFAULT_PRIN
   doc.setTextColor(0);
   y += 12;
 
-  // ── PEDAGOJİK NOT ─────────────────────────────────────────
-  if (y + 20 > PAGE_H - 14) {
-    doc.addPage();
-    y = M;
-  }
-  doc.setFont(FF, 'bold');
-  doc.setFontSize(FS + 1);
-  doc.setTextColor(0, 60, 140);
-  doc.text(tr('OGRETMENIN DIKKATINE'), M, y);
-  doc.setTextColor(0);
-  y += 7;
-
-  doc.setFont(FF, 'normal');
-  doc.setFontSize(FS - 1);
-  doc.setTextColor(40);
-  const noteLines = doc.splitTextToSize(tr(sinav.pedagogicalNote), contentW);
-  doc.text(noteLines, M, y);
-  y += noteLines.length * (FS * 0.38) + 8;
-
   // Footer son sayfa
   doc.setFontSize(8);
   doc.setFont(FF, 'normal');

@@ -41,7 +41,6 @@ export const generateOfflineClockReading = async (options: GeneratorOptions): Pr
             instruction: variant === 'analog-to-digital'
                 ? "Analog saatlerde gösterilen zamanı altındaki dijital kutucuklara yazın."
                 : "Verilen dijital zamana göre saatin akrep ve yelkovanını çizin.",
-            pedagogicalNote: "Zaman algısı, sayı okuma ve analog-dijital dönüşüm becerilerini geliştirir.",
             variant,
             clocks,
             settings: {

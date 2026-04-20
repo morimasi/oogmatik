@@ -42,7 +42,6 @@ export const generateOfflineClockReading = async (options: GeneratorOptions): Pr
             instruction: (variant as any) === 'analog-to-digital'
                 ? "Analog saatlerde gösterilen zamanı altındaki dijital kutucuklara yazın."
                 : "Verilen dijital zamana göre saatin akrep ve yelkovanını çizin.",
-            pedagogicalNote: "Zaman algısı, analog-dijital dönüşüm ve ritmik sayma becerilerini destekler.",
             variant: (variant as any),
             clocks,
             settings: {
@@ -106,7 +105,6 @@ export const generateOfflineMoneyCounting = async (options: GeneratorOptions): P
         results.push({
             title: "Paralarımız ve Hesaplamalar",
             instruction: "Görsellerdeki kağıt ve madeni paraları toplayarak toplam miktarı bulun.",
-            pedagogicalNote: "Finansal okuryazarlık, ondalık sayılarla toplama ve günlük yaşam matematiği.",
             puzzles
         });
     }

@@ -630,15 +630,6 @@ export interface VariantContext {
   estimatedCompletionMinutes: number;
 }
 
-export interface VariantPedagogicalNotes {
-  seriesNote: string; // Tüm varyasyon serisi için genel not
-  variantNote: string; // Bu spesifik varyant için not
-  observationGuide: {
-    successIndicators: string[];
-    warningSignals: string[];
-    differentiationTips: string[];
-  };
-}
 
 export interface VariantGenerationConfig {
   baseActivity: SingleWorksheetData;
@@ -653,7 +644,6 @@ export interface VariantGenerationConfig {
 
   // Pedagojik garantiler
   firstVariantEasier: boolean; // İlk varyant %20-30 daha kolay olmalı
-  ensurePedagogicalNotes: boolean; // Her varyant için ayrı pedagojik not
 }
 
 export interface VariationRequest {
@@ -687,7 +677,6 @@ export interface VariationResult {
     successRate: number; // 0-1
     failedIndices: number[];
   };
-  pedagogicalNotes: VariantPedagogicalNotes;
   difficultyMetrics: DifficultyMetrics[];
   variantContexts: VariantContext[];
 }

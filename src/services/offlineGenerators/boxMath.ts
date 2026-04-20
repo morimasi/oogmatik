@@ -116,7 +116,6 @@ export const generateOfflineBoxMath = async (options: GeneratorOptions): Promise
     pages.push({
       title,
       instruction,
-      pedagogicalNote: 'Cebirsel düşünme, işlem önceliği ve değişken kavramını pekiştirir.',
       mode: variant as any,
       problems,
       fontSizePreference: fontSizePreference as 'small' | 'medium' | 'large',

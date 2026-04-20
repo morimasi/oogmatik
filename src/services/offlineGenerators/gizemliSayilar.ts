@@ -6,7 +6,6 @@ interface GizemliSayilarData {
   activityType: ActivityType;
   title: string;
   instruction: string;
-  pedagogicalNote: string;
   mysteryNumber: number;
   clues: { id: string; text: string; type: string }[];
   settings: GeneratorOptions;
@@ -107,8 +106,6 @@ export const generateOfflineGizemliSayilar = async (
       activityType: ActivityType.NUMBER_LOGIC_RIDDLES,
       title: 'Gizemli Sayı: İpuçlarını Takip Et!',
       instruction: 'Aşağıdaki ipuçlarını oku ve gizemi sayıyı bul.',
-      pedagogicalNote:
-        'Bu etkinlik mantıksal çıkarım, sayı hissi ve çok adımlı düşünme becerisini geliştirir. Öğrenci ipuçlarını analiz ederek gizli sayıya ulaşır.',
       mysteryNumber,
       clues,
       settings: opts,

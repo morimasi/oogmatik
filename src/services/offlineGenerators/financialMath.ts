@@ -53,7 +53,6 @@ export const generateOfflineMoneyCounting = async (options: GeneratorOptions): P
         results.push({
             title: "Paralarımız ve Hesaplamalar",
             instruction: "Görsellerdeki kağıt ve madeni paraları toplayarak toplam miktarı bulun.",
-            pedagogicalNote: "Finansal okuryazarlık, ondalık sayılarla toplama ve günlük yaşam matematiği.",
             puzzles
         });
     }

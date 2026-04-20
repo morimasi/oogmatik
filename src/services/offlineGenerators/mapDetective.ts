@@ -134,7 +134,6 @@ export const generateOfflineMapInstruction = async (options: GeneratorOptions): 
         results.push({
             title: `Harita Dedektifi: ${regionLabel} Analizi`,
             instruction: `${diffLabel} Seviyesi — Haritadaki illeri ve bölgeleri inceleyerek yönergeleri hatasız uygula.`,
-            pedagogicalNote: `Bu çalışma; görsel tarama, uzamsal konumlandırma, yön kavramı, dikkat ve yönerge takip becerilerini ${diffLabel} düzeyinde geliştirir.`,
             imageBase64: customInput,
             emphasizedRegion: emphasizedRegion || 'all',
             difficultyLevel: level as 1 | 2 | 3 | 4 | 5,

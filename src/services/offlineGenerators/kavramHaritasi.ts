@@ -6,7 +6,6 @@ interface KavramHaritasiData {
   activityType: ActivityType;
   title: string;
   instruction: string;
-  pedagogicalNote: string;
   nodes: { id: string; label: string; level: number; isEmpty: boolean }[];
   edges: { from: string; to: string }[];
   settings: GeneratorOptions;
@@ -57,8 +56,6 @@ export const generateOfflineKavramHaritasi = async (
       activityType: ActivityType.KAVRAM_HARITASI,
       title: `${concept} Kavram Haritası`,
       instruction: 'Boş kutucuklara uygun kavramları yazarak haritayı tamamla.',
-      pedagogicalNote:
-        'Kavramlar arası ilişkileri görsel-mekansal olarak organize etmeyi geliştirir.',
       nodes,
       edges,
       settings: opts,

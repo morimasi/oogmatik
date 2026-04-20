@@ -28,7 +28,6 @@ export const generateOfflineLogicErrorHunter = async (options: GeneratorOptions)
     return Array.from({ length: worksheetCount }, () => ({
         title: "Mantık Hatası Avcısı",
         instruction: "Aşağıdaki metinlerde bazı 'saçma' veya 'mantıksız' durumlar var. Bunları bul ve altını çiz.",
-        pedagogicalNote: "Muhakeme ve mantık hatalarını ayırt etme becerisini geliştirir.",
         stories: shuffle([...stories]).slice(0, 2) as any,
         settings: {
             difficulty: difficulty || 'Orta',

@@ -6,7 +6,6 @@ interface MeyveliToplamaData {
   activityType: ActivityType;
   title: string;
   instruction: string;
-  pedagogicalNote: string;
   grid: { fruits: string[]; counts: number[][]; rowSum: number[] }[];
   targetSum: number;
   settings: GeneratorOptions;
@@ -59,8 +58,6 @@ export const generateOfflineMeyveliToplama = async (
       activityType: ActivityType.MATH_PUZZLE,
       title: 'Meyveli Toplama Bulmacası',
       instruction: `${selectedFruits.join(', ')} meyvelerinin sayılarını bulup toplamları eşitle.`,
-      pedagogicalNote:
-        'Bu etkinlik toplama işlemi, mantıksal düşünme ve problem çözme becerisini geliştirir. Disleksi dostu görseller ile desteklenir.',
       grid: [
         {
           fruits: selectedEmojis,

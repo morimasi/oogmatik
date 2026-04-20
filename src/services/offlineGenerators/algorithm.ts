@@ -16,7 +16,6 @@ export const generateOfflineAlgorithmGenerator = async (options: GeneratorOption
             title: scenario.title,
             instruction: "Problemden çözüme giden yolu mantıklı adımlarla takip et ve kutucukları doldur.",
             challenge: scenario.challenge,
-            pedagogicalNote: "Sıralı düşünme, neden-sonuç ilişkisi ve algoritmik muhakeme kapasitesini artırır.",
             steps: [
                 { id: 1, type: 'start', text: 'BAŞLA' },
                 { id: 2, type: 'process', text: 'Gerekli malzemeleri hazırla.' },

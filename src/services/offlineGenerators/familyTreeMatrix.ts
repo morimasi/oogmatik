@@ -9,7 +9,6 @@ export const generateOfflineFamilyTreeMatrix = async (options: GeneratorOptions)
         activityType: 'FAMILY_TREE_MATRIX' as any,
         title: "Akrabalık ve Soy Ağacı Matrisi",
         instruction: "İpuçlarını okuyarak soy ağacındaki boş yerleri doldurun.",
-        pedagogicalNote: "Mantıksal çıkarım ve aile bağlarını anlama.",
         content: {
             title: "Bizim Aile",
             storyIntro: "Bayram yemeği için herkes toplandı. Kimin nerede olduğunu bulalım.",

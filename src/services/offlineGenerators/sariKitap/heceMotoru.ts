@@ -155,7 +155,6 @@ export function buildGeneratedContent(
 ): SariKitapGeneratedContent {
     return {
         title,
-        pedagogicalNote: getPedagogicalNote(config.type),
         instructions: getInstructions(config.type),
         targetSkills: [...config.targetSkills],
         rawText,
@@ -166,18 +165,6 @@ export function buildGeneratedContent(
         generatedAt: new Date().toISOString(),
         model: 'gemini-2.5-flash',
     };
-}
-
-function getPedagogicalNote(type: string): string {
-    const notes: Record<string, string> = {
-        pencere: 'Pencere okuma, öğrencinin odaklanma süresini artırarak seçici dikkat becerisini geliştirir. Maskeleme yöntemi, göz takibi sırasında gereksiz bilgiyi filtrelemeyi öğretir.',
-        nokta: 'Nokta takibi, satır atlamayı önleyen görsel bir rehber sağlar. Göz kaslarının ritmik hareketini destekleyerek okuma akıcılığını artırır.',
-        kopru: 'Köprü okuma, heceleri birbirine bağlayan yay sembolleriyle göz sıçrama mesafesini kontrol eder. Akıcı okuma için motor hafıza oluşturur.',
-        cift_metin: 'Çift metin formatı, iki farklı hikayeyi ayrıştırma pratiği yaparak seçici dikkat ve bilişsel esnekliği geliştirir.',
-        bellek: 'Bellek egzersizi, kelime tanıma hızını artırarak otomatikleşmiş okuma becerisini güçlendirir. Görsel hafıza ve hızlı eşleştirme çalışması sağlar.',
-        hizli_okuma: 'Hızlı okuma blokları, kelime tanıma otomatikliğini geliştirerek okuma hızını kademeli olarak artırır.',
-    };
-    return notes[type] ?? 'Okuma destek materyali.';
 }
 
 function getInstructions(type: string): string {

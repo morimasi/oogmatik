@@ -296,7 +296,7 @@ export interface ClinicalValidationReport {
  * @example
  * ```typescript
  * const report = runClinicalValidation(
- *   activityOutput.pedagogicalNote,
+ *   activityOutput.title,
  *   activityOutput.clinicalApproval
  * );
  * if (!report.passed) {

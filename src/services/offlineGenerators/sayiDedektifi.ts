@@ -6,7 +6,6 @@ interface SayiDedektifiData {
   activityType: ActivityType;
   title: string;
   instruction: string;
-  pedagogicalNote: string;
   mysteryNumber: number;
   clues: { id: string; text: string; type: string }[];
   settings: GeneratorOptions;
@@ -57,7 +56,6 @@ export const generateOfflineSayiDedektifi = async (
       activityType: ActivityType.NUMBER_SENSE,
       title: 'Sayı Dedektifi Macerası',
       instruction: 'İpuçlarını takip et, gizli sayıyı bul!',
-      pedagogicalNote: 'Mantıksal çıkarım ve sayı hissi geliştirir.',
       mysteryNumber,
       clues,
       settings: opts,
