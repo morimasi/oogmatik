@@ -12,7 +12,7 @@ export const CiftMetinConfigPanel: React.FC<ConfigPanelProps> = React.memo(({ co
 
             <div>
                 <label className="sk-label">Karışım Modu</label>
-                <select className="sk-select" value={c.interleaveMode} onChange={(e) => onUpdate({ interleaveMode: e.target.value as 'kelime' | 'satir' | 'paragraf' })}>
+                <select className="sk-select" value={c.interleaveMode} onChange={(e) => onUpdate?.({ interleaveMode: e.target.value as 'kelime' | 'satir' | 'paragraf' })}>
                     <option value="satir">Satır Satır</option>
                     <option value="kelime">Kelime Kelime</option>
                     <option value="paragraf">Paragraf Paragraf</option>
@@ -21,17 +21,17 @@ export const CiftMetinConfigPanel: React.FC<ConfigPanelProps> = React.memo(({ co
 
             <div>
                 <label className="sk-label">Hikaye A Rengi</label>
-                <input type="color" value={c.sourceAColor} onChange={(e) => onUpdate({ sourceAColor: e.target.value })} style={{ width: '100%', height: '2rem', border: 'none', borderRadius: '0.5rem', cursor: 'pointer' }} />
+                <input type="color" value={c.sourceAColor} onChange={(e) => onUpdate?.({ sourceAColor: e.target.value })} style={{ width: '100%', height: '2rem', border: 'none', borderRadius: '0.5rem', cursor: 'pointer' }} />
             </div>
 
             <div>
                 <label className="sk-label">Hikaye B Rengi</label>
-                <input type="color" value={c.sourceBColor} onChange={(e) => onUpdate({ sourceBColor: e.target.value })} style={{ width: '100%', height: '2rem', border: 'none', borderRadius: '0.5rem', cursor: 'pointer' }} />
+                <input type="color" value={c.sourceBColor} onChange={(e) => onUpdate?.({ sourceBColor: e.target.value })} style={{ width: '100%', height: '2rem', border: 'none', borderRadius: '0.5rem', cursor: 'pointer' }} />
             </div>
 
             <div>
                 <label className="sk-label">Hikaye A Stili</label>
-                <select className="sk-select" value={c.sourceAStyle} onChange={(e) => onUpdate({ sourceAStyle: e.target.value as 'bold' | 'normal' | 'italic' })}>
+                <select className="sk-select" value={c.sourceAStyle} onChange={(e) => onUpdate?.({ sourceAStyle: e.target.value as 'bold' | 'normal' | 'italic' })}>
                     <option value="bold">Kalın</option>
                     <option value="normal">Normal</option>
                     <option value="italic">İtalik</option>
@@ -40,7 +40,7 @@ export const CiftMetinConfigPanel: React.FC<ConfigPanelProps> = React.memo(({ co
 
             <div>
                 <label className="sk-label">Hikaye B Stili</label>
-                <select className="sk-select" value={c.sourceBStyle} onChange={(e) => onUpdate({ sourceBStyle: e.target.value as 'bold' | 'normal' | 'italic' })}>
+                <select className="sk-select" value={c.sourceBStyle} onChange={(e) => onUpdate?.({ sourceBStyle: e.target.value as 'bold' | 'normal' | 'italic' })}>
                     <option value="bold">Kalın</option>
                     <option value="normal">Normal</option>
                     <option value="italic">İtalik</option>
@@ -49,7 +49,7 @@ export const CiftMetinConfigPanel: React.FC<ConfigPanelProps> = React.memo(({ co
 
             <div>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: 'rgba(255,255,255,0.8)', cursor: 'pointer' }}>
-                    <input type="checkbox" checked={c.showSourceLabels} onChange={(e) => onUpdate({ showSourceLabels: e.target.checked })} />
+                    <input type="checkbox" checked={c.showSourceLabels} onChange={(e) => onUpdate?.({ showSourceLabels: e.target.checked })} />
                     Kaynak Etiketlerini Göster
                 </label>
             </div>

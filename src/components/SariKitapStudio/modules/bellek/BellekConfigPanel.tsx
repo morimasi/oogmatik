@@ -12,7 +12,7 @@ export const BellekConfigPanel: React.FC<ConfigPanelProps> = React.memo(({ confi
             ? current.filter(p => p !== phase)
             : [...current, phase].sort();
         if (updated.length > 0) {
-            onUpdate({ phases: updated as ('A' | 'B' | 'C' | 'D')[] });
+            onUpdate?.({ phases: updated as ('A' | 'B' | 'C' | 'D')[] });
         }
     };
 
@@ -53,12 +53,12 @@ export const BellekConfigPanel: React.FC<ConfigPanelProps> = React.memo(({ confi
 
             <div>
                 <label className="sk-label">Kelime Sayısı ({c.blockCount})</label>
-                <input type="range" className="sk-input" style={{ padding: '0.25rem' }} min={6} max={30} step={1} value={c.blockCount} onChange={(e) => onUpdate({ blockCount: Number(e.target.value) })} />
+                <input type="range" className="sk-input" style={{ padding: '0.25rem' }} min={6} max={30} step={1} value={c.blockCount} onChange={(e) => onUpdate?.({ blockCount: Number(e.target.value) })} />
             </div>
 
             <div>
                 <label className="sk-label">Sütun Sayısı</label>
-                <select className="sk-select" value={c.gridColumns} onChange={(e) => onUpdate({ gridColumns: Number(e.target.value) as 2 | 3 | 4 | 5 })}>
+                <select className="sk-select" value={c.gridColumns} onChange={(e) => onUpdate?.({ gridColumns: Number(e.target.value) as 2 | 3 | 4 | 5 })}>
                     <option value={2}>2 Sütun</option>
                     <option value={3}>3 Sütun</option>
                     <option value={4}>4 Sütun</option>
@@ -68,7 +68,7 @@ export const BellekConfigPanel: React.FC<ConfigPanelProps> = React.memo(({ confi
 
             <div>
                 <label className="sk-label">Kelime Kategorisi</label>
-                <select className="sk-select" value={c.category} onChange={(e) => onUpdate({ category: e.target.value as 'hayvanlar' | 'doğa' | 'okul' | 'karışık' })}>
+                <select className="sk-select" value={c.category} onChange={(e) => onUpdate?.({ category: e.target.value as 'hayvanlar' | 'doğa' | 'okul' | 'karışık' })}>
                     <option value="karışık">🎲 Karışık</option>
                     <option value="hayvanlar">🐾 Hayvanlar</option>
                     <option value="doğa">🌿 Doğa</option>
@@ -78,12 +78,12 @@ export const BellekConfigPanel: React.FC<ConfigPanelProps> = React.memo(({ confi
 
             <div>
                 <label className="sk-label">Boşaltma Oranı (%{Math.round(c.blankRatio * 100)})</label>
-                <input type="range" className="sk-input" style={{ padding: '0.25rem' }} min={0.1} max={0.9} step={0.05} value={c.blankRatio} onChange={(e) => onUpdate({ blankRatio: Number(e.target.value) })} />
+                <input type="range" className="sk-input" style={{ padding: '0.25rem' }} min={0.1} max={0.9} step={0.05} value={c.blankRatio} onChange={(e) => onUpdate?.({ blankRatio: Number(e.target.value) })} />
             </div>
 
             <div>
                 <label className="sk-label">Dikkat Dağıtıcı Yoğunluğu</label>
-                <select className="sk-select" value={c.distractorRatio} onChange={(e) => onUpdate({ distractorRatio: e.target.value as 'düşük' | 'orta' | 'yüksek' })}>
+                <select className="sk-select" value={c.distractorRatio} onChange={(e) => onUpdate?.({ distractorRatio: e.target.value as 'düşük' | 'orta' | 'yüksek' })}>
                     <option value="düşük">Düşük (~%30)</option>
                     <option value="orta">Orta (~%50)</option>
                     <option value="yüksek">Yüksek (~%80)</option>
@@ -92,12 +92,12 @@ export const BellekConfigPanel: React.FC<ConfigPanelProps> = React.memo(({ confi
 
             <div>
                 <label className="sk-label">Cümle Satır Sayısı ({c.sentenceLines})</label>
-                <input type="range" className="sk-input" style={{ padding: '0.25rem' }} min={2} max={8} step={1} value={c.sentenceLines} onChange={(e) => onUpdate({ sentenceLines: Number(e.target.value) })} />
+                <input type="range" className="sk-input" style={{ padding: '0.25rem' }} min={2} max={8} step={1} value={c.sentenceLines} onChange={(e) => onUpdate?.({ sentenceLines: Number(e.target.value) })} />
             </div>
 
             <div>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', color: 'rgba(255,255,255,0.8)', cursor: 'pointer' }}>
-                    <input type="checkbox" checked={c.showNumbers} onChange={(e) => onUpdate({ showNumbers: e.target.checked })} />
+                    <input type="checkbox" checked={c.showNumbers} onChange={(e) => onUpdate?.({ showNumbers: e.target.checked })} />
                     Numaraları Göster
                 </label>
             </div>

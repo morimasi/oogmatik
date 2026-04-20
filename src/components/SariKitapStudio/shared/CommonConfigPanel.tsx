@@ -62,7 +62,7 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = React.memo(
                                 <select
                                     className="sk-select"
                                     value={config.ageGroup}
-                                    onChange={(e) => onUpdate({ ageGroup: e.target.value as AgeGroup })}
+                                    onChange={(e) => onUpdate?.({ ageGroup: e.target.value as AgeGroup })}
                                 >
                                     {AGE_GROUPS.map((ag) => (
                                         <option key={ag.value} value={ag.value}>{ag.label}</option>
@@ -74,7 +74,7 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = React.memo(
                                 <select
                                     className="sk-select"
                                     value={config.difficulty}
-                                    onChange={(e) => onUpdate({ difficulty: e.target.value as SariKitapDifficulty })}
+                                    onChange={(e) => onUpdate?.({ difficulty: e.target.value as SariKitapDifficulty })}
                                 >
                                     {DIFFICULTIES.map((d) => (
                                         <option key={d.value} value={d.value}>{d.label}</option>
@@ -86,7 +86,7 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = React.memo(
                                 <select
                                     className="sk-select"
                                     value={config.topics[0] ?? 'Doğa'}
-                                    onChange={(e) => onUpdate({ topics: [e.target.value] })}
+                                    onChange={(e) => onUpdate?.({ topics: [e.target.value] })}
                                 >
                                     {TOPICS.map((t) => (
                                         <option key={t} value={t}>{t}</option>
@@ -119,7 +119,7 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = React.memo(
                                     step={1}
                                     value={config.typography.fontSize}
                                     onChange={(e) =>
-                                        onUpdate({
+                                        onUpdate?.({
                                             typography: { ...config.typography, fontSize: Number(e.target.value) },
                                         })
                                     }
@@ -140,7 +140,7 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = React.memo(
                                     step={0.1}
                                     value={config.typography.wordSpacing}
                                     onChange={(e) =>
-                                        onUpdate({
+                                        onUpdate?.({
                                             typography: { ...config.typography, wordSpacing: Number(e.target.value) },
                                         })
                                     }
@@ -161,7 +161,7 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = React.memo(
                                     step={0.1}
                                     value={config.typography.lineHeight}
                                     onChange={(e) =>
-                                        onUpdate({
+                                        onUpdate?.({
                                             typography: { ...config.typography, lineHeight: Number(e.target.value) },
                                         })
                                     }
