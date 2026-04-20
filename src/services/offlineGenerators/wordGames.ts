@@ -1,6 +1,8 @@
 
 import { GeneratorOptions, HiddenPasswordGridData, WordSearchData } from '../../types';
 import { getWordsForDifficulty, getRandomItems, turkishAlphabet, getRandomInt, shuffle } from './helpers';
+import { getOfflineMetadata } from './metadataHelper';
+import { ActivityType } from '../../types';
 
 // Directions: [dx, dy]
 const DIR_RIGHT = { x: 1, y: 0 };
@@ -16,7 +18,7 @@ const _DIR_DIAG_DL = { x: -1, y: 1 };
 
 export const generateOfflineHiddenPasswordGrid = async (options: GeneratorOptions): Promise<HiddenPasswordGridData[]> => {
     // ... (HiddenPasswordGrid mantığı şimdilik aynı kalabilir, sadece kare kullanıyor olabilir, ileride güncellenebilir)
-    const { topic, difficulty, worksheetCount, gridSize = 5, itemCount = 6, case: letterCase } = options;
+    const { topic, difficulty = 'Orta', worksheetCount = 1, gridSize = 5, itemCount = 6, case: letterCase } = options;
     const results: HiddenPasswordGridData[] = [];
 
     for (let p = 0; p < worksheetCount; p++) {
@@ -54,11 +56,14 @@ export const generateOfflineHiddenPasswordGrid = async (options: GeneratorOption
             });
         }
 
-        results.push({
-            title: "Gizli Şifre Matrisi",
-            instruction: "Kutuların içindeki farklı harfleri sırasıyla bularak gizli kelimeyi oluştur.",
-            pedagogicalNote: "Seçici dikkat ve görsel tarama becerisi.",
-            settings: {
+            const meta = getOfflineMetadata(ActivityType.HIDDEN_PASSWORD_GRID);
+
+            results.push({
+                title: "Gizli Şifre Matrisi",
+                instruction: "Kutuların içindeki farklı harfleri sırasıyla bularak gizli kelimeyi oluştur.",
+                pedagogicalNote: meta.pedagogicalNote,
+                targetSkills: meta.targetSkills,
+                settings: {
                 gridSize,
                 itemCount,
                 cellStyle: (options.variant as 'square' | 'minimal' | 'rounded') || 'square',
@@ -71,7 +76,7 @@ export const generateOfflineHiddenPasswordGrid = async (options: GeneratorOption
 };
 
 export const generateOfflineWordSearch = async (options: GeneratorOptions): Promise<WordSearchData[]> => {
-    const { topic, difficulty, worksheetCount, itemCount = 10, case: letterCase } = options;
+    const { topic, difficulty = 'Orta', worksheetCount = 1, itemCount = 10, case: letterCase } = options;
 
     // Satır ve Sütun ayrımı
     const rows = options.gridRows || options.gridSize || 12;
@@ -89,8 +94,7 @@ export const generateOfflineWordSearch = async (options: GeneratorOptions): Prom
     }
 
     for (let p = 0; p < worksheetCount; p++) {
-        // 2. Fetch and Prepare Words
-        // Max kelime uzunluğu, grid'in en büyük boyutunu geçemez
+        // ... (remaining loop code)
         const maxDim = Math.max(rows, cols);
 
         let wordPool = getWordsForDifficulty(difficulty, topic || 'Rastgele')
@@ -157,10 +161,13 @@ export const generateOfflineWordSearch = async (options: GeneratorOptions): Prom
             }
         }
 
+        const meta = getOfflineMetadata(ActivityType.WORD_SEARCH);
+
         results.push({
             title: `Kelime Avı: ${topic || 'Karışık'}`,
             instruction: "Listelenen kelimeleri bulmaca içinde bularak üzerini çiz.",
-            pedagogicalNote: "Görsel tarama, şekil-zemin algısı ve kelime tanıma.",
+            pedagogicalNote: meta.pedagogicalNote,
+            targetSkills: meta.targetSkills,
             grid,
             words: placedWords
         });

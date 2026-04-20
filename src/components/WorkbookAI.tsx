@@ -10,8 +10,44 @@
 
 import React, { useState, useEffect } from 'react';
 import { Sparkles, CheckCircle, X, Loader, AlertTriangle } from 'lucide-react';
-import { WorkbookAIAssistant } from '../services/workbookAIAssistant/WorkbookAIAssistant';
-import type { Workbook, AISuggestion, AIWorkbookSuggestionType } from '../types/workbook';
+import { WorkbookAIAssistant, type WorkbookContext } from '../services/workbookAIAssistant/WorkbookAIAssistant';
+import type { Workbook, AISuggestion, AIWorkbookSuggestionType, WorkbookActivityContent } from '../types/workbook';
+import type { ActivitySuggestionResponse, SkillGapResponse, PageBalanceResponse } from '../services/workbookAIAssistant/schemas/workbookAISchemas';
+import type { CollectionItem, StyleSettings } from '../types/core';
+
+const DEFAULT_STYLE: StyleSettings = {
+  fontSize: 16,
+  scale: 1,
+  borderColor: '#e2e8f0',
+  borderWidth: 1,
+  margin: 20,
+  columns: 1,
+  gap: 20,
+  orientation: 'portrait',
+  themeBorder: 'none',
+  contentAlign: 'left',
+  fontWeight: 'normal',
+  fontStyle: 'normal',
+  visualStyle: 'card',
+  showPedagogicalNote: true,
+  showMascot: true,
+  showStudentInfo: true,
+  showTitle: true,
+  showInstruction: true,
+  showImage: true,
+  showFooter: true,
+  footerText: '',
+  smartPagination: true,
+  fontFamily: 'Lexend',
+  lineHeight: 1.5,
+  letterSpacing: 0,
+  wordSpacing: 0,
+  paragraphSpacing: 0,
+  focusMode: false,
+  rulerColor: '#000',
+  rulerHeight: 1,
+  maskOpacity: 0.5,
+};
 
 interface WorkbookAIProps {
   workbook: Workbook;
@@ -35,23 +71,62 @@ export const WorkbookAI: React.FC<WorkbookAIProps> = ({ workbook, onApplySuggest
     setError(null);
 
     try {
-      const context = {
-        profile: workbook.studentProfile?.learningDisabilityProfile || 'mixed',
-        ageGroup: workbook.studentProfile?.ageGroup || '8-10',
-        currentPages: workbook.pages.length,
-        targetPageCount: 25,
-        existingActivities: workbook.pages
-          .filter((p) => p.type === 'activity')
-          .map((p) => p.content)
-          .filter((c) => c.type === 'activity')
-          .map((c: any) => c.activityType),
+      // Workbook sayfalarını CollectionItem formatına dönüştür (Servisler için)
+      const collectionItems: CollectionItem[] = workbook.pages
+        .filter((p) => p.type === 'activity')
+        .map((p) => {
+          const content = p.content as WorkbookActivityContent;
+          return {
+            id: p.id,
+            itemType: 'activity',
+            activityType: content.activityType,
+            title: content.activityType,
+            data: [{
+              title: content.activityType,
+              instruction: 'Lütfen etkinliği tamamlayın.',
+              difficultyLevel: content.difficulty,
+              ...(content.activityData as object)
+            } as any], // SingleWorksheetData compatibility
+            settings: { ...DEFAULT_STYLE, title: content.activityType }
+          };
+        });
+
+      // Aktivite dağılımını hesapla
+      const distributionMap: Record<string, number> = {};
+      let easy = 0, medium = 0, hard = 0;
+      
+      workbook.pages.forEach(p => {
+        if (p.type === 'activity') {
+          const content = p.content as WorkbookActivityContent;
+          distributionMap[content.activityType] = (distributionMap[content.activityType] || 0) + 1;
+          if (content.difficulty === 'Kolay') easy++;
+          else if (content.difficulty === 'Zor') hard++;
+          else medium++;
+        }
+      });
+
+      const total = collectionItems.length || 1;
+
+      const context: WorkbookContext = {
+        gradeLevel: 5,
+        studentProfile: {
+          ageGroup: workbook.studentProfile?.ageGroup || '8-10',
+          diagnosis: workbook.studentProfile?.learningDisabilityProfile || 'mixed',
+        },
+        currentPageCount: workbook.pages.length,
+        activityDistribution: Object.entries(distributionMap).map(([type, count]) => ({ type, count })),
+        difficultyDistribution: {
+          easy: Math.round((easy / total) * 100),
+          medium: Math.round((medium / total) * 100),
+          hard: Math.round((hard / total) * 100),
+        },
       };
 
       // Multiple AI queries in parallel
       const [activityRes, skillRes, balanceAnalysis] = await Promise.all([
-        aiAssistant.suggestActivities(context as any),
-        aiAssistant.detectSkillGaps(context as any),
-        aiAssistant.analyzePageBalance(context as any),
+        aiAssistant.suggestActivities(context),
+        aiAssistant.detectSkillGaps(collectionItems),
+        aiAssistant.analyzePageBalance(collectionItems),
       ]);
 
       const activitySuggestions = activityRes.suggestions || [];
@@ -59,7 +134,7 @@ export const WorkbookAI: React.FC<WorkbookAIProps> = ({ workbook, onApplySuggest
 
       // Combine all suggestions
       const allSuggestions: AISuggestion[] = [
-        ...activitySuggestions.map((s: any) => ({
+        ...(activityRes.suggestions || []).map((s) => ({
           id: crypto.randomUUID(),
           type: 'add-activity' as AIWorkbookSuggestionType,
           title: `${s.activityType} ekle`,
@@ -68,7 +143,7 @@ export const WorkbookAI: React.FC<WorkbookAIProps> = ({ workbook, onApplySuggest
           data: s,
           status: 'pending' as const,
         })),
-        ...skillGaps.map((gap: any) => ({
+        ...(skillRes.gaps || []).map((gap) => ({
           id: crypto.randomUUID(),
           type: 'fill-skill-gap' as AIWorkbookSuggestionType,
           title: `${gap.skillArea} becerisi eksik`,

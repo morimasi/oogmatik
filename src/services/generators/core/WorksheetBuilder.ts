@@ -1,4 +1,5 @@
 import { WorksheetBlock, ActivityType, SingleWorksheetData } from '../../../types';
+import { getOfflineMetadata } from '../../offlineGenerators/metadataHelper';
 
 /**
  * WorksheetBuilder — Premium A4 Çalışma Kağıdı Mimarı
@@ -10,12 +11,18 @@ export class WorksheetBuilder {
   private blocks: WorksheetBlock[] = [];
   private title: string = '';
   private activityType: ActivityType;
-
   private instruction: string = 'Lütfen aşağıdaki etkinliği dikkatlice tamamlayınız.';
+  private pedagogicalNote: string = '';
+  private targetSkills: string[] = [];
 
   constructor(type: ActivityType, title: string) {
     this.activityType = type;
     this.title = title;
+
+    // Aktivite tipine göre varsayılan meta verileri yükle
+    const meta = getOfflineMetadata(type);
+    this.pedagogicalNote = meta.pedagogicalNote;
+    this.targetSkills = meta.targetSkills;
   }
 
   /**
@@ -47,6 +54,7 @@ export class WorksheetBuilder {
    */
   public addPedagogicalNote(note: string): this {
     if (!note) return this;
+    this.pedagogicalNote = note;
     this.blocks.push({
       type: 'text',
       content: note,
@@ -117,6 +125,8 @@ export class WorksheetBuilder {
       type: this.activityType,
       title: this.title,
       instruction: this.instruction,
+      pedagogicalNote: this.pedagogicalNote,
+      targetSkills: this.targetSkills,
       layoutArchitecture: {
         cols: 1,
         gap: 20,

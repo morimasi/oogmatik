@@ -17,6 +17,8 @@ import {
   PREDEFINED_GRID_PATTERNS,
   turkishAlphabet,
 } from './helpers';
+import { getOfflineMetadata } from './metadataHelper';
+import { ActivityType } from '../../types';
 
 const mapDifficulty = (diff: string): 'beginner' | 'intermediate' | 'expert' | 'clinical' => {
   switch (diff) {
@@ -129,12 +131,14 @@ export const generateOfflineShapeCounting = async (
       });
     }
 
+    const meta = getOfflineMetadata(ActivityType.VISUAL_PERCEPTION);
+
     results.push({
       title: 'Görsel Tarama: Üçgen Avı (Geniş Saha)',
       instruction:
         'Aşağıdaki geniş alanda bulunan TÜM ÜÇGENLERİ bul ve sayısını kutucuğa yaz. Şekiller farklı boyut ve açılarda olabilir, dikkatli incele!',
-      pedagogicalNote:
-        'Geniş saha taraması, seçici dikkat ve şekil-zemin ayrıştırma becerilerini en üst düzeyde zorlayan profesyonel bir çalışmadır.',
+      pedagogicalNote: meta.pedagogicalNote,
+      targetSkills: meta.targetSkills,
       settings: {
         difficulty: mapDifficulty(difficulty || 'Orta'),
         targetShape: 'triangle',
@@ -545,13 +549,15 @@ export const generateOfflineVisualOddOneOut = async (
       });
     }
 
+    const meta = getOfflineMetadata(ActivityType.VISUAL_ODD_ONE_OUT);
+
     results.push({
       activityType: 'VISUAL_ODD_ONE_OUT' as any,
       title: 'GÖRSEL AYRIŞTIRMA VE KETLEME (Premium)',
       instruction:
         'Her satırda diğerlerinden farklı (yönü, şekli veya türü değişik) olan öğeyi bularak işaretleyin.',
-      pedagogicalNote:
-        'Görsel ayırt etme, yön tayini (spatial orientation) ve ketleme (inhibition) becerilerini geliştiren klinik materyal.',
+      pedagogicalNote: meta.pedagogicalNote,
+      targetSkills: meta.targetSkills,
       settings: {
         difficulty: mapDifficulty(difficulty || 'Orta'),
         layout: itemCount >= 7 ? 'ultra_dense' : 'grid_compact',

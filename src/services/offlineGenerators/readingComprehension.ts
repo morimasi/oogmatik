@@ -3,6 +3,7 @@ import { WorksheetBuilder } from '../generators/core/WorksheetBuilder';
 import { shuffle, getRandomItems, generateSudokuGrid, getRandomInt } from './helpers';
 import { COHERENT_STORY_TEMPLATES } from '../../data/sentences';
 import { TR_VOCAB } from './helpers';
+import { getOfflineMetadata } from './metadataHelper';
 
 const COLORS_LIST = [
     { name: 'KIRMIZI', hex: '#ef4444' },
@@ -33,6 +34,7 @@ const MIRROR_WORDS = ["BALIK", "DALGA", "POLAT", "OLUK", "BABA", "DADA", "KASA",
 
 export const generateOfflineReadingSudoku = async (options: GeneratorOptions): Promise<ReadingSudokuData[]> => {
     const { worksheetCount, difficulty, variant = 'letters', gridSize = 4 } = options;
+    const meta = getOfflineMetadata(ActivityType.READING_SUDOKU);
 
     const letterPool = shuffle(['B', 'D', 'P', 'Q', 'M', 'N', 'U', 'Ü', 'A', 'E', 'I', 'İ']);
     const wordPool = shuffle(['GÜNEŞ', 'YILDIZ', 'BULUT', 'YAĞMOR', 'KİTAP', 'KALEM', 'MASA', 'OKUL']);
@@ -53,7 +55,8 @@ export const generateOfflineReadingSudoku = async (options: GeneratorOptions): P
         return {
             title: "Dil ve Mantık Sudokusu",
             instruction: "Tablodaki her satır, her sütun ve her kalın çizgili bölgede semboller sadece BİR KEZ bulunmalıdır. Boşlukları doldur!",
-            pedagogicalNote: "Çalışma belleği, görsel tarama ve yönetici işlevleri (planlama, ketleme) sözel semboller üzerinden geliştirir.",
+            pedagogicalNote: meta.pedagogicalNote,
+            targetSkills: meta.targetSkills,
             grid: mappedGrid,
             solution: solution,
             symbols: selectedSymbols.map(s => ({ value: s, label: s, imagePrompt: variant === 'visuals' ? s : undefined })),
@@ -105,6 +108,7 @@ export const generateOfflineSynonymAntonymMatch = async (options: GeneratorOptio
 
 export const generateOfflineReadingStroop = async (options: GeneratorOptions): Promise<ReadingStroopData[]> => {
     const { worksheetCount, itemCount = 48, difficulty, variant = 'colors', gridSize } = options;
+    const meta = getOfflineMetadata(ActivityType.READING_STROOP);
 
     return Array.from({ length: worksheetCount ?? 1 }, () => {
         const grid = Array.from({ length: itemCount }).map(() => {
@@ -147,7 +151,8 @@ export const generateOfflineReadingStroop = async (options: GeneratorOptions): P
         return {
             title: 'Sözel Stroop Efekti Testi',
             instruction: 'DİKKAT: Kelimeyi okuma! Kelimenin yazıldığı RENGİ yüksek sesle söyle.',
-            pedagogicalNote: 'Dürtü kontrolü, yönetici işlevler ve sözel işlemleme hızını geliştirir.',
+            pedagogicalNote: meta.pedagogicalNote,
+            targetSkills: meta.targetSkills,
             grid: shuffle(grid),
             settings: {
                 // Öncelik gridSize, yoksa zorluk seviyesine göre default
@@ -187,6 +192,7 @@ const buildBaseStory = (difficulty: string) => {
 
 export const generateOfflineStoryComprehension = async (options: GeneratorOptions): Promise<StoryData[]> => {
     const { worksheetCount, difficulty } = options;
+    const meta = getOfflineMetadata(ActivityType.STORY_COMPREHENSION);
     return Array.from({ length: worksheetCount ?? 1 }, () => {
         const { title, story, imagePrompt, template, chosenValues } = buildBaseStory(difficulty ?? 'Orta');
 
@@ -228,7 +234,8 @@ export const generateOfflineStoryComprehension = async (options: GeneratorOption
             title,
             story,
             instruction: "Hikayeyi 3 kez oku, yıldızları boya ve soruları cevapla.",
-            pedagogicalNote: "Okuduğunu anlama, kelime bilgisi ve yaratıcı ifade.",
+            pedagogicalNote: meta.pedagogicalNote,
+            targetSkills: meta.targetSkills,
             imagePrompt,
             mainIdea: "Dikkatli okuma.",
             characters: [chosenValues['character']],

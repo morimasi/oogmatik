@@ -54,7 +54,11 @@ export interface SingleWorksheetData extends BaseActivityData {
   items?: Record<string, unknown>[];
   blocks?: WorksheetBlock[];
   content?: unknown;
-  [key: string]: any;
+  pedagogicalNote?: string;
+  targetSkills?: string[];
+  difficultyLevel?: string;
+  ageGroup?: string;
+  [key: string]: unknown;
 }
 export type WorksheetData = SingleWorksheetData[] | null;
 
@@ -188,7 +192,9 @@ export interface GeneratorOptions {
   includeAllQuestions?: boolean;
   passageLength?: 'short' | 'medium' | 'long';
   includeMultipleChoice?: boolean;
-  [key: string]: any;
+  pedagogicalNote?: string;
+  targetSkills?: string[];
+  [key: string]: unknown;
 }
 
 export interface OverlayItem {
