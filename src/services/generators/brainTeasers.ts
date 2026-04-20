@@ -33,7 +33,6 @@ ZORUNLU JSON ÇIKTISI:
     "activityType": "BRAIN_TEASERS",
     "title": "Kafayı Çalıştır: Zeka Oyunları",
     "instruction": "Soruları dikkatlice oku ve yaratıcı düşünerek çöz.",
-    "pedagogicalNote": "Bu etkinlik lateral düşünme, çalışma belleği ve sözel akıl yürütme becerilerini geliştirir.",
     "difficultyLevel": "${difficulty}",
     "ageGroup": "${options.ageGroup || '8-10'}",
     "profile": "${options.profile || 'adhd'}",

@@ -14,13 +14,12 @@ const PEDAGOGICAL_PROMPT = `
 ÜST DÜZEY EĞİTİM İÇERİĞİ OLUŞTURMA YÖNERGESİ (PREMIUM KALİTE):
 1.  **Rol:** Sen, "Özel Eğitim ve Üstün Yetenekliler" için materyal hazırlayan uzman bir pedagogsun.
 2.  **Çıktı:** Sadece geçerli JSON.
-3.  **"pedagogicalNote":** Bu alan veli/öğretmen içindir. Etkinliğin hangi spesifik bilişsel beceriyi (örn: görsel-uzamsal algı, mantıksal çıkarım, sıralı düşünme) nasıl desteklediğini akademik ama anlaşılır bir dille açıkla.
-4.  **"instruction":** Öğrenciye hitap et. Net, motive edici ve anlaşılır ol. (Örn: "Sıradaki sayıyı bulmak için kuralı keşfet ve boşluğu doldur.")
-5.  **"imagePrompt":** (Çok Önemli) Sen aynı zamanda bir Sanat Yönetmenisin. SVG üretecek bir yapay zeka için detaylı görsel tasviri yaz.
+3.  **"instruction":** Öğrenciye hitap et. Net, motive edici ve anlaşılır ol. (Örn: "Sıradaki sayıyı bulmak için kuralı keşfet ve boşluğu doldur.")
+4.  **"imagePrompt":** (Çok Önemli) Sen aynı zamanda bir Sanat Yönetmenisin. SVG üretecek bir yapay zeka için detaylı görsel tasviri yaz.
     - **Stil:** "Flat Vector Art Style", "Educational Illustration", "Clean Lines", "Vibrant Colors", "Minimalist Design".
     - **Detay:** Asla "bir şekil" deme. "Turuncu renkli, köşeleri yuvarlatılmış, içinde yıldız deseni olan sevimli bir beşgen vektörü" de.
     - **Amaç:** Görsel, soruyu çözmek için gerekli ipuçlarını net bir şekilde barındırmalı ve çocukların ilgisini çekecek, pozitif, renkli ve net görseller üretmektir. Korkutucu veya karanlık öğelerden kaçın.
-6.  **İçerik:**
+5.  **İçerik:**
     - Asla tekrar yapma.
     - "Lorem ipsum" yasak.
     - Mantıksal tutarlılık zorunlu.
@@ -73,7 +72,6 @@ export const generatePunctuationMazeFromAI = async (options: GeneratorOptions): 
     ÇIKTI FORMATI:
     - correctSentences: [string]
     - incorrectSentences: [string]
-    - pedagogicalNote: "Bu etkinlik, öğrencinin 'Virgül' noktalama işaretinin kullanım kuralları hakkındaki bilgisini pekiştirirken, aynı zamanda mantıksal çıkarım, analitik düşünme ve problem çözme becerilerini geliştirir. Labirent formatı, soyut kuralları görsel-uzamsal bir bağlamda ele almayı teşvik ederek öğrenmeyi daha ilgi çekici ve kalıcı hale getirir. Öğrencinin dikkatini ve odaklanma yeteneğini artırır."
     - imagePrompt: "Maze puzzle illustration with comma symbol, flat vector style, educational colors."
     - title: "Noktalama Labirenti (Virgül)"
     
@@ -87,7 +85,6 @@ export const generatePunctuationMazeFromAI = async (options: GeneratorOptions): 
             title: { type: 'STRING' },
             prompt: { type: 'STRING' },
             instruction: { type: 'STRING' },
-            pedagogicalNote: { type: 'STRING' },
             imagePrompt: { type: 'STRING' },
             punctuationMark: { type: 'STRING' },
             correctSentences: { type: 'ARRAY', items: { type: 'STRING' } },

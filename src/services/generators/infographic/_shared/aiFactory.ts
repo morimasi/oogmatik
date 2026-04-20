@@ -35,7 +35,6 @@ Aktivite Açıklaması: ${factoryOps.description}
 
 Lütfen bu konuyu pedagojik olarak çocuğun anlayacağı şekilde, aşağıda belirtilen kesin JSON şemasına uygun bir yanıt oluştur.
 - Aktivite için şu InfographicRenderer declarative syntax'ını kullan: ${factoryOps.syntaxGuide}
-- "pedagogicalNote" alanında öğretmen için en az 100 kelimelik, çocuğun yaşına ve SpLD profiline (${options.profile}) uygun bir rehberlik notu yaz. Disleksi veya DEHB ise nasıl uygulanmalı mutlaka vurgula.
 `;
 
         try {

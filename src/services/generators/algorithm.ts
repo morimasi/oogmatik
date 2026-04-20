@@ -33,7 +33,6 @@ export const generateAlgorithmGeneratorFromAI = async (options: GeneratorOptions
             properties: {
                 title: { type: 'STRING' },
                 instruction: { type: 'STRING' },
-                pedagogicalNote: { type: 'STRING' },
                 challenge: { type: 'STRING', description: "Algoritmanın çözdüğü temel problem/senaryo" },
                 steps: {
                     type: 'ARRAY',

@@ -41,7 +41,6 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
     {
         "title": "Harita Dedektifi: ${emphasizedRegion} Analizi",
         "instruction": "Haritadaki illeri ve bölgeleri inceleyerek yönergeleri hatasız uygula.",
-        "pedagogicalNote": "Uzamsal algı ve yön tayini becerilerini geliştirir.",
         "instructions": ["Yönerge 1", "Yönerge 2", "..."],
         "difficultyLevel": 3,
         "emphasizedRegion": "${emphasizedRegion}",

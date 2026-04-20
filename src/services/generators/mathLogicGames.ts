@@ -31,7 +31,6 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
             properties: {
                 title: { type: 'STRING' },
                 instruction: { type: 'STRING' },
-                pedagogicalNote: { type: 'STRING' },
                 sumTarget: { type: 'INTEGER' },
                 puzzles: {
                     type: 'ARRAY',

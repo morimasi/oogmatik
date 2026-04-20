@@ -9,7 +9,6 @@ import { BaseInfographicResult } from '../../../../types/infographic';
  * ⚠️ DİKKAT: Gemini'yi bu şemaya uymaya zorlar.
  */
 export const baseInfographicSchema = z.object({
-    pedagogicalNote: z.string().min(50).describe("Öğretmen için pedagojik açıklama. En az 100 kelime olmalı."),
     difficultyLevel: z.enum(['Kolay', 'Orta', 'Zor']).describe("Aktivitenin zorluk derecesi."),
     targetSkills: z.array(z.string()).describe("Geliştirilecek hedef beceriler listesi."),
     ageGroup: z.enum(['5-7', '8-10', '11-13', '14+']).describe("Hedef yaş grubu."),

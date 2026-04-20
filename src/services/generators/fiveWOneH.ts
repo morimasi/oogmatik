@@ -38,8 +38,7 @@ KRİTİK KURALLAR:
 2. ZPD UYUMU: Metin karmaşıklığı ${complexityInstruction} düzeyinde olmalı.
 3. KONU VE UZUNLUK: Konu "${topic}" olsun. Uzunluk ${lengthInstruction} olmalı.
 4. 5N1K SORULARI: Metinle tam uyumlu 6 soru (Kim, Ne, Nerede, Ne Zaman, Nasıl, Niçin) hazırla.
-5. PEDAGOJİK NOT: Bu aktivitenin "${age}" yaşındaki bir çocuk için neden yararlı olduğunu, hangi bilişsel beceriyi (işlemleme hızı, görsel hafıza, çıkarım yapma vb.) desteklediğini açıklayan profesyonel bir "pedagogicalNote" ekle.
-6. DİSLEKSİ DOSTU: Kelime seçimleri disleksi dostu olsun. Karıştırılabilecek harfleri (b-d, p-q vb.) çok yoğun kullanma veya dikkat çekici bir bağlamda sun.
+5. DİSLEKSİ DOSTU: Kelime seçimleri disleksi dostu olsun. Karıştırılabilecek harfleri (b-d, p-q vb.) çok yoğun kullanma veya dikkat çekici bir bağlamda sun.
 
 SORU TİPLERİ: ${questionStyle === 'test_and_open' ? 'Karma (Şıklı ve Açık Uçlu)' : questionStyle === 'only_test' ? 'Sadece 3 Şıklı Test' : 'Sadece Açık Uçlu'}.
 
@@ -49,7 +48,6 @@ Lütfen çıktını AŞAĞIDAKİ JSON YAPISINDA ve GEÇERLİ BİR FORMATTA ver (
     "id": "5n1k_${Date.now()}",
     "title": "Aktivite Başlığı",
     "instruction": "Metni dikkatle oku ve yanındaki/altındaki soruları cevapla.",
-    "pedagogicalNote": "Burada öğretmen için teknik açıklama yer almalı...",
     "settings": {
         "difficulty": "${difficulty}",
         "topic": "${topic}",
