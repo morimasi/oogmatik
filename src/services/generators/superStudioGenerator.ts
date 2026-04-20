@@ -93,9 +93,8 @@ const buildSchemaForTemplate = (_templateId: string): any => {
         type: 'STRING',
         description: "Tüm yönerge, metin, sorular ve SVG'leri içeren zengin Markdown içeriği",
       },
-      pedagogicalNote: { type: 'STRING', description: 'Öğretmene özel pedagojik açıklama' },
     },
-    required: ['title', 'content', 'pedagogicalNote'],
+    required: ['title', 'content'],
   };
 };
 
@@ -191,29 +190,6 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
   return CONTENT_FALLBACK;
 };
 
-/**
- * Extract pedagogicalNote from AI response - handles templates with non-standard response formats
- * CRITICAL: pedagogicalNote is REQUIRED and cannot be defaulted (per Elif Yıldız pedagojik standardı)
- */
-const extractPedagogicalNote = (templateId: string, aiResponse: any): string | null => {
-  // Standard response - pedagogicalNote REQUIRED (minimum 20 chars)
-  if (aiResponse.pedagogicalNote && aiResponse.pedagogicalNote.length >= 20) {
-    return aiResponse.pedagogicalNote;
-  }
-
-  // Template-specific fallbacks ONLY for known templates with partial structure
-  // (these are exceptions for backwards compatibility, not general rule)
-  if (templateId === 'soz-varligi' && aiResponse.text && !aiResponse.pedagogicalNote) {
-    return 'Bu etkinlik, öğrencinin kelime dağarcığını zenginleştirmeye yönelik çalışmalar içermektedir. Öğrenciye rehberlik ederek yeni kelimeler öğrenmesini destekleyin.';
-  }
-
-  if (templateId === 'hece-ses' && aiResponse.text && !aiResponse.pedagogicalNote) {
-    return 'Hece ve ses bilgisi etkinliği. Öğrencinin sesli okuma becerisini geliştirmek için tekrarlı okuma çalışmaları yapın.';
-  }
-
-  // ALL OTHER TEMPLATES: pedagogicalNote is REQUIRED - no fallback (returns null to trigger validation error)
-  return null;
-};
 
 /**
  * Super Türkçe Stüdyosu için AI destekli içerik üretici
@@ -248,7 +224,6 @@ export const generateSuperStudioContent = async (
             {
               title: `${tpl === 'okuma-anlama' ? '📚 Okuma Anlama Parçası' : tpl.replace('-', ' ').toUpperCase()} Etkinliği`,
               content: `[HIZLI MOD - ÖRNEKLENDİRME]\n\n${grade || 'Orta Düzey'} / ${difficulty} Zorluk\n\nBu içerik, hızlı mod için örnek içeriktir. Gerçek içerik üretimi için "AI Mod (Gemini)" seçeneğini kullanın.\n\nHızlı modda deterministik şablonlar kullanılır ve maliyet sıfırdır. Öğretmen tarafından manuel düzenleme yapılabilir.`,
-              pedagogicalNote: `Hızlı mod: ${tpl} aktivitesi için temel şablon üretildi. AI Mod ile pedagojik açıdan optimize edilmiş içerik alabilirsiniz.`,
             },
           ],
           createdAt: Date.now(),
@@ -325,16 +300,6 @@ export const generateSuperStudioContent = async (
 
         const content = formatContentForA4(tpl, aiResponse);
 
-        // Ensure pedagogicalNote exists (critical requirement)
-        const pedagogicalNote = extractPedagogicalNote(tpl, aiResponse);
-        if (!pedagogicalNote || pedagogicalNote.length < 20) {
-          throw new AppError(
-            'Pedagojik not çok kısa veya eksik (en az 20 karakter olmalıdır).',
-            'VALIDATION_ERROR',
-            400
-          );
-        }
-
         // Başlık çekme mantığı (aiResponse.title yoksa content'in ilk satırını dene)
         let title = aiResponse.title || '';
         if (!title && content) {
@@ -351,7 +316,6 @@ export const generateSuperStudioContent = async (
             {
               title,
               content: content,
-              pedagogicalNote: pedagogicalNote,
             },
           ],
           createdAt: Date.now(),

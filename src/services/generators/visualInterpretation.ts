@@ -47,7 +47,6 @@ JSON ÇIKTI FORMATI: (Yalnızca geçerli JSON döndür)
     "activityType": "VISUAL_INTERPRETATION",
     "title": "RESİM YORUMLAMA",
     "instruction": "Aşağıdaki cümleleri resme göre okuyup cevapla. Cümle Doğruysa (D) yanlışsa (Y) harfi koy.",
-    "pedagogicalNote": "Bu etkinlikte görsel ayrıştırma ve görsel detayları anlama becerileri hedeflenir.",
     "layoutArchitecture": {
         "blocks": [
             {

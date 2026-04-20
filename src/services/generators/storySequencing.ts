@@ -30,8 +30,7 @@ export const generateStorySequencingFromAI = async (options: GeneratorOptions): 
       "items": [
         { "id": "s1", "text": "Olay cümlesi 1", "correctOrder": 1 },
         { "id": "s2", "text": "Olay cümlesi 2", "correctOrder": 2 }
-      ],
-      "pedagogicalNote": "Bu çalışma zamansal algı ve mantıksal sıralama becerisini destekler."
+      ]
     }
   `;
 

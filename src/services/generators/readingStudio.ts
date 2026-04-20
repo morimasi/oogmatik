@@ -34,14 +34,13 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
     İÇERİK MİMARİSİ (AŞAĞIDAKİ TÜM BİLEŞENLERİ EKSİKSİZ ÜRET):
     1. STORY: ${lengthMap[config.length || 'medium']} uzunluğunda, ${complexityMap[config.textComplexity || 'moderate']} yapıda sürükleyici bir anlatı.
     2. SYLLABIFIED_STORY: Story alanındaki metnin aynısını, her kelimenin hecelerini kısa çizgi ile ayırarak oluştur.
-    3. PEDAGOGICAL_NOTE: Uzman açıklaması.
-    4. PEDAGOGICAL_GOALS: Bu metinle hedeflenen 3-5 adet bilişsel hedef.
-    5. 5N1K: Metne dayalı 6 soru (Kim, Ne, Nerede, Ne Zaman, Nasıl, Neden) ve cevapları.
-    6. VOCABULARY: Metindeki 5 zor kelime, anlamı ve örnek cümlesi.
-    7. TEST_QUESTIONS: Metinle ilgili 4 adet çoktan seçmeli soru. Her sorunun 4 şıkkı (A, B, C, D) ve 1 doğru cevabı olmalı.
-    8. LOGIC_QUESTIONS: Olaylar arası mantık kurmayı gerektiren 1 zor soru.
-    9. SYLLABLE_TRAIN: Metindeki en kritik 5 ile 10 ARASI kelimenin hecelerine ayrılmış listesi (vagon grafiği için).
-    10. CREATIVE_PROMPT: Öğrencinin hikayenin devamını çizmesi veya yazması için yaratıcı bir yönerge.
+    3. PEDAGOGICAL_GOALS: Bu metinle hedeflenen 3-5 adet bilişsel hedef.
+    4. 5N1K: Metne dayalı 6 soru (Kim, Ne, Nerede, Ne Zaman, Nasıl, Neden) ve cevapları.
+    5. VOCABULARY: Metindeki 5 zor kelime, anlamı ve örnek cümlesi.
+    6. TEST_QUESTIONS: Metinle ilgili 4 adet çoktan seçmeli soru. Her sorunun 4 şıkkı (A, B, C, D) ve 1 doğru cevabı olmalı.
+    7. LOGIC_QUESTIONS: Olaylar arası mantık kurmayı gerektiren 1 zor soru.
+    8. SYLLABLE_TRAIN: Metindeki en kritik 5 ile 10 ARASI kelimenin hecelerine ayrılmış listesi (vagon grafiği için).
+    9. CREATIVE_PROMPT: Öğrencinin hikayenin devamını çizmesi veya yazması için yaratıcı bir yönerge.
     
     FORMAT: Sadece JSON döndür.
     `;
@@ -54,7 +53,6 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
             syllabifiedStory: { type: 'STRING' },
             genre: { type: 'STRING' },
             gradeLevel: { type: 'STRING' },
-            pedagogicalNote: { type: 'STRING' },
             pedagogicalGoals: { type: 'ARRAY', items: { type: 'STRING' } },
             imagePrompt: { type: 'STRING' },
             creativePrompt: { type: 'STRING' },
@@ -107,7 +105,7 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
                 }
             }
         },
-        required: ['title', 'story', 'syllabifiedStory', 'pedagogicalNote', 'pedagogicalGoals', 'multipleChoice', 'syllableTrain', 'creativePrompt']
+        required: ['title', 'story', 'syllabifiedStory', 'pedagogicalGoals', 'multipleChoice', 'syllableTrain', 'creativePrompt']
     };
 
     return await generateWithSchema(prompt, schema);

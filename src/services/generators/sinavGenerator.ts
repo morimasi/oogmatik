@@ -69,8 +69,6 @@ export const callGeminiDirect = async (prompt: string, schema: object): Promise<
           tahminiSure: 300,
         },
       ],
-      pedagogicalNote:
-        'Bu sınav T.5.3.1 ve T.5.3.2 kazanımlarını ölçmektedir. Öğretmen dikkat noktaları: İlk iki soru kolay seviyede başarı anı mimarisini desteklemektedir. Üçüncü soru mekân kavramını pekiştirirken, son soru öğrencinin metni analiz etme becerisini değerlendirir. Disleksi desteğine ihtiyaç duyan öğrenciler için sade dil kullanılmıştır.',
     };
   }
 
@@ -193,7 +191,6 @@ ${settings.ozelKonu ? `[TEMA]\nTüm sorular "${settings.ozelKonu}" teması etraf
 - Boşluk doldurma: 5 puan, ~60 saniye
 - Açık uçlu: 10 puan, ~300 saniye
 
-UYARI: pedagogicalNote alanı ZORUNLU, en az 100 karakter olmalı.
 `;
 };
 
@@ -226,9 +223,8 @@ const EXAM_SCHEMA = {
         required: ['id', 'tip', 'zorluk', 'soruMetni', 'dogruCevap', 'kazanimKodu', 'puan', 'tahminiSure']
       }
     },
-    pedagogicalNote: { type: 'STRING' }
   },
-  required: ['baslik', 'sorular', 'pedagogicalNote']
+  required: ['baslik', 'sorular']
 };
 
 /**
@@ -272,14 +268,6 @@ export const generateExam = async (settings: SinavAyarlari): Promise<Sinav> => {
   try {
     const aiResponse = await callGeminiDirect(prompt, EXAM_SCHEMA) as any;
 
-    // Validation: pedagogicalNote kontrolü
-    if (!aiResponse.pedagogicalNote || aiResponse.pedagogicalNote.length < 100) {
-      // Pedagojik not yoksa oluştur (hata vermek yerine fallback)
-      aiResponse.pedagogicalNote =
-        `Bu sınav ${settings.sinif}. sınıf Türkçe dersi için ${settings.secilenKazanimlar.join(', ')} ` +
-        `kazanımlarını ölçmektedir. Başarı Anı Mimarisi ile ilk iki soru öğrencinin motivasyonunu artırmak için ` +
-        `kolay tutulmuştur. Öğretmen geri bildiriminde öğrencinin güçlü yönlerini vurgulaması önerilir.`;
-    }
 
     // Defensive coding: sorular array kontrolü
     if (!Array.isArray(aiResponse.sorular)) {
@@ -322,7 +310,6 @@ export const generateExam = async (settings: SinavAyarlari): Promise<Sinav> => {
       tahminiSure,
       olusturmaTarihi: new Date().toISOString(),
       olusturanKullanici: 'system',
-      pedagogicalNote: aiResponse.pedagogicalNote,
       cevapAnahtari
     };
 

@@ -70,7 +70,6 @@ export async function generateSariKitapContent(
 
         const content: SariKitapGeneratedContent = {
             title: (aiData.title as string) ?? 'Sarı Kitap Etkinliği',
-            pedagogicalNote: (aiData.pedagogicalNote as string) ?? '',
             instructions: (aiData.instructions as string) ?? '',
             targetSkills: (aiData.targetSkills as string[]) ?? [...config.targetSkills],
             rawText,

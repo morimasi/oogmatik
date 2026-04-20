@@ -42,7 +42,6 @@ export const generateReadingSudokuFromAI = async (options: GeneratorOptions): Pr
             properties: {
                 title: { type: 'STRING' },
                 instruction: { type: 'STRING' },
-                pedagogicalNote: { type: 'STRING' },
                 grid: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING', nullable: true } } },
                 solution: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } } },
                 symbols: {
@@ -89,7 +88,6 @@ export const generateSynonymAntonymMatchFromAI = async (options: GeneratorOption
     2. "pairs" listesi: Bir kaynak kelime ve onun hedef (eş veya zıt) anlamlısını içermeli.
     3. GÖRSEL KULLANMA: Bu etkinlik sadece metin tabanlıdır, kesinlikle görsel/imagePrompt üretme.
     4. "sentences" listesi: Kelimenin cümle içindeki kullanımını ve parantez içinde bizden ne istendiğini belirt (örn: "(Zıt Anlamlısını Yaz)").
-    5. Pedagojik Not: Disleksi gelişimini nasıl desteklediğini teknik ama anlaşılır açıkla.
 
     ÇIKTI: JSON.
     `;
@@ -101,7 +99,6 @@ export const generateSynonymAntonymMatchFromAI = async (options: GeneratorOption
             properties: {
                 title: { type: 'STRING' },
                 instruction: { type: 'STRING' },
-                pedagogicalNote: { type: 'STRING' },
                 mode: { type: 'STRING' },
                 pairs: {
                     type: 'ARRAY',
@@ -162,7 +159,6 @@ export const generateReadingStroopFromAI = async (options: GeneratorOptions): Pr
     3. Disleksi dostu font ve yerleşim planla.
     4. Renk kodlarını (hex veya css name) çeşitlendir.
     
-    ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet sayfa üret.
     `;
 
@@ -173,7 +169,6 @@ export const generateReadingStroopFromAI = async (options: GeneratorOptions): Pr
             properties: {
                 title: { type: 'STRING' },
                 instruction: { type: 'STRING' },
-                pedagogicalNote: { type: 'STRING' },
                 grid: {
                     type: 'ARRAY',
                     items: {
@@ -224,7 +219,6 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
     
     GÖRSEL PROMPT: Hikayenin en can alıcı sahnesini betimleyen, çocuklar için uygun, renkli, "storybook illustration" tarzında İngilizce bir prompt yaz.
     
-    ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
     `;
 
@@ -233,7 +227,6 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
         properties: {
             title: { type: 'STRING' },
             story: { type: 'STRING' },
-            pedagogicalNote: { type: 'STRING' },
             imagePrompt: { type: 'STRING' },
             mainIdea: { type: 'STRING' },
             characters: { type: 'ARRAY', items: { type: 'STRING' } },
@@ -265,7 +258,7 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
                 }
             }
         },
-        required: ['title', 'story', 'imagePrompt', 'mainIdea', 'characters', 'setting', 'questions', 'pedagogicalNote', 'vocabulary', 'creativeTask']
+        required: ['title', 'story', 'imagePrompt', 'mainIdea', 'characters', 'setting', 'questions', 'vocabulary', 'creativeTask']
     };
 
     const schema = { type: 'ARRAY', items: singleSchema };

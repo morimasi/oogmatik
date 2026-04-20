@@ -37,7 +37,6 @@ export const generateHiddenPasswordGridFromAI = async (options: GeneratorOptions
             properties: {
                 title: { type: 'STRING' },
                 instruction: { type: 'STRING' },
-                pedagogicalNote: { type: 'STRING' },
                 settings: {
                     type: 'OBJECT',
                     properties: {

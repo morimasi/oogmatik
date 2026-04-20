@@ -59,8 +59,7 @@ export const generateSentenceFiveWOneHFromAI = async (
             { "type": "why", "question": "Niçin?", "answer": "..." }
           ]
         }
-      ],
-      "pedagogicalNote": "Öğretmen için pedagojik açıklama"
+      ]
     }
   `;
 
@@ -76,7 +75,6 @@ export const generateSentenceFiveWOneHFromAI = async (
       title: 'Cümlede 5N1K Çalışması',
       instruction: 'Aşağıdaki cümleleri okuyunuz ve ilgili 5N1K sorularını cevaplayınız.',
       items: result.items as Sentence5W1HItem[],
-      pedagogicalNote: result.pedagogicalNote || 'Bu aktivite, öğrencinin okuduğunu anlama ve temel dil bilgisi yapılarını (5N1K) analiz etme becerilerini geliştirir.',
       metadata: {
         difficulty,
         ageGroup,

@@ -47,8 +47,7 @@ export const generateStoryAnalysisFromAI = async (options: GeneratorOptions): Pr
           "risingAction": "Gelişme (Olaylar nasıl gelişti?)",
           "resolution": "Sonuç (Nasıl bitti?)"
         }
-      },
-      "pedagogicalNote": "Öğretmen için teknik açıklama"
+      }
     }
   `;
 
