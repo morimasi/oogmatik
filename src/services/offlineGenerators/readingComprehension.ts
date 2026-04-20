@@ -55,7 +55,6 @@ export const generateOfflineReadingSudoku = async (options: GeneratorOptions): P
         return {
             title: "Dil ve Mantık Sudokusu",
             instruction: "Tablodaki her satır, her sütun ve her kalın çizgili bölgede semboller sadece BİR KEZ bulunmalıdır. Boşlukları doldur!",
-            pedagogicalNote: meta.pedagogicalNote,
             targetSkills: meta.targetSkills,
             grid: mappedGrid,
             solution: solution,
@@ -85,7 +84,6 @@ export const generateOfflineSynonymAntonymMatch = async (options: GeneratorOptio
 
     const builder = new WorksheetBuilder(ActivityType.SYNONYM_ANTONYM_MATCH, title)
         .addPremiumHeader()
-        .addPedagogicalNote("Semantik hafıza, kelime dağarcığı ve bağlamsal akıl yürütme becerilerini destekler. Disleksik öğrenciler için kelime-anlam ilişkilerini güçlendirir.")
         .addPrimaryActivity('match_columns', {
             leftTitle: 'Kelime',
             rightTitle: 'Anlamdaşı/Zıttı',
@@ -151,7 +149,6 @@ export const generateOfflineReadingStroop = async (options: GeneratorOptions): P
         return {
             title: 'Sözel Stroop Efekti Testi',
             instruction: 'DİKKAT: Kelimeyi okuma! Kelimenin yazıldığı RENGİ yüksek sesle söyle.',
-            pedagogicalNote: meta.pedagogicalNote,
             targetSkills: meta.targetSkills,
             grid: shuffle(grid),
             settings: {
@@ -234,7 +231,6 @@ export const generateOfflineStoryComprehension = async (options: GeneratorOption
             title,
             story,
             instruction: "Hikayeyi 3 kez oku, yıldızları boya ve soruları cevapla.",
-            pedagogicalNote: meta.pedagogicalNote,
             targetSkills: meta.targetSkills,
             imagePrompt,
             mainIdea: "Dikkatli okuma.",
@@ -255,7 +251,6 @@ export const generateOfflineStoryCreationPrompt = async (options: GeneratorOptio
         return {
             title: `Hikaye Atölyesi: ${title}`,
             instruction: "Verilen ipuçlarını kullanarak kendi hikayeni oluştur.",
-            pedagogicalNote: "Yaratıcı yazma ve kurgu oluşturma.",
             imagePrompt,
             prompt: "Aşağıdaki anahtar kelimeleri kullanarak hikayeyi tamamla.",
             keywords: Object.values(chosenValues).slice(0, 5),
@@ -283,7 +278,6 @@ export const generateOfflineWordsInStory = async (options: GeneratorOptions): Pr
         return {
             title: 'Kelime Dedektifi',
             instruction: "Metni oku ve seçili kelimelerin anlamlarını bul.",
-            pedagogicalNote: "Bağlamdan anlam çıkarma.",
             imagePrompt,
             story,
             vocabWork: vocabWork.length > 0 ? vocabWork : [{ word: 'Hikaye', contextQuestion: 'Hikaye nedir?', type: 'meaning' }]
@@ -299,7 +293,6 @@ export const generateOfflineStoryAnalysis = async (options: GeneratorOptions): P
         return {
             title: 'Kapsamlı Hikaye Analizi (Ultra Pro)',
             instruction: "Hikayeyi dikkatlice oku ve aşağıdaki analiz tablosunu doldur.",
-            pedagogicalNote: "Hikaye haritalama, karakter analizi ve ana fikir tespiti yoluyla üst düzey okuduğunu anlama becerilerini destekler.",
             content: {
                 title,
                 story,
@@ -345,7 +338,6 @@ export const generateOfflineStorySequencing = async (options: GeneratorOptions):
         return {
             title: 'Olay Örgüsü Sıralama (Ultra Pro)',
             instruction: "Olayları oluş sırasına göre (1-4) numaralandırarak dizin.",
-            pedagogicalNote: "Kronolojik algı, sebep-sonuç ilişkisi kurma ve anlatı yapısını kavrama becerilerini geliştirir.",
             content: {
                 title: seq.title,
                 panels: shuffle(panels),
@@ -382,7 +374,6 @@ export const generateOfflineMissingParts = async (options: GeneratorOptions): Pr
         return {
             title: 'Anlamsal Akış ve Boşluk Doldurma (Ultra Pro)',
             instruction: "Metindeki boşlukları anlam akışına uygun kelimelerle tamamlayın.",
-            pedagogicalNote: "Leksikal erişim, bağlamsal tahmin ve anlamsal bütünlük kurma becerilerini destekler.",
             content: {
                 title,
                 paragraphs: [{ parts: maskedParts }],
@@ -410,7 +401,6 @@ export const generateOfflineProverbFillInTheBlank = async (o: GeneratorOptions) 
     return Array.from({ length: o.worksheetCount ?? 1 }, () => ({
         title: "Atasözü Tamamlama",
         instruction: "Eksik bırakılan atasözlerini uygun kelimelerle tamamlayın.",
-        pedagogicalNote: "Kültürel farkındalık ve bağlamsal tamamlama becerisi.",
         puzzles: getRandomItems(PROVERBS, 3).map(p => {
             const words = p.split(' ');
             const idx = getRandomInt(0, words.length - 1);
@@ -425,7 +415,6 @@ export const generateOfflineProverbSayingSort = async (o: GeneratorOptions) => {
     return Array.from({ length: o.worksheetCount ?? 1 }, () => ({
         title: "Atasözü Karışık Kelimeler",
         instruction: "Karışık verilen kelimeleri anlamlı bir atasözü oluşturacak şekilde sıralayın.",
-        pedagogicalNote: "Sintaktik farkındalık ve sıralı düşünme becerisi.",
         puzzles: getRandomItems(PROVERBS, 3).map(p => ({
             scrambled: shuffle(p.split(' ')).join(' / '),
             original: p

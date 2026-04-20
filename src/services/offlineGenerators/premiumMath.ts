@@ -52,8 +52,7 @@ export async function generateOfflinePremiumMathPuzzle(
 
   const builder = new WorksheetBuilder(ActivityType.MATH_PUZZLE, 'Matematik Bulmacaları')
     .addPremiumHeader()
-    .setInstruction('Her bulmacayı dikkatlice çöz. İpuçlarını kullan!')
-    .addPedagogicalNote('Matematik bulmacaları, cebirsel düşünme, ters işlem mantığı ve problem çözme stratejilerini geliştirir. Farklı türdeki bulmacalar bilişsel esnekliği artırır.');
+    .setInstruction('Her bulmacayı dikkatlice çöz. İpuçlarını kullan!');
 
   // Bölüm 1: Sihirli Kare
   builder.addPrimaryActivity('grid', {
@@ -106,7 +105,6 @@ export async function generateOfflinePremiumClockReading(
   const builder = new WorksheetBuilder(ActivityType.CLOCK_READING, 'Saat Okuma Çalışması')
     .addPremiumHeader()
     .setInstruction('Analog saatleri oku ve dijital karşılığını yaz. Zaman problemlerini çöz.')
-    .addPedagogicalNote('Saat okuma, zamansal kavramları somutlaştırır ve günlük yaşam matematiğinin temelini oluşturur. Analog-dijital dönüşüm, sayı hissi ve çarpma/bölme ilişkisini pekiştirir.')
     .addPrimaryActivity('table', {
       title: '⏰ Bölüm 1: Saati Oku ve Yaz',
       headers: ['#', 'Analog Saat (Akrep/Yelkovan)', 'Dijital Saat'],
@@ -148,7 +146,6 @@ export async function generateOfflinePremiumMoneyCounting(
   const builder = new WorksheetBuilder(ActivityType.MONEY_COUNTING, 'Paralarımız')
     .addPremiumHeader()
     .setInstruction('Paraları say, topla ve alışveriş hesaplarını yap.')
-    .addPedagogicalNote('Para hesaplama, toplama-çıkarma işlemlerini somutlaştırır ve finansal okuryazarlığı geliştirir. Diskalkuli desteğinde, sayı-miktar ilişkisini günlük yaşam bağlamında pekiştirir.')
     .addPrimaryActivity('table', {
       title: '💰 Bölüm 1: Paraları Say ve Topla',
       headers: ['#', 'Paralar', 'Toplam'],
@@ -233,7 +230,6 @@ export async function generateOfflinePremiumNumberPattern(
   const builder = new WorksheetBuilder(ActivityType.NUMBER_PATTERN, 'Sayı Örüntüleri')
     .addPremiumHeader()
     .setInstruction('Her dizideki kuralı bul ve "?" olan yerlere doğru sayıyı yaz.')
-    .addPedagogicalNote('Sayı örüntüleri, serisel muhakeme ve cebirsel düşünmenin temelini oluşturur. Disleksi ve diskalkuli profillerinde, sayılar arası ilişki kurma becerisi sistematik pratikle güçlenir.')
     .addPrimaryActivity('table', {
       title: '🔢 Sayı Dizileri — Boşlukları Doldur',
       headers: ['#', 'Dizi', 'Kural'],
@@ -278,7 +274,6 @@ export async function generateOfflinePremiumNumberPyramid(
   const builder = new WorksheetBuilder(ActivityType.NUMBER_PYRAMID, 'Sayı Piramitleri')
     .addPremiumHeader()
     .setInstruction('Kural: Üstteki kutu = altındaki iki kutunun toplamı. Boş kutuları doldur.')
-    .addPedagogicalNote('Sayı piramitleri, toplama akıcılığı ve ters işlem (çıkarma) becerisini eş zamanlı geliştirir. Çok yönlü düşünme ve stratejik çözüm gerektirir.')
     .addPrimaryActivity('grid', {
       title: '🔺 Toplama Piramitleri',
       pyramids: pyramids.map((p, idx) => ({
@@ -313,8 +308,7 @@ export async function generateOfflinePremiumRealLifeMath(
 
   const builder = new WorksheetBuilder(ActivityType.REAL_LIFE_MATH_PROBLEMS, 'Gerçek Hayat Problemleri')
     .addPremiumHeader()
-    .setInstruction('Her senaryoyu dikkatlice oku. İşlemlerini kutuda göster, cevabını yaz.')
-    .addPedagogicalNote('Gerçek hayat problemleri, matematiksel modelleme ve transfer becerisini geliştirir. Somut bağlamlar, soyut işlemlerin anlamlandırılmasını sağlar. Diskalkuli desteğinde günlük yaşam aritmetiği kritik bir müdahale alanıdır.');
+    .setInstruction('Her senaryoyu dikkatlice oku. İşlemlerini kutuda göster, cevabını yaz.');
 
   problems.forEach((p, idx) => {
     builder.addPrimaryActivity('text', {
@@ -353,7 +347,6 @@ export async function generateOfflinePremiumVisualArithmetic(
   const builder = new WorksheetBuilder(ActivityType.VISUAL_ARITHMETIC, 'Görsel Aritmetik')
     .addPremiumHeader()
     .setInstruction('Nesneleri sayarak işlemi çöz ve sonucu yaz.')
-    .addPedagogicalNote('Görsel aritmetik, somut işlemden soyut işleme geçişi destekler. Nesnelerle sayma, diskalkuli profillerinde sayı-miktar ilişkisini güçlendirir.')
     .addPrimaryActivity('table', {
       title: '🎨 Nesnelerle Toplama',
       headers: ['#', 'Görsel İşlem', 'Sonuç'],
@@ -388,7 +381,6 @@ export async function generateOfflinePremiumNumberSense(
   const builder = new WorksheetBuilder(ActivityType.NUMBER_SENSE, 'Sayı Hissi Çalışması')
     .addPremiumHeader()
     .setInstruction('Sayıları karşılaştır (<, >, =), tahmini sonuçları bul.')
-    .addPedagogicalNote('Sayı hissi, sayısal büyüklük algısının temelidir. Anlık karşılaştırma ve yaklaşık hesaplama, matematiksel sezgiyi güçlendirir.')
     .addPrimaryActivity('table', {
       title: '⚖️ Büyük mü Küçük mü?  ( <  >  = )',
       headers: ['Sayı 1', 'Karşılaştırma', 'Sayı 2'],
@@ -424,7 +416,6 @@ export async function generateOfflinePremiumEstimation(
   const builder = new WorksheetBuilder(ActivityType.ESTIMATION, 'Tahmin Çalışması')
     .addPremiumHeader()
     .setInstruction('Her soru için önce tahminini yaz. Sonra kontrol et!')
-    .addPedagogicalNote('Tahmin becerisi, sayısal sezgiyi ve büyüklük algısını geliştirir. Kesin hesap yapmadan yaklaşık sonuç bulma, günlük hayatta en sık kullanılan matematik becerisidir.')
     .addPrimaryActivity('table', {
       title: '🏺 Kaç Tane Var?',
       headers: ['#', 'Kavanozda Ne Var?', 'İpucu', 'Tahmin', 'Gerçek'],
@@ -469,7 +460,6 @@ export async function generateOfflinePremiumKendoku(
   const builder = new WorksheetBuilder(ActivityType.KENDOKU, 'Kendoku Bulmacaları')
     .addPremiumHeader()
     .setInstruction('Kural: Her satır ve sütunda 1-4 arası sayılar birer kez bulunur. Kafes toplamları verilmiştir.')
-    .addPedagogicalNote('Kendoku, cebirsel düşünme ve kısıtlama çözümleme becerilerini geliştirir. Dört işlem fluency\'si ve mantıksal eliminasyon bir arada çalışır.')
     .addPrimaryActivity('grid', {
       title: '🧩 Kendoku 4×4',
       matrix: shown4.map(row => row.map(v => v !== null ? String(v) : '')),
@@ -519,7 +509,6 @@ export async function generateOfflinePremiumMathStudio(
   const builder = new WorksheetBuilder(ActivityType.MATH_STUDIO, 'Matematik Drili')
     .addPremiumHeader()
     .setInstruction('Her bölümdeki işlemleri çöz. Süre tutabilirsin!')
-    .addPedagogicalNote('Dört işlem drili, işlemsel akıcılığı (operational fluency) geliştirir. Otomatikleşen temel işlemler, üst düzey problem çözme için bilişsel kaynak serbest bırakır.')
     .addPrimaryActivity('dual_column', {
       left: {
         title: '➕ Toplama',

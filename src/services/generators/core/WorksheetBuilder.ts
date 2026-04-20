@@ -12,7 +12,6 @@ export class WorksheetBuilder {
   private title: string = '';
   private activityType: ActivityType;
   private instruction: string = 'Lütfen aşağıdaki etkinliği dikkatlice tamamlayınız.';
-  private pedagogicalNote: string = '';
   private targetSkills: string[] = [];
 
   constructor(type: ActivityType, title: string) {
@@ -21,7 +20,6 @@ export class WorksheetBuilder {
 
     // Aktivite tipine göre varsayılan meta verileri yükle
     const meta = getOfflineMetadata(type);
-    this.pedagogicalNote = meta.pedagogicalNote;
     this.targetSkills = meta.targetSkills;
   }
 
@@ -49,26 +47,6 @@ export class WorksheetBuilder {
     return this;
   }
 
-  /**
-   * Öğretmen için pedagojik not alanı ekler.
-   */
-  public addPedagogicalNote(note: string): this {
-    if (!note) return this;
-    this.pedagogicalNote = note;
-    this.blocks.push({
-      type: 'text',
-      content: note,
-      style: {
-        fontSize: 12,
-        backgroundColor: '#f8fafc',
-        borderRadius: 12,
-        color: '#475569'
-      },
-      id: 'pedagogical-note',
-      weight: 1
-    });
-    return this;
-  }
 
   /**
    * Ana etkinlik içeriğini ekler.
@@ -125,7 +103,6 @@ export class WorksheetBuilder {
       type: this.activityType,
       title: this.title,
       instruction: this.instruction,
-      pedagogicalNote: this.pedagogicalNote,
       targetSkills: this.targetSkills,
       layoutArchitecture: {
         cols: 1,

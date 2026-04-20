@@ -147,7 +147,6 @@ export interface MatSinav {
   tahminiSure: number; // saniye
   olusturmaTarihi: string;
   olusturanKullanici: string;
-  pedagogicalNote: string; // ZORUNLU
   cevapAnahtari: MatCevapAnahtari;
 }
 

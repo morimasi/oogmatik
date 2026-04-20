@@ -12,7 +12,6 @@ export interface StyleSettings {
     fontWeight: 'normal' | 'bold';
     fontStyle: 'normal' | 'italic';
     visualStyle: 'card' | 'minimal';
-    showPedagogicalNote: boolean;
     showMascot: boolean;
     showStudentInfo: boolean;
     showTitle: boolean;
@@ -36,7 +35,6 @@ export interface StyleSettings {
 export interface BaseActivityData {
     title: string;
     instruction: string;
-    pedagogicalNote?: string;
     targetSkills?: string[];
     imagePrompt?: string;
     imageBase64?: string;

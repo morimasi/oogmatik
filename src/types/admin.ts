@@ -114,7 +114,6 @@ export interface ActivityDraft {
     estimatedDuration?: number;
     targetSkills?: string[];
     learningObjectives?: string[];
-    pedagogicalNote?: string;
     curriculumCode?: string;
   };
   templateId?: string;

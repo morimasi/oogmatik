@@ -242,7 +242,6 @@ export interface MemoryPhaseData {
 
 export interface SariKitapGeneratedContent {
   title: string;
-  pedagogicalNote: string;
   instructions: string;
   targetSkills: string[];
   rawText: string;

@@ -11,7 +11,6 @@
  * - TypeScript strict mode — `any` tipi YASAK
  * - Tüm öğrenme profilleri desteklenmeli (dyslexia, dyscalculia, adhd, mixed)
  * - KVKV uyumu zorunlu — öğrenci adı + tanı + skor birlikte görünmez
- * - pedagogicalNote her aktivitede ZORUNLU
  */
 
 import { ActivityType, LearningDisabilityProfile, AgeGroup, Difficulty } from './index';
@@ -321,8 +320,7 @@ export interface WorkbookActivityContent {
   activityType: ActivityType;
   activityData: unknown; // Aktiviteye özel veri (any yasak — unknown kullan)
 
-  // Pedagojik bilgi (ZORUNLU)
-  pedagogicalNote: string;
+  // Pedagojik bilgi
   targetSkills: string[];
   difficulty: Difficulty;
   estimatedDuration: number; // dakika
@@ -620,8 +618,7 @@ export type AIWorkbookSuggestionType =
   | 'add-divider' // Bölüm ayırıcı önerisi
   | 'improve-balance' // Aktivite dengesi
   | 'fill-skill-gap' // Beceri boşluğu doldurma
-  | 'add-assessment' // Değerlendirme önerisi
-  | 'improve-pedagogy'; // Pedagojik not iyileştirme
+  | 'add-assessment'; // Değerlendirme önerisi
 
 // ============================================================================
 // IMPORT/EXPORT TYPES

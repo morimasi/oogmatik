@@ -21,7 +21,6 @@ export type InfographicDifficulty = 'Kolay' | 'Orta' | 'Zor';
 export type InfographicProfile = 'dyslexia' | 'dyscalculia' | 'adhd' | 'mixed' | 'general';
 
 export interface BaseInfographicResult {
-  pedagogicalNote: string; // Zorunlu! Elif Yıldız kuralı: min 100 kelime
   difficultyLevel: InfographicDifficulty;
   targetSkills: string[];
   ageGroup: InfographicAgeGroup;
@@ -40,7 +39,6 @@ export interface InfographicActivityResult extends BaseInfographicResult {
   category: InfographicCategory;
   generationMode: InfographicGenerationMode;
   mebKazanim?: string; // MEB kazanım kodu (Kat.1-6 önerilir)
-  spldNote?: string; // SpLD-özel pedagojik not
 }
 
 // ── ÜRETİM MODU ─────────────────────────────────────────────────────────────
@@ -266,7 +264,6 @@ export interface UltraCustomizationParams {
 export interface InfographicGeneratorResult {
   title: string;
   content: InfographicActivityContent;
-  pedagogicalNote: string;
   layoutHints: {
     orientation: string;
     fontSize: number;

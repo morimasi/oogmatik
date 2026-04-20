@@ -31,7 +31,6 @@ export interface AgentInput {
 export interface AgentOutput {
   agentId: AgentId;
   data: Record<string, unknown>;
-  pedagogicalNote: string;
   tokenUsage: { input: number; output: number };
   timestamp: string;
 }
@@ -204,7 +203,6 @@ export interface ActivityLibraryItem {
   keywords: string[];
   sortOrder: number;
   topicTemplate: string;
-  pedagogicalNote: string;
   searchIndex: string;
 }
 
@@ -227,7 +225,6 @@ export interface ContentBlock {
   content: string;
   videoUrl?: string;
   imageUrl?: string;
-  pedagogicalNote: string;
 }
 
 // ─── Bileşen Fabrikası ──────────────────────────────────────────────
@@ -302,7 +299,6 @@ export interface ActivityStudioState {
   themeConfig: ThemeConfig | null;
   compactA4Config: CompactA4Config | null;
   exportSettings: ExportSettings | null;
-  pedagogicalNote: string;
   setStep: (step: WizardStepId) => void;
   updateGoal: (data: Partial<StudioGoalConfig>) => void;
   setSelectedLibraryItem: (id: string, topic?: string) => void;
@@ -310,7 +306,6 @@ export interface ActivityStudioState {
   setThemeConfig: (config: Partial<ThemeConfig>) => void;
   setCompactA4Config: (config: Partial<CompactA4Config>) => void;
   setExportSettings: (settings: Partial<ExportSettings>) => void;
-  setPedagogicalNote: (note: string) => void;
   setGenerating: (value: boolean) => void;
   setError: (message: string | null) => void;
   resetStudio: () => void;

@@ -69,7 +69,6 @@ export interface Sinav {
   tahminiSure: number;
   olusturmaTarihi: string;
   olusturanKullanici: string;
-  pedagogicalNote: string;    // ZORUNLU
   cevapAnahtari: CevapAnahtari;
 }
 

@@ -15,8 +15,7 @@ export async function generateOfflineInfographic(
     const title = _getInfographicTitle(type);
     
     const builder = new WorksheetBuilder(type, title)
-        .addPremiumHeader()
-        .addPedagogicalNote(_getPedagogicalNote(type));
+        .addPremiumHeader();
 
     // Aktivite türüne göre içerik oluştur
     switch (type) {
@@ -146,6 +145,3 @@ function _getInfographicTitle(type: ActivityType): string {
     }
 }
 
-function _getPedagogicalNote(type: ActivityType): string {
-    return 'Bu infografik çalışması, öğrencinin bilgiyi görsel olarak organize etmesini sağlayarak bilişsel yükü azaltır. Görsel-mekansal zekayı desteklerken kavramlar arası hiyerarşik bağların kurulmasına yardımcı olur. Disleksi dostu yapısı sayesinde metin yoğunluğunu düşürür.';
-}

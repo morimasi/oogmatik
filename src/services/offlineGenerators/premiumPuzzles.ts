@@ -36,7 +36,6 @@ export async function generateOfflinePremiumAnagram(
   const builder = new WorksheetBuilder(ActivityType.ANAGRAM, 'Anagram Çöz!')
     .addPremiumHeader()
     .setInstruction('Karışık harfleri doğru sıraya koyarak anlamlı kelimeyi bul. İpuçlarını kullan!')
-    .addPedagogicalNote('Anagram çözme, fonolojik manipülasyon ve kelime hafızasını geliştirir. Harfleri zihinsel olarak yeniden düzenleme, çalışma belleği kapasitesini artırır ve yazma becerisini destekler.')
     .addPrimaryActivity('table', {
       title: '🔤 Harfleri Doğru Sıraya Koy',
       headers: ['#', 'Karışık Harf', 'İpucu', 'Harf Sayısı', 'Doğru Kelime'],
@@ -115,7 +114,6 @@ export async function generateOfflinePremiumCrossword(
   const builder = new WorksheetBuilder(ActivityType.CROSSWORD, 'Çapraz Bulmaca')
     .addPremiumHeader()
     .setInstruction('İpuçlarını okuyarak bulmacadaki boş kutuları doldur.')
-    .addPedagogicalNote('Çapraz bulmaca, sözcük dağarcığını genişletir ve çapraz referans (cross-referencing) becerisini geliştirir. Kesişen harfler, doğru kelimeyi bulmada görsel ipucu sağlar.')
     .addPrimaryActivity('grid', {
       title: '📰 Çapraz Bulmaca',
       matrix: grid,
@@ -156,7 +154,6 @@ export async function generateOfflinePremiumOddOneOut(
   const builder = new WorksheetBuilder(ActivityType.ODD_ONE_OUT, 'Farklıyı Bul')
     .addPremiumHeader()
     .setInstruction('Her satırdaki 4 öğeden farklı olanı bul, daire içine al ve nedenini yaz.')
-    .addPedagogicalNote('Kategorize etme ve tümdengelimsel akıl yürütme becerilerini geliştirir. Ortak özellik çıkarımı, soyut düşünmenin temelidir.')
     .addPrimaryActivity('table', {
       title: '🔍 Hangisi Farklı?',
       headers: ['#', 'Öğe 1', 'Öğe 2', 'Öğe 3', 'Öğe 4', 'Farklı', 'Neden?'],
@@ -196,7 +193,6 @@ export async function generateOfflinePremiumConceptMatch(
   const builder = new WorksheetBuilder(ActivityType.CONCEPT_MATCH, 'Kavram Eşleştirme')
     .addPremiumHeader()
     .setInstruction('Sol sütundaki kavramları, sağ sütundaki tanımlarla çizgiyle eşleştir.')
-    .addPedagogicalNote('Kavram eşleştirme, anlamsal ağ (semantic network) oluşturmayı ve sözcük bilgisini geliştirir. Tanım-kelime ilişkisi kurma, okuduğunu anlama becerisinin temelini oluşturur.')
     .addPrimaryActivity('dual_column', {
       left: {
         title: '📝 Kavramlar',
@@ -245,7 +241,6 @@ export async function generateOfflinePremiumLogicGridPuzzle(
   const builder = new WorksheetBuilder(ActivityType.LOGIC_GRID_PUZZLE, 'Mantık Izgarası')
     .addPremiumHeader()
     .setInstruction('İpuçlarını oku, ızgaraya ✓ ve ✗ koy, doğru eşleşmeyi bul!')
-    .addPedagogicalNote('Mantık ızgarası, tümdengelimsel mantık ve organizasyonel strateji becerilerini geliştirir. Eleme yöntemiyle sistematik problem çözme, yönetici işlevleri güçlendirir.')
     .addPrimaryActivity('text', {
       content: '📌 İPUÇLARI:\n\n' + puzzle.clues.map((c, i) => `${i + 1}. ${c}`).join('\n')
     })
@@ -290,7 +285,6 @@ export async function generateOfflinePremiumPunctuationMaze(
   const builder = new WorksheetBuilder(ActivityType.PUNCTUATION_MAZE, 'Noktalama Labirenti')
     .addPremiumHeader()
     .setInstruction('Bölüm 1: Metne noktalama işaretlerini ekle. Bölüm 2: Yanlış noktalamayı düzelt.')
-    .addPedagogicalNote('Noktalama farkındalığı, metin organizasyonu ve dilbilgisi becerilerini geliştirir. Prosodik ipuçlarını yazılı metne aktarma, okuduğunu anlama için kritiktir.')
     .addPrimaryActivity('text', {
       content: `📝 BÖLÜM 1: Noktalama İşaretlerini Ekle\n\n(Nokta, virgül, ünlem ve soru işareti ekleyerek metni düzelt)\n\n"${textWithout}"`
     })
@@ -333,7 +327,6 @@ export async function generateOfflinePremiumSpatialGrid(
   const builder = new WorksheetBuilder(ActivityType.SPATIAL_GRID, 'Uzamsal Izgara')
     .addPremiumHeader()
     .setInstruction('Komutları okuyarak ızgaraya şekilleri çiz. Sonra soruları cevapla.')
-    .addPedagogicalNote('Uzamsal ızgara, koordinat sistemini anlama, yön-konum ilişkisi ve uzamsal kodlama becerilerini geliştirir. Matematiksel düşünmenin ve geometrik algının temelini oluşturur.')
     .addPrimaryActivity('grid', {
       title: '📍 6×6 Koordinat Izgarası',
       matrix: Array.from({ length: gridSize }, () =>
@@ -391,7 +384,6 @@ export async function generateOfflinePremiumDotPainting(
   const builder = new WorksheetBuilder(ActivityType.DOT_PAINTING, 'Sayıya Göre Boya')
     .addPremiumHeader()
     .setInstruction('Renk anahtarına bakarak her bölgeyi doğru renge boya.')
-    .addPedagogicalNote('Sayıya göre boyama, sayı-renk eşleştirme, ince motor kontrol ve görsel dikkat becerilerini geliştirir. Bölgeleri doğru boyama, sınır algısını güçlendirir.')
     .addPrimaryActivity('table', {
       title: '🎨 Renk Anahtarı',
       headers: colors.map(c => `${c.num} = ${c.emoji}`),
@@ -446,7 +438,6 @@ export async function generateOfflinePremiumShapeSudoku(
   const builder = new WorksheetBuilder(ActivityType.SHAPE_SUDOKU, 'Şekil Sudoku')
     .addPremiumHeader()
     .setInstruction('Kural: Her satır ve sütunda her şekil yalnızca BİR KEZ bulunur. Boş hücreleri doldur!')
-    .addPedagogicalNote('Şekil sudoku, mantıksal eliminasyon, uzamsal düzenleme ve sistematik problem çözme becerilerini geliştirir. Sayı sudokunun aksine, görsel-sembolik düşünmeyi teşvik eder.')
     .addPrimaryActivity('grid', {
       title: `🧩 Sudoku 1 (4×4) — Şekiller: ${shapes4.join(' ')}`,
       matrix: puzzle4a,
@@ -487,7 +478,6 @@ export async function generateOfflinePremiumThematicOddOneOut(
   const builder = new WorksheetBuilder(ActivityType.THEMATIC_ODD_ONE_OUT, 'Tematik Farklıyı Bul')
     .addPremiumHeader()
     .setInstruction('Her grupta 5 öğe var. 4\'ü aynı temadan, 1\'i farklı. Hem farklıyı hem temayı bul!')
-    .addPedagogicalNote('Tematik farklıyı bulma, kategorizasyon ve soyut düşünme becerilerini geliştirir. Tema çıkarımı (gizli ortak özellik bulma), bilişsel esnekliğin üst düzey bir göstergesidir.')
     .addPrimaryActivity('table', {
       title: '🔎 Tema Nedir? Farklı Kim?',
       headers: ['#', 'Öğe 1', 'Öğe 2', 'Öğe 3', 'Öğe 4', 'Öğe 5', 'Farklı', 'Tema'],
@@ -527,7 +517,6 @@ export async function generateOfflinePremiumAttentionDevelopment(
   const builder = new WorksheetBuilder(ActivityType.ATTENTION_DEVELOPMENT, 'Dikkat Geliştirme')
     .addPremiumHeader()
     .setInstruction('Her bölümü sırayla tamamla. Süre tutabilirsin!')
-    .addPedagogicalNote('Çok bölümlü dikkat çalışması: ardışık dikkat (sequential), bölünmüş dikkat (divided) ve sürdürülebilir dikkat (sustained) becerilerini hedefler. DEHB profillerinde kritik bir müdahale alanıdır.')
     .addPrimaryActivity('text', {
       content: '📌 BÖLÜM 1: 3\'ün katlarını daire içine al\n\n' +
         numberSequence.map(String).join('  ') +
@@ -568,7 +557,6 @@ export async function generateOfflinePremiumAttentionFocus(
   const builder = new WorksheetBuilder(ActivityType.ATTENTION_FOCUS, 'Dikkat ve Odaklanma')
     .addPremiumHeader()
     .setInstruction(`Matristeki hedefleri bul ve say. Parmağınla takip etme, sadece gözünle!`)
-    .addPedagogicalNote('Çoklu hedef takibi, seçici dikkat yoğunluğu ve görsel tarama hızını ölçer. Okuma sırasında belirli harfleri/kelimeleri tanıma becerisinin temelini oluşturur.')
     .addPrimaryActivity('grid', {
       title: `🎯 ${gridSize}×${gridSize} Sembol Matrisi`,
       matrix,

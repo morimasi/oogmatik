@@ -41,8 +41,7 @@ export async function generateOfflinePremiumHeceParkuru(
 
   const builder = new WorksheetBuilder(ActivityType.HECE_PARKURU, 'Hece Parkuru')
     .addPremiumHeader()
-    .setInstruction('Kelimeleri hecelere ayır. Açık heceleri (sesliyle biten) 🟢, kapalı heceleri (ünsüzle biten) 🔴 ile işaretle.')
-    .addPedagogicalNote('Hece parkuru, fonolojik farkındalık ve hece sentezi becerilerini güçlendirir. Açık/kapalı hece ayrımı, Türkçe ses yapısının temelini oluşturur ve okuma akıcılığını doğrudan etkiler.');
+    .setInstruction('Kelimeleri hecelere ayır. Açık heceleri (sesliyle biten) 🟢, kapalı heceleri (ünsüzle biten) 🔴 ile işaretle.');
 
   groups.forEach(group => {
     if (group.items.length > 0) {
@@ -126,7 +125,6 @@ export async function generateOfflinePremiumFindLetterPair(
   const builder = new WorksheetBuilder(ActivityType.FIND_LETTER_PAIR, 'Harf İkilisi Dedektifi')
     .addPremiumHeader()
     .setInstruction(`Aşağıdaki matristeki tüm "${target.toUpperCase()}" harf ikililerini bul ve daire içine al.`)
-    .addPedagogicalNote('Görsel tarama hızını ve harf dizisi tanıma becerisini geliştirir. Dikkat dağıtıcı benzer çiftler, seçici dikkati zorlar ve otomatik harf tanıma süreçlerini güçlendirir.')
     .addPrimaryActivity('grid', {
       matrix,
       targetPair: target,
@@ -166,7 +164,6 @@ export async function generateOfflinePremiumSyllableWordBuilder(
   const builder = new WorksheetBuilder(ActivityType.SYLLABLE_WORD_BUILDER, 'Hece Dedektifi')
     .addPremiumHeader()
     .setInstruction('Karışık heceleri doğru sıraya koyarak anlamlı kelimeyi oluştur. İpuçlarını kullan!')
-    .addPedagogicalNote('Fonolojik sentez (blending) becerisi, okumanın temel yapı taşlarından biridir. Karışık hecelerden kelime oluşturma, çalışma belleği ve fonolojik manipülasyon kapasitesini artırır.')
     .addPrimaryActivity('table', {
       headers: ['#', 'Karışık Heceler', 'İpucu', 'Doğru Kelime'],
       rows: items.map((item, i) => [
@@ -223,7 +220,6 @@ export async function generateOfflinePremiumFamilyRelations(
   const builder = new WorksheetBuilder(ActivityType.FAMILY_RELATIONS, 'Akrabalık İlişkileri')
     .addPremiumHeader()
     .setInstruction('Aile şemasını incele, soruları cevapla ve doğru/yanlış ifadeleri değerlendir.')
-    .addPedagogicalNote('Akrabalık ilişkileri, ilişkisel muhakeme ve sözel mantık becerilerini geliştirir. Aile şeması üzerinden çalışma, çocuğun sosyal biliş ve kategorizasyon yeteneğini güçlendirir.')
     .addPrimaryActivity('dual_column', {
       left: {
         title: '👪 Aile Şeması',
@@ -275,7 +271,6 @@ export async function generateOfflinePremiumFamilyLogicTest(
   const builder = new WorksheetBuilder(ActivityType.FAMILY_LOGIC_TEST, 'Akrabalık Mantık Testi')
     .addPremiumHeader()
     .setInstruction('Hikayeyi dikkatlice oku. Ardından akrabalık sorularını mantıksal çıkarım yaparak cevapla.')
-    .addPedagogicalNote('Tümdengelimsel muhakeme becerisi: verilen bilgilerden yeni bilgi çıkarma. Bu çalışma, yönetici işlevler (executive functions) arasında kritik olan çıkarımsal akıl yürütmeyi destekler.')
     .addPrimaryActivity('text', {
       content: `📖 HİKAYE:\n\n${scenario.text}`
     })
@@ -318,7 +313,6 @@ export async function generateOfflinePremiumMissingParts(
   const builder = new WorksheetBuilder(ActivityType.MISSING_PARTS, 'Eksik Parçaları Tamamla')
     .addPremiumHeader()
     .setInstruction('Cümlelerdeki boşlukları doldurun ve eksik harfli kelimeleri tamamlayın.')
-    .addPedagogicalNote('Bağlamsal çıkarım (contextual inference) ve ort ografik bellek: eksik bilgiyi tamamlama, okuma stratejilerinin temelini oluşturur. Dislekside kelime tanıma otomatikliğini destekler.')
     .addPrimaryActivity('table', {
       title: '📝 Bölüm 1: Cümle Tamamlama',
       headers: ['Cümle', 'Seçenekler', 'Cevabın'],
@@ -359,7 +353,6 @@ export async function generateOfflinePremiumCodeReading(
   const builder = new WorksheetBuilder(ActivityType.CODE_READING, 'Şifre Okuma Labirenti')
     .addPremiumHeader()
     .setInstruction('Önce şifre anahtarını öğren. Sonra şifreli kelimeleri çöz!')
-    .addPedagogicalNote('Sembol-harf eşleştirme, görsel kodlama (decoding) ve çalışma belleği kapasitesini geliştirir. Dislekside harf-ses ilişkisinin alternatif yollarla pekiştirilmesini sağlar.')
     .addPrimaryActivity('table', {
       title: '🔑 Şifre Anahtarı',
       headers: ['Sembol', ...symbols],

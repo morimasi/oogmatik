@@ -36,8 +36,7 @@ export async function generateOfflinePremiumGridDrawing(
 
   const builder = new WorksheetBuilder(ActivityType.GRID_DRAWING, 'Kare Kopyalama (Grid Drawing)')
     .addPremiumHeader()
-    .setInstruction('Sol taraftaki deseni sağ taraftaki boş ızgaraya birebir kopyala. Koordinatları kullan!')
-    .addPedagogicalNote('Grid drawing, görsel-mekansal kopya becerisini ve el-göz koordinasyonunu geliştirir. Disleksi profillerinde, harflerin doğru yönde yazılması için gerekli uzamsal farkındalığı destekler.');
+    .setInstruction('Sol taraftaki deseni sağ taraftaki boş ızgaraya birebir kopyala. Koordinatları kullan!');
 
   patterns.forEach((pattern, idx) => {
     // Sol taraf: dolu grid
@@ -114,8 +113,7 @@ export async function generateOfflinePremiumSymmetryDrawing(
 
   const builder = new WorksheetBuilder(ActivityType.SYMMETRY_DRAWING, 'Simetri Tamamlama')
     .addPremiumHeader()
-    .setInstruction('Kalın çizgi simetri eksenidir. Verilen yarıyı ayna gibi tamamla.')
-    .addPedagogicalNote('Simetri tamamlama, uzamsal akıl yürütme ve görsel-mekansal hafızayı geliştirir. Harflerin yönsel algısını destekler ve geometrik düşünmenin temelini oluşturur.');
+    .setInstruction('Kalın çizgi simetri eksenidir. Verilen yarıyı ayna gibi tamamla.');
 
   patterns.forEach((pattern, idx) => {
     const grid: string[][] = Array.from({ length: gridSize }, () =>
@@ -186,7 +184,6 @@ export async function generateOfflinePremiumWordSearch(
   const builder = new WorksheetBuilder(ActivityType.WORD_SEARCH, `Kelime Bulmaca — ${theme.title}`)
     .addPremiumHeader()
     .setInstruction(`Aşağıdaki ${theme.title.toLowerCase()} ile ilgili kelimeleri bulmacada bul ve üzerini çiz.`)
-    .addPedagogicalNote('Kelime bulmaca, görsel tarama hızını ve harf dizisi tanıma becerisini geliştirir. Dislekside sözcük formlarının otomatik tanınmasını destekler.')
     .addPrimaryActivity('grid', {
       title: `🔍 ${gridSize}×${gridSize} Kelime Bulmaca`,
       matrix: grid,
@@ -240,7 +237,6 @@ export async function generateOfflinePremiumDirectionalTracking(
   const builder = new WorksheetBuilder(ActivityType.DIRECTIONAL_TRACKING, 'Yönsel İz Sürme')
     .addPremiumHeader()
     .setInstruction('Başlangıç noktasından yön oklarını takip et. Topladığın harfler gizli kelimeyi oluşturur!')
-    .addPedagogicalNote('Yönsel iz sürme, yön tayini, ardışık işlem ve çalışma belleği kapasitesini geliştirir. Soldan sağa okuma alışkanlığını pekiştirir.')
     .addPrimaryActivity('grid', {
       title: '🧭 Harf Izgarası',
       matrix: grid,
@@ -283,7 +279,6 @@ export async function generateOfflinePremiumVisualTrackingLines(
   const builder = new WorksheetBuilder(ActivityType.VISUAL_TRACKING_LINES, 'Görsel Takip Çizgileri')
     .addPremiumHeader()
     .setInstruction('Harflerden başlayarak çizgileri sadece GÖZÜNLE takip et. Parmağını kullanma! Hangi rakama ulaştığını yaz.')
-    .addPedagogicalNote('Görsel takip çizgileri, oküler motor kontrolü (saccadic movements), görsel dikkati ve el-göz koordinasyonunu geliştirir. Okuma sırasında satır atlamamayı destekler.')
     .addPrimaryActivity('tracking_lines', {
       title: '👁️ Gözünle Takip Et!',
       connections: connections.map(c => ({
@@ -349,7 +344,6 @@ export async function generateOfflinePremiumAttentionToQuestion(
   const builder = new WorksheetBuilder(ActivityType.ATTENTION_TO_QUESTION, 'Dikkat ve Sorular')
     .addPremiumHeader()
     .setInstruction(`Bölüm 1: "${targetLetter}" harfini bul ve üzerini çiz. Bölüm 2: Çift sayıları işaretle. Bölüm 3: Metindeki hedef kelimeyi bul.`)
-    .addPedagogicalNote('Çok bölümlü dikkat çalışması: seçici dikkat (hedef bulma), sürdürülebilir dikkat (uzun süre odaklanma) ve bölünmüş dikkat (farklı türde görevler) becerilerini aynı anda geliştirir.')
     .addPrimaryActivity('text', {
       content: `📌 BÖLÜM 1: "${targetLetter}" Harfini Bul (Üzerini Çiz)\n\n` +
         letterRows.join('\n') +

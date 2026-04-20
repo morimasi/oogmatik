@@ -54,7 +54,6 @@ export interface SingleWorksheetData extends BaseActivityData {
   items?: Record<string, unknown>[];
   blocks?: WorksheetBlock[];
   content?: unknown;
-  pedagogicalNote?: string;
   targetSkills?: string[];
   difficultyLevel?: string;
   ageGroup?: string;
@@ -192,7 +191,6 @@ export interface GeneratorOptions {
   includeAllQuestions?: boolean;
   passageLength?: 'short' | 'medium' | 'long';
   includeMultipleChoice?: boolean;
-  pedagogicalNote?: string;
   targetSkills?: string[];
   [key: string]: unknown;
 }

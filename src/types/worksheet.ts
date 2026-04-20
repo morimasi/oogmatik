@@ -42,7 +42,6 @@ export interface CompositeWorksheet {
   targetSkills: string[];
   ageGroup: string;
   difficultyLevel: string;
-  pedagogicalNote?: string;
   status: 'draft' | 'pending_approval' | 'approved' | 'rejected';
   widgets: WorksheetWidget[];
   createdAt: string;

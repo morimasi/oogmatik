@@ -6,9 +6,8 @@
  *   2. prompt_generation  — Doğal dil prompt → Sıfırdan etkinlik
  *   3. exact_clone        — Görsel → Birebir klonlama + içerik yenileme
  *
- * Elif Yıldız: pedagogicalNote her şablonda zorunlu.
- * Dr. Ahmet Kaya: Tanı koyucu dil yok, KVKK uyumlu.
- * Bora Demir: TypeScript strict, any yasak.
+ * - Dr. Ahmet Kaya: Tanı koyucu dil yok, KVKK uyumlu.
+ * - Bora Demir: TypeScript strict, any yasak.
  * Selin Arslan: Gemini 2.5 Flash sabit model.
  */
 
@@ -82,8 +81,6 @@ export interface ActivityMetadata {
     estimatedDuration: number;
     targetSkills: string[];
     learningObjectives: string[];
-    /** Öğretmene yönelik pedagojik not — ZORUNLU */
-    pedagogicalNote: string;
     profile?: LearningDisabilityProfile;
     productionMode: ProductionMode;
     /** Mod 1 & 3 için kaynak blueprint hash'i */
