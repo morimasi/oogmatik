@@ -90,7 +90,7 @@ export const WorkbookLibrary: React.FC<WorkbookLibraryProps> = ({
             Çalışma Kitapçığı Kütüphanesi
           </h1>
           <button
-            onClick={() => onCreateNew()}
+            onClick={() => onCreateNew?.()}
             className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition hover:opacity-90"
             style={{ backgroundColor: 'var(--accent-color)' }}
           >
@@ -152,7 +152,7 @@ export const WorkbookLibrary: React.FC<WorkbookLibraryProps> = ({
           {templates.slice(0, 6).map((template) => (
             <button
               key={template.id}
-              onClick={() => onCreateNew(template)}
+              onClick={() => onCreateNew?.(template)}
               className="p-4 rounded-xl border-2 hover:shadow-lg transition text-center hover:border-[var(--accent-color)]"
               style={{ backgroundColor: 'var(--bg-paper)', borderColor: 'var(--border-color)' }}
             >
@@ -231,7 +231,7 @@ const WorkbookCard: React.FC<WorkbookCardProps> = ({
       <div
         className="h-48 flex items-center justify-center"
         style={{ background: 'linear-gradient(to bottom right, var(--surface-elevated), var(--bg-inset))' }}
-        onClick={() => onSelect(workbook)}
+        onClick={() => onSelect?.(workbook)}
       >
         <div className="text-6xl">{getTemplateIcon(workbook.templateType)}</div>
       </div>
@@ -241,7 +241,7 @@ const WorkbookCard: React.FC<WorkbookCardProps> = ({
         <h3
           className="text-lg font-semibold mb-1 truncate"
           style={{ color: 'var(--text-primary)' }}
-          onClick={() => onSelect(workbook)}
+          onClick={() => onSelect?.(workbook)}
         >
           {workbook.title}
         </h3>
@@ -258,7 +258,7 @@ const WorkbookCard: React.FC<WorkbookCardProps> = ({
         {/* Actions */}
         <div className="flex items-center gap-2">
           <button
-            onClick={() => onDuplicate(workbook.id)}
+            onClick={() => onDuplicate?.(workbook.id)}
             className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 rounded transition hover:opacity-80"
             style={{ backgroundColor: 'var(--surface-elevated)', color: 'var(--text-secondary)' }}
           >
@@ -266,7 +266,7 @@ const WorkbookCard: React.FC<WorkbookCardProps> = ({
             Kopyala
           </button>
           <button
-            onClick={() => onDelete(workbook.id)}
+            onClick={() => onDelete?.(workbook.id)}
             className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 rounded transition hover:opacity-80"
             style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}
           >
@@ -293,7 +293,7 @@ const WorkbookListItem: React.FC<WorkbookCardProps> = ({
     <div
       className="rounded-lg p-4 hover:shadow-md transition flex items-center gap-4 cursor-pointer"
       style={{ backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)' }}
-      onClick={() => onSelect(workbook)}
+      onClick={() => onSelect?.(workbook)}
     >
       <div className="text-4xl">{getTemplateIcon(workbook.templateType)}</div>
       <div className="flex-1">

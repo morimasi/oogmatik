@@ -139,7 +139,7 @@ export const ShareModal = ({ isOpen, onClose, onShare, worksheetId, worksheetTit
                                 <div className="mt-auto pt-4 border-t border-zinc-100 dark:border-zinc-700/50 flex flex-col gap-3">
                                     <p className="text-xs text-zinc-500 font-medium">{selectedIds.length} kişi seçildi</p>
                                     <button
-                                        onClick={() => onShare(selectedIds)}
+                                        onClick={() => onShare?.(selectedIds)}
                                         disabled={isSending}
                                         className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-indigo-200 dark:shadow-none transition-all active:scale-95 disabled:opacity-50"
                                     >
