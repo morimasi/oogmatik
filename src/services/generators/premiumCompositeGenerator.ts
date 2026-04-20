@@ -55,8 +55,7 @@ ${widgetListStr}
       "data" içinde "questions" dizisi olmalı. 
       Her soru: { "soru_metni": "...", "secenekler": {"A":"..","B":"..","C":"..","D":".."}, "dogru_cevap": "A" }
 
-4. PEDAGOJİK NOT: En az 100 kelime olmalı ve bu çalışma kağıdının öğrenciye nasıl fayda sağlayacağını bilimsel (bilişsel yük kuramı, ZPD vb.) terimlerle anlatmalıdır.
-5. JSON FORMATI: Yanıt, aşağıdaki şemaya uygun, kusursuz bir JSON olmalıdır. Başka hiçbir açıklama ekleme.
+4. JSON FORMATI: Yanıt, aşağıdaki şemaya uygun, kusursuz bir JSON olmalıdır. Başka hiçbir açıklama ekleme.
 `;
 
     const USER_PROMPT = `Bana belirtilen bağlamda ${widgets.length} bileşenli, '${topic}' konulu bir Master JSON üret.`;
@@ -66,7 +65,6 @@ ${widgetListStr}
         properties: {
             title: { type: 'STRING' },
             topic: { type: 'STRING' },
-            pedagogicalNote: { type: 'STRING' },
             difficultyLevel: { type: 'STRING', enum: ['Kolay', 'Orta', 'Zor'] },
             targetSkills: { type: 'ARRAY', items: { type: 'STRING' } },
             ageGroup: { type: 'STRING', enum: ['5-7', '8-10', '11-13', '14+'] },
@@ -84,7 +82,7 @@ ${widgetListStr}
                 }
             }
         },
-        required: ['title', 'topic', 'pedagogicalNote', 'difficultyLevel', 'targetSkills', 'ageGroup', 'widgets']
+        required: ['title', 'topic', 'difficultyLevel', 'targetSkills', 'ageGroup', 'widgets']
     };
 
     try {
@@ -110,7 +108,7 @@ ${widgetListStr}
         }
 
         if (Array.isArray(response)) {
-            response = { title: topic, topic: topic, pedagogicalNote: '', difficultyLevel: difficulty, targetSkills: [], ageGroup: studentAge, widgets: response };
+            response = { title: topic, topic: topic, difficultyLevel: difficulty, targetSkills: [], ageGroup: studentAge, widgets: response };
         } else if (response && response.premiumCompositeWorksheet) {
             response = response.premiumCompositeWorksheet;
         } else if (response && response.worksheet) {

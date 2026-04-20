@@ -59,7 +59,6 @@ export const generateOfflineAbcConnect = async (options: GeneratorOptions): Prom
         activities.push({
             title: `ABC Bağlama (${dim}x${dim})`,
             instruction: 'Sayıları karşılık gelen değerleriyle, çizgiler birbirini kesmeden birleştir.',
-            pedagogicalNote: 'Görsel-uzamsal planlama ve sembolik eşleştirme becerilerini geliştirir.',
             gridDim: dim,
             variant: (optVariant as any) || 'roman',
             paths

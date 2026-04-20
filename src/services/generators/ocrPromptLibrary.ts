@@ -4,7 +4,7 @@
  * Tüm OCR üretim promptlarının merkezi kaynağı.
  * Hem varyasyon hem klonlama akışlarında kullanılır.
  *
- * Elif Yıldız: Her aktivitede pedagogicalNote zorunlu.
+ * Elif Yıldız: Pedagojik kalite ve ZPD denetçisi.
  * Bora Demir: any yasak, AppError standardı.
  * Selin Arslan: Gemini 2.5 Flash sabit model.
  */

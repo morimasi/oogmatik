@@ -79,7 +79,6 @@ export const generateFromRichPrompt = async (
         properties: {
             title: { type: 'STRING' },
             instruction: { type: 'STRING' },
-            pedagogicalNote: { type: 'STRING' },
             layoutArchitecture: {
                 type: 'OBJECT',
                 properties: {

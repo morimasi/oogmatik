@@ -85,7 +85,6 @@ export const generateVisualOddOneOutFromAI = async (
     properties: {
       title: { type: 'STRING' },
       instruction: { type: 'STRING' },
-      pedagogicalNote: { type: 'STRING' },
       settings: {
         type: 'OBJECT',
         properties: {
@@ -136,7 +135,7 @@ export const generateVisualOddOneOutFromAI = async (
         },
       },
     },
-    required: ['title', 'instruction', 'rows', 'pedagogicalNote'],
+    required: ['title', 'instruction', 'rows'],
   };
 
   const schema = { type: 'ARRAY', items: singleSchema };
@@ -187,7 +186,6 @@ export const generateFindTheDifferenceFromAI = async (
     properties: {
       title: { type: 'STRING' },
       instruction: { type: 'STRING' },
-      pedagogicalNote: { type: 'STRING' },
       gridA: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } } },
       gridB: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } } },
       diffCount: { type: 'INTEGER' },

@@ -41,7 +41,6 @@ export const generateMissingPartsFromAI = async (options: GeneratorOptions): Pro
         ],
         "wordBank": ["erkenden", "koşarak", "mutlu", "kitap"]
       },
-      "pedagogicalNote": "Bu çalışma metin içi çıkarım ve bağlamsal okuma becerisini geliştirir."
     }
   `;
 

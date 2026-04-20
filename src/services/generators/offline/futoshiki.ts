@@ -108,7 +108,6 @@ export const generateOfflineFutoshiki = async (options: GeneratorOptions): Promi
         activities.push({
             title: `Ultra-Futoşhiki (${size}x${size})`,
             instruction: `Her satır ve sütunda 1'den ${size}'e kadar olan rakamlar birer kez kullanılmalıdır. Kutular arasındaki 'Büyüktür' ve 'Küçüktür' işaretlerine dikkat et!`,
-            pedagogicalNote: `${size}x${size} ölçeğinde mantıksal çıkarsama ve görsel-uzamsal dikkat becerilerini hedefler.`,
             puzzles: [{
                 size,
                 grid: puzzleGrid,
