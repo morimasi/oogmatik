@@ -43,7 +43,7 @@ function BlockToolbar({
     <div className={styles.blockToolbar} role="toolbar" aria-label="Blok araçları">
       <button
         className={styles.blockToolbarBtn}
-        onClick={() => onMove('up')}
+        onClick={() => onMove?.('up')}
         disabled={isFirst}
         aria-label="Yukarı taşı"
         title="Yukarı taşı"
@@ -52,7 +52,7 @@ function BlockToolbar({
       </button>
       <button
         className={styles.blockToolbarBtn}
-        onClick={() => onMove('down')}
+        onClick={() => onMove?.('down')}
         disabled={isLast}
         aria-label="Aşağı taşı"
         title="Aşağı taşı"
@@ -273,7 +273,7 @@ export const WorksheetEditor: React.FC<WorksheetEditorProps> = React.memo(({
         {block.type === 'divider' && (
           <div
             className={`${styles.block} ${isSelected ? styles.blockSelected : ''}`}
-            onClick={() => onSelectBlock(block.id)}
+            onClick={() => onSelectBlock?.(block.id)}
           >
             <hr className={styles.dividerBlock} aria-label="Ayırıcı" />
           </div>
@@ -281,7 +281,7 @@ export const WorksheetEditor: React.FC<WorksheetEditorProps> = React.memo(({
         {block.type === 'image' && (
           <div
             className={`${styles.block} ${isSelected ? styles.blockSelected : ''}`}
-            onClick={() => onSelectBlock(block.id)}
+            onClick={() => onSelectBlock?.(block.id)}
           >
             {block.imageUrl ? (
               <img src={block.imageUrl} alt={block.content || 'Görsel'} className={styles.imageBlock} />

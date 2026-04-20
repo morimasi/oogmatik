@@ -95,7 +95,7 @@ const SortablePageItem = React.memo(
 
         <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
           <button
-            onClick={() => onDuplicate(item)}
+            onClick={() => onDuplicate?.(item)}
             className="p-2 transition-colors hover:opacity-80"
             style={{ color: 'var(--text-muted)' }}
             title="Kopyala"
@@ -103,7 +103,7 @@ const SortablePageItem = React.memo(
             <i className="fa-solid fa-copy"></i>
           </button>
           <button
-            onClick={() => onEditStyle(item)}
+            onClick={() => onEditStyle?.(item)}
             className="p-2 transition-colors hover:opacity-80"
             style={{ color: 'var(--text-muted)' }}
             title={isDivider ? 'Bölüm Düzenle' : 'Stil Düzenle'}
@@ -111,7 +111,7 @@ const SortablePageItem = React.memo(
             <i className={`fa-solid ${isDivider ? 'fa-pen' : 'fa-wand-magic-sparkles'}`}></i>
           </button>
           <button
-            onClick={() => onRemove(item.id)}
+            onClick={() => onRemove?.(item.id)}
             className="p-2 transition-colors hover:opacity-70"
             style={{ color: 'var(--text-muted)' }}
             title="Sil"

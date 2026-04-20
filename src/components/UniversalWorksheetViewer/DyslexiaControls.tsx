@@ -147,7 +147,7 @@ export const DyslexiaControls: React.FC<DyslexiaControlsProps> = React.memo(
                 key={preset.value}
                 className={`${styles.colorSwatch} ${settings.backgroundColor === preset.value ? styles.colorSwatchActive : ''}`}
                 style={{ backgroundColor: preset.value }}
-                onClick={() => onUpdate({ backgroundColor: preset.value })}
+                onClick={() => onUpdate?.({ backgroundColor: preset.value })}
                 aria-label={preset.label}
                 title={preset.label}
               />

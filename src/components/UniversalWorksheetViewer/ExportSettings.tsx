@@ -238,7 +238,7 @@ export const ExportSettingsPanel: React.FC<ExportSettingsProps> = React.memo(
                     {onDeletePreset && (
                       <button
                         className={styles.presetDeleteBtn}
-                        onClick={() => onDeletePreset(p.id)}
+                        onClick={() => onDeletePreset?.(p.id)}
                         aria-label={`${p.name} ön ayarını sil`}
                       >
                         ✕

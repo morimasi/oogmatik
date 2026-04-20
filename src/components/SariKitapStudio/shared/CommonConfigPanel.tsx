@@ -35,14 +35,14 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = React.memo(
                         <button
                             className={`sk-toggle-btn ${generationMode === 'ai' ? 'active' : ''}`}
                             style={{ flex: 1, padding: '0.5rem', borderRadius: '0.5rem', fontSize: '0.75rem', fontWeight: 700 }}
-                            onClick={() => onModeChange('ai')}
+                            onClick={() => onModeChange?.('ai')}
                         >
                             🤖 AI
                         </button>
                         <button
                             className={`sk-toggle-btn ${generationMode === 'offline' ? 'active' : ''}`}
                             style={{ flex: 1, padding: '0.5rem', borderRadius: '0.5rem', fontSize: '0.75rem', fontWeight: 700 }}
-                            onClick={() => onModeChange('offline')}
+                            onClick={() => onModeChange?.('offline')}
                         >
                             ⚡ Hızlı
                         </button>

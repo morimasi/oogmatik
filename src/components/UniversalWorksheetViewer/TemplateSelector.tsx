@@ -39,7 +39,7 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = React.memo(
               role="tab"
               aria-selected={selectedCategory === cat}
               className={`${styles.categoryTab} ${selectedCategory === cat ? styles.categoryTabActive : ''}`}
-              onClick={() => onSelectCategory(cat)}
+              onClick={() => onSelectCategory?.(cat)}
             >
               {cat === 'all' ? 'Tümü' : TEMPLATE_CATEGORY_LABELS[cat] ?? cat}
             </button>
@@ -81,7 +81,7 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = React.memo(
                 <div className={styles.templateCardActions}>
                   <button
                     className={styles.applyTemplateBtn}
-                    onClick={() => onApplyTemplate(tpl)}
+                    onClick={() => onApplyTemplate?.(tpl)}
                     aria-label={`${tpl.name} şablonunu uygula`}
                   >
                     Uygula
@@ -89,7 +89,7 @@ export const TemplateSelector: React.FC<TemplateSelectorProps> = React.memo(
                   {!tpl.isBuiltIn && onDeleteTemplate && (
                     <button
                       className={styles.deleteTemplateBtn}
-                      onClick={() => onDeleteTemplate(tpl.id)}
+                      onClick={() => onDeleteTemplate?.(tpl.id)}
                       aria-label={`${tpl.name} şablonunu sil`}
                     >
                       Sil

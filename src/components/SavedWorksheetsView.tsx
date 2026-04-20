@@ -62,7 +62,7 @@ const MaterialCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
     };
 
     return (
-        <GlassCard onClick={() => onLoad(item)} className="h-64 flex flex-col p-5">
+        <GlassCard onClick={() => onLoad?.(item)} className="h-64 flex flex-col p-5">
             <div className={cn("absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-500", getGlowColor())}></div>
             
             <div className="relative z-10 flex justify-between items-start mb-4">
@@ -71,7 +71,7 @@ const MaterialCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
                 </div>
                 {!isReadOnly && (
                     <button
-                        onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}
+                        onClick={(e) => { e.stopPropagation(); onDelete?.(item.id); }}
                         className="w-10 h-10 rounded-xl bg-white/5 hover:bg-red-500/20 hover:text-red-400 text-white/20 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100"
                     >
                         <Trash2 className="w-4 h-4" />
@@ -112,7 +112,7 @@ const ReportCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
                     <span className="text-[9px] font-black uppercase tracking-tighter">RAPOR</span>
                 </div>
                 {!isReadOnly && (
-                    <button onClick={(e) => { e.stopPropagation(); onDelete(item.id); }} className="text-white/10 hover:text-red-400 transition-colors">
+                    <button onClick={(e) => { e.stopPropagation(); onDelete?.(item.id); }} className="text-white/10 hover:text-red-400 transition-colors">
                         <Trash2 className="w-4 h-4" />
                     </button>
                 )}
@@ -138,7 +138,7 @@ const ReportCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
             </div>
 
             <button
-                onClick={() => onLoad(item)}
+                onClick={() => onLoad?.(item)}
                 className="mt-4 w-full py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all flex items-center justify-center gap-2 group border border-white/10"
             >
                 <Eye className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" /> Raporu Görüntüle
@@ -150,7 +150,7 @@ const ReportCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
 const PlanCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
     if (!item || !item.id) return null;
     return (
-        <GlassCard onClick={() => onLoad(item)} className="h-64 flex flex-col p-6">
+        <GlassCard onClick={() => onLoad?.(item)} className="h-64 flex flex-col p-6">
             <div className="absolute top-0 right-0 p-8 opacity-5 -mr-4 -mt-4">
                 <GraduationCap className="w-32 h-32" />
             </div>
@@ -162,7 +162,7 @@ const PlanCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
                     </div>
                     {!isReadOnly && (
                          <button
-                            onClick={(e) => { e.stopPropagation(); onDelete(item.id); }}
+                            onClick={(e) => { e.stopPropagation(); onDelete?.(item.id); }}
                             className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white/20 hover:text-red-400 transition-colors"
                         >
                             <Trash2 className="w-4 h-4" />

@@ -19,7 +19,7 @@ export const TypeSelectorPanel: React.FC<TypeSelectorPanelProps> = React.memo(
                         <button
                             key={mod.type}
                             className={`sk-module-card ${activeType === mod.type ? 'active' : ''}`}
-                            onClick={() => onSelect(mod.type)}
+                            onClick={() => onSelect?.(mod.type)}
                             title={mod.description}
                         >
                             <span className="sk-module-card-icon">{mod.icon}</span>

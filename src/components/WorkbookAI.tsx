@@ -103,7 +103,7 @@ export const WorkbookAI: React.FC<WorkbookAIProps> = ({ workbook, onApplySuggest
 
   async function handleAccept(suggestion: AISuggestion) {
     try {
-      await onApplySuggestion(suggestion);
+      await onApplySuggestion?.(suggestion);
       setSuggestions(
         suggestions.map((s) => (s.id === suggestion.id ? { ...s, status: 'applied' as const } : s))
       );
@@ -255,7 +255,7 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({ suggestion, onAccept, o
       {isPending && (
         <div className="flex gap-2">
           <button
-            onClick={() => onAccept(suggestion)}
+            onClick={() => onAccept?.(suggestion)}
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-white rounded-lg transition hover:opacity-90"
             style={{ backgroundColor: 'var(--accent-color)' }}
           >
@@ -263,7 +263,7 @@ const SuggestionCard: React.FC<SuggestionCardProps> = ({ suggestion, onAccept, o
             Uygula
           </button>
           <button
-            onClick={() => onReject(suggestion.id)}
+            onClick={() => onReject?.(suggestion.id)}
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition hover:opacity-80"
             style={{ backgroundColor: 'var(--bg-inset)', color: 'var(--text-primary)' }}
           >
