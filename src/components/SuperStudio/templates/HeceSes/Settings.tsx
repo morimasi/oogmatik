@@ -14,9 +14,10 @@ export const HeceSesSettingsPanel: React.FC<TemplateSettingsProps<HeceSesSetting
   ];
 
   const toggleEvent = (eventId: HeceSesSettings['focusEvents'][number]) => {
-    const newEvents = settings.focusEvents.includes(eventId)
-      ? settings.focusEvents.filter((e) => e !== eventId)
-      : [...settings.focusEvents, eventId];
+    const currentEvents = settings.focusEvents || [];
+    const newEvents = currentEvents.includes(eventId)
+      ? currentEvents.filter((e) => e !== eventId)
+      : [...currentEvents, eventId];
     onChange({ focusEvents: newEvents });
   };
 
@@ -32,7 +33,7 @@ export const HeceSesSettingsPanel: React.FC<TemplateSettingsProps<HeceSesSetting
               key={event.id}
               onClick={() => toggleEvent(event.id as HeceSesSettings['focusEvents'][number])}
               className={`py-2 px-2.5 text-xs rounded-lg border font-medium transition-all ${
-                settings.focusEvents.includes(event.id as HeceSesSettings['focusEvents'][number])
+                settings.focusEvents?.includes(event.id as HeceSesSettings['focusEvents'][number])
                   ? 'bg-accent border-accent/60 text-white shadow-lg shadow-accent/20'
                   : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500'
               }`}

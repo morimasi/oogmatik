@@ -54,14 +54,7 @@ export const SUPER_STUDIO_REGISTRY: SuperTemplateDefinition[] = [
         category: 'Okuma ve Anlama',
         description: 'Bilişsel yükü filtrelenmiş, disleksi dostu okuma metinleri ve 5N1K soruları.',
         icon: 'fa-solid fa-book-open-reader',
-        defaultSettings: OkumaAnlama.DEFAULT_SETTINGS || {
-            cognitiveLoadLimit: 12,
-            chunkingEnabled: true,
-            visualScaffolding: true,
-            typographicHighlight: true,
-            mindMap5N1K: true,
-            questionCount: 4
-        },
+        defaultSettings: OkumaAnlama.DEFAULT_SETTINGS,
         component: OkumaAnlama.Settings,
         promptBuilder: OkumaAnlama.promptBuilder
     },
@@ -71,13 +64,7 @@ export const SUPER_STUDIO_REGISTRY: SuperTemplateDefinition[] = [
         category: 'Dil Bilgisi',
         description: 'Ayna harfler (b/d, p/q) ve harf farkındalığı odaklı dil bilgisi çalışmaları.',
         icon: 'fa-solid fa-spell-check',
-        defaultSettings: DilBilgisi.DEFAULT_SETTINGS || {
-            targetDistractors: 'b-d',
-            gridSize: '4x4',
-            syllableSimulation: true,
-            camouflageGrid: true,
-            hintBox: true
-        },
+        defaultSettings: DilBilgisi.DEFAULT_SETTINGS,
         component: DilBilgisi.Settings,
         promptBuilder: DilBilgisi.promptBuilder
     },
@@ -87,12 +74,7 @@ export const SUPER_STUDIO_REGISTRY: SuperTemplateDefinition[] = [
         category: 'Bilişsel Gelişim',
         description: 'Sıralama, sözel matris ve dedektiflik oyunlarıyla üst düzey mantık becerileri.',
         icon: 'fa-solid fa-puzzle-piece',
-        defaultSettings: MantikMuhakeme.DEFAULT_SETTINGS || {
-            sequenceSteps: 4,
-            matrixSize: '3x3',
-            logicMatrix: true,
-            detailDetective: true
-        },
+        defaultSettings: MantikMuhakeme.DEFAULT_SETTINGS,
         component: MantikMuhakeme.Settings,
         promptBuilder: MantikMuhakeme.promptBuilder
     },
@@ -102,12 +84,7 @@ export const SUPER_STUDIO_REGISTRY: SuperTemplateDefinition[] = [
         category: 'Yazma Becerileri',
         description: 'Hikaye zarları ve duygu radarı ile eğlenceli, oyunlaştırılmış yazma stüdyosu.',
         icon: 'fa-solid fa-pen-nib',
-        defaultSettings: YaraticiYazarlik.DEFAULT_SETTINGS || {
-            storyDiceCount: 3,
-            clozeFormat: 'none',
-            minSentences: 5,
-            emotionRadar: true
-        },
+        defaultSettings: YaraticiYazarlik.DEFAULT_SETTINGS,
         component: YaraticiYazarlik.Settings,
         promptBuilder: YaraticiYazarlik.promptBuilder
     },
@@ -117,13 +94,7 @@ export const SUPER_STUDIO_REGISTRY: SuperTemplateDefinition[] = [
         category: 'Yazma Becerileri',
         description: 'Hata dedektifi ve kural hatırlatıcılar ile noktalama işaretlerini ustalıkla öğrenme.',
         icon: 'fa-solid fa-quote-right',
-        defaultSettings: YazimNoktalama.DEFAULT_SETTINGS || {
-            ruleSelection: ['capitalization', 'punctuation'],
-            errorDetectiveMode: true,
-            clozeFormat: 'none',
-            showRuleHints: true,
-            itemCount: 8
-        },
+        defaultSettings: YazimNoktalama.DEFAULT_SETTINGS,
         component: YazimNoktalama.Settings,
         promptBuilder: YazimNoktalama.promptBuilder
     },
@@ -133,13 +104,7 @@ export const SUPER_STUDIO_REGISTRY: SuperTemplateDefinition[] = [
         category: 'Anlam Bilgisi',
         description: 'Görsel analoji ve bağlam temelli deyim/atasözü farkındalık çalışmaları.',
         icon: 'fa-solid fa-language',
-        defaultSettings: SozVarligi.DEFAULT_SETTINGS || {
-            learningType: 'idioms',
-            visualAnalogy: true,
-            contextualUsage: true,
-            synonymAntonymMatch: true,
-            itemCount: 6
-        },
+        defaultSettings: SozVarligi.DEFAULT_SETTINGS,
         component: SozVarligi.Settings,
         promptBuilder: SozVarligi.promptBuilder
     },
@@ -149,13 +114,7 @@ export const SUPER_STUDIO_REGISTRY: SuperTemplateDefinition[] = [
         category: 'Dil Bilgisi',
         description: 'Fonolojik farkındalık, heceleme kuralları ve ses olaylarını kavrama stüdyosu.',
         icon: 'fa-solid fa-wave-square',
-        defaultSettings: HeceSes.DEFAULT_SETTINGS || {
-            focusArea: 'syllable_splitting',
-            multisensoryCues: true,
-            phonemeManipulation: true,
-            targetSoundChanges: ['softening', 'hardening'],
-            itemCount: 10
-        },
+        defaultSettings: HeceSes.DEFAULT_SETTINGS,
         component: HeceSes.Settings,
         promptBuilder: HeceSes.promptBuilder
     },

@@ -19,9 +19,10 @@ export const OkumaAnlamaSettingsPanel: React.FC<TemplateSettingsProps<OkumaAnlam
   ];
 
   const toggleQuestionType = (typeId: OkumaAnlamaSettings['questionTypes'][number]) => {
-    const newTypes = settings.questionTypes.includes(typeId)
-      ? settings.questionTypes.filter((t) => t !== typeId)
-      : [...settings.questionTypes, typeId];
+    const currentTypes = settings.questionTypes || [];
+    const newTypes = currentTypes.includes(typeId)
+      ? currentTypes.filter((t) => t !== typeId)
+      : [...currentTypes, typeId];
     onChange({ questionTypes: newTypes });
   };
 
@@ -124,7 +125,7 @@ export const OkumaAnlamaSettingsPanel: React.FC<TemplateSettingsProps<OkumaAnlam
               key={qt.id}
               onClick={() => toggleQuestionType(qt.id)}
               className={`py-2 px-1 flex flex-col items-center gap-1 rounded-lg border text-[10px] font-medium transition-all ${
-                settings.questionTypes.includes(qt.id)
+                settings.questionTypes?.includes(qt.id)
                   ? 'bg-accent border-accent/60 text-white shadow-lg shadow-accent/20'
                   : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500'
               }`}

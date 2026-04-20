@@ -20,27 +20,28 @@ export const KelimeBilgisiSettingsPanel: React.FC<TemplateSettingsProps<KelimeBi
   ];
 
   const toggleWordType = (typeId: string) => {
-    const newTypes = settings.wordTypes.includes(typeId as any)
-      ? settings.wordTypes.filter((t) => t !== typeId)
-      : [...settings.wordTypes, typeId as any];
+    const currentTypes = settings.wordTypes || [];
+    const newTypes = currentTypes.includes(typeId as any)
+      ? currentTypes.filter((t) => t !== typeId)
+      : [...currentTypes, typeId as any];
     onChange({ wordTypes: newTypes });
   };
 
   const updateAiSettings = (key: string, value: unknown) => {
     onChange({
-      aiSettings: { ...settings.aiSettings, [key]: value },
+      aiSettings: { ...(settings.aiSettings || {}), [key]: value },
     });
   };
 
   const updateHizliSettings = (key: string, value: unknown) => {
     onChange({
-      hizliSettings: { ...settings.hizliSettings, [key]: value },
+      hizliSettings: { ...(settings.hizliSettings || {}), [key]: value },
     });
   };
 
   const updateVisualSettings = (key: string, value: boolean) => {
     onChange({
-      visualSettings: { ...settings.visualSettings, [key]: value },
+      visualSettings: { ...(settings.visualSettings || {}), [key]: value },
     });
   };
 
@@ -86,19 +87,19 @@ export const KelimeBilgisiSettingsPanel: React.FC<TemplateSettingsProps<KelimeBi
               key={type.id}
               onClick={() => toggleWordType(type.id)}
               className={`p-2 rounded-lg border transition-all ${
-                settings.wordTypes.includes(type.id as any)
+                settings.wordTypes?.includes(type.id as any)
                   ? 'bg-accent/20 border-accent text-white'
                   : 'bg-slate-800 border-slate-700 text-slate-400'
               }`}
               style={{
-                backgroundColor: settings.wordTypes.includes(type.id as any)
+                backgroundColor: settings.wordTypes?.includes(type.id as any)
                   ? type.color === 'blue'
                     ? 'rgba(59, 130, 246, 0.2)'
                     : type.color === 'red'
                       ? 'rgba(239, 68, 68, 0.2)'
                       : 'rgba(34, 197, 94, 0.2)'
                   : undefined,
-                borderColor: settings.wordTypes.includes(type.id as any)
+                borderColor: settings.wordTypes?.includes(type.id as any)
                   ? type.color === 'blue'
                     ? '#3b82f6'
                     : type.color === 'red'

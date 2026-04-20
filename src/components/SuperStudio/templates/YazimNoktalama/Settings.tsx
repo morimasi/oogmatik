@@ -13,9 +13,10 @@ export const YazimNoktalamaSettingsPanel: React.FC<
   ];
 
   const toggleRule = (ruleId: YazimNoktalamaSettings['focusRules'][number]) => {
-    const newRules = settings.focusRules.includes(ruleId)
-      ? settings.focusRules.filter((r) => r !== ruleId)
-      : [...settings.focusRules, ruleId];
+    const currentRules = settings.focusRules || [];
+    const newRules = currentRules.includes(ruleId)
+      ? currentRules.filter((r) => r !== ruleId)
+      : [...currentRules, ruleId];
     onChange({ focusRules: newRules });
   };
 
@@ -31,7 +32,7 @@ export const YazimNoktalamaSettingsPanel: React.FC<
               key={rule.id}
               onClick={() => toggleRule(rule.id as YazimNoktalamaSettings['focusRules'][number])}
               className={`py-2 px-2.5 flex items-center gap-1.5 rounded-lg border text-xs font-medium transition-all ${
-                settings.focusRules.includes(
+                settings.focusRules?.includes(
                   rule.id as YazimNoktalamaSettings['focusRules'][number]
                 )
                   ? 'bg-rose-600 border-rose-400 text-white shadow-lg shadow-rose-900/20'

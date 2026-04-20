@@ -13,9 +13,10 @@ export const SozVarligiSettingsPanel: React.FC<TemplateSettingsProps<SozVarligiS
   ];
 
   const toggleType = (typeId: SozVarligiSettings['itemTypes'][number]) => {
-    const newTypes = settings.itemTypes.includes(typeId)
-      ? settings.itemTypes.filter((t) => t !== typeId)
-      : [...settings.itemTypes, typeId];
+    const currentTypes = settings.itemTypes || [];
+    const newTypes = currentTypes.includes(typeId)
+      ? currentTypes.filter((t) => t !== typeId)
+      : [...currentTypes, typeId];
     onChange({ itemTypes: newTypes });
   };
 
@@ -31,7 +32,7 @@ export const SozVarligiSettingsPanel: React.FC<TemplateSettingsProps<SozVarligiS
               key={type.id}
               onClick={() => toggleType(type.id as SozVarligiSettings['itemTypes'][number])}
               className={`p-2 flex flex-col items-center gap-1 rounded-lg border transition-all ${
-                settings.itemTypes.includes(type.id as SozVarligiSettings['itemTypes'][number])
+                settings.itemTypes?.includes(type.id as SozVarligiSettings['itemTypes'][number])
                   ? 'bg-emerald-600 border-emerald-400 text-white shadow-lg'
                   : 'bg-slate-800 border-slate-700 text-slate-400 hover:border-slate-500'
               }`}
