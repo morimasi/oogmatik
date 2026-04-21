@@ -120,6 +120,22 @@ export function generateInfographic_TEST_PREPARATION_Offline(
     },
   ];
 
+  return {
+    title: `${params.topic} - Sınav Hazırlığı`,
+    content: {
+      steps: phases.flatMap((phase, pi) =>
+        (phase.activities || []).map((activity, ai) => ({
+          stepNumber: pi * 10 + ai + 1,
+          label: `${phase.name}: ${activity}`,
+          description: activity,
+          isCheckpoint: ai === (phase.activities || []).length - 1,
+          scaffoldHint: `Süre: ${phase.duration}`,
+        }))
+      ),
+      strategicContent: {
+        strategyName: 'Sınav Hazırlık Planı',
+        steps: phases.map((p) => p.name),
+        useWhen: 'Sınav öncesi çalışma döneminde',
         benefits: phases.map((p) => `${p.name}: ${p.duration}`),
       },
     },

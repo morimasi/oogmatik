@@ -124,6 +124,14 @@ export function generateInfographic_SPEECH_THERAPY_TARGET_Offline(
     },
   ];
 
+  return {
+    title: `${params.topic} - Dil Konuşma Hedefi`,
+    content: {
+      steps: targets.map((t, i) => ({
+        stepNumber: i + 1,
+        label: `${t.skill}: ${t.objective}`,
+        description: t.objective,
+        isCheckpoint: i % 2 === 1,
         scaffoldHint: `Aktivite: ${t.activity} | Kriter: ${t.criteria}`,
       })),
     },

@@ -118,6 +118,14 @@ export function generateInfographic_SOCIAL_SKILLS_Offline(
     },
   ];
 
+  return {
+    title: `${params.topic} - Sosyal Beceriler`,
+    content: {
+      steps: skills.map((s, i) => ({
+        stepNumber: i + 1,
+        label: s.name,
+        description: s.description,
+        isCheckpoint: i % 2 === 1,
         scaffoldHint: `Örnek: ${s.example}`,
       })),
     },

@@ -127,6 +127,19 @@ export function generateInfographic_SOLAR_SYSTEM_Offline(
     },
   ];
 
+  return {
+    title: `${params.topic} - Güneş Sistemi`,
+    content: {
+      scienceData: {
+        topic: params.topic,
+        components: planets.map((p) => p.name),
+        properties: Object.fromEntries(planets.map((p) => [p.name, p.fact])),
+      },
+      steps: planets.map((planet, i) => ({
+        stepNumber: i + 1,
+        label: `${planet.order}. Gezegen: ${planet.name}`,
+        description: `Boyut: ${planet.size}. Güneşe uzaklık: ${planet.distance}`,
+        isCheckpoint: i === 0,
         scaffoldHint: `Bilgi: ${planet.fact}`,
       })),
     },
