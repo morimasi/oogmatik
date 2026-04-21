@@ -10,6 +10,9 @@ export const StudentSelector = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
 
+  // Admin kontrolü (örnek - gerçek admin kontrolü auth store'dan gelmeli)
+  const isAdmin = user?.role === 'admin' || user?.email?.includes('admin');
+
   const filteredStudents = students.filter((s) =>
     s.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -49,17 +52,19 @@ export const StudentSelector = () => {
               ÖĞRENCİ SEÇİMİ
             </h1>
             <p className="text-[10px] mt-1.5 font-medium uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>
-              Sistemdeki öğrencilerinizi yönetin
+              {isAdmin ? 'Tüm öğrenciler' : 'Sistemdeki öğrencilerinizi yönetin'}
             </p>
           </div>
-          <button
-            onClick={() => setShowAddForm(true)}
-            className="px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider hover:scale-105 transition-transform shadow-md flex items-center gap-2 hover:opacity-90 text-white"
-            style={{ backgroundColor: 'var(--accent-color)' }}
-          >
-            <i className="fa-solid fa-plus text-[10px]"></i>
-            YENİ EKLE
-          </button>
+          {!isAdmin && (
+            <button
+              onClick={() => setShowAddForm(true)}
+              className="px-4 py-2 rounded-lg text-xs font-black uppercase tracking-wider hover:scale-105 transition-transform shadow-md flex items-center gap-2 hover:opacity-90 text-white"
+              style={{ backgroundColor: 'var(--accent-color)' }}
+            >
+              <i className="fa-solid fa-plus text-[10px]"></i>
+              YENİ EKLE
+            </button>
+          )}
         </div>
 
         {/* Search (Compact) */}

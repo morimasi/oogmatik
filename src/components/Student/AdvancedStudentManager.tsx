@@ -140,34 +140,77 @@ export const AdvancedStudentManager: React.FC<{
     }
   };
 
+  // Öğrenci seçilmediğinde liste görünümü
   if (!activeStudent) {
     return (
-      <div className="fixed inset-0 z-50 bg-zinc-50 dark:bg-black overflow-y-auto flex items-center justify-center p-4">
-        <div className="max-w-md w-full p-6 text-center bg-white dark:bg-zinc-900 rounded-3xl shadow-xl border border-zinc-200 dark:border-zinc-800">
-          <div className="w-16 h-16 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <i className="fa-solid fa-user-graduate text-2xl text-indigo-600"></i>
-          </div>
-          <h2 className="text-xl font-black text-zinc-900 dark:text-white mb-2">
-            Öğrenci Seçilmedi
-          </h2>
-          <p className="text-zinc-500 text-xs mb-6">
-            Yönetim panelini kullanmak için lütfen bir öğrenci profili seçin.
-          </p>
-          <div className="space-y-2">
-            {students.length > 0 && (
-              <button
-                onClick={() => setActiveStudent(students[0])}
-                className="w-full py-3 bg-indigo-600 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-lg hover:scale-105 transition-transform"
-              >
-                Hızlı Seçim
-              </button>
+      <div className="w-full h-full flex bg-black font-lexend overflow-hidden">
+        <div className="flex-1 min-w-0 bg-white dark:bg-black p-6 overflow-y-auto">
+          <div className="max-w-4xl mx-auto">
+            <div className="mb-6">
+              <h1 className="text-2xl font-black text-zinc-900 dark:text-white mb-2">
+                Öğrenci Yönetimi
+              </h1>
+              <p className="text-zinc-500 text-sm">
+                Düzenlemek veya detaylarını görmek için bir öğrenci seçin.
+              </p>
+            </div>
+
+            {students.length === 0 ? (
+              <div className="text-center py-16">
+                <div className="w-16 h-16 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <i className="fa-solid fa-user-graduate text-2xl text-indigo-600"></i>
+                </div>
+                <p className="text-zinc-500 text-sm">Henüz öğrenci bulunmuyor.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {students.map((student) => (
+                  <button
+                    key={student.id}
+                    onClick={() => setActiveStudent(student)}
+                    className="p-4 bg-white dark:bg-zinc-900 rounded-2xl border-2 border-zinc-200 dark:border-zinc-800 hover:border-indigo-500 transition-all hover:shadow-lg text-left group"
+                  >
+                    <div className="flex items-start gap-3">
+                      <img
+                        src={student.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix'}
+                        alt={student.name}
+                        className="w-12 h-12 rounded-xl object-cover border border-zinc-200 dark:border-zinc-700"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-zinc-900 dark:text-white text-sm truncate">
+                          {student.name}
+                        </h3>
+                        {student.diagnosis && student.diagnosis.length > 0 && (
+                          <div className="mt-1 flex flex-wrap gap-1">
+                            {student.diagnosis.slice(0, 2).map((d, idx) => (
+                              <span
+                                key={idx}
+                                className="px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded text-[10px] font-bold"
+                              >
+                                {d}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        {student.grade && (
+                          <p className="text-zinc-500 text-xs mt-1">{student.grade}</p>
+                        )}
+                      </div>
+                      <i className="fa-solid fa-chevron-right text-zinc-400 group-hover:text-indigo-500 transition-colors text-xs"></i>
+                    </div>
+                  </button>
+                ))}
+              </div>
             )}
-            <button
-              onClick={onBack}
-              className="w-full py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 rounded-xl font-bold text-xs uppercase tracking-widest"
-            >
-              Geri Dön
-            </button>
+
+            <div className="mt-6">
+              <button
+                onClick={onBack}
+                className="w-full py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 rounded-xl font-bold text-xs uppercase tracking-widest"
+              >
+                Geri Dön
+              </button>
+            </div>
           </div>
         </div>
       </div>
