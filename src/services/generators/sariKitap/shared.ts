@@ -142,7 +142,7 @@ PARAMETRELER:
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
 
-Her hikaye en az 10-12 cümle olsun. İki hikaye birbirinden tamamen farklı konularda olmalı. Sayfayı tam dolduracak kadar içerik üret.`;
+Her hikaye en az 20-25 cümle olsun. İki hikaye birbirinden tamamen farklı konularda olmalı. A4 sayfasını taşmayacak ama olabildiğince tam dolduracak kadar uzun ve zengin içerik üret.`;
 }
 
 export function buildBellekPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
