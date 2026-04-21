@@ -26,6 +26,7 @@ import { WorkbookView } from './WorkbookView';
 import { useAppStore } from '../store/useAppStore';
 import { useWorksheetStore } from '../store/useWorksheetStore';
 import { usePaperSizeStore } from '../store/usePaperSizeStore';
+import { useAssignmentStore } from '../store/useAssignmentStore';
 import { paginationService } from '../services/paginationService';
 
 import { UniversalWorksheetWrapper } from './UniversalStudio/UniversalWorksheetWrapper';
@@ -170,6 +171,41 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       setIsShareSending(false);
     }
   };
+
+  const handleAssign = async () => {
+    if (!user) {
+      alert("Önce giriş yapmalısınız.");
+      onOpenAuth?.();
+      return;
+    }
+    
+    try {
+      let currentId = activeWorksheetId;
+
+      // If not saved yet, save it first
+      if (!currentId && worksheetData) {
+        const title =
+          activeWorksheetTitle ||
+          (Array.isArray(worksheetData)
+            ? worksheetData[0]?.title
+            : (worksheetData as any)?.title) ||
+          'Yeni Etkinlik';
+        currentId = await onSave!(title, activityType!, worksheetData);
+        if (currentId) {
+          setActiveWorksheet(currentId, title);
+        }
+      }
+
+      if (currentId) {
+        useAssignmentStore.getState().setModalOpen(true, currentId);
+      } else {
+        alert('Önce çalışmayı kaydetmelisiniz.');
+      }
+    } catch (error: any) {
+      console.error('Assign error:', error);
+      alert(`Atama başlatılamadı: ${error.message}`);
+    }
+  };
   const { isEditMode, setEditMode, zoomScale, setZoomScale } = useAppStore();
 
 
@@ -303,6 +339,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             settings={styleSettings}
             onSettingsChange={onStyleChange}
             onSave={() => onSave('Etkinlik', activityType, processedData)}
+            onAssign={handleAssign}
             onFeedback={onFeedback}
             onShare={() => setIsShareModalOpen(true)}
             onTogglePreview={toggleZenMode}
