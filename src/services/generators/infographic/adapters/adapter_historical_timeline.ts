@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type HistoricalTimelineAIResult = {
   title: string;
   events: { date: string; title: string; description: string; significance: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -37,7 +36,7 @@ export async function generateInfographic_HISTORICAL_TIMELINE_AI(
   const prompt = buildAIPrompt(
     'TARİHSEL ZAMAN ÇİZELGESİ',
     params,
-    '1. Konuya uygun tarihsel olayları kronolojik sırayla listele\n2. Her olayın tarihini ve önemini belirt\n3. Görsel sembollerle destekle\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için tarihsel zaman algısı öğrenme stratejileri (min 100 kelime)'
+    '1. Konuya uygun tarihsel olayları kronolojik sırayla listele\n2. Her olayın tarihini ve önemini belirt\n3. Görsel sembollerle destekle'
   );
   const schema = {
     type: 'OBJECT',
@@ -55,7 +54,6 @@ export async function generateInfographic_HISTORICAL_TIMELINE_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as HistoricalTimelineAIResult;
@@ -76,9 +74,6 @@ export async function generateInfographic_HISTORICAL_TIMELINE_AI(
         scaffoldHint: `Önem: ${event.significance}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Tarihsel zaman çizelgesi infografiği, disleksi desteğine ihtiyacı olan öğrenciler için kronolojik düşünme becerilerini geliştiren önemli bir sosyal bilgiler aracıdır. Olayların görsel zaman çizelgesi üzerinde sıralanması, soyut tarihsel kavramları somutlaştırır. Disleksi desteğine ihtiyacı olan öğrenciler, renk kodlaması ve görsel semboller ile olaylar arasındaki nedensellik ilişkilerini daha kolay kavrar ve tarihsel farkındalık geliştirirler.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -152,7 +147,6 @@ export function generateInfographic_HISTORICAL_TIMELINE_Offline(
         scaffoldHint: `Önem: ${event.significance}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

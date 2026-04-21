@@ -28,7 +28,7 @@ export async function generateInfographic_InferenceChain_AI(
   const prompt = buildAIPrompt(
     'ÇIKARIM ZİNCİRİ',
     params,
-    '1. Metinden ipuçları topla\n2. Her ipucundan çıkarım yap\n3. Sonuca ulaş\n4. Pedagojik not: Çıkarım yapmanın eleştirel düşünmeye katkısı (min 100 kelime)\n5. Lexend font, disleksi uyumlu'
+    '1. Metinden ipuçları topla\n2. Her ipucundan çıkarım yap\n3. Sonuca ulaş\n4. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'object' as const,
@@ -37,7 +37,6 @@ export async function generateInfographic_InferenceChain_AI(
       clues: { type: 'array' as const, items: { type: 'string' as const } },
       inferences: { type: 'array' as const, items: { type: 'string' as const } },
       conclusion: { type: 'string' as const },
-      pedagogicalNote: { type: 'string' as const },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as {
@@ -45,7 +44,6 @@ export async function generateInfographic_InferenceChain_AI(
     clues: string[];
     inferences: string[];
     conclusion: string;
-    pedagogicalNote: string;
   };
   return {
     title: result.title || `${params.topic} - Çıkarım Zinciri`,
@@ -57,9 +55,6 @@ export async function generateInfographic_InferenceChain_AI(
         difficulty: i === 0 ? ('easy' as const) : ('medium' as const),
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Çıkarım yapma becerisi, öğrencinin metinler arası bağlantı kurma ve eleştirel düşünme yetisini güçlendirir. Disleksi desteğine ihtiyacı olan öğrenciler için her ipucu ayrı kutuda ve görsel destekli sunulmalıdır.',
     layoutHints: { orientation: 'horizontal', fontSize: 11, colorScheme: 'dyslexia-friendly' },
     targetSkills: ['Çıkarım yapma', 'Eleştirel düşünme'],
     estimatedDuration: 15,
@@ -123,8 +118,6 @@ export function generateInfographic_InferenceChain_Offline(
         difficulty: i === 0 ? ('easy' as const) : ('medium' as const),
       })),
     },
-    pedagogicalNote:
-      'Çıkarım yapma becerisi, öğrencinin metinler arası bağlantı kurma ve eleştirel düşünme yetisini güçlendirir. Disleksi desteğine ihtiyacı olan öğrenciler için her ipucu ayrı kutuda ve görsel destekli sunulmalıdır. Ok işaretleriyle ipuçından çıkarıma geçiş gösterilmelidir.',
     layoutHints: { orientation: 'horizontal', fontSize: 11, colorScheme: 'dyslexia-friendly' },
     targetSkills: ['Çıkarım yapma', 'Eleştirel düşünme'],
     estimatedDuration: 15,

@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type RoutineBuilderAIResult = {
   title: string;
   routine: { time: string; activity: string; icon: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_ROUTINE_BUILDER_AI(
   const prompt = buildAIPrompt(
     'RUTİN OLUŞTURUCU',
     params,
-    '1. Günlük rutin akışı oluştur\n2. Her zaman dilimi için aktivite ve ikon belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için rutin oluşturma stratejileri (min 100 kelime)'
+    '1. Günlük rutin akışı oluştur\n2. Her zaman dilimi için aktivite ve ikon belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -60,7 +59,6 @@ export async function generateInfographic_ROUTINE_BUILDER_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as RoutineBuilderAIResult;
@@ -75,9 +73,6 @@ export async function generateInfographic_ROUTINE_BUILDER_AI(
         scaffoldHint: `Saat: ${r.time}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Rutin oluşturucu infografiği, disleksi desteğine ihtiyacı olan öğrenciler için günlük yaşam yapılarını görsel olarak planlamada kritik bir araçtır. Disleksi desteğine ihtiyacı olan öğrenciler, belirsizlik ve öngörülemezlik karşısında artan kaygı yaşarlar. Görsel rutin çizelgeleri, disleksi desteğine ihtiyacı olan öğrencilerin gün içinde ne olacağını önceden görmelerini ve buna hazırlanmalarını sağlar. Tutarlı rutinler, disleksi desteğine ihtiyacı olan öğrencilerin yürütücü işlev becerilerini destekler ve bağımsızlık kazanmalarını kolaylaştırır. Her rutin geçişinin görsel olarak işaretlenmesi, disleksi desteğine ihtiyacı olan öğrencilerin zaman yönetimi becerilerini geliştirir.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -129,7 +124,6 @@ export function generateInfographic_ROUTINE_BUILDER_Offline(
         scaffoldHint: `Saat: ${r.time}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

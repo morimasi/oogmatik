@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type InventionPlanAIResult = {
   title: string;
   steps: { phase: string; description: string; tools: string[] }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -37,7 +36,7 @@ export async function generateInfographic_INVENTION_PLAN_AI(
   const prompt = buildAIPrompt(
     'BULUŞ PLANI',
     params,
-    '1. Buluş sürecinin aşamalarını belirle\n2. Her aşama için gerekli araçları listele\n3. Adımlı plan oluştur\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için buluş planı öğrenme stratejileri (min 100 kelime)'
+    '1. Buluş sürecinin aşamalarını belirle\n2. Her aşama için gerekli araçları listele\n3. Adımlı plan oluştur'
   );
   const schema = {
     type: 'OBJECT',
@@ -54,7 +53,6 @@ export async function generateInfographic_INVENTION_PLAN_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as InventionPlanAIResult;
@@ -69,9 +67,6 @@ export async function generateInfographic_INVENTION_PLAN_AI(
         scaffoldHint: `Araçlar: ${step.tools.join(', ')}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Buluş planı infografiği, disleksi desteğine ihtiyacı olan öğrenciler için icat sürecini yapılandırılmış adımlarla planlamalarını sağlayan önemli bir yaratıcı düşünme aracıdır. Her aşamanın gerekli araçları ve açıklamaları ile birlikte sunulması, soyut buluş süreçlerini somutlaştırır. Disleksi desteğine ihtiyacı olan öğrenciler, görsel düzenleme ve adım adım ilerleme yapısı sayesinde fikirlerini somut bir buluşa dönüştürme becerisini geliştirir ve mühendislik düşünce yapısını öğrenirler.',
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,
@@ -140,7 +135,6 @@ export function generateInfographic_INVENTION_PLAN_Offline(
         scaffoldHint: `Araçlar: ${step.tools.join(', ')}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,

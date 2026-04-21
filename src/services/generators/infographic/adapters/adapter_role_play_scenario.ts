@@ -10,7 +10,6 @@ type RolePlayScenarioAIResult = {
   title: string;
   characters: { name: string; role: string; traits: string[] }[];
   scenes: { scene: string; dialogue: string; outcome: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -38,7 +37,7 @@ export async function generateInfographic_ROLE_PLAY_SCENARIO_AI(
   const prompt = buildAIPrompt(
     'ROL YAPMA SENARYOSU',
     params,
-    '1. Senaryo karakterlerini ve rollerini belirle\n2. Sahne diyaloglarını oluştur\n3. Her sahnenin sonucunu belirt\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için rol yapma öğrenme stratejileri (min 100 kelime)'
+    '1. Senaryo karakterlerini ve rollerini belirle\n2. Sahne diyaloglarını oluştur\n3. Her sahnenin sonucunu belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -66,7 +65,6 @@ export async function generateInfographic_ROLE_PLAY_SCENARIO_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as RolePlayScenarioAIResult;
@@ -81,9 +79,6 @@ export async function generateInfographic_ROLE_PLAY_SCENARIO_AI(
         scaffoldHint: `Sonuç: ${scene.outcome}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Rol yapma senaryosu infografiği, disleksi desteğine ihtiyacı olan öğrenciler için sosyal beceri ve empati geliştirme becerilerini yapılandırılmış senaryolarla destekleyen önemli bir öğrenme aracıdır. Karakterlerin rolleri ve sahne diyalogları görsel olarak düzenlendiğinde, soyut sosyal etkileşim kavramları somutlaştırır. Disleksi desteğine ihtiyacı olan öğrenciler, rol yapma etkinlikleri ile farklı perspektifleri deneyimleme fırsatı bulur ve sosyal iletişim becerilerini güvenli bir ortamda geliştirirler.',
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,
@@ -142,7 +137,6 @@ export function generateInfographic_ROLE_PLAY_SCENARIO_Offline(
         scaffoldHint: `Sonuç: ${scene.outcome}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,

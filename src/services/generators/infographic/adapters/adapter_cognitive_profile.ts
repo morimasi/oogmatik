@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type CognitiveProfileAIResult = {
   title: string;
   domains: { name: string; score: number; strength: string; support: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -102,7 +101,6 @@ export async function generateInfographic_COGNITIVE_PROFILE_AI(
 export function generateInfographic_COGNITIVE_PROFILE_Offline(
   params: UltraCustomizationParams
 ): InfographicGeneratorResult {
-  const category = detectCategory(params.topic);
   const domains = [
     {
       name: 'İşitsel İşlemleme',
@@ -130,18 +128,6 @@ export function generateInfographic_COGNITIVE_PROFILE_Offline(
       support: 'Kelime dağarcığı çalışması',
     },
   ];
-
-  const categoryDescriptions: Record<string, string> = {
-    science:
-      'Bilişsel profil infografiği, disleksi desteğine ihtiyacı olan öğrenciler için fen bilimleri öğrenme süreçlerindeki bilişsel güçlü ve zorlu alanları belirlemede yardımcı olur. Görsel-uzamsal becerileri güçlü olan disleksi desteğine ihtiyacı olan öğrenciler, fen diyagramlarını ve modelleri anlamada başarılı olabilirler.',
-    math: 'Bilişsel profil infografiği, disleksi desteğine ihtiyacı olan öğrenciler için matematik öğrenme süreçlerindeki bilişsel profillerini haritalamada rehberlik eder. Çalışma belleği ve işlem hızı alanlarındaki skorlar, disleksi desteğine ihtiyacı olan öğrencilerin matematik öğrenme stratejilerini belirlemede kritik bilgi sağlar.',
-    language:
-      'Bilişsel profil infografiği, disleksi desteğine ihtiyacı olan öğrenciler için dil ve okuma öğrenme süreçlerindeki bilişsel profillerini analiz etmede temel bir araçtır. İşitsel işlemleme ve sözel anlama alanlarındaki skorlar, disleksi desteğine ihtiyacı olan öğrencilerin okuma ve yazma müdahale stratejilerini belirlemede doğrudan kullanılabilir.',
-    social:
-      'Bilişsel profil infografiği, disleksi desteğine ihtiyacı olan öğrenciler için sosyal bilgiler öğrenme süreçlerindeki bilişsel profillerini değerlendirmede destek sağlar. Sözel anlama ve görsel-uzamsal beceriler, disleksi desteğine ihtiyacı olan öğrencilerin sosyal kavramları öğrenme biçimlerini etkiler.',
-    general:
-      'Bilişsel profil infografiği, disleksi desteğine ihtiyacı olan öğrenciler için bilişsel güçlü ve zorlu alanları görsel olarak haritalamada kapsamlı bir değerlendirme aracı sunar. Disleksi desteğine ihtiyacı olan öğrenciler genellikle işitsel işlemleme, görsel-uzamsal beceriler ve çalışma belleği alanlarında farklı bilişsel profiller sergilerler. Bilişsel profil haritası, disleksi desteğine ihtiyacı olan öğrencilerin güçlü alanlarını tespit ederek bu alanları öğrenme süreçlerinde kullanmalarını sağlar. Aynı zamanda destek ihtiyacı olan alanları belirlemek, disleksi desteğine ihtiyacı olan öğrencilere yönelik müdahale stratejilerinin hedeflenmesine yardımcı olur.',
-  };
 
   return {
     title: `${params.topic} - Bilişsel Profil`,

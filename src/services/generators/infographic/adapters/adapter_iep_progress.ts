@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type IepProgressAIResult = {
   title: string;
   progress: { domain: string; current: number; target: number; status: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_IEP_PROGRESS_AI(
   const prompt = buildAIPrompt(
     'BEP İLERLEME',
     params,
-    '1. BEP ilerleme verilerini oluştur\n2. Her alan için mevcut seviye, hedef seviye ve durum belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için BEP ilerleme takip stratejileri (min 100 kelime)'
+    '1. BEP ilerleme verilerini oluştur\n2. Her alan için mevcut seviye, hedef seviye ve durum belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -61,7 +60,6 @@ export async function generateInfographic_IEP_PROGRESS_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as IepProgressAIResult;
@@ -82,9 +80,6 @@ export async function generateInfographic_IEP_PROGRESS_AI(
         scaffoldHint: `Hedef: ${p.target}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'BEP ilerleme infografiği, disleksi desteğine ihtiyacı olan öğrenciler için bireyselleştirilmiş eğitim planı hedeflerine ulaşma düzeylerini görsel olarak izleme ve raporlama aracıdır. Disleksi desteğine ihtiyacı olan öğrencilerin öğrenme süreçlerinde katedilen mesafe, geleneksel değerlendirme araçlarıyla tam olarak yansıtılamayabilir. Radar grafikleri ve ilerleme çubukları, disleksi desteğine ihtiyacı olan öğrencilerin her alandaki gelişimini somut ve görsel olarak gösterir. Düzenli ilerleme raporları, disleksi desteğine ihtiyacı olan öğrencilerin eğitim planında gerekli düzenlemelerin zamanında yapılmasını sağlar ve veli-öğretmen iş birliğini güçlendirir.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 13,
@@ -139,7 +134,6 @@ export function generateInfographic_IEP_PROGRESS_Offline(
         scaffoldHint: `Hedef: ${p.target}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 13,

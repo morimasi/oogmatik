@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type ScientificMethodAIResult = {
   title: string;
   steps: { step: string; description: string; example: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -37,7 +36,7 @@ export async function generateInfographic_SCIENTIFIC_METHOD_AI(
   const prompt = buildAIPrompt(
     'BİLİMSEL YÖNTEM',
     params,
-    '1. Bilimsel yöntem adımlarını belirle\n2. Her adımı örnekle açıkla\n3. Görsel sembollerle destekle\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için bilimsel yöntem öğrenme stratejileri (min 100 kelime)'
+    '1. Bilimsel yöntem adımlarını belirle\n2. Her adımı örnekle açıkla\n3. Görsel sembollerle destekle'
   );
   const schema = {
     type: 'OBJECT',
@@ -54,7 +53,6 @@ export async function generateInfographic_SCIENTIFIC_METHOD_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as ScientificMethodAIResult;
@@ -69,9 +67,6 @@ export async function generateInfographic_SCIENTIFIC_METHOD_AI(
         scaffoldHint: `Örnek: ${step.example}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Bilimsel yöntem infografiği, disleksi desteğine ihtiyacı olan öğrenciler için sistematik düşünme ve problem çözme becerilerini geliştiren önemli bir fen bilimleri aracıdır. Her adımın görsel sembollerle ve somut örneklerle desteklenmesi, soyut bilimsel süreçleri anlaşılır kılar. Disleksi desteğine ihtiyacı olan öğrenciler, yapılandırılmış bilimsel yöntem adımlarını takip ederek eleştirel düşünme becerilerini geliştirir ve günlük yaşamda karşılaştıkları sorunlara bilimsel yaklaşım getirmeyi öğrenirler.',
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,
@@ -140,7 +135,6 @@ export function generateInfographic_SCIENTIFIC_METHOD_Offline(
         scaffoldHint: `Örnek: ${step.example}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,
