@@ -16,19 +16,29 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
     const bColor = c.bridgeColor ?? '#18181b';
     
     // Satır aralığı — görseldeki gibi ferah
-    const rowGap = '3.5rem';
+    const rowGap = '4rem';
 
     return (
         <div className="sk-renderer-kopru" style={{
-            padding: '4rem 3rem', display: 'flex', flexDirection: 'column', height: '100%',
+            padding: '4rem 3rem', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            width: '100%',
+            aspectRatio: '1 / 1.414', // A4 dikey oranı
             background: '#fcf096', // Görseldeki sarı kağıt dokusu
             color: '#18181b',
-            fontFamily: 'Lexend, sans-serif'
+            fontFamily: 'Lexend, sans-serif',
+            boxSizing: 'border-box',
+            position: 'relative',
+            overflow: 'hidden'
         }}>
             {/* ═══ İÇERİK ═══ */}
             <div style={{
-                flex: 1, display: 'flex', flexDirection: 'column',
-                gap: rowGap
+                flex: 1, 
+                display: 'flex', 
+                flexDirection: 'column',
+                gap: rowGap,
+                zIndex: 1
             }}>
                 {content.heceRows.map((row, ri) => {
                     const words = row.syllables || [];
@@ -38,8 +48,10 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
                         <div key={ri} style={{ 
                             display: 'flex', 
                             flexDirection: 'row', 
+                            flexWrap: 'wrap', // Uzun satırlar alt satıra geçsin
                             alignItems: 'flex-end', 
-                            width: '100%' 
+                            width: '100%',
+                            rowGap: '2.5rem' // Wrap olduğu durumlarda yayın üst üste binmemesi için
                         }}>
                             {words.map((s, si) => (
                                 <React.Fragment key={`w-${si}`}>
@@ -47,9 +59,9 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
                                     <div style={{
                                         fontSize: `${fontSizePx}px`,
                                         fontWeight: 400,
-                                        lineHeight: '1',
-                                        paddingBottom: '4px', // Yükseklik hizalaması için hafif boşluk
-                                        whiteSpace: 'pre'
+                                        lineHeight: '1.2',
+                                        paddingBottom: '2px', 
+                                        whiteSpace: 'nowrap' // Kelime bölünmesin
                                     }}>
                                         {s.syllable}
                                     </div>
@@ -57,22 +69,21 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
                                     {/* Köprü (Yay) */}
                                     {si < words.length - 1 && (
                                         <div style={{
-                                            flex: 1, // Aradaki boşluğu tamamen esnek şekilde doldur
-                                            minWidth: '50px',
+                                            width: '50px', // Köprü genişliğini sabitledik ki wrap tahmin edilebilir olsun
                                             display: 'flex',
                                             alignItems: 'flex-end',
-                                            padding: '0 8px', // Kelimelerden güvenli mesafe
-                                            marginBottom: '10px' // Yay biraz daha yukarıda başlasın
+                                            padding: '0 4px', 
+                                            marginBottom: '8px' 
                                         }}>
                                             <svg 
                                                 width="100%" 
-                                                height="26" 
-                                                viewBox="0 0 100 26" 
+                                                height="24" 
+                                                viewBox="0 0 100 24" 
                                                 preserveAspectRatio="none" 
                                                 style={{ overflow: 'visible', display: 'block' }}
                                             >
                                                 <path
-                                                    d="M 0,26 Q 50,0 100,26"
+                                                    d="M 0,24 Q 50,0 100,24"
                                                     fill="none"
                                                     stroke={bColor}
                                                     strokeWidth={bThickness}
@@ -91,11 +102,13 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
 
             {/* ═══ SAYFA ALTI (Sayfa Numarası Standartı) ═══ */}
             <div style={{
-                marginTop: 'auto',
+                position: 'absolute',
+                bottom: '2rem',
+                left: 0,
+                right: 0,
                 display: 'flex',
                 justifyContent: 'center',
-                padding: '1rem 0',
-                fontSize: '1.25rem',
+                fontSize: '1.5rem',
                 color: '#18181b',
                 fontWeight: 600,
                 opacity: 0.8
@@ -106,4 +119,6 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
     );
 });
 KopruRenderer.displayName = 'KopruRenderer';
+
+
 
