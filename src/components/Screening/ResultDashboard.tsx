@@ -225,6 +225,18 @@ export const ResultDashboard: FC<Props> = ({
     }
   };
 
+  // Helper to safely render action steps (might be objects from Gemini)
+  const renderActionStep = (step: unknown): string => {
+    if (typeof step === 'string') return step;
+    if (step !== null && typeof step === 'object') {
+      const s = step as Record<string, unknown>;
+      return [s.intervention, s.description, s.area]
+        .filter(Boolean)
+        .join(' - ') || JSON.stringify(step);
+    }
+    return String(step ?? '');
+  };
+
   const handleCreateSmartPlan = () => {
     if (onGeneratePlan) {
       // Identify high risk areas and SPECIFIC FINDINGS
