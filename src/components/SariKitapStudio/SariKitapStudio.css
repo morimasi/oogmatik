@@ -89,7 +89,7 @@
 .sk-a4-shell {
   width: 210mm;
   min-height: 297mm;
-  background: #fcf096; /* Sarı Kitap Standart Arka Planı */
+  background: #ffffff; /* Temiz Beyaz Arka Plan */
   box-shadow: var(--shadow-premium);
   font-family: 'Lexend', sans-serif;
   padding: 15mm 20mm;
