@@ -24,6 +24,7 @@ const createDefaultConfig = (type: SariKitapActivityType): SariKitapConfig => {
     learningObjectives: ['Okuma akıcılığı ve dikkat gelişimi'],
     targetSkills: ['Görsel Algı', 'Dikkat'],
     typography: { ...DEFAULT_TYPOGRAPHY },
+    pageNumber: 3, // Standart başlangıç sayfası
   };
 
   switch (type) {

@@ -113,7 +113,7 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
                 fontWeight: 600,
                 opacity: 0.8
             }}>
-                3
+                {config.pageNumber}
             </div>
         </div>
     );

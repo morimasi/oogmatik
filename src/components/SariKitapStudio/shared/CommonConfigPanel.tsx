@@ -93,6 +93,17 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = React.memo(
                                     ))}
                                 </select>
                             </div>
+                            <div>
+                                <label className="sk-label">Sayfa Numarası</label>
+                                <input
+                                    type="number"
+                                    className="sk-select"
+                                    value={config.pageNumber}
+                                    min={1}
+                                    max={999}
+                                    onChange={(e) => onUpdate?.({ pageNumber: Number(e.target.value) })}
+                                />
+                            </div>
                         </div>
                     )}
                 </div>

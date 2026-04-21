@@ -66,6 +66,7 @@ export interface SariKitapBaseConfig {
   learningObjectives: string[];
   targetSkills: string[];
   typography: SariKitapTypography;
+  pageNumber: number; // Sayfa numarası (dinamik)
 }
 
 const SariKitapBaseConfigSchema = z.object({
@@ -77,6 +78,7 @@ const SariKitapBaseConfigSchema = z.object({
   learningObjectives: z.array(z.string()).min(1),
   targetSkills: z.array(z.string()).min(1),
   typography: TypographySchema,
+  pageNumber: z.number().min(1).max(999).default(1),
 });
 
 // ─── Tip-Spesifik Config'ler (Discriminated Union) ───────────────
