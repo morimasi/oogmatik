@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type TimeManagementAIResult = {
   title: string;
   timeBlocks: { name: string; duration: string; priority: string; tasks: string[] }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_TIME_MANAGEMENT_AI(
   const prompt = buildAIPrompt(
     'ZAMAN YÖNETİMİ',
     params,
-    '1. Zaman bloklarını öncelik sırasına göre düzenle\n2. Her blok için süre, öncelik ve görevleri belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için zaman yönetimi stratejileri (min 100 kelime)'
+    '1. Zaman bloklarını öncelik sırasına göre düzenle\n2. Her blok için süre, öncelik ve görevleri belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -61,7 +60,6 @@ export async function generateInfographic_TIME_MANAGEMENT_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as TimeManagementAIResult;
@@ -84,9 +82,6 @@ export async function generateInfographic_TIME_MANAGEMENT_AI(
         benefits: (result.timeBlocks || []).map((b) => `${b.name}: ${b.duration}`),
       },
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Zaman yönetimi infografiği, disleksi desteğine ihtiyacı olan öğrenciler için günlük rutinlerini yapılandırmada hayati öneme sahiptir. Disleksi desteğine ihtiyacı olan öğrenciler genellikle zaman algılama güçlüğü yaşarlar ve görsel zaman blokları, soyut zaman kavramını somutlaştırır. Pomodoro tekniği gibi yapılandırılmış zaman dilimleri, disleksi desteğine ihtiyacı olan öğrencilerin dikkat sürelerini optimize etmelerine yardımcı olur. Renk kodlu zaman blokları, öncelikleri görsel olarak ayırt etmeyi kolaylaştırır ve disleksi desteğine ihtiyacı olan öğrencilerin görevleri zaman içinde planlama becerilerini geliştirir.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -131,18 +126,6 @@ export function generateInfographic_TIME_MANAGEMENT_Offline(
     },
   ];
 
-  const categoryDescriptions: Record<string, string> = {
-    science:
-      'Zaman yönetimi infografiği, disleksi desteğine ihtiyacı olan öğrenciler için fen bilimleri deney ve gözlem süreçlerini planlamada kritik bir araçtır. Deney aşamalarını zaman bloklarına bölmek, disleksi desteğine ihtiyacı olan öğrencilerin bilimsel süreçleri takip etmelerini kolaylaştırır. Görsel zaman çizelgeleri, disleksi desteğine ihtiyacı olan öğrencilerin deney sürelerini doğru yönetmelerine ve gözlem sonuçlarını zaman içinde kaydetmelerine yardımcı olur.',
-    math: 'Zaman yönetimi infografiği, disleksi desteğine ihtiyacı olan öğrenciler için matematik problem çözme süreçlerini yapılandırmada etkilidir. Matematik çalışmalarını zaman bloklarına ayırmak, disleksi desteğine ihtiyacı olan öğrencilerin dikkatlerini korumalarını ve her blokta belirli bir beceriye odaklanmalarını sağlar. Zaman sınırlı alıştırmalar, disleksi desteğine ihtiyacı olan öğrencilerin işlem hızını kademeli olarak artırır.',
-    language:
-      'Zaman yönetimi infografiği, disleksi desteğine ihtiyacı olan öğrenciler için okuma ve yazma çalışmalarını planlamada yapılandırılmış bir yaklaşım sunar. Okuma seanslarını kısa zaman bloklarına bölmek, disleksi desteğine ihtiyacı olan öğrencilerin okuma dayanıklılığını artırır ve yazma görevlerini yönetilebilir parçalara ayırır.',
-    social:
-      'Zaman yönetimi infografiği, disleksi desteğine ihtiyacı olan öğrenciler için sosyal bilgiler araştırma ve proje süreçlerini organize etmede rehberlik eder. Araştırma adımlarını zaman bloklarına dağıtmak, disleksi desteğine ihtiyacı olan öğrencilerin büyük projeleri yönetilebilir parçalara bölme becerilerini geliştirir.',
-    general:
-      'Zaman yönetimi infografiği, disleksi desteğine ihtiyacı olan öğrenciler için günlük rutinlerini yapılandırmada hayati öneme sahiptir. Disleksi desteğine ihtiyacı olan öğrenciler genellikle zaman algılama güçlüğü yaşarlar ve görsel zaman blokları, soyut zaman kavramını somutlaştırır. Pomodoro tekniği gibi yapılandırılmış zaman dilimleri, disleksi desteğine ihtiyacı olan öğrencilerin dikkat sürelerini optimize etmelerine yardımcı olur. Renk kodlu zaman blokları, öncelikleri görsel olarak ayırt etmeyi kolaylaştırır ve disleksi desteğine ihtiyacı olan öğrencilerin görevleri zaman içinde planlama becerilerini geliştirir.',
-  };
-
   return {
     title: `${params.topic} - Zaman Yönetimi`,
     content: {
@@ -162,7 +145,6 @@ export function generateInfographic_TIME_MANAGEMENT_Offline(
         benefits: timeBlocks.map((b) => `${b.name}: ${b.duration}`),
       },
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

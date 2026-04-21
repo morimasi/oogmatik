@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type TransitionPlanAIResult = {
   title: string;
   phases: { name: string; actions: string[]; timeline: string; responsible: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_TRANSITION_PLAN_AI(
   const prompt = buildAIPrompt(
     'GEÇİŞ PLANI',
     params,
-    '1. Geçiş planı aşamalarını oluştur\n2. Her aşama için eylemler, zaman çizelgesi ve sorumlu belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için geçiş planı stratejileri (min 100 kelime)'
+    '1. Geçiş planı aşamalarını oluştur\n2. Her aşama için eylemler, zaman çizelgesi ve sorumlu belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -61,7 +60,6 @@ export async function generateInfographic_TRANSITION_PLAN_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as TransitionPlanAIResult;
@@ -78,9 +76,6 @@ export async function generateInfographic_TRANSITION_PLAN_AI(
         }))
       ),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Geçiş planı infografiği, disleksi desteğine ihtiyacı olan öğrenciler için okul düzeyi geçişleri, sınıf değişiklikleri veya eğitim programı değişimleri gibi önemli geçiş dönemlerini yapılandırılmış şekilde planlama aracıdır. Disleksi desteğine ihtiyacı olan öğrenciler, belirsizlik ve değişiklik karşısında artan kaygı yaşarlar. Detaylı geçiş planları, disleksi desteğine ihtiyacı olan öğrencilerin yeni ortama hazırlanmalarını ve geçiş sürecini sorunsuz atlatmalarını sağlar. Her geçiş aşamasının net olarak tanımlanması ve sorumluların belirlenmesi, disleksi desteğine ihtiyacı olan öğrencilere tutarlı destek sağlanmasını garanti eder.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 13,
@@ -125,18 +120,6 @@ export function generateInfographic_TRANSITION_PLAN_Offline(
     },
   ];
 
-  const categoryDescriptions: Record<string, string> = {
-    science:
-      'Geçiş planı infografiği, disleksi desteğine ihtiyacı olan öğrenciler için fen bilimleri laboratuvarı veya özel fen programına geçiş süreçlerini planlamada yardımcı olur. Yeni fen öğrenme ortamına hazırlanma, disleksi desteğine ihtiyacı olan öğrencilerin bilimsel öğrenme süreçlerine güvenle başlamalarını sağlar.',
-    math: 'Geçiş planı infografiği, disleksi desteğine ihtiyacı olan öğrenciler için matematik öğrenme programı değişikliği veya ileri matematik düzeyine geçiş süreçlerini planlamada rehberlik eder. Matematik geçiş planları, disleksi desteğine ihtiyacı olan öğrencilerin yeni matematik müfredatına uyum sağlamalarını kolaylaştırır.',
-    language:
-      'Geçiş planı infografiği, disleksi desteğine ihtiyacı olan öğrenciler için okuma-yazma öğrenme programı değişikliği veya destek eğitiminden kaynaştırmaya geçiş süreçlerini planlamada temel bir araçtır. Dil becerileri geçiş planları, disleksi desteğine ihtiyacı olan öğrencilerin yeni öğrenme ortamına uyum sağlamalarını destekler.',
-    social:
-      'Geçiş planı infografiği, disleksi desteğine ihtiyacı olan öğrenciler için okul değişikliği veya sınıf geçişi gibi sosyal geçiş süreçlerini planlamada destek sağlar. Sosyal geçiş planları, disleksi desteğine ihtiyacı olan öğrencilerin yeni sosyal ortama uyum sağlamalarını ve akran ilişkilerini sürdürmelerini kolaylaştırır.',
-    general:
-      'Geçiş planı infografiği, disleksi desteğine ihtiyacı olan öğrenciler için okul düzeyi geçişleri, sınıf değişiklikleri veya eğitim programı değişimleri gibi önemli geçiş dönemlerini yapılandırılmış şekilde planlama aracıdır. Disleksi desteğine ihtiyacı olan öğrenciler, belirsizlik ve değişiklik karşısında artan kaygı yaşarlar. Detaylı geçiş planları, disleksi desteğine ihtiyacı olan öğrencilerin yeni ortama hazırlanmalarını ve geçiş sürecini sorunsuz atlatmalarını sağlar. Her geçiş aşamasının net olarak tanımlanması ve sorumluların belirlenmesi, disleksi desteğine ihtiyacı olan öğrencilere tutarlı destek sağlanmasını garanti eder.',
-  };
-
   return {
     title: `${params.topic} - Geçiş Planı`,
     content: {
@@ -150,7 +133,6 @@ export function generateInfographic_TRANSITION_PLAN_Offline(
         }))
       ),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 13,

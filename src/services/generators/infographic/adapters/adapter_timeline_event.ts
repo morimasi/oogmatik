@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type TimelineEventAIResult = {
   title: string;
   events: { date: string; event: string; significance: string }[];
-  pedagogicalNote: string;
 };
 
 function detectCategory(topic: string): 'science' | 'math' | 'language' | 'social' | 'general' {
@@ -42,7 +41,7 @@ export async function generateInfographic_TimelineEvent_AI(
   const prompt = buildAIPrompt(
     'ZAMAN ÇİZELGESİ',
     params,
-    '1. Konuya uygun 4-6 olay belirle\n2. Her olay için tarih, açıklama ve önemini yaz\n3. Pedagojik not: Kronolojik düşünmenin tarih bilincine katkısı (min 100 kelime)\n4. Lexend font, disleksi uyumlu'
+    '1. Konuya uygun 4-6 olay belirle\n2. Her olay için tarih, açıklama ve önemini yaz\n3. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'OBJECT',
@@ -59,7 +58,6 @@ export async function generateInfographic_TimelineEvent_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as TimelineEventAIResult;
@@ -73,9 +71,6 @@ export async function generateInfographic_TimelineEvent_AI(
         isKeyEvent: true,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Zaman çizelgesi, disleksi desteğine ihtiyacı olan öğrenciler için olayları kronolojik sırayla görselleştirerek tarih bilincini geliştirir. Olaylar arasındaki nedensellik ilişkilerini görmek, öğrencilerin analitik düşünme becerilerini güçlendirir ve geçmiş-şimdi-gelecek kavramlarını somutlaştırır.',
     layoutHints: {
       orientation: 'horizontal',
       fontSize: 11,
@@ -181,8 +176,6 @@ export function generateInfographic_TimelineEvent_Offline(
         isKeyEvent: true,
       })),
     },
-    pedagogicalNote:
-      'Zaman çizelgesi, disleksi desteğine ihtiyacı olan öğrenciler için olayları kronolojik sırayla görselleştirerek tarih bilincini geliştirir. Olaylar arasındaki nedensellik ilişkilerini görmek, öğrencilerin analitik düşünme becerilerini güçlendirir ve geçmiş-şimdi-gelecek kavramlarını somutlaştırır. Görsel zaman akışı, sıralama becerisini de destekler.',
     layoutHints: {
       orientation: 'horizontal',
       fontSize: 11,

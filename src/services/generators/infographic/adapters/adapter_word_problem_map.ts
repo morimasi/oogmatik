@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type WordProblemMapAIResult = {
   title: string;
   problems: { problem: string; steps: string[]; solution: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -39,7 +38,7 @@ export async function generateInfographic_WORD_PROBLEM_MAP_AI(
   const prompt = buildAIPrompt(
     'PROBLEM ÇÖZME HARİTASI',
     params,
-    '1. Yaşa uygun sözel problemler oluştur\n2. Her problem için çözüm adımlarını haritala\n3. Görsel ipuçları ekle\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için sözel problem çözme stratejileri (min 100 kelime)'
+    '1. Yaşa uygun sözel problemler oluştur\n2. Her problem için çözüm adımlarını haritala\n3. Görsel ipuçları ekle'
   );
   const schema = {
     type: 'OBJECT',
@@ -56,7 +55,6 @@ export async function generateInfographic_WORD_PROBLEM_MAP_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as WordProblemMapAIResult;
@@ -73,9 +71,6 @@ export async function generateInfographic_WORD_PROBLEM_MAP_AI(
         }))
       ),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Sözel problem çözme haritası, disleksi desteğine ihtiyacı olan öğrenciler için matematiksel düşünceyi günlük yaşam bağlamında somutlaştıran önemli bir öğrenme aracıdır. Uzun metinleri parçalara ayırmak ve her adımı görsel olarak haritalamak, disleksi desteğine ihtiyacı olan öğrencilerin problem içindeki önemli bilgileri tespit etmesini kolaylaştırır. Bu yapılandırılmış yaklaşım, okuduğunu anlama ve matematiksel işlem becerilerini aynı anda geliştirirken öğrencilerin problem çözme özgüvenini artırır.',
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,
@@ -116,18 +111,6 @@ export function generateInfographic_WORD_PROBLEM_MAP_Offline(
     },
   ];
 
-  const categoryDescriptions: Record<string, string> = {
-    math: 'Sözel problem çözme haritası, disleksi desteğine ihtiyacı olan öğrenciler için matematiksel düşünceyi günlük yaşam bağlamında somutlaştıran temel bir öğrenme aracıdır. Uzun metinleri parçalara ayırmak ve her adımı görsel olarak haritalamak, disleksi desteğine ihtiyacı olan öğrencilerin problem içindeki önemli bilgileri tespit etmesini kolaylaştırır. Bu yapılandırılmış yaklaşım, okuduğunu anlama ve matematiksel işlem becerilerini aynı anda geliştirir.',
-    science:
-      'Bilimsel problemleri adım adım çözmek, disleksi desteğine ihtiyacı olan öğrenciler için deney sonuçlarını yorumlamada yardımcı olur.',
-    language:
-      'Sözel problemler dil becerilerini geliştirir. Disleksi desteğine ihtiyacı olan öğrenciler için problem metinlerini parçalara ayırmak okuduğunu anlamayı kolaylaştırır.',
-    social:
-      'Günlük yaşam problemleri sosyal becerileri destekler. Disleksi desteğine ihtiyacı olan öğrenciler için pratik problem çözme, yaşam becerilerini geliştirir.',
-    general:
-      'Problem çözme haritası, disleksi desteğine ihtiyacı olan öğrenciler için genel düşünme becerilerini geliştiren önemli bir öğrenme aracıdır.',
-  };
-
   return {
     title: `${params.topic} - Problem Çözme Haritası`,
     content: {
@@ -141,7 +124,6 @@ export function generateInfographic_WORD_PROBLEM_MAP_Offline(
         }))
       ),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,

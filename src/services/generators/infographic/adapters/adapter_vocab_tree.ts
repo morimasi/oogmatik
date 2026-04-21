@@ -10,7 +10,6 @@ type VocabTreeAIResult = {
   title: string;
   rootWord: string;
   derivedWords: { word: string; meaning: string; example: string }[];
-  pedagogicalNote: string;
 };
 
 function detectCategory(topic: string): 'science' | 'math' | 'language' | 'social' | 'general' {
@@ -43,7 +42,7 @@ export async function generateInfographic_VocabTree_AI(
   const prompt = buildAIPrompt(
     'KELİME AĞACI',
     params,
-    '1. Bir kök kelime belirle\n2. Bu kökten türeyen 4-6 kelime bul\n3. Her türeyen kelime için anlam ve örnek cümle yaz\n4. Pedagojik not: Kelime türetme bilgisinin dil gelişimine katkısı (min 100 kelime)\n5. Lexend font, disleksi uyumlu'
+    '1. Bir kök kelime belirle\n2. Bu kökten türeyen 4-6 kelime bul\n3. Her türeyen kelime için anlam ve örnek cümle yaz\n4. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'OBJECT',
@@ -61,7 +60,6 @@ export async function generateInfographic_VocabTree_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as VocabTreeAIResult;
@@ -77,9 +75,6 @@ export async function generateInfographic_VocabTree_AI(
         })),
       },
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Kelime ağacı, disleksi desteğine ihtiyacı olan öğrenciler için türetme bilgisini görselleştirerek kelime hazinesini genişletir. Kök kelimeden yeni kelimeler türetmek, dilbilgisi farkındalığını artırır ve okuduğunu anlama becerisini güçlendirir. Ağaç yapısı, kavramlar arası hiyerarşik ilişkileri somutlaştırır.',
     layoutHints: {
       orientation: 'tree',
       fontSize: 11,
@@ -168,8 +163,6 @@ export function generateInfographic_VocabTree_Offline(
         })),
       },
     },
-    pedagogicalNote:
-      'Kelime ağacı, disleksi desteğine ihtiyacı olan öğrenciler için türetme bilgisini görselleştirerek kelime hazinesini genişletir. Kök kelimeden yeni kelimeler türetmek, dilbilgisi farkındalığını artırır ve okuduğunu anlama becerisini güçlendirir. Ağaç yapısı, kavramlar arası hiyerarşik ilişkileri somutlaştırır ve öğrenmeyi kalıcı hale getirir.',
     layoutHints: {
       orientation: 'tree',
       fontSize: 11,

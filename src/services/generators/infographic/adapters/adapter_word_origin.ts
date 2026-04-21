@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type WordOriginAIResult = {
   title: string;
   words: { word: string; origin: string; meaning: string; modernUse: string }[];
-  pedagogicalNote: string;
 };
 
 function detectCategory(topic: string): 'science' | 'math' | 'language' | 'social' | 'general' {
@@ -42,7 +41,7 @@ export async function generateInfographic_WordOrigin_AI(
   const prompt = buildAIPrompt(
     'KELİME KÖKENİ',
     params,
-    '1. Konuya uygun 4 kelime seç\n2. Her kelimenin kökenini, orijinal anlamını ve günümüz kullanımını yaz\n3. Pedagojik not: Etimoloji bilgisinin kültürel farkındalığa katkısı (min 100 kelime)\n4. Lexend font, disleksi uyumlu'
+    '1. Konuya uygun 4 kelime seç\n2. Her kelimenin kökenini, orijinal anlamını ve günümüz kullanımını yaz\n3. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'OBJECT',
@@ -60,7 +59,6 @@ export async function generateInfographic_WordOrigin_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as WordOriginAIResult;
@@ -75,9 +73,6 @@ export async function generateInfographic_WordOrigin_AI(
         rootWord: w.origin,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Kelime kökeni çalışması, disleksi desteğine ihtiyacı olan öğrenciler için kelimelerin tarihsel yolculuğunu keşfederek dil bilincini derinleştirir. Köken bilgisi, kelimelerin anlam katmanlarını ortaya çıkarır ve kültürel mirasın farkındalığını artırır. Bu yaklaşım, öğrencilerin dile olan ilgisini canlı tutar ve kelime öğrenmeyi anlamlı bir deneyime dönüştürür.',
     layoutHints: {
       orientation: 'horizontal',
       fontSize: 11,
@@ -242,8 +237,6 @@ export function generateInfographic_WordOrigin_Offline(
         rootWord: w.origin,
       })),
     },
-    pedagogicalNote:
-      'Kelime kökeni çalışması, disleksi desteğine ihtiyacı olan öğrenciler için kelimelerin tarihsel yolculuğunu keşfederek dil bilincini derinleştirir. Köken bilgisi, kelimelerin anlam katmanlarını ortaya çıkarır ve kültürel mirasın farkındalığını artırır. Bu yaklaşım, öğrencilerin dile olan ilgisini canlı tutar ve kelime öğrenmeyi anlamlı bir deneyime dönüştürür. Etimoloji, aynı zamanda tarih ve kültür dersleriyle bağlantı kurmayı sağlar.',
     layoutHints: {
       orientation: 'horizontal',
       fontSize: 11,

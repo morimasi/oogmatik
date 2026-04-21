@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type SensoryIntegrationAIResult = {
   title: string;
   activities: { name: string; type: string; description: string; duration: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_SENSORY_INTEGRATION_AI(
   const prompt = buildAIPrompt(
     'DUYUSAL BÜTÜNLEME',
     params,
-    '1. Duyusal bütünleme aktivitelerini listele\n2. Her aktivite için tür, açıklama ve süre belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için duyusal bütünleme stratejileri (min 100 kelime)'
+    '1. Duyusal bütünleme aktivitelerini listele\n2. Her aktivite için tür, açıklama ve süre belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -61,7 +60,6 @@ export async function generateInfographic_SENSORY_INTEGRATION_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as SensoryIntegrationAIResult;
@@ -76,9 +74,6 @@ export async function generateInfographic_SENSORY_INTEGRATION_AI(
         scaffoldHint: `Tür: ${a.type} | Süre: ${a.duration}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Duyusal bütünleme infografiği, disleksi desteğine ihtiyacı olan öğrenciler için duyusal işlemleme zorluklarını yönetme ve öğrenme ortamlarına uyum sağlamada kritik bir rehber sunar. Disleksi desteğine ihtiyacı olan öğrenciler sıklıkla duyusal hassasiyetler veya duyusal arama davranışları sergilerler. Yapılandırılmış duyusal aktiviteler, disleksi desteğine ihtiyacı olan öğrencilerin sinir sistemlerini düzenlemelerine ve öğrenmeye hazır hale gelmelerine yardımcı olur. Dokunsal, vestibüler ve proprioseptif duyusal girdiler, disleksi desteğine ihtiyacı olan öğrencilerin dikkat ve odaklanma becerilerini olumlu yönde etkiler. Bu stratejiler, sınıf içi öğrenme deneyimini iyileştirir.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -134,18 +129,6 @@ export function generateInfographic_SENSORY_INTEGRATION_Offline(
     },
   ];
 
-  const categoryDescriptions: Record<string, string> = {
-    science:
-      'Duyusal bütünleme infografiği, disleksi desteğine ihtiyacı olan öğrenciler için fen bilimleri deneylerinde duyusal deneyimleri zenginleştirmede yardımcı olur. Dokunsal ve görsel duyusal girdiler, disleksi desteğine ihtiyacı olan öğrencilerin bilimsel kavramları somut olarak deneyimlemelerini sağlar. Duyusal bütünleme aktiviteleri, disleksi desteğine ihtiyacı olan öğrencilerin fen öğrenme süreçlerinde daha fazla katılım göstermelerine yardımcı olur.',
-    math: 'Duyusal bütünleme infografiği, disleksi desteğine ihtiyacı olan öğrenciler için matematik öğrenme süreçlerinde duyusal destek sağlar. Somut materyallerle matematik çalışmak, disleksi desteğine ihtiyacı olan öğrencilerin dokunsal ve proprioseptif duyusal kanalları kullanarak sayısal kavramları daha etkili öğrenmelerini sağlar.',
-    language:
-      'Duyusal bütünleme infografiği, disleksi desteğine ihtiyacı olan öğrenciler için okuma ve yazma süreçlerinde duyusal düzenleme stratejileri sunar. Kumda harf yazma veya hamurla harf şekillendirme gibi dokunsal aktiviteler, disleksi desteğine ihtiyacı olan öğrencilerin harf tanıma becerilerini çoklu duyusal kanallarla geliştirmelerini sağlar.',
-    social:
-      'Duyusal bütünleme infografiği, disleksi desteğine ihtiyacı olan öğrenciler için sosyal bilgiler öğrenme süreçlerinde duyusal destek sağlar. Grup duyusal aktiviteleri, disleksi desteğine ihtiyacı olan öğrencilerin sosyal etkileşim becerilerini geliştirirken aynı zamanda duyusal düzenleme ihtiyaçlarını karşılamalarına yardımcı olur.',
-    general:
-      'Duyusal bütünleme infografiği, disleksi desteğine ihtiyacı olan öğrenciler için duyusal işlemleme zorluklarını yönetme ve öğrenme ortamlarına uyum sağlamada kritik bir rehber sunar. Disleksi desteğine ihtiyacı olan öğrenciler sıklıkla duyusal hassasiyetler veya duyusal arama davranışları sergilerler. Yapılandırılmış duyusal aktiviteler, disleksi desteğine ihtiyacı olan öğrencilerin sinir sistemlerini düzenlemelerine ve öğrenmeye hazır hale gelmelerine yardımcı olur. Dokunsal, vestibüler ve proprioseptif duyusal girdiler, disleksi desteğine ihtiyacı olan öğrencilerin dikkat ve odaklanma becerilerini olumlu yönde etkiler. Bu stratejiler, sınıf içi öğrenme deneyimini iyileştirir.',
-  };
-
   return {
     title: `${params.topic} - Duyusal Bütünleme`,
     content: {
@@ -157,7 +140,6 @@ export function generateInfographic_SENSORY_INTEGRATION_Offline(
         scaffoldHint: `Tür: ${a.type} | Süre: ${a.duration}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

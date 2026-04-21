@@ -10,7 +10,6 @@ type WordFamilyAIResult = {
   title: string;
   rootWord: string;
   familyWords: { word: string; type: string; meaning: string }[];
-  pedagogicalNote: string;
 };
 
 function detectCategory(topic: string): 'science' | 'math' | 'language' | 'social' | 'general' {
@@ -43,7 +42,7 @@ export async function generateInfographic_WordFamily_AI(
   const prompt = buildAIPrompt(
     'SÖZCÜK AİLESİ',
     params,
-    '1. Bir kök kelime belirle\n2. Bu kökten gelen 5-7 kelime bul\n3. Her kelimenin türünü ve anlamını yaz\n4. Pedagojik not: Kelime ailesi bilgisinin dil gelişimine katkısı (min 100 kelime)\n5. Lexend font, disleksi uyumlu'
+    '1. Bir kök kelime belirle\n2. Bu kökten gelen 5-7 kelime bul\n3. Her kelimenin türünü ve anlamını yaz\n4. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'OBJECT',
@@ -61,7 +60,6 @@ export async function generateInfographic_WordFamily_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as WordFamilyAIResult;
@@ -77,9 +75,6 @@ export async function generateInfographic_WordFamily_AI(
         })),
       },
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Sözcük ailesi, disleksi desteğine ihtiyacı olan öğrenciler için aynı kökten gelen kelimeleri gruplayarak kelime hazinesini sistematik şekilde genişletir. Aile ilişkisi kurmak, kelimeler arasındaki yapısal benzerlikleri fark etmeyi sağlar ve okuma anlama sürecini kolaylaştırır. Bu yaklaşım, morfolojik farkındalığı geliştirir.',
     layoutHints: {
       orientation: 'tree',
       fontSize: 11,
@@ -165,8 +160,6 @@ export function generateInfographic_WordFamily_Offline(
         })),
       },
     },
-    pedagogicalNote:
-      'Sözcük ailesi, disleksi desteğine ihtiyacı olan öğrenciler için aynı kökten gelen kelimeleri gruplayarak kelime hazinesini sistematik şekilde genişletir. Aile ilişkisi kurmak, kelimeler arasındaki yapısal benzerlikleri fark etmeyi sağlar ve okuma anlama sürecini kolaylaştırır. Bu yaklaşım, morfolojik farkındalığı geliştirir ve kelime öğrenmeyi kalıcı hale getirir.',
     layoutHints: {
       orientation: 'tree',
       fontSize: 11,
