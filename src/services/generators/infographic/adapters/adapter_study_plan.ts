@@ -96,24 +96,31 @@ export async function generateInfographic_STUDY_PLAN_AI(
 export function generateInfographic_STUDY_PLAN_Offline(
   params: UltraCustomizationParams
 ): InfographicGeneratorResult {
-  const category = detectCategory(params.topic);
   const plan = [
     { day: 'Pazartesi', subject: params.topic, duration: '30 dk', method: 'Okuma + Not alma' },
     { day: 'Salı', subject: params.topic, duration: '25 dk', method: 'Alıştırma çözme' },
     { day: 'Çarşamba', subject: 'Tekrar', duration: '20 dk', method: 'Flashcard ile tekrar' },
-    { day: 'Perşembe', subject: params.topic, duration: '30 dk        useWhen: 'Haftalık ders programı oluştururken',
-        benefits: ['Düzenli tekrar', 'Konu dağılımı dengesi', 'Mola planlaması'],
-      },
-    },
-    layoutHints: {
-      orientation: 'landscape',rategicContent: {
+    { day: 'Perşembe', subject: params.topic, duration: '30 dk', method: 'Deneme/Test çözümü' },
+    { day: 'Cuma', subject: 'Genel Değerlendirme', duration: '20 dk', method: 'Özet' },
+  ];
+
+  return {
+    title: `${params.topic} - Çalışma Planı`,
+    content: {
+      steps: plan.map((item, i) => ({
+        stepNumber: i + 1,
+        label: `${item.day}: ${item.subject}`,
+        description: item.method,
+        isCheckpoint: i % 2 === 1,
+        scaffoldHint: `Süre: ${item.duration}`,
+      })),
+      strategicContent: {
         strategyName: 'Haftalık Çalışma Planı',
         steps: plan.map((p) => `${p.day}: ${p.subject}`),
         useWhen: 'Haftalık ders programı oluştururken',
         benefits: ['Düzenli tekrar', 'Konu dağılımı dengesi', 'Mola planlaması'],
       },
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 13,
