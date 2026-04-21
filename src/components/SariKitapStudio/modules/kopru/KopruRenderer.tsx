@@ -19,7 +19,7 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
     const rowGap = '4rem';
 
     return (
-        <div className="sk-renderer-kopru sk-notebook-ruled" style={{
+        <div className="sk-renderer-kopru" style={{
             padding: '2rem 1rem 4rem 1rem', 
             display: 'flex', 
             flexDirection: 'column', 

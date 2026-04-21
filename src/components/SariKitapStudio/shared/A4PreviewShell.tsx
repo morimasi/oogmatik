@@ -39,13 +39,6 @@ export const A4PreviewShell = forwardRef<HTMLDivElement, A4PreviewShellProps>(
                         }),
                     }}
                 >
-                    {/* Spiral Notebook Edge */}
-                    <div className="sk-spiral-edge" aria-hidden="true">
-                        {Array.from({ length: 24 }).map((_, i) => (
-                            <div key={i} className="sk-spiral-hole" />
-                        ))}
-                    </div>
-
                     {children}
                 </div>
             </div>
