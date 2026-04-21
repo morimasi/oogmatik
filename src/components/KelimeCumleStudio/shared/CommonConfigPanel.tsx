@@ -165,25 +165,6 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = ({
                                 />
                             </div>
 
-                            {/* Sayfa Başına Soru */}
-                            <div>
-                                <label className="kc-label">Format Yoğunluğu</label>
-                                <select 
-                                    className="kc-select"
-                                    value={config.itemsPerPage || 'auto'}
-                                    onChange={(e) => {
-                                        const val = e.target.value;
-                                        onConfigChange({ itemsPerPage: val === 'auto' ? 'auto' : parseInt(val) });
-                                    }}
-                                >
-                                    <option value="auto">Otomatik</option>
-                                    <option value="5">Düşük Yoğunluk (5)</option>
-                                    <option value="10">Normal (10)</option>
-                                    <option value="15">Yüksek Yoğunluk (15)</option>
-                                    <option value="20">Süper Yoğunluk (20)</option>
-                                </select>
-                            </div>
-
                             {/* Cevap Anahtarı */}
                             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8rem', color: 'var(--text-main)' }}>
                                 <input 
@@ -194,22 +175,6 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = ({
                                 />
                                 Cevap Anahtarını Ekle
                             </label>
-
-                            {/* Yüklemi Göster (Sadece 5N1K aktivite türleri için) */}
-                            {(config.type === 'karisik_cumle' || config.type === 'bosluk_doldurma') && (
-                                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8rem', color: 'var(--text-main)' }}>
-                                    <input 
-                                        type="checkbox" 
-                                        checked={config.showPredicate || false}
-                                        onChange={(e) => onConfigChange({ showPredicate: e.target.checked })}
-                                        style={{ accentColor: 'var(--accent-color)' }}
-                                    />
-                                    Yüklemi Göster
-                                    <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginLeft: '0.25rem' }}>
-                                        (Cümlelerin yüklemlerini soruların yanında gösterir)
-                                    </span>
-                                </label>
-                            )}
                         </div>
                     </div>
                 )}

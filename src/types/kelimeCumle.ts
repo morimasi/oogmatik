@@ -16,9 +16,7 @@ export interface KelimeCumleConfig {
     difficulty: KelimeCumleDifficulty;
     title: string;
     itemCount: number;
-    itemsPerPage?: number | 'auto';
     showAnswers?: boolean;
-    showPredicate?: boolean; // 5N1K etkinliklerinde yüklemleri göster
     customInstructions?: string;
     topics: string[];
     // Tasarım Standartları (Yeni)
