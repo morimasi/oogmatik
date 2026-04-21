@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type SyllableMapAIResult = {
   title: string;
   words: { word: string; syllables: string[] }[];
-  pedagogicalNote: string;
 };
 
 function detectCategory(topic: string): 'science' | 'math' | 'language' | 'social' | 'general' {
@@ -42,7 +41,7 @@ export async function generateInfographic_SyllableMap_AI(
   const prompt = buildAIPrompt(
     'HECE HARİTASI',
     params,
-    '1. Konuya uygun 5-8 kelime seç\n2. Her kelimeyi hecelerine ayır\n3. Pedagojik not: Hece bilincinin okuma gelişimine katkısı (min 100 kelime)\n4. Lexend font, disleksi uyumlu'
+    '1. Konuya uygun 5-8 kelime seç\n2. Her kelimeyi hecelerine ayır\n3. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'OBJECT',
@@ -58,7 +57,6 @@ export async function generateInfographic_SyllableMap_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as SyllableMapAIResult;
@@ -72,9 +70,6 @@ export async function generateInfographic_SyllableMap_AI(
         exampleSentence: '',
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Hece haritası, disleksi desteğine ihtiyacı olan öğrenciler için kelimeleri küçük parçalara ayırarak okuma becerisini geliştirir. Hece bilinci, okuma akıcılığının temel yapı taşıdır ve kelimeleri doğru telaffuz etmeyi kolaylaştırır. Görsel hece ayrımı, işitsel farkındalığı destekler.',
     layoutHints: {
       orientation: 'horizontal',
       fontSize: 12,
@@ -140,8 +135,6 @@ export function generateInfographic_SyllableMap_Offline(
         exampleSentence: '',
       })),
     },
-    pedagogicalNote:
-      'Hece haritası, disleksi desteğine ihtiyacı olan öğrenciler için kelimeleri küçük parçalara ayırarak okuma becerisini geliştirir. Hece bilinci, okuma akıcılığının temel yapı taşıdır ve kelimeleri doğru telaffuz etmeyi kolaylaştırır. Görsel hece ayrımı, işitsel farkındalığı destekler ve okuma motivasyonunu artırır.',
     layoutHints: {
       orientation: 'horizontal',
       fontSize: 12,

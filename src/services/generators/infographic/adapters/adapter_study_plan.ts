@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type StudyPlanAIResult = {
   title: string;
   plan: { day: string; subject: string; duration: string; method: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_STUDY_PLAN_AI(
   const prompt = buildAIPrompt(
     'ÇALIŞMA PLANI',
     params,
-    '1. Haftalık çalışma planı oluştur\n2. Her gün için konu, süre ve çalışma yöntemini belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için çalışma planı stratejileri (min 100 kelime)'
+    '1. Haftalık çalışma planı oluştur\n2. Her gün için konu, süre ve çalışma yöntemini belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -61,7 +60,6 @@ export async function generateInfographic_STUDY_PLAN_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as StudyPlanAIResult;
@@ -82,9 +80,6 @@ export async function generateInfographic_STUDY_PLAN_AI(
         benefits: ['Düzenli tekrar', 'Konu dağılımı dengesi', 'Mola planlaması'],
       },
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Çalışma planı infografiği, disleksi desteğine ihtiyacı olan öğrenciler için öğrenme süreçlerini organize etmede temel bir yapı taşdır. Disleksi desteğine ihtiyacı olan öğrenciler genellikle çalışma zamanlarını planlamada zorluk yaşarlar ve görsel çalışma planları, belirsizliği azaltarak yapı sağlar. Her gün için belirli konu ve sürelerin belirlenmesi, disleksi desteğine ihtiyacı olan öğrencilerin bilişsel yüklerini dengelemelerine yardımcı olur. Düzenli tekrar aralıkları ile planlanmış çalışma programı, disleksi desteğine ihtiyacı olan öğrencilerin bilgiyi uzun süreli hafızaya aktarmalarını kolaylaştırır ve akademik özgüveni artırır.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 13,
@@ -106,33 +101,12 @@ export function generateInfographic_STUDY_PLAN_Offline(
     { day: 'Pazartesi', subject: params.topic, duration: '30 dk', method: 'Okuma + Not alma' },
     { day: 'Salı', subject: params.topic, duration: '25 dk', method: 'Alıştırma çözme' },
     { day: 'Çarşamba', subject: 'Tekrar', duration: '20 dk', method: 'Flashcard ile tekrar' },
-    { day: 'Perşembe', subject: params.topic, duration: '30 dk', method: 'Derinlemesine çalışma' },
-    { day: 'Cuma', subject: 'Değerlendirme', duration: '20 dk', method: 'Kendini test et' },
-  ];
-
-  const categoryDescriptions: Record<string, string> = {
-    science:
-      'Çalışma planı infografiği, disleksi desteğine ihtiyacı olan öğrenciler için fen bilimleri konularını sistematik olarak öğrenmelerini sağlar. Deney ve gözlem süreçlerini çalışma planına entegre etmek, disleksi desteğine ihtiyacı olan öğrencilerin bilimsel kavramları somut deneyimlerle bağdaştırmalarını kolaylaştırır. Görsel çalışma planı, disleksi desteğine ihtiyacı olan öğrencilerin fen konularını adım adım takip etmelerine ve her aşamayı pekiştirmelerine yardımcı olur.',
-    math: 'Çalışma planı infografiği, disleksi desteğine ihtiyacı olan öğrenciler için matematik konularını kademeli olarak öğrenmelerinde rehberlik eder. Matematiksel kavramları düzenli tekrar aralıklarıyla çalışmak, disleksi desteğine ihtiyacı olan öğrencilerin sayısal becerilerini kalıcı hale getirir. Her gün farklı bir matematik becerisine odaklanmak, disleksi desteğine ihtiyacı olan öğrencilerin matematik kaygısını azaltır.',
-    language:
-      'Çalışma planı infografiği, disleksi desteğine ihtiyacı olan öğrenciler için okuma ve yazma becerilerini düzenli olarak geliştirmelerinde yapılandırılmış bir çerçeve sunar. Günlük okuma seanslarını çalışma planına entegre etmek, disleksi desteğine ihtiyacı olan öğrencilerin okuma akıcılığını kademeli olarak artırır ve yazma becerilerini sistematik olarak geliştirir.',
-    social:
-      'Çalışma planı infografiği, disleksi desteğine ihtiyacı olan öğrenciler için sosyal bilgiler konularını organize bir şekilde öğrenmelerini destekler. Tarih ve coğrafya konularını çalışma planına yapılandırılmış şekilde yerleştirmek, disleksi desteğine ihtiyacı olan öğrencilerin kavramsal haritalar oluşturmasını kolaylaştırır.',
-    general:
-      'Çalışma planı infografiği, disleksi desteğine ihtiyacı olan öğrenciler için öğrenme süreçlerini organize etmede temel bir yapı taşdır. Disleksi desteğine ihtiyacı olan öğrenciler genellikle çalışma zamanlarını planlamada zorluk yaşarlar ve görsel çalışma planları, belirsizliği azaltarak yapı sağlar. Her gün için belirli konu ve sürelerin belirlenmesi, disleksi desteğine ihtiyacı olan öğrencilerin bilişsel yüklerini dengelemelerine yardımcı olur. Düzenli tekrar aralıkları ile planlanmış çalışma programı, disleksi desteğine ihtiyacı olan öğrencilerin bilgiyi uzun süreli hafızaya aktarmalarını kolaylaştırır ve akademik özgüveni artırır.',
-  };
-
-  return {
-    title: `${params.topic} - Çalışma Planı`,
-    content: {
-      steps: plan.map((item, i) => ({
-        stepNumber: i + 1,
-        label: `${item.day}: ${item.subject}`,
-        description: item.method,
-        isCheckpoint: i % 2 === 1,
-        scaffoldHint: `Süre: ${item.duration}`,
-      })),
-      strategicContent: {
+    { day: 'Perşembe', subject: params.topic, duration: '30 dk        useWhen: 'Haftalık ders programı oluştururken',
+        benefits: ['Düzenli tekrar', 'Konu dağılımı dengesi', 'Mola planlaması'],
+      },
+    },
+    layoutHints: {
+      orientation: 'landscape',rategicContent: {
         strategyName: 'Haftalık Çalışma Planı',
         steps: plan.map((p) => `${p.day}: ${p.subject}`),
         useWhen: 'Haftalık ders programı oluştururken',

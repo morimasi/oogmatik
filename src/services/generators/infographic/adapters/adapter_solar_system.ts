@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type SolarSystemAIResult = {
   title: string;
   planets: { name: string; order: number; size: string; distance: string; fact: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -35,7 +34,7 @@ export async function generateInfographic_SOLAR_SYSTEM_AI(
   const prompt = buildAIPrompt(
     'GÜNEŞ SİSTEMİ',
     params,
-    '1. Güneş sistemindeki gezegenleri sırala\n2. Her gezegenin özelliklerini belirt\n3. İlginç bilgiler ekle\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için güneş sistemi öğrenme stratejileri (min 100 kelime)'
+    '1. Güneş sistemindeki gezegenleri sırala\n2. Her gezegenin özelliklerini belirt\n3. İlginç bilgiler ekle'
   );
   const schema = {
     type: 'OBJECT',
@@ -54,7 +53,6 @@ export async function generateInfographic_SOLAR_SYSTEM_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as SolarSystemAIResult;
@@ -74,9 +72,6 @@ export async function generateInfographic_SOLAR_SYSTEM_AI(
         scaffoldHint: `Bilgi: ${planet.fact}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      "Güneş sistemi infografiği, disleksi desteğine ihtiyacı olan öğrenciler için astronomi kavramlarını görsel ve sıralı olarak anlamalarını sağlayan önemli bir fen bilimleri aracıdır. Gezegenlerin sıralı düzeni, boyutları ve Güneş'e uzaklıkları görsel olarak karşılaştırıldığında, soyut uzay kavramları somutlaşır. Disleksi desteğine ihtiyacı olan öğrenciler, renk kodlaması ve görsel düzenleme ile gezegenleri daha kolay öğrenir ve evrenin yapısına dair merakları desteklenir.",
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -132,35 +127,9 @@ export function generateInfographic_SOLAR_SYSTEM_Offline(
     },
   ];
 
-  const categoryDescriptions: Record<string, string> = {
-    science:
-      "Güneş sistemi infografiği, disleksi desteğine ihtiyacı olan öğrenciler için astronomi kavramlarını görsel ve sıralı olarak anlamalarını sağlayan temel bir fen bilimleri aracıdır. Gezegenlerin sıralı düzeni, boyutları ve Güneş'e uzaklıkları görsel olarak karşılaştırıldığında, soyut uzay kavramları somutlaşır. Disleksi desteğine ihtiyacı olan öğrenciler, renk kodlaması ve görsel düzenleme ile gezegenleri daha kolay öğrenirler.",
-    math: 'Gezegenler arası mesafeleri hesaplamak, disleksi desteğine ihtiyacı olan öğrenciler için büyük sayılarla çalışma becerisini geliştirir.',
-    language:
-      'Gezegen isimlerini ve özelliklerini öğrenmek, disleksi desteğine ihtiyacı olan öğrenciler için bilimsel kelime dağarcığını geliştirir.',
-    social:
-      'Uzay keşfi insanlık tarihi için önemlidir. Disleksi desteğine ihtiyacı olan öğrenciler için güneş sistemi bilgisi, uzay araştırmalarını anlamada temel oluşturur.',
-    general:
-      'Güneş sistemi infografiği, disleksi desteğine ihtiyacı olan öğrenciler için evreni anlamada önemli bir öğrenme aracıdır.',
-  };
-
-  return {
-    title: `${params.topic} - Güneş Sistemi`,
-    content: {
-      scienceData: {
-        topic: params.topic,
-        components: planets.map((p) => p.name),
-        properties: Object.fromEntries(planets.map((p) => [p.name, p.fact])),
-      },
-      steps: planets.map((planet, i) => ({
-        stepNumber: i + 1,
-        label: `${planet.order}. Gezegen: ${planet.name}`,
-        description: `Boyut: ${planet.size}. Güneşe uzaklık: ${planet.distance}`,
-        isCheckpoint: i === 0,
         scaffoldHint: `Bilgi: ${planet.fact}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

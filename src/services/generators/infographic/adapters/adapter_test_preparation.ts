@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type TestPreparationAIResult = {
   title: string;
   phases: { name: string; activities: string[]; duration: string; tips: string[] }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_TEST_PREPARATION_AI(
   const prompt = buildAIPrompt(
     'SINAV HAZIRLIĞI',
     params,
-    '1. Sınav hazırlık aşamalarını oluştur\n2. Her aşama için aktiviteler, süre ve ipuçları belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için sınav hazırlık stratejileri (min 100 kelime)'
+    '1. Sınav hazırlık aşamalarını oluştur\n2. Her aşama için aktiviteler, süre ve ipuçları belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -61,7 +60,6 @@ export async function generateInfographic_TEST_PREPARATION_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as TestPreparationAIResult;
@@ -84,9 +82,6 @@ export async function generateInfographic_TEST_PREPARATION_AI(
         benefits: (result.phases || []).map((p) => `${p.name}: ${p.duration}`),
       },
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Sınav hazırlığı infografiği, disleksi desteğine ihtiyacı olan öğrenciler için sınav kaygısını yönetme ve etkili çalışma stratejileri geliştirmede hayati bir rehberdir. Disleksi desteğine ihtiyacı olan öğrenciler, sınav ortamlarında okuma hızları ve yazma becerileri nedeniyle ek zorluklarla karşılaşırlar. Yapılandırılmış sınav hazırlık planları, disleksi desteğine ihtiyacı olan öğrencilerin konuları sistematik olarak gözden geçirmelerini sağlar. Görsel hazırlık takvimleri, disleksi desteğine ihtiyacı olan öğrencilerin sınav tarihine kadar olan süreci somut olarak görmelerini ve her gün ne çalışacaklarını bilmelerini sağlar. Bu belirsizliği azaltan yapı, sınav kaygısını önemli ölçüde düşürür.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 13,
@@ -125,38 +120,9 @@ export function generateInfographic_TEST_PREPARATION_Offline(
     },
   ];
 
-  const categoryDescriptions: Record<string, string> = {
-    science:
-      'Sınav hazırlığı infografiği, disleksi desteğine ihtiyacı olan öğrenciler için fen bilimleri sınavlarına hazırlanmada yapılandırılmış bir rehber sunar. Deney sonuçlarını ve bilimsel kavramları tekrar etmek, disleksi desteğine ihtiyacı olan öğrencilerin fen bilgisi sınavlarında başarılı olmalarını sağlar. Görsel şemalar ve diyagramlarla desteklenen sınav hazırlığı, disleksi desteğine ihtiyacı olan öğrencilerin bilimsel bilgileri daha etkili hatırlamalarına yardımcı olur.',
-    math: 'Sınav hazırlığı infografiği, disleksi desteğine ihtiyacı olan öğrenciler için matematik sınavlarına hazırlanmada adım adım bir plan sunar. Matematik formüllerini ve problem çözme stratejilerini düzenli tekrar etmek, disleksi desteğine ihtiyacı olan öğrencilerin sınav performansını artırır. Zamanlı matematik alıştırmaları, disleksi desteğine ihtiyacı olan öğrencilerin sınav süresini yönetme becerilerini geliştirir.',
-    language:
-      'Sınav hazırlığı infografiği, disleksi desteğine ihtiyacı olan öğrenciler için dil ve okuma sınavlarına hazırlanmada stratejik bir yaklaşım sunar. Okuma parçalarını analiz etme ve yazma görevlerini planlama becerilerini geliştirmek, disleksi desteğine ihtiyacı olan öğrencilerin dil sınavlarında daha güvenli olmalarını sağlar. Kelime çalışması ve dil bilgisi tekrarı, disleksi desteğine ihtiyacı olan öğrenclerin sınav başarısını doğrudan etkiler.',
-    social:
-      'Sınav hazırlığı infografiği, disleksi desteğine ihtiyacı olan öğrenciler için sosyal bilgiler sınavlarına hazırlanmada organize bir çerçeve sunar. Tarihî olayları ve coğrafi kavramları tekrar etmek, disleksi desteğine ihtiyacı olan öğrenclerin sosyal bilgiler sınavlarında daha iyi performans göstermelerini sağlar. Kavram haritaları ile çalışma, disleksi desteğine ihtiyacı olan öğrencilerin toplumsal ilişkileri görsel olarak hatırlamalarına yardımcı olur.',
-    general:
-      'Sınav hazırlığı infografiği, disleksi desteğine ihtiyacı olan öğrenciler için sınav kaygısını yönetme ve etkili çalışma stratejileri geliştirmede hayati bir rehberdir. Disleksi desteğine ihtiyacı olan öğrenciler, sınav ortamlarında okuma hızları ve yazma becerileri nedeniyle ek zorluklarla karşılaşırlar. Yapılandırılmış sınav hazırlık planları, disleksi desteğine ihtiyacı olan öğrencilerin konuları sistematik olarak gözden geçirmelerini sağlar. Görsel hazırlık takvimleri, disleksi desteğine ihtiyacı olan öğrencilerin sınav tarihine kadar olan süreci somut olarak görmelerini ve her gün ne çalışacaklarını bilmelerini sağlar. Bu belirsizliği azaltan yapı, sınav kaygısını önemli ölçüde düşürür.',
-  };
-
-  return {
-    title: `${params.topic} - Sınav Hazırlığı`,
-    content: {
-      steps: phases.flatMap((phase, pi) =>
-        phase.activities.map((activity, ai) => ({
-          stepNumber: pi * 10 + ai + 1,
-          label: `${phase.name}: ${activity}`,
-          description: activity,
-          isCheckpoint: ai === phase.activities.length - 1,
-          scaffoldHint: `Süre: ${phase.duration}`,
-        }))
-      ),
-      strategicContent: {
-        strategyName: 'Sınav Hazırlık Planı',
-        steps: phases.map((p) => p.name),
-        useWhen: 'Sınav öncesi çalışma döneminde',
         benefits: phases.map((p) => `${p.name}: ${p.duration}`),
       },
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 13,

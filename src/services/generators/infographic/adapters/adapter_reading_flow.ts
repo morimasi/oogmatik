@@ -28,7 +28,7 @@ export async function generateInfographic_ReadingFlow_AI(
   const prompt = buildAIPrompt(
     'OKUMA AKIŞI',
     params,
-    '1. Metni paragraflara böl\n2. Her paragraf için takip çizgisi ekle\n3. Pedagojik not: Okuma akıcılığının gelişimine katkısı (min 100 kelime)\n4. Lexend font, disleksi uyumlu'
+    '1. Metni paragraflara böl\n2. Her paragraf için takip çizgisi ekle\n3. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'object' as const,
@@ -44,13 +44,11 @@ export async function generateInfographic_ReadingFlow_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'string' as const },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as {
     title: string;
     paragraphs: Array<{ text: string; highlight: boolean }>;
-    pedagogicalNote: string;
   };
   return {
     title: result.title || `${params.topic} - Okuma Akışı`,
@@ -63,9 +61,6 @@ export async function generateInfographic_ReadingFlow_AI(
         visualCue: p.highlight ? '🔵 Önemli' : undefined,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Okuma akıcılığı, öğrencinin metni satır satır takip etme becerisini geliştirir. Disleksi desteğine ihtiyacı olan öğrenciler için renkli takip çizgileri ve geniş satır aralığı kullanılmalıdır.',
     layoutHints: { orientation: 'vertical', fontSize: 11, colorScheme: 'dyslexia-friendly' },
     targetSkills: ['Okuma akıcılığı', 'Satır takibi'],
     estimatedDuration: 12,
@@ -118,8 +113,6 @@ export function generateInfographic_ReadingFlow_Offline(
         visualCue: i === 0 ? '🔵 Başlangıç' : i === paragraphs.length - 1 ? '🟢 Son' : undefined,
       })),
     },
-    pedagogicalNote:
-      'Okuma akıcılığı, öğrencinin metni satır satır takip etme becerisini geliştirir. Disleksi desteğine ihtiyacı olan öğrenciler için renkli takip çizgileri ve geniş satır aralığı kullanılmalıdır. Her paragraf arasına boşluk bırakılmalıdır.',
     layoutHints: { orientation: 'vertical', fontSize: 11, colorScheme: 'dyslexia-friendly' },
     targetSkills: ['Okuma akıcılığı', 'Satır takibi'],
     estimatedDuration: 12,

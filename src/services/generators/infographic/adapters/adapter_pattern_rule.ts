@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type PatternRuleAIResult = {
   title: string;
   patterns: { sequence: string; rule: string; next: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -39,7 +38,7 @@ export async function generateInfographic_PATTERN_RULE_AI(
   const prompt = buildAIPrompt(
     'ÖRÜNTÜ KURALI',
     params,
-    '1. Sayısal veya görsel örüntüler oluştur\n2. Her örüntünün kuralını açıkla\n3. Devamını bulma soruları ekle\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için örüntü tanıma stratejileri (min 100 kelime)'
+    '1. Sayısal veya görsel örüntüler oluştur\n2. Her örüntünün kuralını açıkla\n3. Devamını bulma soruları ekle'
   );
   const schema = {
     type: 'OBJECT',
@@ -56,7 +55,6 @@ export async function generateInfographic_PATTERN_RULE_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as PatternRuleAIResult;
@@ -71,9 +69,6 @@ export async function generateInfographic_PATTERN_RULE_AI(
         scaffoldHint: `Kural: ${pattern.rule}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Örüntü kuralı keşfi, disleksi desteğine ihtiyacı olan öğrenciler için düzen algısı ve tahmin becerilerini geliştiren temel bir matematik etkinliğidir. Tekrarlayan desenleri tanımak, disleksi desteğine ihtiyacı olan öğrencilerin görsel işlemleme becerilerini güçlendirir ve matematiksel düşünce yapısını destekler. Disleksi desteğine ihtiyacı olan öğrenciler, örüntü kurallarını görsel ve somut materyallerle keşfettiğinde soyut matematik kavramlarını daha kolay içselleştirirler.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -121,7 +116,6 @@ export function generateInfographic_PATTERN_RULE_Offline(
         scaffoldHint: `Kural: ${pattern.rule}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

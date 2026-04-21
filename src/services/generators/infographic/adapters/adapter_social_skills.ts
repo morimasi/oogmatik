@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type SocialSkillsAIResult = {
   title: string;
   skills: { name: string; description: string; example: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_SOCIAL_SKILLS_AI(
   const prompt = buildAIPrompt(
     'SOSYAL BECERİLER',
     params,
-    '1. Sosyal becerileri listele\n2. Her beceri için açıklama ve örnek belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için sosyal beceri geliştirme stratejileri (min 100 kelime)'
+    '1. Sosyal becerileri listele\n2. Her beceri için açıklama ve örnek belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -60,7 +59,6 @@ export async function generateInfographic_SOCIAL_SKILLS_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as SocialSkillsAIResult;
@@ -75,9 +73,6 @@ export async function generateInfographic_SOCIAL_SKILLS_AI(
         scaffoldHint: `Örnek: ${s.example}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Sosyal beceriler infografiği, disleksi desteğine ihtiyacı olan öğrenciler için akran ilişkileri ve sosyal etkileşim becerilerini geliştirmede görsel bir rehber sunar. Disleksi desteğine ihtiyacı olan öğrenciler, akademik zorluklar nedeniyle sosyal izolasyon ve akran zorbalığı riskiyle karşı karşıyadır. Görsel sosyal beceri kartları ve rol oynama senaryoları, disleksi desteğine ihtiyacı olan öğrencilerin sosyal ipuçlarını okuma ve uygun yanıtlar verme becerilerini geliştirir. Empati, sıra bekleme ve çatışma çözme gibi temel sosyal becerilerin görsel olarak modellenmesi, disleksi desteğine ihtiyacı olan öğrencilerin sosyal ortamda daha güvenli hissetmelerini sağlar.',
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,
@@ -123,30 +118,9 @@ export function generateInfographic_SOCIAL_SKILLS_Offline(
     },
   ];
 
-  const categoryDescriptions: Record<string, string> = {
-    science:
-      'Sosyal beceriler infografiği, disleksi desteğine ihtiyacı olan öğrenciler için fen bilimleri grup deneylerinde iş birliği yapma becerilerini geliştirir. Deney gruplarında rol paylaşımı ve iletişim, disleksi desteğine ihtiyacı olan öğrencilerin bilimsel öğrenme süreçlerinde aktif katılım göstermelerini sağlar.',
-    math: 'Sosyal beceriler infografiği, disleksi desteğine ihtiyacı olan öğrenciler için matematik grup çalışmalarında iş birliği yapma becerilerini destekler. Matematik problemlerini birlikte çözme, disleksi desteğine ihtiyacı olan öğrenclerin akran öğrenmesi deneyimlerini zenginleştirir.',
-    language:
-      'Sosyal beceriler infografiği, disleksi desteğine ihtiyacı olan öğrenciler için okuma grupları ve tartışma etkinliklerinde iletişim becerilerini geliştirir. Hikaye tartışmalarında fikir paylaşma ve dinleme becerileri, disleksi desteğine ihtiyacı olan öğrenclerin dil gelişimini sosyal bağlamda destekler.',
-    social:
-      'Sosyal beceriler infografiği, disleksi desteğine ihtiyacı olan öğrenciler için sosyal bilgiler dersindeki grup projeleri ve tartışmalarda etkili iletişim kurma becerilerini geliştirir. Toplumsal konuları tartışma ve farklı görüşlere saygı gösterme, disleksi desteğine ihtiyacı olan öğrenclerin vatandaşlık becerilerini güçlendirir.',
-    general:
-      'Sosyal beceriler infografiği, disleksi desteğine ihtiyacı olan öğrenciler için akran ilişkileri ve sosyal etkileşim becerilerini geliştirmede görsel bir rehber sunar. Disleksi desteğine ihtiyacı olan öğrenciler, akademik zorluklar nedeniyle sosyal izolasyon ve akran zorbalığı riskiyle karşı karşıyadır. Görsel sosyal beceri kartları ve rol oynama senaryoları, disleksi desteğine ihtiyacı olan öğrencilerin sosyal ipuçlarını okuma ve uygun yanıtlar verme becerilerini geliştirir. Empati, sıra bekleme ve çatışma çözme gibi temel sosyal becerilerin görsel olarak modellenmesi, disleksi desteğine ihtiyacı olan öğrencilerin sosyal ortamda daha güvenli hissetmelerini sağlar.',
-  };
-
-  return {
-    title: `${params.topic} - Sosyal Beceriler`,
-    content: {
-      steps: skills.map((s, i) => ({
-        stepNumber: i + 1,
-        label: s.name,
-        description: s.description,
-        isCheckpoint: i % 2 === 1,
         scaffoldHint: `Örnek: ${s.example}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,

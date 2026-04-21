@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type StatesMatterAIResult = {
   title: string;
   states: { name: string; properties: string[]; examples: string[]; transition: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -35,7 +34,7 @@ export async function generateInfographic_STATES_MATTER_AI(
   const prompt = buildAIPrompt(
     'MADDENİN HALLERİ',
     params,
-    '1. Maddenin hallerini listele (katı, sıvı, gaz)\n2. Her halin özelliklerini ve örneklerini göster\n3. Hal değişimlerini açıkla\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için maddenin halleri öğrenme stratejileri (min 100 kelime)'
+    '1. Maddenin hallerini listele (katı, sıvı, gaz)\n2. Her halin özelliklerini ve örneklerini göster\n3. Hal değişimlerini açıkla'
   );
   const schema = {
     type: 'OBJECT',
@@ -53,7 +52,6 @@ export async function generateInfographic_STATES_MATTER_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as StatesMatterAIResult;
@@ -75,9 +73,6 @@ export async function generateInfographic_STATES_MATTER_AI(
         scaffoldHint: `Örnekler: ${state.examples.join(', ')}. Geçiş: ${state.transition}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Maddenin halleri infografiği, disleksi desteğine ihtiyacı olan öğrenciler için fiziksel bilim kavramlarını somut ve görsel olarak anlamalarını sağlayan önemli bir fen bilimleri aracıdır. Her halin özellikleri, günlük yaşam örnekleri ve hal değişim süreçleri görsel olarak eşleştirildiğinde, soyut fizik kavramları somutlaşır. Disleksi desteğine ihtiyacı olan öğrenciler, renk kodlaması ve görsel düzenleme ile maddenin katı, sıvı ve gaz hallerini daha kolay ayırt eder ve hal değişim süreçlerini içselleştirirler.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -120,35 +115,9 @@ export function generateInfographic_STATES_MATTER_Offline(
     },
   ];
 
-  const categoryDescriptions: Record<string, string> = {
-    science:
-      'Maddenin halleri infografiği, disleksi desteğine ihtiyacı olan öğrenciler için fiziksel bilim kavramlarını somut ve görsel olarak anlamalarını sağlayan temel bir fen bilimleri aracıdır. Her halin özellikleri, günlük yaşam örnekleri ve hal değişim süreçleri görsel olarak eşleştirildiğinde, soyut fizik kavramları somutlaşır. Disleksi desteğine ihtiyacı olan öğrenciler, renk kodlaması ve görsel düzenleme ile maddenin katı, sıvı ve gaz hallerini daha kolay ayırt ederler.',
-    math: 'Maddenin hallerinde hacim ve sıcaklık hesaplamaları, disleksi desteğine ihtiyacı olan öğrenciler için matematiksel düşünceyi fizik ile bağdaştırır.',
-    language:
-      'Maddenin hallerini anlatmak, disleksi desteğine ihtiyacı olan öğrenciler için bilimsel kelime dağarcığını ve açıklayıcı dil kullanımını geliştirir.',
-    social:
-      'Maddenin halleri günlük yaşamda sıkça karşılaşılan bir konudur. Disleksi desteğine ihtiyacı olan öğrenciler için mutfak ve doğadaki örnekler kavramları somutlaştırır.',
-    general:
-      'Maddenin halleri infografiği, disleksi desteğine ihtiyacı olan öğrenciler için temel fizik kavramlarını anlamada önemli bir öğrenme aracıdır.',
-  };
-
-  return {
-    title: `${params.topic} - Maddenin Halleri`,
-    content: {
-      scienceData: {
-        topic: params.topic,
-        components: states.map((s) => s.name),
-        properties: Object.fromEntries(states.map((s) => [s.name, s.properties.join(', ')])),
-      },
-      steps: states.map((state, i) => ({
-        stepNumber: i + 1,
-        label: state.name,
-        description: state.properties.join('. '),
-        isCheckpoint: i === 0,
         scaffoldHint: `Örnekler: ${state.examples.join(', ')}. Geçiş: ${state.transition}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

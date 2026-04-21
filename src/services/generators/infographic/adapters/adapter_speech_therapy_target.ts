@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type SpeechTherapyTargetAIResult = {
   title: string;
   targets: { skill: string; objective: string; activity: string; criteria: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_SPEECH_THERAPY_TARGET_AI(
   const prompt = buildAIPrompt(
     'DİL KONUŞMA HEDEFİ',
     params,
-    '1. Dil ve konuşma terapi hedeflerini oluştur\n2. Her hedef için beceri, amaç, aktivite ve kriter belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için dil konuşma hedef stratejileri (min 100 kelime)'
+    '1. Dil ve konuşma terapi hedeflerini oluştur\n2. Her hedef için beceri, amaç, aktivite ve kriter belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -61,7 +60,6 @@ export async function generateInfographic_SPEECH_THERAPY_TARGET_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as SpeechTherapyTargetAIResult;
@@ -76,9 +74,6 @@ export async function generateInfographic_SPEECH_THERAPY_TARGET_AI(
         scaffoldHint: `Aktivite: ${t.activity} | Kriter: ${t.criteria}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Dil konuşma hedefi infografiği, disleksi desteğine ihtiyacı olan öğrenciler için fonolojik farkındalık, dil bilgisi, anlatım becerileri ve akıcılık gibi dil ve konuşma alanlarında hedeflenen becerileri yapılandırılmış şekilde planlama aracıdır. Disleksi desteğine ihtiyacı olan öğrenciler sıklıkla fonolojik işlemleme zorlukları yaşarlar ve bu durum okuma öğrenmelerini doğrudan etkiler. Dil konuşma terapisti ile iş birliği içinde belirlenen hedefler, disleksi desteğine ihtiyacı olan öğrencilerin dil becerilerini sistematik olarak geliştirmelerini sağlar. Her hedef için belirlenen aktiviteler ve ölçülebilir kriterler, disleksi desteğine ihtiyacı olan öğrencilerin ilerlemelerini takip etmeyi ve terapi sürecini veriye dayalı olarak yönlendirmeyi kolaylaştırır.',
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,
@@ -129,30 +124,9 @@ export function generateInfographic_SPEECH_THERAPY_TARGET_Offline(
     },
   ];
 
-  const categoryDescriptions: Record<string, string> = {
-    science:
-      'Dil konuşma hedefi infografiği, disleksi desteğine ihtiyacı olan öğrenciler için fen bilimleri terimlerini anlama ve kullanma becerilerini geliştirmede yardımcı olur. Bilimsel kelime dağarcığı ve fen kavramlarını ifade etme becerileri, disleksi desteğine ihtiyacı olan öğrencilerin fen öğrenme süreçlerini destekler.',
-    math: 'Dil konuşma hedefi infografiği, disleksi desteğine ihtiyacı olan öğrenciler için matematik dilini anlama ve kullanma becerilerini geliştirmede rehberlik eder. Matematik terimlerini anlama ve problem çözme süreçlerini sözel olarak ifade etme, disleksi desteğine ihtiyacı olan öğrencilerin matematik öğrenme deneyimini iyileştirir.',
-    language:
-      'Dil konuşma hedefi infografiği, disleksi desteğine ihtiyacı olan öğrenciler için okuma ve yazma becerilerinin temelini oluşturan dil becerilerini geliştirmede kritik bir araçtır. Fonolojik farkındalık, ses farkındalığı ve kelime dağarcığı hedefleri, disleksi desteğine ihtiyacı olan öğrencilerin okuma öğrenme süreçlerini doğrudan destekler.',
-    social:
-      'Dil konuşma hedefi infografiği, disleksi desteğine ihtiyacı olan öğrenciler için sosyal iletişim ve anlatım becerilerini geliştirmede destek sağlar. Grup tartışmalarına katılma ve fikirlerini ifade etme becerileri, disleksi desteğine ihtiyacı olan öğrencilerin sosyal öğrenme deneyimlerini zenginleştirir.',
-    general:
-      'Dil konuşma hedefi infografiği, disleksi desteğine ihtiyacı olan öğrenciler için fonolojik farkındalık, dil bilgisi, anlatım becerileri ve akıcılık gibi dil ve konuşma alanlarında hedeflenen becerileri yapılandırılmış şekilde planlama aracıdır. Disleksi desteğine ihtiyacı olan öğrenciler sıklıkla fonolojik işlemleme zorlukları yaşarlar ve bu durum okuma öğrenmelerini doğrudan etkiler. Dil konuşma terapisti ile iş birliği içinde belirlenen hedefler, disleksi desteğine ihtiyacı olan öğrencilerin dil becerilerini sistematik olarak geliştirmelerini sağlar. Her hedef için belirlenen aktiviteler ve ölçülebilir kriterler, disleksi desteğine ihtiyacı olan öğrencilerin ilerlemelerini takip etmeyi ve terapi sürecini veriye dayalı olarak yönlendirmeyi kolaylaştırır.',
-  };
-
-  return {
-    title: `${params.topic} - Dil Konuşma Hedefi`,
-    content: {
-      steps: targets.map((t, i) => ({
-        stepNumber: i + 1,
-        label: `${t.skill}: ${t.objective}`,
-        description: t.objective,
-        isCheckpoint: i % 2 === 1,
         scaffoldHint: `Aktivite: ${t.activity} | Kriter: ${t.criteria}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,

@@ -114,18 +114,6 @@ export function generateInfographic_ROLE_PLAY_SCENARIO_Offline(
     },
   ];
 
-  const categoryDescriptions: Record<string, string> = {
-    social:
-      'Rol yapma senaryosu infografiği, disleksi desteğine ihtiyacı olan öğrenciler için sosyal beceri ve empati geliştirme becerilerini yapılandırılmış senaryolarla destekleyen temel bir sosyal bilgiler aracıdır. Karakterlerin rolleri ve sahne diyalogları görsel olarak düzenlendiğinde, soyut sosyal etkileşim kavramları somutlaşır. Disleksi desteğine ihtiyacı olan öğrenciler, rol yapma etkinlikleri ile farklı perspektifleri deneyimleme fırsatı bulur ve sosyal iletişim becerilerini güvenli bir ortamda geliştirirler.',
-    math: 'Rol yapma senaryolarında sıra ve zaman hesaplamaları, disleksi desteğine ihtiyacı olan öğrenciler için matematiksel düşünceyi sosyal beceriler ile bağdaştırır.',
-    language:
-      'Diyalog okumak ve canlandırmak, disleksi desteğine ihtiyacı olan öğrenciler için okuma akıcılığını ve ifade becerisini geliştirir.',
-    science:
-      'Bilimsel keşif senaryolarında rol yapmak, disleksi desteğine ihtiyacı olan öğrenciler için bilim insanı perspektifini deneyimlemelerini sağlar.',
-    general:
-      'Rol yapma senaryosu infografiği, disleksi desteğine ihtiyacı olan öğrenciler için sosyal beceri ve empati geliştiren önemli bir öğrenme aracıdır.',
-  };
-
   return {
     title: `${params.topic} - Rol Yapma Senaryosu`,
     content: {

@@ -10,7 +10,6 @@ type ThemeWebAIResult = {
   title: string;
   mainTheme: string;
   subThemes: { name: string; description: string }[];
-  pedagogicalNote: string;
 };
 
 function detectCategory(topic: string): 'science' | 'math' | 'language' | 'social' | 'general' {
@@ -43,7 +42,7 @@ export async function generateInfographic_ThemeWeb_AI(
   const prompt = buildAIPrompt(
     'TEMA AĞI',
     params,
-    '1. Ana tema ve 3-4 alt tema belirle\n2. Her alt tema için kısa açıklama yaz\n3. Pedagojik not: Tema analizinin okuduğunu anlamaya katkısı (min 100 kelime)\n4. Lexend font, disleksi uyumlu'
+    '1. Ana tema ve 3-4 alt tema belirle\n2. Her alt tema için kısa açıklama yaz\n3. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'OBJECT',
@@ -60,7 +59,6 @@ export async function generateInfographic_ThemeWeb_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as ThemeWebAIResult;
@@ -76,9 +74,6 @@ export async function generateInfographic_ThemeWeb_AI(
         })),
       },
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Tema ağı, disleksi desteğine ihtiyacı olan öğrenciler için metnin yapısını görselleştirerek anlamayı kolaylaştırır. Ana tema ve alt temalar arasındaki ilişkileri görmek, öğrencilerin bütünsel düşünme becerilerini geliştirir ve okuduğunu anlama sürecini destekler.',
     layoutHints: {
       orientation: 'radial',
       fontSize: 11,
@@ -141,8 +136,6 @@ export function generateInfographic_ThemeWeb_Offline(
         })),
       },
     },
-    pedagogicalNote:
-      'Tema ağı, disleksi desteğine ihtiyacı olan öğrenciler için metnin yapısını görselleştirerek anlamayı kolaylaştırır. Ana tema ve alt temalar arasındaki ilişkileri görmek, öğrencilerin bütünsel düşünme becerilerini geliştirir ve okuduğunu anlama sürecini destekler. Görsel düzen sayesinde kavramlar arası bağlantılar daha net anlaşılır.',
     layoutHints: {
       orientation: 'radial',
       fontSize: 11,

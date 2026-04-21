@@ -28,7 +28,7 @@ export async function generateInfographic_Sequence_AI(
   const prompt = buildAIPrompt(
     'OLAY SIRALAMA',
     params,
-    '1. Olayları kronolojik sıraya koy\n2. Her olay için numara ve açıklama yaz\n3. Pedagojik not: Sıralama becerisinin bilişsel gelişime katkısı (min 100 kelime)\n4. Lexend font, disleksi uyumlu'
+    '1. Olayları kronolojik sıraya koy\n2. Her olay için numara ve açıklama yaz\n3. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'object' as const,
@@ -44,13 +44,11 @@ export async function generateInfographic_Sequence_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'string' as const },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as {
     title: string;
     events: Array<{ order: number; description: string }>;
-    pedagogicalNote: string;
   };
   return {
     title: result.title || `${params.topic} - Olay Sıralama`,
@@ -62,9 +60,6 @@ export async function generateInfographic_Sequence_AI(
         isCheckpoint: e.order % 2 === 0,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Olayları sıralama becerisi, öğrencinin zaman algısını ve nedensellik ilişkisini güçlendirir. Disleksi desteğine ihtiyacı olan öğrenciler için görsel ikonlar ve numaralandırma kullanılmalıdır.',
     layoutHints: { orientation: 'vertical', fontSize: 11, colorScheme: 'dyslexia-friendly' },
     targetSkills: ['Sıralı düşünme', 'Zaman algısı'],
     estimatedDuration: 15,
@@ -126,8 +121,6 @@ export function generateInfographic_Sequence_Offline(
         isCheckpoint: e.order % 2 === 0,
       })),
     },
-    pedagogicalNote:
-      'Olayları sıralama becerisi, öğrencinin zaman algısını ve nedensellik ilişkisini güçlendirir. Disleksi desteğine ihtiyacı olan öğrenciler için görsel ikonlar ve numaralandırma kullanılmalıdır. Her adım arasına ok işareti konulmalıdır.',
     layoutHints: { orientation: 'vertical', fontSize: 11, colorScheme: 'dyslexia-friendly' },
     targetSkills: ['Sıralı düşünme', 'Zaman algısı'],
     estimatedDuration: 15,

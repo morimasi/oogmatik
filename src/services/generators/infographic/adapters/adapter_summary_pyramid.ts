@@ -20,7 +20,7 @@ export async function generateInfographic_SummaryPyramid_AI(
   const prompt = buildAIPrompt(
     'ÖZET PİRAMİDİ',
     params,
-    '1. Ana fikir en üstte, destekleyici noktalar ortada, detaylar altta\n2. Her seviye için 2-3 madde yaz\n3. Pedagojik not: Özetleme becerisinin okuduğunu anlamaya katkısı (min 100 kelime)\n4. Lexend font, disleksi uyumlu'
+    '1. Ana fikir en üstte, destekleyici noktalar ortada, detaylar altta\n2. Her seviye için 2-3 madde yaz\n3. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'object' as const,
@@ -29,7 +29,6 @@ export async function generateInfographic_SummaryPyramid_AI(
       mainIdea: { type: 'string' as const },
       supportingPoints: { type: 'array' as const, items: { type: 'string' as const } },
       details: { type: 'array' as const, items: { type: 'string' as const } },
-      pedagogicalNote: { type: 'string' as const },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as {
@@ -37,7 +36,6 @@ export async function generateInfographic_SummaryPyramid_AI(
     mainIdea: string;
     supportingPoints: string[];
     details: string[];
-    pedagogicalNote: string;
   };
   return {
     title: result.title || `${params.topic} - Özet Piramidi`,
@@ -50,9 +48,6 @@ export async function generateInfographic_SummaryPyramid_AI(
         })),
       },
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Özet piramidi, öğrencinin metni ana fikirden detaylara hiyerarşik olarak yapılandırma becerisini geliştirir. Disleksi desteğine ihtiyacı olan öğrenciler için her seviye farklı renkte gösterilmelidir.',
     layoutHints: { orientation: 'vertical', fontSize: 11, colorScheme: 'dyslexia-friendly' },
     targetSkills: ['Özetleme', 'Ana fikir belirleme', 'Hiyerarşik düşünme'],
     estimatedDuration: 15,
@@ -86,8 +81,6 @@ export function generateInfographic_SummaryPyramid_Offline(
         ],
       },
     },
-    pedagogicalNote:
-      'Özet piramidi, öğrencinin metni ana fikirden detaylara hiyerarşik olarak yapılandırma becerisini geliştirir. Disleksi desteğine ihtiyacı olan öğrenciler için her seviye farklı renkte ve geniş aralıklarla gösterilmelidir.',
     layoutHints: { orientation: 'vertical', fontSize: 11, colorScheme: 'dyslexia-friendly' },
     targetSkills: ['Özetleme', 'Ana fikir belirleme', 'Hiyerarşik düşünme'],
     estimatedDuration: 15,

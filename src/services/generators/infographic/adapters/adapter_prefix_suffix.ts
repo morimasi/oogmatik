@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type PrefixSuffixAIResult = {
   title: string;
   suffixes: { suffix: string; type: string; example: string; meaning: string }[];
-  pedagogicalNote: string;
 };
 
 function detectCategory(topic: string): 'science' | 'math' | 'language' | 'social' | 'general' {
@@ -42,7 +41,7 @@ export async function generateInfographic_PrefixSuffix_AI(
   const prompt = buildAIPrompt(
     'EK BİLGİSİ',
     params,
-    '1. Konuya uygun 4-6 ek belirle\n2. Her ekin türünü, anlamını ve örnek kelimesini yaz\n3. Pedagojik not: Ek bilgisinin kelime türetme becerisine katkısı (min 100 kelime)\n4. Lexend font, disleksi uyumlu'
+    '1. Konuya uygun 4-6 ek belirle\n2. Her ekin türünü, anlamını ve örnek kelimesini yaz\n3. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'OBJECT',
@@ -60,7 +59,6 @@ export async function generateInfographic_PrefixSuffix_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as PrefixSuffixAIResult;
@@ -74,9 +72,6 @@ export async function generateInfographic_PrefixSuffix_AI(
         exampleSentence: `Örnek: ${s.example}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Ek bilgisi, disleksi desteğine ihtiyacı olan öğrenciler için kelime türetme mekanizmasını anlamalarını sağlar. Yapım ve çekim eklerini tanımak, kelimelerin yapısını çözümlemeyi kolaylaştırır ve okuma akıcılığını artırır. Eklerin işlevlerini bilmek, yeni kelimelerle karşılaşıldığında anlam çıkarabilme becerisini geliştirir.',
     layoutHints: {
       orientation: 'horizontal',
       fontSize: 11,
@@ -160,8 +155,6 @@ export function generateInfographic_PrefixSuffix_Offline(
         exampleSentence: `Örnek: ${s.example}`,
       })),
     },
-    pedagogicalNote:
-      'Ek bilgisi, disleksi desteğine ihtiyacı olan öğrenciler için kelime türetme mekanizmasını anlamalarını sağlar. Yapım ve çekim eklerini tanımak, kelimelerin yapısını çözümlemeyi kolaylaştırır ve okuma akıcılığını artırır. Eklerin işlevlerini bilmek, yeni kelimelerle karşılaşıldığında anlam çıkarabilme becerisini geliştirir ve yazım doğruluğunu destekler.',
     layoutHints: {
       orientation: 'horizontal',
       fontSize: 11,

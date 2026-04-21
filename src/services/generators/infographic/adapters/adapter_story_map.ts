@@ -25,7 +25,7 @@ export async function generateInfographic_StoryMap_AI(
   const prompt = buildAIPrompt(
     'HİKAYE HARİTASI',
     params,
-    '1. Başlık, mekan, zaman, karakterler, problem, çözüm\n2. Her bölüm için net bilgiler yaz\n3. Pedagojik not: Hikaye haritasının metin analizine katkısı (min 100 kelime)\n4. Lexend font, disleksi uyumlu'
+    '1. Başlık, mekan, zaman, karakterler, problem, çözüm\n2. Her bölüm için net bilgiler yaz\n3. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'OBJECT',
@@ -37,7 +37,6 @@ export async function generateInfographic_StoryMap_AI(
       problem: { type: 'STRING' },
       events: { type: 'ARRAY', items: { type: 'STRING' } },
       resolution: { type: 'STRING' },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result: any = await generateWithSchema(prompt, schema);
@@ -53,7 +52,6 @@ export async function generateInfographic_StoryMap_AI(
         resolution: result.resolution,
       },
     },
-    pedagogicalNote: result.pedagogicalNote || 'Hikaye haritası analitik becerileri artırır.',
     layoutHints: {
       orientation: 'grid',
       fontSize: 11,
@@ -83,8 +81,6 @@ export function generateInfographic_StoryMap_Offline(
         resolution: 'Sorun nasıl çözüldü?',
       },
     },
-    pedagogicalNote:
-      'Hikaye haritası analitik becerileri artırır ve öğrencinin hikayeyi bütüncül görmesini sağlar.',
     layoutHints: {
       orientation: 'grid',
       fontSize: 11,

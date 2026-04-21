@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type ParentGuideAIResult = {
   title: string;
   sections: { topic: string; tips: string[]; resource: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_PARENT_GUIDE_AI(
   const prompt = buildAIPrompt(
     'AİLE REHBERİ',
     params,
-    '1. Aileler için rehber bölümlerini oluştur\n2. Her bölüm için ipuçları ve kaynak belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için aile rehberi stratejileri (min 100 kelime)'
+    '1. Aileler için rehber bölümlerini oluştur\n2. Her bölüm için ipuçları ve kaynak belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -60,7 +59,6 @@ export async function generateInfographic_PARENT_GUIDE_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as ParentGuideAIResult;
@@ -77,9 +75,6 @@ export async function generateInfographic_PARENT_GUIDE_AI(
         }))
       ),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Aile rehberi infografiği, disleksi desteğine ihtiyacı olan öğrencilerin velileri için evde destek stratejileri ve kaynaklar sunan kapsamlı bir rehberdir. Disleksi desteğine ihtiyacı olan öğrencilerin öğrenme süreçlerinde aile desteği kritik öneme sahiptir. Velilerin disleksi hakkında bilgi sahibi olmaları, disleksi desteğine ihtiyacı olan öğrencilerin evde uygun destek almalarını sağlar. Yapılandırılmış aile rehberi, velilere evde uygulanabilir stratejiler, kaynak önerileri ve iletişim ipuçları sunarak disleksi desteğine ihtiyacı olan öğrencilerin öğrenme deneyimini okul ve ev arasında tutarlı hale getirir. Aile-okul iş birliği, disleksi desteğine ihtiyacı olan öğrencilerin akademik ve duygusal gelişimini önemli ölçüde destekler.',
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,
@@ -157,7 +152,6 @@ export function generateInfographic_PARENT_GUIDE_Offline(
         }))
       ),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,

@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type SentenceBuilderAIResult = {
   title: string;
   sentences: { subject: string; object: string; verb: string; fullSentence: string }[];
-  pedagogicalNote: string;
 };
 
 function detectCategory(topic: string): 'science' | 'math' | 'language' | 'social' | 'general' {
@@ -42,7 +41,7 @@ export async function generateInfographic_SentenceBuilder_AI(
   const prompt = buildAIPrompt(
     'CÜMLE İNŞASI',
     params,
-    '1. Konuya uygun 3-5 cümle oluştur\n2. Her cümleyi özne, nesne ve yüklem olarak ayır\n3. Pedagojik not: Cümle yapısı bilgisinin dil gelişimine katkısı (min 100 kelime)\n4. Lexend font, disleksi uyumlu'
+    '1. Konuya uygun 3-5 cümle oluştur\n2. Her cümleyi özne, nesne ve yüklem olarak ayır\n3. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'OBJECT',
@@ -60,7 +59,6 @@ export async function generateInfographic_SentenceBuilder_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as SentenceBuilderAIResult;
@@ -74,9 +72,6 @@ export async function generateInfographic_SentenceBuilder_AI(
         isCheckpoint: false,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Cümle inşası, disleksi desteğine ihtiyacı olan öğrenciler için özne-nesne-yüklem yapısını görselleştirerek dilbilgisi farkındalığını artırır. Cümlenin bileşenlerini ayrı ayrı görmek, öğrencilerin cümle kurma becerisini geliştirir ve yazılı anlatım kalitesini yükseltir. Bu yapısal yaklaşım, okuduğunu anlama sürecini de destekler.',
     layoutHints: {
       orientation: 'horizontal',
       fontSize: 11,
@@ -205,8 +200,6 @@ export function generateInfographic_SentenceBuilder_Offline(
         isCheckpoint: false,
       })),
     },
-    pedagogicalNote:
-      'Cümle inşası, disleksi desteğine ihtiyacı olan öğrenciler için özne-nesne-yüklem yapısını görselleştirerek dilbilgisi farkındalığını artırır. Cümlenin bileşenlerini ayrı ayrı görmek, öğrencilerin cümle kurma becerisini geliştirir ve yazılı anlatım kalitesini yükseltir. Bu yapısal yaklaşım, okuduğunu anlama sürecini de destekler ve cümle tamamlama alıştırmalarına temel oluşturur.',
     layoutHints: {
       orientation: 'horizontal',
       fontSize: 11,
