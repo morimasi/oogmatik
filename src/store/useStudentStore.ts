@@ -19,7 +19,7 @@ interface StudentState {
 
   // Actions
   setActiveStudent: (student: Student | null) => void;
-  fetchStudents: (teacherId: string) => () => void;
+  fetchStudents: (teacherId: string, isAdmin?: boolean) => () => void;
   addStudent: (teacherId: string, studentData: unknown) => Promise<void>;
   updateStudent: (id: string, updates: Partial<Student>) => Promise<void>;
   deleteStudent: (id: string) => Promise<void>;
@@ -53,9 +53,13 @@ export const useStudentStore = create<StudentState>()((set, get) => ({
 
   setActiveStudent: (student) => set({ activeStudent: student }),
 
-  fetchStudents: (teacherId) => {
+  fetchStudents: (teacherId, isAdmin = false) => {
     set({ isLoading: true });
-    const q = query(collection(db, 'students'), where('teacherId', '==', teacherId));
+    
+    // Admin ise tüm öğrencileri getir, değilse sadece kendi öğrencilerini
+    const q = isAdmin
+      ? query(collection(db, 'students'))
+      : query(collection(db, 'students'), where('teacherId', '==', teacherId));
 
     return onSnapshot(q, (snapshot) => {
       const studentList: Student[] = [];
