@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type MapExplorerAIResult = {
   title: string;
   locations: { name: string; type: string; features: string[]; description: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -37,7 +36,7 @@ export async function generateInfographic_MAP_EXPLORER_AI(
   const prompt = buildAIPrompt(
     'HARİTA KEŞFİ',
     params,
-    '1. Harita üzerindeki önemli yerleri listele\n2. Her yerin tipini ve özelliklerini belirt\n3. Coğrafi konum bilgisi ekle\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için harita okuma stratejileri (min 100 kelime)'
+    '1. Harita üzerindeki önemli yerleri listele\n2. Her yerin tipini ve özelliklerini belirt\n3. Coğrafi konum bilgisi ekle'
   );
   const schema = {
     type: 'OBJECT',
@@ -55,7 +54,6 @@ export async function generateInfographic_MAP_EXPLORER_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as MapExplorerAIResult;
@@ -70,9 +68,6 @@ export async function generateInfographic_MAP_EXPLORER_AI(
         scaffoldHint: `Özellikler: ${loc.features.join(', ')}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Harita keşfi infografiği, disleksi desteğine ihtiyacı olan öğrenciler için mekansal düşünme ve coğrafi okuryazarlık becerilerini geliştiren önemli bir sosyal bilgiler aracıdır. Harita üzerindeki yerlerin görsel sembollerle ve renk kodlamasıyla işaretlenmesi, soyut coğrafi kavramları somutlaştırır. Disleksi desteğine ihtiyacı olan öğrenciler, harita okuma becerilerini yapılandırılmış görsel düzenleme ile geliştirir ve çevrelerindeki dünyayı daha iyi anlamaya başlarlar.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -140,7 +135,6 @@ export function generateInfographic_MAP_EXPLORER_Offline(
         scaffoldHint: `Özellikler: ${loc.features.join(', ')}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

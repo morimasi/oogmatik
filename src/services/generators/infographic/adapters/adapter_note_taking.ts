@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type NoteTakingAIResult = {
   title: string;
   sections: { heading: string; items: string[]; type: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_NOTE_TAKING_AI(
   const prompt = buildAIPrompt(
     'NOT ALMA',
     params,
-    '1. Cornell not alma formatında bölümler oluştur\n2. Her bölüm için anahtar kelimeler ve özet belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için not alma stratejileri (min 100 kelime)'
+    '1. Cornell not alma formatında bölümler oluştur\n2. Her bölüm için anahtar kelimeler ve özet belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -60,7 +59,6 @@ export async function generateInfographic_NOTE_TAKING_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as NoteTakingAIResult;
@@ -83,9 +81,6 @@ export async function generateInfographic_NOTE_TAKING_AI(
         benefits: ['Bilgiyi yapılandırma', 'Tekrar kolaylığı', 'Anahtar kavramları belirleme'],
       },
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Not alma infografiği, disleksi desteğine ihtiyacı olan öğrenciler için bilgiyi yapılandırma ve tekrar etme süreçlerinde temel bir öğrenme stratejisi sunar. Disleksi desteğine ihtiyacı olan öğrenciler, işitsel bilgileri yazıya dökme konusunda zorluk yaşayabilirler ve bu nedenle yapılandırılmış not alma şablonları büyük önem taşır. Cornell not alma yöntemi gibi organize formatlar, disleksi desteğine ihtiyacı olan öğrencilerin bilgileri kategorilere ayırmalarını ve anahtar kavramları belirlemelerini kolaylaştırır. Görsel not alma teknikleri, disleksi desteğine ihtiyacı olan öğrencilerin bilgiyi çoklu duyusal kanallarla işlemelerine olanak tanır ve bu durum öğrenmenin kalıcılığını artırır.',
     layoutHints: {
       orientation: 'portrait',
       fontSize: 13,
@@ -153,7 +148,6 @@ export function generateInfographic_NOTE_TAKING_Offline(
         benefits: ['Bilgiyi yapılandırma', 'Tekrar kolaylığı', 'Anahtar kavramları belirleme'],
       },
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'portrait',
       fontSize: 13,

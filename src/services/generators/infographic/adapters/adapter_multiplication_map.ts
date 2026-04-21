@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type MultiplicationMapAIResult = {
   title: string;
   table: { row: number; col: number; value: number }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -35,7 +34,7 @@ export async function generateInfographic_MULTIPLICATION_MAP_AI(
   const prompt = buildAIPrompt(
     'ÇARPIM TABLOSU GÖRSELİ',
     params,
-    '1. Çarpım tablosunu görsel olarak düzenle\n2. Her hücrede çarpım sonucunu göster\n3. Renk kodlaması ile grupları belirt\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için çarpım tablosu öğrenme stratejileri (min 100 kelime)'
+    '1. Çarpım tablosunu görsel olarak düzenle\n2. Her hücrede çarpım sonucunu göster\n3. Renk kodlaması ile grupları belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -52,7 +51,6 @@ export async function generateInfographic_MULTIPLICATION_MAP_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as MultiplicationMapAIResult;
@@ -67,9 +65,6 @@ export async function generateInfographic_MULTIPLICATION_MAP_AI(
         scaffoldHint: `Sonuç: ${entry.value}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Çarpım tablosu görsel haritası, disleksi desteğine ihtiyacı olan öğrenciler için çarpma işlemini somutlaştırarak ezberleme sürecini kolaylaştırır. Renk kodlaması ve görsel düzenleme, sayısal ilişkileri anlamlandırmada kritik rol oynar. Disleksi desteğine ihtiyacı olan öğrenciler, görsel düzen içindeki tekrarları fark ederek kalıcı öğrenme sağlar. Bu yapı, aynı zamanda diskalkuli desteğine ihtiyacı olan öğrenciler için de sayısal farkındalık geliştirir.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -118,7 +113,6 @@ export function generateInfographic_MULTIPLICATION_MAP_Offline(
         scaffoldHint: `Sonuç: ${entry.value}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

@@ -20,7 +20,7 @@ export async function generateInfographic_MotorSkills_AI(
   const prompt = buildAIPrompt(
     'MOTOR BECERİLER',
     params,
-    '1. İnce ve kaba motor becerileri kategorize et\n2. Her beceri için etkinlik öner\n3. Pedagojik not: Motor becerilerin akademik başarıya etkisi (min 100 kelime)\n4. Lexend font, disleksi uyumlu'
+    '1. İnce ve kaba motor becerileri kategorize et\n2. Her beceri için etkinlik öner\n3. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'object' as const,
@@ -29,7 +29,6 @@ export async function generateInfographic_MotorSkills_AI(
       fineMotor: { type: 'array' as const, items: { type: 'string' as const } },
       grossMotor: { type: 'array' as const, items: { type: 'string' as const } },
       activities: { type: 'array' as const, items: { type: 'string' as const } },
-      pedagogicalNote: { type: 'string' as const },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as {
@@ -37,7 +36,6 @@ export async function generateInfographic_MotorSkills_AI(
     fineMotor: string[];
     grossMotor: string[];
     activities: string[];
-    pedagogicalNote: string;
   };
   return {
     title: result.title || `${params.topic} - Motor Beceriler`,
@@ -50,9 +48,6 @@ export async function generateInfographic_MotorSkills_AI(
         ],
       },
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Motor beceri gelişimi, öğrencinin akademik başarısını doğrudan etkiler. Disleksi desteğine ihtiyacı olan öğrenciler için çok duyulu motor aktiviteler önerilmelidir.',
     layoutHints: {
       orientation: 'grid',
       fontSize: 11,
@@ -91,8 +86,6 @@ export function generateInfographic_MotorSkills_Offline(
         ],
       },
     },
-    pedagogicalNote:
-      'Motor beceri gelişimi, öğrencinin akademik başarısını doğrudan etkiler. Özellikle yazma becerisi ince motor gelişimine bağlıdır. Disleksi desteğine ihtiyacı olan öğrenciler için çok duyulu motor aktiviteler ve büyük kas hareketleri önerilmelidir.',
     layoutHints: {
       orientation: 'grid',
       fontSize: 11,

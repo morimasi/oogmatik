@@ -10,7 +10,6 @@ type NumberLineAIResult = {
   title: string;
   range: string;
   points: { value: string; label: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -32,7 +31,7 @@ export async function generateInfographic_NumberLine_AI(
   const prompt = buildAIPrompt(
     'SAYI DOĞRUSU',
     params,
-    '1. Konuya uygun bir sayı aralığı belirle\n2. Bu aralıkta işaretlenecek sayıları ve etiketlerini yaz\n3. Pedagojik not: Sayı doğrusunun sayı algısına katkısı (min 100 kelime)\n4. Lexend font, disleksi uyumlu'
+    '1. Konuya uygun bir sayı aralığı belirle\n2. Bu aralıkta işaretlenecek sayıları ve etiketlerini yaz\n3. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'OBJECT',
@@ -49,7 +48,6 @@ export async function generateInfographic_NumberLine_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as NumberLineAIResult;
@@ -63,9 +61,6 @@ export async function generateInfographic_NumberLine_AI(
         isKeyEvent: true,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Sayı doğrusu, disleksi desteğine ihtiyacı olan öğrenciler için sayıları görsel olarak konumlandırarak sayı algısını geliştirir. Sayıların büyüklük-küçüklük ilişkisini görmek, öğrencilerin sayısal düşünme becerilerini güçlendirir. Bu görsel araç, diskalkuli desteğine ihtiyacı olan öğrenciler için sayıları somutlaştırır ve matematiksel kavramları anlaşılır hale getirir.',
     layoutHints: {
       orientation: 'horizontal',
       fontSize: 12,
@@ -93,8 +88,6 @@ export function generateInfographic_NumberLine_Offline(
     content: {
       timeline: points,
     },
-    pedagogicalNote:
-      "Sayı doğrusu, disleksi desteğine ihtiyacı olan öğrenciler için sayıları görsel olarak konumlandırarak sayı algısını geliştirir. Sayıların büyüklük-küçüklük ilişkisini görmek, öğrencilerin sayısal düşünme becerilerini güçlendirir. Bu görsel araç, diskalkuli desteğine ihtiyacı olan öğrenciler için sayıları somutlaştırır ve matematiksel kavramları anlaşılır hale getirir. 5'erli vurgular, sayı örüntülerini fark etmeyi kolaylaştırır.",
     layoutHints: {
       orientation: 'horizontal',
       fontSize: 12,

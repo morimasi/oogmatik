@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type MotivationBoardAIResult = {
   title: string;
   achievements: { name: string; description: string; icon: string; level: number }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_MOTIVATION_BOARD_AI(
   const prompt = buildAIPrompt(
     'MOTİVASYON PANOSU',
     params,
-    '1. Başarı rozetleri ve motivasyon öğeleri oluştur\n2. Her öğe için seviye ve açıklama belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için motivasyon stratejileri (min 100 kelime)'
+    '1. Başarı rozetleri ve motivasyon öğeleri oluştur\n2. Her öğe için seviye ve açıklama belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -61,7 +60,6 @@ export async function generateInfographic_MOTIVATION_BOARD_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as MotivationBoardAIResult;
@@ -76,9 +74,6 @@ export async function generateInfographic_MOTIVATION_BOARD_AI(
         scaffoldHint: `Seviye: ${a.level}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Motivasyon panosu infografiği, disleksi desteğine ihtiyacı olan öğrenciler için içsel motivasyonu beslemede güçlü bir görsel araçtır. Disleksi desteğine ihtiyacı olan öğrenciler, geleneksel değerlendirme sistemlerinde sıklıkla başarısızlık deneyimi yaşarlar ve bu durum motivasyonlarını olumsuz etkiler. Görsel başarı rozetleri ve kademeli ödül sistemi, disleksi desteğine ihtiyacı olan öğrencilerin küçük ilerlemelerini bile görünür kılar. Her başarı rozeti, disleksi desteğine ihtiyacı olan öğrencilerin öz yeterlik algısını güçlendirir ve öğrenmeye devam etme isteklerini artırır. Bu yaklaşım, dışsal motivasyondan içsel motivasyona geçişi destekler.',
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,
@@ -127,7 +122,6 @@ export function generateInfographic_MOTIVATION_BOARD_Offline(
         scaffoldHint: `Seviye: ${a.level}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,

@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type LifeCycleAIResult = {
   title: string;
   stages: { name: string; description: string; duration: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -37,7 +36,7 @@ export async function generateInfographic_LIFE_CYCLE_AI(
   const prompt = buildAIPrompt(
     'YAŞAM DÖNGÜSÜ',
     params,
-    '1. Canlının yaşam döngüsü aşamalarını belirle\n2. Her aşamayı açıkla ve süresini belirt\n3. Döngüsel bağlantıları göster\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için yaşam döngüsü öğrenme stratejileri (min 100 kelime)'
+    '1. Canlının yaşam döngüsü aşamalarını belirle\n2. Her aşamayı açıkla ve süresini belirt\n3. Döngüsel bağlantıları göster'
   );
   const schema = {
     type: 'OBJECT',
@@ -54,7 +53,6 @@ export async function generateInfographic_LIFE_CYCLE_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as LifeCycleAIResult;
@@ -74,9 +72,6 @@ export async function generateInfographic_LIFE_CYCLE_AI(
         scaffoldHint: `Süre: ${stage.duration}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Yaşam döngüsü infografiği, disleksi desteğine ihtiyacı olan öğrenciler için biyolojik süreçleri görsel ve sıralı olarak anlamalarını sağlayan önemli bir fen bilimleri aracıdır. Döngüsel yapının görsel temsili, soyut biyolojik kavramları somutlaştırır ve disleksi desteğine ihtiyacı olan öğrencilerin yaşam süreçlerini bütünsel olarak kavramalarına yardımcı olur. Her aşamanın görsel sembollerle desteklenmesi, bilgiyi kalıcı hale getirir ve bilimsel düşünce becerilerini geliştirir.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -145,7 +140,6 @@ export function generateInfographic_LIFE_CYCLE_Offline(
         scaffoldHint: `Süre: ${stage.duration}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

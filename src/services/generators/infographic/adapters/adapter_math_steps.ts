@@ -10,7 +10,6 @@ type MathStepsAIResult = {
   title: string;
   problem: string;
   steps: { step: string; description: string; result: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -32,7 +31,7 @@ export async function generateInfographic_MathSteps_AI(
   const prompt = buildAIPrompt(
     'MATEMATİK ADIMLARI',
     params,
-    '1. Konuya uygun bir matematik problemi belirle\n2. Problemi 4-6 adımda çöz\n3. Her adım için açıklama ve sonuç yaz\n4. Pedagojik not: Adımlı problem çözmenin matematik gelişimine katkısı (min 100 kelime)\n5. Lexend font, disleksi uyumlu'
+    '1. Konuya uygun bir matematik problemi belirle\n2. Problemi 4-6 adımda çöz\n3. Her adım için açıklama ve sonuç yaz\n4. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'OBJECT',
@@ -50,7 +49,6 @@ export async function generateInfographic_MathSteps_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as MathStepsAIResult;
@@ -65,9 +63,6 @@ export async function generateInfographic_MathSteps_AI(
         scaffoldHint: `Sonuç: ${s.result}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Adımlı problem çözme, disleksi desteğine ihtiyacı olan öğrenciler için matematiksel düşünceyi somutlaştırarak işlem yapma becerisini geliştirir. Her adımı ayrı ayrı görmek, öğrencilerin işlem sırasını takip etmesini kolaylaştırır ve hata yapma olasılığını azaltır. Bu yapılandırılmış yaklaşım, diskalkuli desteğine ihtiyacı olan öğrenciler için özellikle faydalıdır.',
     layoutHints: {
       orientation: 'vertical',
       fontSize: 12,
@@ -118,8 +113,6 @@ export function generateInfographic_MathSteps_Offline(
         },
       ],
     },
-    pedagogicalNote:
-      'Adımlı problem çözme, disleksi desteğine ihtiyacı olan öğrenciler için matematiksel düşünceyi somutlaştırarak işlem yapma becerisini geliştirir. Her adımı ayrı ayrı görmek, öğrencilerin işlem sırasını takip etmesini kolaylaştırır ve hata yapma olasılığını azaltır. Bu yapılandırılmış yaklaşım, diskalkuli desteğine ihtiyacı olan öğrenciler için özellikle faydalıdır. Kontrol basamakları, öz düzenleme becerisini destekler.',
     layoutHints: {
       orientation: 'vertical',
       fontSize: 12,

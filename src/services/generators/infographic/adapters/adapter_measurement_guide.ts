@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type MeasurementGuideAIResult = {
   title: string;
   units: { name: string; symbol: string; conversion: string; examples: string[] }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -39,7 +38,7 @@ export async function generateInfographic_MEASUREMENT_GUIDE_AI(
   const prompt = buildAIPrompt(
     'ÖLÇÜ BİRİMLERİ',
     params,
-    '1. Ölçü birimlerini kategorize et\n2. Her birimin sembolü ve dönüşümünü göster\n3. Günlük yaşam örnekleri ekle\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için ölçü birimleri öğrenme stratejileri (min 100 kelime)'
+    '1. Ölçü birimlerini kategorize et\n2. Her birimin sembolü ve dönüşümünü göster\n3. Günlük yaşam örnekleri ekle'
   );
   const schema = {
     type: 'OBJECT',
@@ -57,7 +56,6 @@ export async function generateInfographic_MEASUREMENT_GUIDE_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as MeasurementGuideAIResult;
@@ -72,9 +70,6 @@ export async function generateInfographic_MEASUREMENT_GUIDE_AI(
         scaffoldHint: `Sembol: ${unit.symbol}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Ölçü birimleri rehberi, disleksi desteğine ihtiyacı olan öğrenciler için günlük yaşamda karşılaştıkları ölçüm kavramlarını somutlaştırarak anlamayı kolaylaştırır. Her birimin sembolü, dönüşüm oranı ve somut örnekleri ile birlikte sunulması, soyut ölçü kavramlarını somutlaştırır. Disleksi desteğine ihtiyacı olan öğrenciler, görsel düzenleme ve renk kodlaması ile birimler arası ilişkileri daha kolay kavrarlar. Bu yapı, aynı zamanda pratik yaşam becerilerini de destekler.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -127,7 +122,6 @@ export function generateInfographic_MEASUREMENT_GUIDE_Offline(
         scaffoldHint: `Sembol: ${unit.symbol}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
