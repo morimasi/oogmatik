@@ -102,14 +102,12 @@
   overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.05);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  padding-left: 50mm; /* Spiral boşluğu */
+  padding: 10mm; /* Sade ve mınımal kenar boşluğu */
 }
 
-/* ─── Köprü Özel: Notebook Ruled ─── */
+/* ─── Köprü Özel: Notebook Ruled (PASİF - Sade Görünüm İçin Kaldırıldı) ─── */
 .sk-notebook-ruled {
-  background-image: linear-gradient(#e5e7eb 1.5px, transparent 1.5px);
-  background-size: 100% 4rem; /* rowGap ile uyumlu (4rem) */
-  background-attachment: local;
+  background-image: none;
 }
 
 /* ─── Spiral Notebook Edge ─── */
@@ -119,9 +117,9 @@
   top: 0;
   bottom: 0;
   width: 45mm;
-  background: linear-gradient(90deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.02) 80%, rgba(0,0,0,0.08) 100%);
-  border-right: 2px solid rgba(0,0,0,0.05);
-  display: flex;
+  background: linear-gradient(90deg, #f3f4f6 0%, #e5e7eb 80%, #d1d5db 100%);
+  border-right: 2px solid rgba(0,0,0,0.1);
+  display: none; /* Sade görünüm için gizlendi */
   flex-direction: column;
   align-items: center;
   justify-content: space-around;
