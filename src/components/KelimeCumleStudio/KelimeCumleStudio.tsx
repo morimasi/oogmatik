@@ -28,6 +28,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
         itemCount: 20,
         itemsPerPage: 'auto',
         showAnswers: false,
+        showPredicate: true, // Varsayılan olarak yüklemi göster
         topics: ['Genel'],
         // Tasarım Standartları (Varsayılan)
         fontSize: 22,
@@ -89,23 +90,35 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
         showToast('🔗 Paylaşım bağlantısı kopyalandı!');
     };
 
-    // Chunking Logic (Pagination)
+    // Chunking Logic (Pagination) - Kullanıcı tarafından istenen adet kadar soru üret ve sayfalara böl
     const contentChunks = useMemo(() => {
         if (!content || !content.items || content.items.length === 0) return [];
         
-        let perPage = 10; // default
+        // Kullanıcının istediği adet kadar soru üretildi mi kontrol et
+        const expectedCount = config.itemCount || 20;
+        if (content.items.length !== expectedCount) {
+            console.warn(`Beklenen: ${expectedCount} soru, üretilen: ${content.items.length} soru`);
+        }
+        
+        // itemsPerPage: Kullanıcı ayarından al, 'auto' ise tür bazlı optimal değer kullan
+        let perPage: number;
         if (config.itemsPerPage === 'auto') {
+            // Her aktivite türü için optimal sayfa başına soru sayısı
             switch (config.type) {
-                case 'bosluk_doldurma': perPage = 12; break;
-                case 'zit_anlam': perPage = 15; break;
-                case 'test': perPage = 6; break;
-                case 'kelime_tamamlama': perPage = 21; break;
+                case 'bosluk_doldurma': perPage = 10; break; // Orta uzunlukta cümleler
+                case 'test': perPage = 5; break; // Çoktan seçmeli (az yer kaplar)
+                case 'kelime_tamamlama': perPage = 12; break; // Kısa kelimeler
+                case 'karisik_cumle': perPage = 8; break; // Kelime dizileri
+                case 'zit_anlam': perPage = 15; break; // Kısa kelime çiftleri
                 default: perPage = 10; break;
             }
         } else if (typeof config.itemsPerPage === 'number') {
             perPage = config.itemsPerPage;
+        } else {
+            perPage = 10; // Fallback
         }
 
+        // Tüm soruları sayfalara böl - eksik soru olursa bile sayfaları doğru göster
         const chunks = [];
         for (let i = 0; i < content.items.length; i += perPage) {
             chunks.push({
@@ -113,8 +126,14 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
                 items: content.items.slice(i, i + perPage)
             });
         }
+        
+        // Eğer hiç sayfa oluşmadıysa (items boşsa bile) en az bir sayfa göster
+        if (chunks.length === 0) {
+            chunks.push(content);
+        }
+        
         return chunks;
-    }, [content, config.itemsPerPage, config.type]);
+    }, [content, config.itemsPerPage, config.type, config.itemCount]);
 
     const currentType = content?.activityType || config.type;
     const activityInfo = KELIME_CUMLE_REGISTRY[currentType] || KELIME_CUMLE_REGISTRY.bosluk_doldurma;

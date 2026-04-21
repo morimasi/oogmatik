@@ -194,6 +194,22 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = ({
                                 />
                                 Cevap Anahtarını Ekle
                             </label>
+
+                            {/* Yüklemi Göster (Sadece 5N1K aktivite türleri için) */}
+                            {(config.type === 'karisik_cumle' || config.type === 'bosluk_doldurma') && (
+                                <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8rem', color: 'var(--text-main)' }}>
+                                    <input 
+                                        type="checkbox" 
+                                        checked={config.showPredicate || false}
+                                        onChange={(e) => onConfigChange({ showPredicate: e.target.checked })}
+                                        style={{ accentColor: 'var(--accent-color)' }}
+                                    />
+                                    Yüklemi Göster
+                                    <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)', marginLeft: '0.25rem' }}>
+                                        (Cümlelerin yüklemlerini soruların yanında gösterir)
+                                    </span>
+                                </label>
+                            )}
                         </div>
                     </div>
                 )}

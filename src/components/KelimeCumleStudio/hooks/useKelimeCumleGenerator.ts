@@ -14,9 +14,14 @@ export const useKelimeCumleGenerator = () => {
             throw new Error(`Belirtilen tip için veri kaynağı bulunamadı: ${config.type}`);
         }
 
-        // Tüm havuzu karıştır ve istenen adet kadar benzersiz öğe seç
+        // İSTENİR ADET KADAR SORU ÜRET: Tüm havuzu karıştır ve istenen adet kadar benzersiz öğe seç
         const shuffled = [...sourcePool].sort(() => Math.random() - 0.5);
         const selectedItems = shuffled.slice(0, Math.min(config.itemCount, shuffled.length));
+
+        // Kontrol: İstenen adet kadar soru üretildi mi?
+        if (selectedItems.length < config.itemCount) {
+            console.warn(`Kaynak yetersiz: İstenen ${config.itemCount}, mevcut ${selectedItems.length} soru`);
+        }
 
         return {
             title: config.title || "Yeni Etkinlik",
@@ -24,7 +29,12 @@ export const useKelimeCumleGenerator = () => {
             pedagogicalNote: getPedagogicalNote(config.type),
             items: selectedItems,
             activityType: config.type,
-            difficulty: config.difficulty
+            difficulty: config.difficulty,
+            // Ayarları içeriğe ekle (özellikle showPredicate gibi)
+            settings: {
+                showPredicate: config.showPredicate || false,
+                showAnswers: config.showAnswers || false
+            }
         };
     }, []);
 

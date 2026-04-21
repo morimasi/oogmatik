@@ -18,6 +18,7 @@ export interface KelimeCumleConfig {
     itemCount: number;
     itemsPerPage?: number | 'auto';
     showAnswers?: boolean;
+    showPredicate?: boolean; // 5N1K etkinliklerinde yüklemleri göster
     customInstructions?: string;
     topics: string[];
     // Tasarım Standartları (Yeni)
@@ -56,7 +57,12 @@ export interface ZitAnlamItem {
 export interface KelimeCumleGeneratedContent {
     title: string;
     instructions: string;
+    pedagogicalNote?: string;
     items: any[]; // Modüle göre tipi değişir
     activityType: KelimeCumleActivityType;
     difficulty?: KelimeCumleDifficulty;
+    settings?: {
+        showPredicate?: boolean;
+        showAnswers?: boolean;
+    };
 }
