@@ -14,6 +14,7 @@ interface ToolbarProps {
   settings: StyleSettings;
   onSettingsChange: (newSettings: StyleSettings) => void;
   onSave: () => void;
+  onAssign?: () => void;
   onFeedback?: () => void;
   onShare?: () => void;
   onTogglePreview: () => void;
@@ -192,6 +193,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   settings,
   onSettingsChange,
   onSave,
+  onAssign,
   _onFeedback,
   onShare,
   _onTogglePreview,
@@ -741,6 +743,21 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               </span>
             )}
           </button>
+          
+          {onAssign && (
+            <button
+              title="Öğrenciye Ata"
+              onClick={onAssign}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold transition-all duration-200
+                bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-400
+                hover:from-emerald-500/20 hover:to-teal-500/20 hover:text-emerald-300 hover:shadow-md hover:scale-[1.02]
+                active:scale-95"
+            >
+              <i className="fa-solid fa-user-plus text-sm"></i>
+              <span className="hidden lg:inline">Ata</span>
+            </button>
+          )}
+
           {onShare && (
             <button
               title="Paylaş"

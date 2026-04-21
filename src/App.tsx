@@ -41,6 +41,7 @@ import * as offlineGenerators from './services/offlineGenerators';
 import { useUIStore } from './store/useUIStore';
 import { useWorksheetStore } from './store/useWorksheetStore';
 import { AppHeader } from './components/AppHeader';
+import { AssignModal } from './components/Student/AssignModal';
 
 // Lazy Loaded Components
 const ProfileView = lazy(() =>
@@ -1018,6 +1019,7 @@ const AppContent = () => {
         }
       />
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      <AssignModal />
       <StudentInfoModal
         isOpen={isStudentModalOpen}
         onClose={() => setIsStudentModalOpen(false)}
