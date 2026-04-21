@@ -10,8 +10,8 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
     if (config.type !== 'kopru') return null;
     const c = config as KopruConfig;
 
-    // Görseldeki standartlara göre ölçekleme (Punto: 34px, Yay: 3px kalınlık)
-    const fontSizePx = 34; // Büyük ve okunaklı punto
+    // Görseldeki standartlara göre ölçekleme (Punto: Dinamik, Yay: 3px kalınlık)
+    const fontSizePx = (c.typography.fontSize || 22) * 1.5; // pt to px conversion factor
     const bThickness = 3;
     const bColor = c.bridgeColor ?? '#18181b';
     
@@ -19,18 +19,17 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
     const rowGap = '4rem';
 
     return (
-        <div className="sk-renderer-kopru" style={{
-            padding: '4rem 3rem', 
+        <div className="sk-renderer-kopru sk-notebook-ruled" style={{
+            padding: '2rem 1rem 4rem 1rem', 
             display: 'flex', 
             flexDirection: 'column', 
             width: '100%',
-            aspectRatio: '1 / 1.414', // A4 dikey oranı
+            height: '100%',
             background: '#fcf096', // Görseldeki sarı kağıt dokusu
             color: '#18181b',
             fontFamily: 'Lexend, sans-serif',
             boxSizing: 'border-box',
             position: 'relative',
-            overflow: 'hidden'
         }}>
             {/* ═══ İÇERİK ═══ */}
             <div style={{
