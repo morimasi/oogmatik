@@ -93,7 +93,6 @@ export async function generateInfographic_STATES_MATTER_AI(
 export function generateInfographic_STATES_MATTER_Offline(
   params: UltraCustomizationParams
 ): InfographicGeneratorResult {
-  const category = detectCategory(params.topic);
   const states = [
     {
       name: 'Katı',
@@ -115,6 +114,21 @@ export function generateInfographic_STATES_MATTER_Offline(
     },
   ];
 
+  return {
+    title: `${params.topic} - Maddenin Halleri`,
+    content: {
+      scienceData: {
+        topic: params.topic,
+        components: states.map((s) => s.name),
+        properties: Object.fromEntries(
+          states.map((s) => [s.name, s.properties.join(', ')])
+        ),
+      },
+      steps: states.map((state, i) => ({
+        stepNumber: i + 1,
+        label: state.name,
+        description: state.properties.join('. '),
+        isCheckpoint: i === 0,
         scaffoldHint: `Örnekler: ${state.examples.join(', ')}. Geçiş: ${state.transition}`,
       })),
     },
