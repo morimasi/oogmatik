@@ -116,8 +116,6 @@ export const ResultDashboard: FC<Props> = ({
     }
   };
 
-  // --- ACTIONS ---
-
   const mapToSavedAssessment = (): SavedAssessment => {
     // Convert ScreeningResult to AssessmentReport format for storage compatibility
     const reportData: AssessmentReport = {
@@ -401,7 +399,7 @@ export const ResultDashboard: FC<Props> = ({
                   <div className="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-xs shrink-0">
                     {i + 1}
                   </div>
-                  <p className="text-sm font-bold text-zinc-700">{step}</p>
+                  <p className="text-sm font-bold text-zinc-700">{renderActionStep(step)}</p>
                 </div>
               ))}
             </div>
@@ -524,7 +522,7 @@ export const ResultDashboard: FC<Props> = ({
                     <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shrink-0">
                       {i + 1}
                     </div>
-                    <p className="text-sm font-bold text-zinc-800 pt-1">{step}</p>
+                    <p className="text-sm font-bold text-zinc-800 pt-1">{renderActionStep(step)}</p>
                   </div>
                 ))}
               </div>

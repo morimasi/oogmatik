@@ -13,10 +13,10 @@ interface LineChartProps {
 }
 
 export const LineChart = ({ data, lines, height = 250 }: LineChartProps) => {
-    if (!data || data.length < 2) {
+    if (!data || data.length < 2 || !lines || lines.length === 0) {
         return (
             <div className="flex items-center justify-center text-zinc-400 text-sm italic" style={{ height }}>
-                Yeterli veri yok (En az 2 değerlendirme gerekli)
+                {!lines || lines.length === 0 ? 'Çizgi verisi yok' : 'Yeterli veri yok (En az 2 değerlendirme gerekli)'}
             </div>
         );
     }
