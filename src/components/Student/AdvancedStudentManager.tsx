@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useStudentStore } from '../../store/useStudentStore';
 import { AdvancedStudent } from '../../types/student-advanced';
+import type { Student } from '../../types';
 import { OverviewModule } from './modules/OverviewModule';
 import { IEPModule } from './modules/IEPModule';
 import { FinancialModule } from './modules/FinancialModule';
@@ -164,7 +165,7 @@ export const AdvancedStudentManager: React.FC<{
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {students.map((student) => (
+                {students.map((student: Student) => (
                   <button
                     key={student.id}
                     onClick={() => setActiveStudent(student)}
@@ -182,7 +183,7 @@ export const AdvancedStudentManager: React.FC<{
                         </h3>
                         {student.diagnosis && student.diagnosis.length > 0 && (
                           <div className="mt-1 flex flex-wrap gap-1">
-                            {student.diagnosis.slice(0, 2).map((d, idx) => (
+                            {student.diagnosis.slice(0, 2).map((d: string, idx: number) => (
                               <span
                                 key={idx}
                                 className="px-1.5 py-0.5 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded text-[10px] font-bold"

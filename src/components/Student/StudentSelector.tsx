@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useStudentStore } from '../../store/useStudentStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { SimplifiedStudentForm } from './SimplifiedStudentForm';
-import type { Student } from '../../types/student';
+import type { Student } from '../../types';
 
 export const StudentSelector = () => {
   const { user } = useAuthStore();
@@ -13,7 +13,7 @@ export const StudentSelector = () => {
   // Admin kontrolü (örnek - gerçek admin kontrolü auth store'dan gelmeli)
   const isAdmin = user?.role === 'admin' || user?.email?.includes('admin');
 
-  const filteredStudents = students.filter((s) =>
+  const filteredStudents = students.filter((s: Student) =>
     s.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -82,7 +82,7 @@ export const StudentSelector = () => {
 
         {/* Student Grid (Compact) */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-          {filteredStudents.map((student) => (
+          {filteredStudents.map((student: Student) => (
             <button
               key={student.id}
               onClick={() => setActiveStudent(student)}

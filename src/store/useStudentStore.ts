@@ -46,14 +46,14 @@ const sanitizeStudent = (data: unknown): Partial<Student> => {
   };
 };
 
-export const useStudentStore = create<StudentState>()((set, get) => ({
+export const useStudentStore = create<StudentState>()((set: any, get: any) => ({
   students: [],
   activeStudent: null,
   isLoading: false,
 
-  setActiveStudent: (student) => set({ activeStudent: student }),
+  setActiveStudent: (student: Student | null) => set({ activeStudent: student }),
 
-  fetchStudents: (teacherId, isAdmin = false) => {
+  fetchStudents: (teacherId: string, isAdmin = false) => {
     set({ isLoading: true });
     
     // Admin ise tüm öğrencileri getir, değilse sadece kendi öğrencilerini
@@ -81,7 +81,7 @@ export const useStudentStore = create<StudentState>()((set, get) => ({
     });
   },
 
-  addStudent: async (teacherId, studentData) => {
+  addStudent: async (teacherId: string, studentData: unknown) => {
     const sanitized = sanitizeStudent(studentData);
     await addDoc(collection(db, 'students'), {
       ...sanitized,
@@ -90,7 +90,7 @@ export const useStudentStore = create<StudentState>()((set, get) => ({
     });
   },
 
-  updateStudent: async (id, updates) => {
+  updateStudent: async (id: string, updates: Partial<Student>) => {
     const sanitizedUpdates: Record<string, unknown> = {};
     const baseSanitized = sanitizeStudent(updates);
     Object.keys(updates).forEach((key) => {
@@ -98,14 +98,14 @@ export const useStudentStore = create<StudentState>()((set, get) => ({
         sanitizedUpdates[key] = (baseSanitized as Record<string, unknown>)[key];
     });
 
-    await updateDoc(doc(db, 'students', id), sanitizedUpdates);
+    await updateDoc(doc(db, 'students', id), sanitizedUpdates as { [x: string]: import('firebase/firestore').FieldValue | Partial<unknown> | undefined });
     const { activeStudent } = get();
     if (activeStudent?.id === id) {
       set({ activeStudent: { ...activeStudent, ...sanitizedUpdates } });
     }
   },
 
-  deleteStudent: async (id) => {
+  deleteStudent: async (id: string) => {
     await deleteDoc(doc(db, 'students', id));
 
     // Fix race condition: Clear activeStudent if it's the one being deleted
