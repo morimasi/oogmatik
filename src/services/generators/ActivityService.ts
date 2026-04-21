@@ -14,9 +14,11 @@ export class ActivityService {
 
     private static instance: ActivityService;
     private generators: Map<ActivityType, IActivityGenerator<any>>;
+    private defaultMode: GeneratorMode = GeneratorMode.AI; // Varsayılan mod
 
     private constructor() {
         this.generators = new Map();
+        this.defaultMode = GeneratorMode.AI;
         this.registerGenerators();
     }
 
@@ -75,14 +77,35 @@ export class ActivityService {
      * Belirtilen aktivite türü için içerik üretir.
      */
     public async generate(type: ActivityType, options: GeneratorOptions, _mode?: GeneratorMode): Promise<any> {
+        // Önce jeneratörü ara
+        let generator = this.generators.get(type);
 
-        const generator = this.generators.get(type);
-
+        // Jeneratör bulunamadıysa, fallback mekanizmasını dene
         if (!generator) {
-            // Eğer generator bulunamadıysa, belki henüz migrate edilmemiştir.
-            // Eski yöntemle çalışan bir fallback mekanizması eklenebilir.
-            console.warn(`No generator found for activity type: ${type}. Checking legacy mapping...`);
-            throw new AppError(`No generator found for activity type: ${type}`, 'INTERNAL_ERROR', 500);
+            console.warn(`No generator found for activity type: ${type}. Attempting fallback...`);
+            
+            // Bilinmeyen tipler için GenericActivityGenerator ile fallback dene
+            const fallbackMode = _mode ?? this.defaultMode;
+            const fallbackGenerator = new GenericActivityGenerator(
+                fallbackMode,
+                async () => {
+                    throw new AppError(
+                        `No AI generator implemented for activity type: ${type}. Please add it to the registry.`,
+                        'NOT_FOUND',
+                        404
+                    );
+                },
+                async () => {
+                    throw new AppError(
+                        `No offline generator implemented for activity type: ${type}. Please add it to the registry.`,
+                        'NOT_FOUND',
+                        404
+                    );
+                }
+            );
+            
+            generator = fallbackGenerator;
+            console.warn(`Using fallback generator for activity type: ${type}`);
         }
 
         // Eğer spesifik bir mod parametresi gelmişse options'ı güncelle
@@ -93,10 +116,13 @@ export class ActivityService {
         // Alt jeneratörden ham veriyi al
         const data = await generator.generate(options);
 
-        // UI'ın (özellikle useInfographicGenerate hook'u) beklediği ApiResponse formatında sarmala
+        // GÜVENLİK: data undefined/null ise boş array'e dönüştür
+        const safeData = data ?? [];
+
+        // UI'ın (özellikle useInfographicGenerate hook'unun) beklediği ApiResponse formatında sarmala
         return {
             success: true,
-            data: data,
+            data: safeData,
             timestamp: new Date().toISOString()
         };
     }
