@@ -29,7 +29,7 @@ export const PencereRenderer = memo(({ config, content }: RendererProps) => {
 
     return (
         <div className="sk-renderer-pencere" style={{
-            padding: '1rem', display: 'flex', flexDirection: 'column', height: '100%', background: '#fcf096'
+            padding: '1rem', display: 'flex', flexDirection: 'column', height: '100%'
         }}>
             {/* Başlık */}
             <h2 style={{

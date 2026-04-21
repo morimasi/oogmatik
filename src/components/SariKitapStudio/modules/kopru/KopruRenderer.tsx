@@ -25,7 +25,6 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
             flexDirection: 'column', 
             width: '100%',
             height: '100%',
-            background: '#fcf096', // Görseldeki sarı kağıt dokusu
             color: '#18181b',
             fontFamily: 'Lexend, sans-serif',
             boxSizing: 'border-box',

@@ -32,7 +32,7 @@ export const CiftMetinRenderer = memo(({ config, content }: RendererProps) => {
     }
 
     return (
-        <div className="sk-renderer-cift-metin" style={{ padding: '1rem', display: 'flex', flexDirection: 'column', height: '100%', gap: '1rem', background: '#fcf096' }}>
+        <div className="sk-renderer-cift-metin" style={{ padding: '1rem', display: 'flex', flexDirection: 'column', height: '100%', gap: '1rem' }}>
             {/* Başlıklar */}
             <div style={{ display: 'flex', justifyContent: 'center', gap: '3rem', marginBottom: '2rem' }}>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#18181b', textTransform: 'uppercase' }}>

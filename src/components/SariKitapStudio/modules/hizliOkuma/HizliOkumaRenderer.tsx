@@ -74,7 +74,7 @@ export const HizliOkumaRenderer = React.memo(({ config, content }: RendererProps
 
     return (
         <div className="sk-renderer-hizli-okuma" style={{
-            padding: '1rem', display: 'flex', flexDirection: 'column', height: '100%', background: '#fcf096'
+            padding: '1rem', display: 'flex', flexDirection: 'column', height: '100%'
         }}>
             {/* Başlık */}
             <h2 style={{

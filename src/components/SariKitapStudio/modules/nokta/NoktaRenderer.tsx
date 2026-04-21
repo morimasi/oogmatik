@@ -40,7 +40,7 @@ export const NoktaRenderer = memo(({ config, content }: RendererProps) => {
     };
 
     return (
-        <div className="sk-renderer-nokta" style={{ padding: '1rem', display: 'flex', flexDirection: 'column', height: '100%', background: '#fcf096' }}>
+        <div className="sk-renderer-nokta" style={{ padding: '1rem', display: 'flex', flexDirection: 'column', height: '100%' }}>
             {/* Başlık */}
             <h2 style={{
                 fontSize: '1.1rem', fontWeight: 800, marginBottom: '0.5rem',
