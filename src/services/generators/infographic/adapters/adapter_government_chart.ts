@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type GovernmentChartAIResult = {
   title: string;
   branches: { name: string; role: string; members: string[] }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -35,7 +34,7 @@ export async function generateInfographic_GOVERNMENT_CHART_AI(
   const prompt = buildAIPrompt(
     'YÖNETİM YAPISI',
     params,
-    '1. Yönetim organlarını hiyerarşik olarak listele\n2. Her organın rolünü ve üyelerini belirt\n3. Görsel hiyerarşi ağacı oluştur\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için yönetim yapısı öğrenme stratejileri (min 100 kelime)'
+    '1. Yönetim organlarını hiyerarşik olarak listele\n2. Her organın rolünü ve üyelerini belirt\n3. Görsel hiyerarşi ağacı oluştur'
   );
   const schema = {
     type: 'OBJECT',
@@ -52,7 +51,6 @@ export async function generateInfographic_GOVERNMENT_CHART_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as GovernmentChartAIResult;
@@ -75,9 +73,6 @@ export async function generateInfographic_GOVERNMENT_CHART_AI(
         scaffoldHint: `Üyeler: ${branch.members.join(', ')}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Yönetim yapısı infografiği, disleksi desteğine ihtiyacı olan öğrenciler için vatandaşlık bilgisi ve demokrasi kavramlarını görsel hiyerarşi ile anlamalarını sağlayan önemli bir sosyal bilgiler aracıdır. Her yönetim organının rolü ve işlevi görsel olarak düzenlendiğinde, soyut siyasi kavramlar somutlaşır. Disleksi desteğine ihtiyacı olan öğrenciler, renk kodlaması ve hiyerarşik düzenleme ile devlet yapısını daha kolay kavrar ve vatandaşlık bilinci geliştirirler.',
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,
@@ -132,7 +127,6 @@ export function generateInfographic_GOVERNMENT_CHART_Offline(
         scaffoldHint: `Üyeler: ${branch.members.join(', ')}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,

@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type PredictionBoardAIResult = {
   title: string;
   predictions: { clue: string; prediction: string; reasoning: string }[];
-  pedagogicalNote: string;
 };
 
 function detectCategory(topic: string): 'science' | 'math' | 'language' | 'social' | 'general' {
@@ -42,7 +41,7 @@ export async function generateInfographic_PredictionBoard_AI(
   const prompt = buildAIPrompt(
     'TAHMİN PANOSU',
     params,
-    '1. Konuya uygun 4 tahmin senaryosu oluştur\n2. Her senaryo için ipucu, tahmin ve gerekçe yaz\n3. Pedagojik not: Tahmin becerisinin okuma öncesi hazırlığa katkısı (min 100 kelime)\n4. Lexend font, disleksi uyumlu'
+    '1. Konuya uygun 4 tahmin senaryosu oluştur\n2. Her senaryo için ipucu, tahmin ve gerekçe yaz\n3. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'OBJECT',
@@ -59,7 +58,6 @@ export async function generateInfographic_PredictionBoard_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as PredictionBoardAIResult;
@@ -73,9 +71,6 @@ export async function generateInfographic_PredictionBoard_AI(
         isCheckpoint: false,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Tahmin panosu, disleksi desteğine ihtiyacı olan öğrenciler için okuma öncesi tahmin yapma becerisini geliştirir. İpuçlarından yola çıkarak metin hakkında öngörüde bulunmak, ön bilgileri aktive eder ve okuma motivasyonunu artırır. Bu strateji, öğrencilerin metne aktif katılımını sağlar ve anlama derinliğini güçlendirir.',
     layoutHints: {
       orientation: 'grid',
       fontSize: 11,
@@ -217,8 +212,6 @@ export function generateInfographic_PredictionBoard_Offline(
         isCheckpoint: false,
       })),
     },
-    pedagogicalNote:
-      'Tahmin panosu, disleksi desteğine ihtiyacı olan öğrenciler için okuma öncesi tahmin yapma becerisini geliştirir. İpuçlarından yola çıkarak metin hakkında öngörüde bulunmak, ön bilgileri aktive eder ve okuma motivasyonunu artırır. Bu strateji, öğrencilerin metne aktif katılımını sağlar ve anlama derinliğini güçlendirir. Tahmin stratejisi, DEHB profili olan öğrenciler için özellikle faydalıdır çünkü dikkatlerini metne odaklar.',
     layoutHints: {
       orientation: 'grid',
       fontSize: 11,

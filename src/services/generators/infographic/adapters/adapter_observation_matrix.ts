@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type ObservationMatrixAIResult = {
   title: string;
   observations: { behavior: string; context: string; frequency: string; notes: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_OBSERVATION_MATRIX_AI(
   const prompt = buildAIPrompt(
     'GÖZLEM MATRİSİ',
     params,
-    '1. Gözlem kriterlerini ve değerlendirme matrisini oluştur\n2. Her davranış için bağlam, sıklık ve notlar belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için gözlem matrisi stratejileri (min 100 kelime)'
+    '1. Gözlem kriterlerini ve değerlendirme matrisini oluştur\n2. Her davranış için bağlam, sıklık ve notlar belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -61,7 +60,6 @@ export async function generateInfographic_OBSERVATION_MATRIX_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as ObservationMatrixAIResult;
@@ -76,9 +74,6 @@ export async function generateInfographic_OBSERVATION_MATRIX_AI(
         scaffoldHint: `Sıklık: ${o.frequency} | Not: ${o.notes}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Gözlem matrisi infografiği, disleksi desteğine ihtiyacı olan öğrenciler için öğrenme davranışlarını ve akademik performansı sistematik olarak gözlemleme ve kaydetme aracıdır. Disleksi desteğine ihtiyacı olan öğrencilerin öğrenme süreçlerindeki güçlü ve zorlu alanları, yapılandırılmış gözlem matrisleri ile nesnel olarak belirlenebilir. Gözlem verileri, disleksi desteğine ihtiyacı olan öğrencilerin BEP hedeflerinin güncellenmesinde ve öğretim stratejilerinin uyarlanmasında kritik rol oynar. Düzenli gözlem kayıtları, disleksi desteğine ihtiyacı olan öğrencilerin gelişimini belgeleyerek veli-öğretmen-uzman iş birliğini güçlendirir ve eğitim kararlarının veriye dayalı alınmasını sağlar.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 12,
@@ -146,7 +141,6 @@ export function generateInfographic_OBSERVATION_MATRIX_Offline(
         scaffoldHint: `Sıklık: ${o.frequency} | Not: ${o.notes}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 12,

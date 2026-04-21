@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type CultureCompareAIResult = {
   title: string;
   cultures: { name: string; traditions: string[]; food: string[]; values: string[] }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -113,17 +112,6 @@ export function generateInfographic_CULTURE_COMPARE_Offline(
     },
   ];
 
-  const categoryDescriptions: Record<string, string> = {
-    social:
-      'Kültür karşılaştırma infografiği, disleksi desteğine ihtiyacı olan öğrenciler için farklı kültürleri tanıma ve saygı duyma becerilerini geliştiren temel bir sosyal bilgiler aracıdır. Her kültürün gelenekleri, yemekleri ve değerleri görsel olarak karşılaştırıldığında, kültürel çeşitlilik somutlaşır. Disleksi desteğine ihtiyacı olan öğrenciler, renk kodlaması ve görsel düzenleme ile kültürler arası benzerlik ve farklılıkları daha kolay kavrarlar.',
-    math: 'Kültürel nüfus verilerini karşılaştırmak, disleksi desteğine ihtiyacı olan öğrenciler için matematiksel düşünceyi sosyal bilimler ile bağdaştırır.',
-    language:
-      'Farklı kültürlerin dillerini keşfetmek, disleksi desteğine ihtiyacı olan öğrenciler için dilbilimsel farkındalık geliştirir.',
-    science:
-      'Kültürel tarım ve yemek gelenekleri bilim ile ilişkilidir. Disleksi desteğine ihtiyacı olan öğrenciler için kültürel mutfak bilgisi, beslenme bilimini destekler.',
-    general:
-      'Kültür karşılaştırma infografiği, disleksi desteğine ihtiyacı olan öğrenciler için kültürel farkındalık geliştiren önemli bir öğrenme aracıdır.',
-  };
 
   return {
     title: `${params.topic} - Kültür Karşılaştırma`,

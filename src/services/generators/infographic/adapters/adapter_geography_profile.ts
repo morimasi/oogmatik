@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type GeographyProfileAIResult = {
   title: string;
   features: { name: string; value: string; description: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -37,7 +36,7 @@ export async function generateInfographic_GEOGRAPHY_PROFILE_AI(
   const prompt = buildAIPrompt(
     'COĞRAFYA PROFİLİ',
     params,
-    '1. Bölgenin coğrafi özelliklerini listele\n2. İklim, nüfus ve ekonomik verileri göster\n3. Görsel harita unsurları ekle\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için coğrafya profili öğrenme stratejileri (min 100 kelime)'
+    '1. Bölgenin coğrafi özelliklerini listele\n2. İklim, nüfus ve ekonomik verileri göster\n3. Görsel harita unsurları ekle'
   );
   const schema = {
     type: 'OBJECT',
@@ -54,7 +53,6 @@ export async function generateInfographic_GEOGRAPHY_PROFILE_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as GeographyProfileAIResult;
@@ -69,9 +67,6 @@ export async function generateInfographic_GEOGRAPHY_PROFILE_AI(
         scaffoldHint: `${feature.name}: ${feature.value}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Coğrafya profili infografiği, disleksi desteğine ihtiyacı olan öğrenciler için bölgesel coğrafi özellikleri yapılandırılmış olarak anlamalarını sağlayan önemli bir sosyal bilgiler aracıdır. İklim, nüfus, yüzölçümü ve ekonomik verilerin görsel olarak düzenlenmesi, soyut coğrafi kavramları somutlaştırır. Disleksi desteğine ihtiyacı olan öğrenciler, renk kodlaması ve görsel düzenleme ile coğrafi verileri daha kolay karşılaştırır ve çevre bilinci geliştirirler.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -127,7 +122,6 @@ export function generateInfographic_GEOGRAPHY_PROFILE_Offline(
         scaffoldHint: `${feature.name}: ${feature.value}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

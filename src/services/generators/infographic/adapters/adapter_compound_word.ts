@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type CompoundWordAIResult = {
   title: string;
   compounds: { word: string; part1: string; part2: string; meaning: string }[];
-  pedagogicalNote: string;
 };
 
 function detectCategory(topic: string): 'science' | 'math' | 'language' | 'social' | 'general' {

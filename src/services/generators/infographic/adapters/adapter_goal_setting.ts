@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type GoalSettingAIResult = {
   title: string;
   goals: { name: string; steps: string[]; deadline: string; successIndicator: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_GOAL_SETTING_AI(
   const prompt = buildAIPrompt(
     'HEDEF BELİRLEME',
     params,
-    '1. SMART formatında hedefler oluştur\n2. Her hedef için adımları, süreyi ve başarı göstergesini belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için hedef belirleme stratejileri (min 100 kelime)'
+    '1. SMART formatında hedefler oluştur\n2. Her hedef için adımları, süreyi ve başarı göstergesini belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -61,7 +60,6 @@ export async function generateInfographic_GOAL_SETTING_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as GoalSettingAIResult;
@@ -86,9 +84,6 @@ export async function generateInfographic_GOAL_SETTING_AI(
         progress: 'not_started' as const,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Hedef belirleme infografiği, disleksi desteğine ihtiyacı olan öğrenciler için öğrenme süreçlerini yapılandırmada kritik bir araçtır. Somut ve ölçülebilir hedefler, disleksi desteğine ihtiyacı olan öğrencilerin belirsizlik kaygısını azaltır ve motivasyonlarını artırır. Görsel hedef haritaları, öğrencilerin ilerlemelerini takip etmelerini sağlar ve her küçük başarı deneyimi öz yeterlik algısını güçlendirir. Disleksi desteğine ihtiyacı olan öğrenciler için hedeflerin küçük parçalara bölünmesi, bilişsel yükü azaltır ve başarı deneyimini somutlaştırır.',
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,
@@ -160,7 +155,6 @@ export function generateInfographic_GOAL_SETTING_Offline(
         progress: 'not_started' as const,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,

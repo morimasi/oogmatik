@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type ScamperAIResult = {
   title: string;
   techniques: { letter: string; name: string; question: string; example: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -37,7 +36,7 @@ export async function generateInfographic_SCAMPER_AI(
   const prompt = buildAIPrompt(
     'SCAMPER TEKNİĞİ',
     params,
-    '1. SCAMPER tekniğinin 7 adımını konuya uygula\n2. Her adım için soru ve örnek oluştur\n3. Yaratıcı düşünce sürecini haritala\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için SCAMPER öğrenme stratejileri (min 100 kelime)'
+    '1. SCAMPER tekniğinin 7 adımını konuya uygula\n2. Her adım için soru ve örnek oluştur\n3. Yaratıcı düşünce sürecini haritala'
   );
   const schema = {
     type: 'OBJECT',
@@ -55,7 +54,6 @@ export async function generateInfographic_SCAMPER_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as ScamperAIResult;
@@ -70,9 +68,6 @@ export async function generateInfographic_SCAMPER_AI(
         scaffoldHint: `Örnek: ${tech.example}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'SCAMPER tekniği infografiği, disleksi desteğine ihtiyacı olan öğrenciler için yaratıcı problem çözme becerilerini yapılandırılmış bir yaklaşımla geliştiren önemli bir öğrenme aracıdır. Her harfin temsil ettiği düşünce stratejisinin somut örneklerle desteklenmesi, soyut yaratıcılık kavramlarını somutlaştırır. Disleksi desteğine ihtiyacı olan öğrenciler, adım adım ilerleyen SCAMPER yapısı sayesinde fikir üretme sürecini daha kolay takip eder ve yaratıcı düşünme özgüvenlerini artırırlar.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -158,7 +153,6 @@ export function generateInfographic_SCAMPER_Offline(
         scaffoldHint: `Örnek: ${tech.example}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

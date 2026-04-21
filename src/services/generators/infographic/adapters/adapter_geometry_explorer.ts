@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type GeometryExplorerAIResult = {
   title: string;
   shapes: { name: string; sides: number; angles: number; properties: string[] }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -37,7 +36,7 @@ export async function generateInfographic_GEOMETRY_EXPLORER_AI(
   const prompt = buildAIPrompt(
     'ŞEKİL ÖZELLİKLERİ',
     params,
-    '1. Geometrik şekilleri listele\n2. Her şeklin kenar, açı ve özelliklerini belirt\n3. Görsel sembollerle destekle\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için geometrik kavramları öğrenme stratejileri (min 100 kelime)'
+    '1. Geometrik şekilleri listele\n2. Her şeklin kenar, açı ve özelliklerini belirt\n3. Görsel sembollerle destekle'
   );
   const schema = {
     type: 'OBJECT',
@@ -55,7 +54,6 @@ export async function generateInfographic_GEOMETRY_EXPLORER_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as GeometryExplorerAIResult;
@@ -70,9 +68,6 @@ export async function generateInfographic_GEOMETRY_EXPLORER_AI(
         scaffoldHint: `Kenar sayısı: ${shape.sides}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Geometrik şekil keşfi, disleksi desteğine ihtiyacı olan öğrenciler için uzamsal düşünme becerilerini geliştiren önemli bir etkinlik alanıdır. Şekillerin kenar sayısı, açı özellikleri ve görsel karakteristikleri somut olarak incelendiğinde, soyut geometrik kavramlar somutlaşır. Disleksi desteğine ihtiyacı olan öğrenciler, görsel-uzamsal zekalarını kullanarak geometrik ilişkileri daha kolay kavrarlar. Bu yaklaşım, aynı zamanda görsel algı ve ayırt edicilik becerilerini de destekler.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -153,7 +148,6 @@ export function generateInfographic_GEOMETRY_EXPLORER_Offline(
         scaffoldHint: `Kenar sayısı: ${shape.sides}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

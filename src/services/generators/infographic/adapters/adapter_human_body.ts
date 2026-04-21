@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type HumanBodyAIResult = {
   title: string;
   systems: { name: string; organs: string[]; function: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -35,7 +34,7 @@ export async function generateInfographic_HUMAN_BODY_AI(
   const prompt = buildAIPrompt(
     'İNSAN VÜCUDU',
     params,
-    '1. İnsan vücudu sistemlerini listele\n2. Her sistemin organlarını ve işlevini belirt\n3. Görsel konum bilgisi ekle\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için insan vücudu öğrenme stratejileri (min 100 kelime)'
+    '1. İnsan vücudu sistemlerini listele\n2. Her sistemin organlarını ve işlevini belirt\n3. Görsel konum bilgisi ekle'
   );
   const schema = {
     type: 'OBJECT',
@@ -52,7 +51,6 @@ export async function generateInfographic_HUMAN_BODY_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as HumanBodyAIResult;
@@ -72,9 +70,6 @@ export async function generateInfographic_HUMAN_BODY_AI(
         scaffoldHint: `Organlar: ${system.organs.join(', ')}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'İnsan vücudu infografiği, disleksi desteğine ihtiyacı olan öğrenciler için biyolojik sistemleri görsel ve etiketli olarak anlamalarını sağlayan önemli bir fen bilimleri aracıdır. Her sistemin organları ve işlevleri görsel olarak eşleştirildiğinde, soyut anatomik kavramlar somutlaşır. Disleksi desteğine ihtiyacı olan öğrenciler, renk kodlaması ve görsel düzenleme ile vücut sistemlerini daha kolay öğrenir ve kendi bedenlerinin işleyişine dair farkındalık geliştirirler.',
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,
@@ -143,7 +138,6 @@ export function generateInfographic_HUMAN_BODY_Offline(
         scaffoldHint: `Organlar: ${system.organs.join(', ')}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,

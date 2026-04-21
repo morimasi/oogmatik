@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type SelfReflectionAIResult = {
   title: string;
   reflections: { question: string; category: string; prompt: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_SELF_REFLECTION_AI(
   const prompt = buildAIPrompt(
     'ÖZ YANSITMA',
     params,
-    '1. Öz yansıma soruları oluştur\n2. Her soru için kategori ve yönlendirme belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için öz yansıma stratejileri (min 100 kelime)'
+    '1. Öz yansıma soruları oluştur\n2. Her soru için kategori ve yönlendirme belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -60,7 +59,6 @@ export async function generateInfographic_SELF_REFLECTION_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as SelfReflectionAIResult;
@@ -76,9 +74,6 @@ export async function generateInfographic_SELF_REFLECTION_AI(
         colorCode: '#E3F2FD',
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Öz yansıma infografiği, disleksi desteğine ihtiyacı olan öğrenciler için kendi öğrenme süreçlerini değerlendirme becerilerini geliştirmede kritik bir araçtır. Disleksi desteğine ihtiyacı olan öğrenciler genellikle kendi öğrenme stillerini ve güçlü yönlerini fark etmekte zorlanırlar. Yapılandırılmış öz yansıma soruları, disleksi desteğine ihtiyacı olan öğrencilerin başarılarını görmelerini ve gelişim alanlarını belirlemelerini sağlar. Düzenli öz yansıma alıştırmaları, disleksi desteğine ihtiyacı olan öğrencilerin öz farkındalıklarını artırır ve öğrenmeye karşı aktif bir tutum geliştirmelerine yardımcı olur. Bu süreç, akademik özgüvenin inşasında temel bir adımdır.',
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,
@@ -140,7 +135,6 @@ export function generateInfographic_SELF_REFLECTION_Offline(
         colorCode: '#E3F2FD',
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,

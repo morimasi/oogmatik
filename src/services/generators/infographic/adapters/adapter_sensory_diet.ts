@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type SensoryDietAIResult = {
   title: string;
   activities: { name: string; sensoryType: string; time: string; purpose: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_SENSORY_DIET_AI(
   const prompt = buildAIPrompt(
     'DUYUSAL DİYET',
     params,
-    '1. Günlük duyusal diyet programını oluştur\n2. Her aktivite için duyusal tür, zaman ve amaç belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için duyusal diyet stratejileri (min 100 kelime)'
+    '1. Günlük duyusal diyet programını oluştur\n2. Her aktivite için duyusal tür, zaman ve amaç belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -61,7 +60,6 @@ export async function generateInfographic_SENSORY_DIET_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as SensoryDietAIResult;
@@ -76,9 +74,6 @@ export async function generateInfographic_SENSORY_DIET_AI(
         scaffoldHint: `Tür: ${a.sensoryType} | Zaman: ${a.time}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Duyusal diyet infografiği, disleksi desteğine ihtiyacı olan öğrenciler için günlük duyusal girdi ihtiyaçlarını karşılayan yapılandırılmış bir aktivite programı sunar. Disleksi desteğine ihtiyacı olan öğrenciler sıklıkla duyusal işlemleme farklılıkları gösterirler ve bu durum öğrenme performanslarını doğrudan etkiler. Ergoterapist rehberliğinde hazırlanan duyusal diyet, disleksi desteğine ihtiyacı olan öğrencilerin sinir sistemlerini düzenli tutmalarına ve öğrenmeye hazır hale gelmelerine yardımcı olur. Proprioceptif, vestibüler ve dokunsal aktivitelerin dengeli dağılımı, disleksi desteğine ihtiyacı olan öğrencilerin dikkat, odaklanma ve duygusal düzenleme becerilerini destekler.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 13,
@@ -147,7 +142,6 @@ export function generateInfographic_SENSORY_DIET_Offline(
         scaffoldHint: `Tür: ${a.sensoryType} | Zaman: ${a.time}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 13,
