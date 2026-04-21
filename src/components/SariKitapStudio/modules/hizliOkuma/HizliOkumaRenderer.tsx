@@ -117,7 +117,7 @@ export const HizliOkumaRenderer = React.memo(({ config, content }: RendererProps
             }}>
                 <span>Hızlı Okuma • {c.difficulty} • {blocks.length} satır</span>
                 <span>Oogmatik © Sarı Kitap</span>
-                <span>1</span>
+                <span>{config.pageNumber}</span>
             </div>
         </div>
     );

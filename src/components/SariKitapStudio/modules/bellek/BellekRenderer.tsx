@@ -241,7 +241,7 @@ export const BellekRenderer = React.memo(({ config, content }: RendererProps) =>
             }}>
                 <span>Bellek Etkinliği • {c.difficulty} • {studyWords.length} kelime</span>
                 <span>Oogmatik © Sarı Kitap</span>
-                <span>1</span>
+                <span>{config.pageNumber}</span>
             </div>
         </div>
     );

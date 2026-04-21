@@ -109,7 +109,7 @@ export const PencereRenderer = memo(({ config, content }: RendererProps) => {
             }}>
                 <span>Pencere Okuma • {c.difficulty}</span>
                 <span>Oogmatik © Sarı Kitap</span>
-                <span>1</span>
+                <span>{config.pageNumber}</span>
             </div>
         </div>
     );

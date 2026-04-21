@@ -77,7 +77,7 @@ export const CiftMetinRenderer = memo(({ config, content }: RendererProps) => {
                 fontSize: '0.75rem',
                 color: '#64748b'
             }}>
-                1
+                {config.pageNumber}
             </div>
         </div>
     );
