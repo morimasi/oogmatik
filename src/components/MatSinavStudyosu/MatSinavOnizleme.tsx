@@ -33,6 +33,7 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
 
     return (
         <div
+            id="mat-sinav-print-target"
             className="mat-sinav-onizleme bg-white shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] ring-1 ring-black/5"
             style={{
                 fontFamily,
@@ -125,21 +126,6 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
                 ))}
             </div>
 
-            {/* Pedagojik Not - Klinik Destek */}
-            {sinav.pedagogicalNote && (
-                <div className="mt-10 bg-amber-50/50 border-2 border-amber-100 rounded-2xl p-5 relative overflow-hidden group" style={{ columnSpan: 'all', breakInside: 'avoid' }}>
-                    <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
-                        <i className="fa-solid fa-graduation-cap text-4xl text-amber-900"></i>
-                    </div>
-                    <h3 className="text-sm font-bold text-amber-900 mb-2 flex items-center gap-2">
-                        <span className="w-2 h-6 bg-amber-400 rounded-full"></span>
-                        Pedagojik Uygulama Notu
-                    </h3>
-                    <p className="text-sm text-amber-950/80 leading-relaxed font-medium">
-                        {sinav.pedagogicalNote}
-                    </p>
-                </div>
-            )}
 
             {/* Alt Bilgi */}
             <div className="mt-12 pt-6 border-t border-[var(--border-color)] text-center opacity-40">

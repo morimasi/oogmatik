@@ -467,7 +467,6 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
                                             <MatCevapAnahtariComponent
                                                 cevapAnahtari={aktifSinav.cevapAnahtari}
                                                 sinavBaslik={aktifSinav.baslik}
-                                                pedagogicalNote={aktifSinav.pedagogicalNote}
                                             />
                                         </div>
                                     )}

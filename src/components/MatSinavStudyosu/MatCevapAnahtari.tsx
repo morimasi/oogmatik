@@ -8,7 +8,6 @@ import type { MatCevapAnahtari } from '../../types/matSinav';
 interface MatCevapAnahtariComponentProps {
     cevapAnahtari: MatCevapAnahtari;
     sinavBaslik: string;
-    pedagogicalNote: string;
 }
 
 const ZORLUK_RENKLERI: Record<string, string> = {
@@ -20,7 +19,6 @@ const ZORLUK_RENKLERI: Record<string, string> = {
 export const MatCevapAnahtariComponent: React.FC<MatCevapAnahtariComponentProps> = ({
     cevapAnahtari,
     sinavBaslik,
-    pedagogicalNote,
 }) => {
     const toplamPuan = cevapAnahtari.sorular.reduce((s, c) => s + c.puan, 0);
 
@@ -79,15 +77,6 @@ export const MatCevapAnahtariComponent: React.FC<MatCevapAnahtariComponentProps>
                 </table>
             </div>
 
-            {/* Pedagojik Not */}
-            {pedagogicalNote && (
-                <div className="mt-5 p-4 bg-accent/10 border border-accent/30 rounded-xl">
-                    <h3 className="text-xs font-bold text-accent mb-1.5 flex items-center gap-1.5">
-                        📋 Öğretmenin Dikkatine
-                    </h3>
-                    <p className="text-xs text-accent leading-relaxed whitespace-pre-line">{pedagogicalNote}</p>
-                </div>
-            )}
         </div>
     );
 };
