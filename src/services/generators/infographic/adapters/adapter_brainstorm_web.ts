@@ -10,7 +10,6 @@ type BrainstormWebAIResult = {
   title: string;
   centralIdea: string;
   branches: { name: string; subIdeas: string[] }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -40,7 +39,7 @@ export async function generateInfographic_BRAINSTORM_WEB_AI(
   const prompt = buildAIPrompt(
     'BEYIN FIRTINASI AĞI',
     params,
-    '1. Ana fikri belirle\n2. Fikir dallarını ve alt fikirleri oluştur\n3. İlişkileri görselleştir\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için beyin fırtınası stratejileri (min 100 kelime)'
+    '1. Ana fikri belirle\n2. Fikir dallarını ve alt fikirleri oluştur\n3. İlişkileri görselleştir'
   );
   const schema = {
     type: 'OBJECT',
@@ -53,11 +52,9 @@ export async function generateInfographic_BRAINSTORM_WEB_AI(
           type: 'OBJECT',
           properties: {
             name: { type: 'STRING' },
-            subIdeas: { type: 'ARRAY', items: { type: 'STRING' } },
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as BrainstormWebAIResult;
@@ -81,9 +78,6 @@ export async function generateInfographic_BRAINSTORM_WEB_AI(
         }))
       ),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Beyin fırtınası ağı infografiği, disleksi desteğine ihtiyacı olan öğrenciler için yaratıcı düşünme ve fikir üretme becerilerini görsel ağ yapısıyla destekleyen önemli bir öğrenme aracıdır. Ana fikirden dallanan alt fikirlerin görsel olarak düzenlenmesi, soyut düşünce süreçlerini somutlaştırır. Disleksi desteğine ihtiyacı olan öğrenciler, renk kodlaması ve görsel hiyerarşi ile fikirler arasındaki ilişkileri daha kolay kavrar ve yaratıcı düşünme güvenlerini geliştirirler.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -139,7 +133,6 @@ export function generateInfographic_BRAINSTORM_WEB_Offline(
         }))
       ),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

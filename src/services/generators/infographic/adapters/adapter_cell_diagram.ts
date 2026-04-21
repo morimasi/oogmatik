@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type CellDiagramAIResult = {
   title: string;
   components: { name: string; function: string; location: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -35,7 +34,7 @@ export async function generateInfographic_CELL_DIAGRAM_AI(
   const prompt = buildAIPrompt(
     'HÜCRE DİYAGRAMI',
     params,
-    '1. Hücre bileşenlerini listele\n2. Her bileşenin işlevini açıkla\n3. Görsel konum bilgisi ekle\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için hücre yapısı öğrenme stratejileri (min 100 kelime)'
+    '1. Hücre bileşenlerini listele\n2. Her bileşenin işlevini açıkla\n3. Görsel konum bilgisi ekle'
   );
   const schema = {
     type: 'OBJECT',
@@ -48,11 +47,9 @@ export async function generateInfographic_CELL_DIAGRAM_AI(
           properties: {
             name: { type: 'STRING' },
             function: { type: 'STRING' },
-            location: { type: 'STRING' },
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as CellDiagramAIResult;
@@ -72,9 +69,6 @@ export async function generateInfographic_CELL_DIAGRAM_AI(
         scaffoldHint: `Konum: ${comp.location}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Hücre diyagramı infografiği, disleksi desteğine ihtiyacı olan öğrenciler için mikroskobik biyolojik yapıları görsel ve etiketli olarak anlamalarını sağlayan önemli bir fen bilimleri aracıdır. Her organelin ismi, işlevi ve konumu görsel olarak eşleştirildiğinde, soyut hücresel kavramlar somutlaşır. Disleksi desteğine ihtiyacı olan öğrenciler, renkli etiketleme ve görsel düzenleme ile hücre bileşenlerini daha kolay öğrenir ve biyolojik sistemlerin işleyişini bütünsel olarak kavrarlar.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -132,7 +126,6 @@ export function generateInfographic_CELL_DIAGRAM_Offline(
         scaffoldHint: `Konum: ${comp.location}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

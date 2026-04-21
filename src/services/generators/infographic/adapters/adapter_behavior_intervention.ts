@@ -14,7 +14,6 @@ type BehaviorInterventionAIResult = {
     intervention: string;
     reinforcement: string;
   }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -48,7 +47,7 @@ export async function generateInfographic_BEHAVIOR_INTERVENTION_AI(
   const prompt = buildAIPrompt(
     'DAVRANIŞ MÜDAHALE',
     params,
-    '1. Davranış müdahale planını oluştur\n2. Her davranış için öncül, müdahale ve pekiştireç belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için davranış müdahale stratejileri (min 100 kelime)'
+    '1. Davranış müdahale planını oluştur\n2. Her davranış için öncül, müdahale ve pekiştireç belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -66,7 +65,6 @@ export async function generateInfographic_BEHAVIOR_INTERVENTION_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as BehaviorInterventionAIResult;
@@ -81,9 +79,6 @@ export async function generateInfographic_BEHAVIOR_INTERVENTION_AI(
         scaffoldHint: `Müdahale: ${item.intervention} | Pekiştireç: ${item.reinforcement}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Davranış müdahale infografiği, disleksi desteğine ihtiyacı olan öğrenciler için zorlayıcı davranışları azaltma ve olumlu davranışları artırma stratejilerini yapılandırılmış şekilde sunan klinik bir araçtır. Disleksi desteğine ihtiyacı olan öğrenciler, akademik başarısızlık deneyimleri nedeniyle kaçınma, içe kapanma veya dikkat dağıtıcı davranışlar sergileyebilirler. ABC (Antecedent-Behavior-Consequence) modeli ile yapılandırılmış müdahale planları, disleksi desteğine ihtiyacı olan öğrencilerin davranış işlevlerini anlamaya ve uygun müdahale stratejileri geliştirmeye yardımcı olur. Olumlu davranış desteği yaklaşımı, disleksi desteğine ihtiyacı olan öğrencilerin öz düzenleme becerilerini güçlendirir.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 13,
@@ -151,7 +146,6 @@ export function generateInfographic_BEHAVIOR_INTERVENTION_Offline(
         scaffoldHint: `Müdahale: ${item.intervention} | Pekiştireç: ${item.reinforcement}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 13,

@@ -10,7 +10,6 @@ type AssociationsAIResult = {
   title: string;
   centralWord: string;
   associations: { word: string; connection: string; strength: number }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -38,7 +37,7 @@ export async function generateInfographic_ASSOCIATIONS_AI(
   const prompt = buildAIPrompt(
     'ÇAĞRIŞIMLAR',
     params,
-    '1. Ana kelimeyi belirle\n2. Çağrışım kelimelerini ve bağlantılarını listele\n3. Güç derecelerini belirt\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için çağrışım öğrenme stratejileri (min 100 kelime)'
+    '1. Ana kelimeyi belirle\n2. Çağrışım kelimelerini ve bağlantılarını listele\n3. Güç derecelerini belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -56,7 +55,6 @@ export async function generateInfographic_ASSOCIATIONS_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as AssociationsAIResult;
@@ -78,9 +76,6 @@ export async function generateInfographic_ASSOCIATIONS_AI(
         scaffoldHint: `Güç: ${assoc.strength}/10`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Çağrışım infografiği, disleksi desteğine ihtiyacı olan öğrenciler için kelime dağarcığı ve anlamsal ağ oluşturma becerilerini geliştiren önemli bir dil öğrenme aracıdır. Ana kelimeden dallanan çağrışım kelimelerinin görsel olarak düzenlenmesi, soyut anlamsal ilişkileri somutlaştırır. Disleksi desteğine ihtiyacı olan öğrenciler, renk kodlaması ve görsel hiyerarşi ile kelimeler arasındaki anlamsal bağları daha kolay kavrar ve okuma anlama becerilerini geliştirirler.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -136,7 +131,6 @@ export function generateInfographic_ASSOCIATIONS_Offline(
         scaffoldHint: `Güç: ${assoc.strength}/10`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

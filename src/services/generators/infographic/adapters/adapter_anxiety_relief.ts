@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type AnxietyReliefAIResult = {
   title: string;
   techniques: { name: string; description: string; steps: string[] }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_ANXIETY_RELIEF_AI(
   const prompt = buildAIPrompt(
     'KAYGI AZALTMA',
     params,
-    '1. Kaygı azaltma tekniklerini listele\n2. Her teknik için açıklama ve adımlar belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için kaygı yönetimi stratejileri (min 100 kelime)'
+    '1. Kaygı azaltma tekniklerini listele\n2. Her teknik için açıklama ve adımlar belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -60,7 +59,6 @@ export async function generateInfographic_ANXIETY_RELIEF_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as AnxietyReliefAIResult;
@@ -77,9 +75,6 @@ export async function generateInfographic_ANXIETY_RELIEF_AI(
         }))
       ),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Kaygı azaltma infografiği, disleksi desteğine ihtiyacı olan öğrenciler için akademik ve sosyal kaygıyı yönetmede yapılandırılmış bir rehber sunar. Disleksi desteğine ihtiyacı olan öğrenciler, okuma güçlüğü ve akademik zorluklar nedeniyle artan kaygı düzeyleri yaşarlar. Nefes egzersizleri, kas gevşetme teknikleri ve olumlu öz konuşma stratejileri, disleksi desteğine ihtiyacı olan öğrencilerin kaygı belirtilerini tanımalarını ve yönetmelerini sağlar. Görsel kaygı ölçekleri, disleksi desteğine ihtiyacı olan öğrencilerin duygusal durumlarını ifade etmelerini kolaylaştırır ve uygun baş etme stratejilerini seçmelerine yardımcı olur. Bu müdahaleler, öğrenme ortamında güven ve güvenlik duygusunu pekiştirir.',
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,
@@ -145,7 +140,6 @@ export function generateInfographic_ANXIETY_RELIEF_Offline(
         }))
       ),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,

@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type BepGoalMapAIResult = {
   title: string;
   goals: { domain: string; objective: string; indicator: string; timeline: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_BEP_GOAL_MAP_AI(
   const prompt = buildAIPrompt(
     'BEP HEDEF HARİTASI',
     params,
-    '1. BEP hedeflerini SMART formatında oluştur\n2. Her hedef için alan, amaç, gösterge ve zaman çizelgesi belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için BEP hedef haritası stratejileri (min 100 kelime)'
+    '1. BEP hedeflerini SMART formatında oluştur\n2. Her hedef için alan, amaç, gösterge ve zaman çizelgesi belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -58,10 +57,8 @@ export async function generateInfographic_BEP_GOAL_MAP_AI(
             objective: { type: 'STRING' },
             indicator: { type: 'STRING' },
             timeline: { type: 'STRING' },
-          },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as BepGoalMapAIResult;
@@ -84,9 +81,6 @@ export async function generateInfographic_BEP_GOAL_MAP_AI(
         scaffoldHint: `Gösterge: ${g.indicator}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'BEP hedef haritası infografiği, disleksi desteğine ihtiyacı olan öğrenciler için bireyselleştirilmiş eğitim planının hedeflerini görsel olarak yapılandırmada kritik bir araçtır. MEB Özel Eğitim Yönetmeliği kapsamında hazırlanan BEP, disleksi desteğine ihtiyacı olan öğrencilerin öğrenme ihtiyaçlarına uygun hedefler belirlemelerini sağlar. SMART formatında yazılmış hedefler, disleksi desteğine ihtiyacı olan öğrencilerin ilerlemelerini ölçülebilir şekilde takip etmelerine olanak tanır. Her hedef alanının görsel olarak haritalanması, disleksi desteğine ihtiyacı olan öğrencilerin eğitim sürecini bütünsel olarak görmelerini ve öğretmen-veli iş birliğini güçlendirmesini sağlar.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 13,
@@ -162,7 +156,6 @@ export function generateInfographic_BEP_GOAL_MAP_Offline(
         scaffoldHint: `Gösterge: ${g.indicator}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 13,

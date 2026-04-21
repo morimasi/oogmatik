@@ -54,7 +54,7 @@ export async function generateInfographic_5W1H_AI(
   const prompt = buildAIPrompt(
     '5N1K PANOSU',
     params,
-    '1. Ne, Nerede, Ne Zaman, Neden, Nasıl, Kim sorularını cevapla\n2. Her soru için kısa ve net cevap yaz\n3. Pedagojik not: 5N1K tekniğinin okuduğunu anlamaya katkısı (min 100 kelime)\n4. Lexend font, disleksi uyumlu'
+    '1. Ne, Nerede, Ne Zaman, Neden, Nasıl, Kim sorularını cevapla\n2. Her soru için kısa ve net cevap yaz'
   );
   const schema = {
     type: 'OBJECT',
@@ -73,8 +73,7 @@ export async function generateInfographic_5W1H_AI(
             answer: { type: 'STRING' },
           },
         },
-      },
-      pedagogicalNote: { type: 'STRING' },
+    },
     },
   };
   const result: any = await generateWithSchema(prompt, schema);
@@ -88,8 +87,6 @@ export async function generateInfographic_5W1H_AI(
         difficulty: params.difficulty === 'Kolay' ? 'easy' : 'medium',
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote || '5N1K analizi okuduğunu anlama becerisini geliştirir.',
     layoutHints: {
       orientation: 'grid',
       fontSize: 11,
@@ -124,8 +121,6 @@ export function generateInfographic_5W1H_Offline(
         { question: 'Kim yaptı?', questionType: 'open-ended', answer: '...', difficulty: 'easy' },
       ],
     },
-    pedagogicalNote:
-      '5N1K analizi okuduğunu anlama becerisini geliştirir. Disleksi desteğine ihtiyacı olan öğrenciler için görsellerle desteklenmelidir.',
     layoutHints: {
       orientation: 'grid',
       fontSize: 11,

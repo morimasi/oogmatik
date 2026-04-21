@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type AlgebraBalanceAIResult = {
   title: string;
   equations: { left: string; right: string; variable: string; solution: number }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -35,7 +34,7 @@ export async function generateInfographic_ALGEBRA_BALANCE_AI(
   const prompt = buildAIPrompt(
     'DENKLEM DENGE',
     params,
-    '1. Basit cebir denklemleri oluştur\n2. Her denklem için denge görseli tanımla\n3. Çözüm adımlarını göster\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için denklem çözme stratejileri (min 100 kelime)'
+    '1. Basit cebir denklemleri oluştur\n2. Her denklem için denge görseli tanımla\n3. Çözüm adımlarını göster'
   );
   const schema = {
     type: 'OBJECT',
@@ -51,9 +50,8 @@ export async function generateInfographic_ALGEBRA_BALANCE_AI(
             variable: { type: 'STRING' },
             solution: { type: 'NUMBER' },
           },
-        },
       },
-      pedagogicalNote: { type: 'STRING' },
+      },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as AlgebraBalanceAIResult;
@@ -68,9 +66,6 @@ export async function generateInfographic_ALGEBRA_BALANCE_AI(
         scaffoldHint: `${eq.variable} = ${eq.solution}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Denklem denge infografiği, disleksi desteğine ihtiyacı olan öğrenciler için cebirsel düşünceyi somutlaştırarak soyut matematik kavramlarını anlaşılır kılar. Terazi metaforu ile denklemin iki tarafının eşitliği görselleştirildiğinde, disleksi desteğine ihtiyacı olan öğrenciler değişken kavramını daha kolay içselleştirir. Bu görsel-yapılandırılmış yaklaşım, diskalkuli desteğine ihtiyacı olan öğrenciler için de matematiksel eşitlik algısını güçlendirir ve işlem yapma güvenini artırır.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -118,7 +113,6 @@ export function generateInfographic_ALGEBRA_BALANCE_Offline(
         scaffoldHint: `${eq.variable} = ${eq.solution}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

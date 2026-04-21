@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type AccommodationListAIResult = {
   title: string;
   accommodations: { category: string; item: string; implementation: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_ACCOMMODATION_LIST_AI(
   const prompt = buildAIPrompt(
     'UYARLAMA LİSTESİ',
     params,
-    '1. Sınıf içi uyarlama listesini oluştur\n2. Her uyarlama için kategori, madde ve uygulama bilgisi belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için uyarlama stratejileri (min 100 kelime)'
+    '1. Sınıf içi uyarlama listesini oluştur\n2. Her uyarlama için kategori, madde ve uygulama bilgisi belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -60,7 +59,6 @@ export async function generateInfographic_ACCOMMODATION_LIST_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as AccommodationListAIResult;
@@ -75,9 +73,6 @@ export async function generateInfographic_ACCOMMODATION_LIST_AI(
         scaffoldHint: `Uygulama: ${a.implementation}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Uyarlama listesi infografiği, disleksi desteğine ihtiyacı olan öğrenciler için sınıf içi ve sınav uyarlamalarını sistematik olarak planlama ve uygulama rehberi sunar. MEB Özel Eğitim Yönetmeliği kapsamında disleksi desteğine ihtiyacı olan öğrencilere sağlanan uyarlamalar, öğrenme erişimini eşitlemeyi hedefler. Ek süre, okuyucu desteği, büyük punto materyaller ve alternatif değerlendirme yöntemleri, disleksi desteğine ihtiyacı olan öğrencilerin bilgi ve becerilerini adil şekilde göstermelerini sağlar. Her uyarlamanın somut olarak tanımlanması ve uygulama detaylarının belirtilmesi, disleksi desteğine ihtiyacı olan öğrencilere tutarlı destek sağlanmasını garanti eder.',
     layoutHints: {
       orientation: 'portrait',
       fontSize: 13,
@@ -138,7 +133,6 @@ export function generateInfographic_ACCOMMODATION_LIST_Offline(
         scaffoldHint: `Uygulama: ${a.implementation}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'portrait',
       fontSize: 13,

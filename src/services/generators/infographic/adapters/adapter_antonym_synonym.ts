@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type AntonymSynonymAIResult = {
   title: string;
   pairs: { word: string; synonym: string; antonym: string }[];
-  pedagogicalNote: string;
 };
 
 function detectCategory(topic: string): 'science' | 'math' | 'language' | 'social' | 'general' {
@@ -42,7 +41,7 @@ export async function generateInfographic_AntonymSynonym_AI(
   const prompt = buildAIPrompt(
     'EŞ VE ZIT ANLAMLILAR',
     params,
-    '1. Konuya uygun 5 kelime seç\n2. Her kelimenin eş ve zıt anlamını yaz\n3. Pedagojik not: Eş-zıt anlam çalışmasının kelime gelişimine katkısı (min 100 kelime)\n4. Lexend font, disleksi uyumlu'
+    '1. Konuya uygun 5 kelime seç\n2. Her kelimenin eş ve zıt anlamını yaz'
   );
   const schema = {
     type: 'OBJECT',
@@ -59,7 +58,6 @@ export async function generateInfographic_AntonymSynonym_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as AntonymSynonymAIResult;
@@ -73,9 +71,6 @@ export async function generateInfographic_AntonymSynonym_AI(
         rightItems: (result.pairs || []).map((p) => `${p.word} → ${p.antonym}`),
       },
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Eş ve zıt anlam çalışması, disleksi desteğine ihtiyacı olan öğrenciler için kelime anlamları arasındaki ilişkileri görselleştirerek kelime hazinesini genişletir. Eş anlamlıları öğrenmek, metinlerdeki anlam zenginliğini fark etmeyi sağlarken zıt anlamlılar kavramsal karşılaştırma becerisini geliştirir. Bu ikili yaklaşım, anlam çıkarımını güçlendirir.',
     layoutHints: {
       orientation: 'dual-column',
       fontSize: 11,
@@ -141,8 +136,6 @@ export function generateInfographic_AntonymSynonym_Offline(
         rightItems: pairs.map((p) => `${p.word} → ${p.antonym}`),
       },
     },
-    pedagogicalNote:
-      'Eş ve zıt anlam çalışması, disleksi desteğine ihtiyacı olan öğrenciler için kelime anlamları arasındaki ilişkileri görselleştirerek kelime hazinesini genişletir. Eş anlamlıları öğrenmek, metinlerdeki anlam zenginliğini fark etmeyi sağlarken zıt anlamlılar kavramsal karşılaştırma becerisini geliştirir. Bu ikili yaklaşım, anlam çıkarımını güçlendirir ve okuduğunu anlama derinliğini artırır.',
     layoutHints: {
       orientation: 'dual-column',
       fontSize: 11,

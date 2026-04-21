@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type BehaviorTrackerAIResult = {
   title: string;
   behaviors: { name: string; frequency: string; trigger: string; strategy: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_BEHAVIOR_TRACKER_AI(
   const prompt = buildAIPrompt(
     'DAVRANIŞ TAKİP',
     params,
-    '1. Hedef davranışları ve takip kriterlerini listele\n2. Her davranış için sıklık, tetikleyici ve strateji belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için davranış takip stratejileri (min 100 kelime)'
+    '1. Hedef davranışları ve takip kriterlerini listele\n2. Her davranış için sıklık, tetikleyici ve strateji belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -58,10 +57,8 @@ export async function generateInfographic_BEHAVIOR_TRACKER_AI(
             frequency: { type: 'STRING' },
             trigger: { type: 'STRING' },
             strategy: { type: 'STRING' },
-          },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as BehaviorTrackerAIResult;
@@ -76,9 +73,6 @@ export async function generateInfographic_BEHAVIOR_TRACKER_AI(
         scaffoldHint: `Sıklık: ${b.frequency} | Strateji: ${b.strategy}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Davranış takip infografiği, disleksi desteğine ihtiyacı olan öğrenciler için hedef davranışları izleme ve olumlu davranış değişikliklerini desteklemede yapılandırılmış bir araç sunar. Disleksi desteğine ihtiyacı olan öğrenciler, akademik zorluklar nedeniyle davranışsal zorluklar yaşayabilirler. Görsel davranış takip çizelgeleri, disleksi desteğine ihtiyacı olan öğrencilerin kendi davranışlarını fark etmelerini ve olumlu değişiklikleri görmelerini sağlar. Olumlu pekiştirme sistemleri, disleksi desteğine ihtiyacı olan öğrencilerin istenen davranışları tekrarlamalarını teşvik eder. Davranış tetikleyicilerini anlamak, disleksi desteğine ihtiyacı olan öğrencilerin önleyici stratejiler geliştirmelerine yardımcı olur.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 13,
@@ -151,7 +145,6 @@ export function generateInfographic_BEHAVIOR_TRACKER_Offline(
         scaffoldHint: `Sıklık: ${b.frequency} | Strateji: ${b.strategy}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 13,

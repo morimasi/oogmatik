@@ -10,7 +10,6 @@ type BiographyBoardAIResult = {
   title: string;
   lifeEvents: { date: string; event: string; impact: string }[];
   achievements: string[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -38,7 +37,7 @@ export async function generateInfographic_BIOGRAPHY_BOARD_AI(
   const prompt = buildAIPrompt(
     'BİYOGRAFİ PANOSU',
     params,
-    '1. Kişinin yaşam olaylarını kronolojik sırayla listele\n2. Başarılarını belirt\n3. Etkilerini açıkla\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için biyografi öğrenme stratejileri (min 100 kelime)'
+    '1. Kişinin yaşam olaylarını kronolojik sırayla listele\n2. Başarılarını belirt\n3. Etkilerini açıkla'
   );
   const schema = {
     type: 'OBJECT',
@@ -55,8 +54,6 @@ export async function generateInfographic_BIOGRAPHY_BOARD_AI(
           },
         },
       },
-      achievements: { type: 'ARRAY', items: { type: 'STRING' } },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as BiographyBoardAIResult;
@@ -77,9 +74,6 @@ export async function generateInfographic_BIOGRAPHY_BOARD_AI(
         scaffoldHint: `Etki: ${event.impact}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Biyografi panosu infografiği, disleksi desteğine ihtiyacı olan öğrenciler için önemli kişilerin yaşam hikayelerini görsel ve kronolojik olarak anlamalarını sağlayan önemli bir sosyal bilgiler aracıdır. Yaşam olaylarının zaman çizelgesi üzerinde sıralanması ve başarılarının vurgulanması, soyut tarihsel kişilikleri somutlaştırır. Disleksi desteğine ihtiyacı olan öğrenciler, görsel düzenleme ve renk kodlaması ile biyografik bilgileri daha kolay öğrenir ve rol modellerinden ilham alarak kişisel gelişimlerini desteklerler.',
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,
@@ -138,7 +132,6 @@ export function generateInfographic_BIOGRAPHY_BOARD_Offline(
         scaffoldHint: `Etki: ${event.impact}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,

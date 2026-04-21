@@ -10,7 +10,6 @@ type AlternativeEndsAIResult = {
   title: string;
   originalEnd: string;
   alternatives: { ending: string; consequence: string; lesson: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -38,7 +37,7 @@ export async function generateInfographic_ALTERNATIVE_ENDS_AI(
   const prompt = buildAIPrompt(
     'ALTERNATİF SONLAR',
     params,
-    '1. Hikayenin orijinal sonunu belirt\n2. En az 3 alternatif son oluştur\n3. Her sonun sonuçlarını ve dersini açıkla\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için alternatif sonlar öğrenme stratejileri (min 100 kelime)'
+    '1. Hikayenin orijinal sonunu belirt\n2. En az 3 alternatif son oluştur\n3. Her sonun sonuçlarını ve dersini açıkla'
   );
   const schema = {
     type: 'OBJECT',
@@ -54,9 +53,8 @@ export async function generateInfographic_ALTERNATIVE_ENDS_AI(
             consequence: { type: 'STRING' },
             lesson: { type: 'STRING' },
           },
-        },
       },
-      pedagogicalNote: { type: 'STRING' },
+      },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as AlternativeEndsAIResult;
@@ -71,9 +69,6 @@ export async function generateInfographic_ALTERNATIVE_ENDS_AI(
         scaffoldHint: `Sonuç: ${alt.consequence}. Ders: ${alt.lesson}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Alternatif sonlar infografiği, disleksi desteğine ihtiyacı olan öğrenciler için yaratıcı yazma ve eleştirel düşünme becerilerini geliştiren önemli bir dil öğrenme aracıdır. Bir hikayenin farklı sonlarını keşfetmek, disleksi desteğine ihtiyacı olan öğrencilerin nedensellik ilişkilerini anlamalarını ve hayal güçlerini kullanmalarını sağlar. Her alternatif sonun sonuçları ve dersleri görsel olarak düzenlendiğinde, soyut anlatı kavramları somutlaşır ve öğrencilerin yaratıcı ifade özgüveni artar.',
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,
@@ -132,7 +127,6 @@ export function generateInfographic_ALTERNATIVE_ENDS_Offline(
         scaffoldHint: `Sonuç: ${alt.consequence}. Ders: ${alt.lesson}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,

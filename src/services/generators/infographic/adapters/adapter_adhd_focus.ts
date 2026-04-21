@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type AdhdFocusAIResult = {
   title: string;
   techniques: { name: string; description: string; duration: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_ADHD_FOCUS_AI(
   const prompt = buildAIPrompt(
     'DEHB ODAKLANMA',
     params,
-    '1. DEHB için odaklanma tekniklerini listele\n2. Her teknik için açıklama ve süre belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için odaklanma stratejileri (min 100 kelime)'
+    '1. DEHB için odaklanma tekniklerini listele\n2. Her teknik için açıklama ve süre belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -60,7 +59,6 @@ export async function generateInfographic_ADHD_FOCUS_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as AdhdFocusAIResult;
@@ -75,9 +73,6 @@ export async function generateInfographic_ADHD_FOCUS_AI(
         scaffoldHint: `Süre: ${t.duration}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'DEHB odaklanma infografiği, disleksi desteğine ihtiyacı olan öğrenciler için dikkat sürelerini yönetme ve odaklanma becerilerini geliştirmede yapılandırılmış bir rehber sunar. Disleksi desteğine ihtiyacı olan öğrenciler, DEHB belirtileri ile birleştiğinde çift katmanlı zorluk yaşarlar. Kısa ve yoğun çalışma seansları, disleksi desteğine ihtiyacı olan öğrencilerin dikkatlerini korumalarını sağlar. Görsel zamanlayıcılar ve hareket molaları, disleksi desteğine ihtiyacı olan öğrencilerin enerji seviyelerini dengelemelerine yardımcı olur. Bu stratejiler, disleksi desteğine ihtiyacı olan öğrencilerin öğrenme ortamlarında daha başarılı olmalarını destekler.',
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,
@@ -146,7 +141,6 @@ export function generateInfographic_ADHD_FOCUS_Offline(
         scaffoldHint: `Süre: ${t.duration}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,
