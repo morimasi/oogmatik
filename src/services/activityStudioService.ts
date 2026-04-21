@@ -22,7 +22,7 @@ export async function generateActivityStudio(goal: StudioGoalConfig): Promise<Or
               properties: {
                 type: { type: 'STRING' },
                 content: { type: 'STRING' },
-                pedagogicalNote: { type: 'STRING' },
+
                 videoUrl: { type: 'STRING' },
                 imageUrl: { type: 'STRING' }
               },
@@ -37,12 +37,11 @@ export async function generateActivityStudio(goal: StudioGoalConfig): Promise<Or
 
   const result = await orchestrator.orchestrate(goal);
 
-  const pedagogicalNote = result.agentOutputs.integration.pedagogicalNote;
+
   const pedagogic = validatePedagogicRules({
     ageGroup: goal.ageGroup,
     difficulty: goal.difficulty,
     targetSkills: goal.targetSkills,
-    pedagogicalNote,
     itemDifficulties: ['Kolay', 'Kolay', goal.difficulty],
   });
 
@@ -50,10 +49,7 @@ export async function generateActivityStudio(goal: StudioGoalConfig): Promise<Or
     throw new AppError(`Pedagojik dogrulama basarisiz: ${pedagogic.errors.join(' | ')}`, 'VALIDATION_ERROR', 400);
   }
 
-  const clinical = runClinicalValidation(pedagogicalNote, null);
-  if (clinical.valid === false) {
-    throw new AppError(`Klinik dogrulama basarisiz: ${clinical.errors.join(' | ')}`, 'VALIDATION_ERROR', 400);
-  }
+
 
   return result;
 }

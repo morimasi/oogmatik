@@ -80,7 +80,6 @@ export const activityApprovalService = {
                 estimatedDuration: template.metadata.estimatedDuration,
                 targetSkills: template.metadata.targetSkills,
                 learningObjectives: template.metadata.learningObjectives,
-                pedagogicalNote: template.metadata.pedagogicalNote,
                 curriculumCode: template.metadata.curriculumCode,
             },
             templateId: template.id,

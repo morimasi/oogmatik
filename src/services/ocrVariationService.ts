@@ -220,8 +220,7 @@ KRİTİK KURALLAR (İHLAL EDİLEMEZ):
 2. VERİ FARKLI OLMALI: Sayılar, metinler, kelimeler, cümleler her varyasyonda farklı.
 3. ZORLUK SEVİYESİ AYNI: Blueprint'teki zorluk seviyesi korunmalı.
 4. PEDAGOJİK UYUM: Öğrenme profili = ${targetProfile}, Yaş grubu = ${ageGroup}
-5. pedagogicalNote ZORUNLU: Her varyasyonda öğretmen için açıklama olmalı (min 50 karakter).
-6. DISLEKSI-DOSTU: Lexend fontu (font-family:'Lexend',sans-serif), geniş satır aralığı, net görsel hiyerarşi.
+5. DISLEKSİ-DOSTU: Lexend fontu (font-family:'Lexend',sans-serif), geniş satır aralığı, net görsel hiyerarşi.
 
 ${COMPONENT_CHECKLIST_PROMPT}
 
@@ -268,10 +267,7 @@ const getVariationSchema = () => ({
             type: 'STRING' as const,
             description: 'HTML aktivite içeriği. ZORUNLU: inline style ile font-family:Lexend,sans-serif; font-size:11px; line-height:1.3 kullan. A4 sayfasını %80+ dolduracak yoğunlukta üret. Sorular arası margin-bottom:6px.'
           },
-          pedagogicalNote: {
-            type: 'STRING' as const,
-            description: 'Öğretmen için pedagojik not - bu aktivitenin neden seçildiği, hedef beceriler (min 50 karakter, ZORUNLU)'
-          },
+
           difficultyLevel: {
             type: 'STRING' as const,
             description: "Zorluk seviyesi: 'Kolay' | 'Orta' | 'Zor'"
@@ -308,7 +304,7 @@ const getVariationSchema = () => ({
             }
           }
         },
-        required: ['title', 'type', 'content', 'pedagogicalNote', 'difficultyLevel', 'targetSkills']
+        required: ['title', 'type', 'content', 'difficultyLevel', 'targetSkills']
       }
     }
   },
@@ -323,9 +319,7 @@ const validateVariation = (
 ): string[] => {
   const warnings: string[] = [];
 
-  if (!variation.pedagogicalNote || variation.pedagogicalNote.length < 50) {
-    warnings.push(`Varyasyon ${index + 1}: Pedagojik not çok kısa veya eksik (min 50 karakter).`);
-  }
+
 
   if (!variation.title || variation.title.length < 5) {
     warnings.push(`Varyasyon ${index + 1}: Başlık çok kısa.`);
@@ -482,10 +476,7 @@ export const generateVariations = async (
 export const validateVariationQuality = (variation: SingleWorksheetData): number => {
   let score = 100;
 
-  // pedagogicalNote kontrolü
-  if (!variation.pedagogicalNote || variation.pedagogicalNote.length < 50) {
-    score -= 30;
-  }
+
 
   // Content kontrolü
   if (!variation.content || (variation.content as string).length < 100) {

@@ -12,7 +12,7 @@ export abstract class BaseAgent {
 
   abstract buildPrompt(input: AgentInput): string;
 
-  protected abstract toPedagogicalNote(input: AgentInput): string;
+
 
   async run(input: AgentInput): Promise<AgentOutput> {
     const prompt = this.buildPrompt(input);
@@ -24,7 +24,7 @@ export abstract class BaseAgent {
         raw,
         prompt,
       },
-      pedagogicalNote: this.toPedagogicalNote(input),
+
       tokenUsage: { input: prompt.length, output: JSON.stringify(raw).length },
       timestamp: this.deps.now(),
     };
