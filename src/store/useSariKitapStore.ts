@@ -107,44 +107,64 @@ const createDefaultConfig = (type: SariKitapActivityType): SariKitapConfig => {
 };
 
 interface SariKitapState {
+  activeType: SariKitapActivityType;
   config: SariKitapConfig;
+  isGenerating: boolean;
+  generationMode: 'ai' | 'offline';
   generatedContent: SariKitapGeneratedContent | null;
-  isLoading: boolean;
-  activeId: string | null;
-  
+  error: string | null;
+  previewScale: number;
+  showGrid: boolean;
+  recentGenerations: SariKitapGeneratedContent[];
+
   // Actions
-  setConfig: (config: SariKitapConfig) => void;
+  setActiveType: (type: SariKitapActivityType) => void;
   updateConfig: (updates: Partial<SariKitapConfig>) => void;
-  setGeneratedContent: (content: SariKitapGeneratedContent | null) => void;
-  setIsLoading: (isLoading: boolean) => void;
-  reset: (type?: SariKitapActivityType) => void;
-  setType: (type: SariKitapActivityType) => void;
+  setGenerationMode: (mode: 'ai' | 'offline') => void;
+  setContent: (content: SariKitapGeneratedContent | null) => void;
+  setGenerating: (isGenerating: boolean) => void;
+  setError: (error: string | null) => void;
+  setPreviewScale: (scale: number) => void;
+  toggleGrid: () => void;
 }
 
-export const useSariKitapStore = create<SariKitapState>((set) => ({
+export const useSariKitapStore = create<SariKitapState>((set: any) => ({
+  activeType: 'nokta',
   config: createDefaultConfig('nokta'),
+  isGenerating: false,
+  generationMode: 'ai',
   generatedContent: null,
-  isLoading: false,
-  activeId: null,
+  error: null,
+  previewScale: 1,
+  showGrid: false,
+  recentGenerations: [],
 
-  setConfig: (config: SariKitapConfig) => set({ config }),
-  
+  setActiveType: (type: SariKitapActivityType) => set({
+    activeType: type,
+    config: createDefaultConfig(type),
+    generatedContent: null,
+    error: null
+  }),
+
   updateConfig: (updates: Partial<SariKitapConfig>) => set((state: SariKitapState) => ({
     config: { ...state.config, ...updates } as SariKitapConfig
   })),
 
-  setGeneratedContent: (generatedContent: SariKitapGeneratedContent | null) => set({ generatedContent }),
-  
-  setIsLoading: (isLoading: boolean) => set({ isLoading }),
+  setGenerationMode: (mode: 'ai' | 'offline') => set({ generationMode: mode }),
 
-  reset: (type?: SariKitapActivityType) => set((state: SariKitapState) => ({
-    config: createDefaultConfig(type || state.config.type),
-    generatedContent: null,
-    activeId: null
-  })),
-
-  setType: (type: SariKitapActivityType) => set({
-    config: createDefaultConfig(type),
-    generatedContent: null
+  setContent: (content: SariKitapGeneratedContent | null) => set((state: SariKitapState) => {
+    if (!content) return { generatedContent: null };
+    
+    // Add to recent generations (max 10)
+    const newRecent = [content, ...state.recentGenerations].slice(0, 10);
+    return { generatedContent: content, recentGenerations: newRecent };
   }),
+
+  setGenerating: (isGenerating: boolean) => set({ isGenerating }),
+
+  setError: (error: string | null) => set({ error }),
+
+  setPreviewScale: (scale: number) => set({ previewScale: scale }),
+
+  toggleGrid: () => set((state: SariKitapState) => ({ showGrid: !state.showGrid })),
 }));
