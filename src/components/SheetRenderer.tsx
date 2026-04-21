@@ -833,13 +833,13 @@ const UnifiedContentRenderer = ({
     useA4EditorStore();
   const architecture = data.layoutArchitecture;
   const rawBlocks: WorksheetBlock[] = 
-    (architecture?.blocks && architecture.blocks.length > 0 ? architecture.blocks : null) || 
-    (data.blocks && data.blocks.length > 0 ? data.blocks : null) || 
-    (data.puzzles && data.puzzles.length > 0 ? data.puzzles : null) || 
-    (data.operations && data.operations.length > 0 ? data.operations : null) || 
-    (data.items && data.items.length > 0 ? data.items : null) || 
-    (data.problems && data.problems.length > 0 ? data.problems : null) || 
-    (data.steps && data.steps.length > 0 ? data.steps : null) || 
+    (architecture?.blocks && architecture.blocks.length > 0 ? architecture.blocks : []) || 
+    (data.blocks && data.blocks.length > 0 ? data.blocks : []) || 
+    (data.puzzles && data.puzzles.length > 0 ? data.puzzles : []) || 
+    (data.operations && data.operations.length > 0 ? data.operations : []) || 
+    (data.items && data.items.length > 0 ? data.items : []) || 
+    (data.problems && data.problems.length > 0 ? data.problems : []) || 
+    (data.steps && data.steps.length > 0 ? data.steps : []) || 
     [];
   const cols = architecture?.cols || 1;
 
