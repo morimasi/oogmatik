@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type DyslexiaReadingAIResult = {
   title: string;
   techniques: { name: string; description: string; example: string; difficulty: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_DYSLEXIA_READING_AI(
   const prompt = buildAIPrompt(
     'DİSLEKSİ OKUMA DESTEĞİ',
     params,
-    '1. Disleksi dostu okuma tekniklerini listele\n2. Her teknik için açıklama, örnek ve zorluk seviyesi belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için okuma destek stratejileri (min 100 kelime)'
+    '1. Disleksi dostu okuma tekniklerini listele\n2. Her teknik için açıklama, örnek ve zorluk seviyesi belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -61,7 +60,6 @@ export async function generateInfographic_DYSLEXIA_READING_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as DyslexiaReadingAIResult;
@@ -82,9 +80,6 @@ export async function generateInfographic_DYSLEXIA_READING_AI(
         benefits: (result.techniques || []).map((t) => t.description),
       },
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Disleksi okuma desteği infografiği, disleksi desteğine ihtiyacı olan öğrenciler için okuma güçlüğüyle başa çıkma stratejilerini görsel olarak sunan kritik bir araçtır. Disleksi desteğine ihtiyacı olan öğrenciler, harfleri ters okuma, atlama veya ekleme gibi zorluklar yaşarlar ve bu durum okuma akıcılığını olumsuz etkiler. Çoklu duyusal okuma teknikleri, disleksi desteğine ihtiyacı olan öğrencilerin görsel, işitsel ve dokunsal kanalları aynı anda kullanarak okuma becerilerini geliştirmelerini sağlar. Renkli overlay kullanımı, satır takibi ve heceleme stratejileri, disleksi desteğine ihtiyacı olan öğrencilerin okuma deneyimini olumlu yönde dönüştürür. Her öğrencinin farklı bir okuma profiline sahip olması, bireyselleştirilmiş yaklaşımın önemini vurgular.',
     layoutHints: {
       orientation: 'portrait',
       fontSize: 16,
@@ -164,7 +159,6 @@ export function generateInfographic_DYSLEXIA_READING_Offline(
         benefits: techniques.map((t) => t.description),
       },
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'portrait',
       fontSize: 16,

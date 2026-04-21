@@ -60,7 +60,8 @@ export async function generateInfographic_BEHAVIOR_TRACKER_AI(
         },
       },
     },
-  };
+  },
+};
   const result = (await generateWithSchema(prompt, schema)) as BehaviorTrackerAIResult;
   return {
     title: result.title || `${params.topic} - Davranış Takip`,

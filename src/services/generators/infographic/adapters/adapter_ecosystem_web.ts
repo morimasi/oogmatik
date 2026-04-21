@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type EcosystemWebAIResult = {
   title: string;
   organisms: { name: string; type: string; connections: string[] }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -37,7 +36,7 @@ export async function generateInfographic_ECOSYSTEM_WEB_AI(
   const prompt = buildAIPrompt(
     'EKOSİSTEM AĞI',
     params,
-    '1. Ekosistemdeki canlıları listele\n2. Her canlının bağlantılarını göster\n3. Besin ilişkilerini haritala\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için ekosistem ağı öğrenme stratejileri (min 100 kelime)'
+    '1. Ekosistemdeki canlıları listele\n2. Her canlının bağlantılarını göster\n3. Besin ilişkilerini haritala'
   );
   const schema = {
     type: 'OBJECT',
@@ -54,7 +53,6 @@ export async function generateInfographic_ECOSYSTEM_WEB_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as EcosystemWebAIResult;
@@ -76,9 +74,6 @@ export async function generateInfographic_ECOSYSTEM_WEB_AI(
         scaffoldHint: `Tür: ${org.type}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Ekosistem ağı infografiği, disleksi desteğine ihtiyacı olan öğrenciler için doğadaki yaşam ilişkilerini görsel ağ yapısıyla anlamalarını sağlayan önemli bir fen bilimleri aracıdır. Her canlının diğer canlılarla olan bağlantılarını görsel çizgilerle takip etmek, soyut ekolojik ilişkileri somutlaştırır. Disleksi desteğine ihtiyacı olan öğrenciler, renk kodlamalı ağ yapısı ile besin ilişkilerini ve ekosistem dengesini bütünsel olarak kavrarlar ve çevre bilinci geliştirirler.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -134,7 +129,6 @@ export function generateInfographic_ECOSYSTEM_WEB_Offline(
         scaffoldHint: `Tür: ${org.type}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

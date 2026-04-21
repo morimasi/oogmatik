@@ -43,7 +43,7 @@ export async function generateInfographic_COGNITIVE_PROFILE_AI(
   const prompt = buildAIPrompt(
     'BİLİŞSEL PROFİL',
     params,
-    '1. Bilişsel profil alanlarını ve skorlarını oluştur\n2. Her alan için güçlü yön ve destek ihtiyacı belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için bilişsel profil stratejileri (min 100 kelime)'
+    '1. Bilişsel profil alanlarını ve skorlarını oluştur\n2. Her alan için güçlü yön ve destek ihtiyacı belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -61,7 +61,6 @@ export async function generateInfographic_COGNITIVE_PROFILE_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as CognitiveProfileAIResult;
@@ -82,9 +81,6 @@ export async function generateInfographic_COGNITIVE_PROFILE_AI(
         scaffoldHint: `Skor: ${d.score}/10 | Destek: ${d.support}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Bilişsel profil infografiği, disleksi desteğine ihtiyacı olan öğrenciler için bilişsel güçlü ve zorlu alanları görsel olarak haritalamada kapsamlı bir değerlendirme aracı sunar. Disleksi desteğine ihtiyacı olan öğrenciler genellikle işitsel işlemleme, görsel-uzamsal beceriler ve çalışma belleği alanlarında farklı bilişsel profiller sergilerler. Bilişsel profil haritası, disleksi desteğine ihtiyacı olan öğrencilerin güçlü alanlarını tespit ederek bu alanları öğrenme süreçlerinde kullanmalarını sağlar. Aynı zamanda destek ihtiyacı olan alanları belirlemek, disleksi desteğine ihtiyacı olan öğrencilere yönelik müdahale stratejilerinin hedeflenmesine yardımcı olur.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 13,
@@ -164,7 +160,6 @@ export function generateInfographic_COGNITIVE_PROFILE_Offline(
         scaffoldHint: `Skor: ${d.score}/10 | Destek: ${d.support}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 13,

@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type DyscalculiaMathAIResult = {
   title: string;
   strategies: { name: string; description: string; visual: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_DYSCALCULIA_MATH_AI(
   const prompt = buildAIPrompt(
     'DİSKALKULİ MATEMATİK DESTEĞİ',
     params,
-    '1. Diskalkuli için matematik destek stratejilerini listele\n2. Her strateji için açıklama ve görsel destek belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için matematik destek stratejileri (min 100 kelime)'
+    '1. Diskalkuli için matematik destek stratejilerini listele\n2. Her strateji için açıklama ve görsel destek belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -60,7 +59,6 @@ export async function generateInfographic_DYSCALCULIA_MATH_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as DyscalculiaMathAIResult;
@@ -75,9 +73,6 @@ export async function generateInfographic_DYSCALCULIA_MATH_AI(
         scaffoldHint: `Görsel: ${s.visual}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Diskalkuli matematik desteği infografiği, disleksi desteğine ihtiyacı olan öğrenciler için sayısal kavramları anlamada ve matematiksel işlemleri yapmada görsel ve somut stratejiler sunan kritik bir araçtır. Disleksi desteğine ihtiyacı olan öğrenciler, sayı büyüklüğü, sıralama ve temel işlemler konusunda zorluk yaşayabilirler. Görsel manipülatifler, sayı doğruları ve renk kodlu matematik şablonları, disleksi desteğine ihtiyacı olan öğrencilerin soyut matematiksel kavramları somut olarak algılamalarını sağlar. Çoklu duyusal matematik öğretimi, disleksi desteğine ihtiyacı olan öğrencilerin matematik kaygısını azaltır ve sayısal düşünce becerilerini kademeli olarak geliştirir.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -146,7 +141,6 @@ export function generateInfographic_DYSCALCULIA_MATH_Offline(
         scaffoldHint: `Görsel: ${s.visual}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

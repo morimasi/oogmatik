@@ -10,7 +10,6 @@ type EventAnalysisAIResult = {
   title: string;
   factors: { type: string; items: string[] }[];
   outcomes: string[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -38,7 +37,7 @@ export async function generateInfographic_EVENT_ANALYSIS_AI(
   const prompt = buildAIPrompt(
     'OLAY ANALİZİ',
     params,
-    '1. Olayın nedenlerini kategorize et\n2. Sonuçlarını listele\n3. Nedensellik ilişkilerini göster\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için olay analizi öğrenme stratejileri (min 100 kelime)'
+    '1. Olayın nedenlerini kategorize et\n2. Sonuçlarını listele\n3. Nedensellik ilişkilerini göster'
   );
   const schema = {
     type: 'OBJECT',
@@ -55,7 +54,6 @@ export async function generateInfographic_EVENT_ANALYSIS_AI(
         },
       },
       outcomes: { type: 'ARRAY', items: { type: 'STRING' } },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as EventAnalysisAIResult;
@@ -72,9 +70,6 @@ export async function generateInfographic_EVENT_ANALYSIS_AI(
         }))
       ),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Olay analizi infografiği, disleksi desteğine ihtiyacı olan öğrenciler için tarihsel ve güncel olayları neden-sonuç ilişkileri çerçevesinde anlamalarını sağlayan önemli bir sosyal bilgiler aracıdır. Olayların siyasi, ekonomik ve sosyal faktörlerinin kategorize edilmesi, karmaşık tarihsel süreçleri yapılandırır. Disleksi desteğine ihtiyacı olan öğrenciler, görsel düzenleme ve renk kodlaması ile nedensellik ilişkilerini daha kolay kavrar ve eleştirel düşünme becerilerini geliştirirler.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -124,7 +119,6 @@ export function generateInfographic_EVENT_ANALYSIS_Offline(
         }))
       ),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

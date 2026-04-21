@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type FoodChainAIResult = {
   title: string;
   levels: { level: number; organism: string; role: string; description: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -37,7 +36,7 @@ export async function generateInfographic_FOOD_CHAIN_AI(
   const prompt = buildAIPrompt(
     'BESİN ZİNCİRİ',
     params,
-    '1. Besin zinciri seviyelerini belirle\n2. Her seviyedeki canlıları ve rollerini açıkla\n3. Enerji akışını göster\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için besin zinciri öğrenme stratejileri (min 100 kelime)'
+    '1. Besin zinciri seviyelerini belirle\n2. Her seviyedeki canlıları ve rollerini açıkla\n3. Enerji akışını göster'
   );
   const schema = {
     type: 'OBJECT',
@@ -55,7 +54,6 @@ export async function generateInfographic_FOOD_CHAIN_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as FoodChainAIResult;
@@ -81,9 +79,6 @@ export async function generateInfographic_FOOD_CHAIN_AI(
         scaffoldHint: `Rol: ${level.role}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Besin zinciri infografiği, disleksi desteğine ihtiyacı olan öğrenciler için ekosistemdeki enerji akışını görsel ve sıralı olarak anlamalarını sağlayan önemli bir fen bilimleri aracıdır. Her seviyenin canlısı ve rolü görsel sembollerle desteklendiğinde, soyut ekolojik kavramlar somutlaşır. Disleksi desteğine ihtiyacı olan öğrenciler, besin zincirindeki enerji transferini adım adım takip ederek doğadaki yaşam ilişkilerini bütünsel olarak kavrarlar ve çevre bilinci geliştirirler.',
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,
@@ -168,7 +163,6 @@ export function generateInfographic_FOOD_CHAIN_Offline(
         scaffoldHint: `Rol: ${level.role}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,

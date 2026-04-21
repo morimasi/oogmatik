@@ -37,7 +37,7 @@ export async function generateInfographic_CULTURE_COMPARE_AI(
   const prompt = buildAIPrompt(
     'KÜLTÜR KARŞILAŞTIRMA',
     params,
-    '1. Karşılaştırılacak kültürleri belirle\n2. Her kültürün gelenek, yemek ve değerlerini listele\n3. Ortak ve farklı yönleri göster\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için kültürler arası farkındalık öğrenme stratejileri (min 100 kelime)'
+    '1. Karşılaştırılacak kültürleri belirle\n2. Her kültürün gelenek, yemek ve değerlerini listele\n3. Ortak ve farklı yönleri göster'
   );
   const schema = {
     type: 'OBJECT',
@@ -55,7 +55,6 @@ export async function generateInfographic_CULTURE_COMPARE_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as CultureCompareAIResult;
@@ -82,9 +81,6 @@ export async function generateInfographic_CULTURE_COMPARE_AI(
         }))
       ),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Kültür karşılaştırma infografiği, disleksi desteğine ihtiyacı olan öğrenciler için farklı kültürleri tanıma ve saygı duyma becerilerini geliştiren önemli bir sosyal bilgiler aracıdır. Her kültürün gelenekleri, yemekleri ve değerleri görsel olarak karşılaştırıldığında, kültürel çeşitlilik somutlaşır. Disleksi desteğine ihtiyacı olan öğrenciler, renk kodlaması ve görsel düzenleme ile kültürler arası benzerlik ve farklılıkları daha kolay kavrar ve çok kültürlü farkındalık geliştirirler.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -149,7 +145,6 @@ export function generateInfographic_CULTURE_COMPARE_Offline(
         }))
       ),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

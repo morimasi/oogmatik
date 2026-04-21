@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type DesignThinkingAIResult = {
   title: string;
   phases: { name: string; description: string; activities: string[] }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -37,7 +36,7 @@ export async function generateInfographic_DESIGN_THINKING_AI(
   const prompt = buildAIPrompt(
     'TASARIM DÜŞÜNCE',
     params,
-    '1. Tasarım düşünce aşamalarını belirle\n2. Her aşama için aktiviteler öner\n3. Döngüsel süreci göster\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için tasarım düşünce öğrenme stratejileri (min 100 kelime)'
+    '1. Tasarım düşünce aşamalarını belirle\n2. Her aşama için aktiviteler öner\n3. Döngüsel süreci göster'
   );
   const schema = {
     type: 'OBJECT',
@@ -54,7 +53,6 @@ export async function generateInfographic_DESIGN_THINKING_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as DesignThinkingAIResult;
@@ -69,9 +67,6 @@ export async function generateInfographic_DESIGN_THINKING_AI(
         scaffoldHint: `Aktiviteler: ${phase.activities.join(', ')}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Tasarım düşünce infografiği, disleksi desteğine ihtiyacı olan öğrenciler için empati kurma, problem tanımlama ve çözüm üretme becerilerini yapılandırılmış bir süreçle geliştiren önemli bir öğrenme aracıdır. Her aşamanın somut aktivitelerle desteklenmesi, soyut tasarım süreçlerini somutlaştırır. Disleksi desteğine ihtiyacı olan öğrenciler, adım adım ilerleyen tasarım düşünce yapısı sayesinde kullanıcı odaklı düşünmeyi öğrenir ve yaratıcı problem çözme becerilerini geliştirirler.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -140,7 +135,6 @@ export function generateInfographic_DESIGN_THINKING_Offline(
         scaffoldHint: `Aktiviteler: ${phase.activities.join(', ')}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

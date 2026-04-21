@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type EconomicFlowAIResult = {
   title: string;
   stages: { name: string; description: string; participants: string[] }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -37,7 +36,7 @@ export async function generateInfographic_ECONOMIC_FLOW_AI(
   const prompt = buildAIPrompt(
     'EKONOMİK AKIŞ',
     params,
-    '1. Ekonomik sürecin aşamalarını belirle\n2. Her aşamadaki aktörleri listele\n3. Para ve mal akışını göster\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için ekonomik kavramları öğrenme stratejileri (min 100 kelime)'
+    '1. Ekonomik sürecin aşamalarını belirle\n2. Her aşamadaki aktörleri listele\n3. Para ve mal akışını göster'
   );
   const schema = {
     type: 'OBJECT',
@@ -54,7 +53,6 @@ export async function generateInfographic_ECONOMIC_FLOW_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as EconomicFlowAIResult;
@@ -69,9 +67,6 @@ export async function generateInfographic_ECONOMIC_FLOW_AI(
         scaffoldHint: `Aktörler: ${stage.participants.join(', ')}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Ekonomik akış infografiği, disleksi desteğine ihtiyacı olan öğrenciler için temel ekonomi kavramlarını görsel ve sıralı olarak anlamalarını sağlayan önemli bir sosyal bilgiler aracıdır. Üretim, dağıtım ve tüketim süreçlerinin görsel akış şeması ile gösterilmesi, soyut ekonomik kavramları somutlaştırır. Disleksi desteğine ihtiyacı olan öğrenciler, renk kodlaması ve görsel düzenleme ile ekonomik ilişkileri daha kolay kavrar ve finansal okuryazarlık becerilerini geliştirirler.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -135,7 +130,6 @@ export function generateInfographic_ECONOMIC_FLOW_Offline(
         scaffoldHint: `Aktörler: ${stage.participants.join(', ')}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

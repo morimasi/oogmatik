@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type FractionVisualAIResult = {
   title: string;
   fractions: { numerator: number; denominator: number; visual: string; description: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -31,7 +30,7 @@ export async function generateInfographic_FractionVisual_AI(
   const prompt = buildAIPrompt(
     'KESİR GÖRSELLEŞTİRME',
     params,
-    '1. Konuya uygun 3-5 kesir belirle\n2. Her kesir için görsel betimleme ve açıklama yaz\n3. Pedagojik not: Kesir görselleştirmenin matematik gelişimine katkısı (min 100 kelime)\n4. Lexend font, disleksi uyumlu'
+    '1. Konuya uygun 3-5 kesir belirle\n2. Her kesir için görsel betimleme ve açıklama yaz\n3. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'OBJECT',
@@ -49,7 +48,6 @@ export async function generateInfographic_FractionVisual_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as FractionVisualAIResult;
@@ -64,9 +62,6 @@ export async function generateInfographic_FractionVisual_AI(
         scaffoldHint: `Pay: ${f.numerator}, Payda: ${f.denominator}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Kesir görselleştirme, disleksi desteğine ihtiyacı olan öğrenciler için soyut kesir kavramını somutlaştırarak matematiksel anlayışı geliştirir. Pasta veya dikdörtgen modelleri, kesirlerin büyüklük-küçüklük ilişkisini görsel olarak gösterir ve karşılaştırma becerisini güçlendirir. Bu yaklaşım, diskalkuli desteğine ihtiyacı olan öğrenciler için kesirleri anlamlı hale getirir.',
     layoutHints: {
       orientation: 'grid',
       fontSize: 12,
@@ -110,8 +105,6 @@ export function generateInfographic_FractionVisual_Offline(
         },
       ],
     },
-    pedagogicalNote:
-      'Kesir görselleştirme, disleksi desteğine ihtiyacı olan öğrenciler için soyut kesir kavramını somutlaştırarak matematiksel anlayışı geliştirir. Pasta veya dikdörtgen modelleri, kesirlerin büyüklük-küçüklük ilişkisini görsel olarak gösterir ve karşılaştırma becerisini güçlendirir. Bu yaklaşım, diskalkuli desteğine ihtiyacı olan öğrenciler için kesirleri anlamlı hale getirir ve işlem yapma öncesi kavramsal anlayışı destekler.',
     layoutHints: {
       orientation: 'grid',
       fontSize: 12,

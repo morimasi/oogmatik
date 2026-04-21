@@ -20,7 +20,7 @@ export async function generateInfographic_EvaluationSummary_AI(
   const prompt = buildAIPrompt(
     'DEĞERLENDİRME ÖZETİ',
     params,
-    '1. Değerlendirme sonuçlarını özetle\n2. Güçlü ve gelişim alanlarını belirt\n3. Pedagojik not: Değerlendirme özeti bütünsel bakış sağlar (min 100 kelime)\n4. Lexend font, disleksi uyumlu'
+    '1. Değerlendirme sonuçlarını özetle\n2. Güçlü ve gelişim alanlarını belirt\n3. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'object' as const,
@@ -29,7 +29,6 @@ export async function generateInfographic_EvaluationSummary_AI(
       strengths: { type: 'array' as const, items: { type: 'string' as const } },
       areasForGrowth: { type: 'array' as const, items: { type: 'string' as const } },
       recommendations: { type: 'array' as const, items: { type: 'string' as const } },
-      pedagogicalNote: { type: 'string' as const },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as {
@@ -37,7 +36,6 @@ export async function generateInfographic_EvaluationSummary_AI(
     strengths: string[];
     areasForGrowth: string[];
     recommendations: string[];
-    pedagogicalNote: string;
   };
   return {
     title: result.title || `${params.topic} - Değerlendirme Özeti`,
@@ -57,9 +55,6 @@ export async function generateInfographic_EvaluationSummary_AI(
         ],
       },
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Değerlendirme özeti, öğrencinin mevcut seviyesini bütünsel olarak görmeyi sağlar. Disleksi desteğine ihtiyacı olan öğrenciler için görsel ilerleme göstergeleri kullanılmalıdır.',
     layoutHints: {
       orientation: 'grid',
       fontSize: 11,
@@ -95,8 +90,6 @@ export function generateInfographic_EvaluationSummary_Offline(
         ],
       },
     },
-    pedagogicalNote:
-      'Değerlendirme özeti, öğrencinin mevcut seviyesini bütünsel olarak görmeyi sağlar. Güçlü alanların vurgulanması özgüveni artırır. Disleksi desteğine ihtiyacı olan öğrenciler için görsel ilerleme göstergeleri ve renk kodlu alanlar kullanılmalıdır.',
     layoutHints: {
       orientation: 'grid',
       fontSize: 11,

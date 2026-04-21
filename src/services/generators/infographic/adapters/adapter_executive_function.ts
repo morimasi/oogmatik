@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type ExecutiveFunctionAIResult = {
   title: string;
   skills: { name: string; description: string; activity: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_EXECUTIVE_FUNCTION_AI(
   const prompt = buildAIPrompt(
     'YÜRÜTÜCÜ İŞLEVLER',
     params,
-    '1. Yürütücü işlev becerilerini listele\n2. Her beceri için açıklama ve geliştirme aktivitesi belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için yürütücü işlev stratejileri (min 100 kelime)'
+    '1. Yürütücü işlev becerilerini listele\n2. Her beceri için açıklama ve geliştirme aktivitesi belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -60,7 +59,6 @@ export async function generateInfographic_EXECUTIVE_FUNCTION_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as ExecutiveFunctionAIResult;
@@ -75,9 +73,6 @@ export async function generateInfographic_EXECUTIVE_FUNCTION_AI(
         scaffoldHint: `Aktivite: ${s.activity}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Yürütücü işlevler infografiği, disleksi desteğine ihtiyacı olan öğrenciler için planlama, organize etme, çalışma belleği ve bilişsel esneklik gibi temel becerileri geliştirmede kapsamlı bir rehber sunar. Disleksi desteğine ihtiyacı olan öğrenciler, yürütücü işlev zorlukları sıklıkla eşlik eder ve bu durum akademik performansı önemli ölçüde etkiler. Görsel planlama araçları, adım adım talimatlar ve rutin yapıları, disleksi desteğine ihtiyacı olan öğrencilerin yürütücü işlev becerilerini sistematik olarak geliştirmelerini sağlar. Her yürütücü işlev becerisinin ayrı ayrı ele alınması, disleksi desteğine ihtiyacı olan öğrencilerin güçlü ve zayıf alanlarını belirlemelerine yardımcı olur.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 13,
@@ -146,7 +141,6 @@ export function generateInfographic_EXECUTIVE_FUNCTION_Offline(
         scaffoldHint: `Aktivite: ${s.activity}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 13,

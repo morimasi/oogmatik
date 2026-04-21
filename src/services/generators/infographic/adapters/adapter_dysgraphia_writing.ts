@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type DysgraphiaWritingAIResult = {
   title: string;
   strategies: { name: string; description: string; tool: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_DYSGRAPHIA_WRITING_AI(
   const prompt = buildAIPrompt(
     'DİSGRAFİ YAZMA DESTEĞİ',
     params,
-    '1. Disgrafi için yazma destek stratejilerini listele\n2. Her strateji için açıklama ve araç belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için yazma destek stratejileri (min 100 kelime)'
+    '1. Disgrafi için yazma destek stratejilerini listele\n2. Her strateji için açıklama ve araç belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -60,7 +59,6 @@ export async function generateInfographic_DYSGRAPHIA_WRITING_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as DysgraphiaWritingAIResult;
@@ -75,9 +73,6 @@ export async function generateInfographic_DYSGRAPHIA_WRITING_AI(
         scaffoldHint: `Araç: ${s.tool}`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Disgrafi yazma desteği infografiği, disleksi desteğine ihtiyacı olan öğrenciler için yazma güçlüğüyle başa çıkma stratejilerini görsel olarak sunan önemli bir araçtır. Disleksi desteğine ihtiyacı olan öğrenciler sıklıkla el yazısı, harf formasyonu ve yazılı ifade alanlarında zorluk yaşarlar. Yapılandırılmış yazma şablonları ve grafik düzenleyiciler, disleksi desteğine ihtiyacı olan öğrencilerin düşüncelerini organize etmelerini ve yazıya dökmelerini kolaylaştırır. Klavye kullanımı ve sesli yazma teknolojileri, disleksi desteğine ihtiyacı olan öğrencilerin yazılı ifade becerilerini fiziksel yazma zorluklarından bağımsız olarak geliştirmelerini sağlar. Bu araçlar, öğrencilerin içerik üretimine odaklanmalarını sağlar.',
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,
@@ -151,7 +146,6 @@ export function generateInfographic_DYSGRAPHIA_WRITING_Offline(
         scaffoldHint: `Araç: ${s.tool}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,

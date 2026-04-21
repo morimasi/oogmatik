@@ -42,7 +42,7 @@ export async function generateInfographic_CompoundWord_AI(
   const prompt = buildAIPrompt(
     'BİRLEŞİK KELİMELER',
     params,
-    '1. Konuya uygun 5 birleşik kelime seç\n2. Her birleşik kelimenin iki parçasını ve anlamını yaz\n3. Pedagojik not: Birleşik kelime bilgisinin okuma gelişimine katkısı (min 100 kelime)\n4. Lexend font, disleksi uyumlu'
+    '1. Konuya uygun 5 birleşik kelime seç\n2. Her birleşik kelimenin iki parçasını ve anlamını yaz\n3. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'OBJECT',
@@ -60,7 +60,6 @@ export async function generateInfographic_CompoundWord_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as CompoundWordAIResult;
@@ -76,9 +75,6 @@ export async function generateInfographic_CompoundWord_AI(
         relatedWords: [c.part2],
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Birleşik kelimeler, disleksi desteğine ihtiyacı olan öğrenciler için kelime yapısını parçalara ayırarak anlamayı kolaylaştırır. İki kelimenin birleşerek yeni bir anlam oluşturduğunu görmek, kelime çözümleme becerisini geliştirir ve okuma akıcılığını artırır. Bu yaklaşım, öğrencilerin uzun kelimelerle baş etme stratejilerini güçlendirir.',
     layoutHints: {
       orientation: 'horizontal',
       fontSize: 11,
@@ -164,8 +160,6 @@ export function generateInfographic_CompoundWord_Offline(
         relatedWords: [c.part2],
       })),
     },
-    pedagogicalNote:
-      'Birleşik kelimeler, disleksi desteğine ihtiyacı olan öğrenciler için kelime yapısını parçalara ayırarak anlamayı kolaylaştırır. İki kelimenin birleşerek yeni bir anlam oluşturduğunu görmek, kelime çözümleme becerisini geliştirir ve okuma akıcılığını artırır. Bu yaklaşım, öğrencilerin uzun kelimelerle baş etme stratejilerini güçlendirir ve kelime hazinesini zenginleştirir.',
     layoutHints: {
       orientation: 'horizontal',
       fontSize: 11,

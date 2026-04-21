@@ -60,7 +60,8 @@ export async function generateInfographic_BEP_GOAL_MAP_AI(
         },
       },
     },
-  };
+  },
+};
   const result = (await generateWithSchema(prompt, schema)) as BepGoalMapAIResult;
   return {
     title: result.title || `${params.topic} - BEP Hedef Haritası`,

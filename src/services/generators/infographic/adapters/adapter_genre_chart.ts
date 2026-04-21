@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type GenreChartAIResult = {
   title: string;
   genres: { name: string; features: string[]; example: string }[];
-  pedagogicalNote: string;
 };
 
 function detectCategory(topic: string): 'science' | 'math' | 'language' | 'social' | 'general' {
@@ -42,7 +41,7 @@ export async function generateInfographic_GenreChart_AI(
   const prompt = buildAIPrompt(
     'TÜR GRAFİĞİ',
     params,
-    '1. Konuya uygun 4 edebi tür seç\n2. Her türün özelliklerini ve örneğini yaz\n3. Pedagojik not: Edebi tür bilgisinin okuma gelişimine katkısı (min 100 kelime)\n4. Lexend font, disleksi uyumlu'
+    '1. Konuya uygun 4 edebi tür seç\n2. Her türün özelliklerini ve örneğini yaz\n3. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'OBJECT',
@@ -59,7 +58,6 @@ export async function generateInfographic_GenreChart_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as GenreChartAIResult;
@@ -75,9 +73,6 @@ export async function generateInfographic_GenreChart_AI(
         })),
       },
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Tür grafiği, disleksi desteğine ihtiyacı olan öğrenciler için edebi türlerin özelliklerini görselleştirerek okuma stratejilerini geliştirir. Her türün kendine özgü yapısını tanımak, öğrencilerin metinlere uygun yaklaşımla yaklaşmasını sağlar. Bu farkındalık, okuduğunu anlama derinliğini artırır ve edebi zevki geliştirir.',
     layoutHints: {
       orientation: 'grid',
       fontSize: 11,
@@ -220,8 +215,6 @@ export function generateInfographic_GenreChart_Offline(
         })),
       },
     },
-    pedagogicalNote:
-      'Tür grafiği, disleksi desteğine ihtiyacı olan öğrenciler için edebi türlerin özelliklerini görselleştirerek okuma stratejilerini geliştirir. Her türün kendine özgü yapısını tanımak, öğrencilerin metinlere uygun yaklaşımla yaklaşmasını sağlar. Bu farkındalık, okuduğunu anlama derinliğini artırır ve edebi zevki geliştirir. Türler arası karşılaştırma yapma becerisi de kazanılır.',
     layoutHints: {
       orientation: 'grid',
       fontSize: 11,

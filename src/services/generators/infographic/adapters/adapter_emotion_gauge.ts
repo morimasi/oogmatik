@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type EmotionGaugeAIResult = {
   title: string;
   emotions: { name: string; intensity: number; bodyLocation: string; strategy: string }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -43,7 +42,7 @@ export async function generateInfographic_EMOTION_GAUGE_AI(
   const prompt = buildAIPrompt(
     'DUYGU ÖLÇER',
     params,
-    '1. Duygu seviyelerini 1-5 ölçeğinde belirle\n2. Her duygu için beden konumu ve baş etme stratejisi belirt\n3. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için duygusal farkındalık (min 100 kelime)'
+    '1. Duygu seviyelerini 1-5 ölçeğinde belirle\n2. Her duygu için beden konumu ve baş etme stratejisi belirt'
   );
   const schema = {
     type: 'OBJECT',
@@ -61,7 +60,6 @@ export async function generateInfographic_EMOTION_GAUGE_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as EmotionGaugeAIResult;
@@ -76,9 +74,6 @@ export async function generateInfographic_EMOTION_GAUGE_AI(
         strategy: e.strategy,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Duygu ölçer infografiği, disleksi desteğine ihtiyacı olan öğrenciler için duygusal farkındalık geliştirmede önemli bir görsel araçtır. Disleksi desteğine ihtiyacı olan öğrenciler, akademik zorluklar nedeniyle sıklıkla hayal kırıklığı ve kaygı yaşarlar. Duygularını tanımlamak ve yoğunluklarını görsel olarak ifade edebilmek, disleksi desteğine ihtiyacı olan öğrencilerin öz düzenleme becerilerini güçlendirir. Renk kodlu duygu ölçekleri, disleksi desteğine ihtiyacı olan öğrencilerin içsel durumlarını dışsallaştırmalarını ve uygun baş etme stratejilerini seçmelerini kolaylaştırır. Bu araç, duygusal okuryazarlığı artırır ve sınıf içi iletişimi iyileştirir.',
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,
@@ -127,7 +122,6 @@ export function generateInfographic_EMOTION_GAUGE_Offline(
         strategy: e.strategy,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'portrait',
       fontSize: 14,

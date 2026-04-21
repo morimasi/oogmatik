@@ -28,7 +28,7 @@ export async function generateInfographic_CharacterAnalysis_AI(
   const prompt = buildAIPrompt(
     'KARAKTER ANALİZİ',
     params,
-    '1. Karakterin özelliklerini, motivasyonlarını ve gelişimini analiz et\n2. Her bölüm için net bilgiler yaz\n3. Pedagojik not: Karakter analizi empati ve metin yorumlama becerilerine katkı (min 100 kelime)\n4. Lexend font, disleksi uyumlu'
+    '1. Karakterin özelliklerini, motivasyonlarını ve gelişimini analiz et\n2. Her bölüm için net bilgiler yaz\n3. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'object' as const,
@@ -38,7 +38,6 @@ export async function generateInfographic_CharacterAnalysis_AI(
       traits: { type: 'array' as const, items: { type: 'string' as const } },
       motivations: { type: 'array' as const, items: { type: 'string' as const } },
       development: { type: 'string' as const },
-      pedagogicalNote: { type: 'string' as const },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as {
@@ -47,7 +46,6 @@ export async function generateInfographic_CharacterAnalysis_AI(
     traits: string[];
     motivations: string[];
     development: string;
-    pedagogicalNote: string;
   };
   return {
     title: result.title || `${params.topic} - Karakter Analizi`,
@@ -61,9 +59,6 @@ export async function generateInfographic_CharacterAnalysis_AI(
         resolution: result.development,
       },
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Karakter analizi, öğrencinin empati kurma ve metin yorumlama becerilerini geliştirir. Disleksi desteğine ihtiyacı olan öğrenciler için görsel karakter kartları kullanılmalıdır.',
     layoutHints: {
       orientation: 'grid',
       fontSize: 11,
@@ -131,8 +126,6 @@ export function generateInfographic_CharacterAnalysis_Offline(
         resolution: t.development,
       },
     },
-    pedagogicalNote:
-      'Karakter analizi, öğrencinin empati kurma ve metin yorumlama becerilerini geliştirir. Disleksi desteğine ihtiyacı olan öğrenciler için görsel karakter kartları ve renk kodlu özellik listeleri kullanılmalıdır. Her özellik yanında ikon bulunmalıdır.',
     layoutHints: {
       orientation: 'grid',
       fontSize: 11,

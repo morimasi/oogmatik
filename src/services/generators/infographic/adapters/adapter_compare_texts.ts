@@ -28,7 +28,7 @@ export async function generateInfographic_CompareTexts_AI(
   const prompt = buildAIPrompt(
     'METİN KARŞILAŞTIRMA',
     params,
-    '1. İki metni tematik açıdan karşılaştır\n2. Benzerlik ve farklılıkları yaz\n3. Pedagojik not: Karşılaştırmalı okumanın gelişime katkısı (min 100 kelime)\n4. Lexend font, disleksi uyumlu'
+    '1. İki metni tematik açıdan karşılaştır\n2. Benzerlik ve farklılıkları yaz\n3. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'object' as const,
@@ -38,7 +38,6 @@ export async function generateInfographic_CompareTexts_AI(
       textB: { type: 'string' as const },
       similarities: { type: 'array' as const, items: { type: 'string' as const } },
       differences: { type: 'array' as const, items: { type: 'string' as const } },
-      pedagogicalNote: { type: 'string' as const },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as {
@@ -47,7 +46,6 @@ export async function generateInfographic_CompareTexts_AI(
     textB: string;
     similarities: string[];
     differences: string[];
-    pedagogicalNote: string;
   };
   return {
     title: result.title || `${params.topic} - Metin Karşılaştırma`,
@@ -60,9 +58,6 @@ export async function generateInfographic_CompareTexts_AI(
         commonGround: result.similarities,
       },
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Karşılaştırmalı okuma, öğrencinin analitik düşünme ve metinler arası bağlantı kurma becerisini geliştirir. Disleksi desteğine ihtiyacı olan öğrenciler için renk kodlu sütunlar kullanılmalıdır.',
     layoutHints: { orientation: 'horizontal', fontSize: 11, colorScheme: 'dyslexia-friendly' },
     targetSkills: ['Karşılaştırmalı okuma', 'Analitik düşünme'],
     estimatedDuration: 15,
@@ -143,8 +138,6 @@ export function generateInfographic_CompareTexts_Offline(
         commonGround: t.similarities,
       },
     },
-    pedagogicalNote:
-      'Karşılaştırmalı okuma, öğrencinin analitik düşünme ve metinler arası bağlantı kurma becerisini geliştirir. Disleksi desteğine ihtiyacı olan öğrenciler için renk kodlu sütunlar ve görsel ayırıcılar kullanılmalıdır.',
     layoutHints: { orientation: 'horizontal', fontSize: 11, colorScheme: 'dyslexia-friendly' },
     targetSkills: ['Karşılaştırmalı okuma', 'Analitik düşünme'],
     estimatedDuration: 15,

@@ -9,7 +9,6 @@ import { generateWithSchema } from '../../../geminiClient';
 type DataChartAIResult = {
   title: string;
   data: { label: string; value: number }[];
-  pedagogicalNote: string;
 };
 
 function buildAIPrompt(
@@ -41,7 +40,7 @@ export async function generateInfographic_DATA_CHART_AI(
   const prompt = buildAIPrompt(
     'VERİ GRAFİĞİ',
     params,
-    '1. Konuya uygun veri seti oluştur\n2. Grafik türünü belirle (çubuk, çizgi, pasta)\n3. Verileri görselleştir\n4. Pedagojik not: Disleksi desteğine ihtiyacı olan öğrenciler için veri okuma stratejileri (min 100 kelime)'
+    '1. Konuya uygun veri seti oluştur\n2. Grafik türünü belirle (çubuk, çizgi, pasta)\n3. Verileri görselleştir'
   );
   const schema = {
     type: 'OBJECT',
@@ -57,7 +56,6 @@ export async function generateInfographic_DATA_CHART_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'STRING' },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as DataChartAIResult;
@@ -72,9 +70,6 @@ export async function generateInfographic_DATA_CHART_AI(
         scaffoldHint: `Bu değer en ${entry.value === Math.max(...result.data.map((d) => d.value)) ? 'yüksek' : 'düşük'} olabilir`,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Veri grafiği okuma, disleksi desteğine ihtiyacı olan öğrenciler için sayısal okuryazarlık geliştiren önemli bir beceridir. Görsel grafikler, soyut sayısal verileri somutlaştırarak anlamayı kolaylaştırır. Disleksi desteğine ihtiyacı olan öğrenciler, renk kodlaması ve görsel düzenleme ile grafikleri daha kolay yorumlar. Bu yaklaşım, eleştirel düşünme ve veri analizi becerilerini desteklerken aynı zamanda günlük yaşamda karşılaşılan grafikleri anlama yetisini geliştirir.',
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,
@@ -149,7 +144,6 @@ export function generateInfographic_DATA_CHART_Offline(
         scaffoldHint: `Değer: ${entry.value}`,
       })),
     },
-    pedagogicalNote: categoryDescriptions[category],
     layoutHints: {
       orientation: 'landscape',
       fontSize: 14,

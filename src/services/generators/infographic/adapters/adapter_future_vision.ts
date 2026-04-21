@@ -20,7 +20,7 @@ export async function generateInfographic_FutureVision_AI(
   const prompt = buildAIPrompt(
     'GELECEK VİZYONU',
     params,
-    '1. Geleceğe yönelik senaryolar oluştur\n2. Her senaryo için olasılık ve etki analizi yap\n3. Pedagojik not: Gelecek vizyonunun yaratıcı düşünmeye katkısı (min 100 kelime)\n4. Lexend font, disleksi uyumlu'
+    '1. Geleceğe yönelik senaryolar oluştur\n2. Her senaryo için olasılık ve etki analizi yap\n3. Lexend font, disleksi uyumlu'
   );
   const schema = {
     type: 'object' as const,
@@ -37,13 +37,11 @@ export async function generateInfographic_FutureVision_AI(
           },
         },
       },
-      pedagogicalNote: { type: 'string' as const },
     },
   };
   const result = (await generateWithSchema(prompt, schema)) as {
     title: string;
     scenarios: Array<{ name: string; description: string; probability: string }>;
-    pedagogicalNote: string;
   };
   return {
     title: result.title || `${params.topic} - Gelecek Vizyonu`,
@@ -55,9 +53,6 @@ export async function generateInfographic_FutureVision_AI(
         difficulty: 'medium' as const,
       })),
     },
-    pedagogicalNote:
-      result.pedagogicalNote ||
-      'Gelecek vizyonu, öğrencinin yaratıcı düşünme ve olasılık analizi becerilerini geliştirir. Disleksi desteğine ihtiyacı olan öğrenciler için görsel senaryo kartları kullanılmalıdır.',
     layoutHints: { orientation: 'horizontal', fontSize: 11, colorScheme: 'dyslexia-friendly' },
     targetSkills: ['Yaratıcı düşünme', 'Olasılık analizi', 'Gelecek planlama'],
     estimatedDuration: 20,
@@ -94,8 +89,6 @@ export function generateInfographic_FutureVision_Offline(
         },
       ],
     },
-    pedagogicalNote:
-      'Gelecek vizyonu, öğrencinin yaratıcı düşünme ve olasılık analizi becerilerini geliştirir. Disleksi desteğine ihtiyacı olan öğrenciler için görsel senaryo kartları ve renk kodlu olasılık göstergeleri kullanılmalıdır.',
     layoutHints: { orientation: 'horizontal', fontSize: 11, colorScheme: 'dyslexia-friendly' },
     targetSkills: ['Yaratıcı düşünme', 'Olasılık analizi', 'Gelecek planlama'],
     estimatedDuration: 20,
