@@ -11,14 +11,18 @@ import { CommonConfigPanel } from './shared/CommonConfigPanel';
 import { ErrorFallback } from './shared/ErrorFallback';
 import { A4CompactRenderer } from './shared/A4CompactRenderer';
 import { printService } from '../../utils/printService';
+import { worksheetService } from '../../services/worksheetService';
+import { useAuthStore } from '../../store/useAuthStore';
 import './KelimeCumleStudio.css';
 
 interface KelimeCumleStudioProps {
     onBack?: () => void;
     onAddToWorkbook?: (activityType: any, data: any) => void;
+    onSaveToArchive?: (name: string, activityType: string, data: any) => Promise<void>;
 }
 
-const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWorkbook }) => {
+const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWorkbook, onSaveToArchive }) => {
+    const { user } = useAuthStore();
     const [config, setConfig] = useState<KelimeCumleConfig>({
         id: crypto.randomUUID(),
         type: 'bosluk_doldurma',
@@ -83,6 +87,61 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
             showToast('✅ Kitapçığa eklendi!');
         } else {
             showToast('⚠️ Kitapçığa eklenemedi (Sistem Hazır Değil)');
+        }
+    };
+
+    // ARŞIVE KAYDETME FONKSİYONU
+    const handleSaveToArchive = async () => {
+        if (!content || !user) {
+            showToast('⚠️ Kaydetmek için giriş yapmalısınız');
+            return;
+        }
+
+        try {
+            // İçeriği hazırla
+            const name = `${config.type === 'bosluk_doldurma' ? 'Boşluk Doldurma' : 
+                           config.type === 'test' ? 'Çoktan Seçmeli' : 
+                           config.type === 'kelime_tamamlama' ? 'Kelime Tamamlama' : 
+                           config.type === 'karisik_cumle' ? 'Karışık Cümle' : 
+                           'Zıt Anlam'} - ${new Date().toLocaleDateString('tr-TR')}`;
+            
+            const activityType = `KELIME_CUMLE_${config.type.toUpperCase()}` as any;
+            
+            // SingleWorksheetData formatına çevir
+            const worksheetData = [{
+                id: `kc-${Date.now()}`,
+                type: activityType as any,
+                title: name,
+                instruction: content.instructions || 'Yönerge yok',
+                items: content.items,
+                activityType: config.type,
+                difficulty: config.difficulty,
+                settings: content.settings || {},
+                createdAt: new Date().toISOString()
+            }];
+            
+            // Firestore'a kaydet
+            await worksheetService.saveWorksheet(
+                user.id,
+                name,
+                activityType,
+                worksheetData,
+                activityInfo.icon || 'fa-solid fa-file',
+                { id: 'kelime-cumle', title: 'Kelime-Cümle Stüdyosu' },
+                undefined, // styleSettings
+                undefined, // studentProfile
+                undefined  // studentId
+            );
+
+            // Eğer onSaveToArchive prop'u varsa onu da çağır
+            if (onSaveToArchive) {
+                await onSaveToArchive(name, activityType, worksheetData);
+            }
+
+            showToast(`✅ "${name}" adıyla arşive kaydedildi!`);
+        } catch (error) {
+            console.error('Arşive kaydetme hatası:', error);
+            showToast('❌ Arşive kaydedilirken bir hata oluştu');
         }
     };
 
@@ -200,6 +259,9 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
                             </button>
                             <button className="kc-btn-action" onClick={handleDownload}>
                                 💾 <span>İndir</span>
+                            </button>
+                            <button className="kc-btn-action" onClick={handleSaveToArchive} style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white' }}>
+                                📦 <span>Arşive Kaydet</span>
                             </button>
                         </div>
                         
