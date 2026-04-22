@@ -48,7 +48,7 @@ const ProfileView = lazy(() =>
   import('./components/ProfileView').then((module) => ({ default: module.ProfileView }))
 );
 const AdminDashboard = lazy(() =>
-  import('./components/AdminDashboard').then((module) => ({ default: module.AdminDashboard }))
+  import('./components/AdminDashboard/index').then((module) => ({ default: module.AdminDashboard }))
 );
 const MessagesView = lazy(() =>
   import('./components/MessagesView').then((module) => ({ default: module.MessagesView }))

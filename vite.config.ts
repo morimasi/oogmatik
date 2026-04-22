@@ -1,10 +1,10 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig, type UserConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
 import { fileURLToPath, URL } from 'node:url';
 
 // https://vitejs.dev/config/
-export default defineConfig({
+const config: UserConfig & { test?: any } = {
   plugins: [react()],
   resolve: {
     alias: {
@@ -60,4 +60,6 @@ export default defineConfig({
   test: {
     exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**'],
   },
-});
+};
+
+export default defineConfig(config);
