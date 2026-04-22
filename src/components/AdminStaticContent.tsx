@@ -1,2 +1,2 @@
-// Re-export from centralized AdminDashboard module
-export { AdminStaticContent } from './AdminDashboard/AdminStaticContent';
+// Proxy file deactivated to resolve Rollup/Vite path ambiguity.
+export {};

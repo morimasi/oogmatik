@@ -90,7 +90,7 @@ export interface StaticContentItem {
 export interface UserFilter {
   search: string;
   role: 'all' | UserRole;
-  status: 'all' | UserStatus;
+  status: 'all' | ExtendedUserStatus;
   sortBy: 'newest' | 'oldest' | 'name' | 'activity';
 }
 
@@ -159,14 +159,12 @@ export interface ServiceHealth {
   lastChecked?: string;
 }
 export type ServiceStatus = 'up' | 'down' | 'degraded' | 'operational';
-export type UserRoleType = 'user' | 'admin' | 'teacher' | 'parent' | 'student' | 'editor' | 'superadmin' | 'guest';
-
 export type ExtendedUserStatus = UserStatus | 'pending' | 'deleted';
 
 export interface ManagedUser {
   id: string;
   email: string;
-  role: UserRoleType;
+  role: UserRole;
   status: ExtendedUserStatus;
   name: string;
   avatar: string;
