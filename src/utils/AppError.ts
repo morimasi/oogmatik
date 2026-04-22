@@ -4,6 +4,8 @@
  */
 
 export class AppError extends Error {
+  public originalError?: unknown;
+
   constructor(
     public userMessage: string, // Kullanıcı dostu mesaj
     public code: string, // Sistem kodlaması (DEBUG)
@@ -154,11 +156,17 @@ export function isAppError(error: unknown): error is AppError {
 /**
  * Error'ı AppError'a dönüştür (unknown -> AppError)
  */
-export function toAppError(error: unknown): AppError {
+export function toAppError(
+  error: unknown,
+  defaultMessage?: string,
+  defaultCode?: string
+): AppError {
   // Zaten AppError ise
   if (isAppError(error)) {
     return error;
   }
+
+  let result: AppError;
 
   // Firebase Authentication hatası (plain object veya Error olabilir)
   if (typeof error === 'object' && error !== null && 'code' in error) {
@@ -169,54 +177,55 @@ export function toAppError(error: unknown): AppError {
       code === 'auth/user-not-found' ||
       code === 'auth/wrong-password'
     ) {
-      return new AuthenticationError('E-posta veya şifre hatalı.');
-    }
-
-    if (code === 'auth/email-already-in-use') {
-      return new ValidationError('Bu e-posta adresi zaten kayıtlı.');
-    }
-
-    if (code === 'auth/weak-password') {
-      return new ValidationError('Şifre en az 6 karakter olmalıdır.');
-    }
-
-    if (code === 'auth/network-request-failed') {
-      return new NetworkError('Sunucuya ulaşılamadı.');
+      result = new AuthenticationError('E-posta veya şifre hatalı.');
+    } else if (code === 'auth/email-already-in-use') {
+      result = new ValidationError('Bu e-posta adresi zaten kayıtlı.');
+    } else if (code === 'auth/weak-password') {
+      result = new ValidationError('Şifre en az 6 karakter olmalıdır.');
+    } else if (code === 'auth/network-request-failed') {
+      result = new NetworkError('Sunucuya ulaşılamadı.');
+    } else {
+      result = new InternalServerError(defaultMessage || 'Kimlik doğrulama hatası');
+      result.code = defaultCode || 'AUTH_ERROR';
     }
   }
-
   // Standart Error nesnesi
-  if (error instanceof Error) {
+  else if (error instanceof Error) {
     // Network hatası
     if (error.message.includes('fetch') || error.message.includes('network')) {
-      return new NetworkError();
+      result = new NetworkError();
     }
-
     // Timeout
-    if (error.message.includes('timeout')) {
-      return new TimeoutError();
+    else if (error.message.includes('timeout')) {
+      result = new TimeoutError();
     }
-
     // Firestore hatası
-    if (error.message.includes('PERMISSION_DENIED')) {
-      return new AuthorizationError();
+    else if (error.message.includes('PERMISSION_DENIED')) {
+      result = new AuthorizationError();
     }
-
     // Default: Generic error
-    let isDev = false;
-    if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
-      isDev = true;
-    } else if (typeof window !== 'undefined' && (window as any).__VITE_IS_DEV__) {
-      isDev = true;
+    else {
+      let isDev = false;
+      if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
+        isDev = true;
+      } else if (typeof window !== 'undefined' && (window as any).__VITE_IS_DEV__) {
+        isDev = true;
+      }
+      result = new InternalServerError(defaultMessage || (isDev ? error.message : undefined));
+      if (defaultCode) result.code = defaultCode;
     }
-    return new InternalServerError(isDev ? error.message : undefined);
   }
-
   // String hata
-  if (typeof error === 'string') {
-    return new InternalServerError(error);
+  else if (typeof error === 'string') {
+    result = new InternalServerError(defaultMessage || error);
+    if (defaultCode) result.code = defaultCode;
+  }
+  // Tamamen unknown
+  else {
+    result = new InternalServerError(defaultMessage || 'Bilinmeyen hata oluştu.');
+    if (defaultCode) result.code = defaultCode;
   }
 
-  // Tamamen unknown
-  return new InternalServerError('Bilinmeyen hata oluştu.');
+  result.originalError = error;
+  return result;
 }
