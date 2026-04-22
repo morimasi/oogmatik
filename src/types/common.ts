@@ -12,6 +12,7 @@ export interface StyleSettings {
     fontWeight: 'normal' | 'bold';
     fontStyle: 'normal' | 'italic';
     visualStyle: 'card' | 'minimal';
+    showPedagogicalNote: boolean;
     showMascot: boolean;
     showStudentInfo: boolean;
     showTitle: boolean;

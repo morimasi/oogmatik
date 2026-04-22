@@ -1,10 +1,12 @@
 import { AppError } from '../../utils/AppError';
 import { logger } from '../../utils/logger';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { PromptTemplate } from '../../types/admin';
 import { adminService } from '../../services/adminService';
 import { WorksheetData, ActivityType } from '../../types/core';
-import { SheetRenderer } from '../SheetRenderer';
+
+// Break circular dependency with lazy loading
+const SheetRenderer = lazy(() => import('../SheetRenderer').then(m => ({ default: m.SheetRenderer })));
 
 // Basit aktivite tipi tahminleyicisi
 const detectActivityType = (promptId: string): ActivityType => {
@@ -170,23 +172,25 @@ export const PromptSimulator = ({ prompt }: { prompt: PromptTemplate }) => {
                             </pre>
                         ) : (
                             <div className="p-8 transform scale-90 origin-top h-full overflow-y-auto">
-                                <SheetRenderer
-                                    activityType={selectedActivityType}
-                                    data={(Array.isArray(result) ? result : [result]) as any}
-                                    settings={{
-                                        fontFamily: 'Lexend',
-                                        fontSize: 16,
-                                        showTitle: true,
-                                        showStudentInfo: false,
-                                        showFooter: true,
-                                        themeBorder: 'simple',
-                                        scale: 1, borderColor: '#000', borderWidth: 1, margin: 10, columns: 1, gap: 10, orientation: 'portrait',
-                                        contentAlign: 'center', fontWeight: 'normal', fontStyle: 'normal', visualStyle: 'card', lineHeight: 1.5,
-                                        letterSpacing: 0, wordSpacing: 0, paragraphSpacing: 10, showPedagogicalNote: false, showMascot: false,
-                                        showInstruction: true, showImage: false, smartPagination: false, focusMode: false, rulerColor: 'red', rulerHeight: 10, maskOpacity: 0.5,
-                                        footerText: ''
-                                    }}
-                                />
+                                <Suspense fallback={<div className="flex items-center justify-center h-40 text-zinc-500 text-xs uppercase font-black"><i className="fa-solid fa-circle-notch fa-spin mr-2"></i>Renderer Yükleniyor...</div>}>
+                                    <SheetRenderer
+                                        activityType={selectedActivityType}
+                                        data={(Array.isArray(result) ? result : [result]) as any}
+                                        settings={{
+                                            fontFamily: 'Lexend',
+                                            fontSize: 16,
+                                            showTitle: true,
+                                            showStudentInfo: false,
+                                            showFooter: true,
+                                            themeBorder: 'simple',
+                                            scale: 1, borderColor: '#000', borderWidth: 1, margin: 10, columns: 1, gap: 10, orientation: 'portrait',
+                                            contentAlign: 'center', fontWeight: 'normal', fontStyle: 'normal', visualStyle: 'card', lineHeight: 1.5,
+                                            letterSpacing: 0, wordSpacing: 0, paragraphSpacing: 10, showPedagogicalNote: false, showMascot: false,
+                                            showInstruction: true, showImage: false, smartPagination: false, focusMode: false, rulerColor: 'red', rulerHeight: 10, maskOpacity: 0.5,
+                                            footerText: ''
+                                        }}
+                                    />
+                                </Suspense>
                             </div>
                         )
                     )}

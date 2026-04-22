@@ -1,6 +1,5 @@
-// @ts-nocheck
-import React, { useState, useEffect } from 'react';
-import { PromptTemplate, PromptSnippet, PromptVersion as _PromptVersion } from '../../types/admin';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { PromptTemplate, PromptSnippet, PromptVersion } from '../../types/admin';
 import { adminService } from '../../services/adminService';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../../constants';
 // import { _ActivityType } from '../../types'; // Not used in the component logic directly but was imported
@@ -17,8 +16,8 @@ const CodeEditor = ({
   onChange?: (v: string) => void;
   readOnly?: boolean;
 }) => {
-  const preRef = (React as any).useRef(null as HTMLPreElement | null);
-  const textRef = (React as any).useRef(null as HTMLTextAreaElement | null);
+  const preRef = useRef<HTMLPreElement>(null);
+  const textRef = useRef<HTMLTextAreaElement>(null);
 
   const highlight = (code: string) => {
     return code
@@ -77,29 +76,19 @@ const CodeEditor = ({
 
 // --- CORE COMPONENT ---
 export const AdminPromptStudio = () => {
-  const [prompts, setPrompts] = (React as any).useState([] as PromptTemplate[]);
-  const [selected, setSelected] = (React as any).useState(null as PromptTemplate | null);
-  const [snippets, setSnippets] = (React as any).useState([] as PromptSnippet[]);
-  const [_loading, setLoading] = (React as any).useState(true);
-  const [isSaving, setIsSaving] = (React as any).useState(false);
-  const [testVars, _setTestVars] = (React as any).useState({} as Record<string, string>);
-  const [activeTab, setActiveTab] = (React as any).useState(
-    'editor' as 'editor' | 'history' | 'simulation'
-  );
+  const [prompts, setPrompts] = useState<PromptTemplate[]>([]);
+  const [selected, setSelected] = useState<PromptTemplate | null>(null);
+  const [snippets, setSnippets] = useState<PromptSnippet[]>([]);
+  const [_loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [testVars, _setTestVars] = useState<Record<string, string>>({});
+  const [activeTab, setActiveTab] = useState<'editor' | 'history' | 'simulation'>('editor');
 
   // A/B Testing States
-  const [simA, setSimA] = (React as any).useState({ result: '', loading: false, temp: 0.1 } as {
-    result: string;
-    loading: boolean;
-    temp: number;
-  });
-  const [simB, setSimB] = (React as any).useState({ result: '', loading: false, temp: 0.8 } as {
-    result: string;
-    loading: boolean;
-    temp: number;
-  });
+  const [simA, setSimA] = useState({ result: '', loading: false, temp: 0.1 });
+  const [simB, setSimB] = useState({ result: '', loading: false, temp: 0.8 });
 
-  (React as any).useEffect(() => {
+  useEffect(() => {
     loadData();
   }, []);
 
@@ -111,14 +100,14 @@ export const AdminPromptStudio = () => {
     setLoading(false);
   };
 
-  const variables = (React as any).useMemo(() => {
+  const variables = useMemo(() => {
     if (!selected) return [];
     const matches = (selected as any).template.match(/\{\{(.*?)\}\}/g);
-    return matches ? [...new Set(matches.map((m: string) => m.replace(/\{|\}/g, '')))] : [];
+    return matches ? [...new Set(matches.map((m: string) => m.replace(/\{|\}/g, '')) as string[])] : [];
   }, [selected]);
 
   // Ozel Linter Engine (Pedagogical Load & Constraints)
-  const linter = (React as any).useMemo(() => {
+  const linter = useMemo(() => {
     if (!selected) return { score: 100, warnings: [], tokens: 0 };
     const full = (selected.template + ' ' + selected.systemInstruction).toLowerCase();
     const warnings: { type: 'error' | 'warning' | 'info'; text: string }[] = [];
@@ -159,7 +148,7 @@ export const AdminPromptStudio = () => {
     return { score: Math.max(0, score), warnings, tokens: exactTokens };
   }, [selected?.template, selected?.systemInstruction]);
 
-  const handleSelect = async (act: any) => {
+  const handleSelect = async (act: { id: string; title: string }) => {
     const id = `prompt_${act.id.toLowerCase()}`;
     let p = prompts.find((x: PromptTemplate) => x.id === id);
     if (!p) {
@@ -180,8 +169,8 @@ export const AdminPromptStudio = () => {
       };
     }
     setSelected(p);
-    setSimA((prev: any) => ({ ...prev, result: '' }));
-    setSimB((prev: any) => ({ ...prev, result: '' }));
+    setSimA((prev) => ({ ...prev, result: '' }));
+    setSimB((prev) => ({ ...prev, result: '' }));
     setActiveTab('editor');
   };
 
@@ -208,8 +197,8 @@ export const AdminPromptStudio = () => {
     if (!selected) return;
 
     variant === 'A'
-      ? setSimA((p: any) => ({ ...p, loading: true, result: '' }))
-      : setSimB((p: any) => ({ ...p, loading: true, result: '' }));
+      ? setSimA((p) => ({ ...p, loading: true, result: '' }))
+      : setSimB((p) => ({ ...p, loading: true, result: '' }));
     const t = variant === 'A' ? simA.temp : simB.temp;
 
     try {
@@ -222,16 +211,16 @@ export const AdminPromptStudio = () => {
       const mockResult = await adminService.testPrompt(tempSelected, testVars);
       const strRes = JSON.stringify(mockResult, null, 2);
       variant === 'A'
-        ? setSimA((p: any) => ({ ...p, result: strRes }))
-        : setSimB((p: any) => ({ ...p, result: strRes }));
+        ? setSimA((p) => ({ ...p, result: strRes }))
+        : setSimB((p) => ({ ...p, result: strRes }));
     } catch (e: any) {
       variant === 'A'
         ? setSimA((p: any) => ({ ...p, result: `HATA: ${e.message}` }))
         : setSimB((p: any) => ({ ...p, result: `HATA: ${e.message}` }));
     } finally {
       variant === 'A'
-        ? setSimA((p: any) => ({ ...p, loading: false }))
-        : setSimB((p: any) => ({ ...p, loading: false }));
+        ? setSimA((p) => ({ ...p, loading: false }))
+        : setSimB((p) => ({ ...p, loading: false }));
     }
   };
 
@@ -287,7 +276,7 @@ export const AdminPromptStudio = () => {
                 </h3>
                 <p
                   className="text-[10px] text-zinc-600 font-mono mt-0.5"
-                  title={linter.warnings.map((w: any) => w.text).join('\n')}
+                  title={linter.warnings.map((w) => w.text).join('\n')}
                 >
                   Maliyet: ~{linter.tokens} tkns • Skor:{' '}
                   <span
@@ -366,7 +355,7 @@ export const AdminPromptStudio = () => {
                             </p>
                           </div>
                         ) : (
-                          linter.warnings.map((w: any, i: number) => (
+                          linter.warnings.map((w, i) => (
                             <div
                               key={i}
                               className={`p-3 rounded-lg border flex flex-col gap-1.5 transition-all ${w.type === 'error' ? 'bg-red-500/5 border-red-500/20' : w.type === 'warning' ? 'bg-amber-500/5 border-amber-500/20' : 'bg-sky-500/5 border-sky-500/20'}`}
