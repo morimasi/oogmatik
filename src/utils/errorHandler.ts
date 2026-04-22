@@ -94,27 +94,46 @@ export const logError = (error: AppError, context?: Record<string, unknown>) => 
   let isDev = false;
   if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
     isDev = true;
-  } else if (typeof window !== 'undefined' && (window as unknown as Record<string, boolean>).__VITE_IS_DEV__) {
+  } else if (
+    typeof window !== 'undefined' &&
+    (window as unknown as Record<string, boolean>).__VITE_IS_DEV__
+  ) {
     isDev = true;
   }
 
   if (isDev) {
-    console.error('[AppError]', errorLog);
+    console.group(`🔴 AppError: ${error.code}`);
+    console.error('Message:', error.message);
+    if (error.originalError) console.error('Original:', error.originalError);
+    if (context) console.dir(context);
+    console.groupEnd();
   }
 
-  // External monitoring — eklenti tabanlı (Sentry, Datadog, Loggly vb.)
+  // External reporting
   if (_externalReporter) {
-    try {
-      _externalReporter(errorLog);
-    } catch {
-      /* monitoring hatası uygulamayı bozmamalı */
-    }
+    _externalReporter(errorLog);
   } else {
-    // Sentry DSN varsa lightweight HTTP reporter kullan (SDK gerektirmez)
     sendToSentryHttp(errorLog);
   }
+};
 
-  return errorLog;
+/**
+ * WRAPPER: Async function error handler
+ * Catch errors and transform to AppError
+ */
+export const wrapAsync = <T extends (...args: any[]) => Promise<any>>(
+  fn: T,
+  defaultMessage: string = 'İşlem başarısız',
+  defaultCode: string = 'INTERNAL_ERROR'
+) => {
+  return async (...args: Parameters<T>): Promise<ReturnType<T>> => {
+    try {
+      return await fn(...args);
+    } catch (error) {
+      if (isAppError(error)) throw error;
+      throw toAppError(error, defaultMessage, defaultCode);
+    }
+  };
 };
 
 /**

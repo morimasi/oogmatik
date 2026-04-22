@@ -484,13 +484,35 @@ export const generateOfflineCodeReading = async (options: GeneratorOptions): Pro
     return results;
 };
 
-export const generateOfflineAttentionToQuestion = async (_o: any): Promise<AttentionToQuestionData[]> => [{
-    title: 'Dikkat ve Sorular',
-    instruction: 'Aşağıdaki metinde geçen tüm "b" harflerini işaretleyin.',
-    subType: 'letter-cancellation'
-}, {
-    title: 'Yazı Alıştırması',
-    instruction: 'Noktalı çizgilerin üzerinden geçerek kelimeleri yazın.',
-    lines: [{ text: 'Elma', type: 'trace' }, { text: 'Armut', type: 'copy' }],
-    guideType: 'dotted'
-}];
+export const generateOfflineAttentionToQuestion = async (options: GeneratorOptions): Promise<AttentionToQuestionData[]> => {
+    const { worksheetCount } = options;
+    return Array.from({ length: worksheetCount }, () => ({
+        title: 'Dikkat ve Sorular',
+        instruction: 'Aşağıdaki metinde geçen tüm "b" harflerini işaretleyin.',
+        subType: 'letter-cancellation',
+        grid: Array.from({ length: 10 }, () => Array.from({ length: 10 }, () => Math.random() > 0.1 ? 'a' : 'b')),
+        targetChars: ['b']
+    }));
+};
+
+export const generateOfflineHandwritingPractice = async (options: GeneratorOptions): Promise<HandwritingPracticeData[]> => {
+    const { worksheetCount, difficulty } = options;
+    const words = getWordsForDifficulty(difficulty, 'Rastgele');
+    
+    return Array.from({ length: worksheetCount }, () => {
+        const selectedWords = getRandomItems(words, 5);
+        const lines = selectedWords.flatMap(word => [
+            { text: word, type: 'trace' as const },
+            { text: word, type: 'copy' as const },
+            { text: '', type: 'empty' as const }
+        ]);
+
+        return {
+            title: 'Yazı Alıştırması',
+            instruction: 'Noktalı çizgilerin üzerinden geçerek kelimeleri yazın ve boşluklara kopyalayın.',
+            lines,
+            guideType: 'dotted',
+            settings: { difficulty }
+        };
+    });
+};
