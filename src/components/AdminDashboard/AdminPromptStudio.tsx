@@ -374,7 +374,7 @@ export const AdminPromptStudio = () => {
                               <div className="flex items-center gap-2">
                                 <i
                                   className={`fa-solid text-[10px] ${w.type === 'error' ? 'fa-triangle-exclamation text-red-500' : w.type === 'warning' ? 'fa-bolt text-amber-500' : 'fa-lightbulb text-sky-500'}`}
-                                </i>
+                                ></i>
                                 <span
                                   className={`text-[9px] font-black uppercase ${w.type === 'error' ? 'text-red-500' : w.type === 'warning' ? 'text-amber-500' : 'text-sky-500'}`}
                                 >
