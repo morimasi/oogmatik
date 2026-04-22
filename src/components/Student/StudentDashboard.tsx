@@ -686,7 +686,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      {assignments.map((assignment) => (
+                      {assignments.map((assignment: ActivityAssignment) => (
                         <div
                           key={assignment.id}
                           className="flex items-center justify-between p-6 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-[2rem] shadow-sm hover:shadow-md transition-all group"
@@ -697,13 +697,13 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                             </div>
                             <div>
                               <h4 className="font-black text-lg text-[var(--text-primary)] uppercase tracking-tight">
-                                {assignment.worksheetTitle || 'Kayıtlı Etkinlik'}
+                                Kayıtlı Etkinlik #{assignment.worksheetId.slice(0, 5)}
                               </h4>
                               <p className="text-[10px] font-bold text-[var(--text-muted)] mt-1 uppercase tracking-widest">
                                 Son Tarih: {assignment.dueDate ? new Date(assignment.dueDate).toLocaleDateString('tr-TR') : 'Belirtilmedi'}
                               </p>
-                              {assignment.instructions && (
-                                <p className="text-xs text-[var(--text-secondary)] italic mt-2">"{assignment.instructions}"</p>
+                              {assignment.teacherNotes && (
+                                <p className="text-xs text-[var(--text-secondary)] italic mt-2">"{assignment.teacherNotes}"</p>
                               )}
                             </div>
                           </div>
