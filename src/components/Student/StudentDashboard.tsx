@@ -2,9 +2,12 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useStudentStore } from '../../store/useStudentStore';
 import { Student, SavedWorksheet, SavedAssessment, Curriculum } from '../../types';
+import { ActivityAssignment } from '../../types/assignment';
 import { worksheetService } from '../../services/worksheetService';
 import { assessmentService } from '../../services/assessmentService';
 import { curriculumService } from '../../services/curriculumService';
+import { assignmentService } from '../../services/assignmentService';
+import { useAssignmentStore } from '../../store/useAssignmentStore';
 import { LineChart } from '../LineChart';
 import { RadarChart } from '../RadarChart';
 import { ACTIVITIES } from '../../constants';
@@ -39,12 +42,12 @@ interface StudentDashboardProps {
   onLoadMaterial?: (ws: SavedWorksheet) => void;
 }
 
-type TabType = 'overview' | 'materials' | 'analytics' | 'plans' | 'notes' | 'settings';
+type TabType = 'overview' | 'materials' | 'assignments' | 'analytics' | 'plans' | 'notes' | 'settings';
 type GroupingMode = 'all' | 'grade' | 'age';
 type FormTab = 'identity' | 'academic' | 'parent';
 
 export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLoadMaterial }) => {
-  const { _user } = useAuthStore();
+  const { user } = useAuthStore();
   const { students, activeStudent, setActiveStudent, addStudent, deleteStudent, updateStudent, isLoading: _contextLoading } = useStudentStore();
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('overview');
@@ -81,6 +84,12 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
   const [studentAssessments, setStudentAssessments] = useState<SavedAssessment[]>([]);
   const [studentCurriculums, setStudentCurriculums] = useState<Curriculum[]>([]);
   const [loadingDetails, setLoadingDetails] = useState(false);
+  
+  // Assignment Store
+  const { assignments, fetchStudentAssignments, updateAssignment } = useAssignmentStore();
+
+  // Assignment Unsubscribe Tracking
+  const assignmentListenerUnsub = React.useRef<(() => void) | null>(null);
 
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -101,6 +110,20 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
   useEffect(() => {
     if (selectedStudentId) {
       loadStudentData(selectedStudentId);
+      
+      // Cleanup previous listener
+      if (assignmentListenerUnsub.current) {
+        assignmentListenerUnsub.current();
+      }
+      // Start new listener
+      assignmentListenerUnsub.current = fetchStudentAssignments(selectedStudentId);
+    }
+    
+    return () => {
+      if (assignmentListenerUnsub.current) {
+        assignmentListenerUnsub.current();
+        assignmentListenerUnsub.current = null;
+      }
     }
   }, [selectedStudentId]);
 
@@ -435,6 +458,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
         <div className="flex border-b border-[var(--border-color)] bg-[var(--bg-paper)] backdrop-blur-md px-8 gap-8 overflow-x-auto shrink-0 sticky top-0 z-20">
           {[
             { id: 'overview', label: 'Dashboard', icon: 'fa-grid-2' },
+            { id: 'assignments', label: 'Atamalar', icon: 'fa-tasks' },
             { id: 'materials', label: 'Materyaller', icon: 'fa-scroll' },
             { id: 'analytics', label: 'Bilişsel Analiz', icon: 'fa-brain-circuit' },
             { id: 'plans', label: 'Akademik Plan', icon: 'fa-calendar-lines-pen' },
@@ -643,6 +667,67 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                       </button>
                     </div>
                   </div>
+                </div>
+              )}
+
+              {activeTab === 'assignments' && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-bottom-6 duration-700">
+                  <div className="flex justify-between items-center mb-4 px-4">
+                    <h3 className="font-black text-2xl tracking-tighter text-[var(--text-primary)] uppercase">
+                      Bireysel Atamalar
+                    </h3>
+                  </div>
+                  {assignments.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-20 bg-[var(--bg-paper)] rounded-[3rem] border-2 border-dashed border-[var(--border-color)]">
+                      <i className="fa-solid fa-clipboard-list text-6xl text-[var(--text-muted)] opacity-30 mb-4"></i>
+                      <p className="text-[var(--text-muted)] font-bold">
+                        Bu öğrenciye henüz bir görev atanmamış.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {assignments.map((assignment) => (
+                        <div
+                          key={assignment.id}
+                          className="flex items-center justify-between p-6 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-[2rem] shadow-sm hover:shadow-md transition-all group"
+                        >
+                          <div className="flex items-center gap-6">
+                            <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center text-3xl shadow-inner transition-colors ${assignment.status === 'completed' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
+                              <i className={`fa-solid ${assignment.status === 'completed' ? 'fa-check-double' : 'fa-list-check'}`}></i>
+                            </div>
+                            <div>
+                              <h4 className="font-black text-lg text-[var(--text-primary)] uppercase tracking-tight">
+                                {assignment.worksheetTitle || 'Kayıtlı Etkinlik'}
+                              </h4>
+                              <p className="text-[10px] font-bold text-[var(--text-muted)] mt-1 uppercase tracking-widest">
+                                Son Tarih: {assignment.dueDate ? new Date(assignment.dueDate).toLocaleDateString('tr-TR') : 'Belirtilmedi'}
+                              </p>
+                              {assignment.instructions && (
+                                <p className="text-xs text-[var(--text-secondary)] italic mt-2">"{assignment.instructions}"</p>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-4">
+                            <div className="flex flex-col items-end mr-4">
+                              <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest ${assignment.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                                {assignment.status === 'completed' ? 'Tamamlandı' : 'Bekliyor'}
+                              </span>
+                            </div>
+                            {assignment.status !== 'completed' && (
+                              <button
+                                onClick={() => updateAssignment(assignment.id, { status: 'completed' })}
+                                className="w-12 h-12 bg-[var(--bg-secondary)] hover:bg-emerald-500 hover:text-white rounded-2xl flex items-center justify-center transition-all text-[var(--text-secondary)] shadow-sm"
+                                title="Tamamlandı İşaretle"
+                              >
+                                <i className="fa-solid fa-check"></i>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
 

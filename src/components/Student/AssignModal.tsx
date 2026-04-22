@@ -4,6 +4,7 @@ import { X, CheckCircle, Search, Users, Calendar } from 'lucide-react';
 import { useAssignmentStore } from '../../store/useAssignmentStore';
 import { useStudentStore } from '../../store/useStudentStore';
 import { useAuthStore } from '../../store/useAuthStore';
+import { Student } from '../../types';
 import { useToastStore } from '../../store/useToastStore';
 
 export const AssignModal: React.FC = () => {
@@ -38,7 +39,7 @@ export const AssignModal: React.FC = () => {
 
   if (!isAssignModalOpen || !activeWorksheetId) return null;
 
-  const filteredStudents = students.filter(s => 
+  const filteredStudents = students.filter((s: Student) => 
     s.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -56,7 +57,7 @@ export const AssignModal: React.FC = () => {
     if (selectedStudents.size === filteredStudents.length) {
       setSelectedStudents(new Set());
     } else {
-      setSelectedStudents(new Set(filteredStudents.map(s => s.id)));
+      setSelectedStudents(new Set(filteredStudents.map((s: Student) => s.id)));
     }
   };
 
@@ -144,7 +145,7 @@ export const AssignModal: React.FC = () => {
                     Öğrenci bulunamadı.
                   </div>
                 ) : (
-                  filteredStudents.map(student => (
+                  filteredStudents.map((student: Student) => (
                     <div
                       key={student.id}
                       onClick={() => toggleStudent(student.id)}

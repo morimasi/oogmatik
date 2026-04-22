@@ -197,7 +197,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       }
 
       if (currentId) {
-        useAssignmentStore.getState().setModalOpen(true, currentId);
+        useAssignmentStore.getState().setIsAssignModalOpen(true, currentId);
       } else {
         alert('Önce çalışmayı kaydetmelisiniz.');
       }
