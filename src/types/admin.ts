@@ -160,13 +160,16 @@ export interface ServiceHealth {
 }
 export type ServiceStatus = 'up' | 'down' | 'degraded' | 'operational';
 export type UserRoleType = 'user' | 'admin' | 'teacher' | 'parent' | 'student' | 'editor' | 'superadmin' | 'guest';
+
+export type ExtendedUserStatus = UserStatus | 'pending' | 'deleted';
+
 export interface ManagedUser {
   id: string;
   email: string;
   role: UserRoleType;
-  status: 'active' | 'suspended' | 'pending';
+  status: ExtendedUserStatus;
   name: string;
-  avatar: string; // Genel sistemdeki gibi zorunlu hale getirildi
+  avatar: string;
   lastLogin?: string;
   createdAt?: string;
   worksheetCount?: number;

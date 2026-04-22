@@ -74,9 +74,9 @@ export const AdminUserManagement: React.FC = () => {
         setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
     };
 
-    const handleStatusChange = async (userId: string, currentStatus: UserStatus) => {
+    const handleStatusChange = async (userId: string, currentStatus: ExtendedUserStatus) => {
         const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
-        await adminService.updateUserStatus(userId, newStatus);
+        await adminService.updateUserStatus(userId, newStatus as UserStatus);
         setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: newStatus } : u));
     };
 
@@ -115,6 +115,7 @@ export const AdminUserManagement: React.FC = () => {
                         <option value="all">Tüm Durumlar</option>
                         <option value="active">Aktif</option>
                         <option value="suspended">Askıda</option>
+                        <option value="pending">Beklemede</option>
                     </select>
 
                     <select 
@@ -163,15 +164,19 @@ export const AdminUserManagement: React.FC = () => {
                                         </td>
                                         <td className="p-4">
                                             <button 
-                                                onClick={() => handleStatusChange(user.id, user.status as any)}
+                                                onClick={() => handleStatusChange(user.id, user.status)}
                                                 className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border transition-colors ${
                                                     user.status === 'active' 
                                                     ? 'bg-green-50 text-green-700 border-green-100 hover:bg-red-50 hover:text-red-700 hover:border-red-100 group/status' 
-                                                    : 'bg-red-50 text-red-700 border-red-100 hover:bg-green-50 hover:text-green-700 hover:border-green-100 group/status'
+                                                    : user.status === 'suspended'
+                                                    ? 'bg-red-50 text-red-700 border-red-100 hover:bg-green-50 hover:text-green-700 hover:border-green-100 group/status'
+                                                    : 'bg-amber-50 text-amber-700 border-amber-100 hover:bg-green-50 hover:text-green-700 hover:border-green-100 group/status'
                                                 }`}
                                             >
-                                                <span className={`w-1.5 h-1.5 rounded-full ${user.status === 'active' ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                                                <span className="group-hover/status:hidden">{user.status === 'active' ? 'Aktif' : user.status === 'suspended' ? 'Askıda' : 'Bekliyor'}</span>
+                                                <span className={`w-1.5 h-1.5 rounded-full ${user.status === 'active' ? 'bg-green-500' : user.status === 'suspended' ? 'bg-red-500' : 'bg-amber-500'}`}></span>
+                                                <span className="group-hover/status:hidden">
+                                                    {user.status === 'active' ? 'Aktif' : user.status === 'suspended' ? 'Askıda' : user.status === 'pending' ? 'Bekliyor' : 'Silinmiş'}
+                                                </span>
                                                 <span className="hidden group-hover/status:inline">{user.status === 'active' ? 'Engelle' : 'Aktifleştir'}</span>
                                             </button>
                                         </td>
