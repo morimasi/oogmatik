@@ -11,7 +11,8 @@ const ROLE_LABELS: Record<UserRoleType, string> = {
   editor: 'Editör',
   superadmin: 'Süper Admin',
   parent: 'Veli',
-  guest: 'Misafir'
+  guest: 'Misafir',
+  user: 'Kullanıcı'
 };
 
 const ROLE_COLORS: Record<UserRoleType, string> = {
@@ -21,7 +22,8 @@ const ROLE_COLORS: Record<UserRoleType, string> = {
   editor: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
   superadmin: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
   parent: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20',
-  guest: 'bg-zinc-500/10 text-zinc-500 border-zinc-500/20'
+  guest: 'bg-zinc-500/10 text-zinc-500 border-zinc-500/20',
+  user: 'bg-teal-500/10 text-teal-500 border-teal-500/20'
 };
 
 export const AdminUserManagement: React.FC = () => {
@@ -43,7 +45,7 @@ export const AdminUserManagement: React.FC = () => {
         setLoading(true);
         try {
             const { users: data } = await authService.getAllUsers(0, 100);
-            setUsers(data);
+            setUsers(data as unknown as ManagedUser[]);
         } catch (e) {
             console.error('Failed to load users', e);
         } finally {
@@ -59,8 +61,8 @@ export const AdminUserManagement: React.FC = () => {
             const matchStatus = filter.status === 'all' || user.status === filter.status;
             return matchSearch && matchRole && matchStatus;
         }).sort((a, b) => {
-            if (filter.sortBy === 'newest') return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-            if (filter.sortBy === 'oldest') return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+            if (filter.sortBy === 'newest') return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+            if (filter.sortBy === 'oldest') return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
             if (filter.sortBy === 'name') return a.name.localeCompare(b.name);
             if (filter.sortBy === 'activity') return (b.worksheetCount || 0) - (a.worksheetCount || 0);
             return 0;
@@ -161,7 +163,7 @@ export const AdminUserManagement: React.FC = () => {
                                         </td>
                                         <td className="p-4">
                                             <button 
-                                                onClick={() => handleStatusChange(user.id, user.status)}
+                                                onClick={() => handleStatusChange(user.id, user.status as any)}
                                                 className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border transition-colors ${
                                                     user.status === 'active' 
                                                     ? 'bg-green-50 text-green-700 border-green-100 hover:bg-red-50 hover:text-red-700 hover:border-red-100 group/status' 
@@ -169,7 +171,7 @@ export const AdminUserManagement: React.FC = () => {
                                                 }`}
                                             >
                                                 <span className={`w-1.5 h-1.5 rounded-full ${user.status === 'active' ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                                                <span className="group-hover/status:hidden">{user.status === 'active' ? 'Aktif' : 'Askıda'}</span>
+                                                <span className="group-hover/status:hidden">{user.status === 'active' ? 'Aktif' : user.status === 'suspended' ? 'Askıda' : 'Bekliyor'}</span>
                                                 <span className="hidden group-hover/status:inline">{user.status === 'active' ? 'Engelle' : 'Aktifleştir'}</span>
                                             </button>
                                         </td>
@@ -185,7 +187,7 @@ export const AdminUserManagement: React.FC = () => {
                                             </select>
                                         </td>
                                         <td className="p-4 text-zinc-500 font-mono text-xs">
-                                            {new Date(user.createdAt).toLocaleDateString('tr-TR')}
+                                            {new Date(user.createdAt || Date.now()).toLocaleDateString('tr-TR')}
                                         </td>
                                         <td className="p-4 text-center">
                                             <span className="px-2 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-bold">

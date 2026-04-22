@@ -159,13 +159,14 @@ export interface ServiceHealth {
   lastChecked?: string;
 }
 export type ServiceStatus = 'up' | 'down' | 'degraded' | 'operational';
-export type UserRoleType = 'admin' | 'teacher' | 'student' | 'editor' | 'superadmin' | 'parent' | 'guest';
+export type UserRoleType = 'user' | 'admin' | 'teacher' | 'parent' | 'student' | 'editor' | 'superadmin' | 'guest';
 export interface ManagedUser {
   id: string;
   email: string;
   role: UserRoleType;
   status: 'active' | 'suspended' | 'pending';
   name: string;
+  avatar: string; // Genel sistemdeki gibi zorunlu hale getirildi
   lastLogin?: string;
   createdAt?: string;
   worksheetCount?: number;
