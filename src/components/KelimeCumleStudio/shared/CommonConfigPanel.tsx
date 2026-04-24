@@ -165,6 +165,25 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = ({
                                 />
                             </div>
 
+                            {/* Sayfa Başına Soru */}
+                            <div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <label className="kc-label">Sayfa Başına Soru: {config.itemsPerPage || 10}</label>
+                                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                                        Tahmini: {Math.ceil(config.itemCount / (config.itemsPerPage || 10))} Sayfa
+                                    </span>
+                                </div>
+                                <input 
+                                    type="range" 
+                                    min="1" 
+                                    max="30" 
+                                    step="1"
+                                    className="kc-range"
+                                    value={config.itemsPerPage || 10}
+                                    onChange={(e) => onConfigChange({ itemsPerPage: parseInt(e.target.value) })}
+                                />
+                            </div>
+
                             {/* Cevap Anahtarı */}
                             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.8rem', color: 'var(--text-main)' }}>
                                 <input 

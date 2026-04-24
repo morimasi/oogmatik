@@ -35,7 +35,8 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
         // Tasarım Standartları (Varsayılan)
         fontSize: 22,
         wordSpacing: 1.5,
-        dotSize: 12
+        dotSize: 12,
+        itemsPerPage: 10
     });
 
     const [content, setContent] = useState<KelimeCumleGeneratedContent | null>(null);
@@ -157,15 +158,19 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
             console.warn(`Beklenen: ${expectedCount} soru, üretilen: ${content.items.length} soru`);
         }
         
-        // Her aktivite türü için optimal sayfa başına soru sayısı (sabit)
+        // Kullanıcının belirlediği sayfa başına soru sayısı veya optimal varsayılan değer
         let perPage: number;
-        switch (config.type) {
-            case 'bosluk_doldurma': perPage = 10; break; // Orta uzunlukta cümleler
-            case 'test': perPage = 5; break; // Çoktan seçmeli (az yer kaplar)
-            case 'kelime_tamamlama': perPage = 12; break; // Kısa kelimeler
-            case 'karisik_cumle': perPage = 8; break; // Kelime dizileri
-            case 'zit_anlam': perPage = 15; break; // Kısa kelime çiftleri
-            default: perPage = 10; break;
+        if (config.itemsPerPage) {
+            perPage = config.itemsPerPage;
+        } else {
+            switch (config.type) {
+                case 'bosluk_doldurma': perPage = 10; break; // Orta uzunlukta cümleler
+                case 'test': perPage = 5; break; // Çoktan seçmeli (az yer kaplar)
+                case 'kelime_tamamlama': perPage = 12; break; // Kısa kelimeler
+                case 'karisik_cumle': perPage = 8; break; // Kelime dizileri
+                case 'zit_anlam': perPage = 15; break; // Kısa kelime çiftleri
+                default: perPage = 10; break;
+            }
         }
 
         // Tüm soruları sayfalara böl
@@ -227,7 +232,22 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
                                 description: val.description
                             }))}
                             activeType={config.type}
-                            onTypeChange={(type) => setConfig(prev => ({ ...prev, type: type as KelimeCumleActivityType }))}
+                            onTypeChange={(type) => {
+                                const newType = type as KelimeCumleActivityType;
+                                let defaultPerPage = 10;
+                                switch (newType) {
+                                    case 'test': defaultPerPage = 5; break;
+                                    case 'kelime_tamamlama': defaultPerPage = 12; break;
+                                    case 'karisik_cumle': defaultPerPage = 8; break;
+                                    case 'zit_anlam': defaultPerPage = 15; break;
+                                    default: defaultPerPage = 10; break;
+                                }
+                                setConfig(prev => ({ 
+                                    ...prev, 
+                                    type: newType,
+                                    itemsPerPage: defaultPerPage
+                                }));
+                            }}
                         />
 
                         <CommonConfigPanel 

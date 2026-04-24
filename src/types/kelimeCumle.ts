@@ -23,6 +23,7 @@ export interface KelimeCumleConfig {
     fontSize?: number;
     wordSpacing?: number;
     dotSize?: number;
+    itemsPerPage?: number;
 }
 
 export interface BoslukDoldurmaItem {
