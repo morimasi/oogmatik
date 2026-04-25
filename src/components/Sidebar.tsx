@@ -53,7 +53,7 @@ interface SidebarProps {
   onOpenScreening?: () => void; // Added Prop
   onOpenSinavStudyosu?: () => void; // Sınav Stüdyosu
   onOpenMatSinavStudyosu?: () => void; // Matematik Sınav Stüdyosu
-  onOpenSariKitapStudio?: () => void; // Sarı Kitap Stüdyosu
+  onOpenSariKitapStudio?: () => void; // BursaDisleksi Hızlı Okuma Stüdyosu
   onOpenKelimeCumleStudio?: () => void; // Kelime-Cümle Stüdyosu
   activeCurriculumSession?: ActiveCurriculumSession | null;
   width?: number;
@@ -205,7 +205,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         },
         {
           id: 'sari-kitap-studio',
-          label: 'Sarı Kitap Stüdyosu',
+          label: 'Hızlı Okuma Stüdyosu', // BursaDisleksi Hızlı Okuma Stüdyosu kısa hali
           icon: 'fa-book',
           color: 'bg-yellow-500',
           onClick: onOpenSariKitapStudio,

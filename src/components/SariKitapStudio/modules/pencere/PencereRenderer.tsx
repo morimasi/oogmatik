@@ -108,7 +108,7 @@ export const PencereRenderer = memo(({ config, content }: RendererProps) => {
                 fontSize: '0.6rem', color: '#94a3b8', padding: '0.5rem 0.25rem 0'
             }}>
                 <span>Pencere Okuma • {c.difficulty}</span>
-                <span>Oogmatik © Sarı Kitap</span>
+                <span>© BursaDisleksi Hızlı Okuma Stüdyosu</span>
                 <span>{config.pageNumber}</span>
             </div>
         </div>

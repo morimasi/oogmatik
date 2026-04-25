@@ -17,10 +17,10 @@ export function useExportActions() {
     try {
       // Ensure the element has a unique printable ID if not already set
       if (!element.id) {
-        element.id = `sari-kitap-preview-${crypto.randomUUID().slice(0, 8)}`;
+        element.id = `hizli-okuma-preview-${crypto.randomUUID().slice(0, 8)}`;
       }
 
-      await printService.generatePdf(`#${element.id}`, options.filename ?? 'sari-kitap-etkinlik', {
+      await printService.generatePdf(`#${element.id}`, options.filename ?? 'bursadisleksi-hizli-okuma', {
         action: 'download'
       });
     } catch (error: unknown) {
@@ -44,7 +44,7 @@ export function useExportActions() {
       });
 
       const link = document.createElement('a');
-      link.download = `${options.filename ?? 'sari-kitap-etkinlik'}.png`;
+      link.download = `${options.filename ?? 'bursadisleksi-hizli-okuma'}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
     } catch (error: unknown) {

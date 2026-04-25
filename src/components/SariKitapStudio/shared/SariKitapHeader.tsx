@@ -15,7 +15,7 @@ export const SariKitapHeader = ({
                 <button className="sk-btn-icon" onClick={onBack} title="Geri">
                     ←
                 </button>
-                <span className="sk-header-title">📒 Sarı Kitap Stüdyosu</span>
+                <span className="sk-header-title">📒 BursaDisleksi Hızlı Okuma Stüdyosu</span>
             </div>
 
             <div className="sk-header-actions">

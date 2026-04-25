@@ -52,10 +52,10 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
         
         // Ensure unique ID for targeting
         if (!element.id) {
-            element.id = `sari-kitap-print-${Math.random().toString(36).slice(2, 9)}`;
+            element.id = `hizli-okuma-print-${Math.random().toString(36).slice(2, 9)}`;
         }
 
-        printService.generatePdf(`#${element.id}`, 'sari-kitap', {
+        printService.generatePdf(`#${element.id}`, 'hizli-okuma', {
             action: 'print',
         });
     }, []);
@@ -64,7 +64,7 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
         exportToPDF({
             format: 'pdf',
             elementRef: previewRef,
-            filename: `sari-kitap-${activeType}-${new Date().getTime()}`,
+            filename: `bursadisleksi-hizli-okuma-${activeType}-${new Date().getTime()}`,
         });
     }, [exportToPDF, activeType]);
 
@@ -72,7 +72,7 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
         exportToPNG({
             format: 'png',
             elementRef: previewRef,
-            filename: `sari-kitap-${activeType}-${new Date().getTime()}`,
+            filename: `bursadisleksi-hizli-okuma-${activeType}-${new Date().getTime()}`,
         });
     }, [exportToPNG, activeType]);
 
@@ -82,10 +82,10 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
         try {
             await worksheetService.saveWorksheet(
                 user.id,
-                generatedContent.title || 'Sarı Kitap Etkinliği',
+                generatedContent.title || 'BursaDisleksi Hızlı Okuma Etkinliği',
                 'sari-kitap-studio' as ActivityType,
                 [{
-                    title: generatedContent.title || 'Sarı Kitap Etkinliği',
+                    title: generatedContent.title || 'BursaDisleksi Hızlı Okuma Etkinliği',
                     instruction: generatedContent.instructions || '',
                     type: activeType,
                     content: generatedContent,
@@ -96,7 +96,7 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
                     }
                 }],
                 '📒',
-                { id: 'sari-kitap', title: 'Sarı Kitap' }
+                { id: 'hizli-okuma', title: 'Hızlı Okuma' }
             );
             toast.success('Etkinlik başarıyla kaydedildi!');
         } catch (err) {
@@ -196,7 +196,7 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
                         <div className="sk-empty-state">
                             <div className="sk-empty-state-icon">📒</div>
                             <div>
-                                <p style={{ fontWeight: 600, marginBottom: '0.25rem' }}>Sarı Kitap Stüdyosu</p>
+                                <p style={{ fontWeight: 600, marginBottom: '0.25rem' }}>BursaDisleksi Hızlı Okuma Stüdyosu</p>
                                 <p style={{ fontSize: '0.8125rem' }}>
                                     Soldaki panelden bir format seçin ve &quot;Oluştur&quot; butonuna tıklayın.
                                 </p>

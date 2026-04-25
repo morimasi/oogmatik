@@ -1,5 +1,5 @@
 /**
- * Sarı Kitap AI Engine
+ * BursaDisleksi Hızlı Okuma AI Engine
  * Gemini 2.5 Flash üzerinden AI içerik üretimi + JSON repair + hece post-processing
  * AI fail → offline fallback devreye girer
  */
@@ -16,7 +16,7 @@ interface GenerateOptions {
 }
 
 /**
- * AI ile Sarı Kitap içerik üretimi
+ * AI ile BursaDisleksi Hızlı Okuma içerik üretimi
  * Pipeline: Cache check → Prompt build → Gemini API → JSON repair → Hece post-processing → Cache set
  * Fallback: AI başarısız → offline üretici
  */
@@ -69,7 +69,7 @@ export async function generateSariKitapContent(
         const heceRows = useWordLevel ? metniKelimele(rawText) : metniHecele(rawText);
 
         const content: SariKitapGeneratedContent = {
-            title: (aiData.title as string) ?? 'Sarı Kitap Etkinliği',
+            title: (aiData.title as string) ?? 'BursaDisleksi Hızlı Okuma Etkinliği',
             instructions: (aiData.instructions as string) ?? '',
             targetSkills: (aiData.targetSkills as string[]) ?? [...config.targetSkills],
             rawText,

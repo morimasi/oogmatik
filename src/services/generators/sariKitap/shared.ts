@@ -6,7 +6,7 @@ import {
 } from '../../../types/sariKitap.js';
 
 // ─── Paylaşımlı System Instruction ──────────────────────────────
-export const SARI_KITAP_SYSTEM_INSTRUCTION = `Sen bir disleksi eğitim uzmanısın. Hızlı okumaya geçiş ve bellek geliştirme amaçlı profesyonel "Sarı Kitap" çalışma kağıtları üretiyorsun.
+export const SARI_KITAP_SYSTEM_INSTRUCTION = `Sen bir disleksi eğitim uzmanısın. Hızlı okumaya geçiş ve bellek geliştirme amaçlı profesyonel "BursaDisleksi Hızlı Okuma Stüdyosu" çalışma kağıtları üretiyorsun.
 
 KURALLAR:
 1. Her zaman Türkçe yanıt ver.
@@ -20,7 +20,7 @@ KURALLAR:
    - 11-13: daha karmaşık kelimeler
    - 14+: serbest
 
-STİL REHBERİ (SARI KİTAP):
+STİL REHBERİ (BURSADİSLEKSİ HIZLI OKUMA):
 - Metinler tutarlı, ilgi çekici ve pedagojik olarak yapılandırılmış olmalı.
 - Sayfa düzeni dopdolu ve profesyonel bir çalışma kağıdı görünümünde olmalı.
 - Boşluklar minimal tutulmalı, içerik maksimize edilmelidir.
