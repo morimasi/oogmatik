@@ -192,7 +192,7 @@
   /* === Margins & Spacing === */
 
   @page {
-    margin: 15mm;
+    margin: 10mm !important;
     size: A4;
   }
 
@@ -218,7 +218,6 @@ body.pdf-export-mode {
   /* Allow theme colors in PDF */
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
-  color-adjust: exact;
 
   /* But disable effects that won't render */
   * {

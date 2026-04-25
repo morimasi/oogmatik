@@ -116,8 +116,8 @@
     /* Print Dialog Margin/Size */
     @page {
       size: A4 portrait;
-      margin: 15mm 0mm;
-      /* Padding kaldırıldı, sayfa aralığı margini ile sağlanacak (en az 1.5 cm) */
+      margin: 10mm !important;
+      /* Standart 1 cm kenar boşluğu (Tüm sayfalar için geçerli) */
     }
 
     /* Oogmatik Layout Gizlemeleri */
@@ -136,8 +136,8 @@
     .worksheet-page,
     .print-page {
       margin: 0 auto !important;
-      padding: 0 10mm !important;
-      /* Padding-top ve bottom sıfırlandı çünkü @page margin 15mm olarak tüm sayfalarda tekrar edecek */
+      padding: 0 !important;
+      /* Kenar boşlukları @page margin (10mm) ile kontrol ediliyor */
       page-break-after: always !important;
       /* Her worksheet divinden sonra yazıcı kağıdı yenilesin */
       break-after: page !important;
