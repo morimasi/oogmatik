@@ -192,7 +192,7 @@
   /* === Margins & Spacing === */
 
   @page {
-    margin: 10mm !important;
+    margin: 15mm 10mm 10mm 10mm !important;
     size: A4;
   }
 

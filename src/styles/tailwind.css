@@ -116,8 +116,8 @@
     /* Print Dialog Margin/Size */
     @page {
       size: A4 portrait;
-      margin: 10mm !important;
-      /* Standart 1 cm kenar boşluğu (Tüm sayfalar için geçerli) */
+      margin: 15mm 10mm 10mm 10mm !important;
+      /* Üstten 1.5 cm, diğer yönlerden 1 cm boşluk */
     }
 
     /* Oogmatik Layout Gizlemeleri */
