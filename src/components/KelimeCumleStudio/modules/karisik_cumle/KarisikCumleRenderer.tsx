@@ -7,6 +7,8 @@ interface Props {
 }
 
 export const KarisikCumleRenderer: React.FC<Props> = ({ content, showAnswers }) => {
+    if (!content) return null;
+    
     return (
         <div className="kc-renderer-karisik" style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '1.25rem', fontFamily: 'Lexend, sans-serif' }}>
             <h2 style={{ fontSize: '1.6rem', fontWeight: 800, textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#1e293b' }}>

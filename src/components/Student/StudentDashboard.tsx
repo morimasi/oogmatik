@@ -771,7 +771,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                               </h4>
                               <p className="text-[10px] font-bold text-[var(--text-muted)] mt-1 uppercase tracking-widest">
                                 {new Date(ws.createdAt).toLocaleDateString('tr-TR')} •{' '}
-                                {ws.category.title}
+                                {ws.category?.title || 'Kategorisiz'}
                               </p>
                             </div>
                           </div>
