@@ -43,6 +43,11 @@ import { useWorksheetStore } from './store/useWorksheetStore';
 import { AppHeader } from './components/AppHeader';
 import { AssignModal } from './components/Student/AssignModal';
 
+// Landing Page
+const LandingPage = lazy(() =>
+  import('./pages/LandingPage').then((module) => ({ default: module.default }))
+);
+
 // Lazy Loaded Components
 const ProfileView = lazy(() =>
   import('./components/ProfileView').then((module) => ({ default: module.ProfileView }))
@@ -791,6 +796,19 @@ const AppContent = () => {
       setIsLoading(false);
     }
   };
+
+  // Check if we should show landing page
+  const params = new URLSearchParams(window.location.search);
+  const showLanding = params.get('landing') === 'true';
+
+  // If showing landing page, render it instead of the full app
+  if (showLanding) {
+    return (
+      <Suspense fallback={<LoadingSpinner />}>
+        <LandingPage />
+      </Suspense>
+    );
+  }
 
   return (
     <div
