@@ -6,6 +6,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { activityApprovalService } from '../../src/services/activityApprovalService.js';
 import { corsMiddleware } from '../../src/utils/cors.js';
+import { logError } from '../../src/utils/logger.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // CORS
@@ -86,7 +87,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
     } catch (error: unknown) {
         const message = error instanceof Error ? error.message : 'Bilinmeyen hata.';
-        console.error('[API] approve hatası:', error);
+        logError(error instanceof Error ? error : new Error(String(error)), { context: '[API] approve hatası' });
 
         return res.status(500).json({
             success: false,
