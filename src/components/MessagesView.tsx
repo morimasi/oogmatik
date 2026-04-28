@@ -6,6 +6,7 @@ import { Message, User } from '../types';
 import { db } from '../services/firebaseClient';
 import * as firestore from "firebase/firestore";
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 const { collection, query, where, onSnapshot, orderBy } = firestore;
 
 interface MessagesViewProps {
@@ -120,7 +121,7 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
             // Optimistic update
             setMessages(prev => [...prev, sentMessage]);
         } catch (err) {
-            console.error("Mesaj gönderme hatası:", err);
+            logError("Mesaj gönderme hatası:", err);
             setNewMessage(contentToSend);
         } finally {
             setSending(false);
@@ -136,7 +137,7 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
         try {
             await messagingService.deleteMessage(messageId);
         } catch (err) {
-            console.error("Silme hatası:", err);
+            logError("Silme hatası:", err);
             // Revert on error would require refetching, simply alert for now
             alert("Mesaj silinemedi.");
         }
@@ -157,7 +158,7 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
         try {
             await messagingService.clearConversation(user.id, contactId);
         } catch (err) {
-            console.error("Sohbet temizleme hatası:", err);
+            logError("Sohbet temizleme hatası:", err);
             alert("Sohbet temizlenirken bir hata oluştu.");
             loadInitialData(); // Reload to restore state if failed
         }

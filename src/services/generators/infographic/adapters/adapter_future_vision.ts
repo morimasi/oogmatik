@@ -46,7 +46,7 @@ export async function generateInfographic_FutureVision_AI(
   return {
     title: result.title || `${params.topic} - Gelecek Vizyonu`,
     content: {
-      questions: (result.scenarios || []).map((s) => ({
+      questions: (result.scenarios || []).map((s: unknown) => ({
         question: `Senaryo: ${s.name} (${s.probability})`,
         questionType: 'open-ended' as const,
         answer: s.description,

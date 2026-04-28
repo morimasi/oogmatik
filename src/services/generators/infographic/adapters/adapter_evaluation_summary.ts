@@ -43,7 +43,7 @@ export async function generateInfographic_EvaluationSummary_AI(
       hierarchy: {
         label: 'Değerlendirme Özeti',
         children: [
-          { label: 'Güçlü Alanlar', children: (result.strengths || []).map((s) => ({ label: s })) },
+          { label: 'Güçlü Alanlar', children: (result.strengths || []).map((s: unknown) => ({ label: s })) },
           {
             label: 'Gelişim Alanları',
             children: (result.areasForGrowth || []).map((a) => ({ label: a })),

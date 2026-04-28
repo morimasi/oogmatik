@@ -5,6 +5,7 @@ import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
 import { useAuthStore } from '../store/useAuthStore';
 import { authService } from '../services/authService';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 interface FavoritesSectionProps {
     onSelectActivity: (id: ActivityType) => void;
     onBack?: () => void;
@@ -155,7 +156,7 @@ export const FavoritesSection: React.FC<FavoritesSectionProps> = ({ onSelectActi
                 });
             }
         } catch (e) {
-            console.error("Favorites load error", e);
+            logError("Favorites load error", e);
         } finally {
             setLoading(false);
         }

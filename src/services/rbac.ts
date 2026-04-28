@@ -1,4 +1,5 @@
 import { AppError } from '../utils/AppError';
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 /**
  * OOGMATIK - Role-Based Access Control (RBAC)
  * User roles and permission management
@@ -116,7 +117,7 @@ export const getUserRole = async (userId: string): Promise<UserRoleInfo | null> 
             permissions: ROLE_PERMISSIONS['student'],
         };
     } catch (error) {
-        console.error('Error fetching user role:', error);
+        logError('Error fetching user role:', error);
         return null;
     }
 };
@@ -143,7 +144,7 @@ export const canPerformAction = (
     const permission = permissionMap[key] as Permission;
 
     if (!permission) {
-        console.warn(`Unknown action/resource combination: ${key}`);
+        logWarn(`Unknown action/resource combination: ${key}`);
         return false;
     }
 

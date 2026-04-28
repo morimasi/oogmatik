@@ -337,7 +337,7 @@ export const ocrService = {
 
             return ocrResult;
         } catch (error: unknown) {
-            console.error("Deep Arch Analysis Error:", error);
+            logError("Deep Arch Analysis Error:", error);
             throw error;
         }
     },

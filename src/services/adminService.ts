@@ -6,6 +6,7 @@ import { DynamicActivity, PromptTemplate, PromptSnippet, StaticContentItem, Acti
 import { User, UserRole, UserStatus } from '../types/core.js';
 import { generateWithSchema } from './geminiClient.js';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 const { collection, doc, getDocs, setDoc, query, where, updateDoc, deleteDoc, getDoc } = firestore;
 
 export const adminService = {
@@ -21,7 +22,7 @@ export const adminService = {
                 })
                 .filter((a: any): a is DynamicActivity => !!a && !!a.id);
         } catch (e) {
-            console.error("Dinamik aktiviteler yüklenemedi", e);
+            logError("Dinamik aktiviteler yüklenemedi", e);
             return [];
         }
     },
@@ -166,7 +167,7 @@ export const adminService = {
                 activeSessionsCount: 24
             };
         } catch (error) {
-            console.error("Admin metrikleri alınamadı:", error);
+            logError("Admin metrikleri alınamadı:", error);
             return null;
         }
     },
@@ -183,7 +184,7 @@ export const adminService = {
                 })
                 .filter((u: any): u is User => !!u && !!u.id);
         } catch (error) {
-            console.error("Kullanıcılar yüklenemedi", error);
+            logError("Kullanıcılar yüklenemedi", error);
             return [];
         }
     },

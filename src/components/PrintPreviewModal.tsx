@@ -7,6 +7,7 @@ import type { PaperSize } from '../utils/print/types';
 import { usePaperSizeStore } from '../store/usePaperSizeStore';
 import { ExportProgressModal } from './ExportProgressModal';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 interface PrintPreviewModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -58,7 +59,7 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
         scrollToPage: result.scrollToPage,
       };
     } catch (err) {
-      console.warn('[PrintPreviewModal] Preview render hatası:', err);
+      logWarn('[PrintPreviewModal] Preview render hatası:', err);
       setPreviewReady(false);
     }
   }, [paperSize]);
@@ -130,7 +131,7 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
         await snapshotService.takeSnapshot(targetSelector, title ?? 'etkinlik', 'download_zip', 2);
       }
     } catch (e) {
-      console.error('Print/Export error:', e);
+      logError('Print/Export error:', e);
     } finally {
       setIsProcessing(false);
       setExportProgress({ open: false, percent: 0, message: '' });

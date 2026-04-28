@@ -85,7 +85,7 @@ export const PortfolioModule: React.FC<PortfolioModuleProps> = ({ student, onUpd
                     { label: 'Görseller', value: stats.images, color: 'indigo', icon: 'fa-image' },
                     { label: 'Videolar', value: stats.videos, color: 'amber', icon: 'fa-play' },
                     { label: 'Belgeler', value: stats.docs, color: 'rose', icon: 'fa-file-pdf' }
-                ].map((s) => (
+                ].map((s: unknown) => (
                     <div key={s.label} className="bg-white dark:bg-zinc-900 p-6 rounded-[2.5rem] border border-zinc-200 dark:border-zinc-800 shadow-sm flex items-center gap-4">
                         <div className={`w-12 h-12 rounded-2xl bg-${s.color}-50 dark:bg-${s.color}-900/20 text-${s.color}-600 flex items-center justify-center text-xl`}>
                             <i className={`fa-solid ${s.icon}`}></i>

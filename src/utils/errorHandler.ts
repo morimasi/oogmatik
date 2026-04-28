@@ -1,3 +1,5 @@
+import { logInfo, logError, logWarn } from '../utils/logger.js';
+
 /**
  * OOGMATIK - Error Handler Utilities
  * Error transformation, retry logic, logging
@@ -103,8 +105,8 @@ export const logError = (error: AppError, context?: Record<string, unknown>) => 
 
   if (isDev) {
     console.group(`🔴 AppError: ${error.code}`);
-    console.error('Message:', error.message);
-    if (error.originalError) console.error('Original:', error.originalError);
+    logError('Message:', error.message);
+    if (error.originalError) logError('Original:', error.originalError);
     if (context) console.dir(context);
     console.groupEnd();
   }
@@ -195,7 +197,7 @@ export const retryWithBackoff = async <T>(
       // ±10%'lik kısmi jitter yerine tam yayılım → thundering herd tamamen önlenir.
       const finalDelay = Math.max(100, Math.random() * exponentialDelay);
 
-      console.warn(
+      logWarn(
         `[Retry] Attempt ${attempt + 1}/${maxRetries} failed. Retrying in ${finalDelay.toFixed(0)}ms...`,
         { errorCode: appError.code }
       );
@@ -352,7 +354,7 @@ export class CircuitBreaker {
 
     if (this.failureCount >= this.failureThreshold) {
       this.state = 'OPEN';
-      console.warn(
+      logWarn(
         `[CircuitBreaker] Opened after ${this.failureCount} failures. Will retry in ${this.resetTimeoutMs}ms`
       );
     }
@@ -433,3 +435,123 @@ export const addErrorContext = (error: AppError, context: Record<string, any>): 
     error.isRetryable
   );
 };
+
+/**
+ * API RESPONSE STANDARDIZATION for Vercel Serverless
+ * All API routes should use these helpers for consistent responses
+ */
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+
+/**
+ * Standard API error response format
+ */
+export interface ApiErrorResponse {
+  success: false;
+  error: {
+    message: string;
+    code: string;
+    httpStatus: number;
+    timestamp: string;
+    requestId?: string;
+  };
+}
+
+/**
+ * Standard API success response format
+ */
+export interface ApiSuccessResponse<T = unknown> {
+  success: true;
+  data: T;
+  timestamp: string;
+  requestId?: string;
+}
+
+export type ApiResponse<T = unknown> = ApiSuccessResponse<T> | ApiErrorResponse;
+
+/**
+ * Handle API errors with standardized response
+ * Usage in API routes:
+ * try { ... } catch (error) { return handleApiError(error, res, 'operation-name'); }
+ */
+export function handleApiError(
+  error: unknown,
+  res: VercelResponse,
+  operationName?: string
+): VercelResponse {
+  const appError = toAppError(error);
+
+  logError(appError, {
+    context: operationName || 'API_ERROR',
+    code: appError.code,
+    httpStatus: appError.httpStatus,
+    isRetryable: appError.isRetryable,
+  });
+
+  const response: ApiErrorResponse = {
+    success: false,
+    error: {
+      message: appError.userMessage,
+      code: appError.code,
+      httpStatus: appError.httpStatus,
+      timestamp: new Date().toISOString(),
+      requestId: (res as any).locals?.requestId,
+    },
+  };
+
+  return res.status(appError.httpStatus).json(response);
+}
+
+/**
+ * Send standardized success response
+ */
+export function sendApiSuccess<T>(
+  res: VercelResponse,
+  data: T,
+  statusCode: number = 200
+): VercelResponse {
+  const response: ApiSuccessResponse<T> = {
+    success: true,
+    data,
+    timestamp: new Date().toISOString(),
+    requestId: (res as any).locals?.requestId,
+  };
+
+  return res.status(statusCode).json(response);
+}
+
+/**
+ * Higher-order function to wrap API handlers with error handling
+ */
+export function withErrorHandling(
+  handler: (req: VercelRequest, res: VercelResponse) => Promise<void> | void
+) {
+  return async (req: VercelRequest, res: VercelResponse) => {
+    try {
+      // Add request context
+      (res as any).locals = (res as any).locals || {};
+      (res as any).locals.requestId = req.headers['x-request-id'] || `req-${Date.now()}`;
+
+      await Promise.resolve(handler(req, res));
+    } catch (error) {
+      handleApiError(error, res, `${req.method} ${req.url}`);
+    }
+  };
+}
+
+/**
+ * Type guard for success response
+ */
+export function isSuccessResponse<T>(
+  response: ApiResponse<T>
+): response is ApiSuccessResponse<T> {
+  return response.success === true;
+}
+
+/**
+ * Type guard for error response
+ */
+export function isErrorResponse(
+  response: ApiResponse
+): response is ApiErrorResponse {
+  return response.success === false;
+}

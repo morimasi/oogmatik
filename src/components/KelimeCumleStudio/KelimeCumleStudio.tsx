@@ -13,6 +13,7 @@ import { A4CompactRenderer } from './shared/A4CompactRenderer';
 import { printService } from '../../utils/printService';
 import { worksheetService } from '../../services/worksheetService';
 import { useAuthStore } from '../../store/useAuthStore';
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 import './KelimeCumleStudio.css';
 
 interface KelimeCumleStudioProps {
@@ -54,7 +55,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
                 const newContent = await generateAI(config);
                 setContent(newContent);
             } catch (e) {
-                console.error(e);
+                logError(e);
             }
         }
     };
@@ -139,7 +140,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
 
             showToast(`✅ "${name}" adıyla arşive kaydedildi!`);
         } catch (error) {
-            console.error('Arşive kaydetme hatası:', error);
+            logError('Arşive kaydetme hatası:', error);
             showToast('❌ Arşive kaydedilirken bir hata oluştu');
         }
     };
@@ -155,7 +156,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
         // Kullanıcının istediği adet kadar soru üretildi mi kontrol et
         const expectedCount = config.itemCount || 20;
         if (content.items.length !== expectedCount) {
-            console.warn(`Beklenen: ${expectedCount} soru, üretilen: ${content.items.length} soru`);
+            logWarn(`Beklenen: ${expectedCount} soru, üretilen: ${content.items.length} soru`);
         }
         
         // Kullanıcının belirlediği sayfa başına soru sayısı veya optimal varsayılan değer

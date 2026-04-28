@@ -5,6 +5,7 @@ import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, up
 import * as firestore from "firebase/firestore";
 import { User, UserRole, UserStatus, ActivityType } from '../types.js';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 const { doc, getDoc, setDoc, updateDoc, collection, getDocs, query, orderBy, limit, deleteDoc, increment } = firestore;
 
 // Map Firestore doc to App User type
@@ -55,7 +56,7 @@ export const authService = {
 
             return mappedUser;
         } catch (error: any) {
-            console.error("Login error:", error);
+            logError("Login error:", error);
             if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
                 throw new AppError("Giriş yapılamadı: E-posta adresi veya şifre hatalı.", 'INTERNAL_ERROR', 500);
             }
@@ -94,7 +95,7 @@ export const authService = {
 
             return mapDbUserToAppUser(newUserProfile, user.uid, email);
         } catch (error: any) {
-            console.error("Register error:", error);
+            logError("Register error:", error);
             if (error.code === 'auth/email-already-in-use') throw new AppError("Bu e-posta adresi zaten kayıtlı.", 'INTERNAL_ERROR', 500);
             throw new AppError("Kayıt hatası: " + error.message, 'INTERNAL_ERROR', 500);
         }
@@ -135,7 +136,7 @@ export const authService = {
                 };
             }
         } catch (error) {
-            console.error("Get current user error:", error);
+            logError("Get current user error:", error);
             return null;
         }
     },
@@ -171,7 +172,7 @@ export const authService = {
                 }
             });
         } catch (e) {
-            console.error("Failed to record activity generation for user", e);
+            logError("Failed to record activity generation for user", e);
         }
     },
 
@@ -203,7 +204,7 @@ export const authService = {
             });
             return users;
         } catch (error) {
-            console.error("Get contacts error:", error);
+            logError("Get contacts error:", error);
             return [];
         }
     },
@@ -221,7 +222,7 @@ export const authService = {
             });
             return { users: users, count: users.length };
         } catch (error) {
-            console.error("Get all users error:", error);
+            logError("Get all users error:", error);
             return { users: [], count: 0 };
         }
     },

@@ -7,9 +7,9 @@
  * Usage: node scripts/migrate-console-logs.js [--dry-run] [--pattern=console.log]
  */
 
-const fs = require('fs');
-const path = require('path');
-const glob = require('glob');
+import fs from 'fs';
+import path from 'path';
+import { glob } from 'glob';
 
 const PATTERNS = {
   'console.log': { replacement: 'logInfo', type: 'info' },
@@ -17,8 +17,6 @@ const PATTERNS = {
   'console.warn': { replacement: 'logWarn', type: 'warn' },
   'console.debug': { replacement: 'logInfo', type: 'info' },
 };
-
-const LOGGER_IMPORT = "import { logInfo, logError, logWarn } from '@/utils/logger.js';";
 
 const args = process.argv.slice(2);
 const isDryRun = args.includes('--dry-run');
@@ -34,8 +32,8 @@ console.log(`Dry Run Mode: ${isDryRun ? 'ON' : 'OFF'}`);
 console.log(`Pattern Filter: ${patternFilter || 'ALL'}\n`);
 
 // Files to process
-const srcFiles = glob.sync('src/**/*.{ts,tsx}', { ignore: 'node_modules/**' });
-const apiFiles = glob.sync('api/**/*.ts', { ignore: 'node_modules/**' });
+const srcFiles = await glob('src/**/*.{ts,tsx}', { ignore: 'node_modules/**' });
+const apiFiles = await glob('api/**/*.ts', { ignore: 'node_modules/**' });
 const allFiles = [...srcFiles, ...apiFiles];
 
 console.log(`Found ${allFiles.length} files to process\n`);
@@ -45,7 +43,19 @@ let totalFilesModified = 0;
 const failedFiles = [];
 const modifiedFiles = [];
 
-allFiles.forEach((filePath) => {
+// Files that should keep console.log (logger itself, tests, etc)
+const SKIP_FILES = [
+  'src/utils/logger.ts',
+  'tests/',
+  'scripts/'
+];
+
+for (const filePath of allFiles) {
+  // Skip files that should keep console.log
+  if (SKIP_FILES.some(skip => filePath.includes(skip))) {
+    continue;
+  }
+
   try {
     let content = fs.readFileSync(filePath, 'utf-8');
     const originalContent = content;
@@ -72,13 +82,45 @@ allFiles.forEach((filePath) => {
 
     if (fileModified) {
       // Add logger import if not present
-      if (!content.includes('logInfo') && !content.includes('from \'@/utils/logger') && !content.includes('from "@/utils/logger')) {
-        const lastImportMatch = content.match(/^(.*?import\s+[^;]+;)/ms);
-        if (lastImportMatch) {
-          const lastImportEnd = lastImportMatch[0].length;
-          content = content.slice(0, lastImportEnd) + '\n' + LOGGER_IMPORT + content.slice(lastImportEnd);
+      const hasLoggerImport = content.includes("from '../utils/logger") || 
+                              content.includes("from '../../utils/logger") ||
+                              content.includes("from '@/utils/logger") ||
+                              content.includes('from "../utils/logger') ||
+                              content.includes('from "../../utils/logger') ||
+                              content.includes('from "@/utils/logger');
+
+      if (!hasLoggerImport) {
+        // Calculate relative path to logger
+        const depth = filePath.split('/').length - 1;
+        let relativePath = '';
+        
+        if (filePath.startsWith('api/')) {
+          // API files need to go up and into src
+          const apiDepth = filePath.split('/').length - 1;
+          relativePath = '../'.repeat(apiDepth) + 'src/utils/logger.js';
+        } else if (filePath.startsWith('src/')) {
+          // src files need relative path
+          const srcDepth = filePath.replace('src/', '').split('/').length - 1;
+          if (srcDepth === 0) {
+            relativePath = './utils/logger.js';
+          } else {
+            relativePath = '../'.repeat(srcDepth) + 'utils/logger.js';
+          }
+        }
+
+        const loggerImport = `import { logInfo, logError, logWarn } from '${relativePath}';`;
+        
+        // Find last import and add after it
+        const importRegex = /^import\s+.*?from\s+['"][^'"]+['"];?\s*$/gm;
+        const imports = content.match(importRegex);
+        
+        if (imports && imports.length > 0) {
+          const lastImport = imports[imports.length - 1];
+          const lastImportIndex = content.lastIndexOf(lastImport);
+          const insertPosition = lastImportIndex + lastImport.length;
+          content = content.slice(0, insertPosition) + '\n' + loggerImport + content.slice(insertPosition);
         } else {
-          content = LOGGER_IMPORT + '\n\n' + content;
+          content = loggerImport + '\n\n' + content;
         }
       }
 
@@ -100,7 +142,7 @@ allFiles.forEach((filePath) => {
     failedFiles.push({ path: filePath, error: error.message });
     console.error(`❌ ${filePath}: ${error.message}`);
   }
-});
+}
 
 console.log(`
 ╔════════════════════════════════════════════════════════════╗

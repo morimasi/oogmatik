@@ -24,6 +24,7 @@ import { assessmentService } from '../services/assessmentService';
 import { curriculumService } from '../services/curriculumService';
 import { cn } from '../utils/tailwindUtils';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 interface SharedWorksheetsViewProps {
     onLoad: (worksheet: SavedWorksheet) => void;
     onBack: () => void;
@@ -247,7 +248,7 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
                 setHasMore(false);
             }
         } catch (e) {
-            console.error(e);
+            logError(e);
         } finally {
             setLoading(false);
             setLoadingMore(false);

@@ -124,7 +124,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
         </select>
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as ManagedUser['status'] | 'all')} style={selectStyle} aria-label="Durum filtresi">
           <option value="all">Tüm Durumlar</option>
-          {(['active', 'pending', 'suspended'] as const).map((s) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
+          {(['active', 'pending', 'suspended'] as const).map((s: unknown) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
         </select>
       </div>
 

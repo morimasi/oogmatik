@@ -5,6 +5,7 @@ import { MathProblemConfig, MathProblem } from '../../../types/math';
 import { generateMathProblemsAI } from '../../../services/generators/mathStudio';
 import { DEFAULT_PROBLEM_CONFIG } from '../constants';
 
+import { logInfo, logError, logWarn } from '../../../utils/logger.js';
 export const useProblemGenerator = (initialStudentName: string) => {
     const [problemConfig, setProblemConfig] = useState<MathProblemConfig>({
         ...DEFAULT_PROBLEM_CONFIG,
@@ -50,7 +51,7 @@ export const useProblemGenerator = (initialStudentName: string) => {
             setInstruction(result.instruction || '');
             return { success: true };
         } catch (e) {
-            console.error(e);
+            logError(e);
             return { success: false, error: "Problem üretilemedi. API Hatası." };
         } finally {
             setIsGenerating(false);

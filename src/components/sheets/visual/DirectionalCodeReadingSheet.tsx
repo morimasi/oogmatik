@@ -194,7 +194,7 @@ export const DirectionalCodeReadingSheet: React.FC<Props> = ({ data }) => {
                     <span className="text-[8px] text-zinc-500 font-bold">KODLAMA ANAHTARI</span>
                 </div>
                 <div className="flex gap-4 flex-wrap">
-                    {legend.symbols.map((s) => (
+                    {legend.symbols.map((s: unknown) => (
                         <div key={s.dir} className="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl px-4 py-1.5 transition-transform hover:scale-105">
                             <span className="text-amber-400 font-black text-xl drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">{s.sym}</span>
                             <span className="text-zinc-400 text-[10px] font-black uppercase tracking-tighter">= {s.dir}</span>

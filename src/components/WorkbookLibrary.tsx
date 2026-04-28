@@ -14,6 +14,7 @@ import { listWorkbooks, duplicateWorkbook, deleteWorkbook } from '../services/wo
 import { getAllTemplates } from '../services/workbook/workbookTemplates';
 import type { Workbook, WorkbookTemplate } from '../types/workbook';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 interface WorkbookLibraryProps {
   userId: string;
   onSelectWorkbook: (workbook: Workbook) => void;
@@ -49,7 +50,7 @@ export const WorkbookLibrary: React.FC<WorkbookLibraryProps> = ({
       const tmpls = getAllTemplates();
       setTemplates(tmpls);
     } catch (error) {
-      console.error('Failed to load library:', error);
+      logError('Failed to load library:', error);
     } finally {
       setLoading(false);
     }
@@ -66,7 +67,7 @@ export const WorkbookLibrary: React.FC<WorkbookLibraryProps> = ({
       const duplicated = await duplicateWorkbook(workbookId, userId);
       setWorkbooks([...workbooks, duplicated]);
     } catch (error) {
-      console.error('Failed to duplicate:', error);
+      logError('Failed to duplicate:', error);
     }
   }
 
@@ -77,7 +78,7 @@ export const WorkbookLibrary: React.FC<WorkbookLibraryProps> = ({
       await deleteWorkbook(workbookId, userId);
       setWorkbooks(workbooks.filter((wb) => wb.id !== workbookId));
     } catch (error) {
-      console.error('Failed to delete:', error);
+      logError('Failed to delete:', error);
     }
   }
 

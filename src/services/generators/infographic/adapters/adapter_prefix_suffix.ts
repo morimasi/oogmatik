@@ -65,7 +65,7 @@ export async function generateInfographic_PrefixSuffix_AI(
   return {
     title: result.title || `${params.topic} - Ek Bilgisi`,
     content: {
-      vocabulary: (result.suffixes || []).map((s) => ({
+      vocabulary: (result.suffixes || []).map((s: unknown) => ({
         word: s.suffix,
         syllables: [s.suffix],
         meaning: `${s.type} — ${s.meaning}`,
@@ -148,7 +148,7 @@ export function generateInfographic_PrefixSuffix_Offline(
   return {
     title: `${params.topic} - Ek Bilgisi`,
     content: {
-      vocabulary: suffixes.map((s) => ({
+      vocabulary: suffixes.map((s: unknown) => ({
         word: s.suffix,
         syllables: [s.suffix],
         meaning: `${s.type} — ${s.meaning}`,

@@ -1,6 +1,7 @@
 import { generateWithSchema } from './geminiClient.js';
 import { ActivityType, SingleWorksheetData } from '../types.js';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 /**
  * AI-Powered Content Generation Service
  * Automatically generates worksheet content (questions, exercises, etc.) using AI
@@ -166,7 +167,7 @@ UYARI:
       const result = await generateWithSchema(prompt, schema);
       return result.content as Array<SingleWorksheetData>;
     } catch (error) {
-      console.error('AI content generation error:', error);
+      logError('AI content generation error:', error);
       // Fallback to basic content generation
       const fallbackContent: Array<SingleWorksheetData> = [];
       for (let i = 1; i <= (options.questionCount || 10); i++) {

@@ -42,7 +42,7 @@ export function buildSafePDFMetadata(
   return {
     difficultyLevel: partial.difficultyLevel,
     ageGroup: partial.ageGroup,
-    targetSkills: partial.targetSkills.map((s) => s.slice(0, 100)),
+    targetSkills: partial.targetSkills.map((s: unknown) => s.slice(0, 100)),
     generatedDate: new Date().toISOString().split('T')[0],
     pageCount: partial.pageCount ?? 1,
   };

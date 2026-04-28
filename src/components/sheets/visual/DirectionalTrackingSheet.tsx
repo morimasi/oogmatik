@@ -44,7 +44,7 @@ const LegendPanel = () => (
           { sym: '→', label: 'Sağa' },
           { sym: '←', label: 'Sola' },
         ] as const
-      ).map((s) => (
+      ).map((s: unknown) => (
         <div key={s.sym} className="bg-zinc-800 rounded-lg p-2 flex items-center gap-2">
           <span className="text-white font-black text-lg w-6 text-center">{s.sym}</span>
           <span className="text-zinc-400 text-[9px] font-bold">{s.label}</span>
@@ -278,7 +278,7 @@ export const DirectionalTrackingSheet = ({
               { sym: '→', label: 'Sağa' },
               { sym: '←', label: 'Sola' },
             ] as const
-          ).map((s) => (
+          ).map((s: unknown) => (
             <div
               key={s.sym}
               className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl px-4 py-2 flex items-center gap-3 hover:bg-white/10 transition-colors"
@@ -338,7 +338,7 @@ export const DirectionalTrackingSheet = ({
         <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col justify-between">
           <span className="text-[8px] font-black text-zinc-500 uppercase">DİKKAT</span>
           <div className="flex gap-1.5">
-            {[1, 2, 3, 4, 5].map((s) => (
+            {[1, 2, 3, 4, 5].map((s: unknown) => (
               <div
                 key={s}
                 className="w-4 h-4 rounded-md border border-white/10 transition-colors hover:bg-amber-400"

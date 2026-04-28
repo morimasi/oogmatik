@@ -292,7 +292,7 @@ export const templateEngine = {
      * Cevap anahtarı üretir (placeholder — AI ile doldurulur).
      */
     generateAnswerKey(template: ActivityTemplate): AnswerKeyItem[] {
-        const questionSections = template.sections.filter((s) => s.type === 'question_block');
+        const questionSections = template.sections.filter((s: unknown) => s.type === 'question_block');
         return questionSections.map((section, index) => ({
             questionId: section.id,
             questionNumber: index + 1,

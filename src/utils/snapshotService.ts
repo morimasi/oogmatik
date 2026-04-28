@@ -7,6 +7,7 @@
 import { AppError } from '../utils/AppError';
 import { captureAllPages } from './print/CaptureEngine';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 export type SnapshotAction = 'download' | 'clipboard' | 'share';
 
 /** Canvas → Blob dönüşümü */
@@ -109,7 +110,7 @@ export const snapshotService = {
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
       return true;
     } catch (err) {
-      console.error('Panoya kopyalama hatası:', err);
+      logError('Panoya kopyalama hatası:', err);
       try {
         await navigator.clipboard.writeText(canvas.toDataURL('image/png'));
         return true;
@@ -138,7 +139,7 @@ export const snapshotService = {
         return true;
       } catch (err: unknown) {
         if (err instanceof Error && err.name === 'AbortError') return false;
-        console.error('Share hatası:', err);
+        logError('Share hatası:', err);
       }
     }
 

@@ -11,6 +11,7 @@ import { ArchivePanel } from './Editor/ArchivePanel';
 import { LayoutItem } from '../../types';
 import { StylePanel } from './Editor/StylePanel';
 
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 interface ReadingStudioInnerProps {
   onBack: () => void;
   onAddToWorkbook: () => void;
@@ -167,7 +168,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
       setSelectedId(null);
       setDesignMode(false);
     } catch (e) {
-      console.error(e);
+      logError(e);
       alert('Hata oluştu. Lütfen tekrar deneyin.');
     } finally {
       setIsLoading(false);
@@ -179,7 +180,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
       await new Promise((resolve) => setTimeout(resolve, 50));
       await printService.generatePdf('#canvas-root', 'Hikaye', { action });
     } catch (e) {
-      console.error(e);
+      logError(e);
     }
   };
 

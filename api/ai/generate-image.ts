@@ -3,6 +3,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { Buffer } from 'buffer';
 import { corsMiddleware } from '../../src/utils/cors.js';
 
+import { logInfo, logError, logWarn } from '../../src/utils/logger.js';
 // Hugging Face API Ayarları
 const HF_API_URL = 'https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell';
 
@@ -28,7 +29,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const hfToken = process.env.HF_API_KEY;
 
         if (hfToken) {
-            console.log('Hugging Face aktif. Model: FLUX.1-schnell');
+            logInfo('Hugging Face aktif. Model: FLUX.1-schnell');
 
             // Disleksi dostu görsel yapısı
             const hfPrompt = `A high quality educational children's book illustration of: ${prompt}. Clean lines, bright pastel colors, solid white background, highly legible, simple, easy to understand, no confusing patterns.`;
@@ -59,13 +60,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 });
             } else {
                 const errorText = await response.text();
-                console.warn('Hugging Face Hatası, Fallback(Pollinations) kullanılıyor:', response.status, errorText);
+                logWarn('Hugging Face Hatası, Fallback(Pollinations) kullanılıyor:', response.status, errorText);
                 // Hata alırsak (örn: model uykuda - 503), akışı durdurmuyor, fallback'e (Pollinations) geçiyoruz!
             }
         }
 
         // 2. ADIM: POLLINATIONS.AI (Fallback / Ücretsiz Motor)
-        console.log('Pollinations.ai Fallback kullanılıyor.');
+        logInfo('Pollinations.ai Fallback kullanılıyor.');
         const enhancedPrompt = `${prompt}, educational illustration, clean style, high contrast, minimalist, white background, for children, safe for elementary school`;
         const query = encodeURIComponent(enhancedPrompt);
         // Doğrudan URL yerine resim üreten Flux URL'sini oluşturuyoruz
@@ -78,7 +79,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
 
     } catch (error: any) {
-        console.error('Image Generation Error:', error);
+        logError('Image Generation Error:', error);
         return res.status(500).json({ error: 'Failed to generate image', message: error.message });
     }
 }

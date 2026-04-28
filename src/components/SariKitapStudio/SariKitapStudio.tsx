@@ -14,6 +14,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { useToastStore } from '../../store/useToastStore';
 import { worksheetService } from '../../services/worksheetService';
 import { ActivityType } from '../../types/activity';
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 import './SariKitapStudio.css';
 
 interface SariKitapStudioInnerProps {
@@ -100,7 +101,7 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
             );
             toast.success('Etkinlik başarıyla kaydedildi!');
         } catch (err) {
-            console.error('Save error:', err);
+            logError('Save error:', err);
             toast.error('Kaydedilirken bir hata oluştu.');
         }
     }, [user, generatedContent, activeType, config, toast]);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useReadingStore } from '../../../store/useReadingStore';
 
+import { logInfo, logError, logWarn } from '../../../utils/logger.js';
 export const ArchivePanel = () => {
     const { setStoryData, setLayout, setConfig } = useReadingStore();
     const [savedProjects, setSavedProjects] = useState<any[]>([]);
@@ -13,7 +14,7 @@ export const ArchivePanel = () => {
                     setSavedProjects(JSON.parse(data));
                 }
             } catch (e) {
-                console.error("Archive loading error", e);
+                logError("Archive loading error", e);
             }
         };
 

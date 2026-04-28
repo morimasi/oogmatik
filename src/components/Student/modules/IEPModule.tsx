@@ -3,6 +3,7 @@ import { AdvancedStudent, IEPGoal } from '../../../types/student-advanced';
 import { RadarChart } from '../../RadarChart';
 import { LineChart } from '../../LineChart';
 
+import { logInfo, logError, logWarn } from '../../../utils/logger.js';
 // --- Extended Types for AI Features ---
 interface AIInsight {
     type: 'strength' | 'weakness' | 'opportunity' | 'threat';
@@ -455,7 +456,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                                             const updatedGoals = [...goals, ...formattedGoals];
                                             setGoals(updatedGoals as IEPGoal[]);
                                             if (onUpdate) onUpdate({ ...student.iep, goals: updatedGoals });
-                                        } catch (e) { console.error('AI Error', e); }
+                                        } catch (e) { logError('AI Error', e); }
                                         if (btn) btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> AI Hedef Üret';
                                     }}
                                     id="btn-ai-goal"

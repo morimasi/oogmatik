@@ -12,6 +12,7 @@ import type { PaperSize, PrintOptions } from './types';
 import { print, captureAndPrint } from './OverlayPrinter';
 import { generateRealPdf } from './PDFGenerator';
 
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 /**
  * printService — merkezi yazdırma API'si
  * Tüm bileşenler bu objeyi kullanır.
@@ -70,7 +71,7 @@ export const printService = {
           }, 1000);
       }
     } catch (error) {
-      console.error('PDF Generation Error:', error);
+      logError('PDF Generation Error:', error);
       document.body.classList.remove('printing-mode');
     }
   },

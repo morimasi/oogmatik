@@ -12,6 +12,7 @@ import { LineChart } from '../LineChart';
 import { RadarChart } from '../RadarChart';
 import { ACTIVITIES } from '../../constants';
 
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 // Define constants used in the component
 const grades = [
   'Okul Öncesi',
@@ -143,7 +144,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
       setStudentAssessments(as);
       setStudentCurriculums(cr);
     } catch (e) {
-      console.error('Student data load error', e);
+      logError('Student data load error', e);
     } finally {
       setLoadingDetails(false);
     }

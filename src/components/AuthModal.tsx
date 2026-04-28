@@ -2,6 +2,7 @@ import { AppError } from '../utils/AppError';
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -78,7 +79,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         onClose();
       }
     } catch (err: any) {
-      console.error('Auth operation failed:', err);
+      logError('Auth operation failed:', err);
       if (isMounted.current) {
         const errorMessage = err?.message || 'Bilinmeyen bir hata oluştu.';
         // Translate common Firebase/Supabase errors

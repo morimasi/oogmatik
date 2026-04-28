@@ -5,6 +5,7 @@
 import { useState, useEffect } from 'react';
 import { AppTheme } from '../types';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 interface AmbientLightData {
   lux: number;
   recommendedTheme: AppTheme;
@@ -68,7 +69,7 @@ export function useAmbientLight(): AmbientLightData {
         };
 
         sensor.onerror = (error: Error) => {
-          console.warn('Ambient Light Sensor error:', error.message);
+          logWarn('Ambient Light Sensor error:', error.message);
         };
 
         sensor.start();
@@ -77,7 +78,7 @@ export function useAmbientLight(): AmbientLightData {
           sensor.stop();
         };
       } catch (error) {
-        console.warn('Failed to initialize Ambient Light Sensor:', error);
+        logWarn('Failed to initialize Ambient Light Sensor:', error);
       }
     } else {
       // Fallback: Use time-of-day heuristic

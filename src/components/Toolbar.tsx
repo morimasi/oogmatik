@@ -10,6 +10,7 @@ import { ExportProgressModal } from './ExportProgressModal';
 import { useA4EditorStore } from '../store/useA4EditorStore';
 import { useToastStore } from '../store/useToastStore';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 interface ToolbarProps {
   settings: StyleSettings;
   onSettingsChange: (newSettings: StyleSettings) => void;
@@ -536,7 +537,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 });
                 toast.success('PDF başarıyla indirildi!');
               } catch (e) {
-                console.error(e);
+                logError(e);
                 toast.error('PDF oluşturulamadı.');
               } finally {
                 setTimeout(() => setExportProgress({ open: false, percent: 0, message: '' }), 800);
@@ -563,7 +564,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                   paperSize: paperSize,
                 });
               } catch (e) {
-                console.error(e);
+                logError(e);
                 toast.error('Yazdırma başlatılamadı.');
               }
             }}
@@ -611,12 +612,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                       quality: 'high'
                     });
                   } catch (innerErr) {
-                    console.error(innerErr);
+                    logError(innerErr);
                     toast.error('Yazdırma motoru hatası.');
                   }
                 }, 500);
               } catch (err) {
-                console.error(err);
+                logError(err);
                 toast.error('Sistem başlatılamadı.');
               }
             }}

@@ -6,6 +6,7 @@ import { ACTIVITIES } from '../constants.js';
 import { authService } from './authService.js';
 import { auth } from './firebaseClient.js';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 const { collection, doc, setDoc, getDocs, updateDoc, increment, getDoc } = firestore;
 
 export const statsService = {
@@ -27,7 +28,7 @@ export const statsService = {
             });
             return stats;
         } catch (e) {
-            console.error("Stats service error:", e);
+            logError("Stats service error:", e);
             return [];
         }
     },
@@ -55,7 +56,7 @@ export const statsService = {
                 });
             }
         } catch (e) {
-            console.warn("Stats increment warning:", e);
+            logWarn("Stats increment warning:", e);
         }
     },
 

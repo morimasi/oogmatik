@@ -14,6 +14,7 @@ import {
 import { assignmentService } from '../services/assignmentService';
 import { useToastStore } from './useToastStore';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 interface AssignmentState {
   assignments: ActivityAssignment[];
   isLoading: boolean;
@@ -58,7 +59,7 @@ export const useAssignmentStore = create<AssignmentState>()((set: any, get: any)
       });
       set({ assignments: assignmentList, isLoading: false });
     }, (error) => {
-      console.error("Assignment listener error:", error);
+      logError("Assignment listener error:", error);
       set({ isLoading: false });
     });
   },
@@ -78,7 +79,7 @@ export const useAssignmentStore = create<AssignmentState>()((set: any, get: any)
       });
       set({ assignments: assignmentList, isLoading: false });
     }, (error) => {
-      console.error("Assignment listener error:", error);
+      logError("Assignment listener error:", error);
       set({ isLoading: false });
     });
   },

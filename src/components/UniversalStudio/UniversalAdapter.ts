@@ -39,7 +39,7 @@ class LayoutEngine {
           const candidate: Rect = { x, y, w, h };
 
           const isOccupied = this.occupiedSpaces
-            .filter((s) => s.page === currentPage)
+            .filter((s: unknown) => s.page === currentPage)
             .some((s) => this.isOverlapping(candidate, s.rect));
 
           if (!isOccupied) {

@@ -60,9 +60,9 @@ export async function generateInfographic_STATES_MATTER_AI(
     content: {
       scienceData: {
         topic: params.topic,
-        components: (result.states || []).map((s) => s.name),
+        components: (result.states || []).map((s: unknown) => s.name),
         properties: Object.fromEntries(
-          (result.states || []).map((s) => [s.name, s.properties.join(', ')])
+          (result.states || []).map((s: unknown) => [s.name, s.properties.join(', ')])
         ),
       },
       steps: (result.states || []).map((state, i) => ({
@@ -119,9 +119,9 @@ export function generateInfographic_STATES_MATTER_Offline(
     content: {
       scienceData: {
         topic: params.topic,
-        components: states.map((s) => s.name),
+        components: states.map((s: unknown) => s.name),
         properties: Object.fromEntries(
-          states.map((s) => [s.name, s.properties.join(', ')])
+          states.map((s: unknown) => [s.name, s.properties.join(', ')])
         ),
       },
       steps: states.map((state, i) => ({

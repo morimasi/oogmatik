@@ -263,10 +263,10 @@ export const generateSuperStudioContent = async (
               fromCache: true,
             });
             remainingTemplates = remainingTemplates.filter((t) => t !== tpl);
-            console.log(`[Super Türkçe] Cache hit: ${tpl}`);
+            logInfo(`[Super Türkçe] Cache hit: ${tpl}`);
           }
         } catch (e) {
-          console.warn(`[Super Türkçe] Cache okuma hatası (${tpl}):`, e);
+          logWarn(`[Super Türkçe] Cache okuma hatası (${tpl}):`, e);
         }
       }
     }
@@ -285,9 +285,9 @@ export const generateSuperStudioContent = async (
       const schema = buildSchemaForTemplate(tpl);
 
       try {
-        console.log(`[Super Türkçe] Calling API for: ${tpl}`);
+        logInfo(`[Super Türkçe] Calling API for: ${tpl}`);
         const aiResponse = await generateWithSchema(prompt, schema);
-        console.log(
+        logInfo(
           `[Super Türkçe] API response for ${tpl}:`,
           typeof aiResponse,
           aiResponse ? Object.keys(aiResponse) : 'null'
@@ -326,9 +326,9 @@ export const generateSuperStudioContent = async (
           const cacheKey = generateCacheKey(tpl, templateSettings, grade, difficulty);
           try {
             await cacheService.set(cacheKey, payload as any);
-            console.log(`[Super Türkçe] Cache yazıldı: ${tpl}`);
+            logInfo(`[Super Türkçe] Cache yazıldı: ${tpl}`);
           } catch (e) {
-            console.warn(`[Super Türkçe] Cache yazma hatası (${tpl}):`, e);
+            logWarn(`[Super Türkçe] Cache yazma hatası (${tpl}):`, e);
           }
         }
 
@@ -338,7 +338,7 @@ export const generateSuperStudioContent = async (
           data: payload,
         };
       } catch (apiError: any) {
-        console.warn(`[Super Türkçe] Şablon hatası (${tpl}):`, apiError?.message || apiError);
+        logWarn(`[Super Türkçe] Şablon hatası (${tpl}):`, apiError?.message || apiError);
         throw apiError;
       }
     });
@@ -374,7 +374,7 @@ export const generateSuperStudioContent = async (
         }
         return { type: 'failed', templateId: f.value?.templateId, success: f.value?.success };
       });
-      console.error(
+      logError(
         `[Super Türkçe] ${failures.length}/${templates.length} şablon başarısız oldu.`,
         failureDetails
       );

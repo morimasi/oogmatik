@@ -17,6 +17,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { ActivityType } from '../../types';
 import type { Soru, CevapAnahtari } from '../../types/sinav';
 
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 type TabType = 'onizleme' | 'cevap-anahtari';
 
 const SectionHeader: React.FC<{ icon: string; title: string; badge?: string; isOpen: boolean; onToggle: () => void; }> = ({ icon, title, badge, isOpen, onToggle }) => (
@@ -147,7 +148,7 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook })
       });
       showSuccess('PDF indirildi!');
     } catch (error) {
-      console.error('İndirme hatası:', error);
+      logError('İndirme hatası:', error);
       setError('PDF oluşturulurken bir hata oluştu.');
     } finally {
       setIsDownloading(false);
@@ -160,7 +161,7 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook })
     try {
       await printService.generatePdf('#sinav-print-target', aktifSinav.baslik, { action: 'print' });
     } catch (error) {
-      console.error('Yazdırma hatası:', error);
+      logError('Yazdırma hatası:', error);
       setError('Yazdırma başlatılamadı.');
     } finally {
       setIsDownloading(false);
@@ -442,7 +443,7 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook })
                 <FmtBtn active={printConfig.fontFamily === 'helvetica'} onClick={() => updateConfig('fontFamily', 'helvetica')} title="Inter Fontu">Inter</FmtBtn>
                 <FmtBtn active={printConfig.fontFamily === 'times'} onClick={() => updateConfig('fontFamily', 'times')} title="Times New Roman">Times</FmtBtn>
                 <div className="w-px h-5 bg-accent/20 mx-1"></div>
-                {([9, 10, 11, 12] as const).map((s) => (
+                {([9, 10, 11, 12] as const).map((s: unknown) => (
                   <FmtBtn key={s} active={printConfig.fontSize === s} onClick={() => updateConfig('fontSize', s)} title={`${s} Punto`}>{s}pt</FmtBtn>
                 ))}
               </div>

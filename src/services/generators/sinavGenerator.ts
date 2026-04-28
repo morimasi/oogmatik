@@ -10,6 +10,7 @@ import type { SinavAyarlari, Soru, Sinav, CevapAnahtari } from '../../types/sina
 import { getKazanimByCode } from '../../data/meb-turkce-kazanim.js';
 import { AppError } from '../../utils/AppError.js';
 
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 const MASTER_MODEL = 'gemini-2.5-flash';
 
 // ─── Doğrudan Gemini REST API çağrısı (Vercel serverless uyumlu) ────────────
@@ -318,7 +319,7 @@ export const generateExam = async (settings: SinavAyarlari): Promise<Sinav> => {
     if (error instanceof AppError) throw error;
 
     const errorMessage = error instanceof Error ? error.message : 'Bilinmeyen hata';
-    console.error('[sinavGenerator] Hata:', errorMessage);
+    logError('[sinavGenerator] Hata:', errorMessage);
     throw new AppError(
       'Sınav oluşturulurken beklenmeyen bir hata oluştu.',
       'EXAM_GENERATION_ERROR',

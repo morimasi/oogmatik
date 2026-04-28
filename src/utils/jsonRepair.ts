@@ -1,5 +1,6 @@
 import { AppError } from './AppError.js';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 /**
  * Eksik kapanış parantezlerini sayısal olarak tamamlar.
  */
@@ -82,7 +83,7 @@ export const tryRepairJson = (jsonStr: string): any => {
     try {
         const truncated = truncateToLastValidEntry(cleaned);
         const result = JSON.parse(truncated);
-        console.warn('[jsonRepair] JSON truncated & repaired. Yanıt token sınırına çarpmış olabilir.');
+        logWarn('[jsonRepair] JSON truncated & repaired. Yanıt token sınırına çarpmış olabilir.');
         return result;
     } catch { /* ignore */ }
 
@@ -93,13 +94,13 @@ export const tryRepairJson = (jsonStr: string): any => {
                 const candidate = cleaned.substring(0, i + 1);
                 try {
                     const result = JSON.parse(candidate);
-                    console.warn(`[jsonRepair] STRATEJİ 4: Sondan tarayarak geçerli JSON bulundu (karakter ${i + 1}/${cleaned.length}).`);
+                    logWarn(`[jsonRepair] STRATEJİ 4: Sondan tarayarak geçerli JSON bulundu (karakter ${i + 1}/${cleaned.length}).`);
                     return result;
                 } catch { /* ignore */ }
             }
         }
     } catch { /* ignore */ }
 
-    console.error('[jsonRepair] JSON Parse tamamen başarısız. Ham metin:', cleaned.substring(0, 500));
+    logError('[jsonRepair] JSON Parse tamamen başarısız. Ham metin:', cleaned.substring(0, 500));
     throw new AppError('AI verisi işlenemedi. JSON formatı bozuk veya yanıt çok kısa.', 'INTERNAL_ERROR', 500);
 };

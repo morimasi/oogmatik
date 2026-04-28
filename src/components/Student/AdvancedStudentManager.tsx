@@ -13,6 +13,7 @@ import { SettingsModule } from './modules/SettingsModule';
 import { StudentSelector } from './StudentSelector';
 import { AIInsightsModule } from './modules/AIInsightsModule';
 
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 // Icons mapping for sub-modules
 const MODULE_ICONS = {
   overview: 'fa-chart-pie',
@@ -137,7 +138,7 @@ export const AdvancedStudentManager: React.FC<{
     try {
       await updateStudent(activeStudent.id, updates);
     } catch (e) {
-      console.error('Öğrenci güncelleme hatası:', e);
+      logError('Öğrenci güncelleme hatası:', e);
     }
   };
 

@@ -10,6 +10,7 @@ import { ActivityImporterModal } from './ActivityImporterModal';
 import { generateWithSchema } from '../services/geminiClient.js';
 import { motion, AnimatePresence } from 'framer-motion';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 interface WorkbookViewProps {
   items: CollectionItem[];
   setItems: React.Dispatch<React.SetStateAction<CollectionItem[]>>;
@@ -283,7 +284,7 @@ export const WorkbookView = ({
       await worksheetService.saveWorkbook(user.id, settings, items, assignedStudent?.id);
       alert(`"${settings.title}" başarıyla arşivinize kaydedildi.`);
     } catch (error) {
-      console.error('Save failed:', error);
+      logError('Save failed:', error);
       alert('Kaydetme sırasında bir hata oluştu.');
     } finally {
       setIsSaving(false);
@@ -299,7 +300,7 @@ export const WorkbookView = ({
         action,
       });
     } catch (error) {
-      console.error('Kitapçık oluşturma hatası:', error);
+      logError('Kitapçık oluşturma hatası:', error);
       alert('Kitapçık oluşturulurken bir hata meydana geldi.');
     } finally {
       setIsPrinting(false);
@@ -362,7 +363,7 @@ KRİTİK KURALLAR:
         const result = (await generateWithSchema(prompt, schema)) as { preface?: string };
         prefaceText = result && result.preface ? result.preface : '';
       } catch (aiErr) {
-        console.warn("Gemini preface fallback'a düştü:", aiErr);
+        logWarn("Gemini preface fallback'a düştü:", aiErr);
       }
 
       if (!prefaceText) {
@@ -374,7 +375,7 @@ KRİTİK KURALLAR:
 
       setSettings((s: any) => ({ ...s, teacherNote: prefaceText, aiPreface: prefaceText }));
     } catch (e: any) {
-      console.error('AI Error:', e);
+      logError('AI Error:', e);
     } finally {
       setIsGeneratingPreface(false);
     }

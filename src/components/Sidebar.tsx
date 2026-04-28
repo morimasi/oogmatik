@@ -19,6 +19,7 @@ import { activityService } from '../services/generators/ActivityService';
 import { GeneratorMode } from '../services/generators/core/types';
 import { adminService } from '../services/adminService';
 import { useStudentStore } from '../store/useStudentStore';
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 import './PremiumPopupStyles.css';
 
 import './PremiumPopupStyles.css';
@@ -348,7 +349,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           }))
         );
       } catch (_e) {
-        console.error('Dinamik kaynaklar yüklenemedi');
+        logError('Dinamik kaynaklar yüklenemedi');
       }
     };
     loadDynamicResources();

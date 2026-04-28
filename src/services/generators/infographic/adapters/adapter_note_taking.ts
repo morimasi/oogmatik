@@ -76,7 +76,7 @@ export async function generateInfographic_NOTE_TAKING_AI(
       ),
       strategicContent: {
         strategyName: 'Cornell Not Alma',
-        steps: (result.sections || []).map((s) => s.heading),
+        steps: (result.sections || []).map((s: unknown) => s.heading),
         useWhen: 'Ders sırasında veya okuma yaparken',
         benefits: ['Bilgiyi yapılandırma', 'Tekrar kolaylığı', 'Anahtar kavramları belirleme'],
       },
@@ -143,7 +143,7 @@ export function generateInfographic_NOTE_TAKING_Offline(
       ),
       strategicContent: {
         strategyName: 'Cornell Not Alma',
-        steps: sections.map((s) => s.heading),
+        steps: sections.map((s: unknown) => s.heading),
         useWhen: 'Ders sırasında veya okuma yaparken',
         benefits: ['Bilgiyi yapılandırma', 'Tekrar kolaylığı', 'Anahtar kavramları belirleme'],
       },

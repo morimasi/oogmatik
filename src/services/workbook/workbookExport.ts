@@ -22,6 +22,7 @@ import { logError } from '../../utils/errorHandler';
 import { anonymizeWorkbookForSharing } from './workbookSharingService';
 import type { Workbook, WorkbookExportConfig, WorkbookExportFormat } from '../../types/workbook';
 
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 // ============================================================================
 // MAIN EXPORT FUNCTION
 // ============================================================================
@@ -251,7 +252,7 @@ async function exportToInteractiveHTML(
   </div>
   <script>
     // Interactive features
-    console.log('Workbook loaded: ${workbook.title}');
+    logInfo('Workbook loaded: ${workbook.title}');
   </script>
 </body>
 </html>

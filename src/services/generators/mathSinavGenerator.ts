@@ -17,6 +17,7 @@ import type {
 import { getMatKazanimByCode } from '../../data/meb-matematik-kazanim';
 import { AppError } from '../../utils/AppError';
 import { getVisualPromptsForKazanimlar } from './mathVisualPromptLibrary';
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 import {
   validateQuestionVisualConsistency,
   generateExamValidationReport,
@@ -730,8 +731,8 @@ export function uretGorselMetinUyumRaporu(sinav: MatSinav): {
   toplamGorselliSoruSayisi: number;
   soruRaporlari: GorselMetinUyumSonucu[];
 } {
-  const gorselliSorular = sinav.sorular.filter((s) => s.grafik_verisi);
-  const raporlar = gorselliSorular.map((s) => kontrolEtGorselMetinUyumu(s));
+  const gorselliSorular = sinav.sorular.filter((s: unknown) => s.grafik_verisi);
+  const raporlar = gorselliSorular.map((s: unknown) => kontrolEtGorselMetinUyumu(s));
 
   const uyumluSayisi = raporlar.filter((r) => r.uyumluMu).length;
   const toplamSkor = raporlar.reduce((acc, r) => acc + r.skor, 0);
@@ -1149,7 +1150,7 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
 
       // Kritik hatalar varsa uyarı ekle (ama sınavı durma, kullanıcıya raporla)
       if (!validation.isValid && validation.errors.length > 0) {
-        console.warn(`[GÖRSEL UYUMSUZLUK] Soru ${i + 1} (${sorular[i].id}):`, validation.errors);
+        logWarn(`[GÖRSEL UYUMSUZLUK] Soru ${i + 1} (${sorular[i].id}):`, validation.errors);
       }
     }
 
@@ -1160,7 +1161,7 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
     const kritikHataYuzdesi =
       (examValidationReport.invalidQuestions / examValidationReport.totalQuestions) * 100;
     if (kritikHataYuzdesi > 30) {
-      console.warn(
+      logWarn(
         `[KLİNİK PROTOKOL UYARISI] Sınavın %${kritikHataYuzdesi.toFixed(0)}'inde görsel-metin uyumsuzluğu var. ` +
           `Ortalama pedagojik skor: ${examValidationReport.averagePedagogicalScore}/100`
       );

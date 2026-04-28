@@ -168,7 +168,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
                 className="w-full p-1.5 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg text-[11px] font-bold text-[var(--text-primary)] outline-none cursor-pointer disabled:cursor-not-allowed"
               >
                 <option value="anonymous">Misafir / Atanmamış</option>
-                {students.map((s) => (
+                {students.map((s: unknown) => (
                   <option key={s.id} value={s.id}>
                     {s.name} ({s.grade})
                   </option>

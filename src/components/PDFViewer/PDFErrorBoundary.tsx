@@ -1,6 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import styles from './PDFViewer.module.css';
 
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 interface PDFErrorBoundaryProps {
   children: ReactNode;
   onError?: (error: Error, info: ErrorInfo) => void;
@@ -23,7 +24,7 @@ export class PDFErrorBoundary extends Component<PDFErrorBoundaryProps, PDFErrorB
   }
 
   public componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error('[PDFErrorBoundary]', error, info);
+    logError('[PDFErrorBoundary]', error, info);
     this.props.onError?.(error, info);
   }
 

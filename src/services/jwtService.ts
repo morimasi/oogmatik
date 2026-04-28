@@ -6,6 +6,7 @@ import { AppError } from '../utils/AppError';
 
 import jwt from 'jsonwebtoken';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 export interface TokenPayload {
     userId: string;
     email: string;
@@ -53,7 +54,7 @@ export class JWTService {
                 algorithm: 'HS256',
             });
         } catch (error) {
-            console.error('[JWT] Error generating token:', error);
+            logError('[JWT] Error generating token:', error);
             throw new AppError('Token generation failed', 'INTERNAL_ERROR', 500);
         }
     }
@@ -68,7 +69,7 @@ export class JWTService {
                 algorithm: 'HS256',
             });
         } catch (error) {
-            console.error('[JWT] Error generating refresh token:', error);
+            logError('[JWT] Error generating refresh token:', error);
             throw new AppError('Refresh token generation failed', 'INTERNAL_ERROR', 500);
         }
     }
@@ -136,7 +137,7 @@ export class JWTService {
                 refreshToken: this.generateRefreshToken(payload),
             };
         } catch (error) {
-            console.error('[JWT] Error refreshing token:', error);
+            logError('[JWT] Error refreshing token:', error);
             throw new AppError('Token refresh failed', 'INTERNAL_ERROR', 500);
         }
     }
@@ -213,7 +214,7 @@ export const optionalJWTMiddleware = (req: any, res: any, next: any) => {
         }
     } catch (error) {
         // Ignore errors in optional middleware
-        console.warn('[JWT] Optional token verification failed:', error);
+        logWarn('[JWT] Optional token verification failed:', error);
     }
 
     next();

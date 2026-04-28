@@ -108,8 +108,8 @@ export function interleaveTexts(
     ratio: number
 ): string {
     if (mode === 'satir') {
-        const linesA = textA.split(/[.!?]+/).filter((s) => s.trim());
-        const linesB = textB.split(/[.!?]+/).filter((s) => s.trim());
+        const linesA = textA.split(/[.!?]+/).filter((s: unknown) => s.trim());
+        const linesB = textB.split(/[.!?]+/).filter((s: unknown) => s.trim());
         const result: string[] = [];
         const maxLen = Math.max(linesA.length, linesB.length);
         for (let i = 0; i < maxLen; i++) {

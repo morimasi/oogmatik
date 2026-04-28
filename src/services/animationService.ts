@@ -2,6 +2,7 @@ import { AppError } from '../utils/AppError';
 import { generateWithSchema } from './geminiClient';
 import { AnimationPayloadType, NeuroProfileParamsType } from '../utils/schemas';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 // Oogmatik Animasyon Stüdyosu v2.0 AI Core Yönergesi
 const ANIMATION_SYSTEM_INSTRUCTION = `
 Sen "Oogmatik Ultra Premium Animasyon Stüdyosu v2.0" uygulamasının Nöro-Mimari AI motorusun.
@@ -92,7 +93,7 @@ export class AnimationService {
       // Dışarıdan component tarafına giderken Zod parse (schemas.ts içinden) kullanılabilir.
       return data as AnimationPayloadType;
     } catch (error: any) {
-      console.error('AnimationService Hatası:', error);
+      logError('AnimationService Hatası:', error);
       throw new AppError(
         'Animasyon senaryosu oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.',
         'ANIMATION_GENERATION_FAILED',

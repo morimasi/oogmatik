@@ -204,6 +204,7 @@ export interface ActivityLibraryItem {
   sortOrder: number;
   topicTemplate: string;
   searchIndex: string;
+  pedagogicalNote?: string;
 }
 
 export interface ActivityLibraryQuery {
@@ -225,6 +226,7 @@ export interface ContentBlock {
   content: string;
   videoUrl?: string;
   imageUrl?: string;
+  pedagogicalNote?: string;
 }
 
 // ─── Bileşen Fabrikası ──────────────────────────────────────────────

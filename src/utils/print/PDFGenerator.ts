@@ -14,6 +14,7 @@ import {
 } from './CaptureEngine';
 import { forceRenderAllPages, clearRenderAllPagesFlag } from './CSSInjector';
 
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 export interface RealPdfOptions {
   paperSize?: PaperSize;
   quality?: PdfQuality;
@@ -47,14 +48,14 @@ export const generateRealPdf = async (
     // Sayfaları bul
     const roots = Array.from(document.querySelectorAll(rootSelector)) as HTMLElement[];
     if (roots.length === 0) {
-      console.error(`[PDFGenerator] HATA: "${rootSelector}" bulunamadı.`);
+      logError(`[PDFGenerator] HATA: "${rootSelector}" bulunamadı.`);
       onProgress?.(0, 'İçerik bulunamadı');
       alert('Yazdırılacak içerik bulunamadı. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
       return null;
     }
 
     if (!hasRenderableContent(roots)) {
-      console.error(`[PDFGenerator] HATA: "${rootSelector}" bulundu ama içerik boş.`);
+      logError(`[PDFGenerator] HATA: "${rootSelector}" bulundu ama içerik boş.`);
       onProgress?.(0, 'İçerik boş');
       alert('Yazdırılacak içerik henüz hazır değil. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
       return null;
@@ -62,7 +63,7 @@ export const generateRealPdf = async (
 
     const pages = collectPages(rootSelector);
     if (pages.length === 0) {
-      console.warn('[PDFGenerator] Sayfa bulunamadı');
+      logWarn('[PDFGenerator] Sayfa bulunamadı');
       return null;
     }
 

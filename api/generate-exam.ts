@@ -9,6 +9,7 @@ import { generateExam } from '../src/services/generators/sinavGenerator.js';
 import type { SinavAyarlari } from '../src/types/sinav.js';
 import { corsMiddleware } from '../src/utils/cors.js';
 
+import { logInfo, logError, logWarn } from '../src/utils/logger.js';
 // Rate limiting helper (inline to avoid import issues)
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
@@ -93,7 +94,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
   } catch (error: unknown) {
-    console.error('Exam generation error:', error);
+    logError('Exam generation error:', error);
 
     if (error instanceof AppError) {
       return res.status(error.httpStatus).json({

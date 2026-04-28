@@ -1,5 +1,6 @@
 import { WorksheetData, ActivityType } from '../types';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 const DB_NAME = 'DyslexiaAICache';
 const STORE_NAME = 'generations';
 const DRAFT_STORE_NAME = 'drafts'; // New store for current session state
@@ -48,12 +49,12 @@ export const cacheService = {
         };
 
         request.onerror = () => {
-          console.error('Cache retrieval failed');
+          logError('Cache retrieval failed');
           resolve(null);
         };
       });
     } catch (e) {
-      console.warn('Cache read error (safely ignored):', e);
+      logWarn('Cache read error (safely ignored):', e);
       return null;
     }
   },
@@ -70,7 +71,7 @@ export const cacheService = {
         request.onerror = () => reject(request.error);
       });
     } catch (e) {
-      console.warn('Cache write error:', e);
+      logWarn('Cache write error:', e);
     }
   },
 
@@ -87,7 +88,7 @@ export const cacheService = {
         request.onerror = () => reject(request.error);
       });
     } catch (e) {
-      console.warn('Draft save error:', e);
+      logWarn('Draft save error:', e);
     }
   },
 

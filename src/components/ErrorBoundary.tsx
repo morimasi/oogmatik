@@ -1,5 +1,6 @@
 import React, { ErrorInfo, ReactNode, Component } from 'react';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
@@ -24,7 +25,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("Uncaught error:", error, errorInfo);
+    logError("Uncaught error:", error, errorInfo);
   }
 
   public render() {

@@ -7,6 +7,7 @@ import { useSuperStudioStore } from '../../store/useSuperStudioStore';
 import { useToastStore } from '../../store/useToastStore';
 import { generateSuperStudioContent } from '../../services/generators/superStudioGenerator';
 
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 export const SuperStudio: React.FC = () => {
   const {
     isGenerating,
@@ -49,7 +50,7 @@ export const SuperStudio: React.FC = () => {
       results.forEach((content) => addGeneratedContent(content));
       addToast(`${results.length} sayfa başarıyla üretildi!`, 'success');
     } catch (error: any) {
-      console.error('Üretim hatası:', error);
+      logError('Üretim hatası:', error);
       addToast(error?.userMessage || 'AI üretim başarısız. Tekrar deneyin.', 'error');
     } finally {
       setIsGenerating(false);

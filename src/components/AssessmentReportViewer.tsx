@@ -6,6 +6,7 @@ import { ShareModal } from './ShareModal';
 import { assessmentService } from '../services/assessmentService';
 import { printService } from '../utils/printService';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 interface AssessmentReportViewerProps {
     assessment: SavedAssessment | null;
     onClose: () => void;
@@ -117,7 +118,7 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
             alert('Rapor başarıyla paylaşıldı.');
             setIsShareModalOpen(false);
         } catch (e) {
-            console.error(e);
+            logError(e);
             alert('Paylaşım sırasında hata oluştu.');
         }
     };
@@ -129,7 +130,7 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
             await new Promise(resolve => setTimeout(resolve, 50));
             await printService.generatePdf('#report-content-area', `${assessment.studentName}-Rapor`, { action });
         } catch (error) {
-            console.error("Rapor yazdırma hatası:", error);
+            logError("Rapor yazdırma hatası:", error);
             alert("Rapor yazdırılırken bir hata oluştu.");
         } finally {
             setIsPrinting(false);

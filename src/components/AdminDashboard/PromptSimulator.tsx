@@ -74,7 +74,7 @@ export const PromptSimulator = ({ prompt }: { prompt: PromptTemplate }) => {
 
 
         } catch (err: any) {
-            console.error("Simülasyon Hatası:", err);
+            logError("Simülasyon Hatası:", err);
             setError(err.message || "Simülasyon sırasında bir hata oluştu.");
         } finally {
             setLoading(false);

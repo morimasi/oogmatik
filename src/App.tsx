@@ -234,6 +234,7 @@ const tourSteps: TourStep[] = [
 
 import { useStudentStore } from './store/useStudentStore';
 
+import { logInfo, logError, logWarn } from './utils/logger.js';
 const AppContent = () => {
   const authStore = useAuthStore();
   const studentStore = useStudentStore();
@@ -772,7 +773,7 @@ const AppContent = () => {
               });
             });
           } catch (genErr) {
-            console.error(`Failed to auto-generate ${activityId}`, genErr);
+            logError(`Failed to auto-generate ${activityId}`, genErr);
           }
         }
       }

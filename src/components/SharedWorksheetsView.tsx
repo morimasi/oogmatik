@@ -7,6 +7,7 @@ import { worksheetService } from '../services/worksheetService';
 import { assessmentService } from '../services/assessmentService';
 import { printService } from '../utils/printService';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 interface SharedWorksheetsViewProps {
     onLoad: (worksheet: SavedWorksheet) => void;
     onBack: () => void;
@@ -43,7 +44,7 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
             setSharedAssessments(assessments);
             setCount(count || 0);
         } catch (e) {
-            console.error(e);
+            logError(e);
         } finally {
             setLoading(false);
         }
@@ -81,7 +82,7 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
             );
             alert('İçerik başarıyla arşivinize eklendi.');
         } catch (e) {
-            console.error(e);
+            logError(e);
             alert('Arşivleme sırasında bir hata oluştu.');
         } finally {
             setLoading(false);

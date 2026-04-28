@@ -4,6 +4,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { SimplifiedStudentForm } from './SimplifiedStudentForm';
 import type { Student } from '../../types';
 
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 export const StudentSelector = () => {
   const { user } = useAuthStore();
   const { students, _activeStudent, setActiveStudent, addStudent } = useStudentStore();
@@ -33,7 +34,7 @@ export const StudentSelector = () => {
       } as Student);
       setShowAddForm(false);
     } catch (error) {
-      console.error('Error adding student:', error);
+      logError('Error adding student:', error);
     }
   };
 
