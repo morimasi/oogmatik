@@ -3,6 +3,7 @@ import { AdvancedStudent } from '../../../types/student-advanced';
 import { RadarChart } from '../../RadarChart';
 import { aiStudentService, CognitiveProfileResult } from '../../../services/aiStudentService';
 
+import { logInfo, logError, logWarn } from '../../../utils/logger.js';
 export const AIInsightsModule: React.FC<{ student: AdvancedStudent }> = ({ student }) => {
   const [data, setData] = useState<CognitiveProfileResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -15,7 +16,7 @@ export const AIInsightsModule: React.FC<{ student: AdvancedStudent }> = ({ stude
         const result = await aiStudentService.generateCognitiveInsight(student);
         if (active) setData(result);
       } catch (err) {
-        console.error('Bilişsel analiz yüklenemedi', err);
+        logError('Bilişsel analiz yüklenemedi', err);
       } finally {
         if (active) setLoading(false);
       }

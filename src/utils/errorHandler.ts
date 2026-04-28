@@ -1,3 +1,5 @@
+import { logInfo, logError, logWarn } from '../utils/logger.js';
+
 /**
  * OOGMATIK - Error Handler Utilities
  * Error transformation, retry logic, logging
@@ -103,8 +105,8 @@ export const logError = (error: AppError, context?: Record<string, unknown>) => 
 
   if (isDev) {
     console.group(`🔴 AppError: ${error.code}`);
-    console.error('Message:', error.message);
-    if (error.originalError) console.error('Original:', error.originalError);
+    logError('Message:', error.message);
+    if (error.originalError) logError('Original:', error.originalError);
     if (context) console.dir(context);
     console.groupEnd();
   }
@@ -195,7 +197,7 @@ export const retryWithBackoff = async <T>(
       // ±10%'lik kısmi jitter yerine tam yayılım → thundering herd tamamen önlenir.
       const finalDelay = Math.max(100, Math.random() * exponentialDelay);
 
-      console.warn(
+      logWarn(
         `[Retry] Attempt ${attempt + 1}/${maxRetries} failed. Retrying in ${finalDelay.toFixed(0)}ms...`,
         { errorCode: appError.code }
       );
@@ -352,7 +354,7 @@ export class CircuitBreaker {
 
     if (this.failureCount >= this.failureThreshold) {
       this.state = 'OPEN';
-      console.warn(
+      logWarn(
         `[CircuitBreaker] Opened after ${this.failureCount} failures. Will retry in ${this.resetTimeoutMs}ms`
       );
     }

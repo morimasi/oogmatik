@@ -5,6 +5,7 @@ import { GenericActivityGenerator } from './core/GenericActivityGenerator';
 import { ACTIVITY_GENERATOR_REGISTRY } from './registry';
 import { generateInfographic } from './infographicGenerator';
 
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 /**
  * Merkezi Aktivite Servisi (Facade / Factory)
  * Tüm aktivite üretim istekleri bu servis üzerinden geçer.
@@ -82,7 +83,7 @@ export class ActivityService {
 
         // Jeneratör bulunamadıysa, fallback mekanizmasını dene
         if (!generator) {
-            console.warn(`No generator found for activity type: ${type}. Attempting fallback...`);
+            logWarn(`No generator found for activity type: ${type}. Attempting fallback...`);
             
             // Bilinmeyen tipler için GenericActivityGenerator ile fallback dene
             const fallbackMode = _mode ?? this.defaultMode;
@@ -105,7 +106,7 @@ export class ActivityService {
             );
             
             generator = fallbackGenerator;
-            console.warn(`Using fallback generator for activity type: ${type}`);
+            logWarn(`Using fallback generator for activity type: ${type}`);
         }
 
         // Eğer spesifik bir mod parametresi gelmişse options'ı güncelle

@@ -1,4 +1,5 @@
 import { AppError } from '../utils/AppError';
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 // Model Seçimi: Gemini 2.0 Flash — Performanslı ve güncel model
 const MASTER_MODEL = 'gemini-2.5-flash';
 
@@ -125,7 +126,7 @@ export const generateCreativeMultimodal = async (params: {
     const data = await response.json();
     return data; // Proxy zaten JSON parse edilmiş veriyi döndürür
   } catch (error: any) {
-    console.error('Gemini Proxy İstek Hatası:', error);
+    logError('Gemini Proxy İstek Hatası:', error);
     throw error;
   }
 };
@@ -203,7 +204,7 @@ export const generateSvgCode = async (prompt: string): Promise<string> => {
 
     return svgCode;
   } catch (error) {
-    console.error('SVG Generation Error:', error);
+    logError('SVG Generation Error:', error);
     // Generic fallback SVG (a simple circle)
     return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" stroke="#000" stroke-width="4" fill="none"/></svg>';
   }

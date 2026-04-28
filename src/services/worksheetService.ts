@@ -9,6 +9,7 @@ import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings, Stude
 import { AppError, NotFoundError, AuthorizationError, DatabaseError, InternalServerError, toAppError } from '../utils/AppError.js';
 import { logError, retryWithBackoff, withTimeout } from '../utils/errorHandler.js';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 // @ts-ignore - Vercel TS build might not resolve firebase types correctly with node resolution
 const { collection, addDoc, query, where, getDocs, doc, updateDoc, increment, deleteDoc, getDoc, orderBy, limit, _startAfter } = firestore;
 
@@ -51,7 +52,7 @@ const deserializeData = (data: any): SingleWorksheetData[] => {
         try {
             parsed = JSON.parse(data);
         } catch (e) {
-            console.error("Deserialization error", e);
+            logError("Deserialization error", e);
             return [];
         }
     } else {
@@ -117,7 +118,7 @@ export const worksheetService = {
             try {
                 await updateDoc(userRef, { worksheetCount: increment(1) });
             } catch (countErr) {
-                console.warn("worksheetCount güncellenemedi:", countErr);
+                logWarn("worksheetCount güncellenemedi:", countErr);
             }
 
             return {
@@ -125,7 +126,7 @@ export const worksheetService = {
                 worksheetData: data
             };
         } catch (error) {
-            console.error("Error saving worksheet:", error);
+            logError("Error saving worksheet:", error);
             throw error;
         }
     },
@@ -154,7 +155,7 @@ export const worksheetService = {
 
             return { items, count: null };
         } catch (error) {
-            console.warn("Firestore Query Error (Index likely missing):", error);
+            logWarn("Firestore Query Error (Index likely missing):", error);
             // Fallback to client-side filter if index is missing
             const qFallback = query(collection(db, "saved_worksheets"), where("userId", "==", userId));
             const querySnapshot = await getDocs(qFallback);
@@ -185,7 +186,7 @@ export const worksheetService = {
             items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             return items;
         } catch (error) {
-            console.error("Error fetching student worksheets:", error);
+            logError("Error fetching student worksheets:", error);
             return [];
         }
     },
@@ -206,7 +207,7 @@ export const worksheetService = {
             });
             return { items, count: null };
         } catch (error) {
-            console.warn("Firestore Shared Query Error:", error);
+            logWarn("Firestore Shared Query Error:", error);
             // Fallback for missing index
             const qFallback = query(
                 collection(db, "saved_worksheets")

@@ -5,6 +5,7 @@ import { useAuthStore } from '../../../store/useAuthStore';
 import { useToastStore } from '../../../store/useToastStore';
 import { printService } from '../../../utils/printService';
 
+import { logInfo, logError, logWarn } from '../../../utils/logger.js';
 export const ActionToolbar: React.FC = () => {
   const { generatedContents, isGenerating } = useSuperStudioStore();
   const { user } = useAuthStore();
@@ -45,7 +46,7 @@ export const ActionToolbar: React.FC = () => {
       );
       addToast('Çalışma başarıyla buluta kaydedildi.', 'success');
     } catch (error) {
-      console.error('Kaydetme hatası:', error);
+      logError('Kaydetme hatası:', error);
       addToast('Kaydedilirken bir hata oluştu.', 'error');
     }
   };

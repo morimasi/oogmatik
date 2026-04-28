@@ -3,6 +3,7 @@ import { generateCreativeMultimodal } from '../geminiClient';
 import { InfographicActivityResult } from '../../types/infographic';
 import { AppError } from '../../utils/AppError';
 
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 /**
  * İnfografik Stüdyosu v3 — Merkezi AI Üretim Motoru
  * 96 farklı aktivite türü için özelleştirilmiş promptlar üretir.
@@ -83,7 +84,7 @@ Ayrıca "activityContent" içinde öğrencinin konuyu pekiştirmesi için 'suppo
             generationMode: 'ai'
         } as InfographicActivityResult;
     } catch (error) {
-        console.error('Infographic Generation Error:', error);
+        logError('Infographic Generation Error:', error);
         throw error;
     }
 }

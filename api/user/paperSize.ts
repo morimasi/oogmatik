@@ -3,6 +3,7 @@
  */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
+import { logInfo, logError, logWarn } from '../../src/utils/logger.js';
 const VALID_PAPER_SIZES = ['A4', 'Letter', 'Legal'] as const;
 type PaperSize = (typeof VALID_PAPER_SIZES)[number];
 
@@ -66,7 +67,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).json({ success: false, error: 'Yöntem izni yok' });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Bilinmeyen sunucu hatası';
-    console.error('[PaperSize API] Hata:', message, error);
+    logError('[PaperSize API] Hata:', message, error);
     return res.status(500).json({
       success: false,
       error: 'Sunucu hatası',

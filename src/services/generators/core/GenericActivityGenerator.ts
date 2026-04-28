@@ -3,6 +3,7 @@ import { BaseGenerator } from './BaseGenerator';
 import { GeneratorOptions } from '../../../types';
 import { GeneratorMode } from './types';
 
+import { logInfo, logError, logWarn } from '../../../utils/logger.js';
 /**
  * Genel Aktivite Jeneratörü
  * Her aktivite için ayrı bir sınıf oluşturmak yerine, bu sınıfı kullanarak
@@ -27,7 +28,7 @@ export class GenericActivityGenerator<T> extends BaseGenerator<T> {
         if (activeMode === GeneratorMode.AI) {
             if (!this.aiFunction) {
                 // Eğer AI fonksiyonu yoksa ve mod AI ise, offline'a düş (fallback)
-                console.warn(`[GenericGenerator] AI function not provided, falling back to Offline.`);
+                logWarn(`[GenericGenerator] AI function not provided, falling back to Offline.`);
                 if (this.offlineFunction) return await this.offlineFunction(options);
                 throw new AppError(`[GenericGenerator] No generation function available.`, 'INTERNAL_ERROR', 500);
             }
@@ -35,7 +36,7 @@ export class GenericActivityGenerator<T> extends BaseGenerator<T> {
         } else {
             if (!this.offlineFunction) {
                 // Eğer Offline fonksiyonu yoksa ve mod Offline ise, AI'ya düş (fallback)
-                console.warn(`[GenericGenerator] Offline function not provided, falling back to AI.`);
+                logWarn(`[GenericGenerator] Offline function not provided, falling back to AI.`);
                 if (this.aiFunction) return await this.aiFunction(options);
                 throw new AppError(`[GenericGenerator] No generation function available.`, 'INTERNAL_ERROR', 500);
             }

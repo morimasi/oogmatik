@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import type { CloudProvider, CloudStorageConfig, CloudFile, CloudSyncStatus } from '../types/worksheet';
 
+import { logInfo, logError, logWarn } from '../../../utils/logger.js';
 const STORAGE_KEY_PREFIX = 'uwv_cloud_';
 
 // Generate a cryptographically secure random base-36 string of the given length.
@@ -179,7 +180,7 @@ export function useCloudStorage(): UseCloudStorageReturn {
       setSyncStatus('idle');
     } catch (err) {
       setSyncStatus('error');
-      console.error(`Cloud connect error (${provider}):`, err);
+      logError(`Cloud connect error (${provider}):`, err);
     }
   }, []);
 
@@ -206,7 +207,7 @@ export function useCloudStorage(): UseCloudStorageReturn {
         return file;
       } catch (err) {
         setSyncStatus('error');
-        console.error(`Upload error (${provider}):`, err);
+        logError(`Upload error (${provider}):`, err);
     uploadQueueRef.current.push(() => uploadFile(provider, name, content, mimeType).then(() => undefined));
         return null;
       }
@@ -224,7 +225,7 @@ export function useCloudStorage(): UseCloudStorageReturn {
         setCloudFiles(files);
         return files;
       } catch (err) {
-        console.error(`List files error (${provider}):`, err);
+        logError(`List files error (${provider}):`, err);
         return [];
       }
     },

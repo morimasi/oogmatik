@@ -12,6 +12,7 @@ import { VariationResultsView } from './VariationResultsView';
 import { useAuthStore } from '../store/useAuthStore';
 import { validateBase64Image } from '../utils/imageValidator';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 const PREVIEW_SETTINGS: StyleSettings = {
   fontSize: 16,
   scale: 0.65,
@@ -690,7 +691,7 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
       const isRetryable = isRetryableError(errorMessage);
       const remainingAttempts = RETRY_CONFIG.maxAttempts - attemptNumber;
 
-      console.error(`[OCR Analysis] Attempt ${attemptNumber}/${RETRY_CONFIG.maxAttempts} failed:`, {
+      logError(`[OCR Analysis] Attempt ${attemptNumber}/${RETRY_CONFIG.maxAttempts} failed:`, {
         error: errorMessage,
         isRetryable,
         remainingAttempts,
@@ -737,7 +738,7 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
         }
 
         showToast(`❌ ${friendlyMessage}`, 'error');
-        console.error(`[OCR Analysis] Failed after ${attemptNumber} attempt(s)`, {
+        logError(`[OCR Analysis] Failed after ${attemptNumber} attempt(s)`, {
           originalError: errorMessage,
           friendlyMessage,
         });
@@ -825,7 +826,7 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
     } catch (e: unknown) {
       const errorMessage = e instanceof Error ? e.message : 'Bilinmeyen hata.';
       showToast(`❌ Varyasyon üretimi başarısız: ${errorMessage}`, 'error');
-      console.error('[OCR Variation] Generation failed:', errorMessage);
+      logError('[OCR Variation] Generation failed:', errorMessage);
       setStep('studio');
     }
   };

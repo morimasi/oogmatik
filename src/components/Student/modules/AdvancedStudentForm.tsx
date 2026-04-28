@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { AdvancedStudent } from '../../../types/student-advanced';
 import { PrivacyService } from '../../../services/privacyService';
 
+import { logInfo, logError, logWarn } from '../../../utils/logger.js';
 interface AdvancedStudentFormProps {
   onSave: (student: Partial<AdvancedStudent>) => void;
   onCancel: () => void;
@@ -85,7 +86,7 @@ export const AdvancedStudentForm: React.FC<AdvancedStudentFormProps> = ({ onSave
         tcNoHash = result.hash;
         tcNoLastFour = result.lastFour;
       } catch (error) {
-        console.error('TC No hashing error:', error);
+        logError('TC No hashing error:', error);
       }
     }
 

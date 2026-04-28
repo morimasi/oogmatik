@@ -9,6 +9,7 @@ import { assessmentService } from '../services/assessmentService';
 import { generateAssessmentReport } from '../services/assessmentGenerator';
 import { ACTIVITIES } from '../constants';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 interface AssessmentModuleProps {
     onBack: () => void;
     onSelectActivity: (id: ActivityType) => void;
@@ -214,7 +215,7 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
                 )
             });
         } catch (e) {
-            console.warn('AI rapor üretimi başarısız, rule-based fallback kullanılıyor.', e);
+            logWarn('AI rapor üretimi başarısız, rule-based fallback kullanılıyor.', e);
             aiReport = null;
         }
 
@@ -260,7 +261,7 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
                     activeStudent?.grade || '1. Sınıf', fullReport, studentId
                 );
             } catch (e) {
-                console.error('Değerlendirme kaydedilemedi:', e);
+                logError('Değerlendirme kaydedilemedi:', e);
             }
         }
 

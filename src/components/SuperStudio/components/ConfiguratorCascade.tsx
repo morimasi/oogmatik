@@ -2,6 +2,7 @@ import { useSuperStudioStore } from '../../../store/useSuperStudioStore';
 import { generateSuperStudioContent } from '../../../services/generators/superStudioGenerator';
 import { getTemplateById } from '../templates';
 
+import { logInfo, logError, logWarn } from '../../../utils/logger.js';
 export const ConfiguratorCascade: React.FC = () => {
     const {
         selectedTemplates, templateSettings, generationMode, grade, topic, difficulty, studentId,
@@ -27,7 +28,7 @@ export const ConfiguratorCascade: React.FC = () => {
                 addGeneratedContent(res);
             }
         } catch (error) {
-            console.error("Üretim sırasında hata:", error);
+            logError("Üretim sırasında hata:", error);
         } finally {
             setIsGenerating(false);
         }

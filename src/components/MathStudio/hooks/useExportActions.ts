@@ -6,6 +6,7 @@ import { worksheetService } from '../../../services/worksheetService';
 import { MathMode, MathDrillConfig, MathProblemConfig, MathPageConfig, MathOperation, MathProblem } from '../../../types/math';
 import { ActivityType } from '../../../types';
 
+import { logInfo, logError, logWarn } from '../../../utils/logger.js';
 interface ExportDeps {
     userId?: string;
     userName?: string;
@@ -56,7 +57,7 @@ export const useExportActions = (deps: ExportDeps) => {
             );
             return { success: true };
         } catch (e) {
-            console.error(e);
+            logError(e);
             return { success: false, error: "Kaydetme hatası." };
         } finally {
             setIsSaving(false);
@@ -88,7 +89,7 @@ export const useExportActions = (deps: ExportDeps) => {
             await new Promise(resolve => setTimeout(resolve, 50));
             await printService.generatePdf('#math-canvas-container .math-canvas-page', deps.pageConfig.title, { action });
         } catch (e) {
-            console.error(e);
+            logError(e);
         } finally {
             setIsPrinting(false);
         }

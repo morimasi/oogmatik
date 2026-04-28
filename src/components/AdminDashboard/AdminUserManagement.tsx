@@ -4,6 +4,7 @@ import { authService } from '../../services/authService';
 import { adminService } from '../../services/adminService';
 import { UserFilter, ManagedUser, UserRoleType } from '../../types/admin';
 
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 const ROLE_LABELS: Record<UserRoleType, string> = {
   admin: 'Admin',
   teacher: 'Öğretmen',
@@ -47,7 +48,7 @@ export const AdminUserManagement: React.FC = () => {
             const { users: data } = await authService.getAllUsers(0, 100);
             setUsers(data as unknown as ManagedUser[]);
         } catch (e) {
-            console.error('Failed to load users', e);
+            logError('Failed to load users', e);
         } finally {
             setLoading(false);
         }

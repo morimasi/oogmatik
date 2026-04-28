@@ -15,6 +15,7 @@
 
 import { ValidationError } from './AppError.js';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 // ============================================================
 // TYPES
 // ============================================================
@@ -331,7 +332,7 @@ function logThreat(threat: DetectedThreat, userId?: string, ipAddress?: string):
 
   // Console log in development
   if (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') {
-    console.warn(`[PROMPT_SECURITY] Threat Detected:`, {
+    logWarn(`[PROMPT_SECURITY] Threat Detected:`, {
       category: threat.category,
       level: threat.level,
       matchedText: threat.matchedText.substring(0, 50) + '...',

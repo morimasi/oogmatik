@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { GeneratorOptions } from '../types';
 import { getDefaultOptionsForActivity } from '../registry';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 const STORAGE_PREFIX = 'activity_settings_v1_';
 
 export const useActivitySettings = (activityId: string) => {
@@ -21,7 +22,7 @@ export const useActivitySettings = (activityId: string) => {
 
             return defaultOptions;
         } catch (error) {
-            console.warn('Ayarlar okunurken hata oluştu, varsayılanlar kullanılıyor:', error);
+            logWarn('Ayarlar okunurken hata oluştu, varsayılanlar kullanılıyor:', error);
             return getDefaultOptionsForActivity(activityId);
         }
     });
@@ -35,7 +36,7 @@ export const useActivitySettings = (activityId: string) => {
             try {
                 localStorage.setItem(`${STORAGE_PREFIX}${activityId}`, JSON.stringify(newOptions));
             } catch (e) {
-                console.error("Ayarlar kaydedilemedi:", e);
+                logError("Ayarlar kaydedilemedi:", e);
             }
             
             return newOptions;

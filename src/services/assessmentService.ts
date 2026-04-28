@@ -6,6 +6,7 @@ import { generateAdaptiveQuestionsFromAI } from './generators/assessment';
 import { generateOfflineAdaptiveQuestions } from './offlineGenerators/assessment';
 import { shuffle } from './offlineGenerators/helpers';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 const { collection, addDoc, query, where, getDocs } = firestore;
 
 export const assessmentService = {
@@ -60,7 +61,7 @@ export const assessmentService = {
             assessments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             return assessments;
         } catch (error) {
-            console.error("Error fetching assessments:", error);
+            logError("Error fetching assessments:", error);
             return [];
         }
     },
@@ -90,7 +91,7 @@ export const assessmentService = {
             assessments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             return assessments;
         } catch (error) {
-            console.error("Error fetching student assessments:", error);
+            logError("Error fetching student assessments:", error);
             return [];
         }
     },
@@ -138,7 +139,7 @@ export const assessmentService = {
             assessments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             return assessments;
         } catch (error) {
-            console.error("Error fetching shared assessments:", error);
+            logError("Error fetching shared assessments:", error);
             return [];
         }
     },
@@ -150,7 +151,7 @@ export const assessmentService = {
         try {
             questionsMap = await generateAdaptiveQuestionsFromAI(selectedSkills, count);
         } catch (error) {
-            console.warn("AI Generation failed for Assessment, falling back to Offline engine.", error);
+            logWarn("AI Generation failed for Assessment, falling back to Offline engine.", error);
             questionsMap = generateOfflineAdaptiveQuestions(selectedSkills, count);
         }
         return Object.values(questionsMap).flat();

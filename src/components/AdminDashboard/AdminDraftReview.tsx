@@ -3,6 +3,7 @@ import { ActivityDraft, DynamicActivity } from '../../types/admin';
 import { adminService } from '../../services/adminService';
 import { ACTIVITY_CATEGORIES } from '../../constants';
 
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 const ICON_LIST = [
   'fa-wand-magic-sparkles',
   'fa-book-open',
@@ -69,7 +70,7 @@ export const AdminDraftReview = () => {
       const refined = await adminService.refineActivityDraft(rawContent);
       setRefinedData((prev: any) => ({ ...prev, ...refined }));
     } catch (error) {
-      console.error('Refinement failed:', error);
+      logError('Refinement failed:', error);
     } finally {
       setIsRefining(false);
     }

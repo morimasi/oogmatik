@@ -10,6 +10,7 @@ import type { ActivityDraft } from '../../types/admin';
 import type { ApprovalStatus } from '../../types/ocr-activity';
 import { filterDraftsBySource, type ApprovalSourceFilter } from '../../services/activityStudioApprovalFilter';
 
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 // ─── Mod etiketi yardımcısı ─────────────────────────────────────────────
 
 const modeLabel: Record<string, string> = {
@@ -42,7 +43,7 @@ export const AdminActivityApproval: React.FC = () => {
             const result = await activityApprovalService.getPendingReviews(filterParam);
             setDrafts(result);
         } catch (err) {
-            console.error('Taslak yükleme hatası:', err);
+            logError('Taslak yükleme hatası:', err);
         } finally {
             setLoading(false);
         }
@@ -61,7 +62,7 @@ export const AdminActivityApproval: React.FC = () => {
             await loadDrafts();
             setSelectedDraft(null);
         } catch (err) {
-            console.error('Onay hatası:', err);
+            logError('Onay hatası:', err);
         }
     };
 
@@ -75,7 +76,7 @@ export const AdminActivityApproval: React.FC = () => {
             await loadDrafts();
             setSelectedDraft(null);
         } catch (err) {
-            console.error('Red hatası:', err);
+            logError('Red hatası:', err);
         }
     };
 

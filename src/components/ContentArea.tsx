@@ -33,6 +33,7 @@ import { UniversalWorksheetWrapper } from './UniversalStudio/UniversalWorksheetW
 import { A4EditorPanel } from './A4Editor/A4EditorPanel';
 import { UniversalPreviewFrame } from './shared/UniversalPreviewFrame';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 interface ContentAreaProps {
   currentView: View;
   onBackToGenerator: () => void;
@@ -165,7 +166,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         alert('Önce çalışmayı kaydetmelisiniz.');
       }
     } catch (error: any) {
-      console.error('Share error:', error);
+      logError('Share error:', error);
       alert(`Paylaşım başarısız: ${error.message}`);
     } finally {
       setIsShareSending(false);
@@ -202,7 +203,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         alert('Önce çalışmayı kaydetmelisiniz.');
       }
     } catch (error: any) {
-      console.error('Assign error:', error);
+      logError('Assign error:', error);
       alert(`Atama başlatılamadı: ${error.message}`);
     }
   };

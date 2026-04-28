@@ -8,6 +8,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useStudentStore } from '../store/useStudentStore';
 import { ShareModal } from './ShareModal';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 interface CurriculumViewProps {
     onBack: () => void;
     onSelectActivity: (id: string) => void;
@@ -215,7 +216,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
             await new Promise(resolve => setTimeout(resolve, 50));
             await printService.generatePdf('.curriculum-plan-content', `${formData.name}-EgitimPlani`, { action });
         } catch (e) {
-            console.error(e);
+            logError(e);
         } finally {
             setIsPrinting(false);
         }

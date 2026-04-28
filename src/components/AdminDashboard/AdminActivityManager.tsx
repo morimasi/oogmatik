@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { adminService } from '../../services/adminService';
 import { DynamicActivity } from '../../types/admin';
 
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 export const AdminActivityManager: React.FC = () => {
     const [activities, setActivities] = useState<DynamicActivity[]>([]);
     const [loading, setLoading] = useState(true);
@@ -16,7 +17,7 @@ export const AdminActivityManager: React.FC = () => {
             const data = await adminService.getAllActivities();
             setActivities(data);
         } catch (e) {
-            console.error('Failed to load activities', e);
+            logError('Failed to load activities', e);
         } finally {
             setLoading(false);
         }
@@ -27,7 +28,7 @@ export const AdminActivityManager: React.FC = () => {
             await adminService.updateActivity(activityId, { isActive: !currentState });
             setActivities(prev => prev.map(a => a.id === activityId ? { ...a, isActive: !currentState } : a));
         } catch (e) {
-            console.error('Update failed', e);
+            logError('Update failed', e);
         }
     };
 

@@ -6,6 +6,7 @@
 
 import { PAGE_SELECTORS, UI_HIDE_SELECTORS } from './constants';
 
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 // ─── Font Yönetimi ──────────────────────────────────────────────────────────
 
 /**
@@ -39,7 +40,7 @@ export const preloadFontsForCapture = async (): Promise<void> => {
       );
     });
   } catch (e) {
-    console.warn('[CaptureEngine] Font ön-yükleme uyarısı:', e);
+    logWarn('[CaptureEngine] Font ön-yükleme uyarısı:', e);
   }
 };
 
@@ -97,7 +98,7 @@ export const onCloneForCapture = (clonedDoc: Document): void => {
       ' body { background: #ffffff !important; margin: 0 !important; padding: 0 !important; }';
     clonedDoc.head.appendChild(extra);
   } catch (e) {
-    console.warn('[CaptureEngine] onClone uyarısı:', e);
+    logWarn('[CaptureEngine] onClone uyarısı:', e);
   }
 };
 

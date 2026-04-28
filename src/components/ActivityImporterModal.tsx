@@ -4,6 +4,7 @@ import { SavedWorksheet, CollectionItem, ActivityType } from '../types';
 import { worksheetService } from '../services/worksheetService';
 import { useAuthStore } from '../store/useAuthStore';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 interface ActivityImporterModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -52,7 +53,7 @@ export const ActivityImporterModal: React.FC<ActivityImporterModalProps> = ({ is
             
             setWorksheets(unique);
         } catch (error) {
-            console.error("[ActivityImporter] Yukleme hatasi:", error);
+            logError("[ActivityImporter] Yukleme hatasi:", error);
         } finally {
             setLoading(false);
         }

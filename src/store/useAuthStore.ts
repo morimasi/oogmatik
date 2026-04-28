@@ -5,6 +5,7 @@ import { authService } from '../services/authService';
 import { auth } from '../services/firebaseClient';
 import { onAuthStateChanged } from "firebase/auth";
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 interface AuthState {
     user: User | null;
     isLoading: boolean;
@@ -28,7 +29,7 @@ export const useAuthStore = create<AuthState>()(
                             const currentUser = await authService.getCurrentUser();
                             set({ user: currentUser, isLoading: false });
                         } catch (e) {
-                            console.error("AuthStore initialize error:", e);
+                            logError("AuthStore initialize error:", e);
                             set({ user: null, isLoading: false });
                         }
                     } else {

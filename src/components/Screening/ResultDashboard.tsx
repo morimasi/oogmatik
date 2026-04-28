@@ -9,6 +9,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { assessmentService } from '../../services/assessmentService';
 import { ShareModal } from '../ShareModal';
 
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 interface Props {
   result: ScreeningResult;
   onRestart: () => void;
@@ -110,7 +111,7 @@ export const ResultDashboard: FC<Props> = ({
         actionSteps: normalizedActionSteps,
       });
     } catch (e) {
-      console.error('AI Error', e);
+      logError('AI Error', e);
     } finally {
       setLoadingAi(false);
     }
@@ -174,7 +175,7 @@ export const ResultDashboard: FC<Props> = ({
       setIsSaved(true);
       alert('Rapor başarıyla arşivinize kaydedildi.');
     } catch (e) {
-      console.error(e);
+      logError(e);
       alert('Kaydetme hatası.');
     } finally {
       setIsSaving(false);
@@ -204,7 +205,7 @@ export const ResultDashboard: FC<Props> = ({
         action: 'print',
       });
     } catch (error) {
-      console.error('Yazdırma hatası:', error);
+      logError('Yazdırma hatası:', error);
       alert('Yazdırma işlemi başlatılamadı.');
     }
   };

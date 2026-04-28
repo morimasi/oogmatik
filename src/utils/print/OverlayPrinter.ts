@@ -18,6 +18,7 @@ import {
 } from './CaptureEngine';
 import { generateRealPdf } from './PDFGenerator';
 
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 // ─── Overlay Oluşturma Yardımcıları ────────────────────────────────────────
 
 /**
@@ -116,7 +117,7 @@ export const print = async (
     try {
       window.print();
     } catch (err) {
-      console.error('Print fallback failed:', err);
+      logError('Print fallback failed:', err);
     }
     return;
   }
@@ -251,7 +252,7 @@ export const print = async (
     // Browser afterprint'i desteklemiyorsa fallback temizlik
     setTimeout(cleanup, 2000);
   } catch (err) {
-    console.error('Print trigger failed:', err);
+    logError('Print trigger failed:', err);
     document.documentElement.className = prevTheme;
     document.body.classList.remove('printing-mode');
     if (overlay) overlay.style.display = 'none';
@@ -274,13 +275,13 @@ export const captureAndPrint = async (
   try {
     const roots = Array.from(document.querySelectorAll(rootSelector)) as HTMLElement[];
     if (roots.length === 0) {
-      console.error(`[OverlayPrinter] HATA: "${rootSelector}" bulunamadı.`);
+      logError(`[OverlayPrinter] HATA: "${rootSelector}" bulunamadı.`);
       alert('Yazdırılacak içerik bulunamadı. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
       return;
     }
 
     if (!hasRenderableContent(roots)) {
-      console.error(`[OverlayPrinter] HATA: "${rootSelector}" bulundu ama içerik boş.`);
+      logError(`[OverlayPrinter] HATA: "${rootSelector}" bulundu ama içerik boş.`);
       alert('Yazdırılacak içerik henüz hazır değil. Lütfen sayfa tamamen yüklendikten sonra tekrar deneyin.');
       return;
     }
@@ -366,7 +367,7 @@ export const captureAndPrint = async (
       try {
         window.print();
       } catch (e) {
-        console.error('Capture print failed', e);
+        logError('Capture print failed', e);
       } finally {
         document.documentElement.className = prevTheme;
         document.body.classList.remove('printing-mode');
@@ -393,7 +394,7 @@ export const captureAndPrint = async (
               setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
             }
           } catch (fallbackErr) {
-            console.error('Mobile print fallback failed', fallbackErr);
+            logError('Mobile print fallback failed', fallbackErr);
           }
         }
       }, 3000);

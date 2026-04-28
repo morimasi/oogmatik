@@ -15,6 +15,7 @@ import type { Workbook, AISuggestion, AIWorkbookSuggestionType, WorkbookActivity
 import type { ActivitySuggestionResponse, SkillGapResponse, PageBalanceResponse } from '../services/workbookAIAssistant/schemas/workbookAISchemas';
 import type { CollectionItem, StyleSettings } from '../types/core';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 const DEFAULT_STYLE: StyleSettings = {
   fontSize: 16,
   scale: 1,
@@ -170,7 +171,7 @@ export const WorkbookAI: React.FC<WorkbookAIProps> = ({ workbook, onApplySuggest
       setSuggestions(allSuggestions.slice(0, 10)); // Max 10 suggestion
     } catch (err) {
       setError('AI önerileri yüklenirken bir hata oluştu');
-      console.error(err);
+      logError(err);
     } finally {
       setLoading(false);
     }
@@ -183,7 +184,7 @@ export const WorkbookAI: React.FC<WorkbookAIProps> = ({ workbook, onApplySuggest
         suggestions.map((s) => (s.id === suggestion.id ? { ...s, status: 'applied' as const } : s))
       );
     } catch (error) {
-      console.error('Öneri uygulanırken hata:', error);
+      logError('Öneri uygulanırken hata:', error);
     }
   }
 

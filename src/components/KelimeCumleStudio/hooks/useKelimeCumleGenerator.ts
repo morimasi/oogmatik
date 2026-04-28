@@ -3,6 +3,7 @@ import { KelimeCumleConfig, KelimeCumleGeneratedContent, KelimeCumleActivityType
 import { KELIME_CUMLE_SOURCES } from '../../../kaynak/kelimeCumle';
 import { generateWithGemini } from '../../../services/geminiClient';
 
+import { logInfo, logError, logWarn } from '../../../utils/logger.js';
 export const useKelimeCumleGenerator = () => {
     const [isGenerating, setIsGenerating] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -20,7 +21,7 @@ export const useKelimeCumleGenerator = () => {
 
         // Kontrol: İstenen adet kadar soru üretildi mi?
         if (selectedItems.length < config.itemCount) {
-            console.warn(`Kaynak yetersiz: İstenen ${config.itemCount}, mevcut ${selectedItems.length} soru`);
+            logWarn(`Kaynak yetersiz: İstenen ${config.itemCount}, mevcut ${selectedItems.length} soru`);
         }
 
         return {
@@ -51,7 +52,7 @@ export const useKelimeCumleGenerator = () => {
                 difficulty: config.difficulty
             };
         } catch (err) {
-            console.error('AI Generation Error:', err);
+            logError('AI Generation Error:', err);
             setError('AI içerik üretirken bir hata oluştu. Lütfen tekrar deneyin.');
             throw err;
         } finally {

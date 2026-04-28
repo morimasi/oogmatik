@@ -2,6 +2,7 @@ import { logger } from '../../../utils/logger';
 import { GeneratorOptions } from '../../../types';
 import { IActivityGenerator } from './types';
 
+import { logInfo, logError, logWarn } from '../../../utils/logger.js';
 /**
  * Soyut Temel Jeneratör Sınıfı
  * Tüm jeneratörler bu sınıftan türetilmelidir.
@@ -30,7 +31,7 @@ export abstract class BaseGenerator<T> implements IActivityGenerator<T> {
             
             return result;
         } catch (error) {
-            console.error(`[${this.constructor.name}] Generation Failed:`, error);
+            logError(`[${this.constructor.name}] Generation Failed:`, error);
             
             // Hatayı fırlatarak çağıranın (UI'ın) haberdar olmasını sağla
             // Ancak burada hatayı özelleştirip (CustomError) fırlatmak daha iyi olabilir.

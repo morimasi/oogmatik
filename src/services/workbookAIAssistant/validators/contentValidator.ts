@@ -16,6 +16,7 @@ import { ActivityType } from '../../../types';
 import type { WorkbookContext } from '../prompts/workbookPrompts';
 import type { ActivitySuggestion } from '../schemas/workbookAISchemas';
 
+import { logInfo, logError, logWarn } from '../../../utils/logger.js';
 // ============================================================
 // TYPES
 // ============================================================
@@ -313,7 +314,7 @@ export const handleAIResponseWithFallback = async <T>(
     const validation = validator(result);
 
     if (!validation.isValid) {
-      console.warn(
+      logWarn(
         '[AI Assistant] Validation failed, using fallback:',
         validation.errors
       );
@@ -321,12 +322,12 @@ export const handleAIResponseWithFallback = async <T>(
     }
 
     if (validation.warnings.length > 0) {
-      console.warn('[AI Assistant] Validation warnings:', validation.warnings);
+      logWarn('[AI Assistant] Validation warnings:', validation.warnings);
     }
 
     return (validation.sanitizedOutput as T) || result;
   } catch (error) {
-    console.error('[AI Assistant] AI call failed, using fallback:', error);
+    logError('[AI Assistant] AI call failed, using fallback:', error);
     return fallbackGenerator();
   }
 };

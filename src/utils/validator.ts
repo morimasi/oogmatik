@@ -1,3 +1,5 @@
+import { logInfo, logError, logWarn } from '../utils/logger.js';
+
 
 /**
  * Simple Validator Utility (Lightweight replacement for Zod/Yup)
@@ -41,7 +43,7 @@ export class Validator {
             if (schema.required && this.isArray(schema.required)) {
                 for (const key of schema.required) {
                     if (typeof key === 'string' && !(key in data)) {
-                        console.warn(`Validation Error: Missing key '${key}' in object`, data);
+                        logWarn(`Validation Error: Missing key '${key}' in object`, data);
                         return false;
                     }
                 }
@@ -53,7 +55,7 @@ export class Validator {
                     if (data[key] !== undefined) {
                         const isValid = this.validateSchema(data[key], schema.properties[key] as Record<string, unknown>);
                         if (!isValid) {
-                            console.warn(`Validation Error: Key '${key}' failed validation`, data[key]);
+                            logWarn(`Validation Error: Key '${key}' failed validation`, data[key]);
                             return false;
                         }
                     }
@@ -75,10 +77,10 @@ export class Validator {
             if (this.validateSchema(data, schema)) {
                 return data as T;
             }
-            console.error("Data validation failed. Returning fallback.");
+            logError("Data validation failed. Returning fallback.");
             return fallback;
         } catch (e) {
-            console.error("Validation exception:", e);
+            logError("Validation exception:", e);
             return fallback;
         }
     }

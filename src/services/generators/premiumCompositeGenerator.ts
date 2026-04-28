@@ -4,6 +4,7 @@ import { CompositeWorksheet, WidgetType } from '../../types/worksheet';
 import { AppError } from '../../utils/AppError';
 import { ActivityType } from '../../types/activity';
 
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 export interface CompositeGeneratorOptions extends GeneratorOptions {
     widgets: { id: string; activityId: string }[];
 }
@@ -102,7 +103,7 @@ ${widgetListStr}
                 let cleanedText = rawResponse.text.replace(/```json\n?/i, '').replace(/```\n?/g, '').trim();
                 response = JSON.parse(cleanedText);
             } catch (e) {
-                console.error('Markdown JSON parse hatası:', e);
+                logError('Markdown JSON parse hatası:', e);
                 throw new AppError('Yapay zeka yanıtı çözümleyemedi. Lütfen tekrar deneyin.', 'JSON_PARSE_ERROR', 500);
             }
         }
@@ -126,7 +127,7 @@ ${widgetListStr}
         }
 
         if (!response || !response.widgets || !Array.isArray(response.widgets)) {
-            console.error('Beklenmeyen AI Yanıtı:', rawResponse);
+            logError('Beklenmeyen AI Yanıtı:', rawResponse);
             throw new AppError('Yapay zeka beklenen formati üretemedi (widgets dizisi bulunamadı). Lütfen tekrar deneyin.', 'INVALID_AI_RESPONSE', 500);
         }
 
@@ -158,7 +159,7 @@ ${widgetListStr}
             updatedAt: new Date().toISOString()
         } as CompositeWorksheet;
     } catch (error) {
-        console.error('Composite Worksheet Generation Error:', error);
+        logError('Composite Worksheet Generation Error:', error);
         throw error;
     }
 }

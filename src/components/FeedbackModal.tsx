@@ -4,6 +4,7 @@ import { ActivityType, FeedbackCategory } from '../types';
 import { messagingService } from '../services/messagingService';
 import { useAuthStore } from '../store/useAuthStore';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 interface FeedbackModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -52,7 +53,7 @@ export const FeedbackModal = ({ isOpen, onClose, activityType, activityTitle }: 
       }, 2500);
 
     } catch (err) {
-      console.error("Feedback send error:", err);
+      logError("Feedback send error:", err);
       alert("Bir hata oluştu. Lütfen daha sonra tekrar deneyin.");
       setIsSending(false);
     }

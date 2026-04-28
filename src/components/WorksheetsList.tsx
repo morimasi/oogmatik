@@ -16,6 +16,7 @@ import { ErrorDisplay } from './ErrorDisplay';
 import { AppError } from '../utils/AppError';
 import { staggerContainer, staggerChild, buttonHover } from '../utils/motionPresets';
 
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 interface WorksheetsListProps {
   userId: string;
   userRole: 'admin' | 'teacher' | 'parent' | 'student';
@@ -76,7 +77,7 @@ export const WorksheetsList: React.FC<WorksheetsListProps> = ({ userId, userRole
         setSelectedWorksheets((prev) => prev.filter((id) => id !== worksheetId));
         // Refetch worksheets
       } catch (error) {
-        console.error('Delete error:', error);
+        logError('Delete error:', error);
       }
     }
   };
@@ -87,7 +88,7 @@ export const WorksheetsList: React.FC<WorksheetsListProps> = ({ userId, userRole
       await shareWorksheet(worksheetId, recipientId, userName);
       window.alert('Çalışma başarıyla paylaşıldı!');
     } catch (error) {
-      console.error('Share error:', error);
+      logError('Share error:', error);
     }
   };
 

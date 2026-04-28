@@ -6,6 +6,7 @@ import { generateCompositeWorksheet } from '../../../services/generators/premium
 import { CompositeWorksheet } from '../../../types/worksheet';
 import { generateCreativeMultimodal } from '../../../services/geminiClient';
 
+import { logInfo, logError, logWarn } from '../../../utils/logger.js';
 export const useInfographicGenerate = (initialData?: any) => {
     const [isGenerating, setIsGenerating] = useState(false);
     const [result, setResult] = useState<CompositeWorksheet | null>(null);
@@ -111,7 +112,7 @@ KURALLAR:
                 return data.enrichedPrompt;
             }
         } catch (e) {
-            console.error('Enrichment error', e);
+            logError('Enrichment error', e);
             show('Zenginleştirme sırasında bir hata oluştu.', 'error');
         }
         return currentPrompt; 
