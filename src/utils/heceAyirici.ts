@@ -66,7 +66,7 @@ export function hecelereAyir(kelime: string): string[] {
   }
   syllables.push(kelime.slice(start));
 
-  return syllables.filter((s) => s.length > 0);
+  return syllables.filter((s: unknown) => s.length > 0);
 }
 
 /**

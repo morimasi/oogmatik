@@ -135,7 +135,7 @@ export const WorkbookAI: React.FC<WorkbookAIProps> = ({ workbook, onApplySuggest
 
       // Combine all suggestions
       const allSuggestions: AISuggestion[] = [
-        ...(activityRes.suggestions || []).map((s) => ({
+        ...(activityRes.suggestions || []).map((s: unknown) => ({
           id: crypto.randomUUID(),
           type: 'add-activity' as AIWorkbookSuggestionType,
           title: `${s.activityType} ekle`,
@@ -181,7 +181,7 @@ export const WorkbookAI: React.FC<WorkbookAIProps> = ({ workbook, onApplySuggest
     try {
       await onApplySuggestion?.(suggestion);
       setSuggestions(
-        suggestions.map((s) => (s.id === suggestion.id ? { ...s, status: 'applied' as const } : s))
+        suggestions.map((s: unknown) => (s.id === suggestion.id ? { ...s, status: 'applied' as const } : s))
       );
     } catch (error) {
       logError('Öneri uygulanırken hata:', error);
@@ -190,7 +190,7 @@ export const WorkbookAI: React.FC<WorkbookAIProps> = ({ workbook, onApplySuggest
 
   function handleReject(suggestionId: string) {
     setSuggestions(
-      suggestions.map((s) => (s.id === suggestionId ? { ...s, status: 'rejected' as const } : s))
+      suggestions.map((s: unknown) => (s.id === suggestionId ? { ...s, status: 'rejected' as const } : s))
     );
   }
 
@@ -257,19 +257,19 @@ export const WorkbookAI: React.FC<WorkbookAIProps> = ({ workbook, onApplySuggest
         <div className="mt-6 pt-6 grid grid-cols-3 gap-4 text-center" style={{ borderTop: '1px solid var(--border-color)' }}>
           <div>
             <div className="text-2xl font-bold" style={{ color: 'var(--accent-color)' }}>
-              {suggestions.filter((s) => s.status === 'pending').length}
+              {suggestions.filter((s: unknown) => s.status === 'pending').length}
             </div>
             <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Bekleyen</div>
           </div>
           <div>
             <div className="text-2xl font-bold" style={{ color: '#22c55e' }}>
-              {suggestions.filter((s) => s.status === 'applied').length}
+              {suggestions.filter((s: unknown) => s.status === 'applied').length}
             </div>
             <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Uygulandı</div>
           </div>
           <div>
             <div className="text-2xl font-bold" style={{ color: 'var(--text-muted)' }}>
-              {suggestions.filter((s) => s.status === 'rejected').length}
+              {suggestions.filter((s: unknown) => s.status === 'rejected').length}
             </div>
             <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Reddedildi</div>
           </div>

@@ -133,7 +133,7 @@ export const ContentPanel = ({
             <textarea
               value={(content.items || content.data || content.cells || []).join(', ')}
               onChange={(e) => {
-                const newItems = e.target.value.split(',').map((s) => s.trim());
+                const newItems = e.target.value.split(',').map((s: unknown) => s.trim());
                 updateContent({ items: newItems });
               }}
               rows={4}

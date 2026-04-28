@@ -59,8 +59,8 @@ export async function generateInfographic_HUMAN_BODY_AI(
     content: {
       scienceData: {
         topic: params.topic,
-        components: (result.systems || []).map((s) => s.name),
-        properties: Object.fromEntries((result.systems || []).map((s) => [s.name, s.function])),
+        components: (result.systems || []).map((s: unknown) => s.name),
+        properties: Object.fromEntries((result.systems || []).map((s: unknown) => [s.name, s.function])),
       },
       steps: (result.systems || []).map((system, i) => ({
         stepNumber: i + 1,
@@ -127,8 +127,8 @@ export function generateInfographic_HUMAN_BODY_Offline(
     content: {
       scienceData: {
         topic: params.topic,
-        components: systems.map((s) => s.name),
-        properties: Object.fromEntries(systems.map((s) => [s.name, s.function])),
+        components: systems.map((s: unknown) => s.name),
+        properties: Object.fromEntries(systems.map((s: unknown) => [s.name, s.function])),
       },
       steps: systems.map((system, i) => ({
         stepNumber: i + 1,

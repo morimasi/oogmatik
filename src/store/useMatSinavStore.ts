@@ -112,7 +112,7 @@ export const useMatSinavStore = create<MatSinavStoreState>((set, get) => ({
     },
 
     removeSinavGecmisi: (id) => {
-        const gecmis = get().sinavGecmisi.filter((s) => s.id !== id);
+        const gecmis = get().sinavGecmisi.filter((s: unknown) => s.id !== id);
         saveGecmis(gecmis);
         set({ sinavGecmisi: gecmis });
     },

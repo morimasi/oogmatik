@@ -269,6 +269,7 @@ export interface InfographicGeneratorResult {
     fontSize: number;
     colorScheme: string;
     columnCount?: number;
+  pedagogicalNote?: string;
   };
   targetSkills: string[];
   estimatedDuration: number;

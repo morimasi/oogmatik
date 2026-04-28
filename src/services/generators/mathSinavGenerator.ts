@@ -731,8 +731,8 @@ export function uretGorselMetinUyumRaporu(sinav: MatSinav): {
   toplamGorselliSoruSayisi: number;
   soruRaporlari: GorselMetinUyumSonucu[];
 } {
-  const gorselliSorular = sinav.sorular.filter((s) => s.grafik_verisi);
-  const raporlar = gorselliSorular.map((s) => kontrolEtGorselMetinUyumu(s));
+  const gorselliSorular = sinav.sorular.filter((s: unknown) => s.grafik_verisi);
+  const raporlar = gorselliSorular.map((s: unknown) => kontrolEtGorselMetinUyumu(s));
 
   const uyumluSayisi = raporlar.filter((r) => r.uyumluMu).length;
   const toplamSkor = raporlar.reduce((acc, r) => acc + r.skor, 0);

@@ -789,7 +789,7 @@ async function generateInfographic_MindMap_AI(
         children: (data.branches || []).map((b) => ({
           label: b.name,
           color: b.color,
-          children: (b.subItems || []).map((s) => ({ label: s })),
+          children: (b.subItems || []).map((s: unknown) => ({ label: s })),
         })),
       },
     },
@@ -853,7 +853,7 @@ function generateInfographic_MindMap_Offline(
         children: branches.map((b) => ({
           label: b.name,
           color: b.color,
-          children: b.subItems.map((s) => ({ label: s })),
+          children: b.subItems.map((s: unknown) => ({ label: s })),
         })),
       },
     },
@@ -947,7 +947,7 @@ async function generateInfographic_Flowchart_AI(
   return {
     title: data.title || `${params.topic} — Akış Şeması`,
     content: {
-      steps: (data.steps || []).map((s) => ({
+      steps: (data.steps || []).map((s: unknown) => ({
         stepNumber: s.stepNumber,
         label: s.label,
         description: s.description,

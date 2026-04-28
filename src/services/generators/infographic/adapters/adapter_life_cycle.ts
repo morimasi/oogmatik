@@ -61,8 +61,8 @@ export async function generateInfographic_LIFE_CYCLE_AI(
     content: {
       scienceData: {
         topic: params.topic,
-        stages: (result.stages || []).map((s) => s.name),
-        properties: Object.fromEntries((result.stages || []).map((s) => [s.name, s.description])),
+        stages: (result.stages || []).map((s: unknown) => s.name),
+        properties: Object.fromEntries((result.stages || []).map((s: unknown) => [s.name, s.description])),
       },
       steps: (result.stages || []).map((stage, i) => ({
         stepNumber: i + 1,
@@ -129,8 +129,8 @@ export function generateInfographic_LIFE_CYCLE_Offline(
     content: {
       scienceData: {
         topic: params.topic,
-        stages: stages.map((s) => s.name),
-        properties: Object.fromEntries(stages.map((s) => [s.name, s.description])),
+        stages: stages.map((s: unknown) => s.name),
+        properties: Object.fromEntries(stages.map((s: unknown) => [s.name, s.description])),
       },
       steps: stages.map((stage, i) => ({
         stepNumber: i + 1,
