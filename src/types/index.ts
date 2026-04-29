@@ -11,4 +11,5 @@ export * from './worksheet';
 export * from './creativeStudio';
 export * from './activityStudio';
 export * from './student-advanced';
+export * from './progress';
 

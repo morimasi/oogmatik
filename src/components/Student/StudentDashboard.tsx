@@ -11,6 +11,7 @@ import { useAssignmentStore } from '../../store/useAssignmentStore';
 import { LineChart } from '../LineChart';
 import { RadarChart } from '../RadarChart';
 import { ACTIVITIES } from '../../constants';
+import { ProgressDashboard } from '../ProgressDashboard/ProgressDashboard';
 
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
 // Define constants used in the component
@@ -47,7 +48,7 @@ type TabType = 'overview' | 'materials' | 'assignments' | 'analytics' | 'plans' 
 type GroupingMode = 'all' | 'grade' | 'age';
 type FormTab = 'identity' | 'academic' | 'parent';
 
-export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLoadMaterial }) => {
+export function StudentDashboard({ onBack, onLoadMaterial }: StudentDashboardProps) {
   const { user } = useAuthStore();
   const { students, activeStudent, setActiveStudent, addStudent, deleteStudent, updateStudent, isLoading: _contextLoading } = useStudentStore();
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
@@ -143,7 +144,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
       setStudentWorksheets(ws);
       setStudentAssessments(as);
       setStudentCurriculums(cr);
-    } catch (e) {
+    } catch (e: any) {
       logError('Student data load error', e);
     } finally {
       setLoadingDetails(false);
@@ -199,7 +200,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
     setter: (s: string) => void
   ) => {
     if (!value.trim()) return;
-    setFormData((prev) => ({
+    setFormData((prev: any) => ({
       ...prev,
       [field]: [...(prev[field] || []), value.trim()],
     }));
@@ -207,9 +208,9 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
   };
 
   const handleRemoveTag = (field: 'interests' | 'strengths' | 'weaknesses', index: number) => {
-    setFormData((prev) => ({
+    setFormData((prev: any) => ({
       ...prev,
-      [field]: (prev[field] || []).filter((_, i) => i !== index),
+      [field]: (prev[field] || []).filter((_: any, i: number) => i !== index),
     }));
   };
 
@@ -237,13 +238,13 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
   }, [groupedStudents]);
 
   const toggleGroup = (key: string) => {
-    setOpenGroups((prev) => ({ ...prev, [key]: !prev[key] }));
+    setOpenGroups((prev: Record<string, boolean>) => ({ ...prev, [key]: !prev[key] }));
   };
 
   // Initialize groups as open
   useEffect(() => {
     const initialGroups: Record<string, boolean> = {};
-    sortedGroupKeys.forEach((k) => (initialGroups[k] = true));
+    sortedGroupKeys.forEach((k: string) => (initialGroups[k] = true));
     setOpenGroups(initialGroups);
   }, [sortedGroupKeys.length]); // Re-run when grouping changes
 
@@ -277,7 +278,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
             type="text"
             placeholder="İsim veya sınıf ile ara..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
             className="w-full pl-11 pr-4 py-3 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-2xl text-sm outline-none focus:ring-2 focus:ring-[var(--accent-color)]/50 transition-all shadow-sm text-[var(--text-primary)]"
           />
         </div>
@@ -297,7 +298,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
       </div>
 
       <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4">
-        {sortedGroupKeys.map((groupKey) => (
+        {sortedGroupKeys.map((groupKey: string) => (
           <div key={groupKey} className="space-y-2">
             {groupingMode !== 'all' && (
               <button
@@ -487,189 +488,9 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
             </div>
           ) : (
             <div className="max-w-7xl mx-auto space-y-10 pb-20">
-              {activeTab === 'overview' && (
-                <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700">
-                  {/* AI Insight Highlight */}
-                  <div className="p-8 rounded-[3rem] text-white shadow-2xl relative overflow-hidden group" style={{ background: 'linear-gradient(to right, var(--surface-elevated), var(--accent-muted))' }}>
-                    <div className="absolute top-0 right-0 w-80 h-80 rounded-full -mr-20 -mt-20 blur-3xl animate-pulse" style={{ backgroundColor: 'var(--accent-color)', opacity: 0.1 }}></div>
-                    <div className="relative z-10">
-                      <div className="flex items-center gap-3 mb-4" style={{ color: 'var(--accent-color)' }}>
-                        <i className="fa-solid fa-sparkles"></i>
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em]">
-                          AI Öngörüsü (Beta)
-                        </span>
-                      </div>
-                      <p className="text-xl font-medium leading-relaxed mb-6" style={{ color: 'var(--text-primary)' }}>
-                        "{selectedStudent.name}, son matematik aktivitelerinde{' '}
-                        <strong> %18'lik bir gelişim </strong> sergiledi. Görsel tarama becerileri
-                        şu an <strong> akran ortalamasının üzerinde. </strong> Bugün için önerilen
-                        odak noktası:{' '}
-                        <span className="text-amber-400 underline decoration-2 underline-offset-4 cursor-pointer">
-                          Sözel Mantık Egzersizleri.
-                        </span>
-                        "
-                      </p>
-                      <div className="flex gap-4">
-                        <button className="px-5 py-2 bg-[var(--accent-color)] rounded-xl text-xs font-black uppercase tracking-widest hover:opacity-90 transition-colors text-white">
-                          Eğitim Planına Git
-                        </button>
-                        <button className="px-5 py-2 bg-[var(--surface-glass)] rounded-xl text-xs font-black uppercase tracking-widest hover:bg-[var(--surface-elevated)] transition-colors text-[var(--text-primary)]">
-                          Detayları Gör
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Bento Grid Stats */}
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div className="md:col-span-2 grid grid-cols-2 gap-6">
-                      <div className="bg-[var(--bg-paper)] p-8 rounded-[2.5rem] border border-[var(--border-color)] shadow-sm hover:shadow-xl transition-all">
-                        <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-2xl flex items-center justify-center mb-4">
-                          <i className="fa-solid fa-file-invoice text-xl"></i>
-                        </div>
-                        <div className="text-4xl font-black text-[var(--text-primary)] mb-1">
-                          {studentWorksheets.length}
-                        </div>
-                        <div className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">
-                          Çalışma Kağıdı
-                        </div>
-                      </div>
-                      <div className="bg-[var(--bg-paper)] p-8 rounded-[2.5rem] border border-[var(--border-color)] shadow-sm hover:shadow-xl transition-all">
-                        <div className="w-12 h-12 bg-purple-50 dark:bg-purple-900/20 text-purple-600 rounded-2xl flex items-center justify-center mb-4">
-                          <i className="fa-solid fa-chart-user text-xl"></i>
-                        </div>
-                        <div className="text-4xl font-black text-[var(--text-primary)] mb-1">
-                          {studentAssessments.length}
-                        </div>
-                        <div className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">
-                          Klinik Rapor
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="md:col-span-2 bg-[var(--bg-paper)] p-8 rounded-[2.5rem] border border-[var(--border-color)] shadow-sm relative overflow-hidden group">
-                      <div className="relative z-10 h-full flex flex-col">
-                        <div className="flex justify-between items-start mb-6">
-                          <h4 className="font-black text-xs uppercase tracking-widest text-[var(--text-muted)]">
-                            Genel İlerleme
-                          </h4>
-                          <span className="text-2xl font-black text-emerald-500">%82</span>
-                        </div>
-                        <div className="flex-1 flex items-end gap-2 h-20">
-                          {[40, 60, 45, 70, 85, 82].map((h, i) => (
-                            <div
-                              key={i}
-                              className="flex-1 bg-[var(--accent-color)]/20 rounded-t-lg relative group/bar"
-                            >
-                              <div
-                                className="absolute bottom-0 left-0 right-0 bg-[var(--accent-color)] rounded-t-lg transition-all duration-1000 group-hover/bar:opacity-80"
-                                style={{ height: `${h}%` }}
-                              ></div>
-                            </div>
-                          ))}
-                        </div>
-                        <p className="mt-4 text-xs font-bold text-[var(--text-muted)]">
-                          Son 6 haftalık performans trendi yukarı yönlü.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Bottom Info Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div className="bg-[var(--bg-paper)] p-8 rounded-[3rem] border border-[var(--border-color)] shadow-sm">
-                      <h3 className="font-black text-lg text-[var(--text-primary)] mb-6 flex items-center gap-3">
-                        <i className="fa-solid fa-fingerprint text-[var(--accent-color)]"></i> Kimlik & Tanı
-                      </h3>
-                      <div className="space-y-6">
-                        <div>
-                          <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest block mb-2">
-                            Tanı Grubu
-                          </label>
-                          <div className="flex flex-wrap gap-2">
-                            {selectedStudent.diagnosis.map((d: string, i: number) => (
-                              <span
-                                key={i}
-                                className="px-3 py-1 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded-xl text-[10px] font-black uppercase"
-                              >
-                                {d}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest block mb-1">
-                              Stil
-                            </label>
-                            <span className="text-sm font-bold text-[var(--text-primary)]">
-                              {selectedStudent.learningStyle || 'Görsel'}
-                            </span>
-                          </div>
-                          <div>
-                            <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest block mb-1">
-                              Yaş
-                            </label>
-                            <span className="text-sm font-bold text-[var(--text-primary)]">
-                              {selectedStudent.age} Yaş
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-[var(--bg-paper)] p-8 rounded-[3rem] border border-[var(--border-color)] shadow-sm">
-                      <h3 className="font-black text-lg text-[var(--text-primary)] mb-6 flex items-center gap-3">
-                        <i className="fa-solid fa-heart text-rose-500"></i> İlgi Alanları
-                      </h3>
-                      <div className="flex flex-wrap gap-2">
-                        {selectedStudent.interests.length > 0 ? (
-                          selectedStudent.interests.map((tag: string, i: number) => (
-                            <span
-                              key={i}
-                              className="px-3 py-1.5 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 rounded-2xl text-xs font-bold"
-                            >
-                              #{tag}
-                            </span>
-                          ))
-                        ) : (
-                          <span className="text-[var(--text-muted)] italic text-sm"> Tanımlanmamış </span>
-                        )}
-                      </div>
-                      <div className="mt-8">
-                        <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest block mb-2">
-                          Güçlü Yönler
-                        </label>
-                        <div className="flex flex-wrap gap-2">
-                          {selectedStudent.strengths?.map((s: string, i: number) => (
-                            <span
-                              key={i}
-                              className="text-xs font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-lg"
-                            >
-                              ✓ {s}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-amber-50 dark:bg-amber-900/10 p-8 rounded-[3rem] border border-amber-100 dark:border-amber-800/30 shadow-inner">
-                      <h3 className="font-black text-lg text-amber-800 dark:text-amber-50 mb-6 flex items-center gap-3">
-                        <i className="fa-solid fa-comment-medical text-amber-600"></i> Klinik Notlar
-                      </h3>
-                      <p className="text-sm text-amber-900 dark:text-amber-200 leading-relaxed italic line-clamp-6">
-                        {selectedStudent.notes || 'Henüz özel bir gözlem notu eklenmemiş.'}
-                      </p>
-                      <button
-                        onClick={() => setActiveTab('notes')}
-                        className="mt-6 text-xs font-black text-amber-700 dark:text-amber-300 uppercase tracking-widest hover:underline"
-                      >
-                        Tüm Notları Gör
-                      </button>
-                    </div>
-                  </div>
+                <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
+                  <ProgressDashboard studentId={selectedStudent.id} />
                 </div>
-              )}
 
               {activeTab === 'assignments' && (
                 <div className="space-y-6 animate-in fade-in slide-in-from-bottom-6 duration-700">
@@ -757,7 +578,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {studentWorksheets.map((ws) => (
+                      {studentWorksheets.map((ws: SavedWorksheet) => (
                         <div
                           key={ws.id}
                           className="flex items-center justify-between p-6 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-[2.5rem] hover:shadow-2xl hover:-translate-y-1 transition-all group"
@@ -809,7 +630,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                           <div className="h-80 bg-[var(--surface-glass)] p-6 rounded-[2.5rem] border border-[var(--border-color)] shadow-inner">
                             <LineChart
-                              data={studentAssessments.map((a) => ({
+                              data={studentAssessments.map((a: SavedAssessment) => ({
                                 date: a.createdAt,
                                 attention: a.report.scores.attention,
                                 spatial: a.report.scores.spatial,
@@ -848,7 +669,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                     </button>
                   </div>
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {studentCurriculums.map((plan) => (
+                    {studentCurriculums.map((plan: Curriculum) => (
                       <div
                         key={plan.id}
                         className="bg-[var(--bg-paper)] p-8 rounded-[3rem] border border-[var(--border-color)] shadow-sm group hover:border-[var(--accent-color)]/30 transition-all"
@@ -924,7 +745,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                       className="relative w-full h-[500px] p-10 bg-amber-50/50 dark:bg-amber-900/10 border-2 border-amber-200 dark:border-amber-800 rounded-[3rem] resize-none outline-none focus:border-amber-400 text-amber-900 dark:text-amber-100 leading-relaxed shadow-2xl font-medium text-lg placeholder:text-amber-200"
                       placeholder="Öğrenci hakkında detaylı klinik gözlemlerinizi, davranışsal tepkilerini ve seans notlarını buraya kaydedebilirsiniz..."
                       value={formData.notes || selectedStudent.notes}
-                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, notes: e.target.value })}
                       onBlur={() => updateStudent(selectedStudent.id, { notes: formData.notes })}
                     ></textarea>
                     <div className="absolute bottom-8 right-8 flex items-center gap-2 text-amber-400">
@@ -996,7 +817,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                     required
                     type="text"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })}
                     className="w-full p-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl focus:ring-2 focus:ring-[var(--accent-color)] outline-none font-bold text-[var(--text-primary)]"
                     placeholder="Örn: Ayşe Yılmaz"
                   />
@@ -1009,7 +830,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                     <input
                       type="number"
                       value={formData.age}
-                      onChange={(e) => setFormData({ ...formData, age: Number(e.target.value) })}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, age: Number(e.target.value) })}
                       className="w-full p-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl outline-none text-[var(--text-primary)]"
                     />
                   </div>
@@ -1019,7 +840,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                     </label>
                     <select
                       value={formData.grade}
-                      onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setFormData({ ...formData, grade: e.target.value })}
                       className="w-full p-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl outline-none cursor-pointer text-[var(--text-primary)]"
                     >
                       {grades.map((g) => (
@@ -1058,7 +879,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                     Tanı / Özel Durum
                   </label>
                   <div className="flex flex-wrap gap-2 mb-3">
-                    {formData.diagnosis?.map((d, i) => (
+                    {formData.diagnosis?.map((d: string, i: number) => (
                       <span
                         key={i}
                         className="px-3 py-1 bg-[var(--accent-muted)] text-[var(--accent-color)] rounded-full text-xs font-bold flex items-center gap-2"
@@ -1069,7 +890,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                           onClick={() =>
                             setFormData({
                               ...formData,
-                              diagnosis: formData.diagnosis?.filter((_, idx) => idx !== i),
+                              diagnosis: formData.diagnosis?.filter((_: string, idx: number) => idx !== i),
                             })
                           }
                           className="hover:opacity-70"
@@ -1080,7 +901,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                     ))}
                   </div>
                   <select
-                    onChange={(e) => {
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                       if (e.target.value && !formData.diagnosis?.includes(e.target.value)) {
                         setFormData({
                           ...formData,
@@ -1109,10 +930,10 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                       <input
                         type="text"
                         value={tempInterest}
-                        onChange={(e) => setTempInterest(e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempInterest(e.target.value)}
                         className="flex-1 p-2 border border-[var(--border-color)] rounded-lg text-sm bg-[var(--bg-secondary)] text-[var(--text-primary)]"
                         placeholder="Örn: Uzay"
-                        onKeyDown={(e) =>
+                        onKeyDown={(e: React.KeyboardEvent) =>
                           e.key === 'Enter' &&
                           (e.preventDefault(),
                             handleAddTag('interests', tempInterest, setTempInterest))
@@ -1127,7 +948,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                       </button>
                     </div>
                     <div className="flex flex-wrap gap-1 mt-2">
-                      {formData.interests?.map((tag, i) => (
+                      {formData.interests?.map((tag: string, i: number) => (
                         <span
                           key={i}
                           className="px-2 py-1 bg-emerald-100 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded text-xs flex items-center gap-1"
@@ -1148,10 +969,10 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                       <input
                         type="text"
                         value={tempStrength}
-                        onChange={(e) => setTempStrength(e.target.value)}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempStrength(e.target.value)}
                         className="flex-1 p-2 border border-[var(--border-color)] rounded-lg text-sm bg-[var(--bg-secondary)] text-[var(--text-primary)]"
                         placeholder="Örn: Görsel hafıza"
-                        onKeyDown={(e) =>
+                        onKeyDown={(e: React.KeyboardEvent) =>
                           e.key === 'Enter' &&
                           (e.preventDefault(),
                             handleAddTag('strengths', tempStrength, setTempStrength))
@@ -1166,7 +987,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                       </button>
                     </div>
                     <div className="flex flex-wrap gap-1 mt-2">
-                      {formData.strengths?.map((tag, i) => (
+                      {formData.strengths?.map((tag: string, i: number) => (
                         <span
                           key={i}
                           className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs flex items-center gap-1"
@@ -1189,10 +1010,10 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                     <input
                       type="text"
                       value={tempWeakness}
-                      onChange={(e) => setTempWeakness(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempWeakness(e.target.value)}
                       className="flex-1 p-2 border border-[var(--border-color)] rounded-lg text-sm bg-[var(--bg-secondary)] text-[var(--text-primary)]"
                       placeholder="Örn: b/d harfleri"
-                      onKeyDown={(e) =>
+                      onKeyDown={(e: React.KeyboardEvent) =>
                         e.key === 'Enter' &&
                         (e.preventDefault(),
                           handleAddTag('weaknesses', tempWeakness, setTempWeakness))
@@ -1207,7 +1028,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                     </button>
                   </div>
                   <div className="flex flex-wrap gap-1 mt-2">
-                    {formData.weaknesses?.map((tag, i) => (
+                    {formData.weaknesses?.map((tag: string, i: number) => (
                       <span
                         key={i}
                         className="px-2 py-1 bg-rose-100 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400 rounded text-xs flex items-center gap-1"
@@ -1235,7 +1056,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                     <input
                       type="text"
                       value={formData.parentName}
-                      onChange={(e) => setFormData({ ...formData, parentName: e.target.value })}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, parentName: e.target.value })}
                       className="w-full pl-9 p-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl outline-none text-[var(--text-primary)]"
                       placeholder="Veli Adı"
                     />
@@ -1250,7 +1071,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                     <input
                       type="tel"
                       value={formData.contactPhone}
-                      onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, contactPhone: e.target.value })}
                       className="w-full pl-9 p-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl outline-none text-[var(--text-primary)]"
                       placeholder="05XX XXX XX XX"
                     />
@@ -1265,7 +1086,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                     <input
                       type="email"
                       value={formData.contactEmail}
-                      onChange={(e) => setFormData({ ...formData, contactEmail: e.target.value })}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, contactEmail: e.target.value })}
                       className="w-full pl-9 p-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl outline-none text-[var(--text-primary)]"
                       placeholder="veli@email.com"
                     />
@@ -1277,7 +1098,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onBack, onLo
                   </label>
                   <textarea
                     value={formData.notes}
-                    onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, notes: e.target.value })}
                     className="w-full p-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl outline-none h-24 resize-none text-[var(--text-primary)]"
                     placeholder="Eklemek istedikleriniz..."
                   />

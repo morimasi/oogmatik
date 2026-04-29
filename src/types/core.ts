@@ -37,9 +37,11 @@ import type {
   CognitiveDomain,
   ShapeType,
   VisualMathType,
+  Difficulty
 } from './common';
 
-export type { StyleSettings, BaseActivityData, CognitiveDomain, ShapeType, VisualMathType };
+// Bu tipler core.ts içinde kullanılıyor ancak index.ts tarafından merkezi olarak export ediliyor.
+// Çakışmayı önlemek için re-export kaldırıldı.
 
 export interface SingleWorksheetData extends BaseActivityData {
   layoutArchitecture?: {
@@ -212,7 +214,7 @@ export interface ActiveCurriculumSession {
   activityTitle: string;
   studentName: string;
   studentId?: string;
-  difficulty: 'Easy' | 'Medium' | 'Hard';
+  difficulty: Difficulty;
   goal: string;
 }
 
@@ -519,7 +521,7 @@ export interface CurriculumActivity {
   title: string;
   duration: number;
   goal: string;
-  difficultyLevel: 'Easy' | 'Medium' | 'Hard';
+  difficultyLevel: Difficulty;
   status: CurriculumActivityStatus;
 }
 

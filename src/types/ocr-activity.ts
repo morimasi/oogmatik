@@ -13,6 +13,7 @@
 
 import type { LearningDisabilityProfile, AgeGroup } from './creativeStudio';
 import type { OCRResult, OCRDetectedType } from './core';
+import type { Difficulty } from './common';
 
 // ─── Temel Enumlar ──────────────────────────────────────────────────────
 
@@ -21,9 +22,6 @@ export type ProductionMode = 'prompt_generation';
 
 /** Onay durumu akış diyagramı: draft → pending_review → approved | rejected */
 export type ApprovalStatus = 'draft' | 'pending_review' | 'approved' | 'rejected';
-
-/** Zorluk seviyesi (Türkçe — tutarlılık için) */
-export type Difficulty = 'Kolay' | 'Orta' | 'Zor';
 
 /** Soru tipleri */
 export type QuestionType =

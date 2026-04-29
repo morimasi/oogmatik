@@ -61,3 +61,5 @@ export type ShapeType =
     | 'octagon';
 
 export type VisualMathType = 'ten-frame' | 'dice' | 'blocks' | 'objects' | 'number-bond' | 'mixed';
+
+export type Difficulty = 'Kolay' | 'Orta' | 'Zor';

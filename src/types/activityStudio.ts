@@ -1,9 +1,8 @@
 import type { ActivityType } from './activity';
 import type { AgeGroup, LearningDisabilityProfile } from './creativeStudio';
+import type { Difficulty } from './common';
 
 export type { AgeGroup, LearningDisabilityProfile } from './creativeStudio';
-
-export type Difficulty = 'Kolay' | 'Orta' | 'Zor';
 
 // ─── AI Model Literal ───────────────────────────────────────────────
 /** Sabit model — değiştirme (Selin Arslan direktifi) */
