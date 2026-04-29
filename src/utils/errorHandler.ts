@@ -1,4 +1,4 @@
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logInfo, logError as internalLogError, logWarn } from '../utils/logger.js';
 
 /**
  * OOGMATIK - Error Handler Utilities
@@ -105,8 +105,8 @@ export const logError = (error: AppError, context?: Record<string, unknown>) => 
 
   if (isDev) {
     console.group(`🔴 AppError: ${error.code}`);
-    logError('Message:', error.message);
-    if (error.originalError) logError('Original:', error.originalError);
+    console.error('Message:', error.message);
+    if (error.originalError) console.error('Original:', error.originalError);
     if (context) console.dir(context);
     console.groupEnd();
   }

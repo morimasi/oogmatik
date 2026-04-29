@@ -1,4 +1,4 @@
-
+export * from './types/common.js';
 export * from './types/core.js';
 export * from './types/math.js';
 export * from './types/verbal.js';
@@ -7,3 +7,8 @@ export * from './types/admin.js';
 export * from './types/creativeStudio.js';
 export * from './types/screening.js';
 export * from './types/ocr-activity.js';
+export * from './types/worksheet.js';
+export * from './types/activityStudio.js';
+export * from './types/infographic.js';
+export * from './types/student-advanced.js';
+export * from './types/progress.js';
