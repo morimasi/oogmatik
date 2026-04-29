@@ -54,7 +54,7 @@ export class JWTService {
                 algorithm: 'HS256',
             });
         } catch (error: any) {
-            logError('Exam generation error', { error: error as Record<string, unknown> });
+            logError('[JWT] Error generating token', { error: error as Record<string, unknown> });
             throw new AppError('Token generation failed', 'INTERNAL_ERROR', 500);
         }
     }
@@ -102,7 +102,7 @@ export class JWTService {
         try {
             return jwt.decode(token) as TokenPayload;
         } catch (error: any) {
-            logError('SVG Generation Error', { error: error as Record<string, unknown> });
+            logError('[JWT] Error decoding token', { error: error as Record<string, unknown> });
             return null;
         }
     }
@@ -138,8 +138,7 @@ export class JWTService {
                 refreshToken: this.generateRefreshToken(payload),
             };
         } catch (error: any) {
-            const message = error instanceof Error ? error.message : 'Bilinmeyen sunucu hatası';
-            logError('[PaperSize API] Hata', { message, error: error as Record<string, unknown> });
+            logError('[JWT] Error refreshing token', { error: error as Record<string, unknown> });
             throw new AppError('Token refresh failed', 'INTERNAL_ERROR', 500);
         }
     }
@@ -188,7 +187,7 @@ export const jwtMiddleware = (req: any, res: any, next: any) => {
 
         next();
     } catch (error: any) {
-        logError('Gemini Proxy İstek Hatası', { error: error as Record<string, unknown> });
+        logError('[JWT] Token verification middleware error', { error: error as Record<string, unknown> });
         return res.status(401).json({
             error: {
                 message: error.message || 'Token verification failed',
@@ -252,8 +251,6 @@ export const loginHandler = async (req: any, res: any) => {
 
         const token = JWTService.generateToken(user);
         const refreshToken = JWTService.generateRefreshToken(user);
-
-        logWarn('Hugging Face Hatası, Fallback(Pollinations) kullanılıyor', { status: 503, errorText: 'Model loading' });
 
         return res.status(200).json({
             success: true,
