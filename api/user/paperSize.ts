@@ -65,9 +65,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     return res.status(405).json({ success: false, error: 'Yöntem izni yok' });
-  } catch (error: unknown) {
+  } catch (error: any) {
     const message = error instanceof Error ? error.message : 'Bilinmeyen sunucu hatası';
-    logError('[PaperSize API] Hata:', message, error);
+    logError('[PaperSize API] Hata', { message, error });
     return res.status(500).json({
       success: false,
       error: 'Sunucu hatası',

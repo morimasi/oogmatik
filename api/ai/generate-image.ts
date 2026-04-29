@@ -60,7 +60,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 });
             } else {
                 const errorText = await response.text();
-                logWarn('Hugging Face Hatası, Fallback(Pollinations) kullanılıyor:', response.status, errorText);
+                logWarn('Hugging Face Hatası, Fallback(Pollinations) kullanılıyor', { status: response.status, errorText });
                 // Hata alırsak (örn: model uykuda - 503), akışı durdurmuyor, fallback'e (Pollinations) geçiyoruz!
             }
         }
@@ -79,7 +79,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
 
     } catch (error: any) {
-        logError('Image Generation Error:', error);
+        logError('Image Generation Error', { error });
         return res.status(500).json({ error: 'Failed to generate image', message: error.message });
     }
 }
