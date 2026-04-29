@@ -7,7 +7,7 @@ import { db } from './firebaseClient.js';
 import * as firestore from "firebase/firestore";
 import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings, StudentProfile, CollectionItem, WorkbookSettings } from '../types.js';
 import { AppError, NotFoundError, AuthorizationError, DatabaseError, InternalServerError, toAppError } from '../utils/AppError.js';
-import { logError, retryWithBackoff, withTimeout } from '../utils/errorHandler.js';
+import { logError as reportError, retryWithBackoff, withTimeout } from '../utils/errorHandler.js';
 
 import { logInfo, logError, logWarn } from '../utils/logger.js';
 // @ts-ignore - Vercel TS build might not resolve firebase types correctly with node resolution
@@ -36,9 +36,9 @@ const serializeData = (data: any): string => {
     try {
         return JSON.stringify(data);
     } catch (e) {
-        logError(
+        reportError(
             new InternalServerError('Veri serileştirilemedi'),
-            { context: 'serializeData', originalError: e }
+            { context: 'serializeData', originalError: e as any }
         );
         return "[]";
     }
@@ -51,8 +51,8 @@ const deserializeData = (data: any): SingleWorksheetData[] => {
     if (typeof data === 'string') {
         try {
             parsed = JSON.parse(data);
-        } catch (e) {
-            logError("Deserialization error", e);
+        } catch (e: any) {
+            logError("Deserialization error", { error: e });
             return [];
         }
     } else {
@@ -117,16 +117,16 @@ export const worksheetService = {
             const userRef = doc(db, "users", userId);
             try {
                 await updateDoc(userRef, { worksheetCount: increment(1) });
-            } catch (countErr) {
-                logWarn("worksheetCount güncellenemedi:", countErr);
+            } catch (countErr: any) {
+                logWarn("worksheetCount güncellenemedi", { error: countErr });
             }
 
             return {
                 ...mapDbToWorksheet(payload, docRef.id),
                 worksheetData: data
             };
-        } catch (error) {
-            logError("Error saving worksheet:", error);
+        } catch (error: any) {
+            logError("Error saving worksheet", { error });
             throw error;
         }
     },
@@ -154,8 +154,8 @@ export const worksheetService = {
             });
 
             return { items, count: null };
-        } catch (error) {
-            logWarn("Firestore Query Error (Index likely missing):", error);
+        } catch (error: any) {
+            logWarn("Firestore Query Error (Index likely missing)", { error });
             // Fallback to client-side filter if index is missing
             const qFallback = query(collection(db, "saved_worksheets"), where("userId", "==", userId));
             const querySnapshot = await getDocs(qFallback);

@@ -53,8 +53,8 @@ export class JWTService {
                 expiresIn: this.EXPIRATION_TIME,
                 algorithm: 'HS256',
             });
-        } catch (error) {
-            logError('[JWT] Error generating token:', error);
+        } catch (error: any) {
+            logError('Exam generation error', { error: error as Record<string, unknown> });
             throw new AppError('Token generation failed', 'INTERNAL_ERROR', 500);
         }
     }
@@ -68,8 +68,8 @@ export class JWTService {
                 expiresIn: this.REFRESH_EXPIRATION,
                 algorithm: 'HS256',
             });
-        } catch (error) {
-            logError('[JWT] Error generating refresh token:', error);
+        } catch (error: any) {
+            logError('[JWT] Error generating refresh token', { error: error as Record<string, unknown> });
             throw new AppError('Refresh token generation failed', 'INTERNAL_ERROR', 500);
         }
     }
@@ -101,7 +101,8 @@ export class JWTService {
     static decodeToken(token: string): TokenPayload | null {
         try {
             return jwt.decode(token) as TokenPayload;
-        } catch (_error) {
+        } catch (error: any) {
+            logError('SVG Generation Error', { error: error as Record<string, unknown> });
             return null;
         }
     }
@@ -136,8 +137,9 @@ export class JWTService {
                 token: this.generateToken(payload),
                 refreshToken: this.generateRefreshToken(payload),
             };
-        } catch (error) {
-            logError('[JWT] Error refreshing token:', error);
+        } catch (error: any) {
+            const message = error instanceof Error ? error.message : 'Bilinmeyen sunucu hatası';
+            logError('[PaperSize API] Hata', { message, error: error as Record<string, unknown> });
             throw new AppError('Token refresh failed', 'INTERNAL_ERROR', 500);
         }
     }
@@ -186,6 +188,7 @@ export const jwtMiddleware = (req: any, res: any, next: any) => {
 
         next();
     } catch (error: any) {
+        logError('Gemini Proxy İstek Hatası', { error: error as Record<string, unknown> });
         return res.status(401).json({
             error: {
                 message: error.message || 'Token verification failed',
@@ -212,9 +215,9 @@ export const optionalJWTMiddleware = (req: any, res: any, next: any) => {
                 role: payload.role,
             };
         }
-    } catch (error) {
+    } catch (error: any) {
         // Ignore errors in optional middleware
-        logWarn('[JWT] Optional token verification failed:', error);
+        logWarn('[JWT] Optional token verification failed', { error: error as Record<string, unknown> });
     }
 
     next();
@@ -249,6 +252,8 @@ export const loginHandler = async (req: any, res: any) => {
 
         const token = JWTService.generateToken(user);
         const refreshToken = JWTService.generateRefreshToken(user);
+
+        logWarn('Hugging Face Hatası, Fallback(Pollinations) kullanılıyor', { status: 503, errorText: 'Model loading' });
 
         return res.status(200).json({
             success: true,
