@@ -1,6 +1,6 @@
 import { AppError } from '../utils/AppError';
 // @ts-nocheck
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -334,8 +334,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   return (
     <>
       <aside
-        style={{ width: isExpanded ? '280px' : '90px' }}
-        className={`fixed inset-y-0 left-0 z-[80] bg-[var(--bg-paper)] border-r border-[var(--border-color)] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col h-full md:relative md:translate-x-0 font-['Lexend'] ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'}`}
+        style={{ width: isExpanded ? '250px' : '76px' }}
+        className={`fixed inset-y-0 left-0 z-[80] bg-[var(--bg-paper)] border-r border-[var(--border-color)] transition-all duration-500 ease-in-out flex flex-col h-full md:relative md:translate-x-0 font-['Lexend'] ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'}`}
       >
         <div className="flex h-full flex-col overflow-hidden">
           {selectedActivity ? (
@@ -354,23 +354,22 @@ const Sidebar: React.FC<SidebarProps> = ({
               </div>
             )
           ) : (
-            <nav className="flex-1 overflow-y-auto px-4 py-8 custom-scrollbar space-y-10">
+            <nav className="flex-1 overflow-y-auto px-3 py-6 custom-scrollbar space-y-8">
               {/* Studios Section */}
-              <div className="space-y-4">
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] block ml-4 text-[var(--text-muted)] opacity-40">Merkezi Birimler</span>
+              <div className="space-y-3">
+                <span className="text-[9px] font-black uppercase tracking-[0.2em] block ml-3 text-[var(--text-muted)] opacity-50">Merkezi Birimler</span>
                 <button
                   onMouseEnter={(e) => handleCategoryMouseEnter('studios', e)}
                   onMouseLeave={handleCategoryMouseLeave}
                   onClick={(e) => handleCategoryClick('studios', e)}
-                  className={`category-trigger-btn w-full group flex items-center ${isExpanded ? 'px-4 gap-4' : 'justify-center px-2'} py-4 rounded-[2rem] transition-all duration-500 border border-transparent ${activeCategory === 'studios' ? 'bg-[var(--accent-color)] text-white shadow-xl shadow-indigo-500/20' : 'bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)] hover:border-[var(--accent-color)]/30'}`}
+                  className={`category-trigger-btn w-full group flex items-center ${isExpanded ? 'px-3 gap-3' : 'justify-center px-2'} py-3 rounded-2xl transition-all duration-300 border border-transparent ${activeCategory === 'studios' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-indigo-500/20' : 'bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)] hover:border-[var(--accent-color)]/30'}`}
                 >
-                  <div className={`w-10 h-10 rounded-[1.2rem] flex items-center justify-center text-lg transition-all duration-500 ${activeCategory === 'studios' ? 'bg-white/20 text-white' : 'bg-[var(--accent-color)] text-white shadow-lg shadow-indigo-500/20 group-hover:scale-110'}`}>
+                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm transition-all duration-300 ${activeCategory === 'studios' ? 'bg-white/20 text-white' : 'bg-[var(--accent-color)] text-white shadow-sm group-hover:scale-105'}`}>
                     <i className="fa-solid fa-layer-group"></i>
                   </div>
                   {isExpanded && (
                     <div className="flex-1 flex flex-col items-start overflow-hidden">
                       <span className={`text-[11px] font-black transition-colors tracking-tight uppercase truncate ${activeCategory === 'studios' ? 'text-white' : 'text-[var(--text-primary)]'}`}>Stüdyolar</span>
-                      <span className={`text-[8px] font-bold uppercase tracking-widest opacity-60 truncate ${activeCategory === 'studios' ? 'text-white/70' : 'text-[var(--text-muted)]'}`}>Tüm Modüller</span>
                     </div>
                   )}
                   {isExpanded && activeCategory === 'studios' && <motion.div layoutId="active" className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
@@ -378,9 +377,9 @@ const Sidebar: React.FC<SidebarProps> = ({
               </div>
 
               {/* Categories Section */}
-              <div className="space-y-4">
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] block ml-4 text-[var(--text-muted)] opacity-40">Aktivite Havuzu</span>
-                <div className="space-y-3">
+              <div className="space-y-3">
+                <span className="text-[9px] font-black uppercase tracking-[0.2em] block ml-3 text-[var(--text-muted)] opacity-50">Aktivite Havuzu</span>
+                <div className="space-y-2">
                   {categorizedActivities.map((category) => {
                     const isActive = activeCategory === category.id;
                     return (
@@ -389,17 +388,17 @@ const Sidebar: React.FC<SidebarProps> = ({
                         onMouseEnter={(e) => handleCategoryMouseEnter(category.id, e)}
                         onMouseLeave={handleCategoryMouseLeave}
                         onClick={(e) => handleCategoryClick(category.id, e)}
-                        className={`category-trigger-btn w-full flex items-center ${isExpanded ? 'px-4 gap-4' : 'justify-center px-2'} py-4 rounded-[2rem] transition-all duration-500 border border-transparent ${isActive ? 'bg-[var(--bg-secondary)] border-[var(--accent-color)] shadow-xl' : 'hover:bg-[var(--bg-secondary)]'}`}
+                        className={`category-trigger-btn w-full flex items-center ${isExpanded ? 'px-3 gap-3' : 'justify-center px-2'} py-3 rounded-2xl transition-all duration-300 border border-transparent ${isActive ? 'bg-[var(--bg-secondary)] border-[var(--accent-color)]/30 shadow-sm' : 'hover:bg-[var(--bg-secondary)]'}`}
                       >
-                         <div className={`w-10 h-10 rounded-[1.2rem] flex items-center justify-center text-lg transition-all duration-500 bg-[var(--bg-paper)] border border-[var(--border-color)] ${isActive ? 'text-[var(--accent-color)] scale-110 shadow-lg' : 'text-[var(--text-muted)] group-hover:scale-105'}`}>
+                         <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm transition-all duration-300 bg-[var(--bg-paper)] border border-[var(--border-color)] ${isActive ? 'text-[var(--accent-color)] scale-105 shadow-md' : 'text-[var(--text-muted)] group-hover:bg-[var(--bg-paper)]'}`}>
                             <i className={category.icon}></i>
                          </div>
                          {isExpanded && (
-                            <span className={`flex-1 text-left text-[11px] font-black tracking-tight transition-colors uppercase ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
+                            <span className={`flex-1 text-left text-[11px] font-bold tracking-tight transition-colors uppercase ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
                               {category.title}
                             </span>
                          )}
-                         {isExpanded && <i className={`fa-solid fa-chevron-right text-[8px] transition-transform duration-500 ${isActive ? 'rotate-90 text-[var(--accent-color)]' : 'opacity-20'}`}></i>}
+                         {isExpanded && <i className={`fa-solid fa-chevron-right text-[8px] transition-transform duration-300 ${isActive ? 'rotate-90 text-[var(--accent-color)]' : 'opacity-20'}`}></i>}
                       </button>
                     );
                   })}
@@ -422,10 +421,10 @@ const Sidebar: React.FC<SidebarProps> = ({
             onMouseLeave={handleCategoryMouseLeave}
             style={{ 
               top: Math.max(20, Math.min(window.innerHeight - 500, popupRect.top - 20)), 
-              left: popupRect.left + (isExpanded ? 290 : 100) 
+              left: popupRect.left + (isExpanded ? 260 : 85) 
             }}
           >
-            <div className="premium-popup-content min-w-[320px] max-w-[400px] overflow-hidden bg-[var(--bg-paper)]/90 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 p-2 shadow-2xl">
+            <div className="premium-popup-content min-w-[300px] max-w-[380px] overflow-hidden bg-[var(--bg-paper)]/95 backdrop-blur-3xl rounded-[2rem] border border-[var(--border-color)] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
                <div className="p-6 pb-2 border-b border-white/5 mb-2">
                   <h3 className="text-xs font-black text-[var(--accent-color)] uppercase tracking-[0.2em]">{activeCategory === 'studios' ? 'Merkezi Stüdyolar' : categorizedActivities.find(c => c.id === activeCategory)?.title}</h3>
                </div>
