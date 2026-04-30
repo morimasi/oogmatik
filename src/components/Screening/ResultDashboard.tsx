@@ -432,7 +432,7 @@ export const ResultDashboard: FC<Props> = ({
                 Tarama Sonuç Raporu
               </h1>
               <p className="text-sm font-bold text-zinc-500 uppercase tracking-widest">
-                Bursa Disleksi AI • Bilişsel Analiz Modülü
+                Bursa Disleksi EduMind • Bilişsel Analiz Modülü
               </p>
             </div>
             <div className="text-right">
@@ -552,7 +552,7 @@ export const ResultDashboard: FC<Props> = ({
           </div>
 
           <div className="mt-auto text-center text-xs text-zinc-400 font-bold uppercase tracking-widest border-t pt-4">
-            Sayfa 2 / 2 • Bursa Disleksi AI
+            Sayfa 2 / 2 • Bursa Disleksi EduMind
           </div>
         </div>
       </div>

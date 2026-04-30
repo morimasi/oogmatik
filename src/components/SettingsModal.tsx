@@ -212,7 +212,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   Sistem Görünümü
                 </h2>
                 <p className="text-xs text-zinc-500 mt-2 font-medium">
-                  Bursa Disleksi AI platformunun görsel deneyimini kişiselleştirin.
+                  Bursa Disleksi EduMind platformunun görsel deneyimini kişiselleştirin.
                 </p>
               </div>
 

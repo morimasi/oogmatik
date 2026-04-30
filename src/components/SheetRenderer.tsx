@@ -1047,7 +1047,7 @@ const UnifiedContentRenderer = ({
           <div className="mt-auto pt-4 border-t-2 border-zinc-900 flex justify-between items-center text-[7px] font-black uppercase tracking-[0.4em] text-zinc-400">
             <div className="flex items-center gap-2">
               <span className="bg-black text-white px-1.5 py-0.5 rounded font-black">AI</span>
-              <span>{settings?.footerText || 'Bursa Disleksi AI • Nöro-Mimari Motoru v7.0'}</span>
+              <span>{settings?.footerText || 'Bursa Disleksi EduMind • Nöro-Mimari Motoru v7.0'}</span>
             </div>
             <span>
               SAYFA {pageIdx + 1} / {pages.length}

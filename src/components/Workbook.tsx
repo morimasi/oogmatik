@@ -54,7 +54,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
     return (
       <div className="absolute bottom-6 left-0 w-full px-12 flex justify-between items-end text-[10px] text-zinc-400 font-mono z-20">
         <div className="flex flex-col">
-          <span className="font-bold opacity-50">{settings.schoolName || 'Bursa Disleksi AI'}</span>
+          <span className="font-bold opacity-50">{settings.schoolName || 'Bursa Disleksi EduMind'}</span>
           <span className="opacity-30 uppercase tracking-tighter">Premium Workbook Edition</span>
         </div>
         <div className="flex items-center gap-3">
@@ -119,7 +119,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-10 opacity-60 text-[10px] font-mono tracking-widest uppercase">
-                  <div>// Bursa Disleksi Neuro-Cognitive Development Kit</div>
+                  <div>// Bursa Disleksi EduMind Neuro-Cognitive Development Kit</div>
                   <div className="text-right">// AI Powered Learning Environment</div>
                 </div>
               </div>

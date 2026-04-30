@@ -1,7 +1,14 @@
 import { AppError } from '../utils/AppError';
 
 import { auth, db } from './firebaseClient.js';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, updateProfile as updateAuthProfile } from "firebase/auth";
+import { 
+    signInWithEmailAndPassword, 
+    createUserWithEmailAndPassword, 
+    signOut, 
+    updateProfile as updateAuthProfile,
+    GoogleAuthProvider,
+    signInWithPopup
+} from "firebase/auth";
 import * as firestore from "firebase/firestore";
 import { User, UserRole, UserStatus, ActivityType } from '../types.js';
 
@@ -61,6 +68,51 @@ export const authService = {
                 throw new AppError("Giriş yapılamadı: E-posta adresi veya şifre hatalı.", 'INTERNAL_ERROR', 500);
             }
             throw new AppError(`Giriş hatası: ${error.message}`, 'INTERNAL_ERROR', 500);
+        }
+    },
+
+    loginWithGoogle: async (): Promise<User> => {
+        try {
+            const provider = new GoogleAuthProvider();
+            const userCredential = await signInWithPopup(auth, provider);
+            const user = userCredential.user;
+
+            const userDocRef = doc(db, "users", user.uid);
+            const userDocSnap = await getDoc(userDocRef);
+
+            if (!userDocSnap.exists()) {
+                // Yeni kullanıcı ise Firestore kaydı oluştur
+                const newUserProfile = {
+                    name: user.displayName || 'Google Kullanıcısı',
+                    email: user.email,
+                    role: 'user',
+                    createdAt: new Date().toISOString(),
+                    lastLogin: new Date().toISOString(),
+                    avatar: user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`,
+                    status: 'active',
+                    subscriptionPlan: 'free',
+                    worksheetCount: 0,
+                    favorites: [],
+                    profession: '',
+                    institution: '',
+                    phone: '',
+                    bio: ''
+                };
+                await setDoc(userDocRef, newUserProfile);
+                return mapDbUserToAppUser(newUserProfile, user.uid, user.email!);
+            } else {
+                // Mevcut kullanıcı ise son girişi güncelle
+                await updateDoc(userDocRef, {
+                    lastLogin: new Date().toISOString()
+                });
+                return mapDbUserToAppUser(userDocSnap.data(), user.uid, user.email!);
+            }
+        } catch (error: any) {
+            logError("Google login error:", error);
+            if (error.code === 'auth/popup-closed-by-user') {
+                throw new AppError("Giriş penceresi kapatıldı.", 'INTERNAL_ERROR', 500);
+            }
+            throw new AppError(`Google giriş hatası: ${error.message}`, 'INTERNAL_ERROR', 500);
         }
     },
 
