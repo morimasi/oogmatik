@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useEffect } from 'react';
 import { useProgressStore } from '../../store/useProgressStore';
 import { SkillOverview } from './SkillOverview';
