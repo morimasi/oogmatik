@@ -1,4 +1,4 @@
-import { AppError } from '../../utils/AppError';
+import { AppError } from '../../utils/AppError.js';
 import type {
   AgentId,
   AgentInput,
@@ -9,14 +9,14 @@ import type {
   OrchestratorResult,
   SanitizedPromptInput,
   StudioGoalConfig,
-} from '../../types/activityStudio';
-import { ContentAgent } from './agents/ContentAgent';
-import { EvaluationAgent } from './agents/EvaluationAgent';
-import { FlowAgent } from './agents/FlowAgent';
-import { IdeationAgent } from './agents/IdeationAgent';
-import { IntegrationAgent } from './agents/IntegrationAgent';
-import { VisualAgent } from './agents/VisualAgent';
-import type { AgentDependencies } from './agents/types';
+} from '../../types/activityStudio.js';
+import { ContentAgent } from './agents/ContentAgent.js';
+import { EvaluationAgent } from './agents/EvaluationAgent.js';
+import { FlowAgent } from './agents/FlowAgent.js';
+import { IdeationAgent } from './agents/IdeationAgent.js';
+import { IntegrationAgent } from './agents/IntegrationAgent.js';
+import { VisualAgent } from './agents/VisualAgent.js';
+import type { AgentDependencies } from './agents/types.js';
 
 const defaultConfig: OrchestratorConfig = {
   model: 'gemini-2.5-flash',

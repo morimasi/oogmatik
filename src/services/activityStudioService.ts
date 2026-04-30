@@ -1,7 +1,7 @@
-import { AgentOrchestrator } from './activityStudio/AgentOrchestrator';
-import { generateWithSchema } from './geminiClient';
-import { ValidationError } from '../utils/AppError';
-import type { OrchestratorResult, StudioGoalConfig } from '../types/activityStudio';
+import { AgentOrchestrator } from './activityStudio/AgentOrchestrator.js';
+import { generateWithSchema } from './geminiClient.js';
+import { ValidationError } from '../utils/AppError.js';
+import type { OrchestratorResult, StudioGoalConfig } from '../types/activityStudio.js';
 
 export async function generateActivityStudio(goal: StudioGoalConfig): Promise<OrchestratorResult> {
   if (!goal.topic.trim()) {

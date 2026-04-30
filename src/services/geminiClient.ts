@@ -1,5 +1,7 @@
-import { AppError } from '../utils/AppError';
+import { AppError } from '../utils/AppError.js';
 import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { safeFetch } from '../utils/apiClient.js';
+
 // Model Seçimi: Gemini 2.0 Flash — Performanslı ve güncel model
 const MASTER_MODEL = 'gemini-2.5-flash';
 
@@ -31,8 +33,6 @@ function generateDummyDataFromSchema(schema: any): any {
   return null;
 }
 
-// JSON Onarım işlemleri src/utils/jsonRepair.ts tarafına taşınmıştır.
-
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi EduMind platformunun "Nöro-Mimari" motorusun.
 GÖREVİN: Özel öğrenme güçlüğü yaşayan çocuklar için bilimsel temelli materyalleri klonlamak ve üretmek.
@@ -63,6 +63,7 @@ export const generateWithGemini = async (prompt: string, systemInstruction?: str
 
 /**
  * REST API Proxy Tabanlı Gemini İstemcisi (Güvenli)
+ * Selin Arslan: safeFetch entegrasyonu ile ultra-robust yapı.
  */
 export const generateCreativeMultimodal = async (params: {
   prompt: string;
@@ -96,63 +97,16 @@ export const generateCreativeMultimodal = async (params: {
     model: safeModel,
   };
 
-  // Multimodal veri hazırlığı (Proxy'nin beklediği formatta)
   if (params.files && params.files.length > 0) {
-    const file = params.files[0]; // Proxy şu an tek resim destekliyor
+    const file = params.files[0];
     body.image = file.data.includes(',') ? file.data.split(',')[1] : file.data;
     body.mimeType = file.mimeType;
   }
 
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
-
-    const contentType = response.headers.get('content-type');
-    
-    if (!response.ok) {
-      let errorMessage = `API Hatası (${response.status})`;
-      
-      if (contentType && contentType.includes('application/json')) {
-        const errData = await response.json().catch(() => ({}));
-        errorMessage = errData.error?.message || errorMessage;
-      } else {
-        const textError = await response.text().catch(() => '');
-        logError('Sunucu JSON dışı hata döndürdü', { 
-            status: response.status, 
-            text: textError.substring(0, 200) 
-        });
-        
-        if (response.status === 504) errorMessage = 'AI servisi zaman aşımına uğradı (Timeout). Lütfen daha kısa bir talep deneyin.';
-        else if (response.status === 500) errorMessage = 'AI sunucusunda beklenmedik bir hata oluştu.';
-      }
-      
-      throw new AppError(errorMessage, 'AI_PROXY_ERROR', response.status);
-    }
-
-    if (!contentType || !contentType.includes('application/json')) {
-      const text = await response.text().catch(() => '');
-      logError('Beklenmeyen içerik tipi', { contentType, preview: text.substring(0, 100) });
-      throw new AppError('Sunucudan geçersiz yanıt formatı alındı.', 'INVALID_RESPONSE_FORMAT', 500);
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error: any) {
-    if (error instanceof AppError) throw error;
-    
-    logError('Gemini Proxy İstek Hatası', { error: error as Record<string, unknown> });
-    
-    if (error instanceof SyntaxError) {
-        throw new AppError('Sunucudan gelen veri işlenemedi (JSON Parse Hatası).', 'PARSE_ERROR', 500);
-    }
-    
-    throw error;
-  }
+  return await safeFetch<any>(url, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
 };
 
 export const generateWithSchema = async (prompt: string, schema: any) => {
@@ -183,26 +137,16 @@ export const detectMimeType = (
  * Generates raw SVG code from a prompt using Gemini (Proxy üzerinden)
  */
 export const generateSvgCode = async (prompt: string): Promise<string> => {
-  if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
-    return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" stroke="#000" stroke-width="4" fill="none"/></svg>';
-  }
-
   const systemPrompt = `
     Sen bir SVG uzmanısın. Kullanıcının istediği konuya uygun, basit, yüksek kontrastlı ve disleksi dostu bir SVG ikonu üret.
     KURALLAR:
     - SADECE ham <svg> kodunu döndür. Açıklama veya markdown ( \`\`\` ) kullanma.
     - Görsel 100x100 viewbox içinde olmalı.
-    - Tasarım minimalist, net çizgili ve dolgulu olmalı.
-    - Arka plan şeffaf olmalı.
-    - Renk paleti: #000000 (siyah) veya #4f46e5 (indigo) kullan.
   `;
 
   try {
-    const url = `/api/generate`;
-
-    const response = await fetch(url, {
+    const data = await safeFetch<any>('/api/generate', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         prompt,
         systemInstruction: systemPrompt,
@@ -210,26 +154,18 @@ export const generateSvgCode = async (prompt: string): Promise<string> => {
       }),
     });
 
-    if (!response.ok) throw new AppError('Gemini SVG generation failed', 'INTERNAL_ERROR', 500);
-
-    const data = await response.json();
-    // SVG durumunda proxy json dönemezse veya string dönerse handle et
     let svgCode = typeof data === 'string' ? data : data.svg || data.code || '';
-
-    // Clean up markdown if AI accidentally included it
-    svgCode = svgCode
-      .replace(/```svg/g, '')
-      .replace(/```/g, '')
-      .trim();
+    
+    // Clean up
+    svgCode = svgCode.replace(/```svg/g, '').replace(/```/g, '').trim();
 
     if (!svgCode.includes('<svg')) {
-      throw new AppError('Geçerli bir SVG üretilemedi', 'INTERNAL_ERROR', 500);
+      throw new Error('Geçerli bir SVG üretilemedi');
     }
 
     return svgCode;
   } catch (error: any) {
-    logError('SVG Generation Error', { error: error as Record<string, unknown> });
-    // Generic fallback SVG (a simple circle)
+    logError('SVG Generation Error', { error });
     return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" stroke="#000" stroke-width="4" fill="none"/></svg>';
   }
 };

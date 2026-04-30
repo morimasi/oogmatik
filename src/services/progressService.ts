@@ -12,15 +12,15 @@ import {
   writeBatch,
   increment,
   db
-} from './firebaseClient';
+} from './firebaseClient.js';
 import { 
   ActivityCompletion, 
   StudentProgressSnapshot, 
   SkillScore 
-} from '../types/progress';
-import { AppError } from '../utils/AppError';
-import { logError } from '../utils/errorHandler';
-import { achievementService } from './achievementService';
+} from '../types/progress.js';
+import { AppError } from '../utils/AppError.js';
+import { logError } from '../utils/errorHandler.js';
+import { achievementService } from './achievementService.js';
 
 /**
  * Öğrenci İlerleme Servisi (Faz 4.1)

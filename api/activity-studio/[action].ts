@@ -10,7 +10,7 @@ import { RateLimiter } from '../../src/services/rateLimiter.js';
 import { toAppError } from '../../src/utils/AppError.js';
 import { logError } from '../../src/utils/errorHandler.js';
 import { generateActivityStudio } from '../../src/services/activityStudioService.js';
-import type { StudioGoalConfig } from '../../src/types/activityStudio';
+import type { StudioGoalConfig } from '../../src/types/activityStudio.js';
 
 interface ApprovalRecord {
   activityId: string;

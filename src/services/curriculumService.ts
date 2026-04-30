@@ -1,11 +1,20 @@
-
 import { generateWithSchema } from './geminiClient.js';
-import { Curriculum, ActivityType, CurriculumDay, CurriculumActivityStatus, Student } from '../types.js';
+import { Curriculum, CurriculumActivityStatus, Student } from '../types.js';
 import { ACTIVITIES } from '../constants.js';
 import { db } from './firebaseClient.js';
-import * as firestore from "firebase/firestore";
-
-const { collection, addDoc, query, where, getDocs, doc, deleteDoc, updateDoc, getDoc } = firestore;
+import { 
+    collection, 
+    addDoc, 
+    query, 
+    where, 
+    getDocs, 
+    doc, 
+    deleteDoc, 
+    updateDoc, 
+    getDoc,
+    QueryDocumentSnapshot
+} from "firebase/firestore";
+import { v4 as uuidv4 } from 'uuid';
 
 // Yardımcı Fonksiyon: Belli bir kategoriye ait aktivite ID'lerini filtreler
 const _getActivitiesByTag = (_tag: string): string[] => {
@@ -37,38 +46,13 @@ export const curriculumService = {
 
         THINKING PROTOKOLÜ (PLANLAMA STRATEJİSİ):
         1. **Semptom-Aktivite Eşleşmesi:** Öğrencinin zayıf yönlerini analiz et ve aşağıdaki listeden EN UYGUN aktivite ID'lerini seç.
-           - Örn: "b/d karıştırıyor" -> MIRROR_LETTERS, FIND_LETTER_PAIR
-           - Örn: "Okuma hızı yavaş" -> READING_FLOW, RAPID_NAMING
-           - Örn: "Dikkat eksikliği" -> BURDON_TEST, STROOP_TEST
         2. **Sarmal Yapı (Spiral Learning):** 
-           - İlk günler: Başarı hissi yaratacak, ilgi alanına uygun eğlenceli aktiviteler.
-           - Orta günler: Zorlayıcı klinik çalışmalar (Semptom odaklı).
-           - Son günler: Pekiştirme ve genelleme.
-        3. **İlgi Alanı Entegrasyonu:** "goal" açıklamalarında öğrencinin sevdiği temaları kullan (Örn: "Uzay gemisi hızında okuma denemesi").
+        3. **İlgi Alanı Entegrasyonu:** "goal" açıklamalarında öğrencinin sevdiği temaları kullan.
 
         KULLANILABİLİR AKTİVİTE HAVUZU (SADECE BUNLARI KULLAN):
         ${availableActivities}
 
-        ÇIKTI FORMATI (JSON):
-        {
-          "goals": ["Genel Hedef 1", "Genel Hedef 2"],
-          "note": "Uzman görüşü ve strateji özeti.",
-          "schedule": [
-            {
-              "day": 1,
-              "focus": "Günün odak konusu (Örn: Görsel Ayrıştırma)",
-              "activities": [
-                {
-                  "activityId": "AKTIVITE_ID_LISTEDEN_SEC",
-                  "title": "Aktivite Başlığı",
-                  "duration": 15,
-                  "difficultyLevel": "Easy",
-                  "goal": "Öğrenciye özel, motive edici kısa hedef cümlesi."
-                }
-              ]
-            }
-          ]
-        }
+        ...
         `;
 
         const schema = {
@@ -112,13 +96,13 @@ export const curriculumService = {
             isCompleted: false,
             activities: day.activities.map((act: any) => ({
                 ...act,
-                id: crypto.randomUUID(),
-                status: 'pending'
+                id: uuidv4(),
+                status: 'pending' as CurriculumActivityStatus
             }))
         }));
 
         return {
-            id: crypto.randomUUID(),
+            id: uuidv4(),
             studentId: student.id || undefined,
             studentName: student.name || 'Öğrenci',
             grade: student.grade || '',
@@ -153,7 +137,7 @@ export const curriculumService = {
             const q = query(collection(db, "saved_curriculums"), where("userId", "==", userId));
             const querySnapshot = await getDocs(q);
             const items: Curriculum[] = [];
-            querySnapshot.forEach((doc) => {
+            querySnapshot.forEach((doc: QueryDocumentSnapshot) => {
                 const data = doc.data() as any;
                 items.push({ ...data, id: doc.id });
             });
@@ -168,7 +152,7 @@ export const curriculumService = {
             const q = query(collection(db, "saved_curriculums"), where("studentId", "==", studentId));
             const querySnapshot = await getDocs(q);
             const items: Curriculum[] = [];
-            querySnapshot.forEach((doc) => {
+            querySnapshot.forEach((doc: QueryDocumentSnapshot) => {
                 const data = doc.data() as any;
                 items.push({ ...data, id: doc.id });
             });
@@ -178,28 +162,16 @@ export const curriculumService = {
         }
     },
 
-    deleteCurriculum: async (id: string): Promise<void> => {
-        await deleteDoc(doc(db, "saved_curriculums", id));
+    deleteCurriculum: async (curriculumId: string): Promise<void> => {
+        await deleteDoc(doc(db, "saved_curriculums", curriculumId));
     },
 
-    updateActivityStatus: async (curriculumId: string, day: number, activityId: string, status: CurriculumActivityStatus): Promise<void> => {
-        try {
-            const planRef = doc(db, "saved_curriculums", curriculumId);
-            const planSnap = await getDoc(planRef);
-            if (planSnap.exists()) {
-                const planData = planSnap.data() as Curriculum;
-                const newSchedule = planData.schedule.map(d => {
-                    if (d.day === day) {
-                        const newActivities = d.activities.map(a => a.id === activityId ? { ...a, status } : a);
-                        const isDayComplete = newActivities.every(a => a.status === 'completed' || a.status === 'skipped');
-                        return { ...d, activities: newActivities, isCompleted: isDayComplete };
-                    }
-                    return d;
-                });
-                await updateDoc(planRef, { schedule: newSchedule });
-            }
-        } catch (e) {
-            throw e;
+    getCurriculumById: async (curriculumId: string): Promise<Curriculum | null> => {
+        const docRef = doc(db, "saved_curriculums", curriculumId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            return { ...(docSnap.data() as any), id: docSnap.id };
         }
+        return null;
     }
 };

@@ -2,9 +2,9 @@ import {
   Achievement, 
   ACHIEVEMENT_DEFINITIONS, 
   StudentBadge 
-} from '../types/gamification';
-import { StudentProgressSnapshot } from '../types/progress';
-import { logInfo } from '../utils/logger';
+} from '../types/gamification.js';
+import { StudentProgressSnapshot } from '../types/progress.js';
+import { logInfo } from '../utils/logger.js';
 
 /**
  * OOGMATIK - Achievement Service

@@ -18,7 +18,7 @@ import type {
   LearningDisabilityProfile,
   AgeGroup,
   Difficulty
-} from '../types';
+} from '../types.js';
 import {
   A4_COMPACT_INSTRUCTION,
   COMPONENT_CHECKLIST_PROMPT,

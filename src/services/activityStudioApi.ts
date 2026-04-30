@@ -1,4 +1,4 @@
-import { AppError } from '@/utils/AppError';
+import { safeFetch } from '../utils/apiClient.js';
 
 interface ApiResponse<T> {
   success: boolean;
@@ -6,15 +6,18 @@ interface ApiResponse<T> {
   error?: { message: string; code: string };
 }
 
+/**
+ * Activity Studio API İstemcisi
+ * Bora Demir'in teknik standartlarına göre safeFetch entegrasyonu yapıldı.
+ */
 async function request<T>(action: 'generate' | 'approve' | 'draft' | 'export', init: RequestInit): Promise<T> {
-  const response = await fetch(`/api/activity-studio/${action}`, init);
-  const payload = (await response.json()) as ApiResponse<T>;
+  const result = await safeFetch<ApiResponse<T>>(`/api/activity-studio/${action}`, init);
 
-  if (!response.ok || !payload.success || payload.data === undefined) {
-    throw new AppError(payload.error?.message ?? 'Activity Studio API hatasi.', payload.error?.code ?? 'API_ERROR', response.status);
+  if (!result.success || result.data === undefined) {
+    throw new Error(result.error?.message ?? 'Activity Studio API hatası.');
   }
 
-  return payload.data;
+  return result.data;
 }
 
 export interface ApprovalPayload {
@@ -27,7 +30,6 @@ export interface ApprovalPayload {
 export async function submitApproval(payload: ApprovalPayload) {
   return request<ApprovalPayload & { timestamp: string }>('approve', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
 }
