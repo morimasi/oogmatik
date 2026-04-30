@@ -112,21 +112,45 @@ export const generateCreativeMultimodal = async (params: {
       body: JSON.stringify(body),
     });
 
+    const contentType = response.headers.get('content-type');
+    
     if (!response.ok) {
-      const errData = await response
-        .json()
-        .catch(() => ({ error: { message: 'Bilinmeyen hata' } }));
-      throw new AppError(
-        errData.error?.message || `API Hatası (${response.status})`,
-        'INTERNAL_ERROR',
-        500
-      );
+      let errorMessage = `API Hatası (${response.status})`;
+      
+      if (contentType && contentType.includes('application/json')) {
+        const errData = await response.json().catch(() => ({}));
+        errorMessage = errData.error?.message || errorMessage;
+      } else {
+        const textError = await response.text().catch(() => '');
+        logError('Sunucu JSON dışı hata döndürdü', { 
+            status: response.status, 
+            text: textError.substring(0, 200) 
+        });
+        
+        if (response.status === 504) errorMessage = 'AI servisi zaman aşımına uğradı (Timeout). Lütfen daha kısa bir talep deneyin.';
+        else if (response.status === 500) errorMessage = 'AI sunucusunda beklenmedik bir hata oluştu.';
+      }
+      
+      throw new AppError(errorMessage, 'AI_PROXY_ERROR', response.status);
+    }
+
+    if (!contentType || !contentType.includes('application/json')) {
+      const text = await response.text().catch(() => '');
+      logError('Beklenmeyen içerik tipi', { contentType, preview: text.substring(0, 100) });
+      throw new AppError('Sunucudan geçersiz yanıt formatı alındı.', 'INVALID_RESPONSE_FORMAT', 500);
     }
 
     const data = await response.json();
-    return data; // Proxy zaten JSON parse edilmiş veriyi döndürür
+    return data;
   } catch (error: any) {
+    if (error instanceof AppError) throw error;
+    
     logError('Gemini Proxy İstek Hatası', { error: error as Record<string, unknown> });
+    
+    if (error instanceof SyntaxError) {
+        throw new AppError('Sunucudan gelen veri işlenemedi (JSON Parse Hatası).', 'PARSE_ERROR', 500);
+    }
+    
     throw error;
   }
 };
