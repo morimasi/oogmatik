@@ -39,7 +39,14 @@ const config: UserConfig & { test?: any } = {
             id.includes('/node_modules/scheduler/')
           )
             return 'vendor-react';
-          // Animasyon & UI kütüphaneleri — ikincil öncelik
+          // Lucide — Simgeler (Çok fazla ikon var)
+          if (id.includes('/node_modules/lucide-react/')) return 'vendor-lucide';
+          // Grafikler & Infographics
+          if (id.includes('/node_modules/@antv/')) return 'vendor-antv';
+          // 3D & Oyun Motorları — Çok büyük paketler
+          if (id.includes('/node_modules/three/')) return 'vendor-three';
+          if (id.includes('/node_modules/pixi.js/')) return 'vendor-pixi';
+          // Animasyon & UI kütüphaneleri
           if (
             id.includes('/node_modules/framer-motion/') ||
             id.includes('/node_modules/@dnd-kit/') ||
