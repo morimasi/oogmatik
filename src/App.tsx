@@ -1098,52 +1098,93 @@ const AppContent = () => {
           onClose={() => setOpenModal(null)}
         />
       </Modal>
-      <Modal isOpen={openModal === 'about'} onClose={() => setOpenModal(null)} title="platform vizyonu" maxWidth="max-w-3xl">
-        <div className="space-y-10">
-          {/* Hero Section */}
-          <div className="relative h-64 rounded-3xl overflow-hidden shadow-2xl border border-[var(--border-color)] group">
+      <Modal isOpen={openModal === 'about'} onClose={() => setOpenModal(null)} title="Hakkımızda & Vizyon" maxWidth="max-w-4xl">
+        <div className="space-y-12">
+          {/* Hero Showcase */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="relative h-72 rounded-[3rem] overflow-hidden group border border-[var(--border-color)] shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
+          >
             <img 
-              src="/oogmatik_about_premium_1777556845776.png" 
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-              alt="Oogmatik Vision" 
+              src="/media__1777555251633.png" 
+              className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105" 
+              alt="Oogmatik Premium" 
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-            <div className="absolute bottom-6 left-8">
-              <DyslexiaLogo className="h-10 w-auto mb-2 opacity-90 filter brightness-200" />
-              <p className="text-white/60 text-[10px] font-black uppercase tracking-[0.3em]">GELECEĞİ ŞEKİLLENDİREN EĞİTİM</p>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0B] via-transparent to-transparent"></div>
+            <div className="absolute bottom-10 left-10">
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center">
+                  <i className="fa-solid fa-star text-[var(--accent-color)] text-xl"></i>
+                </div>
+                <h3 className="text-3xl font-black text-white tracking-tighter uppercase italic">OOGMATİK <span className="text-[var(--accent-color)]">PREMIUM</span></h3>
+              </div>
+              <p className="text-white/50 text-[10px] font-black uppercase tracking-[0.5em]">Future of Special Education Architecture</p>
             </div>
+          </motion.div>
+
+          {/* Core Pillars - Bento Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1 }}
+              className="md:col-span-2 p-8 bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] relative overflow-hidden group"
+            >
+              <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-[var(--accent-color)]/5 rounded-full blur-3xl group-hover:bg-[var(--accent-color)]/10 transition-all"></div>
+              <h4 className="text-[10px] font-black text-[var(--accent-color)] uppercase mb-4 tracking-[0.2em] flex items-center gap-2">
+                <i className="fa-solid fa-microchip"></i> TEKNOLOJİMİZ
+              </h4>
+              <p className="text-lg font-medium text-[var(--text-primary)] leading-tight tracking-tight mb-4">
+                Yapay zeka motorumuz, Bursa Disleksi'nin <span className="font-bold border-b-2 border-[var(--accent-color)]/30">20 yıllık klinik tecrübesini</span> saniyeler içinde kişiselleştirilmiş bir müfredata dönüştürür.
+              </p>
+              <p className="text-[11px] text-[var(--text-muted)] leading-relaxed opacity-70">
+                Gemini 2.5 Flash mimarisi üzerine inşa edilen platformumuz, her çocuğun öğrenme paternini analiz ederek bilişsel yükü optimize edilmiş aktiviteler üretir.
+              </p>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 }}
+              className="p-8 bg-gradient-to-br from-indigo-900 to-[#121214] rounded-[2.5rem] border border-white/5 shadow-xl flex flex-col justify-center text-center"
+            >
+              <div className="text-4xl font-black text-white mb-2 tracking-tighter">100K+</div>
+              <div className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-6">ÜRETİLEN MATERYAL</div>
+              <div className="h-px w-10 bg-white/10 mx-auto mb-6"></div>
+              <p className="text-[10px] font-medium text-white/50 leading-relaxed uppercase tracking-tighter">Türkiye genelinde binlerce özel eğitimciye güç veriyoruz.</p>
+            </motion.div>
           </div>
 
-          {/* Info Grid */}
+          {/* Philosophy Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="p-6 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] hover:border-[var(--accent-color)]/30 transition-all">
-              <div className="w-10 h-10 bg-[var(--accent-muted)] text-[var(--accent-color)] rounded-xl flex items-center justify-center mb-4">
-                <i className="fa-solid fa-brain"></i>
-              </div>
-              <h4 className="text-xs font-black text-[var(--text-primary)] uppercase mb-2 tracking-tight">AKILLI ADAPTASYON</h4>
-              <p className="text-[11px] font-medium text-[var(--text-muted)] leading-relaxed opacity-80">
-                Oogmatik, her bireyin öğrenme hızını ve ihtiyaçlarını yapay zeka ile analiz ederek tamamen kişiselleştirilmiş materyal setleri oluşturur.
-              </p>
-            </div>
-            <div className="p-6 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] hover:border-[var(--accent-color)]/30 transition-all">
-              <div className="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center mb-4">
-                <i className="fa-solid fa-shield-heart"></i>
-              </div>
-              <h4 className="text-xs font-black text-[var(--text-primary)] uppercase mb-2 tracking-tight">BİLİMSEL TEMELLER</h4>
-              <p className="text-[11px] font-medium text-[var(--text-muted)] leading-relaxed opacity-80">
-                Geliştirdiğimiz her aktivite ve araç, MEB müfredatı ve uluslararası özel eğitim literatürüne tam uyumlu, bilimsel kanıta dayalıdır.
-              </p>
-            </div>
+             <div className="p-8 rounded-[2.5rem] bg-[var(--bg-paper)] border border-[var(--border-color)] flex items-start gap-6">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+                  <i className="fa-solid fa-graduation-cap text-2xl"></i>
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-[var(--text-primary)] uppercase mb-2 tracking-tighter">MEB & PISA UYUMU</h4>
+                  <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">Etkinliklerimiz sadece disleksi dostu değil, aynı zamanda güncel MEB müfredatı ve PISA standartlarıyla tam senkronize şekilde tasarlanmıştır.</p>
+                </div>
+             </div>
+             
+             <div className="p-8 rounded-[2.5rem] bg-[var(--bg-paper)] border border-[var(--border-color)] flex items-start gap-6">
+                <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+                  <i className="fa-solid fa-fingerprint text-2xl"></i>
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-[var(--text-primary)] uppercase mb-2 tracking-tighter">KİŞİSELLEŞTİRİLMİŞ İZ</h4>
+                  <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">Her çocuğun parmak izi kadar eşsiz olduğunu biliyoruz. Oogmatik ile standart değil, "terzi dikimi" eğitim materyalleri saniyeler içinde elinizde.</p>
+                </div>
+             </div>
           </div>
 
-          <div className="p-8 bg-gradient-to-br from-[var(--accent-color)] to-indigo-700 rounded-[2rem] text-white shadow-xl relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-3xl transition-transform group-hover:scale-150"></div>
-            <div className="relative z-10 text-center">
-              <p className="text-sm font-bold leading-relaxed mb-6 opacity-90">
-                "Amacımız, özel öğrenme güçlüğü yaşayan her çocuğun potansiyelini en üst düzeye çıkaran, erişilebilir ve kapsayıcı bir dijital dünya inşa etmektir."
-              </p>
-              <div className="w-12 h-1 bg-white/30 mx-auto rounded-full"></div>
-            </div>
+          {/* Signature Footer */}
+          <div className="pt-8 border-t border-[var(--border-color)] flex flex-col items-center text-center">
+            <DyslexiaLogo className="h-8 opacity-40 grayscale mb-6" />
+            <p className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-[0.5em] opacity-30">
+              BURSA DİSLEKSİ EDU-TECH SOLUTIONS &middot; EST 2004
+            </p>
           </div>
         </div>
       </Modal>
