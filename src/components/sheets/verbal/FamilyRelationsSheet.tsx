@@ -95,7 +95,7 @@ export const FamilyRelationsSheet = ({ data }: { data: FamilyRelationsData }) =>
         <div className="flex items-center gap-4 print:gap-1">
           <i className="fa-solid fa-sitemap text-2xl text-indigo-500"></i>
           <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-[0.5em]">
-            Bursa Disleksi AI • Bilişsel Gelişim Laboratuvarı
+            Bursa Disleksi EduMind • Bilişsel Gelişim Laboratuvarı
           </p>
         </div>
       </div>

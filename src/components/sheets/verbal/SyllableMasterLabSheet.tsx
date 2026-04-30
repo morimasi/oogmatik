@@ -123,7 +123,7 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
       </div>
       <div className="mt-10 print:mt-3 pt-6 print:pt-2 border-t border-zinc-100 flex justify-between items-center opacity-40">
         <p className="text-[8px] text-zinc-500 font-bold uppercase tracking-[0.5em]">
-          Bursa Disleksi AI • Bilişsel Dil Laboratuvarı
+          Bursa Disleksi EduMind • Bilişsel Dil Laboratuvarı
         </p>
         <i className="fa-solid fa-spell-check text-zinc-300"></i>
       </div>

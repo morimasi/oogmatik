@@ -95,7 +95,7 @@ export const PageShell: React.FC<PageShellProps> = ({
         className="mt-3 pt-1.5 flex justify-between items-center text-[9px] font-mono uppercase"
         style={{ borderTop: `1px solid ${paper.border}30`, color: paper.text, opacity: 0.4 }}
       >
-        <span>Bursa Disleksi AI</span>
+        <span>Bursa Disleksi EduMind</span>
         <span>
           Sayfa {pageIndex + 1} / {totalPages}
         </span>

@@ -100,7 +100,7 @@ export const MathPuzzleSheet = ({ data }: { data: MathPuzzleData }) => (
             </div>
             <div className="flex items-center gap-4 print:gap-1">
                 <i className="fa-solid fa-brain-circuit text-xl text-indigo-500"></i>
-                <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-[0.5em]">Bursa Disleksi AI • Bilişsel Matematik Laboratuvarı</p>
+                <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-[0.5em]">Bursa Disleksi EduMind • Bilişsel Matematik Laboratuvarı</p>
             </div>
         </div>
     </div>

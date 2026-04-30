@@ -125,7 +125,7 @@ export const AlgorithmSheet = ({ data }: { data: AlgorithmData }) => {
             </div>
 
             <div className="mt-auto pt-10 print:pt-3 flex justify-between items-center px-10 print:px-3 opacity-30 border-t border-zinc-100">
-                <p className="text-[8px] text-zinc-500 font-bold uppercase tracking-[0.5em]">Bursa Disleksi AI • Mantıksal Akış Laboratuvarı v4.0</p>
+                <p className="text-[8px] text-zinc-500 font-bold uppercase tracking-[0.5em]">Bursa Disleksi EduMind • Mantıksal Akış Laboratuvarı v4.0</p>
                 <div className="flex gap-4 print:gap-1">
                     <i className="fa-solid fa-diagram-project"></i>
                     <i className="fa-solid fa-code-merge"></i>

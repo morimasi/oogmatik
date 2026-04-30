@@ -65,7 +65,7 @@ export const FamilyLogicSheet = ({ data }: { data: FamilyLogicTestData }) => {
 
       <div className="mt-auto pt-8 print:pt-2 flex justify-between items-center px-10 print:px-3 opacity-30">
         <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-[0.5em]">
-          Bursa Disleksi AI • Bilişsel Muhakeme Modülü
+          Bursa Disleksi EduMind • Bilişsel Muhakeme Modülü
         </p>
         <div className="flex gap-4 print:gap-1">
           <div className="w-8 h-2 bg-zinc-200 rounded-full"></div>

@@ -91,7 +91,7 @@ export const NumberLogicRiddleSheet = ({ data }: { data: NumberLogicRiddleData }
             )}
 
             <div className="mt-1 flex justify-between items-center text-[5.5px] font-black text-zinc-300 uppercase tracking-[0.4em] px-2">
-                <span>Bursa Disleksi AI • Sayısal Muhakeme Laboratuvarı v2.5</span>
+                <span>Bursa Disleksi EduMind • Sayısal Muhakeme Laboratuvarı v2.5</span>
             </div>
         </div>
     );

@@ -121,7 +121,7 @@ export const NumberLogicRiddleSheet = ({ data }: { data: NumberLogicRiddleData }
             </div>
 
             <div className="flex justify-between items-center px-10 print:px-3 pt-4 print:pt-1 border-t border-zinc-100">
-                <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-[0.5em]">Bursa Disleksi AI • Sayısal Mantık Atölyesi v2.0</p>
+                <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-[0.5em]">Bursa Disleksi EduMind • Sayısal Mantık Atölyesi v2.0</p>
                 <div className="flex gap-2">
                     <div className="w-2 h-2 rounded-full bg-zinc-200"></div>
                     <div className="w-6 h-2 rounded-full bg-indigo-500"></div>

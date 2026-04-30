@@ -77,7 +77,7 @@ export const NumberPathLogicSheet = ({ data }: { data: NumberPathLogicData }) =>
             </div>
 
             <div className="mt-auto pt-8 print:pt-2 flex justify-between items-center px-10 print:px-3 border-t border-zinc-50 opacity-40">
-                <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-[0.5em]">Bursa Disleksi AI • Sembolik Mantık Modülü v1.0</p>
+                <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-[0.5em]">Bursa Disleksi EduMind • Sembolik Mantık Modülü v1.0</p>
                 <div className="flex gap-3">
                     <i className="fa-solid fa-diagram-next"></i>
                     <i className="fa-solid fa-brain"></i>

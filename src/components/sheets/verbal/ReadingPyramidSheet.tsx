@@ -54,7 +54,7 @@ export const ReadingPyramidSheet = ({ data }: { data: ReadingPyramidData }) => {
 
       <div className="mt-auto pt-6 print:pt-2 border-t border-zinc-100 flex justify-between items-center px-6 print:px-2 opacity-40">
         <p className="text-[7px] text-zinc-400 font-bold uppercase tracking-[0.5em]">
-          Bursa Disleksi AI • Akıcı Okuma Modülü
+          Bursa Disleksi EduMind • Akıcı Okuma Modülü
         </p>
         <i className="fa-solid fa-layer-group text-zinc-300"></i>
       </div>

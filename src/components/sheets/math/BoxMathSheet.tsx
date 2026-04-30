@@ -151,7 +151,7 @@ export const BoxMathSheet: React.FC<{ data: BoxMathData }> = ({ data }) => {
         <div className="flex items-center gap-2">
           <i className="fa-solid fa-microchip text-lg text-indigo-500"></i>
           <p className="text-[7px] text-zinc-400 font-bold uppercase tracking-widest">
-            Bursa Disleksi AI • Nöro-Bilişsel Matematik Sistemi
+            Bursa Disleksi EduMind • Nöro-Bilişsel Matematik Sistemi
           </p>
         </div>
       </div>

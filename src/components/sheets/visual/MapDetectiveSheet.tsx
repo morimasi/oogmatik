@@ -192,7 +192,7 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
                     </div>
                 </div>
                 <div className="flex flex-col items-end">
-                    <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-[0.5em] mb-1 text-right">Bursa Disleksi AI • Uzman Serisi</p>
+                    <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-[0.5em] mb-1 text-right">Bursa Disleksi EduMind • Uzman Serisi</p>
                     <div className="flex gap-4 print:gap-1">
                         <i className="fa-solid fa-map-location-dot"></i>
                         <i className="fa-solid fa-brain"></i>

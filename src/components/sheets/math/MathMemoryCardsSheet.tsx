@@ -84,7 +84,7 @@ export const MathMemoryCardsSheet = ({ data }: { data: MathMemoryCardsData }) =>
                     </div>
                 </div>
                 <div className="text-right flex flex-col items-end">
-                    <p className="text-[7px] text-zinc-400 font-bold uppercase tracking-[0.5em] mb-1">Bursa Disleksi AI • Hafıza Modülü v2.1</p>
+                    <p className="text-[7px] text-zinc-400 font-bold uppercase tracking-[0.5em] mb-1">Bursa Disleksi EduMind • Hafıza Modülü v2.1</p>
                     <div className="flex gap-2">
                         <div className="w-4 h-1 bg-indigo-500 rounded-full"></div>
                         <div className="w-1.5 h-1 bg-zinc-200 rounded-full"></div>
