@@ -474,7 +474,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             max="100"
                             step="5"
                             value={uiSettings.premiumIntensity}
-                            onChange={(e) =>
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                               onUpdateUiSettings({
                                 ...uiSettings,
                                 premiumIntensity: parseInt(e.target.value),
@@ -552,7 +552,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             max="2.5"
                             step="0.1"
                             value={uiSettings.lineHeight}
-                            onChange={(e) =>
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                               onUpdateUiSettings({
                                 ...uiSettings,
                                 lineHeight: parseFloat(e.target.value),
@@ -605,7 +605,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             max="1.5"
                             step="0.05"
                             value={uiSettings.fontSizeScale}
-                            onChange={(e) =>
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                               onUpdateUiSettings({
                                 ...uiSettings,
                                 fontSizeScale: parseFloat(e.target.value),
@@ -631,7 +631,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             <input
                               type="checkbox"
                               checked={uiSettings.letterSpacing === 'wide'}
-                              onChange={(e) =>
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                                 onUpdateUiSettings({
                                   ...uiSettings,
                                   letterSpacing: e.target.checked ? 'wide' : 'normal',
@@ -671,7 +671,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             max="100"
                             step="5"
                             value={uiSettings.saturation}
-                            onChange={(e) =>
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                               onUpdateUiSettings({
                                 ...uiSettings,
                                 saturation: parseInt(e.target.value),
@@ -703,7 +703,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                             max="50"
                             step="5"
                             value={uiSettings.contrastLevel}
-                            onChange={(e) =>
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                               onUpdateUiSettings({
                                 ...uiSettings,
                                 contrastLevel: parseInt(e.target.value),
