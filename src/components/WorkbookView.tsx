@@ -30,7 +30,7 @@ const COLORS = [
   '#1f2937',
 ];
 
-// Memoized Item Component
+// Memoized Item Component - Compact & Professional
 const SortablePageItem = React.memo(
   ({
     item,
@@ -61,63 +61,60 @@ const SortablePageItem = React.memo(
         onDragStart={() => onDragStart(index)}
         onDragOver={(e: React.DragEvent) => onDragOver(e, index)}
         onDragEnd={onDragEnd}
-        className={`group flex items-center gap-3 p-3 rounded-xl shadow-sm cursor-grab active:cursor-grabbing transition-all ${isDragging ? 'opacity-50 border-dashed' : ''}`}
-        style={isDivider ? { backgroundColor: 'var(--accent-muted)', border: '1px solid var(--accent-muted)' } : { backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)' }}
+        className={`group flex items-center gap-2.5 p-2 rounded-xl shadow-sm cursor-grab active:cursor-grabbing transition-all border ${isDragging ? 'opacity-40 border-dashed scale-95' : 'hover:shadow-md'}`}
+        style={isDivider ? { backgroundColor: 'var(--accent-muted)', borderColor: 'var(--accent-muted)' } : { backgroundColor: 'var(--bg-paper)', borderColor: 'var(--border-color)' }}
       >
-        <div className="w-6 h-6 flex items-center justify-center" style={{ color: 'var(--text-muted)' }}>
-          <i className="fa-solid fa-grip-vertical"></i>
+        <div className="w-5 h-5 flex items-center justify-center shrink-0" style={{ color: 'var(--text-muted)' }}>
+          <i className="fa-solid fa-grip-vertical text-[10px]"></i>
         </div>
 
         {isDivider ? (
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0" style={{ backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)' }}>
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center font-bold text-[10px] shrink-0" style={{ backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)' }}>
             <i className={item.dividerConfig?.icon || 'fa-solid fa-bookmark'}></i>
           </div>
         ) : (
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0" style={{ backgroundColor: 'var(--surface-elevated)', color: 'var(--text-secondary)' }}>
+          <div className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-[9px] shrink-0 border" style={{ backgroundColor: 'var(--surface-elevated)', color: 'var(--text-secondary)', borderColor: 'var(--border-color)' }}>
             {index + 1}
           </div>
         )}
 
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-black truncate tracking-tight" style={{ color: 'var(--text-primary)' }}>
+          <p className="text-xs font-black truncate tracking-tight uppercase" style={{ color: 'var(--text-primary)' }}>
             {isDivider ? item.dividerConfig?.title : item.title}
           </p>
-          <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-[9px] font-black uppercase tracking-widest px-1.5 py-0.5 rounded-md" style={{ backgroundColor: 'var(--surface-elevated)', color: 'var(--text-muted)' }}>
-              {isDivider ? 'Bölüm Kapağı' : item.activityType}
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <span className="text-[8px] font-black uppercase tracking-widest px-1.25 py-0.25 rounded" style={{ backgroundColor: 'var(--surface-elevated)', color: 'var(--text-muted)' }}>
+              {isDivider ? 'Bölüm' : item.activityType}
             </span>
             {item.overrideStyle && !isDivider && (
-              <span className="text-[9px] font-black bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 px-1.5 py-0.5 rounded-md flex items-center gap-1">
-                <i className="fa-solid fa-wand-magic-sparkles text-[8px]"></i> Özel Stil
+              <span className="text-[8px] font-black text-amber-500 flex items-center gap-1">
+                <i className="fa-solid fa-wand-magic-sparkles text-[7px]"></i> STİL
               </span>
             )}
           </div>
         </div>
 
-        <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             onClick={() => onDuplicate?.(item)}
-            className="p-2 transition-colors hover:opacity-80"
+            className="w-7 h-7 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center justify-center"
             style={{ color: 'var(--text-muted)' }}
-            title="Kopyala"
           >
-            <i className="fa-solid fa-copy"></i>
+            <i className="fa-solid fa-copy text-[10px]"></i>
           </button>
           <button
             onClick={() => onEditStyle?.(item)}
-            className="p-2 transition-colors hover:opacity-80"
+            className="w-7 h-7 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center justify-center"
             style={{ color: 'var(--text-muted)' }}
-            title={isDivider ? 'Bölüm Düzenle' : 'Stil Düzenle'}
           >
-            <i className={`fa-solid ${isDivider ? 'fa-pen' : 'fa-wand-magic-sparkles'}`}></i>
+            <i className={`fa-solid ${isDivider ? 'fa-pen' : 'fa-wand-magic-sparkles'} text-[10px]`}></i>
           </button>
           <button
             onClick={() => onRemove?.(item.id)}
-            className="p-2 transition-colors hover:opacity-70"
+            className="w-7 h-7 rounded-lg hover:bg-rose-500/10 hover:text-rose-500 transition-colors flex items-center justify-center"
             style={{ color: 'var(--text-muted)' }}
-            title="Sil"
           >
-            <i className="fa-solid fa-trash"></i>
+            <i className="fa-solid fa-trash text-[10px]"></i>
           </button>
         </div>
       </div>
@@ -146,6 +143,7 @@ export const WorkbookView = ({
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const editingItem = items.find((i: CollectionItem) => i.id === editingItemId);
 
+  // ... (keeping other states same as lines 149-189)
   // Divider Edit State
   const [editingDividerId, setEditingDividerId] = useState<string | null>(null);
   const editingDivider = items.find((i: CollectionItem) => i.id === editingDividerId);
@@ -195,6 +193,7 @@ export const WorkbookView = ({
     [setItems]
   );
 
+  // ... (rest of methods up to 414 same)
   const handleDuplicateItem = useCallback(
     (item: CollectionItem) => {
       const newItem = {
@@ -283,8 +282,8 @@ export const WorkbookView = ({
       const assignedStudent = students.find((s: any) => s.name === settings.studentName);
       await worksheetService.saveWorkbook(user.id, settings, items, assignedStudent?.id);
       alert(`"${settings.title}" başarıyla arşivinize kaydedildi.`);
-    } catch (error) {
-      logError('Save failed:', error);
+    } catch (error: unknown) {
+      logError(error instanceof Error ? error : new Error(String(error)), { context: 'WorkbookView.handleSave' });
       alert('Kaydetme sırasında bir hata oluştu.');
     } finally {
       setIsSaving(false);
@@ -299,8 +298,8 @@ export const WorkbookView = ({
       await printService.generatePdf('.workbook-container', settings.title || 'Kitapcik', {
         action,
       });
-    } catch (error) {
-      logError('Kitapçık oluşturma hatası:', error);
+    } catch (error: unknown) {
+      logError(error instanceof Error ? error : new Error(String(error)), { context: 'WorkbookView.handleAction' });
       alert('Kitapçık oluşturulurken bir hata meydana geldi.');
     } finally {
       setIsPrinting(false);
@@ -362,8 +361,8 @@ KRİTİK KURALLAR:
       try {
         const result = (await generateWithSchema(prompt, schema)) as { preface?: string };
         prefaceText = result && result.preface ? result.preface : '';
-      } catch (aiErr) {
-        logWarn("Gemini preface fallback'a düştü:", aiErr);
+      } catch (aiErr: unknown) {
+        logWarn("Gemini preface fallback'a düştü:", aiErr instanceof Error ? aiErr : new Error(String(aiErr)));
       }
 
       if (!prefaceText) {
@@ -412,89 +411,79 @@ KRİTİK KURALLAR:
   };
 
   return (
-    <div className="h-full flex flex-col relative font-['Lexend']" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
-      {/* Top Toolbar - Premium Glassmorphism */}
-      <div className="flex justify-between items-center px-8 py-5 backdrop-blur-xl shadow-sm shrink-0 z-20" style={{ backgroundColor: 'var(--surface-glass)', borderBottom: '1px solid var(--border-color)' }}>
-        <div className="flex items-center gap-6">
+    <div className="h-full flex flex-col relative font-lexend" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+      {/* Top Toolbar - Compact SaaS Style */}
+      <div className="flex justify-between items-center px-5 py-3 backdrop-blur-2xl shadow-sm shrink-0 z-20 border-b border-[var(--border-color)] bg-[var(--surface-glass)]">
+        <div className="flex items-center gap-4">
           <button
             onClick={onBack}
-            className="group flex items-center gap-2 transition-all duration-300 hover:opacity-80"
-            style={{ color: 'var(--text-secondary)' }}
+            className="group flex items-center gap-1.5 transition-all text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
           >
-            <div className="w-8 h-8 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform" style={{ backgroundColor: 'var(--surface-elevated)' }}>
-              <i className="fa-solid fa-arrow-left text-xs"></i>
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-[var(--surface-elevated)] group-hover:bg-[var(--accent-muted)] transition-colors">
+              <i className="fa-solid fa-arrow-left text-[10px]"></i>
             </div>
-            <span className="text-sm font-bold tracking-tight">Geri Dön</span>
+            <span className="text-[11px] font-black uppercase tracking-widest">Geri</span>
           </button>
 
-          <div className="h-8 w-px mx-2" style={{ backgroundColor: 'var(--border-color)' }}></div>
+          <div className="h-6 w-px bg-[var(--border-color)] mx-1"></div>
 
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg" style={{ background: `linear-gradient(135deg, var(--accent-color), var(--accent-hover))` }}>
-              <i className="fa-solid fa-book-open-reader text-2xl"></i>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/20" style={{ background: `linear-gradient(135deg, var(--accent-color), var(--accent-hover))` }}>
+              <i className="fa-solid fa-book-open-reader text-lg"></i>
             </div>
             <div>
-              <h2 className="text-xl font-black leading-tight tracking-tight" style={{ color: 'var(--text-primary)' }}>
+              <h2 className="text-base font-black leading-none tracking-tight uppercase" style={{ color: 'var(--text-primary)' }}>
                 Çalışma Kitapçığı
               </h2>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full" style={{ backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)' }}>
-                  {items.length} Sayfa
+              <div className="flex items-center gap-2 mt-1.5">
+                <span className="text-[8px] font-black uppercase px-2 py-0.5 rounded bg-[var(--accent-muted)] text-[var(--accent-color)] border border-[var(--accent-color)]/10">
+                  {items.length} SAYFA
                 </span>
-                <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full" style={{ backgroundColor: 'var(--surface-elevated)', color: 'var(--text-secondary)' }}>
-                  {settings.theme} MODU
+                <span className="text-[8px] font-black uppercase px-2 py-0.5 rounded bg-[var(--surface-elevated)] text-[var(--text-muted)] border border-white/5">
+                  {settings.theme}
                 </span>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="p-1.5 rounded-2xl flex relative" style={{ backgroundColor: 'var(--surface-elevated)' }}>
-            <button
-              onClick={() => setViewMode('edit')}
-              className={`relative px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all duration-300 z-10`}
-              style={{ color: viewMode === 'edit' ? 'var(--text-primary)' : 'var(--text-muted)' }}
-            >
-              <i className="fa-solid fa-pen-ruler"></i> Düzenle
-              {viewMode === 'edit' && (
-                <motion.div layoutId="pill" className="absolute inset-0 rounded-xl shadow-md -z-10" style={{ backgroundColor: 'var(--accent-color)' }} />
-              )}
-            </button>
-            <button
-              onClick={() => setViewMode('preview')}
-              className={`relative px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all duration-300 z-10`}
-              style={{ color: viewMode === 'preview' ? 'var(--text-primary)' : 'var(--text-muted)' }}
-            >
-              <i className="fa-solid fa-eye"></i> Önizle
-              {viewMode === 'preview' && (
-                <motion.div layoutId="pill" className="absolute inset-0 rounded-xl shadow-md -z-10" style={{ backgroundColor: 'var(--accent-color)' }} />
-              )}
-            </button>
+        <div className="flex items-center gap-3">
+          <div className="p-1 rounded-xl flex bg-[var(--surface-elevated)] border border-white/10">
+            {['edit', 'preview'].map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setViewMode(mode as any)}
+                className={`relative px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-2 transition-all duration-300 z-10 ${mode === viewMode ? 'text-white' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
+              >
+                <i className={`fa-solid ${mode === 'edit' ? 'fa-pen-ruler' : 'fa-eye'}`}></i>
+                {mode === 'edit' ? 'Düzenle' : 'Önizle'}
+                {viewMode === mode && (
+                  <motion.div layoutId="pill" className="absolute inset-0 rounded-lg shadow-sm -z-10" style={{ backgroundColor: 'var(--accent-color)' }} />
+                )}
+              </button>
+            ))}
           </div>
 
-          <div className="flex items-center gap-2 ml-2">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => handleAction('download')}
               disabled={isPrinting}
-              className="px-5 py-3 font-bold rounded-2xl shadow-sm hover:shadow-md transition-all flex items-center gap-2 active:scale-95"
-              style={{ backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+              className="w-10 h-10 rounded-xl bg-[var(--bg-paper)] border border-[var(--border-color)] hover:bg-[var(--bg-secondary)] flex items-center justify-center transition-all shadow-sm group"
+              title="PDF İndir"
             >
-              <i className="fa-solid fa-download" style={{ color: 'var(--accent-color)' }}></i> PDF
+              <i className="fa-solid fa-download text-xs text-[var(--accent-color)] group-hover:scale-110 transition-transform"></i>
             </button>
             <button
               onClick={() => handleAction('print')}
               disabled={isPrinting}
-              className="px-5 py-3 font-bold rounded-2xl shadow-lg transition-all flex items-center gap-2 active:scale-95"
-              style={{ backgroundColor: 'var(--text-primary)', color: 'var(--bg-primary)' }}
+              className="px-4 py-2.5 rounded-xl bg-[var(--text-primary)] text-[var(--bg-primary)] font-black text-[9px] uppercase tracking-widest shadow-lg hover:opacity-90 transition-all flex items-center gap-2"
             >
               <i className="fa-solid fa-print"></i> Yazdır
             </button>
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="px-6 py-3 text-white font-bold rounded-2xl shadow-lg flex items-center gap-2 transition-all active:scale-95 hover:opacity-90"
-              style={{ backgroundColor: 'var(--accent-color)' }}
+              className="px-4 py-2.5 rounded-xl bg-[var(--accent-color)] text-white font-black text-[9px] uppercase tracking-widest shadow-lg hover:shadow-indigo-500/30 transition-all flex items-center gap-2"
             >
               {isSaving ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-save"></i>}
               Kaydet
@@ -506,10 +495,10 @@ KRİTİK KURALLAR:
       {/* Main Content Area */}
       {viewMode === 'edit' ? (
         <div className="flex flex-1 overflow-hidden">
-          {/* Left Sidebar: Controls - Glassmorphism */}
-          <div className="w-80 md:w-96 backdrop-blur-xl flex flex-col z-10 shrink-0" style={{ backgroundColor: 'var(--bg-paper)', borderRight: '1px solid var(--border-color)' }}>
-            {/* Tabs */}
-            <div className="flex p-2 gap-1" style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-inset)' }}>
+          {/* Left Sidebar: Controls - SaaS Minimal */}
+          <div className="w-72 md:w-80 backdrop-blur-xl flex flex-col z-10 shrink-0 border-r border-[var(--border-color)] bg-[var(--bg-paper)]/80">
+            {/* Tabs - Modern Bento */}
+            <div className="flex p-2 gap-1.5 border-b border-[var(--border-color)] bg-[var(--bg-inset)]/50">
               {[
                 { id: 'content', icon: 'fa-layer-group', label: 'İçerik' },
                 { id: 'design', icon: 'fa-paintbrush', label: 'Tasarım' },
@@ -518,8 +507,7 @@ KRİTİK KURALLAR:
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex-1 py-3 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all flex flex-col items-center justify-center gap-1.5 ${activeTab !== tab.id ? 'opacity-70 hover:opacity-100' : ''}`}
-                  style={activeTab === tab.id ? { backgroundColor: 'var(--accent-color)', color: '#fff', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' } : { color: 'var(--text-secondary)' }}
+                  className={`flex-1 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex flex-col items-center justify-center gap-1.5 ${activeTab === tab.id ? 'bg-[var(--accent-color)] text-white shadow-lg shadow-indigo-500/20' : 'text-[var(--text-muted)] hover:bg-[var(--bg-secondary)]'}`}
                 >
                   <i className={`fa-solid ${tab.icon} text-sm`}></i>
                   {tab.label}
@@ -527,25 +515,21 @@ KRİTİK KURALLAR:
               ))}
             </div>
 
-            {/* Tab Content */}
-            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-6">
+            {/* Tab Content - Minimal & Compact */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-5">
               {activeTab === 'assign' && (
-                <div className="space-y-6 animate-in fade-in duration-500">
-                  <div className="p-5 rounded-[2rem]" style={{ background: `linear-gradient(135deg, var(--accent-muted), var(--bg-paper))`, border: '1px solid var(--border-color)' }}>
-                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] mb-4 flex items-center gap-2" style={{ color: 'var(--accent-color)' }}>
-                      <div className="w-6 h-6 rounded-lg text-white flex items-center justify-center shadow-md" style={{ backgroundColor: 'var(--accent-color)' }}>
-                        <i className="fa-solid fa-user-plus text-[10px]"></i>
+                <div className="space-y-5 animate-in fade-in duration-500">
+                  <div className="p-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-inset)]/30 backdrop-blur-sm shadow-sm">
+                    <h4 className="text-[9px] font-black uppercase tracking-[0.2em] mb-3 flex items-center gap-2 text-[var(--accent-color)]">
+                      <div className="w-5 h-5 rounded-lg bg-[var(--accent-color)] text-white flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                        <i className="fa-solid fa-user-plus text-[9px]"></i>
                       </div>
                       Öğrenci Atama
                     </h4>
                     <select
-                      value={
-                        students.find((s: any) => s.name === settings.studentName)?.id ||
-                        'anonymous'
-                      }
+                      value={students.find((s: any) => s.name === settings.studentName)?.id || 'anonymous'}
                       onChange={(e: any) => handleStudentAssign(e.target.value)}
-                      className="w-full p-4 rounded-2xl text-sm font-bold outline-none focus:ring-4 transition-all appearance-none cursor-pointer"
-                      style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', '--tw-ring-color': 'var(--accent-muted)' } as React.CSSProperties}
+                      className="w-full p-3 rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-[var(--accent-muted)] border border-[var(--border-color)] bg-[var(--bg-paper)] text-[var(--text-primary)] transition-all cursor-pointer"
                     >
                       <option value="anonymous">Misafir / Atanmamış</option>
                       {students.map((s: any) => (
@@ -554,8 +538,8 @@ KRİTİK KURALLAR:
                         </option>
                       ))}
                     </select>
-                    <p className="text-[11px] mt-4 italic font-medium leading-relaxed opacity-80 backdrop-blur-sm" style={{ color: 'var(--text-muted)' }}>
-                      * Bir öğrenci seçtiğinizde kapak ve sayfa künyeleri otomatik olarak kişiselleştirilir.
+                    <p className="text-[9px] mt-3 italic font-medium leading-relaxed opacity-70 text-[var(--text-muted)]">
+                      * Öğrenci seçimi kapak bilgilerini otomatik günceller.
                     </p>
                   </div>
                 </div>
@@ -563,141 +547,111 @@ KRİTİK KURALLAR:
 
               {activeTab === 'content' && (
                 <>
-                  <div className="space-y-6 p-5 rounded-[2rem]" style={{ backgroundColor: 'var(--surface-glass)', border: '1px solid var(--border-color)' }}>
+                  <div className="space-y-4 p-4 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-inset)]/30">
                     <div>
-                      <label className="block text-[10px] font-black uppercase tracking-widest mb-3 px-1" style={{ color: 'var(--text-muted)' }}>
+                      <label className="block text-[9px] font-black uppercase tracking-widest mb-1.5 px-1 text-[var(--text-muted)]">
                         Kitapçık Başlığı
                       </label>
                       <input
                         type="text"
                         value={settings.title}
-                        onChange={(e: any) =>
-                          setSettings((s: any) => ({ ...s, title: e.target.value }))
-                        }
-                        className="w-full p-4 rounded-2xl text-sm font-bold focus:ring-4 outline-none transition-all"
-                        style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', '--tw-ring-color': 'var(--accent-muted)' } as React.CSSProperties}
+                        onChange={(e: any) => setSettings((s: any) => ({ ...s, title: e.target.value }))}
+                        className="w-full p-3 rounded-xl text-xs font-bold focus:ring-2 focus:ring-[var(--accent-muted)] border border-[var(--border-color)] bg-[var(--bg-paper)] text-[var(--text-primary)] transition-all outline-none"
                         placeholder="Örn: Tatil Kitabım"
                       />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs font-bold uppercase mb-2" style={{ color: 'var(--text-muted)' }}>
+                        <label className="block text-[9px] font-black uppercase mb-1.5 px-1 text-[var(--text-muted)]">
                           Öğrenci
                         </label>
                         <input
                           type="text"
                           value={settings.studentName}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            setSettings((s: WorkbookSettings) => ({ ...s, studentName: e.target.value }))
-                          }
-                          className="w-full p-3 rounded-xl text-sm focus:ring-2 outline-none"
-                          style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSettings((s: WorkbookSettings) => ({ ...s, studentName: e.target.value }))}
+                          className="w-full p-2.5 rounded-xl text-xs bg-[var(--bg-paper)] border border-[var(--border-color)] text-[var(--text-primary)] outline-none"
                           placeholder="Ad Soyad"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold uppercase mb-2" style={{ color: 'var(--text-muted)' }}>
+                        <label className="block text-[9px] font-black uppercase mb-1.5 px-1 text-[var(--text-muted)]">
                           Yıl / Dönem
                         </label>
                         <input
                           type="text"
                           value={settings.year}
                           onChange={(e) => setSettings((s) => ({ ...s, year: e.target.value }))}
-                          className="w-full p-3 rounded-xl text-sm focus:ring-2 outline-none"
-                          style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+                          className="w-full p-2.5 rounded-xl text-xs bg-[var(--bg-paper)] border border-[var(--border-color)] text-[var(--text-primary)] outline-none"
                           placeholder="2024-2025"
                         />
                       </div>
                     </div>
                     <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <label className="text-xs font-bold uppercase" style={{ color: 'var(--text-muted)' }}>
-                          Eğitmen Notu / Önsöz
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-[9px] font-black uppercase px-1 text-[var(--text-muted)]">
+                          AI Önsöz / Not
                         </label>
                         <button
                           onClick={handleGeneratePreface}
                           disabled={isGeneratingPreface || items.length === 0}
-                          className="text-[10px] font-black px-3 py-1 rounded-full transition-colors disabled:opacity-50"
-                          style={{ backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)' }}
+                          className="text-[8px] font-black px-2.5 py-1 rounded-full bg-[var(--accent-muted)] text-[var(--accent-color)] hover:bg-[var(--accent-color)] hover:text-white transition-all disabled:opacity-50 flex items-center gap-1.5 shadow-sm shadow-indigo-500/5"
                         >
-                          {isGeneratingPreface ? (
-                            <i className="fa-solid fa-circle-notch fa-spin mr-1"></i>
-                          ) : (
-                            <i className="fa-solid fa-wand-magic-sparkles mr-1"></i>
-                          )}
-                          AI İLE ÜRET
+                          {isGeneratingPreface ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
+                          ÜRET
                         </button>
                       </div>
                       <textarea
                         value={settings.teacherNote}
-                        onChange={(e: any) =>
-                          setSettings((s: any) => ({ ...s, teacherNote: e.target.value }))
-                        }
-                        className="w-full p-3 rounded-xl text-sm focus:ring-2 outline-none h-32 resize-none"
-                        style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', '--tw-ring-color': 'var(--accent-color)' } as React.CSSProperties}
+                        onChange={(e: any) => setSettings((s: any) => ({ ...s, teacherNote: e.target.value }))}
+                        className="w-full p-3 rounded-xl text-xs border border-[var(--border-color)] bg-[var(--bg-paper)] text-[var(--text-primary)] h-28 resize-none outline-none focus:ring-2 focus:ring-[var(--accent-muted)]"
                         placeholder="Öğrenciye veya veliye bir not bırakın..."
                       />
                     </div>
                   </div>
 
-                  <div className="pt-6" style={{ borderTop: '1px solid var(--border-color)' }}>
-                    <div className="flex justify-between items-center mb-4">
-                      <div className="flex items-center gap-3">
-                        <h3 className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
+                  <div className="pt-4 border-t border-[var(--border-color)]">
+                    <div className="flex justify-between items-center mb-3 px-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-black text-[10px] uppercase tracking-widest text-[var(--text-primary)]">
                           Sayfalar ({items.length})
                         </h3>
-                        <div className="flex p-0.5 rounded-lg" style={{ backgroundColor: 'var(--surface-elevated)', border: '1px solid var(--border-color)' }}>
-                          <button
-                            onClick={() => setLayoutMode('list')}
-                            className="w-6 h-6 rounded flex items-center justify-center transition-all"
-                            style={layoutMode === 'list' ? { backgroundColor: 'var(--bg-paper)', color: 'var(--accent-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' } : { color: 'var(--text-muted)' }}
-                            title="Liste Görünümü"
-                          >
-                            <i className="fa-solid fa-list text-[10px]"></i>
-                          </button>
-                          <button
-                            onClick={() => setLayoutMode('grid')}
-                            className="w-6 h-6 rounded flex items-center justify-center transition-all"
-                            style={layoutMode === 'grid' ? { backgroundColor: 'var(--bg-paper)', color: 'var(--accent-color)', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' } : { color: 'var(--text-muted)' }}
-                            title="Izgara Görünümü"
-                          >
-                            <i className="fa-solid fa-border-all text-[10px]"></i>
-                          </button>
+                        <div className="flex p-0.5 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border-color)]">
+                          {['list', 'grid'].map((mode) => (
+                            <button
+                              key={mode}
+                              onClick={() => setLayoutMode(mode as any)}
+                              className={`w-6 h-6 rounded flex items-center justify-center transition-all ${layoutMode === mode ? 'bg-[var(--bg-paper)] text-[var(--accent-color)] shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
+                              title={mode === 'list' ? 'Liste' : 'Izgara'}
+                            >
+                              <i className={`fa-solid ${mode === 'list' ? 'fa-list-ul' : 'fa-border-all'} text-[9px]`}></i>
+                            </button>
+                          ))}
                         </div>
                       </div>
-                      <button
-                        onClick={handleClearAll}
-                        className="text-xs text-red-500 hover:underline font-bold"
-                      >
-                        Tümünü Sil
+                      <button onClick={handleClearAll} className="text-[9px] font-black text-rose-500 uppercase hover:underline tracking-widest">
+                        TEMİZLE
                       </button>
                     </div>
 
-                    <div className="mb-6 grid grid-cols-1 gap-3">
+                    <div className="mb-4 grid grid-cols-1 gap-2.5">
                       <button
                         onClick={() => setIsImporterOpen(true)}
-                        className="group w-full py-4 text-white rounded-[1.25rem] font-black text-sm flex items-center justify-center gap-3 shadow-lg transition-all active:scale-[0.98] hover:opacity-90"
-                        style={{ background: `linear-gradient(135deg, var(--accent-color), var(--accent-hover))` }}
+                        className="group w-full py-3 bg-[var(--accent-color)] text-white rounded-xl font-black text-[10px] uppercase tracking-[0.1em] flex items-center justify-center gap-3 shadow-lg shadow-indigo-500/20 transition-all hover:translate-y-[-1px] active:scale-[0.98]"
                       >
-                        <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center group-hover:scale-110 transition-transform">
-                          <i className="fa-solid fa-cloud-arrow-down text-sm"></i>
-                        </div>
+                        <i className="fa-solid fa-cloud-arrow-down text-xs group-hover:scale-110 transition-transform"></i>
                         KÜTÜPHANEDEN EKLE
                       </button>
 
                       <button
                         onClick={handleAddDivider}
-                        className="w-full py-3.5 border-2 border-dashed rounded-[1.25rem] font-bold text-xs flex items-center justify-center gap-3 transition-all active:scale-[0.98] hover:opacity-80"
-                        style={{ borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-paper)', color: 'var(--text-secondary)' }}
+                        className="w-full py-3 border border-dashed border-[var(--border-color)] rounded-xl font-black text-[9px] uppercase tracking-[0.1em] text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)] transition-all flex items-center justify-center gap-2"
                       >
                         <i className="fa-solid fa-bookmark opacity-60"></i>
-                        YENİ BÖLÜM KAPAĞI
+                        BÖLÜM EKLE
                       </button>
                     </div>
 
-                    <div
-                      className={`${layoutMode === 'grid' ? 'grid grid-cols-2 gap-2' : 'space-y-2'}`}
-                    >
+                    <div className={`${layoutMode === 'grid' ? 'grid grid-cols-2 gap-2' : 'space-y-2'}`}>
                       {items.map((item, index) => (
                         <SortablePageItem
                           key={item.id}
@@ -713,7 +667,7 @@ KRİTİK KURALLAR:
                         />
                       ))}
                       {items.length === 0 && (
-                        <div className="text-center py-8 border-2 border-dashed rounded-xl text-sm" style={{ borderColor: 'var(--border-color)', color: 'var(--text-muted)' }}>
+                        <div className="text-center py-6 border border-dashed border-[var(--border-color)] rounded-xl text-[10px] text-[var(--text-muted)] italic">
                           Henüz sayfa eklenmedi.
                         </div>
                       )}

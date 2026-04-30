@@ -83,88 +83,87 @@ export const WorkbookLibrary: React.FC<WorkbookLibraryProps> = ({
   }
 
   return (
-    <div className="workbook-library h-full flex flex-col" style={{ backgroundColor: 'var(--bg-default)' }}>
-      {/* Header */}
-      <header className="p-6" style={{ backgroundColor: 'var(--bg-paper)', borderBottom: '1px solid var(--border-color)' }}>
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl font-bold" style={{ fontFamily: 'Lexend', color: 'var(--text-primary)' }}>
-            Çalışma Kitapçığı Kütüphanesi
-          </h1>
+    <div className="workbook-library h-full flex flex-col bg-[var(--bg-default)]">
+      {/* Header - Compact SaaS Style */}
+      <header className="p-4 bg-[var(--bg-paper)] border-b border-[var(--border-color)]">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-[var(--accent-color)] flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+              <Plus className="w-5 h-5" />
+            </div>
+            <h1 className="text-lg font-black tracking-tight" style={{ fontFamily: 'Lexend', color: 'var(--text-primary)' }}>
+              Kitapçık Kütüphanesi
+            </h1>
+          </div>
           <button
             onClick={() => onCreateNew?.()}
-            className="flex items-center gap-2 px-4 py-2 text-white rounded-lg transition hover:opacity-90"
-            style={{ backgroundColor: 'var(--accent-color)' }}
+            className="flex items-center gap-2 px-3.5 py-1.5 bg-[var(--accent-color)] text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all hover:translate-y-[-1px] shadow-lg shadow-indigo-500/10 active:scale-95"
           >
-            <Plus className="w-5 h-5" />
-            Yeni Kitapçık
+            <Plus className="w-4 h-4" />
+            YENI OLUŞTUR
           </button>
         </div>
 
-        {/* Search + Filters */}
-        <div className="flex items-center gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: 'var(--text-muted)' }} />
+        {/* Search + Filters - Minimal */}
+        <div className="flex items-center gap-3">
+          <div className="flex-1 relative group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40 group-focus-within:opacity-100 transition-opacity" style={{ color: 'var(--text-primary)' }} />
             <input
               type="text"
-              placeholder="Kitapçık ara..."
+              placeholder="Arşivinizde arayın..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-lg outline-none"
-              style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+              className="w-full pl-9 pr-4 py-2 rounded-xl text-xs font-medium outline-none border transition-all focus:ring-2 focus:ring-[var(--accent-muted)]"
+              style={{ backgroundColor: 'var(--bg-inset)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
             />
           </div>
 
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as any)}
-            className="px-4 py-2 rounded-lg outline-none cursor-pointer"
-            style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+            className="px-3 py-2 rounded-xl text-xs font-bold border outline-none bg-[var(--bg-inset)] cursor-pointer"
+            style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
           >
-            <option value="all">Tümü</option>
-            <option value="active">Aktif</option>
-            <option value="archived">Arşiv</option>
+            <option value="all">Tüm Durumlar</option>
+            <option value="active">Aktifler</option>
+            <option value="archived">Arşivlenenler</option>
           </select>
 
-          <div className="flex gap-2 rounded-lg p-1" style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)' }}>
+          <div className="flex gap-1 rounded-xl p-1 bg-[var(--bg-inset)] border border-[var(--border-color)]">
             <button
               onClick={() => setViewMode('grid')}
-              className="p-2 rounded transition-colors"
-              style={viewMode === 'grid' ? { backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)' } : { color: 'var(--text-muted)' }}
+              className={`p-1.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-[var(--bg-paper)] text-[var(--accent-color)] shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
             >
-              <Grid className="w-5 h-5" />
+              <Grid className="w-4 h-4" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className="p-2 rounded transition-colors"
-              style={viewMode === 'list' ? { backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)' } : { color: 'var(--text-muted)' }}
+              className={`p-1.5 rounded-lg transition-all ${viewMode === 'list' ? 'bg-[var(--bg-paper)] text-[var(--accent-color)] shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
             >
-              <List className="w-5 h-5" />
+              <List className="w-4 h-4" />
             </button>
           </div>
         </div>
       </header>
 
-      {/* Templates Section */}
-      <section className="p-6" style={{ background: 'linear-gradient(to right, var(--surface-elevated), var(--bg-paper))', borderBottom: '1px solid var(--border-color)' }}>
-        <h2 className="text-xl font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>
-          Premium Şablonlar
+      {/* Templates Section - Ultra Compact Grid */}
+      <section className="p-4 bg-[var(--surface-elevated)]/30 border-b border-[var(--border-color)]">
+        <h2 className="text-[10px] font-black uppercase tracking-[0.2em] mb-3 text-[var(--text-muted)]">
+          HIZLI ŞABLONLAR
         </h2>
-        <div className="grid grid-cols-6 gap-4">
-          {templates.slice(0, 6).map((template) => (
+        <div className="grid grid-cols-6 lg:grid-cols-9 gap-2">
+          {templates.map((template) => (
             <button
               key={template.id}
               onClick={() => onCreateNew?.(template)}
-              className="p-4 rounded-xl border-2 hover:shadow-lg transition text-center hover:border-[var(--accent-color)]"
-              style={{ backgroundColor: 'var(--bg-paper)', borderColor: 'var(--border-color)' }}
+              className="group p-2 rounded-xl border border-[var(--border-color)] bg-[var(--bg-paper)] hover:border-[var(--accent-color)] hover:shadow-md transition-all text-center flex flex-col items-center gap-1.5 relative"
             >
-              <div className="text-3xl mb-2">{getTemplateIcon(template.type)}</div>
-              <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
+              <div className="text-xl group-hover:scale-110 transition-transform">{getTemplateIcon(template.type)}</div>
+              <div className="text-[9px] font-bold leading-tight truncate w-full" style={{ color: 'var(--text-primary)' }}>
                 {template.name}
               </div>
               {template.isPremium && (
-                <span className="inline-block mt-1 px-2 py-0.5 text-xs rounded-full" style={{ backgroundColor: 'rgba(234, 179, 8, 0.15)', color: '#ca8a04' }}>
-                  Premium
-                </span>
+                <div className="absolute top-1 right-1 w-1 h-1 rounded-full bg-amber-400"></div>
               )}
             </button>
           ))}
@@ -172,15 +171,22 @@ export const WorkbookLibrary: React.FC<WorkbookLibraryProps> = ({
       </section>
 
       {/* Workbooks Grid/List */}
-      <main className="flex-1 overflow-auto p-6">
+      <main className="flex-1 overflow-auto p-5 custom-scrollbar">
         {loading ? (
-          <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>Yükleniyor...</div>
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+             <div className="w-10 h-10 border-4 border-[var(--accent-muted)] border-t-[var(--accent-color)] rounded-full animate-spin"></div>
+             <p className="text-xs font-bold text-[var(--text-muted)]">Kütüphane hazırlanıyor...</p>
+          </div>
         ) : filteredWorkbooks.length === 0 ? (
-          <div className="text-center py-12" style={{ color: 'var(--text-muted)' }}>
-            Henüz kitapçık bulunamadı. Yeni bir kitapçık oluşturun!
+          <div className="text-center py-20 border-2 border-dashed border-[var(--border-color)] rounded-[2rem] bg-[var(--bg-inset)]/50">
+            <Plus className="w-12 h-12 mx-auto mb-4 opacity-20" />
+            <p className="text-sm font-bold opacity-50">Henüz kitapçık bulunamadı.</p>
+            <button onClick={() => onCreateNew()} className="mt-4 text-xs font-black text-[var(--accent-color)] uppercase hover:underline">
+               İLK KİTAPÇIĞI OLUŞTURUN
+            </button>
           </div>
         ) : viewMode === 'grid' ? (
-          <div className="grid grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-5">
             {filteredWorkbooks.map((workbook) => (
               <WorkbookCard
                 key={workbook.id}
@@ -192,7 +198,7 @@ export const WorkbookLibrary: React.FC<WorkbookLibraryProps> = ({
             ))}
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-2 max-w-5xl mx-auto">
             {filteredWorkbooks.map((workbook) => (
               <WorkbookListItem
                 key={workbook.id}
@@ -210,7 +216,7 @@ export const WorkbookLibrary: React.FC<WorkbookLibraryProps> = ({
 };
 
 // ============================================================================
-// WORKBOOK CARD (Grid View)
+// WORKBOOK CARD (Premium Bento Grid View)
 // ============================================================================
 
 interface WorkbookCardProps {
@@ -227,53 +233,56 @@ const WorkbookCard: React.FC<WorkbookCardProps> = ({
   onDelete,
 }) => {
   return (
-    <div className="rounded-xl hover:shadow-xl transition cursor-pointer overflow-hidden group" style={{ backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)' }}>
-      {/* Thumbnail */}
+    <div 
+      className="group rounded-2xl border border-[var(--border-color)] bg-[var(--bg-paper)] overflow-hidden transition-all hover:shadow-2xl hover:shadow-indigo-500/10 hover:translate-y-[-4px] flex flex-col h-full cursor-pointer relative"
+    >
+      {/* Thumbnail / Header */}
       <div
-        className="h-48 flex items-center justify-center"
-        style={{ background: 'linear-gradient(to bottom right, var(--surface-elevated), var(--bg-inset))' }}
+        className="h-32 flex items-center justify-center relative overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, var(--bg-inset), var(--surface-elevated))' }}
         onClick={() => onSelect?.(workbook)}
       >
-        <div className="text-6xl">{getTemplateIcon(workbook.templateType)}</div>
+        <div className="text-5xl group-hover:scale-110 transition-transform duration-500 drop-shadow-lg">
+          {getTemplateIcon(workbook.templateType)}
+        </div>
+        <div className="absolute top-2 right-2 px-2 py-1 rounded-lg bg-[var(--bg-paper)]/80 backdrop-blur-md border border-[var(--border-color)] text-[8px] font-black uppercase text-[var(--text-muted)]">
+          {workbook.pages?.length || 0} SAYFA
+        </div>
       </div>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="p-4 flex-1 flex flex-col">
         <h3
-          className="text-lg font-semibold mb-1 truncate"
-          style={{ color: 'var(--text-primary)' }}
+          className="text-sm font-black mb-1 truncate text-[var(--text-primary)]"
           onClick={() => onSelect?.(workbook)}
         >
           {workbook.title}
         </h3>
-        <p className="text-sm mb-3 line-clamp-2" style={{ color: 'var(--text-secondary)' }}>
-          {workbook.description || 'Açıklama yok'}
+        <p className="text-[10px] font-medium text-[var(--text-muted)] line-clamp-2 leading-relaxed mb-4 flex-1">
+          {workbook.description || 'Bu kitapçık için henüz açıklama eklenmemiş.'}
         </p>
 
-        {/* Meta */}
-        <div className="flex items-center justify-between text-xs mb-3" style={{ color: 'var(--text-muted)' }}>
-          <span>{workbook.pages?.length || 0} sayfa</span>
-          <span>{new Date(workbook.updatedAt).toLocaleDateString('tr-TR')}</span>
-        </div>
-
-        {/* Actions */}
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => onDuplicate?.(workbook.id)}
-            className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 rounded transition hover:opacity-80"
-            style={{ backgroundColor: 'var(--surface-elevated)', color: 'var(--text-secondary)' }}
-          >
-            <Copy className="w-4 h-4" />
-            Kopyala
-          </button>
-          <button
-            onClick={() => onDelete?.(workbook.id)}
-            className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 rounded transition hover:opacity-80"
-            style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#ef4444' }}
-          >
-            <Trash2 className="w-4 h-4" />
-            Sil
-          </button>
+        {/* Footer Actions - Minimal */}
+        <div className="flex items-center justify-between border-t border-[var(--border-color)] pt-3 gap-2">
+          <span className="text-[8px] font-bold text-[var(--text-muted)] uppercase tracking-tighter">
+            {new Date(workbook.updatedAt).toLocaleDateString('tr-TR')}
+          </span>
+          <div className="flex gap-1.5">
+            <button
+              onClick={(e) => { e.stopPropagation(); onDuplicate?.(workbook.id); }}
+              className="w-7 h-7 rounded-lg bg-[var(--bg-inset)] hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] flex items-center justify-center transition-all"
+              title="Kopyala"
+            >
+              <Copy className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onDelete?.(workbook.id); }}
+              className="w-7 h-7 rounded-lg bg-[var(--bg-inset)] hover:bg-rose-500/10 hover:text-rose-500 flex items-center justify-center transition-all"
+              title="Sil"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -281,7 +290,7 @@ const WorkbookCard: React.FC<WorkbookCardProps> = ({
 };
 
 // ============================================================================
-// WORKBOOK LIST ITEM (List View)
+// WORKBOOK LIST ITEM (Compact List View)
 // ============================================================================
 
 const WorkbookListItem: React.FC<WorkbookCardProps> = ({
@@ -292,39 +301,34 @@ const WorkbookListItem: React.FC<WorkbookCardProps> = ({
 }) => {
   return (
     <div
-      className="rounded-lg p-4 hover:shadow-md transition flex items-center gap-4 cursor-pointer"
-      style={{ backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)' }}
+      className="group rounded-xl p-3 bg-[var(--bg-paper)] border border-[var(--border-color)] hover:border-[var(--accent-color)] hover:shadow-lg transition-all flex items-center gap-4 cursor-pointer"
       onClick={() => onSelect?.(workbook)}
     >
-      <div className="text-4xl">{getTemplateIcon(workbook.templateType)}</div>
-      <div className="flex-1">
-        <h3 className="text-lg font-semibold" style={{ color: 'var(--text-primary)' }}>
+      <div className="w-12 h-12 rounded-lg bg-[var(--bg-inset)] flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+        {getTemplateIcon(workbook.templateType)}
+      </div>
+      <div className="flex-1 min-w-0">
+        <h3 className="text-sm font-black truncate text-[var(--text-primary)]">
           {workbook.title}
         </h3>
-        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-          {workbook.pages?.length || 0} sayfa · {new Date(workbook.updatedAt).toLocaleDateString('tr-TR')}
+        <p className="text-[10px] font-medium text-[var(--text-muted)] flex items-center gap-3">
+          <span>{workbook.pages?.length || 0} sayfa</span>
+          <span className="w-1 h-1 rounded-full bg-[var(--border-color)]"></span>
+          <span>Son düzenleme: {new Date(workbook.updatedAt).toLocaleDateString('tr-TR')}</span>
         </p>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDuplicate(workbook.id);
-          }}
-          className="p-2 rounded hover:opacity-80"
-          style={{ color: 'var(--text-muted)' }}
+          onClick={(e) => { e.stopPropagation(); onDuplicate(workbook.id); }}
+          className="p-2 rounded-lg hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all"
         >
-          <Copy className="w-5 h-5" />
+          <Copy className="w-4 h-4" />
         </button>
         <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(workbook.id);
-          }}
-          className="p-2 rounded hover:opacity-80"
-          style={{ color: '#ef4444' }}
+          onClick={(e) => { e.stopPropagation(); onDelete(workbook.id); }}
+          className="p-2 rounded-lg hover:bg-rose-500/10 hover:text-rose-500 transition-all"
         >
-          <Trash2 className="w-5 h-5" />
+          <Trash2 className="w-4 h-4" />
         </button>
       </div>
     </div>
