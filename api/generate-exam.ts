@@ -93,8 +93,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       timestamp: new Date().toISOString()
     });
 
-  } catch (error: unknown) {
-    logError('Exam generation error:', error);
+  } catch (error: any) {
+    logError('Exam generation error', { error: error as Record<string, unknown> });
 
     if (error instanceof AppError) {
       return res.status(error.httpStatus).json({

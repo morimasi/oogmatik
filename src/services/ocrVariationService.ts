@@ -7,7 +7,8 @@
  */
 
 import { ValidationError, InternalServerError } from '../utils/AppError.js';
-import { retryWithBackoff, logError } from '../utils/errorHandler.js';
+import { retryWithBackoff } from '../utils/errorHandler.js';
+import { logError } from '../utils/logger.js';
 import { analyzeImage } from './geminiClient.js';
 import type {
   OCRResult,
@@ -17,7 +18,7 @@ import type {
   LearningDisabilityProfile,
   AgeGroup,
   Difficulty
-} from '../types.js';
+} from '../types';
 import {
   A4_COMPACT_INSTRUCTION,
   COMPONENT_CHECKLIST_PROMPT,
@@ -458,7 +459,8 @@ export const generateVariations = async (
       }
     };
   } catch (error: unknown) {
-    logError(error as any, {
+    logError('OCR Variation Error', {
+      error: error as Record<string, unknown>,
       context: 'OCR Variation Generation',
       userId: request.userId,
       blueprintTitle: request.blueprint.title

@@ -118,7 +118,7 @@ export const worksheetService = {
             try {
                 await updateDoc(userRef, { worksheetCount: increment(1) });
             } catch (countErr: any) {
-                logWarn("worksheetCount güncellenemedi", { error: countErr });
+                logWarn("worksheetCount güncellenemedi", { error: countErr as Record<string, unknown> });
             }
 
             return {
@@ -126,7 +126,7 @@ export const worksheetService = {
                 worksheetData: data
             };
         } catch (error: any) {
-            logError("Error saving worksheet", { error });
+            logError("Error saving worksheet", { error: error as Record<string, unknown> });
             throw error;
         }
     },
@@ -149,7 +149,7 @@ export const worksheetService = {
             // Note: This needs a composite index in Firestore (userId, sharedWith, category.id, createdAt)
             const querySnapshot = await getDocs(q);
             const items: SavedWorksheet[] = [];
-            querySnapshot.forEach((doc) => {
+            querySnapshot.forEach((doc: any) => {
                 items.push(mapDbToWorksheet(doc.data(), doc.id));
             });
 
@@ -160,7 +160,7 @@ export const worksheetService = {
             const qFallback = query(collection(db, "saved_worksheets"), where("userId", "==", userId));
             const querySnapshot = await getDocs(qFallback);
             const items: SavedWorksheet[] = [];
-            querySnapshot.forEach((doc) => {
+            querySnapshot.forEach((doc: any) => {
                 const data = doc.data() as any;
                 if (!data.sharedWith) items.push(mapDbToWorksheet(data, doc.id));
             });
@@ -180,13 +180,13 @@ export const worksheetService = {
             const q = query(collection(db, "saved_worksheets"), where("studentId", "==", studentId));
             const querySnapshot = await getDocs(q);
             const items: SavedWorksheet[] = [];
-            querySnapshot.forEach((doc) => {
+            querySnapshot.forEach((doc: any) => {
                 items.push(mapDbToWorksheet(doc.data(), doc.id));
             });
             items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             return items;
-        } catch (error) {
-            logError("Error fetching student worksheets:", error);
+        } catch (error: any) {
+            logError("Error fetching student worksheets", { error: error as Record<string, unknown> });
             return [];
         }
     },
@@ -202,19 +202,19 @@ export const worksheetService = {
             );
             const querySnapshot = await getDocs(q);
             const items: SavedWorksheet[] = [];
-            querySnapshot.forEach((doc) => {
+            querySnapshot.forEach((doc: any) => {
                 items.push(mapDbToWorksheet(doc.data(), doc.id));
             });
             return { items, count: null };
-        } catch (error) {
-            logWarn("Firestore Shared Query Error:", error);
+        } catch (error: any) {
+            logWarn("Firestore Shared Query Error", { error: error as Record<string, unknown> });
             // Fallback for missing index
             const qFallback = query(
                 collection(db, "saved_worksheets")
             );
             const querySnapshot = await getDocs(qFallback);
             const items: SavedWorksheet[] = [];
-            querySnapshot.forEach((doc) => {
+            querySnapshot.forEach((doc: any) => {
                 const data = doc.data() as any;
                 const sharedWith = data.sharedWith;
                 if (sharedWith === userId || (Array.isArray(sharedWith) && sharedWith.includes(userId))) {

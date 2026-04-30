@@ -319,7 +319,7 @@ export const generateExam = async (settings: SinavAyarlari): Promise<Sinav> => {
     if (error instanceof AppError) throw error;
 
     const errorMessage = error instanceof Error ? error.message : 'Bilinmeyen hata';
-    logError('[sinavGenerator] Hata:', errorMessage);
+    logError('[sinavGenerator] Hata', { errorMessage, error: error as Record<string, unknown> });
     throw new AppError(
       'Sınav oluşturulurken beklenmeyen bir hata oluştu.',
       'EXAM_GENERATION_ERROR',

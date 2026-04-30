@@ -107,7 +107,7 @@ export const getUserRole = async (userId: string): Promise<UserRoleInfo | null> 
         //     role: data.role as UserRole,
         //     school: data.school,
         //     department: data.department,
-        //     permissions: ROLE_PERMISSIONS[data.role],
+        //     permissions: ROLE_PERMISSIONS[data.role as UserRole],
         // };
 
         // Placeholder
@@ -116,8 +116,8 @@ export const getUserRole = async (userId: string): Promise<UserRoleInfo | null> 
             role: 'student',
             permissions: ROLE_PERMISSIONS['student'],
         };
-    } catch (error) {
-        logError('Error fetching user role:', error);
+    } catch (error: any) {
+        logError('Error fetching user role', { error: error as Record<string, unknown> });
         return null;
     }
 };
@@ -144,7 +144,7 @@ export const canPerformAction = (
     const permission = permissionMap[key] as Permission;
 
     if (!permission) {
-        logWarn(`Unknown action/resource combination: ${key}`);
+        logWarn(`Unknown action/resource combination: ${key}`, { key });
         return false;
     }
 
