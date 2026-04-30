@@ -50,7 +50,7 @@ export const WorkbookLibrary: React.FC<WorkbookLibraryProps> = ({
       const tmpls = getAllTemplates();
       setTemplates(tmpls);
     } catch (error) {
-      logError('Failed to load library:', error);
+      logError('Failed to load library:', error as Record<string, unknown>);
     } finally {
       setLoading(false);
     }
@@ -67,7 +67,7 @@ export const WorkbookLibrary: React.FC<WorkbookLibraryProps> = ({
       const duplicated = await duplicateWorkbook(workbookId, userId);
       setWorkbooks([...workbooks, duplicated]);
     } catch (error) {
-      logError('Failed to duplicate:', error);
+      logError('Failed to duplicate:', error as Record<string, unknown>);
     }
   }
 
@@ -77,8 +77,8 @@ export const WorkbookLibrary: React.FC<WorkbookLibraryProps> = ({
     try {
       await deleteWorkbook(workbookId, userId);
       setWorkbooks(workbooks.filter((wb) => wb.id !== workbookId));
-    } catch (error) {
-      logError('Failed to delete:', error);
+    } catch (err) {
+      logError('Kitapçık silme hatası:', err as Record<string, unknown>);
     }
   }
 

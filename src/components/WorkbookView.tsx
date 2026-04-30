@@ -366,20 +366,17 @@ KRİTİK KURALLAR:
       }
 
       if (!prefaceText) {
-        let fallback = `Bu çalışma kitapçığı, ${settings.studentName || 'öğrencimizin'} bireysel gelişim hedefleri doğrultusunda özel olarak hazırlanmıştır.\n\n`;
-        fallback += `Kitapçık içeriğinde özellikle şu bilişsel alanlara odaklanılmıştır: ${topActivities.join(', ')}.\n`;
-        fallback += `Düzenli uygulama ile görsel-uzamsal bellek, dikkat süresi ve akademik becerilerde belirgin bir artış hedeflenmektedir. Çalışmalar sırasında geri bildirim vermeyi ve destekleyici bir ortam sağlamayı unutmayınız.`;
-        prefaceText = fallback;
+        prefaceText = `Bu çalışma kitapçığı, ${settings.studentName || 'öğrencimizin'} bireysel gelişim hedefleri doğrultusunda özel olarak hazırlanmıştır.\n\n`;
+        prefaceText += `Kitapçık içeriğinde özellikle şu bilişsel alanlara odaklanılmıştır: ${topActivities.join(', ')}.\n`;
+        prefaceText += `Düzenli uygulama ile görsel-uzamsal bellek, dikkat süresi ve akademik becerilerde belirgin bir artış hedeflenmektedir. Çalışmalar sırasında geri bildirim vermeyi ve destekleyici bir ortam sağlamayı unutmayınız.`;
       }
-
       setSettings((s: any) => ({ ...s, teacherNote: prefaceText, aiPreface: prefaceText }));
-    } catch (e: any) {
-      logError('AI Error:', e);
+    } catch (e: unknown) {
+      logError('Preface üretme hatası:', e as Record<string, unknown>);
     } finally {
       setIsGeneratingPreface(false);
     }
   };
-
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -399,12 +396,12 @@ KRİTİK KURALLAR:
     if (sid === 'anonymous') {
       setSettings((prev: WorkbookSettings) => ({ ...prev, studentName: '' }));
     } else {
-      const s = students.find((x: any) => x.id === sid);
+      const s = students.find((x: Record<string, unknown>) => x.id === sid);
       if (s) {
-        setSettings((prev: any) => ({
+        setSettings((prev: Record<string, unknown>) => ({
           ...prev,
           studentName: s.name,
-          schoolName: s.learningStyle || (prev as any).schoolName,
+          schoolName: s.learningStyle || (prev as Record<string, unknown>).schoolName,
         }));
       }
     }

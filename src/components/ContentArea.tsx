@@ -315,24 +315,8 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       <div
         className={`shrink-0 bg-[var(--bg-paper)] border-b border-[var(--border-color)] p-4 z-40 shadow-sm relative transition-all duration-300 ${zenMode ? 'hidden' : ''}`}
       >
-        <div className="flex justify-between items-center mb-4">
-          <nav className="flex items-center text-sm text-[var(--text-secondary)]">
-            <ol className="flex items-center space-x-2">
-              {breadcrumbs.map((crumb, idx) => (
-                <li key={idx} className="flex items-center">
-                  {idx > 0 && (
-                    <i className="fa-solid fa-chevron-right text-[10px] mx-2 opacity-50"></i>
-                  )}
-                  <span
-                    onClick={() => idx === 0 && onBackToGenerator()}
-                    className={`${idx === breadcrumbs.length - 1 ? 'font-bold text-[var(--accent-color)]' : 'hover:text-[var(--text-primary)] cursor-pointer'} `}
-                  >
-                    {crumb}
-                  </span>
-                </li>
-              ))}
-            </ol>
-          </nav>
+        <div className="flex justify-between items-center">
+          {/* Breadcrumb kaldırıldı */}
         </div>
 
         {currentView === 'generator' && activityType && (processedData.length > 0 || isLoading) && (
