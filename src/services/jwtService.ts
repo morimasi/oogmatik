@@ -1,4 +1,4 @@
-import { AppError } from '../utils/AppError';
+import { AppError } from '../utils/AppError.js';
 /**
  * OOGMATIK - JWT Token Verification
  * Secure API authentication with JSON Web Tokens

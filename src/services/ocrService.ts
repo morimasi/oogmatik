@@ -1,5 +1,5 @@
-import { AppError } from '../utils/AppError';
-import { logger } from '../utils/logger';
+import { AppError, toAppError } from '../utils/AppError.js';
+import { logError, logInfo, logWarn } from '../utils/logger.js';
 
 import { InternalServerError } from '../utils/AppError.js';
 import { OCRResult, OCRBlueprint, OCRDetectedType } from '../types.js';
@@ -203,7 +203,7 @@ export const ocrService = {
         // Önbellek kontrolü
         const cached = getCachedResult(base64Image);
         if (cached) {
-            logger.info('[OCR Cache] Hit — önbellekten döndürülüyor.');
+            logInfo('[OCR Cache] Hit — önbellekten döndürülüyor.');
             return { ...cached, description: cached.description + ' (Önbellek)' };
         }
 
@@ -337,7 +337,7 @@ export const ocrService = {
 
             return ocrResult;
         } catch (error: unknown) {
-            logError("Deep Arch Analysis Error:", error);
+            logError(toAppError(error), { context: 'ocrService.processImage' });
             throw error;
         }
     },
