@@ -21,7 +21,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onUpdateUiSettings,
   theme,
   onUpdateTheme,
-}) => {
+}: SettingsModalProps) => {
   const [activeTab, setActiveTab] = useState<'appearance' | 'typography' | 'accessibility'>(
     'appearance'
   );

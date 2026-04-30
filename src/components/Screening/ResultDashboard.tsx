@@ -110,7 +110,7 @@ export const ResultDashboard: FC<Props> = ({
         letter: typeof response?.letter === 'string' ? response.letter : String(response?.letter ?? ''),
         actionSteps: normalizedActionSteps,
       });
-    } catch (e) {
+    } catch (e: any) {
       logError('AI Error', e);
     } finally {
       setLoadingAi(false);
@@ -174,8 +174,8 @@ export const ResultDashboard: FC<Props> = ({
       );
       setIsSaved(true);
       alert('Rapor başarıyla arşivinize kaydedildi.');
-    } catch (e) {
-      logError(e);
+    } catch (e: any) {
+      logError('Save Error', e);
       alert('Kaydetme hatası.');
     } finally {
       setIsSaving(false);

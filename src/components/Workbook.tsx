@@ -10,7 +10,7 @@ interface WorkbookProps {
   settings: WorkbookSettings;
 }
 
-const Workbook: React.FC<WorkbookProps> = ({ items, settings }) => {
+const Workbook: React.FC<WorkbookProps> = ({ items, settings }: WorkbookProps) => {
   const accent = settings.accentColor || '#4f46e5';
   const font = settings.fontFamily || 'OpenDyslexic';
 

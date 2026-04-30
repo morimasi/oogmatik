@@ -187,7 +187,7 @@ export const authService = {
                     bio: ''
                 };
             }
-        } catch (error) {
+        } catch (error: any) {
             logError("Get current user error:", error);
             return null;
         }
@@ -224,7 +224,7 @@ export const authService = {
                     date: new Date().toISOString()
                 }
             });
-        } catch (e) {
+        } catch (e: any) {
             logError("Failed to record activity generation for user", e);
         }
     },
@@ -256,7 +256,7 @@ export const authService = {
                 }
             });
             return users;
-        } catch (error) {
+        } catch (error: any) {
             logError("Get contacts error:", error);
             return [];
         }
@@ -274,7 +274,7 @@ export const authService = {
                 users.push(mapDbUserToAppUser(data, doc.id, data.email));
             });
             return { users: users, count: users.length };
-        } catch (error) {
+        } catch (error: any) {
             logError("Get all users error:", error);
             return { users: [], count: 0 };
         }
