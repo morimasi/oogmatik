@@ -85,8 +85,20 @@ const sendToSentryHttp = (errorLog: Record<string, unknown>): void => {
  */
 export const logError = (error: unknown, context?: Record<string, unknown>) => {
   const appError = toAppError(error);
+  
+  // Safely get JSON representation
+  const errorJson = typeof appError.toJSON === 'function' 
+    ? appError.toJSON() 
+    : {
+        name: appError.name || 'UnknownError',
+        code: appError.code || 'UNKNOWN',
+        userMessage: appError.userMessage || 'Bilinmeyen bir hata oluştu',
+        httpStatus: appError.httpStatus || 500,
+        timestamp: new Date().toISOString()
+      };
+
   const errorLog: Record<string, unknown> = {
-    ...appError.toJSON(),
+    ...errorJson,
     context,
     userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
     url: typeof window !== 'undefined' ? window.location.href : undefined,

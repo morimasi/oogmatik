@@ -3,9 +3,10 @@ import { User, ActivityStats } from '../../types';
 import { authService } from '../../services/authService';
 import { statsService } from '../../services/statsService';
 import { useAuthStore } from '../../store/useAuthStore';
-import { ProfileView } from '../ProfileView';
-import { SavedWorksheetsView } from '../SavedWorksheetsView';
-import { FavoritesSection } from '../FavoritesSection';
+// Lazy Loaded Views to break circular dependencies
+const ProfileView = React.lazy(() => import('../ProfileView').then(m => ({ default: m.ProfileView })));
+const SavedWorksheetsView = React.lazy(() => import('../SavedWorksheetsView').then(m => ({ default: m.SavedWorksheetsView })));
+const FavoritesSection = React.lazy(() => import('../FavoritesSection').then(m => ({ default: m.FavoritesSection })));
 
 // New Imports - Relative to src/components/AdminDashboard/
 import { AdminAnalytics } from './AdminAnalytics';
@@ -140,28 +141,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
           </div>
         </div>
         <div className="flex-1 overflow-hidden relative">
-          {inspectView === 'profile' && (
-            <ProfileView
-              onBack={() => setInspectingUser(null)}
-              onSelectActivity={() => {}}
-              onLoadSaved={() => {}}
-              targetUser={inspectingUser}
-            />
-          )}
-          {inspectView === 'archive' && (
-            <div className="h-full p-4 overflow-y-auto">
-              <SavedWorksheetsView
-                onLoad={() => {}}
-                onBack={() => setInspectView('profile')}
-                targetUserId={inspectingUser.id}
+          <React.Suspense fallback={<div className="flex items-center justify-center h-full"><i className="fa-solid fa-spinner fa-spin text-2xl text-indigo-500"></i></div>}>
+            {inspectView === 'profile' && (
+              <ProfileView
+                onBack={() => setInspectingUser(null)}
+                onSelectActivity={() => {}}
+                onLoadSaved={() => {}}
+                targetUser={inspectingUser}
               />
-            </div>
-          )}
-          {inspectView === 'favorites' && (
-            <div className="h-full p-4 overflow-y-auto">
-              <FavoritesSection onSelectActivity={() => {}} targetUserId={inspectingUser.id} />
-            </div>
-          )}
+            )}
+            {inspectView === 'archive' && (
+              <div className="h-full p-4 overflow-y-auto">
+                <SavedWorksheetsView
+                  onLoad={() => {}}
+                  onBack={() => setInspectView('profile')}
+                  targetUserId={inspectingUser.id}
+                />
+              </div>
+            )}
+            {inspectView === 'favorites' && (
+              <div className="h-full p-4 overflow-y-auto">
+                <FavoritesSection onSelectActivity={() => {}} targetUserId={inspectingUser.id} />
+              </div>
+            )}
+          </React.Suspense>
         </div>
       </div>
     );

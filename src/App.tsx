@@ -23,7 +23,7 @@ import {
   Curriculum,
 } from './types';
 import Sidebar from './components/Sidebar';
-import ContentArea from './components/ContentArea';
+const ContentArea = lazy(() => import('./components/ContentArea').then(m => ({ default: m.default })));
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from './constants';
 import DyslexiaLogo from './components/DyslexiaLogo';
 import { FeedbackModal } from './components/FeedbackModal';
@@ -869,41 +869,43 @@ const AppContent = () => {
           />
         </div>
         <div className="flex-1 flex flex-col overflow-hidden">
-          <ContentArea
-            currentView={currentView as View}
-            onBackToGenerator={() => {
-              if (currentView !== 'generator') handleGoBack();
-              else {
-                setSelectedActivity(null);
-                setWorksheetData(null as any);
-                setActiveCurriculumSession(null);
-              }
-            }}
-            activityType={selectedActivity}
-            worksheetData={worksheetData}
-            setWorksheetData={setWorksheetData}
-            isLoading={isLoading}
-            error={error}
-            styleSettings={styleSettings}
-            onStyleChange={setStyleSettings}
-            onSave={addSavedWorksheet}
-            onLoadSaved={loadSavedWorksheet}
-            onFeedback={() => setIsFeedbackOpen(true)}
-            onOpenAuth={() => setIsAuthModalOpen(true)}
-            onSelectActivity={handleSelectActivity}
-            workbookItems={workbookItems}
-            setWorkbookItems={setWorkbookItems}
-            workbookSettings={workbookSettings}
-            setWorkbookSettings={setWorkbookSettings}
-            onAddToWorkbook={handleAddToWorkbook}
-            onAutoGenerateWorkbook={handleAutoGenerateWorkbook}
-            studentProfile={studentProfile}
-            zenMode={zenMode}
-            toggleZenMode={() => setZenMode(!zenMode)}
-            activeCurriculumSession={activeCurriculumSession}
-            onCompleteCurriculumActivity={handleCompleteCurriculumActivity}
-            onAddDirectToWorkbook={handleAddDirectToWorkbook}
-          />
+          <Suspense fallback={<LoadingSpinner />}>
+            <ContentArea
+              currentView={currentView as View}
+              onBackToGenerator={() => {
+                if (currentView !== 'generator') handleGoBack();
+                else {
+                  setSelectedActivity(null);
+                  setWorksheetData(null as any);
+                  setActiveCurriculumSession(null);
+                }
+              }}
+              activityType={selectedActivity}
+              worksheetData={worksheetData}
+              setWorksheetData={setWorksheetData}
+              isLoading={isLoading}
+              error={error}
+              styleSettings={styleSettings}
+              onStyleChange={setStyleSettings}
+              onSave={addSavedWorksheet}
+              onLoadSaved={loadSavedWorksheet}
+              onFeedback={() => setIsFeedbackOpen(true)}
+              onOpenAuth={() => setIsAuthModalOpen(true)}
+              onSelectActivity={handleSelectActivity}
+              workbookItems={workbookItems}
+              setWorkbookItems={setWorkbookItems}
+              workbookSettings={workbookSettings}
+              setWorkbookSettings={setWorkbookSettings}
+              onAddToWorkbook={handleAddToWorkbook}
+              onAutoGenerateWorkbook={handleAutoGenerateWorkbook}
+              studentProfile={studentProfile}
+              zenMode={zenMode}
+              toggleZenMode={() => setZenMode(!zenMode)}
+              activeCurriculumSession={activeCurriculumSession}
+              onCompleteCurriculumActivity={handleCompleteCurriculumActivity}
+              onAddDirectToWorkbook={handleAddDirectToWorkbook}
+            />
+          </Suspense>
 
           {/* SPECIAL RENDER FOR STUDIOS WHEN IN THAT VIEW - MOVED INSIDE CONTENT CONTAINER */}
           <AnimatePresence mode="wait">

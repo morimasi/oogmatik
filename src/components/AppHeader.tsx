@@ -130,10 +130,10 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                         }}
                         className="flex items-center gap-2"
                     >
-                        <DyslexiaLogo className="h-10 w-auto transition-transform hover:scale-105" />
-                        <div className="flex flex-col leading-none">
-                            <span className="text-[13px] font-black tracking-tight text-[#6366f1] leading-tight">Bursa Disleksi</span>
-                            <span className="text-[11px] font-bold tracking-[0.1em] text-[#8b5cf6] leading-tight uppercase">EduMind</span>
+                        <DyslexiaLogo className="h-10 w-auto transition-all duration-500 hover:scale-110 hover:rotate-3 shadow-premium-sm rounded-xl" />
+                        <div className="flex flex-col leading-[0.8] ml-1">
+                            <span className="text-[14px] font-black tracking-tight bg-gradient-to-r from-indigo-600 to-indigo-500 bg-clip-text text-transparent">Bursa Disleksi</span>
+                            <span className="text-[10px] font-bold tracking-[0.25em] bg-gradient-to-r from-purple-600 to-purple-500 bg-clip-text text-transparent uppercase mt-1">EduMind</span>
                         </div>
                     </button>
                 </div>
@@ -143,90 +143,89 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 </div>
 
                 <div className="flex items-center gap-3">
-                    {/* Grup 1: Klinik İşlemler */}
-                    <div className="flex items-center gap-1.5 p-1 bg-[var(--surface-glass)] rounded-[20px] border border-[var(--border-color)] shadow-sm">
-                        <button
-                            onClick={() => onOpenStudio('assessment')}
-                            title="DEĞERLENDİRME"
-                            className="flex flex-col items-center justify-center w-12 h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-[16px] transition-all shadow-lg active:scale-95 group/nav"
-                        >
-                            <i className="fa-solid fa-user-doctor text-lg mb-0.5"></i>
-                            <span className="text-[7px] font-black tracking-tighter uppercase">Sınav</span>
-                        </button>
+                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--surface-glass)] rounded-[22px] border border-[var(--border-color)] shadow-premium-sm transition-all hover:border-[var(--accent-color)]/20">
+                    {/* Grup 1: Klinik & Öğrenci Odaklı */}
+                    <button
+                        onClick={() => onOpenStudio('assessment')}
+                        title="KLİNİK DEĞERLENDİRME"
+                        className="flex flex-col items-center justify-center w-11 h-11 bg-indigo-600 hover:bg-indigo-500 text-white rounded-[16px] transition-all shadow-lg active:scale-95 group/nav"
+                    >
+                        <i className="fa-solid fa-stethoscope text-base mb-0.5 group-hover/nav:scale-110 transition-transform"></i>
+                        <span className="text-[7px] font-black tracking-tighter uppercase opacity-90">Sınav</span>
+                    </button>
 
-                        <button
-                            onClick={() => onOpenStudio('students')}
-                            title="ÖĞRENCİLERİM"
-                            className="flex flex-col items-center justify-center w-12 h-12 text-[var(--accent-color)] hover:bg-[var(--accent-muted)] rounded-[16px] transition-all active:scale-95 group/nav"
-                        >
-                            <i className="fa-solid fa-user-graduate text-lg mb-0.5"></i>
-                            <span className="text-[7px] font-black tracking-tighter uppercase">Öğrenci</span>
-                        </button>
-                    </div>
+                    <button
+                        onClick={() => onOpenStudio('students')}
+                        title="ÖĞRENCİ YÖNETİMİ"
+                        className="flex flex-col items-center justify-center w-11 h-11 text-[var(--accent-color)] hover:bg-[var(--accent-muted)] rounded-[16px] transition-all active:scale-95 group/nav"
+                    >
+                        <i className="fa-solid fa-user-graduate text-base mb-0.5 group-hover/nav:scale-110 transition-transform"></i>
+                        <span className="text-[7px] font-black tracking-tighter uppercase">Öğrenci</span>
+                    </button>
+                </div>
 
-                    {/* Grup 2: İçerik ve Kitaplık */}
-                    <div className="flex items-center gap-1 p-1 bg-[var(--surface-glass)] rounded-[20px] border border-[var(--border-color)] hover:border-[var(--accent-color)]/30 transition-colors">
-                        <button
-                            onClick={() => navigateTo('workbook')}
-                            className="relative flex flex-col items-center justify-center w-11 h-11 text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all rounded-[14px] hover:bg-[var(--accent-muted)] group/nav"
-                            title="Kitapçık"
-                        >
-                            <i className="fa-solid fa-book-medical text-lg mb-0.5"></i>
-                            <span className="text-[7px] font-black tracking-tighter uppercase">Dosyam</span>
-                            {workbookItemsCount > 0 && (
-                                <span className="absolute top-1.5 right-1.5 bg-[var(--accent-color)] text-[var(--bg-primary)] text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-[var(--bg-paper)]">
-                                    {workbookItemsCount}
-                                </span>
-                            )}
-                        </button>
-                        
-                        <button
-                            onClick={() => navigateTo('messages')}
-                            className="relative flex flex-col items-center justify-center w-11 h-11 text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all rounded-[14px] hover:bg-[var(--accent-muted)] group/nav"
-                            title="Mesajlar"
-                        >
-                            <i className="fa-solid fa-comment-dots text-lg mb-0.5"></i>
-                            <span className="text-[7px] font-black tracking-tighter uppercase">Mesaj</span>
-                            {unreadCount > 0 && (
-                                <span className="absolute top-1.5 right-1.5 bg-red-500 text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-[var(--bg-paper)]">
-                                    {unreadCount}
-                                </span>
-                            )}
-                        </button>
+                <div className="flex items-center gap-1 px-2 py-1.5 bg-[var(--surface-glass)] rounded-[22px] border border-[var(--border-color)] hover:border-[var(--accent-color)]/30 transition-all shadow-premium-sm">
+                    {/* Grup 2: İçerik & Üretim */}
+                    <button
+                        onClick={() => navigateTo('workbook')}
+                        className="relative flex flex-col items-center justify-center w-10 h-10 text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all rounded-[14px] hover:bg-[var(--accent-muted)] group/nav"
+                        title="Çalışma Dosyam"
+                    >
+                        <i className="fa-solid fa-folder-plus text-base mb-0.5 group-hover/nav:scale-110 transition-transform"></i>
+                        <span className="text-[7px] font-black tracking-tighter uppercase opacity-70">Dosyam</span>
+                        {workbookItemsCount > 0 && (
+                            <span className="absolute -top-1 -right-1 bg-[var(--accent-color)] text-white text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-[var(--bg-paper)] shadow-sm">
+                                {workbookItemsCount}
+                            </span>
+                        )}
+                    </button>
+                    
+                    <button
+                        onClick={() => navigateTo('messages')}
+                        className="relative flex flex-col items-center justify-center w-10 h-10 text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all rounded-[14px] hover:bg-[var(--accent-muted)] group/nav"
+                        title="Mesajlaşma ve Bildirimler"
+                    >
+                        <i className="fa-solid fa-bell text-base mb-0.5 group-hover/nav:scale-110 transition-transform"></i>
+                        <span className="text-[7px] font-black tracking-tighter uppercase opacity-70">Panel</span>
+                        {unreadCount > 0 && (
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-[var(--bg-paper)] shadow-sm">
+                                {unreadCount}
+                            </span>
+                        )}
+                    </button>
 
-                        <div className="w-px h-6 bg-[var(--border-color)] mx-0.5"></div>
+                    <div className="w-[1px] h-5 bg-[var(--border-color)] mx-1 opacity-50"></div>
 
-                        <HeaderDropdown
-                            label="KITAPLIK"
-                            icon="fa-bookmark"
-                            colorClass="text-[var(--accent-color)]"
-                        >
-                            <DropdownItem
-                                icon="fa-heart"
-                                label="Favoriler"
-                                onClick={() => navigateTo('favorites')}
-                            />
-                            <DropdownItem
-                                icon="fa-box-archive"
-                                label="Arşiv"
-                                onClick={() => navigateTo('savedList')}
-                            />
-                            <DropdownItem
-                                icon="fa-share-nodes"
-                                label="Paylaşılanlar"
-                                onClick={() => navigateTo('shared')}
-                            />
-                            <DropdownItem
-                                icon="fa-clock-rotate-left"
-                                label="İşlem Geçmişi"
-                                onClick={() => onOpenModal('history')}
-                            />
-                        </HeaderDropdown>
-                    </div>
+                    <HeaderDropdown
+                        label="KİTAPLIK"
+                        icon="fa-shapes"
+                        colorClass="text-[var(--accent-color)]"
+                    >
+                        <DropdownItem
+                            icon="fa-star"
+                            label="Favori Etkinliklerim"
+                            onClick={() => navigateTo('favorites')}
+                        />
+                        <DropdownItem
+                            icon="fa-box-archive"
+                            label="Dijital Arşiv"
+                            onClick={() => navigateTo('savedList')}
+                        />
+                        <DropdownItem
+                            icon="fa-share-nodes"
+                            label="Paylaşılan Materyaller"
+                            onClick={() => navigateTo('shared')}
+                        />
+                        <DropdownItem
+                            icon="fa-clock-rotate-left"
+                            label="İşlem Geçmişi"
+                            onClick={() => onOpenModal('history')}
+                        />
+                    </HeaderDropdown>
+                </div>
 
-                    {/* Grup 3: Yardım ve Profil */}
-                    <div className="flex items-center gap-1">
-                        <HeaderDropdown label="DESTEK" icon="fa-circle-info">
+                <div className="flex items-center gap-1">
+                    <HeaderDropdown label="DESTEK" icon="fa-headset">
                             <DropdownItem
                                 icon="fa-circle-play"
                                 label="Tur Başlat"
