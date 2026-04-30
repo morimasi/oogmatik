@@ -24,12 +24,12 @@ export const useAuthStore = create<AuthState>()(
             isLoading: true,
 
             initialize: () => {
-                const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+                const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: any) => {
                     if (firebaseUser) {
                         try {
                             const currentUser = await authService.getCurrentUser();
                             set({ user: currentUser, isLoading: false });
-                        } catch (e) {
+                        } catch (e: any) {
                             logError("AuthStore initialize error:", e);
                             set({ user: null, isLoading: false });
                         }
@@ -40,7 +40,7 @@ export const useAuthStore = create<AuthState>()(
                 return unsubscribe;
             },
 
-            login: async (email, pass) => {
+            login: async (email: string, pass: string) => {
                 const loggedUser = await authService.login(email, pass);
                 set({ user: loggedUser });
             },
@@ -50,7 +50,7 @@ export const useAuthStore = create<AuthState>()(
                 set({ user: loggedUser });
             },
 
-            register: async (email, pass, name) => {
+            register: async (email: string, pass: string, name: string) => {
                 const newUser = await authService.register(email, pass, name);
                 set({ user: newUser });
             },
@@ -60,7 +60,7 @@ export const useAuthStore = create<AuthState>()(
                 set({ user: null });
             },
 
-            updateUser: async (updates) => {
+            updateUser: async (updates: Partial<User>) => {
                 const { user } = get();
                 if (!user) return;
                 const updated = await authService.updateProfile(user.id, updates);

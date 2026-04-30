@@ -209,7 +209,8 @@ export const authService = {
         await updateDoc(userDocRef, dbUpdates);
 
         const updatedSnap = await getDoc(userDocRef);
-        return mapDbUserToAppUser(updatedSnap.data(), userId, auth.currentUser?.email || '');
+        const data = updatedSnap.data() as Record<string, any>;
+        return mapDbUserToAppUser(data, userId, auth.currentUser?.email || '');
     },
 
     recordActivityGeneration: async (userId: string, activityId: string, activityTitle: string): Promise<void> => {
@@ -245,7 +246,7 @@ export const authService = {
             const q = query(collection(db, "users"), limit(50));
             const querySnapshot = await getDocs(q);
             const users: User[] = [];
-            querySnapshot.forEach((doc) => {
+            querySnapshot.forEach((doc: any) => {
                 if (doc.id !== currentUserId) {
                     const data = doc.data() as any;
                     // Askıya alınmış veya admin olmayanları gizle (opsiyonel mantık)
@@ -268,7 +269,7 @@ export const authService = {
             const q = query(collection(db, "users"), orderBy("createdAt", "desc"), limit(100));
             const querySnapshot = await getDocs(q);
             const users: User[] = [];
-            querySnapshot.forEach((doc) => {
+            querySnapshot.forEach((doc: any) => {
                 const data = doc.data() as any;
                 users.push(mapDbUserToAppUser(data, doc.id, data.email));
             });
