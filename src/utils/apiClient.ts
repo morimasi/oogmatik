@@ -2,6 +2,15 @@ import { AppError } from './AppError.js';
 import { logError } from './logger.js';
 
 /**
+ * Get authorization headers for API calls
+ */
+export const getAuthHeaders = (userId: string, userRole: string) => ({
+    'x-user-id': userId,
+    'x-user-role': userRole,
+    'x-user-tier': 'pro', // Default to pro for now to avoid strict limits during testing
+});
+
+/**
  * OOGMATIK - Güvenli Fetch İstemcisi
  * Sunucu tarafındaki 500/504 HTML hatalarını JSON parse hatasına dönüşmeden yakalar.
  * 

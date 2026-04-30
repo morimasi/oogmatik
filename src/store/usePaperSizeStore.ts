@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { PaperSize } from '../utils/printService';
 import { loadCurrentUserPaperSize, saveCurrentUserPaperSize } from '../services/paperSizeApi';
+import { safeFetch, getAuthHeaders } from '../utils/apiClient';
 
 type PaperSizeState = {
   paperSize: PaperSize;
@@ -34,19 +35,17 @@ export const initPaperSizeForCurrentUser = async (user: any) => {
       const serverSize = await (async () => {
         try {
           // Load size from server; if endpoint is unavailable, fall back to localStorage
-          const res = (await fetch('/api/user/paperSize', {
-            method: 'GET',
-            credentials: 'include',
-            headers: { Accept: 'application/json' },
-          })) as Response;
-          if (res.ok) {
-            const data = await res.json();
-            return (data?.paperSize as PaperSize) ?? null;
-          }
+          const data = await safeFetch<{ paperSize: PaperSize }>(
+            '/api/user/paperSize',
+            {
+              method: 'GET',
+              headers: getAuthHeaders(user.id, user.role),
+            }
+          );
+          return data?.paperSize ?? null;
         } catch {
           return null;
         }
-        return null;
       })();
       if (serverSize) {
         setPaperSize(serverSize);

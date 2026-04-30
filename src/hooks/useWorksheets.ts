@@ -7,7 +7,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { SavedWorksheet } from '../types.js';
 import { AppError } from '../utils/AppError.js';
 import { logError } from '../utils/logger.js';
-import { safeFetch } from '../utils/apiClient.js';
+import { safeFetch, getAuthHeaders } from '../utils/apiClient.js';
 
 interface ApiResponse<T> {
     success: boolean;
@@ -30,15 +30,6 @@ interface UseWorksheetsOptions {
     pageSize?: number;
     categoryId?: string;
 }
-
-/**
- * Get authorization headers for API calls
- */
-export const getAuthHeaders = (userId: string, userRole: string) => ({
-    'x-user-id': userId,
-    'x-user-role': userRole,
-    'x-user-tier': 'pro', // Default to pro for now to avoid strict limits during testing
-});
 
 /**
  * Hook: Fetch user's worksheets with pagination

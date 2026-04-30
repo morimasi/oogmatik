@@ -2,6 +2,8 @@ import { create } from 'zustand';
 import { StudentProgressSnapshot } from '../types/progress';
 import { AppError } from '../utils/AppError';
 import { logError } from '../utils/errorHandler';
+import { safeFetch, getAuthHeaders } from '../utils/apiClient';
+import { useAuthStore } from './useAuthStore';
 
 interface ProgressStore {
   snapshot: StudentProgressSnapshot | null;
@@ -19,18 +21,24 @@ export const useProgressStore = create<ProgressStore>((set) => ({
   fetchProgress: async (studentId: string) => {
     set({ isLoading: true, error: null });
     try {
-      // API'den veri çekerken yetkilendirme başlıkları da eklenebilir
-      const response = await fetch(`/api/progress?studentId=${studentId}`);
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData?.error?.message || 'İlerleme verisi alınamadı.');
+      const user = useAuthStore.getState().user;
+      if (!user) {
+        throw new Error('Kimlik doğrulama gereklidir. Lütfen giriş yapınız.');
       }
-      const data = await response.json();
-      set({ snapshot: data.data, isLoading: false });
-    } catch (error) {
+
+      const response = await safeFetch<{ success: boolean; data: StudentProgressSnapshot }>(
+        `/api/progress?studentId=${studentId}`,
+        {
+          method: 'GET',
+          headers: getAuthHeaders(user.id, user.role),
+        }
+      );
+      
+      set({ snapshot: response.data, isLoading: false });
+    } catch (error: any) {
       logError(error instanceof Error ? error : new AppError('Store progress fetch error'), { context: 'useProgressStore' });
       set({ 
-        error: error instanceof Error ? error.message : 'Veri alınırken bir hata oluştu.', 
+        error: error.userMessage || error.message || 'Veri alınırken bir hata oluştu.', 
         isLoading: false 
       });
     }
