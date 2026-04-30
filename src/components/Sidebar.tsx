@@ -21,6 +21,34 @@ import { useStudentStore } from '../store/useStudentStore';
 import { logError } from '../utils/logger.js';
 import './PremiumPopupStyles.css';
 
+interface SidebarProps {
+  selectedActivity: ActivityType | null;
+  onSelectActivity: (id: ActivityType | null) => void;
+  setWorksheetData: (data: WorksheetData) => void;
+  setIsLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+  isLoading: boolean;
+  isSidebarOpen: boolean;
+  closeSidebar: () => void;
+  onAddToHistory: (activityType: ActivityType, data: WorksheetData) => void;
+  isExpanded?: boolean;
+  onOpenOCR?: () => void;
+  onOpenCurriculum?: () => void;
+  onOpenReadingStudio?: () => void;
+  onOpenMathStudio?: () => void;
+  onOpenSuperTurkce?: () => void;
+  onOpenInfographicStudio?: () => void;
+  onOpenActivityStudio?: () => void;
+  onOpenScreening?: () => void;
+  onOpenSinavStudyosu?: () => void;
+  onOpenMatSinavStudyosu?: () => void;
+  onOpenSariKitapStudio?: () => void;
+  onOpenKelimeCumleStudio?: () => void;
+  activeCurriculumSession?: ActiveCurriculumSession | null;
+  width?: number;
+  onWidthChange?: (width: number) => void;
+}
+
 const Sidebar: React.FC<SidebarProps> = ({
   isSidebarOpen,
   closeSidebar,
@@ -51,10 +79,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [allActivities, setAllActivities] = useState<Activity[]>(ACTIVITIES);
   const [categories, setCategories] = useState<ActivityCategory[]>(ACTIVITY_CATEGORIES);
 
-  // Boyutlandırma State'leri
   const [selectedStudio, setSelectedStudio] = useState<string | null>(null);
 
-  // Hover popup state
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const popupTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const closeTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
@@ -160,7 +186,6 @@ const Sidebar: React.FC<SidebarProps> = ({
     if (item.onClick) item.onClick();
   };
 
-  // Hover popup handlers
   const handleCategoryMouseEnter = (categoryId: string, event: React.MouseEvent) => {
     if (popupTimeoutRef.current) clearTimeout(popupTimeoutRef.current);
     if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
@@ -497,7 +522,5 @@ const Sidebar: React.FC<SidebarProps> = ({
     </>
   );
 };
-
-export default Sidebar;
 
 export default Sidebar;
