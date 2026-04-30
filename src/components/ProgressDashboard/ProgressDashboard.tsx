@@ -11,7 +11,7 @@ interface ProgressDashboardProps {
   studentId: string;
 }
 
-export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({ studentId }: ProgressDashboardProps) => {
+export const ProgressDashboard = ({ studentId }: ProgressDashboardProps) => {
   const { snapshot, isLoading, error, fetchProgress } = useProgressStore();
 
   useEffect(() => {
