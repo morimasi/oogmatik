@@ -129,8 +129,10 @@ export const AppHeader = ({
         <header
             className={`relative bg-[var(--bg-paper)] border-b border-[var(--border-color)] shadow-xl z-[90] transition-all duration-500 font-['Lexend'] ${zenMode ? '-mt-24 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}
         >
-            <div className="w-full px-8 py-5 flex justify-between items-center gap-10">
-                <div className="flex items-center gap-6">
+            <div className="w-full px-8 py-5 flex items-center justify-between gap-6">
+                
+                {/* 1. SOL BLOK: LOGO VE HAMBURGER */}
+                <div className="flex-1 flex items-center justify-start gap-4 md:gap-6">
                     <button
                         onClick={() => setIsSidebarOpen(true)}
                         className="md:hidden text-[var(--text-muted)] p-2 hover:text-[var(--text-primary)] transition-colors"
@@ -146,30 +148,38 @@ export const AppHeader = ({
                             setWorksheetData(null);
                             setActiveCurriculumSession(null);
                         }}
-                        className="flex items-center gap-4 group"
+                        className="relative group block"
                     >
-                        <div className="relative">
-                            <DyslexiaLogo className="h-10 w-auto transition-all duration-500 group-hover:scale-110 group-hover:rotate-3" />
-                            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-[var(--bg-paper)] rounded-full shadow-sm"></div>
-                        </div>
-                        <div className="flex flex-col text-left transition-transform duration-500 group-hover:translate-x-1">
-                            <span className="text-[17px] font-black tracking-tighter text-[var(--text-primary)] leading-none mb-1">
-                                OOGMATİK
-                            </span>
-                            <span className="text-[9px] font-black tracking-[0.4em] text-[var(--accent-color)] uppercase opacity-80">
-                                EDU-TECH PLATFORM
-                            </span>
-                        </div>
+                        <DyslexiaLogo className="h-10 w-auto transition-all duration-500 group-hover:scale-110 group-hover:rotate-3" />
+                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-[var(--bg-paper)] rounded-full shadow-sm"></div>
                     </button>
                 </div>
 
-                <div className="flex-1 max-w-xl">
-                    <div className="hidden md:block">
-                        <GlobalSearch onSelectActivity={onSelectActivity} />
-                    </div>
+                {/* 2. ORTA BLOK: BDMIND YAZISI */}
+                <div 
+                    className="flex-none flex flex-col items-center justify-center cursor-pointer transition-transform duration-500 hover:scale-105 group"
+                    onClick={() => {
+                        navigateTo('generator');
+                        setSelectedActivity(null);
+                        setWorksheetData(null);
+                        setActiveCurriculumSession(null);
+                    }}
+                >
+                    <span className="text-[20px] md:text-[22px] font-black tracking-tighter text-[var(--text-primary)] leading-none mb-1 group-hover:text-[var(--accent-color)] transition-colors uppercase">
+                        BDMIND
+                    </span>
+                    <span className="text-[8px] md:text-[10px] font-black tracking-[0.2em] md:tracking-[0.4em] text-[var(--text-muted)] group-hover:text-[var(--text-primary)] uppercase transition-colors">
+                        EDU-TECH PLATFORM
+                    </span>
                 </div>
 
-                <div className="flex items-center gap-4">
+                {/* 3. SAĞ BLOK: ARAMA VE İKONLAR */}
+                <div className="flex-1 flex items-center justify-end gap-2 md:gap-4">
+                    {/* Arama Çubuğu (Sağdaki ikonlara yaslandı) */}
+                    <div className="hidden md:block w-48 xl:w-64 mr-2">
+                        <GlobalSearch onSelectActivity={onSelectActivity} />
+                    </div>
+
                     {/* Activity & Students Group */}
                     <div className="flex items-center gap-2 p-1.5 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)]">
                         <button
@@ -241,11 +251,12 @@ export const AppHeader = ({
                                 icon="fa-user-circle"
                                 colorClass="text-[var(--text-primary)]"
                             >
-                                <DropdownItem icon="fa-user-gear" label="Profil Ayarları" onClick={() => navigateTo('profile')} />
-                                <DropdownItem icon="fa-sliders" label="Görünüm Ayarları" onClick={() => onOpenModal('settings')} />
+                                <DropdownItem icon="fa-user-gear" label="Profil Ayarları" onClick={() => { setIsSidebarOpen(false); navigateTo('profile'); }} />
+                                <DropdownItem icon="fa-sliders" label="Görünüm Ayarları" onClick={() => { setIsSidebarOpen(false); onOpenModal('settings'); }} />
                                 {user.role === 'admin' && <div className="h-px bg-[var(--border-color)] my-2 opacity-50"></div>}
-                                {user.role === 'admin' && <DropdownItem icon="fa-shield-halved" label="Yönetim Paneli" onClick={() => navigateTo('admin')} />}
+                                {user.role === 'admin' && <DropdownItem icon="fa-shield-halved" label="Yönetim Paneli" onClick={() => { setIsSidebarOpen(false); navigateTo('admin'); }} />}
                                 <div className="h-px bg-[var(--border-color)] my-2 opacity-50"></div>
+
                                 <DropdownItem icon="fa-arrow-right-from-bracket" label="Oturumu Kapat" onClick={async () => await logout()} />
                             </HeaderDropdown>
                         ) : (

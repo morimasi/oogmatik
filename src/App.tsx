@@ -170,6 +170,16 @@ const Modal = ({
   children: React.ReactNode;
   maxWidth?: string;
 }) => {
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -850,10 +860,10 @@ const AppContent = () => {
           ></div>
         )}
         <div
-          className={`transition-all duration-500 ease-in-out h-full relative group/sidebar-container ${zenMode || currentView === 'workbook' || currentView === 'assessment' ? 'w-0 opacity-0 pointer-events-none' : 'opacity-100'}`}
+          className={`transition-all duration-500 ease-in-out h-full relative group/sidebar-container ${zenMode || ['workbook', 'assessment', 'profile', 'admin'].includes(currentView) ? 'w-0 opacity-0 pointer-events-none' : 'opacity-100'}`}
           style={{
             width:
-              zenMode || currentView === 'workbook' || currentView === 'assessment'
+              zenMode || ['workbook', 'assessment', 'profile', 'admin'].includes(currentView)
                 ? 0
                 : sidebarWidth,
           }}
