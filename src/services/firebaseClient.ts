@@ -69,7 +69,7 @@ export const auth = getAuth(app);
  * multiTabManager yerine basit Single Tab IndexedDB tercih edildi.
  */
 export const db = initializeFirestore(app, {
-  localCache: persistentLocalCache(),
+  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
   experimentalAutoDetectLongPolling: true
 });
 

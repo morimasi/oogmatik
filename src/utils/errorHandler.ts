@@ -83,9 +83,10 @@ const sendToSentryHttp = (errorLog: Record<string, unknown>): void => {
 /**
  * LOGGING: Centralized error logging
  */
-export const logError = (error: AppError, context?: Record<string, unknown>) => {
+export const logError = (error: unknown, context?: Record<string, unknown>) => {
+  const appError = toAppError(error);
   const errorLog: Record<string, unknown> = {
-    ...error.toJSON(),
+    ...appError.toJSON(),
     context,
     userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : undefined,
     url: typeof window !== 'undefined' ? window.location.href : undefined,
@@ -104,9 +105,9 @@ export const logError = (error: AppError, context?: Record<string, unknown>) => 
   }
 
   if (isDev) {
-    console.group(`🔴 AppError: ${error.code}`);
-    console.error('Message:', error.message);
-    if (error.originalError) console.error('Original:', error.originalError);
+    console.group(`🔴 AppError: ${appError.code}`);
+    console.error('Message:', appError.userMessage);
+    if (appError.originalError) console.error('Original:', appError.originalError);
     if (context) console.dir(context);
     console.groupEnd();
   }
