@@ -19,8 +19,8 @@ export const ProgressDashboard = ({ studentId }: ProgressDashboardProps) => {
 
   useEffect(() => {
     if (studentId && user) {
-      fetchProgress(studentId).catch((err) => {
-        logError(err, { context: 'ProgressDashboard.fetchProgress', studentId });
+      fetchProgress(studentId).catch((err: unknown) => {
+        logError(err instanceof Error ? err : new Error(String(err)), { context: 'ProgressDashboard.fetchProgress', studentId });
       });
     }
   }, [studentId, user, fetchProgress]);
@@ -73,63 +73,65 @@ export const ProgressDashboard = ({ studentId }: ProgressDashboardProps) => {
   }
 
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-8">
-      {/* Header & Stats Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="p-4 md:p-5 max-w-7xl mx-auto space-y-6">
+      {/* Header & Stats Summary - Compact */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/50 dark:bg-black/30 backdrop-blur-md rounded-3xl p-6 border border-white/20 dark:border-white/10 flex items-center"
+          className="bg-white/50 dark:bg-black/30 backdrop-blur-md rounded-2xl p-4 border border-white/20 dark:border-white/10 flex items-center shadow-sm"
         >
-          <div className="bg-gradient-to-br from-indigo-500 to-purple-600 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg text-white mr-5">
-            <Trophy className="w-6 h-6" />
+          <div className="bg-gradient-to-br from-indigo-500 to-purple-600 w-11 h-11 rounded-xl flex items-center justify-center shadow-lg text-white mr-4 shrink-0">
+            <Trophy className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Genel Başarı</p>
-            <h2 className="font-lexend text-3xl font-bold text-gray-900 dark:text-white">{snapshot.overallScore}%</h2>
+            <p className="text-[10px] text-gray-500 dark:text-gray-400 font-black uppercase tracking-widest">Genel Başarı</p>
+            <h2 className="font-lexend text-2xl font-black text-gray-900 dark:text-white leading-tight">{snapshot.overallScore}%</h2>
           </div>
         </motion.div>
 
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white/50 dark:bg-black/30 backdrop-blur-md rounded-3xl p-6 border border-white/20 dark:border-white/10 flex items-center"
+          className="bg-white/50 dark:bg-black/30 backdrop-blur-md rounded-2xl p-4 border border-white/20 dark:border-white/10 flex items-center shadow-sm"
         >
-          <div className="bg-gradient-to-br from-blue-500 to-cyan-500 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg text-white mr-5">
-            <Clock className="w-6 h-6" />
+          <div className="bg-gradient-to-br from-blue-500 to-cyan-500 w-11 h-11 rounded-xl flex items-center justify-center shadow-lg text-white mr-4 shrink-0">
+            <Clock className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Toplam Çalışma</p>
-            <h2 className="font-lexend text-3xl font-bold text-gray-900 dark:text-white">{Math.round(snapshot.totalTimeSpent)} Saat</h2>
+            <p className="text-[10px] text-gray-500 dark:text-gray-400 font-black uppercase tracking-widest">Toplam Çalışma</p>
+            <h2 className="font-lexend text-2xl font-black text-gray-900 dark:text-white leading-tight">{Math.round(snapshot.totalTimeSpent)} Saat</h2>
           </div>
         </motion.div>
 
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white/50 dark:bg-black/30 backdrop-blur-md rounded-3xl p-6 border border-white/20 dark:border-white/10 flex items-center"
+          className="bg-white/50 dark:bg-black/30 backdrop-blur-md rounded-2xl p-4 border border-white/20 dark:border-white/10 flex items-center shadow-sm"
         >
-          <div className="bg-gradient-to-br from-emerald-400 to-teal-500 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg text-white mr-5">
-            <Target className="w-6 h-6" />
+          <div className="bg-gradient-to-br from-emerald-400 to-teal-500 w-11 h-11 rounded-xl flex items-center justify-center shadow-lg text-white mr-4 shrink-0">
+            <Target className="w-5 h-5" />
           </div>
           <div>
-            <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">Tamamlanan</p>
-            <h2 className="font-lexend text-3xl font-bold text-gray-900 dark:text-white">{snapshot.activitiesCompleted}</h2>
-            <p className="text-xs text-gray-400 mt-0.5">Aktivite</p>
+            <p className="text-[10px] text-gray-500 dark:text-gray-400 font-black uppercase tracking-widest">Tamamlanan</p>
+            <h2 className="font-lexend text-2xl font-black text-gray-900 dark:text-white leading-tight">{snapshot.activitiesCompleted} <span className="text-xs opacity-40">AKTİVİTE</span></h2>
           </div>
         </motion.div>
       </div>
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* Main Grid - Tighter */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Graphs */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className="lg:col-span-2 space-y-6">
           <WeeklyActivityChart data={snapshot.weeklyActivity} />
           
-          <div className="bg-white/50 dark:bg-black/30 backdrop-blur-md rounded-3xl p-6 border border-white/20 dark:border-white/10">
-            <h3 className="font-lexend font-medium text-gray-800 dark:text-gray-100 mb-6">Bilişsel Beceri Gelişimi</h3>
+          <div className="bg-white/50 dark:bg-black/30 backdrop-blur-md rounded-2xl p-5 border border-white/20 dark:border-white/10 shadow-sm">
+            <h3 className="font-lexend text-[11px] font-black uppercase tracking-widest text-gray-800 dark:text-gray-100 mb-5 flex items-center gap-2">
+              <div className="w-1.5 h-4 bg-indigo-500 rounded-full"></div>
+              Bilişsel Beceri Gelişimi
+            </h3>
             <SkillOverview skills={snapshot.skillDistribution} />
           </div>
 
@@ -137,7 +139,7 @@ export const ProgressDashboard = ({ studentId }: ProgressDashboardProps) => {
         </div>
 
         {/* Right Column - Timeline */}
-        <div className="lg:col-span-1 h-full min-h-[500px]">
+        <div className="lg:col-span-1 h-full min-h-[400px]">
           <HistoryList history={snapshot.recentActivities} />
         </div>
       </div>

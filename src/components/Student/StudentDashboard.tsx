@@ -250,12 +250,12 @@ export function StudentDashboard({ onBack, onLoadMaterial }: StudentDashboardPro
 
   // Render Components
   const renderSidebar = () => (
-    <div className="w-80 bg-[var(--bg-paper)] border-r border-[var(--border-color)] flex flex-col h-full shrink-0 shadow-2xl z-30">
-      <div className="p-6 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="font-black text-xl text-[var(--text-primary)] flex items-center gap-3 tracking-tighter uppercase">
-            <div className="w-10 h-10 rounded-xl bg-[var(--accent-color)] flex items-center justify-center text-white shadow-lg shadow-[var(--accent-color)]/20">
-              <i className="fa-solid fa-users text-lg"></i>
+    <div className="w-72 bg-[var(--bg-paper)] border-r border-[var(--border-color)] flex flex-col h-full shrink-0 shadow-2xl z-30 overflow-hidden">
+      <div className="p-4 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/50 backdrop-blur-sm">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="font-black text-lg text-[var(--text-primary)] flex items-center gap-2.5 tracking-tighter uppercase">
+            <div className="w-8 h-8 rounded-lg bg-[var(--accent-color)] flex items-center justify-center text-white shadow-lg shadow-[var(--accent-color)]/20">
+              <i className="fa-solid fa-users text-sm"></i>
             </div>
             Öğrencilerim
           </h2>
@@ -265,31 +265,31 @@ export function StudentDashboard({ onBack, onLoadMaterial }: StudentDashboardPro
               setFormTab('identity');
               setShowAddForm(true);
             }}
-            className="w-10 h-10 rounded-xl text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
+            className="w-8 h-8 rounded-lg text-white flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
             style={{ backgroundColor: 'var(--accent-color)' }}
             title="Yeni Öğrenci Ekle"
           >
-            <i className="fa-solid fa-plus"></i>
+            <i className="fa-solid fa-plus text-xs"></i>
           </button>
         </div>
-        <div className="relative mb-4">
-          <i className="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-[var(--text-muted)]"></i>
+        <div className="relative mb-3">
+          <i className="fa-solid fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] text-xs"></i>
           <input
             type="text"
             placeholder="İsim veya sınıf ile ara..."
             value={searchQuery}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-2xl text-sm outline-none focus:ring-2 focus:ring-[var(--accent-color)]/50 transition-all shadow-sm text-[var(--text-primary)]"
+            className="w-full pl-9 pr-3 py-2 bg-[var(--bg-paper)]/50 border border-[var(--border-color)] rounded-xl text-xs outline-none focus:ring-2 focus:ring-[var(--accent-color)]/50 transition-all shadow-sm text-[var(--text-primary)]"
           />
         </div>
 
-        {/* Grouping Toggles - Premium */}
-        <div className="flex bg-[var(--bg-secondary)] p-1.5 rounded-2xl">
+        {/* Grouping Toggles - Premium Compact */}
+        <div className="flex bg-[var(--bg-secondary)] p-1 rounded-xl">
           {['all', 'grade', 'age'].map((mode) => (
             <button
               key={mode}
               onClick={() => setGroupingMode(mode as any)}
-              className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${groupingMode === mode ? 'bg-[var(--bg-paper)] shadow-md text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
+              className={`flex-1 py-1.5 text-[9px] font-black uppercase tracking-widest rounded-lg transition-all ${groupingMode === mode ? 'bg-[var(--bg-paper)] shadow-sm text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
             >
               {mode === 'all' ? 'Tümü' : mode === 'grade' ? 'Sınıf' : 'Yaş'}
             </button>
@@ -297,25 +297,25 @@ export function StudentDashboard({ onBack, onLoadMaterial }: StudentDashboardPro
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-3">
         {sortedGroupKeys.map((groupKey: string) => (
-          <div key={groupKey} className="space-y-2">
+          <div key={groupKey} className="space-y-1.5">
             {groupingMode !== 'all' && (
               <button
                 onClick={() => toggleGroup(groupKey)}
-                className="w-full flex items-center justify-between px-2 py-1 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] hover:text-[var(--text-secondary)] transition-colors"
+                className="w-full flex items-center justify-between px-2 py-1 text-[9px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] hover:text-[var(--text-secondary)] transition-colors"
               >
                 <span>
                   {groupKey} ({groupedStudents[groupKey].length})
                 </span>
                 <i
-                  className={`fa-solid fa-chevron-down transition-transform ${openGroups[groupKey] ? 'rotate-180' : ''}`}
+                  className={`fa-solid fa-chevron-down text-[8px] transition-transform ${openGroups[groupKey] ? 'rotate-180' : ''}`}
                 ></i>
               </button>
             )}
 
             {(groupingMode === 'all' || openGroups[groupKey]) && (
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 {groupedStudents[groupKey].map((s: Student) => {
                   if (!s || !s.id) return null;
                   const isActive = selectedStudentId === s.id;
@@ -325,35 +325,35 @@ export function StudentDashboard({ onBack, onLoadMaterial }: StudentDashboardPro
                     <button
                       key={s.id}
                       onClick={() => setSelectedStudentId(s.id)}
-                      className={`w-full flex items-center gap-4 p-3 rounded-[1.5rem] transition-all text-left group relative overflow-hidden ${isActive ? 'bg-[var(--bg-paper)] shadow-xl border border-[var(--border-color)] scale-[1.02] ring-2 ring-[var(--accent-color)]/10' : 'hover:bg-[var(--bg-secondary)] border border-transparent'}`}
+                      className={`w-full flex items-center gap-3 p-2.5 rounded-2xl transition-all text-left group relative overflow-hidden ${isActive ? 'bg-[var(--bg-paper)] shadow-lg border border-[var(--border-color)] ring-1 ring-[var(--accent-color)]/20 shadow-indigo-500/5' : 'hover:bg-[var(--bg-secondary)] border border-transparent'}`}
                     >
-                      <div className="relative">
+                      <div className="relative shrink-0">
                         <img
                           src={s.avatar}
-                          className={`w-12 h-12 rounded-2xl bg-[var(--bg-secondary)] object-cover transition-transform group-hover:scale-110 ${isActive ? 'ring-2 ring-[var(--accent-color)] ring-offset-2 ring-offset-[var(--bg-paper)]' : ''}`}
+                          className={`w-10 h-10 rounded-xl bg-[var(--bg-secondary)] object-cover transition-transform group-hover:scale-105 ${isActive ? 'ring-2 ring-[var(--accent-color)] ring-offset-2 ring-offset-[var(--bg-paper)]' : ''}`}
                           alt={s.name}
                         />
                         {isCurrentActive && (
-                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-[var(--bg-paper)] animate-pulse shadow-lg"></div>
+                          <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[var(--bg-paper)] animate-pulse shadow-lg"></div>
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4
-                          className={`font-black text-sm truncate tracking-tight ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}
+                          className={`font-black text-xs truncate tracking-tight uppercase ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}
                         >
                           {s.name}
                         </h4>
-                        <div className="flex items-center gap-2 mt-0.5">
+                        <div className="flex items-center gap-2 mt-0.5 opacity-80">
                           <span
-                            className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md ${isActive ? 'bg-[var(--accent-muted)] text-[var(--accent-color)]' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)]'}`}
+                            className={`text-[8px] font-black px-1.5 py-0.25 rounded-md ${isActive ? 'bg-[var(--accent-muted)] text-[var(--accent-color)]' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)]'}`}
                           >
                             {s.grade}
                           </span>
-                          <span className="text-[9px] font-bold text-[var(--text-muted)]">{s.age} Yaş</span>
+                          <span className="text-[8px] font-black uppercase text-[var(--text-muted)]">{s.age} Yaş</span>
                         </div>
                       </div>
                       {isActive && (
-                        <i className="fa-solid fa-chevron-right text-[var(--accent-color)] text-xs"></i>
+                        <i className="fa-solid fa-chevron-right text-[var(--accent-color)] text-[10px]"></i>
                       )}
                     </button>
                   );
@@ -364,14 +364,14 @@ export function StudentDashboard({ onBack, onLoadMaterial }: StudentDashboardPro
         ))}
 
         {students.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20 text-center px-6">
-            <div className="w-16 h-16 bg-[var(--bg-secondary)] rounded-full flex items-center justify-center mb-4 border border-[var(--border-color)]">
-              <i className="fa-solid fa-user-plus text-[var(--text-muted)] text-2xl"></i>
+          <div className="flex flex-col items-center justify-center py-16 text-center px-4">
+            <div className="w-12 h-12 bg-[var(--bg-secondary)] rounded-2xl flex items-center justify-center mb-3 border border-[var(--border-color)]">
+              <i className="fa-solid fa-user-plus text-[var(--text-muted)] text-xl"></i>
             </div>
-            <p className="text-[var(--text-muted)] font-bold text-sm">Henüz öğrenci kaydı bulunmuyor.</p>
+            <p className="text-[var(--text-muted)] font-black text-[10px] uppercase tracking-wider">Henüz Kayıt Yok</p>
             <button
               onClick={() => setShowAddForm(true)}
-              className="mt-4 text-[var(--accent-color)] font-black text-xs uppercase tracking-widest hover:underline"
+              className="mt-3 text-[var(--accent-color)] font-black text-[9px] uppercase tracking-widest hover:underline"
             >
               Hemen Ekle
             </button>
@@ -384,80 +384,79 @@ export function StudentDashboard({ onBack, onLoadMaterial }: StudentDashboardPro
   const renderDetailContent = () => {
     if (!selectedStudent) {
       return (
-        <div className="flex-1 flex flex-col items-center justify-center bg-[var(--bg-secondary)] text-[var(--text-muted)]">
-          <div className="w-24 h-24 bg-[var(--bg-secondary)] rounded-full flex items-center justify-center mb-6 border border-[var(--border-color)]">
-            <i className="fa-solid fa-user-graduate text-4xl opacity-50"></i>
+        <div className="flex-1 flex flex-col items-center justify-center bg-[var(--bg-secondary)]/30 backdrop-blur-sm text-[var(--text-muted)]">
+          <div className="w-16 h-16 bg-[var(--bg-secondary)] rounded-2xl flex items-center justify-center mb-4 border border-[var(--border-color)]">
+            <i className="fa-solid fa-user-graduate text-2xl opacity-30"></i>
           </div>
-          <h3 className="text-xl font-bold text-[var(--text-secondary)]">Öğrenci Seçiniz</h3>
-          <p className="text-sm mt-2 text-[var(--text-muted)]">Detayları görüntülemek için sol menüden bir öğrenci seçin.</p>
+          <h3 className="text-lg font-black text-[var(--text-secondary)] uppercase tracking-tight">Öğrenci Seçiniz</h3>
+          <p className="text-[10px] mt-2 font-bold uppercase tracking-widest opacity-60">Detaylar için sol menüyü kullanın</p>
         </div>
       );
     }
 
     return (
       <div className="flex-1 flex flex-col bg-[var(--bg-primary)] overflow-hidden relative">
-        {/* Student Header - Ultra Premium */}
-        <div className="bg-[var(--bg-paper)] border-b border-[var(--border-color)] p-8 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 shrink-0 shadow-sm z-10 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--accent-color)]/5 rounded-full -mr-32 -mt-32 blur-3xl"></div>
+        {/* Student Header - Compact Premium */}
+        <div className="bg-[var(--bg-paper)]/80 backdrop-blur-xl border-b border-[var(--border-color)] p-5 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 shrink-0 z-10 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-48 h-48 bg-[var(--accent-color)]/5 rounded-full -mr-24 -mt-24 blur-3xl"></div>
 
-          <div className="flex items-center gap-8 relative z-10">
+          <div className="flex items-center gap-6 relative z-10">
             <div className="relative group">
               <img
                 src={selectedStudent.avatar}
-                className="w-24 h-24 rounded-[2rem] border-4 border-[var(--bg-paper)] shadow-2xl transition-transform group-hover:scale-105"
+                className="w-16 h-16 rounded-2xl border-2 border-[var(--border-color)] shadow-xl transition-transform group-hover:scale-105 bg-[var(--bg-secondary)]"
                 alt={selectedStudent.name}
               />
-              <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-[var(--accent-color)] rounded-2xl flex items-center justify-center text-white border-4 border-[var(--bg-paper)] shadow-lg">
-                <i className="fa-solid fa-graduation-cap text-sm"></i>
+              <div className="absolute -bottom-1.5 -right-1.5 w-7 h-7 bg-[var(--accent-color)] rounded-lg flex items-center justify-center text-white border-2 border-[var(--bg-paper)] shadow-lg">
+                <i className="fa-solid fa-graduation-cap text-[10px]"></i>
               </div>
             </div>
             <div>
-              <h1 className="text-4xl font-black text-[var(--text-primary)] tracking-tighter uppercase mb-2">
+              <h1 className="text-2xl font-black text-[var(--text-primary)] tracking-tighter uppercase mb-1">
                 {selectedStudent.name}
               </h1>
-              <div className="flex flex-wrap items-center gap-3 text-sm font-bold">
-                <span className="flex items-center gap-2 text-[var(--text-muted)] bg-[var(--bg-secondary)] px-3 py-1 rounded-xl">
+              <div className="flex flex-wrap items-center gap-2 text-[9px] font-black uppercase tracking-wider">
+                <span className="flex items-center gap-1.5 text-[var(--text-muted)] bg-[var(--bg-secondary)]/50 px-2.5 py-1 rounded-lg border border-[var(--border-color)]">
                   <i className="fa-solid fa-school text-[var(--accent-color)]"></i> {selectedStudent.grade}
                 </span>
-                <span className="flex items-center gap-2 text-[var(--text-muted)] bg-[var(--bg-secondary)] px-3 py-1 rounded-xl">
-                  <i className="fa-solid fa-cake-candles text-[var(--accent-color)]"></i> {selectedStudent.age}{' '}
-                  Yaş
+                <span className="flex items-center gap-1.5 text-[var(--text-muted)] bg-[var(--bg-secondary)]/50 px-2.5 py-1 rounded-lg border border-[var(--border-color)]">
+                  <i className="fa-solid fa-cake-candles text-[var(--accent-color)]"></i> {selectedStudent.age} YAŞ
                 </span>
-                <span className="bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 px-3 py-1 rounded-xl border border-emerald-100 dark:border-emerald-800 flex items-center gap-2">
-                  <i className="fa-solid fa-shield-check"></i>{' '}
-                  {selectedStudent.diagnosis[0] || 'Genel Takip'}
+                <span className="bg-emerald-500/10 text-emerald-500 px-2.5 py-1 rounded-lg border border-emerald-500/20 flex items-center gap-1.5">
+                  <i className="fa-solid fa-shield-check"></i>
+                  {selectedStudent.diagnosis[0] || 'GENEL TAKİP'}
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="flex gap-3 relative z-10">
+          <div className="flex gap-2 relative z-10 w-full lg:w-auto">
             <button
               onClick={() => setActiveStudent(selectedStudent)}
-              className="px-8 py-3.5 bg-[var(--accent-color)] text-white rounded-2xl font-black text-sm transition-all hover:scale-105 hover:shadow-xl hover:shadow-[var(--accent-color)]/20 active:scale-95 flex items-center gap-3"
+              className="flex-1 lg:flex-none px-6 py-2.5 bg-[var(--accent-color)] text-white rounded-xl font-black text-[10px] tracking-widest transition-all hover:scale-105 hover:shadow-xl hover:shadow-[var(--accent-color)]/20 active:scale-95 flex items-center justify-center gap-2 uppercase"
             >
-              <i className="fa-solid fa-bolt"></i> AKTİF ÖĞRENCİ YAP
+              <i className="fa-solid fa-bolt text-[10px]"></i> Aktif Öğrenci Yap
             </button>
             <button
               onClick={() => {
                 setFormData(selectedStudent);
                 setShowAddForm(true);
               }}
-              className="w-14 h-14 bg-[var(--bg-paper)] border border-[var(--border-color)] hover:bg-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-2xl font-bold transition-all flex items-center justify-center shadow-sm"
+              className="w-10 h-10 bg-[var(--bg-paper)] border border-[var(--border-color)] hover:bg-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-xl font-bold transition-all flex items-center justify-center shadow-sm"
             >
-              <i className="fa-solid fa-pen-nib"></i>
+              <i className="fa-solid fa-pen-nib text-xs"></i>
             </button>
             <button
               onClick={() => handleDelete(selectedStudent.id)}
-              className="w-14 h-14 bg-rose-50 dark:bg-rose-900/20 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-900/40 rounded-2xl flex items-center justify-center transition-all border border-rose-100 dark:border-rose-900/30"
+              className="w-10 h-10 bg-rose-500/5 text-rose-500 hover:bg-rose-500/10 rounded-xl flex items-center justify-center transition-all border border-rose-500/20"
             >
-              <i className="fa-solid fa-trash-can"></i>
+              <i className="fa-solid fa-trash-can text-xs"></i>
             </button>
           </div>
         </div>
 
-        {/* Tabs - Glassmorphic */}
-        <div className="flex border-b border-[var(--border-color)] bg-[var(--bg-paper)] backdrop-blur-md px-8 gap-8 overflow-x-auto shrink-0 sticky top-0 z-20">
+        {/* Tabs - Glassmorphic Compact */}
+        <div className="flex border-b border-[var(--border-color)] bg-[var(--bg-paper)]/50 backdrop-blur-md px-6 gap-6 overflow-x-auto shrink-0 sticky top-0 z-20 no-scrollbar">
           {[
             { id: 'overview', label: 'Dashboard', icon: 'fa-grid-2' },
             { id: 'assignments', label: 'Atamalar', icon: 'fa-tasks' },
@@ -469,15 +468,15 @@ export function StudentDashboard({ onBack, onLoadMaterial }: StudentDashboardPro
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as TabType)}
-              className={`py-5 text-xs font-black uppercase tracking-[0.1em] border-b-4 transition-all flex items-center gap-3 whitespace-nowrap ${activeTab === tab.id ? 'border-[var(--accent-color)] text-[var(--accent-color)] translate-y-1' : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
+              className={`py-3.5 text-[9px] font-black uppercase tracking-[0.15em] border-b-2 transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === tab.id ? 'border-[var(--accent-color)] text-[var(--accent-color)]' : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
             >
-              <i className={`fa-solid ${tab.icon} text-lg`}></i> {tab.label}
+              <i className={`fa-solid ${tab.icon} text-sm`}></i> {tab.label}
             </button>
           ))}
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+        <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
           {loadingDetails ? (
             <div className="flex flex-col items-center justify-center h-full opacity-40">
               <i className="fa-solid fa-loader fa-spin text-5xl mb-4" style={{ color: 'var(--accent-color)' }}></i>
@@ -511,38 +510,33 @@ export function StudentDashboard({ onBack, onLoadMaterial }: StudentDashboardPro
                       {assignments.map((assignment: ActivityAssignment) => (
                         <div
                           key={assignment.id}
-                          className="flex items-center justify-between p-6 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-[2rem] shadow-sm hover:shadow-md transition-all group"
+                          className="flex items-center justify-between p-4 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-2xl shadow-sm hover:shadow-md transition-all group"
                         >
-                          <div className="flex items-center gap-6">
-                            <div className={`w-16 h-16 rounded-[1.5rem] flex items-center justify-center text-3xl shadow-inner transition-colors ${assignment.status === 'completed' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
+                          <div className="flex items-center gap-4">
+                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-xl shadow-inner transition-colors ${assignment.status === 'completed' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}`}>
                               <i className={`fa-solid ${assignment.status === 'completed' ? 'fa-check-double' : 'fa-list-check'}`}></i>
                             </div>
                             <div>
-                              <h4 className="font-black text-lg text-[var(--text-primary)] uppercase tracking-tight">
+                              <h4 className="font-black text-sm text-[var(--text-primary)] uppercase tracking-tight">
                                 Kayıtlı Etkinlik #{assignment.worksheetId.slice(0, 5)}
                               </h4>
-                              <p className="text-[10px] font-bold text-[var(--text-muted)] mt-1 uppercase tracking-widest">
-                                Son Tarih: {assignment.dueDate ? new Date(assignment.dueDate).toLocaleDateString('tr-TR') : 'Belirtilmedi'}
+                              <p className="text-[9px] font-bold text-[var(--text-muted)] mt-0.5 uppercase tracking-widest">
+                                {assignment.dueDate ? new Date(assignment.dueDate).toLocaleDateString('tr-TR') : 'BELİRTİLMEDİ'}
                               </p>
-                              {assignment.teacherNotes && (
-                                <p className="text-xs text-[var(--text-secondary)] italic mt-2">"{assignment.teacherNotes}"</p>
-                              )}
                             </div>
                           </div>
                           
-                          <div className="flex items-center gap-4">
-                            <div className="flex flex-col items-end mr-4">
-                              <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest ${assignment.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                                {assignment.status === 'completed' ? 'Tamamlandı' : 'Bekliyor'}
-                              </span>
-                            </div>
+                          <div className="flex items-center gap-3">
+                            <span className={`text-[8px] font-black px-2 py-0.5 rounded-md uppercase tracking-widest ${assignment.status === 'completed' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}`}>
+                              {assignment.status === 'completed' ? 'Tamamlandı' : 'Bekliyor'}
+                            </span>
                             {assignment.status !== 'completed' && (
                               <button
                                 onClick={() => updateAssignment(assignment.id, { status: 'completed' })}
-                                className="w-12 h-12 bg-[var(--bg-secondary)] hover:bg-emerald-500 hover:text-white rounded-2xl flex items-center justify-center transition-all text-[var(--text-secondary)] shadow-sm"
+                                className="w-9 h-9 bg-[var(--bg-secondary)] hover:bg-emerald-500 hover:text-white rounded-lg flex items-center justify-center transition-all text-[var(--text-secondary)] shadow-sm"
                                 title="Tamamlandı İşaretle"
                               >
-                                <i className="fa-solid fa-check"></i>
+                                <i className="fa-solid fa-check text-xs"></i>
                               </button>
                             )}
                           </div>
@@ -581,27 +575,27 @@ export function StudentDashboard({ onBack, onLoadMaterial }: StudentDashboardPro
                       {studentWorksheets.map((ws: SavedWorksheet) => (
                         <div
                           key={ws.id}
-                          className="flex items-center justify-between p-6 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-[2.5rem] hover:shadow-2xl hover:-translate-y-1 transition-all group"
+                          className="flex items-center justify-between p-4 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-3xl hover:shadow-xl hover:-translate-y-0.5 transition-all group"
                         >
-                          <div className="flex items-center gap-6">
-                            <div className="w-16 h-16 bg-[var(--bg-secondary)] rounded-[1.5rem] flex items-center justify-center text-3xl text-[var(--accent-color)] shadow-inner group-hover:bg-[var(--accent-color)] group-hover:text-white transition-colors">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-[var(--bg-secondary)]/50 rounded-2xl flex items-center justify-center text-xl text-[var(--accent-color)] shadow-inner group-hover:bg-[var(--accent-color)] group-hover:text-white transition-colors">
                               <i className={ws.icon}></i>
                             </div>
                             <div>
-                              <h4 className="font-black text-[var(--text-primary)] uppercase tracking-tight">
+                              <h4 className="font-black text-xs text-[var(--text-primary)] uppercase tracking-tight">
                                 {ws.name}
                               </h4>
-                              <p className="text-[10px] font-bold text-[var(--text-muted)] mt-1 uppercase tracking-widest">
+                              <p className="text-[9px] font-bold text-[var(--text-muted)] mt-0.5 uppercase tracking-widest">
                                 {new Date(ws.createdAt).toLocaleDateString('tr-TR')} •{' '}
-                                {ws.category?.title || 'Kategorisiz'}
+                                {ws.category?.title || 'GENEL'}
                               </p>
                             </div>
                           </div>
                           <button
                             onClick={() => onLoadMaterial?.(ws)}
-                            className="w-12 h-12 bg-[var(--bg-secondary)] hover:bg-[var(--accent-color)] hover:text-white rounded-2xl flex items-center justify-center transition-all text-[var(--text-secondary)]"
+                            className="w-10 h-10 bg-[var(--bg-secondary)] hover:bg-[var(--accent-color)] hover:text-white rounded-xl flex items-center justify-center transition-all text-[var(--text-secondary)]"
                           >
-                            <i className="fa-solid fa-chevron-right"></i>
+                            <i className="fa-solid fa-chevron-right text-xs"></i>
                           </button>
                         </div>
                       ))}
