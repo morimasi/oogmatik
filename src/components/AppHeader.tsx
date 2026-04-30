@@ -89,7 +89,7 @@ export const DropdownItem = ({
     </button>
 );
 
-export const AppHeader: React.FC<AppHeaderProps> = ({
+export const AppHeader = ({
     workbookItemsCount,
     unreadCount,
     onOpenModal,
@@ -97,7 +97,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
     onOpenAuth,
     onSelectActivity,
     onOpenStudio,
-}) => {
+}: AppHeaderProps) => {
     const { user, logout } = useAuthStore();
     const { setIsSidebarOpen, zenMode, setIsTourActive } = useUIStore();
     const { currentView, setCurrentView, addHistoryView, setSelectedActivity, setWorksheetData, setActiveCurriculumSession } = useWorksheetStore();
@@ -131,19 +131,24 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                         className="flex items-center gap-2"
                     >
                         <DyslexiaLogo className="h-10 w-auto transition-all duration-500 hover:scale-110 hover:rotate-3 shadow-premium-sm rounded-xl" />
-                        <div className="flex flex-col leading-[0.8] ml-1">
-                            <span className="text-[14px] font-black tracking-tight bg-gradient-to-r from-indigo-600 to-indigo-500 bg-clip-text text-transparent">Bursa Disleksi</span>
-                            <span className="text-[10px] font-bold tracking-[0.25em] bg-gradient-to-r from-purple-600 to-purple-500 bg-clip-text text-transparent uppercase mt-1">EduMind</span>
+                        <div className="flex flex-col ml-3 text-center group-hover:scale-105 transition-all duration-500">
+                            <span className="text-[16px] font-black tracking-tight bg-gradient-to-r from-amber-400 via-orange-500 to-amber-600 bg-clip-text text-transparent drop-shadow-md">
+                                Bursa Disleksi
+                            </span>
+                            <span className="text-[11px] font-black tracking-[0.3em] bg-gradient-to-r from-[#D4AF37] via-[#FFF8E1] via-[#E5E4E2] to-[#B87333] bg-clip-text text-transparent uppercase mt-0.5 animate-shimmer animate-pulse-slow">
+                                EduMind
+                            </span>
                         </div>
                     </button>
                 </div>
 
-                <div className="flex-1 max-w-xl hidden md:block">
-                    <GlobalSearch onSelectActivity={onSelectActivity} />
-                </div>
+                <div className="flex-1"></div>
 
                 <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--surface-glass)] rounded-[22px] border border-[var(--border-color)] shadow-premium-sm transition-all hover:border-[var(--accent-color)]/20">
+                    <div className="hidden md:block scale-95 opacity-80 hover:opacity-100 transition-opacity">
+                        <GlobalSearch onSelectActivity={onSelectActivity} />
+                    </div>
+                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--surface-glass)] rounded-[22px] border border-[var(--border-color)] shadow-premium-sm transition-all hover:border-[var(--accent-color)]/20">
                     {/* Grup 1: Klinik & Öğrenci Odaklı */}
                     <button
                         onClick={() => onOpenStudio('assessment')}
