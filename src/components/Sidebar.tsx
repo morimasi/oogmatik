@@ -2,6 +2,7 @@ import { AppError } from '../utils/AppError';
 // @ts-nocheck
 import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ActivityType,
   WorksheetData,
@@ -74,17 +75,15 @@ const Sidebar: React.FC<SidebarProps> = ({
   onOpenKelimeCumleStudio,
   activeCurriculumSession,
 }) => {
-  const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
-  const { _activeStudent } = useStudentStore();
   const [allActivities, setAllActivities] = useState<Activity[]>(ACTIVITIES);
   const [categories, setCategories] = useState<ActivityCategory[]>(ACTIVITY_CATEGORIES);
 
-  const [selectedStudio, setSelectedStudio] = useState<string | null>(null);
-
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+  const [lockedCategory, setLockedCategory] = useState<string | null>(null);
+  const [popupRect, setPopupRect] = useState<DOMRect | null>(null);
+  
   const popupTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const closeTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
-  const [popupRect, setPopupRect] = useState<DOMRect | null>(null);
 
   const studioGroups = [
     {
@@ -181,12 +180,8 @@ const Sidebar: React.FC<SidebarProps> = ({
     },
   ];
 
-  const handleStudioClick = (item: any) => {
-    setSelectedStudio(item.id);
-    if (item.onClick) item.onClick();
-  };
-
   const handleCategoryMouseEnter = (categoryId: string, event: React.MouseEvent) => {
+    if (lockedCategory) return;
     if (popupTimeoutRef.current) clearTimeout(popupTimeoutRef.current);
     if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
 
@@ -194,58 +189,57 @@ const Sidebar: React.FC<SidebarProps> = ({
     popupTimeoutRef.current = setTimeout(() => {
       setPopupRect(rect);
       setHoveredCategory(categoryId);
-    }, 50);
+    }, 100);
   };
 
   const handleCategoryMouseLeave = () => {
+    if (lockedCategory) return;
     if (popupTimeoutRef.current) clearTimeout(popupTimeoutRef.current);
     closeTimeoutRef.current = setTimeout(() => {
       setHoveredCategory(null);
-    }, 300);
+    }, 400);
   };
 
-  const handlePopupMouseEnter = () => {
-    if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
-  };
-
-  const handlePopupMouseLeave = () => {
-    closeTimeoutRef.current = setTimeout(() => {
+  const handleCategoryClick = (categoryId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    const rect = event.currentTarget.getBoundingClientRect();
+    if (lockedCategory === categoryId) {
+      setLockedCategory(null);
       setHoveredCategory(null);
-    }, 300);
+    } else {
+      setPopupRect(rect);
+      setLockedCategory(categoryId);
+      setHoveredCategory(categoryId);
+    }
   };
 
   const handleActivitySelect = (activityId: ActivityType) => {
     onSelectActivity(activityId);
+    setLockedCategory(null);
     setHoveredCategory(null);
   };
 
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setHoveredCategory(null);
-        if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
-        if (popupTimeoutRef.current) clearTimeout(popupTimeoutRef.current);
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  const handleStudioClick = (item: any) => {
+    if (item.onClick) item.onClick();
+    setLockedCategory(null);
+    setHoveredCategory(null);
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       if (
-        hoveredCategory &&
+        (hoveredCategory || lockedCategory) &&
         !target.closest('.premium-popup-menu') &&
-        !target.closest('.category-trigger-btn') &&
-        !target.closest('.studio-trigger-btn')
+        !target.closest('.category-trigger-btn')
       ) {
+        setLockedCategory(null);
         setHoveredCategory(null);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [hoveredCategory]);
+  }, [hoveredCategory, lockedCategory]);
 
   useEffect(() => {
     const loadDynamicResources = async () => {
@@ -335,10 +329,12 @@ const Sidebar: React.FC<SidebarProps> = ({
     [selectedActivity, allActivities]
   );
 
+  const activeCategory = hoveredCategory || lockedCategory;
+
   return (
     <>
       <aside
-        style={{ width: isExpanded ? '320px' : '85px' }}
+        style={{ width: isExpanded ? '280px' : '90px' }}
         className={`fixed inset-y-0 left-0 z-[80] bg-[var(--bg-paper)] border-r border-[var(--border-color)] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col h-full md:relative md:translate-x-0 font-['Lexend'] ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'}`}
       >
         <div className="flex h-full flex-col overflow-hidden">
@@ -354,163 +350,57 @@ const Sidebar: React.FC<SidebarProps> = ({
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-[var(--bg-primary)]">
                 <i className="fa-solid fa-circle-notch fa-spin text-2xl text-[var(--accent-color)] mb-4"></i>
-                <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest leading-none">
-                  Hazırlanıyor
-                </p>
+                <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest leading-none">Hazırlanıyor</p>
               </div>
             )
           ) : (
-            <nav className="flex-1 overflow-y-auto px-5 py-6 custom-scrollbar scroll-smooth space-y-8">
-              <div>
-                 <span className="text-[9px] font-black uppercase tracking-[0.4em] mb-4 block ml-3 text-[var(--text-muted)] opacity-50">
-                  Akıllı Modüller
-                </span>
-
-                <div className="space-y-2">
-                  <button
-                    onMouseEnter={(e) => handleCategoryMouseEnter('studios', e)}
-                    onMouseLeave={handleCategoryMouseLeave}
-                    className={`studio-trigger-btn w-full group flex items-center ${isExpanded ? 'px-4 gap-4' : 'justify-center px-2'} py-3 rounded-[1.5rem] transition-all duration-500 bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)] border border-[var(--border-color)] hover:border-[var(--accent-color)]/30 hover:shadow-xl relative overflow-hidden`}
-                  >
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-base bg-[var(--accent-color)] text-white shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform duration-500">
-                      <i className="fa-solid fa-layer-group"></i>
+            <nav className="flex-1 overflow-y-auto px-4 py-8 custom-scrollbar space-y-10">
+              {/* Studios Section */}
+              <div className="space-y-4">
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] block ml-4 text-[var(--text-muted)] opacity-40">Merkezi Birimler</span>
+                <button
+                  onMouseEnter={(e) => handleCategoryMouseEnter('studios', e)}
+                  onMouseLeave={handleCategoryMouseLeave}
+                  onClick={(e) => handleCategoryClick('studios', e)}
+                  className={`category-trigger-btn w-full group flex items-center ${isExpanded ? 'px-4 gap-4' : 'justify-center px-2'} py-4 rounded-[2rem] transition-all duration-500 border border-transparent ${activeCategory === 'studios' ? 'bg-[var(--accent-color)] text-white shadow-xl shadow-indigo-500/20' : 'bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)] hover:border-[var(--accent-color)]/30'}`}
+                >
+                  <div className={`w-10 h-10 rounded-[1.2rem] flex items-center justify-center text-lg transition-all duration-500 ${activeCategory === 'studios' ? 'bg-white/20 text-white' : 'bg-[var(--accent-color)] text-white shadow-lg shadow-indigo-500/20 group-hover:scale-110'}`}>
+                    <i className="fa-solid fa-layer-group"></i>
+                  </div>
+                  {isExpanded && (
+                    <div className="flex-1 flex flex-col items-start overflow-hidden">
+                      <span className={`text-[11px] font-black transition-colors tracking-tight uppercase truncate ${activeCategory === 'studios' ? 'text-white' : 'text-[var(--text-primary)]'}`}>Stüdyolar</span>
+                      <span className={`text-[8px] font-bold uppercase tracking-widest opacity-60 truncate ${activeCategory === 'studios' ? 'text-white/70' : 'text-[var(--text-muted)]'}`}>Tüm Modüller</span>
                     </div>
-
-                    {isExpanded && (
-                      <div className="flex-1 flex flex-col items-start">
-                        <span className="text-xs font-black text-[var(--text-primary)] group-hover:text-[var(--accent-color)] transition-colors tracking-tight uppercase">
-                          Stüdyolar
-                        </span>
-                        <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-widest opacity-60">
-                          Tüm Modüller
-                        </span>
-                      </div>
-                    )}
-
-                    {isExpanded && (
-                      <i className="fa-solid fa-chevron-right text-[10px] text-[var(--text-muted)] opacity-30 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
-                    )}
-                  </button>
-
-                  {/* STUDIO POPUP PORTAL */}
-                  {hoveredCategory === 'studios' && popupRect && createPortal(
-                     <div
-                        className="premium-popup-menu"
-                        onMouseEnter={handlePopupMouseEnter}
-                        onMouseLeave={handlePopupMouseLeave}
-                        style={{ top: popupRect.top, left: popupRect.left + popupRect.width + 15 }}
-                      >
-                        <div className="premium-popup-content">
-                           <div className="premium-popup-header">
-                             <span className="premium-popup-title">Ekosistem Stüdyoları</span>
-                           </div>
-                           <div className="premium-popup-activities">
-                              {studioGroups.map((group, gIdx) => (
-                                <div key={gIdx} className="mb-4 last:mb-0">
-                                   <p className="px-5 py-1 text-[9px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{group.title}</p>
-                                   {group.items.map((item, iIdx) => (
-                                      <button
-                                        key={item.id}
-                                        onClick={() => { handleStudioClick(item); setHoveredCategory(null); }}
-                                        className={`premium-popup-activity-item ${selectedStudio === item.id ? 'active' : ''}`}
-                                      >
-                                        <div className={`premium-popup-activity-icon ${item.color}`}>
-                                          <i className={`fa-solid ${item.icon}`}></i>
-                                        </div>
-                                        <span className="premium-popup-activity-title">{item.label}</span>
-                                      </button>
-                                   ))}
-                                </div>
-                              ))}
-                           </div>
-                        </div>
-                      </div>,
-                      document.body
                   )}
-                </div>
+                  {isExpanded && activeCategory === 'studios' && <motion.div layoutId="active" className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
+                </button>
               </div>
 
-              <div>
-                <span className="text-[9px] font-black uppercase tracking-[0.4em] mb-4 block ml-3 text-[var(--text-muted)] opacity-50">
-                  Etkinlik Havuzu
-                </span>
-
-                <div className="space-y-2">
+              {/* Categories Section */}
+              <div className="space-y-4">
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] block ml-4 text-[var(--text-muted)] opacity-40">Aktivite Havuzu</span>
+                <div className="space-y-3">
                   {categorizedActivities.map((category) => {
-                    const isOpen = openCategoryId === category.id;
-                    const isHovered = hoveredCategory === category.id;
-                    const colors: any = {
-                      'visual-perception': 'text-violet-500 bg-violet-500/10 border-violet-500/20',
-                      'reading-verbal': 'text-teal-500 bg-teal-500/10 border-teal-500/20',
-                      'math-logic': 'text-amber-500 bg-amber-500/10 border-amber-500/20',
-                    };
-
+                    const isActive = activeCategory === category.id;
                     return (
-                      <div key={category.id} className="relative group/cat">
-                        <button
-                          onClick={() => isExpanded && setOpenCategoryId(isOpen ? null : category.id)}
-                          onMouseEnter={(e) => handleCategoryMouseEnter(category.id, e)}
-                          onMouseLeave={handleCategoryMouseLeave}
-                          className={`category-trigger-btn w-full flex items-center gap-4 px-4 py-3 rounded-[1.5rem] transition-all duration-500 relative ${isOpen && isExpanded ? 'bg-[var(--bg-secondary)] border-[var(--accent-color)]/30 shadow-lg' : 'hover:bg-[var(--bg-secondary)] border border-transparent'}`}
-                        >
-                          {isOpen && isExpanded && (
-                            <div className="absolute left-1.5 top-3 bottom-3 w-1 bg-[var(--accent-color)] rounded-full shadow-[0_0_12px_var(--accent-color)]" />
-                          )}
-
-                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-base border transition-all duration-500 ${colors[category.id] || 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-muted)]'}`}>
-                            <i className={`${category.icon} ${isOpen ? 'scale-110' : 'scale-90 opacity-70'}`}></i>
-                          </div>
-
-                          {isExpanded && (
-                            <>
-                              <span className={`flex-1 text-left text-xs font-black tracking-tight transition-colors uppercase ${isOpen ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>
-                                {category.title}
-                              </span>
-                              <i className={`fa-solid fa-chevron-right text-[9px] transition-transform duration-500 ${isOpen ? 'rotate-90 text-[var(--accent-color)]' : 'opacity-30'}`}></i>
-                            </>
-                          )}
-                        </button>
-
-                        {/* CATEGORY POPUP PORTAL */}
-                        {isHovered && !isOpen && popupRect && createPortal(
-                          <div
-                            className="premium-popup-menu"
-                            onMouseEnter={handlePopupMouseEnter}
-                            onMouseLeave={handlePopupMouseLeave}
-                            style={{ top: popupRect.top, left: popupRect.left + popupRect.width + 15 }}
-                          >
-                             <div className="premium-popup-content">
-                                <div className="premium-popup-header">
-                                  <span className="premium-popup-title">{category.title}</span>
-                                </div>
-                                <div className="premium-popup-activities">
-                                   {category.items.map((act, iIdx) => (
-                                      <button key={act.id} onClick={() => handleActivitySelect(act.id)} className="premium-popup-activity-item">
-                                         <div className="premium-popup-activity-icon"><i className={act.icon || 'fa-star'}></i></div>
-                                         <span className="premium-popup-activity-title">{act.title}</span>
-                                      </button>
-                                   ))}
-                                </div>
-                             </div>
-                          </div>,
-                          document.body
-                        )}
-
-                        {isExpanded && isOpen && (
-                          <div className="ml-9 pl-6 mt-2 space-y-1.5 border-l-2 border-[var(--border-color)] animate-in slide-in-from-left-2 duration-500">
-                            {category.items.map((act) => (
-                              <button
-                                key={act.id}
-                                onClick={() => onSelectActivity(act.id)}
-                                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[11px] font-bold transition-all duration-300 ${selectedActivity === act.id ? 'bg-[var(--accent-color)] text-white shadow-lg' : 'text-[var(--text-secondary)] hover:text-[var(--accent-color)] hover:bg-[var(--accent-muted)]'}`}
-                              >
-                                <span className="flex-1 truncate uppercase tracking-tighter">{act.title}</span>
-                                {selectedActivity === act.id && <i className="fa-solid fa-check text-[8px]"></i>}
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
+                      <button
+                        key={category.id}
+                        onMouseEnter={(e) => handleCategoryMouseEnter(category.id, e)}
+                        onMouseLeave={handleCategoryMouseLeave}
+                        onClick={(e) => handleCategoryClick(category.id, e)}
+                        className={`category-trigger-btn w-full flex items-center ${isExpanded ? 'px-4 gap-4' : 'justify-center px-2'} py-4 rounded-[2rem] transition-all duration-500 border border-transparent ${isActive ? 'bg-[var(--bg-secondary)] border-[var(--accent-color)] shadow-xl' : 'hover:bg-[var(--bg-secondary)]'}`}
+                      >
+                         <div className={`w-10 h-10 rounded-[1.2rem] flex items-center justify-center text-lg transition-all duration-500 bg-[var(--bg-paper)] border border-[var(--border-color)] ${isActive ? 'text-[var(--accent-color)] scale-110 shadow-lg' : 'text-[var(--text-muted)] group-hover:scale-105'}`}>
+                            <i className={category.icon}></i>
+                         </div>
+                         {isExpanded && (
+                            <span className={`flex-1 text-left text-[11px] font-black tracking-tight transition-colors uppercase ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
+                              {category.title}
+                            </span>
+                         )}
+                         {isExpanded && <i className={`fa-solid fa-chevron-right text-[8px] transition-transform duration-500 ${isActive ? 'rotate-90 text-[var(--accent-color)]' : 'opacity-20'}`}></i>}
+                      </button>
                     );
                   })}
                 </div>
@@ -519,6 +409,67 @@ const Sidebar: React.FC<SidebarProps> = ({
           )}
         </div>
       </aside>
+
+      {/* FLYOUT POPUPS PORTAL */}
+      <AnimatePresence>
+        {activeCategory && popupRect && createPortal(
+          <motion.div
+            initial={{ opacity: 0, x: -20, scale: 0.95 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: -20, scale: 0.95 }}
+            className="premium-popup-menu fixed z-[1000] drop-shadow-[0_20px_50px_rgba(0,0,0,0.4)] font-['Lexend']"
+            onMouseEnter={() => { if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current); }}
+            onMouseLeave={handleCategoryMouseLeave}
+            style={{ 
+              top: Math.max(20, Math.min(window.innerHeight - 500, popupRect.top - 20)), 
+              left: popupRect.left + (isExpanded ? 290 : 100) 
+            }}
+          >
+            <div className="premium-popup-content min-w-[320px] max-w-[400px] overflow-hidden bg-[var(--bg-paper)]/90 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 p-2 shadow-2xl">
+               <div className="p-6 pb-2 border-b border-white/5 mb-2">
+                  <h3 className="text-xs font-black text-[var(--accent-color)] uppercase tracking-[0.2em]">{activeCategory === 'studios' ? 'Merkezi Stüdyolar' : categorizedActivities.find(c => c.id === activeCategory)?.title}</h3>
+               </div>
+               
+               <div className="max-h-[70vh] overflow-y-auto custom-scrollbar p-3 space-y-4">
+                  {activeCategory === 'studios' ? (
+                     studioGroups.map((group, gIdx) => (
+                        <div key={gIdx} className="space-y-2">
+                           <p className="px-4 text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest opacity-50">{group.title}</p>
+                           <div className="grid grid-cols-1 gap-1">
+                              {group.items.map((item) => (
+                                 <button key={item.id} onClick={() => handleStudioClick(item)} className="p-3 rounded-2xl hover:bg-white/5 flex items-center gap-4 transition-all group/item">
+                                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-white/5 border border-white/5 group-hover/item:scale-110 transition-transform ${item.color}`}>
+                                       <i className={`fa-solid ${item.icon}`}></i>
+                                    </div>
+                                    <span className="text-[11px] font-black uppercase text-[var(--text-primary)] group-hover/item:text-[var(--accent-color)]">{item.label}</span>
+                                 </button>
+                              ))}
+                           </div>
+                        </div>
+                     ))
+                  ) : (
+                     <div className="grid grid-cols-1 gap-1">
+                        {categorizedActivities.find(c => c.id === activeCategory)?.items.map((act) => (
+                           <button key={act.id} onClick={() => handleActivitySelect(act.id)} className="p-3 rounded-2xl hover:bg-white/5 flex items-center gap-4 transition-all group/item">
+                              <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-white/5 border border-white/5 group-hover/item:scale-110 transition-transform text-[var(--accent-color)]">
+                                 <i className={act.icon || 'fa-star'}></i>
+                              </div>
+                              <span className="text-[11px] font-black uppercase text-[var(--text-primary)] group-hover/item:text-[var(--accent-color)]">{act.title}</span>
+                           </button>
+                        ))}
+                     </div>
+                  )}
+               </div>
+               {lockedCategory && (
+                  <div className="p-4 pt-2 text-center">
+                    <button onClick={() => { setLockedCategory(null); setHoveredCategory(null); }} className="text-[9px] font-black text-rose-500 uppercase tracking-widest hover:underline">KAPAT</button>
+                  </div>
+               )}
+            </div>
+          </motion.div>,
+          document.body
+        )}
+      </AnimatePresence>
     </>
   );
 };

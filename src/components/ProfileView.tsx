@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/useAuthStore';
 import { useStudentStore } from '../store/useStudentStore';
 import {
@@ -287,6 +288,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
     setDarkModeEnabled(isDarkTheme);
   }, [isDarkTheme]);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onBack();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onBack]);
+
   // AI ayarları değiştiğinde localStorage'a kaydet
   useEffect(() => {
     try {
@@ -508,7 +517,16 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
   if (!user) return null;
 
   return (
-    <div className="bg-[#f8fafc] dark:bg-[#09090b] h-full flex flex-col font-['Lexend'] overflow-hidden">
+    <div 
+      onClick={onBack}
+      className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 md:p-8 font-['Lexend'] overflow-hidden"
+    >
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        onClick={(e: React.MouseEvent) => e.stopPropagation()}
+        className="bg-[#f8fafc] dark:bg-[#09090b] w-full max-w-7xl h-full max-h-[95vh] flex flex-col rounded-[3rem] shadow-[0_20px_70px_rgba(0,0,0,0.5)] overflow-hidden border border-white/10"
+      >
       {/* 1. MINIMAL THEMED HEADER */}
       <div className="shrink-0 bg-[var(--bg-paper)] border-b border-[var(--border-color)] p-3 md:p-4 relative overflow-hidden">
         <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-[var(--accent-muted)] rounded-full blur-[60px] -translate-y-1/2 translate-x-1/2 pointer-events-none opacity-20"></div>
@@ -536,7 +554,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 {user.role === 'admin' ? 'SİSTEM' : 'UZMAN'}
               </span>
             </div>
-            <div className="flex flex-wrap justify-center md:justify-start gap-2 opacity-50">
+            <div className="flex wrap justify-center md:justify-start gap-2 opacity-50">
               <div className="flex items-center gap-1 text-[var(--text-secondary)] font-bold text-[10px]">
                 <i className="fa-solid fa-envelope text-[8px]"></i> {user.email}
               </div>
@@ -548,19 +566,21 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
             </div>
           </div>
 
-          <div className="flex gap-1.5 w-full md:w-auto shrink-0">
+          <div className="flex gap-1.5 w-full md:w-auto shrink-0 items-center">
             <button
               onClick={onBack}
-              className="flex-1 md:flex-none px-3 py-1 bg-[var(--bg-secondary)] hover:bg-[var(--surface-elevated)] text-[var(--text-primary)] rounded-lg font-black text-[9px] uppercase tracking-wider transition-all border border-[var(--border-color)]"
+              className="flex-1 md:flex-none px-4 py-2 bg-[var(--bg-secondary)] hover:bg-[var(--surface-elevated)] text-[var(--text-primary)] rounded-xl font-black text-[10px] uppercase tracking-wider transition-all border border-[var(--border-color)] flex items-center justify-center gap-2"
             >
+              <i className="fa-solid fa-arrow-left"></i>
               Geri
             </button>
             {!isReadOnly && (
               <button
-                onClick={logout}
-                className="flex-1 md:flex-none px-3 py-1 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg font-black text-[9px] uppercase tracking-wider transition-all border border-red-500/20"
+                onClick={onBack}
+                className="w-10 h-10 bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white rounded-xl transition-all border border-rose-500/20 flex items-center justify-center shadow-lg active:scale-95"
+                title="Kapat"
               >
-                Kapat
+                <i className="fa-solid fa-times"></i>
               </button>
             )}
           </div>
@@ -1833,6 +1853,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
         onClose={() => setSelectedAssessment(null)}
         user={user}
       />
+      </motion.div>
     </div>
   );
 };
