@@ -1,6 +1,7 @@
 import { AppError } from './AppError.js';
 
 import { logInfo, logError, logWarn } from '../utils/logger.js';
+
 /**
  * Eksik kapanış parantezlerini sayısal olarak tamamlar.
  */
@@ -101,6 +102,6 @@ export const tryRepairJson = (jsonStr: string): any => {
         }
     } catch { /* ignore */ }
 
-    logError('[jsonRepair] JSON Parse tamamen başarısız. Ham metin:', cleaned.substring(0, 500));
+    logError('[jsonRepair] JSON Parse tamamen başarısız', { hamMetin: cleaned.substring(0, 500) });
     throw new AppError('AI verisi işlenemedi. JSON formatı bozuk veya yanıt çok kısa.', 'INTERNAL_ERROR', 500);
 };

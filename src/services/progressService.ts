@@ -20,6 +20,7 @@ import {
 } from '../types/progress';
 import { AppError } from '../utils/AppError';
 import { logError } from '../utils/errorHandler';
+import { achievementService } from './achievementService';
 
 /**
  * Öğrenci İlerleme Servisi (Faz 4.1)
@@ -63,6 +64,10 @@ export const progressService = {
       if (snapshotDoc.exists()) {
         const currentData = snapshotDoc.data() as StudentProgressSnapshot;
         
+        // Başarımları kontrol et
+        const existingBadges = currentData.achievements || [];
+        const newlyAwardedBadges = achievementService.checkAndAwardAchievements(currentData);
+
         // Mevcut veriyi güncelle
         snapshot = {
           ...currentData,
@@ -70,6 +75,7 @@ export const progressService = {
           totalTimeSpent: currentData.totalTimeSpent + (latestCompletion.duration / 3600),
           activitiesCompleted: currentData.activitiesCompleted + 1,
           lastUpdated: new Date().toISOString(),
+          achievements: [...existingBadges, ...newlyAwardedBadges],
           // Basit bir şekilde son 5 aktiviteyi tutalım
           recentActivities: [latestCompletion, ...currentData.recentActivities.slice(0, 4)]
         };
@@ -95,7 +101,7 @@ export const progressService = {
         }
       } else {
         // İlk kez snapshot oluştur
-        snapshot = {
+        const initialSnapshot: StudentProgressSnapshot = {
           studentId,
           overallScore: latestCompletion.score,
           totalTimeSpent: latestCompletion.duration / 3600,
@@ -111,6 +117,13 @@ export const progressService = {
           recentActivities: [latestCompletion],
           achievements: [],
           lastUpdated: new Date().toISOString()
+        };
+
+        // Başarımları ilk kez kontrol et
+        const initialBadges = achievementService.checkAndAwardAchievements(initialSnapshot);
+        snapshot = {
+          ...initialSnapshot,
+          achievements: initialBadges
         };
       }
 

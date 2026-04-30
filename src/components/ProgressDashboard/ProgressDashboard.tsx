@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useProgressStore } from '../../store/useProgressStore';
 import { SkillOverview } from './SkillOverview';
 import { WeeklyActivityChart } from './WeeklyActivityChart';
+import { BadgesSection } from './BadgesSection';
 import { HistoryList } from './HistoryList';
 import { Trophy, Clock, Target, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -10,7 +11,7 @@ interface ProgressDashboardProps {
   studentId: string;
 }
 
-export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({ studentId }) => {
+export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({ studentId }: ProgressDashboardProps) => {
   const { snapshot, isLoading, error, fetchProgress } = useProgressStore();
 
   useEffect(() => {
@@ -106,6 +107,8 @@ export const ProgressDashboard: React.FC<ProgressDashboardProps> = ({ studentId 
             <h3 className="font-lexend font-medium text-gray-800 dark:text-gray-100 mb-6">Bilişsel Beceri Gelişimi</h3>
             <SkillOverview skills={snapshot.skillDistribution} />
           </div>
+
+          <BadgesSection earnedBadges={snapshot.achievements || []} />
         </div>
 
         {/* Right Column - Timeline */}

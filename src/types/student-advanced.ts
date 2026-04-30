@@ -570,12 +570,13 @@ export const createDefaultIEP = (studentId: string): IEPPlan => ({
 export const createDefaultFinancial = (studentId: string): FinancialProfile => ({
     studentId,
     balance: 0,
+    totalPaid: 0,
+    totalDue: 0,
+    currency: 'TRY',
+    billingCycle: 'monthly',
+    scholarshipRate: 0,
     transactions: [],
-    paymentMethods: [],
-    billingHistory: [],
-    discountsApplied: [],
-    lastTransactionDate: undefined,
-    monthlyPaymentStatus: 'pending'
+    paymentPlan: []
 });
 
 /**

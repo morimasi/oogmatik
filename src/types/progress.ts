@@ -1,5 +1,6 @@
 import { ActivityType, CognitiveErrorTag } from './activity';
 import { Difficulty } from './common';
+import { StudentBadge } from './gamification';
 
 /**
  * Aktivite tamamlama detayı
@@ -74,13 +75,8 @@ export interface StudentProgressSnapshot {
   // Geçmiş listesi
   recentActivities: ActivityCompletion[];
   
-  // Kazanımlar ve Rozetler (Faz 4.2 için hazırlık)
-  achievements: {
-    id: string;
-    title: string;
-    icon: string;
-    date: string;
-  }[];
+  // Kazanımlar ve Rozetler (Faz 4.2)
+  achievements: StudentBadge[];
   
   lastUpdated: string;
 }
