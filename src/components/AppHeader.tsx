@@ -191,7 +191,7 @@ export const AppHeader = ({
                         </button>
 
                         <button
-                            onClick={() => onOpenStudio('students')}
+                            onClick={() => { setIsSidebarOpen(false); onOpenStudio('students'); }}
                             className="flex flex-col items-center justify-center w-12 h-12 bg-[var(--bg-paper)] text-[var(--accent-color)] hover:bg-[var(--accent-muted)] border border-[var(--border-color)] rounded-xl transition-all active:scale-95 group/nav"
                             title="Öğrenci Yönetimi"
                         >
@@ -230,10 +230,10 @@ export const AppHeader = ({
                         <div className="w-[1px] h-6 bg-[var(--border-color)] mx-2 opacity-50"></div>
 
                         <HeaderDropdown label="KİTAPLIK" icon="fa-shapes" colorClass="text-[var(--accent-color)]">
-                            <DropdownItem icon="fa-star" label="Favori Etkinliklerim" onClick={() => navigateTo('favorites')} />
-                            <DropdownItem icon="fa-box-archive" label="Dijital Arşiv" onClick={() => navigateTo('savedList')} />
-                            <DropdownItem icon="fa-share-nodes" label="Paylaşılan Materyaller" onClick={() => navigateTo('shared')} />
-                            <DropdownItem icon="fa-clock-rotate-left" label="İşlem Geçmişi" onClick={() => onOpenModal('history')} />
+                            <DropdownItem icon="fa-star" label="Favori Etkinliklerim" onClick={() => { setIsSidebarOpen(false); navigateTo('favorites'); }} />
+                            <DropdownItem icon="fa-box-archive" label="Dijital Arşiv" onClick={() => { setIsSidebarOpen(false); navigateTo('savedList'); }} />
+                            <DropdownItem icon="fa-share-nodes" label="Paylaşılan Materyaller" onClick={() => { setIsSidebarOpen(false); navigateTo('shared'); }} />
+                            <DropdownItem icon="fa-clock-rotate-left" label="İşlem Geçmişi" onClick={() => { setIsSidebarOpen(false); onOpenModal('history'); }} />
                         </HeaderDropdown>
 
                         <HeaderDropdown label="DESTEK" icon="fa-headset">

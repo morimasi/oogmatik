@@ -860,10 +860,10 @@ const AppContent = () => {
           ></div>
         )}
         <div
-          className={`transition-all duration-500 ease-in-out h-full relative group/sidebar-container ${zenMode || ['workbook', 'assessment', 'profile', 'admin'].includes(currentView) ? 'w-0 opacity-0 pointer-events-none' : 'opacity-100'}`}
+          className={`transition-all duration-500 ease-in-out h-full relative group/sidebar-container ${zenMode || ['workbook', 'assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students'].includes(currentView) ? 'w-0 opacity-0 pointer-events-none' : 'opacity-100'}`}
           style={{
             width:
-              zenMode || ['workbook', 'assessment', 'profile', 'admin'].includes(currentView)
+              zenMode || ['workbook', 'assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students'].includes(currentView)
                 ? 0
                 : sidebarWidth,
           }}
