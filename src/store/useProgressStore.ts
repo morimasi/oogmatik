@@ -38,7 +38,7 @@ export const useProgressStore = create<ProgressStore>((set) => ({
       
       set({ snapshot: response.data, isLoading: false });
     } catch (error: any) {
-      logError(error instanceof Error ? error : new AppError('Store progress fetch error'), { context: 'useProgressStore' });
+      logError(error, { context: 'useProgressStore.fetchProgress', studentId });
       set({ 
         error: error.userMessage || error.message || 'Veri alınırken bir hata oluştu.', 
         isLoading: false 

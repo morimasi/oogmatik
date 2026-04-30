@@ -1,6 +1,13 @@
+import React, { useEffect } from 'react';
+import { useProgressStore } from '../../store/useProgressStore';
 import { useAuthStore } from '../../store/useAuthStore';
+import { SkillOverview } from './SkillOverview';
+import { WeeklyActivityChart } from './WeeklyActivityChart';
+import { BadgesSection } from './BadgesSection';
+import { HistoryList } from './HistoryList';
 import { Trophy, Clock, Target, AlertCircle, LogIn } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { logError } from '../../utils/errorHandler';
 
 interface ProgressDashboardProps {
   studentId: string;
@@ -12,7 +19,9 @@ export const ProgressDashboard = ({ studentId }: ProgressDashboardProps) => {
 
   useEffect(() => {
     if (studentId && user) {
-      fetchProgress(studentId);
+      fetchProgress(studentId).catch((err) => {
+        logError(err, { context: 'ProgressDashboard.fetchProgress', studentId });
+      });
     }
   }, [studentId, user, fetchProgress]);
 
@@ -36,7 +45,7 @@ export const ProgressDashboard = ({ studentId }: ProgressDashboardProps) => {
         </div>
         <button 
           onClick={() => loginWithGoogle()}
-          className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-500 transition-all shadow-lg"
+          className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-500 transition-all shadow-lg text-[10px] uppercase tracking-widest"
         >
           Google ile Giriş Yap
         </button>
