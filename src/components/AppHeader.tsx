@@ -97,7 +97,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
     onOpenAuth,
     onSelectActivity,
     onOpenStudio,
-}: AppHeaderProps) => {
+}) => {
     const { user, logout } = useAuthStore();
     const { setIsSidebarOpen, zenMode, setIsTourActive } = useUIStore();
     const { currentView, setCurrentView, addHistoryView, setSelectedActivity, setWorksheetData, setActiveCurriculumSession } = useWorksheetStore();
