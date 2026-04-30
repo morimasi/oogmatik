@@ -128,9 +128,13 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                             setWorksheetData(null);
                             setActiveCurriculumSession(null);
                         }}
-                        className="flex items-center gap-3"
+                        className="flex items-center gap-2"
                     >
-                        <DyslexiaLogo className="h-10 w-auto" />
+                        <DyslexiaLogo className="h-10 w-auto transition-transform hover:scale-105" />
+                        <div className="flex flex-col leading-none">
+                            <span className="text-[13px] font-black tracking-tight text-[#6366f1] leading-tight">Bursa Disleksi</span>
+                            <span className="text-[11px] font-bold tracking-[0.1em] text-[#8b5cf6] leading-tight uppercase">EduMind</span>
+                        </div>
                     </button>
                 </div>
 

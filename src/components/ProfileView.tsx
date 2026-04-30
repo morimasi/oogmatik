@@ -20,11 +20,13 @@ import { LineChart } from './LineChart';
 import { RadarChart } from './RadarChart';
 import { printService } from '../utils/printService';
 import { ACTIVITIES } from '../constants';
-import { StudentDashboard } from './Student/StudentDashboard';
-import { AdvancedStudentManager } from './Student/AdvancedStudentManager';
 import { logError } from '../utils/errorHandler';
 import { AppError } from '../utils/AppError';
 import { useToastStore } from '../store/useToastStore';
+
+// Lazy load components to break circular dependencies
+const StudentDashboard = React.lazy(() => import('./Student/StudentDashboard').then(m => ({ default: m.StudentDashboard })));
+const AdvancedStudentManager = React.lazy(() => import('./Student/AdvancedStudentManager').then(m => ({ default: m.AdvancedStudentManager })));
 
 interface ProfileViewProps {
   onBack: () => void;
@@ -790,7 +792,9 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
 
               {activeTab === 'students' && (
                 <div className="h-[85vh] rounded-[3rem] overflow-hidden border border-zinc-200 dark:border-zinc-800 shadow-2xl relative z-10">
-                  <AdvancedStudentManager onBack={() => setActiveTab('overview')} />
+                  <React.Suspense fallback={<div className="p-12 text-center opacity-50">Yükleniyor...</div>}>
+                    <AdvancedStudentManager onBack={() => setActiveTab('overview')} />
+                  </React.Suspense>
                 </div>
               )}
 
