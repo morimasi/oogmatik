@@ -860,10 +860,10 @@ const AppContent = () => {
           ></div>
         )}
         <div
-          className={`transition-all duration-500 ease-in-out h-full relative group/sidebar-container ${zenMode || ['workbook', 'assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students'].includes(currentView) ? 'w-0 opacity-0 pointer-events-none' : 'opacity-100'}`}
+          className={`transition-all duration-500 ease-in-out h-full relative group/sidebar-container ${zenMode || ['workbook', 'assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students', 'curriculum', 'screening', 'reading-studio', 'math-studio', 'super-turkce', 'infographic-studio', 'activity-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'sari-kitap-studio', 'kelime-cumle-studio', 'ocr'].includes(currentView) ? 'w-0 opacity-0 pointer-events-none' : 'opacity-100'}`}
           style={{
             width:
-              zenMode || ['workbook', 'assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students'].includes(currentView)
+              zenMode || ['workbook', 'assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students', 'curriculum', 'screening', 'reading-studio', 'math-studio', 'super-turkce', 'infographic-studio', 'activity-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'sari-kitap-studio', 'kelime-cumle-studio', 'ocr'].includes(currentView)
                 ? 0
                 : sidebarWidth,
           }}

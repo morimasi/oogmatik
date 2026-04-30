@@ -425,44 +425,44 @@ const Sidebar: React.FC<SidebarProps> = ({
                 left: popupRect.left + (isExpanded ? 260 : 85) 
               }}
             >
-              <div className="premium-popup-content min-w-[300px] max-w-[380px] overflow-hidden bg-[var(--bg-paper)]/95 backdrop-blur-3xl rounded-[2rem] border border-[var(--border-color)] p-2 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
-                 <div className="p-6 pb-2 border-b border-white/5 mb-2">
-                    <h3 className="text-xs font-black text-[var(--accent-color)] uppercase tracking-[0.2em]">{activeCategory === 'studios' ? 'Merkezi Stüdyolar' : categorizedActivities.find(c => c.id === activeCategory)?.title}</h3>
+              <div className="premium-popup-content min-w-[220px] max-w-[280px] overflow-hidden bg-[var(--bg-paper)]/95 backdrop-blur-3xl rounded-3xl border border-[var(--border-color)] p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+                 <div className="px-4 py-3 border-b border-white/5 mb-1 bg-black/10 rounded-t-2xl">
+                    <h3 className="text-[10px] font-black text-[var(--accent-color)] uppercase tracking-[0.2em]">{activeCategory === 'studios' ? 'Merkezi Stüdyolar' : categorizedActivities.find(c => c.id === activeCategory)?.title}</h3>
                  </div>
                  
-                 <div className="max-h-[70vh] overflow-y-auto custom-scrollbar p-3 space-y-4">
+                 <div className="max-h-[65vh] overflow-y-auto custom-scrollbar p-1.5 space-y-3">
                     {activeCategory === 'studios' ? (
                        studioGroups.map((group, gIdx) => (
-                          <div key={gIdx} className="space-y-2">
-                             <p className="px-4 text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest opacity-50">{group.title}</p>
-                             <div className="grid grid-cols-1 gap-1">
+                          <div key={gIdx} className="space-y-1.5">
+                             <p className="px-3 text-[8px] font-black text-[var(--text-muted)] uppercase tracking-widest opacity-60">{group.title}</p>
+                             <div className="grid grid-cols-1 gap-0.5">
                                 {group.items.map((item) => (
-                                   <button key={item.id} onClick={() => handleStudioClick(item)} className="p-3 rounded-2xl flex items-center gap-4 transition-all group/item hover:bg-[var(--accent-color)]/10">
-                                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-black/20 border border-[var(--border-color)] group-hover/item:scale-110 transition-transform ${item.color}`}>
+                                   <button key={item.id} onClick={() => handleStudioClick(item)} className="p-2 rounded-xl hover:bg-white/5 flex items-center gap-3 transition-all group/item hover:bg-[var(--accent-color)]/10">
+                                      <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-black/20 border border-[var(--border-color)] group-hover/item:scale-105 transition-transform text-xs ${item.color}`}>
                                          <i className={`fa-solid ${item.icon}`}></i>
                                       </div>
-                                      <span className="text-[11px] font-black uppercase text-[var(--text-primary)] group-hover/item:text-[var(--accent-color)]">{item.label}</span>
+                                      <span className="text-[10px] font-bold uppercase tracking-tight text-[var(--text-primary)] group-hover/item:text-[var(--accent-color)]">{item.label}</span>
                                    </button>
                                 ))}
                              </div>
                           </div>
                        ))
                     ) : (
-                       <div className="grid grid-cols-1 gap-1">
+                       <div className="grid grid-cols-1 gap-0.5">
                           {categorizedActivities.find(c => c.id === activeCategory)?.items.map((act) => (
-                             <button key={act.id} onClick={() => handleActivitySelect(act.id)} className="p-3 rounded-2xl flex items-center gap-4 transition-all group/item hover:bg-[var(--accent-color)]/10">
-                                <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-black/20 border border-[var(--border-color)] group-hover/item:scale-110 transition-transform text-[var(--accent-color)]">
+                             <button key={act.id} onClick={() => handleActivitySelect(act.id)} className="p-2 rounded-xl flex items-center gap-3 transition-all group/item hover:bg-[var(--accent-color)]/10">
+                                <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 bg-black/20 border border-[var(--border-color)] group-hover/item:scale-105 transition-transform text-[var(--accent-color)] text-xs">
                                    <i className={act.icon || 'fa-star'}></i>
                                 </div>
-                                <span className="text-[11px] font-black uppercase text-[var(--text-primary)] group-hover/item:text-[var(--accent-color)]">{act.title}</span>
+                                <span className="text-[10px] font-bold uppercase tracking-tight text-[var(--text-primary)] group-hover/item:text-[var(--accent-color)]">{act.title}</span>
                              </button>
                           ))}
                        </div>
                     )}
                  </div>
                  {lockedCategory && (
-                    <div className="p-4 pt-2 text-center">
-                      <button onClick={() => { setLockedCategory(null); setHoveredCategory(null); }} className="text-[9px] font-black text-rose-500 uppercase tracking-widest hover:underline">MENÜYÜ KAPAT</button>
+                    <div className="p-2 text-center bg-black/10 rounded-b-2xl mt-1">
+                      <button onClick={() => { setLockedCategory(null); setHoveredCategory(null); }} className="text-[8px] font-black text-rose-500 uppercase tracking-widest hover:text-rose-400 py-1">KAPAT</button>
                     </div>
                  )}
               </div>
