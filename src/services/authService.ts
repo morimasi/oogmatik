@@ -112,7 +112,10 @@ export const authService = {
             if (error.code === 'auth/popup-closed-by-user') {
                 throw new AppError("Giriş penceresi kapatıldı.", 'INTERNAL_ERROR', 500);
             }
-            throw new AppError(`Google giriş hatası: ${error.message}`, 'INTERNAL_ERROR', 500);
+            if (error.code === 'auth/unauthorized-domain') {
+                throw new AppError("Bu alan adı (domain) Firebase'de yetkilendirilmemiş. Lütfen Firebase Console -> Authentication -> Settings -> Authorized Domains kısmına bu adresi ekleyin.", 'INTERNAL_ERROR', 500);
+            }
+            throw new AppError(`Google ile giriş hatası: ${error.message}`, 'INTERNAL_ERROR', 500);
         }
     },
 
