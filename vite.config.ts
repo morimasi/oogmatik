@@ -30,15 +30,13 @@ const config: UserConfig & { test?: any } = {
       output: {
         // Granüler manual chunk'lar — her kritik bağımlılık kendi bucket'ında
         manualChunks(id: string) {
-          // Firebase — runtime'da yüklenen büyük paket
-          if (id.includes('/node_modules/firebase/') || id.includes('/node_modules/@firebase/')) return 'vendor-firebase';
-          // React ekosistemi — en çok kullanılan temel
-          if (
-            id.includes('/node_modules/react/') ||
-            id.includes('/node_modules/react-dom/') ||
-            id.includes('/node_modules/scheduler/')
-          )
-            return 'vendor-react';
+          // Stüdyolar — En büyük src bileşenleri
+          if (id.includes('/components/') && (id.includes('Studio') || id.includes('Editor'))) return 'studios';
+          // Admin Paneli
+          if (id.includes('/components/Admin')) return 'admin-panel';
+          // Öğrenci Modülleri
+          if (id.includes('/components/Student/')) return 'student-modules';
+          
           // Lucide — Simgeler (Çok fazla ikon var)
           if (id.includes('/node_modules/lucide-react/')) return 'vendor-lucide';
           // Grafikler & Infographics
@@ -46,20 +44,15 @@ const config: UserConfig & { test?: any } = {
           // 3D & Oyun Motorları — Çok büyük paketler
           if (id.includes('/node_modules/three/')) return 'vendor-three';
           if (id.includes('/node_modules/pixi.js/')) return 'vendor-pixi';
-          // Animasyon & UI kütüphaneleri
-          if (
-            id.includes('/node_modules/framer-motion/') ||
-            id.includes('/node_modules/@dnd-kit/') ||
-            id.includes('/node_modules/@radix-ui/')
-          )
-            return 'vendor-ui';
-          // PDF & Export — lazy-loadable (büyük)
-          if (
-            id.includes('/node_modules/jspdf/') ||
-            id.includes('/node_modules/html2canvas/') ||
-            id.includes('/node_modules/@react-pdf/')
-          )
-            return 'vendor-export';
+          // Firebase
+          if (id.includes('/node_modules/firebase/') || id.includes('/node_modules/@firebase/')) return 'vendor-firebase';
+          
+          // Diğer ağır node_modules
+          if (id.includes('/node_modules/')) {
+            if (id.includes('react') || id.includes('scheduler')) return 'vendor-react';
+            if (id.includes('jspdf') || id.includes('html2canvas') || id.includes('@react-pdf')) return 'vendor-export';
+            if (id.includes('framer-motion') || id.includes('@radix-ui') || id.includes('@dnd-kit')) return 'vendor-ui';
+          }
         },
       },
     },
