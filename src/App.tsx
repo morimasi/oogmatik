@@ -202,7 +202,7 @@ const tourSteps: TourStep[] = [
   {
     targetId: 'tour-logo',
     title: 'Hoş Geldiniz',
-    content: 'Bursa Disleksi AI platformuna hoş geldiniz. Hızlı bir tura başlayalım mı?',
+    content: 'Bursa Disleksi EduMind platformuna hoş geldiniz. Hızlı bir tura başlayalım mı?',
     position: 'bottom',
   },
   {
@@ -1083,7 +1083,7 @@ const AppContent = () => {
           <DyslexiaLogo className="h-16 w-auto mx-auto" />
           <div className="space-y-4 text-zinc-600 dark:text-zinc-300">
             <p className="leading-relaxed">
-              Bursa Disleksi AI, özel öğrenme güçlüğü yaşayan bireylerin eğitim süreçlerini
+              Bursa Disleksi EduMind, özel öğrenme güçlüğü yaşayan bireylerin eğitim süreçlerini
               desteklemek, eğitmen ve ailelere kişiselleştirilmiş, bilimsel temelli materyaller
               sunmak amacıyla geliştirilmiş yeni nesil bir yapay zeka platformudur.
             </p>

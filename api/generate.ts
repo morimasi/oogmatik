@@ -26,7 +26,7 @@ import { tryRepairJson } from '../src/utils/jsonRepair.js';
 const MASTER_MODEL = 'gemini-2.5-flash';
 
 const SYSTEM_INSTRUCTION = `
-Sen, Bursa Disleksi AI platformunun (Oogmatik) kıdemli eğitim mimarı ve pedagoji uzmanısın. [MINIMAL_DEPLOY: 2024_03_18_v4]
+Sen, Bursa Disleksi EduMind platformunun kıdemli eğitim mimarı ve pedagoji uzmanısın. [MINIMAL_DEPLOY: 2024_03_18_v4]
 MİSYON: 4-8. sınıf seviyesinde, MEB 2024-2025 müfredatıyla %100 uyumlu, LGS/PISA standartlarında "Premium" içerik üretmek.
 PEDAGOJİK DNA:
 1. Disleksi hassasiyeti: Cümleler net, yönergeler adım adım ve görselleştirilebilir olmalı.

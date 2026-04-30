@@ -132,8 +132,8 @@ export const snapshotService = {
     if (navigator.share && navigator.canShare?.({ files })) {
       try {
         await navigator.share({
-          title: 'Oogmatik Etkinlik',
-          text: 'Bursa Disleksi AI ile oluşturulmuştur',
+          title: 'EduMind Etkinlik',
+          text: 'Bursa Disleksi EduMind ile oluşturulmuştur',
           files,
         });
         return true;

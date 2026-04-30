@@ -33,7 +33,7 @@ const buildCapturedPrintOverlay = (
   if (typeof document === 'undefined') return null;
 
   ensurePrintStyle(paperSize);
-  document.title = (title || 'Oogmatik').replace(/[^a-z0-9ğüşıöç]/gi, '_');
+  document.title = (title || 'EduMind').replace(/[^a-z0-9ğüşıöç]/gi, '_');
 
   let overlay = document.getElementById('print-overlay');
   if (!overlay) {
@@ -267,7 +267,7 @@ export const print = async (
  */
 export const captureAndPrint = async (
   rootSelector: string,
-  title: string = 'Oogmatik_Etkinlik',
+  title: string = 'EduMind_Etkinlik',
   action: 'print' | 'download' = 'print',
   paperSize: PaperSize = 'A4'
 ): Promise<void> => {

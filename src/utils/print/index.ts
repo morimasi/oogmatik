@@ -48,7 +48,7 @@ export const printService = {
    */
   generatePdf: async (
     elementSelector: string,
-    title: string = 'Oogmatik_Etkinlik',
+    title: string = 'EduMind_Etkinlik',
     options?: PrintOptions
   ) => {
     try {

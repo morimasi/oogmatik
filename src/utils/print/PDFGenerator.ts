@@ -28,7 +28,7 @@ export interface RealPdfOptions {
  */
 export const generateRealPdf = async (
   rootSelector: string,
-  title: string = 'Oogmatik_Etkinlik',
+  title: string = 'EduMind_Etkinlik',
   options?: RealPdfOptions
 ): Promise<Blob | null> => {
   await forceRenderAllPages();
@@ -119,7 +119,7 @@ export const generateRealPdf = async (
 
     // PDF blob oluştur
     const pdfBlob = pdf.output('blob');
-    const safeName = (title || 'Oogmatik').replace(/[^a-z0-9ğüşıöçA-ZĞÜŞİÖÇ\s]/g, '_').trim();
+    const safeName = (title || 'EduMind').replace(/[^a-z0-9ğüşıöçA-ZĞÜŞİÖÇ\s]/g, '_').trim();
 
     // İndirme — Platform uyumlu
     downloadBlob(pdfBlob, `${safeName}.pdf`);

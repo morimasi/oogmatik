@@ -63,7 +63,7 @@ export const generateExamPDF = (sinav: Sinav, config: PrintConfig = DEFAULT_PRIN
     doc.setFontSize(8);
     doc.setFont(FF, 'normal');
     doc.setTextColor(160);
-    doc.text(`Sayfa ${pageNum} — Oogmatik Sinav Studyosu`, PAGE_W / 2, PAGE_H - 6, { align: 'center' });
+    doc.text(`Sayfa ${pageNum} — EduMind Sınav Stüdyosu`, PAGE_W / 2, PAGE_H - 6, { align: 'center' });
     doc.setTextColor(0);
     doc.addPage();
     pageNum++;
@@ -225,7 +225,7 @@ export const generateExamPDF = (sinav: Sinav, config: PrintConfig = DEFAULT_PRIN
   doc.setFontSize(8);
   doc.setFont(FF, 'normal');
   doc.setTextColor(160);
-  doc.text(`Sayfa ${pageNum} — Oogmatik Sinav Studyosu`, PAGE_W / 2, PAGE_H - 6, { align: 'center' });
+  doc.text(`Sayfa ${pageNum} — EduMind Sınav Stüdyosu`, PAGE_W / 2, PAGE_H - 6, { align: 'center' });
   doc.setTextColor(0);
 
   // ── CEVAP ANAHTARI (yeni sayfa) ─────────────────────────────
@@ -290,7 +290,7 @@ export const generateExamPDF = (sinav: Sinav, config: PrintConfig = DEFAULT_PRIN
   doc.setFontSize(8);
   doc.setFont(FF, 'normal');
   doc.setTextColor(160);
-  doc.text(`Sayfa ${pageNum} — Oogmatik Sinav Studyosu`, PAGE_W / 2, PAGE_H - 6, { align: 'center' });
+  doc.text(`Sayfa ${pageNum} — EduMind Sınav Stüdyosu`, PAGE_W / 2, PAGE_H - 6, { align: 'center' });
 
   // ── İNDİR ────────────────────────────────────────────────
   const safeFileName = sinav.baslik.replace(/[^\w\s-]/g, '').replace(/\s+/g, '-');
