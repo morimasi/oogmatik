@@ -35,11 +35,12 @@ export const HeaderDropdown = ({
             onMouseLeave={() => setIsOpen(false)}
         >
             <button
-                className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all hover:bg-[var(--surface-glass)] font-bold text-xs uppercase tracking-wider ${colorClass}`}
+                title={label}
+                className={`flex flex-col items-center justify-center w-11 h-11 rounded-2xl transition-all duration-300 hover:bg-[var(--accent-muted)] hover:scale-105 active:scale-95 group/drop ${colorClass}`}
             >
-                <i className={`fa-solid ${icon}`}></i>
-                <span className="hidden xl:inline">{label}</span>
-                <i className="fa-solid fa-chevron-down text-[8px] opacity-50"></i>
+                <i className={`fa-solid ${icon} text-lg mb-0.5 group-hover/drop:text-[var(--accent-color)]`}></i>
+                <span className="text-[8px] font-black uppercase tracking-tighter opacity-70 group-hover/drop:opacity-100">{label}</span>
+                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[var(--accent-color)] opacity-0 group-hover/drop:opacity-100 transition-all"></div>
             </button>
             {isOpen && (
                 <div className="absolute right-0 top-full pt-2 z-[100] animate-in fade-in slide-in-from-top-1 duration-200">
@@ -64,7 +65,7 @@ export const DropdownItem = ({
     badge?: number;
 }) => (
     <button
-        onClick={(e) => {
+        onClick={(e: React.MouseEvent) => {
             e.stopPropagation();
             if (onClick && typeof onClick === 'function') {
                 onClick();
@@ -96,9 +97,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
     onOpenAuth,
     onSelectActivity,
     onOpenStudio,
-}) => {
+}: AppHeaderProps) => {
     const { user, logout } = useAuthStore();
-    const { _isSidebarOpen, setIsSidebarOpen, zenMode, setIsTourActive } = useUIStore();
+    const { setIsSidebarOpen, zenMode, setIsTourActive } = useUIStore();
     const { currentView, setCurrentView, addHistoryView, setSelectedActivity, setWorksheetData, setActiveCurriculumSession } = useWorksheetStore();
 
     const navigateTo = (view: View) => {
@@ -137,144 +138,159 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                     <GlobalSearch onSelectActivity={onSelectActivity} />
                 </div>
 
-                <div className="flex items-center gap-2">
-                    <button
-                        onClick={() => onOpenStudio('assessment')}
-                        className="hidden sm:flex items-center gap-2 px-6 py-2.5 bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-[var(--bg-primary)] rounded-2xl text-xs font-black shadow-lg transition-all active:scale-95"
-                    >
-                        <i className="fa-solid fa-user-doctor"></i> DEĞERLENDİRME
-                    </button>
+                <div className="flex items-center gap-3">
+                    {/* Grup 1: Klinik İşlemler */}
+                    <div className="flex items-center gap-1.5 p-1 bg-[var(--surface-glass)] rounded-[20px] border border-[var(--border-color)] shadow-sm">
+                        <button
+                            onClick={() => onOpenStudio('assessment')}
+                            title="DEĞERLENDİRME"
+                            className="flex flex-col items-center justify-center w-12 h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-[16px] transition-all shadow-lg active:scale-95 group/nav"
+                        >
+                            <i className="fa-solid fa-user-doctor text-lg mb-0.5"></i>
+                            <span className="text-[7px] font-black tracking-tighter uppercase">Sınav</span>
+                        </button>
 
-                    <button
-                        onClick={() => onOpenStudio('students')}
-                        className="hidden lg:flex items-center gap-2 px-6 py-2.5 bg-[var(--surface-glass)] hover:bg-[var(--accent-muted)] text-[var(--accent-color)] rounded-2xl text-xs font-black shadow-sm transition-all active:scale-95 border border-[var(--border-color)]"
-                    >
-                        <i className="fa-solid fa-user-graduate"></i> ÖĞRENCİLERİM
-                    </button>
-                    <div className="h-8 w-px bg-[var(--border-color)] mx-2"></div>
+                        <button
+                            onClick={() => onOpenStudio('students')}
+                            title="ÖĞRENCİLERİM"
+                            className="flex flex-col items-center justify-center w-12 h-12 text-[var(--accent-color)] hover:bg-[var(--accent-muted)] rounded-[16px] transition-all active:scale-95 group/nav"
+                        >
+                            <i className="fa-solid fa-user-graduate text-lg mb-0.5"></i>
+                            <span className="text-[7px] font-black tracking-tighter uppercase">Öğrenci</span>
+                        </button>
+                    </div>
 
-                    <div className="flex items-center gap-1">
+                    {/* Grup 2: İçerik ve Kitaplık */}
+                    <div className="flex items-center gap-1 p-1 bg-[var(--surface-glass)] rounded-[20px] border border-[var(--border-color)] hover:border-[var(--accent-color)]/30 transition-colors">
                         <button
                             onClick={() => navigateTo('workbook')}
-                            className="relative p-2.5 text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all rounded-xl hover:bg-[var(--accent-muted)]"
+                            className="relative flex flex-col items-center justify-center w-11 h-11 text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all rounded-[14px] hover:bg-[var(--accent-muted)] group/nav"
                             title="Kitapçık"
                         >
-                            <i className="fa-solid fa-book-medical fa-lg"></i>
+                            <i className="fa-solid fa-book-medical text-lg mb-0.5"></i>
+                            <span className="text-[7px] font-black tracking-tighter uppercase">Dosyam</span>
                             {workbookItemsCount > 0 && (
-                                <span className="absolute top-0.5 right-0.5 bg-[var(--accent-color)] text-[var(--bg-primary)] text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-[var(--bg-paper)]">
+                                <span className="absolute top-1.5 right-1.5 bg-[var(--accent-color)] text-[var(--bg-primary)] text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-[var(--bg-paper)]">
                                     {workbookItemsCount}
                                 </span>
                             )}
                         </button>
+                        
                         <button
                             onClick={() => navigateTo('messages')}
-                            className="relative p-2.5 text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all rounded-xl hover:bg-[var(--accent-muted)]"
+                            className="relative flex flex-col items-center justify-center w-11 h-11 text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all rounded-[14px] hover:bg-[var(--accent-muted)] group/nav"
                             title="Mesajlar"
                         >
-                            <i className="fa-solid fa-comment-dots fa-lg"></i>
+                            <i className="fa-solid fa-comment-dots text-lg mb-0.5"></i>
+                            <span className="text-[7px] font-black tracking-tighter uppercase">Mesaj</span>
                             {unreadCount > 0 && (
-                                <span className="absolute top-0.5 right-0.5 bg-red-500 text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-[var(--bg-paper)]">
+                                <span className="absolute top-1.5 right-1.5 bg-red-500 text-white text-[9px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-[var(--bg-paper)]">
                                     {unreadCount}
                                 </span>
                             )}
                         </button>
-                    </div>
 
-                    <HeaderDropdown
-                        label="Kitaplığım"
-                        icon="fa-bookmark"
-                        colorClass="text-[var(--accent-color)]"
-                    >
-                        <DropdownItem
-                            icon="fa-heart"
-                            label="Favoriler"
-                            onClick={() => navigateTo('favorites')}
-                        />
-                        <DropdownItem
-                            icon="fa-box-archive"
-                            label="Arşiv"
-                            onClick={() => navigateTo('savedList')}
-                        />
-                        <DropdownItem
-                            icon="fa-share-nodes"
-                            label="Paylaşılanlar"
-                            onClick={() => navigateTo('shared')}
-                        />
-                        <DropdownItem
-                            icon="fa-clock-rotate-left"
-                            label="İşlem Geçmişi"
-                            onClick={() => onOpenModal('history')}
-                        />
-                    </HeaderDropdown>
+                        <div className="w-px h-6 bg-[var(--border-color)] mx-0.5"></div>
 
-                    <HeaderDropdown label="Destek" icon="fa-circle-info">
-                        <DropdownItem
-                            icon="fa-circle-play"
-                            label="Tur Başlat"
-                            onClick={() => setIsTourActive(true)}
-                        />
-                        <DropdownItem
-                            icon="fa-headset"
-                            label="Yardım Masası"
-                            onClick={onOpenFeedback}
-                        />
-                        <DropdownItem
-                            icon="fa-circle-question"
-                            label="Hakkımızda"
-                            onClick={() => onOpenModal('about')}
-                        />
-                        <DropdownItem
-                            icon="fa-laptop-code"
-                            label="Geliştirici"
-                            onClick={() => onOpenModal('developer')}
-                        />
-                    </HeaderDropdown>
-
-                    <div className="h-8 w-px bg-[var(--border-color)] mx-2"></div>
-
-                    {user ? (
                         <HeaderDropdown
-                            label={user.name.split(' ')[0]}
-                            icon="fa-user-circle"
-                            colorClass="text-[var(--text-primary)]"
+                            label="KITAPLIK"
+                            icon="fa-bookmark"
+                            colorClass="text-[var(--accent-color)]"
                         >
                             <DropdownItem
-                                icon="fa-user-gear"
-                                label="Profil Ayarları"
-                                onClick={() => navigateTo('profile')}
+                                icon="fa-heart"
+                                label="Favoriler"
+                                onClick={() => navigateTo('favorites')}
                             />
                             <DropdownItem
-                                icon="fa-sliders"
-                                label="Görünüm Ayarları"
-                                onClick={() => onOpenModal('settings')}
+                                icon="fa-box-archive"
+                                label="Arşiv"
+                                onClick={() => navigateTo('savedList')}
                             />
-                            {user.role === 'admin' && (
-                                <div className="h-px bg-[var(--border-color)] my-1"></div>
-                            )}
-                            {user.role === 'admin' && (
-                                <DropdownItem
-                                    icon="fa-shield-halved"
-                                    label="Admin Paneli"
-                                    onClick={() => navigateTo('admin')}
-                                />
-                            )}
-                            <div className="h-px bg-[var(--border-color)] my-1"></div>
                             <DropdownItem
-                                icon="fa-arrow-right-from-bracket"
-                                label="Çıkış Yap"
-                                onClick={async () => {
-                                    await logout();
-                                }}
+                                icon="fa-share-nodes"
+                                label="Paylaşılanlar"
+                                onClick={() => navigateTo('shared')}
+                            />
+                            <DropdownItem
+                                icon="fa-clock-rotate-left"
+                                label="İşlem Geçmişi"
+                                onClick={() => onOpenModal('history')}
                             />
                         </HeaderDropdown>
-                    ) : (
-                        <button
-                            onClick={onOpenAuth}
-                            className="px-6 py-2.5 bg-[var(--text-primary)] text-[var(--bg-primary)] rounded-2xl text-xs font-black shadow-lg transition-all active:scale-95"
-                        >
-                            GİRİŞ YAP
-                        </button>
-                    )}
+                    </div>
+
+                    {/* Grup 3: Yardım ve Profil */}
+                    <div className="flex items-center gap-1">
+                        <HeaderDropdown label="DESTEK" icon="fa-circle-info">
+                            <DropdownItem
+                                icon="fa-circle-play"
+                                label="Tur Başlat"
+                                onClick={() => setIsTourActive(true)}
+                            />
+                            <DropdownItem
+                                icon="fa-headset"
+                                label="Yardım Masası"
+                                onClick={onOpenFeedback}
+                            />
+                            <DropdownItem
+                                icon="fa-circle-question"
+                                label="Hakkımızda"
+                                onClick={() => onOpenModal('about')}
+                            />
+                            <DropdownItem
+                                icon="fa-laptop-code"
+                                label="Geliştirici"
+                                onClick={() => onOpenModal('developer')}
+                            />
+                        </HeaderDropdown>
+
+                        <div className="h-8 w-px bg-[var(--border-color)] mx-1"></div>
+
+                        {user ? (
+                            <HeaderDropdown
+                                label={user.name.split(' ')[0].toUpperCase()}
+                                icon="fa-user-circle"
+                                colorClass="text-[var(--text-primary)]"
+                            >
+                                <DropdownItem
+                                    icon="fa-user-gear"
+                                    label="Profil Ayarları"
+                                    onClick={() => navigateTo('profile')}
+                                />
+                                <DropdownItem
+                                    icon="fa-sliders"
+                                    label="Görünüm Ayarları"
+                                    onClick={() => onOpenModal('settings')}
+                                />
+                                {user.role === 'admin' && (
+                                    <div className="h-px bg-[var(--border-color)] my-1"></div>
+                                )}
+                                {user.role === 'admin' && (
+                                    <DropdownItem
+                                        icon="fa-shield-halved"
+                                        label="Admin Paneli"
+                                        onClick={() => navigateTo('admin')}
+                                    />
+                                )}
+                                <div className="h-px bg-[var(--border-color)] my-1"></div>
+                                <DropdownItem
+                                    icon="fa-arrow-right-from-bracket"
+                                    label="Çıkış Yap"
+                                    onClick={async () => {
+                                        await logout();
+                                    }}
+                                />
+                            </HeaderDropdown>
+                        ) : (
+                            <button
+                                onClick={onOpenAuth}
+                                className="px-5 py-2 bg-[var(--text-primary)] text-[var(--bg-primary)] rounded-xl text-[10px] font-black shadow-lg transition-all active:scale-95"
+                            >
+                                GİRİŞ YAP
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
         </header>
