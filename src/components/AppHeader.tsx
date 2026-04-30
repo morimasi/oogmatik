@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import DyslexiaLogo from './DyslexiaLogo';
 import GlobalSearch from './GlobalSearch';
 import { useAuthStore } from '../store/useAuthStore';
@@ -30,25 +31,41 @@ export const HeaderDropdown = ({
     const [isOpen, setIsOpen] = useState(false);
     return (
         <div
-            className="relative group"
+            className="relative group font-['Lexend']"
             onMouseEnter={() => setIsOpen(true)}
             onMouseLeave={() => setIsOpen(false)}
         >
             <button
                 title={label}
-                className={`flex flex-col items-center justify-center w-11 h-11 rounded-2xl transition-all duration-300 hover:bg-[var(--accent-muted)] hover:scale-105 active:scale-95 group/drop ${colorClass}`}
+                className={`flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 hover:bg-[var(--accent-muted)] hover:scale-105 active:scale-95 group/drop ${colorClass} relative overflow-hidden`}
             >
-                <i className={`fa-solid ${icon} text-lg mb-0.5 group-hover/drop:text-[var(--accent-color)]`}></i>
-                <span className="text-[8px] font-black uppercase tracking-tighter opacity-70 group-hover/drop:opacity-100">{label}</span>
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[var(--accent-color)] opacity-0 group-hover/drop:opacity-100 transition-all"></div>
+                <i className={`fa-solid ${icon} text-lg mb-1 group-hover/drop:text-[var(--accent-color)] transition-colors`}></i>
+                <span className="text-[7.5px] font-black uppercase tracking-[0.1em] opacity-60 group-hover/drop:opacity-100 transition-opacity">{label}</span>
+                <AnimatePresence>
+                    {isOpen && (
+                        <motion.div 
+                            layoutId="dropdown-dot"
+                            className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[var(--accent-color)]"
+                        />
+                    )}
+                </AnimatePresence>
             </button>
-            {isOpen && (
-                <div className="absolute right-0 top-full pt-2 z-[100] animate-in fade-in slide-in-from-top-1 duration-200">
-                    <div className="bg-[var(--panel-bg-solid)] border border-[var(--border-color)] rounded-2xl shadow-premium p-2 min-w-[220px] overflow-hidden ring-1 ring-black/5 dark:ring-white/5">
-                        {children}
-                    </div>
-                </div>
-            )}
+            
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        className="absolute right-0 top-full pt-2 z-[100]"
+                    >
+                        <div className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-[1.8rem] shadow-premium p-2 min-w-[240px] overflow-hidden backdrop-blur-xl ring-1 ring-black/5 dark:ring-white/5">
+                            {children}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
@@ -71,18 +88,18 @@ export const DropdownItem = ({
                 onClick();
             }
         }}
-        className="w-full flex items-center justify-between px-4 py-3 hover:bg-[var(--panel-bg-subtle)] hover:pl-5 rounded-xl transition-all duration-300 group"
+        className="w-full flex items-center justify-between px-5 py-3.5 hover:bg-[var(--bg-secondary)] hover:pl-6 rounded-[1.2rem] transition-all duration-300 group font-['Lexend']"
     >
-        <div className="flex items-center gap-3">
-            <i
-                className={`fa-solid ${icon} w-4 text-center text-[var(--text-muted)] group-hover:text-[var(--accent-color)] group-hover:scale-110 transition-all`}
-            ></i>
-            <span className="text-xs font-bold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
+        <div className="flex items-center gap-4">
+            <div className="w-8 h-8 rounded-xl bg-[var(--bg-secondary)] group-hover:bg-[var(--bg-paper)] flex items-center justify-center transition-colors">
+                <i className={`fa-solid ${icon} text-xs text-[var(--text-muted)] group-hover:text-[var(--accent-color)] transition-all`}></i>
+            </div>
+            <span className="text-[12px] font-bold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)]">
                 {label}
             </span>
         </div>
         {badge !== undefined && badge > 0 && (
-            <span className="bg-[var(--accent-color)] text-[var(--bg-primary)] text-[9px] font-black px-1.5 py-0.5 rounded-full shadow-sm">
+            <span className="bg-[var(--accent-color)] text-white text-[9px] font-black px-2 py-0.5 rounded-lg shadow-sm">
                 {badge}
             </span>
         )}
@@ -110,16 +127,17 @@ export const AppHeader = ({
 
     return (
         <header
-            className={`relative bg-[var(--panel-bg-solid)] border-b border-[var(--border-color)] shadow-premium z-[90] transition-all duration-500 ${zenMode ? '-mt-24 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}
+            className={`relative bg-[var(--bg-paper)] border-b border-[var(--border-color)] shadow-xl z-[90] transition-all duration-500 font-['Lexend'] ${zenMode ? '-mt-24 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}
         >
-            <div className="w-full px-6 py-4 flex justify-between items-center gap-6">
-                <div className="flex items-center gap-4">
+            <div className="w-full px-8 py-5 flex justify-between items-center gap-10">
+                <div className="flex items-center gap-6">
                     <button
                         onClick={() => setIsSidebarOpen(true)}
                         className="md:hidden text-[var(--text-muted)] p-2 hover:text-[var(--text-primary)] transition-colors"
                     >
                         <i className="fa-solid fa-bars-staggered fa-lg"></i>
                     </button>
+                    
                     <button
                         id="tour-logo"
                         onClick={() => {
@@ -128,132 +146,94 @@ export const AppHeader = ({
                             setWorksheetData(null);
                             setActiveCurriculumSession(null);
                         }}
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-4 group"
                     >
-                        <DyslexiaLogo className="h-10 w-auto transition-all duration-500 hover:scale-110 hover:rotate-3 shadow-premium-sm rounded-xl" />
-                        <div className="flex flex-col ml-3 text-center group-hover:scale-105 transition-all duration-500">
-                            <span className="text-[16px] font-black tracking-tight bg-gradient-to-r from-amber-400 via-orange-500 to-amber-600 bg-clip-text text-transparent drop-shadow-md">
-                                Bursa Disleksi
+                        <div className="relative">
+                            <DyslexiaLogo className="h-10 w-auto transition-all duration-500 group-hover:scale-110 group-hover:rotate-3" />
+                            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-[var(--bg-paper)] rounded-full shadow-sm"></div>
+                        </div>
+                        <div className="flex flex-col text-left transition-transform duration-500 group-hover:translate-x-1">
+                            <span className="text-[17px] font-black tracking-tighter text-[var(--text-primary)] leading-none mb-1">
+                                OOGMATİK
                             </span>
-                            <span className="text-[11px] font-black tracking-[0.3em] bg-gradient-to-r from-[#D4AF37] via-[#FFF8E1] via-[#E5E4E2] to-[#B87333] bg-clip-text text-transparent uppercase mt-0.5 animate-shimmer animate-pulse-slow">
-                                EduMind
+                            <span className="text-[9px] font-black tracking-[0.4em] text-[var(--accent-color)] uppercase opacity-80">
+                                EDU-TECH PLATFORM
                             </span>
                         </div>
                     </button>
                 </div>
 
-                <div className="flex-1"></div>
-
-                <div className="flex items-center gap-3">
-                    <div className="hidden md:block scale-95 opacity-80 hover:opacity-100 transition-opacity">
+                <div className="flex-1 max-w-xl">
+                    <div className="hidden md:block">
                         <GlobalSearch onSelectActivity={onSelectActivity} />
                     </div>
-                    <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[var(--surface-glass)] rounded-[22px] border border-[var(--border-color)] shadow-premium-sm transition-all hover:border-[var(--accent-color)]/20">
-                    {/* Grup 1: Klinik & Öğrenci Odaklı */}
-                    <button
-                        onClick={() => onOpenStudio('assessment')}
-                        title="KLİNİK DEĞERLENDİRME"
-                        className="flex flex-col items-center justify-center w-11 h-11 bg-indigo-600 hover:bg-indigo-500 text-white rounded-[16px] transition-all shadow-lg active:scale-95 group/nav"
-                    >
-                        <i className="fa-solid fa-stethoscope text-base mb-0.5 group-hover/nav:scale-110 transition-transform"></i>
-                        <span className="text-[7px] font-black tracking-tighter uppercase opacity-90">Sınav</span>
-                    </button>
-
-                    <button
-                        onClick={() => onOpenStudio('students')}
-                        title="ÖĞRENCİ YÖNETİMİ"
-                        className="flex flex-col items-center justify-center w-11 h-11 text-[var(--accent-color)] hover:bg-[var(--accent-muted)] rounded-[16px] transition-all active:scale-95 group/nav"
-                    >
-                        <i className="fa-solid fa-user-graduate text-base mb-0.5 group-hover/nav:scale-110 transition-transform"></i>
-                        <span className="text-[7px] font-black tracking-tighter uppercase">Öğrenci</span>
-                    </button>
                 </div>
 
-                <div className="flex items-center gap-1 px-2 py-1.5 bg-[var(--surface-glass)] rounded-[22px] border border-[var(--border-color)] hover:border-[var(--accent-color)]/30 transition-all shadow-premium-sm">
-                    {/* Grup 2: İçerik & Üretim */}
-                    <button
-                        onClick={() => navigateTo('workbook')}
-                        className="relative flex flex-col items-center justify-center w-10 h-10 text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all rounded-[14px] hover:bg-[var(--accent-muted)] group/nav"
-                        title="Çalışma Dosyam"
-                    >
-                        <i className="fa-solid fa-folder-plus text-base mb-0.5 group-hover/nav:scale-110 transition-transform"></i>
-                        <span className="text-[7px] font-black tracking-tighter uppercase opacity-70">Dosyam</span>
-                        {workbookItemsCount > 0 && (
-                            <span className="absolute -top-1 -right-1 bg-[var(--accent-color)] text-white text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-[var(--bg-paper)] shadow-sm">
-                                {workbookItemsCount}
-                            </span>
-                        )}
-                    </button>
-                    
-                    <button
-                        onClick={() => navigateTo('messages')}
-                        className="relative flex flex-col items-center justify-center w-10 h-10 text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all rounded-[14px] hover:bg-[var(--accent-muted)] group/nav"
-                        title="Mesajlaşma ve Bildirimler"
-                    >
-                        <i className="fa-solid fa-bell text-base mb-0.5 group-hover/nav:scale-110 transition-transform"></i>
-                        <span className="text-[7px] font-black tracking-tighter uppercase opacity-70">Panel</span>
-                        {unreadCount > 0 && (
-                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] font-black w-4 h-4 flex items-center justify-center rounded-full border-2 border-[var(--bg-paper)] shadow-sm">
-                                {unreadCount}
-                            </span>
-                        )}
-                    </button>
+                <div className="flex items-center gap-4">
+                    {/* Activity & Students Group */}
+                    <div className="flex items-center gap-2 p-1.5 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)]">
+                        <button
+                            onClick={() => onOpenStudio('assessment')}
+                            className="flex flex-col items-center justify-center w-12 h-12 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all shadow-lg active:scale-95 group/nav"
+                            title="Değerlendirme Modülü"
+                        >
+                            <i className="fa-solid fa-stethoscope text-lg group-hover/nav:scale-110 transition-transform"></i>
+                        </button>
 
-                    <div className="w-[1px] h-5 bg-[var(--border-color)] mx-1 opacity-50"></div>
+                        <button
+                            onClick={() => onOpenStudio('students')}
+                            className="flex flex-col items-center justify-center w-12 h-12 bg-[var(--bg-paper)] text-[var(--accent-color)] hover:bg-[var(--accent-muted)] border border-[var(--border-color)] rounded-xl transition-all active:scale-95 group/nav"
+                            title="Öğrenci Yönetimi"
+                        >
+                            <i className="fa-solid fa-user-graduate text-lg group-hover/nav:scale-110 transition-transform"></i>
+                        </button>
+                    </div>
 
-                    <HeaderDropdown
-                        label="KİTAPLIK"
-                        icon="fa-shapes"
-                        colorClass="text-[var(--accent-color)]"
-                    >
-                        <DropdownItem
-                            icon="fa-star"
-                            label="Favori Etkinliklerim"
-                            onClick={() => navigateTo('favorites')}
-                        />
-                        <DropdownItem
-                            icon="fa-box-archive"
-                            label="Dijital Arşiv"
-                            onClick={() => navigateTo('savedList')}
-                        />
-                        <DropdownItem
-                            icon="fa-share-nodes"
-                            label="Paylaşılan Materyaller"
-                            onClick={() => navigateTo('shared')}
-                        />
-                        <DropdownItem
-                            icon="fa-clock-rotate-left"
-                            label="İşlem Geçmişi"
-                            onClick={() => onOpenModal('history')}
-                        />
-                    </HeaderDropdown>
-                </div>
+                    {/* Secondary Navigation */}
+                    <div className="flex items-center gap-1.5">
+                        <button
+                            onClick={() => navigateTo('workbook')}
+                            className="relative flex flex-col items-center justify-center w-11 h-11 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all rounded-[14px] group/nav"
+                            title="Çalışma Dosyam"
+                        >
+                            <i className="fa-solid fa-folder-plus text-lg group-hover/nav:scale-110 transition-transform"></i>
+                            {workbookItemsCount > 0 && (
+                                <span className="absolute top-1 right-1 bg-[var(--accent-color)] text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full border-4 border-[var(--bg-paper)] shadow-premium-sm scale-90">
+                                    {workbookItemsCount}
+                                </span>
+                            )}
+                        </button>
+                        
+                        <button
+                            onClick={() => navigateTo('messages')}
+                            className="relative flex flex-col items-center justify-center w-11 h-11 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all rounded-[14px] group/nav"
+                            title="Mesajlar ve Bildirimler"
+                        >
+                            <i className="fa-solid fa-bell text-lg group-hover/nav:scale-110 transition-transform"></i>
+                            {unreadCount > 0 && (
+                                <span className="absolute top-1 right-1 bg-red-500 text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full border-4 border-[var(--bg-paper)] shadow-premium-sm scale-90 animate-pulse">
+                                    {unreadCount}
+                                </span>
+                            )}
+                        </button>
 
-                <div className="flex items-center gap-1">
-                    <HeaderDropdown label="DESTEK" icon="fa-headset">
-                            <DropdownItem
-                                icon="fa-circle-play"
-                                label="Tur Başlat"
-                                onClick={() => setIsTourActive(true)}
-                            />
-                            <DropdownItem
-                                icon="fa-headset"
-                                label="Yardım Masası"
-                                onClick={onOpenFeedback}
-                            />
-                            <DropdownItem
-                                icon="fa-circle-question"
-                                label="Hakkımızda"
-                                onClick={() => onOpenModal('about')}
-                            />
-                            <DropdownItem
-                                icon="fa-laptop-code"
-                                label="Geliştirici"
-                                onClick={() => onOpenModal('developer')}
-                            />
+                        <div className="w-[1px] h-6 bg-[var(--border-color)] mx-2 opacity-50"></div>
+
+                        <HeaderDropdown label="KİTAPLIK" icon="fa-shapes" colorClass="text-[var(--accent-color)]">
+                            <DropdownItem icon="fa-star" label="Favori Etkinliklerim" onClick={() => navigateTo('favorites')} />
+                            <DropdownItem icon="fa-box-archive" label="Dijital Arşiv" onClick={() => navigateTo('savedList')} />
+                            <DropdownItem icon="fa-share-nodes" label="Paylaşılan Materyaller" onClick={() => navigateTo('shared')} />
+                            <DropdownItem icon="fa-clock-rotate-left" label="İşlem Geçmişi" onClick={() => onOpenModal('history')} />
                         </HeaderDropdown>
 
-                        <div className="h-8 w-px bg-[var(--border-color)] mx-1"></div>
+                        <HeaderDropdown label="DESTEK" icon="fa-headset">
+                            <DropdownItem icon="fa-circle-play" label="Rehber Turu Başlat" onClick={() => setIsTourActive(true)} />
+                            <DropdownItem icon="fa-headset" label="Premium Yardım Masası" onClick={onOpenFeedback} />
+                            <DropdownItem icon="fa-circle-question" label="Platform Hakkımızda" onClick={() => onOpenModal('about')} />
+                            <DropdownItem icon="fa-laptop-code" label="Geliştirici Vizyonu" onClick={() => onOpenModal('developer')} />
+                        </HeaderDropdown>
+
+                        <div className="w-[1px] h-6 bg-[var(--border-color)] mx-2 opacity-50"></div>
 
                         {user ? (
                             <HeaderDropdown
@@ -261,39 +241,17 @@ export const AppHeader = ({
                                 icon="fa-user-circle"
                                 colorClass="text-[var(--text-primary)]"
                             >
-                                <DropdownItem
-                                    icon="fa-user-gear"
-                                    label="Profil Ayarları"
-                                    onClick={() => navigateTo('profile')}
-                                />
-                                <DropdownItem
-                                    icon="fa-sliders"
-                                    label="Görünüm Ayarları"
-                                    onClick={() => onOpenModal('settings')}
-                                />
-                                {user.role === 'admin' && (
-                                    <div className="h-px bg-[var(--border-color)] my-1"></div>
-                                )}
-                                {user.role === 'admin' && (
-                                    <DropdownItem
-                                        icon="fa-shield-halved"
-                                        label="Admin Paneli"
-                                        onClick={() => navigateTo('admin')}
-                                    />
-                                )}
-                                <div className="h-px bg-[var(--border-color)] my-1"></div>
-                                <DropdownItem
-                                    icon="fa-arrow-right-from-bracket"
-                                    label="Çıkış Yap"
-                                    onClick={async () => {
-                                        await logout();
-                                    }}
-                                />
+                                <DropdownItem icon="fa-user-gear" label="Profil Ayarları" onClick={() => navigateTo('profile')} />
+                                <DropdownItem icon="fa-sliders" label="Görünüm Ayarları" onClick={() => onOpenModal('settings')} />
+                                {user.role === 'admin' && <div className="h-px bg-[var(--border-color)] my-2 opacity-50"></div>}
+                                {user.role === 'admin' && <DropdownItem icon="fa-shield-halved" label="Yönetim Paneli" onClick={() => navigateTo('admin')} />}
+                                <div className="h-px bg-[var(--border-color)] my-2 opacity-50"></div>
+                                <DropdownItem icon="fa-arrow-right-from-bracket" label="Oturumu Kapat" onClick={async () => await logout()} />
                             </HeaderDropdown>
                         ) : (
                             <button
                                 onClick={onOpenAuth}
-                                className="px-5 py-2 bg-[var(--text-primary)] text-[var(--bg-primary)] rounded-xl text-[10px] font-black shadow-lg transition-all active:scale-95"
+                                className="px-6 py-2.5 bg-[var(--text-primary)] text-[var(--bg-primary)] rounded-[1.2rem] text-[11px] font-black shadow-xl hover:scale-105 active:scale-95 transition-all"
                             >
                                 GİRİŞ YAP
                             </button>

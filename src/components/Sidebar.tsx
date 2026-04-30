@@ -12,79 +12,14 @@ import {
 } from '../types';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
 import * as generators from '../services/generators';
-import * as offlineGenerators from '../services/offlineGenerators';
 import { GeneratorView } from './GeneratorView';
 import { statsService } from '../services/statsService';
 import { activityService } from '../services/generators/ActivityService';
 import { GeneratorMode } from '../services/generators/core/types';
 import { adminService } from '../services/adminService';
 import { useStudentStore } from '../store/useStudentStore';
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError } from '../utils/logger.js';
 import './PremiumPopupStyles.css';
-
-import './PremiumPopupStyles.css';
-
-const toPascalCase = (str: string): string => {
-  if (!str) return '';
-  return str
-    .toLowerCase()
-    .split(/[-_ ]+/)
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-    .join(' ');
-};
-
-interface SidebarProps {
-  selectedActivity: ActivityType | null;
-  onSelectActivity: (id: ActivityType | null) => void;
-  setWorksheetData: (data: WorksheetData) => void;
-  setIsLoading: (loading: boolean) => void;
-  setError: (error: string | null) => void;
-  isLoading: boolean;
-  isSidebarOpen: boolean;
-  closeSidebar: () => void;
-  onAddToHistory: (activityType: ActivityType, data: WorksheetData) => void;
-  isExpanded?: boolean;
-  onOpenOCR?: () => void;
-  onOpenCurriculum?: () => void;
-  onOpenReadingStudio?: () => void;
-  onOpenMathStudio?: () => void;
-  onOpenSuperTurkce?: () => void;
-  onOpenInfographicStudio?: () => void;
-  onOpenActivityStudio?: () => void;
-  onOpenScreening?: () => void; // Added Prop
-  onOpenSinavStudyosu?: () => void; // Sınav Stüdyosu
-  onOpenMatSinavStudyosu?: () => void; // Matematik Sınav Stüdyosu
-  onOpenSariKitapStudio?: () => void; // BursaDisleksi Hızlı Okuma Stüdyosu
-  onOpenKelimeCumleStudio?: () => void; // Kelime-Cümle Stüdyosu
-  activeCurriculumSession?: ActiveCurriculumSession | null;
-  width?: number;
-  onWidthChange?: (width: number) => void;
-}
-
-const _StudioMenuItem = ({ icon, label, onClick, color, isExpanded }: any) => (
-  <button
-    onClick={onClick}
-    className={`w-full group flex items-center ${isExpanded ? 'px-3 gap-3' : 'justify-center px-2'} py-2 rounded-xl transition-all duration-300 hover:shadow-sm border border-transparent relative`}
-    style={{ '--hover-bg': 'var(--bg-paper)' } as React.CSSProperties}
-  >
-    <div
-      className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs shadow-sm transition-all duration-500 group-hover:scale-110 group-hover:shadow-md ${color} relative overflow-hidden`}
-    >
-      <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-      <i className={`fa-solid ${icon} text-white`}></i>
-    </div>
-
-    {isExpanded && (
-      <span className="flex-1 text-left text-xs font-normal transition-colors" style={{ color: 'var(--text-secondary)' }}>
-        {label}
-      </span>
-    )}
-
-    {isExpanded && (
-      <i className="fa-solid fa-chevron-right text-[10px] opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" style={{ color: 'var(--text-muted)' }}></i>
-    )}
-  </button>
-);
 
 const Sidebar: React.FC<SidebarProps> = ({
   isSidebarOpen,
@@ -112,14 +47,12 @@ const Sidebar: React.FC<SidebarProps> = ({
   activeCurriculumSession,
 }) => {
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
-  const { _activeStudent, _setActiveStudent } = useStudentStore();
+  const { _activeStudent } = useStudentStore();
   const [allActivities, setAllActivities] = useState<Activity[]>(ACTIVITIES);
   const [categories, setCategories] = useState<ActivityCategory[]>(ACTIVITY_CATEGORIES);
 
   // Boyutlandırma State'leri
-  const [isStudioMenuOpen, setIsStudioMenuOpen] = useState(false);
   const [selectedStudio, setSelectedStudio] = useState<string | null>(null);
-  const [isResizing, setIsResizing] = useState(false);
 
   // Hover popup state
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
@@ -135,14 +68,14 @@ const Sidebar: React.FC<SidebarProps> = ({
           id: 'screening',
           label: 'Tarama & Analiz',
           icon: 'fa-clipboard-question',
-          color: 'bg-purple-500',
+          color: 'text-purple-500',
           onClick: onOpenScreening,
         },
         {
           id: 'curriculum',
           label: 'Plan & Müfredat',
           icon: 'fa-calendar-check',
-          color: 'bg-emerald-500',
+          color: 'text-emerald-500',
           onClick: onOpenCurriculum,
         },
       ],
@@ -154,35 +87,35 @@ const Sidebar: React.FC<SidebarProps> = ({
           id: 'reading',
           label: 'Okuma Stüdyosu',
           icon: 'fa-book-open',
-          color: 'bg-rose-500',
+          color: 'text-rose-500',
           onClick: onOpenReadingStudio,
         },
         {
           id: 'math',
           label: 'Matematik Stüdyosu',
           icon: 'fa-calculator',
-          color: 'bg-blue-500',
+          color: 'text-blue-500',
           onClick: onOpenMathStudio,
         },
         {
           id: 'super-turkce',
           label: 'Süper Türkçe Stüdyosu',
           icon: 'fa-wand-magic-sparkles',
-          color: 'bg-teal-500',
+          color: 'text-teal-500',
           onClick: onOpenSuperTurkce,
         },
         {
           id: 'sinav-studyosu',
           label: 'Sınav Stüdyosu',
           icon: 'fa-clipboard-check',
-          color: 'bg-amber-500',
+          color: 'text-amber-500',
           onClick: onOpenSinavStudyosu,
         },
         {
           id: 'mat-sinav-studyosu',
           label: 'Matematik Sınav Stüdyosu',
           icon: 'fa-square-root-variable',
-          color: 'bg-blue-600',
+          color: 'text-blue-600',
           onClick: onOpenMatSinavStudyosu,
         },
       ],
@@ -194,28 +127,28 @@ const Sidebar: React.FC<SidebarProps> = ({
           id: 'activity-studio',
           label: 'Ultra Etkinlik Stüdyosu',
           icon: 'fa-wand-sparkles',
-          color: 'bg-fuchsia-500',
+          color: 'text-fuchsia-500',
           onClick: onOpenActivityStudio,
         },
         {
           id: 'infographic-studio',
           label: 'İnfografik Stüdyosu',
           icon: 'fa-chart-pie',
-          color: 'bg-violet-500',
+          color: 'text-violet-500',
           onClick: onOpenInfographicStudio,
         },
         {
           id: 'sari-kitap-studio',
-          label: 'Hızlı Okuma Stüdyosu', // BursaDisleksi Hızlı Okuma Stüdyosu kısa hali
+          label: 'Hızlı Okuma Stüdyosu',
           icon: 'fa-book',
-          color: 'bg-yellow-500',
+          color: 'text-yellow-500',
           onClick: onOpenSariKitapStudio,
         },
         {
           id: 'kelime-cumle-studio',
           label: 'Kelime-Cümle Stüdyosu',
           icon: 'fa-font',
-          color: 'bg-indigo-500',
+          color: 'text-indigo-500',
           onClick: onOpenKelimeCumleStudio,
         },
       ],
@@ -224,45 +157,36 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const handleStudioClick = (item: any) => {
     setSelectedStudio(item.id);
-    setIsStudioMenuOpen(false);
     if (item.onClick) item.onClick();
   };
 
   // Hover popup handlers
   const handleCategoryMouseEnter = (categoryId: string, event: React.MouseEvent) => {
-    // Clear any existing timeouts
     if (popupTimeoutRef.current) clearTimeout(popupTimeoutRef.current);
     if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
 
     const rect = event.currentTarget.getBoundingClientRect();
-
-    // Set popup to show after 0-100ms delay
     popupTimeoutRef.current = setTimeout(() => {
       setPopupRect(rect);
       setHoveredCategory(categoryId);
-    }, Math.random() * 100); // Random delay between 0-100ms
+    }, 50);
   };
 
   const handleCategoryMouseLeave = () => {
-    // Clear popup timeout
     if (popupTimeoutRef.current) clearTimeout(popupTimeoutRef.current);
-
-    // Set close timeout with 350ms delay for stability
     closeTimeoutRef.current = setTimeout(() => {
       setHoveredCategory(null);
-    }, 350);
+    }, 300);
   };
 
   const handlePopupMouseEnter = () => {
-    // Clear close timeout when mouse enters popup
     if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
   };
 
   const handlePopupMouseLeave = () => {
-    // Set close timeout when mouse leaves popup
     closeTimeoutRef.current = setTimeout(() => {
       setHoveredCategory(null);
-    }, 350);
+    }, 300);
   };
 
   const handleActivitySelect = (activityId: ActivityType) => {
@@ -270,7 +194,6 @@ const Sidebar: React.FC<SidebarProps> = ({
     setHoveredCategory(null);
   };
 
-  // ESC key handler
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -279,46 +202,25 @@ const Sidebar: React.FC<SidebarProps> = ({
         if (popupTimeoutRef.current) clearTimeout(popupTimeoutRef.current);
       }
     };
-
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Cleanup timeouts on unmount
-  useEffect(() => {
-    return () => {
-      if (popupTimeoutRef.current) clearTimeout(popupTimeoutRef.current);
-      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
-    };
-  }, []);
-
-  // Close menu when clicking outside - Enhanced for popup
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-
-      // Studio menu
-      if (
-        isStudioMenuOpen &&
-        !target.closest('.studio-menu-container') &&
-        !target.closest('.studio-trigger-btn')
-      ) {
-        setIsStudioMenuOpen(false);
-      }
-
-      // Popup menu - click outside detection
       if (
         hoveredCategory &&
         !target.closest('.premium-popup-menu') &&
-        !target.closest('.category-trigger-btn')
+        !target.closest('.category-trigger-btn') &&
+        !target.closest('.studio-trigger-btn')
       ) {
         setHoveredCategory(null);
       }
     };
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isStudioMenuOpen, hoveredCategory]);
+  }, [hoveredCategory]);
 
   useEffect(() => {
     const loadDynamicResources = async () => {
@@ -355,31 +257,6 @@ const Sidebar: React.FC<SidebarProps> = ({
     loadDynamicResources();
   }, []);
 
-  // Resize Logic (Disabled for now as we use fixed width or simpler layout)
-  /*
-    useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            if (!isResizing) return;
-            let newWidth = e.clientX;
-            if (newWidth < 280) newWidth = 280;
-            if (newWidth > 650) newWidth = 650;
-            setSidebarWidth(newWidth);
-        };
-
-        const handleMouseUp = () => setIsResizing(false);
-
-        if (isResizing) {
-            window.addEventListener('mousemove', handleMouseMove);
-            window.addEventListener('mouseup', handleMouseUp);
-        }
-
-        return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('mouseup', handleMouseUp);
-        };
-    }, [isResizing]);
-    */
-
   const handleGenerate = async (options: GeneratorOptions) => {
     if (!selectedActivity) return;
     setIsLoading(true);
@@ -400,7 +277,6 @@ const Sidebar: React.FC<SidebarProps> = ({
         }
       }
       if (!result) {
-        // MERKEZİ ÜRETİM MOTORU: registry.ts ve ActivityService üzerinden üretim
         const response = await activityService.generate(
           selectedActivity,
           options,
@@ -438,18 +314,8 @@ const Sidebar: React.FC<SidebarProps> = ({
     <>
       <aside
         style={{ width: isExpanded ? '320px' : '85px' }}
-        className={`fixed inset-y-0 left-0 z-30 glass-panel transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col h-full md:relative md:translate-x-0 ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'}`}
+        className={`fixed inset-y-0 left-0 z-[80] bg-[var(--bg-paper)] border-r border-[var(--border-color)] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] flex flex-col h-full md:relative md:translate-x-0 font-['Lexend'] ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'}`}
       >
-        {/* Resizing Handle */}
-        {isExpanded && (
-          <div
-            onMouseDown={() => setIsResizing(true)}
-            className={`absolute -right-0.5 top-0 bottom-0 w-1.5 cursor-col-resize z-50 hover:bg-indigo-500/40 transition-colors group ${isResizing ? 'bg-indigo-500/60 w-2' : ''}`}
-          >
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-0.5 h-8 rounded-full opacity-0 group-hover:opacity-100" style={{ backgroundColor: 'var(--border-color)' }} />
-          </div>
-        )}
-
         <div className="flex h-full flex-col overflow-hidden">
           {selectedActivity ? (
             selectedActivityData ? (
@@ -463,337 +329,166 @@ const Sidebar: React.FC<SidebarProps> = ({
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-[var(--bg-primary)]">
                 <i className="fa-solid fa-circle-notch fa-spin text-2xl text-[var(--accent-color)] mb-4"></i>
-                <p className="text-xs font-normal text-[var(--text-muted)] uppercase tracking-widest">
-                  Etkinlik Yükleniyor...
+                <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest leading-none">
+                  Hazırlanıyor
                 </p>
               </div>
             )
           ) : (
-            <nav className="flex-1 overflow-y-auto px-4 py-3 custom-scrollbar scroll-smooth">
-              {isExpanded && (
-                <span className="text-[9px] font-normal uppercase tracking-[0.4em] mb-2 mt-1 block ml-3" style={{ color: 'var(--text-muted)' }}>
+            <nav className="flex-1 overflow-y-auto px-5 py-6 custom-scrollbar scroll-smooth space-y-8">
+              <div>
+                 <span className="text-[9px] font-black uppercase tracking-[0.4em] mb-4 block ml-3 text-[var(--text-muted)] opacity-50">
                   Akıllı Modüller
                 </span>
-              )}
 
-              <div className="space-y-0.5 px-2">
-                {/* STÜDYOLAR - SINGLE BUTTON WITH POPUP */}
-                <div className="relative mb-1">
+                <div className="space-y-2">
                   <button
-                    onClick={(e) => {
-                      setPopupRect(e.currentTarget.getBoundingClientRect());
-                      setHoveredCategory('studios');
-                    }}
                     onMouseEnter={(e) => handleCategoryMouseEnter('studios', e)}
                     onMouseLeave={handleCategoryMouseLeave}
-                    className={`studio-trigger-btn w-full group flex items-center ${isExpanded ? 'px-3 gap-3' : 'justify-center px-2'} py-1.5 rounded-2xl transition-all duration-300 bg-[var(--bg-paper)] hover:shadow-lg border border-[var(--border-color)] relative overflow-hidden`}
-                    aria-haspopup="true"
-                    aria-expanded={hoveredCategory === 'studios'}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        setPopupRect(e.currentTarget.getBoundingClientRect());
-                        setHoveredCategory('studios');
-                      }
-                    }}
+                    className={`studio-trigger-btn w-full group flex items-center ${isExpanded ? 'px-4 gap-4' : 'justify-center px-2'} py-3 rounded-[1.5rem] transition-all duration-500 bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)] border border-[var(--border-color)] hover:border-[var(--accent-color)]/30 hover:shadow-xl relative overflow-hidden`}
                   >
-                    <div
-                      className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm shadow-sm transition-all duration-500 bg-[var(--accent-color)] text-white relative z-10`}
-                    >
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-base bg-[var(--accent-color)] text-white shadow-lg shadow-indigo-500/20 group-hover:scale-110 transition-transform duration-500">
                       <i className="fa-solid fa-layer-group"></i>
                     </div>
 
                     {isExpanded && (
-                      <div className="flex-1 flex flex-col items-start relative z-10">
-                        <span className="text-xs font-normal text-[var(--text-primary)] group-hover:text-[var(--accent-color)] transition-colors">
+                      <div className="flex-1 flex flex-col items-start">
+                        <span className="text-xs font-black text-[var(--text-primary)] group-hover:text-[var(--accent-color)] transition-colors tracking-tight uppercase">
                           Stüdyolar
                         </span>
-                        <span className="text-[9px] font-normal text-[var(--text-muted)] uppercase tracking-wide">
+                        <span className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-widest opacity-60">
                           Tüm Modüller
                         </span>
                       </div>
                     )}
 
                     {isExpanded && (
-                      <i className="fa-solid fa-chevron-right text-[10px] text-[var(--text-muted)] relative z-10 transition-transform group-hover:translate-x-1"></i>
+                      <i className="fa-solid fa-chevron-right text-[10px] text-[var(--text-muted)] opacity-30 group-hover:translate-x-1 group-hover:opacity-100 transition-all"></i>
                     )}
-
-                    {/* Hover Effect Background */}
-                    <div className="absolute inset-0 bg-[var(--accent-muted)] opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   </button>
 
-                  {/* PREMIUM HOVER POPUP MENU FOR STUDIOS */}
-                  {hoveredCategory === 'studios' &&
-                    popupRect &&
-                    createPortal(
-                      <div
+                  {/* STUDIO POPUP PORTAL */}
+                  {hoveredCategory === 'studios' && popupRect && createPortal(
+                     <div
                         className="premium-popup-menu"
                         onMouseEnter={handlePopupMouseEnter}
                         onMouseLeave={handlePopupMouseLeave}
-                        role="menu"
-                        aria-label="Stüdyolar menüsü"
-                        aria-hidden="false"
-                        style={{
-                          animation: 'slideInFade 0.35s ease-in-out',
-                          position: 'fixed',
-                          top: popupRect.top,
-                          left: popupRect.left + popupRect.width * 0.5,
-                        }}
-                        onKeyDown={(e) => {
-                          const items = Array.from(
-                            document.querySelectorAll('.premium-popup-activity-item')
-                          );
-                          const currentIndex = items.indexOf(document.activeElement as HTMLElement);
-                          let nextIndex = currentIndex;
-
-                          if (e.key === 'ArrowDown') {
-                            e.preventDefault();
-                            nextIndex = Math.min(currentIndex + 1, items.length - 1);
-                          } else if (e.key === 'ArrowUp') {
-                            e.preventDefault();
-                            nextIndex = Math.max(currentIndex - 1, 0);
-                          } else if (e.key === 'Home') {
-                            e.preventDefault();
-                            nextIndex = 0;
-                          } else if (e.key === 'End') {
-                            e.preventDefault();
-                            nextIndex = items.length - 1;
-                          }
-
-                          if (nextIndex !== currentIndex && items[nextIndex]) {
-                            (items[nextIndex] as HTMLElement).focus();
-                          }
-                        }}
+                        style={{ top: popupRect.top, left: popupRect.left + popupRect.width + 15 }}
                       >
-                        <div className="premium-popup-content flex flex-col">
-                          <div className="premium-popup-header">
-                            <span className="premium-popup-title">Stüdyolar</span>
-                          </div>
-
-                          <div
-                            className="premium-popup-activities flex flex-col"
-                            role="listbox"
-                            aria-label="Stüdyolar Listesi"
-                          >
-                            {studioGroups.map((group, groupIndex) => (
-                              <div key={groupIndex} className="mb-2 last:mb-0">
-                                <div className="px-3 py-1.5 text-[9px] font-black uppercase tracking-widest" style={{ color: 'var(--text-muted)', backgroundColor: 'var(--surface-elevated)' }}>
-                                  {group.title}
+                        <div className="premium-popup-content">
+                           <div className="premium-popup-header">
+                             <span className="premium-popup-title">Ekosistem Stüdyoları</span>
+                           </div>
+                           <div className="premium-popup-activities">
+                              {studioGroups.map((group, gIdx) => (
+                                <div key={gIdx} className="mb-4 last:mb-0">
+                                   <p className="px-5 py-1 text-[9px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">{group.title}</p>
+                                   {group.items.map((item, iIdx) => (
+                                      <button
+                                        key={item.id}
+                                        onClick={() => { handleStudioClick(item); setHoveredCategory(null); }}
+                                        className={`premium-popup-activity-item ${selectedStudio === item.id ? 'active' : ''}`}
+                                      >
+                                        <div className={`premium-popup-activity-icon ${item.color}`}>
+                                          <i className={`fa-solid ${item.icon}`}></i>
+                                        </div>
+                                        <span className="premium-popup-activity-title">{item.label}</span>
+                                      </button>
+                                   ))}
                                 </div>
-                                {group.items.map((item, index) => (
-                                  <button
-                                    key={item.id}
-                                    onClick={() => {
-                                      handleStudioClick(item);
-                                      setHoveredCategory(null);
-                                    }}
-                                    className={`premium-popup-activity-item ${selectedStudio === item.id ? 'active' : ''}`}
-                                    role="option"
-                                    aria-selected={selectedStudio === item.id}
-                                    tabIndex={0}
-                                    style={{
-                                      animationDelay: `${(groupIndex * group.items.length + index) * 20}ms`,
-                                    }}
-                                    onKeyDown={(e) => {
-                                      if (e.key === 'Enter' || e.key === ' ') {
-                                        e.preventDefault();
-                                        handleStudioClick(item);
-                                        setHoveredCategory(null);
-                                      }
-                                    }}
-                                  >
-                                    <div
-                                      className={`premium-popup-activity-icon ${item.color.replace('bg-', 'text-')}`}
-                                    >
-                                      <i className={`fa-solid ${item.icon}`}></i>
-                                    </div>
-                                    <span className="premium-popup-activity-title block truncate">
-                                      {item.label}
-                                    </span>
-                                    {selectedStudio === item.id && (
-                                      <i className="fa-solid fa-check text-[10px] ml-auto opacity-70"></i>
-                                    )}
-                                  </button>
-                                ))}
-                              </div>
-                            ))}
-                          </div>
+                              ))}
+                           </div>
                         </div>
                       </div>,
                       document.body
-                    )}
+                  )}
                 </div>
+              </div>
 
-                {/* ETKİNLİKLER - MODERN ACCORDIONS */}
-                {categorizedActivities.map((category) => {
-                  const isOpen = openCategoryId === category.id;
-                  const isHovered = hoveredCategory === category.id;
-                  const colors: any = {
-                    'visual-perception': 'text-violet-500 bg-violet-500/10 border-violet-500/20',
-                    'reading-verbal': 'text-teal-500 bg-teal-500/10 border-teal-500/20',
-                    'math-logic': 'text-amber-500 bg-amber-500/10 border-amber-500/20',
-                  };
-                  return (
-                    <div key={category.id} className="relative mb-1">
-                      <button
-                        onClick={() => isExpanded && setOpenCategoryId(isOpen ? null : category.id)}
-                        onMouseEnter={(e) => handleCategoryMouseEnter(category.id, e)}
-                        onMouseLeave={handleCategoryMouseLeave}
-                        className={`category-trigger-btn w-full group flex items-center gap-3 px-3 py-1.5 rounded-2xl transition-all duration-500 relative ${isOpen && isExpanded ? 'bg-[var(--bg-paper)] shadow-xl' : 'hover:bg-[var(--surface-elevated)]'}`}
-                        aria-haspopup="true"
-                        aria-expanded={isHovered}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            setPopupRect(e.currentTarget.getBoundingClientRect());
-                            setHoveredCategory(category.id);
-                          }
-                        }}
-                      >
-                        {/* Aktif Belirteci (Glow Hattı) */}
-                        {isOpen && isExpanded && (
-                          <div className="absolute left-0 top-3 bottom-3 w-1 bg-[var(--accent-color)] rounded-full shadow-[0_0_10px_var(--accent-color)]" />
-                        )}
+              <div>
+                <span className="text-[9px] font-black uppercase tracking-[0.4em] mb-4 block ml-3 text-[var(--text-muted)] opacity-50">
+                  Etkinlik Havuzu
+                </span>
 
-                        <div
-                          className={`w-9 h-9 rounded-xl flex items-center justify-center text-base transition-all duration-500 border ${colors[category.id] || ''}`}
-                          style={!colors[category.id] ? { backgroundColor: 'var(--surface-elevated)', borderColor: 'var(--border-color)' } : {}}
+                <div className="space-y-2">
+                  {categorizedActivities.map((category) => {
+                    const isOpen = openCategoryId === category.id;
+                    const isHovered = hoveredCategory === category.id;
+                    const colors: any = {
+                      'visual-perception': 'text-violet-500 bg-violet-500/10 border-violet-500/20',
+                      'reading-verbal': 'text-teal-500 bg-teal-500/10 border-teal-500/20',
+                      'math-logic': 'text-amber-500 bg-amber-500/10 border-amber-500/20',
+                    };
+
+                    return (
+                      <div key={category.id} className="relative group/cat">
+                        <button
+                          onClick={() => isExpanded && setOpenCategoryId(isOpen ? null : category.id)}
+                          onMouseEnter={(e) => handleCategoryMouseEnter(category.id, e)}
+                          onMouseLeave={handleCategoryMouseLeave}
+                          className={`category-trigger-btn w-full flex items-center gap-4 px-4 py-3 rounded-[1.5rem] transition-all duration-500 relative ${isOpen && isExpanded ? 'bg-[var(--bg-secondary)] border-[var(--accent-color)]/30 shadow-lg' : 'hover:bg-[var(--bg-secondary)] border border-transparent'}`}
                         >
-                          <i
-                            className={`${category.icon} ${isOpen ? 'scale-110' : 'scale-90 opacity-70'}`}
-                          ></i>
-                        </div>
-                        {isExpanded && (
-                          <>
-                            <span
-                              className={`flex-1 text-left text-[12px] font-normal tracking-tight transition-colors`}
-                              style={{ color: isOpen ? 'var(--text-primary)' : 'var(--text-secondary)' }}
-                            >
-                              {category.title}
-                            </span>
-                            <i
-                              className={`fa-solid fa-chevron-right text-[9px] opacity-30 transition-transform duration-500 ${isOpen ? 'rotate-90 text-[var(--accent-color)] opacity-100' : ''}`}
-                            ></i>
-                          </>
-                        )}
-                      </button>
+                          {isOpen && isExpanded && (
+                            <div className="absolute left-1.5 top-3 bottom-3 w-1 bg-[var(--accent-color)] rounded-full shadow-[0_0_12px_var(--accent-color)]" />
+                          )}
 
-                      {/* PREMIUM HOVER POPUP MENU - Enhanced with Accessibility */}
-                      {isHovered &&
-                        popupRect &&
-                        createPortal(
+                          <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-base border transition-all duration-500 ${colors[category.id] || 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-muted)]'}`}>
+                            <i className={`${category.icon} ${isOpen ? 'scale-110' : 'scale-90 opacity-70'}`}></i>
+                          </div>
+
+                          {isExpanded && (
+                            <>
+                              <span className={`flex-1 text-left text-xs font-black tracking-tight transition-colors uppercase ${isOpen ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>
+                                {category.title}
+                              </span>
+                              <i className={`fa-solid fa-chevron-right text-[9px] transition-transform duration-500 ${isOpen ? 'rotate-90 text-[var(--accent-color)]' : 'opacity-30'}`}></i>
+                            </>
+                          )}
+                        </button>
+
+                        {/* CATEGORY POPUP PORTAL */}
+                        {isHovered && !isOpen && popupRect && createPortal(
                           <div
-                            className="premium-popup-menu md:block hidden"
+                            className="premium-popup-menu"
                             onMouseEnter={handlePopupMouseEnter}
                             onMouseLeave={handlePopupMouseLeave}
-                            role="menu"
-                            aria-label={`${category.title} kategorisindeki etkinlikler`}
-                            aria-hidden="false"
-                            style={{
-                              animation: 'slideInFade 0.35s ease-in-out',
-                              position: 'fixed',
-                              top: popupRect.top,
-                              left: popupRect.left + popupRect.width * 0.5,
-                            }}
-                            onKeyDown={(e) => {
-                              const items = Array.from(
-                                document.querySelectorAll('.premium-popup-activity-item')
-                              );
-                              const currentIndex = items.indexOf(
-                                document.activeElement as HTMLElement
-                              );
-                              let nextIndex = currentIndex;
-
-                              if (e.key === 'ArrowDown') {
-                                e.preventDefault();
-                                nextIndex = Math.min(currentIndex + 1, items.length - 1);
-                              } else if (e.key === 'ArrowUp') {
-                                e.preventDefault();
-                                nextIndex = Math.max(currentIndex - 1, 0);
-                              } else if (e.key === 'Home') {
-                                e.preventDefault();
-                                nextIndex = 0;
-                              } else if (e.key === 'End') {
-                                e.preventDefault();
-                                nextIndex = items.length - 1;
-                              }
-
-                              if (nextIndex !== currentIndex && items[nextIndex]) {
-                                (items[nextIndex] as HTMLElement).focus();
-                              }
-                            }}
+                            style={{ top: popupRect.top, left: popupRect.left + popupRect.width + 15 }}
                           >
-                            <div className="premium-popup-content flex flex-col">
-                              <div className="premium-popup-header">
-                                <span className="premium-popup-title">{category.title}</span>
-                              </div>
-
-                              <div
-                                className="premium-popup-activities flex flex-col"
-                                role="listbox"
-                                aria-label="Etkinlikler"
-                              >
-                                {category.items.map((activity, index) => (
-                                  <button
-                                    key={activity.id}
-                                    onClick={() => handleActivitySelect(activity.id)}
-                                    className={`premium-popup-activity-item ${selectedActivity === activity.id ? 'active' : ''}`}
-                                    role="option"
-                                    aria-selected={selectedActivity === activity.id}
-                                    tabIndex={0}
-                                    style={{
-                                      animationDelay: `${index * 20}ms`,
-                                    }}
-                                    onKeyDown={(e) => {
-                                      if (e.key === 'Enter' || e.key === ' ') {
-                                        e.preventDefault();
-                                        handleActivitySelect(activity.id);
-                                      }
-                                    }}
-                                  >
-                                    <div className="premium-popup-activity-icon">
-                                      <i className={`${activity.icon || 'fa-star'}`}></i>
-                                    </div>
-                                    <span className="premium-popup-activity-title block truncate">
-                                      {activity.title}
-                                    </span>
-                                    {selectedActivity === activity.id && (
-                                      <i className="fa-solid fa-check text-[10px] ml-auto opacity-70"></i>
-                                    )}
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
+                             <div className="premium-popup-content">
+                                <div className="premium-popup-header">
+                                  <span className="premium-popup-title">{category.title}</span>
+                                </div>
+                                <div className="premium-popup-activities">
+                                   {category.items.map((act, iIdx) => (
+                                      <button key={act.id} onClick={() => handleActivitySelect(act.id)} className="premium-popup-activity-item">
+                                         <div className="premium-popup-activity-icon"><i className={act.icon || 'fa-star'}></i></div>
+                                         <span className="premium-popup-activity-title">{act.title}</span>
+                                      </button>
+                                   ))}
+                                </div>
+                             </div>
                           </div>,
                           document.body
                         )}
 
-                      {isExpanded && isOpen && (
-                        <div className="ml-8 pl-5 mt-1 space-y-0.5 pr-2 border-l-2 animate-in slide-in-from-left-2 fade-in duration-500" style={{ borderColor: 'var(--border-color)' }}>
-                          {category.items.map((activity) => (
-                            <button
-                              key={activity.id}
-                              onClick={() => onSelectActivity(activity.id)}
-                              className={`w-full group flex items-center gap-2 text-left py-1 px-3 rounded-xl text-[11px] font-normal transition-all duration-300 relative ${selectedActivity === activity.id ? 'bg-[var(--accent-color)] text-white shadow-lg' : 'text-[var(--text-secondary)] hover:text-[var(--accent-color)] hover:bg-[var(--accent-muted)]'}`}
-                            >
-                              {selectedActivity !== activity.id && (
-                                <div className="w-1.5 h-1.5 rounded-full bg-[var(--border-color)] transition-colors group-hover:bg-[var(--accent-color)]" />
-                              )}
-                              <span className="flex-1 truncate">{activity.title}</span>
-                              {selectedActivity === activity.id && (
-                                <i className="fa-solid fa-check text-[8px] opacity-70"></i>
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                        {isExpanded && isOpen && (
+                          <div className="ml-9 pl-6 mt-2 space-y-1.5 border-l-2 border-[var(--border-color)] animate-in slide-in-from-left-2 duration-500">
+                            {category.items.map((act) => (
+                              <button
+                                key={act.id}
+                                onClick={() => onSelectActivity(act.id)}
+                                className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-[11px] font-bold transition-all duration-300 ${selectedActivity === act.id ? 'bg-[var(--accent-color)] text-white shadow-lg' : 'text-[var(--text-secondary)] hover:text-[var(--accent-color)] hover:bg-[var(--accent-muted)]'}`}
+                              >
+                                <span className="flex-1 truncate uppercase tracking-tighter">{act.title}</span>
+                                {selectedActivity === act.id && <i className="fa-solid fa-check text-[8px]"></i>}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </nav>
           )}
@@ -802,5 +497,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     </>
   );
 };
+
+export default Sidebar;
 
 export default Sidebar;

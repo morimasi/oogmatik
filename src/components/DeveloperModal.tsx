@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface DeveloperModalProps {
     isOpen: boolean;
@@ -6,158 +7,136 @@ interface DeveloperModalProps {
 }
 
 export const DeveloperModal: React.FC<DeveloperModalProps> = ({ isOpen, onClose }) => {
-    if (!isOpen) return null;
     return (
-        <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300"
-            onClick={(e) => {
-                e.stopPropagation();
-                onClose();
-            }}
-        >
-            <div
-                className="bg-[var(--bg-primary)] rounded-[2.5rem] shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto custom-scrollbar relative border border-[var(--border-color)]"
-                onClick={(e) => e.stopPropagation()}
-            >
-                {/* Header Background */}
-                <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-br from-[var(--accent-color)] to-[var(--accent-hover)] rounded-t-[2.5rem] overflow-hidden opacity-90">
-                    <div
-                        className="absolute inset-0 opacity-20"
-                        style={{
-                            backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)',
-                            backgroundSize: '24px 24px',
-                        }}
-                    ></div>
-                    <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[var(--bg-primary)] to-transparent"></div>
-                </div>
+        <AnimatePresence>
+            {isOpen && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-hidden font-['Lexend']">
+                    {/* Backdrop */}
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={onClose}
+                        className="absolute inset-0 bg-black/70 backdrop-blur-md"
+                    />
 
-                {/* Close Button */}
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onClose();
-                    }}
-                    className="absolute top-6 right-6 w-10 h-10 flex items-center justify-center rounded-full bg-black/20 text-white hover:bg-black/40 transition-colors z-10 backdrop-blur-md"
-                >
-                    <i className="fa-solid fa-times text-lg"></i>
-                </button>
+                    {/* Modal Container */}
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.9, y: 40 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9, y: 40 }}
+                        className="relative bg-[var(--bg-paper)] rounded-[3rem] shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col border border-[var(--border-color)]"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Header Section - Glassmorphic Hero */}
+                        <div className="relative h-48 shrink-0 overflow-hidden bg-gradient-to-r from-slate-900 to-indigo-900">
+                             <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }}></div>
+                             <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[var(--bg-paper)] to-transparent"></div>
+                             
+                             {/* Close Button */}
+                             <button
+                                onClick={onClose}
+                                className="absolute top-6 right-6 w-10 h-10 rounded-xl bg-black/20 hover:bg-black/40 text-white flex items-center justify-center backdrop-blur-md transition-all z-20 group"
+                             >
+                                <i className="fa-solid fa-times group-hover:rotate-90 transition-transform"></i>
+                             </button>
 
-                <div className="relative pt-12 px-6 sm:px-12 pb-12">
-                    {/* Developer Avatar & Intro */}
-                    <div className="flex flex-col md:flex-row items-center md:items-end gap-6 mb-12 relative z-10">
-                        <div className="w-32 h-32 rounded-3xl overflow-hidden border-4 border-white dark:border-[#09090b] shadow-xl shrink-0 bg-white">
-                            <img
-                                src="https://api.dicebear.com/7.x/avataaars/svg?seed=developer"
-                                alt="Developer"
-                                className="w-full h-full object-cover"
-                            />
-                        </div>
-                        <div className="text-center md:text-left flex-1">
-                            <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white tracking-tighter mb-2">
-                                Bursa Disleksi Geliştirici Ekibi
-                            </h2>
-                            <p className="text-sm font-bold text-zinc-500 uppercase tracking-widest flex items-center justify-center md:justify-start gap-2">
-                                <i className="fa-solid fa-code text-indigo-500"></i> AI & Eğitim Teknolojileri
-                            </p>
-                        </div>
-                        <div className="flex gap-3">
-                            <a
-                                href="#"
-                                className="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 hover:border-indigo-200 transition-all hover:-translate-y-1"
-                            >
-                                <i className="fa-brands fa-github text-xl"></i>
-                            </a>
-                            <a
-                                href="#"
-                                className="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-blue-600 hover:border-blue-200 transition-all hover:-translate-y-1"
-                            >
-                                <i className="fa-brands fa-linkedin text-xl"></i>
-                            </a>
-                            <a
-                                href="mailto:iletisim@bursadisleksi.com"
-                                className="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 shadow-sm border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-600 dark:text-zinc-400 hover:text-rose-600 hover:border-rose-200 transition-all hover:-translate-y-1"
-                            >
-                                <i className="fa-solid fa-envelope text-xl"></i>
-                            </a>
-                        </div>
-                    </div>
-
-                    {/* Bento Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {/* Mission */}
-                        <div className="md:col-span-2 bg-white dark:bg-zinc-800 p-8 rounded-[2rem] border border-zinc-200 dark:border-zinc-700 shadow-sm hover:shadow-lg transition-all group relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-bl-full transition-transform group-hover:scale-110"></div>
-                            <div className="flex items-center gap-4 mb-6 relative">
-                                <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 flex items-center justify-center text-xl">
-                                    <i className="fa-solid fa-rocket"></i>
-                                </div>
-                                <h3 className="text-sm font-black text-zinc-400 uppercase tracking-widest">
-                                    Vizyonumuz
-                                </h3>
-                            </div>
-                            <p className="text-zinc-600 dark:text-zinc-300 leading-relaxed relative">
-                                Amacımız, özel eğitim ihtiyacı olan bireyler için{' '}
-                                <strong>yapay zeka destekli</strong>, kişiselleştirilmiş ve bilimsel temellere
-                                dayanan araçlar üreterek öğrenme süreçlerini hızlandırmak ve eğitimcilerin yükünü
-                                hafifletmektir. Teknoloji ve pedagojiyi harmanlayarak fırsat eşitliği sunmayı
-                                hedefliyoruz.
-                            </p>
-                        </div>
-
-                        {/* Version Info */}
-                        <div className="bg-white dark:bg-zinc-800 p-8 rounded-[2rem] border border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col justify-center items-center text-center group">
-                            <div className="w-20 h-20 rounded-full bg-zinc-50 dark:bg-zinc-900 border-4 border-white dark:border-zinc-800 shadow-inner flex items-center justify-center mb-4 group-hover:rotate-180 transition-transform duration-700">
-                                <i className="fa-solid fa-microchip text-3xl text-zinc-400"></i>
-                            </div>
-                            <div className="text-4xl font-black text-zinc-900 dark:text-white tracking-tighter mb-1">
-                                {(import.meta as any).env?.VITE_APP_VERSION || '1.0.3'}
-                            </div>
-                            <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest bg-zinc-100 dark:bg-zinc-900 px-3 py-1 rounded-full">
-                                Güncel Sürüm
-                            </div>
-                        </div>
-
-                        {/* Tech Stack */}
-                        <div className="md:col-span-3 bg-white dark:bg-zinc-800 p-8 rounded-[2rem] border border-zinc-200 dark:border-zinc-700 shadow-sm">
-                            <div className="flex items-center gap-4 mb-8">
-                                <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-xl">
-                                    <i className="fa-solid fa-layer-group"></i>
-                                </div>
-                                <h3 className="text-sm font-black text-zinc-400 uppercase tracking-widest">
-                                    Kullanılan Teknolojiler
-                                </h3>
-                            </div>
-                            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-                                {[
-                                    { name: 'React', icon: 'fa-brands fa-react text-blue-500' },
-                                    { name: 'TypeScript', icon: 'fa-brands fa-js text-blue-600' },
-                                    { name: 'Tailwind', icon: 'fa-solid fa-wind text-cyan-500' },
-                                    { name: 'Firebase', icon: 'fa-solid fa-fire text-yellow-500' },
-                                    { name: 'Gemini AI', icon: 'fa-solid fa-brain text-emerald-500' },
-                                    { name: 'Vite', icon: 'fa-solid fa-bolt text-purple-500' },
-                                ].map((tech) => (
-                                    <div
-                                        key={tech.name}
-                                        className="flex flex-col items-center justify-center p-4 bg-zinc-50 dark:bg-zinc-900 rounded-2xl border border-zinc-100 dark:border-zinc-800/50 hover:border-indigo-200 dark:hover:border-indigo-900/50 transition-colors"
-                                    >
-                                        <i className={`${tech.icon} text-3xl mb-3`}></i>
-                                        <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
-                                            {tech.name}
-                                        </span>
+                             <div className="absolute bottom-4 left-10 flex items-end gap-6 z-10">
+                                <motion.div 
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    className="w-24 h-24 rounded-[2rem] bg-white p-1 shadow-2xl"
+                                >
+                                    <div className="w-full h-full rounded-[1.8rem] overflow-hidden bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-3xl">
+                                        <i className="fa-solid fa-code"></i>
                                     </div>
-                                ))}
+                                </motion.div>
+                                <div className="mb-2">
+                                    <h2 className="text-3xl font-black text-[var(--text-primary)] tracking-tighter uppercase leading-none mb-2">BURSA DİSLEKSİ</h2>
+                                    <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.3em] opacity-60">Mühendislik & AI Laboratuvarı</p>
+                                </div>
+                             </div>
+                        </div>
+
+                        {/* Content Area */}
+                        <div className="flex-1 overflow-y-auto p-10 custom-scrollbar">
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                
+                                {/* Core Info - Bento Card */}
+                                <div className="lg:col-span-2 space-y-6">
+                                    <div className="bg-[var(--bg-secondary)] p-8 rounded-[2.5rem] border border-[var(--border-color)] relative overflow-hidden group">
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-[var(--accent-color)]/5 rounded-bl-[5rem] transition-all group-hover:scale-125"></div>
+                                        <h3 className="text-xs font-black text-[var(--accent-color)] uppercase tracking-widest mb-4 flex items-center gap-2">
+                                            <i className="fa-solid fa-rocket-launch"></i> PLATFORM MİSYONU
+                                        </h3>
+                                        <p className="text-sm font-medium text-[var(--text-secondary)] leading-relaxed opacity-90 italic">
+                                            "Teknolojiyi bir engel değil, bir köprü olarak görüyoruz. Oogmatik, özel öğrenme güçlüğü olan her çocuğun hayallerine ulaşması için tasarlanmış en gelişmiş AI ekosistemidir."
+                                        </p>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="bg-[var(--bg-paper)] p-6 rounded-[2rem] border border-[var(--border-color)] shadow-sm">
+                                            <h4 className="text-[10px] font-black text-[var(--text-muted)] uppercase mb-4 tracking-widest">İLETİŞİM</h4>
+                                            <div className="space-y-3">
+                                                <a href="mailto:iletisim@bursadisleksi.com" className="flex items-center gap-3 text-xs font-bold text-[var(--text-primary)] hover:text-[var(--accent-color)] transition-colors">
+                                                    <div className="w-8 h-8 rounded-lg bg-[var(--bg-secondary)] flex items-center justify-center"><i className="fa-solid fa-envelope"></i></div>
+                                                    iletisim@bursadisleksi.com
+                                                </a>
+                                                <a href="#" className="flex items-center gap-3 text-xs font-bold text-[var(--text-primary)] hover:text-[var(--accent-color)] transition-colors">
+                                                    <div className="w-8 h-8 rounded-lg bg-[var(--bg-secondary)] flex items-center justify-center"><i className="fa-brands fa-linkedin"></i></div>
+                                                    Bursa Disleksi LinkedIn
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div className="bg-[var(--bg-paper)] p-6 rounded-[2rem] border border-[var(--border-color)] shadow-sm">
+                                            <h4 className="text-[10px] font-black text-[var(--text-muted)] uppercase mb-4 tracking-widest">GELİŞTİRME OFİSİ</h4>
+                                            <div className="flex items-start gap-3">
+                                                <div className="w-8 h-8 rounded-lg bg-[var(--bg-secondary)] flex items-center justify-center shrink-0"><i className="fa-solid fa-location-dot"></i></div>
+                                                <p className="text-xs font-bold text-[var(--text-primary)] leading-snug">Bursa, Türkiye<br/><span className="text-[10px] opacity-50 uppercase">AR-GE MERKEZİ</span></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Sidebar Stats - Bento Card */}
+                                <div className="space-y-6">
+                                    <div className="bg-gradient-to-br from-slate-900 to-black p-8 rounded-[2.5rem] text-white shadow-xl flex flex-col items-center justify-center text-center">
+                                        <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center mb-4 backdrop-blur-md border border-white/10">
+                                            <i className="fa-solid fa-microchip text-2xl text-indigo-400"></i>
+                                        </div>
+                                        <div className="text-4xl font-black tracking-tighter mb-1">1.0.8</div>
+                                        <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-40">ULTRA PRO SÜRÜM</p>
+                                    </div>
+
+                                    <div className="bg-[var(--bg-secondary)] p-6 rounded-[2rem] border border-[var(--border-color)]">
+                                      <h4 className="text-[10px] font-black text-[var(--text-muted)] uppercase mb-4 tracking-widest text-center">TEKNOLOJİ STACK</h4>
+                                      <div className="flex flex-wrap justify-center gap-2">
+                                          {['React 18', 'TS Strict', 'Gemini AI', 'Tailwind', 'Firebase', 'Vite'].map(tech => (
+                                              <span key={tech} className="px-3 py-1.5 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-full text-[9px] font-black text-[var(--text-primary)] uppercase tracking-tighter">{tech}</span>
+                                          ))}
+                                      </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Tech Badges Section */}
+                            <div className="mt-12 pt-8 border-t border-[var(--border-color)]">
+                                <div className="flex flex-wrap justify-center items-center gap-10 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-700">
+                                    <i className="fa-brands fa-react text-2xl"></i>
+                                    <i className="fa-brands fa-google text-2xl"></i>
+                                    <i className="fa-brands fa-js text-2xl"></i>
+                                    <i className="fa-solid fa-fire-flame-curved text-2xl"></i>
+                                    <i className="fa-solid fa-wind text-2xl"></i>
+                                    <i className="fa-solid fa-database text-2xl"></i>
+                                </div>
+                                <p className="text-center mt-12 text-[9px] font-black text-[var(--text-muted)] uppercase tracking-[0.5em] opacity-30">
+                                    &copy; {new Date().getFullYear()} BURSA DİSLEKSİ EDU-TECH SOLUTIONS
+                                </p>
                             </div>
                         </div>
-                    </div>
-
-                    {/* Footer */}
-                    <div className="mt-12 text-center border-t border-zinc-200 dark:border-zinc-800 pt-8">
-                        <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">
-                            &copy; {new Date().getFullYear()} Bursa Disleksi. Tüm hakları saklıdır.
-                        </p>
-                    </div>
+                    </motion.div>
                 </div>
-            </div>
-        </div>
+            )}
+        </AnimatePresence>
     );
 };

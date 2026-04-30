@@ -145,8 +145,15 @@ const initialStyleSettings: StyleSettings = {
 type ModalType = 'settings' | 'history' | 'about' | 'developer' | 'pdf-viewer';
 
 const LoadingSpinner = () => (
-  <div className="flex items-center justify-center h-full w-full min-h-[200px]">
-    <div className="w-10 h-10 border-4 border-[var(--accent-muted)] border-t-[var(--accent-color)] rounded-full animate-spin"></div>
+  <div className="flex flex-col items-center justify-center h-full w-full min-h-[200px] animate-in fade-in duration-700">
+    <div className="relative">
+      <div className="w-12 h-12 border-4 border-[var(--accent-muted)] rounded-full"></div>
+      <div className="absolute top-0 left-0 w-12 h-12 border-4 border-[var(--accent-color)] border-t-transparent rounded-full animate-spin"></div>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <i className="fa-solid fa-brain text-[var(--accent-color)] text-xs animate-pulse"></i>
+      </div>
+    </div>
+    <p className="mt-4 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.3em] opacity-40">Oogmatik Hazırlanıyor</p>
   </div>
 );
 
@@ -155,44 +162,55 @@ const Modal = ({
   onClose,
   title,
   children,
+  maxWidth = 'max-w-2xl'
 }: {
   isOpen: boolean;
   onClose: () => void;
-  title: string;
+  title?: string;
   children: React.ReactNode;
+  maxWidth?: string;
 }) => {
-  if (!isOpen) return null;
   return (
-    <div
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[70] flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-300"
-      onClick={(e: React.MouseEvent) => {
-        e.stopPropagation();
-        onClose();
-      }}
-    >
-      <div
-        className="bg-[var(--bg-paper)] rounded-3xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto custom-scrollbar relative border border-[var(--border-color)]"
-        onClick={(e: React.MouseEvent) => e.stopPropagation()}
-      >
-        {title && (
-          <div className="flex items-center justify-between p-6 border-b border-[var(--border-color)]">
-            <h2 className="text-xl font-black text-[var(--accent-color)] tracking-tight">
-              {title}
-            </h2>
-            <button
-              onClick={(e: React.MouseEvent) => {
-                e.stopPropagation();
-                onClose();
-              }}
-              className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
-            >
-              <i className="fa-solid fa-times text-xl"></i>
-            </button>
-          </div>
-        )}
-        <div className="p-6">{children}</div>
-      </div>
-    </div>
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-hidden">
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-black/60 backdrop-blur-md"
+          />
+
+          {/* Modal Container */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 30 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 30 }}
+            className={`relative bg-[var(--bg-paper)] rounded-[2.5rem] shadow-2xl w-full ${maxWidth} max-h-[90vh] overflow-hidden flex flex-col border border-[var(--border-color)] font-['Lexend']`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {title && (
+              <div className="flex items-center justify-between px-8 py-6 border-b border-[var(--border-color)] bg-[var(--surface-glass)]">
+                <h2 className="text-xl font-black text-[var(--text-primary)] tracking-tight uppercase">
+                  {title}
+                </h2>
+                <button
+                  onClick={onClose}
+                  className="w-10 h-10 rounded-xl hover:bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] transition-all active:scale-90"
+                >
+                  <i className="fa-solid fa-times text-xl"></i>
+                </button>
+              </div>
+            )}
+            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
+              {children}
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 };
 
@@ -1080,15 +1098,52 @@ const AppContent = () => {
           onClose={() => setOpenModal(null)}
         />
       </Modal>
-      <Modal isOpen={openModal === 'about'} onClose={() => setOpenModal(null)} title="Hakkımızda">
-        <div className="text-center space-y-6">
-          <DyslexiaLogo className="h-16 w-auto mx-auto" />
-          <div className="space-y-4 text-zinc-600 dark:text-zinc-300">
-            <p className="leading-relaxed">
-              Bursa Disleksi EduMind, özel öğrenme güçlüğü yaşayan bireylerin eğitim süreçlerini
-              desteklemek, eğitmen ve ailelere kişiselleştirilmiş, bilimsel temelli materyaller
-              sunmak amacıyla geliştirilmiş yeni nesil bir yapay zeka platformudur.
-            </p>
+      <Modal isOpen={openModal === 'about'} onClose={() => setOpenModal(null)} title="platform vizyonu" maxWidth="max-w-3xl">
+        <div className="space-y-10">
+          {/* Hero Section */}
+          <div className="relative h-64 rounded-3xl overflow-hidden shadow-2xl border border-[var(--border-color)] group">
+            <img 
+              src="/oogmatik_about_premium_1777556845776.png" 
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+              alt="Oogmatik Vision" 
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+            <div className="absolute bottom-6 left-8">
+              <DyslexiaLogo className="h-10 w-auto mb-2 opacity-90 filter brightness-200" />
+              <p className="text-white/60 text-[10px] font-black uppercase tracking-[0.3em]">GELECEĞİ ŞEKİLLENDİREN EĞİTİM</p>
+            </div>
+          </div>
+
+          {/* Info Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-6 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] hover:border-[var(--accent-color)]/30 transition-all">
+              <div className="w-10 h-10 bg-[var(--accent-muted)] text-[var(--accent-color)] rounded-xl flex items-center justify-center mb-4">
+                <i className="fa-solid fa-brain"></i>
+              </div>
+              <h4 className="text-xs font-black text-[var(--text-primary)] uppercase mb-2 tracking-tight">AKILLI ADAPTASYON</h4>
+              <p className="text-[11px] font-medium text-[var(--text-muted)] leading-relaxed opacity-80">
+                Oogmatik, her bireyin öğrenme hızını ve ihtiyaçlarını yapay zeka ile analiz ederek tamamen kişiselleştirilmiş materyal setleri oluşturur.
+              </p>
+            </div>
+            <div className="p-6 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] hover:border-[var(--accent-color)]/30 transition-all">
+              <div className="w-10 h-10 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center mb-4">
+                <i className="fa-solid fa-shield-heart"></i>
+              </div>
+              <h4 className="text-xs font-black text-[var(--text-primary)] uppercase mb-2 tracking-tight">BİLİMSEL TEMELLER</h4>
+              <p className="text-[11px] font-medium text-[var(--text-muted)] leading-relaxed opacity-80">
+                Geliştirdiğimiz her aktivite ve araç, MEB müfredatı ve uluslararası özel eğitim literatürüne tam uyumlu, bilimsel kanıta dayalıdır.
+              </p>
+            </div>
+          </div>
+
+          <div className="p-8 bg-gradient-to-br from-[var(--accent-color)] to-indigo-700 rounded-[2rem] text-white shadow-xl relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-3xl transition-transform group-hover:scale-150"></div>
+            <div className="relative z-10 text-center">
+              <p className="text-sm font-bold leading-relaxed mb-6 opacity-90">
+                "Amacımız, özel öğrenme güçlüğü yaşayan her çocuğun potansiyelini en üst düzeye çıkaran, erişilebilir ve kapsayıcı bir dijital dünya inşa etmektir."
+              </p>
+              <div className="w-12 h-1 bg-white/30 mx-auto rounded-full"></div>
+            </div>
           </div>
         </div>
       </Modal>
