@@ -71,17 +71,31 @@ export const authService = {
         }
     },
 
-    loginWithGoogle: async (): Promise<User> => {
+    loginWithGoogle: async (): Promise<void> => {
         try {
             const provider = new GoogleAuthProvider();
-            const userCredential = await signInWithPopup(auth, provider);
-            const user = userCredential.user;
+            // popup yerine redirect kullanarak COOP hatasını önlüyoruz
+            const { signInWithRedirect } = await import("firebase/auth");
+            await signInWithRedirect(auth, provider);
+        } catch (error: any) {
+            logError("Google login redirect error:", error);
+            throw new AppError(`Google ile giriş başlatılamadı: ${error.message}`, 'INTERNAL_ERROR', 500);
+        }
+    },
 
+    // Yönlendirme sonrası sonucu işlemek için yeni metod
+    handleRedirectResult: async (): Promise<User | null> => {
+        try {
+            const { getRedirectResult } = await import("firebase/auth");
+            const result = await getRedirectResult(auth);
+            
+            if (!result) return null;
+            
+            const user = result.user;
             const userDocRef = doc(db, "users", user.uid);
             const userDocSnap = await getDoc(userDocRef);
 
             if (!userDocSnap.exists()) {
-                // Yeni kullanıcı ise Firestore kaydı oluştur
                 const newUserProfile = {
                     name: user.displayName || 'Google Kullanıcısı',
                     email: user.email,
@@ -101,21 +115,14 @@ export const authService = {
                 await setDoc(userDocRef, newUserProfile);
                 return mapDbUserToAppUser(newUserProfile, user.uid, user.email!);
             } else {
-                // Mevcut kullanıcı ise son girişi güncelle
                 await updateDoc(userDocRef, {
                     lastLogin: new Date().toISOString()
                 });
                 return mapDbUserToAppUser(userDocSnap.data(), user.uid, user.email!);
             }
         } catch (error: any) {
-            logError("Google login error:", error);
-            if (error.code === 'auth/popup-closed-by-user') {
-                throw new AppError("Giriş penceresi kapatıldı.", 'INTERNAL_ERROR', 500);
-            }
-            if (error.code === 'auth/unauthorized-domain') {
-                throw new AppError("Bu alan adı (domain) Firebase'de yetkilendirilmemiş. Lütfen Firebase Console -> Authentication -> Settings -> Authorized Domains kısmına bu adresi ekleyin.", 'INTERNAL_ERROR', 500);
-            }
-            throw new AppError(`Google ile giriş hatası: ${error.message}`, 'INTERNAL_ERROR', 500);
+            logError("Handle redirect result error:", error);
+            return null;
         }
     },
 

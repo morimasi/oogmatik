@@ -1,11 +1,5 @@
-// @ts-nocheck
-import React, { useEffect } from 'react';
-import { useProgressStore } from '../../store/useProgressStore';
-import { SkillOverview } from './SkillOverview';
-import { WeeklyActivityChart } from './WeeklyActivityChart';
-import { BadgesSection } from './BadgesSection';
-import { HistoryList } from './HistoryList';
-import { Trophy, Clock, Target, AlertCircle } from 'lucide-react';
+import { useAuthStore } from '../../store/useAuthStore';
+import { Trophy, Clock, Target, AlertCircle, LogIn } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface ProgressDashboardProps {
@@ -13,18 +7,39 @@ interface ProgressDashboardProps {
 }
 
 export const ProgressDashboard = ({ studentId }: ProgressDashboardProps) => {
-  const { snapshot, isLoading, error, fetchProgress } = useProgressStore();
+  const { user, isLoading: authLoading, loginWithGoogle } = useAuthStore();
+  const { snapshot, isLoading: progressLoading, error, fetchProgress } = useProgressStore();
 
   useEffect(() => {
-    if (studentId) {
+    if (studentId && user) {
       fetchProgress(studentId);
     }
-  }, [studentId, fetchProgress]);
+  }, [studentId, user, fetchProgress]);
 
-  if (isLoading) {
+  if (authLoading || (progressLoading && !snapshot)) {
     return (
       <div className="flex h-full items-center justify-center p-12">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="p-8 flex flex-col items-center justify-center h-full text-center space-y-6">
+        <div className="w-16 h-16 bg-amber-50 dark:bg-amber-900/20 rounded-2xl flex items-center justify-center text-amber-600">
+          <LogIn className="w-8 h-8" />
+        </div>
+        <div className="max-w-xs">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white">Oturum Gerekli</h3>
+          <p className="text-sm text-gray-500 mt-2">Bu verilere erişmek için lütfen giriş yapınız.</p>
+        </div>
+        <button 
+          onClick={() => loginWithGoogle()}
+          className="px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-500 transition-all shadow-lg"
+        >
+          Google ile Giriş Yap
+        </button>
       </div>
     );
   }

@@ -23,7 +23,9 @@ export const useProgressStore = create<ProgressStore>((set) => ({
     try {
       const user = useAuthStore.getState().user;
       if (!user) {
-        throw new Error('Kimlik doğrulama gereklidir. Lütfen giriş yapınız.');
+        // Oturum henüz yüklenmemiş olabilir, hata fırlatmak yerine bekle
+        set({ isLoading: false });
+        return;
       }
 
       const response = await safeFetch<{ success: boolean; data: StudentProgressSnapshot }>(

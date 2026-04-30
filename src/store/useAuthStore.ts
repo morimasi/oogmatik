@@ -24,6 +24,13 @@ export const useAuthStore = create<AuthState>()(
             isLoading: true,
 
             initialize: () => {
+                // Check if we're coming back from a Google Redirect
+                authService.handleRedirectResult().then(user => {
+                    if (user) {
+                        set({ user, isLoading: false });
+                    }
+                });
+
                 const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: any) => {
                     if (firebaseUser) {
                         try {
@@ -46,8 +53,9 @@ export const useAuthStore = create<AuthState>()(
             },
 
             loginWithGoogle: async () => {
-                const loggedUser = await authService.loginWithGoogle();
-                set({ user: loggedUser });
+                set({ isLoading: true });
+                await authService.loginWithGoogle();
+                // Sayfa yönleneceği için set({ user }) burada çağrılmaz
             },
 
             register: async (email: string, pass: string, name: string) => {
