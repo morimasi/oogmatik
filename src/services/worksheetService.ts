@@ -6,6 +6,7 @@
 import { db } from './firebaseClient.js';
 import * as firestore from "firebase/firestore";
 import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings, StudentProfile, CollectionItem, WorkbookSettings } from '../types.js';
+import { ACTIVITY_CATEGORIES } from '../constants.js';
 import { AppError, NotFoundError, AuthorizationError, DatabaseError, InternalServerError, toAppError } from '../utils/AppError.js';
 import { logError as reportError, retryWithBackoff, withTimeout } from '../utils/errorHandler.js';
 
@@ -65,6 +66,22 @@ const deserializeData = (data: any): SingleWorksheetData[] => {
 
     return Array.isArray(parsed) ? parsed : [];
 };
+
+/**
+ * Arşiv filtresi: Firestore'a yazılmış category.id veya aktivite üyeliği ile tüm CONTENT kategorileri kapsanır.
+ */
+export function worksheetMatchesArchiveCategory(sheet: SavedWorksheet, categoryId: string): boolean {
+    if (categoryId === 'all') return true;
+    if (categoryId === 'workbook') {
+        return sheet.activityType === ActivityType.WORKBOOK || sheet.category?.id === 'workbook';
+    }
+    const meta = ACTIVITY_CATEGORIES.find((c) => c.id === categoryId);
+    if (sheet.category?.id === categoryId) return true;
+    if (!meta) return sheet.category?.id === categoryId;
+    return (meta.activities as readonly ActivityType[]).includes(sheet.activityType);
+}
+
+const _MAX_ARCHIVE_ROWS = 2800;
 
 const mapDbToWorksheet = (docData: any, id: string): SavedWorksheet => ({
     id: id,
@@ -131,47 +148,46 @@ export const worksheetService = {
         }
     },
 
-    getUserWorksheets: async (userId: string, page: number, pageSize: number, categoryId?: string): Promise<{ items: SavedWorksheet[], count: number | null }> => {
+    /** Kullanıcı arşivi: gerçek sayfalama + tüm CONTENT kategorileri (activityType ∪ category.id) */
+    getUserWorksheets: async (
+        userId: string,
+        page: number,
+        pageSize: number,
+        categoryId?: string
+    ): Promise<{ items: SavedWorksheet[]; total: number; count: number | null }> => {
         try {
-            // Only fetch private (not shared) worksheets for this user
-            let q = query(
-                collection(db, "saved_worksheets"),
-                where("userId", "==", userId),
-                where("sharedWith", "==", null)
+            const qRef = query(
+                collection(db, 'saved_worksheets'),
+                where('userId', '==', userId),
+                orderBy('createdAt', 'desc')
+            );
+            const querySnapshot = await getDocs(qRef);
+            const rows: SavedWorksheet[] = [];
+            querySnapshot.forEach((d: { id: string; data: () => Record<string, unknown> }) => {
+                rows.push(mapDbToWorksheet(d.data(), d.id));
+            });
+
+            let pool = rows;
+            if (rows.length > _MAX_ARCHIVE_ROWS) {
+                logWarn('Arşiv satır üst limiti kesildi', { userId, n: rows.length, cap: _MAX_ARCHIVE_ROWS });
+                pool = rows.slice(0, _MAX_ARCHIVE_ROWS);
+            }
+
+            const filtered =
+                categoryId && categoryId !== 'all'
+                    ? pool.filter((s) => worksheetMatchesArchiveCategory(s, categoryId))
+                    : pool;
+
+            filtered.sort(
+                (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
             );
 
-            if (categoryId && categoryId !== 'all') {
-                q = query(q, where("category.id", "==", categoryId));
-            }
-
-            q = query(q, orderBy("createdAt", "desc"), limit(pageSize));
-
-            // Note: This needs a composite index in Firestore (userId, sharedWith, category.id, createdAt)
-            const querySnapshot = await getDocs(q);
-            const items: SavedWorksheet[] = [];
-            querySnapshot.forEach((doc: any) => {
-                items.push(mapDbToWorksheet(doc.data(), doc.id));
-            });
-
-            return { items, count: null };
-        } catch (error: any) {
-            logWarn("Firestore Query Error (Index likely missing)", { error });
-            // Fallback to client-side filter if index is missing
-            const qFallback = query(collection(db, "saved_worksheets"), where("userId", "==", userId));
-            const querySnapshot = await getDocs(qFallback);
-            const items: SavedWorksheet[] = [];
-            querySnapshot.forEach((doc: any) => {
-                const data = doc.data() as any;
-                if (!data.sharedWith) items.push(mapDbToWorksheet(data, doc.id));
-            });
-
-            let filtered = items;
-            if (categoryId && categoryId !== 'all') {
-                filtered = items.filter(i => i.category?.id === categoryId);
-            }
-
-            filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-            return { items: filtered.slice(page * pageSize, (page + 1) * pageSize), count: filtered.length };
+            const total = filtered.length;
+            const sliced = filtered.slice(page * pageSize, (page + 1) * pageSize);
+            return { items: sliced, total, count: total };
+        } catch (error: unknown) {
+            logWarn('getUserWorksheets yükleme hatası — boş dönüş', { error });
+            return { items: [], total: 0, count: 0 };
         }
     },
 

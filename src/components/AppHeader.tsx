@@ -177,13 +177,12 @@ export const AppHeader = ({
         <header
             className={`relative bg-[var(--bg-paper)] border-b border-[var(--border-color)] shadow-xl z-[90] transition-all duration-500 font-['Lexend'] ${zenMode ? '-mt-24 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}
         >
-            <div className="w-full px-6 md:px-8 py-4 flex items-center justify-between gap-4 md:gap-5">
-                
-                {/* 1. SOL BLOK: LOGO VE HAMBURGER + BDMIND */}
-                <div className="flex-1 flex items-center justify-start gap-4 md:gap-6">
+            <div className="w-full px-6 md:px-8 py-4 flex items-center gap-3 md:gap-4">
+                {/* Sol: logo eş geniş şerit (sağ ile dengeli orta blok için flex-1) */}
+                <div className="flex min-w-0 flex-1 items-center justify-start gap-4 md:gap-6">
                     <button
                         onClick={() => setIsSidebarOpen(true)}
-                        className="md:hidden text-[var(--text-muted)] p-2 hover:text-[var(--text-primary)] transition-colors"
+                        className="md:hidden shrink-0 text-[var(--text-muted)] p-2 hover:text-[var(--text-primary)] transition-colors"
                     >
                         <i className="fa-solid fa-bars-staggered fa-lg"></i>
                     </button>
@@ -196,25 +195,39 @@ export const AppHeader = ({
                             setWorksheetData(null);
                             setActiveCurriculumSession(null);
                         }}
-                        className="relative group flex items-center gap-4"
+                        className="relative group flex shrink-0 items-center gap-3"
+                        type="button"
                     >
                         <div className="relative">
                             <DyslexiaLogo className="h-10 w-auto transition-all duration-500 group-hover:scale-110 group-hover:rotate-3" />
                             <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-[var(--bg-paper)] rounded-full shadow-sm"></div>
                         </div>
-                        <div className="hidden md:flex flex-col items-start justify-center transition-transform duration-500">
-                            <span className="text-[20px] font-black tracking-tighter text-[var(--text-primary)] leading-none mb-0.5 group-hover:text-[var(--accent-color)] transition-colors uppercase">
-                                BDMIND
-                            </span>
-                            <span className="text-[8px] font-black tracking-[0.25em] text-[var(--text-muted)] group-hover:text-[var(--text-primary)] uppercase transition-colors">
-                                EDU-TECH PLATFORM
-                            </span>
-                        </div>
                     </button>
                 </div>
 
-                {/* 3. SAĞ BLOK: ARAMA VE İKONLAR */}
-                <div className="flex-1 flex items-center justify-end gap-1 md:gap-2">
+                {/* Orta: başlıklar tam yatay merkez; sol–sağ şeritleri eşit flex-1 ile dengelenir */}
+                <div className="hidden shrink-0 flex-col items-center justify-center text-center md:flex">
+                    <button
+                        type="button"
+                        onClick={() => {
+                            navigateTo('generator');
+                            setSelectedActivity(null);
+                            setWorksheetData(null);
+                            setActiveCurriculumSession(null);
+                        }}
+                        className="group flex flex-col items-center justify-center px-3 transition-transform duration-500"
+                    >
+                        <span className="text-[20px] font-black tracking-tighter text-[var(--text-primary)] leading-none mb-0.5 group-hover:text-[var(--accent-color)] transition-colors uppercase">
+                            BDMIND
+                        </span>
+                        <span className="text-[8px] font-black tracking-[0.25em] text-[var(--text-muted)] group-hover:text-[var(--text-primary)] uppercase transition-colors whitespace-nowrap">
+                            EDU-TECH PLATFORM
+                        </span>
+                    </button>
+                </div>
+
+                {/* Sağ: ikon kümesi; sol ile aynı flex-1 → orta blok tam ortada */}
+                <div className="flex min-w-0 flex-1 items-center justify-end gap-1 md:gap-2">
                     {/* Arama Çubuğu iptal edildi, sağ açılır menüye dahil ediliyor. */}
 
                     {/* Activity & Students Group */}

@@ -1,13 +1,13 @@
-
 import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
 import { AssessmentReport, SavedAssessment, AdaptiveQuestion, TestCategory, AssessmentConfig } from '../types';
+import { AuthorizationError } from '../utils/AppError.js';
 import { generateAdaptiveQuestionsFromAI } from './generators/assessment';
 import { generateOfflineAdaptiveQuestions } from './offlineGenerators/assessment';
 import { shuffle } from './offlineGenerators/helpers';
 
 import { logInfo, logError, logWarn } from '../utils/logger.js';
-const { collection, addDoc, query, where, getDocs } = firestore;
+const { collection, addDoc, query, where, getDocs, doc, getDoc, deleteDoc } = firestore;
 
 export const assessmentService = {
     saveAssessment: async (
@@ -94,6 +94,19 @@ export const assessmentService = {
             logError("Error fetching student assessments:", error);
             return [];
         }
+    },
+
+    deleteAssessment: async (assessmentId: string, userId: string): Promise<void> => {
+        const ref = doc(db, 'saved_assessments', assessmentId);
+        const snap = await getDoc(ref);
+        if (!snap.exists()) {
+            throw new Error('Kayıt bulunamadı.');
+        }
+        const data = snap.data() as { userId?: string };
+        if (data.userId !== userId) {
+            throw new AuthorizationError('Bu raporu silme izniniz yok.');
+        }
+        await deleteDoc(ref);
     },
 
     shareAssessment: async (assessment: SavedAssessment, senderId: string, senderName: string, receiverId: string): Promise<void> => {

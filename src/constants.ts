@@ -477,6 +477,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
     description: 'Disleksi, Diskalkuli ve DEHB için premium görsel materyaller.',
     icon: 'fa-solid fa-star',
     activities: [
+      ActivityType.INFOGRAPHIC_STUDIO,
       ActivityType.INFOGRAPHIC_DYSLEXIA_READING,
       ActivityType.INFOGRAPHIC_DYSCALCULIA_MATH,
       ActivityType.INFOGRAPHIC_ADHD_FOCUS,
