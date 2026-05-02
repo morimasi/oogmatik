@@ -61,7 +61,7 @@ function renderContent(content: InfographicActivityContent): React.ReactNode {
       <div className="mt-4 grid grid-cols-3 gap-3">
         <div className="bg-blue-50 rounded-lg p-3">
           <div className="font-semibold text-blue-800 text-sm mb-2 font-lexend">{c.leftTitle}</div>
-          {c.leftItems.map((item, i) => (
+          {(c.leftItems ?? []).map((item, i) => (
             <div key={i} className="text-xs text-blue-700 mb-1 font-lexend">• {item}</div>
           ))}
         </div>
@@ -73,7 +73,7 @@ function renderContent(content: InfographicActivityContent): React.ReactNode {
         </div>
         <div className="bg-orange-50 rounded-lg p-3">
           <div className="font-semibold text-orange-800 text-sm mb-2 font-lexend">{c.rightTitle}</div>
-          {c.rightItems.map((item, i) => (
+          {(c.rightItems ?? []).map((item, i) => (
             <div key={i} className="text-xs text-orange-700 mb-1 font-lexend">• {item}</div>
           ))}
         </div>

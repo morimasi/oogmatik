@@ -245,7 +245,8 @@ function parseXmlInfographicSyntax(xml: string): ParsedInfographic {
             gridDensity: _extractAttr(xml, mainTagName, 'density') || 'Kompakt',
             pedagogicalFocus: _extractAttr(xml, mainTagName, 'focus') || 'Genel Kavrama'
         };
-        data.shortAnswers = _extractRepeatedBlocks(xml, 'item').map(block => ({
+        const blocks = _extractRepeatedBlocks(xml, 'item') || [];
+        data.shortAnswers = blocks.map(block => ({
             question: _extractAttr(block, 'item', 'question') || _extractTagContent(block, 'question') || block.replace(/<[^>]+>/g, '').trim(),
             defaultAnswer: _extractAttr(block, 'item', 'answer') || _extractTagContent(block, 'answer')
         }));

@@ -127,7 +127,9 @@ export const A4PrintableSheetV2: React.FC<A4PrintableSheetV2Props> = ({
   let currentPage: WorksheetWidget[] = [];
   let currentWeight = 0;
 
-  worksheet.widgets.forEach((widget) => {
+  const widgets = worksheet?.widgets || [];
+
+  widgets.forEach((widget) => {
     const weight = getWidgetWeight(widget);
     
     // Eğer widget tek başına limiti aşıyorsa veya mevcut sayfaya sığmıyorsa yeni sayfaya geç
