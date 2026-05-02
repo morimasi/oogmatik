@@ -2,7 +2,7 @@
 import { initializeApp, getApp, getApps } from "firebase/app";
 // @ts-ignore — same as above
 import { getAuth } from "firebase/auth";
-import { logInfo } from "../utils/logger.js";
+import { logInfo, logWarn } from "../utils/logger.js";
 // @ts-ignore — same as above; all Firestore symbols imported in one block to cover the full statement
 import {
   initializeFirestore,
