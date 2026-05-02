@@ -42,6 +42,8 @@ import { useUIStore } from './store/useUIStore';
 import { useWorksheetStore } from './store/useWorksheetStore';
 import { AppHeader } from './components/AppHeader';
 import { AssignModal } from './components/Student/AssignModal';
+import { GuideModule, TourModule, PremiumHelpModule, AboutModule, DeveloperVisionModule } from './components/Onboarding';
+import { AdvancedScreeningModule } from './components/Screening/AdvancedScreeningModule';
 
 // Landing Page
 const LandingPage = lazy(() =>
@@ -358,6 +360,10 @@ const AppContent = () => {
 
   const [loadedInfographicData, setLoadedInfographicData] = useState(null);
 
+  // Onboarding Modules State
+  const [activeOnboardingModule, setActiveOnboardingModule] = useState<'guide' | 'tour' | 'help' | 'about' | 'developer' | null>(null);
+  const [isAdvancedScreeningOpen, setIsAdvancedScreeningOpen] = useState(false);
+
   // Apply UI settings to document root when they change
   useEffect(() => {
     document.documentElement.style.setProperty('--app-font-family', uiSettings.fontFamily);
@@ -473,6 +479,29 @@ const AppContent = () => {
       window.removeEventListener('afterprint', handleAfterPrint);
     };
   }, [theme, uiSettings.saturation]);
+
+  // Onboarding Modules Event Listeners
+  useEffect(() => {
+    const handleOpenGuide = () => setActiveOnboardingModule('guide');
+    const handleOpenTour = () => setActiveOnboardingModule('tour');
+    const handleOpenHelp = () => setActiveOnboardingModule('help');
+    const handleOpenAbout = () => setActiveOnboardingModule('about');
+    const handleOpenDeveloper = () => setActiveOnboardingModule('developer');
+
+    window.addEventListener('openGuide', handleOpenGuide);
+    window.addEventListener('openTour', handleOpenTour);
+    window.addEventListener('openHelp', handleOpenHelp);
+    window.addEventListener('openAbout', handleOpenAbout);
+    window.addEventListener('openDeveloper', handleOpenDeveloper);
+
+    return () => {
+      window.removeEventListener('openGuide', handleOpenGuide);
+      window.removeEventListener('openTour', handleOpenTour);
+      window.removeEventListener('openHelp', handleOpenHelp);
+      window.removeEventListener('openAbout', handleOpenAbout);
+      window.removeEventListener('openDeveloper', handleOpenDeveloper);
+    };
+  }, []);
   const [styleSettings, setStyleSettings] = useState(initialStyleSettings as StyleSettings);
   const [historyItems, setHistoryItems] = useState(
     (() => {
@@ -507,7 +536,11 @@ const AppContent = () => {
   // --- NAVIGATION HELPERS (Resets state before switching view) ---
   const handleOpenStudio = (viewName: View) => {
     resetGeneratorContext();
-    navigateTo(viewName);
+    if (viewName === 'screening') {
+      setIsAdvancedScreeningOpen(true);
+    } else {
+      navigateTo(viewName);
+    }
   };
 
   const handleGeneratePlanFromScreening = (
@@ -1217,6 +1250,32 @@ const AppContent = () => {
           </Suspense>
         </div>
       </Modal>
+
+      {/* Onboarding Modules */}
+      {activeOnboardingModule === 'guide' && (
+        <GuideModule onClose={() => setActiveOnboardingModule(null)} />
+      )}
+      {activeOnboardingModule === 'tour' && (
+        <TourModule onClose={() => setActiveOnboardingModule(null)} />
+      )}
+      {activeOnboardingModule === 'help' && (
+        <PremiumHelpModule onClose={() => setActiveOnboardingModule(null)} />
+      )}
+      {activeOnboardingModule === 'about' && (
+        <AboutModule onClose={() => setActiveOnboardingModule(null)} />
+      )}
+      {activeOnboardingModule === 'developer' && (
+        <DeveloperVisionModule onClose={() => setActiveOnboardingModule(null)} />
+      )}
+
+      {/* Advanced Screening Module */}
+      {isAdvancedScreeningOpen && (
+        <AdvancedScreeningModule
+          onClose={() => setIsAdvancedScreeningOpen(false)}
+          userRole={user?.role || 'teacher'}
+          onGeneratePlan={handleGeneratePlanFromScreening}
+        />
+      )}
     </div>
   );
 };

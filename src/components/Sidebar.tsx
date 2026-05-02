@@ -178,6 +178,62 @@ const Sidebar: React.FC<SidebarProps> = ({
         },
       ],
     },
+    {
+      title: 'Yardım & Destek',
+      items: [
+        {
+          id: 'guide',
+          label: 'Rehber',
+          icon: 'fa-book-open',
+          color: 'text-blue-500',
+          onClick: () => {
+            // GuideModule will be handled by parent
+            const event = new CustomEvent('openGuide');
+            window.dispatchEvent(event);
+          },
+        },
+        {
+          id: 'tour',
+          label: 'Platform Turu',
+          icon: 'fa-play',
+          color: 'text-green-500',
+          onClick: () => {
+            const event = new CustomEvent('openTour');
+            window.dispatchEvent(event);
+          },
+        },
+        {
+          id: 'help',
+          label: 'Premium Yardım',
+          icon: 'fa-headset',
+          color: 'text-purple-500',
+          onClick: () => {
+            const event = new CustomEvent('openHelp');
+            window.dispatchEvent(event);
+          },
+        },
+        {
+          id: 'about',
+          label: 'Hakkımızda',
+          icon: 'fa-info-circle',
+          color: 'text-indigo-500',
+          onClick: () => {
+            const event = new CustomEvent('openAbout');
+            window.dispatchEvent(event);
+          },
+        },
+        {
+          id: 'developer',
+          label: 'Geliştirici',
+          icon: 'fa-code',
+          color: 'text-slate-600',
+          onClick: () => {
+            const event = new CustomEvent('openDeveloper');
+            window.dispatchEvent(event);
+          },
+        },
+      ],
+    },
   ];
 
   const handleCategoryMouseEnter = (categoryId: string, event: React.MouseEvent) => {
