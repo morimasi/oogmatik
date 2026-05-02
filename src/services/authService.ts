@@ -63,7 +63,15 @@ export const authService = {
 
             return mappedUser;
         } catch (error: any) {
-            logError("Login error:", error);
+            logError("Login error details:", {
+                code: error.code,
+                message: error.message,
+                email: email
+            });
+            
+            if (error.code === 'auth/operation-not-allowed') {
+                throw new AppError("Sistem Hatası: Email/Şifre girişi Firebase Console üzerinden etkinleştirilmemiş. Lütfen 'Authentication > Sign-in method' altından aktif edin.", 'INTERNAL_ERROR', 500);
+            }
             if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
                 throw new AppError("Giriş yapılamadı: E-posta adresi veya şifre hatalı.", 'INTERNAL_ERROR', 500);
             }
@@ -74,11 +82,18 @@ export const authService = {
     loginWithGoogle: async (): Promise<void> => {
         try {
             const provider = new GoogleAuthProvider();
+            // Google hesabını seçmesi için zorla (isteğe bağlı)
+            provider.setCustomParameters({ prompt: 'select_account' });
+            
             // popup yerine redirect kullanarak COOP hatasını önlüyoruz
             const { signInWithRedirect } = await import("firebase/auth");
+            logInfo("Starting Google Login Redirect...");
             await signInWithRedirect(auth, provider);
         } catch (error: any) {
-            logError("Google login redirect error:", error);
+            logError("Google login redirect error details:", {
+                code: error.code,
+                message: error.message
+            });
             throw new AppError(`Google ile giriş başlatılamadı: ${error.message}`, 'INTERNAL_ERROR', 500);
         }
     },
@@ -89,8 +104,12 @@ export const authService = {
             const { getRedirectResult } = await import("firebase/auth");
             const result = await getRedirectResult(auth);
             
-            if (!result) return null;
+            if (!result) {
+                logInfo("No redirect result found.");
+                return null;
+            }
             
+            logInfo("Redirect result found for user:", result.user.email);
             const user = result.user;
             const userDocRef = doc(db, "users", user.uid);
             const userDocSnap = await getDoc(userDocRef);
