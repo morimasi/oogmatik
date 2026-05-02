@@ -865,7 +865,7 @@ const AppContent = () => {
             width:
               zenMode || ['workbook', 'assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students', 'messages', 'curriculum', 'screening', 'reading-studio', 'math-studio', 'super-turkce', 'infographic-studio', 'activity-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'sari-kitap-studio', 'kelime-cumle-studio', 'ocr'].includes(currentView)
                 ? 0
-                : (currentView === 'generator' && selectedActivity) ? 460 : 250,
+                : (currentView === 'generator' && selectedActivity) ? 370 : 250,
           }}
         >
           <Sidebar
