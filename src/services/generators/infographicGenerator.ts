@@ -33,6 +33,14 @@ BAĞLAM:
    Her zaman en dışta tek bir ana etiket kullanmalı ve tüm içeriği içine almalısın.
    A4 sayfasını "dolu dolu" dolduracak zengin içerikli yapılar kur. 
 
+   ${activityType === ActivityType.INFOGRAPHIC_SHORT_ANSWER ? `
+   ÖZEL TALİMAT (SHORT_ANSWER):
+   - <short-answer-grid title="..." count="15" lines="2" mode="Karma Renkli"> yapısını kullan.
+   - count değeri parametrelere göre 6, 9, 12 veya 15 olabilir. 
+   - İçerisinde ${options.params?.questionCount || 15} adet <item question="..." /> etiketi üret.
+   - Sorular kısa cevaplı, somut ve görselleştirilebilir olmalıdır (Örn: "Bir meyve ismi yazalım.").
+   ` : ''}
+
 2. PREMIUM İÇERİK: "activityContent" içerisinde sadece ana veriyi değil, aynı zamanda "supportingDrill" alanı altında 
    ana konuyla ilgili 3 adet hızlı pekiştirme sorusu veya kısa alıştırma (true/false, eşleştirme vb.) üret.
 
@@ -89,8 +97,8 @@ Ayrıca "activityContent" içinde öğrencinin konuyu pekiştirmesi için 'suppo
     }
 }
 
-function _inferCategory(type: ActivityType): any {
-    if (type.includes('READING')) return 'reading-comprehension';
+function _inferCategory(type: ActivityType): string {
+    if (type.includes('READING') || type === ActivityType.INFOGRAPHIC_SHORT_ANSWER) return 'reading-comprehension';
     if (type.includes('MATH') || type.includes('NUMBER')) return 'math-logic';
     if (type.includes('SCIENCE')) return 'science';
     if (type.includes('SOCIAL')) return 'social-studies';

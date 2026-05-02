@@ -108,6 +108,7 @@ export { INFOGRAPHIC_TRANSITION_PLAN } from './adapters/adapter_transition_plan'
 export { INFOGRAPHIC_SPEECH_THERAPY_TARGET } from './adapters/adapter_speech_therapy_target';
 export { INFOGRAPHIC_MOTOR_SKILLS } from './adapters/adapter_motor_skills';
 export { INFOGRAPHIC_EVALUATION_SUMMARY } from './adapters/adapter_evaluation_summary';
+export { INFOGRAPHIC_SHORT_ANSWER } from './adapters/adapter_short_answer';
 
 // ── Aggregated Registry (84 adapter) ─────────────────────────────────────────
 
@@ -195,6 +196,7 @@ import { INFOGRAPHIC_TRANSITION_PLAN } from './adapters/adapter_transition_plan'
 import { INFOGRAPHIC_SPEECH_THERAPY_TARGET } from './adapters/adapter_speech_therapy_target';
 import { INFOGRAPHIC_MOTOR_SKILLS } from './adapters/adapter_motor_skills';
 import { INFOGRAPHIC_EVALUATION_SUMMARY } from './adapters/adapter_evaluation_summary';
+import { INFOGRAPHIC_SHORT_ANSWER } from './adapters/adapter_short_answer';
 
 export const INFOGRAPHIC_ADAPTERS_REMAINING_84: Record<string, InfographicGeneratorPair> = {
   INFOGRAPHIC_5W1H_BOARD,
@@ -281,6 +283,7 @@ export const INFOGRAPHIC_ADAPTERS_REMAINING_84: Record<string, InfographicGenera
   INFOGRAPHIC_SPEECH_THERAPY_TARGET,
   INFOGRAPHIC_MOTOR_SKILLS,
   INFOGRAPHIC_EVALUATION_SUMMARY,
+  INFOGRAPHIC_SHORT_ANSWER,
 } as Record<string, InfographicGeneratorPair>;
 
 export const TOTAL_INFOGRAPHIC_ADAPTERS =

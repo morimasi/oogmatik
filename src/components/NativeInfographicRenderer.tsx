@@ -33,6 +33,7 @@ type TemplateType =
     | 'fishbone-diagram'
     | 'cycle-process'
     | 'matrix-grid'
+    | 'short-answer-grid'
     | 'unknown';
 
 interface ParsedInfographic {
@@ -52,6 +53,9 @@ interface ParsedData {
     root?: HierarchyNode;
     // timeline
     events?: Array<{ date: string; title: string; desc: string }>;
+    // short-answer-grid
+    shortAnswers?: Array<{ question: string; defaultAnswer?: string }>;
+    config?: { questionCount: number; lineCount: number; colorMode: string };
     // 5w1h
     q5w1h?: {
         who?: string;
@@ -225,6 +229,16 @@ function parseXmlInfographicSyntax(xml: string): ParsedInfographic {
             why: get5W1H('why'),
             how: get5W1H('how')
         };
+    } else if (templateType === 'short-answer-grid') {
+        data.config = {
+            questionCount: parseInt(_extractAttr(xml, mainTagName, 'count') || '15', 10),
+            lineCount: parseInt(_extractAttr(xml, mainTagName, 'lines') || '2', 10),
+            colorMode: _extractAttr(xml, mainTagName, 'mode') || 'Karma Renkli'
+        };
+        data.shortAnswers = _extractRepeatedBlocks(xml, 'item').map(block => ({
+            question: _extractAttr(block, 'item', 'question') || _extractTagContent(block, 'question') || block.replace(/<[^>]+>/g, '').trim(),
+            defaultAnswer: _extractAttr(block, 'item', 'answer') || _extractTagContent(block, 'answer')
+        }));
     } else if (templateType === 'venn-diagram') {
         data.venn = {
             setA: { label: _extractAttr(xml, 'set-a', 'label') || 'Grup A', items: _extractItems(xml, 'set-a') },
@@ -307,6 +321,7 @@ function resolveXmlTagToTemplate(tag: string): TemplateType {
     if (t === 'math-steps-visual') return 'math-steps';
     if (t === 'cycle-process') return 'cycle-process';
     if (t === 'matrix-grid') return 'matrix-grid';
+    if (t === 'short-answer-grid') return 'short-answer-grid';
     if (t === 'timeline-chart') return 'sequence-timeline';
     if (t === 'compare-binary') return 'compare-binary-horizontal';
     if (t === 'list-row') return 'list-row-simple-horizontal-arrow';
@@ -803,6 +818,123 @@ function parseMatrix(lines: string[], startIdx: number, data: ParsedData): numbe
 
 const fontStyle: React.CSSProperties = {
     fontFamily: "'Lexend', 'Inter', sans-serif",
+};
+
+const KARMA_COLORS = [
+    '#ef4444', // Red
+    '#3b82f6', // Blue
+    '#10b981', // Green
+    '#f59e0b', // Orange
+    '#8b5cf6', // Purple
+    '#ec4899', // Pink
+    '#06b6d4', // Cyan
+    '#84cc16', // Lime
+];
+
+/** Kısa Cevaplı Sorular (Premium Grid) Renderer */
+const ShortAnswerGridRenderer: React.FC<{ data: ParsedData; title: string; primaryColor: string }> = ({ data, title, primaryColor }) => {
+    const questions = data?.shortAnswers || [];
+    const config = data?.config || { questionCount: 15, lineCount: 2, colorMode: 'Karma Renkli' };
+    
+    // A4 kompakt görünüm için sütun sayısını belirle
+    const gridColumns = config.questionCount > 6 ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)';
+
+    return (
+        <div style={{ ...fontStyle, padding: '16px', background: '#fff', borderRadius: '8px' }}>
+            {title && (
+                <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                    <div style={{ 
+                        display: 'inline-block', 
+                        border: `2px solid ${primaryColor}`, 
+                        borderRadius: '12px', 
+                        padding: '4px 24px', 
+                        background: '#fff',
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                    }}>
+                        <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: primaryColor, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                            {title}
+                        </h2>
+                    </div>
+                    <div style={{ 
+                        marginTop: '8px', 
+                        fontSize: '11px', 
+                        color: PALETTE.textMuted, 
+                        border: '1px dashed #ccc', 
+                        padding: '4px', 
+                        borderRadius: '8px',
+                        display: 'inline-block'
+                    }}>
+                        Sorulara cevap verelim. Doğru cevaplar için <span style={{color: '#3b82f6', fontWeight: 700}}>mavi</span>, yanlışlar için <span style={{color: '#ef4444', fontWeight: 700}}>kırmızı</span> boyayalım.
+                    </div>
+                </div>
+            )}
+
+            <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: gridColumns, 
+                gap: '12px',
+                width: '100%' 
+            }}>
+                {questions.map((q, idx) => {
+                    const borderColor = config.colorMode === 'Karma Renkli' 
+                        ? KARMA_COLORS[idx % KARMA_COLORS.length] 
+                        : primaryColor;
+
+                    return (
+                        <div key={idx} style={{ 
+                            position: 'relative',
+                            border: `2px solid ${borderColor}`,
+                            borderRadius: '12px',
+                            padding: '12px',
+                            minHeight: '100px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            background: '#fff'
+                        }}>
+                            {/* Değerlendirme Halkası */}
+                            <div style={{ 
+                                position: 'absolute',
+                                top: '-10px',
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                width: '20px',
+                                height: '20px',
+                                borderRadius: '50%',
+                                border: `2px solid ${borderColor}`,
+                                background: '#fff',
+                                zIndex: 2
+                            }} />
+
+                            {/* Soru Metni */}
+                            <div style={{ 
+                                textAlign: 'center', 
+                                fontSize: '13px', 
+                                fontWeight: 600, 
+                                color: PALETTE.text,
+                                marginBottom: '8px',
+                                lineHeight: 1.3
+                            }}>
+                                {q.question}
+                            </div>
+
+                            {/* Cevap Satırları */}
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: '8px' }}>
+                                {Array.from({ length: config.lineCount }).map((_, lIdx) => (
+                                    <div key={lIdx} style={{ 
+                                        width: '100%', 
+                                        height: '1px', 
+                                        background: `${borderColor}44`,
+                                        marginTop: '12px'
+                                    }} />
+                                ))}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
 };
 
 /** 5W1H Grid Renderer */
@@ -1327,6 +1459,8 @@ export const NativeInfographicRenderer: React.FC<NativeInfographicRendererProps>
                 return <CycleRenderer data={parsed.data} title={parsed.title} />;
             case 'matrix-grid':
                 return <MatrixRenderer data={parsed.data} title={parsed.title} />;
+            case 'short-answer-grid':
+                return <ShortAnswerGridRenderer data={parsed.data} title={parsed.title} primaryColor={activePalette.primary} />;
             default:
                 return <UnknownRenderer syntax={syntax} />;
         }
