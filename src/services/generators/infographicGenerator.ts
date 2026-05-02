@@ -35,10 +35,11 @@ BAĞLAM:
 
    ${activityType === ActivityType.INFOGRAPHIC_SHORT_ANSWER ? `
    ÖZEL TALİMAT (SHORT_ANSWER):
-   - <short-answer-grid title="..." count="15" lines="2" mode="Karma Renkli"> yapısını kullan.
-   - count değeri parametrelere göre 6, 9, 12 veya 15 olabilir. 
+   - <short-answer-grid title="..." count="${options.params?.questionCount || 15}" lines="${options.params?.lineCount || 2}" mode="${options.params?.colorMode || 'Karma Renkli'}" student-info="${options.params?.showStudentInfo !== false}" density="${options.params?.gridDensity || 'Kompakt'}" focus="${options.params?.pedagogicalFocus || 'Genel Kavrama'}"> yapısını kullan.
    - İçerisinde ${options.params?.questionCount || 15} adet <item question="..." /> etiketi üret.
-   - Sorular kısa cevaplı, somut ve görselleştirilebilir olmalıdır (Örn: "Bir meyve ismi yazalım.").
+   - PEDAGOJİK ODAK: ${options.params?.pedagogicalFocus || 'Genel Kavrama'}. Soruları bu odak noktasına göre kurgula.
+   - Sorular kısa cevaplı, somut, çocuğun dünyasına uygun ve görselleştirilebilir olmalıdır.
+   - A4 Kompakt Düzen: Sorular öz olmalı, gereksiz uzunluktan kaçınılmalıdır.
    ` : ''}
 
 2. PREMIUM İÇERİK: "activityContent" içerisinde sadece ana veriyi değil, aynı zamanda "supportingDrill" alanı altında 

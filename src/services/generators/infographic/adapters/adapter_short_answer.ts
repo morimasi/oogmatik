@@ -19,24 +19,47 @@ export const INFOGRAPHIC_SHORT_ANSWER: InfographicGeneratorPair = {
         name: 'questionCount',
         label: 'Soru Sayısı',
         type: 'enum',
-        options: ['6', '9', '12', '15'],
+        options: ['6', '8', '9', '12', '15', '18', '21'],
         defaultValue: '15',
-        description: 'A4 sayfasına sığacak soru adedi (3 sütunlu ızgara düzeni).'
+        description: 'A4 sayfasına sığacak soru adedi.'
       },
       {
         name: 'lineCount',
         label: 'Satır Sayısı',
         type: 'number',
         defaultValue: 2,
-        description: 'Her kutudaki cevap satırı sayısı (1-3).'
+        description: 'Her kutudaki cevap satırı sayısı (1-4).'
       },
       {
         name: 'colorMode',
         label: 'Renk Modu',
         type: 'enum',
-        options: ['Karma Renkli', 'Tek Renk (Premium)'],
+        options: ['Karma Renkli', 'Tek Renk (Vurgulu)', 'Siyah-Beyaz (Print Dostu)'],
         defaultValue: 'Karma Renkli',
         description: 'Kutuların sınır renk düzeni.'
+      },
+      {
+        name: 'showStudentInfo',
+        label: 'Öğrenci Bilgi Alanı',
+        type: 'boolean',
+        defaultValue: true,
+        description: 'İsim, Soyisim ve Tarih alanını en üste ekler.'
+      },
+      {
+        name: 'gridDensity',
+        label: 'Izgara Sıklığı',
+        type: 'enum',
+        options: ['Kompakt', 'Normal', 'Geniş'],
+        defaultValue: 'Kompakt',
+        description: 'Kutular arası boşluk ve sayfa doluluğu.'
+      },
+      {
+        name: 'pedagogicalFocus',
+        label: 'Pedagojik Odak',
+        type: 'enum',
+        options: ['Genel Kavrama', 'Detay Odaklı', 'Neden-Sonuç', 'Hafıza Çalışması'],
+        defaultValue: 'Genel Kavrama',
+        description: 'AI sorularının hangi bilişsel beceriyi hedefleyeceği.'
       }
     ]
   },

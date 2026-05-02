@@ -17,6 +17,7 @@ import {
   InfographicActivityContent,
 } from '../../../types/infographic';
 import { generateWithSchema } from '../../geminiClient';
+import { INFOGRAPHIC_SHORT_ANSWER } from './adapters/adapter_short_answer';
 
 // ── HELPER: Kategori Tespiti ─────────────────────────────────────────────────
 
@@ -1606,4 +1607,5 @@ export const INFOGRAPHIC_ADAPTERS_FIRST_10: Record<string, InfographicGeneratorP
   [ActivityType.INFOGRAPHIC_CAUSE_EFFECT]: INFOGRAPHIC_CAUSE_EFFECT,
   [ActivityType.INFOGRAPHIC_FISHBONE]: INFOGRAPHIC_FISHBONE,
   [ActivityType.INFOGRAPHIC_CLUSTER_MAP]: INFOGRAPHIC_CLUSTER_MAP,
+  [ActivityType.INFOGRAPHIC_SHORT_ANSWER]: INFOGRAPHIC_SHORT_ANSWER,
 };

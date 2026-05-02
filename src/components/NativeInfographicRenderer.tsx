@@ -55,7 +55,14 @@ interface ParsedData {
     events?: Array<{ date: string; title: string; desc: string }>;
     // short-answer-grid
     shortAnswers?: Array<{ question: string; defaultAnswer?: string }>;
-    config?: { questionCount: number; lineCount: number; colorMode: string };
+    config?: { 
+        questionCount: number; 
+        lineCount: number; 
+        colorMode: string;
+        showStudentInfo?: boolean;
+        gridDensity?: string;
+        pedagogicalFocus?: string;
+    };
     // 5w1h
     q5w1h?: {
         who?: string;
@@ -233,7 +240,10 @@ function parseXmlInfographicSyntax(xml: string): ParsedInfographic {
         data.config = {
             questionCount: parseInt(_extractAttr(xml, mainTagName, 'count') || '15', 10),
             lineCount: parseInt(_extractAttr(xml, mainTagName, 'lines') || '2', 10),
-            colorMode: _extractAttr(xml, mainTagName, 'mode') || 'Karma Renkli'
+            colorMode: _extractAttr(xml, mainTagName, 'mode') || 'Karma Renkli',
+            showStudentInfo: _extractAttr(xml, mainTagName, 'student-info') === 'true',
+            gridDensity: _extractAttr(xml, mainTagName, 'density') || 'Kompakt',
+            pedagogicalFocus: _extractAttr(xml, mainTagName, 'focus') || 'Genel Kavrama'
         };
         data.shortAnswers = _extractRepeatedBlocks(xml, 'item').map(block => ({
             question: _extractAttr(block, 'item', 'question') || _extractTagContent(block, 'question') || block.replace(/<[^>]+>/g, '').trim(),
@@ -834,37 +844,67 @@ const KARMA_COLORS = [
 /** Kısa Cevaplı Sorular (Premium Grid) Renderer */
 const ShortAnswerGridRenderer: React.FC<{ data: ParsedData; title: string; primaryColor: string }> = ({ data, title, primaryColor }) => {
     const questions = data?.shortAnswers || [];
-    const config = data?.config || { questionCount: 15, lineCount: 2, colorMode: 'Karma Renkli' };
+    const config = data?.config || { 
+        questionCount: 15, 
+        lineCount: 2, 
+        colorMode: 'Karma Renkli',
+        showStudentInfo: true,
+        gridDensity: 'Kompakt'
+    };
     
     // A4 kompakt görünüm için sütun sayısını belirle
-    const gridColumns = config.questionCount > 6 ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)';
+    let gridColumns = 'repeat(3, 1fr)';
+    if (config.questionCount <= 4) gridColumns = 'repeat(1, 1fr)';
+    else if (config.questionCount <= 8) gridColumns = 'repeat(2, 1fr)';
+    else gridColumns = 'repeat(3, 1fr)';
+
+    const gap = config.gridDensity === 'Kompakt' ? '8px' : config.gridDensity === 'Normal' ? '16px' : '24px';
+    const padding = config.gridDensity === 'Kompakt' ? '12px' : '20px';
 
     return (
-        <div style={{ ...fontStyle, padding: '16px', background: '#fff', borderRadius: '8px' }}>
+        <div style={{ ...fontStyle, padding: '12px', background: '#fff', borderRadius: '8px' }}>
+            {/* Öğrenci Bilgi Alanı */}
+            {config.showStudentInfo && (
+                <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    marginBottom: '12px', 
+                    padding: '8px', 
+                    border: '1px solid #e2e8f0', 
+                    borderRadius: '8px',
+                    fontSize: '11px',
+                    color: PALETTE.text
+                }}>
+                    <div style={{ flex: 1 }}><b>Adı Soyadı:</b> ............................................................</div>
+                    <div style={{ width: '150px' }}><b>Tarih:</b> ...... / ...... / 202...</div>
+                </div>
+            )}
+
             {title && (
-                <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                <div style={{ textAlign: 'center', marginBottom: '12px' }}>
                     <div style={{ 
                         display: 'inline-block', 
                         border: `2px solid ${primaryColor}`, 
                         borderRadius: '12px', 
-                        padding: '4px 24px', 
+                        padding: '4px 20px', 
                         background: '#fff',
                         boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                     }}>
-                        <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: primaryColor, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                        <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: primaryColor, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                             {title}
                         </h2>
                     </div>
                     <div style={{ 
-                        marginTop: '8px', 
-                        fontSize: '11px', 
+                        marginTop: '4px', 
+                        fontSize: '10px', 
                         color: PALETTE.textMuted, 
-                        border: '1px dashed #ccc', 
-                        padding: '4px', 
-                        borderRadius: '8px',
-                        display: 'inline-block'
+                        background: '#f8fafc',
+                        padding: '2px 8px', 
+                        borderRadius: '6px',
+                        display: 'inline-block',
+                        border: '1px solid #e2e8f0'
                     }}>
-                        Sorulara cevap verelim. Doğru cevaplar için <span style={{color: '#3b82f6', fontWeight: 700}}>mavi</span>, yanlışlar için <span style={{color: '#ef4444', fontWeight: 700}}>kırmızı</span> boyayalım.
+                        🎯 {config.pedagogicalFocus || 'Genel Kavrama'} • 📝 Cevaplayalım • 🟢 Değerlendirelim
                     </div>
                 </div>
             )}
@@ -872,66 +912,99 @@ const ShortAnswerGridRenderer: React.FC<{ data: ParsedData; title: string; prima
             <div style={{ 
                 display: 'grid', 
                 gridTemplateColumns: gridColumns, 
-                gap: '12px',
+                gap: gap,
                 width: '100%' 
             }}>
                 {questions.map((q, idx) => {
-                    const borderColor = config.colorMode === 'Karma Renkli' 
-                        ? KARMA_COLORS[idx % KARMA_COLORS.length] 
-                        : primaryColor;
+                    let borderColor = primaryColor;
+                    if (config.colorMode === 'Karma Renkli') {
+                        borderColor = KARMA_COLORS[idx % KARMA_COLORS.length];
+                    } else if (config.colorMode === 'Siyah-Beyaz (Print Dostu)') {
+                        borderColor = '#334155';
+                    }
 
                     return (
                         <div key={idx} style={{ 
                             position: 'relative',
-                            border: `2px solid ${borderColor}`,
-                            borderRadius: '12px',
-                            padding: '12px',
-                            minHeight: '100px',
+                            border: `1.5px solid ${borderColor}`,
+                            borderRadius: '10px',
+                            padding: padding,
+                            minHeight: config.gridDensity === 'Kompakt' ? '80px' : '110px',
                             display: 'flex',
                             flexDirection: 'column',
                             justifyContent: 'space-between',
-                            background: '#fff'
+                            background: '#fff',
+                            pageBreakInside: 'avoid'
                         }}>
                             {/* Değerlendirme Halkası */}
                             <div style={{ 
                                 position: 'absolute',
-                                top: '-10px',
-                                left: '50%',
-                                transform: 'translateX(-50%)',
-                                width: '20px',
-                                height: '20px',
+                                top: '-8px',
+                                right: '10px',
+                                width: '16px',
+                                height: '16px',
                                 borderRadius: '50%',
-                                border: `2px solid ${borderColor}`,
+                                border: `1.5px solid ${borderColor}`,
                                 background: '#fff',
-                                zIndex: 2
-                            }} />
+                                zIndex: 2,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: '8px',
+                                color: borderColor,
+                                fontWeight: 700
+                            }}>
+                                {idx + 1}
+                            </div>
 
                             {/* Soru Metni */}
                             <div style={{ 
-                                textAlign: 'center', 
-                                fontSize: '13px', 
+                                textAlign: 'left', 
+                                fontSize: '12px', 
                                 fontWeight: 600, 
                                 color: PALETTE.text,
-                                marginBottom: '8px',
-                                lineHeight: 1.3
+                                marginBottom: '6px',
+                                lineHeight: 1.2
                             }}>
                                 {q.question}
                             </div>
 
                             {/* Cevap Satırları */}
-                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: '8px' }}>
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: '6px' }}>
                                 {Array.from({ length: config.lineCount }).map((_, lIdx) => (
                                     <div key={lIdx} style={{ 
                                         width: '100%', 
                                         height: '1px', 
-                                        background: `${borderColor}44`,
-                                        marginTop: '12px'
+                                        borderBottom: `1px dashed ${borderColor}33`,
+                                        marginTop: '10px'
                                     }} />
                                 ))}
                             </div>
                         </div>
                     );
                 })}
+            </div>
+            
+            {/* Alt Bilgi / Değerlendirme Anahtarı */}
+            <div style={{ 
+                marginTop: '12px', 
+                padding: '6px', 
+                borderTop: '1px solid #e2e8f0', 
+                display: 'flex', 
+                justifyContent: 'center', 
+                gap: '20px',
+                fontSize: '9px',
+                color: PALETTE.textMuted
+            }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', border: '1px solid #e2e8f0' }} /> Henüz Bakılmadı
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e' }} /> Doğru
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }} /> Tekrar Bakılmalı
+                </div>
             </div>
         </div>
     );
