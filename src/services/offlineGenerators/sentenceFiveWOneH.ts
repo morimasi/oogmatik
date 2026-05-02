@@ -42,6 +42,13 @@ export const generateOfflineSentenceFiveWOneH = async (
     title: 'Cümlede 5N1K Çalışması (Hızlı)',
     instruction: 'Aşağıdaki cümleleri okuyunuz ve ilgili 5N1K sorularını cevaplayınız.',
     items,
+    settings: {
+      difficulty: difficulty as any,
+      topic: options.topic || 'Genel',
+      itemCount,
+      showIcons: options.useIcons !== false,
+      showPredicate: options.showPredicate === true
+    },
     metadata: {
       difficulty,
       ageGroup,

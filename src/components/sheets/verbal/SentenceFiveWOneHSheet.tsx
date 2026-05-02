@@ -65,7 +65,7 @@ export const SentenceFiveWOneHSheet: React.FC<Props> = ({ data }) => {
         <div className="flex flex-col">
           <span className="text-[8px] font-black text-indigo-600 uppercase tracking-tight">Yönerge</span>
           <p className="text-[9px] font-medium text-zinc-600 leading-relaxed mt-0.5">
-            {data.instruction}
+            {data.instruction as string}
           </p>
         </div>
       </div>
@@ -92,7 +92,7 @@ export const SentenceFiveWOneHSheet: React.FC<Props> = ({ data }) => {
                       <span className="text-[8px] font-black text-zinc-400 uppercase tracking-tighter shrink-0">
                           {getLabel(q.type)}
                       </span>
-                      {data.settings?.showPredicate && item.predicate && (
+                      {((data.settings?.showPredicate) || (data as any).showPredicate) && item.predicate && (
                         <span className="text-[7px] font-bold text-indigo-400 bg-indigo-50 px-1 py-0.5 rounded border border-indigo-100/50">
                            → {item.predicate as string}
                         </span>
@@ -113,7 +113,7 @@ export const SentenceFiveWOneHSheet: React.FC<Props> = ({ data }) => {
       {data.pedagogicalNote && (
         <div className="mt-auto pt-2 flex items-center justify-between border-t border-zinc-100 opacity-60">
             <p className="text-[8px] font-medium italic text-zinc-500 max-w-[300px]">
-                <span className="font-bold not-italic">Uzman:</span> {data.pedagogicalNote}
+                <span className="font-bold not-italic">Uzman:</span> {data.pedagogicalNote as string}
             </p>
             <div className="flex items-center gap-1">
                 <div className="w-4 h-4 bg-zinc-100 rounded flex items-center justify-center text-[8px]">⚙️</div>
