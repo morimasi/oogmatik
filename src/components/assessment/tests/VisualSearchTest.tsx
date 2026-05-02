@@ -16,6 +16,7 @@ const LEVEL_CONFIGS = [
 export const VisualSearchTest: React.FC<VisualSearchTestProps> = ({ onComplete }) => {
     const [phase, setPhase] = useState<'intro' | 'play' | 'feedback' | 'done'>('intro');
     const [levelIdx, setLevelIdx] = useState(0);
+    const [showHint, setShowHint] = useState(false);
     const [grid, setGrid] = useState<{ id: string; char: string; isTarget: boolean; isFound: boolean; isError: boolean }[]>([]);
     const [foundCount, setFoundCount] = useState(0);
     const [errors, setErrors] = useState(0);
@@ -25,6 +26,12 @@ export const VisualSearchTest: React.FC<VisualSearchTestProps> = ({ onComplete }
     const totalReactionTime = useRef(0);
     const startTime = useRef(0);
     const levelStartTime = useRef(0);
+
+    const handleShowHint = () => {
+        if (phase !== 'play') return;
+        setShowHint(true);
+        setTimeout(() => setShowHint(false), 2500);
+    };
 
     const config = LEVEL_CONFIGS[levelIdx];
 
@@ -139,30 +146,52 @@ export const VisualSearchTest: React.FC<VisualSearchTestProps> = ({ onComplete }
 
     if (phase === 'intro') {
         return (
-            <div className="flex flex-col items-center justify-center w-full h-full gap-8 animate-in fade-in select-none">
-                <div className="w-20 h-20 rounded-2xl bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center">
-                    <i className="fa-solid fa-magnifying-glass text-4xl text-amber-500"></i>
+            <div className="flex flex-col items-center justify-center w-full h-full gap-8 animate-in fade-in select-none relative overflow-hidden">
+                {/* Premium Gradient Arka Plan */}
+                <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-amber-900/20 dark:via-orange-900/20 dark:to-yellow-900/20" />
+                <div className="absolute top-0 right-0 w-96 h-96 bg-amber-400 rounded-full blur-3xl opacity-10 -translate-y-1/2 translate-x-1/2" />
+                <div className="absolute bottom-0 left-0 w-96 h-96 bg-orange-400 rounded-full blur-3xl opacity-10 translate-y-1/2 -translate-x-1/2" />
+                
+                <div className="relative z-10">
+                    <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-amber-500 to-orange-500 shadow-2xl shadow-amber-500/30 flex items-center justify-center backdrop-blur-sm border border-white/20">
+                        <i className="fa-solid fa-magnifying-glass text-5xl text-white"></i>
+                    </div>
                 </div>
-                <div className="text-center max-w-sm">
-                    <h3 className="text-2xl font-black text-zinc-800 dark:text-white mb-3">Görsel Arama Testi</h3>
-                    <p className="text-zinc-500 text-sm leading-relaxed">
-                        Karmaşık harfler arasında <span className="font-bold text-amber-600">hedef harfi</span> olabildiğince hızlı bul ve işaretle.
+                
+                <div className="relative z-10 text-center max-w-md">
+                    <h3 className="text-4xl font-black text-zinc-900 dark:text-white mb-4 bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">Görsel Arama Testi</h3>
+                    <p className="text-zinc-600 dark:text-zinc-300 text-lg leading-relaxed font-medium">
+                        Karmaşık harfler arasında <span className="font-black text-amber-600 bg-amber-100 dark:bg-amber-900/50 px-2 py-1 rounded-lg">hedef harfi</span> olabildiğince hızlı bul ve işaretle.
                         Dikkatli ol, yanlış harflere tıklama!
                     </p>
                 </div>
-                <div className="flex gap-3 text-xs text-zinc-500">
-                    <div className="flex items-center gap-1"><i className="fa-solid fa-eye text-amber-400"></i> Tarama</div>
-                    <div className="text-zinc-300">→</div>
-                    <div className="flex items-center gap-1"><i className="fa-solid fa-bolt text-amber-400"></i> Hız</div>
-                    <div className="text-zinc-300">→</div>
-                    <div className="flex items-center gap-1"><i className="fa-solid fa-bullseye text-amber-400"></i> Odak</div>
+                
+                <div className="relative z-10 flex gap-4 text-sm text-zinc-500 dark:text-zinc-400">
+                    <div className="flex items-center gap-2 bg-white/70 dark:bg-zinc-800/70 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/30">
+                        <i className="fa-solid fa-eye text-amber-400"></i>
+                        <span className="font-medium">Tarama</span>
+                    </div>
+                    <div className="text-zinc-300 text-xl">→</div>
+                    <div className="flex items-center gap-2 bg-white/70 dark:bg-zinc-800/70 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/30">
+                        <i className="fa-solid fa-bolt text-amber-400"></i>
+                        <span className="font-medium">Hız</span>
+                    </div>
+                    <div className="text-zinc-300 text-xl">→</div>
+                    <div className="flex items-center gap-2 bg-white/70 dark:bg-zinc-800/70 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/30">
+                        <i className="fa-solid fa-bullseye text-amber-400"></i>
+                        <span className="font-medium">Odak</span>
+                    </div>
                 </div>
-                <button
-                    onClick={handleStart}
-                    className="px-8 py-4 bg-amber-500 hover:bg-amber-400 text-white font-black rounded-2xl shadow-lg transition-all active:scale-95 flex items-center gap-3"
-                >
-                    <i className="fa-solid fa-play"></i> Teste Başla
-                </button>
+                
+                <div className="relative z-10">
+                    <button
+                        onClick={handleStart}
+                        className="group px-10 py-5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-black rounded-3xl shadow-2xl shadow-amber-500/30 transition-all duration-300 flex items-center gap-4 transform hover:scale-105 active:scale-95"
+                    >
+                        <i className="fa-solid fa-play text-xl group-hover:rotate-12 transition-transform"></i>
+                        <span className="text-lg">Teste Başla</span>
+                    </button>
+                </div>
             </div>
         );
     }
@@ -170,68 +199,99 @@ export const VisualSearchTest: React.FC<VisualSearchTestProps> = ({ onComplete }
     if (phase === 'done') return null;
 
     return (
-        <div className="flex flex-col items-center justify-center w-full h-full max-w-2xl mx-auto select-none gap-6">
-            {/* Üst Bilgi Çubuğu */}
-            <div className="w-full flex justify-between items-center bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-2xl border border-zinc-200 dark:border-zinc-700/50">
-                <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center">
-                        <span className="text-amber-600 dark:text-amber-400 font-black text-2xl">{config.targetChar}</span>
-                    </div>
-                    <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">HEDEF HARF</p>
-                        <p className="text-sm font-bold text-zinc-700 dark:text-zinc-300">Bunu Bul ({foundCount}/{config.targetCount})</p>
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-6">
-                    <div className="text-center">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-red-400">Hatalar</p>
-                        <p className="text-lg font-black text-red-500">{errors}</p>
-                    </div>
-                    <div className="text-center">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-amber-400">Seviye</p>
-                        <p className="text-lg font-black text-zinc-800 dark:text-white">{config.level} / {LEVEL_CONFIGS.length}</p>
+        <div className="flex flex-col items-center justify-center w-full h-full max-w-2xl mx-auto select-none gap-6 relative overflow-hidden">
+            {/* Premium Gradient Arka Plan */}
+            <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-amber-900/20 dark:via-orange-900/20 dark:to-yellow-900/20" />
+            <div className="absolute top-0 right-0 w-96 h-96 bg-amber-400 rounded-full blur-3xl opacity-10 -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-orange-400 rounded-full blur-3xl opacity-10 translate-y-1/2 -translate-x-1/2" />
+            
+            {/* İpucu Kutusu */}
+            {showHint && phase === 'play' && (
+                <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-2 duration-500">
+                    <div className="bg-gradient-to-r from-amber-600 to-orange-600 text-white px-6 py-4 rounded-2xl shadow-2xl shadow-amber-500/30 max-w-sm backdrop-blur-sm border border-white/20">
+                        <div className="flex items-center gap-3">
+                            <i className="fa-solid fa-lightbulb text-yellow-300 text-xl animate-pulse"></i>
+                            <span className="text-sm font-bold">
+                                {config.targetCount} adet "{config.targetChar}" harfi bul. Diğerlerine tıklama!
+                            </span>
+                        </div>
+                        <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-10 border-l-transparent border-r-10 border-r-transparent border-t-10 border-t-amber-600"></div>
                     </div>
                 </div>
-            </div>
+            )}
+            
+            <div className="relative z-10 w-full">
+                {/* Üst Bilgi Çubuğu */}
+                <div className="w-full flex justify-between items-center bg-white/70 dark:bg-zinc-800/70 backdrop-blur-md p-6 rounded-3xl border border-white/30 shadow-2xl">
+                    <div className="flex items-center gap-4">
+                        <div className="w-16 h-16 bg-gradient-to-br from-amber-400 to-orange-400 rounded-2xl flex items-center justify-center shadow-xl">
+                            <span className="text-white font-black text-3xl">{config.targetChar}</span>
+                        </div>
+                        <div>
+                            <p className="text-xs font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">HEDEF HARF</p>
+                            <p className="text-lg font-bold text-zinc-800 dark:text-zinc-200">Bunu Bul ({foundCount}/{config.targetCount})</p>
+                        </div>
+                    </div>
 
-            {/* Grid */}
-            {phase === 'play' && (
-                <div
-                    className="grid gap-1.5 p-4 bg-white dark:bg-zinc-900 rounded-[2rem] shadow-sm border border-zinc-200 dark:border-zinc-800 animate-in zoom-in-95 duration-300"
-                    style={{ gridTemplateColumns: `repeat(${config.gridSize}, minmax(0, 1fr))` }}
-                >
-                    {grid.map((cell, idx) => (
+                    <div className="flex items-center gap-8">
+                        <div className="text-center">
+                            <p className="text-xs font-black uppercase tracking-widest text-red-400">Hatalar</p>
+                            <p className="text-2xl font-black text-red-500">{errors}</p>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-xs font-black uppercase tracking-widest text-amber-400">Seviye</p>
+                            <p className="text-2xl font-black text-zinc-800 dark:text-white">{config.level} / {LEVEL_CONFIGS.length}</p>
+                        </div>
                         <button
-                            key={`${cell.id}_${idx}`}
-                            onClick={() => handleClick(idx)}
-                            className={`
-                                w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center rounded-lg text-lg sm:text-xl font-black transition-all
-                                ${cell.isFound
-                                    ? 'bg-amber-500 text-white scale-90 opacity-50'
-                                    : cell.isError
-                                        ? 'bg-red-500 text-white animate-shake'
-                                        : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 active:scale-95 border-b-2 border-zinc-200 dark:border-zinc-700'}
-                            `}
+                            onClick={handleShowHint}
+                            disabled={phase !== 'play'}
+                            className="px-4 py-2 bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-xl font-bold text-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg"
                         >
-                            {cell.char}
+                            <i className="fa-solid fa-lightbulb"></i>
+                            İpucu
                         </button>
-                    ))}
-                </div>
-            )}
-
-            {/* Geri Bildirim */}
-            {phase === 'feedback' && (
-                <div className="flex flex-col items-center justify-center py-12 animate-in slide-in-from-bottom-4">
-                    <div className={`w-20 h-20 rounded-full flex items-center justify-center text-4xl mb-4 ${errors >= 5 ? 'bg-red-100 text-red-500' : 'bg-emerald-100 text-emerald-500'}`}>
-                        <i className={`fa-solid ${errors >= 5 ? 'fa-xmark' : 'fa-check'}`}></i>
                     </div>
-                    <h3 className="text-xl font-black text-zinc-800 dark:text-zinc-100">
-                        {errors >= 5 ? 'Çok Sayıda Hata!' : 'Mükemmel Tarama!'}
-                    </h3>
-                    <p className="text-zinc-500 font-bold mt-2">Sonraki seviye yükleniyor...</p>
                 </div>
-            )}
+
+                {/* Grid */}
+                {phase === 'play' && (
+                    <div
+                        className="grid gap-2 p-6 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md rounded-[2.5rem] shadow-2xl border border-white/30 animate-in zoom-in-95 duration-500"
+                        style={{ gridTemplateColumns: `repeat(${config.gridSize}, minmax(0, 1fr))` }}
+                    >
+                        {grid.map((cell, idx) => (
+                            <button
+                                key={`${cell.id}_${idx}`}
+                                onClick={() => handleClick(idx)}
+                                className={`
+                                    w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center rounded-xl text-lg sm:text-xl md:text-2xl font-black transition-all duration-300 transform
+                                    ${cell.isFound
+                                        ? 'bg-gradient-to-br from-amber-400 to-orange-400 text-white scale-90 opacity-50 shadow-lg'
+                                        : cell.isError
+                                            ? 'bg-gradient-to-br from-red-400 to-red-500 text-white animate-shake shadow-lg'
+                                            : 'bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 active:scale-95 border-2 border-zinc-200 dark:border-zinc-700 hover:border-amber-300 hover:shadow-lg'
+                                    }
+                                `}
+                            >
+                                {cell.char}
+                            </button>
+                        ))}
+                    </div>
+                )}
+
+                {/* Geri Bildirim */}
+                {phase === 'feedback' && (
+                    <div className="flex flex-col items-center justify-center py-16 animate-in slide-in-from-bottom-4">
+                        <div className={`w-24 h-24 rounded-full flex items-center justify-center text-5xl mb-6 shadow-2xl ${errors >= 5 ? 'bg-gradient-to-br from-red-400 to-red-500 text-white' : 'bg-gradient-to-br from-emerald-400 to-green-500 text-white'}`}>
+                            <i className={`fa-solid ${errors >= 5 ? 'fa-xmark' : 'fa-check'} animate-bounce`}></i>
+                        </div>
+                        <h3 className="text-3xl font-black text-zinc-800 dark:text-zinc-100 mb-2">
+                            {errors >= 5 ? 'Çok Sayıda Hata!' : 'Mükemmel Tarama!'}
+                        </h3>
+                        <p className="text-zinc-500 font-bold text-lg">Sonraki seviye yükleniyor...</p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
