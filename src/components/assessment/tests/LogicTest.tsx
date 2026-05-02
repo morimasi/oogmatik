@@ -100,9 +100,15 @@ export const LogicTest: React.FC<LogicTestProps> = ({ onComplete }) => {
     const [scoreDisplay, setScoreDisplay] = useState(0);
     const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
     const [showFeedback, setShowFeedback] = useState(false);
+    const [showHint, setShowHint] = useState(false);
     const startTimeRef = useRef(Date.now());
     const reactionTimes = useRef<number[]>([]);
     const questionStartTime = useRef(Date.now());
+
+    const handleShowHint = () => {
+        setShowHint(true);
+        setTimeout(() => setShowHint(false), 3000); // 3 saniye sonra kaybolur
+    };
 
     const handleAnswer = (val: string) => {
         if (showFeedback) return;
@@ -123,6 +129,7 @@ export const LogicTest: React.FC<LogicTestProps> = ({ onComplete }) => {
 
         setTimeout(() => {
             setShowFeedback(false);
+            setShowHint(false); // Soru değiştiğinde ipucu sıfırlansın
             setSelectedAnswer(null);
 
             if (qIndex < questions.length - 1) {
@@ -187,7 +194,7 @@ export const LogicTest: React.FC<LogicTestProps> = ({ onComplete }) => {
     const gridCols = currentQ.grid[0].length;
 
     return (
-        <div className="flex flex-col items-center justify-center w-full h-full max-w-xl mx-auto select-none">
+        <div className="flex flex-col items-center justify-center w-full h-full max-w-xl mx-auto select-none relative">
             {/* Başlık */}
             <div className="text-center mb-6 w-full">
                 <div className="flex items-center justify-between px-2 mb-2">
@@ -255,10 +262,33 @@ export const LogicTest: React.FC<LogicTestProps> = ({ onComplete }) => {
                 })}
             </div>
 
-            {/* Skor göstergesi */}
-            <div className="flex items-center gap-2 text-sm text-zinc-400">
-                <i className="fa-solid fa-check-circle text-green-500"></i>
-                <span>{scoreDisplay} / {qIndex} doğru</span>
+            {/* İpucu Kutusu */}
+            {showHint && currentQ.hint && (
+                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="bg-amber-500 text-white px-4 py-3 rounded-xl shadow-lg border-2 border-amber-600 max-w-xs">
+                        <div className="flex items-center gap-2">
+                            <i className="fa-solid fa-lightbulb text-yellow-200"></i>
+                            <span className="text-sm font-bold">{currentQ.hint}</span>
+                        </div>
+                        <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-amber-600"></div>
+                    </div>
+                </div>
+            )}
+
+            {/* İpucu Butonu ve Skor göstergesi */}
+            <div className="flex items-center gap-4 text-sm text-zinc-400">
+                <button
+                    onClick={handleShowHint}
+                    disabled={showHint || showFeedback}
+                    className="px-3 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-lg font-bold text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                >
+                    <i className="fa-solid fa-lightbulb"></i>
+                    İpucu
+                </button>
+                <div className="flex items-center gap-2">
+                    <i className="fa-solid fa-check-circle text-green-500"></i>
+                    <span>{scoreDisplay} / {qIndex} doğru</span>
+                </div>
             </div>
         </div>
     );

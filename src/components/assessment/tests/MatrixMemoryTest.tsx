@@ -17,8 +17,15 @@ export const MatrixMemoryTest: React.FC<MatrixMemoryTestProps> = ({ onComplete }
     const [startTime, setStartTime] = useState(0);
     const [reactionTimes, setReactionTimes] = useState<number[]>([]);
     const [lastWasCorrect, setLastWasCorrect] = useState<boolean | null>(null);
+    const [showHint, setShowHint] = useState(false);
     // Doğru max skor hesabı için birikimli max'i tutalım
     const maxScoreRef = React.useRef(0);
+
+    const handleShowHint = () => {
+        if (phase !== 'recall') return;
+        setShowHint(true);
+        setTimeout(() => setShowHint(false), 2000); // 2 saniye sonra kaybolur
+    };
 
     // Yeni seviyeyi oluştur
     const generateLevel = (currentLevel: number, currentLives: number) => {
@@ -39,6 +46,7 @@ export const MatrixMemoryTest: React.FC<MatrixMemoryTestProps> = ({ onComplete }
         setTargetCells(Array.from(cells));
         setSelectedCells([]);
         setPhase('preview');
+        setShowHint(false); // Yeni seviyede ipucu sıfırlansın
 
         const showTime = Math.max(800, 2500 - (currentLevel * 150));
         const timer = setTimeout(() => {
@@ -157,7 +165,20 @@ export const MatrixMemoryTest: React.FC<MatrixMemoryTestProps> = ({ onComplete }
     }
 
     return (
-        <div className="flex flex-col items-center justify-center w-full h-full select-none">
+        <div className="flex flex-col items-center justify-center w-full h-full select-none relative">
+            {/* İpucu Kutusu */}
+            {showHint && phase === 'recall' && (
+                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="bg-indigo-500 text-white px-4 py-3 rounded-xl shadow-lg border-2 border-indigo-600 max-w-xs">
+                        <div className="flex items-center gap-2">
+                            <i className="fa-solid fa-lightbulb text-yellow-200"></i>
+                            <span className="text-sm font-bold">{targetCells.length} adet mavi kareyi hatırla!</span>
+                        </div>
+                        <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-indigo-600"></div>
+                    </div>
+                </div>
+            )}
+
             {/* Skor Başlığı */}
             <div className="mb-8 text-center">
                 <h3 className="text-2xl font-black text-zinc-800 dark:text-white mb-2">Desenleri Hatırla</h3>
@@ -213,10 +234,22 @@ export const MatrixMemoryTest: React.FC<MatrixMemoryTestProps> = ({ onComplete }
                 })}
             </div>
 
-            {/* Durum Mesajı */}
-            <div className={`mt-8 h-10 flex items-center justify-center gap-2 text-base font-bold transition-all ${phase === 'feedback' && lastWasCorrect === false ? 'text-red-500' : phase === 'feedback' && lastWasCorrect === true ? 'text-green-500' : 'text-zinc-400'}`}>
+            {/* Durum Mesajı ve İpucu Butonu */}
+            <div className={`mt-8 h-10 flex items-center justify-center gap-4 text-base font-bold transition-all ${phase === 'feedback' && lastWasCorrect === false ? 'text-red-500' : phase === 'feedback' && lastWasCorrect === true ? 'text-green-500' : 'text-zinc-400'}`}>
                 {phase === 'preview' && <><i className="fa-solid fa-eye text-indigo-400"></i> Dikkatlice İzle...</>}
-                {phase === 'recall' && <><i className="fa-solid fa-hand-pointer text-indigo-400 animate-bounce"></i> Şimdi Dokunma Sırası!</>}
+                {phase === 'recall' && (
+                    <>
+                        <><i className="fa-solid fa-hand-pointer text-indigo-400 animate-bounce"></i> Şimdi Dokunma Sırası!</>
+                        <button
+                            onClick={handleShowHint}
+                            disabled={showHint}
+                            className="px-3 py-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg font-bold text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                        >
+                            <i className="fa-solid fa-lightbulb"></i>
+                            İpucu
+                        </button>
+                    </>
+                )}
                 {phase === 'feedback' && lastWasCorrect === true && <><i className="fa-solid fa-check-circle"></i> Harika! Doğru!</>}
                 {phase === 'feedback' && lastWasCorrect === false && <><i className="fa-solid fa-times-circle"></i> Hatalı, Tekrar dene!</>}
             </div>

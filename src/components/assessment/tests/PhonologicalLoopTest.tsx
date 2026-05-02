@@ -48,6 +48,7 @@ type AnswerStatus = {
 export const PhonologicalLoopTest: React.FC<PhonologicalLoopTestProps> = ({ onComplete }) => {
     const [phase, setPhase] = useState<'intro' | 'show' | 'recall' | 'feedback' | 'done'>('intro');
     const [seqIndex, setSeqIndex] = useState(0);
+    const [showHint, setShowHint] = useState(false);
     const [showItemIndex, setShowItemIndex] = useState(-1);
     const [selectedItems, setSelectedItems] = useState<string[]>([]);
     const [feedbackResults, setFeedbackResults] = useState<AnswerStatus[]>([]);
@@ -59,10 +60,17 @@ export const PhonologicalLoopTest: React.FC<PhonologicalLoopTestProps> = ({ onCo
 
     const currentSeq = SEQUENCES[seqIndex];
 
+    const handleShowHint = () => {
+        if (phase !== 'recall') return;
+        setShowHint(true);
+        setTimeout(() => setShowHint(false), 2500); // 2.5 saniye sonra kaybolur
+    };
+
     const startShowSequence = () => {
         setSelectedItems([]);
         setShowItemIndex(0);
         setPhase('show');
+        setShowHint(false); // Yeni dizide ipucu sıfırlansın
     };
 
     // Sırayı göster — her öğeyi 800ms göster
@@ -197,7 +205,24 @@ export const PhonologicalLoopTest: React.FC<PhonologicalLoopTestProps> = ({ onCo
     const levelLabel = currentSeq.type === 'syllable' ? 'Heceler' : currentSeq.type === 'word' ? 'Kelimeler' : currentSeq.type === 'reverse' ? '⬅ Ters Sıra' : currentSeq.type === 'letter' ? 'Harfler' : currentSeq.type === 'mixed' ? 'Karışık' : 'Rakamlar';
 
     return (
-        <div className="flex flex-col items-center justify-center w-full h-full max-w-lg mx-auto select-none gap-6">
+        <div className="flex flex-col items-center justify-center w-full h-full max-w-lg mx-auto select-none gap-6 relative">
+            {/* İpucu Kutusu */}
+            {showHint && phase === 'recall' && (
+                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-2 duration-300">
+                    <div className="bg-rose-500 text-white px-4 py-3 rounded-xl shadow-lg border-2 border-rose-600 max-w-xs">
+                        <div className="flex items-center gap-2">
+                            <i className="fa-solid fa-lightbulb text-yellow-200"></i>
+                            <span className="text-sm font-bold">
+                                {currentSeq.type === 'reverse' 
+                                    ? 'Öğeleri TERSTEN sırayla seçmelisin!' 
+                                    : 'Öğeleri GÖRDÜĞÜN sırayla seçmelisin!'}
+                            </span>
+                        </div>
+                        <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-rose-600"></div>
+                    </div>
+                </div>
+            )}
+
             {/* Başlık */}
             <div className="text-center">
                 <div className="flex items-center justify-center gap-4 mb-2">
@@ -244,10 +269,20 @@ export const PhonologicalLoopTest: React.FC<PhonologicalLoopTestProps> = ({ onCo
             {/* Geri Çağırma Aşaması */}
             {phase === 'recall' && (
                 <div className="flex flex-col items-center gap-6 w-full">
-                    <p className="text-sm text-rose-500 font-black uppercase tracking-widest">
-                        <i className="fa-solid fa-hand-pointer mr-2"></i>
-                        {currentSeq.type === 'reverse' ? 'TERS sırayla seç! ⬅' : 'Aynı sırayla seç!'}
-                    </p>
+                    <div className="flex items-center gap-4">
+                        <p className="text-sm text-rose-500 font-black uppercase tracking-widest">
+                            <i className="fa-solid fa-hand-pointer mr-2"></i>
+                            {currentSeq.type === 'reverse' ? 'TERS sırayla seç! ⬅' : 'Aynı sırayla seç!'}
+                        </p>
+                        <button
+                            onClick={handleShowHint}
+                            disabled={showHint}
+                            className="px-3 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg font-bold text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                        >
+                            <i className="fa-solid fa-lightbulb"></i>
+                            İpucu
+                        </button>
+                    </div>
 
                     {/* Seçilen kutular */}
                     <div className="flex gap-3">
