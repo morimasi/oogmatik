@@ -96,11 +96,11 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ onSelectActivity }) => {
     <div ref={searchContainerRef} className="relative z-[95]" id="tour-search">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`relative flex flex-col items-center justify-center w-11 h-11 transition-all rounded-[14px] group/nav focus:outline-none ${isOpen ? 'text-[var(--accent-color)] bg-[var(--bg-paper)] shadow-premium-sm border border-[var(--border-color)] scale-95' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-black/10'}`}
+        className={`relative flex shrink-0 items-center justify-center w-9 h-9 transition-all rounded-lg border border-transparent group/nav focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-color)]/35 ${isOpen ? 'text-[var(--accent-color)] bg-[var(--bg-paper)] shadow-premium-sm border-[var(--border-color)] scale-[0.97]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] hover:border-[var(--border-color)]/30'}`}
         aria-label="Arama yap"
         title="Etkinlik Ara"
       >
-        <i className={`fa-solid fa-magnifying-glass text-lg transition-transform ${!isOpen && 'group-hover/nav:scale-110'}`}></i>
+        <i className={`fa-solid fa-magnifying-glass text-[15px] leading-none transition-transform ${!isOpen && 'group-hover/nav:scale-105'}`}></i>
       </button>
 
       {isOpen && (

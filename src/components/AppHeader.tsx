@@ -73,15 +73,15 @@ export const HeaderDropdown = ({
         >
             <button
                 title={label}
-                className={`flex flex-col items-center justify-center w-12 h-12 rounded-2xl transition-all duration-300 hover:bg-[var(--accent-muted)] hover:scale-105 active:scale-95 group/drop ${colorClass} relative overflow-hidden`}
+                className={`flex flex-col items-center justify-center gap-0 w-10 min-h-[2.75rem] py-1 rounded-xl transition-all duration-200 border border-transparent hover:bg-[var(--bg-secondary)] hover:border-[var(--border-color)]/35 hover:shadow-[0_1px_0_rgba(255,255,255,0.04)_inset] active:scale-[0.96] group/drop ${colorClass} relative overflow-hidden`}
             >
-                <i className={`fa-solid ${icon} text-lg mb-1 group-hover/drop:text-[var(--accent-color)] transition-colors`}></i>
-                <span className="text-[7.5px] font-black uppercase tracking-[0.1em] opacity-60 group-hover/drop:opacity-100 transition-opacity">{label}</span>
+                <i className={`fa-solid ${icon} text-[15px] leading-none group-hover/drop:text-[var(--accent-color)] transition-colors`}></i>
+                <span className="text-[6.5px] font-black uppercase tracking-[0.09em] opacity-65 group-hover/drop:opacity-100 transition-opacity leading-none max-w-[2.85rem] truncate text-center">{label}</span>
                 <AnimatePresence>
                     {isOpen && (
                         <motion.div 
                             layoutId="dropdown-dot"
-                            className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[var(--accent-color)]"
+                            className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-0.5 h-0.5 rounded-full bg-[var(--accent-color)]"
                         />
                     )}
                 </AnimatePresence>
@@ -177,7 +177,7 @@ export const AppHeader = ({
         <header
             className={`relative bg-[var(--bg-paper)] border-b border-[var(--border-color)] shadow-xl z-[90] transition-all duration-500 font-['Lexend'] ${zenMode ? '-mt-24 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}
         >
-            <div className="w-full px-8 py-5 flex items-center justify-between gap-6">
+            <div className="w-full px-6 md:px-8 py-4 flex items-center justify-between gap-4 md:gap-5">
                 
                 {/* 1. SOL BLOK: LOGO VE HAMBURGER + BDMIND */}
                 <div className="flex-1 flex items-center justify-start gap-4 md:gap-6">
@@ -214,42 +214,42 @@ export const AppHeader = ({
                 </div>
 
                 {/* 3. SAĞ BLOK: ARAMA VE İKONLAR */}
-                <div className="flex-1 flex items-center justify-end gap-2 md:gap-4">
+                <div className="flex-1 flex items-center justify-end gap-1 md:gap-2">
                     {/* Arama Çubuğu iptal edildi, sağ açılır menüye dahil ediliyor. */}
 
                     {/* Activity & Students Group */}
-                    <div className="flex items-center gap-2 p-1.5 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)]">
+                    <div className="flex items-center gap-1 p-1 bg-[var(--bg-secondary)]/90 rounded-xl border border-[var(--border-color)] shadow-[inset_0_1px_0_rgba(255,255,255,0.045)] backdrop-blur-sm">
                         <button
                             onClick={() => onOpenStudio('assessment')}
-                            className="flex flex-col items-center justify-center w-12 h-12 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all shadow-lg active:scale-95 group/nav"
+                            className="flex shrink-0 items-center justify-center w-9 h-9 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-all shadow-md hover:shadow-lg active:scale-[0.96] border border-white/10 group/nav"
                             title="Değerlendirme Modülü"
                         >
-                            <i className="fa-solid fa-stethoscope text-lg group-hover/nav:scale-110 transition-transform"></i>
+                            <i className="fa-solid fa-stethoscope text-[15px] leading-none group-hover/nav:scale-105 transition-transform"></i>
                         </button>
 
                         <button
                             onClick={() => { setIsSidebarOpen(false); onOpenStudio('students'); }}
-                            className="flex flex-col items-center justify-center w-12 h-12 bg-[var(--bg-paper)] text-[var(--accent-color)] hover:bg-[var(--accent-muted)] border border-[var(--border-color)] rounded-xl transition-all active:scale-95 group/nav"
+                            className="flex shrink-0 items-center justify-center w-9 h-9 bg-[var(--bg-paper)] text-[var(--accent-color)] hover:bg-[var(--accent-muted)] border border-[var(--border-color)] rounded-lg transition-all active:scale-[0.96] shadow-sm group/nav"
                             title="Öğrenci Yönetimi"
                         >
-                            <i className="fa-solid fa-user-graduate text-lg group-hover/nav:scale-110 transition-transform"></i>
+                            <i className="fa-solid fa-user-graduate text-[15px] leading-none group-hover/nav:scale-105 transition-transform"></i>
                         </button>
                     </div>
 
                     {/* Secondary Navigation */}
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-0.5 md:gap-1">
                         <GlobalSearch onSelectActivity={onSelectActivity} />
                         
-                        <div className="w-[1px] h-4 bg-[var(--border-color)] mx-1 opacity-30"></div>
+                        <div className="w-px self-stretch min-h-[1rem] max-h-[1.5rem] bg-[var(--border-color)] mx-0.5 opacity-35" aria-hidden />
                         
                         <button
                             onClick={() => navigateTo('workbook')}
-                            className="relative flex flex-col items-center justify-center w-11 h-11 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all rounded-[14px] group/nav"
+                            className="relative flex shrink-0 items-center justify-center w-9 h-9 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all rounded-lg hover:bg-[var(--bg-secondary)] border border-transparent hover:border-[var(--border-color)]/30 group/nav"
                             title="Çalışma Dosyam"
                         >
-                            <i className="fa-solid fa-folder-plus text-lg group-hover/nav:scale-110 transition-transform"></i>
+                            <i className="fa-solid fa-folder-plus text-[15px] leading-none group-hover/nav:scale-105 transition-transform"></i>
                             {workbookItemsCount > 0 && (
-                                <span className="absolute top-1 right-1 bg-[var(--accent-color)] text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full border-4 border-[var(--bg-paper)] shadow-premium-sm scale-90">
+                                <span className="absolute -top-0.5 -right-0.5 bg-[var(--accent-color)] text-white text-[7px] font-black min-w-[1rem] h-4 px-0.5 flex items-center justify-center rounded-full border-2 border-[var(--bg-paper)] shadow-sm tabular-nums">
                                     {workbookItemsCount}
                                 </span>
                             )}
@@ -257,18 +257,18 @@ export const AppHeader = ({
                         
                         <button
                             onClick={() => { setIsSidebarOpen(false); navigateTo('messages'); }}
-                            className="relative flex flex-col items-center justify-center w-11 h-11 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all rounded-[14px] group/nav"
+                            className="relative flex shrink-0 items-center justify-center w-9 h-9 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all rounded-lg hover:bg-[var(--bg-secondary)] border border-transparent hover:border-[var(--border-color)]/30 group/nav"
                             title="Mesajlar ve Bildirimler"
                         >
-                            <i className="fa-solid fa-bell text-lg group-hover/nav:scale-110 transition-transform"></i>
+                            <i className="fa-solid fa-bell text-[15px] leading-none group-hover/nav:scale-105 transition-transform"></i>
                             {unreadCount > 0 && (
-                                <span className="absolute top-1 right-1 bg-red-500 text-white text-[9px] font-black w-5 h-5 flex items-center justify-center rounded-full border-4 border-[var(--bg-paper)] shadow-premium-sm scale-90 animate-pulse">
+                                <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[7px] font-black min-w-[1rem] h-4 px-0.5 flex items-center justify-center rounded-full border-2 border-[var(--bg-paper)] shadow-sm animate-pulse tabular-nums">
                                     {unreadCount}
                                 </span>
                             )}
                         </button>
 
-                        <div className="w-[1px] h-6 bg-[var(--border-color)] mx-2 opacity-50"></div>
+                        <div className="w-px self-stretch min-h-[1rem] max-h-[1.5rem] bg-[var(--border-color)] mx-1 opacity-45" aria-hidden />
 
                         <HeaderDropdown label="KİTAPLIK" icon="fa-shapes" colorClass="text-[var(--accent-color)]">
                             <DropdownItem icon="fa-star" label="Favori Etkinliklerim" onClick={() => { setIsSidebarOpen(false); navigateTo('favorites'); }} />
@@ -284,7 +284,7 @@ export const AppHeader = ({
                             <DropdownItemSupportCompact icon="fa-laptop-code" label="Geliştirici Vizyonu" onClick={() => onOpenModal('developer')} />
                         </HeaderDropdown>
 
-                        <div className="w-[1px] h-6 bg-[var(--border-color)] mx-2 opacity-50"></div>
+                        <div className="w-px self-stretch min-h-[1rem] max-h-[1.5rem] bg-[var(--border-color)] mx-1 opacity-45" aria-hidden />
 
                         {user ? (
                             <HeaderDropdown
@@ -303,7 +303,7 @@ export const AppHeader = ({
                         ) : (
                             <button
                                 onClick={onOpenAuth}
-                                className="px-6 py-2.5 bg-[var(--text-primary)] text-[var(--bg-primary)] rounded-[1.2rem] text-[11px] font-black shadow-xl hover:scale-105 active:scale-95 transition-all"
+                                className="px-4 py-2 bg-[var(--text-primary)] text-[var(--bg-primary)] rounded-xl text-[10px] font-black tracking-wide shadow-premium hover:shadow-lg active:scale-[0.98] transition-all border border-white/10"
                             >
                                 GİRİŞ YAP
                             </button>
