@@ -99,6 +99,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }: AuthMod
           setError(
             'Sistem Hatası: Firebase API Anahtarı geçersiz veya Identity Toolkit servisi aktif değil. Lütfen yönetici ile iletişime geçin.'
           );
+        } else if (errorMessage.includes('auth/unauthorized-domain')) {
+          setError(
+            'Bu alan adı (domain) henüz yetkilendirilmemiş. Lütfen Firebase Console üzerinden "oogmatik.vercel.app" adresini yetkilendirilmiş alan adlarına ekleyin.'
+          );
         } else {
           setError(errorMessage);
         }

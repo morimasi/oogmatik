@@ -62,6 +62,11 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 export const auth = getAuth(app);
 
+// Development mode domain check
+if (process.env.NODE_ENV === 'development') {
+  logInfo("Firebase Auth initialized with domain: " + firebaseConfig.authDomain);
+}
+
 /**
  * Modern Firestore Initialization
  * WebChannel streaming (400 Bad Request) hatalarını önlemek için yapılandırıldı.

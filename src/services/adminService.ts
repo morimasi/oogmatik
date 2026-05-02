@@ -36,6 +36,14 @@ export const adminService = {
         }, { merge: true });
     },
 
+    updateActivity: async (id: string, updates: Partial<DynamicActivity>) => {
+        const docRef = doc(db, "config_activities", id);
+        await updateDoc(docRef, {
+            ...updates,
+            updatedAt: new Date().toISOString()
+        });
+    },
+
     saveActivitiesBulk: async (activities: DynamicActivity[]) => {
         const batch = firestore.writeBatch(db);
         activities.forEach(act => {
