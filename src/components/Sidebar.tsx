@@ -354,22 +354,22 @@ const Sidebar: React.FC<SidebarProps> = ({
               </div>
             )
           ) : (
-            <nav className="flex-1 overflow-y-auto px-3 py-6 custom-scrollbar space-y-8">
+            <nav className="flex-1 overflow-y-auto px-2 py-3 custom-scrollbar space-y-2">
               {/* Studios Section */}
-              <div className="space-y-3">
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] block ml-3 text-[var(--text-muted)] opacity-50">Merkezi Birimler</span>
+              <div className="space-y-1">
+                <span className="text-[8px] font-black uppercase tracking-[0.18em] block ml-2 text-[var(--text-muted)] opacity-50">Merkezi Birimler</span>
                 <button
                   onMouseEnter={(e) => handleCategoryMouseEnter('studios', e)}
                   onMouseLeave={handleCategoryMouseLeave}
                   onClick={(e) => handleCategoryClick('studios', e)}
-                  className={`category-trigger-btn w-full group flex items-center ${isExpanded ? 'px-3 gap-3' : 'justify-center px-2'} py-3 rounded-2xl transition-all duration-300 border border-transparent ${activeCategory === 'studios' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-indigo-500/20' : 'bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)] hover:border-[var(--accent-color)]/30'}`}
+                  className={`category-trigger-btn w-full group flex items-center ${isExpanded ? 'px-2.5 gap-2' : 'justify-center px-1.5'} py-2 rounded-xl transition-all duration-300 border border-transparent ${activeCategory === 'studios' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-indigo-500/20' : 'bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)] hover:border-[var(--accent-color)]/30'}`}
                 >
-                  <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm transition-all duration-300 ${activeCategory === 'studios' ? 'bg-white/20 text-white' : 'bg-[var(--accent-color)] text-white shadow-sm group-hover:scale-105'}`}>
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs transition-all duration-300 ${activeCategory === 'studios' ? 'bg-white/20 text-white' : 'bg-[var(--accent-color)] text-white shadow-sm group-hover:scale-105'}`}>
                     <i className="fa-solid fa-layer-group"></i>
                   </div>
                   {isExpanded && (
                     <div className="flex-1 flex flex-col items-start overflow-hidden">
-                      <span className={`text-[11px] font-black transition-colors tracking-tight uppercase truncate ${activeCategory === 'studios' ? 'text-white' : 'text-[var(--text-primary)]'}`}>Stüdyolar</span>
+                      <span className={`text-[10px] font-black transition-colors tracking-tight uppercase truncate ${activeCategory === 'studios' ? 'text-white' : 'text-[var(--text-primary)]'}`}>Stüdyolar</span>
                     </div>
                   )}
                   {isExpanded && activeCategory === 'studios' && <motion.div layoutId="active" className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
@@ -377,9 +377,9 @@ const Sidebar: React.FC<SidebarProps> = ({
               </div>
 
               {/* Categories Section */}
-              <div className="space-y-3">
-                <span className="text-[9px] font-black uppercase tracking-[0.2em] block ml-3 text-[var(--text-muted)] opacity-50">Aktivite Havuzu</span>
-                <div className="space-y-2">
+              <div className="space-y-1">
+                <span className="text-[8px] font-black uppercase tracking-[0.18em] block ml-2 text-[var(--text-muted)] opacity-50">Aktivite Havuzu</span>
+                <div className="space-y-1">
                   {categorizedActivities.map((category) => {
                     const isActive = activeCategory === category.id;
                     return (
@@ -388,13 +388,13 @@ const Sidebar: React.FC<SidebarProps> = ({
                         onMouseEnter={(e) => handleCategoryMouseEnter(category.id, e)}
                         onMouseLeave={handleCategoryMouseLeave}
                         onClick={(e) => handleCategoryClick(category.id, e)}
-                        className={`category-trigger-btn w-full flex items-center ${isExpanded ? 'px-3 gap-3' : 'justify-center px-2'} py-3 rounded-2xl transition-all duration-300 border border-transparent ${isActive ? 'bg-[var(--bg-secondary)] border-[var(--accent-color)]/30 shadow-sm' : 'hover:bg-[var(--bg-secondary)]'}`}
+                        className={`category-trigger-btn w-full flex items-center ${isExpanded ? 'px-2.5 gap-2' : 'justify-center px-1.5'} py-2 rounded-xl transition-all duration-300 border border-transparent ${isActive ? 'bg-[var(--bg-secondary)] border-[var(--accent-color)]/30 shadow-sm' : 'hover:bg-[var(--bg-secondary)]'}`}
                       >
-                         <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm transition-all duration-300 bg-[var(--bg-paper)] border border-[var(--border-color)] ${isActive ? 'text-[var(--accent-color)] scale-105 shadow-md' : 'text-[var(--text-muted)] group-hover:bg-[var(--bg-paper)]'}`}>
+                         <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs transition-all duration-300 bg-[var(--bg-paper)] border border-[var(--border-color)] ${isActive ? 'text-[var(--accent-color)] scale-105 shadow-md' : 'text-[var(--text-muted)] group-hover:bg-[var(--bg-paper)]'}`}>
                             <i className={category.icon}></i>
                          </div>
                          {isExpanded && (
-                            <span className={`flex-1 text-left text-[11px] font-bold tracking-tight transition-colors uppercase ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
+                            <span className={`flex-1 text-left text-[10px] font-bold tracking-tight transition-colors uppercase ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
                               {category.title}
                             </span>
                          )}

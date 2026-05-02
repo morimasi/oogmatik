@@ -17,16 +17,52 @@ interface AppHeaderProps {
     onOpenStudio: (viewName: View) => void;
 }
 
+/** Yalnızca DESTEK menüsü — ultra kompakt, tema token’ları */
+export const DropdownItemSupportCompact = ({
+    icon,
+    label,
+    onClick,
+}: {
+    icon: string;
+    label: string;
+    onClick?: () => void;
+}) => (
+    <button
+        type="button"
+        onClick={(e: React.MouseEvent) => {
+            e.stopPropagation();
+            if (onClick && typeof onClick === 'function') {
+                onClick();
+            }
+        }}
+        className="w-full flex items-center gap-1.5 pl-1 pr-1 py-[3px] rounded-md border border-transparent bg-transparent hover:bg-[var(--bg-secondary)] hover:border-[var(--border-color)]/40 transition-[background-color,border-color] duration-150 group/sup focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-color)]/35 focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--bg-paper)]"
+    >
+        <span
+            aria-hidden
+            className="flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded-[4px] bg-[var(--bg-secondary)] text-[var(--accent-color)] border border-[var(--border-color)]/45 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] text-[8px]"
+        >
+            <i className={`fa-solid ${icon} leading-none`}></i>
+        </span>
+        <span className="flex-1 min-w-0 text-left text-[9px] font-semibold uppercase tracking-[0.08em] text-[var(--text-secondary)] leading-[1.1] group-hover/sup:text-[var(--text-primary)]">
+            {label}
+        </span>
+        <i className="fa-solid fa-angle-right text-[7px] text-[var(--text-muted)] opacity-35 shrink-0 group-hover/sup:opacity-60 translate-x-px" aria-hidden />
+    </button>
+);
+
 export const HeaderDropdown = ({
     label,
     icon,
     children,
     colorClass = 'text-[var(--text-secondary)]',
+    menuVariant = 'default',
 }: {
     label: string;
     icon: string;
     children?: React.ReactNode;
     colorClass?: string;
+    /** `supportCompact` — dar panel, sıkı liste (DESTEK) */
+    menuVariant?: 'default' | 'supportCompact';
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     return (
@@ -58,10 +94,22 @@ export const HeaderDropdown = ({
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 10 }}
                         transition={{ duration: 0.2, ease: "easeOut" }}
-                        className="absolute right-0 top-full pt-2 z-[100]"
+                        className={`absolute right-0 top-full z-[100] ${menuVariant === 'supportCompact' ? 'pt-1' : 'pt-2'}`}
                     >
-                        <div className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-[1.8rem] shadow-premium p-2 min-w-[240px] overflow-hidden backdrop-blur-xl ring-1 ring-black/5 dark:ring-white/5">
-                            {children}
+                        <div
+                            className={
+                                menuVariant === 'supportCompact'
+                                    ? 'min-w-[176px] max-w-[200px] p-0.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-paper)]/98 backdrop-blur-xl shadow-premium ring-1 ring-black/[0.04] dark:ring-white/[0.06] overflow-hidden'
+                                    : 'bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-[1.8rem] shadow-premium p-2 min-w-[240px] overflow-hidden backdrop-blur-xl ring-1 ring-black/5 dark:ring-white/5'
+                            }
+                        >
+                            {menuVariant === 'supportCompact' ? (
+                                <div className="flex flex-col gap-px rounded-[10px] bg-[var(--bg-secondary)]/20 p-0.5">
+                                    {children}
+                                </div>
+                            ) : (
+                                children
+                            )}
                         </div>
                     </motion.div>
                 )}
@@ -229,11 +277,11 @@ export const AppHeader = ({
                             <DropdownItem icon="fa-clock-rotate-left" label="İşlem Geçmişi" onClick={() => { setIsSidebarOpen(false); onOpenModal('history'); }} />
                         </HeaderDropdown>
 
-                        <HeaderDropdown label="DESTEK" icon="fa-headset">
-                            <DropdownItem icon="fa-circle-play" label="Rehber Turu Başlat" onClick={() => setIsTourActive(true)} />
-                            <DropdownItem icon="fa-headset" label="Premium Yardım Masası" onClick={onOpenFeedback} />
-                            <DropdownItem icon="fa-circle-question" label="Platform Hakkımızda" onClick={() => onOpenModal('about')} />
-                            <DropdownItem icon="fa-laptop-code" label="Geliştirici Vizyonu" onClick={() => onOpenModal('developer')} />
+                        <HeaderDropdown label="DESTEK" icon="fa-headset" menuVariant="supportCompact">
+                            <DropdownItemSupportCompact icon="fa-circle-play" label="Rehber Turu Başlat" onClick={() => setIsTourActive(true)} />
+                            <DropdownItemSupportCompact icon="fa-headset" label="Premium Yardım Masası" onClick={onOpenFeedback} />
+                            <DropdownItemSupportCompact icon="fa-circle-question" label="Platform Hakkımızda" onClick={() => onOpenModal('about')} />
+                            <DropdownItemSupportCompact icon="fa-laptop-code" label="Geliştirici Vizyonu" onClick={() => onOpenModal('developer')} />
                         </HeaderDropdown>
 
                         <div className="w-[1px] h-6 bg-[var(--border-color)] mx-2 opacity-50"></div>
