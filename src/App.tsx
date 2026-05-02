@@ -279,9 +279,13 @@ const AppContent = () => {
 
   // Global Initialization
   useEffect(() => {
+    logInfo("Initializing Auth Store in App.tsx...");
     const unsubscribeAuth = authStore.initialize();
-    return () => unsubscribeAuth();
-  }, [authStore.initialize]);
+    return () => {
+      logInfo("Cleaning up Auth Store initialization...");
+      unsubscribeAuth();
+    };
+  }, []); // Remove authStore.initialize from dependencies to prevent re-renders
 
   useEffect(() => {
     if (!authStore.user) return;

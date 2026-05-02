@@ -85,12 +85,42 @@ export const authService = {
             // Google hesabını seçmesi için zorla (isteğe bağlı)
             provider.setCustomParameters({ prompt: 'select_account' });
             
-            // popup yerine redirect kullanarak COOP hatasını önlüyoruz
-            const { signInWithRedirect } = await import("firebase/auth");
-            logInfo("Starting Google Login Redirect...");
-            await signInWithRedirect(auth, provider);
+            // Redirect yerine Popup kullanıyoruz
+            // Popup yöntemi, yönlendirme sonrası durum kayıplarını (Zustand) önler
+            const { signInWithPopup } = await import("firebase/auth");
+            logInfo("Starting Google Login Popup...");
+            
+            const result = await signInWithPopup(auth, provider);
+            const user = result.user;
+            
+            const userDocRef = doc(db, "users", user.uid);
+            const userDocSnap = await getDoc(userDocRef);
+
+            if (!userDocSnap.exists()) {
+                const newUserProfile = {
+                    name: user.displayName || 'Google Kullanıcısı',
+                    email: user.email,
+                    role: 'user',
+                    createdAt: new Date().toISOString(),
+                    lastLogin: new Date().toISOString(),
+                    avatar: user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`,
+                    status: 'active',
+                    subscriptionPlan: 'free',
+                    worksheetCount: 0,
+                    favorites: [],
+                    profession: '',
+                    institution: '',
+                    phone: '',
+                    bio: ''
+                };
+                await setDoc(userDocRef, newUserProfile);
+            } else {
+                await updateDoc(userDocRef, {
+                    lastLogin: new Date().toISOString()
+                });
+            }
         } catch (error: any) {
-            logError("Google login redirect error details:", {
+            logError("Google login popup error details:", {
                 code: error.code,
                 message: error.message
             });
