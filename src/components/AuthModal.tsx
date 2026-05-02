@@ -2,7 +2,7 @@ import { AppError } from '../utils/AppError';
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuthStore } from '../store/useAuthStore';
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError } from '../utils/logger.js';
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
