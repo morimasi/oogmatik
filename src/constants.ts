@@ -353,6 +353,12 @@ export const ACTIVITIES: Activity[] = [
     description: 'Kim, Ne, Nerede, Ne Zaman, Nasıl, Niçin sorularını görsel bir panoda analiz et.',
     icon: 'fa-solid fa-clipboard-question',
   },
+  {
+    id: ActivityType.INFOGRAPHIC_SHORT_ANSWER,
+    title: 'Kısa Cevaplı Sorular (Premium)',
+    description: 'Halkalı ve satırlı profesyonel ızgara soru panosu.',
+    icon: 'fa-solid fa-list-check',
+  },
 ];
 
 // Activity Categories
@@ -397,6 +403,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       // İnfografik Eklentileri
       ActivityType.INFOGRAPHIC_STORY_MAP,
       ActivityType.INFOGRAPHIC_CHARACTER_ANALYSIS,
+      ActivityType.INFOGRAPHIC_SHORT_ANSWER,
     ],
   },
   {
