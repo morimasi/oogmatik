@@ -45,10 +45,12 @@ export const MatrixMemoryTest: React.FC<MatrixMemoryTestProps> = ({ onComplete }
         }
         setTargetCells(Array.from(cells));
         setSelectedCells([]);
-        setPhase('preview');
         setShowHint(false); // Yeni seviyede ipucu sıfırlansın
 
-        const showTime = Math.max(800, 2500 - (currentLevel * 150));
+        // Önce preview phase'ine geç ve mavi kareleri göster
+        setPhase('preview');
+        
+        const showTime = Math.max(1500, 3000 - (currentLevel * 200)); // Daha uzun gösterim süresi
         const timer = setTimeout(() => {
             setPhase('recall');
             setStartTime(Date.now());
@@ -166,100 +168,125 @@ export const MatrixMemoryTest: React.FC<MatrixMemoryTestProps> = ({ onComplete }
 
     return (
         <div className="flex flex-col items-center justify-center w-full h-full select-none relative">
+            {/* Premium Gradient Arka Plan */}
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 dark:from-indigo-900/20 dark:via-blue-900/20 dark:to-purple-900/20" />
+            <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-400 rounded-full blur-3xl opacity-10 -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-400 rounded-full blur-3xl opacity-10 translate-y-1/2 -translate-x-1/2" />
+            
             {/* İpucu Kutusu */}
             {showHint && phase === 'recall' && (
-                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-2 duration-300">
-                    <div className="bg-indigo-500 text-white px-4 py-3 rounded-xl shadow-lg border-2 border-indigo-600 max-w-xs">
-                        <div className="flex items-center gap-2">
-                            <i className="fa-solid fa-lightbulb text-yellow-200"></i>
+                <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-2 duration-500">
+                    <div className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white px-6 py-4 rounded-2xl shadow-2xl shadow-indigo-500/30 max-w-sm backdrop-blur-sm border border-white/20">
+                        <div className="flex items-center gap-3">
+                            <i className="fa-solid fa-lightbulb text-yellow-300 text-xl animate-pulse"></i>
                             <span className="text-sm font-bold">{targetCells.length} adet mavi kareyi hatırla!</span>
                         </div>
-                        <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-indigo-600"></div>
+                        <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-10 border-l-transparent border-r-10 border-r-transparent border-t-10 border-t-indigo-600"></div>
                     </div>
                 </div>
             )}
 
-            {/* Skor Başlığı */}
-            <div className="mb-8 text-center">
-                <h3 className="text-2xl font-black text-zinc-800 dark:text-white mb-2">Desenleri Hatırla</h3>
-                <div className="flex gap-6 justify-center items-center">
-                    <div className="flex items-center gap-2 text-sm font-bold text-zinc-500">
-                        <i className="fa-solid fa-layer-group text-indigo-400"></i>
-                        <span>Seviye {level}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm font-bold text-zinc-500">
-                        <i className="fa-solid fa-star text-yellow-400"></i>
-                        <span>{score} puan</span>
-                    </div>
-                    <div className="flex gap-1">
-                        {Array.from({ length: 3 }).map((_, i) => (
-                            <i key={i} className={`fa-solid fa-heart text-sm ${i < lives ? 'text-red-500' : 'text-zinc-300'}`}></i>
-                        ))}
+            <div className="relative z-10">
+                {/* Skor Başlığı */}
+                <div className="mb-8 text-center">
+                    <h3 className="text-3xl font-black text-zinc-800 dark:text-white mb-4 bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">Desenleri Hatırla</h3>
+                    <div className="flex gap-8 justify-center items-center">
+                        <div className="flex items-center gap-3 text-sm font-bold text-zinc-600 dark:text-zinc-400 bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/30">
+                            <i className="fa-solid fa-layer-group text-indigo-500"></i>
+                            <span>Seviye {level}</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-sm font-bold text-zinc-600 dark:text-zinc-400 bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/30">
+                            <i className="fa-solid fa-star text-yellow-500"></i>
+                            <span>{score} puan</span>
+                        </div>
+                        <div className="flex gap-2">
+                            {Array.from({ length: 3 }).map((_, i) => (
+                                <i key={i} className={`fa-solid fa-heart text-lg ${i < lives ? 'text-red-500' : 'text-zinc-300'}`}></i>
+                            ))}
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Grid */}
-            <div
-                className="grid gap-2 bg-zinc-200 dark:bg-zinc-700 p-2 rounded-2xl shadow-lg"
-                style={{
-                    gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
-                    width: `${gridSize * 72}px`,
-                    height: `${gridSize * 72}px`
-                }}
-            >
-                {Array.from({ length: gridSize * gridSize }).map((_, i) => {
-                    let bgClass = "bg-white dark:bg-zinc-600 hover:bg-zinc-50";
-                    let extra = "";
+                {/* Grid */}
+                <div
+                    className="grid gap-3 bg-white/70 dark:bg-zinc-800/70 backdrop-blur-md p-4 rounded-3xl border border-white/30 shadow-2xl"
+                    style={{
+                        gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
+                        width: `${gridSize * 80}px`,
+                        height: `${gridSize * 80}px`
+                    }}
+                >
+                    {Array.from({ length: gridSize * gridSize }).map((_, i) => {
+                        let bgClass = "bg-white dark:bg-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-600";
+                        let extra = "";
 
-                    if (phase === 'preview' && targetCells.includes(i)) {
-                        bgClass = "bg-indigo-500 shadow-lg shadow-indigo-500/30";
-                        extra = "scale-95";
-                    }
-                    if (phase === 'recall' && selectedCells.includes(i)) {
-                        bgClass = "bg-indigo-300 dark:bg-indigo-700";
-                    }
-                    if (phase === 'feedback') {
-                        if (targetCells.includes(i)) bgClass = "bg-green-500 shadow-lg shadow-green-500/30";
-                        if (selectedCells.includes(i) && !targetCells.includes(i)) bgClass = "bg-red-500 shadow-lg shadow-red-500/30";
-                    }
+                        if (phase === 'preview' && targetCells.includes(i)) {
+                            bgClass = "bg-gradient-to-br from-indigo-500 to-blue-500 shadow-xl shadow-indigo-500/40 animate-pulse";
+                            extra = "scale-110 border-2 border-white/50";
+                        }
+                        if (phase === 'recall' && selectedCells.includes(i)) {
+                            bgClass = "bg-gradient-to-br from-indigo-300 to-blue-300 dark:from-indigo-600 dark:to-blue-600 shadow-lg shadow-indigo-500/30";
+                        }
+                        if (phase === 'feedback') {
+                            if (targetCells.includes(i)) bgClass = "bg-gradient-to-br from-green-400 to-green-500 shadow-xl shadow-green-500/40";
+                            if (selectedCells.includes(i) && !targetCells.includes(i)) bgClass = "bg-gradient-to-br from-red-400 to-red-500 shadow-xl shadow-red-500/40 animate-shake";
+                        }
 
-                    return (
-                        <div
-                            key={i}
-                            onClick={() => handleCellClick(i)}
-                            className={`rounded-xl cursor-pointer transition-all duration-200 border-2 border-white/20 ${bgClass} ${extra}`}
-                        />
-                    );
-                })}
-            </div>
+                        return (
+                            <div
+                                key={i}
+                                onClick={() => handleCellClick(i)}
+                                className={`rounded-xl cursor-pointer transition-all duration-300 border-2 border-white/20 ${bgClass} ${extra} ${phase === 'recall' ? 'hover:scale-105' : ''}`}
+                            />
+                        );
+                    })}
+                </div>
 
             {/* Durum Mesajı ve İpucu Butonu */}
-            <div className={`mt-8 h-10 flex items-center justify-center gap-4 text-base font-bold transition-all ${phase === 'feedback' && lastWasCorrect === false ? 'text-red-500' : phase === 'feedback' && lastWasCorrect === true ? 'text-green-500' : 'text-zinc-400'}`}>
-                {phase === 'preview' && <><i className="fa-solid fa-eye text-indigo-400"></i> Dikkatlice İzle...</>}
-                {phase === 'recall' && (
-                    <>
-                        <><i className="fa-solid fa-hand-pointer text-indigo-400 animate-bounce"></i> Şimdi Dokunma Sırası!</>
-                        <button
-                            onClick={handleShowHint}
-                            disabled={showHint}
-                            className="px-3 py-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg font-bold text-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
-                        >
-                            <i className="fa-solid fa-lightbulb"></i>
-                            İpucu
-                        </button>
-                    </>
-                )}
-                {phase === 'feedback' && lastWasCorrect === true && <><i className="fa-solid fa-check-circle"></i> Harika! Doğru!</>}
-                {phase === 'feedback' && lastWasCorrect === false && <><i className="fa-solid fa-times-circle"></i> Hatalı, Tekrar dene!</>}
-            </div>
+                <div className={`mt-10 h-12 flex items-center justify-center gap-6 text-lg font-bold transition-all ${phase === 'feedback' && lastWasCorrect === false ? 'text-red-500' : phase === 'feedback' && lastWasCorrect === true ? 'text-green-500' : 'text-zinc-400'}`}>
+                    {phase === 'preview' && (
+                        <div className="flex items-center gap-3 bg-indigo-100 dark:bg-indigo-900/50 px-6 py-3 rounded-2xl border border-indigo-200 dark:border-indigo-700">
+                            <i className="fa-solid fa-eye text-indigo-500 text-xl animate-pulse"></i>
+                            <span>Dikkatlice İzle...</span>
+                        </div>
+                    )}
+                    {phase === 'recall' && (
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-3 bg-blue-100 dark:bg-blue-900/50 px-6 py-3 rounded-2xl border border-blue-200 dark:border-blue-700">
+                                <i className="fa-solid fa-hand-pointer text-blue-500 text-xl animate-bounce"></i>
+                                <span>Şimdi Dokunma Sırası!</span>
+                            </div>
+                            <button
+                                onClick={handleShowHint}
+                                disabled={showHint}
+                                className="px-4 py-3 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-xl font-bold text-sm transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg"
+                            >
+                                <i className="fa-solid fa-lightbulb"></i>
+                                İpucu
+                            </button>
+                        </div>
+                    )}
+                    {phase === 'feedback' && lastWasCorrect === true && (
+                        <div className="flex items-center gap-3 bg-green-100 dark:bg-green-900/50 px-6 py-3 rounded-2xl border border-green-200 dark:border-green-700">
+                            <i className="fa-solid fa-check-circle text-green-500 text-xl"></i>
+                            <span>Harika! Doğru!</span>
+                        </div>
+                    )}
+                    {phase === 'feedback' && lastWasCorrect === false && (
+                        <div className="flex items-center gap-3 bg-red-100 dark:bg-red-900/50 px-6 py-3 rounded-2xl border border-red-200 dark:border-red-700">
+                            <i className="fa-solid fa-times-circle text-red-500 text-xl"></i>
+                            <span>Hatalı, Tekrar dene!</span>
+                        </div>
+                    )}
+                </div>
 
-            {/* İpucu */}
-            {phase === 'recall' && (
-                <p className="mt-2 text-xs text-zinc-400">
-                    {selectedCells.length} / {targetCells.length} seçildi
-                </p>
-            )}
+                {/* İpucu */}
+                {phase === 'recall' && (
+                    <div className="mt-4 text-sm font-medium text-zinc-500 dark:text-zinc-400 bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/30">
+                        {selectedCells.length} / {targetCells.length} seçildi
+                    </div>
+                )}
+            </div>
         </div>
     );
 };
