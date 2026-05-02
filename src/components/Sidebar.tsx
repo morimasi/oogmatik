@@ -425,21 +425,21 @@ const Sidebar: React.FC<SidebarProps> = ({
                 left: popupRect.left + (isExpanded ? 260 : 85) 
               }}
             >
-              <div className="premium-popup-content min-w-[200px] max-w-[260px] overflow-hidden bg-[var(--bg-paper)]/90 backdrop-blur-3xl rounded-[2rem] shadow-[0_30px_60px_rgba(0,0,0,0.4)] border border-white/5">
-                 <div className="px-5 pt-5 pb-2">
-                    <h3 className="text-[10px] font-black text-[var(--text-primary)] uppercase tracking-[0.2em]">{activeCategory === 'studios' ? 'Merkezi Stüdyolar' : categorizedActivities.find(c => c.id === activeCategory)?.title}</h3>
+              <div className="premium-popup-content min-w-[160px] max-w-[200px] overflow-hidden bg-[var(--bg-paper)]/95 backdrop-blur-2xl rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.3)] border border-white/5">
+                 <div className="px-3 pt-3 pb-1.5 border-b border-white/5 mx-2">
+                    <h3 className="text-[9px] font-black text-[var(--text-primary)] uppercase tracking-wider">{activeCategory === 'studios' ? 'Merkezi Stüdyolar' : categorizedActivities.find(c => c.id === activeCategory)?.title}</h3>
                  </div>
                  
-                 <div className="max-h-[65vh] overflow-y-auto custom-scrollbar px-3 pb-3 space-y-4">
+                 <div className="max-h-[60vh] overflow-y-auto custom-scrollbar px-1 py-1 space-y-1">
                     {activeCategory === 'studios' ? (
                        studioGroups.map((group, gIdx) => (
-                          <div key={gIdx} className="space-y-1">
-                             <p className="px-3 text-[8px] font-black text-[var(--accent-color)] uppercase tracking-widest opacity-80 mb-2">{group.title}</p>
+                          <div key={gIdx} className="space-y-0.5">
+                             <p className="px-2 pt-1 text-[7px] font-black text-[var(--accent-color)] uppercase tracking-tight opacity-70">{group.title}</p>
                              <div className="grid grid-cols-1 gap-0">
                                 {group.items.map((item) => (
-                                   <button key={item.id} onClick={() => handleStudioClick(item)} className="px-3 py-2.5 rounded-2xl flex items-center gap-3 transition-colors group/item hover:bg-[var(--accent-color)]/10">
-                                      <i className={`fa-solid ${item.icon} text-sm opacity-70 group-hover/item:opacity-100 group-hover/item:scale-110 transition-all ${item.color}`}></i>
-                                      <span className="text-[10px] font-bold uppercase tracking-tight text-[var(--text-secondary)] group-hover/item:text-[var(--text-primary)]">{item.label}</span>
+                                   <button key={item.id} onClick={() => handleStudioClick(item)} className="w-full text-left px-2 py-1.5 rounded-lg flex items-center gap-2 transition-colors group/item hover:bg-[var(--accent-color)]/10">
+                                      <i className={`fa-solid ${item.icon} text-[11px] opacity-70 group-hover/item:opacity-100 transition-colors ${item.color}`}></i>
+                                      <span className="text-[9px] font-medium text-[var(--text-secondary)] group-hover/item:text-[var(--text-primary)] truncate">{item.label}</span>
                                    </button>
                                 ))}
                              </div>
@@ -448,17 +448,17 @@ const Sidebar: React.FC<SidebarProps> = ({
                     ) : (
                        <div className="grid grid-cols-1 gap-0">
                           {categorizedActivities.find(c => c.id === activeCategory)?.items.map((act) => (
-                             <button key={act.id} onClick={() => handleActivitySelect(act.id)} className="px-3 py-2.5 rounded-2xl flex items-center gap-3 transition-colors group/item hover:bg-[var(--accent-color)]/10">
-                                <i className={`fa-solid ${act.icon || 'fa-star'} text-sm text-[var(--accent-color)] opacity-70 group-hover/item:opacity-100 group-hover/item:scale-110 transition-all`}></i>
-                                <span className="text-[10px] font-bold uppercase tracking-tight text-[var(--text-secondary)] group-hover/item:text-[var(--text-primary)]">{act.title}</span>
+                             <button key={act.id} onClick={() => handleActivitySelect(act.id)} className="w-full text-left px-2 py-1.5 rounded-lg flex items-center gap-2 transition-colors group/item hover:bg-[var(--accent-color)]/10">
+                                <i className={`fa-solid ${act.icon || 'fa-star'} text-[11px] text-[var(--accent-color)] opacity-70 group-hover/item:opacity-100 transition-colors`}></i>
+                                <span className="text-[9px] font-medium text-[var(--text-secondary)] group-hover/item:text-[var(--text-primary)] truncate">{act.title}</span>
                              </button>
                           ))}
                        </div>
                     )}
                  </div>
                  {lockedCategory && (
-                    <div className="px-3 pb-4 pt-1 text-center">
-                      <button onClick={() => { setLockedCategory(null); setHoveredCategory(null); }} className="text-[9px] font-black text-[var(--text-muted)] hover:text-rose-500 uppercase tracking-[0.2em] transition-colors">KAPAT</button>
+                    <div className="px-2 pb-2 pt-1 text-center">
+                      <button onClick={() => { setLockedCategory(null); setHoveredCategory(null); }} className="text-[8px] font-black text-[var(--text-muted)] hover:text-rose-500 uppercase tracking-widest transition-colors">KAPAT</button>
                     </div>
                  )}
               </div>
