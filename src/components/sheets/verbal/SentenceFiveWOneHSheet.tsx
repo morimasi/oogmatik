@@ -35,74 +35,71 @@ export const SentenceFiveWOneHSheet: React.FC<Props> = ({ data }) => {
   };
 
   return (
-    <div className="flex flex-col min-h-full font-lexend text-zinc-800 p-2 bg-white">
-      {/* Header Info Panel */}
-      <div className="flex items-center justify-between mb-4 pb-2 border-b-2 border-zinc-100">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-100">
-             <i className="fa-solid fa-quote-left text-lg"></i>
+    <div className="flex flex-col min-h-full font-lexend text-zinc-800 p-3 bg-white">
+      {/* Header Info Panel - Ultra Compact */}
+      <div className="flex items-center justify-between mb-3 pb-2 border-b border-zinc-200">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white shadow-md">
+             <i className="fa-solid fa-quote-left text-sm"></i>
           </div>
           <div>
-            <h1 className="text-sm font-black text-zinc-900 leading-none">Cümlede 5N1K ve Analiz</h1>
-            <p className="text-[9px] font-bold text-zinc-400 uppercase tracking-widest mt-1">
-              Okuma Anlama · Odaklanma · Dil Bilgisi
+            <h1 className="text-xs font-black text-zinc-900 leading-none">Cümlede 5N1K</h1>
+            <p className="text-[8px] font-bold text-zinc-400 uppercase tracking-widest mt-0.5">
+              Okuma Anlama · Dil Bilgisi
             </p>
           </div>
         </div>
-        <div className="flex gap-2">
-            <div className="px-2 py-1 bg-zinc-50 border border-zinc-100 rounded-lg text-[8px] font-bold text-zinc-500">
+        <div className="flex gap-1">
+            <div className="px-1.5 py-0.5 bg-zinc-50 border border-zinc-100 rounded text-[7px] font-bold text-zinc-500">
                 {(data.metadata?.ageGroup as string) || '8-10'} Yaş
             </div>
-             <div className="px-2 py-1 bg-zinc-50 border border-zinc-100 rounded-lg text-[8px] font-bold text-zinc-500 uppercase">
+             <div className="px-1.5 py-0.5 bg-zinc-50 border border-zinc-100 rounded text-[7px] font-bold text-zinc-500 uppercase">
                 {(data.metadata?.difficulty as string) || 'Orta'}
             </div>
         </div>
       </div>
 
-      {/* Yönerge - Ultra Premium */}
-      <div className="mb-4 p-3 bg-indigo-50/50 rounded-2xl border border-indigo-100/50 flex items-start gap-3">
-        <span className="text-xl leading-none">💡</span>
+      {/* Yönerge - Ultra Compact */}
+      <div className="mb-3 p-2 bg-indigo-50/30 rounded-lg border border-indigo-100/50 flex items-start gap-2">
+        <span className="text-sm leading-none">💡</span>
         <div className="flex flex-col">
-          <span className="text-[10px] font-black text-indigo-600 uppercase tracking-tight">Eğitmen Notu & Yönerge</span>
-          <p className="text-[11px] font-medium text-zinc-600 leading-relaxed mt-0.5">
-            {data.instruction} Cümlenin tüm öğelerini dikkatlice bulup ilgili kutucuklara yazınız.
+          <span className="text-[8px] font-black text-indigo-600 uppercase tracking-tight">Yönerge</span>
+          <p className="text-[9px] font-medium text-zinc-600 leading-relaxed mt-0.5">
+            {data.instruction}
           </p>
         </div>
       </div>
 
-      {/* Cümle Kartları - High Density 2-Column Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Cümle Kartları - Ultra Compact High Density */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
         {data.items.map((item, idx) => (
-          <div key={item.id || idx} className="p-3 bg-white border border-dashed border-zinc-200 rounded-[1.5rem] relative overflow-hidden group hover:border-indigo-300 transition-colors">
-            {/* Index Badge */}
-            <div className="absolute top-0 right-0 p-2 opacity-5">
-                <span className="text-5xl font-black">{idx + 1}</span>
-            </div>
-
-            {/* Cümle */}
-            <div className="mb-3 px-3 py-2 bg-zinc-50 rounded-xl border border-zinc-100 border-l-4 border-l-indigo-500">
-                <p className="text-[12px] font-bold text-zinc-800 leading-snug">
+          <div key={item.id || idx} className="p-2 bg-white border border-zinc-200 rounded-lg relative overflow-hidden group hover:border-indigo-300 transition-colors">
+            {/* Index Badge - KALDIRILDI */}
+            
+            {/* Cümle - Compact */}
+            <div className="mb-2 px-2 py-1.5 bg-zinc-50 rounded-lg border border-zinc-100 border-l-2 border-l-indigo-500">
+                <p className="text-[10px] font-bold text-zinc-800 leading-snug">
                     {item.sentence as string}
                 </p>
             </div>
 
-            {/* 5N1K Soru Listesi - Dinamik (Sadece mevcut olanları göster) */}
-            <div className={`grid ${item.questions.length > 3 ? 'grid-cols-2' : 'grid-cols-1'} gap-x-3 gap-y-2`}>
+            {/* 5N1K Soru Listesi - Ultra Compact */}
+            <div className={`grid ${item.questions.length > 3 ? 'grid-cols-2' : 'grid-cols-1'} gap-x-2 gap-y-1.5`}>
               {item.questions.map((q, qIdx) => (
-                <div key={qIdx} className="flex flex-col gap-1">
-                  <div className="flex items-center flex-wrap gap-1.5 px-1">
+                <div key={qIdx} className="flex flex-col gap-0.5">
+                  <div className="flex items-center flex-wrap gap-1 px-0.5">
                       {getIcon(q.type)}
-                      <span className="text-[9px] font-black text-zinc-400 uppercase tracking-tighter shrink-0">
+                      <span className="text-[8px] font-black text-zinc-400 uppercase tracking-tighter shrink-0">
                           {getLabel(q.type)}
                       </span>
                       {data.settings?.showPredicate && item.predicate && (
-                        <span className="text-[8px] font-bold text-indigo-400 bg-indigo-50 px-1.5 py-0.5 rounded-md border border-indigo-100/50 animate-in fade-in slide-in-from-left-1">
+                        <span className="text-[7px] font-bold text-indigo-400 bg-indigo-50 px-1 py-0.5 rounded border border-indigo-100/50">
                            → {item.predicate as string}
                         </span>
                       )}
                   </div>
-                  <div className="h-9 border-b border-zinc-100 flex items-end pb-0.5">
-                      {/* Yazma Alanı Çizgisi */}
+                  <div className="h-7 border-b border-zinc-100 flex items-end pb-0.5">
+                      {/* Yazma Alanı Çizgisi - Compact */}
                       <div className="w-full h-px bg-zinc-50/50"></div>
                   </div>
                 </div>
@@ -112,15 +109,15 @@ export const SentenceFiveWOneHSheet: React.FC<Props> = ({ data }) => {
         ))}
       </div>
 
-      {/* Footer Pedagojik Not */}
+      {/* Footer Pedagojik Not - Ultra Compact */}
       {data.pedagogicalNote && (
-        <div className="mt-auto pt-4 flex items-center justify-between border-t border-zinc-100 opacity-60">
-            <p className="text-[9px] font-medium italic text-zinc-500 max-w-[400px]">
-                <span className="font-bold not-italic">Uzman Notu:</span> {data.pedagogicalNote}
+        <div className="mt-auto pt-2 flex items-center justify-between border-t border-zinc-100 opacity-60">
+            <p className="text-[8px] font-medium italic text-zinc-500 max-w-[300px]">
+                <span className="font-bold not-italic">Uzman:</span> {data.pedagogicalNote}
             </p>
-            <div className="flex items-center gap-2">
-                <div className="w-6 h-6 bg-zinc-100 rounded-lg flex items-center justify-center text-[10px]">⚙️</div>
-                <span className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Oogmatik AI Content Engine v2.5</span>
+            <div className="flex items-center gap-1">
+                <div className="w-4 h-4 bg-zinc-100 rounded flex items-center justify-center text-[8px]">⚙️</div>
+                <span className="text-[8px] font-black uppercase tracking-widest text-zinc-400">Oogmatik AI</span>
             </div>
         </div>
       )}

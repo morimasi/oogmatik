@@ -123,7 +123,7 @@ export const SentenceFiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChan
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
                             <span className="text-[11px] font-bold text-zinc-700 dark:text-zinc-200">Kompakt Yerleşim</span>
-                            <span className="text-[10px] text-zinc-500">A4 sayfasını maksimum doldurur.</span>
+                            <span className="text-[10px] text-zinc-500">A4'e sığır, boşlukları azaltır.</span>
                         </div>
                         <button 
                             onClick={() => onChange('compact', !options.compact)}
