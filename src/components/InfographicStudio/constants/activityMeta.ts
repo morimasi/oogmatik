@@ -45,6 +45,7 @@ export const INFOGRAPHIC_ACTIVITIES_META: InfographicActivityMeta[] = [
     { id: ActivityType.INFOGRAPHIC_PREDICTION_BOARD, categoryId: 'reading-comprehension', title: 'Tahmin Panosu', description: 'Metin öncesi/sonrası tahminlerde bulun.', icon: Eye },
     { id: ActivityType.INFOGRAPHIC_COMPARE_TEXTS, categoryId: 'reading-comprehension', title: 'Metin Karşılaştırma', description: 'Metinlerin farklı yönlerini listele.', icon: Columns },
     { id: ActivityType.INFOGRAPHIC_THEME_WEB, categoryId: 'reading-comprehension', title: 'Ana Fikir Ağı', description: 'Ana fikri destekleyen düşünceleri göster.', icon: Network },
+    { id: ActivityType.INFOGRAPHIC_SHORT_ANSWER, categoryId: 'reading-comprehension', title: 'Kısa Cevaplı Sorular', description: 'Görsel destekli ızgara soru panosu.', icon: ClipboardList },
 
     // Kat 3: Dil ve Okuryazarlık
     { id: ActivityType.INFOGRAPHIC_SYLLABLE_MAP, categoryId: 'language-literacy', title: 'Hece Haritası', description: 'Kelimeyi hecelerine ayırarak görsel harita çıkar.', icon: Languages },
