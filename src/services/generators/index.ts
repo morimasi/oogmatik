@@ -31,3 +31,4 @@ export * from './sentenceFiveWOneH';
 export * from './storyAnalysis';
 export * from './storySequencing';
 export * from './missingParts';
+export * from './advancedMissingParts';

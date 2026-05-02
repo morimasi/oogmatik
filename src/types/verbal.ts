@@ -380,17 +380,73 @@ export interface AttentionFocusData extends BaseActivityData {
 
 export interface MissingPartsData extends BaseActivityData {
   settings?: {
-    difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor';
-    blankType: 'word' | 'phrase';
+    // Temel Ayarlar
+    difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor' | 'uzman';
+    blankType: 'word' | 'phrase' | 'sentence' | 'number';
     showWordBank: boolean;
     topic: string;
+    
+    // Ultra Özelleştirme
+    blankCount: number;
+    blankSize: 'small' | 'medium' | 'large';
+    blankStyle: 'underline' | 'dashed' | 'solid' | 'dotted';
+    showLineNumber: boolean;
+    showParagraphNumbers: boolean;
+    
+    // Görsel Ayarlar
+    compactLayout: boolean;
+    syllableColoring: boolean;
+    useIcons: boolean;
+    showVisualHints: boolean;
+    
+    // Zorluk Detayları
+    includeDistractors: boolean;
+    distractorCount: number;
+    semanticComplexity: 'low' | 'medium' | 'high';
+    sentenceComplexity: 'simple' | 'compound' | 'complex';
+    
+    // Pedagojik
+    showInstructions: boolean;
+    showExamples: boolean;
+    includeTimer: boolean;
+    showProgress: boolean;
+    
+    // A4 Optimizasyon
+    fontSize: 'small' | 'medium' | 'large';
+    lineHeight: 'tight' | 'normal' | 'relaxed';
+    columnLayout: 'single' | 'two-column';
+    maxParagraphsPerPage: number;
   };
   content: {
     title: string;
+    instruction: string;
     paragraphs: {
-      parts: { text: string; isBlank: boolean; answer?: string }[];
+      id: string;
+      parts: { 
+        text: string; 
+        isBlank: boolean; 
+        answer?: string;
+        hints?: string[];
+        distractors?: string[];
+        difficulty?: 'easy' | 'medium' | 'hard';
+      }[];
     }[];
-    wordBank: string[];
+    wordBank: {
+      words: string[];
+      categories?: string[];
+      showCategories: boolean;
+      randomOrder: boolean;
+    };
+    visualElements?: {
+      icons: { position: number; icon: string; style: string }[];
+      images: { position: number; url: string; caption: string }[];
+      decorations: { type: string; position: string; style: string }[];
+    };
+    pedagogicalSupport?: {
+      examples: { sentence: string; answer: string }[];
+      tips: string[];
+      strategies: string[];
+    };
   };
 }
 

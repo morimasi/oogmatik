@@ -122,7 +122,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineMorphologyMatrix,
   },
   [ActivityType.MISSING_PARTS]: {
-    ai: aiGenerators.generateMissingPartsFromAI,
+    ai: aiGenerators.generateAdvancedMissingPartsFromAI,
     offline: offlineGenerators.generateOfflineMissingParts,
   },
 
@@ -451,20 +451,20 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
         ai: (options: GeneratorOptions) =>
           pair.aiGenerator({
             topic: options.topic || 'Konu',
-            ageGroup: options.ageGroup || '8-10',
+            ageGroup: (options.ageGroup as any) || '8-10',
             difficulty: (options.difficulty as any) || 'Orta',
-            profile: options.profile || 'general',
-            itemCount: options.count || 5,
-            activityParams: options.customParams || {},
+            profile: (options.profile as any) || 'general',
+            itemCount: (options.count as any) || 5,
+            activityParams: (options.customParams as any) || {},
           }),
         offline: async (options: GeneratorOptions) =>
           pair.offlineGenerator({
             topic: options.topic || 'Konu',
-            ageGroup: options.ageGroup || '8-10',
+            ageGroup: (options.ageGroup as any) || '8-10',
             difficulty: (options.difficulty as any) || 'Orta',
-            profile: options.profile || 'general',
-            itemCount: options.count || 5,
-            activityParams: options.customParams || {},
+            profile: (options.profile as any) || 'general',
+            itemCount: (options.count as any) || 5,
+            activityParams: (options.customParams as any) || {},
           }),
       },
     ])
@@ -478,20 +478,20 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
         ai: (options: GeneratorOptions) =>
           pair.aiGenerator({
             topic: options.topic || 'Konu',
-            ageGroup: options.ageGroup || '8-10',
+            ageGroup: (options.ageGroup as any) || '8-10',
             difficulty: (options.difficulty as any) || 'Orta',
-            profile: options.profile || 'general',
-            itemCount: options.count || 5,
-            activityParams: options.customParams || {},
+            profile: (options.profile as any) || 'general',
+            itemCount: (options.count as any) || 5,
+            activityParams: (options.customParams as any) || {},
           }),
         offline: async (options: GeneratorOptions) =>
           pair.offlineGenerator({
             topic: options.topic || 'Konu',
-            ageGroup: options.ageGroup || '8-10',
+            ageGroup: (options.ageGroup as any) || '8-10',
             difficulty: (options.difficulty as any) || 'Orta',
-            profile: options.profile || 'general',
-            itemCount: options.count || 5,
-            activityParams: options.customParams || {},
+            profile: (options.profile as any) || 'general',
+            itemCount: (options.count as any) || 5,
+            activityParams: (options.customParams as any) || {},
           }),
       },
     ])

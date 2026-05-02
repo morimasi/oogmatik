@@ -134,7 +134,7 @@ import {
 import { StoryComprehensionSheet } from './sheets/verbal/StoryComprehensionSheet';
 import { StoryAnalysisSheet } from './sheets/verbal/StoryAnalysisSheet';
 import { StorySequencingSheet } from './sheets/verbal/StorySequencingSheet';
-import { MissingPartsSheet } from './sheets/verbal/MissingPartsSheet';
+import { AdvancedMissingPartsSheet } from './sheets/verbal/AdvancedMissingPartsSheet';
 import { ReadingFlowSheet } from './sheets/verbal/ReadingFlowSheet';
 import {
   PhonologicalAwarenessSheet,
@@ -1689,7 +1689,7 @@ export const SheetRenderer = React.memo(
         renderedSheet = <StorySequencingSheet data={data as unknown as StorySequencingData} />;
         break;
       case ActivityType.MISSING_PARTS:
-        renderedSheet = <MissingPartsSheet data={data as unknown as MissingPartsData} />;
+        renderedSheet = <AdvancedMissingPartsSheet data={data as unknown as MissingPartsData} />;
         break;
       case ActivityType.COLORFUL_SYLLABLE_READING:
         renderedSheet = <ColorfulSyllableReadingSheet data={data as any} settings={settings} />;

@@ -40,6 +40,7 @@ export interface BaseActivityData {
     imagePrompt?: string;
     imageBase64?: string;
     targetedErrors?: string[];
+    pedagogicalNote?: string;
 }
 
 export type CognitiveDomain =

@@ -30,6 +30,7 @@ import { SentenceFiveWOneHConfig } from './SentenceFiveWOneHConfig';
 import { StoryAnalysisConfig } from './StoryAnalysisConfig';
 import { StorySequencingConfig } from './StorySequencingConfig';
 import { MissingPartsConfig } from './MissingPartsConfig';
+import { AdvancedMissingPartsConfig } from './AdvancedMissingPartsConfig';
 
 import { FiveWOneHConfig } from './FiveWOneHConfig';
 import { ColorfulSyllableReadingConfig } from './ColorfulSyllableReadingConfig';
@@ -90,7 +91,7 @@ export const ActivityConfigRegistry: Record<string, any> = {
   [ActivityType.SENTENCE_5W1H]: SentenceFiveWOneHConfig,
   [ActivityType.STORY_ANALYSIS]: StoryAnalysisConfig,
   [ActivityType.STORY_SEQUENCING]: StorySequencingConfig,
-  [ActivityType.MISSING_PARTS]: MissingPartsConfig,
+  [ActivityType.MISSING_PARTS]: AdvancedMissingPartsConfig,
 };
 
 export { EsAnlamliKelimelerConfig } from './EsAnlamliKelimelerConfig';
