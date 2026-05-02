@@ -93,57 +93,64 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ onSelectActivity }) => {
   };
 
   return (
-    <div ref={searchContainerRef} className="relative" id="tour-search">
+    <div ref={searchContainerRef} className="relative z-[95]" id="tour-search">
       <button
-        onClick={() => setIsOpen(true)}
-        className="text-zinc-400 hover:text-white hover:drop-shadow-[0_0_5px_rgba(255,255,255,0.8)] transition-all duration-300 p-2 rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 dark:focus-visible:ring-offset-zinc-900"
+        onClick={() => setIsOpen(!isOpen)}
+        className={`relative flex flex-col items-center justify-center w-11 h-11 transition-all rounded-[14px] group/nav focus:outline-none ${isOpen ? 'text-[var(--accent-color)] bg-[var(--bg-paper)] shadow-premium-sm border border-[var(--border-color)] scale-95' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-black/10'}`}
         aria-label="Arama yap"
         title="Etkinlik Ara"
       >
-        <i className="fa-solid fa-magnifying-glass fa-lg"></i>
+        <i className={`fa-solid fa-magnifying-glass text-lg transition-transform ${!isOpen && 'group-hover/nav:scale-110'}`}></i>
       </button>
 
       {isOpen && (
         <div 
-          className="absolute top-1/2 -translate-y-1/2 right-0 w-64"
+          className="absolute top-[120%] right-0 w-[300px] md:w-[340px] animate-in fade-in slide-in-from-top-2 duration-200 font-['Lexend'] shadow-[0_25px_50px_rgba(0,0,0,0.5)]"
           role="search"
         >
-          <div className="relative">
-            <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"></i>
-            <input
-              ref={searchInputRef}
-              type="text"
-              placeholder="Etkinlik ara..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="w-full bg-white dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 rounded-lg shadow-md py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-
-          {query.length > 1 && (
-            <div className="absolute top-full right-0 mt-2 w-full max-h-96 overflow-y-auto bg-white dark:bg-zinc-800 rounded-lg shadow-xl border border-zinc-200 dark:border-zinc-700 z-50">
-              {searchResults.length > 0 ? (
-                <ul>
-                  {searchResults.map((activity) => (
-                    <li key={activity.id + activity.title}>
-                      <button
-                        onClick={() => handleSelect(activity)}
-                        className="w-full text-left flex items-center gap-3 p-3 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 transition-colors"
-                      >
-                        <i className={`${activity.icon} fa-fw text-zinc-400 dark:text-zinc-500`}></i>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{activity.title}</p>
-                          <p className="text-xs text-zinc-500 dark:text-zinc-400">{getCategoryForActivity(activity.id)}</p>
-                        </div>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p className="p-4 text-center text-sm text-zinc-500 dark:text-zinc-400">Sonuç bulunamadı.</p>
-              )}
+          <div className="bg-[var(--bg-paper)]/95 backdrop-blur-3xl rounded-[1.5rem] border border-[var(--border-color)] overflow-hidden flex flex-col p-2">
+            <div className="relative mb-2">
+              <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--accent-color)] opacity-70"></i>
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Platformda ne arıyorsunuz?"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="w-full bg-black/20 text-[var(--text-primary)] border border-white/5 rounded-xl py-3 pl-10 pr-4 text-xs font-bold placeholder:text-[var(--text-muted)] focus:outline-none focus:border-[var(--accent-color)]/40 focus:bg-black/30 transition-all font-['Lexend']"
+              />
             </div>
-          )}
+
+            {query.length > 1 && (
+              <div className="max-h-[50vh] overflow-y-auto custom-scrollbar">
+                {searchResults.length > 0 ? (
+                  <ul className="space-y-1 px-1 pb-1">
+                    {searchResults.map((activity) => (
+                      <li key={activity.id + activity.title}>
+                        <button
+                          onClick={() => handleSelect(activity)}
+                          className="w-full text-left flex items-center gap-3 p-2 rounded-xl hover:bg-[var(--accent-color)]/10 transition-colors group/item"
+                        >
+                          <div className="w-8 h-8 rounded-lg flex flex-col items-center justify-center bg-black/20 border border-[var(--border-color)] group-hover/item:border-[var(--accent-color)]/30 group-hover/item:scale-105 transition-all text-xs text-[var(--text-muted)] group-hover/item:text-[var(--accent-color)]">
+                             <i className={`${activity.icon} fa-fw`}></i>
+                          </div>
+                          <div className="flex-1 overflow-hidden">
+                            <p className="text-[11px] font-black text-[var(--text-primary)] group-hover/item:text-[var(--accent-color)] truncate uppercase tracking-tight transition-colors">{activity.title}</p>
+                            <p className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-widest mt-0.5 opacity-60">{getCategoryForActivity(activity.id)}</p>
+                          </div>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <div className="py-8 text-center bg-black/10 rounded-xl mt-1">
+                    <i className="fa-solid fa-ghost text-xl text-[var(--text-muted)] opacity-30 mb-2"></i>
+                    <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Sonuç bulunamadı</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

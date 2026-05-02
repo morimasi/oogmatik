@@ -175,10 +175,7 @@ export const AppHeader = ({
 
                 {/* 3. SAĞ BLOK: ARAMA VE İKONLAR */}
                 <div className="flex-1 flex items-center justify-end gap-2 md:gap-4">
-                    {/* Arama Çubuğu (Sağdaki ikonlara yaslandı) */}
-                    <div className="hidden md:block w-48 xl:w-64 mr-2">
-                        <GlobalSearch onSelectActivity={onSelectActivity} />
-                    </div>
+                    {/* Arama Çubuğu iptal edildi, sağ açılır menüye dahil ediliyor. */}
 
                     {/* Activity & Students Group */}
                     <div className="flex items-center gap-2 p-1.5 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)]">
@@ -201,6 +198,10 @@ export const AppHeader = ({
 
                     {/* Secondary Navigation */}
                     <div className="flex items-center gap-1.5">
+                        <GlobalSearch onSelectActivity={onSelectActivity} />
+                        
+                        <div className="w-[1px] h-4 bg-[var(--border-color)] mx-1 opacity-30"></div>
+                        
                         <button
                             onClick={() => navigateTo('workbook')}
                             className="relative flex flex-col items-center justify-center w-11 h-11 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all rounded-[14px] group/nav"
