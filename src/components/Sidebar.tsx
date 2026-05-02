@@ -437,9 +437,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                              <p className="px-2 pt-1 text-[7px] font-black text-[var(--accent-color)] uppercase tracking-tight opacity-70">{group.title}</p>
                              <div className="grid grid-cols-1 gap-0">
                                 {group.items.map((item) => (
-                                   <button key={item.id} onClick={() => handleStudioClick(item)} className="w-full text-left px-2 py-1.5 rounded-lg flex items-center gap-2 transition-colors group/item hover:bg-[var(--accent-color)]/10">
-                                      <i className={`fa-solid ${item.icon} text-[11px] opacity-70 group-hover/item:opacity-100 transition-colors ${item.color}`}></i>
-                                      <span className="text-[10px] font-medium text-[var(--text-secondary)] group-hover/item:text-[var(--text-primary)] truncate">{item.label}</span>
+                                   <button key={item.id} onClick={() => handleStudioClick(item)} className="w-full text-left px-2 py-1.5 rounded-lg flex items-center gap-2 transition-colors duration-200 group/studioFlyout hover:bg-[var(--bg-primary)]">
+                                      <i className={`fa-solid ${item.icon} text-[11px] opacity-70 group-hover/studioFlyout:opacity-100 transition-colors ${item.color}`}></i>
+                                      <span className="text-[10px] font-medium leading-tight text-[var(--text-secondary)] group-hover/studioFlyout:text-[11px] group-hover/studioFlyout:text-[var(--text-primary)] truncate transition-all duration-200">{item.label}</span>
                                    </button>
                                 ))}
                              </div>
@@ -448,9 +448,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                     ) : (
                        <div className="grid grid-cols-1 gap-0">
                           {categorizedActivities.find(c => c.id === activeCategory)?.items.map((act) => (
-                             <button key={act.id} onClick={() => handleActivitySelect(act.id)} className="w-full text-left px-2 py-1.5 rounded-lg flex items-center gap-2 transition-colors group/item hover:bg-[var(--accent-color)]/10">
+                             <button key={act.id} onClick={() => handleActivitySelect(act.id)} className="w-full text-left px-2 py-1.5 rounded-lg flex items-center gap-2 transition-colors duration-200 group/item hover:bg-[var(--bg-primary)]">
                                 <i className={`fa-solid ${act.icon || 'fa-star'} text-[11px] text-[var(--accent-color)] opacity-70 group-hover/item:opacity-100 transition-colors`}></i>
-                                <span className="text-[10px] font-medium text-[var(--text-secondary)] group-hover/item:text-[var(--text-primary)] truncate">{act.title}</span>
+                                <span className="text-[10px] font-medium leading-tight text-[var(--text-secondary)] group-hover/item:text-[11px] group-hover/item:text-[var(--text-primary)] truncate transition-all duration-200">{act.title}</span>
                              </button>
                           ))}
                        </div>
