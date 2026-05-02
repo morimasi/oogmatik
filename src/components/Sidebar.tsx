@@ -425,7 +425,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 left: popupRect.left + (isExpanded ? 260 : 85) 
               }}
             >
-              <div className="premium-popup-content min-w-[160px] max-w-[200px] overflow-hidden bg-[var(--bg-paper)]/95 backdrop-blur-2xl rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.3)] border border-white/5">
+              <div className="premium-popup-content min-w-[240px] max-w-[280px] overflow-hidden bg-[var(--bg-paper)]/95 backdrop-blur-2xl rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.3)] border border-white/5">
                  <div className="px-3 pt-3 pb-1.5 border-b border-white/5 mx-2">
                     <h3 className="text-[9px] font-black text-[var(--text-primary)] uppercase tracking-wider">{activeCategory === 'studios' ? 'Merkezi Stüdyolar' : categorizedActivities.find(c => c.id === activeCategory)?.title}</h3>
                  </div>
