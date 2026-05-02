@@ -21,9 +21,11 @@ const ALLOWED_ORIGINS = [
   'https://oogmatik.com',
   'https://www.oogmatik.com',
   'https://oogmatik.vercel.app',
+  'https://bdmin.vercel.app',
 
   // Preview deployments (Vercel pattern)
   /^https:\/\/oogmatik.*\.vercel\.app$/,
+  /^https:\/\/bdmin.*\.vercel\.app$/,
 
   // Development
   'http://localhost:5173',     // Vite default
@@ -40,7 +42,7 @@ const ALLOWED_ORIGINS = [
  * Vercel preview deployment pattern matcher
  * Örnek: https://oogmatik-git-feature-user.vercel.app
  */
-const VERCEL_PREVIEW_PATTERN = /^https:\/\/oogmatik.*\.vercel\.app$/;
+const VERCEL_PREVIEW_PATTERN = /^https:\/\/(oogmatik|bdmin).*\.vercel\.app$/;
 
 /**
  * Origin'in izin verilen listede olup olmadığını kontrol eder
