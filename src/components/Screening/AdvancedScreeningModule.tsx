@@ -26,173 +26,37 @@ export const AdvancedScreeningModule: React.FC<AdvancedScreeningModuleProps> = (
     }
   }, [isSidebarOpen, setIsSidebarOpen]);
 
-  // Premium tema yardımcı fonksiyonları
+  // Premium tema yardımcı fonksiyonları - Merkezi tema tokenlarına (theme-tokens.css) bağlı
   const getThemeClasses = () => {
-    const isDark = theme === 'dark' || theme.includes('anthracite') || theme === 'oled-black';
-    const isDyslexia = theme.includes('dyslexia');
-    const isNature = theme === 'nature';
-    const isOcean = theme === 'ocean';
-    const isSpace = theme === 'space';
-    
     return {
-      // Modal ve Container
-      modal: isDark 
-        ? 'bg-zinc-900 border-zinc-700 shadow-2xl shadow-black/50' 
-        : isDyslexia 
-          ? 'bg-amber-50 border-amber-200 shadow-2xl shadow-amber-200/30' 
-          : isNature
-            ? 'bg-green-50 border-green-200 shadow-2xl shadow-green-200/30'
-            : isOcean
-              ? 'bg-blue-50 border-blue-200 shadow-2xl shadow-blue-200/30'
-              : isSpace
-                ? 'bg-slate-900 border-slate-700 shadow-2xl shadow-slate-900/50'
-                : 'bg-white border-zinc-200 shadow-2xl shadow-zinc-200/20',
+      // Modal ve Container - Glassmorphism desteğiyle
+      modal: 'bg-[var(--bg-paper)] border-[var(--border-color)] shadow-2xl backdrop-blur-md',
       
       // Header
-      header: isDark 
-        ? 'bg-zinc-800/95 border-zinc-700 backdrop-blur-sm' 
-        : isDyslexia 
-          ? 'bg-amber-100/95 border-amber-200 backdrop-blur-sm' 
-          : isNature
-            ? 'bg-green-100/95 border-green-200 backdrop-blur-sm'
-            : isOcean
-              ? 'bg-blue-100/95 border-blue-200 backdrop-blur-sm'
-              : isSpace
-                ? 'bg-slate-800/95 border-slate-700 backdrop-blur-sm'
-                : 'bg-zinc-50/95 border-zinc-200 backdrop-blur-sm',
+      header: 'bg-[var(--surface-glass)] border-[var(--border-color)] backdrop-blur-xl',
       
       // Cards
-      card: isDark 
-        ? 'bg-zinc-800/90 border-zinc-700' 
-        : isDyslexia 
-          ? 'bg-amber-50/90 border-amber-300' 
-          : isNature
-            ? 'bg-green-50/90 border-green-300'
-            : isOcean
-              ? 'bg-blue-50/90 border-blue-300'
-              : isSpace
-                ? 'bg-slate-800/90 border-slate-700'
-                : 'bg-white/90 border-zinc-200',
+      card: 'bg-[var(--bg-paper)] border-[var(--border-color)] shadow-sm hover:shadow-md transition-shadow duration-300',
       
       // Text
-      text: isDark 
-        ? 'text-zinc-100 font-lexend' 
-        : isDyslexia 
-          ? 'text-amber-900 font-lexend' 
-          : isNature
-            ? 'text-green-900 font-lexend'
-            : isOcean
-              ? 'text-blue-900 font-lexend'
-              : isSpace
-                ? 'text-slate-100 font-lexend'
-                : 'text-zinc-900 font-lexend',
-      
-      subtext: isDark 
-        ? 'text-zinc-400 font-lexend' 
-        : isDyslexia 
-          ? 'text-amber-700 font-lexend' 
-          : isNature
-            ? 'text-green-700 font-lexend'
-            : isOcean
-              ? 'text-blue-700 font-lexend'
-              : isSpace
-                ? 'text-slate-400 font-lexend'
-                : 'text-zinc-600 font-lexend',
+      text: 'text-[var(--text-primary)] font-lexend',
+      subtext: 'text-[var(--text-secondary)] font-lexend',
       
       // Buttons
-      button: isDark 
-        ? 'bg-zinc-700/80 hover:bg-zinc-600/80 text-zinc-100 border-zinc-600 font-lexend' 
-        : isDyslexia 
-          ? 'bg-amber-200/80 hover:bg-amber-300/80 text-amber-900 border-amber-300 font-lexend' 
-          : isNature
-            ? 'bg-green-200/80 hover:bg-green-300/80 text-green-900 border-green-300 font-lexend'
-            : isOcean
-              ? 'bg-blue-200/80 hover:bg-blue-300/80 text-blue-900 border-blue-300 font-lexend'
-              : isSpace
-                ? 'bg-slate-700/80 hover:bg-slate-600/80 text-slate-100 border-slate-600 font-lexend'
-                : 'bg-zinc-100/80 hover:bg-zinc-200/80 text-zinc-900 border-zinc-300 font-lexend',
-      
-      buttonPrimary: isDark 
-        ? 'bg-blue-600 hover:bg-blue-700 text-white font-lexend shadow-lg shadow-blue-600/30' 
-        : isDyslexia 
-          ? 'bg-green-600 hover:bg-green-700 text-white font-lexend shadow-lg shadow-green-600/30' 
-          : isNature
-            ? 'bg-emerald-600 hover:bg-emerald-700 text-white font-lexend shadow-lg shadow-emerald-600/30'
-            : isOcean
-              ? 'bg-cyan-600 hover:bg-cyan-700 text-white font-lexend shadow-lg shadow-cyan-600/30'
-              : isSpace
-                ? 'bg-indigo-600 hover:bg-indigo-700 text-white font-lexend shadow-lg shadow-indigo-600/30'
-                : 'bg-blue-600 hover:bg-blue-700 text-white font-lexend shadow-lg shadow-blue-600/30',
+      button: 'bg-[var(--surface-elevated)] hover:bg-[var(--surface-glass)] text-[var(--text-primary)] border-[var(--border-color)] font-lexend transition-all active:scale-95',
+      buttonPrimary: 'bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white font-lexend shadow-lg shadow-[var(--accent-muted)] transition-all active:scale-95',
       
       // Input
-      input: isDark 
-        ? 'bg-zinc-800/80 border-zinc-600 text-zinc-100 placeholder-zinc-500 font-lexend' 
-        : isDyslexia 
-          ? 'bg-amber-100/80 border-amber-300 text-amber-900 placeholder-amber-600 font-lexend' 
-          : isNature
-            ? 'bg-green-100/80 border-green-300 text-green-900 placeholder-green-600 font-lexend'
-            : isOcean
-              ? 'bg-blue-100/80 border-blue-300 text-blue-900 placeholder-blue-600 font-lexend'
-              : isSpace
-                ? 'bg-slate-800/80 border-slate-600 text-slate-100 placeholder-slate-500 font-lexend'
-                : 'bg-white/80 border-zinc-300 text-zinc-900 placeholder-zinc-500 font-lexend',
+      input: 'bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)] placeholder-[var(--text-muted)] font-lexend focus:ring-2 focus:ring-[var(--accent-color)] outline-none',
       
       // Tabs
-      tabActive: isDark 
-        ? 'bg-zinc-700 text-zinc-100 border-zinc-600 font-lexend shadow-sm' 
-        : isDyslexia 
-          ? 'bg-amber-200 text-amber-900 border-amber-400 font-lexend shadow-sm' 
-          : isNature
-            ? 'bg-green-200 text-green-900 border-green-400 font-lexend shadow-sm'
-            : isOcean
-              ? 'bg-blue-200 text-blue-900 border-blue-400 font-lexend shadow-sm'
-              : isSpace
-                ? 'bg-slate-700 text-slate-100 border-slate-600 font-lexend shadow-sm'
-                : 'bg-white text-zinc-900 border-zinc-300 font-lexend shadow-sm',
+      tabActive: 'bg-[var(--bg-paper)] text-[var(--text-primary)] border-[var(--accent-color)] font-lexend shadow-sm border-b-2',
+      tabInactive: 'text-[var(--text-muted)] hover:text-[var(--text-secondary)] font-lexend hover:bg-[var(--surface-glass)]',
       
-      tabInactive: isDark 
-        ? 'text-zinc-400 hover:text-zinc-200 font-lexend' 
-        : isDyslexia 
-          ? 'text-amber-600 hover:text-amber-800 font-lexend' 
-          : isNature
-            ? 'text-green-600 hover:text-green-800 font-lexend'
-            : isOcean
-              ? 'text-blue-600 hover:text-blue-800 font-lexend'
-              : isSpace
-                ? 'text-slate-400 hover:text-slate-200 font-lexend'
-                : 'text-zinc-600 hover:text-zinc-900 font-lexend',
-      
-      // Gradient
-      gradient: isDark 
-        ? 'from-zinc-800 to-zinc-900' 
-        : isDyslexia 
-          ? 'from-amber-100 to-amber-50' 
-          : isNature
-            ? 'from-green-100 to-green-50'
-            : isOcean
-              ? 'from-blue-100 to-blue-50'
-              : isSpace
-                ? 'from-slate-800 to-slate-900'
-                : 'from-zinc-50 to-white',
-      
-      // Risk Colors
-      riskLow: isDark ? 'text-green-400 bg-green-900/30 border-green-700' : 
-               isDyslexia ? 'text-green-700 bg-green-100/70 border-green-400' :
-               isNature ? 'text-green-700 bg-green-100/70 border-green-400' :
-               isOcean ? 'text-cyan-700 bg-cyan-100/70 border-cyan-400' :
-               'text-green-600 bg-green-50 border-green-200',
-      
-      riskMedium: isDark ? 'text-yellow-400 bg-yellow-900/30 border-yellow-700' : 
-                  isDyslexia ? 'text-yellow-700 bg-yellow-100/70 border-yellow-400' :
-                  isNature ? 'text-yellow-700 bg-yellow-100/70 border-yellow-400' :
-                  isOcean ? 'text-orange-700 bg-orange-100/70 border-orange-400' :
-                  'text-yellow-600 bg-yellow-50 border-yellow-200',
-      
-      riskHigh: isDark ? 'text-red-400 bg-red-900/30 border-red-700' : 
-                isDyslexia ? 'text-red-700 bg-red-100/70 border-red-400' :
-                isNature ? 'text-red-700 bg-red-100/70 border-red-400' :
-                isOcean ? 'text-pink-700 bg-pink-100/70 border-pink-400' :
-                'text-red-600 bg-red-50 border-red-200'
+      // Risk Colors - Temaya göre otomatik ayarlanır, ancak kontrast için hafif opacity eklenir
+      riskLow: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
+      riskMedium: 'text-amber-500 bg-amber-500/10 border-amber-500/20',
+      riskHigh: 'text-rose-500 bg-rose-500/10 border-rose-500/20'
     };
   };
 

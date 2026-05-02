@@ -271,19 +271,19 @@ export const ResultDashboard: FC<Props> = ({
   return (
     <div className="space-y-8 animate-in fade-in duration-500 pb-20">
       {/* Header / Toolbar */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-white dark:bg-zinc-900 p-6 rounded-[2.5rem] border border-zinc-200 dark:border-zinc-800 shadow-xl sticky top-4 z-30">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-[var(--bg-paper)] p-6 rounded-[2.5rem] border border-[var(--border-color)] shadow-xl sticky top-4 z-30 backdrop-blur-md">
         <div>
           <div className="flex items-center gap-3 mb-1">
             <span
-              className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${result.totalScore > 50 ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'}`}
+              className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${result.totalScore > 50 ? 'bg-rose-500/10 text-rose-500' : 'bg-emerald-500/10 text-emerald-500'}`}
             >
               {result.totalScore > 50 ? 'Yüksek Risk' : 'Düşük Risk'}
             </span>
-            <span className="text-xs text-zinc-400 font-bold">
+            <span className="text-xs text-[var(--text-muted)] font-bold">
               {new Date(result.generatedAt).toLocaleDateString()}
             </span>
           </div>
-          <h2 className="text-2xl font-black text-zinc-900 dark:text-white">
+          <h2 className="text-2xl font-black text-[var(--text-primary)]">
             {result.studentName}
           </h2>
         </div>
@@ -291,7 +291,7 @@ export const ResultDashboard: FC<Props> = ({
         <div className="flex flex-wrap gap-2 justify-end">
           <button
             onClick={handleCreateSmartPlan}
-            className="group relative px-6 py-3 bg-zinc-900 dark:bg-white text-white dark:text-black rounded-2xl font-black text-xs flex items-center gap-3 transition-all shadow-xl shadow-zinc-500/20 hover:scale-105 active:scale-95 overflow-hidden"
+            className="group relative px-6 py-3 bg-[var(--accent-color)] text-white rounded-2xl font-black text-xs flex items-center gap-3 transition-all shadow-xl shadow-[var(--accent-muted)] hover:scale-105 active:scale-95 overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <span className="relative flex items-center gap-2">
@@ -301,21 +301,21 @@ export const ResultDashboard: FC<Props> = ({
           </button>
           <button
             onClick={handlePrint}
-            className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 rounded-xl font-bold text-xs flex items-center gap-2 transition-all"
+            className="px-4 py-2 bg-[var(--bg-secondary)] hover:bg-[var(--surface-elevated)] text-[var(--text-primary)] rounded-xl font-bold text-xs flex items-center gap-2 transition-all border border-[var(--border-color)]"
           >
             <i className="fa-solid fa-print"></i> Yazdır
           </button>
           <button
             onClick={() => setIsSharing(true)}
             disabled={!user}
-            className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 rounded-xl font-bold text-xs flex items-center gap-2 transition-all disabled:opacity-50"
+            className="px-4 py-2 bg-[var(--bg-secondary)] hover:bg-[var(--surface-elevated)] text-[var(--text-primary)] rounded-xl font-bold text-xs flex items-center gap-2 transition-all border border-[var(--border-color)] disabled:opacity-50"
           >
             <i className="fa-solid fa-share-nodes"></i> Paylaş
           </button>
           {onAddToWorkbook && (
             <button
               onClick={handleAddToWorkbookClick}
-              className="px-4 py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 rounded-xl font-bold text-xs flex items-center gap-2 transition-all"
+              className="px-4 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-500 border border-indigo-500/20 rounded-xl font-bold text-xs flex items-center gap-2 transition-all"
             >
               <i className="fa-solid fa-book-medical"></i> Kitapçığa Ekle
             </button>
@@ -323,7 +323,7 @@ export const ResultDashboard: FC<Props> = ({
           <button
             onClick={handleSave}
             disabled={isSaved || isSaving || !user}
-            className={`px-5 py-2 rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-md ${isSaved ? 'bg-green-600 text-white cursor-default' : 'bg-zinc-900 dark:bg-white text-white dark:text-black hover:scale-105'}`}
+            className={`px-5 py-2 rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-md ${isSaved ? 'bg-green-600 text-white cursor-default' : 'bg-[var(--text-primary)] text-[var(--bg-paper)] hover:scale-105'}`}
           >
             {isSaving ? (
               <i className="fa-solid fa-circle-notch fa-spin"></i>
@@ -336,7 +336,7 @@ export const ResultDashboard: FC<Props> = ({
           </button>
           <button
             onClick={onRestart}
-            className="w-9 h-9 rounded-full bg-zinc-200 hover:bg-zinc-300 dark:bg-zinc-700 flex items-center justify-center text-zinc-500 transition-colors"
+            className="w-9 h-9 rounded-full bg-[var(--bg-secondary)] hover:bg-[var(--surface-elevated)] flex items-center justify-center text-[var(--text-muted)] transition-colors border border-[var(--border-color)]"
             title="Yeni Test"
           >
             <i className="fa-solid fa-rotate-right"></i>
@@ -347,8 +347,8 @@ export const ResultDashboard: FC<Props> = ({
       {/* Main Interactive Dashboard (Screen View) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Chart & Summary */}
-        <div className="bg-white p-8 rounded-[2.5rem] border border-zinc-100 shadow-sm flex flex-col items-center justify-center min-h-[400px]">
-          <h4 className="font-bold text-zinc-400 uppercase tracking-widest mb-6 text-sm">
+        <div className="bg-[var(--bg-paper)] p-8 rounded-[2.5rem] border border-[var(--border-color)] shadow-sm flex flex-col items-center justify-center min-h-[400px]">
+          <h4 className="font-bold text-[var(--text-muted)] uppercase tracking-widest mb-6 text-sm">
             Bilişsel Risk Haritası
           </h4>
           <RadarChart data={chartData} />
@@ -359,11 +359,11 @@ export const ResultDashboard: FC<Props> = ({
           {Object.entries(result.categoryScores).map(([cat, data]) => (
             <div
               key={cat}
-              className={`p-5 rounded-2xl border-l-8 ${(data as any).color} bg-white shadow-sm flex justify-between items-center transition-transform hover:scale-[1.01]`}
+              className={`p-5 rounded-2xl border-l-8 ${(data as any).color === 'red' ? 'border-rose-500' : (data as any).color === 'yellow' ? 'border-amber-500' : 'border-emerald-500'} bg-[var(--bg-paper)] border border-[var(--border-color)] shadow-sm flex justify-between items-center transition-transform hover:scale-[1.01]`}
             >
               <div>
-                <h4 className="font-bold text-zinc-800">{CATEGORY_LABELS[cat]}</h4>
-                <p className="text-xs text-zinc-500 mt-1">{(data as any).riskLabel}</p>
+                <h4 className="font-bold text-[var(--text-primary)]">{CATEGORY_LABELS[cat]}</h4>
+                <p className="text-xs text-[var(--text-muted)] mt-1">{(data as any).riskLabel}</p>
               </div>
               <div className="text-right">
                 <span
@@ -378,47 +378,47 @@ export const ResultDashboard: FC<Props> = ({
       </div>
 
       {/* AI Analysis Section */}
-      <div className="bg-indigo-50 dark:bg-indigo-900/10 p-8 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-800/30 relative overflow-hidden">
+      <div className="bg-[var(--accent-muted)] p-8 rounded-[2.5rem] border border-[var(--accent-color)]/20 relative overflow-hidden">
         <div className="absolute top-0 right-0 p-6 opacity-5 rotate-12">
-          <i className="fa-solid fa-wand-magic-sparkles text-9xl"></i>
+          <i className="fa-solid fa-wand-magic-sparkles text-9xl text-[var(--accent-color)]"></i>
         </div>
 
-        <h3 className="text-lg font-black text-indigo-800 dark:text-indigo-300 mb-6 flex items-center gap-2">
+        <h3 className="text-lg font-black text-[var(--accent-color)] mb-6 flex items-center gap-2">
           <i className="fa-solid fa-robot"></i> Uzman Görüşü (AI)
         </h3>
 
         {loadingAi ? (
-          <div className="flex flex-col items-center py-12 text-indigo-400">
+          <div className="flex flex-col items-center py-12 text-[var(--accent-color)]">
             <i className="fa-solid fa-circle-notch fa-spin text-3xl mb-4"></i>
             <p className="animate-pulse font-bold">Veriler analiz ediliyor ve rapor yazılıyor...</p>
           </div>
         ) : aiAnalysis ? (
           <div className="space-y-6 relative z-10">
-            <div className="prose prose-indigo max-w-none text-zinc-700 dark:text-zinc-300 leading-relaxed bg-white/50 p-6 rounded-2xl border border-white/20 shadow-sm">
+            <div className="prose prose-indigo max-w-none text-[var(--text-primary)] leading-relaxed bg-[var(--bg-paper)]/50 p-6 rounded-2xl border border-[var(--border-color)] shadow-sm">
               {typeof (aiAnalysis as any).letter === 'string'
                 ? (aiAnalysis as any).letter
                 : JSON.stringify((aiAnalysis as any).letter)}
             </div>
 
-            <h4 className="font-black text-xs text-indigo-400 uppercase tracking-widest mt-4">
+            <h4 className="font-black text-xs text-[var(--accent-color)] uppercase tracking-widest mt-4">
               Ev & Okul İçin Öneriler
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {(aiAnalysis as any).actionSteps?.map((step: string, i: number) => (
                 <div
                   key={i}
-                  className="bg-white p-4 rounded-xl border border-indigo-100 shadow-sm flex gap-3"
+                  className="bg-[var(--bg-paper)] p-4 rounded-xl border border-[var(--border-color)] shadow-sm flex gap-3"
                 >
-                  <div className="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-xs shrink-0">
+                  <div className="w-6 h-6 bg-[var(--accent-color)] text-white rounded-full flex items-center justify-center font-bold text-xs shrink-0">
                     {i + 1}
                   </div>
-                  <p className="text-sm font-bold text-zinc-700">{renderActionStep(step)}</p>
+                  <p className="text-sm font-bold text-[var(--text-primary)]">{renderActionStep(step)}</p>
                 </div>
               ))}
             </div>
           </div>
         ) : (
-          <p className="text-red-400">Analiz oluşturulamadı.</p>
+          <p className="text-rose-500">Analiz oluşturulamadı.</p>
         )}
       </div>
 

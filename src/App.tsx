@@ -538,6 +538,8 @@ const AppContent = () => {
     resetGeneratorContext();
     if (viewName === 'screening') {
       setIsAdvancedScreeningOpen(true);
+      // Modül açıldığında sidebar'ı kapat
+      setIsSidebarOpen(false);
     } else {
       navigateTo(viewName);
     }

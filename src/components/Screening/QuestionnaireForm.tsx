@@ -57,26 +57,26 @@ export const QuestionnaireForm: React.FC<Props> = ({ profile, onComplete, onCanc
         <div className="max-w-4xl mx-auto">
             {/* Progress Bar */}
             <div className="mb-8">
-                <div className="flex justify-between text-xs font-bold text-zinc-500 uppercase mb-2">
+                <div className="flex justify-between text-xs font-bold text-[var(--text-muted)] uppercase mb-2">
                     <span>{CATEGORY_LABELS[currentCategory]}</span>
                     <span>%{progress} Tamamlandı</span>
                 </div>
-                <div className="w-full h-3 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-indigo-600 transition-all duration-500 ease-out" style={{ width: `${progress}%` }}></div>
+                <div className="w-full h-3 bg-[var(--bg-secondary)] rounded-full overflow-hidden border border-[var(--border-color)]">
+                    <div className="h-full bg-[var(--accent-color)] transition-all duration-500 ease-out" style={{ width: `${progress}%` }}></div>
                 </div>
             </div>
 
             {/* Questions Card */}
-            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-[2rem] p-8 shadow-sm mb-8 animate-in fade-in slide-in-from-right-4 duration-300" key={currentCategory}>
-                <h3 className="text-2xl font-black text-zinc-900 dark:text-white mb-6 border-b border-zinc-100 dark:border-zinc-800 pb-4">
+            <div className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-[2rem] p-8 shadow-sm mb-8 animate-in fade-in slide-in-from-right-4 duration-300" key={currentCategory}>
+                <h3 className="text-2xl font-black text-[var(--text-primary)] mb-6 border-b border-[var(--border-color)] pb-4">
                     {CATEGORY_LABELS[currentCategory]}
                 </h3>
                 
                 <div className="space-y-8">
                     {categoryQuestions.map((q, idx) => (
-                        <div key={q.id} className="p-4 rounded-xl hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors">
-                            <p className="text-lg font-medium text-zinc-800 dark:text-zinc-200 mb-4">
-                                <span className="font-bold text-indigo-500 mr-2">{idx + 1}.</span>
+                        <div key={q.id} className="p-4 rounded-xl hover:bg-[var(--bg-secondary)] transition-colors">
+                            <p className="text-lg font-medium text-[var(--text-primary)] mb-4">
+                                <span className="font-bold text-[var(--accent-color)] mr-2">{idx + 1}.</span>
                                 {q.text}
                             </p>
                             
@@ -93,11 +93,11 @@ export const QuestionnaireForm: React.FC<Props> = ({ profile, onComplete, onCanc
                                         onClick={() => handleAnswer(q.id, opt.val)}
                                         className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all ${
                                             answers[q.id] === opt.val
-                                                ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 shadow-md transform scale-105'
-                                                : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 text-zinc-400 hover:border-zinc-300'
+                                                ? 'border-[var(--accent-color)] bg-[var(--accent-muted)] text-[var(--accent-color)] shadow-md transform scale-105'
+                                                : 'border-[var(--border-color)] bg-[var(--bg-paper)] text-[var(--text-muted)] hover:border-[var(--text-secondary)]'
                                         }`}
                                     >
-                                        <span className={`text-xl font-black mb-1 ${answers[q.id] === opt.val ? 'text-indigo-600' : 'text-zinc-300'}`}>{opt.val}</span>
+                                        <span className={`text-xl font-black mb-1 ${answers[q.id] === opt.val ? 'text-[var(--accent-color)]' : 'text-[var(--text-muted)]/30'}`}>{opt.val}</span>
                                         <span className="text-[10px] uppercase font-bold tracking-tight">{opt.label}</span>
                                     </button>
                                 ))}
@@ -112,7 +112,7 @@ export const QuestionnaireForm: React.FC<Props> = ({ profile, onComplete, onCanc
                 <button 
                     onClick={handlePrev} 
                     disabled={currentStep === 0}
-                    className="px-6 py-3 text-zinc-500 font-bold hover:text-zinc-800 disabled:opacity-30"
+                    className="px-6 py-3 text-[var(--text-muted)] font-bold hover:text-[var(--text-primary)] disabled:opacity-30"
                 >
                     <i className="fa-solid fa-arrow-left mr-2"></i> Geri
                 </button>
@@ -121,7 +121,7 @@ export const QuestionnaireForm: React.FC<Props> = ({ profile, onComplete, onCanc
                     <button 
                         onClick={handleNext} 
                         disabled={!isCategoryComplete}
-                        className="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-2xl shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-8 py-4 bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white font-black rounded-2xl shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         {currentStep === categories.length - 1 ? 'ANALİZİ TAMAMLA' : 'SONRAKİ ADIM'} <i className="fa-solid fa-arrow-right ml-2"></i>
                     </button>
