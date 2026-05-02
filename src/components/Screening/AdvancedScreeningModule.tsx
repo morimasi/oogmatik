@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Save, Share2, Download, Printer, Archive, Users, Brain, FileText, TrendingUp, AlertCircle, CheckCircle, Clock, Target, BookOpen, Calendar, Filter, Search, Plus, Eye, Edit, Trash2, ChevronRight, Star, Award, BarChart3, PieChart, Activity, Phone } from 'lucide-react';
 import { ScreeningProfile, ScreeningResult } from '../../types/screening';
+import { useUIStore } from '../../store/useUIStore';
 
 interface AdvancedScreeningModuleProps {
   onClose: () => void;
@@ -15,7 +16,76 @@ export const AdvancedScreeningModule: React.FC<AdvancedScreeningModuleProps> = (
   studentId,
   onGeneratePlan
 }) => {
+  const { theme, isSidebarOpen, setIsSidebarOpen } = useUIStore();
   const [activeView, setActiveView] = useState<'dashboard' | 'new-screening' | 'history' | 'analytics'>('dashboard');
+
+  // Modal açıldığında sidebar'ı kapat
+  useEffect(() => {
+    if (isSidebarOpen) {
+      setIsSidebarOpen(false);
+    }
+  }, [isSidebarOpen, setIsSidebarOpen]);
+
+  // Tema yardımcı fonksiyonları
+  const getThemeClasses = () => {
+    const isDark = theme === 'dark' || theme.includes('anthracite') || theme === 'oled-black';
+    const isDyslexia = theme.includes('dyslexia');
+    
+    return {
+      modal: isDark 
+        ? 'bg-zinc-900 border-zinc-700' 
+        : isDyslexia 
+          ? 'bg-amber-50 border-amber-200' 
+          : 'bg-white border-zinc-200',
+      header: isDark 
+        ? 'bg-zinc-800 border-zinc-700' 
+        : isDyslexia 
+          ? 'bg-amber-100 border-amber-200' 
+          : 'bg-zinc-50 border-zinc-200',
+      card: isDark 
+        ? 'bg-zinc-800 border-zinc-700' 
+        : isDyslexia 
+          ? 'bg-amber-50 border-amber-300' 
+          : 'bg-white border-zinc-200',
+      text: isDark 
+        ? 'text-zinc-100' 
+        : isDyslexia 
+          ? 'text-amber-900' 
+          : 'text-zinc-900',
+      subtext: isDark 
+        ? 'text-zinc-400' 
+        : isDyslexia 
+          ? 'text-amber-700' 
+          : 'text-zinc-600',
+      button: isDark 
+        ? 'bg-zinc-700 hover:bg-zinc-600 text-zinc-100' 
+        : isDyslexia 
+          ? 'bg-amber-200 hover:bg-amber-300 text-amber-900' 
+          : 'bg-zinc-100 hover:bg-zinc-200 text-zinc-900',
+      buttonPrimary: isDark 
+        ? 'bg-blue-600 hover:bg-blue-700 text-white' 
+        : isDyslexia 
+          ? 'bg-green-600 hover:bg-green-700 text-white' 
+          : 'bg-blue-600 hover:bg-blue-700 text-white',
+      input: isDark 
+        ? 'bg-zinc-800 border-zinc-600 text-zinc-100 placeholder-zinc-500' 
+        : isDyslexia 
+          ? 'bg-amber-100 border-amber-300 text-amber-900 placeholder-amber-600' 
+          : 'bg-white border-zinc-300 text-zinc-900 placeholder-zinc-500',
+      tabActive: isDark 
+        ? 'bg-zinc-700 text-zinc-100 border-zinc-600' 
+        : isDyslexia 
+          ? 'bg-amber-200 text-amber-900 border-amber-400' 
+          : 'bg-white text-zinc-900 border-zinc-300',
+      tabInactive: isDark 
+        ? 'text-zinc-400 hover:text-zinc-200' 
+        : isDyslexia 
+          ? 'text-amber-600 hover:text-amber-800' 
+          : 'text-zinc-600 hover:text-zinc-900'
+    };
+  };
+
+  const themeClasses = getThemeClasses();
   const [screeningData, setScreeningData] = useState<ScreeningResult[]>([]);
   const [currentScreening, setCurrentScreening] = useState<ScreeningResult | null>(null);
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
@@ -32,11 +102,21 @@ export const AdvancedScreeningModule: React.FC<AdvancedScreeningModuleProps> = (
         age: 9,
         grade: '3',
         date: new Date('2024-01-15'),
+        totalScore: 75,
         overallScore: 75,
         riskLevel: 'medium',
+        status: 'completed',
         recommendations: ['Dikkat egzersizleri', 'Okuma pratiği'],
         strengths: ['Görsel algı', 'Mantıksal düşünme'],
         weaknesses: ['Phonological awareness', 'Hızlı okuma'],
+        categoryScores: {
+          reading: { score: 65, rawScore: 13, maxScore: 20, riskLevel: 'moderate', riskLabel: 'Orta', findings: ['Okuma hızı düşük'], color: 'yellow' },
+          writing: { score: 70, rawScore: 14, maxScore: 20, riskLevel: 'low', riskLabel: 'Düşük', findings: ['Yazım ok'], color: 'green' },
+          language: { score: 80, rawScore: 16, maxScore: 20, riskLevel: 'low', riskLabel: 'Düşük', findings: [], color: 'green' },
+          motor_spatial: { score: 75, rawScore: 15, maxScore: 20, riskLevel: 'low', riskLabel: 'Düşük', findings: [], color: 'green' },
+          attention: { score: 80, rawScore: 16, maxScore: 20, riskLevel: 'low', riskLabel: 'Düşük', findings: [], color: 'green' },
+          math: { score: 78, rawScore: 16, maxScore: 20, riskLevel: 'low', riskLabel: 'Düşük', findings: [], color: 'green' }
+        },
         detailedResults: {
           reading: 65,
           writing: 70,
@@ -44,7 +124,10 @@ export const AdvancedScreeningModule: React.FC<AdvancedScreeningModuleProps> = (
           memory: 75,
           visual: 85,
           auditory: 70
-        }
+        },
+        aiAnalysis: 'Öğrenci genel olarak ortalama performans gösteriyor.',
+        generatedAt: '2024-01-15T10:00:00Z',
+        respondentRole: 'teacher'
       },
       {
         id: '2',
@@ -53,11 +136,21 @@ export const AdvancedScreeningModule: React.FC<AdvancedScreeningModuleProps> = (
         age: 8,
         grade: '2',
         date: new Date('2024-01-20'),
+        totalScore: 45,
         overallScore: 45,
         riskLevel: 'high',
+        status: 'completed',
         recommendations: ['Yoğun destek', 'Bireysel eğitim planı'],
         strengths: ['Sosyal beceriler'],
         weaknesses: ['Okuma hızı', 'Yazım becerileri', 'Dikkat süresi'],
+        categoryScores: {
+          reading: { score: 40, rawScore: 8, maxScore: 20, riskLevel: 'high', riskLabel: 'Yüksek', findings: ['Okuma çok yavaş'], color: 'red' },
+          writing: { score: 35, rawScore: 7, maxScore: 20, riskLevel: 'high', riskLabel: 'Yüksek', findings: ['Yazım zorluğu'], color: 'red' },
+          language: { score: 45, rawScore: 9, maxScore: 20, riskLevel: 'moderate', riskLabel: 'Orta', findings: ['Anlama sorunları'], color: 'yellow' },
+          motor_spatial: { score: 50, rawScore: 10, maxScore: 20, riskLevel: 'moderate', riskLabel: 'Orta', findings: ['Motor beceri zayıf'], color: 'yellow' },
+          attention: { score: 45, rawScore: 9, maxScore: 20, riskLevel: 'high', riskLabel: 'Yüksek', findings: ['Dikkat süresi kısa'], color: 'red' },
+          math: { score: 42, rawScore: 8, maxScore: 20, riskLevel: 'high', riskLabel: 'Yüksek', findings: ['Matematik zayıf'], color: 'red' }
+        },
         detailedResults: {
           reading: 40,
           writing: 35,
@@ -65,8 +158,11 @@ export const AdvancedScreeningModule: React.FC<AdvancedScreeningModuleProps> = (
           memory: 50,
           visual: 55,
           auditory: 45
-        }
-      }
+        },
+        aiAnalysis: 'Öğrenci yoğun destek ihtiyacı duymaktadır. Özel eğitim planı önerilir.',
+        generatedAt: '2024-01-20T14:30:00Z',
+        respondentRole: 'teacher'
+      },
     ];
     setScreeningData(mockData);
   }, []);
@@ -452,16 +548,16 @@ export const AdvancedScreeningModule: React.FC<AdvancedScreeningModuleProps> = (
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-7xl max-h-[90vh] overflow-hidden border border-zinc-200">
+      <div className={`${themeClasses.modal} rounded-2xl shadow-2xl w-full max-w-7xl max-h-[90vh] overflow-hidden border`}>
         {/* Header - Ultra Compact */}
-        <div className="flex items-center justify-between p-4 border-b border-zinc-100 bg-gradient-to-r from-purple-50 to-blue-50">
+        <div className={`${themeClasses.header} flex items-center justify-between p-4 border-b`}>
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-blue-600 rounded-lg flex items-center justify-center">
               <Brain className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-zinc-900">Tarama & Analiz Modülü</h2>
-              <p className="text-xs text-zinc-500">Bilişsel değerlendirme ve analiz merkezi</p>
+              <h2 className={`text-lg font-bold ${themeClasses.text}`}>Tarama & Analiz Modülü</h2>
+              <p className={`text-xs ${themeClasses.subtext}`}>Bilişsel değerlendirme ve analiz merkezi</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -535,7 +631,7 @@ export const AdvancedScreeningModule: React.FC<AdvancedScreeningModuleProps> = (
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 p-6 overflow-y-auto bg-zinc-50">
+        <div className={`flex-1 p-6 overflow-y-auto ${themeClasses.card}`}>
           {activeView === 'dashboard' && <DashboardView />}
           {activeView === 'new-screening' && <NewScreeningView />}
           {activeView === 'history' && <HistoryView />}
@@ -543,17 +639,17 @@ export const AdvancedScreeningModule: React.FC<AdvancedScreeningModuleProps> = (
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-zinc-200 bg-white">
+        <div className={`p-4 border-t ${themeClasses.card}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full" />
-                <span className="text-xs text-zinc-600">Sistem Aktif</span>
+                <span className={`text-xs ${themeClasses.subtext}`}>Sistem Aktif</span>
               </div>
-              <span className="text-xs text-zinc-500">Son senkronizasyon: 2 dakika önce</span>
+              <span className={`text-xs ${themeClasses.subtext}`}>Son senkronizasyon: 2 dakika önce</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs text-zinc-500">Rol: {userRole === 'admin' ? 'Yönetici' : userRole === 'teacher' ? 'Öğretmen' : 'Veli'}</span>
+              <span className={`text-xs ${themeClasses.subtext}`}>Rol: {userRole === 'admin' ? 'Yönetici' : userRole === 'teacher' ? 'Öğretmen' : 'Veli'}</span>
             </div>
           </div>
         </div>
