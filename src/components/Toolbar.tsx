@@ -94,13 +94,13 @@ const MenuButton = ({ icon, label, onClick, active, isOpen }: any) => (
   <button
     onClick={onClick}
     data-dropdown-trigger
-    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-bold transition-all border select-none ${active || isOpen
+    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-all border select-none ${active || isOpen
         ? 'bg-[var(--accent-muted)] border-[var(--accent-color)]/30 text-[var(--accent-color)]'
         : 'bg-[var(--bg-paper)] border-transparent text-[var(--text-secondary)] hover:bg-white hover:border-[var(--border-color)]'
       }`}
   >
     <i
-      className={`fa-solid ${icon} ${active || isOpen ? 'text-[var(--accent-color)]' : 'text-[var(--text-muted)]'}`}
+      className={`fa-solid ${icon} ${active || isOpen ? 'text-[var(--accent-color)]' : 'text-[var(--text-muted)]'} text-[10px]`}
     ></i>
     <span className="hidden xl:inline">{label}</span>
     <i
@@ -240,7 +240,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   };
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-1 md:gap-2 min-h-12 py-1 select-none relative z-[60]">
+    <div className="flex flex-wrap items-center justify-between gap-0.5 md:gap-1 min-h-10 py-0.5 select-none relative z-[60]">
       <div className="flex items-center gap-1 md:gap-2 flex-wrap">
         <div className="relative">
           <MenuButton
@@ -543,12 +543,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 setTimeout(() => setExportProgress({ open: false, percent: 0, message: '' }), 800);
               }
             }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold transition-all duration-200
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200
               bg-gradient-to-r from-red-500/10 to-orange-500/10 text-red-400
               hover:from-red-500/20 hover:to-orange-500/20 hover:text-red-300 hover:shadow-md hover:scale-[1.02]
-              active:scale-95"
+              active:scale-95 uppercase tracking-wide"
           >
-            <i className="fa-solid fa-file-pdf text-sm"></i>
+            <i className="fa-solid fa-file-pdf text-[11px]"></i>
             <span className="hidden lg:inline">PDF</span>
           </button>
           <button
@@ -568,12 +568,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 toast.error('Yazdırma başlatılamadı.');
               }
             }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold transition-all duration-200
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200
               bg-gradient-to-r from-blue-500/10 to-cyan-500/10 text-blue-400
               hover:from-blue-500/20 hover:to-cyan-500/20 hover:text-blue-300 hover:shadow-md hover:scale-[1.02]
-              active:scale-95"
+              active:scale-95 uppercase tracking-wide"
           >
-            <i className="fa-solid fa-print text-sm"></i>
+            <i className="fa-solid fa-print text-[11px]"></i>
             <span className="hidden lg:inline">Yazdır</span>
           </button>
           
@@ -621,24 +621,24 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 toast.error('Sistem başlatılamadı.');
               }
             }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-black transition-all duration-200
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200
               bg-gradient-to-r from-emerald-500 text-white shadow-lg shadow-emerald-200/50
               hover:from-emerald-600 hover:shadow-emerald-300/50 hover:scale-[1.05]
-              active:scale-95 border border-emerald-400/20 ring-1 ring-emerald-500/20"
+              active:scale-95 border border-emerald-400/20 ring-1 ring-emerald-500/20 uppercase tracking-wide"
           >
-            <i className="fa-solid fa-file-pdf text-sm"></i>
+            <i className="fa-solid fa-file-pdf text-[11px]"></i>
             <span className="hidden lg:inline">Yazdır v2</span>
           </button>
           <div className="relative" ref={snapshotMenuRef}>
             <button
               title="Ekran Görüntüsü"
               onClick={() => setSnapshotMenuOpen(!snapshotMenuOpen)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold transition-all duration-200
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200
                 bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-purple-400
                 hover:from-purple-500/20 hover:to-pink-500/20 hover:text-purple-300 hover:shadow-md hover:scale-[1.02]
-                active:scale-95"
+                active:scale-95 uppercase tracking-wide"
             >
-              <i className="fa-solid fa-camera text-sm"></i>
+              <i className="fa-solid fa-camera text-[11px]"></i>
               <span className="hidden lg:inline">Görüntü</span>
               <i
                 className={`fa-solid fa-chevron-down text-[8px] ml-0.5 transition-transform ${snapshotMenuOpen ? 'rotate-180' : ''}`}
@@ -720,23 +720,23 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                 toast.error('Kaydetme başarısız.');
               }
             }}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold transition-all duration-200
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200
               bg-gradient-to-r from-amber-500/10 to-yellow-500/10 text-amber-400
               hover:from-amber-500/20 hover:to-yellow-500/20 hover:text-amber-300 hover:shadow-md hover:scale-[1.02]
-              active:scale-95"
+              active:scale-95 uppercase tracking-wide"
           >
-            <i className="fa-solid fa-bookmark text-sm"></i>
+            <i className="fa-solid fa-bookmark text-[11px]"></i>
             <span className="hidden lg:inline">Kaydet</span>
           </button>
           <button
             title="Kitapçığa Ekle"
             onClick={onAddToWorkbook}
-            className="relative flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold transition-all duration-200
+            className="relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200
               bg-gradient-to-r from-indigo-500/10 to-violet-500/10 text-indigo-400
               hover:from-indigo-500/20 hover:to-violet-500/20 hover:text-indigo-300 hover:shadow-md hover:scale-[1.02]
-              active:scale-95"
+              active:scale-95 uppercase tracking-wide"
           >
-            <i className="fa-solid fa-book-medical text-sm"></i>
+            <i className="fa-solid fa-book-medical text-[11px]"></i>
             <span className="hidden lg:inline">Kitapçık</span>
             {workbookItemCount > 0 && (
               <span className="absolute -top-1.5 -right-1.5 bg-[var(--accent-color)] text-[var(--bg-primary)] text-[9px] font-black h-4 min-w-[16px] px-1 rounded-full flex items-center justify-center border-2 border-[var(--bg-secondary)] shadow-sm">
@@ -749,12 +749,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             <button
               title="Öğrenciye Ata"
               onClick={onAssign}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold transition-all duration-200
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200
                 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 text-emerald-400
                 hover:from-emerald-500/20 hover:to-teal-500/20 hover:text-emerald-300 hover:shadow-md hover:scale-[1.02]
-                active:scale-95"
+                active:scale-95 uppercase tracking-wide"
             >
-              <i className="fa-solid fa-user-plus text-sm"></i>
+              <i className="fa-solid fa-user-plus text-[11px]"></i>
               <span className="hidden lg:inline">Ata</span>
             </button>
           )}
@@ -779,12 +779,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({
                   onShare();
                 }
               }}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-[11px] font-bold transition-all duration-200
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-[10px] font-black transition-all duration-200
                 bg-gradient-to-r from-sky-500/10 to-blue-500/10 text-sky-400
                 hover:from-sky-500/20 hover:to-blue-500/20 hover:text-sky-300 hover:shadow-md hover:scale-[1.02]
-                active:scale-95"
+                active:scale-95 uppercase tracking-wide"
             >
-              <i className="fa-solid fa-share-nodes text-sm"></i>
+              <i className="fa-solid fa-share-nodes text-[11px]"></i>
               <span className="hidden lg:inline">Paylaş</span>
             </button>
           )}

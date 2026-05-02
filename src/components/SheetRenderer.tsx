@@ -250,8 +250,14 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
     case 'header':
       return (
         <h2
-          className="block-header text-3xl font-black uppercase text-center mb-4 print:mb-2 border-b-4 border-black pb-2 print:pb-1 break-inside-avoid print:break-inside-avoid"
-          style={blockStyle}
+          className="block-header font-black uppercase text-center mb-4 print:mb-2 border-b-4 border-[var(--worksheet-border-color,#000)] pb-2 print:pb-1 break-inside-avoid print:break-inside-avoid"
+          style={{ 
+            ...blockStyle, 
+            fontSize: 'calc(var(--worksheet-font-size, 16px) * 1.5)',
+            fontFamily: 'var(--worksheet-font-family, Lexend)',
+            letterSpacing: 'var(--worksheet-letter-spacing)',
+            wordSpacing: 'var(--worksheet-word-spacing)'
+          }}
         >
           <EditableText value={recursiveSafeText(content.text || content)} tag="span" />
         </h2>
@@ -260,8 +266,16 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
     case 'text':
       return (
         <div
-          className="block-text text-lg leading-relaxed mb-4 print:mb-1 font-dyslexic break-inside-avoid print:break-inside-avoid"
-          style={blockStyle}
+          className="block-text mb-4 print:mb-1 break-inside-avoid print:break-inside-avoid"
+          style={{ 
+            ...blockStyle, 
+            fontSize: 'var(--worksheet-font-size, 18px)',
+            fontFamily: 'var(--worksheet-font-family, Lexend)',
+            lineHeight: 'var(--worksheet-line-height, 1.6)',
+            letterSpacing: 'var(--worksheet-letter-spacing)',
+            wordSpacing: 'var(--worksheet-word-spacing)',
+            marginBottom: 'var(--worksheet-paragraph-spacing, 20px)'
+          }}
         >
           <EditableText value={recursiveSafeText(content.text || content)} tag="div" />
         </div>

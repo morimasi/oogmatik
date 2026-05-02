@@ -131,7 +131,7 @@ export const AppHeader = ({
         >
             <div className="w-full px-8 py-5 flex items-center justify-between gap-6">
                 
-                {/* 1. SOL BLOK: LOGO VE HAMBURGER */}
+                {/* 1. SOL BLOK: LOGO VE HAMBURGER + BDMIND */}
                 <div className="flex-1 flex items-center justify-start gap-4 md:gap-6">
                     <button
                         onClick={() => setIsSidebarOpen(true)}
@@ -148,29 +148,21 @@ export const AppHeader = ({
                             setWorksheetData(null);
                             setActiveCurriculumSession(null);
                         }}
-                        className="relative group block"
+                        className="relative group flex items-center gap-4"
                     >
-                        <DyslexiaLogo className="h-10 w-auto transition-all duration-500 group-hover:scale-110 group-hover:rotate-3" />
-                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-[var(--bg-paper)] rounded-full shadow-sm"></div>
+                        <div className="relative">
+                            <DyslexiaLogo className="h-10 w-auto transition-all duration-500 group-hover:scale-110 group-hover:rotate-3" />
+                            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-[var(--bg-paper)] rounded-full shadow-sm"></div>
+                        </div>
+                        <div className="hidden md:flex flex-col items-start justify-center transition-transform duration-500">
+                            <span className="text-[20px] font-black tracking-tighter text-[var(--text-primary)] leading-none mb-0.5 group-hover:text-[var(--accent-color)] transition-colors uppercase">
+                                BDMIND
+                            </span>
+                            <span className="text-[8px] font-black tracking-[0.25em] text-[var(--text-muted)] group-hover:text-[var(--text-primary)] uppercase transition-colors">
+                                EDU-TECH PLATFORM
+                            </span>
+                        </div>
                     </button>
-                </div>
-
-                {/* 2. ORTA BLOK: BDMIND YAZISI */}
-                <div 
-                    className="flex-none flex flex-col items-center justify-center cursor-pointer transition-transform duration-500 hover:scale-105 group"
-                    onClick={() => {
-                        navigateTo('generator');
-                        setSelectedActivity(null);
-                        setWorksheetData(null);
-                        setActiveCurriculumSession(null);
-                    }}
-                >
-                    <span className="text-[20px] md:text-[22px] font-black tracking-tighter text-[var(--text-primary)] leading-none mb-1 group-hover:text-[var(--accent-color)] transition-colors uppercase">
-                        BDMIND
-                    </span>
-                    <span className="text-[8px] md:text-[10px] font-black tracking-[0.2em] md:tracking-[0.4em] text-[var(--text-muted)] group-hover:text-[var(--text-primary)] uppercase transition-colors">
-                        EDU-TECH PLATFORM
-                    </span>
                 </div>
 
                 {/* 3. SAĞ BLOK: ARAMA VE İKONLAR */}
