@@ -266,10 +266,10 @@ export const VisualSearchTest: React.FC<VisualSearchTestProps> = ({ onComplete }
                                 className={`
                                     w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 flex items-center justify-center rounded-xl text-lg sm:text-xl md:text-2xl font-black transition-all duration-300 transform
                                     ${cell.isFound
-                                        ? 'bg-gradient-to-br from-amber-500 to-orange-500 text-white scale-90 opacity-50 shadow-lg'
+                                        ? 'bg-gradient-to-br from-amber-400 to-orange-400 text-white scale-90 opacity-50 shadow-lg'
                                         : cell.isError
-                                            ? 'bg-gradient-to-br from-red-500 to-red-600 text-white animate-shake shadow-lg'
-                                            : 'bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 text-amber-700 dark:text-amber-300 hover:from-amber-200 hover:to-orange-200 active:scale-95 shadow-lg'
+                                            ? 'bg-gradient-to-br from-red-400 to-red-500 text-white animate-shake shadow-lg'
+                                            : 'bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-amber-50 dark:hover:bg-amber-900/20 active:scale-95 border-2 border-zinc-200 dark:border-zinc-700 hover:border-amber-300 hover:shadow-lg'
                                     }
                                 `}
                             >

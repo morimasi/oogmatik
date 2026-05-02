@@ -218,17 +218,17 @@ export const LogicTest: React.FC<LogicTestProps> = ({ onComplete }) => {
 
             {/* Matrix Grid */}
             <div
-                className="grid gap-3 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 p-6 rounded-3xl shadow-xl mb-10"
+                className="grid gap-3 bg-white dark:bg-zinc-800 p-6 rounded-3xl shadow-xl mb-10 border-2 border-zinc-200 dark:border-zinc-700"
                 style={{ gridTemplateColumns: `repeat(${gridCols}, 1fr)` }}
             >
                 {currentQ.grid.flat().map((item, i) => (
                     <div
                         key={i}
-                        className={`w-20 h-20 flex items-center justify-center text-4xl rounded-xl transition-all
-                            ${item === '?' ? 'bg-gradient-to-br from-indigo-400 to-indigo-500 text-white shadow-lg' : 'bg-white dark:bg-zinc-800 shadow-md'}`}
+                        className={`w-20 h-20 flex items-center justify-center text-4xl rounded-xl border-2 transition-all
+                            ${item === '?' ? 'bg-indigo-50 dark:bg-indigo-900/30 border-indigo-400 border-dashed' : 'bg-zinc-100 dark:bg-zinc-700 border-zinc-200 dark:border-zinc-600'}`}
                     >
                         {item === '?' ? (
-                            <span className="text-3xl font-black text-white">?</span>
+                            <span className="text-3xl font-black text-indigo-400">?</span>
                         ) : item}
                     </div>
                 ))}
@@ -248,21 +248,12 @@ export const LogicTest: React.FC<LogicTestProps> = ({ onComplete }) => {
                             key={i}
                             onClick={() => handleAnswer(opt)}
                             disabled={showFeedback}
-                            className={`w-24 h-24 rounded-2xl text-4xl shadow-md transition-all active:scale-95 disabled:cursor-not-allowed flex items-center justify-center relative
-                                ${showFeedback && isSelected
-                                    ? isCorrect 
-                                        ? 'bg-gradient-to-br from-green-400 to-green-500 text-white shadow-lg' 
-                                        : 'bg-gradient-to-br from-red-400 to-red-500 text-white shadow-lg'
-                                    : 'bg-gradient-to-br from-amber-100 to-orange-100 dark:from-amber-900/30 dark:to-orange-900/30 hover:from-amber-200 hover:to-orange-200 shadow-lg'
-                                }`}
+                            className={`w-24 h-24 bg-white dark:bg-zinc-800 border-4 ${borderColor} rounded-2xl text-4xl shadow-md transition-all active:scale-95 disabled:cursor-not-allowed flex items-center justify-center relative
+                                ${!showFeedback ? 'hover:border-amber-400 hover:shadow-lg' : ''}`}
                         >
-                            {showFeedback && isSelected ? (
-                                <span className="text-white font-bold">{opt}</span>
-                            ) : (
-                                <span className="text-amber-700 dark:text-amber-300 font-bold">{opt}</span>
-                            )}
+                            {opt}
                             {showFeedback && isSelected && (
-                                <span className={`absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs text-white font-bold ${isCorrect ? 'bg-green-600' : 'bg-red-600'}`}>
+                                <span className={`absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs text-white font-bold ${isCorrect ? 'bg-green-500' : 'bg-red-500'}`}>
                                     <i className={`fa-solid ${isCorrect ? 'fa-check' : 'fa-times'}`}></i>
                                 </span>
                             )}

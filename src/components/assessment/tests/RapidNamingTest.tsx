@@ -204,7 +204,7 @@ export const RapidNamingTest = ({ onComplete }: RapidNamingTestProps) => {
                 </div>
 
                 {/* Grid */}
-                <div className="grid grid-cols-5 gap-3 mb-10 p-6 bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-900/30 dark:to-blue-900/30 backdrop-blur-md rounded-3xl shadow-2xl">
+                <div className="grid grid-cols-5 gap-3 mb-10 p-6 bg-white/70 dark:bg-zinc-800/70 backdrop-blur-md rounded-3xl border border-white/30 shadow-2xl">
                     {items.map((item, idx) => (
                         <div
                             key={idx}
@@ -215,11 +215,11 @@ export const RapidNamingTest = ({ onComplete }: RapidNamingTestProps) => {
                                     : 'scale-100 opacity-80 hover:scale-105'
                             }`}
                         >
-                            <div className={`w-16 h-16 flex items-center justify-center text-4xl rounded-2xl transition-all duration-300 ${idx === currentIndex
-                                ? `bg-gradient-to-br ${item.bgGradient} shadow-2xl shadow-${item.color.split('-')[1]}-500/50 animate-pulse`
+                            <div className={`w-16 h-16 flex items-center justify-center text-4xl rounded-2xl border-2 transition-all duration-300 ${idx === currentIndex
+                                ? `bg-gradient-to-br ${item.bgGradient} border-white shadow-2xl shadow-${item.color.split('-')[1]}-500/30 animate-pulse`
                                 : idx < currentIndex
-                                    ? 'bg-zinc-200 dark:bg-zinc-700'
-                                    : 'bg-white dark:bg-zinc-800 shadow-lg'
+                                    ? 'border-transparent bg-zinc-100 dark:bg-zinc-700'
+                                    : 'border-zinc-200 dark:border-zinc-600 bg-white dark:bg-zinc-800 hover:shadow-lg'
                             }`}>
                                 <span className={`${idx === currentIndex ? 'text-white drop-shadow-lg' : ''} ${idx === currentIndex ? 'animate-bounce' : ''}`}>
                                     {item.emoji}
@@ -238,10 +238,9 @@ export const RapidNamingTest = ({ onComplete }: RapidNamingTestProps) => {
                         <button
                             key={i}
                             onClick={() => handleSelect(obj.name)}
-                            className={`group flex flex-col items-center gap-3 px-6 py-5 rounded-3xl shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95
-                                ${wrongFlash 
-                                    ? 'bg-gradient-to-br from-red-100 to-red-200 dark:from-red-900/30 dark:to-red-800/30' 
-                                    : 'bg-gradient-to-br from-cyan-100 to-blue-100 dark:from-cyan-900/30 dark:to-blue-900/30 hover:from-cyan-200 hover:to-blue-200'}`}
+                            className={`group flex flex-col items-center gap-3 px-6 py-5 bg-white/80 dark:bg-zinc-800/80 backdrop-blur-md
+                                border-2 rounded-3xl shadow-xl transition-all duration-300 transform hover:scale-105 active:scale-95
+                                ${wrongFlash ? 'border-red-300 dark:border-red-800 bg-red-50/50 dark:bg-red-900/20' : 'border-zinc-200 dark:border-zinc-700 hover:border-cyan-400 hover:shadow-cyan-500/20'}`}
                         >
                             <div className="relative">
                                 <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-3xl transition-all duration-300 ${wrongFlash ? 'animate-shake' : 'group-hover:scale-110'}`}>

@@ -250,12 +250,12 @@ export const PhonologicalLoopTest: React.FC<PhonologicalLoopTestProps> = ({ onCo
                         {currentSeq.items.map((item, idx) => (
                             <div
                                 key={idx}
-                                className={`min-w-[64px] h-16 px-4 rounded-2xl flex items-center justify-center text-2xl font-black transition-all duration-300
+                                className={`min-w-[64px] h-16 px-4 rounded-2xl flex items-center justify-center text-2xl font-black border-2 transition-all duration-300
                                     ${idx === showItemIndex
-                                        ? 'bg-gradient-to-br from-rose-500 to-rose-600 text-white scale-110 shadow-xl shadow-rose-500/40'
+                                        ? 'bg-rose-500 text-white border-rose-500 scale-110 shadow-xl shadow-rose-500/30'
                                         : idx < showItemIndex
-                                            ? 'bg-gradient-to-br from-rose-200 to-rose-300 dark:from-rose-800/30 dark:to-rose-900/30 text-rose-600 dark:text-rose-300'
-                                            : 'bg-gradient-to-br from-zinc-200 to-zinc-300 dark:from-zinc-700 dark:to-zinc-800 text-transparent'
+                                            ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-400 border-rose-200 dark:border-rose-800'
+                                            : 'bg-zinc-100 dark:bg-zinc-800 text-transparent border-zinc-200 dark:border-zinc-700'
                                     }`}
                             >
                                 {idx <= showItemIndex ? item : '?'}
@@ -289,12 +289,12 @@ export const PhonologicalLoopTest: React.FC<PhonologicalLoopTestProps> = ({ onCo
                         {currentSeq.items.map((_, idx) => (
                             <div
                                 key={idx}
-                                className={`min-w-[60px] h-14 px-3 rounded-xl flex items-center justify-center text-lg font-black transition-all
+                                className={`min-w-[60px] h-14 px-3 rounded-xl flex items-center justify-center text-lg font-black border-2 transition-all
                                     ${idx < selectedItems.length
-                                        ? 'bg-gradient-to-br from-rose-300 to-rose-400 dark:from-rose-700/30 dark:to-rose-800/30 text-rose-700 dark:text-rose-200'
+                                        ? 'bg-rose-100 dark:bg-rose-900/30 border-rose-400 text-rose-600'
                                         : idx === selectedItems.length
-                                            ? 'bg-gradient-to-br from-rose-100 to-rose-200 dark:from-rose-800/20 dark:to-rose-900/20 animate-pulse'
-                                            : 'bg-gradient-to-br from-zinc-100 to-zinc-200 dark:from-zinc-700 dark:to-zinc-800'
+                                            ? 'border-rose-400 border-dashed bg-rose-50 dark:bg-rose-900/10 animate-pulse'
+                                            : 'border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800'
                                     }`}
                             >
                                 {idx < selectedItems.length ? selectedItems[idx] : ''}
@@ -308,10 +308,10 @@ export const PhonologicalLoopTest: React.FC<PhonologicalLoopTestProps> = ({ onCo
                             <button
                                 key={i}
                                 onClick={() => handleOptionClick(opt)}
-                                className="px-6 py-3 bg-gradient-to-br from-rose-100 to-rose-200 dark:from-rose-900/30 dark:to-rose-800/30
-                                           hover:from-rose-200 hover:to-rose-300 dark:hover:from-rose-800/30 dark:hover:to-rose-700/30
-                                           rounded-2xl text-xl font-black text-rose-700 dark:text-rose-200
-                                           transition-all active:scale-95 shadow-lg"
+                                className="px-6 py-3 bg-white dark:bg-zinc-800 border-2 border-zinc-200 dark:border-zinc-700
+                                           hover:border-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20
+                                           rounded-2xl text-xl font-black text-zinc-700 dark:text-zinc-200
+                                           transition-all active:scale-95 shadow-md"
                             >
                                 {opt}
                             </button>

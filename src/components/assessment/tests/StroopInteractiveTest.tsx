@@ -266,9 +266,9 @@ export const StroopInteractiveTest: React.FC<StroopInteractiveTestProps> = ({ on
                             key={i}
                             onClick={() => handleResponse(c.name)}
                             disabled={isAnimating}
-                            className="group py-6 rounded-3xl bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 backdrop-blur-md
-                                       hover:from-purple-200 hover:to-pink-200 hover:shadow-xl
-                                       shadow-lg text-xl font-black text-purple-700 dark:text-purple-200
+                            className="group py-6 rounded-3xl bg-white/80 dark:bg-zinc-800/80 backdrop-blur-md border-2 border-zinc-200 dark:border-zinc-700
+                                       hover:border-zinc-400 dark:hover:border-zinc-500 hover:shadow-xl
+                                       shadow-lg text-xl font-black text-zinc-700 dark:text-zinc-200
                                        transition-all duration-300 transform hover:scale-105 active:scale-95 disabled:opacity-50
                                        flex items-center justify-center gap-4 relative overflow-hidden"
                         >
