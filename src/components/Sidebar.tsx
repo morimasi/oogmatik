@@ -439,7 +439,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                                 {group.items.map((item) => (
                                    <button key={item.id} onClick={() => handleStudioClick(item)} className="w-full text-left px-2 py-1.5 rounded-lg flex items-center gap-2 transition-colors group/item hover:bg-[var(--accent-color)]/10">
                                       <i className={`fa-solid ${item.icon} text-[11px] opacity-70 group-hover/item:opacity-100 transition-colors ${item.color}`}></i>
-                                      <span className="text-[9px] font-medium text-[var(--text-secondary)] group-hover/item:text-[var(--text-primary)] truncate">{item.label}</span>
+                                      <span className="text-[10px] font-medium text-[var(--text-secondary)] group-hover/item:text-[var(--text-primary)] truncate">{item.label}</span>
                                    </button>
                                 ))}
                              </div>
@@ -450,7 +450,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                           {categorizedActivities.find(c => c.id === activeCategory)?.items.map((act) => (
                              <button key={act.id} onClick={() => handleActivitySelect(act.id)} className="w-full text-left px-2 py-1.5 rounded-lg flex items-center gap-2 transition-colors group/item hover:bg-[var(--accent-color)]/10">
                                 <i className={`fa-solid ${act.icon || 'fa-star'} text-[11px] text-[var(--accent-color)] opacity-70 group-hover/item:opacity-100 transition-colors`}></i>
-                                <span className="text-[9px] font-medium text-[var(--text-secondary)] group-hover/item:text-[var(--text-primary)] truncate">{act.title}</span>
+                                <span className="text-[10px] font-medium text-[var(--text-secondary)] group-hover/item:text-[var(--text-primary)] truncate">{act.title}</span>
                              </button>
                           ))}
                        </div>
