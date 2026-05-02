@@ -215,7 +215,7 @@ export const AppHeader = ({
                         </button>
                         
                         <button
-                            onClick={() => navigateTo('messages')}
+                            onClick={() => { setIsSidebarOpen(false); navigateTo('messages'); }}
                             className="relative flex flex-col items-center justify-center w-11 h-11 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all rounded-[14px] group/nav"
                             title="Mesajlar ve Bildirimler"
                         >
