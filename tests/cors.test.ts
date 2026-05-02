@@ -51,6 +51,7 @@ describe('CORS Validation System', () => {
       expect(isAllowedOrigin('https://oogmatik.com')).toBe(true);
       expect(isAllowedOrigin('https://www.oogmatik.com')).toBe(true);
       expect(isAllowedOrigin('https://oogmatik.vercel.app')).toBe(true);
+      expect(isAllowedOrigin('https://bdmin.vercel.app')).toBe(true);
     });
 
     it('localhost development kabul edilir', () => {
@@ -62,6 +63,7 @@ describe('CORS Validation System', () => {
     it('Vercel preview deployment pattern kabul edilir', () => {
       expect(isAllowedOrigin('https://oogmatik-abc123-def456.vercel.app')).toBe(true);
       expect(isAllowedOrigin('https://oogmatik-git-feature-user.vercel.app')).toBe(true);
+      expect(isAllowedOrigin('https://bdmin-git-feature-user.vercel.app')).toBe(true);
     });
 
     it('Google IDX pattern kabul edilir', () => {

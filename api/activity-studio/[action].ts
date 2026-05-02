@@ -9,6 +9,7 @@ import {
 import { RateLimiter } from '../../src/services/rateLimiter.js';
 import { toAppError } from '../../src/utils/AppError.js';
 import { logError } from '../../src/utils/errorHandler.js';
+import { corsMiddleware } from '../../src/utils/cors.js';
 import { generateActivityStudio } from '../../src/services/activityStudioService.js';
 import type { StudioGoalConfig } from '../../src/types/activityStudio.js';
 
@@ -214,6 +215,10 @@ async function handleExport(req: VercelRequest, res: VercelResponse) {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
+    if (!corsMiddleware(req, res)) {
+      return;
+    }
+
     const action = typeof req.query.action === 'string' ? req.query.action : '';
 
     if (action === 'generate') {

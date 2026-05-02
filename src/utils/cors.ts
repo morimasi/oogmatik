@@ -38,6 +38,30 @@ const ALLOWED_ORIGINS = [
   /^https:\/\/[0-9]+-idx\.idx-preview\.h\.loopp\.ggpht\.com$/,
 ];
 
+/** Vercel / sunucuda: virgülle ayrılmış tam origin (örn. https://admin.site.com). */
+function loadExtraOriginsFromEnv(): void {
+  const raw = process.env.CORS_EXTRA_ORIGINS?.trim();
+  if (!raw) return;
+
+  for (const part of raw.split(',')) {
+    const candidate = part.trim().replace(/\/+$/, '');
+    if (!candidate) continue;
+    try {
+      new URL(candidate);
+    } catch {
+      continue;
+    }
+    const exists = ALLOWED_ORIGINS.some(
+      (allowed) => typeof allowed === 'string' && allowed === candidate
+    );
+    if (!exists) {
+      ALLOWED_ORIGINS.push(candidate);
+    }
+  }
+}
+
+loadExtraOriginsFromEnv();
+
 /**
  * Vercel preview deployment pattern matcher
  * Örnek: https://oogmatik-git-feature-user.vercel.app
