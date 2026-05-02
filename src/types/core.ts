@@ -194,6 +194,10 @@ export interface GeneratorOptions {
   passageLength?: 'short' | 'medium' | 'long';
   includeMultipleChoice?: boolean;
   targetSkills?: string[];
+  // Infographic specific
+  studentAge?: string;
+  profile?: string;
+  params?: Record<string, any>;
   [key: string]: unknown;
 }
 

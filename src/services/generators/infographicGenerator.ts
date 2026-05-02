@@ -93,7 +93,7 @@ Ayrıca "activityContent" içinde öğrencinin konuyu pekiştirmesi için 'suppo
             generationMode: 'ai'
         } as InfographicActivityResult;
     } catch (error) {
-        logError('Infographic Generation Error:', error);
+        logError('Infographic Generation Error:', error as Record<string, unknown>);
         throw error;
     }
 }
