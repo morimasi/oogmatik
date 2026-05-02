@@ -94,10 +94,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }: AuthMod
           setError('Ağ hatası. Sunucuya ulaşılamıyor, lütfen internetinizi kontrol edin.');
         } else if (
           errorMessage.includes('identity-toolkit-api-has-not-been-used') ||
-          errorMessage.includes('auth/api-key-not-valid')
+          errorMessage.includes('auth/api-key-not-valid') ||
+          errorMessage.includes('auth/operation-not-allowed')
         ) {
           setError(
-            'Sistem Hatası: Firebase API Anahtarı geçersiz veya Identity Toolkit servisi aktif değil. Lütfen yönetici ile iletişime geçin.'
+            'Sistem Hatası: Email/Şifre girişi aktif değil veya Firebase Identity Toolkit servisi kapalı. Lütfen Firebase Console üzerinden "Email/Password" sağlayıcısını etkinleştirin.'
           );
         } else if (errorMessage.includes('auth/unauthorized-domain')) {
           setError(
