@@ -209,7 +209,7 @@ export const MatrixMemoryTest: React.FC<MatrixMemoryTestProps> = ({ onComplete }
 
                 {/* Grid */}
                 <div
-                    className="grid gap-3 bg-white/70 dark:bg-zinc-800/70 backdrop-blur-md p-4 rounded-3xl border border-white/30 shadow-2xl"
+                    className="grid gap-3 bg-gradient-to-br from-indigo-100 to-blue-100 dark:from-indigo-900/30 dark:to-blue-900/30 p-4 rounded-3xl shadow-2xl"
                     style={{
                         gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
                         width: `${gridSize * 80}px`,
@@ -217,26 +217,26 @@ export const MatrixMemoryTest: React.FC<MatrixMemoryTestProps> = ({ onComplete }
                     }}
                 >
                     {Array.from({ length: gridSize * gridSize }).map((_, i) => {
-                        let bgClass = "bg-white dark:bg-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-600";
+                        let bgClass = "bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700";
                         let extra = "";
 
                         if (phase === 'preview' && targetCells.includes(i)) {
-                            bgClass = "bg-gradient-to-br from-indigo-500 to-blue-500 shadow-xl shadow-indigo-500/40 animate-pulse";
-                            extra = "scale-110 border-2 border-white/50";
+                            bgClass = "bg-gradient-to-br from-indigo-600 to-blue-600 shadow-xl shadow-indigo-500/50 animate-pulse";
+                            extra = "scale-110";
                         }
                         if (phase === 'recall' && selectedCells.includes(i)) {
-                            bgClass = "bg-gradient-to-br from-indigo-300 to-blue-300 dark:from-indigo-600 dark:to-blue-600 shadow-lg shadow-indigo-500/30";
+                            bgClass = "bg-gradient-to-br from-indigo-400 to-blue-400 dark:from-indigo-500 dark:to-blue-500 shadow-lg shadow-indigo-500/40";
                         }
                         if (phase === 'feedback') {
-                            if (targetCells.includes(i)) bgClass = "bg-gradient-to-br from-green-400 to-green-500 shadow-xl shadow-green-500/40";
-                            if (selectedCells.includes(i) && !targetCells.includes(i)) bgClass = "bg-gradient-to-br from-red-400 to-red-500 shadow-xl shadow-red-500/40 animate-shake";
+                            if (targetCells.includes(i)) bgClass = "bg-gradient-to-br from-green-500 to-green-600 shadow-xl shadow-green-500/50";
+                            if (selectedCells.includes(i) && !targetCells.includes(i)) bgClass = "bg-gradient-to-br from-red-500 to-red-600 shadow-xl shadow-red-500/50 animate-shake";
                         }
 
                         return (
                             <div
                                 key={i}
                                 onClick={() => handleCellClick(i)}
-                                className={`rounded-xl cursor-pointer transition-all duration-300 border-2 border-white/20 ${bgClass} ${extra} ${phase === 'recall' ? 'hover:scale-105' : ''}`}
+                                className={`rounded-xl cursor-pointer transition-all duration-300 ${bgClass} ${extra} ${phase === 'recall' ? 'hover:scale-105' : ''}`}
                             />
                         );
                     })}
