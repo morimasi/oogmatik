@@ -152,6 +152,16 @@ export class UserQuotaService {
     }
 }
 
+/**
+ * Legacy support for RateLimiter class name
+ */
+export class RateLimiter {
+    async check(userId: string, tier: UserTier = 'free', limitKey: LimitKey = 'apiGeneration'): Promise<boolean> {
+        const { allowed } = await quotaService.checkAndConsume(userId, tier, limitKey);
+        return allowed;
+    }
+}
+
 export const quotaService = UserQuotaService.getInstance();
 export const enforceRateLimit = (userId: string, tier: UserTier, limitKey: LimitKey, cost: number = 1) => 
     quotaService.enforce(userId, tier, limitKey, cost);

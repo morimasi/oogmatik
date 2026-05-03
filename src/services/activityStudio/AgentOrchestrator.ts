@@ -85,7 +85,7 @@ export class AgentOrchestrator {
         `;
 
         // Retry mechanism (1 attempt for now)
-        const correctedResult = await this.deps.runModel(correctionPrompt);
+        const correctedResult = await this.deps.runModel(correctionPrompt) as { summary: string };
         // Basit bir şekilde data'yı güncelle (Gerçekte daha karmaşık bir parsing gerekir)
         try {
             const parsed = JSON.parse(correctedResult.summary);
