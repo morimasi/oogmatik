@@ -80,12 +80,7 @@ export const AdminPromptStudio = () => {
   const [selected, setSelected] = useState<PromptTemplate | null>(null);
   const [snippets, setSnippets] = useState<PromptSnippet[]>([]);
   const [isSaving, setIsSaving] = useState(false);
-  const [testVars] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState<'editor' | 'history' | 'simulation'>('editor');
-
-  // A/B Testing States
-  const [simA, setSimA] = useState({ result: '', loading: false, temp: 0.1 });
-  const [simB, setSimB] = useState({ result: '', loading: false, temp: 0.8 });
 
   useEffect(() => {
     loadData();
@@ -205,47 +200,6 @@ export const AdminPromptStudio = () => {
       setSelected(saved);
     } finally {
       setIsSaving(false);
-    }
-  };
-
-  const runSimulation = async (variant: 'A' | 'B') => {
-    if (!selected) return;
-
-    if (variant === 'A') {
-      setSimA((p) => ({ ...p, loading: true, result: '' }));
-    } else {
-      setSimB((p) => ({ ...p, loading: true, result: '' }));
-    }
-    
-    const t = variant === 'A' ? simA.temp : simB.temp;
-
-    try {
-      // Modify selected config temporarily just to simulate
-      const tempSelected = {
-        ...selected,
-        modelConfig: { ...selected.modelConfig, temperature: t },
-      };
-      // Simulate variable injection inside the service or here
-      const mockResult = await adminService.testPrompt(tempSelected, testVars);
-      const strRes = JSON.stringify(mockResult, null, 2);
-      
-      if (variant === 'A') {
-        setSimA((p) => ({ ...p, result: strRes }));
-      } else {
-        setSimB((p) => ({ ...p, result: strRes }));
-      }
-    } catch (err: any) {
-      if (variant === 'A') {
-        setSimA((p: any) => ({ ...p, result: `HATA: ${err.message}` }));
-      } else {
-        setSimB((p: any) => ({ ...p, result: `HATA: ${err.message}` }));
-      }
-    } finally {
-      if (variant === 'A') {
-        setSimA((p) => ({ ...p, loading: false }));
-      } else {
-        setSimB((p) => ({ ...p, loading: false }));
-      }
     }
   };
 
@@ -447,7 +401,7 @@ export const AdminPromptStudio = () => {
                           </span>
                         </div>
                         <p className="text-xs text-zinc-300 font-medium italic select-all">
-                          "{h.changeLog}"
+                          &quot;{h.changeLog}&quot;
                         </p>
                       </div>
                       <button
@@ -597,7 +551,7 @@ export const AdminPromptStudio = () => {
                   {s.label}
                 </h5>
                 <p className="text-[9px] text-zinc-500 line-clamp-3 font-mono leading-relaxed relative z-10">
-                  "{s.value.substring(0, 100)}..."
+                  &quot;{s.value.substring(0, 100)}...&quot;
                 </p>
                 <button
                   onClick={(e: any) => {

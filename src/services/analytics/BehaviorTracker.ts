@@ -47,7 +47,7 @@ class BehaviorTracker {
     };
   }
 
-  async syncWithServer(_studentId: string, _activityId: string) {
+  async syncWithServer() {
     try {
       // API çağrısı buraya gelecek
       // await api.post('/analytics/behavior', { studentId, activityId, events: this.events });

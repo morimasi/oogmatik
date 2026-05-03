@@ -55,8 +55,7 @@ export class AgentOrchestrator {
     agentId: AgentId,
     output: AgentOutput,
     goal: StudioGoalConfig,
-    sanitized: SanitizedPromptInput,
-    _previousOutputs: Partial<Record<AgentId, AgentOutput>>
+    sanitized: SanitizedPromptInput
   ): Promise<AgentOutput> {
     const rawContent = JSON.stringify(output.data);
     
@@ -172,27 +171,27 @@ export class AgentOrchestrator {
 
     // 1. IDEATION (Konsept Tasarımı)
     const ideation = await this.runAgent(new IdeationAgent(this.deps), goal, sanitized, previousOutputs, statuses);
-    previousOutputs.ideation = await this.validateAndCorrect('ideation', ideation, goal, sanitized, previousOutputs);
+    previousOutputs.ideation = await this.validateAndCorrect('ideation', ideation, goal, sanitized);
 
     // 2. CONTENT & VISUAL (Paralel Üretim)
     const [content, visual] = await Promise.all([
       this.runAgent(new ContentAgent(this.deps), goal, sanitized, previousOutputs, statuses),
       this.runAgent(new VisualAgent(this.deps), goal, sanitized, previousOutputs, statuses),
     ]);
-    previousOutputs.content = await this.validateAndCorrect('content', content, goal, sanitized, previousOutputs);
-    previousOutputs.visual = await this.validateAndCorrect('visual', visual, goal, sanitized, previousOutputs);
+    previousOutputs.content = await this.validateAndCorrect('content', content, goal, sanitized);
+    previousOutputs.visual = await this.validateAndCorrect('visual', visual, goal, sanitized);
 
     // 3. FLOW (Deneyim Akışı)
     const flow = await this.runAgent(new FlowAgent(this.deps), goal, sanitized, previousOutputs, statuses);
-    previousOutputs.flow = await this.validateAndCorrect('flow', flow, goal, sanitized, previousOutputs);
+    previousOutputs.flow = await this.validateAndCorrect('flow', flow, goal, sanitized);
 
     // 4. EVALUATION (Ölçme Değerlendirme)
     const evaluation = await this.runAgent(new EvaluationAgent(this.deps), goal, sanitized, previousOutputs, statuses);
-    previousOutputs.evaluation = await this.validateAndCorrect('evaluation', evaluation, goal, sanitized, previousOutputs);
+    previousOutputs.evaluation = await this.validateAndCorrect('evaluation', evaluation, goal, sanitized);
 
     // 5. INTEGRATION (Final Sentez ve Denetim)
     const integration = await this.runAgent(new IntegrationAgent(this.deps), goal, sanitized, previousOutputs, statuses);
-    previousOutputs.integration = await this.validateAndCorrect('integration', integration, goal, sanitized, previousOutputs);
+    previousOutputs.integration = await this.validateAndCorrect('integration', integration, goal, sanitized);
 
     const result = this.toResult(previousOutputs, statuses);
 
