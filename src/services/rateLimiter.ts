@@ -160,6 +160,10 @@ export class RateLimiter {
         const { allowed } = await quotaService.checkAndConsume(userId, tier, limitKey);
         return allowed;
     }
+
+    async enforceLimit(userId: string, tier: UserTier = 'free', limitKey: LimitKey = 'apiGeneration'): Promise<void> {
+        await quotaService.enforce(userId, tier, limitKey);
+    }
 }
 
 export const quotaService = UserQuotaService.getInstance();

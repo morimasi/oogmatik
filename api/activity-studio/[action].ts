@@ -71,7 +71,7 @@ async function handleGenerate(req: VercelRequest, res: VercelResponse) {
     });
   }
 
-  await limiter.enforceLimit(parsed.data.userId, parsed.data.userTier, 'apiGeneration', 1);
+  await limiter.enforceLimit(parsed.data.userId, parsed.data.userTier as any, 'apiGeneration');
   const result = await generateActivityStudio(toStudioGoal(parsed.data.goal));
 
   return res.status(200).json({
