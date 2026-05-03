@@ -4,7 +4,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 import { logInfo, logError, logWarn } from '../../src/utils/logger.js';
-const VALID_PAPER_SIZES = ['A4', 'Letter', 'Legal'] as const;
+const VALID_PAPER_SIZES = ['A4', 'Letter', 'Legal', 'Extreme_Yatay', 'Extreme_Dikey'] as const;
 type PaperSize = (typeof VALID_PAPER_SIZES)[number];
 
 // In-memory persistence (serverless cold-start'lar arasında sıfırlanır).

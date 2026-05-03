@@ -1,7 +1,6 @@
 import { safeFetch, getAuthHeaders } from '../utils/apiClient';
 import { useAuthStore } from '../store/useAuthStore';
-
-export type PaperSize = 'A4' | 'Letter' | 'Legal';
+import type { PaperSize } from '../utils/printService';
 
 const STORAGE_KEY = 'oogmatik.paperSize';
 
@@ -19,16 +18,16 @@ export async function loadCurrentUserPaperSize(): Promise<PaperSize | null> {
       }
     );
 
-    const paperSize = data?.paperSize ?? 'A4';
+    const paperSize = data?.paperSize ?? 'Extreme_Dikey';
     localStorage.setItem(STORAGE_KEY, paperSize);
     return paperSize;
   } catch {
     // Fallback to localStorage on network errors
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === 'A4' || stored === 'Letter' || stored === 'Legal') {
-      return stored;
+    if (stored) {
+      return stored as PaperSize;
     }
-    return 'A4';
+    return 'Extreme_Dikey';
   }
 }
 
