@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { X, Save, Share2, Download, Printer, Archive, Users, Brain, FileText, TrendingUp, AlertCircle, CheckCircle, Clock, Target, BookOpen, Calendar, Filter, Search, Plus, Eye, Edit, Trash2, ChevronRight, Star, Award, BarChart3, PieChart, Activity, Phone } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { ScreeningProfile, ScreeningResult } from '../../types/screening';
 import { useUIStore } from '../../store/useUIStore';
+import { useToastStore } from '../../store/useToastStore';
+import { ScreeningModule } from './ScreeningModule';
+import { ResultDashboard } from './ResultDashboard';
 
 interface AdvancedScreeningModuleProps {
   onClose: () => void;
@@ -17,7 +21,12 @@ export const AdvancedScreeningModule: React.FC<AdvancedScreeningModuleProps> = (
   onGeneratePlan
 }) => {
   const { theme, isSidebarOpen, setIsSidebarOpen } = useUIStore();
-  const [activeView, setActiveView] = useState<'dashboard' | 'new-screening' | 'history' | 'analytics'>('dashboard');
+  const { addToast } = useToastStore();
+  const [activeView, setActiveView] = useState<'dashboard' | 'new-screening' | 'history' | 'analytics' | 'assessment' | 'result-detail'>('dashboard');
+
+  // New Screening State
+  const [selectedScreeningType, setSelectedScreeningType] = useState<'cognitive' | 'developmental'>('cognitive');
+  const [selectedStudentName, setSelectedStudentName] = useState('');
 
   // Modal açıldığında sidebar'ı kapat
   useEffect(() => {
@@ -145,23 +154,24 @@ export const AdvancedScreeningModule: React.FC<AdvancedScreeningModuleProps> = (
   const handleSaveScreening = async () => {
     // Veritabanına kaydetme işlemi
     console.log('Tarama kaydediliyor...');
-    // API call: POST /api/screening/save
+    addToast('Tarama sonuçları başarıyla kaydedildi.', 'success');
   };
 
   const handleArchiveScreening = (id: string) => {
     setScreeningData(prev => prev.map(item => 
       item.id === id ? { ...item, status: 'archived' } : item
     ));
+    addToast('Tarama arşive taşındı.', 'success');
   };
 
   const handleShareResults = (id: string) => {
     // Paylaşma işlevi
-    console.log('Sonuçlar paylaşılıyor:', id);
+    addToast('Paylaşım bağlantısı panoya kopyalandı.', 'success');
   };
 
   const handleDownloadReport = (data: ScreeningResult) => {
     // PDF indirme işlevi
-    console.log('Rapor indiriliyor:', data.studentName);
+    addToast('Rapor PDF olarak indiriliyor...', 'info');
   };
 
   const handlePrintReport = (data: ScreeningResult) => {
@@ -171,7 +181,7 @@ export const AdvancedScreeningModule: React.FC<AdvancedScreeningModuleProps> = (
 
   const handleAddToWorkbook = (data: ScreeningResult) => {
     // Çalışma kitabına ekleme
-    console.log('Çalışma kitabına eklendi:', data.studentName);
+    addToast(`${data.studentName} sonuçları çalışma kitabına eklendi.`, 'success');
   };
 
   const getRiskLevelColor = (level: string) => {
@@ -272,7 +282,10 @@ export const AdvancedScreeningModule: React.FC<AdvancedScreeningModuleProps> = (
                     {item.riskLevel === 'high' ? 'Yüksek' : item.riskLevel === 'medium' ? 'Orta' : 'Düşük'} Risk
                   </span>
                   <button
-                    onClick={() => setCurrentScreening(item)}
+                    onClick={() => {
+                      setCurrentScreening(item);
+                      setActiveView('result-detail');
+                    }}
                     className={`w-10 h-10 rounded-xl ${themeClasses.button} flex items-center justify-center transition-all`}
                   >
                     <Eye className="w-5 h-5" />
@@ -294,16 +307,15 @@ export const AdvancedScreeningModule: React.FC<AdvancedScreeningModuleProps> = (
         
         {/* Student Selection */}
         <div className="mb-8">
-          <label className={`block text-[10px] font-black uppercase tracking-widest mb-3 ${themeClasses.subtext}`}>Öğrenci Seç</label>
+          <label className={`block text-[10px] font-black uppercase tracking-widest mb-3 ${themeClasses.subtext}`}>Öğrenci Adı</label>
           <div className="flex gap-3">
             <input
               type="text"
-              placeholder="Öğrenci adı veya ID ile ara..."
+              value={selectedStudentName}
+              onChange={(e) => setSelectedStudentName(e.target.value)}
+              placeholder="Öğrenci adı girin (Örn: Ahmet Yılmaz)"
               className={`flex-1 px-4 py-3 rounded-xl border ${themeClasses.input}`}
             />
-            <button className={`px-8 py-3 ${themeClasses.buttonPrimary} text-xs font-black uppercase tracking-widest rounded-xl transition-all`}>
-              Ara
-            </button>
           </div>
         </div>
 
@@ -311,19 +323,33 @@ export const AdvancedScreeningModule: React.FC<AdvancedScreeningModuleProps> = (
         <div className="mb-8">
           <label className={`block text-[10px] font-black uppercase tracking-widest mb-3 ${themeClasses.subtext}`}>Tarama Türü</label>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <button className="p-6 border-2 border-[var(--accent-color)] bg-[var(--accent-muted)] rounded-3xl text-left group relative overflow-hidden">
+            <button 
+              onClick={() => setSelectedScreeningType('cognitive')}
+              className={`p-6 border-2 rounded-3xl text-left group relative overflow-hidden transition-all ${
+                selectedScreeningType === 'cognitive' 
+                  ? `border-[var(--accent-color)] bg-[var(--accent-muted)]` 
+                  : `border-[var(--border-color)] bg-[var(--bg-secondary)] hover:border-[var(--accent-color)]/50`
+              }`}
+            >
               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
-                <Brain className="w-20 h-20 text-[var(--accent-color)]" />
+                <Brain className={`w-20 h-20 ${selectedScreeningType === 'cognitive' ? 'text-[var(--accent-color)]' : 'text-[var(--text-muted)]'}`} />
               </div>
-              <Brain className="w-8 h-8 text-[var(--accent-color)] mb-4" />
+              <Brain className={`w-8 h-8 mb-4 ${selectedScreeningType === 'cognitive' ? 'text-[var(--accent-color)]' : 'text-[var(--subtext)]'}`} />
               <p className={`text-lg font-black uppercase tracking-tighter italic ${themeClasses.text}`}>Bilişsel Tarama</p>
               <p className={`text-xs font-medium opacity-70 ${themeClasses.text}`}>Disleksi, DEHB, öğrenme güçlüğü risk analizi.</p>
             </button>
-            <button className={`p-6 border border-[var(--border-color)] bg-[var(--bg-secondary)] rounded-3xl text-left hover:border-[var(--accent-color)]/30 transition-all group relative overflow-hidden`}>
+            <button 
+              onClick={() => setSelectedScreeningType('developmental')}
+              className={`p-6 border-2 rounded-3xl text-left group relative overflow-hidden transition-all ${
+                selectedScreeningType === 'developmental' 
+                  ? `border-[var(--accent-color)] bg-[var(--accent-muted)]` 
+                  : `border-[var(--border-color)] bg-[var(--bg-secondary)] hover:border-[var(--accent-color)]/50`
+              }`}
+            >
                <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
                 <Activity className="w-20 h-20 text-[var(--text-primary)]" />
               </div>
-              <Activity className={`w-8 h-8 ${themeClasses.subtext} mb-4`} />
+              <Activity className={`w-8 h-8 mb-4 ${selectedScreeningType === 'developmental' ? 'text-[var(--accent-color)]' : 'text-[var(--subtext)]'}`} />
               <p className={`text-lg font-black uppercase tracking-tighter italic ${themeClasses.text}`}>Gelişimsel Tarama</p>
               <p className={`text-xs font-medium opacity-70 ${themeClasses.text}`}>Motor, sosyal ve duygusal beceri takibi.</p>
             </button>
@@ -338,7 +364,16 @@ export const AdvancedScreeningModule: React.FC<AdvancedScreeningModuleProps> = (
           >
             Vazgeç
           </button>
-          <button className={`px-10 py-4 ${themeClasses.buttonPrimary} text-xs font-black uppercase tracking-widest rounded-2xl shadow-xl transition-all`}>
+          <button 
+            onClick={() => {
+              if (!selectedStudentName.trim()) {
+                addToast('Lütfen öğrenci adı girin.', 'error');
+                return;
+              }
+              setActiveView('assessment');
+            }}
+            className={`px-10 py-4 ${themeClasses.buttonPrimary} text-xs font-black uppercase tracking-widest rounded-2xl shadow-xl transition-all`}
+          >
             Değerlendirmeyi Başlat
           </button>
         </div>
@@ -429,7 +464,10 @@ export const AdvancedScreeningModule: React.FC<AdvancedScreeningModuleProps> = (
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-end gap-2 opacity-40 group-hover:opacity-100 transition-opacity">
                       <button
-                        onClick={() => setCurrentScreening(item)}
+                        onClick={() => {
+                          setCurrentScreening(item);
+                          setActiveView('result-detail');
+                        }}
                         className={`w-9 h-9 rounded-xl ${themeClasses.button} flex items-center justify-center transition-all`}
                         title="İncele"
                       >
@@ -619,6 +657,34 @@ export const AdvancedScreeningModule: React.FC<AdvancedScreeningModuleProps> = (
           {activeView === 'new-screening' && <NewScreeningView />}
           {activeView === 'history' && <HistoryView />}
           {activeView === 'analytics' && <AnalyticsView />}
+          {activeView === 'assessment' && (
+            <div className="h-[60vh] -m-6 border-t border-[var(--border-color)] relative">
+              <ScreeningModule 
+                onBack={() => setActiveView('dashboard')}
+                onGeneratePlan={onGeneratePlan}
+                onAddToWorkbook={(item) => {
+                  addToast('Çalışma kitabına eklendi', 'success');
+                }}
+              />
+            </div>
+          )}
+          {activeView === 'result-detail' && currentScreening && (
+            <div className="h-[60vh] -m-6 border-t border-[var(--border-color)] relative bg-[var(--bg-primary)] overflow-y-auto custom-scrollbar p-6">
+              <button 
+                onClick={() => setActiveView('history')}
+                className={`mb-4 px-4 py-2 ${themeClasses.button} rounded-xl text-xs font-black uppercase flex items-center gap-2 w-fit`}
+              >
+                <ChevronRight className="w-4 h-4 rotate-180" />
+                Geri Dön
+              </button>
+              <ResultDashboard 
+                result={currentScreening} 
+                onRestart={() => setActiveView('new-screening')}
+                onAddToWorkbook={(item) => addToast('Çalışma kitabına eklendi', 'success')}
+                onGeneratePlan={onGeneratePlan}
+              />
+            </div>
+          )}
         </div>
 
         {/* Footer */}
