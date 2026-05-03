@@ -103,6 +103,34 @@ export const adminService = {
         return await generateWithSchema(appliedTemplate, { type: 'OBJECT' });
     },
 
+    /**
+     * OOGMATIK - STRESS TEST RUNNER (v3 Premium)
+     * Bir promptu çoklu kez çalıştırarak kararlılığını ölçer.
+     */
+    stressTestPrompt: async (prompt: PromptTemplate, vars: Record<string, string>, count: number = 5) => {
+        const results = [];
+        let successCount = 0;
+        let totalInputTokens = 0;
+        let totalOutputTokens = 0;
+
+        for (let i = 0; i < count; i++) {
+            try {
+                const res = await adminService.testPrompt(prompt, vars);
+                results.push({ success: true, data: res });
+                successCount++;
+            } catch (e: any) {
+                results.push({ success: false, error: e.message });
+            }
+        }
+
+        return {
+            totalTests: count,
+            successCount,
+            stabilityScore: (successCount / count) * 100,
+            results,
+        };
+    },
+
 
     // --- SNIPPETS ---
     getAllSnippets: async (): Promise<PromptSnippet[]> => {

@@ -49,17 +49,56 @@ export class AgentOrchestrator {
 
   /**
    * SELF-CORRECTION & VALIDATION LAYER
-   * Ajan çıktılarını denetler ve halüsinasyon varsa düzeltir.
+   * Ajan çıktılarını denetler ve halüsinasyon veya pedagojik ihlal varsa düzeltir.
    */
-  private async validateAndCorrect(agentId: AgentId, output: AgentOutput, goal: StudioGoalConfig): Promise<AgentOutput> {
+  private async validateAndCorrect(
+    agentId: AgentId,
+    output: AgentOutput,
+    goal: StudioGoalConfig,
+    sanitized: SanitizedPromptInput,
+    previousOutputs: Partial<Record<AgentId, AgentOutput>>
+  ): Promise<AgentOutput> {
     const rawContent = JSON.stringify(output.data);
     
-    // Halüsinasyon Kontrolü (Örn: Boş içerik veya alakasız veri)
-    const isHallucinating = !rawContent || rawContent.length < 10 || rawContent.includes('null') || rawContent.includes('undefined');
+    // 1. Yapısal Kontrol (Empty/Bozuk JSON)
+    const isMalformed = !rawContent || rawContent.length < 10 || rawContent.includes('null') || rawContent.includes('undefined');
     
-    if (isHallucinating) {
-        console.warn(`[Orchestrator] Hallucination detected in ${agentId}. Retrying with strict enforcement...`);
-        // Gelecek fazda burada auto-retry mekanizması eklenebilir
+    // 2. Pedagojik Kontrol (Tanı koyucu dil vb.)
+    const hasForbiddenPhrases = /disleksisi var|dehb'si var|ozurlu|engelli/gi.test(rawContent);
+
+    // 3. ZPD Kontrolü (Zorluk seviyesi uyumu - basit kontrol)
+    const difficultyMismatch = goal.difficulty === 'Kolay' && (rawContent.length > 5000 || (rawContent.match(/zor/gi) || []).length > 5);
+
+    if (isMalformed || hasForbiddenPhrases || difficultyMismatch) {
+        console.warn(`[Orchestrator] Issue detected in ${agentId}. Retrying with strict correction...`);
+        
+        // AUTO-CORRECTION PROMPT
+        const correctionPrompt = `
+          AZ ONCE URETTIGIN ICERIKTE HATALAR TESPIT EDILDI.
+          HATA: ${isMalformed ? 'Bozuk veya eksik veri.' : ''} ${hasForbiddenPhrases ? 'Tanı koyucu dil kullanıldı.' : ''} ${difficultyMismatch ? 'Zorluk seviyesi hedefle uyumsuz.' : ''}
+          LUTFEN ASAGIDAKI KURALLARA UYARAK YENIDEN URET:
+          1. Tanı koyucu dil YASAK (örn: "disleksisi var" yerine "disleksi desteğine ihtiyacı var" kullan).
+          2. JSON formatı tam ve hatasız olmalı.
+          3. Hedef zorluk seviyesi: ${goal.difficulty}.
+          
+          ORIJINAL KONU: ${sanitized.sanitizedTopic}
+          HATALI CIKTI: ${rawContent.slice(0, 500)}...
+        `;
+
+        // Retry mechanism (1 attempt for now)
+        const correctedResult = await this.deps.runModel(correctionPrompt);
+        // Basit bir şekilde data'yı güncelle (Gerçekte daha karmaşık bir parsing gerekir)
+        try {
+            const parsed = JSON.parse(correctedResult.summary);
+            return {
+                ...output,
+                data: parsed,
+                timestamp: this.deps.now(),
+            };
+        } catch (e) {
+            console.error(`[Orchestrator] Self-correction failed for ${agentId}. Using original output.`);
+            return output;
+        }
     }
 
     return output;
@@ -133,27 +172,27 @@ export class AgentOrchestrator {
 
     // 1. IDEATION (Konsept Tasarımı)
     const ideation = await this.runAgent(new IdeationAgent(this.deps), goal, sanitized, previousOutputs, statuses);
-    previousOutputs.ideation = await this.validateAndCorrect('ideation', ideation, goal);
+    previousOutputs.ideation = await this.validateAndCorrect('ideation', ideation, goal, sanitized, previousOutputs);
 
     // 2. CONTENT & VISUAL (Paralel Üretim)
     const [content, visual] = await Promise.all([
       this.runAgent(new ContentAgent(this.deps), goal, sanitized, previousOutputs, statuses),
       this.runAgent(new VisualAgent(this.deps), goal, sanitized, previousOutputs, statuses),
     ]);
-    previousOutputs.content = await this.validateAndCorrect('content', content, goal);
-    previousOutputs.visual = await this.validateAndCorrect('visual', visual, goal);
+    previousOutputs.content = await this.validateAndCorrect('content', content, goal, sanitized, previousOutputs);
+    previousOutputs.visual = await this.validateAndCorrect('visual', visual, goal, sanitized, previousOutputs);
 
     // 3. FLOW (Deneyim Akışı)
     const flow = await this.runAgent(new FlowAgent(this.deps), goal, sanitized, previousOutputs, statuses);
-    previousOutputs.flow = await this.validateAndCorrect('flow', flow, goal);
+    previousOutputs.flow = await this.validateAndCorrect('flow', flow, goal, sanitized, previousOutputs);
 
     // 4. EVALUATION (Ölçme Değerlendirme)
     const evaluation = await this.runAgent(new EvaluationAgent(this.deps), goal, sanitized, previousOutputs, statuses);
-    previousOutputs.evaluation = await this.validateAndCorrect('evaluation', evaluation, goal);
+    previousOutputs.evaluation = await this.validateAndCorrect('evaluation', evaluation, goal, sanitized, previousOutputs);
 
     // 5. INTEGRATION (Final Sentez ve Denetim)
     const integration = await this.runAgent(new IntegrationAgent(this.deps), goal, sanitized, previousOutputs, statuses);
-    previousOutputs.integration = await this.validateAndCorrect('integration', integration, goal);
+    previousOutputs.integration = await this.validateAndCorrect('integration', integration, goal, sanitized, previousOutputs);
 
     const result = this.toResult(previousOutputs, statuses);
 

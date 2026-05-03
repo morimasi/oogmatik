@@ -294,6 +294,8 @@ export const NeuroProfileParamsSchema = z.object({
   ageGroup: z.enum(['5-7', '8-10', '11-13', '14+']),
   readingSpeed: z.enum(['yavas', 'normal', 'hizli']).optional(),
   attentionSpan: z.number().min(10).max(120).optional(), // Saniye cinsinden
+  processingSpeed: z.enum(['dusuk', 'orta', 'yuksek']).optional(), // Yeni v3 parametresi
+  visualPerceptionLevel: z.number().min(1).max(10).optional(), // Yeni v3 parametresi
 });
 
 export const AnimationTimingSchema = z.object({

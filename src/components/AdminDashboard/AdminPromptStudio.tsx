@@ -138,6 +138,22 @@ export const AdminPromptStudio = () => {
       });
     }
 
+    // v3: Latent Analysis & Behavior Tracking check
+    if (!full.includes('latent_period') && !full.includes('behavior')) {
+      warnings.push({
+        type: 'info',
+        text: 'Analitik eksikliği: v3 Premium standartlarına göre "latent_period" veya "behavior" takibi için gerekli metadata alanları istenmemiş.',
+      });
+    }
+
+    // v3: Multisensory (Audio/Syllable) check
+    if (!full.includes('syllable') && !full.includes('audio')) {
+      warnings.push({
+        type: 'warning',
+        text: 'Multisensory eksikliği: v3 Premium standartlarına göre heceleme veya seslendirme desteği prompt içinde belirtilmemiş.',
+      });
+    }
+
     const exactTokens = Math.floor(full.length / 4.2);
     let score =
       100 -
