@@ -11,18 +11,32 @@ export class IntegrationAgent extends BaseAgent {
     const outputs = JSON.stringify(input.previousOutputs);
     
     return `
-      [ROL: BAŞ MİMAR VE SİSTEM ENTEGRATÖRÜ]
-      GÖREV: Aşağıdaki farklı ajanlardan gelen çıktıları tutarlı, uygulanabilir ve ultra-pedagojik bir eğitim blueprint'ine dönüştür.
+      [SİSTEM ROLÜ: OOGMATİK AI ORKESTRASYON ŞEFİ & BAŞ MİMAR]
+      Sen, tüm alt ajanlardan gelen verileri sentezleyerek kusursuz bir Oogmatik eğitim blueprint'i oluşturan en üst akılsın.
       
-      AJAN ÇIKTILARI:
+      GÖREV: Aşağıdaki ham verileri al ve Oogmatik'in "Premium EdTech" standartlarında, uygulanabilir bir eğitim planına dönüştür.
+      
+      AJAN VERİLERİ (HAM):
       ${outputs}
       
-      ENTEGRASYON KURALLARI:
-      1. Tutarlılık: Görsel öneriler ile içerik birbiriyle %100 uyumlu olmalı.
-      2. Uygulanabilirlik: Belirlenen değerlendirme kriterleri, içerik adımlarıyla örtüşmeli.
-      3. Pedagojik Not: Öğretmen için bu etkinliğin "neden" yapıldığına dair derinlemesine bir açıklama ekle.
+      SENTEZ VE ENTEGRASYON KURALLARI (ZORUNLU):
+      1. Bütünlük: Görsel (Visual), İçerik (Content) ve Akış (Flow) birbirini tamamlamalı, asla çelişmemeli.
+      2. Pedagojik Derinlik: Öğretmen için yazılan 'pedagogicalNote' alanında, bu etkinliğin nöro-bilimsel dayanağını (örn: "Sol angular gyrus aktivasyonu hedeflenmiştir") açıkla.
+      3. Uygulanabilirlik: Belirlenen değerlendirme metrikleri, içerik bloklarıyla doğrudan eşleşmeli.
+      4. UI Entegrasyonu: Görsel ayarların (layout, color vb.) React bileşenlerimizde nasıl render edileceğine dair teknik ipuçlarını 'renderInstructions' alanına ekle.
       
-      Yanıtını JSON formatında 'blueprint' objesi olarak döndür.
+      ÇIKTI YAPISI:
+      {
+        "finalBlueprint": {
+          "activityId": "...",
+          "title": "...",
+          "theme": { "primary": "...", "layout": "..." },
+          "contentSequence": [...],
+          "evaluationLogic": {...},
+          "pedagogicalNote": "Derinlemesine bilimsel açıklama",
+          "renderInstructions": "Frontend ekibi için teknik not"
+        }
+      }
     `;
   }
 

@@ -18,6 +18,25 @@ AI destekli kişiselleştirilmiş eğitim materyalleri üreten bir EdTech platfo
 
 ---
 
+## 🤖 Ultra-Zeki Ajan Orkestrasyonu (v2 Professional)
+
+Bu projede AI ajanları, Google Antigravity ve Gemini CLI ile **tam senkronize** çalışır. 
+
+### 🚀 Yeni Nesil Yetenekler
+- **Tam Otomatik Devreye Girme**: Geliştirme sürecindeki her adımda ajanlar otomatik olarak tetiklenir ve kolektif bir zeka ile sorunu çözer.
+- **Halüsinasyon Engelleme**: `temperature: 0.1` ve `validateAndCorrect` katmanları ile en kararlı çıktılar garanti edilir.
+- **Ultra-Premium Standartlar**: Her çıktı; görsel, pedagojik ve teknik açıdan projenin "Hata Toleransı Sıfır" kuralına göre denetlenir.
+
+### 👥 Ajan Görev Dağılımı
+- **Ideation**: Stratejik konsept ve sinaptik bağ tasarımı.
+- **Content**: Disleksi dostu, ZPD uyumlu içerik yazımı.
+- **Visual**: Premium UI/UX ve görsel hiyerarşi planlama.
+- **Flow**: LXD ve dinamik akış yönetimi.
+- **Evaluation**: SMART metrikli ölçme-değerlendirme sistemi.
+- **Integration**: Baş mimar; final blueprint ve sentez.
+
+---
+
 ## 📖 ZORUNLU: Uygulama Modül Bilgisi
 
 **HER GÖREV ÖNCESİ**: `/.claude/MODULE_KNOWLEDGE.md` dosyasını oku.

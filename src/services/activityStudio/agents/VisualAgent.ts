@@ -8,19 +8,30 @@ export class VisualAgent extends BaseAgent {
   }
 
   buildPrompt(input: AgentInput): string {
-    const { profile, ageGroup } = input.goal;
+    const { profile, ageGroup, topic } = input.goal;
     
     return `
-      [ROL: ÖZEL EĞİTİM GÖRSEL TASARIMCISI]
-      GÖREV: "${profile}" profili ve "${ageGroup}" yaş grubu için disleksi dostu görsel layout parametreleri belirle.
+      [SİSTEM ROLÜ: OOGMATİK UI/UX & GÖRSEL STRATEJİST]
+      GÖREV: "${topic}" temalı etkinlik için "${profile}" profiline uygun görsel hiyerarşi ve tasarım sistemi oluştur.
       
-      KRİTERLER:
-      1. Contrast: Yüksek kontrastlı, göz yormayan (Dyslexia-safe) renk paleti öner.
-      2. Whitespace: ADHD için dikkat dağıtmayan geniş boşluklu yerleşim.
-      3. Tipografi: Lexend font uyumlu hiyerarşi.
-      4. İkonografi: Soyut değil, somut ve anlamı destekleyen görsel öğeler.
+      TASARIM KURALLARI (ZORUNLU):
+      1. Renk Psikolojisi: "${profile}" (Disleksi/DEHB) için dikkat dağıtmayan, düşük doygunluklu ama kontrastlı renkler.
+      2. Odak Yönetimi: Ekranın en önemli alanını (CTA) belirle ve görsel ağırlığı oraya ver.
+      3. Bilişsel Yük: Tek seferde 3'ten fazla görsel uyaran olmamalı.
+      4. İkonografi: Somut, evrensel ve Lexend fontu ile uyumlu minimalist ikonlar.
+      5. Layout: Glassmorphism (2.5rem radius, blur) standartlarını koruyan kutulama sistemi.
       
-      Yanıtını JSON formatında 'visualSettings' objesi olarak döndür.
+      ÇIKTI YAPISI:
+      {
+        "visualSettings": {
+          "primaryColor": "...",
+          "secondaryColor": "...",
+          "layoutType": "grid | focus | list",
+          "spacing": "relaxed | standard",
+          "visualElements": ["...", "..."],
+          "accessibilityNote": "Görsel erişilebilirlik için kritik uyarı"
+        }
+      }
     `;
   }
 

@@ -8,20 +8,34 @@ export class ContentAgent extends BaseAgent {
   }
 
   buildPrompt(input: AgentInput): string {
-    const { topic, targetSkills, ageGroup, difficulty } = input.goal;
+    const { topic, targetSkills, ageGroup, difficulty, profile } = input.goal;
     
     return `
-      [ROL: ÖZEL EĞİTİM İÇERİK YAZARI]
-      GÖREV: "${topic}" konusu için adım adım pedagojik içerik üret.
+      [SİSTEM ROLÜ: OOGMATİK KIDEMLİ ÖZEL EĞİTİM YAZARI]
+      GÖREV: "${topic}" konusu için disleksi/ADHD hassasiyetli, yüksek kaliteli eğitim içeriği üret.
       
-      KRİTERLER:
+      PEDAGOJİK SINIRLAR:
       - Hedef Beceriler: ${targetSkills.join(', ')}
-      - Yaş/Zorluk: ${ageGroup} / ${difficulty}
-      - Dil: Açık, kısa cümleler, yönerge odaklı.
-      - Disleksi Önlemi: Karıştırılabilir harf/rakam içeren kelimeleri (b-d, 6-9) bağlam içinde netleştir.
+      - Klinik Profil: ${profile}
+      - Seviye: ${ageGroup} Yaş / ${difficulty} Zorluk
       
-      Lütfen yanıtını sadece 'blocks' dizisi barındıran geçerli bir JSON olarak ver. 
-      Her blok 'type' (text, instruction, example, quiz) ve 'content' içermeli.
+      YAZIM KURALLARI (ZORUNLU):
+      1. Dil Seviyesi: Teknik terimlerden kaçın, öğrencinin ZPD (Yakınsal Gelişim Alanı) ile uyumlu konuş.
+      2. Disleksi Dostu Metin: Kısa cümleler (max 12 kelime), net yönergeler.
+      3. Görsel Betimleme: Metinler içinde soyut kavramları somutlaştıran örnekler kullan.
+      4. Aktif Katılım: Sadece okutma, soru sorarak veya uygulama yaptırarak etkileşim kur.
+      5. Lexend Uyumu: Font yapısına uygun, karmaşık heceleme yapılarından kaçınan kelime seçimi.
+      
+      ÇIKTI YAPISI:
+      {
+        "blocks": [
+          {
+            "type": "instruction | text | example | activity_step | key_point",
+            "content": "...",
+            "metadata": { "highlight": "Vurgulanacak kelime/harf", "pedagogicalNote": "Öğretmen için not" }
+          }
+        ]
+      }
     `;
   }
 

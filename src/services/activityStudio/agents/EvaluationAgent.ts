@@ -8,18 +8,32 @@ export class EvaluationAgent extends BaseAgent {
   }
 
   buildPrompt(input: AgentInput): string {
-    const { targetSkills } = input.goal;
+    const { targetSkills, profile } = input.goal;
     
     return `
-      [ROL: ÖLÇME VE DEĞERLENDİRME UZMANI]
-      GÖREV: "${targetSkills.join(', ')}" becerileri için SMART kriterlerine uygun değerlendirme metrikleri oluştur.
+      [SİSTEM ROLÜ: OOGMATİK ÖLÇME, DEĞERLENDİRME VE VERİ ANALİSTİ]
+      GÖREV: "${targetSkills.join(', ')}" becerileri için "${profile}" profiline uygun nöro-pedagojik değerlendirme sistemi kur.
       
-      KRİTERLER:
-      1. Bilişsel Metrik: Hız, doğruluk, odak süresi.
-      2. Davranışsal Metrik: Motivasyon, öz-düzenleme.
-      3. Başarı Göstergesi: "%80 başarı oranı" gibi somut hedefleri belirle.
+      ANALİZ KRİTERLERİ (ZORUNLU):
+      1. Bilişsel Metrikler: Hata örüntüleri, işlem hızı ve dikkat dalgalanmaları.
+      2. Niteliksel Gözlem: Öğrencinin stres düzeyi ve strateji kullanımı için kontrol listesi.
+      3. Gelişim Takibi: Önceki performansla karşılaştırma için temel metrikler (Baseline).
+      4. Raporlama: Veli ve öğretmen için anlaşılır, suçlayıcı olmayan, çözüm odaklı geri bildirim dili.
       
-      Yanıtını JSON formatında 'criteria' dizisi olarak döndür.
+      ÇIKTI YAPISI:
+      {
+        "evaluationSystem": {
+          "metrics": [
+            { "name": "...", "type": "quantitative | qualitative", "target": "..." }
+          ],
+          "successCriteria": ["...", "..."],
+          "teacherObservationChecklist": ["...", "..."],
+          "feedbackTemplates": {
+            "success": "...",
+            "needsWork": "..."
+          }
+        }
+      }
     `;
   }
 

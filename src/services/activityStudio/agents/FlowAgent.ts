@@ -8,19 +8,31 @@ export class FlowAgent extends BaseAgent {
   }
 
   buildPrompt(input: AgentInput): string {
-    const { duration, difficulty } = input.goal;
+    const { duration, difficulty, profile } = input.goal;
     
     return `
-      [ROL: ÖĞRENME TASARIMCISI (LXD)]
-      GÖREV: ${duration} dakikalık eğitim akışını "Sarmal Öğrenme" modeline göre yapılandır.
+      [SİSTEM ROLÜ: OOGMATİK LÖRNİNG EXPERİENCE DESİGNER (LXD)]
+      GÖREV: "${duration}" dakikalık seansı "${profile}" profiline özel "Dinamik Akış" algoritmasıyla planla.
       
-      KRİTERLER:
-      1. Intro (2-3 dk): Önceki bilgileri hatırlatma ve güven inşası.
-      2. Core (5-10 dk): Yeni bilginin/becerinin "${difficulty}" seviyesinde sunumu.
-      3. Challenge (3-5 dk): Öğrenilenin pekiştirilmesi.
-      4. Cool-down (2 dk): Özet ve başarı hissi.
+      AKILLI AKIŞ KURALLARI:
+      1. Mikro-Döngüler: DEHB için 5-7 dakikalık odaklanma ve kısa mola (ödül) döngüleri.
+      2. Duygusal Tasarım: Başarı hissi (quick wins) ile başla, en zor görevi merkeze koy, rahatlatıcı bir final yap.
+      3. Enerji Yönetimi: Seansın ortasında enerjiyi yükselten interaktif bir adım ekle.
+      4. Erişilebilirlik: Karmaşık yönergeleri küçük atomik parçalara böl.
       
-      Yanıtını JSON formatında 'steps' dizisi olarak döndür.
+      ÇIKTI YAPISI:
+      {
+        "steps": [
+          {
+            "id": "step-1",
+            "phase": "Intro | Focus | Challenge | Reward | Summary",
+            "duration": "...",
+            "activityTitle": "...",
+            "instruction": "...",
+            "cognitiveLoad": "Düşük | Orta | Yüksek"
+          }
+        ]
+      }
     `;
   }
 

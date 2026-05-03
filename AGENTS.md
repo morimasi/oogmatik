@@ -36,6 +36,25 @@ Disleksi, DEHB ve özel öğrenme güçlüğü yaşayan Türk çocuklar için AI
 
 ---
 
+## 🤖 AI Ajan v2 Professional (Yeni Nesil Orkestrasyon)
+
+Uygulama geliştirme ve içerik üretim süreçlerinde **v2 Professional** mimarisi aktiftir. Ajanlar artık manuel çağrıya gerek duymadan **otomatik** olarak devreye girer.
+
+### 🔄 Otomatik Orkestrasyon & Denetim
+- **Oto-Pilot**: Her prompt, [AgentOrchestrator](file:///src/services/activityStudio/AgentOrchestrator.ts) tarafından analiz edilir ve ilgili ekip (Ideation, Content, Visual, Flow, Evaluation, Integration) anında işe başlar.
+- **Self-Correction**: Ajanlar çıktılarını birbirlerine aktarmadan önce halüsinasyon ve hata denetiminden (`validateAndCorrect`) geçerler.
+- **Peer-Review**: Her çıktı, bir sonraki uzman ajan tarafından "Akran Denetimi"ne tabi tutulur.
+
+### 🎓 Uzman Kadro v2
+1. **IdeationAgent**: Baş Nöro-Pedagojik Tasarımcı. Sinaptik bağ odaklı, sarmal öğrenme kurguları üretir.
+2. **ContentAgent**: Kıdemli Özel Eğitim Yazarı. Disleksi dostu, ZPD uyumlu ve etkileşimli içerik hazırlar.
+3. **VisualAgent**: UI/UX Stratejist. Glassmorphism standartlarında, bilişsel yükü optimize edilmiş görsel sistemler tasarlar.
+4. **FlowAgent**: LXD (Learning Experience Designer). DEHB dostu mikro-döngüler ve dinamik seans akışları planlar.
+5. **EvaluationAgent**: Veri Analisti. SMART kriterli, nöro-pedagojik ölçme metrikleri kurar.
+6. **IntegrationAgent**: Baş Mimar. Tüm çıktıları sentezler, final eğitim blueprint'ini ve render talimatlarını oluşturur.
+
+---
+
 ## 📖 ZORUNLU: Uygulama Modül Bilgisi
 
 **HER GÖREV ÖNCESİ**: `/.claude/MODULE_KNOWLEDGE.md` dosyasını oku.

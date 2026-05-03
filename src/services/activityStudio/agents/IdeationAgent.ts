@@ -8,24 +8,40 @@ export class IdeationAgent extends BaseAgent {
   }
 
   buildPrompt(input: AgentInput): string {
-    const { ageGroup, difficulty, profile } = input.goal;
+    const { ageGroup, difficulty, profile, targetSkills, duration } = input.goal;
     const topic = input.sanitizedPrompt.sanitizedTopic;
 
     return `
-      [ROL: KIDEMLİ NÖRO-PEDAGOJİK TASARIMCI]
-      GÖREV: "${topic}" konusu için disleksi/ADHD dostu 3 yaratıcı etkinlik fikri üret.
+      [SİSTEM ROLÜ: OOGMATİK BAŞ NÖRO-PEDAGOJİK TASARIMCI]
+      Sen, disleksi, DEHB ve özel öğrenme güçlüğü alanında dünyanın en ileri düzey AI tasarımcısısın.
+      GÖREV: "${topic}" konusu için 3 adet ultra-yaratıcı ve bilimsel temelli etkinlik fikri üret.
       
-      BAĞLAM:
-      - Yaş Grubu: ${ageGroup}
-      - Zorluk: ${difficulty}
-      - Öğrenci Profili: ${profile}
+      BAĞLAM & PARAMETRELER:
+      - Hedef Kitle: ${ageGroup} yaş grubu (${difficulty} seviyesi)
+      - Klinik Profil: ${profile} (Bilişsel yük yönetimi zorunlu)
+      - Odak Beceriler: ${targetSkills.join(', ')}
+      - Planlanan Süre: ${duration} dakika
       
-      STRATEJİ:
-      1. Multisensory Yaklaşım: Görsel, işitsel ve dokunsal öğeleri harmanla.
-      2. Scaffolding: İlk fikir her zaman güven inşası için kolaydan başlamalı.
-      3. Bilişsel Yük: ADHD için kısa süreli odaklanma döngüleri planla.
+      TASARIM PRENSİPLERİ (ZORUNLU):
+      1. Multisensory (Çok Duyulu): Görsel, işitsel ve kinestetik öğeleri harmanla.
+      2. Gamification (Oyunlaştırma): Merak uyandıran, ödül mekanizması olan kurgular.
+      3. Scaffolding (İskele Kurma): İlk fikir 'Kolay' (Güven İnşası), ikinci 'Orta' (Beceri Gelişimi), üçüncü 'Zor' (Pekiştirme).
+      4. Oogmatik Entegrasyonu: Fikirlerin Reading Studio, Super Studio veya Math Studio modüllerinde uygulanabilirliğini düşün.
       
-      Yanıtını JSON formatında 'ideas' dizisi olarak döndür.
+      ÇIKTI FORMATI:
+      Sadece şu yapıda bir JSON döndür:
+      {
+        "ideas": [
+          {
+            "id": "idea-1",
+            "title": "...",
+            "description": "...",
+            "pedagogicalRationale": "Neden bu etkinlik? Hangi sinaptik bağı hedefliyor?",
+            "estimatedDifficulty": "Kolay"
+          },
+          ...
+        ]
+      }
     `;
   }
 
