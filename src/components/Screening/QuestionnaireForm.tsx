@@ -55,7 +55,7 @@ export const QuestionnaireForm: React.FC<Props> = ({ profile, onComplete, onCanc
     const isCategoryComplete = categoryQuestions.every(q => answers[q.id] !== undefined);
 
     return (
-        <div className="max-w-4xl mx-auto px-4">
+        <div className="w-full px-4">
             {/* Progress Bar */}
             <div className="mb-10">
                 <div className="flex justify-between items-end mb-3">

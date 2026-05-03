@@ -10,11 +10,12 @@ interface ScreeningModuleProps {
     onSelectActivity?: (id: any) => void;
     onAddToWorkbook?: (item: any) => void; 
     onGeneratePlan?: (studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => void; 
+    initialProfile?: ScreeningProfile | null;
 }
 
-export const ScreeningModule: React.FC<ScreeningModuleProps> = ({ onBack, onSelectActivity, onAddToWorkbook, onGeneratePlan }) => {
-    const [view, setView] = useState<'intro' | 'form' | 'result'>('intro');
-    const [profile, setProfile] = useState<ScreeningProfile | null>(null);
+export const ScreeningModule: React.FC<ScreeningModuleProps> = ({ onBack, onSelectActivity, onAddToWorkbook, onGeneratePlan, initialProfile }) => {
+    const [view, setView] = useState<'intro' | 'form' | 'result'>(initialProfile ? 'form' : 'intro');
+    const [profile, setProfile] = useState<ScreeningProfile | null>(initialProfile || null);
     const [results, setResults] = useState<ScreeningResult | null>(null);
 
     const handleStart = (p: ScreeningProfile) => {
@@ -52,26 +53,28 @@ export const ScreeningModule: React.FC<ScreeningModuleProps> = ({ onBack, onSele
                 )}
             </div>
 
-            <div className="p-4 md:p-8 max-w-5xl mx-auto pb-20">
-                {view === 'intro' && <ScreeningIntro onStart={handleStart} />}
-                
-                {view === 'form' && profile && (
-                    <QuestionnaireForm 
-                        profile={profile} 
-                        onComplete={handleComplete} 
-                        onCancel={() => setView('intro')} 
-                    />
-                )}
+            <div className="w-full">
+                <div className="p-4 md:p-8 pb-20">
+                    {view === 'intro' && <ScreeningIntro onStart={handleStart} />}
+                    
+                    {view === 'form' && profile && (
+                        <QuestionnaireForm 
+                            profile={profile} 
+                            onComplete={handleComplete} 
+                            onCancel={() => setView('intro')} 
+                        />
+                    )}
 
-                {view === 'result' && results && (
-                    <ResultDashboard 
-                        result={results} 
-                        onRestart={() => setView('intro')}
-                        onSelectActivity={onSelectActivity}
-                        onAddToWorkbook={onAddToWorkbook}
-                        onGeneratePlan={onGeneratePlan}
-                    />
-                )}
+                    {view === 'result' && results && (
+                        <ResultDashboard 
+                            result={results} 
+                            onRestart={() => setView('intro')}
+                            onSelectActivity={onSelectActivity}
+                            onAddToWorkbook={onAddToWorkbook}
+                            onGeneratePlan={onGeneratePlan}
+                        />
+                    )}
+                </div>
             </div>
         </div>
     );

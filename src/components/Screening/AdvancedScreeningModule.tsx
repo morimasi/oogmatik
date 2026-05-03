@@ -657,13 +657,20 @@ export const AdvancedScreeningModule: React.FC<AdvancedScreeningModuleProps> = (
           {activeView === 'new-screening' && <NewScreeningView />}
           {activeView === 'history' && <HistoryView />}
           {activeView === 'analytics' && <AnalyticsView />}
+          {/* Assessment/Screening Flow */}
           {activeView === 'assessment' && (
-            <div className="h-[60vh] -m-6 border-t border-[var(--border-color)] relative">
+            <div className="flex-1 bg-[var(--bg-primary)] overflow-hidden flex flex-col">
               <ScreeningModule 
-                onBack={() => setActiveView('dashboard')}
-                onGeneratePlan={onGeneratePlan}
-                onAddToWorkbook={(item) => {
-                  addToast('Çalışma kitabına eklendi', 'success');
+                initialProfile={{ 
+                  studentName: selectedStudentName, 
+                  age: 7, 
+                  grade: '1. Sınıf', 
+                  respondent: userRole === 'parent' ? 'parent' : 'teacher' 
+                }}
+                onBack={() => setActiveView('new-screening')}
+                onSelectActivity={(id) => {
+                  // Bu kısım normal akışta App.tsx'e gidecek
+                  console.log('Activity selected:', id);
                 }}
               />
             </div>
