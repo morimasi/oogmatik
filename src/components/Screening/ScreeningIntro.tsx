@@ -13,6 +13,16 @@ export const ScreeningIntro: React.FC<Props> = ({ onStart }) => {
     const [role, setRole] = useState<'parent' | 'teacher'>('parent');
     const [accepted, setAccepted] = useState(false);
 
+    // Premium tema yardımcı fonksiyonları
+    const getThemeClasses = () => {
+        return {
+            input: 'bg-[var(--bg-primary)] border-[var(--border-color)] text-[var(--text-primary)] placeholder-[var(--text-muted)] font-lexend focus:ring-2 focus:ring-[var(--accent-color)] outline-none',
+            buttonPrimary: 'bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white font-lexend shadow-lg shadow-[var(--accent-muted)] transition-all active:scale-95',
+        };
+    };
+
+    const themeClasses = getThemeClasses();
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!accepted) {

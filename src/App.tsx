@@ -835,25 +835,15 @@ const AppContent = () => {
         if (generator) {
           try {
             const generatedData = await generator(defaultOptions);
-            if (Array.isArray(generatedData)) {
-              generatedData.forEach((sheet: any) => {
-                newItems.push({
-                  id: crypto.randomUUID(),
-                  activityType: activityId,
-                  data: sheet,
-                  settings: { ...styleSettings },
-                  title: ACTIVITIES.find((a) => a.id === activityId)?.title || activityId,
-                });
-              });
-            } else if (generatedData) {
+            generatedData.forEach((sheet: any) => {
               newItems.push({
                 id: crypto.randomUUID(),
                 activityType: activityId,
-                data: generatedData,
+                data: sheet,
                 settings: { ...styleSettings },
                 title: ACTIVITIES.find((a) => a.id === activityId)?.title || activityId,
               });
-            }
+            });
           } catch (genErr) {
             logError(`Failed to auto-generate ${activityId}`, genErr);
           }

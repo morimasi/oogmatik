@@ -1,5 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ScreeningProfile, ScreeningResult } from '../../types/screening';
 import { SCREENING_QUESTIONS, CATEGORY_LABELS } from '../../data/screeningQuestions';
 import { scoringEngine } from '../../utils/scoringEngine';

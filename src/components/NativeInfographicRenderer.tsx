@@ -842,6 +842,17 @@ const KARMA_COLORS = [
     '#84cc16', // Lime
 ];
 
+const SOFT_PASTEL_COLORS = [
+    '#fecaca', // Red
+    '#bfdbfe', // Blue
+    '#bbf7d0', // Green
+    '#fef3c7', // Orange
+    '#ddd6fe', // Purple
+    '#fbcfe8', // Pink
+    '#cffafe', // Cyan
+    '#ecfccb', // Lime
+];
+
 /** Kısa Cevaplı Sorular (Premium Grid) Renderer */
 const ShortAnswerGridRenderer: React.FC<{ data: ParsedData; title: string; primaryColor: string }> = ({ data, title, primaryColor }) => {
     const questions = data?.shortAnswers || [];
@@ -857,19 +868,21 @@ const ShortAnswerGridRenderer: React.FC<{ data: ParsedData; title: string; prima
     let gridColumns = 'repeat(3, 1fr)';
     if (config.questionCount <= 4) gridColumns = 'repeat(1, 1fr)';
     else if (config.questionCount <= 8) gridColumns = 'repeat(2, 1fr)';
+    else if (config.questionCount >= 24) gridColumns = 'repeat(4, 1fr)';
     else gridColumns = 'repeat(3, 1fr)';
 
-    const gap = config.gridDensity === 'Kompakt' ? '8px' : config.gridDensity === 'Normal' ? '16px' : '24px';
-    const padding = config.gridDensity === 'Kompakt' ? '12px' : '20px';
+    const gap = config.gridDensity === 'Ultra Sıkışık' ? '4px' : config.gridDensity === 'Kompakt' ? '8px' : config.gridDensity === 'Normal' ? '16px' : '24px';
+    const padding = config.gridDensity === 'Ultra Sıkışık' ? '8px' : config.gridDensity === 'Kompakt' ? '12px' : '20px';
+    const fontSize = config.gridDensity === 'Ultra Sıkışık' ? '10px' : '12px';
 
     return (
-        <div style={{ ...fontStyle, padding: '12px', background: '#fff', borderRadius: '8px' }}>
+        <div style={{ ...fontStyle, padding: config.gridDensity === 'Ultra Sıkışık' ? '4px' : '12px', background: '#fff', borderRadius: '8px' }}>
             {/* Öğrenci Bilgi Alanı */}
             {config.showStudentInfo && (
                 <div style={{ 
                     display: 'flex', 
                     justifyContent: 'space-between', 
-                    marginBottom: '12px', 
+                    marginBottom: config.gridDensity === 'Ultra Sıkışık' ? '6px' : '12px', 
                     padding: '8px', 
                     border: '1px solid #e2e8f0', 
                     borderRadius: '8px',
@@ -882,7 +895,7 @@ const ShortAnswerGridRenderer: React.FC<{ data: ParsedData; title: string; prima
             )}
 
             {title && (
-                <div style={{ textAlign: 'center', marginBottom: '12px' }}>
+                <div style={{ textAlign: 'center', marginBottom: config.gridDensity === 'Ultra Sıkışık' ? '6px' : '12px' }}>
                     <div style={{ 
                         display: 'inline-block', 
                         border: `2px solid ${primaryColor}`, 
@@ -891,22 +904,24 @@ const ShortAnswerGridRenderer: React.FC<{ data: ParsedData; title: string; prima
                         background: '#fff',
                         boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                     }}>
-                        <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: primaryColor, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                        <h2 style={{ margin: 0, fontSize: config.gridDensity === 'Ultra Sıkışık' ? '14px' : '16px', fontWeight: 800, color: primaryColor, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                             {title}
                         </h2>
                     </div>
-                    <div style={{ 
-                        marginTop: '4px', 
-                        fontSize: '10px', 
-                        color: PALETTE.textMuted, 
-                        background: '#f8fafc',
-                        padding: '2px 8px', 
-                        borderRadius: '6px',
-                        display: 'inline-block',
-                        border: '1px solid #e2e8f0'
-                    }}>
-                        🎯 {config.pedagogicalFocus || 'Genel Kavrama'} • 📝 Cevaplayalım • 🟢 Değerlendirelim
-                    </div>
+                    {config.gridDensity !== 'Ultra Sıkışık' && (
+                        <div style={{ 
+                            marginTop: '4px', 
+                            fontSize: '10px', 
+                            color: PALETTE.textMuted, 
+                            background: '#f8fafc',
+                            padding: '2px 8px', 
+                            borderRadius: '6px',
+                            display: 'inline-block',
+                            border: '1px solid #e2e8f0'
+                        }}>
+                            🎯 {config.pedagogicalFocus || 'Genel Kavrama'} • 📝 Cevaplayalım • 🟢 Değerlendirelim
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -918,8 +933,12 @@ const ShortAnswerGridRenderer: React.FC<{ data: ParsedData; title: string; prima
             }}>
                 {questions.map((q, idx) => {
                     let borderColor = primaryColor;
+                    let bgColor = '#fff';
                     if (config.colorMode === 'Karma Renkli') {
                         borderColor = KARMA_COLORS[idx % KARMA_COLORS.length];
+                    } else if (config.colorMode === 'Soft Pastel') {
+                        borderColor = SOFT_PASTEL_COLORS[idx % SOFT_PASTEL_COLORS.length];
+                        bgColor = borderColor + '11';
                     } else if (config.colorMode === 'Siyah-Beyaz (Print Dostu)') {
                         borderColor = '#334155';
                     }
@@ -928,22 +947,22 @@ const ShortAnswerGridRenderer: React.FC<{ data: ParsedData; title: string; prima
                         <div key={idx} style={{ 
                             position: 'relative',
                             border: `1.5px solid ${borderColor}`,
-                            borderRadius: '10px',
+                            borderRadius: config.gridDensity === 'Ultra Sıkışık' ? '6px' : '10px',
                             padding: padding,
-                            minHeight: config.gridDensity === 'Kompakt' ? '80px' : '110px',
+                            minHeight: config.gridDensity === 'Ultra Sıkışık' ? '60px' : config.gridDensity === 'Kompakt' ? '80px' : '110px',
                             display: 'flex',
                             flexDirection: 'column',
                             justifyContent: 'space-between',
-                            background: '#fff',
+                            background: bgColor,
                             pageBreakInside: 'avoid'
                         }}>
                             {/* Değerlendirme Halkası */}
                             <div style={{ 
                                 position: 'absolute',
-                                top: '-8px',
+                                top: config.gridDensity === 'Ultra Sıkışık' ? '-5px' : '-8px',
                                 right: '10px',
-                                width: '16px',
-                                height: '16px',
+                                width: config.gridDensity === 'Ultra Sıkışık' ? '12px' : '16px',
+                                height: config.gridDensity === 'Ultra Sıkışık' ? '12px' : '16px',
                                 borderRadius: '50%',
                                 border: `1.5px solid ${borderColor}`,
                                 background: '#fff',
@@ -951,7 +970,7 @@ const ShortAnswerGridRenderer: React.FC<{ data: ParsedData; title: string; prima
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                fontSize: '8px',
+                                fontSize: config.gridDensity === 'Ultra Sıkışık' ? '7px' : '8px',
                                 color: borderColor,
                                 fontWeight: 700
                             }}>
@@ -961,23 +980,23 @@ const ShortAnswerGridRenderer: React.FC<{ data: ParsedData; title: string; prima
                             {/* Soru Metni */}
                             <div style={{ 
                                 textAlign: 'left', 
-                                fontSize: '12px', 
+                                fontSize: fontSize, 
                                 fontWeight: 600, 
                                 color: PALETTE.text,
                                 marginBottom: '6px',
-                                lineHeight: 1.2
+                                lineHeight: 1.1
                             }}>
                                 {q.question}
                             </div>
 
                             {/* Cevap Satırları */}
-                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: '6px' }}>
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: config.gridDensity === 'Ultra Sıkışık' ? '4px' : '6px' }}>
                                 {Array.from({ length: config.lineCount }).map((_, lIdx) => (
                                     <div key={lIdx} style={{ 
                                         width: '100%', 
                                         height: '1px', 
                                         borderBottom: `1px dashed ${borderColor}33`,
-                                        marginTop: '10px'
+                                        marginTop: config.gridDensity === 'Ultra Sıkışık' ? '6px' : '10px'
                                     }} />
                                 ))}
                             </div>
