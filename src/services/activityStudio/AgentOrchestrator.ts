@@ -56,7 +56,7 @@ export class AgentOrchestrator {
     output: AgentOutput,
     goal: StudioGoalConfig,
     sanitized: SanitizedPromptInput,
-    previousOutputs: Partial<Record<AgentId, AgentOutput>>
+    _previousOutputs: Partial<Record<AgentId, AgentOutput>>
   ): Promise<AgentOutput> {
     const rawContent = JSON.stringify(output.data);
     
@@ -95,7 +95,7 @@ export class AgentOrchestrator {
                 data: parsed,
                 timestamp: this.deps.now(),
             };
-        } catch (e) {
+        } catch {
             console.error(`[Orchestrator] Self-correction failed for ${agentId}. Using original output.`);
             return output;
         }

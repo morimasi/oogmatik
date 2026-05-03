@@ -222,7 +222,7 @@ export const validateUpdateProfileRequest = (
     errors.avatar = 'Geçerli bir URL girin';
   }
 
-  if (d.phone && typeof d.phone === 'string' && !/^[\d\s\-\+\(\)]+$/.test(d.phone)) {
+  if (d.phone && typeof d.phone === 'string' && !/^[\d\s\-+()]+$/.test(d.phone)) {
     errors.phone = 'Geçerli bir telefon numarası girin';
   }
 

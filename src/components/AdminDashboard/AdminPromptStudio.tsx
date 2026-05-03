@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { PromptTemplate, PromptSnippet, PromptVersion } from '../../types/admin';
+import { PromptTemplate, PromptSnippet } from '../../types/admin';
 import { adminService } from '../../services/adminService';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../../constants';
 // import { _ActivityType } from '../../types'; // Not used in the component logic directly but was imported
@@ -79,9 +79,8 @@ export const AdminPromptStudio = () => {
   const [prompts, setPrompts] = useState<PromptTemplate[]>([]);
   const [selected, setSelected] = useState<PromptTemplate | null>(null);
   const [snippets, setSnippets] = useState<PromptSnippet[]>([]);
-  const [_loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [testVars, _setTestVars] = useState<Record<string, string>>({});
+  const [testVars] = useState<Record<string, string>>({});
   const [activeTab, setActiveTab] = useState<'editor' | 'history' | 'simulation'>('editor');
 
   // A/B Testing States
@@ -209,12 +208,15 @@ export const AdminPromptStudio = () => {
     }
   };
 
-  const _runSimulation = async (variant: 'A' | 'B') => {
+  const runSimulation = async (variant: 'A' | 'B') => {
     if (!selected) return;
 
-    variant === 'A'
-      ? setSimA((p) => ({ ...p, loading: true, result: '' }))
-      : setSimB((p) => ({ ...p, loading: true, result: '' }));
+    if (variant === 'A') {
+      setSimA((p) => ({ ...p, loading: true, result: '' }));
+    } else {
+      setSimB((p) => ({ ...p, loading: true, result: '' }));
+    }
+    
     const t = variant === 'A' ? simA.temp : simB.temp;
 
     try {
@@ -226,17 +228,24 @@ export const AdminPromptStudio = () => {
       // Simulate variable injection inside the service or here
       const mockResult = await adminService.testPrompt(tempSelected, testVars);
       const strRes = JSON.stringify(mockResult, null, 2);
-      variant === 'A'
-        ? setSimA((p) => ({ ...p, result: strRes }))
-        : setSimB((p) => ({ ...p, result: strRes }));
-    } catch (e: any) {
-      variant === 'A'
-        ? setSimA((p: any) => ({ ...p, result: `HATA: ${e.message}` }))
-        : setSimB((p: any) => ({ ...p, result: `HATA: ${e.message}` }));
+      
+      if (variant === 'A') {
+        setSimA((p) => ({ ...p, result: strRes }));
+      } else {
+        setSimB((p) => ({ ...p, result: strRes }));
+      }
+    } catch (err: any) {
+      if (variant === 'A') {
+        setSimA((p: any) => ({ ...p, result: `HATA: ${err.message}` }));
+      } else {
+        setSimB((p: any) => ({ ...p, result: `HATA: ${err.message}` }));
+      }
     } finally {
-      variant === 'A'
-        ? setSimA((p) => ({ ...p, loading: false }))
-        : setSimB((p) => ({ ...p, loading: false }));
+      if (variant === 'A') {
+        setSimA((p) => ({ ...p, loading: false }));
+      } else {
+        setSimB((p) => ({ ...p, loading: false }));
+      }
     }
   };
 

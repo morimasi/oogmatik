@@ -47,12 +47,12 @@ class BehaviorTracker {
     };
   }
 
-  async syncWithServer(studentId: string, activityId: string) {
+  async syncWithServer(_studentId: string, _activityId: string) {
     try {
       // API çağrısı buraya gelecek
       // await api.post('/analytics/behavior', { studentId, activityId, events: this.events });
     } catch (e) {
-      logError('BehaviorTracker sync error', e as Record<string, unknown>);
+      logError('BehaviorTracker sync error', { error: e });
     }
   }
 }
