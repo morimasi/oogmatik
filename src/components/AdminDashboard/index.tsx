@@ -18,7 +18,7 @@ import { AdminUserManagement } from './AdminUserManagement';
 import { AdminDraftReview } from './AdminDraftReview';
 import { AdminActivityApproval } from './AdminActivityApproval';
 
-import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { logError } from '../../utils/logger.js';
 interface AdminDashboardProps {
   onBack: () => void;
 }
@@ -75,8 +75,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
       ]);
       setUsersCount(usersData.count || 0);
       setStats(statsData);
-    } catch (e) {
-      logError('Admin load error', e);
+    } catch (e: unknown) {
+      logError('Admin load error', e as Record<string, unknown>);
     } finally {
       setLoading(false);
     }

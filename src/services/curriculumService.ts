@@ -175,5 +175,26 @@ export const curriculumService = {
             return { ...(docSnap.data() as any), id: docSnap.id };
         }
         return null;
+    },
+
+    updateActivityStatus: async (curriculumId: string, day: number, activityId: string, status: CurriculumActivityStatus): Promise<void> => {
+        const planRef = doc(db, "saved_curriculums", curriculumId);
+        const docSnap = await getDoc(planRef);
+        if (!docSnap.exists()) return;
+
+        const data = docSnap.data() as Curriculum;
+        const newSchedule = data.schedule.map(d => {
+            if (d.day === day) {
+                return {
+                    ...d,
+                    activities: d.activities.map(a => 
+                        a.id === activityId ? { ...a, status } : a
+                    )
+                };
+            }
+            return d;
+        });
+
+        await updateDoc(planRef, { schedule: newSchedule });
     }
 };

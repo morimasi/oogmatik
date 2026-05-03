@@ -1,18 +1,20 @@
 
 import React, { useState, useEffect } from 'react';
 import { curriculumService } from '../services/curriculumService';
-import { Curriculum, CurriculumDay, CurriculumActivity, Student, ActivityType } from '../types';
-import { ACTIVITIES } from '../constants';
+import { Curriculum, CurriculumDay, Student } from '../types';
 import { printService } from '../utils/printService';
 import { useAuthStore } from '../store/useAuthStore';
 import { useStudentStore } from '../store/useStudentStore';
 import { ShareModal } from './ShareModal';
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError } from '../utils/logger.js';
+import { AppError } from '../utils/AppError';
+import { Difficulty } from '../types/common';
+
 interface CurriculumViewProps {
     onBack: () => void;
     onSelectActivity: (id: string) => void;
-    onStartCurriculumActivity: (planId: string, day: number, activityId: string, activityType: string, studentName: string, title: string, difficulty: 'Easy' | 'Medium' | 'Hard', goal: string, studentId?: string) => void;
+    onStartCurriculumActivity: (planId: string, day: number, activityId: string, activityType: string, studentName: string, title: string, difficulty: Difficulty, goal: string, studentId?: string) => void;
     initialPlan?: Curriculum | null;
     preFillData?: { name: string; age: number; weaknesses: string[], diagnosisContext?: string } | null;
 }
@@ -21,7 +23,7 @@ const DayCard: React.FC<{
     day: CurriculumDay,
     isActiveDay: boolean,
     onToggleActivity: (day: number, actId: string) => void,
-    onStartActivity: (actId: string, actType: string, title: string, difficulty: 'Easy' | 'Medium' | 'Hard', goal: string) => void,
+    onStartActivity: (actId: string, actType: string, title: string, difficulty: Difficulty, goal: string) => void,
     onSaveNote: (day: number, note: string) => void
 }> = ({ day, isActiveDay, onToggleActivity, onStartActivity, onSaveNote }) => {
     const isAllCompleted = day.activities.every(a => a.status === 'completed');
@@ -55,8 +57,8 @@ const DayCard: React.FC<{
                                 <h5 className={`font-bold text-sm truncate ${act.status === 'completed' ? 'line-through text-zinc-400' : 'text-zinc-800 dark:text-zinc-200'}`}>{act.title}</h5>
                                 <div className="flex items-center gap-2 mt-1">
                                     <span className="text-[9px] bg-zinc-100 dark:bg-zinc-700 px-1.5 py-0.5 rounded text-zinc-500 dark:text-zinc-400 font-mono">{act.duration} dk</span>
-                                    <span className={`text-[9px] px-1.5 py-0.5 rounded font-black uppercase ${act.difficultyLevel === 'Hard' ? 'text-rose-600 bg-rose-50' : act.difficultyLevel === 'Medium' ? 'text-amber-600 bg-amber-50' : 'text-emerald-600 bg-emerald-50'}`}>
-                                        {act.difficultyLevel === 'Hard' ? 'Zor' : act.difficultyLevel === 'Medium' ? 'Orta' : 'Kolay'}
+                                    <span className={`text-[9px] px-1.5 py-0.5 rounded font-black uppercase ${act.difficultyLevel === 'Zor' ? 'text-rose-600 bg-rose-50' : act.difficultyLevel === 'Orta' ? 'text-amber-600 bg-amber-50' : 'text-emerald-600 bg-emerald-50'}`}>
+                                        {act.difficultyLevel}
                                     </span>
                                 </div>
                                 <p className="text-[10px] text-zinc-500 mt-1 italic line-clamp-2 leading-tight">{act.goal}</p>
@@ -97,7 +99,7 @@ const DayCard: React.FC<{
     );
 };
 
-export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelectActivity, onStartCurriculumActivity, initialPlan, preFillData }) => {
+export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onStartCurriculumActivity, initialPlan, preFillData }) => {
     const { user } = useAuthStore();
     const { students, setActiveStudent } = useStudentStore();
 
@@ -149,7 +151,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
             setFormData({ name: '', age: 8, grade: '2. Sınıf', diagnosis: [], interests: [], weaknesses: [] });
             setActiveStudent(null);
         } else {
-            const student = students.find(s => s.id === sid);
+            const student = students.find((s: Student) => s.id === sid);
             if (student) {
                 setFormData(student);
                 setActiveStudent(student);
@@ -215,8 +217,8 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
             // Allow React to render the loading state before blocking the thread
             await new Promise(resolve => setTimeout(resolve, 50));
             await printService.generatePdf('.curriculum-plan-content', `${formData.name}-EgitimPlani`, { action });
-        } catch (e) {
-            logError(e);
+        } catch (e: unknown) {
+            logError(e as AppError);
         } finally {
             setIsPrinting(false);
         }
@@ -293,7 +295,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                                     className="w-full p-3 bg-white dark:bg-zinc-900 border border-amber-200 dark:border-amber-700 rounded-xl font-bold text-sm outline-none cursor-pointer focus:ring-2 ring-amber-500/20"
                                 >
                                     <option value="new">-- Yeni Profil Oluştur --</option>
-                                    {students.map(s => <option key={s.id} value={s.id}>{s.name} ({s.grade})</option>)}
+                                    {students.map((s: Student) => <option key={s.id} value={s.id}>{s.name} ({s.grade})</option>)}
                                 </select>
                             </div>
 
