@@ -88,7 +88,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Only block critical/high-level injection attempts (actual attacks), not false positives
     // from educational content patterns (e.g. pedagogical instructions).
     const securityResult = validatePromptSecurity(prompt, {
-      maxLength: 10000,
+      maxLength: 15000,
       enableLogging: true,
       blockOnThreat: true,
       threatThreshold: 'high',

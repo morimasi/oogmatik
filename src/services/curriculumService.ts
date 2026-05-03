@@ -29,8 +29,10 @@ export const curriculumService = {
         durationDays: number = 7
     ): Promise<Curriculum> => {
 
-        // Tüm aktivitelerin ID ve Açıklamasını birleştir
-        const availableActivities = ACTIVITIES.map(a => `- ${a.id}: ${a.title} (${a.description})`).join('\n');
+        // Aktivite havuzunu daha kompakt hale getirerek 10.000 karakter sınırını koru
+        const availableActivities = ACTIVITIES
+            .map(a => `- ${a.id}: ${a.title}`)
+            .join('\n');
 
         const prompt = `
         [ROL: KIDEMLİ NÖRO-PSİKOLOG VE BEP (BİREYSEL EĞİTİM PLANI) TASARIMCISI - GEMINI 3 FLASH THINKING]
