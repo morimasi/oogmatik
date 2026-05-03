@@ -8,7 +8,25 @@ export class IdeationAgent extends BaseAgent {
   }
 
   buildPrompt(input: AgentInput): string {
-    return `Konu: ${input.sanitizedPrompt.sanitizedTopic}. Yas grubu: ${input.goal.ageGroup}. 3 etkinlik fikri uret.`;
+    const { ageGroup, difficulty, profile } = input.goal;
+    const topic = input.sanitizedPrompt.sanitizedTopic;
+
+    return `
+      [ROL: KIDEMLİ NÖRO-PEDAGOJİK TASARIMCI]
+      GÖREV: "${topic}" konusu için disleksi/ADHD dostu 3 yaratıcı etkinlik fikri üret.
+      
+      BAĞLAM:
+      - Yaş Grubu: ${ageGroup}
+      - Zorluk: ${difficulty}
+      - Öğrenci Profili: ${profile}
+      
+      STRATEJİ:
+      1. Multisensory Yaklaşım: Görsel, işitsel ve dokunsal öğeleri harmanla.
+      2. Scaffolding: İlk fikir her zaman güven inşası için kolaydan başlamalı.
+      3. Bilişsel Yük: ADHD için kısa süreli odaklanma döngüleri planla.
+      
+      Yanıtını JSON formatında 'ideas' dizisi olarak döndür.
+    `;
   }
 
   protected toPedagogicalNote(): string {

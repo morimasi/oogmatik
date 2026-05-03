@@ -160,14 +160,14 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
       if (currentId) {
         await worksheetService.shareWorksheet(currentId, user.id, user.name, receiverIds);
-        alert('Çalışma başarıyla paylaşıldı!');
+        useToastStore.getState().success('Çalışma başarıyla paylaşıldı!');
         setIsShareModalOpen(false);
       } else {
-        alert('Önce çalışmayı kaydetmelisiniz.');
+        useToastStore.getState().warning('Önce çalışmayı kaydetmelisiniz.');
       }
     } catch (error: any) {
       logError('Share error:', error);
-      alert(`Paylaşım başarısız: ${error.message}`);
+      useToastStore.getState().error(`Paylaşım başarısız: ${error.message}`);
     } finally {
       setIsShareSending(false);
     }
@@ -175,7 +175,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
   const handleAssign = async () => {
     if (!user) {
-      alert("Önce giriş yapmalısınız.");
+      useToastStore.getState().info("Önce giriş yapmalısınız.");
       onOpenAuth?.();
       return;
     }
@@ -200,11 +200,11 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       if (currentId) {
         useAssignmentStore.getState().setIsAssignModalOpen(true, currentId);
       } else {
-        alert('Önce çalışmayı kaydetmelisiniz.');
+        useToastStore.getState().warning('Önce çalışmayı kaydetmelisiniz.');
       }
     } catch (error: any) {
       logError('Assign error:', error);
-      alert(`Atama başlatılamadı: ${error.message}`);
+      useToastStore.getState().error(`Atama başlatılamadı: ${error.message}`);
     }
   };
   const { isEditMode, setEditMode, zoomScale, setZoomScale } = useAppStore();

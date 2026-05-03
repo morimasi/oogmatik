@@ -8,7 +8,21 @@ export class ContentAgent extends BaseAgent {
   }
 
   buildPrompt(input: AgentInput): string {
-    return `Konu: ${input.goal.topic}. Hedef beceriler: ${input.goal.targetSkills.join(', ')}. Kısa ve adımlı içerik üret. Lütfen yanıtını sadece 'blocks' dizisi barındıran geçerli bir JSON olarak ver.`;
+    const { topic, targetSkills, ageGroup, difficulty } = input.goal;
+    
+    return `
+      [ROL: ÖZEL EĞİTİM İÇERİK YAZARI]
+      GÖREV: "${topic}" konusu için adım adım pedagojik içerik üret.
+      
+      KRİTERLER:
+      - Hedef Beceriler: ${targetSkills.join(', ')}
+      - Yaş/Zorluk: ${ageGroup} / ${difficulty}
+      - Dil: Açık, kısa cümleler, yönerge odaklı.
+      - Disleksi Önlemi: Karıştırılabilir harf/rakam içeren kelimeleri (b-d, 6-9) bağlam içinde netleştir.
+      
+      Lütfen yanıtını sadece 'blocks' dizisi barındıran geçerli bir JSON olarak ver. 
+      Her blok 'type' (text, instruction, example, quiz) ve 'content' içermeli.
+    `;
   }
 
   protected toPedagogicalNote(input: AgentInput): string {

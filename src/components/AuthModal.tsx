@@ -141,11 +141,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }: AuthMod
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-zinc-800 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col">
-        <div className="flex border-b border-zinc-200 dark:border-zinc-700">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[110] flex items-center justify-center p-4 animate-in fade-in duration-300">
+      <div className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden flex flex-col relative">
+        {/* Shimmer Effect */}
+        <div className="absolute inset-0 pointer-events-none shimmer-effect opacity-5 z-0"></div>
+
+        <div className="flex border-b border-[var(--border-color)] relative z-10">
           <button
-            className={`flex-1 py-4 text-sm font-bold transition-colors ${mode === 'login' ? 'bg-white dark:bg-zinc-800 text-indigo-600 border-b-2 border-indigo-600' : 'bg-zinc-50 dark:bg-zinc-900/50 text-zinc-500'}`}
+            className={`flex-1 py-5 text-[10px] font-black uppercase tracking-[0.2em] transition-all ${mode === 'login' ? 'bg-[var(--bg-paper)] text-[var(--accent-color)] border-b-2 border-[var(--accent-color)] shadow-sm' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)]'}`}
             onClick={() => {
               if (!isLoading) {
                 setMode('login');
@@ -157,7 +160,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }: AuthMod
             Giriş Yap
           </button>
           <button
-            className={`flex-1 py-4 text-sm font-bold transition-colors ${mode === 'register' ? 'bg-white dark:bg-zinc-800 text-indigo-600 border-b-2 border-indigo-600' : 'bg-zinc-50 dark:bg-zinc-900/50 text-zinc-500'}`}
+            className={`flex-1 py-5 text-[10px] font-black uppercase tracking-[0.2em] transition-all ${mode === 'register' ? 'bg-[var(--bg-paper)] text-[var(--accent-color)] border-b-2 border-[var(--accent-color)] shadow-sm' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)]'}`}
             onClick={() => {
               if (!isLoading) {
                 setMode('register');
@@ -170,36 +173,38 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }: AuthMod
           </button>
         </div>
 
-        <div className="p-8">
-          <h2 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100 mb-6 text-center">
-            {mode === 'login' ? 'Hoş Geldiniz!' : 'Hesap Oluştur'}
-          </h2>
+        <div className="p-10 relative z-10">
+          <div className="mb-8 text-center">
+            <h2 className="text-3xl font-black text-[var(--text-primary)] tracking-tighter italic uppercase mb-2">
+              {mode === 'login' ? 'Hoş Geldiniz!' : 'Hesap Oluştur'}
+            </h2>
+            <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">
+              Oogmatik Eğitim Ekosistemi
+            </p>
+          </div>
 
           {error && (
-            <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-300 text-sm rounded-lg border border-red-200 dark:border-red-800 flex items-start gap-2 animate-pulse">
+            <div className="mb-6 p-4 bg-red-500/10 text-red-500 text-[10px] font-black uppercase tracking-widest rounded-2xl border border-red-500/20 flex items-start gap-3 animate-in slide-in-from-top-2">
               <i className="fa-solid fa-circle-exclamation mt-0.5"></i>
               <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {mode === 'register' && (
-              <div>
+              <div className="space-y-1.5">
                 <label
                   htmlFor="auth-name"
-                  className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
+                  className="block text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1"
                 >
-                  Ad Soyad{' '}
-                  <span className="text-red-500" aria-hidden="true">
-                    *
-                  </span>
+                  Ad Soyad
                 </label>
                 <input
                   id="auth-name"
                   type="text"
                   value={name}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
-                  className="w-full p-3 border border-zinc-300 dark:border-zinc-600 rounded-xl bg-transparent focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
+                  className="w-full p-4 border border-[var(--border-color)] rounded-2xl bg-[var(--bg-secondary)] focus:ring-2 focus:ring-[var(--accent-color)]/20 focus:border-[var(--accent-color)] outline-none text-[var(--text-primary)] font-bold transition-all placeholder:text-[var(--text-muted)]/30"
                   placeholder="Adınız"
                   autoComplete="name"
                   required={mode === 'register'}
@@ -207,37 +212,31 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }: AuthMod
                 />
               </div>
             )}
-            <div>
+            <div className="space-y-1.5">
               <label
                 htmlFor="auth-email"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
+                className="block text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1"
               >
-                E-posta{' '}
-                <span className="text-red-500" aria-hidden="true">
-                  *
-                </span>
+                E-posta
               </label>
               <input
                 id="auth-email"
                 type="email"
                 value={email}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-                className="w-full p-3 border border-zinc-300 dark:border-zinc-600 rounded-xl bg-transparent focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white"
+                className="w-full p-4 border border-[var(--border-color)] rounded-2xl bg-[var(--bg-secondary)] focus:ring-2 focus:ring-[var(--accent-color)]/20 focus:border-[var(--accent-color)] outline-none text-[var(--text-primary)] font-bold transition-all placeholder:text-[var(--text-muted)]/30"
                 placeholder="ornek@email.com"
                 autoComplete="email"
                 required
                 disabled={isLoading}
               />
             </div>
-            <div>
+            <div className="space-y-1.5">
               <label
                 htmlFor="auth-password"
-                className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1"
+                className="block text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1"
               >
-                Şifre{' '}
-                <span className="text-red-500" aria-hidden="true">
-                  *
-                </span>
+                Şifre
               </label>
               <div className="relative">
                 <input
@@ -245,7 +244,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }: AuthMod
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-                  className="w-full p-3 border border-zinc-300 dark:border-zinc-600 rounded-xl bg-transparent focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white pr-12"
+                  className="w-full p-4 border border-[var(--border-color)] rounded-2xl bg-[var(--bg-secondary)] focus:ring-2 focus:ring-[var(--accent-color)]/20 focus:border-[var(--accent-color)] outline-none text-[var(--text-primary)] font-bold transition-all pr-14 placeholder:text-[var(--text-muted)]/30"
                   placeholder="••••••"
                   autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
                   required
@@ -255,7 +254,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }: AuthMod
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
                   aria-label={showPassword ? 'Şifreyi gizle' : 'Şifreyi göster'}
                   title={showPassword ? 'Gizle' : 'Göster'}
                   disabled={isLoading}
@@ -268,7 +267,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }: AuthMod
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-all disabled:opacity-70 disabled:cursor-not-allowed mt-4 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+              className="w-full bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white font-black py-4 rounded-2xl transition-all disabled:opacity-50 disabled:cursor-not-allowed mt-6 flex items-center justify-center gap-3 shadow-lg shadow-[var(--accent-muted)] hover:scale-[1.02] active:scale-[0.98] text-[10px] uppercase tracking-[0.2em]"
             >
               {isLoading ? (
                 <>
@@ -276,58 +275,38 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }: AuthMod
                   <span>{loadingText}</span>
                 </>
               ) : mode === 'login' ? (
-                'Giriş Yap'
+                'Sisteme Giriş Yap'
               ) : (
-                'Kayıt Ol'
+                'Yeni Hesap Oluştur'
               )}
             </button>
           </form>
 
-          <div className="mt-6 relative">
+          <div className="mt-8 relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-zinc-200 dark:border-zinc-700"></div>
+              <div className="w-full border-t border-[var(--border-color)]"></div>
             </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white dark:bg-zinc-800 px-2 text-zinc-400 font-bold">Veya</span>
+            <div className="relative flex justify-center">
+              <span className="bg-[var(--bg-paper)] px-4 text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest">Veya</span>
             </div>
           </div>
 
           <button
             onClick={handleGoogleSignIn}
             disabled={isLoading}
-            className="w-full mt-6 bg-white dark:bg-zinc-700 border border-zinc-300 dark:border-zinc-600 hover:bg-zinc-50 dark:hover:bg-zinc-600 text-zinc-700 dark:text-zinc-100 font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-md disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full mt-8 bg-[var(--bg-paper)] border border-[var(--border-color)] hover:bg-[var(--bg-secondary)] text-[var(--text-primary)] font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-3 shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed text-[10px] uppercase tracking-[0.2em]"
           >
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
-              <path
-                fill="#4285F4"
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-              />
-              <path fill="none" d="M0 0h24v24H0z" />
-            </svg>
-            <span>Google ile Giriş Yap</span>
-          </button>
-
-          {/* Vazgeç butonu */}
-          <button
-            onClick={handleClose}
-            type="button"
-            className="w-full mt-4 text-zinc-400 text-sm hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors py-2"
-          >
-            Vazgeç
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/smartlock/google.svg" alt="" className="w-5 h-5" />
+            Google ile Devam Et
           </button>
         </div>
+        
+        <button 
+          onClick={handleClose}
+          className="absolute top-6 right-6 w-10 h-10 rounded-xl flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-secondary)] transition-all z-20"
+        >
+          <i className="fa-solid fa-xmark text-lg"></i>
+        </button>
       </div>
     </div>
   );

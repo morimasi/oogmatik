@@ -4,6 +4,7 @@
  */
 
 import { RateLimitError } from '../utils/AppError.js';
+import { db, doc, getDoc, setDoc, updateDoc } from './firebaseClient.js';
 
 /**
  * Token Bucket: Her user'ın belirli süre içinde yapabileceği request sayısı
@@ -11,7 +12,6 @@ import { RateLimitError } from '../utils/AppError.js';
 interface TokenBucket {
     tokens: number;           // Mevcut token sayısı
     lastRefill: number;       // Son refill zamanı (timestamp)
-    createdAt: number;        // Bucket oluşturulma zamanı
 }
 
 /**
@@ -20,7 +20,6 @@ interface TokenBucket {
 export interface RateLimitConfig {
     tokens: number;           // Başlangıç token sayısı
     windowMs: number;         // Zaman penceresi (ms)
-    refillRate?: number;      // Token/ms (otomatik hesaplanırsa boş)
 }
 
 /**
@@ -51,64 +50,87 @@ export type LimitKey = keyof typeof RATE_LIMIT_PRESETS['free'];
 export type UserTier = 'free' | 'pro' | 'admin';
 
 /**
- * Main Rate Limiter Service
+ * UserQuota Service (Persistent Rate Limiting)
+ * Firestore tabanlı, sayfa yenilense de korunan kota yönetimi.
  */
-export class RateLimiter {
-    // In-memory bucket storage
-    private buckets = new Map<string, Map<LimitKey, TokenBucket>>();
+export class UserQuotaService {
+    private static instance: UserQuotaService;
 
-    // Cleanup interval (1 saat başına eski bucket'ları temizle)
-    private cleanupInterval: ReturnType<typeof setInterval> | null = null;
+    private constructor() {}
 
-    constructor(cleanupIntervalMs: number = 3600000) {
-        // Browser'da çalıştığımızı varsay (Node.js server'da da çalışır)
-        this.cleanupInterval = setInterval(() => this.cleanup(), cleanupIntervalMs);
+    public static getInstance(): UserQuotaService {
+        if (!UserQuotaService.instance) {
+            UserQuotaService.instance = new UserQuotaService();
+        }
+        return UserQuotaService.instance;
     }
 
     /**
-     * Token var mı kontrol et ve harcayıp harcamadığını belirle
+     * Kota kontrolü yap ve harca
      */
-    async checkLimit(
+    async checkAndConsume(
         userId: string,
         tier: UserTier,
         limitKey: LimitKey,
         cost: number = 1
     ): Promise<{ allowed: boolean; remaining: number; resetAfterMs: number }> {
+        if (!userId) return { allowed: true, remaining: 999, resetAfterMs: 0 };
+
         const config = RATE_LIMIT_PRESETS[tier][limitKey];
-        const bucket = this.getOrCreateBucket(userId, limitKey, config);
+        const quotaRef = doc(db, 'user_quotas', `${userId}_${limitKey}`);
+        const now = Date.now();
 
-        // Token'ları refill et
-        this.refillTokens(bucket, config);
+        try {
+            const docSnap = await getDoc(quotaRef);
+            let bucket: TokenBucket;
 
-        // Token var mı?
-        const allowed = bucket.tokens >= cost;
+            if (!docSnap.exists()) {
+                // Yeni bucket oluştur
+                bucket = {
+                    tokens: config.tokens,
+                    lastRefill: now
+                };
+                await setDoc(quotaRef, bucket);
+            } else {
+                bucket = docSnap.data() as TokenBucket;
+            }
 
-        if (allowed) {
-            bucket.tokens -= cost;
+            // Refill tokens
+            this.refillTokens(bucket, config, now);
+
+            // Check if allowed
+            const allowed = bucket.tokens >= cost;
+
+            if (allowed) {
+                bucket.tokens -= cost;
+                await updateDoc(quotaRef, {
+                    tokens: bucket.tokens,
+                    lastRefill: bucket.lastRefill
+                });
+            }
+
+            const remaining = Math.floor(bucket.tokens);
+            const timeSinceRefill = now - bucket.lastRefill;
+            const resetAfterMs = Math.max(0, config.windowMs - timeSinceRefill);
+
+            return { allowed, remaining, resetAfterMs };
+        } catch (error) {
+            console.error('Quota check failed:', error);
+            // Hata durumunda (Firebase kapalı vb.) fallback olarak izin ver
+            return { allowed: true, remaining: 0, resetAfterMs: 0 };
         }
-
-        // Kalan tokenleri ve reset zamanını hesapla
-        const remaining = Math.floor(bucket.tokens);
-        const timeSinceRefill = Date.now() - bucket.lastRefill;
-        const resetAfterMs = Math.max(0, config.windowMs - timeSinceRefill);
-
-        return {
-            allowed,
-            remaining,
-            resetAfterMs
-        };
     }
 
     /**
      * Hızlı kontrol (throw hatası döner)
      */
-    async enforceLimit(
+    async enforce(
         userId: string,
         tier: UserTier,
         limitKey: LimitKey,
         cost: number = 1
     ): Promise<void> {
-        const { allowed, resetAfterMs } = await this.checkLimit(userId, tier, limitKey, cost);
+        const { allowed, resetAfterMs } = await this.checkAndConsume(userId, tier, limitKey, cost);
 
         if (!allowed) {
             const resetAfterSec = Math.ceil(resetAfterMs / 1000);
@@ -116,154 +138,20 @@ export class RateLimiter {
         }
     }
 
-    /**
-     * Mevcut durumu kontrol et (consume etmeden)
-     */
-    getStatus(userId: string, tier: UserTier, limitKey: LimitKey): {
-        remaining: number;
-        total: number;
-        resetsAt: Date;
-    } {
-        const config = RATE_LIMIT_PRESETS[tier][limitKey];
-        const bucket = this.getOrCreateBucket(userId, limitKey, config);
-
-        this.refillTokens(bucket, config);
-
-        const resetsAt = new Date(bucket.lastRefill + config.windowMs);
-
-        return {
-            remaining: Math.floor(bucket.tokens),
-            total: config.tokens,
-            resetsAt
-        };
-    }
-
-    /**
-     * Token'ları manual olarak reset et (test/admin için)
-     */
-    reset(userId: string, limitKey?: LimitKey): void {
-        if (limitKey) {
-            const userBuckets = this.buckets.get(userId);
-            if (userBuckets) {
-                userBuckets.delete(limitKey);
-            }
-        } else {
-            this.buckets.delete(userId);
-        }
-    }
-
-    /**
-     * Private: Bucket al veya oluştur
-     */
-    private getOrCreateBucket(
-        userId: string,
-        limitKey: LimitKey,
-        config: RateLimitConfig
-    ): TokenBucket {
-        if (!this.buckets.has(userId)) {
-            this.buckets.set(userId, new Map());
-        }
-
-        const userBuckets = this.buckets.get(userId)!;
-
-        if (!userBuckets.has(limitKey)) {
-            const now = Date.now();
-            userBuckets.set(limitKey, {
-                tokens: config.tokens,
-                lastRefill: now,
-                createdAt: now
-            });
-        }
-
-        return userBuckets.get(limitKey)!;
-    }
-
-    /**
-     * Private: Token'ları refill et (linear, zaman tabanlı)
-     */
-    private refillTokens(bucket: TokenBucket, config: RateLimitConfig): void {
-        const now = Date.now();
+    private refillTokens(bucket: TokenBucket, config: RateLimitConfig, now: number): void {
         const timePassed = now - bucket.lastRefill;
 
         if (timePassed >= config.windowMs) {
-            // Tam reset
             bucket.tokens = config.tokens;
             bucket.lastRefill = now;
         } else {
-            // Partial refill: (timePassed / windowMs) * tokens
             const refillAmount = (timePassed / config.windowMs) * config.tokens;
             bucket.tokens = Math.min(bucket.tokens + refillAmount, config.tokens);
             bucket.lastRefill = now;
         }
     }
-
-    /**
-     * Private: Eski bucket'ları temizle (1 saat inactivity)
-     */
-    private cleanup(): void {
-        const oneDayMs = 86400000;
-        const now = Date.now();
-
-        for (const [userId, limitBuckets] of this.buckets.entries()) {
-            // User bucket'ı çok eski mi?
-            let allOld = true;
-
-            for (const [_, bucket] of limitBuckets.entries()) {
-                if (now - bucket.createdAt < oneDayMs) {
-                    allOld = false;
-                    break;
-                }
-            }
-
-            // Eğer tüm bucket'lar eski ise sil
-            if (allOld && limitBuckets.size > 0) {
-                this.buckets.delete(userId);
-            }
-        }
-    }
-
-    /**
-     * Service'i kapat (cleanup interval'ı temizle)
-     */
-    destroy(): void {
-        if (this.cleanupInterval) {
-            clearInterval(this.cleanupInterval);
-            this.cleanupInterval = null;
-        }
-        this.buckets.clear();
-    }
-
-    /**
-     * Debug: Tüm bucket'ları göster (geliştirme için)
-     */
-    debug(): Record<string, Record<string, any>> {
-        const debug: Record<string, Record<string, any>> = {};
-
-        for (const [userId, limitBuckets] of this.buckets.entries()) {
-            debug[userId] = {};
-            for (const [key, bucket] of limitBuckets.entries()) {
-                debug[userId][key] = {
-                    tokens: bucket.tokens.toFixed(2),
-                    lastRefill: new Date(bucket.lastRefill).toISOString()
-                };
-            }
-        }
-
-        return debug;
-    }
 }
 
-/**
- * Global instance
- */
-export const rateLimiter = new RateLimiter();
-
-/**
- * Convenience function: user ID + tier'dan directly enforce et
- */
-export const enforceRateLimit = (
-    userId: string,
-    tier: UserTier,
-    limitKey: LimitKey,
-    cost: number = 1
-) => rateLimiter.enforceLimit(userId, tier, limitKey, cost);
+export const quotaService = UserQuotaService.getInstance();
+export const enforceRateLimit = (userId: string, tier: UserTier, limitKey: LimitKey, cost: number = 1) => 
+    quotaService.enforce(userId, tier, limitKey, cost);
