@@ -6,6 +6,8 @@
 read:
   - AGENTS.md
   - CLAUDE.md
+  - GEMINI.md
+  - .claude/MODULE_KNOWLEDGE.md
 
 # Varsayılan AI modeli
 model: gemini/gemini-2.5-flash

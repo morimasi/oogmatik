@@ -6,7 +6,7 @@ GitHub Copilot ile çalışırken, projenin **v2 Professional** AI mimarisi her 
 ### 🌟 Temel Protokoller
 1. **Otomatik Tetikleme**: Her geliştirme isteminde tüm uzman ekip (Ideation, Content, Visual, Flow, Evaluation, Integration) arka planda otomatik olarak analiz yapar.
 2. **Hata Denetimi & Self-Correction**: Ajanlar birbirlerini denetler, halüsinasyonları engeller ve en stabil çözümü sunar.
-3. **Evrensel Bilgi Hakimiyeti**: Ajanlar, [MODULE_KNOWLEDGE.md](file:///.claude/MODULE_KNOWLEDGE.md) üzerinden uygulamanın TÜM dosya, işlev ve modül haritasına %100 hakimdir.
+3. Evrensel Bilgi Hakimiyeti: Ajanlar, [MODULE_KNOWLEDGE.md](file:///c:/Users/Administrator/Desktop/oogmatik/.claude/MODULE_KNOWLEDGE.md) üzerinden uygulamanın TÜM dosya, işlev ve modül haritasına %100 hakimdir.
 
 ---
 

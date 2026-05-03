@@ -1,5 +1,7 @@
 # Google Antigravity / Project IDX — Ortam Yapılandırması
 # Oogmatik EdTech Platformu: React 18 + TypeScript + Vite + Node.js 20
+# 🤖 AI AJAN v2 PROFESSIONAL & OTOMATİK AKTİVASYON AKTİFTİR.
+# Ajanlar MODULE_KNOWLEDGE.md üzerinden tüm sisteme hakimdir.
 { pkgs, ... }: {
   channel = "stable-24.05";
 
