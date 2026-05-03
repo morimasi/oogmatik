@@ -26,6 +26,7 @@ Bu projede AI ajanları, Google Antigravity ve Gemini CLI ile **tam senkronize**
 - **Tam Otomatik Devreye Girme**: Geliştirme sürecindeki her adımda ajanlar otomatik olarak tetiklenir ve kolektif bir zeka ile sorunu çözer.
 - **Halüsinasyon Engelleme**: `temperature: 0.1` ve `validateAndCorrect` katmanları ile en kararlı çıktılar garanti edilir.
 - **Ultra-Premium Standartlar**: Her çıktı; görsel, pedagojik ve teknik açıdan projenin "Hata Toleransı Sıfır" kuralına göre denetlenir.
+- **Sistem Bilinci**: Ajanlar, [MODULE_KNOWLEDGE.md](file:///.claude/MODULE_KNOWLEDGE.md) belgesini kullanarak uygulamanın her dosyasını, fonksiyonunu ve modülünü derinlemesine tanır.
 
 ### 👥 Ajan Görev Dağılımı
 - **Ideation**: Stratejik konsept ve sinaptik bağ tasarımı.

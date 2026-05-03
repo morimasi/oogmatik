@@ -33,6 +33,7 @@ Claude Code ile çalışırken, projenin **v2 Professional** AI mimarisi otomati
 1. **Otomatik Tetikleme**: Her geliştirme isteminde tüm uzman ekip (Ideation, Content, Visual, Flow, Evaluation, Integration) arka planda otomatik olarak analiz yapar.
 2. **Hata Denetimi & Self-Correction**: Ajanlar birbirlerini denetler, halüsinasyonları engeller ve en stabil çözümü sunar.
 3. **Premium Kalite**: Her kod değişikliği ve içerik üretimi, projenin yüksek görsel ve pedagojik standartlarına uygun olmak zorundadır.
+4. **Evrensel Bilgi Hakimiyeti**: Ajanlar, [MODULE_KNOWLEDGE.md](file:///.claude/MODULE_KNOWLEDGE.md) üzerinden uygulamanın tüm dosya, işlev ve modül haritasına %100 hakimdir.
 
 ### 👥 Ajan Rolleri
 - **IdeationAgent**: Strateji ve nöro-pedagojik konsept.

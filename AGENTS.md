@@ -44,6 +44,12 @@ Uygulama geliştirme ve içerik üretim süreçlerinde **v2 Professional** mimar
 - **Oto-Pilot**: Her prompt, [AgentOrchestrator](file:///src/services/activityStudio/AgentOrchestrator.ts) tarafından analiz edilir ve ilgili ekip (Ideation, Content, Visual, Flow, Evaluation, Integration) anında işe başlar.
 - **Self-Correction**: Ajanlar çıktılarını birbirlerine aktarmadan önce halüsinasyon ve hata denetiminden (`validateAndCorrect`) geçerler.
 - **Peer-Review**: Her çıktı, bir sonraki uzman ajan tarafından "Akran Denetimi"ne tabi tutulur.
+- **Global Aktivasyon**: Tüm geliştirme ortamlarında (Cursor, Windsurf, Claude Code, Gemini CLI, Aider, Zed vb.) bu protokoller her zaman **otomatik** olarak devrededir.
+
+### 📚 Tam Sistem Hakimiyeti
+- **Source of Truth**: [MODULE_KNOWLEDGE.md](file:///.claude/MODULE_KNOWLEDGE.md) belgesi, uygulamanın her bir dosyasını, özelliğini ve işlevini içeren "Evrensel Bilgi Kaynağı"dır.
+- **Dosya Bilinci**: Ajanlar her dosyayı, her fonksiyonu ve her modülün birbiriyle olan ilişkisini bu belge üzerinden bilir ve geliştirme yaparken bu bağlamı korur.
+- **Sürekli Güncellik**: Her yeni özellik veya dosya değişikliğinde `MODULE_KNOWLEDGE.md` otomatik olarak güncellenir ve ajanların bilgisi taze tutulur.
 
 ### 🎓 Uzman Kadro v2
 1. **IdeationAgent**: Baş Nöro-Pedagojik Tasarımcı. Sinaptik bağ odaklı, sarmal öğrenme kurguları üretir.

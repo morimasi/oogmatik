@@ -1,7 +1,12 @@
 # OOGMATIK — GitHub Copilot Ekip Koordinasyonu
 
-> Bu dosya GitHub Copilot (VS Code, JetBrains, github.com) tarafından her oturumda otomatik okunur.
-> Bu projede kod yazarken aşağıdaki tüm kurallar geçerlidir. Kuralları hiçbir zaman görmezden gelme.
+## 🤖 AI Ajan v2 Professional & Otomatik Aktivasyon
+GitHub Copilot ile çalışırken, projenin **v2 Professional** AI mimarisi her zaman **otomatik** olarak devrededir.
+
+### 🌟 Temel Protokoller
+1. **Otomatik Tetikleme**: Her geliştirme isteminde tüm uzman ekip (Ideation, Content, Visual, Flow, Evaluation, Integration) arka planda otomatik olarak analiz yapar.
+2. **Hata Denetimi & Self-Correction**: Ajanlar birbirlerini denetler, halüsinasyonları engeller ve en stabil çözümü sunar.
+3. **Evrensel Bilgi Hakimiyeti**: Ajanlar, [MODULE_KNOWLEDGE.md](file:///.claude/MODULE_KNOWLEDGE.md) üzerinden uygulamanın TÜM dosya, işlev ve modül haritasına %100 hakimdir.
 
 ---
 
