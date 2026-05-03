@@ -468,23 +468,23 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
     };
 
     return (
-        <div className="h-full bg-zinc-50 dark:bg-zinc-900 flex flex-col overflow-hidden relative absolute inset-0 z-50">
-            <div className="h-16 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 flex justify-between items-center px-6 shadow-sm shrink-0 z-20 print:hidden">
+        <div className="h-full bg-[var(--bg-primary)] flex flex-col overflow-hidden relative absolute inset-0 z-50 font-lexend">
+            <div className="h-16 border-b border-[var(--border-color)] bg-[var(--bg-paper)] flex justify-between items-center px-6 shadow-sm shrink-0 z-20 print:hidden">
                 <div className="flex items-center gap-4">
-                    <button onClick={onBack} className="w-10 h-10 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center justify-center transition-colors text-zinc-500">
+                    <button onClick={onBack} className="w-10 h-10 rounded-xl hover:bg-[var(--bg-secondary)] flex items-center justify-center transition-colors text-[var(--text-muted)] border border-[var(--border-color)]">
                         <i className="fa-solid fa-arrow-left"></i>
                     </button>
-                    <h2 className="text-lg font-black text-zinc-800 dark:text-white flex items-center gap-2">
-                        <i className="fa-solid fa-calendar-check text-indigo-500"></i> Akıllı Müfredat Stüdyosu
+                    <h2 className="text-lg font-black text-[var(--text-primary)] flex items-center gap-2 italic uppercase tracking-tighter">
+                        <i className="fa-solid fa-calendar-check text-[var(--accent-color)]"></i> Akıllı Müfredat Stüdyosu
                     </h2>
                 </div>
                 <div className="flex gap-3">
                     {step === 4 && curriculum && (
                         <>
-                            <button onClick={() => setIsShareModalOpen(true)} className="w-10 h-10 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-700 flex items-center justify-center text-zinc-500 transition-colors" title="Paylaş"><i className="fa-solid fa-share-nodes"></i></button>
-                            <button onClick={() => handlePrint('download')} disabled={isPrinting} className="w-10 h-10 rounded-xl bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-500 transition-colors">{isPrinting ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-file-pdf"></i>}</button>
-                            <button onClick={() => handlePrint('print')} disabled={isPrinting} className="w-10 h-10 rounded-xl bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-500 transition-colors"><i className="fa-solid fa-print"></i></button>
-                            <button onClick={handleSave} disabled={isSaved || isSaving} className={`px-6 py-2 rounded-xl text-xs font-black transition-all flex items-center gap-2 shadow-lg ${isSaved ? 'bg-emerald-600 text-white cursor-default' : 'bg-zinc-900 text-white hover:bg-black dark:bg-white dark:text-black dark:hover:bg-zinc-200'}`}>
+                            <button onClick={() => setIsShareModalOpen(true)} className="w-10 h-10 rounded-xl hover:bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] transition-colors border border-[var(--border-color)]" title="Paylaş"><i className="fa-solid fa-share-nodes"></i></button>
+                            <button onClick={() => handlePrint('download')} disabled={isPrinting} className="w-10 h-10 rounded-xl bg-[var(--text-primary)] text-[var(--bg-paper)] hover:opacity-90 flex items-center justify-center transition-colors">{isPrinting ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-file-pdf"></i>}</button>
+                            <button onClick={() => handlePrint('print')} disabled={isPrinting} className="w-10 h-10 rounded-xl bg-[var(--text-primary)] text-[var(--bg-paper)] hover:opacity-90 flex items-center justify-center transition-colors"><i className="fa-solid fa-print"></i></button>
+                            <button onClick={handleSave} disabled={isSaved || isSaving} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg ${isSaved ? 'bg-emerald-600 text-white cursor-default' : 'bg-[var(--accent-color)] text-white hover:bg-[var(--accent-hover)]'}`}>
                                 {isSaving ? <i className="fa-solid fa-circle-notch fa-spin"></i> : isSaved ? <><i className="fa-solid fa-check"></i> Plan Kaydedildi</> : <><i className="fa-solid fa-save"></i> Planı Arşivle</>}
                             </button>
                         </>
@@ -492,7 +492,9 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onSelect
                 </div>
             </div>
             <div className="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar print:overflow-visible print:h-auto print:bg-white">
-                {renderWizard()}
+                <div className="w-full mx-auto">
+                    {renderWizard()}
+                </div>
             </div>
             <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} onShare={() => { }} />
         </div>

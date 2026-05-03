@@ -58,14 +58,14 @@ export const SuperStudio: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-full bg-slate-900 text-slate-100 overflow-hidden font-inter">
+    <div className="flex h-full w-full bg-[var(--bg-primary)] text-[var(--text-primary)] overflow-hidden font-lexend">
       {/* Sol Panel: Ayarlar ve Düzenleme */}
-      <div className="w-[450px] flex-shrink-0 flex flex-col border-r border-slate-700/50 bg-slate-800/80 backdrop-blur-md shadow-xl relative z-10">
-        <div className="p-6 border-b border-slate-700/50 bg-slate-800">
-          <h1 className="text-2xl font-semibold bg-gradient-to-r from-accent/80 to-accent bg-clip-text text-transparent">
+      <div className="w-[450px] flex-shrink-0 flex flex-col border-r border-[var(--border-color)] bg-[var(--bg-paper)] shadow-xl relative z-10">
+        <div className="p-6 border-b border-[var(--border-color)] bg-[var(--bg-paper)]">
+          <h1 className="text-2xl font-black italic uppercase tracking-tighter text-[var(--accent-color)]">
             Super Türkçe Stüdyosu
           </h1>
-          <p className="text-sm text-slate-400 mt-1">Premium İçerik Üretim Merkezi</p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] mt-1">Premium İçerik Üretim Merkezi</p>
         </div>
 
         <div className="flex-1 overflow-y-auto w-full custom-scrollbar">
@@ -74,34 +74,34 @@ export const SuperStudio: React.FC = () => {
             <MainSettingsPanel />
 
             {/* Şablon Seçimi */}
-            <div className="border-t border-slate-700/50 pt-8">
+            <div className="border-t border-[var(--border-color)] pt-8">
               <TemplateMenu />
             </div>
 
             {/* Seçilen Şablonların Ayarları */}
-            <div className="border-t border-slate-700/50 pt-8">
+            <div className="border-t border-[var(--border-color)] pt-8">
               <ConfiguratorCascade />
             </div>
           </div>
         </div>
 
         {/* ÜRET BUTONU (Sabit Alt Kısım) */}
-        <div className="p-6 bg-slate-800/90 border-t border-slate-700/50 backdrop-blur-md shrink-0">
+        <div className="p-6 bg-[var(--bg-paper)] border-t border-[var(--border-color)] shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.1)]">
           <button
             onClick={handleGenerate}
             disabled={isGenerating || selectedTemplates.length === 0}
-            className={`w-full py-4 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold rounded-2xl text-sm transition-all shadow-lg shadow-violet-500/20 flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none ${isGenerating ? 'animate-pulse' : ''}`}
+            className={`w-full py-4 bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white font-black rounded-2xl text-[10px] uppercase tracking-[0.2em] transition-all shadow-lg shadow-[var(--accent-muted)] flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none ${isGenerating ? 'animate-pulse' : ''}`}
           >
             <i
               className={`fa-solid ${isGenerating ? 'fa-circle-notch fa-spin' : 'fa-wand-magic-sparkles'}`}
             ></i>
-            {isGenerating ? 'AI İçerik Üretiyor...' : '🚀 AI ile Seçili Şablonları Üret'}
+            {isGenerating ? 'AI İçerik Üretiyor...' : '🚀 AI ile Şablonları Üret'}
           </button>
         </div>
       </div>
 
       {/* Sağ Panel: A4 Önizleme ve Operasyonlar */}
-      <div className="flex-1 flex flex-col bg-slate-950 relative overflow-hidden">
+      <div className="flex-1 flex flex-col bg-[var(--bg-primary)] relative overflow-hidden">
         <A4PreviewPanel />
       </div>
     </div>

@@ -208,19 +208,19 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
 
   return (
     <div
-      className="h-full flex flex-col overflow-hidden absolute inset-0 z-50"
-      style={{ backgroundColor: 'var(--bg-inset)', color: 'var(--text-primary)' }}
+      className="h-full flex flex-col overflow-hidden absolute inset-0 z-50 font-lexend"
+      style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
     >
       {!isFocusMode && (
         <header
-          className="h-16 flex justify-between items-center px-6 shrink-0 z-50"
+          className="h-16 flex justify-between items-center px-6 shrink-0 z-50 shadow-sm"
           style={{ backgroundColor: 'var(--bg-paper)', borderBottom: '1px solid var(--border-color)' }}
         >
           <div className="flex items-center gap-4">
             <button
               onClick={onBack}
-              className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors border border-transparent hover:opacity-80"
-              style={{ color: 'var(--text-secondary)' }}
+              className="w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-[var(--border-color)] bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)]"
+              style={{ color: 'var(--text-muted)' }}
             >
               <i className="fa-solid fa-arrow-left"></i>
             </button>
@@ -229,25 +229,25 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
                 Oogmatik <span className="not-italic" style={{ color: 'var(--accent-color)' }}>Reading Studio Pro</span>
               </h2>
               {storyData && (
-                <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
                   {storyData.title}
                 </span>
               )}
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex rounded-xl p-0.5" style={{ backgroundColor: 'var(--surface-elevated)', border: '1px solid var(--border-color)' }}>
+            <div className="flex rounded-xl p-0.5" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
               <button
                 disabled={!canUndo}
                 onClick={undo}
-                className="studio-icon-btn w-10 h-10 rounded-lg flex items-center justify-center font-bold"
+                className="studio-icon-btn w-10 h-10 rounded-lg flex items-center justify-center font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30"
               >
                 <i className="fa-solid fa-rotate-left"></i>
               </button>
               <button
                 disabled={!canRedo}
                 onClick={redo}
-                className="studio-icon-btn w-10 h-10 rounded-lg flex items-center justify-center font-bold"
+                className="studio-icon-btn w-10 h-10 rounded-lg flex items-center justify-center font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30"
               >
                 <i className="fa-solid fa-rotate-right"></i>
               </button>
@@ -255,15 +255,13 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
             <div className="w-px h-6 mx-2" style={{ backgroundColor: 'var(--border-color)' }}></div>
             <button
               onClick={() => handlePrint('print')}
-              className="studio-icon-btn w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ border: '1px solid var(--border-color)' }}
+              className="studio-icon-btn w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
             >
               <i className="fa-solid fa-print"></i>
             </button>
             <button
               onClick={handleSave}
-              className="studio-icon-btn w-10 h-10 rounded-xl flex items-center justify-center"
-              style={{ border: '1px solid var(--border-color)' }}
+              className="studio-icon-btn w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--accent-color)] border border-[var(--accent-color)] text-white shadow-lg shadow-[var(--accent-muted)] hover:opacity-90"
             >
               <i className="fa-solid fa-floppy-disk"></i>
             </button>
@@ -277,13 +275,13 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
             className="w-80 flex flex-col overflow-hidden shadow-2xl z-40"
             style={{ backgroundColor: 'var(--bg-paper)', borderRight: '1px solid var(--border-color)' }}
           >
-            <div className="p-4" style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--surface-glass)' }}>
+            <div className="p-4" style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
               <StudentSelector />
             </div>
 
             <div
               className="flex shrink-0 overflow-x-auto custom-scrollbar"
-              style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--surface-glass)' }}
+              style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-paper)' }}
             >
               <button
                 onClick={() => setSidebarTab('production')}
@@ -298,25 +296,45 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
               </button>
               <button
                 onClick={() => setSidebarTab('library')}
-                className={`flex-1 min-w-[80px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'library' ? 'font-black text-accent border-accent bg-accent/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
+                className={`flex-1 min-w-[80px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2`}
+                style={{
+                  color: sidebarTab === 'library' ? 'var(--accent-color)' : 'var(--text-muted)',
+                  borderBottomColor: sidebarTab === 'library' ? 'var(--accent-color)' : 'transparent',
+                  backgroundColor: sidebarTab === 'library' ? 'var(--accent-muted)' : 'transparent',
+                }}
               >
                 Bileşenler
               </button>
               <button
                 onClick={() => setSidebarTab('content')}
-                className={`flex-1 min-w-[70px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'content' ? 'text-sky-500 border-sky-500 bg-sky-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
+                className={`flex-1 min-w-[70px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2`}
+                style={{
+                  color: sidebarTab === 'content' ? 'var(--accent-color)' : 'var(--text-muted)',
+                  borderBottomColor: sidebarTab === 'content' ? 'var(--accent-color)' : 'transparent',
+                  backgroundColor: sidebarTab === 'content' ? 'var(--accent-muted)' : 'transparent',
+                }}
               >
                 İçerik
               </button>
               <button
                 onClick={() => setSidebarTab('styling')}
-                className={`flex-1 min-w-[60px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'styling' ? 'text-amber-500 border-amber-500 bg-amber-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
+                className={`flex-1 min-w-[60px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2`}
+                style={{
+                  color: sidebarTab === 'styling' ? 'var(--accent-color)' : 'var(--text-muted)',
+                  borderBottomColor: sidebarTab === 'styling' ? 'var(--accent-color)' : 'transparent',
+                  backgroundColor: sidebarTab === 'styling' ? 'var(--accent-muted)' : 'transparent',
+                }}
               >
                 Stil
               </button>
               <button
                 onClick={() => setSidebarTab('archive')}
-                className={`flex-1 min-w-[60px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2 ${sidebarTab === 'archive' ? 'text-purple-500 border-purple-500 bg-purple-500/5' : 'text-zinc-500 border-transparent hover:text-zinc-300'}`}
+                className={`flex-1 min-w-[60px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2`}
+                style={{
+                  color: sidebarTab === 'archive' ? 'var(--accent-color)' : 'var(--text-muted)',
+                  borderBottomColor: sidebarTab === 'archive' ? 'var(--accent-color)' : 'transparent',
+                  backgroundColor: sidebarTab === 'archive' ? 'var(--accent-muted)' : 'transparent',
+                }}
               >
                 Arşiv
               </button>
@@ -330,11 +348,11 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
               {sidebarTab === 'archive' && <ArchivePanel />}
             </div>
 
-            <div className="p-4 bg-zinc-900 border-t border-zinc-800 shrink-0 z-10 w-full relative mt-auto shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.5)]">
+            <div className="p-4 bg-[var(--bg-paper)] border-t border-[var(--border-color)] shrink-0 z-10 w-full relative mt-auto shadow-2xl">
               <button
                 onClick={handleGenerate}
                 disabled={isLoading}
-                className="w-full py-4 bg-accent text-white font-black rounded-xl text-sm shadow-xl shadow-accent/20 hover:shadow-2xl hover:scale-105 transition-all flex items-center justify-center gap-2 disabled:opacity-70 uppercase tracking-wider"
+                className="w-full py-4 bg-[var(--accent-color)] text-white font-black rounded-xl text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-[var(--accent-muted)] hover:opacity-90 hover:scale-105 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
                 {isLoading ? 'BEKLEYİN...' : 'SINAVI OLUŞTUR'}
@@ -343,11 +361,11 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
           </aside>
         )}
 
-        <main className="flex-1 overflow-auto p-12 custom-scrollbar flex flex-col items-center relative" style={{ backgroundColor: 'var(--bg-inset)' }}>
+        <main className="flex-1 overflow-auto p-12 custom-scrollbar flex flex-col items-center relative" style={{ backgroundColor: 'var(--bg-primary)' }}>
           <div
             className="flex gap-4 mb-8 p-2 rounded-2xl shadow-2xl sticky top-0 z-30"
             style={{
-              backgroundColor: 'var(--surface-glass)',
+              backgroundColor: 'var(--bg-paper)',
               backdropFilter: `blur(var(--surface-glass-blur, 20px))`,
               WebkitBackdropFilter: `blur(var(--surface-glass-blur, 20px))`,
               border: '1px solid var(--border-color)',
@@ -356,23 +374,23 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
             <div className="flex items-center gap-4 px-4">
               <button
                 onClick={() => setCanvasScale(Math.max(0.5, canvasScale - 0.1))}
-                className="text-zinc-500 hover:text-white transition-colors"
+                className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
               >
                 <i className="fa-solid fa-minus text-xs"></i>
               </button>
-              <span className="text-[10px] font-black text-zinc-500 min-w-[40px] text-center">
+              <span className="text-[10px] font-black text-[var(--text-primary)] min-w-[40px] text-center">
                 % {Math.round(canvasScale * 100)}
               </span>
               <button
                 onClick={() => setCanvasScale(Math.min(1.5, canvasScale + 0.1))}
-                className="text-zinc-500 hover:text-white transition-colors"
+                className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
               >
                 <i className="fa-solid fa-plus text-xs"></i>
               </button>
               <div className="w-px h-4" style={{ backgroundColor: 'var(--border-color)' }}></div>
               <button
                 onClick={() => setIsFocusMode(!isFocusMode)}
-                className={`text-[10px] uppercase tracking-widest px-3 py-1 font-black rounded-lg transition-colors border ${isFocusMode ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-zinc-700 text-zinc-500 hover:text-white'}`}
+                className={`text-[10px] uppercase tracking-widest px-3 py-1 font-black rounded-lg transition-colors border ${isFocusMode ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
                 title={isFocusMode ? 'Odaktan Çık' : 'Odak Modu'}
               >
                 <i className={`fa-solid ${isFocusMode ? 'fa-compress' : 'fa-expand'} mr-2`}></i>
@@ -388,10 +406,10 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
           >
             <ReadingStudioContentRenderer layout={layout} storyData={storyData} />
             {!storyData && (!layout || layout.length === 0) && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-zinc-300 pointer-events-none opacity-20 bg-zinc-50/50">
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-[var(--text-muted)] pointer-events-none opacity-10 bg-[var(--bg-secondary)]/50">
                 <i className="fa-solid fa-wand-magic-sparkles text-9xl mb-8"></i>
                 <p className="text-2xl font-black uppercase tracking-[0.3em]">Boş Tuval</p>
-                <p className="text-xs mt-3 font-bold uppercase tracking-widest">
+                <p className="text-[10px] mt-3 font-black uppercase tracking-widest">
                   Hikayenizi oluşturmak için sol paneli kullanın.
                 </p>
               </div>

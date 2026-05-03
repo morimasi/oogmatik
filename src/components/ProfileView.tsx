@@ -72,24 +72,24 @@ const BentoCard: React.FC<{
   className = '',
   title,
   icon,
-  iconColor = 'bg-zinc-100 text-zinc-500',
+  iconColor = 'bg-[var(--bg-secondary)] text-[var(--accent-color)]',
   action,
 }) => (
   <div
-    className={`bg-white dark:bg-zinc-900/50 p-4 rounded-3xl border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group ${className}`}
+    className={`bg-[var(--bg-paper)] p-4 rounded-3xl border border-[var(--border-color)] shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group ${className}`}
   >
     {(title || icon || action) && (
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           {icon && (
             <div
-              className={`w-9 h-9 rounded-xl flex items-center justify-center text-base transition-transform group-hover:scale-105 duration-300 ${iconColor}`}
+              className={`w-9 h-9 rounded-xl flex items-center justify-center text-base transition-transform group-hover:scale-105 duration-300 ${iconColor} border border-[var(--border-color)]`}
             >
               <i className={icon}></i>
             </div>
           )}
           {title && (
-            <h3 className="text-[10px] font-black text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
+            <h3 className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">
               {title}
             </h3>
           )}
@@ -108,18 +108,18 @@ const StatValue: React.FC<{
   trend?: 'up' | 'down';
 }> = ({ value, label, subValue, trend }) => (
   <div className="flex flex-col">
-    <div className="text-2xl font-black text-zinc-900 dark:text-white tracking-tight mb-0.5">
+    <div className="text-2xl font-black text-[var(--text-primary)] tracking-tight mb-0.5">
       {value}
     </div>
     {label && (
-      <div className="text-[9px] text-zinc-400 font-bold uppercase tracking-wider">{label}</div>
+      <div className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider">{label}</div>
     )}
     {subValue && (
       <div
         className={`text-[8px] font-black px-1.5 py-0.5 rounded-md inline-flex items-center gap-1 mt-2 w-fit ${
           trend === 'up'
-            ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-900/10'
-            : 'bg-zinc-100 text-zinc-500 dark:bg-zinc-800'
+            ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20'
+            : 'bg-[var(--bg-secondary)] text-[var(--text-muted)] border border-[var(--border-color)]'
         }`}
       >
         {trend === 'up' && <i className="fa-solid fa-arrow-trend-up text-[7px]"></i>}
@@ -139,8 +139,8 @@ const TabPill: React.FC<{ active: boolean; onClick: () => void; label: string; i
     onClick={onClick}
     className={`px-4 py-2 rounded-xl text-[10px] font-black flex items-center gap-2 transition-all duration-200 uppercase tracking-wider border ${
       active
-        ? 'bg-zinc-900 text-white border-zinc-900 dark:bg-white dark:text-black dark:border-white shadow-md z-10'
-        : 'bg-white dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-300 border-zinc-100 dark:border-zinc-800 hover:border-zinc-200'
+        ? 'bg-[var(--accent-color)] text-white border-[var(--accent-color)] shadow-lg shadow-[var(--accent-muted)] z-10'
+        : 'bg-[var(--bg-paper)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border-[var(--border-color)] hover:border-[var(--text-secondary)] shadow-sm'
     }`}
   >
     <i className={`${icon} ${active ? 'animate-pulse' : ''} text-xs`}></i>
@@ -153,10 +153,10 @@ const ActionButton: React.FC<{
   icon: string;
   onClick: () => void;
   color?: string;
-}> = ({ label, icon, onClick, color = 'bg-indigo-600 text-white' }) => (
+}> = ({ label, icon, onClick, color = 'bg-[var(--accent-color)] text-white' }) => (
   <button
     onClick={onClick}
-    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-indigo-500/20 ${color}`}
+    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-[var(--accent-muted)] ${color}`}
   >
     <i className={icon}></i>
     {label}

@@ -171,28 +171,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
   }
 
   return (
-    <div className="h-screen flex bg-zinc-50 dark:bg-black overflow-hidden font-sans relative">
+    <div className="h-full flex bg-[var(--bg-primary)] overflow-hidden font-lexend relative">
       {/* Shimmer Effect overlay globally for the Admin Panel */}
       <div className="absolute inset-0 pointer-events-none shimmer-effect opacity-10 z-0"></div>
 
       {/* Sidebar Navigation */}
-      <aside className="w-72 glass-panel border-r border-zinc-200 dark:border-zinc-800 flex flex-col shrink-0 z-20 m-2 rounded-3xl h-[calc(100vh-16px)]">
+      <aside className="w-72 bg-[var(--bg-paper)] border-r border-[var(--border-color)] flex flex-col shrink-0 z-20 m-2 rounded-[2.5rem] h-[calc(100%-16px)] shadow-xl">
         <div className="p-6 flex items-center gap-3">
-          <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-200 dark:shadow-none">
+          <div className="w-10 h-10 bg-[var(--accent-color)] rounded-xl flex items-center justify-center text-white shadow-lg shadow-[var(--accent-muted)]">
             <i className="fa-solid fa-shield-halved text-xl"></i>
           </div>
           <div>
-            <h2 className="text-lg font-black text-zinc-900 dark:text-white leading-none">
+            <h2 className="text-lg font-black text-[var(--text-primary)] leading-none">
               Yönetim
             </h2>
-            <span className="text-[10px] text-zinc-400 font-bold tracking-widest uppercase">
+            <span className="text-[10px] text-[var(--text-muted)] font-bold tracking-widest uppercase">
               Kontrol Merkezi
             </span>
           </div>
         </div>
 
         <nav className="flex-1 px-4 py-4 overflow-y-auto custom-scrollbar">
-          <p className="px-4 mb-2 text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+          <p className="px-4 mb-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">
             Analiz & Kullanıcı
           </p>
           <NavButton
@@ -208,7 +208,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
             onClick={() => setActiveTab('users')}
           />
 
-          <p className="px-4 mt-6 mb-2 text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+          <p className="px-4 mt-6 mb-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">
             İçerik Motoru
           </p>
           <NavButton
@@ -242,7 +242,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
             onClick={() => setActiveTab('static_content')}
           />
 
-          <p className="px-4 mt-6 mb-2 text-[10px] font-black text-zinc-400 uppercase tracking-widest">
+          <p className="px-4 mt-6 mb-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">
             Destek
           </p>
           <NavButton
@@ -254,10 +254,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
           />
         </nav>
 
-        <div className="p-4 border-t border-zinc-100 dark:border-zinc-800">
+        <div className="p-4 border-t border-[var(--border-color)]">
           <button
             onClick={onBack}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 transition-colors font-bold text-sm border border-zinc-200 dark:border-zinc-700"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors font-bold text-sm border border-[var(--border-color)]"
           >
             <i className="fa-solid fa-arrow-right-from-bracket"></i>
             Uygulamaya Dön
@@ -268,9 +268,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-w-0 relative z-10 p-2 pl-0">
         {/* Top Header */}
-        <header className="h-16 glass-panel flex items-center justify-between px-8 shrink-0 mb-4 rounded-3xl">
+        <header className="h-16 bg-[var(--bg-paper)] border border-[var(--border-color)] flex items-center justify-between px-8 shrink-0 mb-4 rounded-[2rem] shadow-sm">
           <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold text-zinc-900 dark:text-white">
+            <h1 className="text-xl font-black text-[var(--text-primary)] uppercase italic tracking-tighter">
               {activeTab === 'dashboard' && 'Kontrol Paneli'}
               {activeTab === 'users' && 'Kullanıcı Yönetimi'}
               {activeTab === 'activities' && 'Aktivite Yöneticisi'}
@@ -280,27 +280,27 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
               {activeTab === 'drafts' && 'Taslak Havuzu (OCR)'}
               {activeTab === 'approvals' && 'İçerik Onay Merkezi'}
             </h1>
-            <span className="px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-[10px] font-mono text-zinc-500 border border-zinc-200 dark:border-zinc-700">
+            <span className="px-2 py-0.5 rounded bg-[var(--bg-secondary)] text-[10px] font-mono text-[var(--text-muted)] border border-[var(--border-color)]">
               v1.3.0
             </span>
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-full text-xs font-bold border border-green-100 dark:border-green-800">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 text-emerald-500 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               Sistem Aktif
             </div>
             <img
               src={user.avatar}
               alt=""
-              className="w-8 h-8 rounded-full border border-zinc-200 dark:border-zinc-700"
+              className="w-8 h-8 rounded-full border border-[var(--border-color)]"
             />
           </div>
         </header>
 
         {/* Scrollable Workspace */}
-        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar relative glass-panel rounded-3xl">
-          <div className="max-w-[1600px] mx-auto pb-20">
+        <div className="flex-1 overflow-y-auto p-4 custom-scrollbar relative bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-[2.5rem] shadow-inner">
+          <div className="w-full mx-auto pb-20">
             {activeTab === 'dashboard' && <AdminAnalytics stats={stats} totalUsers={usersCount} />}
             {activeTab === 'activities' && <AdminActivityManager />}
             {activeTab === 'prompts' && <AdminPromptStudio />}
