@@ -12,6 +12,7 @@ import {
   ActiveCurriculumSession,
 } from '../types';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../constants';
+import { STUDIO_GROUPS } from '../constants/studios';
 import * as generators from '../services/generators';
 import { GeneratorView } from './GeneratorView';
 import { statsService } from '../services/statsService';
@@ -85,156 +86,41 @@ const Sidebar: React.FC<SidebarProps> = ({
   const popupTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   const closeTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
-  const studioGroups = [
-    {
-      title: 'Değerlendirme & Plan',
-      items: [
-        {
-          id: 'screening',
-          label: 'Tarama & Analiz',
-          icon: 'fa-clipboard-question',
-          color: 'text-purple-500',
-          onClick: onOpenScreening,
-        },
-        {
-          id: 'curriculum',
-          label: 'Plan & Müfredat',
-          icon: 'fa-calendar-check',
-          color: 'text-emerald-500',
-          onClick: onOpenCurriculum,
-        },
-      ],
-    },
-    {
-      title: 'Alan Stüdyoları',
-      items: [
-        {
-          id: 'reading',
-          label: 'Okuma Stüdyosu',
-          icon: 'fa-book-open',
-          color: 'text-rose-500',
-          onClick: onOpenReadingStudio,
-        },
-        {
-          id: 'math',
-          label: 'Matematik Stüdyosu',
-          icon: 'fa-calculator',
-          color: 'text-blue-500',
-          onClick: onOpenMathStudio,
-        },
-        {
-          id: 'super-turkce',
-          label: 'Süper Türkçe Stüdyosu',
-          icon: 'fa-wand-magic-sparkles',
-          color: 'text-teal-500',
-          onClick: onOpenSuperTurkce,
-        },
-        {
-          id: 'sinav-studyosu',
-          label: 'Sınav Stüdyosu',
-          icon: 'fa-clipboard-check',
-          color: 'text-amber-500',
-          onClick: onOpenSinavStudyosu,
-        },
-        {
-          id: 'mat-sinav-studyosu',
-          label: 'Matematik Sınav Stüdyosu',
-          icon: 'fa-square-root-variable',
-          color: 'text-blue-600',
-          onClick: onOpenMatSinavStudyosu,
-        },
-      ],
-    },
-    {
-      title: 'Yaratıcı Atölye',
-      items: [
-        {
-          id: 'activity-studio',
-          label: 'Ultra Etkinlik Stüdyosu',
-          icon: 'fa-wand-sparkles',
-          color: 'text-fuchsia-500',
-          onClick: onOpenActivityStudio,
-        },
-        {
-          id: 'infographic-studio',
-          label: 'İnfografik Stüdyosu',
-          icon: 'fa-chart-pie',
-          color: 'text-violet-500',
-          onClick: onOpenInfographicStudio,
-        },
-        {
-          id: 'sari-kitap-studio',
-          label: 'Hızlı Okuma Stüdyosu',
-          icon: 'fa-book',
-          color: 'text-yellow-500',
-          onClick: onOpenSariKitapStudio,
-        },
-        {
-          id: 'kelime-cumle-studio',
-          label: 'Kelime-Cümle Stüdyosu',
-          icon: 'fa-font',
-          color: 'text-indigo-500',
-          onClick: onOpenKelimeCumleStudio,
-        },
-      ],
-    },
-    {
-      title: 'Yardım & Destek',
-      items: [
-        {
-          id: 'guide',
-          label: 'Rehber',
-          icon: 'fa-book-open',
-          color: 'text-blue-500',
-          onClick: () => {
-            // GuideModule will be handled by parent
-            const event = new CustomEvent('openGuide');
-            window.dispatchEvent(event);
-          },
-        },
-        {
-          id: 'tour',
-          label: 'Platform Turu',
-          icon: 'fa-play',
-          color: 'text-green-500',
-          onClick: () => {
-            const event = new CustomEvent('openTour');
-            window.dispatchEvent(event);
-          },
-        },
-        {
-          id: 'help',
-          label: 'Premium Yardım',
-          icon: 'fa-headset',
-          color: 'text-purple-500',
-          onClick: () => {
-            const event = new CustomEvent('openHelp');
-            window.dispatchEvent(event);
-          },
-        },
-        {
-          id: 'about',
-          label: 'Hakkımızda',
-          icon: 'fa-info-circle',
-          color: 'text-indigo-500',
-          onClick: () => {
-            const event = new CustomEvent('openAbout');
-            window.dispatchEvent(event);
-          },
-        },
-        {
-          id: 'developer',
-          label: 'Geliştirici',
-          icon: 'fa-code',
-          color: 'text-slate-600',
-          onClick: () => {
-            const event = new CustomEvent('openDeveloper');
-            window.dispatchEvent(event);
-          },
-        },
-      ],
-    },
-  ];
+  const studioGroups = useMemo(() => {
+    const callbackMap: Record<string, () => void> = {
+      'screening': onOpenScreening,
+      'curriculum': onOpenCurriculum,
+      'reading': onOpenReadingStudio,
+      'math': onOpenMathStudio,
+      'super-turkce': onOpenSuperTurkce,
+      'sinav-studyosu': onOpenSinavStudyosu,
+      'mat-sinav-studyosu': onOpenMatSinavStudyosu,
+      'activity-studio': onOpenActivityStudio,
+      'infographic-studio': onOpenInfographicStudio,
+      'sari-kitap-studio': onOpenSariKitapStudio,
+      'kelime-cumle-studio': onOpenKelimeCumleStudio,
+    };
+
+    return STUDIO_GROUPS.map(group => ({
+      ...group,
+      items: group.items.map(item => ({
+        ...item,
+        onClick: item.actionType === 'callback' 
+          ? callbackMap[item.id] 
+          : () => {
+              if (item.eventName) {
+                const event = new CustomEvent(item.eventName);
+                window.dispatchEvent(event);
+              }
+            }
+      }))
+    }));
+  }, [
+    onOpenScreening, onOpenCurriculum, onOpenReadingStudio, onOpenMathStudio, 
+    onOpenSuperTurkce, onOpenSinavStudyosu, onOpenMatSinavStudyosu, 
+    onOpenActivityStudio, onOpenInfographicStudio, onOpenSariKitapStudio, 
+    onOpenKelimeCumleStudio
+  ]);
 
   const handleCategoryMouseEnter = (categoryId: string, event: React.MouseEvent) => {
     if (lockedCategory) return;

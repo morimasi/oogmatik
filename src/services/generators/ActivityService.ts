@@ -114,11 +114,36 @@ export class ActivityService {
             options.mode = _mode === GeneratorMode.AI ? 'ai' : 'fast';
         }
 
-        // Alt jeneratörden ham veriyi al
-        const data = await generator.generate(options);
+        // [v5 BATCH PROCESSING] 
+        // Eğer AI modu aktifse ve itemCount > 10 ise, 5'erli paketler halinde üret
+        const activeMode = options.mode || 'ai';
+        const itemCount = options.itemCount || 10;
 
-        // GÜVENLİK: data undefined/null ise boş array'e dönüştür
-        const safeData = data ?? [];
+        let safeData: any[] = [];
+
+        if (activeMode === 'ai' && itemCount > 10) {
+            logInfo(`[ActivityService] Large batch detected (${itemCount}). Processing in sub-batches...`);
+            const BATCH_SIZE = 5;
+            const batches = Math.ceil(itemCount / BATCH_SIZE);
+            
+            for (let i = 0; i < batches; i++) {
+                const subItemCount = Math.min(BATCH_SIZE, itemCount - (i * BATCH_SIZE));
+                const subOptions = { ...options, itemCount: subItemCount };
+                
+                logInfo(`[ActivityService] Batch ${i + 1}/${batches} starting (${subItemCount} items)...`);
+                const subData = await generator.generate(subOptions);
+                
+                if (Array.isArray(subData)) {
+                    safeData = [...safeData, ...subData];
+                } else if (subData) {
+                    safeData.push(subData);
+                }
+            }
+        } else {
+            // Normal üretim (tek seferde)
+            const data = await generator.generate(options);
+            safeData = data ? (Array.isArray(data) ? data : [data]) : [];
+        }
 
         // UI'ın (özellikle useInfographicGenerate hook'unun) beklediği ApiResponse formatında sarmala
         return {

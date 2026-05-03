@@ -1,0 +1,46 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Auth helper
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Admin helper
+    function isAdmin() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // User Quotas: Sadece sahibi okuyabilir, sistem günceller
+    match /user_quotas/{quotaId} {
+      allow read: if isSignedIn() && quotaId.startsWith(request.auth.uid);
+      allow write: if isAdmin(); // Sadece admin/system güncelleyebilir
+    }
+
+    // Saved Curriculums: Sahibi okuyabilir/yazabilir
+    match /saved_curriculums/{curriculumId} {
+      allow read, write: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn();
+    }
+
+    // Saved Worksheets: Sahibi okuyabilir/yazabilir, paylaşılanlar okunabilir
+    match /worksheets/{worksheetId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || request.auth.uid in resource.data.sharedWith);
+      allow write, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn();
+    }
+
+    // Students: Sahibi okuyabilir/yazabilir
+    match /students/{studentId} {
+      allow read, write: if isSignedIn() && resource.data.teacherId == request.auth.uid;
+      allow create: if isSignedIn();
+    }
+
+    // Users: Sahibi okuyabilir, admin hepsi
+    match /users/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow write: if isSignedIn() && request.auth.uid == userId;
+    }
+  }
+}

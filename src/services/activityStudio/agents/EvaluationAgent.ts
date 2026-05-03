@@ -8,7 +8,19 @@ export class EvaluationAgent extends BaseAgent {
   }
 
   buildPrompt(input: AgentInput): string {
-    return `Hedef beceri: ${input.goal.targetSkills.join(', ')}. Olculebilir degerlendirme kriterleri yaz.`;
+    const { targetSkills } = input.goal;
+    
+    return `
+      [ROL: ÖLÇME VE DEĞERLENDİRME UZMANI]
+      GÖREV: "${targetSkills.join(', ')}" becerileri için SMART kriterlerine uygun değerlendirme metrikleri oluştur.
+      
+      KRİTERLER:
+      1. Bilişsel Metrik: Hız, doğruluk, odak süresi.
+      2. Davranışsal Metrik: Motivasyon, öz-düzenleme.
+      3. Başarı Göstergesi: "%80 başarı oranı" gibi somut hedefleri belirle.
+      
+      Yanıtını JSON formatında 'criteria' dizisi olarak döndür.
+    `;
   }
 
   protected toPedagogicalNote(): string {
