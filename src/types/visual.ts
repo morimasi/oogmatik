@@ -103,7 +103,7 @@ export interface VisualOddOneOutData extends BaseActivityData {
     isProfessionalMode: boolean;
     showClinicalNotes?: boolean;
     cognitiveLoad?: number;
-    aestheticMode?: 'standard' | 'premium' | 'glassmorphism';
+    aestheticMode?: 'standard' | 'premium' | 'glassmorphism' | 'ultra-compact';
   };
   rows: {
     items: VisualOddOneOutItem[];
@@ -176,7 +176,7 @@ export interface DirectionalTrackingData extends BaseActivityData {
     showClinicalNotes?: boolean;
     gridSize?: number;
     contentType?: 'letters' | 'numbers' | 'mixed' | 'words';
-    aestheticMode?: 'standard' | 'premium' | 'glassmorphism';
+    aestheticMode?: 'standard' | 'premium' | 'glassmorphism' | 'ultra-compact';
   };
   puzzles: {
     grid: string[][];
@@ -295,13 +295,16 @@ export interface AlgorithmData extends BaseActivityData {
 }
 
 export interface DirectionalCodeReadingData extends BaseActivityData {
+  id: string;
+  activityType: string;
   settings?: {
     difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor' | string;
     gridSize: number;
     obstacleDensity: number;
     cipherType: 'arrows' | 'letters' | 'colors' | string;
     puzzleCount?: number;
-    aestheticMode?: 'standard' | 'premium' | 'glassmorphism';
+    aestheticMode?: 'standard' | 'premium' | 'glassmorphism' | 'ultra-compact';
+    compactMode?: boolean;
   };
   content: {
     title: string;
@@ -322,12 +325,31 @@ export interface DirectionalCodeReadingData extends BaseActivityData {
         count: number;
         direction: 'up' | 'down' | 'left' | 'right' | string;
         label?: string;
+        compactLabel?: string;
       }[];
       clinicalMeta?: {
         cognitiveLoad: number;
         planningComplexity: string;
+        estimatedTime?: number;
+        skillFocus?: string[];
       };
     }[];
+    ultraMode?: {
+      compactLayout: boolean;
+      showGridLines: boolean;
+      minimalPadding: boolean;
+      densePacking: boolean;
+      premiumStyling: boolean;
+    };
+    pedagogicalNote?: string;
+    visualHints?: {
+      startIcon: string;
+      targetIcon: string;
+      obstacleIcon: string;
+      pathColor: string;
+      backgroundColor: string;
+      gridStyle: string;
+    };
   };
 }
 

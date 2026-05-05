@@ -179,6 +179,7 @@ export const generateOfflineDirectionalCodeReading = async (
     id: 'directional_code_ultra_' + Date.now(),
     activityType: 'DIRECTIONAL_CODE_READING' as any,
     title: `🎯 Ultra Premium Yönsel İz Sürme`,
+    instruction: `Yönlendirme talimatlarını takip ederek başlangıç noktasından hedefe ulaşın. Her puzzle için farklı rota stratejisi kullanın. Ultra kompakt modda maksimum verimlilik hedefleyin!`,
     settings: {
       difficulty,
       gridSize,
