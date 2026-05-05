@@ -143,10 +143,20 @@ export const wrapAsync = <T extends (...args: unknown[]) => Promise<unknown>>(
 ) => {
   return async (...args: Parameters<T>): Promise<ReturnType<T>> => {
     try {
-      return await fn(...args);
-    } catch (error) {
+      return (await fn(...args)) as ReturnType<T>;
+    } catch (error: unknown) {
       if (isAppError(error)) throw error;
-      throw toAppError(error, defaultMessage, defaultCode);
+      
+      const message = error instanceof Error ? error.message : String(error);
+      logError(`Async Error [${defaultCode}]:`, { message, original: error });
+      
+      throw new AppError(
+        defaultMessage,
+        defaultCode,
+        500,
+        { originalError: message },
+        true
+      );
     }
   };
 };

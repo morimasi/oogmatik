@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { User } from '../types';
 import { authService } from '../services/authService';
 import { auth } from '../services/firebaseClient';
+// @ts-ignore
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 
 import { logError } from '../utils/logger.js';

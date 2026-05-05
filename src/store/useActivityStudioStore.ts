@@ -20,7 +20,7 @@ const initialSteps: WizardStep[] = [
 
 const emptyGoal: StudioGoalConfig | null = null;
 
-export const useActivityStudioStore = create<ActivityStudioState>()((set) => ({
+export const useActivityStudioStore = create<ActivityStudioState>()((set, get) => ({
   currentStep: 'goal',
   steps: initialSteps,
   isGenerating: false,
@@ -40,17 +40,18 @@ export const useActivityStudioStore = create<ActivityStudioState>()((set) => ({
   exportSettings: null,
   selectedLibraryItemId: undefined,
   enhancementTopic: undefined,
-  setStep: (step: WizardStepId) =>
-    set((state: ActivityStudioState) => ({
+  setStep: (step: WizardStepId) => {
+    const { steps } = get();
+    const targetIndex = steps.findIndex((s) => s.id === step);
+    set({
       currentStep: step,
-      steps: state.steps.map((item: WizardStep) => {
+      steps: steps.map((item, index) => {
         if (item.id === step) return { ...item, status: 'active' };
-        if (state.steps.findIndex((s: WizardStep) => s.id === item.id) < state.steps.findIndex((s: WizardStep) => s.id === step)) {
-          return { ...item, status: 'completed' };
-        }
+        if (index < targetIndex) return { ...item, status: 'completed' };
         return { ...item, status: 'pending' };
       }),
-    })),
+    });
+  },
   updateGoal: (data: Partial<StudioGoalConfig>) =>
     set((state: ActivityStudioState) => ({
       wizardData: {

@@ -16,7 +16,7 @@ interface A4EditorState {
   addBlock: (block: ContentBlock) => void;
 }
 
-export const useA4EditorStore = create<A4EditorState>()((set) => ({
+export const useA4EditorStore = create<A4EditorState>()((set, get) => ({
   isEditorOpen: false,
   setEditorOpen: (isOpen: boolean) => set({ isEditorOpen: isOpen }),
   selectedBlockId: null,
