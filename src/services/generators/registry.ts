@@ -337,6 +337,10 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     ai: aiGenerators.generateVisualInterpretationFromAI,
     offline: offlineGenerators.generateOfflineVisualInterpretation,
   },
+  [ActivityType.BRAIN_TEASERS]: {
+    ai: aiGenerators.generateBrainTeasersFromAI,
+    offline: offlineGenerators.generateOfflineBrainTeasers,
+  },
 
   // 4. HİKAYE & SÖZEL MANTIK
   [ActivityType.STORY_COMPREHENSION]: {
@@ -394,9 +398,21 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     ai: withAI(ActivityType.ASSESSMENT_REPORT),
     offline: withOffline(ActivityType.ASSESSMENT_REPORT),
   },
-  [ActivityType.WORKBOOK]: {
-    ai: withAI(ActivityType.WORKBOOK),
-    offline: withOffline(ActivityType.WORKBOOK),
+  [ActivityType.BOX_MATH]: {
+    ai: aiGenerators.generateBoxMathFromAI,
+    offline: offlineGenerators.generateOfflineBoxMath,
+  },
+  [ActivityType.INFOGRAPHIC_SHORT_ANSWER]: {
+    ai: aiGenerators.generateInfographicShortAnswerFromAI,
+    offline: offlineGenerators.generateOfflineInfographicShortAnswer,
+  },
+  [ActivityType.SINAV]: {
+    ai: aiGenerators.generateSinavFromAI,
+    offline: offlineGenerators.generateOfflineSinav,
+  },
+  [ActivityType.MAT_SINAV]: {
+    ai: aiGenerators.generateMatSinavFromAI,
+    offline: offlineGenerators.generateOfflineMatSinav,
   },
   [ActivityType.REAL_LIFE_MATH_PROBLEMS]: {
     ai: withAI(ActivityType.REAL_LIFE_MATH_PROBLEMS),

@@ -63,3 +63,9 @@ ZORUNLU JSON ÇIKTISI:
     } as unknown as WorksheetData;
   }
 }
+
+// Standalone function for registry compatibility
+export const generateBrainTeasersFromAI = async (options: GeneratorOptions): Promise<WorksheetData> => {
+  const generator = new BrainTeasersGenerator();
+  return await generator.generate(options);
+};

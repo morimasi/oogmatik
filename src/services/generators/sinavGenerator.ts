@@ -329,3 +329,8 @@ export const generateExam = async (settings: SinavAyarlari): Promise<Sinav> => {
     );
   }
 };
+
+// Registry compatibility wrapper
+export const generateSinavFromAI = async (options: any) => {
+  return await generateExam(options as any);
+};

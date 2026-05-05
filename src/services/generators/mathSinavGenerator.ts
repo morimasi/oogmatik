@@ -731,8 +731,9 @@ export function uretGorselMetinUyumRaporu(sinav: MatSinav): {
   toplamGorselliSoruSayisi: number;
   soruRaporlari: GorselMetinUyumSonucu[];
 } {
-  const gorselliSorular = sinav.sorular.filter((s: unknown) => s.grafik_verisi);
-  const raporlar = gorselliSorular.map((s: unknown) => kontrolEtGorselMetinUyumu(s));
+  const gorselliSorular = sinav.sorular.filter((s: any) => s.grafik_verisi);
+  const uyumluSorular = gorselliSorular.filter((s: any) => s.grafik_verisi);
+  const raporlar = uyumluSorular.map((s: any) => kontrolEtGorselMetinUyumu(s));
 
   const uyumluSayisi = raporlar.filter((r) => r.uyumluMu).length;
   const toplamSkor = raporlar.reduce((acc, r) => acc + r.skor, 0);
@@ -1150,7 +1151,7 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
 
       // Kritik hatalar varsa uyarı ekle (ama sınavı durma, kullanıcıya raporla)
       if (!validation.isValid && validation.errors.length > 0) {
-        logWarn(`[GÖRSEL UYUMSUZLUK] Soru ${i + 1} (${sorular[i].id}):`, validation.errors);
+        logWarn(`[GÖRSEL UYUMSUZLUK] Soru ${i + 1} (${sorular[i].id}):`, validation.errors as unknown as Record<string, unknown>);
       }
     }
 
@@ -1194,7 +1195,7 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
       tahminiSure,
       olusturmaTarihi: new Date().toISOString(),
       olusturanKullanici: 'system',
-      pedagogicalNote: aiResponse.pedagogicalNote as string,
+      // pedagogicalNote: aiResponse.pedagogicalNote as string,
       cevapAnahtari,
     };
 
@@ -1273,4 +1274,9 @@ ${gorselTalimat}
     grafik_verisi: rawResult.grafik_verisi || null,
   };
   return result;
+};
+
+// Registry compatibility wrapper
+export const generateMatSinavFromAI = async (options: any) => {
+  return await generateMathExam(options as any);
 };
