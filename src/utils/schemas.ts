@@ -423,3 +423,35 @@ export const validateOrThrow = (validationResult: {
     throwValidationError(validationResult.errors);
   }
 };
+
+/**
+ * ============================================================
+ * PEDAGOGICAL SCHEMAS
+ * ============================================================
+ */
+
+/**
+ * Pedagojik not şeması
+ */
+export const PedagogicalNoteSchema = z.object({
+  title: z.string().min(1, 'Başlık gereklidir'),
+  content: z.string().min(1, 'İçerik gereklidir'),
+  targetSkills: z.array(z.string()).optional(),
+  difficulty: z.enum(['Kolay', 'Orta', 'Zor']).optional(),
+  ageGroup: z.enum(['5-7', '8-10', '11-13', '14+']).optional(),
+  learningObjectives: z.array(z.string()).optional(),
+  clinicalNotes: z.string().optional(),
+});
+
+/**
+ * Pedagojik anahtar kelimeler
+ */
+export const PEDAGOGICAL_KEYWORDS = [
+  'ZPD', 'Bilişsel Yük', 'Scaffolding', 'Disleksi', 'DEHB', 'Özel Öğrenme Güçlüğü',
+  'Mekansal Algı', 'Sıralı Düşünme', 'Problem Çözme', 'Dikkat', 'Hafıza', 'İşlem Hızı',
+  'Fonetik Farkındalık', 'Okuma Akıcılığı', 'Anlama Becerisi', 'Matematiksel Düşünme',
+  'Görsel Algı', 'İşitsel İşleme', 'Motor Beceriler', 'El-Göz Koordinasyonu',
+  'Planlama', 'Organizasyon', 'Öz Düzenleme', 'Esnek Düşünme', 'Çalışma Belleği'
+] as const;
+
+export type PedagogicalKeyword = typeof PEDAGOGICAL_KEYWORDS[number];

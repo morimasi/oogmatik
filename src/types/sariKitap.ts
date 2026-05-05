@@ -254,6 +254,7 @@ export interface SariKitapGeneratedContent {
   };
   wordBlocks?: string[][];
   memoryData?: MemoryPhaseData;
+  pedagogicalNote?: string;
   generatedAt: string;
   model: 'gemini-2.5-flash';
   tokenUsage?: { input: number; output: number };

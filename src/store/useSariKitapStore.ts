@@ -169,3 +169,6 @@ export const useSariKitapStore = create<SariKitapState>((set: any) => ({
 
   toggleGrid: () => set((state: SariKitapState) => ({ showGrid: !state.showGrid })),
 }));
+
+// Export createDefaultConfig for test compatibility
+export { createDefaultConfig };

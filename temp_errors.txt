@@ -1,0 +1,713 @@
+src/components/A4Editor/ContentPanel.tsx(136,80): error TS18046: 's' is of type 'unknown'.
+src/components/activity-configs/AdvancedMissingPartsConfig.tsx(138,58): error TS2322: Type '{}' is not assignable to type 'ReactNode'.
+src/components/activity-configs/AdvancedMissingPartsConfig.tsx(144,11): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/activity-configs/AdvancedMissingPartsConfig.tsx(231,15): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/activity-configs/AdvancedMissingPartsConfig.tsx(243,15): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/activity-configs/AdvancedMissingPartsConfig.tsx(273,9): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/components/activity-configs/AdvancedMissingPartsConfig.tsx(275,84): error TS2322: Type '{}' is not assignable to type 'ReactNode'.
+src/components/activity-configs/AdvancedMissingPartsConfig.tsx(280,15): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/activity-configs/FinancialMathConfig.tsx(27,25): error TS2322: Type 'string | [number, number]' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/activity-configs/MissingPartsConfig.tsx(60,29): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/activity-configs/SentenceFiveWOneHConfig.tsx(71,29): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/activity-configs/SentenceFiveWOneHConfig.tsx(99,25): error TS2322: Type '{}' is not assignable to type 'string | number'.
+src/components/activity-configs/StoryAnalysisConfig.tsx(72,29): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/activity-configs/StoryAnalysisConfig.tsx(88,21): error TS2322: Type '{}' is not assignable to type 'string | number'.
+src/components/activity-configs/StorySequencingConfig.tsx(63,29): error TS2322: Type '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/ActivityImporterModal.tsx(56,60): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/ActivityStudio/goal/LibraryFilters.tsx(2,25): error TS2305: Module '"@/types/creativeStudio"' has no exported member 'Difficulty'.
+src/components/ActivityStudio/preview/ExportEngine.ts(45,60): error TS18046: 's' is of type 'unknown'.
+src/components/ActivityStudio/preview/ExportEngine.ts(71,12): error TS7016: Could not find a declaration file for module 'jspdf'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/jspdf/dist/jspdf.es.min.js' implicitly has an 'any' type.
+src/components/ActivityStudio/preview/PreviewRenderer.tsx(14,43): error TS7006: Parameter 'state' implicitly has an 'any' type.
+src/components/ActivityStudio/preview/PreviewRenderer.tsx(15,47): error TS7006: Parameter 'state' implicitly has an 'any' type.
+src/components/ActivityStudio/preview/PreviewRenderer.tsx(16,51): error TS7006: Parameter 'state' implicitly has an 'any' type.
+src/components/ActivityStudio/validation/pedagogicValidator.ts(2,15): error TS2459: Module '"../../../types/activityStudio"' declares 'Difficulty' locally, but it is not exported.
+src/components/ActivityStudio/wizard/panels/CompactA4LayoutPanel.tsx(47,54): error TS7006: Parameter 'state' implicitly has an 'any' type.
+src/components/ActivityStudio/wizard/panels/CompactA4LayoutPanel.tsx(48,50): error TS7006: Parameter 'state' implicitly has an 'any' type.
+src/components/ActivityStudio/wizard/panels/ThemeSyncPanel.tsx(17,47): error TS7006: Parameter 'state' implicitly has an 'any' type.
+src/components/ActivityStudio/wizard/panels/ThemeSyncPanel.tsx(18,50): error TS7006: Parameter 'state' implicitly has an 'any' type.
+src/components/ActivityStudio/wizard/StepCustomize.tsx(15,40): error TS7006: Parameter 'state' implicitly has an 'any' type.
+src/components/AdminDashboard/AdminActivityApproval.tsx(46,48): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/AdminDashboard/AdminActivityApproval.tsx(65,38): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/AdminDashboard/AdminActivityApproval.tsx(79,37): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/AdminDashboard/AdminActivityManager.tsx(20,51): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/AdminDashboard/AdminActivityManager.tsx(31,39): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/AdminDashboard/AdminActivityManager.tsx(40,42): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/AdminDashboard/AdminDraftReview.tsx(73,38): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/AdminDashboard/AdminPromptStudio.tsx(90,5): error TS2304: Cannot find name 'setLoading'.
+src/components/AdminDashboard/AdminPromptStudio.tsx(94,5): error TS2304: Cannot find name 'setLoading'.
+src/components/AdminDashboard/AdminPromptStudio.tsx(182,5): error TS2304: Cannot find name 'setSimA'.
+src/components/AdminDashboard/AdminPromptStudio.tsx(182,14): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/AdminDashboard/AdminPromptStudio.tsx(183,5): error TS2304: Cannot find name 'setSimB'.
+src/components/AdminDashboard/AdminPromptStudio.tsx(183,14): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/AdminDashboard/AdminUserManagement.tsx(5,35): error TS2305: Module '"../../types/admin"' has no exported member 'UserRoleType'.
+src/components/AdminDashboard/AdminUserManagement.tsx(51,46): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/AdminDashboard/AdminUserManagement.tsx(78,70): error TS2304: Cannot find name 'ExtendedUserStatus'.
+src/components/AdminDashboard/PromptSimulator.tsx(77,13): error TS2552: Cannot find name 'logError'. Did you mean 'onerror'?
+src/components/AdminDashboard/UserManagement.tsx(2,28): error TS2305: Module '"../../types/admin"' has no exported member 'UserRoleType'.
+src/components/AdminDashboard/UserManagement.tsx(21,7): error TS2741: Property 'deleted' is missing in type '{ active: string; pending: string; suspended: string; }' but required in type 'Record<ExtendedUserStatus, string>'.
+src/components/AdminDashboard/UserManagement.tsx(30,5): error TS2741: Property 'avatar' is missing in type '{ id: string; name: string; email: string; role: "admin"; status: "active"; createdAt: string; lastLogin: string; worksheetCount: number; exportCount: number; }' but required in type 'ManagedUser'.
+src/components/AdminDashboard/UserManagement.tsx(31,5): error TS2741: Property 'avatar' is missing in type '{ id: string; name: string; email: string; role: "teacher"; status: "active"; createdAt: string; lastLogin: string; worksheetCount: number; exportCount: number; }' but required in type 'ManagedUser'.
+src/components/AdminDashboard/UserManagement.tsx(32,5): error TS2741: Property 'avatar' is missing in type '{ id: string; name: string; email: string; role: "student"; status: "active"; createdAt: string; lastLogin: string; worksheetCount: number; exportCount: number; }' but required in type 'ManagedUser'.
+src/components/AdminDashboard/UserManagement.tsx(33,5): error TS2741: Property 'avatar' is missing in type '{ id: string; name: string; email: string; role: "teacher"; status: "pending"; createdAt: string; worksheetCount: number; exportCount: number; }' but required in type 'ManagedUser'.
+src/components/AdminDashboard/UserManagement.tsx(34,5): error TS2741: Property 'avatar' is missing in type '{ id: string; name: string; email: string; role: "student"; status: "suspended"; createdAt: string; worksheetCount: number; exportCount: number; }' but required in type 'ManagedUser'.
+src/components/AdminDashboard/UserManagement.tsx(127,86): error TS2322: Type 'unknown' is not assignable to type 'Key | null | undefined'.
+src/components/AdminDashboard/UserManagement.tsx(127,94): error TS2322: Type 'unknown' is not assignable to type 'string | number | readonly string[] | undefined'.
+src/components/AdminDashboard/UserManagement.tsx(127,119): error TS2538: Type 'unknown' cannot be used as an index type.
+src/components/AppHeader.tsx(2,41): error TS7016: Could not find a declaration file for module 'framer-motion'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+src/components/AssessmentModule.tsx(218,86): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/AssessmentModule.tsx(264,58): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/AssessmentReportViewer.tsx(121,22): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string | AppError | Error'.
+src/components/AssessmentReportViewer.tsx(133,48): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/DeveloperModal.tsx(2,41): error TS7016: Could not find a declaration file for module 'framer-motion'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+src/components/DeveloperModal.tsx(29,35): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/components/ErrorBoundary.tsx(28,40): error TS2554: Expected 1-2 arguments, but got 3.
+src/components/FavoritesSection.tsx(159,46): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/InfographicStudio/hooks/useInfographicGenerate.ts(115,42): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/InfographicStudio/panels/CenterPanel/SingleActivitySheet.tsx(295,19): error TS2339: Property 'pedagogicalNote' does not exist on type 'InfographicGeneratorResult'.
+src/components/KelimeCumleStudio/hooks/useKelimeCumleGenerator.ts(36,39): error TS2339: Property 'showPredicate' does not exist on type 'KelimeCumleConfig'.
+src/components/KelimeCumleStudio/hooks/useKelimeCumleGenerator.ts(55,46): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/KelimeCumleStudio/KelimeCumleStudio.tsx(58,26): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string | AppError | Error'.
+src/components/KelimeCumleStudio/KelimeCumleStudio.tsx(143,49): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/MathStudio/hooks/useExportActions.ts(60,22): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string | AppError | Error'.
+src/components/MathStudio/hooks/useExportActions.ts(92,22): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string | AppError | Error'.
+src/components/MathStudio/hooks/useProblemGenerator.ts(54,22): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string | AppError | Error'.
+src/components/MathStudio/MathStudio.tsx(82,37): error TS7006: Parameter 'x' implicitly has an 'any' type.
+src/components/MathStudio/MathStudio.tsx(91,25): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/components/MatSinavStudyosu/index.tsx(393,45): error TS2322: Type 'unknown' is not assignable to type 'Key | null | undefined'.
+src/components/MatSinavStudyosu/index.tsx(393,129): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'number'.
+src/components/MatSinavStudyosu/index.tsx(393,154): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/components/MessagesView.tsx(7,28): error TS7016: Could not find a declaration file for module 'firebase/firestore'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/firebase/firestore/dist/esm/index.esm.js' implicitly has an 'any' type.
+src/components/MessagesView.tsx(65,48): error TS7006: Parameter 'change' implicitly has an 'any' type.
+src/components/MessagesView.tsx(124,48): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/MessagesView.tsx(140,39): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/MessagesView.tsx(161,50): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/MobileWorksheetViewer.tsx(169,13): error TS2322: Type '(block: WorksheetContentBlock) => void' is not assignable to type '(block: Omit<WorksheetContentBlock, "id">) => void'.
+src/components/OCRScanner.tsx(829,54): error TS2345: Argument of type 'string' is not assignable to parameter of type 'Record<string, unknown>'.
+src/components/Onboarding/AboutModule.tsx(3,41): error TS7016: Could not find a declaration file for module 'framer-motion'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+src/components/Onboarding/AboutModule.tsx(168,31): error TS2304: Cannot find name 'Phone'.
+src/components/Onboarding/DeveloperVisionModule.tsx(3,41): error TS7016: Could not find a declaration file for module 'framer-motion'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+src/components/Onboarding/GuideModule.tsx(3,41): error TS7016: Could not find a declaration file for module 'framer-motion'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+src/components/Onboarding/PremiumHelpModule.tsx(3,41): error TS7016: Could not find a declaration file for module 'framer-motion'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+src/components/Onboarding/TourModule.tsx(3,41): error TS7016: Could not find a declaration file for module 'framer-motion'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+src/components/PDFViewer/hooks/useDyslexiaSettings.ts(35,43): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/components/PDFViewer/hooks/usePDFViewer.ts(48,40): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/components/PDFViewer/PDFErrorBoundary.tsx(27,43): error TS2554: Expected 1-2 arguments, but got 3.
+src/components/Premium/ThreeDActivityViewer.tsx(14,32): error TS2694: Namespace '"D:/bbma/bursadisleksi/oogmatik/node_modules/@types/three/build/three.module"' has no exported member 'Mesh'.
+src/components/Premium/ThreeDActivityViewer.tsx(36,5): error TS2339: Property 'group' does not exist on type 'JSX.IntrinsicElements'.
+src/components/Premium/ThreeDActivityViewer.tsx(38,9): error TS2339: Property 'mesh' does not exist on type 'JSX.IntrinsicElements'.
+src/components/Premium/ThreeDActivityViewer.tsx(41,21): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/components/Premium/ThreeDActivityViewer.tsx(42,27): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/components/Premium/ThreeDActivityViewer.tsx(43,26): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/components/Premium/ThreeDActivityViewer.tsx(52,9): error TS2339: Property 'mesh' does not exist on type 'JSX.IntrinsicElements'.
+src/components/Premium/ThreeDActivityViewer.tsx(66,5): error TS2339: Property 'group' does not exist on type 'JSX.IntrinsicElements'.
+src/components/PrintPreviewModal.tsx(62,61): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/PrintPreviewModal.tsx(134,39): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/ProfileView.tsx(2,24): error TS7016: Could not find a declaration file for module 'framer-motion'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+src/components/ProgressDashboard/HistoryList.tsx(4,24): error TS7016: Could not find a declaration file for module 'framer-motion'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+src/components/ProgressDashboard/HistoryList.tsx(14,19): error TS2339: Property 'DYSLEXIA_SUPPORT' does not exist on type 'typeof ActivityType'.
+src/components/ProgressDashboard/ProgressDashboard.tsx(9,24): error TS7016: Could not find a declaration file for module 'framer-motion'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+src/components/ProgressDashboard/SkillOverview.tsx(4,24): error TS7016: Could not find a declaration file for module 'framer-motion'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+src/components/ProgressDashboard/WeeklyActivityChart.tsx(2,24): error TS7016: Could not find a declaration file for module 'framer-motion'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+src/components/ReadingStudio/Editor/ArchivePanel.tsx(17,51): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/ReadingStudio/Editor/StudentSelector.tsx(11,39): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/components/ReadingStudio/ReadingStudio.tsx(106,27): error TS2339: Property 'pedagogicalGoals' does not exist on type 'InteractiveStoryData'.
+src/components/ReadingStudio/ReadingStudio.tsx(171,16): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string | AppError | Error'.
+src/components/ReadingStudio/ReadingStudio.tsx(183,16): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string | AppError | Error'.
+src/components/SariKitapStudio/SariKitapStudio.tsx(104,37): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/SavedWorksheetsView.tsx(2,41): error TS7016: Could not find a declaration file for module 'framer-motion'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+src/components/SavedWorksheetsView.tsx(325,22): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string | AppError | Error'.
+src/components/Screening/AdvancedScreeningModule.tsx(3,24): error TS7016: Could not find a declaration file for module 'framer-motion'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+src/components/Screening/QuestionnaireForm.tsx(3,41): error TS7016: Could not find a declaration file for module 'framer-motion'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+src/components/Screening/ResultDashboard.tsx(208,36): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/SettingsModal.tsx(2,41): error TS7016: Could not find a declaration file for module 'framer-motion'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+src/components/sheet-renderers/InfoGraphicRenderer.tsx(19,65): error TS2322: Type '{ worksheet: any; hideWrapper: true; settings: any; }' is not assignable to type 'IntrinsicAttributes & A4PrintableSheetV2Props'.
+src/components/sheet-renderers/InfoGraphicRenderer.tsx(43,84): error TS2322: Type '{ worksheet: any; hideWrapper: true; settings: any; }' is not assignable to type 'IntrinsicAttributes & A4PrintableSheetV2Props'.
+src/components/sheets/verbal/MissingPartsSheet.tsx(17,77): error TS2339: Property 'length' does not exist on type '{ words: string[]; categories?: string[] | undefined; showCategories: boolean; randomOrder: boolean; }'.
+src/components/sheets/verbal/MissingPartsSheet.tsx(26,43): error TS2339: Property 'map' does not exist on type '{ words: string[]; categories?: string[] | undefined; showCategories: boolean; randomOrder: boolean; }'.
+src/components/sheets/verbal/MissingPartsSheet.tsx(26,48): error TS7006: Parameter 'word' implicitly has an 'any' type.
+src/components/sheets/verbal/MissingPartsSheet.tsx(26,54): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/components/sheets/visual/DirectionalCodeReadingSheet.tsx(198,35): error TS18046: 's' is of type 'unknown'.
+src/components/sheets/visual/DirectionalCodeReadingSheet.tsx(199,125): error TS18046: 's' is of type 'unknown'.
+src/components/sheets/visual/DirectionalCodeReadingSheet.tsx(200,114): error TS18046: 's' is of type 'unknown'.
+src/components/sheets/visual/DirectionalTrackingSheet.tsx(48,19): error TS18046: 's' is of type 'unknown'.
+src/components/sheets/visual/DirectionalTrackingSheet.tsx(49,76): error TS18046: 's' is of type 'unknown'.
+src/components/sheets/visual/DirectionalTrackingSheet.tsx(50,65): error TS18046: 's' is of type 'unknown'.
+src/components/sheets/visual/DirectionalTrackingSheet.tsx(283,20): error TS18046: 's' is of type 'unknown'.
+src/components/sheets/visual/DirectionalTrackingSheet.tsx(287,18): error TS18046: 's' is of type 'unknown'.
+src/components/sheets/visual/DirectionalTrackingSheet.tsx(290,18): error TS18046: 's' is of type 'unknown'.
+src/components/sheets/visual/DirectionalTrackingSheet.tsx(343,17): error TS2322: Type 'unknown' is not assignable to type 'Key | null | undefined'.
+src/components/sheets/visual/FindTheDifferenceSheet.tsx(23,78): error TS2339: Property 'compact' does not exist on type 'StyleSettings'.
+src/components/sheets/visual/FindTheDifferenceSheet.tsx(205,64): error TS2339: Property 'includeClinicalNotes' does not exist on type 'StyleSettings'.
+src/components/sheets/visual/PatternCompletionSheet.tsx(3,10): error TS2459: Module '"../../../types/core"' declares 'ShapeType' locally, but it is not exported.
+src/components/sheets/visual/VisualOddOneOutSheet.tsx(80,76): error TS2339: Property 'compact' does not exist on type 'StyleSettings'.
+src/components/Sidebar.tsx(5,41): error TS7016: Could not find a declaration file for module 'framer-motion'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+src/components/Sidebar.tsx(91,7): error TS2322: Type '(() => void) | undefined' is not assignable to type '() => void'.
+src/components/Sidebar.tsx(92,7): error TS2322: Type '(() => void) | undefined' is not assignable to type '() => void'.
+src/components/Sidebar.tsx(93,7): error TS2322: Type '(() => void) | undefined' is not assignable to type '() => void'.
+src/components/Sidebar.tsx(94,7): error TS2322: Type '(() => void) | undefined' is not assignable to type '() => void'.
+src/components/Sidebar.tsx(95,7): error TS2322: Type '(() => void) | undefined' is not assignable to type '() => void'.
+src/components/Sidebar.tsx(96,7): error TS2322: Type '(() => void) | undefined' is not assignable to type '() => void'.
+src/components/Sidebar.tsx(97,7): error TS2322: Type '(() => void) | undefined' is not assignable to type '() => void'.
+src/components/Sidebar.tsx(98,7): error TS2322: Type '(() => void) | undefined' is not assignable to type '() => void'.
+src/components/Sidebar.tsx(99,7): error TS2322: Type '(() => void) | undefined' is not assignable to type '() => void'.
+src/components/Sidebar.tsx(100,7): error TS2322: Type '(() => void) | undefined' is not assignable to type '() => void'.
+src/components/Sidebar.tsx(101,7): error TS2322: Type '(() => void) | undefined' is not assignable to type '() => void'.
+src/components/SinavStudyosu/index.tsx(151,35): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/SinavStudyosu/index.tsx(164,36): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/SinavStudyosu/index.tsx(447,27): error TS2322: Type 'unknown' is not assignable to type 'Key | null | undefined'.
+src/components/SinavStudyosu/index.tsx(447,111): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'number'.
+src/components/SinavStudyosu/index.tsx(447,136): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/components/Student/AssignModal.tsx(2,41): error TS7016: Could not find a declaration file for module 'framer-motion'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+src/components/Student/modules/AdvancedStudentForm.tsx(3,10): error TS2305: Module '"../../../services/privacyService"' has no exported member 'PrivacyService'.
+src/components/Student/modules/AdvancedStudentForm.tsx(89,42): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/Student/modules/AdvancedStudentForm.tsx(234,18): error TS18046: 's' is of type 'unknown'.
+src/components/Student/modules/AdvancedStudentForm.tsx(236,36): error TS18046: 's' is of type 'unknown'.
+src/components/Student/modules/AdvancedStudentForm.tsx(241,39): error TS18046: 's' is of type 'unknown'.
+src/components/Student/modules/AdvancedStudentForm.tsx(246,41): error TS18046: 's' is of type 'unknown'.
+src/components/Student/modules/AdvancedStudentForm.tsx(250,39): error TS18046: 's' is of type 'unknown'.
+src/components/Student/modules/AdvancedStudentForm.tsx(252,16): error TS18046: 's' is of type 'unknown'.
+src/components/Student/modules/AIInsightsModule.tsx(19,49): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/Student/modules/IEPModule.tsx(72,15): error TS2739: Type '{ id: `${string}-${string}-${string}-${string}-${string}`; title: string; description: string; category: "academic" | "behavioral" | "social" | "motor" | "speech"; status: "not_started"; progress: number; ... 5 more ...; reviews: never[]; }' is missing the following properties from type 'IEPGoal': baseline, shortTermObjective, successCriteria
+src/components/Student/modules/IEPModule.tsx(459,76): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/Student/modules/OverviewModule.tsx(148,13): error TS2322: Type 'number[]' is not assignable to type 'DataPoint[]'.
+src/components/Student/modules/PortfolioModule.tsx(89,31): error TS18046: 's' is of type 'unknown'.
+src/components/Student/modules/PortfolioModule.tsx(90,69): error TS18046: 's' is of type 'unknown'.
+src/components/Student/modules/PortfolioModule.tsx(90,91): error TS18046: 's' is of type 'unknown'.
+src/components/Student/modules/PortfolioModule.tsx(90,114): error TS18046: 's' is of type 'unknown'.
+src/components/Student/modules/PortfolioModule.tsx(91,55): error TS18046: 's' is of type 'unknown'.
+src/components/Student/modules/PortfolioModule.tsx(94,117): error TS18046: 's' is of type 'unknown'.
+src/components/Student/modules/PortfolioModule.tsx(95,111): error TS18046: 's' is of type 'unknown'.
+src/components/Student/StudentSelector.tsx(37,41): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/SuperStudio/components/ActionToolbar.tsx(49,36): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/SuperStudio/components/ConfiguratorCascade.tsx(31,48): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/UniversalStudio/UniversalAdapter.ts(42,37): error TS18046: 's' is of type 'unknown'.
+src/components/UniversalStudio/UniversalAdapter.ts(292,9): error TS18046: 'items' is of type 'unknown'.
+src/components/UniversalStudio/UniversalCanvas.tsx(49,48): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string'.
+src/components/UniversalStudio/UniversalCanvas.tsx(305,19): error TS2352: Conversion of type 'number' to type 'string' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+src/components/UniversalWorksheetViewer/hooks/useBatchExport.ts(32,45): error TS7016: Could not find a declaration file for module 'jspdf'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/jspdf/dist/jspdf.es.min.js' implicitly has an 'any' type.
+src/components/UniversalWorksheetViewer/hooks/useCloudStorage.ts(183,54): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/UniversalWorksheetViewer/hooks/useCloudStorage.ts(210,49): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/UniversalWorksheetViewer/hooks/useCloudStorage.ts(228,53): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/UniversalWorksheetViewer/UniversalWorksheetViewer.tsx(322,13): error TS2322: Type '(block: WorksheetContentBlock) => void' is not assignable to type '(block: Omit<WorksheetContentBlock, "id">) => void'.
+src/components/VariationResultsView.tsx(196,19): error TS2322: Type 'unknown' is not assignable to type 'ReactNode'.
+src/components/WorkbookAI.tsx(16,31): error TS2459: Module '"../types/core"' declares 'StyleSettings' locally, but it is not exported.
+src/components/WorkbookAI.tsx(141,21): error TS18046: 's' is of type 'unknown'.
+src/components/WorkbookAI.tsx(142,24): error TS18046: 's' is of type 'unknown'.
+src/components/WorkbookAI.tsx(143,23): error TS18046: 's' is of type 'unknown'.
+src/components/WorkbookAI.tsx(174,16): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string | AppError | Error'.
+src/components/WorkbookAI.tsx(184,42): error TS18046: 's' is of type 'unknown'.
+src/components/WorkbookAI.tsx(184,69): error TS2698: Spread types may only be created from object types.
+src/components/WorkbookAI.tsx(187,44): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/WorkbookAI.tsx(193,40): error TS18046: 's' is of type 'unknown'.
+src/components/WorkbookAI.tsx(193,66): error TS2698: Spread types may only be created from object types.
+src/components/WorkbookAI.tsx(260,51): error TS18046: 's' is of type 'unknown'.
+src/components/WorkbookAI.tsx(266,51): error TS18046: 's' is of type 'unknown'.
+src/components/WorkbookAI.tsx(272,51): error TS18046: 's' is of type 'unknown'.
+src/components/WorkbookView.tsx(11,41): error TS7016: Could not find a declaration file for module 'framer-motion'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+src/components/WorkbookView.tsx(365,53): error TS2345: Argument of type 'Error' is not assignable to parameter of type 'Record<string, unknown>'.
+src/components/WorkbookView.tsx(401,21): error TS2345: Argument of type '(prev: Record<string, unknown>) => { studentName: any; schoolName: any; }' is not assignable to parameter of type 'SetStateAction<WorkbookSettings>'.
+src/data/dummyData.ts(30,9): error TS2739: Type '{ id: string; category: "academic"; title: string; description: string; targetDate: string; status: "in_progress"; progress: number; priority: "high"; strategies: string[]; resources: string[]; evaluationMethod: "test"; reviews: never[]; }' is missing the following properties from type 'IEPGoal': baseline, shortTermObjective, successCriteria
+src/hooks/useActivitySettings.ts(25,83): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/hooks/useActivitySettings.ts(39,52): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/hooks/useAmbientLight.ts(72,50): error TS2345: Argument of type 'string' is not assignable to parameter of type 'Record<string, unknown>'.
+src/hooks/useAmbientLight.ts(81,63): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/hooks/useAuditLog.ts(2,43): error TS2305: Module '"../types/admin"' has no exported member 'UserRoleType'.
+src/hooks/useRBAC.ts(2,30): error TS2305: Module '"../types/admin"' has no exported member 'UserRoleType'.
+src/pages/LandingPage.tsx(2,24): error TS7016: Could not find a declaration file for module 'framer-motion'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+src/pages/PricingPage.tsx(2,24): error TS7016: Could not find a declaration file for module 'framer-motion'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+src/services/activityApprovalService.ts(363,41): error TS7006: Parameter 'draft' implicitly has an 'any' type.
+src/services/activityApprovalService.ts(364,43): error TS7006: Parameter 'signal' implicitly has an 'any' type.
+src/services/activityStudioContentService.ts(86,37): error TS2339: Property 'pedagogicalNote' does not exist on type 'AgentOutput'.
+src/services/activityStudioEnhancementService.ts(67,40): error TS2339: Property 'pedagogicalNote' does not exist on type 'AgentOutput'.
+src/services/adminService.ts(4,28): error TS7016: Could not find a declaration file for module 'firebase/firestore'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/firebase/firestore/dist/esm/index.esm.js' implicitly has an 'any' type.
+src/services/agentService.ts(10,28): error TS7016: Could not find a declaration file for module 'firebase/firestore'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/firebase/firestore/dist/esm/index.esm.js' implicitly has an 'any' type.
+src/services/agentService.ts(493,42): error TS7006: Parameter 'd' implicitly has an 'any' type.
+src/services/agentService.ts(494,36): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/services/agentService.ts(495,33): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/services/agentService.ts(498,15): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/services/agentService.ts(499,12): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/services/agentService.ts(502,31): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/services/agentService.ts(502,34): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/services/agentService.ts(510,21): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/services/agentService.ts(510,24): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/services/agentService.ts(579,45): error TS7006: Parameter 'd' implicitly has an 'any' type.
+src/services/agentService.ts(582,30): error TS7006: Parameter 'conversation' implicitly has an 'any' type.
+src/services/agentService.ts(585,27): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/services/agentService.ts(585,30): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/services/aiContentService.ts(170,48): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/services/aiWorksheetService.ts(425,38): error TS2339: Property 'name' does not exist on type '(SingleWorksheetData | undefined)[]'.
+src/services/aiWorksheetService.ts(425,46): error TS18047: 'worksheet' is possibly 'null'.
+src/services/aiWorksheetService.ts(425,56): error TS2339: Property 'name' does not exist on type 'SingleWorksheetData[]'.
+src/services/aiWorksheetService.ts(426,45): error TS2339: Property 'description' does not exist on type '(SingleWorksheetData | undefined)[]'.
+src/services/aiWorksheetService.ts(426,60): error TS18047: 'worksheet' is possibly 'null'.
+src/services/aiWorksheetService.ts(426,70): error TS2339: Property 'description' does not exist on type 'SingleWorksheetData[]'.
+src/services/aiWorksheetService.ts(427,58): error TS2339: Property 'activities' does not exist on type '(SingleWorksheetData | undefined)[]'.
+src/services/aiWorksheetService.ts(428,35): error TS2339: Property 'activities' does not exist on type '(SingleWorksheetData | undefined)[]'.
+src/services/aiWorksheetService.ts(429,13): error TS18047: 'worksheet' is possibly 'null'.
+src/services/aiWorksheetService.ts(429,23): error TS2339: Property 'activities' does not exist on type 'SingleWorksheetData[]'.
+src/services/assessmentService.ts(2,28): error TS7016: Could not find a declaration file for module 'firebase/firestore'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/firebase/firestore/dist/esm/index.esm.js' implicitly has an 'any' type.
+src/services/assessmentService.ts(43,36): error TS7006: Parameter 'doc' implicitly has an 'any' type.
+src/services/assessmentService.ts(64,53): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/services/assessmentService.ts(77,36): error TS7006: Parameter 'doc' implicitly has an 'any' type.
+src/services/assessmentService.ts(94,61): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/services/assessmentService.ts(136,36): error TS7006: Parameter 'doc' implicitly has an 'any' type.
+src/services/assessmentService.ts(155,60): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/services/assessmentService.ts(167,93): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/services/assignmentService.ts(61,34): error TS7006: Parameter 'err' implicitly has an 'any' type.
+src/services/assignmentService.ts(81,52): error TS7006: Parameter 'err' implicitly has an 'any' type.
+src/services/assignmentService.ts(85,37): error TS7006: Parameter 'doc' implicitly has an 'any' type.
+src/services/assignmentService.ts(101,52): error TS7006: Parameter 'err' implicitly has an 'any' type.
+src/services/assignmentService.ts(105,37): error TS7006: Parameter 'doc' implicitly has an 'any' type.
+src/services/assignmentService.ts(140,50): error TS7006: Parameter 'err' implicitly has an 'any' type.
+src/services/authService.ts(5,5): error TS2305: Module '"firebase/auth"' has no exported member 'signInWithEmailAndPassword'.
+src/services/authService.ts(6,5): error TS2305: Module '"firebase/auth"' has no exported member 'createUserWithEmailAndPassword'.
+src/services/authService.ts(7,5): error TS2305: Module '"firebase/auth"' has no exported member 'signOut'.
+src/services/authService.ts(8,5): error TS2305: Module '"firebase/auth"' has no exported member 'updateProfile'.
+src/services/authService.ts(9,5): error TS2305: Module '"firebase/auth"' has no exported member 'GoogleAuthProvider'.
+src/services/authService.ts(10,5): error TS2305: Module '"firebase/auth"' has no exported member 'signInWithPopup'.
+src/services/authService.ts(12,28): error TS7016: Could not find a declaration file for module 'firebase/firestore'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/firebase/firestore/dist/esm/index.esm.js' implicitly has an 'any' type.
+src/services/authService.ts(90,21): error TS2339: Property 'signInWithPopup' does not exist on type '{ default: typeof import("D:/bbma/bursadisleksi/oogmatik/node_modules/firebase/auth/dist/auth/index"); }'.
+src/services/authService.ts(134,21): error TS2339: Property 'getRedirectResult' does not exist on type '{ default: typeof import("D:/bbma/bursadisleksi/oogmatik/node_modules/firebase/auth/dist/auth/index"); }'.
+src/services/authService.ts(294,21): error TS2339: Property 'updatePassword' does not exist on type '{ default: typeof import("D:/bbma/bursadisleksi/oogmatik/node_modules/firebase/auth/dist/auth/index"); }'.
+src/services/cacheService.ts(57,53): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/services/cacheService.ts(74,37): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/services/cacheService.ts(91,36): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/services/curriculumService.ts(16,8): error TS7016: Could not find a declaration file for module 'firebase/firestore'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/firebase/firestore/dist/esm/index.esm.js' implicitly has an 'any' type.
+src/services/firebaseClient.ts(29,8): error TS7016: Could not find a declaration file for module 'firebase/firestore'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/firebase/firestore/dist/esm/index.esm.js' implicitly has an 'any' type.
+src/services/generators/assessment.ts(87,54): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/services/generators/brainTeasers.ts(70,3): error TS2322: Type 'WorksheetData | WorksheetData[]' is not assignable to type 'WorksheetData'.
+src/services/generators/core/BaseGenerator.ts(34,71): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/services/generators/core/SmartFallbackGenerator.ts(106,6): error TS2339: Property 'addPedagogicalNote' does not exist on type 'WorksheetBuilder'.
+src/services/generators/infographic/_shared/schemaValidator.ts(30,81): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, any> | undefined'.
+src/services/generators/infographic/adapters/adapter_evaluation_summary.ts(46,37): error TS2322: Type '{ label: unknown; }[]' is not assignable to type 'InfographicHierarchyNode[]'.
+src/services/generators/infographic/adapters/adapter_future_vision.ts(50,31): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_future_vision.ts(50,42): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_future_vision.ts(52,17): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_human_body.ts(62,64): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_human_body.ts(63,84): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_human_body.ts(63,92): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_human_body.ts(130,49): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_human_body.ts(131,69): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_human_body.ts(131,77): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_life_cycle.ts(64,59): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_life_cycle.ts(65,83): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_life_cycle.ts(65,91): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_life_cycle.ts(132,44): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_life_cycle.ts(133,68): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_life_cycle.ts(133,76): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_note_taking.ts(79,60): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_note_taking.ts(146,45): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_prefix_suffix.ts(69,15): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_prefix_suffix.ts(70,21): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_prefix_suffix.ts(71,21): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_prefix_suffix.ts(71,33): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_prefix_suffix.ts(72,36): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_prefix_suffix.ts(152,15): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_prefix_suffix.ts(153,21): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_prefix_suffix.ts(154,21): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_prefix_suffix.ts(154,33): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_prefix_suffix.ts(155,36): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_short_answer.ts(79,5): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'InfographicGeneratorResult'.
+src/services/generators/infographic/adapters/adapter_short_answer.ts(128,5): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'InfographicGeneratorResult'.
+src/services/generators/infographic/adapters/adapter_states_matter.ts(63,63): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_states_matter.ts(65,54): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_states_matter.ts(65,62): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_states_matter.ts(122,48): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_states_matter.ts(124,39): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/adapters/adapter_states_matter.ts(124,47): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/infographicAdapter.ts(168,5): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'InfographicGeneratorResult'.
+src/services/generators/infographic/infographicAdapter.ts(222,5): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'InfographicGeneratorResult'.
+src/services/generators/infographic/infographicAdapter.ts(325,5): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'InfographicGeneratorResult'.
+src/services/generators/infographic/infographicAdapter.ts(396,5): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'InfographicGeneratorResult'.
+src/services/generators/infographic/infographicAdapter.ts(488,5): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'InfographicGeneratorResult'.
+src/services/generators/infographic/infographicAdapter.ts(536,5): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'InfographicGeneratorResult'.
+src/services/generators/infographic/infographicAdapter.ts(625,5): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'InfographicGeneratorResult'.
+src/services/generators/infographic/infographicAdapter.ts(696,5): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'InfographicGeneratorResult'.
+src/services/generators/infographic/infographicAdapter.ts(789,9): error TS2322: Type '{ label: string; color: string; children: { label: unknown; }[]; }[]' is not assignable to type 'InfographicHierarchyNode[]'.
+src/services/generators/infographic/infographicAdapter.ts(853,9): error TS2322: Type '{ label: string; color: string; children: { label: unknown; }[]; }[]' is not assignable to type 'InfographicHierarchyNode[]'.
+src/services/generators/infographic/infographicAdapter.ts(951,21): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/infographicAdapter.ts(952,16): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/infographicAdapter.ts(953,22): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/infographicAdapter.ts(954,23): error TS18046: 's' is of type 'unknown'.
+src/services/generators/infographic/infographicAdapter.ts(957,5): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'InfographicGeneratorResult'.
+src/services/generators/infographic/infographicAdapter.ts(977,5): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'InfographicGeneratorResult'.
+src/services/generators/infographic/infographicAdapter.ts(1064,5): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'InfographicGeneratorResult'.
+src/services/generators/infographic/infographicAdapter.ts(1103,5): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'InfographicGeneratorResult'.
+src/services/generators/infographic/infographicAdapter.ts(1204,5): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'InfographicGeneratorResult'.
+src/services/generators/infographic/infographicAdapter.ts(1267,5): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'InfographicGeneratorResult'.
+src/services/generators/infographic/infographicAdapter.ts(1358,5): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'InfographicGeneratorResult'.
+src/services/generators/infographic/infographicAdapter.ts(1391,5): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'InfographicGeneratorResult'.
+src/services/generators/infographic/infographicAdapter.ts(1490,5): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'InfographicGeneratorResult'.
+src/services/generators/infographic/infographicAdapter.ts(1553,5): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'InfographicGeneratorResult'.
+src/services/generators/offline/abcConnect.ts(24,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/generators/offline/capsuleGame.ts(11,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/generators/offline/futoshiki.ts(51,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/generators/offline/magicPyramid.ts(11,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/generators/offline/oddEvenSudoku.ts(49,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/generators/perceptualSkills.ts(54,20): error TS2367: This comparison appears to be unintentional because the types '"radial" | "tree" | "horizontal" | "vertical" | undefined' and '"ultra_full"' have no overlap.
+src/services/generators/perceptualSkills.ts(54,51): error TS2367: This comparison appears to be unintentional because the types '"radial" | "tree" | "horizontal" | "vertical" | undefined' and '"ultra_dense"' have no overlap.
+src/services/generators/premiumCompositeGenerator.ts(106,57): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/services/generators/premiumCompositeGenerator.ts(162,59): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/services/generators/readingStudio.ts(21,34): error TS2339: Property 'diagnosis' does not exist on type '{}'.
+src/services/generators/readingStudio.ts(22,34): error TS2339: Property 'interests' does not exist on type '{}'.
+src/services/generators/readingStudio.ts(35,17): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ short: string; medium: string; long: string; epic: string; }'.
+src/services/generators/readingStudio.ts(35,70): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ simple: string; moderate: string; advanced: string; }'.
+src/services/generators/registry.ts(406,5): error TS2322: Type '(params: UltraCustomizationParams) => Promise<InfographicGeneratorResult>' is not assignable to type '(options: GeneratorOptions) => Promise<any>'.
+src/services/generators/registry.ts(407,5): error TS2322: Type '(params: UltraCustomizationParams) => InfographicGeneratorResult' is not assignable to type '(options: GeneratorOptions) => Promise<any>'.
+src/services/generators/superStudioGenerator.ts(266,13): error TS2304: Cannot find name 'logInfo'.
+src/services/generators/superStudioGenerator.ts(269,11): error TS2304: Cannot find name 'logWarn'.
+src/services/generators/superStudioGenerator.ts(288,9): error TS2304: Cannot find name 'logInfo'.
+src/services/generators/superStudioGenerator.ts(290,9): error TS2304: Cannot find name 'logInfo'.
+src/services/generators/superStudioGenerator.ts(329,13): error TS2304: Cannot find name 'logInfo'.
+src/services/generators/superStudioGenerator.ts(331,13): error TS2304: Cannot find name 'logWarn'.
+src/services/generators/superStudioGenerator.ts(341,9): error TS2304: Cannot find name 'logWarn'.
+src/services/generators/superStudioGenerator.ts(377,7): error TS2552: Cannot find name 'logError'. Did you mean 'onerror'?
+src/services/imageService.ts(43,45): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/services/messagingService.ts(3,28): error TS7016: Could not find a declaration file for module 'firebase/firestore'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/firebase/firestore/dist/esm/index.esm.js' implicitly has an 'any' type.
+src/services/messagingService.ts(48,32): error TS7006: Parameter 'doc' implicitly has an 'any' type.
+src/services/messagingService.ts(148,24): error TS7006: Parameter 'doc' implicitly has an 'any' type.
+src/services/messagingService.ts(149,24): error TS7006: Parameter 'doc' implicitly has an 'any' type.
+src/services/offlineGenerators/algorithm.ts(13,25): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(iterable: Iterable<unknown> | ArrayLike<unknown>, mapfn: (v: unknown, k: number) => AlgorithmData, thisArg?: any): AlgorithmData[]', gave the following error.
+  Overload 2 of 4, '(arrayLike: ArrayLike<unknown>, mapfn: (v: unknown, k: number) => AlgorithmData, thisArg?: any): AlgorithmData[]', gave the following error.
+src/services/offlineGenerators/apartmentLogic.ts(8,25): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(iterable: Iterable<unknown> | ArrayLike<unknown>, mapfn: (v: unknown, k: number) => any, thisArg?: any): any[]', gave the following error.
+  Overload 2 of 4, '(arrayLike: ArrayLike<unknown>, mapfn: (v: unknown, k: number) => any, thisArg?: any): any[]', gave the following error.
+src/services/offlineGenerators/brainTeasers.ts(111,18): error TS2345: Argument of type '{ id: string; type: "riddle"; category: string; difficulty_stars: number; q: string; a: string; hint: string; } | { id: string; type: "lateral_thinking"; category: string; difficulty_stars: number; q: string; a: string; hint: string; } | { ...; } | { ...; }' is not assignable to parameter of type 'BrainTeaserPuzzle'.
+src/services/offlineGenerators/brainTeasers.ts(119,7): error TS2322: Type 'unknown' is not assignable to type 'string'.
+src/services/offlineGenerators/brainTeasers.ts(129,10): error TS2352: Conversion of type 'BrainTeasersData[]' to type 'WorksheetData[]' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+src/services/offlineGenerators/clockReading.ts(9,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/colorfulSyllable.ts(7,25): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(iterable: Iterable<unknown> | ArrayLike<unknown>, mapfn: (v: unknown, k: number) => any, thisArg?: any): any[]', gave the following error.
+  Overload 2 of 4, '(arrayLike: ArrayLike<unknown>, mapfn: (v: unknown, k: number) => any, thisArg?: any): any[]', gave the following error.
+src/services/offlineGenerators/dyscalculia.ts(12,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/dyscalculia.ts(61,25): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(iterable: Iterable<unknown> | ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; exercises: any[]; }, thisArg?: any): { title: string; instruction: string; exercises: any[]; }[]', gave the following error.
+  Overload 2 of 4, '(arrayLike: ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; exercises: any[]; }, thisArg?: any): { title: string; instruction: string; exercises: any[]; }[]', gave the following error.
+src/services/offlineGenerators/dyscalculia.ts(76,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/dyscalculia.ts(116,25): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(iterable: Iterable<unknown> | ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; problems: { num1: number; num2: number; operator: string; answer: number; visualType: "ten-frame"; }[]; }, thisArg?: any): { ...; }[]', gave the following error.
+  Overload 2 of 4, '(arrayLike: ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; problems: { num1: number; num2: number; operator: string; answer: number; visualType: "ten-frame"; }[]; }, thisArg?: any): { ...; }[]', gave the following error.
+src/services/offlineGenerators/dyscalculia.ts(125,25): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(iterable: Iterable<unknown> | ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; cards: ({ id: string; pairId: string; type: "operation"; content: string; numValue: number; } | { ...; })[]; }, thisArg?: any): { ...; }[]', gave the following error.
+  Overload 2 of 4, '(arrayLike: ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; cards: ({ id: string; pairId: string; type: "operation"; content: string; numValue: number; } | { ...; })[]; }, thisArg?: any): { ...; }[]', gave the following error.
+src/services/offlineGenerators/dyslexiaSupport.ts(12,25): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(iterable: Iterable<unknown> | ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; mode: any; items: { word: string; syllables: string[]; missingIndex: number | undefined; scrambledIndices: number[] | undefined; syllableCount: number; }[]; }, thisArg?: any): { ...; }[]', gave the following error.
+  Overload 2 of 4, '(arrayLike: ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; mode: any; items: { word: string; syllables: string[]; missingIndex: number | undefined; scrambledIndices: number[] | undefined; syllableCount: number; }[]; }, thisArg?: any): { ...; }[]', gave the following error.
+src/services/offlineGenerators/dyslexiaSupport.ts(13,44): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+src/services/offlineGenerators/dyslexiaSupport.ts(72,25): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(iterable: Iterable<unknown> | ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; pairs: { letter: string; word: string; imagePrompt: string; }[]; settings: { ...; }; }, thisArg?: any): { ...; }[]', gave the following error.
+  Overload 2 of 4, '(arrayLike: ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; pairs: { letter: string; word: string; imagePrompt: string; }[]; settings: { fontFamily: string; letterCase: "upper" | "lower"; showTracing: true; gridCols: number; }; }, thisArg?: any): { ...; }[]', gave the following error.
+src/services/offlineGenerators/dyslexiaSupport.ts(101,25): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(iterable: Iterable<unknown> | ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; targetPair: string; rows: { items: { letter: string; rotation: number; isMirrored: boolean; }[]; }[]; }, thisArg?: any): { ...; }[]', gave the following error.
+  Overload 2 of 4, '(arrayLike: ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; targetPair: string; rows: { items: { letter: string; rotation: number; isMirrored: boolean; }[]; }[]; }, thisArg?: any): { ...; }[]', gave the following error.
+src/services/offlineGenerators/dyslexiaSupport.ts(125,25): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(iterable: Iterable<unknown> | ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; type: string; grid: { items: { type: string; value: string; }[]; }[]; }, thisArg?: any): { ...; }[]', gave the following error.
+  Overload 2 of 4, '(arrayLike: ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; type: string; grid: { items: { type: string; value: string; }[]; }[]; }, thisArg?: any): { title: string; instruction: string; type: string; grid: { ...; }[]; }[]', gave the following error.
+src/services/offlineGenerators/dyslexiaSupport.ts(147,25): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(iterable: Iterable<unknown> | ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; targetLetters: string[]; rows: { letters: string[]; }[]; }, thisArg?: any): { ...; }[]', gave the following error.
+  Overload 2 of 4, '(arrayLike: ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; targetLetters: string[]; rows: { letters: string[]; }[]; }, thisArg?: any): { title: string; instruction: string; targetLetters: string[]; rows: { ...; }[]; }[]', gave the following error.
+src/services/offlineGenerators/dyslexiaSupport.ts(210,25): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(iterable: Iterable<unknown> | ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; items: any[]; difficulty: string | undefined; }, thisArg?: any): { ...; }[]', gave the following error.
+  Overload 2 of 4, '(arrayLike: ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; items: any[]; difficulty: string | undefined; }, thisArg?: any): { title: string; instruction: string; items: any[]; difficulty: string | undefined; }[]', gave the following error.
+src/services/offlineGenerators/dyslexiaSupport.ts(211,49): error TS2538: Type 'undefined' cannot be used as an index type.
+src/services/offlineGenerators/dyslexiaSupport.ts(247,5): error TS2322: Type '{ title: string; instruction: string; pyramids: { title: string; levels: string[]; }[]; difficulty: string | undefined; }[]' is not assignable to type 'ReadingPyramidData[]'.
+src/services/offlineGenerators/dyslexiaSupport.ts(247,25): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(iterable: Iterable<unknown> | ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; pyramids: { title: string; levels: string[]; }[]; difficulty: string | undefined; }, thisArg?: any): { ...; }[]', gave the following error.
+  Overload 2 of 4, '(arrayLike: ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; pyramids: { title: string; levels: string[]; }[]; difficulty: string | undefined; }, thisArg?: any): { ...; }[]', gave the following error.
+src/services/offlineGenerators/dyslexiaSupport.ts(301,57): error TS2538: Type 'undefined' cannot be used as an index type.
+src/services/offlineGenerators/dyslexiaSupport.ts(303,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/dyslexiaSupport.ts(331,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/dyslexiaSupport.ts(353,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/dyslexiaSupport.ts(355,49): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+src/services/offlineGenerators/dyslexiaSupport.ts(411,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/dyslexiaSupport.ts(447,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/dyslexiaSupport.ts(448,45): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+src/services/offlineGenerators/dyslexiaSupport.ts(470,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/dyslexiaSupport.ts(489,25): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(iterable: Iterable<unknown> | ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; subType: "letter-cancellation"; grid: ("a" | "b")[][]; targetChars: string[]; }, thisArg?: any): { ...; }[]', gave the following error.
+  Overload 2 of 4, '(arrayLike: ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; subType: "letter-cancellation"; grid: ("a" | "b")[][]; targetChars: string[]; }, thisArg?: any): { ...; }[]', gave the following error.
+src/services/offlineGenerators/dyslexiaSupport.ts(500,41): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+src/services/offlineGenerators/dyslexiaSupport.ts(502,25): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(iterable: Iterable<unknown> | ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; lines: ({ text: string; type: "trace"; } | { text: string; type: "copy"; } | { ...; })[]; guideType: string; settings: { ...; }; }, thisArg?: any): { ...; }[]', gave the following error.
+  Overload 2 of 4, '(arrayLike: ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; lines: ({ text: string; type: "trace"; } | { text: string; type: "copy"; } | { text: string; type: "empty"; })[]; guideType: string; settings: { ...; }; }, thisArg?: any): { ...; }[]', gave the following error.
+src/services/offlineGenerators/familyTreeMatrix.ts(7,25): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(iterable: Iterable<unknown> | ArrayLike<unknown>, mapfn: (v: unknown, k: number) => any, thisArg?: any): any[]', gave the following error.
+  Overload 2 of 4, '(arrayLike: ArrayLike<unknown>, mapfn: (v: unknown, k: number) => any, thisArg?: any): any[]', gave the following error.
+src/services/offlineGenerators/financialMarket.ts(7,25): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(iterable: Iterable<unknown> | ArrayLike<unknown>, mapfn: (v: unknown, k: number) => any, thisArg?: any): any[]', gave the following error.
+  Overload 2 of 4, '(arrayLike: ArrayLike<unknown>, mapfn: (v: unknown, k: number) => any, thisArg?: any): any[]', gave the following error.
+src/services/offlineGenerators/financialMath.ts(12,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/gizemliSayilar.ts(96,40): error TS2345: Argument of type 'string | number' is not assignable to parameter of type 'number'.
+src/services/offlineGenerators/logicErrorHunter.ts(28,25): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(iterable: Iterable<unknown> | ArrayLike<unknown>, mapfn: (v: unknown, k: number) => any, thisArg?: any): any[]', gave the following error.
+  Overload 2 of 4, '(arrayLike: ArrayLike<unknown>, mapfn: (v: unknown, k: number) => any, thisArg?: any): any[]', gave the following error.
+src/services/offlineGenerators/mapDetective.ts(123,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/mathLogic.ts(18,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/mathLogic.ts(77,34): error TS2339: Property 'split' does not exist on type 'string | [number, number]'.
+src/services/offlineGenerators/mathLogic.ts(80,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/mathLogic.ts(142,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/memoryAttention.ts(8,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/memoryAttention.ts(13,42): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+src/services/offlineGenerators/memoryAttention.ts(14,80): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+src/services/offlineGenerators/memoryAttention.ts(46,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/memoryAttention.ts(83,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/memoryAttention.ts(111,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/memoryAttention.ts(147,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/memoryAttention.ts(194,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/memoryAttention.ts(216,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/memoryAttention.ts(250,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/memoryAttention.ts(273,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/memoryAttention.ts(325,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/memoryAttention.ts(350,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/newActivities.ts(36,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/newActivities.ts(85,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/newActivities.ts(120,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/newActivities.ts(139,25): error TS2769: No overload matches this call.
+  Overload 1 of 4, '(iterable: Iterable<unknown> | ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; words: { id: number; targetWord: string; syllables: string[]; imagePrompt: string; }[]; syllableBank: string[]; }, thisArg?: any): { ...; }[]', gave the following error.
+  Overload 2 of 4, '(arrayLike: ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; words: { id: number; targetWord: string; syllables: string[]; imagePrompt: string; }[]; syllableBank: string[]; }, thisArg?: any): { ...; }[]', gave the following error.
+src/services/offlineGenerators/patternCompletion.ts(14,25): error TS18048: 'worksheetCount' is possibly 'undefined'.
+src/services/offlineGenerators/readingComprehension.ts(358,5): error TS2322: Type '{ title: string; instruction: string; content: { title: string; paragraphs: { parts: { text: string; isBlank: boolean; answer?: string | undefined; }[]; }[]; wordBank: string[]; }; settings: { difficulty: any; blankType: "word"; showWordBank: true; topic: string; }; }[]' is not assignable to type 'MissingPartsData[]'.
+src/services/offlineGenerators/sariKitap/heceMotoru.ts(111,69): error TS18046: 's' is of type 'unknown'.
+src/services/offlineGenerators/sariKitap/heceMotoru.ts(112,69): error TS18046: 's' is of type 'unknown'.
+src/services/offlineGenerators/sayiDedektifi.ts(51,40): error TS2345: Argument of type 'string | number' is not assignable to parameter of type 'number'.
+src/services/statsService.ts(3,28): error TS7016: Could not find a declaration file for module 'firebase/firestore'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/firebase/firestore/dist/esm/index.esm.js' implicitly has an 'any' type.
+src/services/statsService.ts(19,36): error TS7006: Parameter 'doc' implicitly has an 'any' type.
+src/services/statsService.ts(31,46): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/services/statsService.ts(59,49): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/services/templateEngine.ts(20,5): error TS2459: Module '"../types/ocr-activity"' declares 'Difficulty' locally, but it is not exported.
+src/services/templateEngine.ts(59,9): error TS2322: Type '"architecture_clone"' is not assignable to type '"prompt_generation"'.
+src/services/templateEngine.ts(130,17): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'ActivityMetadata'.
+src/services/templateEngine.ts(210,22): error TS2339: Property 'pedagogicalNote' does not exist on type 'ActivityMetadata'.
+src/services/templateEngine.ts(221,62): error TS2339: Property 'pedagogicalNote' does not exist on type 'ActivityMetadata'.
+src/services/templateEngine.ts(243,32): error TS2339: Property 'pedagogicalNote' does not exist on type 'ActivityMetadata'.
+src/services/templateEngine.ts(243,69): error TS2339: Property 'pedagogicalNote' does not exist on type 'ActivityMetadata'.
+src/services/templateEngine.ts(295,75): error TS18046: 's' is of type 'unknown'.
+src/services/templateLibrary.ts(13,5): error TS2459: Module '"../types/ocr-activity"' declares 'Difficulty' locally, but it is not exported.
+src/services/themeContrastService.ts(1,15): error TS2459: Module '"@/types/activityStudio"' declares 'Difficulty' locally, but it is not exported.
+src/services/workbook/workbookExport.ts(19,23): error TS7016: Could not find a declaration file for module 'jspdf'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/jspdf/dist/jspdf.es.min.js' implicitly has an 'any' type.
+src/services/workbook/workbookExport.ts(21,10): error TS2300: Duplicate identifier 'logError'.
+src/services/workbook/workbookExport.ts(25,19): error TS2300: Duplicate identifier 'logError'.
+src/services/workbook/workbookService.ts(348,28): error TS7006: Parameter 'doc' implicitly has an 'any' type.
+src/services/workbook/workbookService.ts(418,37): error TS7006: Parameter 'transaction' implicitly has an 'any' type.
+src/services/workbook/workbookService.ts(663,28): error TS7006: Parameter 'doc' implicitly has an 'any' type.
+src/services/workbook/workbookSharingService.ts(17,68): error TS7016: Could not find a declaration file for module 'firebase/firestore'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/firebase/firestore/dist/esm/index.esm.js' implicitly has an 'any' type.
+src/services/workbookAIAssistant/validators/contentValidator.ts(319,9): error TS2345: Argument of type 'string[]' is not assignable to parameter of type 'Record<string, unknown>'.
+src/services/workbookAIAssistant/validators/contentValidator.ts(325,54): error TS2345: Argument of type 'string[]' is not assignable to parameter of type 'Record<string, unknown>'.
+src/services/workbookAIAssistant/validators/contentValidator.ts(330,64): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/services/worksheetService.ts(7,28): error TS7016: Could not find a declaration file for module 'firebase/firestore'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/firebase/firestore/dist/esm/index.esm.js' implicitly has an 'any' type.
+src/shared/store/useGlobalStore.ts(38,18): error TS7006: Parameter 'theme' implicitly has an 'any' type.
+src/shared/store/useGlobalStore.ts(39,32): error TS7006: Parameter 'settings' implicitly has an 'any' type.
+src/shared/store/useGlobalStore.ts(40,14): error TS7006: Parameter 'state' implicitly has an 'any' type.
+src/store/useA4EditorStore.ts(31,14): error TS7006: Parameter 'block' implicitly has an 'any' type.
+src/store/useActivityStudioStore.ts(23,70): error TS7006: Parameter 'set' implicitly has an 'any' type.
+src/store/useAssignmentStore.ts(8,8): error TS7016: Could not find a declaration file for module 'firebase/firestore'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/firebase/firestore/dist/esm/index.esm.js' implicitly has an 'any' type.
+src/store/useAssignmentStore.ts(55,27): error TS7006: Parameter 'snapshot' implicitly has an 'any' type.
+src/store/useAssignmentStore.ts(57,25): error TS7006: Parameter 'doc' implicitly has an 'any' type.
+src/store/useAssignmentStore.ts(61,9): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/store/useAssignmentStore.ts(75,27): error TS7006: Parameter 'snapshot' implicitly has an 'any' type.
+src/store/useAssignmentStore.ts(77,25): error TS7006: Parameter 'doc' implicitly has an 'any' type.
+src/store/useAssignmentStore.ts(81,9): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/store/useAuthStore.ts(6,10): error TS2305: Module '"firebase/auth"' has no exported member 'onAuthStateChanged'.
+src/store/useCreativeStore.ts(49,17): error TS7006: Parameter 'layoutUpdate' implicitly has an 'any' type.
+src/store/useCreativeStore.ts(53,21): error TS7006: Parameter 'id' implicitly has an 'any' type.
+src/store/useCreativeStore.ts(55,22): error TS7006: Parameter 'idsUpdate' implicitly has an 'any' type.
+src/store/useCreativeStore.ts(59,21): error TS7006: Parameter 'mode' implicitly has an 'any' type.
+src/store/useCreativeStore.ts(62,23): error TS7006: Parameter 'instanceId' implicitly has an 'any' type.
+src/store/useCreativeStore.ts(62,35): error TS7006: Parameter 'updates' implicitly has an 'any' type.
+src/store/useCreativeStore.ts(68,32): error TS7006: Parameter 'instanceIds' implicitly has an 'any' type.
+src/store/useCreativeStore.ts(68,45): error TS7006: Parameter 'updates' implicitly has an 'any' type.
+src/store/useCreativeStore.ts(76,23): error TS7006: Parameter 'instanceId' implicitly has an 'any' type.
+src/store/useCreativeStore.ts(76,35): error TS7006: Parameter 'isCtrlKey' implicitly has an 'any' type.
+src/store/useInfographicLayoutStore.ts(35,74): error TS7006: Parameter 'set' implicitly has an 'any' type.
+src/store/useInfographicLayoutStore.ts(35,79): error TS7006: Parameter 'get' implicitly has an 'any' type.
+src/store/useInfographicLayoutStore.ts(40,18): error TS7006: Parameter 'updates' implicitly has an 'any' type.
+src/store/useInfographicLayoutStore.ts(41,10): error TS7006: Parameter 'state' implicitly has an 'any' type.
+src/store/useInfographicLayoutStore.ts(55,10): error TS7006: Parameter 'state' implicitly has an 'any' type.
+src/store/useInfographicLayoutStore.ts(66,10): error TS7006: Parameter 'state' implicitly has an 'any' type.
+src/store/useMatSinavStore.ts(72,61): error TS7006: Parameter 'set' implicitly has an 'any' type.
+src/store/useMatSinavStore.ts(72,66): error TS7006: Parameter 'get' implicitly has an 'any' type.
+src/store/useMatSinavStore.ts(78,18): error TS7006: Parameter 'partial' implicitly has an 'any' type.
+src/store/useMatSinavStore.ts(79,14): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/store/useMatSinavStore.ts(81,16): error TS7006: Parameter 'sinif' implicitly has an 'any' type.
+src/store/useMatSinavStore.ts(82,14): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/store/useMatSinavStore.ts(91,26): error TS7006: Parameter 'uniteler' implicitly has an 'any' type.
+src/store/useMatSinavStore.ts(92,14): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/store/useMatSinavStore.ts(94,28): error TS7006: Parameter 'kazanimlar' implicitly has an 'any' type.
+src/store/useMatSinavStore.ts(95,14): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/store/useMatSinavStore.ts(97,23): error TS7006: Parameter 'tip' implicitly has an 'any' type.
+src/store/useMatSinavStore.ts(97,28): error TS7006: Parameter 'sayi' implicitly has an 'any' type.
+src/store/useMatSinavStore.ts(98,14): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/store/useMatSinavStore.ts(105,21): error TS7006: Parameter 'sinav' implicitly has an 'any' type.
+src/store/useMatSinavStore.ts(106,23): error TS7006: Parameter 'v' implicitly has an 'any' type.
+src/store/useMatSinavStore.ts(108,23): error TS7006: Parameter 'sinav' implicitly has an 'any' type.
+src/store/useMatSinavStore.ts(114,26): error TS7006: Parameter 'id' implicitly has an 'any' type.
+src/store/useMatSinavStore.ts(115,66): error TS18046: 's' is of type 'unknown'.
+src/store/useProgressStore.ts(16,56): error TS7006: Parameter 'set' implicitly has an 'any' type.
+src/store/useReadingStore.ts(43,56): error TS7006: Parameter 'set' implicitly has an 'any' type.
+src/store/useReadingStore.ts(43,61): error TS7006: Parameter 'get' implicitly has an 'any' type.
+src/store/useReadingStore.ts(90,15): error TS7006: Parameter 'config' implicitly has an 'any' type.
+src/store/useReadingStore.ts(91,18): error TS7006: Parameter 'storyData' implicitly has an 'any' type.
+src/store/useReadingStore.ts(92,15): error TS7006: Parameter 'layoutUpdate' implicitly has an 'any' type.
+src/store/useReadingStore.ts(96,19): error TS7006: Parameter 'selectedId' implicitly has an 'any' type.
+src/store/useReadingStore.ts(97,19): error TS7006: Parameter 'designMode' implicitly has an 'any' type.
+src/store/useReadingStore.ts(98,22): error TS7006: Parameter 'activeStudent' implicitly has an 'any' type.
+src/store/useReadingStore.ts(99,18): error TS7006: Parameter 'isLoading' implicitly has an 'any' type.
+src/store/useReadingStore.ts(102,21): error TS7006: Parameter 'instanceId' implicitly has an 'any' type.
+src/store/useReadingStore.ts(102,33): error TS7006: Parameter 'updates' implicitly has an 'any' type.
+src/store/useReadingStore.ts(115,22): error TS7006: Parameter 'instanceId' implicitly has an 'any' type.
+src/store/useReadingStore.ts(117,30): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/store/useReadingStore.ts(175,18): error TS7006: Parameter 'def' implicitly has an 'any' type.
+src/store/useSinavStore.ts(60,55): error TS7006: Parameter 'set' implicitly has an 'any' type.
+src/store/useSinavStore.ts(66,16): error TS7006: Parameter 'partial' implicitly has an 'any' type.
+src/store/useSinavStore.ts(67,10): error TS7006: Parameter 'state' implicitly has an 'any' type.
+src/store/useSinavStore.ts(71,14): error TS7006: Parameter 'sinif' implicitly has an 'any' type.
+src/store/useSinavStore.ts(72,10): error TS7006: Parameter 'state' implicitly has an 'any' type.
+src/store/useSinavStore.ts(81,24): error TS7006: Parameter 'uniteler' implicitly has an 'any' type.
+src/store/useSinavStore.ts(82,10): error TS7006: Parameter 'state' implicitly has an 'any' type.
+src/store/useSinavStore.ts(86,26): error TS7006: Parameter 'kazanimlar' implicitly has an 'any' type.
+src/store/useSinavStore.ts(87,10): error TS7006: Parameter 'state' implicitly has an 'any' type.
+src/store/useSinavStore.ts(91,21): error TS7006: Parameter 'tip' implicitly has an 'any' type.
+src/store/useSinavStore.ts(91,26): error TS7006: Parameter 'sayi' implicitly has an 'any' type.
+src/store/useSinavStore.ts(92,10): error TS7006: Parameter 'state' implicitly has an 'any' type.
+src/store/useSinavStore.ts(102,19): error TS7006: Parameter 'sinav' implicitly has an 'any' type.
+src/store/useSinavStore.ts(104,21): error TS7006: Parameter 'isGenerating' implicitly has an 'any' type.
+src/store/useSinavStore.ts(106,25): error TS7006: Parameter 'sinav' implicitly has an 'any' type.
+src/store/useSinavStore.ts(107,10): error TS7006: Parameter 'state' implicitly has an 'any' type.
+src/store/useStudentStore.ts(13,8): error TS7016: Could not find a declaration file for module 'firebase/firestore'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/firebase/firestore/dist/esm/index.esm.js' implicitly has an 'any' type.
+src/store/useStudentStore.ts(64,27): error TS7006: Parameter 'snapshot' implicitly has an 'any' type.
+src/store/useStudentStore.ts(66,25): error TS7006: Parameter 'doc' implicitly has an 'any' type.
+src/store/useStudentStore.ts(101,88): error TS7016: Could not find a declaration file for module 'firebase/firestore'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/firebase/firestore/dist/esm/index.esm.js' implicitly has an 'any' type.
+src/store/useSuperStudioStore.ts(55,62): error TS7006: Parameter 'set' implicitly has an 'any' type.
+src/store/useSuperStudioStore.ts(58,18): error TS7006: Parameter 'id' implicitly has an 'any' type.
+src/store/useSuperStudioStore.ts(59,14): error TS7006: Parameter 'grade' implicitly has an 'any' type.
+src/store/useSuperStudioStore.ts(60,14): error TS7006: Parameter 'topic' implicitly has an 'any' type.
+src/store/useSuperStudioStore.ts(61,19): error TS7006: Parameter 'diff' implicitly has an 'any' type.
+src/store/useSuperStudioStore.ts(62,23): error TS7006: Parameter 'mode' implicitly has an 'any' type.
+src/store/useSuperStudioStore.ts(64,20): error TS7006: Parameter 'templateId' implicitly has an 'any' type.
+src/store/useSuperStudioStore.ts(65,10): error TS7006: Parameter 'state' implicitly has an 'any' type.
+src/store/useSuperStudioStore.ts(72,62): error TS7006: Parameter 'id' implicitly has an 'any' type.
+src/store/useSuperStudioStore.ts(88,24): error TS7006: Parameter 'templateId' implicitly has an 'any' type.
+src/store/useSuperStudioStore.ts(88,36): error TS7006: Parameter 'payload' implicitly has an 'any' type.
+src/store/useSuperStudioStore.ts(89,10): error TS7006: Parameter 'state' implicitly has an 'any' type.
+src/store/useSuperStudioStore.ts(99,25): error TS7006: Parameter 'content' implicitly has an 'any' type.
+src/store/useSuperStudioStore.ts(100,10): error TS7006: Parameter 'state' implicitly has an 'any' type.
+src/store/useSuperStudioStore.ts(106,21): error TS7006: Parameter 'isGenerating' implicitly has an 'any' type.
+src/store/useWorksheetStore.ts(28,65): error TS7006: Parameter 'set' implicitly has an 'any' type.
+src/store/useWorksheetStore.ts(28,70): error TS7006: Parameter 'get' implicitly has an 'any' type.
+src/utils/heceAyirici.ts(69,43): error TS18046: 's' is of type 'unknown'.
+src/utils/inputSanitizer.ts(7,10): error TS2305: Module '"./promptSecurity.js"' has no exported member 'sanitizeForPrompt'.
+src/utils/motionPresets.ts(5,38): error TS7016: Could not find a declaration file for module 'framer-motion'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/framer-motion/dist/cjs/index.js' implicitly has an 'any' type.
+src/utils/print/CaptureEngine.ts(43,57): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/utils/print/CaptureEngine.ts(101,49): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/utils/print/index.ts(74,41): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/utils/print/OverlayPrinter.ts(120,42): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/utils/print/OverlayPrinter.ts(255,39): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/utils/print/OverlayPrinter.ts(370,42): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/utils/print/OverlayPrinter.ts(397,54): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/utils/print/PDFGenerator.ts(76,43): error TS7016: Could not find a declaration file for module 'jspdf'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/jspdf/dist/jspdf.es.min.js' implicitly has an 'any' type.
+src/utils/scoringEngine.ts(55,7): error TS2532: Object is possibly 'undefined'.
+src/utils/scoringEngine.ts(56,7): error TS2532: Object is possibly 'undefined'.
+src/utils/scoringEngine.ts(64,9): error TS2532: Object is possibly 'undefined'.
+src/utils/scoringEngine.ts(71,11): error TS18048: 'data' is possibly 'undefined'.
+src/utils/scoringEngine.ts(72,9): error TS18048: 'data' is possibly 'undefined'.
+src/utils/scoringEngine.ts(72,34): error TS18048: 'data' is possibly 'undefined'.
+src/utils/scoringEngine.ts(72,50): error TS18048: 'data' is possibly 'undefined'.
+src/utils/scoringEngine.ts(74,9): error TS18048: 'data' is possibly 'undefined'.
+src/utils/scoringEngine.ts(77,11): error TS18048: 'data' is possibly 'undefined'.
+src/utils/scoringEngine.ts(78,9): error TS18048: 'data' is possibly 'undefined'.
+src/utils/scoringEngine.ts(79,9): error TS18048: 'data' is possibly 'undefined'.
+src/utils/scoringEngine.ts(80,18): error TS18048: 'data' is possibly 'undefined'.
+src/utils/scoringEngine.ts(81,9): error TS18048: 'data' is possibly 'undefined'.
+src/utils/scoringEngine.ts(82,9): error TS18048: 'data' is possibly 'undefined'.
+src/utils/scoringEngine.ts(84,9): error TS18048: 'data' is possibly 'undefined'.
+src/utils/scoringEngine.ts(85,9): error TS18048: 'data' is possibly 'undefined'.
+src/utils/scoringEngine.ts(94,5): error TS2740: Type '{ totalScore: number; categoryScores: Record<EvaluationCategory, { score: number; rawScore: number; maxScore: number; riskLevel: "high" | "low" | "moderate"; riskLabel: string; findings: string[]; color: string; }>; generatedAt: string; studentName: string; respondentRole: "parent" | "teacher"; }' is missing the following properties from type 'ScreeningResult': id, studentId, age, grade, and 8 more.
+src/utils/sinavPdfGenerator.ts(6,19): error TS7016: Could not find a declaration file for module 'jspdf'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/jspdf/dist/jspdf.es.min.js' implicitly has an 'any' type.
+src/utils/snapshotService.ts(113,44): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/utils/snapshotService.ts(142,35): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/utils/validator.ts(58,89): error TS2345: Argument of type '{} | null' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/utils/validator.ts(83,47): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+tests/ActivityApprovalService.test.ts(36,13): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'ActivityMetadata'.
+tests/activityStudio/approvalFilter.test.ts(9,3): error TS2322: Type '"ocr_variation"' is not assignable to type '"prompt_generation"'.
+tests/activityStudio/approvalFilter.test.ts(21,31): error TS2322: Type '"ocr_variation"' is not assignable to type '"prompt_generation"'.
+tests/activityStudio/approvalFilter.test.ts(30,28): error TS2322: Type '"ocr_variation"' is not assignable to type '"prompt_generation"'.
+tests/activityStudio/clinicalValidator.test.ts(6,20): error TS2554: Expected 2 arguments, but got 1.
+tests/activityStudio/clinicalValidator.test.ts(12,20): error TS2554: Expected 2 arguments, but got 1.
+tests/activityStudio/contentService.test.ts(19,5): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'AgentOutput'.
+tests/activityStudio/contentService.test.ts(27,50): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'AgentOutput'.
+tests/activityStudio/contentService.test.ts(29,46): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'AgentOutput'.
+tests/activityStudio/contentService.test.ts(30,42): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'AgentOutput'.
+tests/activityStudio/contentService.test.ts(31,54): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'AgentOutput'.
+tests/activityStudio/contentService.test.ts(32,56): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'AgentOutput'.
+tests/activityStudio/contentService.test.ts(128,16): error TS18048: 'b.pedagogicalNote' is possibly 'undefined'.
+tests/activityStudio/contentService.test.ts(162,9): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'AgentOutput'.
+tests/activityStudio/wizardState.test.ts(15,58): error TS7006: Parameter 'step' implicitly has an 'any' type.
+tests/FactoryFunctions.test.ts(62,30): error TS2339: Property 'paymentMethods' does not exist on type 'FinancialProfile'.
+tests/FactoryFunctions.test.ts(63,30): error TS2339: Property 'monthlyPaymentStatus' does not exist on type 'FinancialProfile'.
+tests/FactoryFunctions.test.ts(69,30): error TS2339: Property 'lastTransactionDate' does not exist on type 'FinancialProfile'.
+tests/FindTheDifferenceSheetFallback.test.tsx(5,1): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/FindTheDifferenceSheetFallback.test.tsx(6,3): error TS2582: Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/FindTheDifferenceSheetFallback.test.tsx(9,5): error TS2304: Cannot find name 'expect'.
+tests/Integration.test.ts(193,21): error TS2339: Property 'checkLimit' does not exist on type 'RateLimiter'.
+tests/Integration.test.ts(197,39): error TS2339: Property 'checkLimit' does not exist on type 'RateLimiter'.
+tests/Integration.test.ts(202,32): error TS2339: Property 'getStatus' does not exist on type 'RateLimiter'.
+tests/Integration.test.ts(203,31): error TS2339: Property 'getStatus' does not exist on type 'RateLimiter'.
+tests/Integration.test.ts(204,33): error TS2339: Property 'getStatus' does not exist on type 'RateLimiter'.
+tests/Integration.test.ts(215,21): error TS2339: Property 'checkLimit' does not exist on type 'RateLimiter'.
+tests/Integration.test.ts(219,42): error TS2339: Property 'checkLimit' does not exist on type 'RateLimiter'.
+tests/Integration.test.ts(297,13): error TS2339: Property 'reset' does not exist on type 'RateLimiter'.
+tests/Integration.test.ts(304,38): error TS2339: Property 'checkLimit' does not exist on type 'RateLimiter'.
+tests/Integration.test.ts(316,28): error TS2339: Property 'getStatus' does not exist on type 'RateLimiter'.
+tests/Integration.test.ts(325,21): error TS2339: Property 'checkLimit' does not exist on type 'RateLimiter'.
+tests/Integration.test.ts(329,41): error TS2339: Property 'checkLimit' does not exist on type 'RateLimiter'.
+tests/Integration.test.ts(337,13): error TS2339: Property 'reset' does not exist on type 'RateLimiter'.
+tests/Integration.test.ts(340,43): error TS2339: Property 'checkLimit' does not exist on type 'RateLimiter'.
+tests/PrivacyService.test.ts(7,8): error TS1192: Module '"D:/bbma/bursadisleksi/oogmatik/src/services/privacyService"' has no default export.
+tests/PrivacyService.test.ts(7,26): error TS2305: Module '"@/services/privacyService.js"' has no exported member 'hashTcNo'.
+tests/PrivacyService.test.ts(7,36): error TS2305: Module '"@/services/privacyService.js"' has no exported member 'anonymizeStudent'.
+tests/PrivacyService.test.ts(7,54): error TS2305: Module '"@/services/privacyService.js"' has no exported member 'sanitizeForAI'.
+tests/RateLimiter.test.ts(17,36): error TS2339: Property 'checkLimit' does not exist on type 'RateLimiter'.
+tests/RateLimiter.test.ts(28,23): error TS2339: Property 'checkLimit' does not exist on type 'RateLimiter'.
+tests/RateLimiter.test.ts(32,36): error TS2339: Property 'checkLimit' does not exist on type 'RateLimiter'.
+tests/RateLimiter.test.ts(42,69): error TS2554: Expected 1-3 arguments, but got 4.
+tests/RateLimiter.test.ts(47,69): error TS2554: Expected 1-3 arguments, but got 4.
+tests/RateLimiter.test.ts(54,40): error TS2339: Property 'getStatus' does not exist on type 'RateLimiter'.
+tests/RateLimiter.test.ts(59,39): error TS2339: Property 'getStatus' does not exist on type 'RateLimiter'.
+tests/RateLimiter.test.ts(64,41): error TS2339: Property 'getStatus' does not exist on type 'RateLimiter'.
+tests/RateLimiter.test.ts(74,21): error TS2339: Property 'checkLimit' does not exist on type 'RateLimiter'.
+tests/RateLimiter.test.ts(75,28): error TS2339: Property 'getStatus' does not exist on type 'RateLimiter'.
+tests/RateLimiter.test.ts(79,21): error TS2339: Property 'checkLimit' does not exist on type 'RateLimiter'.
+tests/RateLimiter.test.ts(80,24): error TS2339: Property 'getStatus' does not exist on type 'RateLimiter'.
+tests/RateLimiter.test.ts(86,30): error TS2339: Property 'getStatus' does not exist on type 'RateLimiter'.
+tests/RateLimiter.test.ts(99,23): error TS2339: Property 'checkLimit' does not exist on type 'RateLimiter'.
+tests/RateLimiter.test.ts(103,41): error TS2339: Property 'checkLimit' does not exist on type 'RateLimiter'.
+tests/RateLimiter.test.ts(115,23): error TS2339: Property 'checkLimit' does not exist on type 'RateLimiter'.
+tests/RateLimiter.test.ts(119,15): error TS2339: Property 'reset' does not exist on type 'RateLimiter'.
+tests/RateLimiter.test.ts(122,30): error TS2339: Property 'getStatus' does not exist on type 'RateLimiter'.
+tests/RateLimiter.test.ts(131,23): error TS2339: Property 'checkLimit' does not exist on type 'RateLimiter'.
+tests/RateLimiter.test.ts(135,15): error TS2339: Property 'reset' does not exist on type 'RateLimiter'.
+tests/RateLimiter.test.ts(138,33): error TS2339: Property 'getStatus' does not exist on type 'RateLimiter'.
+tests/RateLimiter.test.ts(139,35): error TS2339: Property 'getStatus' does not exist on type 'RateLimiter'.
+tests/RateLimiter.test.ts(150,36): error TS2339: Property 'checkLimit' does not exist on type 'RateLimiter'.
+tests/sariKitap/offlineGenerators.test.ts(21,10): error TS2459: Module '"../../src/store/useSariKitapStore"' declares 'createDefaultConfig' locally, but it is not exported.
+tests/sariKitap/offlineGenerators.test.ts(28,20): error TS2339: Property 'pedagogicalNote' does not exist on type 'SariKitapGeneratedContent'.
+tests/sariKitap/store.test.ts(2,10): error TS2459: Module '"../../src/store/useSariKitapStore"' declares 'createDefaultConfig' locally, but it is not exported.
+tests/sinavGenerator.test.ts(171,12): error TS18048: 'sinav.pedagogicalNote' is possibly 'undefined'.
+tests/SprintA.test.ts(14,10): error TS2305: Module '"@/utils/schemas"' has no exported member 'PedagogicalNoteSchema'.
+tests/SprintA.test.ts(14,33): error TS2305: Module '"@/utils/schemas"' has no exported member 'PEDAGOGICAL_KEYWORDS'.
+tests/SprintA.test.ts(29,16): error TS2339: Property 'userMessage' does not exist on type 'void'.
+tests/SprintA.test.ts(30,16): error TS2339: Property 'timestamp' does not exist on type 'void'.
+tests/StudentAPI.test.ts(8,10): error TS2724: '"../src/services/rateLimiter"' has no exported member named 'rateLimiter'. Did you mean 'RateLimiter'?
+tests/StudentAPI.test.ts(53,29): error TS2339: Property 'name' does not exist on type '{ age: number; grade: string; }'.
+tests/StudentAPI.test.ts(234,49): error TS2367: This comparison appears to be unintentional because the types '"teacher-456"' and '"teacher-123"' have no overlap.
+tests/StudentAPI.test.ts(243,47): error TS2367: This comparison appears to be unintentional because the types '"teacher-456"' and '"teacher-123"' have no overlap.
+tests/TemplateEngine.test.ts(103,23): error TS2339: Property 'pedagogicalNote' does not exist on type 'ActivityMetadata'.
+tests/TemplateEngine.test.ts(136,23): error TS2339: Property 'pedagogicalNote' does not exist on type 'ActivityMetadata'.
+tests/TemplateEngine.test.ts(167,23): error TS2339: Property 'pedagogicalNote' does not exist on type 'ActivityMetadata'.
+tests/TemplateEngine.test.ts(197,9): error TS2353: Object literal may only specify known properties, and 'pedagogicalNote' does not exist in type 'ActivityMetadata'.
+tests/VisualOddOneOutSheetFallback.test.tsx(7,1): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/VisualOddOneOutSheetFallback.test.tsx(8,3): error TS2582: Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/VisualOddOneOutSheetFallback.test.tsx(10,5): error TS2304: Cannot find name 'expect'.
+tests/workbookService.test.ts(138,39): error TS7016: Could not find a declaration file for module 'firebase/firestore'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/firebase/firestore/dist/esm/index.esm.js' implicitly has an 'any' type.
+tests/workbookService.test.ts(149,39): error TS7016: Could not find a declaration file for module 'firebase/firestore'. 'D:/bbma/bursadisleksi/oogmatik/node_modules/firebase/firestore/dist/esm/index.esm.js' implicitly has an 'any' type.

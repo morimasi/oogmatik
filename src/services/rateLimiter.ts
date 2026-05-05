@@ -154,18 +154,60 @@ export class UserQuotaService {
 
 /**
  * Legacy support for RateLimiter class name
+ * Enhanced with all required methods for test compatibility
  */
 export class RateLimiter {
+    /**
+     * Check if user is allowed to make request
+     */
     async check(userId: string, tier: UserTier = 'free', limitKey: LimitKey = 'apiGeneration'): Promise<boolean> {
         const { allowed } = await quotaService.checkAndConsume(userId, tier, limitKey);
         return allowed;
     }
 
-    async enforceLimit(userId: string, tier: UserTier = 'free', limitKey: LimitKey = 'apiGeneration'): Promise<void> {
-        await quotaService.enforce(userId, tier, limitKey);
+    /**
+     * Check limit with detailed response
+     */
+    async checkLimit(userId: string, tier: UserTier = 'free', limitKey: LimitKey = 'apiGeneration', cost: number = 1): Promise<{ allowed: boolean; remaining: number; resetAfterMs: number }> {
+        return await quotaService.checkAndConsume(userId, tier, limitKey, cost);
+    }
+
+    /**
+     * Enforce rate limit (throws error if exceeded)
+     */
+    async enforceLimit(userId: string, tier: UserTier = 'free', limitKey: LimitKey = 'apiGeneration', cost: number = 1): Promise<void> {
+        await quotaService.enforce(userId, tier, limitKey, cost);
+    }
+
+    /**
+     * Get current status of user's quota
+     */
+    async getStatus(userId: string, tier: UserTier = 'free', limitKey: LimitKey = 'apiGeneration'): Promise<{ remaining: number; total: number; resetAfterMs: number; allowed: boolean }> {
+        const config = RATE_LIMIT_PRESETS[tier][limitKey];
+        const result = await quotaService.checkAndConsume(userId, tier, limitKey, 0); // cost=0 for check only
+        return {
+            remaining: result.remaining,
+            total: config.tokens,
+            resetAfterMs: result.resetAfterMs,
+            allowed: result.allowed
+        };
+    }
+
+    /**
+     * Reset user's quota (admin function)
+     */
+    async reset(userId: string, limitKey: LimitKey = 'apiGeneration'): Promise<void> {
+        // For admin use - reset quota to full
+        const config = RATE_LIMIT_PRESETS.admin[limitKey];
+        const quotaRef = doc(db, 'user_quotas', `${userId}_${limitKey}`);
+        await setDoc(quotaRef, {
+            tokens: config.tokens,
+            lastRefill: Date.now()
+        });
     }
 }
 
 export const quotaService = UserQuotaService.getInstance();
+export const rateLimiter = new RateLimiter();
 export const enforceRateLimit = (userId: string, tier: UserTier, limitKey: LimitKey, cost: number = 1) => 
     quotaService.enforce(userId, tier, limitKey, cost);
