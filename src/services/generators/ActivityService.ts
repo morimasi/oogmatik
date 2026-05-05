@@ -51,20 +51,33 @@ export class ActivityService {
         }
 
         // 2. Dinamik kayıt: INFOGRAPHIC_ ile başlayan tüm tipleri otomatik işle
-        // Bu sayede registry.ts dosyasına 96 satır eklemek zorunda kalmayız.
         Object.values(ActivityType).forEach((type) => {
             const activityType = type as ActivityType;
             if (activityType.startsWith('INFOGRAPHIC_') && !this.generators.has(activityType)) {
                 
-                // [FAZ 10] Hem AI hem de Offline motorunu dinamik olarak bağla
                 const generator = new GenericActivityGenerator<any>(
                     DEFAULT_MODE,
                     async (options) => {
-                        // AI Üretim Motoru (Gemini 2.5 Flash)
+                        const count = options.worksheetCount || 1;
+                        if (count > 1) {
+                            const results = [];
+                            for (let i = 0; i < count; i++) {
+                                results.push(await generateInfographic(activityType, options));
+                            }
+                            return results;
+                        }
                         return await generateInfographic(activityType, options);
                     },
                     async (options) => {
-                        // [NEW] Çevrimdışı (Hızlı) Üretim Motoru
+                        const count = options.worksheetCount || 1;
+                        if (count > 1) {
+                            const results = [];
+                            for (let i = 0; i < count; i++) {
+                                const { generateOfflineInfographic } = await import('../offlineGenerators/infographic');
+                                results.push(await generateOfflineInfographic(activityType, options));
+                            }
+                            return results;
+                        }
                         const { generateOfflineInfographic } = await import('../offlineGenerators/infographic');
                         return await generateOfflineInfographic(activityType, options);
                     }

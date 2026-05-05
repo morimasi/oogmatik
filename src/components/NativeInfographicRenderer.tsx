@@ -875,63 +875,26 @@ const ShortAnswerGridRenderer: React.FC<{ data: ParsedData; title: string; prima
     else gridColumns = 'repeat(3, 1fr)';
 
     // Daha sıkı (kompakt) değerler
-    const gap = '8px';
-    const padding = '10px 8px 8px 8px';
-    const fontSize = '12px';
+    const gap = '12px';
+    const padding = '14px 12px';
+    const fontSize = '13px';
 
     return (
-        <div style={{ ...fontStyle, padding: '12px', background: '#fff', borderRadius: '8px' }}>
-            {/* Öğrenci Bilgi Alanı */}
-            {config.showStudentInfo && (
-                <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    marginBottom: '12px', 
-                    padding: '8px', 
-                    border: '1px solid #e2e8f0', 
-                    borderRadius: '8px',
-                    fontSize: '11px',
-                    color: PALETTE.text
-                }}>
-                    <div style={{ flex: 1 }}><b>Adı Soyadı:</b> ............................................................</div>
-                    <div style={{ width: '150px' }}><b>Tarih:</b> ...... / ...... / 202...</div>
-                </div>
-            )}
-
-            {title && (
-                <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-                    {/* Premium Başlık Kutusu */}
-                    <div style={{ 
-                        display: 'inline-block', 
-                        border: `2px solid ${primaryColor}`, 
-                        borderRadius: '16px', 
-                        padding: '6px 24px', 
-                        background: `${primaryColor}10`,
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)',
-                        marginBottom: '8px'
-                    }}>
-                        <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 900, color: primaryColor, textTransform: 'uppercase', letterSpacing: '1px' }}>
-                            {title}
-                        </h2>
-                    </div>
-                    
-                    {/* Dashed Green Yönerge Kutusu */}
-                    <div style={{ 
-                        width: '100%',
-                        border: '2px dashed #10b981', 
-                        padding: '6px 12px', 
-                        borderRadius: '10px',
-                        background: '#f0fdf4',
-                        textAlign: 'left',
-                        fontSize: '11.5px',
-                        fontWeight: 600,
-                        color: '#064e3b',
-                        lineHeight: 1.3
-                    }}>
-                        Sorulara cevap verelim. Etkinlik sonunda doğru cevap verdiğimiz soruların halkalarını <span style={{color: '#2563eb', fontWeight: 800}}>maviye</span>, yanlış cevap verdiklerimizi <span style={{color: '#dc2626', fontWeight: 800}}>kırmızıya</span> boyayalım.
-                    </div>
-                </div>
-            )}
+        <div style={{ ...fontStyle, padding: '0', background: '#fff' }}>
+            {/* Üst Bilgi / Değerlendirme Anahtarı (Görseldeki Üst Kısım) */}
+            <div style={{ 
+                marginBottom: '16px', 
+                padding: '10px 16px', 
+                border: '2px dashed #10b981', 
+                borderRadius: '12px',
+                background: '#f0fdf4',
+                fontSize: '12px',
+                fontWeight: 600,
+                color: '#064e3b',
+                lineHeight: 1.4
+            }}>
+                Sorulara cevap verelim. Etkinlik sonunda doğru cevap verdiğimiz soruların halkalarını <span style={{color: '#2563eb', fontWeight: 800}}>maviye</span>, yanlış cevap verdiklerimizi <span style={{color: '#dc2626', fontWeight: 800}}>kırmızıya</span> boyayalım.
+            </div>
 
             <div style={{ 
                 display: 'grid', 
@@ -947,31 +910,30 @@ const ShortAnswerGridRenderer: React.FC<{ data: ParsedData; title: string; prima
                     } else if (config.colorMode === 'Soft Pastel') {
                         borderColor = SOFT_PASTEL_COLORS[idx % SOFT_PASTEL_COLORS.length];
                         bgColor = borderColor + '11';
-                    } else if (config.colorMode === 'Siyah-Beyaz (Print Dostu)') {
-                        borderColor = '#334155';
                     }
 
                     return (
                         <div key={idx} style={{ 
                             position: 'relative',
                             border: `2px solid ${borderColor}`,
-                            borderRadius: '12px',
+                            borderRadius: '14px',
                             padding: padding, 
-                            minHeight: '80px',
+                            minHeight: '105px',
                             display: 'flex',
                             flexDirection: 'column',
                             justifyContent: 'space-between',
                             background: bgColor,
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.03)',
+                            pageBreakInside: 'avoid'
                         }}>
                             {/* Değerlendirme Halkası */}
                             <div style={{ 
                                 position: 'absolute',
-                                top: '-10px',
+                                top: '-11px',
                                 left: '50%',
                                 transform: 'translateX(-50%)',
-                                width: '18px',
-                                height: '18px',
+                                width: '20px',
+                                height: '20px',
                                 borderRadius: '50%',
                                 border: `2px solid ${borderColor}`,
                                 background: '#fff',
@@ -984,19 +946,24 @@ const ShortAnswerGridRenderer: React.FC<{ data: ParsedData; title: string; prima
                                 fontSize: fontSize, 
                                 fontWeight: 600, 
                                 color: '#1e293b',
-                                marginBottom: '8px',
-                                lineHeight: 1.2,
+                                marginBottom: '10px',
+                                lineHeight: 1.3,
+                                minHeight: '34px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
                             }}>
                                 {q.question}
                             </div>
 
-                            {/* Pembe/Kırmızı Yazım Satırları */}
-                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: '8px', paddingBottom: '2px' }}>
+                            {/* Pembe/Kırmızı Yazım Satırları (Görsele birebir sadık) */}
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: '10px', paddingBottom: '2px' }}>
                                 {Array.from({ length: config.lineCount }).map((_, lIdx) => (
                                     <div key={lIdx} style={{ 
                                         width: '100%', 
                                         height: '1px', 
                                         background: '#fca5a5', 
+                                        boxShadow: '0 0.5px 0 #fca5a5'
                                     }} />
                                 ))}
                             </div>
@@ -1005,26 +972,9 @@ const ShortAnswerGridRenderer: React.FC<{ data: ParsedData; title: string; prima
                 })}
             </div>
             
-            {/* Alt Bilgi / Değerlendirme Anahtarı */}
-            <div style={{ 
-                marginTop: '12px', 
-                padding: '6px', 
-                borderTop: '1px solid #e2e8f0', 
-                display: 'flex', 
-                justifyContent: 'center', 
-                gap: '20px',
-                fontSize: '9px',
-                color: PALETTE.textMuted
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', border: '1px solid #e2e8f0' }} /> Henüz Bakılmadı
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e' }} /> Doğru
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }} /> Tekrar Bakılmalı
-                </div>
+            {/* Footer Bilgisi */}
+            <div style={{ marginTop: '20px', textAlign: 'right', fontSize: '10px', color: '#94a3b8', fontStyle: 'italic' }}>
+                Oogmatik Premium • Kısa Cevaplı Sorular Modülü
             </div>
         </div>
     );
