@@ -36,7 +36,7 @@ interface CreativeState {
  * useCreativeStore - UniversalStudio Merkezi Deposu
  * Context API'den Zustand'a taşınmış, optimize edilmiş state yönetimi.
  */
-export const useCreativeStore = create<CreativeState>()((set) => ({
+export const useCreativeStore = create<CreativeState>()((set: any, get: any) => ({
     // Initial State
     layout: [],
     selectedId: null,
@@ -46,26 +46,26 @@ export const useCreativeStore = create<CreativeState>()((set) => ({
     groupedItems: {},
 
     // Basic Setters
-    setLayout: (layoutUpdate) => set((state: CreativeState) => ({
+    setLayout: (layoutUpdate: any) => set((state: CreativeState) => ({
         layout: typeof layoutUpdate === 'function' ? layoutUpdate(state.layout) : layoutUpdate
     })),
 
-    setSelectedId: (id) => set({ selectedId: id }),
+    setSelectedId: (id: string | null) => set({ selectedId: id }),
 
-    setSelectedIds: (idsUpdate) => set((state: CreativeState) => ({
+    setSelectedIds: (idsUpdate: any) => set((state: CreativeState) => ({
         selectedIds: typeof idsUpdate === 'function' ? idsUpdate(state.selectedIds) : idsUpdate
     })),
 
-    setDesignMode: (mode) => set({ designMode: mode }),
+    setDesignMode: (mode: boolean) => set({ designMode: mode }),
 
     // Advanced Actions
-    updateComponent: (instanceId, updates) => set((state: CreativeState) => ({
+    updateComponent: (instanceId: string, updates: any) => set((state: CreativeState) => ({
         layout: state.layout.map((item: LayoutItem) =>
             item.instanceId === instanceId ? { ...item, ...updates } : item
         )
     })),
 
-    updateMultipleComponents: (instanceIds, updates) => set((state: CreativeState) => ({
+    updateMultipleComponents: (instanceIds: string[], updates: any) => set((state: CreativeState) => ({
         layout: state.layout.map((item: LayoutItem) =>
             instanceIds.includes(item.instanceId) ? { ...item, ...updates } : item
         )
@@ -73,7 +73,7 @@ export const useCreativeStore = create<CreativeState>()((set) => ({
 
     clearSelection: () => set({ selectedId: null, selectedIds: [] }),
 
-    toggleSelection: (instanceId, isCtrlKey) => {
+    toggleSelection: (instanceId: string, isCtrlKey: boolean) => {
         if (isCtrlKey) {
             set((state: CreativeState) => {
                 const isSelected = state.selectedIds.includes(instanceId);

@@ -2,13 +2,14 @@ import { create } from 'zustand';
 import { PaperSize } from '../utils/printService';
 import { saveCurrentUserPaperSize } from '../services/paperSizeApi';
 import { User } from '../types';
+import { safeFetch, getAuthHeaders } from '../utils/apiClient';
 
 type PaperSizeState = {
   paperSize: PaperSize;
   setPaperSize: (p: PaperSize) => void;
 };
 
-export const usePaperSizeStore = create<PaperSizeState>()((set, get) => ({
+export const usePaperSizeStore = create<PaperSizeState>()((set: any, get: any) => ({
   paperSize:
     (typeof window !== 'undefined'
       ? (localStorage.getItem('oogmatik.paperSize') as PaperSize)

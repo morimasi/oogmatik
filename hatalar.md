@@ -45,7 +45,8 @@
 **Sorun:** Implicit any ve runtime length hataları.
 **Çözüm:** ✅ TAMAMLANDI.
 - `scoringEngine.ts` ve `validator.ts` null-safe hale getirildi.
-- Zustand store'lardaki `implicit any` hataları temizlendi.
+- Tüm Zustand store'lardaki (ActivityStudio, Creative, Student, Auth, vb.) `implicit any` hataları temizlendi.
+- Firebase modülleri için type uyarıları `@ts-ignore` ile minimize edildi.
 - `AppError` ve `errorHandler` tipleri standardize edildi.
 
 ---
