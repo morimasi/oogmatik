@@ -249,4 +249,18 @@ BİLİŞSEL HEDEF: Bağlamsal çıkarım ve sözel tamamlama.`,
     drillCount: 3,
     layoutHint: 'list'
   },
+
+  [ActivityType.READING_COMPREHENSION]: {
+    systemPromptSuffix: `
+Görevin: "Okuduğunu Anlama" çalışma kağıdı üret.
+YAPI:
+- Ana Metin: 100-150 kelimelik, yaş grubuna uygun, ilgi çekici bir hikaye veya bilgilendirici metin.
+- Sorular: 5 adet açık uçlu soru (Kim, Ne, Nerede, Ne Zaman, Nasıl/Niçin).
+- Çıkarım Sorusu: Metinde doğrudan geçmeyen, öğrencinin yorum yapmasını gerektiren 1 soru.
+- Kelime Dağarcığı: Metinden seçilen 3 kelimenin anlamını tahmin etme.
+BİLİŞSEL HEDEF: Okuduğunu anlama, bağlamsal çıkarım ve semantik işleme.`,
+    userPromptSuffix: 'Yaş grubuna uygun okuma metni ve anlama soruları üret.',
+    drillCount: 1,
+    layoutHint: 'list'
+  },
 };

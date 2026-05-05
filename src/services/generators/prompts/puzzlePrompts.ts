@@ -158,5 +158,31 @@ BİLİŞSEL HEDEF: Semantik (anlamsal) analiz ve tutarlılık sağlama.`,
     userPromptSuffix: 'Tema uyumsuzluğu (Semantik analiz) tabanlı farklıyı bul etkinliği üret.',
     drillCount: 3,
     layoutHint: 'list'
-  }
+  },
+
+  [ActivityType.LOGIC_PUZZLE]: {
+    systemPromptSuffix: `
+Görevin: "Mantık Bulmacası" üret.
+YAPI:
+- 3-4 farklı mantık sorusu (farklı türlerde: sıralama, eşleştirme, çıkarım).
+- Her soru için net bir senaryo.
+- Cevap için kutucuklar veya boşluklar.
+BİLİŞSEL HEDEF: Analitik düşünme, tümdengelimsel muhakeme.`,
+    userPromptSuffix: 'Zihinsel esnekliği destekleyen mantık bulmacaları üret.',
+    drillCount: 4,
+    layoutHint: 'list'
+  },
+
+  [ActivityType.ANAGRAM_PUZZLE]: {
+    systemPromptSuffix: `
+Görevin: "Anagram Bulmacası" üret.
+YAPI:
+- 10-15 adet karışık harfli kelime.
+- Her kelime için bir kategori ipucu.
+- Bonus: Kelimelerin doğru hallerini kullanarak gizli cümleyi bulma.
+BİLİŞSEL HEDEF: Fonolojik manipülasyon, çalışma belleği.`,
+    userPromptSuffix: 'Eğlenceli ve öğretici anagram bulmacası üret.',
+    drillCount: 15,
+    layoutHint: 'table'
+  },
 };

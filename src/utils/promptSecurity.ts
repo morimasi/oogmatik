@@ -658,7 +658,7 @@ export const sanitizeForPrompt = (
   input: string,
   maxLength: number = 2000,
   strict: boolean = true
-): { sanitized: string; threats: ThreatDetectionResult[]; isSafe: boolean } => {
+): { sanitized: string; threats: DetectedThreat[]; isSafe: boolean } => {
   if (!input || typeof input !== 'string') {
     return { sanitized: '', threats: [], isSafe: true };
   }
@@ -677,7 +677,7 @@ export const sanitizeForPrompt = (
 
   // Threat detection
   const threats = detectPatterns(input);
-  const isSafe = !exceedsThreshold(threats);
+  const isSafe = !exceedsThreshold(threats, 'high');
 
   // Sanitize dangerous patterns
   let sanitized = input;

@@ -91,7 +91,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   },
   [ActivityType.RAPID_NAMING]: {
     ai: withAI(ActivityType.RAPID_NAMING),
-    offline: offlineGenerators.generateOfflineReadingFlow,
+    offline: offlineGenerators.generateOfflineRapidNaming,
   },
   [ActivityType.LETTER_DISCRIMINATION]: {
     ai: withAI(ActivityType.LETTER_DISCRIMINATION),
@@ -125,11 +125,23 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     ai: aiGenerators.generateAdvancedMissingPartsFromAI,
     offline: offlineGenerators.generateOfflineMissingParts,
   },
+  [ActivityType.READING_COMPREHENSION]: {
+    ai: withAI(ActivityType.READING_COMPREHENSION),
+    offline: withOffline(ActivityType.READING_COMPREHENSION),
+  },
 
   // 2. MATEMATİK & MANTIK
   [ActivityType.NUMBER_PATTERN]: {
     ai: aiGenerators.generateNumberPatternFromAI,
     offline: offlineGenerators.generateOfflinePremiumNumberPattern,
+  },
+  [ActivityType.MATH_BASIC_OPERATIONS]: {
+    ai: withAI(ActivityType.MATH_BASIC_OPERATIONS),
+    offline: withOffline(ActivityType.MATH_BASIC_OPERATIONS),
+  },
+  [ActivityType.MATH_WORD_PROBLEMS]: {
+    ai: withAI(ActivityType.MATH_WORD_PROBLEMS),
+    offline: withOffline(ActivityType.MATH_WORD_PROBLEMS),
   },
   [ActivityType.ABC_CONNECT]: {
     ai: aiGenerators.generateAbcConnectFromAI,
@@ -231,11 +243,11 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   },
   [ActivityType.KAVRAM_HARITASI]: {
     ai: (options: GeneratorOptions) => new aiGenerators.KavramHaritasiGenerator().generate(options),
-    offline: (options: GeneratorOptions) => new aiGenerators.KavramHaritasiGenerator().generate(options),
+    offline: offlineGenerators.generateOfflineKavramHaritasi,
   },
   [ActivityType.ES_ANLAMLI_KELIMELER]: {
     ai: (options: GeneratorOptions) => new aiGenerators.EsAnlamliKelimelerGenerator().generate(options),
-    offline: (options: GeneratorOptions) => new aiGenerators.EsAnlamliKelimelerGenerator().generate(options),
+    offline: offlineGenerators.generateOfflineEsAnlamliKelimeler,
   },
   [ActivityType.DIRECTIONAL_CODE_READING]: {
     ai: aiGenerators.generateDirectionalCodeReadingFromAI,

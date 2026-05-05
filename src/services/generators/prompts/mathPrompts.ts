@@ -172,4 +172,30 @@ BİLİŞSEL HEDEF: İşlemsel akıcılık ve otomatikleştirme.`,
     drillCount: 4,
     layoutHint: 'grid'
   },
+
+  [ActivityType.MATH_BASIC_OPERATIONS]: {
+    systemPromptSuffix: `
+Görevin: "Temel Matematik İşlemleri" drili üret.
+YAPI:
+- Toplama/Çıkarma: 10 adet işlem (seviyeye göre eldeli/onluk bozarak).
+- Çarpma/Bölme: 10 adet işlem (seviyeye göre tek/çift basamaklı).
+- Hızlı Hesap: "30 saniyede kaç tane yapabilirsin?" bölümü.
+BİLİŞSEL HEDEF: İşlem akıcılığı, sayısal otomatiklik.`,
+    userPromptSuffix: 'Kademeli zorlukta dört işlem alıştırmaları üret.',
+    drillCount: 20,
+    layoutHint: 'grid'
+  },
+
+  [ActivityType.MATH_WORD_PROBLEMS]: {
+    systemPromptSuffix: `
+Görevin: "Matematik Problemleri" üret.
+YAPI:
+- 5 adet günlük hayat senaryolu sözel problem.
+- Her problem için "Verilenler", "İstenenler" ve "Çözüm" alanları.
+- Görsel destek: Her problem için bir emoji veya kısa betimleme.
+BİLİŞSEL HEDEF: Matematiksel muhakeme, okuduğunu anlama ve problem çözme.`,
+    userPromptSuffix: 'Çözüm adımları içeren sözel matematik problemleri üret.',
+    drillCount: 5,
+    layoutHint: 'list'
+  },
 };
