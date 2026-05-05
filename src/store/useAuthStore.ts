@@ -3,9 +3,9 @@ import { persist } from 'zustand/middleware';
 import { User } from '../types';
 import { authService } from '../services/authService';
 import { auth } from '../services/firebaseClient';
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError } from '../utils/logger.js';
 interface AuthState {
     user: User | null;
     isLoading: boolean;
@@ -31,7 +31,7 @@ export const useAuthStore = create<AuthState>()(
                     }
                 });
 
-                const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+                const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
                     if (firebaseUser) {
                         try {
                             const currentUser = await authService.getCurrentUser();

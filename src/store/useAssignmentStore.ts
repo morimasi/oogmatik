@@ -5,6 +5,8 @@ import {
   query,
   where,
   onSnapshot,
+  QuerySnapshot,
+  DocumentData,
 } from 'firebase/firestore';
 import { 
   ActivityAssignment, 
@@ -14,7 +16,7 @@ import {
 import { assignmentService } from '../services/assignmentService';
 import { useToastStore } from './useToastStore';
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError } from '../utils/logger.js';
 interface AssignmentState {
   assignments: ActivityAssignment[];
   isLoading: boolean;
@@ -31,7 +33,7 @@ interface AssignmentState {
   updateAssignment: (id: string, updates: AssignmentUpdatePayload) => Promise<boolean>;
 }
 
-export const useAssignmentStore = create<AssignmentState>()((set, get) => ({
+export const useAssignmentStore = create<AssignmentState>()((set) => ({
   assignments: [],
   isLoading: false,
   isAssignModalOpen: false,
@@ -52,13 +54,13 @@ export const useAssignmentStore = create<AssignmentState>()((set, get) => ({
       where('assignedBy', '==', teacherId)
     );
 
-    return onSnapshot(q, (snapshot) => {
+    return onSnapshot(q, (snapshot: QuerySnapshot<DocumentData>) => {
       const assignmentList: ActivityAssignment[] = [];
       snapshot.forEach((doc) => {
         assignmentList.push(doc.data() as ActivityAssignment);
       });
       set({ assignments: assignmentList, isLoading: false });
-    }, (error) => {
+    }, (error: Error) => {
       logError("Assignment listener error:", error);
       set({ isLoading: false });
     });
@@ -72,13 +74,13 @@ export const useAssignmentStore = create<AssignmentState>()((set, get) => ({
       where('studentId', '==', studentId)
     );
 
-    return onSnapshot(q, (snapshot) => {
+    return onSnapshot(q, (snapshot: QuerySnapshot<DocumentData>) => {
       const assignmentList: ActivityAssignment[] = [];
       snapshot.forEach((doc) => {
         assignmentList.push(doc.data() as ActivityAssignment);
       });
       set({ assignments: assignmentList, isLoading: false });
-    }, (error) => {
+    }, (error: Error) => {
       logError("Assignment listener error:", error);
       set({ isLoading: false });
     });

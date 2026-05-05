@@ -52,16 +52,16 @@ const initialState = {
 
 import { SUPER_STUDIO_REGISTRY } from '../components/SuperStudio/templates/registry';
 
-export const useSuperStudioStore = create<SuperStudioState>((set) => ({
+export const useSuperStudioStore = create<SuperStudioState>()((set) => ({
   ...initialState,
 
-  setStudentId: (id) => set({ studentId: id }),
-  setGrade: (grade) => set({ grade }),
-  setTopic: (topic) => set({ topic }),
-  setDifficulty: (diff) => set({ difficulty: diff }),
-  setGenerationMode: (mode) => set({ generationMode: mode }),
+  setStudentId: (id: string | null) => set({ studentId: id }),
+  setGrade: (grade: string | null) => set({ grade }),
+  setTopic: (topic: string) => set({ topic }),
+  setDifficulty: (diff: SuperStudioDifficulty) => set({ difficulty: diff }),
+  setGenerationMode: (mode: GenerationMode) => set({ generationMode: mode }),
 
-  toggleTemplate: (templateId) =>
+  toggleTemplate: (templateId: string) =>
     set((state: SuperStudioState) => {
       const isSelected = state.selectedTemplates.includes(templateId);
       if (isSelected) {
@@ -69,7 +69,7 @@ export const useSuperStudioStore = create<SuperStudioState>((set) => ({
         const newSettings = { ...state.templateSettings };
         delete newSettings[templateId];
         return {
-          selectedTemplates: state.selectedTemplates.filter((id) => id !== templateId),
+          selectedTemplates: state.selectedTemplates.filter((id: string) => id !== templateId),
           templateSettings: newSettings,
         };
       } else {
@@ -85,7 +85,7 @@ export const useSuperStudioStore = create<SuperStudioState>((set) => ({
       }
     }),
 
-  setTemplateSetting: (templateId, payload) =>
+  setTemplateSetting: (templateId: string, payload: unknown) =>
     set((state: SuperStudioState) => ({
       templateSettings: {
         ...state.templateSettings,
@@ -96,14 +96,14 @@ export const useSuperStudioStore = create<SuperStudioState>((set) => ({
       },
     })),
 
-  addGeneratedContent: (content) =>
+  addGeneratedContent: (content: GeneratedContentPayload) =>
     set((state: SuperStudioState) => ({
       generatedContents: [...state.generatedContents, content],
     })),
 
   clearGeneratedContents: () => set({ generatedContents: [] }),
 
-  setIsGenerating: (isGenerating) => set({ isGenerating }),
+  setIsGenerating: (isGenerating: boolean) => set({ isGenerating }),
 
   resetStore: () => set(initialState),
 }));

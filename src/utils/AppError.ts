@@ -10,7 +10,7 @@ export class AppError extends Error {
     public userMessage: string, // Kullanıcı dostu mesaj
     public code: string, // Sistem kodlaması (DEBUG)
     public httpStatus: number = 500, // HTTP durum kodu
-    public details?: Record<string, any>, // Debug detayları
+    public details?: Record<string, unknown>, // Debug detayları
     public isRetryable: boolean = false // Tekrar denenebilir mi?
   ) {
     super(userMessage);
@@ -44,7 +44,7 @@ export class AppError extends Error {
  */
 
 export class ValidationError extends AppError {
-  constructor(message: string, details?: Record<string, any>) {
+  constructor(message: string, details?: Record<string, unknown>) {
     super(message || 'Giriş verileri geçersiz.', 'VALIDATION_ERROR', 400, details, false);
     this.name = 'ValidationError';
   }

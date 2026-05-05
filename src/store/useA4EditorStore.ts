@@ -16,7 +16,7 @@ interface A4EditorState {
   addBlock: (block: ContentBlock) => void;
 }
 
-export const useA4EditorStore = create<A4EditorState>((set) => ({
+export const useA4EditorStore = create<A4EditorState>()((set) => ({
   isEditorOpen: false,
   setEditorOpen: (isOpen: boolean) => set({ isEditorOpen: isOpen }),
   selectedBlockId: null,
@@ -29,7 +29,7 @@ export const useA4EditorStore = create<A4EditorState>((set) => ({
   gridSize: 10,
   setGridSize: (size: number) => set({ gridSize: size }),
   blocks: [],
-  addBlock: (block) =>
+  addBlock: (block: ContentBlock) =>
     set((state: A4EditorState) => ({
       blocks: [...state.blocks, { ...block, id: block.id || crypto.randomUUID() }],
     })),

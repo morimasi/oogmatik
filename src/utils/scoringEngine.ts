@@ -133,6 +133,14 @@ export const scoringEngine = {
           color: string;
         }
       >,
+      detailedResults: {
+        reading: scores['reading']?.score || 0,
+        writing: scores['writing']?.score || 0,
+        attention: scores['attention']?.score || 0,
+        memory: scores['language']?.score || 0,
+        visual: scores['motor_spatial']?.score || 0,
+        auditory: scores['language']?.score || 0,
+      },
       generatedAt: new Date().toISOString(),
       respondentRole: respondentType,
     };

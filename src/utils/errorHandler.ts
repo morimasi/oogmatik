@@ -136,7 +136,7 @@ export const logError = (error: unknown, context?: Record<string, unknown>) => {
  * WRAPPER: Async function error handler
  * Catch errors and transform to AppError
  */
-export const wrapAsync = <T extends (...args: any[]) => Promise<any>>(
+export const wrapAsync = <T extends (...args: unknown[]) => Promise<unknown>>(
   fn: T,
   defaultMessage: string = 'İşlem başarısız',
   defaultCode: string = 'INTERNAL_ERROR'

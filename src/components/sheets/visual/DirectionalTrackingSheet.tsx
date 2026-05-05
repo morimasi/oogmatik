@@ -67,26 +67,40 @@ export const DirectionalTrackingSheet = ({
   const isSingle = puzzles.length === 1;
   const aestheticMode =
     (settings as any)?.aestheticMode || globalSettings?.aestheticMode || 'standard';
-  const isPremium = aestheticMode === 'premium' || aestheticMode === 'glassmorphism';
+  const isPremium = ['premium', 'glassmorphism', 'uzay', 'gizli', 'hazine', 'ultra-compact'].includes(aestheticMode);
+
+  // Theme Colors
+  const themeColors: Record<string, { bg: string; border: string; accent: string; text: string; icon: string }> = {
+    standard: { bg: 'bg-zinc-50/50', border: 'border-zinc-100', accent: 'bg-indigo-600', text: 'text-zinc-900', icon: 'text-indigo-600' },
+    premium: { bg: 'bg-white/80', border: 'border-zinc-200', accent: 'bg-zinc-900', text: 'text-zinc-900', icon: 'text-indigo-600' },
+    uzay: { bg: 'bg-indigo-950/10', border: 'border-indigo-200', accent: 'bg-indigo-900', text: 'text-indigo-900', icon: 'text-amber-500' },
+    gizli: { bg: 'bg-zinc-100', border: 'border-zinc-800', accent: 'bg-zinc-800', text: 'text-zinc-800', icon: 'text-red-600' },
+    hazine: { bg: 'bg-amber-50/50', border: 'border-amber-200', accent: 'bg-amber-700', text: 'text-amber-900', icon: 'text-amber-600' },
+    'ultra-compact': { bg: 'bg-white', border: 'border-zinc-300', accent: 'bg-zinc-700', text: 'text-zinc-900', icon: 'text-zinc-600' },
+  };
+
+  const currentTheme = themeColors[aestheticMode] || themeColors.standard;
+  const isUltraCompact = aestheticMode === 'ultra-compact';
 
   return (
     <div
       className={`
       flex flex-col h-full bg-white font-['Lexend'] text-zinc-900 overflow-hidden relative p-10 print:p-6 min-h-[210mm] ${isLandscape ? 'landscape' : 'min-h-[297mm]'}
-      ${isPremium ? 'bg-slate-50/20' : 'bg-white'}
+      ${isPremium ? 'bg-slate-50/10' : 'bg-white'}
     `}
     >
       <PedagogicalHeader
         title={data?.title || 'YÖNSEL İZ SÜRME & ŞİFRE ÇÖZÜCÜ'}
         instruction={
-          data?.instruction ||
-          'İşaretli başlangıç noktasından okların yönünü adım adım takip edin ve bulduğunuz karakterleri sırasıyla şifre kutularına yazın.'
+          isUltraCompact 
+            ? 'Başlangıçtan okları takip et, şifreyi çöz.' 
+            : (data?.instruction || 'İşaretli başlangıç noktasından okların yönünü adım adım takip edin ve bulduğunuz karakterleri sırasıyla şifre kutularına yazın.')
         }
         note={data?.pedagogicalNote}
       />
 
       <div
-        className={`grid ${isSingle ? 'grid-cols-1' : 'grid-cols-2'} gap-6 print:gap-2 flex-1 content-start`}
+        className={`grid ${isSingle ? 'grid-cols-1' : (puzzles.length > 2 || isUltraCompact ? 'grid-cols-2' : 'grid-cols-2')} gap-6 print:gap-2 flex-1 content-start`}
       >
         {puzzles.map((puzzle, idx) => {
           const answerBoxCount = puzzle.cipherAnswer
@@ -97,32 +111,31 @@ export const DirectionalTrackingSheet = ({
             <EditableElement
               key={idx}
               className={`
-                  relative border-[1.5px] transition-all duration-300 group break-inside-avoid flex flex-col gap-4
-                  ${
-                    isPremium
-                      ? 'bg-white/80 backdrop-blur-sm border-zinc-200 rounded-[2.5rem] shadow-sm hover:shadow-2xl hover:border-indigo-400'
-                      : 'bg-zinc-50/50 border-zinc-100 rounded-[2rem] hover:bg-white hover:border-zinc-200'
-                  }
-                  ${isSingle ? 'max-w-5xl mx-auto w-full p-8 print:p-2' : 'p-5 print:p-1'}
+                  relative border-[1.5px] transition-all duration-300 group break-inside-avoid flex flex-col
+                  ${isUltraCompact ? 'gap-2 p-3' : 'gap-4 p-5'}
+                  ${currentTheme.bg} ${currentTheme.border} rounded-[2rem]
+                  ${isPremium ? 'backdrop-blur-sm shadow-sm hover:shadow-lg' : ''}
+                  ${isSingle ? 'max-w-5xl mx-auto w-full p-8' : ''}
               `}
             >
               {/* Badge */}
               <div
                 className={`
                   absolute -top-3 left-8 px-4 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest z-10 shadow-md border-2 border-white
-                  ${isPremium ? 'bg-zinc-900 text-white' : 'bg-indigo-600 text-white'}
+                  ${currentTheme.accent} text-white
               `}
               >
                 GÖREV {idx + 1}
               </div>
 
               {/* 1. ALGORİTMA YÖRÜNGESİ (YATAY - ÜSTTE) */}
-              <div className="bg-zinc-950 rounded-2xl p-4 print:p-1.5 border-2 border-white shadow-lg relative overflow-hidden group/path">
-                <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl -mr-12 -mt-12"></div>
-                <h5 className="text-[9px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-2.5 flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 bg-amber-500 rounded-full shadow-[0_0_8px_#f59e0b]"></div>
-                  ALGORİTMA YÖRÜNGESİ
-                </h5>
+              <div className={`${isUltraCompact ? 'p-2' : 'p-4'} bg-zinc-950 rounded-2xl border-2 border-white shadow-lg relative overflow-hidden group/path`}>
+                {!isUltraCompact && (
+                  <h5 className="text-[9px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-2.5 flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 bg-amber-500 rounded-full shadow-[0_0_8px_#f59e0b]"></div>
+                    ALGORİTMA YÖRÜNGESİ
+                  </h5>
+                )}
 
                 {puzzle.steps && puzzle.steps.length > 0 ? (
                   <div className="flex flex-wrap gap-1.5">
@@ -131,8 +144,8 @@ export const DirectionalTrackingSheet = ({
                         key={i}
                         className="flex items-center gap-1.5 px-2 py-1 bg-white/5 border border-white/10 rounded-lg transition-transform hover:scale-105"
                       >
-                        <ArrowIcon dir={step.dir ?? step.direction ?? 'right'} compact />
-                        <span className="text-xs font-black text-white">{step.count}</span>
+                        <ArrowIcon dir={step.dir ?? step.direction ?? 'right'} compact={isUltraCompact} />
+                        <span className={`${isUltraCompact ? 'text-[10px]' : 'text-xs'} font-black text-white`}>{step.count}</span>
                       </div>
                     ))}
                   </div>
@@ -143,7 +156,7 @@ export const DirectionalTrackingSheet = ({
                         key={dIdx}
                         className="p-1 px-2.5 py-1 bg-white/5 border border-white/10 rounded-lg"
                       >
-                        <ArrowIcon dir={dir} compact />
+                        <ArrowIcon dir={dir} compact={isUltraCompact} />
                       </div>
                     ))}
                   </div>
@@ -151,32 +164,36 @@ export const DirectionalTrackingSheet = ({
               </div>
 
               {/* 2. GRID VE BİLGİ ALANI (ORTA) */}
-              <div className="flex flex-row gap-6 print:gap-2 items-center justify-center">
-                <div className="relative p-3 print:p-1 bg-white rounded-2xl border-2 border-zinc-100 shadow-inner ring-4 ring-zinc-50/50">
+              <div className={`flex flex-row ${isUltraCompact ? 'gap-3' : 'gap-6'} items-center justify-center`}>
+                <div className={`${isUltraCompact ? 'p-1' : 'p-3'} bg-white rounded-2xl border-2 border-zinc-100 shadow-inner ring-4 ring-zinc-50/50`}>
                   {/* Grid Labels (Top) */}
-                  <div className="flex ml-8 mb-1">
-                    {puzzle.grid[0].map((_, c) => (
-                      <span
-                        key={c}
-                        className="w-9 h-5 flex items-center justify-center text-[9px] font-black text-zinc-300 uppercase tracking-widest"
-                      >
-                        {String.fromCharCode(65 + c)}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="flex">
-                    {/* Grid Labels (Left) */}
-                    <div className="flex flex-col mr-1">
-                      {puzzle.grid.map((_, r) => (
+                  {!isUltraCompact && (
+                    <div className="flex ml-8 mb-1">
+                      {puzzle.grid[0].map((_, c) => (
                         <span
-                          key={r}
-                          className="w-7 h-9 flex items-center justify-center text-[9px] font-black text-zinc-300"
+                          key={c}
+                          className="w-9 h-5 flex items-center justify-center text-[9px] font-black text-zinc-300 uppercase tracking-widest"
                         >
-                          {r + 1}
+                          {String.fromCharCode(65 + c)}
                         </span>
                       ))}
                     </div>
+                  )}
+
+                  <div className="flex">
+                    {/* Grid Labels (Left) */}
+                    {!isUltraCompact && (
+                      <div className="flex flex-col mr-1">
+                        {puzzle.grid.map((_, r) => (
+                          <span
+                            key={r}
+                            className="w-7 h-9 flex items-center justify-center text-[9px] font-black text-zinc-300"
+                          >
+                            {r + 1}
+                          </span>
+                        ))}
+                      </div>
+                    )}
 
                     {/* Main Grid */}
                     <div
@@ -188,11 +205,12 @@ export const DirectionalTrackingSheet = ({
                       {puzzle.grid.map((row, r) =>
                         row.map((cell, c) => {
                           const isStart = r === puzzle.startPos.r && c === puzzle.startPos.c;
+                          const cellSize = isUltraCompact ? 'w-7 h-7' : 'w-9 h-9';
                           return (
                             <div
                               key={`${r}-${c}`}
                               className={`
-                                w-9 h-9 print:w-8 print:h-8 bg-white flex items-center justify-center font-black text-base relative transition-colors
+                                ${cellSize} print:w-7 print:h-7 bg-white flex items-center justify-center font-black text-base relative transition-colors
                                 ${isStart ? 'bg-indigo-50/50' : 'hover:bg-zinc-50'}
                             `}
                             >
@@ -205,6 +223,7 @@ export const DirectionalTrackingSheet = ({
                                 className={`
                                   ${isStart ? 'text-indigo-600 scale-75' : 'text-zinc-900'}
                                   ${cell === '' ? 'opacity-0' : 'opacity-100'}
+                                  ${isUltraCompact ? 'text-sm' : ''}
                               `}
                               >
                                 {cell || '?'}
@@ -218,32 +237,30 @@ export const DirectionalTrackingSheet = ({
                 </div>
 
                 <div className="flex flex-col gap-3">
-                  <div className="flex items-center gap-2 text-[9px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-50/80 px-4 py-2 rounded-full border border-indigo-100 shadow-sm backdrop-blur-sm">
-                    <i className="fa-solid fa-location-crosshairs text-indigo-400"></i>
-                    BAŞLANGIÇ:{' '}
+                  <div className={`${isUltraCompact ? 'px-2 py-1 text-[8px]' : 'px-4 py-2 text-[9px]'} flex items-center gap-2 font-black ${currentTheme.icon} uppercase tracking-widest bg-zinc-50 px-4 py-2 rounded-full border border-zinc-100 shadow-sm backdrop-blur-sm`}>
+                    <i className="fa-solid fa-location-crosshairs"></i>
+                    {!isUltraCompact && 'BAŞLANGIÇ: '}
                     <span className="text-zinc-900">
                       {String.fromCharCode(65 + puzzle.startPos.c)}
                       {puzzle.startPos.r + 1}
                     </span>
                   </div>
-                  {/* Çözüm Anahtarı (Gizli/Küçük) */}
-                  <div className="opacity-0 group-hover:opacity-20 transition-opacity text-[8px] font-black uppercase tracking-widest text-zinc-900 text-center">
-                    ÇÖZÜM: {puzzle.targetWord}
-                  </div>
                 </div>
               </div>
 
               {/* 3. ŞİFRE ALANI (YATAY - ALTTA) */}
-              <div className="bg-white rounded-2xl p-4 print:p-1.5 border-2 border-zinc-100 shadow-sm ring-4 ring-zinc-50/50">
-                <div className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
-                  <i className="fa-solid fa-key text-[8px]"></i>
-                  TESPİT EDİLEN ŞİFRE
-                </div>
+              <div className={`${isUltraCompact ? 'p-2' : 'p-4'} bg-white rounded-2xl border-2 border-zinc-100 shadow-sm ring-4 ring-zinc-50/50`}>
+                {!isUltraCompact && (
+                  <div className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
+                    <i className="fa-solid fa-key text-[8px]"></i>
+                    TESPİT EDİLEN ŞİFRE
+                  </div>
+                )}
                 <div className="flex gap-1.5 flex-wrap">
                   {Array.from({ length: answerBoxCount }).map((_, i) => (
                     <div
                       key={i}
-                      className="w-10 h-10 print:w-8 print:h-8 border-2 border-zinc-950 bg-zinc-50 rounded-lg flex items-center justify-center font-mono font-black text-xl print:text-lg text-zinc-900 group-hover:bg-indigo-50 transition-colors"
+                      className={`${isUltraCompact ? 'w-7 h-7 text-sm' : 'w-10 h-10 text-xl'} border-2 border-zinc-950 bg-zinc-50 rounded-lg flex items-center justify-center font-mono font-black text-zinc-900 group-hover:bg-indigo-50 transition-colors`}
                     >
                       <span className="opacity-10 text-zinc-400">_</span>
                     </div>

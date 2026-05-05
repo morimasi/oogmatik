@@ -334,22 +334,22 @@ export const generateOfflineFindTheDifference = async (
 export const generateOfflineDirectionalTracking = async (
   options: GeneratorOptions
 ): Promise<DirectionalCodeReadingData[]> => {
-  const { worksheetCount = 1, difficulty = 'Orta', itemCount = 2, concept = 'letters' } = options;
+  const { worksheetCount = 1, difficulty = 'Orta', itemCount = 3, concept = 'letters' } = options;
   const aestheticMode = (options as any).aestheticMode || 'standard';
   const results: DirectionalCodeReadingData[] = [];
 
-  const rows = options.gridRows || options.gridSize || 6;
-  const cols = options.gridCols || options.gridSize || 6;
+  const rows = options.gridRows || options.gridSize || 8;
+  const cols = options.gridCols || options.gridSize || 8;
 
   for (let p = 0; p < worksheetCount; p++) {
     const puzzles: any[] = [];
 
     // 2. Determine Difficulty Parameters
     const configMap: Record<string, { pathLength: number; obstacles: number }> = {
-      Başlangıç: { pathLength: 4, obstacles: 0.1 },
-      Orta: { pathLength: 6, obstacles: 0.2 },
-      Zor: { pathLength: 9, obstacles: 0.25 },
-      Uzman: { pathLength: 12, obstacles: 0.3 },
+      Başlangıç: { pathLength: 5, obstacles: 0.1 },
+      Orta: { pathLength: 8, obstacles: 0.2 },
+      Zor: { pathLength: 12, obstacles: 0.25 },
+      Uzman: { pathLength: 16, obstacles: 0.3 },
     };
     const difficultyKey = difficulty as string;
     const config = configMap[difficultyKey] || configMap['Orta'];

@@ -6,9 +6,9 @@ export const DirectionalTrackingConfig: React.FC<{
   onChange: (k: any, v: any) => void;
 }> = ({ options, onChange }) => {
   // Varsayılan değerleri kontrol et
-  const currentRows = options.gridRows || options.gridSize || 6;
-  const currentCols = options.gridCols || options.gridSize || 6;
-  const currentLength = options.codeLength || 5;
+  const currentRows = options.gridRows || options.gridSize || 8;
+  const currentCols = options.gridCols || options.gridSize || 8;
+  const currentLength = options.codeLength || 8;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
@@ -19,7 +19,7 @@ export const DirectionalTrackingConfig: React.FC<{
             <i className="fa-solid fa-grid-2"></i>
           </div>
           <label className="text-xs font-black text-zinc-900 dark:text-white uppercase tracking-widest">
-            Matris Yapısı
+            Matris Yapısı (Ultra Yoğun 8x8 Destekli)
           </label>
         </div>
 
@@ -120,8 +120,11 @@ export const DirectionalTrackingConfig: React.FC<{
         <div className="grid grid-cols-2 gap-3">
           {[
             { id: 'standard', label: 'Standart', icon: 'fa-square' },
-            { id: 'premium', label: 'Premium', icon: 'fa-crown' },
-            { id: 'glassmorphism', label: 'Glassmorphism', icon: 'fa-layer-group' },
+            { id: 'premium', label: 'Premium (Glass)', icon: 'fa-crown' },
+            { id: 'uzay', label: 'Uzay Teması', icon: 'fa-rocket' },
+            { id: 'gizli', label: 'Gizli Ajan', icon: 'fa-user-secret' },
+            { id: 'hazine', label: 'Hazine Avı', icon: 'fa-gem' },
+            { id: 'ultra-compact', label: 'Ultra Kompakt', icon: 'fa-compress' },
           ].map((style) => (
             <button
               key={style.id}
@@ -149,12 +152,12 @@ export const DirectionalTrackingConfig: React.FC<{
             <span className="text-[8px] text-zinc-400 font-bold">A4 Başına Görev</span>
           </div>
           <div className="flex gap-2">
-            {[1, 2, 4].map((n) => (
+            {[1, 2, 3, 4].map((n) => (
               <button
                 key={n}
                 onClick={() => onChange('itemCount', n)}
                 className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm transition-all ${
-                  (options.itemCount || 2) === n
+                  (options.itemCount || 3) === n
                     ? 'bg-zinc-900 text-white shadow-lg scale-110'
                     : 'bg-white dark:bg-zinc-800 text-zinc-500 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100'
                 }`}

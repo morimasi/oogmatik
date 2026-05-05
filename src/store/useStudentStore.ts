@@ -10,6 +10,8 @@ import {
   updateDoc,
   deleteDoc,
   doc,
+  QuerySnapshot,
+  DocumentData,
 } from 'firebase/firestore';
 
 interface StudentState {
@@ -61,7 +63,7 @@ export const useStudentStore = create<StudentState>()((set, get) => ({
       ? query(collection(db, 'students'))
       : query(collection(db, 'students'), where('teacherId', '==', teacherId));
 
-    return onSnapshot(q, (snapshot) => {
+    return onSnapshot(q, (snapshot: QuerySnapshot<DocumentData>) => {
       const studentList: Student[] = [];
       snapshot.forEach((doc) => {
         const data = doc.data();
