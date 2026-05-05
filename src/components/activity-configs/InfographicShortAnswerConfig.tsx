@@ -8,12 +8,12 @@ interface Props {
 }
 
 export const InfographicShortAnswerConfig: React.FC<Props> = ({ options, onChange }) => {
-  const questionCount = options.questionCount || 15;
-  const lineCount = options.lineCount || 2;
-  const colorMode = options.colorMode || 'Karma Renkli';
-  const showStudentInfo = options.showStudentInfo !== false;
-  const gridDensity = options.gridDensity || 'Kompakt';
-  const pedagogicalFocus = options.pedagogicalFocus || 'Genel Kavrama';
+  const questionCount = (options.params?.questionCount as number) || 15;
+  const lineCount = (options.params?.lineCount as number) || 2;
+  const colorMode = (options.params?.colorMode as string) || 'Karma Renkli';
+  const showStudentInfo = (options.params?.showStudentInfo as boolean) !== false;
+  const gridDensity = (options.params?.gridDensity as string) || 'Kompakt';
+  const pedagogicalFocus = (options.params?.pedagogicalFocus as string) || 'Genel Kavrama';
 
   return (
     <div className="space-y-4">
@@ -27,7 +27,7 @@ export const InfographicShortAnswerConfig: React.FC<Props> = ({ options, onChang
         <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block mb-1">Soru Sayısı</label>
         <select
           value={questionCount}
-          onChange={(e) => onChange('questionCount', parseInt(e.target.value))}
+          onChange={(e) => onChange('params', { ...options.params, questionCount: parseInt(e.target.value) })}
           className="w-full px-2 py-1 text-xs border border-zinc-300 dark:border-zinc-600 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
         >
           <option value={6}>6 Soru</option>
@@ -50,7 +50,7 @@ export const InfographicShortAnswerConfig: React.FC<Props> = ({ options, onChang
           min="0"
           max="4"
           value={lineCount}
-          onChange={(e) => onChange('lineCount', parseInt(e.target.value))}
+          onChange={(e) => onChange('params', { ...options.params, lineCount: parseInt(e.target.value) })}
           className="w-full"
         />
         <div className="flex justify-between text-[8px] text-zinc-500 dark:text-zinc-400">
@@ -67,7 +67,7 @@ export const InfographicShortAnswerConfig: React.FC<Props> = ({ options, onChang
         <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block mb-1">Renk Modu</label>
         <select
           value={colorMode}
-          onChange={(e) => onChange('colorMode', e.target.value)}
+          onChange={(e) => onChange('params', { ...options.params, colorMode: e.target.value })}
           className="w-full px-2 py-1 text-xs border border-zinc-300 dark:border-zinc-600 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
         >
           <option value="Karma Renkli">Karma Renkli</option>
@@ -83,7 +83,7 @@ export const InfographicShortAnswerConfig: React.FC<Props> = ({ options, onChang
           <input
             type="checkbox"
             checked={showStudentInfo}
-            onChange={(e) => onChange('showStudentInfo', e.target.checked)}
+            onChange={(e) => onChange('params', { ...options.params, showStudentInfo: e.target.checked })}
             className="rounded border-zinc-300 dark:border-zinc-600"
           />
           <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase">Öğrenci Bilgi Alanı</span>
@@ -96,7 +96,7 @@ export const InfographicShortAnswerConfig: React.FC<Props> = ({ options, onChang
         <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block mb-1">Izgara Sıklığı</label>
         <select
           value={gridDensity}
-          onChange={(e) => onChange('gridDensity', e.target.value)}
+          onChange={(e) => onChange('params', { ...options.params, gridDensity: e.target.value })}
           className="w-full px-2 py-1 text-xs border border-zinc-300 dark:border-zinc-600 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
         >
           <option value="Kompakt">Kompakt</option>
@@ -111,7 +111,7 @@ export const InfographicShortAnswerConfig: React.FC<Props> = ({ options, onChang
         <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block mb-1">Pedagojik Odak</label>
         <select
           value={pedagogicalFocus}
-          onChange={(e) => onChange('pedagogicalFocus', e.target.value)}
+          onChange={(e) => onChange('params', { ...options.params, pedagogicalFocus: e.target.value })}
           className="w-full px-2 py-1 text-xs border border-zinc-300 dark:border-zinc-600 rounded bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100"
         >
           <option value="Genel Kavrama">Genel Kavrama</option>

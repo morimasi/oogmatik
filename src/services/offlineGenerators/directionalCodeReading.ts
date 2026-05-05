@@ -5,8 +5,10 @@ import { getRandomInt, getRandomItems, shuffle } from './helpers';
 export const generateOfflineDirectionalCodeReading = async (
   options: GeneratorOptions
 ): Promise<DirectionalCodeReadingData> => {
-  const gridSize = options.gridSize || (options.difficulty === 'Zor' ? 8 : 6);
+  const gridSize = options.gridSize || 8; // Ultra kompakt için 8x8
   const difficulty = options.difficulty || 'Orta';
+  const puzzleCount = difficulty === 'Zor' ? 4 : 3; // Ultra dolu sayfa için daha fazla puzzle
+  const compactMode = (options as any).compactMode || true;
 
   // 1. Initialize Grid
   const grid: any[][] = [];
