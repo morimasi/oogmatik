@@ -213,6 +213,12 @@ export const DrillSettingsPanel: React.FC<DrillSettingsPanelProps> = ({
         </button>
       </div>
 
+      <Toggle
+        label="SAYFAYI TAM DOLDUR (PRO)"
+        checked={drillConfig.autoFillPage}
+        onChange={(v) => setDrillConfig({ ...drillConfig, autoFillPage: v })}
+      />
+
       <div className="grid grid-cols-1 gap-3">
         <div>
           <label className="block text-[9px] text-zinc-500 mb-1.5 font-bold uppercase">

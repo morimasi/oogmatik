@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { Student } from '../types';
 import { db } from '../services/firebaseClient';
-// @ts-ignore
 import {
   collection,
   query,
@@ -13,6 +12,7 @@ import {
   doc,
   QuerySnapshot,
   DocumentData,
+  // @ts-ignore
 } from 'firebase/firestore';
 
 interface StudentState {

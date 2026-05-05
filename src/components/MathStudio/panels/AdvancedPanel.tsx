@@ -13,9 +13,13 @@ interface AdvancedPanelProps {
 }
 
 const SectionTitle: React.FC<{ icon: string; title: string }> = ({ icon, title }) => (
-    <h4 className="text-[10px] font-black text-accent/70 uppercase tracking-widest mb-3 flex items-center gap-2">
-        <i className={`fa-solid ${icon}`}></i> {title}
-    </h4>
+    <div className="flex items-center gap-2 mb-4">
+        <div className="w-6 h-6 rounded-lg bg-accent/10 flex items-center justify-center">
+            <i className={`fa-solid ${icon} text-[10px] text-accent`}></i>
+        </div>
+        <h4 className="text-[11px] font-black text-zinc-400 uppercase tracking-[0.2em]">{title}</h4>
+        <div className="flex-1 h-[1px] bg-gradient-to-r from-zinc-800 to-transparent ml-2"></div>
+    </div>
 );
 
 export const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ themeConfig, setThemeConfig }) => (
@@ -24,22 +28,25 @@ export const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ themeConfig, setTh
         {/* Paper Theme */}
         <div>
             <SectionTitle icon="fa-palette" title="Kağıt Teması" />
-            <div className="grid grid-cols-5 gap-1.5">
+            <div className="grid grid-cols-5 gap-2">
                 {(Object.entries(PAPER_THEMES) as [PaperTheme, typeof PAPER_THEMES[PaperTheme]][]).map(([key, theme]) => (
                     <button
                         key={key}
                         onClick={() => setThemeConfig({ ...themeConfig, paperTheme: key })}
-                        className={`flex flex-col items-center gap-1 p-2 rounded-xl border-2 transition-all ${themeConfig.paperTheme === key
-                            ? 'border-accent bg-accent/10 shadow-lg shadow-accent/20'
-                            : 'border-zinc-800 bg-zinc-900 hover:border-zinc-600'
+                        className={`flex flex-col items-center gap-1.5 p-1 rounded-2xl border-2 transition-all duration-300 ${themeConfig.paperTheme === key
+                            ? 'border-accent bg-accent/10 shadow-lg scale-105'
+                            : 'border-zinc-800 bg-zinc-900/50 hover:border-zinc-700 hover:bg-zinc-900'
                             }`}
                         title={theme.label}
                     >
                         <div
-                            className="w-6 h-8 rounded border shadow-sm"
-                            style={{ backgroundColor: theme.bg, borderColor: theme.border }}
-                        />
-                        <span className="text-[8px] font-bold text-zinc-400 leading-tight text-center">{theme.label}</span>
+                            className="w-full aspect-[3/4] rounded-lg border shadow-inner relative overflow-hidden"
+                            style={{ backgroundColor: theme.bg, borderColor: `${theme.border}30` }}
+                        >
+                             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: `radial-gradient(${theme.border} 1px, transparent 1px)`, backgroundSize: '4px 4px' }}></div>
+                             <div className="absolute top-1 left-1 w-2 h-0.5 rounded-full" style={{ backgroundColor: theme.accent }}></div>
+                        </div>
+                        <span className="text-[7.5px] font-black text-zinc-400 uppercase tracking-tighter leading-tight text-center">{theme.label}</span>
                     </button>
                 ))}
             </div>
@@ -53,13 +60,14 @@ export const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ themeConfig, setTh
                     <button
                         key={key}
                         onClick={() => setThemeConfig({ ...themeConfig, fontTheme: key })}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 text-[10px] font-bold transition-all ${themeConfig.fontTheme === key
-                            ? 'border-accent bg-accent/10 text-white'
-                            : 'border-zinc-800 bg-zinc-900 text-zinc-500 hover:border-zinc-600 hover:text-zinc-300'
+                        className={`flex-1 flex flex-col items-center justify-center gap-1 py-3 rounded-2xl border-2 transition-all duration-300 ${themeConfig.fontTheme === key
+                            ? 'border-emerald-500 bg-emerald-500/10 text-white shadow-lg shadow-emerald-500/10'
+                            : 'border-zinc-800 bg-zinc-900/50 text-zinc-500 hover:border-zinc-700 hover:text-zinc-300'
                             }`}
+                        style={{ fontFamily: theme.fontFamily }}
                     >
-                        <i className={`fa-solid ${theme.icon}`}></i>
-                        {theme.label}
+                        <i className={`fa-solid ${theme.icon} text-lg`}></i>
+                        <span className="text-[9px] font-black uppercase tracking-widest">{theme.label}</span>
                     </button>
                 ))}
             </div>
@@ -67,15 +75,15 @@ export const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ themeConfig, setTh
 
         {/* Border Style */}
         <div>
-            <SectionTitle icon="fa-border-all" title="Soru Kenarlığı" />
+            <SectionTitle icon="fa-border-none" title="Soru Kenarlığı" />
             <div className="grid grid-cols-4 gap-2">
                 {(Object.entries(BORDER_STYLES) as [BorderStyle, typeof BORDER_STYLES[BorderStyle]][]).map(([key, style]) => (
                     <button
                         key={key}
                         onClick={() => setThemeConfig({ ...themeConfig, borderStyle: key })}
-                        className={`py-2 rounded-lg text-[10px] font-bold border-2 transition-all ${themeConfig.borderStyle === key
-                            ? 'border-accent bg-accent/10 text-white'
-                            : 'border-zinc-800 bg-zinc-900 text-zinc-500 hover:border-zinc-600'
+                        className={`py-3 rounded-xl text-[9px] font-black uppercase tracking-widest border-2 transition-all ${themeConfig.borderStyle === key
+                            ? 'border-amber-500 bg-amber-500/10 text-white'
+                            : 'border-zinc-800 bg-zinc-900/50 text-zinc-500 hover:border-zinc-700'
                             }`}
                     >
                         {style.label}
@@ -92,9 +100,9 @@ export const AdvancedPanel: React.FC<AdvancedPanelProps> = ({ themeConfig, setTh
                     <button
                         key={key}
                         onClick={() => setThemeConfig({ ...themeConfig, numberingStyle: key })}
-                        className={`py-2 rounded-lg text-[10px] font-bold border-2 transition-all ${themeConfig.numberingStyle === key
-                            ? 'border-accent bg-accent/10 text-white'
-                            : 'border-zinc-800 bg-zinc-900 text-zinc-500 hover:border-zinc-600'
+                        className={`py-3 rounded-xl text-[9px] font-black uppercase tracking-widest border-2 transition-all ${themeConfig.numberingStyle === key
+                            ? 'border-indigo-500 bg-indigo-500/10 text-white'
+                            : 'border-zinc-800 bg-zinc-900/50 text-zinc-500 hover:border-zinc-700'
                             }`}
                     >
                         {style.label}

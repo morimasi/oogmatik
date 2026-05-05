@@ -46,59 +46,90 @@ export const PageShell: React.FC<PageShellProps> = ({
 
   const bgImage =
     pageConfig.paperType === 'grid'
-      ? 'linear-gradient(#e5e7eb 1px, transparent 1px), linear-gradient(90deg, #e5e7eb 1px, transparent 1px)'
+      ? `linear-gradient(${paper.border}${Math.round(paper.patternOpacity * 255).toString(16).padStart(2, '0')} 1px, transparent 1px), linear-gradient(90deg, ${paper.border}${Math.round(paper.patternOpacity * 255).toString(16).padStart(2, '0')} 1px, transparent 1px)`
       : pageConfig.paperType === 'dot'
-        ? 'radial-gradient(#9ca3af 1px, transparent 1px)'
+        ? `radial-gradient(${paper.border}${Math.round(paper.patternOpacity * 255).toString(16).padStart(2, '0')} 1px, transparent 1px)`
         : 'none';
-
-  // Karne theme adds a thick outer border
-  const karneClass = themeConfig.paperTheme === 'karne' ? 'border-[3px] border-slate-800' : '';
 
   return (
     <div
-      className={`math-canvas-page worksheet-page shadow-2xl relative flex flex-col origin-top ${karneClass}`}
+      className={`math-canvas-page worksheet-page shadow-2xl relative flex flex-col origin-top overflow-hidden transition-all duration-500`}
       style={{
-        height: 'auto',
+        width: `${A4_WIDTH_PX}px`,
+        minHeight: `${A4_HEIGHT_PX}px`,
         padding: `${pageConfig.margin}px`,
         backgroundImage: bgImage,
         backgroundSize: bgSize,
         backgroundColor: paper.bg,
         color: paper.text,
         fontFamily: font.fontFamily,
-        marginBottom: pageIndex < totalPages - 1 ? '32px' : '0',
+        marginBottom: pageIndex < totalPages - 1 ? '40px' : '0',
+        border: themeConfig.paperTheme === 'karne' ? `8px double ${paper.border}` : `1px solid ${paper.border}10`,
       }}
     >
-      {/* COMPACT HEADER — single line band */}
-      <div className="pb-2 mb-3" style={{ borderBottom: `2px solid ${paper.border}` }}>
-        <div className="flex justify-between items-center">
-          <h1
-            className="text-xl font-black uppercase tracking-tight leading-none"
-            style={{ color: paper.text }}
-          >
-            <EditableText value={pageConfig.title} />
-          </h1>
+      {/* PREMIUM DECORATIVE ELEMENTS */}
+      {themeConfig.paperTheme === 'karne' && (
+        <>
+          <div className="absolute top-0 left-0 w-16 h-16 border-t-4 border-l-4 border-amber-500/30 m-2" />
+          <div className="absolute top-0 right-0 w-16 h-16 border-t-4 border-r-4 border-amber-500/30 m-2" />
+          <div className="absolute bottom-0 left-0 w-16 h-16 border-b-4 border-l-4 border-amber-500/30 m-2" />
+          <div className="absolute bottom-0 right-0 w-16 h-16 border-b-4 border-r-4 border-amber-500/30 m-2" />
+          <div className="absolute top-4 right-12 opacity-10 pointer-events-none">
+             <i className="fa-solid fa-award text-6xl text-amber-600"></i>
+          </div>
+        </>
+      )}
+
+      {/* COMPACT HEADER */}
+      <div className="pb-3 mb-6 relative" style={{ borderBottom: `2px solid ${paper.border}` }}>
+        <div className="flex justify-between items-end">
+          <div className="flex-1">
+            <h1
+              className="text-2xl font-black uppercase tracking-tighter leading-tight"
+              style={{ color: paper.text }}
+            >
+              <EditableText value={pageConfig.title} />
+            </h1>
+            <div className="h-1 w-24 mt-1" style={{ backgroundColor: paper.accent }}></div>
+          </div>
+          
           <div
-            className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-wider"
-            style={{ color: paper.text, opacity: 0.5 }}
+            className="flex flex-col items-end gap-1 text-[11px] font-bold uppercase tracking-wider"
+            style={{ color: paper.text, opacity: 0.7 }}
           >
-            {pageConfig.showName && <span>Ad: {studentName || '........................'}</span>}
-            {pageConfig.showDate && <span>Tarih: ..................</span>}
+            {pageConfig.showName && (
+              <div className="flex gap-2">
+                <span>AD SOYAD:</span>
+                <span className="border-b border-dotted min-w-[120px]" style={{ borderColor: paper.border }}>
+                  {studentName || ''}
+                </span>
+              </div>
+            )}
+            {pageConfig.showDate && (
+              <div className="flex gap-2">
+                <span>TARİH:</span>
+                <span className="border-b border-dotted min-w-[80px]" style={{ borderColor: paper.border }}></span>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* CONTENT */}
-      <div className="flex-1">{children}</div>
+      {/* CONTENT AREA */}
+      <div className="flex-1 relative z-10">{children}</div>
 
-      {/* FOOTER — thin line */}
+      {/* PREMIUM FOOTER */}
       <div
-        className="mt-3 pt-1.5 flex justify-between items-center text-[9px] font-mono uppercase"
-        style={{ borderTop: `1px solid ${paper.border}30`, color: paper.text, opacity: 0.4 }}
+        className="mt-6 pt-3 flex justify-between items-center text-[10px] font-bold uppercase tracking-widest"
+        style={{ borderTop: `1px solid ${paper.border}20`, color: paper.text, opacity: 0.5 }}
       >
-        <span>Bursa Disleksi EduMind</span>
-        <span>
-          Sayfa {pageIndex + 1} / {totalPages}
-        </span>
+        <div className="flex items-center gap-2">
+           <i className="fa-solid fa-graduation-cap" style={{ color: paper.accent }}></i>
+           <span>Bursa Disleksi EduMind • Math Studio PRO</span>
+        </div>
+        <div className="px-3 py-1 rounded-full bg-zinc-100/50" style={{ backgroundColor: paper.secondary }}>
+          SAYFA {pageIndex + 1} / {totalPages}
+        </div>
       </div>
     </div>
   );

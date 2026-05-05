@@ -38,7 +38,7 @@ export const useDrillGenerator = (pageMargin: number) => {
         drillConfig.selectedOperations, drillConfig.digit1, drillConfig.digit2, drillConfig.digit3,
         drillConfig.count, drillConfig.allowCarry, drillConfig.allowBorrow, drillConfig.allowRemainder,
         drillConfig.allowNegative, drillConfig.useThirdNumber, drillConfig.autoFillPage,
-        drillConfig.fontSize, drillConfig.orientation, pageMargin,
+        drillConfig.fontSize, drillConfig.orientation, drillConfig.cols, drillConfig.gap, pageMargin,
     ]);
 
     const toggleDrillOp = useCallback((op: string) => {

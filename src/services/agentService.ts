@@ -7,6 +7,7 @@ import { AppError } from '../utils/AppError';
 
 import { generateWithSchema } from './geminiClient.js';
 import { db } from './firebaseClient.js';
+// @ts-ignore
 import * as firestore from 'firebase/firestore';
 
 const { collection, doc, setDoc, getDocs, query, limit, where } = firestore;
@@ -490,16 +491,16 @@ Lütfen içeriği bu standartlara göre optimize et ve iyileştirilmiş versiyon
       query(collection(db, 'agent_tasks'), where('role', '==', role))
     );
 
-    const tasks = tasksSnapshot.docs.map(d => d.data() as AgentTask);
-    const completed = tasks.filter(t => t.status === 'completed');
-    const failed = tasks.filter(t => t.status === 'failed');
+    const tasks = tasksSnapshot.docs.map((d: any) => d.data() as AgentTask);
+    const completed = tasks.filter((t: AgentTask) => t.status === 'completed');
+    const failed = tasks.filter((t: AgentTask) => t.status === 'failed');
 
     const responseTimes = completed
-      .filter(t => t.startedAt && t.completedAt)
-      .map(t => new Date(t.completedAt!).getTime() - new Date(t.startedAt!).getTime());
+      .filter((t: AgentTask) => t.startedAt && t.completedAt)
+      .map((t: AgentTask) => new Date(t.completedAt!).getTime() - new Date(t.startedAt!).getTime());
 
     const avgResponseTime = responseTimes.length > 0
-      ? responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length
+      ? responseTimes.reduce((a: number, b: number) => a + b, 0) / responseTimes.length
       : 0;
 
     const successRate = tasks.length > 0
@@ -507,7 +508,7 @@ Lütfen içeriği bu standartlara göre optimize et ve iyileştirilmiş versiyon
       : 0;
 
     const lastActive = tasks.length > 0
-      ? tasks.sort((a, b) =>
+      ? tasks.sort((a: AgentTask, b: AgentTask) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         )[0].createdAt
       : new Date().toISOString();
@@ -576,13 +577,13 @@ Lütfen içeriği bu standartlara göre optimize et ve iyileştirilmiş versiyon
 
     const snapshot = await getDocs(baseQuery);
 
-    const conversations = snapshot.docs.map(d => d.data() as AgentConversation);
+    const conversations = snapshot.docs.map((d: any) => d.data() as AgentConversation);
 
     const filtered = role
-      ? conversations.filter(conversation => conversation.agentRole === role)
+      ? conversations.filter((conversation: AgentConversation) => conversation.agentRole === role)
       : conversations;
 
-    return filtered.sort((a, b) =>
+    return filtered.sort((a: AgentConversation, b: AgentConversation) =>
       new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
     );
   },

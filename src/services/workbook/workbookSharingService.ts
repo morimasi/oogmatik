@@ -14,6 +14,7 @@
  * - Paylaşım izinleri granular (view/comment/edit/admin)
  */
 
+// @ts-ignore
 import { doc, updateDoc, arrayUnion, arrayRemove, Timestamp } from 'firebase/firestore';
 import { db } from '../firebaseClient';
 import { AppError, ValidationError } from '../../utils/AppError';

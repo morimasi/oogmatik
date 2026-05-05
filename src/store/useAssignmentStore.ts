@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { db } from '../services/firebaseClient';
-// @ts-ignore
 import {
   collection,
   query,
@@ -8,6 +7,7 @@ import {
   onSnapshot,
   QuerySnapshot,
   DocumentData,
+  // @ts-ignore
 } from 'firebase/firestore';
 import { 
   ActivityAssignment, 

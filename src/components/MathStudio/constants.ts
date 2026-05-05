@@ -6,7 +6,7 @@ export const A4_HEIGHT_PX = 1123;
 
 // Page structure heights (px)
 export const HEADER_HEIGHT = 52;
-export const FOOTER_HEIGHT = 28;
+export const FOOTER_HEIGHT = 32;
 
 // Default margins (mm → approx px)
 export const DEFAULT_MARGIN = {
@@ -29,19 +29,19 @@ export const DEFAULT_DRILL_CONFIG = {
   digit1: 2,
   digit2: 1,
   digit3: 1,
-  count: 20,
+  count: 24, // Optimized default for A4
   cols: 4,
-  gap: 8,
+  gap: 12,
   allowCarry: true,
   allowBorrow: true,
   allowRemainder: false,
   allowNegative: false,
   useThirdNumber: false,
   showTextRepresentation: false,
-  autoFillPage: true, // Her zaman otomatik doldur
+  autoFillPage: true,
   orientation: 'vertical' as const,
   showAnswer: false,
-  fontSize: 24,
+  fontSize: 28, // Slighly larger premium default
 };
 
 // Default page config
@@ -52,21 +52,6 @@ export const DEFAULT_PAGE_CONFIG = {
   showDate: true,
   showName: true,
   title: 'MATEMATİK ÇALIŞMASI',
-};
-
-// Default problem config
-export const DEFAULT_PROBLEM_CONFIG = {
-  topic: 'Uzay Yolculuğu',
-  count: 4,
-  includeSolutionBox: true,
-  studentName: '',
-  difficulty: 'Orta',
-  selectedOperations: ['add', 'sub'] as string[],
-  numberRange: '1-20',
-  problemStyle: 'simple' as const,
-  complexity: '1-step' as const,
-  problemTypes: ['standard'] as ('standard' | 'fill-in' | 'true-false' | 'comparison')[],
-  generateImages: false,
 };
 
 // --- THEME SYSTEM ---
@@ -92,30 +77,88 @@ export const DEFAULT_THEME_CONFIG: ThemeConfig = {
 
 export const PAPER_THEMES: Record<
   PaperTheme,
-  { label: string; bg: string; border: string; text: string }
+  { 
+    label: string; 
+    bg: string; 
+    border: string; 
+    text: string; 
+    accent: string;
+    secondary: string;
+    patternOpacity: number;
+    seal?: boolean;
+  }
 > = {
-  classic: { label: 'Klasik', bg: '#ffffff', border: '#000000', text: '#000000' },
-  'pastel-yellow': { label: 'Pastel Sarı', bg: '#fefce8', border: '#a16207', text: '#422006' },
-  'pastel-blue': { label: 'Pastel Mavi', bg: '#eff6ff', border: '#1e40af', text: '#172554' },
-  sepia: { label: 'Sepia', bg: '#faf5ef', border: '#78350f', text: '#451a03' },
-  karne: { label: 'Karne', bg: '#ffffff', border: '#1e293b', text: '#0f172a' },
+  classic: { 
+    label: 'Klasik', 
+    bg: '#ffffff', 
+    border: '#000000', 
+    text: '#000000', 
+    accent: '#3b82f6', 
+    secondary: '#f1f5f9',
+    patternOpacity: 0.1 
+  },
+  'pastel-yellow': { 
+    label: 'Pastel Sarı', 
+    bg: '#fdfce8', 
+    border: '#a16207', 
+    text: '#422006', 
+    accent: '#eab308', 
+    secondary: '#fef9c3',
+    patternOpacity: 0.2 
+  },
+  'pastel-blue': { 
+    label: 'Pastel Mavi', 
+    bg: '#eff6ff', 
+    border: '#1e40af', 
+    text: '#172554', 
+    accent: '#3b82f6', 
+    secondary: '#dbeafe',
+    patternOpacity: 0.15 
+  },
+  sepia: { 
+    label: 'Sepia', 
+    bg: '#faf5f0', 
+    border: '#78350f', 
+    text: '#451a03', 
+    accent: '#b45309', 
+    secondary: '#f3e8d2',
+    patternOpacity: 0.3 
+  },
+  karne: { 
+    label: 'Karne', 
+    bg: '#ffffff', 
+    border: '#1e293b', 
+    text: '#0f172a', 
+    accent: '#e11d48', 
+    secondary: '#f1f5f9',
+    patternOpacity: 0.05,
+    seal: true 
+  },
 };
 
 export const FONT_THEMES: Record<FontTheme, { label: string; fontFamily: string; icon: string }> = {
-  standard: { label: 'Standart', fontFamily: "'JetBrains Mono', monospace", icon: 'fa-font' },
+  standard: { 
+    label: 'Standart', 
+    fontFamily: "'Lexend', 'Inter', sans-serif", 
+    icon: 'fa-font' 
+  },
   dyslexic: {
     label: 'Disleksi Dostu',
     fontFamily: "'Lexend', 'OpenDyslexic', sans-serif",
     icon: 'fa-universal-access',
   },
-  handwritten: { label: 'El Yazısı', fontFamily: "'Caveat', cursive", icon: 'fa-pen-fancy' },
+  handwritten: { 
+    label: 'El Yazısı', 
+    fontFamily: "'Caveat', 'Dancing Script', cursive", 
+    icon: 'fa-pen-fancy' 
+  },
 };
 
-export const BORDER_STYLES: Record<BorderStyle, { label: string; css: string }> = {
+export const BORDER_STYLES: Record<BorderStyle, { label: string; css: string; radius?: string }> = {
   none: { label: 'Yok', css: 'none' },
-  thin: { label: 'İnce', css: '1px solid' },
-  thick: { label: 'Kalın', css: '3px solid' },
-  rounded: { label: 'Yuvarlak', css: '2px solid' },
+  thin: { label: 'İnce', css: '1px solid', radius: '0.25rem' },
+  thick: { label: 'Kalın', css: '2px solid', radius: '0.4rem' },
+  rounded: { label: 'Yuvarlak', css: '2px dashed', radius: '1.25rem' },
 };
 
 export const NUMBERING_STYLES: Record<
@@ -128,27 +171,8 @@ export const NUMBERING_STYLES: Record<
     label: 'I, II, III...',
     format: (n) =>
       [
-        '',
-        'I',
-        'II',
-        'III',
-        'IV',
-        'V',
-        'VI',
-        'VII',
-        'VIII',
-        'IX',
-        'X',
-        'XI',
-        'XII',
-        'XIII',
-        'XIV',
-        'XV',
-        'XVI',
-        'XVII',
-        'XVIII',
-        'XIX',
-        'XX',
+        '', 'I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X',
+        'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX'
       ][n] || `${n}`,
   },
   none: { label: 'Yok', format: () => '' },

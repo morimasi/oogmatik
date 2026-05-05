@@ -35,35 +35,37 @@ export const numberToTurkish = (num: number): string => {
  */
 export const estimateItemHeight = (config: MathDrillConfig): number => {
   if (config.orientation === 'vertical') {
-    let lineCount = config.useThirdNumber ? 4.5 : 3.2;
+    // Basic lines: num1, symbol+num2, line, answerBox, spacing
+    let lineCount = config.useThirdNumber ? 5.0 : 4.0;
 
-    // Çarpma veya bölme işlemleri daha fazla satır alanı gerektirir
     if (config.selectedOperations.includes('div')) {
-      lineCount += 2.5; // Bölme için alt adımlar alanı
-    } else if (config.selectedOperations.includes('mult') && config.digit2 >= 2) {
-      lineCount += 2.5; // Çok basamaklı çarpma için ara işlem alanı
+      lineCount = 7.0; // Turkish classic division needs more vertical space
     } else if (config.selectedOperations.includes('mult')) {
-      lineCount += 1.5; // Tek basamaklı çarpma için çözüm alanı
+      if (config.digit2 >= 2) {
+        lineCount += 3.5; // Multi-digit mult has steps
+      } else {
+        lineCount += 1.5; // Single-digit mult has result
+      }
     }
 
-    const textExtra = config.showTextRepresentation ? 12 : 0;
-    return config.fontSize * lineCount + textExtra + 8;
+    const textExtra = config.showTextRepresentation ? 16 : 0;
+    const paddingExtra = 24; // Premium card padding
+    return config.fontSize * lineCount + textExtra + paddingExtra;
   }
-  return config.fontSize * 1.5 + 8;
+  return config.fontSize * 2.2 + 20; // Horizontal items are simpler
 };
 
-/**
- * Calculates max items that fit on a single A4 page.
- */
 export const calculateItemsPerPage = (config: MathDrillConfig, pageMargin: number): number => {
-  const usableHeight = A4_HEIGHT_PX - HEADER_HEIGHT - FOOTER_HEIGHT - pageMargin * 2;
+  const usableHeight = A4_HEIGHT_PX - HEADER_HEIGHT - FOOTER_HEIGHT - pageMargin * 2 - 20; // Extra safety
   const itemH = estimateItemHeight(config);
-  const gapY = config.gap || 8;
-  const rows = Math.floor(usableHeight / (itemH + gapY));
-  const safeCols =
-    config.orientation === 'vertical' && config.fontSize > 30
-      ? Math.min(3, config.cols)
-      : config.cols;
+  const gapY = config.gap || 12;
+  const rows = Math.floor(usableHeight / (itemH + gapY / 2));
+  
+  // Columns safety check: don't squish large fonts
+  let safeCols = config.cols;
+  if (config.fontSize > 32) safeCols = Math.min(2, config.cols);
+  else if (config.fontSize > 24) safeCols = Math.min(3, config.cols);
+
   return Math.max(1, rows * safeCols);
 };
 
