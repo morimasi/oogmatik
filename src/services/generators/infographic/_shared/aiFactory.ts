@@ -3,6 +3,7 @@ import { generateCreativeMultimodal } from '../../../geminiClient';
 import { handleSchemaError, INFOGRAPHIC_ACTIVITY_SCHEMA } from './schemaValidator';
 import { InfographicActivityResult } from '../../../../types/infographic';
 import { GenerateParams, InfographicGeneratorFn } from './types';
+import { generateOfflineInfographic } from '../../../offlineGenerators/infographic';
 
 interface AIFactoryOptions {
     activityName: string;
@@ -18,8 +19,14 @@ interface AIFactoryOptions {
  */
 export const createAIGenerator = (factoryOps: AIFactoryOptions): InfographicGeneratorFn => {
     return async (options: any): Promise<InfographicActivityResult> => {
+        // Fast mode: offline generator kullan
         if (options.mode === 'fast') {
-            throw new AppError('Fast mode triggered AI fn', 'ROUTING_ERROR', 500);
+            const offlineResult = await generateOfflineInfographic(factoryOps.activityName, options);
+            return {
+                ...offlineResult,
+                category: factoryOps.category,
+                generationMode: 'fast',
+            } as InfographicActivityResult;
         }
 
         const prompt = `
