@@ -44,6 +44,21 @@ export const DEFAULT_DRILL_CONFIG = {
   fontSize: 28, // Slighly larger premium default
 };
 
+// Default problem config
+export const DEFAULT_PROBLEM_CONFIG = {
+  topic: 'Uzay Yolculuğu',
+  count: 4,
+  includeSolutionBox: true,
+  studentName: '',
+  difficulty: 'Orta',
+  selectedOperations: ['add', 'sub'] as string[],
+  numberRange: '1-20',
+  problemStyle: 'simple' as const,
+  complexity: '1-step' as const,
+  problemTypes: ['standard'] as ('standard' | 'fill-in' | 'true-false' | 'comparison')[],
+  generateImages: false,
+};
+
 // Default page config
 export const DEFAULT_PAGE_CONFIG = {
   paperType: 'blank' as const,
