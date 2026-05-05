@@ -856,13 +856,117 @@ const SOFT_PASTEL_COLORS = [
 /** Kısa Cevaplı Sorular (Premium Grid) Renderer */
 const ShortAnswerGridRenderer: React.FC<{ data: ParsedData; title: string; primaryColor: string }> = ({ data, title, primaryColor }) => {
     const questions = data?.shortAnswers || [];
-    const config = data?.config || { 
-        questionCount: 15, 
-        lineCount: 2, 
-        colorMode: 'Karma Renkli',
-        showStudentInfo: true,
-        gridDensity: 'Kompakt'
-    };
+    const config = data?.config || { questionCount: 15, lineCount: 2, colorMode: 'Karma Renkli' };
+    
+    // A4 kompakt görünüm için sütun sayısını belirle
+    const gridColumns = config.questionCount > 6 ? 'repeat(3, 1fr)' : 'repeat(2, 1fr)';
+
+    return (
+        <div style={{ ...fontStyle, padding: '16px', background: '#fff', borderRadius: '8px' }}>
+            {title && (
+                <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                    {/* Premium Başlık Kutusu */}
+                    <div style={{ 
+                        display: 'inline-block', 
+                        border: '2px solid #5b21b6', 
+                        borderRadius: '16px', 
+                        padding: '6px 32px', 
+                        background: '#f5f3ff',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                        marginBottom: '12px'
+                    }}>
+                        <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 900, color: '#4c1d95', textTransform: 'uppercase', letterSpacing: '2px' }}>
+                            {title}
+                        </h2>
+                    </div>
+                    
+                    {/* Dashed Green Yönerge Kutusu */}
+                    <div style={{ 
+                        width: '100%',
+                        border: '2px dashed #10b981', 
+                        padding: '8px 16px', 
+                        borderRadius: '12px',
+                        background: '#f0fdf4',
+                        textAlign: 'left',
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        color: '#064e3b',
+                        lineHeight: 1.4
+                    }}>
+                        Sorulara cevap verelim. Etkinlik sonunda doğru cevap verdiğimiz soruların halkalarını <span style={{color: '#2563eb', fontWeight: 800}}>maviye</span>, yanlış cevap verdiklerimizi <span style={{color: '#dc2626', fontWeight: 800}}>kırmızıya</span> boyayalım.
+                    </div>
+                </div>
+            )}
+
+            <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: gridColumns, 
+                gap: '16px 12px', // Dikeyde daha fazla boşluk
+                width: '100%' 
+            }}>
+                {questions.map((q, idx) => {
+                    const borderColor = config.colorMode === 'Karma Renkli' 
+                        ? KARMA_COLORS[idx % KARMA_COLORS.length] 
+                        : primaryColor;
+
+                    return (
+                        <div key={idx} style={{ 
+                            position: 'relative',
+                            border: `2px solid ${borderColor}`,
+                            borderRadius: '14px',
+                            padding: '16px 12px 12px 12px', // Üstten biraz daha fazla pay (halka için)
+                            minHeight: '110px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            background: '#fff',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                        }}>
+                            {/* Değerlendirme Halkası (Tam ortada ve sınır üstünde) */}
+                            <div style={{ 
+                                position: 'absolute',
+                                top: '-11px',
+                                left: '50%',
+                                transform: 'translateX(-50%)',
+                                width: '22px',
+                                height: '22px',
+                                borderRadius: '50%',
+                                border: `2px solid ${borderColor}`,
+                                background: '#fff',
+                                zIndex: 10
+                            }} />
+
+                            {/* Soru Metni */}
+                            <div style={{ 
+                                textAlign: 'center', 
+                                fontSize: '13.5px', 
+                                fontWeight: 600, 
+                                color: '#1e293b',
+                                marginBottom: '12px',
+                                lineHeight: 1.4,
+                                fontFamily: "'Lexend', sans-serif"
+                            }}>
+                                {q.question}
+                            </div>
+
+                            {/* Pembe/Kırmızı Yazım Satırları (Görsele sadık) */}
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', gap: '10px', paddingBottom: '4px' }}>
+                                {Array.from({ length: config.lineCount }).map((_, lIdx) => (
+                                    <div key={lIdx} style={{ 
+                                        width: '100%', 
+                                        height: '1px', 
+                                        background: '#fca5a5', // Soft pembe/kırmızı çizgi
+                                        boxShadow: '0 0.5px 0 #fca5a5'
+                                    }} />
+                                ))}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
     
     // A4 kompakt görünüm için sütun sayısını belirle
     let gridColumns = 'repeat(3, 1fr)';

@@ -174,6 +174,18 @@ export const getDefaultOptionsForActivity = (
         topic: 'Genel',
         profile: 'dyslexia',
       };
+    case ActivityType.INFOGRAPHIC_SHORT_ANSWER:
+      return {
+        ...base,
+        mode: 'ai',
+        difficulty: 'Orta',
+        topic: 'Genel Bilgi',
+        params: {
+          questionCount: '15',
+          lineCount: 2,
+          colorMode: 'Karma Renkli'
+        }
+      };
     default:
       return base;
   }

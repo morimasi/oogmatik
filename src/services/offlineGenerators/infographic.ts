@@ -37,6 +37,10 @@ export async function generateOfflineInfographic(
             _buildVennDiagram(builder, difficulty, topic);
             break;
 
+        case ActivityType.INFOGRAPHIC_SHORT_ANSWER:
+            _buildShortAnswerGrid(builder, difficulty, topic, options);
+            break;
+
         default:
             // Genel düşen (fallback) şablon
             _buildGenericInfographic(builder, difficulty, topic);
@@ -135,12 +139,65 @@ function _buildGenericInfographic(builder: WorksheetBuilder, difficulty: string,
     });
 }
 
+/**
+ * Kısa Cevaplı Sorular Panosu (Görsel Mimariye Sadık)
+ */
+function _buildShortAnswerGrid(builder: WorksheetBuilder, difficulty: string, topic: string, options: GeneratorOptions) {
+    const questionCount = parseInt(String(options.params?.questionCount || '15'), 10);
+    const lineCount = options.params?.lineCount || 2;
+    const colorMode = options.params?.colorMode || 'Karma Renkli';
+
+    // Geniş soru havuzu (Görseldeki tarzda)
+    const questionPool = [
+        'Bir mutfak eşyası yazalım.',
+        'Ot yiyen bir hayvan yazalım.',
+        'Bir meyve ismi yazalım.',
+        'Suda giden bir taşıt yazalım.',
+        'Yazıyı ne ile yazarız?',
+        'Gökyüzünden yağan bir şey yazalım.',
+        'Zıplayan bir şey yazalım.',
+        'Ayağımıza giydiğimiz bir şey yazalım.',
+        'Tavuğun yavrusuna ne denir?',
+        'Saçımızı kim keser?',
+        'Sınıfımızda bulunan bir eşya yazalım.',
+        'En sevdiğin yemek hangisidir?',
+        'Hangi hayvan bal yapar?',
+        'Kızlar saçına ne takar?',
+        'Dünyamızı ısıtan şeyin ismi nedir?',
+        'Kışın giydiğimiz bir kıyafet?',
+        'En sevdiğin oyun hangisidir?',
+        'Denizde yaşayan bir canlı?',
+        'Hangi meyve sarı renklidir?',
+        'Gece gökyüzünde ne görürüz?',
+        'Burnumuzla ne yaparız?',
+        'Süt veren bir hayvan?',
+        'En sevdiğin renk hangisidir?',
+        'Okula giderken ne takarız?',
+        'Yemekten önce ne yapmalıyız?'
+    ];
+
+    // Konu varsa konuya göre basit sorular üret (Statik taklit)
+    const questions = getRandomItems(questionPool, questionCount);
+
+    builder.addPrimaryActivity('infographic_short_answer', {
+        syntax: `<short-answer-grid title="Kısa Cevaplı Sorular" count="${questionCount}" lines="${lineCount}" mode="${colorMode}">
+            ${questions.map(q => `<item question="${q}" />`).join('')}
+        </short-answer-grid>`
+    });
+
+    builder.addSupportingDrill('Hızlı Kontrol', {
+        text: 'Yukarıdaki soruları cevapladıktan sonra en sevdiğin 3 tanesini yıldızla işaretle.',
+        inputs: ['', '', '']
+    });
+}
+
 function _getInfographicTitle(type: ActivityType): string {
     switch (type) {
         case ActivityType.INFOGRAPHIC_5W1H_BOARD: return '5N1K Panosu';
         case ActivityType.INFOGRAPHIC_CONCEPT_MAP: return 'Kavram Haritası';
         case ActivityType.INFOGRAPHIC_ANTONYM_SYNONYM: return 'Eş ve Zıt Anlamlılar';
         case ActivityType.INFOGRAPHIC_COMPARE: return 'Karşılaştırma Tablosu';
+        case ActivityType.INFOGRAPHIC_SHORT_ANSWER: return 'Kısa Cevaplı Sorular';
         default: return 'İnfografik Çalışması';
     }
 }
