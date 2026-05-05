@@ -32,55 +32,53 @@ export const FindTheDifferenceSheet = ({
         />
 
         <div
-          className={`flex-1 flex ${isLandscape ? 'flex-row' : 'flex-col md:flex-row'} gap-12 print:gap-4 mt-12 print:mt-6 items-start justify-center px-4 print:px-0`}
+          className={`flex-1 flex ${isLandscape ? 'flex-row' : 'flex-col'} gap-6 print:gap-4 mt-8 print:mt-2 items-center justify-center px-4 print:px-0`}
         >
           {/* Tablo A */}
-          <div className="flex-1 flex flex-col items-center gap-6 print:gap-3 w-full">
-            <div className="px-6 py-2 bg-zinc-900 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-xl flex items-center gap-2">
+          <div className="flex-1 flex flex-col items-center gap-4 print:gap-2 w-full max-w-full overflow-hidden">
+            <div className="px-4 py-1.5 bg-zinc-900 text-white text-[9px] font-black uppercase tracking-[0.15em] rounded-full shadow-lg flex items-center gap-2">
               <i className="fa-solid fa-crosshairs text-indigo-400"></i>
               REFERANS TABLO
             </div>
             <div
-              className="w-full grid gap-3 p-6 print:p-2 border-[4px] border-zinc-900 bg-white rounded-[3.5rem] shadow-[20px_20px_0px_rgba(0,0,0,0.05)]"
+              className="w-full grid gap-2 p-4 print:p-1.5 border-[3px] border-zinc-900 bg-white rounded-3xl shadow-[10px_10px_0px_rgba(0,0,0,0.03)]"
               style={{ gridTemplateColumns: `repeat(${data.gridA[0].length}, 1fr)` }}
             >
               {data.gridA.flat().map((cell, i) => (
                 <div
                   key={i}
-                  className="aspect-square border-2 border-zinc-100 rounded-2xl flex items-center justify-center font-black text-2xl bg-zinc-50/30 shadow-inner"
+                  className="aspect-square border-[1.5px] border-zinc-100 rounded-xl flex items-center justify-center font-black text-xl bg-zinc-50/20 shadow-inner overflow-hidden"
                 >
-                  <EditableText value={String(cell)} tag="span" />
+                  <EditableText value={String(cell)} tag="span" className="scale-90" />
                 </div>
               ))}
             </div>
           </div>
 
           {/* Ayırıcı / Ok */}
-          <div
-            className={`self-center flex flex-col items-center opacity-10 hidden md:flex shrink-0 ${isLandscape ? '!flex' : ''}`}
-          >
-            <div className="w-16 h-16 rounded-full border-4 border-zinc-900 flex items-center justify-center">
-              <i className="fa-solid fa-arrow-right-arrow-left text-2xl"></i>
+          {!isLandscape && (
+            <div className="flex items-center justify-center py-2 opacity-20">
+               <i className="fa-solid fa-arrow-down text-xl"></i>
             </div>
-          </div>
+          )}
 
           {/* Tablo B */}
-          <div className="flex-1 flex flex-col items-center gap-6 print:gap-3 w-full">
-            <div className="px-6 py-2 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-xl flex items-center gap-2">
+          <div className="flex-1 flex flex-col items-center gap-4 print:gap-2 w-full max-w-full overflow-hidden">
+            <div className="px-4 py-1.5 bg-indigo-600 text-white text-[9px] font-black uppercase tracking-[0.15em] rounded-full shadow-lg flex items-center gap-2">
               <i className="fa-solid fa-magnifying-glass text-white/80"></i>
               FARKLARI İŞARETLE
             </div>
             <div
-              className="w-full grid gap-3 p-6 print:p-2 border-[4px] border-indigo-600 bg-white rounded-[3.5rem] shadow-[20px_20px_0px_rgba(79,70,229,0.05)]"
+              className="w-full grid gap-2 p-4 print:p-1.5 border-[3px] border-indigo-600 bg-white rounded-3xl shadow-[10px_10px_0px_rgba(79,70,229,0.03)]"
               style={{ gridTemplateColumns: `repeat(${data.gridB[0].length}, 1fr)` }}
             >
               {data.gridB.flat().map((cell, i) => (
                 <div
                   key={i}
-                  className="aspect-square border-2 border-indigo-100 rounded-2xl flex items-center justify-center font-black text-2xl hover:bg-indigo-50 cursor-pointer transition-all relative group bg-white shadow-sm hover:scale-[1.05] active:scale-95"
+                  className="aspect-square border-[1.5px] border-indigo-100 rounded-xl flex items-center justify-center font-black text-xl hover:bg-indigo-50 cursor-pointer transition-all relative group bg-white shadow-sm overflow-hidden"
                 >
-                  <EditableText value={String(cell)} tag="span" />
-                  <div className="absolute inset-2 rounded-xl border-2 border-transparent group-hover:border-indigo-300 border-dashed animate-pulse"></div>
+                  <EditableText value={String(cell)} tag="span" className="scale-90" />
+                  <div className="absolute inset-1 rounded-lg border-[1.5px] border-transparent group-hover:border-indigo-300 border-dashed"></div>
                 </div>
               ))}
             </div>
@@ -123,12 +121,12 @@ export const FindTheDifferenceSheet = ({
 
   // Seçicilik / Ayrıştırma Modu (Rows)
   let gridCols = 'grid-cols-1';
-  if (isUltraDense) gridCols = 'grid-cols-3';
-  else if (isGridCompact) gridCols = 'grid-cols-2';
+  if (isUltraDense) gridCols = 'grid-cols-2'; // 3'ten 2'ye düşürerek taşmayı önle
+  else if (isGridCompact) gridCols = 'grid-cols-1';
 
   return (
     <div
-      className={`flex flex-col h-full bg-white font-['Lexend'] text-zinc-900 overflow-hidden relative p-10 print:p-6 min-h-[210mm] ${isLandscape ? 'landscape' : 'min-h-[297mm]'}`}
+      className={`flex flex-col h-full bg-white font-['Lexend'] text-zinc-900 overflow-hidden relative p-8 print:p-3 min-h-[210mm] ${isLandscape ? 'landscape' : 'min-h-[297mm]'}`}
     >
       <PedagogicalHeader
         title={data?.title || 'FARKLI OLANI BUL & AYRIŞTIRMA'}
@@ -137,7 +135,7 @@ export const FindTheDifferenceSheet = ({
         data={data}
       />
 
-      <div className={`grid ${gridCols} gap-4 print:gap-2 mt-8 print:mt-4 flex-1 content-start`}>
+      <div className={`grid ${gridCols} gap-4 print:gap-2 mt-6 print:mt-2 flex-1 content-start`}>
         {rows.map((row, index) => {
           const items = row?.items || [];
           const isHard =
@@ -148,15 +146,15 @@ export const FindTheDifferenceSheet = ({
             <EditableElement
               key={index}
               className={`
-                                flex flex-col p-5 print:p-2 border-2 border-zinc-100 rounded-[2.8rem] bg-zinc-50/40 transition-all break-inside-avoid relative group hover:bg-white hover:border-indigo-300 hover:shadow-[10px_10px_0px_rgba(79,70,229,0.05)]
-                                ${isUltraDense ? 'p-3 rounded-[2rem]' : ''}
+                                flex flex-col p-4 print:p-2 border-2 border-zinc-100 rounded-[2rem] bg-zinc-50/40 transition-all break-inside-avoid relative group hover:bg-white hover:border-indigo-300
+                                ${isUltraDense ? 'p-3 rounded-2xl' : ''}
                             `}
             >
-              <div className="absolute -top-3 -left-2 w-10 h-10 bg-zinc-900 text-white rounded-2xl flex items-center justify-center font-black shadow-xl text-[12px] border-2 border-white z-10 transform -rotate-12 group-hover:rotate-0 transition-transform">
+              <div className="absolute -top-2 -left-1 w-6 h-6 bg-zinc-900 text-white rounded-lg flex items-center justify-center font-black shadow-md text-[10px] border-2 border-white z-10">
                 {index + 1}
               </div>
 
-              <div className="flex-1 flex items-center justify-around w-full gap-4 py-4 print:py-1">
+              <div className="flex-1 flex items-center justify-around w-full gap-2 py-2 print:py-1">
                 {items.map((item, itemIndex) => {
                   const isCorrect = itemIndex === row.correctIndex;
 
@@ -164,9 +162,8 @@ export const FindTheDifferenceSheet = ({
                     <div
                       key={itemIndex}
                       className={`
-                                                flex-1 aspect-square flex items-center justify-center border-2 border-zinc-100 rounded-[1.8rem] cursor-pointer hover:bg-indigo-50 transition-all group/item bg-white shadow-sm relative overflow-hidden
-                                                ${isHard ? 'ring-2 ring-amber-500/20' : ''}
-                                                ${isUltraDense ? 'rounded-2xl' : ''}
+                                                flex-1 aspect-square max-w-[50px] flex items-center justify-center border-2 border-zinc-100 rounded-xl cursor-pointer hover:bg-indigo-50 transition-all group/item bg-white shadow-sm relative overflow-hidden
+                                                ${isHard ? 'ring-1 ring-amber-500/20' : ''}
                                             `}
                     >
                       {typeof item === 'object' &&
@@ -174,13 +171,13 @@ export const FindTheDifferenceSheet = ({
                       'svg' in item &&
                       (item as any).svg ? (
                         <div
-                          className="w-[85%] h-[85%] flex items-center justify-center transition-transform group-hover/item:scale-110"
+                          className="w-[80%] h-[85%] flex items-center justify-center transition-transform group-hover/item:scale-110 [&_svg]:w-full [&_svg]:h-full"
                           dangerouslySetInnerHTML={{ __html: (item as any).svg }}
                         />
                       ) : (
                         <span
                           className={`font-black leading-none select-none text-zinc-900 font-mono transition-transform group-hover/item:scale-125
-                                                        ${String(item).length > 5 ? 'text-xs' : String(item).length > 3 ? 'text-sm' : 'text-2xl'}
+                                                        ${String(item).length > 5 ? 'text-[8px]' : String(item).length > 3 ? 'text-xs' : 'text-xl'}
                                                     `}
                           style={{
                             transform: `${meta?.isMirrored && isCorrect ? 'scaleX(-1)' : ''} rotate(${meta?.rotationAngle && isCorrect ? meta.rotationAngle : 0}deg)`,
@@ -191,7 +188,7 @@ export const FindTheDifferenceSheet = ({
                       )}
 
                       {/* İşaretleme Alanı */}
-                      <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-zinc-50 rounded-tl-2xl border-l-2 border-t-2 border-zinc-100 group-hover/item:bg-indigo-600 group-hover/item:border-indigo-600 transition-all"></div>
+                      <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-zinc-50 rounded-tl-xl border-l border-t border-zinc-100 group-hover/item:bg-indigo-600 group-hover/item:border-indigo-600 transition-all"></div>
                     </div>
                   );
                 })}

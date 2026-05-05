@@ -1,12 +1,12 @@
 import React from 'react';
-import { VisualOddOneOutData, VisualOddOneOutItem } from '../../../types';
+import { VisualOddOneOutData, VisualOddOneOutItem, StyleSettings } from '../../../types';
 import { PedagogicalHeader, SegmentDisplay } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
 const SvgFromPaths = ({ paths }: { paths: any[] }) => {
   if (!paths || paths.length === 0) return null;
   return (
-    <svg viewBox="0 0 100 100" className="w-full h-full p-2" preserveAspectRatio="xMidYMid meet">
+    <svg viewBox="0 0 100 100" className="w-full h-full p-1" preserveAspectRatio="xMidYMid meet">
       {paths.map((p, i) => (
         <path
           key={i}
@@ -33,18 +33,16 @@ const ComplexShapeRenderer = ({
 
   return (
     <div
-      className="transition-all duration-300 flex items-center justify-center p-1"
+      className="transition-all duration-300 flex items-center justify-center p-1 overflow-hidden w-full h-full"
       style={{
         transform: `rotate(${item.rotation || 0}deg) scale(${item.scale || 1}) ${item.isMirrored ? 'scaleX(-1)' : ''}`,
-        width: '100%',
-        height: '100%',
       }}
     >
       {item.svgPaths ? (
         <SvgFromPaths paths={item.svgPaths} />
       ) : item.svg ? (
         <div
-          className="w-full h-full  flex items-center justify-center overflow-hidden"
+          className="w-full h-full flex items-center justify-center overflow-hidden [&_svg]:max-w-full [&_svg]:max-h-full [&_svg]:w-auto [&_svg]:h-auto"
           dangerouslySetInnerHTML={{ __html: item.svg }}
         />
       ) : item.label ? (
@@ -76,19 +74,21 @@ export const VisualOddOneOutSheet = ({
   const isPremium =
     settings?.aestheticMode === 'premium' || settings?.aestheticMode === 'glassmorphism';
 
-  // Grid sütun sayısını ayarla: Bol içerik için optimize et
+  // Grid sütun sayısını ayarla: A4 sayfası için optimize edilmiş kompakt yapı
+  // 1 sütun: Geniş ferah, 2 sütun: Kompakt ve dolu dolu
   let gridCols = isUltraFull
-    ? 'grid-cols-2 lg:grid-cols-4'
+    ? 'grid-cols-2'
     : isUltraDense
-      ? 'grid-cols-2 lg:grid-cols-3'
+      ? 'grid-cols-2'
       : 'grid-cols-1';
-  if (isLandscape && !isUltraFull) gridCols = 'grid-cols-2 lg:grid-cols-3';
+  
+  if (isLandscape) gridCols = isUltraFull ? 'grid-cols-3' : 'grid-cols-2';
 
   return (
     <div
       className={`
             flex flex-col min-h-full print:min-h-0 font-sans text-black overflow-visible professional-worksheet 
-             p-8 print:p-2 print:p-3
+             p-6 print:p-2
             ${isPremium ? 'bg-slate-50/50' : 'bg-white'}
         `}
     >
@@ -99,80 +99,79 @@ export const VisualOddOneOutSheet = ({
       />
 
       <div
-        className={`grid ${gridCols} gap-4 print:gap-1 mt-6 print:mt-1 flex-1 content-start pb-12 print:pb-3`}
+        className={`grid ${gridCols} gap-x-3 gap-y-4 print:gap-x-2 print:gap-y-2 mt-4 print:mt-1 flex-1 content-start pb-6 print:pb-2`}
       >
         {(data.rows || []).map((row, i) => (
           <EditableElement
             key={i}
             className={`
-                            flex flex-col p-4 print:p-1 border-[1.5px] relative break-inside-avoid transition-all duration-300 group
+                            flex flex-col p-3 print:p-1.5 border-[1.5px] relative break-inside-avoid transition-all duration-300 group
                             ${
                               isPremium
-                                ? 'bg-white/80 backdrop-blur-sm border-zinc-200 rounded-[2rem] shadow-sm hover:shadow-xl hover:border-indigo-400'
-                                : 'bg-zinc-50/30 border-zinc-100 rounded-2xl hover:bg-white hover:border-zinc-200'
+                                ? 'bg-white/80 backdrop-blur-sm border-zinc-200 rounded-2xl shadow-sm hover:shadow-md hover:border-indigo-400'
+                                : 'bg-zinc-50/30 border-zinc-100 rounded-xl hover:bg-white hover:border-zinc-200'
                             }
-                            ${isUltraFull ? 'p-2' : ''}
                         `}
           >
             {/* Üst Bilgi Satırı */}
-            <div className="flex justify-between items-center mb-3">
+            <div className="flex justify-between items-center mb-2 print:mb-0.5">
               <div className="flex items-center gap-2">
                 <div
                   className={`
-                                    w-7 h-7 flex items-center justify-center font-black text-xs rounded-xl shadow-md transition-all group-hover:scale-110
+                                    w-5 h-5 flex items-center justify-center font-black text-[9px] rounded-md shadow-sm transition-all group-hover:scale-110
                                     ${isPremium ? 'bg-zinc-900 text-white' : 'bg-indigo-600 text-white'}
                                 `}
                 >
                   {i + 1}
                 </div>
                 {row.clinicalMeta?.targetedError && settings?.showClinicalNotes && !isUltraFull && (
-                  <span className="text-[7px] font-black text-zinc-500 uppercase tracking-widest bg-zinc-100 px-2 py-0.5 rounded-lg border border-zinc-200">
+                  <span className="text-[5px] font-black text-zinc-400 uppercase tracking-widest bg-zinc-100 px-1 py-0.5 rounded border border-zinc-200">
                     {row.clinicalMeta.targetedError.replace('_', ' ')}
                   </span>
                 )}
               </div>
 
-              {!isUltraFull && settings?.showClinicalNotes && row.clinicalMeta?.cognitiveLoad && (
-                <div className="flex items-center gap-2">
+              {settings?.showClinicalNotes && row.clinicalMeta?.cognitiveLoad && (
+                <div className="flex items-center gap-1">
                   <div className="flex gap-0.5">
                     {[...Array(5)].map((_, idx) => (
                       <div
                         key={idx}
-                        className={`w-0.5 h-2 rounded-full ${idx < row.clinicalMeta!.cognitiveLoad! / 2 ? 'bg-amber-400' : 'bg-zinc-200'}`}
+                        className={`w-0.5 h-1 rounded-full ${idx < row.clinicalMeta!.cognitiveLoad! / 2 ? 'bg-amber-400' : 'bg-zinc-200'}`}
                       ></div>
                     ))}
                   </div>
-                  <span className="text-[6px] font-black text-zinc-400 uppercase tracking-tighter">
-                    YÜK: %{row.clinicalMeta.cognitiveLoad * 10}
+                  <span className="text-[4px] font-black text-zinc-400 uppercase">
+                    %{row.clinicalMeta.cognitiveLoad * 10}
                   </span>
                 </div>
               )}
             </div>
 
             <div
-              className={`flex items-center justify-around py-2 gap-2 ${isUltraFull ? 'scale-90 origin-center' : ''}`}
+              className="grid grid-cols-4 gap-1.5 items-center justify-items-center py-0.5"
             >
               {(row.items || []).map((item, j) => (
-                <div key={j} className="flex flex-col items-center gap-2 flex-1 max-w-[80px]">
+                <div key={j} className="flex flex-col items-center gap-1 w-full max-w-[55px]">
                   <div
                     className={`
-                                        aspect-square w-full bg-white rounded-2xl border-[1.5px] flex items-center justify-center transition-all
-                                        hover:border-indigo-500 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer 
+                                        aspect-square w-full bg-white rounded-lg border-[1px] flex items-center justify-center transition-all
+                                        hover:border-indigo-500 hover:shadow-md cursor-pointer 
                                         ${isPremium ? 'border-zinc-100' : 'border-zinc-200'}
                                     `}
                   >
-                    <ComplexShapeRenderer item={item} size={isUltraDense ? 35 : 55} />
+                    <ComplexShapeRenderer item={item} size={30} />
                   </div>
-                  <div className="w-5 h-5 rounded-lg border-2 border-zinc-100 flex items-center justify-center group-hover:border-indigo-200 transition-colors">
-                    <div className="w-2 h-2 rounded-sm bg-zinc-50 group-hover:bg-indigo-400/20 transition-all"></div>
+                  <div className="w-3 h-3 rounded border-[1px] border-zinc-100 flex items-center justify-center group-hover:border-indigo-200 transition-colors">
+                    <div className="w-1 h-1 rounded-sm bg-zinc-50 group-hover:bg-indigo-400/20 transition-all"></div>
                   </div>
                 </div>
               ))}
             </div>
 
             {settings?.showClinicalNotes && row.reason && !isUltraFull && (
-              <div className="mt-2 pt-2 border-t border-dashed border-zinc-100 flex items-start gap-2">
-                <p className="text-[7px] text-zinc-500 font-bold leading-tight uppercase">
+              <div className="mt-1 pt-1 border-t border-dashed border-zinc-100 flex items-start">
+                <p className="text-[6px] text-zinc-400 font-bold leading-tight uppercase italic">
                   <EditableText value={row.reason} tag="span" />
                 </p>
               </div>
