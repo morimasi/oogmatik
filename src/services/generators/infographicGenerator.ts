@@ -49,16 +49,24 @@ BAĞLAM:
    Öğrencinin profilini (${profile}) ve zorluk seviyesini (${difficulty}) baz alarak 
    şu bilimsel kavramlara değin: "Bilişsel Yük", "Yapı iskelesi (Scaffolding)", "Görsel İşleme Hızı".
 
-4. DİSLEKSİ DOSTU: Metinler kısa, net ve somut olmalıdır. Karmaşık cümlelerden kaçın.
+5. AI SELF-CRITIQUE (Öz-Eleştiri): Üretimi tamamlamadan önce kendini şu 5 boyutta 1-10 arası puanla:
+   - Pedagojik Uygunluk (Pedagogy)
+   - Görsel Hiyerarşi (Hierarchy)
+   - ZPD Uyumu (ZPD)
+   - Okunabilirlik (Readability)
+   - İnovasyon (Innovation)
+   Eğer herhangi bir puan 8'in altındaysa, içeriği BAŞTAN DÜŞÜN ve düzelt. En son verdiğin mükemmel puanları ve gerekçeni "selfCritique" alanına yaz.
 `;
 
     const USER_PROMPT = `
 Konu: ${topic}
-Lütfen yukarıdaki konuyu ${activityType} aktivite türüne uygun olarak "Ultra Profesyonel" seviyede görselleştir.
+Görsel Ekol (Design School): ${options.designSchool || 'default'}
+Lütfen yukarıdaki konuyu ${activityType} aktivite türüne uygun olarak belirtilen görsel ekolde "Ultra Profesyonel" seviyede görselleştir.
 Sayfa Düzeni: A4 boyutunda, kompakt, zengin (dolu dolu) ve estetik olmalıdır.
 
 ÖNEMLİ: "syntax" alanında NativeInfographicRenderer etiketlerini kullan. 
 Ayrıca "activityContent" içinde öğrencinin konuyu pekiştirmesi için 'supportingDrill' (3 kısa soru) eklemeyi unutma.
+Kendini eleştir (selfCritique) ve yüksek kalite standartlarını sağladığından emin ol!
 `;
 
     const schema = {
@@ -73,9 +81,21 @@ Ayrıca "activityContent" içinde öğrencinin konuyu pekiştirmesi için 'suppo
             ageGroup: { type: 'STRING', enum: ['5-7', '8-10', '11-13', '14+'] },
             profile: { type: 'STRING', enum: ['dyslexia', 'dyscalculia', 'adhd', 'mixed', 'general'] },
             estimatedDuration: { type: 'NUMBER' },
-            activityContent: { type: 'OBJECT' }
+            activityContent: { type: 'OBJECT' },
+            selfCritique: {
+                type: 'OBJECT',
+                properties: {
+                    pedagogyScore: { type: 'NUMBER' },
+                    hierarchyScore: { type: 'NUMBER' },
+                    zpdScore: { type: 'NUMBER' },
+                    readabilityScore: { type: 'NUMBER' },
+                    innovationScore: { type: 'NUMBER' },
+                    rationale: { type: 'STRING' }
+                },
+                required: ['pedagogyScore', 'hierarchyScore', 'zpdScore', 'readabilityScore', 'innovationScore', 'rationale']
+            }
         },
-        required: ['title', 'syntax', 'templateType', 'pedagogicalNote', 'difficultyLevel', 'targetSkills', 'ageGroup', 'profile', 'estimatedDuration', 'activityContent']
+        required: ['title', 'syntax', 'templateType', 'pedagogicalNote', 'difficultyLevel', 'targetSkills', 'ageGroup', 'profile', 'estimatedDuration', 'activityContent', 'selfCritique']
     };
 
     try {

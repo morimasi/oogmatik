@@ -1,12 +1,15 @@
 import React from 'react';
 import { InfographicActivityResult } from '@/types/infographic';
 import { NativeInfographicRenderer } from '@/components/NativeInfographicRenderer';
+import { useInfographicStudio } from '../../hooks/useInfographicStudio';
 
 interface InfographicPreviewProps {
     result: InfographicActivityResult;
 }
 
 export const InfographicPreview: React.FC<InfographicPreviewProps> = ({ result }) => {
+    const { designSchool } = useInfographicStudio();
+
     return (
         <div className="flex-1 overflow-y-auto w-full h-full p-6">
             <div
@@ -17,6 +20,7 @@ export const InfographicPreview: React.FC<InfographicPreviewProps> = ({ result }
                     syntax={result.syntax}
                     height="auto"
                     className="min-h-[500px]"
+                    designSchool={designSchool}
                 />
             </div>
 

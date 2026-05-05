@@ -7,6 +7,7 @@
 
 import React, { useState } from 'react';
 import { useInfographicLayoutStore } from '../../../store/useInfographicLayoutStore';
+import { useInfographicStudio, DesignSchool } from '../hooks/useInfographicStudio';
 import { printService } from '../../../utils/printService';
 
 const FmtBtn: React.FC<{
@@ -62,6 +63,7 @@ const SliderControl: React.FC<{
 export const PremiumEditToolbar: React.FC = () => {
   const [activePanel, setActivePanel] = useState<string | null>(null);
   const { layoutConfig, updateLayout, undo, redo, canUndo, canRedo } = useInfographicLayoutStore();
+  const { designSchool, setDesignSchool } = useInfographicStudio();
 
   const togglePanel = (panel: string) => {
     setActivePanel(activePanel === panel ? null : panel);
@@ -88,6 +90,20 @@ export const PremiumEditToolbar: React.FC = () => {
             <i className="fa-solid fa-file-pdf text-sm"></i>
             <span>PDF</span>
           </FmtBtn>
+        </div>
+
+        <div className="flex items-center gap-1 border-r border-[var(--border-color)] pr-3">
+          <select
+            value={designSchool}
+            onChange={(e) => setDesignSchool(e.target.value as DesignSchool)}
+            className="px-2 py-1.5 rounded-xl text-xs font-bold bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-primary)] outline-none focus:border-[var(--accent-color)] cursor-pointer"
+            title="Görsel Ekol (Tasarım Sistemi)"
+          >
+            <option value="default">Standart (Eğitim)</option>
+            <option value="warm-editorial">Pastel (Göz Yormaz)</option>
+            <option value="brutalist">Brutalist (Yüksek Kontrast)</option>
+            <option value="tech-utility">Terminal (Analitik)</option>
+          </select>
         </div>
 
         <div className="flex items-center gap-1 border-r border-[var(--border-color)] pr-3">

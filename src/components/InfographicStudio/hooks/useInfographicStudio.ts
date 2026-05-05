@@ -4,6 +4,7 @@ import { InfographicCategoryId } from '../constants/categoryConfig';
 import { useUIStore } from '../../../store/useUIStore';
 
 export type InfographicGenMode = 'fast' | 'ai';
+export type DesignSchool = 'default' | 'brutalist' | 'warm-editorial' | 'tech-utility';
 
 interface UseInfographicStudioProps {
     initialCategory?: InfographicCategoryId;
@@ -18,6 +19,7 @@ export const useInfographicStudio = ({
     const [selectedActivity, setSelectedActivity] = useState<ActivityType | null>(initialActivity || null);
     const [mode, setMode] = useState<InfographicGenMode>('ai'); // Default AI in V3
     const [isAnonymousMode, setIsAnonymousMode] = useState(false); // KVKK compliance for Clinical
+    const [designSchool, setDesignSchool] = useState<DesignSchool>('default');
 
     const handleCategoryChange = useCallback((categoryId: InfographicCategoryId) => {
         setSelectedCategory(categoryId);
@@ -48,6 +50,8 @@ export const useInfographicStudio = ({
         selectedActivity,
         mode,
         isAnonymousMode,
+        designSchool,
+        setDesignSchool,
         setIsAnonymousMode,
         handleCategoryChange,
         handleActivitySelect,

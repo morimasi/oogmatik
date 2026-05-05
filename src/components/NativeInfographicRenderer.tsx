@@ -106,6 +106,8 @@ export interface NativeInfographicRendererProps {
     onError?: (error: Error) => void;
     /** A4/print modunda true — sabit renkler kullanılır (Dr. Ahmet Kaya standardı) */
     forPrint?: boolean;
+    /** Açık Tasarım Ekolü (Design School) */
+    designSchool?: string;
 }
 
 // ── Renk Paleti ─────────────────────────────────────────────────────────────
@@ -1602,14 +1604,22 @@ export const NativeInfographicRenderer: React.FC<NativeInfographicRendererProps>
     className = '',
     onError,
     forPrint = false,
+    designSchool = 'default',
 }) => {
-    // Selin Arslan — Palette Reflection: Ekran modunda tema rengini oku
-    const themePalette = useMemo(() => getInfographicPalette(forPrint), [forPrint]);
+    // Selin Arslan — Palette Reflection: Ekran modunda tema rengini oku, 
+    // Open-Design ekolü seçildiyse ona göre şekillendir.
+    const themePalette = useMemo(() => getInfographicPalette(forPrint, designSchool as any), [forPrint, designSchool]);
+    
     // Mevcut PALETTE'yi tema renkleriyle zenginleştir (primary/secondary/accent)
     const activePalette = useMemo(() => ({
         ...PALETTE,
         primary: themePalette.primary,
         secondary: themePalette.secondary,
+        bg: themePalette.bg,
+        card: themePalette.card,
+        text: themePalette.text,
+        textMuted: themePalette.textMuted,
+        border: themePalette.border,
     }), [themePalette]);
 
     const parsed = useMemo(() => {

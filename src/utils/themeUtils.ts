@@ -1,3 +1,5 @@
+import { DesignSchool } from '../components/InfographicStudio/hooks/useInfographicStudio';
+
 /**
  * Oogmatik Tema Yardımcıları
  *
@@ -76,7 +78,7 @@ export function getThemePalette(): {
  *
  * @param forPrint - true ise A4 için sabit renkler döndürür
  */
-export function getInfographicPalette(forPrint = false): {
+export function getInfographicPalette(forPrint = false, designSchool: DesignSchool = 'default'): {
   primary: string;
   secondary: string;
   accent: string;
@@ -86,6 +88,48 @@ export function getInfographicPalette(forPrint = false): {
   textMuted: string;
   border: string;
 } {
+  // 1. Open-Design Ekolleri (Design Schools)
+  // Kullanıcı özel bir ekol seçtiyse, A4 modundan bağımsız olarak o paleti kullan
+  if (designSchool === 'brutalist') {
+    return {
+      primary: '#000000',      // Sert siyah
+      secondary: '#dc2626',    // Sert kırmızı (accent)
+      accent: '#fde047',       // Fosforlu sarı
+      bg: '#ffffff',           // Tam beyaz
+      card: '#ffffff',
+      text: '#000000',
+      textMuted: '#525252',
+      border: '#000000',       // Kalın siyah sınırlar için
+    };
+  }
+  
+  if (designSchool === 'warm-editorial') {
+    return {
+      primary: '#9a3412',      // Kiremit/Pas rengi
+      secondary: '#b45309',    // Sıcak kahve
+      accent: '#fde68a',       // Soft sarı alt ton
+      bg: '#fffbf0',           // Sepia/Krem (Göz yormaz)
+      card: '#ffffff',
+      text: '#431407',         // Koyu sıcak kahve (siyah yerine)
+      textMuted: '#78350f',
+      border: '#fde047',
+    };
+  }
+  
+  if (designSchool === 'tech-utility') {
+    return {
+      primary: '#10b981',      // Matrix yeşili / Cyan
+      secondary: '#059669',
+      accent: '#064e3b',
+      bg: '#0f172a',           // Koyu lacivert/siyah
+      card: '#1e293b',         // Koyu gri kart
+      text: '#f8fafc',         // Açık renk metin
+      textMuted: '#94a3b8',
+      border: '#334155',
+    };
+  }
+
+  // 2. Standart Davranış (Default School)
   if (forPrint) {
     // A4 klinik rapor — tema renginden tam izolasyon (Dr. Ahmet Kaya standardı)
     return {
