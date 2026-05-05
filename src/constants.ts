@@ -393,6 +393,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
     description: 'Hikaye odaklı, görsel ve metin ilişkilendiren testler.',
     icon: 'fa-solid fa-book-open',
     activities: [
+      ActivityType.INFOGRAPHIC_SHORT_ANSWER,
       ActivityType.FIVE_W_ONE_H,
       ActivityType.SENTENCE_5W1H,
       ActivityType.LOGIC_ERROR_HUNTER,
@@ -403,7 +404,6 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       // İnfografik Eklentileri
       ActivityType.INFOGRAPHIC_STORY_MAP,
       ActivityType.INFOGRAPHIC_CHARACTER_ANALYSIS,
-      ActivityType.INFOGRAPHIC_SHORT_ANSWER,
     ],
   },
   {
@@ -433,6 +433,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.INFOGRAPHIC_SYLLABLE_MAP,
       ActivityType.INFOGRAPHIC_VOCAB_TREE,
       ActivityType.INFOGRAPHIC_SENTENCE_BUILDER,
+      ActivityType.INFOGRAPHIC_SHORT_ANSWER,
     ],
   },
   {
