@@ -43,6 +43,10 @@ const tr = (s: string): string =>
     .replace(/ç/g, 'c');
 
 export const generateExamPDF = (sinav: Sinav, config: PrintConfig = DEFAULT_PRINT_CONFIG): void => {
+  // Critical null safety check
+  if (!sinav || !sinav.sorular || !Array.isArray(sinav.sorular)) {
+    throw new Error('Invalid sinav data: sorular array is undefined or invalid');
+  }
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
   const PAGE_W = 210;

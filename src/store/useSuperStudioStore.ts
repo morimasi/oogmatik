@@ -62,7 +62,7 @@ export const useSuperStudioStore = create<SuperStudioState>((set) => ({
   setGenerationMode: (mode) => set({ generationMode: mode }),
 
   toggleTemplate: (templateId) =>
-    set((state) => {
+    set((state: SuperStudioState) => {
       const isSelected = state.selectedTemplates.includes(templateId);
       if (isSelected) {
         // Remove template
@@ -86,18 +86,18 @@ export const useSuperStudioStore = create<SuperStudioState>((set) => ({
     }),
 
   setTemplateSetting: (templateId, payload) =>
-    set((state) => ({
+    set((state: SuperStudioState) => ({
       templateSettings: {
         ...state.templateSettings,
         [templateId]: {
-          ...state.templateSettings[templateId],
-          ...payload,
+          ...(state.templateSettings[templateId] as Record<string, unknown> || {}),
+          ...(payload as Record<string, unknown>),
         },
       },
     })),
 
   addGeneratedContent: (content) =>
-    set((state) => ({
+    set((state: SuperStudioState) => ({
       generatedContents: [...state.generatedContents, content],
     })),
 

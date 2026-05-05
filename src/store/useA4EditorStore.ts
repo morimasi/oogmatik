@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { ContentBlock } from '../types/activityStudio';
 
 interface A4EditorState {
   isEditorOpen: boolean;
@@ -11,11 +12,11 @@ interface A4EditorState {
   setSnapToGrid: (snap: boolean) => void;
   gridSize: number;
   setGridSize: (size: number) => void;
-  blocks: any[];
-  addBlock: (block: any) => void;
+  blocks: ContentBlock[];
+  addBlock: (block: ContentBlock) => void;
 }
 
-export const useA4EditorStore = create<A4EditorState>((set: any) => ({
+export const useA4EditorStore = create<A4EditorState>((set) => ({
   isEditorOpen: false,
   setEditorOpen: (isOpen: boolean) => set({ isEditorOpen: isOpen }),
   selectedBlockId: null,

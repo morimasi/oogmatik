@@ -45,6 +45,11 @@ export const snapshotService = {
       throw new AppError(message, 'INTERNAL_ERROR', 500);
     }
 
+    // Null safety check - CRITICAL FIX
+    if (!canvases || !Array.isArray(canvases)) {
+      throw new AppError('Canvas array is undefined or invalid', 'INTERNAL_ERROR', 500);
+    }
+
     if (action === 'download') {
       canvases.forEach((canvas, i) => {
         const link = document.createElement('a');

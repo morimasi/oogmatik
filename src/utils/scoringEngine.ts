@@ -51,9 +51,23 @@ export const scoringEngine = {
       const value = answers[q.id] || 0; // 0: Hiç - 4: Her Zaman
       const maxVal = 4;
 
-      // Add to category
-      scores[q.category].rawScore += value * q.weight;
-      scores[q.category].maxScore += maxVal * q.weight;
+      // Add to category - NULL SAFETY FIX
+      let catScore = scores[q.category];
+      if (!catScore) {
+        catScore = {
+          rawScore: 0,
+          maxScore: 0,
+          score: 0,
+          findings: [],
+          riskLevel: 'low',
+          riskLabel: 'Düşük Risk',
+          color: CATEGORY_COLORS[q.category] || '#666',
+        };
+        scores[q.category] = catScore;
+      }
+      
+      catScore.rawScore += value * q.weight;
+      catScore.maxScore += maxVal * q.weight;
 
       // Add to totals
       totalWeightedScore += value * q.weight;
@@ -61,13 +75,15 @@ export const scoringEngine = {
 
       // Detailed Findings (If High Frequency)
       if (value >= 3) {
-        scores[q.category].findings.push(q.text);
+        catScore.findings.push(q.text);
       }
     });
 
     // Calculate Percentages and Risks
-    categories.forEach((cat) => {
+    categories.forEach((cat: EvaluationCategory) => {
       const data = scores[cat];
+      if (!data) return; // NULL SAFETY
+      
       if (data.maxScore > 0) {
         data.score = Math.round((data.rawScore / data.maxScore) * 100);
       } else {
@@ -92,7 +108,19 @@ export const scoringEngine = {
         : 0;
 
     return {
+      id: `screening_${Date.now()}`,
+      studentId: 'unknown',
+      studentName,
+      age: 8,
+      grade: '2',
+      date: new Date(),
       totalScore,
+      overallScore: totalScore,
+      riskLevel: totalScore < 35 ? 'low' : totalScore < 65 ? 'medium' : 'high',
+      status: 'completed' as const,
+      recommendations: [],
+      strengths: [],
+      weaknesses: [],
       categoryScores: scores as Record<
         EvaluationCategory,
         {
@@ -106,7 +134,6 @@ export const scoringEngine = {
         }
       >,
       generatedAt: new Date().toISOString(),
-      studentName,
       respondentRole: respondentType,
     };
   },

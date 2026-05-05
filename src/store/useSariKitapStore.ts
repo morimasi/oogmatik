@@ -129,7 +129,7 @@ interface SariKitapState {
   toggleGrid: () => void;
 }
 
-export const useSariKitapStore = create<SariKitapState>((set: any) => ({
+export const useSariKitapStore = create<SariKitapState>((set) => ({
   activeType: 'nokta',
   config: createDefaultConfig('nokta'),
   isGenerating: false,

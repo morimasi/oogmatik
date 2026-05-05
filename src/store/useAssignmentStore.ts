@@ -31,7 +31,7 @@ interface AssignmentState {
   updateAssignment: (id: string, updates: AssignmentUpdatePayload) => Promise<boolean>;
 }
 
-export const useAssignmentStore = create<AssignmentState>()((set: any, get: any) => ({
+export const useAssignmentStore = create<AssignmentState>()((set, get) => ({
   assignments: [],
   isLoading: false,
   isAssignModalOpen: false,

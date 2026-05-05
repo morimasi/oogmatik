@@ -650,6 +650,46 @@ export function getThreatStatistics(): {
   };
 }
 
+/**
+ * Sanitize input for AI prompt usage
+ * Main entry point for prompt security
+ */
+export const sanitizeForPrompt = (
+  input: string,
+  maxLength: number = 2000,
+  strict: boolean = true
+): { sanitized: string; threats: ThreatDetectionResult[]; isSafe: boolean } => {
+  if (!input || typeof input !== 'string') {
+    return { sanitized: '', threats: [], isSafe: true };
+  }
+
+  // Length check
+  if (input.length > maxLength) {
+    if (strict) {
+      throw new ValidationError(`Input too long: ${input.length} > ${maxLength}`, {
+        field: 'input',
+        value: input.length,
+        limit: maxLength
+      });
+    }
+    input = input.substring(0, maxLength);
+  }
+
+  // Threat detection
+  const threats = detectPatterns(input);
+  const isSafe = !exceedsThreshold(threats);
+
+  // Sanitize dangerous patterns
+  let sanitized = input;
+  for (const threat of threats) {
+    if (threat.level === 'high' || threat.level === 'critical') {
+      sanitized = sanitized.replace(threat.pattern, '[REDACTED]');
+    }
+  }
+
+  return { sanitized, threats, isSafe };
+};
+
 // ============================================================
 // EXPORTS
 // ============================================================

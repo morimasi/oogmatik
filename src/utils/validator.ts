@@ -49,11 +49,12 @@ export class Validator {
                 }
             }
 
-            // Property types
+            // Property types - NULL SAFETY FIX
             if (schema.properties && this.isObject(schema.properties)) {
                 for (const key in schema.properties) {
-                    if (data[key] !== undefined) {
-                        const isValid = this.validateSchema(data[key], schema.properties[key] as Record<string, unknown>);
+                    const propertySchema = schema.properties[key];
+                    if (propertySchema && this.isObject(propertySchema) && data[key] !== undefined) {
+                        const isValid = this.validateSchema(data[key], propertySchema as Record<string, unknown>);
                         if (!isValid) {
                             logWarn(`Validation Error: Key '${key}' failed validation`, data[key]);
                             return false;

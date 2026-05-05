@@ -19,7 +19,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
     persist<AuthState>(
-        (set: any, get: any) => ({
+        (set, get) => ({
             user: null,
             isLoading: true,
 
@@ -31,7 +31,7 @@ export const useAuthStore = create<AuthState>()(
                     }
                 });
 
-                const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: any) => {
+                const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
                     if (firebaseUser) {
                         try {
                             const currentUser = await authService.getCurrentUser();
