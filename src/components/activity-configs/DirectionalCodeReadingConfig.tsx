@@ -54,11 +54,12 @@ export const DirectionalCodeReadingConfig: React.FC<ConfigProps> = ({ options, o
                     {/* Aesthetic Style */}
                     <div className="space-y-2">
                         <label className="text-[10px] font-black text-zinc-400 uppercase block tracking-widest">Görünüm Stili</label>
-                        <div className="grid grid-cols-3 gap-2">
+                        <div className="grid grid-cols-2 gap-2">
                             {[
                                 { id: 'standard', label: 'STANDART' },
                                 { id: 'premium', label: 'PREMIUM' },
                                 { id: 'glassmorphism', label: 'GLASS' },
+                                { id: 'ultra-compact', label: 'ULTRA KOMPAKT' },
                             ].map((style) => (
                                 <button
                                     key={style.id}
@@ -79,11 +80,11 @@ export const DirectionalCodeReadingConfig: React.FC<ConfigProps> = ({ options, o
                         <div>
                             <div className="flex justify-between items-center text-[10px] font-black text-zinc-500 uppercase mb-2">
                                 <span>Matris</span>
-                                <span className="text-indigo-600">{options.gridSize || 5}x{options.gridSize || 5}</span>
+                                <span className="text-indigo-600">{options.gridSize || 8}x{options.gridSize || 8}</span>
                             </div>
                             <input
                                 type="range" min={3} max={10} step={1}
-                                value={options.gridSize || 5}
+                                value={options.gridSize || 8}
                                 onChange={e => onChange('gridSize', parseInt(e.target.value))}
                                 className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                             />
@@ -92,15 +93,40 @@ export const DirectionalCodeReadingConfig: React.FC<ConfigProps> = ({ options, o
                         <div>
                             <div className="flex justify-between items-center text-[10px] font-black text-zinc-500 uppercase mb-2">
                                 <span>Bulmaca</span>
-                                <span className="text-indigo-600">{options.puzzleCount || 1} Adet</span>
+                                <span className="text-indigo-600">{options.puzzleCount || 3} Adet</span>
                             </div>
                             <input
                                 type="range" min={1} max={4} step={1}
-                                value={options.puzzleCount || 1}
+                                value={options.puzzleCount || 3}
                                 onChange={e => onChange('puzzleCount', parseInt(e.target.value))}
                                 className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                             />
                         </div>
+                    </div>
+
+                    {/* Ultra Compact Mode Toggle */}
+                    <div className="p-4 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-2xl border border-purple-200 dark:border-purple-700">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <i className="fa-solid fa-compress text-purple-500"></i>
+                                <span className="text-[10px] font-black text-purple-700 dark:text-purple-300 uppercase tracking-wider">Ultra Kompakt Mod</span>
+                            </div>
+                            <button
+                                onClick={() => onChange('compactMode' as any, !(options as any).compactMode)}
+                                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                                    (options as any).compactMode !== false ? 'bg-purple-600' : 'bg-zinc-300 dark:bg-zinc-600'
+                                }`}
+                            >
+                                <span
+                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                        (options as any).compactMode !== false ? 'translate-x-6' : 'translate-x-1'
+                                    }`}
+                                />
+                            </button>
+                        </div>
+                        <p className="text-[8px] text-purple-600 dark:text-purple-400 mt-2 italic">
+                            A4 sayfasında maksimum puzzle yoğunluğu için minimal boşluk
+                        </p>
                     </div>
 
                     <div className="p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-2xl border border-indigo-100 dark:border-indigo-800/30">
@@ -120,7 +146,7 @@ export const DirectionalCodeReadingConfig: React.FC<ConfigProps> = ({ options, o
             <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-800/30 shadow-sm shadow-amber-900/5">
                 <i className="fa-solid fa-sparkles text-amber-500"></i>
                 <p className="text-[9px] font-bold text-amber-800 dark:text-amber-300 leading-tight italic">
-                    Premium modlar, A4 çıktılarını daha profesyonel ve klinik standartlarda optimize eder.
+                    🚀 Ultra Premium: 8x8 grid, 3-4 puzzle, kompakt layout ve dolu A4 sayfası!
                 </p>
             </div>
         </div>

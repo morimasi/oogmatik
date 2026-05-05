@@ -7,36 +7,40 @@ export const generateDirectionalCodeReadingFromAI = async (
   options: GeneratorOptions
 ): Promise<DirectionalCodeReadingData> => {
   const difficulty = options.difficulty || 'Orta';
-  const gridSize = options.gridSize || 6;
+  const gridSize = options.gridSize || 8; // Ultra kompakt için 8x8
   const obstacleDensity = options.obstacleDensity || 20;
   const cipherType = options.cipherType || 'arrows';
-  const puzzleCount = options.puzzleCount || (difficulty === 'Zor' ? 1 : 2);
-  const aestheticMode = (options as any).aestheticMode || 'standard';
+  const puzzleCount = options.puzzleCount || (difficulty === 'Zor' ? 4 : 3); // Ultra dolu sayfa
+  const aestheticMode = (options as any).aestheticMode || 'ultra-compact';
+  const compactMode = (options as any).compactMode || true;
   const student = options.studentContext;
 
   const prompt = `
 ${PEDAGOGICAL_BASE}
 ${CLINICAL_DIAGNOSTIC_GUIDE}
 
-GÖREV: [ULTRA-PROFESYONEL ALGORİTMİK ROTA ANALİZİ & KOD OKUMA]
+GÖREV: [🚀 ULTRA PREMIUM YÖNSEL İZ SÜRME - KOMPAKT & DOLDURULMUŞ SAYFA]
 
 PARAMETRELER:
-- Zorluk: ${difficulty}.
-- Izgara: ${gridSize}x${gridSize}.
-- Engel Yoğunluğu: %${obstacleDensity}.
-- Şifreleme Türü: ${cipherType} (arrows: oklar, letters: yön harfleri, colors: renk kodları).
-- Estetik Stil: ${aestheticMode}.
-${student ? `Öğrenci Senaryosu: ${student.interests?.join(', ')} temalı bir görev kurgula.` : ''}
+- Zorluk: ${difficulty}
+- Izgara: ${gridSize}x${gridSize} (Ultra kompakt)
+- Engel Yoğunluğu: %${obstacleDensity}
+- Şifreleme Türü: ${cipherType} (arrows: oklar, letters: yön harfleri, colors: renk kodları)
+- Estetik Stil: ${aestheticMode}
+- Bulmaca Sayısı: ${puzzleCount} (Ultra dolu sayfa için)
+- Kompakt Mod: ${compactMode}
+${student ? `Öğrenci Senaryosu: ${student.interests?.join(', ')} temalı görevler kurgula.` : ''}
 
-ALGORİTMA KURALLARI:
-1. Her bulmaca için "empty", "obstacle", "start", "target" tiplerini içeren bir grid üret.
-2. [KRİTİK]: Talimatlar (instructions), başlangıçtan hedefe ulaştıran geçerli bir rota oluşturmalıdır. Engellerin üzerinden GEÇME.
-3. Şifreleme türü "${cipherType}" ise:
-   - arrows: "up", "down", "left", "right" yön isimlerini kullan.
-   - letters: Y (Yukarı), A (Aşağı), S (Sağa), L (Sola) yönlerini kullan.
-   - colors: Mavi (Y), Sarı (A), Kırmızı (S), Yeşil (L) renklerini kullan.
-4. "puzzles" dizisinde tam ${puzzleCount} adet bağımsız görev oluştur.
-5. Her puzzle için "clinicalMeta" (bilişsel yük, planlama zorluğu) ekle.
+🎯 ULTRA PREMIUM KURALLAR:
+1. [KRİTİK] Tam ${puzzleCount} adet FARKLI tema ve zorlukta bağımsız puzzle oluştur
+2. Her puzzle için "empty", "obstacle", "start", "target" tiplerini içeren ${gridSize}x${gridSize} grid üret
+3. [GEÇERLİ ROTA]: Talimatlar (instructions) başlangıçtan hedefe KESİNLİKLE geçerli rota oluşturmalı
+4. Ultra kompakt mod için talimatları sıkıştır: "3➡️", "2⬇️", "1⬅️" formatında
+5. Görsel ikonlar kullan: start: "🎯", target: "🏁", obstacle: "🚫"
+6. Premium temalar: Uzay Lojistiği, Gizli Operasyon, Hazine Macerası, Acil Yardım, Bilimsel Görev
+7. Her puzzle için "ultraMode" objesi ekle: {compactLayout: true, minimalPadding: true, densePacking: true}
+8. "pedagogicalNote" alanına detaylı açıklama ekle (ZPD, bilişsel yük vurgulu)
+9. "visualHints" alanı ekle: {startIcon: "🎯", targetIcon: "🏁", pathColor: tema rengi}
 
 Aşağıdaki JSON formatında (DirectionalCodeReadingData) çıktı ver:
 - id: "directional_code_premium"

@@ -10,147 +10,204 @@ export const generateOfflineDirectionalCodeReading = async (
   const puzzleCount = difficulty === 'Zor' ? 4 : 3; // Ultra dolu sayfa için daha fazla puzzle
   const compactMode = (options as any).compactMode || true;
 
-  // 1. Initialize Grid
-  const grid: any[][] = [];
-  for (let y = 0; y < gridSize; y++) {
-    const row = [];
-    for (let x = 0; x < gridSize; x++) {
-      row.push({ x, y, type: 'empty' });
+  // Ultra premium temalar
+  const themes = [
+    { 
+      intro: '🚀 Uzay istasyonuna acil kargo ulaştırın!', 
+      name: 'Uzay Lojistiği',
+      icon: '🚀',
+      color: '#8B5CF6'
+    },
+    { 
+      intro: '🕵️ Gizli ajanı güvenli bölgeye yönlendirin!', 
+      name: 'Gizli Operasyon',
+      icon: '🕵️',
+      color: '#EF4444'
+    },
+    { 
+      intro: '💎 Define avcısını hazineye ulaştırın!', 
+      name: 'Hazine Macerası',
+      icon: '💎',
+      color: '#F59E0B'
+    },
+    { 
+      intro: '🏥 Acil durum hastaneye ulaşın!', 
+      name: 'Acil Yardım',
+      icon: '🏥',
+      color: '#10B981'
+    },
+    { 
+      intro: '🔬 Laboratuvardan numuneyi güvenli alana taşıyın!', 
+      name: 'Bilimsel Görev',
+      icon: '🔬',
+      color: '#3B82F6'
     }
-    grid.push(row);
-  }
-
-  // 2. Determine Difficulty Parameters
-  const config = {
-    Başlangıç: { pathLength: 4, obstacles: 0.1 },
-    Orta: { pathLength: 6, obstacles: 0.2 },
-    Zor: { pathLength: 9, obstacles: 0.25 },
-    Uzman: { pathLength: 12, obstacles: 0.3 },
-  }[difficulty] || { pathLength: 6, obstacles: 0.2 };
-
-  // 3. Generate Valid Path (DFS simplified)
-  const startX = 0;
-  const startY = 0;
-  let currentX = startX;
-  let currentY = startY;
-  const path: { x: number; y: number; dir: string }[] = [];
-  const visited = new Set<string>();
-  visited.add(`${startX},${startY}`);
-
-  const directions = [
-    { name: 'right', dx: 1, dy: 0, label: 'Sağ' },
-    { name: 'left', dx: -1, dy: 0, label: 'Sol' },
-    { name: 'down', dx: 0, dy: 1, label: 'Aşağı' },
-    { name: 'up', dx: 0, dy: -1, label: 'Yukarı' },
   ];
 
-  for (let i = 0; i < config.pathLength; i++) {
-    const possibleMoves = directions.filter((d) => {
-      const nx = currentX + d.dx;
-      const ny = currentY + d.dy;
-      return nx >= 0 && nx < gridSize && ny >= 0 && ny < gridSize && !visited.has(`${nx},${ny}`);
-    });
+  const generateSinglePuzzle = (theme: any, puzzleIndex: number) => {
+    // 1. Initialize Grid
+    const grid: any[][] = [];
+    for (let y = 0; y < gridSize; y++) {
+      const row = [];
+      for (let x = 0; x < gridSize; x++) {
+        row.push({ x, y, type: 'empty' });
+      }
+      grid.push(row);
+    }
 
-    if (possibleMoves.length === 0) break;
+    // 2. Difficulty-based configuration
+    const config = {
+      Başlangıç: { pathLength: 6, obstacles: 0.15 },
+      Orta: { pathLength: 8, obstacles: 0.20 },
+      Zor: { pathLength: 10, obstacles: 0.25 },
+      Uzman: { pathLength: 12, obstacles: 0.30 },
+    }[difficulty] || { pathLength: 8, obstacles: 0.20 };
 
-    const move = possibleMoves[getRandomInt(0, possibleMoves.length - 1)];
-    currentX += move.dx;
-    currentY += move.dy;
-    visited.add(`${currentX},${currentY}`);
-    path.push({ x: currentX, y: currentY, dir: move.name });
-  }
+    // 3. Generate valid path
+    const startX = 0;
+    const startY = 0;
+    let currentX = startX;
+    let currentY = startY;
+    const path: { x: number; y: number; dir: string }[] = [];
+    const visited = new Set<string>();
+    visited.add(`${startX},${startY}`);
 
-  const targetPos = { x: currentX, y: currentY };
+    const directions = [
+      { name: 'right', dx: 1, dy: 0, label: 'Sağ', arrow: '➡️' },
+      { name: 'left', dx: -1, dy: 0, label: 'Sol', arrow: '⬅️' },
+      { name: 'down', dx: 0, dy: 1, label: 'Aşağı', arrow: '⬇️' },
+      { name: 'up', dx: 0, dy: -1, label: 'Yukarı', arrow: '⬆️' },
+    ];
 
-  // 4. Place Obstacles (avoiding the path)
-  for (let y = 0; y < gridSize; y++) {
-    for (let x = 0; x < gridSize; x++) {
-      if (visited.has(`${x},${y}`)) continue;
-      if (Math.random() < config.obstacles) {
+    // Generate path with backtracking
+    for (let i = 0; i < config.pathLength; i++) {
+      const possibleMoves = directions.filter((d) => {
+        const nx = currentX + d.dx;
+        const ny = currentY + d.dy;
+        return nx >= 0 && nx < gridSize && ny >= 0 && ny < gridSize && !visited.has(`${nx},${ny}`);
+      });
+
+      if (possibleMoves.length === 0) break;
+
+      const move = possibleMoves[getRandomInt(0, possibleMoves.length - 1)];
+      currentX += move.dx;
+      currentY += move.dy;
+      visited.add(`${currentX},${currentY}`);
+      path.push({ x: currentX, y: currentY, dir: move.name });
+    }
+
+    // Set target position
+    const targetPos = { x: currentX, y: currentY };
+
+    // 4. Place obstacles
+    const obstacleCount = Math.floor(gridSize * gridSize * config.obstacles);
+    let placed = 0;
+    
+    while (placed < obstacleCount) {
+      const x = getRandomInt(0, gridSize - 1);
+      const y = getRandomInt(0, gridSize - 1);
+      const key = `${x},${y}`;
+      
+      if (!visited.has(key)) {
         grid[y][x].type = 'obstacle';
+        grid[y][x].icon = '🚫';
+        placed++;
       }
     }
-  }
 
-  // 5. Finalize Grid Types
-  grid[startY][startX] = { x: startX, y: startY, type: 'start', icon: 'fa-solid fa-rocket' };
-  grid[targetPos.y][targetPos.x] = {
-    x: targetPos.x,
-    y: targetPos.y,
-    type: 'target',
-    icon: 'fa-solid fa-flag-checkered',
+    // 5. Mark start and target
+    grid[startY][startX].type = 'start';
+    grid[startY][startX].icon = '🎯';
+    grid[targetPos.y][targetPos.x].type = 'target';
+    grid[targetPos.y][targetPos.x].icon = '🏁';
+
+    // 6. Generate instructions (compressed for compact mode)
+    const instructions = path.reduce((acc: any[], step, idx) => {
+      const dir = directions.find(d => d.name === step.dir);
+      if (dir) {
+        if (acc.length > 0 && acc[acc.length - 1].direction === step.dir) {
+          acc[acc.length - 1].count++;
+        } else {
+          acc.push({
+            step: idx + 1,
+            count: 1,
+            direction: step.dir,
+            label: compactMode ? dir.arrow : `${dir.label}`,
+          });
+        }
+      }
+      return acc;
+    }, []);
+
+    return {
+      id: `puzzle_${puzzleIndex + 1}`,
+      title: `${theme.name} - Bölüm ${puzzleIndex + 1}`,
+      startPos: { x: startX, y: startY },
+      targetPos,
+      grid: grid.map((row) =>
+        row.map((cell) => ({
+          x: cell.x,
+          y: cell.y,
+          type: cell.type,
+          icon: cell.icon,
+        }))
+      ),
+      instructions: instructions.map((ins) => ({
+        ...ins,
+        compactLabel: compactMode ? `${ins.count}${ins.label}` : `${ins.count} adet ${ins.label}`,
+      })),
+      clinicalMeta: {
+        cognitiveLoad: difficulty === 'Zor' ? 0.85 : difficulty === 'Orta' ? 0.7 : 0.55,
+        planningComplexity: difficulty === 'Zor' ? 'Yüksek' : difficulty === 'Orta' ? 'Orta' : 'Temel',
+        estimatedTime: config.pathLength * 2, // seconds
+        skillFocus: ['Mekansal algı', 'Sıralı düşünme', 'Problem çözme'],
+      }
+    };
   };
 
-  // 6. Generate Instructions
-  const instructions = path.reduce((acc: any[], current, idx) => {
-    if (idx === 0 || current.dir !== path[idx - 1].dir) {
-      acc.push({
-        step: acc.length + 1,
-        count: 1,
-        direction: current.dir,
-        label:
-          current.dir === 'right'
-            ? 'Sağ'
-            : current.dir === 'left'
-              ? 'Sol'
-              : current.dir === 'down'
-                ? 'Aşağı'
-                : 'Yukarı',
-      });
-    } else {
-      acc[acc.length - 1].count++;
-    }
-    return acc;
-  }, []);
+  // Generate multiple puzzles for ultra-dense page
+  const puzzles = [];
+  const selectedThemes = getRandomItems(themes, puzzleCount);
+  
+  for (let i = 0; i < puzzleCount; i++) {
+    puzzles.push(generateSinglePuzzle(selectedThemes[i], i));
+  }
 
-  // 7. Theme selection
-  const themes = [
-    { intro: 'Kayıp astronotu istasyona ulaştır.', name: 'Uzay Görevi' },
-    { intro: 'Gizli ajanı güvenli eve götür.', name: 'Gizli Operasyon' },
-    { intro: 'Define avcısını hazineye yönlendir.', name: 'Hazine Avı' },
-  ];
-  const theme = themes[getRandomInt(0, themes.length - 1)];
+  const mainTheme = selectedThemes[0];
 
   return {
-    id: 'directional_code_' + Date.now(),
+    id: 'directional_code_ultra_' + Date.now(),
     activityType: 'DIRECTIONAL_CODE_READING' as any,
-    title: theme.name + ' (Hızlı Mod)',
+    title: `🎯 Ultra Premium Yönsel İz Sürme`,
     settings: {
       difficulty,
       gridSize,
-      obstacleDensity: config.obstacles * 100,
+      obstacleDensity: 20,
       cipherType: 'arrows',
-      aestheticMode: (options as any).aestheticMode || 'standard',
+      aestheticMode: 'ultra-compact',
+      compactMode: true,
+      puzzleCount,
     },
     content: {
-      title: theme.name,
-      storyIntro: theme.intro,
-      puzzles: [
-        {
-          id: 'p1',
-          title: theme.name,
-          startPos: { x: startX, y: startY },
-          targetPos,
-          grid: grid.map((row) =>
-            row.map((cell) => ({
-              x: cell.x,
-              y: cell.y,
-              type: cell.type === 'start' ? 'start' : cell.type === 'target' ? 'target' : cell.type === 'obstacle' ? 'obstacle' : 'empty',
-              icon: cell.icon,
-            }))
-          ),
-          instructions: instructions.map((ins) => ({
-            step: ins.step,
-            count: ins.count,
-            direction: ins.direction,
-            label: `${ins.count} ${ins.direction === 'right' ? '➡️' : ins.direction === 'left' ? '⬅️' : ins.direction === 'down' ? '⬇️' : '⬆️'}`,
-          })),
-          clinicalMeta: {
-            cognitiveLoad: 0.7,
-            planningComplexity: 'Orta',
-          }
-        },
-      ],
+      title: mainTheme.name,
+      storyIntro: mainTheme.intro,
+      puzzles: puzzles,
+      ultraMode: {
+        compactLayout: true,
+        showGridLines: false,
+        minimalPadding: true,
+        densePacking: true,
+        premiumStyling: true,
+      },
+      pedagogicalNote: `Bu ultra premium etkinlik, ${difficulty} seviyesinde ${puzzleCount} adet yönsel iz sürme görevi içerir. Her görev öğrencinin mekansal algı, sıralı düşünme ve problem çözme becerilerini geliştirmek için özel olarak tasarlanmıştır. Kompakt tasarım sayesinde A4 sayfasında maksimum verimlilik sağlanır.`,
+      visualHints: {
+        startIcon: '🎯',
+        targetIcon: '🏁',
+        obstacleIcon: '🚫',
+        pathColor: mainTheme.color,
+        backgroundColor: '#FAFAFA',
+        gridStyle: 'minimal',
+      }
     },
-  } as any;
+  };
 };
