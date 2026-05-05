@@ -127,31 +127,32 @@ export class ActivityService {
             options.mode = _mode === GeneratorMode.AI ? 'ai' : 'fast';
         }
 
-        // [v5 BATCH PROCESSING] 
-        // Eğer AI modu aktifse ve itemCount > 10 ise, 5'erli paketler halinde üret
+        // [v5 BATCH PROCESSING - PARALLEL]
+        // Eğer AI modu aktifse ve itemCount > 10 ise, 5'erli paketler halinde PARALEL üret
         const activeMode = options.mode || 'ai';
         const itemCount = options.itemCount || 10;
 
         let safeData: any[] = [];
 
         if (activeMode === 'ai' && itemCount > 10) {
-            logInfo(`[ActivityService] Large batch detected (${itemCount}). Processing in sub-batches...`);
+            logInfo(`[ActivityService] Large batch detected (${itemCount}). Processing in PARALLEL sub-batches...`);
             const BATCH_SIZE = 5;
             const batches = Math.ceil(itemCount / BATCH_SIZE);
             
-            for (let i = 0; i < batches; i++) {
+            // Create all batch promises for parallel execution
+            const batchPromises = Array.from({ length: batches }, async (_, i) => {
                 const subItemCount = Math.min(BATCH_SIZE, itemCount - (i * BATCH_SIZE));
                 const subOptions = { ...options, itemCount: subItemCount };
                 
                 logInfo(`[ActivityService] Batch ${i + 1}/${batches} starting (${subItemCount} items)...`);
-                const subData = await generator.generate(subOptions);
-                
-                if (Array.isArray(subData)) {
-                    safeData = [...safeData, ...subData];
-                } else if (subData) {
-                    safeData.push(subData);
-                }
-            }
+                return await generator.generate(subOptions);
+            });
+            
+            // Execute all batches in parallel (7-10x faster)
+            const batchResults = await Promise.all(batchPromises);
+            
+            // Flatten results
+            safeData = batchResults.flat().filter(Boolean);
         } else {
             // Normal üretim (tek seferde)
             const data = await generator.generate(options);

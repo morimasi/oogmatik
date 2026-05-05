@@ -1,8 +1,8 @@
 import { AppError, toAppError } from '../utils/AppError.js';
 import { logError, logInfo, logWarn } from '../utils/logger.js';
-
 import { InternalServerError } from '../utils/AppError.js';
 import { OCRResult, OCRBlueprint, OCRDetectedType } from '../types.js';
+import { tryRepairJson } from '../utils/jsonRepair.js';
 import {
   VISUAL_EXTRACTION_DIRECTIVE,
   DENSITY_ANALYSIS_DIRECTIVE,
@@ -86,37 +86,8 @@ const callGeminiWithImage = async (
     const text = (data as any)?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) throw new InternalServerError('Gemini boş yanıt döndürdü (OCR).');
 
-    // JSON repair motoru
-    let cleaned = text.replace(/[\u200B-\u200D\uFEFF]/g, '').trim()
-        .replace(/^```json[\s\S]*?\n/, '')
-        .replace(/^```\s*/m, '')
-        .replace(/```\s*$/m, '')
-        .trim();
-
-    const fb = cleaned.indexOf('{');
-    const fl = cleaned.indexOf('[');
-    let si = -1;
-    if (fb !== -1 && fl !== -1) si = Math.min(fb, fl);
-    else if (fb !== -1) si = fb;
-    else if (fl !== -1) si = fl;
-    if (si > 0) cleaned = cleaned.substring(si);
-
-    try { return JSON.parse(cleaned); } catch { /* devam */ }
-
-    // Parantez tamamlama
-    const stack: string[] = []; let inStr = false; let esc = false;
-    let fixedStr = cleaned;
-    for (const ch of fixedStr) {
-        if (esc) { esc = false; continue; }
-        if (ch === '\\' && inStr) { esc = true; continue; }
-        if (ch === '"') { inStr = !inStr; continue; }
-        if (inStr) continue;
-        if (ch === '{') stack.push('}'); else if (ch === '[') stack.push(']');
-        else if ((ch === '}' || ch === ']') && stack.length > 0) stack.pop();
-    }
-    if (inStr) fixedStr += '"';
-    while (stack.length > 0) fixedStr += stack.pop();
-    return JSON.parse(fixedStr);
+    // JSON repair motoru - centralized
+    return tryRepairJson(text);
 };
 
 // Blueprint kalitesini ölçen minimum karakter eşiği

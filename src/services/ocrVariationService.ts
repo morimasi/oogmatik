@@ -10,6 +10,7 @@ import { ValidationError, InternalServerError } from '../utils/AppError.js';
 import { retryWithBackoff } from '../utils/errorHandler.js';
 import { logError } from '../utils/logger.js';
 import { analyzeImage } from './geminiClient.js';
+import { tryRepairJson } from '../utils/jsonRepair.js';
 import type {
   OCRResult,
   SingleWorksheetData,
@@ -63,32 +64,8 @@ const callGeminiDirect = async (prompt: string): Promise<unknown> => {
   const text = (data as any)?.candidates?.[0]?.content?.parts?.[0]?.text;
   if (!text) throw new InternalServerError('Gemini boş yanıt döndürdü (varyasyon).');
 
-  // JSON repair
-  let cleaned = text.replace(/[\u200B-\u200D\uFEFF]/g, '').trim()
-    .replace(/^```json[\s\S]*?\n/, '')
-    .replace(/^```\s*/m, '')
-    .replace(/```\s*$/m, '')
-    .trim();
-  const idx = Math.min(
-    cleaned.indexOf('{') === -1 ? Infinity : cleaned.indexOf('{'),
-    cleaned.indexOf('[') === -1 ? Infinity : cleaned.indexOf('[')
-  );
-  if (idx > 0 && idx !== Infinity) cleaned = cleaned.substring(idx);
-
-  try { return JSON.parse(cleaned); } catch { /* devam */ }
-  // Parantez tamamlama
-  const stack: string[] = []; let inStr = false; let esc = false;
-  for (const ch of cleaned) {
-    if (esc) { esc = false; continue; }
-    if (ch === '\\' && inStr) { esc = true; continue; }
-    if (ch === '"') { inStr = !inStr; continue; }
-    if (inStr) continue;
-    if (ch === '{') stack.push('}'); else if (ch === '[') stack.push(']');
-    else if ((ch === '}' || ch === ']') && stack.length > 0) stack.pop();
-  }
-  if (inStr) cleaned += '"';
-  while (stack.length > 0) cleaned += stack.pop();
-  return JSON.parse(cleaned);
+  // JSON repair - centralized
+  return tryRepairJson(text);
 };
 
 // ─── TYPE DEFINITIONS ────────────────────────────────────────────────────
