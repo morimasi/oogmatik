@@ -67,6 +67,14 @@ export const VisualOddOneOutSheet = ({
   data: VisualOddOneOutData;
   settings?: StyleSettings;
 }) => {
+  // Graceful fallback for invalid or missing data
+  if (!data || !data.rows || (Array.isArray(data.rows) && data.rows.length === 0)) {
+    return (
+      <div className="p-4 border border-yellow-300 bg-yellow-50 text-yellow-800 rounded-md">
+        Geçersiz infografik verisi veya içerik yok. Lütfen içerik kaynağını kontrol edin.
+      </div>
+    );
+  }
   const settings = data.settings;
   const isLandscape = globalSettings?.orientation === 'landscape';
   const isUltraFull = settings?.layout === 'ultra_full' || globalSettings?.compact;

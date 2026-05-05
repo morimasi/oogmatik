@@ -9,6 +9,14 @@ export const FindTheDifferenceSheet = ({
   data: FindTheDifferenceData & { gridA?: any[][]; gridB?: any[][]; diffCount?: number };
   settings?: StyleSettings;
 }) => {
+  // Graceful fallback for invalid or missing data to avoid blank pages
+  if (!data || !data.gridA || !data.gridB || data.gridA.length === 0 || data.gridB.length === 0) {
+    return (
+      <div className="p-4 border border-yellow-300 bg-yellow-50 text-yellow-800 rounded-md">
+        Geçersiz infografik verisi veya boş içerik. Lütfen içerik kaynağını kontrol edin.
+      </div>
+    );
+  }
   const rows = data?.rows || [];
   const settings = data?.settings;
   const isLandscape = globalSettings?.orientation === 'landscape';
