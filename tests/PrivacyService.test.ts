@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import PrivacyService, { hashTcNo, anonymizeStudent, sanitizeForAI } from '@/services/privacyService.js';
+import { dlpService as PrivacyService, hashTcNo, anonymizeStudent, sanitizeForAI } from '@/services/privacyService.js';
 import { ValidationError } from '@/utils/AppError.js';
 
 describe('PrivacyService - TC Kimlik No Hash', () => {

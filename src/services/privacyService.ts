@@ -3,10 +3,32 @@
  * KVKK Uyumluluğu: Öğrenci adı, tanısı ve skorların bir arada sızmasını engeller.
  */
 
+import crypto from 'crypto';
+import { ValidationError } from '../utils/AppError.js';
+
 export interface DLPConfig {
     maskNames?: boolean;
     maskDiagnosis?: boolean;
     maskScores?: boolean;
+}
+
+export interface HashResult {
+    hash: string;
+    lastFour: string;
+    category: string;
+    timestamp: string;
+}
+
+export interface SanitizeResult {
+    sanitized: string;
+    removed: string[];
+    safe: boolean;
+}
+
+export interface AnonymizeResult {
+    anonymousId: string;
+    originalIdHash: string;
+    timestamp: string;
 }
 
 export class DLPService {
@@ -22,23 +44,266 @@ export class DLPService {
     }
 
     /**
+     * T.C. Kimlik numarasını SHA-256 ile hash'ler
+     */
+    public hashTcNo(tcNo: string): HashResult {
+        if (!tcNo || typeof tcNo !== 'string') {
+            throw new ValidationError('TC Kimlik No boş olamaz');
+        }
+
+        // Numerik olmayan karakterleri temizle
+        const cleaned = tcNo.replace(/[^0-9]/g, '');
+
+        if (cleaned.length !== 11) {
+            throw new ValidationError('TC Kimlik No 11 haneli olmalıdır');
+        }
+
+        const hash = crypto.createHash('sha256').update(cleaned).digest('hex');
+        const lastFour = cleaned.slice(-4);
+
+        return {
+            hash,
+            lastFour,
+            category: 'tcNo',
+            timestamp: new Date().toISOString()
+        };
+    }
+
+    /**
+     * T.C. Kimlik hash doğrulama
+     */
+    public verifyTcNo(tcNo: string, hash: string): boolean {
+        try {
+            const result = this.hashTcNo(tcNo);
+            return result.hash === hash;
+        } catch {
+            return false;
+        }
+    }
+
+    /**
+     * Öğrenci ID'sini anonimleştirir
+     */
+    public anonymizeStudentId(studentId: string): AnonymizeResult {
+        if (!studentId || typeof studentId !== 'string') {
+            throw new ValidationError('Öğrenci ID boş olamaz');
+        }
+
+        const hash = crypto.createHash('sha256').update(studentId).digest('hex');
+        const shortHash = hash.substring(0, 8);
+        const timestamp = Date.now().toString(36).substring(0, 2);
+        const anonymousId = `student_${shortHash}${timestamp}`;
+
+        return {
+            anonymousId,
+            originalIdHash: hash,
+            timestamp: new Date().toISOString()
+        };
+    }
+
+    /**
+     * Tanı bilgilerini AI için güvenli hale getirir
+     */
+    public sanitizeDiagnosisForAI(
+        text: string,
+        options: {
+            removeTcNo?: boolean;
+            removeEmail?: boolean;
+            removePhone?: boolean;
+            genericizeDiagnosis?: boolean;
+        } = {}
+    ): SanitizeResult {
+        const {
+            removeTcNo = true,
+            removeEmail = true,
+            removePhone = true,
+            genericizeDiagnosis = true
+        } = options;
+
+        if (!text) {
+            return { sanitized: '', removed: [], safe: true };
+        }
+
+        let sanitized = text;
+        const removed: string[] = [];
+
+        // TC Kimlik No kaldır
+        if (removeTcNo) {
+            const tcRegex = /\b[1-9][0-9]{10}\b/g;
+            if (tcRegex.test(sanitized)) {
+                sanitized = sanitized.replace(tcRegex, '[TC_NO_REDACTED]');
+                removed.push('TC Kimlik No');
+            }
+        }
+
+        // E-posta kaldır
+        if (removeEmail) {
+            const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
+            if (emailRegex.test(sanitized)) {
+                sanitized = sanitized.replace(emailRegex, '[EMAIL_REDACTED]');
+                removed.push('E-posta');
+            }
+        }
+
+        // Telefon kaldır
+        if (removePhone) {
+            const phoneRegex = /\b0?[5-9][0-9]{9}\b/g;
+            if (phoneRegex.test(sanitized)) {
+                sanitized = sanitized.replace(phoneRegex, '[PHONE_REDACTED]');
+                removed.push('Telefon');
+            }
+        }
+
+        // Klinik terimleri jenerikleştir
+        if (genericizeDiagnosis) {
+            const diagnosisReplacements: [RegExp, string, string][] = [
+                [/disleksi/gi, 'özel öğrenme güçlüğü', 'Klinik terim: disleksi'],
+                [/adhd/gi, 'dikkat ve öğrenme desteği gerektiren durum', 'Klinik terim: ADHD'],
+                [/diskalkuli/gi, 'özel öğrenme güçlüğü', 'Klinik terim: diskalkuli'],
+            ];
+
+            for (const [regex, replacement, logMsg] of diagnosisReplacements) {
+                if (regex.test(sanitized)) {
+                    sanitized = sanitized.replace(regex, replacement);
+                    removed.push(logMsg);
+                }
+            }
+        }
+
+        return {
+            sanitized,
+            removed,
+            safe: removed.length === 0
+        };
+    }
+
+    /**
      * Hassas verileri maskeler
      */
-    public maskSensitiveData(text: string): string {
+    public maskSensitiveData(text: string, type?: string): string {
         if (!text) return text;
-        
-        // Örnek: T.C. Kimlik No maskeleme (Varsa)
-        const tcRegex = /\b[1-9][0-9]{10}\b/g;
-        let masked = text.replace(tcRegex, '***********');
 
-        // Örnek: E-posta maskeleme
+        // TC No maskeleme (son 4 hane göster)
+        if (type === 'tcNo' || !type) {
+            const tcRegex = /\b[1-9][0-9]{10}\b/g;
+            text = text.replace(tcRegex, (match) => {
+                return '*******' + match.slice(-4);
+            });
+        }
+
+        // Tanı maskeleme
+        if (type === 'diagnosis' || type === 'medical') {
+            return '[HASSAS_BİLGİ_MASKELENDİ]';
+        }
+
+        // Değerlendirme kısaltma
+        if (type === 'assessment') {
+            if (text.length > 20) {
+                return text.substring(0, 20) + '...[MASKELENDİ]';
+            }
+        }
+
+        // Aile bilgisi isim maskeleme
+        if (type === 'family') {
+            text = text.replace(/\b[A-ZÇĞİÖŞÜ][a-zçğıöşü]+\b/g, '[AD_MASKELENDİ]');
+        }
+
+        // E-posta maskeleme
         const emailRegex = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g;
-        masked = masked.replace(emailRegex, (match) => {
+        text = text.replace(emailRegex, (match) => {
             const [user, domain] = match.split('@');
             return `${user[0]}***@${domain}`;
         });
 
-        return masked;
+        return text;
+    }
+
+    /**
+     * Anonimizasyon kontrolü
+     */
+    public checkAnonymization(text: string): { isSafe: boolean; violations: string[]; isAnonymous: boolean } {
+        const violations: string[] = [];
+
+        // TC No kontrolü
+        if (/\b[1-9][0-9]{10}\b/g.test(text)) {
+            violations.push('TC Kimlik No tespit edildi');
+        }
+
+        // E-posta kontrolü
+        if (/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g.test(text)) {
+            violations.push('E-posta adresi tespit edildi');
+        }
+
+        // Telefon kontrolü
+        if (/\b0?[5-9][0-9]{9}\b/g.test(text)) {
+            violations.push('Telefon numarası tespit edildi');
+        }
+
+        // Tam ad kontrolü (iki büyük harfle başlayan kelime)
+        if (/\b[A-ZÇĞİÖŞÜ][a-zçğıöşü]+ [A-ZÇĞİÖŞÜ][a-zçğıöşü]+\b/g.test(text)) {
+            violations.push('Tam ad tespit edildi');
+        }
+
+        return {
+            isSafe: violations.length === 0,
+            violations,
+            isAnonymous: violations.length === 0
+        };
+    }
+
+    /**
+     * KVKK uyumlu log entry
+     */
+    public createSafeLogEntry(data: any): any {
+        if (typeof data === 'string') {
+            return this.maskSensitiveData(data);
+        }
+
+        if (typeof data === 'object' && data !== null) {
+            const sanitized: any = {};
+            for (const [key, value] of Object.entries(data)) {
+                if (key.includes('tc') || key.includes('tcNo')) {
+                    sanitized[key] = '[REDACTED]';
+                } else if (key.includes('diagnosis') || key.includes('medical')) {
+                    sanitized[key] = '[REDACTED]';
+                } else if (typeof value === 'string') {
+                    sanitized[key] = this.maskSensitiveData(value);
+                } else {
+                    sanitized[key] = value;
+                }
+            }
+            return sanitized;
+        }
+
+        return data;
+    }
+
+    /**
+     * AI için güvenli öğrenci profili
+     */
+    public createSafeStudentProfileForAI(studentData: {
+        name?: string;
+        age?: number;
+        diagnosis?: string;
+        learningStyle?: string;
+        [key: string]: any;
+    }): any {
+        const safe: any = {
+            age: studentData.age || 0,
+            learningStyle: studentData.learningStyle || 'genel',
+        };
+
+        // İsim -> baş harf
+        if (studentData.name) {
+            safe.initials = studentData.name.split(' ').map(n => n[0]).join('') + '.';
+        }
+
+        // Tanı -> jenerik
+        if (studentData.diagnosis) {
+            safe.supportNeeded = 'özel öğrenme desteği';
+        }
+
+        return safe;
     }
 
     /**
@@ -63,22 +328,13 @@ export class DLPService {
     }
 
     /**
-     * T.C. Kimlik numarasını hash'ler
-     */
-    public hashTcNo(tcNo: string): string {
-        if (!tcNo) return '';
-        // Simple hash for demo - in production use proper hashing
-        return btoa(tcNo).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16);
-    }
-
-    /**
      * Öğrenci verilerini anonimleştirir
      */
     public anonymizeStudent(studentData: { name?: string; tcNo?: string; diagnosis?: string; scores?: number[] }): any {
         return {
             ...studentData,
             name: studentData.name ? this.maskStudentName(studentData.name) : 'Öğrenci',
-            tcNo: studentData.tcNo ? this.hashTcNo(studentData.tcNo) : '',
+            tcNo: studentData.tcNo ? this.hashTcNo(studentData.tcNo).hash : '',
             diagnosis: studentData.diagnosis ? '[MASKED]' : undefined,
             scores: studentData.scores ? studentData.scores.map(() => '[MASKED]') : undefined
         };
@@ -90,29 +346,17 @@ export class DLPService {
     public sanitizeForAI(text: string): string {
         if (!text) return text;
         
-        let sanitized = text;
-        
-        // Remove T.C. Kimlik numbers
-        sanitized = sanitized.replace(/\b[1-9][0-9]{10}\b/g, '[TC_NO]');
-        
-        // Remove full names (keep initials)
-        sanitized = sanitized.replace(/\b[A-Z][a-z]+ [A-Z][a-z]+\b/g, (match) => {
-            return match.split(' ').map(part => part[0] + '.').join(' ');
-        });
-        
-        // Remove emails
-        sanitized = sanitized.replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g, '[EMAIL]');
-        
-        // Remove phone numbers
-        sanitized = sanitized.replace(/\b0?[5-9][0-9]{9}\b/g, '[PHONE]');
-        
-        return sanitized;
+        const result = this.sanitizeDiagnosisForAI(text);
+        return result.sanitized;
     }
 }
 
 export const dlpService = DLPService.getInstance();
 
-// Legacy exports for test compatibility
-export const hashTcNo = (tcNo: string) => dlpService.hashTcNo(tcNo);
-export const anonymizeStudent = (studentData: any) => dlpService.anonymizeStudent(studentData);
-export const sanitizeForAI = (text: string) => dlpService.sanitizeForAI(text);
+// Legacy exports for test compatibility - eski testler için uyumluluk
+export const hashTcNo = (tcNo: string): string => dlpService.hashTcNo(tcNo).hash;
+export const anonymizeStudent = (studentId: string): string => dlpService.anonymizeStudentId(studentId).anonymousId;
+export const sanitizeForAI = (text: string): string => dlpService.sanitizeForAI(text);
+
+// Default export for test compatibility
+export default DLPService;
