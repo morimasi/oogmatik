@@ -36,10 +36,11 @@ BAĞLAM:
    ${activityType === ActivityType.INFOGRAPHIC_SHORT_ANSWER ? `
    ÖZEL TALİMAT (SHORT_ANSWER):
    - <short-answer-grid title="..." count="${options.params?.questionCount || 15}" lines="${options.params?.lineCount || 2}" mode="${options.params?.colorMode || 'Karma Renkli'}" student-info="${options.params?.showStudentInfo !== false}" density="${options.params?.gridDensity || 'Kompakt'}" focus="${options.params?.pedagogicalFocus || 'Genel Kavrama'}"> yapısını kullan.
-   - İçerisinde ${options.params?.questionCount || 15} adet <item question="..." /> etiketi üret.
-   - PEDAGOJİK ODAK: ${options.params?.pedagogicalFocus || 'Genel Kavrama'}. Soruları bu odak noktasına göre kurgula.
+   - İçerisinde TAM OLARAK ${options.params?.questionCount || 15} adet soru üretmelisin. Eksik veya fazla olmasın.
+   - Her soru KESİNLİKLE şu formatta olmalı: <item question="Sorunuzu yazın" answer="Cevabınız(opsiyonel)"></item>
+   - ASLA kendi kendini kapatan etiket (self-closing tag) kullanma (Örn: <item /> YASAK). Mutlaka </item> ile kapat.
    - Sorular kısa cevaplı, somut, çocuğun dünyasına uygun ve görselleştirilebilir olmalıdır.
-   - A4 Kompakt Düzen: Sorular öz olmalı, gereksiz uzunluktan kaçınılmalıdır.
+   - A4 Kompakt Düzeni bozmamak için soruları olabildiğince kısa ve öz yazın.
    ` : ''}
 
 2. PREMIUM İÇERİK: "activityContent" içerisinde sadece ana veriyi değil, aynı zamanda "supportingDrill" alanı altında 
