@@ -24,7 +24,7 @@ export const anonymizePII = (text: string): string => {
 /**
  * AI Modeline gönderilecek veriyi temizler
  */
-export const sanitizeForAI = (data: any): any => {
+export function sanitizeForAI(data: unknown): unknown {
   if (typeof data === 'string') {
     return anonymizePII(data);
   }
@@ -34,17 +34,18 @@ export const sanitizeForAI = (data: any): any => {
   }
   
   if (typeof data === 'object' && data !== null) {
-    const sanitized: any = {};
-    for (const key in data) {
+    const sanitized: Record<string, unknown> = {};
+    const obj = data as Record<string, unknown>;
+    for (const key in obj) {
       // Hassas anahtarları tamamen temizle
       if (['name', 'surname', 'fullName', 'email', 'phone', 'address'].includes(key)) {
         sanitized[key] = '***';
       } else {
-        sanitized[key] = sanitizeForAI(data[key]);
+        sanitized[key] = sanitizeForAI(obj[key]);
       }
     }
     return sanitized;
   }
   
   return data;
-};
+}
