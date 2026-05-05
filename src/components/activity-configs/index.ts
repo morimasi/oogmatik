@@ -45,7 +45,7 @@ import { BrainTeasersConfig } from './BrainTeasersConfig';
 import { KavramHaritasiConfig } from './KavramHaritasiConfig';
 import { EsAnlamliKelimelerConfig } from './EsAnlamliKelimelerConfig';
 import { BoxMathConfig } from './BoxMathConfig';
-import { ShortAnswerConfig } from './ShortAnswerConfig';
+import { InfographicShortAnswerConfig } from './InfographicShortAnswerConfig';
 
 export const ActivityConfigRegistry: Record<string, any> = {
   [ActivityType.MATH_MEMORY_CARDS]: MathMemoryCardsConfig,
@@ -93,7 +93,7 @@ export const ActivityConfigRegistry: Record<string, any> = {
   [ActivityType.STORY_ANALYSIS]: StoryAnalysisConfig,
   [ActivityType.STORY_SEQUENCING]: StorySequencingConfig,
   [ActivityType.MISSING_PARTS]: AdvancedMissingPartsConfig,
-  [ActivityType.INFOGRAPHIC_SHORT_ANSWER]: ShortAnswerConfig,
+  [ActivityType.INFOGRAPHIC_SHORT_ANSWER]: InfographicShortAnswerConfig,
 };
 
 export { EsAnlamliKelimelerConfig } from './EsAnlamliKelimelerConfig';

@@ -403,8 +403,8 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineBoxMath,
   },
   [ActivityType.INFOGRAPHIC_SHORT_ANSWER]: {
-    ai: aiGenerators.generateInfographicShortAnswerFromAI,
-    offline: offlineGenerators.generateOfflineInfographicShortAnswer,
+    ai: INFOGRAPHIC_ADAPTERS_REMAINING_84['INFOGRAPHIC_SHORT_ANSWER'].aiGenerator,
+    offline: INFOGRAPHIC_ADAPTERS_REMAINING_84['INFOGRAPHIC_SHORT_ANSWER'].offlineGenerator,
   },
   [ActivityType.SINAV]: {
     ai: aiGenerators.generateSinavFromAI,
