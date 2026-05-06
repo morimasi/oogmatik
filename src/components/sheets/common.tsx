@@ -287,6 +287,8 @@ export const AnalogClock = ({
   minute,
   className,
   showHands = true,
+  showNumbers = true,
+  showTicks = true,
 }: {
   hour: number;
   minute: number;
@@ -294,34 +296,69 @@ export const AnalogClock = ({
   showNumbers?: boolean;
   showTicks?: boolean;
   showHands?: boolean;
-}) => (
-  <svg viewBox="0 0 100 100" className={className}>
-    <circle cx="50" cy="50" r="48" fill="none" stroke="black" strokeWidth="2" />
-    {showHands && (
-      <>
-        <line
-          x1="50"
-          y1="50"
-          x2={50 + 25 * Math.sin(((hour + minute / 60) * Math.PI) / 6)}
-          y2={50 - 25 * Math.cos(((hour + minute / 60) * Math.PI) / 6)}
-          stroke="black"
-          strokeWidth="3"
-          strokeLinecap="round"
-        />
-        <line
-          x1="50"
-          y1="50"
-          x2={50 + 35 * Math.sin((minute * Math.PI) / 30)}
-          y2={50 - 35 * Math.cos((minute * Math.PI) / 30)}
-          stroke="black"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-      </>
-    )}
-    <circle cx="50" cy="50" r="2" fill="black" />
-  </svg>
-);
+}) => {
+  const ticks = Array.from({ length: 60 }).map((_, i) => {
+    const isHour = i % 5 === 0;
+    const angle = (i * Math.PI) / 30;
+    const x1 = 50 + (isHour ? 42 : 45) * Math.sin(angle);
+    const y1 = 50 - (isHour ? 42 : 45) * Math.cos(angle);
+    const x2 = 50 + 48 * Math.sin(angle);
+    const y2 = 50 - 48 * Math.cos(angle);
+    return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="black" strokeWidth={isHour ? 1.5 : 0.5} />;
+  });
+
+  const numbers = Array.from({ length: 12 }).map((_, i) => {
+    const num = i + 1;
+    const angle = (num * Math.PI) / 6;
+    const x = 50 + 36 * Math.sin(angle);
+    const y = 50 - 36 * Math.cos(angle);
+    return (
+      <text
+        key={num}
+        x={x}
+        y={y}
+        textAnchor="middle"
+        dominantBaseline="middle"
+        fontSize="8"
+        fontWeight="bold"
+        fontFamily="Lexend"
+      >
+        {num}
+      </text>
+    );
+  });
+
+  return (
+    <svg viewBox="0 0 100 100" className={className}>
+      <circle cx="50" cy="50" r="48" fill="white" stroke="black" strokeWidth="2" />
+      {showTicks && ticks}
+      {showNumbers && numbers}
+      {showHands && (
+        <>
+          <line
+            x1="50"
+            y1="50"
+            x2={50 + 25 * Math.sin(((hour + minute / 60) * Math.PI) / 6)}
+            y2={50 - 25 * Math.cos(((hour + minute / 60) * Math.PI) / 6)}
+            stroke="black"
+            strokeWidth="3"
+            strokeLinecap="round"
+          />
+          <line
+            x1="50"
+            y1="50"
+            x2={50 + 35 * Math.sin((minute * Math.PI) / 30)}
+            y2={50 - 35 * Math.cos((minute * Math.PI) / 30)}
+            stroke="black"
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+        </>
+      )}
+      <circle cx="50" cy="50" r="2.5" fill="black" />
+    </svg>
+  );
+};
 
 export const NumberLine = ({
   start,
