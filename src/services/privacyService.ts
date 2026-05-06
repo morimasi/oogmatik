@@ -91,8 +91,7 @@ export class DLPService {
 
         const hash = crypto.createHash('sha256').update(studentId).digest('hex');
         const shortHash = hash.substring(0, 8);
-        const timestamp = Date.now().toString(36).substring(0, 2);
-        const anonymousId = `student_${shortHash}${timestamp}`;
+        const anonymousId = `student_${shortHash}`;
 
         return {
             anonymousId,
@@ -147,7 +146,7 @@ export class DLPService {
 
         // Telefon kaldır
         if (removePhone) {
-            const phoneRegex = /\b0?[5-9][0-9]{9}\b/g;
+            const phoneRegex = /\b(0?[5-9][0-9]{2}\s?[0-9]{3}\s?[0-9]{2}\s?[0-9]{2})\b/g;
             if (phoneRegex.test(sanitized)) {
                 sanitized = sanitized.replace(phoneRegex, '[PHONE_REDACTED]');
                 removed.push('Telefon');
@@ -193,19 +192,29 @@ export class DLPService {
 
         // Tanı maskeleme
         if (type === 'diagnosis' || type === 'medical') {
-            return '[HASSAS_BİLGİ_MASKELENDİ]';
+            return '[HASSAS_BİLGİ_MASKELENDI]';
         }
 
         // Değerlendirme kısaltma
         if (type === 'assessment') {
             if (text.length > 20) {
-                return text.substring(0, 20) + '...[MASKELENDİ]';
+                return text.substring(0, 20) + '...[MASKELENDI]';
             }
         }
 
         // Aile bilgisi isim maskeleme
         if (type === 'family') {
-            text = text.replace(/\b[A-ZÇĞİÖŞÜ][a-zçğıöşü]+\b/g, '[AD_MASKELENDİ]');
+            // "Baba: Ahmet" gibi pattern'leri koru, sadece isimleri maskele
+            const parts = text.split(':');
+            if (parts.length > 1) {
+                const prefix = parts[0].trim();
+                const names = parts.slice(1).join(':').trim();
+                const maskedNames = names.replace(/\b[A-ZÇĞİÖŞÜ][a-zçğıöşü]+\b/g, '[AD_MASKELENDI]');
+                text = `${prefix}: ${maskedNames}`;
+            } else {
+                // Colon yoksa tüm isimleri maskele
+                text = text.replace(/\b[A-ZÇĞİÖŞÜ][a-zçğıöşü]+\b/g, '[AD_MASKELENDI]');
+            }
         }
 
         // E-posta maskeleme
@@ -226,7 +235,7 @@ export class DLPService {
 
         // TC No kontrolü
         if (/\b[1-9][0-9]{10}\b/g.test(text)) {
-            violations.push('TC Kimlik No tespit edildi');
+            violations.push('Açık TC Kimlik No tespit edildi');
         }
 
         // E-posta kontrolü
@@ -235,7 +244,8 @@ export class DLPService {
         }
 
         // Telefon kontrolü
-        if (/\b0?[5-9][0-9]{9}\b/g.test(text)) {
+        const phoneRegex = /\b(0?[5-9][0-9]{2}\s?[0-9]{3}\s?[0-9]{2}\s?[0-9]{2})\b/g;
+        if (phoneRegex.test(text)) {
             violations.push('Telefon numarası tespit edildi');
         }
 
@@ -256,26 +266,32 @@ export class DLPService {
      */
     public createSafeLogEntry(data: any): any {
         if (typeof data === 'string') {
-            return this.maskSensitiveData(data);
+            return { data: this.maskSensitiveData(data) };
         }
 
         if (typeof data === 'object' && data !== null) {
             const sanitized: any = {};
             for (const [key, value] of Object.entries(data)) {
-                if (key.includes('tc') || key.includes('tcNo')) {
+                const lowerKey = key.toLowerCase();
+                if (lowerKey.includes('tc') || lowerKey.includes('tcno') || lowerKey === 'tcno') {
                     sanitized[key] = '[REDACTED]';
-                } else if (key.includes('diagnosis') || key.includes('medical')) {
+                } else if (lowerKey.includes('diagnosis') || lowerKey.includes('medical')) {
                     sanitized[key] = '[REDACTED]';
                 } else if (typeof value === 'string') {
-                    sanitized[key] = this.maskSensitiveData(value);
+                    // TC No kontrolü (11 hane)
+                    if (/^[1-9][0-9]{10}$/.test(value.trim())) {
+                        sanitized[key] = '[REDACTED]';
+                    } else {
+                        sanitized[key] = value;
+                    }
                 } else {
                     sanitized[key] = value;
                 }
             }
-            return sanitized;
+            return { data: sanitized };
         }
 
-        return data;
+        return { data: String(data) };
     }
 
     /**
@@ -286,16 +302,20 @@ export class DLPService {
         age?: number;
         diagnosis?: string;
         learningStyle?: string;
+        studentId?: string;
         [key: string]: any;
     }): any {
         const safe: any = {
+            studentId: studentData.studentId || 'student_anonymous',
             age: studentData.age || 0,
             learningStyle: studentData.learningStyle || 'genel',
+            name: 'Öğrenci',
+            grade: studentData.grade || 'bilinmiyor',
         };
 
-        // İsim -> baş harf
-        if (studentData.name) {
-            safe.initials = studentData.name.split(' ').map(n => n[0]).join('') + '.';
+        // İsim -> baş harf (eğer varsa)
+        if (studentData.name && studentData.name !== 'Öğrenci') {
+            safe.name = studentData.name.split(' ').map(n => n[0] + '.').join(' ');
         }
 
         // Tanı -> jenerik
