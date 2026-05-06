@@ -27,19 +27,19 @@ export const generateOfflineMoneyCounting = async (options: GeneratorOptions): P
             const availableNotes = allNotes.filter(n => n <= maxTotal);
             
             if (useNotes) {
-                const noteCount = difficulty === 'Başlangıç' ? 1 : (difficulty === 'Orta' ? 2 : 3);
-                for (let i = 0; i < noteCount; i++) {
+                const noteTypeCount = difficulty === 'Başlangıç' ? 1 : (difficulty === 'Orta' ? 2 : 3);
+                for (let i = 0; i < noteTypeCount; i++) {
                     if (availableNotes.length === 0) break;
                     const val = availableNotes[getRandomInt(0, availableNotes.length - 1)];
-                    const count = getRandomInt(1, 2); // Less count per note for compact UI
+                    const count = getRandomInt(1, 2); 
                     selectedNotes.push({ value: val, count });
                     total += val * count;
                 }
             }
 
             if (useCoins && (total < maxTotal || !useNotes)) {
-                const coinGroupCount = difficulty === 'Başlangıç' ? 1 : (difficulty === 'Orta' ? 2 : 3);
-                for (let i = 0; i < coinGroupCount; i++) {
+                const coinTypeCount = difficulty === 'Başlangıç' ? 1 : (difficulty === 'Orta' ? 2 : 3);
+                for (let i = 0; i < coinTypeCount; i++) {
                     const val = allCoins[getRandomInt(0, allCoins.length - 1)];
                     const count = getRandomInt(1, 3);
                     selectedCoins.push({ value: val, count });
@@ -55,19 +55,24 @@ export const generateOfflineMoneyCounting = async (options: GeneratorOptions): P
 
             const formattedTotal = total.toFixed(2);
             
-            // Distractors logic
+            // Advanced Distractors
             let distractors = new Set<string>();
+            const possibleModifiers = useCoins 
+                ? [0.5, 1, 0.25, 5, 10, -0.5, -1, -5] 
+                : [5, 10, 20, 50, -5, -10, -20];
+            
             while (distractors.size < 3) {
-                const modifier = getRandomInt(1, 3) * (Math.random() > 0.5 ? 1 : -1) * (useCoins ? 0.5 : 5);
-                let d = total + modifier;
-                if (d <= 0) d = total + 5;
-                if (d !== total) distractors.add(`${d.toFixed(2)} TL`);
+                const mod = possibleModifiers[getRandomInt(0, possibleModifiers.length - 1)];
+                let d = total + mod;
+                if (d <= 0) d = total + (mod > 0 ? mod * 2 : 5);
+                const dStr = `${d.toFixed(2)} TL`;
+                if (dStr !== `${formattedTotal} TL`) distractors.add(dStr);
             }
 
             return {
                 notes: selectedNotes,
                 coins: selectedCoins,
-                question: "Cüzdandaki toplam para ne kadar?",
+                question: "Toplam para ne kadar?",
                 options: shuffle([
                     `${formattedTotal} TL`,
                     ...Array.from(distractors)
