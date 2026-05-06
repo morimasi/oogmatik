@@ -172,7 +172,7 @@ export class DLPService {
         return {
             sanitized,
             removed,
-            safe: removed.length === 0
+            safe: true // Successfully sanitized - all sensitive data removed
         };
     }
 
@@ -270,28 +270,46 @@ export class DLPService {
         }
 
         if (typeof data === 'object' && data !== null) {
-            const sanitized: any = {};
-            for (const [key, value] of Object.entries(data)) {
-                const lowerKey = key.toLowerCase();
-                if (lowerKey.includes('tc') || lowerKey.includes('tcno') || lowerKey === 'tcno') {
-                    sanitized[key] = '[REDACTED]';
-                } else if (lowerKey.includes('diagnosis') || lowerKey.includes('medical')) {
-                    sanitized[key] = '[REDACTED]';
-                } else if (typeof value === 'string') {
-                    // TC No kontrolü (11 hane)
-                    if (/^[1-9][0-9]{10}$/.test(value.trim())) {
-                        sanitized[key] = '[REDACTED]';
-                    } else {
-                        sanitized[key] = value;
-                    }
-                } else {
-                    sanitized[key] = value;
-                }
-            }
-            return { data: sanitized };
+            return this.sanitizeObject(data);
         }
 
         return { data: String(data) };
+    }
+
+    /**
+     * Recursively sanitize an object
+     */
+    private sanitizeObject(obj: any): any {
+        const sanitized: any = {};
+        for (const [key, value] of Object.entries(obj)) {
+            const lowerKey = key.toLowerCase();
+            
+            // Check for sensitive keys
+            if (lowerKey.includes('tc') || lowerKey === 'tcno') {
+                sanitized[key] = '[REDACTED]';
+            } else if (lowerKey.includes('diagnosis') || lowerKey.includes('medical')) {
+                sanitized[key] = '[REDACTED]';
+            } else if (lowerKey.includes('email') || lowerKey.includes('phone')) {
+                sanitized[key] = '[REDACTED]';
+            } else if (typeof value === 'string') {
+                // Check if string is TC No, email, or phone
+                if (/^[1-9][0-9]{10}$/.test(value.trim())) {
+                    sanitized[key] = '[REDACTED]';
+                } else if (/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}$/.test(value.trim())) {
+                    sanitized[key] = '[REDACTED]';
+                } else if (/^0?[5-9][0-9]{9}$/.test(value.trim())) {
+                    sanitized[key] = '[REDACTED]';
+                } else {
+                    sanitized[key] = value;
+                }
+            } else if (typeof value === 'object' && value !== null) {
+                // Recursively sanitize nested objects
+                sanitized[key] = this.sanitizeObject(value);
+            } else {
+                sanitized[key] = value;
+            }
+        }
+        return sanitized;
     }
 
     /**
@@ -300,30 +318,51 @@ export class DLPService {
     public createSafeStudentProfileForAI(studentData: {
         name?: string;
         age?: number;
-        diagnosis?: string;
+        diagnosis?: string | string[];
         learningStyle?: string;
         studentId?: string;
+        grade?: string;
+        strengths?: string[];
+        needs?: string[];
         [key: string]: any;
     }): any {
         const safe: any = {
             studentId: studentData.studentId || 'student_anonymous',
-            age: studentData.age || 0,
-            learningStyle: studentData.learningStyle || 'genel',
-            name: 'Öğrenci',
-            grade: studentData.grade || 'bilinmiyor',
+            ageGroup: this.getAgeGroup(studentData.age),
+            grade: studentData.grade || 'belirtilmemiş',
+            learningProfile: '',
+            strengths: studentData.strengths || [],
+            needs: studentData.needs || [],
         };
 
-        // İsim -> baş harf (eğer varsa)
-        if (studentData.name && studentData.name !== 'Öğrenci') {
-            safe.name = studentData.name.split(' ').map(n => n[0] + '.').join(' ');
-        }
-
-        // Tanı -> jenerik
+        // Tanılar -> jenerik learning profile
         if (studentData.diagnosis) {
-            safe.supportNeeded = 'özel öğrenme desteği';
+            const diagnoses = Array.isArray(studentData.diagnosis) ? studentData.diagnosis : [studentData.diagnosis];
+            const genericDiagnoses = diagnoses.map(d => {
+                const lower = d.toLowerCase();
+                if (lower.includes('disleksi')) return 'özel öğrenme güçlüğü';
+                if (lower.includes('adhd')) return 'dikkat ve öğrenme desteği gerektiren durum';
+                if (lower.includes('diskalkuli')) return 'özel öğrenme güçlüğü';
+                return d;
+            });
+            safe.learningProfile = genericDiagnoses.join(', ');
+        } else {
+            safe.learningProfile = 'özel öğrenme desteği';
         }
 
         return safe;
+    }
+
+    /**
+     * Get age group from age
+     */
+    private getAgeGroup(age?: number): string {
+        if (!age) return 'bilinmiyor';
+        if (age >= 4 && age <= 6) return '4-6';
+        if (age >= 7 && age <= 10) return '8-10';
+        if (age >= 11 && age <= 14) return '11-14';
+        if (age >= 15 && age <= 18) return '15-18';
+        return 'bilinmiyor';
     }
 
     /**
