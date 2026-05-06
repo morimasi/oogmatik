@@ -91,8 +91,15 @@ export class ActivityService {
      * Belirtilen aktivite türü için içerik üretir.
      */
     public async generate(type: ActivityType, options: GeneratorOptions, _mode?: GeneratorMode): Promise<any> {
+        // [ALIAS MAPPING] - Firestore'dan gelen dinamik ID'leri sistem enum değerlerine eşle
+        let activeType = type;
+        if ((type as string) === 'PZW4TWcMW7eB89z1M2EB') {
+            logInfo(`[ActivityService] Mapping Firestore ID 'PZW4TWcMW7eB89z1M2EB' to ActivityType.ES_ANLAMLI_KELIMELER`);
+            activeType = ActivityType.ES_ANLAMLI_KELIMELER;
+        }
+
         // Önce jeneratörü ara
-        let generator = this.generators.get(type);
+        let generator = this.generators.get(activeType);
 
         // Jeneratör bulunamadıysa, fallback mekanizmasını dene
         if (!generator) {

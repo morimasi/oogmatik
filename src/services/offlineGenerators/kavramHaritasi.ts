@@ -1,67 +1,74 @@
-import { GeneratorOptions } from '../../types';
 import { ActivityType } from '../../types/activity';
-
-interface KavramHaritasiData {
-  id: string;
-  activityType: ActivityType;
-  title: string;
-  instruction: string;
-  nodes: { id: string; label: string; level: number; isEmpty: boolean }[];
-  edges: { from: string; to: string }[];
-  settings: GeneratorOptions;
-}
-
-function getRandomInt(min: number, max: number): number {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+import { GeneratorOptions } from '../../types/core';
 
 export const generateOfflineKavramHaritasi = async (
   options: GeneratorOptions
-): Promise<KavramHaritasiData[]> => {
-  const opts = options;
-  const {
-    worksheetCount = 1,
-    difficulty = 'Orta',
-    concept = 'Canlılar',
-    depth = 2,
-    branchCount = 3,
-    fillRatio = 0.4,
-  } = opts;
+): Promise<any[]> => {
+  const { worksheetCount = 1, difficulty = 'Orta' } = options;
+  const opts = options as Record<string, unknown>;
+  const topic = (opts.topic as string) || 'Genel';
 
-  const pages: KavramHaritasiData[] = [];
+  // Gerçek kavram veritabanı
+  const database: Record<string, any> = {
+    'Canlılar': {
+      nodes: [
+        { id: '1', label: 'Canlılar', type: 'root' },
+        { id: '2', label: 'Bitkiler', parentId: '1' },
+        { id: '3', label: 'Hayvanlar', parentId: '1' },
+        { id: '4', label: 'Mikroskobik Canlılar', parentId: '1' },
+        { id: '5', label: 'Mantarlar', parentId: '1' },
+        { id: '6', label: 'Çiçekli Bitkiler', parentId: '2' },
+        { id: '7', label: 'Çiçeksiz Bitkiler', parentId: '2' },
+        { id: '8', label: 'Omurgalılar', parentId: '3' },
+        { id: '9', label: 'Omurgasızlar', parentId: '3' },
+      ]
+    },
+    'Su Döngüsü': {
+      nodes: [
+        { id: '1', label: 'Su Döngüsü', type: 'root' },
+        { id: '2', label: 'Buharlaşma', parentId: '1' },
+        { id: '3', label: 'Yoğuşma', parentId: '1' },
+        { id: '4', label: 'Yağış', parentId: '1' },
+        { id: '5', label: 'Yeraltı Suları', parentId: '1' },
+        { id: '6', label: 'Güneş Isısı', parentId: '2' },
+        { id: '7', label: 'Bulut Oluşumu', parentId: '3' },
+      ]
+    },
+    'Güneş Sistemi': {
+      nodes: [
+        { id: '1', label: 'Güneş Sistemi', type: 'root' },
+        { id: '2', label: 'Güneş', parentId: '1' },
+        { id: '3', label: 'Gezegenler', parentId: '1' },
+        { id: '4', label: 'Asteroitler', parentId: '1' },
+        { id: '5', label: 'İç Gezegenler', parentId: '3' },
+        { id: '6', label: 'Dış Gezegenler', parentId: '3' },
+      ]
+    }
+  };
+
+  const selectedData = database[topic] || database['Canlılar'];
+  const results: any[] = [];
+
   for (let i = 0; i < worksheetCount; i++) {
-    const centerNode = { id: 'center', label: concept, level: 0, isEmpty: false };
-    const mainNodes = Array.from({ length: branchCount }, (_, idx) => ({
-      id: `m${idx + 1}`,
-      label: '',
-      level: 1,
-      isEmpty: Math.random() < fillRatio,
-    }));
-    const subNodes =
-      depth >= 2
-        ? mainNodes.flatMap((m, mi) =>
-            Array.from({ length: getRandomInt(1, 2) }, (_, si) => ({
-              id: `${m.id}_s${si + 1}`,
-              label: '',
-              level: 2,
-              isEmpty: Math.random() < fillRatio,
-            }))
-          )
-        : [];
-    const nodes = [centerNode, ...mainNodes, ...subNodes];
-    const edges = mainNodes.map((m) => ({ from: 'center', to: m.id }));
-
-    pages.push({
+    results.push({
       id: `kavram_${Date.now()}_${i}`,
       activityType: ActivityType.KAVRAM_HARITASI,
-      title: `${concept} Kavram Haritası`,
-      instruction: 'Boş kutucuklara uygun kavramları yazarak haritayı tamamla.',
-      nodes,
-      edges,
-      settings: opts,
+      title: 'Kavram Haritası',
+      instruction: 'Aşağıdaki kavram haritasını inceleyerek boş bırakılan yerleri uygun kavramlarla doldurunuz.',
+      pedagogicalNote: 'Bu etkinlik, öğrencinin bilgiler arasındaki hiyerarşik ilişkileri kurmasını, bütünsel bakış açısı geliştirmesini ve kavramsal öğrenmeyi görselleştirmesini sağlar.',
+      settings: {
+        ...options,
+        layoutType: opts.layoutType || 'tree',
+        nodeStyle: opts.nodeStyle || 'rounded'
+      },
+      content: {
+        ...selectedData,
+        title: topic + ' Kavram Haritası'
+      }
     });
   }
-  return pages;
+
+  return results;
 };
 
 export default generateOfflineKavramHaritasi;

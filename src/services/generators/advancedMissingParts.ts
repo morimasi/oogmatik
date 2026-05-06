@@ -188,9 +188,9 @@ export const generateAdvancedMissingPartsFromAI = async (options: GeneratorOptio
     // AI sonucunu doğrula ve gerekirse düzelt
     const validatedResult = validateAndEnhanceResult(result, options);
 
+    // ActivityService zaten sarmaladığı (safeData = [data]) için doğrudan veriyi dönüyoruz.
     return {
-      success: true,
-      data: validatedResult,
+      ...validatedResult,
       metadata: { 
         difficulty, 
         ageGroup, 

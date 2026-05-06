@@ -1,69 +1,61 @@
 import { generateCreativeMultimodal } from '../geminiClient';
-import { ActivityType } from '../../types/activity';
 import { GeneratorOptions } from '../../types/core';
-import { WorksheetData } from '../../types/core';
-import { BaseGenerator } from './core/BaseGenerator';
 
-export class KavramHaritasiGenerator extends BaseGenerator<WorksheetData> {
-  protected async execute(options: GeneratorOptions): Promise<WorksheetData> {
-    const opts = options as Record<string, unknown>;
-    const concept = (opts.concept as string) || (options.topic as string) || 'Su Döngüsü';
-    const difficulty = options.difficulty || 'Orta';
-    const depth = (opts.depth as number) || 2;
-    const branchCount = (opts.branchCount as number) || 4;
-    const fillRatio = (opts.fillRatio as number) ?? 0.4;
-    const layout = (opts.layout as string) || 'radial';
+export const generateKavramHaritasiFromAI = async (
+  options: GeneratorOptions
+): Promise<any> => {
+  const opts = options as Record<string, unknown>;
+  const difficulty = options.difficulty || 'Orta';
+  const topic = (opts.topic as string) || 'Genel bir bilimsel konu';
+  const depth = (opts.depth as number) || 2;
+  const branchCount = (opts.branchCount as number) || 3;
 
-    const prompt = `Sen eğitim materyali uzmanısın. "${concept}" kavramı için Türkçe bir kavram haritası üret.
+  const prompt = `
+Sen bir eğitim teknolojileri uzmanı ve nöro-pedagogsun. Disleksi ve öğrenme güçlüğü çeken çocuklar için yüksek kaliteli, görsel hiyerarşisi net bir "Kavram Haritası" oluşturacaksın.
 
-PARAMETRELERİ:
-- Kavram: "${concept}"
-- Derinlik: ${depth} seviye (1=sadece ana dallar, 2=ana+alt dallar)
-- Ana Dal Sayısı: ${branchCount}
+GÖREV: "${topic}" konusu üzerine, ${difficulty} zorluk seviyesinde bir kavram haritası yapılandır.
+
+PARAMETRELER:
+- Konu: ${topic}
 - Zorluk: ${difficulty}
-- Doluluk: Toplam düğümlerin %${Math.round((1 - fillRatio) * 100)}'i dolu, %${Math.round(fillRatio * 100)}'i öğrencinin dolduracağı boş alan
-- Yerleşim: ${layout}
+- Derinlik: ${depth} (Ana kavramdan itibaren kaç katman aşağı inileceği)
+- Dal Sayısı: Her düğümden ortalama ${branchCount} dal çıkmalı.
 
-ZORUNLU JSON ÇIKTISI:
+TASARIM KURALLARI:
+1. "nodes" dizisi oluştur. Her düğüm (node) şu özellikleri içermeli:
+   - id: Benzersiz bir ID (string)
+   - label: Kavramın adı (Kısa, öz, anlaşılır)
+   - parentId: Bağlı olduğu üst kavramın ID'si (root hariç)
+   - type: En üst kavram için "root", diğerleri için "concept".
+2. Bilişsel yükü optimize et: Kavramlar arası ilişkiler mantıklı ve müfredata uygun olmalı.
+3. Boşluk Bırakma: Çocuğun doldurması için düğümlerin %${(opts.fillRatio as number) || 60}'ını dolu, kalanını boş (label: "") bırak ama parentId ilişkisini koru.
+
+ZORUNLU JSON FORMATI:
 {
-  "id": "km_uuid",
+  "id": "kavram_ai_123",
   "activityType": "KAVRAM_HARITASI",
-  "title": "${concept} Kavram Haritası",
-  "instruction": "Boş kutulara uygun kavramları yazarak haritayı tamamla.",
-  "pedagogicalNote": "Bu etkinlik öğrencinin kavramlar arası ilişkileri görsel-mekansal olarak organize etme becerisini geliştirir. ${concept} konusundaki şema bilgisi ve uzun süreli bellek kodlaması hedeflenir.",
-  "nodes": [
-    {"id": "center", "label": "${concept}", "isEmpty": false, "level": 0},
-    {"id": "n1", "label": "Ana Kavram 1", "isEmpty": false, "level": 1},
-    {"id": "n1_1", "label": "Alt Kavram", "isEmpty": true, "level": 2}
-  ],
-  "edges": [
-    {"from": "center", "to": "n1", "label": "içerir"},
-    {"from": "n1", "to": "n1_1"}
-  ],
-  "examples": ["Örnek 1", "Örnek 2"],
+  "title": "${topic} Kavram Haritası",
+  "instruction": "Kavramlar arasındaki ilişkileri takip ederek boş kutucukları doğru terimlerle tamamlayın.",
+  "pedagogicalNote": "Bu harita, öğrencinin ${topic} konusundaki şemalarını organize etmesine ve hiyerarşik düşünme becerisini geliştirmesine yardımcı olur.",
   "settings": {
-    "concept": "${concept}",
+    "difficulty": "${difficulty}",
     "depth": ${depth},
-    "branchCount": ${branchCount},
-    "fillRatio": ${fillRatio},
-    "layout": "${layout}"
+    "topic": "${topic}"
+  },
+  "content": {
+    "nodes": [
+      { "id": "1", "label": "${topic}", "type": "root" },
+      { "id": "2", "label": "Örnek Alt Kavram", "parentId": "1", "type": "concept" }
+      // ... diğer düğümler
+    ]
   }
 }
+`;
 
-KURALLAR:
-1. Merkez düğüm (id: "center", level: 0) her zaman dolu (isEmpty: false)
-2. Ana dallar (level: 1): ${branchCount} tane, kavramın temel boyutları
-3. Alt dallar (level: 2): her ana daldan 2-3 tane (depth >= 2 ise)
-4. isEmpty: true olan düğüm sayısı toplam düğümlerin ~%${Math.round(fillRatio * 100)}'i olmalı
-5. edges'de label opsiyonel ama açıklayıcı olursa daha iyi
-6. Tüm metinler Türkçe`;
+  const parsedData = await generateCreativeMultimodal({
+    prompt: prompt,
+    temperature: 0.5,
+  });
 
-    const parsedData = await generateCreativeMultimodal({ prompt, temperature: 0.6 });
-
-    return {
-      ...parsedData,
-      id: (parsedData as Record<string, unknown>).id || crypto.randomUUID(),
-      activityType: ActivityType.KAVRAM_HARITASI,
-    } as unknown as WorksheetData;
-  }
-}
+  return parsedData;
+};

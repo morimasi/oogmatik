@@ -1,44 +1,66 @@
-import { GeneratorOptions } from '../../types';
 import { ActivityType } from '../../types/activity';
-
-interface EsAnlamliKelimelerData {
-  id: string;
-  activityType: ActivityType;
-  title: string;
-  instruction: string;
-  pairs: { word: string; synonyms: string[] }[];
-  settings: GeneratorOptions;
-}
+import { GeneratorOptions } from '../../types/core';
 
 export const generateOfflineEsAnlamliKelimeler = async (
   options: GeneratorOptions
-): Promise<EsAnlamliKelimelerData[]> => {
-  const opts = options;
-  const { worksheetCount = 1, wordCount = 5, difficulty = 'Orta', wordCategory = 'all' } = opts;
+): Promise<any[]> => {
+  const { worksheetCount = 1, difficulty = 'Orta' } = options;
+  const opts = options as Record<string, unknown>;
+  const itemCount = (opts.itemCount as number) || (opts.wordCount as number) || 8;
 
-  const allWords = {
-    nouns: ['ev', 'araba', 'kitap', 'masa', 'kalem', 'çanta', 'ağaç', 'göz', 'el', 'yemek'],
-    verbs: ['gelmek', 'görmek', 'almak', 'yazmak', 'okumak', 'konuşmak', 'duymak', 'sevinmek'],
-    adjectives: ['büyük', 'küçük', 'güzel', 'iyi', 'yeni', 'eski', 'hızlı', 'yavaş'],
-  };
-  const words =
-    wordCategory === 'all'
-      ? [...allWords.nouns, ...allWords.verbs, ...allWords.adjectives].slice(0, wordCount)
-      : (allWords as Record<string, string[]>)[wordCategory as string]?.slice(0, wordCount) || [];
+  // Gerçek Türkçe Eş Anlamlı Kelimeler Veritabanı
+  const database = [
+    { word: 'Cevap', synonym: 'Yanıt' },
+    { word: 'Soru', synonym: 'Sual' },
+    { word: 'Hediye', synonym: 'Armağan' },
+    { word: 'Okul', synonym: 'Mektep' },
+    { word: 'Öğrenci', synonym: 'Talebe' },
+    { word: 'Öğretmen', synonym: 'Muallim' },
+    { word: 'Misafir', synonym: 'Konuk' },
+    { word: 'Zaman', synonym: 'Vakit' },
+    { word: 'Güçlü', synonym: 'Kuvvetli' },
+    { word: 'Akıllı', synonym: 'Zeki' },
+    { word: 'Yaşlı', synonym: 'İhtiyar' },
+    { word: 'Genç', synonym: 'Taze' },
+    { word: 'Doktor', synonym: 'Hekim' },
+    { word: 'Doğa', synonym: 'Tabiat' },
+    { word: 'Büyük', synonym: 'İri' },
+    { word: 'Hızlı', synonym: 'Süratli' },
+    { word: 'Uzak', synonym: 'Irak' },
+    { word: 'Yıl', synonym: 'Sene' },
+    { word: 'Düş', synonym: 'Rüya' },
+    { word: 'Anı', synonym: 'Hatıra' },
+    { word: 'Barış', synonym: 'Sulh' },
+    { word: 'Kırmızı', synonym: 'Al' },
+    { word: 'Beyaz', synonym: 'Ak' },
+    { word: 'Siyah', synonym: 'Kara' }
+  ];
 
-  const pages: EsAnlamliKelimelerData[] = [];
+  const results: any[] = [];
+
   for (let i = 0; i < worksheetCount; i++) {
-    const pairs = words.map((w) => ({ word: w, synonyms: ['eş1', 'eş2'] }));
-    pages.push({
+    // Rastgele kelimeleri seç
+    const shuffled = [...database].sort(() => 0.5 - Math.random());
+    const selectedPairs = shuffled.slice(0, itemCount);
+
+    results.push({
       id: `esanlamli_${Date.now()}_${i}`,
-      activityType: ActivityType.SYNONYM_ANTONYM_MATCH,
-      title: 'Eş Anlamlı Kelimeler',
-      instruction: 'Her kelimenin eş anlamlılarını yaz.',
-      pairs,
-      settings: opts,
+      activityType: ActivityType.ES_ANLAMLI_KELIMELER,
+      title: 'Eş Anlamlı Kelimeler: Kelime Bağlama',
+      instruction: 'Aşağıdaki kelimeleri eş anlamlıları ile eşleştirin veya kutucuklara yazın.',
+      pedagogicalNote: 'Bu çalışma, öğrencinin kelime hazinesini zenginleştirerek okuma ve anlama becerilerini (verbal fluency) geliştirmeyi hedefler.',
+      settings: {
+        ...options,
+        layoutType: opts.layoutType || 'match_columns'
+      },
+      content: {
+        pairs: selectedPairs,
+        title: 'Kelime Bağlama Oyunu'
+      }
     });
   }
-  return pages;
+
+  return results;
 };
 
 export default generateOfflineEsAnlamliKelimeler;
