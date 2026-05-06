@@ -29,6 +29,8 @@ export const aiContentService = {
       'PZW4TWcMW7eB89z1M2EB': 'Eş Anlamlı Kelimeler',
       'L0L6Y9PrZNzsiJ2Ott7g': 'Meyveli Toplama Bulmacası',
       'vY3R8kM9z1P2Q3R4S5T6': 'Gizemli Sayılar',
+      'MfH9I6jyuvHJWTadIb91': 'Sayı Dedektifi Macerası',
+      'ücgwen_1769002912962': 'Kaç Tane Üçgen Var?',
       [ActivityType.FIND_LETTER_PAIR]: 'Harf İkilisi Dedektifi',
       [ActivityType.READING_SUDOKU]: 'Dil ve Mantık Sudokusu',
       [ActivityType.SYLLABLE_MASTER_LAB]: 'Hece Ustası Laboratuvarı',

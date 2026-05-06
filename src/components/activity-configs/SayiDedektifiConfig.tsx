@@ -22,11 +22,26 @@ export const SayiDedektifiConfig: React.FC<Props> = ({ options, onChange }) => {
           onChange={(e) =>
             onChange({ ...opts, sayiDedektifi: { ...dedek, difficulty: e.target.value } })
           }
-          className="w-full p-2 border-2 border-zinc-200 rounded-lg"
+          className="w-full p-2 border-2 border-zinc-200 rounded-lg text-sm font-bold outline-none focus:border-indigo-500"
         >
-          <option value="Başlangıç">Başlangıç</option>
-          <option value="Orta">Orta</option>
-          <option value="Zor">Zor</option>
+          <option value="Başlangıç">Başlangıç (1-20)</option>
+          <option value="Orta">Orta (10-100)</option>
+          <option value="Zor">Zor (50-500)</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Aktivite Sayısı (Sayfa Başı)</label>
+        <select
+          value={(opts.itemCount as number) || 6}
+          onChange={(e) =>
+            onChange({ ...opts, itemCount: parseInt(e.target.value) })
+          }
+          className="w-full p-2 border-2 border-zinc-200 rounded-lg text-sm font-bold outline-none focus:border-indigo-500"
+        >
+          <option value={4}>4 Kart (Daha Geniş)</option>
+          <option value={6}>6 Kart (Kompakt)</option>
+          <option value={8}>8 Kart (Yoğun)</option>
         </select>
       </div>
     </div>
