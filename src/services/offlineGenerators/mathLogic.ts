@@ -134,26 +134,46 @@ export const generateOfflineNumberLogicRiddles = async (options: GeneratorOption
 };
 
 export const generateOfflineNumberPathLogic = async (options: GeneratorOptions): Promise<NumberPathLogicData[]> => {
-    // ... Mevcut fonksiyon korunuyor
-    const { worksheetCount, codeLength = 3, itemCount = 6 } = options;
+    const { worksheetCount, _difficulty, codeLength = 4, itemCount = 14 } = options;
     const pages: NumberPathLogicData[] = [];
-    const SYMBOLS = ['circle', 'square', 'triangle', 'hexagon'];
-    const COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b'];
+    const SYMBOLS = ['circle', 'square', 'triangle', 'hexagon', 'star'];
+    const COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
     for (let p = 0; p < worksheetCount; p++) {
-        const legend = SYMBOLS.map((s, i) => ({ symbol: s, operation: i % 2 === 0 ? '+' : '-', value: getRandomInt(1, 5), color: COLORS[i] }));
+        const legend = SYMBOLS.map((s, i) => {
+            const operations = ['+', '-', '+', '*'];
+            const op = operations[i % operations.length];
+            const value = op === '*' ? getRandomInt(2, 4) : getRandomInt(2, 8);
+            return { symbol: s, operation: op, value, color: COLORS[i] };
+        });
         const chains = Array.from({ length: itemCount }, () => {
-            const startNumber = getRandomInt(5, 20);
+            const startNumber = getRandomInt(2, 10);
             const steps = [];
             let currentVal = startNumber;
-            for (let s = 0; s < codeLength; s++) {
+            const stepsCount = getRandomInt(3, 5);
+            for (let s = 0; s < stepsCount; s++) {
                 const leg = legend[getRandomInt(0, legend.length - 1)];
-                const stepVal = leg.operation === '+' ? currentVal + leg.value : currentVal - leg.value;
-                steps.push({ symbol: leg.symbol, expectedValue: stepVal < 0 ? currentVal + 2 : stepVal });
-                currentVal = stepVal < 0 ? currentVal + 2 : stepVal;
+                let stepVal = currentVal;
+                if (leg.operation === '+') stepVal += leg.value;
+                else if (leg.operation === '-') stepVal -= leg.value;
+                else if (leg.operation === '*') stepVal *= leg.value;
+                
+                if (stepVal < 0) {
+                    stepVal = currentVal + leg.value;
+                    steps.push({ symbol: leg.symbol, expectedValue: stepVal, fallbackOperation: '+' });
+                } else {
+                    steps.push({ symbol: leg.symbol, expectedValue: stepVal });
+                }
+                currentVal = stepVal;
             }
             return { startNumber, steps };
         });
-        pages.push({ title: "Sembolik İşlem Zinciri", instruction: "Zinciri tamamla.", legend, chains });
+        pages.push({ 
+            title: "Ultra Sembolik İşlem Zinciri", 
+            instruction: "Sembollerin kurallarını keşfet ve işlem zincirlerini adım adım çözerek sonuca ulaş.", 
+            pedagogicalNote: "Çok adımlı sembolik işlemler, çalışma belleğini ve ardışık işlem becerilerini güçlendirir. Zenginleştirilmiş kombinasyonlar zihinsel esnekliği artırır.",
+            legend, 
+            chains 
+        });
     }
     return pages;
 };

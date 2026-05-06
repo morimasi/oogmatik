@@ -66,12 +66,23 @@ export interface NumberPyramidData extends BaseActivityData {
 }
 
 export interface NumberCapsuleData extends BaseActivityData {
-  capsules: {
+  puzzles?: {
+    id?: string;
+    grid: (number | null)[][];
+    rowTargets?: number[];
+    colTargets?: number[];
+    capsules: {
+      id: string;
+      target: number;
+      cells: { x: number; y: number }[];
+    }[];
+  }[];
+  capsules?: {
     id: string;
     target: number;
     cells: { x: number; y: number }[];
   }[];
-  grid: (number | null)[][];
+  grid?: (number | null)[][];
   rowTargets?: number[];
   colTargets?: number[];
 }

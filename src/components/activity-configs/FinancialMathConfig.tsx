@@ -20,11 +20,26 @@ export const FinancialMathConfig: React.FC<{ options: GeneratorOptions; onChange
                 </div>
             </div>
 
+            <div className="p-4 bg-amber-50/50 dark:bg-amber-900/10 rounded-[2rem] border border-amber-100 dark:border-amber-800/30">
+                <label className="text-[10px] font-black text-amber-600 uppercase mb-3 block text-center">Cüzdan Sayısı (Sayfa İçi)</label>
+                <div className="flex gap-2">
+                    {[6, 8, 10].map(count => (
+                        <button 
+                            key={count}
+                            onClick={() => onChange('itemCount', count)}
+                            className={`flex-1 py-2 rounded-xl text-xs font-black border transition-all ${(options.itemCount || 8) === count ? 'bg-amber-500 text-white border-amber-500 shadow-sm' : 'bg-white dark:bg-zinc-800 text-zinc-500 border-zinc-200 dark:border-zinc-700'}`}
+                        >
+                            {count}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
             <div className="p-5 bg-zinc-50 dark:bg-zinc-800 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700">
                 <div className="space-y-1">
                     <label className="text-[10px] font-bold text-zinc-500 uppercase block">İşlem Limiti (TL)</label>
                     <select 
-                        value={options.numberRange || '1-50'} 
+                        value={options.numberRange || '1-100'} 
                         onChange={e => onChange('numberRange', e.target.value)}
                         className="w-full p-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold"
                     >

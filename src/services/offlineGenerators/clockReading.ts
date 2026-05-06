@@ -3,20 +3,24 @@ import { GeneratorOptions, ClockReadingData } from '../../types';
 import { getRandomInt, shuffle } from './helpers';
 
 export const generateOfflineClockReading = async (options: GeneratorOptions): Promise<ClockReadingData[]> => {
-    const { worksheetCount, difficulty, variant = 'analog-to-digital' } = options;
+    const { worksheetCount, difficulty, variant = 'analog-to-digital', itemCount = 12 } = options;
+    const precision = (options as any).precision || '15-min';
+    
     const results: ClockReadingData[] = [];
 
     for (let p = 0; p < worksheetCount; p++) {
-        const clocks = Array.from({ length: 6 }, () => {
+        const clocks = Array.from({ length: itemCount }, () => {
             const hour = getRandomInt(1, 12);
             let minute = 0;
 
-            if (difficulty === 'Başlangıç') {
-                minute = Math.random() > 0.5 ? 0 : 30; // Sadece tam ve yarım saatler
-            } else if (difficulty === 'Orta') {
-                minute = [0, 15, 30, 45][getRandomInt(0, 3)]; // Çeyrek saatler eklendi
+            if (precision === '30-min') {
+                minute = Math.random() > 0.5 ? 0 : 30;
+            } else if (precision === '15-min') {
+                minute = [0, 15, 30, 45][getRandomInt(0, 3)];
+            } else if (precision === '5-min') {
+                minute = getRandomInt(0, 11) * 5;
             } else {
-                minute = getRandomInt(0, 11) * 5; // 5 dakikalık artışlar
+                minute = getRandomInt(0, 59);
             }
 
             const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
@@ -44,8 +48,8 @@ export const generateOfflineClockReading = async (options: GeneratorOptions): Pr
             variant,
             clocks,
             settings: {
-                showNumbers: true,
-                showTicks: true,
+                showNumbers: (options as any).showNumbers !== false,
+                showTicks: (options as any).showTicks !== false,
                 showHands: variant === 'analog-to-digital',
                 showOptions: difficulty === 'Başlangıç',
                 difficulty

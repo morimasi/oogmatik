@@ -9,57 +9,72 @@ interface GizemliSayilarData {
   title: string;
   instruction: string;
   pedagogicalNote: string;
-  mysteryNumber: number;
-  clues: { id: string; text: string; type: string }[];
+  riddles: {
+    id: string;
+    mysteryNumber: number;
+    clues: { id: string; text: string; type: string }[];
+  }[];
   settings: Record<string, unknown>;
 }
 
 export const GizemliSayilarSheet: React.FC<{ data: GizemliSayilarData }> = ({ data }) => {
+  const riddles = data.riddles || [];
+  
+  // Choose layout based on number of riddles
+  const getGridClass = () => {
+    if (riddles.length >= 8) return 'grid grid-cols-2 gap-x-4 gap-y-4 mt-6';
+    if (riddles.length >= 6) return 'grid grid-cols-2 gap-x-6 gap-y-6 mt-6';
+    return 'grid grid-cols-2 gap-x-8 gap-y-8 mt-8';
+  };
+
   return (
     <div className="flex flex-col bg-white p-8 text-black font-lexend min-h-[1123px]">
       <PedagogicalHeader
-        title={data.title || 'Gizemli Sayı'}
-        instruction={data.instruction || 'İpuçlarını takip et, gizli sayıyı bul!'}
+        title={data.title || 'Gizemli Sayılar'}
+        instruction={data.instruction || 'İpuçlarını dikkatlice oku ve her kutudaki gizemli sayıyı bul!'}
         note={data.pedagogicalNote}
       />
 
-      {/* İpuçları */}
-      <div className="mt-8 space-y-4">
-        {(data.clues || []).map((clue, idx) => (
-          <EditableElement
-            key={clue.id}
-            className="flex items-center gap-4 p-4 bg-zinc-50 rounded-xl hover:bg-zinc-100 transition-colors"
-          >
-            <div className="w-10 h-10 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold shrink-0 shadow-md">
-              {idx + 1}
+      <div className={getGridClass()}>
+        {riddles.map((riddle, index) => (
+          <div key={riddle.id} className="flex flex-col bg-zinc-50 rounded-2xl border-2 border-zinc-100 p-5 shadow-sm relative">
+            <div className="absolute -top-3 -left-3 w-8 h-8 bg-indigo-500 text-white rounded-full flex items-center justify-center font-bold text-sm shadow-sm border-2 border-white">
+              {index + 1}
             </div>
-            <EditableText
-              value={clue.text}
-              tag="p"
-              className="text-lg font-medium text-zinc-800 flex-1"
-            />
-          </EditableElement>
-        ))}
-      </div>
+            
+            <div className="flex-1 space-y-3 mt-2">
+              {riddle.clues.map((clue, cIdx) => (
+                <EditableElement
+                  key={clue.id}
+                  className="flex items-start gap-3"
+                >
+                  <div className="w-5 h-5 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5">
+                    {cIdx + 1}
+                  </div>
+                  <EditableText
+                    value={clue.text}
+                    tag="p"
+                    className="text-sm font-medium text-zinc-700 leading-tight"
+                  />
+                </EditableElement>
+              ))}
+            </div>
 
-      {/* Cevap Kutusu */}
-      <div className="mt-12 flex justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <label className="text-sm font-bold text-zinc-500 uppercase tracking-widest">
-            Gizli Sayı
-          </label>
-          <div className="w-36 h-20 bg-white border-4 border-dashed border-zinc-300 rounded-2xl flex items-center justify-center text-4xl font-bold text-zinc-300">
-            ?
+            <div className="mt-4 pt-4 border-t-2 border-zinc-200 border-dashed flex justify-between items-center">
+              <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Gizemli Sayı</span>
+              <div className="w-20 h-10 bg-white border-2 border-zinc-300 rounded-lg flex items-center justify-center">
+                <span className="text-zinc-200 font-bold">?</span>
+              </div>
+            </div>
           </div>
-          <p className="text-xs text-zinc-400 mt-2">Cevabını buraya yaz</p>
-        </div>
+        ))}
       </div>
 
       {/* Footer */}
       <div className="mt-auto pt-8 border-t border-zinc-100 flex justify-between items-center opacity-50">
         <div className="flex items-center gap-2">
           <i className="fa-solid fa-brain text-indigo-500"></i>
-          <p className="text-[8px] font-bold uppercase tracking-wider">Mantıksal Çıkarım</p>
+          <p className="text-[8px] font-bold uppercase tracking-wider">Mantıksal Çıkarım & Sayı Duyusu</p>
         </div>
       </div>
     </div>

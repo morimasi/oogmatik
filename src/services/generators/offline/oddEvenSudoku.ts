@@ -46,37 +46,44 @@ export const generateOfflineOddEvenSudoku = async (options: GeneratorOptions): P
         return false;
     };
 
+    const puzzlesPerSheet = size === 6 ? 4 : 6;
+
     for (let c = 0; c < worksheetCount; c++) {
-        const board: (number | null)[][] = Array(size).fill(null).map(() => Array(size).fill(null));
-        const firstRow = Array.from({ length: size }, (_, i) => i + 1);
-        for (let i = firstRow.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [firstRow[i], firstRow[j]] = [firstRow[j], firstRow[i]];
-        }
-        board[0] = firstRow as number[];
-        solve(board, size);
+        const pagePuzzles = [];
 
-        const mask: ('odd' | 'even' | null)[][] = Array(size).fill(null).map(() => Array(size).fill(null));
-        const puzzleGrid: (number | null)[][] = Array(size).fill(null).map(() => Array(size).fill(null));
-
-        const emptyRatio = difficulty === 'Başlangıç' ? 0.4 : (difficulty === 'Orta' ? 0.5 : 0.65);
-
-        for (let i = 0; i < size; i++) {
-            for (let j = 0; j < size; j++) {
-                const val = board[i][j] as number;
-                if (Math.random() > 0.4) mask[i][j] = val % 2 === 0 ? 'even' : 'odd';
-                if (Math.random() > emptyRatio) puzzleGrid[i][j] = val;
+        for (let p = 0; p < puzzlesPerSheet; p++) {
+            const board: (number | null)[][] = Array(size).fill(null).map(() => Array(size).fill(null));
+            const firstRow = Array.from({ length: size }, (_, i) => i + 1);
+            for (let i = firstRow.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [firstRow[i], firstRow[j]] = [firstRow[j], firstRow[i]];
             }
+            board[0] = firstRow as number[];
+            solve(board, size);
+
+            const mask: ('odd' | 'even' | null)[][] = Array(size).fill(null).map(() => Array(size).fill(null));
+            const puzzleGrid: (number | null)[][] = Array(size).fill(null).map(() => Array(size).fill(null));
+
+            const emptyRatio = difficulty === 'Başlangıç' ? 0.4 : (difficulty === 'Orta' ? 0.5 : 0.65);
+
+            for (let i = 0; i < size; i++) {
+                for (let j = 0; j < size; j++) {
+                    const val = board[i][j] as number;
+                    if (Math.random() > 0.4) mask[i][j] = val % 2 === 0 ? 'even' : 'odd';
+                    if (Math.random() > emptyRatio) puzzleGrid[i][j] = val;
+                }
+            }
+            pagePuzzles.push({
+                size,
+                grid: puzzleGrid,
+                oddEvenMask: mask
+            });
         }
 
         activities.push({
             title: `Tek / Çift Sudoku (${size}x${size})`,
             instruction: `Sudoku kurallarına ek olarak; yeşil renkli kutulara sadece TEK, mavi renkli kutulara sadece ÇİFT sayılar gelmelidir.`,
-            puzzles: [{
-                size,
-                grid: puzzleGrid,
-                oddEvenMask: mask
-            }]
+            puzzles: pagePuzzles
         });
     }
 

@@ -6,35 +6,11 @@ import { getRandomInt, shuffle, getRandomItems } from './helpers';
  * Saat Okuma Yerel Üretici (Hızlı Mod)
  */
 export const generateOfflineClockReading = async (options: GeneratorOptions): Promise<ClockReadingData[]> => {
-    const { worksheetCount, difficulty, variant = 'analog-to-digital' } = options;
-    const results: ClockReadingData[] = [];
-
-    for (let p = 0; p < worksheetCount; p++) {
-        const clocks = Array.from({ length: 6 }, () => {
-            const hour = getRandomInt(1, 12);
-            let minute = 0;
-
-            if (difficulty === 'Başlangıç') {
-                minute = Math.random() > 0.5 ? 0 : 30;
-            } else if (difficulty === 'Orta') {
-                minute = [0, 15, 30, 45][getRandomInt(0, 3)];
-            } else {
-                minute = getRandomInt(0, 11) * 5;
-            }
-
-            const timeString = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-            const hourWords = ["", "Bir", "İki", "Üç", "Dört", "Beş", "Altı", "Yedi", "Sekiz", "Dokuz", "On", "On Bir", "On İki"];
-            let verbalTime = `Saat ${hourWords[hour]}`;
-            if (minute === 30) verbalTime += " buçuk";
-            else if (minute !== 0) verbalTime += ` ${minute} geçiyor`;
-
-            return {
-                hour,
-                minute,
-                timeString,
-                verbalTime,
-                options: shuffle([timeString, `${(hour % 12) + 1}:15`, `${hour}:45`, `${hour - 1}:30`]).slice(0, 4)
-            };
+    // Moved to clockReading.ts to avoid duplication.
+    // Ensure we delegate to that function or remove the duplicate entirely if unused.
+    const { generateOfflineClockReading: realGenerator } = await import('./clockReading');
+    return realGenerator(options);
+};
         });
 
         results.push({
@@ -68,39 +44,10 @@ export const generateOfflineNumberSense = async (options: GeneratorOptions): Pro
 };
 
 export const generateOfflineMoneyCounting = async (options: GeneratorOptions): Promise<MoneyCountingData[]> => {
-    const { worksheetCount, difficulty } = options;
-    const results: MoneyCountingData[] = [];
-    const notes = [200, 100, 50, 20, 10, 5];
-    const coins = [1, 0.5, 0.25, 0.1, 0.05];
-
-    for (let p = 0; p < worksheetCount; p++) {
-        const puzzles = Array.from({ length: 4 }, () => {
-            const selectedNotes: { value: number; count: number }[] = [];
-            const selectedCoins: { value: number; count: number }[] = [];
-            let total = 0;
-            const noteCount = difficulty === 'Başlangıç' ? 2 : (difficulty === 'Orta' ? 3 : 5);
-            for (let i = 0; i < noteCount; i++) {
-                const val = notes[getRandomInt(0, difficulty === 'Başlangıç' ? 3 : 5)];
-                const count = getRandomInt(1, 3);
-                selectedNotes.push({ value: val, count });
-                total += val * count;
-            }
-            if (difficulty !== 'Başlangıç') {
-                for (let i = 0; i < 2; i++) {
-                    const val = coins[getRandomInt(0, 2)];
-                    const count = getRandomInt(1, 4);
-                    selectedCoins.push({ value: val, count });
-                    total += val * count;
-                }
-            }
-            const formattedTotal = total.toFixed(2);
-            return {
-                notes: selectedNotes,
-                coins: selectedCoins,
-                question: "Cüzdandaki toplam para miktarını bulun.",
-                options: shuffle([`${total} TL`, `${(total + 10).toFixed(2)} TL`, `${(total - 5).toFixed(2)} TL`]),
-                answer: `${formattedTotal} TL`
-            };
+    // Moved to financialMath.ts
+    const { generateOfflineMoneyCounting: realGenerator } = await import('./financialMath');
+    return realGenerator(options);
+};
         });
         results.push({
             title: "Paralarımız ve Hesaplamalar",
@@ -121,10 +68,49 @@ export const generateOfflineVisualArithmetic = async (options: GeneratorOptions)
 };
 
 export const generateOfflineMathMemoryCards = async (options: GeneratorOptions): Promise<MathMemoryCardsData[]> => {
-    const { worksheetCount } = options;
-    return Array.from({ length: worksheetCount }, () => ({
-        title: "Matematik Hafıza Kartları",
-        instruction: "Eşlerini bul.",
-        cards: [{ id: '1', pairId: 'p1', type: 'operation', content: '2+2', numValue: 4 }, { id: '2', pairId: 'p1', type: 'number', content: '4', numValue: 4 }]
-    }));
+    const { worksheetCount, difficulty } = options;
+    const pages: MathMemoryCardsData[] = [];
+    
+    for (let p = 0; p < worksheetCount; p++) {
+        const cards: MathMemoryCard[] = [];
+        const pairCount = difficulty === 'Başlangıç' ? 12 : 16; // 24 or 32 cards
+        
+        const usedNumbers = new Set<number>();
+        
+        for (let i = 0; i < pairCount; i++) {
+            let target = getRandomInt(5, 20);
+            while(usedNumbers.has(target)) {
+                target = getRandomInt(5, 30);
+            }
+            usedNumbers.add(target);
+            
+            const pairId = `p${i}`;
+            const types = ['operation', 'visual', 'text'];
+            const rightType = types[getRandomInt(0, types.length - 1)];
+            
+            cards.push({ id: `c${i}a`, pairId, type: 'number', content: String(target), numValue: target });
+            
+            if (rightType === 'operation') {
+                const addend = getRandomInt(1, target - 1);
+                cards.push({ id: `c${i}b`, pairId, type: 'operation', content: `${addend} + ${target - addend}`, numValue: target });
+            } else if (rightType === 'visual') {
+                const vTypes = ['ten-frame', 'dice', 'blocks'];
+                cards.push({ id: `c${i}b`, pairId, type: 'visual', content: '', numValue: target, visualType: vTypes[getRandomInt(0, vTypes.length - 1)] as any });
+            } else if (rightType === 'text') {
+                const words = ['Sıfır','Bir','İki','Üç','Dört','Beş','Altı','Yedi','Sekiz','Dokuz','On',
+                'On Bir','On İki','On Üç','On Dört','On Beş','On Altı','On Yedi','On Sekiz','On Dokuz','Yirmi',
+                'Yirmi Bir', 'Yirmi İki', 'Yirmi Üç', 'Yirmi Dört', 'Yirmi Beş', 'Yirmi Altı', 'Yirmi Yedi', 'Yirmi Sekiz', 'Yirmi Dokuz', 'Otuz'];
+                cards.push({ id: `c${i}b`, pairId, type: 'text', content: words[target] || String(target), numValue: target });
+            }
+        }
+        
+        pages.push({
+            title: "Gelişmiş Matematik Hafıza Kartları",
+            instruction: "Kartları dış çerçevelerinden kesin. Ters çevirip eşlerini bularak hafıza oyununu oynayın.",
+            pedagogicalNote: "Çoklu temsil (sayı, görsel, işlem, metin) eşleştirmesi matematiksel esnekliği ve çalışma belleğini güçlendirir.",
+            settings: { showNumbers: true, difficulty },
+            cards: shuffle(cards)
+        });
+    }
+    return pages;
 };
