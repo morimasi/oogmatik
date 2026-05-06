@@ -1,42 +1,20 @@
 
 import { GeneratorOptions, NumberSenseData, VisualArithmeticData, MathMemoryCardsData, MathMemoryCard, MoneyCountingData, ClockReadingData } from '../../types';
-import { getRandomInt, shuffle, getRandomItems } from './helpers';
+import { getRandomInt, shuffle } from './helpers';
 
 /**
  * Saat Okuma Yerel Üretici (Hızlı Mod)
  */
 export const generateOfflineClockReading = async (options: GeneratorOptions): Promise<ClockReadingData[]> => {
     // Moved to clockReading.ts to avoid duplication.
-    // Ensure we delegate to that function or remove the duplicate entirely if unused.
     const { generateOfflineClockReading: realGenerator } = await import('./clockReading');
     return realGenerator(options);
-};
-        });
-
-        results.push({
-            title: "Saat Okuma Atölyesi",
-            instruction: (variant as any) === 'analog-to-digital'
-                ? "Analog saatlerde gösterilen zamanı altındaki dijital kutucuklara yazın."
-                : "Verilen dijital zamana göre saatin akrep ve yelkovanını çizin.",
-            variant: (variant as any),
-            clocks,
-            settings: {
-                showNumbers: true,
-                showTicks: true,
-                showHands: (variant as any) === 'analog-to-digital',
-                showOptions: difficulty === 'Başlangıç',
-                difficulty
-            }
-        });
-    }
-    return results;
 };
 
 export const generateOfflineNumberSense = async (options: GeneratorOptions): Promise<NumberSenseData[]> => {
     const { worksheetCount, difficulty } = options;
     return Array.from({ length: worksheetCount }, () => {
         const exercises: any[] = [];
-        const _max = difficulty === 'Başlangıç' ? 10 : 20;
         const start = getRandomInt(0, 5);
         exercises.push({ type: 'missing', values: [start, start + 1, start + 2, start + 3], target: start + 2, visualType: 'number-line-advanced' });
         return { title: `Sayı Hissi (${difficulty})`, instruction: 'Eksiği bul.', exercises };
@@ -47,15 +25,6 @@ export const generateOfflineMoneyCounting = async (options: GeneratorOptions): P
     // Moved to financialMath.ts
     const { generateOfflineMoneyCounting: realGenerator } = await import('./financialMath');
     return realGenerator(options);
-};
-        });
-        results.push({
-            title: "Paralarımız ve Hesaplamalar",
-            instruction: "Görsellerdeki kağıt ve madeni paraları toplayarak toplam miktarı bulun.",
-            puzzles
-        });
-    }
-    return results;
 };
 
 export const generateOfflineVisualArithmetic = async (options: GeneratorOptions): Promise<VisualArithmeticData[]> => {
