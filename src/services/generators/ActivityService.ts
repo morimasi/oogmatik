@@ -100,6 +100,7 @@ export class ActivityService {
             'k3R8kM9z1P2Q3R4S5T6a': ActivityType.BRAIN_TEASERS, // Kafayı Çalıştır
             'MfH9I6jyuvHJWTadIb91': ActivityType.NUMBER_SENSE, // Sayı Dedektifi
             'ücgwen_1769002912962': ActivityType.SHAPE_COUNTING, // Kaç Tane Üçgen Var
+            'Msc0QEAM8Ax1bcIWJ33v': ActivityType.MAP_INSTRUCTION, // Map-based detective (new dynID)
         };
 
         if (ID_MAPPINGS[type as string]) {
