@@ -107,6 +107,7 @@ const Worksheet = ({ activityType, data, settings, studentProfile, showQR }: Wor
       '--display-instruction': settings.showInstruction ? 'block' : 'none',
       '--display-pedagogical-note': settings.showPedagogicalNote ? 'block' : 'none',
       '--display-image': settings.showImage ? 'block' : 'none',
+      '--worksheet-is-compact': settings.compact ? '1' : '0',
     } as React.CSSProperties;
   }, [settings]);
 
@@ -121,7 +122,7 @@ const Worksheet = ({ activityType, data, settings, studentProfile, showQR }: Wor
 
   return (
     <div
-      className={`flex flex-col items-center w-full ${isLandscape ? 'orientation-landscape' : 'orientation-portrait'}`}
+      className={`flex flex-col items-center w-full ${isLandscape ? 'app-orientation-landscape' : 'app-orientation-portrait'}`}
       style={variableStyle}
     >
       {worksheets.map((ws, idx) => (

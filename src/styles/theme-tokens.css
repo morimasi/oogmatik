@@ -574,24 +574,21 @@
     min-height 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
+/* Oryantasyon Değişimleri */
 .worksheet-page.landscape,
 .app-orientation-landscape .worksheet-page {
   --page-w: 297mm;
   --page-h: 210mm;
 }
 
-@media print {
-  .worksheet-page {
-    width: var(--page-w) !important;
-    min-height: var(--page-h) !important;
-    margin: 0 auto !important;
-    page-break-after: always !important;
-  }
+/* Kompakt Mod Optimizasyonu */
+[style*="--worksheet-is-compact: 1"] .worksheet-page,
+[style*="--worksheet-is-compact: 1"] .print-content-area {
+  gap: 3mm !important;
 }
 
-.worksheet-page.landscape {
-  --page-w: 297mm;
-  --page-h: 210mm;
+[style*="--worksheet-is-compact: 1"] .block-container {
+  margin-bottom: 2mm !important;
 }
 
 @media print {
@@ -600,23 +597,6 @@
     min-height: var(--page-h) !important;
     margin: 0 auto !important;
     page-break-after: always !important;
-  }
-}
-
-.worksheet-page.landscape {
-  width: 297mm !important;
-  min-height: 210mm !important;
-}
-
-@media print {
-  .worksheet-page {
-    width: 210mm !important;
-    min-height: 297mm !important;
-    margin: 0 auto !important;
-    page-break-after: always !important;
-  }
-  .worksheet-page.landscape {
-    width: 297mm !important;
-    min-height: 210mm !important;
+    break-after: page !important;
   }
 }

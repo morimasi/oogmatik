@@ -239,6 +239,10 @@ export const Toolbar: React.FC<ToolbarProps> = ({
     onSettingsChange({ ...settings, [key]: value });
   };
 
+  const updateSettings = (updates: Partial<StyleSettings>) => {
+    onSettingsChange({ ...settings, ...updates });
+  };
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-0.5 md:gap-1 min-h-10 py-0.5 select-none relative z-[60]">
       <div className="flex items-center gap-1 md:gap-2 flex-wrap">
@@ -696,13 +700,21 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             onChange={(p: PaperSize) => {
               paperSizeStore.setPaperSize(p);
               if (p === 'Extreme_Yatay') {
-                updateSetting('orientation', 'landscape');
-                updateSetting('columns', 2); // Yatay'da 2 sütun
-                updateSetting('compact', true);
+                updateSettings({
+                  orientation: 'landscape',
+                  columns: 2,
+                  compact: true,
+                  margin: 10, // Yatayda daha dar marj
+                  gap: 10,   // Yatayda daha dar boşluk
+                });
               } else if (p === 'Extreme_Dikey') {
-                updateSetting('orientation', 'portrait');
-                updateSetting('columns', 1);
-                updateSetting('compact', true);
+                updateSettings({
+                  orientation: 'portrait',
+                  columns: 1,
+                  compact: false,
+                  margin: 15,
+                  gap: 20,
+                });
               }
             }}
           />

@@ -30,6 +30,7 @@ export interface StyleSettings {
     rulerColor: string;
     rulerHeight: number;
     maskOpacity: number;
+    compact?: boolean;
     title?: string;
 }
 

@@ -855,7 +855,7 @@ const UnifiedContentRenderer = ({
     (data.problems && data.problems.length > 0 ? data.problems : []) || 
     (data.steps && data.steps.length > 0 ? data.steps : []) || 
     [];
-  const cols = architecture?.cols || 1;
+  const cols = (architecture?.cols && architecture.cols > 1) ? architecture.cols : (settings?.columns || 1);
 
 
   // DnD sensors — editor modunda blok sıralama için
@@ -942,7 +942,9 @@ const UnifiedContentRenderer = ({
           backgroundColor: 'white',
           color: 'black',
           colorScheme: 'light' as any,
-          padding: settings?.margin ? `${settings.margin}mm` : '15mm',
+          padding: settings?.compact 
+            ? (isLandscape ? '8mm 12mm' : '10mm') 
+            : (settings?.margin ? `${settings.margin}mm` : '15mm'),
         }}
       >
         {/* Ekranda Sayfa Numarası (Print'te gizli) */}
@@ -1014,8 +1016,11 @@ const UnifiedContentRenderer = ({
               className={`print-content-area mt-4 ${cols > 1 ? 'grid' : 'flex flex-col'}`}
               style={
                 cols > 1
-                  ? { gridTemplateColumns: `repeat(${cols}, 1fr)`, gap: '6mm' }
-                  : { gap: '6mm' }
+                  ? { 
+                      gridTemplateColumns: `repeat(${cols}, 1fr)`, 
+                      gap: settings?.compact ? '3mm' : (settings?.gap ? `${settings.gap}mm` : '6mm') 
+                    }
+                  : { gap: settings?.compact ? '3mm' : (settings?.gap ? `${settings.gap}mm` : '6mm') }
               }
             >
               {pageBlocks.map((block, idx) => {
