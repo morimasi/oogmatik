@@ -68,7 +68,8 @@ export const AdvancedMissingPartsSheet: React.FC<{ data: MissingPartsData }> = (
   };
 
   const getProgressPercentage = () => {
-    const totalBlanks = content.paragraphs.flatMap(p => p.parts).filter(part => part.isBlank).length;
+    const totalBlanks = content?.paragraphs?.flatMap(p => p.parts)?.filter(part => part.isBlank).length || 0;
+    if (totalBlanks === 0) return 0;
     return (completedBlanks.size / totalBlanks) * 100;
   };
 
@@ -228,9 +229,9 @@ export const AdvancedMissingPartsSheet: React.FC<{ data: MissingPartsData }> = (
         settings?.columnLayout === 'two-column' ? 'columns-2 gap-6' : ''
       }`}>
         <div className={`space-y-4 ${getFontSize()} ${getLineHeight()}`}>
-          {content.paragraphs.map((paragraph, pIdx) => (
+          {content?.paragraphs?.map((paragraph, pIdx) => (
             <div 
-              key={paragraph.id} 
+              key={paragraph.id || pIdx} 
               className={`relative bg-zinc-50/30 rounded-2xl border border-zinc-100 p-4 hover:bg-zinc-50/50 transition-colors ${
                 settings?.compactLayout ? 'p-3 rounded-xl' : 'p-6 rounded-2xl'
               }`}
@@ -259,14 +260,14 @@ export const AdvancedMissingPartsSheet: React.FC<{ data: MissingPartsData }> = (
               <div className={`text-justify text-zinc-800 ${
                 settings?.compactLayout ? 'text-sm' : 'text-base'
               }`}>
-                {paragraph.parts.map((part, iIdx) => {
-                  const globalBlankIndex = content.paragraphs
-                    .slice(0, pIdx)
-                    .reduce((acc, p) => acc + p.parts.filter(part => part.isBlank).length, 0) + 
-                    paragraph.parts.slice(0, iIdx).filter(part => part.isBlank).length;
+                {paragraph?.parts?.map((part, iIdx) => {
+                  const globalBlankIndex = content?.paragraphs
+                    ?.slice(0, pIdx)
+                    ?.reduce((acc, p) => acc + (p?.parts?.filter(part => part.isBlank).length || 0), 0) + 
+                    (paragraph?.parts?.slice(0, iIdx).filter(part => part.isBlank).length || 0);
                   
                   const isCompleted = completedBlanks.has(globalBlankIndex);
-                  const isSelected = selectedWord && paragraph.parts.slice(0, iIdx + 1).filter(p => p.isBlank).length > 0;
+                  const isSelected = selectedWord && (paragraph?.parts?.slice(0, iIdx + 1)?.filter(p => p.isBlank)?.length || 0) > 0;
 
                   return (
                     <React.Fragment key={iIdx}>

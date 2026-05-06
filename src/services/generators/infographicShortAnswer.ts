@@ -1,103 +1,94 @@
 import { generateWithSchema } from '../geminiClient.js';
 import { GeneratorOptions } from '../../types.js';
+import { ActivityType } from '../../types/activity.js';
 
 /**
- * Infographic Kısa Cevaplı Sorular AI Üretici
+ * Kısa Cevaplı Sorular AI Üretici - Premium Version
  */
 export const generateInfographicShortAnswerFromAI = async (options: GeneratorOptions) => {
   const { 
-    difficulty, 
-    itemCount = 15, 
+    difficulty = 'Orta', 
+    itemCount = 12, 
     ageGroup = '8-10',
     profile = 'general',
     topic = 'Genel Bilgi',
     params = {}
   } = options;
 
-  const colorMode = params.colorMode || 'Karma Renkli';
-  const lineCount = params.lineCount || '2';
+  const lineCount = params.lineCount || 2;
 
   const prompt = `
-[ROL: EĞİTİM İÇERİK UZMANI]
-GÖREV: Infographic formatında kısa cevaplı soru etkinliği üret.
+[ROL: KIDEMLİ EĞİTİM TASARIMCISI]
+GÖREV: "${topic}" konusu üzerine, ${ageGroup} yaş grubu için ${difficulty} seviyesinde kısa cevaplı sorulardan oluşan bir sayfa dolusu etkinlik üret.
 
-PARAMETRELER:
-- Konu: ${topic}
-- Zorluk: ${difficulty}
-- Yaş Grubu: ${ageGroup}
-- Profil: ${profile}
-- Soru Sayısı: ${itemCount}
-- Cevap Satır Sayısı: ${lineCount}
-- Renk Modu: ${colorMode}
+STRATEJİ:
+1. Sorular ${difficulty} seviyesine uygun, merak uyandırıcı ve eğitici olmalı.
+2. Disleksi dostu kısa ve öz cümleler kullanılmalı.
+3. Her soru için kısa bir ipucu verilmeli (opsiyonel ama önerilir).
+4. Soru sayısı: ${itemCount}.
 
-KURALLAR:
-1. Sorular yaş grubuna uygun olmalı
-2. Cevaplar kısa ve net olmalı (1-3 kelime)
-3. Her soru pedagojik değer taşımalı
-4. Bilgiler doğru ve güncel olmalı
-5. Zorluk seviyesine göre soru karmaşıklığı ayarlanmalı
-
-ZORLUK SEVİYELERİ:
-- Başlangıç: Temel bilgiler, günlük hayat
-- Orta: Okul bilgisi, genel kültür
-- Zor: Detaylı bilgi, uzmanlık gerektiren
-
-PEDAGOJİK NOT:
-Bu etkinlik öğrencilerin bilgiyi hatırlama, anlama ve kısa ifade etme becerilerini geliştirir. 
-Kısa cevap formatı, öğrencilerin bilgiyi özleştirme yeteneğini artırır.
+PEDAGOJİK HEDEF:
+Bu etkinlik, öğrencinin okuduğunu anlama, bilgiyi geri çağırma ve yazılı ifade becerilerini sarmal öğrenme modeliyle destekler.
 
 ÇIKTI FORMATI (JSON):
 {
-  "instruction": "Soruları oku ve kısa cevaplarını yaz.",
+  "title": "${topic} Üzerine Sorular",
+  "instruction": "Aşağıdaki soruları dikkatlice okuyup verilen boşluklara kısa yanıtlar veriniz.",
   "questions": [
     {
-      "question": "Soru metni",
-      "answer": "Kısa cevap",
-      "difficulty": 2
+      "id": "q1",
+      "question": "Türkiye'nin başkenti neresidir?",
+      "answer": "Ankara",
+      "hint": "İç Anadolu'da yer alır."
     }
   ],
-  "pedagogicalNote": "Pedagojik açıklama"
+  "pedagogicalNote": "Öğrencinin ${topic} konusundaki temel kazanımları pekiştirmesi sağlanır."
 }
-  `;
+`;
 
   const schema = {
     type: 'OBJECT',
     properties: {
+      title: { type: 'STRING' },
       instruction: { type: 'STRING' },
       questions: {
         type: 'ARRAY',
         items: {
           type: 'OBJECT',
           properties: {
+            id: { type: 'STRING' },
             question: { type: 'STRING' },
             answer: { type: 'STRING' },
-            difficulty: { type: 'NUMBER' },
+            hint: { type: 'STRING' },
           },
-          required: ['question', 'answer', 'difficulty'],
+          required: ['id', 'question'],
         },
       },
       pedagogicalNote: { type: 'STRING' },
     },
-    required: ['instruction', 'questions', 'pedagogicalNote'],
+    required: ['title', 'instruction', 'questions', 'pedagogicalNote'],
   };
 
   const result = await generateWithSchema(prompt, schema);
 
-  // Worksheet formatına dönüştür
+  // Kısa Cevaplı Sorular Modülü için standartlaştırılmış çıktı
   return {
-    id: crypto.randomUUID(),
-    activityType: 'INFOGRAPHIC_SHORT_ANSWER',
-    title: 'Kısa Cevaplı Sorular',
+    id: `short_answer_${Date.now()}`,
+    activityType: ActivityType.INFOGRAPHIC_SHORT_ANSWER,
+    title: result.title,
     instruction: result.instruction,
-    difficultyLevel: difficulty,
-    ageGroup: ageGroup,
-    profile: profile,
-    questions: result.questions.map((q: any, i: number) => ({
-      ...q,
-      id: `q${i + 1}`
-    })),
-    colorMode: colorMode,
-    lineCount: parseInt(lineCount),
-    pedagogicalNote: result.pedagogicalNote
+    pedagogicalNote: result.pedagogicalNote,
+    settings: {
+      ...options,
+      lineCount: parseInt(String(lineCount))
+    },
+    content: {
+       title: result.title,
+       instruction: result.instruction,
+       questions: result.questions.map((q: any) => ({
+           ...q,
+           lines: parseInt(String(lineCount))
+       }))
+    }
   };
 };
