@@ -93,9 +93,17 @@ export class ActivityService {
     public async generate(type: ActivityType, options: GeneratorOptions, _mode?: GeneratorMode): Promise<any> {
         // [ALIAS MAPPING] - Firestore'dan gelen dinamik ID'leri sistem enum değerlerine eşle
         let activeType = type;
-        if ((type as string) === 'PZW4TWcMW7eB89z1M2EB') {
-            logInfo(`[ActivityService] Mapping Firestore ID 'PZW4TWcMW7eB89z1M2EB' to ActivityType.ES_ANLAMLI_KELIMELER`);
-            activeType = ActivityType.ES_ANLAMLI_KELIMELER;
+        const ID_MAPPINGS: Record<string, ActivityType> = {
+            'PZW4TWcMW7eB89z1M2EB': ActivityType.ES_ANLAMLI_KELIMELER,
+            'L0L6Y9PrZNzsiJ2Ott7g': ActivityType.MATH_PUZZLE, // Meyveli Toplama
+            'vY3R8kM9z1P2Q3R4S5T6': ActivityType.NUMBER_LOGIC_RIDDLES, // Gizemli Sayılar
+            'k3R8kM9z1P2Q3R4S5T6a': ActivityType.BRAIN_TEASERS, // Kafayı Çalıştır
+        };
+
+        if (ID_MAPPINGS[type as string]) {
+            const mappedType = ID_MAPPINGS[type as string];
+            logInfo(`[ActivityService] Mapping Firestore ID '${type}' to ${mappedType}`);
+            activeType = mappedType;
         }
 
         // Önce jeneratörü ara
