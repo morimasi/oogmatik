@@ -15,69 +15,64 @@ import { getRandomItems, shuffle, getRandomInt, getWordsForDifficulty } from './
 export async function generateOfflinePremiumMathPuzzle(
   options: GeneratorOptions
 ): Promise<SingleWorksheetData> {
-  const { difficulty = 'Orta' } = options;
-  const maxNum = difficulty === 'Zor' ? 50 : difficulty === 'Orta' ? 20 : 10;
-
-  // Sihirli Kare 3x3
-  const magicBase = getRandomInt(1, 3);
-  const magicSquare = [
-    [magicBase + 7, magicBase + 0, magicBase + 5],
-    [magicBase + 2, magicBase + 4, magicBase + 6],
-    [magicBase + 3, magicBase + 8, magicBase + 1]
+  const { difficulty = 'Orta', itemCount = 2 } = options;
+  const count = Math.max(1, Math.min(6, itemCount || 2));
+  
+  const objectPool = [
+    { name: 'Elma', icon: '🍎' }, { name: 'Armut', icon: '🍐' }, { name: 'Muz', icon: '🍌' },
+    { name: 'Portakal', icon: '🍊' }, { name: 'Çilek', icon: '🍓' }, { name: 'Üzüm', icon: '🍇' },
+    { name: 'Top', icon: '⚽' }, { name: 'Kitap', icon: '📚' }, { name: 'Yıldız', icon: '🌟' },
+    { name: 'Kedi', icon: '🐱' }, { name: 'Köpek', icon: '🐶' }, { name: 'Tavşan', icon: '🐰' }
   ];
-  const targetSum = magicSquare[0].reduce((a, b) => a + b, 0);
-  // Birkaç hücreyi gizle
-  const hiddenMagic = magicSquare.map(row => row.map(val => Math.random() > 0.5 ? val : null));
 
-  // Eksik işlem soruları
-  const missingOps = Array.from({ length: 6 }, () => {
-    const a = getRandomInt(2, maxNum);
-    const b = getRandomInt(1, Math.min(a, maxNum / 2));
-    const ops = ['+', '-', '×'];
-    const op = ops[getRandomInt(0, difficulty === 'Zor' ? 2 : 1)];
-    const result = op === '+' ? a + b : op === '-' ? a - b : a * b;
-    return { a, op: '?', b, result, actualOp: op };
+  const puzzles = Array.from({ length: count }, (_, pIdx) => {
+    const selectedObjects: any[] = getRandomItems(objectPool, 3);
+    const v1 = getRandomInt(1, difficulty === 'Zor' ? 15 : 10);
+    const v2 = getRandomInt(1, difficulty === 'Zor' ? 10 : 8);
+    const v3 = getRandomInt(1, difficulty === 'Zor' ? 8 : 5);
+    
+    selectedObjects[0].value = v1;
+    selectedObjects[1].value = v2;
+    selectedObjects[2].value = v3;
+
+    const equations = [
+      { 
+        leftSide: [{ objectName: selectedObjects[0].name, multiplier: 1 }, { objectName: selectedObjects[0].name, multiplier: 1 }], 
+        rightSide: v1 + v1 
+      },
+      { 
+        leftSide: [{ objectName: selectedObjects[0].name, multiplier: 1 }, { objectName: selectedObjects[1].name, multiplier: 1 }], 
+        rightSide: v1 + v2 
+      },
+      { 
+        leftSide: [{ objectName: selectedObjects[1].name, multiplier: 1 }, { objectName: selectedObjects[2].name, multiplier: 1 }], 
+        rightSide: v2 + v3 
+      }
+    ];
+
+    return {
+      id: `p_${pIdx + 1}`,
+      objects: selectedObjects.map(o => ({ 
+        name: o.name, 
+        imagePrompt: `minimalist ${o.name} icon, vector art style`, 
+        value: o.value 
+      })),
+      equations: equations,
+      finalQuestion: `${selectedObjects[0].name} + ${selectedObjects[2].name}`,
+      answer: v1 + v3
+    };
   });
 
-  // Sayı piramidi
-  const pyramidBase = Array.from({ length: 4 }, () => getRandomInt(1, maxNum / 4));
-  const pyramidRows = [pyramidBase];
-  let current = [...pyramidBase];
-  while (current.length > 1) {
-    const next = [];
-    for (let i = 0; i < current.length - 1; i++) next.push(current[i] + current[i + 1]);
-    pyramidRows.push(next);
-    current = next;
-  }
-
-  const builder = new WorksheetBuilder(ActivityType.MATH_PUZZLE, 'Matematik Bulmacaları')
+  const builder = new WorksheetBuilder(ActivityType.MATH_PUZZLE, 'Premium Matematik Bulmacaları')
     .addPremiumHeader()
-    .setInstruction('Her bulmacayı dikkatlice çöz. İpuçlarını kullan!');
+    .setInstruction('Aşağıdaki görsel denklemleri dikkatlice incele ve bilinmeyenleri bularak soru işaretini cevapla.')
+    .addSuccessIndicator();
 
-  // Bölüm 1: Sihirli Kare
-  builder.addPrimaryActivity('grid', {
-    title: `🔮 Sihirli Kare (Satır, sütun ve çapraz toplamı = ${targetSum})`,
-    matrix: hiddenMagic.map(row => row.map(v => v !== null ? String(v) : '?')),
-    gridSize: { rows: 3, cols: 3 }
-  });
-
-  // Bölüm 2: Eksik İşlem
-  builder.addPrimaryActivity('table', {
-    title: '🔍 Eksik İşlemi Bul',
-    headers: ['İşlem', 'Cevabın'],
-    rows: missingOps.map((mo, i) =>
-      [`${i + 1}.  ${mo.a} ☐ ${mo.b} = ${mo.result}`, '______']
-    )
-  });
-
-  // Bölüm 3: Sayı Piramidi
-  builder.addSupportingDrill('Sayı Piramidi (Üstteki = Alttaki ikisinin toplamı)', {
-    pyramid: pyramidRows.reverse().map((row, rIdx) =>
-      row.map((val, cIdx) => rIdx === 0 || Math.random() > 0.4 ? String(val) : '?')
-    )
-  });
-
-  return builder.addSuccessIndicator().build();
+  return {
+    ...builder.build(),
+    puzzles: puzzles,
+    data: { puzzles } // Renderer uyumu için
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════

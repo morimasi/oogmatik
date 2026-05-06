@@ -21,6 +21,7 @@ export * from './logicErrorHunter';
 export * from './patternCompletion';
 export * from './mapInstruction';
 export * from './mathStudio';
+export * from './mathPuzzle';
 export * from './assessment';
 export * from './visualInterpretation';
 export * from './boxMath';

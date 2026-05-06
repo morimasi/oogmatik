@@ -180,8 +180,8 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineNumberLogicRiddles,
   },
   [ActivityType.MATH_PUZZLE]: {
-    ai: withAI(ActivityType.MATH_PUZZLE),
-    offline: offlineGenerators.generateOfflineMathPuzzle,
+    ai: aiGenerators.generateMathPuzzleFromAI,
+    offline: offlineGenerators.generateOfflinePremiumMathPuzzle,
   },
   [ActivityType.CLOCK_READING]: {
     ai: withAI(ActivityType.CLOCK_READING),
