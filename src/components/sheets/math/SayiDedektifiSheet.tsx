@@ -2,6 +2,7 @@ import React from 'react';
 import { ActivityType } from '../../../types/activity';
 import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
+import PremiumBlockBuilder from '../../../utils/PremiumBlockBuilder';
 
 interface SayiDedektifiData {
   id: string;
@@ -17,16 +18,34 @@ interface SayiDedektifiData {
   settings: Record<string, unknown>;
 }
 
-export const SayiDedektifiSheet: React.FC<{ data: SayiDedektifiData }> = ({ data }) => (
+export const SayiDedektifiSheet: React.FC<{ data?: Partial<SayiDedektifiData> }> = ({ data }) => {
+  // Resolve a robust content object using PremiumBlockBuilder to support chained API safely
+  const effectiveData: SayiDedektifiData = React.useMemo(() => {
+    // If full data provided, use as is
+    if (data && (data.title || data.instruction || data.pedagogicalNote || (data.riddles && data.riddles.length > 0))) {
+      return data as SayiDedektifiData;
+    }
+    const builder = new PremiumBlockBuilder()
+      .addPremiumHeader((data as any)?.title || 'Sayı Dedektifi Macerası')
+      .setInstruction((data as any)?.instruction || 'İpuçlarını takip et, gizli sayıları bul!')
+      .addPedagogicalNote((data as any)?.pedagogicalNote || 'Pedagojik not: güvenli ve kapsayıcı öğrenme.')
+    if (data && (data as any).riddles) {
+      for (const r of (data as any).riddles) builder.addRiddle(r as any);
+    }
+    return builder.build() as any;
+  }, [data]);
+
+  const d = effectiveData as any;
+  return (
   <div className="flex flex-col bg-white p-6 text-black font-lexend min-h-[1123px]">
     <PedagogicalHeader
-      title={data.title || 'Sayı Dedektifi Macerası'}
-      instruction={data.instruction || 'İpuçlarını takip et, gizli sayıları bul!'}
-      note={data.pedagogicalNote}
+      title={d.title || 'Sayı Dedektifi Macerası'}
+      instruction={d.instruction || 'İpuçlarını takip et, gizli sayıları bul!'}
+      note={d.pedagogicalNote}
     />
     
     <div className="grid grid-cols-2 gap-4 mt-4 print:gap-3">
-      {data.riddles?.map((riddle, idx) => (
+      {d.riddles?.map((riddle: any, idx: number) => (
         <div 
           key={riddle.id} 
           className="bg-zinc-50 border-2 border-zinc-200 rounded-[2rem] p-4 flex flex-col relative overflow-hidden group hover:border-indigo-300 transition-colors"

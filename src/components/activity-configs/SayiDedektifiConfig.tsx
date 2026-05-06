@@ -31,11 +31,11 @@ export const SayiDedektifiConfig: React.FC<Props> = ({ options, onChange }) => {
       </div>
 
       <div>
-        <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Aktivite Sayısı (Sayfa Başı)</label>
+        <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Bulmaca Sayısı (Sayfa Başı)</label>
         <select
-          value={(opts.itemCount as number) || 6}
+          value={(opts.puzzleCount as number) || 6}
           onChange={(e) =>
-            onChange({ ...opts, itemCount: parseInt(e.target.value) })
+            onChange({ ...opts, puzzleCount: parseInt(e.target.value) })
           }
           className="w-full p-2 border-2 border-zinc-200 rounded-lg text-sm font-bold outline-none focus:border-indigo-500"
         >
