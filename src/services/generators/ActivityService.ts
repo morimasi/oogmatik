@@ -3,6 +3,7 @@ import { GeneratorOptions, ActivityType } from '../../types';
 import { GeneratorMode, IActivityGenerator } from './core/types';
 import { GenericActivityGenerator } from './core/GenericActivityGenerator';
 import { ACTIVITY_GENERATOR_REGISTRY } from './registry';
+import mapDynamicIdToActivityType from '../../utils/dynamicIdMappings';
 import { generateInfographic } from './infographicGenerator';
 
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
@@ -93,6 +94,12 @@ export class ActivityService {
     public async generate(type: ActivityType, options: GeneratorOptions, _mode?: GeneratorMode): Promise<any> {
         // [ALIAS MAPPING] - Firestore'dan gelen dinamik ID'leri sistem enum değerlerine eşle
         let activeType = type;
+        // 1) Dynamic ID mapping via centralized utility
+        const dynamicMapped = mapDynamicIdToActivityType(type as string);
+        if (dynamicMapped) {
+            logInfo(`[ActivityService] Dynamic ID '${type}' mapped to ${dynamicMapped}`);
+            activeType = dynamicMapped;
+        }
         const ID_MAPPINGS: Record<string, ActivityType> = {
             'PZW4TWcMW7eB89z1M2EB': ActivityType.ES_ANLAMLI_KELIMELER,
             'L0L6Y9PrZNzsiJ2Ott7g': ActivityType.MATH_PUZZLE, // Meyveli Toplama
