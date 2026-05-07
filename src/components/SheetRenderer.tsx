@@ -1790,6 +1790,17 @@ export const SheetRenderer = React.memo(
       case ActivityType.BOX_MATH:
         renderedSheet = <BoxMathSheet data={data as any} settings={settings} />;
         break;
+      case ActivityType.QUEUE_ORDERING:
+        // Queue Ordering will use UnifiedContentRenderer
+        renderedSheet = (
+          <UnifiedContentRenderer 
+            data={data} 
+            activityType={activityType}
+            studentProfile={studentProfile} 
+            settings={settings} 
+          />
+        );
+        break;
       case ActivityType.VISUAL_INTERPRETATION:
         renderedSheet = <VisualInterpretationSheet data={data as any} settings={settings} />;
         break;
