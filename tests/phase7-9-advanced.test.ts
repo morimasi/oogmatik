@@ -48,6 +48,8 @@ describe('Phases 7-9: Advanced Features Integration', () => {
         startDate: new Date().toISOString(),
         hypothesis: 'Interactive activities improve engagement by 20%',
         primaryMetric: 'completion_rate',
+        confidence: 0,
+        significant: false,
       });
       
       expect(test).toBeDefined();
@@ -299,7 +301,7 @@ describe('Phases 7-9: Advanced Features Integration', () => {
     });
 
     it('should clear offline queue', () => {
-      mobileAppService.queueOfflineAction('test', {});
+      mobileAppService.queueOfflineAction('note_add', { note: 'test' });
       mobileAppService.clearOfflineQueue();
       
       expect(mobileAppService.getOfflineQueue()).toHaveLength(0);

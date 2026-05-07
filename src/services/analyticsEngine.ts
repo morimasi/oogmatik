@@ -109,7 +109,7 @@ export interface Prediction {
  */
 export class AnalyticsEngine {
   private metricsCache: Map<string, DashboardMetrics>;
-  private cohortCache: Map<string, CohortData>;
+  private cohortCache: Map<string, CohortData[]>;
   
   constructor() {
     this.metricsCache = new Map();
