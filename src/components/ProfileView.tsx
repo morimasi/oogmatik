@@ -551,7 +551,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({
                 {user.name}
               </h1>
               <span className="px-1.5 py-0.5 bg-[var(--accent-muted)] text-[var(--accent-color)] rounded text-[7px] font-black uppercase tracking-wider border border-[var(--border-color)] w-fit mx-auto md:mx-0">
-                {user.role === 'admin' ? 'SİSTEM' : 'UZMAN'}
+                {user.role === 'superadmin' ? 'KURUCU' : (user.role === 'admin' ? 'SİSTEM' : 'UZMAN')}
               </span>
             </div>
             <div className="flex wrap justify-center md:justify-start gap-2 opacity-50">

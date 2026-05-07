@@ -20,7 +20,7 @@ class RBACService {
         this.settings = DEFAULT_RBAC_SETTINGS;
       }
     } catch (error) {
-      logError('RBAC initialization error:', error);
+      logError('RBAC initialization error:', error as any);
       this.settings = DEFAULT_RBAC_SETTINGS;
     }
   }
@@ -35,7 +35,7 @@ class RBACService {
       await setDoc(docRef, newSettings);
       this.settings = newSettings;
     } catch (error) {
-      logError('RBAC save error:', error);
+      logError('RBAC save error:', error as any);
       throw error;
     }
   }

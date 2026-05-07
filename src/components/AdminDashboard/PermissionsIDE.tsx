@@ -62,7 +62,7 @@ export const AdminPermissionsIDE: React.FC = () => {
     if (!settings) return;
     setSaving(true);
     try {
-      await setDoc(doc(db, 'settings', 'rbac'), settings);
+      await rbacService.saveSettings(settings);
       toast.success('Yetkilendirme ayarları başarıyla kaydedildi.');
     } catch (error) {
       toast.error('Ayarlar kaydedilirken bir hata oluştu.');

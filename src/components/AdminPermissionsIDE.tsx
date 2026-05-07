@@ -4,6 +4,7 @@ import { PermissionModule, PermissionAction, RBACSettings, RolePermissions } fro
 import { UserRole } from '../types/user';
 import { useAuthStore } from '../store/useAuthStore';
 import { useToastStore } from '../store/useToastStore';
+import { logError } from '../utils/logger.js';
 
 /**
  * Admin Permissions IDE
