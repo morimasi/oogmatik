@@ -25,6 +25,15 @@ interface QueueOrderingSheetProps {
 }
 
 export const QueueOrderingSheet: React.FC<QueueOrderingSheetProps> = ({ data, settings }) => {
+  // Safety check for undefined data
+  if (!data) {
+    return (
+      <div className="p-8 text-center text-gray-500">
+        <p>İçerik yüklenemedi. Lütfen tekrar deneyin.</p>
+      </div>
+    );
+  }
+
   const { problems, title, instruction, locationType, difficulty } = data;
 
   // Ultra-premium theme configuration

@@ -97,7 +97,21 @@ export const authService = {
             const { signInWithPopup } = await import("firebase/auth");
             logInfo("Starting Google Login Popup...");
             
-            const result = await signInWithPopup(auth, provider);
+            let result;
+            try {
+                result = await signInWithPopup(auth, provider);
+            } catch (popupError: any) {
+                // COOP policy veya popup engelleyici durumunda Redirect'e düş
+                if (popupError.message?.includes('Cross-Origin-Opener-Policy') || 
+                    popupError.code === 'auth/popup-blocked') {
+                    logWarn("COOP/Popup engelleyici tespit edildi, Redirect yöntemine geçiliyor...");
+                    const { signInWithRedirect } = await import("firebase/auth");
+                    await signInWithRedirect(auth, provider);
+                    return;
+                }
+                throw popupError;
+            }
+
             const user = result.user;
             
             const userDocRef = doc(db, "users", user.uid);
@@ -127,15 +141,13 @@ export const authService = {
                 });
             }
         } catch (error: any) {
-            // Filter COOP warnings - they don't affect functionality
-            if (error.code === 'auth/popup-closed-by-user' || 
-                error.code === 'auth/cancelled' ||
-                error.message?.includes('Cross-Origin-Opener-Policy')) {
-                logInfo('Google login popup closed or COOP warning');
+            // Kullanıcı iptallerini filtrele
+            if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled') {
+                logInfo('Google girişi kullanıcı tarafından iptal edildi');
                 return;
             }
             
-            logError("Google login popup error details:", {
+            logError("Google login error details:", {
                 code: error.code,
                 message: error.message
             });
