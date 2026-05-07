@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { UserStatus } from '../../types';
+import { UserStatus, UserRole } from '../../types';
 import { authService } from '../../services/authService';
 import { adminService } from '../../services/adminService';
-import { UserFilter, ManagedUser, UserRoleType } from '../../types/admin';
+import { UserFilter, ManagedUser } from '../../types/admin';
 
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
-const ROLE_LABELS: Record<UserRoleType, string> = {
+const ROLE_LABELS: Record<UserRole, string> = {
   admin: 'Admin',
   teacher: 'Öğretmen',
   student: 'Öğrenci',
@@ -16,7 +16,7 @@ const ROLE_LABELS: Record<UserRoleType, string> = {
   user: 'Kullanıcı'
 };
 
-const ROLE_COLORS: Record<UserRoleType, string> = {
+const ROLE_COLORS: Record<UserRole, string> = {
   admin: 'bg-rose-500/10 text-rose-500 border-rose-500/20',
   teacher: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
   student: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
@@ -73,7 +73,7 @@ export const AdminUserManagement: React.FC = () => {
         });
     }, [users, filter]);
 
-    const handleRoleChange = async (userId: string, newRole: UserRoleType) => {
+    const handleRoleChange = async (userId: string, newRole: UserRole) => {
         const user = users.find(u => u.id === userId);
         
         // Prevent changing superadmin role
@@ -92,7 +92,7 @@ export const AdminUserManagement: React.FC = () => {
         setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
     };
 
-    const handleStatusChange = async (userId: string, currentStatus: ExtendedUserStatus) => {
+    const handleStatusChange = async (userId: string, currentStatus: 'active' | 'suspended' | 'pending' | 'deleted') => {
         const user = users.find(u => u.id === userId);
         
         // Prevent changing superadmin status
@@ -177,18 +177,33 @@ export const AdminUserManagement: React.FC = () => {
                             ) : filteredUsers.length === 0 ? (
                                 <tr><td colSpan={6} className="p-8 text-center text-zinc-500">Kullanıcı bulunamadı.</td></tr>
                             ) : (
-                                filteredUsers.map(user => (
-                                    <tr key={user.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-700/30 transition-colors group">
+                                filteredUsers.map(user => {
+                                    const isSuperAdmin = user.email === SUPER_ADMIN_EMAIL;
+                                    return (
+                                    <tr key={user.id} className={`hover:bg-zinc-50 dark:hover:bg-zinc-700/30 transition-colors group ${isSuperAdmin ? 'bg-purple-50/50 dark:bg-purple-900/10' : ''}`}>
                                         <td className="p-4 pl-6">
                                             <div className="flex items-center gap-3">
                                                 <img src={user.avatar} alt="" className="w-10 h-10 rounded-full border border-zinc-200 dark:border-zinc-600" />
                                                 <div>
-                                                    <p className="font-bold text-zinc-900 dark:text-zinc-100">{user.name}</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="font-bold text-zinc-900 dark:text-zinc-100">{user.name}</p>
+                                                        {isSuperAdmin && (
+                                                            <span className="px-2 py-0.5 bg-purple-600 text-white text-[10px] font-bold rounded-full uppercase tracking-wider">
+                                                                SUPER ADMIN
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                     <p className="text-xs text-zinc-500">{user.email}</p>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="p-4">
+                                            {isSuperAdmin ? (
+                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-purple-600 text-white border border-purple-700">
+                                                    <i className="fa-solid fa-shield-halved text-[10px]"></i>
+                                                    Super Admin
+                                                </span>
+                                            ) : (
                                             <button 
                                                 onClick={() => handleStatusChange(user.id, user.status)}
                                                 className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border transition-colors ${
@@ -205,17 +220,25 @@ export const AdminUserManagement: React.FC = () => {
                                                 </span>
                                                 <span className="hidden group-hover/status:inline">{user.status === 'active' ? 'Engelle' : 'Aktifleştir'}</span>
                                             </button>
+                                            )}
                                         </td>
                                         <td className="p-4">
+                                            {isSuperAdmin ? (
+                                                <span className={`px-3 py-1.5 rounded-xl text-xs font-black border bg-purple-600 text-white border-purple-700 cursor-not-allowed`}>
+                                                    <i className="fa-solid fa-lock text-[10px] mr-1"></i>
+                                                    Super Admin
+                                                </span>
+                                            ) : (
                                             <select 
                                                 value={user.role}
-                                                onChange={(e) => handleRoleChange(user.id, e.target.value as UserRoleType)}
+                                                onChange={(e) => handleRoleChange(user.id, e.target.value as UserRole)}
                                                 className={`px-3 py-1.5 rounded-xl text-xs font-black border cursor-pointer outline-none transition-all focus:ring-2 focus:ring-indigo-500/50 ${ROLE_COLORS[user.role] || 'bg-zinc-100 text-zinc-600 border-zinc-200'}`}
                                             >
                                                 {Object.entries(ROLE_LABELS).map(([role, label]) => (
                                                   <option key={role} value={role}>{label}</option>
                                                 ))}
                                             </select>
+                                            )}
                                         </td>
                                         <td className="p-4 text-zinc-500 font-mono text-xs">
                                             {new Date(user.createdAt || Date.now()).toLocaleDateString('tr-TR')}
@@ -226,12 +249,19 @@ export const AdminUserManagement: React.FC = () => {
                                             </span>
                                         </td>
                                         <td className="p-4 pr-6 text-right">
+                                            {isSuperAdmin ? (
+                                                <span className="text-purple-600 dark:text-purple-400 p-2" title="Super Admin - Değiştirilemez">
+                                                    <i className="fa-solid fa-shield-halved"></i>
+                                                </span>
+                                            ) : (
                                             <button className="text-zinc-400 hover:text-indigo-600 p-2 transition-colors" title="Detayları Gör">
                                                 <i className="fa-solid fa-eye"></i>
                                             </button>
+                                            )}
                                         </td>
                                     </tr>
-                                ))
+                                    );
+                                })
                             )}
                         </tbody>
                     </table>
