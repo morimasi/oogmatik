@@ -50,8 +50,8 @@ export const AdminUserManagement: React.FC = () => {
         try {
             const { users: data } = await authService.getAllUsers(0, 100);
             setUsers(data as unknown as ManagedUser[]);
-        } catch (e) {
-            logError('Failed to load users', e);
+        } catch (e: unknown) {
+            logError('Failed to load users', e as Record<string, unknown>);
         } finally {
             setLoading(false);
         }
