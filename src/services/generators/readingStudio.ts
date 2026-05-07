@@ -2,6 +2,14 @@
 import { generateWithSchema } from '../geminiClient.js';
 import { InteractiveStoryData, ReadingStudioConfig } from '../../types.js';
 
+/**
+ * Generate UNIQUE, non-repetitive reading content with AI
+ * Each generation creates different variations based on:
+ * - Difficulty level, Age group, Grade level
+ * - Learning disability profile
+ * - Student interests and focus areas
+ * - Activity settings and configuration
+ */
 export const generateInteractiveStory = async (config: ReadingStudioConfig): Promise<InteractiveStoryData> => {
 
     const lengthMap = {
@@ -17,22 +25,33 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
         'advanced': 'Metaforik dil, zengin sıfat kullanımı, yüksek edebi değer.'
     };
 
-    const profile = config.studentProfile || {};
+    const profile = config.studentProfile || {} as any;
     const diagnosisStr = profile.diagnosis?.join(', ') || 'Özel Öğrenme Güçlüğü (Genel)';
     const interestsStr = profile.interests?.join(', ') || 'Macera, Bilim, Doğa';
+
+    // Unique content generation seed - ensures different content each time
+    const generationSeed = Date.now() + Math.random();
 
     const prompt = `
     [ROL: DİSLEKSİ MÜDAHALE UZMANI & ÖDÜLLÜ ÇOCUK YAZARI]
     
+    ⚠️ ÖNEMLİ: HER ÜRETİMDE BENZERSİZ İÇERİK OLUŞTUR!
+    - Aynı hikaye, aynı kelimeler, aynı sorular ASLA tekrar etmesin
+    - Rastgelelik tohumu: ${generationSeed}
+    - Her üretim tamamen özgün ve farklı olmalı
+    
     Öğrenci "${config.studentName || 'Öğrenci'}" için "${config.topic}" temalı, ${config.gradeLevel} seviyesinde "Ultra-Premium" bir okuma materyali tasarla. 
     
-    KLİNİK HEDEF: 
+    ÖĞRENCİ PROFİLİ (İÇERİĞİ BUNA GÖRE ŞEKİLLENDİR):
     - Tanı: ${diagnosisStr}
-    - İlgi: ${interestsStr}
-    - Odak: "${config.phonemeFocus || 'Akıcı Okuma'}"
+    - İlgi Alanları: ${interestsStr}
+    - Odak Beceri: "${config.phonemeFocus || 'Akıcı Okuma'}"
+    - Yaş Grubu: ${config.ageGroup || '7-9 yaş'}
+    - Zorluk Seviyesi: ${config.difficulty || 'Orta'}
+    - Sınıf Seviyesi: ${config.gradeLevel}
     
     İÇERİK MİMARİSİ (AŞAĞIDAKİ TÜM BİLEŞENLERİ EKSİKSİZ ÜRET):
-    1. STORY: ${lengthMap[config.length || 'medium']} uzunluğunda, ${complexityMap[config.textComplexity || 'moderate']} yapıda sürükleyici bir anlatı.
+    1. STORY: ${lengthMap[config.length as keyof typeof lengthMap] || lengthMap['medium']} uzunluğunda, ${complexityMap[config.textComplexity as keyof typeof complexityMap] || complexityMap['moderate']} yapıda sürükleyici bir anlatı.
     2. SYLLABIFIED_STORY: Story alanındaki metnin aynısını, her kelimenin hecelerini kısa çizgi ile ayırarak oluştur.
     3. PEDAGOGICAL_GOALS: Bu metinle hedeflenen 3-5 adet bilişsel hedef.
     4. 5N1K: Metne dayalı 6 soru (Kim, Ne, Nerede, Ne Zaman, Nasıl, Neden) ve cevapları.

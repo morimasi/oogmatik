@@ -10,6 +10,9 @@ export const generateColorfulSyllableReadingFromAI = async (options: GeneratorOp
     const colorPalette = options.colorPalette || 'red_blue';
     const student = options.studentContext;
 
+    // UNIQUE CONTENT GENERATION - ensures different output every time
+    const generationSeed = Date.now() + Math.random();
+
     let lengthInstruction = 'Anaokulu / 1. Sınıf seviyesine uygun, çok kısa yaklaşık 20 kelimelik tek bir paragraf.';
     if (textLength === 'orta') lengthInstruction = 'İlkokul seviyesine uygun, toplamda yaklaşık 50 kelimelik 2 paragraf.';
     if (textLength === 'uzun') lengthInstruction = 'Daha akıcı okuyanlar için yaklaşık 80 kelimelik 3 paragraf.';
@@ -23,10 +26,15 @@ export const generateColorfulSyllableReadingFromAI = async (options: GeneratorOp
 Sen Özel Eğitim (Disleksi) ve Okuma Hızı (WPM) uzmanı bir öğretmensin.
 Öğrencinin okuma hızını (WPM Hedefi: ${wpmTarget} kelime/dakika) destekleyecek ve "Renkli Hece/Vurgulu Okuma" mantığına göre analiz edilmiş harika bir okuma metni (Hikaye/Bilgi) üreteceksin. 
 
+⚠️ KRİTİK: HER ÜRETİMDE FARKLI METİN ÜRET!
+- Rastgelelik tohumu: ${generationSeed}
+- Aynı hikaye, aynı kelimeler ASLA tekrar etmesin
+
 ÖZEL İSTEKLER:
 1. Konu: ${topic}
 2. Uzunluk Tipi: ${textLength} (${lengthInstruction})
 3. Zorluk: ${difficulty}
+4. Öğrenci Profili: ${student ? `${student.age} yaş, ${student.grade} sınıf, ${student.learningStyle} öğrenme stili` : 'Standart'}
 ${studentInstruction}
 
 GÖREV:

@@ -200,6 +200,9 @@ export const generateReadingStroopFromAI = async (options: GeneratorOptions): Pr
 export const generateStoryComprehensionFromAI = async (options: GeneratorOptions): Promise<StoryData[]> => {
     const { topic, difficulty, worksheetCount } = options;
 
+    // UNIQUE CONTENT GENERATION
+    const generationSeed = Date.now() + Math.random();
+
     const constraints = difficulty === 'Başlangıç'
         ? '50-80 kelime. Basit cümleler. Somut olaylar.'
         : difficulty === 'Orta'
@@ -208,6 +211,11 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
 
     const prompt = `
     "${topic}" konusunda, ${difficulty} seviyesinde (${constraints}) özgün bir hikaye yaz.
+    
+    ⚠️ KRİTİK: HER ÜRETİMDE TAMAMEN FARKLI HİKAYE!
+    - Rastgelelik tohumu: ${generationSeed}
+    - Asla aynı hikaye, aynı karakterler, aynı olayları tekrar etme
+    - Her üretimde yeni kelimeler, yeni sorular, yeni görevler
     
     EKSTRA GÖREVLER (JSON ÇIKTISINDA ZORUNLU):
     1. **vocabulary:** Hikayeden ${difficulty === 'Başlangıç' ? '3' : '4'} adet "öğrenilmesi gereken" veya "zor" kelime seç ve kısa, child-friendly tanımlarını yaz.

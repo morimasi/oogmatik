@@ -21,8 +21,18 @@ const PEDAGOGICAL_PROMPT = `
 
 export const generateWordMemoryFromAI = async (options: GeneratorOptions): Promise<WordMemoryData[]> => {
     const { topic, itemCount, difficulty, worksheetCount, _memorizeRatio } = options;
+    
+    // UNIQUE CONTENT GENERATION
+    const generationSeed = Date.now() + Math.random();
+    
     const prompt = `
     "${difficulty}" seviyesinde, '${topic}' temalı Kelime Hafıza Testi.
+    
+    ⚠️ KRİTİK: HER ÜRETİMDE BENZERSİZ İÇERİK!
+    - Rastgelelik tohumu: ${generationSeed}
+    - Asla aynı kelimeleri tekrar etme
+    - Öğrenci yaşı ve seviyesine uygun farklı kelimeler seç
+    
     ${itemCount} kelime seç. Her biri için **İngilizce** 'imagePrompt' oluştur.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
@@ -54,8 +64,17 @@ export const generateWordMemoryFromAI = async (options: GeneratorOptions): Promi
 
 export const generateVisualMemoryFromAI = async (options: GeneratorOptions): Promise<VisualMemoryData[]> => {
     const { topic, _itemCount, difficulty, worksheetCount } = options;
+    
+    // UNIQUE CONTENT GENERATION
+    const generationSeed = Date.now() + Math.random();
+    
     const prompt = `
     "${difficulty}" seviyesinde, '${topic}' temalı Görsel Hafıza Testi.
+    
+    ⚠️ KRİTİK: HER ÜRETİMDE BENZERSİZ GÖRSELLER!
+    - Rastgelelik tohumu: ${generationSeed}
+    - Farklı nesneler, farklı renkler, farklı kompozisyonlar
+    
     Nesneler için **İngilizce** 'imagePrompt' ve Türkçe 'description' üret.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
@@ -230,8 +249,17 @@ export const generateImageComprehensionFromAI = async (options: GeneratorOptions
 
 export const generateCharacterMemoryFromAI = async (options: GeneratorOptions): Promise<CharacterMemoryData[]> => {
     const { _topic, difficulty, worksheetCount } = options;
+    
+    // UNIQUE CONTENT GENERATION
+    const generationSeed = Date.now() + Math.random();
+    
     const prompt = `
     "${difficulty}" seviyesinde Karakter Hafıza.
+    
+    ⚠️ KRİTİK: HER ÜRETİMDE FARKLI KARAKTERLER!
+    - Rastgelelik tohumu: ${generationSeed}
+    - Farklı karakter özellikleri, farklı hikayeler
+    
     Karakterler için **İngilizce** 'imagePrompt'.
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet üret.
