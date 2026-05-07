@@ -38,7 +38,22 @@ export function useSariKitapGenerator() {
             } else {
                 // Direct AI generation for sari kitap modules
                 const generator = AI_GENERATORS[config.module] || generatePencereFromAI;
-                const content = await generator(config);
+                const result = await generator(config);
+                
+                // AI generators return array, take first item
+                const content = Array.isArray(result) ? result[0] : result;
+                
+                // Ensure required fields exist
+                if (!content.title) {
+                    content.title = `${config.module} Etkinliği`;
+                }
+                if (!content.instructions) {
+                    content.instructions = 'Yönergeler yakında eklenecek.';
+                }
+                if (!content.generatedAt) {
+                    content.generatedAt = new Date().toISOString();
+                }
+                
                 setContent(content);
             }
         } catch (err: unknown) {
