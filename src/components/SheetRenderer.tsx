@@ -596,7 +596,7 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
           </div>
           <div className="flex-1 min-w-0">
             <h5 className="text-[9px] font-black text-indigo-500 uppercase tracking-[0.15em] mb-0.5">
-              {content.title || 'KLİNİK İPUCU'}
+              {content?.title || 'KLİNİK İPUCU'}
             </h5>
             <p className="text-xs font-bold text-zinc-700 leading-snug italic">
               {content.clue || content.description}
@@ -988,9 +988,9 @@ const UnifiedContentRenderer = ({
         )}
 
         <PedagogicalHeader
-          title={pageIdx === 0 ? (data.title || '') : `${data.title || ''} (Dvm.)`}
-          instruction={pageIdx === 0 ? data.instruction : 'Lütfen çalışmaya devam edin.'}
-          note={pageIdx === 0 ? data.pedagogicalNote : ''}
+          title={pageIdx === 0 ? (data?.title || '') : `${data?.title || ''} (Dvm.)`}
+          instruction={pageIdx === 0 ? data?.instruction : 'Lütfen çalışmaya devam edin.'}
+          note={pageIdx === 0 ? data?.pedagogicalNote : ''}
           data={data}
         />
 

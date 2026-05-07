@@ -134,7 +134,7 @@ export const OcrRenderer: React.FC<Props> = ({ data }) => {
   return (
     <div className="ocr-content-sheet" style={sheetStyle}>
       {/* Başlık */}
-      {data.title && (
+      {data?.title && (
         <h2
           style={{
             fontSize: '13px',
@@ -152,7 +152,7 @@ export const OcrRenderer: React.FC<Props> = ({ data }) => {
       )}
 
       {/* Yerleşik grafik verisi */}
-      {data.grafikVeri && (
+      {data?.grafikVeri && (
         <div
           style={{
             display: 'flex',

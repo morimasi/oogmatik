@@ -78,7 +78,11 @@ export const StoryComprehensionSheet = ({ data }: { data: InteractiveStoryData }
         <ReadingRuler />
         <div className="shrink-0 mb-6 print:mb-2 flex justify-between items-start border-b-4 border-zinc-900 pb-4 print:pb-1">
             <div className="flex-1">
-                <PedagogicalHeader title={data.title} instruction={data.instruction || "Hikayeyi en az 3 kez oku."} note={data.pedagogicalNote} />
+                <PedagogicalHeader 
+                    title={data?.title || "Okuma Anlama"} 
+                    instruction={data?.instruction || "Hikayeyi en az 3 kez oku."} 
+                    note={data?.pedagogicalNote} 
+                />
             </div>
             <div className="flex flex-col items-center ml-6 bg-zinc-900 text-white p-3 rounded-2xl shadow-lg">
                 <span className="text-[9px] font-black uppercase tracking-widest mb-2 opacity-60">Okuma Sayısı</span>
