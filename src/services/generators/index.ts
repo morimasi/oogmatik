@@ -37,3 +37,4 @@ export * from './storyAnalysis';
 export * from './storySequencing';
 export * from './missingParts';
 export * from './advancedMissingParts';
+export * from './math/queueOrdering';

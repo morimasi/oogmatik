@@ -415,6 +415,10 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     ai: aiGenerators.generateBoxMathFromAI,
     offline: offlineGenerators.generateOfflineBoxMath,
   },
+  [ActivityType.QUEUE_ORDERING]: {
+    ai: aiGenerators.generateQueueOrderingFromAI,
+    offline: offlineGenerators.generateOfflineQueueOrdering,
+  },
   [ActivityType.INFOGRAPHIC_SHORT_ANSWER]: {
     ai: aiGenerators.generateInfographicShortAnswerFromAI,
     offline: (options: GeneratorOptions) => offlineGenerators.generateOfflineFallback(ActivityType.INFOGRAPHIC_SHORT_ANSWER, options),

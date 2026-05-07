@@ -483,3 +483,50 @@ export interface BoxMathData extends BaseActivityData {
   fontSizePreference?: 'small' | 'medium' | 'large';
 }
 
+// ─── Sıra Alma Becerisi - QUEUE ORDERING ─────────────────────────────
+export interface QueueLocation {
+  id: string;
+  name: string; // "Yemekhane", "Market Kuyruğu", "Otobüs Durağı"
+  icon: string; // 🍽️ 🛒 🚌
+  description?: string;
+}
+
+export interface QueuePerson {
+  id: string;
+  name: string;
+  position: number; // Sıradaki yeri (1-based)
+  icon?: string; // 👦 👧 👨
+  clue?: string; // "sonran 3. sırada"
+}
+
+export interface QueueOrderingProblem {
+  id: string;
+  locationId: string;
+  locationName: string;
+  totalPeople: number; // Toplam kişi sayısı
+  people: QueuePerson[]; // Bilinen kişiler
+  questionPerson: string; // Sorulan kişinin adı
+  questionText: string; // "yunus kaçıncı sırada oturmaktadır?"
+  answer: number; // Doğru cevap
+  scenario: string; // Tam senaryo metni
+  difficulty: 'easy' | 'medium' | 'hard' | 'expert';
+  steps?: number; // Çözüm için gerekli adım sayısı
+}
+
+export interface QueueOrderingData extends BaseActivityData {
+  locationType?: string; // "yemekhane", "market", "otobus", "sinema", "hastane"
+  customLocations?: QueueLocation[]; // Özel lokasyonlar
+  difficulty: 'easy' | 'medium' | 'hard' | 'expert';
+  problemCount: number;
+  maxQueueSize: number; // Maksimum kişi sayısı
+  minQueueSize: number; // Minimum kişi sayısı
+  showVisualClues?: boolean; // Görsel ipuçları
+  showPositionNumbers?: boolean; // Pozisyon numaraları
+  problems: QueueOrderingProblem[];
+  steps?: {
+    stepNumber: number;
+    instruction: string;
+    hint?: string;
+  }[];
+}
+
