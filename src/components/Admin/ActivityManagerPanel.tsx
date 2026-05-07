@@ -135,12 +135,12 @@ export const ActivityManagerPanel: React.FC = () => {
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {category.activities.slice(0, 10).map((activity) => (
                 <div
-                  key={activity.id}
+                  key={activity}
                   className="flex items-center justify-between p-2 bg-white/5 rounded-lg"
                 >
-                  <span className="text-sm text-gray-300">{activity.title}</span>
+                  <span className="text-sm text-gray-300">{activity}</span>
                   <button
-                    onClick={() => handleToggleActivity(activity.id as ActivityType, 'active')}
+                    onClick={() => handleToggleActivity(activity, 'active')}
                     disabled={isUpdating}
                     className="px-3 py-1 text-xs bg-blue-600/20 text-blue-400 rounded-lg hover:bg-blue-600/30 disabled:opacity-50"
                   >
