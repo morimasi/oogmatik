@@ -1,6 +1,7 @@
 /**
  * Offline Generator for QUEUE ORDERING (Sıralama/Sıra Alma Becerisi)
- * Premium compact minimal spacing A4 worksheet generation
+ * Ultra-premium customizable compact minimal spacing A4 worksheet generation
+ * Advanced settings: difficulty, theme, location, icon style, layout, visual density
  */
 
 import { GeneratorOptions } from '../../../types.js';
@@ -9,38 +10,58 @@ export const generateOfflineQueueOrdering = async (options: GeneratorOptions): P
     const { topic, difficulty, worksheetCount, ageGroup, customSettings } = options;
     
     const settings = customSettings as any || {};
-    const locationType = settings.locationType || 'yemekhane';
+    const locationType = settings.locationType || 'school';
     const maxQueueSize = settings.maxQueueSize || 10;
     const minQueueSize = settings.minQueueSize || 5;
     const problemCount = settings.problemCount || 4;
     
-    // Lokasyon senaryoları
+    // Premium theme options
+    const theme = settings.theme || 'indigo';
+    const iconStyle = settings.iconStyle || 'emoji';
+    const layout = settings.layout || 'grid';
+    const visualDensity = settings.visualDensity || 'comfortable';
+    const fontSize = settings.fontSize || 'medium';
+    const cardStyle = settings.cardStyle || 'elevated';
+    const headerStyle = settings.headerStyle || 'gradient';
+    const highlightKeywords = settings.highlightKeywords !== false;
+    const showScenario = settings.showScenario !== false;
+    const showVisualClues = settings.showVisualClues !== false;
+    const showPositionNumbers = settings.showPositionNumbers !== false;
+    const showAnswers = settings.showAnswers || false;
+    
+    // Extended location scenarios
     const locationScenarios: Record<string, { name: string; icon: string; description: string }[]> = {
-        yemekhane: [
+        school: [
             { name: 'Okul Yemekhanesi', icon: '🍽️', description: 'Öğle yemeği sırası' },
-            { name: 'Kantin', icon: '🥪', description: 'Teneffüs kuyruğu' },
+            { name: 'Okul Kantini', icon: '🥪', description: 'Teneffüs kuyruğu' },
+            { name: 'Sınıf Kapısı', icon: '🚪', description: 'Derse giriş sırası' },
+        ],
+        bus: [
+            { name: 'Otobüs Durağı', icon: '🚌', description: 'Otobüs bekleme sırası' },
+            { name: 'Metro İstasyonu', icon: '🚇', description: 'Bilet alma kuyruğu' },
+            { name: 'Servis Minibüsü', icon: '🚐', description: 'Okul servisi sırası' },
         ],
         market: [
             { name: 'Market Kasası', icon: '🛒', description: 'Ödeme kuyruğu' },
             { name: 'Fırın', icon: '🍞', description: 'Ekmek sırası' },
+            { name: 'Manav', icon: '🍎', description: 'Sebze meyve sırası' },
         ],
-        otobus: [
-            { name: 'Otobüs Durağı', icon: '🚌', description: 'Otobüs bekleme sırası' },
-            { name: 'Metro İstasyonu', icon: '🚇', description: 'Bilet alma kuyruğu' },
-        ],
-        sinema: [
-            { name: 'Sinema Bilet Gişe', icon: '🎬', description: 'Bilet alma sırası' },
-        ],
-        hastane: [
+        hospital: [
             { name: 'Hastane Poliklinik', icon: '🏥', description: 'Muayene sırası' },
             { name: 'Eczane', icon: '💊', description: 'İlaç alma kuyruğu' },
+            { name: 'Laboratuvar', icon: '🔬', description: 'Kan tahlili sırası' },
         ],
-        kutuphane: [
+        cinema: [
+            { name: 'Sinema Bilet Gişesi', icon: '🎬', description: 'Bilet alma sırası' },
+            { name: 'Tiyatro', icon: '🎭', description: 'Giriş sırası' },
+        ],
+        library: [
             { name: 'Kütüphane', icon: '📚', description: 'Kitap teslim sırası' },
+            { name: 'Kitap Fuarı', icon: '📖', description: 'Kitap imzalama sırası' },
         ],
     };
     
-    const locations = locationScenarios[locationType] || locationScenarios.yemekhane;
+    const locations = locationScenarios[locationType] || locationScenarios.school;
     const location = locations[Math.floor(Math.random() * locations.length)];
     
     // Türk isimleri
@@ -150,14 +171,25 @@ export const generateOfflineQueueOrdering = async (options: GeneratorOptions): P
     
     return {
         title: `Sıra Alma Becerisi - ${location.name}`,
-        instruction: 'Her soruyu dikkatlice okuyun ve sıralamayı bulun.',
+        instruction: settings.customInstruction || 'Her soruyu dikkatlice okuyun ve sıralamayı bulun.',
         locationType,
         difficulty: difficulty || 'medium',
         problemCount,
         maxQueueSize,
         minQueueSize,
-        showVisualClues: settings.showVisualClues !== false,
-        showPositionNumbers: settings.showPositionNumbers !== false,
+        // Premium settings
+        theme,
+        iconStyle,
+        layout,
+        visualDensity,
+        fontSize,
+        cardStyle,
+        headerStyle,
+        highlightKeywords,
+        showScenario,
+        showVisualClues,
+        showPositionNumbers,
+        showAnswers,
         problems,
         pedagogicalNote: 'Sıralama becerisi, günlük yaşamda yön algısı ve mantıksal çıkarım yeteneğini geliştirir.',
     };
