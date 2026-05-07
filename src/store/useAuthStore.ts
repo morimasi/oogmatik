@@ -85,7 +85,16 @@ export const useAuthStore = create<AuthState>()(
         }),
         {
             name: 'auth-storage',
-            partialize: (state: AuthState) => ({ user: state.user }),
+            partialize: (state: AuthState): AuthState => ({
+                user: state.user,
+                isLoading: state.isLoading,
+                initialize: state.initialize,
+                login: state.login,
+                loginWithGoogle: state.loginWithGoogle,
+                register: state.register,
+                logout: state.logout,
+                updateProfile: state.updateProfile,
+            }),
         }
     )
 );

@@ -357,7 +357,15 @@ export class MLEngine {
       dataPoints: trainingData.length,
     };
 
-    logInfo('Model training completed', metrics);
+    logInfo('Model training completed', {
+      accuracy: metrics.accuracy,
+      precision: metrics.precision,
+      recall: metrics.recall,
+      f1Score: metrics.f1Score,
+      auc: metrics.auc,
+      trainingTime: metrics.trainingTime,
+      dataPoints: metrics.dataPoints,
+    });
 
     return metrics;
   }
