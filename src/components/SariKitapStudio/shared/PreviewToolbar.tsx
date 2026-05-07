@@ -122,20 +122,28 @@ export const PreviewToolbar = ({
                 </button>
             </div>
 
-            {generatedContent && (
+            {generatedContent && (generatedContent.pedagogicalNote || (generatedContent.targetSkills && generatedContent.targetSkills.length > 0)) && (
                 <div className="sk-toolbar-info">
                     <div className="sk-info-trigger">💡 Bilgi</div>
                     <div className="sk-info-tooltip">
-                        <div className="sk-section-title">Pedagojik Not</div>
-                        <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)', marginBottom: '0.75rem' }}>
-                            {generatedContent.pedagogicalNote}
-                        </p>
-                        <div className="sk-section-title">Hedef Beceriler</div>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
-                            {generatedContent.targetSkills.map((skill: string, i: number) => (
-                                <span key={i} className="sk-skill-badge">{skill}</span>
-                            ))}
-                        </div>
+                        {generatedContent.pedagogicalNote && (
+                            <>
+                                <div className="sk-section-title">Pedagojik Not</div>
+                                <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.8)', marginBottom: '0.75rem' }}>
+                                    {generatedContent.pedagogicalNote}
+                                </p>
+                            </>
+                        )}
+                        {generatedContent.targetSkills && generatedContent.targetSkills.length > 0 && (
+                            <>
+                                <div className="sk-section-title">Hedef Beceriler</div>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem' }}>
+                                    {generatedContent.targetSkills.map((skill: string, i: number) => (
+                                        <span key={i} className="sk-skill-badge">{skill}</span>
+                                    ))}
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
             )}

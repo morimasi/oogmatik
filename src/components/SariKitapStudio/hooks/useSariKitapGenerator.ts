@@ -11,8 +11,8 @@ import { generateOffline } from '../../../services/offlineGenerators/sariKitap';
 const AI_GENERATORS: Record<string, Function> = {
     'pencere': generatePencereFromAI,
     'nokta': generateNoktaFromAI,
-    'köprü': generateKopruFromAI,
-    'çiftMetin': generateCiftMetinFromAI,
+    'kopru': generateKopruFromAI,
+    'cift_metin': generateCiftMetinFromAI,
     'bellek': generateBellekFromAI,
     'hizli_okuma': generateHizliOkumaFromAI,
 };
@@ -39,7 +39,7 @@ export function useSariKitapGenerator() {
                 setContent(content);
             } else {
                 // Direct AI generation for sari kitap modules
-                const generator = AI_GENERATORS[config.module] || generatePencereFromAI;
+                const generator = AI_GENERATORS[config.type] || generatePencereFromAI;
                 const result = await generator(config);
                 
                 // AI generators return array, take first item
