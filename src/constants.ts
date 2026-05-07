@@ -340,6 +340,13 @@ export const ACTIVITIES: Activity[] = [
     icon: 'fa-solid fa-box-archive',
     defaultStyle: { columns: 2 },
   },
+  {
+    id: ActivityType.QUEUE_ORDERING,
+    title: 'Sıralama (Sıra Alma Becerisi)',
+    description: 'Kuyruk ve sıralama mantığıyla pozisyon, sıra ve göreceli konum belirleme çalışması.',
+    icon: 'fa-solid fa-list-ol',
+    defaultStyle: { columns: 1 },
+  },
   // ── İNFOGRAFİK STÜDYOSU v3 — 96 Premium Aktivite (Gruplandırılmış Kayıtlar) ──
   {
     id: ActivityType.INFOGRAPHIC_CONCEPT_MAP,
