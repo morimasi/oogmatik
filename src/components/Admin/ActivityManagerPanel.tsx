@@ -72,7 +72,7 @@ export const ActivityManagerPanel: React.FC = () => {
       // Get all activities in selected category
       const category = ACTIVITY_CATEGORIES.find(c => c.id === selectedCategory);
       if (category) {
-        const activityTypes = category.activities.map(a => a.id) as ActivityType[];
+        const activityTypes = category.activities as ActivityType[];
         const allowedRoles = status === 'active' 
           ? ['superadmin', 'admin', 'teacher', 'student', 'parent']
           : ['superadmin'];
