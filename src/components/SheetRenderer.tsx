@@ -847,15 +847,18 @@ const UnifiedContentRenderer = ({
 }) => {
   const { isEditorOpen, selectedBlockId, setSelectedBlockId, snapToGrid, gridSize } =
     useA4EditorStore();
-  const architecture = data.layoutArchitecture;
+
+  if (!data) return null;
+
+  const architecture = data?.layoutArchitecture;
   const rawBlocks: WorksheetBlock[] = 
     (architecture?.blocks && architecture.blocks.length > 0 ? architecture.blocks : []) || 
-    (data.blocks && data.blocks.length > 0 ? data.blocks : []) || 
-    (data.puzzles && data.puzzles.length > 0 ? data.puzzles : []) || 
-    (data.operations && data.operations.length > 0 ? data.operations : []) || 
-    (data.items && data.items.length > 0 ? data.items : []) || 
-    (data.problems && data.problems.length > 0 ? data.problems : []) || 
-    (data.steps && data.steps.length > 0 ? data.steps : []) || 
+    (data?.blocks && data.blocks.length > 0 ? data.blocks : []) || 
+    (data?.puzzles && data.puzzles.length > 0 ? data.puzzles : []) || 
+    (data?.operations && data.operations.length > 0 ? data.operations : []) || 
+    (data?.items && data.items.length > 0 ? data.items : []) || 
+    (data?.problems && data.problems.length > 0 ? data.problems : []) || 
+    (data?.steps && data.steps.length > 0 ? data.steps : []) || 
     [];
   const cols = (architecture?.cols && architecture.cols > 1) ? architecture.cols : (settings?.columns || 1);
 
@@ -1303,7 +1306,7 @@ export const SheetRenderer = React.memo(
       return withWrapper(<InfoGraphicRenderer data={data} settings={settings} />);
     }
 
-    if (activityType === ActivityType.MATH_STUDIO) {
+    if (activityType === ActivityType.MATH_STUDIO && data) {
       return withWrapper(<MathPuzzleSheet data={data as any} settings={settings} />);
     }
 
@@ -1328,7 +1331,7 @@ export const SheetRenderer = React.memo(
 
     // Mimari veya Blok yapısı varsa UnifiedRenderer kullan (Klon modülü buradan geçer)
     // ÖNEMLİ: puzzles, items gibi geleneksel veriler doğrudan switch'e gitmeli ki grid yapıları (kolonlar) bozulmasın.
-    const isModernLayout = data.layoutArchitecture || (Array.isArray(data.blocks) && data.blocks.some((b: any) => b.type));
+    const isModernLayout = data?.layoutArchitecture || (Array.isArray(data?.blocks) && data.blocks.some((b: any) => b?.type));
 
     if (!hideWrapper && isModernLayout) {
       return (
