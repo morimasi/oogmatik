@@ -11,8 +11,10 @@ export const PencereRenderer = memo(({ config, content }: RendererProps) => {
     if (config.type !== 'pencere') return null;
     const c = config as PencereConfig;
 
-    // Tüm heceleri tek düz dizi olarak al
-    const allSyllables: HeceData[] = content.heceRows?.flatMap(r => r.syllables) ?? [];
+    // Tüm heceleri tek düz dizi olarak al (heceRows veya words üzerinden)
+    const allSyllables: HeceData[] = content.words 
+        ? content.words.map(w => ({ syllable: w.word, isHighlighted: w.hasDot !== false, dotBelow: false, bridgeNext: false }))
+        : (content.heceRows?.flatMap(r => r.syllables) ?? []);
 
     // Grid sütun sayısını hecelere göre belirle
     const configCols = (c as any).gridColumns;
