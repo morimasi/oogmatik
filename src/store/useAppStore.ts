@@ -24,7 +24,7 @@ interface AppState {
  * Zustand kullanılarak yüksek performanslı ve basit durum yönetimi sağlar.
  * Named export 'create' kullanılarak eski versiyon uyarıları engellenmiştir.
  */
-export const useAppStore = create<AppState>()((set: any, get: any) => ({
+export const useAppStore = create<AppState>()((set, get) => ({
     // Initial State
     isSidebarOpen: true,
     activeModule: null,
