@@ -30,7 +30,7 @@ export const useA4EditorStore = create<A4EditorState>()((set, get) => ({
   setGridSize: (size: number) => set({ gridSize: size }),
   blocks: [],
   addBlock: (block: ContentBlock) =>
-    set((state: A4EditorState) => ({
+    set((state) => ({
       blocks: [...state.blocks, { ...block, id: block.id || crypto.randomUUID() }],
     })),
 }));
