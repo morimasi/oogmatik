@@ -140,7 +140,8 @@ export function requireRole(...allowedRoles: string[]) {
 
     if (!allowedRoles.includes(user.role)) {
       throw new AppError(
-        `Bu işlem için ${allowedRoles.join(' veya ')} rolü gereklidir`
+        `Bu işlem için ${allowedRoles.join(' veya ')} rolü gereklidir`,
+        'INSUFFICIENT_ROLE'
       );
     }
 
