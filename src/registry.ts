@@ -186,6 +186,20 @@ export const getDefaultOptionsForActivity = (
           colorMode: 'Karma Renkli'
         }
       };
+    case ActivityType.QUEUE_ORDERING:
+      return {
+        ...base,
+        mode: 'ai',
+        itemCount: 1,
+        difficulty: 'Orta',
+        locationType: 'school',
+        theme: 'indigo',
+        problemCount: 4,
+        maxQueueSize: 10,
+        showVisualClues: true,
+        showPositionNumbers: true,
+        iconStyle: 'emoji',
+      };
     default:
       return base;
   }

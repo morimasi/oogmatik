@@ -161,5 +161,6 @@ export const generateQueueOrderingFromAI = async (options: GeneratorOptions): Pr
         required: ['problems']
     };
     
-    return generateWithSchema(prompt, singleSchema) as Promise<any[]>;
+    const schema = { type: 'ARRAY', items: singleSchema };
+    return generateWithSchema(prompt, schema) as Promise<any[]>;
 };

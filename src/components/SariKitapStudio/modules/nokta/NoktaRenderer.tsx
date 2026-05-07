@@ -60,17 +60,48 @@ export const NoktaRenderer = memo(({ config, content }: RendererProps) => {
             </p>
 
             {/* İçerik — Kelime bazlı kompakt paragraf */}
-            <div style={{
-                flex: 1, display: 'flex', flexDirection: 'column',
-                gap: '0.2rem', padding: '0 0.25rem'
+            <div className="nokta-content-area" style={{
+                flex: 1, display: 'flex', flexWrap: 'wrap',
+                columnGap: gapVal, rowGap: '1rem', // Kelimeler arası ve satırlar arası boşluk
+                padding: '0.5rem', alignItems: 'flex-start', alignContent: 'flex-start',
+                lineHeight: 1.5
             }}>
-                {content.heceRows?.map((row, ri) => {
+                {/* 1. Senaryo: Düz 'words' dizisi gelirse (AI üretimi) */}
+                {content.words && content.words.map((w, wi) => {
+                    if (!w || !w.word) return null;
+                    return (
+                        <div key={wi} style={{
+                            display: 'flex', flexDirection: 'column',
+                            alignItems: 'center', gap: '0.2rem',
+                            minWidth: 'fit-content'
+                        }}>
+                            <span role="text" style={{
+                                fontSize, fontWeight: 500, lineHeight: 1.2,
+                                fontFamily: 'Lexend, sans-serif', color: '#18181b',
+                                whiteSpace: 'nowrap'
+                            }}>
+                                {w.word}
+                            </span>
+                            {/* hasDot kontrolü veya her zaman nokta basımı */}
+                            {(w.hasDot !== false) && renderDot(dotSz, dotClr, c.dotStyle || 'yuvarlak')}
+                            {c.showGuideLine && (
+                                <div style={{
+                                    width: '100%', height: '1px',
+                                    background: '#cbd5e1', marginTop: '0.05rem'
+                                }} />
+                            )}
+                        </div>
+                    );
+                })}
+
+                {/* 2. Senaryo: Yapılandırılmış 'heceRows' gelirse (Offline/Manuel) */}
+                {!content.words && content.heceRows?.map((row, ri) => {
                     if (!row || !row.syllables) return null;
                     return (
                         <div key={ri} style={{
-                            display: 'flex', flexWrap: 'wrap',
-                            columnGap: gapVal, rowGap: '0.35rem',
-                            alignItems: 'flex-start', lineHeight: 1.2
+                            display: 'flex', flexWrap: 'wrap', width: '100%',
+                            columnGap: gapVal, rowGap: '0.5rem',
+                            marginBottom: '1rem', alignItems: 'flex-start'
                         }}>
                             {(row.syllables || []).map((s, si) => {
                                 if (!s) return null;
@@ -79,19 +110,13 @@ export const NoktaRenderer = memo(({ config, content }: RendererProps) => {
                                         display: 'flex', flexDirection: 'column',
                                         alignItems: 'center', gap: '0.1rem'
                                     }}>
-                                        <span role="text" style={{
+                                        <span style={{
                                             fontSize, fontWeight: 500, lineHeight: 1.2,
                                             fontFamily: 'Lexend, sans-serif', color: '#18181b'
                                         }}>
                                             {s.syllable}
                                         </span>
                                         {s.dotBelow && renderDot(dotSz, dotClr, c.dotStyle)}
-                                        {c.showGuideLine && (
-                                            <div style={{
-                                                width: '100%', height: '1px',
-                                                background: '#cbd5e1', marginTop: '0.05rem'
-                                            }} />
-                                        )}
                                     </div>
                                 );
                             })}

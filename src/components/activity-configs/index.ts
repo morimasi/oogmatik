@@ -31,6 +31,7 @@ import { StoryAnalysisConfig } from './StoryAnalysisConfig';
 import { StorySequencingConfig } from './StorySequencingConfig';
 import { MissingPartsConfig } from './MissingPartsConfig';
 import { AdvancedMissingPartsConfig } from './AdvancedMissingPartsConfig';
+import { QueueOrderingConfig } from './QueueOrderingConfig';
 
 import { FiveWOneHConfig } from './FiveWOneHConfig';
 import { ColorfulSyllableReadingConfig } from './ColorfulSyllableReadingConfig';
@@ -94,6 +95,7 @@ export const ActivityConfigRegistry: Record<string, any> = {
   [ActivityType.STORY_SEQUENCING]: StorySequencingConfig,
   [ActivityType.MISSING_PARTS]: AdvancedMissingPartsConfig,
   [ActivityType.INFOGRAPHIC_SHORT_ANSWER]: InfographicShortAnswerConfig,
+  [ActivityType.QUEUE_ORDERING]: QueueOrderingConfig,
 };
 
 export { EsAnlamliKelimelerConfig } from './EsAnlamliKelimelerConfig';

@@ -247,9 +247,16 @@ export interface MemoryPhaseData {
 export interface SariKitapGeneratedContent {
   title: string;
   instructions: string;
+  instruction?: string; // Bazı generatörler tekil kullanıyor
   targetSkills: string[];
   rawText: string;
+  text?: string;        // Bazı generatörler 'text' kullanıyor
   heceRows: HeceRow[];
+  words?: Array<{
+    word: string;
+    hasDot: boolean;
+    dotPosition?: number;
+  }>;
   sourceTexts?: {
     a: { title: string; text: string };
     b: { title: string; text: string };
