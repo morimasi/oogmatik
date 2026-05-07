@@ -41,3 +41,4 @@ export * from './sayiDedektifi';
 export * from './kavramHaritasi';
 export * from './esAnlamliKelimeler';
 export * from './sentenceFiveWOneH';
+export * from './math/queueOrdering';
