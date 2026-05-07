@@ -137,7 +137,36 @@ Tüm içerik üretimi, [AgentOrchestrator](file:///c:/Users/Administrator/Deskto
 - [x] **Performans Optimizasyonu**
     - [x] Büyük JSON verileri için `CompressionStream` ve `CacheService` optimizasyonu.
 
+### Faz 6: Güvenlik, Kimlik Doğrulama ve Profesyonel RBAC (The Security & Control)
+- [ ] **Mandatory Authentication Gate**
+    - [ ] `App.tsx` içinde oturum kontrolü ve yetkisiz erişim bloklama.
+    - [ ] Premium `LoginPage.tsx` (Glassmorphism + Dynamic Background).
+- [ ] **Dynamic RBAC & Module Control**
+    - [ ] Firestore tabanlı `settings/rbac` yetki matrisi altyapısı.
+    - [ ] Her rol için modül bazlı (Studio, Admin, Analitik) açma/kapama özelliği.
+- [ ] **Admin Permissions IDE**
+    - [ ] Roller ve yetkiler için görsel yönetim arayüzü.
+    - [ ] "Kullanıcı İnceleme" modunda yetki simülasyonu.
+- [ ] **Audit & Compliance v2**
+    - [ ] Tüm yetki değişikliklerinin ve oturum açma işlemlerinin loglanması.
+
+### Faz 7: Ultra-Profesyonel Öğrenci Yönetimi & Klinik Takip (The Student Hub)
+- [ ] **360° Neuro-Student Profile**
+    - [ ] Klinik tanı, bilişsel profil (dikkat, bellek, hız) ve öğrenme geçmişi entegrasyonu.
+    - [ ] Öğrencinin "Öğrenme DNA'sı" görselleştirmesi (DNA-Style Skill Map).
+- [ ] **AI-Powered BEP (IEP) Engine**
+    - [ ] MEB standartlarında, SMART hedefleri otomatik üreten bireysel eğitim planı modülü.
+    - [ ] Hedef bazlı otomatik aktivite öneri sistemi (Intelligent Recommendation).
+- [ ] **Clinical Progress Analytics**
+    - [ ] "Learning Plateau" (Öğrenme Düzlüğü) tespiti ve erken uyarı sistemi.
+    - [ ] Seans bazlı ilerleme notları ve görsel gelişim trendleri.
+- [ ] **Parent-Teacher-Clinic Bridge**
+    - [ ] KVKK uyumlu güvenli veri paylaşımı ve raporlama portalı.
+    - [ ] Veli için "Evde Destek" materyali atama ve bildirim sistemi.
+- [ ] **Assignment & Performance Tracking**
+    - [ ] Dijital ödev atama, süre takibi ve hata analizli performans raporu.
+
 ---
 **Onaylayan**: Oogmatik v3 Baş Mimarı
-**Versiyon**: 3.0.0-Premium
-**Durum**: Aktif Geliştirme (Sprint 5-6)
+**Versiyon**: 3.2.0-StudentHub
+**Durum**: Genişletilmiş Planlama (Ajan Ekibi Full-Focus)
