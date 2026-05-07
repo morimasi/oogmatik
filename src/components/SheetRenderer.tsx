@@ -1086,8 +1086,8 @@ const UnifiedContentRenderer = ({
         if (isEditorOpen) setSelectedBlockId(null);
       }}
     >
-      {pages.map((p, i) => (
-        <LazyPage key={i} pageIdx={i} totalPages={pages.length}>
+      {pages.filter(p => p && p.length > 0).map((p, i) => (
+        <LazyPage key={i} pageIdx={i} totalPages={pages.filter(p => p && p.length > 0).length}>
           {renderPage(p, i)}
         </LazyPage>
       ))}
