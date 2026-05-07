@@ -22,6 +22,4 @@ export interface User {
   institution?: string;
   phone?: string;
   bio?: string;
-  permissions?: string[];
-  accessibleModules?: string[];
 }

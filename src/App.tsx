@@ -45,12 +45,9 @@ import { AssignModal } from './components/Student/AssignModal';
 import { GuideModule, TourModule, PremiumHelpModule, AboutModule, DeveloperVisionModule } from './components/Onboarding';
 import { AdvancedScreeningModule } from './components/Screening/AdvancedScreeningModule';
 
-// Landing Page & Auth
+// Landing Page
 const LandingPage = lazy(() =>
   import('./pages/LandingPage').then((module) => ({ default: module.default }))
-);
-export const LoginPage = lazy(() =>
-  import('./pages/LoginPage').then((module) => ({ default: module.LoginPage }))
 );
 
 // Lazy Loaded Components
@@ -876,20 +873,6 @@ const AppContent = () => {
     return (
       <Suspense fallback={<LoadingSpinner />}>
         <LandingPage />
-      </Suspense>
-    );
-  }
-
-  // Mandatory Authentication Gate
-  if (authStore.isLoading) {
-    return <LoadingSpinner />;
-  }
-
-  // Allow access only to logged-in users, otherwise show LoginPage
-  if (!authStore.user) {
-    return (
-      <Suspense fallback={<LoadingSpinner />}>
-        <LoginPage />
       </Suspense>
     );
   }
