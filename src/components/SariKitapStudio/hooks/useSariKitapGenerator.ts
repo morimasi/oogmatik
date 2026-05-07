@@ -1,7 +1,19 @@
 import { useCallback } from 'react';
 import { useSariKitapStore } from '../../../store/useSariKitapStore';
-import { generateSariKitapContent } from '../../../services/generators/sariKitap';
+import { generatePencereFromAI } from '../../../services/generators/sariKitap/pencere.js';
+import { generateNoktaFromAI } from '../../../services/generators/sariKitap/nokta.js';
+import { generateKopruFromAI } from '../../../services/generators/sariKitap/kopru.js';
+import { generateCiftMetinFromAI } from '../../../services/generators/sariKitap/ciftMetin.js';
+import { generateBellekFromAI } from '../../../services/generators/sariKitap/bellek.js';
 import { generateOffline } from '../../../services/offlineGenerators/sariKitap';
+
+const AI_GENERATORS: Record<string, Function> = {
+    'pencere': generatePencereFromAI,
+    'nokta': generateNoktaFromAI,
+    'köprü': generateKopruFromAI,
+    'çiftMetin': generateCiftMetinFromAI,
+    'bellek': generateBellekFromAI,
+};
 
 export function useSariKitapGenerator() {
     const {
@@ -24,7 +36,9 @@ export function useSariKitapGenerator() {
                 const content = generateOffline(config);
                 setContent(content);
             } else {
-                const content = await generateSariKitapContent({ config });
+                // Direct AI generation for sari kitap modules
+                const generator = AI_GENERATORS[config.module] || generatePencereFromAI;
+                const content = await generator(config);
                 setContent(content);
             }
         } catch (err: unknown) {
