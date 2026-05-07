@@ -1086,11 +1086,17 @@ const UnifiedContentRenderer = ({
         if (isEditorOpen) setSelectedBlockId(null);
       }}
     >
-      {pages.filter(p => p && p.length > 0).map((p, i) => (
-        <LazyPage key={i} pageIdx={i} totalPages={pages.filter(p => p && p.length > 0).length}>
-          {renderPage(p, i)}
-        </LazyPage>
-      ))}
+      {pages.length === 0 ? (
+        <div className="worksheet-page p-8 text-center text-gray-500">
+          <p>İçerik bulunamadı. Lütfen farklı bir aktivite seçin.</p>
+        </div>
+      ) : (
+        pages.filter(p => p && p.length > 0).map((p, i) => (
+          <LazyPage key={i} pageIdx={i} totalPages={pages.filter(p => p && p.length > 0).length}>
+            {renderPage(p, i)}
+          </LazyPage>
+        ))
+      )}
     </div>
   );
 };
