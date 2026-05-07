@@ -8,3 +8,4 @@ export { generateNoktaFromAI } from './nokta';
 export { generateKopruFromAI } from './kopru';
 export { generateCiftMetinFromAI } from './ciftMetin';
 export { generateBellekFromAI } from './bellek';
+export { generateHizliOkumaFromAI } from './hizliOkuma';

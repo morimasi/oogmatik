@@ -5,6 +5,7 @@ import { generateNoktaFromAI } from '../../../services/generators/sariKitap/nokt
 import { generateKopruFromAI } from '../../../services/generators/sariKitap/kopru.js';
 import { generateCiftMetinFromAI } from '../../../services/generators/sariKitap/ciftMetin.js';
 import { generateBellekFromAI } from '../../../services/generators/sariKitap/bellek.js';
+import { generateHizliOkumaFromAI } from '../../../services/generators/sariKitap/hizliOkuma.js';
 import { generateOffline } from '../../../services/offlineGenerators/sariKitap';
 
 const AI_GENERATORS: Record<string, Function> = {
@@ -13,6 +14,7 @@ const AI_GENERATORS: Record<string, Function> = {
     'köprü': generateKopruFromAI,
     'çiftMetin': generateCiftMetinFromAI,
     'bellek': generateBellekFromAI,
+    'hizli_okuma': generateHizliOkumaFromAI,
 };
 
 export function useSariKitapGenerator() {
