@@ -3,7 +3,7 @@
  * Unique content generation with generationSeed
  */
 
-import { generateWithSchema } from '../geminiClient.js';
+import { generateWithSchema } from '../../geminiClient.js';
 import { GeneratorOptions } from '../../../types.js';
 
 export const generatePencereFromAI = async (options: GeneratorOptions): Promise<any[]> => {

@@ -3,8 +3,8 @@
  * Unique content generation with generationSeed
  */
 
-import { generateWithSchema } from '../geminiClient.js';
-import { GeneratorOptions } from '../../types.js';
+import { generateWithSchema } from '../../geminiClient.js';
+import { GeneratorOptions } from '../../../types.js';
 
 export const generateCiftMetinFromAI = async (options: GeneratorOptions): Promise<any[]> => {
     const { topic, difficulty, worksheetCount, ageGroup } = options;
