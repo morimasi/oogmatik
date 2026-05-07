@@ -94,7 +94,7 @@ export const useStudentStore = create<StudentState>()((set, get) => ({
   },
 
   updateStudent: async (id: string, updates: Partial<Student>) => {
-    const sanitizedUpdates: Record<string, unknown> = {};
+    const sanitizedUpdates: { [x: string]: any } = {};
     const baseSanitized = sanitizeStudent(updates);
     Object.keys(updates).forEach((key) => {
       if (key in baseSanitized)
