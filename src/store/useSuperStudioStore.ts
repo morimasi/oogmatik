@@ -52,7 +52,7 @@ const initialState = {
 
 import { SUPER_STUDIO_REGISTRY } from '../components/SuperStudio/templates/registry';
 
-export const useSuperStudioStore = create<SuperStudioState>()((set: any, get: any) => ({
+export const useSuperStudioStore = create<SuperStudioState>()((set, get) => ({
   ...initialState,
 
   setStudentId: (id: string | null) => set({ studentId: id }),

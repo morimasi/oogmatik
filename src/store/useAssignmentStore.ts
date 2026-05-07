@@ -17,6 +17,7 @@ import {
 import { assignmentService } from '../services/assignmentService';
 import { useToastStore } from './useToastStore';
 
+import { AppError } from '../utils/AppError.js';
 import { logError } from '../utils/logger.js';
 interface AssignmentState {
   assignments: ActivityAssignment[];
@@ -34,7 +35,7 @@ interface AssignmentState {
   updateAssignment: (id: string, updates: AssignmentUpdatePayload) => Promise<boolean>;
 }
 
-export const useAssignmentStore = create<AssignmentState>()((set: any) => ({
+export const useAssignmentStore = create<AssignmentState>()((set) => ({
   assignments: [],
   isLoading: false,
   isAssignModalOpen: false,
@@ -94,9 +95,15 @@ export const useAssignmentStore = create<AssignmentState>()((set: any) => ({
       useToastStore.getState().success("Atama başarıyla tamamlandı.");
       set({ isLoading: false });
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({ isLoading: false });
-      useToastStore.getState().error(error.userMessage || "Atama sırasında bir hata oluştu.");
+      const appError = error instanceof AppError ? error : new AppError(
+        'Assignment creation failed',
+        'ASSIGNMENT_CREATE_ERROR',
+        500,
+        { originalError: error }
+      );
+      useToastStore.getState().error(appError.userMessage || "Atama sırasında bir hata oluştu.");
       return false;
     }
   },
@@ -107,9 +114,15 @@ export const useAssignmentStore = create<AssignmentState>()((set: any) => ({
       await assignmentService.updateAssignment(id, updates);
       set({ isLoading: false });
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
       set({ isLoading: false });
-      useToastStore.getState().error(error.userMessage || "Güncelleme sırasında bir hata oluştu.");
+      const appError = error instanceof AppError ? error : new AppError(
+        'Assignment update failed',
+        'ASSIGNMENT_UPDATE_ERROR',
+        500,
+        { originalError: error }
+      );
+      useToastStore.getState().error(appError.userMessage || "Güncelleme sırasında bir hata oluştu.");
       return false;
     }
   },

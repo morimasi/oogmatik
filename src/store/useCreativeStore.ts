@@ -36,7 +36,7 @@ interface CreativeState {
  * useCreativeStore - UniversalStudio Merkezi Deposu
  * Context API'den Zustand'a taşınmış, optimize edilmiş state yönetimi.
  */
-export const useCreativeStore = create<CreativeState>()((set: any, get: any) => ({
+export const useCreativeStore = create<CreativeState>()((set, get) => ({
     // Initial State
     layout: [],
     selectedId: null,
@@ -46,26 +46,26 @@ export const useCreativeStore = create<CreativeState>()((set: any, get: any) => 
     groupedItems: {},
 
     // Basic Setters
-    setLayout: (layoutUpdate: any) => set((state: CreativeState) => ({
+    setLayout: (layoutUpdate: LayoutItem[] | ((prev: LayoutItem[]) => LayoutItem[])) => set((state: CreativeState) => ({
         layout: typeof layoutUpdate === 'function' ? layoutUpdate(state.layout) : layoutUpdate
     })),
 
     setSelectedId: (id: string | null) => set({ selectedId: id }),
 
-    setSelectedIds: (idsUpdate: any) => set((state: CreativeState) => ({
+    setSelectedIds: (idsUpdate: string[] | ((prev: string[]) => string[])) => set((state: CreativeState) => ({
         selectedIds: typeof idsUpdate === 'function' ? idsUpdate(state.selectedIds) : idsUpdate
     })),
 
     setDesignMode: (mode: boolean) => set({ designMode: mode }),
 
     // Advanced Actions
-    updateComponent: (instanceId: string, updates: any) => set((state: CreativeState) => ({
+    updateComponent: (instanceId: string, updates: Partial<LayoutItem>) => set((state: CreativeState) => ({
         layout: state.layout.map((item: LayoutItem) =>
             item.instanceId === instanceId ? { ...item, ...updates } : item
         )
     })),
 
-    updateMultipleComponents: (instanceIds: string[], updates: any) => set((state: CreativeState) => ({
+    updateMultipleComponents: (instanceIds: string[], updates: Partial<LayoutItem>) => set((state: CreativeState) => ({
         layout: state.layout.map((item: LayoutItem) =>
             instanceIds.includes(item.instanceId) ? { ...item, ...updates } : item
         )

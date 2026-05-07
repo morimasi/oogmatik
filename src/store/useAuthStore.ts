@@ -6,6 +6,7 @@ import { auth } from '../services/firebaseClient';
 // @ts-ignore
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 
+import { AppError } from '../utils/AppError.js';
 import { logError } from '../utils/logger.js';
 interface AuthState {
     user: User | null;
@@ -37,8 +38,14 @@ export const useAuthStore = create<AuthState>()(
                         try {
                             const currentUser = await authService.getCurrentUser();
                             set({ user: currentUser, isLoading: false });
-                        } catch (e: any) {
-                            logError("AuthStore initialize error:", e);
+                        } catch (e: unknown) {
+                            const appError = e instanceof AppError ? e : new AppError(
+                                'AuthStore initialize error',
+                                'AUTH_INIT_ERROR',
+                                500,
+                                { originalError: e }
+                            );
+                            logError(appError);
                             set({ user: null, isLoading: false });
                         }
                     } else {
@@ -78,7 +85,7 @@ export const useAuthStore = create<AuthState>()(
         }),
         {
             name: 'auth-storage',
-            partialize: (state: AuthState) => ({ user: state.user } as any),
+            partialize: (state: AuthState) => ({ user: state.user }),
         }
     )
 );

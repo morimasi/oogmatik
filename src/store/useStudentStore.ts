@@ -49,7 +49,7 @@ const sanitizeStudent = (data: unknown): Partial<Student> => {
   };
 };
 
-export const useStudentStore = create<StudentState>()((set: any, get: any) => ({
+export const useStudentStore = create<StudentState>()((set, get) => ({
   students: [],
   activeStudent: null,
   isLoading: false,

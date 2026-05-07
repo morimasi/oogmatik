@@ -37,10 +37,16 @@ export const useProgressStore = create<ProgressStore>((set) => ({
       );
       
       set({ snapshot: response.data, isLoading: false });
-    } catch (error: any) {
-      logError(error, { context: 'useProgressStore.fetchProgress', studentId });
+    } catch (error: unknown) {
+      const appError = error instanceof AppError ? error : new AppError(
+        'Unknown error occurred',
+        'INTERNAL_ERROR',
+        500,
+        { originalError: error }
+      );
+      logError(appError, { context: 'useProgressStore.fetchProgress', studentId });
       set({ 
-        error: error.userMessage || error.message || 'Veri alınırken bir hata oluştu.', 
+        error: appError.userMessage || 'Veri alınırken bir hata oluştu.', 
         isLoading: false 
       });
     }

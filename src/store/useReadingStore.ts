@@ -172,7 +172,7 @@ export const useReadingStore = create<ReadingState>()((set, get) => ({
     });
   },
 
-  addComponent: (def) => {
+  addComponent: (def: unknown) => {
     const { layout, past, recalculateLayout } = get();
     set({ past: [...past.slice(-19), layout], future: [] });
 

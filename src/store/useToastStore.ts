@@ -24,7 +24,7 @@ interface ToastState {
     clear: () => void;
 }
 
-export const useToastStore = create<ToastState>((set: (fn: (s: ToastState) => Partial<ToastState>) => void) => ({
+export const useToastStore = create<ToastState>((set) => ({
     toasts: [],
 
     show: (message: string, type: ToastType = 'info', duration: number = 3500) => {

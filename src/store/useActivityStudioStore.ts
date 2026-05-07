@@ -20,7 +20,7 @@ const initialSteps: WizardStep[] = [
 
 const emptyGoal: StudioGoalConfig | null = null;
 
-export const useActivityStudioStore = create<ActivityStudioState>()((set: any, get: any) => ({
+export const useActivityStudioStore = create<ActivityStudioState>()((set, get) => ({
   currentStep: 'goal',
   steps: initialSteps,
   isGenerating: false,
@@ -45,7 +45,7 @@ export const useActivityStudioStore = create<ActivityStudioState>()((set: any, g
     const targetIndex = steps.findIndex((s: WizardStep) => s.id === step);
     set({
       currentStep: step,
-      steps: steps.map((item: WizardStep, index: number) => {
+      steps: steps.map((item, index) => {
         if (item.id === step) return { ...item, status: 'active' };
         if (index < targetIndex) return { ...item, status: 'completed' };
         return { ...item, status: 'pending' };
