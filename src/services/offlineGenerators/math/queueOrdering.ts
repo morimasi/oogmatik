@@ -77,7 +77,13 @@ export const generateOfflineQueueOrdering = async (options: GeneratorOptions): P
         
         // Bilinen kişileri seç
         const usedNames = new Set<string>();
-        const people = [];
+        const people: Array<{
+            id: string;
+            name: string;
+            position: number;
+            icon?: string;
+            clue?: string;
+        }> = [];
         
         for (let j = 0; j < knownPeopleCount; j++) {
             let name: string;
