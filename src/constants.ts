@@ -461,6 +461,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.MAGIC_PYRAMID,
       ActivityType.CAPSULE_GAME,
       ActivityType.BOX_MATH,
+      ActivityType.QUEUE_ORDERING,
       // İnfografik Eklentileri
       ActivityType.INFOGRAPHIC_MATH_STEPS,
       ActivityType.INFOGRAPHIC_NUMBER_LINE,
