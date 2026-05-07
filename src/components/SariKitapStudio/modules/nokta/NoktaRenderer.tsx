@@ -64,34 +64,40 @@ export const NoktaRenderer = memo(({ config, content }: RendererProps) => {
                 flex: 1, display: 'flex', flexDirection: 'column',
                 gap: '0.2rem', padding: '0 0.25rem'
             }}>
-                {content.heceRows?.map((row, ri) => (
-                    <div key={ri} style={{
-                        display: 'flex', flexWrap: 'wrap',
-                        columnGap: gapVal, rowGap: '0.35rem',
-                        alignItems: 'flex-start', lineHeight: 1.2
-                    }}>
-                        {row.syllables.map((s, si) => (
-                            <div key={si} style={{
-                                display: 'flex', flexDirection: 'column',
-                                alignItems: 'center', gap: '0.1rem'
-                            }}>
-                                <span role="text" style={{
-                                    fontSize, fontWeight: 500, lineHeight: 1.2,
-                                    fontFamily: 'Lexend, sans-serif', color: '#18181b'
-                                }}>
-                                    {s.syllable}
-                                </span>
-                                {s.dotBelow && renderDot(dotSz, dotClr, c.dotStyle)}
-                                {c.showGuideLine && (
-                                    <div style={{
-                                        width: '100%', height: '1px',
-                                        background: '#cbd5e1', marginTop: '0.05rem'
-                                    }} />
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                ))}
+                {content.heceRows?.map((row, ri) => {
+                    if (!row || !row.syllables) return null;
+                    return (
+                        <div key={ri} style={{
+                            display: 'flex', flexWrap: 'wrap',
+                            columnGap: gapVal, rowGap: '0.35rem',
+                            alignItems: 'flex-start', lineHeight: 1.2
+                        }}>
+                            {row.syllables.map((s, si) => {
+                                if (!s) return null;
+                                return (
+                                    <div key={si} style={{
+                                        display: 'flex', flexDirection: 'column',
+                                        alignItems: 'center', gap: '0.1rem'
+                                    }}>
+                                        <span role="text" style={{
+                                            fontSize, fontWeight: 500, lineHeight: 1.2,
+                                            fontFamily: 'Lexend, sans-serif', color: '#18181b'
+                                        }}>
+                                            {s.syllable}
+                                        </span>
+                                        {s.dotBelow && renderDot(dotSz, dotClr, c.dotStyle)}
+                                        {c.showGuideLine && (
+                                            <div style={{
+                                                width: '100%', height: '1px',
+                                                background: '#cbd5e1', marginTop: '0.05rem'
+                                            }} />
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    );
+                })}
             </div>
 
             {/* Alt bilgi */}

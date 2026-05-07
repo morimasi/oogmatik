@@ -29,6 +29,7 @@ export const HizliOkumaRenderer = React.memo(({ config, content }: RendererProps
             display: 'flex', flexDirection: 'column', gap: rowGap, flex: 1
         }}>
             {columnBlocks.map((row: string[], ri: number) => {
+                if (!row) return null;
                 const globalIndex = startIndex + ri;
                 const isZebra = c.rhythmicMode && globalIndex % 2 === 1;
                 return (
@@ -53,19 +54,22 @@ export const HizliOkumaRenderer = React.memo(({ config, content }: RendererProps
                         }}>
                             {globalIndex + 1}
                         </span>
-                        {row.map((word: string, wi: number) => (
-                            <span key={wi} style={{
-                                fontWeight: 600,
-                                minWidth: isTwoCol ? '3.5rem' : '5rem',
-                                textAlign: 'center',
-                                fontSize: baseFontSize,
-                                color: '#18181b',
-                                fontFamily: 'Lexend, sans-serif',
-                                letterSpacing: '0.01em'
-                            }}>
-                                {word}
-                            </span>
-                        ))}
+                        {row.map((word: string, wi: number) => {
+                            if (!word) return null;
+                            return (
+                                <span key={wi} style={{
+                                    fontWeight: 600,
+                                    minWidth: isTwoCol ? '3.5rem' : '5rem',
+                                    textAlign: 'center',
+                                    fontSize: baseFontSize,
+                                    color: '#18181b',
+                                    fontFamily: 'Lexend, sans-serif',
+                                    letterSpacing: '0.01em'
+                                }}>
+                                    {word}
+                                </span>
+                            );
+                        })}
                     </div>
                 );
             })}
