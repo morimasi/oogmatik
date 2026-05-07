@@ -1,5 +1,6 @@
-import { mapDynamicIdToActivityType, registerDynamicMapping } from '../utils/dynamicIdMappings'
-import { ActivityType } from '../types/activity'
+import { describe, test, expect } from 'vitest';
+import { mapDynamicIdToActivityType, registerDynamicMapping } from '../utils/dynamicIdMappings';
+import { ActivityType } from '../types/activity';
 
 describe('DynamicIdMappings — Extended 40+ Mappings', () => {
   // Original 3 tests (preserved)
@@ -38,7 +39,7 @@ describe('DynamicIdMappings — Extended 40+ Mappings', () => {
 
   test('supports dynamic registration via registerDynamicMapping', () => {
     const testId = 'test_dynamic_id_12345'
-    const testType = ActivityType.RENKLI_HECE
+    const testType = ActivityType.WORD_SEARCH // Use existing type
     
     registerDynamicMapping(testId, testType)
     expect(mapDynamicIdToActivityType(testId)).toBe(testType)
