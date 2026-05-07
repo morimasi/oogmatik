@@ -123,6 +123,10 @@ export const AdminPermissionsIDE: React.FC = () => {
     admin: 'text-orange-400 bg-orange-500/10 border-orange-500/20',
     teacher: 'text-blue-400 bg-blue-500/10 border-blue-500/20',
     user: 'text-gray-400 bg-gray-500/10 border-gray-500/20',
+    parent: 'text-purple-400 bg-purple-500/10 border-purple-500/20',
+    student: 'text-green-400 bg-green-500/10 border-green-500/20',
+    editor: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20',
+    guest: 'text-gray-500 bg-gray-500/10 border-gray-500/20',
   };
 
   return (

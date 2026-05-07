@@ -55,7 +55,11 @@ export interface HandwritingResult {
     confidence: number;
     boundingBox: { x: number; y: number; width: number; height: number };
   }[];
-  corrections: string[]; // Suggested corrections
+  corrections: {
+    from: string;
+    to: string;
+    reason: string;
+  }[]; // Suggested corrections
 }
 
 /**
