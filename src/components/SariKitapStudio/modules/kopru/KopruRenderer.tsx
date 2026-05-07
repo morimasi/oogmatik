@@ -38,7 +38,49 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
                 gap: rowGap,
                 zIndex: 1
             }}>
-                {(content.heceRows || []).map((row, ri) => {
+                {/* 1. Senaryo: AI 'words' dizisi gelirse */}
+                {content.words && (
+                    <div style={{ 
+                        display: 'flex', 
+                        flexDirection: 'row', 
+                        flexWrap: 'wrap', 
+                        alignItems: 'flex-end', 
+                        width: '100%',
+                        rowGap: '3rem',
+                        columnGap: '0.2rem'
+                    }}>
+                        {content.words.map((w, wi) => (
+                            <React.Fragment key={`ai-w-${wi}`}>
+                                <div style={{
+                                    fontSize: `${fontSizePx}px`,
+                                    fontWeight: 400,
+                                    lineHeight: '1.2',
+                                    paddingBottom: '2px', 
+                                    whiteSpace: 'nowrap'
+                                }}>
+                                    {w.word}
+                                </div>
+
+                                {wi < content.words!.length - 1 && (
+                                    <div style={{
+                                        width: '40px',
+                                        display: 'flex',
+                                        alignItems: 'flex-end',
+                                        padding: '0 4px', 
+                                        marginBottom: '6px' 
+                                    }}>
+                                        <svg width="100%" height="20" viewBox="0 0 100 24" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
+                                            <path d="M 0,24 Q 50,0 100,24" fill="none" stroke={bColor} strokeWidth={bThickness} strokeLinecap="round" />
+                                        </svg>
+                                    </div>
+                                )}
+                            </React.Fragment>
+                        ))}
+                    </div>
+                )}
+
+                {/* 2. Senaryo: Geleneksel 'heceRows' gelirse */}
+                {!content.words && (content.heceRows || []).map((row, ri) => {
                     const words = row.syllables || [];
                     if (words.length === 0) return null;
 
@@ -46,48 +88,33 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
                         <div key={ri} style={{ 
                             display: 'flex', 
                             flexDirection: 'row', 
-                            flexWrap: 'wrap', // Uzun satırlar alt satıra geçsin
+                            flexWrap: 'wrap', 
                             alignItems: 'flex-end', 
                             width: '100%',
-                            rowGap: '2.5rem' // Wrap olduğu durumlarda yayın üst üste binmemesi için
+                            rowGap: '2.5rem' 
                         }}>
                             {words.map((s, si) => (
                                 <React.Fragment key={`w-${si}`}>
-                                    {/* Kelime veya Hece */}
                                     <div style={{
                                         fontSize: `${fontSizePx}px`,
                                         fontWeight: 400,
                                         lineHeight: '1.2',
                                         paddingBottom: '2px', 
-                                        whiteSpace: 'nowrap' // Kelime bölünmesin
+                                        whiteSpace: 'nowrap'
                                     }}>
                                         {s.syllable}
                                     </div>
 
-                                    {/* Köprü (Yay) */}
                                     {si < words.length - 1 && (
                                         <div style={{
-                                            width: '50px', // Köprü genişliğini sabitledik ki wrap tahmin edilebilir olsun
+                                            width: '50px',
                                             display: 'flex',
                                             alignItems: 'flex-end',
                                             padding: '0 4px', 
                                             marginBottom: '8px' 
                                         }}>
-                                            <svg 
-                                                width="100%" 
-                                                height="24" 
-                                                viewBox="0 0 100 24" 
-                                                preserveAspectRatio="none" 
-                                                style={{ overflow: 'visible', display: 'block' }}
-                                            >
-                                                <path
-                                                    d="M 0,24 Q 50,0 100,24"
-                                                    fill="none"
-                                                    stroke={bColor}
-                                                    strokeWidth={bThickness}
-                                                    vectorEffect="non-scaling-stroke"
-                                                    strokeLinecap="round"
-                                                />
+                                            <svg width="100%" height="24" viewBox="0 0 100 24" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
+                                                <path d="M 0,24 Q 50,0 100,24" fill="none" stroke={bColor} strokeWidth={bThickness} vectorEffect="non-scaling-stroke" strokeLinecap="round" />
                                             </svg>
                                         </div>
                                     )}
