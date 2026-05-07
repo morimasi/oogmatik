@@ -44,6 +44,9 @@ import { AppHeader } from './components/AppHeader';
 import { AssignModal } from './components/Student/AssignModal';
 import { GuideModule, TourModule, PremiumHelpModule, AboutModule, DeveloperVisionModule } from './components/Onboarding';
 import { AdvancedScreeningModule } from './components/Screening/AdvancedScreeningModule';
+import LoginPage from './pages/LoginPage';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { rbacService } from './services/rbacService';
 
 // Landing Page
 const LandingPage = lazy(() =>
@@ -281,6 +284,12 @@ const AppContent = () => {
   useEffect(() => {
     logInfo("Initializing Auth Store in App.tsx...");
     const unsubscribeAuth = authStore.initialize();
+    
+    // Initialize RBAC Service
+    rbacService.initialize().then(() => {
+      logInfo("RBAC Service Initialized");
+    });
+
     return () => {
       logInfo("Cleaning up Auth Store initialization...");
       unsubscribeAuth();
@@ -877,6 +886,19 @@ const AppContent = () => {
     );
   }
 
+  // FAZ 5: Mandatory Authentication Gate
+  if (authStore.isLoading) {
+    return <LoadingSpinner />;
+  }
+
+  if (!authStore.user) {
+    return (
+      <Suspense fallback={<LoadingSpinner />}>
+        <LoginPage />
+      </Suspense>
+    );
+  }
+
   return (
     <div
       className={`flex flex-col h-screen bg-[var(--bg-primary)] font-sans transition-colors duration-300 ${styleSettings.orientation === 'landscape' ? 'app-orientation-landscape' : 'app-orientation-portrait'}`}
@@ -1004,46 +1026,58 @@ const AppContent = () => {
                 >
                   <Suspense fallback={<LoadingSpinner />}>
                     {currentView === 'curriculum' && (
-                      <CurriculumView
-                        onBack={handleGoBack}
-                        onSelectActivity={handleSelectActivity as any}
-                        onStartCurriculumActivity={handleStartCurriculumActivity}
-                        initialPlan={loadedCurriculum}
-                        preFillData={screeningPlanData}
-                      />
+                      <ProtectedRoute module="curriculum" onBack={handleGoBack}>
+                        <CurriculumView
+                          onBack={handleGoBack}
+                          onSelectActivity={handleSelectActivity as any}
+                          onStartCurriculumActivity={handleStartCurriculumActivity}
+                          initialPlan={loadedCurriculum}
+                          preFillData={screeningPlanData}
+                        />
+                      </ProtectedRoute>
                     )}
                     {currentView === 'reading-studio' && (
-                      <ReadingStudio
-                        onBack={handleGoBack}
-                        onAddToWorkbook={handleAddToWorkbookGeneral as any}
-                      />
+                      <ProtectedRoute module="reading-studio" onBack={handleGoBack}>
+                        <ReadingStudio
+                          onBack={handleGoBack}
+                          onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                        />
+                      </ProtectedRoute>
                     )}
                     {currentView === 'math-studio' && (
-                      <MathStudio
-                        onBack={handleGoBack}
-                        onAddToWorkbook={handleAddToWorkbookGeneral as any}
-                      />
+                      <ProtectedRoute module="math-studio" onBack={handleGoBack}>
+                        <MathStudio
+                          onBack={handleGoBack}
+                          onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                        />
+                      </ProtectedRoute>
                     )}
                     {currentView === 'super-turkce' && <SuperStudio />}
                     {currentView === 'activity-studio' && (
-                      <ActivityStudio
-                        onBack={handleGoBack}
-                        onAddToWorkbook={handleAddToWorkbookGeneral as any}
-                      />
+                      <ProtectedRoute module="activity-studio" onBack={handleGoBack}>
+                        <ActivityStudio
+                          onBack={handleGoBack}
+                          onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                        />
+                      </ProtectedRoute>
                     )}
                     {currentView === 'infographic-studio' && (
-                      <InfographicStudio
-                        onBack={() => {
-                          setLoadedInfographicData(null);
-                          handleGoBack();
-                        }}
-                        onSave={addSavedWorksheet}
-                        onAddToWorkbook={handleAddToWorkbookGeneral as any}
-                        initialData={loadedInfographicData}
-                      />
+                      <ProtectedRoute module="infographic-studio" onBack={handleGoBack}>
+                        <InfographicStudio
+                          onBack={() => {
+                            setLoadedInfographicData(null);
+                            handleGoBack();
+                          }}
+                          onSave={addSavedWorksheet}
+                          onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                          initialData={loadedInfographicData}
+                        />
+                      </ProtectedRoute>
                     )}
                     {currentView === 'ocr' && (
-                      <OCRScanner onBack={handleGoBack} onResult={handleOCRResult} />
+                      <ProtectedRoute module="ocr" onBack={handleGoBack}>
+                        <OCRScanner onBack={handleGoBack} onResult={handleOCRResult} />
+                      </ProtectedRoute>
                     )}
                     {currentView === 'profile' && (
                       <ProfileView
@@ -1058,22 +1092,32 @@ const AppContent = () => {
                       />
                     )}
                     {currentView === 'students' && (
-                      <StudentDashboard onBack={handleGoBack} onLoadMaterial={loadSavedWorksheet} />
+                      <ProtectedRoute module="students" onBack={handleGoBack}>
+                        <StudentDashboard onBack={handleGoBack} onLoadMaterial={loadSavedWorksheet} />
+                      </ProtectedRoute>
                     )}
                     {currentView === 'messages' && <MessagesView onBack={handleGoBack} />}
-                    {currentView === 'admin' && <AdminDashboard onBack={handleGoBack} />}
+                    {currentView === 'admin' && (
+                      <ProtectedRoute module="admin" onBack={handleGoBack}>
+                        <AdminDashboard onBack={handleGoBack} />
+                      </ProtectedRoute>
+                    )}
                     {currentView === 'screening' && (
-                      <ScreeningModule
-                        onBack={handleGoBack}
-                        onSelectActivity={handleSelectActivity}
-                        onAddToWorkbook={handleAddToWorkbookGeneral as any}
-                        onGeneratePlan={(n: string, a: number, w: string[], c?: string) =>
-                          handleGeneratePlanFromScreening(n, a, w, c)
-                        }
-                      />
+                      <ProtectedRoute module="screening" onBack={handleGoBack}>
+                        <ScreeningModule
+                          onBack={handleGoBack}
+                          onSelectActivity={handleSelectActivity}
+                          onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                          onGeneratePlan={(n: string, a: number, w: string[], c?: string) =>
+                            handleGeneratePlanFromScreening(n, a, w, c)
+                          }
+                        />
+                      </ProtectedRoute>
                     )}
                     {currentView === 'sinav-studyosu' && (
-                      <SinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />
+                      <ProtectedRoute module="sinav-studyosu" onBack={handleGoBack}>
+                        <SinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />
+                      </ProtectedRoute>
                     )}
                     {currentView === 'mat-sinav-studyosu' && (
                       <MatSinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />

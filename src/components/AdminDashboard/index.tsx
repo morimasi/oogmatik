@@ -17,6 +17,7 @@ import { AdminStaticContent } from './AdminStaticContent';
 import { AdminUserManagement } from './AdminUserManagement';
 import { AdminDraftReview } from './AdminDraftReview';
 import { AdminActivityApproval } from './AdminActivityApproval';
+import { AdminPermissionsIDE } from './PermissionsIDE';
 
 import { logError } from '../../utils/logger.js';
 interface AdminDashboardProps {
@@ -43,7 +44,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
 
   // Persistent Tab State
   const [activeTab, setActiveTab] = useState<
-    'dashboard' | 'users' | 'activities' | 'prompts' | 'static_content' | 'feedbacks' | 'drafts' | 'approvals'
+    'dashboard' | 'users' | 'activities' | 'prompts' | 'static_content' | 'feedbacks' | 'drafts' | 'approvals' | 'permissions'
   >(() => {
     const saved = localStorage.getItem('admin_active_tab');
     return (saved as any) || 'dashboard';
@@ -207,6 +208,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
             icon="fa-users"
             onClick={() => setActiveTab('users')}
           />
+          <NavButton
+            active={activeTab === 'permissions'}
+            label="Yetki Matrisi (RBAC)"
+            icon="fa-shield-halved"
+            onClick={() => setActiveTab('permissions')}
+          />
 
           <p className="px-4 mt-6 mb-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">
             İçerik Motoru
@@ -279,6 +286,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
               {activeTab === 'feedbacks' && 'Geri Bildirimler'}
               {activeTab === 'drafts' && 'Taslak Havuzu (OCR)'}
               {activeTab === 'approvals' && 'İçerik Onay Merkezi'}
+              {activeTab === 'permissions' && 'Yetkilendirme (RBAC)'}
             </h1>
             <span className="px-2 py-0.5 rounded bg-[var(--bg-secondary)] text-[10px] font-mono text-[var(--text-muted)] border border-[var(--border-color)]">
               v1.3.0
@@ -309,6 +317,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
             {activeTab === 'users' && <AdminUserManagement />}
             {activeTab === 'drafts' && <AdminDraftReview />}
             {activeTab === 'approvals' && <AdminActivityApproval />}
+            {activeTab === 'permissions' && <AdminPermissionsIDE />}
           </div>
         </div>
       </main>

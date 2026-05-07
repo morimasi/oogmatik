@@ -20,6 +20,8 @@ import { activityService } from '../services/generators/ActivityService';
 import { GeneratorMode } from '../services/generators/core/types';
 import { adminService } from '../services/adminService';
 import { useStudentStore } from '../store/useStudentStore';
+import { useRBAC } from '../hooks/useRBAC';
+import { PermissionModule } from '../types/rbac';
 import { logError } from '../utils/logger.js';
 import './PremiumPopupStyles.css';
 
@@ -78,6 +80,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const [allActivities, setAllActivities] = useState<Activity[]>(ACTIVITIES);
   const [categories, setCategories] = useState<ActivityCategory[]>(ACTIVITY_CATEGORIES);
+  const { canAccess } = useRBAC();
 
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [lockedCategory, setLockedCategory] = useState<string | null>(null);
@@ -101,20 +104,40 @@ const Sidebar: React.FC<SidebarProps> = ({
       'kelime-cumle-studio': onOpenKelimeCumleStudio,
     };
 
+    const idToModuleMap: Record<string, PermissionModule> = {
+      'screening': 'screening',
+      'curriculum': 'curriculum',
+      'reading': 'reading-studio',
+      'math': 'math-studio',
+      'activity-studio': 'activity-studio',
+      'infographic-studio': 'infographic-studio',
+      'sinav-studyosu': 'sinav-studyosu',
+      'mat-sinav-studyosu': 'math-studio', // Fallback
+      'super-turkce': 'activity-studio', // Fallback
+      'ocr': 'ocr',
+    };
+
     return STUDIO_GROUPS.map(group => ({
       ...group,
-      items: group.items.map(item => ({
-        ...item,
-        onClick: item.actionType === 'callback' 
-          ? callbackMap[item.id] 
-          : () => {
-              if (item.eventName) {
-                const event = new CustomEvent(item.eventName);
-                window.dispatchEvent(event);
+      items: group.items
+        .filter(item => {
+          // If item.id is in map, check access. If not, allow (e.g. guide, tour)
+          const module = idToModuleMap[item.id];
+          if (module) return canAccess(module);
+          return true;
+        })
+        .map(item => ({
+          ...item,
+          onClick: item.actionType === 'callback' 
+            ? callbackMap[item.id] 
+            : () => {
+                if (item.eventName) {
+                  const event = new CustomEvent(item.eventName);
+                  window.dispatchEvent(event);
+                }
               }
-            }
-      }))
-    }));
+        }))
+    })).filter(group => group.items.length > 0);
   }, [
     onOpenScreening, onOpenCurriculum, onOpenReadingStudio, onOpenMathStudio, 
     onOpenSuperTurkce, onOpenSinavStudyosu, onOpenMatSinavStudyosu, 
