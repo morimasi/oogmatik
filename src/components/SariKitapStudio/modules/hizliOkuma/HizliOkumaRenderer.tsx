@@ -54,7 +54,7 @@ export const HizliOkumaRenderer = React.memo(({ config, content }: RendererProps
                         }}>
                             {globalIndex + 1}
                         </span>
-                        {row.map((word: string, wi: number) => {
+                        {(row || []).map((word: string, wi: number) => {
                             if (!word) return null;
                             return (
                                 <span key={wi} style={{

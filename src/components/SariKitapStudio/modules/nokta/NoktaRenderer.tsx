@@ -72,7 +72,7 @@ export const NoktaRenderer = memo(({ config, content }: RendererProps) => {
                             columnGap: gapVal, rowGap: '0.35rem',
                             alignItems: 'flex-start', lineHeight: 1.2
                         }}>
-                            {row.syllables.map((s, si) => {
+                            {(row.syllables || []).map((s, si) => {
                                 if (!s) return null;
                                 return (
                                     <div key={si} style={{

@@ -38,7 +38,7 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
                 gap: rowGap,
                 zIndex: 1
             }}>
-                {content.heceRows.map((row, ri) => {
+                {(content.heceRows || []).map((row, ri) => {
                     const words = row.syllables || [];
                     if (words.length === 0) return null;
 
