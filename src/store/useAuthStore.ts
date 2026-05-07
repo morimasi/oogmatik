@@ -5,8 +5,10 @@ import { authService } from '../services/authService';
 import { auth } from '../services/firebaseClient';
 // @ts-ignore
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
+import { getUserRoleInfo } from '../services/rbac.js';
 
 import { logError } from '../utils/logger.js';
+
 interface AuthState {
     user: User | null;
     isLoading: boolean;
@@ -26,9 +28,13 @@ export const useAuthStore = create<AuthState>()(
 
             initialize: () => {
                 // Check if we're coming back from a Google Redirect
-                authService.handleRedirectResult().then(user => {
+                authService.handleRedirectResult().then(async (user) => {
                     if (user) {
-                        set({ user, isLoading: false });
+                        const info = await getUserRoleInfo(user.id, user.role);
+                        set({ 
+                            user: { ...user, permissions: info.permissions, accessibleModules: info.accessibleModules }, 
+                            isLoading: false 
+                        });
                     }
                 });
 
@@ -36,7 +42,15 @@ export const useAuthStore = create<AuthState>()(
                     if (firebaseUser) {
                         try {
                             const currentUser = await authService.getCurrentUser();
-                            set({ user: currentUser, isLoading: false });
+                            if (currentUser) {
+                                const info = await getUserRoleInfo(currentUser.id, currentUser.role);
+                                set({ 
+                                    user: { ...currentUser, permissions: info.permissions, accessibleModules: info.accessibleModules }, 
+                                    isLoading: false 
+                                });
+                            } else {
+                                set({ user: null, isLoading: false });
+                            }
                         } catch (e: any) {
                             logError("AuthStore initialize error:", e);
                             set({ user: null, isLoading: false });
@@ -50,7 +64,10 @@ export const useAuthStore = create<AuthState>()(
 
             login: async (email: string, pass: string) => {
                 const loggedUser = await authService.login(email, pass);
-                set({ user: loggedUser });
+                if (loggedUser) {
+                    const info = await getUserRoleInfo(loggedUser.id, loggedUser.role);
+                    set({ user: { ...loggedUser, permissions: info.permissions, accessibleModules: info.accessibleModules } });
+                }
             },
 
             loginWithGoogle: async () => {
@@ -61,7 +78,10 @@ export const useAuthStore = create<AuthState>()(
 
             register: async (email: string, pass: string, name: string) => {
                 const newUser = await authService.register(email, pass, name);
-                set({ user: newUser });
+                if (newUser) {
+                    const info = await getUserRoleInfo(newUser.id, newUser.role);
+                    set({ user: { ...newUser, permissions: info.permissions, accessibleModules: info.accessibleModules } });
+                }
             },
 
             logout: async () => {
