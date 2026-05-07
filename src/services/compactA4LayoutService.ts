@@ -121,3 +121,36 @@ export function getTailwindGridClass(itemsPerPage: 4 | 6 | 8): string {
       return 'grid-cols-2';
   }
 }
+
+/**
+ * Get minimum recommended font size based on age group and learning disability profile
+ * Based on special education guidelines
+ */
+export function getMinFontPT(
+  ageGroup: string,
+  profile: string
+): number {
+  // Base font sizes by age group
+  const baseFont: Record<string, number> = {
+    '4-6': 14,   // Preschool - largest fonts
+    '6-8': 13,   // Early elementary
+    '8-10': 12,  // Mid elementary
+    '10-12': 11, // Upper elementary
+    '12+': 11,   // Middle/high school
+  };
+
+  // Adjustments for learning disabilities
+  const profileAdjustment: Record<string, number> = {
+    'dyslexia': 2,      // +2pt for dyslexia
+    'dyscalculia': 1,   // +1pt for dyscalculia
+    'adhd': 1,          // +1pt for ADHD
+    'visual': 3,        // +3pt for visual processing issues
+    'auditory': 1,      // +1pt for auditory processing
+    'mixed': 2,         // +2pt for mixed profiles
+  };
+
+  const base = baseFont[ageGroup] ?? 12;
+  const adjustment = profileAdjustment[profile] ?? 0;
+
+  return base + adjustment;
+}
