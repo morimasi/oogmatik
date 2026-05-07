@@ -31,8 +31,15 @@ const config: UserConfig & { test?: any } = {
       output: {
         // Granüler manual chunk'lar — her kritik bağımlılık kendi bucket'ında
         manualChunks(id: string) {
-          // Stüdyolar — En büyük src bileşenleri
-          if (id.includes('/components/') && (id.includes('Studio') || id.includes('Editor'))) return 'studios';
+          // Stüdyolar — En büyük src bileşenleri (daha granüler)
+          if (id.includes('/components/') && (id.includes('Studio') || id.includes('Editor'))) {
+            // Her studio'yu ayrı chunk'a böl
+            if (id.includes('ActivityStudio')) return 'studio-activity';
+            if (id.includes('ReadingStudio')) return 'studio-reading';
+            if (id.includes('MathStudio')) return 'studio-math';
+            if (id.includes('InfographicStudio')) return 'studio-infographic';
+            return 'studios';
+          }
           // Admin Paneli
           if (id.includes('/components/Admin')) return 'admin-panel';
           // Öğrenci Modülleri
