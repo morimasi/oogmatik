@@ -190,6 +190,7 @@ import { ReadingStudioContentRenderer } from './ReadingStudio/ReadingStudioConte
 import { VisualInterpretationSheet } from './sheets/visual/VisualInterpretationSheet';
 import { BrainTeasersSheet } from './sheets/logic/BrainTeasersSheet';
 import { BoxMathSheet } from './sheets/math/BoxMathSheet';
+import { QueueOrderingSheet } from './sheet-renderers/QueueOrderingSheet';
 import { PedagogicalHeader, ImageDisplay } from './sheets/common';
 
 import { EditableText } from './Editable';
@@ -1791,15 +1792,7 @@ export const SheetRenderer = React.memo(
         renderedSheet = <BoxMathSheet data={data as any} settings={settings} />;
         break;
       case ActivityType.QUEUE_ORDERING:
-        // Queue Ordering will use UnifiedContentRenderer
-        renderedSheet = (
-          <UnifiedContentRenderer 
-            data={data} 
-            activityType={activityType}
-            studentProfile={studentProfile} 
-            settings={settings} 
-          />
-        );
+        renderedSheet = <QueueOrderingSheet data={data as any} settings={settings} />;
         break;
       case ActivityType.VISUAL_INTERPRETATION:
         renderedSheet = <VisualInterpretationSheet data={data as any} settings={settings} />;

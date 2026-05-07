@@ -4,8 +4,6 @@
  */
 
 import React from 'react';
-import { PedagogicalHeader } from './shared/PedagogicalHeader';
-import { PedagogicalFooter } from './shared/PedagogicalFooter';
 
 interface QueueOrderingSheetProps {
   data: any;
@@ -24,20 +22,24 @@ export const QueueOrderingSheet: React.FC<QueueOrderingSheetProps> = ({ data, se
   }
 
   return (
-    <div className="queue-ordering-sheet font-['Lexend']">
+    <div className="queue-ordering-sheet font-['Lexend'] p-6">
       {/* Header */}
-      <PedagogicalHeader
-        title={title || 'Sıra Alma Becerisi'}
-        activityType="queue-ordering"
-        studentProfile={settings?.studentProfile}
-        data={data}
-      />
+      <div className="mb-6 pb-4 border-b-2 border-indigo-200">
+        <h1 className="text-2xl font-black text-indigo-900 uppercase tracking-tight">
+          {title || 'Sıra Alma Becerisi'}
+        </h1>
+        {instruction && (
+          <p className="text-sm font-medium text-gray-600 mt-1">
+            {instruction}
+          </p>
+        )}
+      </div>
 
       {/* Instructions */}
-      <div className="mb-4 px-6 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-r-lg">
+      <div className="mb-4 px-4 py-3 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-r-lg">
         <p className="text-sm font-bold text-blue-900">
           <i className="fa-solid fa-lightbulb mr-2"></i>
-          {instruction || 'Sıralama ipuçlarını kullanarak soruları cevaplayın.'}
+          Sıralama ipuçlarını kullanarak soruları cevaplayın.
         </p>
       </div>
 
@@ -131,11 +133,11 @@ export const QueueOrderingSheet: React.FC<QueueOrderingSheetProps> = ({ data, se
       </div>
 
       {/* Footer */}
-      <PedagogicalFooter
-        activityType="queue-ordering"
-        data={data}
-        studentProfile={settings?.studentProfile}
-      />
+      <div className="mt-8 pt-4 border-t-2 border-gray-200">
+        <p className="text-xs font-medium text-gray-500 text-center">
+          Sıralama becerisi, günlük yaşamda yön algısı ve mantıksal çıkarım yeteneğini geliştirir.
+        </p>
+      </div>
     </div>
   );
 };
