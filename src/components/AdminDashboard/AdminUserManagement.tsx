@@ -38,6 +38,9 @@ export const AdminUserManagement: React.FC = () => {
     });
     const [_selectedUser, _setSelectedUser] = useState<ManagedUser | null>(null);
 
+    // SUPER ADMIN EMAIL - Cannot be modified by anyone
+    const SUPER_ADMIN_EMAIL = 'morimasi@gmail.com';
+
     useEffect(() => {
         loadUsers();
     }, []);
@@ -71,11 +74,33 @@ export const AdminUserManagement: React.FC = () => {
     }, [users, filter]);
 
     const handleRoleChange = async (userId: string, newRole: UserRoleType) => {
+        const user = users.find(u => u.id === userId);
+        
+        // Prevent changing superadmin role
+        if (user?.email === SUPER_ADMIN_EMAIL) {
+            alert('⚠️ Super admin kullanıcısının rolü değiştirilemez!');
+            return;
+        }
+        
+        // Prevent changing to superadmin role
+        if (newRole === 'superadmin') {
+            alert('⚠️ Sadece sistem tarafından belirlenen e-posta super admin olabilir!');
+            return;
+        }
+        
         await adminService.updateUserRole(userId, newRole);
         setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
     };
 
     const handleStatusChange = async (userId: string, currentStatus: ExtendedUserStatus) => {
+        const user = users.find(u => u.id === userId);
+        
+        // Prevent changing superadmin status
+        if (user?.email === SUPER_ADMIN_EMAIL) {
+            alert('⚠️ Super admin kullanıcısının durumu değiştirilemez!');
+            return;
+        }
+        
         const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
         await adminService.updateUserStatus(userId, newStatus as UserStatus);
         setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: newStatus } : u));

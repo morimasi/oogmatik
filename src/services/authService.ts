@@ -15,26 +15,33 @@ import { User, UserRole, UserStatus, ActivityType } from '../types.js';
 import { logInfo, logError, logWarn } from '../utils/logger.js';
 const { doc, getDoc, setDoc, updateDoc, collection, getDocs, query, orderBy, limit, deleteDoc, increment } = firestore;
 
+// SUPER ADMIN EMAIL - Hardcoded for security
+const SUPER_ADMIN_EMAIL = 'morimasi@gmail.com';
+
 // Map Firestore doc to App User type
-const mapDbUserToAppUser = (docData: any, uid: string, email: string): User => ({
-    id: uid,
-    email: email,
-    name: docData.name || email?.split('@')[0] || 'Kullanıcı',
-    // ROLE IS NOW SOLELY DETERMINED BY DATABASE
-    role: docData.role || 'user',
-    avatar: docData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-    createdAt: docData.createdAt || new Date().toISOString(),
-    lastLogin: docData.lastLogin || new Date().toISOString(),
-    worksheetCount: docData.worksheetCount || 0,
-    status: docData.status || 'active',
-    subscriptionPlan: docData.subscriptionPlan || 'free',
-    favorites: docData.favorites || [],
-    lastActiveActivity: docData.lastActiveActivity || undefined,
-    profession: docData.profession || '',
-    institution: docData.institution || '',
-    phone: docData.phone || '',
-    bio: docData.bio || ''
-});
+const mapDbUserToAppUser = (docData: any, uid: string, email: string): User => {
+    // Force superadmin role for specific email
+    const role = email === SUPER_ADMIN_EMAIL ? 'superadmin' : (docData.role || 'user');
+    
+    return {
+        id: uid,
+        email: email,
+        name: docData.name || email?.split('@')[0] || 'Kullanıcı',
+        role: role,
+        avatar: docData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
+        createdAt: docData.createdAt || new Date().toISOString(),
+        lastLogin: docData.lastLogin || new Date().toISOString(),
+        worksheetCount: docData.worksheetCount || 0,
+        status: docData.status || 'active',
+        subscriptionPlan: docData.subscriptionPlan || 'free',
+        favorites: docData.favorites || [],
+        lastActiveActivity: docData.lastActiveActivity || undefined,
+        profession: docData.profession || '',
+        institution: docData.institution || '',
+        phone: docData.phone || '',
+        bio: docData.bio || ''
+    };
+};
 
 export const authService = {
     login: async (email: string, pass: string): Promise<User> => {
@@ -100,7 +107,7 @@ export const authService = {
                 const newUserProfile = {
                     name: user.displayName || 'Google Kullanıcısı',
                     email: user.email,
-                    role: 'user',
+                    role: user.email === SUPER_ADMIN_EMAIL ? 'superadmin' : 'user',
                     createdAt: new Date().toISOString(),
                     lastLogin: new Date().toISOString(),
                     avatar: user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`,
@@ -147,7 +154,7 @@ export const authService = {
                 return null;
             }
             
-            logInfo("Redirect result found for user:", result.user.email);
+            logInfo(`Redirect result found for user: ${result.user.email || 'unknown'}`);
             const user = result.user;
             const userDocRef = doc(db, "users", user.uid);
             const userDocSnap = await getDoc(userDocRef);
@@ -156,7 +163,7 @@ export const authService = {
                 const newUserProfile = {
                     name: user.displayName || 'Google Kullanıcısı',
                     email: user.email,
-                    role: 'user',
+                    role: user.email === SUPER_ADMIN_EMAIL ? 'superadmin' : 'user',
                     createdAt: new Date().toISOString(),
                     lastLogin: new Date().toISOString(),
                     avatar: user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`,
@@ -192,11 +199,11 @@ export const authService = {
             await updateAuthProfile(user, { displayName: name });
 
             // Firestore'da kullanıcı dokümanı oluştur
-            // Default role is always 'user'. Admin role must be set manually in DB console or by another admin.
+            // Default role is always 'user' (except superadmin email)
             const newUserProfile = {
                 name: name,
                 email: email,
-                role: 'user',
+                role: email === SUPER_ADMIN_EMAIL ? 'superadmin' : 'user',
                 createdAt: new Date().toISOString(),
                 lastLogin: new Date().toISOString(),
                 avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
