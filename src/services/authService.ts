@@ -120,6 +120,14 @@ export const authService = {
                 });
             }
         } catch (error: any) {
+            // Filter COOP warnings - they don't affect functionality
+            if (error.code === 'auth/popup-closed-by-user' || 
+                error.code === 'auth/cancelled' ||
+                error.message?.includes('Cross-Origin-Opener-Policy')) {
+                logInfo('Google login popup closed or COOP warning');
+                return;
+            }
+            
             logError("Google login popup error details:", {
                 code: error.code,
                 message: error.message
