@@ -1,3 +1,10 @@
-export { getPromptBuilder, SARI_KITAP_SYSTEM_INSTRUCTION } from './shared';
-export type { PromptBuilderFn } from './shared';
-export { generateSariKitapContent } from './engine';
+/**
+ * Sarı Kitap Studio AI Generators
+ * Unique content generation for all 6 modules
+ */
+
+export { generatePencereFromAI } from './pencere';
+export { generateNoktaFromAI } from './nokta';
+export { generateKopruFromAI } from './kopru';
+export { generateCiftMetinFromAI } from './ciftMetin';
+export { generateBellekFromAI } from './bellek';
