@@ -3,6 +3,8 @@ import { User, ActivityStats } from '../../types';
 import { authService } from '../../services/authService';
 import { statsService } from '../../services/statsService';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useRBAC } from '../../hooks/useRBAC';
+
 // Lazy Loaded Views to break circular dependencies
 const ProfileView = React.lazy(() => import('../ProfileView').then(m => ({ default: m.ProfileView })));
 const SavedWorksheetsView = React.lazy(() => import('../SavedWorksheetsView').then(m => ({ default: m.SavedWorksheetsView })));
@@ -41,6 +43,7 @@ const NavButton = ({ active, label, icon, onClick, count }: any) => (
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
   const { user } = useAuthStore();
+  const { isAdmin } = useRBAC();
 
   // Persistent Tab State
   const [activeTab, setActiveTab] = useState<
@@ -83,7 +86,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onBack }) => {
     }
   };
 
-  if (!user || user.role !== 'admin')
+  if (!user || !isAdmin)
     return (
       <div className="p-8 text-center text-red-600 font-bold text-xl mt-20">
         403 - Yetkisiz Erişim

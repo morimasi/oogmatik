@@ -80,10 +80,10 @@ export const AdminPermissionsIDE: React.FC = () => {
 
     setIsSaving(true);
     try {
-      // TODO: Implement Firestore save
-      // await rbacService.saveSettings(settings);
-      toast.success('RBAC ayarları kaydedildi');
+      await rbacService.saveSettings(settings);
+      toast.success('RBAC ayarları başarıyla kaydedildi');
     } catch (error) {
+      logError('RBAC save UI error', error as any);
       toast.error('Ayarlar kaydedilirken hata oluştu');
     } finally {
       setIsSaving(false);

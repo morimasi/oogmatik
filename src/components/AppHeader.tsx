@@ -5,6 +5,7 @@ import GlobalSearch from './GlobalSearch';
 import { useAuthStore } from '../store/useAuthStore';
 import { useUIStore } from '../store/useUIStore';
 import { useWorksheetStore } from '../store/useWorksheetStore';
+import { useRBAC } from '../hooks/useRBAC';
 import { ActivityType, View } from '../types';
 
 interface AppHeaderProps {
@@ -164,6 +165,7 @@ export const AppHeader = ({
     onOpenStudio,
 }: AppHeaderProps) => {
     const { user, logout } = useAuthStore();
+    const { isAdmin } = useRBAC();
     const { setIsSidebarOpen, zenMode, setIsTourActive } = useUIStore();
     const { currentView, setCurrentView, addHistoryView, setSelectedActivity, setWorksheetData, setActiveCurriculumSession } = useWorksheetStore();
 
@@ -307,8 +309,8 @@ export const AppHeader = ({
                             >
                                 <DropdownItem icon="fa-user-gear" label="Profil Ayarları" onClick={() => { setIsSidebarOpen(false); navigateTo('profile'); }} />
                                 <DropdownItem icon="fa-sliders" label="Görünüm Ayarları" onClick={() => { setIsSidebarOpen(false); onOpenModal('settings'); }} />
-                                {user.role === 'admin' && <div className="h-px bg-[var(--border-color)] my-2 opacity-50"></div>}
-                                {user.role === 'admin' && <DropdownItem icon="fa-shield-halved" label="Yönetim Paneli" onClick={() => { setIsSidebarOpen(false); navigateTo('admin'); }} />}
+                                {isAdmin && <div className="h-px bg-[var(--border-color)] my-2 opacity-50"></div>}
+                                {isAdmin && <DropdownItem icon="fa-shield-halved" label="Yönetim Paneli" onClick={() => { setIsSidebarOpen(false); navigateTo('admin'); }} />}
                                 <div className="h-px bg-[var(--border-color)] my-2 opacity-50"></div>
 
                                 <DropdownItem icon="fa-arrow-right-from-bracket" label="Oturumu Kapat" onClick={async () => await logout()} />

@@ -29,6 +29,17 @@ class RBACService {
     return this.settings || DEFAULT_RBAC_SETTINGS;
   }
 
+  async saveSettings(newSettings: RBACSettings): Promise<void> {
+    try {
+      const docRef = doc(db, 'settings', 'rbac');
+      await setDoc(docRef, newSettings);
+      this.settings = newSettings;
+    } catch (error) {
+      logError('RBAC save error:', error);
+      throw error;
+    }
+  }
+
   canAccessModule(role: UserRole, module: PermissionModule): boolean {
     if (role === 'superadmin') return true;
     
