@@ -4,6 +4,7 @@ import { worksheetService } from '../../../services/worksheetService';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useToastStore } from '../../../store/useToastStore';
 import { printService } from '../../../utils/printService';
+import { SingleWorksheetData } from '../../../types';
 
 import { logInfo, logError, logWarn } from '../../../utils/logger.js';
 export const ActionToolbar: React.FC = () => {

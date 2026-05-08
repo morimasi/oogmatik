@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { ProfileData } from '../../types/profile';
 import { Student } from '../../types';
 import { ProfileTabId } from '../constants';
-import { ProfileHeader } from '../components/ProfileHeader';
-import { TabNavigation } from '../components/TabNavigation';
-import { OverviewModule } from '../modules/OverviewModule';
-import { StudentsModule } from '../modules/StudentsModule';
-import { AnalysisModule } from '../modules/AnalysisModule';
-import { PlansModule } from '../modules/PlansModule';
-import { ReportsModule } from '../modules/ReportsModule';
-import { SettingsModule } from '../modules/SettingsModule';
+import { ProfileHeader } from './components/ProfileHeader';
+import { TabNavigation } from './components/TabNavigation';
+import { OverviewModule } from './modules/OverviewModule';
+import { StudentsModule } from './modules/StudentsModule';
+import { AnalysisModule } from './modules/AnalysisModule';
+import { PlansModule } from './modules/PlansModule';
+import { ReportsModule } from './modules/ReportsModule';
+import { SettingsModule } from './modules/SettingsModule';
 
 interface ProfileProps {
   data: ProfileData;
