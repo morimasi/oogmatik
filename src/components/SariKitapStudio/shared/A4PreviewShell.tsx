@@ -39,7 +39,11 @@ export const A4PreviewShell = forwardRef<HTMLDivElement, A4PreviewShellProps>(
                         }),
                     }}
                 >
-                    {children}
+                     {children}
+                    
+                    <div className="sk-a4-footer">
+                        <span>SAYFA 1</span>
+                    </div>
                 </div>
             </div>
         );

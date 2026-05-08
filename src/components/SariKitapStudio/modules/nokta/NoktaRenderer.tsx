@@ -133,9 +133,8 @@ export const NoktaRenderer = memo(({ config, content }: RendererProps) => {
                 fontSize: '0.6rem', color: '#94a3b8', padding: '0.5rem 0.25rem 0'
             }}>
                 <span>Nokta Takibi • {c.difficulty}</span>
-                <span>© BursaDisleksi Hızlı Okuma Stüdyosu</span>
-                <span>{config.pageNumber}</span>
-            </div>
+                 <span>© BursaDisleksi Hızlı Okuma Stüdyosu</span>
+             </div>
         </div>
     );
 });

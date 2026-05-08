@@ -112,18 +112,7 @@ export const CiftMetinRenderer = memo(({ config, content }: RendererProps) => {
             </div>
 
             {/* Sayfa Numarası */}
-            <div style={{ 
-                marginTop: 'auto', 
-                paddingTop: '2rem', 
-                display: 'flex', 
-                justifyContent: 'center',
-                fontSize: '0.75rem',
-                color: '#94a3b8',
-                fontWeight: 700
-            }}>
-                SAYFA {config.pageNumber}
-            </div>
-        </div>
-    );
-});
+         </div>
+     );
+ });
 CiftMetinRenderer.displayName = 'CiftMetinRenderer';

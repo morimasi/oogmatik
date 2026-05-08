@@ -102,8 +102,26 @@
   overflow: hidden;
   border: 1px solid rgba(0, 0, 0, 0.05);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  padding: 10mm; /* Sade ve mınımal kenar boşluğu */
-}
+   padding: 10mm; /* Sade ve mınımal kenar boşluğu */
+ }
+ 
+ .sk-a4-footer {
+   position: absolute;
+   bottom: 10mm;
+   left: 10mm;
+   right: 10mm;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   border-top: 1px solid rgba(0, 0, 0, 0.1);
+   padding-top: 5mm;
+   font-size: 10px;
+   font-weight: 900;
+   color: #94a3b8;
+   text-transform: uppercase;
+   letter-spacing: 0.3em;
+   pointer-events: none;
+ }
 
 /* ─── Köprü Özel: Notebook Ruled (PASİF - Sade Görünüm İçin Kaldırıldı) ─── */
 .sk-notebook-ruled {

@@ -15,6 +15,8 @@ import { useToastStore } from '../../store/useToastStore';
 import { worksheetService } from '../../services/worksheetService';
 import { ActivityType } from '../../types/activity';
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { ShareModal } from '../ShareModal';
+import { messagingService } from '../../services/messagingService';
 import './SariKitapStudio.css';
 
 interface SariKitapStudioInnerProps {
@@ -44,6 +46,8 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
     const { generate } = useSariKitapGenerator();
     const { exportToPDF, exportToPNG } = useExportActions();
     const previewRef = useRef<HTMLDivElement>(null);
+    const [isShareModalOpen, setIsShareModalOpen] = React.useState(false);
+    const [isSharing, setIsSharing] = React.useState(false);
 
     const activeModule = getModule(activeType);
 
@@ -107,10 +111,49 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
     }, [user, generatedContent, activeType, config, toast]);
 
     const handleShare = useCallback(() => {
-        // Simüle edilmiş paylaşım
-        navigator.clipboard.writeText(window.location.href);
-        toast.info('Bağlantı panoya kopyalandı! (Paylaşım özelliği yakında)');
-    }, [toast]);
+        if (!user) {
+            toast.error('Paylaşmak için giriş yapmalısınız.');
+            return;
+        }
+        setIsShareModalOpen(true);
+    }, [user, toast]);
+
+    const handleShareSubmit = async (receiverIds: string[]) => {
+        if (!user || !generatedContent) return;
+        setIsSharing(true);
+        try {
+            const shareContent = `Sarı Kitap - ${generatedContent.title || 'Hızlı Okuma Etkinliği'} sizinle paylaşıldı.`;
+            
+            for (const receiverId of receiverIds) {
+                await messagingService.sendMessage({
+                    senderId: user.id,
+                    receiverId,
+                    senderName: user.name,
+                    content: shareContent,
+                });
+            }
+            
+            toast.success('Paylaşım başarıyla gönderildi!');
+            setIsShareModalOpen(false);
+        } catch (err: any) {
+            logError('Share error:', err);
+            toast.error('Gönderilirken bir hata oluştu.');
+        } finally {
+            setIsSharing(false);
+        }
+    };
+
+    const handleAddToWorkbookBridge = useCallback(() => {
+        if (activeType && generatedContent && onAddToWorkbook) {
+            (onAddToWorkbook as any)('sari-kitap-studio' as ActivityType, [{
+                title: generatedContent.title || 'Hızlı Okuma Etkinliği',
+                type: activeType,
+                content: generatedContent,
+                config: config
+            }]);
+            toast.success('Kitapçığa başarıyla eklendi!');
+        }
+    }, [activeType, generatedContent, config, onAddToWorkbook, toast]);
 
     const ConfigPanel = activeModule?.ConfigPanel;
     const Renderer = activeModule?.Renderer;
@@ -178,7 +221,7 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
                         onExportPNG={handleExportPNG}
                         onSave={handleSave}
                         onShare={handleShare}
-                        onAddToWorkbook={onAddToWorkbook}
+                        onAddToWorkbook={handleAddToWorkbookBridge}
                         isGenerating={isGenerating}
                     />
 
@@ -203,10 +246,18 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
                                 </p>
                             </div>
                         </div>
-                    )}
-                </div>
-            </div>
-        </div>
+                     )}
+                 </div>
+             </div>
+ 
+             <ShareModal
+                 isOpen={isShareModalOpen}
+                 onClose={() => setIsShareModalOpen(false)}
+                 onShare={handleShareSubmit}
+                 worksheetTitle={generatedContent?.title || 'Sarı Kitap Etkinliği'}
+                 isSending={isSharing}
+             />
+         </div>
     );
 };
 

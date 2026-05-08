@@ -125,24 +125,9 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
                 })}
             </div>
 
-            {/* ═══ SAYFA ALTI (Sayfa Numarası Standartı) ═══ */}
-            <div style={{
-                position: 'absolute',
-                bottom: '2rem',
-                left: 0,
-                right: 0,
-                display: 'flex',
-                justifyContent: 'center',
-                fontSize: '1.5rem',
-                color: '#18181b',
-                fontWeight: 600,
-                opacity: 0.8
-            }}>
-                {config.pageNumber}
-            </div>
-        </div>
-    );
-});
+         </div>
+     );
+ });
 KopruRenderer.displayName = 'KopruRenderer';
 
 
