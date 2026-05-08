@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { ProfileData } from '../../types/profile';
-import { SavedAssessment } from '../../types';
-import { AssessmentReportViewer } from '../AssessmentReportViewer';
-import { RadarChart } from '../RadarChart';
+import { ProfileData } from '../../../types/profile';
+import { SavedAssessment } from '../../../types';
+import { AssessmentReportViewer } from '../../AssessmentReportViewer';
+import { RadarChart } from '../../RadarChart';
 
 interface AnalysisModuleProps {
   data: ProfileData;

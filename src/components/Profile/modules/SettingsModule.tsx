@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { ProfileData } from '../../types/profile';
-import { User, AppTheme, UiSettings } from '../../types';
-import { useAuthStore } from '../../store/useAuthStore';
-import { useToastStore } from '../../store/useToastStore';
-import { authService } from '../../services/authService';
-import { AppError } from '../../utils/AppError';
-import { logError } from '../../utils/errorHandler';
+import { ProfileData } from '../../../types/profile';
+import { User, AppTheme, UiSettings } from '../../../types';
+import { useAuthStore } from '../../../store/useAuthStore';
+import { useToastStore } from '../../../store/useToastStore';
+import { authService } from '../../../services/authService';
+import { AppError } from '../../../utils/AppError';
+import { logError } from '../../../utils/errorHandler';
 
 interface SettingsModuleProps {
   data: ProfileData;

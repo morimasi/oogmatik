@@ -1,7 +1,7 @@
 import React from 'react';
-import { ProfileData } from '../../types/profile';
-import { Student } from '../../types';
-import { LineChart } from '../LineChart';
+import { ProfileData } from '../../../types/profile';
+import { Student } from '../../../types';
+import { LineChart } from '../../LineChart';
 
 interface OverviewModuleProps {
   data: ProfileData;

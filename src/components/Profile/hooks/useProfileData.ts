@@ -1,13 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useAuthStore } from '../../store/useAuthStore';
-import { useStudentStore } from '../../store/useStudentStore';
-import { SavedAssessment, SavedWorksheet, User, Curriculum } from '../../types';
-import { assessmentService } from '../../services/assessmentService';
-import { worksheetService } from '../../services/worksheetService';
-import { curriculumService } from '../../services/curriculumService';
-import { AppError } from '../../utils/AppError';
-import { logError } from '../../utils/errorHandler';
-import { ProfileData } from '../../types/profile';
+import { useAuthStore } from '../../../store/useAuthStore';
+import { useStudentStore } from '../../../store/useStudentStore';
+import { SavedAssessment, SavedWorksheet, User, Curriculum } from '../../../types';
+import { assessmentService } from '../../../services/assessmentService';
+import { worksheetService } from '../../../services/worksheetService';
+import { curriculumService } from '../../../services/curriculumService';
+import { AppError } from '../../../utils/AppError';
+import { logError } from '../../../utils/errorHandler';
+import { ProfileData } from '../../../types/profile';
 
 export const useProfileData = (targetUser?: User): ProfileData => {
   const { user: authUser } = useAuthStore();

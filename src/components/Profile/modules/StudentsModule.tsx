@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ProfileData } from '../../types/profile';
-import { Student } from '../../types';
+import { ProfileData } from '../../../types/profile';
+import { Student } from '../../../types';
 
 interface StudentsModuleProps {
   data: ProfileData;
@@ -8,8 +8,8 @@ interface StudentsModuleProps {
 }
 
 // Lazy load components to break circular dependencies
-const StudentDashboard = React.lazy(() => import('../Student/StudentDashboard').then(m => ({ default: m.StudentDashboard })));
-const AdvancedStudentManager = React.lazy(() => import('../Student/AdvancedStudentManager').then(m => ({ default: m.AdvancedStudentManager })));
+const StudentDashboard = React.lazy(() => import('../../Student/StudentDashboard').then(m => ({ default: m.StudentDashboard })));
+const AdvancedStudentManager = React.lazy(() => import('../../Student/AdvancedStudentManager').then(m => ({ default: m.AdvancedStudentManager })));
 
 export const StudentsModule: React.FC<StudentsModuleProps> = ({
   data,
