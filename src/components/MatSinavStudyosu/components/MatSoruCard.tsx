@@ -12,17 +12,13 @@ interface MatSoruCardProps {
   onUpdate: (index: number, updated: MatSoru) => void;
   onRefresh: (index: number) => void;
   isRefreshing?: boolean;
+  isPrinting?: boolean;
 }
 
 const ZORLUK_RENKLERI: Record<string, string> = {
   Kolay: 'bg-green-100 text-green-700',
   Orta: 'bg-amber-100 text-amber-700',
   Zor: 'bg-red-100 text-red-700',
-  temel: 'bg-green-100 text-green-700',
-  orta: 'bg-amber-100 text-amber-700',
-  ileri: 'bg-red-100 text-red-700',
-  Temel: 'bg-green-100 text-green-700',
-  İleri: 'bg-red-100 text-red-700',
 };
 
 export const MatSoruCard: React.FC<MatSoruCardProps> = ({
@@ -31,6 +27,7 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
   onUpdate,
   onRefresh,
   isRefreshing = false,
+  isPrinting = false,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(soru.soruMetni);
@@ -45,6 +42,67 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
     setEditText(soru.soruMetni);
     setIsEditing(false);
   };
+
+  if (isPrinting) {
+     return (
+        <div className="bg-white p-0 border-none transition-all duration-200" style={{ breakInside: 'avoid' }}>
+            <div className="flex items-start justify-between mb-2">
+                <div className="flex items-center gap-2">
+                    <span className="font-black text-black">
+                        {index + 1})
+                    </span>
+                </div>
+                <div className="flex items-center gap-1">
+                    <span className="text-[11px] text-black font-bold border-b border-dashed border-black/20">
+                        ({soru.puan} Puan)
+                    </span>
+                </div>
+            </div>
+
+            <p className="text-sm text-black leading-relaxed font-medium mb-3">
+                {soru.soruMetni}
+            </p>
+
+            {soru.grafik_verisi && (
+                <div className="mb-4">
+                     <GraphicRenderer grafik={soru.grafik_verisi} />
+                </div>
+            )}
+
+            {soru.tip === 'coktan_secmeli' && soru.secenekler && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1.5 mb-4 px-2">
+                    {Object.entries(soru.secenekler).map(([key, value], si) => (
+                        <div key={key} className="flex items-start gap-2">
+                            <span className="font-bold flex-shrink-0">{labels[si]})</span>
+                            <span className="leading-tight text-black">{value}</span>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {soru.tip === 'dogru_yanlis' && (
+                <div className="flex gap-10 mb-4 px-2 text-sm text-black font-medium">
+                    <span>( ) Doğru</span>
+                    <span>( ) Yanlış</span>
+                </div>
+            )}
+
+            {soru.tip === 'bosluk_doldurma' && (
+                <div className="mb-4 px-2">
+                    <div className="border-b border-dashed border-black/40 w-full h-5"></div>
+                </div>
+            )}
+
+            {soru.tip === 'acik_uclu' && (
+                <div className="mb-4 px-2 space-y-4">
+                    {[0, 1, 2, 3].map((i) => (
+                        <div key={i} className="border-b border-black/20 h-6"></div>
+                    ))}
+                </div>
+            )}
+        </div>
+     );
+  }
 
   return (
     <div className="bg-white rounded-xl border border-gray-100 p-4 hover:shadow-md transition-all duration-200 group relative" style={{ breakInside: 'avoid' }}>
