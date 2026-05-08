@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { FC } from 'react';
 import { useSuperStudioStore } from '../../../store/useSuperStudioStore.js';
 import { worksheetService } from '../../../services/worksheetService.js';
 import { useAuthStore } from '../../../store/useAuthStore.js';
@@ -7,7 +7,7 @@ import { printService } from '../../../utils/printService.js';
 import { SingleWorksheetData, ActivityType } from '../../../types.js';
 
 import { logInfo, logError, logWarn } from '../../../utils/logger.js';
-export const ActionToolbar: React.FC = () => {
+export const ActionToolbar: FC = () => {
   const { generatedContents, isGenerating } = useSuperStudioStore();
   const { user } = useAuthStore();
   const { addToast } = useToastStore();
