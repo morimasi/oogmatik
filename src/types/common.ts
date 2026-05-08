@@ -32,6 +32,8 @@ export interface StyleSettings {
     maskOpacity: number;
     compact?: boolean;
     title?: string;
+    paperTexture?: 'none' | 'ruled' | 'grid' | 'dotted' | 'parchment' | 'sepia' | 'saman';
+    gutter?: number;
 }
 
 export interface BaseActivityData {
