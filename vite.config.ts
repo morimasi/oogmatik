@@ -31,23 +31,31 @@ const config: UserConfig & { test?: any } = {
       output: {
         // Granüler manual chunk'lar — her kritik bağımlılık kendi bucket'ında
         manualChunks(id: string) {
-          // Stüdyolar — En büyük src bileşenleri (daha granüler)
-          // NOT: Circular dependency'leri önlemek için her studio ayrı chunk
-          if (id.includes('/components/ActivityStudio')) return 'studio-activity';
-          if (id.includes('/components/ReadingStudio')) return 'studio-reading';
-          if (id.includes('/components/MathStudio')) return 'studio-math';
-          if (id.includes('/components/InfographicStudio')) return 'studio-infographic';
-          // Yönetim Modülleri & Bağımlı Servisler — Dairesel bağımlılığı önlemek için tek chunk
-          if (id.includes('/components/AdminDashboard/') || 
+          // Stüdyolar — En büyük özellik modülleri (Lazy yüklendiği için ayrı chunk güvenli)
+          if (id.includes('/components/ReadingStudio/')) return 'studio-reading';
+          if (id.includes('/components/MathStudio/')) return 'studio-math';
+          if (id.includes('/components/ActivityStudio/')) return 'studio-activity';
+          if (id.includes('/components/InfographicStudio/')) return 'studio-infographic';
+          if (id.includes('/components/SuperStudio/')) return 'studio-super';
+          if (id.includes('/components/Screening/')) return 'studio-screening';
+
+          // Merkezi Yönetim & Navigasyon (Orkestrasyon Katmanı)
+          // Sidebar, Admin, Student modülleri arasındaki yoğun ilişkiler nedeniyle tek chunk
+          if (id.includes('/components/Sidebar') || 
+              id.includes('/components/AppHeader') ||
+              id.includes('/components/AdminDashboard/') || 
               id.includes('/components/Admin/') || 
               id.includes('/components/Student/') ||
+              id.includes('/services/rbac') ||
               id.includes('/services/aiStudentService')) {
-            return 'management-modules';
+            return 'management-platform';
           }
           
-          // Diğer AI Servisleri
-          if (id.includes('/services/geminiClient')) {
-            return 'services-ai-core';
+          // Ortak Servisler & AI Çekirdeği
+          if (id.includes('/services/geminiClient') || 
+              id.includes('/services/worksheetService') ||
+              id.includes('/services/curriculumService')) {
+            return 'core-services';
           }
           
           // Lucide — Simgeler (Çok fazla ikon var)
