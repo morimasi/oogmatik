@@ -24,7 +24,6 @@ import { FavoritesSection } from './FavoritesSection';
 import { ShareModal } from './ShareModal';
 import { WorkbookView } from './WorkbookView';
 import { useAppStore } from '../store/useAppStore';
-import { useWorksheetStore } from '../store/useWorksheetStore';
 import { usePaperSizeStore } from '../store/usePaperSizeStore';
 import { useAssignmentStore } from '../store/useAssignmentStore';
 import { paginationService } from '../services/paginationService';
@@ -129,7 +128,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     setActiveWorksheet,
     _setCurrentView,
     _addHistoryView,
-  } = useWorksheetStore();
+  } = useAppStore();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isShareSending, setIsShareSending] = useState(false);
 

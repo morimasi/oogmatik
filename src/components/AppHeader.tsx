@@ -4,7 +4,7 @@ import DyslexiaLogo from './DyslexiaLogo';
 import GlobalSearch from './GlobalSearch';
 import { useAuthStore } from '../store/useAuthStore';
 import { useUIStore } from '../store/useUIStore';
-import { useWorksheetStore } from '../store/useWorksheetStore';
+import { useAppStore } from '../store/useAppStore';
 import { useRBAC } from '../hooks/useRBAC';
 import { ActivityType, View } from '../types';
 
@@ -167,7 +167,7 @@ export const AppHeader = ({
     const { user, logout } = useAuthStore();
     const { isAdmin } = useRBAC();
     const { setIsSidebarOpen, zenMode, setIsTourActive } = useUIStore();
-    const { currentView, setCurrentView, addHistoryView, setSelectedActivity, setWorksheetData, setActiveCurriculumSession } = useWorksheetStore();
+    const { currentView, setCurrentView, addHistoryView, setSelectedActivity, setWorksheetData, setActiveCurriculumSession } = useAppStore();
 
     const navigateTo = (view: View) => {
         if (currentView === view) return;

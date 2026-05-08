@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 import type { WorksheetData, SingleWorksheetData } from '../types';
-import { useWorksheetStore } from '../store/useWorksheetStore';
+import { useAppStore } from '../store/useAppStore';
 import DOMPurify from 'isomorphic-dompurify';
 import { GraphicRenderer } from './MatSinavStudyosu/components/GraphicRenderer';
 import type { GrafikVerisi } from '../types/matSinav';
@@ -32,7 +32,7 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
 }) => {
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-  const { _addWorksheet } = useWorksheetStore();
+  const { _addWorksheet } = useAppStore();
 
   const toggleSelect = (index: number) => {
     const newSelected = new Set(selectedIndices);
