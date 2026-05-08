@@ -307,7 +307,7 @@ const AppContent = () => {
     return () => unsubscribeStudents();
   }, [authStore.user, studentStore.fetchStudents]);
   const { user } = authStore;
-  const { setActiveStudent, students } = studentStore;
+  const { activeStudent, setActiveStudent, students } = studentStore;
 
   const {
     currentView,
