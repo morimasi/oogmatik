@@ -1,7 +1,7 @@
 import React from 'react';
 import { ActivityType } from '../../../types/activity';
 import { PedagogicalHeader } from '../common';
-import { EditableElement, EditableText } from '../../Editable';
+import { EditableText } from '../../Editable';
 import PremiumBlockBuilder from '../../../utils/PremiumBlockBuilder';
 
 interface SayiDedektifiData {
@@ -61,7 +61,7 @@ export const SayiDedektifiSheet: React.FC<{ data?: Partial<SayiDedektifiData> }>
           </h3>
 
           <div className="flex-1 space-y-2">
-            {riddle.clues?.map((clue) => (
+            {riddle.clues?.map((clue: any) => (
               <div key={clue.id} className="flex gap-2 items-start bg-white p-2 rounded-xl border border-zinc-100 shadow-sm">
                 <span className="text-indigo-500 mt-0.5"><i className="fa-solid fa-circle-check text-[10px]"></i></span>
                 <EditableText 
