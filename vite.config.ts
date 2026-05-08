@@ -31,24 +31,14 @@ const config: UserConfig & { test?: any } = {
       output: {
         // Granüler manual chunk'lar — her kritik bağımlılık kendi bucket'ında
         manualChunks: (id) => {
-          // 1. Çekirdek Yapılar (React, Navigasyon, Temel Animasyonlar)
-          // Bunlar birbirine sıkı bağlıdır (createContext hatasını önlemek için bir arada tutulmalıdır)
-          if (
-            id.includes('node_modules/react/') ||
-            id.includes('node_modules/react-dom/') ||
-            id.includes('node_modules/framer-motion/') ||
-            id.includes('src/components/Sidebar') ||
-            id.includes('src/components/AppHeader') ||
-            id.includes('src/services/rbac') ||
-            id.includes('src/hooks/useRBAC') ||
-            id.includes('src/store/') ||
-            id.includes('src/utils/') ||
-            id.includes('src/constants/')
-          ) {
-            return 'index';
+          // 1. Üçüncü taraf kütüphaneleri (node_modules)
+          // Referans hatalarını (forwardRef vb.) önlemek için hepsini tek bir vendor chunk'ta topla
+          if (id.includes('node_modules')) {
+            return 'vendor';
           }
 
-          // 2. Ağır Özellik Modülleri (Lazy yüklendiği için ayrılmaları performanslıdır)
+          // 2. Projenin Ağır Stüdyo Modülleri (Kendi kodumuz)
+          // Bunlar lazy load edildiği için ayrılmaları güvenli ve performanslıdır
           if (id.includes('src/components/ReadingStudio')) return 'studio-reading';
           if (id.includes('src/components/MathStudio')) return 'studio-math';
           if (id.includes('src/components/ActivityStudio')) return 'studio-activity';
@@ -59,15 +49,8 @@ const config: UserConfig & { test?: any } = {
           if (id.includes('src/components/Admin')) return 'admin-v2';
           if (id.includes('src/components/Student')) return 'student-v2';
 
-          // 3. Çok ağır servisler ve dış kütüphaneler
-          if (id.includes('src/services/generators')) return 'generators-ai';
-          if (id.includes('jspdf') || id.includes('html2canvas')) return 'vendor-pdf';
-          if (id.includes('firebase')) return 'vendor-firebase';
-          
-          // 4. Geri kalan vendor kütüphaneleri
-          if (id.includes('node_modules')) {
-             return 'vendor-common';
-          }
+          // Geri kalan her şey (Sidebar, AppHeader, App, Store, Services, Utils)
+          // Ana 'index' (ana) paketinde kalır.
         },
       },
     },
