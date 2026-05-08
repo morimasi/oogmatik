@@ -4,8 +4,8 @@ import { motion } from 'framer-motion';
 import { ScreeningProfile, ScreeningResult } from '../../types/screening';
 import { useUIStore } from '../../store/useUIStore';
 import { useToastStore } from '../../store/useToastStore';
-import { ScreeningModule } from './ScreeningModule';
-import { ResultDashboard } from './ResultDashboard';
+const ScreeningModule = React.lazy(() => import('./ScreeningModule').then(m => ({ default: m.ScreeningModule })));
+const ResultDashboard = React.lazy(() => import('./ResultDashboard').then(m => ({ default: m.ResultDashboard })));
 
 interface AdvancedScreeningModuleProps {
   onClose: () => void;
@@ -660,19 +660,21 @@ export const AdvancedScreeningModule: React.FC<AdvancedScreeningModuleProps> = (
           {/* Assessment/Screening Flow */}
           {activeView === 'assessment' && (
             <div className="flex-1 bg-[var(--bg-primary)] overflow-hidden flex flex-col">
-              <ScreeningModule 
-                initialProfile={{ 
-                  studentName: selectedStudentName, 
-                  age: 7, 
-                  grade: '1. Sınıf', 
-                  respondent: userRole === 'parent' ? 'parent' : 'teacher' 
-                }}
-                onBack={() => setActiveView('new-screening')}
-                onSelectActivity={(id) => {
-                  // Bu kısım normal akışta App.tsx'e gidecek
-                  console.log('Activity selected:', id);
-                }}
-              />
+              <React.Suspense fallback={<div className="flex items-center justify-center h-full"><i className="fa-solid fa-spinner fa-spin text-2xl text-indigo-500"></i></div>}>
+                <ScreeningModule 
+                  initialProfile={{ 
+                    studentName: selectedStudentName, 
+                    age: 7, 
+                    grade: '1. Sınıf', 
+                    respondent: userRole === 'parent' ? 'parent' : 'teacher' 
+                  }}
+                  onBack={() => setActiveView('new-screening')}
+                  onSelectActivity={(id) => {
+                    // Bu kısım normal akışta App.tsx'e gidecek
+                    console.log('Activity selected:', id);
+                  }}
+                />
+              </React.Suspense>
             </div>
           )}
           {activeView === 'result-detail' && currentScreening && (
@@ -684,12 +686,14 @@ export const AdvancedScreeningModule: React.FC<AdvancedScreeningModuleProps> = (
                 <ChevronRight className="w-4 h-4 rotate-180" />
                 Geri Dön
               </button>
-              <ResultDashboard 
-                result={currentScreening} 
-                onRestart={() => setActiveView('new-screening')}
-                onAddToWorkbook={(item) => addToast('Çalışma kitabına eklendi', 'success')}
-                onGeneratePlan={onGeneratePlan}
-              />
+              <React.Suspense fallback={<div className="flex items-center justify-center h-full"><i className="fa-solid fa-spinner fa-spin text-2xl text-indigo-500"></i></div>}>
+                <ResultDashboard 
+                  result={currentScreening} 
+                  onRestart={() => setActiveView('new-screening')}
+                  onAddToWorkbook={(item) => addToast('Çalışma kitabına eklendi', 'success')}
+                  onGeneratePlan={onGeneratePlan}
+                />
+              </React.Suspense>
             </div>
           )}
         </div>

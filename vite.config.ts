@@ -40,11 +40,17 @@ const config: UserConfig & { test?: any } = {
             if (id.includes('MathStudio')) return 'studio-math';
             if (id.includes('InfographicStudio')) return 'studio-infographic';
           }
-          // Admin Paneli
-          if (id.includes('/components/AdminDashboard/')) return 'admin-dashboard';
-          if (id.includes('/components/Admin/')) return 'admin-panel';
-          // Öğrenci Modülleri
-          if (id.includes('/components/Student/')) return 'student-modules';
+          // Yönetim Modülleri (Admin & Student) — Dairesel bağımlılığı önlemek için tek chunk
+          if (id.includes('/components/AdminDashboard/') || 
+              id.includes('/components/Admin/') || 
+              id.includes('/components/Student/')) {
+            return 'management-modules';
+          }
+          
+          // Servisler — Dinamik/Statik karmaşasını önlemek için ortak servisleri ayır
+          if (id.includes('/services/AI/') || id.includes('/services/aiStudentService')) {
+            return 'services-ai';
+          }
           
           // Lucide — Simgeler (Çok fazla ikon var)
           if (id.includes('/node_modules/lucide-react/')) return 'vendor-lucide';

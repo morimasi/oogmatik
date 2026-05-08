@@ -43,7 +43,7 @@ import { useProfileData } from './components/Profile/hooks/useProfileData';
 import { AppHeader } from './components/AppHeader';
 import { AssignModal } from './components/Student/AssignModal';
 import { GuideModule, TourModule, PremiumHelpModule, AboutModule, DeveloperVisionModule } from './components/Onboarding';
-import { AdvancedScreeningModule } from './components/Screening/AdvancedScreeningModule';
+const AdvancedScreeningModule = lazy(() => import('./components/Screening/AdvancedScreeningModule').then(m => ({ default: m.AdvancedScreeningModule })));
 import LoginPage from './pages/LoginPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { rbacService } from './services/rbacService';
