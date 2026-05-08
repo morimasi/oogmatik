@@ -133,7 +133,7 @@ export const DropdownItem = ({
     <button
         onClick={(e: React.MouseEvent) => {
             e.stopPropagation();
-            if (onClick && typeof onClick === 'function') {
+            if (typeof onClick === 'function') {
                 onClick();
             }
         }}
@@ -183,7 +183,9 @@ export const AppHeader = ({
                 {/* Sol: logo eş geniş şerit (sağ ile dengeli orta blok için flex-1) */}
                 <div className="flex min-w-0 flex-1 items-center justify-start gap-4 md:gap-6">
                     <button
-                        onClick={() => setIsSidebarOpen(true)}
+                        onClick={() => {
+                            if (typeof setIsSidebarOpen === 'function') setIsSidebarOpen(true);
+                        }}
                         className="md:hidden shrink-0 text-[var(--text-muted)] p-2 hover:text-[var(--text-primary)] transition-colors"
                     >
                         <i className="fa-solid fa-bars-staggered fa-lg"></i>
@@ -243,7 +245,10 @@ export const AppHeader = ({
                         </button>
 
                         <button
-                            onClick={() => { setIsSidebarOpen(false); onOpenStudio('students'); }}
+                            onClick={() => { 
+                                if (typeof setIsSidebarOpen === 'function') setIsSidebarOpen(false); 
+                                if (typeof onOpenStudio === 'function') onOpenStudio('students'); 
+                            }}
                             className="flex shrink-0 items-center justify-center w-9 h-9 bg-[var(--bg-paper)] text-[var(--accent-color)] hover:bg-[var(--accent-muted)] border border-[var(--border-color)] rounded-lg transition-all active:scale-[0.96] shadow-sm group/nav"
                             title="Öğrenci Yönetimi"
                         >

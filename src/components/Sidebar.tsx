@@ -91,17 +91,17 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const studioGroups = useMemo(() => {
     const callbackMap: Record<string, () => void> = {
-      'screening': onOpenScreening || (() => {}),
-      'curriculum': onOpenCurriculum || (() => {}),
-      'reading': onOpenReadingStudio || (() => {}),
-      'math': onOpenMathStudio || (() => {}),
-      'super-turkce': onOpenSuperTurkce || (() => {}),
-      'sinav-studyosu': onOpenSinavStudyosu || (() => {}),
-      'mat-sinav-studyosu': onOpenMatSinavStudyosu || (() => {}),
-      'activity-studio': onOpenActivityStudio || (() => {}),
-      'infographic-studio': onOpenInfographicStudio || (() => {}),
-      'sari-kitap-studio': onOpenSariKitapStudio || (() => {}),
-      'kelime-cumle-studio': onOpenKelimeCumleStudio || (() => {}),
+      'screening': () => typeof onOpenScreening === 'function' && onOpenScreening(),
+      'curriculum': () => typeof onOpenCurriculum === 'function' && onOpenCurriculum(),
+      'reading': () => typeof onOpenReadingStudio === 'function' && onOpenReadingStudio(),
+      'math': () => typeof onOpenMathStudio === 'function' && onOpenMathStudio(),
+      'super-turkce': () => typeof onOpenSuperTurkce === 'function' && onOpenSuperTurkce(),
+      'sinav-studyosu': () => typeof onOpenSinavStudyosu === 'function' && onOpenSinavStudyosu(),
+      'mat-sinav-studyosu': () => typeof onOpenMatSinavStudyosu === 'function' && onOpenMatSinavStudyosu(),
+      'activity-studio': () => typeof onOpenActivityStudio === 'function' && onOpenActivityStudio(),
+      'infographic-studio': () => typeof onOpenInfographicStudio === 'function' && onOpenInfographicStudio(),
+      'sari-kitap-studio': () => typeof onOpenSariKitapStudio === 'function' && onOpenSariKitapStudio(),
+      'kelime-cumle-studio': () => typeof onOpenKelimeCumleStudio === 'function' && onOpenKelimeCumleStudio(),
     };
 
     const idToModuleMap: Record<string, PermissionModule> = {
@@ -179,7 +179,9 @@ const Sidebar: React.FC<SidebarProps> = ({
   };
 
   const handleActivitySelect = (activityId: ActivityType) => {
-    onSelectActivity(activityId);
+    if (typeof onSelectActivity === 'function') {
+      onSelectActivity(activityId);
+    }
     setLockedCategory(null);
     setHoveredCategory(null);
   };
