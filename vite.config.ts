@@ -41,7 +41,8 @@ const config: UserConfig & { test?: any } = {
             if (id.includes('InfographicStudio')) return 'studio-infographic';
           }
           // Admin Paneli
-          if (id.includes('/components/Admin')) return 'admin-panel';
+          if (id.includes('/components/AdminDashboard/')) return 'admin-dashboard';
+          if (id.includes('/components/Admin/')) return 'admin-panel';
           // Öğrenci Modülleri
           if (id.includes('/components/Student/')) return 'student-modules';
           

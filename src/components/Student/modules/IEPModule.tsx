@@ -4,6 +4,7 @@ import { RadarChart } from '../../RadarChart';
 import { LineChart } from '../../LineChart';
 
 import { logInfo, logError, logWarn } from '../../../utils/logger.js';
+import { aiStudentService } from '../../../services/aiStudentService';
 // --- Extended Types for AI Features ---
 interface AIInsight {
     type: 'strength' | 'weakness' | 'opportunity' | 'threat';
@@ -437,7 +438,6 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                                         const btn = document.getElementById('btn-ai-goal');
                                         if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Üretiliyor...';
                                         try {
-                                            const { aiStudentService } = await import('../../../services/aiStudentService');
                                             const newAiGoals = await aiStudentService.generateIEPGoals(student);
                                             const formattedGoals = newAiGoals.map((g: any) => ({
                                                 id: crypto.randomUUID(),
