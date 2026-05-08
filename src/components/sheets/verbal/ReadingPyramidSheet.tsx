@@ -3,7 +3,7 @@ import { ReadingPyramidData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
-export const ReadingPyramidSheet = ({ data }: { data: ReadingPyramidData }) => {
+export const ReadingPyramidSheet = ({ data, settings: globalSettings }: { data: ReadingPyramidData; settings?: any }) => {
   const { settings } = data;
   const count = data.pyramids?.length || 0;
   

@@ -67,7 +67,7 @@ export const ReadingPyramidConfig: React.FC<{ options: GeneratorOptions; onChang
                     <div>
                         <label className="text-[10px] font-black text-zinc-500 uppercase mb-3 block tracking-[0.1em]">Font Boyutu</label>
                         <select
-                            value={options.fontSize || 'medium'}
+                            value={(options.fontSize as string) || 'medium'}
                             onChange={e => onChange('fontSize', e.target.value)}
                             className="w-full p-3 rounded-xl bg-black/20 border border-white/5 text-white text-[10px] font-bold outline-none cursor-pointer"
                         >
@@ -80,7 +80,7 @@ export const ReadingPyramidConfig: React.FC<{ options: GeneratorOptions; onChang
                     <div>
                         <label className="text-[10px] font-black text-zinc-500 uppercase mb-3 block tracking-[0.1em]">Yerleşim</label>
                         <select
-                            value={options.layoutDensity || 'normal'}
+                            value={(options.layoutDensity as string) || 'normal'}
                             onChange={e => onChange('layoutDensity', e.target.value)}
                             className="w-full p-3 rounded-xl bg-black/20 border border-white/5 text-white text-[10px] font-bold outline-none cursor-pointer"
                         >
