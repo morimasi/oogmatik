@@ -389,7 +389,7 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
                                 <FmtBtn active={printConfig.fontFamily === 'helvetica'} onClick={() => updateConfig('fontFamily', 'helvetica')} title="Inter Fontu">Inter</FmtBtn>
                                 <FmtBtn active={printConfig.fontFamily === 'times'} onClick={() => updateConfig('fontFamily', 'times')} title="Times New Roman">Times</FmtBtn>
                                 <div className="w-px h-5 bg-accent/30 mx-1"></div>
-                                {([9, 10, 11, 12] as const).map((s: unknown) => (
+                                {([9, 10, 11, 12] as const).map((s) => (
                                     <FmtBtn key={s} active={printConfig.fontSize === s} onClick={() => updateConfig('fontSize', s)} title={`${s} Punto`}>{s}pt</FmtBtn>
                                 ))}
                             </div>
@@ -488,6 +488,22 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
                     </div>
                 </div>
             </div>
+            {/* GİZLİ BASKI KATMANI — Sınav + Cevap Anahtarı */}
+            {aktifSinav && (
+                <div id="mat-sinav-print-target" className="hidden">
+                    <MatSinavOnizleme 
+                        sinav={aktifSinav} 
+                        onUpdateSoru={handleUpdateSoru} 
+                        onRefreshSoru={handleRefreshSoru} 
+                        refreshingIndex={null} 
+                        config={printConfig} 
+                        isPrinting={true} 
+                    />
+                    <div style={{ pageBreakBefore: 'always', padding: '20px' }}>
+                        <MatCevapAnahtariComponent cevapAnahtari={aktifSinav.cevapAnahtari} sinavBaslik={aktifSinav.baslik} />
+                    </div>
+                </div>
+            )}
 
             <style>{`
         .toolbar-btn {

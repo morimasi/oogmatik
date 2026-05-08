@@ -46,7 +46,7 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
       {!isPrinting ? (
         <div
           className="rounded-xl p-5 mb-5 text-white"
-          style={{ 
+          style={{
             background: 'linear-gradient(135deg, hsl(var(--accent-h) var(--accent-s) calc(var(--accent-l) - 8%)) 0%, hsl(var(--accent-h) var(--accent-s) var(--accent-l)) 100%)',
             columnSpan: 'all'
           }}
@@ -70,12 +70,12 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
         </div>
       ) : (
         <div style={{ columnSpan: 'all', textAlign: 'center', marginBottom: '20px', borderBottom: '2px solid #000', paddingBottom: '10px' }}>
-           <h1 style={{ fontSize: '24px', fontWeight: '900', textTransform: 'uppercase', marginBottom: '5px' }}>{sinav.baslik}</h1>
-           <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', fontSize: '14px', fontWeight: 'bold' }}>
-              <span>SINIF: {sinav.sinif}</span>
-              <span>TOPLAM SORU: {sinav.sorular.length}</span>
-              <span>SÜRE: {Math.ceil(sinav.tahminiSure / 60)} DK</span>
-           </div>
+          <h1 style={{ fontSize: '24px', fontWeight: '900', textTransform: 'uppercase', marginBottom: '5px' }}>{sinav.baslik}</h1>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', fontSize: '14px', fontWeight: 'bold' }}>
+            <span>SINIF: {sinav.sinif}</span>
+            <span>TOPLAM SORU: {sinav.sorular.length}</span>
+            <span>SÜRE: {Math.ceil(sinav.tahminiSure / 60)} DK</span>
+          </div>
         </div>
       )}
 

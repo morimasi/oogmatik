@@ -240,8 +240,8 @@ export const BellekRenderer = React.memo(({ config, content }: RendererProps) =>
                 fontSize: '0.6rem', color: '#94a3b8', padding: '0.3rem 0.25rem 0'
             }}>
                 <span>Bellek Etkinliği • {c.difficulty} • {studyWords.length} kelime</span>
-                 <span>© BursaDisleksi Hızlı Okuma Stüdyosu</span>
-             </div>
+                <span>© Bursa Disleksi Hızlı Okuma Stüdyosu</span>
+            </div>
         </div>
     );
 });

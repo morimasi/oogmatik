@@ -147,7 +147,7 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook })
         quality: 'high'
       });
       showSuccess('PDF indirildi!');
-    } catch (error) {
+    } catch (error: any) {
       logError('İndirme hatası:', error);
       setError('PDF oluşturulurken bir hata oluştu.');
     } finally {
@@ -160,7 +160,7 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook })
     setIsDownloading(true);
     try {
       await printService.generatePdf('#sinav-print-target', aktifSinav.baslik, { action: 'print' });
-    } catch (error) {
+    } catch (error: any) {
       logError('Yazdırma hatası:', error);
       setError('Yazdırma başlatılamadı.');
     } finally {
@@ -443,7 +443,7 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook })
                 <FmtBtn active={printConfig.fontFamily === 'helvetica'} onClick={() => updateConfig('fontFamily', 'helvetica')} title="Inter Fontu">Inter</FmtBtn>
                 <FmtBtn active={printConfig.fontFamily === 'times'} onClick={() => updateConfig('fontFamily', 'times')} title="Times New Roman">Times</FmtBtn>
                 <div className="w-px h-5 bg-accent/20 mx-1"></div>
-                {([9, 10, 11, 12] as const).map((s: unknown) => (
+                {([9, 10, 11, 12] as const).map((s) => (
                   <FmtBtn key={s} active={printConfig.fontSize === s} onClick={() => updateConfig('fontSize', s)} title={`${s} Punto`}>{s}pt</FmtBtn>
                 ))}
               </div>
@@ -514,7 +514,7 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook })
       {/* GİZLİ BASKI KATMANI — Sınav + Cevap Anahtarı */}
       {aktifSinav && (
         <div id="sinav-print-target" className="hidden">
-          <SinavOnizleme sinav={aktifSinav} showAnswers={false} config={printConfig} />
+          <SinavOnizleme sinav={aktifSinav} showAnswers={false} config={printConfig} isPrinting={true} />
           <div style={{ pageBreakBefore: 'always', padding: '20px' }}>
             <CevapAnahtariComponent cevapAnahtari={aktifSinav.cevapAnahtari} sinavBaslik={aktifSinav.baslik} />
           </div>
