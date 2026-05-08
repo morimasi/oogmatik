@@ -88,7 +88,7 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
             await worksheetService.saveWorksheet(
                 user.id,
                 generatedContent.title || 'BursaDisleksi Hızlı Okuma Etkinliği',
-                'sari-kitap-studio' as ActivityType,
+                ActivityType.SARI_KITAP_STUDIO,
                 [{
                     title: generatedContent.title || 'BursaDisleksi Hızlı Okuma Etkinliği',
                     instruction: generatedContent.instructions || '',
@@ -122,7 +122,30 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
         if (!user || !generatedContent) return;
         setIsSharing(true);
         try {
-            const shareContent = `Sarı Kitap - ${generatedContent.title || 'Hızlı Okuma Etkinliği'} sizinle paylaşıldı.`;
+            // Önce çalışmayı kaydet (ID almak için)
+            const savedSheet = await worksheetService.saveWorksheet(
+                user.id,
+                generatedContent.title || 'Paylaşılan Sarı Kitap Etkinliği',
+                'sari-kitap-studio' as ActivityType,
+                [{
+                    title: generatedContent.title || 'Hızlı Okuma Etkinliği',
+                    instruction: generatedContent.instructions || '',
+                    type: activeType,
+                    content: generatedContent,
+                    config: config,
+                    metadata: {
+                        generatedAt: generatedContent.generatedAt,
+                        model: generatedContent.model
+                    }
+                }],
+                '📒',
+                { id: 'hizli-okuma', title: 'Hızlı Okuma' }
+            );
+
+            // Kaydedilen çalışmayı yetkilendirerek paylaş
+            await worksheetService.shareWorksheet(savedSheet.id, user.id, user.name, receiverIds);
+            
+            const shareContent = `Sarı Kitap - ${savedSheet.name} paylaşıldı. "Paylaşılanlar" bölümünde görebilirsiniz.`;
             
             for (const receiverId of receiverIds) {
                 await messagingService.sendMessage({
@@ -137,7 +160,7 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
             setIsShareModalOpen(false);
         } catch (err: any) {
             logError('Share error:', err);
-            toast.error('Gönderilirken bir hata oluştu.');
+            toast.error('Paylaşırken bir hata oluştu.');
         } finally {
             setIsSharing(false);
         }
@@ -145,7 +168,7 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
 
     const handleAddToWorkbookBridge = useCallback(() => {
         if (activeType && generatedContent && onAddToWorkbook) {
-            (onAddToWorkbook as any)('sari-kitap-studio' as ActivityType, [{
+            (onAddToWorkbook as any)(ActivityType.SARI_KITAP_STUDIO, [{
                 title: generatedContent.title || 'Hızlı Okuma Etkinliği',
                 type: activeType,
                 content: generatedContent,

@@ -266,6 +266,7 @@ export enum ActivityType {
   MAP_READING = 'MAP_READING',
   GOAL_SETTING = 'GOAL_SETTING',
   INFOGRAPHIC_STUDIO = 'INFOGRAPHIC_STUDIO',
+  SARI_KITAP_STUDIO = 'SARI_KITAP_STUDIO',
 }
 
 export interface Activity {
