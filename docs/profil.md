@@ -475,3 +475,83 @@ npm run lint      # ESLint uyumu
 - [ ] MODULE_KNOWLEDGE.md güncelleme (yeni Profile/ ve Verbal Studio yapısı).
 - [ ] Proje genelinde CLI testlerini (`npm run test:run`) çalıştırma.
 - [ ] Bu checklist'in son durumunu güncelle ve final raporu oluştur.
+
+---
+
+## AI Entegrasyonu Teknik Detayları
+
+### Model Sabitliği ve Kullanım
+- **Model:** `gemini-2.5-flash` (sabit — değiştirme yasak). Tüm AI çağrıları `services/geminiClient.ts` wrapper üzerinden yapılacak.
+- **Neden Sabit:** Maliyet/kalite dengesi optimize edilmiş. Değişiklik için Selin Arslan (AI Mimarı) onayı zorunlu.
+
+### JSON Repair Motoru
+- AI çıktısı JSON schema'ya uymuyorsa, `geminiClient.ts`'teki 3 katmanlı onarım uygulanacak: `balanceBraces → truncateToValid → JSON.parse`.
+- Başarı oranı %94; başarısız olursa fallback `{}` döndür.
+- Super Türkçe çoklu sayfa üretimi için schema: `{ pages: string[], pedagogicalNote: string }`.
+
+### Prompt Injection Sanitize ve Güvenlik
+- Tüm kullanıcı girdileri `sanitizeUserInput()` ile temizlenecek: system instruction injection filtreleme, max 2000 karakter limiti.
+- AI Güvenlik Filtresi: Her çıktı `validateEducationalContent()` ile filtrelenecek — şiddet/cinsellik/ayrımcılık tespiti. Güvenli değilse 'CONTENT_SAFETY_VIOLATION' hatası.
+- KVKK Uyumu: AI çıktılarında öğrenci adı + tanı + skor birlikte görünmez — `StudentPrivacySettings` ile anonimleştirme zorunlu.
+
+### Batch İşleme ve Ölçeklendirme
+- count > 10 için 5'erli gruplara bölün. `aiContentService.ts` kullanın.
+- Maliyet Optimizasyonu: Her prompt için `estimateCost()` — inputCost + outputCost hesaplayın. Hedef: < 600 token/aktivite.
+- Rate Limiting: Tüm AI endpoint'lerinde `RateLimiter` + `validateRequest()` + `retryWithBackoff()` zorunlu.
+
+### CacheService Kullanımı
+- Tüm AI çıktıları `cacheService.ts` ile IndexedDB'ye kaydedilecek (üretim + taslak ayrı store'lar).
+- Aynı parametreler 1 saat içinde tekrar çağrılırsa cache'den dön — maliyet tasarrufu.
+
+### AI Çıktı Kalitesi
+- PedagogicalNote her AI aktivitesinde zorunlu: Öğretmene "neden bu aktivite" açıklaması.
+- ZPD Uyumu: `AgeGroup` ve `LearningDisabilityProfile` parametreleri prompt'larda dahil edilecek.
+- Kalite Metrikleri: Hallucination Rate < 2%, Pedagogical Score > 8.5/10. `validateEducationalContent()` filtresi zorunlu.
+
+---
+
+## Teknik Standartlar ve Güvenlik
+
+### TypeScript Strict Mode Uyumu
+- `any` tipi yasak — `unknown` + type guard kullanın.
+- Optional chaining (`?.`) ve nullish coalescing (`??`) zorunlu.
+- Tüm interface'lerde strict mode altında derleme garantisi.
+
+### AppError Standardı
+- Tüm hatalar `AppError` formatında: `{ success, error: { message, code }, timestamp }`.
+- Türkçe kullanıcı mesajları, HTTP status kodları, isRetryable flag'i zorunlu.
+
+### Rate Limiting ve Güvenlik
+- Yeni endpoint'lerde `RateLimiter` zorunlu (IP + kullanıcı bazlı).
+- Güvenlik: Avatar URL'leri `DOMPurify.sanitize()` ile temizleyin. Firestore sorgularında user input doğrudan kullanılmasın.
+- Input Validation: Tüm API'lerde Zod şemaları kullanın.
+
+### Test Zorunlulukları
+- Vitest testi her modül için zorunlu (`tests/` dizini).
+- Kod Kalitesi: Barrel export, lazy loading (`React.lazy`), memoization (`React.memo`, `useMemo`).
+- Performans: Büyük listeler için virtual scrolling (react-window). Gereksiz re-render'ları optimize edin.
+
+---
+
+## Pedagojik ve Klinik Uyumluluk
+
+### PedagogicalNote Zorunlulukları
+- Her AI aktivitesinde `pedagogicalNote` alanı zorunlu: Öğretmene "neden bu aktivite" açıklaması.
+- İlk aktivite maddesi mutlaka kolay (güven inşası — başarı mimarisi).
+- ZPD Uyumu: `AgeGroup` × `difficulty` ('Kolay'|'Orta'|'Zor') uyumlu veri sunumu.
+
+### Öğrenci Güvenliği ve KVKK
+- Tanı koyucu dil yasak: "disleksi var" → "disleksi desteğine ihtiyacı var".
+- Öğrenci adı + tanı + skor birlikte görünmez — anonimleştirme zorunlu.
+- Risk analizlerinde olumlu dil: "Bu öğrenci motivasyon desteği gerektirebilir" gibi ifadeler kullanın.
+
+### Öğrenme Güçlüğü Desteği
+- Dyslexia: Geniş satır aralığı, düşük kontrast, Lexend font.
+- DEHB: Mikro-döngüler, dikkat dağılımını önleyen tasarım.
+- Diskalkuli: Sayısal veriler görsel (renk kodlu çubuklar).
+- Multisensory: Görsel + işitsel (ses efekti) + kinestetik (drag-and-drop) unsurlar.
+
+### MEB Uyumu ve BEP
+- BEP hedefleri SMART formatında: Specific · Measurable · Achievable · Relevant · Time-bound.
+- RAM işleyişi: 6 haftalık formative değerlendirme döngüsü.
+- Veri saklama: 3 yıl zorunlu, KVKK erişim talebi ile silme.
