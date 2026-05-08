@@ -1,0 +1,57 @@
+declare module 'lucide-react' {
+  import { FC, SVGProps } from 'react';
+  export interface LucideProps extends SVGProps<SVGSVGElement> {
+    size?: string | number;
+    color?: string;
+    strokeWidth?: string | number;
+  }
+  export type LucideIcon = FC<LucideProps>;
+  export const X: LucideIcon;
+  export const Save: LucideIcon;
+  export const Share2: LucideIcon;
+  export const Download: LucideIcon;
+  export const Printer: LucideIcon;
+  export const Archive: LucideIcon;
+  export const Users: LucideIcon;
+  export const Brain: LucideIcon;
+  export const FileText: LucideIcon;
+  export const TrendingUp: LucideIcon;
+  export const AlertCircle: LucideIcon;
+  export const CheckCircle: LucideIcon;
+  export const Clock: LucideIcon;
+  export const Target: LucideIcon;
+  export const BookOpen: LucideIcon;
+  export const Calendar: LucideIcon;
+  export const Filter: LucideIcon;
+  export const Search: LucideIcon;
+  export const Plus: LucideIcon;
+  export const Eye: LucideIcon;
+  export const Edit: LucideIcon;
+  export const Trash2: LucideIcon;
+  export const ChevronRight: LucideIcon;
+  export const Star: LucideIcon;
+  export const Award: LucideIcon;
+  export const BarChart3: LucideIcon;
+  export const PieChart: LucideIcon;
+  export const Activity: LucideIcon;
+  export const Phone: LucideIcon;
+  export const Menu: LucideIcon;
+  export const ChevronDown: LucideIcon;
+  export const LogOut: LucideIcon;
+  export const Settings: LucideIcon;
+  export const Bell: LucideIcon;
+  export const Home: LucideIcon;
+  export const MessageSquare: LucideIcon;
+  export const Layout: LucideIcon;
+  export const Layers: LucideIcon;
+  export const Database: LucideIcon;
+  export const Shield: LucideIcon;
+  export const Terminal: LucideIcon;
+  export const Camera: LucideIcon;
+  export const FileCheck: LucideIcon;
+  export const UserPlus: LucideIcon;
+  export const Info: LucideIcon;
+  export const Sparkles: LucideIcon;
+  export const Trash: LucideIcon;
+  export const RefreshCcw: LucideIcon;
+}

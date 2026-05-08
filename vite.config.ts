@@ -33,23 +33,21 @@ const config: UserConfig & { test?: any } = {
         manualChunks(id: string) {
           // Stüdyolar — En büyük src bileşenleri (daha granüler)
           // NOT: Circular dependency'leri önlemek için her studio ayrı chunk
-          if (id.includes('/components/ActivityStudio') || id.includes('/components/InfographicStudio')) {
-            // Her studio'yu ayrı chunk'a böl
-            if (id.includes('ActivityStudio')) return 'studio-activity';
-            if (id.includes('ReadingStudio')) return 'studio-reading';
-            if (id.includes('MathStudio')) return 'studio-math';
-            if (id.includes('InfographicStudio')) return 'studio-infographic';
-          }
-          // Yönetim Modülleri (Admin & Student) — Dairesel bağımlılığı önlemek için tek chunk
+          if (id.includes('/components/ActivityStudio')) return 'studio-activity';
+          if (id.includes('/components/ReadingStudio')) return 'studio-reading';
+          if (id.includes('/components/MathStudio')) return 'studio-math';
+          if (id.includes('/components/InfographicStudio')) return 'studio-infographic';
+          // Yönetim Modülleri & Bağımlı Servisler — Dairesel bağımlılığı önlemek için tek chunk
           if (id.includes('/components/AdminDashboard/') || 
               id.includes('/components/Admin/') || 
-              id.includes('/components/Student/')) {
+              id.includes('/components/Student/') ||
+              id.includes('/services/aiStudentService')) {
             return 'management-modules';
           }
           
-          // Servisler — Dinamik/Statik karmaşasını önlemek için ortak servisleri ayır
-          if (id.includes('/services/AI/') || id.includes('/services/aiStudentService')) {
-            return 'services-ai';
+          // Diğer AI Servisleri
+          if (id.includes('/services/geminiClient')) {
+            return 'services-ai-core';
           }
           
           // Lucide — Simgeler (Çok fazla ikon var)
