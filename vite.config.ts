@@ -31,8 +31,12 @@ const config: UserConfig & { test?: any } = {
       output: {
         // Granüler manual chunk'lar — her kritik bağımlılık kendi bucket'ında
         manualChunks: (id) => {
-          // 1. Çekirdek Navigasyon ve Kritik Yapılar (TypeError önlemek için index'te kalmalı)
+          // 1. Çekirdek Yapılar (React, Navigasyon, Temel Animasyonlar)
+          // Bunlar birbirine sıkı bağlıdır (createContext hatasını önlemek için bir arada tutulmalıdır)
           if (
+            id.includes('node_modules/react/') ||
+            id.includes('node_modules/react-dom/') ||
+            id.includes('node_modules/framer-motion/') ||
             id.includes('src/components/Sidebar') ||
             id.includes('src/components/AppHeader') ||
             id.includes('src/services/rbac') ||
@@ -55,16 +59,14 @@ const config: UserConfig & { test?: any } = {
           if (id.includes('src/components/Admin')) return 'admin-v2';
           if (id.includes('src/components/Student')) return 'student-v2';
 
-          // 3. Çok ağır servisler
+          // 3. Çok ağır servisler ve dış kütüphaneler
           if (id.includes('src/services/generators')) return 'generators-ai';
-          if (id.includes('src/services/advancedAI')) return 'advanced-ai';
-
-          // 4. Vendor (node_modules)
+          if (id.includes('jspdf') || id.includes('html2canvas')) return 'vendor-pdf';
+          if (id.includes('firebase')) return 'vendor-firebase';
+          
+          // 4. Geri kalan vendor kütüphaneleri
           if (id.includes('node_modules')) {
-            if (id.includes('framer-motion')) return 'vendor-animation';
-            if (id.includes('firebase')) return 'vendor-firebase';
-            if (id.includes('jspdf') || id.includes('html2canvas')) return 'vendor-pdf';
-            return 'vendor-lib';
+             return 'vendor-common';
           }
         },
       },
