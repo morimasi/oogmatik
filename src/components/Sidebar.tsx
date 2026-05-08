@@ -280,14 +280,19 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
   };
 
+  const { canAccess, canAccessCategory, canAccessActivity } = useRBAC();
+
   const categorizedActivities = useMemo(() => {
     return categories
+      .filter((category) => canAccessCategory(category.id)) // Filter categories
       .map((category) => ({
         ...category,
-        items: allActivities.filter((act) => category.activities.includes(act.id)),
+        items: allActivities.filter((act) => 
+          category.activities.includes(act.id) && canAccessActivity(act.id) // Filter activities
+        ),
       }))
       .filter((c) => c.items.length > 0);
-  }, [allActivities, categories]);
+  }, [allActivities, categories, canAccessCategory, canAccessActivity]);
 
   const selectedActivityData = useMemo(
     () => (selectedActivity ? allActivities.find((a) => a.id === selectedActivity) : null),

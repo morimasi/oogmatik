@@ -173,31 +173,26 @@ export const buildDefaultRBAC = (): RBACSettings => {
             enabled: true,
             actions: ['view', 'create', 'edit', 'delete', 'manage', 'approve', 'export', 'assign'],
             categoryPermissions: [
-              {
-                categoryId: 'visual-spatial',
-                categoryTitle: 'Görsel & Mekansal',
+              'visual-perception',
+              'reading-comprehension',
+              'reading-verbal',
+              'math-logic',
+              'social-history',
+              'spld-premium'
+            ].map(catId => {
+              const cat = ACTIVITY_CATEGORIES.find(c => c.id === catId);
+              return {
+                categoryId: catId,
+                categoryTitle: cat?.title || catId,
                 enabled: true,
                 allowedRoles: ['superadmin', 'admin', 'teacher', 'user', 'student', 'parent'],
-              },
-              {
-                categoryId: 'reading-comprehension',
-                categoryTitle: 'Okuduğunu Anlama',
-                enabled: true,
-                allowedRoles: ['superadmin', 'admin', 'teacher', 'user', 'student', 'parent'],
-              },
-              {
-                categoryId: 'reading-verbal',
-                categoryTitle: 'Okuma & Dil',
-                enabled: true,
-                allowedRoles: ['superadmin', 'admin', 'teacher', 'user', 'student', 'parent'],
-              },
-              {
-                categoryId: 'math-logic',
-                categoryTitle: 'Matematik & Mantık',
-                enabled: true,
-                allowedRoles: ['superadmin', 'admin', 'teacher', 'user', 'student', 'parent'],
-              },
-            ],
+                activityOverrides: cat?.activities.filter(a => a.startsWith('INFOGRAPHIC_')).map(act => ({
+                  activityType: act,
+                  enabled: true,
+                  allowedRoles: ['superadmin', 'admin', 'teacher', 'user', 'student', 'parent'],
+                })) || [],
+              };
+            }),
             customSettings: { aiGenerationEnabled: true, allowExport: true },
           },
           {
