@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { ActionToolbar } from './ActionToolbar';
 import { useSuperStudioStore } from '../../../store/useSuperStudioStore';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -7,6 +7,51 @@ import { MarkdownRenderer } from '../../Common/MarkdownRenderer';
 
 export const A4PreviewPanel: React.FC = () => {
   const { generatedContents, isGenerating } = useSuperStudioStore();
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
+  const [showAllPages, setShowAllPages] = useState(false);
+
+  // Tüm sayfaları hesapla
+  const allPages = useMemo(() => {
+    if (generatedContents.length === 0) return [];
+
+    return generatedContents.flatMap((content) => {
+      const rawContent = content.pages[0]?.content || '';
+      const pages = rawContent
+        .split(/===SAYFA_SONU===/i)
+        .filter((p) => p.trim().length > 0);
+      const safePages = pages.length > 0 ? pages : ['[İçerik Bulunamadı]'];
+
+      return safePages.map((pageContent, subIndex) => ({
+        content: pageContent,
+        title: content.pages[0].title,
+        id: `${content.id}-chunk-${subIndex}`,
+        pageNumber: subIndex + 1,
+        totalPages: safePages.length,
+        contentId: content.id,
+      }));
+    });
+  }, [generatedContents]);
+
+  const totalPages = allPages.length;
+  const currentPage = allPages[currentPageIndex];
+
+  const nextPage = () => {
+    if (currentPageIndex < totalPages - 1) {
+      setCurrentPageIndex(currentPageIndex + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPageIndex > 0) {
+      setCurrentPageIndex(currentPageIndex - 1);
+    }
+  };
+
+  const goToPage = (index: number) => {
+    if (index >= 0 && index < totalPages) {
+      setCurrentPageIndex(index);
+    }
+  };
 
   return (
     <div className="flex-1 flex flex-col h-full bg-slate-900 overflow-hidden">
@@ -24,12 +69,61 @@ export const A4PreviewPanel: React.FC = () => {
           <span className="font-semibold tracking-wide uppercase text-xs text-slate-500">
             A4 Canlı Önizleme
           </span>
-          {generatedContents.length > 0 && (
+          {totalPages > 0 && (
             <span className="ml-3 bg-teal-500/10 text-teal-400 px-2.5 py-0.5 rounded-full text-[10px] font-bold border border-teal-500/20">
-              {generatedContents.length} Sayfa
+              {totalPages} Sayfa
             </span>
           )}
         </div>
+
+        {/* Sayfa Navigasyonu */}
+        {totalPages > 1 && !showAllPages && (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={prevPage}
+              disabled={currentPageIndex === 0}
+              className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+            >
+              <i className="fa-solid fa-chevron-left text-sm"></i>
+            </button>
+
+            <div className="flex items-center gap-1 px-3 py-1 bg-slate-800 rounded-lg">
+              <input
+                type="number"
+                min="1"
+                max={totalPages}
+                value={currentPageIndex + 1}
+                onChange={(e) => goToPage(parseInt(e.target.value) - 1)}
+                className="w-12 text-center bg-transparent text-slate-300 text-sm font-medium focus:outline-none"
+              />
+              <span className="text-slate-500 text-sm">/ {totalPages}</span>
+            </div>
+
+            <button
+              onClick={nextPage}
+              disabled={currentPageIndex === totalPages - 1}
+              className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+            >
+              <i className="fa-solid fa-chevron-right text-sm"></i>
+            </button>
+
+            <button
+              onClick={() => setShowAllPages(!showAllPages)}
+              className="ml-2 px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white text-sm font-medium transition-colors"
+            >
+              {showAllPages ? 'Tek Sayfa' : 'Tümünü Göster'}
+            </button>
+          </div>
+        )}
+
+        {totalPages > 1 && showAllPages && (
+          <button
+            onClick={() => setShowAllPages(false)}
+            className="px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white text-sm font-medium transition-colors"
+          >
+            Sayfa Görünümü
+          </button>
+        )}
 
         <ActionToolbar />
       </div>
@@ -61,7 +155,7 @@ export const A4PreviewPanel: React.FC = () => {
                 </div>
               </div>
             </motion.div>
-          ) : generatedContents.length === 0 ? (
+          ) : totalPages === 0 ? (
             <motion.div
               key="empty"
               initial={{ opacity: 0 }}
@@ -80,74 +174,42 @@ export const A4PreviewPanel: React.FC = () => {
                 </div>
               </div>
             </motion.div>
-          ) : (
-            generatedContents.flatMap((content, index) => {
-              // Backend'den gelen raw markdown'ı ===SAYFA_SONU=== referansına göre böl (Split)
-              const rawContent = content.pages[0]?.content || '';
-              const pages = rawContent
-                .split(/===SAYFA_SONU===/i)
-                .filter((p) => p.trim().length > 0);
-              const safePages = pages.length > 0 ? pages : ['[İçerik Bulunamadı]']; // Fallback
-
-              return safePages.map((pageContent, subIndex) => (
-                <motion.div
-                  key={`${content.id}-chunk-${subIndex}`}
-                  initial={{ opacity: 0, scale: 0.98, y: 50 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  transition={{
-                    delay: (index + subIndex) * 0.15,
-                    duration: 0.6,
-                    type: 'spring',
-                    damping: 20,
-                  }}
-                  className="w-[210mm] min-h-[297mm] bg-white shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] relative p-16 text-slate-800 font-lexend print:shadow-none print:m-0 print:p-0 print:w-full print:min-h-0 page-break-after-always overflow-hidden flex flex-col"
+          ) : showAllPages ? (
+            // Tüm sayfaları göster modu
+            <motion.div
+              key="all-pages"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="w-full max-w-[210mm] space-y-12"
+            >
+              {allPages.map((page, index) => (
+                <div
+                  key={page.id}
+                  className="w-[210mm] min-h-[297mm] bg-white shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] relative p-16 text-slate-800 font-lexend print:shadow-none print:m-0 print:p-0 print:w-full print:min-h-0 page-break-after-always overflow-hidden flex flex-col a4-page"
                 >
-                  {/* Decorative Corner */}
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 logo-diagonal-cut pointer-events-none opacity-50 print:hidden"></div>
-
-                  {/* Header Section */}
-                  <div
-                    className={`flex justify-between items-start border-b-4 border-slate-900 pb-8 mb-12 relative ${subIndex > 0 ? 'print:pb-2 print:mb-6' : ''}`}
-                  >
-                    <div className="space-y-4">
-                      <div className="inline-flex items-center px-3 py-1 bg-slate-100 text-slate-600 rounded text-[10px] font-bold uppercase tracking-widest border border-slate-200">
-                        Modüler Süper Stüdyo v2.0{' '}
-                        {safePages.length > 1 && `- Sayfa ${subIndex + 1}`}
-                      </div>
-                      <h1 className="text-4xl font-extrabold text-slate-950 tracking-tight leading-none uppercase">
-                        {content.pages[0].title}
-                      </h1>
-                    </div>
-
-                    {/* Öğrenci Bilgi Alanı (Sadece ilk sayfada) */}
-                    {subIndex === 0 && (
-                      <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-[13px] font-bold pt-2">
-                        <div className="flex items-center text-slate-400 uppercase tracking-tighter">
-                          İSİM: <span className="ml-2 w-32 border-b-2 border-slate-200 h-5"></span>
-                        </div>
-                        <div className="flex items-center text-slate-400 uppercase tracking-tighter">
-                          SINIF: <span className="ml-2 w-16 border-b-2 border-slate-200 h-5"></span>
-                        </div>
-                        <div className="flex items-center text-slate-400 uppercase tracking-tighter">
-                          TARİH: <span className="ml-2 w-32 border-b-2 border-slate-200 h-5"></span>
-                        </div>
-                        <div className="flex items-center text-slate-400 uppercase tracking-tighter">
-                          NO: <span className="ml-2 w-16 border-b-2 border-slate-200 h-5"></span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Content Body */}
-                  <div className="flex-1 relative">
-                    <MarkdownRenderer
-                      content={pageContent}
-                      className="text-lg leading-relaxed text-slate-800"
-                    />
-                  </div>
-
-                  {/* Footer & Pedagogical Note */}
-                  <div className="mt-12 pt-8 border-t border-slate-100 relative group">
+                  <PageContent page={page} index={index} />
+                </div>
+              ))}
+            </motion.div>
+          ) : (
+            // Tek sayfa görünümü
+            <motion.div
+              key={`page-${currentPageIndex}`}
+              initial={{ opacity: 0, scale: 0.98, y: 50 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{
+                duration: 0.6,
+                type: 'spring',
+                damping: 20,
+              }}
+              className="w-[210mm] min-h-[297mm] bg-white shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] relative p-16 text-slate-800 font-lexend print:shadow-none print:m-0 print:p-0 print:w-full print:min-h-0 page-break-after-always overflow-hidden flex flex-col a4-page"
+            >
+              <PageContent page={currentPage} index={currentPageIndex} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
                     {/* Pedagogik Rapor sadece en son sayfada görünür */}
                     {subIndex === safePages.length - 1 && content.pages[0].pedagogicalNote && (
                       <div className="mb-6 relative">
@@ -189,5 +251,94 @@ export const A4PreviewPanel: React.FC = () => {
         </AnimatePresence>
       </div>
     </div>
+  );
+};
+
+// Page Content Component
+const PageContent: React.FC<{ page: any; index: number }> = ({ page, index }) => {
+  if (!page) return null;
+
+  return (
+    <>
+      {/* Decorative Corner */}
+      <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 logo-diagonal-cut pointer-events-none opacity-50 print:hidden"></div>
+
+      {/* Header Section */}
+      <div
+        className={`flex justify-between items-start border-b-4 border-slate-900 pb-8 mb-12 relative ${page.pageNumber > 1 ? 'print:pb-2 print:mb-6' : ''}`}
+      >
+        <div className="space-y-4">
+          <div className="inline-flex items-center px-3 py-1 bg-slate-100 text-slate-600 rounded text-[10px] font-bold uppercase tracking-widest border border-slate-200">
+            Modüler Süper Stüdyo v2.0 {page.totalPages > 1 && `- Sayfa ${page.pageNumber}`}
+          </div>
+          <h1 className="text-4xl font-extrabold text-slate-950 tracking-tight leading-none uppercase">
+            {page.title}
+          </h1>
+        </div>
+
+        {/* Öğrenci Bilgi Alanı (Sadece ilk sayfada) */}
+        {page.pageNumber === 1 && (
+          <div className="grid grid-cols-2 gap-x-8 gap-y-4 text-[13px] font-bold pt-2">
+            <div className="flex items-center text-slate-400 uppercase tracking-tighter">
+              İSİM: <span className="ml-2 w-32 border-b-2 border-slate-200 h-5"></span>
+            </div>
+            <div className="flex items-center text-slate-400 uppercase tracking-tighter">
+              SINIF: <span className="ml-2 w-16 border-b-2 border-slate-200 h-5"></span>
+            </div>
+            <div className="flex items-center text-slate-400 uppercase tracking-tighter">
+              TARİH: <span className="ml-2 w-32 border-b-2 border-slate-200 h-5"></span>
+            </div>
+            <div className="flex items-center text-slate-400 uppercase tracking-tighter">
+              NO: <span className="ml-2 w-16 border-b-2 border-slate-200 h-5"></span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Content Body */}
+      <div className="flex-1 relative">
+        <MarkdownRenderer
+          content={page.content}
+          className="text-lg leading-relaxed text-slate-800"
+        />
+      </div>
+
+      {/* Footer & Pedagogical Note */}
+      <div className="mt-12 pt-8 border-t border-slate-100 relative group">
+        {/* Pedagogik Rapor sadece en son sayfada görünür */}
+        {page.pageNumber === page.totalPages && (
+          <div className="mb-6 relative">
+            <div className="absolute -top-3 left-6 px-3 bg-white text-[10px] font-bold text-slate-400 uppercase tracking-widest border border-slate-100 rounded">
+              Eğitici Notu & Değerlendirme
+            </div>
+            <div className="bg-slate-50/80 border-2 border-dashed border-slate-200 p-6 rounded-2xl text-[13px] leading-relaxed text-slate-600 print:hidden transition-colors group-hover:bg-slate-50 group-hover:border-teal-200/50">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 text-lg shrink-0">
+                  <i className="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div className="space-y-1">
+                  <span className="font-bold text-slate-800 block">
+                    Stratejik Uygulama Notu:
+                  </span>
+                  Pedagogical note will be displayed here.
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="flex justify-between items-center mt-2 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] w-full">
+          <span>Bursa Disleksi & Özel Öğrenme Güçlüğü Akademisi</span>
+          <span>
+            Sayfa {page.pageNumber.toString().padStart(2, '0')} {page.totalPages > 1 && `/ ${page.totalPages.toString().padStart(2, '0')}`}
+          </span>
+        </div>
+      </div>
+
+      {/* Print Only Watermark */}
+      <div className="hidden print:block absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] text-slate-50 opacity-10 text-9xl font-black -rotate-45 pointer-events-none select-none">
+        OOGMATİK
+      </div>
+    </>
   );
 };

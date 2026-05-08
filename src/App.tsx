@@ -39,7 +39,7 @@ import { useAuthStore } from './store/useAuthStore';
 import { AssessmentReportViewer } from './components/AssessmentReportViewer';
 import * as offlineGenerators from './services/offlineGenerators';
 import { useUIStore } from './store/useUIStore';
-import { useWorksheetStore } from './store/useWorksheetStore';
+import { useProfileData } from './components/Profile/hooks/useProfileData';
 import { AppHeader } from './components/AppHeader';
 import { AssignModal } from './components/Student/AssignModal';
 import { GuideModule, TourModule, PremiumHelpModule, AboutModule, DeveloperVisionModule } from './components/Onboarding';
@@ -54,8 +54,8 @@ const LandingPage = lazy(() =>
 );
 
 // Lazy Loaded Components
-const ProfileView = lazy(() =>
-  import('./components/ProfileView').then((module) => ({ default: module.ProfileView }))
+const Profile = lazy(() =>
+  import('./components/Profile').then((module) => ({ default: module.Profile }))
 );
 const AdminDashboard = lazy(() =>
   import('./components/AdminDashboard/index').then((module) => ({ default: module.AdminDashboard }))
@@ -277,6 +277,9 @@ const AppContent = () => {
   const authStore = useAuthStore();
   const studentStore = useStudentStore();
   const toast = useToastStore();
+
+  // Profile data hook
+  const profileData = useProfileData();
 
   // Global PaperSize initialization glue to App root (to be implemented in root-level effect later)
 
@@ -1080,7 +1083,9 @@ const AppContent = () => {
                       </ProtectedRoute>
                     )}
                     {currentView === 'profile' && (
-                      <ProfileView
+                      <Profile
+                        data={profileData}
+                        activeStudent={activeStudent}
                         onBack={handleGoBack}
                         onSelectActivity={handleSelectActivity}
                         onLoadSaved={loadSavedWorksheet}
