@@ -248,7 +248,7 @@ export const generateOfflineReadingPyramid = async (options: GeneratorOptions): 
         'genel': [
             ['Güneş.', 'Sarı güneş.', 'Sarı güneş doğdu.', 'Büyük sarı güneş doğdu.', 'Büyük parlak sarı güneş doğdu.', 'Sabah büyük parlak sarı güneş doğdu.', 'Bugün sabah büyük parlak sarı güneş doğdu.', 'Bugün sabah dağların arkasından büyük sarı güneş doğdu.', 'Bugün sabah erkenden dağların arkasından büyük sarı güneş doğdu.', 'Bugün sabah erkenden karlı dağların arkasından büyük sarı güneş doğdu.'],
             ['Kitap.', 'Eski kitap.', 'Eski kitap kayboldu.', 'Tozlu eski kitap kayboldu.', 'Kütüphanedeki tozlu eski kitap kayboldu.', 'Kütüphanedeki o tozlu eski kitap kayboldu.', 'Kütüphanedeki o tozlu kalın eski kitap kayboldu.', 'Kütüphanedeki o tozlu kalın kırmızı eski kitap kayboldu.', 'Kütüphanedeki o gizemli tozlu kalın kırmızı eski kitap kayboldu.', 'Kütüphanedeki o gizemli tozlu kalın kırmızı eski kaplı kitap kayboldu.'],
-            ['Çocuk.', 'Mutlu child.', 'Mutlu çocuk koştu.', 'Mutlu çocuk parka koştu.', 'Küçük mutlu çocuk parka koştu.', 'Küçük mutlu çocuk neşeyle parka koştu.', 'Küçük mutlu çocuk elinde balonla parka koştu.', 'Küçük mutlu çocuk elinde sarı balonla parka koştu.', 'Küçük mutlu çocuk elinde büyük sarı balonla parka koştu.', 'Küçük mutlu çocuk elindeki büyük sarı balonla hızlıca parka koştu.'],
+            ['Çocuk.', 'Mutlu çocuk.', 'Mutlu çocuk koştu.', 'Mutlu çocuk parka koştu.', 'Küçük mutlu çocuk parka koştu.', 'Küçük mutlu çocuk neşeyle parka koştu.', 'Küçük mutlu çocuk elinde balonla parka koştu.', 'Küçük mutlu çocuk elinde sarı balonla parka koştu.', 'Küçük mutlu çocuk elinde büyük sarı balonla parka koştu.', 'Küçük mutlu çocuk elindeki büyük sarı balonla hızlıca parka koştu.'],
         ]
     };
 
