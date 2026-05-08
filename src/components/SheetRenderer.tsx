@@ -1329,6 +1329,24 @@ export const SheetRenderer = React.memo(
       );
     }
 
+    // Global data check - Prevent "Cannot read properties of undefined (reading 'title')"
+    if (!data || (typeof data === 'object' && Object.keys(data).length === 0)) {
+      return withWrapper(
+        <div className="p-10 text-center text-gray-500 bg-white rounded-3xl shadow-sm min-h-[600px] flex flex-col items-center justify-center font-['Lexend']">
+          <div className="w-24 h-24 bg-indigo-50 rounded-full flex items-center justify-center mb-6 animate-pulse">
+            <i className="fa-solid fa-wand-magic-sparkles text-4xl text-indigo-300"></i>
+          </div>
+          <h3 className="text-xl font-bold text-gray-800 mb-2">İçerik Bulunamadı</h3>
+          <p className="max-w-xs text-sm text-gray-400 leading-relaxed italic">
+            Yapay zeka içeriği hazırlarken bir sorun oluşmuş olabilir veya henüz içerik üretilmedi.
+          </p>
+          <div className="mt-8 px-6 py-2 bg-indigo-600 text-white rounded-full text-xs font-black uppercase tracking-widest shadow-lg shadow-indigo-200">
+            Farklı Bir Seçenek Deneyin
+          </div>
+        </div>
+      );
+    }
+
     // Mimari veya Blok yapısı varsa UnifiedRenderer kullan (Klon modülü buradan geçer)
     // ÖNEMLİ: puzzles, items gibi geleneksel veriler doğrudan switch'e gitmeli ki grid yapıları (kolonlar) bozulmasın.
     const isModernLayout = data?.layoutArchitecture || (Array.isArray(data?.blocks) && data.blocks.some((b: any) => b?.type));

@@ -25,11 +25,13 @@ interface QueueOrderingSheetProps {
 }
 
 export const QueueOrderingSheet: React.FC<QueueOrderingSheetProps> = ({ data, settings }) => {
-  // Safety check for undefined data
-  if (!data) {
+  // Ultra-premium safety check for undefined data or empty problems
+  if (!data || !data.problems || (Array.isArray(data.problems) && data.problems.length === 0)) {
     return (
-      <div className="p-8 text-center text-gray-500">
-        <p>İçerik yüklenemedi. Lütfen tekrar deneyin.</p>
+      <div className="p-12 text-center text-gray-400 bg-white rounded-3xl shadow-sm flex flex-col items-center justify-center min-h-[400px] border-2 border-dashed border-gray-100 font-['Lexend']">
+        <i className="fa-solid fa-layer-group text-5xl mb-6 text-gray-200"></i>
+        <p className="text-lg font-bold text-gray-600 mb-2">İçerik Oluşturulamadı</p>
+        <p className="text-sm max-w-xs leading-relaxed italic">Lütfen jeneratör ayarlarını kontrol edin veya tekrar üretin.</p>
       </div>
     );
   }
