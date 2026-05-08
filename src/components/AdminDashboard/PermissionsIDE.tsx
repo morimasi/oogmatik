@@ -201,7 +201,8 @@ export const AdminPermissionsIDE: React.FC = () => {
   const rolePerms = settings.roles.find(r => r.role === activeRole);
   const modules: PermissionModule[] = [
     'activity-studio', 'reading-studio', 'math-studio', 'infographic-studio', 
-    'sinav-studyosu', 'ocr', 'screening', 'students', 'reports', 'admin'
+    'sinav-studyosu', 'ocr', 'screening', 'students', 'reports', 'admin',
+    'curriculum', 'creative-studio', 'super-studio', 'sari-kitap'
   ];
 
   return (

@@ -216,147 +216,65 @@
 
 ### 2.1 AdminDashboardV2 — Admin Ana Paneli
 
-**Dosya Konumu**: `components/AdminDashboardV2.tsx`
+**Dosya Konumu**: `src/components/AdminDashboard/`
 
-**Amaç**: Platform yöneticileri için merkezi kontrol paneli.
+**Amaç**: Platform yöneticileri için merkezi kontrol paneli. Tüm yönetimsel modüller burada sekmeli (tabbed) yapıda bulunur.
 
 **İşlevler**:
-1. **Sekme Navigasyonu**: Aktivite Yönetimi, Taslak İnceleme, İçerik, Analitik, Geri Bildirim, Kullanıcılar, Prompt Studio
-2. **Rol Tabanlı Erişim**: `admin` rolü zorunlu (RBAC)
-3. **Dashboard Metrikleri**: Aktif kullanıcı, üretilen içerik, sistem durumu
-
-**Alt Modüller**:
-- `AdminActivityManager.tsx`
-- `AdminDraftReview.tsx`
-- `AdminStaticContent.tsx`
-- `AdminPromptStudio.tsx`
-- `AdminAnalytics.tsx`
-- `AdminFeedback.tsx`
-- `AdminUserManagement.tsx`
-
-**UI Standardı**: Dark Glassmorphism (backdrop-blur, ultra-ince border, 2.5rem border-radius)
+1. **Sekme Navigasyonu**: Aktivite Yönetimi, Yetki IDE (RBAC), Taslak İnceleme, İçerik, Analitik, Geri Bildirim, Kullanıcılar, Prompt Studio.
+2. **Tab State**: `activeTab` ile yönetilir. URL tabanlı state desteği planlanıyor.
+3. **UI Standardı**: Dark Glassmorphism, `framer-motion` animasyonları, Lucide ikonları.
 
 ---
 
-### 2.2 AdminActivityManager — Müfredat Aktivite Yönetimi
+### 2.2 AdminActivityManager — Premium Aktivite Denetim Merkezi
 
-**Dosya Konumu**: `components/AdminActivityManager.tsx`
+**Dosya Konumu**: `src/components/AdminDashboard/AdminActivityManager.tsx`
 
-**Amaç**: MEB müfredatına göre aktiviteleri kategorilere atama ve sıralama.
+**Amaç**: Dinamik aktivitelerin (AI-motorlu) kategorize edilmesi, aktif/pasif durumu ve AI blueprint konfigürasyonu.
 
 **İşlevler**:
-1. **HTML5 Drag-and-Drop**: Aktiviteleri sınıf seviyesine sürükleyip bırakma
-2. **Bulk Save**: Çoklu aktiviteyi tek seferde kaydetme (`adminService.saveActivitiesBulk`)
-3. **Kategori Yönetimi**: Matematik, Türkçe, Fen Bilimleri, Sosyal Bilgiler
-4. **Sınıf Seviyesi**: 1-8. sınıflar için ayrı listeleme
+1. **Dashboard Stats**: Toplam aktivite, aktif olanlar, premium içerikler ve AI motoru kullananların özeti.
+2. **Side Activity Inspector**: Yan panel üzerinden aktivitenin AI Motoru (Blueprint), parametreleri ve kategorisi anında düzenlenebilir.
+3. **Bulk Actions (Toplu İşlemler)**: Çoklu seçim modu ile aktiviteler topluca silinebilir, dondurulabilir veya aktifleştirilebilir.
+4. **AI Engine DNA**: Her aktivite için Gemini 2.5 Flash `baseBlueprint` ayarı buradan yapılır.
 
-**Service Entegrasyonu**: `services/adminService.ts`
-
-**Yazılım Mühendisi Notu**: Performans kritik — büyük liste render optimizasyonu gerekli.
+**Service Entegrasyonu**: `services/adminService.ts` (`saveActivitiesBulk`, `updateActivity`)
 
 ---
 
-### 2.3 AdminDraftReview — AI Taslak İnceleme
+### 2.3 AdminPermissionsIDE — Hiyerarşik RBAC Yönetimi
 
-**Dosya Konumu**: `components/AdminDraftReview.tsx`
+**Dosya Konumu**: `src/components/AdminDashboard/PermissionsIDE.tsx`
 
-**Amaç**: AI tarafından üretilen aktiviteleri insan onayına sunma ve otomatik metadata doldurmayı destekleme.
+**Amaç**: Sistem çapında modül, kategori ve aktivite seviyesinde granüler yetkilendirme.
 
 **İşlevler**:
-1. **Gemini Vision OCR**: Fotoğraftan aktivite metni çıkarma
-2. **Auto-fill Metadata**: `category`, `targetSkills`, `learningObjectives` otomatik doldurma
-3. **İnsan Onayı**: Admin aktiviteyi onaylar/reddeder
-4. **Versiyonlama**: Onaylanan taslaklar production'a geçer
+1. **Accordion Drill-down**: Modül -> Kategori -> Aktivite hiyerarşisi ile derinlemesine yönetim.
+2. **Recursive Toggles**: Bir kategorinin kapatılması, altındaki tüm aktivitelerin de otomatik olarak yetkisinin alınmasını sağlar.
+3. **Action Matrix**: 'view', 'create', 'edit', 'delete', 'manage', 'approve', 'export' aksiyonları her modül için ayrı seçilebilir.
+4. **Role Matrix**: Superadmin, Admin, Öğretmen, Veli, Kullanıcı ve Öğrenci rolleri için ayrı profiller.
 
-**AI Entegrasyonu**: `services/ocrService.ts` (Gemini Vision)
+**Hiyerarşi Yapısı**:
+- **Module Level**: Tüm modülü (örn: Reading Studio) aç/kapat.
+- **Category Level**: Belirli bir beceri grubunu (örn: Fonolojik Farkındalık) aç/kapat.
+- **Activity Level**: Tek bir aktiviteyi (örn: Hece Parkuru) aç/kapat.
 
-**AI Mühendisi Notu**: OCR sonuçları JSON schema'ya map edilmeli. Hallucination riski için doğrulama katmanı var.
+**Service Entegrasyonu**: `services/rbacService.ts` (`saveSettings`, `initialize`)
 
 ---
 
-### 2.4 AdminStaticContent — Statik İçerik Yönetimi
+### 2.4 AdminUserManagement — Premium Kullanıcı Yönetimi
 
-**Dosya Konumu**: `components/AdminStaticContent.tsx`
+**Dosya Konumu**: `src/components/AdminDashboard/AdminUserManagement.tsx`
 
-**Amaç**: Platform genelindeki statik içerikleri (yönergeler, şablonlar) yönetme.
-
-**İşlevler**:
-1. **10-Versiyonluk Snapshot**: Her içerik değişikliğinde snapshot al (`utils/snapshotService.ts`)
-2. **JSON Export/Import**: İçerikleri JSON olarak dışa/içe aktarma
-3. **Rollback**: Eski versiyona geri dönüş
-4. **İçerik Önizleme**: Değişiklikleri yayınlamadan önce görme
-
-**Service Entegrasyonu**: `utils/snapshotService.ts`
-
-**Özel Eğitim Uzmanı Notu**: Klinik şablonlar (BEP, RAM raporları) buradan yönetilir — değişiklikler onay gerektirir.
-
----
-
-### 2.5 AdminPromptStudio — Prompt Şablonu Yönetimi
-
-**Dosya Konumu**: `components/AdminPromptStudio.tsx`
-
-**Amaç**: AI generatörlerinde kullanılan prompt şablonlarını test etme ve optimize etme.
+**Amaç**: Kullanıcı hesaplarının, rollerinin ve sistem erişim durumlarının yönetimi.
 
 **İşlevler**:
-1. **Prompt Düzenleme**: Şablon metinlerini düzenleme
-2. **Test Arayüzü**: Prompt'u gerçek zamanlı test etme
-3. **Versiyonlama**: Prompt değişikliklerini takip etme
-4. **A/B Testing**: İki prompt şablonunu karşılaştırma
-
-**AI Entegrasyonu**: `services/generators/promptLibrary.ts`
-
-**AI Mühendisi Notu**: Prompt değişikliği AI çıktı kalitesini doğrudan etkiler — her değişiklik regression test gerektir.
-
----
-
-### 2.6 AdminAnalytics — Kullanım İstatistikleri
-
-**Dosya Konumu**: `components/AdminAnalytics.tsx`
-
-**Amaç**: Platform kullanım metriklerini görselleştirme.
-
-**İşlevler**:
-1. **Kullanıcı Metrikleri**: Aktif kullanıcı, yeni kayıtlar
-2. **İçerik Metrikleri**: Üretilen aktivite sayısı, en popüler türler
-3. **AI Performansı**: Token kullanımı, maliyet analizi, başarı oranı
-4. **Grafikler**: `components/LineChart.tsx`, `components/RadarChart.tsx`
-
-**Service Entegrasyonu**: `services/statsService.ts`
-
----
-
-### 2.7 AdminFeedback — Geri Bildirim Yönetimi
-
-**Dosya Konumu**: `components/AdminFeedback.tsx`
-
-**Amaç**: Kullanıcılardan gelen geri bildirimleri yönetme.
-
-**İşlevler**:
-1. **Geri Bildirim Listesi**: Tarih, kullanıcı, kategori bazında filtreleme
-2. **Durum Değiştirme**: Açık → İnceleniyor → Çözüldü
-3. **Admin Yanıtı**: Kullanıcıya cevap yazma
-4. **Öncelik Atama**: Kritik, Yüksek, Orta, Düşük
-
-**API Entegrasyonu**: `api/feedback.ts`
-
----
-
-### 2.8 AdminUserManagement — Kullanıcı Rol Yönetimi
-
-**Dosya Konumu**: `components/AdminUserManagement.tsx`
-
-**Amaç**: RBAC (Role-Based Access Control) yönetimi.
-
-**İşlevler**:
-1. **Rol Atama**: admin, teacher, parent, student
-2. **İzin Yönetimi**: Her rol için erişim hakları
-3. **Kullanıcı Deaktivasyonu**: Hesap askıya alma
-4. **Audit Log**: Kullanıcı işlem geçmişi
-
-**Service Entegrasyonu**: `services/rbac.ts`, `services/auditLogger.ts`
-
-**Yazılım Mühendisi Notu**: RBAC merkezi güvenlik katmanı. Her endpoint `middleware/permissionValidator.ts` ile korunuyor.
+1. **Status Control**: Hesap dondurma, aktifleştirme süreçleri.
+2. **Role Migration**: Kullanıcıların rollerini dinamik olarak değiştirme (RBAC entegrasyonu).
+3. **Activity Indexing**: Kullanıcının ürettiği toplam çalışma kâğıdı ve etkinlik yoğunluğu takibi.
+4. **Super Admin Koruması**: Kritik root hesapların (örn: morimasi@gmail.com) silinmesi veya rütbesinin indirilmesi engellenmiştir.
 
 ---
 
