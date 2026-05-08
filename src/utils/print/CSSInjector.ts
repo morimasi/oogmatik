@@ -59,7 +59,8 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
 
       body.printing-mode #print-overlay .worksheet-page,
       body.printing-mode #print-overlay .print-page,
-      body.printing-mode #print-overlay .universal-mode-canvas {
+      body.printing-mode #print-overlay .universal-mode-canvas,
+      body.printing-mode #print-overlay .a4-page {
         width: ${dims.width} !important;
         min-height: ${dims.height} !important;
         max-width: ${dims.width} !important;
@@ -67,6 +68,8 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
         box-shadow: none !important;
         break-inside: auto !important;
         page-break-inside: auto !important;
+        page-break-after: always !important;
+        break-after: page !important;
       }
 
       body.printing-mode #print-overlay .print-page {
@@ -185,7 +188,7 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
       }
 
       /* Kâğıt kenarlarında güvenlik boşluğu (Tarayıcı marjının yerini alan padding) */
-      .print-page, .worksheet-page {
+      .print-page, .worksheet-page, .a4-page {
         margin: 0 !important;
         box-shadow: none !important;
         border: none !important;
@@ -201,7 +204,7 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
       }
 
       /* Sayfa başı zorunlu boşluk kalkanı (Tarih verisi kalktığı için zorunlu) */
-      .print-page::before, .worksheet-page::before {
+      .print-page::before, .worksheet-page::before, .a4-page::before {
         content: "" !important;
         display: block !important;
         height: 10mm !important; /* 0.5 cm'den fazla (1cm) güvenlik tamponu */

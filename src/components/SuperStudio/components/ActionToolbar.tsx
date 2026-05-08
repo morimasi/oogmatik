@@ -53,9 +53,24 @@ export const ActionToolbar: React.FC = () => {
 
   const handlePrint = () => {
     const targetSelector = '.super-reading-preview-area';
-    printService.generatePdf(targetSelector, 'Super_Turkce_Etkinlik', {
-      action: 'print'
-    });
+    const allPages = document.querySelectorAll('.super-reading-preview-area .a4-page, .super-reading-preview-area .worksheet-page');
+    const hasMultiplePages = allPages.length > 1;
+
+    if (hasMultiplePages) {
+      // Çoklu sayfa: gerçek PDF motoru kullan
+      printService.generateRealPdf(targetSelector, 'Super_Turkce_Etkinlik', {
+        paperSize: 'A4',
+        quality: 'high',
+        onProgress: (percent, message) => {
+          console.log(`PDF İlerleme: ${percent}% - ${message}`);
+        }
+      });
+    } else {
+      // Tek sayfa: overlay print kullan
+      printService.generatePdf(targetSelector, 'Super_Turkce_Etkinlik', {
+        action: 'print'
+      });
+    }
   };
 
   return (

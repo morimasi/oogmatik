@@ -31,6 +31,7 @@ export const PAGE_SELECTORS = [
   '.reading-canvas-page',
   '.a4-page',
   '.print-page',
+  '.super-reading-preview-area .a4-page', // Super Türkçe çoklu sayfa desteği
 ] as const;
 
 /** Yazdırmada gizlenecek UI elemanları */

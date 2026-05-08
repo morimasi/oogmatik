@@ -30,14 +30,14 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
         ageGroup: '8-10',
         difficulty: 'Orta',
         title: 'Yeni Etkinlik',
-        itemCount: 20,
+        itemCount: 8, // 1-sayfa kuralı: maksimum 8 öğe
         showAnswers: false,
         topics: ['Genel'],
         // Tasarım Standartları (Varsayılan)
         fontSize: 22,
         wordSpacing: 1.5,
         dotSize: 12,
-        itemsPerPage: 10
+        itemsPerPage: 8 // 1-sayfa kuralı: tek sayfa
     });
 
     const [content, setContent] = useState<KelimeCumleGeneratedContent | null>(null);
@@ -62,6 +62,11 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
 
     // İlk yüklemede ve ayar değişimlerinde (Hızlı Mod ise) otomatik üret
     useEffect(() => {
+        // 1-sayfa kuralı: itemCount'u maksimum 8 ile sınırla
+        if (config.itemCount > 8) {
+            setConfig(prev => ({ ...prev, itemCount: 8 }));
+            return;
+        }
         if (generationMode === 'offline') {
             handleGenerate();
         }

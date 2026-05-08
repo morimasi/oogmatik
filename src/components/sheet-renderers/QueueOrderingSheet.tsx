@@ -32,6 +32,9 @@ export const QueueOrderingSheet: React.FC<QueueOrderingSheetProps> = ({ data, se
   // Ultra-premium safety check for undefined data or empty problems
   const { problems, title, instruction, locationType, difficulty } = targetData;
 
+  // Null check for title to prevent undefined errors
+  const safeTitle = title || 'Sıra Alma Becerisi';
+
   if (!problems || !Array.isArray(problems) || problems.length === 0) {
     return (
       <div className="p-12 text-center text-gray-400 bg-white rounded-3xl shadow-sm flex flex-col items-center justify-center min-h-[400px] border-2 border-dashed border-gray-100 font-['Lexend']">
@@ -104,7 +107,7 @@ export const QueueOrderingSheet: React.FC<QueueOrderingSheetProps> = ({ data, se
         {headerStyle === 'gradient' ? (
           <div className={`bg-gradient-to-r ${theme.gradient} -m-6 p-6 mb-6 -mx-6`}>
             <h1 className={`${sizes.title} font-black text-white uppercase tracking-tight drop-shadow-sm`}>
-              {title || 'Sıra Alma Becerisi'}
+              {safeTitle}
             </h1>
             {instruction && (
               <p className={`${sizes.subtitle} font-medium text-white/90 mt-2`}>
@@ -115,7 +118,7 @@ export const QueueOrderingSheet: React.FC<QueueOrderingSheetProps> = ({ data, se
         ) : headerStyle === 'solid' ? (
           <>
             <h1 className={`${sizes.title} font-black ${theme.text} uppercase tracking-tight`}>
-              {title || 'Sıra Alma Becerisi'}
+              {safeTitle}
             </h1>
             {instruction && (
               <p className={`${sizes.subtitle} font-medium text-gray-600 mt-2`}>
@@ -126,7 +129,7 @@ export const QueueOrderingSheet: React.FC<QueueOrderingSheetProps> = ({ data, se
         ) : (
           <>
             <h1 className={`${sizes.title} font-black text-gray-900 uppercase tracking-tight border-l-4 ${theme.border} pl-4`}>
-              {title || 'Sıra Alma Becerisi'}
+              {safeTitle}
             </h1>
             {instruction && (
               <p className={`${sizes.subtitle} font-medium text-gray-600 mt-2 ml-5`}>
