@@ -4,7 +4,7 @@ import { worksheetService } from '../../../services/worksheetService';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useToastStore } from '../../../store/useToastStore';
 import { printService } from '../../../utils/printService';
-import { SingleWorksheetData } from '../../../types';
+import { SingleWorksheetData, ActivityType } from '../../../types';
 
 import { logInfo, logError, logWarn } from '../../../utils/logger.js';
 export const ActionToolbar: React.FC = () => {
@@ -22,22 +22,24 @@ export const ActionToolbar: React.FC = () => {
     try {
       // İlk sayfa baz alınarak kaydediliyor
       const content = generatedContents[0];
+      const firstPage = content.pages[0] as Record<string, unknown>;
 
       // SingleWorksheetData formatına dönüştür
-      const worksheetData: any[] = [
+      const worksheetData: SingleWorksheetData[] = [
         {
           id: content.id,
           type: content.templateId,
-          title: content.pages[0].title,
-          content: content.pages[0].content,
-          pedagogicalNote: content.pages[0].pedagogicalNote,
+          title: (firstPage.title as string) || 'Adsız Etkinlik',
+          instruction: (firstPage.instruction as string) || 'Aşağıdaki etkinliği dikkatlice tamamlayalım.',
+          content: firstPage.content,
+          pedagogicalNote: (firstPage.pedagogicalNote as string) || '',
         },
       ];
 
       await worksheetService.saveWorksheet(
         user.uid,
-        content.pages[0].title,
-        content.templateId as any,
+        (firstPage.title as string) || 'Adsız Etkinlik',
+        content.templateId as ActivityType,
         worksheetData,
         'fa-solid fa-wand-magic-sparkles',
         { id: 'super-turkce', title: 'Süper Türkçe' },
@@ -47,7 +49,7 @@ export const ActionToolbar: React.FC = () => {
       );
       addToast('Çalışma başarıyla buluta kaydedildi.', 'success');
     } catch (error) {
-      logError('Kaydetme hatası:', error);
+      logError(error instanceof Error ? error : String(error), { context: 'Kaydetme hatası' });
       addToast('Kaydedilirken bir hata oluştu.', 'error');
     }
   };
