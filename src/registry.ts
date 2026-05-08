@@ -177,13 +177,15 @@ export const getDefaultOptionsForActivity = (
     case ActivityType.INFOGRAPHIC_SHORT_ANSWER:
       return {
         ...base,
-        mode: 'ai',
+        mode: 'fast',
+        itemCount: 12,
         difficulty: 'Orta',
-        topic: 'Genel Bilgi',
+        topic: 'Genel Kültür',
+        fontSize: 14,
+        fontFamily: 'Lexend',
+        compact: true,
         params: {
-          questionCount: '15',
-          lineCount: 2,
-          colorMode: 'Karma Renkli'
+          lineCount: 2
         }
       };
     case ActivityType.QUEUE_ORDERING:

@@ -22,13 +22,20 @@ export const ShortAnswerSheet: React.FC<{ data: ShortAnswerData; settings?: any 
   const isLandscape = globalSettings?.orientation === 'landscape';
   const isCompact = globalSettings?.compact ?? true;
 
+  // Font Ayarları
+  const customFontSize = globalSettings?.fontSize || (isCompact ? 14 : 16);
+  const customFontFamily = globalSettings?.fontFamily || 'Lexend, sans-serif';
+
   // Bulmaca sayısına göre sığdırma stratejisi
   // Dopdolu bir çıktı için 2 sütunlu düzen (özellikle dikey modda)
   const gridCols = isLandscape ? 'grid-cols-2 lg:grid-cols-3' : 'grid-cols-1 md:grid-cols-2';
   const gapClass = isCompact ? 'gap-2 print:gap-1' : 'gap-6 print:gap-4';
 
   return (
-    <div className={`w-full h-full p-8 print:p-4 flex flex-col bg-white overflow-hidden text-zinc-900 font-lexend ${isLandscape ? 'landscape' : ''}`}>
+    <div 
+      className={`w-full h-full p-8 print:p-4 flex flex-col bg-white overflow-hidden text-zinc-900 ${isLandscape ? 'landscape' : ''}`}
+      style={{ fontFamily: customFontFamily }}
+    >
       {/* BAŞLIK */}
       <div className={`flex justify-between items-center border-b-4 border-indigo-500 pb-3 ${isCompact ? 'mb-2' : 'mb-6'}`}>
         <div>
@@ -59,7 +66,10 @@ export const ShortAnswerSheet: React.FC<{ data: ShortAnswerData; settings?: any 
             </div>
 
             <div className="flex-1">
-              <p className={`font-bold text-zinc-800 leading-tight mb-2 ${isCompact ? 'text-[11px]' : 'text-sm'}`}>
+              <p 
+                className="font-bold text-zinc-800 leading-tight mb-2"
+                style={{ fontSize: customFontSize }}
+              >
                 {q.question}
               </p>
               

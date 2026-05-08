@@ -24,24 +24,46 @@ export const generateOfflineInfographic = async (
 
   // ShortAnswerSheet bileşeni özel veri yapısı (JSON) beklediğinden, HTML dönmemesi için override
   if (activityType === 'INFOGRAPHIC_SHORT_ANSWER') {
-    const questions = Array.from({ length: itemCount }).map((_, i) => ({
-      id: `q${i + 1}`,
-      question: `${topic} hakkında bildiğiniz en önemli ${i + 1}. detayı yazınız.`,
-      lines: difficulty === 'Zor' ? 3 : (difficulty === 'Orta' ? 2 : 1),
-      hint: difficulty === 'Kolay' ? `${topic} ile ilgili temel bir bilgiyi düşünebilirsiniz.` : undefined
-    }));
+    const { SHORT_ANSWER_QUESTION_POOL, GENERIC_QUESTIONS } = await import('./shortAnswerData');
+    
+    // Konu eşleştirme
+    const poolKey = topic as keyof typeof SHORT_ANSWER_QUESTION_POOL;
+    const pool = SHORT_ANSWER_QUESTION_POOL[poolKey] || SHORT_ANSWER_QUESTION_POOL['Genel Kültür'];
+    
+    // Soruları seç ve karıştır (shuffle)
+    const shuffledPool = [...pool].sort(() => Math.random() - 0.5);
+    const finalQuestions: any[] = [];
+    
+    for (let i = 0; i < itemCount; i++) {
+        if (i < shuffledPool.length) {
+            finalQuestions.push({
+                id: `q${i + 1}`,
+                question: shuffledPool[i].q,
+                lines: options.params?.lineCount || (difficulty === 'Zor' ? 3 : (difficulty === 'Orta' ? 2 : 1)),
+                hint: difficulty === 'Kolay' ? shuffledPool[i].h : undefined
+            });
+        } else {
+            // Havuz biterse jenerik ekle ama konuyla ilişkilendir
+            const genericIdx = i % GENERIC_QUESTIONS.length;
+            finalQuestions.push({
+                id: `q${i + 1}`,
+                question: `${topic}: ${GENERIC_QUESTIONS[genericIdx]}`,
+                lines: options.params?.lineCount || (difficulty === 'Zor' ? 3 : (difficulty === 'Orta' ? 2 : 1))
+            });
+        }
+    }
 
     return {
       id: `infographic_offline_${Date.now()}`,
       type: activityType as ActivityType,
       title: `${topic} - Kısa Cevaplı Sorular`,
-      instruction: 'Verilen boşluklara soruların cevaplarını anlaşılır bir şekilde yazınız.',
+      instruction: `${topic} konusuna dair bildiklerinizi test edelim. Soruları kısaca cevaplayınız.`,
       difficulty,
-      questions,
-      content: {  // SheetRenderer "data.content || data" yaptığı için buraya da koyuyoruz
+      questions: finalQuestions,
+      content: {
         title: `${topic} - Kısa Cevaplı Sorular`,
         instruction: 'Verilen boşluklara soruların cevaplarını anlaşılır bir şekilde yazınız.',
-        questions,
+        questions: finalQuestions,
       },
       targetSkills: ['Okuduğunu anlama', 'Yazılı ifade', 'Bilgi çağırma'],
       pedagogicalNote: 'Bu etkinlik, öğrencinin hedef konu üzerindeki bellek geri çağırma ve yazılı üretim becerilerini destekler.',
