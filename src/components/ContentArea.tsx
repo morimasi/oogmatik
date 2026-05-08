@@ -24,6 +24,7 @@ import { FavoritesSection } from './FavoritesSection';
 import { ShareModal } from './ShareModal';
 import { WorkbookView } from './WorkbookView';
 import { useAppStore } from '../store/useAppStore';
+import { useWorksheetStore } from '../store/useWorksheetStore';
 import { usePaperSizeStore } from '../store/usePaperSizeStore';
 import { useAssignmentStore } from '../store/useAssignmentStore';
 import { paginationService } from '../services/paginationService';
@@ -126,9 +127,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     activeWorksheetId,
     activeWorksheetTitle,
     setActiveWorksheet,
-    _setCurrentView,
-    _addHistoryView,
-  } = useAppStore();
+  } = useWorksheetStore();
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isShareSending, setIsShareSending] = useState(false);
 
@@ -178,7 +177,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       onOpenAuth?.();
       return;
     }
-    
+
     try {
       let currentId = activeWorksheetId;
 
@@ -235,7 +234,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       const paged = paginationService.process(safeData, activityType, styleSettings);
       return Array.isArray(paged) && paged.length > 0 ? paged : safeData;
     }
-    
+
     return safeData;
   }, [worksheetData, activityType, styleSettings.smartPagination, styleSettings.columns, styleSettings.rows]);
 

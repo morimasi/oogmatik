@@ -4,7 +4,7 @@ import DyslexiaLogo from './DyslexiaLogo';
 import GlobalSearch from './GlobalSearch';
 import { useAuthStore } from '../store/useAuthStore';
 import { useUIStore } from '../store/useUIStore';
-import { useAppStore } from '../store/useAppStore';
+import { useWorksheetStore } from '../store/useWorksheetStore';
 import { useRBAC } from '../hooks/useRBAC';
 import { ActivityType, View } from '../types';
 
@@ -80,17 +80,17 @@ export const HeaderDropdown = ({
                 <span className="text-[6.5px] font-black uppercase tracking-[0.09em] opacity-65 group-hover/drop:opacity-100 transition-opacity leading-none max-w-[2.85rem] truncate text-center">{label}</span>
                 <AnimatePresence>
                     {isOpen && (
-                        <motion.div 
+                        <motion.div
                             layoutId="dropdown-dot"
                             className="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-0.5 h-0.5 rounded-full bg-[var(--accent-color)]"
                         />
                     )}
                 </AnimatePresence>
             </button>
-            
+
             <AnimatePresence>
                 {isOpen && (
-                    <motion.div 
+                    <motion.div
                         initial={{ opacity: 0, scale: 0.95, y: 10 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 10 }}
@@ -167,7 +167,7 @@ export const AppHeader = ({
     const { user, logout } = useAuthStore();
     const { isAdmin } = useRBAC();
     const { setIsSidebarOpen, zenMode, setIsTourActive } = useUIStore();
-    const { currentView, setCurrentView, addHistoryView, setSelectedActivity, setWorksheetData, setActiveCurriculumSession } = useAppStore();
+    const { currentView, setCurrentView, addHistoryView, setSelectedActivity, setWorksheetData, setActiveCurriculumSession } = useWorksheetStore();
 
     const navigateTo = (view: View) => {
         if (currentView === view) return;
@@ -190,7 +190,7 @@ export const AppHeader = ({
                     >
                         <i className="fa-solid fa-bars-staggered fa-lg"></i>
                     </button>
-                    
+
                     <button
                         id="tour-logo"
                         onClick={() => {
@@ -245,9 +245,9 @@ export const AppHeader = ({
                         </button>
 
                         <button
-                            onClick={() => { 
-                                if (typeof setIsSidebarOpen === 'function') setIsSidebarOpen(false); 
-                                if (typeof onOpenStudio === 'function') onOpenStudio('students'); 
+                            onClick={() => {
+                                if (typeof setIsSidebarOpen === 'function') setIsSidebarOpen(false);
+                                if (typeof onOpenStudio === 'function') onOpenStudio('students');
                             }}
                             className="flex shrink-0 items-center justify-center w-9 h-9 bg-[var(--bg-paper)] text-[var(--accent-color)] hover:bg-[var(--accent-muted)] border border-[var(--border-color)] rounded-lg transition-all active:scale-[0.96] shadow-sm group/nav"
                             title="Öğrenci Yönetimi"
@@ -259,9 +259,9 @@ export const AppHeader = ({
                     {/* Secondary Navigation */}
                     <div className="flex items-center gap-0.5 md:gap-1">
                         <GlobalSearch onSelectActivity={onSelectActivity} />
-                        
+
                         <div className="w-px self-stretch min-h-[1rem] max-h-[1.5rem] bg-[var(--border-color)] mx-0.5 opacity-35" aria-hidden />
-                        
+
                         <button
                             onClick={() => navigateTo('workbook')}
                             className="relative flex shrink-0 items-center justify-center w-9 h-9 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all rounded-lg hover:bg-[var(--bg-secondary)] border border-transparent hover:border-[var(--border-color)]/30 group/nav"
@@ -274,7 +274,7 @@ export const AppHeader = ({
                                 </span>
                             )}
                         </button>
-                        
+
                         <button
                             onClick={() => { setIsSidebarOpen(false); navigateTo('messages'); }}
                             className="relative flex shrink-0 items-center justify-center w-9 h-9 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all rounded-lg hover:bg-[var(--bg-secondary)] border border-transparent hover:border-[var(--border-color)]/30 group/nav"

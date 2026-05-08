@@ -38,6 +38,7 @@ import { PaperSizeInitializer } from './components/PaperSizeInitializer';
 import { useAuthStore } from './store/useAuthStore';
 import { AssessmentReportViewer } from './components/AssessmentReportViewer';
 import { useAppStore } from './store/useAppStore';
+import { useWorksheetStore } from './store/useWorksheetStore';
 import { useUIStore } from './store/useUIStore';
 import { useProfileData } from './components/Profile/hooks/useProfileData';
 import { AppHeader } from './components/AppHeader';
@@ -288,7 +289,7 @@ const AppContent = () => {
   useEffect(() => {
     logInfo("Initializing Auth Store in App.tsx...");
     const unsubscribeAuth = authStore.initialize();
-    
+
     // Initialize RBAC Service
     rbacService.initialize().then(() => {
       logInfo("RBAC Service Initialized");
@@ -325,7 +326,7 @@ const AppContent = () => {
     error,
     setError,
     resetGeneratorContext,
-  } = useAppStore();
+  } = useWorksheetStore();
 
   const [loadedCurriculum, setLoadedCurriculum] = useState(null as Curriculum | null);
 
@@ -1200,15 +1201,15 @@ const AppContent = () => {
       <Modal isOpen={openModal === 'about'} onClose={() => setOpenModal(null)} title="Hakkımızda & Vizyon" maxWidth="max-w-4xl">
         <div className="space-y-12">
           {/* Hero Showcase */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="relative h-72 rounded-[3rem] overflow-hidden group border border-[var(--border-color)] shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
           >
-            <img 
-              src="/media__1777555251633.png" 
-              className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105" 
-              alt="Oogmatik Premium" 
+            <img
+              src="/media__1777555251633.png"
+              className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105"
+              alt="Oogmatik Premium"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0B] via-transparent to-transparent"></div>
             <div className="absolute bottom-10 left-10">
@@ -1224,7 +1225,7 @@ const AppContent = () => {
 
           {/* Core Pillars - Bento Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.1 }}
@@ -1242,7 +1243,7 @@ const AppContent = () => {
               </p>
             </motion.div>
 
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2 }}
@@ -1257,25 +1258,25 @@ const AppContent = () => {
 
           {/* Philosophy Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-             <div className="p-8 rounded-[2.5rem] bg-[var(--bg-paper)] border border-[var(--border-color)] flex items-start gap-6">
-                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
-                  <i className="fa-solid fa-graduation-cap text-2xl"></i>
-                </div>
-                <div>
-                  <h4 className="text-xs font-black text-[var(--text-primary)] uppercase mb-2 tracking-tighter">MEB & PISA UYUMU</h4>
-                  <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">Etkinliklerimiz sadece disleksi dostu değil, aynı zamanda güncel MEB müfredatı ve PISA standartlarıyla tam senkronize şekilde tasarlanmıştır.</p>
-                </div>
-             </div>
-             
-             <div className="p-8 rounded-[2.5rem] bg-[var(--bg-paper)] border border-[var(--border-color)] flex items-start gap-6">
-                <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
-                  <i className="fa-solid fa-fingerprint text-2xl"></i>
-                </div>
-                <div>
-                  <h4 className="text-xs font-black text-[var(--text-primary)] uppercase mb-2 tracking-tighter">KİŞİSELLEŞTİRİLMİŞ İZ</h4>
-                  <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">Her çocuğun parmak izi kadar eşsiz olduğunu biliyoruz. Oogmatik ile standart değil, "terzi dikimi" eğitim materyalleri saniyeler içinde elinizde.</p>
-                </div>
-             </div>
+            <div className="p-8 rounded-[2.5rem] bg-[var(--bg-paper)] border border-[var(--border-color)] flex items-start gap-6">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+                <i className="fa-solid fa-graduation-cap text-2xl"></i>
+              </div>
+              <div>
+                <h4 className="text-xs font-black text-[var(--text-primary)] uppercase mb-2 tracking-tighter">MEB & PISA UYUMU</h4>
+                <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">Etkinliklerimiz sadece disleksi dostu değil, aynı zamanda güncel MEB müfredatı ve PISA standartlarıyla tam senkronize şekilde tasarlanmıştır.</p>
+              </div>
+            </div>
+
+            <div className="p-8 rounded-[2.5rem] bg-[var(--bg-paper)] border border-[var(--border-color)] flex items-start gap-6">
+              <div className="w-14 h-14 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+                <i className="fa-solid fa-fingerprint text-2xl"></i>
+              </div>
+              <div>
+                <h4 className="text-xs font-black text-[var(--text-primary)] uppercase mb-2 tracking-tighter">KİŞİSELLEŞTİRİLMİŞ İZ</h4>
+                <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">Her çocuğun parmak izi kadar eşsiz olduğunu biliyoruz. Oogmatik ile standart değil, "terzi dikimi" eğitim materyalleri saniyeler içinde elinizde.</p>
+              </div>
+            </div>
           </div>
 
           {/* Signature Footer */}
