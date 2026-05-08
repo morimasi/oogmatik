@@ -1,10 +1,10 @@
 import React, { FC } from 'react';
-import { useSuperStudioStore } from '../../../store/useSuperStudioStore.js';
-import { worksheetService } from '../../../services/worksheetService.js';
-import { useAuthStore } from '../../../store/useAuthStore.js';
-import { useToastStore } from '../../../store/useToastStore.js';
-import { printService } from '../../../utils/printService.js';
-import { SingleWorksheetData, ActivityType } from '../../../types.js';
+import { useSuperStudioStore } from '../../../store/useSuperStudioStore';
+import { worksheetService } from '../../../services/worksheetService';
+import { useAuthStore } from '../../../store/useAuthStore';
+import { useToastStore } from '../../../store/useToastStore';
+import { printService } from '../../../utils/printService';
+import { SingleWorksheetData, ActivityType } from '../../../types';
 
 import { logInfo, logError, logWarn } from '../../../utils/logger.js';
 export const ActionToolbar: FC = () => {
