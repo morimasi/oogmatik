@@ -210,46 +210,6 @@ export const A4PreviewPanel: React.FC = () => {
           )}
         </AnimatePresence>
       </div>
-                    {/* Pedagogik Rapor sadece en son sayfada görünür */}
-                    {subIndex === safePages.length - 1 && content.pages[0].pedagogicalNote && (
-                      <div className="mb-6 relative">
-                        <div className="absolute -top-3 left-6 px-3 bg-white text-[10px] font-bold text-slate-400 uppercase tracking-widest border border-slate-100 rounded">
-                          Eğitici Notu & Değerlendirme
-                        </div>
-                        <div className="bg-slate-50/80 border-2 border-dashed border-slate-200 p-6 rounded-2xl text-[13px] leading-relaxed text-slate-600 print:hidden transition-colors group-hover:bg-slate-50 group-hover:border-teal-200/50">
-                          <div className="flex items-start gap-4">
-                            <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 text-lg shrink-0">
-                              <i className="fa-solid fa-graduation-cap"></i>
-                            </div>
-                            <div className="space-y-1">
-                              <span className="font-bold text-slate-800 block">
-                                Stratejik Uygulama Notu:
-                              </span>
-                              {content.pages[0].pedagogicalNote}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex justify-between items-center mt-2 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] w-full">
-                      <span>Bursa Disleksi & Özel Öğrenme Güçlüğü Akademisi</span>
-                      <span>
-                        Sayfa 0{subIndex + 1} {safePages.length > 1 && `/ 0${safePages.length}`}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Print Only Watermark */}
-                  <div className="hidden print:block absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] text-slate-50 opacity-10 text-9xl font-black -rotate-45 pointer-events-none select-none">
-                    OOGMATİK
-                  </div>
-                </motion.div>
-              ));
-            })
-          )}
-        </AnimatePresence>
-      </div>
     </div>
   );
 };

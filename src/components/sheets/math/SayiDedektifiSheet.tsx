@@ -88,6 +88,7 @@ export const SayiDedektifiSheet: React.FC<{ data?: Partial<SayiDedektifiData> }>
        <div className="text-[10px] font-medium italic">Bursa Disleksi Akademisi</div>
     </div>
   </div>
-);
+  );
+};
 
 export default SayiDedektifiSheet;
