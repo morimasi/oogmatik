@@ -18,18 +18,19 @@ import {
   Zap,
   Globe,
   Layout,
-  Users
+  Users,
+  Target
 } from 'lucide-react';
 import { rbacService } from '../../services/rbacService';
-import { RBACSettings, RolePermissions, PermissionModule, PermissionAction, CategoryPermission } from '../../types/rbac-advanced';
+import { RBACSettings, RolePermissions, PermissionModule, PermissionAction, CategoryPermission, ActivityPermission } from '../../types/rbac-advanced';
 import { UserRole } from '../../types/user';
 import { useToastStore } from '../../store/useToastStore';
 import { ACTIVITY_CATEGORIES } from '../../constants';
 import { ActivityType } from '../../types/activity';
 
 /**
- * AdminPermissionsIDE — Advanced Hierarchical RBAC Management
- * Accordion drill-down & Recursive toggle support
+ * AdminPermissionsIDE — Ultra-Stable Hierarchical RBAC Management
+ * Accordion drill-down & Smart Recursive toggle support
  */
 export const AdminPermissionsIDE: React.FC = () => {
   const [settings, setSettings] = useState<RBACSettings | null>(null);
@@ -46,9 +47,16 @@ export const AdminPermissionsIDE: React.FC = () => {
 
   const loadSettings = async () => {
     setLoading(true);
-    await rbacService.initialize();
-    setSettings(JSON.parse(JSON.stringify(rbacService.getSettings())));
-    setLoading(false);
+    try {
+      await rbacService.initialize();
+      const current = rbacService.getSettings();
+      // Veri tutarlılığı için derin kopyalama
+      setSettings(JSON.parse(JSON.stringify(current)));
+    } catch (e) {
+      toast.error('Yetki ayarları yüklenemedi');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSave = async () => {
@@ -56,7 +64,7 @@ export const AdminPermissionsIDE: React.FC = () => {
     setSaving(true);
     try {
       await rbacService.saveSettings(settings);
-      toast.success('Yetkilendirme ayarları (RBAC) başarıyla yayınlandı.');
+      toast.success('Dinamik RBAC ayarları başarıyla yayınlandı. Sistem %100 senkronize edildi.');
     } catch (error) {
       toast.error('Ayarlar kaydedilirken bir hata oluştu.');
     } finally {
@@ -77,17 +85,17 @@ export const AdminPermissionsIDE: React.FC = () => {
     setSettings({ ...settings, roles: newRoles });
   };
 
-  // ── Recursive Toggles ─────────────────────────────────────────────
+  // ── Smart Recursive Toggles ───────────────────────────────────────
 
   const toggleModuleEnable = (moduleName: PermissionModule) => {
     updateRoleSettings(perms => {
-      const module = perms.modules.find(m => m.module === moduleName);
-      if (module) {
-        module.enabled = !module.enabled;
-        // Recursive: If enabling module, ensure basic actions are present
-        if (module.enabled && module.actions.length === 0) module.actions = ['view'];
+      let module = perms.modules.find(m => m.module === moduleName);
+      if (!module) {
+        module = { module: moduleName, enabled: true, actions: ['view'] };
+        perms.modules.push(module);
       } else {
-        perms.modules.push({ module: moduleName, enabled: true, actions: ['view'] });
+        module.enabled = !module.enabled;
+        if (module.enabled && module.actions.length === 0) module.actions = ['view'];
       }
       return perms;
     });
@@ -100,9 +108,11 @@ export const AdminPermissionsIDE: React.FC = () => {
       if (!module.categoryPermissions) module.categoryPermissions = [];
       
       let cat = module.categoryPermissions.find(c => c.categoryId === catId);
+      const catInfo = ACTIVITY_CATEGORIES.find(c => c.id === catId);
+
       if (cat) {
         cat.enabled = !cat.enabled;
-        // Recursive: All sub-activities follow the category
+        // Recursive: Alt aktiviteleri senkronize et
         if (cat.activityOverrides) {
           cat.activityOverrides.forEach(act => {
             act.enabled = cat!.enabled;
@@ -110,7 +120,7 @@ export const AdminPermissionsIDE: React.FC = () => {
           });
         }
       } else {
-        const catInfo = ACTIVITY_CATEGORIES.find(c => c.id === catId);
+        // Yeni kategori yetki objesi oluştur
         module.categoryPermissions.push({
           categoryId: catId,
           categoryTitle: catInfo?.title || catId,
@@ -120,7 +130,7 @@ export const AdminPermissionsIDE: React.FC = () => {
             activityType: actId as ActivityType,
             enabled: true,
             allowedRoles: [activeRole]
-          }))
+          })) || []
         });
       }
       return perms;
@@ -130,12 +140,38 @@ export const AdminPermissionsIDE: React.FC = () => {
   const toggleActivityEnable = (moduleName: PermissionModule, catId: string, actType: ActivityType) => {
     updateRoleSettings(perms => {
       const module = perms.modules.find(m => m.module === moduleName);
-      const cat = module?.categoryPermissions?.find(c => c.categoryId === catId);
-      const act = cat?.activityOverrides?.find(a => a.activityType === actType);
-      
-      if (act) {
-        act.enabled = !act.enabled;
-        if (act.enabled && !act.allowedRoles.includes(activeRole)) act.allowedRoles.push(activeRole);
+      if (!module) return perms;
+      if (!module.categoryPermissions) module.categoryPermissions = [];
+
+      let cat = module.categoryPermissions.find(c => c.categoryId === catId);
+      if (!cat) {
+        // Kategori yoksa önce kategoriyi oluştur (Pasif olarak)
+        const catInfo = ACTIVITY_CATEGORIES.find(c => c.id === catId);
+        cat = {
+          categoryId: catId,
+          categoryTitle: catInfo?.title || catId,
+          enabled: true,
+          allowedRoles: [activeRole],
+          activityOverrides: catInfo?.activities.map(a => ({
+             activityType: a as ActivityType,
+             enabled: a === actType,
+             allowedRoles: a === actType ? [activeRole] : []
+          })) || []
+        };
+        module.categoryPermissions.push(cat);
+      } else {
+        if (!cat.activityOverrides) cat.activityOverrides = [];
+        let act = cat.activityOverrides.find(a => a.activityType === actType);
+        if (act) {
+          act.enabled = !act.enabled;
+          if (act.enabled && !act.allowedRoles.includes(activeRole)) act.allowedRoles.push(activeRole);
+        } else {
+          cat.activityOverrides.push({
+            activityType: actType,
+            enabled: true,
+            allowedRoles: [activeRole]
+          });
+        }
       }
       return perms;
     });
@@ -153,13 +189,11 @@ export const AdminPermissionsIDE: React.FC = () => {
     });
   };
 
-  // ── Render ────────────────────────────────────────────────────────
-
   if (loading || !settings) {
     return (
       <div className="flex flex-col items-center justify-center py-20 bg-zinc-900/10 rounded-[3rem] border border-white/5">
         <RefreshCw className="w-10 h-10 text-indigo-500 animate-spin mb-4" />
-        <p className="text-zinc-500 text-xs font-black uppercase tracking-widest italic soul-text">Yetki Mimarisi Yapılandırılıyor</p>
+        <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest italic soul-text">Yetki Mimarisi Yapılandırılıyor</p>
       </div>
     );
   }
@@ -171,7 +205,7 @@ export const AdminPermissionsIDE: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-8 pb-32 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="space-y-8 pb-40 animate-in fade-in slide-in-from-bottom-4 duration-700">
       
       {/* ── IDE Header ─────────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-zinc-900/80 backdrop-blur-3xl border border-white/10 p-6 rounded-[2.5rem] shadow-2xl relative overflow-hidden group">
@@ -190,15 +224,15 @@ export const AdminPermissionsIDE: React.FC = () => {
             onClick={loadSettings}
             className="p-3.5 rounded-2xl bg-zinc-800/50 text-zinc-400 hover:text-white border border-white/5 transition-all hover:bg-zinc-800"
           >
-            <RefreshCw className="w-5 h-5 shadow-sm" />
+            <RefreshCw className="w-5 h-5" />
           </button>
           <button 
             onClick={handleSave}
             disabled={saving}
             className="flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white px-8 py-4 rounded-[1.5rem] text-xs font-black uppercase tracking-widest shadow-2xl shadow-indigo-600/30 transition-all active:scale-95 border border-white/10"
           >
-            {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
-            Global Ayarları Yayınla
+            {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            Global Değişiklikleri Uygula
           </button>
         </div>
       </div>
@@ -247,7 +281,7 @@ export const AdminPermissionsIDE: React.FC = () => {
                 const isEnabled = modulePerm?.enabled || false;
 
                 return (
-                  <div key={moduleName} className={`rounded-[2rem] border transition-all duration-500 ${isExpanded ? 'bg-zinc-900/80 border-indigo-500/30' : 'bg-transparent border-white/5'}`}>
+                  <div key={moduleName} className={`rounded-[2rem] border transition-all duration-500 ${isExpanded ? 'bg-zinc-900/80 border-indigo-500/30 shadow-xl' : 'bg-transparent border-white/5'}`}>
                     
                     {/* Module Row */}
                     <div 
@@ -260,7 +294,7 @@ export const AdminPermissionsIDE: React.FC = () => {
                         </div>
                         <div>
                           <h4 className="text-sm font-black text-white uppercase tracking-tight group-hover:text-indigo-400 transition-colors">{moduleName.replace('-', ' ')}</h4>
-                          <span className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">Global Modül</span>
+                          <span className="text-[9px] text-zinc-600 font-bold uppercase tracking-widest">Merkezi Modül</span>
                         </div>
                       </div>
 
@@ -269,12 +303,12 @@ export const AdminPermissionsIDE: React.FC = () => {
                           onClick={(e) => { e.stopPropagation(); toggleModuleEnable(moduleName); }}
                           className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest transition-all ${
                             isEnabled 
-                            ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' 
+                            ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 shadow-lg shadow-emerald-500/10' 
                             : 'bg-zinc-800 text-zinc-600 border border-transparent'
                           }`}
                         >
                           {isEnabled ? <Unlock size={12} /> : <Lock size={12} />}
-                          {isEnabled ? 'Aktif' : 'Pasif'}
+                          {isEnabled ? 'ERİŞİM AÇIK' : 'ERİŞİM YOK'}
                         </button>
                         <div className={`p-2 rounded-full transition-transform duration-300 ${isExpanded ? 'rotate-180 bg-zinc-800 text-indigo-400' : 'text-zinc-600'}`}>
                           <ChevronDown size={14} />
@@ -296,7 +330,7 @@ export const AdminPermissionsIDE: React.FC = () => {
                             {/* Action Matrix (Global Level) */}
                             <div className="p-4 bg-black/20 rounded-3xl border border-white/5">
                               <p className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                                <Zap size={10} className="text-amber-500" /> Global Eylemler
+                                <Zap size={10} className="text-amber-500" /> Modül Eylemleri Yetkilendirmesi
                               </p>
                               <div className="flex flex-wrap gap-2">
                                 {(['view', 'create', 'edit', 'delete', 'manage', 'approve', 'export'] as PermissionAction[]).map(action => {
@@ -308,10 +342,14 @@ export const AdminPermissionsIDE: React.FC = () => {
                                       onClick={() => handleToggleAction(moduleName, action)}
                                       className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
                                         hasAct 
-                                        ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30' 
+                                        ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30 shadow-sm' 
                                         : 'bg-zinc-800/30 text-zinc-700 border-transparent hover:border-white/10 hover:text-zinc-500'
                                       } ${!isEnabled ? 'opacity-20 cursor-not-allowed' : ''}`}
                                     >
+                                      {action === 'view' && <Eye size={10} className="inline mr-1.5" />}
+                                      {action === 'create' && <Plus size={10} className="inline mr-1.5" />}
+                                      {action === 'edit' && <Edit3 size={10} className="inline mr-1.5" />}
+                                      {action === 'delete' && <Trash2 size={10} className="inline mr-1.5" />}
                                       {action}
                                     </button>
                                   );
@@ -322,8 +360,8 @@ export const AdminPermissionsIDE: React.FC = () => {
                             {/* Activity Studio Deep Drill-down */}
                             {moduleName === 'activity-studio' && (
                               <div className="space-y-3">
-                                <p className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                                  <ChevronDown size={10} /> Kategori & Aktivite Hiyerarşisi
+                                <p className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] flex items-center gap-2 ml-1">
+                                  <ChevronDown size={10} /> Kategori & Aktivite Hiyerarşik Yapı
                                 </p>
                                 
                                 {ACTIVITY_CATEGORIES.map(cat => {
@@ -341,11 +379,11 @@ export const AdminPermissionsIDE: React.FC = () => {
                                           <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${isCatEnabled ? 'bg-emerald-500/20 text-emerald-500' : 'bg-zinc-800 text-zinc-600'}`}>
                                             {isCatExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                                           </div>
-                                          <span className="text-[11px] font-black text-zinc-300 uppercase tracking-tight group-hover/cat:text-white">{cat.title}</span>
+                                          <span className="text-[11px] font-black text-zinc-300 uppercase tracking-tight group-hover/cat:text-white transition-colors">{cat.title}</span>
                                         </div>
                                         <button 
                                           onClick={(e) => { e.stopPropagation(); toggleCategoryEnable(moduleName, cat.id); }}
-                                          className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all ${isCatEnabled ? 'bg-emerald-500 text-white' : 'bg-zinc-800 text-zinc-600'}`}
+                                          className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border transition-all ${isCatEnabled ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-zinc-800 text-zinc-600 border-transparent hover:border-white/10'}`}
                                         >
                                           {isCatEnabled ? 'ERİŞİM VAR' : 'Kilitli'}
                                         </button>
@@ -358,21 +396,23 @@ export const AdminPermissionsIDE: React.FC = () => {
                                             initial={{ height: 0, opacity: 0 }}
                                             animate={{ height: 'auto', opacity: 1 }}
                                             exit={{ height: 0, opacity: 0 }}
-                                            className="overflow-hidden bg-black/10 rounded-b-3xl"
+                                            className="overflow-hidden bg-black/20 rounded-b-3xl"
                                           >
-                                            <div className="p-4 grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                            <div className="p-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
                                               {cat.activities.map(actType => {
                                                 const actPerm = catPerm?.activityOverrides?.find(a => a.activityType === actType);
-                                                const isActEnabled = (actPerm?.enabled !== undefined ? actPerm.enabled : isCatEnabled);
+                                                const isActEnabled = actPerm ? actPerm.enabled : isCatEnabled;
                                                 
                                                 return (
                                                   <button
                                                     key={actType}
                                                     onClick={() => toggleActivityEnable(moduleName, cat.id, actType as ActivityType)}
-                                                    className={`p-2.5 rounded-xl text-left border transition-all flex items-center gap-3 ${isActEnabled ? 'bg-white/5 border-white/10 text-zinc-300' : 'bg-transparent border-red-500/10 text-zinc-600 opacity-40'}`}
+                                                    className={`p-3 rounded-xl text-left border transition-all flex items-center gap-3 group/actItem ${isActEnabled ? 'bg-white/5 border-white/10 text-zinc-300 hover:bg-indigo-500/10' : 'bg-transparent border-red-500/5 text-zinc-600 opacity-40 hover:opacity-100 hover:bg-white/5'}`}
                                                   >
-                                                    <div className={`w-2 h-2 rounded-full ${isActEnabled ? 'bg-emerald-500 shadow-emerald-500/50' : 'bg-zinc-700'}`}></div>
-                                                    <span className="text-[9px] font-bold uppercase tracking-tighter truncate">{actType.replace(/_/g, ' ')}</span>
+                                                    <div className={`w-3 h-3 rounded-full flex items-center justify-center transition-all ${isActEnabled ? 'bg-emerald-500 shadow-lg shadow-emerald-500/40' : 'bg-zinc-700'}`}>
+                                                      {isActEnabled && <Check size={8} className="text-white" />}
+                                                    </div>
+                                                    <span className="text-[9px] font-bold uppercase tracking-tighter truncate flex-1 group-hover/actItem:text-white transition-colors">{actType.replace(/_/g, ' ')}</span>
                                                   </button>
                                                 );
                                               })}

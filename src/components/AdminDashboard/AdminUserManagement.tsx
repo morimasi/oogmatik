@@ -1,13 +1,33 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Users, 
+  Search, 
+  Filter, 
+  Shield, 
+  ShieldCheck, 
+  UserX, 
+  UserCheck, 
+  MoreHorizontal, 
+  Mail, 
+  Calendar, 
+  Activity as ActivityIcon,
+  RefreshCw,
+  ChevronDown,
+  Lock,
+  Unlock,
+  CheckCircle2,
+  AlertCircle
+} from 'lucide-react';
 import { UserStatus, UserRole } from '../../types';
 import { authService } from '../../services/authService';
 import { adminService } from '../../services/adminService';
 import { UserFilter, ManagedUser } from '../../types/admin';
+import { useToastStore } from '../../store/useToastStore';
 
-import { logInfo, logError, logWarn } from '../../utils/logger.js';
 const ROLE_LABELS: Record<UserRole, string> = {
   admin: 'Admin',
-  teacher: 'Öğretmen',
+  teacher: 'Eğitici',
   student: 'Öğrenci',
   editor: 'Editör',
   superadmin: 'Süper Admin',
@@ -17,260 +37,291 @@ const ROLE_LABELS: Record<UserRole, string> = {
 };
 
 const ROLE_COLORS: Record<UserRole, string> = {
-  admin: 'bg-rose-500/10 text-rose-500 border-rose-500/20',
-  teacher: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-  student: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
-  editor: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
-  superadmin: 'bg-purple-500/10 text-purple-500 border-purple-500/20',
-  parent: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20',
-  guest: 'bg-zinc-500/10 text-zinc-500 border-zinc-500/20',
-  user: 'bg-teal-500/10 text-teal-500 border-teal-500/20'
+  admin: 'text-rose-500 bg-rose-500/10 border-rose-500/20',
+  teacher: 'text-blue-500 bg-blue-500/10 border-blue-500/20',
+  student: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20',
+  editor: 'text-amber-500 bg-amber-500/10 border-amber-500/20',
+  superadmin: 'text-purple-500 bg-purple-500/10 border-purple-500/20',
+  parent: 'text-indigo-500 bg-indigo-500/10 border-indigo-500/20',
+  guest: 'text-zinc-500 bg-zinc-500/10 border-zinc-500/20',
+  user: 'text-teal-500 bg-teal-500/10 border-teal-500/20'
 };
 
+/**
+ * AdminUserManagement — Premium User Operations Center
+ * Deep integration with RBAC and Dark Glassmorphism Design
+ */
 export const AdminUserManagement: React.FC = () => {
-    const [users, setUsers] = useState<ManagedUser[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [filter, setFilter] = useState<UserFilter>({
-        search: '',
-        role: 'all',
-        status: 'all',
-        sortBy: 'newest'
+  const [users, setUsers] = useState<ManagedUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<UserFilter>({
+    search: '',
+    role: 'all',
+    status: 'all',
+    sortBy: 'newest'
+  });
+  const toast = useToastStore();
+
+  const SUPER_ADMIN_EMAIL = 'morimasi@gmail.com';
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const loadUsers = async () => {
+    setLoading(true);
+    try {
+      const { users: data } = await authService.getAllUsers(0, 500);
+      setUsers(data as unknown as ManagedUser[]);
+    } catch (e) {
+      toast.error('Kullanıcı listesi alınamadı');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredUsers = useMemo(() => {
+    return users.filter(user => {
+      const matchSearch = user.name.toLowerCase().includes(filter.search.toLowerCase()) || 
+                          user.email.toLowerCase().includes(filter.search.toLowerCase());
+      const matchRole = filter.role === 'all' || user.role === filter.role;
+      const matchStatus = filter.status === 'all' || user.status === filter.status;
+      return matchSearch && matchRole && matchStatus;
+    }).sort((a, b) => {
+      if (filter.sortBy === 'newest') return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+      if (filter.sortBy === 'oldest') return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
+      if (filter.sortBy === 'name') return a.name.localeCompare(b.name);
+      if (filter.sortBy === 'activity') return (b.worksheetCount || 0) - (a.worksheetCount || 0);
+      return 0;
     });
-    const [_selectedUser, _setSelectedUser] = useState<ManagedUser | null>(null);
+  }, [users, filter]);
 
-    // SUPER ADMIN EMAIL - Cannot be modified by anyone
-    const SUPER_ADMIN_EMAIL = 'morimasi@gmail.com';
+  const handleRoleChange = async (userId: string, newRole: UserRole) => {
+    const user = users.find(u => u.id === userId);
+    if (user?.email === SUPER_ADMIN_EMAIL) {
+      toast.error('Kritik: Super Admin rolü değiştirilemez!');
+      return;
+    }
+    if (newRole === 'superadmin') {
+      toast.error('Geçersiz İşlem: Sadece bir kullanıcı Super Admin olabilir.');
+      return;
+    }
+    
+    try {
+      await adminService.updateUserRole(userId, newRole);
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
+      toast.success(`${user?.name} rolü ${ROLE_LABELS[newRole]} olarak güncellendi.`);
+    } catch (e) {
+      toast.error('Rol güncelleme hatası');
+    }
+  };
 
-    useEffect(() => {
-        loadUsers();
-    }, []);
+  const handleStatusChange = async (userId: string, currentStatus: string) => {
+    const user = users.find(u => u.id === userId);
+    if (user?.email === SUPER_ADMIN_EMAIL) {
+      toast.error('Kritik: Super Admin hesabı askıya alınamaz!');
+      return;
+    }
 
-    const loadUsers = async () => {
-        setLoading(true);
-        try {
-            const { users: data } = await authService.getAllUsers(0, 100);
-            setUsers(data as unknown as ManagedUser[]);
-        } catch (e: unknown) {
-            logError('Failed to load users', e as Record<string, unknown>);
-        } finally {
-            setLoading(false);
-        }
-    };
+    const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
+    try {
+      await adminService.updateUserStatus(userId, newStatus as UserStatus);
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: newStatus as any } : u));
+      toast.success(newStatus === 'active' ? 'Hesap aktifleştirildi.' : 'Hesap askıya alındı.');
+    } catch (e) {
+      toast.error('Durum güncelleme hatası');
+    }
+  };
 
-    const filteredUsers = useMemo(() => {
-        return users.filter(user => {
-            const matchSearch = user.name.toLowerCase().includes(filter.search.toLowerCase()) || 
-                                user.email.toLowerCase().includes(filter.search.toLowerCase());
-            const matchRole = filter.role === 'all' || user.role === filter.role;
-            const matchStatus = filter.status === 'all' || user.status === filter.status;
-            return matchSearch && matchRole && matchStatus;
-        }).sort((a, b) => {
-            if (filter.sortBy === 'newest') return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
-            if (filter.sortBy === 'oldest') return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
-            if (filter.sortBy === 'name') return a.name.localeCompare(b.name);
-            if (filter.sortBy === 'activity') return (b.worksheetCount || 0) - (a.worksheetCount || 0);
-            return 0;
-        });
-    }, [users, filter]);
-
-    const handleRoleChange = async (userId: string, newRole: UserRole) => {
-        const user = users.find(u => u.id === userId);
-        
-        // Prevent changing superadmin role
-        if (user?.email === SUPER_ADMIN_EMAIL) {
-            alert('⚠️ Super admin kullanıcısının rolü değiştirilemez!');
-            return;
-        }
-        
-        // Prevent changing to superadmin role
-        if (newRole === 'superadmin') {
-            alert('⚠️ Sadece sistem tarafından belirlenen e-posta super admin olabilir!');
-            return;
-        }
-        
-        await adminService.updateUserRole(userId, newRole);
-        setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
-    };
-
-    const handleStatusChange = async (userId: string, currentStatus: 'active' | 'suspended' | 'pending' | 'deleted') => {
-        const user = users.find(u => u.id === userId);
-        
-        // Prevent changing superadmin status
-        if (user?.email === SUPER_ADMIN_EMAIL) {
-            alert('⚠️ Super admin kullanıcısının durumu değiştirilemez!');
-            return;
-        }
-        
-        const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
-        await adminService.updateUserStatus(userId, newStatus as UserStatus);
-        setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: newStatus } : u));
-    };
-
-    return (
-        <div className="flex flex-col h-full space-y-6">
-            {/* Filters Bar */}
-            <div className="bg-white dark:bg-zinc-800 p-4 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between relative z-10">
-                <div className="relative w-full md:w-96">
-                    <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400"></i>
-                    <input 
-                        type="text" 
-                        placeholder="İsim veya e-posta ile ara..." 
-                        value={filter.search}
-                        onChange={e => setFilter({...filter, search: e.target.value})}
-                        className="w-full pl-10 pr-4 py-2 bg-zinc-50 dark:bg-zinc-700/50 border border-zinc-200 dark:border-zinc-600 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
-                    />
-                </div>
-                
-                <div className="flex gap-2 w-full md:w-auto overflow-x-auto">
-                    <select 
-                        value={filter.role} 
-                        onChange={e => setFilter({...filter, role: e.target.value as any})}
-                        className="px-3 py-2 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-lg text-sm font-medium"
-                    >
-                        <option value="all">Tüm Roller</option>
-                        {Object.entries(ROLE_LABELS).map(([role, label]) => (
-                          <option key={role} value={role}>{label}</option>
-                        ))}
-                    </select>
-
-                    <select 
-                        value={filter.status} 
-                        onChange={e => setFilter({...filter, status: e.target.value as any})}
-                        className="px-3 py-2 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-lg text-sm font-medium"
-                    >
-                        <option value="all">Tüm Durumlar</option>
-                        <option value="active">Aktif</option>
-                        <option value="suspended">Askıda</option>
-                        <option value="pending">Beklemede</option>
-                    </select>
-
-                    <select 
-                        value={filter.sortBy} 
-                        onChange={e => setFilter({...filter, sortBy: e.target.value as any})}
-                        className="px-3 py-2 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-lg text-sm font-medium"
-                    >
-                        <option value="newest">En Yeni</option>
-                        <option value="oldest">En Eski</option>
-                        <option value="name">İsim (A-Z)</option>
-                        <option value="activity">Aktivite Yoğunluğu</option>
-                    </select>
-                </div>
-            </div>
-
-            {/* Users Table */}
-            <div className="bg-white dark:bg-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-700 shadow-sm overflow-hidden flex-1 flex flex-col">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm">
-                        <thead className="bg-zinc-50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-zinc-700 text-zinc-500 uppercase font-bold text-xs">
-                            <tr>
-                                <th className="p-4 pl-6">Kullanıcı</th>
-                                <th className="p-4">Durum</th>
-                                <th className="p-4">Rol</th>
-                                <th className="p-4">Kayıt Tarihi</th>
-                                <th className="p-4 text-center">Etkinlikler</th>
-                                <th className="p-4 text-right pr-6">İşlemler</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-zinc-100 dark:divide-zinc-700/50">
-                            {loading ? (
-                                <tr><td colSpan={6} className="p-8 text-center"><i className="fa-solid fa-spinner fa-spin text-2xl text-indigo-500"></i></td></tr>
-                            ) : filteredUsers.length === 0 ? (
-                                <tr><td colSpan={6} className="p-8 text-center text-zinc-500">Kullanıcı bulunamadı.</td></tr>
-                            ) : (
-                                filteredUsers.map(user => {
-                                    const isSuperAdmin = user.email === SUPER_ADMIN_EMAIL;
-                                    return (
-                                    <tr key={user.id} className={`hover:bg-zinc-50 dark:hover:bg-zinc-700/30 transition-colors group ${isSuperAdmin ? 'bg-purple-50/50 dark:bg-purple-900/10' : ''}`}>
-                                        <td className="p-4 pl-6">
-                                            <div className="flex items-center gap-3">
-                                                <img src={user.avatar} alt="" className="w-10 h-10 rounded-full border border-zinc-200 dark:border-zinc-600" />
-                                                <div>
-                                                    <div className="flex items-center gap-2">
-                                                        <p className="font-bold text-zinc-900 dark:text-zinc-100">{user.name}</p>
-                                                        {isSuperAdmin && (
-                                                            <span className="px-2 py-0.5 bg-purple-600 text-white text-[10px] font-bold rounded-full uppercase tracking-wider">
-                                                                SUPER ADMIN
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                    <p className="text-xs text-zinc-500">{user.email}</p>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td className="p-4">
-                                            {isSuperAdmin ? (
-                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-purple-600 text-white border border-purple-700">
-                                                    <i className="fa-solid fa-shield-halved text-[10px]"></i>
-                                                    Super Admin
-                                                </span>
-                                            ) : (
-                                            <button 
-                                                onClick={() => handleStatusChange(user.id, user.status)}
-                                                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold border transition-colors ${
-                                                    user.status === 'active' 
-                                                    ? 'bg-green-50 text-green-700 border-green-100 hover:bg-red-50 hover:text-red-700 hover:border-red-100 group/status' 
-                                                    : user.status === 'suspended'
-                                                    ? 'bg-red-50 text-red-700 border-red-100 hover:bg-green-50 hover:text-green-700 hover:border-green-100 group/status'
-                                                    : 'bg-amber-50 text-amber-700 border-amber-100 hover:bg-green-50 hover:text-green-700 hover:border-green-100 group/status'
-                                                }`}
-                                            >
-                                                <span className={`w-1.5 h-1.5 rounded-full ${user.status === 'active' ? 'bg-green-500' : user.status === 'suspended' ? 'bg-red-500' : 'bg-amber-500'}`}></span>
-                                                <span className="group-hover/status:hidden">
-                                                    {user.status === 'active' ? 'Aktif' : user.status === 'suspended' ? 'Askıda' : user.status === 'pending' ? 'Bekliyor' : 'Silinmiş'}
-                                                </span>
-                                                <span className="hidden group-hover/status:inline">{user.status === 'active' ? 'Engelle' : 'Aktifleştir'}</span>
-                                            </button>
-                                            )}
-                                        </td>
-                                        <td className="p-4">
-                                            {isSuperAdmin ? (
-                                                <span className={`px-3 py-1.5 rounded-xl text-xs font-black border bg-purple-600 text-white border-purple-700 cursor-not-allowed`}>
-                                                    <i className="fa-solid fa-lock text-[10px] mr-1"></i>
-                                                    Super Admin
-                                                </span>
-                                            ) : (
-                                            <select 
-                                                value={user.role}
-                                                onChange={(e) => handleRoleChange(user.id, e.target.value as UserRole)}
-                                                className={`px-3 py-1.5 rounded-xl text-xs font-black border cursor-pointer outline-none transition-all focus:ring-2 focus:ring-indigo-500/50 ${ROLE_COLORS[user.role] || 'bg-zinc-100 text-zinc-600 border-zinc-200'}`}
-                                            >
-                                                {Object.entries(ROLE_LABELS).map(([role, label]) => (
-                                                  <option key={role} value={role}>{label}</option>
-                                                ))}
-                                            </select>
-                                            )}
-                                        </td>
-                                        <td className="p-4 text-zinc-500 font-mono text-xs">
-                                            {new Date(user.createdAt || Date.now()).toLocaleDateString('tr-TR')}
-                                        </td>
-                                        <td className="p-4 text-center">
-                                            <span className="px-2 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-bold">
-                                                {user.worksheetCount || 0}
-                                            </span>
-                                        </td>
-                                        <td className="p-4 pr-6 text-right">
-                                            {isSuperAdmin ? (
-                                                <span className="text-purple-600 dark:text-purple-400 p-2" title="Super Admin - Değiştirilemez">
-                                                    <i className="fa-solid fa-shield-halved"></i>
-                                                </span>
-                                            ) : (
-                                            <button className="text-zinc-400 hover:text-indigo-600 p-2 transition-colors" title="Detayları Gör">
-                                                <i className="fa-solid fa-eye"></i>
-                                            </button>
-                                            )}
-                                        </td>
-                                    </tr>
-                                    );
-                                })
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <div className="text-xs text-zinc-400 text-right px-2">
-                Toplam {filteredUsers.length} kullanıcı gösteriliyor.
-            </div>
+  return (
+    <div className="flex flex-col h-full space-y-6 font-lexend">
+      
+      {/* ── Control Bar ─────────────────────────────────────────────── */}
+      <div className="bg-white/40 dark:bg-black/20 p-5 rounded-[2rem] border border-zinc-200 dark:border-white/5 backdrop-blur-xl flex flex-col lg:flex-row gap-4 items-center justify-between shadow-sm">
+        <div className="relative w-full lg:w-[400px]">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400" size={18} />
+          <input 
+            type="text" 
+            placeholder="İsim veya e-posta ile ara..." 
+            value={filter.search}
+            onChange={e => setFilter({...filter, search: e.target.value})}
+            className="w-full pl-12 pr-6 py-3 bg-white/50 dark:bg-black/30 border border-zinc-200 dark:border-white/5 rounded-2xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+          />
         </div>
-    );
+        
+        <div className="flex flex-wrap gap-3 w-full lg:w-auto">
+          <div className="flex items-center gap-2 px-3 py-1 bg-zinc-100 dark:bg-white/5 rounded-2xl border border-white/5">
+            <Filter size={14} className="text-zinc-400" />
+            <select 
+              value={filter.role} 
+              onChange={e => setFilter({...filter, role: e.target.value as any})}
+              className="bg-transparent text-xs font-bold uppercase tracking-widest outline-none py-2"
+            >
+              <option value="all">Tüm Roller</option>
+              {Object.entries(ROLE_LABELS).map(([role, label]) => (
+                <option key={role} value={role}>{label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2 px-3 py-1 bg-zinc-100 dark:bg-white/5 rounded-2xl border border-white/5">
+            <ActivityIcon size={14} className="text-zinc-400" />
+            <select 
+              value={filter.status} 
+              onChange={e => setFilter({...filter, status: e.target.value as any})}
+              className="bg-transparent text-xs font-bold uppercase tracking-widest outline-none py-2"
+            >
+              <option value="all">Tüm Durumlar</option>
+              <option value="active">Aktif</option>
+              <option value="suspended">Askıda</option>
+              <option value="pending">Beklemede</option>
+            </select>
+          </div>
+
+          <button 
+            onClick={loadUsers}
+            className="p-3 bg-white/50 dark:bg-white/5 border border-white/5 rounded-2xl text-zinc-500 hover:text-indigo-500 transition-colors"
+          >
+            <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
+          </button>
+        </div>
+      </div>
+
+      {/* ── User Directory Table ─────────────────────────────────────── */}
+      <div className="bg-white/40 dark:bg-black/20 rounded-[2.5rem] border border-zinc-200 dark:border-white/5 shadow-sm overflow-hidden flex-1 flex flex-col backdrop-blur-xl">
+        <div className="overflow-x-auto custom-scrollbar">
+          <table className="w-full text-left">
+            <thead className="bg-zinc-50/50 dark:bg-zinc-900/50 border-b border-zinc-200 dark:border-white/5 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">
+              <tr>
+                <th className="px-8 py-5">Üyelik Profili</th>
+                <th className="px-6 py-5">Erişim Durumu</th>
+                <th className="px-6 py-5">Yetki Seviyesi</th>
+                <th className="px-6 py-5">Kayıt / Aktivite</th>
+                <th className="px-8 py-5 text-right">Yönetim</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-zinc-100 dark:divide-white/5">
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className="py-20 text-center">
+                    <RefreshCw className="w-10 h-10 text-indigo-500 animate-spin mx-auto mb-4" />
+                    <p className="text-xs font-black uppercase tracking-widest text-zinc-500">Kullanıcı Veritabanı Taranıyor</p>
+                  </td>
+                </tr>
+              ) : filteredUsers.length === 0 ? (
+                <tr><td colSpan={5} className="py-20 text-center text-zinc-500 font-bold uppercase text-xs">Eşleşen üye kaydı bulunamadı.</td></tr>
+              ) : (
+                <AnimatePresence>
+                  {filteredUsers.map((user, idx) => {
+                    const isSuperAdmin = user.email === SUPER_ADMIN_EMAIL;
+                    return (
+                      <motion.tr 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: Math.min(idx * 0.05, 0.5) }}
+                        key={user.id} 
+                        className={`hover:bg-white/50 dark:hover:bg-white/5 transition-all group ${isSuperAdmin ? 'bg-indigo-500/5 dark:bg-indigo-500/5' : ''}`}
+                      >
+                        <td className="px-8 py-5">
+                          <div className="flex items-center gap-4">
+                            <div className="relative">
+                               <img src={user.avatar} alt="" className="w-12 h-12 rounded-2xl border-2 border-white dark:border-zinc-800 shadow-md group-hover:scale-105 transition-transform" />
+                               <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-zinc-900 ${user.status === 'active' ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                            </div>
+                            <div className="min-w-0">
+                                <div className="flex items-center gap-2">
+                                    <p className="font-black text-sm text-zinc-900 dark:text-white uppercase tracking-tight truncate">{user.name}</p>
+                                    {isSuperAdmin && <ShieldCheck size={14} className="text-indigo-500" />}
+                                </div>
+                                <div className="flex items-center gap-2 text-zinc-500 text-[10px] font-bold">
+                                    <Mail size={10} /> {user.email}
+                                </div>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-5">
+                          {isSuperAdmin ? (
+                            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-indigo-600 text-white shadow-lg shadow-indigo-600/20 active-glow">
+                               <ShieldCheck size={12} /> Root Access
+                            </span>
+                          ) : (
+                            <button 
+                                onClick={() => handleStatusChange(user.id, user.status)}
+                                className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
+                                    user.status === 'active' 
+                                    ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-rose-500/10 hover:text-rose-500 hover:border-rose-500/20 group/st' 
+                                    : 'bg-rose-500/10 text-rose-500 border-rose-500/20 hover:bg-emerald-500/10 hover:text-emerald-500 hover:border-emerald-500/20 group/st'
+                                }`}
+                            >
+                                <span className="group-hover/st:hidden flex items-center gap-2">
+                                  {user.status === 'active' ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
+                                  {user.status === 'active' ? 'AKTİF' : 'ASKIYA ALINDI'}
+                                </span>
+                                <span className="hidden group-hover/st:flex items-center gap-2">
+                                  {user.status === 'active' ? <UserX size={12} /> : <UserCheck size={12} />}
+                                  {user.status === 'active' ? 'ENGELLE' : 'AKTİFLEŞTİR'}
+                                </span>
+                            </button>
+                          )}
+                        </td>
+
+                        <td className="px-6 py-5">
+                          {isSuperAdmin ? (
+                            <div className="flex items-center gap-2 text-indigo-400 font-black text-[10px] uppercase tracking-widest italic">
+                               <Lock size={12} /> Değiştirilemez
+                            </div>
+                          ) : (
+                            <div className="relative group/role">
+                              <select 
+                                  value={user.role}
+                                  onChange={(e) => handleRoleChange(user.id, e.target.value as UserRole)}
+                                  className={`appearance-none pl-4 pr-10 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest border cursor-pointer outline-none transition-all focus:ring-2 focus:ring-indigo-500/30 ${ROLE_COLORS[user.role] || 'bg-zinc-100 text-zinc-600 border-zinc-200'}`}
+                              >
+                                  {Object.entries(ROLE_LABELS).map(([role, label]) => (
+                                    <option key={role} value={role}>{label}</option>
+                                  ))}
+                              </select>
+                              <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-50" />
+                            </div>
+                          )}
+                        </td>
+
+                        <td className="px-6 py-5">
+                          <div className="flex flex-col gap-1">
+                             <div className="flex items-center gap-1.5 text-[10px] font-bold text-zinc-500 uppercase tracking-tighter">
+                               <Calendar size={10} /> {new Date(user.createdAt || Date.now()).toLocaleDateString('tr-TR')}
+                             </div>
+                             <div className="flex items-center gap-1.5 text-[10px] font-black text-indigo-500 uppercase tracking-widest">
+                               <ActivityIcon size={10} /> {user.worksheetCount || 0} Aktivite
+                             </div>
+                          </div>
+                        </td>
+
+                        <td className="px-8 py-5 text-right">
+                          <button className="p-3 rounded-2xl bg-zinc-100 dark:bg-white/5 text-zinc-400 hover:text-indigo-500 hover:bg-indigo-500/10 transition-all active:scale-90">
+                              <MoreHorizontal size={18} />
+                          </button>
+                        </td>
+                      </motion.tr>
+                    );
+                  })}
+                </AnimatePresence>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div className="flex items-center justify-between px-6 py-4 bg-black/10 rounded-[2rem] border border-white/5 backdrop-blur-xl">
+        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Veritabanında kayıtlı <span className="text-indigo-500">{users.length}</span> kullanıcıdan <span className="text-white">{filteredUsers.length}</span> tanesi gösteriliyor.</p>
+        <div className="flex items-center gap-2">
+           <button className="w-8 h-8 rounded-lg flex items-center justify-center bg-zinc-800 text-zinc-500 border border-white/5 hover:bg-zinc-700 transition-colors">1</button>
+           <button className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-600 hover:text-white transition-colors">2</button>
+        </div>
+      </div>
+    </div>
+  );
 };
+
+AdminUserManagement.displayName = 'AdminUserManagement';
