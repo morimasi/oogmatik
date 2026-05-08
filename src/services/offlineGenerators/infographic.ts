@@ -22,6 +22,34 @@ export const generateOfflineInfographic = async (
     itemCount = 5
   } = options;
 
+  // ShortAnswerSheet bileşeni özel veri yapısı (JSON) beklediğinden, HTML dönmemesi için override
+  if (activityType === 'INFOGRAPHIC_SHORT_ANSWER') {
+    const questions = Array.from({ length: itemCount }).map((_, i) => ({
+      id: `q${i + 1}`,
+      question: `${topic} hakkında bildiğiniz en önemli ${i + 1}. detayı yazınız.`,
+      lines: difficulty === 'Zor' ? 3 : (difficulty === 'Orta' ? 2 : 1),
+      hint: difficulty === 'Kolay' ? `${topic} ile ilgili temel bir bilgiyi düşünebilirsiniz.` : undefined
+    }));
+
+    return {
+      id: `infographic_offline_${Date.now()}`,
+      type: activityType as ActivityType,
+      title: `${topic} - Kısa Cevaplı Sorular`,
+      instruction: 'Verilen boşluklara soruların cevaplarını anlaşılır bir şekilde yazınız.',
+      difficulty,
+      questions,
+      content: {  // SheetRenderer "data.content || data" yaptığı için buraya da koyuyoruz
+        title: `${topic} - Kısa Cevaplı Sorular`,
+        instruction: 'Verilen boşluklara soruların cevaplarını anlaşılır bir şekilde yazınız.',
+        questions,
+      },
+      targetSkills: ['Okuduğunu anlama', 'Yazılı ifade', 'Bilgi çağırma'],
+      pedagogicalNote: 'Bu etkinlik, öğrencinin hedef konu üzerindeki bellek geri çağırma ve yazılı üretim becerilerini destekler.',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+  }
+
   // Template-based generation for offline mode
   const templates = getInfographicTemplates(activityType);
   const content = generateContentFromTemplate(templates, {
