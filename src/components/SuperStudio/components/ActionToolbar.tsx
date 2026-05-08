@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React from 'react';
 import { useSuperStudioStore } from '../../../store/useSuperStudioStore';
 import { worksheetService } from '../../../services/worksheetService';
 import { useAuthStore } from '../../../store/useAuthStore';
@@ -7,7 +7,8 @@ import { printService } from '../../../utils/printService';
 import { SingleWorksheetData, ActivityType } from '../../../types';
 
 import { logInfo, logError, logWarn } from '../../../utils/logger.js';
-export const ActionToolbar: FC = () => {
+
+export const ActionToolbar: React.FC = () => {
   const { generatedContents, isGenerating } = useSuperStudioStore();
   const { user } = useAuthStore();
   const { addToast } = useToastStore();
@@ -22,7 +23,12 @@ export const ActionToolbar: FC = () => {
     try {
       // İlk sayfa baz alınarak kaydediliyor
       const content = generatedContents[0];
-      const firstPage = content.pages[0] as Record<string, unknown>;
+      const firstPage = content?.pages?.[0] as Record<string, unknown> | undefined;
+
+      if (!firstPage) {
+        addToast('Kaydedilecek veri bulunamadı.', 'error');
+        return;
+      }
 
       // SingleWorksheetData formatına dönüştür
       const worksheetData: SingleWorksheetData[] = [
@@ -37,7 +43,7 @@ export const ActionToolbar: FC = () => {
       ];
 
       await worksheetService.saveWorksheet(
-        user.uid,
+        user.id,
         (firstPage.title as string) || 'Adsız Etkinlik',
         content.templateId as ActivityType,
         worksheetData,
