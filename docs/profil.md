@@ -7,7 +7,7 @@
 
 ## Hedef
 
-Mevcut `ProfileView.tsx` (1860 satır — monolitik dev dosya) bileşenini **6 bağımsız, kendi kendine yeten modüle** bölmek ve her modülü premium, AI-zengin, tam işlevsel hale getirmek. Ek olarak, Super Türkçe Stüdyosu'ndaki A4 önizleme paneline çoklu sayfa desteği eklemek.
+Mevcut `ProfileView.tsx` (1860 satır — monolitik dev dosya) bileşenini **6 bağımsız, kendi kendine yeten modüle** bölmek ve her modülü premium, AI-zengin, tam işlevsel hale getirmek. Ek olarak, Super Türkçe Stüdyosu'ndaki A4 önizleme paneline çoklu sayfa desteği eklemek, Sıralama etkinliğindeki kritik hatayı gidermek ve Kelime & Cümle Stüdyosu'nu premium modüler yapıya taşımak.
 
 ---
 
@@ -38,6 +38,8 @@ Mevcut `ProfileView.tsx` (1860 satır — monolitik dev dosya) bileşenini **6 b
 | 3 | State yönetimi inline — 20+ useState tek bileşende | 🟡 Yüksek |
 | 4 | Super Türkçe A4 önizleme yalnızca 1 sayfa gösteriyor | 🔴 Kritik |
 | 5 | PDF/yazdırma çoklu sayfa desteklemiyor | 🟡 Yüksek |
+| 6 | Sıralama etkinliği render sırasında `undefined title` hatası | 🔴 Kritik |
+| 7 | Kelime & Cümle Stüdyosu bileşenleri monolitik ve görsel yoğunluğu düşük | 🟡 Yüksek |
 
 ### Mevcut Dosya Yapısı
 
@@ -259,6 +261,36 @@ const exportMultiPagePDF = async (pages: HTMLElement[]) => {
 
 ---
 
+## Kelime & Cümle Stüdyosu Modernizasyonu
+
+### Hedef
+Kelime & Cümle Stüdyosu'ndaki tüm etkinlik formatlarını modüler hale getirmek, 1-sayfa kısıtı ile akıllı sayfalama eklemek ve A4 çıktısını premium/kompakt "dolu dolu" hale getirmek.
+
+### Kapsam
+1. **Çoktan Seçmeli (Multiple Choice):** Modüler yapı + A4 kompakt layout.
+2. **Kelime Tamamlama (Word Completion):** Modüler yapı + minimal boşluklu tasarım.
+3. **Karışık Cümle (Scrambled Sentence):** Modüler yapı + premium/profesyonel görünüm.
+4. **Zıt Anlam (Antonyms):** Modüler yapı + yüksek görsel yoğunluk.
+
+### Teknik Standart
+- **1 Sayfa Kuralı:** Etkinlikler varsayılan olarak 1 A4 sayfasını dolduracak şekilde planlanır. Sığmayan içerikler otomatik olarak sonraki sayfaya taşar.
+- **Kompakt Tasarım:** Hücreler ve sorular arası boşluklar (padding/margin) minimalize edilerek sayfa verimliliği %20 artırılır.
+- **Premium Estetik:** Cam dokulu (glassmorphism) badge'ler, Lexend font hakimiyeti ve tutarlı ikonografik sistem.
+
+---
+
+## Kritik Hata Çözümü: Sıralama Etkinliği (Queue Ordering)
+
+### Sorun
+`SheetRenderer` içerisinde Sıralama etkinliği render edilirken `Cannot read properties of undefined (reading 'title')` hatası alınması.
+
+### Çözüm
+1. **`SheetRenderer.tsx`:** `ActivityType.QUEUE_ORDERING` case'inde `data` null-check ve default value (`title: 'Sıra Alma Becerisi'`) eklenmesi.
+2. **`QueueOrderingSheet.tsx`:** Gelen verinin `wrapped` (data.content) veya `raw` olduğunu belirleyen `contentData` mantığının güçlendirilmesi ve destructuring öncesi emniyet kontrolü.
+
+
+---
+
 ## Uygulama Sırası
 
 | Faz | Görev | Dosya | Süre |
@@ -421,6 +453,25 @@ npm run lint      # ESLint uyumu
 - [ ] `pedagogicalNote` gerekli yerlerde var mı kontrolü
 - [ ] Responsive tasarım kontrolü (mobil + tablet)
 
-## Faz 6: Dokümantasyon
-- [ ] MODULE_KNOWLEDGE.md güncelleme (yeni Profile/ dizin yapısı)
-- [ ] Bu checklist'in son durumunu güncelle
+## Faz 7: Ekstrem Stabilizasyon & Stüdyo Modernizasyonu
+- [ ] **Sıralama Etkinliği (Bug Fix):**
+  - [ ] `SheetRenderer.tsx`'te null-safe data handling.
+  - [ ] `QueueOrderingSheet.tsx`'te veri yapısı adaptasyonu (title/problems check).
+- [ ] **Kelime & Cümle Stüdyosu Modülerleşme:**
+  - [ ] Çoktan Seçmeli modülü bağımsız bileşene taşıma.
+  - [ ] Kelime Tamamlama modülü bağımsız bileşene taşıma.
+  - [ ] Karışık Cümle modülü bağımsız bileşene taşıma.
+  - [ ] Zıt Anlam modülü bağımsız bileşene taşıma.
+- [ ] **Premium A4 Sayfalama (Dolu Dolu):**
+  - [ ] Her modül için "Compact" CSS preset oluşturma.
+  - [ ] 1-sayfa optimizasyonu: Sayfa sığdırma algoritmalarını verbal aktivitelere uyarlama.
+  - [ ] `SheetRenderer` ile sayfa sonu (`===SAYFA_SONU===`) entegrasyonu.
+  - [ ] Yazdırma ve PDF export testleri (çoklu sayfa geçişleri).
+- [ ] **Genel Kalite & Performans:**
+  - [ ] Gereksiz re-render'ları (Memoization) optimize etme.
+  - [ ] Tüm verbal studio ikonlarını premium Lucide/FontAwesome standardına çekme.
+
+## Faz 8: Dokümantasyon & Final Teslim
+- [ ] MODULE_KNOWLEDGE.md güncelleme (yeni Profile/ ve Verbal Studio yapısı).
+- [ ] Proje genelinde CLI testlerini (`npm run test:run`) çalıştırma.
+- [ ] Bu checklist'in son durumunu güncelle ve final raporu oluştur.
