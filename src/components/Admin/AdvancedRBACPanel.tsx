@@ -97,32 +97,34 @@ export const AdvancedRBACPanel: React.FC = () => {
     }
   };
 
-  // Update activity permission
+  // Update activity permission (Syncs across all modules)
   const updateActivityPermission = (activityType: ActivityType, enabled: boolean) => {
     const newSettings = { ...settings };
     const roleIndex = newSettings.roles.findIndex(r => r.role === selectedRole);
     
     if (roleIndex >= 0) {
+      let updated = false;
       for (const module of newSettings.roles[roleIndex].modules) {
         if (module.categoryPermissions) {
           for (const catPerm of module.categoryPermissions) {
             if (catPerm.activityOverrides) {
               const actIndex = catPerm.activityOverrides.findIndex(a => a.activityType === activityType);
               if (actIndex >= 0) {
-                catPerm.activityOverrides[actIndex].enabled = enabled;
+                const act = catPerm.activityOverrides[actIndex];
+                act.enabled = enabled;
                 if (!enabled) {
-                  catPerm.activityOverrides[actIndex].allowedRoles = catPerm.activityOverrides[actIndex].allowedRoles.filter(r => r !== selectedRole);
-                } else {
-                  if (!catPerm.activityOverrides[actIndex].allowedRoles.includes(selectedRole)) {
-                    catPerm.activityOverrides[actIndex].allowedRoles.push(selectedRole);
-                  }
+                  act.allowedRoles = act.allowedRoles.filter(r => r !== selectedRole);
+                } else if (!act.allowedRoles.includes(selectedRole)) {
+                  act.allowedRoles.push(selectedRole);
                 }
-                setSettings(newSettings);
-                return;
+                updated = true;
               }
             }
           }
         }
+      }
+      if (updated) {
+        setSettings(newSettings);
       }
     }
   };
