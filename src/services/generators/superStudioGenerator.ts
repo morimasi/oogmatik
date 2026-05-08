@@ -1,4 +1,4 @@
-import { logger } from '../../utils/logger';
+import { logInfo, logError, logWarn } from '../../utils/logger';
 import {
   GenerationMode,
   SuperStudioDifficulty,
@@ -6,6 +6,7 @@ import {
 } from '../../types/superStudio';
 import { AppError } from '../../utils/AppError';
 import { generateWithSchema } from '../geminiClient.js';
+import { generateOfflineSuperStudioTemplate } from './superOfflineEngine';
 
 interface GenerateParams {
   templates: string[];
@@ -68,6 +69,12 @@ const buildPromptForTemplate = (
   const templateDef = getTemplateById(templateId);
   if (!templateDef) {
     return `[Hata] Şablon bulunamadı: ${templateId}`;
+  }
+
+  // Güvenlik kontrolü: promptBuilder bir fonksiyon mu?
+  if (typeof templateDef.promptBuilder !== 'function') {
+    logError(`[Super Türkçe] promptBuilder hatası: ${templateId} bir fonksiyon değil!`, { templateDef });
+    return `[Hata] Şablon prompt motoru yüklenemedi: ${templateId}. Lütfen yöneticiye bildirin.`;
   }
 
   // Yeni modüler prompt builder'ı çağır
@@ -212,18 +219,33 @@ export const generateSuperStudioContent = async (
 
     const results: GeneratedContentPayload[] = [];
 
-    // Fast mode: Offline/mock üretim (maliyet sıfır, hızlı)
+    // Fast mode: Offline/Premium üretim (Premium, Pedagojik ve Dolu Dolu A4)
     if (mode === 'fast') {
       for (const tpl of templates) {
-        await new Promise((resolve) => setTimeout(resolve, 300));
+        await new Promise((resolve) => setTimeout(resolve, 200));
+
+        const templateSettings = settings[tpl] || {};
+        const content = generateOfflineSuperStudioTemplate(tpl, templateSettings, grade, topic, difficulty);
+        
+        // Başlık belirleme
+        const titleMap: Record<string, string> = {
+            'okuma-anlama': '📚 Okuma Anlama',
+            'dil-bilgisi': '🔤 Dil Bilgisi',
+            'mantik-muhakeme': '🧩 Mantık & Muhakeme',
+            'yaratici-yazarlik': '✍️ Yaratıcı Yazarlık',
+            'yazim-noktalama': '📍 Yazım & Noktalama',
+            'soz-varligi': '📖 Söz Varlığı',
+            'hece-ses': '🔊 Hece & Ses',
+            'kelime-bilgisi': '🔍 Kelime Bilgisi'
+        };
 
         results.push({
           id: `gen-${Date.now()}-${tpl}`,
           templateId: tpl,
           pages: [
             {
-              title: `${tpl === 'okuma-anlama' ? '📚 Okuma Anlama Parçası' : tpl.replace('-', ' ').toUpperCase()} Etkinliği`,
-              content: `[HIZLI MOD - ÖRNEKLENDİRME]\n\n${grade || 'Orta Düzey'} / ${difficulty} Zorluk\n\nBu içerik, hızlı mod için örnek içeriktir. Gerçek içerik üretimi için "AI Mod (Gemini)" seçeneğini kullanın.\n\nHızlı modda deterministik şablonlar kullanılır ve maliyet sıfırdır. Öğretmen tarafından manuel düzenleme yapılabilir.`,
+              title: `${titleMap[tpl] || tpl.toUpperCase()} — ${topic || 'Genel Çalışma'}`,
+              content: content,
             },
           ],
           createdAt: Date.now(),
@@ -266,7 +288,7 @@ export const generateSuperStudioContent = async (
             logInfo(`[Super Türkçe] Cache hit: ${tpl}`);
           }
         } catch (e) {
-          logWarn(`[Super Türkçe] Cache okuma hatası (${tpl}):`, e);
+          logWarn(`[Super Türkçe] Cache okuma hatası (${tpl}):`, { error: String(e) });
         }
       }
     }
@@ -289,8 +311,10 @@ export const generateSuperStudioContent = async (
         const aiResponse = await generateWithSchema(prompt, schema);
         logInfo(
           `[Super Türkçe] API response for ${tpl}:`,
-          typeof aiResponse,
-          aiResponse ? Object.keys(aiResponse) : 'null'
+          { 
+            type: typeof aiResponse, 
+            keys: aiResponse ? Object.keys(aiResponse) : 'null' 
+          }
         );
 
         // Validate AI response structure
@@ -328,7 +352,7 @@ export const generateSuperStudioContent = async (
             await cacheService.set(cacheKey, payload as any);
             logInfo(`[Super Türkçe] Cache yazıldı: ${tpl}`);
           } catch (e) {
-            logWarn(`[Super Türkçe] Cache yazma hatası (${tpl}):`, e);
+            logWarn(`[Super Türkçe] Cache yazma hatası (${tpl}):`, { error: String(e) });
           }
         }
 
@@ -338,7 +362,7 @@ export const generateSuperStudioContent = async (
           data: payload,
         };
       } catch (apiError: any) {
-        logWarn(`[Super Türkçe] Şablon hatası (${tpl}):`, apiError?.message || apiError);
+        logError(`[Super Türkçe] Şablon hatası (${tpl}):`, { error: apiError?.message || String(apiError) });
         throw apiError;
       }
     });
@@ -376,7 +400,7 @@ export const generateSuperStudioContent = async (
       });
       logError(
         `[Super Türkçe] ${failures.length}/${templates.length} şablon başarısız oldu.`,
-        failureDetails
+        { failures: failureDetails }
       );
     }
 
@@ -398,7 +422,7 @@ export const generateSuperStudioContent = async (
       'Üretim sırasında beklenmeyen bir hata oluştu.',
       'GENERATOR_ERROR',
       500,
-      error,
+      { error: String(error) } as any,
       true
     );
   }
