@@ -296,3 +296,45 @@
     box-shadow: none !important;
   }
 }
+/* === Paper Textures & Grids === */
+.paper-texture-ruled {
+  background-image: linear-gradient(rgba(100, 150, 255, 0.08) 1px, transparent 1px) !important;
+  background-size: 100% 32px !important;
+  background-attachment: local !important;
+}
+
+.paper-texture-grid {
+  background-image: 
+    linear-gradient(rgba(100, 150, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(100, 150, 255, 0.08) 1px, transparent 1px) !important;
+  background-size: 32px 32px !important;
+  background-attachment: local !important;
+}
+
+.paper-texture-dotted {
+  background-image: radial-gradient(rgba(0, 0, 0, 0.08) 1.5px, transparent 1.5px) !important;
+  background-size: 32px 32px !important;
+  background-attachment: local !important;
+}
+
+.paper-texture-parchment {
+  background-color: #f4ecd8 !important;
+  background-image: radial-gradient(#dcc9a3 0.5px, transparent 0.5px), radial-gradient(#dcc9a3 0.5px, #f4ecd8 0.5px) !important;
+  background-size: 4px 4px !important;
+}
+
+.paper-texture-sepia {
+  background-color: #f2e3d5 !important;
+}
+
+.paper-texture-saman {
+  background-color: #fdf5e6 !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4' viewBox='0 0 4 4'%3E%3Cpath fill='%23e0d4b8' fill-opacity='0.4' d='M1 3h1v1H1V3zm2-2h1v1H2V1z'%3E%3C/path%3E%3C/svg%3E") !important;
+}
+
+@media print {
+  .paper-texture-ruled, .paper-texture-grid, .paper-texture-dotted {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

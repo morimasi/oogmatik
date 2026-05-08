@@ -87,13 +87,13 @@ const Worksheet = ({ activityType, data, settings, studentProfile, showQR }: Wor
   const variableStyle = useMemo(() => {
     const userCols = Math.max(1, settings.columns || 1);
     const baseFontSize = settings.fontSize || 16;
-
     return {
       '--worksheet-font-size': `${baseFontSize}px`,
       '--worksheet-border-color': settings.borderColor,
       '--worksheet-border-width': `${settings.borderWidth}px`,
       '--worksheet-margin': `${settings.margin}px`,
       '--worksheet-gap': `${Math.max(2, settings.gap)}px`,
+      '--worksheet-gutter': `${settings.gutter || 20}px`,
       '--worksheet-font-family': settings.fontFamily || 'Lexend',
       '--worksheet-line-height': settings.lineHeight || 1.4,
       '--worksheet-letter-spacing': `${settings.letterSpacing || 0}px`,
@@ -112,6 +112,9 @@ const Worksheet = ({ activityType, data, settings, studentProfile, showQR }: Wor
   }, [settings]);
 
   const isLandscape = settings.orientation === 'landscape';
+  const paperTextureClass = settings.paperTexture && settings.paperTexture !== 'none' 
+    ? `paper-texture-${settings.paperTexture}` 
+    : '';
 
   if (!data || !activityType) return null;
 
@@ -122,7 +125,7 @@ const Worksheet = ({ activityType, data, settings, studentProfile, showQR }: Wor
 
   return (
     <div
-      className={`flex flex-col items-center w-full ${isLandscape ? 'app-orientation-landscape' : 'app-orientation-portrait'}`}
+      className={`flex flex-col items-center w-full ${isLandscape ? 'app-orientation-landscape' : 'app-orientation-portrait'} ${paperTextureClass}`}
       style={variableStyle}
     >
       {worksheets.map((ws, idx) => (

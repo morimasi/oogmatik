@@ -31,6 +31,16 @@ const BORDER_COLORS = [
   { color: '#be185d', label: 'Gül' },
 ];
 
+const PAPER_TEXTURES = [
+    { id: 'none', label: 'Yok', icon: 'fa-ban', color: 'bg-white' },
+    { id: 'ruled', label: 'Çizgili', icon: 'fa-list', color: 'bg-indigo-50/50' },
+    { id: 'grid', label: 'Kareli', icon: 'fa-table-cells', color: 'bg-blue-50/50' },
+    { id: 'dotted', label: 'Noktalı', icon: 'fa-ellipsis', color: 'bg-slate-50/50' },
+    { id: 'parchment', label: 'Eski', icon: 'fa-scroll', color: 'bg-orange-50/50' },
+    { id: 'sepia', label: 'Sepya', icon: 'fa-layer-group', color: 'bg-amber-100/50' },
+    { id: 'saman', label: 'Saman', icon: 'fa-rug', color: 'bg-yellow-50/50' },
+];
+
 export const LayoutModule: React.FC<LayoutModuleProps> = ({
   settings,
   updateSetting,
@@ -90,6 +100,18 @@ export const LayoutModule: React.FC<LayoutModuleProps> = ({
             max={4}
           />
           <NumberControl
+            label="Kanal (Gutter)"
+            icon="fa-arrows-left-right"
+            value={settings.gutter || 20}
+            onChange={(v: number) => updateSetting('gutter', v)}
+            min={0}
+            max={100}
+            step={5}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+           <NumberControl
             label="Marj (mm)"
             icon="fa-maximize"
             value={settings.margin || 15}
@@ -97,15 +119,91 @@ export const LayoutModule: React.FC<LayoutModuleProps> = ({
             min={5}
             max={50}
           />
+           <Toggle
+            label="Kompakt"
+            icon="fa-compress-arrows-alt"
+            checked={settings.compact}
+            onChange={(v: boolean) => updateSetting('compact', v)}
+            />
         </div>
-        
-        <Toggle
-          label="Kompakt Görünüm"
-          icon="fa-compress-arrows-alt"
-          checked={settings.compact}
-          onChange={(v: boolean) => updateSetting('compact', v)}
-        />
       </div>
+
+       {/* Kağıt Dokusu */}
+       <div className="bg-[var(--bg-paper)] p-3 rounded-2xl border border-[var(--border-color)] shadow-sm mb-4">
+          <label className="text-[10px] font-black text-[var(--accent-color)] uppercase tracking-[0.2em] mb-3 block flex items-center gap-2">
+            <i className="fa-solid fa-scroll"></i> Kağıt Dokusu
+          </label>
+          <div className="grid grid-cols-4 gap-1.5">
+            {PAPER_TEXTURES.map((tx) => (
+                <button
+                key={tx.id}
+                onClick={() => updateSetting('paperTexture', tx.id)}
+                className={`flex flex-col items-center gap-1.5 p-1.5 rounded-xl border-2 transition-all text-[9px] ${
+                    settings.paperTexture === tx.id
+                    ? 'border-indigo-500 bg-indigo-50 text-indigo-700 font-bold scale-105 shadow-sm'
+                    : 'border-transparent text-[var(--text-muted)] hover:border-indigo-200'
+                }`}
+                >
+                <div className={`w-9 h-9 rounded-lg border border-[var(--border-color)] ${tx.color} flex items-center justify-center shadow-inner`}>
+                    <i className={`fa-solid ${tx.icon} ${settings.paperTexture === tx.id ? 'text-indigo-500' : 'opacity-30'}`}></i>
+                </div>
+                {tx.label}
+                </button>
+            ))}
+          </div>
+       </div>
+
+       {/* Akıllı Paketler */}
+       <div className="bg-indigo-600/5 p-3 rounded-2xl border border-indigo-500/20 mb-4">
+          <label className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-3 block flex items-center justify-between">
+            <span><i className="fa-solid fa-wand-magic-sparkles mr-1.5"></i> Akıllı Paketler</span>
+            <button 
+                onClick={() => {
+                   updateSettings({
+                       fontSize: 18,
+                       lineHeight: 1.8,
+                       letterSpacing: 1.5,
+                       wordSpacing: 4,
+                       fontFamily: 'Lexend',
+                       margin: 20,
+                       compact: false,
+                       gutter: 30
+                   });
+                }}
+                className="text-[9px] bg-indigo-600 text-white px-2 py-0.5 rounded-full hover:bg-indigo-700 transition-colors"
+            >
+                AI OPTİMİZE ET
+            </button>
+          </label>
+          <div className="grid grid-cols-3 gap-2">
+            {[
+                { 
+                    label: 'Disleksi', 
+                    icon: 'fa-brain', 
+                    settings: { fontFamily: 'Lexend', fontSize: 20, lineHeight: 2, letterSpacing: 2, wordSpacing: 5, paperTexture: 'none' as const } 
+                },
+                { 
+                    label: 'Sınav', 
+                    icon: 'fa-file-signature', 
+                    settings: { fontFamily: 'Inter', fontSize: 13, lineHeight: 1.4, letterSpacing: 0, wordSpacing: 0, paperTexture: 'ruled' as const } 
+                },
+                { 
+                    label: 'Eski Kitap', 
+                    icon: 'fa-book-open', 
+                    settings: { fontFamily: 'OpenDyslexic', fontSize: 16, lineHeight: 1.6, paperTexture: 'parchment' as const, themeBorder: 'simple' as const } 
+                }
+            ].map((preset) => (
+                <button
+                    key={preset.label}
+                    onClick={() => updateSettings(preset.settings as Partial<StyleSettings>)}
+                    className="flex flex-col items-center gap-1.5 p-2 rounded-xl border border-indigo-500/10 bg-white hover:border-indigo-500/30 transition-all hover:scale-105 shadow-sm"
+                >
+                    <i className={`fa-solid ${preset.icon} text-indigo-500 text-sm`}></i>
+                    <span className="text-[9px] font-bold text-[var(--text-secondary)]">{preset.label}</span>
+                </button>
+            ))}
+          </div>
+       </div>
 
       {/* Kenarlık ve Temalar */}
       <div className="space-y-4">
