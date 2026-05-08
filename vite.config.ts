@@ -31,7 +31,7 @@ const config: UserConfig & { test?: any } = {
       output: {
         // Granüler manual chunk'lar — her kritik bağımlılık kendi bucket'ında
         manualChunks(id: string) {
-          // Stüdyolar — En büyük özellik modülleri (Lazy yüklendiği için ayrı chunk güvenli)
+          // 1. Ağır Özellik Modülleri (Lazy yüklendiği için ayrılmaları performanslıdır)
           if (id.includes('/components/ReadingStudio/')) return 'studio-reading';
           if (id.includes('/components/MathStudio/')) return 'studio-math';
           if (id.includes('/components/ActivityStudio/')) return 'studio-activity';
@@ -39,24 +39,15 @@ const config: UserConfig & { test?: any } = {
           if (id.includes('/components/SuperStudio/')) return 'studio-super';
           if (id.includes('/components/Screening/')) return 'studio-screening';
 
-          // Merkezi Yönetim & Navigasyon (Orkestrasyon Katmanı)
-          // Sidebar, Admin, Student modülleri arasındaki yoğun ilişkiler nedeniyle tek chunk
-          if (id.includes('/components/Sidebar') || 
-              id.includes('/components/AppHeader') ||
-              id.includes('/components/AdminDashboard/') || 
-              id.includes('/components/Admin/') || 
-              id.includes('/components/Student/') ||
-              id.includes('/services/rbac') ||
-              id.includes('/services/aiStudentService')) {
-            return 'management-platform';
-          }
-          
-          // Ortak Servisler & AI Çekirdeği
-          if (id.includes('/services/geminiClient') || 
-              id.includes('/services/worksheetService') ||
-              id.includes('/services/curriculumService')) {
-            return 'core-services';
-          }
+          // 2. Yönetim ve Öğrenci Panelleri (Çok büyük dosyalar)
+          if (id.includes('/components/Admin/')) return 'admin-v2';
+          if (id.includes('/components/Student/')) return 'student-v2';
+
+          /* 
+             NOT: Sidebar, AppHeader, RBAC ve diğer merkezi servisler 
+             burada tanımlanmamıştır. Bu sayede ana 'index' paketi içinde 
+             kalarak navigasyon kopukluklarını (TypeError) önlerler.
+          */
           
           // Lucide — Simgeler (Çok fazla ikon var)
           if (id.includes('/node_modules/lucide-react/')) return 'vendor-lucide';
