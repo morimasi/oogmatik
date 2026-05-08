@@ -7,7 +7,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { rbacService, buildDefaultRBAC, RBACSettings, CategoryPermission, ActivityPermission } from '../../types/rbac-advanced';
+import { buildDefaultRBAC, RBACSettings, CategoryPermission, ActivityPermission } from '../../types/rbac-advanced';
+import { rbacService } from '../../services/rbacService';
 import { UserRole } from '../../types/user';
 import { ActivityType } from '../../types/activity';
 import { ACTIVITY_CATEGORIES } from '../../constants';

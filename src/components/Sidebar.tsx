@@ -80,7 +80,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const [allActivities, setAllActivities] = useState<Activity[]>(ACTIVITIES);
   const [categories, setCategories] = useState<ActivityCategory[]>(ACTIVITY_CATEGORIES);
-  const { canAccess } = useRBAC();
+  const { canAccess, canAccessCategory, canAccessActivity } = useRBAC();
 
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [lockedCategory, setLockedCategory] = useState<string | null>(null);
@@ -91,17 +91,17 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const studioGroups = useMemo(() => {
     const callbackMap: Record<string, () => void> = {
-      'screening': onOpenScreening,
-      'curriculum': onOpenCurriculum,
-      'reading': onOpenReadingStudio,
-      'math': onOpenMathStudio,
-      'super-turkce': onOpenSuperTurkce,
-      'sinav-studyosu': onOpenSinavStudyosu,
-      'mat-sinav-studyosu': onOpenMatSinavStudyosu,
-      'activity-studio': onOpenActivityStudio,
-      'infographic-studio': onOpenInfographicStudio,
-      'sari-kitap-studio': onOpenSariKitapStudio,
-      'kelime-cumle-studio': onOpenKelimeCumleStudio,
+      'screening': onOpenScreening || (() => {}),
+      'curriculum': onOpenCurriculum || (() => {}),
+      'reading': onOpenReadingStudio || (() => {}),
+      'math': onOpenMathStudio || (() => {}),
+      'super-turkce': onOpenSuperTurkce || (() => {}),
+      'sinav-studyosu': onOpenSinavStudyosu || (() => {}),
+      'mat-sinav-studyosu': onOpenMatSinavStudyosu || (() => {}),
+      'activity-studio': onOpenActivityStudio || (() => {}),
+      'infographic-studio': onOpenInfographicStudio || (() => {}),
+      'sari-kitap-studio': onOpenSariKitapStudio || (() => {}),
+      'kelime-cumle-studio': onOpenKelimeCumleStudio || (() => {}),
     };
 
     const idToModuleMap: Record<string, PermissionModule> = {
@@ -280,7 +280,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
   };
 
-  const { canAccess, canAccessCategory, canAccessActivity } = useRBAC();
+
 
   const categorizedActivities = useMemo(() => {
     return categories
