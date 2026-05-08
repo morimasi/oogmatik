@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useWorksheetStore } from '../../../store/useWorksheetStore';
+import { useAppStore } from '../../../store/useAppStore';
 import { useToastStore } from '../../../store/useToastStore';
 import { WorksheetBlock } from '../../../types/activity';
 import { CompositeWorksheet } from '../../../types/worksheet';
@@ -9,7 +9,7 @@ export const useInfographicExport = (
     onSave?: (name: string, activityType: any, data: any) => Promise<any>,
     onAddToWorkbook?: (item: any) => void
 ) => {
-    const { worksheetData, setWorksheetData } = useWorksheetStore();
+    const { worksheetData, setWorksheetData } = useAppStore();
     const { show } = useToastStore();
 
     const handleExportToWorksheet = useCallback((

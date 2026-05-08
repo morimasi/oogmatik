@@ -37,7 +37,7 @@ import { HistoryView } from './components/HistoryView';
 import { PaperSizeInitializer } from './components/PaperSizeInitializer';
 import { useAuthStore } from './store/useAuthStore';
 import { AssessmentReportViewer } from './components/AssessmentReportViewer';
-import * as offlineGenerators from './services/offlineGenerators';
+import { useAppStore } from './store/useAppStore';
 import { useUIStore } from './store/useUIStore';
 import { useProfileData } from './components/Profile/hooks/useProfileData';
 import { AppHeader } from './components/AppHeader';
@@ -47,6 +47,7 @@ import { AdvancedScreeningModule } from './components/Screening/AdvancedScreenin
 import LoginPage from './pages/LoginPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { rbacService } from './services/rbacService';
+import * as offlineGenerators from './services/offlineGenerators';
 
 // Landing Page
 const LandingPage = lazy(() =>
@@ -324,7 +325,7 @@ const AppContent = () => {
     error,
     setError,
     resetGeneratorContext,
-  } = useWorksheetStore();
+  } = useAppStore();
 
   const [loadedCurriculum, setLoadedCurriculum] = useState(null as Curriculum | null);
 
