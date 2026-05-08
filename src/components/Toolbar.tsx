@@ -24,6 +24,13 @@ interface ToolbarProps {
   onSpeak?: () => void;
   isSpeaking?: boolean;
   onStopSpeak?: () => void;
+  isPreviewMode?: boolean;
+  onTogglePreview?: () => void;
+  isEditMode?: boolean;
+  onToggleEdit?: () => void;
+  isCurriculumMode?: boolean;
+  onCompleteCurriculumTask?: () => void;
+  onFeedback?: () => void;
   worksheetData?: WorksheetData;
 }
 
@@ -38,6 +45,13 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   onSpeak,
   isSpeaking,
   onStopSpeak,
+  isPreviewMode,
+  onTogglePreview,
+  isEditMode,
+  onToggleEdit,
+  isCurriculumMode,
+  onCompleteCurriculumTask,
+  onFeedback,
 }) => {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const { isEditorOpen, setEditorOpen } = useA4EditorStore();
@@ -119,7 +133,21 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               title="Serbest Tasarımcı (A4 Editor)"
               active={isEditorOpen}
               onClick={() => setEditorOpen(!isEditorOpen)}
-              colorClass={isEditorOpen ? 'bg-indigo-600 !text-white' : 'text-indigo-500'}
+              colorClass={isEditorOpen ? 'bg-indigo-600 !text-white shadow-indigo-200' : 'text-indigo-500'}
+            />
+             <IconButton
+              icon={isPreviewMode ? "fa-eye-slash" : "fa-expand"}
+              title={isPreviewMode ? "Odak Modundan Çık" : "Odak Modu (ESC)"}
+              active={isPreviewMode}
+              onClick={onTogglePreview}
+              colorClass={isPreviewMode ? 'text-amber-600' : 'text-slate-500'}
+            />
+            <IconButton
+              icon="fa-pen-to-square"
+              title="Metin Düzenleme"
+              active={isEditMode}
+              onClick={onToggleEdit}
+              colorClass={isEditMode ? 'text-indigo-600' : 'text-slate-500'}
             />
             <IconButton
               icon={isSpeaking ? 'fa-stop' : 'fa-volume-high'}
@@ -128,11 +156,28 @@ export const Toolbar: React.FC<ToolbarProps> = ({
               onClick={isSpeaking ? onStopSpeak : onSpeak}
               colorClass={isSpeaking ? 'text-red-500 animate-pulse' : 'text-sky-500'}
             />
+            {onFeedback && (
+                 <IconButton
+                    icon="fa-comment-dots"
+                    title="Geri Bildirim Gönder"
+                    onClick={onFeedback}
+                    colorClass="text-purple-500"
+                />
+            )}
         </div>
       </div>
 
       {/* SAĞ GRUP: Aksiyonlar & Çıktı */}
       <div className="flex items-center gap-2">
+        {isCurriculumMode && onCompleteCurriculumTask && (
+            <button
+                onClick={onCompleteCurriculumTask}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-xl text-[11px] font-black shadow-lg shadow-green-200 transition-all active:scale-95 animate-in zoom-in"
+            >
+                <i className="fa-solid fa-check-double"></i>
+                BUGÜNÜ TAMAMLA
+            </button>
+        )}
         <ActionModule
           settings={settings}
           onSave={onSave}

@@ -936,7 +936,10 @@ const UnifiedContentRenderer = ({
 
   const renderPage = (pageBlocks: WorksheetBlock[], pageIdx: number) => {
     const isLandscape = settings?.orientation === 'landscape';
-    const pageClass = `worksheet-page ultra-print-page print-page group mb-8 shadow-2xl relative bg-white overflow-hidden flex flex-col ${isLandscape ? 'landscape landscape-print' : ''}`;
+    const textureClass = settings?.paperTexture && settings.paperTexture !== 'none' 
+      ? `paper-texture-${settings.paperTexture}` 
+      : '';
+    const pageClass = `worksheet-page ultra-print-page print-page group mb-8 shadow-2xl relative bg-white overflow-hidden flex flex-col ${isLandscape ? 'landscape landscape-print' : ''} ${textureClass}`;
 
     return (
       <div
@@ -1023,9 +1026,9 @@ const UnifiedContentRenderer = ({
                 cols > 1
                   ? { 
                       gridTemplateColumns: `repeat(${cols}, 1fr)`, 
-                      gap: settings?.compact ? '3mm' : (settings?.gap ? `${settings.gap}mm` : '6mm') 
+                      gap: 'var(--worksheet-gutter, 20px)' 
                     }
-                  : { gap: settings?.compact ? '3mm' : (settings?.gap ? `${settings.gap}mm` : '6mm') }
+                  : { gap: 'var(--worksheet-gutter, 20px)' }
               }
             >
               {pageBlocks.map((block, idx) => {

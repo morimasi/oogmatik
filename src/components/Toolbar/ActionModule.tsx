@@ -54,7 +54,7 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
 
       if (method === 'pdf') toast.success('PDF Başarıyla İndirildi!');
     } catch (e) {
-      logError(e);
+      logError(e as Error);
       toast.error('İşlem sırasında bir hata oluştu.');
     } finally {
       setTimeout(() => setExportProgress({ open: false, percent: 0, message: '' }), 800);
