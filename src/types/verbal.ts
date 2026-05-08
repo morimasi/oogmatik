@@ -253,6 +253,12 @@ export interface ReadingPyramidData extends BaseActivityData {
     title: string;
   }[];
   difficulty: string;
+  settings?: {
+    colorPalette?: 'indigo' | 'rose' | 'emerald' | 'amber' | 'slate' | 'colorful';
+    fontSize?: 'small' | 'medium' | 'large' | 'xl';
+    layoutDensity?: 'compact' | 'normal' | 'relaxed';
+    pyramidHeight?: number;
+  };
 }
 
 export interface WordMemoryItem {

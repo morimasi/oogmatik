@@ -9,8 +9,8 @@ export const generateOfflineSyllableMasterLab = async (options: GeneratorOptions
 
     const [minSyllables, maxSyllables] = syllableRange.split('-').map(Number);
 
-    return Array.from({ length: worksheetCount }, () => {
-        const pool = getWordsForDifficulty(difficulty, topic || 'animals');
+    return Array.from({ length: worksheetCount || 1 }, () => {
+        const pool = getWordsForDifficulty(difficulty || 'Orta', topic || 'animals');
         const filteredPool = pool.filter(word => {
             const sylCount = syllabifyWord(word).length;
             return sylCount >= minSyllables && sylCount <= maxSyllables;
@@ -57,7 +57,7 @@ export const generateOfflineSyllableMasterLab = async (options: GeneratorOptions
 
 // HARF-GÖRSEL EŞLEME (FIX: Missing generator added)
 export const generateOfflineLetterVisualMatching = async (options: GeneratorOptions): Promise<LetterVisualMatchingData[]> => {
-    const { worksheetCount, _difficulty, itemCount, case: letterCase, fontFamily } = options;
+    const { worksheetCount, itemCount, case: letterCase, fontFamily } = options;
     const count = itemCount || 8;
 
     const letterMap: Record<string, string> = {
@@ -69,7 +69,7 @@ export const generateOfflineLetterVisualMatching = async (options: GeneratorOpti
         'Y': 'Yıldız', 'Z': 'Zürafa'
     };
 
-    return Array.from({ length: worksheetCount }, () => {
+    return Array.from({ length: worksheetCount || 1 }, () => {
         const alphabet = Object.keys(letterMap).filter(l => l !== 'Ğ');
         const selectedLetters = getRandomItems(alphabet, count);
 
@@ -95,10 +95,10 @@ export const generateOfflineLetterVisualMatching = async (options: GeneratorOpti
 
 // AYNA HARFLER (Mirror Letters)
 export const generateOfflineMirrorLetters = async (options: GeneratorOptions): Promise<MirrorLettersData[]> => {
-    const { worksheetCount, _difficulty } = options;
+    const { worksheetCount } = options;
     const pairs = [['b', 'd'], ['p', 'q'], ['m', 'n'], ['u', 'n']];
 
-    return Array.from({ length: worksheetCount }, () => {
+    return Array.from({ length: worksheetCount || 1 }, () => {
         const targetPair = getRandomItems(pairs, 1)[0];
         const rows = Array.from({ length: 10 }, () => ({
             items: Array.from({ length: 6 }, () => ({
@@ -122,7 +122,7 @@ export const generateOfflineRapidNaming = async (options: GeneratorOptions): Pro
     const { worksheetCount } = options;
     const items = ['🍎', '🚗', '⭐', '🏠', '🐱', '⚽', '🔔', '🔑'];
 
-    return Array.from({ length: worksheetCount }, () => {
+    return Array.from({ length: worksheetCount || 1 }, () => {
         const grid = Array.from({ length: 5 }, () => ({
             items: Array.from({ length: 8 }, () => ({
                 type: 'object',
@@ -144,7 +144,7 @@ export const generateOfflineLetterDiscrimination = async (options: GeneratorOpti
     const { worksheetCount } = options;
     const targets = ['b', 'd', 'p'];
 
-    return Array.from({ length: worksheetCount }, () => {
+    return Array.from({ length: worksheetCount || 1 }, () => {
         const rows = Array.from({ length: 15 }, () => ({
             letters: Array.from({ length: 30 }, () => Math.random() > 0.2 ? 'o' : targets[getRandomInt(0, targets.length - 1)])
         }));
@@ -207,8 +207,8 @@ export const generateOfflineMorphologyMatrix = async (options: GeneratorOptions)
         ]
     };
 
-    return Array.from({ length: worksheetCount }, () => {
-        const selectedPool = (DATA_SETS as any)[difficulty] || DATA_SETS['Orta'];
+    return Array.from({ length: worksheetCount || 1 }, () => {
+        const selectedPool = (DATA_SETS as any)[difficulty || 'Orta'] || DATA_SETS['Orta'];
 
         // Eğer havuz yetersizse (kullanıcı çok istemişse), tekrarlı doldur
         const items = [];
@@ -230,53 +230,62 @@ export const generateOfflineMorphologyMatrix = async (options: GeneratorOptions)
 
 // READING PYRAMID (Akıcı Okuma Piramidi)
 export const generateOfflineReadingPyramid = async (options: GeneratorOptions): Promise<ReadingPyramidData[]> => {
-    const { worksheetCount, difficulty, pyramidHeight, _topic } = options;
+    const { worksheetCount, difficulty = 'Orta', pyramidHeight, topic, colorPalette, fontSize, layoutDensity } = options;
     const height = pyramidHeight || 5;
 
-    // Hazır Cümle Setleri (Genişletilmiş)
-    const SENTENCE_SETS = [
-        ["Güneş.", "Güneş açtı.", "Bugün güneş açtı.", "Bugün parlak güneş açtı.", "Bugün gökyüzünde parlak güneş açtı."],
-        ["Kedi.", "Kedi uyuyor.", "Sarı kedi uyuyor.", "Sarı kedi koltukta uyuyor.", "Küçük sarı kedi koltukta uyuyor."],
-        ["Ağaç.", "Ağaç büyüdü.", "Yeşil ağaç büyüdü.", "Bahçedeki yeşil ağaç büyüdü.", "Bahçedeki kocaman yeşil ağaç büyüdü."],
-        ["Deniz.", "Deniz dalgalı.", "Mavi deniz dalgalı.", "Bugün mavi deniz çok dalgalı.", "Bugün masmavi deniz çok dalgalı."],
-        ["Kitap.", "Kitap okudum.", "Güzel bir kitap okudum.", "Dün akşam güzel bir kitap okudum.", "Dün akşam odamda güzel bir kitap okudum."],
-        ["Yol.", "Yol uzun.", "Bu yol çok uzun.", "Bu taşlı yol çok uzun.", "Köye giden bu taşlı yol çok uzun."],
-        ["Elma.", "Elma yedim.", "Kırmızı elma yedim.", "Tatlı kırmızı elma yedim.", "Bahçeden kopardığım tatlı kırmızı elma yedim."]
-    ];
+    // Uzman Seviyesi/Konu bazlı cümle şablonları
+    const MASTER_SENTENCE_POOL: Record<string, string[][]> = {
+        'doğa': [
+            ['Kuş.', 'Küçük kuş.', 'Küçük kuş uçtu.', 'Küçük kuş ormanda uçtu.', 'Küçük kuş derin ormanda uçtu.', 'Küçük mavi kuş derin ormanda uçtu.', 'Küçük mavi kuş derin yeşil ormanda uçtu.', 'Küçük mavi kuş derin yeşil ormanda neşeyle uçtu.', 'Küçük mavi kuş derin yeşil ormanda neşeyle kanat çırparak uçtu.', 'Küçük mavi kuş derin yeşil ormanda neşeyle kanat çırparak hürce uçtu.'],
+            ['Ağaç.', 'Yaşlı ağaç.', 'Yaşlı ağaç devrildi.', 'Yaşlı ulu ağaç devrildi.', 'Yaşlı ulu dev ağaç devrildi.', 'Bahçedeki yaşlı ulu dev ağaç devrildi.', 'Bizim bahçedeki yaşlı ulu dev ağaç devrildi.', 'Bizim bahçedeki yaşlı ulu dev ağaç rüzgarda devrildi.', 'Bizim bahçedeki yaşlı ulu dev ağaç şiddetli rüzgarda devrildi.', 'Bizim bahçedeki yaşlı ulu dev ağaç şiddetli fırtınalı rüzgarda ansızın devrildi.'],
+        ],
+        'bilim': [
+            ['Robot.', 'Akıllı robot.', 'Akıllı robot yürüdü.', 'Akıllı robot yavaşça yürüdü.', 'Yeni akıllı robot yavaşça yürüdü.', 'Yeni akıllı robot laboratuvarda yavaşça yürüdü.', 'Yeni gümüş akıllı robot laboratuvarda yavaşça yürüdü.', 'Yeni gümüş akıllı robot laboratuvarda sessizce yavaşça yürüdü.', 'Yeni pırıl gümüş akıllı robot laboratuvarda sessizce yavaşça yürüdü.', 'Yeni pırıl gümüş akıllı robot laboratuvarda sessizce yavaşça ileriye doğru yürüdü.'],
+        ],
+        'uzay': [
+            ['Yıldız.', 'Parlak yıldız.', 'Parlak yıldız söndü.', 'Mavi parlak yıldız söndü.', 'Uzak mavi parlak yıldız söndü.', 'Uzaklarda mavi parlak yıldız söndü.', 'Çok uzaklarda mavi parlak yıldız söndü.', 'Çok uzaklarda büyük mavi parlak yıldız söndü.', 'Çok uzaklarda o büyük mavi parlak yıldız söndü.', 'Çok uzaklarda o büyük mavi parlak yıldız karanlıkta söndü.'],
+        ],
+        'genel': [
+            ['Güneş.', 'Sarı güneş.', 'Sarı güneş doğdu.', 'Büyük sarı güneş doğdu.', 'Büyük parlak sarı güneş doğdu.', 'Sabah büyük parlak sarı güneş doğdu.', 'Bugün sabah büyük parlak sarı güneş doğdu.', 'Bugün sabah dağların arkasından büyük sarı güneş doğdu.', 'Bugün sabah erkenden dağların arkasından büyük sarı güneş doğdu.', 'Bugün sabah erkenden karlı dağların arkasından büyük sarı güneş doğdu.'],
+            ['Kitap.', 'Eski kitap.', 'Eski kitap kayboldu.', 'Tozlu eski kitap kayboldu.', 'Kütüphanedeki tozlu eski kitap kayboldu.', 'Kütüphanedeki o tozlu eski kitap kayboldu.', 'Kütüphanedeki o tozlu kalın eski kitap kayboldu.', 'Kütüphanedeki o tozlu kalın kırmızı eski kitap kayboldu.', 'Kütüphanedeki o gizemli tozlu kalın kırmızı eski kitap kayboldu.', 'Kütüphanedeki o gizemli tozlu kalın kırmızı eski kaplı kitap kayboldu.'],
+            ['Çocuk.', 'Mutlu child.', 'Mutlu çocuk koştu.', 'Mutlu çocuk parka koştu.', 'Küçük mutlu çocuk parka koştu.', 'Küçük mutlu çocuk neşeyle parka koştu.', 'Küçük mutlu çocuk elinde balonla parka koştu.', 'Küçük mutlu çocuk elinde sarı balonla parka koştu.', 'Küçük mutlu çocuk elinde büyük sarı balonla parka koştu.', 'Küçük mutlu çocuk elindeki büyük sarı balonla hızlıca parka koştu.'],
+        ]
+    };
 
-    return Array.from({ length: worksheetCount }, () => {
-        const pyramids = [];
-        // Bir sayfaya 2 piramit sığdır (Orta/Büyük boy için)
-        // Küçük boy (3-4 satır) için 4 tane sığdırılabilir.
-        const countPerPage = height <= 5 ? 4 : 2;
+    return Array.from({ length: worksheetCount || 1 }, () => {
+        const topicKey = Object.keys(MASTER_SENTENCE_POOL).find(key => 
+            topic?.toLowerCase().includes(key)
+        ) || 'genel';
+        
+        const pool = MASTER_SENTENCE_POOL[topicKey];
+        const selectedSets = getRandomItems(pool, layoutDensity === 'compact' ? 4 : 2);
 
-        const selectedSets = getRandomItems(SENTENCE_SETS, countPerPage);
-
-        for (const set of selectedSets) {
-            // İstenen yüksekliğe göre kes
-            const levels = set.slice(0, height);
-            // Eğer set yetersizse son cümleyi tekrarla (veya boş bırak)
-            while (levels.length < height) {
-                levels.push(levels[levels.length - 1] + " (Tekrar)");
-            }
-            pyramids.push({
-                title: levels[0], // Başlık ilk kelime
+        const pyramids = selectedSets.map(set => {
+            const levels = set.slice(0, Math.min(height, set.length));
+            return {
+                title: levels[0],
                 levels
-            });
-        }
+            };
+        });
 
         return {
             title: "Akıcı Okuma Piramidi",
             instruction: "En üstten başlayarak aşağıya doğru sesli oku. Gözlerinle satırın ortasına odaklan.",
             pyramids,
-            difficulty
+            difficulty,
+            settings: {
+                colorPalette: colorPalette as any,
+                fontSize: fontSize as any,
+                layoutDensity: layoutDensity as any,
+                pyramidHeight: height
+            }
         };
     });
 };
 
 // DİĞER EKSİK MODÜLLER İÇİN BOŞ/STANDART DÖNÜŞLER (Hataları önlemek için)
 export const generateOfflineReadingFlow = async (options: GeneratorOptions): Promise<ReadingFlowData[]> => {
-    const { worksheetCount, difficulty, _topic } = options;
+    const { worksheetCount, difficulty } = options;
     const results: ReadingFlowData[] = [];
 
     // Pedagojik Ritmik Akış Setleri (Seviye Bazlı)
@@ -298,16 +307,15 @@ export const generateOfflineReadingFlow = async (options: GeneratorOptions): Pro
         ]
     };
 
-    const selectedDifficulty = ((FLOW_TEMPLATES as any)[difficulty] || FLOW_TEMPLATES['Orta']) as string[][];
+    const selectedDifficulty = ((FLOW_TEMPLATES as any)[difficulty || 'Orta'] || FLOW_TEMPLATES['Orta']) as string[][];
 
-    for (let p = 0; p < worksheetCount; p++) {
+    for (let p = 0; p < (worksheetCount || 1); p++) {
         const selectedSets = getRandomItems(selectedDifficulty, 3);
         const paragraphs = selectedSets.map((set: string[]) => {
             return {
                 sentences: set.map((s: string) => ({
                     syllables: s.split(' ').flatMap((word: string, wIdx: number, words: string[]) => {
                         const syls = syllabifyWord(word).map(syllable => ({ text: syllable }));
-                        // Kelime aralarına boşluk ekle (boş bir hece objesi gibi veya özel bir işaretle)
                         if (wIdx < words.length - 1) syls.push({ text: ' ' });
                         return syls;
                     })
@@ -325,10 +333,10 @@ export const generateOfflineReadingFlow = async (options: GeneratorOptions): Pro
 };
 
 export const generateOfflinePhonologicalAwareness = async (options: GeneratorOptions): Promise<PhonologicalAwarenessData[]> => {
-    const { worksheetCount, _difficulty } = options;
+    const { worksheetCount } = options;
     const results: PhonologicalAwarenessData[] = [];
 
-    for (let p = 0; p < worksheetCount; p++) {
+    for (let p = 0; p < (worksheetCount || 1); p++) {
         const exercises = [
             { question: "Hangi kelime 'A' ile başlar?", word: "Araba" },
             { question: "Hangi kelime 'MA' ile biter?", word: "Elma" },
@@ -350,9 +358,9 @@ export const generateOfflineSyllableTrain = async (options: GeneratorOptions): P
 
     const TOPICS = ['animals', 'fruits_veggies', 'school', 'items_household'];
 
-    for (let p = 0; p < worksheetCount; p++) {
+    for (let p = 0; p < (worksheetCount || 1); p++) {
         const topic = getRandomItems(TOPICS, 1)[0];
-        const wordsPool = getWordsForDifficulty(difficulty, topic);
+        const wordsPool = getWordsForDifficulty(difficulty || 'Orta', topic || 'Rastgele');
         const selectedWords = getRandomItems(wordsPool, 4);
 
         const trains = selectedWords.map(word => {
@@ -370,7 +378,7 @@ export const generateOfflineSyllableTrain = async (options: GeneratorOptions): P
                 word,
                 syllables: trainSyllables,
                 missingSyllableIndex,
-                isPseudo: Math.random() > 0.8 // %20 ihtimalle anlamsız kelime (analiz odaklı)
+                isPseudo: Math.random() > 0.8
             };
         });
 
@@ -392,7 +400,7 @@ export const generateOfflineVisualTrackingLines = async (options: GeneratorOptio
     const complexityMap: Record<string, number> = { 'Başlangıç': 2, 'Orta': 3, 'Zor': 5, 'Uzman': 8 };
     const lineCount = complexityMap[difficulty] || 3;
 
-    const generatePath = (yStart: number, yEnd: number, _pIdx: number) => {
+    const generatePath = (yStart: number, yEnd: number) => {
         const segments = 4;
         const segmentWidth = 700 / segments;
         let d = `M 50 ${yStart}`;
@@ -408,7 +416,7 @@ export const generateOfflineVisualTrackingLines = async (options: GeneratorOptio
         return d;
     };
 
-    for (let p = 0; p < worksheetCount; p++) {
+    for (let p = 0; p < (worksheetCount || 1); p++) {
         const startChars = shuffle(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].slice(0, lineCount));
         const endChars = shuffle(['1', '2', '3', '4', '5', '6', '7', '8'].slice(0, lineCount));
 
@@ -419,7 +427,7 @@ export const generateOfflineVisualTrackingLines = async (options: GeneratorOptio
 
             return {
                 id: idx + 1,
-                d: generatePath(yStart, yEnd, idx),
+                d: generatePath(yStart, yEnd),
                 color: COLORS[idx % COLORS.length].css,
                 strokeWidth: 2.5,
                 startLabel: char,
@@ -444,8 +452,8 @@ export const generateOfflineBackwardSpelling = async (options: GeneratorOptions)
     const { worksheetCount, difficulty } = options;
     const results: BackwardSpellingData[] = [];
 
-    for (let p = 0; p < worksheetCount; p++) {
-        const words = getWordsForDifficulty(difficulty, 'Rastgele');
+    for (let p = 0; p < (worksheetCount || 1); p++) {
+        const words = getWordsForDifficulty(difficulty || 'Orta', 'Rastgele');
         const items = getRandomItems(words, 5).map(w => ({
             original: w,
             reversed: w.split('').reverse().join('')
@@ -461,13 +469,13 @@ export const generateOfflineBackwardSpelling = async (options: GeneratorOptions)
 };
 
 export const generateOfflineCodeReading = async (options: GeneratorOptions): Promise<CodeReadingData[]> => {
-    const { worksheetCount, _difficulty } = options;
+    const { worksheetCount } = options;
     const results: CodeReadingData[] = [];
 
     const symbols = ["⭐", "🌙", "☀️", "☁️", "⚡", "❄️", "🌀", "🔥"];
     const chars = turkishAlphabet.split('').slice(0, 8);
 
-    for (let p = 0; p < worksheetCount; p++) {
+    for (let p = 0; p < (worksheetCount || 1); p++) {
         const keyMap = symbols.map((s, i) => ({ symbol: s, value: chars[i], color: "black" }));
         const codesToSolve = [
             { sequence: [symbols[0], symbols[2], symbols[4]] },
@@ -486,7 +494,7 @@ export const generateOfflineCodeReading = async (options: GeneratorOptions): Pro
 
 export const generateOfflineAttentionToQuestion = async (options: GeneratorOptions): Promise<AttentionToQuestionData[]> => {
     const { worksheetCount } = options;
-    return Array.from({ length: worksheetCount }, () => ({
+    return Array.from({ length: worksheetCount || 1 }, () => ({
         title: 'Dikkat ve Sorular',
         instruction: 'Aşağıdaki metinde geçen tüm "b" harflerini işaretleyin.',
         subType: 'letter-cancellation',
@@ -497,9 +505,9 @@ export const generateOfflineAttentionToQuestion = async (options: GeneratorOptio
 
 export const generateOfflineHandwritingPractice = async (options: GeneratorOptions): Promise<HandwritingPracticeData[]> => {
     const { worksheetCount, difficulty } = options;
-    const words = getWordsForDifficulty(difficulty, 'Rastgele');
+    const words = getWordsForDifficulty(difficulty || 'Orta', 'Rastgele');
     
-    return Array.from({ length: worksheetCount }, () => {
+    return Array.from({ length: worksheetCount || 1 }, () => {
         const selectedWords = getRandomItems(words, 5);
         const lines = selectedWords.flatMap(word => [
             { text: word, type: 'trace' as const },

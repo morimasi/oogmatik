@@ -87,6 +87,7 @@ export interface GeneratorOptions {
   gridCols?: number;
   syllableRange?: string;
   pyramidHeight?: number;
+  layoutDensity?: 'compact' | 'normal' | 'relaxed';
   selectedOperations?: string[];
   visualStyle?: string;
   showNumbers?: boolean;
@@ -99,6 +100,7 @@ export interface GeneratorOptions {
   customInput?: string;
   operationType?: string;
   distractionLevel?: 'low' | 'medium' | 'high' | 'extreme';
+  fontSize?: 'small' | 'medium' | 'large' | 'xl';
   fontSizePreference?: 'small' | 'medium' | 'large';
   visualComplexity?: 'simple' | 'balanced' | 'complex';
   targetFrequency?: string;
@@ -127,7 +129,7 @@ export interface GeneratorOptions {
   | 'open_ended';
   syllableColoring?: boolean;
   wpmTarget?: number;
-  colorPalette?: 'red_blue' | 'contrast' | 'pastel';
+  colorPalette?: 'red_blue' | 'contrast' | 'pastel' | 'indigo' | 'rose' | 'emerald' | 'amber' | 'slate' | 'colorful';
   highlightType?: 'vowels_only' | 'syllables' | 'words';
   familySize?: 'nuclear' | 'extended';
   clueComplexity?: 'direct' | 'logical';
