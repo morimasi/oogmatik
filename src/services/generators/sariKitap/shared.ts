@@ -132,8 +132,24 @@ FORMAT: İki farklı hikaye iç içe geçirilir. Öğrenci dikkatini bölerek ay
   "instructions": "string",
   "targetSkills": ["string"],
   "sourceTexts": {
-    "a": { "title": "Hikaye A Başlığı", "text": "Hikaye A metni" },
-    "b": { "title": "Hikaye B Başlığı", "text": "Hikaye B metni" }
+    "a": { 
+      "title": "Hikaye A Başlığı", 
+      "text": "Hikaye A metni",
+      "questions": [
+        { "q": "Metinle ilgili 5N1K sorusu 1", "a": "Cevap 1" },
+        { "q": "Metinle ilgili 5N1K sorusu 2", "a": "Cevap 2" },
+        { "q": "Metinle ilgili 5N1K sorusu 3", "a": "Cevap 3" }
+      ]
+    },
+    "b": { 
+      "title": "Hikaye B Başlığı", 
+      "text": "Hikaye B metni",
+      "questions": [
+        { "q": "Metinle ilgili 5N1K sorusu 1", "a": "Cevap 1" },
+        { "q": "Metinle ilgili 5N1K sorusu 2", "a": "Cevap 2" },
+        { "q": "Metinle ilgili 5N1K sorusu 3", "a": "Cevap 3" }
+      ]
+    }
   }
 }
 
@@ -142,7 +158,7 @@ PARAMETRELER:
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
 
-Her hikaye en az 20-25 cümle olsun. İki hikaye birbirinden tamamen farklı konularda olmalı. A4 sayfasını taşmayacak ama olabildiğince tam dolduracak kadar uzun ve zengin içerik üret.`;
+Her hikaye en az 20-25 cümle olsun. İki hikaye birbirinden tamamen farklı konularda olmalı. A4 sayfasını taşmayacak ama olabildiğince tam dolduracak kadar uzun ve zengin içerik üret. Her bir hikaye için 3 adet 5N1K (Kim, Ne, Nerede vb.) sorusu mutlaka eklenmelidir.`;
 }
 
 export function buildBellekPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {

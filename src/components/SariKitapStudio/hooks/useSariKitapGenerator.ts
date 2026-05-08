@@ -63,8 +63,8 @@ export function useSariKitapGenerator() {
                     content.heceRows = processKopruContent(config, rawText);
                 } else if (config.type === 'cift_metin' && content.sourceA && content.sourceB) {
                     content.sourceTexts = {
-                        a: { title: content.sourceA.title, text: content.sourceA.text },
-                        b: { title: content.sourceB.title, text: content.sourceB.text }
+                        a: { title: content.sourceA.title, text: content.sourceA.text, questions: content.sourceA.questions },
+                        b: { title: content.sourceB.title, text: content.sourceB.text, questions: content.sourceB.questions }
                     };
                     rawText = interleaveTexts(content.sourceA.text, content.sourceB.text, (config as any).interleaveMode || 'satir', (config as any).interleaveRatio || 1);
                 } else if (config.type === 'bellek' && content.phases) {

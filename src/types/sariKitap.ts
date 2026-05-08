@@ -258,9 +258,11 @@ export interface SariKitapGeneratedContent {
     dotPosition?: number;
   }>;
   sourceTexts?: {
-    a: { title: string; text: string };
-    b: { title: string; text: string };
+    a: { title: string; text: string; questions?: Array<{ q: string; a: string }> };
+    b: { title: string; text: string; questions?: Array<{ q: string; a: string }> };
   };
+  questionsA?: Array<{ q: string; a: string }>;
+  questionsB?: Array<{ q: string; a: string }>;
   wordBlocks?: string[][];
   memoryData?: MemoryPhaseData;
   pedagogicalNote?: string;

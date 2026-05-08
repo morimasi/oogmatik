@@ -1302,6 +1302,10 @@ export const SheetRenderer = React.memo(
     }
 
 
+    if (activityType === ActivityType.INFOGRAPHIC_SHORT_ANSWER) {
+      return withWrapper(<ShortAnswerSheet data={(data as any).content || data} settings={settings as any} />);
+    }
+
     if (activityType && activityType.toString().startsWith('INFOGRAPHIC_')) {
       return withWrapper(<InfoGraphicRenderer data={data} settings={settings} />);
     }

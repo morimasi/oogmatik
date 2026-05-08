@@ -129,18 +129,50 @@ const METIN_HAVUZU: Record<Konu, Record<SariKitapDifficulty, MetinEntry[]>> = {
 // ─── Çift Metin Çiftleri ─────────────────────────────────────────
 
 export interface CiftMetinCifti {
-  a: { baslik: string; metin: string };
-  b: { baslik: string; metin: string };
+  a: { baslik: string; metin: string; questions?: Array<{ q: string; a: string }> };
+  b: { baslik: string; metin: string; questions?: Array<{ q: string; a: string }> };
 }
 
 export const CIFT_METIN_CIFTLERI: CiftMetinCifti[] = [
   {
-    a: { baslik: 'Cici Kuş', metin: 'Cici kuş ağaçta oturuyordu sabahtan beri. Kanatlarını açıp güneşe baktı. Sonra uçarak gökyüzüne yükseldi.' },
-    b: { baslik: 'Leziz Kek', metin: 'Kek hamuru karıştırıldı kasenin içinde. Fırına konuldu dikkatli bir şekilde. Güzel bir koku yayıldı mutfağa.' },
+    a: { 
+      baslik: 'Cici Kuş', 
+      metin: 'Cici kuş ağaçta oturuyordu sabahtan beri. Kanatlarını açıp güneşe baktı. Sonra uçarak gökyüzüne yükseldi.',
+      questions: [
+        { q: 'Cici kuş nerede oturuyordu?', a: 'Ağaçta' },
+        { q: 'Kuş ne zaman oturmaya başladı?', a: 'Sabahtan beri' },
+        { q: 'Kuş nereye doğru yükseldi?', a: 'Gökyüzüne' }
+      ]
+    },
+    b: { 
+      baslik: 'Leziz Kek', 
+      metin: 'Kek hamuru karıştırıldı kasenin içinde. Fırına konuldu dikkatli bir şekilde. Güzel bir koku yayıldı mutfağa.',
+      questions: [
+        { q: 'Kek hamuru nerede karıştırıldı?', a: 'Kasenin içinde' },
+        { q: 'Hamur fırına nasıl konuldu?', a: 'Dikkatli bir şekilde' },
+        { q: 'Koku nereye yayıldı?', a: 'Mutfağa' }
+      ]
+    },
   },
   {
-    a: { baslik: 'Yapay Zeka', metin: 'Algoritmalar veriyi hızla işledi. Karmaşık desenleri analiz etti. Karar verme süreci saniyeler sürdü.' },
-    b: { baslik: 'Uzay Yolculuğu', metin: 'Roket motorları ateşlendi büyük bir gürültüyle. Atmosfer aşıldı sessizce. Dünya uzaktan mavi bir bilye gibi göründü.' },
+    a: { 
+      baslik: 'Yapay Zeka', 
+      metin: 'Algoritmalar veriyi hızla işledi. Karmaşık desenleri analiz etti. Karar verme süreci saniyeler sürdü.',
+      questions: [
+        { q: 'Kim veriyi hızla işledi?', a: 'Algoritmalar' },
+        { q: 'Algoritmalar neyi analiz etti?', a: 'Karmaşık desenleri' },
+        { q: 'Karar verme süreci ne kadar sürdü?', a: 'Saniyeler' }
+      ]
+    },
+    b: { 
+      baslik: 'Uzay Yolculuğu', 
+      metin: 'Roket motorları ateşlendi büyük bir gürültüyle. Atmosfer aşıldı sessizce. Dünya uzaktan mavi bir bilye gibi göründü.',
+      questions: [
+        { q: 'Roket motorları nasıl ateşlendi?', a: 'Büyük bir gürültüyle' },
+        { q: 'Atmosfer nasıl aşıldı?', a: 'Sessizce' },
+        { q: 'Dünya uzaktan neye benziyordu?', a: 'Mavi bir bilyeye' }
+      ]
+    },
   }
 ];
 

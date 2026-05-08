@@ -15,8 +15,8 @@ export function generateCiftMetinOffline(config: CiftMetinConfig): SariKitapGene
         config,
         {
             sourceTexts: {
-                a: { title: cifti.a.baslik, text: cifti.a.metin },
-                b: { title: cifti.b.baslik, text: cifti.b.metin },
+                a: { title: cifti.a.baslik, text: cifti.a.metin, questions: cifti.a.questions },
+                b: { title: cifti.b.baslik, text: cifti.b.metin, questions: cifti.b.questions },
             },
         }
     );

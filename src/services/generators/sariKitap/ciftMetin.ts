@@ -28,7 +28,10 @@ export const generateCiftMetinFromAI = async (options: GeneratorOptions): Promis
     GÖREV:
     1. Aynı konuda iki FARKLI perspektiften metin yaz (100-200 kelime her biri)
     2. Kaynak A ve Kaynak B olarak işaretle
-    3. Interleave oranını belirle (kelime/satır/paragraf)
+    3. Interleave oranını belirle (kelime/satir/paragraf)
+    4. 5N1K ENTEGRASYONU: Her bir metin (Metin A ve Metin B) için o metne özel 3 adet 5N1K (Okuduğunu Anlama) sorusu hazirla.
+       - Sorular: Kim, Ne, Nerede, Ne Zaman, Nasil, Nicin sorularindan en uygun 3 tanesi olsun.
+       - Cevaplari da kisa ve net sekilde belirt.
     
     ${worksheetCount || 1} adet üret.
     `;
@@ -42,17 +45,39 @@ export const generateCiftMetinFromAI = async (options: GeneratorOptions): Promis
                 type: 'OBJECT',
                 properties: {
                     title: { type: 'STRING' },
-                    text: { type: 'STRING' }
+                    text: { type: 'STRING' },
+                    questions: {
+                        type: 'ARRAY',
+                        items: {
+                            type: 'OBJECT',
+                            properties: {
+                                q: { type: 'STRING' },
+                                a: { type: 'STRING' }
+                            },
+                            required: ['q', 'a']
+                        }
+                    }
                 },
-                required: ['title', 'text']
+                required: ['title', 'text', 'questions']
             },
             sourceB: {
                 type: 'OBJECT',
                 properties: {
                     title: { type: 'STRING' },
-                    text: { type: 'STRING' }
+                    text: { type: 'STRING' },
+                    questions: {
+                        type: 'ARRAY',
+                        items: {
+                            type: 'OBJECT',
+                            properties: {
+                                q: { type: 'STRING' },
+                                a: { type: 'STRING' }
+                            },
+                            required: ['q', 'a']
+                        }
+                    }
                 },
-                required: ['title', 'text']
+                required: ['title', 'text', 'questions']
             },
             interleaveMode: { type: 'STRING', enum: ['kelime', 'satir', 'paragraf'] },
             interleaveRatio: { type: 'INTEGER' }
