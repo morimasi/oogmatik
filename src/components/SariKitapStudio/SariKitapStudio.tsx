@@ -104,7 +104,7 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
                 { id: 'hizli-okuma', title: 'Hızlı Okuma' }
             );
             toast.success('Etkinlik başarıyla kaydedildi!');
-        } catch (err) {
+        } catch (err: any) {
             logError('Save error:', err);
             toast.error('Kaydedilirken bir hata oluştu.');
         }
