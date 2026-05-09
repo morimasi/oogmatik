@@ -21,39 +21,48 @@ const FAMILY_POOL_EXTENDED = [
 ];
 
 export const generateOfflineFindLetterPair = async (options: GeneratorOptions): Promise<FindLetterPairData[]> => {
-    const { worksheetCount, difficulty, itemCount = 1, targetPair } = options;
-    // Satır ve Sütun ayrımı
-    const rows = options.gridRows || options.gridSize || 10;
-    const cols = options.gridCols || options.gridSize || 10;
+    const { 
+        worksheetCount = 1, 
+        difficulty = 'Orta', 
+        itemCount = 1, 
+        targetPair 
+    } = options;
+    
+    // Premium Dolu Dolu A4 için Izgara Boyutu
+    const rows = options.gridRows || (difficulty === 'Zor' ? 16 : 14);
+    const cols = options.gridCols || (difficulty === 'Zor' ? 14 : 12);
 
     const pages: FindLetterPairData[] = [];
 
     const getSimilars = (char: string) => {
+        // Hedef harfe görsel olarak çok benzeyen çeldiriciler (Ketleme için kritik)
         const pool = VISUALLY_SIMILAR_CHARS.filter(c => c !== char);
-        return pool.length > 0 ? pool : turkishAlphabet.split('');
+        return pool.length > 5 ? pool : [...pool, ...['b','d','p','q','o','a','u','n','m','w']];
     };
 
     for (let p = 0; p < worksheetCount; p++) {
         const grids = [];
-        for (let i = 0; i < itemCount; i++) {
+        // Tek sayfada 1 büyük veya 2 orta boy ızgara (layout'a göre)
+        const logicalItemCount = itemCount || (difficulty === 'Zor' ? 1 : 2);
+        
+        for (let i = 0; i < logicalItemCount; i++) {
             const pair = (targetPair || (Math.random() > 0.5 ? 'bd' : 'pq')).toLowerCase().substring(0, 2);
 
             const matrix = Array.from({ length: rows }, () =>
                 Array.from({ length: cols }, () => {
-                    const pool = (difficulty === 'Zor' || difficulty === 'Uzman')
+                    const pool = (difficulty === 'Zor' || difficulty === 'Uzman' || Math.random() > 0.3)
                         ? getSimilars(pair[0])
                         : turkishAlphabet.split('');
                     return pool[getRandomInt(0, pool.length - 1)];
                 })
             );
 
-            // HEDEF YERLEŞTİRME
-            // Hedef sayısını ızgara büyüklüğüne göre ölçekle
-            const countToPlace = Math.floor((rows * cols) * 0.12); // %12 doluluk
+            // HEDEF YERLEŞTİRME: %15 doluluk oranı (Yoğun tarama için)
+            const countToPlace = Math.floor((rows * cols) * 0.15); 
 
             for (let k = 0; k < countToPlace; k++) {
                 const r = getRandomInt(0, rows - 1);
-                const c = getRandomInt(0, cols - 2); // Pair olduğu için sondan bir öncesine kadar
+                const c = getRandomInt(0, cols - 2); 
                 matrix[r][c] = pair[0];
                 matrix[r][c + 1] = pair[1];
             }
@@ -63,23 +72,28 @@ export const generateOfflineFindLetterPair = async (options: GeneratorOptions): 
                 targetPair: options.case === 'upper' ? pair.toLocaleUpperCase('tr') : pair
             });
         }
+        
         pages.push({
-            title: "Harf İkilisi Dedektifi",
-            instruction: "Tabloları dikkatlice tara ve hedef ikilileri bulup daire içine al.",
+            title: "🔍 Harf İkilisi Dedektifi: Ultra Pro",
+            instruction: "Aşağıdaki yoğun harf havuzunu dikkatle tara. Hedef ikiliyi (yan yana gelmiş hallerini) bul ve daire içine al. Unutma, harfler birbirine çok benziyor!",
             grids,
             settings: {
                 gridSize: Math.max(rows, cols),
-                itemCount,
-                difficulty: difficulty || 'Orta'
-            }
-        });
+                itemCount: logicalItemCount,
+                difficulty: difficulty,
+                ultraCompact: true,
+                clinicalFocus: 'Visual Scanning & Interference Control'
+            },
+            pedagogicalNote: 'Bu etkinlik, benzer harfler (b-d, p-q) arasındaki görsel ayrıştırma becerisini geliştirirken, yoğun çeldiricilerle ketleme kontrolünü (inhibition) en üst düzeye çıkarır.'
+        } as any);
     }
     return pages;
 };
 
+
 // ... (Other functions generateOfflineFamilyRelations, generateOfflineFamilyLogicTest, generateOfflineSyllableWordBuilder remain unchanged) ...
 export const generateOfflineFamilyRelations = async (options: GeneratorOptions): Promise<FamilyRelationsData[]> => {
-    const { worksheetCount, difficulty, itemCount = 8 } = options;
+    const { worksheetCount = 1, difficulty, itemCount = 8 } = options;
     const pages: FamilyRelationsData[] = [];
 
     for (let p = 0; p < worksheetCount; p++) {
@@ -103,7 +117,7 @@ export const generateOfflineFamilyRelations = async (options: GeneratorOptions):
 };
 
 export const generateOfflineFamilyLogicTest = async (options: GeneratorOptions): Promise<FamilyLogicTestData[]> => {
-    const { worksheetCount, difficulty, itemCount = 8 } = options;
+    const { worksheetCount = 1, difficulty, itemCount = 8 } = options;
     const pages: FamilyLogicTestData[] = [];
 
     const statements = [
@@ -129,7 +143,7 @@ export const generateOfflineFamilyLogicTest = async (options: GeneratorOptions):
 };
 
 export const generateOfflineSyllableWordBuilder = async (options: GeneratorOptions): Promise<SyllableWordBuilderData[]> => {
-    const { worksheetCount, _difficulty, _itemCount = 4 } = options;
+    const { worksheetCount = 1, _difficulty, _itemCount = 4 } = options;
     const words = [
         { word: "ARABA", syllables: ["A", "RA", "BA"], img: "car" },
         { word: "KİTAP", syllables: ["Kİ", "TAP"], img: "book" },

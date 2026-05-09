@@ -4,23 +4,24 @@ import { getRandomItems, shuffle, getRandomInt, TR_VOCAB, turkishAlphabet, COLOR
 
 // COMPREHENSIVE SYLLABLE MASTER LAB (OFFLINE)
 export const generateOfflineSyllableMasterLab = async (options: GeneratorOptions): Promise<SyllableMasterLabData[]> => {
-    const { worksheetCount, difficulty, itemCount, topic, variant = 'split', case: letterCase, syllableRange = '2-3' } = options;
+    const { worksheetCount = 1, difficulty = 'Orta', itemCount, topic, variant = 'split', case: letterCase, syllableRange = '2-3' } = options;
     const count = itemCount || 32;
 
     const [minSyllables, maxSyllables] = syllableRange.split('-').map(Number);
 
-    return Array.from({ length: worksheetCount || 1 }, () => {
+    return Array.from({ length: worksheetCount }, () => {
         const pool = getWordsForDifficulty(difficulty || 'Orta', topic || 'animals');
         const filteredPool = pool.filter(word => {
             const sylCount = syllabifyWord(word).length;
             return sylCount >= minSyllables && sylCount <= maxSyllables;
         });
 
-        const finalPool = filteredPool;
+        const finalPool = [...filteredPool];
         if (finalPool.length < count) {
             Object.keys(TR_VOCAB).forEach(cat => {
-                if (Array.isArray(TR_VOCAB[cat])) {
-                    TR_VOCAB[cat].forEach((w: any) => {
+                const categoryWords = TR_VOCAB[cat as keyof typeof TR_VOCAB];
+                if (Array.isArray(categoryWords)) {
+                    categoryWords.forEach((w: any) => {
                         const wordStr = typeof w === 'string' ? w : w.text;
                         if (wordStr) {
                             const sylCount = syllabifyWord(wordStr).length;
@@ -57,11 +58,13 @@ export const generateOfflineSyllableMasterLab = async (options: GeneratorOptions
 
 // HARF-GÖRSEL EŞLEME (FIX: Missing generator added)
 export const generateOfflineLetterVisualMatching = async (options: GeneratorOptions): Promise<LetterVisualMatchingData[]> => {
-    const { worksheetCount, itemCount, case: letterCase, fontFamily } = options;
-    const count = itemCount || 8;
+    const { worksheetCount = 1, itemCount, case: letterCase, fontFamily, difficulty = 'Orta' } = options;
+    
+    // Premium Dolu Dolu A4: Daha fazla eşleştirme (grid_3x4 veya 4x4)
+    const count = itemCount || (difficulty === 'Zor' ? 16 : 12);
 
     const letterMap: Record<string, string> = {
-        'A': 'Aslan', 'B': 'Balık', 'C': 'Civciv', 'Ç': 'Çilek', 'D': 'Dondurma',
+        'A': 'Araba', 'B': 'Balık', 'C': 'Civciv', 'Ç': 'Çilek', 'D': 'Dondurma',
         'E': 'Elma', 'F': 'Fil', 'G': 'Güneş', 'H': 'Havuç', 'I': 'Irmak',
         'İ': 'İnek', 'K': 'Kedi', 'L': 'Limon', 'M': 'Maymun', 'N': 'Nar',
         'O': 'Otobüs', 'Ö': 'Ördek', 'P': 'Portakal', 'R': 'Roket', 'S': 'Saat',
@@ -69,29 +72,32 @@ export const generateOfflineLetterVisualMatching = async (options: GeneratorOpti
         'Y': 'Yıldız', 'Z': 'Zürafa'
     };
 
-    return Array.from({ length: worksheetCount || 1 }, () => {
+    return Array.from({ length: worksheetCount }, () => {
         const alphabet = Object.keys(letterMap).filter(l => l !== 'Ğ');
         const selectedLetters = getRandomItems(alphabet, count);
 
         const pairs = selectedLetters.map(letter => ({
             letter: letterCase === 'lower' ? letter.toLocaleLowerCase('tr') : letter,
             word: letterMap[letter],
-            imagePrompt: `${letterMap[letter]} educational illustration, high contrast`
+            imagePrompt: `${letterMap[letter]} high-contrast vector icon, simple educational style, solid background`
         }));
 
         return {
-            title: "Harf-Görsel Eşleme",
-            instruction: "Harfleri, o harfle başlayan varlıkların görselleri ile eşleştirin.",
+            title: "🎨 Harf-Görsel Eşleme (Ultra Premium)",
+            instruction: "Harfleri, o harfle başlayan varlıkların görselleri ile doğru şekilde eşleştirin. Kelimeyi yüksek sesle söyleyerek ilk harfine odaklanın.",
+            pedagogicalNote: 'Bu çalışma, fonem-grafem ilişkisini görsel-işitsel ipuçlarıyla pekiştirerek öğrencinin harf farkındalığını artırır.',
             pairs,
             settings: {
-                fontFamily: fontFamily || 'OpenDyslexic',
+                fontFamily: fontFamily || 'Lexend',
                 letterCase: letterCase || 'upper',
                 showTracing: true,
-                gridCols: options.gridSize || 2
+                gridCols: count > 12 ? 4 : 3,
+                layoutMode: 'ultra-full'
             }
-        };
+        } as any;
     });
 };
+
 
 // AYNA HARFLER (Mirror Letters)
 export const generateOfflineMirrorLetters = async (options: GeneratorOptions): Promise<MirrorLettersData[]> => {

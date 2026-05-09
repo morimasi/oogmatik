@@ -157,39 +157,37 @@ export const generateOfflineGridDrawing = async (
 ): Promise<GridDrawingData[]> => {
   const worksheetCount = options.worksheetCount || 1;
   const difficulty = options.difficulty || 'Orta';
-  const gridSize = options.gridSize || 8;
-  const concept = options.concept || 'copy';
   const results: GridDrawingData[] = [];
 
   for (let p = 0; p < worksheetCount; p++) {
-    // Seçilen zorluğa/konsepte göre bir desen seç veya üret
-    const patternName = getRandomItems(Object.keys(PREDEFINED_GRID_PATTERNS), 1)[0];
-    const sourcePattern = PREDEFINED_GRID_PATTERNS[patternName];
+    // Ultra Pro Premium: Tek sayfada 4 farklı ızgara görevi (Dolu Dolu)
+    const patterns = getRandomItems(Object.keys(PREDEFINED_GRID_PATTERNS), 4);
+    const drawings = patterns.map((pName, idx) => ({
+      lines: PREDEFINED_GRID_PATTERNS[pName],
+      title: `Görev ${idx + 1}: ${pName}`,
+      complexityLevel: idx === 0 ? 'easy' : idx < 3 ? 'medium' : 'hard',
+    }));
 
     results.push({
-      title: 'Kare Kopyalama',
+      title: 'Kare Kopyalama (Ultra Pro Matris)',
       instruction:
-        'Sol taraftaki deseni sağdaki boş ızgaraya noktaları ve çizgileri takip ederek kopyalayın.',
-      gridDim: gridSize,
+        'Sol taraftaki desenleri sağdaki boş ızgaralara noktaları ve çizgileri takip ederek kopyalayın. Görsel hafızanı ve el becerini kullan!',
+      gridDim: (options.gridSize || 8),
       settings: {
         difficulty: mapDifficulty(difficulty || 'Orta'),
-        layout: 'side_by_side',
+        layout: 'grid_2x2' as any, // 4 puzzle için 2x2 yerleşim
         gridType: 'dots',
-        transformMode: concept as any,
-        showCoordinates: (options as any).showCoordinates !== false,
+        transformMode: 'copy',
+        showCoordinates: false,
         isProfessionalMode: true,
-      },
-      drawings: [
-        {
-          lines: sourcePattern,
-          title: patternName,
-          complexityLevel: 'medium',
-        },
-      ],
-    });
+        showClinicalNotes: true,
+      } as any,
+      drawings: drawings as any,
+    } as any);
   }
   return results;
 };
+
 
 export const generateOfflineSymmetryDrawing = async (
   options: GeneratorOptions
