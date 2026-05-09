@@ -134,7 +134,7 @@ export class UserQuotaService {
 
         if (!allowed) {
             const resetAfterSec = Math.ceil(resetAfterMs / 1000);
-            throw new RateLimitError(resetAfterSec);
+            throw new RateLimitError(undefined, { retryAfter: resetAfterSec });
         }
     }
 
