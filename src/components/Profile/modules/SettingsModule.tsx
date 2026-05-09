@@ -190,9 +190,9 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({
       case 'profile':
         return (
           <>
-          <>
              <div className="p-10 bg-gradient-to-br from-indigo-600/20 via-purple-600/10 to-transparent rounded-[3.5rem] border border-white/20 shadow-2xl relative overflow-hidden group mb-10">
                 <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/15 rounded-full -mr-40 -mt-40 blur-[100px] animate-pulse"></div>
+
                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full -ml-32 -mb-32 blur-[80px]"></div>
                 
                 <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
@@ -380,48 +380,51 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({
               </div>
             </div>
           </div>
-                  <div className="space-y-10 animate-in fade-in duration-500">
-             <div className="p-8 bg-gradient-to-br from-indigo-600/10 to-transparent rounded-[3rem] border border-indigo-500/20 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-500/10 rounded-full -mr-24 -mt-24 blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
-                <div className="relative flex flex-col md:flex-row items-center justify-between gap-6 mb-10">
-                  <div className="text-center md:text-left">
-                    <h3 className="text-xl font-black text-indigo-600 uppercase tracking-[0.2em] mb-2 flex items-center justify-center md:justify-start gap-3">
-                       <i className="fa-solid fa-wand-magic-sparkles animate-bounce"></i>
-                       Omnikron AI Pro
-                    </h3>
-                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Hiper-Parametrik Üretim Motoru</p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="px-5 py-2 bg-indigo-600 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest shadow-[0_10px_20px_rgba(79,70,229,0.3)] border border-indigo-400/50">
-                      Gemini 1.5 Flash
-                    </div>
-                    <div className="px-5 py-2 bg-white dark:bg-zinc-800 text-indigo-600 rounded-2xl text-[9px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-900 shadow-sm">
-                      v2.8 Master
-                    </div>
-                  </div>
-                </div>
+        );
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
-                  <div className="p-5 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-3xl border border-white/50 shadow-sm transition-all hover:translate-y-[-2px]">
-                    <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1 opacity-60">Avg Latency</p>
-                    <p className="text-2xl font-black text-indigo-600">0.72s</p>
+      case 'ai':
+        return (
+          <div className="space-y-10 animate-in fade-in duration-500">
+            <div className="p-8 bg-gradient-to-br from-indigo-600/10 to-transparent rounded-[3rem] border border-indigo-500/20 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-500/10 rounded-full -mr-24 -mt-24 blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+              <div className="relative flex flex-col md:flex-row items-center justify-between gap-6 mb-10">
+                <div className="text-center md:text-left">
+                  <h3 className="text-xl font-black text-indigo-600 uppercase tracking-[0.2em] mb-2 flex items-center justify-center md:justify-start gap-3">
+                     <i className="fa-solid fa-wand-magic-sparkles animate-bounce"></i>
+                     Omnikron AI Pro
+                  </h3>
+                  <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Hiper-Parametrik Üretim Motoru</p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="px-5 py-2 bg-indigo-600 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest shadow-[0_10px_20px_rgba(79,70,229,0.3)] border border-indigo-400/50">
+                    Gemini 1.5 Flash
                   </div>
-                  <div className="p-5 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-3xl border border-white/50 shadow-sm transition-all hover:translate-y-[-2px]">
-                    <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1 opacity-60">Success Rate</p>
-                    <p className="text-2xl font-black text-emerald-500">99.8%</p>
-                  </div>
-                  <div className="p-5 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-3xl border border-white/50 shadow-sm transition-all hover:translate-y-[-2px]">
-                    <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1 opacity-60">Context Win</p>
-                    <p className="text-2xl font-black text-indigo-600">1.2M</p>
-                  </div>
-                   <div className="p-5 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-3xl border border-white/50 shadow-sm transition-all hover:translate-y-[-2px]">
-                    <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1 opacity-60">Reputation</p>
-                    <p className="text-2xl font-black text-purple-600">Legend</p>
+                  <div className="px-5 py-2 bg-white dark:bg-zinc-800 text-indigo-600 rounded-2xl text-[9px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-900 shadow-sm">
+                    v2.8 Master
                   </div>
                 </div>
-             </div>
-             </div>
-             </div>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
+                <div className="p-5 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-3xl border border-white/50 shadow-sm transition-all hover:translate-y-[-2px]">
+                  <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1 opacity-60">Avg Latency</p>
+                  <p className="text-2xl font-black text-indigo-600">0.72s</p>
+                </div>
+                <div className="p-5 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-3xl border border-white/50 shadow-sm transition-all hover:translate-y-[-2px]">
+                  <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1 opacity-60">Success Rate</p>
+                  <p className="text-2xl font-black text-emerald-500">99.8%</p>
+                </div>
+                <div className="p-5 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-3xl border border-white/50 shadow-sm transition-all hover:translate-y-[-2px]">
+                  <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1 opacity-60">Context Win</p>
+                  <p className="text-2xl font-black text-indigo-600">1.2M</p>
+                </div>
+                 <div className="p-5 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-3xl border border-white/50 shadow-sm transition-all hover:translate-y-[-2px]">
+                  <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1 opacity-60">Reputation</p>
+                  <p className="text-2xl font-black text-purple-600">Legend</p>
+                </div>
+              </div>
+            </div>
+
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
