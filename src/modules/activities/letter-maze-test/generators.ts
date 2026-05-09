@@ -1,4 +1,4 @@
-import { generateWithSchema } from '../../services/geminiClient.js';
+import { generateWithSchema } from '../../../services/geminiClient.js';
 import { GeneratorOptions } from '../../../types.js';
 
 /**
