@@ -22,4 +22,21 @@ export interface User {
   institution?: string;
   phone?: string;
   bio?: string;
+  pedagogySettings?: {
+    curriculumSync: boolean;
+    curriculumYear: string;
+    zpdStrategy: 'optimal' | 'scaffold' | 'autonomy';
+    terminologyMode: 'supportive' | 'clinical';
+    bepIntegration: boolean;
+    fontStandard: string;
+  };
+  aiAssistantSettings?: {
+    tone: string;
+    creativity: number;
+    imageMode: 'cartoon' | 'realistic' | 'schematic' | 'lineart';
+    scaffolding: 'low' | 'balanced' | 'high' | 'max';
+    autoSuggest: boolean;
+    voiceAssistant: boolean;
+    analysisDepth: 'detailed' | 'summary' | 'bullet';
+  };
 }

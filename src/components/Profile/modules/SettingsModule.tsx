@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, ChangeEvent } from 'react';
 import { ProfileData } from '../../../types/profile';
 import { User, AppTheme, UiSettings } from '../../../types';
 import { useAuthStore } from '../../../store/useAuthStore';
@@ -16,7 +16,7 @@ interface SettingsModuleProps {
   onOpenSettingsModal?: () => void;
 }
 
-type SettingsCategory = 'profile' | 'appearance' | 'ai' | 'notifications' | 'security';
+type SettingsCategory = 'profile' | 'appearance' | 'pedagogy' | 'ai' | 'notifications' | 'security';
 
 export const SettingsModule: React.FC<SettingsModuleProps> = ({
   data,
@@ -41,31 +41,28 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({
 
   // AI Settings
   const [aiSettings, setAiSettings] = useState(() => {
-    try {
-      const saved = localStorage.getItem('oogmatik-ai-settings');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        return {
-          model: 'gemini-2.5-flash',
-          creativity: parsed.creativity || 75,
-          autoSuggest: parsed.autoSuggest ?? true,
-          analysisDepth: parsed.analysisDepth || 'detailed',
-          voiceAssistant: parsed.voiceAssistant ?? false,
-          dataPrivacy: parsed.dataPrivacy || 'balanced',
-          tone: parsed.tone || 'kurumsal',
-        };
-      }
-    } catch {
-      // localStorage error
-    }
+    if (user?.aiAssistantSettings) return user.aiAssistantSettings;
     return {
-      model: 'gemini-2.5-flash',
+      tone: 'kurumsal',
       creativity: 75,
       autoSuggest: true,
-      analysisDepth: 'detailed',
+      analysisDepth: 'detailed' as const,
       voiceAssistant: false,
-      dataPrivacy: 'balanced',
-      tone: 'kurumsal',
+      imageMode: 'cartoon' as const,
+      scaffolding: 'balanced' as const
+    };
+  });
+
+  // Pedagogy Settings
+  const [pedagogySettings, setPedagogySettings] = useState(() => {
+    if (user?.pedagogySettings) return user.pedagogySettings;
+    return {
+      curriculumSync: true,
+      curriculumYear: '2024-2025',
+      zpdStrategy: 'optimal' as const,
+      terminologyMode: 'supportive' as const,
+      bepIntegration: true,
+      fontStandard: 'Lexend'
     };
   });
 
@@ -98,11 +95,12 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   const categories = [
-    { id: 'profile' as SettingsCategory, label: 'Profil', icon: 'fa-user-pen', desc: 'Kişisel bilgiler' },
-    { id: 'appearance' as SettingsCategory, label: 'Arayüz', icon: 'fa-sliders', desc: 'Görsel ayarlar' },
-    { id: 'ai' as SettingsCategory, label: 'AI Asistan', icon: 'fa-brain', desc: 'AI davranışları' },
-    { id: 'notifications' as SettingsCategory, label: 'Bildirimler', icon: 'fa-bell', desc: 'Uyarı ayarları' },
-    { id: 'security' as SettingsCategory, label: 'Güvenlik', icon: 'fa-shield-halved', desc: 'Hesap güvenliği' },
+    { id: 'profile' as SettingsCategory, label: 'Profil', icon: 'fa-user-pen', desc: 'Kişisel ve Kurumsal' },
+    { id: 'appearance' as SettingsCategory, label: 'Arayüz', icon: 'fa-palette', desc: 'Premium Tasarım' },
+    { id: 'pedagogy' as SettingsCategory, label: 'Pedagoji', icon: 'fa-graduation-cap', desc: 'Eğitim Stratejisi' },
+    { id: 'ai' as SettingsCategory, label: 'AI Asistan', icon: 'fa-wand-magic-sparkles', desc: 'Üretim Motoru' },
+    { id: 'notifications' as SettingsCategory, label: 'Bildirimler', icon: 'fa-bell', desc: 'Uyarılar' },
+    { id: 'security' as SettingsCategory, label: 'Güvenlik', icon: 'fa-shield-halved', desc: 'Hesap & Gizlilik' },
   ];
 
   const handleUpdateProfile = async () => {
@@ -116,12 +114,18 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({
         phone: editPhone,
         bio: editBio,
         avatar: avatarUrl,
+        pedagogySettings,
+        aiAssistantSettings: {
+          ...aiSettings,
+          imageMode: (aiSettings as any).imageMode || 'cartoon',
+          scaffolding: (aiSettings as any).scaffolding || 'balanced'
+        } as any
       });
-      useToastStore.getState().success('Profil başarıyla güncellendi.');
+      useToastStore.getState().success('Profil ve ayarlar başarıyla güncellendi.');
     } catch (e) {
       const err = e instanceof AppError ? e : new AppError(String(e), 'PROFILE_UPDATE_ERROR', 500);
       logError(err, { context: 'handleUpdateProfile' });
-      useToastStore.getState().error('Profil güncellenirken hata oluştu.');
+      useToastStore.getState().error('Güncelleme sırasında hata oluştu.');
     } finally {
       setIsSavingProfile(false);
     }
@@ -185,7 +189,23 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({
     switch (activeCategory) {
       case 'profile':
         return (
-          <div className="space-y-6">
+          <>
+             <div className="p-8 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-[3rem] border border-white/20 shadow-2xl relative overflow-hidden group mb-8">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full -mr-32 -mt-32 blur-3xl group-hover:scale-125 transition-transform duration-1000"></div>
+                <div className="flex items-center gap-6 relative">
+                   <div className="w-24 h-24 rounded-[2.5rem] bg-indigo-100 p-1 bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-xl">
+                      <img src={avatarUrl} className="w-full h-full rounded-[2.2rem] object-cover bg-white" alt="Avatar" />
+                   </div>
+                   <div>
+                      <h3 className="text-2xl font-black text-[var(--text-primary)] mb-1">{editName || 'İsimsiz Eğitmen'}</h3>
+                      <div className="flex flex-wrap gap-2">
+                         <span className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-indigo-200 shadow-sm">{editProfession || 'Uzmanlık Belirtilmedi'}</span>
+                         <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-emerald-200 shadow-sm">{editInstitution || 'Kurum Atanmadı'}</span>
+                      </div>
+                   </div>
+                </div>
+             </div>
+
             <div className="flex flex-col md:flex-row gap-8 items-start">
               <div className="relative group">
                 <div className="w-32 h-32 rounded-[2.5rem] p-1 bg-gradient-to-tr from-[var(--accent-color)] to-purple-500 shadow-xl overflow-hidden">
@@ -209,7 +229,7 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({
                     <input
                       type="text"
                       value={avatarUrl}
-                      onChange={(e) => setAvatarUrl(e.target.value)}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setAvatarUrl(e.target.value)}
                       placeholder="https://..."
                       className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20 text-sm font-bold"
                     />
@@ -221,7 +241,7 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({
                     <input
                       type="text"
                       value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setEditName(e.target.value)}
                       className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20 font-bold"
                     />
                   </div>
@@ -230,7 +250,7 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({
                     <input
                       type="text"
                       value={editProfession}
-                      onChange={(e) => setEditProfession(e.target.value)}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setEditProfession(e.target.value)}
                       className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20 font-bold"
                     />
                   </div>
@@ -244,7 +264,7 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({
                 <input
                   type="text"
                   value={editInstitution}
-                  onChange={(e) => setEditInstitution(e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setEditInstitution(e.target.value)}
                   className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20 font-bold"
                 />
               </div>
@@ -253,7 +273,7 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({
                 <input
                   type="tel"
                   value={editPhone}
-                  onChange={(e) => setEditPhone(e.target.value)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setEditPhone(e.target.value)}
                   className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20 font-bold"
                 />
               </div>
@@ -263,7 +283,7 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({
               <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Hakkımda / Bio</label>
               <textarea
                 value={editBio}
-                onChange={(e) => setEditBio(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setEditBio(e.target.value)}
                 rows={3}
                 className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20 font-bold resize-none"
               />
@@ -279,40 +299,54 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({
                 Profil Bilgilerini Güncelle
               </button>
             </div>
-          </div>
+          </>
         );
 
       case 'appearance':
         return (
           <div className="space-y-6">
             <div>
-              <label className="flex items-center gap-2 mb-4">
-                <input
-                  type="checkbox"
-                  checked={darkModeEnabled}
-                  onChange={handleToggleDarkMode}
-                  className="rounded"
-                />
-                <span className="text-[var(--text-primary)] font-medium">Koyu Tema</span>
+              <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-3 flex items-center gap-2 ml-1">
+                <i className="fa-solid fa-palette text-indigo-500"></i>
+                Görsel Tema Stili
               </label>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                 {[
+                   { name: 'Antrasit Pro', id: 'anthracite', color: 'bg-[#1a1a1a]' },
+                   { name: 'Okyanus', id: 'ocean', color: 'bg-blue-600' },
+                   { name: 'Işık Kaplı', id: 'light', color: 'bg-white border' },
+                   { name: 'Uzay Gezgini', id: 'space', color: 'bg-slate-900' }
+                 ].map(t => (
+                   <button 
+                    key={t.id}
+                    onClick={() => onUpdateTheme && onUpdateTheme(t.id as AppTheme)}
+                    className={`p-4 rounded-3xl border-2 transition-all group ${theme === t.id ? 'border-indigo-500 bg-indigo-50/50' : 'border-transparent bg-[var(--bg-secondary)] hover:border-indigo-200'}`}
+                   >
+                      <div className={`w-full h-12 ${t.color} rounded-2xl mb-3 shadow-md group-hover:scale-105 transition-transform`}></div>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-primary)]">{t.name}</span>
+                   </button>
+                 ))}
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-[var(--text-primary)] mb-3">
-                Yoğunluk
+            <div className="p-6 bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)]">
+              <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-4 flex items-center gap-2 ml-1">
+                <i className="fa-solid fa-compress text-indigo-500"></i>
+                Arayüz Yerleşimi (Density)
               </label>
-              <div className="flex gap-3">
+              <div className="flex gap-4">
                 {['comfortable', 'compact'].map((density) => (
                   <button
                     key={density}
-                    onClick={() => setCustomUi(prev => ({ ...prev, density }))}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                    onClick={() => setCustomUi((prev: any) => ({ ...prev, density }))}
+                    className={`flex-1 p-6 rounded-[2rem] border-2 transition-all flex flex-col items-center gap-3 ${
                       customUi.density === density
-                        ? 'bg-[var(--accent-color)] text-white'
-                        : 'bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
+                        ? 'border-indigo-500 bg-indigo-600 text-white shadow-xl shadow-indigo-500/20'
+                        : 'border-transparent bg-[var(--bg-paper)] text-[var(--text-muted)] hover:border-indigo-200'
                     }`}
                   >
-                    {density === 'comfortable' ? 'Rahat' : 'Kompakt'}
+                    <i className={`fa-solid ${density === 'comfortable' ? 'fa-square' : 'fa-list-ul'} text-xl`}></i>
+                    <span className="text-xs font-black uppercase tracking-widest">{density === 'comfortable' ? 'Ferah Mod' : 'Kompakt Mod'}</span>
                   </button>
                 ))}
               </div>
@@ -323,98 +357,249 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({
       case 'ai':
         return (
           <div className="space-y-8">
+             <div className="p-6 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-[2.5rem] border border-indigo-500/20 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+                <div className="relative flex items-center justify-between mb-6">
+                  <div>
+                    <h3 className="text-sm font-black text-indigo-600 uppercase tracking-widest mb-1 flex items-center gap-2">
+                       <i className="fa-solid fa-sparkles"></i>
+                       Omnikron AI Pro
+                    </h3>
+                    <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Master Model Etkin</p>
+                  </div>
+                  <div className="px-3 py-1 bg-indigo-500 text-white rounded-full text-[8px] font-black uppercase tracking-widest">
+                    Gemini 2.5 Flash
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-4 bg-white/50 dark:bg-black/20 rounded-2xl border border-white/50 shadow-sm">
+                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">Latency</p>
+                    <p className="text-xl font-black text-indigo-600">~0.8s</p>
+                  </div>
+                  <div className="p-4 bg-white/50 dark:bg-black/20 rounded-2xl border border-white/50 shadow-sm">
+                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">Accuracy</p>
+                    <p className="text-xl font-black text-indigo-600">99.2%</p>
+                  </div>
+                  <div className="p-4 bg-white/50 dark:bg-black/20 rounded-2xl border border-white/50 shadow-sm">
+                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">Token Limit</p>
+                    <p className="text-xl font-black text-indigo-600">1.2M</p>
+                  </div>
+                </div>
+             </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div>
-                <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Motor Modeli</label>
-                <div className="w-full p-4 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-2xl font-bold text-[var(--text-muted)] cursor-not-allowed flex items-center gap-3">
-                  <i className="fa-solid fa-lock text-xs opacity-50"></i>
-                  <span>Gemini 2.5 Flash</span>
-                  <span className="ml-auto text-[8px] font-black uppercase tracking-widest bg-[var(--accent-muted)] text-[var(--accent-color)] px-2 py-1 rounded-lg border border-[var(--accent-color)]/20">SABİT</span>
-                </div>
-              </div>
-
-              <div>
                 <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">AI Konuşma Tonu</label>
-                <select
-                  value={aiSettings.tone}
-                  onChange={(e) => setAiSettings(prev => ({ ...prev, tone: e.target.value }))}
-                  className="w-full p-4 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-2xl font-bold text-[var(--text-primary)] outline-none focus:ring-4 focus:ring-[var(--accent-color)]/10 focus:border-[var(--accent-color)] transition-all"
-                >
-                  <option value="kurumsal">Kurumsal & Profesyonel</option>
-                  <option value="öğretmen">Pedagojik (Öğretmen Tonu)</option>
-                  <option value="bilimsel">Akademik & Bilimsel</option>
-                  <option value="dostane">Sıcak & Dostane</option>
-                </select>
-              </div>
-
-              <div className="md:col-span-2">
-                <div className="flex justify-between items-center mb-4">
-                  <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Yaratıcılık & Esneklik</label>
-                  <span className="text-xs font-black text-[var(--accent-color)]">%{aiSettings.creativity}</span>
+                <div className="grid grid-cols-2 gap-2">
+                  {['kurumsal', 'öğretmen', 'bilimsel', 'dostane'].map(t => (
+                    <button
+                      key={t}
+                      onClick={() => setAiSettings((prev: any) => ({ ...prev, tone: t }))}
+                      className={`px-4 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                        aiSettings.tone === t 
+                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' 
+                        : 'bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:bg-[var(--bg-hover)]'
+                      }`}
+                    >
+                      {t}
+                    </button>
+                  ))}
                 </div>
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={aiSettings.creativity}
-                  onChange={(e) => setAiSettings(prev => ({ ...prev, creativity: Number(e.target.value) }))}
-                  className="w-full accent-[var(--accent-color)]"
-                />
               </div>
 
               <div>
-                <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Analiz Derinliği</label>
+                <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Görsel Üretim Modu</label>
                 <select
-                  value={aiSettings.analysisDepth}
-                  onChange={(e) => setAiSettings(prev => ({ ...prev, analysisDepth: e.target.value }))}
-                  className="w-full p-4 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-2xl font-bold text-[var(--text-primary)] outline-none focus:ring-4 focus:ring-[var(--accent-color)]/10 transition-all"
+                  value={(aiSettings as any).imageMode || 'cartoon'}
+                  onChange={(e: ChangeEvent<HTMLSelectElement>) => setAiSettings((prev: any) => ({ ...prev, imageMode: e.target.value }))}
+                  className="w-full p-4 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-2xl font-bold text-[var(--text-primary)] outline-none focus:ring-4 focus:ring-indigo-500/10 transition-all"
                 >
-                  <option value="detailed">Maksimum Detay</option>
-                  <option value="summary">Özet Analiz</option>
-                  <option value="bullet">Maddeleştirilmiş</option>
+                  <option value="cartoon">Pedagojik İllüstrasyon (Yumuşak)</option>
+                  <option value="realistic">Gerçekçi Fotoğraf (Vivid)</option>
+                  <option value="schematic">Şematik & Teknik Çizim</option>
+                  <option value="lineart">Boyama Sayfası (Line Art)</option>
                 </select>
               </div>
 
-              <div>
-                <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Veri Gizlilik Profili</label>
-                <select
-                  value={aiSettings.dataPrivacy}
-                  onChange={(e) => setAiSettings(prev => ({ ...prev, dataPrivacy: e.target.value }))}
-                  className="w-full p-4 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-2xl font-bold text-[var(--text-primary)] outline-none focus:ring-4 focus:ring-[var(--accent-color)]/10 transition-all"
-                >
-                  <option value="balanced">Dengeli Kararlılık</option>
-                  <option value="strict">Yüksek Güvenlik</option>
-                  <option value="collab">Gelişmiş İşbirliği</option>
-                </select>
+              <div className="md:col-span-2 space-y-6 p-6 bg-[var(--bg-secondary)]/50 rounded-3xl border border-[var(--border-color)]">
+                <div>
+                  <div className="flex justify-between items-center mb-4">
+                    <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Pedagojik İskele (Scaffolding) Seviyesi</label>
+                    <span className="text-xs font-black text-indigo-600">Optimize Edildi</span>
+                  </div>
+                  <div className="flex gap-2">
+                    {['low', 'balanced', 'high', 'max'].map(l => (
+                      <button 
+                        key={l}
+                        onClick={() => setAiSettings((prev: any) => ({ ...prev, scaffolding: l }))}
+                        className={`flex-1 py-3 rounded-xl text-[9px] font-black uppercase tracking-tighter transition-all ${
+                          (aiSettings as any).scaffolding === l ? 'bg-indigo-600 text-white' : 'bg-white dark:bg-zinc-800 text-zinc-400'
+                        }`}
+                      >
+                        {l === 'low' ? 'Düşük' : l === 'balanced' ? 'Dengeli' : l === 'high' ? 'Yüksek' : 'Maksimum'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <div className="flex justify-between items-center mb-4">
+                    <label className="text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Yaratıcılık Matrisi</label>
+                    <span className="text-xs font-black text-indigo-600">%{aiSettings.creativity}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={aiSettings.creativity}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setAiSettings((prev: any) => ({ ...prev, creativity: Number(e.target.value) }))}
+                    className="w-full h-2 bg-indigo-100 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                  />
+                  <div className="flex justify-between mt-2 px-1">
+                    <span className="text-[8px] font-black text-zinc-400 uppercase">Muhafazakar</span>
+                    <span className="text-[8px] font-black text-zinc-400 uppercase">Dengeli</span>
+                    <span className="text-[8px] font-black text-zinc-400 uppercase">Kaotik Yaratıcı</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div 
-                onClick={() => setAiSettings(prev => ({ ...prev, autoSuggest: !prev.autoSuggest }))}
-                className="flex items-center justify-between p-4 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] cursor-pointer hover:border-[var(--accent-color)]/40 transition-all"
-              >
-                <div>
-                  <p className="font-black text-[var(--text-primary)] text-xs">Akıllı Öneriler</p>
-                  <p className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider">Otomatik aktivite önerisi</p>
-                </div>
-                <div className={`w-10 h-5 rounded-full relative transition-all duration-300 ${aiSettings.autoSuggest ? 'bg-[var(--accent-color)]' : 'bg-zinc-200 dark:bg-zinc-700'}`}>
-                  <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-0.75 transition-all duration-300 ${aiSettings.autoSuggest ? 'left-5.5' : 'left-1'}`}></div>
-                </div>
-              </div>
-              <div 
-                onClick={() => setAiSettings(prev => ({ ...prev, voiceAssistant: !prev.voiceAssistant }))}
-                className="flex items-center justify-between p-4 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] cursor-pointer hover:border-[var(--accent-color)]/40 transition-all"
-              >
-                <div>
-                  <p className="font-black text-[var(--text-primary)] text-xs">Sesli Asistan</p>
-                  <p className="text-[9px] text-[var(--text-muted)] font-bold uppercase tracking-wider">Metinleri sesli oku</p>
-                </div>
-                <div className={`w-10 h-5 rounded-full relative transition-all duration-300 ${aiSettings.voiceAssistant ? 'bg-[var(--accent-color)]' : 'bg-zinc-200 dark:bg-zinc-700'}`}>
-                  <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-0.75 transition-all duration-300 ${aiSettings.voiceAssistant ? 'left-5.5' : 'left-1'}`}></div>
-                </div>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+               {[
+                 { id: 'autoSuggest', label: 'Akıllı Öneriler', icon: 'fa-lightbulb' },
+                 { id: 'voiceAssistant', label: 'Sesli Asistan', icon: 'fa-microphone' },
+                 { id: 'ocrModule', label: 'Gelişmiş OCR', icon: 'fa-file-export' }
+               ].map(item => (
+                 <div
+                   key={item.id}
+                   onClick={() => setAiSettings((prev: any) => ({ ...prev, [item.id]: !(prev as any)[item.id] }))}
+                   className="p-4 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] flex items-center justify-between hover:border-indigo-500/30 transition-all cursor-pointer group"
+                 >
+                   <div className="flex items-center gap-3">
+                     <div className="w-8 h-8 rounded-lg bg-white dark:bg-zinc-800 flex items-center justify-center text-zinc-400 group-hover:text-indigo-500 transition-colors">
+                       <i className={`fa-solid ${item.icon} text-xs`}></i>
+                     </div>
+                     <span className="text-[10px] font-black text-[var(--text-primary)] uppercase tracking-tight">{item.label}</span>
+                   </div>
+                   <div className={`w-8 h-4 rounded-full relative transition-all ${(aiSettings as any)[item.id] ? 'bg-indigo-600' : 'bg-zinc-300 dark:bg-zinc-700'}`}>
+                      <div className={`w-2.5 h-2.5 bg-white rounded-full absolute top-0.75 transition-all ${(aiSettings as any)[item.id] ? 'right-1' : 'left-1'}`}></div>
+                   </div>
+                 </div>
+               ))}
             </div>
+          </div>
+        );
+
+      case 'pedagogy':
+        return (
+          <div className="space-y-8 animate-in fade-in duration-500">
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-3 ml-1">Müfredat Senkronizasyonu</label>
+                    <div className="flex flex-col gap-3">
+                      <div className="p-4 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] flex items-center justify-between">
+                         <div>
+                            <p className="text-xs font-black text-[var(--text-primary)]">MEB 2024-2025 Uyumu</p>
+                            <p className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Otomatik kazanım eşleme aktif</p>
+                         </div>
+                         <div 
+                           onClick={() => setPedagogySettings((prev: any) => ({ ...prev, curriculumSync: !prev.curriculumSync }))}
+                           className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${pedagogySettings.curriculumSync ? 'bg-emerald-500' : 'bg-zinc-300'}`}
+                          >
+                            <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-0.75 transition-all shadow-sm ${pedagogySettings.curriculumSync ? 'right-1' : 'left-1'}`}></div>
+                         </div>
+                      </div>
+                      <select 
+                        value={pedagogySettings.curriculumYear}
+                        onChange={(e: ChangeEvent<HTMLSelectElement>) => setPedagogySettings((prev: any) => ({ ...prev, curriculumYear: e.target.value }))}
+                        className="w-full p-4 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-2xl font-bold text-sm outline-none"
+                      >
+                        <option>2024-2025 (Yeni Müfredat)</option>
+                        <option>2023-2024 (Eski Müfredat)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-3 ml-1">Vygotsky ZPD Stratejisi</label>
+                    <div className="grid grid-cols-1 gap-2">
+                       {[
+                         { id: 'optimal', label: 'Optimal Gelişim', desc: 'Öğrenciyi %15 zorlayarak ilerletir' },
+                         { id: 'scaffold', label: 'Yoğun İskele', desc: 'Maksimum yardım ile hata oranını düşürür' },
+                         { id: 'autonomy', label: 'Özerklik Odaklı', desc: 'İpuçlarını azaltarak bağımsız çalışmayı teşvik eder' }
+                       ].map(s => (
+                         <div 
+                           key={s.id}
+                           onClick={() => setPedagogySettings((prev: any) => ({ ...prev, zpdStrategy: s.id }))}
+                           className={`p-4 rounded-2xl border cursor-pointer transition-all ${
+                             pedagogySettings.zpdStrategy === s.id 
+                             ? 'bg-amber-500/5 border-amber-500/30' 
+                             : 'bg-[var(--bg-secondary)] border-[var(--border-color)] hover:bg-[var(--bg-hover)]'
+                           }`}
+                         >
+                           <div className="flex items-center justify-between mb-1">
+                              <span className="text-xs font-black text-[var(--text-primary)]">{s.label}</span>
+                              {pedagogySettings.zpdStrategy === s.id && <i className="fa-solid fa-circle-check text-amber-500"></i>}
+                           </div>
+                           <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-tight">{s.desc}</p>
+                         </div>
+                       ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                   <div>
+                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-3 ml-1">Klinik Dil Politikası</label>
+                    <div className="p-6 bg-[var(--bg-paper)] rounded-3xl border border-[var(--border-color)] shadow-inner">
+                       <p className="text-[10px] font-bold text-[var(--text-muted)] leading-relaxed italic mb-4">
+                         "MEB yönetmeliği gereği öğrenciler için 'tanılayıcı' dil yerine 'destekleyici/pedagojik' dil kullanımı önerilir."
+                       </p>
+                       <div className="flex gap-2">
+                          <button 
+                            onClick={() => setPedagogySettings((prev: any) => ({ ...prev, terminologyMode: 'supportive' }))}
+                            className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                              pedagogySettings.terminologyMode === 'supportive' ? 'bg-emerald-600 text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400'
+                            }`}
+                          >
+                             Destekleyici
+                          </button>
+                          <button 
+                            onClick={() => setPedagogySettings((prev: any) => ({ ...prev, terminologyMode: 'clinical' }))}
+                            className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+                              pedagogySettings.terminologyMode === 'clinical' ? 'bg-rose-600 text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400'
+                            }`}
+                          >
+                             Klinik
+                          </button>
+                       </div>
+                    </div>
+                   </div>
+
+                   <div className="p-6 bg-gradient-to-br from-amber-500/5 to-orange-500/5 rounded-3xl border border-amber-500/10">
+                      <h4 className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        <i className="fa-solid fa-shield-cat"></i>
+                        Disleksi Erişilebilirlik Kilidi
+                      </h4>
+                      <div className="space-y-4">
+                         <div className="flex items-center justify-between">
+                            <span className="text-xs font-black text-[var(--text-primary)]">Lexend Font Zorunluluğu</span>
+                            <div className="w-8 h-4 bg-amber-500 rounded-full relative">
+                               <div className="w-2.5 h-2.5 bg-white rounded-full absolute top-0.75 right-1"></div>
+                            </div>
+                         </div>
+                         <div className="flex items-center justify-between">
+                            <span className="text-xs font-black text-[var(--text-primary)]">Satır Aralığı Optimizasyonu</span>
+                            <div className="w-8 h-4 bg-amber-500 rounded-full relative">
+                               <div className="w-2.5 h-2.5 bg-white rounded-full absolute top-0.75 right-1"></div>
+                            </div>
+                         </div>
+                      </div>
+                   </div>
+                </div>
+             </div>
           </div>
         );
 
@@ -464,7 +649,7 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({
                       <input
                         type="password"
                         value={passwordForm.next}
-                        onChange={(e) => setPasswordForm(prev => ({ ...prev, next: e.target.value }))}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => setPasswordForm((prev: any) => ({ ...prev, next: e.target.value }))}
                         className="w-full px-4 py-3 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl focus:ring-2 focus:ring-[var(--accent-color)]"
                       />
                     </div>
@@ -473,7 +658,7 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({
                       <input
                         type="password"
                         value={passwordForm.confirm}
-                        onChange={(e) => setPasswordForm(prev => ({ ...prev, confirm: e.target.value }))}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => setPasswordForm((prev: any) => ({ ...prev, confirm: e.target.value }))}
                         className="w-full px-4 py-3 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl focus:ring-2 focus:ring-[var(--accent-color)]"
                       />
                     </div>
@@ -523,7 +708,7 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({
                   <input
                     type="text"
                     value={deleteConfirmText}
-                    onChange={(e) => setDeleteConfirmText(e.target.value)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setDeleteConfirmText(e.target.value)}
                     className="w-full px-4 py-3 bg-white dark:bg-black/50 border-2 border-rose-200 dark:border-rose-900 rounded-xl focus:ring-4 focus:ring-rose-500/20 outline-none text-rose-600 font-black text-center"
                     placeholder="HESABIMI SİL"
                   />
