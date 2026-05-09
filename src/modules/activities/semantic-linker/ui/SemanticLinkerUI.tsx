@@ -1,10 +1,12 @@
 import * as React from 'react';
-import { SemanticLinkerData, SemanticLinkerItem, SemanticLinkerOption } from '../types';
+import { SemanticLinkerData, SemanticLinkerItem, SemanticLinkerOption } from '../types.js';
+
 
 /**
  * SemanticLinkerUI: Anlamsal İlişki Kurma A4 Render Bileşeni
  */
-export const SemanticLinkerUI: React.FC<{ data: SemanticLinkerData }> = ({ data }) => {
+export const SemanticLinkerUI = ({ data }: { data: SemanticLinkerData }) => {
+
   return (
     <div className="w-full flex flex-col items-center">
       <h2 className="w-full text-center py-2 px-4 mb-4 bg-zinc-50 border-2 border-zinc-200 rounded-2xl text-sm font-black text-zinc-700 italic uppercase tracking-tighter">

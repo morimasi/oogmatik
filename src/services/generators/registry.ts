@@ -5,7 +5,8 @@ import * as offlineGenerators from '../offlineGenerators/index';
 import { INFOGRAPHIC_ADAPTERS_FIRST_10 } from './infographic/infographicAdapter.js';
 import { INFOGRAPHIC_ADAPTERS_REMAINING_84 } from './infographic/infographicFactory.js';
 import * as sariKitapGenerators from './sariKitap/index';
-import { generateSemanticLinkerAI, generateSemanticLinkerOffline } from '../../modules/activities/semantic-linker/generators';
+import { generateSemanticLinkerAI, generateSemanticLinkerOffline } from '../../modules/activities/semantic-linker/generators.js';
+
 
 /**
  * Aktivite Jeneratör Haritası
