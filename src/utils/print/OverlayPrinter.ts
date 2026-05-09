@@ -175,16 +175,15 @@ export const print = async (
     (clone.style as any).scale = 'none';
     clone.style.zoom = '1';
 
-    clone.style.width = `${origWidth}px`;
-    clone.style.minWidth = `${origWidth}px`;
+    clone.style.width = `${origWidth || 1120}px`;
+    clone.style.minWidth = `${origWidth || 1120}px`;
     clone.style.margin = '0';
     clone.style.position = 'relative';
 
-    // Scale to fit A4
-    const scaleRatio = Math.min(1, PRINTABLE_A4_WIDTH_PX / origWidth);
-    if (scaleRatio < 1) {
-      (clone.style as unknown as { zoom: string | number }).zoom = scaleRatio;
-    }
+    // Scale to fit A4 (Hassas Matematiksel Uyum)
+    const effectiveWidth = origWidth || 1120;
+    const scaleRatio = Math.min(1, PRINTABLE_A4_WIDTH_PX / effectiveWidth);
+    (clone.style as any).zoom = scaleRatio;
 
     // Input, Select ve Canvas Transferi (Robust Sync)
     const origCanvases = original.querySelectorAll('canvas');

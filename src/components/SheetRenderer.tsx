@@ -951,8 +951,8 @@ const UnifiedContentRenderer = ({
           color: 'black',
           colorScheme: 'light' as any,
           padding: settings?.compact 
-            ? (isLandscape ? '8mm 12mm' : '10mm') 
-            : (settings?.margin ? `${settings.margin}mm` : '15mm'),
+            ? (isLandscape ? '5mm 8mm' : '5mm') 
+            : (settings?.margin ? `${settings.margin}mm` : '10mm'),
           fontFamily: settings?.fontFamily || 'Lexend, sans-serif',
           fontSize: settings?.fontSize === 'büyük' ? '1.25rem' : settings?.fontSize === 'küçük' ? '0.875rem' : '1rem',
           lineHeight: settings?.lineSpacing === 'geniş' ? '2' : settings?.lineSpacing === 'dar' ? '1.25' : '1.6',

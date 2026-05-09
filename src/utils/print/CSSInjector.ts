@@ -22,7 +22,7 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
         : paperSize;
   const dims = PAPER_DIMENSIONS[paperSize];
   const styleText = `
-    @page { size: ${pageSize}; margin: 10mm !important; }
+    @page { size: ${pageSize}; margin: 5mm !important; }
     @media print {
       html, body {
         width: 100% !important;
@@ -112,7 +112,7 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
   }
 
   styleEl.textContent = `
-    @page { size: ${paperSize} ${isLandscape ? 'landscape' : 'portrait'}; margin: 10mm !important; }
+    @page { size: ${paperSize} ${isLandscape ? 'landscape' : 'portrait'}; margin: 5mm !important; }
     @media print {
       body > *:not(#print-overlay) {
         display: none !important;
@@ -175,7 +175,7 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
       .lg\\:flex-row { flex-direction: row !important; }
 
       @page { 
-        margin: 10mm !important; 
+        margin: 5mm !important; 
         size: auto; 
       }
       
@@ -189,13 +189,10 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
 
       /* Kâğıt kenarlarında güvenlik boşluğu (Tarayıcı marjının yerini alan padding) */
       .print-page, .worksheet-page, .a4-page {
+        padding: 0 !important;
         margin: 0 !important;
         box-shadow: none !important;
         border: none !important;
-        padding-top: 5mm !important;
-        padding-bottom: 5mm !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
         width: 100% !important;
         max-width: 100% !important;
         page-break-after: always !important;
@@ -205,11 +202,11 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
         position: relative !important;
       }
 
-      /* Sayfa başı zorunlu boşluk kalkanı (Tarih verisi kalktığı için zorunlu) */
+      /* Sayfa başı zorunlu boşluk kalkanı (Minimal 0.5cm ayarı için azaltıldı) */
       .print-page::before, .worksheet-page::before, .a4-page::before {
         content: "" !important;
         display: block !important;
-        height: 5mm !important;
+        height: 1mm !important;
         width: 100% !important;
       }
 
@@ -221,7 +218,7 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
         display: block !important;
         background: white !important;
         margin: 0 !important;
-        padding-top: 5mm !important; /* Ana sarmalayıcı için ek boşluk */
+        padding-top: 0 !important;
       }
 
       /* UI Temizliği (Floating UI, Buttons, Toasts) */
