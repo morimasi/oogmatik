@@ -119,6 +119,15 @@ export const LayoutModule: React.FC<LayoutModuleProps> = ({
             min={5}
             max={50}
           />
+           <NumberControl
+            label="İçerik Ölçeği"
+            icon="fa-expand"
+            value={settings.contentScale || 1}
+            onChange={(v: number) => updateSetting('contentScale', v)}
+            min={0.5}
+            max={1.5}
+            step={0.05}
+          />
            <Toggle
             label="Kompakt"
             icon="fa-compress-arrows-alt"

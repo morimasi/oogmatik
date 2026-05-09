@@ -34,6 +34,7 @@ export interface StyleSettings {
     title?: string;
     paperTexture?: 'none' | 'ruled' | 'grid' | 'dotted' | 'parchment' | 'sepia' | 'saman';
     gutter?: number;
+    contentScale?: number;
 }
 
 export interface BaseActivityData {

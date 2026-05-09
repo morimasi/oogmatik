@@ -956,42 +956,43 @@ const UnifiedContentRenderer = ({
         }}
       >
         {/* Ekranda Sayfa Numarası (Print'te gizli) */}
-        <div className="page-indicator-screen no-print">SAYFA {pageIdx + 1}</div>
+        <div className="page-indicator-screen no-print" style={{ zIndex: 100 }}>SAYFA {pageIdx + 1}</div>
 
-        {/* Sayfa Üstü Marj (Hassas Simetri Kontrolü) */}
-        <div className="print-top-margin h-0" />
+        <div className="w-full flex-1 flex flex-col relative" style={{ zoom: settings?.contentScale ?? 1 }}>
+          {/* Sayfa Üstü Marj (Hassas Simetri Kontrolü) */}
+          <div className="print-top-margin h-0" />
 
-        {/* Öğrenci Bilgi Şeridi */}
-        {settings?.showStudentInfo && (
-          <div className="w-full px-6 py-4 flex justify-between items-end border-b-2 border-zinc-900 mb-6 font-lexend">
-            <div className="flex gap-12">
-              <div className="flex flex-col">
-                <span className="text-[7px] text-zinc-400 uppercase font-black tracking-widest">
-                  Öğrenci Adı Soyadı
-                </span>
-                <div className="h-6 border-b border-zinc-200 min-w-[180px] font-black text-sm uppercase text-black">
-                  {studentProfile?.name || '....................................'}
+          {/* Öğrenci Bilgi Şeridi */}
+          {settings?.showStudentInfo && (
+            <div className="w-full px-6 py-4 flex justify-between items-end border-b-2 border-zinc-900 mb-6 font-lexend">
+              <div className="flex gap-12">
+                <div className="flex flex-col">
+                  <span className="text-[7px] text-zinc-400 uppercase font-black tracking-widest">
+                    Öğrenci Adı Soyadı
+                  </span>
+                  <div className="h-6 border-b border-zinc-200 min-w-[180px] font-black text-sm uppercase text-black">
+                    {studentProfile?.name || '....................................'}
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[7px] text-zinc-400 uppercase font-black tracking-widest">
+                    Sınıf / Grup
+                  </span>
+                  <div className="h-6 border-b border-zinc-200 min-w-[60px] font-black text-sm text-center text-black">
+                    {studentProfile?.grade || '........'}
+                  </div>
                 </div>
               </div>
-              <div className="flex flex-col">
+              <div className="flex flex-col items-end">
                 <span className="text-[7px] text-zinc-400 uppercase font-black tracking-widest">
-                  Sınıf / Grup
+                  Çalışma Tarihi
                 </span>
-                <div className="h-6 border-b border-zinc-200 min-w-[60px] font-black text-sm text-center text-black">
-                  {studentProfile?.grade || '........'}
+                <div className="h-6 border-b border-zinc-200 min-w-[80px] font-black text-sm text-right text-black">
+                  {new Date().toLocaleDateString('tr-TR')}
                 </div>
               </div>
             </div>
-            <div className="flex flex-col items-end">
-              <span className="text-[7px] text-zinc-400 uppercase font-black tracking-widest">
-                Çalışma Tarihi
-              </span>
-              <div className="h-6 border-b border-zinc-200 min-w-[80px] font-black text-sm text-right text-black">
-                {new Date().toLocaleDateString('tr-TR')}
-              </div>
-            </div>
-          </div>
-        )}
+          )}
 
         <PedagogicalHeader
           title={pageIdx === 0 ? (data?.title || '') : `${data?.title || ''} (Dvm.)`}
@@ -1081,6 +1082,7 @@ const UnifiedContentRenderer = ({
             </span>
           </div>
         )}
+        </div>
       </div>
     );
   };
