@@ -65,6 +65,8 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
         max-width: 100% !important;
         min-height: 100% !important;
         margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
         box-shadow: none !important;
         break-inside: auto !important;
         page-break-inside: auto !important;
@@ -193,8 +195,6 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
         box-sizing: border-box !important;
         box-shadow: none !important;
         border: none !important;
-        width: 100% !important;
-        max-width: 100% !important;
         page-break-after: always !important;
         break-after: page !important;
         background: white !important;

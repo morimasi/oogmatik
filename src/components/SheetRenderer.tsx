@@ -953,6 +953,7 @@ const UnifiedContentRenderer = ({
           backgroundColor: 'white',
           color: 'black',
           colorScheme: 'light' as any,
+          boxSizing: 'border-box',
           padding: settings?.compact 
             ? (isLandscape ? '5mm 8mm' : '5mm') 
             : (settings?.margin ? `${settings.margin}mm` : '5mm'),

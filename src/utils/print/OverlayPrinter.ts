@@ -163,10 +163,9 @@ export const print = async (
 
   // 4. İçerikleri Klonla ve Ölçeklendir (Scale-to-Fit Magic)
   pages.forEach((original) => {
-    const origWidth = original.offsetWidth || 1120;
     const clone = original.cloneNode(true) as HTMLElement;
 
-    // ÖNEMLİ: Klonun görünür olduğundan emin ol (hidden/invisible sınıflarını temizle)
+    // Klonun görünürlüğünü ve stillerini temizle
     clone.classList.remove('hidden', 'invisible', 'opacity-0', 'd-none');
     clone.style.display = 'block';
     clone.style.visibility = 'visible';
@@ -174,17 +173,26 @@ export const print = async (
     clone.style.transform = 'none';
     (clone.style as any).scale = 'none';
     clone.style.zoom = '1';
+    clone.style.margin = '0 auto';
 
-    // Scale to fit A4 (Yönlendirmeye Duyarlı Hassas Matematiksel Uyum)
-    const effectiveWidth = origWidth || (isLandscape ? 1123 : 794);
-    const targetWidth = isLandscape ? 1085 : PRINTABLE_A4_WIDTH_PX;
-    const scaleRatio = targetWidth / effectiveWidth;
+    // Sabit A4 Referans Değerleri (96 DPI)
+    // 210mm = 794px, 297mm = 1123px
+    const baseWidth = isLandscape ? 1123 : 794;
+    const targetWidth = baseWidth; // @page marjı 0 olduğu için tam genişlik kullanıyoruz
     
-    clone.style.width = `${effectiveWidth}px`;
-    clone.style.minWidth = `${effectiveWidth}px`;
-    clone.style.maxWidth = `${effectiveWidth}px`;
+    // Baskı Ölçeği: İçeriği A4 kağıdına tam sığdıracak oran
+    const printScaleRatio = targetWidth / baseWidth; // Artık 1.0 olacak ama yapı korunmalı
+    
+    // ÖNEMLİ: Klonun genişliğini %100 yap.
+    // Bu, tarayıcının @page marjlarını (5mm) tanımasını ve içeriğin reflow yapmasını sağlar.
+    clone.style.width = '100%';
+    clone.style.minWidth = '100%';
+    clone.style.maxWidth = '100%';
     clone.style.overflow = 'visible';
-    (clone.style as any).zoom = scaleRatio;
+    clone.style.boxSizing = 'border-box';
+    
+    // Zoom uygula (Manual ölçeklemeyi değil, sadece Toolbar ölçeğini korur)
+    (clone.style as any).zoom = '1';
     clone.style.transformOrigin = 'top left';
 
     // Input, Select ve Canvas Transferi (Robust Sync)
