@@ -267,7 +267,9 @@ export enum ActivityType {
   GOAL_SETTING = 'GOAL_SETTING',
   INFOGRAPHIC_STUDIO = 'INFOGRAPHIC_STUDIO',
   SARI_KITAP_STUDIO = 'SARI_KITAP_STUDIO',
+  LETTER_MAZE_TEST = 'letter-maze-test',
 }
+
 
 export interface Activity {
   id: ActivityType;

@@ -366,7 +366,15 @@ export const ACTIVITIES: Activity[] = [
     description: 'Halkalı ve satırlı profesyonel ızgara soru panosu.',
     icon: 'fa-solid fa-list-check',
   },
+  {
+    id: ActivityType.LETTER_MAZE_TEST,
+    title: 'Harf Labirenti Test',
+    description: 'Harfler arasından doğru yolu bul',
+    icon: 'fa-solid fa-route',
+    defaultStyle: { columns: 1 },
+  },
 ];
+
 
 // Activity Categories
 export const ACTIVITY_CATEGORIES: ActivityCategory[] = [

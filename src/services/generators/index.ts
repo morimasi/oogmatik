@@ -38,3 +38,5 @@ export * from './storySequencing';
 export * from './missingParts';
 export * from './advancedMissingParts';
 export * from './math/queueOrdering';
+export * from '../../modules/activities/letter-maze-test';
+

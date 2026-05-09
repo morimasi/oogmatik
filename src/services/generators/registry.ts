@@ -98,6 +98,10 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     ai: withAI(ActivityType.LETTER_DISCRIMINATION),
     offline: offlineGenerators.generateOfflineLetterDiscrimination,
   },
+  [ActivityType.LETTER_MAZE_TEST]: {
+    ai: aiGenerators.generateLETTER_MAZE_TESTFromAI,
+    offline: withOffline(ActivityType.LETTER_MAZE_TEST),
+  },
   [ActivityType.MIRROR_LETTERS]: {
     ai: withAI(ActivityType.MIRROR_LETTERS),
     offline: offlineGenerators.generateOfflineMirrorLetters,

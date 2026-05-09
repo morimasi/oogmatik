@@ -1,0 +1,61 @@
+{
+  "identity": {
+    "key": "LETTER_MAZE_TEST",
+    "enumValue": "letter-maze-test",
+    "title": "Harf Labirenti Test",
+    "description": "Harfler arasından doğru yolu bul",
+    "icon": "fa-solid fa-route",
+    "categoryId": "reading-verbal"
+  },
+  "dataModel": {
+    "interfaceName": "LetterMazeTestData",
+    "itemsName": "LetterMazeTestItem",
+    "fields": [],
+    "itemFields": [
+      { "name": "character", "type": "string", "required": true, "description": "Görünen harf" },
+      { "name": "isPath", "type": "boolean", "required": true, "description": "Yolun parçası mı?" }
+    ]
+  },
+  "logic": {
+    "offlineAlgorithm": "Random grid generation with DFS pathfinding",
+    "aiPrompt": {
+      "role": "Disleksi Eğitim Uzmanı",
+      "task": "Harf labirenti için 10x10'luk bir ızgara ve içinde gizli bir kelime yolu oluştur.",
+      "rules": [
+        "Sadece büyük harf kullan",
+        "Kelime yolu dikey veya yatay olabilir",
+        "Çeldiriciler benzer şekilli harflerden oluşmalı"
+      ],
+      "schema": {
+        "properties": {
+          "items": {
+            "type": "ARRAY",
+            "items": {
+              "type": "OBJECT",
+              "properties": {
+                "character": { "type": "STRING" },
+                "isPath": { "type": "BOOLEAN" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "ui": {
+    "columnsPerDifficulty": {
+      "Başlangıç": 1,
+      "Orta": 1,
+      "Zor": 1
+    },
+    "configFields": [
+      { "id": "gridSize", "label": "Izgara Boyutu", "type": "range", "min": 5, "max": 15, "defaultValue": 10 }
+    ],
+    "renderType": "grid"
+  },
+  "pedagogical": {
+    "targetSkills": ["Görsel Dikkat", "Harf Tanıma"],
+    "errorTags": ["attention_lapse"],
+    "ageGroups": ["8-10"]
+  }
+}
