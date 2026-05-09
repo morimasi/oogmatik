@@ -175,14 +175,13 @@ export const print = async (
     (clone.style as any).scale = 'none';
     clone.style.zoom = '1';
 
-    clone.style.width = `${origWidth || 1120}px`;
-    clone.style.minWidth = `${origWidth || 1120}px`;
-    clone.style.margin = '0';
-    clone.style.position = 'relative';
-
-    // Scale to fit A4 (Hassas Matematiksel Uyum)
-    const effectiveWidth = origWidth || 1120;
-    const scaleRatio = Math.min(1, PRINTABLE_A4_WIDTH_PX / effectiveWidth);
+    // Scale to fit A4 (Yönlendirmeye Duyarlı Hassas Matematiksel Uyum)
+    const effectiveWidth = origWidth || (isLandscape ? 1123 : 794);
+    const targetWidth = isLandscape ? 1085 : PRINTABLE_A4_WIDTH_PX;
+    const scaleRatio = targetWidth / effectiveWidth;
+    
+    clone.style.width = `${effectiveWidth}px`;
+    clone.style.minWidth = `${effectiveWidth}px`;
     (clone.style as any).zoom = scaleRatio;
 
     // Input, Select ve Canvas Transferi (Robust Sync)

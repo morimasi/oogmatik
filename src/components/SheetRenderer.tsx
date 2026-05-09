@@ -953,6 +953,8 @@ const UnifiedContentRenderer = ({
           padding: settings?.compact 
             ? (isLandscape ? '5mm 8mm' : '5mm') 
             : (settings?.margin ? `${settings.margin}mm` : '10mm'),
+          width: isLandscape ? '297mm' : '210mm',
+          minHeight: isLandscape ? '210mm' : '297mm',
           fontFamily: settings?.fontFamily || 'Lexend, sans-serif',
           fontSize: settings?.fontSize === 'büyük' ? '1.25rem' : settings?.fontSize === 'küçük' ? '0.875rem' : '1rem',
           lineHeight: settings?.lineSpacing === 'geniş' ? '2' : settings?.lineSpacing === 'dar' ? '1.25' : '1.6',
