@@ -953,7 +953,11 @@ const UnifiedContentRenderer = ({
           padding: settings?.compact 
             ? (isLandscape ? '8mm 12mm' : '10mm') 
             : (settings?.margin ? `${settings.margin}mm` : '15mm'),
-        }}
+          fontFamily: settings?.fontFamily || 'Lexend, sans-serif',
+          fontSize: settings?.fontSize === 'büyük' ? '1.25rem' : settings?.fontSize === 'küçük' ? '0.875rem' : '1rem',
+          lineHeight: settings?.lineSpacing === 'geniş' ? '2' : settings?.lineSpacing === 'dar' ? '1.25' : '1.6',
+          '--worksheet-border-color': settings?.borderColor || '#000',
+        } as React.CSSProperties}
       >
         {/* Ekranda Sayfa Numarası (Print'te gizli) */}
         <div className="page-indicator-screen no-print" style={{ zIndex: 100 }}>SAYFA {pageIdx + 1}</div>
