@@ -11,7 +11,7 @@ interface WorksheetUIProps {
  * - Yüksek Kontrast (Disleksi Dostu)
  * - Yalnızca siyah ve koyu gri tonları (Yazıcı dostu)
  */
-export const WorksheetUI: React.FC<WorksheetUIProps> = ({ data }) => {
+export const WorksheetUI = ({ data }: WorksheetUIProps) => {
   return (
     <div className="w-full bg-white flex flex-col pt-0 text-black">
       {/* BAŞLIK & YÖNERGE */}
@@ -26,7 +26,7 @@ export const WorksheetUI: React.FC<WorksheetUIProps> = ({ data }) => {
 
       {/* DİNAMİK İÇERİK (Dolu Dolu Kompakt Grid) */}
       <div className="grid grid-cols-2 gap-4 flex-1">
-        {data.content.items.map((item, index) => (
+        {data.content.items.map((item: any, index: number) => (
           <div key={item.id} className="border-2 border-slate-300 rounded-2xl p-4 flex items-start gap-3 shadow-sm break-inside-avoid">
              <div className="w-10 h-10 rounded-full border-2 border-slate-800 flex items-center justify-center font-black text-lg bg-slate-50 shrink-0">
                {index + 1}

@@ -11,7 +11,7 @@ interface ConfigPanelProps {
  * - Dark Glassmorphism
  * - Modern Tailwind Form Elemanları
  */
-export const ConfigPanel: React.FC<ConfigPanelProps> = ({ settings, onChange }) => {
+export const ConfigPanel = ({ settings, onChange }: ConfigPanelProps) => {
   return (
     <div className="space-y-6">
       {/* HEADER */}
@@ -30,7 +30,7 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({ settings, onChange }) 
           <label className="text-[10px] uppercase font-black tracking-widest text-zinc-400">Bilişsel Zorluk Kademesi</label>
           <select 
             value={settings.difficulty || 'Orta'}
-            onChange={(e) => onChange({...settings, difficulty: e.target.value})}
+            onChange={(e: ChangeEvent<HTMLSelectElement>) => onChange({...settings, difficulty: e.target.value as any})}
             className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-zinc-200 font-bold focus:ring-2 focus:ring-indigo-500 outline-none"
           >
             <option value="Kolay">Kolay (Başlangıç Düzeyi)</option>
@@ -46,7 +46,7 @@ export const ConfigPanel: React.FC<ConfigPanelProps> = ({ settings, onChange }) 
             type="number"
             min="4" max="24"
             value={settings.itemCount || 8}
-            onChange={(e) => onChange({...settings, itemCount: Number(e.target.value)})}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => onChange({...settings, itemCount: Number(e.target.value)})}
             className="w-full bg-black/30 border border-white/10 rounded-xl px-4 py-3 text-sm text-zinc-200 font-bold focus:ring-2 focus:ring-indigo-500 outline-none"
           />
         </div>
