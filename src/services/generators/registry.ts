@@ -5,6 +5,7 @@ import * as offlineGenerators from '../offlineGenerators/index';
 import { INFOGRAPHIC_ADAPTERS_FIRST_10 } from './infographic/infographicAdapter.js';
 import { INFOGRAPHIC_ADAPTERS_REMAINING_84 } from './infographic/infographicFactory.js';
 import * as sariKitapGenerators from './sariKitap/index';
+import { generateSemanticLinkerAI, generateSemanticLinkerOffline } from '../../modules/activities/semantic-linker/generators';
 
 /**
  * Aktivite Jeneratör Haritası
@@ -99,9 +100,10 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineLetterDiscrimination,
   },
   [ActivityType.LETTER_MAZE_TEST]: {
-    ai: aiGenerators.generateLETTER_MAZE_TESTFromAI,
+    ai: withAI(ActivityType.LETTER_MAZE_TEST),
     offline: withOffline(ActivityType.LETTER_MAZE_TEST),
   },
+
   [ActivityType.MIRROR_LETTERS]: {
     ai: withAI(ActivityType.MIRROR_LETTERS),
     offline: offlineGenerators.generateOfflineMirrorLetters,
@@ -267,13 +269,18 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineFindTheDifference,
   },
   [ActivityType.VISUAL_ODD_ONE_OUT]: {
-    ai: aiGenerators.generateVisualOddOneOutFromAI,
     offline: offlineGenerators.generateOfflineVisualOddOneOut,
   },
   [ActivityType.GRID_DRAWING]: {
     ai: withAI(ActivityType.GRID_DRAWING),
     offline: offlineGenerators.generateOfflineGridDrawing,
   },
+  [ActivityType.SEMANTIC_LINKER]: {
+    ai: (opt: any) => generateSemanticLinkerAI(opt.prompt, opt.count),
+    offline: (opt: any) => Promise.resolve(generateSemanticLinkerOffline(opt.count)),
+  },
+
+
   [ActivityType.SYMMETRY_DRAWING]: {
     ai: withAI(ActivityType.SYMMETRY_DRAWING),
     offline: offlineGenerators.generateOfflineSymmetryDrawing,

@@ -369,10 +369,17 @@ export const ACTIVITIES: Activity[] = [
   {
     id: ActivityType.LETTER_MAZE_TEST,
     title: 'Harf Labirenti Test',
-    description: 'Harfler arasından doğru yolu bul',
+    description: 'Harf labirenti testi.',
     icon: 'fa-solid fa-route',
-    defaultStyle: { columns: 1 },
+    defaultStyle: { columns: 1 }
   },
+  {
+    id: ActivityType.SEMANTIC_LINKER,
+    title: 'Anlamsal İlişki',
+    description: 'Kelimeler arası anlamsal bağ kurma.',
+    icon: 'fa-solid fa-link',
+    defaultStyle: { columns: 2 }
+  }
 ];
 
 
