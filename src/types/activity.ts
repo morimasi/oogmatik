@@ -107,7 +107,6 @@ export enum ActivityType {
   SINAV = 'SINAV',
   MAT_SINAV = 'MAT_SINAV',
   QUEUE_ORDERING = 'QUEUE_ORDERING',
-  HIDDEN_PICTURES = 'HIDDEN_PICTURES',
   /** @deprecated Kaldırıldı — super-turkce modülü silindi (b6df8d74) */
   SUPER_TURKCE_MATCHING = 'SUPER_TURKCE_MATCHING',
   PREMIUM_STUDIO = 'PREMIUM_STUDIO',
