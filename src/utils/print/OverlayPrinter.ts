@@ -116,7 +116,7 @@ export const print = async (
   if (pages.length === 0) {
     try {
       window.print();
-    } catch (err) {
+    } catch (err: any) {
       logError('Print fallback failed:', err);
     }
     return;
@@ -250,7 +250,7 @@ export const print = async (
 
     // Browser afterprint'i desteklemiyorsa fallback temizlik
     setTimeout(cleanup, 2000);
-  } catch (err) {
+  } catch (err: any) {
     logError('Print trigger failed:', err);
     document.documentElement.className = prevTheme;
     document.body.classList.remove('printing-mode');
@@ -289,6 +289,7 @@ export const captureAndPrint = async (
 
     await preloadFontsForCapture();
 
+    // @ts-ignore
     const html2canvasModule = await import('html2canvas');
     const html2canvas = html2canvasModule.default || html2canvasModule;
     const dataUrls: string[] = [];
@@ -317,7 +318,7 @@ export const captureAndPrint = async (
           clonedEl.style.transform = 'none';
           clonedEl.style.zoom = '1';
         },
-        ignoreElements: (el) => {
+        ignoreElements: (el: Element) => {
           const htmlEl = el as HTMLElement;
           return (
             htmlEl.classList?.contains('resize-handle') ||
@@ -365,7 +366,7 @@ export const captureAndPrint = async (
     setTimeout(() => {
       try {
         window.print();
-      } catch (e) {
+      } catch (e: any) {
         logError('Capture print failed', e);
       } finally {
         document.documentElement.className = prevTheme;
@@ -392,7 +393,7 @@ export const captureAndPrint = async (
               window.open(blobUrl, '_blank');
               setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
             }
-          } catch (fallbackErr) {
+          } catch (fallbackErr: any) {
             logError('Mobile print fallback failed', fallbackErr);
           }
         }
