@@ -58,7 +58,7 @@ export const QueueOrderingSheet: React.FC<QueueOrderingSheetProps> = ({ data, se
     rose: { primary: 'rose', accent: 'pink', gradient: 'from-rose-500 to-pink-600', bg: 'from-rose-50 to-pink-50', border: 'border-rose-200', text: 'text-rose-900' },
   };
 
-  const theme = themes[settings?.theme || 'indigo'];
+  const theme = themes[(settings?.theme as keyof typeof themes) || 'indigo'] || themes['indigo'];
   const iconStyle = settings?.iconStyle || 'emoji';
   const layout = settings?.layout || 'grid';
   const visualDensity = settings?.visualDensity || 'comfortable';
@@ -74,7 +74,7 @@ export const QueueOrderingSheet: React.FC<QueueOrderingSheetProps> = ({ data, se
     xlarge: { title: 'text-4xl', subtitle: 'text-lg', body: 'text-lg', label: 'text-base' },
   };
 
-  const sizes = fontSizeMap[fontSize];
+  const sizes = fontSizeMap[fontSize as keyof typeof fontSizeMap] || fontSizeMap['medium'];
 
   // Visual density spacing
   const spacingMap = {
@@ -83,7 +83,7 @@ export const QueueOrderingSheet: React.FC<QueueOrderingSheetProps> = ({ data, se
     'ultra-compact': { section: 'space-y-4', card: 'p-4', gap: 'gap-2' },
   };
 
-  const spacing = spacingMap[visualDensity];
+  const spacing = spacingMap[visualDensity as keyof typeof spacingMap] || spacingMap['comfortable'];
 
   // Card style
   const cardStyles = {
@@ -143,7 +143,7 @@ export const QueueOrderingSheet: React.FC<QueueOrderingSheetProps> = ({ data, se
       {/* Premium Instructions with Icon */}
       {settings?.showScenario !== false && (
         <div className={`mb-4 px-5 py-4 bg-gradient-to-r ${theme.bg} border-l-4 ${theme.border.replace('200', '500')} rounded-r-lg shadow-sm`}>
-          <p className={`${fontSizeMap[fontSize].body} font-bold ${theme.text} flex items-center gap-2`}>
+          <p className={`${fontSizeMap[fontSize as keyof typeof fontSizeMap]?.body || fontSizeMap['medium'].body} font-bold ${theme.text} flex items-center gap-2`}>
             <i className="fa-solid fa-lightbulb text-lg"></i>
             {locationType === 'school' && 'Okul ve sınıf ortamında sıralama kurallarını öğren!'}
             {locationType === 'bus' && 'Otobüs durağında sıra bekleme kurallarını öğren!'}
@@ -198,7 +198,7 @@ export const QueueOrderingSheet: React.FC<QueueOrderingSheetProps> = ({ data, se
       {/* Problems Container */}
       <div className={spacing.section}>
         {problems.map((problem: any, idx: number) => (
-          <div key={problem.id || idx} className={`problem-card ${cardStyles[cardStyle]} ${theme.border} rounded-2xl ${spacing.card}`}>
+          <div key={problem.id || idx} className={`problem-card ${cardStyles[cardStyle as keyof typeof cardStyles] || cardStyles['elevated']} ${theme.border} rounded-2xl ${spacing.card}`}>
             {/* Problem Header with Number Badge */}
             <div className="flex items-center gap-3 mb-4">
               <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${theme.gradient} text-white flex items-center justify-center text-lg font-black shadow-lg`}>
