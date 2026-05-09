@@ -189,8 +189,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         if (!response.ok) {
           const errJson = await response.json().catch(() => ({}));
+          const errorMsg = errJson.error?.message || response.statusText;
+          
+          // Quota/Rate limit hataları özel olarak işle
+          if (response.status === 429 || response.status === 403 || errorMsg.includes('quota') || errorMsg.includes('Quota')) {
+            throw new RateLimitError(
+              `Gemini API Quota Aşıldı: ${errorMsg}. Lütfen birkaç saniye sonra yeniden deneyin.`,
+              { retryAfter: 60 }
+            );
+          }
+          
           throw new InternalServerError(
-            `Gemini API Hatasi: ${errJson.error?.message || response.statusText}`
+            `Gemini API Hatasi: ${errorMsg}`
           );
         }
 

@@ -65,6 +65,9 @@ export const generateWithGemini = async (prompt: string, systemInstruction?: str
  * REST API Proxy Tabanlı Gemini İstemcisi (Güvenli)
  * Selin Arslan: safeFetch entegrasyonu ile ultra-robust yapı.
  */
+/**
+ * Gemini API çağrısı — Retry logic ve rate limiting ile
+ */
 export const generateCreativeMultimodal = async (params: {
   prompt: string;
   schema?: any;
@@ -103,10 +106,45 @@ export const generateCreativeMultimodal = async (params: {
     body.mimeType = file.mimeType;
   }
 
-  return await safeFetch<any>(url, {
-    method: 'POST',
-    body: JSON.stringify(body),
-  });
+  // Retry logic for rate limiting
+  const maxAttempts = 3;
+  let lastError: any;
+  
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      logInfo('Gemini API çekilmesi', { attempt: attempt + 1, model: safeModel });
+      return await safeFetch<any>(url, {
+        method: 'POST',
+        body: JSON.stringify(body),
+      });
+    } catch (error: any) {
+      lastError = error;
+      const errorMsg = error?.message || String(error);
+      const isQuotaError = errorMsg.includes('quota') || errorMsg.includes('Quota') || errorMsg.includes('429') || errorMsg.includes('rate');
+      
+      if (isQuotaError && attempt < maxAttempts - 1) {
+        // Extract retry-after zamanı varsa
+        const match = errorMsg.match(/(\d+)\s*s/);
+        const retryAfter = match ? Math.min(parseInt(match[1], 10) * 1000, 5000) : (1000 * Math.pow(2, attempt));
+        
+        logWarn('Gemini Quota Hatası — Tekrar denenecek', { 
+          retryAfter: `${retryAfter}ms`, 
+          attempt: attempt + 1,
+          error: errorMsg 
+        });
+        
+        // Bekle ve yeniden dene
+        await new Promise(resolve => setTimeout(resolve, retryAfter));
+      } else {
+        // Quota olmayan hata veya son deneme — hemen fırlat
+        throw error;
+      }
+    }
+  }
+  
+  // Tüm deneme başarısız
+  logError('Gemini API Tüm Denemeler Başarısız', { error: lastError });
+  throw lastError;
 };
 
 export const generateWithSchema = async (prompt: string, schema: any) => {

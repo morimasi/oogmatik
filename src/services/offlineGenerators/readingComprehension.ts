@@ -328,6 +328,10 @@ export const generateOfflineStorySequencing = async (options: GeneratorOptions):
 
     return Array.from({ length: worksheetCount }, () => {
         const seq = getRandomItems(sequences, 1)[0];
+        if (!seq || !seq.title) {
+            throw new Error('StorySequencing: Sequence veya title undefined');
+        }
+        
         const panels: StorySequencingPanel[] = seq.steps.map((s, i) => ({
             id: `p-${i}`,
             text: s,
@@ -336,8 +340,9 @@ export const generateOfflineStorySequencing = async (options: GeneratorOptions):
         }));
 
         return {
-            title: 'Olay Örgüsü Sıralama (Ultra Pro)',
+            title: `Olay Sıralama: ${seq.title}`,
             instruction: "Olayları oluş sırasına göre (1-4) numaralandırarak dizin.",
+            pedagogicalNote: "Kronolojik/zamansal düşünme becerisi.",
             content: {
                 title: seq.title,
                 panels: shuffle(panels),

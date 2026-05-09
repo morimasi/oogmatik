@@ -72,12 +72,13 @@ export class NotFoundError extends AppError {
 }
 
 export class RateLimitError extends AppError {
-  constructor(retryAfter: number = 60) {
+  constructor(message?: string, details?: { retryAfter?: number } ) {
+    const retryAfter = details?.retryAfter || 60;
     super(
-      `Çok hızlı istek gönderdiniz. ${retryAfter} saniye sonra tekrar deneyiniz.`,
+      message || `Çok hızlı istek gönderdiniz. ${retryAfter} saniye sonra tekrar deneyiniz.`,
       'RATE_LIMIT_EXCEEDED',
       429,
-      { retryAfter },
+      { ...details, retryAfter },
       true // Retry edilebilir
     );
     this.name = 'RateLimitError';

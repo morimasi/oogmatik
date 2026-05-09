@@ -1336,8 +1336,12 @@ export const SheetRenderer = React.memo(
       );
     }
 
-    // Global data check - Prevent "Cannot read properties of undefined (reading 'title')"
-    if (!data || (typeof data === 'object' && Object.keys(data).length === 0)) {
+    // Global data check + field-level validation - Prevent "Cannot read properties of undefined (reading 'title')"
+    const isDataValid = data && 
+      (typeof data === 'object' && Object.keys(data).length > 0) &&
+      (data?.title || data?.type);
+    
+    if (!isDataValid) {
       return withWrapper(
         <div className="p-10 text-center text-gray-500 bg-white rounded-3xl shadow-sm min-h-[600px] flex flex-col items-center justify-center font-['Lexend']">
           <div className="w-24 h-24 bg-indigo-50 rounded-full flex items-center justify-center mb-6 animate-pulse">
