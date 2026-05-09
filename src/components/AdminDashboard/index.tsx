@@ -23,7 +23,7 @@ import { AdminUserManagement } from './AdminUserManagement';
 import { AdminDraftReview } from './AdminDraftReview';
 import { AdminActivityApproval } from './AdminActivityApproval';
 import { AdminPermissionsIDE } from './PermissionsIDE';
-import { AdminActivityScaffold } from '../Admin/AdminActivityScaffold';
+import { AdminActivityScaffold } from '../admin/AdminActivityScaffold';
 
 
 
