@@ -878,15 +878,18 @@ const UnifiedContentRenderer = ({
   // ══════════════════════════════════════════════
   // AKILLI SAYFALAMA — Bölme + Ağırlık Sistemi
   // ══════════════════════════════════════════════
-  // ══════════════════════════════════════════════
-  // AKILLI SAYFALAMA — Bölme + Ağırlık Sistemi
-  // ══════════════════════════════════════════════
   // BOLT OPTIMIZATION: Memoize pagination logic to avoid expensive recalculations on every render
   const pages = useMemo(() => {
-    const PAGE_MAX_WEIGHT = 1188; // 297mm * 4 (Milimetrik Standart)
-    const STUDENT_INFO_RESERVE = settings?.showStudentInfo ? 80 : 0;
-    const HEADER_RESERVE = 180; // PedagogicalHeader için güvenli alan (45mm)
-    const FOOTER_RESERVE = 60; // Sayfa altı güvenli alan (15mm)
+    const isLandscape = settings?.orientation === 'landscape';
+    const scaleFactor = settings?.contentScale || 1;
+    
+    // Milimetrik Standart (Dikey: 297mm -> 1188 birim, Yatay: 210mm -> 840 birim)
+    // Ölçek çarpanı: İçerik büyüdükçe kapasiteyi daraltıyoruz.
+    const PAGE_MAX_WEIGHT = (isLandscape ? 840 : 1188) / scaleFactor; 
+    
+    const STUDENT_INFO_RESERVE = settings?.showStudentInfo ? 120 : 0;
+    const HEADER_RESERVE = 150; // Başlık ve yönerge approx
+    const FOOTER_RESERVE = 60; // Sayfa altı güvenli alan
 
     // 1. Önce çok büyük blokları böl (Recursive bölme gerekebilir, şimdilik tek seviye)
     let allBlocks: WorksheetBlock[] = [];
@@ -939,7 +942,7 @@ const UnifiedContentRenderer = ({
     const textureClass = settings?.paperTexture && settings.paperTexture !== 'none' 
       ? `paper-texture-${settings.paperTexture}` 
       : '';
-    const pageClass = `worksheet-page ultra-print-page print-page group mb-8 shadow-2xl relative bg-white overflow-hidden flex flex-col ${isLandscape ? 'landscape landscape-print' : ''} ${textureClass}`;
+    const pageClass = `worksheet-page ultra-print-page print-page group mb-8 shadow-2xl relative bg-white flex flex-col ${isLandscape ? 'landscape landscape-print' : ''} ${textureClass}`;
 
     return (
       <div
@@ -952,7 +955,7 @@ const UnifiedContentRenderer = ({
           colorScheme: 'light' as any,
           padding: settings?.compact 
             ? (isLandscape ? '5mm 8mm' : '5mm') 
-            : (settings?.margin ? `${settings.margin}mm` : '10mm'),
+            : (settings?.margin ? `${settings.margin}mm` : '5mm'),
           width: isLandscape ? '297mm' : '210mm',
           minHeight: isLandscape ? '210mm' : '297mm',
           fontFamily: settings?.fontFamily || 'Lexend, sans-serif',
@@ -964,7 +967,14 @@ const UnifiedContentRenderer = ({
         {/* Ekranda Sayfa Numarası (Print'te gizli) */}
         <div className="page-indicator-screen no-print" style={{ zIndex: 100 }}>SAYFA {pageIdx + 1}</div>
 
-        <div className="w-full flex-1 flex flex-col relative" style={{ zoom: settings?.contentScale ?? 1 }}>
+        <div 
+          className="w-full flex-1 flex flex-col relative print:overflow-visible" 
+          style={{ 
+            zoom: settings?.contentScale ?? 1,
+            width: '100%',
+            maxWidth: '100%'
+          }}
+        >
           {/* Sayfa Üstü Marj (Hassas Simetri Kontrolü) */}
           <div className="print-top-margin h-0" />
 

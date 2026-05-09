@@ -182,7 +182,10 @@ export const print = async (
     
     clone.style.width = `${effectiveWidth}px`;
     clone.style.minWidth = `${effectiveWidth}px`;
+    clone.style.maxWidth = `${effectiveWidth}px`;
+    clone.style.overflow = 'visible';
     (clone.style as any).zoom = scaleRatio;
+    clone.style.transformOrigin = 'top left';
 
     // Input, Select ve Canvas Transferi (Robust Sync)
     const origCanvases = original.querySelectorAll('canvas');

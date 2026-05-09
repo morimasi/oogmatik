@@ -200,6 +200,7 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
         background: white !important;
         display: block !important;
         position: relative !important;
+        overflow: visible !important;
       }
 
       /* Sayfa başı zorunlu boşluk kalkanı (Minimal 0.5cm ayarı için azaltıldı) */
