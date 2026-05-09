@@ -53,7 +53,7 @@ interface SidebarProps {
   onWidthChange?: (width: number) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({
+const Sidebar = ({
   isSidebarOpen,
   closeSidebar,
   selectedActivity,
@@ -77,7 +77,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onOpenSariKitapStudio,
   onOpenKelimeCumleStudio,
   activeCurriculumSession,
-}) => {
+}: SidebarProps) => {
   const [allActivities, setAllActivities] = useState<Activity[]>(ACTIVITIES);
   const [categories, setCategories] = useState<ActivityCategory[]>(ACTIVITY_CATEGORIES);
   const { canAccess, canAccessCategory, canAccessActivity } = useRBAC();
@@ -86,8 +86,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [lockedCategory, setLockedCategory] = useState<string | null>(null);
   const [popupRect, setPopupRect] = useState<DOMRect | null>(null);
   
-  const popupTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
-  const closeTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const popupTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const closeTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const studioGroups = useMemo(() => {
     const callbackMap: Record<string, () => void> = {
@@ -145,7 +145,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     onOpenKelimeCumleStudio
   ]);
 
-  const handleCategoryMouseEnter = (categoryId: string, event: React.MouseEvent) => {
+  const handleCategoryMouseEnter = (categoryId: string, event: React.MouseEvent<HTMLButtonElement>) => {
     if (lockedCategory) return;
     if (popupTimeoutRef.current) clearTimeout(popupTimeoutRef.current);
     if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
@@ -165,7 +165,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     }, 400);
   };
 
-  const handleCategoryClick = (categoryId: string, event: React.MouseEvent) => {
+  const handleCategoryClick = (categoryId: string, event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
     const rect = event.currentTarget.getBoundingClientRect();
     if (lockedCategory === categoryId) {
@@ -225,8 +225,8 @@ const Sidebar: React.FC<SidebarProps> = ({
           }
         });
         setAllActivities(mergedActivities);
-        setCategories((prev) =>
-          prev.map((cat) => ({
+        setCategories((prev: ActivityCategory[]) =>
+          prev.map((cat: ActivityCategory) => ({
             ...cat,
             activities: [
               ...new Set([
@@ -286,18 +286,18 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const categorizedActivities = useMemo(() => {
     return categories
-      .filter((category) => canAccessCategory(category.id)) // Filter categories
-      .map((category) => ({
+      .filter((category: ActivityCategory) => canAccessCategory(category.id)) // Filter categories
+      .map((category: ActivityCategory) => ({
         ...category,
-        items: allActivities.filter((act) => 
+        items: allActivities.filter((act: Activity) => 
           category.activities.includes(act.id) && canAccessActivity(act.id) // Filter activities
         ),
       }))
-      .filter((c) => c.items.length > 0);
+      .filter((c: any) => c.items.length > 0);
   }, [allActivities, categories, canAccessCategory, canAccessActivity]);
 
   const selectedActivityData = useMemo(
-    () => (selectedActivity ? allActivities.find((a) => a.id === selectedActivity) : null),
+    () => (selectedActivity ? allActivities.find((a: Activity) => a.id === selectedActivity) : null),
     [selectedActivity, allActivities]
   );
 
@@ -331,9 +331,9 @@ const Sidebar: React.FC<SidebarProps> = ({
               <div className="space-y-1">
                 <span className="text-[8px] font-black uppercase tracking-[0.18em] block ml-2 text-[var(--text-muted)] opacity-50">Merkezi Birimler</span>
                 <button
-                  onMouseEnter={(e) => handleCategoryMouseEnter('studios', e)}
+                  onMouseEnter={(e: any) => handleCategoryMouseEnter('studios', e)}
                   onMouseLeave={handleCategoryMouseLeave}
-                  onClick={(e) => handleCategoryClick('studios', e)}
+                  onClick={(e: any) => handleCategoryClick('studios', e)}
                   className={`category-trigger-btn w-full group flex items-center ${isExpanded ? 'px-2.5 gap-2' : 'justify-center px-1.5'} py-2 rounded-xl transition-all duration-300 border border-transparent ${activeCategory === 'studios' ? 'bg-[var(--accent-color)] text-white shadow-md shadow-indigo-500/20' : 'bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)] hover:border-[var(--accent-color)]/30'}`}
                 >
                   <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs transition-all duration-300 ${activeCategory === 'studios' ? 'bg-white/20 text-white' : 'bg-[var(--accent-color)] text-white shadow-sm group-hover:scale-105'}`}>
@@ -357,9 +357,9 @@ const Sidebar: React.FC<SidebarProps> = ({
                     return (
                       <button
                         key={category.id}
-                        onMouseEnter={(e) => handleCategoryMouseEnter(category.id, e)}
+                        onMouseEnter={(e: any) => handleCategoryMouseEnter(category.id, e)}
                         onMouseLeave={handleCategoryMouseLeave}
-                        onClick={(e) => handleCategoryClick(category.id, e)}
+                        onClick={(e: any) => handleCategoryClick(category.id, e)}
                         className={`category-trigger-btn w-full flex items-center ${isExpanded ? 'px-2.5 gap-2' : 'justify-center px-1.5'} py-2 rounded-xl transition-all duration-300 border border-transparent ${isActive ? 'bg-[var(--bg-secondary)] border-[var(--accent-color)]/30 shadow-sm' : 'hover:bg-[var(--bg-secondary)]'}`}
                       >
                          <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs transition-all duration-300 bg-[var(--bg-paper)] border border-[var(--border-color)] ${isActive ? 'text-[var(--accent-color)] scale-105 shadow-md' : 'text-[var(--text-muted)] group-hover:bg-[var(--bg-paper)]'}`}>
@@ -397,8 +397,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                 left: popupRect.left + (isExpanded ? 260 : 85) 
               }}
             >
-              <div className="premium-popup-content min-w-[240px] max-w-[280px] overflow-hidden bg-[var(--bg-paper)]/95 backdrop-blur-2xl rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.3)] border border-white/5">
-                 <div className="px-3 pt-3 pb-1.5 border-b border-white/5 mx-2">
+              <div className="premium-popup-content min-w-[240px] max-w-[280px] overflow-hidden bg-[var(--bg-paper)] rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.5)] border border-[var(--border-color)]">
+                 <div className="px-3 pt-3 pb-1.5 border-b border-[var(--border-color)] mx-2">
                     <h3 className="text-[9px] font-black text-[var(--text-primary)] uppercase tracking-wider">{activeCategory === 'studios' ? 'Merkezi Stüdyolar' : categorizedActivities.find(c => c.id === activeCategory)?.title}</h3>
                  </div>
                  
@@ -408,7 +408,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                           <div key={gIdx} className="space-y-0.5">
                              <p className="px-2 pt-1 text-[7px] font-black text-[var(--accent-color)] uppercase tracking-tight opacity-70">{group.title}</p>
                              <div className="grid grid-cols-1 gap-0">
-                                {group.items.map((item) => (
+                                {group.items.map((item: any) => (
                                    <button key={item.id} onClick={() => handleStudioClick(item)} className="w-full text-left px-2 py-1.5 rounded-lg flex items-center gap-2 transition-colors duration-200 group/studioFlyout hover:bg-[var(--bg-primary)]">
                                       <i className={`fa-solid ${item.icon} text-[11px] opacity-70 group-hover/studioFlyout:opacity-100 transition-colors ${item.color}`}></i>
                                       <span className="text-[10px] font-medium leading-tight text-[var(--text-secondary)] group-hover/studioFlyout:text-[11px] group-hover/studioFlyout:text-[var(--text-primary)] truncate transition-all duration-200">{item.label}</span>
@@ -419,7 +419,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                        ))
                     ) : (
                        <div className="grid grid-cols-1 gap-0">
-                          {categorizedActivities.find(c => c.id === activeCategory)?.items.map((act) => (
+                          {categorizedActivities.find((c: any) => c.id === activeCategory)?.items.map((act: Activity) => (
                              <button key={act.id} onClick={() => handleActivitySelect(act.id)} className="w-full text-left px-2 py-1.5 rounded-lg flex items-center gap-2 transition-colors duration-200 group/item hover:bg-[var(--bg-primary)]">
                                 <i className={`fa-solid ${act.icon || 'fa-star'} text-[11px] text-[var(--accent-color)] opacity-70 group-hover/item:opacity-100 transition-colors`}></i>
                                 <span className="text-[10px] font-medium leading-tight text-[var(--text-secondary)] group-hover/item:text-[11px] group-hover/item:text-[var(--text-primary)] truncate transition-all duration-200">{act.title}</span>
