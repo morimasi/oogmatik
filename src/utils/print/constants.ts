@@ -19,8 +19,8 @@ export const PAPER_MARGINS: Record<PaperSize, PaperMargins> = {
   A4: { top: '15mm', bottom: '10mm' },
   Letter: { top: '12mm', bottom: '12mm' },
   Legal: { top: '15mm', bottom: '15mm' },
-  Extreme_Yatay: { top: '10mm', bottom: '10mm', left: '10mm', right: '10mm' },
-  Extreme_Dikey: { top: '10mm', bottom: '10mm', left: '10mm', right: '10mm' },
+  Extreme_Yatay: { top: '5mm', bottom: '5mm', left: '5mm', right: '5mm' },
+  Extreme_Dikey: { top: '5mm', bottom: '5mm', left: '5mm', right: '5mm' },
 };
 
 /** A4 sayfası CSS sınıf seçicileri — yazdırılabilir sayfa elemanları */
@@ -54,5 +54,5 @@ export const QUALITY_SCALE_MAP: Record<'standard' | 'high' | 'print', number> = 
 /** A4 genişliği piksel (96 DPI) */
 export const A4_WIDTH_PX = 794;
 
-/** @page { margin: 12mm } kullanıldığında yazdırılabilir genişlik */
-export const PRINTABLE_A4_WIDTH_PX = 703;
+/** @page { margin: 5mm } kullanıldığında yazdırılabilir genişlik (200mm @ 96DPI) */
+export const PRINTABLE_A4_WIDTH_PX = 756;

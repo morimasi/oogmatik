@@ -189,8 +189,8 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
 
       /* Kâğıt kenarlarında güvenlik boşluğu (Tarayıcı marjının yerini alan padding) */
       .print-page, .worksheet-page, .a4-page {
-        padding: 0 !important;
         margin: 0 !important;
+        box-sizing: border-box !important;
         box-shadow: none !important;
         border: none !important;
         width: 100% !important;
