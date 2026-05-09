@@ -41,13 +41,13 @@ const PAPER_TEXTURES = [
     { id: 'saman', label: 'Saman', icon: 'fa-rug', color: 'bg-yellow-50/50' },
 ];
 
-export const LayoutModule: React.FC<LayoutModuleProps> = ({
+export const LayoutModule = ({
   settings,
   updateSetting,
   updateSettings,
   isOpen,
   onClose,
-}) => {
+}: LayoutModuleProps) => {
   const paperSizeStore = usePaperSizeStore();
   
   if (!isOpen) return null;
@@ -275,7 +275,7 @@ export const LayoutModule: React.FC<LayoutModuleProps> = ({
                   type="text"
                   placeholder="Özel altbilgi metni..."
                   value={settings.footerText || ''}
-                  onChange={(e) => updateSetting('footerText', e.target.value)}
+                  onChange={(e: any) => updateSetting('footerText', e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-[var(--border-color)] bg-[var(--bg-paper)] text-xs text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-indigo-500 outline-none transition-all"
                 />
                 <i className="fa-solid fa-keyboard absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] group-focus-within:text-indigo-500 text-[10px]"></i>

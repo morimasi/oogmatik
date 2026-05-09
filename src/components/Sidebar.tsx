@@ -352,7 +352,7 @@ const Sidebar = ({
               <div className="space-y-1">
                 <span className="text-[8px] font-black uppercase tracking-[0.18em] block ml-2 text-[var(--text-muted)] opacity-50">Aktivite Havuzu</span>
                 <div className="space-y-1">
-                  {categorizedActivities.map((category) => {
+                  {categorizedActivities.map((category: any) => {
                     const isActive = activeCategory === category.id;
                     return (
                       <button
@@ -399,12 +399,12 @@ const Sidebar = ({
             >
               <div className="premium-popup-content min-w-[240px] max-w-[280px] overflow-hidden bg-[var(--bg-paper)] rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.5)] border border-[var(--border-color)]">
                  <div className="px-3 pt-3 pb-1.5 border-b border-[var(--border-color)] mx-2">
-                    <h3 className="text-[9px] font-black text-[var(--text-primary)] uppercase tracking-wider">{activeCategory === 'studios' ? 'Merkezi Stüdyolar' : categorizedActivities.find(c => c.id === activeCategory)?.title}</h3>
+                    <h3 className="text-[9px] font-black text-[var(--text-primary)] uppercase tracking-wider">{activeCategory === 'studios' ? 'Merkezi Stüdyolar' : categorizedActivities.find((c: any) => c.id === activeCategory)?.title}</h3>
                  </div>
                  
                  <div className="max-h-[60vh] overflow-y-auto custom-scrollbar px-1 py-1 space-y-1">
                     {activeCategory === 'studios' ? (
-                       studioGroups.map((group, gIdx) => (
+                       studioGroups.map((group: any, gIdx: number) => (
                           <div key={gIdx} className="space-y-0.5">
                              <p className="px-2 pt-1 text-[7px] font-black text-[var(--accent-color)] uppercase tracking-tight opacity-70">{group.title}</p>
                              <div className="grid grid-cols-1 gap-0">
