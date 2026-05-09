@@ -129,7 +129,7 @@ export const DropdownPanel = ({ title, icon, children, onClose, className = "" }
   return (
     <div
       ref={ref}
-      className={`absolute top-full mt-3 left-0 border rounded-2xl shadow-2xl z-[100] p-4 animate-in fade-in slide-in-from-top-2 duration-300 origin-top-left backdrop-blur-xl bg-[var(--bg-paper)]/95 border-[var(--border-color)] ring-1 ring-black/5 ${className}`}
+      className={`absolute top-full mt-3 left-0 border rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.3)] z-[100] p-4 animate-in fade-in slide-in-from-top-2 duration-300 origin-top-left bg-[var(--bg-paper)] border-[var(--border-color)] ring-1 ring-black/10 ${className}`}
     >
       <div className="flex justify-between items-center mb-4 pb-2 border-b border-[var(--border-color)]">
         <div className="flex items-center gap-2">
