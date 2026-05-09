@@ -34,7 +34,7 @@ interface ToolbarProps {
   worksheetData?: WorksheetData;
 }
 
-export const Toolbar: React.FC<ToolbarProps> = ({
+export const Toolbar = ({
   settings,
   onSettingsChange,
   onSave,
@@ -52,7 +52,7 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   isCurriculumMode,
   onCompleteCurriculumTask,
   onFeedback,
-}) => {
+}: ToolbarProps) => {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const { isEditorOpen, setEditorOpen } = useA4EditorStore();
 
@@ -125,6 +125,24 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         </div>
 
         <Divider />
+
+        {/* Hızlı Ölçek (İçerik) */}
+        <div className="flex items-center bg-[var(--bg-paper)] rounded-xl border border-[var(--border-color)] px-2 py-1 mx-1 shadow-inner h-8 md:h-9" title="Sayfa İçeriği Boyutu">
+            <i className="fa-solid fa-magnifying-glass-minus text-[10px] text-[var(--text-muted)] cursor-pointer hover:text-[var(--accent-color)] transition-colors" onClick={() => updateSetting('contentScale', Math.max(0.5, (settings.contentScale || 1) - 0.05))}></i>
+            <input 
+               type="range" 
+               min="0.5" 
+               max="1.5" 
+               step="0.05" 
+               value={settings.contentScale || 1} 
+               onChange={(e: any) => updateSetting('contentScale', parseFloat(e.target.value))}
+               className="w-16 md:w-20 lg:w-28 mx-2 accent-[var(--accent-color)] h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+            />
+            <i className="fa-solid fa-magnifying-glass-plus text-[10px] text-[var(--text-muted)] cursor-pointer hover:text-[var(--accent-color)] transition-colors" onClick={() => updateSetting('contentScale', Math.min(1.5, (settings.contentScale || 1) + 0.05))}></i>
+            <span className="text-[10px] font-black text-[var(--text-secondary)] ml-2 w-7 text-right font-mono tracking-tighter">
+               {Math.round((settings.contentScale || 1) * 100)}%
+            </span>
+        </div>
 
         {/* Özel Araçlar */}
         <div className="flex items-center gap-1">
