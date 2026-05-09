@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import * as React from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
+
 
 /**
  * AdminActivityScaffold: Otonom Etkinlik Üretim Sihirbazı
@@ -236,7 +238,7 @@ interface InputGroupProps {
   onChange: (val: string) => void;
 }
 
-const InputGroup: React.FC<InputGroupProps> = ({ label, placeholder, value, onChange }) => (
+const InputGroup = ({ label, placeholder, value, onChange }: InputGroupProps) => (
   <div className="flex flex-col space-y-2">
     <label className="text-xs font-black uppercase text-zinc-500 tracking-widest pl-2">
       {label}
@@ -250,3 +252,4 @@ const InputGroup: React.FC<InputGroupProps> = ({ label, placeholder, value, onCh
     />
   </div>
 );
+
