@@ -1,11 +1,17 @@
-import React from 'react';
+import React, { ChangeEvent } from 'react';
+import { BoilerplateSettings } from '../types';
+
+interface ConfigPanelProps {
+  settings: BoilerplateSettings;
+  onChange: (s: BoilerplateSettings) => void;
+}
 
 /**
  * ULTRA PROFESYONEL AYARLAR PANELİ
  * - Dark Glassmorphism
  * - Modern Tailwind Form Elemanları
  */
-export const ConfigPanel: React.FC<{ settings: any; onChange: (s: any) => void }> = ({ settings, onChange }) => {
+export const ConfigPanel: React.FC<ConfigPanelProps> = ({ settings, onChange }) => {
   return (
     <div className="space-y-6">
       {/* HEADER */}

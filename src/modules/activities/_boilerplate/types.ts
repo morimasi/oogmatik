@@ -1,4 +1,4 @@
-import { BaseActivityData } from '../../../../types';
+import { BaseActivityData } from '../../../types';
 
 // Ayarlar panelinden (ConfigPanel) gelecek olan kullanıcı tercihleri
 export interface BoilerplateSettings {

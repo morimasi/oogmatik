@@ -1,6 +1,6 @@
 import { BoilerplateData, BoilerplateSettings } from './types';
-import { geminiClient } from '../../../../services/geminiClient';
-import { AppError } from '../../../../utils/AppError';
+import { geminiClient } from '../../../services/geminiClient';
+import { AppError } from '../../../utils/AppError';
 
 /**
  * 1. HIZLI MOD (OFFLINE GENERATOR)
@@ -16,7 +16,6 @@ export const generateFastMode = async (settings: BoilerplateSettings): Promise<B
   }));
 
   return {
-    id: `boilerplate_${Date.now()}`,
     activityType: 'CUSTOM_NEW_ACTIVITY',
     title: 'Yeni Etkinlik Şablonu (Hızlı Üretim)',
     instruction: 'Lütfen aşağıdaki soruları dikkatlice okuyup cevaplayınız.',
@@ -63,7 +62,6 @@ FORMAT:
     const data = aiResponse.data;
 
     return {
-      id: `boilerplate_ai_${Date.now()}`,
       activityType: 'CUSTOM_NEW_ACTIVITY',
       title: data.title || 'AI Destekli Yeni Etkinlik',
       instruction: data.instruction || 'Yönergeyi takip edin.',
