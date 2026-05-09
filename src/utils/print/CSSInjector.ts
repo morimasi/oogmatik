@@ -22,7 +22,7 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
         : paperSize;
   const dims = PAPER_DIMENSIONS[paperSize];
   const styleText = `
-    @page { size: ${pageSize}; margin: 0; }
+    @page { size: ${pageSize}; margin: 10mm !important; }
     @media print {
       html, body {
         width: 100% !important;
@@ -61,10 +61,10 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
       body.printing-mode #print-overlay .print-page,
       body.printing-mode #print-overlay .universal-mode-canvas,
       body.printing-mode #print-overlay .a4-page {
-        width: ${dims.width} !important;
-        min-height: ${dims.height} !important;
-        max-width: ${dims.width} !important;
-        margin: 0 auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 100% !important;
+        margin: 0 !important;
         box-shadow: none !important;
         break-inside: auto !important;
         page-break-inside: auto !important;
@@ -112,7 +112,7 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
   }
 
   styleEl.textContent = `
-    @page { size: ${paperSize} ${isLandscape ? 'landscape' : 'portrait'}; margin: 12mm; }
+    @page { size: ${paperSize} ${isLandscape ? 'landscape' : 'portrait'}; margin: 10mm !important; }
     @media print {
       body > *:not(#print-overlay) {
         display: none !important;
@@ -175,7 +175,7 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
       .lg\\:flex-row { flex-direction: row !important; }
 
       @page { 
-        margin: 0px !important; 
+        margin: 10mm !important; 
         size: auto; 
       }
       
@@ -192,10 +192,12 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
         margin: 0 !important;
         box-shadow: none !important;
         border: none !important;
-        padding-top: 15mm !important; /* Üstteki tarihin yerine geçen boşluk */
-        padding-bottom: 20mm !important;
-        padding-left: 10mm !important;
-        padding-right: 10mm !important;
+        padding-top: 5mm !important;
+        padding-bottom: 5mm !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
         page-break-after: always !important;
         break-after: page !important;
         background: white !important;
@@ -207,12 +209,12 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
       .print-page::before, .worksheet-page::before, .a4-page::before {
         content: "" !important;
         display: block !important;
-        height: 10mm !important; /* 0.5 cm'den fazla (1cm) güvenlik tamponu */
+        height: 5mm !important;
         width: 100% !important;
       }
 
       .print-page img {
-        margin-top: 5mm !important; /* Görseller için ekstra iç güvenlik marjı */
+        margin-top: 2mm !important; /* Görseller için ekstra iç güvenlik marjı */
       }
 
       .oogmatik-print-wrapper {
