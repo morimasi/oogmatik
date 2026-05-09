@@ -128,6 +128,13 @@ export const ACTIVITIES: Activity[] = [
     icon: 'fa-solid fa-eye',
   },
   {
+    id: ActivityType.HIDDEN_PICTURES,
+    title: 'Gizli Nesne Bulma',
+    description: 'Karmaşık bir görsel veya matris içerisinde gizlenmiş hedef nesneleri arayıp tespit etme odaklı görsel tarama çalışması.',
+    icon: 'fa-solid fa-magnifying-glass',
+    defaultStyle: { columns: 1 },
+  },
+  {
     id: ActivityType.VISUAL_ODD_ONE_OUT,
     title: 'Görsel Farklıyı Bul',
     description: 'Görsel örüntüler içindeki uyumsuz öğeyi tespit etme.',
@@ -382,6 +389,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.MAP_INSTRUCTION,
       ActivityType.DIRECTIONAL_TRACKING,
       ActivityType.FIND_THE_DIFFERENCE,
+      ActivityType.HIDDEN_PICTURES,
       ActivityType.VISUAL_ODD_ONE_OUT,
       ActivityType.GRID_DRAWING,
       ActivityType.SYMMETRY_DRAWING,
