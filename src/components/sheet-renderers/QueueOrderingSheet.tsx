@@ -24,7 +24,7 @@ interface QueueOrderingSheetProps {
   };
 }
 
-export const QueueOrderingSheet: React.FC<QueueOrderingSheetProps> = ({ data, settings }) => {
+export const QueueOrderingSheet = ({ data, settings }: QueueOrderingSheetProps) => {
   // Extract data intelligently to handle wrapped responses
   const contentData = data?.content || data;
   const targetData = Array.isArray(contentData) ? (contentData[0] || {}) : (contentData || {});
