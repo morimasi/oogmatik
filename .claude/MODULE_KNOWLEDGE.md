@@ -861,7 +861,7 @@
    - `generatePreface(settings, items)` — Onsoz uretimi (optimize edilmis)
 
 **Teknik Ozellikler**:
-- Model: `gemini-2.5-flash` (sabit)
+- Model: `gemini-1.5-flash` (sabit)
 - Max Token: 600/istek
 - Rate Limit: 100 istek/saat/kullanici
 - Cache TTL: 10 dakika
@@ -1116,7 +1116,7 @@ const note = await workbookAIAssistant.generatePedagogicalNote(item);
 - Token maliyet optimizasyonu
 
 **Kontrol Etmesi Gerekenler**:
-- Model: `gemini-2.5-flash` (değişmemeli)
+- Model: `gemini-1.5-flash` (değişmemeli)
 - Prompt anatomisi: ROL + HEDEFİ + KISITLAR + ÇIKTI
 - JSON schema: required alanlar tanımlı mı?
 - Token kullanımı: 600 token/aktivite altında mı?

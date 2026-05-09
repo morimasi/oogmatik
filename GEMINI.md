@@ -14,7 +14,7 @@ AI destekli kişiselleştirilmiş eğitim materyalleri üreten bir EdTech platfo
 - **Hedef Kitle**: 4–8. sınıf öğrencileri, özel eğitim öğretmenleri, veliler
 - **Kritik Kısıt**: Her üretilen içerik gerçek bir çocuğa ulaşır. Hata toleransı = sıfır.
 - **Müfredat**: MEB 2024-2025, LGS/PISA standartları
-- **AI Altyapısı**: Google Gemini 2.5 Flash (`gemini-2.5-flash`)
+- **AI Altyapısı**: Google Gemini 1.5 Flash (`gemini-1.5-flash`)
 
 ---
 
@@ -220,7 +220,7 @@ oogmatik/
 | State | Zustand (10 store) |
 | UI | Radix UI, @dnd-kit (drag-and-drop), lucide-react |
 | Backend | Node.js, Vercel Serverless Functions |
-| AI | Google Gemini 2.5 Flash — `gemini-2.5-flash` (sabit — değiştirme) |
+| AI | Google Gemini 1.5 Flash — `gemini-1.5-flash` (sabit — değiştirme) |
 | DB | Firebase/Firestore + IndexedDB (önbellek) |
 | Validation | Zod |
 | Test | Vitest + Playwright (E2E) |
@@ -308,7 +308,7 @@ interface BEPGoal {
 }
 
 // Sabit model — değiştirme
-const MASTER_MODEL = 'gemini-2.5-flash';
+const MASTER_MODEL = 'gemini-1.5-flash';
 ```
 
 ---

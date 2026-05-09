@@ -358,7 +358,7 @@ export const generateOfflineStorySequencing = async (options: GeneratorOptions):
     });
 };
 
-export const generateOfflineMissingParts = async (options: GeneratorOptions): Promise<MissingPartsData[]> => {
+export const generateOfflineStoryCloze = async (options: GeneratorOptions): Promise<any[]> => {
     const { worksheetCount = 1, difficulty = 'orta' } = options;
     return Array.from({ length: worksheetCount }, () => {
         const { title, story, chosenValues } = buildBaseStory(difficulty);
@@ -377,7 +377,7 @@ export const generateOfflineMissingParts = async (options: GeneratorOptions): Pr
         });
 
         return {
-            title: 'Anlamsal Akış ve Boşluk Doldurma (Ultra Pro)',
+            title: 'Anlamsal Akış ve Boşluk Doldurma (Hikaye Bazlı)',
             instruction: "Metindeki boşlukları anlam akışına uygun kelimelerle tamamlayın.",
             content: {
                 title,

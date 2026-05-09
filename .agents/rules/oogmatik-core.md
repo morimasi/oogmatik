@@ -14,7 +14,7 @@ Google Antigravity ve Gemini CLI ile çalışırken, projenin **v2 Professional*
 
 ## Proje
 **Oogmatik** — Türkiye'deki disleksi, DEHB ve özel öğrenme güçlüğü yaşayan çocuklar için AI destekli kişiselleştirilmiş eğitim materyali platformu.  
-**Stack**: React 18 + TypeScript (strict) + Vite + Node.js + Vercel Serverless + Gemini 2.5 Flash + Firebase  
+**Stack**: React 18 + TypeScript (strict) + Vite + Node.js + Vercel Serverless + Gemini 1.5 Flash + Firebase  
 **Kural #0**: Her içerik gerçek bir çocuğa ulaşır. Hata toleransı = sıfır.
 
 ---

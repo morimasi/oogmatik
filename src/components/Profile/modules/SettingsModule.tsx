@@ -95,12 +95,12 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   const categories = [
-    { id: 'profile' as SettingsCategory, label: 'Profil', icon: 'fa-user-pen', desc: 'Kişisel ve Kurumsal' },
-    { id: 'appearance' as SettingsCategory, label: 'Arayüz', icon: 'fa-palette', desc: 'Premium Tasarım' },
-    { id: 'pedagogy' as SettingsCategory, label: 'Pedagoji', icon: 'fa-graduation-cap', desc: 'Eğitim Stratejisi' },
-    { id: 'ai' as SettingsCategory, label: 'AI Asistan', icon: 'fa-wand-magic-sparkles', desc: 'Üretim Motoru' },
-    { id: 'notifications' as SettingsCategory, label: 'Bildirimler', icon: 'fa-bell', desc: 'Uyarılar' },
-    { id: 'security' as SettingsCategory, label: 'Güvenlik', icon: 'fa-shield-halved', desc: 'Hesap & Gizlilik' },
+    { id: 'profile' as SettingsCategory, label: 'Kullanıcı Profili', icon: 'fa-user-astronaut', desc: 'Kimlik ve Kurumsal' },
+    { id: 'appearance' as SettingsCategory, label: 'Tasarım & Tema', icon: 'fa-wand-magic-sparkles', desc: 'Ultra Premium UI' },
+    { id: 'pedagogy' as SettingsCategory, label: 'Eğitim Vizyonu', icon: 'fa-microscope', desc: 'Strateji ve ZPD' },
+    { id: 'ai' as SettingsCategory, label: 'AI Kontrol Merkezi', icon: 'fa-brain-circuit', desc: 'Motor & Zeka' },
+    { id: 'notifications' as SettingsCategory, label: 'İletişim Hattı', icon: 'fa-satellite-dish', desc: 'Sistem Mesajları' },
+    { id: 'security' as SettingsCategory, label: 'Varlık Güvenliği', icon: 'fa-vault', desc: 'Şifre & Gizlilik' },
   ];
 
   const handleUpdateProfile = async () => {
@@ -190,113 +190,141 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({
       case 'profile':
         return (
           <>
-             <div className="p-8 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-[3rem] border border-white/20 shadow-2xl relative overflow-hidden group mb-8">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full -mr-32 -mt-32 blur-3xl group-hover:scale-125 transition-transform duration-1000"></div>
-                <div className="flex items-center gap-6 relative">
-                   <div className="w-24 h-24 rounded-[2.5rem] bg-indigo-100 p-1 bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-xl">
-                      <img src={avatarUrl} className="w-full h-full rounded-[2.2rem] object-cover bg-white" alt="Avatar" />
+          <>
+             <div className="p-10 bg-gradient-to-br from-indigo-600/20 via-purple-600/10 to-transparent rounded-[3.5rem] border border-white/20 shadow-2xl relative overflow-hidden group mb-10">
+                <div className="absolute top-0 right-0 w-80 h-80 bg-indigo-500/15 rounded-full -mr-40 -mt-40 blur-[100px] animate-pulse"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/10 rounded-full -ml-32 -mb-32 blur-[80px]"></div>
+                
+                <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
+                   <div className="relative group cursor-pointer">
+                      <div className="w-32 h-32 rounded-[2.8rem] bg-indigo-500 p-1 bg-gradient-to-tr from-indigo-600 via-purple-500 to-pink-500 shadow-2xl transition-transform duration-500 group-hover:scale-105 group-hover:rotate-3">
+                         <img src={avatarUrl} className="w-full h-full rounded-[2.6rem] object-cover bg-white" alt="Avatar" />
+                      </div>
+                      <button 
+                        onClick={() => setShowAvatarUrlInput(!showAvatarUrlInput)}
+                        className="absolute -bottom-2 -right-2 w-11 h-11 bg-white dark:bg-zinc-900 border-4 border-slate-50 dark:border-zinc-800 text-indigo-600 rounded-2xl shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
+                      >
+                        <i className="fa-solid fa-cloud-arrow-up"></i>
+                      </button>
                    </div>
-                   <div>
-                      <h3 className="text-2xl font-black text-[var(--text-primary)] mb-1">{editName || 'İsimsiz Eğitmen'}</h3>
-                      <div className="flex flex-wrap gap-2">
-                         <span className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-indigo-200 shadow-sm">{editProfession || 'Uzmanlık Belirtilmedi'}</span>
-                         <span className="px-3 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 text-[10px] font-black uppercase tracking-widest rounded-full border border-emerald-200 shadow-sm">{editInstitution || 'Kurum Atanmadı'}</span>
+                   
+                   <div className="text-center md:text-left">
+                      <div className="flex items-center justify-center md:justify-start gap-3 mb-2">
+                        <h3 className="text-3xl font-black text-[var(--text-primary)] tracking-tight">{editName || 'İsimsiz Eğitmen'}</h3>
+                        <span className="px-3 py-1 bg-indigo-500 text-white text-[8px] font-black uppercase tracking-[0.2em] rounded-lg shadow-lg shadow-indigo-500/40">Premium Pro</span>
+                      </div>
+                      <div className="flex flex-wrap justify-center md:justify-start gap-3">
+                         <div className="flex items-center gap-2 px-4 py-2 bg-white/50 dark:bg-black/20 backdrop-blur-md rounded-2xl border border-white/50 shadow-sm transition-colors hover:bg-white/80">
+                            <i className="fa-solid fa-user-graduate text-indigo-500 text-xs"></i>
+                            <span className="text-[10px] font-black text-indigo-700 dark:text-indigo-400 uppercase tracking-widest">{editProfession || 'Uzmanlık Belirtilmedi'}</span>
+                         </div>
+                         <div className="flex items-center gap-2 px-4 py-2 bg-white/50 dark:bg-black/20 backdrop-blur-md rounded-2xl border border-white/50 shadow-sm transition-colors hover:bg-white/80">
+                            <i className="fa-solid fa-building-columns text-emerald-500 text-xs"></i>
+                            <span className="text-[10px] font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">{editInstitution || 'Kurum Atanmadı'}</span>
+                         </div>
                       </div>
                    </div>
                 </div>
              </div>
 
-            <div className="flex flex-col md:flex-row gap-8 items-start">
-              <div className="relative group">
-                <div className="w-32 h-32 rounded-[2.5rem] p-1 bg-gradient-to-tr from-[var(--accent-color)] to-purple-500 shadow-xl overflow-hidden">
-                  <img
-                    src={avatarUrl}
-                    alt={editName}
-                    className="w-full h-full rounded-[2.2rem] object-cover bg-[var(--bg-secondary)]"
-                  />
-                </div>
-                <button 
-                  onClick={() => setShowAvatarUrlInput(!showAvatarUrlInput)}
-                  className="absolute -bottom-2 -right-2 w-10 h-10 bg-[var(--bg-paper)] text-[var(--accent-color)] rounded-xl border border-[var(--border-color)] shadow-lg flex items-center justify-center hover:scale-110 active:scale-95 transition-all"
-                >
-                  <i className="fa-solid fa-camera-rotate"></i>
-                </button>
-              </div>
-              <div className="flex-1 w-full space-y-6">
+            <div className="w-full space-y-6">
                 {showAvatarUrlInput && (
-                  <div className="animate-in slide-in-from-top-2 duration-300">
-                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Avatar URL</label>
+                  <div className="animate-in slide-in-from-top-2 duration-300 p-6 bg-indigo-50 dark:bg-indigo-900/10 rounded-3xl border border-indigo-100 dark:border-indigo-500/20">
+                    <label className="block text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2 ml-1">Özel Avatar URL</label>
                     <input
                       type="text"
                       value={avatarUrl}
                       onChange={(e: ChangeEvent<HTMLInputElement>) => setAvatarUrl(e.target.value)}
                       placeholder="https://..."
-                      className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20 text-sm font-bold"
+                      className="w-full px-4 py-4 bg-white dark:bg-black/30 border border-indigo-200 dark:border-indigo-500/20 rounded-2xl focus:outline-none focus:ring-4 focus:ring-indigo-500/10 text-sm font-bold shadow-inner"
                     />
                   </div>
                 )}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Ad Soyad</label>
-                    <input
-                      type="text"
-                      value={editName}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => setEditName(e.target.value)}
-                      className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20 font-bold"
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Gerçek Adınız</label>
+                    <div className="relative group">
+                      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-400 group-focus-within:text-indigo-500 transition-colors">
+                        <i className="fa-solid fa-signature text-xs"></i>
+                      </div>
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => setEditName(e.target.value)}
+                        className="w-full pl-12 pr-4 py-4 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-[1.5rem] focus:outline-none focus:ring-4 focus:ring-indigo-500/10 font-bold transition-all"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Uzmanlık / Meslek</label>
-                    <input
-                      type="text"
-                      value={editProfession}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => setEditProfession(e.target.value)}
-                      className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20 font-bold"
-                    />
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Uzmanlık & Branş</label>
+                    <div className="relative group">
+                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-400 group-focus-within:text-indigo-500 transition-colors">
+                        <i className="fa-solid fa-graduation-cap text-xs"></i>
+                      </div>
+                      <input
+                        type="text"
+                        value={editProfession}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => setEditProfession(e.target.value)}
+                        className="w-full pl-12 pr-4 py-4 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-[1.5rem] focus:outline-none focus:ring-4 focus:ring-indigo-500/10 font-bold transition-all"
+                      />
+                    </div>
                   </div>
+                </div>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Çalıştığınız Kurum</label>
+                <div className="relative group">
+                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-400 group-focus-within:text-emerald-500 transition-colors">
+                    <i className="fa-solid fa-school text-xs"></i>
+                  </div>
+                  <input
+                    type="text"
+                    value={editInstitution}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setEditInstitution(e.target.value)}
+                    className="w-full pl-12 pr-4 py-4 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-[1.5rem] focus:outline-none focus:ring-4 focus:ring-emerald-500/10 font-bold transition-all"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">İletişim Numarası</label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-zinc-400 group-focus-within:text-[var(--accent-color)] transition-colors">
+                    <i className="fa-solid fa-mobile-screen-button text-xs"></i>
+                  </div>
+                  <input
+                    type="tel"
+                    value={editPhone}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setEditPhone(e.target.value)}
+                    className="w-full pl-12 pr-4 py-4 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-[1.5rem] focus:outline-none focus:ring-4 focus:ring-[var(--accent-color)]/10 font-bold transition-all"
+                  />
                 </div>
               </div>
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Kurum / Okul</label>
-                <input
-                  type="text"
-                  value={editInstitution}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setEditInstitution(e.target.value)}
-                  className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20 font-bold"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Telefon</label>
-                <input
-                  type="tel"
-                  value={editPhone}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setEditPhone(e.target.value)}
-                  className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20 font-bold"
-                />
-              </div>
-            </div>
 
-            <div>
-              <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Hakkımda / Bio</label>
+            <div className="space-y-2">
+              <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest ml-1">Eğitmen Özeti / Biyografi</label>
               <textarea
                 value={editBio}
                 onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setEditBio(e.target.value)}
-                rows={3}
-                className="w-full px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20 font-bold resize-none"
+                rows={4}
+                placeholder="Pedagoji yaklaşımınızdan veya deneyimlerinizden bahsedin..."
+                className="w-full px-6 py-5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-[2rem] focus:outline-none focus:ring-4 focus:ring-indigo-500/10 font-bold resize-none transition-all"
               />
             </div>
 
-            <div className="flex justify-end pt-4">
+            <div className="flex justify-end pt-6">
               <button
                 onClick={handleUpdateProfile}
                 disabled={isSavingProfile}
-                className="px-8 py-4 bg-[var(--accent-color)] text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-[var(--accent-muted)] disabled:opacity-50"
+                className="group relative px-10 py-5 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] overflow-hidden transition-all hover:scale-[1.02] active:scale-[0.98] shadow-2xl shadow-indigo-600/30 disabled:opacity-50"
               >
-                {isSavingProfile ? <i className="fa-solid fa-spinner fa-spin mr-2"></i> : <i className="fa-solid fa-check-double mr-2"></i>}
-                Profil Bilgilerini Güncelle
+                <div className="absolute inset-0 bg-white/20 group-hover:bg-transparent transition-colors"></div>
+                <div className="relative flex items-center gap-3">
+                   {isSavingProfile ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-bolt-lightning"></i>}
+                   <span>Profil Değişikliklerini Uygula</span>
+                </div>
               </button>
             </div>
           </>
@@ -352,40 +380,47 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({
               </div>
             </div>
           </div>
-        );
-
-      case 'ai':
-        return (
-          <div className="space-y-8">
-             <div className="p-6 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-[2.5rem] border border-indigo-500/20 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
-                <div className="relative flex items-center justify-between mb-6">
-                  <div>
-                    <h3 className="text-sm font-black text-indigo-600 uppercase tracking-widest mb-1 flex items-center gap-2">
-                       <i className="fa-solid fa-sparkles"></i>
+                  <div className="space-y-10 animate-in fade-in duration-500">
+             <div className="p-8 bg-gradient-to-br from-indigo-600/10 to-transparent rounded-[3rem] border border-indigo-500/20 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-500/10 rounded-full -mr-24 -mt-24 blur-3xl group-hover:scale-150 transition-transform duration-1000"></div>
+                <div className="relative flex flex-col md:flex-row items-center justify-between gap-6 mb-10">
+                  <div className="text-center md:text-left">
+                    <h3 className="text-xl font-black text-indigo-600 uppercase tracking-[0.2em] mb-2 flex items-center justify-center md:justify-start gap-3">
+                       <i className="fa-solid fa-wand-magic-sparkles animate-bounce"></i>
                        Omnikron AI Pro
                     </h3>
-                    <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest">Master Model Etkin</p>
+                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">Hiper-Parametrik Üretim Motoru</p>
                   </div>
-                  <div className="px-3 py-1 bg-indigo-500 text-white rounded-full text-[8px] font-black uppercase tracking-widest">
-                    Gemini 2.5 Flash
+                  <div className="flex items-center gap-4">
+                    <div className="px-5 py-2 bg-indigo-600 text-white rounded-2xl text-[9px] font-black uppercase tracking-widest shadow-[0_10px_20px_rgba(79,70,229,0.3)] border border-indigo-400/50">
+                      Gemini 1.5 Flash
+                    </div>
+                    <div className="px-5 py-2 bg-white dark:bg-zinc-800 text-indigo-600 rounded-2xl text-[9px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-900 shadow-sm">
+                      v2.8 Master
+                    </div>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-4 bg-white/50 dark:bg-black/20 rounded-2xl border border-white/50 shadow-sm">
-                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">Latency</p>
-                    <p className="text-xl font-black text-indigo-600">~0.8s</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 relative z-10">
+                  <div className="p-5 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-3xl border border-white/50 shadow-sm transition-all hover:translate-y-[-2px]">
+                    <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1 opacity-60">Avg Latency</p>
+                    <p className="text-2xl font-black text-indigo-600">0.72s</p>
                   </div>
-                  <div className="p-4 bg-white/50 dark:bg-black/20 rounded-2xl border border-white/50 shadow-sm">
-                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">Accuracy</p>
-                    <p className="text-xl font-black text-indigo-600">99.2%</p>
+                  <div className="p-5 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-3xl border border-white/50 shadow-sm transition-all hover:translate-y-[-2px]">
+                    <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1 opacity-60">Success Rate</p>
+                    <p className="text-2xl font-black text-emerald-500">99.8%</p>
                   </div>
-                  <div className="p-4 bg-white/50 dark:bg-black/20 rounded-2xl border border-white/50 shadow-sm">
-                    <p className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-1">Token Limit</p>
-                    <p className="text-xl font-black text-indigo-600">1.2M</p>
+                  <div className="p-5 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-3xl border border-white/50 shadow-sm transition-all hover:translate-y-[-2px]">
+                    <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1 opacity-60">Context Win</p>
+                    <p className="text-2xl font-black text-indigo-600">1.2M</p>
+                  </div>
+                   <div className="p-5 bg-white/40 dark:bg-black/20 backdrop-blur-md rounded-3xl border border-white/50 shadow-sm transition-all hover:translate-y-[-2px]">
+                    <p className="text-[9px] font-black text-zinc-400 uppercase tracking-widest mb-1 opacity-60">Reputation</p>
+                    <p className="text-2xl font-black text-purple-600">Legend</p>
                   </div>
                 </div>
+             </div>
+             </div>
              </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">

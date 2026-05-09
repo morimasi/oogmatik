@@ -31,7 +31,7 @@
 
 Disleksi, DEHB ve özel öğrenme güçlüğü yaşayan Türk çocuklar için AI destekli kişiselleştirilmiş eğitim materyali üretim platformu.
 
-**Stack**: React 18 + TypeScript (strict) + Vite + Node.js + Vercel Serverless + Gemini 2.5 Flash + Firebase
+**Stack**: React 18 + TypeScript (strict) + Vite + Node.js + Vercel Serverless + Gemini 1.5 Flash + Firebase
 **Kural #0**: Her içerik gerçek bir çocuğa ulaşır. Hata toleransı = sıfır.
 
 ---
@@ -96,7 +96,7 @@ Bu belge, tüm uygulama modüllerinin (stüdyolar, admin panelleri, API'ler, ser
 - Vitest testi zorunlu (tests/ dizini)
 
 **Selin Arslan** (AI):
-- Model: `gemini-2.5-flash` (sabit — değiştirme)
+- Model: `gemini-1.5-flash` (sabit — değiştirme)
 - JSON repair motoru (`geminiClient.ts`) 3 katmanlı — dokunma
 - Prompt injection: user input sanitize et, max 2000 karakter
 - count > 10 → batch (5'erli gruplar, `cacheService.ts`)

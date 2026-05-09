@@ -289,42 +289,102 @@ export async function generateOfflinePremiumFamilyLogicTest(
 // ═══════════════════════════════════════════════════════════════
 // EKSİK PARÇALAR (MISSING_PARTS)
 // ═══════════════════════════════════════════════════════════════
-export async function generateOfflinePremiumMissingParts(
+// ═══════════════════════════════════════════════════════════════
+// EKSİK PARÇALARI TAMAMLAMA (MISSING_PARTS) - ULTRA PRO PREMIUM
+// ═══════════════════════════════════════════════════════════════
+export async function generateOfflineMissingParts(
   options: GeneratorOptions
 ): Promise<SingleWorksheetData> {
-  const { difficulty = 'Orta' } = options;
+  const { difficulty = 'Orta', topic = 'Genel' } = options;
 
-  const sentenceGaps = [
-    { sentence: 'Güneş her sabah ___ dan doğar.', options: ['doğu', 'batı', 'kuzey'], answer: 'doğu' },
-    { sentence: 'Kedi ___ üzerinde uyuyor.', options: ['koltuk', 'deniz', 'bulut'], answer: 'koltuk' },
-    { sentence: 'Yağmur yağınca ___ açarız.', options: ['şemsiye', 'perde', 'kitap'], answer: 'şemsiye' },
-    { sentence: 'Çiftçi ___ tarlada çalışır.', options: ['sabah', 'gece', 'her gün'], answer: 'her gün' },
-    { sentence: 'Balıklar ___ yaşar.', options: ['suda', 'karada', 'havada'], answer: 'suda' },
-    { sentence: 'Öğrenciler okulda ___ öğrenir.', options: ['ders', 'yemek', 'uyku'], answer: 'ders' },
+  // 1. Zenginleştirilmiş Cümle Havuzu
+  const sentenceTemplates = [
+    { s: 'Güneş her sabah ___ ufkundan doğarak dünyamızı aydınlatır.', a: 'doğu', d: ['batı', 'kuzey', 'gün'] },
+    { s: 'Okula giderken ___ çantamı yanıma almayı asla unutmam.', a: 'ağır', d: ['hafif', 'mavi', 'eski'] },
+    { s: 'En sevdiğim kitapları ___ sessizce okumaktan büyük zevk alırım.', a: 'kütüphanede', d: ['parkta', 'okulda', 'evde'] },
+    { s: 'Kış mevsiminde kar yağdığında dışarıda ___ oynamayı çok seviyoruz.', a: 'kartopu', d: ['saklambaç', 'futbol', 'basketbol'] },
+    { s: 'Sağlıklı büyümek için her sabah ___ içmek çok faydalıdır.', a: 'süt', d: ['meyve suyu', 'su', 'çay'] },
+    { s: 'Öğretmenimiz tahtaya ___ ile çok güzel bir resim çizdi.', a: 'tebeşir', d: ['kalem', 'boya', 'silgi'] },
+    { s: 'Bahçedeki çiçekler ___ beklediği için boyunlarını bükmüştü.', a: 'sulanmayı', d: ['sevilmeyi', 'koparılmayı', 'güneşi'] },
+    { s: 'Kitap okumak insanın ___ dünyasını zenginleştiren bir alışkanlıktır.', a: 'hayal', d: ['gerçek', 'oyun', 'dünya'] },
+    { s: 'Doğayı korumak için çöplerimizi mutlaka ___ atmalıyız.', a: 'çöp kutusuna', d: ['yere', 'denize', 'ormana'] },
+    { s: 'Sabahları erken kalkmak güne ___ ve zinde başlamamızı sağlar.', a: 'enerjik', d: ['yorgun', 'mutsuz', 'sessiz'] },
   ];
 
-  const wordGaps = [
-    { word: 'K_T_P', answer: 'KİTAP', hint: 'Okuduğumuz şey' },
-    { word: 'Ö_R_T_E_', answer: 'ÖĞRETMEN', hint: 'Okulda ders veren' },
-    { word: '_İ_G_SA_A_', answer: 'BİLGİSAYAR', hint: 'Teknolojik araç' },
-    { word: 'K_L_B_K', answer: 'KELEBEK', hint: 'Uçan böcek' },
+  // 2. Eksik Kelime Havuzu
+  const wordPuzzles = [
+    { w: 'İ_T_F_İ_ECİ', a: 'İTFAİYECİ', h: 'Yangınları söndüren kişi' },
+    { w: 'B_LG_S_Y_R', a: 'BİLGİSAYAR', h: 'Bilgi işleyen teknolojik araç' },
+    { w: 'K_T_PH_N_', a: 'KÜTÜPHANE', h: 'Kitapların bulunduğu yer' },
+    { w: 'Ö_R_N_İ', a: 'ÖĞRENCİ', h: 'Okulda eğitim gören kişi' },
+    { w: 'G_L_C_K', a: 'GELECEK', h: 'Henüz yaşanmamış zaman' },
+    { w: 'A_R_D_Ş', a: 'ARKADAŞ', h: 'Birlikte vakit geçirilen dost' },
+    { w: 'M_S_F_R', a: 'MİSAFİR', h: 'Eve gelen konuk' },
+    { w: 'T_L_V_ZY_N', a: 'TELEVİZYON', h: 'Haber ve film izlediğimiz cihaz' },
   ];
 
-  const builder = new WorksheetBuilder(ActivityType.MISSING_PARTS, 'Eksik Parçaları Tamamla')
+  // 3. Bağlamsal Metin (Cloze Story)
+  const stories = [
+    {
+      title: 'Ormandaki Macera',
+      text: 'Bir sabah küçük tavşan ormanda (1)___ çıktı. Yolda giderken çok (2)___ bir sincapla karşılaştı. Sincap elindeki (3)___ yere düşürmüştü. Tavşan hemen ona (4)___ etti.',
+      blanks: [
+        { id: 1, a: 'geziye', d: ['uykuya', 'yemeğe'] },
+        { id: 2, a: 'neşeli', d: ['üzgün', 'korkmuş'] },
+        { id: 3, a: 'meşe palamudunu', d: ['havucu', 'elmayı'] },
+        { id: 4, a: 'yardım', d: ['şaka', 'veda'] }
+      ]
+    },
+    {
+       title: 'Geleceğin Bilim İnsanı',
+       text: 'Can, her gün (1)___ yaparak yeni şeyler keşfetmeyi hayal ederdi. Odasında küçük bir (2)___ kurmuştu. Annesi ona doğum gününde bir (3)___ hediye etti. Artık (4)___ daha yakından inceleyebilecekti.',
+       blanks: [
+         { id: 1, a: 'deney', d: ['spor', 'dans'] },
+         { id: 2, a: 'laboratuvar', d: ['oyun alanı', 'kütüphane'] },
+         { id: 3, a: 'mikroskop', d: ['teleskop', 'kitap'] },
+         { id: 4, a: 'hücreleri', d: ['yıldızları', 'balıkları'] }
+       ]
+    }
+  ];
+
+  const story = getRandomItems(stories, 1)[0];
+  const items = getRandomItems(sentenceTemplates, difficulty === 'Zor' ? 10 : 8);
+  const words = getRandomItems(wordPuzzles, 6);
+
+  const builder = new WorksheetBuilder(ActivityType.MISSING_PARTS, 'Eksik Parçaları Tamamlama (Premium Pro)')
     .addPremiumHeader()
-    .setInstruction('Cümlelerdeki boşlukları doldurun ve eksik harfli kelimeleri tamamlayın.')
-    .addPrimaryActivity('table', {
-      title: '📝 Bölüm 1: Cümle Tamamlama',
-      headers: ['Cümle', 'Seçenekler', 'Cevabın'],
-      rows: sentenceGaps.map((sg, i) => [
-        `${i + 1}. ${sg.sentence}`,
-        sg.options.join(' / '),
-        '________'
-      ])
-    })
-    .addSupportingDrill('Bölüm 2: Eksik Harfler', {
-      items: wordGaps.map((wg, i) => `${i + 1}. ${wg.word}  (İpucu: ${wg.hint})  →  ________________`)
-    });
+    .setInstruction('Aşağıdaki çalışmaları dikkatlice okuyunuz ve en uygun kelimeleri seçerek boşlukları doldurunuz.');
+
+  // BÖLÜM 1: Bağlamsal Akış (Story Cloze)
+  builder.addPrimaryActivity('text', {
+    content: `📖 BÖLÜM 1: Metin Tamamlama\n\n**${story.title}**\n\n${story.text}\n\n` +
+      `**Kelime Seçenekleri:**\n` + 
+      story.blanks.map(b => `${b.id}. (${b.a} / ${b.d.join(' / ')})`).join('\n')
+  });
+
+  // BÖLÜM 2: Cümle Analizi
+  builder.addPrimaryActivity('table', {
+    title: '📝 BÖLÜM 2: Cümlelerdeki Boşlukları Doldur',
+    headers: ['No', 'Cümle (Eksik Parçalı)', 'Kelime Seçenekleri', 'Cevabınız'],
+    rows: items.map((item, i) => [
+      `${i + 1}`,
+      item.s,
+      item.d.concat(item.a).sort().join(' / '),
+      '________________'
+    ]),
+    style: { fontSize: 11, compact: true }
+  });
+
+  // BÖLÜM 3: Kelime ve Harf Farkındalığı
+  builder.addSupportingDrill('🔍 BÖLÜM 3: Kelime Dedektifi (Eksik Harfler)', {
+    items: words.map((wg, i) => `${i + 1}. ${wg.w}  (İpucu: ${wg.h})  →  ________________`),
+    pedagogicalNote: 'Kelimedeki eksik harfleri tamamlayarak yazım ve görsel dikkat becerilerini güçlendirir.'
+  });
+
+  builder.addSupportingDrill('Yaratıcı Tamamlama', {
+    text: 'Aşağıdaki cümleyi kendi hayal gücünle tamamla:',
+    inputs: ['Eğer bir süper gücüm olsaydı ____________ kullanarak ____________ yapardım.']
+  });
 
   return builder.addSuccessIndicator().build();
 }

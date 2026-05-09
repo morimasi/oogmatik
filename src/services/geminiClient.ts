@@ -3,7 +3,7 @@ import { logInfo, logError, logWarn } from '../utils/logger.js';
 import { safeFetch } from '../utils/apiClient.js';
 
 // Model Seçimi: Gemini 2.0 Flash — Performanslı ve güncel model
-const MASTER_MODEL = 'gemini-2.5-flash';
+const MASTER_MODEL = 'gemini-1.5-flash';
 
 // Define a simple JSON schema data generator for mocks during tests
 function generateDummyDataFromSchema(schema: any): any {
