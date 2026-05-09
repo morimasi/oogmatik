@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { SemanticLinkerData, SemanticLinkerItem, SemanticLinkerOption } from '../types.js';
+import { SemanticLinkerData, SemanticLinkerItem, SemanticLinkerOption } from '../types';
 
 
 /**

@@ -1,5 +1,5 @@
-import { SemanticLinkerData } from './types.js';
-import { generateWithSchema } from '../../../services/geminiClient.js';
+import { SemanticLinkerData } from './types';
+import { generateWithSchema } from '../../../services/geminiClient';
 
 
 export const generateSemanticLinkerAI = async (
