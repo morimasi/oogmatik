@@ -85,6 +85,19 @@ export class RateLimitError extends AppError {
   }
 }
 
+export class QuotaExceededError extends AppError {
+  constructor(message: string = 'Sistem AI kapasitesine ulaşmıştır. Lütfen daha sonra tekrar deneyiniz veya sistem yöneticinize başvurun.') {
+    super(
+      message,
+      'APAI_QUOTA_EXCEEDED',
+      403,
+      undefined,
+      false // Fatura/Quota dolduğu için anında retry işe yaramaz
+    );
+    this.name = 'QuotaExceededError';
+  }
+}
+
 export class TimeoutError extends AppError {
   constructor(operation: string = 'İşlem', timeoutMs: number = 5000) {
     super(

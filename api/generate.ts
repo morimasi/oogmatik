@@ -10,6 +10,7 @@ import {
 import { validateGenerateActivityRequest } from '../src/utils/schemas.js';
 import { RateLimiter } from '../src/services/rateLimiter.js';
 import { retryWithBackoff, logError } from '../src/utils/errorHandler.js';
+import { QuotaExceededError } from '../src/utils/AppError.js';
 import {
   validatePromptSecurity,
   sanitizePromptInput,
@@ -127,13 +128,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       throw error;
     }
 
-    // 4. API Key (Server-side only - NO VITE_ prefix!)
+    // 4. API Key Havuzu (Rotation System)
     // Muhendislik Direktoru Bora Demir: VITE_ prefix browser'a expose eder!
-    const apiKey =
-      process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.API_KEY;
-    if (!apiKey) {
+    const baseApiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.API_KEY;
+    const backupKey1 = process.env.GEMINI_API_KEY_2 || process.env.GEMINI_API_KEY_SECONDARY;
+    const backupKey2 = process.env.GEMINI_API_KEY_3 || process.env.GEMINI_API_KEY_TERTIARY;
+    
+    // Geçerli olan tüm API keyleri bir havuza doldur
+    const apiKeys = [baseApiKey, backupKey1, backupKey2].filter(Boolean) as string[];
+    
+    if (apiKeys.length === 0) {
       throw new InternalServerError('API Key bulunamadi (Sunucu Yapilandirma Hatasi).');
     }
+
+    let currentKeyIndex = 0;
 
     // 5. AI Call with Direct REST API (No SDK)
     const result = await retryWithBackoff(
@@ -143,6 +151,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (selectedModel.includes('gemini-2.0') || selectedModel.includes('gemini-1.5') || selectedModel.includes('gemini-3')) {
           selectedModel = MASTER_MODEL;
         }
+        // Denenecek güncel API anahtarını al
+        const apiKey = apiKeys[currentKeyIndex];
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`;
 
         const contents = [
@@ -191,10 +201,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           const errJson = await response.json().catch(() => ({}));
           const errorMsg = errJson.error?.message || response.statusText;
           
-          // Quota/Rate limit hataları özel olarak işle
-          if (response.status === 429 || response.status === 403 || errorMsg.includes('quota') || errorMsg.includes('Quota')) {
+          // 403 Forbidden / Project Denied / Quota dolumu: Bu anahtar kullanılamaz!
+          if (response.status === 403 || errorMsg.includes('denied access')) {
+            // Eğer hala elimizde denenebilecek başka bir API key varsa sıradakine geç
+            if (currentKeyIndex < apiKeys.length - 1) {
+              currentKeyIndex++;
+              throw new InternalServerError(`[ROTATION] API Key ${currentKeyIndex} tükendi, bir sonrakine geçiliyor.`);
+            }
+            // Tüm havuz denendi ve hepsi bittiyse kalıcı hata fırlat
+            throw new QuotaExceededError(
+              `Tüm yedek AI sistemleri API kotasını aştı (${errorMsg}). Lütfen teknik ekibe başvurun.`
+            );
+          }
+
+          // Klasik 429 Rate Limit
+          if (response.status === 429 || errorMsg.includes('quota') || errorMsg.includes('Quota')) {
+            // Eğer rate limit yediysek de beklemek yerine sıradaki anahtara geçmeyi deneyebiliriz.
+            if (currentKeyIndex < apiKeys.length - 1) {
+               currentKeyIndex++;
+               throw new InternalServerError(`[ROTATION] Rate limit yendi, sıradaki API Key'e geçiliyor.`);
+            }
             throw new RateLimitError(
-              `Gemini API Quota Aşıldı: ${errorMsg}. Lütfen birkaç saniye sonra yeniden deneyin.`,
+              `Gemini API Kotası Dolu: ${errorMsg}. Lütfen birkaç saniye sonra yeniden deneyin.`,
               { retryAfter: 60 }
             );
           }
