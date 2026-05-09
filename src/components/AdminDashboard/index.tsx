@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { User, ActivityStats } from '../../types';
 import { authService } from '../../services/authService';
@@ -23,7 +22,7 @@ import { AdminUserManagement } from './AdminUserManagement';
 import { AdminDraftReview } from './AdminDraftReview';
 import { AdminActivityApproval } from './AdminActivityApproval';
 import { AdminPermissionsIDE } from './PermissionsIDE';
-import { AdminActivityScaffold } from '../admin/AdminActivityScaffold';
+import { AdminActivityScaffold } from '../Admin/AdminActivityScaffold';
 
 
 
