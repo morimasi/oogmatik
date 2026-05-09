@@ -1023,7 +1023,7 @@ const AppContent = () => {
             ].includes(currentView) && (
                 <motion.div
                   key={currentView}
-                  className={`absolute inset-0 bg-[var(--bg-primary)] overflow-hidden ${currentView === 'admin' ? 'z-[75]' : 'z-[60]'}`}
+                  className={`absolute inset-0 bg-[var(--bg-primary)] overflow-y-auto overflow-x-hidden ${currentView === 'admin' ? 'z-[75]' : 'z-[60]'}`}
                   variants={pageTransition}
                   initial="initial"
                   animate="animate"

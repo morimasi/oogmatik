@@ -92,7 +92,7 @@ export const Profile: React.FC<ProfileProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[var(--bg-primary)]">
+    <div className="min-h-screen h-full bg-[var(--bg-primary)] overflow-y-auto">
       {/* Header */}
       <ProfileHeader
         user={data.user}
@@ -109,7 +109,7 @@ export const Profile: React.FC<ProfileProps> = ({
       </div>
 
       {/* Module Content */}
-      <div className="px-6 py-8">
+      <div className="max-w-6xl mx-auto px-6 py-8">
         {renderActiveModule()}
       </div>
     </div>

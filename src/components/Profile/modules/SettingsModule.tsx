@@ -554,17 +554,17 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-5xl mx-auto">
       {/* Category Tabs */}
-      <div className="flex gap-1 p-1 bg-[var(--bg-secondary)] rounded-2xl">
+      <div className="flex flex-wrap gap-2 p-2 bg-[var(--bg-secondary)] rounded-[2rem] shadow-sm border border-[var(--border-color)]">
         {categories.map((category) => (
           <button
             key={category.id}
             onClick={() => setActiveCategory(category.id)}
-            className={`flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+            className={`min-w-[120px] flex-1 text-left px-4 py-3 rounded-2xl text-xs font-black transition-all duration-200 ${
               activeCategory === category.id
-                ? 'bg-white text-[var(--accent-color)] shadow-sm'
-                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
+                ? 'bg-white text-[var(--accent-color)] shadow-lg shadow-[var(--accent-color)]/10 border border-[var(--accent-color)]'
+                : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-paper)]'
             }`}
           >
             <i className={`${category.icon} mr-2`}></i>
@@ -574,7 +574,7 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({
       </div>
 
       {/* Category Content */}
-      <div className="bg-[var(--bg-paper)] rounded-3xl border border-[var(--border-color)] p-6">
+      <div className="bg-[var(--bg-paper)] rounded-[2.5rem] border border-[var(--border-color)] p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
         {renderCategoryContent()}
       </div>
     </div>
