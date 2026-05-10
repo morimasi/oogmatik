@@ -1153,6 +1153,29 @@ const note = await workbookAIAssistant.generatePedagogicalNote(item);
 
 **Güncelleme Sorumlusu**: Özelliği ekleyen ajan + Bora Demir (kod reviewer)
 
+## 12. Otonom Etkinlik Üretim Sistemi & Ajan Orkestrasyonu (Faz 7-8) {#otonom-sistem}
+
+**Dosya Konumu**: `src/tools/scaffold/`
+
+**Amaç**: Platforma yeni etkinlik türlerini tam otonom şekilde, 4 Lider Ajan denetiminden geçirerek eklemek.
+
+**Ana Bileşenler**:
+- `ActivityScaffoldEngine.ts`: Template motoru ve 7 global enjeksiyon noktası (enum, registry vb.)
+- `AgentOrchestrator.ts`: 4 lider ajanı (Elif, Ahmet, Bora, Selin) simüle eden karar mekanizması.
+- `ActivityValidator.ts`: 3 katmanlı doğrulama (Yapısal, Pedagojik, Klinik).
+- `scaffoldCLI.ts`: `--dry-run`, `--verbose`, `--skip-agents` parametreleri alan CLI arayüzü.
+
+**Workflow Entegrasyonu**:
+Çalışma akışı `.agents/workflows/create-activity.md` üzerinden yürütülür.
+
+**Ajan Denetim Hattı (AgentOrchestrator)**:
+1. `Elif Yıldız`: Yaş grupları, zorluk seviyeleri ve "başarı/motivasyon" odaklı yönergeler.
+2. `Dr. Ahmet Kaya`: Tanı koyucu ("dislektik", "özürlü" vb.) ve klinik dil kullanımı engelleme.
+3. `Bora Demir`: PascalCase, UPPER_SNAKE_CASE kontrolleri, export tanımları, AppError ve any tipi reddi.
+4. `Selin Arslan`: Yüksek token maliyeti uyarısı, prompt netliği, halüsinasyon koruması (json şeması kontrolü).
+
+Tüm ajanlardan geçer not ("approved: true") almayan hiçbir otonom blueprint sisteme enjekte edilemez.
+
 ---
 
 **NOT**: Bu belge, tüm ajanların Oogmatik uygulamasını tam olarak anlaması için oluşturulmuştur. Her geliştirme öncesi ilgili modül bölümü okunmalıdır.

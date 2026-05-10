@@ -42,11 +42,11 @@ const BlueprintSchema = z.object({
       role: z.string().default('Uzman Eğitimci'),
       task: z.string().min(10),
       rules: z.array(z.string()).default([]),
-      schema: z.record(z.unknown()).default({}),
+      schema: z.record(z.string(), z.unknown()).default({}),
     }),
   }),
   ui: z.object({
-    columnsPerDifficulty: z.record(z.number()).optional(),
+    columnsPerDifficulty: z.record(z.string(), z.number()).optional(),
     configFields: z.array(z.unknown()).default([]),
     renderType: z.enum(['list', 'grid', 'table', 'custom']).default('list'),
   }).optional(),
