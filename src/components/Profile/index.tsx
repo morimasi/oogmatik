@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ProfileData } from '../../types/profile';
 import { Student } from '../../types';
-import { ProfileTabId } from '../constants';
+import { ProfileTabId } from './constants';
 import { ProfileHeader } from './components/ProfileHeader';
 import { TabNavigation } from './components/TabNavigation';
 import { OverviewModule } from './modules/OverviewModule';
@@ -47,7 +47,7 @@ export const Profile: React.FC<ProfileProps> = ({
             activeStudent={activeStudent}
             onSelectActivity={onSelectActivity}
             onLoadSaved={onLoadSaved}
-            onTabChange={setActiveTab}
+            onTabChange={(tab: string) => setActiveTab(tab as ProfileTabId)}
           />
         );
       case 'students':
@@ -55,6 +55,9 @@ export const Profile: React.FC<ProfileProps> = ({
           <StudentsModule
             data={data}
             activeStudent={activeStudent}
+            onBack={onBack}
+            onLoadMaterial={onLoadSaved}
+            onTabChange={(tab: string) => setActiveTab(tab as ProfileTabId)}
           />
         );
       case 'analysis':
