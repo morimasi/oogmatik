@@ -99,3 +99,4 @@ export const ActivityConfigRegistry: Record<string, any> = {
 };
 
 export { EsAnlamliKelimelerConfig } from './EsAnlamliKelimelerConfig';
+export { LetterConnectConfig } from '../../modules/activities/letter-connect/ui/ConfigPanel';

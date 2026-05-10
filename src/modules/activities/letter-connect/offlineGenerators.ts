@@ -1,0 +1,50 @@
+import { GeneratorOptions } from '../../types/core.js';
+
+/**
+ * Harf Bağlama — Offline (Hızlı Mod) Üretici
+ * Otonom scaffold tarafından üretildi.
+ */
+export const generateOfflineLETTER_CONNECT = async (options: GeneratorOptions) => {
+  const { difficulty = 'Orta', count = 10 } = options;
+
+  const difficultyMap: Record<string, { itemCount: number; complexity: number }> = {
+    'Kolay': { itemCount: Math.min(count, 6), complexity: 1 },
+    'Orta': { itemCount: count, complexity: 2 },
+    'Zor': { itemCount: Math.max(count, 12), complexity: 3 },
+  };
+
+  const config = difficultyMap[difficulty as string] || difficultyMap['Orta'];
+  const items: LetterConnectItem[] = [];
+
+  for (let i = 0; i < config.itemCount; i++) {
+    items.push({
+      id: `item-${i + 1}`,
+      
+      leftItem: generateDefaultstring(i, config.complexity),
+      
+      rightItem: generateDefaultstring(i, config.complexity),
+      
+      matchType: generateDefaultstring(i, config.complexity),
+      
+    });
+  }
+
+  return {
+    instruction: 'Harf Bağlama etkinliğini tamamlayın.',
+    items,
+    pedagogicalNote: 'Bu etkinlik Görsel Algı,Fonolojik Farkındalık,Harf Tanıma becerilerini hedefler.',
+    difficulty,
+    totalItems: items.length,
+  };
+};
+
+// Yardımcı: Varsayılan değer üretici
+function generateDefaultstring(index: number, _complexity: number): string {
+  return `Öğe ${index + 1}`;
+}
+function generateDefaultnumber(index: number, complexity: number): number {
+  return (index + 1) * complexity;
+}
+function generateDefaultboolean(_index: number, _complexity: number): boolean {
+  return Math.random() > 0.5;
+}

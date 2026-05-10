@@ -1,0 +1,94 @@
+{
+    "identity": {
+        "key": "LETTER_CONNECT",
+        "enumValue": "letter-connect",
+        "title": "Harf Bağlama",
+        "description": "Öğrencilerin görsel ayrımsama yeteneğini geliştiren eğlenceli bir harf-ses eşleştirme etkinliği.",
+        "icon": "fa-solid fa-link",
+        "categoryId": "reading-verbal"
+    },
+    "dataModel": {
+        "interfaceName": "LetterConnectData",
+        "itemsName": "LetterConnectItem",
+        "fields": [
+            {
+                "name": "instruction",
+                "type": "string",
+                "required": true
+            }
+        ],
+        "itemFields": [
+            {
+                "name": "leftItem",
+                "type": "string",
+                "required": true
+            },
+            {
+                "name": "rightItem",
+                "type": "string",
+                "required": true
+            },
+            {
+                "name": "matchType",
+                "type": "string",
+                "required": true
+            }
+        ]
+    },
+    "logic": {
+        "offlineAlgorithm": "basic-mapping",
+        "aiPrompt": {
+            "role": "Özel Eğitim Uzmanı",
+            "task": "Disleksisi olan öğrenciler için gerçek hayatta kullanılabilecek, doğru kurgulanmış harf ve hece eşleştirme etkinliği oluştur. b-d, p-q gibi harfleri zorluk seviyesine göre ayarla.",
+            "rules": [
+                "Başarı hissiyatını yüksek tut.",
+                "Açık, anlaşılır ve doğru Türkçe kullan.",
+                "Öğrencinin motivasyonunu sarsacak ifadelerden kaçın."
+            ],
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "ui": {
+        "columnsPerDifficulty": {
+            "Kolay": 1,
+            "Orta": 2,
+            "Zor": 3
+        },
+        "configFields": [
+            {
+                "id": "pairCount",
+                "label": "Eşleşme Çifti",
+                "type": "number",
+                "defaultValue": 5,
+                "min": 3,
+                "max": 10
+            }
+        ],
+        "renderType": "custom"
+    },
+    "pedagogical": {
+        "targetSkills": [
+            "Görsel Algı",
+            "Fonolojik Farkındalık",
+            "Harf Tanıma"
+        ],
+        "errorTags": [
+            "gorsel_karistirma",
+            "benzer_harf"
+        ],
+        "ageGroups": [
+            "7-9",
+            "10-12"
+        ]
+    }
+}

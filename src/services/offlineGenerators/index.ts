@@ -42,3 +42,4 @@ export * from './kavramHaritasi';
 export * from './esAnlamliKelimeler';
 export * from './sentenceFiveWOneH';
 export * from './math/queueOrdering';
+export { generateOfflineLETTER_CONNECT } from '../../modules/activities/letter-connect/offlineGenerators';

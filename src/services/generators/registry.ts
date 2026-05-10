@@ -6,6 +6,7 @@ import { INFOGRAPHIC_ADAPTERS_FIRST_10 } from './infographic/infographicAdapter.
 import { INFOGRAPHIC_ADAPTERS_REMAINING_84 } from './infographic/infographicFactory.js';
 import * as sariKitapGenerators from './sariKitap/index';
 import { generateSemanticLinkerAI, generateSemanticLinkerOffline } from '../../modules/activities/semantic-linker/generators';
+import { generateLETTER_CONNECTFromAI, generateOfflineLETTER_CONNECT } from '../../modules/activities/letter-connect/generators';
 
 
 /**
@@ -541,4 +542,8 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
       },
     ])
   ),
+  [ActivityType.LETTER_CONNECT]: {
+    ai: generateLETTER_CONNECTFromAI,
+    offline: generateOfflineLETTER_CONNECT,
+  },
 };

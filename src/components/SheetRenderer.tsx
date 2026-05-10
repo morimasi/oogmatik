@@ -1,3 +1,4 @@
+const LetterConnectSheet = React.lazy(() => import('../modules/activities/letter-connect/ui/WorksheetUI').then(m => ({ default: m.LetterConnectSheet })));
 // @ts-nocheck
 import React, { useState, useCallback, useMemo } from 'react';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
@@ -1858,7 +1859,9 @@ export const SheetRenderer = React.memo(
           />
         );
         break;
-      default:
+          case ActivityType.LETTER_CONNECT:
+      return <LetterConnectSheet data={data} />;
+default:
         renderedSheet = (
           <UnifiedContentRenderer 
             data={data} 
