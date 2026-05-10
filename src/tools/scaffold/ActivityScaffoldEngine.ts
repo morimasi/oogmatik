@@ -15,6 +15,7 @@ export class ActivityScaffoldEngine {
   private workspaceRoot: string;
   private templateDir: string;
   private logs: string[] = [];
+  private vfs: Map<string, string> = new Map();
 
   constructor(workspaceRoot: string) {
     this.workspaceRoot = workspaceRoot;
@@ -33,27 +34,53 @@ export class ActivityScaffoldEngine {
     return [...this.logs];
   }
 
+  private readVFS(filePath: string): string {
+    return this.vfs.has(filePath) ? this.vfs.get(filePath)! : fs.readFileSync(filePath, 'utf8');
+  }
+
+  private writeVFS(filePath: string, content: string) {
+    this.vfs.set(filePath, content);
+  }
+
+  private commitVFS(): void {
+    for (const [filePath, content] of this.vfs.entries()) {
+      const outputDir = path.dirname(filePath);
+      if (!fs.existsSync(outputDir)) {
+        fs.mkdirSync(outputDir, { recursive: true });
+      }
+      fs.writeFileSync(filePath, content, 'utf8');
+    }
+  }
+
   /**
    * Bir blueprint'ten tüm otonom süreci başlatır.
    */
   async process(blueprint: ActivityBlueprint, options?: { dryRun?: boolean }): Promise<ScaffoldResult> {
     this.logs = [];
+    this.vfs.clear();
     const dryRun = options?.dryRun ?? false;
     this.log('info', `Starting process for: ${blueprint.identity.title} (dryRun=${dryRun})`);
 
     const slug = blueprint.identity.key.toLowerCase().replace(/_/g, '-');
     const moduleDir = path.join(this.workspaceRoot, 'src/modules/activities', slug);
 
-    // 1. Modül Klasörünü Oluştur
-    if (!dryRun) {
-      this.ensureModuleDirectory(moduleDir);
-    }
-
-    // 2. Template'lerden Dosya Üret
+    // 1. Modül Klasörünü Oluştur (Artık VFS Commit yapacak)
+    // 2. Template'lerden Dosya Üret (Memory)
     const generatedFiles = this.generateModuleFiles(blueprint, moduleDir, dryRun);
 
-    // 3. Global Entegrasyonlar (7 nokta)
+    // 3. Global Entegrasyonlar
     const injections = this.injectIntegrations(blueprint, slug, dryRun);
+
+    // Atomic Check
+    const hasError = injections.some(i => !i.success && !i.skipped);
+    if (hasError && !dryRun) {
+      this.log('error', 'Enjeksiyon hatası tespit edildi. VFS RAM üzerinden iptal edildi, projenin bütünlüğü korundu.');
+      return { success: false, moduleDir, generatedFiles, injections, logs: this.getLogs() };
+    }
+
+    if (!dryRun) {
+      this.commitVFS();
+    }
 
     const result: ScaffoldResult = {
       success: true,
@@ -65,14 +92,6 @@ export class ActivityScaffoldEngine {
 
     this.log('info', `Otonom modül ${dryRun ? '(dry-run) simüle edildi' : 'başarıyla kuruldu'}: ${blueprint.identity.key}`);
     return result;
-  }
-
-  private ensureModuleDirectory(dir: string): void {
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-      fs.mkdirSync(path.join(dir, 'ui'), { recursive: true });
-      this.log('info', `Directory created: ${dir}`);
-    }
   }
 
   // ────────────────────── DOSYA ÜRETİMİ ──────────────────────
@@ -102,11 +121,7 @@ export class ActivityScaffoldEngine {
       const content = this.renderTemplate(templatePath, data);
 
       if (!dryRun) {
-        const outputDir = path.dirname(outputPath);
-        if (!fs.existsSync(outputDir)) {
-          fs.mkdirSync(outputDir, { recursive: true });
-        }
-        fs.writeFileSync(outputPath, content, 'utf8');
+        this.writeVFS(outputPath, content);
       }
 
       files.push(outputPath);
@@ -170,6 +185,10 @@ export class ActivityScaffoldEngine {
     const eachRegex = /\{\{#each ([^}]+)\}\}([\s\S]*?)\{\{\/each\}\}/g;
 
     return content.replace(eachRegex, (_, arrayPath: string, body: string) => {
+      if (body.includes('{{#each') || body.includes('{{#if') || body.includes('{{#unless')) {
+        this.log('warn', `Nested blok tespit edildi (${arrayPath}). Bu sürüm nested özellikleri desteklememektedir, muhtemel bozulma!`);
+      }
+
       const arr = this.resolveValue(data, arrayPath.trim());
       if (!Array.isArray(arr)) {
         this.log('warn', `#each: '${arrayPath}' dizi değil`);
@@ -201,6 +220,9 @@ export class ActivityScaffoldEngine {
     const unlessRegex = /\{\{#unless ([^}]+)\}\}([\s\S]*?)\{\{\/unless\}\}/g;
 
     return content.replace(unlessRegex, (_, condPath: string, body: string) => {
+      if (body.includes('{{#each') || body.includes('{{#if') || body.includes('{{#unless')) {
+        this.log('warn', `Nested blok tespit edildi (unless). Sistem stabil çalışmayabilir!`);
+      }
       const val = this.resolveValue(data, condPath.trim());
       return val ? '' : body;
     });
@@ -210,6 +232,9 @@ export class ActivityScaffoldEngine {
     const ifRegex = /\{\{#if ([^}]+)\}\}([\s\S]*?)\{\{\/if\}\}/g;
 
     return content.replace(ifRegex, (_, expr: string, body: string) => {
+      if (body.includes('{{#each') || body.includes('{{#if') || body.includes('{{#unless')) {
+        this.log('warn', `Nested blok tespit edildi (if). Bu blok çökmeye yol açabilir!`);
+      }
       expr = expr.trim();
       let isTrue = false;
 
@@ -324,7 +349,7 @@ export class ActivityScaffoldEngine {
 
     if (!dryRun) {
       const newContent = content.replace(enumBody, newBody);
-      fs.writeFileSync(filePath, newContent, 'utf8');
+      this.writeVFS(filePath, newContent);
     }
 
     result.success = true;
@@ -362,7 +387,7 @@ export class ActivityScaffoldEngine {
       const newItem = `\n  ${objectStr},`;
       const newBody = arrayBody.trimEnd() + newItem + '\n';
       const newContent = content.replace(arrayBody, newBody);
-      fs.writeFileSync(filePath, newContent, 'utf8');
+      this.writeVFS(filePath, newContent);
     }
 
     result.success = true;
@@ -405,7 +430,7 @@ export class ActivityScaffoldEngine {
         content = content.slice(0, closingIdx) + registryEntry + '\n' + content.slice(closingIdx);
       }
 
-      fs.writeFileSync(filePath, content, 'utf8');
+      this.writeVFS(filePath, content);
     }
 
     result.success = true;
@@ -433,7 +458,7 @@ export class ActivityScaffoldEngine {
 
     if (!dryRun) {
       content = content.trimEnd() + '\n' + exportLine + '\n';
-      fs.writeFileSync(filePath, content, 'utf8');
+      this.writeVFS(filePath, content);
     }
 
     result.success = true;
@@ -483,7 +508,7 @@ export class ActivityScaffoldEngine {
         content = content.slice(0, defaultIdx) + caseBlock + content.slice(defaultIdx);
       }
 
-      fs.writeFileSync(filePath, content, 'utf8');
+      this.writeVFS(filePath, content);
     }
 
     result.success = true;
@@ -519,7 +544,7 @@ export class ActivityScaffoldEngine {
 
     if (!dryRun) {
       content = content.trimEnd() + '\n' + exportLine;
-      fs.writeFileSync(filePath, content, 'utf8');
+      this.writeVFS(filePath, content);
     }
 
     result.success = true;
