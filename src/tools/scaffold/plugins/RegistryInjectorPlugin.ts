@@ -24,7 +24,7 @@ export class RegistryInjectorPlugin implements IScaffoldPlugin {
             return [result];
         }
 
-        const importLine = `import { generate${bp.identity.key}FromAI, generateOffline${bp.identity.key} } from '../../modules/activities/${utils.slug}/generators';\n`;
+        const importLine = `import { generate${bp.identity.key}FromAI } from '../../modules/activities/${utils.slug}/generators';\nimport { generateOffline${bp.identity.key} } from '../../modules/activities/${utils.slug}/offlineGenerators';\n`;
         const registryEntry = `  [ActivityType.${bp.identity.key}]: {\n    ai: generate${bp.identity.key}FromAI,\n    offline: generateOffline${bp.identity.key},\n  },`;
 
         if (!utils.dryRun) {

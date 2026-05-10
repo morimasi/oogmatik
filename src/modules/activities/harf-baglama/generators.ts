@@ -1,5 +1,5 @@
-import { generateWithSchema } from '../geminiClient.js';
-import { GeneratorOptions } from '../../types.js';
+import { generateWithSchema } from '../../../services/geminiClient';
+import { GeneratorOptions } from '../../../types';
 
 /**
  * Harf Bağlama Etkinliği AI Üretici

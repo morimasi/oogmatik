@@ -1,4 +1,4 @@
-import { GeneratorOptions } from '../../types/core.js';
+import { GeneratorOptions } from '../../../types/core.js';
 
 /**
  * {{title}} — Offline (Hızlı Mod) Üretici

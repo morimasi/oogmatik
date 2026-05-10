@@ -24,10 +24,7 @@ export const HarfBaglamaSheet: React.FC<HarfBaglamaSheetProps> = ({ data }) => {
   const { instruction, items = [], pedagogicalNote, difficulty = 'Orta' } = data;
 
   return (
-    <div
-      className="w-full font-lexend"
-      style=
-    >
+    <div className="w-full font-lexend p-[0.5cm] text-[11px] leading-[1.5] text-[#1a1a2e]">
       {/* Başlık */}
       <div className="flex items-center justify-between mb-4 pb-2 border-b-2 border-indigo-200">
         <div className="flex items-center gap-2">

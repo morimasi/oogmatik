@@ -8,7 +8,8 @@ import * as sariKitapGenerators from './sariKitap/index';
 import { generateSemanticLinkerAI, generateSemanticLinkerOffline } from '../../modules/activities/semantic-linker/generators';
 import { generateLETTER_CONNECTFromAI } from '../../modules/activities/letter-connect/generators';
 import { generateOfflineLETTER_CONNECT } from '../../modules/activities/letter-connect/offlineGenerators';
-import { generateHARF_BAGLAMAFromAI, generateOfflineHARF_BAGLAMA } from '../../modules/activities/harf-baglama/generators';
+import { generateHARF_BAGLAMAFromAI } from '../../modules/activities/harf-baglama/generators';
+import { generateOfflineHARF_BAGLAMA } from '../../modules/activities/harf-baglama/offlineGenerators';
 
 
 /**
