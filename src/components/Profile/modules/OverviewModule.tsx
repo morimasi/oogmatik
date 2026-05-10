@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { ProfileData } from '../../../types/profile';
-import { Student } from '../../../types';
+import { Student, SavedWorksheet } from '../../../types';
 import { BentoCard } from '../components/shared/BentoCard';
 import { StatCard } from '../components/shared/StatCard';
 import { LineChart } from '../../LineChart';
@@ -81,13 +81,10 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({
           icon="fa-chart-line"
           iconColor="bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600"
         >
-          {performanceTrends && performanceTrends.length > 0 ? (
+          {performanceTrends && performanceTrends.length >= 2 ? (
             <LineChart
               data={performanceTrends}
-              height={110}
-              showGrid={false}
-              showDots={true}
-              color="var(--accent-color)"
+              lines={[{ key: 'score', color: '#6366f1', label: 'Genel Skor' }]}
             />
           ) : (
             <div className="flex flex-col items-center justify-center h-28 text-[var(--text-muted)]">
@@ -148,19 +145,19 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({
       <BentoCard title="Son Üretilen Materyaller" icon="fa-clock-rotate-left">
         {worksheets.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            {worksheets.slice(0, 8).map((ws: Record<string, unknown>) => (
+            {worksheets.slice(0, 8).map((ws: SavedWorksheet) => (
               <div
-                key={ws.id as string}
+                key={ws.id}
                 onClick={() => onLoadSaved(ws)}
                 className="flex items-center gap-3 p-3.5 bg-[var(--bg-secondary)] rounded-2xl border border-transparent hover:border-[var(--accent-color)]/30 transition-all cursor-pointer group"
               >
                 <div className="w-10 h-10 rounded-xl bg-[var(--bg-paper)] flex items-center justify-center text-[var(--text-muted)] group-hover:text-[var(--accent-color)] transition-colors shadow-sm text-lg">
-                  <i className={ws.icon as string} />
+                  <i className={ws.icon} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-black text-[var(--text-primary)] truncate">{ws.name as string}</p>
+                  <p className="text-xs font-black text-[var(--text-primary)] truncate">{ws.name}</p>
                   <p className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
-                    {new Date(ws.createdAt as string).toLocaleDateString('tr-TR')}
+                    {new Date(ws.createdAt).toLocaleDateString('tr-TR')}
                   </p>
                 </div>
               </div>

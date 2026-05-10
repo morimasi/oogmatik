@@ -90,7 +90,6 @@ export const AnalysisModule: React.FC<AnalysisModuleProps> = ({ data }) => {
             <SectionHeader title="Ortalama Performans Profili" icon="fa-chart-radar" />
             <RadarChart
               data={SCORE_KEYS.map(k => ({ label: SCORE_LABELS[k], value: averageScores[k] }))}
-              size={220}
             />
           </div>
           {/* Skor Bar'ları */}
