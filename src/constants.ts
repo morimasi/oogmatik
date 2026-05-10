@@ -463,6 +463,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.INFOGRAPHIC_VOCAB_TREE,
       ActivityType.INFOGRAPHIC_SENTENCE_BUILDER,
       ActivityType.INFOGRAPHIC_SHORT_ANSWER,
+      ActivityType.LETTER_CONNECT,
     ],
   },
   {
