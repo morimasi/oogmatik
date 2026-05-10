@@ -1,6 +1,6 @@
-import { BaseActivityData, ActivityItem } from '../../../types';
+import { BaseActivityData } from '../../../types';
 
-export interface HarfBaglamaDataItem extends ActivityItem {
+export interface HarfBaglamaDataItem {
   id: string;
   leftItem: string;
   rightItem: string;
@@ -8,4 +8,5 @@ export interface HarfBaglamaDataItem extends ActivityItem {
 
 export interface HarfBaglamaData extends BaseActivityData {
   items: HarfBaglamaDataItem[];
+  difficulty?: string;
 }
