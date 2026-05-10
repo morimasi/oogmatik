@@ -1,109 +1,86 @@
+import { z } from 'zod';
 import { ActivityBlueprint, DataField } from './types';
+import { AppError } from '../../utils/AppError';
+
+// Zod schemas for validation
+const IdentitySchema = z.object({
+    key: z.string().min(2).regex(/^[A-Z_]+$/, "Key sadece büyük harf ve alt çizgi içerebilir (örn: SYLLABLE_DETECTIVE)."),
+    enumValue: z.string().min(1).regex(/^[a-zA-Z0-9_]+$/, "EnumValue sadece alfanumerik değer olmalıdır."),
+    title: z.string().min(3, "Başlık en az 3 karakter olmalıdır"),
+    description: z.string().min(10, "Açıklama en az 10 karakter olmalıdır"),
+    icon: z.string().startsWith("fa-", "İkon FontAwesome formatında olmalı (fa-xxx)"),
+    categoryId: z.string()
+});
+
+const DataFieldSchema = z.object({
+    name: z.string().regex(/^[a-zA-Z0-9_]+$/, "Alan adı alfanumerik olmalı"),
+    type: z.enum(['string', 'number', 'boolean', 'enum', 'array_string']),
+    required: z.boolean().optional(),
+    options: z.array(z.string()).optional()
+});
+
+const DataModelSchema = z.object({
+    interfaceName: z.string().regex(/^[A-Z][a-zA-Z0-9]*$/, "Interface PascalCase formatında olmalı"),
+    itemsName: z.string().optional(),
+    fields: z.array(DataFieldSchema).min(1, "Data model en az bir alan içermelidir.")
+});
+
+const PedagogicalNoteSchema = z.object({
+    targetSkills: z.array(z.string()).min(1, "En az bir hedef beceri belirtilmelidir."),
+    ageGroups: z.array(z.string()).optional(),
+    learningStyles: z.array(z.string()).optional(),
+    defaultDifficulty: z.string().optional()
+});
+
+const LogicPromptSchema = z.object({
+    task: z.string().min(10, "AI görev tanımı zorunludur"),
+    role: z.string().optional(),
+    rules: z.array(z.string()).optional()
+});
+
+const BlueprintSchema = z.object({
+    identity: IdentitySchema,
+    dataModel: DataModelSchema,
+    logic: z.object({ aiPrompt: LogicPromptSchema }).optional(),
+    pedagogical: PedagogicalNoteSchema.optional(),
+    configFields: z.array(z.any()).optional(),
+    approvals: z.any().optional()
+});
 
 /**
- * ActivityValidator: Blueprint ve üretilen dosyaların doğrulanması.
+ * ActivityValidator: Gelen ActivityBlueprint'in pedagojik ve teknik doğruluğunu kontrol eder.
+ * Ajan Orkestratörü ile birlikte kullanılacak çekirdek validasyon.
  * 
  * 3 katmanlı doğrulama:
- * 1. Blueprint yapısı (Zod-benzeri kontroller)
- * 2. Pedagojik gereksinimler
+ * 1. Blueprint yapısı (Zod)
+ * 2. Pedagojik gereksinimler ve klinik dil (Elif & Dr. Ahmet)
  * 3. Üretilen dosyaların bütünlüğü
  */
 export class ActivityValidator {
-    private errors: ValidationError[] = [];
-    private warnings: ValidationWarning[] = [];
-
-    getErrors(): ValidationError[] { return [...this.errors]; }
-    getWarnings(): ValidationWarning[] { return [...this.warnings]; }
 
     /**
-     * Blueprint'i doğrular. false dönerse üretim başlamamalı.
+     * Zod kullanılarak Blueprint'i doğrular. Exception fırlatırsa süreç durur.
      */
-    validateBlueprint(bp: ActivityBlueprint): ValidationResult {
-        this.errors = [];
-        this.warnings = [];
+    static validateBlueprint(blueprint: unknown): ActivityBlueprint {
+        try {
+            const parsed = BlueprintSchema.parse(blueprint);
 
-        // ─── Identity ───
-        if (!bp.identity?.key || bp.identity.key.trim() === '') {
-            this.errors.push({ field: 'identity.key', message: 'Enum key zorunludur', code: 'REQUIRED' });
-        } else {
-            if (!/^[A-Z][A-Z0-9_]*$/.test(bp.identity.key)) {
-                this.errors.push({ field: 'identity.key', message: 'Key UPPER_SNAKE_CASE formatında olmalı (örn: LETTER_MAZE)', code: 'FORMAT' });
+            // Klinik dil denetimi çağrısı
+            this.checkClinicalLanguage(parsed as ActivityBlueprint);
+
+            return parsed as ActivityBlueprint;
+        } catch (error) {
+            if (error instanceof z.ZodError) {
+                throw new AppError("Geçersiz Blueprint Formatı", "VALIDATION_ERROR", 400, error.errors);
             }
+            throw error;
         }
-
-        if (!bp.identity?.title?.trim()) {
-            this.errors.push({ field: 'identity.title', message: 'Başlık zorunludur', code: 'REQUIRED' });
-        }
-
-        if (!bp.identity?.description?.trim()) {
-            this.warnings.push({ field: 'identity.description', message: 'Açıklama önerilir' });
-        }
-
-        if (!bp.identity?.icon?.startsWith('fa-')) {
-            this.warnings.push({ field: 'identity.icon', message: 'İkon FontAwesome formatında olmalı (fa-xxx)' });
-        }
-
-        const validCategories = ['reading-verbal', 'math-logic', 'visual-perception', 'memory-attention', 'creative-writing', 'assessment', 'story-verbal'];
-        if (!validCategories.includes(bp.identity?.categoryId)) {
-            this.warnings.push({ field: 'identity.categoryId', message: `Kategori geçersiz. Geçerli: ${validCategories.join(', ')}` });
-        }
-
-        // ─── Data Model ───
-        if (!bp.dataModel?.interfaceName?.trim()) {
-            this.errors.push({ field: 'dataModel.interfaceName', message: 'Interface adı zorunludur', code: 'REQUIRED' });
-        } else if (!/^[A-Z][a-zA-Z0-9]*$/.test(bp.dataModel.interfaceName)) {
-            this.errors.push({ field: 'dataModel.interfaceName', message: 'Interface PascalCase formatında olmalı', code: 'FORMAT' });
-        }
-
-        if (!bp.dataModel?.fields?.length) {
-            this.warnings.push({ field: 'dataModel.fields', message: 'En az bir veri alanı önerilir' });
-        }
-
-        bp.dataModel?.fields?.forEach((f: DataField, i: number) => {
-            if (!f.name?.trim()) {
-                this.errors.push({ field: `dataModel.fields[${i}].name`, message: 'Alan adı zorunludur', code: 'REQUIRED' });
-            }
-            if (!f.type?.trim()) {
-                this.errors.push({ field: `dataModel.fields[${i}].type`, message: 'Alan tipi zorunludur', code: 'REQUIRED' });
-            }
-        });
-
-        // ─── Logic ───
-        if (!bp.logic?.aiPrompt?.task?.trim()) {
-            this.errors.push({ field: 'logic.aiPrompt.task', message: 'AI görev tanımı zorunludur', code: 'REQUIRED' });
-        }
-
-        if (!bp.logic?.aiPrompt?.role?.trim()) {
-            this.warnings.push({ field: 'logic.aiPrompt.role', message: 'AI rolü önerilir (varsayılan: "Uzman Eğitimci")' });
-        }
-
-        if (!bp.logic?.aiPrompt?.rules?.length) {
-            this.warnings.push({ field: 'logic.aiPrompt.rules', message: 'En az bir kural önerilir' });
-        }
-
-        // ─── Pedagogical ───
-        if (!bp.pedagogical?.targetSkills?.length) {
-            this.errors.push({ field: 'pedagogical.targetSkills', message: 'Hedef beceriler zorunludur (pedagogik gereksinim)', code: 'PEDAGOGICAL' });
-        }
-
-        if (!bp.pedagogical?.ageGroups?.length) {
-            this.warnings.push({ field: 'pedagogical.ageGroups', message: 'Yaş grupları önerilir' });
-        }
-
-        // ─── Klinik Dil Kontrolü ───
-        this.checkClinicalLanguage(bp);
-
-        return {
-            valid: this.errors.length === 0,
-            errors: this.getErrors(),
-            warnings: this.getWarnings(),
-        };
     }
 
     /**
      * Tanı koyucu dil kontrolü — Dr. Ahmet denetimi
      */
-    private checkClinicalLanguage(bp: ActivityBlueprint): void {
+    static checkClinicalLanguage(bp: ActivityBlueprint): void {
         const forbiddenPatterns = [
             /disleksisi var/gi,
             /dislektik/gi,
@@ -124,12 +101,24 @@ export class ActivityValidator {
         for (const text of textsToCheck) {
             for (const pattern of forbiddenPatterns) {
                 if (pattern.test(text as string)) {
-                    this.errors.push({
-                        field: 'clinical',
-                        message: `Tanı koyucu dil tespit edildi: "${text}" — "desteğe ihtiyacı var" formatı kullanılmalı`,
-                        code: 'CLINICAL_LANGUAGE',
-                    });
+                    throw new AppError(
+                        `Tanı koyucu dil tespit edildi: "${text}" — "desteğe ihtiyacı var" formatı kullanılmalı`,
+                        "CLINICAL_LANGUAGE_ERROR",
+                        400
+                    );
                 }
+            }
+        }
+    }
+
+    static validateApprovals(blueprint: any): void {
+        if (!blueprint.approvals) {
+            throw new AppError("Ajan onayı eksik. Etkinlik güvenlik onayından geçmemiş.", "AGENT_APPROVAL_MISSING", 403);
+        }
+        const req = ['pedagogical', 'clinical', 'engineering', 'aiQuality'];
+        for (const agent of req) {
+            if (!blueprint.approvals[agent] || blueprint.approvals[agent].approved !== true) {
+                throw new AppError(`Ajan onayı yetersiz veya reddedildi: ${agent}`, "AGENT_APPROVAL_MISSING", 403);
             }
         }
     }
@@ -137,7 +126,7 @@ export class ActivityValidator {
     /**
      * Üretilen dosyaların pedagojik gereksinimlerini kontrol eder — Elif denetimi
      */
-    checkPedagogicalRequirements(generatedContent: string): PedagogicalCheckResult {
+    static checkPedagogicalRequirements(generatedContent: string): PedagogicalCheckResult {
         const checks = {
             hasPedagogicalNote: generatedContent.includes('pedagogicalNote'),
             hasInstruction: generatedContent.includes('instruction'),
@@ -156,23 +145,6 @@ export class ActivityValidator {
 }
 
 // ────────────────────── TİP TANIMLARI ──────────────────────
-
-export interface ValidationResult {
-    valid: boolean;
-    errors: ValidationError[];
-    warnings: ValidationWarning[];
-}
-
-export interface ValidationError {
-    field: string;
-    message: string;
-    code: 'REQUIRED' | 'FORMAT' | 'PEDAGOGICAL' | 'CLINICAL_LANGUAGE';
-}
-
-export interface ValidationWarning {
-    field: string;
-    message: string;
-}
 
 export interface PedagogicalCheckResult {
     valid: boolean;

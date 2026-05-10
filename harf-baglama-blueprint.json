@@ -1,0 +1,43 @@
+{
+    "identity": {
+        "key": "HARF_BAGLAMA",
+        "title": "Harf Bağlama Etkinliği",
+        "description": "Özel öğrenme güçlüğü yaşayan çocuklar için eğlenceli ve öğretici bir harf bağlama aktivitesi.",
+        "icon": "Link",
+        "categoryId": "reading"
+    },
+    "pedagogical": {
+        "difficultyLevel": "Kolay",
+        "targetSkills": [
+            "Görsel Algı",
+            "Hece/Harf Tanıma"
+        ],
+        "ageGroups": [
+            "5-7"
+        ]
+    },
+    "dataModel": {
+        "interfaceName": "HarfBaglamaData",
+        "fields": [
+            {
+                "name": "pairs",
+                "type": "Array<{ left: string, right: string }>",
+                "description": "Eşleştirilecek harf çiftleri. Örnek: [{'left':'A', 'right':'a'}]"
+            },
+            {
+                "name": "instruction",
+                "type": "string",
+                "description": "Öğrenciye verilecek yönge"
+            }
+        ]
+    },
+    "logic": {
+        "aiPrompt": {
+            "task": "HarfBaglamaData formatına uygun eşleştirme aktivitesi üret.",
+            "rules": [
+                "Sadece anlamlı veya alfabedeki harf karşılıklarını kullan.",
+                "Öğrencinin kafasını karıştıracak benzer harfleri (b-d) ilk seviyelerde kullanma."
+            ]
+        }
+    }
+}
