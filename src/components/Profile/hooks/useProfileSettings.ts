@@ -25,7 +25,7 @@ import {
 
 export const useProfileSettings = () => {
     const { user, updateUser } = useAuthStore();
-    const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
+    const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // ─── Profil Alanları ─────────────────────────────────────────
     const [profileFields, setProfileFields] = useState<ProfileFormFields>({

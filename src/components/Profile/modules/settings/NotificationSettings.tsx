@@ -36,9 +36,9 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = () => {
                         className="flex items-center justify-between p-5 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] hover:border-[var(--accent-color)]/20 transition-all group"
                     >
                         <div className="flex items-center gap-4">
-                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl transition-all ${(notificationSettings as Record<string, unknown>)[ch.id]
-                                    ? `bg-${ch.color}-500 text-white shadow-lg shadow-${ch.color}-500/20`
-                                    : 'bg-white dark:bg-zinc-800 text-zinc-300 group-hover:text-[var(--accent-color)]'
+                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl transition-all ${(notificationSettings as unknown as Record<string, unknown>)[ch.id]
+                                ? `bg-${ch.color}-500 text-white shadow-lg shadow-${ch.color}-500/20`
+                                : 'bg-white dark:bg-zinc-800 text-zinc-300 group-hover:text-[var(--accent-color)]'
                                 }`}>
                                 <i className={`fa-solid ${ch.icon}`} />
                             </div>
@@ -48,7 +48,7 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = () => {
                             </div>
                         </div>
                         <ToggleSwitch
-                            enabled={!!(notificationSettings as Record<string, unknown>)[ch.id]}
+                            enabled={!!(notificationSettings as unknown as Record<string, unknown>)[ch.id]}
                             onChange={(v) => update(ch.id as keyof NotificationSettingsData, v)}
                             color={`bg-${ch.color}-500`}
                         />
@@ -65,8 +65,8 @@ export const NotificationSettings: React.FC<NotificationSettingsProps> = () => {
                             key={f.id}
                             onClick={() => update('frequency', f.id)}
                             className={`flex-1 py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex flex-col items-center gap-2 ${notificationSettings.frequency === f.id
-                                    ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-500/20'
-                                    : 'bg-[var(--bg-paper)] text-[var(--text-muted)] hover:bg-[var(--bg-hover)]'
+                                ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-500/20'
+                                : 'bg-[var(--bg-paper)] text-[var(--text-muted)] hover:bg-[var(--bg-hover)]'
                                 }`}
                         >
                             <i className={`fa-solid ${f.icon} text-lg`} />

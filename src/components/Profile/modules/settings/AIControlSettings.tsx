@@ -80,8 +80,8 @@ export const AIControlSettings: React.FC<AIControlSettingsProps> = () => {
                                 key={t.id}
                                 onClick={() => update('tone', t.id)}
                                 className={`px-3 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${aiSettings.tone === t.id
-                                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
-                                        : 'bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:bg-[var(--bg-hover)]'
+                                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20'
+                                    : 'bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:bg-[var(--bg-hover)]'
                                     }`}
                             >
                                 <i className={`fa-solid ${t.icon} text-[10px]`} /> {t.label}
@@ -119,8 +119,8 @@ export const AIControlSettings: React.FC<AIControlSettingsProps> = () => {
                                 key={l.id}
                                 onClick={() => update('scaffolding', l.id)}
                                 className={`flex-1 py-3 rounded-xl text-[9px] font-black uppercase tracking-tighter transition-all ${aiSettings.scaffolding === l.id
-                                        ? 'bg-indigo-600 text-white shadow-md'
-                                        : 'bg-white dark:bg-zinc-800 text-zinc-400 hover:text-zinc-600'
+                                    ? 'bg-indigo-600 text-white shadow-md'
+                                    : 'bg-white dark:bg-zinc-800 text-zinc-400 hover:text-zinc-600'
                                     }`}
                             >
                                 {l.label}
@@ -154,7 +154,7 @@ export const AIControlSettings: React.FC<AIControlSettingsProps> = () => {
                 {TOGGLE_FEATURES.map(item => (
                     <div
                         key={item.id}
-                        onClick={() => update(item.id as keyof AISettingsData, !(aiSettings as Record<string, unknown>)[item.id])}
+                        onClick={() => update(item.id as keyof AISettingsData, !(aiSettings as unknown as Record<string, unknown>)[item.id])}
                         className="p-4 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] flex items-center justify-between hover:border-indigo-500/30 transition-all cursor-pointer group"
                     >
                         <div className="flex items-center gap-3">
@@ -164,8 +164,8 @@ export const AIControlSettings: React.FC<AIControlSettingsProps> = () => {
                             <span className="text-[10px] font-black text-[var(--text-primary)] uppercase tracking-tight">{item.label}</span>
                         </div>
                         <ToggleSwitch
-                            enabled={!!(aiSettings as Record<string, unknown>)[item.id]}
-                            onChange={() => update(item.id as keyof AISettingsData, !(aiSettings as Record<string, unknown>)[item.id])}
+                            enabled={!!(aiSettings as unknown as Record<string, unknown>)[item.id]}
+                            onChange={() => update(item.id as keyof AISettingsData, !(aiSettings as unknown as Record<string, unknown>)[item.id])}
                             size="sm"
                         />
                     </div>

@@ -2,7 +2,7 @@ import React from 'react';
 import { SectionHeader } from '../../components/shared/SectionHeader';
 import { ToggleSwitch } from '../../components/shared/ToggleSwitch';
 import type { AppearanceSettingsProps } from '../../types';
-import type { AppTheme } from '../../../types';
+import type { AppTheme } from '../../../../types';
 
 const THEMES: { name: string; id: AppTheme; color: string; border?: boolean }[] = [
     { name: 'Antrasit Pro', id: 'anthracite', color: 'bg-[#1a1a1a]' },
@@ -50,8 +50,8 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
                             key={t.id}
                             onClick={() => onUpdateTheme?.(t.id)}
                             className={`p-3.5 rounded-2xl border-2 transition-all group ${theme === t.id
-                                    ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20 shadow-lg shadow-indigo-500/10'
-                                    : 'border-transparent bg-[var(--bg-secondary)] hover:border-indigo-200 dark:hover:border-indigo-800'
+                                ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20 shadow-lg shadow-indigo-500/10'
+                                : 'border-transparent bg-[var(--bg-secondary)] hover:border-indigo-200 dark:hover:border-indigo-800'
                                 }`}
                         >
                             <div className={`w-full h-10 ${t.color} ${t.border ? 'border border-zinc-200' : ''} rounded-xl mb-2 shadow-md group-hover:scale-105 transition-transform`} />
@@ -70,8 +70,8 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
                             key={d.id}
                             onClick={() => onUpdateUiSettings?.({ ...(uiSettings || {} as any), compactMode: d.id === 'compact' })}
                             className={`flex-1 p-5 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${(uiSettings?.compactMode ? 'compact' : 'comfortable') === d.id
-                                    ? 'border-indigo-500 bg-indigo-600 text-white shadow-xl shadow-indigo-500/20'
-                                    : 'border-transparent bg-[var(--bg-paper)] text-[var(--text-muted)] hover:border-indigo-200'
+                                ? 'border-indigo-500 bg-indigo-600 text-white shadow-xl shadow-indigo-500/20'
+                                : 'border-transparent bg-[var(--bg-paper)] text-[var(--text-muted)] hover:border-indigo-200'
                                 }`}
                         >
                             <i className={`fa-solid ${d.icon} text-lg`} />

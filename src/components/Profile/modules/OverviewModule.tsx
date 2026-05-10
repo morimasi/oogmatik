@@ -1,234 +1,177 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ProfileData } from '../../../types/profile';
 import { Student } from '../../../types';
+import { BentoCard } from '../components/shared/BentoCard';
+import { StatCard } from '../components/shared/StatCard';
 import { LineChart } from '../../LineChart';
 
 interface OverviewModuleProps {
   data: ProfileData;
   activeStudent: Student | null;
-  onSelectActivity: (id: any) => void;
-  onLoadSaved: (ws: any) => void;
+  onSelectActivity: (id: string) => void;
+  onLoadSaved: (ws: unknown) => void;
   onTabChange: (tab: string) => void;
 }
-
-// BentoCard component from original ProfileView
-const BentoCard: React.FC<{
-  children: React.ReactNode;
-  className?: string;
-  title?: string;
-  icon?: string;
-  iconColor?: string;
-  action?: React.ReactNode;
-}> = ({
-  children,
-  className = '',
-  title,
-  icon,
-  iconColor = 'bg-[var(--bg-secondary)] text-[var(--accent-color)]',
-  action,
-}) => (
-  <div
-    className={`bg-[var(--bg-paper)] p-4 rounded-3xl border border-[var(--border-color)] shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group ${className}`}
-  >
-    {(title || icon || action) && (
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          {icon && (
-            <div
-              className={`w-9 h-9 rounded-xl flex items-center justify-center text-base transition-transform group-hover:scale-105 duration-300 ${iconColor} border border-[var(--border-color)]`}
-            >
-              <i className={icon}></i>
-            </div>
-          )}
-          {title && (
-            <h3 className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">
-              {title}
-            </h3>
-          )}
-        </div>
-        {action && <div>{action}</div>}
-      </div>
-    )}
-    <div className="flex-1 flex flex-col">{children}</div>
-  </div>
-);
-
-const ActionButton: React.FC<{
-  label: string;
-  icon: string;
-  onClick: () => void;
-  color?: string;
-}> = ({ label, icon, onClick, color = 'bg-[var(--accent-color)] text-white' }) => (
-  <button
-    onClick={onClick}
-    className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all hover:scale-105 active:scale-95 shadow-lg shadow-[var(--accent-muted)] ${color}`}
-  >
-    <i className={icon}></i>
-    {label}
-  </button>
-);
 
 export const OverviewModule: React.FC<OverviewModuleProps> = ({
   data,
   activeStudent,
-  onSelectActivity,
   onLoadSaved,
   onTabChange,
 }) => {
   const { stats, performanceTrends, worksheets, assessments, loading } = data;
 
+  const studentScore = useMemo(() => {
+    if (!activeStudent || assessments.length === 0) return null;
+    const sa = assessments.filter((a: Record<string, unknown>) => a.studentName === activeStudent.name);
+    if (sa.length === 0) return null;
+    return Math.round(sa.reduce((sum: number, a: Record<string, unknown>) => {
+      const r = a.report as Record<string, unknown>;
+      const s = r?.scores as Record<string, number> | undefined;
+      return sum + (s?.attention ?? 0);
+    }, 0) / sa.length);
+  }, [activeStudent, assessments]);
+
   if (loading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        {[...Array(8)].map((_, i) => (
-          <div key={i} className="animate-pulse bg-[var(--bg-secondary)] rounded-3xl h-32"></div>
-        ))}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-pulse">
+        {[...Array(8)].map((_, i) => <div key={i} className="h-28 bg-[var(--bg-secondary)] rounded-3xl" />)}
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-      {/* KPI Cards */}
-      <BentoCard className="md:col-span-3" title="Öğrenciler" icon="fa-solid fa-user-graduate">
-        <div className="text-3xl font-black text-[var(--text-primary)]">{stats.totalStudents}</div>
-        <div className="text-xs text-[var(--text-muted)] mt-1">
-          +{stats.monthlyNewStudents} bu ay
-        </div>
-      </BentoCard>
+    <div className="space-y-6">
+      {/* KPI Hero */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <StatCard
+          value={stats.totalStudents}
+          label="Toplam Öğrenci"
+          icon="fa-user-graduate"
+          color="text-indigo-600"
+          trend={{ value: stats.monthlyNewStudents, direction: stats.monthlyNewStudents > 0 ? 'up' : 'stable' }}
+        />
+        <StatCard
+          value={stats.totalMaterials}
+          label="Üretilen Materyal"
+          icon="fa-file-lines"
+          color="text-emerald-500"
+          trend={{ value: stats.weeklyProduction, direction: 'up' }}
+        />
+        <StatCard
+          value={stats.totalAssessments}
+          label="Değerlendirme"
+          icon="fa-clipboard-check"
+          color="text-amber-500"
+        />
+        <StatCard
+          value={`%${stats.avgScore}`}
+          label="Ort. Başarı"
+          icon="fa-chart-simple"
+          color="text-purple-600"
+        />
+      </div>
 
-      <BentoCard className="md:col-span-3" title="Materyaller" icon="fa-solid fa-file-alt">
-        <div className="text-3xl font-black text-[var(--text-primary)]">{stats.totalMaterials}</div>
-        <div className="text-xs text-[var(--text-muted)] mt-1">
-          +{stats.weeklyProduction} bu hafta
-        </div>
-      </BentoCard>
+      {/* Trend + Active Student */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+        {/* Performance Chart */}
+        <BentoCard
+          className="md:col-span-8"
+          title="Performans Trendi"
+          icon="fa-chart-line"
+          iconColor="bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600"
+        >
+          {performanceTrends && performanceTrends.length > 0 ? (
+            <LineChart
+              data={performanceTrends}
+              height={110}
+              showGrid={false}
+              showDots={true}
+              color="var(--accent-color)"
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center h-28 text-[var(--text-muted)]">
+              <i className="fa-solid fa-chart-line text-3xl mb-2 opacity-20" />
+              <p className="text-[10px] font-black uppercase tracking-widest">Yeterli veri yok</p>
+            </div>
+          )}
+        </BentoCard>
 
-      <BentoCard className="md:col-span-3" title="Değerlendirmeler" icon="fa-solid fa-clipboard-check">
-        <div className="text-3xl font-black text-[var(--text-primary)]">{stats.totalAssessments}</div>
-        <div className="text-xs text-[var(--text-muted)] mt-1">
-          Ortalama: %{stats.avgScore}
-        </div>
-      </BentoCard>
+        {/* Active Student Card */}
+        <BentoCard
+          className="md:col-span-4"
+          title="Son Odak"
+          icon="fa-star"
+          iconColor="bg-amber-50 dark:bg-amber-900/20 text-amber-500"
+        >
+          {activeStudent ? (
+            <div className="flex flex-col h-full">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-indigo-500/20">
+                  {activeStudent.name?.[0]?.toUpperCase() || '?'}
+                </div>
+                <div>
+                  <h4 className="text-sm font-black text-[var(--text-primary)]">{activeStudent.name}</h4>
+                  <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">{activeStudent.grade}</p>
+                </div>
+              </div>
+              <div className="space-y-2 mb-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Gelişim</span>
+                  <span className={`text-[10px] font-black ${studentScore !== null ? 'text-emerald-500' : 'text-zinc-400'}`}>
+                    {studentScore !== null ? `%${studentScore}` : 'Veri yok'}
+                  </span>
+                </div>
+                <div className="w-full h-1.5 bg-[var(--bg-secondary)] rounded-full overflow-hidden">
+                  <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-1000" style={{ width: `${studentScore ?? 0}%` }} />
+                </div>
+              </div>
+              <div className="mt-auto">
+                <button
+                  onClick={() => onTabChange('students')}
+                  className="w-full py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                >
+                  <i className="fa-solid fa-arrow-right mr-2" /> Profili Aç
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full text-[var(--text-muted)] gap-2">
+              <i className="fa-solid fa-user-plus text-3xl opacity-20" />
+              <span className="text-[10px] font-black uppercase tracking-widest">Öğrenci Seçilmedi</span>
+            </div>
+          )}
+        </BentoCard>
+      </div>
 
-      <BentoCard className="md:col-span-3" title="Planlar" icon="fa-solid fa-graduation-cap">
-        <div className="text-3xl font-black text-[var(--text-primary)]">{stats.totalPlans}</div>
-        <div className="text-xs text-[var(--text-muted)] mt-1">
-          Aktif müfredat
-        </div>
-      </BentoCard>
-
-      {/* Performance Trend */}
-      <BentoCard className="md:col-span-8" title="Performans Trendi" icon="fa-solid fa-chart-line">
-        {performanceTrends ? (
-          <LineChart
-            data={performanceTrends}
-            height={120}
-            showGrid={false}
-            showDots={true}
-            color="var(--accent-color)"
-          />
+      {/* Son Materyaller */}
+      <BentoCard title="Son Üretilen Materyaller" icon="fa-clock-rotate-left">
+        {worksheets.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            {worksheets.slice(0, 8).map((ws: Record<string, unknown>) => (
+              <div
+                key={ws.id as string}
+                onClick={() => onLoadSaved(ws)}
+                className="flex items-center gap-3 p-3.5 bg-[var(--bg-secondary)] rounded-2xl border border-transparent hover:border-[var(--accent-color)]/30 transition-all cursor-pointer group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-[var(--bg-paper)] flex items-center justify-center text-[var(--text-muted)] group-hover:text-[var(--accent-color)] transition-colors shadow-sm text-lg">
+                  <i className={ws.icon as string} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-black text-[var(--text-primary)] truncate">{ws.name as string}</p>
+                  <p className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
+                    {new Date(ws.createdAt as string).toLocaleDateString('tr-TR')}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (
-          <div className="flex items-center justify-center h-32 text-[var(--text-muted)]">
-            Yeterli veri yok
+          <div className="flex flex-col items-center py-8 text-[var(--text-muted)]">
+            <i className="fa-solid fa-file-circle-plus text-4xl mb-3 opacity-20" />
+            <p className="text-[10px] font-black uppercase tracking-widest">Henüz materyal üretilmemiş</p>
           </div>
         )}
-      </BentoCard>
-
-      {/* Active Student */}
-      <BentoCard
-        className="md:col-span-4"
-        title="Son Odak"
-        icon="fa-solid fa-star"
-        iconColor="bg-amber-100 text-amber-600"
-      >
-        {activeStudent ? (
-          <div className="flex flex-col h-full">
-            <div className="flex items-center gap-3 mb-4">
-              <img
-                src={activeStudent.avatar || ''}
-                className="w-12 h-12 rounded-xl border-2 border-white shadow-lg"
-                alt=""
-              />
-              <div>
-                <h4 className="text-lg font-bold text-[var(--text-primary)]">{activeStudent.name}</h4>
-                <p className="text-xs text-[var(--text-muted)]">{activeStudent.grade}</p>
-              </div>
-            </div>
-            <div className="space-y-2 mb-4">
-              {(() => {
-                const studentAssessments = assessments.filter(
-                  (a: any) => a.studentName === activeStudent.name
-                );
-                const score = studentAssessments.length > 0
-                  ? Math.round(
-                      studentAssessments.reduce(
-                        (sum: number, a: any) => sum + (a.report.scores.attention || 0),
-                        0
-                      ) / studentAssessments.length
-                    )
-                  : null;
-                return (
-                  <>
-                    <div className="flex justify-between text-xs">
-                      <span className="text-[var(--text-muted)]">GELİŞİM</span>
-                      <span className="text-emerald-500 font-medium">
-                        {score !== null ? `%${score}` : 'Veri Yok'}
-                      </span>
-                    </div>
-                    <div className="w-full h-2 bg-[var(--bg-secondary)] rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-emerald-500 transition-all duration-1000"
-                        style={{ width: `${score ?? 0}%` }}
-                      ></div>
-                    </div>
-                  </>
-                );
-              })()}
-            </div>
-            <div className="mt-auto">
-              <ActionButton
-                label="PROFİLİ AÇ"
-                icon="fa-solid fa-arrow-right"
-                onClick={() => onTabChange('students')}
-              />
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center h-full text-[var(--text-muted)]">
-            <i className="fa-solid fa-user-plus text-2xl mb-2 opacity-50"></i>
-            <span className="text-sm">Aktif öğrenci seçilmedi</span>
-          </div>
-        )}
-      </BentoCard>
-
-      {/* Recent Materials */}
-      <BentoCard
-        className="md:col-span-12"
-        title="Son Üretilen Materyaller"
-        icon="fa-solid fa-history"
-      >
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {worksheets.slice(0, 4).map((ws: any) => (
-            <div
-              key={ws.id}
-              onClick={() => onLoadSaved(ws)}
-              className="flex items-center gap-3 p-3 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] hover:border-[var(--accent-color)] transition-all cursor-pointer group"
-            >
-              <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-lg text-[var(--text-muted)] group-hover:text-[var(--accent-color)] transition-colors">
-                <i className={ws.icon}></i>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-[var(--text-primary)] truncate">
-                  {ws.name}
-                </p>
-                <p className="text-xs text-[var(--text-muted)]">
-                  {new Date(ws.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
       </BentoCard>
     </div>
   );
