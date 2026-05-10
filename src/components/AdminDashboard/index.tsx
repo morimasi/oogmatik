@@ -8,7 +8,6 @@ import { useRBAC } from '../../hooks/useRBAC';
 import { logError } from '../../utils/logger.js';
 
 // Lazy Loaded Views
-const ProfileView = React.lazy(() => import('../ProfileView').then(m => ({ default: m.ProfileView })));
 const SavedWorksheetsView = React.lazy(() => import('../SavedWorksheetsView').then(m => ({ default: m.SavedWorksheetsView })));
 const FavoritesSection = React.lazy(() => import('../FavoritesSection').then(m => ({ default: m.FavoritesSection })));
 
@@ -44,11 +43,10 @@ const NavButton = ({ active, label, icon, onClick, count }: NavButtonProps) => (
   <button
     onClick={onClick}
 
-    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm mb-1 ${
-      active 
-        ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-none success-glow' 
+    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm mb-1 ${active
+        ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-none success-glow'
         : 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800'
-    }`}
+      }`}
   >
     <i className={`fa-solid ${icon} w-5 text-center`}></i>
     <span className="flex-1 text-left">{label}</span>
@@ -127,9 +125,21 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
         </div>
         <div className="flex-1 overflow-hidden relative">
           <React.Suspense fallback={<div className="flex items-center justify-center h-full"><i className="fa-solid fa-spinner fa-spin text-2xl text-indigo-500"></i></div>}>
-            {inspectView === 'profile' && <ProfileView onBack={() => setInspectingUser(null)} onSelectActivity={() => {}} onLoadSaved={() => {}} targetUser={inspectingUser} />}
-            {inspectView === 'archive' && <div className="h-full p-4 overflow-y-auto"><SavedWorksheetsView onLoad={() => {}} onBack={() => setInspectView('profile')} targetUserId={inspectingUser.id} /></div>}
-            {inspectView === 'favorites' && <div className="h-full p-4 overflow-y-auto"><FavoritesSection onSelectActivity={() => {}} targetUserId={inspectingUser.id} /></div>}
+            {inspectView === 'profile' && (
+              <div className="h-full flex items-center justify-center p-8">
+                <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 p-10 max-w-md w-full text-center shadow-xl">
+                  <img src={inspectingUser.avatar} className="w-20 h-20 rounded-2xl mx-auto mb-4 border-2 border-zinc-200" alt={inspectingUser.name} />
+                  <h3 className="text-xl font-black text-zinc-800 dark:text-zinc-100 mb-1">{inspectingUser.name}</h3>
+                  <p className="text-xs text-zinc-400 uppercase tracking-widest mb-4">{inspectingUser.email}</p>
+                  <div className="flex justify-center gap-2 mb-4">
+                    <span className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-lg text-[10px] font-black uppercase tracking-wider">{inspectingUser.role || 'teacher'}</span>
+                  </div>
+                  <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Detaylı profil görünümü geliştirme aşamasında</p>
+                </div>
+              </div>
+            )}
+            {inspectView === 'archive' && <div className="h-full p-4 overflow-y-auto"><SavedWorksheetsView onLoad={() => { }} onBack={() => setInspectView('profile')} targetUserId={inspectingUser.id} /></div>}
+            {inspectView === 'favorites' && <div className="h-full p-4 overflow-y-auto"><FavoritesSection onSelectActivity={() => { }} targetUserId={inspectingUser.id} /></div>}
           </React.Suspense>
         </div>
       </div>
@@ -139,7 +149,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
   return (
     <div className="h-full flex bg-[var(--bg-primary)] overflow-hidden font-lexend relative">
       <div className="absolute inset-0 pointer-events-none shimmer-effect opacity-10 z-0"></div>
-      
+
       <aside className="w-72 bg-[var(--bg-paper)] border-r border-[var(--border-color)] flex flex-col shrink-0 z-20 m-2 rounded-[2.5rem] h-[calc(100%-16px)] shadow-xl">
         <div className="p-6 flex items-center gap-3">
           <div className="w-10 h-10 bg-[var(--accent-color)] rounded-xl flex items-center justify-center text-white shadow-lg shadow-[var(--accent-muted)]">
@@ -156,7 +166,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
           <NavButton active={activeTab === 'dashboard'} label="Genel Bakış" icon="fa-chart-pie" onClick={() => setActiveTab('dashboard')} />
           <NavButton active={activeTab === 'users'} label="Kullanıcılar" icon="fa-users" onClick={() => setActiveTab('users')} />
           <NavButton active={activeTab === 'permissions'} label="Yetki Matrisi" icon="fa-lock" onClick={() => setActiveTab('permissions')} />
-          
+
           <p className="px-4 mt-6 mb-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Otonom Sistemler</p>
           <NavButton active={activeTab === 'scaffold'} label="Otonom Üretim" icon="fa-wand-magic-sparkles" onClick={() => setActiveTab('scaffold')} />
 
