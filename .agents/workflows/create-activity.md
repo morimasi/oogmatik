@@ -30,7 +30,7 @@ Gereksinim Duyulan Dosyalar:
 ## Kural 3: Pedagojik ve Zorluk Ayarları (ConfigPanel)
 - 3 zorluk seviyesi: Kolay, Orta, Zor
 - Dark Glassmorphism tasarım
-- `configFields` blueprint'ten otomatik render
+- `configFields` blueprint'ten otomatik render edilir. **AJANLARA ÖNEMLİ NOT:** Sadece basit inputlar koymayın. Etkinliğe özgü parametreleri (enum seçiciler, boolean switchler vb.) `configFields` içerisine zengin bir şekilde girin ki UI otonom olarak panelde daha işlevsel seçenekler (Örn: Select) oluştursun.
 
 ## İş Akışı (Step-by-Step):
 

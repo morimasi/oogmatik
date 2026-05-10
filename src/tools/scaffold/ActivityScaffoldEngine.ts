@@ -148,6 +148,9 @@ export class ActivityScaffoldEngine {
     // 2. {{#unless condition}} ... {{/unless}} blokları
     content = this.processUnlessBlocks(content, data);
 
+    // 2.5. {{#if condition}} ... {{/if}} blokları
+    content = this.processIfBlocks(content, data);
+
     // 3. {{json path.to.var}} → JSON.stringify
     content = content.replace(/\{\{json ([^}]+)\}\}/g, (_, keyPath: string) => {
       const val = this.resolveValue(data, keyPath.trim());
@@ -200,6 +203,26 @@ export class ActivityScaffoldEngine {
     return content.replace(unlessRegex, (_, condPath: string, body: string) => {
       const val = this.resolveValue(data, condPath.trim());
       return val ? '' : body;
+    });
+  }
+
+  private processIfBlocks(content: string, data: Record<string, unknown>): string {
+    const ifRegex = /\{\{#if ([^}]+)\}\}([\s\S]*?)\{\{\/if\}\}/g;
+
+    return content.replace(ifRegex, (_, expr: string, body: string) => {
+      expr = expr.trim();
+      let isTrue = false;
+
+      // Support {{#if (eq this.type "enum")}} format essentially, very basic
+      const eqMatch = expr.match(/^\(eq\s+([^\s]+)\s+(['"])(.*?)\2\)$/);
+      if (eqMatch) {
+        const leftVal = this.resolveValue(data, eqMatch[1].trim());
+        isTrue = String(leftVal) === eqMatch[3];
+      } else {
+        const val = this.resolveValue(data, expr);
+        isTrue = !!val;
+      }
+      return isTrue ? body : '';
     });
   }
 

@@ -24,6 +24,37 @@ export const {{PascalCase}}Config: React.FC<{{PascalCase}}ConfigProps> = ({ valu
         <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest pl-1">
           {{this.label}}
         </label>
+        
+        {{#if (eq this.type "enum")}}
+        <select
+          value={String(value['{{this.id}}'] ?? '{{this.defaultValue}}')}
+          onChange={(e) => onChange('{{this.id}}', e.target.value)}
+          className="w-full bg-black/30 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-zinc-300 focus:border-indigo-500 outline-none transition-colors appearance-none"
+        >
+          <option value="">Seçiniz...</option>
+          {{#each this.options}}
+          <option value="{{this.value}}">{{this.label}}</option>
+          {{/each}}
+        </select>
+        {{/if}}
+
+        {{#if (eq this.type "boolean")}}
+        <div className="flex items-center mt-2">
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input 
+              type="checkbox" 
+              checked={Boolean(value['{{this.id}}'] ?? {{this.defaultValue}})}
+              onChange={(e) => onChange('{{this.id}}', e.target.checked)}
+              className="sr-only peer" 
+            />
+            <div className="w-11 h-6 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-500"></div>
+            <span className="ml-3 text-xs font-bold text-zinc-400">Aktif/Pasif</span>
+          </label>
+        </div>
+        {{/if}}
+
+        {{#unless (eq this.type "enum")}}
+        {{#unless (eq this.type "boolean")}}
         <input
           type="{{this.type}}"
           min={{{this.min}}}
@@ -32,6 +63,8 @@ export const {{PascalCase}}Config: React.FC<{{PascalCase}}ConfigProps> = ({ valu
           onChange={(e) => onChange('{{this.id}}', e.target.value)}
           className="w-full bg-black/30 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-zinc-300 focus:border-indigo-500 outline-none transition-colors"
         />
+        {{/unless}}
+        {{/unless}}
       </div>
       {{/each}}
 

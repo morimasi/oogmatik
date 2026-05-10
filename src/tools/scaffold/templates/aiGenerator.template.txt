@@ -35,5 +35,10 @@ export const generate{{enumKey}}FromAI = async (options: GeneratorOptions) => {
     required: ['instruction', 'items', 'pedagogicalNote']
   };
 
-  return await generateWithSchema(prompt, schema);
+  const result = await generateWithSchema(prompt, schema);
+  return {
+    type: '{{enumKey}}',
+    title: '{{title}}',
+    ...result
+  };
 };
