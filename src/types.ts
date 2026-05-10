@@ -9,6 +9,5 @@ export * from './types/screening.js';
 export * from './types/ocr-activity.js';
 export * from './types/worksheet.js';
 export * from './types/activityStudio.js';
-export * from './types/infographic.js';
 export * from './types/student-advanced.js';
 export * from './types/progress.js';

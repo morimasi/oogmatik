@@ -82,9 +82,6 @@ const MathStudio = lazy(() =>
 const SuperStudio = lazy(() =>
   import('./components/SuperStudio').then((module) => ({ default: module.SuperStudio }))
 );
-const InfographicStudio = lazy(() =>
-  import('./components/InfographicStudio').then((module) => ({ default: module.InfographicStudio }))
-);
 const ActivityStudio = lazy(() =>
   import('./components/ActivityStudio').then((module) => ({ default: module.ActivityStudio }))
 );
@@ -376,8 +373,6 @@ const AppContent = () => {
     null as { name: string; age: number; weaknesses: string[]; diagnosisContext?: string } | null
   );
 
-  const [loadedInfographicData, setLoadedInfographicData] = useState(null);
-
   // Onboarding Modules State
   const [activeOnboardingModule, setActiveOnboardingModule] = useState<'guide' | 'tour' | 'help' | 'about' | 'developer' | null>(null);
   const [isAdvancedScreeningOpen, setIsAdvancedScreeningOpen] = useState(false);
@@ -666,11 +661,6 @@ const AppContent = () => {
         setWorkbookSettings(item.workbookSettings);
         navigateTo('workbook');
       }
-      return;
-    }
-    if (item.activityType === ActivityType.INFOGRAPHIC_STUDIO) {
-      setLoadedInfographicData(item.worksheetData);
-      navigateTo('infographic-studio');
       return;
     }
     setSelectedActivity(item.activityType);

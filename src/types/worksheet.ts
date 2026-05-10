@@ -1,19 +1,12 @@
-import { InfographicActivityResult } from './infographic';
 import { GrafikVerisi, MatSoru } from './matSinav';
 
-export type WidgetType = 'infographic' | 'math_graphic' | 'reading_passage' | 'quiz_block' | 'text_block';
+export type WidgetType = 'math_graphic' | 'reading_passage' | 'quiz_block' | 'text_block';
 
 export interface BaseWidget {
   id: string;
   type: WidgetType;
   title?: string;
   width?: 'full' | 'half' | 'third';
-}
-
-export interface InfographicWidget extends BaseWidget {
-  type: 'infographic';
-  templateType: string;
-  data: InfographicActivityResult;
 }
 
 export interface MathGraphicWidget extends BaseWidget {
@@ -33,7 +26,7 @@ export interface QuizBlockWidget extends BaseWidget {
   questions: MatSoru[];
 }
 
-export type WorksheetWidget = InfographicWidget | MathGraphicWidget | ReadingPassageWidget | QuizBlockWidget;
+export type WorksheetWidget = MathGraphicWidget | ReadingPassageWidget | QuizBlockWidget;
 
 export interface CompositeWorksheet {
   id: string;

@@ -26,7 +26,7 @@ export * from './assessment';
 export * from './visualInterpretation';
 export * from './boxMath';
 export * from './brainTeasers';
-export * from './infographicShortAnswer';
+
 export * from './sinavGenerator';
 export * from './mathSinavGenerator';
 export * from './kavramHaritasi';

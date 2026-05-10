@@ -5,7 +5,6 @@ export type PermissionModule =
   | 'activity-studio' 
   | 'reading-studio' 
   | 'math-studio' 
-  | 'infographic-studio' 
   | 'screening' 
   | 'admin' 
   | 'curriculum' 
@@ -43,7 +42,7 @@ export const DEFAULT_RBAC_SETTINGS: RBACSettings = {
         { module: 'activity-studio', enabled: true, actions: ['manage'] },
         { module: 'reading-studio', enabled: true, actions: ['manage'] },
         { module: 'math-studio', enabled: true, actions: ['manage'] },
-        { module: 'infographic-studio', enabled: true, actions: ['manage'] },
+
         { module: 'screening', enabled: true, actions: ['manage'] },
         { module: 'curriculum', enabled: true, actions: ['manage'] },
         { module: 'students', enabled: true, actions: ['manage'] },
@@ -66,7 +65,7 @@ export const DEFAULT_RBAC_SETTINGS: RBACSettings = {
         { module: 'activity-studio', enabled: true, actions: ['view', 'create'] },
         { module: 'reading-studio', enabled: true, actions: ['view', 'create'] },
         { module: 'math-studio', enabled: true, actions: ['view', 'create'] },
-        { module: 'infographic-studio', enabled: true, actions: ['view', 'create'] },
+
         { module: 'screening', enabled: true, actions: ['view', 'create'] },
         { module: 'curriculum', enabled: true, actions: ['view', 'create'] },
         { module: 'students', enabled: true, actions: ['view', 'manage'] },

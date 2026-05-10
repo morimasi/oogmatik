@@ -2,8 +2,8 @@ import { ActivityType } from '../../types/activity';
 import { GeneratorOptions } from '../../types/core';
 import * as aiGenerators from './index';
 import * as offlineGenerators from '../offlineGenerators/index';
-import { INFOGRAPHIC_ADAPTERS_FIRST_10 } from './infographic/infographicAdapter.js';
-import { INFOGRAPHIC_ADAPTERS_REMAINING_84 } from './infographic/infographicFactory.js';
+
+
 import * as sariKitapGenerators from './sariKitap/index';
 import { generateSemanticLinkerAI, generateSemanticLinkerOffline } from '../../modules/activities/semantic-linker/generators';
 import { generateLETTER_CONNECTFromAI } from '../../modules/activities/letter-connect/generators';
@@ -436,7 +436,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineQueueOrdering,
   },
   [ActivityType.INFOGRAPHIC_SHORT_ANSWER]: {
-    ai: aiGenerators.generateInfographicShortAnswerFromAI,
+
     offline: (options: GeneratorOptions) => offlineGenerators.generateOfflineFallback(ActivityType.INFOGRAPHIC_SHORT_ANSWER, options),
   },
   [ActivityType.SINAV]: {

@@ -26,7 +26,6 @@ export type PermissionModule =
   | 'activity-studio'
   | 'reading-studio'
   | 'math-studio'
-  | 'infographic-studio'
   | 'sinav-studyosu'
   | 'ocr'
   | 'screening'
@@ -169,7 +168,7 @@ export const buildDefaultRBAC = (): RBACSettings => {
             customSettings: { aiGenerationEnabled: true, allowExport: true },
           },
           {
-            module: 'infographic-studio',
+
             enabled: true,
             actions: ['view', 'create', 'edit', 'delete', 'manage', 'approve', 'export', 'assign'],
             categoryPermissions: [
@@ -317,7 +316,7 @@ export const buildDefaultRBAC = (): RBACSettings => {
             actions: ['view', 'create', 'export', 'assign'],
           },
           {
-            module: 'infographic-studio',
+
             enabled: true,
             actions: ['view', 'create', 'export', 'assign'],
             categoryPermissions: [

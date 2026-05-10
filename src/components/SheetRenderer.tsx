@@ -10,7 +10,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { A4PrintableWrapper } from '../A4Printable/A4PrintableWrapper';
-import { InfoGraphicRenderer, OcrRenderer, ExamRenderer } from './sheet-renderers';
+
 import { Modifier } from '@dnd-kit/core';
 import {
   ActivityType,
@@ -90,7 +90,7 @@ import {
   Sentence5W1HData,
 } from '../types';
 
-import { A4PrintableSheetV2 } from './InfographicStudio/panels/CenterPanel/A4PrintableSheetV2';
+
 
 import { MathPuzzleSheet } from './sheets/math/MathPuzzleSheet';
 import { NumberPatternSheet } from './sheets/math/NumberPatternSheet';
@@ -1329,7 +1329,7 @@ export const SheetRenderer = React.memo(
     }
 
     if (activityType && activityType.toString().startsWith('INFOGRAPHIC_')) {
-      return withWrapper(<InfoGraphicRenderer data={data} settings={settings} />);
+
     }
 
     if (activityType === ActivityType.MATH_STUDIO && data) {
@@ -1830,7 +1830,7 @@ export const SheetRenderer = React.memo(
         break;
       case ActivityType.INFOGRAPHIC_STUDIO:
         // Delegate to modular renderer to support orientation-aware layout
-        return withWrapper(<InfoGraphicRenderer data={data} settings={settings} />);
+
       case ActivityType.ANAGRAM:
         renderedSheet = <AnagramSheet data={data as unknown as AnagramsData} settings={settings} />;
         break;

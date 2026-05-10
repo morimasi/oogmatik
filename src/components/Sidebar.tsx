@@ -85,7 +85,7 @@ const Sidebar = ({
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [lockedCategory, setLockedCategory] = useState<string | null>(null);
   const [popupRect, setPopupRect] = useState<DOMRect | null>(null);
-  
+
   const popupTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -98,8 +98,6 @@ const Sidebar = ({
       'super-turkce': () => typeof onOpenSuperTurkce === 'function' && onOpenSuperTurkce(),
       'sinav-studyosu': () => typeof onOpenSinavStudyosu === 'function' && onOpenSinavStudyosu(),
       'mat-sinav-studyosu': () => typeof onOpenMatSinavStudyosu === 'function' && onOpenMatSinavStudyosu(),
-      'activity-studio': () => typeof onOpenActivityStudio === 'function' && onOpenActivityStudio(),
-      'infographic-studio': () => typeof onOpenInfographicStudio === 'function' && onOpenInfographicStudio(),
       'sari-kitap-studio': () => typeof onOpenSariKitapStudio === 'function' && onOpenSariKitapStudio(),
       'kelime-cumle-studio': () => typeof onOpenKelimeCumleStudio === 'function' && onOpenKelimeCumleStudio(),
     };
@@ -109,8 +107,6 @@ const Sidebar = ({
       'curriculum': 'curriculum',
       'reading': 'reading-studio',
       'math': 'math-studio',
-      'activity-studio': 'activity-studio',
-      'infographic-studio': 'infographic-studio',
       'sinav-studyosu': 'sinav-studyosu',
       'mat-sinav-studyosu': 'math-studio', // Fallback
       'super-turkce': 'activity-studio', // Fallback
@@ -128,20 +124,20 @@ const Sidebar = ({
         })
         .map(item => ({
           ...item,
-          onClick: item.actionType === 'callback' 
-            ? callbackMap[item.id] 
+          onClick: item.actionType === 'callback'
+            ? callbackMap[item.id]
             : () => {
-                if (item.eventName) {
-                  const event = new CustomEvent(item.eventName);
-                  window.dispatchEvent(event);
-                }
+              if (item.eventName) {
+                const event = new CustomEvent(item.eventName);
+                window.dispatchEvent(event);
               }
+            }
         }))
     })).filter(group => group.items.length > 0);
   }, [
-    onOpenScreening, onOpenCurriculum, onOpenReadingStudio, onOpenMathStudio, 
-    onOpenSuperTurkce, onOpenSinavStudyosu, onOpenMatSinavStudyosu, 
-    onOpenActivityStudio, onOpenInfographicStudio, onOpenSariKitapStudio, 
+    onOpenScreening, onOpenCurriculum, onOpenReadingStudio, onOpenMathStudio,
+    onOpenSuperTurkce, onOpenSinavStudyosu, onOpenMatSinavStudyosu,
+    onOpenActivityStudio, onOpenInfographicStudio, onOpenSariKitapStudio,
     onOpenKelimeCumleStudio
   ]);
 
@@ -289,7 +285,7 @@ const Sidebar = ({
       .filter((category: ActivityCategory) => canAccessCategory(category.id)) // Filter categories
       .map((category: ActivityCategory) => ({
         ...category,
-        items: allActivities.filter((act: Activity) => 
+        items: allActivities.filter((act: Activity) =>
           category.activities.includes(act.id) && canAccessActivity(act.id) // Filter activities
         ),
       }))
@@ -362,15 +358,15 @@ const Sidebar = ({
                         onClick={(e: any) => handleCategoryClick(category.id, e)}
                         className={`category-trigger-btn w-full flex items-center ${isExpanded ? 'px-2.5 gap-2' : 'justify-center px-1.5'} py-2 rounded-xl transition-all duration-300 border border-transparent ${isActive ? 'bg-[var(--bg-secondary)] border-[var(--accent-color)]/30 shadow-sm' : 'hover:bg-[var(--bg-secondary)]'}`}
                       >
-                         <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs transition-all duration-300 bg-[var(--bg-paper)] border border-[var(--border-color)] ${isActive ? 'text-[var(--accent-color)] scale-105 shadow-md' : 'text-[var(--text-muted)] group-hover:bg-[var(--bg-paper)]'}`}>
-                            <i className={category.icon}></i>
-                         </div>
-                         {isExpanded && (
-                            <span className={`flex-1 text-left text-[10px] font-bold tracking-tight transition-colors uppercase ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
-                              {category.title}
-                            </span>
-                         )}
-                         {isExpanded && <i className={`fa-solid fa-chevron-right text-[8px] transition-transform duration-300 ${isActive ? 'rotate-90 text-[var(--accent-color)]' : 'opacity-20'}`}></i>}
+                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs transition-all duration-300 bg-[var(--bg-paper)] border border-[var(--border-color)] ${isActive ? 'text-[var(--accent-color)] scale-105 shadow-md' : 'text-[var(--text-muted)] group-hover:bg-[var(--bg-paper)]'}`}>
+                          <i className={category.icon}></i>
+                        </div>
+                        {isExpanded && (
+                          <span className={`flex-1 text-left text-[10px] font-bold tracking-tight transition-colors uppercase ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}`}>
+                            {category.title}
+                          </span>
+                        )}
+                        {isExpanded && <i className={`fa-solid fa-chevron-right text-[8px] transition-transform duration-300 ${isActive ? 'rotate-90 text-[var(--accent-color)]' : 'opacity-20'}`}></i>}
                       </button>
                     );
                   })}
@@ -392,47 +388,47 @@ const Sidebar = ({
               className="premium-popup-menu fixed z-[1000] drop-shadow-[0_20px_50px_rgba(0,0,0,0.4)] font-['Lexend']"
               onMouseEnter={() => { if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current); }}
               onMouseLeave={handleCategoryMouseLeave}
-              style={{ 
-                top: Math.max(20, Math.min(window.innerHeight - 500, popupRect.top - 20)), 
-                left: popupRect.left + (isExpanded ? 260 : 85) 
+              style={{
+                top: Math.max(20, Math.min(window.innerHeight - 500, popupRect.top - 20)),
+                left: popupRect.left + (isExpanded ? 260 : 85)
               }}
             >
               <div className="premium-popup-content min-w-[240px] max-w-[280px] overflow-hidden bg-[var(--bg-paper)] rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.5)] border border-[var(--border-color)]">
-                 <div className="px-3 pt-3 pb-1.5 border-b border-[var(--border-color)] mx-2">
-                    <h3 className="text-[9px] font-black text-[var(--text-primary)] uppercase tracking-wider">{activeCategory === 'studios' ? 'Merkezi Stüdyolar' : categorizedActivities.find((c: any) => c.id === activeCategory)?.title}</h3>
-                 </div>
-                 
-                 <div className="max-h-[60vh] overflow-y-auto custom-scrollbar px-1 py-1 space-y-1">
-                    {activeCategory === 'studios' ? (
-                       studioGroups.map((group: any, gIdx: number) => (
-                          <div key={gIdx} className="space-y-0.5">
-                             <p className="px-2 pt-1 text-[7px] font-black text-[var(--accent-color)] uppercase tracking-tight opacity-70">{group.title}</p>
-                             <div className="grid grid-cols-1 gap-0">
-                                {group.items.map((item: any) => (
-                                   <button key={item.id} onClick={() => handleStudioClick(item)} className="w-full text-left px-2 py-1.5 rounded-lg flex items-center gap-2 transition-colors duration-200 group/studioFlyout hover:bg-[var(--bg-primary)]">
-                                      <i className={`fa-solid ${item.icon} text-[11px] opacity-70 group-hover/studioFlyout:opacity-100 transition-colors ${item.color}`}></i>
-                                      <span className="text-[10px] font-medium leading-tight text-[var(--text-secondary)] group-hover/studioFlyout:text-[11px] group-hover/studioFlyout:text-[var(--text-primary)] truncate transition-all duration-200">{item.label}</span>
-                                   </button>
-                                ))}
-                             </div>
-                          </div>
-                       ))
-                    ) : (
-                       <div className="grid grid-cols-1 gap-0">
-                          {categorizedActivities.find((c: any) => c.id === activeCategory)?.items.map((act: Activity) => (
-                             <button key={act.id} onClick={() => handleActivitySelect(act.id)} className="w-full text-left px-2 py-1.5 rounded-lg flex items-center gap-2 transition-colors duration-200 group/item hover:bg-[var(--bg-primary)]">
-                                <i className={`fa-solid ${act.icon || 'fa-star'} text-[11px] text-[var(--accent-color)] opacity-70 group-hover/item:opacity-100 transition-colors`}></i>
-                                <span className="text-[10px] font-medium leading-tight text-[var(--text-secondary)] group-hover/item:text-[11px] group-hover/item:text-[var(--text-primary)] truncate transition-all duration-200">{act.title}</span>
-                             </button>
+                <div className="px-3 pt-3 pb-1.5 border-b border-[var(--border-color)] mx-2">
+                  <h3 className="text-[9px] font-black text-[var(--text-primary)] uppercase tracking-wider">{activeCategory === 'studios' ? 'Merkezi Stüdyolar' : categorizedActivities.find((c: any) => c.id === activeCategory)?.title}</h3>
+                </div>
+
+                <div className="max-h-[60vh] overflow-y-auto custom-scrollbar px-1 py-1 space-y-1">
+                  {activeCategory === 'studios' ? (
+                    studioGroups.map((group: any, gIdx: number) => (
+                      <div key={gIdx} className="space-y-0.5">
+                        <p className="px-2 pt-1 text-[7px] font-black text-[var(--accent-color)] uppercase tracking-tight opacity-70">{group.title}</p>
+                        <div className="grid grid-cols-1 gap-0">
+                          {group.items.map((item: any) => (
+                            <button key={item.id} onClick={() => handleStudioClick(item)} className="w-full text-left px-2 py-1.5 rounded-lg flex items-center gap-2 transition-colors duration-200 group/studioFlyout hover:bg-[var(--bg-primary)]">
+                              <i className={`fa-solid ${item.icon} text-[11px] opacity-70 group-hover/studioFlyout:opacity-100 transition-colors ${item.color}`}></i>
+                              <span className="text-[10px] font-medium leading-tight text-[var(--text-secondary)] group-hover/studioFlyout:text-[11px] group-hover/studioFlyout:text-[var(--text-primary)] truncate transition-all duration-200">{item.label}</span>
+                            </button>
                           ))}
-                       </div>
-                    )}
-                 </div>
-                 {lockedCategory && (
-                    <div className="px-2 pb-2 pt-1 text-center">
-                      <button onClick={() => { setLockedCategory(null); setHoveredCategory(null); }} className="text-[8px] font-black text-[var(--text-muted)] hover:text-rose-500 uppercase tracking-widest transition-colors">KAPAT</button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="grid grid-cols-1 gap-0">
+                      {categorizedActivities.find((c: any) => c.id === activeCategory)?.items.map((act: Activity) => (
+                        <button key={act.id} onClick={() => handleActivitySelect(act.id)} className="w-full text-left px-2 py-1.5 rounded-lg flex items-center gap-2 transition-colors duration-200 group/item hover:bg-[var(--bg-primary)]">
+                          <i className={`fa-solid ${act.icon || 'fa-star'} text-[11px] text-[var(--accent-color)] opacity-70 group-hover/item:opacity-100 transition-colors`}></i>
+                          <span className="text-[10px] font-medium leading-tight text-[var(--text-secondary)] group-hover/item:text-[11px] group-hover/item:text-[var(--text-primary)] truncate transition-all duration-200">{act.title}</span>
+                        </button>
+                      ))}
                     </div>
-                 )}
+                  )}
+                </div>
+                {lockedCategory && (
+                  <div className="px-2 pb-2 pt-1 text-center">
+                    <button onClick={() => { setLockedCategory(null); setHoveredCategory(null); }} className="text-[8px] font-black text-[var(--text-muted)] hover:text-rose-500 uppercase tracking-widest transition-colors">KAPAT</button>
+                  </div>
+                )}
               </div>
             </motion.div>
           )}

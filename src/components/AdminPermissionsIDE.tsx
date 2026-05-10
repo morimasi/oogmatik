@@ -40,7 +40,7 @@ export const AdminPermissionsIDE: React.FC = () => {
 
     const updatedSettings = { ...settings };
     const rolePerms = updatedSettings.roles.find(r => r.role === role);
-    
+
     if (rolePerms) {
       const modulePerm = rolePerms.modules.find(m => m.module === module);
       if (modulePerm) {
@@ -60,7 +60,7 @@ export const AdminPermissionsIDE: React.FC = () => {
 
     const updatedSettings = { ...settings };
     const rolePerms = updatedSettings.roles.find(r => r.role === role);
-    
+
     if (rolePerms) {
       const modulePerm = rolePerms.modules.find(m => m.module === module);
       if (modulePerm) {
@@ -106,8 +106,6 @@ export const AdminPermissionsIDE: React.FC = () => {
   const modules: PermissionModule[] = [
     'activity-studio',
     'reading-studio',
-    'math-studio',
-    'infographic-studio',
     'screening',
     'admin',
     'curriculum',
@@ -155,11 +153,10 @@ export const AdminPermissionsIDE: React.FC = () => {
           <button
             key={rolePerm.role}
             onClick={() => setSelectedRole(rolePerm.role)}
-            className={`px-4 py-2 rounded-lg border transition-all ${
-              selectedRole === rolePerm.role
+            className={`px-4 py-2 rounded-lg border transition-all ${selectedRole === rolePerm.role
                 ? roleColors[rolePerm.role] + ' border-current'
                 : 'text-gray-400 bg-gray-500/5 border-gray-500/10 hover:border-gray-500/30'
-            }`}
+              }`}
           >
             {rolePerm.role.toUpperCase()}
           </button>
@@ -200,14 +197,12 @@ export const AdminPermissionsIDE: React.FC = () => {
                       <td className="text-center py-3 px-4">
                         <button
                           onClick={() => toggleModule(selectedRole, module)}
-                          className={`w-12 h-6 rounded-full transition-colors ${
-                            isEnabled ? 'bg-green-500' : 'bg-gray-600'
-                          }`}
+                          className={`w-12 h-6 rounded-full transition-colors ${isEnabled ? 'bg-green-500' : 'bg-gray-600'
+                            }`}
                         >
                           <div
-                            className={`w-5 h-5 rounded-full bg-white transform transition-transform ${
-                              isEnabled ? 'translate-x-6' : 'translate-x-0'
-                            }`}
+                            className={`w-5 h-5 rounded-full bg-white transform transition-transform ${isEnabled ? 'translate-x-6' : 'translate-x-0'
+                              }`}
                           />
                         </button>
                       </td>
@@ -218,13 +213,12 @@ export const AdminPermissionsIDE: React.FC = () => {
                             <button
                               onClick={() => toggleAction(selectedRole, module, action)}
                               disabled={!isEnabled}
-                              className={`w-6 h-6 rounded transition-colors ${
-                                hasAction
+                              className={`w-6 h-6 rounded transition-colors ${hasAction
                                   ? isEnabled
                                     ? 'bg-blue-500 text-white'
                                     : 'bg-gray-600 text-gray-400'
                                   : 'bg-gray-700 text-gray-500'
-                              } ${!isEnabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
+                                } ${!isEnabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
                             >
                               {hasAction ? '✓' : '×'}
                             </button>
@@ -247,42 +241,36 @@ export const AdminPermissionsIDE: React.FC = () => {
           <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
             <span className="text-gray-300">Bakım Modu</span>
             <button
-              className={`w-12 h-6 rounded-full ${
-                settings.globalSettings.maintenanceMode ? 'bg-red-500' : 'bg-gray-600'
-              }`}
+              className={`w-12 h-6 rounded-full ${settings.globalSettings.maintenanceMode ? 'bg-red-500' : 'bg-gray-600'
+                }`}
             >
               <div
-                className={`w-5 h-5 rounded-full bg-white transform transition-transform ${
-                  settings.globalSettings.maintenanceMode ? 'translate-x-6' : 'translate-x-0'
-                }`}
+                className={`w-5 h-5 rounded-full bg-white transform transition-transform ${settings.globalSettings.maintenanceMode ? 'translate-x-6' : 'translate-x-0'
+                  }`}
               />
             </button>
           </div>
           <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
             <span className="text-gray-300">AI Üretimi</span>
             <button
-              className={`w-12 h-6 rounded-full ${
-                settings.globalSettings.aiGenerationEnabled ? 'bg-green-500' : 'bg-gray-600'
-              }`}
+              className={`w-12 h-6 rounded-full ${settings.globalSettings.aiGenerationEnabled ? 'bg-green-500' : 'bg-gray-600'
+                }`}
             >
               <div
-                className={`w-5 h-5 rounded-full bg-white transform transition-transform ${
-                  settings.globalSettings.aiGenerationEnabled ? 'translate-x-6' : 'translate-x-0'
-                }`}
+                className={`w-5 h-5 rounded-full bg-white transform transition-transform ${settings.globalSettings.aiGenerationEnabled ? 'translate-x-6' : 'translate-x-0'
+                  }`}
               />
             </button>
           </div>
           <div className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
             <span className="text-gray-300">Kayıt</span>
             <button
-              className={`w-12 h-6 rounded-full ${
-                settings.globalSettings.registrationEnabled ? 'bg-green-500' : 'bg-gray-600'
-              }`}
+              className={`w-12 h-6 rounded-full ${settings.globalSettings.registrationEnabled ? 'bg-green-500' : 'bg-gray-600'
+                }`}
             >
               <div
-                className={`w-5 h-5 rounded-full bg-white transform transition-transform ${
-                  settings.globalSettings.registrationEnabled ? 'translate-x-6' : 'translate-x-0'
-                }`}
+                className={`w-5 h-5 rounded-full bg-white transform transition-transform ${settings.globalSettings.registrationEnabled ? 'translate-x-6' : 'translate-x-0'
+                  }`}
               />
             </button>
           </div>
@@ -292,7 +280,7 @@ export const AdminPermissionsIDE: React.FC = () => {
       {/* Info */}
       <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 text-sm text-blue-300">
         <p>
-          <strong>Bilgi:</strong> Superadmin tüm modüllere sınırsız erişime sahiptir. 
+          <strong>Bilgi:</strong> Superadmin tüm modüllere sınırsız erişime sahiptir.
           Değişiklikler Firestore'a kaydedilecektir.
         </p>
       </div>

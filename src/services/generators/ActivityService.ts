@@ -4,7 +4,7 @@ import { GeneratorMode, IActivityGenerator } from './core/types';
 import { GenericActivityGenerator } from './core/GenericActivityGenerator';
 import { ACTIVITY_GENERATOR_REGISTRY } from './registry';
 import mapDynamicIdToActivityType from '../../utils/dynamicIdMappings';
-import { generateInfographic } from './infographicGenerator';
+
 
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
 /**
@@ -74,12 +74,12 @@ export class ActivityService {
                         if (count > 1) {
                             const results = [];
                             for (let i = 0; i < count; i++) {
-                                const { generateOfflineInfographic } = await import('../offlineGenerators/infographic');
+
                                 results.push(await generateOfflineInfographic(activityType, options));
                             }
                             return results;
                         }
-                        const { generateOfflineInfographic } = await import('../offlineGenerators/infographic');
+
                         return await generateOfflineInfographic(activityType, options);
                     }
                 );

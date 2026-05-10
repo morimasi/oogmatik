@@ -26,7 +26,7 @@ export * from '../generators/offline/oddEvenSudoku';
 export * from './visualInterpretation';
 export * from './boxMath';
 export * from './brainTeasers';
-export * from './infographicShortAnswer';
+
 export * from './sinav';
 export * from './matSinav';
 export * from './heceParkuru';
