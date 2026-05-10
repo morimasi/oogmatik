@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { rbacService } from '../services/rbacService';
-import { PermissionModule, PermissionAction, RBACSettings, RolePermissions } from '../types/rbac';
+import { PermissionModule, PermissionAction, RBACSettings, RolePermissions } from '../types/rbac-advanced';
 import { UserRole } from '../types/user';
 import { useAuthStore } from '../store/useAuthStore';
 import { useToastStore } from '../store/useToastStore';
@@ -154,8 +154,8 @@ export const AdminPermissionsIDE: React.FC = () => {
             key={rolePerm.role}
             onClick={() => setSelectedRole(rolePerm.role)}
             className={`px-4 py-2 rounded-lg border transition-all ${selectedRole === rolePerm.role
-                ? roleColors[rolePerm.role] + ' border-current'
-                : 'text-gray-400 bg-gray-500/5 border-gray-500/10 hover:border-gray-500/30'
+              ? roleColors[rolePerm.role] + ' border-current'
+              : 'text-gray-400 bg-gray-500/5 border-gray-500/10 hover:border-gray-500/30'
               }`}
           >
             {rolePerm.role.toUpperCase()}
@@ -214,10 +214,10 @@ export const AdminPermissionsIDE: React.FC = () => {
                               onClick={() => toggleAction(selectedRole, module, action)}
                               disabled={!isEnabled}
                               className={`w-6 h-6 rounded transition-colors ${hasAction
-                                  ? isEnabled
-                                    ? 'bg-blue-500 text-white'
-                                    : 'bg-gray-600 text-gray-400'
-                                  : 'bg-gray-700 text-gray-500'
+                                ? isEnabled
+                                  ? 'bg-blue-500 text-white'
+                                  : 'bg-gray-600 text-gray-400'
+                                : 'bg-gray-700 text-gray-500'
                                 } ${!isEnabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}
                             >
                               {hasAction ? '✓' : '×'}

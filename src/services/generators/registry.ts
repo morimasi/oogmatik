@@ -492,59 +492,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflinePremiumShapeSudoku,
   },
 
-  // ── INFOGRAPHIC ADAPTERS (İlk 10 Aktivite) ────────────────────────────────
-  ...Object.fromEntries(
-    Object.entries(INFOGRAPHIC_ADAPTERS_FIRST_10).map(([key, pair]) => [
-      key,
-      {
-        ai: (options: GeneratorOptions) =>
-          pair.aiGenerator({
-            topic: options.topic || 'Konu',
-            ageGroup: (options.ageGroup as any) || '8-10',
-            difficulty: (options.difficulty as any) || 'Orta',
-            profile: (options.profile as any) || 'general',
-            itemCount: (options.count as any) || 5,
-            activityParams: (options.customParams as any) || {},
-          }),
-        offline: async (options: GeneratorOptions) =>
-          pair.offlineGenerator({
-            topic: options.topic || 'Konu',
-            ageGroup: (options.ageGroup as any) || '8-10',
-            difficulty: (options.difficulty as any) || 'Orta',
-            profile: (options.profile as any) || 'general',
-            itemCount: (options.count as any) || 5,
-            activityParams: (options.customParams as any) || {},
-          }),
-      },
-    ])
-  ),
 
-  // ── INFOGRAPHIC FACTORY (Kalan 84 Aktivite) ───────────────────────────────
-  ...Object.fromEntries(
-    Object.entries(INFOGRAPHIC_ADAPTERS_REMAINING_84).map(([key, pair]) => [
-      key,
-      {
-        ai: (options: GeneratorOptions) =>
-          pair.aiGenerator({
-            topic: options.topic || 'Konu',
-            ageGroup: (options.ageGroup as any) || '8-10',
-            difficulty: (options.difficulty as any) || 'Orta',
-            profile: (options.profile as any) || 'general',
-            itemCount: (options.count as any) || 5,
-            activityParams: (options.customParams as any) || {},
-          }),
-        offline: async (options: GeneratorOptions) =>
-          pair.offlineGenerator({
-            topic: options.topic || 'Konu',
-            ageGroup: (options.ageGroup as any) || '8-10',
-            difficulty: (options.difficulty as any) || 'Orta',
-            profile: (options.profile as any) || 'general',
-            itemCount: (options.count as any) || 5,
-            activityParams: (options.customParams as any) || {},
-          }),
-      },
-    ])
-  ),
   [ActivityType.LETTER_CONNECT]: {
     ai: generateLETTER_CONNECTFromAI,
     offline: generateOfflineLETTER_CONNECT,
