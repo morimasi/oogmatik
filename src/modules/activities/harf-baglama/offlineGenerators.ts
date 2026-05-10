@@ -4,6 +4,10 @@ import { GeneratorOptions } from '../../../types/core.js';
  * Harf Bağlama Etkinliği — Offline (Hızlı Mod) Üretici
  * Otonom scaffold tarafından üretildi.
  */
+interface HarfBaglamaDataItem {
+  id: string;
+}
+
 export const generateOfflineHARF_BAGLAMA = async (options: GeneratorOptions) => {
   const difficulty = options.difficulty || 'Orta';
   const count = Number(options.count || options.itemCount) || 10;

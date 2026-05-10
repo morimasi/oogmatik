@@ -47,7 +47,7 @@ export const HarfBaglamaSheet: React.FC<HarfBaglamaSheetProps> = ({ data }) => {
       )}
 
       {/* İçerik Grid */}
-      <div className="grid grid-cols- gap-3">
+      <div className="grid grid-cols-1 gap-3">
         {items.map((item, idx) => (
           <div
             key={item.id || idx}
