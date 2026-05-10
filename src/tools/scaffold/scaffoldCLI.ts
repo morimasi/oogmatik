@@ -54,18 +54,12 @@ async function main() {
 
     // ─── Doğrulama ───
     console.log('\n── Doğrulama ──────────────────────────────────');
-    const validator = new ActivityValidator();
-    const validationResult = validator.validateBlueprint(blueprint);
-
-    if (!validationResult.valid) {
-      console.error('❌ Doğrulama başarısız:');
-      validationResult.errors.forEach(e => console.error(`  🔴 [${e.field}] ${e.message}`));
+    try {
+      ActivityValidator.validateBlueprint(blueprint);
+      console.log('✅ Yapısal doğrulama geçti');
+    } catch (error: any) {
+      console.error('❌ Doğrulama başarısız: ' + (error.details || error.message));
       process.exit(1);
-    }
-    console.log('✅ Yapısal doğrulama geçti');
-
-    if (validationResult.warnings.length > 0) {
-      validationResult.warnings.forEach(w => console.warn(`  ⚠️ [${w.field}] ${w.message}`));
     }
 
     // ─── Ajan Denetimi ───

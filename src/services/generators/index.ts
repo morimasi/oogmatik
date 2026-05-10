@@ -40,3 +40,4 @@ export * from './advancedMissingParts';
 export * from './math/queueOrdering';
 export * from '../../modules/activities/letter-maze-test';
 export { generateLETTER_CONNECTFromAI } from '../../modules/activities/letter-connect/generators';
+export { generateHARF_BAGLAMAFromAI } from '../../modules/activities/harf-baglama/generators';

@@ -1,3 +1,4 @@
+const HarfBaglamaSheet = React.lazy(() => import('../modules/activities/harf-baglama/ui/WorksheetUI').then(m => ({ default: m.HarfBaglamaSheet })));
 // @ts-nocheck
 import React, { useState, useCallback, useMemo } from 'react';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
@@ -1859,7 +1860,9 @@ export const SheetRenderer = React.memo(
         break;
       case ActivityType.LETTER_CONNECT:
         return <LetterConnectSheet data={data} />;
-      default:
+          case ActivityType.HARF_BAGLAMA:
+      return <HarfBaglamaSheet data={data} />;
+default:
         renderedSheet = (
           <UnifiedContentRenderer
             data={data}

@@ -1,9 +1,10 @@
 {
     "identity": {
         "key": "HARF_BAGLAMA",
+        "enumValue": "HarfBaglama",
         "title": "Harf Bağlama Etkinliği",
         "description": "Özel öğrenme güçlüğü yaşayan çocuklar için eğlenceli ve öğretici bir harf bağlama aktivitesi.",
-        "icon": "Link",
+        "icon": "fa-link",
         "categoryId": "reading"
     },
     "pedagogical": {
@@ -27,7 +28,7 @@
             {
                 "name": "instruction",
                 "type": "string",
-                "description": "Öğrenciye verilecek yönge"
+                "description": "Öğrenciye verilecek yönerge"
             }
         ]
     },

@@ -14,7 +14,7 @@ const IdentitySchema = z.object({
 
 const DataFieldSchema = z.object({
     name: z.string().regex(/^[a-zA-Z0-9_]+$/, "Alan adı alfanumerik olmalı"),
-    type: z.enum(['string', 'number', 'boolean', 'enum', 'array_string']),
+    type: z.string(),
     required: z.boolean().optional(),
     options: z.array(z.string()).optional()
 });
@@ -71,7 +71,7 @@ export class ActivityValidator {
             return parsed as ActivityBlueprint;
         } catch (error) {
             if (error instanceof z.ZodError) {
-                throw new AppError("Geçersiz Blueprint Formatı", "VALIDATION_ERROR", 400, error.errors);
+                throw new AppError("Geçersiz Blueprint Formatı", "VALIDATION_ERROR", 400, { issues: error.issues });
             }
             throw error;
         }

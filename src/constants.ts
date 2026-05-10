@@ -387,6 +387,14 @@ export const ACTIVITIES: Activity[] = [
     icon: 'fa-solid fa-link',
     defaultStyle: { columns: 1 }
   },
+  {
+    id: ActivityType.HARF_BAGLAMA,
+    title: 'Harf Bağlama Etkinliği',
+    description: 'Özel öğrenme güçlüğü yaşayan çocuklar için eğlenceli ve öğretici bir harf bağlama aktivitesi.',
+    categories: ['Bilişsel Beceriler', 'Analitik Düşünme'],
+    difficulty: 'Kolay',
+    color: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20'
+  },
 ];
 
 

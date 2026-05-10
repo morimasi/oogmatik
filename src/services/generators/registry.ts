@@ -8,6 +8,7 @@ import * as sariKitapGenerators from './sariKitap/index';
 import { generateSemanticLinkerAI, generateSemanticLinkerOffline } from '../../modules/activities/semantic-linker/generators';
 import { generateLETTER_CONNECTFromAI } from '../../modules/activities/letter-connect/generators';
 import { generateOfflineLETTER_CONNECT } from '../../modules/activities/letter-connect/offlineGenerators';
+import { generateHARF_BAGLAMAFromAI, generateOfflineHARF_BAGLAMA } from '../../modules/activities/harf-baglama/generators';
 
 
 /**
@@ -546,5 +547,9 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   [ActivityType.LETTER_CONNECT]: {
     ai: generateLETTER_CONNECTFromAI,
     offline: generateOfflineLETTER_CONNECT,
+  },
+  [ActivityType.HARF_BAGLAMA]: {
+    ai: generateHARF_BAGLAMAFromAI,
+    offline: generateOfflineHARF_BAGLAMA,
   },
 };

@@ -259,6 +259,7 @@ export enum ActivityType {
   SARI_KITAP_STUDIO = 'SARI_KITAP_STUDIO',
   LETTER_MAZE_TEST = 'letter-maze-test',
   LETTER_CONNECT = 'letter-connect',
+  HARF_BAGLAMA = 'HarfBaglama',
 }
 
 
