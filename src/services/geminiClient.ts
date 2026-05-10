@@ -2,8 +2,8 @@ import { AppError } from '../utils/AppError.js';
 import { logInfo, logError, logWarn } from '../utils/logger.js';
 import { safeFetch } from '../utils/apiClient.js';
 
-// Model Seçimi: Gemini 2.0 Flash — Performanslı ve güncel model
-const MASTER_MODEL = 'gemini-1.5-flash';
+// Model Seçimi: Gemini 2.5 Flash — Performanslı ve güncel model
+const MASTER_MODEL = 'gemini-2.5-flash';
 
 // Define a simple JSON schema data generator for mocks during tests
 function generateDummyDataFromSchema(schema: any): any {
@@ -109,7 +109,7 @@ export const generateCreativeMultimodal = async (params: {
   // Retry logic for rate limiting
   const maxAttempts = 3;
   let lastError: any;
-  
+
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     try {
       logInfo('Gemini API çekilmesi', { attempt: attempt + 1, model: safeModel });
@@ -121,18 +121,18 @@ export const generateCreativeMultimodal = async (params: {
       lastError = error;
       const errorMsg = error?.message || String(error);
       const isQuotaError = errorMsg.includes('quota') || errorMsg.includes('Quota') || errorMsg.includes('429') || errorMsg.includes('rate');
-      
+
       if (isQuotaError && attempt < maxAttempts - 1) {
         // Extract retry-after zamanı varsa
         const match = errorMsg.match(/(\d+)\s*s/);
         const retryAfter = match ? Math.min(parseInt(match[1], 10) * 1000, 5000) : (1000 * Math.pow(2, attempt));
-        
-        logWarn('Gemini Quota Hatası — Tekrar denenecek', { 
-          retryAfter: `${retryAfter}ms`, 
+
+        logWarn('Gemini Quota Hatası — Tekrar denenecek', {
+          retryAfter: `${retryAfter}ms`,
           attempt: attempt + 1,
-          error: errorMsg 
+          error: errorMsg
         });
-        
+
         // Bekle ve yeniden dene
         await new Promise(resolve => setTimeout(resolve, retryAfter));
       } else {
@@ -141,7 +141,7 @@ export const generateCreativeMultimodal = async (params: {
       }
     }
   }
-  
+
   // Tüm deneme başarısız
   logError('Gemini API Tüm Denemeler Başarısız', { error: lastError });
   throw lastError;
@@ -193,7 +193,7 @@ export const generateSvgCode = async (prompt: string): Promise<string> => {
     });
 
     let svgCode = typeof data === 'string' ? data : data.svg || data.code || '';
-    
+
     // Clean up
     svgCode = svgCode.replace(/```svg/g, '').replace(/```/g, '').trim();
 

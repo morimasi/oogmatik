@@ -64,7 +64,7 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
         }
     };
 
-    // Using stable gemini-1.5-flash for reliability
+    // Using stable gemini-2.5-flash for reliability
     const result = await generateWithSchema(prompt, schema);
     return result;
 };

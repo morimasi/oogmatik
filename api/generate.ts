@@ -24,7 +24,7 @@ import { tryRepairJson } from '../src/utils/jsonRepair.js';
 
 // Types are imported from @vercel/node above
 
-const MASTER_MODEL = 'gemini-1.5-flash';
+const MASTER_MODEL = 'gemini-2.5-flash';
 
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi EduMind platformunun kıdemli eğitim mimarı ve pedagoji uzmanısın. [MINIMAL_DEPLOY: 2024_03_18_v4]
@@ -133,10 +133,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const baseApiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.API_KEY;
     const backupKey1 = process.env.GEMINI_API_KEY_2 || process.env.GEMINI_API_KEY_SECONDARY;
     const backupKey2 = process.env.GEMINI_API_KEY_3 || process.env.GEMINI_API_KEY_TERTIARY;
-    
+
     // Geçerli olan tüm API keyleri bir havuza doldur
     const apiKeys = [baseApiKey, backupKey1, backupKey2].filter(Boolean) as string[];
-    
+
     if (apiKeys.length === 0) {
       throw new InternalServerError('API Key bulunamadi (Sunucu Yapilandirma Hatasi).');
     }
@@ -178,7 +178,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // Schema'yi Google REST API'in icine nesne olarak basamadigimiz icin Prompt'a yillayalim.
         if (schema) {
-            combinedPrompt += '\n\n[ZORUNLU JSON YAPISI (ZORUNLU ŞEMA)]:\nAşağıdaki JSON şemasına ve anahtar kelimelerine HARFİYEN UYMALISIN. Çıktı sadece geçerli bir JSON olmalı.\n' + JSON.stringify(schema, null, 2);
+          combinedPrompt += '\n\n[ZORUNLU JSON YAPISI (ZORUNLU ŞEMA)]:\nAşağıdaki JSON şemasına ve anahtar kelimelerine HARFİYEN UYMALISIN. Çıktı sadece geçerli bir JSON olmalı.\n' + JSON.stringify(schema, null, 2);
         }
 
         // Text prompt
@@ -200,7 +200,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (!response.ok) {
           const errJson = await response.json().catch(() => ({}));
           const errorMsg = errJson.error?.message || response.statusText;
-          
+
           // 403 Forbidden / Project Denied / Quota dolumu: Bu anahtar kullanılamaz!
           if (response.status === 403 || errorMsg.includes('denied access')) {
             // Eğer hala elimizde denenebilecek başka bir API key varsa sıradakine geç
@@ -218,15 +218,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           if (response.status === 429 || errorMsg.includes('quota') || errorMsg.includes('Quota')) {
             // Eğer rate limit yediysek de beklemek yerine sıradaki anahtara geçmeyi deneyebiliriz.
             if (currentKeyIndex < apiKeys.length - 1) {
-               currentKeyIndex++;
-               throw new InternalServerError(`[ROTATION] Rate limit yendi, sıradaki API Key'e geçiliyor.`);
+              currentKeyIndex++;
+              throw new InternalServerError(`[ROTATION] Rate limit yendi, sıradaki API Key'e geçiliyor.`);
             }
             throw new RateLimitError(
               `Gemini API Kotası Dolu: ${errorMsg}. Lütfen birkaç saniye sonra yeniden deneyin.`,
               { retryAfter: 60 }
             );
           }
-          
+
           throw new InternalServerError(
             `Gemini API Hatasi: ${errorMsg}`
           );
