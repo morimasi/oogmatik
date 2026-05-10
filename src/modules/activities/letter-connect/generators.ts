@@ -1,5 +1,5 @@
-import { generateWithSchema } from '../geminiClient.js';
-import { GeneratorOptions } from '../../types.js';
+import { generateWithSchema } from '../../../services/geminiClient';
+import { GeneratorOptions } from '../../../types/core';
 
 /**
  * Harf Bağlama AI Üretici
@@ -44,8 +44,8 @@ export const generateLETTER_CONNECTFromAI = async (options: GeneratorOptions) =>
       items: {
         type: 'ARRAY',
         items: {
-  "type": "object"
-}
+          "type": "object"
+        }
       }
     },
     required: ['instruction', 'items', 'pedagogicalNote']

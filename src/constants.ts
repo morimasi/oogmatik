@@ -379,14 +379,12 @@ export const ACTIVITIES: Activity[] = [
     description: 'Kelimeler arası anlamsal bağ kurma.',
     icon: 'fa-solid fa-link',
     defaultStyle: { columns: 2 }
-  }
+  },
   {
     id: ActivityType.LETTER_CONNECT,
     title: 'Harf Bağlama',
     description: 'Öğrencilerin görsel ayrımsama yeteneğini geliştiren eğlenceli bir harf-ses eşleştirme etkinliği.',
     icon: 'fa-solid fa-link',
-    category: 'reading-verbal',
-    targetSkills: ['Görsel Algı', 'Fonolojik Farkındalık', 'Harf Tanıma'],
     defaultStyle: { columns: 1 }
   },
 ];

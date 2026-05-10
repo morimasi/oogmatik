@@ -1,11 +1,13 @@
-import { GeneratorOptions } from '../../types/core.js';
+import { GeneratorOptions } from '../../../types/core';
+import { LetterConnectItem } from './types';
 
 /**
  * Harf Bağlama — Offline (Hızlı Mod) Üretici
  * Otonom scaffold tarafından üretildi.
  */
 export const generateOfflineLETTER_CONNECT = async (options: GeneratorOptions) => {
-  const { difficulty = 'Orta', count = 10 } = options;
+  const difficulty = (options.difficulty as string) || 'Orta';
+  const count = (options.count as number) || 10;
 
   const difficultyMap: Record<string, { itemCount: number; complexity: number }> = {
     'Kolay': { itemCount: Math.min(count, 6), complexity: 1 },
@@ -19,13 +21,13 @@ export const generateOfflineLETTER_CONNECT = async (options: GeneratorOptions) =
   for (let i = 0; i < config.itemCount; i++) {
     items.push({
       id: `item-${i + 1}`,
-      
+
       leftItem: generateDefaultstring(i, config.complexity),
-      
+
       rightItem: generateDefaultstring(i, config.complexity),
-      
+
       matchType: generateDefaultstring(i, config.complexity),
-      
+
     });
   }
 

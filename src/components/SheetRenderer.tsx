@@ -1,4 +1,3 @@
-const LetterConnectSheet = React.lazy(() => import('../modules/activities/letter-connect/ui/WorksheetUI').then(m => ({ default: m.LetterConnectSheet })));
 // @ts-nocheck
 import React, { useState, useCallback, useMemo } from 'react';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
@@ -196,6 +195,7 @@ import { PedagogicalHeader, ImageDisplay } from './sheets/common';
 
 import { EditableText } from './Editable';
 import { useA4EditorStore } from '../store/useA4EditorStore';
+const LetterConnectSheet = React.lazy(() => import('../modules/activities/letter-connect/ui/WorksheetUI').then(m => ({ default: m.LetterConnectSheet })));
 
 const recursiveSafeText = (val: any): string => {
   if (val === null || val === undefined) return '';
@@ -254,8 +254,8 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
       return (
         <h2
           className="block-header font-black uppercase text-center mb-4 print:mb-2 border-b-4 border-[var(--worksheet-border-color,#000)] pb-2 print:pb-1 break-inside-avoid print:break-inside-avoid"
-          style={{ 
-            ...blockStyle, 
+          style={{
+            ...blockStyle,
             fontSize: 'calc(var(--worksheet-font-size, 16px) * 1.5)',
             fontFamily: 'var(--worksheet-font-family, Lexend)',
             letterSpacing: 'var(--worksheet-letter-spacing)',
@@ -270,8 +270,8 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
       return (
         <div
           className="block-text mb-4 print:mb-1 break-inside-avoid print:break-inside-avoid"
-          style={{ 
-            ...blockStyle, 
+          style={{
+            ...blockStyle,
             fontSize: 'var(--worksheet-font-size, 18px)',
             fontFamily: 'var(--worksheet-font-family, Lexend)',
             lineHeight: 'var(--worksheet-line-height, 1.6)',
@@ -852,14 +852,14 @@ const UnifiedContentRenderer = ({
   if (!data) return null;
 
   const architecture = data?.layoutArchitecture;
-  const rawBlocks: WorksheetBlock[] = 
-    (architecture?.blocks && architecture.blocks.length > 0 ? architecture.blocks : []) || 
-    (data?.blocks && data.blocks.length > 0 ? data.blocks : []) || 
-    (data?.puzzles && data.puzzles.length > 0 ? data.puzzles : []) || 
-    (data?.operations && data.operations.length > 0 ? data.operations : []) || 
-    (data?.items && data.items.length > 0 ? data.items : []) || 
-    (data?.problems && data.problems.length > 0 ? data.problems : []) || 
-    (data?.steps && data.steps.length > 0 ? data.steps : []) || 
+  const rawBlocks: WorksheetBlock[] =
+    (architecture?.blocks && architecture.blocks.length > 0 ? architecture.blocks : []) ||
+    (data?.blocks && data.blocks.length > 0 ? data.blocks : []) ||
+    (data?.puzzles && data.puzzles.length > 0 ? data.puzzles : []) ||
+    (data?.operations && data.operations.length > 0 ? data.operations : []) ||
+    (data?.items && data.items.length > 0 ? data.items : []) ||
+    (data?.problems && data.problems.length > 0 ? data.problems : []) ||
+    (data?.steps && data.steps.length > 0 ? data.steps : []) ||
     [];
   const cols = (architecture?.cols && architecture.cols > 1) ? architecture.cols : (settings?.columns || 1);
 
@@ -883,11 +883,11 @@ const UnifiedContentRenderer = ({
   const pages = useMemo(() => {
     const isLandscape = settings?.orientation === 'landscape';
     const scaleFactor = settings?.contentScale || 1;
-    
+
     // Milimetrik Standart (Dikey: 297mm -> 1188 birim, Yatay: 210mm -> 840 birim)
     // Ölçek çarpanı: İçerik büyüdükçe kapasiteyi daraltıyoruz.
-    const PAGE_MAX_WEIGHT = (isLandscape ? 840 : 1188) / scaleFactor; 
-    
+    const PAGE_MAX_WEIGHT = (isLandscape ? 840 : 1188) / scaleFactor;
+
     const STUDENT_INFO_RESERVE = settings?.showStudentInfo ? 120 : 0;
     const HEADER_RESERVE = 150; // Başlık ve yönerge approx
     const FOOTER_RESERVE = 60; // Sayfa altı güvenli alan
@@ -940,8 +940,8 @@ const UnifiedContentRenderer = ({
 
   const renderPage = (pageBlocks: WorksheetBlock[], pageIdx: number) => {
     const isLandscape = settings?.orientation === 'landscape';
-    const textureClass = settings?.paperTexture && settings.paperTexture !== 'none' 
-      ? `paper-texture-${settings.paperTexture}` 
+    const textureClass = settings?.paperTexture && settings.paperTexture !== 'none'
+      ? `paper-texture-${settings.paperTexture}`
       : '';
     const pageClass = `worksheet-page ultra-print-page print-page group mb-8 shadow-2xl relative bg-white flex flex-col ${isLandscape ? 'landscape landscape-print' : ''} ${textureClass}`;
 
@@ -955,8 +955,8 @@ const UnifiedContentRenderer = ({
           color: 'black',
           colorScheme: 'light' as any,
           boxSizing: 'border-box',
-          padding: settings?.compact 
-            ? (isLandscape ? '5mm 8mm' : '5mm') 
+          padding: settings?.compact
+            ? (isLandscape ? '5mm 8mm' : '5mm')
             : (settings?.margin ? `${settings.margin}mm` : '5mm'),
           width: isLandscape ? '297mm' : '210mm',
           minHeight: isLandscape ? '210mm' : '297mm',
@@ -969,9 +969,9 @@ const UnifiedContentRenderer = ({
         {/* Ekranda Sayfa Numarası (Print'te gizli) */}
         <div className="page-indicator-screen no-print" style={{ zIndex: 100 }}>SAYFA {pageIdx + 1}</div>
 
-        <div 
-          className="w-full flex-1 flex flex-col relative print:overflow-visible" 
-          style={{ 
+        <div
+          className="w-full flex-1 flex flex-col relative print:overflow-visible"
+          style={{
             zoom: settings?.contentScale ?? 1,
             width: '100%',
             maxWidth: '100%'
@@ -1012,94 +1012,94 @@ const UnifiedContentRenderer = ({
             </div>
           )}
 
-        <PedagogicalHeader
-          title={pageIdx === 0 ? (data?.title || '') : `${data?.title || ''} (Dvm.)`}
-          instruction={pageIdx === 0 ? data?.instruction : 'Lütfen çalışmaya devam edin.'}
-          note={pageIdx === 0 ? data?.pedagogicalNote : ''}
-          data={data}
-        />
-
-        {/* Z-index Kılavuz Çizgileri / Grid Overlay */}
-        {isEditorOpen && snapToGrid && (
-          <div
-            className="absolute inset-0 pointer-events-none z-0 opacity-20 no-print"
-            style={{
-              backgroundImage: `linear-gradient(to right, #6366f1 1px, transparent 1px), linear-gradient(to bottom, #6366f1 1px, transparent 1px)`,
-              backgroundSize: `${gridSize}px ${gridSize}px`,
-            }}
+          <PedagogicalHeader
+            title={pageIdx === 0 ? (data?.title || '') : `${data?.title || ''} (Dvm.)`}
+            instruction={pageIdx === 0 ? data?.instruction : 'Lütfen çalışmaya devam edin.'}
+            note={pageIdx === 0 ? data?.pedagogicalNote : ''}
+            data={data}
           />
-        )}
 
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          modifiers={snapToGrid ? [snapModifier] : undefined}
-        >
-          <SortableContext
-            items={pageBlocks.map((b, idx) => b.id || `block-${idx}`)}
-            strategy={verticalListSortingStrategy}
-          >
+          {/* Z-index Kılavuz Çizgileri / Grid Overlay */}
+          {isEditorOpen && snapToGrid && (
             <div
-              className={`print-content-area mt-4 ${cols > 1 ? 'grid' : 'flex flex-col'}`}
-              style={
-                cols > 1
-                  ? { 
-                      gridTemplateColumns: `repeat(${cols}, 1fr)`, 
-                      gap: 'var(--worksheet-gutter, 20px)' 
-                    }
-                  : { gap: 'var(--worksheet-gutter, 20px)' }
-              }
+              className="absolute inset-0 pointer-events-none z-0 opacity-20 no-print"
+              style={{
+                backgroundImage: `linear-gradient(to right, #6366f1 1px, transparent 1px), linear-gradient(to bottom, #6366f1 1px, transparent 1px)`,
+                backgroundSize: `${gridSize}px ${gridSize}px`,
+              }}
+            />
+          )}
+
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            modifiers={snapToGrid ? [snapModifier] : undefined}
+          >
+            <SortableContext
+              items={pageBlocks.map((b, idx) => b.id || `block-${idx}`)}
+              strategy={verticalListSortingStrategy}
             >
-              {pageBlocks.map((block, idx) => {
-                // EĞER STANDART BLOK DEĞİLSE LEGACY RENDERER TETİKLE
-                // Standart blok kriteri: type özelliği olmalı
-                const isStandardBlock = !!block.type;
+              <div
+                className={`print-content-area mt-4 ${cols > 1 ? 'grid' : 'flex flex-col'}`}
+                style={
+                  cols > 1
+                    ? {
+                      gridTemplateColumns: `repeat(${cols}, 1fr)`,
+                      gap: 'var(--worksheet-gutter, 20px)'
+                    }
+                    : { gap: 'var(--worksheet-gutter, 20px)' }
+                }
+              >
+                {pageBlocks.map((block, idx) => {
+                  // EĞER STANDART BLOK DEĞİLSE LEGACY RENDERER TETİKLE
+                  // Standart blok kriteri: type özelliği olmalı
+                  const isStandardBlock = !!block.type;
 
-                return (
-                  <SortableBlockItem
-                    key={block.id || `b-${pageIdx}-${idx}`}
-                    block={block}
-                    idx={idx}
-                    isEditorOpen={isEditorOpen}
-                    selectedBlockId={selectedBlockId}
-                    setSelectedBlockId={setSelectedBlockId}
-                  >
-                    {!isStandardBlock ? (
-                       <SheetRenderer 
-                          activityType={activityType} 
-                          data={{ 
-                            ...data, 
-                            blocks: undefined, 
-                            puzzles: [block], 
-                            items: [block], 
-                            problems: [block], 
-                            steps: [block], 
-                            operations: [block] 
-                          }} 
-                          hideWrapper={true} 
-                       />
-                    ) : (
-                      <BlockRenderer block={block} />
-                    )}
-                  </SortableBlockItem>
-                );
-              })}
-            </div>
-          </SortableContext>
-        </DndContext>
+                  return (
+                    <SortableBlockItem
+                      key={block.id || `b-${pageIdx}-${idx}`}
+                      block={block}
+                      idx={idx}
+                      isEditorOpen={isEditorOpen}
+                      selectedBlockId={selectedBlockId}
+                      setSelectedBlockId={setSelectedBlockId}
+                    >
+                      {!isStandardBlock ? (
+                        <SheetRenderer
+                          activityType={activityType}
+                          data={{
+                            ...data,
+                            blocks: undefined,
+                            puzzles: [block],
+                            items: [block],
+                            problems: [block],
+                            steps: [block],
+                            operations: [block]
+                          }}
+                          hideWrapper={true}
+                        />
+                      ) : (
+                        <BlockRenderer block={block} />
+                      )}
+                    </SortableBlockItem>
+                  );
+                })}
+              </div>
+            </SortableContext>
+          </DndContext>
 
-        {/* Profesyonel Footer — Özelleştirilebilir */}
-        {settings?.showFooter !== false && (
-          <div className="mt-auto pt-4 border-t-2 border-zinc-900 flex justify-between items-center text-[7px] font-black uppercase tracking-[0.4em] text-zinc-400">
-            <div className="flex items-center gap-2">
-              <span className="bg-black text-white px-1.5 py-0.5 rounded font-black">AI</span>
-              <span>{settings?.footerText || 'Bursa Disleksi EduMind • Nöro-Mimari Motoru v7.0'}</span>
+          {/* Profesyonel Footer — Özelleştirilebilir */}
+          {settings?.showFooter !== false && (
+            <div className="mt-auto pt-4 border-t-2 border-zinc-900 flex justify-between items-center text-[7px] font-black uppercase tracking-[0.4em] text-zinc-400">
+              <div className="flex items-center gap-2">
+                <span className="bg-black text-white px-1.5 py-0.5 rounded font-black">AI</span>
+                <span>{settings?.footerText || 'Bursa Disleksi EduMind • Nöro-Mimari Motoru v7.0'}</span>
+              </div>
+              <span>
+                SAYFA {pageIdx + 1} / {pages.length}
+              </span>
             </div>
-            <span>
-              SAYFA {pageIdx + 1} / {pages.length}
-            </span>
-          </div>
-        )}
+          )}
         </div>
       </div>
     );
@@ -1160,15 +1160,13 @@ const SortableBlockItem: React.FC<{
           setSelectedBlockId(block.id);
         }
       }}
-      className={`block-container transition-all duration-200 ${
-        isEditorOpen
-          ? 'cursor-pointer hover:ring-2 hover:ring-indigo-300 hover:shadow-md relative group/block'
-          : ''
-      } ${
-        isEditorOpen && selectedBlockId === block.id
+      className={`block-container transition-all duration-200 ${isEditorOpen
+        ? 'cursor-pointer hover:ring-2 hover:ring-indigo-300 hover:shadow-md relative group/block'
+        : ''
+        } ${isEditorOpen && selectedBlockId === block.id
           ? 'ring-2 ring-indigo-500 shadow-lg bg-indigo-50/10'
           : ''
-      }`}
+        }`}
     >
       {isEditorOpen && (
         <button
@@ -1296,9 +1294,9 @@ export const SheetRenderer = React.memo(
       const sinav = data as any;
       if (sinav && (sinav.sorular || sinav.baslik)) {
         return withWrapper(
-          <ExamRenderer 
-            examType={activityType === ActivityType.MAT_SINAV ? "matematik" : "turkce"} 
-            data={sinav} 
+          <ExamRenderer
+            examType={activityType === ActivityType.MAT_SINAV ? "matematik" : "turkce"}
+            data={sinav}
           />
         );
       }
@@ -1357,10 +1355,10 @@ export const SheetRenderer = React.memo(
     }
 
     // Global data check + field-level validation - Prevent "Cannot read properties of undefined (reading 'title')"
-    const isDataValid = data && 
+    const isDataValid = data &&
       (typeof data === 'object' && Object.keys(data).length > 0) &&
       (data?.title || data?.type);
-    
+
     if (!isDataValid) {
       return withWrapper(
         <div className="p-10 text-center text-gray-500 bg-white rounded-3xl shadow-sm min-h-[600px] flex flex-col items-center justify-center font-['Lexend']">
@@ -1384,11 +1382,11 @@ export const SheetRenderer = React.memo(
 
     if (!hideWrapper && isModernLayout) {
       return (
-        <UnifiedContentRenderer 
-          data={data} 
+        <UnifiedContentRenderer
+          data={data}
           activityType={activityType}
-          studentProfile={studentProfile} 
-          settings={settings} 
+          studentProfile={studentProfile}
+          settings={settings}
         />
       );
     }
@@ -1851,23 +1849,23 @@ export const SheetRenderer = React.memo(
         break;
       case activityType as any:
         renderedSheet = (
-          <UnifiedContentRenderer 
-            data={data} 
+          <UnifiedContentRenderer
+            data={data}
             activityType={activityType}
-            studentProfile={studentProfile} 
-            settings={settings} 
+            studentProfile={studentProfile}
+            settings={settings}
           />
         );
         break;
-          case ActivityType.LETTER_CONNECT:
-      return <LetterConnectSheet data={data} />;
-default:
+      case ActivityType.LETTER_CONNECT:
+        return <LetterConnectSheet data={data} />;
+      default:
         renderedSheet = (
-          <UnifiedContentRenderer 
-            data={data} 
+          <UnifiedContentRenderer
+            data={data}
             activityType={activityType}
-            studentProfile={studentProfile} 
-            settings={settings} 
+            studentProfile={studentProfile}
+            settings={settings}
           />
         );
     }
