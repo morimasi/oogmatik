@@ -1,14 +1,11 @@
-import { BaseActivityData, Difficulty } from '../../common';
+import { BaseActivityData, ActivityItem } from '../../../types';
 
-/**
- * Harf Bağlama Etkinliği Etkinliği Veri Yapısı
- */
-export interface HarfBaglamaData extends BaseActivityData {
-  items: HarfBaglamaDataItem[];
-  pedagogicalNote: string;
+export interface HarfBaglamaDataItem extends ActivityItem {
+  id: string;
+  leftItem: string;
+  rightItem: string;
 }
 
-export interface HarfBaglamaDataItem {
-  id: string;
-  
+export interface HarfBaglamaData extends BaseActivityData {
+  items: HarfBaglamaDataItem[];
 }

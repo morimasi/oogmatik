@@ -1,51 +1,59 @@
-import { GeneratorOptions } from '../../../types/core.js';
+import { GeneratorOptions } from '../../../types';
+import { ActivityType } from '../../../types/activity';
+import { HarfBaglamaDataItem } from './types';
 
 /**
- * Harf Bağlama Etkinliği — Offline (Hızlı Mod) Üretici
- * Otonom scaffold tarafından üretildi.
+ * Harf Bağlama Etkinliği — Premium Offline Üretici
  */
-interface HarfBaglamaDataItem {
-  id: string;
+function shuffle<T>(array: T[]): T[] {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
 }
 
 export const generateOfflineHARF_BAGLAMA = async (options: GeneratorOptions) => {
   const difficulty = options.difficulty || 'Orta';
   const count = Number(options.count || options.itemCount) || 10;
 
-  const difficultyMap: Record<string, { itemCount: number; complexity: number }> = {
-    'Kolay': { itemCount: Math.min(count, 6), complexity: 1 },
-    'Orta': { itemCount: count, complexity: 2 },
-    'Zor': { itemCount: Math.max(count, 12), complexity: 3 },
-  };
+  const alphabet = 'ABCDEFGHIJKLMNOPRSTUVYZXWQ';
+  const lowerAlphabet = 'abcdefghijklmnoprstuvyzxwq';
 
-  const config = difficultyMap[difficulty as string] || difficultyMap['Orta'];
-  const items: HarfBaglamaDataItem[] = [];
+  // Zorluk seviyesine göre harf havuzu seçimi
+  let poolSize = count;
+  if (difficulty === 'Kolay') poolSize = Math.min(count, 5);
+  else if (difficulty === 'Zor') poolSize = Math.max(count, 12);
 
-  for (let i = 0; i < config.itemCount; i++) {
-    items.push({
-      id: `item-${i + 1}`,
-
-    });
+  // Havuz oluştur
+  const selectedIndices: number[] = [];
+  while (selectedIndices.length < poolSize) {
+    const rand = Math.floor(Math.random() * alphabet.length);
+    if (!selectedIndices.includes(rand)) {
+      selectedIndices.push(rand);
+    }
   }
 
+  const leftItems = selectedIndices.map(i => alphabet[i]);
+  const rightItems = selectedIndices.map(i => lowerAlphabet[i]);
+
+  // Sağ sütunu karıştırarak eşleşmeleri boz
+  const shuffledRight = shuffle(rightItems);
+
+  const items: HarfBaglamaDataItem[] = leftItems.map((leftItem, idx) => ({
+    id: `item-${idx + 1}`,
+    leftItem,
+    rightItem: shuffledRight[idx],
+  }));
+
   return {
-    type: 'HarfBaglama',
+    type: ActivityType.HARF_BAGLAMA,
     title: 'Harf Bağlama Etkinliği',
-    instruction: 'Harf Bağlama Etkinliği etkinliğini tamamlayın.',
+    instruction: 'Noktaları birleştirerek büyük harfleri küçük harflerle eşleştirin.',
     items,
-    pedagogicalNote: 'Bu etkinlik  becerilerini hedefler.',
+    pedagogicalNote: 'Görsel tarama, el-göz koordinasyonu ve büyük-küçük harf algısını eşzamanlı geliştiren disleksi standartlarına uygun olarak tasarlanmıştır.',
     difficulty,
     totalItems: items.length,
   };
 };
-
-// Yardımcı: Varsayılan değer üretici
-function generateDefaultstring(index: number, _complexity: number): string {
-  return `Öğe ${index + 1}`;
-}
-function generateDefaultnumber(index: number, complexity: number): number {
-  return (index + 1) * complexity;
-}
-function generateDefaultboolean(_index: number, _complexity: number): boolean {
-  return Math.random() > 0.5;
-}
