@@ -1,173 +1,540 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { ActivityBlueprint } from './types';
+import { ActivityBlueprint, DataField } from './types';
 
 /**
- * ActivityScaffoldEngine: Ootonom etkinlik modülü oluşturma ve entegrasyon motoru.
+ * ActivityScaffoldEngine v2: Otonom etkinlik modülü oluşturma ve entegrasyon motoru.
+ * 
+ * Desteklenen şablon sözdizimi:
+ * - {{variable}} → basit değişken
+ * - {{json path.to.var}} → JSON.stringify
+ * - {{#each array}}...{{this.field}}...{{/each}} → döngü
+ * - {{#unless condition}}...{{/unless}} → koşullu
  */
 export class ActivityScaffoldEngine {
   private workspaceRoot: string;
   private templateDir: string;
+  private logs: string[] = [];
 
   constructor(workspaceRoot: string) {
     this.workspaceRoot = workspaceRoot;
     this.templateDir = path.join(workspaceRoot, 'src/tools/scaffold/templates');
   }
 
+  private log(level: 'info' | 'warn' | 'error', msg: string): void {
+    const entry = `[Scaffold:${level.toUpperCase()}] ${msg}`;
+    this.logs.push(entry);
+    if (level === 'error') {
+      console.error(entry);
+    }
+  }
+
+  getLogs(): string[] {
+    return [...this.logs];
+  }
+
   /**
    * Bir blueprint'ten tüm otonom süreci başlatır.
    */
-  async process(blueprint: ActivityBlueprint) {
-    console.log(`[Scaffold] Starting process for: ${blueprint.identity.title}`);
+  async process(blueprint: ActivityBlueprint, options?: { dryRun?: boolean }): Promise<ScaffoldResult> {
+    this.logs = [];
+    const dryRun = options?.dryRun ?? false;
+    this.log('info', `Starting process for: ${blueprint.identity.title} (dryRun=${dryRun})`);
+
+    const slug = blueprint.identity.key.toLowerCase().replace(/_/g, '-');
+    const moduleDir = path.join(this.workspaceRoot, 'src/modules/activities', slug);
 
     // 1. Modül Klasörünü Oluştur
-    const moduleDir = this.ensureModuleDirectory(blueprint);
+    if (!dryRun) {
+      this.ensureModuleDirectory(moduleDir);
+    }
 
-    // 2. Dosyaları Şablonlardan Üret
-    this.generateModuleFiles(blueprint, moduleDir);
+    // 2. Template'lerden Dosya Üret
+    const generatedFiles = this.generateModuleFiles(blueprint, moduleDir, dryRun);
 
-    // 3. Global Entegrasyonlar (Types, Constants, Registry)
-    this.injectIntegrations(blueprint);
+    // 3. Global Entegrasyonlar (7 nokta)
+    const injections = this.injectIntegrations(blueprint, slug, dryRun);
 
-    console.log(`[Scaffold] Otonom modül başarıyla kuruldu: ${blueprint.identity.key}`);
-    return { success: true, moduleDir };
+    const result: ScaffoldResult = {
+      success: true,
+      moduleDir,
+      generatedFiles,
+      injections,
+      logs: this.getLogs(),
+    };
+
+    this.log('info', `Otonom modül ${dryRun ? '(dry-run) simüle edildi' : 'başarıyla kuruldu'}: ${blueprint.identity.key}`);
+    return result;
   }
 
-  private ensureModuleDirectory(bp: ActivityBlueprint): string {
-    const slug = bp.identity.key.toLowerCase().replace(/_/g, '-');
-    const dir = path.join(this.workspaceRoot, 'src/modules/activities', slug);
-    
+  private ensureModuleDirectory(dir: string): void {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
       fs.mkdirSync(path.join(dir, 'ui'), { recursive: true });
+      this.log('info', `Directory created: ${dir}`);
     }
-    return dir;
   }
 
-  private generateModuleFiles(bp: ActivityBlueprint, dir: string) {
-    const data = {
+  // ────────────────────── DOSYA ÜRETİMİ ──────────────────────
+
+  private generateModuleFiles(bp: ActivityBlueprint, dir: string, dryRun: boolean): string[] {
+    const data = this.buildTemplateData(bp);
+    const files: string[] = [];
+
+    const templateMap: Record<string, string> = {
+      'dataType.template.txt': 'types.ts',
+      'aiGenerator.template.txt': 'generators.ts',
+      'offlineGenerator.template.txt': 'offlineGenerators.ts',
+      'worksheetUI.template.txt': 'ui/WorksheetUI.tsx',
+      'configPanel.template.txt': 'ui/ConfigPanel.tsx',
+      'index.template.txt': 'index.ts',
+    };
+
+    for (const [template, output] of Object.entries(templateMap)) {
+      const templatePath = path.join(this.templateDir, template);
+      const outputPath = path.join(dir, output);
+
+      if (!fs.existsSync(templatePath)) {
+        this.log('warn', `Template bulunamadı (atlanıyor): ${template}`);
+        continue;
+      }
+
+      const content = this.renderTemplate(templatePath, data);
+
+      if (!dryRun) {
+        const outputDir = path.dirname(outputPath);
+        if (!fs.existsSync(outputDir)) {
+          fs.mkdirSync(outputDir, { recursive: true });
+        }
+        fs.writeFileSync(outputPath, content, 'utf8');
+      }
+
+      files.push(outputPath);
+      this.log('info', `${dryRun ? '[DRY] ' : ''}Generated: ${output}`);
+    }
+
+    return files;
+  }
+
+  private buildTemplateData(bp: ActivityBlueprint): Record<string, unknown> {
+    return {
       ...bp,
       interfaceName: bp.dataModel.interfaceName,
       itemsName: bp.dataModel.itemsName || `${bp.dataModel.interfaceName}Item`,
       enumKey: bp.identity.key,
-      title: bp.identity.title
+      title: bp.identity.title,
+      slug: bp.identity.key.toLowerCase().replace(/_/g, '-'),
+      camelCase: bp.identity.key
+        .toLowerCase()
+        .split('_')
+        .map((w, i) => (i === 0 ? w : w[0].toUpperCase() + w.slice(1)))
+        .join(''),
+      PascalCase: bp.identity.key
+        .toLowerCase()
+        .split('_')
+        .map(w => w[0].toUpperCase() + w.slice(1))
+        .join(''),
     };
-
-    // 1. types.ts
-    this.renderTemplate('dataType.template.txt', path.join(dir, 'types.ts'), data);
-    
-    // 2. generators.ts
-    this.renderTemplate('aiGenerator.template.txt', path.join(dir, 'generators.ts'), data);
-
-    // 3. index.ts (Barrel)
-    fs.writeFileSync(path.join(dir, 'index.ts'), `export * from './types';\nexport * from './generators';\n`);
-    
-    console.log(`[Scaffold] Module files generated in ${dir}`);
   }
 
-  private renderTemplate(templateName: string, outputPath: string, data: any) {
-    const templatePath = path.join(this.templateDir, templateName);
-    if (!fs.existsSync(templatePath)) {
-      console.error(`[Scaffold] Template missing: ${templateName}`);
-      return;
-    }
+  // ────────────────────── TEMPLATE MOTORU ──────────────────────
 
+  private renderTemplate(templatePath: string, data: Record<string, unknown>): string {
     let content = fs.readFileSync(templatePath, 'utf8');
 
-    // Basit Handlebars benzeri replacement
-    content = content.replace(/\{\{title\}\}/g, data.title);
-    content = content.replace(/\{\{interfaceName\}\}/g, data.interfaceName);
-    content = content.replace(/\{\{itemsName\}\}/g, data.itemsName);
-    content = content.replace(/\{\{enumKey\}\}/g, data.enumKey);
+    // 1. {{#each path.to.array}} ... {{/each}} blokları
+    content = this.processEachBlocks(content, data);
 
-    // UI/Logic AI Prompt Injection
-    if (data.logic?.aiPrompt) {
-        content = content.replace(/\{\{logic\.aiPrompt\.role\}\}/g, data.logic.aiPrompt.role);
-        content = content.replace(/\{\{logic\.aiPrompt\.task\}\}/g, data.logic.aiPrompt.task);
-    }
+    // 2. {{#unless condition}} ... {{/unless}} blokları
+    content = this.processUnlessBlocks(content, data);
 
-    // JSON Stringify desteği
-    content = content.replace(/\{\{json ([^}]+)\}\}/g, (_, key) => {
-      const parts = key.split('.');
-      let val = data;
-      for (const part of parts) {
-        val = val?.[part];
-      }
+    // 3. {{json path.to.var}} → JSON.stringify
+    content = content.replace(/\{\{json ([^}]+)\}\}/g, (_, keyPath: string) => {
+      const val = this.resolveValue(data, keyPath.trim());
       return JSON.stringify(val, null, 2);
     });
 
-    fs.writeFileSync(outputPath, content);
+    // 4. {{path.to.var}} → basit değişken
+    content = content.replace(/\{\{([^#/}][^}]*)\}\}/g, (_, keyPath: string) => {
+      const val = this.resolveValue(data, keyPath.trim());
+      return val != null ? String(val) : '';
+    });
+
+    return content;
   }
 
-  private injectIntegrations(bp: ActivityBlueprint) {
-    console.log(`[Scaffold] Injecting global integrations...`);
+  private processEachBlocks(content: string, data: Record<string, unknown>): string {
+    const eachRegex = /\{\{#each ([^}]+)\}\}([\s\S]*?)\{\{\/each\}\}/g;
+
+    return content.replace(eachRegex, (_, arrayPath: string, body: string) => {
+      const arr = this.resolveValue(data, arrayPath.trim());
+      if (!Array.isArray(arr)) {
+        this.log('warn', `#each: '${arrayPath}' dizi değil`);
+        return '';
+      }
+
+      return arr
+        .map((item: unknown) => {
+          let rendered = body;
+          if (typeof item === 'object' && item !== null) {
+            const obj = item as Record<string, unknown>;
+            // {{this.fieldName}} kalıpları
+            rendered = rendered.replace(/\{\{this\.([^}]+)\}\}/g, (__, field: string) => {
+              return obj[field.trim()] != null ? String(obj[field.trim()]) : '';
+            });
+            // {{this}} → tüm objeyi string olarak
+            rendered = rendered.replace(/\{\{this\}\}/g, JSON.stringify(obj));
+          } else {
+            // Basit değerler için {{this}}
+            rendered = rendered.replace(/\{\{this\}\}/g, String(item));
+          }
+          return rendered;
+        })
+        .join('');
+    });
+  }
+
+  private processUnlessBlocks(content: string, data: Record<string, unknown>): string {
+    const unlessRegex = /\{\{#unless ([^}]+)\}\}([\s\S]*?)\{\{\/unless\}\}/g;
+
+    return content.replace(unlessRegex, (_, condPath: string, body: string) => {
+      const val = this.resolveValue(data, condPath.trim());
+      return val ? '' : body;
+    });
+  }
+
+  private resolveValue(data: Record<string, unknown>, keyPath: string): unknown {
+    const parts = keyPath.split('.');
+    let current: unknown = data;
+    for (const part of parts) {
+      if (current == null || typeof current !== 'object') return undefined;
+      current = (current as Record<string, unknown>)[part];
+    }
+    return current;
+  }
+
+  // ────────────────────── GLOBAL ENTEGRASYONLAR ──────────────────────
+
+  private injectIntegrations(bp: ActivityBlueprint, slug: string, dryRun: boolean): InjectionResult[] {
+    const results: InjectionResult[] = [];
 
     // 1. ActivityType Enum
-    this.injectIntoEnum(
+    results.push(this.injectIntoEnum(
       path.join(this.workspaceRoot, 'src/types/activity.ts'),
       'ActivityType',
       bp.identity.key,
-      bp.identity.enumValue
-    );
+      bp.identity.enumValue,
+      dryRun
+    ));
 
-    // 2. ACTIVITIES array
-    this.injectIntoArray(
+    // 2. ACTIVITIES array (constants.ts)
+    results.push(this.injectIntoArray(
       path.join(this.workspaceRoot, 'src/constants.ts'),
       'ACTIVITIES',
-      this.buildActivityObject(bp)
-    );
+      this.buildActivityObject(bp),
+      bp.identity.key,
+      dryRun
+    ));
+
+    // 3. Generator Registry
+    results.push(this.injectRegistryEntry(bp, slug, dryRun));
+
+    // 4. Generators index.ts (export)
+    results.push(this.injectExport(
+      path.join(this.workspaceRoot, 'src/services/generators/index.ts'),
+      `export { generate${bp.identity.key}FromAI } from '../../modules/activities/${slug}/generators';`,
+      bp.identity.key,
+      dryRun
+    ));
+
+    // 5. OfflineGenerators index.ts (export)
+    results.push(this.injectExport(
+      path.join(this.workspaceRoot, 'src/services/offlineGenerators/index.ts'),
+      `export { generateOffline${bp.identity.key} } from '../../modules/activities/${slug}/offlineGenerators';`,
+      bp.identity.key,
+      dryRun
+    ));
+
+    // 6. SheetRenderer (routing case)
+    results.push(this.injectSheetRendererCase(bp, slug, dryRun));
+
+    // 7. Activity configs index (panel kaydı)
+    results.push(this.injectConfigPanelEntry(bp, slug, dryRun));
+
+    return results;
   }
 
-  private injectIntoEnum(filePath: string, enumName: string, key: string, value: string) {
+  private injectIntoEnum(filePath: string, enumName: string, key: string, value: string, dryRun: boolean): InjectionResult {
+    const result: InjectionResult = { target: filePath, type: 'enum', key, success: false };
+
+    if (!fs.existsSync(filePath)) {
+      result.error = 'Dosya bulunamadı';
+      this.log('error', `Enum inject: ${filePath} bulunamadı`);
+      return result;
+    }
+
     let content = fs.readFileSync(filePath, 'utf8');
-    if (content.includes(`${key} =`)) return;
+    if (content.includes(`${key} =`)) {
+      result.success = true;
+      result.skipped = true;
+      this.log('info', `Enum inject: ${key} zaten mevcut (atlanıyor)`);
+      return result;
+    }
 
     const regex = new RegExp(`export enum ${enumName} \\{([^]*?)\\}`, 'm');
     const match = content.match(regex);
 
-    if (match) {
-      const enumBody = match[1];
-      const lines = enumBody.split('\n').map(l => l.trim()).filter(l => l);
-      
-      // Son satırı bul ve virgül eksikse ekle
-      const lastIdx = lines.length - 1;
-      if (lastIdx >= 0 && !lines[lastIdx].endsWith(',')) {
-          lines[lastIdx] = lines[lastIdx] + ',';
-      }
-      
-      lines.push(`${key} = '${value}',`);
-      
-      const newBody = '\n  ' + lines.join('\n  ') + '\n';
-      const newContent = content.replace(enumBody, newBody);
-      fs.writeFileSync(filePath, newContent);
-      console.log(`[Scaffold] Injected ${key} into ${enumName}`);
+    if (!match) {
+      result.error = `${enumName} enum bulunamadı`;
+      this.log('error', result.error);
+      return result;
     }
+
+    const enumBody = match[1];
+    const lines = enumBody.split('\n').map(l => l.trim()).filter(l => l);
+    const lastIdx = lines.length - 1;
+    if (lastIdx >= 0 && !lines[lastIdx].endsWith(',')) {
+      lines[lastIdx] = lines[lastIdx] + ',';
+    }
+    lines.push(`${key} = '${value}',`);
+    const newBody = '\n  ' + lines.join('\n  ') + '\n';
+
+    if (!dryRun) {
+      const newContent = content.replace(enumBody, newBody);
+      fs.writeFileSync(filePath, newContent, 'utf8');
+    }
+
+    result.success = true;
+    this.log('info', `${dryRun ? '[DRY] ' : ''}Enum inject: ${key} → ${enumName}`);
+    return result;
   }
 
-  private injectIntoArray(filePath: string, arrayName: string, objectStr: string) {
+  private injectIntoArray(filePath: string, arrayName: string, objectStr: string, key: string, dryRun: boolean): InjectionResult {
+    const result: InjectionResult = { target: filePath, type: 'array', key, success: false };
+
+    if (!fs.existsSync(filePath)) {
+      result.error = 'Dosya bulunamadı';
+      return result;
+    }
+
     let content = fs.readFileSync(filePath, 'utf8');
-    if (content.includes(`ActivityType.${objectStr.match(/ActivityType\.(\w+)/)?.[1] || '____'}`)) return;
+    if (content.includes(`ActivityType.${key}`)) {
+      result.success = true;
+      result.skipped = true;
+      this.log('info', `Array inject: ${key} zaten mevcut`);
+      return result;
+    }
 
     const regex = new RegExp(`export const ${arrayName}: [^=]+ = \\[([^]*?)\\];`, 'm');
     const match = content.match(regex);
 
-    if (match) {
+    if (!match) {
+      result.error = `${arrayName} dizisi bulunamadı`;
+      this.log('error', result.error);
+      return result;
+    }
+
+    if (!dryRun) {
       const arrayBody = match[1];
       const newItem = `\n  ${objectStr},`;
       const newBody = arrayBody.trimEnd() + newItem + '\n';
       const newContent = content.replace(arrayBody, newBody);
-      fs.writeFileSync(filePath, newContent);
-      console.log(`[Scaffold] Injected item into ${arrayName}`);
+      fs.writeFileSync(filePath, newContent, 'utf8');
     }
+
+    result.success = true;
+    this.log('info', `${dryRun ? '[DRY] ' : ''}Array inject: ${key} → ${arrayName}`);
+    return result;
   }
 
+  private injectRegistryEntry(bp: ActivityBlueprint, slug: string, dryRun: boolean): InjectionResult {
+    const filePath = path.join(this.workspaceRoot, 'src/services/generators/registry.ts');
+    const result: InjectionResult = { target: filePath, type: 'registry', key: bp.identity.key, success: false };
+
+    if (!fs.existsSync(filePath)) {
+      result.error = 'registry.ts bulunamadı';
+      return result;
+    }
+
+    let content = fs.readFileSync(filePath, 'utf8');
+    if (content.includes(`[ActivityType.${bp.identity.key}]`)) {
+      result.success = true;
+      result.skipped = true;
+      this.log('info', `Registry inject: ${bp.identity.key} zaten mevcut`);
+      return result;
+    }
+
+    // Import satırı ekle (dosyanın başına)
+    const importLine = `import { generate${bp.identity.key}FromAI, generateOffline${bp.identity.key} } from '../../modules/activities/${slug}/generators';\n`;
+
+    // Registry entry
+    const registryEntry = `  [ActivityType.${bp.identity.key}]: {\n    ai: generate${bp.identity.key}FromAI,\n    offline: generateOffline${bp.identity.key},\n  },`;
+
+    if (!dryRun) {
+      // Import'u son import satırından sonra ekle
+      const lastImportIdx = content.lastIndexOf('import ');
+      const lineEnd = content.indexOf('\n', lastImportIdx);
+      content = content.slice(0, lineEnd + 1) + importLine + content.slice(lineEnd + 1);
+
+      // Registry'nin sonuna (kapanış };'den önce) ekle
+      const closingIdx = content.lastIndexOf('};');
+      if (closingIdx > -1) {
+        content = content.slice(0, closingIdx) + registryEntry + '\n' + content.slice(closingIdx);
+      }
+
+      fs.writeFileSync(filePath, content, 'utf8');
+    }
+
+    result.success = true;
+    this.log('info', `${dryRun ? '[DRY] ' : ''}Registry inject: ${bp.identity.key}`);
+    return result;
+  }
+
+  private injectExport(filePath: string, exportLine: string, key: string, dryRun: boolean): InjectionResult {
+    const result: InjectionResult = { target: filePath, type: 'export', key, success: false };
+
+    if (!fs.existsSync(filePath)) {
+      result.error = 'Dosya bulunamadı';
+      this.log('warn', `Export inject: ${filePath} bulunamadı (atlanıyor)`);
+      result.success = true;
+      result.skipped = true;
+      return result;
+    }
+
+    let content = fs.readFileSync(filePath, 'utf8');
+    if (content.includes(key)) {
+      result.success = true;
+      result.skipped = true;
+      return result;
+    }
+
+    if (!dryRun) {
+      content = content.trimEnd() + '\n' + exportLine + '\n';
+      fs.writeFileSync(filePath, content, 'utf8');
+    }
+
+    result.success = true;
+    this.log('info', `${dryRun ? '[DRY] ' : ''}Export inject: ${key}`);
+    return result;
+  }
+
+  private injectSheetRendererCase(bp: ActivityBlueprint, slug: string, dryRun: boolean): InjectionResult {
+    const filePath = path.join(this.workspaceRoot, 'src/components/SheetRenderer.tsx');
+    const result: InjectionResult = { target: filePath, type: 'sheetRenderer', key: bp.identity.key, success: false };
+
+    if (!fs.existsSync(filePath)) {
+      result.error = 'SheetRenderer.tsx bulunamadı';
+      this.log('warn', 'SheetRenderer.tsx bulunamadı (atlanıyor)');
+      result.success = true;
+      result.skipped = true;
+      return result;
+    }
+
+    let content = fs.readFileSync(filePath, 'utf8');
+    if (content.includes(`ActivityType.${bp.identity.key}`)) {
+      result.success = true;
+      result.skipped = true;
+      return result;
+    }
+
+    // Lazy import + case bloğu
+    const PascalCase = bp.identity.key
+      .toLowerCase()
+      .split('_')
+      .map((w: string) => w[0].toUpperCase() + w.slice(1))
+      .join('');
+
+    const lazyImport = `const ${PascalCase}Sheet = React.lazy(() => import('../modules/activities/${slug}/ui/WorksheetUI').then(m => ({ default: m.${PascalCase}Sheet })));\n`;
+    const caseBlock = `    case ActivityType.${bp.identity.key}:\n      return <${PascalCase}Sheet data={data} />;\n`;
+
+    if (!dryRun) {
+      // İlk import'tan önce lazy import ekle
+      const firstImportIdx = content.indexOf('import ');
+      if (firstImportIdx > -1) {
+        content = lazyImport + content;
+      }
+
+      // switch default'tan önce case ekle
+      const defaultIdx = content.lastIndexOf('default:');
+      if (defaultIdx > -1) {
+        content = content.slice(0, defaultIdx) + caseBlock + content.slice(defaultIdx);
+      }
+
+      fs.writeFileSync(filePath, content, 'utf8');
+    }
+
+    result.success = true;
+    this.log('info', `${dryRun ? '[DRY] ' : ''}SheetRenderer inject: ${bp.identity.key}`);
+    return result;
+  }
+
+  private injectConfigPanelEntry(bp: ActivityBlueprint, slug: string, dryRun: boolean): InjectionResult {
+    const filePath = path.join(this.workspaceRoot, 'src/components/activity-configs/index.ts');
+    const result: InjectionResult = { target: filePath, type: 'configPanel', key: bp.identity.key, success: false };
+
+    if (!fs.existsSync(filePath)) {
+      this.log('warn', 'activity-configs/index.ts bulunamadı (atlanıyor)');
+      result.success = true;
+      result.skipped = true;
+      return result;
+    }
+
+    let content = fs.readFileSync(filePath, 'utf8');
+    if (content.includes(bp.identity.key)) {
+      result.success = true;
+      result.skipped = true;
+      return result;
+    }
+
+    const PascalCase = bp.identity.key
+      .toLowerCase()
+      .split('_')
+      .map((w: string) => w[0].toUpperCase() + w.slice(1))
+      .join('');
+
+    const exportLine = `export { ${PascalCase}Config } from '../../modules/activities/${slug}/ui/ConfigPanel';\n`;
+
+    if (!dryRun) {
+      content = content.trimEnd() + '\n' + exportLine;
+      fs.writeFileSync(filePath, content, 'utf8');
+    }
+
+    result.success = true;
+    this.log('info', `${dryRun ? '[DRY] ' : ''}ConfigPanel inject: ${bp.identity.key}`);
+    return result;
+  }
+
+  // ────────────────────── YARDIMCI ──────────────────────
+
   private buildActivityObject(bp: ActivityBlueprint): string {
+    const skills = bp.pedagogical?.targetSkills?.map(s => `'${s}'`).join(', ') || '';
     return `{
     id: ActivityType.${bp.identity.key},
     title: '${bp.identity.title}',
     description: '${bp.identity.description}',
     icon: '${bp.identity.icon}',
+    category: '${bp.identity.categoryId}',
+    targetSkills: [${skills}],
     defaultStyle: { columns: 1 }
   }`;
   }
+}
+
+// ────────────────────── TİP TANIMLARI ──────────────────────
+
+export interface ScaffoldResult {
+  success: boolean;
+  moduleDir: string;
+  generatedFiles: string[];
+  injections: InjectionResult[];
+  logs: string[];
+}
+
+export interface InjectionResult {
+  target: string;
+  type: 'enum' | 'array' | 'registry' | 'export' | 'sheetRenderer' | 'configPanel';
+  key: string;
+  success: boolean;
+  skipped?: boolean;
+  error?: string;
 }

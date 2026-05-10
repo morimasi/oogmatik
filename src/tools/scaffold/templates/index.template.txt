@@ -1,0 +1,9 @@
+/**
+ * {{title}} — Modül Barrel Export
+ * Otonom scaffold tarafından üretildi.
+ */
+export * from './types';
+export * from './generators';
+export * from './offlineGenerators';
+export { {{PascalCase}}Sheet } from './ui/WorksheetUI';
+export { {{PascalCase}}Config } from './ui/ConfigPanel';

@@ -12,14 +12,14 @@ export interface ActivityBlueprint {
     icon: string;              // FontAwesome icon class
     categoryId: string;        // 'reading-verbal', 'math-logic' vb.
   };
-  
+
   dataModel: {
     interfaceName: string;     // Örn: 'LetterMazeData'
     itemsName?: string;        // Örn: 'LetterMazeItem'
     fields: DataField[];       // Ana data alanları
     itemFields?: DataField[];  // Tekil soru/öğe alanları
   };
-  
+
   logic: {
     offlineAlgorithm: string;  // Algoritma pseudocode/açıklama
     aiPrompt: {
@@ -29,17 +29,25 @@ export interface ActivityBlueprint {
       schema: Record<string, any>; // JSON çıktı şeması
     };
   };
-  
+
   ui: {
     columnsPerDifficulty: Record<Difficulty, number>;
     configFields: ConfigFieldDefinition[];
     renderType: 'list' | 'grid' | 'table' | 'custom';
   };
-  
+
   pedagogical: {
     targetSkills: string[];
     errorTags: CognitiveErrorTag[];
     ageGroups: string[];
+  };
+
+  /** Ajan denetim onay kayıtları (Faz 7 — AgentOrchestrator tarafından doldurulur) */
+  approvals?: {
+    pedagogical?: AgentApproval;
+    clinical?: AgentApproval;
+    engineering?: AgentApproval;
+    aiQuality?: AgentApproval;
   };
 }
 
@@ -56,6 +64,14 @@ export interface ConfigFieldDefinition {
   type: 'range' | 'select' | 'toggle' | 'number';
   min?: number;
   max?: number;
-  options?: { label: string; value: any }[];
-  defaultValue: any;
+  options?: { label: string; value: unknown }[];
+  defaultValue: unknown;
+}
+
+/** Ajan denetim onay kaydı */
+export interface AgentApproval {
+  approved: boolean;
+  notes: string;
+  agent: 'elif' | 'ahmet' | 'bora' | 'selin';
+  timestamp?: string;
 }
