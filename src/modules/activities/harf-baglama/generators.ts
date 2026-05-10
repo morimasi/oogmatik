@@ -7,7 +7,7 @@ import { ActivityType } from '../../../types/activity';
  */
 export const generateHARF_BAGLAMAFromAI = async (options: GeneratorOptions) => {
   const difficulty = options.difficulty || 'Orta';
-  const itemCount = Number(options.count || options.itemCount) || 10;
+  const itemCount = Number((options as any).count || (options as any).itemCount) || 10;
 
   const prompt = `
     [ROL: Uluslararası Uzman Pedagog / Özel Eğitim Uzmanı]

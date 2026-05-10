@@ -16,7 +16,7 @@ function shuffle<T>(array: T[]): T[] {
 
 export const generateOfflineHARF_BAGLAMA = async (options: GeneratorOptions) => {
   const difficulty = options.difficulty || 'Orta';
-  const count = Number(options.count || options.itemCount) || 10;
+  const count = Number((options as any).count || (options as any).itemCount) || 10;
 
   const alphabet = 'ABCDEFGHIJKLMNOPRSTUVYZXWQ';
   const lowerAlphabet = 'abcdefghijklmnoprstuvyzxwq';
