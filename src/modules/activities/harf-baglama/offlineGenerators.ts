@@ -19,7 +19,7 @@ export const generateOfflineHARF_BAGLAMA = async (options: GeneratorOptions) => 
   for (let i = 0; i < config.itemCount; i++) {
     items.push({
       id: `item-${i + 1}`,
-      
+
     });
   }
 

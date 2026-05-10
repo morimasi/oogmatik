@@ -17,7 +17,7 @@ interface HarfBaglamaSheetProps {
 
 interface HarfBaglamaDataItem {
   id: string;
-  
+
 }
 
 export const HarfBaglamaSheet: React.FC<HarfBaglamaSheetProps> = ({ data }) => {
