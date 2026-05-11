@@ -10,9 +10,11 @@
 
 Kullanıcı isteği: "Ajanları uygulamanın tüm işlevleri ile yeniden profesyonelce eğit, otomatik devreye girmelerini sağla."
 
-### 🚀 Uygulanan Yenilikler
-
-1. **Tam Otomatik Orkestrasyon**:
+### Tamamlanan Eğitim Serileri
+- [x] **2026-03-21: Phase 4: Generative Engine (Otonom) Entegrasyonu**
+  - Tüm ajanlar `otonom-v4-expert.md` standartlarına göre hizalandı.
+  - VFS, Syntax Validation ve Auto-healing süreçleri tanımlandı.
+- [x] **2026-03-15: İnfografik Stüdyosu v3 Kullanımı**:
    - [AgentOrchestrator](file:///src/services/activityStudio/AgentOrchestrator.ts) v2 ile her promptta tüm ekip otomatik tetiklenir.
    - Manuel ajan çağırma dönemi sona erdi; ekip "oto-pilot" modunda çalışır.
 

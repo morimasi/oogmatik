@@ -262,7 +262,6 @@ export enum ActivityType {
   HARF_BAGLAMA = 'HarfBaglama',
 }
 
-
 export interface Activity {
   id: ActivityType;
   title: string;
@@ -270,6 +269,9 @@ export interface Activity {
   icon: string;
   defaultStyle?: Record<string, unknown>;
   promptId?: string;
+  categories?: string[];
+  difficulty?: string;
+  color?: string;
 }
 
 export interface ActivityCategory {
@@ -282,21 +284,21 @@ export interface ActivityCategory {
 
 export interface WorksheetBlock {
   type:
-    | 'header'
-    | 'text'
-    | 'grid'
-    | 'table'
-    | 'svg_shape'
-    | 'dual_column'
-    | 'image'
-    | 'question'
-    | 'logic_card'
-    | 'footer_validation'
-    | 'cloze_test'
-    | 'categorical_sorting'
-    | 'match_columns'
-    | 'visual_clue_card'
-    | 'neuro_marker';
+  | 'header'
+  | 'text'
+  | 'grid'
+  | 'table'
+  | 'svg_shape'
+  | 'dual_column'
+  | 'image'
+  | 'question'
+  | 'logic_card'
+  | 'footer_validation'
+  | 'cloze_test'
+  | 'categorical_sorting'
+  | 'match_columns'
+  | 'visual_clue_card'
+  | 'neuro_marker';
   content: unknown;
   id?: string;
   style?: {

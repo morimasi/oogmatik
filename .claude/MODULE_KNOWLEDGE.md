@@ -22,6 +22,7 @@
 9. [State Management](#state-management)
 10. [Utility Servisleri](#utility-servisleri)
 11. [İnfografik Stüdyosu v3](#infografik-stüdyosu-v3)
+12. [Phase 4: Generative Engine (Otonom)](#phase-4-generative-engine)
 
 ---
 
@@ -1178,4 +1179,28 @@ Tüm ajanlardan geçer not ("approved: true") almayan hiçbir otonom blueprint s
 
 ---
 
+## 12. Phase 4: Generative Engine (Otonom Mimari) {#phase-4-generative-engine}
+
+**Dosya Konumu**: `src/tools/scaffold/`
+
+**Amaç**: Statik şablon bağımlılığını kaldırarak, Blueprint üzerinden gerçek zamanlı, hatasız ve premium React kodları üretmek.
+
+**Ana Bileşenler**:
+1. **ScaffoldVFS.ts**: RAM tabanlı atomik dosya sistemi. Üretim sırasında hata olursa rollback yapar, başarıda diske commit eder.
+2. **SyntaxValidator.ts**: Üretilen kodun Vite build'i kırmasını önleyen güvenlik duvarı.
+3. **AIGeneratorPlugin.ts**: Selin Arslan (AI) prompt setlerini kullanarak WorksheetUI, types ve jeneratör kodlarını yazar.
+4. **DynamicActivityFactory.ts**: Yeni üretilen modülleri registry'e manuel ekleme gerektirmeden runtime'da yükler.
+
+**Ajanlar İçin Geliştirme Protokolü**:
+- Yeni bir etkinlik türü eklenecekse `AIGeneratorPlugin` kullanılmalıdır.
+- Kod üretimi sonrası mutlaka `npm run build` ile sentaktik bütünlük doğrulanmalıdır.
+- `pedagogicalNote` alanı her zaman doldurulmalı ve Dr. Ahmet Kaya klinik onayından geçirilmelidir.
+- Görsel tasarımda daima `font-lexend` ve Tailwind CSS kullanılmalıdır.
+
+**Hata Onarımı (Auto-Healing)**:
+`geminiClient.ts` içindeki `tryGenerateWithCorrection` fonksiyonu, üretim hatalarını AI'a geri besleyerek otomatik düzeltme sağlar.
+
+---
+
 **NOT**: Bu belge, tüm ajanların Oogmatik uygulamasını tam olarak anlaması için oluşturulmuştur. Her geliştirme öncesi ilgili modül bölümü okunmalıdır.
+
