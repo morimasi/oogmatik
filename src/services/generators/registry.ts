@@ -2,6 +2,7 @@ import { ActivityType } from '../../types/activity';
 import { GeneratorOptions } from '../../types/core';
 import * as aiGenerators from './index';
 import * as offlineGenerators from '../offlineGenerators/index';
+import { DynamicActivityFactory } from './DynamicActivityFactory';
 
 
 import * as sariKitapGenerators from './sariKitap/index';
@@ -25,6 +26,15 @@ const withAI = (type: ActivityType) => (options: GeneratorOptions) =>
   aiGenerators.generateSmartFallbackAI(type, options);
 const withOffline = (type: ActivityType) => (options: GeneratorOptions) =>
   offlineGenerators.generateOfflineFallback(type, options);
+
+export const getGeneratorMapping = async (type: ActivityType): Promise<GeneratorMapping | null> => {
+  // 1. Önce statik registry'e bak
+  const staticMapping = ACTIVITY_GENERATOR_REGISTRY[type];
+  if (staticMapping) return staticMapping;
+
+  // 2. Yoksa dinamik fabrikadan (Phase 4) çözümle
+  return await DynamicActivityFactory.getMapping(type);
+};
 
 export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, GeneratorMapping>> = {
   [ActivityType.HECE_PARKURU]: {
