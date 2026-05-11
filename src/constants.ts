@@ -391,6 +391,7 @@ export const ACTIVITIES: Activity[] = [
     id: ActivityType.HARF_BAGLAMA,
     title: 'Harf Bağlama Etkinliği',
     description: 'Özel öğrenme güçlüğü yaşayan çocuklar için eğlenceli ve öğretici bir harf bağlama aktivitesi.',
+    icon: 'fa-solid fa-link',
     categories: ['Bilişsel Beceriler', 'Analitik Düşünme'],
     difficulty: 'Kolay',
     color: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20'
