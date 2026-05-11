@@ -1,6 +1,5 @@
-const HarfBaglamaSheet = React.lazy(() => import('../modules/activities/harf-baglama/ui/WorksheetUI').then(m => ({ default: m.HarfBaglamaSheet })));
 // @ts-nocheck
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, lazy } from 'react';
 import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -10,6 +9,10 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { A4PrintableWrapper } from '../A4Printable/A4PrintableWrapper';
+import { DynamicActivityFactory } from '../services/generators/DynamicActivityFactory';
+
+const HarfBaglamaSheet = lazy(() => import('../modules/activities/harf-baglama/ui/WorksheetUI').then(m => ({ default: m.HarfBaglamaSheet })));
+const LetterConnectSheet = lazy(() => import('../modules/activities/letter-connect/ui/WorksheetUI').then(m => ({ default: m.LetterConnectSheet })));
 
 import { Modifier } from '@dnd-kit/core';
 import {
@@ -196,7 +199,6 @@ import { PedagogicalHeader, ImageDisplay } from './sheets/common';
 
 import { EditableText } from './Editable';
 import { useA4EditorStore } from '../store/useA4EditorStore';
-const LetterConnectSheet = React.lazy(() => import('../modules/activities/letter-connect/ui/WorksheetUI').then(m => ({ default: m.LetterConnectSheet })));
 
 const recursiveSafeText = (val: any): string => {
   if (val === null || val === undefined) return '';
@@ -1829,7 +1831,7 @@ export const SheetRenderer = React.memo(
         );
         break;
       case ActivityType.INFOGRAPHIC_STUDIO:
-        // Delegate to modular renderer to support orientation-aware layout
+      // Delegate to modular renderer to support orientation-aware layout
 
       case ActivityType.ANAGRAM:
         renderedSheet = <AnagramSheet data={data as unknown as AnagramsData} settings={settings} />;
@@ -1860,9 +1862,9 @@ export const SheetRenderer = React.memo(
         break;
       case ActivityType.LETTER_CONNECT:
         return <LetterConnectSheet data={data} />;
-          case ActivityType.HARF_BAGLAMA:
-      return <HarfBaglamaSheet data={data} />;
-default:
+      case ActivityType.HARF_BAGLAMA:
+        return <HarfBaglamaSheet data={data} />;
+      default:
         renderedSheet = (
           <UnifiedContentRenderer
             data={data}
