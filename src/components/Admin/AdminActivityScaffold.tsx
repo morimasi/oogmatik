@@ -47,7 +47,7 @@ interface AdminActivityScaffoldProps {
  * AdminActivityScaffold: Otonom Etkinlik Üretim CLI / Chat Asistanı
  * Premium Dark Terminal / Glassmorphism Design
  */
-export const AdminActivityScaffold: React.FC<AdminActivityScaffoldProps> = ({ onBack }) => {
+export const AdminActivityScaffold = ({ onBack }: AdminActivityScaffoldProps) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
