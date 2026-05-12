@@ -15,7 +15,7 @@
 
 ## 🎯 Projenin Misyonu
 
-**Oogmatik**, Türkiye'deki disleksi, diskalkuli, disgrafi, DEHB ve özel öğrenme güçlüğü yaşayan çocuklar için
+**Oogmatik**, Türkiye'deki disleksi, diskalkuli, disgrafi, DEHB ve özel öğrenme güçlüğü yaşayan bireyler için
 AI destekli kişiselleştirilmiş eğitim materyalleri üreten bir EdTech platformudur.
 
 - **Hedef Kitle**: 4–8. sınıf öğrencileri, özel eğitim öğretmenleri, veliler
