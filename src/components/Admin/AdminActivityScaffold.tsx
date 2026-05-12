@@ -15,6 +15,7 @@ import {
 } from '../../services/firebaseClient';
 // @ts-ignore
 import Editor from '@monaco-editor/react';
+import { LivePreviewDashboard } from './LivePreviewDashboard';
 
 interface VFSFile {
   name: string;
@@ -220,7 +221,14 @@ export const Activity = () => {
           ...prev['ActivityEngine.tsx'],
           content: prev['ActivityEngine.tsx'].content.replace(
             '{/* AI is writing here... */}',
-            `<motion.div\n      initial={{ opacity: 0, y: 20 }}\n      animate={{ opacity: 1, y: 0 }}\n      className="bg-white p-8 rounded-[2rem] shadow-xl border border-zinc-100"\n    >\n      <h2 className="text-2xl font-black text-indigo-600 mb-4">${userText || 'Otonom Etkinlik'}</h2>\n      <p className="text-zinc-600 leading-relaxed font-medium">Bu içerik Selin Arslan v2 motoru tarafından otonom olarak sentezlenmiştir.</p>\n    </motion.div>`
+            `<motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-white p-8 rounded-[2rem] shadow-xl border border-zinc-100"
+    >
+      <h2 className="text-2xl font-black text-indigo-600 mb-4">${userText || 'Otonom Etkinlik'}</h2>
+      <p className="text-zinc-600 leading-relaxed font-medium">Bu içerik Selin Arslan v2 motoru tarafından otonom olarak sentezlenmiştir.</p>
+    </motion.div>`
           )
         }
       }));
@@ -496,34 +504,9 @@ export const Activity = () => {
           </div>
         </div>
 
-        {/* SAĞ PANEL: Live Preview Stub */}
-        <aside className="w-80 bg-[#111111] border-l border-zinc-800 flex flex-col shrink-0 overflow-hidden relative group">
-            <div className="h-10 bg-[#1a1a1a] border-b border-zinc-800 flex items-center justify-between px-4 shrink-0">
-                <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] italic">Live Canvas Preview</span>
-                <i className="fa-solid fa-expand text-[9px] text-zinc-600 cursor-pointer hover:text-white transition-colors"></i>
-            </div>
-            
-            <div className="flex-1 overflow-hidden relative flex flex-col bg-zinc-900/50">
-                <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-[var(--bg-primary)] m-4 rounded-[2rem] border border-zinc-800/50 shadow-inner group">
-                    <div className="w-16 h-16 rounded-[2rem] bg-zinc-800 flex items-center justify-center text-zinc-700 mb-6 border border-zinc-700/50 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
-                        <i className="fa-solid fa-wand-magic-sparkles text-2xl"></i>
-                    </div>
-                    <p className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-2">Önizleme Bekleniyor</p>
-                    <p className="text-[10px] text-zinc-600 leading-relaxed max-w-[160px]">Modül üretimini başlattığınızda canlı çalışma alanı burada belirecektir.</p>
-                </div>
-                
-                {/* Stats / Metadata Summary Overlay */}
-                <div className="p-4 bg-zinc-900/80 border-t border-zinc-800 backdrop-blur-md">
-                    <div className="flex justify-between items-center mb-2">
-                        <span className="text-[9px] font-bold text-zinc-500">Build Status</span>
-                        <span className="text-[9px] font-mono text-emerald-500">Successful</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                        <span className="text-[9px] font-bold text-zinc-500">Complexity</span>
-                        <span className="text-[9px] font-mono text-zinc-400">Low (Fast-AI)</span>
-                    </div>
-                </div>
-            </div>
+        {/* SAĞ PANEL: Live Preview Dashboard */}
+        <aside className="w-80 bg-[#111111] border-l border-zinc-800 flex flex-col shrink-0">
+            <LivePreviewDashboard />
         </aside>
 
       </div>
