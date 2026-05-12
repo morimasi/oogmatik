@@ -13,6 +13,7 @@ import {
   orderBy, 
   Timestamp 
 } from '../../services/firebaseClient';
+// @ts-ignore
 import Editor from '@monaco-editor/react';
 
 interface VFSFile {
