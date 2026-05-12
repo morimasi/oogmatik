@@ -15,7 +15,12 @@ import {
 } from '../../services/firebaseClient';
 // @ts-ignore
 import Editor from '@monaco-editor/react';
+import { useVFSStore } from '../../store/useVFSStore';
+import { GhostWriter, createGhostWriter } from '../../utils/ghostWriter';
+import { injectionMonitor } from '../../utils/injectionMonitor';
+import { getInitialAgentStates, AgentState } from '../../services/agentService';
 import { LivePreviewDashboard } from './LivePreviewDashboard';
+import VFSService from '../../services/vfsFileService';
 
 interface VFSFile {
   name: string;
@@ -41,8 +46,15 @@ export const AdminActivityScaffold: React.FC = () => {
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeSideTab, setActiveSideTab] = useState<'explorer' | 'agents' | 'history'>('explorer');
-  const [activeFile, setActiveFile] = useState<string>('ActivityEngine.tsx');
-  const [vfs, setVfs] = useState<Record<string, VFSFile>>({
+  
+  // Use centralized VFS store
+  const { files, activeFile: vfsActiveFile, updateFile, setActiveFile } = useVFSStore();
+  const [activeFileLocal, setActiveFileLocal] = useState<string>('ActivityEngine.tsx');
+  
+  // Agent states
+  const [agentStates, setAgentStates] = useState<AgentState[]>(getInitialAgentStates());
+  
+  const activeFile = vfsActiveFile || activeFileLocal;
     'ActivityEngine.tsx': {
       name: 'ActivityEngine.tsx',
       language: 'typescript',
@@ -74,12 +86,8 @@ export const Activity = () => {
     }
   });
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // Firestore Collection Reference
-  const logsRef = collection(db, 'scaffoldLogs');
-
   useEffect(() => {
+    VFSService.loadInitialFiles();
     loadHistory();
   }, []);
 
