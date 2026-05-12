@@ -1,15 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { AdminActivityScaffold } from '../src/components/Admin/AdminActivityScaffold';
-import * as firebaseClient from '../src/services/firebaseClient';
 
-// Firebase Mocking
 vi.mock('../src/services/firebaseClient', () => ({
   db: {},
   collection: vi.fn(),
   getDocs: vi.fn(() => Promise.resolve({
     docs: [],
-    forEach: (cb: any) => { /* history bos */ }
+    forEach: (cb: any) => { /* history boş */ }
   })),
   setDoc: vi.fn(() => Promise.resolve()),
   doc: vi.fn(),
@@ -19,6 +17,31 @@ vi.mock('../src/services/firebaseClient', () => ({
   Timestamp: {
     fromDate: vi.fn((date) => date)
   }
+}));
+
+vi.mock('../src/utils/apiClient', () => ({
+  safeFetch: vi.fn(() => Promise.resolve({
+    success: true,
+    data: {
+      message: 'Blueprint kaydedildi ve ajanlardan onaylandı.',
+      key: 'AUTO_MODULE_TEST',
+      status: 'pending'
+    }
+  })),
+  getAuthHeaders: vi.fn(() => ({
+    'x-user-id': 'test-user',
+    'x-user-role': 'admin',
+    'x-user-tier': 'pro'
+  }))
+}));
+
+vi.mock('../src/store/useAuthStore', () => ({
+  useAuthStore: () => ({
+    user: {
+      id: 'test-user',
+      role: 'admin'
+    }
+  })
 }));
 
 describe('AdminActivityScaffold (Otonom CLI Terminal)', () => {
@@ -35,28 +58,21 @@ describe('AdminActivityScaffold (Otonom CLI Terminal)', () => {
     });
   });
 
-  it('Prompt gönderildiğinde ajanların otonom simülasyonu ateşlenmeli', async () => {
-    render(<AdminActivityScaffold />);
-    
-    // Inputu bul ve komut gönder
-    const input = screen.getByPlaceholderText(/Aktivite konsepti, pedagogik hedef veya doğrudan prompt giriniz/i);
-    const submitBtn = screen.getByRole('button');
+  it('Prompt gönderildiğinde backend scaffold endpointine istek atmalı ve başarı mesajını göstermeli', async () => {
+    const { container } = render(<AdminActivityScaffold />);
+
+    const input = screen.getByPlaceholderText(/root@oogmatik: ~ Komut girin veya görsel referans yükleyin/i);
+    const submitBtn = container.querySelector('button[type="submit"]');
+    expect(submitBtn).toBeInstanceOf(HTMLButtonElement);
 
     fireEvent.change(input, { target: { value: 'Disleksili 2. sınıf için matematik testi üret' } });
-    fireEvent.click(submitBtn);
+    fireEvent.click(submitBtn as Element);
 
-    // Kullanıcının yazdığı mesajın ekranda olduğunu onayla
     expect(screen.getByText('Disleksili 2. sınıf için matematik testi üret')).toBeDefined();
 
-    // Elif Yıldız (Pedagoji) ajanın yüklenmesini bekle (setTimeout 600ms)
     await waitFor(() => {
-      expect(screen.getByText(/ZPD \(Yakınsal Gelişim Alanı\) analizi başlatılıyor/i)).toBeDefined();
-    }, { timeout: 1000 });
-
-    // Dr. Ahmet Kaya (Klinik) beklentisi (setTimeout 1800ms kümülatif)
-    await waitFor(() => {
-      expect(screen.getByText(/Klinik olarak dikkat dağıtıcılardan arındırılmış/i)).toBeDefined();
-    }, { timeout: 2500 });
+      expect(screen.getByText(/Blueprint backend tarafından kabul edildi/i)).toBeDefined();
+    }, { timeout: 3000 });
   });
 
   it('Terminal geçmişi sıfırlama işlevi doğru çalışmalı', async () => {
@@ -65,7 +81,7 @@ describe('AdminActivityScaffold (Otonom CLI Terminal)', () => {
 
     render(<AdminActivityScaffold />);
     
-    const clearBtn = screen.getByTitle('Tüm geçmişi temizle');
+    const clearBtn = screen.getByTitle('Sıfırla');
     fireEvent.click(clearBtn);
 
     // Silme sonrası onay mesajı ekrana yansımalı

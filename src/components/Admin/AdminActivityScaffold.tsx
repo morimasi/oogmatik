@@ -2,6 +2,9 @@ import * as React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
+import { useAuthStore } from '../../store/useAuthStore';
+import { safeFetch, getAuthHeaders } from '../../utils/apiClient';
+import type { CognitiveErrorTag } from '../../types/activity';
 import { 
   db, 
   collection, 
@@ -73,6 +76,7 @@ export const Activity = () => {
   });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const user = useAuthStore((state) => state.user);
 
   // Firestore Collection Reference
   const logsRef = collection(db, 'scaffoldLogs');
@@ -176,6 +180,91 @@ export const Activity = () => {
     reader.readAsDataURL(file);
   };
 
+  const createBlueprintFromCommand = (command: string) => {
+    const normalized = command.trim();
+    const title = normalized.length > 72 ? `${normalized.slice(0, 69)}...` : normalized;
+    const keyBase = normalized
+      .toUpperCase()
+      .replace(/[^A-Z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '') || `AUTO_MODULE_${Date.now()}`;
+    const key = keyBase.length > 30 ? keyBase.slice(0, 30) : keyBase;
+    const enumValue = key.toLowerCase().replace(/_+/g, '-');
+    const categoryId = /matematik|sayı|toplama|çarpma|bölme/i.test(normalized)
+      ? 'math-logic'
+      : /okuma|anlama|metin|kelime/i.test(normalized)
+      ? 'reading-verbal'
+      : 'creative';
+    const interfaceName = `Auto${key.replace(/[^A-Za-z0-9]/g, '')}Data`;
+
+    return {
+      identity: {
+        key,
+        enumValue,
+        title: title || 'Otonom Etkinlik',
+        description: `Oogmatik tarafından oluşturulan etkinlik tasarımı: ${normalized}`,
+        icon: 'fa-robot',
+        categoryId,
+      },
+      dataModel: {
+        interfaceName,
+        itemsName: 'ActivityItem',
+        fields: [
+          {
+            name: 'prompt',
+            type: 'string',
+            required: true,
+            description: 'Kullanıcı tarafından verilen otonom üretim komutu',
+          },
+        ],
+      },
+      logic: {
+        offlineAlgorithm: 'Bu etkinlik AI destekli üretim hattı üzerinden çalışacak ve öncelikle pedagojik hedeflere göre yapılandırılacaktır.',
+        aiPrompt: {
+          role: 'Oogmatik AI Üretim Motoru',
+          task: normalized,
+          rules: [
+            'Pedagojik dil kullan ve tanı koyucu ifadelerden kaçın.',
+            'Çıktıyı JSON formatında sağlamaya özen göster.',
+            'Disleksi-dostu ve ZPD uyumlu bir içerik kurgula.',
+          ],
+          schema: {
+            type: 'object',
+            properties: {
+              output: { type: 'string' },
+            },
+            required: ['output'],
+          },
+        },
+      },
+      ui: {
+        columnsPerDifficulty: {
+          Kolay: 1,
+          Orta: 2,
+          Zor: 3,
+        },
+        configFields: [
+          {
+            id: 'difficulty',
+            label: 'Zorluk',
+            type: 'select',
+            options: [
+              { label: 'Kolay', value: 'Kolay' },
+              { label: 'Orta', value: 'Orta' },
+              { label: 'Zor', value: 'Zor' },
+            ],
+            defaultValue: 'Kolay',
+          },
+        ],
+        renderType: 'custom',
+      },
+      pedagogical: {
+        targetSkills: ['Dikkat Dağılımı', 'Problem Çözme'],
+        errorTags: ['attention_lapse'] as CognitiveErrorTag[],
+        ageGroups: ['8-10'],
+      },
+    };
+  };
+
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if ((!input.trim() && !selectedImage) || isProcessing) return;
@@ -198,48 +287,53 @@ export const Activity = () => {
     try {
       if (userImage) {
         await addAgentMessage('Görsel referans algılandı. MİMARİ KLONLAMA MOTORU (Gemini Vision) başlatılıyor...', 'Selin Arslan (AI Mimarisi)', 'fa-eye text-indigo-400');
-        await new Promise(r => setTimeout(r, 1500));
-        await addAgentMessage('Görsel DNA çözümlendi. Sayfa yoğunluğu, soru hiyerarşisi ve layout parametreleri Selin Arslan v2 mimarisine aktarıldı.', 'Dr. Ahmet Kaya (Klinik)', 'fa-dna text-emerald-400');
+        await new Promise(r => setTimeout(r, 1200));
+        await addAgentMessage('Görsel DNA çözümleniyor. Müşteri içerik talebi AI üretim hattına aktarılıyor...', 'Dr. Ahmet Kaya (Klinik)', 'fa-dna text-emerald-400');
       }
 
-      // Simulate Deep Agent Reasoning Pipeline (Phase 4 Logic)
-      await new Promise(r => setTimeout(r, 600));
-      await addAgentMessage(userImage ? 'Klonlama stratejisi belirlendi. ZPD uyumlu yeni içerik varyasyonları oluşturuluyor...' : 'Komut alındı. ZPD (Yakınsal Gelişim Alanı) analizi başlatılıyor...', 'Elif Yıldız (Pedagoji)', 'fa-chalkboard-user text-pink-400');
-      
-      await new Promise(r => setTimeout(r, 1200));
-      await addAgentMessage('Pedagojik çerçeve onaylandı. Klinik olarak dikkat dağıtıcılardan arındırılmış bir görsel hiyerarşi kurguluyorum.', 'Dr. Ahmet Kaya (Klinik)', 'fa-stethoscope text-emerald-400');
-      
-      await new Promise(r => setTimeout(r, 1500));
-      await addAgentMessage('React Code Block sentezine başlıyorum. Ultra-özelleştirilebilir "Deep Config" paneli ve A4 Print şeması oluşturuluyor...', 'Selin Arslan (AI Mimarisi)', 'fa-robot text-purple-400');
-      
-      // VFS Görüntüsünü Güncelle (Simülasyon)
+      await addAgentMessage(userImage ? 'Blueprint oluşturuluyor ve gerçek üretim sunucusuna gönderiliyor...' : 'Komut alınarak gerçek backend orkestrasyonuna iletiliyor...', 'Elif Yıldız (Pedagoji)', 'fa-chalkboard-user text-pink-400');
+
+      const blueprint = createBlueprintFromCommand(userText || 'Otonom Etkinlik Komutu');
+      const authHeaders = user ? getAuthHeaders(user.id, user.role) : undefined;
+      const response = await safeFetch<{ success: boolean; data: { message: string; key: string; status: string }; error?: { message: string } }>(
+        '/api/admin/scaffold',
+        {
+          method: 'POST',
+          headers: {
+            ...authHeaders,
+          },
+          body: JSON.stringify(blueprint),
+        }
+      );
+
+      if (!response.success) {
+        throw new Error(response.error?.message || 'Scaffold backend başarısız oldu');
+      }
+
+      await addAgentMessage(`Blueprint backend tarafından kabul edildi. Key: ${response.data.key}`, 'Bora Demir (Mühendislik)', 'fa-check text-blue-400');
       setVfs(prev => ({
         ...prev,
         'ActivityEngine.tsx': {
           ...prev['ActivityEngine.tsx'],
           content: prev['ActivityEngine.tsx'].content.replace(
             '{/* AI is writing here... */}',
-            `<motion.div\n      initial={{ opacity: 0, y: 20 }}\n      animate={{ opacity: 1, y: 0 }}\n      className="bg-white p-8 rounded-[2rem] shadow-xl border border-zinc-100"\n    >\n      <h2 className="text-2xl font-black text-indigo-600 mb-4">${userText || 'Otonom Etkinlik'}</h2>\n      <p className="text-zinc-600 leading-relaxed font-medium">Bu içerik Selin Arslan v2 motoru tarafından otonom olarak sentezlenmiştir.</p>\n    </motion.div>`
+            `<motion.div\n      initial={{ opacity: 0, y: 20 }}\n      animate={{ opacity: 1, y: 0 }}\n      className="bg-white p-8 rounded-[2rem] shadow-xl border border-zinc-100"\n    >\n      <h2 className="text-2xl font-black text-indigo-600 mb-4">${blueprint.identity.title}</h2>\n      <p className="text-zinc-600 leading-relaxed font-medium">Blueprint başarıyla backend'e gönderildi ve onaylandı. Key: ${response.data.key}</p>\n    </motion.div>`
           )
         }
       }));
 
-      await new Promise(r => setTimeout(r, 2000));
-      await addAgentMessage('AST Parse başarılı. Kod Main dalına otonom olarak entegre edildi. Registery kayıtları güncellendi.', 'Bora Demir (Mühendislk)', 'fa-code text-blue-400');
-
-      // Registry Güncelle (Simülasyon)
       setVfs(prev => ({
         ...prev,
         'registry.ts': {
           ...prev['registry.ts'],
           content: prev['registry.ts'].content.replace(
             '// New modules are registered here otonomously',
-            `'${(userText || 'AutoModule').toUpperCase()}': { component: 'ActivityEngine', status: 'active' },`
+            `'${blueprint.identity.key}': { component: 'ActivityEngine', status: 'pending' },`
           )
         }
       }));
 
-      await addSystemMessage(`[BAŞARILI] "${userText || 'Görsel Klonlama'}" modülü başarıyla sisteme kuruldu.`, 'Oogmatik Core', 'fa-check-double text-green-500');
+      await addSystemMessage(response.data.message, 'Oogmatik Core', 'fa-check-double text-green-500');
 
     } catch (err: any) {
       await saveMessage({
