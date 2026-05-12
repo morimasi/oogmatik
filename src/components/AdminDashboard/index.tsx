@@ -1,6 +1,7 @@
+// Oogmatik Admin Dashboard - v1.3.0
 import React, { useState, useEffect } from 'react';
 
-import { User, ActivityStats } from '../../types';
+import { User, ActivityStats, AdminTab } from '../../types';
 import { authService } from '../../services/authService';
 import { statsService } from '../../services/statsService';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -42,6 +43,7 @@ interface NavButtonProps {
   count?: number;
 }
 
+
 const NavButton = ({ active, label, icon, onClick, count }: NavButtonProps) => (
   <button
     onClick={onClick}
@@ -65,6 +67,12 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
   const { isAdmin } = useRBAC();
 
   const [activeTab, setActiveTab] = useState<AdminTab>(() => {
+    const saved = localStorage.getItem('admin_active_tab');
+    // Tip sistemini zorla doğrula
+    return (saved as any) || 'dashboard';
+  });
+
+  const { zenMode, setZenMode, setIsSidebarOpen } = useUIStore();
     const saved = localStorage.getItem('admin_active_tab') as AdminTab | null;
     const validTabs: AdminTab[] = [
       'dashboard',
@@ -87,11 +95,18 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
 
   useEffect(() => {
     localStorage.setItem('admin_active_tab', activeTab);
+    
+    // Otonom Üretim (Scaffold) aktifse tam ekran (Immersive Mode)
+    if ((activeTab as string) === 'scaffold' && currentView === 'admin') {
 
     const isImmersive = isScaffoldMode && currentView === 'admin';
     if (isImmersive) {
       setIsSidebarOpen(false);
+      setZenMode(true);
+    } else {
+      setZenMode(false);
     }
+  }, [activeTab, currentView, setIsSidebarOpen, setZenMode]);
     setZenMode(isImmersive);
   }, [activeTab, currentView, isScaffoldMode, setIsSidebarOpen, setZenMode]);
 
@@ -173,6 +188,16 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
     <div className="h-full flex bg-[var(--bg-primary)] overflow-hidden font-lexend relative">
       <div className="absolute inset-0 pointer-events-none shimmer-effect opacity-10 z-0"></div>
 
+      {(activeTab as string) !== 'scaffold' && (
+        <aside className="w-72 bg-[var(--bg-paper)] border-r border-[var(--border-color)] flex flex-col shrink-0 z-20 m-2 rounded-[2.5rem] h-[calc(100%-16px)] shadow-xl">
+          <div className="p-6 flex items-center gap-3">
+            <div className="w-10 h-10 bg-[var(--accent-color)] rounded-xl flex items-center justify-center text-white shadow-lg shadow-[var(--accent-muted)]">
+              <i className="fa-solid fa-shield-halved text-xl"></i>
+            </div>
+            <div>
+              <h2 className="text-lg font-black text-[var(--text-primary)] leading-none">Yönetim</h2>
+              <span className="text-[10px] text-[var(--text-muted)] font-bold tracking-widest uppercase">Kontrol Merkezi</span>
+            </div>
       {!isScaffoldMode && (
         <aside className="w-72 bg-[var(--bg-paper)] border-r border-[var(--border-color)] flex flex-col shrink-0 z-20 m-2 rounded-[2.5rem] h-[calc(100%-16px)] shadow-xl">
         <div className="p-6 flex items-center gap-3">
@@ -183,8 +208,38 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
             <h2 className="text-lg font-black text-[var(--text-primary)] leading-none">Yönetim</h2>
             <span className="text-[10px] text-[var(--text-muted)] font-bold tracking-widest uppercase">Kontrol Merkezi</span>
           </div>
-        </div>
 
+          <nav className="flex-1 px-4 py-4 overflow-y-auto custom-scrollbar">
+            <p className="px-4 mb-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Analiz & Kullanıcı</p>
+            <NavButton active={activeTab === 'dashboard'} label="Genel Bakış" icon="fa-chart-pie" onClick={() => setActiveTab('dashboard')} />
+            <NavButton active={activeTab === 'users'} label="Kullanıcılar" icon="fa-users" onClick={() => setActiveTab('users')} />
+            <NavButton active={activeTab === 'permissions'} label="Yetki Matrisi" icon="fa-lock" onClick={() => setActiveTab('permissions')} />
+
+            <p className="px-4 mt-6 mb-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Otonom Sistemler</p>
+            <NavButton active={(activeTab as string) === 'scaffold'} label="Otonom Üretim" icon="fa-wand-magic-sparkles" onClick={() => setActiveTab('scaffold')} />
+
+            <p className="px-4 mt-6 mb-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">İçerik Motoru</p>
+            <NavButton active={activeTab === 'activities'} label="Aktivite Yöneticisi" icon="fa-layer-group" onClick={() => setActiveTab('activities')} />
+            <NavButton active={activeTab === 'prompts'} label="Prompt Stüdyosu" icon="fa-terminal" onClick={() => setActiveTab('prompts')} />
+            <NavButton active={activeTab === 'drafts'} label="OCR Taslakları" icon="fa-camera-rotate" onClick={() => setActiveTab('drafts')} />
+            <NavButton active={activeTab === 'approvals'} label="İçerik Onayları" icon="fa-check-double" onClick={() => setActiveTab('approvals')} />
+            <NavButton active={activeTab === 'static_content'} label="Veri Kaynakları" icon="fa-database" onClick={() => setActiveTab('static_content')} />
+
+            <p className="px-4 mt-6 mb-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Destek</p>
+            <NavButton active={activeTab === 'feedbacks'} label="Gelen Kutusu" icon="fa-inbox" onClick={() => setActiveTab('feedbacks')} count={3} />
+          </nav>
+
+          <div className="p-4 border-t border-[var(--border-color)]">
+            <button onClick={onBack} className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors font-bold text-sm border border-[var(--border-color)]">
+              <i className="fa-solid fa-arrow-right-from-bracket"></i> Uygulamaya Dön
+            </button>
+          </div>
+        </aside>
+      )}
+
+      <main className={`flex-1 flex flex-col min-w-0 relative z-10 transition-all duration-500 ${(activeTab as string) === 'scaffold' ? 'p-0' : 'p-2 pl-0'}`}>
+        {(activeTab as string) !== 'scaffold' && (
+          <header className="h-16 bg-[var(--bg-paper)] border border-[var(--border-color)] flex items-center justify-between px-8 shrink-0 mb-4 rounded-[2rem] shadow-sm">
         <nav className="flex-1 px-4 py-4 overflow-y-auto custom-scrollbar">
           <p className="px-4 mb-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Analiz & Kullanıcı</p>
           <NavButton active={activeTab === 'dashboard'} label="Genel Bakış" icon="fa-chart-pie" onClick={() => setActiveTab('dashboard')} />
@@ -226,7 +281,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
                 {activeTab === 'drafts' && 'Taslak Havuzu (OCR)'}
                 {activeTab === 'approvals' && 'İçerik Onay Merkezi'}
                 {activeTab === 'permissions' && 'Yetkilendirme (RBAC)'}
-                {activeTab === 'scaffold' && 'Otonom Etkinlik Üretimi'}
+                {(activeTab as string) === 'scaffold' && 'Otonom Etkinlik Üretimi'}
               </h1>
               <span className="px-2 py-0.5 rounded bg-[var(--bg-secondary)] text-[10px] font-mono text-[var(--text-muted)] border border-[var(--border-color)]">v1.3.0</span>
             </div>
@@ -238,6 +293,8 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
             </div>
           </header>
 
+        <div className={`flex-1 ${(activeTab as string) === 'scaffold' ? 'overflow-hidden' : 'overflow-y-auto'} relative bg-[var(--bg-paper)] border border-[var(--border-color)] shadow-inner transition-all duration-500 ${(activeTab as string) === 'scaffold' ? 'rounded-none border-none p-0 h-full' : 'rounded-[2.5rem] p-4'}`}>
+          <div className={`w-full mx-auto ${(activeTab as string) === 'scaffold' ? 'h-full pb-0' : 'pb-20'}`}>
         <div className={`flex-1 overflow-y-auto relative bg-[var(--bg-paper)] border border-[var(--border-color)] shadow-inner transition-all duration-500 ${isScaffoldMode ? 'rounded-none border-none p-0 h-full' : 'rounded-[2.5rem] p-4'}`}>
           <div className={`w-full mx-auto ${isScaffoldMode ? 'h-full pb-0' : 'pb-20'}`}>
             <React.Suspense fallback={<div className="flex items-center justify-center p-20"><i className="fa-solid fa-spinner fa-spin text-3xl text-indigo-500"></i></div>}>
@@ -250,7 +307,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
               {activeTab === 'drafts' && <AdminDraftReview />}
               {activeTab === 'approvals' && <AdminActivityApproval />}
               {activeTab === 'permissions' && <AdminPermissionsIDE />}
-              {activeTab === 'scaffold' && <AdminActivityScaffold />}
+              {(activeTab as string) === 'scaffold' && <AdminActivityScaffold />}
             </React.Suspense>
           </div>
         </div>

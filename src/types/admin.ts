@@ -1,6 +1,16 @@
 import { ActivityType } from './activity';
 import { UserRole, UserStatus } from './user';
 
+export type AdminTab = 
+  | 'dashboard' 
+  | 'users' 
+  | 'activities' 
+  | 'prompts' 
+  | 'static_content' 
+  | 'feedbacks' 
+  | 'drafts' 
+  | 'approvals' 
+  | 'permissions' 
 export type AdminTab =
   | 'dashboard'
   | 'users'
@@ -162,6 +172,7 @@ export interface SystemHealthReport {
   cpuUsagePercent?: number;
   memUsagePercent?: number;
   diskUsagePercent?: number;
+  diskUsagePercentText?: string;
 }
 export interface ServiceHealth {
   name: string;

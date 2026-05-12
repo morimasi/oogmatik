@@ -14,6 +14,12 @@ import {
   Timestamp 
 } from '../../services/firebaseClient';
 import Editor from '@monaco-editor/react';
+import { useVFSStore } from '../../store/useVFSStore';
+import { GhostWriter, createGhostWriter } from '../../utils/ghostWriter';
+import { injectionMonitor } from '../../utils/injectionMonitor';
+import { getInitialAgentStates, AgentState, agents } from '../../services/agentService';
+import { LivePreviewDashboard } from './LivePreviewDashboard';
+import VFSService from '../../services/vfsFileService';
 
 interface VFSFile {
   name: string;
@@ -39,38 +45,15 @@ export const AdminActivityScaffold: React.FC = () => {
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeSideTab, setActiveSideTab] = useState<'explorer' | 'agents' | 'history'>('explorer');
-  const [activeFile, setActiveFile] = useState<string>('ActivityEngine.tsx');
-  const [vfs, setVfs] = useState<Record<string, VFSFile>>({
-    'ActivityEngine.tsx': {
-      name: 'ActivityEngine.tsx',
-      language: 'typescript',
-      content: `import React from 'react';
-import { motion } from 'framer-motion';
-
-// AUTONOM_CONFIG_START
-export const Config = () => {
-  return (
-    // AI agents generating configuration panel...
-  )
-}
-// AUTONOM_CONFIG_END
-
-export const Activity = () => {
-  return (
-    <div className="immersive-layout-v4">
-      {/* AI is writing here... */}
-    </div>
-  )
-}`
-    },
-    'registry.ts': {
-      name: 'registry.ts',
-      language: 'typescript',
-      content: `export const ACTIVITY_REGISTRY = {
-  // New modules are registered here otonomously
-};`
-    }
-  });
+  
+  // Use centralized VFS store
+  const { files, activeFile: vfsActiveFile, updateFile, setActiveFile } = useVFSStore();
+  const [activeFileLocal, setActiveFileLocal] = useState<string>('ActivityEngine.tsx');
+  
+  // Agent states
+  const [agentStates, setAgentStates] = useState<AgentState[]>(getInitialAgentStates());
+  
+  const activeFile = vfsActiveFile || activeFileLocal;
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -78,12 +61,20 @@ export const Activity = () => {
   const logsRef = collection(db, 'scaffoldLogs');
 
   useEffect(() => {
+    VFSService.loadInitialFiles();
     loadHistory();
   }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Handle active file synchronization
+  useEffect(() => {
+    if (vfsActiveFile) {
+      setActiveFileLocal(vfsActiveFile);
+    }
+  }, [vfsActiveFile]);
 
   const loadHistory = async () => {
     try {
@@ -105,7 +96,9 @@ export const Activity = () => {
 
       if (historyItems.length === 0) {
         // Welcome message
-        await addSystemMessage('Oogmatik Agent CLI v2.0 Sistemine Hoş Geldiniz. Ne üretmemi istersiniz?', 'Oogmatik Core', 'fa-terminal');
+        await addSystemMessage('Otonom Üretim Terminali (v2 Professional) başlatıldı.', 'Kernel', 'fa-microchip');
+        await addAgentMessage('Gelişmiş AI destekli CLI asistanı hazır. Architectural DNA motoru aktif.', 'Selin Arslan (AI Mimarisi)', 'fa-robot text-purple-400');
+        await addSystemMessage('Oogmatik ~ root@core: /scaffold/cli/engine-v4', 'Terminal', 'fa-terminal');
       } else {
         setMessages(historyItems);
       }
@@ -187,6 +180,9 @@ export const Activity = () => {
     setSelectedImage(null);
     setIsProcessing(true);
 
+    // Update agent states to show they're working
+    setAgentStates(prev => prev.map(a => ({ ...a, status: 'analyzing' as const })));
+
     // Save User Command (Multimodal)
     await saveMessage({
       id: crypto.randomUUID(),
@@ -212,34 +208,100 @@ export const Activity = () => {
       await new Promise(r => setTimeout(r, 1500));
       await addAgentMessage('React Code Block sentezine başlıyorum. Ultra-özelleştirilebilir "Deep Config" paneli ve A4 Print şeması oluşturuluyor...', 'Selin Arslan (AI Mimarisi)', 'fa-robot text-purple-400');
       
-      // VFS Görüntüsünü Güncelle (Simülasyon)
-      setVfs(prev => ({
-        ...prev,
-        'ActivityEngine.tsx': {
-          ...prev['ActivityEngine.tsx'],
-          content: prev['ActivityEngine.tsx'].content.replace(
-            '{/* AI is writing here... */}',
-            `<motion.div\n      initial={{ opacity: 0, y: 20 }}\n      animate={{ opacity: 1, y: 0 }}\n      className="bg-white p-8 rounded-[2rem] shadow-xl border border-zinc-100"\n    >\n      <h2 className="text-2xl font-black text-indigo-600 mb-4">${userText || 'Otonom Etkinlik'}</h2>\n      <p className="text-zinc-600 leading-relaxed font-medium">Bu içerik Selin Arslan v2 motoru tarafından otonom olarak sentezlenmiştir.</p>\n    </motion.div>`
-          )
-        }
-      }));
+      // Use Ghost Writer to update code
+      const currentFile = activeFile || 'ActivityEngine.tsx';
+      const ghostWriter = createGhostWriter(
+        (content) => updateFile(currentFile, content),
+        { lineDelay: 30 }
+      );
+      
+      const newCode = `import React from 'react';
+import { motion } from 'framer-motion';
+
+// AUTONOM_CONFIG_START
+export const Config = () => {
+  return (
+    <div className="p-6 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl">
+      <h2 className="text-xl font-black text-indigo-400 mb-2">${userText || 'Otonom Etkinlik'}</h2>
+      <p className="text-xs text-zinc-500 tracking-wider uppercase">Konfigürasyon Paneli v4</p>
+    </div>
+  );
+}
+// AUTONOM_CONFIG_END
+
+export const Activity = () => {
+  return (
+    <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-8 font-lexend">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 30 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="w-full max-w-2xl bg-zinc-900/50 backdrop-blur-3xl p-10 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden"
+      >
+        <div className="absolute top-0 right-0 p-4 opacity-20">
+          <i className="fa-solid fa-wand-magic-sparkles text-4xl text-indigo-500"></i>
+        </div>
+        
+        <div className="flex items-center gap-4 mb-8">
+           <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+              <i className="fa-solid fa-brain text-white text-xl"></i>
+           </div>
+           <div>
+              <h2 className="text-3xl font-black text-white tracking-tighter uppercase italic line-clamp-1">${userText || 'Otonom Etkinlik'}</h2>
+              <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em]">AI-Native Generative Module</p>
+           </div>
+        </div>
+
+        <div className="space-y-6 text-zinc-400 leading-relaxed font-medium text-sm">
+           <p>Bu eğitim materyali, Bursa Disleksi Pedagojik DNA'sı kullanılarak otonom olarak üretilmiştir.</p>
+           <div className="grid grid-cols-2 gap-4 pt-4">
+              <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                 <span className="block text-[10px] font-black text-indigo-400 uppercase mb-1">Müfredat</span>
+                 <span className="text-white text-xs font-bold">MEB 2025 Uyumlu</span>
+              </div>
+              <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                 <span className="block text-[10px] font-black text-emerald-400 uppercase mb-1">Klinik Doğrulama</span>
+                 <span className="text-white text-xs font-bold">ZPD Optimize</span>
+              </div>
+           </div>
+        </div>
+        
+        <div className="mt-10 pt-6 border-t border-white/5 flex justify-between items-center">
+           <span className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest">© 2026 Oogmatik Engine</span>
+           <button className="px-6 py-2 bg-white text-black text-[11px] font-black rounded-xl hover:bg-zinc-200 transition-all uppercase tracking-widest">Başlat</button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}`;
+      
+      await ghostWriter.writeLineByLine(newCode);
 
       await new Promise(r => setTimeout(r, 2000));
       await addAgentMessage('AST Parse başarılı. Kod Main dalına otonom olarak entegre edildi. Registery kayıtları güncellendi.', 'Bora Demir (Mühendislk)', 'fa-code text-blue-400');
 
-      // Registry Güncelle (Simülasyon)
-      setVfs(prev => ({
-        ...prev,
-        'registry.ts': {
-          ...prev['registry.ts'],
-          content: prev['registry.ts'].content.replace(
-            '// New modules are registered here otonomously',
-            `'${(userText || 'AutoModule').toUpperCase()}': { component: 'ActivityEngine', status: 'active' },`
-          )
-        }
-      }));
+      // Update registry using injection monitor
+      const registryContent = files['registry.ts']?.content || '';
+      if (registryContent) {
+        await injectionMonitor.updateMarker(
+          registryContent,
+          'REGISTRY',
+          `'${(userText || 'AutoModule').toUpperCase().replace(/\s+/g, '_')}': { component: 'ActivityEngine', status: 'active' },`,
+          (newRegistryContent) => updateFile('registry.ts', newRegistryContent)
+        );
+      }
 
       await addSystemMessage(`[BAŞARILI] "${userText || 'Görsel Klonlama'}" modülü başarıyla sisteme kuruldu.`, 'Oogmatik Core', 'fa-check-double text-green-500');
+
+      // Update all agent states to success
+      setAgentStates(prev => prev.map((a, i) => ({
+        ...a,
+        status: 'success' as const,
+        analysis: {
+          status: 'success' as const,
+          feedback: `Agent ${i + 1} completed successfully`,
+          suggestions: []
+        }
+      })));
 
     } catch (err: any) {
       await saveMessage({
@@ -248,13 +310,16 @@ export const Activity = () => {
         text: `Üretim Hatası: ${err.message}. Fallback (Fail-Safe) şablona dönülüyor...`,
         timestamp: new Date()
       });
+      
+      // Update agent states to error
+      setAgentStates(prev => prev.map(a => ({ ...a, status: 'error' as const })));
     } finally {
       setIsProcessing(false);
     }
   };
 
   return (
-    <div className="w-full h-full flex flex-col bg-[#0d0d0d] font-lexend overflow-hidden">
+    <div className="w-full h-full flex flex-col bg-[#080808] font-lexend overflow-hidden select-none">
       
       {/* IDE ÜST BAR (Toolbar) */}
       <div className="h-10 bg-[#1a1a1a] border-b border-zinc-800 flex items-center justify-between px-4 shrink-0 shadow-lg z-50">
@@ -286,7 +351,7 @@ export const Activity = () => {
       <div className="flex-1 flex overflow-hidden">
         
         {/* SOL PANEL: Explorer & Agents */}
-        <aside className="w-64 bg-[#141414] border-r border-zinc-800 flex flex-col shrink-0">
+        <aside className="w-64 bg-[#0d0d0d] border-r border-zinc-800/50 flex flex-col shrink-0 backdrop-blur-xl">
           <div className="flex border-b border-zinc-800 bg-[#1a1a1a]">
             <button 
               onClick={() => setActiveSideTab('explorer')}
@@ -309,7 +374,7 @@ export const Activity = () => {
               <div className="p-4 space-y-4">
                 <div className="space-y-1">
                   <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 px-2">Aktif Dosyalar</p>
-                  {Object.values(vfs).map((file) => (
+                  {(Object.values(files) as Array<{name: string; language: string; content: string;}>).map((file) => (
                     <div 
                       key={file.name}
                       onClick={() => setActiveFile(file.name)}
@@ -333,23 +398,51 @@ export const Activity = () => {
             
             {activeSideTab === 'agents' && (
               <div className="p-4 space-y-3">
-                {[
-                  { name: 'Elif', role: 'Pedagoji', color: 'text-pink-400', icon: 'fa-chalkboard-user' },
-                  { name: 'Ahmet', role: 'Klinik', color: 'text-emerald-400', icon: 'fa-stethoscope' },
-                  { name: 'Bora', role: 'Mühendislik', color: 'text-blue-400', icon: 'fa-code' },
-                  { name: 'Selin', role: 'Mimari', color: 'text-purple-400', icon: 'fa-eye' }
-                ].map(agent => (
-                  <div key={agent.name} className="p-3 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center ${agent.color}`}>
-                      <i className={`fa-solid ${agent.icon}`}></i>
+                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 px-2">Ajan Durumu</p>
+                {agentStates.map(agent => (
+                  <div key={agent.key} className="p-3 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center gap-3 hover:border-zinc-700 transition-all">
+                    <div className={`w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center ${
+                      agent.status === 'analyzing' ? 'animate-pulse' : ''
+                    }`}>
+                      <i className={`fa-solid ${agents[agent.key]?.icon || 'fa-user'} ${
+                        agent.status === 'success' ? 'text-emerald-400' :
+                        agent.status === 'error' ? 'text-red-400' :
+                        agent.status === 'warning' ? 'text-amber-400' :
+                        agent.status === 'analyzing' ? 'text-blue-400' :
+                        'text-zinc-500'
+                      }`}></i>
                     </div>
-                    <div>
-                      <p className="text-xs font-black text-white leading-none">{agent.name}</p>
-                      <p className="text-[9px] text-zinc-500 uppercase font-bold tracking-widest">{agent.role}</p>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-black text-white leading-none">{agent.name}</p>
+                        <div className={`w-2 h-2 rounded-full ${
+                          agent.status === 'idle' ? 'bg-zinc-600' :
+                          agent.status === 'analyzing' ? 'bg-blue-500 animate-pulse' :
+                          agent.status === 'success' ? 'bg-emerald-500' :
+                          agent.status === 'warning' ? 'bg-amber-500' :
+                          'bg-red-500'
+                        }`}></div>
+                      </div>
+                      <p className="text-[9px] text-zinc-500 uppercase font-bold tracking-widest mt-1">{agent.key}</p>
+                      {agent.analysis && (
+                        <p className={`text-[8px] mt-1 ${
+                          agent.analysis.status === 'success' ? 'text-emerald-400' :
+                          agent.analysis.status === 'error' ? 'text-red-400' :
+                          'text-zinc-400'
+                        }`}>
+                          {agent.analysis.feedback.substring(0, 50)}...
+                        </p>
+                      )}
                     </div>
-                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
                   </div>
                 ))}
+                
+                {agentStates.length === 0 && (
+                  <div className="text-center py-8 text-zinc-600 text-xs">
+                    <i className="fa-solid fa-robot text-2xl mb-2"></i>
+                    <p>Ajanlar henüz başlatılmadı</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -360,7 +453,7 @@ export const Activity = () => {
           
           {/* Editor Header */}
           <div className="h-9 bg-[#1a1a1a] border-b border-zinc-800 flex items-center px-4 overflow-x-auto gap-px shrink-0">
-             {Object.values(vfs).map(file => (
+             {(Object.values(files) as Array<{name: string; language: string; content: string;}>).map(file => (
                <div 
                  key={file.name}
                  onClick={() => setActiveFile(file.name)}
@@ -373,15 +466,18 @@ export const Activity = () => {
              ))}
           </div>
 
+          <div className="flex-1 flex flex-col relative min-h-0">
+            
+            <div className="flex-1 relative bg-[#0a0a0a]">
           <div className="flex-1 flex flex-col min-h-0 relative overflow-hidden">
             
             <div className="flex-1 min-h-0 h-full relative bg-black">
                 <Editor
                   height="100%"
                   theme="vs-dark"
-                  path={vfs[activeFile].name}
-                  defaultLanguage={vfs[activeFile].language}
-                  value={vfs[activeFile].content}
+                  path={files[activeFile]?.name || 'ActivityEngine.tsx'}
+                  defaultLanguage={files[activeFile]?.language || 'typescript'}
+                  value={files[activeFile]?.content || '// Select a file'}
                   options={{
                     fontSize: 13,
                     fontFamily: 'JetBrains Mono, Menlo, Monaco, monospace',
@@ -415,11 +511,18 @@ export const Activity = () => {
             </div>
 
             {/* TERMINAL / CHAT AREA (Bottom Partition) */}
-            <div className="h-64 border-t border-zinc-800 bg-[#141414] flex flex-col">
+            <div className="h-72 border-t border-zinc-800/80 bg-[#0d0d0d] flex flex-col shadow-2xl relative z-10">
                <div className="h-8 bg-[#1a1a1a] border-b border-zinc-800 flex items-center px-4 justify-between shrink-0">
                   <div className="flex items-center gap-4">
-                    <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Çıktı & Terminal</span>
-                    <span className="text-[9px] font-mono text-emerald-500 bg-emerald-500/10 px-1 rounded border border-emerald-500/20">Active</span>
+                    <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Otonom Çıktı Konsolu (Engine Console)</span>
+                    <span className="text-[9px] font-mono text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 flex items-center gap-1.5">
+                      <span className="w-1 h-1 rounded-full bg-emerald-500 animate-ping"></span>
+                      Real-time Feed
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[9px] font-mono text-zinc-600">UTF-8</span>
+                    <span className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest">Admin/Scaffold/VFS</span>
                   </div>
                </div>
                
@@ -495,34 +598,9 @@ export const Activity = () => {
           </div>
         </div>
 
-        {/* SAĞ PANEL: Live Preview Stub */}
-        <aside className="w-80 bg-[#111111] border-l border-zinc-800 flex flex-col shrink-0 overflow-hidden relative group">
-            <div className="h-10 bg-[#1a1a1a] border-b border-zinc-800 flex items-center justify-between px-4 shrink-0">
-                <span className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] italic">Live Canvas Preview</span>
-                <i className="fa-solid fa-expand text-[9px] text-zinc-600 cursor-pointer hover:text-white transition-colors"></i>
-            </div>
-            
-            <div className="flex-1 overflow-hidden relative flex flex-col bg-zinc-900/50">
-                <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-[var(--bg-primary)] m-4 rounded-[2rem] border border-zinc-800/50 shadow-inner group">
-                    <div className="w-16 h-16 rounded-[2rem] bg-zinc-800 flex items-center justify-center text-zinc-700 mb-6 border border-zinc-700/50 group-hover:scale-110 group-hover:rotate-6 transition-all duration-500">
-                        <i className="fa-solid fa-wand-magic-sparkles text-2xl"></i>
-                    </div>
-                    <p className="text-xs font-black text-zinc-500 uppercase tracking-widest mb-2">Önizleme Bekleniyor</p>
-                    <p className="text-[10px] text-zinc-600 leading-relaxed max-w-[160px]">Modül üretimini başlattığınızda canlı çalışma alanı burada belirecektir.</p>
-                </div>
-                
-                {/* Stats / Metadata Summary Overlay */}
-                <div className="p-4 bg-zinc-900/80 border-t border-zinc-800 backdrop-blur-md">
-                    <div className="flex justify-between items-center mb-2">
-                        <span className="text-[9px] font-bold text-zinc-500">Build Status</span>
-                        <span className="text-[9px] font-mono text-emerald-500">Successful</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                        <span className="text-[9px] font-bold text-zinc-500">Complexity</span>
-                        <span className="text-[9px] font-mono text-zinc-400">Low (Fast-AI)</span>
-                    </div>
-                </div>
-            </div>
+        {/* SAĞ PANEL: Live Preview Dashboard */}
+        <aside className="w-80 bg-[#111111] border-l border-zinc-800 flex flex-col shrink-0">
+            <LivePreviewDashboard />
         </aside>
 
       </div>
