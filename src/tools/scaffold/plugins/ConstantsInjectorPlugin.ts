@@ -9,7 +9,6 @@ export class ConstantsInjectorPlugin implements IScaffoldPlugin {
 
     execute(bp: ActivityBlueprint, utils: any): InjectionResult[] {
         const filePath = path.join(utils.workspaceRoot, 'src/constants.ts');
-        const arrayName = 'ACTIVITIES';
         const key = bp.identity.key;
 
         const result: InjectionResult = { target: filePath, type: 'array', key, success: false };
@@ -27,29 +26,31 @@ export class ConstantsInjectorPlugin implements IScaffoldPlugin {
             return [result];
         }
 
-        const regex = new RegExp(`export const ${arrayName}: [^=]+ = \\[([^]*?)\\];`, 'm');
-        const match = content.match(regex);
-
-        if (!match) {
-            result.error = `${arrayName} dizisi bulunamadı`;
-            utils.log('error', result.error);
-            return [result];
-        }
-
         const objectStr = this.buildActivityObject(bp);
-        const arrayBody = match[1];
         const newItem = `\n  ${objectStr},`;
-        const newBody = arrayBody.trimEnd() + newItem + '\n';
 
         if (!utils.dryRun) {
-            const newContent = content.replace(arrayBody, newBody);
-            utils.writeVFS(filePath, newContent);
+            if (content.includes('// AUTONOM_ACTIVITIES_START')) {
+                content = content.replace('// AUTONOM_ACTIVITIES_START', `// AUTONOM_ACTIVITIES_START\n${newItem}`);
+            } else {
+                // Fallback to end of array
+                const arrayHeader = 'export const ACTIVITIES: Activity[] = [';
+                const startIdx = content.indexOf(arrayHeader);
+                if (startIdx > -1) {
+                    const closingIdx = content.indexOf('];', startIdx);
+                    if (closingIdx > -1) {
+                        content = content.slice(0, closingIdx) + newItem + '\n' + content.slice(closingIdx);
+                    }
+                }
+            }
+            utils.writeVFS(filePath, content);
         }
 
         result.success = true;
-        utils.log('info', `${utils.dryRun ? '[DRY] ' : ''}Array inject: ${key} → ${arrayName}`);
+        utils.log('info', `${utils.dryRun ? '[DRY] ' : ''}Array inject: ${key}`);
         return [result];
     }
+
 
     private buildActivityObject(bp: ActivityBlueprint): string {
         const categoryMap: Record<string, string> = {

@@ -12,6 +12,10 @@ import { generateOfflineLETTER_CONNECT } from '../../modules/activities/letter-c
 import { generateHARF_BAGLAMAFromAI } from '../../modules/activities/harf-baglama/generators';
 import { generateOfflineHARF_BAGLAMA } from '../../modules/activities/harf-baglama/offlineGenerators';
 
+// AUTONOM_IMPORTS_START
+// AUTONOM_IMPORTS_END
+
+
 
 /**
  * Aktivite Jeneratör Haritası
@@ -503,12 +507,12 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   },
 
 
-  [ActivityType.LETTER_CONNECT]: {
-    ai: generateLETTER_CONNECTFromAI,
-    offline: generateOfflineLETTER_CONNECT,
-  },
   [ActivityType.HARF_BAGLAMA]: {
     ai: generateHARF_BAGLAMAFromAI,
     offline: generateOfflineHARF_BAGLAMA,
   },
+
+  // AUTONOM_REGISTRY_START
+  // AUTONOM_REGISTRY_END
 };
+

@@ -96,8 +96,15 @@ export const ActivityConfigRegistry: Record<string, any> = {
   [ActivityType.MISSING_PARTS]: AdvancedMissingPartsConfig,
 
   [ActivityType.QUEUE_ORDERING]: QueueOrderingConfig,
+  // AUTONOM_CONFIG_REGISTRY_START
+  // AUTONOM_CONFIG_REGISTRY_END
 };
 
 export { EsAnlamliKelimelerConfig } from './EsAnlamliKelimelerConfig';
 export { LetterConnectConfig } from '../../modules/activities/letter-connect/ui/ConfigPanel';
 export { HarfBaglamaConfig } from '../../modules/activities/harf-baglama/ui/ConfigPanel';
+
+
+// AUTONOM_CONFIG_EXPORTS_START
+// AUTONOM_CONFIG_EXPORTS_END
+

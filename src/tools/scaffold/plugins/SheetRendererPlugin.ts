@@ -28,17 +28,25 @@ export class SheetRendererPlugin implements IScaffoldPlugin {
 
         const PascalCase = bp.identity.key.toLowerCase().split('_').map((w: string) => w[0].toUpperCase() + w.slice(1)).join('');
         const lazyImport = `const ${PascalCase}Sheet = React.lazy(() => import('../modules/activities/${utils.slug}/ui/WorksheetUI').then(m => ({ default: m.${PascalCase}Sheet })));\n`;
-        const caseBlock = `    case ActivityType.${bp.identity.key}:\n      return <${PascalCase}Sheet data={data} />;\n`;
+        const caseBlock = `      case ActivityType.${bp.identity.key}:\n        return <${PascalCase}Sheet data={data} />;\n`;
 
         if (!utils.dryRun) {
-            const firstImportIdx = content.indexOf('import ');
-            if (firstImportIdx > -1) {
+            // Marker-based injection
+            if (content.includes('// AUTONOM_LAZY_IMPORTS_START')) {
+                content = content.replace('// AUTONOM_LAZY_IMPORTS_START', `// AUTONOM_LAZY_IMPORTS_START\n${lazyImport}`);
+            } else {
+                // Fallback to top import
                 content = lazyImport + content;
             }
 
-            const defaultIdx = content.lastIndexOf('default:');
-            if (defaultIdx > -1) {
-                content = content.slice(0, defaultIdx) + caseBlock + content.slice(defaultIdx);
+            if (content.includes('// AUTONOM_CASES_START')) {
+                content = content.replace('// AUTONOM_CASES_START', `// AUTONOM_CASES_START\n${caseBlock}`);
+            } else {
+                // Original fallback
+                const defaultIdx = content.lastIndexOf('default:');
+                if (defaultIdx > -1) {
+                    content = content.slice(0, defaultIdx) + caseBlock + content.slice(defaultIdx);
+                }
             }
 
             utils.writeVFS(filePath, content);
@@ -48,4 +56,5 @@ export class SheetRendererPlugin implements IScaffoldPlugin {
         utils.log('info', `${utils.dryRun ? '[DRY] ' : ''}SheetRenderer inject: ${bp.identity.key}`);
         return [result];
     }
+
 }

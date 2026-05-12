@@ -41,3 +41,7 @@ export * from './math/queueOrdering';
 export * from '../../modules/activities/letter-maze-test';
 export { generateLETTER_CONNECTFromAI } from '../../modules/activities/letter-connect/generators';
 export { generateHARF_BAGLAMAFromAI } from '../../modules/activities/harf-baglama/generators';
+
+// AUTONOM_EXPORTS_START
+// AUTONOM_EXPORTS_END
+

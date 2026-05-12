@@ -41,8 +41,17 @@ export class ExportInjectorPlugin implements IScaffoldPlugin {
             return result;
         }
 
+        const PascalCase = bp.identity.key.toLowerCase().split('_').map((w: string) => w[0].toUpperCase() + w.slice(1)).join('');
+        const lineToInject = filePath.includes('offlineGenerators') 
+            ? `export { generateOffline${PascalCase} } from '../../modules/activities/${utils.slug}/offlineGenerators';`
+            : `export { generate${PascalCase}FromAI } from '../../modules/activities/${utils.slug}/generators';`;
+
         if (!utils.dryRun) {
-            content = content.trimEnd() + '\n' + exportLine + '\n';
+            if (content.includes('// AUTONOM_EXPORTS_START')) {
+                content = content.replace('// AUTONOM_EXPORTS_START', `// AUTONOM_EXPORTS_START\n${lineToInject}`);
+            } else {
+                content = content.trimEnd() + '\n' + lineToInject + '\n';
+            }
             utils.writeVFS(filePath, content);
         }
 
@@ -50,4 +59,5 @@ export class ExportInjectorPlugin implements IScaffoldPlugin {
         utils.log('info', `${utils.dryRun ? '[DRY] ' : ''}Export inject: ${bp.identity.key} (${type})`);
         return result;
     }
+
 }

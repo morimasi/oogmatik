@@ -19,7 +19,7 @@ export class ConfigPanelPlugin implements IScaffoldPlugin {
         }
 
         let content = utils.readVFS(filePath);
-        if (content.includes(bp.identity.key)) {
+        if (content.includes(`[ActivityType.${bp.identity.key}]`)) {
             result.success = true;
             result.skipped = true;
             return [result];
@@ -27,9 +27,20 @@ export class ConfigPanelPlugin implements IScaffoldPlugin {
 
         const PascalCase = bp.identity.key.toLowerCase().split('_').map((w: string) => w[0].toUpperCase() + w.slice(1)).join('');
         const exportLine = `export { ${PascalCase}Config } from '../../modules/activities/${utils.slug}/ui/ConfigPanel';\n`;
+        const registryEntry = `  [ActivityType.${bp.identity.key}]: ${PascalCase}Config,`;
 
         if (!utils.dryRun) {
-            content = content.trimEnd() + '\n' + exportLine;
+            // Marker-based injection
+            if (content.includes('// AUTONOM_CONFIG_EXPORTS_START')) {
+                content = content.replace('// AUTONOM_CONFIG_EXPORTS_START', `// AUTONOM_CONFIG_EXPORTS_START\n${exportLine}`);
+            } else {
+                content = content.trimEnd() + '\n' + exportLine;
+            }
+
+            if (content.includes('// AUTONOM_CONFIG_REGISTRY_START')) {
+                content = content.replace('// AUTONOM_CONFIG_REGISTRY_START', `// AUTONOM_CONFIG_REGISTRY_START\n${registryEntry}`);
+            }
+
             utils.writeVFS(filePath, content);
         }
 
@@ -37,4 +48,5 @@ export class ConfigPanelPlugin implements IScaffoldPlugin {
         utils.log('info', `${utils.dryRun ? '[DRY] ' : ''}ConfigPanel inject: ${bp.identity.key}`);
         return [result];
     }
+
 }

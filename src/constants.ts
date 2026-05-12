@@ -396,7 +396,10 @@ export const ACTIVITIES: Activity[] = [
     difficulty: 'Kolay',
     color: 'bg-indigo-500/10 text-indigo-500 border-indigo-500/20'
   },
+  // AUTONOM_ACTIVITIES_START
+  // AUTONOM_ACTIVITIES_END
 ];
+
 
 
 // Activity Categories

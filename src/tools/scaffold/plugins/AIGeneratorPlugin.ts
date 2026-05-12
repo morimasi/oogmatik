@@ -115,27 +115,42 @@ export interface ${bp.dataModel.interfaceName || 'ActivityData'} { items: any[] 
             const typesCorePath = path.join(process.cwd(), 'src/types/core.ts');
             if (fs.existsSync(typesCorePath)) {
                 const content = fs.readFileSync(typesCorePath, 'utf8');
-                ragContext = `\nPROJE TİP REFERANSLARI (RAG CONTEXT):\n${content.substring(0, 500)} // ... (kısaltıldı)`;
+                // Önemli kısımları alalım (SingleWorksheetData, WorksheetBlock vb.)
+                ragContext = `\nPROJE TİP REFERANSLARI (RAG CONTEXT):\n${content.substring(0, 1500)}`;
             }
         } catch(e) {}
 
+        const PascalCase = bp.identity.key.toLowerCase().split('_').map((w: string) => w[0].toUpperCase() + w.slice(1)).join('');
+
         return `
-    [ROL: Senior AI Architect - Selin Arslan]
-    GÖREV: Oogmatik platformu için yeni bir '${bp.identity.title}' etkinlik modülünün tüm kodlarını yazmak.
-    
-    STRATEJİ:
-    1. Lexend fontu ve TailwindCSS kullanarak "Premium Dark Glassmorphism" stiline sadık kal.
-    2. Disleksi dostu (ferah, yüksek kontrastlı, karmaşadan uzak) bir UI tasarla.
-    
-    BLUEPRINT VERİLERİ:
-    - Key: ${bp.identity.key}
-    - Title: ${bp.identity.title}
-    - Data Structure: ${JSON.stringify(bp.dataModel)}
-    ${ragContext}
-    
-    TEKNİK KISITLAR:
-    - SADECE Tailwind sınıfları kullan. Inline style yasak.
-    - Kök div'e mutlaka 'font-lexend' ekle.
-    `;
+[ROL: Senior AI Architect - Selin Arslan persona]
+GÖREV: Oogmatik platformunun Otonom Üretim Hattı (Generative Engine) için '${bp.identity.title}' modülünü inşa et.
+
+TASARIM STANDARTLARI (Kritik):
+1. **A4 Yoğunluk**: Çalışma sayfası dolu görünmeli. Fazla boşluktan (whitespace) kaçın, kompak tasarlar. 
+2. **Nöro-Mimar**: Disleksi ve DEHB dostu hiyerarşi. Lexend fontu zorunlu. 
+3. **Görsel Dil**: Glassmorphism (admin UI için) değil, çalışma sayfası için "Temiz, Yüksek Kontrastlı, Premium Print" stilini kullan.
+4. **Tip Güvenliği**: TypeScript 'any' tipi kesinlikle yasak. 'unknown' + Type Guard kullan.
+
+BLUEPRINT:
+- Key: ${bp.identity.key}
+- Title: ${bp.identity.title}
+- Veri Yapısı: ${JSON.stringify(bp.dataModel)}
+${ragContext}
+
+DOSYA YAPILARI:
+- types.ts: '${PascalCase}Data' interface'ini 'SingleWorksheetData' ile uyumlu şekilde tanımla.
+- generators.ts: Gemini 1.5 Flash için sistem promptu ve 'generate${PascalCase}FromAI' fonksiyonu.
+- offlineGenerators.ts: İnternet yokken çalışan 'generateOffline${PascalCase}' fonksiyonu (minimum 5 örnek içerik üretmeli).
+- ui/WorksheetUI.tsx: '${PascalCase}Sheet' bileşeni. A4 sayfa içine sığacak, print-ready, modern React bileşeni.
+
+EKİP ONAYI:
+- Elif Yıldız (Pedagoji): "İlk soru kolay, ZPD uyumlu."
+- Dr. Ahmet Kaya (Klinik): "Dikkat dağıtıcı süslemelerden kaçın."
+- Bora Demir (Mühendislik): "Modüler ve performans odaklı."
+
+Lütfen sadece JSON formatında yanıt ver. Content validasyonu Selin Arslan tarafından yapılmıştır.
+`;
     }
+
 }

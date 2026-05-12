@@ -14,6 +14,10 @@ import { DynamicActivityFactory } from '../services/generators/DynamicActivityFa
 const HarfBaglamaSheet = lazy(() => import('../modules/activities/harf-baglama/ui/WorksheetUI').then(m => ({ default: m.HarfBaglamaSheet })));
 const LetterConnectSheet = lazy(() => import('../modules/activities/letter-connect/ui/WorksheetUI').then(m => ({ default: m.LetterConnectSheet })));
 
+// AUTONOM_LAZY_IMPORTS_START
+// AUTONOM_LAZY_IMPORTS_END
+
+
 import { Modifier } from '@dnd-kit/core';
 import {
   ActivityType,
@@ -1864,7 +1868,12 @@ export const SheetRenderer = React.memo(
         return <LetterConnectSheet data={data} />;
       case ActivityType.HARF_BAGLAMA:
         return <HarfBaglamaSheet data={data} />;
+
+      // AUTONOM_CASES_START
+      // AUTONOM_CASES_END
+
       default:
+
         renderedSheet = (
           <UnifiedContentRenderer
             data={data}
