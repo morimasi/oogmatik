@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -16,7 +16,9 @@ import {
   orderBy, 
   Timestamp 
 } from '../../services/firebaseClient';
-import Editor from '@monaco-editor/react';
+
+// @ts-ignore - Monaco editor types not available at build time
+const Editor = lazy(() => import('@monaco-editor/react').then(mod => ({ default: mod.default })));
 
 interface VFSFile {
   name: string;
@@ -76,7 +78,7 @@ export const Activity = () => {
   });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const user = useAuthStore((state) => state.user);
+  const user = useAuthStore((state: any) => state.user);
 
   // Firestore Collection Reference
   const logsRef = collection(db, 'scaffoldLogs');
@@ -470,34 +472,36 @@ export const Activity = () => {
           <div className="flex-1 flex flex-col min-h-0 relative overflow-hidden">
             
             <div className="flex-1 min-h-0 h-full relative bg-black">
-                <Editor
-                  height="100%"
-                  theme="vs-dark"
-                  path={vfs[activeFile].name}
-                  defaultLanguage={vfs[activeFile].language}
-                  value={vfs[activeFile].content}
-                  options={{
-                    fontSize: 13,
-                    fontFamily: 'JetBrains Mono, Menlo, Monaco, monospace',
-                    minimap: { enabled: false },
-                    scrollBeyondLastLine: false,
-                    automaticLayout: true,
-                    readOnly: false,
-                    padding: { top: 20 },
-                    lineNumbersMinChars: 3,
-                    glyphMargin: false,
-                    folding: true,
-                    scrollbar: {
-                      vertical: 'visible',
-                      horizontal: 'visible',
-                      useShadows: false,
-                      verticalHasArrows: false,
-                      horizontalHasArrows: false,
-                      verticalScrollbarSize: 10,
-                      horizontalScrollbarSize: 10
-                    }
-                  }}
-                />
+                <Suspense fallback={<div className="flex items-center justify-center h-full text-zinc-500 font-mono text-sm">Düzenleyici yükleniyor...</div>}>
+                  <Editor
+                    height="100%"
+                    theme="vs-dark"
+                    path={vfs[activeFile].name}
+                    defaultLanguage={vfs[activeFile].language}
+                    value={vfs[activeFile].content}
+                    options={{
+                      fontSize: 13,
+                      fontFamily: 'JetBrains Mono, Menlo, Monaco, monospace',
+                      minimap: { enabled: false },
+                      scrollBeyondLastLine: false,
+                      automaticLayout: true,
+                      readOnly: false,
+                      padding: { top: 20 },
+                      lineNumbersMinChars: 3,
+                      glyphMargin: false,
+                      folding: true,
+                      scrollbar: {
+                        vertical: 'visible',
+                        horizontal: 'visible',
+                        useShadows: false,
+                        verticalHasArrows: false,
+                        horizontalHasArrows: false,
+                        verticalScrollbarSize: 10,
+                        horizontalScrollbarSize: 10
+                      }
+                    }}
+                  />
+                </Suspense>
                 
                 {/* Floating "AI Engine is Writing" Badge */}
                 {isProcessing && (
