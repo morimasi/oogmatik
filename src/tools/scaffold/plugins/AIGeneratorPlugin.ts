@@ -122,21 +122,28 @@ export interface ${bp.dataModel.interfaceName || 'ActivityData'} { items: any[] 
 
         const PascalCase = bp.identity.key.toLowerCase().split('_').map((w: string) => w[0].toUpperCase() + w.slice(1)).join('');
 
+        // Multimodal Vision Support (Blueprint'te varsa)
+        const visualReference = (bp as any).visualAnalysis 
+            ? `\n[GÖRSEL REFERANS ALINDI - KLONLAMA MODU AKTİF]:\n${JSON.stringify((bp as any).visualAnalysis, null, 2)}` 
+            : '';
+
         return `
 [ROL: Senior AI Architect - Selin Arslan persona]
 GÖREV: Oogmatik platformunun Otonom Üretim Hattı (Generative Engine) için '${bp.identity.title}' modülünü inşa et.
 
 TASARIM STANDARTLARI (Kritik):
-1. **A4 Yoğunluk**: Çalışma sayfası dolu görünmeli. Fazla boşluktan (whitespace) kaçın, kompak tasarlar. 
+1. **A4 Yoğunluk**: Çalışma sayfası dolu görünmeli. Fazla boşluktan (whitespace) kaçın, kompak tasarla. 
 2. **Nöro-Mimar**: Disleksi ve DEHB dostu hiyerarşi. Lexend fontu zorunlu. 
-3. **Görsel Dil**: Glassmorphism (admin UI için) değil, çalışma sayfası için "Temiz, Yüksek Kontrastlı, Premium Print" stilini kullan.
+3. **Görsel Dil**: Çalışma sayfası için "Temiz, Yüksek Kontrastlı, Premium Print" stilini kullan.
 4. **Tip Güvenliği**: TypeScript 'any' tipi kesinlikle yasak. 'unknown' + Type Guard kullan.
+${visualReference ? '5. **Klonlama Protokolü**: Sağlanan görsel analize (DNA) %100 sadık kal. Layout, soru tipi ve veri yapısını görsele göre simüle et.' : ''}
 
 BLUEPRINT:
 - Key: ${bp.identity.key}
 - Title: ${bp.identity.title}
 - Veri Yapısı: ${JSON.stringify(bp.dataModel)}
 ${ragContext}
+${visualReference}
 
 DOSYA YAPILARI:
 - types.ts: '${PascalCase}Data' interface'ini 'SingleWorksheetData' ile uyumlu şekilde tanımla.
@@ -145,12 +152,13 @@ DOSYA YAPILARI:
 - ui/WorksheetUI.tsx: '${PascalCase}Sheet' bileşeni. A4 sayfa içine sığacak, print-ready, modern React bileşeni.
 
 EKİP ONAYI:
-- Elif Yıldız (Pedagoji): "İlk soru kolay, ZPD uyumlu."
-- Dr. Ahmet Kaya (Klinik): "Dikkat dağıtıcı süslemelerden kaçın."
-- Bora Demir (Mühendislik): "Modüler ve performans odaklı."
+- Elif Yıldız (Pedagoji): "ZPD uyumlu, başarı anı odaklı."
+- Dr. Ahmet Kaya (Klinik): "Bilişsel yükü optimize edilmiş hiyerarşi."
+- Bora Demir (Mühendislik): "Strict TypeScript ve performant bileşenler."
 
 Lütfen sadece JSON formatında yanıt ver. Content validasyonu Selin Arslan tarafından yapılmıştır.
 `;
     }
+
 
 }

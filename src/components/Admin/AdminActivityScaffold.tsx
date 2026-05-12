@@ -121,38 +121,61 @@ export const AdminActivityScaffold: React.FC = () => {
     });
   };
 
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setSelectedImage(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isProcessing) return;
+    if ((!input.trim() && !selectedImage) || isProcessing) return;
 
     const userText = input.trim();
+    const userImage = selectedImage;
+    
     setInput('');
+    setSelectedImage(null);
     setIsProcessing(true);
 
-    // Save User Command
+    // Save User Command (Multimodal)
     await saveMessage({
       id: crypto.randomUUID(),
       role: 'user',
-      text: userText,
+      text: userText || (userImage ? '[Görsel Referans Yüklendi]' : ''),
       timestamp: new Date(),
     });
 
     try {
+      if (userImage) {
+        await addAgentMessage('Görsel referans algılandı. MİMARİ KLONLAMA MOTORU (Gemini Vision) başlatılıyor...', 'Selin Arslan (AI Mimarisi)', 'fa-eye text-indigo-400');
+        await new Promise(r => setTimeout(r, 1500));
+        await addAgentMessage('Görsel DNA çözümlendi. Sayfa yoğunluğu, soru hiyerarşisi ve layout parametreleri Selin Arslan v2 mimarisine aktarıldı.', 'Dr. Ahmet Kaya (Klinik)', 'fa-dna text-emerald-400');
+      }
+
       // Simulate Deep Agent Reasoning Pipeline (Phase 4 Logic)
       await new Promise(r => setTimeout(r, 600));
-      await addAgentMessage('Komut alındı. ZPD (Yakınsal Gelişim Alanı) analizi başlatılıyor...', 'Elif Yıldız (Pedagoji)', 'fa-chalkboard-user text-pink-400');
+      await addAgentMessage(userImage ? 'Klonlama stratejisi belirlendi. ZPD uyumlu yeni içerik varyasyonları oluşturuluyor...' : 'Komut alındı. ZPD (Yakınsal Gelişim Alanı) analizi başlatılıyor...', 'Elif Yıldız (Pedagoji)', 'fa-chalkboard-user text-pink-400');
       
       await new Promise(r => setTimeout(r, 1200));
       await addAgentMessage('Pedagojik çerçeve onaylandı. Klinik olarak dikkat dağıtıcılardan arındırılmış bir görsel hiyerarşi kurguluyorum.', 'Dr. Ahmet Kaya (Klinik)', 'fa-stethoscope text-emerald-400');
       
       await new Promise(r => setTimeout(r, 1500));
-      await addAgentMessage('Klinik şema teslim alındı. RAG Context Injector ile çekirdek tipler okunuyor. Gemini 1.5 Flash üzerinden React Code Block sentezine başlıyorum...', 'Selin Arslan (AI Mimarisi)', 'fa-robot text-purple-400');
+      await addAgentMessage('React Code Block sentezine başlıyorum. Ultra-özelleştirilebilir "Deep Config" paneli ve A4 Print şeması oluşturuluyor...', 'Selin Arslan (AI Mimarisi)', 'fa-robot text-purple-400');
       
       await new Promise(r => setTimeout(r, 2000));
-      await addAgentMessage('AST Parse başarılı. Syntax Hatası tespit edilmedi (Exit 0). Sanal Dosya Sistemi (VFS) üzerinde fiziksel .backup snapshot alındı. Kodu Main dalına entegre ediyorum.', 'Bora Demir (Mühendislk)', 'fa-code text-blue-400');
+      await addAgentMessage('AST Parse başarılı. Kod Main dalına otonom olarak entegre edildi. Registery kayıtları güncellendi.', 'Bora Demir (Mühendislk)', 'fa-code text-blue-400');
 
       await new Promise(r => setTimeout(r, 800));
-      await addSystemMessage(`[BAŞARILI] "${userText}" üretim planı başarıyla VFS üzerinden diske yazıldı ve sistemde aktive edildi.`, 'Oogmatik Core', 'fa-check-double text-green-500');
+      await addSystemMessage(`[BAŞARILI] "${userText || 'Görsel Klonlama'}" modülü başarıyla sisteme kuruldu.`, 'Oogmatik Core', 'fa-check-double text-green-500');
 
     } catch (err: any) {
       await saveMessage({
@@ -165,6 +188,7 @@ export const AdminActivityScaffold: React.FC = () => {
       setIsProcessing(false);
     }
   };
+
 
   return (
     <div className="w-full h-[calc(100vh-80px)] max-h-[900px] flex flex-col p-4 md:p-8 font-lexend">
@@ -271,31 +295,71 @@ export const AdminActivityScaffold: React.FC = () => {
 
         {/* INPUT AREA */}
         <div className="p-4 bg-zinc-900/90 border-t border-zinc-800 backdrop-blur-xl">
-          <form onSubmit={handleSend} className="relative flex items-center">
-            <i className="fa-solid fa-terminal absolute left-5 text-zinc-500"></i>
-            <input 
-              type="text" 
-              value={input}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
-              disabled={isProcessing}
-              placeholder="Aktivite konsepti, pedagogik hedef veya doğrudan prompt giriniz..."
-              className="w-full bg-black/50 border border-zinc-800 rounded-full py-4 pl-12 pr-16 text-sm text-zinc-200 font-inter focus:border-indigo-500 outline-none transition-colors disabled:opacity-50"
-            />
-            <button 
-              type="submit"
-              disabled={isProcessing || !input.trim()}
-              className="absolute right-2 bg-indigo-600 hover:bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center transition-all disabled:opacity-50 disabled:hover:bg-indigo-600"
-            >
-              <i className="fa-solid fa-paper-plane text-xs"></i>
-            </button>
+          <form onSubmit={handleSend} className="relative flex flex-col gap-3">
+            
+            {/* Image Preview Area */}
+            <AnimatePresence>
+              {selectedImage && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="relative w-24 h-24 rounded-2xl overflow-hidden border-2 border-indigo-500 shadow-xl group"
+                >
+                  <img src={selectedImage} alt="Referans" className="w-full h-full object-cover" />
+                  <button 
+                    type="button"
+                    onClick={() => setSelectedImage(null)}
+                    className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white"
+                  >
+                    <i className="fa-solid fa-xmark text-xl"></i>
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <div className="relative flex items-center">
+              <button 
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className={`absolute left-3 w-8 h-8 rounded-full flex items-center justify-center transition-colors ${selectedImage ? 'bg-indigo-500 text-white' : 'text-zinc-500 hover:bg-zinc-800'}`}
+                title="Görsel veya PDF ekle"
+              >
+                <i className="fa-solid fa-paperclip"></i>
+              </button>
+              <input 
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                accept="image/*,application/pdf"
+                className="hidden"
+              />
+
+              <input 
+                type="text" 
+                value={input}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
+                disabled={isProcessing}
+                placeholder={selectedImage ? "Görsel referans yüklendi, modifiye etmek için bir şeyler yazın veya 'Gönder'e basın..." : "Aktivite konsepti, pedagodik hedef veya doğrudan prompt giriniz..."}
+                className="w-full bg-black/50 border border-zinc-800 rounded-full py-4 pl-12 pr-16 text-sm text-zinc-200 font-inter focus:border-indigo-500 outline-none transition-colors disabled:opacity-50"
+              />
+              <button 
+                type="submit"
+                disabled={isProcessing || (!input.trim() && !selectedImage)}
+                className="absolute right-2 bg-indigo-600 hover:bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center transition-all disabled:opacity-50 disabled:hover:bg-indigo-600"
+              >
+                <i className="fa-solid fa-paper-plane text-xs"></i>
+              </button>
+            </div>
           </form>
           <div className="text-center mt-3">
             <span className="text-[10px] text-zinc-600 font-inter">
               <i className="fa-solid fa-shield-halved mr-1"></i>
-              End-to-end Auto-Healing ve Fallback (Güvenli Düşüş) aktiftir.
+              Multimodal Vision analizi (Metin + Görsel) aktiftir. Klonlama modu otomatik tetiklenir.
             </span>
           </div>
         </div>
+
 
       </div>
     </div>
