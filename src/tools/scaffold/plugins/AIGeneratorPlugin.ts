@@ -3,7 +3,9 @@ import { InjectionResult } from '../ActivityScaffoldEngine';
 import { IScaffoldPlugin, PluginUtils } from './IScaffoldPlugin';
 import { tryGenerateWithCorrection } from '../../../services/aiContentService';
 import { SyntaxValidator } from '../SyntaxValidator';
+// @ts-ignore
 import * as fs from 'fs';
+// @ts-ignore
 import * as path from 'path';
 
 /**
@@ -109,6 +111,7 @@ export interface ${bp.dataModel.interfaceName || 'ActivityData'} { items: any[] 
         // RAG Context Injector: Projenin global core typelarını oku
         let ragContext = '';
         try {
+            // @ts-ignore
             const typesCorePath = path.join(process.cwd(), 'src/types/core.ts');
             if (fs.existsSync(typesCorePath)) {
                 const content = fs.readFileSync(typesCorePath, 'utf8');

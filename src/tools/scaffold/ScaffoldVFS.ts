@@ -1,4 +1,6 @@
+// @ts-ignore
 import * as fs from 'fs';
+// @ts-ignore
 import * as path from 'path';
 
 /**
@@ -47,7 +49,9 @@ export class ScaffoldVFS {
      * Yazmadan önce değişecek tüm dosyaların fiziksel '.backup' yedeğini alır.
      */
     commit(): void {
-        const backupDir = path.join(process.cwd(), 'src/tools/scaffold/.backup', Date.now().toString());
+        // @ts-ignore
+        const currentWD = process.cwd();
+        const backupDir = path.join(currentWD, 'src/tools/scaffold/.backup', Date.now().toString());
         
         // Önce backup oluştur (Selin Arslan & Ahmet Kaya security measure)
         if (this.backups.size > 0 || this.memFS.size > 0) {
@@ -56,7 +60,7 @@ export class ScaffoldVFS {
             }
             
             for (const [filePath, content] of this.backups.entries()) {
-                const relativePath = path.relative(process.cwd(), filePath);
+                const relativePath = path.relative(currentWD, filePath);
                 const backupPath = path.join(backupDir, relativePath);
                 const backupFileDir = path.dirname(backupPath);
                 

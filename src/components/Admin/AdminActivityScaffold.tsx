@@ -50,7 +50,7 @@ export const AdminActivityScaffold: React.FC = () => {
       const querySnapshot = await getDocs(q);
       const historyItems: ChatMessage[] = [];
       
-      querySnapshot.forEach((docSnap) => {
+      querySnapshot.forEach((docSnap: any) => {
         const data = docSnap.data();
         historyItems.push({
           id: docSnap.id,
@@ -77,7 +77,7 @@ export const AdminActivityScaffold: React.FC = () => {
     if (!window.confirm('Tüm Agent CLI geçmişini silmek istediğinize emin misiniz?')) return;
     try {
       const querySnapshot = await getDocs(logsRef);
-      const deletePromises = querySnapshot.docs.map(d => deleteDoc(d.ref));
+      const deletePromises = querySnapshot.docs.map((d: any) => deleteDoc(d.ref));
       await Promise.all(deletePromises);
       setMessages([]);
       await addSystemMessage('Terminal Sıfırlandı. Otonom üretim için yeni bir komut girebilirsiniz.', 'Sistem', 'fa-rotate');
@@ -88,7 +88,7 @@ export const AdminActivityScaffold: React.FC = () => {
   };
 
   const saveMessage = async (msg: ChatMessage) => {
-    setMessages(prev => [...prev, msg]);
+    setMessages((prev: ChatMessage[]) => [...prev, msg]);
     try {
       await setDoc(doc(logsRef, msg.id), {
         ...msg,
@@ -209,7 +209,7 @@ export const AdminActivityScaffold: React.FC = () => {
         {/* MESSAGES AREA */}
         <div className="flex-1 overflow-y-auto p-6 pt-16 space-y-6 custom-scrollbar scroll-smooth relative">
           <AnimatePresence initial={false}>
-            {messages.map((msg) => (
+            {messages.map((msg: ChatMessage) => (
               <motion.div
                 key={msg.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -276,7 +276,7 @@ export const AdminActivityScaffold: React.FC = () => {
             <input 
               type="text" 
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
               disabled={isProcessing}
               placeholder="Aktivite konsepti, pedagogik hedef veya doğrudan prompt giriniz..."
               className="w-full bg-black/50 border border-zinc-800 rounded-full py-4 pl-12 pr-16 text-sm text-zinc-200 font-inter focus:border-indigo-500 outline-none transition-colors disabled:opacity-50"
