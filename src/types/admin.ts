@@ -1,6 +1,18 @@
 import { ActivityType } from './activity';
 import { UserRole, UserStatus } from './user';
 
+export type AdminTab =
+  | 'dashboard'
+  | 'users'
+  | 'activities'
+  | 'prompts'
+  | 'static_content'
+  | 'feedbacks'
+  | 'drafts'
+  | 'approvals'
+  | 'permissions'
+  | 'scaffold';
+
 export interface DynamicActivity {
   id: string;
   title: string;

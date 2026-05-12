@@ -7,6 +7,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { useRBAC } from '../../hooks/useRBAC';
 import { useUIStore } from '../../store/useUIStore';
 import { useWorksheetStore } from '../../store/useWorksheetStore';
+import { AdminTab } from '../../types/admin';
 import { logError } from '../../utils/logger.js';
 
 // Lazy Loaded Views
@@ -63,24 +64,35 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
   const { user } = useAuthStore();
   const { isAdmin } = useRBAC();
 
-  const [activeTab, setActiveTab] = useState<
-    'dashboard' | 'users' | 'activities' | 'prompts' | 'static_content' | 'feedbacks' | 'drafts' | 'approvals' | 'permissions' | 'scaffold'
-  >(() => {
-    const saved = localStorage.getItem('admin_active_tab');
-    return (saved as any) || 'dashboard';
+  const [activeTab, setActiveTab] = useState<AdminTab>(() => {
+    const saved = localStorage.getItem('admin_active_tab') as AdminTab | null;
+    const validTabs: AdminTab[] = [
+      'dashboard',
+      'users',
+      'activities',
+      'prompts',
+      'static_content',
+      'feedbacks',
+      'drafts',
+      'approvals',
+      'permissions',
+      'scaffold',
+    ];
+    return saved && validTabs.includes(saved) ? saved : 'dashboard';
   });
 
-  const { setIsSidebarOpen } = useUIStore();
+  const { setIsSidebarOpen, setZenMode } = useUIStore();
   const { currentView } = useWorksheetStore();
 
   useEffect(() => {
     localStorage.setItem('admin_active_tab', activeTab);
-    
-    // Otonom Üretim (Scaffold) aktifse sidebar'ı kapat (Immersive Mode)
-    if (activeTab === 'scaffold' && currentView === 'admin') {
+
+    const isImmersive = activeTab === 'scaffold' && currentView === 'admin';
+    if (isImmersive) {
       setIsSidebarOpen(false);
     }
-  }, [activeTab, currentView, setIsSidebarOpen]);
+    setZenMode(isImmersive);
+  }, [activeTab, currentView, setIsSidebarOpen, setZenMode]);
 
   const [stats, setStats] = useState<ActivityStats[]>([]);
   const [_loading, setLoading] = useState(true);
