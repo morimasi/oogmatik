@@ -30,8 +30,19 @@ Brittle (kırılgan) kod enjeksiyonu yöntemi terkedilerek, tüm kritik dosyalar
 | `constants.ts` | `// AUTONOM_ACTIVITIES` | Sidebar ve liste kayıtları. |
 | `activity-configs/index.ts` | `// AUTONOM_CONFIG_REGISTRY` | Ayar panellerinin sisteme dahil edilmesi. |
 
+### 4. Multimodal Vision & Architectural Cloning
+CLI asistanı artık resim ve PDF analizi yapabilmektedir:
+- **Vision DNA**: Görselden gelen mimari DNA, Selin Arslan (AI) tarafından kod üretiminde referans olarak kullanılır.
+- **Visual Cloner**: Fiziksel bir çalışma kağıdı, otonom olarak dijital bir React modülüne dönüştürülebilir.
+
+### 5. Registry & Stabilite Senkronizasyonu
+`LETTER_CONNECT` ve benzeri otonom modüllerin registry kopuklukları manuel ve otonom senkronizasyon araçlarıyla giderilmiştir:
+- **Retry Backoff**: Gemini API 429/503 hatalarına karşı agresif bekleme mekanizması kuruldu.
+- **Registry Sync**: Yeni eklenen modüllerin `ACTIVITY_GENERATOR_REGISTRY` içerisine otonom kaydı stabilize edildi.
+
 ## 🎯 Sonuç
-Oogmatik artık sadece bir içerik platformu değil, **kendi kendini geliştirebilen bir eğitim motorudur.** CLI üzerinden gelen "Görsel algı ve labirent mantığını birleştiren heceleme etkinliği üret" gibi kompleks bir talep, artık tek bir otonom döngüde stabil kod blokları olarak sisteme entegre edilebilir durumdadır.
+Oogmatik artık sadece bir içerik platformu değil, **görseli koda dönüştürebilen otonom bir fabrikadır.**
 
 ---
-*Hazırlayan: Antigravity AI — Sprint 5 Stratejik Raporu*
+*Hazırlayan: Antigravity AI — Sprint 5 Final Raporu*
+
