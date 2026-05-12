@@ -40,11 +40,13 @@ Disleksi, DEHB ve özel öğrenme güçlüğü yaşayan Türk çocuklar için AI
 
 Uygulama geliştirme ve içerik üretim süreçlerinde **v2 Professional** mimarisi aktiftir. Ajanlar artık manuel çağrıya gerek duymadan **otomatik** olarak devreye girer.
 
-### 🔄 Otomatik Orkestrasyon & Denetim
-- **Oto-Pilot**: Her prompt, [AgentOrchestrator](file:///c:/Users/Administrator/Desktop/oogmatik/src/services/activityStudio/AgentOrchestrator.ts) tarafından analiz edilir ve ilgili ekip (Ideation, Content, Visual, Flow, Evaluation, Integration) anında işe başlar.
+### 🔄 Otomatik Orkestrasyon & Denetim (Phase 4: Generative Engine)
+- **Oto-Pilot**: Her prompt, [AgentOrchestrator](file:///d:/bbma/bursadisleksi/oogmatik/src/tools/scaffold/AgentOrchestrator.ts) tarafından analiz edilir.
+- **Multimodal Vision**: CLI üzerinden gelen Resim/PDF verileri `ocrService` ile "Architectural DNA"ya dönüştürülür ve Selin Arslan'a klonlama referansı olarak sunulur.
+- **Marker-Based Injection**: Kod enjeksiyonu asla rastgele yapılmaz. Sadece `// AUTONOM_...` işaretleyicileri arasına güvenli ekleme yapılır.
 - **Self-Correction**: Ajanlar çıktılarını birbirlerine aktarmadan önce halüsinasyon ve hata denetiminden (`validateAndCorrect`) geçerler.
-- **Peer-Review**: Her çıktı, bir sonraki uzman ajan tarafından "Akran Denetimi"ne tabi tutulur.
-- **Global Aktivasyon**: Tüm geliştirme ortamlarında (Cursor, Windsurf, Claude Code, Gemini CLI, Aider, Zed vb.) bu protokoller her zaman **otomatik** olarak devrededir.
+- **Global Aktivasyon**: Tüm geliştirme ortamlarında (Antigravity, Cursor, CLI) bu protokoller her zaman **otomatik** olarak devrededir.
+
 
 ### 📚 Tam Sistem Hakimiyeti
 - **Source of Truth**: [MODULE_KNOWLEDGE.md](file:///c:/Users/Administrator/Desktop/oogmatik/.claude/MODULE_KNOWLEDGE.md) belgesi, uygulamanın her bir dosyasını, özelliğini ve işlevini içeren "Evrensel Bilgi Kaynağı"dır.
