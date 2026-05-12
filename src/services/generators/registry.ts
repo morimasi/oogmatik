@@ -511,6 +511,10 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     ai: generateHARF_BAGLAMAFromAI,
     offline: generateOfflineHARF_BAGLAMA,
   },
+  [ActivityType.LETTER_CONNECT]: {
+    ai: generateLETTER_CONNECTFromAI,
+    offline: generateOfflineLETTER_CONNECT,
+  },
 
   // AUTONOM_REGISTRY_START
   // AUTONOM_REGISTRY_END

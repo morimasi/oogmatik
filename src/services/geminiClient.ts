@@ -106,8 +106,8 @@ export const generateCreativeMultimodal = async (params: {
     body.mimeType = file.mimeType;
   }
 
-  // Retry logic for rate limiting
-  const maxAttempts = 3;
+  // Retry logic for rate limiting & high demand
+  const maxAttempts = 5; // Arttırıldı
   let lastError: any;
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -120,23 +120,29 @@ export const generateCreativeMultimodal = async (params: {
     } catch (error: any) {
       lastError = error;
       const errorMsg = error?.message || String(error);
-      const isQuotaError = errorMsg.includes('quota') || errorMsg.includes('Quota') || errorMsg.includes('429') || errorMsg.includes('rate');
+      
+      // Hata tipleri: Rate limit (429), High Demand/Service Unavailable (503), Gateway Timeout (504)
+      const isRetryable = 
+        errorMsg.includes('quota') || 
+        errorMsg.includes('429') || 
+        errorMsg.includes('503') || 
+        errorMsg.includes('demand') ||
+        errorMsg.includes('overloaded') ||
+        errorMsg.includes('504');
 
-      if (isQuotaError && attempt < maxAttempts - 1) {
-        // Extract retry-after zamanı varsa
-        const match = errorMsg.match(/(\d+)\s*s/);
-        const retryAfter = match ? Math.min(parseInt(match[1], 10) * 1000, 5000) : (1000 * Math.pow(2, attempt));
+      if (isRetryable && attempt < maxAttempts - 1) {
+        // Üssel bekleme (Exponential Backoff): 2s, 4s, 8s, 16s...
+        const baseDelay = 2000;
+        const retryAfter = baseDelay * Math.pow(2, attempt);
 
-        logWarn('Gemini Quota Hatası — Tekrar denenecek', {
+        logWarn('Gemini Geçici Hatası — Tekrar denenecek', {
           retryAfter: `${retryAfter}ms`,
           attempt: attempt + 1,
           error: errorMsg
         });
 
-        // Bekle ve yeniden dene
         await new Promise(resolve => setTimeout(resolve, retryAfter));
       } else {
-        // Quota olmayan hata veya son deneme — hemen fırlat
         throw error;
       }
     }
