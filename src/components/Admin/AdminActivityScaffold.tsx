@@ -172,6 +172,9 @@ export const AdminActivityScaffold: React.FC = () => {
     setSelectedImage(null);
     setIsProcessing(true);
 
+    // Update agent states to show they're working
+    setAgentStates(prev => prev.map(a => ({ ...a, status: 'analyzing' as const })));
+
     // Save User Command (Multimodal)
     await saveMessage({
       id: crypto.randomUUID(),
@@ -250,6 +253,17 @@ export const Activity = () => {
 
       await addSystemMessage(`[BAŞARILI] "${userText || 'Görsel Klonlama'}" modülü başarıyla sisteme kuruldu.`, 'Oogmatik Core', 'fa-check-double text-green-500');
 
+      // Update all agent states to success
+      setAgentStates(prev => prev.map((a, i) => ({
+        ...a,
+        status: 'success' as const,
+        analysis: {
+          status: 'success' as const,
+          feedback: `Agent ${i + 1} completed successfully`,
+          suggestions: []
+        }
+      })));
+
     } catch (err: any) {
       await saveMessage({
         id: crypto.randomUUID(),
@@ -257,6 +271,9 @@ export const Activity = () => {
         text: `Üretim Hatası: ${err.message}. Fallback (Fail-Safe) şablona dönülüyor...`,
         timestamp: new Date()
       });
+      
+      // Update agent states to error
+      setAgentStates(prev => prev.map(a => ({ ...a, status: 'error' as const })));
     } finally {
       setIsProcessing(false);
     }
