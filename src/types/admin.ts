@@ -11,6 +11,16 @@ export type AdminTab =
   | 'drafts' 
   | 'approvals' 
   | 'permissions' 
+export type AdminTab =
+  | 'dashboard'
+  | 'users'
+  | 'activities'
+  | 'prompts'
+  | 'static_content'
+  | 'feedbacks'
+  | 'drafts'
+  | 'approvals'
+  | 'permissions'
   | 'scaffold';
 
 export interface DynamicActivity {

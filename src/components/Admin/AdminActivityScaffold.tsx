@@ -13,7 +13,6 @@ import {
   orderBy, 
   Timestamp 
 } from '../../services/firebaseClient';
-// @ts-ignore
 import Editor from '@monaco-editor/react';
 import { useVFSStore } from '../../store/useVFSStore';
 import { GhostWriter, createGhostWriter } from '../../utils/ghostWriter';
@@ -470,6 +469,9 @@ export const Activity = () => {
           <div className="flex-1 flex flex-col relative min-h-0">
             
             <div className="flex-1 relative bg-[#0a0a0a]">
+          <div className="flex-1 flex flex-col min-h-0 relative overflow-hidden">
+            
+            <div className="flex-1 min-h-0 h-full relative bg-black">
                 <Editor
                   height="100%"
                   theme="vs-dark"
