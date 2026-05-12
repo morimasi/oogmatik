@@ -39,11 +39,15 @@ interface ChatMessage {
   agentIcon?: string;
 }
 
+interface AdminActivityScaffoldProps {
+  onBack?: () => void;
+}
+
 /**
  * AdminActivityScaffold: Otonom Etkinlik Üretim CLI / Chat Asistanı
  * Premium Dark Terminal / Glassmorphism Design
  */
-export const AdminActivityScaffold: React.FC = () => {
+export const AdminActivityScaffold: React.FC<AdminActivityScaffoldProps> = ({ onBack }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -338,9 +342,20 @@ export const Activity = () => {
             <div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/40 hover:bg-green-500/80 transition-all cursor-pointer"></div>
           </div>
           <div className="h-4 w-px bg-zinc-800 mx-2"></div>
+          
+          {onBack && (
+            <button 
+              onClick={onBack}
+              className="flex items-center gap-2 px-3 py-1 bg-zinc-800 hover:bg-indigo-600 text-zinc-400 hover:text-white rounded-lg transition-all text-[10px] font-black uppercase tracking-widest border border-zinc-700"
+            >
+              <i className="fa-solid fa-arrow-left"></i>
+              Panele Dön
+            </button>
+          )}
+
           <div className="flex items-center gap-2 text-[10px] font-mono text-zinc-500 tracking-wider">
-            <i className="fa-solid fa-folder-open text-xs text-indigo-400"></i>
-            <span>oogmatik / src / components / scaffold / <span className="text-zinc-300">Terminal.cli</span></span>
+            <i className="fa-solid fa-folder-open text-xs text-indigo-400 ml-2"></i>
+            <span>oogmatik / <span className="text-zinc-300">Terminal.cli</span></span>
           </div>
         </div>
         

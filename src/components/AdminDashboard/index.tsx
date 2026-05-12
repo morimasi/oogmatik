@@ -215,34 +215,32 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
         </aside>
       )}
 
-      <main className={`flex-1 flex flex-col min-w-0 relative z-10 transition-all duration-500 ${isScaffoldMode ? 'p-0' : 'p-2 pl-0'}`}>
-        {!isScaffoldMode && (
-          <header className="h-16 bg-[var(--bg-paper)] border border-[var(--border-color)] flex items-center justify-between px-8 shrink-0 mb-4 rounded-[2rem] shadow-sm">
-            <div className="flex items-center gap-4">
-              <h1 className="text-xl font-black text-[var(--text-primary)] uppercase italic tracking-tighter">
-                {activeTab === 'dashboard' && 'Kontrol Paneli'}
-                {activeTab === 'users' && 'Kullanıcı Yönetimi'}
-                {activeTab === 'activities' && 'Aktivite Yöneticisi'}
-                {activeTab === 'prompts' && 'AI Prompt Laboratuvarı'}
-                {activeTab === 'static_content' && 'Veri Kaynakları (CMS)'}
-                {activeTab === 'feedbacks' && 'Geri Bildirimler'}
-                {activeTab === 'drafts' && 'Taslak Havuzu (OCR)'}
-                {activeTab === 'approvals' && 'İçerik Onay Merkezi'}
-                {activeTab === 'permissions' && 'Yetkilendirme (RBAC)'}
-                {activeTab === 'scaffold' && 'Otonom Etkinlik Üretimi'}
-              </h1>
-              <span className="px-2 py-0.5 rounded bg-[var(--bg-secondary)] text-[10px] font-mono text-[var(--text-muted)] border border-[var(--border-color)]">v1.3.0</span>
+      <main className="flex-1 flex flex-col min-w-0 relative z-10 transition-all duration-500 p-2 pl-0">
+        <header className="h-16 bg-[var(--bg-paper)] border border-[var(--border-color)] flex items-center justify-between px-8 shrink-0 mb-4 rounded-[2rem] shadow-sm">
+          <div className="flex items-center gap-4">
+            <h1 className="text-xl font-black text-[var(--text-primary)] uppercase italic tracking-tighter">
+              {activeTab === 'dashboard' && 'Kontrol Paneli'}
+              {activeTab === 'users' && 'Kullanıcı Yönetimi'}
+              {activeTab === 'activities' && 'Aktivite Yöneticisi'}
+              {activeTab === 'prompts' && 'AI Prompt Laboratuvarı'}
+              {activeTab === 'static_content' && 'Veri Kaynakları (CMS)'}
+              {activeTab === 'feedbacks' && 'Geri Bildirimler'}
+              {activeTab === 'drafts' && 'Taslak Havuzu (OCR)'}
+              {activeTab === 'approvals' && 'İçerik Onay Merkezi'}
+              {activeTab === 'permissions' && 'Yetkilendirme (RBAC)'}
+              {activeTab === 'scaffold' && 'Otonom Etkinlik Üretimi'}
+            </h1>
+            <span className="px-2 py-0.5 rounded bg-[var(--bg-secondary)] text-[10px] font-mono text-[var(--text-muted)] border border-[var(--border-color)]">v1.3.0</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 text-emerald-500 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sistem Aktif
             </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 text-emerald-500 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Sistem Aktif
-              </div>
-              <img src={user.avatar} alt="" className="w-8 h-8 rounded-full border border-[var(--border-color)]" />
-            </div>
-          </header>
-        )}
+            <img src={user?.avatar} alt="" className="w-8 h-8 rounded-full border border-[var(--border-color)]" />
+          </div>
+        </header>
 
-        <div className={`flex-1 ${isScaffoldMode ? 'overflow-hidden' : 'overflow-y-auto'} relative bg-[var(--bg-paper)] border border-[var(--border-color)] shadow-inner transition-all duration-500 ${isScaffoldMode ? 'rounded-none border-none p-0 h-full' : 'rounded-[2.5rem] p-4'}`}>
+        <div className={`flex-1 ${isScaffoldMode ? 'overflow-hidden' : 'overflow-y-auto'} relative bg-[var(--bg-paper)] border border-[var(--border-color)] shadow-inner transition-all duration-500 rounded-[2.5rem] p-4`}>
           <div className={`w-full mx-auto ${isScaffoldMode ? 'h-full pb-0' : 'pb-20'}`}>
             <React.Suspense fallback={<div className="flex items-center justify-center p-20"><i className="fa-solid fa-spinner fa-spin text-3xl text-indigo-500"></i></div>}>
               {activeTab === 'dashboard' && <AdminAnalytics stats={stats} totalUsers={usersCount} />}
@@ -254,7 +252,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
               {activeTab === 'drafts' && <AdminDraftReview />}
               {activeTab === 'approvals' && <AdminActivityApproval />}
               {activeTab === 'permissions' && <AdminPermissionsIDE />}
-              {activeTab === 'scaffold' && <AdminActivityScaffold />}
+              {activeTab === 'scaffold' && <AdminActivityScaffold onBack={() => setActiveTab('dashboard')} />}
             </React.Suspense>
           </div>
         </div>
