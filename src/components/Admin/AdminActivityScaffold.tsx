@@ -70,6 +70,13 @@ export const AdminActivityScaffold: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Handle active file synchronization
+  useEffect(() => {
+    if (vfsActiveFile) {
+      setActiveFileLocal(vfsActiveFile);
+    }
+  }, [vfsActiveFile]);
+
   const loadHistory = async () => {
     try {
       const q = query(logsRef, orderBy('timestamp', 'asc'));
@@ -90,7 +97,9 @@ export const AdminActivityScaffold: React.FC = () => {
 
       if (historyItems.length === 0) {
         // Welcome message
-        await addSystemMessage('Oogmatik Agent CLI v2.0 Sistemine Hoş Geldiniz. Ne üretmemi istersiniz?', 'Oogmatik Core', 'fa-terminal');
+        await addSystemMessage('Otonom Üretim Terminali (v2 Professional) başlatıldı.', 'Kernel', 'fa-microchip');
+        await addAgentMessage('Gelişmiş AI destekli CLI asistanı hazır. Architectural DNA motoru aktif.', 'Selin Arslan (AI Mimarisi)', 'fa-robot text-purple-400');
+        await addSystemMessage('Oogmatik ~ root@core: /scaffold/cli/engine-v4', 'Terminal', 'fa-terminal');
       } else {
         setMessages(historyItems);
       }
@@ -213,8 +222,9 @@ import { motion } from 'framer-motion';
 // AUTONOM_CONFIG_START
 export const Config = () => {
   return (
-    <div className="p-4">
-      <h2 className="text-xl font-bold text-indigo-600">${userText || 'Otonom Etkinlik'}</h2>
+    <div className="p-6 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl">
+      <h2 className="text-xl font-black text-indigo-400 mb-2">${userText || 'Otonom Etkinlik'}</h2>
+      <p className="text-xs text-zinc-500 tracking-wider uppercase">Konfigürasyon Paneli v4</p>
     </div>
   );
 }
@@ -222,14 +232,44 @@ export const Config = () => {
 
 export const Activity = () => {
   return (
-    <div className="immersive-layout-v4">
+    <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center p-8 font-lexend">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white p-8 rounded-[2rem] shadow-xl border border-zinc-100"
+        initial={{ opacity: 0, scale: 0.9, y: 30 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        className="w-full max-w-2xl bg-zinc-900/50 backdrop-blur-3xl p-10 rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden"
       >
-        <h2 className="text-2xl font-black text-indigo-600 mb-4">${userText || 'Otonom Etkinlik'}</h2>
-        <p className="text-zinc-600 leading-relaxed font-medium">Bu içerik AI motoru tarafından otonom olarak sentezlenmiştir.</p>
+        <div className="absolute top-0 right-0 p-4 opacity-20">
+          <i className="fa-solid fa-wand-magic-sparkles text-4xl text-indigo-500"></i>
+        </div>
+        
+        <div className="flex items-center gap-4 mb-8">
+           <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+              <i className="fa-solid fa-brain text-white text-xl"></i>
+           </div>
+           <div>
+              <h2 className="text-3xl font-black text-white tracking-tighter uppercase italic line-clamp-1">${userText || 'Otonom Etkinlik'}</h2>
+              <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em]">AI-Native Generative Module</p>
+           </div>
+        </div>
+
+        <div className="space-y-6 text-zinc-400 leading-relaxed font-medium text-sm">
+           <p>Bu eğitim materyali, Bursa Disleksi Pedagojik DNA'sı kullanılarak otonom olarak üretilmiştir.</p>
+           <div className="grid grid-cols-2 gap-4 pt-4">
+              <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                 <span className="block text-[10px] font-black text-indigo-400 uppercase mb-1">Müfredat</span>
+                 <span className="text-white text-xs font-bold">MEB 2025 Uyumlu</span>
+              </div>
+              <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
+                 <span className="block text-[10px] font-black text-emerald-400 uppercase mb-1">Klinik Doğrulama</span>
+                 <span className="text-white text-xs font-bold">ZPD Optimize</span>
+              </div>
+           </div>
+        </div>
+        
+        <div className="mt-10 pt-6 border-t border-white/5 flex justify-between items-center">
+           <span className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest">© 2026 Oogmatik Engine</span>
+           <button className="px-6 py-2 bg-white text-black text-[11px] font-black rounded-xl hover:bg-zinc-200 transition-all uppercase tracking-widest">Başlat</button>
+        </div>
       </motion.div>
     </div>
   );
@@ -280,7 +320,7 @@ export const Activity = () => {
   };
 
   return (
-    <div className="w-full h-full flex flex-col bg-[#0d0d0d] font-lexend overflow-hidden">
+    <div className="w-full h-full flex flex-col bg-[#080808] font-lexend overflow-hidden select-none">
       
       {/* IDE ÜST BAR (Toolbar) */}
       <div className="h-10 bg-[#1a1a1a] border-b border-zinc-800 flex items-center justify-between px-4 shrink-0 shadow-lg z-50">
@@ -312,7 +352,7 @@ export const Activity = () => {
       <div className="flex-1 flex overflow-hidden">
         
         {/* SOL PANEL: Explorer & Agents */}
-        <aside className="w-64 bg-[#141414] border-r border-zinc-800 flex flex-col shrink-0">
+        <aside className="w-64 bg-[#0d0d0d] border-r border-zinc-800/50 flex flex-col shrink-0 backdrop-blur-xl">
           <div className="flex border-b border-zinc-800 bg-[#1a1a1a]">
             <button 
               onClick={() => setActiveSideTab('explorer')}
@@ -427,9 +467,9 @@ export const Activity = () => {
              ))}
           </div>
 
-          <div className="flex-1 flex flex-col relative overflow-hidden">
+          <div className="flex-1 flex flex-col relative min-h-0">
             
-            <div className="flex-1 relative bg-black">
+            <div className="flex-1 relative bg-[#0a0a0a]">
                 <Editor
                   height="100%"
                   theme="vs-dark"
@@ -469,11 +509,18 @@ export const Activity = () => {
             </div>
 
             {/* TERMINAL / CHAT AREA (Bottom Partition) */}
-            <div className="h-64 border-t border-zinc-800 bg-[#141414] flex flex-col">
+            <div className="h-72 border-t border-zinc-800/80 bg-[#0d0d0d] flex flex-col shadow-2xl relative z-10">
                <div className="h-8 bg-[#1a1a1a] border-b border-zinc-800 flex items-center px-4 justify-between shrink-0">
                   <div className="flex items-center gap-4">
-                    <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Çıktı & Terminal</span>
-                    <span className="text-[9px] font-mono text-emerald-500 bg-emerald-500/10 px-1 rounded border border-emerald-500/20">Active</span>
+                    <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest">Otonom Çıktı Konsolu (Engine Console)</span>
+                    <span className="text-[9px] font-mono text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 flex items-center gap-1.5">
+                      <span className="w-1 h-1 rounded-full bg-emerald-500 animate-ping"></span>
+                      Real-time Feed
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[9px] font-mono text-zinc-600">UTF-8</span>
+                    <span className="text-[9px] font-mono text-zinc-600 uppercase tracking-widest">Admin/Scaffold/VFS</span>
                   </div>
                </div>
                

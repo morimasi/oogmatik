@@ -61,62 +61,68 @@ export const LivePreviewDashboard: React.FC = () => {
 <html>
 <head>
   <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
     body { 
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
-      background: #f5f5f5;
-      padding: 2rem;
+      margin: 0; 
+      padding: 0; 
+      background: #0d0d0d; 
+      color: #fff;
+      font-family: 'Lexend', sans-serif;
+      overflow-x: hidden;
     }
-    #root { max-width: 800px; margin: 0 auto; }
-    .preview-badge {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      background: #6366f1;
-      color: white;
-      padding: 0.5rem 1rem;
-      border-radius: 0.5rem;
-      font-size: 0.75rem;
-      font-weight: bold;
-      z-index: 1000;
-    }
+    #root { min-height: 100vh; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
   </style>
 </head>
 <body>
-  <div class="preview-badge">🔍 Live Preview</div>
   <div id="root"></div>
   
-  <script src="https://unpkg.com/react@19/umd/react.development.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@19/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react@19/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@19/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"></script>
   
   <script type="text/babel">
     try {
       ${code}
       
-      // Try to find and render the main component
-      const componentName = 'Activity' || 'Config';
-      const Component = window[componentName];
+      const Component = window.Activity || window.Config;
       
       if (Component) {
-        ReactDOM.createRoot(document.getElementById('root')).render(
-          <Component />
-        );
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<Component />);
       } else {
-        document.getElementById('root').innerHTML = 
-          '<div class="p-8 bg-yellow-50 border border-yellow-200 rounded-lg">' +
-          '<h2 class="text-xl font-bold text-yellow-800 mb-2">Preview Mode</h2>' +
-          '<p class="text-sm text-yellow-700">Component otomatik bulunamadı. Kod yazıldı ama render edilemedi.</p>' +
-          '</div>';
+        document.getElementById('root').innerHTML = \`
+          <div class="flex items-center justify-center min-h-screen p-8">
+            <div class="bg-zinc-900 border border-zinc-800 p-8 rounded-[2rem] text-center max-w-sm">
+              <div class="w-16 h-16 bg-amber-500/10 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-code text-2xl"></i>
+              </div>
+              <h2 class="text-xl font-black text-white mb-2 uppercase italic">Engine Ready</h2>
+              <p class="text-xs text-zinc-500 leading-relaxed uppercase tracking-widest">
+                Kod sentezi tamamlandı. Render edilmek için 'Activity' veya 'Config' componentini bekliyor.
+              </p>
+            </div>
+          </div>
+        \`;
       }
     } catch (error) {
-      document.getElementById('root').innerHTML = 
-        '<div class="p-8 bg-red-50 border border-red-200 rounded-lg">' +
-        '<h2 class="text-xl font-bold text-red-800 mb-2">❌ Preview Error</h2>' +
-        '<pre class="text-sm text-red-700 font-mono">' + error.message + '</pre>' +
-        '</div>';
+      document.getElementById('root').innerHTML = \`
+        <div class="p-8 flex items-center justify-center min-h-screen">
+          <div class="bg-red-900/10 border border-red-500/20 p-8 rounded-[2rem] max-w-lg w-full">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-10 h-10 bg-red-500 text-white rounded-xl flex items-center justify-center">
+                <i class="fa-solid fa-bug"></i>
+              </div>
+              <h2 class="text-lg font-black text-red-400 uppercase italic">Syntax Error</h2>
+            </div>
+            <pre class="bg-black/40 p-4 rounded-xl text-red-300 text-[10px] font-mono whitespace-pre-wrap">\${error.message}</pre>
+          </div>
+        </div>
+      \`;
     }
   </script>
 </body>
@@ -130,24 +136,29 @@ export const LivePreviewDashboard: React.FC = () => {
 <html>
 <head>
   <meta charset="UTF-8">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
   <style>
     body { 
-      font-family: monospace; 
-      background: #1a1a1a; 
-      color: #e5e5e5;
-      padding: 2rem;
+      margin: 0; padding: 2rem;
+      background: #080808; 
+      color: #666;
+      font-family: 'JetBrains Mono', monospace;
     }
     pre { 
-      background: #0d0d0d; 
-      padding: 1.5rem; 
-      border-radius: 0.5rem;
+      background: #000; 
+      padding: 2rem; 
+      border-radius: 1.5rem;
+      border: 1px solid #1a1a1a;
+      color: #d1d5db;
+      font-size: 11px;
+      line-height: 1.6;
       overflow-x: auto;
-      border: 1px solid #333;
     }
+    h2 { font-family: sans-serif; font-weight: 900; font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em; color: #444; margin-bottom: 1rem; }
   </style>
 </head>
 <body>
-  <h2 style="color: #6366f1; margin-bottom: 1rem;">📄 Raw Code Preview</h2>
+  <h2>Virtual File System / Raw Output</h2>
   <pre>${escapeHTML(code)}</pre>
 </body>
 </html>
