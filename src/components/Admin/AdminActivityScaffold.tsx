@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { useState, useRef, useEffect, lazy, Suspense } from 'react';
+import React, { useState, useRef, useEffect, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -560,7 +559,7 @@ export const Activity = () => {
 
                {/* Command Input Area */}
                <div className="p-3 bg-zinc-900/50 border-t border-zinc-800 backdrop-blur-xl">
-                  <form onSubmit={handleSend} className="relative flex items-center">
+                  <form onSubmit={(e: React.FormEvent) => handleSend(e)} className="relative flex items-center">
                     <button 
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
@@ -578,7 +577,7 @@ export const Activity = () => {
                     <input 
                       type="text" 
                       value={input}
-                      onChange={(e) => setInput(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value)}
                       disabled={isProcessing}
                       placeholder="root@oogmatik: ~ Komut girin veya görsel referans yükleyin..."
                       className="w-full bg-black/60 border border-zinc-800 rounded-xl py-3 pl-14 pr-12 text-xs text-zinc-300 font-mono focus:border-indigo-500 outline-none transition-all placeholder:opacity-30"

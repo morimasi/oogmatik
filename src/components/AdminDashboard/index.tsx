@@ -1,4 +1,3 @@
-// Oogmatik Admin Dashboard - v1.3.0
 import React, { useState, useEffect } from 'react';
 
 import { User, ActivityStats, AdminTab } from '../../types';
@@ -8,7 +7,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { useRBAC } from '../../hooks/useRBAC';
 import { useUIStore } from '../../store/useUIStore';
 import { useWorksheetStore } from '../../store/useWorksheetStore';
-import { logError } from '../../utils/logger.js';
+import { logError } from '../../utils/logger';
 
 // Lazy Loaded Views
 const SavedWorksheetsView = React.lazy(() => import('../SavedWorksheetsView').then(m => ({ default: m.SavedWorksheetsView })));
@@ -40,21 +39,26 @@ interface NavButtonProps {
   count?: number;
 }
 
-const NavButton = ({ active, label, icon, onClick, count }: NavButtonProps) => (
-  <button
-    onClick={onClick}
-    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm mb-1 ${active
-        ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-none success-glow'
-        : 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800'
+const NavButton = ({ active, label, icon, onClick, count }: NavButtonProps) => {
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-bold text-sm mb-1 ${
+        active
+          ? 'bg-indigo-600 text-white shadow-md shadow-indigo-200 dark:shadow-none success-glow'
+          : 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800'
       }`}
-  >
-    <i className={`fa-solid ${icon} w-5 text-center`}></i>
-    <span className="flex-1 text-left">{label}</span>
-    {count && (
-      <span className="text-[10px] bg-red-500 text-white px-1.5 py-0.5 rounded-full">{count}</span>
-    )}
-  </button>
-);
+    >
+      <i className={`fa-solid ${icon} w-5 text-center`}></i>
+      <span className="flex-1 text-left">{label}</span>
+      {count && (
+        <span className="text-[10px] bg-red-500 text-white px-1.5 py-0.5 rounded-full">
+          {count}
+        </span>
+      )}
+    </button>
+  );
+};
 
 export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
   const { user } = useAuthStore();
