@@ -83,16 +83,17 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
 
   const { setIsSidebarOpen, setZenMode } = useUIStore();
   const { currentView } = useWorksheetStore();
+  const isScaffoldMode = activeTab === 'scaffold';
 
   useEffect(() => {
     localStorage.setItem('admin_active_tab', activeTab);
 
-    const isImmersive = activeTab === 'scaffold' && currentView === 'admin';
+    const isImmersive = isScaffoldMode && currentView === 'admin';
     if (isImmersive) {
       setIsSidebarOpen(false);
     }
     setZenMode(isImmersive);
-  }, [activeTab, currentView, setIsSidebarOpen, setZenMode]);
+  }, [activeTab, currentView, isScaffoldMode, setIsSidebarOpen, setZenMode]);
 
   const [stats, setStats] = useState<ActivityStats[]>([]);
   const [_loading, setLoading] = useState(true);
@@ -172,7 +173,8 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
     <div className="h-full flex bg-[var(--bg-primary)] overflow-hidden font-lexend relative">
       <div className="absolute inset-0 pointer-events-none shimmer-effect opacity-10 z-0"></div>
 
-      <aside className="w-72 bg-[var(--bg-paper)] border-r border-[var(--border-color)] flex flex-col shrink-0 z-20 m-2 rounded-[2.5rem] h-[calc(100%-16px)] shadow-xl">
+      {!isScaffoldMode && (
+        <aside className="w-72 bg-[var(--bg-paper)] border-r border-[var(--border-color)] flex flex-col shrink-0 z-20 m-2 rounded-[2.5rem] h-[calc(100%-16px)] shadow-xl">
         <div className="p-6 flex items-center gap-3">
           <div className="w-10 h-10 bg-[var(--accent-color)] rounded-xl flex items-center justify-center text-white shadow-lg shadow-[var(--accent-muted)]">
             <i className="fa-solid fa-shield-halved text-xl"></i>
@@ -209,10 +211,10 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
           </button>
         </div>
       </aside>
+      )}
 
-      <main className={`flex-1 flex flex-col min-w-0 relative z-10 transition-all duration-500 ${activeTab === 'scaffold' ? 'p-0' : 'p-2 pl-0'}`}>
-        {activeTab !== 'scaffold' && (
-          <header className="h-16 bg-[var(--bg-paper)] border border-[var(--border-color)] flex items-center justify-between px-8 shrink-0 mb-4 rounded-[2rem] shadow-sm">
+      <main className={`flex-1 flex flex-col min-w-0 relative z-10 transition-all duration-500 ${isScaffoldMode ? 'p-0' : 'p-2 pl-0'}`}>
+        <header className={`h-16 bg-[var(--bg-paper)] border border-[var(--border-color)] flex items-center justify-between px-8 shrink-0 ${isScaffoldMode ? 'mb-0 rounded-none border-b-0' : 'mb-4 rounded-[2rem] shadow-sm'}`}>
             <div className="flex items-center gap-4">
               <h1 className="text-xl font-black text-[var(--text-primary)] uppercase italic tracking-tighter">
                 {activeTab === 'dashboard' && 'Kontrol Paneli'}
@@ -235,12 +237,11 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
               <img src={user.avatar} alt="" className="w-8 h-8 rounded-full border border-[var(--border-color)]" />
             </div>
           </header>
-        )}
 
-        <div className={`flex-1 overflow-y-auto relative bg-[var(--bg-paper)] border border-[var(--border-color)] shadow-inner transition-all duration-500 ${activeTab === 'scaffold' ? 'rounded-none border-none p-0 h-full' : 'rounded-[2.5rem] p-4'}`}>
-          <div className={`w-full mx-auto ${activeTab === 'scaffold' ? 'h-full pb-0' : 'pb-20'}`}>
+        <div className={`flex-1 overflow-y-auto relative bg-[var(--bg-paper)] border border-[var(--border-color)] shadow-inner transition-all duration-500 ${isScaffoldMode ? 'rounded-none border-none p-0 h-full' : 'rounded-[2.5rem] p-4'}`}>
+          <div className={`w-full mx-auto ${isScaffoldMode ? 'h-full pb-0' : 'pb-20'}`}>
             <React.Suspense fallback={<div className="flex items-center justify-center p-20"><i className="fa-solid fa-spinner fa-spin text-3xl text-indigo-500"></i></div>}>
-              {activeTab === 'dashboard' && <AdminAnalytics stats={stats} totalUsers={usersCount} />}
+                    {activeTab === 'dashboard' && <AdminAnalytics stats={stats} totalUsers={usersCount} />}
               {activeTab === 'activities' && <AdminActivityManager />}
               {activeTab === 'prompts' && <AdminPromptStudio />}
               {activeTab === 'static_content' && <AdminStaticContent />}
