@@ -55,36 +55,11 @@ export const AdminActivityScaffold: React.FC = () => {
   const [agentStates, setAgentStates] = useState<AgentState[]>(getInitialAgentStates());
   
   const activeFile = vfsActiveFile || activeFileLocal;
-    'ActivityEngine.tsx': {
-      name: 'ActivityEngine.tsx',
-      language: 'typescript',
-      content: `import React from 'react';
-import { motion } from 'framer-motion';
 
-// AUTONOM_CONFIG_START
-export const Config = () => {
-  return (
-    // AI agents generating configuration panel...
-  )
-}
-// AUTONOM_CONFIG_END
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-export const Activity = () => {
-  return (
-    <div className="immersive-layout-v4">
-      {/* AI is writing here... */}
-    </div>
-  )
-}`
-    },
-    'registry.ts': {
-      name: 'registry.ts',
-      language: 'typescript',
-      content: `export const ACTIVITY_REGISTRY = {
-  // New modules are registered here otonomously
-};`
-    }
-  });
+  // Firestore Collection Reference
+  const logsRef = collection(db, 'scaffoldLogs');
 
   useEffect(() => {
     VFSService.loadInitialFiles();
@@ -222,39 +197,56 @@ export const Activity = () => {
       await new Promise(r => setTimeout(r, 1500));
       await addAgentMessage('React Code Block sentezine başlıyorum. Ultra-özelleştirilebilir "Deep Config" paneli ve A4 Print şeması oluşturuluyor...', 'Selin Arslan (AI Mimarisi)', 'fa-robot text-purple-400');
       
-      // VFS Görüntüsünü Güncelle (Simülasyon)
-      setVfs(prev => ({
-        ...prev,
-        'ActivityEngine.tsx': {
-          ...prev['ActivityEngine.tsx'],
-          content: prev['ActivityEngine.tsx'].content.replace(
-            '{/* AI is writing here... */}',
-            `<motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-white p-8 rounded-[2rem] shadow-xl border border-zinc-100"
-    >
-      <h2 className="text-2xl font-black text-indigo-600 mb-4">${userText || 'Otonom Etkinlik'}</h2>
-      <p className="text-zinc-600 leading-relaxed font-medium">Bu içerik Selin Arslan v2 motoru tarafından otonom olarak sentezlenmiştir.</p>
-    </motion.div>`
-          )
-        }
-      }));
+      // Use Ghost Writer to update code
+      const currentFile = activeFile || 'ActivityEngine.tsx';
+      const ghostWriter = createGhostWriter(
+        (content) => updateFile(currentFile, content),
+        { lineDelay: 30 }
+      );
+      
+      const newCode = `import React from 'react';
+import { motion } from 'framer-motion';
+
+// AUTONOM_CONFIG_START
+export const Config = () => {
+  return (
+    <div className="p-4">
+      <h2 className="text-xl font-bold text-indigo-600">${userText || 'Otonom Etkinlik'}</h2>
+    </div>
+  );
+}
+// AUTONOM_CONFIG_END
+
+export const Activity = () => {
+  return (
+    <div className="immersive-layout-v4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white p-8 rounded-[2rem] shadow-xl border border-zinc-100"
+      >
+        <h2 className="text-2xl font-black text-indigo-600 mb-4">${userText || 'Otonom Etkinlik'}</h2>
+        <p className="text-zinc-600 leading-relaxed font-medium">Bu içerik AI motoru tarafından otonom olarak sentezlenmiştir.</p>
+      </motion.div>
+    </div>
+  );
+}`;
+      
+      await ghostWriter.writeLineByLine(newCode);
 
       await new Promise(r => setTimeout(r, 2000));
       await addAgentMessage('AST Parse başarılı. Kod Main dalına otonom olarak entegre edildi. Registery kayıtları güncellendi.', 'Bora Demir (Mühendislk)', 'fa-code text-blue-400');
 
-      // Registry Güncelle (Simülasyon)
-      setVfs(prev => ({
-        ...prev,
-        'registry.ts': {
-          ...prev['registry.ts'],
-          content: prev['registry.ts'].content.replace(
-            '// New modules are registered here otonomously',
-            `'${(userText || 'AutoModule').toUpperCase()}': { component: 'ActivityEngine', status: 'active' },`
-          )
-        }
-      }));
+      // Update registry using injection monitor
+      const registryContent = files['registry.ts']?.content || '';
+      if (registryContent) {
+        await injectionMonitor.updateMarker(
+          registryContent,
+          'REGISTRY',
+          `'${(userText || 'AutoModule').toUpperCase().replace(/\s+/g, '_')}': { component: 'ActivityEngine', status: 'active' },`,
+          (newRegistryContent) => updateFile('registry.ts', newRegistryContent)
+        );
+      }
 
       await addSystemMessage(`[BAŞARILI] "${userText || 'Görsel Klonlama'}" modülü başarıyla sisteme kuruldu.`, 'Oogmatik Core', 'fa-check-double text-green-500');
 
@@ -326,7 +318,7 @@ export const Activity = () => {
               <div className="p-4 space-y-4">
                 <div className="space-y-1">
                   <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 px-2">Aktif Dosyalar</p>
-                  {Object.values(vfs).map((file) => (
+                  {(Object.values(files) as Array<{name: string; language: string; content: string;}>).map((file) => (
                     <div 
                       key={file.name}
                       onClick={() => setActiveFile(file.name)}
@@ -377,7 +369,7 @@ export const Activity = () => {
           
           {/* Editor Header */}
           <div className="h-9 bg-[#1a1a1a] border-b border-zinc-800 flex items-center px-4 overflow-x-auto gap-px shrink-0">
-             {Object.values(vfs).map(file => (
+             {(Object.values(files) as Array<{name: string; language: string; content: string;}>).map(file => (
                <div 
                  key={file.name}
                  onClick={() => setActiveFile(file.name)}
@@ -396,9 +388,9 @@ export const Activity = () => {
                 <Editor
                   height="100%"
                   theme="vs-dark"
-                  path={vfs[activeFile].name}
-                  defaultLanguage={vfs[activeFile].language}
-                  value={vfs[activeFile].content}
+                  path={files[activeFile]?.name || 'ActivityEngine.tsx'}
+                  defaultLanguage={files[activeFile]?.language || 'typescript'}
+                  value={files[activeFile]?.content || '// Select a file'}
                   options={{
                     fontSize: 13,
                     fontFamily: 'JetBrains Mono, Menlo, Monaco, monospace',
