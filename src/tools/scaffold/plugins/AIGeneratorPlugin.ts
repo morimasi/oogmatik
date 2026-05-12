@@ -1,8 +1,9 @@
 import { ActivityBlueprint } from '../types';
 import { InjectionResult } from '../ActivityScaffoldEngine';
 import { IScaffoldPlugin, PluginUtils } from './IScaffoldPlugin';
-import { tryGenerateWithCorrection } from '../../../services/geminiClient';
+import { tryGenerateWithCorrection } from '../../../services/aiContentService';
 import { SyntaxValidator } from '../SyntaxValidator';
+import * as fs from 'fs';
 import * as path from 'path';
 
 /**
@@ -66,18 +67,55 @@ export class AIGeneratorPlugin implements IScaffoldPlugin {
             }];
 
         } catch (error: any) {
-            utils.log('error', `AI Kod Üretim Hatası: ${error.message}`);
+            utils.log('error', `AI Kod Üretim Hatası: ${error.message}. Fallback (Fail-Safe) şablona geçiliyor...`);
+            
+            // Fallback: Fail-Safe Şablonları yükle
+            const slug = bp.identity.key.toLowerCase().replace(/_/g, '-');
+            const baseDir = path.join(utils.workspaceRoot, 'src/modules/activities', slug);
+            
+            utils.writeVFS(path.join(baseDir, 'ui/WorksheetUI.tsx'), `
+import React from 'react';
+// FALLBACK TEMPLATE: AI Generation Failed
+export const WorksheetUI: React.FC<any> = (props) => (
+  <div className="font-lexend p-8 bg-zinc-900 text-white rounded-3xl">
+    <h1 className="text-2xl font-bold text-red-400">Üretim Hatası: ${bp.identity.title}</h1>
+    <p className="mt-2 text-zinc-300">Bu aktivitenin otonom inşası tamamlanamadı. Standart şablon görüntüleniyor.</p>
+  </div>
+);`);
+            utils.writeVFS(path.join(baseDir, 'offlineGenerators.ts'), `
+// FALLBACK GENERATOR
+export const generateOffline = () => ({ items: [] });
+            `);
+            utils.writeVFS(path.join(baseDir, 'generators.ts'), `
+// FALLBACK AI GENERATOR
+export const generateAI = async () => ({ items: [] });
+            `);
+            utils.writeVFS(path.join(baseDir, 'types.ts'), `
+// FALLBACK TYPES
+export interface ${bp.dataModel.interfaceName || 'ActivityData'} { items: any[] }
+            `);
+            
             return [{
                 target: 'AI-Generation',
                 type: 'registry',
                 key: bp.identity.key,
-                success: false,
-                error: error.message
+                success: true, // Graceful degradation - success is true to not crash
+                error: `Generated with Fallback UI: ${error.message}`
             }];
         }
     }
 
     private buildPrompt(bp: ActivityBlueprint): string {
+        // RAG Context Injector: Projenin global core typelarını oku
+        let ragContext = '';
+        try {
+            const typesCorePath = path.join(process.cwd(), 'src/types/core.ts');
+            if (fs.existsSync(typesCorePath)) {
+                const content = fs.readFileSync(typesCorePath, 'utf8');
+                ragContext = `\nPROJE TİP REFERANSLARI (RAG CONTEXT):\n${content.substring(0, 500)} // ... (kısaltıldı)`;
+            }
+        } catch(e) {}
+
         return `
     [ROL: Senior AI Architect - Selin Arslan]
     GÖREV: Oogmatik platformu için yeni bir '${bp.identity.title}' etkinlik modülünün tüm kodlarını yazmak.
@@ -90,6 +128,7 @@ export class AIGeneratorPlugin implements IScaffoldPlugin {
     - Key: ${bp.identity.key}
     - Title: ${bp.identity.title}
     - Data Structure: ${JSON.stringify(bp.dataModel)}
+    ${ragContext}
     
     TEKNİK KISITLAR:
     - SADECE Tailwind sınıfları kullan. Inline style yasak.

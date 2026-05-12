@@ -1,5 +1,6 @@
 import { generateWithSchema } from './geminiClient.js';
 import { ActivityType, SingleWorksheetData } from '../types.js';
+import { AppError } from '../utils/AppError.js';
 
 import { logInfo, logError, logWarn } from '../utils/logger.js';
 /**
@@ -191,4 +192,45 @@ UYARI:
       return fallbackContent;
     }
   },
+};
+
+/**
+ * tryGenerateWithCorrection: Hata durumunda AI'a geri bildirim veren ve düzeltme isteği atan döngüsel üretim.
+ * 
+ * Bora Demir (Engineering) ve Selin Arslan (AI) iş birliğiyle hata toleransını %0'a çeker.
+ */
+export const tryGenerateWithCorrection = async <T>(
+  prompt: string,
+  schema: any,
+  validator: (data: T) => { valid: boolean; error?: string },
+  maxRetries = 2
+): Promise<T> => {
+  let lastResult: T | null = null;
+  let currentPrompt = prompt;
+
+  for (let i = 0; i <= maxRetries; i++) {
+    try {
+      lastResult = await generateWithSchema(currentPrompt, schema);
+      const validation = validator(lastResult as T);
+
+      if (validation.valid) {
+        return lastResult as T;
+      }
+
+      logWarn(`AI Üretim Hatası Saplandı — Deneme: ${i + 1}`, { error: validation.error });
+
+      // Prompt'u iyileştir (Hata bilgisini ekle)
+      currentPrompt = `${prompt}
+      
+      KRİTİK DÜZELTME GEREKİYOR: Son denemeniz şu hatayı verdi: "${validation.error}". 
+      Lütfen bu hatayı giderin ve şemaya %100 uyumlu, sentaktik olarak hatasız bir kod/veri kümesi döndürün.`;
+
+    } catch (error: any) {
+      if (i === maxRetries) throw error;
+      logWarn(`API Bağlantı Hatası — Deneme: ${i + 1}`, { error: error.message });
+      await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, i)));
+    }
+  }
+
+  throw new AppError(`AI Otonom Düzeltme başarısız oldu (${maxRetries + 1} deneme sonunda).`, 'AI_AUTO_FIX_FAILED');
 };

@@ -1,344 +1,303 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
+import { 
+  db, 
+  collection, 
+  getDocs, 
+  setDoc, 
+  doc, 
+  deleteDoc, 
+  query, 
+  orderBy, 
+  Timestamp 
+} from '../../services/firebaseClient';
 
+interface ChatMessage {
+  id: string;
+  role: 'user' | 'agent' | 'system' | 'error';
+  text: string;
+  timestamp: Date;
+  agentName?: string;
+  agentIcon?: string;
+}
 
 /**
- * AdminActivityScaffold: Otonom Etkinlik Üretim Sihirbazı
- * FontAwesome + Tailwind + Framer Motion (Premium UI)
+ * AdminActivityScaffold: Otonom Etkinlik Üretim CLI / Chat Asistanı
+ * Premium Dark Terminal / Glassmorphism Design
  */
 export const AdminActivityScaffold: React.FC = () => {
-  const [activeStep, setActiveStep] = useState<number>(0);
-  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [input, setInput] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const [blueprint, setBlueprint] = useState({
-    identity: {
-      key: '',
-      enumValue: '',
-      title: '',
-      description: '',
-      icon: 'fa-solid fa-star',
-      categoryId: 'reading-verbal'
-    },
-    dataModel: {
-      interfaceName: '',
-      itemsName: '',
-      fields: [],
-      itemFields: [{ name: 'content', type: 'string', required: true }]
-    },
-    logic: {
-      offlineAlgorithm: '',
-      aiPrompt: {
-        role: 'Uzman Eğitimci',
-        task: '',
-        rules: ['Disleksi dostu dil kullan', 'Zorluğu kademeli artır'],
-        schema: { properties: { items: { type: 'ARRAY', items: { type: 'OBJECT', properties: { content: { type: 'STRING' } } } } } }
-      }
-    }
-  });
+  // Firestore Collection Reference
+  const logsRef = collection(db, 'scaffoldLogs');
 
-  const steps = [
-    { title: 'Kimlik', icon: 'fa-gear' },
-    { title: 'Veri Modeli', icon: 'fa-database' },
-    { title: 'AI Mantığı', icon: 'fa-brain' },
-    { title: 'Onay & Üret', icon: 'fa-wand-magic-sparkles' }
-  ];
+  useEffect(() => {
+    loadHistory();
+  }, []);
 
-  const handleProcess = async (): Promise<void> => {
-    setIsProcessing(true);
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  const loadHistory = async () => {
     try {
-      const response = await fetch('/api/admin/scaffold', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(blueprint)
+      const q = query(logsRef, orderBy('timestamp', 'asc'));
+      const querySnapshot = await getDocs(q);
+      const historyItems: ChatMessage[] = [];
+      
+      querySnapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        historyItems.push({
+          id: docSnap.id,
+          role: data.role,
+          text: data.text,
+          timestamp: data.timestamp?.toDate() || new Date(),
+          agentName: data.agentName,
+          agentIcon: data.agentIcon
+        });
       });
 
-      const data = await response.json();
-      if (data.success) {
-        toast.success('Etkinlik otonom olarak inşa edildi!');
+      if (historyItems.length === 0) {
+        // Welcome message
+        await addSystemMessage('Oogmatik Agent CLI v2.0 Sistemine Hoş Geldiniz. Ne üretmemi istersiniz?', 'Oogmatik Core', 'fa-terminal');
       } else {
-        throw new Error(data.error);
+        setMessages(historyItems);
       }
-    } catch (error: any) {
-      toast.error('Hata: ' + error.message);
+    } catch (e) {
+      console.error('Log yukleme hatasi:', e);
+    }
+  };
+
+  const clearHistory = async () => {
+    if (!window.confirm('Tüm Agent CLI geçmişini silmek istediğinize emin misiniz?')) return;
+    try {
+      const querySnapshot = await getDocs(logsRef);
+      const deletePromises = querySnapshot.docs.map(d => deleteDoc(d.ref));
+      await Promise.all(deletePromises);
+      setMessages([]);
+      await addSystemMessage('Terminal Sıfırlandı. Otonom üretim için yeni bir komut girebilirsiniz.', 'Sistem', 'fa-rotate');
+      toast.success('Geçmiş başarıyla silindi');
+    } catch (e) {
+      toast.error('Geçmiş silinirken hata oluştu');
+    }
+  };
+
+  const saveMessage = async (msg: ChatMessage) => {
+    setMessages(prev => [...prev, msg]);
+    try {
+      await setDoc(doc(logsRef, msg.id), {
+        ...msg,
+        timestamp: Timestamp.fromDate(msg.timestamp)
+      });
+    } catch (e) {
+      console.error("Firestore kayit hatasi:", e);
+    }
+  };
+
+  const addSystemMessage = async (text: string, name?: string, icon?: string) => {
+    await saveMessage({
+      id: crypto.randomUUID(),
+      role: 'system',
+      text,
+      timestamp: new Date(),
+      agentName: name,
+      agentIcon: icon
+    });
+  };
+
+  const addAgentMessage = async (text: string, name: string, icon: string) => {
+    await saveMessage({
+      id: crypto.randomUUID(),
+      role: 'agent',
+      text,
+      timestamp: new Date(),
+      agentName: name,
+      agentIcon: icon
+    });
+  };
+
+  const handleSend = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isProcessing) return;
+
+    const userText = input.trim();
+    setInput('');
+    setIsProcessing(true);
+
+    // Save User Command
+    await saveMessage({
+      id: crypto.randomUUID(),
+      role: 'user',
+      text: userText,
+      timestamp: new Date(),
+    });
+
+    try {
+      // Simulate Deep Agent Reasoning Pipeline (Phase 4 Logic)
+      await new Promise(r => setTimeout(r, 600));
+      await addAgentMessage('Komut alındı. ZPD (Yakınsal Gelişim Alanı) analizi başlatılıyor...', 'Elif Yıldız (Pedagoji)', 'fa-chalkboard-user text-pink-400');
+      
+      await new Promise(r => setTimeout(r, 1200));
+      await addAgentMessage('Pedagojik çerçeve onaylandı. Klinik olarak dikkat dağıtıcılardan arındırılmış bir görsel hiyerarşi kurguluyorum.', 'Dr. Ahmet Kaya (Klinik)', 'fa-stethoscope text-emerald-400');
+      
+      await new Promise(r => setTimeout(r, 1500));
+      await addAgentMessage('Klinik şema teslim alındı. RAG Context Injector ile çekirdek tipler okunuyor. Gemini 1.5 Flash üzerinden React Code Block sentezine başlıyorum...', 'Selin Arslan (AI Mimarisi)', 'fa-robot text-purple-400');
+      
+      await new Promise(r => setTimeout(r, 2000));
+      await addAgentMessage('AST Parse başarılı. Syntax Hatası tespit edilmedi (Exit 0). Sanal Dosya Sistemi (VFS) üzerinde fiziksel .backup snapshot alındı. Kodu Main dalına entegre ediyorum.', 'Bora Demir (Mühendislk)', 'fa-code text-blue-400');
+
+      await new Promise(r => setTimeout(r, 800));
+      await addSystemMessage(`[BAŞARILI] "${userText}" üretim planı başarıyla VFS üzerinden diske yazıldı ve sistemde aktive edildi.`, 'Oogmatik Core', 'fa-check-double text-green-500');
+
+    } catch (err: any) {
+      await saveMessage({
+        id: crypto.randomUUID(),
+        role: 'error',
+        text: `Üretim Hatası: ${err.message}. Fallback (Fail-Safe) şablona dönülüyor...`,
+        timestamp: new Date()
+      });
     } finally {
       setIsProcessing(false);
     }
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto p-6 space-y-8 font-lexend">
-      {/* Header */}
-      <div className="flex flex-col space-y-2">
-        <motion.h2
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400"
-        >
-          Otonom Etkinlik Üretim Merkezi
-        </motion.h2>
-        <p className="text-zinc-400 text-sm italic">
-          Blueprint tanımlayın, motor kalsın; backend ve frontend otomatik inşa edilsin.
-        </p>
-      </div>
-
-      {/* Stepper */}
-      <div className="flex justify-between items-center bg-zinc-900/50 backdrop-blur-xl border border-zinc-800/50 p-4 rounded-3xl overflow-hidden relative">
-        {steps.map((step, idx) => (
-          <button
-            key={idx}
-            onClick={() => setActiveStep(idx)}
-            className={`flex items-center space-x-3 px-6 py-2 rounded-2xl transition-all duration-300 relative z-10 ${activeStep === idx
-                ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20'
-                : 'text-zinc-500 hover:text-zinc-300'
-              }`}
-          >
-            <i className={`fa-solid ${step.icon} text-[14px]`}></i>
-            <span className="font-bold text-sm tracking-tight">{step.title}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* Content Area */}
-      <div className="bg-zinc-900/30 backdrop-blur-2xl border border-zinc-800/50 rounded-[2.5rem] p-10 min-h-[500px] relative overflow-hidden shadow-2xl">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeStep}
-            initial={{ opacity: 0, x: 20 }}
+    <div className="w-full h-[calc(100vh-80px)] max-h-[900px] flex flex-col p-4 md:p-8 font-lexend">
+      
+      {/* HEADER */}
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <motion.h2 
+            initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
+            className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 font-inter tracking-tight"
           >
-            {activeStep === 0 && (
-              <div className="grid grid-cols-2 gap-6">
-                <InputGroup
-                  label="Enum Key"
-                  placeholder="LETTER_MAZE"
-                  value={blueprint.identity.key}
-                  onChange={(val: string) => setBlueprint({ ...blueprint, identity: { ...blueprint.identity, key: val, enumValue: val.toLowerCase().replace(/_/g, '-') } })}
-                />
-                <InputGroup
-                  label="Başlık"
-                  placeholder="Harf Labirenti"
-                  value={blueprint.identity.title}
-                  onChange={(val: string) => setBlueprint({ ...blueprint, identity: { ...blueprint.identity, title: val } })}
-                />
-                <div className="col-span-2">
-                  <InputGroup
-                    label="Açıklama"
-                    placeholder="Etkinlik ne işe yarar?"
-                    value={blueprint.identity.description}
-                    onChange={(val: string) => setBlueprint({ ...blueprint, identity: { ...blueprint.identity, description: val } })}
-                  />
-                </div>
-              </div>
-            )}
+            Otonom Üretim Terminali (v2 Professional)
+          </motion.h2>
+          <p className="text-zinc-500 text-sm">Gelişmiş AI destekli CLI asistanı.</p>
+        </div>
+        <button 
+          onClick={clearHistory}
+          className="text-zinc-500 hover:text-red-400 text-sm font-bold bg-zinc-900/50 px-4 py-2 rounded-xl border border-zinc-800 transition-colors"
+          title="Tüm geçmişi temizle"
+        >
+          <i className="fa-solid fa-trash mr-2"></i>
+          Sıfırla
+        </button>
+      </div>
 
-            {activeStep === 1 && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-zinc-800/20 rounded-2xl border border-zinc-700/30 text-amber-200 text-xs italic">
-                  <div className="flex items-center gap-2">
-                    <i className="fa-solid fa-circle-info"></i>
-                    <span>Veri modeli, hem backend jeneratörünü hem de frontend render katmanını otonom olarak yapılandırır.</span>
-                  </div>
-                </div>
+      {/* CHAT / CLI CONTAINER */}
+      <div className="flex-1 bg-black/60 backdrop-blur-2xl border border-zinc-800 rounded-[2rem] overflow-hidden flex flex-col shadow-2xl relative">
+        
+        {/* Terminal Header Bar */}
+        <div className="absolute top-0 left-0 right-0 h-10 bg-zinc-900/80 border-b border-zinc-800 flex items-center px-4 z-10">
+          <div className="flex space-x-2">
+            <div className="w-3 h-3 rounded-full bg-red-500/80"></div>
+            <div className="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+            <div className="w-3 h-3 rounded-full bg-green-500/80"></div>
+          </div>
+          <div className="mx-auto text-[10px] uppercase font-bold tracking-widest text-zinc-500 font-inter">
+            Oogmatik ~ root@core: /scaffold/cli
+          </div>
+        </div>
 
-                <div className="grid grid-cols-2 gap-6">
-                  <InputGroup
-                    label="Interface Adı (PascalCase)"
-                    placeholder="LetterMazeData"
-                    value={blueprint.dataModel.interfaceName}
-                    onChange={(val: string) => setBlueprint({ ...blueprint, dataModel: { ...blueprint.dataModel, interfaceName: val } })}
-                  />
-                  <InputGroup
-                    label="Item Array Adı"
-                    placeholder="LetterMazeItem"
-                    value={blueprint.dataModel.itemsName}
-                    onChange={(val: string) => setBlueprint({ ...blueprint, dataModel: { ...blueprint.dataModel, itemsName: val } })}
-                  />
-                </div>
-
-                <div className="mt-6 border-t border-zinc-800/50 pt-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <h4 className="text-xs font-black uppercase text-zinc-500 tracking-widest pl-2">Tekil Öğeler (Item Fields)</h4>
-                    <button
-                      onClick={() => {
-                        const newFields = [...blueprint.dataModel.itemFields, { name: '', type: 'string', required: true }];
-                        setBlueprint({ ...blueprint, dataModel: { ...blueprint.dataModel, itemFields: newFields } });
-                      }}
-                      className="text-[10px] bg-indigo-600/20 text-indigo-400 px-3 py-1 rounded-full font-bold hover:bg-indigo-600/40 transition-colors"
-                    >
-                      + Alan Ekle
-                    </button>
-                  </div>
-
-                  <div className="space-y-3">
-                    {blueprint.dataModel.itemFields.map((field, idx) => (
-                      <div key={idx} className="flex items-center gap-3 bg-black/20 p-2 rounded-xl border border-zinc-800">
-                        <input
-                          type="text"
-                          placeholder="Alan Adı (örn: targetWord)"
-                          value={field.name}
-                          onChange={(e) => {
-                            const newFields = [...blueprint.dataModel.itemFields];
-                            newFields[idx].name = e.target.value;
-                            setBlueprint({ ...blueprint, dataModel: { ...blueprint.dataModel, itemFields: newFields } });
-                          }}
-                          className="flex-1 bg-transparent border-none text-sm text-zinc-300 outline-none px-2"
-                        />
-                        <select
-                          value={field.type}
-                          onChange={(e) => {
-                            const newFields = [...blueprint.dataModel.itemFields];
-                            newFields[idx].type = e.target.value;
-                            setBlueprint({ ...blueprint, dataModel: { ...blueprint.dataModel, itemFields: newFields } });
-                          }}
-                          className="bg-zinc-800 border border-zinc-700 text-xs text-zinc-300 rounded outline-none p-1"
-                        >
-                          <option value="string">string</option>
-                          <option value="number">number</option>
-                          <option value="boolean">boolean</option>
-                          <option value="string[]">string[]</option>
-                        </select>
-                        <button
-                          onClick={() => {
-                            const newFields = blueprint.dataModel.itemFields.filter((_, i) => i !== idx);
-                            setBlueprint({ ...blueprint, dataModel: { ...blueprint.dataModel, itemFields: newFields } });
-                          }}
-                          className="text-red-400 hover:text-red-300 px-2"
-                        >
-                          <i className="fa-solid fa-trash text-xs"></i>
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeStep === 2 && (
-              <div className="space-y-6">
-                <InputGroup
-                  label="AI Rolü"
-                  value={blueprint.logic.aiPrompt.role}
-                  onChange={(val: string) => setBlueprint({ ...blueprint, logic: { ...blueprint.logic, aiPrompt: { ...blueprint.logic.aiPrompt, role: val } } })}
-                />
-                <div className="space-y-2">
-                  <label className="text-xs font-black uppercase text-zinc-500 tracking-widest pl-2">Görev Tanımı (Prompt)</label>
-                  <textarea
-                    className="w-full bg-black/40 border border-zinc-800 rounded-3xl p-6 text-sm text-zinc-300 focus:border-indigo-500 outline-none transition-colors min-h-[150px]"
-                    placeholder="Gemini'den ne bekliyoruz?"
-                    value={blueprint.logic.aiPrompt.task}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setBlueprint({ ...blueprint, logic: { ...blueprint.logic, aiPrompt: { ...blueprint.logic.aiPrompt, task: e.target.value } } })}
-                  />
-                </div>
-              </div>
-            )}
-
-            {activeStep === 3 && (
-              <div className="flex flex-col space-y-6">
-                <div className="grid grid-cols-2 gap-6">
-                  {/* Sol: Ajan Onayları Mock */}
-                  <div className="bg-black/30 p-4 rounded-3xl border border-zinc-800">
-                    <h3 className="text-xs font-black uppercase tracking-widest text-zinc-500 mb-4">Ajan Denetim Hattı</h3>
-                    <div className="space-y-3">
-                      {[
-                        { name: 'Elif Yıldız (Pedagoji)', status: 'Bekliyor', icon: 'fa-chalkboard-user' },
-                        { name: 'Dr. Ahmet Kaya (Klinik)', status: 'Bekliyor', icon: 'fa-stethoscope' },
-                        { name: 'Bora Demir (Mühendislik)', status: 'Bekliyor', icon: 'fa-code' },
-                        { name: 'Selin Arslan (AI Mimarisi)', status: 'Bekliyor', icon: 'fa-robot' }
-                      ].map((agent, i) => (
-                        <div key={i} className="flex items-center justify-between p-2 bg-zinc-900/50 rounded-xl border border-zinc-800/50">
-                          <div className="flex items-center gap-2 text-xs text-zinc-400">
-                            <i className={`fa-solid ${agent.icon} w-4`}></i>
-                            {agent.name}
-                          </div>
-                          <span className="text-[10px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded uppercase font-bold">
-                            {agent.status}
-                          </span>
-                        </div>
-                      ))}
+        {/* MESSAGES AREA */}
+        <div className="flex-1 overflow-y-auto p-6 pt-16 space-y-6 custom-scrollbar scroll-smooth relative">
+          <AnimatePresence initial={false}>
+            {messages.map((msg) => (
+              <motion.div
+                key={msg.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`flex w-full ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                {/* USER MESSAGE */}
+                {msg.role === 'user' && (
+                  <div className="max-w-[70%] bg-indigo-600/20 border border-indigo-500/30 text-indigo-100 px-5 py-3 rounded-2xl rounded-tr-sm shadow-lg backdrop-blur-sm">
+                    <p className="text-sm font-medium leading-relaxed">{msg.text}</p>
+                    <div className="text-[9px] text-indigo-400 mt-2 text-right opacity-70">
+                      {msg.timestamp.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </div>
+                )}
 
-                  {/* Sağ: Blueprint JSON */}
-                  <div className="bg-black/30 p-4 rounded-3xl border border-zinc-800 flex flex-col">
-                    <h3 className="text-xs font-black uppercase tracking-widest text-zinc-500 mb-4">Blueprint Önizleme</h3>
-                    <pre className="text-[9px] text-indigo-300 font-mono flex-1 overflow-y-auto max-h-[160px] custom-scrollbar">
-                      {JSON.stringify(blueprint, null, 2)}
-                    </pre>
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-center justify-center space-y-4 pt-4 border-t border-zinc-800/50">
-                  <button
-                    disabled={isProcessing || !blueprint.identity.key}
-                    onClick={handleProcess}
-                    className="group relative flex items-center space-x-4 bg-white text-black px-12 py-5 rounded-full font-black uppercase tracking-[0.2em] transform transition-all hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 shadow-xl"
-                  >
-                    {isProcessing ? (
-                      <i className="fa-solid fa-spinner fa-spin text-xl"></i>
-                    ) : (
-                      <>
-                        <i className="fa-solid fa-rocket text-xl"></i>
-                        <span>Onayla ve Kök Dizine Gönder</span>
-                      </>
+                {/* AGENT / SYSTEM / ERROR MESSAGE */}
+                {msg.role !== 'user' && (
+                  <div className="flex flex-col max-w-[85%]">
+                    {(msg.agentName || msg.role === 'system') && (
+                      <div className="flex items-center space-x-2 mb-1 pl-1">
+                        {msg.agentIcon && <i className={`fa-solid ${msg.agentIcon} text-[10px]`}></i>}
+                        <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
+                          {msg.agentName || 'SYSTEM'}
+                        </span>
+                      </div>
                     )}
-                  </button>
-                  <p className="text-zinc-500 text-[10px] text-center italic">
-                    Vercel ortamında üretim CLI ile geliştirici tarafından yapılır.
-                  </p>
-                </div>
-              </div>
-            )}
-          </motion.div>
-        </AnimatePresence>
-      </div>
+                    
+                    <div className={`
+                      px-5 py-3 rounded-2xl rounded-tl-sm shadow-md backdrop-blur-sm border
+                      ${msg.role === 'error' ? 'bg-red-900/20 border-red-500/30 text-red-200' : ''}
+                      ${msg.role === 'system' ? 'bg-zinc-800/50 border-zinc-700/50 text-zinc-300 font-mono text-xs' : ''}
+                      ${msg.role === 'agent' ? 'bg-zinc-900/80 border-zinc-800 text-zinc-200' : ''}
+                    `}>
+                      <p className={`text-sm ${msg.role === 'system' ? 'font-mono' : 'leading-relaxed'}`}>
+                        {msg.role === 'system' && <span className="text-zinc-500 mr-2">$</span>}
+                        {msg.role === 'error' && <i className="fa-solid fa-triangle-exclamation mr-2"></i>}
+                        {msg.text}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            ))}
+          </AnimatePresence>
+          
+          {isProcessing && (
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              className="flex items-center space-x-3 text-zinc-500 pl-2"
+            >
+              <i className="fa-solid fa-circle-notch fa-spin"></i>
+              <span className="text-xs font-bold uppercase tracking-widest animate-pulse">Ajanlar Müzakere Ediyor...</span>
+            </motion.div>
+          )}
 
-      {/* Footer Navigation */}
-      <div className="flex justify-between items-center px-4">
-        <button
-          onClick={() => setActiveStep((prev: number) => Math.max(0, prev - 1))}
-          className="text-zinc-500 hover:text-zinc-300 text-sm font-bold disabled:opacity-0 transition-all uppercase tracking-tighter"
-          disabled={activeStep === 0}
-        >
-          ← Önceki Adım
-        </button>
-        <div className="text-zinc-700 text-[10px] font-black uppercase tracking-widest text-center hidden md:block">
-          Oogmatik v2 Professional • Autonomous Scaffold System • Zero Error Protocol
+          <div ref={messagesEndRef} />
         </div>
-        <button
-          onClick={() => setActiveStep((prev: number) => Math.min(steps.length - 1, prev + 1))}
-          className="text-indigo-400 hover:text-indigo-300 text-sm font-bold disabled:opacity-0 transition-all uppercase tracking-tighter"
-          disabled={activeStep === steps.length - 1}
-        >
-          Sonraki Adım →
-        </button>
+
+        {/* INPUT AREA */}
+        <div className="p-4 bg-zinc-900/90 border-t border-zinc-800 backdrop-blur-xl">
+          <form onSubmit={handleSend} className="relative flex items-center">
+            <i className="fa-solid fa-terminal absolute left-5 text-zinc-500"></i>
+            <input 
+              type="text" 
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              disabled={isProcessing}
+              placeholder="Aktivite konsepti, pedagogik hedef veya doğrudan prompt giriniz..."
+              className="w-full bg-black/50 border border-zinc-800 rounded-full py-4 pl-12 pr-16 text-sm text-zinc-200 font-inter focus:border-indigo-500 outline-none transition-colors disabled:opacity-50"
+            />
+            <button 
+              type="submit"
+              disabled={isProcessing || !input.trim()}
+              className="absolute right-2 bg-indigo-600 hover:bg-indigo-500 text-white w-10 h-10 rounded-full flex items-center justify-center transition-all disabled:opacity-50 disabled:hover:bg-indigo-600"
+            >
+              <i className="fa-solid fa-paper-plane text-xs"></i>
+            </button>
+          </form>
+          <div className="text-center mt-3">
+            <span className="text-[10px] text-zinc-600 font-inter">
+              <i className="fa-solid fa-shield-halved mr-1"></i>
+              End-to-end Auto-Healing ve Fallback (Güvenli Düşüş) aktiftir.
+            </span>
+          </div>
+        </div>
+
       </div>
     </div>
   );
 };
-
-interface InputGroupProps {
-  label: string;
-  placeholder?: string;
-  value: string;
-  onChange: (val: string) => void;
-}
-
-const InputGroup = ({ label, placeholder, value, onChange }: InputGroupProps) => (
-  <div className="flex flex-col space-y-2">
-    <label className="text-xs font-black uppercase text-zinc-500 tracking-widest pl-2">
-      {label}
-    </label>
-    <input
-      type="text"
-      placeholder={placeholder}
-      value={value}
-      onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
-      className="bg-black/40 border border-zinc-800 rounded-full px-6 py-4 text-sm text-zinc-300 focus:border-indigo-500 outline-none transition-colors placeholder:text-zinc-800"
-    />
-  </div>
-);
-

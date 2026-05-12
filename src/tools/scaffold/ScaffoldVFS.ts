@@ -44,8 +44,30 @@ export class ScaffoldVFS {
 
     /**
      * Bellekteki tüm dosyaları fiziksel diske yazar.
+     * Yazmadan önce değişecek tüm dosyaların fiziksel '.backup' yedeğini alır.
      */
     commit(): void {
+        const backupDir = path.join(process.cwd(), 'src/tools/scaffold/.backup', Date.now().toString());
+        
+        // Önce backup oluştur (Selin Arslan & Ahmet Kaya security measure)
+        if (this.backups.size > 0 || this.memFS.size > 0) {
+            if (!fs.existsSync(backupDir)) {
+                fs.mkdirSync(backupDir, { recursive: true });
+            }
+            
+            for (const [filePath, content] of this.backups.entries()) {
+                const relativePath = path.relative(process.cwd(), filePath);
+                const backupPath = path.join(backupDir, relativePath);
+                const backupFileDir = path.dirname(backupPath);
+                
+                if (!fs.existsSync(backupFileDir)) {
+                    fs.mkdirSync(backupFileDir, { recursive: true });
+                }
+                fs.writeFileSync(backupPath, content, 'utf8');
+            }
+        }
+
+        // Commit (Yazma işlemi)
         for (const [filePath, content] of this.memFS.entries()) {
             const dir = path.dirname(filePath);
             if (!fs.existsSync(dir)) {
