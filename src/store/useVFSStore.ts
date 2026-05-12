@@ -78,12 +78,12 @@ export const Activity = () => {
       isDirty: false,
 
       // File operations
-      setFile: (path, file) => set((state) => ({
+      setFile: (path: string, file: VFSFile) => set((state: VFSStore) => ({
         files: { ...state.files, [path]: { ...file, lastModified: new Date() } },
         isDirty: true
       })),
 
-      updateFile: (path, content) => set((state) => ({
+      updateFile: (path: string, content: string) => set((state: VFSStore) => ({
         files: {
           ...state.files,
           [path]: { ...state.files[path], content, lastModified: new Date() }
@@ -91,7 +91,7 @@ export const Activity = () => {
         isDirty: true
       })),
 
-      updateFilePartial: (path, updater) => set((state) => {
+      updateFilePartial: (path: string, updater: (content: string) => string) => set((state: VFSStore) => {
         const file = state.files[path];
         if (!file) return state;
         
@@ -104,7 +104,7 @@ export const Activity = () => {
         };
       }),
 
-      deleteFile: (path) => set((state) => {
+      deleteFile: (path: string) => set((state: VFSStore) => {
         const newFiles = { ...state.files };
         delete newFiles[path];
         
@@ -119,19 +119,19 @@ export const Activity = () => {
       setActiveFile: (path) => set({ activeFile: path }),
 
       // Batch operations
-      setFiles: (files) => set({ files, isDirty: true }),
+      setFiles: (files: Record<string, VFSFile>) => set({ files, isDirty: true }),
       clearFiles: () => set({ files: {}, activeFile: null, isDirty: true }),
 
       // Persistence
       exportVFS: () => JSON.stringify(get().files, null, 2),
-      importVFS: (data) => set({ files: JSON.parse(data), isDirty: true }),
+      importVFS: (data: string) => set({ files: JSON.parse(data), isDirty: true }),
 
       // UI state
       markClean: () => set({ isDirty: false })
     }),
     {
       name: 'oogmatik-vfs-storage',
-      partialize: (state) => ({
+      partialize: (state: VFSStore) => ({
         files: state.files,
         activeFile: state.activeFile
       }),
@@ -142,9 +142,9 @@ export const Activity = () => {
 
 // Helper hook for convenience
 export const useVFSFile = (path: string) => {
-  const file = useVFSStore((state) => state.files[path]);
-  const updateFile = useVFSStore((state) => state.updateFile);
-  const updateFilePartial = useVFSStore((state) => state.updateFilePartial);
+  const file = useVFSStore((state: VFSStore) => state.files[path]);
+  const updateFile = useVFSStore((state: VFSStore) => state.updateFile);
+  const updateFilePartial = useVFSStore((state: VFSStore) => state.updateFilePartial);
 
   return {
     file,

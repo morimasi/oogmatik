@@ -183,7 +183,7 @@ export const Activity = () => {
   }> {
     const { files } = useVFSStore.getState();
 
-    return Object.entries(files).map(([path, file]) => ({
+    return (Object.entries(files) as Array<[string, VFSFile]>).map(([path, file]) => ({
       name: file.name,
       path,
       language: file.language,
