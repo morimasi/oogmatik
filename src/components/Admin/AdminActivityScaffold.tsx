@@ -18,7 +18,7 @@ import Editor from '@monaco-editor/react';
 import { useVFSStore } from '../../store/useVFSStore';
 import { GhostWriter, createGhostWriter } from '../../utils/ghostWriter';
 import { injectionMonitor } from '../../utils/injectionMonitor';
-import { getInitialAgentStates, AgentState } from '../../services/agentService';
+import { getInitialAgentStates, AgentState, agents } from '../../services/agentService';
 import { LivePreviewDashboard } from './LivePreviewDashboard';
 import VFSService from '../../services/vfsFileService';
 
@@ -342,23 +342,51 @@ export const Activity = () => {
             
             {activeSideTab === 'agents' && (
               <div className="p-4 space-y-3">
-                {[
-                  { name: 'Elif', role: 'Pedagoji', color: 'text-pink-400', icon: 'fa-chalkboard-user' },
-                  { name: 'Ahmet', role: 'Klinik', color: 'text-emerald-400', icon: 'fa-stethoscope' },
-                  { name: 'Bora', role: 'Mühendislik', color: 'text-blue-400', icon: 'fa-code' },
-                  { name: 'Selin', role: 'Mimari', color: 'text-purple-400', icon: 'fa-eye' }
-                ].map(agent => (
-                  <div key={agent.name} className="p-3 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-lg bg-zinc-800 flex items-center justify-center ${agent.color}`}>
-                      <i className={`fa-solid ${agent.icon}`}></i>
+                <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 px-2">Ajan Durumu</p>
+                {agentStates.map(agent => (
+                  <div key={agent.key} className="p-3 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center gap-3 hover:border-zinc-700 transition-all">
+                    <div className={`w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center ${
+                      agent.status === 'analyzing' ? 'animate-pulse' : ''
+                    }`}>
+                      <i className={`fa-solid ${agents[agent.key]?.icon || 'fa-user'} ${
+                        agent.status === 'success' ? 'text-emerald-400' :
+                        agent.status === 'error' ? 'text-red-400' :
+                        agent.status === 'warning' ? 'text-amber-400' :
+                        agent.status === 'analyzing' ? 'text-blue-400' :
+                        'text-zinc-500'
+                      }`}></i>
                     </div>
-                    <div>
-                      <p className="text-xs font-black text-white leading-none">{agent.name}</p>
-                      <p className="text-[9px] text-zinc-500 uppercase font-bold tracking-widest">{agent.role}</p>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-black text-white leading-none">{agent.name}</p>
+                        <div className={`w-2 h-2 rounded-full ${
+                          agent.status === 'idle' ? 'bg-zinc-600' :
+                          agent.status === 'analyzing' ? 'bg-blue-500 animate-pulse' :
+                          agent.status === 'success' ? 'bg-emerald-500' :
+                          agent.status === 'warning' ? 'bg-amber-500' :
+                          'bg-red-500'
+                        }`}></div>
+                      </div>
+                      <p className="text-[9px] text-zinc-500 uppercase font-bold tracking-widest mt-1">{agent.key}</p>
+                      {agent.analysis && (
+                        <p className={`text-[8px] mt-1 ${
+                          agent.analysis.status === 'success' ? 'text-emerald-400' :
+                          agent.analysis.status === 'error' ? 'text-red-400' :
+                          'text-zinc-400'
+                        }`}>
+                          {agent.analysis.feedback.substring(0, 50)}...
+                        </p>
+                      )}
                     </div>
-                    <div className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
                   </div>
                 ))}
+                
+                {agentStates.length === 0 && (
+                  <div className="text-center py-8 text-zinc-600 text-xs">
+                    <i className="fa-solid fa-robot text-2xl mb-2"></i>
+                    <p>Ajanlar henüz başlatılmadı</p>
+                  </div>
+                )}
               </div>
             )}
           </div>
