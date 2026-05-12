@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-hot-toast';
 import { useAuthStore } from '../../store/useAuthStore';
 import { safeFetch, getAuthHeaders } from '../../utils/apiClient';
-import type { CognitiveErrorTag } from '../../types/activity';
+import { User, CognitiveErrorTag } from '../../types';
 import { 
   db, 
   collection, 
@@ -16,11 +16,7 @@ import {
   orderBy, 
   Timestamp 
 } from '../../services/firebaseClient';
-<<<<<<< HEAD
 
-// @ts-ignore - Monaco editor types not available at build time
-const Editor = lazy(() => import('@monaco-editor/react').then(mod => ({ default: mod.default })));
-=======
 import Editor from '@monaco-editor/react';
 import { useVFSStore } from '../../store/useVFSStore';
 import { GhostWriter, createGhostWriter } from '../../utils/ghostWriter';
@@ -28,7 +24,6 @@ import { injectionMonitor } from '../../utils/injectionMonitor';
 import { getInitialAgentStates, AgentState, agents } from '../../services/agentService';
 import { LivePreviewDashboard } from './LivePreviewDashboard';
 import VFSService from '../../services/vfsFileService';
->>>>>>> a4dea4cd212f8c3bbc9afdd80d25e53ae0325f87
 
 interface VFSFile {
   name: string;
@@ -56,7 +51,11 @@ export const AdminActivityScaffold: React.FC = () => {
   const [activeSideTab, setActiveSideTab] = useState<'explorer' | 'agents' | 'history'>('explorer');
   
   // Use centralized VFS store
-  const { files, activeFile: vfsActiveFile, updateFile, setActiveFile } = useVFSStore();
+  const files = useVFSStore((state: any) => state.files);
+  const vfsActiveFile = useVFSStore((state: any) => state.activeFile);
+  const updateFile = useVFSStore((state: any) => state.updateFile);
+  const setActiveFile = useVFSStore((state: any) => state.setActiveFile);
+
   const [activeFileLocal, setActiveFileLocal] = useState<string>('ActivityEngine.tsx');
   
   // Agent states
@@ -65,7 +64,7 @@ export const AdminActivityScaffold: React.FC = () => {
   const activeFile = vfsActiveFile || activeFileLocal;
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const user = useAuthStore((state: any) => state.user);
+  const user = useAuthStore((state: { user: User | null }) => state.user);
 
   // Firestore Collection Reference
   const logsRef = collection(db, 'scaffoldLogs');
@@ -179,91 +178,6 @@ export const AdminActivityScaffold: React.FC = () => {
     reader.readAsDataURL(file);
   };
 
-  const createBlueprintFromCommand = (command: string) => {
-    const normalized = command.trim();
-    const title = normalized.length > 72 ? `${normalized.slice(0, 69)}...` : normalized;
-    const keyBase = normalized
-      .toUpperCase()
-      .replace(/[^A-Z0-9]+/g, '_')
-      .replace(/^_+|_+$/g, '') || `AUTO_MODULE_${Date.now()}`;
-    const key = keyBase.length > 30 ? keyBase.slice(0, 30) : keyBase;
-    const enumValue = key.toLowerCase().replace(/_+/g, '-');
-    const categoryId = /matematik|sayı|toplama|çarpma|bölme/i.test(normalized)
-      ? 'math-logic'
-      : /okuma|anlama|metin|kelime/i.test(normalized)
-      ? 'reading-verbal'
-      : 'creative';
-    const interfaceName = `Auto${key.replace(/[^A-Za-z0-9]/g, '')}Data`;
-
-    return {
-      identity: {
-        key,
-        enumValue,
-        title: title || 'Otonom Etkinlik',
-        description: `Oogmatik tarafından oluşturulan etkinlik tasarımı: ${normalized}`,
-        icon: 'fa-robot',
-        categoryId,
-      },
-      dataModel: {
-        interfaceName,
-        itemsName: 'ActivityItem',
-        fields: [
-          {
-            name: 'prompt',
-            type: 'string',
-            required: true,
-            description: 'Kullanıcı tarafından verilen otonom üretim komutu',
-          },
-        ],
-      },
-      logic: {
-        offlineAlgorithm: 'Bu etkinlik AI destekli üretim hattı üzerinden çalışacak ve öncelikle pedagojik hedeflere göre yapılandırılacaktır.',
-        aiPrompt: {
-          role: 'Oogmatik AI Üretim Motoru',
-          task: normalized,
-          rules: [
-            'Pedagojik dil kullan ve tanı koyucu ifadelerden kaçın.',
-            'Çıktıyı JSON formatında sağlamaya özen göster.',
-            'Disleksi-dostu ve ZPD uyumlu bir içerik kurgula.',
-          ],
-          schema: {
-            type: 'object',
-            properties: {
-              output: { type: 'string' },
-            },
-            required: ['output'],
-          },
-        },
-      },
-      ui: {
-        columnsPerDifficulty: {
-          Kolay: 1,
-          Orta: 2,
-          Zor: 3,
-        },
-        configFields: [
-          {
-            id: 'difficulty',
-            label: 'Zorluk',
-            type: 'select',
-            options: [
-              { label: 'Kolay', value: 'Kolay' },
-              { label: 'Orta', value: 'Orta' },
-              { label: 'Zor', value: 'Zor' },
-            ],
-            defaultValue: 'Kolay',
-          },
-        ],
-        renderType: 'custom',
-      },
-      pedagogical: {
-        targetSkills: ['Dikkat Dağılımı', 'Problem Çözme'],
-        errorTags: ['attention_lapse'] as CognitiveErrorTag[],
-        ageGroups: ['8-10'],
-      },
-    };
-  };
-
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if ((!input.trim() && !selectedImage) || isProcessing) return;
@@ -276,7 +190,7 @@ export const AdminActivityScaffold: React.FC = () => {
     setIsProcessing(true);
 
     // Update agent states to show they're working
-    setAgentStates(prev => prev.map(a => ({ ...a, status: 'analyzing' as const })));
+    setAgentStates((prev: AgentState[]) => prev.map((a: AgentState) => ({ ...a, status: 'analyzing' as const })));
 
     // Save User Command (Multimodal)
     await saveMessage({
@@ -293,49 +207,6 @@ export const AdminActivityScaffold: React.FC = () => {
         await addAgentMessage('Görsel DNA çözümleniyor. Müşteri içerik talebi AI üretim hattına aktarılıyor...', 'Dr. Ahmet Kaya (Klinik)', 'fa-dna text-emerald-400');
       }
 
-<<<<<<< HEAD
-      await addAgentMessage(userImage ? 'Blueprint oluşturuluyor ve gerçek üretim sunucusuna gönderiliyor...' : 'Komut alınarak gerçek backend orkestrasyonuna iletiliyor...', 'Elif Yıldız (Pedagoji)', 'fa-chalkboard-user text-pink-400');
-
-      const blueprint = createBlueprintFromCommand(userText || 'Otonom Etkinlik Komutu');
-      const authHeaders = user ? getAuthHeaders(user.id, user.role) : undefined;
-      const response = await safeFetch<{ success: boolean; data: { message: string; key: string; status: string }; error?: { message: string } }>(
-        '/api/admin/scaffold',
-        {
-          method: 'POST',
-          headers: {
-            ...authHeaders,
-          },
-          body: JSON.stringify(blueprint),
-        }
-      );
-
-      if (!response.success) {
-        throw new Error(response.error?.message || 'Scaffold backend başarısız oldu');
-      }
-
-      await addAgentMessage(`Blueprint backend tarafından kabul edildi. Key: ${response.data.key}`, 'Bora Demir (Mühendislik)', 'fa-check text-blue-400');
-      setVfs(prev => ({
-        ...prev,
-        'ActivityEngine.tsx': {
-          ...prev['ActivityEngine.tsx'],
-          content: prev['ActivityEngine.tsx'].content.replace(
-            '{/* AI is writing here... */}',
-            `<motion.div\n      initial={{ opacity: 0, y: 20 }}\n      animate={{ opacity: 1, y: 0 }}\n      className="bg-white p-8 rounded-[2rem] shadow-xl border border-zinc-100"\n    >\n      <h2 className="text-2xl font-black text-indigo-600 mb-4">${blueprint.identity.title}</h2>\n      <p className="text-zinc-600 leading-relaxed font-medium">Blueprint başarıyla backend'e gönderildi ve onaylandı. Key: ${response.data.key}</p>\n    </motion.div>`
-          )
-        }
-      }));
-
-      setVfs(prev => ({
-        ...prev,
-        'registry.ts': {
-          ...prev['registry.ts'],
-          content: prev['registry.ts'].content.replace(
-            '// New modules are registered here otonomously',
-            `'${blueprint.identity.key}': { component: 'ActivityEngine', status: 'pending' },`
-          )
-        }
-      }));
-=======
       // Simulate Deep Agent Reasoning Pipeline (Phase 4 Logic)
       await new Promise(r => setTimeout(r, 600));
       await addAgentMessage(userImage ? 'Klonlama stratejisi belirlendi. ZPD uyumlu yeni içerik varyasyonları oluşturuluyor...' : 'Komut alındı. ZPD (Yakınsal Gelişim Alanı) analizi başlatılıyor...', 'Elif Yıldız (Pedagoji)', 'fa-chalkboard-user text-pink-400');
@@ -349,7 +220,7 @@ export const AdminActivityScaffold: React.FC = () => {
       // Use Ghost Writer to update code
       const currentFile = activeFile || 'ActivityEngine.tsx';
       const ghostWriter = createGhostWriter(
-        (content) => updateFile(currentFile, content),
+        (content: string) => updateFile(currentFile, content),
         { lineDelay: 30 }
       );
       
@@ -415,7 +286,7 @@ export const Activity = () => {
       await ghostWriter.writeLineByLine(newCode);
 
       await new Promise(r => setTimeout(r, 2000));
-      await addAgentMessage('AST Parse başarılı. Kod Main dalına otonom olarak entegre edildi. Registery kayıtları güncellendi.', 'Bora Demir (Mühendislk)', 'fa-code text-blue-400');
+      await addAgentMessage('AST Parse başarılı. Kod Main dalına otonom olarak entegre edildi. Registery kayıtları güncellendi.', 'Bora Demir (Mühendislik)', 'fa-code text-blue-400');
 
       // Update registry using injection monitor
       const registryContent = files['registry.ts']?.content || '';
@@ -424,15 +295,14 @@ export const Activity = () => {
           registryContent,
           'REGISTRY',
           `'${(userText || 'AutoModule').toUpperCase().replace(/\s+/g, '_')}': { component: 'ActivityEngine', status: 'active' },`,
-          (newRegistryContent) => updateFile('registry.ts', newRegistryContent)
+          (newRegistryContent: string) => updateFile('registry.ts', newRegistryContent)
         );
       }
->>>>>>> a4dea4cd212f8c3bbc9afdd80d25e53ae0325f87
 
-      await addSystemMessage(response.data.message, 'Oogmatik Core', 'fa-check-double text-green-500');
+      await addSystemMessage('Modül başarıyla yayına alındı.', 'Oogmatik Core', 'fa-check-double text-green-500');
 
       // Update all agent states to success
-      setAgentStates(prev => prev.map((a, i) => ({
+      setAgentStates((prev: AgentState[]) => prev.map((a: AgentState, i: number) => ({
         ...a,
         status: 'success' as const,
         analysis: {
@@ -451,7 +321,7 @@ export const Activity = () => {
       });
       
       // Update agent states to error
-      setAgentStates(prev => prev.map(a => ({ ...a, status: 'error' as const })));
+      setAgentStates((prev: AgentState[]) => prev.map((a: AgentState) => ({ ...a, status: 'error' as const })));
     } finally {
       setIsProcessing(false);
     }
@@ -513,7 +383,7 @@ export const Activity = () => {
               <div className="p-4 space-y-4">
                 <div className="space-y-1">
                   <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 px-2">Aktif Dosyalar</p>
-                  {(Object.values(files) as Array<{name: string; language: string; content: string;}>).map((file) => (
+                  {(Object.values(files) as any[]).map((file: any) => (
                     <div 
                       key={file.name}
                       onClick={() => setActiveFile(file.name)}
@@ -526,7 +396,7 @@ export const Activity = () => {
                 </div>
                 <div className="space-y-1 pt-4 border-t border-zinc-800/50">
                   <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 px-2">Agent Logs</p>
-                  {messages.filter(m => m.role !== 'user').slice(-5).map((m, i) => (
+                  {messages.filter((m: ChatMessage) => m.role !== 'user').slice(-5).map((m: ChatMessage, i: number) => (
                     <div key={i} className="px-3 py-1 text-[9px] font-mono text-zinc-600 truncate">
                       <span className="text-emerald-500 mr-1">✓</span> {m.agentName || 'System'}
                     </div>
@@ -538,7 +408,7 @@ export const Activity = () => {
             {activeSideTab === 'agents' && (
               <div className="p-4 space-y-3">
                 <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-2 px-2">Ajan Durumu</p>
-                {agentStates.map(agent => (
+                {agentStates.map((agent: AgentState) => (
                   <div key={agent.key} className="p-3 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center gap-3 hover:border-zinc-700 transition-all">
                     <div className={`w-10 h-10 rounded-lg bg-zinc-800 flex items-center justify-center ${
                       agent.status === 'analyzing' ? 'animate-pulse' : ''
@@ -575,13 +445,6 @@ export const Activity = () => {
                     </div>
                   </div>
                 ))}
-                
-                {agentStates.length === 0 && (
-                  <div className="text-center py-8 text-zinc-600 text-xs">
-                    <i className="fa-solid fa-robot text-2xl mb-2"></i>
-                    <p>Ajanlar henüz başlatılmadı</p>
-                  </div>
-                )}
               </div>
             )}
           </div>
@@ -592,7 +455,7 @@ export const Activity = () => {
           
           {/* Editor Header */}
           <div className="h-9 bg-[#1a1a1a] border-b border-zinc-800 flex items-center px-4 overflow-x-auto gap-px shrink-0">
-             {(Object.values(files) as Array<{name: string; language: string; content: string;}>).map(file => (
+             {(Object.values(files) as any[]).map((file: any) => (
                <div 
                  key={file.name}
                  onClick={() => setActiveFile(file.name)}
@@ -606,43 +469,7 @@ export const Activity = () => {
           </div>
 
           <div className="flex-1 flex flex-col relative min-h-0">
-            
-            <div className="flex-1 relative bg-[#0a0a0a]">
-          <div className="flex-1 flex flex-col min-h-0 relative overflow-hidden">
-            
-            <div className="flex-1 min-h-0 h-full relative bg-black">
-<<<<<<< HEAD
-                <Suspense fallback={<div className="flex items-center justify-center h-full text-zinc-500 font-mono text-sm">Düzenleyici yükleniyor...</div>}>
-                  <Editor
-                    height="100%"
-                    theme="vs-dark"
-                    path={vfs[activeFile].name}
-                    defaultLanguage={vfs[activeFile].language}
-                    value={vfs[activeFile].content}
-                    options={{
-                      fontSize: 13,
-                      fontFamily: 'JetBrains Mono, Menlo, Monaco, monospace',
-                      minimap: { enabled: false },
-                      scrollBeyondLastLine: false,
-                      automaticLayout: true,
-                      readOnly: false,
-                      padding: { top: 20 },
-                      lineNumbersMinChars: 3,
-                      glyphMargin: false,
-                      folding: true,
-                      scrollbar: {
-                        vertical: 'visible',
-                        horizontal: 'visible',
-                        useShadows: false,
-                        verticalHasArrows: false,
-                        horizontalHasArrows: false,
-                        verticalScrollbarSize: 10,
-                        horizontalScrollbarSize: 10
-                      }
-                    }}
-                  />
-                </Suspense>
-=======
+            <div className="flex-1 relative bg-black">
                 <Editor
                   height="100%"
                   theme="vs-dark"
@@ -671,7 +498,6 @@ export const Activity = () => {
                     }
                   }}
                 />
->>>>>>> a4dea4cd212f8c3bbc9afdd80d25e53ae0325f87
                 
                 {/* Floating "AI Engine is Writing" Badge */}
                 {isProcessing && (
