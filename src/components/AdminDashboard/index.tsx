@@ -8,7 +8,6 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { useRBAC } from '../../hooks/useRBAC';
 import { useUIStore } from '../../store/useUIStore';
 import { useWorksheetStore } from '../../store/useWorksheetStore';
-import { AdminTab } from '../../types/admin';
 import { logError } from '../../utils/logger.js';
 
 // Lazy Loaded Views
@@ -67,12 +66,6 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
   const { isAdmin } = useRBAC();
 
   const [activeTab, setActiveTab] = useState<AdminTab>(() => {
-    const saved = localStorage.getItem('admin_active_tab');
-    // Tip sistemini zorla doğrula
-    return (saved as any) || 'dashboard';
-  });
-
-  const { zenMode, setZenMode, setIsSidebarOpen } = useUIStore();
     const saved = localStorage.getItem('admin_active_tab') as AdminTab | null;
     const validTabs: AdminTab[] = [
       'dashboard',
@@ -95,9 +88,6 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
 
   useEffect(() => {
     localStorage.setItem('admin_active_tab', activeTab);
-    
-    // Otonom Üretim (Scaffold) aktifse tam ekran (Immersive Mode)
-    if ((activeTab as string) === 'scaffold' && currentView === 'admin') {
 
     const isImmersive = isScaffoldMode && currentView === 'admin';
     if (isImmersive) {
@@ -106,8 +96,6 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
     } else {
       setZenMode(false);
     }
-  }, [activeTab, currentView, setIsSidebarOpen, setZenMode]);
-    setZenMode(isImmersive);
   }, [activeTab, currentView, isScaffoldMode, setIsSidebarOpen, setZenMode]);
 
   const [stats, setStats] = useState<ActivityStats[]>([]);
