@@ -1,6 +1,5 @@
 import React from 'react';
 import type { ShortAnswerData } from '../../../types/verbal';
-import { cn } from '../../../utils/cn';
 
 interface ShortAnswerSheetProps {
   data: ShortAnswerData;
@@ -44,26 +43,26 @@ export const ShortAnswerSheet: React.FC<ShortAnswerSheetProps> = ({ data, compac
   ];
 
   return (
-    <div className={cn(
-      'w-full bg-white',
-      compact ? 'p-6' : 'p-12',
-      'font-["Lexend"]'
-    )}>
+    <div className={`
+      w-full bg-white
+      ${compact ? 'p-6' : 'p-12'}
+      font-["Lexend"]
+    `}>
       {/* Başlık */}
       <div className="text-center mb-10">
-        <h1 className={cn(
-          'font-black mb-3',
-          compact ? 'text-2xl' : 'text-4xl',
-          'text-amber-600'
-        )}>
+        <h1 className={`
+          font-black mb-3
+          ${compact ? 'text-2xl' : 'text-4xl'}
+          text-amber-600
+        `}>
           {data.content?.title || 'KISA CEVAPLI SORULAR'}
         </h1>
         {data.content?.instruction && (
-          <p className={cn(
-            'text-zinc-600',
-            compact ? 'text-sm' : 'text-lg',
-            'italic'
-          )}>
+          <p className={`
+            text-zinc-600
+            ${compact ? 'text-sm' : 'text-lg'}
+            italic
+          `}>
             {data.content.instruction}
           </p>
         )}
@@ -78,11 +77,11 @@ export const ShortAnswerSheet: React.FC<ShortAnswerSheetProps> = ({ data, compac
       <div className={columnLayout}>
         {exampleQuestions.map((q, index) => (
           <div key={q.id} className="space-y-3">
-            <p className={cn(
-              'font-bold text-zinc-800',
-              fontSize,
-              lineHeight
-            )}>
+            <p className={`
+              font-bold text-zinc-800
+              ${fontSize}
+              ${lineHeight}
+            `}>
               {q.question}
             </p>
             
@@ -90,11 +89,11 @@ export const ShortAnswerSheet: React.FC<ShortAnswerSheetProps> = ({ data, compac
             {settings?.includeAnswerLines !== false && Array.from({ length: q.lines || settings?.answerLineCount || 2 }).map((_, lineIndex) => (
               <div 
                 key={`${q.id}-line-${lineIndex}`} 
-                className={cn(
-                  'w-full py-2',
-                  getLineStyle(),
-                  getLineColor()
-                )}
+                className={`
+                  w-full py-2
+                  ${getLineStyle()}
+                  ${getLineColor()}
+                `}
               />
             ))}
             

@@ -9,7 +9,6 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { A4PrintableWrapper } from '../A4Printable/A4PrintableWrapper';
-import { DynamicActivityFactory } from '../services/generators/DynamicActivityFactory';
 
 const HarfBaglamaSheet = lazy(() => import('../modules/activities/harf-baglama/ui/WorksheetUI').then(m => ({ default: m.HarfBaglamaSheet })));
 const LetterConnectSheet = lazy(() => import('../modules/activities/letter-connect/ui/WorksheetUI').then(m => ({ default: m.LetterConnectSheet })));
