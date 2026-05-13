@@ -91,7 +91,7 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
         const unreadMessages = messages.filter(m => m.senderId === contact.id && m.receiverId === user.id && !m.isRead);
         if (unreadMessages.length > 0) {
             // 1. Optimistic Update for UI responsiveness
-            setMessages(prev => prev.map(m => unreadMessages.find(um => um.id === m.id) ? { ...m, isRead: true } : m));
+            setMessages(prev => prev.map(m => unreadMessages.find(um => um.id === m.id) ? { ...m, isRead: true } as Message : m));
 
             // 2. Perform DB Updates and wait for completion
             await Promise.all(unreadMessages.map(m => messagingService.markAsRead(m.id)));
@@ -110,37 +110,87 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
         setSending(true);
         const contentToSend = newMessage;
         setNewMessage('');
+        const quote = replyToMessage ? {
+            messageId: replyToMessage.id,
+            senderId: replyToMessage.senderId,
+            senderName: replyToMessage.senderName,
+            content: replyToMessage.content,
+            timestamp: replyToMessage.timestamp,
+        } : undefined;
+        setReplyToMessage(null);
 
         try {
             const sentMessage = await messagingService.sendMessage({
                 senderId: user.id,
                 senderName: user.name,
                 receiverId: selectedContact.id,
-                content: contentToSend
+                content: contentToSend,
+                quote,
+                replyToMessageId: quote?.messageId,
             });
             // Optimistic update
             setMessages(prev => [...prev, sentMessage]);
-        } catch (err) {
-            logError("Mesaj gönderme hatası:", err);
+        } catch (err: unknown) {
+            logError(err instanceof Error ? err : new Error(String(err)), { context: "Mesaj gönderme hatası" });
             setNewMessage(contentToSend);
         } finally {
             setSending(false);
         }
     };
 
+    const [replyToMessage, setReplyToMessage] = useState<Message | null>(null);
+    const [editingMessage, setEditingMessage] = useState<Message | null>(null);
+    const [editContent, setEditContent] = useState('');
+
     const handleDeleteMessage = async (messageId: string) => {
-        if (!confirm('Bu mesajı silmek istediğinize emin misiniz?')) return;
+        if (!confirm('Bu mesajı silmek istediğinize emin misiniz?\n30 gün içinde geri yükleyebilirsiniz.')) return;
 
         // Optimistic UI update
-        setMessages(prev => prev.filter(m => m.id !== messageId));
+        setMessages(prev => prev.map(m => m.id === messageId ? { ...m, isDeleted: true, deletedAt: new Date().toISOString() } as Message : m));
 
         try {
-            await messagingService.deleteMessage(messageId);
-        } catch (err) {
-            logError("Silme hatası:", err);
-            // Revert on error would require refetching, simply alert for now
+            await messagingService.deleteMessage(messageId, true);
+        } catch (err: unknown) {
+            logError(err instanceof Error ? err : new Error(String(err)), { context: "Silme hatası" });
             alert("Mesaj silinemedi.");
+            // Revert optimistic update
+            setMessages(prev => prev.map(m => m.id === messageId ? { ...m, isDeleted: false, deletedAt: undefined } as Message : m));
         }
+    };
+
+    const handleEditMessage = (message: Message) => {
+        setEditingMessage(message);
+        setEditContent(message.content);
+    };
+
+    const handleSaveEdit = async () => {
+        if (!editingMessage || !editContent.trim()) return;
+        const originalContent = editingMessage.content;
+        
+        // Optimistic UI update
+        setMessages(prev => prev.map(m => 
+            m.id === editingMessage.id 
+                ? { ...m, content: editContent, isEdited: true, editedAt: new Date().toISOString() } as Message
+                : m
+        ));
+
+        try {
+            await messagingService.editMessage(editingMessage.id, editContent);
+            setEditingMessage(null);
+        } catch (err: unknown) {
+            logError(err instanceof Error ? err : new Error(String(err)), { context: "Düzenleme hatası" });
+            alert("Mesaj düzenlenemedi.");
+            // Revert optimistic update
+            setMessages(prev => prev.map(m => 
+                m.id === editingMessage.id 
+                    ? { ...m, content: originalContent, isEdited: false, editedAt: undefined } as Message
+                    : m
+            ));
+        }
+    };
+
+    const handleReply = (message: Message) => {
+        setReplyToMessage(message);
     };
 
     const handleClearChat = async () => {
@@ -157,8 +207,8 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
 
         try {
             await messagingService.clearConversation(user.id, contactId);
-        } catch (err) {
-            logError("Sohbet temizleme hatası:", err);
+        } catch (err: unknown) {
+            logError(err instanceof Error ? err : new Error(String(err)), { context: "Sohbet temizleme hatası" });
             alert("Sohbet temizlenirken bir hata oluştu.");
             loadInitialData(); // Reload to restore state if failed
         }
@@ -167,8 +217,9 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
     const currentConversation = useMemo(() => {
         if (!selectedContact || !user) return [];
         return messages.filter(m =>
-            (m.senderId === user.id && m.receiverId === selectedContact.id) ||
-            (m.senderId === selectedContact.id && m.receiverId === user.id)
+            !m.isDeleted &&
+            ((m.senderId === user.id && m.receiverId === selectedContact.id) ||
+            (m.senderId === selectedContact.id && m.receiverId === user.id))
         ).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
     }, [messages, selectedContact, user]);
 
@@ -298,27 +349,105 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
                                     ) : (
                                         currentConversation.map((msg) => {
                                             const isMe = msg.senderId === user.id;
+                                            if (editingMessage?.id === msg.id) {
+                                                return (
+                                                    <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
+                                                        <div className={`max-w-[85%] md:max-w-[70%] p-3 rounded-2xl shadow-sm ${isMe
+                                                            ? 'bg-indigo-600 text-white rounded-br-none'
+                                                            : 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-bl-none border border-zinc-200 dark:border-zinc-600'
+                                                            }`}>
+                                                            <textarea
+                                                                value={editContent}
+                                                                onChange={(e) => setEditContent(e.target.value)}
+                                                                className="w-full p-2 bg-white/10 dark:bg-black/10 rounded-lg text-sm outline-none resize-none"
+                                                                rows={2}
+                                                            />
+                                                            <div className="flex justify-end gap-2 mt-2">
+                                                                <button
+                                                                    onClick={() => setEditingMessage(null)}
+                                                                    className="px-3 py-1 bg-white/20 dark:bg-black/20 rounded-lg text-xs font-bold"
+                                                                >
+                                                                    İptal
+                                                                </button>
+                                                                <button
+                                                                    onClick={handleSaveEdit}
+                                                                    className="px-3 py-1 bg-white/30 dark:bg-white/10 rounded-lg text-xs font-bold"
+                                                                >
+                                                                    Kaydet
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            }
                                             return (
                                                 <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} group`}>
                                                     <div className={`max-w-[85%] md:max-w-[70%] p-3 rounded-2xl shadow-sm relative group ${isMe
                                                         ? 'bg-indigo-600 text-white rounded-br-none'
                                                         : 'bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-bl-none border border-zinc-200 dark:border-zinc-600'
                                                         }`}>
+                                                        {msg.quote && (
+                                                            <div className={`mb-2 p-2 rounded-lg border-l-4 ${isMe ? 'bg-white/10 border-white/30' : 'bg-zinc-100 dark:bg-zinc-600 border-zinc-300 dark:border-zinc-500'}`}>
+                                                                <div className={`text-[10px] font-bold mb-1 ${isMe ? 'text-white/70' : 'text-zinc-500 dark:text-zinc-400'}`}>
+                                                                    {msg.quote.senderName} - {new Date(msg.quote.timestamp).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                                                                </div>
+                                                                <div className={`text-xs ${isMe ? 'text-white/80' : 'text-zinc-700 dark:text-zinc-300'}`}>
+                                                                    {msg.quote.content}
+                                                                </div>
+                                                            </div>
+                                                        )}
                                                         <p className="text-sm whitespace-pre-wrap break-words">{msg.content}</p>
+                                                        {msg.files && msg.files.length > 0 && (
+                                                            <div className="mt-2 space-y-1">
+                                                                {msg.files.map((file) => (
+                                                                    <a
+                                                                        key={file.id}
+                                                                        href={file.url}
+                                                                        target="_blank"
+                                                                        rel="noopener noreferrer"
+                                                                        className={`flex items-center gap-2 p-2 rounded-lg text-xs ${isMe ? 'bg-white/10 hover:bg-white/20' : 'bg-zinc-100 dark:bg-zinc-600 hover:bg-zinc-200 dark:hover:bg-zinc-500'}`}
+                                                                    >
+                                                                        <i className={`fa-solid ${file.type.startsWith('image') ? 'fa-image' : file.type.startsWith('video') ? 'fa-video' : file.type.startsWith('audio') ? 'fa-music' : 'fa-file'}`}></i>
+                                                                        <span className="truncate">{file.name}</span>
+                                                                    </a>
+                                                                ))}
+                                                            </div>
+                                                        )}
                                                         <div className={`text-[10px] flex items-center justify-end gap-1 mt-1 ${isMe ? 'text-indigo-200' : 'text-zinc-400'}`}>
                                                             <span>{new Date(msg.timestamp).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
+                                                            {msg.isEdited && <span>(Düzenlendi)</span>}
                                                             {isMe && (
                                                                 <i className={`fa-solid fa-check-double ${msg.isRead ? 'text-blue-300' : 'opacity-50'}`}></i>
                                                             )}
                                                         </div>
-                                                        {/* DELETE MESSAGE BUTTON - VISIBLE ON HOVER */}
-                                                        <button
-                                                            onClick={(e) => { e.stopPropagation(); handleDeleteMessage(msg.id); }}
-                                                            className={`absolute top-1 right-1 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 hover:bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center ${isMe ? 'right-auto left-1' : ''}`}
-                                                            title="Mesajı Sil"
-                                                        >
-                                                            <i className="fa-solid fa-times"></i>
-                                                        </button>
+                                                        {/* ACTION BUTTONS */}
+                                                        <div className={`absolute top-1 ${isMe ? 'right-1' : 'left-1'} flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity`}>
+                                                            <button
+                                                                onClick={(e) => { e.stopPropagation(); handleReply(msg); }}
+                                                                className={`p-1 rounded-full bg-black/20 hover:bg-white/20 text-white text-[10px] w-5 h-5 flex items-center justify-center`}
+                                                                title="Yanıtla"
+                                                            >
+                                                                <i className="fa-solid fa-reply"></i>
+                                                            </button>
+                                                            {isMe && (
+                                                                <>
+                                                                    <button
+                                                                        onClick={(e) => { e.stopPropagation(); handleEditMessage(msg); }}
+                                                                        className={`p-1 rounded-full bg-black/20 hover:bg-blue-500 text-white text-[10px] w-5 h-5 flex items-center justify-center`}
+                                                                        title="Düzenle"
+                                                                    >
+                                                                        <i className="fa-solid fa-pen"></i>
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={(e) => { e.stopPropagation(); handleDeleteMessage(msg.id); }}
+                                                                        className={`p-1 rounded-full bg-black/20 hover:bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center`}
+                                                                        title="Sil"
+                                                                    >
+                                                                        <i className="fa-solid fa-trash"></i>
+                                                                    </button>
+                                                                </>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </div>
                                             );
@@ -327,6 +456,24 @@ export const MessagesView: React.FC<MessagesViewProps> = ({ onBack, onRefreshNot
                                     <div ref={messagesEndRef} />
                                 </div>
 
+                                {replyToMessage && (
+                                    <div className="p-3 bg-zinc-100 dark:bg-zinc-700 border-t border-zinc-200 dark:border-zinc-700 flex items-center justify-between gap-3">
+                                        <div className="flex-1">
+                                            <div className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 mb-1">
+                                                Yanıtlanıyor: {replyToMessage.senderName}
+                                            </div>
+                                            <div className="text-xs text-zinc-700 dark:text-zinc-300 truncate">
+                                                {replyToMessage.content}
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => setReplyToMessage(null)}
+                                            className="p-1.5 rounded-full hover:bg-zinc-200 dark:hover:bg-zinc-600 text-zinc-500"
+                                        >
+                                            <i className="fa-solid fa-times"></i>
+                                        </button>
+                                    </div>
+                                )}
                                 <form onSubmit={handleSend} className="p-4 bg-white dark:bg-zinc-800 border-t border-zinc-200 dark:border-zinc-700">
                                     <div className="flex gap-3 items-end">
                                         <textarea

@@ -28,7 +28,14 @@ export const mapDbMessage = (data: any, id?: string): Message => ({
     content: data.content,
     timestamp: data.timestamp,
     isRead: data.isRead,
-    relatedFeedbackId: data.relatedFeedbackId
+    relatedFeedbackId: data.relatedFeedbackId,
+    files: data.files,
+    quote: data.quote,
+    replyToMessageId: data.replyToMessageId,
+    isEdited: data.isEdited,
+    editedAt: data.editedAt,
+    isDeleted: data.isDeleted,
+    deletedAt: data.deletedAt,
 });
 
 export const messagingService = {
@@ -124,11 +131,33 @@ export const messagingService = {
         await updateDoc(doc(db, "messages", messageId), { isRead: true });
     },
 
-    deleteMessage: async (messageId: string) => {
-        await deleteDoc(doc(db, "messages", messageId));
+    deleteMessage: async (messageId: string, softDelete: boolean = true) => {
+        if (softDelete) {
+            await updateDoc(doc(db, "messages", messageId), {
+                isDeleted: true,
+                deletedAt: new Date().toISOString(),
+            });
+        } else {
+            await deleteDoc(doc(db, "messages", messageId));
+        }
     },
 
-    clearConversation: async (userId: string, contactId: string) => {
+    restoreMessage: async (messageId: string) => {
+        await updateDoc(doc(db, "messages", messageId), {
+            isDeleted: false,
+            deletedAt: null,
+        });
+    },
+
+    editMessage: async (messageId: string, newContent: string) => {
+        await updateDoc(doc(db, "messages", messageId), {
+            content: newContent,
+            isEdited: true,
+            editedAt: new Date().toISOString(),
+        });
+    },
+
+    clearConversation: async (userId: string, contactId: string, softDelete: boolean = true) => {
         const q1 = query(
             collection(db, "messages"),
             where("senderId", "==", userId),
@@ -145,11 +174,39 @@ export const messagingService = {
         const batch = writeBatch(db);
         let count = 0;
 
-        snap1.forEach((doc) => { batch.delete(doc.ref); count++; });
-        snap2.forEach((doc) => { batch.delete(doc.ref); count++; });
+        if (softDelete) {
+            snap1.forEach((doc) => {
+                batch.update(doc.ref, {
+                    isDeleted: true,
+                    deletedAt: new Date().toISOString(),
+                });
+                count++;
+            });
+            snap2.forEach((doc) => {
+                batch.update(doc.ref, {
+                    isDeleted: true,
+                    deletedAt: new Date().toISOString(),
+                });
+                count++;
+            });
+        } else {
+            snap1.forEach((doc) => { batch.delete(doc.ref); count++; });
+            snap2.forEach((doc) => { batch.delete(doc.ref); count++; });
+        }
 
         if (count > 0) {
             await batch.commit();
         }
-    }
+    },
+
+    sendMessageWithFiles: async (msgData: Omit<Message, 'id' | 'timestamp' | 'isRead' | 'files'>, files: MessageFile[]): Promise<Message> => {
+        const payload = {
+            ...msgData,
+            files,
+            timestamp: new Date().toISOString(),
+            isRead: false
+        };
+        const docRef = await addDoc(collection(db, "messages"), payload);
+        return mapDbMessage(payload, docRef.id);
+    },
 };

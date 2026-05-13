@@ -537,6 +537,22 @@ export interface FeedbackItem {
   adminReply?: string;
 }
 
+export interface MessageFile {
+  id: string;
+  name: string;
+  type: string;
+  url: string;
+  size: number;
+}
+
+export interface MessageQuote {
+  messageId: string;
+  senderId: string;
+  senderName: string;
+  content: string;
+  timestamp: string;
+}
+
 export interface Message {
   id: string;
   senderId: string;
@@ -546,6 +562,13 @@ export interface Message {
   timestamp: string;
   isRead: boolean;
   relatedFeedbackId?: string;
+  files?: MessageFile[];
+  quote?: MessageQuote;
+  replyToMessageId?: string;
+  isEdited?: boolean;
+  editedAt?: string;
+  isDeleted?: boolean;
+  deletedAt?: string;
 }
 
 export interface AssessmentProfile {
