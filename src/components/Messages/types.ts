@@ -1,4 +1,4 @@
-import type { Message, MessageFile, MessageQuote, User } from '../../types';
+import type { Message, MessageFile, MessageQuote, User, UserRole } from '../../types';
 
 export type FileUploadStatus = 'idle' | 'uploading' | 'processing' | 'complete' | 'error';
 
@@ -40,6 +40,39 @@ export type Contact = Pick<User, 'id' | 'name' | 'email' | 'role' | 'avatar'> & 
   unreadCount: number;
   isOnline?: boolean;
   lastSeen?: string;
+};
+
+export const ROLE_LABELS: Record<UserRole, string> = {
+  superadmin: 'Yöneticiler',
+  admin: 'Yöneticiler',
+  teacher: 'Öğretmenler',
+  parent: 'Veliler',
+  student: 'Öğrenciler',
+  editor: 'Editörler',
+  user: 'Kullanıcılar',
+  guest: 'Ziyaretçiler',
+};
+
+export const ROLE_ORDER: UserRole[] = [
+  'superadmin',
+  'admin',
+  'teacher',
+  'editor',
+  'parent',
+  'student',
+  'user',
+  'guest',
+];
+
+export const ROLE_ICONS: Record<UserRole, string> = {
+  superadmin: 'fa-crown',
+  admin: 'fa-shield-halved',
+  teacher: 'fa-chalkboard-user',
+  editor: 'fa-pen-to-square',
+  parent: 'fa-family',
+  student: 'fa-graduation-cap',
+  user: 'fa-user',
+  guest: 'fa-user-large',
 };
 
 export interface MessagesState {
