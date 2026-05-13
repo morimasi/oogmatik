@@ -258,7 +258,6 @@ export interface GeneratorOptions {
   includeAnswerLines?: boolean;
   answerLineCount?: number;
   includeHints?: boolean;
-  includeExamples?: boolean;
   includePoints?: boolean;
   includeScenarios?: boolean;
   includeVisualAnalysis?: boolean;
