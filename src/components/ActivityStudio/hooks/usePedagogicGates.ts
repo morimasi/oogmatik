@@ -1,5 +1,5 @@
-import { validatePedagogicRules } from '@/components/ActivityStudio/validation/pedagogicValidator';
-import type { StudioGoalConfig } from '@/types/activityStudio';
+import { validatePedagogicRules } from '../validation/pedagogicValidator';
+import type { StudioGoalConfig } from '../../../types/activityStudio';
 
 export function usePedagogicGates() {
   const validateGoal = (goal: StudioGoalConfig | null) => {

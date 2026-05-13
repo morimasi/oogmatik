@@ -1,6 +1,6 @@
-import { WIZARD_ORDER } from '@/components/ActivityStudio/constants';
-import { useActivityStudioStore } from '@/store/useActivityStudioStore';
-import type { WizardStepId } from '@/types/activityStudio';
+import { WIZARD_ORDER } from '../constants';
+import { useActivityStudioStore } from '../../../store/useActivityStudioStore';
+import type { WizardStepId } from '../../../types/activityStudio';
 
 export function useWizardState() {
   const { currentStep, setStep } = useActivityStudioStore();

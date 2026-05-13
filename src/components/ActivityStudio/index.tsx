@@ -1,7 +1,7 @@
 import React from 'react';
-import { useActivityStudioStore } from '@/store/useActivityStudioStore';
-import { WizardContainer } from '@/components/ActivityStudio/wizard/WizardContainer';
-import { usePedagogicGates } from '@/components/ActivityStudio/hooks/usePedagogicGates';
+import { useActivityStudioStore } from '../../store/useActivityStudioStore';
+import { WizardContainer } from './wizard/WizardContainer';
+import { usePedagogicGates } from './hooks/usePedagogicGates';
 
 interface ActivityStudioProps {
   onBack: () => void;

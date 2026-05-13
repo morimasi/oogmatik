@@ -100,6 +100,8 @@ const Sidebar = ({
       'mat-sinav-studyosu': () => typeof onOpenMatSinavStudyosu === 'function' && onOpenMatSinavStudyosu(),
       'sari-kitap-studio': () => typeof onOpenSariKitapStudio === 'function' && onOpenSariKitapStudio(),
       'kelime-cumle-studio': () => typeof onOpenKelimeCumleStudio === 'function' && onOpenKelimeCumleStudio(),
+      'activity-studio': () => typeof onOpenActivityStudio === 'function' && onOpenActivityStudio(),
+      'infographic-studio': () => typeof onOpenInfographicStudio === 'function' && onOpenInfographicStudio(),
     };
 
     const idToModuleMap: Record<string, PermissionModule> = {
@@ -108,8 +110,10 @@ const Sidebar = ({
       'reading': 'reading-studio',
       'math': 'math-studio',
       'sinav-studyosu': 'sinav-studyosu',
-      'mat-sinav-studyosu': 'math-studio', // Fallback
-      'super-turkce': 'activity-studio', // Fallback
+      'mat-sinav-studyosu': 'math-studio',
+      'super-turkce': 'activity-studio',
+      'activity-studio': 'activity-studio',
+      'infographic-studio': 'infographic-studio',
       'ocr': 'ocr',
     };
 

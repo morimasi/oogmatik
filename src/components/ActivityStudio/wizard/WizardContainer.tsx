@@ -1,6 +1,6 @@
 import React from 'react';
-import { STEP_TITLES } from '@/components/ActivityStudio/constants';
-import { useWizardState } from '@/components/ActivityStudio/hooks/useWizardState';
+import { STEP_TITLES } from '../constants';
+import { useWizardState } from '../hooks/useWizardState';
 import { StepGoal } from './StepGoal';
 import { StepContent } from './StepContent';
 import { StepCustomize } from './StepCustomize';

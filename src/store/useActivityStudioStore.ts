@@ -8,7 +8,7 @@ import type {
   ThemeConfig,
   WizardStep,
   WizardStepId,
-} from '@/types/activityStudio';
+} from '../types/activityStudio';
 
 const initialSteps: WizardStep[] = [
   { id: 'goal', status: 'active' },
@@ -20,7 +20,7 @@ const initialSteps: WizardStep[] = [
 
 const emptyGoal: StudioGoalConfig | null = null;
 
-export const useActivityStudioStore = create<ActivityStudioState>()((set, get) => ({
+export const useActivityStudioStore = create<ActivityStudioState>()((set: (partial: Partial<ActivityStudioState> | ((state: ActivityStudioState) => Partial<ActivityStudioState>)) => void, get: () => ActivityStudioState) => ({
   currentStep: 'goal',
   steps: initialSteps,
   isGenerating: false,
@@ -45,7 +45,7 @@ export const useActivityStudioStore = create<ActivityStudioState>()((set, get) =
     const targetIndex = steps.findIndex((s: WizardStep) => s.id === step);
     set({
       currentStep: step,
-      steps: steps.map((item, index) => {
+      steps: steps.map((item: WizardStep, index: number) => {
         if (item.id === step) return { ...item, status: 'active' };
         if (index < targetIndex) return { ...item, status: 'completed' };
         return { ...item, status: 'pending' };

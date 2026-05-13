@@ -1,10 +1,10 @@
 import React, { useMemo, useState } from 'react';
-import { DEFAULT_TARGET_SKILLS } from '@/components/ActivityStudio/constants';
-import { useActivityStudioStore } from '@/store/useActivityStudioStore';
-import { getLibraryActivityById } from '@/services/activityStudioLibraryService';
-import { LibraryExplorer } from '@/components/ActivityStudio/goal/LibraryExplorer';
-import { AIEnhanceEntryPanel } from '@/components/ActivityStudio/goal/AIEnhanceEntryPanel';
-import type { StudioGoalConfig } from '@/types/activityStudio';
+import { DEFAULT_TARGET_SKILLS } from '../constants';
+import { useActivityStudioStore } from '../../../store/useActivityStudioStore';
+import { getLibraryActivityById } from '../../../services/activityStudioLibraryService';
+import { LibraryExplorer } from '../goal/LibraryExplorer';
+import { AIEnhanceEntryPanel } from '../goal/AIEnhanceEntryPanel';
+import type { StudioGoalConfig } from '../../../types/activityStudio';
 
 interface StepGoalProps {
   onNext: () => void;

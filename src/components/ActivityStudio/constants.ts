@@ -1,4 +1,4 @@
-import type { WizardStepId } from '@/types/activityStudio';
+import type { WizardStepId } from '../../types/activityStudio';
 
 export const WIZARD_ORDER: WizardStepId[] = ['goal', 'content', 'customize', 'preview', 'approval'];
 

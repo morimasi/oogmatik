@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import type { ActivityLibraryQuery } from '@/types/activityStudio';
-import { getLibraryActivities } from '@/services/activityStudioLibraryService';
+import type { ActivityLibraryQuery } from '../../../types/activityStudio';
+import { getLibraryActivities } from '../../../services/activityStudioLibraryService';
 import { LibraryFilters } from './LibraryFilters';
 import { LibraryCard } from './LibraryCard';
 
