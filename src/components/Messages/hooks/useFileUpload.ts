@@ -25,27 +25,14 @@ export function useFileUpload() {
         return;
       }
 
-      const validFiles: File[] = [];
       for (const file of files) {
         const result = validateFile(file);
         if (result.valid) {
-          validFiles.push(file);
+          const id = uuidv4();
+          store.addFileUpload({ file, id, progress: 0, status: 'idle' });
         } else {
           addToast(`${file.name}: ${result.error}`, 'error');
         }
-      }
-
-      if (validFiles.length > 0) {
-        store.setSending(true);
-        Promise.all(
-          validFiles.map(async (file) => {
-            const id = uuidv4();
-            store.addFileUpload({ file, id, progress: 0, status: 'uploading' });
-            return { file, id };
-          })
-        ).then(() => {
-          store.setSending(false);
-        });
       }
 
       if (inputRef.current) {

@@ -1,6 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
 import { useMessagesStore } from '../store/useMessagesStore';
-import { useToastStore } from '../../../store/useToastStore';
 import type { MessageNotification } from '../types';
 
 const NOTIFICATION_SOUND_URL = '/sounds/message.mp3';
@@ -29,7 +28,6 @@ export const notificationService = {
 
     if (notificationPrefs.visual) {
       store.addNotification(notification);
-      this.showToast(notification);
     }
 
     if (notificationPrefs.sound) {
@@ -41,13 +39,6 @@ export const notificationService = {
     }
 
     store.incrementUnread();
-  },
-
-  showToast(notification: MessageNotification): void {
-    useToastStore.getState().info(
-      `${notification.senderName}: ${notification.content.substring(0, 80)}`,
-      5000
-    );
   },
 
   playSound(): void {

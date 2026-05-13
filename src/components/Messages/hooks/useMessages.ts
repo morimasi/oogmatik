@@ -55,8 +55,9 @@ export function useMessages() {
         }
       });
 
-      store.setContacts((prev) =>
-        prev.map((c) => ({
+      const currentContacts = useMessagesStore.getState().contacts;
+      store.setContacts(
+        currentContacts.map((c) => ({
           ...c,
           lastMessage: latestFromEach.get(c.id),
           unreadCount: msgs.filter(

@@ -192,10 +192,13 @@ export const messageService = {
     try {
       if (softDelete) {
         const ref = doc(db, MESSAGES_COLLECTION, messageId);
+        const snap = await getDoc(ref);
+        const originalContent = snap.exists() ? snap.data().content : '';
         await updateDoc(ref, {
           isDeleted: true,
           deletedAt: Timestamp.now().toDate().toISOString(),
           content: '[Bu mesaj silindi]',
+          originalContent,
         });
       } else {
         await deleteDoc(doc(db, MESSAGES_COLLECTION, messageId));
@@ -255,6 +258,7 @@ export const messageService = {
           isDeleted: true,
           deletedAt: now,
           content: '[Bu mesaj silindi]',
+          originalContent: d.data().content || '',
         })
       );
       await Promise.all(updates);

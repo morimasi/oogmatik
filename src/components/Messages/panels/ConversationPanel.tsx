@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Trash2, Bell, BellOff, MoreVertical, Info } from 'lucide-react';
+import { ArrowLeft, Trash2, Quote, Loader2 } from 'lucide-react';
 import { useMessagesStore } from '../store/useMessagesStore';
 import { MessageBubble } from '../components/MessageBubble';
 import { MessageComposer } from '../components/MessageComposer';
 import { FilePreview } from '../components/FilePreview';
 import { useMessages } from '../hooks/useMessages';
+import { useTextSelection } from '../hooks/useTextSelection';
 import { useToastStore } from '../../../store/useToastStore';
 import type { Message, MessageFile } from '../../../types';
 import type { Contact } from '../types';
@@ -26,24 +27,44 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ contact, o
     restoreMessage,
     replyToMessage,
     clearConversation,
+    loading,
   } = useMessages();
   const { addToast } = useToastStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const [previewFile, setPreviewFile] = useState<MessageFile | null>(null);
+
+  const { selection, setCurrentMessageId, clearSelection, quoteMessage } =
+    useTextSelection(messagesContainerRef);
 
   const conversationMessages = useMemo(
     () => messages.filter((m) => !m.isDeleted || m.isDeleted === undefined).slice(-100),
     [messages]
   );
 
+  const groupedMessages = useMemo(() => {
+    const groups: Array<{ date: string; messages: Message[] }> = [];
+    conversationMessages.forEach((msg) => {
+      const date = new Date(msg.timestamp).toDateString();
+      const last = groups[groups.length - 1];
+      if (last && last.date === date) {
+        last.messages.push(msg);
+      } else {
+        groups.push({ date, messages: [msg] });
+      }
+    });
+    return groups;
+  }, [conversationMessages]);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [conversationMessages.length]);
 
-  const handleEdit = async (msg: Message) => {
-    const newContent = prompt('Mesajı düzenle:', msg.content);
-    if (newContent && newContent.trim() && newContent !== msg.content) {
-      await editMessage(msg.id, newContent.trim());
+  const handleQuoteFromSelection = () => {
+    const { message: msg, selectedText } = quoteMessage(messages);
+    if (msg && selectedText) {
+      replyToMessage(msg);
+      useMessagesStore.getState().setQuoteContent(selectedText);
     }
   };
 
@@ -95,9 +116,7 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ contact, o
           <button
             onClick={async () => {
               const confirmed = window.confirm('Tüm konuşmayı silmek istediğinize emin misiniz?');
-              if (confirmed) {
-                await clearConversation();
-              }
+              if (confirmed) await clearConversation();
             }}
             className="w-7 h-7 rounded-lg bg-[var(--surface-elevated)] hover:bg-rose-500/10 border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-rose-500 transition-all"
             title="Konuşmayı Temizle"
@@ -108,42 +127,52 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ contact, o
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-1">
-        {conversationMessages.map((msg, index) => (
-          <div key={msg.id}>
-            {/* Date Separator */}
-            {index === 0 || new Date(msg.timestamp).toDateString() !== new Date(conversationMessages[index - 1]?.timestamp || '').toDateString() ? (
-              <div className="flex items-center gap-3 my-4">
-                <div className="flex-1 h-px bg-[var(--border-color)]" />
-                <span className="text-[8px] font-bold text-[var(--text-muted)] uppercase tracking-widest px-2">
-                  {new Date(msg.timestamp).toLocaleDateString('tr-TR', {
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric',
-                  })}
-                </span>
-                <div className="flex-1 h-px bg-[var(--border-color)]" />
-              </div>
-            ) : null}
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-4 space-y-1">
+        {loading && (
+          <div className="flex items-center justify-center h-32">
+            <Loader2 className="w-5 h-5 animate-spin text-[var(--accent-color)]" />
+          </div>
+        )}
 
-            <div id={`msg-${msg.id}`}>
-              <MessageBubble
-                message={msg}
-                isOwn={msg.senderId === user?.id}
-                onReply={handleReply}
-                onQuote={handleQuote}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                onRestore={handleRestore}
-                onFilePreview={setPreviewFile}
-                onNavigateToMessage={handleNavigateToMessage}
-              />
+        {!loading && groupedMessages.map((group) => (
+          <div key={group.date}>
+            <div className="flex items-center gap-3 my-4">
+              <div className="flex-1 h-px bg-[var(--border-color)]" />
+              <span className="text-[8px] font-bold text-[var(--text-muted)] uppercase tracking-widest px-2">
+                {new Date(group.date).toLocaleDateString('tr-TR', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
+              </span>
+              <div className="flex-1 h-px bg-[var(--border-color)]" />
             </div>
+
+            {group.messages.map((msg) => (
+              <div
+                key={msg.id}
+                id={`msg-${msg.id}`}
+                onMouseEnter={() => setCurrentMessageId(msg.id)}
+              >
+                <MessageBubble
+                  message={msg}
+                  isOwn={msg.senderId === user?.id}
+                  onReply={handleReply}
+                  onQuote={handleQuote}
+                  onEdit={async (m) => {
+                    // Inline edit handled inside MessageBubble
+                  }}
+                  onDelete={handleDelete}
+                  onRestore={handleRestore}
+                  onFilePreview={setPreviewFile}
+                  onNavigateToMessage={handleNavigateToMessage}
+                />
+              </div>
+            ))}
           </div>
         ))}
-        <div ref={messagesEndRef} />
 
-        {conversationMessages.length === 0 && (
+        {!loading && conversationMessages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-48 text-center">
             <p className="text-xs text-[var(--text-muted)] font-medium">
               {contact.name} ile henüz mesajlaşmadınız.
@@ -153,7 +182,36 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ contact, o
             </p>
           </div>
         )}
+
+        <div ref={messagesEndRef} />
       </div>
+
+      {/* Floating Quote Toolbar for Text Selection */}
+      {selection.visible && selection.selectedText && (
+        <motion.div
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="fixed z-50 flex items-center gap-1 px-2 py-1.5 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg shadow-xl"
+          style={{
+            top: Math.max(selection.top, 10),
+            left: Math.max(selection.left - 60, 10),
+          }}
+        >
+          <button
+            onClick={handleQuoteFromSelection}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-md hover:bg-[var(--accent-muted)] text-[var(--accent-color)] text-[10px] font-bold transition-colors"
+          >
+            <Quote className="w-3 h-3" />
+            Alıntı Yap
+          </button>
+          <button
+            onClick={clearSelection}
+            className="px-2 py-1 rounded-md hover:bg-[var(--surface-glass)] text-[var(--text-muted)] text-[10px] font-bold transition-colors"
+          >
+            İptal
+          </button>
+        </motion.div>
+      )}
 
       {/* Composer */}
       <MessageComposer
