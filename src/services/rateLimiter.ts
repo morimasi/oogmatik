@@ -30,19 +30,22 @@ const RATE_LIMIT_PRESETS = {
         apiGeneration: { tokens: 20, windowMs: 3600000 },    // 20 req/hour
         apiQuery: { tokens: 100, windowMs: 3600000 },        // 100 req/hour
         worksheetSave: { tokens: 50, windowMs: 3600000 },    // 50/hour
-        ocrScan: { tokens: 5, windowMs: 3600000 }            // 5/hour
+        ocrScan: { tokens: 5, windowMs: 3600000 },            // 5/hour
+        apiFsProxy: { tokens: 20, windowMs: 3600000 }         // 20/hour
     },
     pro: {
         apiGeneration: { tokens: 200, windowMs: 3600000 },   // 200 req/hour
         apiQuery: { tokens: 1000, windowMs: 3600000 },       // 1000 req/hour
         worksheetSave: { tokens: 500, windowMs: 3600000 },   // 500/hour
-        ocrScan: { tokens: 50, windowMs: 3600000 }           // 50/hour
+        ocrScan: { tokens: 50, windowMs: 3600000 },           // 50/hour
+        apiFsProxy: { tokens: 200, windowMs: 3600000 }        // 200/hour
     },
     admin: {
         apiGeneration: { tokens: 10000, windowMs: 3600000 },
         apiQuery: { tokens: 10000, windowMs: 3600000 },
         worksheetSave: { tokens: 10000, windowMs: 3600000 },
-        ocrScan: { tokens: 10000, windowMs: 3600000 }
+        ocrScan: { tokens: 10000, windowMs: 3600000 },
+        apiFsProxy: { tokens: 10000, windowMs: 3600000 }
     }
 };
 
