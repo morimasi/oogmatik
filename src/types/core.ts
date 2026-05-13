@@ -127,6 +127,9 @@ export interface GeneratorOptions {
   | 'inference'
   | 'true_false'
   | 'open_ended';
+  classLevel?: number;
+  generationMode?: 'fast' | 'ai';
+  premiumMode?: boolean;
   syllableColoring?: boolean;
   wpmTarget?: number;
   colorPalette?: 'red_blue' | 'contrast' | 'pastel' | 'indigo' | 'rose' | 'emerald' | 'amber' | 'slate' | 'colorful';

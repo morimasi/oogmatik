@@ -54,7 +54,11 @@ export const FiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChange }) =>
                         { value: 1, label: '1. Sınıf' },
                         { value: 2, label: '2. Sınıf' },
                         { value: 3, label: '3. Sınıf' },
-                        { value: 4, label: '4. Sınıf' }
+                        { value: 4, label: '4. Sınıf' },
+                        { value: 5, label: '5. Sınıf' },
+                        { value: 6, label: '6. Sınıf' },
+                        { value: 7, label: '7. Sınıf' },
+                        { value: 8, label: '8. Sınıf' }
                     ]}
                 />
 
@@ -74,13 +78,23 @@ export const FiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChange }) =>
 
                 <CompactToggleGroup
                     label="Zorluk Seviyesi"
-                    selected={options.difficulty || 'orta'}
+                    selected={options.difficulty || '7-8'}
                     onChange={(v: string) => onChange('difficulty', v)}
                     options={[
-                        { value: 'çok kolay', label: 'Süper Kolay' },
-                        { value: 'kolay', label: 'Kolay' },
-                        { value: 'orta', label: 'Orta' },
-                        { value: 'zor', label: 'Zor' }
+                        { value: '1-2', label: '1-2. Sınıf' },
+                        { value: '3-4', label: '3-4. Sınıf' },
+                        { value: '5-6', label: '5-6. Sınıf' },
+                        { value: '7-8', label: '7-8. Sınıf' }
+                    ]}
+                />
+
+                <CompactToggleGroup
+                    label="Üretim Modu"
+                    selected={options.generationMode || 'ai'}
+                    onChange={(v: string) => onChange('generationMode', v)}
+                    options={[
+                        { value: 'fast', label: 'Hızlı' },
+                        { value: 'ai', label: 'AI Modu' }
                     ]}
                 />
 
@@ -94,6 +108,15 @@ export const FiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChange }) =>
                         { value: 'only_open_ended', label: 'Açık Uçlu' }
                     ]}
                 />
+
+                <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block">Ultra Premium Deneyim</label>
+                    <div className="flex bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden cursor-pointer" onClick={() => onChange('premiumMode', !options.premiumMode)}>
+                        <div className={`flex-1 p-3 text-center text-xs font-black transition-all ${options.premiumMode ? 'bg-amber-500 text-white' : 'text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}>
+                            {options.premiumMode ? 'Açık' : 'Kapalı'}
+                        </div>
+                    </div>
+                </div>
 
                 <div className="space-y-1">
                     <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block">Renkli Hece Boyama</label>
