@@ -530,7 +530,7 @@ export function StudentDashboard({ onBack, onLoadMaterial }: StudentDashboardPro
               )}
 
               {activeTab === 'materials' && (
-                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <div className="flex justify-between items-center mb-2 px-2">
                     <h3 className="font-black text-sm tracking-tighter text-[var(--text-primary)] uppercase">Dijital Arşiv</h3>
                   </div>
@@ -540,26 +540,50 @@ export function StudentDashboard({ onBack, onLoadMaterial }: StudentDashboardPro
                       <p className="text-[var(--text-muted)] font-bold text-[10px] uppercase tracking-widest uppercase text-center">Materyal Bulunmuyor</p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {studentWorksheets.map((ws: SavedWorksheet) => (
-                        <div key={ws.id} className="flex items-center justify-between p-3 bg-[var(--bg-paper)] border border-[var(--border-color)]/60 rounded-xl transition-all group hover:bg-[var(--surface-elevated)]">
-                          <div className="flex items-center gap-3 text-left min-w-0">
-                            <div className="w-9 h-9 bg-[var(--bg-secondary)] rounded-lg flex items-center justify-center text-xs text-[var(--accent-color)] group-hover:bg-[var(--accent-color)] group-hover:text-white transition-all shrink-0">
-                              <i className={ws.icon}></i>
-                            </div>
-                            <div className="min-w-0">
-                              <h4 className="font-black text-[10px] text-[var(--text-primary)] uppercase truncate">{ws.name}</h4>
-                              <p className="text-[7px] font-bold text-[var(--text-muted)] opacity-60 uppercase">{new Date(ws.createdAt).toLocaleDateString('tr-TR')}</p>
+                    <div className="space-y-6">
+                      {(() => {
+                        const grouped = studentWorksheets.reduce((acc: Record<string, SavedWorksheet[]>, ws) => {
+                          const key = ws.category?.title || ws.activityType || 'Genel';
+                          if (!acc[key]) acc[key] = [];
+                          acc[key].push(ws);
+                          return acc;
+                        }, {});
+                        
+                        return Object.entries(grouped).map(([category, worksheets]) => (
+                          <div key={category} className="space-y-3">
+                            <h4 className="flex items-center gap-2 px-2">
+                              <span className="w-2 h-2 rounded-full bg-[var(--accent-color)]"></span>
+                              <span className="font-black text-[11px] text-[var(--text-primary)] uppercase tracking-wider">{category}</span>
+                              <span className="text-[9px] text-[var(--text-muted)] font-bold">({worksheets.length})</span>
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                              {worksheets.map((ws) => (
+                                <div key={ws.id} className="flex items-center justify-between p-3 bg-[var(--bg-paper)] border border-[var(--border-color)]/60 rounded-xl transition-all group hover:bg-[var(--surface-elevated)]">
+                                  <div className="flex items-center gap-3 text-left min-w-0">
+                                    <div className="w-9 h-9 bg-[var(--bg-secondary)] rounded-lg flex items-center justify-center text-xs text-[var(--accent-color)] group-hover:bg-[var(--accent-color)] group-hover:text-white transition-all shrink-0">
+                                      <i className={ws.icon}></i>
+                                    </div>
+                                    <div className="min-w-0">
+                                      <h4 className="font-black text-[10px] text-[var(--text-primary)] uppercase truncate">{ws.name}</h4>
+                                      <div className="flex gap-2 text-[7px] font-bold text-[var(--text-muted)] opacity-60 uppercase">
+                                        <span>{new Date(ws.createdAt).toLocaleDateString('tr-TR')}</span>
+                                        <span>•</span>
+                                        <span>{ws.activityType}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <button
+                                    onClick={() => onLoadMaterial?.(ws)}
+                                    className="w-7 h-7 bg-[var(--bg-secondary)] hover:bg-[var(--accent-color)] hover:text-white rounded-lg flex items-center justify-center transition-all text-[var(--text-secondary)]"
+                                  >
+                                    <i className="fa-solid fa-chevron-right text-[8px]"></i>
+                                  </button>
+                                </div>
+                              ))}
                             </div>
                           </div>
-                          <button
-                            onClick={() => onLoadMaterial?.(ws)}
-                            className="w-7 h-7 bg-[var(--bg-secondary)] hover:bg-[var(--accent-color)] hover:text-white rounded-lg flex items-center justify-center transition-all text-[var(--text-secondary)]"
-                          >
-                            <i className="fa-solid fa-chevron-right text-[8px]"></i>
-                          </button>
-                        </div>
-                      ))}
+                        ));
+                      })()}
                     </div>
                   )}
                 </div>
