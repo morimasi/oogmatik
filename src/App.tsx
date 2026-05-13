@@ -1003,7 +1003,6 @@ const AppContent = () => {
               'ocr',
               'profile',
               'students',
-              'messages',
               'admin',
               'screening',
               'sinav-studyosu',
