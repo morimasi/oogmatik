@@ -33,19 +33,26 @@ export function useMessages() {
     const unsub = messageService.listenToMessages(user.id, (msgs) => {
       const prevCount = prevMessageCountRef.current;
       const currentCount = msgs.length;
+      const isNewMessage = currentCount > prevCount && prevCount > 0;
       prevMessageCountRef.current = currentCount;
 
       store.setMessages(msgs);
 
-      const incoming = msgs.filter(
-        (m) => m.receiverId === user.id && !m.isRead && !m.isDeleted
-      );
-      if (incoming.length > prevCount && prevCount > 0) {
-        store.setUnreadCount(incoming.length);
+      if (isNewMessage) {
+        const latestMsgs = msgs.slice(-(currentCount - prevCount));
+        latestMsgs.forEach((m) => {
+          if (m.senderId !== user.id && !m.isRead && !m.isDeleted && m.senderId !== store.activeContactId) {
+            notificationService.triggerNotification(
+              m.id, m.senderId, m.senderName, m.content, messageService.getConversationId(user.id, m.senderId)
+            );
+          }
+        });
       }
 
-      const unread = msgs.filter((m) => m.receiverId === user.id && !m.isRead && !m.isDeleted);
-      store.setUnreadCount(unread.length);
+      const unreadCount = msgs.filter(
+        (m) => m.receiverId === user.id && !m.isRead && !m.isDeleted
+      ).length;
+      store.setUnreadCount(unreadCount);
 
       const latestFromEach = new Map<string, Message>();
       msgs.forEach((m) => {
@@ -56,15 +63,17 @@ export function useMessages() {
       });
 
       const currentContacts = useMessagesStore.getState().contacts;
-      store.setContacts(
-        currentContacts.map((c) => ({
-          ...c,
-          lastMessage: latestFromEach.get(c.id),
-          unreadCount: msgs.filter(
-            (m) => m.senderId === c.id && !m.isRead && !m.isDeleted
-          ).length,
-        }))
-      );
+      if (currentContacts.length > 0) {
+        store.setContacts(
+          currentContacts.map((c) => ({
+            ...c,
+            lastMessage: latestFromEach.get(c.id),
+            unreadCount: msgs.filter(
+              (m) => m.senderId === c.id && !m.isRead && !m.isDeleted
+            ).length,
+          }))
+        );
+      }
     });
 
     unsubscribeRef.current = unsub;
