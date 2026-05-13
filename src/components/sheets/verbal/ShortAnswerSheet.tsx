@@ -1,111 +1,133 @@
 import React from 'react';
-import { PedagogicalHeader } from '../common';
+import type { ShortAnswerData } from '../../../types/verbal';
+import { cn } from '../../../utils/cn';
 
-interface Question {
-  id: string;
-  question: string;
-  answer?: string;
-  hint?: string;
-  lines?: number;
+interface ShortAnswerSheetProps {
+  data: ShortAnswerData;
+  compact?: boolean;
 }
 
-interface ShortAnswerData {
-  title: string;
-  instruction?: string;
-  questions: Question[];
-  pedagogicalNote?: string;
-  settings?: any;
-}
+export const ShortAnswerSheet: React.FC<ShortAnswerSheetProps> = ({ data, compact = false }) => {
+  const settings = data.settings;
+  const fontSize = settings?.fontSize === 'small' ? 'text-sm' : settings?.fontSize === 'large' ? 'text-xl' : 'text-base';
+  const lineHeight = settings?.lineHeight === 'tight' ? 'leading-snug' : settings?.lineHeight === 'relaxed' ? 'leading-relaxed' : 'leading-normal';
+  const columnLayout = settings?.columnLayout === 'two-column' ? 'grid grid-cols-2 gap-8' : 'space-y-6';
 
-export const ShortAnswerSheet: React.FC<{ data: ShortAnswerData; settings?: any }> = ({ data, settings: globalSettings }) => {
-  const { questions = [], title, instruction, pedagogicalNote } = data;
-  const isLandscape = globalSettings?.orientation === 'landscape';
-  const isCompact = globalSettings?.compact ?? true;
+  const getLineStyle = () => {
+    switch (settings?.lineStyle) {
+      case 'double': return 'border-b-2 border-b-zinc-800';
+      case 'dotted': return 'border-b-2 border-b-dotted border-b-zinc-500';
+      case 'dashed': return 'border-b-2 border-b-dashed border-b-zinc-500';
+      default: return 'border-b border-b-zinc-700';
+    }
+  };
 
-  // Font Ayarları
-  const customFontSize = globalSettings?.fontSize || (isCompact ? 14 : 16);
-  const customFontFamily = globalSettings?.fontFamily || 'Lexend, sans-serif';
+  const getLineColor = () => {
+    switch (settings?.lineColor) {
+      case 'dark': return 'border-b-zinc-800';
+      case 'light': return 'border-b-zinc-300';
+      default: return 'border-b-zinc-500';
+    }
+  };
 
-  // Bulmaca sayısına göre sığdırma stratejisi
-  // Dopdolu bir çıktı için 2 sütunlu düzen (özellikle dikey modda)
-  const gridCols = isLandscape ? 'grid-cols-2 lg:grid-cols-3' : 'grid-cols-1 md:grid-cols-2';
-  const gapClass = isCompact ? 'gap-2 print:gap-1' : 'gap-6 print:gap-4';
+  const exampleQuestions = data.questions?.length > 0 ? data.questions : [
+    { id: 'q1', question: '1. Kendi adınızı yazın.', lines: 2 },
+    { id: 'q2', question: '2. En sevdiğiniz hayvan nedir? Neden?', lines: 3 },
+    { id: 'q3', question: '3. Bugün hava nasıl?', lines: 2 },
+    { id: 'q4', question: '4. Okulda en sevdiğiniz ders hangisi?', lines: 2 },
+    { id: 'q5', question: '5. Hafta sonu ne yapmak istersiniz?', lines: 3 },
+    { id: 'q6', question: '6. En sevdiğiniz renk nedir?', lines: 1 },
+    { id: 'q7', question: '7. Bir arkadaşınıza nasıl yardım edersiniz?', lines: 3 },
+    { id: 'q8', question: '8. En sevdiğiniz meyve nedir?', lines: 1 },
+    { id: 'q9', question: '9. Evde en sevdiğiniz yer neresidir?', lines: 2 },
+    { id: 'q10', question: '10. Gelecekte ne olmak istiyorsunuz?', lines: 4 },
+  ];
 
   return (
-    <div 
-      className={`w-full h-full p-8 print:p-4 flex flex-col bg-white overflow-hidden text-zinc-900 ${isLandscape ? 'landscape' : ''}`}
-      style={{ fontFamily: customFontFamily }}
-    >
-      {/* BAŞLIK */}
-      <div className={`flex justify-between items-center border-b-4 border-indigo-500 pb-3 ${isCompact ? 'mb-2' : 'mb-6'}`}>
-        <div>
-          <h1 className="text-3xl font-black text-indigo-900 tracking-tighter uppercase leading-tight">
-            {title || 'Kısa Cevaplı Sorular'}
-          </h1>
-          <p className="text-sm font-bold text-indigo-600 uppercase tracking-widest">
-            {instruction || 'Soruları dikkatlice okuyup boşluklara cevaplarını yazınız.'}
+    <div className={cn(
+      'w-full bg-white',
+      compact ? 'p-6' : 'p-12',
+      'font-["Lexend"]'
+    )}>
+      {/* Başlık */}
+      <div className="text-center mb-10">
+        <h1 className={cn(
+          'font-black mb-3',
+          compact ? 'text-2xl' : 'text-4xl',
+          'text-amber-600'
+        )}>
+          {data.content?.title || 'KISA CEVAPLI SORULAR'}
+        </h1>
+        {data.content?.instruction && (
+          <p className={cn(
+            'text-zinc-600',
+            compact ? 'text-sm' : 'text-lg',
+            'italic'
+          )}>
+            {data.content.instruction}
           </p>
-        </div>
-        <div className="w-14 h-14 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center text-2xl shadow-inner border border-indigo-100 shrink-0">
-          <i className="fa-solid fa-pen-clip"></i>
+        )}
+        <div className="mt-4 border-t-2 border-amber-500/30 pt-4">
+          <p className="text-xs text-zinc-400 uppercase tracking-widest font-bold">
+            {settings?.ageGroup || '8-10'} YAŞ | {settings?.difficulty || 'Orta'} SEVİYE | {settings?.gradeLevel || 3}. SINIF
+          </p>
         </div>
       </div>
 
-      {/* SORULAR GRİD */}
-      <div className={`flex-1 grid ${gridCols} ${gapClass} auto-rows-max overflow-hidden`}>
-        {questions.map((q, idx) => (
-          <div 
-            key={q.id || idx} 
-            className={`flex flex-col p-3 border-2 border-zinc-100 rounded-2xl bg-zinc-50/50 relative page-break-inside-avoid ${
-              isCompact ? 'p-2 rounded-xl' : 'p-4'
-            }`}
-          >
-            {/* Soru Numarası */}
-            <div className="absolute -top-2 -left-2 w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-[10px] font-black shadow-md">
-              {idx + 1}
-            </div>
-
-            <div className="flex-1">
-              <p 
-                className="font-bold text-zinc-800 leading-tight mb-2"
-                style={{ fontSize: customFontSize }}
-              >
-                {q.question}
+      {/* Etkinlik İçeriği */}
+      <div className={columnLayout}>
+        {exampleQuestions.map((q, index) => (
+          <div key={q.id} className="space-y-3">
+            <p className={cn(
+              'font-bold text-zinc-800',
+              fontSize,
+              lineHeight
+            )}>
+              {q.question}
+            </p>
+            
+            {/* Cevap Satırları */}
+            {settings?.includeAnswerLines !== false && Array.from({ length: q.lines || settings?.answerLineCount || 2 }).map((_, lineIndex) => (
+              <div 
+                key={`${q.id}-line-${lineIndex}`} 
+                className={cn(
+                  'w-full py-2',
+                  getLineStyle(),
+                  getLineColor()
+                )}
+              />
+            ))}
+            
+            {/* İpucu */}
+            {settings?.includeHints && q.hint && (
+              <p className="text-xs text-amber-600 italic">
+                <i className="fa-solid fa-lightbulb mr-1.5"></i>
+                {q.hint}
               </p>
-              
-              {/* Cevap Satırları */}
-              <div className="space-y-1.5 mt-auto">
-                {Array.from({ length: q.lines || 2 }).map((_, lIdx) => (
-                  <div key={lIdx} className="w-full border-b border-zinc-300 h-5 md:h-6"></div>
-                ))}
-              </div>
-            </div>
-
-            {q.hint && !isCompact && (
-              <div className="mt-2 flex items-center gap-1.5 text-[9px] text-amber-600 font-bold italic">
-                <i className="fa-solid fa-lightbulb"></i>
-                <span>İpucu: {q.hint}</span>
-              </div>
             )}
           </div>
         ))}
       </div>
 
-      {/* FOOTER & PEDAGOJİK NOT */}
-      <div className="mt-auto pt-4 flex flex-col gap-3">
-        {pedagogicalNote && (
-          <div className="p-3 bg-indigo-50/50 border border-indigo-100 rounded-xl">
-             <p className="text-[9px] font-bold text-indigo-800 leading-tight italic">
-               <i className="fa-solid fa-graduation-cap mr-1.5"></i>
-               {pedagogicalNote}
-             </p>
-          </div>
-        )}
-        
-        <div className="flex justify-between items-center text-[8px] font-black text-slate-300 uppercase tracking-widest">
-          <span>Oogmatik Özel Eğitim Teknolojileri • Kısa Cevaplı Sorular Modülü</span>
-          <span>Soru Sayısı: {questions.length}</span>
+      {/* Pedagojik Not */}
+      {data.pedagogicalNote && (
+        <div className="mt-12 p-6 bg-indigo-50/70 rounded-2xl border border-indigo-500/20">
+          <p className="text-xs font-bold text-indigo-800 leading-relaxed">
+            <i className="fa-solid fa-graduation-cap mr-2"></i>
+            <strong>ÖĞRETMENE NOT:</strong> {data.pedagogicalNote}
+          </p>
         </div>
+      )}
+
+      {/* Alt Bilgi */}
+      <div className="mt-10 pt-6 border-t border-zinc-200 flex justify-between items-center">
+        <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">
+          OOGMATIK ÖZEL EĞİTİM TEKNOLOJİLERİ
+        </p>
+        <p className="text-[10px] text-zinc-400">
+          <i className="fa-solid fa-pen-to-square mr-1"></i>
+          Kısa Cevaplı Sorular Modülü
+        </p>
       </div>
     </div>
   );
