@@ -325,6 +325,89 @@
 
 ### 4.1 ScreeningAssessment — Bilişsel Değerlendirme ve Analiz Merkezi (YENİ)
 
+## 13. Messages — Profesyonel Mesajlaşma ve Bildirim Modülü
+
+**Dosya Konumu**: `components/Messages/`
+
+**Amaç**: Platform kullanıcıları arasında gerçek zamanlı, zengin medya destekli mesajlaşma. Dosya paylaşımı, alıntı yapma, yanıtlama, soft-delete, threaded görünüm ve akıllı bildirim sistemi.
+
+**Ana Bileşen**: `index.tsx` — `MessagesModule`
+
+**State Management**: `store/useMessagesStore.ts` (Zustand)
+
+**Mimari Yapı**:
+```
+Messages/
+├── index.tsx                         ← Orchestrator (modal wrapper)
+├── types.ts                          ← Extended types (Contact, FileUploadState, NotificationPrefs)
+├── store/useMessagesStore.ts         ← Zustand store (contacts, messages, notifications, prefs)
+├── hooks/
+│   ├── useMessages.ts                ← Ana hook: Firestore listener, send/edit/delete/restore
+│   ├── useFileUpload.ts              ← Dosya yükleme: validasyon, picker, progress takibi
+│   └── useNotifications.ts           ← Bildirim yönetimi: toast, sound, vibration, badge
+├── panels/
+│   ├── ContactPanel.tsx              ← Kişi listesi: arama, rozetler, son mesaj, online durumu
+│   ├── ConversationPanel.tsx         ← Sohbet penceresi: mesaj akışı, tarih ayraçları
+│   └── EmptyState.tsx                ← Boş durum bileşeni
+├── components/
+│   ├── MessageBubble.tsx             ← Mesaj balonu: alıntı, reply thread, dosya, düzenleme, okundu
+│   ├── MessageComposer.tsx           ← Input + dosya yükleme + yapıştırma + progress
+│   ├── FileAttachment.tsx            ← Dosya gösterme + UploadProgress
+│   ├── FilePreview.tsx               ← Modal önizleme (resim/video/audio/PDF/document)
+│   ├── QuoteBar.tsx                  ← Alıntı/reply çubuğu
+│   ├── ReplyThread.tsx               ← Yanıt zinciri bağlantısı
+│   ├── MessageActions.tsx            ← Düzenle/sil/geri yükle/yanıtla aksiyonları
+│   ├── NotificationToast.tsx         ← Floating toast bildirimler
+│   └── NotificationSettings.tsx      ← Ses/titreşim/görsel tercihleri
+└── services/
+    ├── messageService.ts             ← Firestore CRUD + File upload/download + soft delete
+    ├── fileUploadService.ts          ← MIME validasyon (25MB limit, 10 dosya), preview helpers
+    └── notificationService.ts        ← Bildirim tetikleme, sound, vibration, toast
+```
+
+**Özellik Detayları**:
+
+1. **Multi-Format Dosya Gönderme**:
+   - Desteklenen formatlar: PDF, DOCX, XLSX, PPTX, PNG, JPG, GIF, WebP, SVG, MP4, MP3, WAV, OGG, ZIP, TXT, CSV
+   - Boyut limiti: 25MB/dosya, maksimum 10 dosya/mesaj
+   - Firebase Storage yükleme + progress bar
+   - Önizleme: resim (görüntüleme), video (oynatma), audio (çalma), PDF (iframe)
+   - Sürükle-bırak + clipboard yapıştırma desteği
+
+2. **Alıntı & Reply**:
+   - Her mesajda "Alıntı Yap" ve "Yanıtla" aksiyonları
+   - Alıntı: gönderen adı, tarih, saat korunur, mesaj içeriği ile birlikte gösterilir
+   - Yanıt: ReplyThread ile bağlam korunur, parent mesaja tıklanabilir bağlantı
+   - Mesaj seçili metin alıntısı için quoteContent store'da ayrı tutulur
+
+3. **Mesaj Yönetimi**:
+   - Düzenleme: inline textarea, Enter kaydet, Escape iptal
+   - Silme: soft delete (30 gün geri yükleme süresi)
+   - Geri yükleme: süre kontrolü (30 gün), otomatik içerik düzeltme
+   - Konuşma temizleme: toplu soft delete
+
+4. **Bildirim Sistemi**:
+   - Toast bildirimler (saydam, sliding, max 5 aynı anda)
+   - Ses bildirimi (varsayılan ses dosyası)
+   - Titreşim (navigator.vibrate)
+   - Badge: AppHeader'da canlı unreadCount
+   - Deep linking: toast'a tıklayınca direkt konuşma açılır
+   - Toplu kapatma / tek tek kapatma
+
+5. **Responsive Tasarım**:
+   - Desktop: ContactPanel sidebar + ConversationPanel ana alan
+   - Mobile: ContactPanel full → ConversationPanel full (back button)
+   - Breakpoint: lg: 1024px
+
+**Veri Kaynakları**:
+- Firestore `messages` koleksiyonu (participants, conversationId indeksleri)
+- Firebase Storage `message_files/{userId}/{id}_{name}`
+- `authService.getContacts()` kullanıcı listesi
+
+**Özel Eğitim Uzmanı Notu**: KVKK uyumu için mesaj içerikleri şifrelenmemiş olsa da, ekran görüntüsü engelleme ve mesaj süresi dolma özellikleri eklenebilir.
+
+---
+
 **Dosya Konumu**: `components/ScreeningAssessment/`
 
 **Amaç**: Disleksi, DEHB ve özel öğrenme güçlüğü risk taraması, bilişsel test bataryası ve AI destekli analiz merkezi. Eski `ScreeningModule` ve `AdvancedScreeningModule`'ü tek bir enterprise-level modülde birleştirir.

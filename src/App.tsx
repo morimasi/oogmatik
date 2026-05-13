@@ -62,8 +62,8 @@ const Profile = lazy(() =>
 const AdminDashboard = lazy(() =>
   import('./components/AdminDashboard/index').then((module) => ({ default: module.AdminDashboard }))
 );
-const MessagesView = lazy(() =>
-  import('./components/MessagesView').then((module) => ({ default: module.MessagesView }))
+const MessagesModule = lazy(() =>
+  import('./components/Messages').then((module) => ({ default: module.MessagesModule }))
 );
 const OCRScanner = lazy(() =>
   import('./components/OCRScanner').then((module) => ({ default: module.OCRScanner }))
@@ -1093,7 +1093,7 @@ const AppContent = () => {
                         <StudentDashboard onBack={handleGoBack} onLoadMaterial={loadSavedWorksheet} />
                       </ProtectedRoute>
                     )}
-                    {currentView === 'messages' && <MessagesView onBack={handleGoBack} />}
+                    {currentView === 'messages' && <MessagesModule onBack={handleGoBack} onRefreshNotifications={() => {}} />}
                     {currentView === 'admin' && (
                       <ProtectedRoute module="admin" onBack={handleGoBack}>
                         <AdminDashboard onBack={handleGoBack} />
