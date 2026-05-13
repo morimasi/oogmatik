@@ -1316,7 +1316,9 @@ const AppContent = () => {
 
       {/* Messages Module */}
       {currentView === 'messages' && (
-        <MessagesModule onBack={handleGoBack} onRefreshNotifications={() => {}} />
+        <Suspense fallback={<LoadingSpinner />}>
+          <MessagesModule onBack={handleGoBack} onRefreshNotifications={() => {}} />
+        </Suspense>
       )}
 
       {/* Screening Assessment Module */}
