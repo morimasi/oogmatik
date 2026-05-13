@@ -22,7 +22,7 @@ import { GhostWriter, createGhostWriter } from '../../utils/ghostWriter';
 import { injectionMonitor } from '../../utils/injectionMonitor';
 import { getInitialAgentStates, AgentState, agents } from '../../services/agentService';
 import { LivePreviewDashboard } from './LivePreviewDashboard';
-import VFSService from '../../services/vfsFileService';
+import VFSService, { VFSSyncService } from '../../services/vfsFileService';
 
 interface VFSFile {
   name: string;
@@ -51,6 +51,7 @@ export const AdminActivityScaffold = ({ onBack }: AdminActivityScaffoldProps) =>
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
   const [activeSideTab, setActiveSideTab] = useState<'explorer' | 'agents' | 'history'>('explorer');
   
   // Use centralized VFS store
@@ -130,6 +131,19 @@ export const AdminActivityScaffold = ({ onBack }: AdminActivityScaffoldProps) =>
       toast.success('Geçmiş başarıyla silindi');
     } catch (e) {
       toast.error('Geçmiş silinirken hata oluştu');
+    }
+  };
+
+  const publishToDisk = async () => {
+    if (isPublishing || isProcessing) return;
+
+    setIsPublishing(true);
+    try {
+      await VFSSyncService.syncToBackend();
+    } catch (error) {
+      console.error('Publish error:', error);
+    } finally {
+      setIsPublishing(false);
     }
   };
 
@@ -364,6 +378,14 @@ export const Activity = () => {
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
             Agent Engine: v2.4 Online
           </div>
+          <button
+            onClick={publishToDisk}
+            disabled={isPublishing || isProcessing}
+            className="text-zinc-600 hover:text-indigo-400 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            title="VFS içeriğini fiziksel diske kaydet"
+          >
+            <i className="fa-solid fa-cloud-arrow-up"></i>
+          </button>
           <button onClick={clearHistory} className="text-zinc-600 hover:text-red-400 transition-colors" title="Sıfırla">
             <i className="fa-solid fa-rotate"></i>
           </button>

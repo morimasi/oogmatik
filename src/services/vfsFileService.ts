@@ -5,6 +5,8 @@
  */
 
 import { useVFSStore, VFSFile } from '../store/useVFSStore';
+import { useAuthStore } from '../store/useAuthStore';
+import { safeFetch, getAuthHeaders } from '../utils/apiClient';
 import { toast } from 'react-hot-toast';
 
 // ==================== File Operations ====================
@@ -244,13 +246,30 @@ export const VFSSyncService = {
    */
   async syncToBackend(): Promise<void> {
     const { files } = useVFSStore.getState();
+    const user = useAuthStore.getState().user;
+
+    if (!user) {
+      toast.error('Yayınlama için lütfen giriş yapın.');
+      throw new Error('Kullanıcı oturumu yok.');
+    }
+
+    const payload = Object.values(files).map((file) => ({
+      path: file.name === 'registry.ts'
+        ? 'src/services/generators/registry.ts'
+        : `src/components/generators/${file.name}`,
+      content: file.content,
+    }));
 
     try {
-      // Future: Implement API sync
-      console.log('Syncing to backend:', files);
-      toast.success('Backend senkronizasyonu (simülasyon)');
+      await safeFetch('/api/admin/fs-proxy', {
+        method: 'POST',
+        headers: getAuthHeaders(user.id, user.role),
+        body: JSON.stringify({ files: payload }),
+      });
+
+      toast.success('VFS fiziksel kaydı başarıyla tamamlandı.');
     } catch (error) {
-      toast.error('Backend senkronizasyon hatası');
+      toast.error('Fiziksel kaydetme sırasında hata oluştu.');
       throw error;
     }
   },
