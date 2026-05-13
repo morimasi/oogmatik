@@ -44,7 +44,7 @@ import { useProfileData } from './components/Profile/hooks/useProfileData';
 import { AppHeader } from './components/AppHeader';
 import { AssignModal } from './components/Student/AssignModal';
 import { GuideModule, TourModule, PremiumHelpModule, AboutModule, DeveloperVisionModule } from './components/Onboarding';
-const AdvancedScreeningModule = lazy(() => import('./components/Screening/AdvancedScreeningModule').then(m => ({ default: m.AdvancedScreeningModule })));
+const ScreeningAssessment = lazy(() => import('./components/ScreeningAssessment').then(m => ({ default: m.ScreeningAssessment })));
 import LoginPage from './pages/LoginPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { rbacService } from './services/rbacService';
@@ -1315,9 +1315,9 @@ const AppContent = () => {
         <DeveloperVisionModule onClose={() => setActiveOnboardingModule(null)} />
       )}
 
-      {/* Advanced Screening Module */}
+      {/* Screening Assessment Module */}
       {isAdvancedScreeningOpen && (
-        <AdvancedScreeningModule
+        <ScreeningAssessment
           onClose={() => setIsAdvancedScreeningOpen(false)}
           userRole={user?.role || 'teacher'}
           onGeneratePlan={handleGeneratePlanFromScreening}

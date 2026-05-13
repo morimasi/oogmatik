@@ -117,6 +117,16 @@ types/creativeStudio.ts   LearningDisabilityProfile, AgeGroup (klinik tipler)
 types/student-advanced.ts StudentAIProfile, BEP tipleri, StudentPrivacySettings
 hooks/useWorksheets.ts    Frontend-API köprüsü — getAuthHeaders() pattern
 
+[ScreeningAssessment Modülü — Bilişsel Değerlendirme Merkezi]
+components/ScreeningAssessment/index.tsx  Ana orchestrator — lazy import
+components/ScreeningAssessment/store/useScreeningStore.ts  Merkezi Zustand store
+components/ScreeningAssessment/hooks/useScreeningAssessment.ts  Ana iş mantığı
+components/ScreeningAssessment/panels/DashboardPanel.tsx  İstatistik panosu
+components/ScreeningAssessment/panels/ResultDetailPanel.tsx  AI analiz + radar chart
+components/ScreeningAssessment/components/CognitiveTests/CognitiveTestPanel.tsx  Test bataryası
+components/ScreeningAssessment/services/assessmentEngineService.ts  AI prompt motoru
+components/ScreeningAssessment/services/screeningDataService.ts  API + mock data
+
 [Admin Modülü — Anti-Gravity Sprint 5]
 components/AdminActivityManager.tsx  Drag-and-Drop + adminService.saveActivitiesBulk
 components/AdminDraftReview.tsx      Gemini Vision OCR → category/targetSkills auto-fill

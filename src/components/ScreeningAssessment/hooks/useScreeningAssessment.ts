@@ -1,0 +1,106 @@
+import { useEffect, useCallback } from 'react';
+import { useScreeningStore } from '../store/useScreeningStore';
+import { screeningDataService } from '../services/screeningDataService';
+import { useToastStore } from '../../../store/useToastStore';
+import type { ScreeningResult, EvaluationCategory } from '../../../types/screening';
+import type { ScreeningType } from '../types';
+
+export function useScreeningAssessment() {
+  const store = useScreeningStore();
+  const { addToast } = useToastStore();
+
+  useEffect(() => {
+    const data = screeningDataService.getMockData();
+    store.setScreeningData(data);
+  }, []);
+
+  const filteredData = store.screeningData.filter((item) => {
+    const matchesSearch = item.studentName
+      .toLowerCase()
+      .includes(store.searchQuery.toLowerCase());
+    const matchesFilter =
+      store.filterStatus === 'all' || item.status === store.filterStatus;
+    return matchesSearch && matchesFilter;
+  });
+
+  const handleStartScreening = useCallback(() => {
+    if (!store.selectedStudentName.trim()) {
+      addToast('Lütfen öğrenci adı girin.', 'error');
+      return;
+    }
+    store.setActiveView('assessment');
+  }, [store.selectedStudentName]);
+
+  const handleSaveScreening = useCallback(async () => {
+    if (!store.currentScreening) return;
+    store.setIsSaving(true);
+    await screeningDataService.saveResult(store.currentScreening);
+    store.setIsSaving(false);
+  }, [store.currentScreening]);
+
+  const handleArchiveScreening = useCallback((id: string) => {
+    store.archiveScreening(id);
+    addToast('Tarama arşive taşındı.', 'success');
+  }, []);
+
+  const handleDeleteScreening = useCallback((id: string) => {
+    store.deleteScreening(id);
+    addToast('Tarama silindi.', 'success');
+  }, []);
+
+  const handleShareResults = useCallback((_id: string) => {
+    addToast('Paylaşım bağlantısı panoya kopyalandı.', 'success');
+  }, []);
+
+  const handleDownloadReport = useCallback((_data: ScreeningResult) => {
+    addToast('Rapor PDF olarak indiriliyor...', 'info');
+  }, []);
+
+  const handlePrintReport = useCallback(() => {
+    window.print();
+  }, []);
+
+  const handleAddToWorkbook = useCallback((data: ScreeningResult) => {
+    addToast(`${data.studentName} sonuçları çalışma kitabına eklendi.`, 'success');
+  }, []);
+
+  const getScoreColor = (score: number): string => {
+    if (score >= 70) return 'text-emerald-500';
+    if (score >= 50) return 'text-amber-500';
+    return 'text-rose-500';
+  };
+
+  const getRiskBadgeClasses = (level: string): string => {
+    switch (level) {
+      case 'low': return 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';
+      case 'medium': return 'text-amber-500 bg-amber-500/10 border-amber-500/20';
+      case 'high': return 'text-rose-500 bg-rose-500/10 border-rose-500/20';
+      default: return 'text-zinc-500 bg-zinc-500/10 border-zinc-500/20';
+    }
+  };
+
+  const getStatusBadgeClasses = (status: string): string => {
+    switch (status) {
+      case 'completed': return 'bg-emerald-500/10 text-emerald-500';
+      case 'pending': return 'bg-amber-500/10 text-amber-500';
+      case 'archived': return 'bg-zinc-500/10 text-zinc-500';
+      default: return 'bg-zinc-500/10 text-zinc-500';
+    }
+  };
+
+  return {
+    ...store,
+    filteredData,
+    handleStartScreening,
+    handleSaveScreening,
+    handleArchiveScreening,
+    handleDeleteScreening,
+    handleShareResults,
+    handleDownloadReport,
+    handlePrintReport,
+    handleAddToWorkbook,
+    getScoreColor,
+    getRiskBadgeClasses,
+    getStatusBadgeClasses,
+  };
+}

@@ -4,7 +4,7 @@
 > Bu belge, Oogmatik platformundaki tüm modüllerin, işlevlerin ve bileşenlerin kapsamlı açıklamasını içerir.
 > Her ajan geliştirme yapmadan önce ilgili modülü buradan öğrenmeli ve bağlamı anlamalıdır.
 
-**Son Güncelleme**: 2026-03-21
+**Son Güncelleme**: 2026-05-13
 **Kapsam**: Tüm uygulama modülleri, API'ler, servisler ve UI bileşenleri
 
 ---
@@ -321,51 +321,94 @@
 
 ---
 
-## 4. Değerlendirme Modülleri {#değerlendirme-modülleri}
+## 4. Değerlendirme ve Analiz Modülleri {#değerlendirme-modülleri}
 
-### 4.1 AssessmentModule — Değerlendirme Modülü
+### 4.1 ScreeningAssessment — Bilişsel Değerlendirme ve Analiz Merkezi (YENİ)
 
-**Dosya Konumu**: `components/AssessmentModule.tsx`
+**Dosya Konumu**: `components/ScreeningAssessment/`
 
-**Amaç**: Öğrenci performansını değerlendirme, soru oluşturma ve puanlama.
+**Amaç**: Disleksi, DEHB ve özel öğrenme güçlüğü risk taraması, bilişsel test bataryası ve AI destekli analiz merkezi. Eski `ScreeningModule` ve `AdvancedScreeningModule`'ü tek bir enterprise-level modülde birleştirir.
 
-**İşlevler**:
-1. **Soru Türleri**: Çoktan seçmeli, boşluk doldurma, eşleştirme
-2. **Otomatik Puanlama**: Doğru/yanlış sayısı + yüzde hesaplama
-3. **Detaylı Rapor**: Beceri bazında performans analizi
-4. **Adaptif Zorluk**: Öğrenci performansına göre sonraki soru zorluğu ayarlama
+**Ana Bileşen**: `index.tsx` — `ScreeningAssessment`
 
-**Alt Modül**: `assessment/AssessmentEngine.tsx` — Puanlama motoru
+**State Management**: `store/useScreeningStore.ts` (Zustand)
 
-**Service Entegrasyonu**:
-- `services/assessmentService.ts` — Değerlendirme mantığı
-- `services/assessmentGenerator.ts` — AI ile soru üretimi
-- `utils/scoringEngine.ts` — Puanlama algoritması
+**Mimari Yapı**:
+```
+ScreeningAssessment/
+├── index.tsx                         ← Orchestrator (giriş noktası, App.tsx tarafından lazy import)
+├── types.ts                          ← Modül tipleri (ScreeningView, ScreeningState)
+├── constants.ts                      ← Tab tanımları, risk/status label'ları
+├── store/
+│   └── useScreeningStore.ts          ← Merkezi Zustand store (aktif görünüm, veri, filtreler)
+├── hooks/
+│   ├── useScreeningAssessment.ts     ← Ana hook: filtreleme, aksiyonlar, renk metodları
+│   ├── useScreeningHistory.ts        ← Geçmiş hook: istatistikler, memoized filtreleme
+│   └── useScreeningAnalytics.ts      ← Analitik hook: dağılım, trend, kategoriler
+├── panels/                           ← Her tab bağımsız panel
+│   ├── DashboardPanel.tsx            ← Panel: istatistik kartları + son taramalar
+│   ├── NewScreeningPanel.tsx         ← Yeni tarama: öğrenci seçimi, tarama türü
+│   ├── HistoryPanel.tsx              ← Geçmiş: çoklu seçim, filtre, tablo
+│   ├── AnalyticsPanel.tsx            ← Analiz: risk dağılımı, alan ortalamaları, trend
+│   └── ResultDetailPanel.tsx         ← Detay: radar chart, kategoriler, AI analizi
+├── components/
+│   ├── shared/                       ← Paylaşılan UI bileşenleri
+│   │   ├── RiskBadge.tsx             ← Risk seviyesi rozeti (low/medium/high)
+│   │   ├── CategoryScoreCard.tsx     ← Kategori skor kartı
+│   │   ├── ScreeningStatsCard.tsx    ← İstatistik kartı
+│   │   ├── ScreeningFilters.tsx      ← Arama + filtre çubuğu
+│   │   └── ReportActions.tsx         ← Kaydet/İndir/Yazdır/Paylaş aksiyonları
+│   ├── ScreeningForm/                ← Anket akışı (mevcut Screening/ altından import)
+│   └── CognitiveTests/
+│       └── CognitiveTestPanel.tsx    ← Bilişsel test bataryası paneli
+└── services/
+    ├── screeningDataService.ts       ← API CRUD + mock data + analitik hesaplama
+    └── assessmentEngineService.ts    ← AI prompt yönetimi + JSON normalizasyon
+```
 
-**Özel Öğrenme Uzmanı Notu**: Her soru türü için ZPD uyumu kontrol edilmeli. Başarısızlık odaklı tasarımdan kaçın.
+**Paneller / Görünümler**:
+1. **Panel (Dashboard)**: Toplam tarama, yüksek risk, ortalama skor, bekleyen — son 5 tarama listesi
+2. **Yeni Tarama**: Öğrenci adı + tarama türü (bilişsel/gelişimsel) seçimi
+3. **Geçmiş**: Çoklu seçim, toplu arşivleme, arama/filtre, detaylı tablo
+4. **Analiz**: Risk dağılımı grafikleri, bilişsel alan ortalamaları, aylık trend
+5. **Sonuç Detay**: Radar chart + kategori skorları + AI analiz (Gemini 1.5 Flash)
+
+**AI Entegrasyonu**:
+- `assessmentEngineService.ts` → Gemini 1.5 Flash ile AI analiz
+- AI Uzman Görüşü: 3 paragraflı değerlendirme mektubu + aksiyon adımları
+- JSON repair: `assessmentEngineService.normalizeActionSteps()` ile halüsinasyon koruması
+
+**Cognitive Test Bataryası** (6 test):
+- Görsel-Uzamsal Bellek → `MatrixMemoryTest`
+- Seçici Dikkat (Stroop) → `StroopInteractiveTest`
+- İşlem Hızı → `RapidNamingTest`
+- Mantıksal Akıl Yürütme → `LogicTest`
+- Fonolojik Döngü → `PhonologicalLoopTest`
+- Görsel Arama → `VisualSearchTest`
+
+**Backward Compatibility**:
+- Eski `AdvancedScreeningModule` artık `ScreeningAssessment`'e re-export eder
+- `ScreeningModule` (3 adımlı wizard) hala `components/Screening/` altında mevcut
+- `currentView === 'screening'` path'i korunur
+
+**Özel Eğitim Uzmanı Notu**: Bu modül TANI KOYMAZ, sadece risk belirtisi gösterir. "disleksi var" değil, "disleksi belirtileri gösteriyor". Tüm AI çıktıları KVKK uyumlu.
 
 ---
 
-### 4.2 ScreeningModule — Tarama Modülü
+### 4.2 Assessment Module — Değerlendirme Test Motoru
 
-**Dosya Konumu**: `components/Screening/ScreeningModule.tsx`
+**Dosya Konumu**: `components/AssessmentModule.tsx` + `components/assessment/AssessmentEngine.tsx`
 
-**Amaç**: Öğrencide öğrenme güçlüğü risk taraması (screening) yapmak.
+**Amaç**: Öğrenci performansını değerlendirme, interaktif bilişsel testler ve puanlama.
 
-**İşlevler**:
-1. **Risk Anketleri**: Disleksi, diskalkuli, DEHB için standart sorular
-2. **Sonuç Panosu**: Risk seviyesi (düşük/orta/yüksek)
-3. **Öneriler**: Uzman yönlendirmesi, önerilen aktiviteler
-4. **Aile Raporu**: Veliye verilecek özet rapor
+**Alt Bileşenler**:
+- `assessment/AssessmentEngine.tsx` — Domain router (CognitiveDomain → test component)
+- `assessment/tests/` — 6 interaktif test (MatrixMemory, Stroop, RapidNaming, Logic, PhonologicalLoop, VisualSearch)
 
-**Alt Modüller**:
-- `ScreeningIntro.tsx` — Giriş ekranı (tarama hakkında bilgi)
-- `QuestionnaireForm.tsx` — Anket formu
-- `ResultDashboard.tsx` — Sonuç panosu
-
-**Tip Tanımı**: `types/screening.ts` — `ScreeningResult`, `RiskLevel`, `DomainScore`
-
-**Özel Eğitim Uzmanı Notu**: Bu modül TANI KOYMAZ, sadece risk belirtisi gösterir. Dil kritik: "disleksi var" değil, "disleksi belirtileri gösteriyor".
+**Service Entegrasyonu**:
+- `services/assessmentService.ts` — Firebase CRUD
+- `services/assessmentGenerator.ts` — Gemini AI rapor üretimi
+- `services/generators/assessment.ts` — Adaptif soru üretimi
 
 ---
 
@@ -1062,7 +1105,7 @@ const note = await workbookAIAssistant.generatePedagogicalNote(item);
 
 **İlgilendiği Modüller**:
 - MathStudio, ReadingStudio, CreativeStudio (pedagojik onay)
-- AssessmentModule, ScreeningModule (ZPD uyumu)
+- ScreeningAssessment, AssessmentModule (ZPD uyumu)
 - Tüm AI generatörler (`services/generators/`)
 
 **Kontrol Etmesi Gerekenler**:
@@ -1077,7 +1120,7 @@ const note = await workbookAIAssistant.generatePedagogicalNote(item);
 
 **İlgilendiği Modüller**:
 - AdvancedStudentManager (BEP yazımı)
-- ScreeningModule (risk taraması — tanı koyucu dil yok)
+- ScreeningAssessment (risk taraması — tanı koyucu dil yok)
 - AdminDraftReview (klinik içerik onayı)
 - clinicalTemplates.ts (klinik şablonlar)
 
