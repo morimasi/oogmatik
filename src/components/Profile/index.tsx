@@ -10,6 +10,7 @@ import { AnalysisModule } from './modules/AnalysisModule';
 import { PlansModule } from './modules/PlansModule';
 import { ReportsModule } from './modules/ReportsModule';
 import { SettingsModule } from './modules/SettingsModule';
+import { useStudentStore } from '../../store/useStudentStore';
 
 interface ProfileProps {
   data: ProfileData;
@@ -37,6 +38,7 @@ export const Profile: React.FC<ProfileProps> = ({
   onOpenSettingsModal,
 }) => {
   const [activeTab, setActiveTab] = useState<ProfileTabId>('overview');
+  const { setActiveStudent: setActiveStudentInStore } = useStudentStore();
 
   const renderActiveModule = () => {
     switch (activeTab) {
@@ -58,6 +60,7 @@ export const Profile: React.FC<ProfileProps> = ({
             onBack={onBack}
             onLoadMaterial={onLoadSaved}
             onTabChange={(tab: string) => setActiveTab(tab as ProfileTabId)}
+            setActiveStudent={setActiveStudentInStore}
           />
         );
       case 'analysis':
