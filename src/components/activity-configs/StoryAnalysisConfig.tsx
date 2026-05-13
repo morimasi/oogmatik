@@ -1,34 +1,6 @@
 import React from 'react';
 import { GeneratorOptions } from '../../types';
-
-interface ToggleOption {
-    value: string | number;
-    label: string;
-}
-
-interface CompactToggleGroupProps {
-    label: string;
-    selected: string | number;
-    onChange: (value: any) => void;
-    options: ToggleOption[];
-}
-
-const CompactToggleGroup: React.FC<CompactToggleGroupProps> = ({ label, selected, onChange, options }) => (
-    <div className="space-y-1">
-        <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block">{label}</label>
-        <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
-            {options.map((opt) => (
-                <button
-                    key={opt.value}
-                    onClick={() => onChange(opt.value)}
-                    className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-white dark:bg-zinc-600 shadow-sm text-indigo-600 dark:text-indigo-300' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
-                >
-                    {opt.label}
-                </button>
-            ))}
-        </div>
-    </div>
-);
+import { CompactToggleGroup } from './SharedConfigComponents';
 
 interface ConfigProps {
     options: GeneratorOptions;
@@ -36,111 +8,235 @@ interface ConfigProps {
 }
 
 /**
- * Hikaye Analizi - Ultra Profesyonel Ayar Paneli
+ * Hikaye Analizi Ultra Pro - Profesyonel Ayar Paneli
  */
 export const StoryAnalysisConfig: React.FC<ConfigProps> = ({ options, onChange }) => {
     return (
         <div className="space-y-5 animate-in fade-in duration-300">
-            <div className="p-4 bg-rose-50/50 dark:bg-rose-900/10 rounded-[2rem] border border-rose-100 dark:border-rose-800/30 space-y-4">
+            {/* TEMEL AYARLAR */}
+            <div className="p-4 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-[2rem] border border-emerald-100 dark:border-emerald-800/30 space-y-4">
+                <div className="flex items-center gap-2 mb-1">
+                    <i className="fa-solid fa-circle-info text-emerald-500 text-sm"></i>
+                    <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Temel Ayarlar</span>
+                </div>
+                
                 <div>
-                    <label className="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest mb-2 block">Analiz Teması</label>
+                    <label className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-2 block">Hikaye Konusu</label>
                     <input
                         type="text"
                         value={options.topic || ''}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('topic', e.target.value)}
-                        placeholder="Örn: Tarihi olaylar, Fen bilimleri, Klasik masallar..."
-                        className="w-full p-4 bg-white dark:bg-zinc-800 border-2 border-rose-100 dark:border-zinc-700 rounded-2xl text-sm font-bold outline-none focus:border-rose-500 dark:text-zinc-100 placeholder-zinc-400 shadow-inner"
+                        placeholder="Örn: Uzay yolculuğu, Krallık macerası, Köpekler..."
+                        className="w-full p-4 bg-white dark:bg-zinc-800 border-2 border-emerald-100 dark:border-zinc-700 rounded-2xl text-sm font-bold outline-none focus:border-emerald-500 dark:text-zinc-100 placeholder-zinc-400 shadow-inner"
                     />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-3">
                     <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-zinc-500 uppercase block">Anlatım Düzeyi</label>
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase block">Zorluk</label>
                         <select
                             value={options.difficulty || 'Orta'}
                             onChange={(e) => onChange('difficulty', e.target.value)}
-                            className="w-full p-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold"
+                            className="w-full p-2.5 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-xs font-bold"
                         >
-                            <option value="Kolay">Temel Seviye</option>
-                            <option value="Orta">İleri Seviye</option>
-                            <option value="Zor">Akademik</option>
+                            <option value="çok kolay">Çok Kolay</option>
+                            <option value="kolay">Kolay</option>
+                            <option value="Orta">Orta</option>
+                            <option value="Zor">Zor</option>
+                            <option value="uzman">Uzman</option>
                         </select>
                     </div>
                     <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-zinc-500 uppercase block">Yaş Grubu</label>
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase block">Yaş</label>
                         <select
                             value={options.ageGroup || '8-10'}
                             onChange={(e) => onChange('ageGroup', e.target.value)}
-                            className="w-full p-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold"
+                            className="w-full p-2.5 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-xs font-bold"
                         >
-                            <option value="5-7">5-7 Yaş</option>
-                            <option value="8-10">8-10 Yaş</option>
-                            <option value="11-13">11-13 Yaş</option>
-                            <option value="14+">14+ Yaş</option>
+                            <option value="5-7">5-7</option>
+                            <option value="8-10">8-10</option>
+                            <option value="11-13">11-13</option>
+                            <option value="14+">14+</option>
+                        </select>
+                    </div>
+                    <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase block">Sınıf</label>
+                        <select
+                            value={options.gradeLevel || 3}
+                            onChange={(e) => onChange('gradeLevel', parseInt(e.target.value))}
+                            className="w-full p-2.5 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-xs font-bold"
+                        >
+                            {[1, 2, 3, 4, 5, 6, 7, 8].map(grade => (
+                                <option key={grade} value={grade}>{grade}. Sınıf</option>
+                            ))}
                         </select>
                     </div>
                 </div>
             </div>
 
-            <div className="p-5 bg-zinc-50 dark:bg-zinc-800 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 space-y-5 shadow-inner">
+            {/* ÜRETİM MODU */}
+            <div className="p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-[2rem] border border-indigo-100 dark:border-indigo-800/30 space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                    <i className="fa-solid fa-bolt text-indigo-500 text-sm"></i>
+                    <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Üretim Modu</span>
+                </div>
                 <CompactToggleGroup
-                    label="Analiz Derinliği"
-                    selected={options.analysisDepth || 'detaylı'}
-                    onChange={(v: string) => onChange('analysisDepth', v)}
+                    label="Mod Seçimi"
+                    selected={options.mode || 'ai'}
+                    onChange={(v: string) => onChange('mode', v)}
                     options={[
-                        { value: 'temel', label: 'Özet' },
-                        { value: 'detaylı', label: 'Derin Analiz' }
+                        { value: 'fast', label: 'Hızlı' },
+                        { value: 'ai', label: 'AI' }
                     ]}
                 />
+            </div>
 
-                <div className="flex items-center justify-between p-3 bg-rose-50 dark:bg-rose-900/10 rounded-2xl border border-rose-100 dark:border-rose-800/20">
-                    <div className="flex flex-col">
-                        <span className="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase">Hikaye Haritası</span>
-                        <span className="text-[9px] text-zinc-500">Karakter ve yer-zaman tablosunu ekler.</span>
+            {/* ANALİZ AYARLARI */}
+            <div className="p-5 bg-zinc-50 dark:bg-zinc-800 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 space-y-5 shadow-inner">
+                <div className="flex items-center gap-2">
+                    <i className="fa-solid fa-magnifying-glass text-emerald-500 text-sm"></i>
+                    <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Analiz Ayarları</span>
+                </div>
+                
+                <div className="space-y-3">
+                    <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase block">Analiz Derinliği</label>
+                        <select
+                            value={options.analysisDepth || 'detaylı'}
+                            onChange={(e) => onChange('analysisDepth', e.target.value)}
+                            className="w-full p-2.5 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-[10px] font-bold"
+                        >
+                            <option value="temel">Temel</option>
+                            <option value="detaylı">Detaylı</option>
+                            <option value="akademik">Akademik</option>
+                        </select>
                     </div>
-                    <button
-                        onClick={() => onChange('showStoryMap', !options.showStoryMap)}
-                        className={`px-4 py-1.5 rounded-xl text-[9px] font-black transition-all ${options.showStoryMap ? 'bg-rose-500 text-white shadow-md' : 'bg-zinc-200 text-zinc-500'}`}
-                    >
-                        {options.showStoryMap ? 'AKTİF' : 'PASİF'}
-                    </button>
+                    
+                    <div className="grid grid-cols-2 gap-2">
+                        {[
+                            { key: 'showStoryMap', label: 'Hikaye Haritası' },
+                            { key: 'includeCharacterAnalysis', label: 'Karakter Analizi' },
+                            { key: 'includeSettingAnalysis', label: 'Mekan Analizi' },
+                            { key: 'includeConflictResolution', label: 'Çözüm Süreci' },
+                            { key: 'includeMainIdea', label: 'Ana Fikir' },
+                            { key: 'includeSubThemes', label: 'Alt Temalar' },
+                            { key: 'includeThematicQuestions', label: 'Tematik Sorular' },
+                            { key: 'includeInferentialQuestions', label: 'Çıkarım Soruları' },
+                            { key: 'includeCreativeQuestions', label: 'Yaratıcı Sorular' },
+                            { key: 'includeVocabularyList', label: 'Kelime Listesi' }
+                        ].map(({ key, label }) => (
+                            <label key={key} className="flex items-center gap-2 p-2 bg-white dark:bg-zinc-700 rounded-lg cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-colors">
+                                <input
+                                    type="checkbox"
+                                    checked={options[key as keyof GeneratorOptions] !== false}
+                                    onChange={(e) => onChange(key as keyof GeneratorOptions, e.target.checked)}
+                                    className="w-3.5 h-3.5 rounded text-emerald-600 border-zinc-300"
+                                />
+                                <span className="text-[9px] font-bold text-zinc-600 dark:text-zinc-300">{label}</span>
+                            </label>
+                        ))}
+                    </div>
                 </div>
 
-                <div className="space-y-4 pt-2 border-t border-rose-100 dark:border-rose-900/30">
-                    <div className="flex items-center justify-between">
-                        <div className="flex flex-col">
-                            <span className="text-[11px] font-bold text-zinc-700 dark:text-zinc-200">Yoğun İçerik (A4)</span>
-                            <span className="text-[10px] text-zinc-500">Sayfayı tam kapasite doldurur.</span>
-                        </div>
-                        <button 
-                            onClick={() => onChange('compact', !options.compact)}
-                            className={`w-12 h-6 rounded-full transition-all relative ${options.compact ? 'bg-rose-500' : 'bg-zinc-300'}`}
-                        >
-                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${options.compact ? 'left-7' : 'left-1'}`} />
-                        </button>
+                <div className="space-y-3 pt-3 border-t border-zinc-200 dark:border-zinc-700">
+                    <div className="flex items-center gap-2">
+                        <i className="fa-solid fa-book-open text-indigo-500 text-sm"></i>
+                        <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Metin Ayarları</span>
                     </div>
-
-                    <div className="flex items-center justify-between">
-                        <div className="flex flex-col">
-                            <span className="text-[11px] font-bold text-zinc-700 dark:text-zinc-200">Görsel Analiz Şeması</span>
-                            <span className="text-[10px] text-zinc-500">Düşünce haritası ikonlarını ekler.</span>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-zinc-500 uppercase block">Hikaye Uzunluğu</label>
+                            <select
+                                value={options.storyLength || 'orta'}
+                                onChange={(e) => onChange('storyLength', e.target.value)}
+                                className="w-full p-2.5 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-[10px] font-bold"
+                            >
+                                <option value="kısa">Kısa</option>
+                                <option value="orta">Orta</option>
+                                <option value="uzun">Uzun</option>
+                                <option value="çok uzun">Çok Uzun</option>
+                            </select>
                         </div>
-                        <button 
-                            onClick={() => onChange('useIcons', !options.useIcons)}
-                            className={`w-12 h-6 rounded-full transition-all relative ${options.useIcons ? 'bg-rose-500' : 'bg-zinc-300'}`}
-                        >
-                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${options.useIcons ? 'left-7' : 'left-1'}`} />
-                        </button>
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-zinc-500 uppercase block">Soru Sayısı</label>
+                            <input
+                                type="number"
+                                min={3}
+                                max={15}
+                                value={options.questionCount || 8}
+                                onChange={(e) => onChange('questionCount', parseInt(e.target.value))}
+                                className="w-full p-2.5 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-[10px] font-bold"
+                            />
+                        </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-zinc-500 uppercase block">Kelime Seviyesi</label>
+                            <select
+                                value={options.vocabularyLevel || 'orta'}
+                                onChange={(e) => onChange('vocabularyLevel', e.target.value)}
+                                className="w-full p-2 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-lg text-[9px] font-bold"
+                            >
+                                <option value="basit">Basit</option>
+                                <option value="orta">Orta</option>
+                                <option value="zor">Zor</option>
+                                <option value="akademik">Akademik</option>
+                            </select>
+                        </div>
+                        <div className="space-y-1">
+                            <label className="text-[10px] font-bold text-zinc-500 uppercase block">Cümle Yapısı</label>
+                            <select
+                                value={options.sentenceComplexity || 'birleşik'}
+                                onChange={(e) => onChange('sentenceComplexity', e.target.value)}
+                                className="w-full p-2 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-lg text-[9px] font-bold"
+                            >
+                                <option value="basit">Basit</option>
+                                <option value="birleşik">Birleşik</option>
+                                <option value="karmaşık">Karmaşık</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
-                <div className="flex items-center gap-3 p-4 bg-rose-50 dark:bg-rose-900/20 rounded-[1.5rem] border border-rose-100 dark:border-rose-800/30">
-                    <div className="w-8 h-8 bg-rose-500 rounded-xl flex items-center justify-center text-white shadow-lg">
-                        <i className="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                <div className="space-y-3 pt-3 border-t border-zinc-200 dark:border-zinc-700">
+                    <div className="flex items-center gap-2">
+                        <i className="fa-solid fa-palette text-amber-500 text-sm"></i>
+                        <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Görsel & Düzen</span>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                        {[
+                            { key: 'compactLayout', label: 'Kompakt Layout' },
+                            { key: 'useIcons', label: 'İkon Kullan' },
+                            { key: 'showReadingRuler', label: 'Okuma Cetveli' },
+                            { key: 'syllableColoring', label: 'Hece Renklendirme' }
+                        ].map(({ key, label }) => (
+                            <label key={key} className="flex items-center gap-3 p-3 bg-white dark:bg-zinc-700 rounded-xl cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-colors border border-zinc-200 dark:border-zinc-600">
+                                <input
+                                    type="checkbox"
+                                    checked={options[key as keyof GeneratorOptions] !== false}
+                                    onChange={(e) => onChange(key as keyof GeneratorOptions, e.target.checked)}
+                                    className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 border-zinc-300"
+                                />
+                                <span className="text-[10px] font-bold text-zinc-700 dark:text-zinc-200">{label}</span>
+                            </label>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-emerald-50 to-indigo-50 dark:from-emerald-900/20 dark:to-indigo-900/20 rounded-[1.5rem] border border-emerald-100 dark:border-emerald-800/30">
+                    <div className="w-8 h-8 bg-gradient-to-r from-emerald-500 to-indigo-500 rounded-xl flex items-center justify-center text-white shadow-lg">
+                        <i className="fa-solid fa-book text-xs"></i>
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-[10px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-tighter">Ultra Pro Analiz</span>
-                        <span className="text-[9px] text-zinc-500 dark:text-zinc-400">Derinlemesine anlama ve kritik düşünme.</span>
+                        <span className="text-[10px] font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-indigo-600 dark:from-emerald-400 dark:to-indigo-400 uppercase tracking-tighter">
+                            Ultra Pro Story Analysis
+                        </span>
+                        <span className="text-[9px] text-zinc-500 dark:text-zinc-400">
+                            Derinlemesine hikaye analizi ve metin çalışması. Tamamen özelleştirilebilir.
+                        </span>
                     </div>
                 </div>
             </div>

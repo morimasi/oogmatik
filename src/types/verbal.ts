@@ -38,21 +38,57 @@ export interface StoryData extends BaseActivityData {
 
 export interface StoryAnalysisData extends BaseActivityData {
   settings?: {
-    difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor';
+    // Temel Ayarlar
+    difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor' | 'uzman';
     topic: string;
-    analysisDepth: 'temel' | 'detaylı';
+    ageGroup: '5-7' | '8-10' | '11-13' | '14+';
+    gradeLevel: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+    
+    // Ultra Özelleştirme - Analiz
+    analysisDepth: 'temel' | 'detaylı' | 'akademik';
     showStoryMap: boolean;
+    includeCharacterAnalysis: boolean;
+    includeSettingAnalysis: boolean;
+    includeConflictResolution: boolean;
+    includeMainIdea: boolean;
+    includeSubThemes: boolean;
+    includeThematicQuestions: boolean;
+    includeInferentialQuestions: boolean;
+    includeCreativeQuestions: boolean;
+    questionCount: number;
+    
+    // Ultra Özelleştirme - Metin
+    storyLength: 'kısa' | 'orta' | 'uzun' | 'çok uzun';
+    vocabularyLevel: 'basit' | 'orta' | 'zor' | 'akademik';
+    sentenceComplexity: 'basit' | 'birleşik' | 'karmaşık';
+    includeVocabularyList: boolean;
+    vocabularyWordCount: number;
+    
+    // Görsel Ayarlar
+    compactLayout: boolean;
+    useIcons: boolean;
+    showReadingRuler: boolean;
+    syllableColoring: boolean;
+    
+    // A4 Optimizasyon
+    fontSize: 'small' | 'medium' | 'large';
+    lineHeight: 'tight' | 'normal' | 'relaxed';
+    columnLayout: 'single' | 'two-column';
   };
   content: {
     title: string;
     story: string;
     analysis: {
-      characters: { name: string; traits: string[] }[];
-      setting: { place: string; time: string };
+      characters: { name: string; traits: string[]; description?: string }[];
+      setting: { place: string; time: string; description?: string };
       conflict: string;
       resolution: string;
       mainIdea: string;
       subThemes: string[];
+    };
+    vocabulary?: { word: string; definition: string }[];
+    visualElements?: {
+      icons: { position: number; icon: string; style: string }[];
     };
   };
   questions: StoryQuestion[];

@@ -127,7 +127,6 @@ export interface GeneratorOptions {
   | 'inference'
   | 'true_false'
   | 'open_ended';
-  classLevel?: number;
   generationMode?: 'fast' | 'ai';
   premiumMode?: boolean;
   syllableColoring?: boolean;
@@ -156,7 +155,6 @@ export interface GeneratorOptions {
   cognitiveLoad?: number;
   includeClinicalNotes?: boolean;
   generateImage?: boolean;
-  classLevel?: number;
   showCoordinates?: boolean;
   showSymmetryLine?: boolean;
   pathType?: 'straight' | 'curved' | 'angular';
@@ -199,6 +197,59 @@ export interface GeneratorOptions {
   passageLength?: 'short' | 'medium' | 'long';
   includeMultipleChoice?: boolean;
   targetSkills?: string[];
+  
+  // Hikaye Analizi Ultra Pro
+  ageGroup?: '5-7' | '8-10' | '11-13' | '14+';
+  gradeLevel?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+  analysisDepth?: 'temel' | 'detaylı' | 'akademik';
+  showStoryMap?: boolean;
+  includeCharacterAnalysis?: boolean;
+  includeSettingAnalysis?: boolean;
+  includeConflictResolution?: boolean;
+  includeMainIdea?: boolean;
+  includeSubThemes?: boolean;
+  includeThematicQuestions?: boolean;
+  includeInferentialQuestions?: boolean;
+  includeCreativeQuestions?: boolean;
+  questionCount?: number;
+  storyLength?: 'kısa' | 'orta' | 'uzun' | 'çok uzun';
+  vocabularyLevel?: 'basit' | 'orta' | 'zor' | 'akademik';
+  sentenceComplexity?: 'basit' | 'birleşik' | 'karmaşık';
+  includeVocabularyList?: boolean;
+  vocabularyWordCount?: number;
+  compactLayout?: boolean;
+  useIcons?: boolean;
+  showReadingRuler?: boolean;
+  
+  // Eksik Parçaları Tamamlama
+  blankType?: 'word' | 'phrase' | 'sentence' | 'number';
+  blankCount?: number;
+  blankSize?: 'small' | 'medium' | 'large';
+  blankStyle?: 'underline' | 'dashed' | 'solid' | 'dotted';
+  showLineNumber?: boolean;
+  showParagraphNumbers?: boolean;
+  showWordBank?: boolean;
+  showVisualHints?: boolean;
+  includeDistractors?: boolean;
+  distractorCount?: number;
+  semanticComplexity?: 'low' | 'medium' | 'high';
+  showInstructions?: boolean;
+  showExamples?: boolean;
+  includeTimer?: boolean;
+  showProgress?: boolean;
+  lineHeight?: 'tight' | 'normal' | 'relaxed';
+  columnLayout?: 'single' | 'two-column';
+  maxParagraphsPerPage?: number;
+  
+  // Resim Yorumlama Analiz
+  itemCountVisual?: number;
+  visualInterpretationStyle?: 'true_false' | 'multiple_choice' | 'open_ended' | 'mixed';
+  includeDetailQuestions?: boolean;
+  includeInferentialVisualQuestions?: boolean;
+  includeCreativeVisualQuestions?: boolean;
+  visualComplexityLevel?: 'simple' | 'medium' | 'complex' | 'ultra';
+  includeAnswerKey?: boolean;
+  includeObservationNotes?: boolean;
   
 }
 
