@@ -385,32 +385,66 @@ export interface ShortAnswerQuestion {
   answer?: string;
   hint?: string;
   lines?: number;
+  points?: number;
+  questionType?: 'open_ended' | 'fill_in_blank' | 'two_choice' | 'visual_analysis' | 'scenario_based' | 'creative_thinking';
+  visualPrompt?: string;
+  scenario?: string;
 }
 
 export interface ShortAnswerData extends BaseActivityData {
   settings?: {
+    // TEMEL AYARLAR
     difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor' | 'uzman';
     topic: string;
-    ageGroup: '5-7' | '8-10' | '11-13' | '14+';
-    gradeLevel: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+    ageGroup: 'okul_oncesi' | '5-7' | '8-10' | '11-13' | '14+';
+    gradeLevel: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+    
+    // ÜRETİM MODU
+    mode: 'fast' | 'ai';
+    
+    // SORU AYARLARI
+    questionType: 'open_ended' | 'fill_in_blank' | 'two_choice' | 'mixed' | 'visual_analysis' | 'scenario_based' | 'creative_thinking';
     itemCountShort: number;
-    questionType: 'open_ended' | 'fill_in_blank' | 'two_choice' | 'mixed';
     includeVisualHints: boolean;
     includeAnswerLines: boolean;
     answerLineCount: number;
     includeHints: boolean;
     includeExamples: boolean;
+    includePoints: boolean;
+    includeScenarios: boolean;
+    includeVisualAnalysis: boolean;
+    includeCreativeThinking: boolean;
+    
+    // SATIR AYARLARI
+    lineStyle: 'single' | 'double' | 'dotted' | 'dashed';
+    lineColor: 'standard' | 'light' | 'dark' | 'blue' | 'green' | 'red';
+    
+    // GÖRSEL & DÜZEN AYARLARI
     compactLayout: boolean;
     useIcons: boolean;
-    fontSize: 'small' | 'medium' | 'large';
-    lineHeight: 'tight' | 'normal' | 'relaxed';
+    fontSize: 'small' | 'medium' | 'large' | 'xl';
+    lineHeight: 'tight' | 'normal' | 'relaxed' | 'very_relaxed';
     columnLayout: 'single' | 'two-column';
-    lineStyle: 'single' | 'double' | 'dotted' | 'dashed';
-    lineColor: 'standard' | 'light' | 'dark';
+    marginSize: 'narrow' | 'normal' | 'wide';
+    showBorders: boolean;
+    colorTheme: 'classic' | 'blue' | 'green' | 'purple' | 'amber';
+    
+    // OKUL ÖNCESİ ÖZEL AYARLARI
+    isPreschoolMode: boolean;
+    usePictures: boolean;
+    largeButtons: boolean;
+    simpleWords: boolean;
+    
+    // İLKOKUL ÖZEL AYARLARI
+    isElementaryMode: boolean;
+    showReadingRuler: boolean;
+    syllableColoring: boolean;
+    vocabularySupport: boolean;
   };
   content: {
     title: string;
     instruction: string;
+    subtitle?: string;
   };
   questions: ShortAnswerQuestion[];
 }

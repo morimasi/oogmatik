@@ -253,13 +253,27 @@ export interface GeneratorOptions {
   
   // Kısa Cevaplı Sorular (Premium)
   itemCountShort?: number;
-  questionType?: 'open_ended' | 'fill_in_blank' | 'two_choice' | 'mixed';
+  questionType?: 'open_ended' | 'fill_in_blank' | 'two_choice' | 'mixed' | 'visual_analysis' | 'scenario_based' | 'creative_thinking';
   includeVisualHints?: boolean;
   includeAnswerLines?: boolean;
   answerLineCount?: number;
   includeHints?: boolean;
+  includeExamples?: boolean;
+  includePoints?: boolean;
+  includeScenarios?: boolean;
+  includeVisualAnalysis?: boolean;
+  includeCreativeThinking?: boolean;
   lineStyle?: 'single' | 'double' | 'dotted' | 'dashed';
-  lineColor?: 'standard' | 'light' | 'dark';
+  lineColor?: 'standard' | 'light' | 'dark' | 'blue' | 'green' | 'red';
+  marginSize?: 'narrow' | 'normal' | 'wide';
+  showBorders?: boolean;
+  colorTheme?: 'classic' | 'blue' | 'green' | 'purple' | 'amber';
+  isPreschoolMode?: boolean;
+  usePictures?: boolean;
+  largeButtons?: boolean;
+  simpleWords?: boolean;
+  isElementaryMode?: boolean;
+  vocabularySupport?: boolean;
   
 }
 
