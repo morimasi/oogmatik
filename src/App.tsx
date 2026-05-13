@@ -1093,7 +1093,6 @@ const AppContent = () => {
                         <StudentDashboard onBack={handleGoBack} onLoadMaterial={loadSavedWorksheet} />
                       </ProtectedRoute>
                     )}
-                    {currentView === 'messages' && <MessagesModule onBack={handleGoBack} onRefreshNotifications={() => {}} />}
                     {currentView === 'admin' && (
                       <ProtectedRoute module="admin" onBack={handleGoBack}>
                         <AdminDashboard onBack={handleGoBack} />
@@ -1313,6 +1312,11 @@ const AppContent = () => {
       )}
       {activeOnboardingModule === 'developer' && (
         <DeveloperVisionModule onClose={() => setActiveOnboardingModule(null)} />
+      )}
+
+      {/* Messages Module */}
+      {currentView === 'messages' && (
+        <MessagesModule onBack={handleGoBack} onRefreshNotifications={() => {}} />
       )}
 
       {/* Screening Assessment Module */}
