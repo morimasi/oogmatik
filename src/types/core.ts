@@ -251,6 +251,16 @@ export interface GeneratorOptions {
   includeAnswerKey?: boolean;
   includeObservationNotes?: boolean;
   
+  // Kısa Cevaplı Sorular (Premium)
+  itemCountShort?: number;
+  questionType?: 'open_ended' | 'fill_in_blank' | 'two_choice' | 'mixed';
+  includeVisualHints?: boolean;
+  includeAnswerLines?: boolean;
+  answerLineCount?: number;
+  includeHints?: boolean;
+  lineStyle?: 'single' | 'double' | 'dotted' | 'dashed';
+  lineColor?: 'standard' | 'light' | 'dark';
+  
 }
 
 export interface OverlayItem {

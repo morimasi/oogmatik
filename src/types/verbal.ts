@@ -379,6 +379,42 @@ export interface CharacterMemoryData extends BaseActivityData {
   testCharacters: CharacterMemoryItem[];
 }
 
+export interface ShortAnswerQuestion {
+  id: string;
+  question: string;
+  answer?: string;
+  hint?: string;
+  lines?: number;
+}
+
+export interface ShortAnswerData extends BaseActivityData {
+  settings?: {
+    difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor' | 'uzman';
+    topic: string;
+    ageGroup: '5-7' | '8-10' | '11-13' | '14+';
+    gradeLevel: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+    itemCountShort: number;
+    questionType: 'open_ended' | 'fill_in_blank' | 'two_choice' | 'mixed';
+    includeVisualHints: boolean;
+    includeAnswerLines: boolean;
+    answerLineCount: number;
+    includeHints: boolean;
+    includeExamples: boolean;
+    compactLayout: boolean;
+    useIcons: boolean;
+    fontSize: 'small' | 'medium' | 'large';
+    lineHeight: 'tight' | 'normal' | 'relaxed';
+    columnLayout: 'single' | 'two-column';
+    lineStyle: 'single' | 'double' | 'dotted' | 'dashed';
+    lineColor: 'standard' | 'light' | 'dark';
+  };
+  content: {
+    title: string;
+    instruction: string;
+  };
+  questions: ShortAnswerQuestion[];
+}
+
 export interface StroopTestData extends BaseActivityData {
   items: { text: string; color: string }[];
 }
