@@ -10,8 +10,7 @@ export type AdminTab =
   | 'feedbacks'
   | 'drafts'
   | 'approvals'
-  | 'permissions'
-  | 'scaffold';
+  | 'permissions';
 
 export interface DynamicActivity {
   id: string;
