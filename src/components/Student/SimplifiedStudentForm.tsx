@@ -133,7 +133,7 @@ export const SimplifiedStudentForm: React.FC<SimplifiedStudentFormProps> = ({
   };
 
   return (
-    <div className="min-h-screen p-6 font-['Lexend']" style={{ backgroundColor: 'var(--bg-default)' }}>
+    <div className="p-6 font-['Lexend']" style={{ backgroundColor: 'var(--bg-paper)' }}>
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="mb-8">

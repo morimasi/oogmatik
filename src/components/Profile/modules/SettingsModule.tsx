@@ -8,6 +8,7 @@ import { ProfileData } from '../../../types/profile';
 import { AppTheme, UiSettings } from '../../../types';
 import { SETTINGS_CATEGORIES, SettingsCategory } from '../types';
 import { UserProfileSettings } from './settings/UserProfileSettings';
+import { StudentsSettings } from './settings/StudentsSettings';
 import { AppearanceSettings } from './settings/AppearanceSettings';
 import { PedagogySettings } from './settings/PedagogySettings';
 import { AIControlSettings } from './settings/AIControlSettings';
@@ -36,6 +37,8 @@ export const SettingsModule: React.FC<SettingsModuleProps> = ({
     switch (activeCategory) {
       case 'profile':
         return <UserProfileSettings data={data} />;
+      case 'students':
+        return <StudentsSettings data={data} />;
       case 'appearance':
         return (
           <AppearanceSettings

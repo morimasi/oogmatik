@@ -6,7 +6,7 @@ import { ProfileData } from '../../types/profile';
 import { AppTheme, UiSettings } from '../../types';
 
 // ─── Settings Alt Modülleri ────────────────────────────────────
-export type SettingsCategory = 'profile' | 'appearance' | 'pedagogy' | 'ai' | 'notifications' | 'security';
+export type SettingsCategory = 'profile' | 'appearance' | 'pedagogy' | 'ai' | 'notifications' | 'security' | 'students';
 
 export interface SettingsCategoryItem {
     id: SettingsCategory;
@@ -142,6 +142,7 @@ export interface ProfileAnalytics {
 // ─── Sabitler ──────────────────────────────────────────────────
 export const SETTINGS_CATEGORIES: SettingsCategoryItem[] = [
     { id: 'profile', label: 'Kullanıcı Profili', icon: 'fa-user-astronaut', desc: 'Kimlik ve Kurumsal' },
+    { id: 'students', label: 'Öğrencilerim', icon: 'fa-users-rectangle', desc: 'Öğrenci Yönetimi' },
     { id: 'appearance', label: 'Tasarım & Tema', icon: 'fa-wand-magic-sparkles', desc: 'Ultra Premium UI' },
     { id: 'pedagogy', label: 'Eğitim Vizyonu', icon: 'fa-microscope', desc: 'Strateji ve ZPD' },
     { id: 'ai', label: 'AI Kontrol Merkezi', icon: 'fa-brain-circuit', desc: 'Motor & Zeka' },
