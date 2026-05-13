@@ -7,14 +7,8 @@ import { useStudentStore } from '../../../store/useStudentStore';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useToastStore } from '../../../store/useToastStore';
 import { SimplifiedStudentForm } from '../../Student/SimplifiedStudentForm';
-
-// Lazy load heavy student components
-const StudentDashboard = React.lazy(() =>
-  import('../../Student/StudentDashboard').then(m => ({ default: m.StudentDashboard }))
-);
-const AdvancedStudentManager = React.lazy(() =>
-  import('../../Student/AdvancedStudentManager').then(m => ({ default: m.AdvancedStudentManager }))
-);
+import { StudentDashboard } from '../../Student/StudentDashboard';
+import { AdvancedStudentManager } from '../../Student/AdvancedStudentManager';
 
 interface StudentsModuleProps {
   data: ProfileData;
@@ -26,21 +20,11 @@ interface StudentsModuleProps {
 
 type StudentView = 'grid' | 'manager' | 'dashboard';
 
-const FALLBACK = (
-  <div className="flex items-center justify-center h-64 animate-pulse">
-    <div className="flex flex-col items-center gap-3 text-[var(--text-muted)]">
-      <i className="fa-solid fa-circle-notch fa-spin text-2xl text-indigo-500" />
-      <span className="text-[10px] font-black uppercase tracking-widest">Modül Yükleniyor…</span>
-    </div>
-  </div>
-);
-
 export const StudentsModule: React.FC<StudentsModuleProps> = ({
   data,
   activeStudent,
   onBack,
   onLoadMaterial,
-  onTabChange,
   setActiveStudent,
 }) => {
   const { stats, loading } = data;
@@ -127,9 +111,7 @@ export const StudentsModule: React.FC<StudentsModuleProps> = ({
   if (viewMode === 'manager') {
     return (
       <div className="h-full animate-in fade-in duration-300">
-        <React.Suspense fallback={FALLBACK}>
-          <AdvancedStudentManager onBack={handleBack} onLoadMaterial={onLoadMaterial} />
-        </React.Suspense>
+        <AdvancedStudentManager onBack={handleBack} onLoadMaterial={onLoadMaterial} />
       </div>
     );
   }
@@ -137,9 +119,7 @@ export const StudentsModule: React.FC<StudentsModuleProps> = ({
   if (viewMode === 'dashboard' && activeStudent) {
     return (
       <div className="h-full animate-in fade-in duration-300">
-        <React.Suspense fallback={FALLBACK}>
-          <StudentDashboard onBack={handleBack} onLoadMaterial={onLoadMaterial} />
-        </React.Suspense>
+        <StudentDashboard onBack={handleBack} onLoadMaterial={onLoadMaterial} />
       </div>
     );
   }
