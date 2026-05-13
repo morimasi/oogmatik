@@ -21,7 +21,6 @@ interface StudentsModuleProps {
   activeStudent: Student | null;
   onBack?: () => void;
   onLoadMaterial?: (ws: SavedWorksheet) => void;
-  onTabChange?: (tab: string) => void;
   setActiveStudent?: (student: Student | null) => void;
 }
 
@@ -63,10 +62,10 @@ export const StudentsModule: React.FC<StudentsModuleProps> = ({
     }
   }, [user?.id, fetchStudents]);
 
-  const filteredStudents = students.filter((student) =>
+  const filteredStudents = students.filter((student: Student) =>
     student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     student.grade.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    student.diagnosis.some((d) => d.toLowerCase().includes(searchQuery.toLowerCase()))
+    student.diagnosis.some((d: string) => d.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   const handleSaveStudent = async (studentData: Partial<Student>) => {
@@ -202,7 +201,7 @@ export const StudentsModule: React.FC<StudentsModuleProps> = ({
           </div>
         ) : (
           <div className="grid gap-4">
-            {filteredStudents.map((student) => (
+            {filteredStudents.map((student: Student) => (
               <div
                 key={student.id}
                 className="flex items-center justify-between p-4 rounded-2xl border-2 transition-all hover:shadow-md cursor-pointer"
@@ -220,7 +219,7 @@ export const StudentsModule: React.FC<StudentsModuleProps> = ({
                     <h4 className="text-sm font-black" style={{ color: 'var(--text-primary)' }}>{student.name}</h4>
                     <p className="text-xs font-bold" style={{ color: 'var(--text-muted)' }}>{student.grade}</p>
                     <div className="flex flex-wrap gap-1.5 mt-1">
-                      {student.diagnosis.slice(0, 3).map((d) => (
+                      {student.diagnosis.slice(0, 3).map((d: string) => (
                         <span
                           key={d}
                           className="px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-widest"
@@ -337,7 +336,7 @@ export const StudentsModule: React.FC<StudentsModuleProps> = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-[2.5rem] shadow-2xl">
             <SimplifiedStudentForm
-              initialData={editingStudent}
+              initialData={editingStudent || undefined}
               onSave={handleSaveStudent}
               onCancel={() => {
                 setIsModalOpen(false);

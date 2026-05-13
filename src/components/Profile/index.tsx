@@ -59,7 +59,6 @@ export const Profile: React.FC<ProfileProps> = ({
             activeStudent={activeStudent}
             onBack={onBack}
             onLoadMaterial={onLoadSaved}
-            onTabChange={(tab: string) => setActiveTab(tab as ProfileTabId)}
             setActiveStudent={setActiveStudentInStore}
           />
         );
