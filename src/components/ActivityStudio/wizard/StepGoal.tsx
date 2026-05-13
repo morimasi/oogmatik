@@ -1,14 +1,51 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { DEFAULT_TARGET_SKILLS } from '../constants';
 import { useActivityStudioStore } from '../../../store/useActivityStudioStore';
-import { getLibraryActivityById } from '../../../services/activityStudioLibraryService';
-import { LibraryExplorer } from '../goal/LibraryExplorer';
-import { AIEnhanceEntryPanel } from '../goal/AIEnhanceEntryPanel';
 import type { StudioGoalConfig } from '../../../types/activityStudio';
+import { LibraryExplorer } from '../goal/LibraryExplorer';
 
 interface StepGoalProps {
   onNext: () => void;
 }
+
+const SAMPLE_ITEMS = [
+  {
+    id: 'sample-1',
+    title: 'Okuma Anlama Etkinliği',
+    shortDescription: 'Kısa metin okuyup soruları cevaplama',
+    category: 'okuma',
+    profiles: ['dyslexia', 'adhd'],
+    suggestedDuration: 15,
+    featured: true,
+    topicTemplate: 'Hayvanlar Alemi',
+    activityType: 'readingComprehension',
+    ageGroups: ['8-10', '11-13']
+  },
+  {
+    id: 'sample-2',
+    title: 'Kelime Oyunu',
+    shortDescription: 'Eş anlamlı kelimeleri bulma',
+    category: 'kelime',
+    profiles: ['dyslexia'],
+    suggestedDuration: 20,
+    featured: false,
+    topicTemplate: 'Mevsimler',
+    activityType: 'wordGames',
+    ageGroups: ['5-7', '8-10']
+  },
+  {
+    id: 'sample-3',
+    title: 'Matematik Problemleri',
+    shortDescription: 'Toplama ve çıkarma işlemleri',
+    category: 'matematik',
+    profiles: ['dyscalculia', 'adhd'],
+    suggestedDuration: 25,
+    featured: true,
+    topicTemplate: 'Meyveler',
+    activityType: 'mathProblems',
+    ageGroups: ['8-10']
+  }
+];
 
 const defaultGoal: StudioGoalConfig = {
   ageGroup: '8-10',
@@ -28,31 +65,26 @@ export const StepGoal: React.FC<StepGoalProps> = ({ onNext }) => {
   const { wizardData, updateGoal, setError, selectedLibraryItemId, setSelectedLibraryItem } = useActivityStudioStore();
   const [topic, setTopic] = useState(wizardData.goal?.topic ?? '');
 
-  const selectedItem = useMemo(() => (selectedLibraryItemId ? getLibraryActivityById(selectedLibraryItemId) : null), [selectedLibraryItemId]);
+  const selectedItem = useMemo(() => 
+    SAMPLE_ITEMS.find(item => item.id === selectedLibraryItemId), 
+    [selectedLibraryItemId]
+  );
 
-  const mergedGoal = useMemo(() => ({ ...defaultGoal, ...(wizardData.goal ?? {}) }), [wizardData.goal]);
+  const mergedGoal = { ...defaultGoal, ...(wizardData.goal ?? {}) };
 
   const handleSelectLibraryItem = (id: string) => {
-    const item = getLibraryActivityById(id);
+    const item = SAMPLE_ITEMS.find(i => i.id === id);
     if (item) {
       setSelectedLibraryItem(id, item.topicTemplate);
       setTopic(item.topicTemplate);
-      updateGoal({
-        ...mergedGoal,
-        activityType: item.activityType,
+      updateGoal({ 
+        ...mergedGoal, 
         topic: item.topicTemplate,
+        activityType: item.activityType,
         ageGroup: item.ageGroups[0],
-        profile: item.profiles[0],
         duration: item.suggestedDuration,
+        profile: item.profiles[0]
       });
-    }
-  };
-
-  const handleRequestEnhancement = (enhancementText: string) => {
-    if (topic.trim().length > 2) {
-      const enhanced = `${topic} - AI ile: ${enhancementText}`;
-      updateGoal({ ...mergedGoal, topic: enhanced });
-      setError(null);
     }
   };
 
@@ -71,28 +103,63 @@ export const StepGoal: React.FC<StepGoalProps> = ({ onNext }) => {
     <div className="space-y-6">
       <h3 className="text-xl font-bold font-['Lexend'] text-amber-400">Hedef ve Kapsam</h3>
 
-      <LibraryExplorer onSelectItem={handleSelectLibraryItem} />
-
-      {selectedItem && (
-        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4">
-          <h4 className="font-semibold text-amber-300">{selectedItem.title}</h4>
-          <p className="text-xs mt-1 text-zinc-400">{selectedItem.pedagogicalNote}</p>
-        </div>
-      )}
-
-      <AIEnhanceEntryPanel selectedItemId={selectedLibraryItemId} onRequestEnhancement={handleRequestEnhancement} />
-
       <div className="space-y-2">
-        <label className="text-sm font-semibold text-zinc-300 font-['Lexend']">Özel Konu</label>
+        <label className="block text-sm font-semibold mb-2 font-['Lexend'] text-zinc-300">
+          Etkinlik Konusu
+        </label>
         <input
           value={topic}
           onChange={(event) => setTopic(event.target.value)}
-          placeholder="Konu girin..."
-          className="w-full rounded-xl border border-zinc-700 bg-zinc-800/50 p-3 text-sm text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all"
+          placeholder="Örn: Hayvanlar, Renkler, Mevsimler..."
+          className="w-full rounded-xl border border-zinc-700 bg-zinc-800/50 p-3 text-sm font-['Lexend'] text-zinc-200 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition-all"
         />
       </div>
 
-      <button type="button" onClick={submit} className="w-full rounded-xl bg-amber-500 hover:bg-amber-400 px-4 py-3 text-sm font-bold text-zinc-950 transition-colors">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="space-y-1">
+          <label className="text-[10px] font-bold text-zinc-500 uppercase block">Yaş Grubu</label>
+          <select
+            value={mergedGoal.ageGroup}
+            onChange={(e) => updateGoal({ ...mergedGoal, ageGroup: e.target.value as any })}
+            className="w-full p-2.5 bg-zinc-800/50 border border-zinc-700 rounded-xl text-sm font-bold"
+          >
+            <option value="5-7">5-7 Yaş</option>
+            <option value="8-10">8-10 Yaş</option>
+            <option value="11-13">11-13 Yaş</option>
+            <option value="14+">14+ Yaş</option>
+          </select>
+        </div>
+        <div className="space-y-1">
+          <label className="text-[10px] font-bold text-zinc-500 uppercase block">Zorluk</label>
+          <select
+            value={mergedGoal.difficulty}
+            onChange={(e) => updateGoal({ ...mergedGoal, difficulty: e.target.value as any })}
+            className="w-full p-2.5 bg-zinc-800/50 border border-zinc-700 rounded-xl text-sm font-bold"
+          >
+            <option value="Kolay">Kolay</option>
+            <option value="Orta">Orta</option>
+            <option value="Zor">Zor</option>
+          </select>
+        </div>
+        <div className="space-y-1">
+          <label className="text-[10px] font-bold text-zinc-500 uppercase block">Sınıf</label>
+          <select
+            value={mergedGoal.gradeLevel}
+            onChange={(e) => updateGoal({ ...mergedGoal, gradeLevel: parseInt(e.target.value) as any })}
+            className="w-full p-2.5 bg-zinc-800/50 border border-zinc-700 rounded-xl text-sm font-bold"
+          >
+            {[1, 2, 3, 4, 5, 6, 7, 8].map(grade => (
+              <option key={grade} value={grade}>{grade}. Sınıf</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="pt-4 border-t border-zinc-800/50">
+        <LibraryExplorer onSelectItem={handleSelectLibraryItem} />
+      </div>
+
+      <button type="button" onClick={submit} className="w-full rounded-xl bg-amber-500 px-6 py-3 text-sm font-bold text-zinc-950 hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/10">
         Devam Et
       </button>
     </div>

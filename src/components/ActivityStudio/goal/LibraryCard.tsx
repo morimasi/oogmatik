@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ActivityLibraryItem } from '@/types/activityStudio';
+import type { ActivityLibraryItem } from '../../../types/activityStudio';
 
 export const LibraryCard: React.FC<{
   item: ActivityLibraryItem;

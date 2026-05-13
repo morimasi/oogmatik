@@ -1,54 +1,76 @@
 import React from 'react';
-import { useActivityStudioStore } from '@/store/useActivityStudioStore';
-import { PreviewRenderer } from '@/components/ActivityStudio/preview/PreviewRenderer';
-import { useExport } from '@/components/ActivityStudio/hooks/useExport';
-import { createShareLink } from '@/components/ActivityStudio/preview/ShareEngine';
+import { useActivityStudioStore } from '../../../store/useActivityStudioStore';
 
 interface StepPreviewProps {
   onNext: () => void;
   onBack: () => void;
 }
 
-export const StepPreview: React.FC<StepPreviewProps> = ({ onNext, onBack }: StepPreviewProps) => {
-  const { wizardData, content, pedagogicalNote, setError } = useActivityStudioStore();
-  const { runExport } = useExport();
-
-  const doExport = async (format: 'pdf' | 'png' | 'json') => {
-    const summary = await runExport('studio-preview', format);
-    setError(`Export hazir: ${summary.type} (${summary.size} bytes)`);
-  };
-
-  const doShare = () => {
-    const link = createShareLink({
-      activityId: wizardData.goal?.topic ?? 'studio-preview',
-      ownerId: 'local-user',
-    });
-    setError(`Paylasim linki hazir: ${link}`);
-  };
+export const StepPreview: React.FC<StepPreviewProps> = ({ onNext, onBack }) => {
+  const { wizardData, content, pedagogicalNote } = useActivityStudioStore();
 
   return (
     <div className="space-y-6">
       <h3 className="text-xl font-bold font-['Lexend'] text-amber-400">Önizleme</h3>
-      <PreviewRenderer
-        title={wizardData.goal?.topic ?? 'Etkinlik'}
-        scenario={content && content.length > 0 ? `AI içeriği başarıyla hazırlandı — ${content.length} blok üretildi.` : 'İçerik henüz oluşmadı. Lütfen İçerik adımına geri dönüp "İçerik Üret" butonuna basın.'}
-        pedagogicalNote={pedagogicalNote || 'Etkinlik öğrencinin hedef becerilerini aşamalı olarak pekiştirir.'}
-      />
-      <div className="flex flex-wrap gap-3 pt-4">
+
+      <div className="rounded-2xl border border-zinc-800 p-6 bg-white dark:bg-zinc-900">
+        <h1 className="text-2xl font-black text-amber-600 mb-4">
+          {wizardData.goal?.topic || 'Etkinlik'}
+        </h1>
+        
+        <div className="space-y-4">
+          {content?.map((block, index) => (
+            <div key={block.id} className={`p-4 rounded-xl ${
+              block.type === 'title' ? 'bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-500/30' :
+              block.type === 'question' ? 'bg-indigo-50 dark:bg-indigo-900/20 border-2 border-indigo-500/30' :
+              'bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700'
+            }`}>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="w-6 h-6 bg-amber-500 text-white rounded-full flex items-center justify-center text-xs font-black">
+                  {index + 1}
+                </span>
+                <span className="text-xs font-bold uppercase tracking-widest text-zinc-500">
+                  {block.type}
+                </span>
+              </div>
+              <p className="text-sm font-bold text-zinc-800 dark:text-zinc-100 leading-relaxed">
+                {block.content}
+              </p>
+              {block.pedagogicalNote && (
+                <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-2 italic">
+                  <i className="fa-solid fa-graduation-cap mr-1"></i>
+                  {block.pedagogicalNote}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {pedagogicalNote && (
+          <div className="mt-6 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-500/30">
+            <p className="text-[10px] font-bold text-indigo-800 dark:text-indigo-300 leading-relaxed">
+              <i className="fa-solid fa-lightbulb mr-1.5"></i>
+              {pedagogicalNote}
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div className="flex gap-3 pt-4">
         <button
           type="button"
           onClick={onBack}
-          className="rounded-xl border border-zinc-700 bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-zinc-300 hover:bg-zinc-800 hover:text-white transition-all"
+          className="rounded-xl border border-zinc-700 bg-zinc-900 px-6 py-2.5 text-sm font-semibold text-zinc-300 hover:bg-zinc-800 hover:text-white transition-all"
         >
           Geri
         </button>
-        <div className="flex gap-2 mr-auto">
-          <button type="button" onClick={() => doExport('pdf')} className="rounded-xl border border-zinc-800 bg-zinc-900/50 px-4 py-2.5 text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-all">PDF</button>
-          <button type="button" onClick={() => doExport('png')} className="rounded-xl border border-zinc-800 bg-zinc-900/50 px-4 py-2.5 text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-all">PNG</button>
-          <button type="button" onClick={() => doExport('json')} className="rounded-xl border border-zinc-800 bg-zinc-900/50 px-4 py-2.5 text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-all">JSON</button>
-        </div>
-        <button type="button" onClick={doShare} className="rounded-xl border border-amber-500/20 bg-amber-500/5 px-5 py-2.5 text-sm font-medium text-amber-400 hover:bg-amber-500/10 transition-all">Paylaşım Linki</button>
-        <button type="button" onClick={onNext} className="rounded-xl bg-amber-500 px-6 py-2.5 text-sm font-bold text-zinc-950 hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/10">Onaya Geç</button>
+        <button
+          type="button"
+          onClick={onNext}
+          className="flex-1 rounded-xl bg-amber-500 px-6 py-2.5 text-sm font-bold text-zinc-950 hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/10"
+        >
+          Kaydet
+        </button>
       </div>
     </div>
   );
