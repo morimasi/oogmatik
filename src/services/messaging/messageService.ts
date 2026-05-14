@@ -126,16 +126,15 @@ export const messageService = {
   ) => {
     const q = query(
       collection(db, CONVERSATIONS_COLLECTION, conversationId, MESSAGES_SUB_COLLECTION),
-      where("threadId", "==", null) // Ana mesajları getirir
+      where("threadId", "==", null), // Ana mesajları getirir
+      orderBy("createdAt", "desc"),
+      limit(limitCount)
     );
 
     return onSnapshot(q, (snapshot) => {
       const msgs = snapshot.docs.map(d => d.data() as IMessage);
-      // Frontend sorting to bypass composite index requirement
-      const sortedMsgs = msgs.sort((a, b) => 
-        (a.createdAt?.toMillis?.() || 0) - (b.createdAt?.toMillis?.() || 0)
-      );
-      callback(sortedMsgs);
+      // Mesajları tersine çevir ki en altta en yeni mesaj görünsün
+      callback(msgs.reverse());
     }, (error) => {
       onError(toAppError(error, "Mesajlar yüklenemedi", "MSG_SYNC_ERR"));
     });
@@ -174,16 +173,13 @@ export const messageService = {
   ) => {
     const q = query(
       collection(db, CONVERSATIONS_COLLECTION),
-      where("participantIds", "array-contains", userId)
+      where("participantIds", "array-contains", userId),
+      orderBy("updatedAt", "desc")
     );
 
     return onSnapshot(q, (snapshot) => {
       const convs = snapshot.docs.map(d => d.data() as IConversation);
-      // Frontend sorting by updatedAt to bypass composite index
-      const sortedConvs = convs.sort((a, b) => 
-        (b.updatedAt?.toMillis?.() || 0) - (a.updatedAt?.toMillis?.() || 0)
-      );
-      callback(sortedConvs);
+      callback(convs);
     }, (error) => {
       onError(toAppError(error, "Konuşmalar yüklenemedi", "MSG_CONV_SYNC_ERR"));
     });
