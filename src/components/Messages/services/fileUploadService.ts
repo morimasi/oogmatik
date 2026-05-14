@@ -118,18 +118,30 @@ export async function generateImageThumbnail(
     const url = URL.createObjectURL(file);
     return await new Promise<string | null>((resolve) => {
       const img = new Image();
+      let isResolved = false;
+
+      const finish = (result: string | null) => {
+        if (isResolved) return;
+        isResolved = true;
+        URL.revokeObjectURL(url);
+        resolve(result);
+      };
+
+      // 3 Saniye Timeout koruması (bazı tarayıcılarda local URL load the event'i fırlatmayabilir)
+      const timer = setTimeout(() => finish(null), 3000);
+
       img.onload = () => {
+        clearTimeout(timer);
         const scale = Math.min(maxWidth / img.width, maxHeight / img.height, 1);
         const canvas = document.createElement('canvas');
         canvas.width = img.width * scale;
         canvas.height = img.height * scale;
         const ctx = canvas.getContext('2d');
-        if (!ctx) { URL.revokeObjectURL(url); resolve(null); return; }
+        if (!ctx) { finish(null); return; }
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL('image/webp', 0.75));
-        URL.revokeObjectURL(url);
+        finish(canvas.toDataURL('image/webp', 0.75));
       };
-      img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+      img.onerror = () => { clearTimeout(timer); finish(null); };
       img.src = url;
     });
   } catch {
@@ -167,19 +179,23 @@ export async function uploadFileToStorage(
     const storageRef = ref(storage, `message_files/${senderId}/${uploadId}_${file.name}`);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
-    const url = await new Promise<string>((resolve, reject) => {
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => {
-          const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
-          onProgress?.(uploadId, progress);
-        },
-        reject,
-        async () => {
-          resolve(await getDownloadURL(uploadTask.snapshot.ref));
-        }
-      );
-    });
+    const url = await Promise.race([
+      new Promise<string>((resolve, reject) => {
+        uploadTask.on(
+          'state_changed',
+          (snapshot) => {
+            const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+            onProgress?.(uploadId, progress);
+          },
+          reject,
+          async () => {
+            resolve(await getDownloadURL(uploadTask.snapshot.ref));
+          }
+        );
+      }),
+      // Network loop'una girmemesi için 30 sn the the The safety timeout The the
+      new Promise<string>((_, reject) => setTimeout(() => reject(new Error('Timeout_Upload')), 30000))
+    ]);
 
     // Resim ise thumbnail oluştur
     let thumbnailUrl: string | undefined;
