@@ -149,7 +149,11 @@ export const messageService = {
       let msgs = snapshot.docs.map(d => ({ ...d.data(), id: d.id }) as IMessage);
       
       // Client-side sort: En yeni en altta (asc)
-      msgs.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
+      msgs.sort((a, b) => {
+        const aTime = (a.createdAt as any)?.toMillis?.() || (a.createdAt as any)?.seconds * 1000 || 0;
+        const bTime = (b.createdAt as any)?.toMillis?.() || (b.createdAt as any)?.seconds * 1000 || 0;
+        return aTime - bTime;
+      });
       
       callback(msgs);
     }, (error: any) => {
@@ -169,12 +173,16 @@ export const messageService = {
   ) => {
     const q = query(
       collection(db, CONVERSATIONS_COLLECTION, conversationId, MESSAGES_SUB_COLLECTION),
-      where("threadId", "==", threadId),
-      orderBy("createdAt", "asc") // Yanıtlar kronolojik gelsin
+      where("threadId", "==", threadId)
     );
 
     return onSnapshot(q, (snapshot) => {
-      const msgs = snapshot.docs.map(d => d.data() as IMessage);
+      let msgs = snapshot.docs.map(d => ({ ...d.data(), id: d.id }) as IMessage);
+      msgs.sort((a, b) => {
+        const aTime = (a.createdAt as any)?.toMillis?.() || (a.createdAt as any)?.seconds * 1000 || 0;
+        const bTime = (b.createdAt as any)?.toMillis?.() || (b.createdAt as any)?.seconds * 1000 || 0;
+        return aTime - bTime;
+      });
       callback(msgs);
     }, (error) => {
       onError(toAppError(error, "Yanıtlar yüklenemedi", "MSG_THREAD_SYNC_ERR"));
@@ -199,7 +207,11 @@ export const messageService = {
       let convs = snapshot.docs.map(d => ({ ...d.data(), id: d.id }) as IConversation);
       
       // Client-side sort: En yeni güncelleme en üstte
-      convs.sort((a, b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
+      convs.sort((a, b) => {
+        const aTime = (a.updatedAt as any)?.toMillis?.() || (a.updatedAt as any)?.seconds * 1000 || 0;
+        const bTime = (b.updatedAt as any)?.toMillis?.() || (b.updatedAt as any)?.seconds * 1000 || 0;
+        return bTime - aTime;
+      });
       
       callback(convs);
     }, (error: any) => {
