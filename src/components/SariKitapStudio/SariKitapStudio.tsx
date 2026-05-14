@@ -16,7 +16,7 @@ import { worksheetService } from '../../services/worksheetService';
 import { ActivityType } from '../../types/activity';
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
 import { ShareModal } from '../ShareModal';
-import { messagingService } from '../../services/messagingService';
+
 import './SariKitapStudio.css';
 
 interface SariKitapStudioInnerProps {
@@ -145,16 +145,7 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
             // Kaydedilen çalışmayı yetkilendirerek paylaş
             await worksheetService.shareWorksheet(savedSheet.id, user.id, user.name, receiverIds);
             
-            const shareContent = `Sarı Kitap - ${savedSheet.name} paylaşıldı. "Paylaşılanlar" bölümünde görebilirsiniz.`;
-            
-            for (const receiverId of receiverIds) {
-                await messagingService.sendMessage({
-                    senderId: user.id,
-                    receiverId,
-                    senderName: user.name,
-                    content: shareContent,
-                });
-            }
+
             
             toast.success('Paylaşım başarıyla gönderildi!');
             setIsShareModalOpen(false);

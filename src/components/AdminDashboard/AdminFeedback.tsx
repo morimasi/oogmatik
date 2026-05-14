@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FeedbackItem, FeedbackStatus } from '../../types';
-import { messagingService } from '../../services/messagingService';
+import { feedbackService } from '../../services/feedbackService';
 
 export const AdminFeedback = () => {
     const [feedbacks, setFeedbacks] = useState<FeedbackItem[]>([]);
@@ -15,7 +15,7 @@ export const AdminFeedback = () => {
 
     const loadData = async () => {
         setLoading(true);
-        const { feedbacks: data } = await messagingService.getAllFeedbacks(0, 100);
+        const { feedbacks: data } = await feedbackService.getAllFeedbacks(0, 100);
         setFeedbacks(data);
         setLoading(false);
     };
@@ -26,14 +26,14 @@ export const AdminFeedback = () => {
         if (selectedFeedback && selectedFeedback.id === id) {
             setSelectedFeedback({ ...selectedFeedback, status });
         }
-        await messagingService.updateFeedbackStatus(id, status);
+        await feedbackService.updateFeedbackStatus(id, status);
     };
 
     const handleDelete = async (id: string) => {
         if (!confirm('Silmek istediğinize emin misiniz?')) return;
         setFeedbacks((prev: FeedbackItem[]) => prev.filter((f: FeedbackItem) => f.id !== id));
         if (selectedFeedback?.id === id) setSelectedFeedback(null);
-        await messagingService.deleteFeedback(id);
+        await feedbackService.deleteFeedback(id);
     };
 
     const filtered = feedbacks.filter((f: FeedbackItem) => filterStatus === 'all' || f.status === filterStatus);

@@ -898,7 +898,6 @@ const AppContent = () => {
     >
       <AppHeader
         workbookItemsCount={workbookItems.length}
-        unreadCount={unreadCount}
         onOpenModal={(modal: ModalType) => setOpenModal(modal)}
         onOpenFeedback={() => setIsFeedbackOpen(true)}
         onOpenAuth={() => setIsAuthModalOpen(true)}
