@@ -46,36 +46,50 @@ export const messageService = {
    * Mesaj gönderir
    */
   sendMessage: async (messageData: Omit<IMessage, "id" | "isDeleted" | "createdAt" | "updatedAt" | "readBy">): Promise<string> => {
-    try {
-      const msgRef = doc(collection(db, CONVERSATIONS_COLLECTION, messageData.conversationId, MESSAGES_SUB_COLLECTION));
-      
-      const newMessage: IMessage = {
-        ...messageData,
-        id: msgRef.id,
-        isDeleted: false,
-        readBy: {},
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now()
-      };
-      
-      await setDoc(msgRef, newMessage);
-      
-      // Update Son mesaj referansını (Denormalization)
-      const convRef = doc(db, CONVERSATIONS_COLLECTION, messageData.conversationId);
-      await updateDoc(convRef, {
-        updatedAt: Timestamp.now(),
-        lastMessage: {
+    let retryCount = 0;
+    const maxRetries = 2;
+
+    const executeSend = async (): Promise<string> => {
+      try {
+        const msgRef = doc(collection(db, CONVERSATIONS_COLLECTION, messageData.conversationId, MESSAGES_SUB_COLLECTION));
+        
+        const newMessage: IMessage = {
+          ...messageData,
           id: msgRef.id,
-          text: messageData.text || (messageData.attachments && messageData.attachments.length > 0 ? "📎 Dosya gönderildi" : ""),
-          senderId: messageData.senderId,
-          createdAt: newMessage.createdAt
+          isDeleted: false,
+          readBy: {},
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now()
+        };
+        
+        await setDoc(msgRef, newMessage);
+        
+        // Update Son mesaj referansını (Denormalization)
+        const convRef = doc(db, CONVERSATIONS_COLLECTION, messageData.conversationId);
+        await updateDoc(convRef, {
+          updatedAt: Timestamp.now(),
+          lastMessage: {
+            id: msgRef.id,
+            text: messageData.text || (messageData.attachments && messageData.attachments.length > 0 ? "📎 Dosya gönderildi" : ""),
+            senderId: messageData.senderId,
+            createdAt: newMessage.createdAt
+          }
+        });
+        
+        return msgRef.id;
+      } catch (error: any) {
+        if (retryCount < maxRetries) {
+          retryCount++;
+          console.warn(`Mesaj gönderimi yeniden deneniyor (${retryCount}/${maxRetries})...`);
+          await new Promise(res => setTimeout(res, 1000 * retryCount));
+          return executeSend();
         }
-      });
-      
-      return msgRef.id;
-    } catch (error) {
-      throw new DatabaseError("Mesaj gönderilemedi.", error instanceof Error ? error : undefined);
-    }
+        console.error("Firestore sendMessage Hatası:", error);
+        throw toAppError(error, "Mesaj gönderilemedi.", "MSG_SEND_ERR");
+      }
+    };
+
+    return executeSend();
   },
 
   /**
