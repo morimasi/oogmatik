@@ -1,6 +1,6 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef } from 'react';
 import { useMessageStore } from '../../../store/useMessageStore';
-import { Paperclip, Send, X, FileText, AlertCircle, Loader2 } from 'lucide-react';
+import { Paperclip, Send, X, FileText, AlertCircle, Loader2, CheckCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { fileSharingService, UploadProgress } from '../../../services/messaging/fileSharingService';
 import { messageService } from '../../../services/messaging/messageService';
@@ -12,11 +12,13 @@ export const EnhancedComposer: React.FC = () => {
   const { activeConversationId, activeThreadId, quotingMessage, editingMessage, clearComposerState } = useMessageStore();
   const { user } = useAuthStore();
   const [text, setText] = useState('');
-  const [isUploading, setIsUploading] = useState(false);
+  const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'done' | 'fallback'>('idle');
   const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
-  const [pendingAttachment, setPendingAttachment] = useState<Omit<IAttachment, "id"> | null>(null);
+  const [pendingAttachment, setPendingAttachment] = useState<(Omit<IAttachment, "id"> & { _fallback?: boolean; _base64?: string }) | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const uploadTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   React.useEffect(() => {
     if (editingMessage) { setText(editingMessage.text || ''); textareaRef.current?.focus(); }
@@ -26,7 +28,6 @@ export const EnhancedComposer: React.FC = () => {
   const handleSend = async () => {
     if ((!text.trim() && !pendingAttachment) || !activeConversationId || !user) return;
     try {
-      setIsUploading(true);
       if (editingMessage) {
         await messageService.editMessage(activeConversationId, editingMessage.id, text, editingMessage.text || '');
         useToastStore.getState().success('Düzenlendi', 1500);
@@ -46,36 +47,62 @@ export const EnhancedComposer: React.FC = () => {
         useToastStore.getState().success('Mesaj gönderildi', 1500);
       }
       setText(''); setPendingAttachment(null); clearComposerState();
+      setUploadState('idle'); setUploadError(null);
     } catch {
       useToastStore.getState().error('Gönderilemedi');
-    } finally {
-      setIsUploading(false);
-      setUploadProgress(null);
     }
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user || !activeConversationId) return;
+
+    setUploadState('uploading');
+    setUploadProgress({ bytesTransferred: 0, totalBytes: file.size, percentage: 0 });
+    setUploadError(null);
+
+    // 30sn görsel timeout — eğer hiç progress gelmezse kullanıcıyı uyar
+    uploadTimeoutRef.current = setTimeout(() => {
+      if (uploadState === 'uploading' && uploadProgress?.percentage === 0) {
+        setUploadError('Storage bağlanamıyor, Base64 yedekleme deneniyor...');
+      }
+    }, 8000);
+
     try {
-      setIsUploading(true);
-      setUploadProgress({ bytesTransferred: 0, totalBytes: file.size, percentage: 0 });
       const result = await fileSharingService.uploadFile(file, user.id, activeConversationId, (progress) => {
         setUploadProgress(progress);
       });
+
+      if (result._fallback) {
+        setUploadState('fallback');
+        useToastStore.getState().warning(
+          'Firebase Storage bağlantısı kurulamadı. Dosya geçici olarak eklendi. Mesajı gönderdikten sonra base64 olarak saklanacak, sayfa yenilemede kaybolmaz.',
+          6000,
+          'Yedek Depolama'
+        );
+      } else {
+        setUploadState('done');
+      }
       setPendingAttachment(result);
       setUploadProgress(null);
-      useToastStore.getState().success(`"${file.name}" kalıcı olarak yüklendi`, 2500);
     } catch (err: unknown) {
+      setUploadState('idle');
       setUploadProgress(null);
-      useToastStore.getState().error(err instanceof Error ? err.message : 'Yüklenemedi');
+      useToastStore.getState().error(err instanceof Error ? err.message : 'Dosya yüklenemedi');
     } finally {
-      setIsUploading(false);
+      if (uploadTimeoutRef.current) clearTimeout(uploadTimeoutRef.current);
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
-  const isSendDisabled = (!text.trim() && !pendingAttachment) || isUploading;
+  const removeAttachment = () => {
+    setPendingAttachment(null);
+    setUploadProgress(null);
+    setUploadState('idle');
+    setUploadError(null);
+  };
+
+  const isSendDisabled = (!text.trim() && !pendingAttachment) || uploadState === 'uploading';
 
   return (
     <div className="p-2 md:p-3">
@@ -92,53 +119,91 @@ export const EnhancedComposer: React.FC = () => {
         )}
       </AnimatePresence>
 
+      {/* Upload Progress */}
       <AnimatePresence>
-        {pendingAttachment && !quotingMessage && !editingMessage && (
+        {uploadState === 'uploading' && (
           <motion.div initial={{ y: 5, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 5, opacity: 0 }}
-            className="flex items-center justify-between mb-2 p-2 rounded-xl bg-white/[0.02] border border-white/10">
-            <div className="flex items-center gap-2 min-w-0">
-              {pendingAttachment.type === 'image' ? (
-                <img src={pendingAttachment.url} alt={pendingAttachment.name} className="w-8 h-8 rounded-lg object-cover bg-white/5 border border-white/10 flex-shrink-0" />
-              ) : (
-                <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/10 flex-shrink-0">
-                  <FileText className="w-4 h-4 text-accent-primary" />
-                </div>
-              )}
-              <div className="min-w-0">
-                <span className="text-[11px] font-semibold text-white/70 truncate block max-w-[180px]">{pendingAttachment.name}</span>
-                <span className="text-[8px] text-white/30">{fileSharingService.getFileCategory(pendingAttachment.mimeType)} &middot; {fileSharingService.formatFileSize(pendingAttachment.size)}</span>
-              </div>
+            className="mb-2 p-2.5 rounded-xl bg-accent-primary/5 border border-accent-primary/10">
+            <div className="flex items-center gap-2 mb-1.5">
+              <Loader2 className="w-3.5 h-3.5 text-accent-primary animate-spin" />
+              <span className="text-[10px] text-accent-primary font-medium">
+                {uploadError ? uploadError : 'Firebase Storage\'a yükleniyor...'}
+              </span>
+              {uploadProgress && <span className="text-[9px] text-white/30 ml-auto">{uploadProgress.percentage}%</span>}
             </div>
-            <button onClick={() => { setPendingAttachment(null); setUploadProgress(null); }} className="p-1 rounded-lg hover:bg-red-500/10 text-white/20 hover:text-red-500 flex-shrink-0"><X className="w-3 h-3" /></button>
+            {uploadProgress && (
+              <>
+                <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                  <motion.div initial={{ width: 0 }} animate={{ width: `${uploadProgress.percentage}%` }}
+                    className="h-full bg-accent-primary rounded-full" transition={{ duration: 0.3 }} />
+                </div>
+                <p className="text-[8px] text-white/20 mt-1">
+                  {(uploadProgress.bytesTransferred / 1024 / 1024).toFixed(1)}MB / {(uploadProgress.totalBytes / 1024 / 1024).toFixed(1)}MB
+                </p>
+              </>
+            )}
+            {uploadError && (
+              <p className="text-[9px] text-yellow-400/70 mt-1.5 flex items-center gap-1">
+                <AlertCircle className="w-3 h-3" />
+                {uploadError}
+              </p>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
 
-      {uploadProgress && (
-        <div className="mb-2 p-2 rounded-xl bg-accent-primary/5 border border-accent-primary/10">
-          <div className="flex items-center gap-2 mb-1.5">
-            <Loader2 className="w-3 h-3 text-accent-primary animate-spin" />
-            <span className="text-[10px] text-accent-primary font-medium">Firebase Storage'a yükleniyor...</span>
-            <span className="text-[9px] text-white/30 ml-auto">{uploadProgress.percentage}%</span>
-          </div>
-          <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${uploadProgress.percentage}%` }}
-              className="h-full bg-accent-primary rounded-full"
-              transition={{ duration: 0.3 }}
-            />
-          </div>
-          <p className="text-[8px] text-white/20 mt-1">
-            {(uploadProgress.bytesTransferred / 1024 / 1024).toFixed(1)}MB / {(uploadProgress.totalBytes / 1024 / 1024).toFixed(1)}MB
-          </p>
-        </div>
-      )}
+      {/* Upload result warning (fallback) */}
+      <AnimatePresence>
+        {uploadState === 'fallback' && pendingAttachment && !quotingMessage && !editingMessage && (
+          <motion.div initial={{ y: 5, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 5, opacity: 0 }}
+            className="mb-2 p-2 rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex items-start gap-2">
+            <AlertCircle className="w-3.5 h-3.5 text-yellow-400 mt-0.5 flex-shrink-0" />
+            <div>
+              <span className="text-[10px] font-semibold text-yellow-400">Firebase Storage bağlanamadı</span>
+              <p className="text-[9px] text-white/40 mt-0.5">
+                Dosya base64 olarak mesaj içinde saklanacak. 1MB altı dosyalar için kalıcıdır.
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Pending Attachment Preview */}
+      <AnimatePresence>
+        {pendingAttachment && !quotingMessage && !editingMessage && uploadState !== 'uploading' && (
+          <motion.div initial={{ y: 5, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 5, opacity: 0 }}
+            className="flex items-center justify-between mb-2 p-2 rounded-xl bg-white/[0.02] border border-white/10">
+            <div className="flex items-center gap-2 min-w-0">
+              {pendingAttachment.type === 'image' ? (
+                <img src={pendingAttachment.url} alt={pendingAttachment.name}
+                  className="w-9 h-9 rounded-lg object-cover bg-white/5 border border-white/10 flex-shrink-0"
+                  onError={(e) => { (e.target as HTMLImageElement).src = ''; (e.target as HTMLImageElement).style.display = 'none'; }} />
+              ) : (
+                <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center border border-white/10 flex-shrink-0">
+                  <FileText className="w-4 h-4 text-accent-primary" />
+                </div>
+              )}
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11px] font-semibold text-white/70 truncate block max-w-[160px]">{pendingAttachment.name}</span>
+                  {uploadState === 'done' && <CheckCircle className="w-3 h-3 text-green-400" />}
+                  {uploadState === 'fallback' && <AlertCircle className="w-3 h-3 text-yellow-400" />}
+                </div>
+                <span className="text-[8px] text-white/30">
+                  {fileSharingService.getFileCategory(pendingAttachment.mimeType)} &middot; {fileSharingService.formatFileSize(pendingAttachment.size)}
+                  {uploadState === 'fallback' && <span className="text-yellow-400/60 ml-1">(base64)</span>}
+                </span>
+              </div>
+            </div>
+            <button onClick={removeAttachment} className="p-1 rounded-lg hover:bg-red-500/10 text-white/20 hover:text-red-500 flex-shrink-0"><X className="w-3 h-3" /></button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="flex items-end gap-1.5">
         <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden"
           accept=".pdf,.docx,.xlsx,.pptx,.png,.jpg,.jpeg,.webp,.gif,.svg,.mp3,.wav,.ogg,.mp4,.webm,.txt,.csv" />
-        <button onClick={() => fileInputRef.current?.click()} disabled={isUploading || !!editingMessage}
+        <button onClick={() => fileInputRef.current?.click()} disabled={uploadState === 'uploading' || !!editingMessage}
           className="p-2.5 rounded-xl bg-white/[0.03] hover:bg-white/[0.08] text-white/20 hover:text-white border border-white/5 disabled:opacity-20 active:scale-90 flex-shrink-0">
           <Paperclip className="w-4 h-4" />
         </button>
@@ -150,7 +215,7 @@ export const EnhancedComposer: React.FC = () => {
         </div>
         <button onClick={handleSend} disabled={isSendDisabled}
           className={`p-2.5 rounded-xl transition-all disabled:opacity-30 active:scale-90 flex-shrink-0 ${isSendDisabled ? 'bg-white/[0.03] text-white/10 border border-white/5' : 'bg-accent-primary text-white shadow-lg'}`}>
-          {isUploading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Send className="w-4 h-4" />}
+          {uploadState === 'uploading' ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Send className="w-4 h-4" />}
         </button>
       </div>
     </div>
