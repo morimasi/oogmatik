@@ -109,6 +109,9 @@ const SariKitapStudio = lazy(() =>
 const KelimeCumleStudio = lazy(() =>
   import('./components/KelimeCumleStudio').then((module) => ({ default: module.default }))
 );
+const MessagingModule = lazy(() =>
+  import('./components/Messages/index').then((module) => ({ default: module.MessagingModule }))
+);
 
 const initialStyleSettings: StyleSettings = {
   fontSize: 18,
@@ -1006,6 +1009,7 @@ const AppContent = () => {
               'mat-sinav-studyosu',
               'sari-kitap-studio',
               'kelime-cumle-studio',
+              'messages',
             ].includes(currentView) && (
                 <motion.div
                   key={currentView}
@@ -1125,6 +1129,9 @@ const AppContent = () => {
                         onBack={handleGoBack}
                         onAddToWorkbook={handleAddToWorkbookGeneral as any}
                       />
+                    )}
+                    {currentView === 'messages' && (
+                      <MessagingModule />
                     )}
                   </Suspense>
                 </motion.div>
