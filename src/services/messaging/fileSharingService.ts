@@ -93,8 +93,8 @@ export const fileSharingService = {
     } catch (fbError) {
       const fbMessage = fbError instanceof Error ? fbError.message : "Storage bağlantı hatası";
 
-      // 2. Firebase başarısız → Base64 data URL dene (küçük dosyalar için)
-      if (file.size <= 1024 * 1024) { // max 1MB
+      // 2. Firebase başarısız → Base64 data URL dene (Firestore döküman limiti 1MB, base64 ~%33 ek yük)
+      if (file.size <= 10 * 1024 * 1024) { // max 10MB (base64 ~13MB, Firestore'a sığmayabilir ama Storage çalışıyorsa sorun yok)
         try {
           const base64 = await fileToBase64(file);
           return {
