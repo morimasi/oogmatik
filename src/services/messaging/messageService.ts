@@ -226,5 +226,18 @@ export const messageService = {
       console.error("Firestore Sohbet Hatası Detay:", error.code, error.message);
       onError(toAppError(error, "Konuşmalar yüklenemedi", "MSG_CONV_SYNC_ERR"));
     });
+  },
+  /**
+   * Tek bir konuşma verisini getirir
+   */
+  getConversation: async (conversationId: string): Promise<IConversation> => {
+    try {
+      const convRef = doc(db, CONVERSATIONS_COLLECTION, conversationId);
+      const convSnap = await getDoc(convRef);
+      if (!convSnap.exists()) throw new DatabaseError("Konuşma bulunamadı.");
+      return { ...convSnap.data(), id: convSnap.id } as IConversation;
+    } catch (error) {
+      throw toAppError(error, "Konuşma detayları alınamadı.", "MSG_CONV_GET_ERR");
+    }
   }
 };
