@@ -23,6 +23,7 @@
 10. [Utility Servisleri](#utility-servisleri)
 11. [İnfografik Stüdyosu v3](#infografik-stüdyosu-v3)
 12. [Phase 4: Generative Engine (Otonom)](#phase-4-generative-engine)
+13. [Profesyonel Mesajlaşma Modülü](#mesajlaşma-modülü)
 
 ---
 
@@ -209,6 +210,11 @@
 **AI Entegrasyonu**: `services/generators/ActivityService.ts` (Dynamic Registration) + Gemini 2.5 Flash
 
 **Özel Eğitim Uzmanı Notu**: Görsel-uzamsal zekası güçlü öğrenciler için teorik bilgileri somutlaştıran en güçlü modüllerden biridir.
+
+**Teknik Mimari (Ajanlar İçin)**:
+- **Renderer**: `NativeInfographicRenderer.tsx` 6 temel şablonu (5W1H, Venn vb.) SVG-benzeri HTML yapılarıyla çizer.
+- **State**: `useInfographicStudio` hook'u ile konfigürasyon, veri ve aktif şablon yönetilir.
+- **Print**: `printService.captureAndPrint` ile yüksek çözünürlüklü çıktı alınır.
 
 
 ---
@@ -1246,6 +1252,31 @@ Tüm ajanlardan geçer not ("approved: true") almayan hiçbir otonom blueprint s
 
 **Hata Onarımı (Auto-Healing)**:
 `geminiClient.ts` içindeki `tryGenerateWithCorrection` fonksiyonu, üretim hatalarını AI'a geri besleyerek otomatik düzeltme sağlar.
+
+---
+
+## 13. Profesyonel Mesajlaşma Modülü {#mesajlaşma-modülü}
+
+**Dosya Konumu**: `src/components/Messages/`
+
+**Amaç**: Öğretmen, veli ve yönetim arasındaki iletişimi Firebase Firestore üzerinden gerçek zamanlı (real-time) yönetmek.
+
+**Ana Bileşenler**:
+- `index.tsx`: Orchestrator (Sidebar'ı otonom kapatır, layout'u kurur).
+- `Core/ConversationList.tsx`: Anlık sohbet listesi (`subscribeToConversations`).
+- `Core/ChatWindow.tsx`: Ana mesaj akışı ve mesaj geçmişi (`subscribeToMessages`).
+- `Core/EnhancedComposer.tsx`: Dosya paylaşımlı, alıntılı mesaj yazma alanı.
+- `Features/ThreadPanel.tsx`: Mesaj yanıt dizileri (thread) yönetimi.
+
+**Teknik Özellikler**:
+1. **Real-time Sync**: `onSnapshot` ile Firestore üzerinden sıfır gecikmeli veri akışı.
+2. **Dosya Paylaşımı**: `fileSharingService` üzerinden virüs taramalı ve güvenli upload süreci.
+3. **Threading & Quoting**: Slack-benzeri yanıt dizileri ve alıntılama desteği.
+4. **ZPD & Pedagoji**: Mesajlar üzerinden pedagojik rapor ve materyal paylaşımı entegrasyonu.
+
+**State Management**: `store/useMessageStore.ts`
+
+**Yazılım Mühendisi Notu**: `participantIds` dizisi üzerinden `array-contains` sorgusu ile optimize edilmiştir. Modül aktifken `document.body` üzerine `.messaging-active` sınıfı eklenerek sidebar CSS ile kesin olarak gizlenir.
 
 ---
 

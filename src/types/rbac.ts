@@ -12,7 +12,8 @@ export type PermissionModule =
   | 'reports'
   | 'sinav-studyosu'
   | 'ocr'
-  | 'infographic-studio';
+  | 'infographic-studio'
+  | 'messaging';
 
 export interface ModulePermission {
   module: PermissionModule;
@@ -51,6 +52,7 @@ export const DEFAULT_RBAC_SETTINGS: RBACSettings = {
         { module: 'sinav-studyosu', enabled: true, actions: ['manage'] },
         { module: 'ocr', enabled: true, actions: ['manage'] },
         { module: 'infographic-studio', enabled: true, actions: ['manage'] },
+        { module: 'messaging', enabled: true, actions: ['manage'] },
       ]
     },
     {
@@ -59,6 +61,7 @@ export const DEFAULT_RBAC_SETTINGS: RBACSettings = {
         { module: 'admin', enabled: true, actions: ['view', 'manage'] },
         { module: 'activity-studio', enabled: true, actions: ['view', 'create', 'edit'] },
         { module: 'students', enabled: true, actions: ['view', 'manage'] },
+        { module: 'messaging', enabled: true, actions: ['view', 'create'] },
       ]
     },
     {
@@ -72,6 +75,7 @@ export const DEFAULT_RBAC_SETTINGS: RBACSettings = {
         { module: 'curriculum', enabled: true, actions: ['view', 'create'] },
         { module: 'students', enabled: true, actions: ['view', 'manage'] },
         { module: 'ocr', enabled: true, actions: ['view', 'create'] },
+        { module: 'messaging', enabled: true, actions: ['view', 'create'] },
       ]
     },
     {

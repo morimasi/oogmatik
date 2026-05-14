@@ -36,7 +36,8 @@ export type PermissionModule =
   | 'creative-studio'
   | 'super-studio'
   | 'sari-kitap'
-  | 'infographic-studio';
+  | 'infographic-studio'
+  | 'messaging';
 
 // ─── Category Permission ──────────────────────────────────────────
 
@@ -225,6 +226,11 @@ export const buildDefaultRBAC = (): RBACSettings => {
             enabled: true,
             actions: ['view', 'create', 'edit', 'delete', 'manage', 'approve', 'export', 'assign'],
           },
+          {
+            module: 'messaging',
+            enabled: true,
+            actions: ['view', 'create', 'edit', 'delete', 'manage', 'approve', 'export', 'assign'],
+          },
         ],
         globalSettings: {
           canAccessAdmin: true,
@@ -272,6 +278,11 @@ export const buildDefaultRBAC = (): RBACSettings => {
             module: 'reports',
             enabled: true,
             actions: ['view', 'export'],
+          },
+          {
+            module: 'messaging',
+            enabled: true,
+            actions: ['view', 'create', 'edit', 'assign'],
           },
         ],
         globalSettings: {
@@ -366,6 +377,11 @@ export const buildDefaultRBAC = (): RBACSettings => {
             module: 'ocr',
             enabled: true,
             actions: ['view', 'create'],
+          },
+          {
+            module: 'messaging',
+            enabled: true,
+            actions: ['view', 'create', 'assign'],
           },
         ],
         globalSettings: {
