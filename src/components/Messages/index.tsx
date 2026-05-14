@@ -3,10 +3,16 @@ import { ConversationList } from './Core/ConversationList';
 import { ChatWindow } from './Core/ChatWindow';
 import { ThreadPanel } from './Features/ThreadPanel';
 import { useMessageStore } from '../../store/useMessageStore';
+import { useUIStore } from '../../store/useUIStore';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const MessagingModule: React.FC = () => {
     const { activeThreadId } = useMessageStore();
+    const { setIsSidebarOpen } = useUIStore();
+
+    React.useEffect(() => {
+        setIsSidebarOpen(false);
+    }, [setIsSidebarOpen]);
 
     return (
         <div className="flex h-full bg-[#050505] overflow-hidden font-lexend">
