@@ -275,7 +275,10 @@ export const AppHeader = ({
                         </button>
 
                         <button
-                            onClick={() => navigateTo('messages')}
+                            onClick={() => {
+                                if (typeof setIsSidebarOpen === 'function') setIsSidebarOpen(false);
+                                navigateTo('messages');
+                            }}
                             className="relative flex shrink-0 items-center justify-center w-9 h-9 text-[var(--accent-color)] hover:text-[var(--text-primary)] transition-all rounded-lg hover:bg-[var(--accent-muted)] border border-transparent hover:border-[var(--accent-color)]/20 group/nav"
                             title="İletişim Merkezi"
                         >
