@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Check, CheckCheck, Edit3, Trash2, RotateCcw, Reply, Quote,
+  Check, CheckCheck, Edit, Trash2, RotateCcw, Reply, Quote,
   XCircle, History, ChevronDown, ChevronUp,
 } from 'lucide-react';
 import { useMessagesStore } from '../store/useMessagesStore';
@@ -38,7 +38,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
   const [showHistory, setShowHistory] = useState(false);
 
   // Bug fix: useMessagesStore hook olarak kullan, getState() değil
-  const allMessages = useMessagesStore((s) => s.messages);
+  const allMessages = useMessagesStore((s: any) => s.messages);
   const { editMessage } = useMessages();
 
   const handleEdit = async () => {
@@ -117,7 +117,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
           <div
             className="mb-1 px-3 py-1.5 rounded-lg bg-[var(--bg-secondary)] border-l-4 border-[var(--accent-color)] w-full cursor-pointer hover:bg-[var(--surface-glass)] transition-colors"
             onClick={() => {
-              const quoted = allMessages.find((m) => m.id === message.quote?.messageId);
+              const quoted = allMessages.find((m: Message) => m.id === message.quote?.messageId);
               if (quoted && onNavigateToMessage) onNavigateToMessage(quoted);
             }}
           >
@@ -261,7 +261,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
               {isOwn && (
                 <>
                   <ActionBtn
-                    icon={Edit3}
+                    icon={Edit}
                     title="Düzenle"
                     onClick={() => { setEditContent(message.content); setEditing(true); }}
                   />

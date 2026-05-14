@@ -40,7 +40,7 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
 
     if (fileUploads.length > 0) {
       // Bug fix: tüm (idle + uploading) dosyaları dahil et
-      const filesToSend = fileUploads.map((u) => u.file);
+      const filesToSend = fileUploads.map((u: any) => u.file);
       const success = await onSendWithFiles(content.trim(), filesToSend);
       if (success) {
         setContent('');
@@ -114,7 +114,7 @@ export const MessageComposer: React.FC<MessageComposerProps> = ({
               </button>
             </div>
             <div className="grid grid-cols-1 gap-1 max-h-32 overflow-y-auto">
-              {fileUploads.map((upload) => (
+              {fileUploads.map((upload: any) => (
                 <UploadProgress key={upload.id} upload={upload} onRemove={removeFile} />
               ))}
             </div>

@@ -36,22 +36,22 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ contact, o
   const [previewFiles, setPreviewFiles] = useState<MessageFile[]>([]);
 
   // Deep link: vurgulanan mesajı takip et
-  const highlightedMessageId = useMessagesStore((s) => s.highlightedMessageId);
-  const setHighlightedMessageId = useMessagesStore((s) => s.setHighlightedMessageId);
+  const highlightedMessageId = useMessagesStore((s: any) => s.highlightedMessageId);
+  const setHighlightedMessageId = useMessagesStore((s: any) => s.setHighlightedMessageId);
 
   const { selection, setCurrentMessageId, clearSelection, quoteMessage } =
     useTextSelection(messagesContainerRef);
 
   // Silinen mesajları filtrele (son 100)
   const conversationMessages = useMemo(
-    () => messages.filter((m) => !m.isDeleted).slice(-100),
+    () => messages.filter((m: Message) => !m.isDeleted).slice(-100),
     [messages]
   );
 
   // Tarih gruplarına böl
   const groupedMessages = useMemo(() => {
     const groups: Array<{ date: string; messages: Message[] }> = [];
-    conversationMessages.forEach((msg) => {
+    conversationMessages.forEach((msg: Message) => {
       const date = new Date(msg.timestamp).toDateString();
       const last = groups[groups.length - 1];
       if (last && last.date === date) {

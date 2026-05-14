@@ -124,7 +124,7 @@ describe('messageService', () => {
       // updateDoc çağrıldı mı kontrol et
       expect(updateDoc).toHaveBeenCalledTimes(1);
       const call = vi.mocked(updateDoc).mock.calls[0];
-      const updateData = call[1] as Record<string, unknown>;
+      const updateData = call[1] as unknown as Record<string, unknown>;
       expect(updateData.content).toBe('Yeni içerik');
       expect(updateData.isEdited).toBe(true);
       expect(Array.isArray(updateData.editHistory)).toBe(true);

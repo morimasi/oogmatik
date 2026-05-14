@@ -43,7 +43,7 @@ const initialState: MessagesState = {
   autoDismissDelay: 6000,
 };
 
-export const useMessagesStore = create<MessagesStore>((set) => ({
+export const useMessagesStore = create<MessagesStore>((set: any) => ({
   ...initialState,
 
   setContacts: (contacts: Contact[]) => set({ contacts }),

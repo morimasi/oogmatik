@@ -31,7 +31,7 @@ export function useNotifications() {
       store.setIsMessagesOpen(true);
 
       // 2. İlgili kişiyi akif yap
-      const contact = store.contacts.find((c) => c.id === senderId);
+      const contact = store.contacts.find((c: any) => c.id === senderId);
       if (contact) {
         store.setActiveContactId(contact.id);
       } else {

@@ -26,7 +26,7 @@ export const NotificationToast: React.FC = () => {
       )}
 
       <AnimatePresence>
-        {notifications.slice(0, 5).map((n) => (
+        {notifications.slice(0, 5).map((n: any) => (
           <ToastItem
             key={n.id}
             notification={n}
