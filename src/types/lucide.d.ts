@@ -83,4 +83,12 @@ declare module 'lucide-react' {
   export const Quote: LucideIcon;
   export const ArrowRight: LucideIcon;
   export const Reply: LucideIcon;
+  export const BellOff: LucideIcon;
+  export const Smartphone: LucideIcon;
+  export const Monitor: LucideIcon;
+  export const Mail: LucideIcon;
+  export const AlertTriangle: LucideIcon;
+  export const MoreHorizontal: LucideIcon;
+  export const Pencil: LucideIcon;
+  export const CornerUpRight: LucideIcon;
 }
