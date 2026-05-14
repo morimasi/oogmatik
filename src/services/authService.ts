@@ -348,6 +348,35 @@ export const authService = {
         }
     },
 
+    getMultipleUsers: async (userIds: string[]): Promise<User[]> => {
+        if (!userIds || userIds.length === 0) return [];
+        try {
+            // Firestore 'in' operasyonu max 10-30 öğe alabilir. (Genelde 10 veya 30'dur)
+            // Biz batch olarak yapalım.
+            const batches = [];
+            const results: User[] = [];
+            
+            for (let i = 0; i < userIds.length; i += 10) {
+                const batchIds = userIds.slice(i, i + 10);
+                const q = query(collection(db, "users"), firestore.where(firestore.documentId(), "in", batchIds));
+                batches.push(getDocs(q));
+            }
+            
+            const snapshots = await Promise.all(batches);
+            snapshots.forEach(snapshot => {
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    results.push(mapDbUserToAppUser(data, doc.id, data.email));
+                });
+            });
+            
+            return results;
+        } catch (error: any) {
+            logError("Get multiple users error:", error);
+            return [];
+        }
+    },
+
     getAllUsers: async (_page: number, _pageSize: number): Promise<{ users: User[], count: number | null }> => {
         try {
             // In a real app, pagination would use startAfter/limit.
