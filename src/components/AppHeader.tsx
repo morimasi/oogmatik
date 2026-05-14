@@ -10,7 +10,6 @@ import { ActivityType, View } from '../types';
 
 interface AppHeaderProps {
     workbookItemsCount: number;
-    unreadCount: number;
     onOpenModal: (modal: 'settings' | 'history' | 'about' | 'developer') => void;
     onOpenFeedback: () => void;
     onOpenAuth: () => void;
@@ -157,7 +156,6 @@ export const DropdownItem = ({
 
 export const AppHeader = ({
     workbookItemsCount,
-    unreadCount,
     onOpenModal,
     onOpenFeedback,
     onOpenAuth,
@@ -275,18 +273,7 @@ export const AppHeader = ({
                             )}
                         </button>
 
-                        <button
-                            onClick={() => { setIsSidebarOpen(false); navigateTo('messages'); }}
-                            className="relative flex shrink-0 items-center justify-center w-9 h-9 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all rounded-lg hover:bg-[var(--bg-secondary)] border border-transparent hover:border-[var(--border-color)]/30 group/nav"
-                            title="Mesajlar ve Bildirimler"
-                        >
-                            <i className="fa-solid fa-bell text-[15px] leading-none group-hover/nav:scale-105 transition-transform"></i>
-                            {unreadCount > 0 && (
-                                <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[7px] font-black min-w-[1rem] h-4 px-0.5 flex items-center justify-center rounded-full border-2 border-[var(--bg-paper)] shadow-sm animate-pulse tabular-nums">
-                                    {unreadCount}
-                                </span>
-                            )}
-                        </button>
+
 
                         <div className="w-px self-stretch min-h-[1rem] max-h-[1.5rem] bg-[var(--border-color)] mx-1 opacity-45" aria-hidden />
 

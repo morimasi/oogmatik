@@ -62,9 +62,7 @@ const Profile = lazy(() =>
 const AdminDashboard = lazy(() =>
   import('./components/AdminDashboard/index').then((module) => ({ default: module.AdminDashboard }))
 );
-const MessagesModule = lazy(() =>
-  import('./components/Messages').then((module) => ({ default: module.MessagesModule }))
-);
+
 const OCRScanner = lazy(() =>
   import('./components/OCRScanner').then((module) => ({ default: module.OCRScanner }))
 );
@@ -347,7 +345,7 @@ const AppContent = () => {
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null);
   const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [unreadCount] = useState(0);
+
   const [studentProfile, setStudentProfile] = useState(null as StudentProfile | null);
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
   const [selectedSavedReport, setSelectedSavedReport] = useState(null as SavedAssessment | null);
@@ -916,10 +914,10 @@ const AppContent = () => {
           ></div>
         )}
         <div
-          className={`transition-all duration-500 ease-in-out h-full relative group/sidebar-container ${isAdvancedScreeningOpen || zenMode || ['workbook', 'assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students', 'messages', 'curriculum', 'screening', 'reading-studio', 'math-studio', 'super-turkce', 'infographic-studio', 'activity-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'sari-kitap-studio', 'kelime-cumle-studio', 'ocr'].includes(currentView) ? 'w-0 opacity-0 pointer-events-none' : 'opacity-100'}`}
+          className={`transition-all duration-500 ease-in-out h-full relative group/sidebar-container ${isAdvancedScreeningOpen || zenMode || ['workbook', 'assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students', 'curriculum', 'screening', 'reading-studio', 'math-studio', 'super-turkce', 'infographic-studio', 'activity-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'sari-kitap-studio', 'kelime-cumle-studio', 'ocr'].includes(currentView) ? 'w-0 opacity-0 pointer-events-none' : 'opacity-100'}`}
           style={{
             width:
-              isAdvancedScreeningOpen || zenMode || ['workbook', 'assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students', 'messages', 'curriculum', 'screening', 'reading-studio', 'math-studio', 'super-turkce', 'infographic-studio', 'activity-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'sari-kitap-studio', 'kelime-cumle-studio', 'ocr'].includes(currentView)
+              isAdvancedScreeningOpen || zenMode || ['workbook', 'assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students', 'curriculum', 'screening', 'reading-studio', 'math-studio', 'super-turkce', 'infographic-studio', 'activity-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'sari-kitap-studio', 'kelime-cumle-studio', 'ocr'].includes(currentView)
                 ? 0
                 : (currentView === 'generator' && selectedActivity) ? 296 : 250,
           }}
@@ -1313,12 +1311,7 @@ const AppContent = () => {
         <DeveloperVisionModule onClose={() => setActiveOnboardingModule(null)} />
       )}
 
-      {/* Messages Module */}
-      {currentView === 'messages' && (
-        <Suspense fallback={<LoadingSpinner />}>
-          <MessagesModule onBack={handleGoBack} onRefreshNotifications={() => {}} />
-        </Suspense>
-      )}
+
 
       {/* Screening Assessment Module */}
       {isAdvancedScreeningOpen && (

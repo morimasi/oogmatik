@@ -351,7 +351,6 @@ export type View =
   | 'shared'
   | 'admin'
   | 'profile'
-  | 'messages'
   | 'assessment'
   | 'screening'
   | 'ocr'
@@ -537,48 +536,7 @@ export interface FeedbackItem {
   adminReply?: string;
 }
 
-export interface MessageFile {
-  id: string;
-  name: string;
-  type: string;
-  url: string;
-  size: number;
-  thumbnailUrl?: string;
-  mimeCategory?: 'image' | 'video' | 'audio' | 'document' | 'archive' | 'unknown';
-}
 
-export interface MessageQuote {
-  messageId: string;
-  senderId: string;
-  senderName: string;
-  content: string;
-  timestamp: string;
-}
-
-export interface MessageEditHistoryEntry {
-  content: string;
-  editedAt: string;
-}
-
-export interface Message {
-  id: string;
-  senderId: string;
-  receiverId: string;
-  senderName: string;
-  content: string;
-  timestamp: string;
-  isRead: boolean;
-  relatedFeedbackId?: string;
-  files?: MessageFile[];
-  quote?: MessageQuote;
-  replyToMessageId?: string;
-  isEdited?: boolean;
-  editedAt?: string;
-  editHistory?: MessageEditHistoryEntry[];
-  isDeleted?: boolean;
-  deletedAt?: string;
-  originalContent?: string;
-}
 
 export interface AssessmentProfile {
   studentName: string;

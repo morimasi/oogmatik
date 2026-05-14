@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useState } from 'react';
 import { ActivityType, FeedbackCategory } from '../types';
-import { messagingService } from '../services/messagingService';
+import { feedbackService } from '../services/feedbackService';
 import { useAuthStore } from '../store/useAuthStore';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -38,7 +38,7 @@ export const FeedbackModal = ({ isOpen, onClose, activityType, activityTitle }: 
     
     setIsSending(true);
     try {
-      await messagingService.submitFeedback({
+      await feedbackService.submitFeedback({
         userId: user?.id,
         userName: user?.name || 'Misafir',
         userEmail: email,
