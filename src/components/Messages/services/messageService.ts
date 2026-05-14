@@ -31,7 +31,11 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 3, delayMs = 800): P
   let lastErr: unknown;
   for (let i = 0; i < retries; i++) {
     try {
-      return await fn();
+      const result = await Promise.race([
+        fn(),
+        new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Timeout_WithRetry')), 10000))
+      ]);
+      return result;
     } catch (err) {
       lastErr = err;
       if (i < retries - 1) await new Promise((r) => setTimeout(r, delayMs * (i + 1)));
@@ -159,10 +163,19 @@ export const messageService = {
       const uploadedFiles: MessageFile[] = [];
 
       for (const file of files) {
-        const result = await uploadFileToStorage(file, senderId, onFileProgress);
+        // ID eşleştirmesi: progress callback için Store'daki upload entity'sini bul
+        const stateUpload = store.fileUploads.find((u: any) => u.file.name === file.name && u.status === 'idle');
+
+        const result = await uploadFileToStorage(file, senderId, (id, progress) => {
+          if (stateUpload) {
+            store.updateFileUpload(stateUpload.id, { progress, status: 'uploading' });
+          }
+          if (onFileProgress) onFileProgress(id, progress);
+        });
+
         if (!result) {
-          toast.error(`${file.name} yüklenemedi.`);
-          // Kalan dosyalar için devam et
+          toast.error(`${file.name} yüklenemedi veya zaman aşımına uğradı.`);
+          if (stateUpload) store.updateFileUpload(stateUpload.id, { status: 'error' });
           continue;
         }
         uploadedFiles.push({
