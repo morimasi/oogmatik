@@ -53,14 +53,22 @@ export const messageService = {
       try {
         const msgRef = doc(collection(db, CONVERSATIONS_COLLECTION, messageData.conversationId, MESSAGES_SUB_COLLECTION));
         
-        const newMessage: IMessage = {
+        const newMessage: any = {
           ...messageData,
           id: msgRef.id,
           isDeleted: false,
           readBy: {},
           createdAt: Timestamp.now(),
-          updatedAt: Timestamp.now()
+          updatedAt: Timestamp.now(),
+          text: messageData.text || ""
         };
+
+        // Firestore 'undefined' kabul etmez, bu yüzden bu alanları sadece varsa ekliyoruz
+        if (messageData.threadId) newMessage.threadId = messageData.threadId;
+        else newMessage.threadId = null; // null saklamak sorgulanabilirlik için iyidir
+
+        if (messageData.quoteData) newMessage.quoteData = messageData.quoteData;
+        else newMessage.quoteData = null;
         
         await setDoc(msgRef, newMessage);
         
