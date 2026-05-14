@@ -64,6 +64,7 @@ export interface IConversation {
   type: ConversationType;
   title?: string; // Sadece grup için
   participants: ChatParticipant[];
+  participantIds?: string[]; // Firestore sorguları için (array-contains)
   adminIds?: string[]; // Grup konuşmalarında yöneticiler
   
   lastMessage?: {

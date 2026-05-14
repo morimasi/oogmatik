@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useMessageStore } from '../../../store/useMessageStore';
 import { MessageBubble } from '../Core/MessageBubble';
 import { EnhancedComposer } from '../Core/EnhancedComposer';
@@ -6,47 +6,42 @@ import { X, CornerUpRight } from 'lucide-react';
 import { IMessage } from '../../../types/messaging';
 import { Timestamp } from 'firebase/firestore';
 
-const mockThreadMessages: IMessage[] = [
-    {
-        id: "msg-11",
-        conversationId: "conv-1",
-        senderId: "Me",
-        type: "text",
-        text: "Merhaba, dünkü raporu pdf olarak ekleyebilir misiniz? Bu mesaj thread başlatıyor.",
-        isDeleted: false,
-        readBy: {},
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now()
-    },
-    {
-        id: "msg-11-a",
-        conversationId: "conv-1",
-        senderId: "user-veli-1",
-        type: "text",
-        text: "Evet, ben de onu bekliyorum.",
-        isDeleted: false,
-        threadId: "msg-11",
-        readBy: {},
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now()
-    }
-];
-
+import { useAuthStore } from '../../../store/useAuthStore';
+import { messageService } from '../../../services/messaging/messageService';
 export const ThreadPanel: React.FC = () => {
-    const { activeThreadId, setActiveThreadId } = useMessageStore();
+    const { activeConversationId, activeThreadId, setActiveThreadId } = useMessageStore();
+    const { user } = useAuthStore();
     const scrollRef = useRef<HTMLDivElement>(null);
+    const [replies, setReplies] = useState<IMessage[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        if (!activeConversationId || !activeThreadId) return;
+
+        setIsLoading(true);
+        const unsubscribe = messageService.subscribeToThreadMessages(
+            activeConversationId,
+            activeThreadId,
+            (msgs) => {
+                setReplies(msgs);
+                setIsLoading(false);
+            },
+            (err) => {
+                console.error("Yanıtlar yüklenemedi:", err);
+                setIsLoading(false);
+            }
+        );
+
+        return () => unsubscribe();
+    }, [activeConversationId, activeThreadId]);
 
     useEffect(() => {
         if (scrollRef.current) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
-    }, [activeThreadId]);
+    }, [replies]);
 
     if (!activeThreadId) return null;
-
-    // Gerçekte orijinal mesaj activeThreadId kullanılarak messageStore veya servisten getirilecek
-    const originalMessage = mockThreadMessages[0]; 
-    const replies = mockThreadMessages.slice(1);
 
     return (
         <div className="w-80 h-full border-l border-white/5 bg-[#0f1115]/95 backdrop-blur-xl flex flex-col absolute right-0 z-20 shadow-2xl transition-transform animate-in slide-in-from-right-8">
@@ -66,21 +61,23 @@ export const ThreadPanel: React.FC = () => {
             </div>
 
             <div className="flex-1 overflow-y-auto custom-scrollbar p-4" ref={scrollRef}>
-                {/* Orijinal Mesaj View (Daha sade) */}
-                <div className="mb-6 pb-6 border-b border-white/10">
-                    <MessageBubble message={originalMessage} isOwn={originalMessage.senderId === 'Me'} />
-                </div>
+                {/* Orijinal Mesaj View (Daha sade) - Bu özellik ileride eklenebilir veya activeThreadMessage objesi state'de tutulabilir */}
+                <div className="mb-2 border-b border-white/10"></div>
 
                 {/* Yanıtlar */}
                 <div className="flex flex-col">
                     <span className="text-xs text-white/40 mb-4 font-inter text-center">
                         {replies.length} Yanıt
                     </span>
-                    {replies.map(msg => (
+                    {isLoading ? (
+                        <div className="flex justify-center py-4">
+                            <div className="w-4 h-4 border-2 border-accent-primary border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                    ) : replies.map(msg => (
                         <MessageBubble 
                             key={msg.id} 
                             message={msg} 
-                            isOwn={msg.senderId === 'Me'} 
+                            isOwn={msg.senderId === user?.id} 
                         />
                     ))}
                 </div>

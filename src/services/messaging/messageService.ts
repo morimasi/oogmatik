@@ -30,6 +30,7 @@ export const messageService = {
       const newConv: IConversation = {
         ...conversationData,
         id: convRef.id,
+        participantIds: conversationData.participants.map(p => p.userId),
         createdAt: Timestamp.now(),
         updatedAt: Timestamp.now()
       };
@@ -117,9 +118,6 @@ export const messageService = {
     }
   },
 
-  /**
-   * Mesajları dinler (Real-time onSnapshot)
-   */
   subscribeToMessages: (
     conversationId: string, 
     limitCount: number, 
@@ -128,6 +126,7 @@ export const messageService = {
   ) => {
     const q = query(
       collection(db, CONVERSATIONS_COLLECTION, conversationId, MESSAGES_SUB_COLLECTION),
+      where("threadId", "==", null), // Ana mesajları getirir
       orderBy("createdAt", "desc"),
       limit(limitCount)
     );
@@ -138,6 +137,51 @@ export const messageService = {
       callback(msgs.reverse());
     }, (error) => {
       onError(toAppError(error, "Mesajlar yüklenemedi", "MSG_SYNC_ERR"));
+    });
+  },
+
+  /**
+   * Thread mesajlarını dinler
+   */
+  subscribeToThreadMessages: (
+    conversationId: string, 
+    threadId: string,
+    callback: (messages: IMessage[]) => void, 
+    onError: (err: unknown) => void
+  ) => {
+    const q = query(
+      collection(db, CONVERSATIONS_COLLECTION, conversationId, MESSAGES_SUB_COLLECTION),
+      where("threadId", "==", threadId),
+      orderBy("createdAt", "asc") // Yanıtlar kronolojik gelsin
+    );
+
+    return onSnapshot(q, (snapshot) => {
+      const msgs = snapshot.docs.map(d => d.data() as IMessage);
+      callback(msgs);
+    }, (error) => {
+      onError(toAppError(error, "Yanıtlar yüklenemedi", "MSG_THREAD_SYNC_ERR"));
+    });
+  },
+
+  /**
+   * Kullanıcının dahil olduğu konuşmaları dinler
+   */
+  subscribeToConversations: (
+    userId: string,
+    callback: (conversations: IConversation[]) => void,
+    onError: (err: unknown) => void
+  ) => {
+    const q = query(
+      collection(db, CONVERSATIONS_COLLECTION),
+      where("participantIds", "array-contains", userId),
+      orderBy("updatedAt", "desc")
+    );
+
+    return onSnapshot(q, (snapshot) => {
+      const convs = snapshot.docs.map(d => d.data() as IConversation);
+      callback(convs);
+    }, (error) => {
+      onError(toAppError(error, "Konuşmalar yüklenemedi", "MSG_CONV_SYNC_ERR"));
     });
   }
 };

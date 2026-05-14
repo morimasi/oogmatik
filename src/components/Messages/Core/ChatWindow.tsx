@@ -1,52 +1,44 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useMessageStore } from '../../../store/useMessageStore';
 import { IMessage } from '../../../types/messaging';
 import { MessageBubble } from './MessageBubble';
 import { EnhancedComposer } from './EnhancedComposer';
 import { Timestamp } from 'firebase/firestore';
-
-// Mock datalar gerçek servisten çekilecek
-const mockMessages: IMessage[] = [
-    {
-        id: "msg-11",
-        conversationId: "conv-1",
-        senderId: "Me", // Mock own user
-        type: "text",
-        text: "Merhaba, dünkü raporu pdf olarak ekleyebilir misiniz?",
-        isDeleted: false,
-        readBy: {},
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now()
-    },
-    {
-        id: "msg-12",
-        conversationId: "conv-1",
-        senderId: "user-veli-1",
-        type: "text",
-        text: "Tabii ki, hemen gönderiyorum.",
-        isDeleted: false,
-        quoteData: {
-            messageId: "msg-11",
-            originalSenderId: "Me",
-            originalSenderName: "Öğretmen (Siz)",
-            originalText: "Merhaba, dünkü raporu pdf olarak ekleyebilir misiniz?"
-        },
-        readBy: {},
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now()
-    }
-];
-
+import { useAuthStore } from '../../../store/useAuthStore';
+import { messageService } from '../../../services/messaging/messageService';
 export const ChatWindow: React.FC = () => {
     const { activeConversationId, activeThreadId } = useMessageStore();
+    const { user } = useAuthStore();
     const scrollRef = useRef<HTMLDivElement>(null);
+    const [messages, setMessages] = useState<IMessage[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+
+    useEffect(() => {
+        if (!activeConversationId) return;
+        setIsLoading(true);
+
+        const unsubscribe = messageService.subscribeToMessages(
+            activeConversationId,
+            50, // limit
+            (msgs) => {
+                setMessages(msgs);
+                setIsLoading(false);
+            },
+            (err) => {
+                console.error("Mesajlar yüklenemedi:", err);
+                setIsLoading(false);
+            }
+        );
+
+        return () => unsubscribe();
+    }, [activeConversationId]);
 
     // Auto-scroll to bottom
     useEffect(() => {
         if (scrollRef.current) {
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
         }
-    }, [activeConversationId]); // mock dependency
+    }, [messages]); 
 
     if (!activeConversationId) {
         return (
@@ -89,11 +81,19 @@ export const ChatWindow: React.FC = () => {
                 }}
             >
                 <div className="flex flex-col justify-end min-h-full">
-                    {mockMessages.map(msg => (
+                    {isLoading ? (
+                        <div className="flex justify-center py-4">
+                            <div className="w-6 h-6 border-2 border-accent-primary border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                    ) : messages.length === 0 ? (
+                        <div className="text-center text-white/40 text-sm py-8">
+                            Bu sohbette henüz mesaj yok. İlk mesajı siz gönderin.
+                        </div>
+                    ) : messages.map(msg => (
                         <MessageBubble 
                             key={msg.id} 
                             message={msg} 
-                            isOwn={msg.senderId === 'Me'} 
+                            isOwn={msg.senderId === user?.id} 
                         />
                     ))}
                 </div>

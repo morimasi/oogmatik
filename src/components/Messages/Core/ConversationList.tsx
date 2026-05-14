@@ -4,29 +4,38 @@ import { IConversation } from '../../../types/messaging';
 import { Search, MessageSquare, Users, BellOff } from 'lucide-react';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { Timestamp } from 'firebase/firestore';
-
-// Mock datalar gerçek servisten çekilecek şekilde güncellenecektir.
-const mockConversations: IConversation[] = [
-  {
-    id: "conv-1",
-    type: "direct",
-    participants: [],
-    lastMessage: {
-      id: "msg-12",
-      text: "Merhaba, ödevleri kontrol edebildiniz mi?",
-      senderId: "user-veli-1",
-      createdAt: Timestamp.now()
-    },
-    createdAt: Timestamp.now(),
-    updatedAt: Timestamp.now()
-  }
-];
+import { messageService } from '../../../services/messaging/messageService';
 
 export const ConversationList: React.FC = () => {
     const { activeConversationId, setActiveConversationId } = useMessageStore();
+    const { user } = useAuthStore();
     const [searchTerm, setSearchTerm] = useState('');
-    // Gerçekte useQuery veya firebase onSnapshot ile güncellenmiş olacak
-    const conversations = mockConversations; 
+    const [conversations, setConversations] = useState<IConversation[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    React.useEffect(() => {
+        if (!user) return;
+        
+        const unsubscribe = messageService.subscribeToConversations(
+            user.id,
+            (convs) => {
+                setConversations(convs);
+                setIsLoading(false);
+            },
+            (err) => {
+                console.error("Sohbetler yüklenemedi:", err);
+                setIsLoading(false);
+            }
+        );
+
+        return () => unsubscribe();
+    }, [user]);
+
+    const filteredConversations = conversations.filter(c => {
+        const titleMatch = c.title?.toLowerCase().includes(searchTerm.toLowerCase());
+        const lastMsgMatch = c.lastMessage?.text?.toLowerCase().includes(searchTerm.toLowerCase());
+        return titleMatch || lastMsgMatch;
+    });
 
     return (
         <div className="flex flex-col h-full w-80 backdrop-blur-xl bg-[#0f1115]/80 border-r border-white/5 font-inter">
@@ -47,7 +56,15 @@ export const ConversationList: React.FC = () => {
 
             {/* List */}
             <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar p-2 space-y-1">
-                {conversations.map((conv) => {
+                {isLoading ? (
+                    <div className="flex justify-center py-4">
+                        <div className="w-6 h-6 border-2 border-accent-primary border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                ) : filteredConversations.length === 0 ? (
+                    <div className="text-center text-white/40 text-sm py-4">
+                        Henüz bir konuşma yok.
+                    </div>
+                ) : filteredConversations.map((conv) => {
                     const isActive = activeConversationId === conv.id;
                     const isGroup = conv.type !== "direct";
                     
