@@ -35,6 +35,11 @@
   .worksheet-page * {
     transition: none !important;
   }
+
+  /* Messaging Module Active State - Hide Sidebar definitively */
+  .messaging-active aside {
+    display: none !important;
+  }
 }
 
 @layer components {

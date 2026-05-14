@@ -10,8 +10,13 @@ export const MessagingModule: React.FC = () => {
     const { activeThreadId } = useMessageStore();
     const { setIsSidebarOpen } = useUIStore();
 
-    React.useEffect(() => {
+    React.useLayoutEffect(() => {
         setIsSidebarOpen(false);
+        // Force body class if needed for global CSS overrides
+        document.body.classList.add('messaging-active');
+        return () => {
+            document.body.classList.remove('messaging-active');
+        };
     }, [setIsSidebarOpen]);
 
     return (

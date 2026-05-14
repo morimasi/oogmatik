@@ -11,7 +11,8 @@ export type PermissionModule =
   | 'students' 
   | 'reports'
   | 'sinav-studyosu'
-  | 'ocr';
+  | 'ocr'
+  | 'infographic-studio';
 
 export interface ModulePermission {
   module: PermissionModule;
@@ -49,6 +50,7 @@ export const DEFAULT_RBAC_SETTINGS: RBACSettings = {
         { module: 'reports', enabled: true, actions: ['manage'] },
         { module: 'sinav-studyosu', enabled: true, actions: ['manage'] },
         { module: 'ocr', enabled: true, actions: ['manage'] },
+        { module: 'infographic-studio', enabled: true, actions: ['manage'] },
       ]
     },
     {

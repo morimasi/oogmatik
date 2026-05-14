@@ -307,7 +307,7 @@ const Sidebar = ({
     <>
       <aside
         style={{ width: isSidebarOpen ? '225px' : (isExpanded ? '100%' : '76px') }}
-        className={`fixed inset-y-0 left-0 z-[80] bg-[var(--bg-paper)] border-r border-[var(--border-color)] transition-all duration-500 ease-in-out flex flex-col h-full md:relative md:translate-x-0 font-['Lexend'] ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:shadow-none'}`}
+        className={`fixed inset-y-0 left-0 z-[80] bg-[var(--bg-paper)] border-r border-[var(--border-color)] transition-all duration-500 ease-in-out flex flex-col h-full md:relative md:translate-x-0 font-['Lexend'] ${isSidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0 md:shadow-none'}`}
       >
         <div className="flex h-full flex-col overflow-hidden">
           {selectedActivity ? (
