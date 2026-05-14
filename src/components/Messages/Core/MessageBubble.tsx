@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { IMessage } from '../../../types/messaging';
 import { useMessageStore } from '../../../store/useMessageStore';
-import { MoreHorizontal, Reply, Trash2, Paperclip, Download, Maximize2, X } from 'lucide-react';
+import { MoreHorizontal, Reply, Trash2, Paperclip, Download, ZoomIn, X } from 'lucide-react';
 import { Timestamp } from 'firebase/firestore';
 import { messageService } from '../../../services/messaging/messageService';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -76,7 +76,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) 
                                         className="w-full h-auto max-h-[300px] object-cover hover:scale-105 transition-transform duration-500"
                                     />
                                     <div className="absolute inset-0 bg-black/20 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
-                                        <Maximize2 className="w-8 h-8 text-white/80" />
+                                        <ZoomIn className="w-8 h-8 text-white/80" />
                                     </div>
                                 </div>
                             ))}

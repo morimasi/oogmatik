@@ -10,32 +10,39 @@ export class BrainTeasersGenerator extends BaseGenerator<WorksheetData> {
   protected async execute(options: GeneratorOptions): Promise<WorksheetData> {
     const difficulty = options.difficulty || 'Orta';
     const topic = options.topic || 'Genel Mantık';
-    const puzzleCount = options.puzzleCount || 6;
+    const puzzleCount = options.itemCount || 10; // Hızlı mod ve premium uyumu için artırıldı
 
     const prompt = `
 Sen "Zeka ve Mantık Oyunları" alanında uzman bir eğitmensin.
-${puzzleCount} farklı, Türkçe zeka sorusu üret.
+Disleksi ve DEHB dostu, bilişsel yükü dengelenmiş ama içerik olarak DOPDOLU bir çalışma sayfası üretmelisin.
+Boşluk bırakmaktan kaçın, sayfayı zenginleştir.
+
+GÖREV: ${puzzleCount} adet birbirinden farklı, yüksek kaliteli Türkçe zeka sorusu üret.
 
 PARAMETRELER:
 - Konu: ${topic}
 - Zorluk: ${difficulty}
-- Yaş Grubu: Genel (8-13)
+- Yaş Grubu: ${options.ageGroup || '8-10'}
 
-SORU TİPLERİ (Her kategoriden en az 1 tane):
-- Dil (word_riddle, riddle): Kelime bulmaca, sözcük bilmecesi
-- Mantık (lateral_thinking): Yanal düşünme, kurgu çözümleme
-- Sayı (visual_math): Sayı örüntüsü, matematiksel paradoks
-- Görsel (sequence_find): Şekil dizisi, görsel örüntü bulma
+SORU TİPLERİ (ZENGİN KARIŞIM):
+- Kelime Oyunları (Bilmeceler, harf yer değiştirme)
+- Yanal Düşünme (Lateral Thinking - şaşırtmacalı mantık)
+- Sayısal Zeka (Basit örüntüler, görsel matematik paradoksları)
+- Görsel Mantık (Emoji bilmeceleri, şekil dizileri)
+
+TASARIM KURALLARI:
+- Her soru için mutlaka bir "hint" (ipucu) ekle.
+- "visual" alanına soruyu betimleyen 1-2 emoji ekle.
+- Çıktı sadece JSON formatında olmalı.
 
 ZORUNLU JSON ÇIKTISI:
 {
     "id": "bt_uuid",
     "activityType": "BRAIN_TEASERS",
-    "title": "Kafayı Çalıştır: Zeka Oyunları",
-    "instruction": "Soruları dikkatlice oku ve yaratıcı düşünerek çöz.",
+    "title": "Kafayı Çalıştır: Zeka ve Mantık Atölyesi",
+    "instruction": "Aşağıdaki gizemleri çözmek için yaratıcılığını kullan. Her bir soru seni farklı bir düşünme biçimine davet ediyor!",
     "difficultyLevel": "${difficulty}",
     "ageGroup": "${options.ageGroup || '8-10'}",
-    "profile": "${options.profile || 'adhd'}",
     "puzzles": [
         {
             "id": "p1",
@@ -44,7 +51,7 @@ ZORUNLU JSON ÇIKTISI:
             "difficulty_stars": 2,
             "q": "Soru metni",
             "hint": "Küçük bir ipucu",
-            "visual": null,
+            "visual": "🧩",
             "a": "Cevap"
         }
     ]
@@ -56,16 +63,19 @@ ZORUNLU JSON ÇIKTISI:
       temperature: 0.7
     });
 
-    return {
+    const result = {
       ...parsedData,
       id: parsedData.id || crypto.randomUUID(),
       activityType: ActivityType.BRAIN_TEASERS,
-    } as unknown as WorksheetData;
+    };
+
+    return [result] as any;
   }
 }
 
 // Standalone function for registry compatibility
 export const generateBrainTeasersFromAI = async (options: GeneratorOptions): Promise<WorksheetData> => {
   const generator = new BrainTeasersGenerator();
-  return await generator.generate(options);
+  const res = await generator.generate(options);
+  return res as WorksheetData;
 };

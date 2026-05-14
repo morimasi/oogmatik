@@ -8,7 +8,7 @@ interface BrainTeaserPuzzle {
   difficulty_stars: number;
   q: string;
   hint: string;
-  visual: null;
+  visual: string | null;
   a: string;
 }
 
@@ -85,47 +85,38 @@ export const generateOfflineBrainTeasers = async (options: GeneratorOptions): Pr
   const {
     worksheetCount = 1,
     difficulty = 'Orta',
-    itemCount = 8, // Changed to 8 for denser pages
+    itemCount = 10,
     ageGroup = '8-10',
-    profile = 'general'
   } = options;
 
   const pages: BrainTeasersData[] = [];
 
   for (let p = 0; p < worksheetCount; p++) {
-    const puzzles: BrainTeaserPuzzle[] = [];
-    
-    // Her kategoriden en az 1 tane seç
-    const selectedRiddles = [...riddles].sort(() => 0.5 - Math.random()).slice(0, Math.ceil(itemCount / 4));
-    const selectedLateral = [...lateralThinking].sort(() => 0.5 - Math.random()).slice(0, Math.ceil(itemCount / 4));
-    const selectedMath = [...visualMath].sort(() => 0.5 - Math.random()).slice(0, Math.ceil(itemCount / 4));
-    const selectedSequence = [...sequenceFind].sort(() => 0.5 - Math.random()).slice(0, Math.ceil(itemCount / 4));
-
-    const allPuzzles = [
-      ...selectedRiddles.map((p, i) => ({ ...p, id: `riddle-${i}`, type: 'riddle' as const, category: 'Dil', difficulty_stars: 2 })),
-      ...selectedLateral.map((p, i) => ({ ...p, id: `lateral-${i}`, type: 'lateral_thinking' as const, category: 'Mantık', difficulty_stars: 3 })),
-      ...selectedMath.map((p, i) => ({ ...p, id: `math-${i}`, type: 'visual_math' as const, category: 'Sayı', difficulty_stars: 3 })),
-      ...selectedSequence.map((p, i) => ({ ...p, id: `seq-${i}`, type: 'sequence_find' as const, category: 'Görsel', difficulty_stars: 2 }))
+    const puzzlePool = [
+      ...riddles.map(q => ({ ...q, type: 'riddle' as const, category: 'Dil', visual: '🔍' })),
+      ...lateralThinking.map(q => ({ ...q, type: 'lateral_thinking' as const, category: 'Mantık', visual: '🧠' })),
+      ...visualMath.map(q => ({ ...q, type: 'visual_math' as const, category: 'Sayı', visual: '🔢' })),
+      ...sequenceFind.map(q => ({ ...q, type: 'sequence_find' as const, category: 'Görsel', visual: '🖼️' }))
     ];
 
-    // Rastgele sırala ve istenen sayıda al
-    puzzles.push(...allPuzzles.sort(() => 0.5 - Math.random()).slice(0, itemCount));
+    const shuffled = [...puzzlePool].sort(() => 0.5 - Math.random());
+    const selected = shuffled.slice(0, itemCount);
 
     pages.push({
-      id: `brain-teasers-${p}`,
+      id: `brain-teasers-${p}-${Date.now()}`,
       activityType: 'BRAIN_TEASERS',
       title: 'Kafayı Çalıştır: Zeka Oyunları',
-      instruction: 'Soruları dikkatlice oku ve yaratıcı düşünerek çöz.',
+      instruction: 'Aşağıdaki zeka sorularını ve mantık bilmecelerini çözebilir misin? İpucuna bakmadan önce iyice düşün!',
       difficultyLevel: difficulty,
-      ageGroup: ageGroup,
-      profile: profile,
-      puzzles: puzzles.map((puzzle, i) => ({
+      ageGroup: ageGroup as any,
+      profile: (options as any).profile || 'general',
+      puzzles: selected.map((puzzle, i) => ({
         ...puzzle,
         id: `p${i + 1}`,
-        visual: null
+        difficulty_stars: getRandomInt(1, 3)
       }))
     });
   }
 
-  return pages as WorksheetData[];
+  return pages as unknown as WorksheetData[];
 };
