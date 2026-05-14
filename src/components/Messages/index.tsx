@@ -36,7 +36,10 @@ export const MessagesModule: React.FC<MessagesModuleProps> = ({
   const { user } = useAuthStore();
   const [showSettings, setShowSettings] = useState(false);
 
-  const activeContact = contacts.find((c) => c.id === activeContactId) || null;
+  // Initialize and listen to contacts & messages
+  useMessages();
+
+  const activeContact = contacts.find((c: { id: string }) => c.id === activeContactId) || null;
 
   // Modal açıldığında isMessagesOpen = true
   useEffect(() => {
@@ -66,7 +69,7 @@ export const MessagesModule: React.FC<MessagesModuleProps> = ({
     setActiveContactId(null);
   }, []);
 
-  const hasUnreadNotifications = notifications.filter((n) => !n.isRead).length > 0;
+  const hasUnreadNotifications = notifications.filter((n: { isRead: boolean }) => !n.isRead).length > 0;
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3">
@@ -100,7 +103,7 @@ export const MessagesModule: React.FC<MessagesModuleProps> = ({
               <div className="relative">
                 <Bell className="w-3.5 h-3.5 text-[var(--accent-color)]" />
                 <span className="absolute -top-1 -right-1 w-3 h-3 bg-rose-500 rounded-full text-[6px] text-white font-black flex items-center justify-center">
-                  {notifications.filter((n) => !n.isRead).length}
+                  {notifications.filter((n: { isRead: boolean }) => !n.isRead).length}
                 </span>
               </div>
             )}
