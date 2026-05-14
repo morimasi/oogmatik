@@ -42,5 +42,23 @@ service cloud.firestore {
       allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
       allow write: if isSignedIn() && request.auth.uid == userId;
     }
+
+    // --- MESSAGING MODULE (OOGMATIK v2) ---
+
+    // Conversations: Katılımcılar okuyabilir, herkes (auth) yeni bir direkt/grup başlatabilir
+    match /conversations/{convId} {
+      allow read: if isSignedIn() && (request.auth.uid in resource.data.participantIds || isAdmin());
+      allow create: if isSignedIn();
+      allow update: if isSignedIn() && (request.auth.uid in resource.data.participantIds || isAdmin());
+      allow delete: if isAdmin(); // Sadece sistem siler
+
+      // Messages: Sadece konuşma katılımcıları okuyabilir ve yazabilir
+      match /messages/{msgId} {
+        allow read: if isSignedIn() && get(/databases/$(database)/documents/conversations/$(convId)).data.participantIds.hasAny([request.auth.uid]) || isAdmin();
+        allow create: if isSignedIn() && get(/databases/$(database)/documents/conversations/$(convId)).data.participantIds.hasAny([request.auth.uid]);
+        allow update: if isSignedIn() && (request.auth.uid == resource.data.senderId || isAdmin());
+        allow delete: if isAdmin();
+      }
+    }
   }
 }
