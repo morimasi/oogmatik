@@ -4,6 +4,7 @@ import { useAuthStore } from '../../../store/useAuthStore';
 import { useMessageStore } from '../../../store/useMessageStore';
 import { MoreHorizontal, Reply, Pencil, Trash2, CornerUpRight, Paperclip } from 'lucide-react';
 import { Timestamp } from 'firebase/firestore';
+import { messageService } from '../../../services/messaging/messageService';
 
 interface MessageBubbleProps {
     message: IMessage;
@@ -18,6 +19,16 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) 
     const formatTime = (ts: Timestamp) => {
         // Mock fallback if TS doesn't have format logic here.
         return new Date(ts.toMillis ? ts.toMillis() : ts.seconds * 1000).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+    };
+
+    const handleDelete = async () => {
+        if (!window.confirm("Bu mesajı silmek istediğinize emin misiniz? Arşiv kayıtlarında görünmeye devam edebilir.")) return;
+        try {
+            await messageService.softDeleteMessage(message.conversationId, message.id);
+        } catch (err) {
+            console.error("Silme hatası:", err);
+            alert("Mesaj silinemedi.");
+        }
     };
 
     return (
@@ -42,15 +53,12 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) 
                         : 'backdrop-blur-md bg-white/10 border border-white/5 text-white/90 rounded-tl-sm'
                 } font-lexend text-sm leading-relaxed`}
                 >
-                    {/* Alıntı Bloğu (Eğer varsa) */}
+                    {/* Alıntı Bloğu */}
                     {message.quoteData && (
                         <div 
                             className={`mb-2 pl-3 py-1 border-l-2 rounded-r-md text-xs cursor-pointer hover:opacity-80 transition-opacity ${
                                 isOwn ? 'border-white/50 bg-white/20' : 'border-accent-primary/50 bg-black/20'
                             }`}
-                            onClick={() => {
-                                // Burada orijinal mesaja scrollIntoView(behavior: 'smooth') yapılacak
-                            }}
                         >
                             <div className="font-inter font-semibold mb-1 opacity-80">
                                 {message.quoteData.originalSenderName}
@@ -61,11 +69,11 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) 
                         </div>
                     )}
 
-                    {/* Ana Metin */}
+                    {/* Ana Metin / Soft Delete Durumu */}
                     {message.isDeleted ? (
-                        <div className="italic opacity-60 flex items-center gap-2">
+                        <div className="italic opacity-60 flex items-center gap-2 py-1">
                             <Trash2 className="w-3 h-3" />
-                            Bu mesaj silinmiştir.
+                            <span className="text-xs">Bu mesaj göndericisi tarafından silindi, ancak arşivde saklanıyor.</span>
                         </div>
                     ) : (
                         <p className="whitespace-pre-wrap word-break">
@@ -73,7 +81,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) 
                         </p>
                     )}
 
-                    {/* Dosya Ekleri (Previewler başka komponentlere ayrılabilir, şimdilik mock) */}
+                    {/* Dosya Ekleri */}
                     {message.attachments && message.attachments.length > 0 && !message.isDeleted && (
                         <div className="mt-2 space-y-2">
                             {message.attachments.map(att => (
@@ -88,7 +96,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) 
                     {/* Düzenlendi Etiketi */}
                     {message.editHistory && message.editHistory.length > 0 && !message.isDeleted && (
                         <div className="mt-1 flex justify-end">
-                            <span className="text-[10px] opacity-50 italic hover:underline cursor-pointer">
+                            <span className="text-[10px] opacity-50 italic">
                                 (düzenlendi)
                             </span>
                         </div>
@@ -121,8 +129,9 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isOwn }) 
                                 <Pencil className="w-4 h-4" />
                             </button>
                             <button 
+                                onClick={handleDelete}
                                 className="p-1.5 rounded-full hover:bg-red-500/20 text-white/50 hover:text-red-400 transition-colors"
-                                title="Sil"
+                                title="Sil ve Arşivle"
                             >
                                 <Trash2 className="w-4 h-4" />
                             </button>

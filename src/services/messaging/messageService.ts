@@ -124,18 +124,22 @@ export const messageService = {
     callback: (messages: IMessage[]) => void, 
     onError: (err: unknown) => void
   ) => {
+    // Karmaşık index hatasını önlemek için orderBy geçici olarak kaldırıldı ve client-side sort eklendi
     const q = query(
       collection(db, CONVERSATIONS_COLLECTION, conversationId, MESSAGES_SUB_COLLECTION),
-      where("threadId", "==", null), // Ana mesajları getirir
-      orderBy("createdAt", "desc"),
+      where("threadId", "==", null),
       limit(limitCount)
     );
 
     return onSnapshot(q, (snapshot) => {
-      const msgs = snapshot.docs.map(d => d.data() as IMessage);
-      // Mesajları tersine çevir ki en altta en yeni mesaj görünsün
-      callback(msgs.reverse());
-    }, (error) => {
+      let msgs = snapshot.docs.map(d => ({ ...d.data(), id: d.id }) as IMessage);
+      
+      // Client-side sort: En yeni en altta (asc)
+      msgs.sort((a, b) => (a.createdAt?.seconds || 0) - (b.createdAt?.seconds || 0));
+      
+      callback(msgs);
+    }, (error: any) => {
+      console.error("Firestore Mesaj Hatası Detay:", error.code, error.message);
       onError(toAppError(error, "Mesajlar yüklenemedi", "MSG_SYNC_ERR"));
     });
   },
@@ -171,16 +175,21 @@ export const messageService = {
     callback: (conversations: IConversation[]) => void,
     onError: (err: unknown) => void
   ) => {
+    // Karmaşık index (array-contains + orderBy) hatasını önlemek için orderBy kaldırıldı
     const q = query(
       collection(db, CONVERSATIONS_COLLECTION),
-      where("participantIds", "array-contains", userId),
-      orderBy("updatedAt", "desc")
+      where("participantIds", "array-contains", userId)
     );
 
     return onSnapshot(q, (snapshot) => {
-      const convs = snapshot.docs.map(d => d.data() as IConversation);
+      let convs = snapshot.docs.map(d => ({ ...d.data(), id: d.id }) as IConversation);
+      
+      // Client-side sort: En yeni güncelleme en üstte
+      convs.sort((a, b) => (b.updatedAt?.seconds || 0) - (a.updatedAt?.seconds || 0));
+      
       callback(convs);
-    }, (error) => {
+    }, (error: any) => {
+      console.error("Firestore Sohbet Hatası Detay:", error.code, error.message);
       onError(toAppError(error, "Konuşmalar yüklenemedi", "MSG_CONV_SYNC_ERR"));
     });
   }
