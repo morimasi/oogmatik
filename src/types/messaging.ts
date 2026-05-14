@@ -20,6 +20,7 @@ export interface QuoteData {
   originalSenderId: string;
   originalSenderName: string;
   originalText: string;
+  selectedText?: string;
 }
 
 export interface IMessageEdit {
@@ -34,20 +35,18 @@ export interface IMessage {
   type: MessageType;
   text?: string;
   attachments?: IAttachment[];
-  
-  // Oogmatik Soft Delete & Edit History
+
   isDeleted: boolean;
   deletedAt?: Timestamp | null;
+
   editHistory?: IMessageEdit[];
-  
-  // Threading ve Quote Hiyerarşisi
+
   quoteData?: QuoteData;
-  threadId?: string; // Ana mesaj ID'sine referans
+  threadId?: string;
   replyCount?: number;
-  
-  // Okunma durumu
-  readBy: Record<string, Timestamp>; // userId -> timestamp
-  
+
+  readBy: Record<string, Timestamp>;
+
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -62,21 +61,33 @@ export interface ChatParticipant {
 export interface IConversation {
   id: string;
   type: ConversationType;
-  title?: string; // Sadece grup için
+  title?: string;
   participants: ChatParticipant[];
-  participantIds?: string[]; // Firestore sorguları için (array-contains)
-  adminIds?: string[]; // Grup konuşmalarında yöneticiler
-  
+  participantIds?: string[];
+  adminIds?: string[];
+
   lastMessage?: {
     id: string;
     text: string;
     senderId: string;
     createdAt: Timestamp;
   };
-  
-  // Toplam okunmamış sayısı (kullanıcı bazlı hesaplanması gerekebilir)
-  unreadCount?: Record<string, number>; 
-  
+
+  unreadCount?: Record<string, number>;
+
   createdAt: Timestamp;
   updatedAt: Timestamp;
+}
+
+export interface NotificationPreferences {
+  soundEnabled: boolean;
+  vibrationEnabled: boolean;
+  desktopEnabled: boolean;
+  showOnLockScreen: boolean;
+}
+
+export interface ChatSettings {
+  isMuted: boolean;
+  showReadReceipts: boolean;
+  notificationPreferences: NotificationPreferences;
 }

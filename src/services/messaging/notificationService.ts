@@ -1,24 +1,9 @@
-import { logInfo, logError } from "../../utils/logger.js";
 import { IMessage } from "../../types/messaging";
-
-export interface NotificationSettings {
-  soundEnabled: boolean;
-  vibrationEnabled: boolean;
-  showOnLockScreen: boolean; // Mock kilit ekranı veya OS bazlı privacy
-  desktopEnabled: boolean;
-  mutedChatIds: string[];
-}
-
-export const defaultNotificationSettings: NotificationSettings = {
-  soundEnabled: true,
-  vibrationEnabled: true,
-  showOnLockScreen: false,
-  desktopEnabled: false,
-  mutedChatIds: []
-};
+import { useMessageStore } from "../../store/useMessageStore";
+import { useToastStore } from "../../store/useToastStore";
 
 class NotificationService {
-  private audio?: HTMLAudioElement;
+  private audio: HTMLAudioElement | null = null;
 
   constructor() {
     if (typeof window !== "undefined") {
@@ -26,12 +11,8 @@ class NotificationService {
     }
   }
 
-  /**
-   * Tarayıcıdan bildirim izni ister
-   */
   async requestDesktopPermission(): Promise<boolean> {
     if (!("Notification" in window)) {
-      logError("Tarayıcı masaüstü bildirimlerini desteklemiyor.");
       return false;
     }
 
@@ -43,57 +24,74 @@ class NotificationService {
     return permission === "granted";
   }
 
-  /**
-   * Yeni mesaj bildirimi fırlatır (Zustand üzerinden toast da tetiklenebilir)
-   */
   notifyNewMessage(
-    message: IMessage, 
-    senderName: string, 
-    settings: NotificationSettings = defaultNotificationSettings
+    message: IMessage,
+    senderName: string,
+    conversationId: string,
   ) {
-    // 1. Sessize alınmış sohbet kontrolü
-    if (settings.mutedChatIds.includes(message.conversationId)) {
-      return;
+    const settings = useMessageStore.getState().getConversationSettings(conversationId);
+    const prefs = settings.notificationPreferences;
+
+    if (settings.isMuted) return;
+
+    // Sound
+    if (prefs.soundEnabled && this.audio) {
+      this.audio.play().catch(() => {});
     }
 
-    // 2. Ses ve titreşim
-    if (settings.soundEnabled && this.audio) {
-      this.audio.play().catch(e => logInfo("Ses çalınamadı (etkileşim gerekli olabilir):", e));
-    }
-    
-    if (settings.vibrationEnabled && navigator.vibrate) {
+    // Vibration
+    if (prefs.vibrationEnabled && typeof navigator !== "undefined" && navigator.vibrate) {
       navigator.vibrate(200);
     }
 
-    // 3. Desktop Native Bildirim
-    if (settings.desktopEnabled && Notification.permission === "granted") {
+    // Toast notification with deep linking
+    const previewText = message.text
+      ? message.text.length > 100
+        ? message.text.substring(0, 100) + "..."
+        : message.text
+      : "Bir dosya gönderdi";
+
+    useToastStore.getState().show(
+      previewText,
+      "info",
+      5000,
+      senderName,
+      () => {
+        const store = useMessageStore.getState();
+        store.setActiveConversationId(conversationId);
+        store.setHighlightMessageId(message.id);
+      },
+    );
+
+    // Desktop notification
+    if (prefs.desktopEnabled && Notification.permission === "granted") {
       let bodyText = message.text || "Yeni bir medya gönderdi.";
-      
-      // Kilit ekranı / Gizlilik modu
-      if (!settings.showOnLockScreen) {
+
+      if (!prefs.showOnLockScreen) {
         bodyText = "Yeni bir mesajınız var.";
-      } else {
-        // Uzun mesajları "..." ile kesme (Max 100 karakter)
-        if (bodyText.length > 100) {
-          bodyText = bodyText.substring(0, 100) + "...";
-        }
+      } else if (bodyText.length > 100) {
+        bodyText = bodyText.substring(0, 100) + "...";
       }
 
       const notification = new Notification(`Yeni Mesaj: ${senderName}`, {
         body: bodyText,
-        icon: "/favicon.ico", // Platforma özel ikon
-        tag: message.conversationId, // Aynı conversation için eski bildirimi ezer
+        icon: "/favicon.ico",
+        tag: conversationId,
       });
 
-      // Deep Linking: Bildirime tıklanınca ilgili chat id'ye yönlendir
       notification.onclick = () => {
         window.focus();
-        // Zustand routing store kullanılarak veya window.location ile URL değişecek
-        // Örn: window.location.href = `/messages/${message.conversationId}?msgId=${message.id}`
-        // Ancak bu React ortamında React Router ile ele alınmalı.
-        logInfo("Bildirime tıklandı. Yönlendirme tetikleniyor...", message.id);
+        const store = useMessageStore.getState();
+        store.setActiveConversationId(conversationId);
+        store.setHighlightMessageId(message.id);
         notification.close();
       };
+    }
+  }
+
+  playTestSound() {
+    if (this.audio) {
+      this.audio.play().catch(() => {});
     }
   }
 }

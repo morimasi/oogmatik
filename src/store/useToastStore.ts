@@ -1,57 +1,68 @@
-/**
- * Global Toast / Notification Sistemi
- * alert() yerine kullanılacak, tema uyumlu bildirim altyapısı
- */
 import { create } from 'zustand';
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
+export interface ToastAction {
+  label: string;
+  onClick: () => void;
+}
+
 export interface Toast {
-    id: string;
-    message: string;
-    type: ToastType;
-    duration?: number; // ms, default 3500
+  id: string;
+  message: string;
+  type: ToastType;
+  duration?: number;
+  title?: string;
+  action?: ToastAction;
+  onClick?: () => void;
 }
 
 interface ToastState {
-    toasts: Toast[];
-    show: (message: string, type?: ToastType, duration?: number) => void;
-    success: (message: string, duration?: number) => void;
-    error: (message: string, duration?: number) => void;
-    info: (message: string, duration?: number) => void;
-    warning: (message: string, duration?: number) => void;
-    dismiss: (id: string) => void;
-    clear: () => void;
+  toasts: Toast[];
+  show: (message: string, type?: ToastType, duration?: number, title?: string, onClick?: () => void, action?: ToastAction) => void;
+  success: (message: string, duration?: number, title?: string) => void;
+  error: (message: string, duration?: number, title?: string) => void;
+  info: (message: string, duration?: number, title?: string, onClick?: () => void) => void;
+  warning: (message: string, duration?: number, title?: string) => void;
+  dismiss: (id: string) => void;
+  clear: () => void;
 }
 
-export const useToastStore = create<ToastState>((set) => ({
-    toasts: [],
+let toastCounter = 0;
 
-    show: (message: string, type: ToastType = 'info', duration: number = 3500) => {
-        const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-        set((state: ToastState) => ({ toasts: [...state.toasts, { id, message, type, duration }] }));
-        // Otomatik kapat
-        setTimeout(() => {
-            set((state: ToastState) => ({ toasts: state.toasts.filter((t: Toast) => t.id !== id) }));
-        }, duration);
-    },
+export const useToastStore = create<ToastState>()((set) => ({
+  toasts: [],
 
-    success: (message: string, duration?: number) => {
-        useToastStore.getState().show(message, 'success', duration);
-    },
-    error: (message: string, duration?: number) => {
-        useToastStore.getState().show(message, 'error', duration ?? 5000);
-    },
-    info: (message: string, duration?: number) => {
-        useToastStore.getState().show(message, 'info', duration);
-    },
-    warning: (message: string, duration?: number) => {
-        useToastStore.getState().show(message, 'warning', duration);
-    },
+  show: (message: string, type: ToastType = 'info', duration: number = 3500, title?: string, onClick?: () => void, action?: ToastAction) => {
+    toastCounter += 1;
+    const id = `toast-${Date.now()}-${toastCounter}`;
+    const toast: Toast = { id, message, type, duration, title, onClick, action };
 
-    dismiss: (id: string) => {
-        set((state: ToastState) => ({ toasts: state.toasts.filter((t: Toast) => t.id !== id) }));
-    },
+    set((state) => ({ toasts: [...state.toasts, toast] }));
 
-    clear: () => set((_: ToastState) => ({ toasts: [] })),
+    if (duration > 0) {
+      setTimeout(() => {
+        set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
+      }, duration);
+    }
+  },
+
+  success: (message: string, duration?: number, title?: string) => {
+    useToastStore.getState().show(message, 'success', duration ?? 3500, title);
+  },
+  error: (message: string, duration?: number, title?: string) => {
+    useToastStore.getState().show(message, 'error', duration ?? 5000, title);
+  },
+  info: (message: string, duration?: number, title?: string, onClick?: () => void) => {
+    useToastStore.getState().show(message, 'info', duration ?? 3500, title, onClick);
+  },
+  warning: (message: string, duration?: number, title?: string) => {
+    useToastStore.getState().show(message, 'warning', duration ?? 4000, title);
+  },
+
+  dismiss: (id: string) => {
+    set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
+  },
+
+  clear: () => set({ toasts: [] }),
 }));
