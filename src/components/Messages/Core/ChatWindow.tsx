@@ -7,7 +7,7 @@ import { useAuthStore } from '../../../store/useAuthStore';
 import { messageService } from '../../../services/messaging/messageService';
 import { authService } from '../../../services/authService';
 import { User } from '../../../types';
-import { Users, Info, Settings, Search, ChevronLeft, Shield, Sparkles, X, Trash2, Zap, BellOff } from 'lucide-react';
+import { Users, Info, Settings, Search, ChevronLeft, Shield, Sparkles, X, Trash2, Activity } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const ChatWindow: React.FC = () => {
@@ -173,7 +173,7 @@ export const ChatWindow: React.FC = () => {
                                         <div className="relative group">
                                             <div className="w-28 h-28 border-2 border-accent-primary/10 rounded-full animate-ping absolute scale-150"></div>
                                             <div className="w-28 h-28 border-[6px] border-accent-primary border-t-transparent rounded-full animate-spin shadow-[0_0_70px_rgba(59,130,246,0.4)]"></div>
-                                            <Zap className="absolute inset-0 m-auto w-10 h-10 text-accent-primary animate-pulse" />
+                                            <Activity className="absolute inset-0 m-auto w-10 h-10 text-accent-primary animate-pulse" />
                                         </div>
                                         <div className="flex flex-col items-center gap-3">
                                             <span className="text-[14px] text-accent-primary font-black tracking-[0.6em] uppercase animate-pulse">Ultra-SaaS Engine</span>
@@ -256,7 +256,7 @@ export const ChatWindow: React.FC = () => {
                                     
                                     <div className="grid gap-4">
                                         <SettingItem 
-                                            icon={<BellOff className="w-6 h-6" />} 
+                                            icon={<Info className="w-6 h-6" />} 
                                             label="Sessiz Mod" 
                                             desc="Anlık bildirimleri askıya al"
                                             isActive={useMessageStore.getState().settings.isMuted}
@@ -293,7 +293,7 @@ export const ChatWindow: React.FC = () => {
                             </div>
 
                             <div className="mt-auto pt-12 border-t border-white/[0.05] flex items-center justify-center gap-6 grayscale opacity-30 hover:grayscale-0 hover:opacity-100 transition-all duration-1000">
-                                <Zap className="w-5 h-5 text-yellow-500 animate-pulse" />
+                                <Activity className="w-5 h-5 text-yellow-500 animate-pulse" />
                                 <span className="text-[12px] font-black tracking-[1em] text-white uppercase translate-x-[0.5em]">Ooggen Ultra SaaS</span>
                             </div>
                         </motion.div>
@@ -337,6 +337,7 @@ const SettingItem: React.FC<{
             <div className="flex flex-col">
                 <span className={`text-lg font-black tracking-tight transition-colors ${isActive ? 'text-white' : 'text-white/60 group-hover:text-white'}`}>{label}</span>
                 <span className="text-[11px] text-white/20 font-bold group-hover:text-white/40 uppercase tracking-widest">{desc}</span>
+            </div>
         </div>
         {isActive !== undefined && (
             <div className={`w-14 h-7 rounded-full relative transition-all duration-700 p-1.5 ${isActive ? 'bg-green-500 shadow-[0_0_30px_rgba(34,197,94,0.5)]' : 'bg-white/10'}`}>
