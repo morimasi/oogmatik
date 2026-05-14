@@ -1,139 +1,267 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Mock Firebase
+// Firebase modüllerini mock'la
+vi.mock('../../../services/firebaseClient', () => ({
+  db: {},
+}));
+
 vi.mock('firebase/firestore', () => ({
   collection: vi.fn(),
   query: vi.fn(),
   where: vi.fn(),
   orderBy: vi.fn(),
-  onSnapshot: vi.fn(() => vi.fn()),
-  addDoc: vi.fn(() => Promise.resolve({ id: 'new-msg-id' })),
-  updateDoc: vi.fn(() => Promise.resolve()),
-  deleteDoc: vi.fn(() => Promise.resolve()),
-  doc: vi.fn(() => 'doc-ref'),
-  getDocs: vi.fn(() => Promise.resolve({ docs: [] })),
-  getDoc: vi.fn(() => Promise.resolve({ exists: () => true, data: () => ({ content: 'orijinal içerik' }) })),
-  Timestamp: { now: () => ({ toDate: () => new Date() }) },
-}));
-
-vi.mock('firebase/storage', () => ({
-  getStorage: vi.fn(() => ({})),
-  ref: vi.fn(() => 'storage-ref'),
-  uploadBytesResumable: vi.fn(() => ({
-    on: vi.fn((_event, _progress, _error, _complete) => {
-      // Simulate successful upload
-      setTimeout(() => _complete({ ref: 'uploaded-ref' }), 10);
+  limit: vi.fn(),
+  startAfter: vi.fn(),
+  onSnapshot: vi.fn(() => vi.fn()), // unsubscribe fn
+  addDoc: vi.fn().mockResolvedValue({ id: 'mock-msg-id' }),
+  updateDoc: vi.fn().mockResolvedValue(undefined),
+  deleteDoc: vi.fn().mockResolvedValue(undefined),
+  doc: vi.fn().mockReturnValue({ id: 'mock-doc-ref' }),
+  getDocs: vi.fn().mockResolvedValue({ size: 0, docs: [] }),
+  getDoc: vi.fn().mockResolvedValue({
+    exists: () => true,
+    data: () => ({
+      content: 'Orijinal mesaj içeriği',
+      editHistory: [],
+      isDeleted: false,
+      deletedAt: null,
+      originalContent: null,
     }),
-    snapshot: { ref: 'uploaded-ref' },
-  })),
-  getDownloadURL: vi.fn(() => Promise.resolve('https://example.com/file.pdf')),
-  deleteObject: vi.fn(() => Promise.resolve()),
+  }),
+  Timestamp: {
+    now: () => ({
+      toDate: () => new Date(),
+    }),
+  },
 }));
 
-vi.mock('../../../services/firebaseClient', () => ({
-  db: {},
+vi.mock('../store/useMessagesStore', () => ({
+  useMessagesStore: {
+    getState: () => ({
+      setSending: vi.fn(),
+      clearFileUploads: vi.fn(),
+      setUnreadCount: vi.fn(),
+    }),
+  },
 }));
 
-vi.mock('uuid', () => ({
-  v4: () => 'mock-uuid',
+vi.mock('../../../store/useToastStore', () => ({
+  useToastStore: {
+    getState: () => ({
+      error: vi.fn(),
+      success: vi.fn(),
+    }),
+  },
+}));
+
+vi.mock('../services/fileUploadService', () => ({
+  uploadFileToStorage: vi.fn().mockResolvedValue({
+    id: 'file-id-1',
+    name: 'test.pdf',
+    type: 'application/pdf',
+    url: 'https://storage.example.com/test.pdf',
+    size: 1024,
+    mimeCategory: 'document',
+  }),
+  deleteFileFromStorage: vi.fn().mockResolvedValue(true),
 }));
 
 import { messageService } from '../services/messageService';
-import { useMessagesStore } from '../store/useMessagesStore';
 
 describe('messageService', () => {
   beforeEach(() => {
-    useMessagesStore.getState().resetMessages();
+    vi.clearAllMocks();
   });
 
-  describe('getConversationId', () => {
-    it('generates consistent conversation IDs', () => {
-      const id1 = messageService.getConversationId('user-a', 'user-b');
-      const id2 = messageService.getConversationId('user-b', 'user-a');
-      expect(id1).toBe(id2);
-      expect(id1).toContain('user-a');
-      expect(id1).toContain('user-b');
+  // ─── sendMessage ──────────────────────────────────────────────────────────
+
+  describe('sendMessage', () => {
+    it('returns message ID on success', async () => {
+      const id = await messageService.sendMessage(
+        'user-1',
+        'user-2',
+        'Test Kullanıcı',
+        'Merhaba!'
+      );
+      expect(id).toBe('mock-msg-id');
+    });
+
+    it('includes reply and quote in message data', async () => {
+      const id = await messageService.sendMessage(
+        'user-1',
+        'user-2',
+        'Test',
+        'Yanıt mesajı',
+        {
+          replyToMessageId: 'parent-msg-id',
+          quote: {
+            messageId: 'parent-msg-id',
+            senderId: 'user-2',
+            senderName: 'Diğer Kullanıcı',
+            content: 'Alıntılanan metin',
+            timestamp: new Date().toISOString(),
+          },
+        }
+      );
+      expect(id).toBe('mock-msg-id');
     });
   });
 
+  // ─── editMessage ─────────────────────────────────────────────────────────
+
+  describe('editMessage', () => {
+    it('returns true on successful edit', async () => {
+      const result = await messageService.editMessage('msg-1', 'Düzenlenmiş içerik');
+      expect(result).toBe(true);
+    });
+
+    it('preserves edit history on edit', async () => {
+      // getDoc mock dosyanın mevcut içeriğini dönüyor
+      // updateDoc'un editHistory alanı ile çağrıldığını doğrula
+      const { updateDoc } = await import('firebase/firestore');
+      await messageService.editMessage('msg-1', 'Yeni içerik');
+
+      // updateDoc çağrıldı mı kontrol et
+      expect(updateDoc).toHaveBeenCalledTimes(1);
+      const call = vi.mocked(updateDoc).mock.calls[0];
+      const updateData = call[1] as Record<string, unknown>;
+      expect(updateData.content).toBe('Yeni içerik');
+      expect(updateData.isEdited).toBe(true);
+      expect(Array.isArray(updateData.editHistory)).toBe(true);
+      // Yeni history entry mevcut içeriği (Orijinal mesaj içeriği) içermeli
+      const history = updateData.editHistory as Array<{ content: string; editedAt: string }>;
+      expect(history.length).toBeGreaterThan(0);
+      expect(history[history.length - 1].content).toBe('Orijinal mesaj içeriği');
+    });
+  });
+
+  // ─── deleteMessage ───────────────────────────────────────────────────────
+
+  describe('deleteMessage', () => {
+    it('soft deletes a message by default', async () => {
+      const { updateDoc } = await import('firebase/firestore');
+      const result = await messageService.deleteMessage('msg-1');
+
+      expect(result).toBe(true);
+      // Soft delete → updateDoc çağrılmalı, deleteDoc değil
+      expect(updateDoc).toHaveBeenCalled();
+    });
+
+    it('hard deletes when softDelete = false', async () => {
+      const { deleteDoc } = await import('firebase/firestore');
+      const result = await messageService.deleteMessage('msg-1', false);
+
+      expect(result).toBe(true);
+      expect(deleteDoc).toHaveBeenCalled();
+    });
+  });
+
+  // ─── restoreMessage ──────────────────────────────────────────────────────
+
+  describe('restoreMessage', () => {
+    it('returns false if deletion was over 30 days ago', async () => {
+      const { getDoc } = await import('firebase/firestore');
+      const oldDate = new Date();
+      oldDate.setDate(oldDate.getDate() - 31); // 31 gün önce
+
+      vi.mocked(getDoc).mockResolvedValueOnce({
+        exists: () => true,
+        data: () => ({
+          content: '[Bu mesaj silindi]',
+          isDeleted: true,
+          deletedAt: oldDate.toISOString(),
+          originalContent: 'Orijinal içerik',
+        }),
+      } as unknown as ReturnType<typeof import('firebase/firestore').getDoc> extends Promise<infer T> ? T : never);
+
+      const result = await messageService.restoreMessage('msg-1');
+      expect(result).toBe(false);
+    });
+
+    it('restores a message deleted within 30 days', async () => {
+      const recentDate = new Date();
+      recentDate.setDate(recentDate.getDate() - 5); // 5 gün önce
+
+      const { getDoc, updateDoc } = await import('firebase/firestore');
+      vi.mocked(getDoc).mockResolvedValueOnce({
+        exists: () => true,
+        data: () => ({
+          content: '[Bu mesaj silindi]',
+          isDeleted: true,
+          deletedAt: recentDate.toISOString(),
+          originalContent: 'Orijinal içerik',
+        }),
+      } as unknown as ReturnType<typeof import('firebase/firestore').getDoc> extends Promise<infer T> ? T : never);
+
+      const result = await messageService.restoreMessage('msg-1');
+      expect(result).toBe(true);
+      expect(updateDoc).toHaveBeenCalled();
+    });
+  });
+
+  // ─── getConversationId ────────────────────────────────────────────────────
+
+  describe('getConversationId', () => {
+    it('returns the same ID regardless of order', () => {
+      const id1 = messageService.getConversationId('user-A', 'user-B');
+      const id2 = messageService.getConversationId('user-B', 'user-A');
+      expect(id1).toBe(id2);
+    });
+
+    it('uses underscore separator between sorted IDs', () => {
+      const id = messageService.getConversationId('abc', 'xyz');
+      expect(id).toBe('abc_xyz');
+    });
+  });
+
+  // ─── Alıntı zinciri (nested quote) ───────────────────────────────────────
+
+  describe('quote chain', () => {
+    it('sends message with 3-level quote chain', async () => {
+      const makeQuote = (level: number) => ({
+        messageId: `msg-level-${level}`,
+        senderId: `user-${level}`,
+        senderName: `Kullanıcı ${level}`,
+        content: `Seviye ${level} içerik`,
+        timestamp: new Date().toISOString(),
+      });
+
+      // A → B alıntıladı → C alıntıladı
+      const id = await messageService.sendMessage('user-C', 'user-A', 'C', 'Alıntı zinciri', {
+        replyToMessageId: 'msg-level-2',
+        quote: makeQuote(2),
+      });
+      expect(id).toBe('mock-msg-id');
+    });
+  });
+
+  // ─── mapDoc ──────────────────────────────────────────────────────────────
+
   describe('mapDoc', () => {
-    it('maps Firestore data to Message type', () => {
-      const data = {
+    it('correctly maps Firestore document to Message', () => {
+      const raw = {
         senderId: 'u1',
         receiverId: 'u2',
         senderName: 'Ali',
         content: 'Merhaba',
-        timestamp: '2024-01-01T00:00:00Z',
-        isRead: true,
-        isEdited: true,
-        editedAt: '2024-01-01T01:00:00Z',
-        isDeleted: false,
-        files: [{ id: 'f1', name: 'doc.pdf', type: 'application/pdf', url: 'https://x.com/d.pdf', size: 1000 }],
-        quote: { messageId: 'm1', senderId: 'u1', senderName: 'Veli', content: 'Alıntı', timestamp: '2024-01-01T00:00:00Z' },
-      };
-      const msg = messageService.mapDoc(data, 'msg-1');
-      expect(msg.id).toBe('msg-1');
-      expect(msg.senderName).toBe('Ali');
-      expect(msg.isEdited).toBe(true);
-      expect(msg.files).toHaveLength(1);
-      expect(msg.quote?.senderName).toBe('Veli');
-    });
-
-    it('handles missing optional fields', () => {
-      const data = {
-        senderId: 'u1',
-        receiverId: 'u2',
-        senderName: 'Ali',
-        content: 'Test',
-        timestamp: '2024-01-01T00:00:00Z',
+        timestamp: '2024-01-01T00:00:00.000Z',
         isRead: false,
+        replyToMessageId: null,
+        quote: null,
+        files: [],
+        isEdited: false,
+        editedAt: null,
+        editHistory: [],
+        isDeleted: false,
+        deletedAt: null,
+        originalContent: null,
       };
-      const msg = messageService.mapDoc(data, 'msg-1');
-      expect(msg.isEdited).toBeUndefined();
-      expect(msg.files).toBeUndefined();
-      expect(msg.quote).toBeUndefined();
-    });
-  });
-
-  describe('sendMessage', () => {
-    it('sends message and returns id', async () => {
-      const id = await messageService.sendMessage('u1', 'u2', 'Ali', 'Merhaba');
-      expect(id).toBe('new-msg-id');
-    });
-
-    it('sends message with reply and quote', async () => {
-      const id = await messageService.sendMessage('u1', 'u2', 'Ali', 'Yanıt', {
-        replyToMessageId: 'original-msg',
-        quote: { messageId: 'original-msg', senderId: 'u2', senderName: 'Veli', content: 'Orijinal', timestamp: '2024-01-01T00:00:00Z' },
-      });
-      expect(id).toBe('new-msg-id');
-    });
-
-    it('sends message with files', async () => {
-      const id = await messageService.sendMessage('u1', 'u2', 'Ali', 'Dosyalı mesaj', {
-        files: [{ id: 'f1', name: 'test.pdf', type: 'application/pdf', url: 'https://x.com/t.pdf', size: 100 }],
-      });
-      expect(id).toBe('new-msg-id');
-    });
-  });
-
-  describe('soft delete and restore', () => {
-    it('performs soft delete preserving original content', async () => {
-      // Simulate: the getDoc in deleteMessage returns the original content
-      const result = await messageService.deleteMessage('msg-1', true);
-      expect(result).toBe(true);
-    });
-
-    it('restores message within 30 days', async () => {
-      const result = await messageService.restoreMessage('msg-1');
-      expect(result).toBe(true);
-    });
-
-    it('fails restore after 30 days', async () => {
-      // getDoc mock returns data within 30 days by default (from vi.mock setup)
-      // This test verifies the function handles the Firestore flow without error
-      const result = await messageService.restoreMessage('msg-1');
-      expect(typeof result).toBe('boolean');
+      const msg = messageService.mapDoc(raw as Record<string, unknown>, 'msg-123');
+      expect(msg.id).toBe('msg-123');
+      expect(msg.senderId).toBe('u1');
+      expect(msg.content).toBe('Merhaba');
+      expect(msg.files).toEqual([]);
+      expect(msg.editHistory).toEqual([]);
     });
   });
 });

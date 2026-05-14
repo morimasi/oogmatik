@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { X, Bell, Settings } from 'lucide-react';
+import { X, Settings, Bell } from 'lucide-react';
 import { useMessagesStore } from './store/useMessagesStore';
 import { useMessages } from './hooks/useMessages';
 import { ContactPanel } from './panels/ContactPanel';
@@ -10,20 +11,47 @@ import { NotificationToast } from './components/NotificationToast';
 import { NotificationSettings } from './components/NotificationSettings';
 import { useAuthStore } from '../../store/useAuthStore';
 import { messageService } from './services/messageService';
-import { useState } from 'react';
 
 interface MessagesModuleProps {
   onBack: () => void;
   onRefreshNotifications?: () => void;
+  /** Deep link: Belirli bir mesajı vurgula */
+  highlightMessageId?: string;
 }
 
-export const MessagesModule: React.FC<MessagesModuleProps> = ({ onBack, onRefreshNotifications }) => {
-  const { activeContactId, contacts, setActiveContactId, unreadCount } = useMessagesStore();
+export const MessagesModule: React.FC<MessagesModuleProps> = ({
+  onBack,
+  onRefreshNotifications,
+  highlightMessageId,
+}) => {
+  const {
+    activeContactId,
+    contacts,
+    setActiveContactId,
+    unreadCount,
+    notifications,
+    setHighlightedMessageId,
+    setIsMessagesOpen,
+  } = useMessagesStore();
   const { user } = useAuthStore();
   const [showSettings, setShowSettings] = useState(false);
 
   const activeContact = contacts.find((c) => c.id === activeContactId) || null;
 
+  // Modal açıldığında isMessagesOpen = true
+  useEffect(() => {
+    setIsMessagesOpen(true);
+    return () => setIsMessagesOpen(false);
+  }, []);
+
+  // Deep link: dışarıdan gelen highlightMessageId
+  useEffect(() => {
+    if (highlightMessageId) {
+      setHighlightedMessageId(highlightMessageId);
+    }
+  }, [highlightMessageId]);
+
+  // Okunmamış mesaj sayısını güncelle
   useEffect(() => {
     if (user?.id && onRefreshNotifications) {
       messageService.getUnreadCount(user.id).then((count) => {
@@ -33,15 +61,20 @@ export const MessagesModule: React.FC<MessagesModuleProps> = ({ onBack, onRefres
     }
   }, [user?.id]);
 
+  // Modal açılınca active contact sıfırla
   useEffect(() => {
-    useMessagesStore.getState().setActiveContactId(null);
+    setActiveContactId(null);
   }, []);
+
+  const hasUnreadNotifications = notifications.filter((n) => !n.isRead).length > 0;
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3">
       <motion.div
-        initial={{ opacity: 0, scale: 0.97 }}
-        animate={{ opacity: 1, scale: 1 }}
+        initial={{ opacity: 0, scale: 0.97, y: 8 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.97, y: 8 }}
+        transition={{ type: 'spring', stiffness: 340, damping: 28 }}
         className="bg-[var(--bg-paper)] border border-[var(--border-color)] shadow-2xl backdrop-blur-md rounded-2xl w-full max-w-5xl max-h-[90vh] overflow-hidden flex flex-col"
       >
         {/* Header */}
@@ -53,7 +86,7 @@ export const MessagesModule: React.FC<MessagesModuleProps> = ({ onBack, onRefres
               </svg>
             </div>
             <div>
-              <h2 className="text-sm font-bold text-[var(--text-primary)]">Mesajlar</h2>
+              <h2 className="text-sm font-black text-[var(--text-primary)]">Mesajlar</h2>
               <p className="text-[9px] font-medium text-[var(--text-secondary)]">
                 {unreadCount > 0
                   ? `${unreadCount} okunmamış mesaj`
@@ -62,6 +95,15 @@ export const MessagesModule: React.FC<MessagesModuleProps> = ({ onBack, onRefres
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {/* Bildirim sayısı rozeti */}
+            {hasUnreadNotifications && (
+              <div className="relative">
+                <Bell className="w-3.5 h-3.5 text-[var(--accent-color)]" />
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-rose-500 rounded-full text-[6px] text-white font-black flex items-center justify-center">
+                  {notifications.filter((n) => !n.isRead).length}
+                </span>
+              </div>
+            )}
             <div className="relative">
               <button
                 onClick={() => setShowSettings(!showSettings)}
@@ -81,16 +123,16 @@ export const MessagesModule: React.FC<MessagesModuleProps> = ({ onBack, onRefres
           </div>
         </div>
 
-        {/* Content */}
+        {/* İçerik: Kişi listesi + Konuşma */}
         <div className="flex flex-1 overflow-hidden">
-          {/* Contact Panel - Desktop: sidebar, Mobile: full width when no active chat */}
+          {/* Kişi paneli */}
           <div className={`${
             activeContact ? 'hidden lg:flex' : 'flex'
           } w-full lg:w-80 shrink-0 flex-col`}>
             <ContactPanel onSelectContact={setActiveContactId} />
           </div>
 
-          {/* Conversation Panel */}
+          {/* Konuşma paneli */}
           <div className={`${
             activeContact ? 'flex' : 'hidden lg:flex'
           } flex-1 flex-col overflow-hidden`}>
@@ -109,7 +151,7 @@ export const MessagesModule: React.FC<MessagesModuleProps> = ({ onBack, onRefres
         <div className="px-4 py-2 border-t border-[var(--border-color)] bg-[var(--bg-secondary)] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-[8px] font-bold text-[var(--text-muted)]">Firebase Realtime</span>
             </div>
             <span className="text-[8px] text-[var(--text-muted)]">
@@ -121,7 +163,7 @@ export const MessagesModule: React.FC<MessagesModuleProps> = ({ onBack, onRefres
           </span>
         </div>
 
-        {/* Floating Notification Toast */}
+        {/* Bildirim toast'ları */}
         <NotificationToast />
       </motion.div>
     </div>
