@@ -8,11 +8,13 @@ export function useFileUpload() {
   const store = useMessagesStore();
   const { addToast } = useToastStore();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isDragOver, setIsDragOver] = React.useState(false);
 
   const openFilePicker = useCallback(() => {
     inputRef.current?.click();
   }, []);
 
+  // Bug fix: fileUploads.length bağımlılığı açıkça belirtildi
   const handleFilesSelected = useCallback(
     (fileList: FileList | null) => {
       if (!fileList || fileList.length === 0) return;
@@ -39,16 +41,42 @@ export function useFileUpload() {
         inputRef.current.value = '';
       }
     },
-    [store.fileUploads.length]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [store.fileUploads.length, addToast]
   );
 
   const removeFile = useCallback((uploadId: string) => {
     store.removeFileUpload(uploadId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const clearFiles = useCallback(() => {
     store.clearFileUploads();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Drag & Drop handlers
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragOver(false);
+      handleFilesSelected(e.dataTransfer.files);
+    },
+    [handleFilesSelected]
+  );
 
   return {
     inputRef,
@@ -58,5 +86,12 @@ export function useFileUpload() {
     clearFiles,
     fileUploads: store.fileUploads,
     uploadCount: store.fileUploads.length,
+    isDragOver,
+    handleDragOver,
+    handleDragLeave,
+    handleDrop,
   };
 }
+
+// React import zorunlu
+import React from 'react';

@@ -543,6 +543,8 @@ export interface MessageFile {
   type: string;
   url: string;
   size: number;
+  thumbnailUrl?: string;
+  mimeCategory?: 'image' | 'video' | 'audio' | 'document' | 'archive' | 'unknown';
 }
 
 export interface MessageQuote {
@@ -551,6 +553,11 @@ export interface MessageQuote {
   senderName: string;
   content: string;
   timestamp: string;
+}
+
+export interface MessageEditHistoryEntry {
+  content: string;
+  editedAt: string;
 }
 
 export interface Message {
@@ -567,8 +574,10 @@ export interface Message {
   replyToMessageId?: string;
   isEdited?: boolean;
   editedAt?: string;
+  editHistory?: MessageEditHistoryEntry[];
   isDeleted?: boolean;
   deletedAt?: string;
+  originalContent?: string;
 }
 
 export interface AssessmentProfile {

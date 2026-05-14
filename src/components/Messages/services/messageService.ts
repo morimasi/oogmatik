@@ -12,17 +12,36 @@ import {
   getDocs,
   getDoc,
   Timestamp,
+  limit,
+  startAfter,
+  type QueryDocumentSnapshot,
+  type DocumentData,
 } from 'firebase/firestore';
-import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
-import type { Message, MessageFile } from '../../../types';
+import type { Message, MessageFile, MessageEditHistoryEntry } from '../../../types';
 import { useMessagesStore } from '../store/useMessagesStore';
 import { useToastStore } from '../../../store/useToastStore';
-import { v4 as uuidv4 } from 'uuid';
+import { uploadFileToStorage, deleteFileFromStorage } from './fileUploadService';
 
 const MESSAGES_COLLECTION = 'messages';
 const SOFT_DELETE_DAYS = 30;
+const PAGE_SIZE = 60;
+
+/** Basit retry utility — ağ kesintilerinde 3 deneme yapar */
+async function withRetry<T>(fn: () => Promise<T>, retries = 3, delayMs = 800): Promise<T> {
+  let lastErr: unknown;
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      if (i < retries - 1) await new Promise((r) => setTimeout(r, delayMs * (i + 1)));
+    }
+  }
+  throw lastErr;
+}
 
 export const messageService = {
+  /** Tüm mesajları gerçek zamanlı dinle */
   listenToMessages(userId: string, callback: (messages: Message[]) => void): () => void {
     const q = query(
       collection(db, MESSAGES_COLLECTION),
@@ -31,14 +50,12 @@ export const messageService = {
     );
     return onSnapshot(q, (snapshot) => {
       const msgs: Message[] = [];
-      snapshot.forEach((d) => {
-        const data = d.data();
-        msgs.push(this.mapDoc(data, d.id));
-      });
+      snapshot.forEach((d) => msgs.push(this.mapDoc(d.data(), d.id)));
       callback(msgs);
     });
   },
 
+  /** Belirli bir konuşmayı gerçek zamanlı dinle */
   listenToContactMessages(
     userId: string,
     contactId: string,
@@ -48,18 +65,39 @@ export const messageService = {
       collection(db, MESSAGES_COLLECTION),
       where('participants', 'array-contains', userId),
       where('conversationId', '==', this.getConversationId(userId, contactId)),
-      orderBy('timestamp', 'asc')
+      orderBy('timestamp', 'asc'),
+      limit(PAGE_SIZE)
     );
     return onSnapshot(q, (snapshot) => {
       const msgs: Message[] = [];
-      snapshot.forEach((d) => {
-        const data = d.data();
-        msgs.push(this.mapDoc(data, d.id));
-      });
+      snapshot.forEach((d) => msgs.push(this.mapDoc(d.data(), d.id)));
       callback(msgs);
     });
   },
 
+  /** Eski mesajları yükle (pagination) */
+  async loadOlderMessages(
+    userId: string,
+    contactId: string,
+    lastDoc: QueryDocumentSnapshot<DocumentData>
+  ): Promise<Message[]> {
+    try {
+      const q = query(
+        collection(db, MESSAGES_COLLECTION),
+        where('participants', 'array-contains', userId),
+        where('conversationId', '==', this.getConversationId(userId, contactId)),
+        orderBy('timestamp', 'asc'),
+        startAfter(lastDoc),
+        limit(PAGE_SIZE)
+      );
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map((d) => this.mapDoc(d.data(), d.id));
+    } catch {
+      return [];
+    }
+  },
+
+  /** Mesaj gönder — retry mekanizması ile */
   async sendMessage(
     senderId: string,
     receiverId: string,
@@ -82,22 +120,25 @@ export const messageService = {
         conversationId,
         timestamp: Timestamp.now().toDate().toISOString(),
         isRead: false,
-        replyToMessageId: options?.replyToMessageId || null,
-        quote: options?.quote || null,
-        files: options?.files || [],
+        replyToMessageId: options?.replyToMessageId ?? null,
+        quote: options?.quote ?? null,
+        files: options?.files ?? [],
         isEdited: false,
         editedAt: null,
+        editHistory: [],
         isDeleted: false,
         deletedAt: null,
+        originalContent: null,
       };
-      const docRef = await addDoc(collection(db, MESSAGES_COLLECTION), msgData);
+      const docRef = await withRetry(() => addDoc(collection(db, MESSAGES_COLLECTION), msgData));
       return docRef.id;
-    } catch (err) {
-      useToastStore.getState().error('Mesaj gönderilemedi.');
+    } catch {
+      useToastStore.getState().error('Mesaj gönderilemedi. Lütfen tekrar deneyin.');
       return null;
     }
   },
 
+  /** Dosya(lar) ile mesaj gönder */
   async sendMessageWithFiles(
     senderId: string,
     receiverId: string,
@@ -107,7 +148,8 @@ export const messageService = {
     options?: {
       replyToMessageId?: string;
       quote?: { messageId: string; senderId: string; senderName: string; content: string; timestamp: string };
-    }
+    },
+    onFileProgress?: (uploadId: string, progress: number) => void
   ): Promise<boolean> {
     const store = useMessagesStore.getState();
     const toast = useToastStore.getState();
@@ -115,46 +157,22 @@ export const messageService = {
     try {
       store.setSending(true);
       const uploadedFiles: MessageFile[] = [];
-      const storage = getStorage();
 
       for (const file of files) {
-        const uploadId = uuidv4();
-        store.addFileUpload({
-          file,
-          id: uploadId,
-          progress: 0,
-          status: 'uploading',
-        });
-
-        const storageRef = ref(storage, `message_files/${senderId}/${uploadId}_${file.name}`);
-        const uploadTask = uploadBytesResumable(storageRef, file);
-
-        await new Promise<void>((resolve, reject) => {
-          uploadTask.on(
-            'state_changed',
-            (snapshot) => {
-              const progress = Math.round(
-                (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-              );
-              store.updateFileUpload(uploadId, { progress, status: 'uploading' });
-            },
-            (error) => {
-              store.updateFileUpload(uploadId, { status: 'error', error: error.message });
-              reject(error);
-            },
-            async () => {
-              const url = await getDownloadURL(uploadTask.snapshot.ref);
-              uploadedFiles.push({
-                id: uploadId,
-                name: file.name,
-                type: file.type,
-                url,
-                size: file.size,
-              });
-              store.updateFileUpload(uploadId, { status: 'complete', downloadUrl: url });
-              resolve();
-            }
-          );
+        const result = await uploadFileToStorage(file, senderId, onFileProgress);
+        if (!result) {
+          toast.error(`${file.name} yüklenemedi.`);
+          // Kalan dosyalar için devam et
+          continue;
+        }
+        uploadedFiles.push({
+          id: result.id,
+          name: result.name,
+          type: result.type,
+          url: result.url,
+          size: result.size,
+          thumbnailUrl: result.thumbnailUrl,
+          mimeCategory: result.mimeCategory,
         });
       }
 
@@ -168,19 +186,33 @@ export const messageService = {
       return !!msgId;
     } catch {
       store.setSending(false);
-      toast.error('Dosya yükleme başarısız.');
+      toast.error('Dosya gönderimi başarısız. Bağlantınızı kontrol edin.');
       return false;
     }
   },
 
+  /** Mesajı düzenle — düzenleme geçmişini koru */
   async editMessage(messageId: string, newContent: string): Promise<boolean> {
     try {
       const ref = doc(db, MESSAGES_COLLECTION, messageId);
-      await updateDoc(ref, {
-        content: newContent,
-        isEdited: true,
-        editedAt: Timestamp.now().toDate().toISOString(),
-      });
+      const snap = await getDoc(ref);
+      if (!snap.exists()) return false;
+
+      const data = snap.data();
+      const prevHistory: MessageEditHistoryEntry[] = (data.editHistory ?? []) as MessageEditHistoryEntry[];
+      const newEntry: MessageEditHistoryEntry = {
+        content: data.content as string,
+        editedAt: new Date().toISOString(),
+      };
+
+      await withRetry(() =>
+        updateDoc(ref, {
+          content: newContent,
+          isEdited: true,
+          editedAt: Timestamp.now().toDate().toISOString(),
+          editHistory: [...prevHistory, newEntry].slice(-10), // Son 10 düzenleme
+        })
+      );
       return true;
     } catch {
       useToastStore.getState().error('Mesaj düzenlenemedi.');
@@ -188,20 +220,23 @@ export const messageService = {
     }
   },
 
+  /** Soft / hard delete */
   async deleteMessage(messageId: string, softDelete = true): Promise<boolean> {
     try {
       if (softDelete) {
         const ref = doc(db, MESSAGES_COLLECTION, messageId);
         const snap = await getDoc(ref);
-        const originalContent = snap.exists() ? snap.data().content : '';
-        await updateDoc(ref, {
-          isDeleted: true,
-          deletedAt: Timestamp.now().toDate().toISOString(),
-          content: '[Bu mesaj silindi]',
-          originalContent,
-        });
+        const originalContent = snap.exists() ? (snap.data().content as string) : '';
+        await withRetry(() =>
+          updateDoc(ref, {
+            isDeleted: true,
+            deletedAt: Timestamp.now().toDate().toISOString(),
+            content: '[Bu mesaj silindi]',
+            originalContent,
+          })
+        );
       } else {
-        await deleteDoc(doc(db, MESSAGES_COLLECTION, messageId));
+        await withRetry(() => deleteDoc(doc(db, MESSAGES_COLLECTION, messageId)));
       }
       return true;
     } catch {
@@ -210,6 +245,7 @@ export const messageService = {
     }
   },
 
+  /** 30 gün içinde geri yükleme */
   async restoreMessage(messageId: string): Promise<boolean> {
     try {
       const ref = doc(db, MESSAGES_COLLECTION, messageId);
@@ -217,7 +253,7 @@ export const messageService = {
       if (!snap.exists()) return false;
 
       const data = snap.data();
-      const deletedAt = data.deletedAt ? new Date(data.deletedAt) : null;
+      const deletedAt = data.deletedAt ? new Date(data.deletedAt as string) : null;
       const daysSinceDelete = deletedAt
         ? Math.floor((Date.now() - deletedAt.getTime()) / (1000 * 60 * 60 * 24))
         : 0;
@@ -227,11 +263,14 @@ export const messageService = {
         return false;
       }
 
-      await updateDoc(ref, {
-        isDeleted: false,
-        deletedAt: null,
-        content: data.originalContent || '[İçerik bulunamadı]',
-      });
+      await withRetry(() =>
+        updateDoc(ref, {
+          isDeleted: false,
+          deletedAt: null,
+          content: (data.originalContent as string) || '[İçerik bulunamadı]',
+          originalContent: null,
+        })
+      );
       useToastStore.getState().success('Mesaj geri yüklendi.');
       return true;
     } catch {
@@ -240,10 +279,8 @@ export const messageService = {
     }
   },
 
-  async clearConversation(
-    userId: string,
-    contactId: string
-  ): Promise<boolean> {
+  /** Konuşmayı temizle (soft delete) */
+  async clearConversation(userId: string, contactId: string): Promise<boolean> {
     try {
       const conversationId = this.getConversationId(userId, contactId);
       const q = query(
@@ -258,7 +295,7 @@ export const messageService = {
           isDeleted: true,
           deletedAt: now,
           content: '[Bu mesaj silindi]',
-          originalContent: d.data().content || '',
+          originalContent: (d.data().content as string) || '',
         })
       );
       await Promise.all(updates);
@@ -270,6 +307,7 @@ export const messageService = {
     }
   },
 
+  /** Toplu okundu işaretle */
   async markAsRead(messageIds: string[]): Promise<void> {
     try {
       const updates = messageIds.map((id) =>
@@ -281,6 +319,7 @@ export const messageService = {
     }
   },
 
+  /** Okunmamış mesaj sayısı */
   async getUnreadCount(userId: string): Promise<number> {
     try {
       const q = query(
@@ -296,16 +335,8 @@ export const messageService = {
     }
   },
 
-  async deleteUploadedFile(fileUrl: string): Promise<boolean> {
-    try {
-      const storage = getStorage();
-      const fileRef = ref(storage, fileUrl);
-      await deleteObject(fileRef);
-      return true;
-    } catch {
-      return false;
-    }
-  },
+  /** Yüklü dosyayı sil */
+  deleteUploadedFile: deleteFileFromStorage,
 
   getConversationId(userId1: string, userId2: string): string {
     return [userId1, userId2].sort().join('_');
@@ -322,13 +353,21 @@ export const messageService = {
       isRead: data.isRead as boolean,
       replyToMessageId: data.replyToMessageId as string | undefined,
       quote: data.quote
-        ? (data.quote as { messageId: string; senderId: string; senderName: string; content: string; timestamp: string })
+        ? (data.quote as {
+            messageId: string;
+            senderId: string;
+            senderName: string;
+            content: string;
+            timestamp: string;
+          })
         : undefined,
       files: data.files ? (data.files as MessageFile[]) : undefined,
       isEdited: data.isEdited as boolean | undefined,
       editedAt: data.editedAt as string | undefined,
+      editHistory: data.editHistory as MessageEditHistoryEntry[] | undefined,
       isDeleted: data.isDeleted as boolean | undefined,
       deletedAt: data.deletedAt as string | undefined,
+      originalContent: data.originalContent as string | undefined,
     };
   },
 };

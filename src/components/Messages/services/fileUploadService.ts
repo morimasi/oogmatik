@@ -1,4 +1,4 @@
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { getStorage, ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 
 export const ALLOWED_FILE_TYPES: Record<string, string[]> = {
@@ -17,42 +17,47 @@ export const ALLOWED_FILE_TYPES: Record<string, string[]> = {
 };
 
 export const ALLOWED_MIME_TYPES = Object.values(ALLOWED_FILE_TYPES).flat();
-export const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
+export const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
 export const MAX_FILES_PER_MESSAGE = 10;
+
+export type FileCategory = 'image' | 'document' | 'audio' | 'video' | 'archive' | 'unknown';
 
 export interface FileValidationResult {
   valid: boolean;
   error?: string;
 }
 
+const EXTENSION_MAP: Record<string, string> = {
+  pdf: 'application/pdf',
+  docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  png: 'image/png',
+  gif: 'image/gif',
+  webp: 'image/webp',
+  svg: 'image/svg+xml',
+  mp4: 'video/mp4',
+  webm: 'video/webm',
+  mov: 'video/quicktime',
+  mp3: 'audio/mpeg',
+  wav: 'audio/wav',
+  ogg: 'audio/ogg',
+  aac: 'audio/aac',
+  zip: 'application/zip',
+  rar: 'application/x-rar-compressed',
+  txt: 'text/plain',
+  csv: 'text/csv',
+};
+
 export function validateFile(file: File): FileValidationResult {
-  if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+  const effectiveMime = file.type || (EXTENSION_MAP[file.name.split('.').pop()?.toLowerCase() ?? ''] ?? '');
+
+  if (!ALLOWED_MIME_TYPES.includes(effectiveMime)) {
     const ext = file.name.split('.').pop()?.toLowerCase();
-    if (!ext) return { valid: false, error: 'Dosya türü desteklenmiyor.' };
-
-    const extensionMap: Record<string, string> = {
-      pdf: 'application/pdf',
-      docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-      jpg: 'image/jpeg',
-      jpeg: 'image/jpeg',
-      png: 'image/png',
-      gif: 'image/gif',
-      webp: 'image/webp',
-      svg: 'image/svg+xml',
-      mp4: 'video/mp4',
-      mp3: 'audio/mpeg',
-      wav: 'audio/wav',
-      ogg: 'audio/ogg',
-      zip: 'application/zip',
-      rar: 'application/x-rar-compressed',
-      txt: 'text/plain',
-      csv: 'text/csv',
-    };
-
-    if (!extensionMap[ext]) {
-      return { valid: false, error: `".${ext}" dosya türü desteklenmiyor.` };
+    if (!ext || !EXTENSION_MAP[ext]) {
+      return { valid: false, error: `"${ext ? `.${ext}` : 'Bilinmeyen'}" dosya türü desteklenmiyor.` };
     }
   }
 
@@ -64,12 +69,21 @@ export function validateFile(file: File): FileValidationResult {
   return { valid: true };
 }
 
-export function getFileCategory(mimeType: string): 'image' | 'document' | 'audio' | 'video' | 'archive' | 'unknown' {
+export function getFileCategory(mimeType: string): FileCategory {
   if (mimeType.startsWith('image/')) return 'image';
   if (mimeType.startsWith('video/')) return 'video';
   if (mimeType.startsWith('audio/')) return 'audio';
-  if (mimeType.includes('pdf') || mimeType.includes('document') || mimeType.includes('spreadsheet') || mimeType.includes('presentation') || mimeType === 'text/plain' || mimeType === 'text/csv') return 'document';
-  if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('compressed')) return 'archive';
+  if (
+    mimeType.includes('pdf') ||
+    mimeType.includes('document') ||
+    mimeType.includes('spreadsheet') ||
+    mimeType.includes('presentation') ||
+    mimeType === 'text/plain' ||
+    mimeType === 'text/csv'
+  )
+    return 'document';
+  if (mimeType.includes('zip') || mimeType.includes('rar') || mimeType.includes('compressed'))
+    return 'archive';
   return 'unknown';
 }
 
@@ -88,4 +102,115 @@ export function isPreviewable(mimeType: string): boolean {
     mimeType.startsWith('audio/') ||
     mimeType === 'text/plain'
   );
+}
+
+/**
+ * Resim dosyasından canvas API ile küçük boyutlu thumbnail oluşturur.
+ * Server-side render ortamında (test) güvenle çalışır — canvas yoksa null döner.
+ */
+export async function generateImageThumbnail(
+  file: File,
+  maxWidth = 200,
+  maxHeight = 200
+): Promise<string | null> {
+  try {
+    if (typeof document === 'undefined' || typeof window === 'undefined') return null;
+    const url = URL.createObjectURL(file);
+    return await new Promise<string | null>((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(maxWidth / img.width, maxHeight / img.height, 1);
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) { URL.revokeObjectURL(url); resolve(null); return; }
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/webp', 0.75));
+        URL.revokeObjectURL(url);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+      img.src = url;
+    });
+  } catch {
+    return null;
+  }
+}
+
+export interface UploadedFileResult {
+  id: string;
+  name: string;
+  type: string;
+  url: string;
+  size: number;
+  thumbnailUrl?: string;
+  mimeCategory: FileCategory;
+}
+
+export interface UploadProgressCallback {
+  (uploadId: string, progress: number): void;
+}
+
+/**
+ * Firebase Storage'a dosya yükler. Retry mekanizması ile ağ kesintisine dayanıklıdır.
+ */
+export async function uploadFileToStorage(
+  file: File,
+  senderId: string,
+  onProgress?: UploadProgressCallback
+): Promise<UploadedFileResult | null> {
+  const uploadId = uuidv4();
+  const storage = getStorage();
+  const category = getFileCategory(file.type);
+
+  try {
+    const storageRef = ref(storage, `message_files/${senderId}/${uploadId}_${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    const url = await new Promise<string>((resolve, reject) => {
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+          onProgress?.(uploadId, progress);
+        },
+        reject,
+        async () => {
+          resolve(await getDownloadURL(uploadTask.snapshot.ref));
+        }
+      );
+    });
+
+    // Resim ise thumbnail oluştur
+    let thumbnailUrl: string | undefined;
+    if (category === 'image') {
+      thumbnailUrl = (await generateImageThumbnail(file)) ?? undefined;
+    }
+
+    return {
+      id: uploadId,
+      name: file.name,
+      type: file.type,
+      url,
+      size: file.size,
+      thumbnailUrl,
+      mimeCategory: category,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Firebase Storage'dan dosyayı siler.
+ */
+export async function deleteFileFromStorage(fileUrl: string): Promise<boolean> {
+  try {
+    const storage = getStorage();
+    const fileRef = ref(storage, fileUrl);
+    await deleteObject(fileRef);
+    return true;
+  } catch {
+    return false;
+  }
 }

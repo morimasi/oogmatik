@@ -8,6 +8,7 @@ import type {
   MessageNotification,
   NotificationPreferences,
 } from '../types';
+import { loadNotificationPrefs } from '../services/notificationService';
 
 type MessagesStore = MessagesState & MessagesActions;
 
@@ -18,6 +19,10 @@ const defaultNotificationPrefs: NotificationPreferences = {
   showPreview: true,
   groupByConversation: true,
 };
+
+// localStorage'dan kayıtlı tercihleri yükle
+const savedPrefs = loadNotificationPrefs();
+const mergedPrefs: NotificationPreferences = { ...defaultNotificationPrefs, ...savedPrefs };
 
 const initialState: MessagesState = {
   contacts: [],
@@ -30,52 +35,65 @@ const initialState: MessagesState = {
   fileUploads: [],
   unreadCount: 0,
   notifications: [],
-  notificationPrefs: defaultNotificationPrefs,
+  notificationPrefs: mergedPrefs,
   searchQuery: '',
   error: null,
+  highlightedMessageId: null,
+  isMessagesOpen: false,
+  autoDismissDelay: 6000,
 };
 
 export const useMessagesStore = create<MessagesStore>((set) => ({
   ...initialState,
 
-  setContacts: (contacts) => set({ contacts }),
-  setActiveContactId: (id) => set({ activeContactId: id, messages: [], replyToMessage: null, quoteContent: null }),
-  setMessages: (messages) => set({ messages }),
-  addMessage: (msg) => set((s) => ({ messages: [...s.messages, msg] })),
-  updateMessage: (id, updates) =>
-    set((s) => ({
+  setContacts: (contacts: Contact[]) => set({ contacts }),
+  setActiveContactId: (id: string | null) =>
+    set({ activeContactId: id, messages: [], replyToMessage: null, quoteContent: null }),
+  setMessages: (messages: Message[]) => set({ messages }),
+  addMessage: (msg: Message) => set((s: MessagesStore) => ({ messages: [...s.messages, msg] })),
+  updateMessage: (id: string, updates: Partial<Message>) =>
+    set((s: MessagesStore) => ({
       messages: s.messages.map((m) => (m.id === id ? { ...m, ...updates } : m)),
     })),
-  removeMessage: (id) =>
-    set((s) => ({
+  removeMessage: (id: string) =>
+    set((s: MessagesStore) => ({
       messages: s.messages.filter((m) => m.id !== id),
     })),
-  setLoading: (loading) => set({ loading }),
-  setSending: (sending) => set({ sending }),
-  setReplyToMessage: (msg) => set({ replyToMessage: msg }),
-  setQuoteContent: (content) => set({ quoteContent: content }),
-  addFileUpload: (upload) => set((s) => ({ fileUploads: [...s.fileUploads, upload] })),
-  updateFileUpload: (id, updates) =>
-    set((s) => ({
+  setLoading: (loading: boolean) => set({ loading }),
+  setSending: (sending: boolean) => set({ sending }),
+  setReplyToMessage: (msg: Message | null) => set({ replyToMessage: msg }),
+  setQuoteContent: (content: string | null) => set({ quoteContent: content }),
+  addFileUpload: (upload: FileUploadState) =>
+    set((s: MessagesStore) => ({ fileUploads: [...s.fileUploads, upload] })),
+  updateFileUpload: (id: string, updates: Partial<FileUploadState>) =>
+    set((s: MessagesStore) => ({
       fileUploads: s.fileUploads.map((f) => (f.id === id ? { ...f, ...updates } : f)),
     })),
-  removeFileUpload: (id) =>
-    set((s) => ({ fileUploads: s.fileUploads.filter((f) => f.id !== id) })),
+  removeFileUpload: (id: string) =>
+    set((s: MessagesStore) => ({ fileUploads: s.fileUploads.filter((f) => f.id !== id) })),
   clearFileUploads: () => set({ fileUploads: [] }),
-  setUnreadCount: (count) => set({ unreadCount: count }),
-  incrementUnread: () => set((s) => ({ unreadCount: s.unreadCount + 1 })),
-  addNotification: (notification) =>
-    set((s) => ({ notifications: [notification, ...s.notifications].slice(0, 50) })),
-  dismissNotification: (id) =>
-    set((s) => ({ notifications: s.notifications.filter((n) => n.id !== id) })),
+  setUnreadCount: (count: number) => set({ unreadCount: count }),
+  incrementUnread: () => set((s: MessagesStore) => ({ unreadCount: s.unreadCount + 1 })),
+  addNotification: (notification: MessageNotification) =>
+    set((s: MessagesStore) => ({
+      notifications: [notification, ...s.notifications].slice(0, 50),
+    })),
+  dismissNotification: (id: string) =>
+    set((s: MessagesStore) => ({
+      notifications: s.notifications.filter((n) => n.id !== id),
+    })),
   dismissAllNotifications: () => set({ notifications: [] }),
-  markNotificationRead: (id) =>
-    set((s) => ({
+  markNotificationRead: (id: string) =>
+    set((s: MessagesStore) => ({
       notifications: s.notifications.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
     })),
-  setNotificationPrefs: (prefs) =>
-    set((s) => ({ notificationPrefs: { ...s.notificationPrefs, ...prefs } })),
-  setSearchQuery: (query) => set({ searchQuery: query }),
-  setError: (error) => set({ error }),
+  setNotificationPrefs: (prefs: Partial<NotificationPreferences>) =>
+    set((s: MessagesStore) => ({ notificationPrefs: { ...s.notificationPrefs, ...prefs } })),
+  setSearchQuery: (query: string) => set({ searchQuery: query }),
+  setError: (error: string | null) => set({ error }),
   resetMessages: () => set(initialState),
+
+  setHighlightedMessageId: (id: string | null) => set({ highlightedMessageId: id }),
+  setIsMessagesOpen: (open: boolean) => set({ isMessagesOpen: open }),
+  setAutoDismissDelay: (ms: number) => set({ autoDismissDelay: ms }),
 }));

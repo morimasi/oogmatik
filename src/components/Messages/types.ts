@@ -89,6 +89,10 @@ export interface MessagesState {
   notificationPrefs: NotificationPreferences;
   searchQuery: string;
   error: string | null;
+  // Deep linking & modal
+  highlightedMessageId: string | null;
+  isMessagesOpen: boolean;
+  autoDismissDelay: number; // ms, 0 = kapatma
 }
 
 export interface MessagesActions {
@@ -116,6 +120,10 @@ export interface MessagesActions {
   setSearchQuery: (query: string) => void;
   setError: (error: string | null) => void;
   resetMessages: () => void;
+  // Yeni action'lar
+  setHighlightedMessageId: (id: string | null) => void;
+  setIsMessagesOpen: (open: boolean) => void;
+  setAutoDismissDelay: (ms: number) => void;
 }
 
 export { Message, MessageFile, MessageQuote };
