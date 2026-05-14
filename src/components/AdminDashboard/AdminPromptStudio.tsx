@@ -79,8 +79,13 @@ export const AdminPromptStudio = () => {
   const [prompts, setPrompts] = useState<PromptTemplate[]>([]);
   const [selected, setSelected] = useState<PromptTemplate | null>(null);
   const [snippets, setSnippets] = useState<PromptSnippet[]>([]);
+  const [loading, setLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<'editor' | 'history' | 'simulation'>('editor');
+
+  // Simulation states (A/B testing but simplified in this modle)
+  const [, setSimA] = useState({ result: '' });
+  const [, setSimB] = useState({ result: '' });
 
   useEffect(() => {
     loadData();

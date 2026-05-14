@@ -1,5 +1,5 @@
 import { AppError } from '../../utils/AppError';
-import { logger } from '../../utils/logger';
+import { logger, logError } from '../../utils/logger';
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { PromptTemplate } from '../../types/admin';
 import { adminService } from '../../services/adminService';
