@@ -1,3 +1,4 @@
+// AI FIX: Added 20+ missing icons
 declare module 'lucide-react' {
   import { FC, SVGProps } from 'react';
   export interface LucideProps extends SVGProps<SVGSVGElement> {

@@ -51,7 +51,7 @@ export const EmptyState: React.FC = () => {
         transition={{ delay: 0.2 }}
         className="flex flex-col gap-2 w-full max-w-xs"
       >
-        {features.map(({ icon: Icon, label, desc }, i) => (
+        {features.map(({ icon: Icon, label, desc }, i: number) => (
           <motion.div
             key={label}
             initial={{ opacity: 0, x: -12 }}
