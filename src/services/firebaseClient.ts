@@ -2,6 +2,7 @@
 import { initializeApp, getApp, getApps } from "firebase/app";
 // @ts-ignore — same as above
 import { getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 import { logInfo, logWarn } from "../utils/logger.js";
 // @ts-ignore — same as above; all Firestore symbols imported in one block to cover the full statement
 import {
@@ -81,6 +82,8 @@ export const db = initializeFirestore(app, {
   localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
   experimentalAutoDetectLongPolling: true
 });
+
+export const storage = getStorage(app);
 
 export const checkDbConnection = async () => {
   return !!(firebaseConfig.apiKey && firebaseConfig.projectId);
