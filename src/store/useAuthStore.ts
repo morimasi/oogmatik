@@ -63,11 +63,48 @@ export const useAuthStore = create<AuthState>()(
                             if (currentUser) {
                                 set({ user: currentUser, isLoading: false });
                             } else {
-                                set({ isLoading: false });
+                                // Kritik hata: Firestore okunamadı ama auth var. Güvenli fallback.
+                                console.warn("Firestore'dan kullanıcı okunamadı, fallback nesnesi oluşturuluyor.");
+                                const safeUser: User = {
+                                    id: firebaseUser.uid,
+                                    email: firebaseUser.email || '',
+                                    name: firebaseUser.displayName || 'Kullanıcı',
+                                    role: 'user',
+                                    avatar: firebaseUser.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${firebaseUser.email}`,
+                                    createdAt: new Date().toISOString(),
+                                    lastLogin: new Date().toISOString(),
+                                    worksheetCount: 0,
+                                    status: 'active',
+                                    subscriptionPlan: 'free',
+                                    favorites: [],
+                                    profession: '',
+                                    institution: '',
+                                    phone: '',
+                                    bio: ''
+                                };
+                                set({ user: safeUser, isLoading: false });
                             }
                         } catch (error) {
                             console.error("onAuthStateChanged currentUser hatası:", error);
-                            set({ user: null, isLoading: false });
+                            // Fallback nesnesi
+                            const fallbackUser: User = {
+                                id: firebaseUser.uid,
+                                email: firebaseUser.email || '',
+                                name: firebaseUser.displayName || 'Kullanıcı',
+                                role: 'user',
+                                avatar: firebaseUser.photoURL || '',
+                                createdAt: new Date().toISOString(),
+                                lastLogin: new Date().toISOString(),
+                                worksheetCount: 0,
+                                status: 'active',
+                                subscriptionPlan: 'free',
+                                favorites: [],
+                                profession: '',
+                                institution: '',
+                                phone: '',
+                                bio: ''
+                            };
+                            set({ user: fallbackUser, isLoading: false });
                         }
                     } else {
                         set({ user: null, isLoading: false });
