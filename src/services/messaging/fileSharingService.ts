@@ -13,7 +13,7 @@ const ALLOWED_MIME_TYPES = [
   "video/mp4", "video/webm", "video/ogg",
   "text/plain", "text/csv",
 ];
-const MAX_FILE_SIZE_MB = 10;
+const MAX_FILE_SIZE_MB = 25;
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 
 const UPLOAD_TIMEOUT_MS = 20000;
