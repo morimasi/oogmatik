@@ -89,27 +89,18 @@ export const authService = {
     loginWithGoogle: async (): Promise<void> => {
         try {
             const provider = new GoogleAuthProvider();
-            // Google hesabını seçmesi için zorla (isteğe bağlı)
             provider.setCustomParameters({ prompt: 'select_account' });
-            
-            // Redirect yerine Popup kullanıyoruz
-            // Popup yöntemi, yönlendirme sonrası durum kayıplarını (Zustand) önler
+
+            // Önce popup dene, başarısız olursa redirect'e düş
             const { signInWithPopup } = await import("firebase/auth");
-            logInfo("Starting Google Login Popup...");
-            
             let result;
             try {
                 result = await signInWithPopup(auth, provider);
-            } catch (popupError: any) {
-                // COOP policy veya popup engelleyici durumunda Redirect'e düş
-                if (popupError.message?.includes('Cross-Origin-Opener-Policy') || 
-                    popupError.code === 'auth/popup-blocked') {
-                    logWarn("COOP/Popup engelleyici tespit edildi, Redirect yöntemine geçiliyor...");
-                    const { signInWithRedirect } = await import("firebase/auth");
-                    await signInWithRedirect(auth, provider);
-                    return;
-                }
-                throw popupError;
+            } catch {
+                // Popup engellenirse veya COOP/izin hatası alınırsa redirect'e geç
+                const { signInWithRedirect } = await import("firebase/auth");
+                await signInWithRedirect(auth, provider);
+                return;
             }
 
             const user = result.user;
