@@ -7,12 +7,12 @@ import {
     signOut, 
     updateProfile as updateAuthProfile,
     GoogleAuthProvider,
-    signInWithPopup
 } from "firebase/auth";
+import type { UserCredential } from "firebase/auth";
 import * as firestore from "firebase/firestore";
 import { User, UserRole, UserStatus, ActivityType } from '../types.js';
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logInfo, logError } from '../utils/logger.js';
 const { doc, getDoc, setDoc, updateDoc, collection, getDocs, query, orderBy, limit, deleteDoc, increment } = firestore;
 
 // SUPER ADMIN EMAIL - Hardcoded for security
@@ -86,67 +86,54 @@ export const authService = {
         }
     },
 
+    _handleGoogleUser: async (user: UserCredential['user']): Promise<void> => {
+        const userDocRef = doc(db, "users", user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (!userDocSnap.exists()) {
+            const newUserProfile = {
+                name: user.displayName || 'Google Kullanıcısı',
+                email: user.email,
+                role: user.email === SUPER_ADMIN_EMAIL ? 'superadmin' : 'user',
+                createdAt: new Date().toISOString(),
+                lastLogin: new Date().toISOString(),
+                avatar: user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`,
+                status: 'active',
+                subscriptionPlan: 'free',
+                worksheetCount: 0,
+                favorites: [],
+                profession: '',
+                institution: '',
+                phone: '',
+                bio: ''
+            };
+            await setDoc(userDocRef, newUserProfile);
+        } else {
+            await updateDoc(userDocRef, { lastLogin: new Date().toISOString() });
+        }
+    },
+
     loginWithGoogle: async (): Promise<void> => {
         try {
             const provider = new GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
 
-            // Önce popup dene, başarısız olursa redirect'e düş
-            const { signInWithPopup } = await import("firebase/auth");
-            let result;
-            try {
-                result = await signInWithPopup(auth, provider);
-            } catch {
-                // Popup engellenirse veya COOP/izin hatası alınırsa redirect'e geç
-                const { signInWithRedirect } = await import("firebase/auth");
-                await signInWithRedirect(auth, provider);
+            const { signInWithRedirect, getRedirectResult } = await import("firebase/auth");
+
+            // Redirect'ten dönüldüyse sonucu işle
+            const redirectResult = await getRedirectResult(auth);
+            if (redirectResult?.user) {
+                await authService._handleGoogleUser(redirectResult.user);
                 return;
             }
 
-            const user = result.user;
-            
-            const userDocRef = doc(db, "users", user.uid);
-            const userDocSnap = await getDoc(userDocRef);
-
-            if (!userDocSnap.exists()) {
-                const newUserProfile = {
-                    name: user.displayName || 'Google Kullanıcısı',
-                    email: user.email,
-                    role: user.email === SUPER_ADMIN_EMAIL ? 'superadmin' : 'user',
-                    createdAt: new Date().toISOString(),
-                    lastLogin: new Date().toISOString(),
-                    avatar: user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`,
-                    status: 'active',
-                    subscriptionPlan: 'free',
-                    worksheetCount: 0,
-                    favorites: [],
-                    profession: '',
-                    institution: '',
-                    phone: '',
-                    bio: ''
-                };
-                await setDoc(userDocRef, newUserProfile);
-            } else {
-                await updateDoc(userDocRef, {
-                    lastLogin: new Date().toISOString()
-                });
-            }
+            // İlk defa — Google'a yönlendir
+            await signInWithRedirect(auth, provider);
         } catch (error: any) {
-            // Kullanıcı iptallerini filtrele
-            if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled') {
-                logInfo('Google girişi kullanıcı tarafından iptal edildi');
-                return;
-            }
-            
-            logError("Google login error details:", {
-                code: error.code,
-                message: error.message
-            });
+            logError("Google login error:", { code: error.code, message: error.message });
             throw new AppError(`Google ile giriş başlatılamadı: ${error.message}`, 'INTERNAL_ERROR', 500);
         }
     },
-
-    // Yönlendirme sonrası sonucu işlemek için yeni metod
     handleRedirectResult: async (): Promise<User | null> => {
         try {
             const { getRedirectResult } = await import("firebase/auth");
