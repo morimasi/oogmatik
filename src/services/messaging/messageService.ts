@@ -263,4 +263,40 @@ export const messageService = {
       return [];
     }
   },
+
+  /**
+   * Bir sohbetin tüm mesajlarını kullanıcı için temizler (Toplu Soft-Delete)
+   */
+  clearConversation: async (conversationId: string): Promise<void> => {
+    try {
+      const q = query(collection(db, CONVERSATIONS_COLLECTION, conversationId, MESSAGES_SUB_COLLECTION));
+      const snapshot = await getDocs(q);
+      
+      if (snapshot.empty) return;
+
+      const batch = writeBatch(db);
+      snapshot.docs.forEach((messageDoc) => {
+        batch.update(messageDoc.ref, {
+          isDeleted: true,
+          deletedAt: Timestamp.now(),
+          text: "Sohbet temizlendi."
+        });
+      });
+
+      await batch.commit();
+
+      // Son mesajı da temizle
+      const convRef = doc(db, CONVERSATIONS_COLLECTION, conversationId);
+      await updateDoc(convRef, {
+        lastMessage: {
+          id: 'cleared',
+          text: 'Sohbet temizlendi.',
+          senderId: 'system',
+          createdAt: Timestamp.now()
+        }
+      });
+    } catch (error) {
+      throw toAppError(error, "Sohbet temizlenirken hata oluştu.", "MSG_CLEAR_ERR");
+    }
+  },
 };
