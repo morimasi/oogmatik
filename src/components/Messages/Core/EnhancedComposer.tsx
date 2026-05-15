@@ -38,7 +38,7 @@ export const EnhancedComposer: React.FC = () => {
           senderId: user.id,
           type: pendingAttachment ? 'file' : 'text',
           text: text.trim(),
-          attachments: pendingAttachment ? [pendingAttachment as IAttachment] : [],
+          attachments: pendingAttachment ? [{ ...pendingAttachment, id: `att-${Date.now()}` } as IAttachment] : [],
           threadId: activeThreadId || undefined,
           quoteData: quotingMessage
             ? { messageId: quotingMessage.id, originalSenderId: quotingMessage.senderId, originalSenderName: senderName, originalText: quotingMessage.text || 'Dosya' }
