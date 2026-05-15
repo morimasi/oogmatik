@@ -44,7 +44,25 @@ export const useAuthStore = create<AuthState>()(
                             }
                         } catch (error) {
                             console.error("Redirect işleme hatası (Firestore vb):", error);
-                            set({ user: null, isLoading: false });
+                            // Kritik hata fallback: Kullanıcı giriş yaptı ama Firestore çöktü.
+                            const safeUser: User = {
+                                id: result.user.uid,
+                                email: result.user.email || '',
+                                name: result.user.displayName || 'Kullanıcı',
+                                role: 'user',
+                                avatar: result.user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${result.user.email}`,
+                                createdAt: new Date().toISOString(),
+                                lastLogin: new Date().toISOString(),
+                                worksheetCount: 0,
+                                status: 'active',
+                                subscriptionPlan: 'free',
+                                favorites: [],
+                                profession: '',
+                                institution: '',
+                                phone: '',
+                                bio: ''
+                            };
+                            set({ user: safeUser, isLoading: false });
                         } finally {
                             isRedirectProcessing = false;
                         }
