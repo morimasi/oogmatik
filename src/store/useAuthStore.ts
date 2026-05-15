@@ -27,54 +27,7 @@ export const useAuthStore = create<AuthState>()(
             isLoading: true,
 
             initialize: () => {
-                let isRedirectProcessing = false;
-
-                // Redirect'ten döndüyse hemen işle
-                getRedirectResult(auth).then(async (result) => {
-                    if (result?.user) {
-                        isRedirectProcessing = true;
-                        try {
-                            // Önce Firestore'da kullanıcının oluşturulduğundan/var olduğundan emin ol
-                            await authService._handleGoogleUser(result.user);
-                            const currentUser = await authService.getCurrentUser();
-                            if (currentUser) {
-                                set({ user: currentUser, isLoading: false });
-                            } else {
-                                set({ user: null, isLoading: false });
-                            }
-                        } catch (error) {
-                            console.error("Redirect işleme hatası (Firestore vb):", error);
-                            // Kritik hata fallback: Kullanıcı giriş yaptı ama Firestore çöktü.
-                            const safeUser: User = {
-                                id: result.user.uid,
-                                email: result.user.email || '',
-                                name: result.user.displayName || 'Kullanıcı',
-                                role: 'user',
-                                avatar: result.user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${result.user.email}`,
-                                createdAt: new Date().toISOString(),
-                                lastLogin: new Date().toISOString(),
-                                worksheetCount: 0,
-                                status: 'active',
-                                subscriptionPlan: 'free',
-                                favorites: [],
-                                profession: '',
-                                institution: '',
-                                phone: '',
-                                bio: ''
-                            };
-                            set({ user: safeUser, isLoading: false });
-                        } finally {
-                            isRedirectProcessing = false;
-                        }
-                    }
-                }).catch((error) => {
-                    console.error("getRedirectResult hatası:", error);
-                    set({ isLoading: false });
-                });
-
                 const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-                    if (isRedirectProcessing) return;
-
                     if (firebaseUser) {
                         try {
                             const currentUser = await authService.getCurrentUser();
@@ -125,6 +78,7 @@ export const useAuthStore = create<AuthState>()(
                             set({ user: fallbackUser, isLoading: false });
                         }
                     } else {
+                        // Çıkış yapılmışsa
                         set({ user: null, isLoading: false });
                     }
                 });

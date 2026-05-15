@@ -118,20 +118,21 @@ export const authService = {
             const provider = new GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
 
-            const { signInWithRedirect, getRedirectResult } = await import("firebase/auth");
+            const { signInWithPopup } = await import("firebase/auth");
 
-            // Önce redirect'ten dönüldüyse sonucu işle
-            const redirectResult = await getRedirectResult(auth);
-            if (redirectResult?.user) {
-                await authService._handleGoogleUser(redirectResult.user);
-                return;
+            // Sadece Popup kullan (Redirect Vercel'da çerez/domain sorunlarına yol açar)
+            const result = await signInWithPopup(auth, provider);
+            if (result?.user) {
+                await authService._handleGoogleUser(result.user);
             }
-
-            // COOP engelleri ve cross-origin güvenlik sorunlarını aşmak için direkt redirect kullan
-            await signInWithRedirect(auth, provider);
         } catch (error: any) {
             logError("Google login error:", { code: error.code, message: error.message });
-            throw new AppError(`Google ile giriş başlatılamadı: ${error.message}`, 'INTERNAL_ERROR', 500);
+            
+            if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled') {
+                throw new AppError("Giriş işlemi sizin tarafınızdan iptal edildi.", 'CANCELLED', 400);
+            }
+            
+            throw new AppError(`Google ile giriş yapılamadı: ${error.message}`, 'INTERNAL_ERROR', 500);
         }
     },
     handleRedirectResult: async (): Promise<User | null> => {
