@@ -27,46 +27,46 @@ export const useAuthStore = create<AuthState>()(
             isLoading: true,
 
             initialize: () => {
+                let isRedirectProcessing = false;
+
                 // Redirect'ten döndüyse hemen işle (dynamic import gecikmesiz)
                 getRedirectResult(auth).then(async (result) => {
                     if (result?.user) {
+                        isRedirectProcessing = true;
                         try {
-                            const userDocRef = (await import('../services/firebaseClient')).doc(
-                                (await import('../services/firebaseClient')).db, "users", result.user.uid
-                            );
-                            const userDocSnap = await (await import('../services/firebaseClient')).getDoc(userDocRef);
-                            if (userDocSnap.exists()) {
-                                const mapped = {
-                                    id: result.user.uid,
-                                    email: result.user.email || '',
-                                    ...userDocSnap.data(),
-                                } as User;
-                                set({ user: mapped, isLoading: false });
+                            // Önce Firestore'da kullanıcının oluşturulduğundan/var olduğundan emin ol
+                            await authService._handleGoogleUser(result.user);
+                            const currentUser = await authService.getCurrentUser();
+                            if (currentUser) {
+                                set({ user: currentUser, isLoading: false });
                             }
                         } catch {
-                            // Kullanıcı firestore'da yoksa redirect bunu halleder
+                            // Hata durumunda sessizce devam et
+                        } finally {
+                            isRedirectProcessing = false;
                         }
                     }
                 });
 
                 const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
+                    // Eğer redirect sonucu işleniyorsa, onAuthStateChanged'in durumu bozmasına izin verme
+                    if (isRedirectProcessing) return;
+
                     if (firebaseUser) {
                         try {
                             const currentUser = await authService.getCurrentUser();
                             if (currentUser) {
                                 set({ user: currentUser, isLoading: false });
                             } else {
-                                // Firestore'da kaydı yoksa redirectResult'tan oluşturulacak
+                                // Firestore'da kaydı yoksa ve redirect de çalışmıyorsa fallback user nesnesi ile devam et
                                 set({ isLoading: false });
                             }
                         } catch {
                             set({ user: null, isLoading: false });
                         }
                     } else {
-                        const { user } = get();
-                        if (!user) {
-                            set({ user: null, isLoading: false });
-                        }
+                        // Çıkış yapılmışsa
+                        set({ user: null, isLoading: false });
                     }
                 });
                 return unsubscribe;
