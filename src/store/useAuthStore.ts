@@ -29,7 +29,7 @@ export const useAuthStore = create<AuthState>()(
             initialize: () => {
                 let isRedirectProcessing = false;
 
-                // Redirect'ten döndüyse hemen işle (dynamic import gecikmesiz)
+                // Redirect'ten döndüyse hemen işle
                 getRedirectResult(auth).then(async (result) => {
                     if (result?.user) {
                         isRedirectProcessing = true;
@@ -39,17 +39,22 @@ export const useAuthStore = create<AuthState>()(
                             const currentUser = await authService.getCurrentUser();
                             if (currentUser) {
                                 set({ user: currentUser, isLoading: false });
+                            } else {
+                                set({ user: null, isLoading: false });
                             }
-                        } catch {
-                            // Hata durumunda sessizce devam et
+                        } catch (error) {
+                            console.error("Redirect işleme hatası (Firestore vb):", error);
+                            set({ user: null, isLoading: false });
                         } finally {
                             isRedirectProcessing = false;
                         }
                     }
+                }).catch((error) => {
+                    console.error("getRedirectResult hatası:", error);
+                    set({ isLoading: false });
                 });
 
                 const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-                    // Eğer redirect sonucu işleniyorsa, onAuthStateChanged'in durumu bozmasına izin verme
                     if (isRedirectProcessing) return;
 
                     if (firebaseUser) {
@@ -58,14 +63,13 @@ export const useAuthStore = create<AuthState>()(
                             if (currentUser) {
                                 set({ user: currentUser, isLoading: false });
                             } else {
-                                // Firestore'da kaydı yoksa ve redirect de çalışmıyorsa fallback user nesnesi ile devam et
                                 set({ isLoading: false });
                             }
-                        } catch {
+                        } catch (error) {
+                            console.error("onAuthStateChanged currentUser hatası:", error);
                             set({ user: null, isLoading: false });
                         }
                     } else {
-                        // Çıkış yapılmışsa
                         set({ user: null, isLoading: false });
                     }
                 });
