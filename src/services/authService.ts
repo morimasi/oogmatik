@@ -118,7 +118,7 @@ export const authService = {
             const provider = new GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
 
-            const { signInWithPopup, signInWithRedirect, getRedirectResult } = await import("firebase/auth");
+            const { signInWithRedirect, getRedirectResult } = await import("firebase/auth");
 
             // Önce redirect'ten dönüldüyse sonucu işle
             const redirectResult = await getRedirectResult(auth);
@@ -127,21 +127,8 @@ export const authService = {
                 return;
             }
 
-            // Popup ile dene (OAuth düzgün çalışıyorsa en güvenilir yöntem)
-            try {
-                const popupResult = await signInWithPopup(auth, provider);
-                if (popupResult?.user) {
-                    await authService._handleGoogleUser(popupResult.user);
-                    return;
-                }
-            } catch (popupErr: any) {
-                // Popup engellenirse redirect'e düş
-                if (popupErr.code === 'auth/popup-blocked' || popupErr.code === 'auth/popup-closed-by-user') {
-                    await signInWithRedirect(auth, provider);
-                    return;
-                }
-                throw popupErr;
-            }
+            // COOP engelleri ve cross-origin güvenlik sorunlarını aşmak için direkt redirect kullan
+            await signInWithRedirect(auth, provider);
         } catch (error: any) {
             logError("Google login error:", { code: error.code, message: error.message });
             throw new AppError(`Google ile giriş başlatılamadı: ${error.message}`, 'INTERNAL_ERROR', 500);
