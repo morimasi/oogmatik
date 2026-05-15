@@ -4,10 +4,11 @@ import { User } from '../types';
 import { authService } from '../services/authService';
 import { auth } from '../services/firebaseClient';
 // @ts-ignore
-import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
+import { onAuthStateChanged, getRedirectResult, User as FirebaseUser } from "firebase/auth";
 
 import { AppError } from '../utils/AppError.js';
 import { logError } from '../utils/logger.js';
+
 interface AuthState {
     user: User | null;
     isLoading: boolean;
@@ -26,10 +27,25 @@ export const useAuthStore = create<AuthState>()(
             isLoading: true,
 
             initialize: () => {
-                // Check if we're coming back from a Google Redirect
-                authService.handleRedirectResult().then(user => {
-                    if (user) {
-                        set({ user, isLoading: false });
+                // Redirect'ten döndüyse hemen işle (dynamic import gecikmesiz)
+                getRedirectResult(auth).then(async (result) => {
+                    if (result?.user) {
+                        try {
+                            const userDocRef = (await import('../services/firebaseClient')).doc(
+                                (await import('../services/firebaseClient')).db, "users", result.user.uid
+                            );
+                            const userDocSnap = await (await import('../services/firebaseClient')).getDoc(userDocRef);
+                            if (userDocSnap.exists()) {
+                                const mapped = {
+                                    id: result.user.uid,
+                                    email: result.user.email || '',
+                                    ...userDocSnap.data(),
+                                } as User;
+                                set({ user: mapped, isLoading: false });
+                            }
+                        } catch {
+                            // Kullanıcı firestore'da yoksa redirect bunu halleder
+                        }
                     }
                 });
 
@@ -37,19 +53,20 @@ export const useAuthStore = create<AuthState>()(
                     if (firebaseUser) {
                         try {
                             const currentUser = await authService.getCurrentUser();
-                            set({ user: currentUser, isLoading: false });
-                        } catch (e: unknown) {
-                            const appError = e instanceof AppError ? e : new AppError(
-                                'AuthStore initialize error',
-                                'AUTH_INIT_ERROR',
-                                500,
-                                { originalError: e }
-                            );
-                            logError(appError);
+                            if (currentUser) {
+                                set({ user: currentUser, isLoading: false });
+                            } else {
+                                // Firestore'da kaydı yoksa redirectResult'tan oluşturulacak
+                                set({ isLoading: false });
+                            }
+                        } catch {
                             set({ user: null, isLoading: false });
                         }
                     } else {
-                        set({ user: null, isLoading: false });
+                        const { user } = get();
+                        if (!user) {
+                            set({ user: null, isLoading: false });
+                        }
                     }
                 });
                 return unsubscribe;
@@ -63,7 +80,6 @@ export const useAuthStore = create<AuthState>()(
             loginWithGoogle: async () => {
                 set({ isLoading: true });
                 await authService.loginWithGoogle();
-                // Sayfa yönleneceği için set({ user }) burada çağrılmaz
             },
 
             register: async (email: string, pass: string, name: string) => {
@@ -85,7 +101,7 @@ export const useAuthStore = create<AuthState>()(
         }),
         {
             name: 'auth-storage',
-            partialize: (state) => ({ user: state.user }) as any,
+            partialize: (state) => ({ user: state.user }),
         }
     )
 );
