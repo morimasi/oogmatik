@@ -43,6 +43,7 @@ export type PermissionModule =
   | 'evaluation'
   | 'planning'
   | 'bep'
+  | 'kelime-cumle'
   | 'settings';
 
 // ─── Category Permission ──────────────────────────────────────────

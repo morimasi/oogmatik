@@ -11,7 +11,7 @@ export const KelimeCumleRenderer: React.FC<KelimeCumleRendererProps> = ({ data }
 
   // data can be an object with items and activityType
   const activityType = data.activityType || 'bosluk_doldurma';
-  const activityInfo = (KELIME_CUMLE_REGISTRY as any)[activityType] || KELIME_CUMLE_REGISTRY.bosluk_doldurma;
+  const activityInfo = (KELIME_CUMLE_REGISTRY as Record<string, any>)[activityType] || KELIME_CUMLE_REGISTRY.bosluk_doldurma;
   const Renderer = activityInfo.renderer;
 
   return (

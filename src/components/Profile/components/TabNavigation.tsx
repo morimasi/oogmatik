@@ -4,15 +4,17 @@ import { PROFILE_TABS, ProfileTabId } from '../constants';
 interface TabNavigationProps {
   activeTab: ProfileTabId;
   onTabChange: (tab: ProfileTabId) => void;
+  allowedTabs: any[];
 }
 
 export const TabNavigation: React.FC<TabNavigationProps> = ({
   activeTab,
   onTabChange,
+  allowedTabs,
 }) => {
   return (
     <div className="flex gap-1 p-1 bg-[var(--bg-secondary)] rounded-2xl">
-      {PROFILE_TABS.map((tab) => (
+      {allowedTabs.map((tab) => (
         <button
           key={tab.id}
           onClick={() => onTabChange(tab.id)}

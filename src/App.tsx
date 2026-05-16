@@ -1069,7 +1069,11 @@ const AppContent = () => {
                         />
                       </ProtectedRoute>
                     )}
-                    {currentView === 'super-turkce' && <SuperStudio />}
+                    {currentView === 'super-turkce' && (
+                      <ProtectedRoute module="super-studio" onBack={handleGoBack}>
+                        <SuperStudio />
+                      </ProtectedRoute>
+                    )}
                     {currentView === 'activity-studio' && (
                       <ProtectedRoute module="activity-studio" onBack={handleGoBack}>
                         <ActivityStudio
@@ -1138,22 +1142,30 @@ const AppContent = () => {
                       </ProtectedRoute>
                     )}
                     {currentView === 'mat-sinav-studyosu' && (
-                      <MatSinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />
+                      <ProtectedRoute module="math-studio" onBack={handleGoBack}>
+                        <MatSinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />
+                      </ProtectedRoute>
                     )}
                     {currentView === 'sari-kitap-studio' && (
-                      <SariKitapStudio
-                        onBack={handleGoBack}
-                        onAddToWorkbook={handleAddToWorkbookGeneral as any}
-                      />
+                      <ProtectedRoute module="sari-kitap" onBack={handleGoBack}>
+                        <SariKitapStudio
+                          onBack={handleGoBack}
+                          onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                        />
+                      </ProtectedRoute>
                     )}
                     {currentView === 'kelime-cumle-studio' && (
-                      <KelimeCumleStudio
-                        onBack={handleGoBack}
-                        onAddToWorkbook={handleAddToWorkbookGeneral as any}
-                      />
+                      <ProtectedRoute module="kelime-cumle" onBack={handleGoBack}>
+                        <KelimeCumleStudio
+                          onBack={handleGoBack}
+                          onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                        />
+                      </ProtectedRoute>
                     )}
                     {currentView === 'messages' && (
-                      <MessagingModule />
+                      <ProtectedRoute module="messaging" onBack={handleGoBack}>
+                        <MessagingModule />
+                      </ProtectedRoute>
                     )}
                   </Suspense>
                 </motion.div>

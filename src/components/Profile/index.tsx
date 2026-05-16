@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ProfileData } from '../../types/profile';
 import { Student } from '../../types';
-import { ProfileTabId } from './constants';
+import { ProfileTabId, PROFILE_TABS } from './constants';
 import { ProfileHeader } from './components/ProfileHeader';
 import { TabNavigation } from './components/TabNavigation';
 import { OverviewModule } from './modules/OverviewModule';
@@ -11,6 +11,8 @@ import { PlansModule } from './modules/PlansModule';
 import { ReportsModule } from './modules/ReportsModule';
 import { SettingsModule } from './modules/SettingsModule';
 import { useStudentStore } from '../../store/useStudentStore';
+import { useRBAC } from '../../hooks/useRBAC';
+import { PermissionModule } from '../../types/rbac';
 
 interface ProfileProps {
   data: ProfileData;
@@ -39,6 +41,21 @@ export const Profile: React.FC<ProfileProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<ProfileTabId>('overview');
   const { setActiveStudent: setActiveStudentInStore } = useStudentStore();
+  const { canAccess } = useRBAC();
+
+  const tabPermissions: Record<ProfileTabId, PermissionModule | null> = {
+    overview: null, // Always allowed
+    students: 'students',
+    analysis: 'analytics',
+    plans: 'planning',
+    reports: 'reports',
+    settings: 'settings',
+  };
+
+  const allowedTabs = PROFILE_TABS.filter((tab: { id: ProfileTabId }) => {
+    const perm = tabPermissions[tab.id];
+    return !perm || canAccess(perm);
+  });
 
   const renderActiveModule = () => {
     switch (activeTab) {
@@ -110,6 +127,7 @@ export const Profile: React.FC<ProfileProps> = ({
         <TabNavigation
           activeTab={activeTab}
           onTabChange={setActiveTab}
+          allowedTabs={allowedTabs}
         />
       </div>
 

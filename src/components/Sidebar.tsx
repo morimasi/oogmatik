@@ -111,9 +111,11 @@ const Sidebar = ({
       'math': 'math-studio',
       'sinav-studyosu': 'sinav-studyosu',
       'mat-sinav-studyosu': 'math-studio',
-      'super-turkce': 'activity-studio',
+      'super-turkce': 'super-studio',
       'activity-studio': 'activity-studio',
       'infographic-studio': 'infographic-studio',
+      'sari-kitap-studio': 'sari-kitap',
+      'kelime-cumle-studio': 'kelime-cumle',
       'ocr': 'ocr',
     };
 

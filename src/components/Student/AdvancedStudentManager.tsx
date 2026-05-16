@@ -12,6 +12,8 @@ import { BehaviorModule } from './modules/BehaviorModule';
 import { SettingsModule } from './modules/SettingsModule';
 import { StudentSelector } from './StudentSelector';
 import { AIInsightsModule } from './modules/AIInsightsModule';
+import { useRBAC } from '../../hooks/useRBAC';
+import { PermissionModule } from '../../types/rbac';
 
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
 // Icons mapping for sub-modules
@@ -130,7 +132,24 @@ export const AdvancedStudentManager: React.FC<{
 }> = ({ onBack, onLoadMaterial }) => {
   const { activeStudent, students, setActiveStudent, updateStudent } = useStudentStore();
   const [selectedModule, setSelectedModule] = useState('overview');
-  const [visibleModules] = useState<string[]>(Object.keys(MODULE_ICONS));
+  const { canAccess } = useRBAC();
+
+  const modulePermissions: Record<string, PermissionModule | null> = {
+    overview: null,
+    ai_insights: 'analytics',
+    iep: 'bep',
+    academic: 'reports',
+    portfolio: 'workbook',
+    behavior: 'reports',
+    financial: 'evaluation',
+    attendance: 'reports',
+    settings: 'settings',
+  };
+
+  const visibleModules = Object.keys(MODULE_ICONS).filter(key => {
+    const perm = modulePermissions[key];
+    return !perm || canAccess(perm);
+  });
 
   const handleStudentUpdate = async (updates: Partial<AdvancedStudent>) => {
     if (!activeStudent) return;

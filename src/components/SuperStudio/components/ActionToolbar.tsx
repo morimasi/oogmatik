@@ -52,7 +52,7 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = ({ onAddToWorkbook })
         content.templateId as ActivityType,
         worksheetData,
         'fa-solid fa-wand-magic-sparkles',
-        { id: 'super-turkce', title: 'Süper Türkçe' },
+        { id: 'reading-comprehension', title: 'Okuduğunu Anlama' },
         undefined,
         undefined,
         'default-student'
@@ -68,7 +68,7 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = ({ onAddToWorkbook })
     if (generatedContents.length === 0 || !onAddToWorkbook) return;
     
     const content = generatedContents[0];
-    const pages = content.pages.map(page => ({
+    const pages = content.pages.map((page: any) => ({
         ...page,
         activityType: content.templateId,
         isSuperStudio: true

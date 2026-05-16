@@ -54,7 +54,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
             try {
                 const newContent = await generateAI(config);
                 setContent(newContent);
-            } catch (e) {
+            } catch (e: any) {
                 logError(e);
             }
         }
@@ -132,7 +132,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
                 activityType,
                 worksheetData,
                 activityInfo.icon || 'fa-solid fa-file',
-                { id: 'kelime-cumle', title: 'Kelime-Cümle Stüdyosu' },
+                { id: 'reading-verbal', title: 'Okuma & Dil' },
                 undefined, // styleSettings
                 undefined, // studentProfile
                 undefined  // studentId
@@ -144,8 +144,8 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
             }
 
             showToast(`✅ "${name}" adıyla arşive kaydedildi!`);
-        } catch (error) {
-            logError('Arşive kaydetme hatası:', error);
+        } catch (error: any) {
+            logError('Arşive kaydetme hatası:', error as Record<string, unknown>);
             showToast('❌ Arşive kaydedilirken bir hata oluştu');
         }
     };
