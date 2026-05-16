@@ -101,7 +101,7 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
                     }
                 }],
                 '📒',
-                { id: 'hizli-okuma', title: 'Hızlı Okuma' }
+                { id: 'reading-verbal', title: 'Okuma & Dil' }
             );
             toast.success('Etkinlik başarıyla kaydedildi!');
         } catch (err: any) {
@@ -139,7 +139,7 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
                     }
                 }],
                 '📒',
-                { id: 'hizli-okuma', title: 'Hızlı Okuma' }
+                { id: 'reading-verbal', title: 'Okuma & Dil' }
             );
 
             // Kaydedilen çalışmayı yetkilendirerek paylaş

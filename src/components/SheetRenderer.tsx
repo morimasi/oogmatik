@@ -202,6 +202,8 @@ import ExamRenderer from './sheet-renderers/ExamRenderer';
 import { MathStudioRenderer } from './sheet-renderers/MathStudioRenderer';
 import { SuperStudioRenderer } from './sheet-renderers/SuperStudioRenderer';
 import { KelimeCumleRenderer } from './sheet-renderers/KelimeCumleRenderer';
+import { SariKitapRenderer } from './sheet-renderers/SariKitapRenderer';
+import { InfographicRenderer } from './sheet-renderers/InfographicRenderer';
 import { PedagogicalHeader, ImageDisplay } from './sheets/common';
 
 import { EditableText } from './Editable';
@@ -1301,12 +1303,14 @@ export const SheetRenderer = React.memo(
 
     // Sınav Stüdyosu çıktıları (Daha esnek kontrol)
     if (activityType === ActivityType.SINAV || activityType === ActivityType.MAT_SINAV) {
-      const sinav = data as any;
+      const rawData = Array.isArray(data) ? data[0] : (data.items ? data.items[0] : data);
+      const sinav = rawData as any;
       if (sinav && (sinav.sorular || sinav.baslik)) {
         return withWrapper(
           <ExamRenderer
             examType={activityType === ActivityType.MAT_SINAV ? "matematik" : "turkce"}
             data={sinav}
+            settings={settings}
           />
         );
       }
@@ -1347,6 +1351,14 @@ export const SheetRenderer = React.memo(
 
     if (activityType === ActivityType.KELIME_CUMLE && data) {
       return withWrapper(<KelimeCumleRenderer data={data as any} settings={settings} />);
+    }
+
+    if (activityType === ActivityType.SARI_KITAP_STUDIO && data) {
+      return withWrapper(<SariKitapRenderer data={data as any} settings={settings} />);
+    }
+
+    if (activityType === ActivityType.INFOGRAPHIC_STUDIO && data) {
+      return withWrapper(<InfographicRenderer data={data as any} settings={settings} />);
     }
 
 

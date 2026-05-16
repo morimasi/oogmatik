@@ -7,14 +7,17 @@ interface SuperStudioRendererProps {
 }
 
 export const SuperStudioRenderer: React.FC<SuperStudioRendererProps> = ({ data }) => {
-  if (!data) return null;
+  // Robust unwrapping: if data is a worksheet block wrapper, get its items/content
+  const rawData = Array.isArray(data) ? data[0] : (data.items ? data.items[0] : data);
+  if (!rawData) return null;
 
-  // data can be a single page or an array of pages
-  const pages = Array.isArray(data) ? data : [data];
+  // data can be a single page, an array of pages, or a wrapper object
+  const pages = Array.isArray(rawData.content) ? rawData.content : 
+                (Array.isArray(rawData) ? rawData : [rawData]);
 
   return (
     <>
-      {pages.map((page, idx) => (
+      {pages.map((page: any, idx: number) => (
         <div 
           key={idx}
           className="print-page a4-page super-turkce-rendered-page"

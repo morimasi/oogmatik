@@ -12,6 +12,9 @@ import { LayoutItem } from '../../types';
 import { StylePanel } from './Editor/StylePanel';
 
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { worksheetService } from '../../services/worksheetService';
+import { toast } from 'react-hot-toast';
+import { useAuthStore } from '../../store/useAuthStore';
 import { ActivityType } from '../../types/activity';
 interface ReadingStudioInnerProps {
   onBack: () => void;
@@ -35,6 +38,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
     canRedo,
     recalculateLayout
   } = useReadingStore();
+  const user = useAuthStore((state: any) => state.user);
 
   const [sidebarTab, setSidebarTab] = useState(
     'production' as 'production' | 'library' | 'styling' | 'content' | 'archive'
@@ -169,7 +173,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
       setSelectedId(null);
       setDesignMode(false);
     } catch (e) {
-      logError(e);
+      logError(e as any);
       alert('Hata oluştu. Lütfen tekrar deneyin.');
     } finally {
       setIsLoading(false);
@@ -181,7 +185,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
       await new Promise((resolve) => setTimeout(resolve, 50));
       await printService.generatePdf('#canvas-root', 'Hikaye', { action });
     } catch (e) {
-      logError(e);
+      logError(e as any);
     }
   };
 
@@ -193,6 +197,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
     // Reading Studio verisini standardize et
     const workbookData = {
       title: storyData?.title || config.topic || 'Okuma Etkinliği',
+      instruction: 'Hikayeyi dikkatlice okuyunuz ve soruları cevaplayınız.',
       layout: layout,
       storyData: storyData,
       config: config
@@ -200,25 +205,31 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
     onAddToWorkbook(ActivityType.STORY_COMPREHENSION, workbookData);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (!user) {
+      toast.error('Kaydetmek için giriş yapmalısınız.');
+      return;
+    }
     try {
-      const data = localStorage.getItem('reading_studio_archive');
-      const archive = data ? JSON.parse(data) : [];
-      const newProject = {
-        id: `proj_${Date.now()}`,
+      const workbookData = {
         title: storyData?.title || config.topic || 'İsimsiz Çalışma',
-        date: new Date().toISOString(),
-        config,
-        storyData,
-        layout,
-        layoutCount: layout.length,
+        instruction: 'Hikayeyi dikkatlice okuyunuz ve soruları cevaplayınız.',
+        layout: layout,
+        storyData: storyData,
+        config: config
       };
-      archive.push(newProject);
-      localStorage.setItem('reading_studio_archive', JSON.stringify(archive));
-      window.dispatchEvent(new Event('reading_studio_saved'));
-      alert('Çalışmanız başarıyla arşive kaydedildi.');
+
+      await worksheetService.saveWorksheet(
+        user.id,
+        storyData?.title || config.topic || 'İsimsiz Çalışma',
+        ActivityType.STORY_COMPREHENSION,
+        [workbookData],
+        'fa-solid fa-book-open',
+        { id: 'reading-comprehension', title: 'Okuduğunu Anlama' }
+      );
+      toast.success('Çalışmanız başarıyla arşive kaydedildi.');
     } catch (_e) {
-      alert('Kaydetme başarısız oldu.');
+      toast.error('Kaydetme başarısız oldu.');
     }
   };
 

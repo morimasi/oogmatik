@@ -196,7 +196,7 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
                 ActivityType.MAT_SINAV,
                 [worksheetData],
                 'fa-solid fa-square-root-variable',
-                { id: 'matematik', title: 'Matematik' },
+                { id: 'math-logic', title: 'Matematik & Mantık' },
             ).then(() => {
                 showSuccess('✅ Sınav arşive kaydedildi!');
             }).catch((err: unknown) => {

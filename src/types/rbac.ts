@@ -33,6 +33,8 @@ export type PermissionModule =
   | 'planning'
   | 'bep'
   | 'kelime-cumle'
+  | 'super-turkce'
+  | 'archive'
   | 'settings';
 
 export interface CategoryPermission {

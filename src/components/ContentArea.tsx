@@ -23,6 +23,7 @@ import { SkeletonLoader } from './SkeletonLoader';
 import { FavoritesSection } from './FavoritesSection';
 import { ShareModal } from './ShareModal';
 import { WorkbookView } from './WorkbookView';
+import { ProtectedRoute } from './ProtectedRoute';
 import { useAppStore } from '../store/useAppStore';
 import { useWorksheetStore } from '../store/useWorksheetStore';
 import { usePaperSizeStore } from '../store/usePaperSizeStore';
@@ -409,15 +410,19 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             ) : (
               <div className={`w-full h-full ${currentView === 'workbook' ? '' : 'p-8 max-w-7xl'}`}>
                 {currentView === 'savedList' ? (
-                  <SavedWorksheetsView onLoad={onLoadSaved} onBack={onBackToGenerator} />
+                  <ProtectedRoute module="archive" onBack={onBackToGenerator}>
+                    <SavedWorksheetsView onLoad={onLoadSaved} onBack={onBackToGenerator} />
+                  </ProtectedRoute>
                 ) : currentView === 'workbook' ? (
-                  <WorkbookView
-                    items={workbookItems}
-                    setItems={setWorkbookItems}
-                    settings={workbookSettings}
-                    setSettings={setWorkbookSettings}
-                    onBack={onBackToGenerator}
-                  />
+                  <ProtectedRoute module="workbook" onBack={onBackToGenerator}>
+                    <WorkbookView
+                      items={workbookItems}
+                      setItems={setWorkbookItems}
+                      settings={workbookSettings}
+                      setSettings={setWorkbookSettings}
+                      onBack={onBackToGenerator}
+                    />
+                  </ProtectedRoute>
                 ) : currentView === 'favorites' ? (
                   <FavoritesSection
                     onSelectActivity={onSelectActivity!}

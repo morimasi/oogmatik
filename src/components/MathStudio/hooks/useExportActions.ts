@@ -50,14 +50,14 @@ export const useExportActions = (deps: ExportDeps) => {
                 'MATH_STUDIO' as ActivityType,
                 [data],
                 'fa-solid fa-calculator',
-                { id: 'math-logic', title: 'Matematik' },
+                { id: 'math-logic', title: 'Matematik & Mantık' },
                 undefined,
                 undefined,
                 sid
             );
             return { success: true };
         } catch (e) {
-            logError(e);
+            logError(e as any);
             return { success: false, error: "Kaydetme hatası." };
         } finally {
             setIsSaving(false);
@@ -89,7 +89,7 @@ export const useExportActions = (deps: ExportDeps) => {
             await new Promise(resolve => setTimeout(resolve, 50));
             await printService.generatePdf('#math-canvas-container .math-canvas-page', deps.pageConfig.title, { action });
         } catch (e) {
-            logError(e);
+            logError(e as any);
         } finally {
             setIsPrinting(false);
         }

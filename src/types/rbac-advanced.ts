@@ -44,6 +44,8 @@ export type PermissionModule =
   | 'planning'
   | 'bep'
   | 'kelime-cumle'
+  | 'super-turkce'
+  | 'archive'
   | 'settings';
 
 // ─── Category Permission ──────────────────────────────────────────
@@ -409,6 +411,41 @@ export const buildDefaultRBAC = (): RBACSettings => {
                 allowedRoles: ['teacher', 'user', 'student'],
               },
             ],
+          },
+          {
+            module: 'sinav-studyosu',
+            enabled: true,
+            actions: ['view', 'create', 'edit', 'export', 'assign'],
+          },
+          {
+            module: 'super-studio',
+            enabled: true,
+            actions: ['view', 'create', 'edit', 'export', 'assign'],
+          },
+          {
+            module: 'super-turkce',
+            enabled: true,
+            actions: ['view', 'create', 'edit', 'export', 'assign'],
+          },
+          {
+            module: 'sari-kitap',
+            enabled: true,
+            actions: ['view', 'create', 'edit', 'export', 'assign'],
+          },
+          {
+            module: 'kelime-cumle',
+            enabled: true,
+            actions: ['view', 'create', 'edit', 'export', 'assign'],
+          },
+          {
+            module: 'creative-studio',
+            enabled: true,
+            actions: ['view', 'create', 'edit', 'export', 'assign'],
+          },
+          {
+            module: 'archive',
+            enabled: true,
+            actions: ['view', 'create', 'edit', 'delete', 'export', 'assign'],
           },
           {
             module: 'screening',

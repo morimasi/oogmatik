@@ -10,12 +10,14 @@ interface MathStudioRendererProps {
 }
 
 export const MathStudioRenderer: React.FC<MathStudioRendererProps> = ({ data, settings }) => {
-  if (!data) return null;
+  // Robust data unwrapping (Archive data is often wrapped in an array)
+  const item = Array.isArray(data) ? data[0] : (data.items ? data.items[0] : data);
+  if (!item) return null;
 
-  const mode = data.mode as MathMode;
-  const config = data.config;
-  const pageConfig = data.pageConfig as MathPageConfig;
-  const items = data.items || [];
+  const mode = item.mode as MathMode || (item.content?.mode as MathMode);
+  const config = item.config || item.content?.config;
+  const pageConfig = (item.pageConfig || item.content?.pageConfig) as MathPageConfig;
+  const items = item.items || item.content?.items || [];
 
   const themeConfig: ThemeConfig = DEFAULT_THEME_CONFIG;
 

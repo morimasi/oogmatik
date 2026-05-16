@@ -208,7 +208,7 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook })
         ActivityType.SINAV,
         [worksheetData],
         'fa-solid fa-file-lines',
-        { id: 'turkce', title: 'Türkçe' },
+        { id: 'reading-comprehension', title: 'Okuduğunu Anlama' },
       ).then(() => {
         showSuccess('✅ Sınav arşive kaydedildi!');
       }).catch((err: unknown) => {
