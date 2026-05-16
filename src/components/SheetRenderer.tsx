@@ -199,6 +199,9 @@ import { BrainTeasersSheet } from './sheets/logic/BrainTeasersSheet';
 import { BoxMathSheet } from './sheets/math/BoxMathSheet';
 import { QueueOrderingSheet } from './sheet-renderers/QueueOrderingSheet';
 import ExamRenderer from './sheet-renderers/ExamRenderer';
+import { MathStudioRenderer } from './sheet-renderers/MathStudioRenderer';
+import { SuperStudioRenderer } from './sheet-renderers/SuperStudioRenderer';
+import { KelimeCumleRenderer } from './sheet-renderers/KelimeCumleRenderer';
 import { PedagogicalHeader, ImageDisplay } from './sheets/common';
 
 import { EditableText } from './Editable';
@@ -1334,12 +1337,16 @@ export const SheetRenderer = React.memo(
       return withWrapper(<ShortAnswerSheet data={(data as any).content || data} settings={settings as any} />);
     }
 
-    if (activityType && activityType.toString().startsWith('INFOGRAPHIC_')) {
-
+    if (activityType === ActivityType.MATH_STUDIO && data) {
+      return withWrapper(<MathStudioRenderer data={data as any} settings={settings} />);
     }
 
-    if (activityType === ActivityType.MATH_STUDIO && data) {
-      return withWrapper(<MathPuzzleSheet data={data as any} settings={settings} />);
+    if (activityType === ActivityType.PREMIUM_STUDIO && data) {
+      return withWrapper(<SuperStudioRenderer data={data as any} settings={settings} />);
+    }
+
+    if (activityType === ActivityType.KELIME_CUMLE && data) {
+      return withWrapper(<KelimeCumleRenderer data={data as any} settings={settings} />);
     }
 
 

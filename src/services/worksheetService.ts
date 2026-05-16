@@ -156,15 +156,34 @@ export const worksheetService = {
         categoryId?: string
     ): Promise<{ items: SavedWorksheet[]; total: number; count: number | null }> => {
         try {
-            const qRef = query(
-                collection(db, 'saved_worksheets'),
-                where('userId', '==', userId),
-                orderBy('createdAt', 'desc')
-            );
+            // First try with orderBy (requires index)
+            let qRef;
+            try {
+                qRef = query(
+                    collection(db, 'saved_worksheets'),
+                    where('userId', '==', userId),
+                    orderBy('createdAt', 'desc')
+                );
+            } catch (e) {
+                // If query construction fails, fallback to simple filtering
+                qRef = query(
+                    collection(db, 'saved_worksheets'),
+                    where('userId', '==', userId)
+                );
+            }
+
             const querySnapshot = await getDocs(qRef);
             const rows: SavedWorksheet[] = [];
-            querySnapshot.forEach((d: { id: string; data: () => Record<string, unknown> }) => {
-                rows.push(mapDbToWorksheet(d.data(), d.id));
+            querySnapshot.forEach((d: any) => {
+                const data = d.data();
+                rows.push(mapDbToWorksheet(data, d.id));
+            });
+
+            // Ensure sorting in memory in case the Firestore index is missing or query was simple
+            rows.sort((a, b) => {
+                const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                return dateB - dateA;
             });
 
             let pool = rows;
@@ -178,15 +197,45 @@ export const worksheetService = {
                     ? pool.filter((s) => worksheetMatchesArchiveCategory(s, categoryId))
                     : pool;
 
-            filtered.sort(
-                (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-            );
-
             const total = filtered.length;
             const sliced = filtered.slice(page * pageSize, (page + 1) * pageSize);
+            
+            logInfo(' getUserWorksheets başarıyla yüklendi', { 
+                userId, 
+                count: sliced.length, 
+                total 
+            });
+
             return { items: sliced, total, count: total };
-        } catch (error: unknown) {
-            logWarn('getUserWorksheets yükleme hatası — boş dönüş', { error });
+        } catch (error: any) {
+            logError('getUserWorksheets yükleme hatası', { error: error?.message || error });
+            // If it's a failed-precondition, it's almost certainly a missing index
+            if (error?.code === 'failed-precondition') {
+                logWarn('Firestore indeksi eksik! İndeks oluşturulana kadar basit sorgu kullanılacak.');
+                // Try one more time with zero ordering (Firestore will return in arbitrary order, we sort in memory)
+                try {
+                     const fallbackQ = query(
+                        collection(db, 'saved_worksheets'),
+                        where('userId', '==', userId)
+                    );
+                    const snap = await getDocs(fallbackQ);
+                    const fallbackRows: SavedWorksheet[] = [];
+                    snap.forEach((d: any) => fallbackRows.push(mapDbToWorksheet(d.data(), d.id)));
+                    fallbackRows.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                    
+                    const filtered = categoryId && categoryId !== 'all'
+                        ? fallbackRows.filter((s) => worksheetMatchesArchiveCategory(s, categoryId))
+                        : fallbackRows;
+
+                    return { 
+                        items: filtered.slice(page * pageSize, (page + 1) * pageSize), 
+                        total: filtered.length, 
+                        count: filtered.length 
+                    };
+                } catch (fallbackError) {
+                    logError('Fallback query also failed', { error: fallbackError });
+                }
+            }
             return { items: [], total: 0, count: 0 };
         }
     },

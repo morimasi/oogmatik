@@ -113,6 +113,7 @@ export enum ActivityType {
   PREMIUM_STUDIO = 'PREMIUM_STUDIO',
   /** @deprecated Kaldırıldı — super-turkce modülü silindi (b6df8d74) */
   SUPER_TURKCE_V2 = 'SUPER_TURKCE_V2',
+  KELIME_CUMLE = 'KELIME_CUMLE',
   // ── İNFOGRAFİK STÜDYOSUv3 — 96 Premium Aktivite Türü ───────────────────────
   // Kategori 1: Görsel & Mekansal (10 tip)
   INFOGRAPHIC_CONCEPT_MAP = 'INFOGRAPHIC_CONCEPT_MAP',

@@ -445,6 +445,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       // İnfografik Eklentileri
       ActivityType.INFOGRAPHIC_STORY_MAP,
       ActivityType.INFOGRAPHIC_CHARACTER_ANALYSIS,
+      ActivityType.PREMIUM_STUDIO, // Süper Türkçe Stüdyosu
     ],
   },
   {
@@ -476,6 +477,8 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.INFOGRAPHIC_SENTENCE_BUILDER,
       ActivityType.INFOGRAPHIC_SHORT_ANSWER,
       ActivityType.LETTER_CONNECT,
+      ActivityType.KELIME_CUMLE,
+      ActivityType.SINAV,
     ],
   },
   {
@@ -504,6 +507,8 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.CAPSULE_GAME,
       ActivityType.BOX_MATH,
       ActivityType.QUEUE_ORDERING,
+      ActivityType.MATH_STUDIO,
+      ActivityType.MAT_SINAV,
       // İnfografik Eklentileri
       ActivityType.INFOGRAPHIC_MATH_STEPS,
       ActivityType.INFOGRAPHIC_NUMBER_LINE,

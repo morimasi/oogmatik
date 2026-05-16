@@ -4,17 +4,10 @@ import {
   Search,
   ArrowLeft,
   Layers,
-  FileBox,
-  CalendarClock,
   Trash2,
   Eye,
   ChevronDown,
-  FolderOpen,
-  ClipboardCheck,
-  GraduationCap,
-  Sparkles,
   Filter,
-  Library,
 } from 'lucide-react';
 import { SavedWorksheet, SavedAssessment, Curriculum } from '../types';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
@@ -23,6 +16,17 @@ import { useToastStore } from '../store/useToastStore';
 import { worksheetService } from '../services/worksheetService';
 import { assessmentService } from '../services/assessmentService';
 import { curriculumService } from '../services/curriculumService';
+import { ShareModal } from './ShareModal';
+import { FeedbackModal } from './FeedbackModal';
+import { 
+  Share2, 
+  Printer, 
+  Download, 
+  AlertTriangle, 
+  Edit3,
+  CheckCircle,
+  XCircle
+} from 'lucide-react';
 import { cn } from '../utils/tailwindUtils';
 
 import { logInfo, logError, logWarn } from '../utils/logger.js';
@@ -107,37 +111,86 @@ const GlassCard = ({
     </motion.div>
 );
 
-const MaterialCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
+const MaterialCard = ({ item, onLoad, onDelete, onShare, onReport, onPrint, isReadOnly }: any) => {
+    const [showActions, setShowActions] = useState(false);
     if (!item || !item.id) return null;
+    
     const activityDef = ACTIVITIES.find(a => a.id === item.activityType);
     const categoryDef = resolveWorksheetCategory(item);
     const cid = item.category?.id === 'workbook' || item.activityType === 'WORKBOOK' ? 'workbook' : categoryDef?.id;
 
     const getGlowColor = () => categoryGlowGradient(cid);
-
     const iconFa = activityDef?.icon || item.icon || 'fa-solid fa-file-lines';
 
+    const handleActionClick = (e: React.MouseEvent, action: () => void) => {
+        e.stopPropagation();
+        setShowActions(false);
+        action();
+    };
+
     return (
-        <GlassCard onClick={() => onLoad?.(item)} className="h-64 flex flex-col p-5">
+        <GlassCard className="h-64 flex flex-col p-5 group">
             <div className={cn('absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300', getGlowColor())}></div>
             
             <div className="relative z-10 flex justify-between items-start mb-4">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] text-[var(--accent-color)] shadow-inner transition-colors group-hover:border-[var(--accent-color)]/25">
+                <div 
+                    onClick={() => onLoad?.(item)}
+                    className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] text-[var(--accent-color)] shadow-inner transition-colors group-hover:border-[var(--accent-color)]/25"
+                >
                     <i className={cn(iconFa, 'text-xl leading-none')} aria-hidden />
                 </div>
-                {!isReadOnly && (
+                
+                <div className="relative">
                     <button
                         type="button"
-                        onClick={(e) => { e.stopPropagation(); onDelete?.(item.id); }}
-                        className="flex h-9 w-9 items-center justify-center rounded-lg border border-transparent text-[var(--text-muted)] opacity-0 transition-all hover:border-red-500/30 hover:bg-red-500/10 hover:text-red-500 group-hover:opacity-100"
-                        aria-label="Sil"
+                        onClick={(e) => { e.stopPropagation(); setShowActions(!showActions); }}
+                        className={cn(
+                            "flex h-8 w-8 items-center justify-center rounded-lg text-[var(--text-muted)] transition-all hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]",
+                            showActions && "bg-[var(--bg-secondary)] text-[var(--text-primary)]"
+                        )}
                     >
-                        <Trash2 className="w-4 h-4" />
+                        <i className="fa-solid fa-ellipsis-vertical text-sm"></i>
                     </button>
-                )}
+
+                    <AnimatePresence>
+                        {showActions && (
+                            <>
+                                <div className="fixed inset-0 z-40" onClick={() => setShowActions(false)} />
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                                    className="absolute right-0 top-10 z-50 w-44 rounded-xl border border-[var(--border-color)] bg-[var(--bg-paper)] p-1.5 shadow-xl backdrop-blur-md"
+                                >
+                                    <button onClick={(e) => handleActionClick(e, () => onLoad?.(item))} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-bold text-[var(--text-primary)] hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-colors">
+                                        <Eye className="w-3.5 h-3.5" /> Görüntüle / Düzenle
+                                    </button>
+                                    <button onClick={(e) => handleActionClick(e, () => onShare?.(item))} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-bold text-[var(--text-primary)] hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-colors">
+                                        <Share2 className="w-3.5 h-3.5" /> Paylaş
+                                    </button>
+                                    <button onClick={(e) => handleActionClick(e, () => onPrint?.(item))} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-bold text-[var(--text-primary)] hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-colors">
+                                        <Printer className="w-3.5 h-3.5" /> Yazdır / PDF
+                                    </button>
+                                    <div className="my-1 h-px bg-[var(--border-color)]" />
+                                    <button onClick={(e) => handleActionClick(e, () => onReport?.(item))} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-bold text-amber-600 hover:bg-amber-50 transition-colors">
+                                        <AlertTriangle className="w-3.5 h-3.5" /> Sorun Bildir
+                                    </button>
+                                    {!isReadOnly && (
+                                        <button onClick={(e) => handleActionClick(e, () => onDelete?.(item.id))} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors">
+                                            <Trash2 className="w-3.5 h-3.5" /> Sil
+                                        </button>
+                                    )}
+                                </motion.div>
+                            </>
+                        )}
+                    </AnimatePresence>
+                </div>
             </div>
 
-            <div className="relative z-10 flex flex-1 flex-col">
+            <div 
+                onClick={() => onLoad?.(item)}
+                className="relative z-10 flex flex-1 flex-col cursor-pointer"
+            >
                 <span className="font-lexend mb-1 text-[10px] font-black uppercase tracking-[0.14em] text-[var(--accent-color)] opacity-85">
                     {item.category?.id === 'workbook' || item.activityType === 'WORKBOOK'
                       ? 'Çalışma Kitapçığı'
@@ -148,14 +201,9 @@ const MaterialCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
                 </h3>
                 <div className="font-lexend mt-auto flex items-center justify-between text-[11px] text-[var(--text-muted)]">
                     <div className="flex items-center gap-1.5">
-                        <CalendarClock className="h-3.5 w-3.5 shrink-0 opacity-70" aria-hidden />
+                        <i className="fa-regular fa-calendar-check opacity-70"></i>
                         {item.createdAt ? new Date(item.createdAt).toLocaleDateString('tr-TR') : '—'}
                     </div>
-                    {item.activityType === 'INFOGRAPHIC_STUDIO' && (
-                        <div className="rounded-full bg-[var(--accent-muted)] px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[var(--accent-color)]">
-                          İnfografik
-                        </div>
-                    )}
                 </div>
             </div>
         </GlassCard>
@@ -170,7 +218,7 @@ const ReportCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
             
             <div className="mb-4 flex items-start justify-between">
                 <div className="flex h-14 w-14 flex-col items-center justify-center rounded-2xl border border-[var(--border-color)] bg-[var(--bg-secondary)] text-[var(--text-primary)]">
-                    <ClipboardCheck className="mb-0.5 h-6 w-6 text-[var(--accent-color)]" aria-hidden />
+                    <i className="fa-solid fa-clipboard-list text-xl text-[var(--accent-color)] mb-0.5"></i>
                     <span className="text-[9px] font-black uppercase tracking-tighter text-[var(--text-muted)]">Rapor</span>
                 </div>
                 {!isReadOnly && (
@@ -220,7 +268,7 @@ const PlanCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
     return (
         <GlassCard onClick={() => onLoad?.(item)} className="relative flex h-64 flex-col overflow-hidden p-6">
             <div className="absolute -right-4 -top-4 p-8 text-[var(--accent-color)] opacity-[0.07]">
-                <GraduationCap className="h-32 w-32" aria-hidden />
+                <i className="fa-solid fa-user-graduate text-[120px]"></i>
             </div>
 
             <div className="relative z-10 flex flex-1 flex-col">
@@ -245,7 +293,7 @@ const PlanCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
 
                 <div className="mt-auto flex items-center justify-between text-[var(--text-muted)]">
                     <div className="flex items-center gap-2">
-                        <ClipboardCheck className="h-4 w-4 shrink-0 text-[var(--accent-color)]" aria-hidden />
+                        <i className="fa-solid fa-check-to-slot text-[var(--accent-color)]"></i>
                         <span className="text-xs font-bold text-[var(--text-secondary)]">{item.goals?.length || 0} hedef</span>
                     </div>
                     <span className="font-mono text-[10px] opacity-80">
@@ -276,6 +324,9 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
+
+    const [shareModal, setShareModal] = useState({ isOpen: false, item: null as SavedWorksheet | null });
+    const [feedbackModal, setFeedbackModal] = useState({ isOpen: false, item: null as SavedWorksheet | null });
 
     const effectiveUserId = targetUserId || user?.id;
     const isReadOnly = !!targetUserId && targetUserId !== user?.id;
@@ -321,7 +372,7 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
                 setPlans(plData);
                 setHasMore(false);
             }
-        } catch (e) {
+        } catch (e: any) {
             logError(e);
         } finally {
             setLoading(false);
@@ -377,14 +428,14 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
 
     const tabs = [
         { id: 'materials' as const, label: 'Materyaller', icon: Layers, count: materialsTotal },
-        { id: 'reports' as const, label: 'Raporlar', icon: FileBox, count: assessments.length },
-        { id: 'plans' as const, label: 'Eğitim Planları', icon: CalendarClock, count: plans.length },
+        { id: 'reports' as const, label: 'Raporlar', icon: FileText, count: assessments.length },
+        { id: 'plans' as const, label: 'Eğitim Planları', icon: Search, count: plans.length },
     ];
 
     if (!effectiveUserId && !loading) {
         return (
             <div className="flex h-full flex-col items-center justify-center gap-4 bg-[var(--bg-primary)] px-8 font-lexend">
-                <FolderOpen className="h-16 w-16 text-[var(--text-muted)] opacity-40" aria-hidden />
+                <i className="fa-solid fa-folder-open text-6xl text-[var(--text-muted)] opacity-30"></i>
                 <h2 className="text-center text-lg font-black text-[var(--text-primary)]">Dijital arşivi görüntülemek için giriş yapın</h2>
                 <p className="max-w-md text-center text-sm text-[var(--text-secondary)]">
                     Materyaller, değerlendirme raporları ve eğitim planlarınız hesabınıza güvenli şekilde bağlanır.
@@ -479,14 +530,14 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
                                 type="button"
                                 onClick={() => setActiveCategory('workbook')}
                                 className={cn(
-                                    'flex w-full items-center gap-3 rounded-xl border px-4 py-2.5 text-left text-xs transition-all',
+                                    'flex w-full items-center gap-3 rounded-xl border border-transparent px-4 py-2.5 text-left text-xs transition-all',
                                     activeCategory === 'workbook'
                                         ? 'border-[var(--accent-color)]/40 bg-[var(--accent-muted)] font-bold text-[var(--accent-color)] shadow-sm'
-                                        : 'border-transparent text-[var(--text-muted)] hover:bg-[var(--bg-paper)] hover:text-[var(--text-secondary)]',
+                                        : 'text-[var(--text-muted)] hover:bg-[var(--bg-paper)] hover:text-[var(--text-secondary)]',
                                 )}
                             >
                                 <div className={cn('h-2 w-2 shrink-0 rounded-full', categoryDotClass('workbook'))} aria-hidden />
-                                <Library className="h-3.5 w-3.5 shrink-0 opacity-70" aria-hidden />
+                                <i className="fa-solid fa-book-journal-whills text-xs opacity-70"></i>
                                 <span className="truncate">Çalışma kitapçığı</span>
                             </button>
                             {ACTIVITY_CATEGORIES.map((cat) => (
@@ -563,7 +614,7 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
                             className="flex h-full flex-col items-center justify-center space-y-6 text-center"
                         >
                             <div className="relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-[2.5rem] border border-[var(--border-color)] bg-[var(--bg-secondary)]">
-                                <FolderOpen className="relative z-10 h-16 w-16 text-[var(--text-muted)] opacity-40" aria-hidden />
+                                <i className="fa-solid fa-folder-open text-5xl text-[var(--text-muted)] opacity-30"></i>
                                 <div className="absolute inset-0 bg-gradient-to-br from-[var(--accent-color)]/8 to-transparent" />
                             </div>
                             <div className="max-w-sm px-4">
@@ -586,6 +637,9 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
                                             item={item} 
                                             onLoad={onLoad} 
                                             onDelete={(id: string) => handleDelete(id, 'materials')} 
+                                            onShare={(item: any) => setShareModal({ isOpen: true, item })}
+                                            onReport={(item: any) => setFeedbackModal({ isOpen: true, item })}
+                                            onPrint={() => onLoad(item)} // Print triggers generic load, user can print from viewer
                                             isReadOnly={isReadOnly} 
                                         />
                                     ))}
@@ -609,6 +663,29 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
                                     ))}
                                 </AnimatePresence>
                             </motion.div>
+
+                            {/* Share Modal Integration */}
+                            <ShareModal 
+                                isOpen={shareModal.isOpen}
+                                onClose={() => setShareModal({ isOpen: false, item: null })}
+                                worksheetId={shareModal.item?.id}
+                                worksheetTitle={shareModal.item?.name}
+                                onShare={async (receiverIds) => {
+                                    if (shareModal.item?.id && user) {
+                                        await worksheetService.shareWorksheet(shareModal.item.id, user.id, user.name, receiverIds);
+                                        toast.success("Paylaşım başarıyla gönderildi.");
+                                        setShareModal({ isOpen: false, item: null });
+                                    }
+                                }}
+                            />
+
+                            {/* Feedback Modal Integration */}
+                            <FeedbackModal 
+                                isOpen={feedbackModal.isOpen}
+                                onClose={() => setFeedbackModal({ isOpen: false, item: null })}
+                                activityType={feedbackModal.item?.activityType || null}
+                                activityTitle={feedbackModal.item?.name}
+                            />
 
                             {activeTab === 'materials' && hasMore && filteredItems.length > 0 && (
                                 <motion.div
@@ -647,7 +724,7 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
 
             <div className="pointer-events-none absolute bottom-6 right-6 z-20 hidden md:block">
                 <div className="pointer-events-none flex items-center gap-3 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-paper)]/92 px-5 py-2.5 shadow-lg backdrop-blur-xl">
-                    <Sparkles className="h-4 w-4 shrink-0 text-[var(--accent-color)]" aria-hidden />
+                    <i className="fa-solid fa-wand-magic-sparkles text-sm text-[var(--accent-color)]"></i>
                     <span className="font-lexend text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--text-muted)]">
                         Şifreli kayıt · kişisel arşiv
                     </span>
