@@ -40,9 +40,14 @@ export const WorkbookActivityRenderer = memo(({ item, settings, font }: Workbook
         }
     }, []);
 
+    // Robust data unwrapping to resolve envelope/wrapper issues across all studios
+    const rawData = item.data;
+    let unwrappedData = Array.isArray(rawData) ? rawData[0] : rawData;
+    let activeData = (unwrappedData as any)?.data || unwrappedData;
+
     // Sari Kitap activities have different data structure
-    const actualType = (item.activityType === 'SARI_KITAP_STUDIO' && (item.data as any)?.type) 
-        ? (item.data as any).type 
+    const actualType = (item.activityType === 'SARI_KITAP_STUDIO' && activeData?.type) 
+        ? activeData.type 
         : item.activityType;
 
     if (SARI_KITAP_TYPES.has(actualType)) {
@@ -51,15 +56,14 @@ export const WorkbookActivityRenderer = memo(({ item, settings, font }: Workbook
             return <EmptyState font={font} />;
         }
 
-        const itemData = item.data as Record<string, any>;
         const config = { 
             type: actualType, 
             ...item.settings, 
-            ...(itemData.config || {}) 
+            ...(activeData.config || {}) 
         };
         
         // Use the actual content if nested, otherwise use the whole object
-        const content = itemData.content || itemData;
+        const content = activeData.content || activeData;
         
         const rendererProps: RendererProps = { 
             config: config as any, 
@@ -83,10 +87,19 @@ export const WorkbookActivityRenderer = memo(({ item, settings, font }: Workbook
         );
     }
 
-    // Standard workbook activities: doğrudan SheetRenderer kullan (Worksheet wrapper'ı ATLANIYOR)
-    // Bu sayede çift sarmalama (A4 içinde A4) sorunu engelleniyor.
-    const rawData = item.data;
-    const dataArray = Array.isArray(rawData) ? rawData : (rawData ? [rawData] : []);
+    // Standard workbook activities: extracting data arrays to render each sheet
+    let dataArray: any[] = [];
+    if (rawData) {
+        if (Array.isArray(rawData)) {
+            dataArray = rawData.map(d => d.data ? d.data : d);
+        } else if ((rawData as any).data && Array.isArray((rawData as any).data)) {
+            dataArray = (rawData as any).data;
+        } else if ((rawData as any).data) {
+            dataArray = [(rawData as any).data];
+        } else {
+            dataArray = [rawData];
+        }
+    }
 
     if (dataArray.length === 0) {
         return <EmptyState font={font} />;

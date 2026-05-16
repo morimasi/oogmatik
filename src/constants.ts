@@ -374,6 +374,13 @@ export const ACTIVITIES: Activity[] = [
     defaultStyle: { columns: 1 }
   },
   {
+    id: ActivityType.SARI_KITAP_STUDIO,
+    title: 'Sarı Kitap Stüdyosu',
+    description: 'Öğrenme güçlüğü profil değerlendirmesi ve profesyonel içerik üretimi stüdyosu.',
+    icon: 'fa-solid fa-book-medical',
+    defaultStyle: { columns: 1 }
+  },
+  {
     id: ActivityType.SEMANTIC_LINKER,
     title: 'Anlamsal İlişki',
     description: 'Kelimeler arası anlamsal bağ kurma.',
