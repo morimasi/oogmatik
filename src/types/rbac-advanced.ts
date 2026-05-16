@@ -60,35 +60,43 @@ export type PermissionModule =
   | 'student-dashboard'
   | 'mobile-app'
   | 'security-settings'
-  | 'team-management';
+  | 'team-management'
+  | 'platform-market'
+  | 'premium-support'
+  | 'about-us'
+  | 'developer-tools'
+  | 'favorites'
+  | 'shared-materials'
+  | 'activity-history'
+  | 'appearance-settings';
 
 export const MODULE_LABELS: Record<PermissionModule, string> = {
-  'activity-studio': 'Etkinlik Stüdyosu',
+  'activity-studio': 'Etkinlik Havuzu',
   'reading-studio': 'Okuma Stüdyosu',
   'math-studio': 'Matematik Stüdyosu',
-  'sinav-studyosu': 'Türkçe Sınav Stüdyosu',
+  'sinav-studyosu': 'Sınav Stüdyosu',
   'mat-sinav-studyosu': 'Matematik Sınav Stüdyosu',
   'ocr': 'OCR Metin İşleme',
   'screening': 'Tarama & Analiz',
   'admin': 'Yönetim Paneli',
-  'curriculum': 'Müfredat & Plan',
-  'students': 'Öğrenci Yönetimi',
+  'curriculum': 'Plan & Müfredat',
+  'students': 'Öğrenciler',
   'reports': 'Gelişim Raporları',
-  'creative-studio': 'Yaratıcı Yazarlık',
-  'super-studio': 'Süper Stüdyo',
+  'creative-studio': 'Yaratıcı Atölye Stüdyosu',
+  'super-studio': 'Ultra Etkinlik Stüdyosu',
   'sari-kitap': 'Hızlı Okuma Stüdyosu',
   'infographic-studio': 'İnfografik Stüdyosu',
-  'messaging': 'Mesajlaşma Paneli',
+  'messaging': 'Mesajlar',
   'workbook': 'Çalışma Kitapçığı',
   'analytics': 'Akademik Analitik',
-  'evaluation': 'Ölçme & Değerlendirme',
-  'planning': 'Eğitim Planlaması',
+  'evaluation': 'Değerlendirme',
+  'planning': 'Eğitim Planlama',
   'bep': 'BEP Modülü',
   'kelime-cumle': 'Kelime-Cümle Stüdyosu',
   'super-turkce': 'Süper Türkçe Stüdyosu',
   'archive': 'Dijital Arşiv',
   'settings': 'Sistem Ayarları',
-  'profile-management': 'Profil Yönetimi',
+  'profile-management': 'Profil Ayarları',
   'role-management': 'Rol & Yetki Yönetimi',
   'billing': 'Abonelik & Finans',
   'system-logs': 'Sistem Logları & Denetim',
@@ -100,7 +108,15 @@ export const MODULE_LABELS: Record<PermissionModule, string> = {
   'student-dashboard': 'Öğrenci Panosu Merkezi',
   'mobile-app': 'Mobil Uygulama Yönetimi',
   'security-settings': 'Güvenlik Ayarları',
-  'team-management': 'Ekip & Personel Yönetimi'
+  'team-management': 'Ekip & Personel Yönetimi',
+  'platform-market': 'Platform Pazarı',
+  'premium-support': 'Premium Yardım',
+  'about-us': 'Hakkımızda',
+  'developer-tools': 'Geliştirici / API',
+  'favorites': 'Favori Etkinliklerim',
+  'shared-materials': 'Paylaşılan Materyaller',
+  'activity-history': 'İşlem Geçmişi',
+  'appearance-settings': 'Görünüm Ayarları'
 };
 
 // ─── Kategori Yetkileri ──────────────────────────────────────────
@@ -173,13 +189,15 @@ export const buildDefaultRBAC = (): RBACSettings => {
   const commonTools: PermissionModule[] = [
     'screening', 'curriculum', 'students', 'reports', 'messaging', 
     'workbook', 'analytics', 'evaluation', 'planning', 'bep', 'ocr',
-    'student-dashboard', 'support-feedback', 'notifications'
+    'student-dashboard', 'support-feedback', 'notifications',
+    'favorites', 'shared-materials', 'activity-history'
   ];
 
   const adminOnlyModules: PermissionModule[] = [
     'profile-management', 'role-management', 'billing', 'system-logs',
     'content-management', 'api-integrations', 'parent-portal',
-    'mobile-app', 'security-settings', 'team-management'
+    'mobile-app', 'security-settings', 'team-management', 'appearance-settings',
+    'platform-market', 'premium-support', 'about-us', 'developer-tools'
   ];
 
   const allTeacherModules = [...commonStudios, ...commonTools];
