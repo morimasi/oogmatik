@@ -21,7 +21,7 @@ const SUPER_ADMIN_EMAIL = 'morimasi@gmail.com';
 // Map Firestore doc to App User type
 const mapDbUserToAppUser = (docData: any, uid: string, email: string): User => {
     // Force superadmin role for specific email
-    const role = email === SUPER_ADMIN_EMAIL ? 'superadmin' : (docData.role || 'user');
+    const role = email === SUPER_ADMIN_EMAIL ? 'superadmin' : (docData.role || 'teacher');
     
     return {
         id: uid,
@@ -94,7 +94,7 @@ export const authService = {
             const newUserProfile = {
                 name: user.displayName || 'Google Kullanıcısı',
                 email: user.email,
-                role: user.email === SUPER_ADMIN_EMAIL ? 'superadmin' : 'user',
+                role: user.email === SUPER_ADMIN_EMAIL ? 'superadmin' : 'teacher',
                 createdAt: new Date().toISOString(),
                 lastLogin: new Date().toISOString(),
                 avatar: user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`,
@@ -154,7 +154,7 @@ export const authService = {
                 const newUserProfile = {
                     name: user.displayName || 'Google Kullanıcısı',
                     email: user.email,
-                    role: user.email === SUPER_ADMIN_EMAIL ? 'superadmin' : 'user',
+                    role: user.email === SUPER_ADMIN_EMAIL ? 'superadmin' : 'teacher',
                     createdAt: new Date().toISOString(),
                     lastLogin: new Date().toISOString(),
                     avatar: user.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user.email}`,
@@ -194,7 +194,7 @@ export const authService = {
             const newUserProfile = {
                 name: name,
                 email: email,
-                role: email === SUPER_ADMIN_EMAIL ? 'superadmin' : 'user',
+                role: email === SUPER_ADMIN_EMAIL ? 'superadmin' : 'teacher',
                 createdAt: new Date().toISOString(),
                 lastLogin: new Date().toISOString(),
                 avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${name}`,
@@ -238,7 +238,7 @@ export const authService = {
                     id: currentUser.uid,
                     email: currentUser.email!,
                     name: currentUser.displayName || currentUser.email!.split('@')[0],
-                    role: 'user', // Default safe fallback
+                    role: 'teacher', // Default safe fallback
                     avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${currentUser.email}`,
                     createdAt: new Date().toISOString(),
                     lastLogin: new Date().toISOString(),

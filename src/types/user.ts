@@ -1,4 +1,4 @@
-export type UserRole = 'user' | 'admin' | 'teacher' | 'parent' | 'student' | 'editor' | 'superadmin' | 'guest';
+export type UserRole = 'superadmin' | 'admin' | 'teacher';
 export type UserStatus = 'active' | 'suspended';
 
 export interface User {

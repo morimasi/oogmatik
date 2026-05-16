@@ -16,6 +16,7 @@ export type PermissionModule =
   | 'reading-studio'
   | 'math-studio'
   | 'sinav-studyosu'
+  | 'mat-sinav-studyosu'
   | 'ocr'
   | 'screening'
   | 'admin'

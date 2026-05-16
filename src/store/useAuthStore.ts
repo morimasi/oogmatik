@@ -40,7 +40,7 @@ export const useAuthStore = create<AuthState>()(
                                     id: firebaseUser.uid,
                                     email: firebaseUser.email || '',
                                     name: firebaseUser.displayName || 'Kullanıcı',
-                                    role: 'user',
+                                    role: 'teacher',
                                     avatar: firebaseUser.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${firebaseUser.email}`,
                                     createdAt: new Date().toISOString(),
                                     lastLogin: new Date().toISOString(),
@@ -62,7 +62,7 @@ export const useAuthStore = create<AuthState>()(
                                 id: firebaseUser.uid,
                                 email: firebaseUser.email || '',
                                 name: firebaseUser.displayName || 'Kullanıcı',
-                                role: 'user',
+                                role: 'teacher',
                                 avatar: firebaseUser.photoURL || '',
                                 createdAt: new Date().toISOString(),
                                 lastLogin: new Date().toISOString(),
@@ -114,7 +114,7 @@ export const useAuthStore = create<AuthState>()(
         }),
         {
             name: 'auth-storage',
-            partialize: (state) => ({ user: state.user }),
+            partialize: (state) => ({ user: state.user }) as any,
         }
     )
 );
