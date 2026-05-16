@@ -8,7 +8,7 @@ interface SuperStudioRendererProps {
 
 export const SuperStudioRenderer: React.FC<SuperStudioRendererProps> = ({ data }) => {
   // Robust unwrapping: if data is a worksheet block wrapper, get its items/content
-  const rawData = Array.isArray(data) ? data[0] : (data.items ? data.items[0] : data);
+  const rawData = Array.isArray(data) ? data[0] : data;
   if (!rawData) return null;
 
   // data can be a single page, an array of pages, or a wrapper object

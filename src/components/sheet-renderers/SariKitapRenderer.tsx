@@ -14,7 +14,7 @@ interface SariKitapRendererProps {
  */
 export const SariKitapRenderer: React.FC<SariKitapRendererProps> = ({ data, settings }) => {
   // data might be wrapped in an array or direct object depending on how it was loaded
-  const item = Array.isArray(data) ? data[0] : (data.items ? data.items[0] : data);
+  const item = Array.isArray(data) ? data[0] : data;
   
   if (!item || !item.content) {
     return (

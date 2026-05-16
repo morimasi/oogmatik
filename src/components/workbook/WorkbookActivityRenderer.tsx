@@ -51,27 +51,19 @@ export const WorkbookActivityRenderer = memo(({ item, settings, font }: Workbook
             return <EmptyState font={font} />;
         }
 
-        const itemData = item.data as Record<string, unknown>;
-        let config: Record<string, unknown> = {};
-        const content: Partial<SariKitapGeneratedContent> = {};
-
-        // Extract config if it exists
-        if ('config' in itemData) {
-            config = (itemData.config as Record<string, unknown>) || {};
-        }
-
-        // Everything else is content
-        for (const [key, value] of Object.entries(itemData)) {
-            if (key !== 'config') {
-                content[key as keyof SariKitapGeneratedContent] = value as never;
-            }
-        }
-
-        config = { type: actualType, ...item.settings, ...config };
+        const itemData = item.data as Record<string, any>;
+        const config = { 
+            type: actualType, 
+            ...item.settings, 
+            ...(itemData.config || {}) 
+        };
+        
+        // Use the actual content if nested, otherwise use the whole object
+        const content = itemData.content || itemData;
         
         const rendererProps: RendererProps = { 
-            config: config as never, 
-            content: content as SariKitapGeneratedContent 
+            config: config as any, 
+            content: content as any 
         };
 
         return (

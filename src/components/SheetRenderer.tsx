@@ -1303,7 +1303,7 @@ export const SheetRenderer = React.memo(
 
     // Sınav Stüdyosu çıktıları (Daha esnek kontrol)
     if (activityType === ActivityType.SINAV || activityType === ActivityType.MAT_SINAV) {
-      const rawData = Array.isArray(data) ? data[0] : (data.items ? data.items[0] : data);
+      const rawData = Array.isArray(data) ? data[0] : data;
       const sinav = rawData as any;
       if (sinav && (sinav.sorular || sinav.baslik)) {
         return withWrapper(

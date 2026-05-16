@@ -10,8 +10,11 @@ interface MathStudioRendererProps {
 }
 
 export const MathStudioRenderer: React.FC<MathStudioRendererProps> = ({ data, settings }) => {
-  // Robust data unwrapping (Archive data is often wrapped in an array)
-  const item = Array.isArray(data) ? data[0] : (data.items ? data.items[0] : data);
+  // Robust data unwrapping
+  // Priority: if it's an array, take first. 
+  // If it's an object with mode/config, it's the ENVELOPE (Studio data), use it as is.
+  // DO NOT take items[0] if it's a Studio envelope!
+  const item = Array.isArray(data) ? data[0] : data;
   if (!item) return null;
 
   const mode = item.mode as MathMode || (item.content?.mode as MathMode);
