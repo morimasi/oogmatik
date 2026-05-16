@@ -1,39 +1,41 @@
 /**
  * AI Generator for ÇİFT METİN (Dual Text) Module
- * Unique content generation with generationSeed
+ * Uses full SariKitapConfig for topic, difficulty, age, interleaveMode, colors, styles
  */
 
 import { generateWithSchema } from '../../geminiClient.js';
-import { GeneratorOptions } from '../../../types.js';
+import type { CiftMetinConfig } from '../../../types/sariKitap.js';
 
-export const generateCiftMetinFromAI = async (options: GeneratorOptions): Promise<any[]> => {
-    const { topic, difficulty, worksheetCount, ageGroup } = options;
-    
-    // UNIQUE CONTENT GENERATION
+export const generateCiftMetinFromAI = async (config: CiftMetinConfig): Promise<any[]> => {
     const generationSeed = Date.now() + Math.random();
     
+    const topic = config.topics.join(', ');
+    const interleaveModeLabel = config.interleaveMode === 'kelime' ? 'kelime kelime' : config.interleaveMode === 'satir' ? 'satır satır' : 'paragraf paragraf';
+    
     const prompt = `
-    "${difficulty}" seviyesinde, '${topic}' temalı ÇİFT METİN okuma materyali üret.
+    "${config.difficulty}" seviyesinde, '${topic}' temalı ÇİFT METİN okuma materyali üret.
     
     ⚠️ KRİTİK: HER ÜRETİMDE BENZERSİZ İÇERİK!
     - Rastgelelik tohumu: ${generationSeed}
     - İki farklı kaynak, farklı metinler
-    - Yaş grubu: ${ageGroup || '8-10 yaş'}
+    - Yaş grubu: ${config.ageGroup}
+    - Profil: ${config.profile}
     
     ÇİFT METİN NEDİR?
-    - İki farklı metin kaynağı interleaved (karışık) gösterilir
+    - İki farklı metin ${interleaveModeLabel} karıştırılarak gösterilir
     - Karşılaştırma ve analiz becerisini geliştirir
     - Okuduğunu anlama ve eleştirel düşünceyi artırır
     
     GÖREV:
-    1. Aynı konuda iki FARKLI perspektiften metin yaz (100-200 kelime her biri)
-    2. Kaynak A ve Kaynak B olarak işaretle
-    3. Interleave oranını belirle (kelime/satir/paragraf)
-    4. 5N1K ENTEGRASYONU: Her bir metin (Metin A ve Metin B) için o metne özel 3 adet 5N1K (Okuduğunu Anlama) sorusu hazirla.
-       - Sorular: Kim, Ne, Nerede, Ne Zaman, Nasil, Nicin sorularindan en uygun 3 tanesi olsun.
-       - Cevaplari da kisa ve net sekilde belirt.
+    1. Seçilen konu '${topic}' ile ilgili iki FARKLI perspektiften metin yaz
+    2. Yaş grubuna (${config.ageGroup}) ve zorluk seviyesine (${config.difficulty}) uygun kelime karmaşıklığı kullan
+    3. Kaynak A ve Kaynak B olarak işaretle
+    4. Karışım modu: ${interleaveModeLabel}
+    5. 5N1K ENTEGRASYONU: Her bir metin (Metin A ve Metin B) için o metne özel 3 adet 5N1K (Okuduğunu Anlama) sorusu hazırla.
+       - Sorular: Kim, Ne, Nerede, Ne Zaman, Nasıl, Niçin sorularından en uygun 3 tanesi olsun.
+       - Cevapları da kısa ve net şekilde belirt.
     
-    ${worksheetCount || 1} adet üret.
+    PEDAGOJİK NOT: Bu etkinliğin pedagojik amacını kısaca açıkla (neden bu format, hangi beceriyi geliştirir).
     `;
     
     const singleSchema = {
@@ -80,7 +82,8 @@ export const generateCiftMetinFromAI = async (options: GeneratorOptions): Promis
                 required: ['title', 'text', 'questions']
             },
             interleaveMode: { type: 'STRING', enum: ['kelime', 'satir', 'paragraf'] },
-            interleaveRatio: { type: 'INTEGER' }
+            interleaveRatio: { type: 'INTEGER' },
+            pedagogicalNote: { type: 'STRING' }
         },
         required: ['title', 'instruction', 'sourceA', 'sourceB', 'interleaveMode']
     };

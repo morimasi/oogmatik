@@ -1,10 +1,11 @@
 import type { CiftMetinConfig, SariKitapGeneratedContent } from '../../../types/sariKitap';
-import { getCiftMetinCifti } from './metinHavuzu';
+import { getCiftMetinCiftiByTopic } from './metinHavuzu';
 import { buildGeneratedContent } from './heceMotoru';
 import { metniHecele } from '../../../utils/heceAyirici';
 
 export function generateCiftMetinOffline(config: CiftMetinConfig): SariKitapGeneratedContent {
-    const cifti = getCiftMetinCifti();
+    const topic = config.topics[0] || 'Kaynak Kitap';
+    const cifti = getCiftMetinCiftiByTopic(topic, config.difficulty, config.ageGroup);
     const combinedText = `${cifti.a.metin}\n${cifti.b.metin}`;
     const heceRows = metniHecele(combinedText);
 

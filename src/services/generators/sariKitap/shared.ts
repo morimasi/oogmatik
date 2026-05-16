@@ -120,11 +120,20 @@ A4 sayfasını TAMAMEN dolduracak, 25-40 cümlelik uzun metin üret. Kompakt ve 
 }
 
 export function buildCiftMetinPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
+  const c = config as any;
+  const interleaveModeLabel = c.interleaveMode === 'kelime' ? 'kelime kelime' : c.interleaveMode === 'satir' ? 'satır satır' : 'paragraf paragraf';
+  
   return `${SARI_KITAP_SYSTEM_INSTRUCTION}
 ${getReferenceExample('cift_metin')}
 
 GÖREV: "Çift Metin" formatında İKİ AYRI hikaye üret.
 FORMAT: İki farklı hikaye iç içe geçirilir. Öğrenci dikkatini bölerek ayrıştırma pratiği yapar.
+
+GÖRSEL AYARLAR (AI içeriği bu ayarlara uygun üretmelidir):
+- Karışım Modu: ${interleaveModeLabel}
+- Hikaye A Stili: ${c.sourceAStyle || 'normal'} (metin A'nın genel karakteristiği)
+- Hikaye B Stili: ${c.sourceBStyle || 'normal'} (metin B'nin genel karakteristiği)
+- ${c.interleaveMode === 'kelime' ? 'Kelime kelime karışım: Her metin kısa ve net cümleler içermeli' : c.interleaveMode === 'satir' ? 'Satır satır karışım: Her metin dengeli satır uzunluklarına sahip olmalı' : 'Paragraf paragraf karışım: Her metin net paragraf bölümlerine sahip olmalı'}
 
 ÖZEL ÇIKTI FORMATI (JSON):
 {
@@ -157,8 +166,10 @@ PARAMETRELER:
 - Yaş Grubu: ${ageGroupDescription(config.ageGroup)} (NOT: Sadece 11-13 ve 14+ yaş)
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
+- Hedef Beceriler: ${config.targetSkills.join(', ')}
+${_sourcePdfRef ? `- Referans PDF: ${_sourcePdfRef}` : ''}
 
-Her hikaye en az 20-25 cümle olsun. İki hikaye birbirinden tamamen farklı konularda olmalı. A4 sayfasını taşmayacak ama olabildiğince tam dolduracak kadar uzun ve zengin içerik üret. Her bir hikaye için 3 adet 5N1K (Kim, Ne, Nerede vb.) sorusu mutlaka eklenmelidir.`;
+Her hikaye en az 20-25 cümle olsun. İki hikaye birbirinden tamamen farklı konularda olmalı ama seçilen konu '${config.topics.join(', ')}' etrafında şekillenmeli. A4 sayfasını taşmayacak ama olabildiğince tam dolduracak kadar uzun ve zengin içerik üret. Her bir hikaye için 3 adet 5N1K (Kim, Ne, Nerede vb.) sorusu mutlaka eklenmelidir.`;
 }
 
 export function buildBellekPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {

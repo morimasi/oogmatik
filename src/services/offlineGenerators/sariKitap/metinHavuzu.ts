@@ -236,3 +236,39 @@ export function getMetinByAgeAndDifficulty(
 export function getCiftMetinCifti(): CiftMetinCifti {
   return CIFT_METIN_CIFTLERI[Math.floor(Math.random() * CIFT_METIN_CIFTLERI.length)];
 }
+
+export function getCiftMetinCiftiByTopic(
+  konu: string,
+  difficulty: SariKitapDifficulty,
+  ageGroup: AgeGroup
+): CiftMetinCifti {
+  const havuz = METIN_HAVUZU[konu as Konu];
+  if (havuz && havuz[difficulty] && havuz[difficulty].length > 0) {
+    const entries = havuz[difficulty];
+    const shuffled = [...entries].sort(() => Math.random() - 0.5);
+    const a = shuffled[0] || entries[0];
+    const b = shuffled[1] || entries[0];
+    return {
+      a: { baslik: a.baslik, metin: a.metin },
+      b: { baslik: b.baslik !== a.baslik ? b.baslik : 'Devamı', metin: b.metin }
+    };
+  }
+
+  const allEntries: MetinEntry[] = [];
+  for (const k of Object.keys(METIN_HAVUZU) as Konu[]) {
+    if (METIN_HAVUZU[k][difficulty]) {
+      allEntries.push(...METIN_HAVUZU[k][difficulty]);
+    }
+  }
+  if (allEntries.length > 0) {
+    const shuffled = [...allEntries].sort(() => Math.random() - 0.5);
+    const a = shuffled[0];
+    const b = shuffled[1] || shuffled[0];
+    return {
+      a: { baslik: a.baslik, metin: a.metin },
+      b: { baslik: b.baslik !== a.baslik ? b.baslik : 'Devamı', metin: b.metin }
+    };
+  }
+
+  return getCiftMetinCifti();
+}
