@@ -3,9 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Shield, 
   Save, 
-  RefreshCw, 
-  Lock, 
-  Unlock, 
+  Loader2, 
   Check, 
   X, 
   AlertTriangle, 
@@ -15,11 +13,14 @@ import {
   Edit3, 
   Trash2, 
   Plus,
-  Zap,
-  Globe,
   Layout,
   Users,
-  Target
+  Target,
+  BookOpen,
+  Activity,
+  Calendar,
+  Settings,
+  FileText
 } from 'lucide-react';
 import { rbacService } from '../../services/rbacService';
 import { RBACSettings, RolePermissions, PermissionModule, PermissionAction, CategoryPermission, ActivityPermission } from '../../types/rbac-advanced';
@@ -192,7 +193,7 @@ export const AdminPermissionsIDE: React.FC = () => {
   if (loading || !settings) {
     return (
       <div className="flex flex-col items-center justify-center py-20 bg-zinc-900/10 rounded-[3rem] border border-white/5">
-        <RefreshCw className="w-10 h-10 text-indigo-500 animate-spin mb-4" />
+        <Loader2 className="w-10 h-10 text-indigo-500 animate-spin mb-4" />
         <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest italic soul-text">Yetki Mimarisi Yapılandırılıyor</p>
       </div>
     );
@@ -202,7 +203,8 @@ export const AdminPermissionsIDE: React.FC = () => {
   const modules: PermissionModule[] = [
     'activity-studio', 'reading-studio', 'math-studio', 'infographic-studio', 
     'sinav-studyosu', 'ocr', 'screening', 'students', 'reports', 'admin',
-    'curriculum', 'creative-studio', 'super-studio', 'sari-kitap'
+    'curriculum', 'creative-studio', 'super-studio', 'sari-kitap',
+    'workbook', 'analytics', 'evaluation', 'planning', 'bep', 'settings'
   ];
 
   return (
@@ -225,14 +227,14 @@ export const AdminPermissionsIDE: React.FC = () => {
             onClick={loadSettings}
             className="p-3.5 rounded-2xl bg-zinc-800/50 text-zinc-400 hover:text-white border border-white/5 transition-all hover:bg-zinc-800"
           >
-            <RefreshCw className="w-5 h-5" />
+            <Loader2 className="w-5 h-5" />
           </button>
           <button 
             onClick={handleSave}
             disabled={saving}
             className="flex items-center gap-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white px-8 py-4 rounded-[1.5rem] text-xs font-black uppercase tracking-widest shadow-2xl shadow-indigo-600/30 transition-all active:scale-95 border border-white/10"
           >
-            {saving ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+            {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             Global Değişiklikleri Uygula
           </button>
         </div>
@@ -291,7 +293,14 @@ export const AdminPermissionsIDE: React.FC = () => {
                     >
                       <div className="flex items-center gap-4">
                         <div className={`p-3 rounded-2xl transition-all ${isEnabled ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-zinc-800 text-zinc-600 border border-transparent'}`}>
-                          {moduleName === 'admin' ? <Shield size={18} /> : (moduleName === 'students' ? <Users size={18} /> : <Layout size={18} />)}
+                          {moduleName === 'admin' ? <Shield size={18} /> : 
+                           moduleName === 'students' ? <Users size={18} /> : 
+                           moduleName === 'workbook' ? <BookOpen size={18} /> :
+                           moduleName === 'analytics' ? <Activity size={18} /> :
+                           moduleName === 'planning' ? <Calendar size={18} /> :
+                           moduleName === 'settings' ? <Settings size={18} /> :
+                           (moduleName === 'bep' || moduleName === 'reports' || moduleName === 'evaluation') ? <FileText size={18} /> :
+                           <Layout size={18} />}
                         </div>
                         <div>
                           <h4 className="text-sm font-black text-white uppercase tracking-tight group-hover:text-indigo-400 transition-colors">{moduleName.replace('-', ' ')}</h4>
@@ -308,7 +317,7 @@ export const AdminPermissionsIDE: React.FC = () => {
                             : 'bg-zinc-800 text-zinc-600 border border-transparent'
                           }`}
                         >
-                          {isEnabled ? <Unlock size={12} /> : <Lock size={12} />}
+                          {isEnabled ? <Check size={12} /> : <X size={12} />}
                           {isEnabled ? 'ERİŞİM AÇIK' : 'ERİŞİM YOK'}
                         </button>
                         <div className={`p-2 rounded-full transition-transform duration-300 ${isExpanded ? 'rotate-180 bg-zinc-800 text-indigo-400' : 'text-zinc-600'}`}>
@@ -331,7 +340,7 @@ export const AdminPermissionsIDE: React.FC = () => {
                             {/* Action Matrix (Global Level) */}
                             <div className="p-4 bg-black/20 rounded-3xl border border-white/5">
                               <p className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                                <Zap size={10} className="text-amber-500" /> Modül Eylemleri Yetkilendirmesi
+                                <Activity size={10} className="text-amber-500" /> Modül Eylemleri Yetkilendirmesi
                               </p>
                               <div className="flex flex-wrap gap-2">
                                 {(['view', 'create', 'edit', 'delete', 'manage', 'approve', 'export'] as PermissionAction[]).map(action => {

@@ -37,7 +37,13 @@ export type PermissionModule =
   | 'super-studio'
   | 'sari-kitap'
   | 'infographic-studio'
-  | 'messaging';
+  | 'messaging'
+  | 'workbook'
+  | 'analytics'
+  | 'evaluation'
+  | 'planning'
+  | 'bep'
+  | 'settings';
 
 // ─── Category Permission ──────────────────────────────────────────
 
@@ -231,6 +237,36 @@ export const buildDefaultRBAC = (): RBACSettings => {
             enabled: true,
             actions: ['view', 'create', 'edit', 'delete', 'manage', 'approve', 'export', 'assign'],
           },
+          {
+            module: 'workbook',
+            enabled: true,
+            actions: ['view', 'create', 'edit', 'delete', 'manage', 'export', 'assign'],
+          },
+          {
+            module: 'analytics',
+            enabled: true,
+            actions: ['view', 'manage', 'export'],
+          },
+          {
+            module: 'evaluation',
+            enabled: true,
+            actions: ['view', 'create', 'edit', 'delete', 'manage', 'export', 'assign'],
+          },
+          {
+            module: 'planning',
+            enabled: true,
+            actions: ['view', 'create', 'edit', 'delete', 'manage', 'export'],
+          },
+          {
+            module: 'bep',
+            enabled: true,
+            actions: ['view', 'create', 'edit', 'delete', 'manage', 'approve', 'export', 'assign'],
+          },
+          {
+            module: 'settings',
+            enabled: true,
+            actions: ['view', 'manage', 'edit'],
+          },
         ],
         globalSettings: {
           canAccessAdmin: true,
@@ -283,6 +319,21 @@ export const buildDefaultRBAC = (): RBACSettings => {
             module: 'messaging',
             enabled: true,
             actions: ['view', 'create', 'edit', 'assign'],
+          },
+          {
+            module: 'workbook',
+            enabled: true,
+            actions: ['view', 'create', 'edit', 'delete', 'export', 'assign'],
+          },
+          {
+            module: 'analytics',
+            enabled: true,
+            actions: ['view', 'export'],
+          },
+          {
+            module: 'bep',
+            enabled: true,
+            actions: ['view', 'create', 'edit', 'export', 'assign'],
           },
         ],
         globalSettings: {
@@ -383,6 +434,31 @@ export const buildDefaultRBAC = (): RBACSettings => {
             enabled: true,
             actions: ['view', 'create', 'assign'],
           },
+          {
+            module: 'workbook',
+            enabled: true,
+            actions: ['view', 'create', 'edit', 'delete', 'export', 'assign'],
+          },
+          {
+            module: 'analytics',
+            enabled: true,
+            actions: ['view', 'export'],
+          },
+          {
+            module: 'evaluation',
+            enabled: true,
+            actions: ['view', 'create', 'edit', 'export', 'assign'],
+          },
+          {
+            module: 'planning',
+            enabled: true,
+            actions: ['view', 'create', 'edit', 'export'],
+          },
+          {
+            module: 'bep',
+            enabled: true,
+            actions: ['view', 'create', 'edit', 'export', 'assign'],
+          },
         ],
         globalSettings: {
           canAccessAdmin: false,
@@ -416,6 +492,21 @@ export const buildDefaultRBAC = (): RBACSettings => {
               requireApproval: false,
             },
           },
+          {
+            module: 'workbook',
+            enabled: true,
+            actions: ['view', 'create'],
+          },
+          {
+            module: 'analytics',
+            enabled: true,
+            actions: ['view'],
+          },
+          {
+            module: 'planning',
+            enabled: true,
+            actions: ['view'],
+          },
         ],
         globalSettings: {
           canAccessAdmin: false,
@@ -444,6 +535,11 @@ export const buildDefaultRBAC = (): RBACSettings => {
               })),
             })),
           },
+          {
+            module: 'workbook',
+            enabled: true,
+            actions: ['view', 'create'],
+          },
         ],
         globalSettings: {
           canAccessAdmin: false,
@@ -471,6 +567,16 @@ export const buildDefaultRBAC = (): RBACSettings => {
                 allowedRoles: ['parent'],
               })),
             })),
+          },
+          {
+            module: 'workbook',
+            enabled: true,
+            actions: ['view'],
+          },
+          {
+            module: 'analytics',
+            enabled: true,
+            actions: ['view'],
           },
         ],
         globalSettings: {
