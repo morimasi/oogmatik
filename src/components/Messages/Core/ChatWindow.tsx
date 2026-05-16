@@ -21,7 +21,6 @@ export const ChatWindow: React.FC = () => {
     getConversationSettings,
     updateConversationSettings,
     updateNotificationPreferences,
-    conversationSettings,
   } = useMessageStore();
   const { user } = useAuthStore();
   const { theme, setTheme } = useGlobalStore();
@@ -81,9 +80,9 @@ export const ChatWindow: React.FC = () => {
       const el = messagesContainerRef.current.querySelector(`[data-message-id="${highlightMessageId}"]`);
       if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        el.classList.add('ring-2', 'ring-accent-primary/50', 'rounded-xl');
+        el.classList.add('ring-2', 'ring-[var(--accent-color)]/50', 'rounded-xl');
         setTimeout(() => {
-          el.classList.remove('ring-2', 'ring-accent-primary/50', 'rounded-xl');
+          el.classList.remove('ring-2', 'ring-[var(--accent-color)]/50', 'rounded-xl');
           setHighlightMessageId(null);
         }, 3000);
       }
@@ -268,6 +267,10 @@ export const ChatWindow: React.FC = () => {
                   }} />
                 </div>
               </div>
+
+              <div className="p-3 border-t border-[var(--border-color)] text-center">
+                <p className="text-[9px] text-[var(--text-secondary)] tracking-widest uppercase">KVKK Kapsamında Kayıt Altına Alınır</p>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -301,253 +304,5 @@ const ActionButton: React.FC<{ icon: React.ReactNode; label: string; color?: str
   <button onClick={onClick} className={`w-full p-2.5 rounded-lg border transition-all text-left flex items-center gap-2 ${color}`}>
     <div className="opacity-70">{icon}</div>
     <span className="text-[11px] font-medium">{label}</span>
-  </button>
-);
-  }
-
-  const displayName = conversation?.type === 'group' ? (conversation.title || 'Grup') : (recipient?.name || 'Yükleniyor...');
-  const displayAvatar = recipient?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${displayName}`;
-
-  return (
-    <div className="flex-1 flex flex-col min-w-0 bg-[#050505] relative h-full overflow-hidden">
-      {/* Header */}
-      <div className="h-12 md:h-14 px-3 md:px-5 flex items-center justify-between bg-[#0a0a0a] border-b border-white/[0.05] z-40 flex-shrink-0">
-        <div className="flex items-center gap-2 md:gap-3 min-w-0">
-          <button onClick={() => setActiveConversationId(null)} className="p-1.5 -ml-1 md:hidden hover:bg-white/5 rounded-lg text-white/40 transition-all">
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <div className="relative flex-shrink-0">
-            <img src={displayAvatar} alt={displayName} className="w-8 h-8 md:w-10 md:h-10 rounded-xl border border-white/5 object-cover" />
-            <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 border-2 border-[#0a0a0a] rounded-full" />
-          </div>
-          <div className="min-w-0">
-            <h2 className="text-white font-bold text-sm md:text-base leading-none truncate">{displayName}</h2>
-            <span className="text-[10px] text-green-500/60 font-medium">Çevrimiçi</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-1 md:gap-2">
-          <button onClick={() => setIsSettingsOpen(!isSettingsOpen)} className={`p-2 rounded-lg transition-all ${isSettingsOpen ? 'bg-accent-primary/20 text-accent-primary' : 'hover:bg-white/5 text-white/30 hover:text-white'}`}>
-            <Settings className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-
-      {/* Messages */}
-      <div className="flex-1 relative flex overflow-hidden">
-        <div ref={messagesContainerRef} className="flex-1 overflow-y-auto px-3 md:px-6 py-3 md:py-4 scroll-smooth custom-scrollbar relative z-10">
-          <div className="max-w-4xl mx-auto flex flex-col gap-2 min-h-full">
-            {isLoading ? (
-              <div className="flex-1 flex items-center justify-center">
-                <div className="w-6 h-6 border-2 border-accent-primary/30 border-t-accent-primary rounded-full animate-spin" />
-              </div>
-            ) : messages.length === 0 ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
-                <div className="w-12 h-12 rounded-2xl bg-white/[0.03] flex items-center justify-center mb-3">
-                  <svg className="w-6 h-6 text-white/20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-                </div>
-                <h3 className="text-sm font-semibold text-white/40 mb-1">Henüz mesaj yok</h3>
-                <p className="text-xs text-white/20">İlk mesajı göndererek sohbeti başlatın.</p>
-              </div>
-            ) : (
-              messages.map((msg, i) => (
-                <motion.div key={msg.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.008 }} data-message-id={msg.id} className="scroll-mt-12">
-                  <MessageBubble message={msg} isOwn={msg.senderId === user?.id} />
-                </motion.div>
-              ))
-            )}
-            <div ref={messagesEndRef} className="h-4 w-full" />
-          </div>
-        </div>
-
-        {/* Settings Panel */}
-        <AnimatePresence>
-          {isSettingsOpen && (
-            <motion.div initial={{ x: '100%', opacity: 0 }} animate={{ x: 0, opacity: 1 }} exit={{ x: '100%', opacity: 0 }} transition={{ type: 'spring', damping: 30, stiffness: 260 }}
-              className="absolute top-0 right-0 bottom-0 w-[300px] bg-[#0a0a0a]/98 backdrop-blur-[40px] border-l border-white/5 z-[60] flex flex-col shadow-[-40px_0_80px_rgba(0,0,0,1)]"
-            >
-              <div className="flex items-center justify-between p-4 border-b border-white/5">
-                <h3 className="text-white font-bold text-sm">Sohbet Ayarları</h3>
-                <button onClick={() => setIsSettingsOpen(false)} className="p-1.5 hover:bg-white/5 rounded-lg text-white/30 hover:text-white transition-all">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div className="flex-1 overflow-y-auto custom-scrollbar p-3 space-y-1">
-                {/* Tema */}
-                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div className="p-2 rounded-lg bg-white/5 text-white/40"><Sun className="w-3.5 h-3.5" /></div>
-                      <div>
-                        <span className="text-xs font-semibold text-white/80">Tema</span>
-                        <p className="text-[10px] text-white/30">Arayüz görünümü</p>
-                      </div>
-                    </div>
-                    <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                      className={`relative w-9 h-5 rounded-full transition-all ${theme === 'dark' ? 'bg-accent-primary/60' : 'bg-white/10'}`}>
-                      <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-0.5 transition-all flex items-center justify-center ${theme === 'dark' ? 'translate-x-[18px]' : 'translate-x-[3px]'}`}>
-                        {theme === 'dark' ? <Moon className="w-2 h-2 text-black" /> : <Sun className="w-2 h-2 text-yellow-500" />}
-                      </div>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Sessiz Mod */}
-                <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div className={`p-2 rounded-lg ${isMuted ? 'bg-red-500/10 text-red-400' : 'bg-white/5 text-white/40'}`}>
-                        {isMuted ? <BellOff className="w-3.5 h-3.5" /> : <Bell className="w-3.5 h-3.5" />}
-                      </div>
-                      <div>
-                        <span className="text-xs font-semibold text-white/80">Sessiz Mod</span>
-                        <p className="text-[10px] text-white/30">Bildirimleri sustur</p>
-                      </div>
-                    </div>
-                    <button onClick={handleToggleMute} className={`relative w-9 h-5 rounded-full transition-all ${isMuted ? 'bg-red-500/50' : 'bg-white/10'}`}>
-                      <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-0.5 transition-all ${isMuted ? 'translate-x-[18px]' : 'translate-x-[3px]'}`} />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Masaüstü Bildirimleri */}
-                <SettingsToggle
-                  icon={<Bell className="w-3.5 h-3.5" />}
-                  label="Masaüstü Bildirimleri"
-                  desc="Tarayıcı bildirimleri"
-                  isActive={convSettings?.notificationPreferences.desktopEnabled ?? false}
-                  onToggle={() => {
-                    if (!activeConversationId) return;
-                    const prefs = convSettings?.notificationPreferences;
-                    if (!prefs?.desktopEnabled) {
-                      notificationService.requestDesktopPermission().then(g => updateNotificationPreferences(activeConversationId, { desktopEnabled: g }));
-                    } else {
-                      updateNotificationPreferences(activeConversationId, { desktopEnabled: false });
-                    }
-                  }}
-                />
-
-                {/* Ses */}
-                <SettingsToggle
-                  icon={<Volume2 className="w-3.5 h-3.5" />}
-                  label="Bildirim Sesi"
-                  desc="Mesaj sesi"
-                  isActive={convSettings?.notificationPreferences.soundEnabled ?? true}
-                  onToggle={() => {
-                    if (!activeConversationId) return;
-                    const v = !convSettings?.notificationPreferences.soundEnabled;
-                    updateNotificationPreferences(activeConversationId, { soundEnabled: v });
-                    if (v) notificationService.playTestSound();
-                  }}
-                />
-
-                {/* Titreşim */}
-                <SettingsToggle
-                  icon={<Monitor className="w-3.5 h-3.5" />}
-                  label="Titreşim"
-                  desc="Mobil titreşim"
-                  isActive={convSettings?.notificationPreferences.vibrationEnabled ?? true}
-                  onToggle={() => {
-                    if (!activeConversationId) return;
-                    updateNotificationPreferences(activeConversationId, { vibrationEnabled: !convSettings?.notificationPreferences.vibrationEnabled });
-                  }}
-                />
-
-                {/* Gizlilik */}
-                <SettingsToggle
-                  icon={<Shield className="w-3.5 h-3.5" />}
-                  label="Gizlilik Modu"
-                  desc="İçeriği bildirimde gizle"
-                  isActive={!convSettings?.notificationPreferences.showOnLockScreen}
-                  onToggle={() => {
-                    if (!activeConversationId) return;
-                    updateNotificationPreferences(activeConversationId, { showOnLockScreen: !convSettings?.notificationPreferences.showOnLockScreen });
-                  }}
-                />
-
-                {/* Okundu Bilgisi */}
-                <SettingsToggle
-                  icon={<Eye className="w-3.5 h-3.5" />}
-                  label="Okundu Bilgisi"
-                  desc="Görüldü işaretini göster"
-                  isActive={convSettings?.showReadReceipts ?? true}
-                  onToggle={() => {
-                    if (!activeConversationId) return;
-                    updateConversationSettings(activeConversationId, { showReadReceipts: !convSettings?.showReadReceipts });
-                  }}
-                />
-
-                {/* Aksiyonlar */}
-                <div className="pt-2 space-y-1">
-                  {/* Arşiv Butonu (admin/teacher) */}
-                  {(user?.role === 'admin' || user?.role === 'superadmin' || user?.role === 'teacher') && (
-                    <ActionButton icon={<Archive className="w-3.5 h-3.5" />} label="Güvenli Arşiv" desc="Silinen mesajları yönet" color="text-amber-400" />
-                  )}
-
-                  {/* Dışa Aktar */}
-                  <ActionButton icon={<Download className="w-3.5 h-3.5" />} label="Sohbeti Dışa Aktar" desc="JSON formatında kaydet" onClick={() => {
-                    const data = JSON.stringify(messages, null, 2);
-                    const blob = new Blob([data], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a'); a.href = url; a.download = `sohbet-${activeConversationId}.json`; a.click();
-                    URL.revokeObjectURL(url);
-                  }} />
-
-                  {/* Sohbeti Temizle */}
-                  <ActionButton icon={<Trash2 className="w-3.5 h-3.5" />} label="Sohbeti Temizle" desc="Tüm mesajları sil (yerel)" color="text-red-400" onClick={() => {
-                    if (window.confirm('Tüm mesajları silmek istediğinize emin misiniz? Bu işlem geri alınamaz.')) {
-                      setMessages([]);
-                    }
-                  }} />
-                </div>
-              </div>
-
-              <div className="p-3 border-t border-white/5 text-center">
-                <p className="text-[9px] text-white/10 tracking-widest uppercase">KVKK Kapsamında Kayıt Altına Alınır</p>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      {/* Composer */}
-      <div className="px-3 md:px-6 pb-3 md:pb-4 pt-2 bg-gradient-to-t from-[#050505] via-[#050505]/98 to-transparent z-40 flex-shrink-0">
-        <div className="max-w-4xl mx-auto">
-          <div className="rounded-2xl overflow-hidden border border-white/[0.08] bg-[#0d0d0d]/95 backdrop-blur-[40px] shadow-lg">
-            <EnhancedComposer />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const SettingsToggle: React.FC<{ icon: React.ReactNode; label: string; desc: string; isActive: boolean; onToggle: () => void }> = ({ icon, label, desc, isActive, onToggle }) => (
-  <div className="p-3 rounded-xl bg-white/[0.02] border border-white/5">
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2.5">
-        <div className={`p-2 rounded-lg ${isActive ? 'bg-accent-primary/10 text-accent-primary' : 'bg-white/5 text-white/40'}`}>{icon}</div>
-        <div>
-          <span className="text-xs font-semibold text-white/80">{label}</span>
-          <p className="text-[10px] text-white/30">{desc}</p>
-        </div>
-      </div>
-      <button onClick={onToggle} className={`relative w-9 h-5 rounded-full transition-all flex-shrink-0 ${isActive ? 'bg-accent-primary/60' : 'bg-white/10'}`}>
-        <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-0.5 transition-all ${isActive ? 'translate-x-[18px]' : 'translate-x-[3px]'}`} />
-      </button>
-    </div>
-  </div>
-);
-
-const ActionButton: React.FC<{ icon: React.ReactNode; label: string; desc: string; color?: string; onClick?: () => void }> = ({ icon, label, desc, color = 'text-white/40', onClick }) => (
-  <button onClick={onClick} className="w-full p-3 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-all text-left">
-    <div className="flex items-center gap-2.5">
-      <div className={`p-2 rounded-lg bg-white/5 ${color}`}>{icon}</div>
-      <div>
-        <span className="text-xs font-semibold text-white/80">{label}</span>
-        <p className="text-[10px] text-white/30">{desc}</p>
-      </div>
-    </div>
   </button>
 );
