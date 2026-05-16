@@ -1,8 +1,6 @@
 import React from 'react';
-import { CollectionItem, WorkbookSettings, ActivityType } from '../types';
-import Worksheet from './Worksheet';
+import { CollectionItem, WorkbookSettings } from '../types';
 import DyslexiaLogo from './DyslexiaLogo';
-import { Toolbar } from './Toolbar';
 import { WorkbookActivityRenderer } from './workbook/WorkbookActivityRenderer';
 import '../styles/workbookPremium.css';
 
@@ -78,10 +76,10 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }: WorkbookProps) =
     );
 
     // Theme Specific Aesthetic Blocks
-    const DecorativeShape = ({ className = '', style = {} }) => (
+    const DecorativeShape = ({ className: cn = '', style: st = {} }: { className?: string; style?: React.CSSProperties }) => (
       <div
-        className={`absolute pointer-events-none ${className}`}
-        style={{ background: accent, ...style }}
+        className={`absolute pointer-events-none ${cn}`}
+        style={{ background: accent, ...st }}
       />
     );
 
@@ -121,8 +119,8 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }: WorkbookProps) =
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-10 opacity-60 text-[10px] font-mono tracking-widest uppercase">
-                  <div>// Bursa Disleksi EduMind Neuro-Cognitive Development Kit</div>
-                  <div className="text-right">// AI Powered Learning Environment</div>
+                  <div>{'// Bursa Disleksi EduMind Neuro-Cognitive Development Kit'}</div>
+                  <div className="text-right">{'// AI Powered Learning Environment'}</div>
                 </div>
               </div>
             </div>
@@ -376,7 +374,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }: WorkbookProps) =
                       </p>
                       {settings.teacherNote && (
                         <p className="text-sm font-medium italic text-zinc-400 max-w-md">
-                          "{settings.teacherNote}"
+                          &quot;{settings.teacherNote}&quot;
                         </p>
                       )}
                     </div>
@@ -617,41 +615,6 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }: WorkbookProps) =
           return (
             <React.Fragment key={item.id}>
               {renderDividerPage(item, index)}
-              {index < items.length - 1 && (
-                <PageBreakIndicator fromPage={currentPageNum} toPage={currentPageNum + 1} />
-              )}
-            </React.Fragment>
-          );
-        }
-
-        const mergedSettings = {
-          ...settings,
-          ...item.settings,
-          showPedagogicalNote: true,
-          ...item.overrideStyle,
-          // Premium adjustments for individual pages
-          isPremium: true,
-          fontFamily: font,
-        };
-
-        if (item.activityType === ActivityType.INFOGRAPHIC_STUDIO) {
-          return (
-            <React.Fragment key={item.id}>
-              <div className="relative w-full flex justify-center print:m-0">
-                <div className="relative bg-white shadow-2xl worksheet-page" style={getPageStyle()}>
-                  <Watermark />
-                  <div className="relative z-10 h-full" style={{ overflow: 'hidden', height: 'calc(100% - 60px)' }}>
-                    <WorkbookActivityRenderer
-                      item={item}
-                      settings={settings}
-                      pageNum={currentPageNum}
-                      font={font}
-                      accent={accent}
-                    />
-                  </div>
-                  <PageFooter pageNum={currentPageNum} />
-                </div>
-              </div>
               {index < items.length - 1 && (
                 <PageBreakIndicator fromPage={currentPageNum} toPage={currentPageNum + 1} />
               )}

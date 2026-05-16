@@ -7,7 +7,7 @@ import { NoktaRenderer } from '../SariKitapStudio/modules/nokta';
 import { KopruRenderer } from '../SariKitapStudio/modules/kopru';
 import { BellekRenderer } from '../SariKitapStudio/modules/bellek';
 import { HizliOkumaRenderer } from '../SariKitapStudio/modules/hizliOkuma';
-import type { RendererProps, SariKitapModule } from '../SariKitapStudio/registry';
+import type { RendererProps } from '../SariKitapStudio/registry';
 import type { SariKitapGeneratedContent } from '../../types/sariKitap';
 
 interface WorkbookActivityRendererProps {
@@ -20,7 +20,7 @@ interface WorkbookActivityRendererProps {
 
 const SARI_KITAP_TYPES = new Set(['cift_metin', 'pencere', 'nokta', 'kopru', 'bellek', 'hizli_okuma']);
 
-export const WorkbookActivityRenderer = memo(({ item, settings, pageNum, font, accent }: WorkbookActivityRendererProps) => {
+export const WorkbookActivityRenderer = memo(({ item, settings, font }: WorkbookActivityRendererProps) => {
     const mergedSettings = {
         ...settings,
         ...item.settings,
@@ -39,7 +39,7 @@ export const WorkbookActivityRenderer = memo(({ item, settings, pageNum, font, a
         // Data structure varies: some have { config, content }, others store everything directly in item.data
         const itemData = item.data as Record<string, unknown>;
         let config: Record<string, unknown> = {};
-        let content: Partial<SariKitapGeneratedContent> = {};
+        const content: Partial<SariKitapGeneratedContent> = {};
 
         // Extract config if it exists
         if ('config' in itemData) {

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { CollectionItem, WorkbookSettings, StyleSettings, ActivityType, StudentProfile } from '../types';
+import { CollectionItem, WorkbookSettings, StyleSettings, ActivityType } from '../types';
 import Workbook from './Workbook';
 import { worksheetService } from '../services/worksheetService';
 import { printService } from '../utils/printService';
@@ -8,9 +8,9 @@ import { useAuthStore } from '../store/useAuthStore';
 import { useStudentStore } from '../store/useStudentStore';
 import { ActivityImporterModal } from './ActivityImporterModal';
 import { generateWithSchema } from '../services/geminiClient.js';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError, logWarn } from '../utils/logger.js';
 interface WorkbookViewProps {
   items: CollectionItem[];
   setItems: React.Dispatch<React.SetStateAction<CollectionItem[]>>;
@@ -121,6 +121,7 @@ const SortablePageItem = React.memo(
     );
   }
 );
+SortablePageItem.displayName = 'SortablePageItem';
 
 export const WorkbookView = ({
   items,
