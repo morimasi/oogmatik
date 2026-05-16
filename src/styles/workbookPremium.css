@@ -56,6 +56,17 @@
     --page-height: 210mm;
 }
 
+/* Workbook activity content constraints */
+.workbook-activity-content {
+    max-width: 100%;
+    max-height: 100%;
+    box-sizing: border-box;
+}
+
+.workbook-activity-content > * {
+    max-width: 100%;
+}
+
 @media print {
     .orientation-portrait {
         width: 210mm !important;
@@ -64,5 +75,29 @@
     .orientation-landscape {
         width: 297mm !important;
         height: 210mm !important;
+    }
+
+    /* Force A4 page boundaries during print */
+    .workbook-container {
+        gap: 0 !important;
+        padding: 0 !important;
+        background: none !important;
+    }
+
+    .worksheet-page {
+        page-break-after: always;
+        page-break-inside: avoid;
+        margin: 0 !important;
+        box-shadow: none !important;
+        overflow: hidden !important;
+    }
+
+    .workbook-activity-content {
+        overflow: hidden !important;
+    }
+
+    .no-print,
+    .PageBreakIndicator {
+        display: none !important;
     }
 }

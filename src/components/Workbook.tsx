@@ -3,6 +3,7 @@ import { CollectionItem, WorkbookSettings, ActivityType } from '../types';
 import Worksheet from './Worksheet';
 import DyslexiaLogo from './DyslexiaLogo';
 import { Toolbar } from './Toolbar';
+import { WorkbookActivityRenderer } from './workbook/WorkbookActivityRenderer';
 import '../styles/workbookPremium.css';
 
 interface WorkbookProps {
@@ -18,7 +19,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }: WorkbookProps) =
   const isLandscape = settings.orientation === 'landscape';
   const getPageStyle = (extra = {}) => ({
     width: isLandscape ? '297mm' : '210mm',
-    minHeight: isLandscape ? '210mm' : '296.5mm', // Subtle adjustment for PDF precision
+    height: isLandscape ? '210mm' : '297mm',
     padding: settings.margin ? `${settings.margin}mm` : '15mm',
     margin: '0 auto',
     backgroundColor: 'white',
@@ -27,6 +28,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }: WorkbookProps) =
     overflow: 'hidden' as const,
     boxShadow: '0 0 40px rgba(0,0,0,0.1)',
     fontFamily: font,
+    boxSizing: 'border-box' as const,
     ...extra,
   });
 
@@ -635,18 +637,20 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }: WorkbookProps) =
         if (item.activityType === ActivityType.INFOGRAPHIC_STUDIO) {
           return (
             <React.Fragment key={item.id}>
-              <div className="relative w-full flex flex-col items-center">
-                <Worksheet
-                  activityType={item.activityType}
-                  data={item.data as any}
-                  settings={mergedSettings}
-                  studentProfile={{
-                    name: settings.studentName,
-                    school: settings.schoolName,
-                    grade: '',
-                    date: new Date().toLocaleDateString('tr-TR'),
-                  }}
-                />
+              <div className="relative w-full flex justify-center print:m-0">
+                <div className="relative bg-white shadow-2xl worksheet-page" style={getPageStyle()}>
+                  <Watermark />
+                  <div className="relative z-10 h-full" style={{ overflow: 'hidden', height: 'calc(100% - 60px)' }}>
+                    <WorkbookActivityRenderer
+                      item={item}
+                      settings={settings}
+                      pageNum={currentPageNum}
+                      font={font}
+                      accent={accent}
+                    />
+                  </div>
+                  <PageFooter pageNum={currentPageNum} />
+                </div>
               </div>
               {index < items.length - 1 && (
                 <PageBreakIndicator fromPage={currentPageNum} toPage={currentPageNum + 1} />
@@ -660,7 +664,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }: WorkbookProps) =
             <div className="relative w-full flex justify-center print:m-0">
               <div className="relative bg-white shadow-2xl worksheet-page" style={getPageStyle()}>
                 <Watermark />
-                <div className="relative z-10 h-full">
+                <div className="relative z-10 h-full" style={{ overflow: 'hidden', height: 'calc(100% - 60px)' }}>
                   {item.activityType === 'ASSESSMENT_REPORT' ? (
                     <div className="p-20 text-center flex flex-col items-center justify-center h-full">
                       <i className="fa-solid fa-chart-line text-6xl text-zinc-100 mb-8"></i>
@@ -669,16 +673,12 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }: WorkbookProps) =
                       </h3>
                     </div>
                   ) : (
-                    <Worksheet
-                      activityType={item.activityType}
-                      data={[item.data as any]}
-                      settings={mergedSettings}
-                      studentProfile={{
-                        name: settings.studentName,
-                        school: settings.schoolName,
-                        grade: '',
-                        date: new Date().toLocaleDateString('tr-TR'),
-                      }}
+                    <WorkbookActivityRenderer
+                      item={item}
+                      settings={settings}
+                      pageNum={currentPageNum}
+                      font={font}
+                      accent={accent}
                     />
                   )}
                 </div>
