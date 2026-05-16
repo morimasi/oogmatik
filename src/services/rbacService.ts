@@ -1,30 +1,84 @@
 import { db } from './firebaseClient';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { RBACSettings, buildDefaultRBAC, PermissionModule, PermissionAction } from '../types/rbac-advanced';
+import { RBACSettings, buildDefaultRBAC, PermissionModule, PermissionAction, ALL_MODULES } from '../types/rbac-advanced';
 import { UserRole } from '../types/user';
 import { ActivityType } from '../types/activity';
-import { logError } from '../utils/logger.js';
+import { logError, logInfo, logWarn } from '../utils/logger.js';
 
 const DEFAULT_RBAC_SETTINGS = buildDefaultRBAC();
 
+/**
+ * Eski RBAC verisini yeni şemaya migrate eder.
+ * - Tanımsız modülleri temizler
+ * - Eksik modülleri varsayılan yetkilerle ekler
+ * - Admin modülünü her role ekler
+ */
+const migrateRBACSettings = (settings: RBACSettings): RBACSettings => {
+  const validModules = new Set(ALL_MODULES);
+  const migrated: RBACSettings = JSON.parse(JSON.stringify(settings));
+
+  for (const rolePerm of migrated.roles) {
+    // Eski/tanımsız modülleri temizle
+    rolePerm.modules = rolePerm.modules.filter(m => validModules.has(m.module));
+
+    // Eksik modülleri varsayılan yetkilerle ekle
+    const existingModules = new Set(rolePerm.modules.map(m => m.module));
+    const defaults = DEFAULT_RBAC_SETTINGS.roles.find(r => r.role === rolePerm.role);
+
+    if (defaults) {
+      for (const defModule of defaults.modules) {
+        if (!existingModules.has(defModule.module)) {
+          rolePerm.modules.push(JSON.parse(JSON.stringify(defModule)));
+        }
+      }
+    }
+
+    // Admin modülü her rolde olmalı
+    if (!rolePerm.modules.some(m => m.module === 'admin')) {
+      rolePerm.modules.push({
+        module: 'admin' as PermissionModule,
+        enabled: rolePerm.role === 'superadmin' || rolePerm.role === 'admin',
+        actions: rolePerm.role === 'superadmin'
+          ? ['view', 'create', 'edit', 'delete', 'manage', 'approve', 'export', 'assign']
+          : rolePerm.role === 'admin'
+            ? ['view', 'manage']
+            : []
+      });
+    }
+  }
+
+  return migrated;
+};
+
 class RBACService {
   private settings: RBACSettings | null = null;
+  private initialized = false;
 
   async initialize(): Promise<void> {
+    if (this.initialized) return;
+
     try {
       const docRef = doc(db, 'settings', 'rbac');
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
-        this.settings = docSnap.data() as RBACSettings;
+        const loaded = docSnap.data() as RBACSettings;
+        // Migration: eski şemayı yeni şemaya taşı
+        this.settings = migrateRBACSettings(loaded);
+        // Migration sonrası kaydet
+        await setDoc(docRef, this.settings);
+        logInfo('RBAC migration completed');
       } else {
         // İlk kurulumda varsayılan ayarları kaydet
         await setDoc(docRef, DEFAULT_RBAC_SETTINGS);
         this.settings = DEFAULT_RBAC_SETTINGS;
+        logInfo('RBAC default settings seeded');
       }
+      this.initialized = true;
     } catch (error) {
-      logError('RBAC initialization error:', error as any);
+      logError('RBAC initialization error:', error as Record<string, unknown>);
       this.settings = DEFAULT_RBAC_SETTINGS;
+      this.initialized = true;
     }
   }
 
@@ -38,9 +92,25 @@ class RBACService {
       await setDoc(docRef, newSettings);
       this.settings = newSettings;
     } catch (error) {
-      logError('RBAC save error:', error as any);
+      logError('RBAC save error:', error as Record<string, unknown>);
       throw error;
     }
+  }
+
+  async resetToDefaults(): Promise<void> {
+    try {
+      const docRef = doc(db, 'settings', 'rbac');
+      await setDoc(docRef, DEFAULT_RBAC_SETTINGS);
+      this.settings = DEFAULT_RBAC_SETTINGS;
+      logInfo('RBAC reset to defaults');
+    } catch (error) {
+      logError('RBAC reset error:', error as Record<string, unknown>);
+      throw error;
+    }
+  }
+
+  getAllModules(): PermissionModule[] {
+    return [...ALL_MODULES];
   }
 
   updateSettings(newSettings: RBACSettings): void {

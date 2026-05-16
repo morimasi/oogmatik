@@ -11,32 +11,34 @@ export type PermissionAction =
   | 'export'
   | 'assign';
 
-export type PermissionModule = 
+export type PermissionModule =
   | 'activity-studio'
   | 'reading-studio'
   | 'math-studio'
   | 'sinav-studyosu'
   | 'mat-sinav-studyosu'
-  | 'ocr'
-  | 'screening'
-  | 'admin'
-  | 'curriculum'
-  | 'students'
-  | 'reports'
-  | 'creative-studio'
-  | 'super-studio'
-  | 'sari-kitap'
-  | 'infographic-studio'
-  | 'messaging'
-  | 'workbook'
-  | 'analytics'
-  | 'evaluation'
-  | 'planning'
-  | 'bep'
-  | 'kelime-cumle'
   | 'super-turkce'
+  | 'screening'
+  | 'curriculum'
+  | 'evaluation'
+  | 'super-studio'
+  | 'infographic-studio'
+  | 'sari-kitap'
+  | 'kelime-cumle'
+  | 'students'
+  | 'workbook'
+  | 'messaging'
+  | 'favorites'
   | 'archive'
-  | 'settings';
+  | 'shared-materials'
+  | 'activity-history'
+  | 'admin'
+  | 'profile-management'
+  | 'appearance-settings'
+  | 'platform-market'
+  | 'premium-support'
+  | 'about-us'
+  | 'developer-tools';
 
 export interface CategoryPermission {
   categoryId: string;

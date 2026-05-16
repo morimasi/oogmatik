@@ -22,53 +22,34 @@ export type PermissionAction =
   | 'export'     // Dışa aktarabilir/Yazdırabilir
   | 'assign';    // Öğrenciye atayabilir
 
-export type PermissionModule = 
+export type PermissionModule =
   | 'activity-studio'
   | 'reading-studio'
   | 'math-studio'
   | 'sinav-studyosu'
   | 'mat-sinav-studyosu'
-  | 'ocr'
-  | 'screening'
-  | 'admin'
-  | 'curriculum'
-  | 'students'
-  | 'reports'
-  | 'creative-studio'
-  | 'super-studio'
-  | 'sari-kitap'
-  | 'infographic-studio'
-  | 'messaging'
-  | 'workbook'
-  | 'analytics'
-  | 'evaluation'
-  | 'planning'
-  | 'bep'
-  | 'kelime-cumle'
   | 'super-turkce'
+  | 'screening'
+  | 'curriculum'
+  | 'evaluation'
+  | 'super-studio'
+  | 'infographic-studio'
+  | 'sari-kitap'
+  | 'kelime-cumle'
+  | 'students'
+  | 'workbook'
+  | 'messaging'
+  | 'favorites'
   | 'archive'
-  | 'settings'
+  | 'shared-materials'
+  | 'activity-history'
+  | 'admin'
   | 'profile-management'
-  | 'role-management'
-  | 'billing'
-  | 'system-logs'
-  | 'content-management'
-  | 'api-integrations'
-  | 'support-feedback'
-  | 'notifications'
-  | 'parent-portal'
-  | 'student-dashboard'
-  | 'mobile-app'
-  | 'security-settings'
-  | 'team-management'
+  | 'appearance-settings'
   | 'platform-market'
   | 'premium-support'
   | 'about-us'
-  | 'developer-tools'
-  | 'favorites'
-  | 'shared-materials'
-  | 'activity-history'
-  | 'appearance-settings';
+  | 'developer-tools';
 
 export const MODULE_LABELS: Record<PermissionModule, string> = {
   'activity-studio': 'Etkinlik Havuzu',
@@ -76,48 +57,61 @@ export const MODULE_LABELS: Record<PermissionModule, string> = {
   'math-studio': 'Matematik Stüdyosu',
   'sinav-studyosu': 'Sınav Stüdyosu',
   'mat-sinav-studyosu': 'Matematik Sınav Stüdyosu',
-  'ocr': 'OCR Metin İşleme',
-  'screening': 'Tarama & Analiz',
-  'admin': 'Yönetim Paneli',
-  'curriculum': 'Plan & Müfredat',
-  'students': 'Öğrenciler',
-  'reports': 'Gelişim Raporları',
-  'creative-studio': 'Yaratıcı Atölye Stüdyosu',
-  'super-studio': 'Ultra Etkinlik Stüdyosu',
-  'sari-kitap': 'Hızlı Okuma Stüdyosu',
-  'infographic-studio': 'İnfografik Stüdyosu',
-  'messaging': 'Mesajlar',
-  'workbook': 'Çalışma Kitapçığı',
-  'analytics': 'Akademik Analitik',
-  'evaluation': 'Değerlendirme',
-  'planning': 'Eğitim Planlama',
-  'bep': 'BEP Modülü',
-  'kelime-cumle': 'Kelime-Cümle Stüdyosu',
   'super-turkce': 'Süper Türkçe Stüdyosu',
+  'screening': 'Tarama & Analiz',
+  'curriculum': 'Plan & Müfredat',
+  'evaluation': 'Değerlendirme',
+  'super-studio': 'Ultra Etkinlik Stüdyosu',
+  'infographic-studio': 'İnfografik Stüdyosu',
+  'sari-kitap': 'Hızlı Okuma Stüdyosu',
+  'kelime-cumle': 'Kelime-Cümle Stüdyosu',
+  'students': 'Öğrenciler',
+  'workbook': 'Çalışma Kitapçığı',
+  'messaging': 'Mesajlar',
+  'favorites': 'Favori Etkinliklerim',
   'archive': 'Dijital Arşiv',
-  'settings': 'Sistem Ayarları',
+  'shared-materials': 'Paylaşılan Materyaller',
+  'activity-history': 'İşlem Geçmişi',
+  'admin': 'Yönetim Paneli',
   'profile-management': 'Profil Ayarları',
-  'role-management': 'Rol & Yetki Yönetimi',
-  'billing': 'Abonelik & Finans',
-  'system-logs': 'Sistem Logları & Denetim',
-  'content-management': 'İçerik Yönetimi (CMS)',
-  'api-integrations': 'API Entegrasyonları',
-  'support-feedback': 'Destek & Geri Bildirim',
-  'notifications': 'Bildirim Yönetimi',
-  'parent-portal': 'Veli İletişim Portalı',
-  'student-dashboard': 'Öğrenci Panosu Merkezi',
-  'mobile-app': 'Mobil Uygulama Yönetimi',
-  'security-settings': 'Güvenlik Ayarları',
-  'team-management': 'Ekip & Personel Yönetimi',
+  'appearance-settings': 'Görünüm Ayarları',
   'platform-market': 'Platform Pazarı',
   'premium-support': 'Premium Yardım',
   'about-us': 'Hakkımızda',
-  'developer-tools': 'Geliştirici / API',
-  'favorites': 'Favori Etkinliklerim',
-  'shared-materials': 'Paylaşılan Materyaller',
-  'activity-history': 'İşlem Geçmişi',
-  'appearance-settings': 'Görünüm Ayarları'
+  'developer-tools': 'Geliştirici / API'
 };
+
+// ─── Modül Kategorileri (RBAC IDE gruplama) ────────────────────────
+
+export const MODULE_CATEGORIES: { id: string; label: string; modules: PermissionModule[] }[] = [
+  {
+    id: 'central-studios',
+    label: 'Merkezi & Alan Stüdyoları',
+    modules: ['activity-studio', 'reading-studio', 'math-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'super-turkce']
+  },
+  {
+    id: 'assessment-studios',
+    label: 'Değerlendirme & Plan Stüdyoları',
+    modules: ['screening', 'curriculum', 'evaluation']
+  },
+  {
+    id: 'creative-studios',
+    label: 'Yaratıcı Atölye Stüdyoları',
+    modules: ['super-studio', 'infographic-studio', 'sari-kitap', 'kelime-cumle']
+  },
+  {
+    id: 'tools-portals',
+    label: 'Araçlar ve Portallar',
+    modules: ['students', 'workbook', 'messaging', 'favorites', 'archive', 'shared-materials', 'activity-history']
+  },
+  {
+    id: 'admin-platform',
+    label: 'Yönetim ve Platform Özellikleri',
+    modules: ['admin', 'profile-management', 'appearance-settings', 'platform-market', 'premium-support', 'about-us', 'developer-tools']
+  }
+];
+
+export const ALL_MODULES: PermissionModule[] = MODULE_CATEGORIES.flatMap(c => c.modules);
 
 // ─── Kategori Yetkileri ──────────────────────────────────────────
 
@@ -180,51 +174,59 @@ export interface RBACSettings {
 // ─── Varsayılan RBAC Konfigürasyonu ───────────────────────────────────
 
 export const buildDefaultRBAC = (): RBACSettings => {
-  const commonStudios: PermissionModule[] = [
-    'activity-studio', 'reading-studio', 'math-studio', 'sinav-studyosu', 
-    'mat-sinav-studyosu', 'creative-studio', 'super-studio', 'sari-kitap', 
-    'infographic-studio', 'kelime-cumle', 'super-turkce', 'archive'
+  const centralStudios: PermissionModule[] = [
+    'activity-studio', 'reading-studio', 'math-studio',
+    'sinav-studyosu', 'mat-sinav-studyosu', 'super-turkce'
   ];
 
-  const commonTools: PermissionModule[] = [
-    'screening', 'curriculum', 'students', 'reports', 'messaging', 
-    'workbook', 'analytics', 'evaluation', 'planning', 'bep', 'ocr',
-    'student-dashboard', 'support-feedback', 'notifications',
-    'favorites', 'shared-materials', 'activity-history'
+  const assessmentStudios: PermissionModule[] = [
+    'screening', 'curriculum', 'evaluation'
   ];
 
-  const adminOnlyModules: PermissionModule[] = [
-    'profile-management', 'role-management', 'billing', 'system-logs',
-    'content-management', 'api-integrations', 'parent-portal',
-    'mobile-app', 'security-settings', 'team-management', 'appearance-settings',
+  const creativeStudios: PermissionModule[] = [
+    'super-studio', 'infographic-studio', 'sari-kitap', 'kelime-cumle'
+  ];
+
+  const toolsPortals: PermissionModule[] = [
+    'students', 'workbook', 'messaging',
+    'favorites', 'archive', 'shared-materials', 'activity-history'
+  ];
+
+  const adminPlatform: PermissionModule[] = [
+    'admin', 'profile-management', 'appearance-settings',
     'platform-market', 'premium-support', 'about-us', 'developer-tools'
   ];
 
-  const allTeacherModules = [...commonStudios, ...commonTools];
+  const allTeacherModules: PermissionModule[] = [
+    ...centralStudios, ...assessmentStudios, ...creativeStudios, ...toolsPortals
+  ];
+
+  const fullActions: PermissionAction[] = ['view', 'create', 'edit', 'delete', 'manage', 'approve', 'export', 'assign'];
+  const adminActions: PermissionAction[] = ['view', 'create', 'edit', 'manage', 'export', 'assign'];
+  const teacherActions: PermissionAction[] = ['view', 'create', 'edit', 'export', 'assign'];
+  const adminOnlyActions: PermissionAction[] = ['view', 'create', 'edit', 'delete', 'manage'];
+
+  const buildModulePerm = (mod: PermissionModule, actions: PermissionAction[], includeCategories = false): ModulePermission => ({
+    module: mod,
+    enabled: true,
+    actions,
+    categoryPermissions: includeCategories && mod === 'activity-studio'
+      ? ACTIVITY_CATEGORIES.map(cat => ({
+          categoryId: cat.id,
+          categoryTitle: cat.title,
+          enabled: true,
+          allowedRoles: ['superadmin', 'admin', 'teacher'] as UserRole[]
+        }))
+      : undefined
+  });
 
   return {
     roles: [
       {
         role: 'superadmin',
         modules: [
-          { module: 'admin', enabled: true, actions: ['view', 'create', 'edit', 'delete', 'manage', 'approve', 'export', 'assign'] },
-          ...allTeacherModules.map(m => ({
-            module: m as PermissionModule,
-            enabled: true,
-            actions: ['view', 'create', 'edit', 'delete', 'manage', 'approve', 'export', 'assign'] as PermissionAction[],
-            categoryPermissions: m === 'activity-studio' ? ACTIVITY_CATEGORIES.map(cat => ({
-              categoryId: cat.id,
-              categoryTitle: cat.title,
-              enabled: true,
-              allowedRoles: ['superadmin', 'admin', 'teacher'] as UserRole[]
-            })) : undefined
-          })),
-          ...adminOnlyModules.map(m => ({
-            module: m as PermissionModule,
-            enabled: true,
-            actions: ['view', 'create', 'edit', 'delete', 'manage'] as PermissionAction[]
-          })),
-          { module: 'settings', enabled: true, actions: ['view', 'manage', 'edit'] }
+          ...allTeacherModules.map(m => buildModulePerm(m, fullActions, true)),
+          ...adminPlatform.map(m => buildModulePerm(m, adminOnlyActions))
         ],
         globalSettings: {
           canAccessAdmin: true,
@@ -237,18 +239,8 @@ export const buildDefaultRBAC = (): RBACSettings => {
       {
         role: 'admin',
         modules: [
-          { module: 'admin', enabled: true, actions: ['view', 'manage'] },
-          ...allTeacherModules.map(m => ({
-            module: m as PermissionModule,
-            enabled: true,
-            actions: ['view', 'create', 'edit', 'manage', 'export', 'assign'] as PermissionAction[]
-          })),
-          ...adminOnlyModules.map(m => ({
-            module: m as PermissionModule,
-            enabled: true,
-            actions: ['view', 'edit'] as PermissionAction[]
-          })),
-          { module: 'settings', enabled: true, actions: ['view', 'edit'] }
+          ...allTeacherModules.map(m => buildModulePerm(m, adminActions, true)),
+          ...adminPlatform.map(m => buildModulePerm(m, ['view', 'edit'] as PermissionAction[]))
         ],
         globalSettings: {
           canAccessAdmin: true,
@@ -260,17 +252,7 @@ export const buildDefaultRBAC = (): RBACSettings => {
       },
       {
         role: 'teacher',
-        modules: allTeacherModules.map(m => ({
-          module: m as PermissionModule,
-          enabled: true,
-          actions: ['view', 'create', 'edit', 'export', 'assign'] as PermissionAction[],
-          categoryPermissions: m === 'activity-studio' ? ACTIVITY_CATEGORIES.map(cat => ({
-            categoryId: cat.id,
-            categoryTitle: cat.title,
-            enabled: true,
-            allowedRoles: ['superadmin', 'admin', 'teacher'] as UserRole[]
-          })) : undefined
-        })),
+        modules: allTeacherModules.map(m => buildModulePerm(m, teacherActions, true)),
         globalSettings: {
           canAccessAdmin: false,
           canManageUsers: false,
