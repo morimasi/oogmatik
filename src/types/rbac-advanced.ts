@@ -47,7 +47,20 @@ export type PermissionModule =
   | 'kelime-cumle'
   | 'super-turkce'
   | 'archive'
-  | 'settings';
+  | 'settings'
+  | 'profile-management'
+  | 'role-management'
+  | 'billing'
+  | 'system-logs'
+  | 'content-management'
+  | 'api-integrations'
+  | 'support-feedback'
+  | 'notifications'
+  | 'parent-portal'
+  | 'student-dashboard'
+  | 'mobile-app'
+  | 'security-settings'
+  | 'team-management';
 
 export const MODULE_LABELS: Record<PermissionModule, string> = {
   'activity-studio': 'Etkinlik Stüdyosu',
@@ -74,7 +87,20 @@ export const MODULE_LABELS: Record<PermissionModule, string> = {
   'kelime-cumle': 'Kelime-Cümle Stüdyosu',
   'super-turkce': 'Süper Türkçe Stüdyosu',
   'archive': 'Dijital Arşiv',
-  'settings': 'Sistem Ayarları'
+  'settings': 'Sistem Ayarları',
+  'profile-management': 'Profil Yönetimi',
+  'role-management': 'Rol & Yetki Yönetimi',
+  'billing': 'Abonelik & Finans',
+  'system-logs': 'Sistem Logları & Denetim',
+  'content-management': 'İçerik Yönetimi (CMS)',
+  'api-integrations': 'API Entegrasyonları',
+  'support-feedback': 'Destek & Geri Bildirim',
+  'notifications': 'Bildirim Yönetimi',
+  'parent-portal': 'Veli İletişim Portalı',
+  'student-dashboard': 'Öğrenci Panosu Merkezi',
+  'mobile-app': 'Mobil Uygulama Yönetimi',
+  'security-settings': 'Güvenlik Ayarları',
+  'team-management': 'Ekip & Personel Yönetimi'
 };
 
 // ─── Kategori Yetkileri ──────────────────────────────────────────
@@ -146,7 +172,14 @@ export const buildDefaultRBAC = (): RBACSettings => {
 
   const commonTools: PermissionModule[] = [
     'screening', 'curriculum', 'students', 'reports', 'messaging', 
-    'workbook', 'analytics', 'evaluation', 'planning', 'bep', 'ocr'
+    'workbook', 'analytics', 'evaluation', 'planning', 'bep', 'ocr',
+    'student-dashboard', 'support-feedback', 'notifications'
+  ];
+
+  const adminOnlyModules: PermissionModule[] = [
+    'profile-management', 'role-management', 'billing', 'system-logs',
+    'content-management', 'api-integrations', 'parent-portal',
+    'mobile-app', 'security-settings', 'team-management'
   ];
 
   const allTeacherModules = [...commonStudios, ...commonTools];
@@ -168,6 +201,11 @@ export const buildDefaultRBAC = (): RBACSettings => {
               allowedRoles: ['superadmin', 'admin', 'teacher'] as UserRole[]
             })) : undefined
           })),
+          ...adminOnlyModules.map(m => ({
+            module: m as PermissionModule,
+            enabled: true,
+            actions: ['view', 'create', 'edit', 'delete', 'manage'] as PermissionAction[]
+          })),
           { module: 'settings', enabled: true, actions: ['view', 'manage', 'edit'] }
         ],
         globalSettings: {
@@ -186,6 +224,11 @@ export const buildDefaultRBAC = (): RBACSettings => {
             module: m as PermissionModule,
             enabled: true,
             actions: ['view', 'create', 'edit', 'manage', 'export', 'assign'] as PermissionAction[]
+          })),
+          ...adminOnlyModules.map(m => ({
+            module: m as PermissionModule,
+            enabled: true,
+            actions: ['view', 'edit'] as PermissionAction[]
           })),
           { module: 'settings', enabled: true, actions: ['view', 'edit'] }
         ],
