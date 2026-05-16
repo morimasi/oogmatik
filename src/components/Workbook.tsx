@@ -27,6 +27,8 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }: WorkbookProps) =
     boxShadow: '0 0 40px rgba(0,0,0,0.1)',
     fontFamily: font,
     boxSizing: 'border-box' as const,
+    display: 'flex' as const,
+    flexDirection: 'column' as const,
     ...extra,
   });
 
@@ -627,7 +629,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }: WorkbookProps) =
             <div className="relative w-full flex justify-center print:m-0">
               <div className="relative bg-white shadow-2xl worksheet-page" style={getPageStyle()}>
                 <Watermark />
-                <div className="relative z-10 h-full" style={{ overflow: 'hidden', height: 'calc(100% - 60px)' }}>
+                <div className="relative z-10 flex flex-col" style={{ overflow: 'hidden', paddingBottom: '40px', minHeight: 0, flex: 1 }}>
                   {item.activityType === 'ASSESSMENT_REPORT' ? (
                     <div className="p-20 text-center flex flex-col items-center justify-center h-full">
                       <i className="fa-solid fa-chart-line text-6xl text-zinc-100 mb-8"></i>

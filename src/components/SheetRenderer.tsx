@@ -1361,12 +1361,13 @@ export const SheetRenderer = React.memo(
       );
     }
 
-    // Global data check + field-level validation - Prevent "Cannot read properties of undefined (reading 'title')"
-    const isDataValid = data &&
-      (typeof data === 'object' && Object.keys(data).length > 0) &&
-      (data?.title || data?.type);
+    // Global data check — Sadece data'nın geçerli bir obje olduğunu kontrol et.
+    // NOT: data.title veya data.type kontrolü kaldırıldı çünkü birçok aktivite türü
+    // (puzzles, items, problems, sorular, operations, steps vb.) bu alanları içermiyor
+    // ama geçerli render edilebilir veri içeriyor.
+    const isDataEmpty = !data || typeof data !== 'object' || Object.keys(data).length === 0;
 
-    if (!isDataValid) {
+    if (isDataEmpty) {
       return withWrapper(
         <div className="p-10 text-center text-gray-500 bg-white rounded-3xl shadow-sm min-h-[600px] flex flex-col items-center justify-center font-['Lexend']">
           <div className="w-24 h-24 bg-indigo-50 rounded-full flex items-center justify-center mb-6 animate-pulse">

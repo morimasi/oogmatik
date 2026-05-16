@@ -1,6 +1,6 @@
-import React, { memo } from 'react';
+import React, { memo, useEffect } from 'react';
 import type { CollectionItem, WorkbookSettings, ActivityType } from '../../types';
-import Worksheet from '../Worksheet';
+import { SheetRenderer } from '../SheetRenderer';
 import { CiftMetinRenderer } from '../SariKitapStudio/modules/ciftMetin/CiftMetinRenderer';
 import { PencereRenderer } from '../SariKitapStudio/modules/pencere';
 import { NoktaRenderer } from '../SariKitapStudio/modules/nokta';
@@ -27,7 +27,18 @@ export const WorkbookActivityRenderer = memo(({ item, settings, font }: Workbook
         showPedagogicalNote: true,
         ...item.overrideStyle,
         fontFamily: font,
+        // Workbook bağlamında SheetRenderer'ın kendi wrapper'ını kullanmasını ENGELLE
+        // çünkü Workbook.tsx zaten dış sarmalamayı sağlıyor
+        showStudentInfo: false,
+        showFooter: false,
     };
+
+    // Force render all pages in workbook context — LazyPage bypass
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            (window as unknown as Record<string, unknown>).__oogmatik_force_render_all_pages__ = true;
+        }
+    }, []);
 
     // Sari Kitap activities have different data structure: { config, content } or raw data with sourceTexts, heceRows, etc.
     if (SARI_KITAP_TYPES.has(item.activityType)) {
@@ -49,14 +60,14 @@ export const WorkbookActivityRenderer = memo(({ item, settings, font }: Workbook
         // Everything else is content
         for (const [key, value] of Object.entries(itemData)) {
             if (key !== 'config') {
-                content[key as keyof SariKitapGeneratedContent] = value as any;
+                content[key as keyof SariKitapGeneratedContent] = value as never;
             }
         }
 
         config = { type: item.activityType, ...item.settings, ...config };
         
         const rendererProps: RendererProps = { 
-            config: config as any, 
+            config: config as never, 
             content: content as SariKitapGeneratedContent 
         };
 
@@ -65,38 +76,54 @@ export const WorkbookActivityRenderer = memo(({ item, settings, font }: Workbook
                 className="workbook-activity-content"
                 style={{
                     width: '100%',
-                    height: 'calc(100% - 60px)',
-                    overflow: 'hidden',
+                    minHeight: 0,
+                    flex: 1,
                     display: 'flex',
                     flexDirection: 'column',
                     paddingTop: '1rem',
                 }}
             >
-                <RendererComponent {...rendererProps as any} />
+                {React.createElement(RendererComponent, rendererProps as never)}
             </div>
         );
     }
 
-    // Standard workbook activities use Worksheet → SheetRenderer path
-    const dataArray = Array.isArray(item.data) ? item.data : (item.data ? [item.data] : []);
+    // Standard workbook activities: doğrudan SheetRenderer kullan (Worksheet wrapper'ı ATLANIYOR)
+    // Bu sayede çift sarmalama (A4 içinde A4) sorunu engelleniyor.
+    const rawData = item.data;
+    const dataArray = Array.isArray(rawData) ? rawData : (rawData ? [rawData] : []);
 
     if (dataArray.length === 0) {
         return <EmptyState font={font} />;
     }
 
     return (
-        <div className="workbook-activity-content" style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
-            <Worksheet
-                activityType={item.activityType as ActivityType}
-                data={dataArray as any}
-                settings={mergedSettings}
-                studentProfile={{
-                    name: settings.studentName,
-                    school: settings.schoolName,
-                    grade: '',
-                    date: new Date().toLocaleDateString('tr-TR'),
-                }}
-            />
+        <div 
+            className="workbook-activity-content" 
+            style={{ 
+                width: '100%', 
+                minHeight: 0,
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem',
+            }}
+        >
+            {dataArray.map((ws: Record<string, unknown>, idx: number) => (
+                <SheetRenderer
+                    key={(ws?.id as string) || `wb-sheet-${idx}`}
+                    activityType={item.activityType as ActivityType}
+                    data={ws as never}
+                    studentProfile={{
+                        name: settings.studentName,
+                        school: settings.schoolName,
+                        grade: '',
+                        date: new Date().toLocaleDateString('tr-TR'),
+                    }}
+                    settings={mergedSettings}
+                    hideWrapper={true}
+                />
+            ))}
         </div>
     );
 });

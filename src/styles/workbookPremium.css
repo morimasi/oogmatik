@@ -56,16 +56,86 @@
     --page-height: 210mm;
 }
 
-/* Workbook activity content constraints */
+/* ============================================
+   WORKBOOK ACTIVITY CONTENT — A4 CONSTRAINTS
+   ============================================ */
+
 .workbook-activity-content {
     max-width: 100%;
-    max-height: 100%;
     box-sizing: border-box;
+    /* İçeriğin A4 sınırları içinde kalmasını sağla */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .workbook-activity-content > * {
     max-width: 100%;
+    box-sizing: border-box;
 }
+
+/* Workbook içindeki Worksheet sayfaları: kendi sayfalarını OLUŞTURMASIN */
+.workbook-activity-content .worksheet-page {
+    width: 100% !important;
+    min-height: unset !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    page-break-after: unset !important;
+    page-break-inside: unset !important;
+    background: transparent !important;
+}
+
+/* Workbook içindeki SheetRenderer'ın kendi page wrapper'ını devre dışı bırak */
+.workbook-activity-content .ultra-print-page {
+    width: 100% !important;
+    min-height: unset !important;
+    height: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+}
+
+/* İç içe page-indicator'ları gizle */
+.workbook-activity-content .page-indicator-screen {
+    display: none !important;
+}
+
+/* Workbook içindeki lazy page placeholder'ları anında göster */
+.workbook-activity-content .lazy-page-placeholder {
+    display: contents !important;
+}
+
+/* İç içe footer'ları gizle (Workbook kendi footer'ını kullanıyor) */
+.workbook-activity-content > div > .mt-auto {
+    display: none !important;
+}
+
+/* Tablo ve grid taşmalarını önle */
+.workbook-activity-content table {
+    max-width: 100%;
+    table-layout: fixed;
+    word-break: break-word;
+}
+
+.workbook-activity-content svg {
+    max-width: 100%;
+    height: auto;
+}
+
+.workbook-activity-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Print content area overflow fix */
+.workbook-activity-content .print-content-area {
+    overflow: visible !important;
+}
+
+/* ============================================
+   WORKBOOK CONTAINER — PRINT STYLES
+   ============================================ */
 
 @media print {
     .orientation-portrait {
@@ -84,20 +154,34 @@
         background: none !important;
     }
 
-    .worksheet-page {
+    .workbook-container .worksheet-page {
         page-break-after: always;
         page-break-inside: avoid;
         margin: 0 !important;
         box-shadow: none !important;
-        overflow: hidden !important;
+        /* Print'te overflow visible yap ki içerik kesilmesin */
+        overflow: visible !important;
     }
 
+    /* Workbook activity content — print overflow */
     .workbook-activity-content {
-        overflow: hidden !important;
+        overflow: visible !important;
+    }
+
+    /* Scale down overflowing content to fit A4 */
+    .workbook-activity-content > * {
+        max-height: 100%;
     }
 
     .no-print,
     .PageBreakIndicator {
         display: none !important;
+    }
+
+    /* Print'te arka plan renklerini zorla */
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
     }
 }
