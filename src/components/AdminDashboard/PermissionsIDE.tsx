@@ -21,11 +21,7 @@ import {
   Calendar,
   Settings,
   FileText,
-  Layers,
-  Zap,
-  Palette,
-  Wrench,
-  Crown
+  Layers
 } from 'lucide-react';
 import { rbacService } from '../../services/rbacService';
 import {
@@ -45,9 +41,9 @@ import { ActivityType } from '../../types/activity';
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   'central-studios': <Layout size={16} />,
   'assessment-studios': <Target size={16} />,
-  'creative-studios': <Palette size={16} />,
-  'tools-portals': <Wrench size={16} />,
-  'admin-platform': <Crown size={16} />
+  'creative-studios': <Activity size={16} />,
+  'tools-portals': <Settings size={16} />,
+  'admin-platform': <Shield size={16} />
 };
 
 const MODULE_ICONS: Record<string, React.ReactNode> = {
@@ -60,7 +56,7 @@ const MODULE_ICONS: Record<string, React.ReactNode> = {
   'screening': <Target size={16} />,
   'curriculum': <Calendar size={16} />,
   'evaluation': <FileText size={16} />,
-  'super-studio': <Zap size={16} />,
+  'super-studio': <Activity size={16} />,
   'infographic-studio': <Layout size={16} />,
   'sari-kitap': <BookOpen size={16} />,
   'kelime-cumle': <BookOpen size={16} />,
@@ -73,7 +69,7 @@ const MODULE_ICONS: Record<string, React.ReactNode> = {
   'activity-history': <Calendar size={16} />,
   'admin': <Shield size={16} />,
   'profile-management': <Users size={16} />,
-  'appearance-settings': <Palette size={16} />,
+  'appearance-settings': <Settings size={16} />,
   'platform-market': <Layers size={16} />,
   'premium-support': <Shield size={16} />,
   'about-us': <FileText size={16} />,
