@@ -7,11 +7,11 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { buildDefaultRBAC, RBACSettings, CategoryPermission, ActivityPermission } from '../../types/rbac-advanced';
+import { buildDefaultRBAC, RBACSettings, CategoryPermission, ActivityPermission, MODULE_LABELS } from '../../types/rbac-advanced';
 import { rbacService } from '../../services/rbacService';
 import { UserRole } from '../../types/user';
 import { ActivityType } from '../../types/activity';
-import { ACTIVITY_CATEGORIES } from '../../constants';
+import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../../constants';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useToastStore } from '../../store/useToastStore';
 import { motion } from 'framer-motion';
@@ -30,7 +30,11 @@ export const AdvancedRBACPanel: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
 
   // Available roles
-  const availableRoles: UserRole[] = ['superadmin', 'admin', 'teacher', 'user', 'student', 'parent'];
+  const availableRoles: { id: UserRole, label: string }[] = [
+    { id: 'superadmin', label: 'Süper Admin' },
+    { id: 'admin', label: 'Admin' },
+    { id: 'teacher', label: 'Öğretmen' }
+  ];
 
   // Toggle category expansion
   const toggleCategory = (categoryId: string) => {
@@ -135,8 +139,8 @@ export const AdvancedRBACPanel: React.FC = () => {
     try {
       rbacService.updateSettings(settings);
       
-      // TODO: Save to Firestore
-      // await rbacService.saveToFirestore(settings);
+      // Save to Firestore
+      await rbacService.saveSettings(settings);
       
       toast.success('RBAC ayarları başarıyla kaydedildi!');
     } catch (error) {
@@ -153,6 +157,8 @@ export const AdvancedRBACPanel: React.FC = () => {
       toast.info('Ayarlar varsayılana sıfırlandı');
     }
   };
+
+  const selectedRoleLabel = availableRoles.find(r => r.id === selectedRole)?.label || selectedRole;
 
   return (
     <div className="space-y-6">
@@ -185,18 +191,19 @@ export const AdvancedRBACPanel: React.FC = () => {
       <div className="flex gap-3 flex-wrap">
         {availableRoles.map(role => (
           <button
-            key={role}
-            onClick={() => setSelectedRole(role)}
-            className={`px-4 py-2 rounded-lg border transition-all capitalize ${
-              selectedRole === role
-                ? 'bg-purple-600/20 border-purple-500 text-purple-400'
+            key={role.id}
+            onClick={() => setSelectedRole(role.id)}
+            className={`px-4 py-2 rounded-lg border transition-all ${
+              selectedRole === role.id
+                ? 'bg-purple-600/20 border-purple-500 text-purple-400 font-bold'
                 : 'text-gray-400 bg-gray-500/5 border-gray-500/10 hover:border-gray-500/30'
             }`}
           >
-            {role}
+            {role.label}
           </button>
         ))}
       </div>
+
 
       {/* Tab Navigation */}
       <div className="flex gap-3">
@@ -208,7 +215,7 @@ export const AdvancedRBACPanel: React.FC = () => {
               : 'text-gray-400 bg-white/5 border-white/10 hover:border-white/20'
           }`}
         >
-          ERİŞİM YÖNETİMİ
+          ERİŞİM MATRİSİ
         </button>
         <button
           onClick={() => setActiveTab('modules')}
@@ -218,30 +225,35 @@ export const AdvancedRBACPanel: React.FC = () => {
               : 'text-gray-400 bg-white/5 border-white/10 hover:border-white/20'
           }`}
         >
-          MODÜL İZİNLERİ
+          MODÜL YETKİLERİ
         </button>
       </div>
 
       {/* Tab Content */}
       {activeTab === 'modules' && (
         <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">Modül İzinleri - {selectedRole}</h3>
+          <h3 className="text-lg font-bold text-white mb-4 uppercase tracking-tight">SİSTEM MODÜLLERİ — {selectedRoleLabel}</h3>
           <div className="space-y-3">
             {settings.roles.find(r => r.role === selectedRole)?.modules.map(module => (
-              <div key={module.module} className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
-                <span className="text-gray-200 capitalize">{module.module}</span>
+              <div key={module.module} className="flex items-center justify-between p-4 bg-white/5 rounded-lg border border-white/5 hover:border-white/10 transition-colors">
+                <div className="flex flex-col gap-0.5">
+                   <span className="text-gray-200 font-bold uppercase tracking-tighter text-sm">
+                      {(MODULE_LABELS as any)[module.module] || module.module}
+                   </span>
+                   <span className="text-[9px] text-gray-500 font-medium tracking-[0.2em]">{module.module}</span>
+                </div>
                 <div className="flex items-center gap-3">
-                  <span className={`text-sm ${module.enabled ? 'text-green-400' : 'text-red-400'}`}>
-                    {module.enabled ? 'Aktif' : 'Pasif'}
+                  <span className={`text-[10px] font-black uppercase tracking-widest ${module.enabled ? 'text-green-400' : 'text-rose-400'}`}>
+                    {module.enabled ? 'AKTİF' : 'DEVRE DIŞI'}
                   </span>
                   <button
                     onClick={() => updateModulePermission(module.module, !module.enabled)}
-                    className={`w-12 h-6 rounded-full transition-colors ${
-                      module.enabled ? 'bg-green-500' : 'bg-gray-600'
+                    className={`w-12 h-6 rounded-full transition-all duration-300 relative ${
+                      module.enabled ? 'bg-green-600 shadow-lg shadow-green-500/20' : 'bg-gray-700'
                     }`}
                   >
                     <div
-                      className={`w-5 h-5 rounded-full bg-white transform transition-transform ${
+                      className={`absolute top-1 left-1 w-4 h-4 rounded-full bg-white transition-transform duration-300 ${
                         module.enabled ? 'translate-x-6' : 'translate-x-0'
                       }`}
                     />
@@ -256,7 +268,8 @@ export const AdvancedRBACPanel: React.FC = () => {
       {activeTab === 'access' && (
         <div className="bg-white/5 backdrop-blur-3xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
           <div className="px-6 py-4 bg-white/5 border-b border-white/10 flex items-center justify-between">
-            <h3 className="text-lg font-black text-white uppercase tracking-tight">Kategori & Aktivite Matrisi — {selectedRole}</h3>
+            <h3 className="text-lg font-black text-white uppercase tracking-tight">KATEGORİ & AKTİVİTE ETKİLEŞİMİ — {selectedRoleLabel}</h3>
+
             <span className="text-[10px] bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full font-black uppercase tracking-widest border border-blue-500/30">
               {ACTIVITY_CATEGORIES.length} KATEGORİ AKTİF
             </span>
@@ -332,9 +345,11 @@ export const AdvancedRBACPanel: React.FC = () => {
                                   : 'bg-black/20 border-white/5 opacity-50 grayscale hover:grayscale-0 hover:opacity-100'
                               }`}
                             >
-                              <div className="flex flex-col gap-0.5">
-                                <span className="text-[11px] font-bold text-gray-200 tracking-tight leading-none truncate max-w-[140px]">{actType.split('_').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join(' ')}</span>
-                                <span className="text-[8px] text-gray-500 font-medium tracking-widest uppercase">{actType}</span>
+                              <div className="flex flex-col gap-0.5 overflow-hidden">
+                                <span className="text-[11px] font-bold text-gray-200 tracking-tight leading-none truncate w-full" title={ACTIVITIES.find(a => a.id === actType)?.title || actType}>
+                                  {ACTIVITIES.find(a => a.id === actType)?.title || actType.replace(/_/g, ' ')}
+                                </span>
+                                <span className="text-[8px] text-gray-500 font-medium tracking-widest uppercase truncate">{actType}</span>
                               </div>
 
                               <button
@@ -361,12 +376,20 @@ export const AdvancedRBACPanel: React.FC = () => {
       )}
 
       {/* Info */}
-      <div className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-4 text-sm text-purple-300">
-        <p>
-          <strong>💡 Premium Özellik:</strong> Her rol için modül, kategori ve aktivite bazlı detaylı izinler tanımlayabilirsiniz.
-          Değişiklikler Firestore'a kaydedilecektir.
-        </p>
+      <div className="bg-blue-600/10 border border-blue-500/20 rounded-2xl p-6 text-sm text-blue-300 flex items-start gap-4">
+        <div className="w-10 h-10 rounded-xl bg-blue-600/20 flex items-center justify-center shrink-0 border border-blue-500/30">
+          <i className="fa-solid fa-circle-info text-blue-400" />
+        </div>
+        <div>
+          <h4 className="font-black uppercase tracking-widest text-[10px] text-blue-400 mb-1">Bilgi Notu</h4>
+          <p className="font-medium leading-relaxed">
+            Her erişim profili (rol) için modül, kategori ve aktivite bazlı detaylı izinler tanımlayabilirsiniz. 
+            Bu ayarlar sistem genelindeki tüm render motorlarını ve studio erişimlerini anlık olarak etkiler. 
+            Değişikliklerin sunucu tarafında aktif olması için <strong>KAYDET</strong> butonuna basmanız gerekmektedir.
+          </p>
+        </div>
       </div>
+
     </div>
   );
 };

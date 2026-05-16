@@ -863,15 +863,19 @@ const UnifiedContentRenderer = ({
 
   if (!data) return null;
 
-  const architecture = data?.layoutArchitecture;
+  // Robust unwrapping
+  const unwrappedData = Array.isArray(data) ? data[0] : data;
+  const activeData = (unwrappedData as any)?.data || unwrappedData;
+
+  const architecture = activeData?.layoutArchitecture;
   const rawBlocks: WorksheetBlock[] =
     (architecture?.blocks && architecture.blocks.length > 0 ? architecture.blocks : []) ||
-    (data?.blocks && data.blocks.length > 0 ? data.blocks : []) ||
-    (data?.puzzles && data.puzzles.length > 0 ? data.puzzles : []) ||
-    (data?.operations && data.operations.length > 0 ? data.operations : []) ||
-    (data?.items && data.items.length > 0 ? data.items : []) ||
-    (data?.problems && data.problems.length > 0 ? data.problems : []) ||
-    (data?.steps && data.steps.length > 0 ? data.steps : []) ||
+    (activeData?.blocks && activeData.blocks.length > 0 ? activeData.blocks : []) ||
+    (activeData?.puzzles && activeData.puzzles.length > 0 ? activeData.puzzles : []) ||
+    (activeData?.operations && activeData.operations.length > 0 ? activeData.operations : []) ||
+    (activeData?.items && activeData.items.length > 0 ? activeData.items : []) ||
+    (activeData?.problems && activeData.problems.length > 0 ? activeData.problems : []) ||
+    (activeData?.steps && activeData.steps.length > 0 ? activeData.steps : []) ||
     [];
   const cols = (architecture?.cols && architecture.cols > 1) ? architecture.cols : (settings?.columns || 1);
 
@@ -1285,6 +1289,11 @@ export const SheetRenderer = React.memo(
   ({ activityType, data, studentProfile, settings, hideWrapper = false }: SheetRendererProps) => {
     if (!data) return null;
 
+    // Robust unwrapping: Take first element if array, then check for .data envelope
+    const unwrappedData = Array.isArray(data) ? data[0] : data;
+    // Extract actual content if wrapped in a .data property 
+    const activeData = (unwrappedData as any)?.data || unwrappedData;
+
     const isLandscape = settings?.orientation === 'landscape';
     const pageClass = `worksheet-page print-page shadow-2xl mb-8 ${isLandscape ? 'landscape' : ''}`;
 
@@ -1294,17 +1303,34 @@ export const SheetRenderer = React.memo(
       return <div className={pageClass}>{content}</div>;
     };
 
-    // Özel modül renderları (Story Comprehension vb.)
-    if (activityType === ActivityType.STORY_COMPREHENSION && data.layout) {
+    // Special module renders
+    if (activityType === ActivityType.STORY_COMPREHENSION && activeData.layout) {
       return withWrapper(
-        <ReadingStudioContentRenderer layout={data.layout} storyData={data.storyData} />
+        <ReadingStudioContentRenderer layout={activeData.layout} storyData={activeData.storyData} />
       );
+    }
+
+    if (activityType === ActivityType.PREMIUM_STUDIO && activeData.layout) {
+      return withWrapper(
+        <ReadingStudioContentRenderer layout={activeData.layout} storyData={activeData.storyData} />
+      );
+    }
+
+    if (activityType === ActivityType.MATH_STUDIO && activeData) {
+      return withWrapper(<MathStudioRenderer data={activeData as any} settings={settings} />);
+    }
+
+    if (activityType === ActivityType.SUPER_STUDIO && activeData) {
+      return withWrapper(<SuperStudioRenderer data={activeData as any} />);
+    }
+
+    if (activityType === ActivityType.SARI_KITAP_STUDIO && activeData) {
+      return withWrapper(<SariKitapRenderer data={activeData as any} />);
     }
 
     // Sınav Stüdyosu çıktıları (Daha esnek kontrol)
     if (activityType === ActivityType.SINAV || activityType === ActivityType.MAT_SINAV) {
-      const rawData = Array.isArray(data) ? data[0] : data;
-      const sinav = rawData as any;
+      const sinav = activeData as any;
       if (sinav && (sinav.sorular || sinav.baslik)) {
         return withWrapper(
           <ExamRenderer
@@ -1316,49 +1342,36 @@ export const SheetRenderer = React.memo(
       }
     }
 
+    if (activityType === ActivityType.KELIME_CUMLE && activeData) {
+      return withWrapper(<KelimeCumleRenderer data={activeData as any} />);
+    }
+
     if (activityType === ActivityType.VISUAL_INTERPRETATION) {
       return withWrapper(
-        <VisualInterpretationSheet data={data as any} settings={settings || ({} as any)} />
+        <VisualInterpretationSheet data={activeData as any} settings={settings || ({} as any)} />
       );
     }
 
     if (activityType === ActivityType.BRAIN_TEASERS) {
       return withWrapper(
-        <BrainTeasersSheet data={data as any} settings={settings || ({} as any)} />
+        <BrainTeasersSheet data={activeData as any} settings={settings || ({} as any)} />
       );
     }
 
     if (activityType === ActivityType.KAVRAM_HARITASI) {
-      return withWrapper(<KavramHaritasiSheet data={data as any} />);
+      return withWrapper(<KavramHaritasiSheet data={activeData as any} />);
     }
 
     if (activityType === ActivityType.ES_ANLAMLI_KELIMELER) {
-      return withWrapper(<EsAnlamliKelimelerSheet data={data as any} />);
+      return withWrapper(<EsAnlamliKelimelerSheet data={activeData as any} />);
     }
-
 
     if (activityType === ActivityType.INFOGRAPHIC_SHORT_ANSWER) {
-      return withWrapper(<ShortAnswerSheet data={(data as any).content || data} settings={settings as any} />);
+      return withWrapper(<ShortAnswerSheet data={activeData.content || activeData} settings={settings as any} />);
     }
 
-    if (activityType === ActivityType.MATH_STUDIO && data) {
-      return withWrapper(<MathStudioRenderer data={data as any} settings={settings} />);
-    }
-
-    if (activityType === ActivityType.PREMIUM_STUDIO && data) {
-      return withWrapper(<SuperStudioRenderer data={data as any} settings={settings} />);
-    }
-
-    if (activityType === ActivityType.KELIME_CUMLE && data) {
-      return withWrapper(<KelimeCumleRenderer data={data as any} settings={settings} />);
-    }
-
-    if (activityType === ActivityType.SARI_KITAP_STUDIO && data) {
-      return withWrapper(<SariKitapRenderer data={data as any} settings={settings} />);
-    }
-
-    if (activityType === ActivityType.INFOGRAPHIC_STUDIO && data) {
-      return withWrapper(<InfographicRenderer data={data as any} settings={settings} />);
+    if (activityType === ActivityType.INFOGRAPHIC_STUDIO && activeData) {
+      return withWrapper(<InfographicRenderer data={activeData as any} settings={settings} />);
     }
 
 

@@ -8,6 +8,7 @@ import {
   Eye,
   ChevronDown,
   Filter,
+  FileText,
 } from 'lucide-react';
 import { SavedWorksheet, SavedAssessment, Curriculum } from '../types';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
@@ -129,55 +130,83 @@ const MaterialCard = ({ item, onLoad, onDelete, onShare, onReport, onPrint, isRe
     };
 
     return (
-        <GlassCard className="h-64 flex flex-col p-5 group">
-            <div className={cn('absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300', getGlowColor())}></div>
+        <GlassCard className="h-64 flex flex-col p-5 group relative overflow-hidden transition-all duration-500 hover:shadow-2xl">
+            {/* Arka Plan Glow Efekti */}
+            <div className={cn('absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-[0.07] transition-opacity duration-500 pointer-events-none', getGlowColor())}></div>
             
+            {/* Kart Üst Kısım */}
             <div className="relative z-10 flex justify-between items-start mb-4">
-                <div 
+                <motion.div 
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => onLoad?.(item)}
-                    className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] text-[var(--accent-color)] shadow-inner transition-colors group-hover:border-[var(--accent-color)]/25"
+                    className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] text-[var(--accent-color)] shadow-inner transition-all group-hover:border-[var(--accent-color)]/40 group-hover:shadow-[0_0_15px_rgba(var(--accent-rgb),0.2)]"
                 >
                     <i className={cn(iconFa, 'text-xl leading-none')} aria-hidden />
-                </div>
+                </motion.div>
                 
                 <div className="relative">
                     <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); setShowActions(!showActions); }}
                         className={cn(
-                            "flex h-8 w-8 items-center justify-center rounded-lg text-[var(--text-muted)] transition-all hover:bg-[var(--bg-secondary)] hover:text-[var(--text-primary)]",
-                            showActions && "bg-[var(--bg-secondary)] text-[var(--text-primary)]"
+                            "flex h-9 w-9 items-center justify-center rounded-xl border border-transparent text-[var(--text-muted)] transition-all hover:bg-[var(--bg-secondary)] hover:border-[var(--border-color)] hover:text-[var(--text-primary)]",
+                            showActions && "bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-primary)] shadow-sm"
                         )}
                     >
-                        <i className="fa-solid fa-ellipsis-vertical text-sm"></i>
+                        <i className={`fa-solid ${showActions ? 'fa-xmark' : 'fa-ellipsis'} text-sm`}></i>
                     </button>
 
                     <AnimatePresence>
                         {showActions && (
                             <>
-                                <div className="fixed inset-0 z-40" onClick={() => setShowActions(false)} />
+                                <motion.div 
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="fixed inset-0 z-40 bg-black/5" 
+                                    onClick={() => setShowActions(false)} 
+                                />
                                 <motion.div
-                                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                                    className="absolute right-0 top-10 z-50 w-44 rounded-xl border border-[var(--border-color)] bg-[var(--bg-paper)] p-1.5 shadow-xl backdrop-blur-md"
+                                    initial={{ opacity: 0, scale: 0.95, y: -10, x: 10 }}
+                                    animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
+                                    exit={{ opacity: 0, scale: 0.95, y: -10, x: 10 }}
+                                    className="absolute right-0 top-11 z-50 w-52 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-paper)]/95 p-1.5 shadow-2xl backdrop-blur-2xl ring-1 ring-black/[0.05]"
                                 >
-                                    <button onClick={(e) => handleActionClick(e, () => onLoad?.(item))} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-bold text-[var(--text-primary)] hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-colors">
-                                        <Eye className="w-3.5 h-3.5" /> Görüntüle / Düzenle
+                                    <div className="px-3 py-2 mb-1 border-b border-[var(--border-color)]/50">
+                                        <p className="text-[9px] font-black uppercase tracking-[0.15em] text-[var(--text-muted)]">Materyal İşlemleri</p>
+                                    </div>
+                                    <button onClick={(e) => handleActionClick(e, () => onLoad?.(item))} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[11px] font-bold text-[var(--text-primary)] hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all group/btn">
+                                        <div className="w-6 h-6 rounded-lg bg-indigo-500/10 flex items-center justify-center group-hover/btn:bg-[var(--accent-color)] group-hover/btn:text-white transition-colors">
+                                            <Eye className="w-3.5 h-3.5" />
+                                        </div>
+                                        İncele & Düzenle
                                     </button>
-                                    <button onClick={(e) => handleActionClick(e, () => onShare?.(item))} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-bold text-[var(--text-primary)] hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-colors">
-                                        <Share2 className="w-3.5 h-3.5" /> Paylaş
+                                    <button onClick={(e) => handleActionClick(e, () => onShare?.(item))} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[11px] font-bold text-[var(--text-primary)] hover:bg-sky-500/10 hover:text-sky-600 transition-all group/btn">
+                                        <div className="w-6 h-6 rounded-lg bg-sky-500/10 flex items-center justify-center group-hover/btn:bg-sky-500 group-hover/btn:text-white transition-colors">
+                                            <Share2 className="w-3.5 h-3.5" />
+                                        </div>
+                                        Paylaş (Link/Öğrenci)
                                     </button>
-                                    <button onClick={(e) => handleActionClick(e, () => onPrint?.(item))} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-bold text-[var(--text-primary)] hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-colors">
-                                        <Printer className="w-3.5 h-3.5" /> Yazdır / PDF
+                                    <button onClick={(e) => handleActionClick(e, () => onPrint?.(item))} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[11px] font-bold text-[var(--text-primary)] hover:bg-emerald-500/10 hover:text-emerald-600 transition-all group/btn">
+                                        <div className="w-6 h-6 rounded-lg bg-emerald-500/10 flex items-center justify-center group-hover/btn:bg-emerald-500 group-hover/btn:text-white transition-colors">
+                                            <Printer className="w-3.5 h-3.5" />
+                                        </div>
+                                        Yazdır & PDF İndir
                                     </button>
-                                    <div className="my-1 h-px bg-[var(--border-color)]" />
-                                    <button onClick={(e) => handleActionClick(e, () => onReport?.(item))} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-bold text-amber-600 hover:bg-amber-50 transition-colors">
-                                        <AlertTriangle className="w-3.5 h-3.5" /> Sorun Bildir
+                                    <div className="my-1.5 h-px bg-[var(--border-color)]/60" />
+                                    <button onClick={(e) => handleActionClick(e, () => onReport?.(item))} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[11px] font-bold text-amber-600 hover:bg-amber-500/10 transition-all group/btn">
+                                        <div className="w-6 h-6 rounded-lg bg-amber-500/10 flex items-center justify-center group-hover/btn:bg-amber-500 group-hover/btn:text-white transition-colors">
+                                            <AlertTriangle className="w-3.5 h-3.5" />
+                                        </div>
+                                        Sorun Bildir
                                     </button>
                                     {!isReadOnly && (
-                                        <button onClick={(e) => handleActionClick(e, () => onDelete?.(item.id))} className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors">
-                                            <Trash2 className="w-3.5 h-3.5" /> Sil
+                                        <button onClick={(e) => handleActionClick(e, () => onDelete?.(item.id))} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[11px] font-bold text-rose-600 hover:bg-rose-500/10 transition-all group/btn">
+                                            <div className="w-6 h-6 rounded-lg bg-rose-500/10 flex items-center justify-center group-hover/btn:bg-rose-500 group-hover/btn:text-white transition-colors">
+                                                <Trash2 className="w-3.5 h-3.5" />
+                                            </div>
+                                            Arşivden Kaldır
                                         </button>
                                     )}
                                 </motion.div>
@@ -191,18 +220,34 @@ const MaterialCard = ({ item, onLoad, onDelete, onShare, onReport, onPrint, isRe
                 onClick={() => onLoad?.(item)}
                 className="relative z-10 flex flex-1 flex-col cursor-pointer"
             >
-                <span className="font-lexend mb-1 text-[10px] font-black uppercase tracking-[0.14em] text-[var(--accent-color)] opacity-85">
-                    {item.category?.id === 'workbook' || item.activityType === 'WORKBOOK'
-                      ? 'Çalışma Kitapçığı'
-                      : categoryDef?.title || item.category?.title || 'Genel materyal'}
-                </span>
-                <h3 className="font-lexend mb-2 line-clamp-2 text-base font-bold leading-tight text-[var(--text-primary)]">
+                <div className="flex items-center gap-2 mb-1.5">
+                    <span className={cn('h-1.5 w-1.5 rounded-full', categoryDotClass(cid))}></span>
+                    <span className="font-lexend text-[9px] font-black uppercase tracking-[0.18em] text-[var(--accent-color)] opacity-85">
+                        {item.category?.id === 'workbook' || item.activityType === 'WORKBOOK'
+                        ? 'Çalışma Kitapçığı'
+                        : categoryDef?.title || item.category?.title || 'Genel materyal'}
+                    </span>
+                </div>
+                <h3 className="font-lexend mb-2 line-clamp-2 text-[15px] font-black leading-snug text-[var(--text-primary)] group-hover:text-[var(--accent-color)] transition-colors">
                     {item.name}
                 </h3>
-                <div className="font-lexend mt-auto flex items-center justify-between text-[11px] text-[var(--text-muted)]">
-                    <div className="flex items-center gap-1.5">
+                
+                <div className="font-lexend mt-auto pt-4 border-t border-[var(--border-color)]/40 flex items-center justify-between text-[10px] font-bold text-[var(--text-muted)]">
+                    <div className="flex items-center gap-1.5 bg-[var(--bg-secondary)]/50 px-2.5 py-1 rounded-full border border-[var(--border-color)]/30">
                         <i className="fa-regular fa-calendar-check opacity-70"></i>
-                        {item.createdAt ? new Date(item.createdAt).toLocaleDateString('tr-TR') : '—'}
+                        {item.createdAt ? new Date(item.createdAt).toLocaleDateString('tr-TR', { day: '2-digit', month: 'short' }) : '—'}
+                    </div>
+                    
+                    {item.pageCount && (
+                         <div className="flex items-center gap-1.5">
+                            <i className="fa-solid fa-file-invoice opacity-50"></i>
+                            <span>{item.pageCount} Sayfa</span>
+                         </div>
+                    )}
+
+                    <div className="flex items-center gap-1 text-emerald-500">
+                        <i className="fa-solid fa-cloud-arrow-up opacity-70"></i>
+                        <span>Bulutta</span>
                     </div>
                 </div>
             </div>

@@ -479,6 +479,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.LETTER_CONNECT,
       ActivityType.KELIME_CUMLE,
       ActivityType.SINAV,
+      ActivityType.SARI_KITAP_STUDIO,
     ],
   },
   {
