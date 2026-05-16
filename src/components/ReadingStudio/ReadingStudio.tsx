@@ -12,9 +12,10 @@ import { LayoutItem } from '../../types';
 import { StylePanel } from './Editor/StylePanel';
 
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { ActivityType } from '../../types/activity';
 interface ReadingStudioInnerProps {
   onBack: () => void;
-  onAddToWorkbook: () => void;
+  onAddToWorkbook: (type?: any, data?: any) => void;
 }
 
 const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps) => {
@@ -103,7 +104,7 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
         pageIndex: 0,
         specificData: { 
             note: result.pedagogicalNote,
-            goals: result.pedagogicalGoals 
+            goals: (result as any).pedagogicalGoals 
         },
         style: { h: 180, fontSize: 12, fontFamily: 'Lexend', backgroundColor: '#ecfdf5', borderColor: '#10b981', borderWidth: 1, borderStyle: 'solid', borderRadius: 12, padding: 15 } as any
       });
@@ -184,6 +185,21 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
     }
   };
 
+  const handleAddToWorkbookClick = () => {
+    if (!layout || layout.length === 0) {
+      alert('Önce bir hikaye oluşturmalısınız.');
+      return;
+    }
+    // Reading Studio verisini standardize et
+    const workbookData = {
+      title: storyData?.title || config.topic || 'Okuma Etkinliği',
+      layout: layout,
+      storyData: storyData,
+      config: config
+    };
+    onAddToWorkbook(ActivityType.STORY_COMPREHENSION, workbookData);
+  };
+
   const handleSave = () => {
     try {
       const data = localStorage.getItem('reading_studio_archive');
@@ -256,12 +272,21 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
             <button
               onClick={() => handlePrint('print')}
               className="studio-icon-btn w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
+              title="Yazdır"
             >
               <i className="fa-solid fa-print"></i>
             </button>
             <button
+               onClick={handleAddToWorkbookClick}
+               className="studio-icon-btn w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--bg-secondary)] border-amber-500/50 text-amber-500 hover:bg-amber-500 hover:text-white transition-all shadow-sm"
+               title="Kitapçığa Ekle"
+            >
+               <i className="fa-solid fa-book-medical"></i>
+            </button>
+            <button
               onClick={handleSave}
               className="studio-icon-btn w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--accent-color)] border border-[var(--accent-color)] text-white shadow-lg shadow-[var(--accent-muted)] hover:opacity-90"
+              title="Arşive Kaydet"
             >
               <i className="fa-solid fa-floppy-disk"></i>
             </button>

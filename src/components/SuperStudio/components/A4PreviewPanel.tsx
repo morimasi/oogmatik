@@ -5,7 +5,11 @@ import { useSuperStudioStore } from '../../../store/useSuperStudioStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MarkdownRenderer } from '../../Common/MarkdownRenderer';
 
-export const A4PreviewPanel: React.FC = () => {
+interface A4PreviewPanelProps {
+  onAddToWorkbook?: (activityType: any, data: any) => void;
+}
+
+export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = ({ onAddToWorkbook }) => {
   const { generatedContents, isGenerating } = useSuperStudioStore();
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [showAllPages, setShowAllPages] = useState(false);
@@ -125,7 +129,7 @@ export const A4PreviewPanel: React.FC = () => {
           </button>
         )}
 
-        <ActionToolbar />
+        <ActionToolbar onAddToWorkbook={onAddToWorkbook} />
       </div>
 
       {/* A4 Canvas Area */}

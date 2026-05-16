@@ -40,14 +40,17 @@ export const WorkbookActivityRenderer = memo(({ item, settings, font }: Workbook
         }
     }, []);
 
-    // Sari Kitap activities have different data structure: { config, content } or raw data with sourceTexts, heceRows, etc.
-    if (SARI_KITAP_TYPES.has(item.activityType)) {
-        const RendererComponent = getRendererForType(item.activityType);
+    // Sari Kitap activities have different data structure
+    const actualType = (item.activityType === 'SARI_KITAP_STUDIO' && (item.data as any)?.type) 
+        ? (item.data as any).type 
+        : item.activityType;
+
+    if (SARI_KITAP_TYPES.has(actualType)) {
+        const RendererComponent = getRendererForType(actualType);
         if (!RendererComponent) {
             return <EmptyState font={font} />;
         }
 
-        // Data structure varies: some have { config, content }, others store everything directly in item.data
         const itemData = item.data as Record<string, unknown>;
         let config: Record<string, unknown> = {};
         const content: Partial<SariKitapGeneratedContent> = {};
@@ -64,7 +67,7 @@ export const WorkbookActivityRenderer = memo(({ item, settings, font }: Workbook
             }
         }
 
-        config = { type: item.activityType, ...item.settings, ...config };
+        config = { type: actualType, ...item.settings, ...config };
         
         const rendererProps: RendererProps = { 
             config: config as never, 

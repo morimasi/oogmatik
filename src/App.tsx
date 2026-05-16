@@ -756,22 +756,44 @@ const AppContent = () => {
     }
   };
 
-  const handleAddToWorkbookGeneral = (activityType: ActivityType, data: any) => {
-    if (activityType && data) {
-      const dataArray = Array.isArray(data) ? data : [data];
+  /**
+   * Kitapçığa ekleme işlemini standardize eden merkezi fonksiyon.
+   * Farklı stüdyolar farklı imzalarda çağrı yapabildiği için ( (data) veya (type, data) ) 
+   * burada her iki duruma da uyum sağlanır.
+   */
+  const handleAddToWorkbookGeneral = (activityTypeOrData: ActivityType | any, data?: any) => {
+    let finalType: ActivityType;
+    let finalData: any;
+
+    if (data === undefined) {
+      // Tek argümanlı çağrı: onAddToWorkbook(data)
+      finalData = activityTypeOrData;
+      // Veri içinden tip bulmaya çalış, yoksa seçili aktiviteyi kullan
+      finalType = finalData?.activityType || finalData?.type || selectedActivity;
+    } else {
+      // İki argümanlı çağrı: onAddToWorkbook(type, data)
+      finalType = activityTypeOrData as ActivityType;
+      finalData = data;
+    }
+
+    if (finalType && finalData) {
+      const dataArray = Array.isArray(finalData) ? finalData : [finalData];
       const newItems: CollectionItem[] = dataArray.map((sheet: any) => ({
         id: crypto.randomUUID(),
-        activityType: activityType,
+        activityType: finalType,
         data: sheet,
         settings: { ...styleSettings },
-        title: sheet.title || ACTIVITIES.find((a) => a.id === activityType)?.title || 'Etkinlik',
+        title: sheet.title || ACTIVITIES.find((a) => a.id === finalType)?.title || 'Etkinlik',
       }));
       setWorkbookItems((prev: CollectionItem[]) => [...prev, ...newItems]);
+      
       const btn = document.getElementById('add-to-wb-btn');
       if (btn) {
         btn.classList.add('scale-125', 'bg-green-500', 'text-white');
         setTimeout(() => btn.classList.remove('scale-125', 'bg-green-500', 'text-white'), 300);
       }
+      
+      toast.success('Kitapçığa başarıyla eklendi!');
     }
   };
   const handleAddToWorkbook = () => {

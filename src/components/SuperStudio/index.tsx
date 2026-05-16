@@ -8,7 +8,11 @@ import { useToastStore } from '../../store/useToastStore';
 import { generateSuperStudioContent } from '../../services/generators/superStudioGenerator';
 
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
-export const SuperStudio: React.FC = () => {
+interface SuperStudioProps {
+  onAddToWorkbook?: (activityType: any, data: any) => void;
+}
+
+export const SuperStudio: React.FC<SuperStudioProps> = ({ onAddToWorkbook }) => {
   const {
     isGenerating,
     selectedTemplates,
@@ -102,7 +106,7 @@ export const SuperStudio: React.FC = () => {
 
       {/* Sağ Panel: A4 Önizleme ve Operasyonlar */}
       <div className="flex-1 flex flex-col bg-[var(--bg-primary)] relative overflow-hidden">
-        <A4PreviewPanel />
+        <A4PreviewPanel onAddToWorkbook={onAddToWorkbook} />
       </div>
     </div>
   );
