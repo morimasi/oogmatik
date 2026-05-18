@@ -27,6 +27,16 @@ export const AssessmentEngine: React.FC<AssessmentEngineProps> = ({ domain, onCo
             return <PhonologicalLoopTest onComplete={onComplete} />;
         case 'visual_search':
             return <VisualSearchTest onComplete={onComplete} />;
+        case 'working_memory':
+            return <WorkingMemoryTest onComplete={onComplete} />;
+        case 'planning':
+            return <PlanningTest onComplete={onComplete} />;
+        case 'auditory_processing':
+            return <AuditoryProcessingTest onComplete={onComplete} />;
+        case 'visual_motor_integration':
+            return <VisualMotorIntegrationTest onComplete={onComplete} />;
+        case 'verbal_comprehension':
+            return <VerbalComprehensionTest onComplete={onComplete} />;
         default:
             return (
                 <div className="flex flex-col items-center justify-center w-full h-full gap-8 text-center relative overflow-hidden">

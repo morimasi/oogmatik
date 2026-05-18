@@ -53,7 +53,12 @@ export type CognitiveDomain =
     | 'selective_attention'
     | 'phonological_loop'
     | 'logical_reasoning'
-    | 'visual_search';
+    | 'visual_search'
+    | 'working_memory'
+    | 'planning'
+    | 'auditory_processing'
+    | 'visual_motor_integration'
+    | 'verbal_comprehension';
 
 export type ShapeType =
     | 'circle'

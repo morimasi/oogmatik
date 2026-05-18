@@ -28,6 +28,11 @@ const TEST_DOMAINS: Array<{
   { domain: 'logical_reasoning', label: 'Mantıksal Akıl Yürütme', description: 'Problem çözme ve desen bulma', icon: 'fa-puzzle-piece', duration: '~5 dk' },
   { domain: 'phonological_loop', label: 'Fonolojik Döngü', description: 'Sesleri işlemleme ve tekrar etme', icon: 'fa-ear-listen', duration: '~3 dk' },
   { domain: 'visual_search', label: 'Görsel Arama', description: 'Hedef uyaranı karmaşada bulma', icon: 'fa-magnifying-glass', duration: '~3 dk' },
+  { domain: 'working_memory', label: 'Çalışma Belleği', description: 'Bilgiyi geçici olarak saklama ve işleme', icon: 'fa-brain', duration: '~4 dk' },
+  { domain: 'planning', label: 'Planlama', description: 'Strateji geliştirme ve hedefe ulaşma', icon: 'fa-chess-board', duration: '~5 dk' },
+  { domain: 'auditory_processing', label: 'İşitsel İşleme', description: 'Sesleri algılama ve ayırt etme', icon: 'fa-volume-high', duration: '~3 dk' },
+  { domain: 'visual_motor_integration', label: 'Görsel-Motor Entegrasyon', description: 'El-göz koordinasyonu', icon: 'fa-palette', duration: '~4 dk' },
+  { domain: 'verbal_comprehension', label: 'Sözel Kavrama', description: 'Kelime anlamları ve ilişkileri', icon: 'fa-book', duration: '~3 dk' },
 ];
 
 export const CognitiveTestPanel: React.FC<CognitiveTestPanelProps> = ({
