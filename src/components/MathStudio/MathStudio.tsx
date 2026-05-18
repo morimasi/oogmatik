@@ -7,6 +7,7 @@ import { useStudentStore } from '../../store/useStudentStore';
 import { ShareModal } from '../ShareModal';
 import { MathPageConfig, MathMode } from '../../types/math';
 import { DEFAULT_PAGE_CONFIG, DEFAULT_THEME_CONFIG, ThemeConfig } from './constants';
+import { calculateItemsPerPage } from './utils';
 
 // Hooks
 import { useDrillGenerator } from './hooks/useDrillGenerator';
@@ -28,7 +29,6 @@ import { ProblemSettingsPanel } from './panels/ProblemSettingsPanel';
 import { AdvancedPanel } from './panels/AdvancedPanel';
 
 // Pagination
-import { useDrillPagination } from './hooks/usePagination';
 
 interface MathStudioProps {
     onBack: () => void;
@@ -63,9 +63,6 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
         generatedProblems: problem.generatedProblems,
         onAddToWorkbook,
     });
-
-    // --- Pagination for answer key page count ---
-    const drillPagination = useDrillPagination(drill.generatedDrills, drill.drillConfig, pageConfig.margin);
 
     // --- SYNC ---
     useEffect(() => {
@@ -126,7 +123,9 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
     };
 
     // --- Total content pages for answer key ---
-    const totalContentPages = mode === 'drill' ? drillPagination.totalPages : Math.max(1, problem.generatedProblems.length > 0 ? 1 : 0);
+    const totalContentPages = mode === 'drill'
+        ? Math.max(1, Math.ceil(drill.generatedDrills.length / Math.max(1, calculateItemsPerPage(drill.drillConfig, pageConfig.margin))))
+        : Math.max(1, problem.generatedProblems.length > 0 ? 1 : 0);
 
     return (
         <div

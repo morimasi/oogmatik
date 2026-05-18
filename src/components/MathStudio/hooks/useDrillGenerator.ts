@@ -1,6 +1,7 @@
 // Math Studio — Drill Generator Hook
+// Auto-fills A4 page on every config change. Never overflows to page 2.
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { MathDrillConfig, MathOperation } from '../../../types/math';
 import { generateMathDrillSet } from '../../../services/offlineGenerators/mathStudio';
 import { calculateItemsPerPage } from '../utils';
@@ -9,36 +10,37 @@ import { DEFAULT_DRILL_CONFIG } from '../constants';
 export const useDrillGenerator = (pageMargin: number) => {
     const [drillConfig, setDrillConfig] = useState<MathDrillConfig>({ ...DEFAULT_DRILL_CONFIG });
     const [generatedDrills, setGeneratedDrills] = useState<MathOperation[]>([]);
+    const generationCounter = useRef(0);
 
-    // Generate drills whenever config changes
+    // Generate drills whenever config changes — ALWAYS auto-fill A4 page
     useEffect(() => {
-        let targetCount = drillConfig.count;
+        // Force autoFillPage ON — user cannot turn it off
+        const effectiveConfig = { ...drillConfig, autoFillPage: true };
 
-        // Auto-fill: calculate max items for single page
-        if (drillConfig.autoFillPage) {
-            targetCount = calculateItemsPerPage(drillConfig, pageMargin);
-        }
+        // Calculate exact items that fit on one A4 page
+        const targetCount = calculateItemsPerPage(effectiveConfig, pageMargin);
 
         const items = generateMathDrillSet(
             targetCount,
-            drillConfig.selectedOperations as any,
+            effectiveConfig.selectedOperations as string[],
             {
-                digit1: drillConfig.digit1,
-                digit2: drillConfig.digit2,
-                digit3: drillConfig.digit3,
-                allowCarry: drillConfig.allowCarry,
-                allowBorrow: drillConfig.allowBorrow,
-                allowRemainder: drillConfig.allowRemainder,
-                allowNegative: drillConfig.allowNegative,
-                useThirdNumber: drillConfig.useThirdNumber,
+                digit1: effectiveConfig.digit1,
+                digit2: effectiveConfig.digit2,
+                digit3: effectiveConfig.digit3,
+                allowCarry: effectiveConfig.allowCarry,
+                allowBorrow: effectiveConfig.allowBorrow,
+                allowRemainder: effectiveConfig.allowRemainder,
+                allowNegative: effectiveConfig.allowNegative,
+                useThirdNumber: effectiveConfig.useThirdNumber,
             }
         );
         setGeneratedDrills(items);
     }, [
         drillConfig.selectedOperations, drillConfig.digit1, drillConfig.digit2, drillConfig.digit3,
-        drillConfig.count, drillConfig.allowCarry, drillConfig.allowBorrow, drillConfig.allowRemainder,
-        drillConfig.allowNegative, drillConfig.useThirdNumber, drillConfig.autoFillPage,
-        drillConfig.fontSize, drillConfig.orientation, drillConfig.cols, drillConfig.gap, pageMargin,
+        drillConfig.allowCarry, drillConfig.allowBorrow, drillConfig.allowRemainder,
+        drillConfig.allowNegative, drillConfig.useThirdNumber,
+        drillConfig.fontSize, drillConfig.orientation, drillConfig.cols, drillConfig.gap,
+        drillConfig.showTextRepresentation, pageMargin, generationCounter.current,
     ]);
 
     const toggleDrillOp = useCallback((op: string) => {
@@ -51,28 +53,8 @@ export const useDrillGenerator = (pageMargin: number) => {
     }, []);
 
     const regenerate = useCallback(() => {
-        // Force re-generate by toggling a hidden counter
-        setDrillConfig(prev => ({ ...prev, count: prev.count }));
-        // Trick: we need to actually change a dependency. Let's change count slightly and back.
-        setDrillConfig(prev => {
-            const items = generateMathDrillSet(
-                prev.autoFillPage ? calculateItemsPerPage(prev, pageMargin) : prev.count,
-                prev.selectedOperations as any,
-                {
-                    digit1: prev.digit1,
-                    digit2: prev.digit2,
-                    digit3: prev.digit3,
-                    allowCarry: prev.allowCarry,
-                    allowBorrow: prev.allowBorrow,
-                    allowRemainder: prev.allowRemainder,
-                    allowNegative: prev.allowNegative,
-                    useThirdNumber: prev.useThirdNumber,
-                }
-            );
-            setGeneratedDrills(items);
-            return prev;
-        });
-    }, [pageMargin]);
+        generationCounter.current += 1;
+    }, []);
 
     return {
         drillConfig,

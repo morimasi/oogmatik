@@ -31,42 +31,86 @@ export const numberToTurkish = (num: number): string => {
 };
 
 /**
- * Estimates the pixel height of a single drill item based on config.
+ * Estimates the pixel height of a single drill item for a SPECIFIC operation.
+ * This is the core calculation for A4 page-fit accuracy.
  */
-export const estimateItemHeight = (config: MathDrillConfig): number => {
-  if (config.orientation === 'vertical') {
-    // Basic lines: num1, symbol+num2, line, answerBox, spacing
-    let lineCount = config.useThirdNumber ? 5.0 : 4.0;
+const estimateItemHeightForOp = (op: string, config: MathDrillConfig): number => {
+  const fs = config.fontSize;
 
-    if (config.selectedOperations.includes('div')) {
-      lineCount = 7.0; // Turkish classic division needs more vertical space
-    } else if (config.selectedOperations.includes('mult')) {
-      if (config.digit2 >= 2) {
-        lineCount += 3.5; // Multi-digit mult has steps
-      } else {
-        lineCount += 1.5; // Single-digit mult has result
-      }
-    }
-
-    const textExtra = config.showTextRepresentation ? 16 : 0;
-    const paddingExtra = 24; // Premium card padding
-    return config.fontSize * lineCount + textExtra + paddingExtra;
+  if (config.orientation === 'horizontal') {
+    return fs * 2.2 + 20;
   }
-  return config.fontSize * 2.2 + 20; // Horizontal items are simpler
+
+  // Vertical layout
+  let lineCount = 4.0; // num1, symbol+num2, separator line, answer box
+
+  if (op === 'div') {
+    // Turkish classic division layout: dividend | divisor, quotient below, steps
+    lineCount = 7.0;
+    if (config.digit2 >= 2) lineCount += 2.0; // Multi-digit divisor needs more steps
+  } else if (op === 'mult') {
+    if (config.digit2 >= 2) {
+      lineCount += 3.5; // Multi-digit multiplication: intermediate steps
+    } else {
+      lineCount += 1.5; // Single-digit: just result line
+    }
+  } else if (op === 'add' || op === 'sub') {
+    if (config.useThirdNumber) {
+      lineCount += 1.5; // Extra operand line
+    }
+  }
+
+  if (config.useThirdNumber && op !== 'div') {
+    lineCount += 1.0;
+  }
+
+  const textExtra = config.showTextRepresentation ? 16 : 0;
+  const paddingExtra = 24; // Premium card padding
+  return fs * lineCount + textExtra + paddingExtra;
 };
 
+/**
+ * Estimates the pixel height of a single drill item based on config.
+ * For mixed operations, calculates weighted average across all selected ops.
+ */
+export const estimateItemHeight = (config: MathDrillConfig): number => {
+  const ops = config.selectedOperations.filter(o => o !== 'mixed');
+
+  if (ops.length === 0) {
+    // Fallback: treat as add
+    return estimateItemHeightForOp('add', config);
+  }
+
+  if (ops.length === 1) {
+    return estimateItemHeightForOp(ops[0], config);
+  }
+
+  // Mixed operations: average height across all selected ops
+  const totalHeight = ops.reduce((sum, op) => sum + estimateItemHeightForOp(op, config), 0);
+  return totalHeight / ops.length;
+};
+
+/**
+ * Calculates the maximum number of drill items that fit on a single A4 page.
+ * Uses a 5% safety margin to prevent overflow.
+ */
 export const calculateItemsPerPage = (config: MathDrillConfig, pageMargin: number): number => {
-  const usableHeight = A4_HEIGHT_PX - HEADER_HEIGHT - FOOTER_HEIGHT - pageMargin * 2 - 20; // Extra safety
+  const usableHeight = A4_HEIGHT_PX - HEADER_HEIGHT - FOOTER_HEIGHT - pageMargin * 2;
   const itemH = estimateItemHeight(config);
   const gapY = config.gap || 12;
-  const rows = Math.floor(usableHeight / (itemH + gapY / 2));
-  
-  // Columns safety check: don't squish large fonts
-  let safeCols = config.cols;
-  if (config.fontSize > 32) safeCols = Math.min(2, config.cols);
-  else if (config.fontSize > 24) safeCols = Math.min(3, config.cols);
 
-  return Math.max(1, rows * safeCols);
+  // Rows: how many items fit vertically
+  const rows = Math.floor(usableHeight / (itemH + gapY));
+
+  // Columns: use configured value (user controls this)
+  const cols = Math.max(1, Math.min(8, config.cols));
+
+  const totalItems = Math.max(1, rows * cols);
+
+  // Apply 5% safety margin to prevent edge-case overflow
+  const safeItems = Math.max(1, Math.floor(totalItems * 0.95));
+
+  return safeItems;
 };
 
 /**

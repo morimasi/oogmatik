@@ -2,8 +2,6 @@
 
 import React from 'react';
 import { MathDrillConfig } from '../../../types/math';
-import { COLS_MIN, COLS_MAX, COUNT_MIN, COUNT_MAX } from '../constants';
-import { clamp } from '../utils';
 
 interface DrillSettingsPanelProps {
   drillConfig: MathDrillConfig;
@@ -213,30 +211,34 @@ export const DrillSettingsPanel: React.FC<DrillSettingsPanelProps> = ({
         </button>
       </div>
 
-      <Toggle
-        label="SAYFAYI TAM DOLDUR (PRO)"
-        checked={drillConfig.autoFillPage}
-        onChange={(v) => setDrillConfig({ ...drillConfig, autoFillPage: v })}
-      />
+      {/* Auto-fill indicator (always ON) */}
+      <div className="flex items-center gap-2 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
+        <i className="fa-solid fa-check-circle text-emerald-400 text-sm"></i>
+        <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">
+          A4 Sayfasına Otomatik Dolum Aktif
+        </span>
+      </div>
 
       <div className="grid grid-cols-1 gap-3">
         <div>
           <label className="block text-[9px] text-zinc-500 mb-1.5 font-bold uppercase">
-            Sütun Sayısı
+            Sütun Sayısı: {drillConfig.cols}
           </label>
-          <input
-            type="number"
-            min={COLS_MIN}
-            max={COLS_MAX}
-            value={drillConfig.cols}
-            onChange={(e) =>
-              setDrillConfig({
-                ...drillConfig,
-                cols: clamp(Number(e.target.value), COLS_MIN, COLS_MAX),
-              })
-            }
-            className="w-full bg-zinc-900 border border-zinc-700 rounded-xl p-2.5 text-sm text-white font-bold outline-none focus:border-accent"
-          />
+          <div className="flex gap-2">
+            {[1, 2, 3, 4, 5, 6].map(n => (
+              <button
+                key={n}
+                onClick={() => setDrillConfig({ ...drillConfig, cols: n })}
+                className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all border ${
+                  drillConfig.cols === n
+                    ? 'bg-accent border-accent text-white shadow-lg shadow-accent/20'
+                    : 'bg-zinc-900 border-zinc-700 text-zinc-500 hover:border-zinc-600 hover:text-zinc-300'
+                }`}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
