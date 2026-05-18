@@ -8,8 +8,8 @@ import { AssessmentReportViewer } from './AssessmentReportViewer';
 import { assessmentService } from '../services/assessmentService';
 import { generateAssessmentReport } from '../services/assessmentGenerator';
 import { ACTIVITIES } from '../constants';
-
 import { logInfo, logError, logWarn } from '../utils/logger.js';
+
 interface AssessmentModuleProps {
     onBack: () => void;
     onSelectActivity: (id: ActivityType) => void;
@@ -22,7 +22,13 @@ const DOMAINS: { id: CognitiveDomain; title: string; desc: string; icon: string;
     { id: 'processing_speed', title: 'Hızlı İsimlendirme (RAN)', desc: 'Görsel uyaranları işlemleme ve sözel tepki hızı.', icon: 'fa-stopwatch', estimatedTime: '2 dk', color: 'cyan' },
     { id: 'selective_attention', title: 'Stroop Testi (Dikkat)', desc: 'Dürtü kontrolü, odaklanma ve çeldirici baskılama.', icon: 'fa-traffic-light', estimatedTime: '3 dk', color: 'purple' },
     { id: 'phonological_loop', title: 'Fonolojik Döngü', desc: 'Sözel çalışma belleği ve hece/kelime tekrarı.', icon: 'fa-volume-high', estimatedTime: '4 dk', color: 'rose' },
-    { id: 'logical_reasoning', title: 'Mantıksal Muhakeme', desc: 'Akışkan zeka, desen tanıma ve problem çözme.', icon: 'fa-brain', estimatedTime: '5 dk', color: 'amber' }
+    { id: 'logical_reasoning', title: 'Mantıksal Muhakeme', desc: 'Akışkan zeka, desen tanıma ve problem çözme.', icon: 'fa-brain', estimatedTime: '5 dk', color: 'amber' },
+    { id: 'visual_search', title: 'Görsel Arama', desc: 'Hedef uyaranı karmaşada bulma.', icon: 'fa-magnifying-glass', estimatedTime: '3 dk', color: 'emerald' },
+    { id: 'working_memory', title: 'Çalışma Belleği', desc: 'Bilgiyi geçici olarak saklama ve işleme.', icon: 'fa-brain', estimatedTime: '4 dk', color: 'teal' },
+    { id: 'planning', title: 'Planlama', desc: 'Strateji geliştirme ve hedefe ulaşma.', icon: 'fa-chess-board', estimatedTime: '5 dk', color: 'violet' },
+    { id: 'auditory_processing', title: 'İşitsel İşleme', desc: 'Sesleri algılama ve ayırt etme.', icon: 'fa-volume-high', estimatedTime: '3 dk', color: 'sky' },
+    { id: 'visual_motor_integration', title: 'Görsel-Motor Entegrasyon', desc: 'El-göz koordinasyonu.', icon: 'fa-palette', estimatedTime: '4 dk', color: 'orange' },
+    { id: 'verbal_comprehension', title: 'Sözel Kavrama', desc: 'Kelime anlamları ve ilişkileri.', icon: 'fa-book', estimatedTime: '3 dk', color: 'pink' }
 ];
 
 const DOMAIN_COLORS: Record<string, string> = {
@@ -31,13 +37,26 @@ const DOMAIN_COLORS: Record<string, string> = {
     purple: 'border-purple-500 bg-purple-50 dark:bg-purple-900/20',
     rose: 'border-rose-500 bg-rose-50 dark:bg-rose-900/20',
     amber: 'border-amber-500 bg-amber-50 dark:bg-amber-900/20',
+    emerald: 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20',
+    teal: 'border-teal-500 bg-teal-50 dark:bg-teal-900/20',
+    violet: 'border-violet-500 bg-violet-50 dark:bg-violet-900/20',
+    sky: 'border-sky-500 bg-sky-50 dark:bg-sky-900/20',
+    orange: 'border-orange-500 bg-orange-50 dark:bg-orange-900/20',
+    pink: 'border-pink-500 bg-pink-50 dark:bg-pink-900/20',
 };
+
 const DOMAIN_ICON_COLORS: Record<string, string> = {
     indigo: 'bg-indigo-100 text-indigo-600',
     cyan: 'bg-cyan-100 text-cyan-600',
     purple: 'bg-purple-100 text-purple-600',
     rose: 'bg-rose-100 text-rose-600',
     amber: 'bg-amber-100 text-amber-600',
+    emerald: 'bg-emerald-100 text-emerald-600',
+    teal: 'bg-teal-100 text-teal-600',
+    violet: 'bg-violet-100 text-violet-600',
+    sky: 'bg-sky-100 text-sky-600',
+    orange: 'bg-orange-100 text-orange-600',
+    pink: 'bg-pink-100 text-pink-600',
 };
 
 const DOMAIN_ACTIVITY_MAP: Record<CognitiveDomain, ActivityType[]> = {
@@ -46,7 +65,12 @@ const DOMAIN_ACTIVITY_MAP: Record<CognitiveDomain, ActivityType[]> = {
     selective_attention: [ActivityType.STROOP_TEST, ActivityType.BURDON_TEST, ActivityType.ATTENTION_TO_QUESTION, ActivityType.FIND_THE_DIFFERENCE],
     phonological_loop: [ActivityType.PHONOLOGICAL_AWARENESS, ActivityType.SYLLABLE_TRAIN, ActivityType.WORD_MEMORY],
     logical_reasoning: [ActivityType.LOGIC_GRID_PUZZLE, ActivityType.NUMBER_PATTERN],
-    visual_search: [ActivityType.TARGET_SEARCH, ActivityType.VISUAL_TRACKING_LINES, ActivityType.CHAOTIC_NUMBER_SEARCH]
+    visual_search: [ActivityType.TARGET_SEARCH, ActivityType.VISUAL_TRACKING_LINES, ActivityType.CHAOTIC_NUMBER_SEARCH],
+    working_memory: [ActivityType.WORD_MEMORY, ActivityType.SYLLABLE_TRAIN],
+    planning: [ActivityType.LOGIC_GRID_PUZZLE, ActivityType.NUMBER_PATTERN],
+    auditory_processing: [ActivityType.PHONOLOGICAL_AWARENESS, ActivityType.SYLLABLE_TRAIN],
+    visual_motor_integration: [ActivityType.GRID_DRAWING, ActivityType.DOT_PAINTING],
+    verbal_comprehension: [ActivityType.READING_COMPREHENSION, ActivityType.SYNONYM_ANTONYM_MATCH]
 };
 
 export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, onAutoGenerateWorkbook }: AssessmentModuleProps) => {
@@ -56,14 +80,13 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
     const [view, setView] = useState<'setup' | 'running' | 'report'>('setup');
     const [activeTestIndex, setActiveTestIndex] = useState(0);
 
-    // --- Öğrenci Bilgileri ---
     const [studentName, setStudentName] = useState('');
     const [studentAge, setStudentAge] = useState(8);
-    const [studentGender, setStudentGender] = useState<'Kız' | 'Erkek'>('Erkek'); // FIX: Artık state'te
+    const [studentGender, setStudentGender] = useState<'Kız' | 'Erkek'>('Erkek');
     const [studentId, setStudentId] = useState<string | undefined>(undefined);
 
     const [selectedDomains, setSelectedDomains] = useState<CognitiveDomain[]>([
-        'visual_spatial_memory', 'selective_attention', 'processing_speed', 'logical_reasoning'
+        'visual_spatial_memory', 'selective_attention', 'processing_speed', 'logical_reasoning', 'working_memory'
     ]);
 
     const [results, setResults] = useState<SubTestResult[]>([]);
@@ -81,8 +104,6 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
 
     const [finalReport, setFinalReport] = useState<SavedAssessment | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
-
-    // FIX: Gerçek süre ölçümü
     const sessionStartTime = useRef<number>(0);
 
     useEffect(() => {
@@ -133,7 +154,6 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
 
     const generateFinalReport = async (completedResults: SubTestResult[]) => {
         setIsGenerating(true);
-        // FIX: Gerçek süre
         const durationSeconds = Math.round((Date.now() - sessionStartTime.current) / 1000);
 
         const _totalScore = completedResults.reduce((acc, r) => acc + r.score, 0) / completedResults.length;
@@ -151,7 +171,6 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
         const phonologicalScore = phonologicalResult?.score ?? 100;
         const _visualSearchScore = visualSearchResult?.score ?? 100;
 
-        // FIX: Dyscalculia gerçek hesaplama
         const dyscalculiaRisk =
             logicScore < 45 ? 'high' :
                 logicScore < 65 ? 'moderate' : 'low';
@@ -181,12 +200,12 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
             studentName,
             examinerId: user?.id || 'guest',
             date: new Date().toISOString(),
-            duration: durationSeconds, // FIX: Artık gerçek süre
+            duration: durationSeconds,
             subTests: completedResults,
             observations,
             overallRiskAnalysis: {
                 dyslexiaRisk: (memoryScore < 50 || phonologicalScore < 50) ? 'high' : (memoryScore < 70 || phonologicalScore < 70) ? 'moderate' : 'low',
-                dyscalculiaRisk, // FIX: Artık hesaplanıyor
+                dyscalculiaRisk,
                 attentionDeficitRisk: attentionScore < 50 ? 'high' : attentionScore < 70 ? 'moderate' : 'low',
                 summary: `Bu alan AI ile doldurulacak.`
             },
@@ -194,7 +213,6 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
             roadmap
         };
 
-        // FAZ 3: AI Rapor Motoru entegrasyonu
         let aiReport;
         try {
             aiReport = await generateAssessmentReport({
@@ -215,7 +233,7 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
                 )
             });
         } catch (e) {
-            logWarn('AI rapor üretimi başarısız, rule-based fallback kullanılıyor.', e);
+            logWarn('AI rapor üretimi başarısız, rule-based fallback kullanılıyor.', { error: e as Error });
             aiReport = null;
         }
 
@@ -248,7 +266,7 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
             studentId,
             studentName,
             age: studentAge,
-            gender: studentGender, // FIX: Artık state'ten geliyor
+            gender: studentGender,
             grade: activeStudent?.grade || '1. Sınıf',
             report: fullReport,
             createdAt: new Date().toISOString()
@@ -257,11 +275,11 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
         if (user) {
             try {
                 await assessmentService.saveAssessment(
-                    user.id, studentName, studentGender, studentAge, // FIX: studentGender
+                    user.id, studentName, studentGender, studentAge,
                     activeStudent?.grade || '1. Sınıf', fullReport, studentId
                 );
             } catch (e) {
-                logError('Değerlendirme kaydedilemedi:', e);
+                logError('Değerlendirme kaydedilemedi', { error: e as Error });
             }
         }
 
@@ -270,7 +288,6 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
         setView('report');
     };
 
-    // --- SETUP VIEW ---
     if (view === 'setup') {
         const totalEstTime = selectedDomains.reduce((acc, d) => {
             const domain = DOMAINS.find(x => x.id === d);
@@ -291,7 +308,6 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 space-y-6">
-                        {/* Öğrenci Seçimi */}
                         <div className="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
                             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                                 <i className="fa-solid fa-user-graduate text-indigo-500"></i> Öğrenci Bilgileri
@@ -330,7 +346,6 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
                                         className="w-full p-3 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none font-bold"
                                     />
                                 </div>
-                                {/* FIX: Cinsiyet alanı */}
                                 <div>
                                     <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Cinsiyet</label>
                                     <div className="flex bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl p-1">
@@ -348,11 +363,10 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
                             </div>
                         </div>
 
-                        {/* Test Seçimi */}
                         <div className="bg-white dark:bg-zinc-800 p-6 rounded-2xl border border-zinc-200 dark:border-zinc-700 shadow-sm">
                             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                                 <i className="fa-solid fa-layer-group text-purple-500"></i> Uygulanacak Testler
-                                <span className="ml-auto text-xs font-bold text-zinc-400">{selectedDomains.length}/5 seçili</span>
+                                <span className="ml-auto text-xs font-bold text-zinc-400">{selectedDomains.length}/11 seçili</span>
                             </h3>
                             <div className="space-y-2">
                                 {DOMAINS.map(domain => {
@@ -389,7 +403,6 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
                         </div>
                     </div>
 
-                    {/* Sağ Panel */}
                     <div className="bg-zinc-900 dark:bg-black text-white p-8 rounded-3xl flex flex-col justify-between shadow-2xl relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600 rounded-full blur-3xl opacity-20 -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
                         <div>
@@ -431,7 +444,6 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
         );
     }
 
-    // --- RUNNING VIEW ---
     if (view === 'running') {
         if (isGenerating) {
             return (
@@ -451,7 +463,6 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
 
         return (
             <div className="fixed inset-0 z-50 bg-zinc-50 dark:bg-zinc-900 flex flex-col">
-                {/* Üst Bar */}
                 <div className="h-16 border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-800 flex items-center justify-between px-6 shadow-sm flex-shrink-0">
                     <div className="flex items-center gap-4">
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${domainInfo ? DOMAIN_ICON_COLORS[domainInfo.color] : 'bg-zinc-100'}`}>
@@ -480,19 +491,15 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
                     </div>
                 </div>
 
-                {/* Test Alanı + Gözlem Paneli */}
                 <div className="flex-1 flex overflow-hidden">
                     <div className="flex-1 relative bg-zinc-50 dark:bg-zinc-900 p-4 flex items-center justify-center overflow-auto">
                         <AssessmentEngine domain={currentDomainId} onComplete={handleTestComplete} />
                     </div>
-
-                    {/* Gözlem Paneli — 8 klinik indikatör */}
                     <div className="w-72 bg-white dark:bg-zinc-800 border-l border-zinc-200 dark:border-zinc-700 p-5 flex flex-col overflow-y-auto flex-shrink-0">
                         <h4 className="font-black text-zinc-400 uppercase tracking-widest text-[10px] mb-5 flex items-center gap-2">
                             <i className="fa-solid fa-clipboard-user"></i> Uzman Gözlem Paneli
                         </h4>
                         <div className="space-y-4 text-sm">
-                            {/* Kaygı */}
                             <div>
                                 <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1.5">Kaygı Düzeyi</label>
                                 <div className="flex bg-zinc-100 dark:bg-zinc-900 rounded-lg p-1 gap-0.5">
@@ -504,7 +511,6 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
                                     ))}
                                 </div>
                             </div>
-                            {/* Dikkat Süresi */}
                             <div>
                                 <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1.5">Dikkat Süresi</label>
                                 <select value={observations.attentionSpan}
@@ -515,7 +521,6 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
                                     <option value="hyperactive">Dürtüsel / Hiperaktif</option>
                                 </select>
                             </div>
-                            {/* Motor Beceriler */}
                             <div>
                                 <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1.5">Motor Beceriler</label>
                                 <select value={observations.motorSkills}
@@ -526,7 +531,6 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
                                     <option value="precise">Hassas/İyi</option>
                                 </select>
                             </div>
-                            {/* İşbirliği */}
                             <div>
                                 <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1.5">İşbirliği</label>
                                 <div className="flex bg-zinc-100 dark:bg-zinc-900 rounded-lg p-1 gap-0.5">
@@ -538,7 +542,6 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
                                     ))}
                                 </div>
                             </div>
-                            {/* Yorulma */}
                             <div>
                                 <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1.5">Yorulma İndeksi</label>
                                 <div className="flex bg-zinc-100 dark:bg-zinc-900 rounded-lg p-1 gap-0.5">
@@ -550,7 +553,6 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
                                     ))}
                                 </div>
                             </div>
-                            {/* Frustrasyon Toleransı */}
                             <div>
                                 <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1.5">Hayal Kırıklığı Toleransı</label>
                                 <div className="flex bg-zinc-100 dark:bg-zinc-900 rounded-lg p-1 gap-0.5">
@@ -562,7 +564,6 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
                                     ))}
                                 </div>
                             </div>
-                            {/* Sözel İfade */}
                             <div>
                                 <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1.5">Sözel İfade</label>
                                 <select value={observations.verbalization}
@@ -573,7 +574,6 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
                                     <option value="excessive">Aşırı/Konuşkan</option>
                                 </select>
                             </div>
-                            {/* Göz Teması */}
                             <div>
                                 <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1.5">Göz Teması</label>
                                 <div className="flex bg-zinc-100 dark:bg-zinc-900 rounded-lg p-1 gap-0.5">
@@ -585,7 +585,6 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
                                     ))}
                                 </div>
                             </div>
-                            {/* Klinik Notlar */}
                             <div>
                                 <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1.5">Klinik Notlar</label>
                                 <textarea
@@ -616,3 +615,4 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
     }
     return null;
 };
+
