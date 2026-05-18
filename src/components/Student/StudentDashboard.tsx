@@ -8,12 +8,17 @@ import { assessmentService } from '../../services/assessmentService';
 import { curriculumService } from '../../services/curriculumService';
 import { assignmentService } from '../../services/assignmentService';
 import { useAssignmentStore } from '../../store/useAssignmentStore';
-import { LineChart } from '../LineChart';
-import { RadarChart } from '../RadarChart';
 import { ACTIVITIES } from '../../constants';
-import { ProgressDashboard } from '../ProgressDashboard/ProgressDashboard';
 
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
+
+// Module imports
+import { DashboardModule } from './modules/DashboardModule';
+import { AssignmentsModule } from './modules/AssignmentsModule';
+import { MaterialsModule } from './modules/MaterialsModule';
+import { AnalyticsModule } from './modules/AnalyticsModule';
+import { AcademicPlanModule } from './modules/AcademicPlanModule';
+import { ClinicalNotesModule } from './modules/ClinicalNotesModule';
 // Define constants used in the component
 const grades = [
   'Okul Öncesi',
@@ -484,256 +489,60 @@ export function StudentDashboard({ onBack, onLoadMaterial }: StudentDashboardPro
             <div className="max-w-7xl mx-auto space-y-6 pb-20">
               {activeTab === 'overview' && (
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <ProgressDashboard studentId={selectedStudent.id} />
+                  <DashboardModule
+                    student={selectedStudent}
+                    assignments={assignments}
+                    worksheets={studentWorksheets}
+                    assessments={studentAssessments}
+                    curriculums={studentCurriculums}
+                  />
                 </div>
               )}
 
               {activeTab === 'assignments' && (
-                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <div className="flex justify-between items-center mb-2 px-2">
-                    <h3 className="font-black text-sm tracking-tighter text-[var(--text-primary)] uppercase">Bireysel Atamalar</h3>
-                  </div>
-                  {assignments.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 bg-[var(--bg-paper)]/40 backdrop-blur-sm rounded-2xl border border-dashed border-[var(--border-color)]">
-                      <i className="fa-solid fa-clipboard-list text-3xl text-[var(--text-muted)] opacity-20 mb-3"></i>
-                      <p className="text-[var(--text-muted)] font-bold text-[10px] uppercase tracking-widest uppercase">Görev Atanmadı</p>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {assignments.map((assignment: ActivityAssignment) => (
-                        <div key={assignment.id} className="flex items-center justify-between p-3 bg-[var(--bg-paper)] border border-[var(--border-color)]/60 rounded-xl transition-all group hover:bg-[var(--surface-elevated)]">
-                          <div className="flex items-center gap-3 text-left min-w-0">
-                            <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs shrink-0 ${assignment.status === 'completed' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'}`}>
-                              <i className={`fa-solid ${assignment.status === 'completed' ? 'fa-check-double' : 'fa-list-check'}`}></i>
-                            </div>
-                            <div className="min-w-0">
-                              <h4 className="font-black text-[10px] text-[var(--text-primary)] uppercase truncate">#{assignment.worksheetId.slice(0, 5)} Kayıt</h4>
-                              <p className="text-[7px] font-bold text-[var(--text-muted)] opacity-60 uppercase">{assignment.dueDate ? new Date(assignment.dueDate).toLocaleDateString('tr-TR') : 'SÜRESİZ'}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                             {assignment.status !== 'completed' && (
-                               <button 
-                                 onClick={() => updateAssignment(assignment.id, { status: 'completed' })}
-                                 className="w-6 h-6 rounded-md bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] hover:bg-emerald-500 hover:text-white transition-all"
-                               >
-                                 <i className="fa-solid fa-check text-[8px]"></i>
-                               </button>
-                             )}
-                             <div className={`w-1.5 h-1.5 rounded-full ${assignment.status === 'completed' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-amber-500 animate-pulse'}`}></div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <AssignmentsModule
+                    studentId={selectedStudent.id}
+                    assignments={assignments}
+                    onUpdateAssignment={updateAssignment}
+                  />
                 </div>
               )}
 
               {activeTab === 'materials' && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <div className="flex justify-between items-center mb-2 px-2">
-                    <h3 className="font-black text-sm tracking-tighter text-[var(--text-primary)] uppercase">Dijital Arşiv</h3>
-                  </div>
-                  {studentWorksheets.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-12 bg-[var(--bg-paper)]/40 backdrop-blur-sm rounded-2xl border border-dashed border-[var(--border-color)]">
-                      <i className="fa-solid fa-folder-open text-3xl text-[var(--text-muted)] opacity-20 mb-3"></i>
-                      <p className="text-[var(--text-muted)] font-bold text-[10px] uppercase tracking-widest uppercase text-center">Materyal Bulunmuyor</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-6">
-                      {(() => {
-                        const grouped = studentWorksheets.reduce((acc: Record<string, SavedWorksheet[]>, ws) => {
-                          const key = ws.category?.title || ws.activityType || 'Genel';
-                          if (!acc[key]) acc[key] = [];
-                          acc[key].push(ws);
-                          return acc;
-                        }, {});
-                        
-                        return Object.entries(grouped).map(([category, worksheets]) => (
-                          <div key={category} className="space-y-3">
-                            <h4 className="flex items-center gap-2 px-2">
-                              <span className="w-2 h-2 rounded-full bg-[var(--accent-color)]"></span>
-                              <span className="font-black text-[11px] text-[var(--text-primary)] uppercase tracking-wider">{category}</span>
-                              <span className="text-[9px] text-[var(--text-muted)] font-bold">({worksheets.length})</span>
-                            </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                              {worksheets.map((ws) => (
-                                <div key={ws.id} className="flex items-center justify-between p-3 bg-[var(--bg-paper)] border border-[var(--border-color)]/60 rounded-xl transition-all group hover:bg-[var(--surface-elevated)]">
-                                  <div className="flex items-center gap-3 text-left min-w-0">
-                                    <div className="w-9 h-9 bg-[var(--bg-secondary)] rounded-lg flex items-center justify-center text-xs text-[var(--accent-color)] group-hover:bg-[var(--accent-color)] group-hover:text-white transition-all shrink-0">
-                                      <i className={ws.icon}></i>
-                                    </div>
-                                    <div className="min-w-0">
-                                      <h4 className="font-black text-[10px] text-[var(--text-primary)] uppercase truncate">{ws.name}</h4>
-                                      <div className="flex gap-2 text-[7px] font-bold text-[var(--text-muted)] opacity-60 uppercase">
-                                        <span>{new Date(ws.createdAt).toLocaleDateString('tr-TR')}</span>
-                                        <span>•</span>
-                                        <span>{ws.activityType}</span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <button
-                                    onClick={() => onLoadMaterial?.(ws)}
-                                    className="w-7 h-7 bg-[var(--bg-secondary)] hover:bg-[var(--accent-color)] hover:text-white rounded-lg flex items-center justify-center transition-all text-[var(--text-secondary)]"
-                                  >
-                                    <i className="fa-solid fa-chevron-right text-[8px]"></i>
-                                  </button>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ));
-                      })()}
-                    </div>
-                  )}
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <MaterialsModule
+                    studentId={selectedStudent.id}
+                    worksheets={studentWorksheets}
+                    onLoadMaterial={onLoadMaterial}
+                  />
                 </div>
               )}
 
               {activeTab === 'analytics' && (
-                <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700">
-                  <div className="bg-[var(--bg-secondary)] p-10 rounded-[4rem] text-[var(--text-primary)] shadow-2xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-96 h-96 bg-[var(--accent-color)]/10 rounded-full blur-3xl"></div>
-                    <div className="relative z-10">
-                      <h3 className="text-2xl font-black mb-8 flex items-center gap-4">
-                        <i className="fa-solid fa-brain-circuit text-[var(--accent-color)]"></i>
-                        Bilişsel Gelişim Panoraması
-                      </h3>
-
-                      {studentAssessments.length < 2 ? (
-                        <div className="text-center py-20 border-2 border-dashed border-[var(--border-color)] rounded-[3rem]">
-                          <p className="text-[var(--text-muted)] font-bold">
-                            Derinlemesine analiz için geçmiş raporlar bekleniyor.
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                          <div className="h-80 bg-[var(--surface-glass)] p-6 rounded-[2.5rem] border border-[var(--border-color)] shadow-inner">
-                            <LineChart
-                              data={studentAssessments.map((a: SavedAssessment) => ({
-                                date: a.createdAt,
-                                attention: a.report.scores.attention,
-                                spatial: a.report.scores.spatial,
-                              }))}
-                              lines={[
-                                { key: 'attention', color: '#818cf8', label: 'Dikkat' },
-                                { key: 'spatial', color: '#fbbf24', label: 'Görsel Algı' },
-                              ]}
-                            />
-                          </div>
-                          <div className="flex flex-col justify-center items-center bg-[var(--bg-paper)] rounded-[2.5rem] p-6 shadow-2xl">
-                            <h4 className="text-[var(--text-muted)] text-[10px] font-black uppercase tracking-widest mb-6">
-                              Mevcut Beceri Matrisi
-                            </h4>
-                            {studentAssessments[0] && studentAssessments[0].report.chartData && (
-                              <div className="w-full h-64">
-                                <RadarChart data={studentAssessments[0].report.chartData} />
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <AnalyticsModule
+                    studentId={selectedStudent.id}
+                    assessments={studentAssessments}
+                  />
                 </div>
               )}
 
               {activeTab === 'plans' && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
-                  <div className="flex justify-between items-center px-4">
-                    <h3 className="font-black text-2xl tracking-tighter text-[var(--text-primary)] uppercase">
-                      Eğitim Yol Haritası
-                    </h3>
-                    <button className="px-6 py-3 bg-[var(--accent-color)] text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-[var(--accent-color)]/20 hover:scale-105 transition-transform">
-                      YENİ PLAN OLUŞTUR
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {studentCurriculums.map((plan: Curriculum) => (
-                      <div
-                        key={plan.id}
-                        className="bg-[var(--bg-paper)] p-8 rounded-[3rem] border border-[var(--border-color)] shadow-sm group hover:border-[var(--accent-color)]/30 transition-all"
-                      >
-                        <div className="flex justify-between items-start mb-8">
-                          <div>
-                            <h4 className="font-black text-xl text-[var(--text-primary)] flex items-center gap-3">
-                              <div className="w-10 h-10 bg-[var(--accent-muted)] text-[var(--accent-color)] rounded-xl flex items-center justify-center">
-                                <i className="fa-solid fa-map-location-dot"></i>
-                              </div>
-                              {new Date(plan.startDate).toLocaleDateString('tr-TR')} Dönemi
-                            </h4>
-                            <p className="text-xs font-bold text-[var(--text-muted)] mt-2 uppercase tracking-widest">
-                              {plan.durationDays} Günlük Eylem Planı • {plan.goals.length} Temel
-                              Hedef
-                            </p>
-                          </div>
-                          <div className="bg-emerald-50 dark:bg-emerald-900/20 px-4 py-1.5 rounded-full text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">
-                            %{' '}
-                            {Math.round(
-                              (plan.schedule.filter((d) => d.isCompleted).length /
-                                plan.schedule.length) *
-                              100
-                            )}{' '}
-                            Tamamlandı
-                          </div>
-                        </div>
-
-                        <div className="w-full bg-[var(--bg-secondary)] rounded-full h-3 mb-8 overflow-hidden shadow-inner">
-                          <div
-                            className="bg-gradient-to-r from-[var(--accent-color)] to-emerald-500 h-full rounded-full transition-all duration-1000 shadow-lg"
-                            style={{
-                              width: `${(plan.schedule.filter((d) => d.isCompleted).length / plan.schedule.length) * 100}%`,
-                            }}
-                          ></div>
-                        </div>
-
-                        <div className="flex gap-3">
-                          <button className="flex-1 py-3.5 bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-2xl font-black text-xs uppercase tracking-widest hover:opacity-80 transition-colors shadow-lg">
-                            Planı Yönet
-                          </button>
-                          <button className="w-14 h-14 bg-[var(--bg-secondary)] rounded-2xl flex items-center justify-center hover:bg-[var(--bg-inset)] transition-colors border border-[var(--border-color)] text-[var(--text-secondary)]">
-                            <i className="fa-solid fa-print"></i>
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                    {studentCurriculums.length === 0 && (
-                      <div className="lg:col-span-2 py-20 text-center bg-[var(--bg-secondary)] rounded-[3rem] border-2 border-dashed border-[var(--border-color)]">
-                        <i className="fa-solid fa-calendar-xmark text-5xl text-[var(--text-muted)] opacity-40 mb-4"></i>
-                        <p className="text-[var(--text-muted)] font-bold uppercase text-xs tracking-widest">
-                          Henüz bir eğitim planı atanmamış.
-                        </p>
-                      </div>
-                    )}
-                  </div>
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <AcademicPlanModule
+                    studentId={selectedStudent.id}
+                    curriculums={studentCurriculums}
+                  />
                 </div>
               )}
 
               {activeTab === 'notes' && (
-                <div className="space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700 max-w-4xl mx-auto">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="font-black text-2xl tracking-tighter text-[var(--text-primary)] uppercase">
-                      Vaka Notları
-                    </h3>
-                    <button className="text-xs font-black text-[var(--accent-color)] uppercase tracking-widest px-4 py-2 bg-[var(--accent-muted)] rounded-xl">
-                      Yeni Not Ekle
-                    </button>
-                  </div>
-                  <div className="relative group">
-                    <div className="absolute inset-0 bg-amber-500/5 blur-2xl rounded-full scale-90 group-hover:scale-100 transition-transform"></div>
-                    <textarea
-                      className="relative w-full h-[500px] p-10 bg-amber-50/50 dark:bg-amber-900/10 border-2 border-amber-200 dark:border-amber-800 rounded-[3rem] resize-none outline-none focus:border-amber-400 text-amber-900 dark:text-amber-100 leading-relaxed shadow-2xl font-medium text-lg placeholder:text-amber-200"
-                      placeholder="Öğrenci hakkında detaylı klinik gözlemlerinizi, davranışsal tepkilerini ve seans notlarını buraya kaydedebilirsiniz..."
-                      value={formData.notes || selectedStudent.notes}
-                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, notes: e.target.value })}
-                      onBlur={() => updateStudent(selectedStudent.id, { notes: formData.notes })}
-                    ></textarea>
-                    <div className="absolute bottom-8 right-8 flex items-center gap-2 text-amber-400">
-                      <i className="fa-solid fa-floppy-disk"></i>
-                      <span className="text-[10px] font-black uppercase tracking-widest">
-                        Otomatik Kaydedildi
-                      </span>
-                    </div>
-                  </div>
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <ClinicalNotesModule
+                    studentId={selectedStudent.id}
+                    studentName={selectedStudent.name}
+                  />
                 </div>
               )}
             </div>
