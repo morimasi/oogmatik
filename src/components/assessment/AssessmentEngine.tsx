@@ -7,6 +7,11 @@ import { RapidNamingTest } from './tests/RapidNamingTest';
 import { LogicTest } from './tests/LogicTest';
 import { PhonologicalLoopTest } from './tests/PhonologicalLoopTest';
 import { VisualSearchTest } from './tests/VisualSearchTest';
+import { WorkingMemoryTest } from './tests/WorkingMemoryTest';
+import { PlanningTest } from './tests/PlanningTest';
+import { AuditoryProcessingTest } from './tests/AuditoryProcessingTest';
+import { VisualMotorIntegrationTest } from './tests/VisualMotorIntegrationTest';
+import { VerbalComprehensionTest } from './tests/VerbalComprehensionTest';
 
 interface AssessmentEngineProps {
     domain: CognitiveDomain;
