@@ -25,13 +25,14 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
     config,
     isPrinting = false,
 }) => {
-    const fontSizePx = config ? `${config.fontSize + 2}px` : '14px';
-    const fontFamily = config?.fontFamily === 'times' ? 'Times New Roman, serif' : 'Lexend, Inter, sans-serif';
+    const fontSizePx = config ? `${config.fontSize}pt` : '12pt';
+    const fontFamily = config?.fontFamily === 'times' ? 'Times New Roman, Times, serif' : (config?.fontFamily === 'helvetica' ? 'Inter, Helvetica, Arial, sans-serif' : 'Lexend, Inter, sans-serif');
     const questionGap = config ? `${config.questionSpacingMm * 2}px` : '16px';
     const lineHeight = config ? config.lineHeight : 1.6;
     const textAlign = config ? config.textAlign : 'left';
     const marginMm = config ? config.marginMm : 18;
     const columns = config ? config.columns : 1;
+    const mmToPx = 3.7795275591; // 1 mm ≈ 3.78 px
 
     return (
         <div
@@ -43,10 +44,12 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
                 textAlign,
                 fontSize: fontSizePx,
                 lineHeight,
-                padding: isPrinting ? '0' : `${marginMm}px`,
+                padding: isPrinting ? `${marginMm}mm` : `${marginMm * mmToPx}px`,
                 columnCount: columns,
                 columnGap: '12mm',
                 minHeight: isPrinting ? 'auto' : '297mm',
+                width: isPrinting ? '210mm' : 'auto',
+                boxSizing: 'border-box'
             }}
         >
             {/* Sınav Başlığı */}

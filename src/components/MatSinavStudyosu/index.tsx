@@ -488,7 +488,7 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
                     </div>
                 </div>
             </div>
-            {/* GİZLİ BASKI KATMANI — Sınav + Cevap Anahtarı */}
+            {/* GİZLİ BASKI KATMANI — Sadece Sınav */}
             {aktifSinav && (
                 <div id="mat-sinav-print-target" className="hidden">
                     <MatSinavOnizleme 
@@ -499,9 +499,6 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
                         config={printConfig} 
                         isPrinting={true} 
                     />
-                    <div style={{ pageBreakBefore: 'always', padding: '20px' }}>
-                        <MatCevapAnahtariComponent cevapAnahtari={aktifSinav.cevapAnahtari} sinavBaslik={aktifSinav.baslik} />
-                    </div>
                 </div>
             )}
 
