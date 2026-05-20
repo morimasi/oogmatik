@@ -44,7 +44,7 @@ const LegendPanel = () => (
           { sym: '→', label: 'Sağa' },
           { sym: '←', label: 'Sola' },
         ] as const
-      ).map((s: unknown) => (
+      ).map((s: { sym: string; label: string }) => (
         <div key={s.sym} className="bg-zinc-800 rounded-lg p-2 flex items-center gap-2">
           <span className="text-white font-black text-lg w-6 text-center">{s.sym}</span>
           <span className="text-zinc-400 text-[9px] font-bold">{s.label}</span>
@@ -100,7 +100,7 @@ export const DirectionalTrackingSheet = ({
       />
 
       <div
-        className={`grid ${isSingle ? 'grid-cols-1' : (puzzles.length > 2 || isUltraCompact ? 'grid-cols-2' : 'grid-cols-2')} gap-6 print:gap-2 flex-1 content-start`}
+        className={`grid grid-cols-1 gap-6 print:gap-2 flex-1 content-stretch items-stretch`}
       >
         {puzzles.map((puzzle, idx) => {
           const answerBoxCount = puzzle.cipherAnswer
@@ -111,11 +111,11 @@ export const DirectionalTrackingSheet = ({
             <EditableElement
               key={idx}
               className={`
-                  relative border-[1.5px] transition-all duration-300 group break-inside-avoid flex flex-col
-                  ${isUltraCompact ? 'gap-2 p-3' : 'gap-4 p-5'}
+                  relative border-[1.5px] transition-all duration-300 group break-inside-avoid flex flex-col justify-center
+                  ${isUltraCompact ? 'gap-2 p-3' : 'gap-6 p-8'}
                   ${currentTheme.bg} ${currentTheme.border} rounded-[2rem]
                   ${isPremium ? 'backdrop-blur-sm shadow-sm hover:shadow-lg' : ''}
-                  ${isSingle ? 'max-w-5xl mx-auto w-full p-8' : ''}
+                  ${isSingle ? 'flex-1 w-full max-w-none' : ''}
               `}
             >
               {/* Badge */}
@@ -295,7 +295,7 @@ export const DirectionalTrackingSheet = ({
               { sym: '→', label: 'Sağa' },
               { sym: '←', label: 'Sola' },
             ] as const
-          ).map((s: unknown) => (
+          ).map((s: { sym: string; label: string }) => (
             <div
               key={s.sym}
               className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl px-4 py-2 flex items-center gap-3 hover:bg-white/10 transition-colors"
@@ -355,7 +355,7 @@ export const DirectionalTrackingSheet = ({
         <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col justify-between">
           <span className="text-[8px] font-black text-zinc-500 uppercase">DİKKAT</span>
           <div className="flex gap-1.5">
-            {[1, 2, 3, 4, 5].map((s: unknown) => (
+            {[1, 2, 3, 4, 5].map((s: number) => (
               <div
                 key={s}
                 className="w-4 h-4 rounded-md border border-white/10 transition-colors hover:bg-amber-400"

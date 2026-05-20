@@ -130,7 +130,7 @@ export const DirectionalTrackingConfig: React.FC<{
               key={style.id}
               onClick={() => onChange('aestheticMode', style.id)}
               className={`flex items-center justify-center gap-2 py-3 rounded-2xl text-xs font-bold transition-all border-2 ${
-                (options.aestheticMode || 'standard') === style.id
+                ((options as any).aestheticMode || 'standard') === style.id
                   ? 'border-purple-500 bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400'
                   : 'border-zinc-100 dark:border-zinc-800 text-zinc-500 hover:border-zinc-200'
               }`}
@@ -142,32 +142,7 @@ export const DirectionalTrackingConfig: React.FC<{
         </div>
       </div>
 
-      {/* Layout Configuration */}
-      <div className="p-6 bg-zinc-50 dark:bg-zinc-800/50 rounded-[2rem] border border-zinc-200 dark:border-zinc-800 space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex flex-col">
-            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
-              Sayfa Yoğunluğu
-            </span>
-            <span className="text-[8px] text-zinc-400 font-bold">A4 Başına Görev</span>
-          </div>
-          <div className="flex gap-2">
-            {[1, 2, 3, 4].map((n) => (
-              <button
-                key={n}
-                onClick={() => onChange('itemCount', n)}
-                className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm transition-all ${
-                  (options.itemCount || 3) === n
-                    ? 'bg-zinc-900 text-white shadow-lg scale-110'
-                    : 'bg-white dark:bg-zinc-800 text-zinc-500 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100'
-                }`}
-              >
-                {n}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
+
     </div>
   );
 };

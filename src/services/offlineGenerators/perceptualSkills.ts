@@ -92,63 +92,65 @@ export const generateOfflineShapeCounting = async (
   };
   const config = difficultyConfigs[difficulty] || difficultyConfigs['Orta'];
 
-  for (let p = 0; p < worksheetCount; p++) {
-    // A4 sayfasında tek bir ana bölge oluştur (Geniş Bakış Açısı için)
-    const puzzles: any[] = [];
+    const targetShape = (options as any).targetShape || 'triangle';
 
-    for (let section = 0; section < 1; section++) {
-      const searchField: any[] = [];
-      let targetCount = 0;
-      const currentItemCount = itemCount + 20; // Tek sayfa olduğu için yoğunluğu artırıyoruz
+    for (let p = 0; p < worksheetCount; p++) {
+      // A4 sayfasında tek bir ana bölge oluştur (Geniş Bakış Açısı için)
+      const puzzles: any[] = [];
 
-      for (let i = 0; i < currentItemCount; i++) {
-        const isTarget = Math.random() < config.targetRatio;
-        const type = isTarget
-          ? 'triangle'
-          : getRandomItems(
-              config.types.filter((t) => t !== 'triangle'),
-              1
-            )[0];
+      for (let section = 0; section < 1; section++) {
+        const searchField: any[] = [];
+        let targetCount = 0;
+        const currentItemCount = itemCount + 50; // Tek sayfa olduğu için yoğunluğu MAKSİMUMA çıkarıyoruz
 
-        if (type === 'triangle') targetCount++;
+        for (let i = 0; i < currentItemCount; i++) {
+          const isTarget = Math.random() < config.targetRatio;
+          const type = isTarget
+            ? targetShape
+            : getRandomItems(
+                config.types.filter((t) => t !== targetShape),
+                1
+              )[0];
 
-        searchField.push({
-          id: `s-${section}-${i}`,
-          type: type as any,
-          x: getRandomInt(2, 98),
-          y: getRandomInt(2, 98),
-          rotation: getRandomInt(0, 359),
-          size: getRandomInt(20, 45) / 10, // 2.0 - 4.5 scale (daha büyük ve net)
-          color: 'black',
+          if (type === targetShape) targetCount++;
+
+          searchField.push({
+            id: `s-${section}-${i}`,
+            type: type as any,
+            x: getRandomInt(2, 98),
+            y: getRandomInt(2, 98),
+            rotation: getRandomInt(0, 359),
+            size: getRandomInt(15, 35) / 10, // 1.5 - 3.5 scale (daha dengeli yoğunluk)
+            color: 'black',
+          });
+        }
+
+        puzzles.push({
+          id: `section-${section}`,
+          searchField: shuffle(searchField),
+          correctCount: targetCount,
+          difficultyScore: 5,
         });
       }
 
-      puzzles.push({
-        id: `section-${section}`,
-        searchField: shuffle(searchField),
-        correctCount: targetCount,
-        difficultyScore: 5,
+      const meta = getOfflineMetadata(ActivityType.VISUAL_PERCEPTION);
+
+      results.push({
+        title: `Görsel Tarama: ${targetShape === 'triangle' ? 'Üçgen' : targetShape === 'circle' ? 'Daire' : targetShape} Avı`,
+        instruction:
+          `Aşağıdaki geniş alanda bulunan TÜM ${targetShape.toUpperCase()}LARI bul ve sayısını kutucuğa yaz. Şekiller farklı boyut ve açılarda olabilir, dikkatli incele!`,
+        targetSkills: meta.targetSkills,
+        settings: {
+          difficulty: mapDifficulty(difficulty || 'Orta'),
+          targetShape: targetShape,
+          layout: 'single',
+          overlapping: true,
+          isProfessionalMode: true,
+          showClinicalNotes: false,
+        },
+        sections: puzzles as any,
       });
     }
-
-    const meta = getOfflineMetadata(ActivityType.VISUAL_PERCEPTION);
-
-    results.push({
-      title: 'Görsel Tarama: Üçgen Avı (Geniş Saha)',
-      instruction:
-        'Aşağıdaki geniş alanda bulunan TÜM ÜÇGENLERİ bul ve sayısını kutucuğa yaz. Şekiller farklı boyut ve açılarda olabilir, dikkatli incele!',
-      targetSkills: meta.targetSkills,
-      settings: {
-        difficulty: mapDifficulty(difficulty || 'Orta'),
-        targetShape: 'triangle',
-        layout: 'single',
-        overlapping: true,
-        isProfessionalMode: true,
-        showClinicalNotes: false,
-      },
-      sections: puzzles as any,
-    });
-  }
   return results;
 };
 

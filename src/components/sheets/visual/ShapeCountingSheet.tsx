@@ -43,15 +43,15 @@ export const ShapeCountingSheet = ({
       ${isPremium ? 'premium-mode bg-slate-50/20' : 'bg-white'}
     `}
     >
-      <PedagogicalHeader
-        title={data.title || 'FİGÜR-ZEMİN & SEÇİCİ DİKKAT'}
-        instruction={
-          data.instruction ||
-          'Karmaşık görsel sahadaki hedef şekilleri bulun ve toplam sayısını ilgili kutucuğa yazın.'
-        }
-        note={data.pedagogicalNote}
-        data={data}
-      />
+      <div className="flex flex-col gap-1 mb-2">
+        <h1 className="text-xl font-black uppercase tracking-tighter text-zinc-900 leading-none">
+          {data.title || 'FİGÜR-ZEMİN & SEÇİCİ DİKKAT'}
+        </h1>
+        <p className="text-[10px] font-medium text-zinc-500 leading-tight">
+          {data.instruction || 'Karmaşık görsel sahadaki hedef şekilleri bulun ve toplam sayısını ilgili kutucuğa yazın.'}
+        </p>
+        <div className="h-px bg-zinc-100 w-full mt-1"></div>
+      </div>
 
       {/* 1. HEDEF VİZÖRÜ (Aranan Şekil) */}
       <div
@@ -59,23 +59,23 @@ export const ShapeCountingSheet = ({
       >
         <div
           className={`
-            relative px-16 print:px-8 py-8 print:py-4 rounded-[4rem] flex items-center gap-12 print:gap-8 shadow-[30px_30px_0px_rgba(0,0,0,0.05)] border-[4px] border-zinc-900 bg-white group hover:scale-[1.02] transition-all duration-500
-            ${isPremium ? 'ring-8 ring-indigo-50/50' : ''}
+            relative px-8 print:px-6 py-4 print:py-2 rounded-2xl flex items-center gap-8 print:gap-6 shadow-sm border-2 border-zinc-900 bg-white group hover:scale-[1.01] transition-all duration-500
+            ${isPremium ? 'ring-4 ring-indigo-50/50' : ''}
         `}
         >
           {/* Dekoratif Scanner Çizgisi */}
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent animate-scan"></div>
 
           <div className="flex flex-col">
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-500 mb-2 leading-none">
+            <span className="text-[8px] font-black uppercase tracking-[0.3em] text-amber-500 mb-0.5 leading-none">
               ODAKLANILAN HEDEF
             </span>
-            <span className="text-4xl print:text-2xl font-black uppercase tracking-tighter leading-none">
+            <span className="text-2xl print:text-xl font-black uppercase tracking-tighter leading-none">
               {settings?.targetShape?.toUpperCase() || 'ÜÇGEN'}
             </span>
           </div>
 
-          <div className="w-24 h-24 print:w-16 print:h-16 bg-zinc-900 rounded-[2rem] flex items-center justify-center p-4 shadow-xl border-4 border-zinc-100 transform -rotate-12 group-hover:rotate-0 transition-transform">
+          <div className="w-16 h-16 print:w-12 print:h-12 bg-zinc-900 rounded-xl flex items-center justify-center p-3 shadow-lg border-2 border-zinc-100 transform -rotate-3 group-hover:rotate-0 transition-transform">
             <svg
               viewBox="0 0 100 100"
               className="w-full h-full fill-amber-400 drop-shadow-[0_0_15px_rgba(251,191,36,0.6)]"
@@ -90,19 +90,19 @@ export const ShapeCountingSheet = ({
       </div>
 
       <div
-        className={`grid ${gridCols} gap-8 print:gap-3 mt-4 flex-1 content-start items-start pb-10 print:pb-4`}
+        className={`grid ${gridCols} gap-4 print:gap-2 mt-2 flex-1 content-stretch items-stretch pb-4 print:pb-2`}
       >
         {sections.map((section, idx) => (
           <EditableElement
             key={idx}
             className={`
-                flex flex-col border-[4px] relative break-inside-avoid transition-all duration-500 group overflow-hidden
+                flex flex-col border-2 relative break-inside-avoid transition-all duration-500 group overflow-hidden
                 ${
                   isPremium
-                    ? 'bg-white/80 backdrop-blur-sm border-zinc-900 rounded-[3.5rem] shadow-[15px_15px_0px_rgba(79,70,229,0.05)]'
-                    : 'bg-white border-zinc-900 rounded-[3rem] shadow-[12px_12px_0px_rgba(0,0,0,0.05)]'
+                    ? 'bg-white/80 backdrop-blur-sm border-zinc-900 rounded-3xl shadow-sm'
+                    : 'bg-white border-zinc-900 rounded-3xl shadow-sm'
                 }
-                ${isSingle ? 'h-[620px] print:h-[720px] p-10 print:p-4' : 'p-6 print:p-2'}
+                ${isSingle ? 'flex-1 p-4' : 'p-4 print:p-2'}
             `}
           >
             {/* Bölüm Başlığı */}
@@ -118,7 +118,7 @@ export const ShapeCountingSheet = ({
             {/* Arama Alanı */}
             <div
               className={`
-                relative border-2 border-zinc-100 rounded-[2.5rem] bg-zinc-50/30 overflow-hidden mb-8 print:mb-4 shadow-inner group/field
+                relative border-2 border-zinc-100 rounded-2xl bg-zinc-50/20 overflow-hidden mb-4 print:mb-2 shadow-inner group/field
                 ${isSingle ? 'flex-1' : 'aspect-square'}
               `}
             >
@@ -150,13 +150,13 @@ export const ShapeCountingSheet = ({
                         d={SHAPE_PATHS[item.type] ?? SHAPE_PATHS.triangle}
                         fill={
                           settings?.overlapping
-                            ? `hsla(${isTarget ? '45, 100%, 50%' : '220, 20%, 40%'}, ${isTarget ? 0.08 : 0.05})`
+                            ? `hsla(${isTarget ? '45, 100%, 50%' : '220, 10%, 90%'}, ${isTarget ? 0.08 : 0.02})`
                             : 'none'
                         }
-                        stroke={isTarget ? '#000' : '#d1d5db'}
-                        strokeWidth={isTarget ? 3 : 1.5}
+                        stroke={isTarget ? '#18181b' : '#e2e8f0'}
+                        strokeWidth={isTarget ? 4 : 1}
                         strokeLinejoin="round"
-                        style={{ mixBlendMode: 'multiply', opacity: isTarget ? 1 : 0.6 }}
+                        style={{ mixBlendMode: 'multiply', opacity: isTarget ? 1 : 0.3 }}
                         className="transition-all duration-300 group-hover/field:opacity-100"
                       />
                     </g>
@@ -227,7 +227,7 @@ export const ShapeCountingSheet = ({
       {/* KLİNİK PROTOKOL FOOTER */}
       <div
         className={`
-        mt-auto p-8 print:p-4 rounded-[3.5rem] border-[4px] border-zinc-900 flex justify-between items-center shadow-xl relative overflow-hidden
+        mt-2 p-4 print:p-3 rounded-2xl border-2 border-zinc-900 flex justify-between items-center shadow-sm relative overflow-hidden
         ${isPremium ? 'bg-zinc-900 text-white' : 'bg-white text-zinc-900'}
       `}
       >

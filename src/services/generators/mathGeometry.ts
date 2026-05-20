@@ -32,10 +32,11 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
     
     STRATEJİ:
     1. [KRİTİK]: Şekillerin birbirinin üzerine binmesine, iç içe geçmesine ve yoğun kümelenmesine izin ver. Bu, figür-zemin ayırt etme becerisini ölçer.
-    2. Hedef şekil olan "${targetShape}" nesnelerini toplam nesne sayısının yaklaşık %25-30'u kadar üret.
-    3. Diğer nesneleri (circle, square, star, hexagon, pentagon, diamond) güçlü çeldiriciler olarak kullan.
-    4. Koordinatlar (x, y) 0-100 arasındadır. Yoğun kümeler oluşturmak için nesneleri birbirine yakın koordinatlara yerleştir.
-    5. Rotasyon (0-360) ve Boyut (0.5 - 1.5) çeşitliliği ile karmaşıklığı artır.
+    2. [A4 DOLDURMA]: Sayfa üzerindeki boşlukları minimuma indir, alanı dopdolu (high density) şekillerle donat.
+    3. Hedef şekil olan "${targetShape}" nesnelerini toplam nesne sayısının yaklaşık %25-30'u kadar üret.
+    4. Diğer nesneleri (circle, square, star, hexagon, pentagon, diamond) güçlü çeldiriciler olarak kullan.
+    5. Koordinatlar (x, y) 0-100 arasındadır. Yoğun kümeler oluşturmak için nesneleri birbirine yakın koordinatlara yerleştir.
+    6. Rotasyon (0-360) ve Boyut (0.5 - 1.5) çeşitliliği ile karmaşıklığı artır.
     
     ÇIKTI BİLGİSİ:
     - correctCount: Hedef şeklin tam adedi.
