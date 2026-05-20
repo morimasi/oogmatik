@@ -25,7 +25,7 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
   const lineHeight = config ? config.lineHeight : 1.6;
   const textAlign = config ? config.textAlign : 'left';
   const marginMm = config ? config.marginMm : 18;
-  const columns = config ? config.columns : 1;
+  const columnsCount = config ? config.columns : 1;
 
   return (
     <div
@@ -38,19 +38,16 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
         fontSize: fontSizePt,
         lineHeight,
         padding: isPrinting ? `${marginMm}mm` : `${marginMm * 3.7795275591}px`,
-        columnCount: columns,
-        columnGap: '12mm',
         width: isPrinting ? '210mm' : 'auto',
         boxSizing: 'border-box'
       }}
     >
-      {/* Başlık Bandı — Yazdırma sırasında sadeleştirilmiş */}
+      {/* Başlık Bandı */}
       {!isPrinting ? (
         <div
           className="rounded-xl p-5 mb-5 text-white"
           style={{
             background: 'linear-gradient(135deg, hsl(var(--accent-h) var(--accent-s) calc(var(--accent-l) - 8%)) 0%, hsl(var(--accent-h) var(--accent-s) var(--accent-l)) 100%)',
-            columnSpan: 'all'
           }}
         >
           <h2 className="text-xl font-extrabold mb-3 text-white" style={{ fontFamily }}>
@@ -71,7 +68,7 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
           </div>
         </div>
       ) : (
-        <div style={{ columnSpan: 'all', textAlign: 'center', marginBottom: '20px', borderBottom: '2px solid #000', paddingBottom: '10px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '20px', borderBottom: '2px solid #000', paddingBottom: '10px' }}>
           <h1 style={{ fontSize: '24px', fontWeight: '900', textTransform: 'uppercase', marginBottom: '5px' }}>{sinav.baslik}</h1>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', fontSize: '14px', fontWeight: 'bold' }}>
             <span>SINIF: {sinav.sinif}</span>
@@ -83,7 +80,7 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
 
       {/* Kazanımlar — Yazdırmada gizle */}
       {!isPrinting && (
-        <div className="border border-gray-200 bg-gray-50 rounded-xl p-4 mb-5" style={{ columnSpan: 'all', breakInside: 'avoid' }}>
+        <div className="border border-gray-200 bg-gray-50 rounded-xl p-4 mb-5" style={{ breakInside: 'avoid' }}>
           <h3 className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-1">
             <span>📚</span> MEB Kazanımları
           </h3>
@@ -101,17 +98,24 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
       )}
 
       {/* Öğrenci Bilgi Satırı */}
-      <div className={`border border-gray-200 rounded-xl px-4 py-3 mb-5 flex flex-wrap gap-6 text-sm text-gray-600 ${isPrinting ? 'border-black text-black font-bold' : ''}`} style={{ columnSpan: 'all', breakInside: 'avoid' }}>
+      <div className={`border border-gray-200 rounded-xl px-4 py-3 mb-5 flex flex-wrap gap-6 text-sm text-gray-600 ${isPrinting ? 'border-black text-black font-bold' : ''}`} style={{ breakInside: 'avoid' }}>
         <span>Ad Soyad: <span className="border-b border-gray-400 inline-block w-40">&nbsp;</span></span>
         <span>Sınıf/Şube: <span className="border-b border-gray-400 inline-block w-20">&nbsp;</span></span>
         <span>Tarih: <span className="border-b border-gray-400 inline-block w-24">&nbsp;</span></span>
         {isPrinting && <span className="ml-auto">Puan: ________ / {sinav.toplamPuan}</span>}
       </div>
 
-      {/* Sorular */}
-      <div className="sorular-container" style={{ display: 'block' }}>
+      {/* Sorular - Grid Yapısı */}
+      <div 
+        className="sorular-container" 
+        style={{ 
+          display: 'grid',
+          gridTemplateColumns: columnsCount > 1 ? `repeat(${columnsCount}, 1fr)` : '1fr',
+          gap: isPrinting ? '12mm' : questionGap
+        }}
+      >
         {sinav.sorular.map((soru, index) => (
-          <div key={soru.id} style={{ marginBottom: isPrinting ? '24px' : questionGap, breakInside: 'avoid' }}>
+          <div key={soru.id} style={{ breakInside: 'avoid' }}>
             <SoruCard
               soru={soru}
               soruNo={index + 1}
@@ -127,7 +131,7 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
 
       {/* Pedagojik Not — Yazdırmada gizle */}
       {sinav.pedagogicalNote && !isPrinting && (
-        <div className="mt-6 border-2 border-emerald-200 bg-emerald-50 rounded-xl p-4" style={{ columnSpan: 'all', breakInside: 'avoid' }}>
+        <div className="mt-6 border-2 border-emerald-200 bg-emerald-50 rounded-xl p-4" style={{ breakInside: 'avoid' }}>
           <h3 className="text-sm font-bold text-emerald-800 mb-2 flex items-center gap-1">
             <span>👨‍🏫</span> Öğretmenin Dikkatine
           </h3>

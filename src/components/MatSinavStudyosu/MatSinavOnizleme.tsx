@@ -15,6 +15,7 @@ interface MatSinavOnizlemeProps {
     refreshingIndex: number | null;
     config?: PrintConfig;
     isPrinting?: boolean;
+    showAnswers?: boolean;
 }
 
 export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
@@ -24,6 +25,7 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
     refreshingIndex,
     config,
     isPrinting = false,
+    showAnswers = false,
 }) => {
     const fontSizePx = config ? `${config.fontSize}pt` : '12pt';
     const fontFamily = config?.fontFamily === 'times' ? 'Times New Roman, Times, serif' : (config?.fontFamily === 'helvetica' ? 'Inter, Helvetica, Arial, sans-serif' : 'Lexend, Inter, sans-serif');
@@ -31,7 +33,7 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
     const lineHeight = config ? config.lineHeight : 1.6;
     const textAlign = config ? config.textAlign : 'left';
     const marginMm = config ? config.marginMm : 18;
-    const columns = config ? config.columns : 1;
+    const columnsCount = config ? config.columns : 1;
     const mmToPx = 3.7795275591; // 1 mm ≈ 3.78 px
 
     return (
@@ -45,8 +47,6 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
                 fontSize: fontSizePx,
                 lineHeight,
                 padding: isPrinting ? `${marginMm}mm` : `${marginMm * mmToPx}px`,
-                columnCount: columns,
-                columnGap: '12mm',
                 minHeight: isPrinting ? 'auto' : '297mm',
                 width: isPrinting ? '210mm' : 'auto',
                 boxSizing: 'border-box'
@@ -58,7 +58,6 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
                     className="rounded-2xl p-6 mb-6 shadow-lg text-white"
                     style={{ 
                         background: 'linear-gradient(135deg, hsl(var(--accent-h) var(--accent-s) calc(var(--accent-l) - 8%)) 0%, hsl(var(--accent-h) var(--accent-s) var(--accent-l)) 100%)',
-                        columnSpan: 'all'
                     }}
                 >
                     <h1 className="text-2xl font-extrabold mb-4 tracking-tight drop-shadow-sm">
@@ -79,7 +78,7 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
                     </div>
                 </div>
             ) : (
-                <div style={{ columnSpan: 'all', textAlign: 'center', marginBottom: '25px', borderBottom: '2px solid #000', paddingBottom: '10px' }}>
+                <div style={{ textAlign: 'center', marginBottom: '25px', borderBottom: '2px solid #000', paddingBottom: '10px' }}>
                     <h1 style={{ fontSize: '26px', fontWeight: '900', textTransform: 'uppercase', marginBottom: '8px' }}>{sinav.baslik}</h1>
                     <div style={{ display: 'flex', justifyContent: 'center', gap: '30px', fontSize: '15px', fontWeight: 'bold' }}>
                         <span>SINIF: {sinav.sinif}</span>
@@ -92,7 +91,7 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
 
             {/* MEB Kazanımları - Yazdırmada Gizle */}
             {!isPrinting && sinav.secilenKazanimlar && sinav.secilenKazanimlar.length > 0 && (
-                <div className="mb-6 bg-gray-50 border border-gray-200 rounded-xl p-4" style={{ columnSpan: 'all', breakInside: 'avoid' }}>
+                <div className="mb-6 bg-gray-50 border border-gray-200 rounded-xl p-4" style={{ breakInside: 'avoid' }}>
                     <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
                         MEB Matematik Kazanımları
                     </h3>
@@ -110,7 +109,7 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
             )}
 
             {/* Öğrenci Bilgi Satırı */}
-            <div className={`border-2 rounded-2xl px-6 py-4 mb-8 flex flex-wrap gap-8 text-sm font-bold shadow-sm ${isPrinting ? 'border-black text-black' : 'border-gray-100 text-gray-600'}`} style={{ columnSpan: 'all', breakInside: 'avoid' }}>
+            <div className={`border-2 rounded-2xl px-6 py-4 mb-8 flex flex-wrap gap-8 text-sm font-bold shadow-sm ${isPrinting ? 'border-black text-black' : 'border-gray-100 text-gray-600'}`} style={{ breakInside: 'avoid' }}>
                 <div className="flex items-center gap-2">
                     <span>Ad Soyad:</span>
                     <span className="border-b-2 border-gray-300 w-48 h-6"></span>
@@ -126,10 +125,17 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
                 {isPrinting && <div className="ml-auto">Puan: ________ / {sinav.toplamPuan}</div>}
             </div>
 
-            {/* Sorular Listesi */}
-            <div className="sorular-container" style={{ display: 'block' }}>
+            {/* Sorular Listesi - Grid Yapısı */}
+            <div 
+                className="sorular-container" 
+                style={{ 
+                    display: 'grid',
+                    gridTemplateColumns: columnsCount > 1 ? `repeat(${columnsCount}, 1fr)` : '1fr',
+                    gap: isPrinting ? '12mm' : questionGap
+                }}
+            >
                 {sinav.sorular.map((soru, index) => (
-                    <div key={soru.id || index} style={{ marginBottom: isPrinting ? '30px' : questionGap, breakInside: 'avoid' }}>
+                    <div key={soru.id || index} style={{ breakInside: 'avoid' }}>
                         <MatSoruCard
                             soru={soru}
                             index={index}
@@ -137,6 +143,7 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
                             onRefresh={onRefreshSoru}
                             isRefreshing={refreshingIndex === index}
                             isPrinting={isPrinting}
+                            showAnswers={showAnswers}
                         />
                     </div>
                 ))}

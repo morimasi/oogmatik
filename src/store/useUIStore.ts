@@ -38,6 +38,8 @@ const initialStyleSettings: StyleSettings = {
   fontStyle: 'normal',
   visualStyle: 'card',
   showPedagogicalNote: false,
+  showAnswers: false,
+  showClues: false,
   showMascot: false,
   showStudentInfo: true,
   showTitle: true,

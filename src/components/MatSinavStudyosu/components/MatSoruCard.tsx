@@ -13,6 +13,7 @@ interface MatSoruCardProps {
   onRefresh: (index: number) => void;
   isRefreshing?: boolean;
   isPrinting?: boolean;
+  showAnswers?: boolean;
 }
 
 const ZORLUK_RENKLERI: Record<string, string> = {
@@ -28,6 +29,7 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
   onRefresh,
   isRefreshing = false,
   isPrinting = false,
+  showAnswers = false,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(soru.soruMetni);
@@ -70,26 +72,44 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
             )}
 
             {soru.tip === 'coktan_secmeli' && soru.secenekler && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1.5 mb-4 px-2">
-                    {Object.entries(soru.secenekler).map(([key, value], si) => (
-                        <div key={key} className="flex items-start gap-2">
-                            <span className="font-bold flex-shrink-0">{labels[si]})</span>
-                            <span className="leading-tight text-black">{value}</span>
-                        </div>
-                    ))}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 mb-4 px-2">
+                    {Object.entries(soru.secenekler).map(([key, value], si) => {
+                        const isCorrect = showAnswers && String(soru.dogruCevap) === key;
+                        return (
+                            <div key={key} className={`flex items-start gap-2 p-1.5 rounded-lg ${isCorrect ? 'bg-green-50' : ''}`}>
+                                <span className={`font-bold flex-shrink-0 ${isCorrect ? 'text-green-700' : 'text-black'}`}>
+                                    {labels[si]})
+                                </span>
+                                <span className={`leading-tight ${isCorrect ? 'text-green-800' : 'text-black'}`}>{value}</span>
+                                {isCorrect && <span className="ml-auto text-green-600">✓</span>}
+                            </div>
+                        );
+                    })}
                 </div>
             )}
 
             {soru.tip === 'dogru_yanlis' && (
                 <div className="flex gap-10 mb-4 px-2 text-sm text-black font-medium">
-                    <span>( ) Doğru</span>
-                    <span>( ) Yanlış</span>
+                    <div className="flex items-center gap-2">
+                        <span>( ) Doğru</span>
+                        {showAnswers && soru.dogruCevap === 'dogru' && <span className="text-green-600 font-black">✓</span>}
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <span>( ) Yanlış</span>
+                        {showAnswers && soru.dogruCevap === 'yanlis' && <span className="text-green-600 font-black">✓</span>}
+                    </div>
                 </div>
             )}
 
             {soru.tip === 'bosluk_doldurma' && (
                 <div className="mb-4 px-2">
-                    <div className="border-b border-dashed border-black/40 w-full h-5"></div>
+                    <div className="border-b border-dashed border-black/40 w-full h-5 relative flex items-end">
+                        {showAnswers && (
+                            <span className="absolute bottom-1 left-2 text-green-600 font-bold text-xs">
+                                {soru.dogruCevap}
+                            </span>
+                        )}
+                    </div>
                 </div>
             )}
 
@@ -98,8 +118,15 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
                     {[0, 1, 2, 3].map((i) => (
                         <div key={i} className="border-b border-black/20 h-6"></div>
                     ))}
+                    {showAnswers && (
+                        <div className="mt-2 p-3 bg-green-50 border border-green-100 rounded-xl text-xs text-green-800 italic">
+                            <b>Model Cevap:</b> {soru.dogruCevap}
+                        </div>
+                    )}
                 </div>
             )}
+            
+            {/* Yazdırırken diğer tüm içerikleri (ipucu, çözüm vb.) kesinlikle gizle (Sınav Kağıdı Saf Olmalı) */}
         </div>
      );
   }
@@ -223,7 +250,7 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
       {soru.tip === 'coktan_secmeli' && soru.secenekler && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 mb-3">
           {Object.entries(soru.secenekler).map(([key, value], si) => (
-            <div>
+            <div key={key} className="flex items-start gap-2">
               <span
                 className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
                   String(soru.dogruCevap) === key
@@ -233,7 +260,7 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
               >
                 {labels[si]}
               </span>
-              <span className="leading-tight">{value}</span>
+              <span className="leading-tight text-sm">{value}</span>
             </div>
           ))}
         </div>
@@ -242,13 +269,12 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
       {/* Doğru/Yanlış */}
       {soru.tip === 'dogru_yanlis' && (
         <div className="flex gap-2 mb-3">
-          <span className="px-3 py-1.5 rounded-lg bg-gray-50 border text-xs font-bold text-gray-500">
+          <span className={`px-3 py-1.5 rounded-lg border text-xs font-bold ${soru.dogruCevap === 'dogru' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-gray-50 border-gray-100 text-gray-500'}`}>
             ( ) Doğru
           </span>
-          <span className="px-3 py-1.5 rounded-lg bg-gray-50 border text-xs font-bold text-gray-500">
+          <span className={`px-3 py-1.5 rounded-lg border text-xs font-bold ${soru.dogruCevap === 'yanlis' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-gray-50 border-gray-100 text-gray-500'}`}>
             ( ) Yanlış
           </span>
-          <span className="text-[10px] text-green-600 self-center ml-2">Cevap:</span>
         </div>
       )}
 
@@ -256,18 +282,18 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
       {soru.tip === 'bosluk_doldurma' && (
         <div className="mb-3 flex items-center gap-2">
           <span className="text-xs text-gray-500">Cevap:</span>
-          <span className="border-b-2 border-gray-300 px-4 py-0.5 text-xs text-gray-300 min-w-[120px]">
-            &nbsp;
+          <span className="border-b-2 border-green-300 px-4 py-0.5 text-xs text-green-700 font-bold min-w-[120px]">
+            {soru.dogruCevap}
           </span>
-          <span className="text-[10px] text-green-600 ml-2"></span>
         </div>
       )}
 
       {/* Açık Uçlu */}
       {soru.tip === 'acik_uclu' && (
         <div className="mb-3 space-y-1.5">
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="border-b border-gray-200 py-2"></div>
+          <div className="text-[10px] text-green-600 font-bold mb-1 italic">Örnek Cevap: {soru.dogruCevap}</div>
+          {[0, 1].map((i) => (
+            <div key={i} className="border-b border-gray-100 py-1.5"></div>
           ))}
         </div>
       )}

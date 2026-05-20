@@ -1,5 +1,5 @@
 export interface StyleSettings {
-    fontSize: number;
+    fontSize: number | string;
     scale: number;
     borderColor: string;
     borderWidth: number;
@@ -19,6 +19,8 @@ export interface StyleSettings {
     showInstruction: boolean;
     showImage: boolean;
     showFooter: boolean;
+    showAnswers: boolean;
+    showClues: boolean;
     footerText: string;
     smartPagination: boolean;
     fontFamily: string;

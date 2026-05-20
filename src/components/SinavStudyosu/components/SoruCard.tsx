@@ -51,7 +51,7 @@ export const SoruCard: React.FC<SoruCardProps> = ({
                   className={`flex items-start gap-2 px-3 py-1.5 rounded-lg border transition-colors ${
                     isCorrect && !isPrinting 
                       ? 'bg-emerald-50 border-emerald-300' 
-                      : (isPrinting ? 'bg-transparent border-transparent' : 'bg-gray-50 border-gray-200')
+                      : (isPrinting ? 'bg-transparent border-transparent p-0' : 'bg-gray-50 border-gray-200')
                   }`}
                   style={textStyle}
                 >
@@ -59,6 +59,7 @@ export const SoruCard: React.FC<SoruCardProps> = ({
                     {['A', 'B', 'C', 'D'][idx]})
                   </span>
                   <span style={{ color: '#111' }}>{sec}</span>
+                  {isCorrect && isPrinting && <span className="ml-auto text-black">✓</span>}
                 </div>
               );
             })}
@@ -66,12 +67,18 @@ export const SoruCard: React.FC<SoruCardProps> = ({
         );
 
       case 'dogru-yanlis-duzeltme':
+        const isCorrectDY = showAnswer && soru.dogruCevap;
         return (
           <div className="mt-3 space-y-2">
             <div className="flex gap-8 px-3">
-              {['( ) Doğru', '( ) Yanlış'].map((opt) => (
-                <span key={opt} style={{ ...textStyle, color: '#000' }}>{opt}</span>
-              ))}
+              <div className="flex items-center gap-1">
+                 <span style={{ ...textStyle, color: '#000' }}>( ) Doğru</span>
+                 {isCorrectDY === 'Doğru' && isPrinting && <span className="text-black font-black">✓</span>}
+              </div>
+              <div className="flex items-center gap-1">
+                 <span style={{ ...textStyle, color: '#000' }}>( ) Yanlış</span>
+                 {isCorrectDY === 'Yanlış' && isPrinting && <span className="text-black font-black">✓</span>}
+              </div>
             </div>
             {!isPrinting && (
               <div className="px-3">
@@ -91,7 +98,11 @@ export const SoruCard: React.FC<SoruCardProps> = ({
         return (
           <div className="mt-3 px-3">
             {isPrinting ? (
-               <div className="mt-1 border-b border-dashed border-gray-400 w-full h-4"></div>
+                <div className="mt-1 border-b border-dashed border-gray-400 w-full h-5 relative">
+                   {showAnswer && (
+                     <span className="absolute bottom-0 left-2 text-[10pt] font-bold text-black">{soru.dogruCevap}</span>
+                   )}
+                </div>
             ) : (
               <>
                 <span style={{ ...textStyle, color: '#555' }}>Cevap: </span>
@@ -153,7 +164,7 @@ export const SoruCard: React.FC<SoruCardProps> = ({
         </div>
         <div className="flex items-center gap-3">
           {!isPrinting && <ZorlukGostergesi zorluk={soru.zorluk} className="zorluk-badge" />}
-          <span className="text-[13px] text-black font-bold border-b-2 border-dashed border-gray-200 pb-0.5">
+          <span className={`text-[13px] font-bold border-b-2 border-dashed pb-0.5 ${isPrinting ? 'text-black border-black/10' : 'text-zinc-600 border-zinc-100'}`}>
             ({soru.puan} Puan)
           </span>
         </div>
