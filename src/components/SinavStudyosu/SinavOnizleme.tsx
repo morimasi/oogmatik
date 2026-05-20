@@ -38,6 +38,8 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
         fontSize: fontSizePt,
         lineHeight,
         padding: isPrinting ? `${marginMm}mm` : `${marginMm * 3.7795275591}px`,
+        columnCount: columns,
+        columnGap: '12mm',
         width: isPrinting ? '210mm' : 'auto',
         boxSizing: 'border-box'
       }}
@@ -107,11 +109,7 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
       </div>
 
       {/* Sorular */}
-      <div className="sorular-container" style={{ 
-        display: 'block',
-        columnCount: columns,
-        columnGap: '12mm'
-      }}>
+      <div className="sorular-container" style={{ display: 'block' }}>
         {sinav.sorular.map((soru, index) => (
           <div key={soru.id} style={{ marginBottom: isPrinting ? '24px' : questionGap, breakInside: 'avoid' }}>
             <SoruCard

@@ -145,7 +145,7 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
          Bunu önlemek için TÜM 'break' kilitlerini KIRIYORUZ.
       */
       .oogmatik-print-wrapper, 
-      .oogmatik-print-wrapper *:not([style*="break-inside: avoid"]):not([style*="breakInside: avoid"]),
+      .oogmatik-print-wrapper *,
       #print-overlay .worksheet-page,
       #print-overlay .print-item-wrapper {
         page-break-inside: auto !important;
