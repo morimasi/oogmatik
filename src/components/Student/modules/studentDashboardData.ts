@@ -115,8 +115,18 @@ export const generateMockWorksheets = (studentId: string): SavedWorksheet[] => [
     userId: 'teacher-01',
     studentId,
     name: 'Hece Parkuru — Seviye 3',
-    activityType: 'syllable_path',
-    worksheetData: [],
+    activityType: 'SYLLABLE_TRAIN' as any,
+    worksheetData: [
+      {
+        title: 'Hece Parkuru',
+        instruction: 'Kelimeleri hecelerine ayırın ve renklendirin.',
+        pedagogicalNote: 'Hece farkındalığını geliştirmek için renk kodlama kullanın.',
+        blocks: [
+          { id: 'b1', type: 'text', content: 'Bu aktivitede kelimeleri hecelerine ayıracağız!', weight: 10 },
+          { id: 'b2', type: 'question', content: 'Elma kelimesini hecelerine ayırın', weight: 20 },
+        ]
+      }
+    ],
     createdAt: '2026-05-10T09:00:00Z',
     icon: 'fa-road',
     category: { id: 'cat-phonology', title: 'Fonolojik Farkındalık' },
@@ -126,8 +136,17 @@ export const generateMockWorksheets = (studentId: string): SavedWorksheet[] => [
     userId: 'teacher-01',
     studentId,
     name: 'Temel Toplama — Görsel Destekli',
-    activityType: 'basic_addition',
-    worksheetData: [],
+    activityType: 'VISUAL_ARITHMETIC' as any,
+    worksheetData: [
+      {
+        title: 'Görsel Toplama',
+        instruction: 'Görselleri sayarak toplama işlemini yapın.',
+        pedagogicalNote: 'Görsel destek matematik kaygısını azaltır.',
+        blocks: [
+          { id: 'b1', type: 'text', content: 'Aşağıdaki görselleri sayıp toplamını bulalım!', weight: 10 },
+        ]
+      }
+    ],
     createdAt: '2026-05-12T10:00:00Z',
     icon: 'fa-plus',
     category: { id: 'cat-math', title: 'Matematik' },
@@ -137,8 +156,17 @@ export const generateMockWorksheets = (studentId: string): SavedWorksheet[] => [
     userId: 'teacher-01',
     studentId,
     name: '5N1K Okuma Anlama',
-    activityType: 'reading_comprehension',
-    worksheetData: [],
+    activityType: 'FIVE_W_ONE_H' as any,
+    worksheetData: [
+      {
+        title: '5N1K Metni',
+        instruction: 'Metni okuyun ve 5N1K sorularını cevaplayın.',
+        pedagogicalNote: 'Okuma anlama için 5N1K stratejisini kullanın.',
+        blocks: [
+          { id: 'b1', type: 'text', content: 'Bir gün ormanda küçük bir kedi geziyordu...', weight: 30 },
+        ]
+      }
+    ],
     createdAt: '2026-05-14T08:30:00Z',
     icon: 'fa-book-open',
     category: { id: 'cat-reading', title: 'Okuma Anlama' },
@@ -148,8 +176,17 @@ export const generateMockWorksheets = (studentId: string): SavedWorksheet[] => [
     userId: 'teacher-01',
     studentId,
     name: 'Şekil Tamamlama — 3x3 Matris',
-    activityType: 'pattern_completion',
-    worksheetData: [],
+    activityType: 'PATTERN_COMPLETION' as any,
+    worksheetData: [
+      {
+        title: 'Şekil Tamamlama',
+        instruction: 'Eksik şekli bulun ve tamamlayın.',
+        pedagogicalNote: 'Görsel algı ve mantık yürütme becerilerini geliştirir.',
+        blocks: [
+          { id: 'b1', type: 'text', content: 'Aşağıdaki 3x3 matriste eksik şekli bulalım!', weight: 10 },
+        ]
+      }
+    ],
     createdAt: '2026-05-15T13:00:00Z',
     icon: 'fa-shapes',
     category: { id: 'cat-visual', title: 'Görsel Algı' },
@@ -159,8 +196,17 @@ export const generateMockWorksheets = (studentId: string): SavedWorksheet[] => [
     userId: 'teacher-01',
     studentId,
     name: 'Hece Sayma — Kolay Seviye',
-    activityType: 'syllable_counting',
-    worksheetData: [],
+    activityType: 'PHONOLOGICAL_AWARENESS' as any,
+    worksheetData: [
+      {
+        title: 'Hece Sayma',
+        instruction: 'Kelimelerin kaç heceden oluştuğunu sayın.',
+        pedagogicalNote: 'Hece sayma fonolojik farkındalığın temelidir.',
+        blocks: [
+          { id: 'b1', type: 'text', content: 'Aşağıdaki kelimelerin kaç heceden oluştuğunu bulalım!', weight: 10 },
+        ]
+      }
+    ],
     createdAt: '2026-05-08T09:00:00Z',
     icon: 'fa-calculator',
     category: { id: 'cat-phonology', title: 'Fonolojik Farkındalık' },
@@ -170,8 +216,17 @@ export const generateMockWorksheets = (studentId: string): SavedWorksheet[] => [
     userId: 'teacher-01',
     studentId,
     name: 'Stroop Dikkat Testi',
-    activityType: 'attention_exercise',
-    worksheetData: [],
+    activityType: 'STROOP_TEST' as any,
+    worksheetData: [
+      {
+        title: 'Stroop Testi',
+        instruction: 'Renk isimlerini okuyun ancak yazı rengini söyleyin!',
+        pedagogicalNote: 'Seçici dikkat ve engelleme becerilerini geliştirir.',
+        blocks: [
+          { id: 'b1', type: 'text', content: 'Stroop testine hazır mısın?', weight: 10 },
+        ]
+      }
+    ],
     createdAt: '2026-05-05T10:00:00Z',
     icon: 'fa-eye',
     category: { id: 'cat-attention', title: 'Dikkat ve Odaklanma' },
@@ -181,8 +236,17 @@ export const generateMockWorksheets = (studentId: string): SavedWorksheet[] => [
     userId: 'teacher-01',
     studentId,
     name: 'b/d Harf Ayırt Etme',
-    activityType: 'letter_discrimination',
-    worksheetData: [],
+    activityType: 'LETTER_DISCRIMINATION' as any,
+    worksheetData: [
+      {
+        title: 'b/d Harf Ayırt Etme',
+        instruction: 'b ve d harflerini ayırt edin ve işaretleyin.',
+        pedagogicalNote: 'Görsel ipuçları (topa-vatka) kullanın.',
+        blocks: [
+          { id: 'b1', type: 'text', content: 'b ve d harflerini ayırt edelim!', weight: 10 },
+        ]
+      }
+    ],
     createdAt: '2026-05-03T11:00:00Z',
     icon: 'fa-font',
     category: { id: 'cat-phonology', title: 'Fonolojik Farkındalık' },
@@ -192,8 +256,17 @@ export const generateMockWorksheets = (studentId: string): SavedWorksheet[] => [
     userId: 'teacher-01',
     studentId,
     name: 'Hikaye Tamamlama — Yaratıcı Yazma',
-    activityType: 'story_completion',
-    worksheetData: [],
+    activityType: 'STORY_COMPREHENSION' as any,
+    worksheetData: [
+      {
+        title: 'Hikaye Tamamlama',
+        instruction: 'Hikayenin sonunu yaratıcı bir şekilde tamamlayın.',
+        pedagogicalNote: 'Yaratıcı yazma özgüveni artırır.',
+        blocks: [
+          { id: 'b1', type: 'text', content: 'Bir gün ormanda küçük bir kedi geziyordu...', weight: 30 },
+        ]
+      }
+    ],
     createdAt: '2026-04-28T14:00:00Z',
     icon: 'fa-pen-fancy',
     category: { id: 'cat-creative', title: 'Yaratıcı Yazarlık' },
@@ -203,8 +276,17 @@ export const generateMockWorksheets = (studentId: string): SavedWorksheet[] => [
     userId: 'teacher-01',
     studentId,
     name: 'Sayı Doğrusu — 0-20 Arası',
-    activityType: 'number_line',
-    worksheetData: [],
+    activityType: 'INFOGRAPHIC_NUMBER_LINE' as any,
+    worksheetData: [
+      {
+        title: 'Sayı Doğrusu',
+        instruction: 'Sayıları doğru konumlara yerleştirin.',
+        pedagogicalNote: 'Sayı doğrusu sayı hissini geliştirir.',
+        blocks: [
+          { id: 'b1', type: 'text', content: '0-20 arası sayıları doğru yerlere koyalım!', weight: 10 },
+        ]
+      }
+    ],
     createdAt: '2026-04-25T09:30:00Z',
     icon: 'fa-ruler-horizontal',
     category: { id: 'cat-math', title: 'Matematik' },
@@ -214,8 +296,17 @@ export const generateMockWorksheets = (studentId: string): SavedWorksheet[] => [
     userId: 'teacher-01',
     studentId,
     name: 'Eş Anlamlı Kelime Eşleştirme',
-    activityType: 'synonym_matching',
-    worksheetData: [],
+    activityType: 'SYNONYM_ANTONYM_MATCH' as any,
+    worksheetData: [
+      {
+        title: 'Eş Anlamlılar',
+        instruction: 'Eş anlamlı kelimeleri eşleştirin.',
+        pedagogicalNote: 'Kelime dağarcığını genişletir.',
+        blocks: [
+          { id: 'b1', type: 'text', content: 'Aşağıdaki eş anlamlı kelimeleri eşleştirelim!', weight: 10 },
+        ]
+      }
+    ],
     createdAt: '2026-04-20T10:00:00Z',
     icon: 'fa-link',
     category: { id: 'cat-vocabulary', title: 'Kelime Dağarcığı' },
@@ -353,7 +444,7 @@ export const generateMockCurriculums = (studentId: string): EnrichedCurriculum[]
     ],
     lastReviewed: '2026-05-10',
     nextReview: '2026-05-24',
-  },
+  } as unknown as EnrichedCurriculum,
   {
     id: 'cur-002',
     studentId,
@@ -375,7 +466,7 @@ export const generateMockCurriculums = (studentId: string): EnrichedCurriculum[]
     revisions: [],
     lastReviewed: '2026-04-30',
     nextReview: '2026-05-01',
-  },
+  } as unknown as EnrichedCurriculum,
 ];
 
 export const generateMockIEPGoals = (studentId: string): IEPGoal[] => [
