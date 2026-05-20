@@ -1,12 +1,6 @@
-/**
- * MatSinavOnizleme — A4 Sınav Kağıdı Önizleme
- * Sorular + grafik render + inline editing desteği + format toolbar support
- */
-
 import React from 'react';
-import type { MatSinav, MatSoru } from '../../types/matSinav';
+import { MatSinav, MatSoru, PrintConfig } from '../../types/matSinav';
 import { MatSoruCard } from './components/MatSoruCard';
-import { PrintConfig } from '../../types/sinav';
 
 interface MatSinavOnizlemeProps {
     sinav: MatSinav;
@@ -89,7 +83,7 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
                 </div>
             )}
 
-            {/* MEB Kazanımları - Yazdırmada Gizle */}
+            {/* MEB Kazanımları */}
             {!isPrinting && sinav.secilenKazanimlar && sinav.secilenKazanimlar.length > 0 && (
                 <div className="mb-6 bg-gray-50 border border-gray-200 rounded-xl p-4" style={{ breakInside: 'avoid' }}>
                     <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
@@ -125,7 +119,7 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
                 {isPrinting && <div className="ml-auto">Puan: ________ / {sinav.toplamPuan}</div>}
             </div>
 
-            {/* Sorular Listesi - Grid Yapısı */}
+            {/* Sorular Listesi */}
             <div 
                 className="sorular-container" 
                 style={{ 

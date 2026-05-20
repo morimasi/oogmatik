@@ -1,10 +1,7 @@
-/**
- * Sınav Önizleme — format config ile uyumlu
- */
-
 import React from 'react';
 import { Sinav, PrintConfig } from '../../types/sinav';
 import { SoruCard } from './components/SoruCard';
+import { ZorlukGostergesi } from './components/ZorlukGostergesi';
 
 interface SinavOnizlemeProps {
   sinav: Sinav;
