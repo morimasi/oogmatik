@@ -198,7 +198,7 @@ import { VisualInterpretationSheet } from './sheets/visual/VisualInterpretationS
 import { BrainTeasersSheet } from './sheets/logic/BrainTeasersSheet';
 import { BoxMathSheet } from './sheets/math/BoxMathSheet';
 import { QueueOrderingSheet } from './sheet-renderers/QueueOrderingSheet';
-import ExamRenderer from './sheet-renderers/ExamRenderer';
+import { ExamRenderer } from './sheet-renderers/ExamRenderer';
 import { MathStudioRenderer } from './sheet-renderers/MathStudioRenderer';
 import { SuperStudioRenderer } from './sheet-renderers/SuperStudioRenderer';
 import { KelimeCumleRenderer } from './sheet-renderers/KelimeCumleRenderer';
