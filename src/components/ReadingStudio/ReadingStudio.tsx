@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useReadingStore } from '../../store/useReadingStore';
+import { useStudentStore } from '../../store/useStudentStore';
 import { printService } from '../../utils/printService';
 import { generateInteractiveStory } from '../../services/generators/readingStudio';
 import { ReadingStudioContentRenderer } from './ReadingStudioContentRenderer';
@@ -36,9 +37,39 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
     redo,
     canUndo,
     canRedo,
-    recalculateLayout
+    recalculateLayout,
+    activeStudent,
+    setActiveStudent
   } = useReadingStore();
-  const user = useAuthStore((state: any) => state.user);
+  const { user } = useAuthStore();
+  const { activeStudent: globalActiveStudent } = useStudentStore();
+
+  // --- SYNC WITH GLOBAL STUDENT ---
+  useEffect(() => {
+    if (globalActiveStudent && !activeStudent) {
+      setActiveStudent(globalActiveStudent);
+      const student = globalActiveStudent;
+      setStoryData(null); // Reset existing story
+      
+      // Update config based on global active student
+      const newConfig = {
+        ...config,
+        studentId: student.id,
+        studentName: student.name,
+        gradeLevel: student.grade || config.gradeLevel,
+        characterName: student.name.split(' ')[0],
+      };
+      // Note: We'd ideally also sync studentProfile but config mapping is studio-specific
+      (newConfig as any).studentProfile = {
+          diagnosis: student.diagnosis,
+          interests: student.interests,
+          strengths: student.strengths,
+          weaknesses: student.weaknesses
+      };
+      
+      useReadingStore.getState().setConfig(newConfig);
+    }
+  }, [globalActiveStudent]);
 
   const [sidebarTab, setSidebarTab] = useState(
     'production' as 'production' | 'library' | 'styling' | 'content' | 'archive'

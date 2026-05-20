@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useStudentStore } from '../../store/useStudentStore';
 import { refinePromptWithAI, generateCreativeStudioActivity, analyzeReferenceFiles } from '../../services/generators/creativeStudio';
 import { TargetProfile, OutputFormat } from '../../types/creativeStudio';
 import { PEDAGOGICAL_LIBRARY, ActivityLibraryItem } from '../../services/generators/promptLibrary';
@@ -65,6 +66,8 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     const [attachedFiles, setAttachedFiles] = useState<MultimodalFile[]>([]);
 
+    const { activeStudent } = useStudentStore();
+
     useEffect(() => {
         const savedLib = localStorage.getItem('custom_pedagogical_lib');
         setLocalLibrary([...PEDAGOGICAL_LIBRARY, ...(savedLib ? JSON.parse(savedLib) : [])]);
@@ -72,6 +75,20 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
         const savedSnippets = localStorage.getItem('custom_ai_snippets_v2');
         if (savedSnippets) setCustomSnippets(JSON.parse(savedSnippets));
     }, []);
+
+    // --- SYNC WITH GLOBAL ACTIVE STUDENT ---
+    useEffect(() => {
+        if (activeStudent) {
+            setTargetProfile({
+                disability: (activeStudent.diagnosis?.[0] as any) || 'dyslexia',
+                ageGroup: activeStudent.age <= 7 ? '5-7' : activeStudent.age <= 10 ? '8-10' : activeStudent.age <= 13 ? '11-13' : '14+',
+                targetSkills: (activeStudent.weaknesses?.slice(0, 3) as any) || ['phonological_awareness'],
+                distractorTypes: activeStudent.diagnosis?.includes('Dyslexia') ? ['visual_reversal'] : []
+            });
+            setDifficulty(activeStudent.grade?.includes('1') || activeStudent.grade?.includes('2') ? 'Kolay' : activeStudent.grade?.includes('5') ? 'Zor' : 'Orta');
+            setPrompt(prev => prev || `${activeStudent.name} için kişiselleştirilmiş bir ${activeStudent.diagnosis?.[0] || 'öğrenme'} etkinliği...`);
+        }
+    }, [activeStudent]);
 
     useEffect(() => {
         let interval: any;
@@ -180,7 +197,15 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                     <h2 className="text-4xl font-black tracking-tighter text-white flex items-center gap-3">
                         <i className="fa-solid fa-wand-magic-sparkles text-accent"></i> AI Creative Studio
                     </h2>
-                    <p className="text-zinc-500 text-sm mt-1 uppercase tracking-widest font-bold opacity-60">Professional Clinical Content Designer</p>
+                    <div className="flex items-center gap-4 mt-2">
+                        <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-black opacity-60">Professional Clinical Content Designer</p>
+                        {activeStudent && (
+                            <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full animate-pulse">
+                                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+                                <span className="text-emerald-500 text-[9px] font-black uppercase tracking-widest">Odak: {activeStudent.name}</span>
+                            </div>
+                        )}
+                    </div>
                 </div>
                 <div className="flex items-center gap-3">
                     {lastResult && (

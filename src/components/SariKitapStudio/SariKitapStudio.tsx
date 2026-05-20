@@ -11,6 +11,7 @@ import { A4PreviewShell } from './shared/A4PreviewShell';
 import { PreviewToolbar } from './shared/PreviewToolbar';
 import { getModule } from './registry';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useStudentStore } from '../../store/useStudentStore';
 import { useToastStore } from '../../store/useToastStore';
 import { worksheetService } from '../../services/worksheetService';
 import { ActivityType } from '../../types/activity';
@@ -42,7 +43,19 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
     } = useSariKitapStore();
 
     const { user } = useAuthStore();
+    const { activeStudent } = useStudentStore();
     const toast = useToastStore();
+
+    // --- SYNC WITH GLOBAL STUDENT ---
+    React.useEffect(() => {
+        if (activeStudent) {
+            updateConfig({
+                studentName: activeStudent.name,
+                studentGrade: activeStudent.grade || '2. Sınıf',
+                focus: activeStudent.diagnosis?.[0] || 'Genel Gelişim'
+            });
+        }
+    }, [activeStudent]);
     const { generate } = useSariKitapGenerator();
     const { exportToPDF, exportToPNG } = useExportActions();
     const previewRef = useRef<HTMLDivElement>(null);
@@ -178,6 +191,16 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
                 onBack={onBack}
                 isGenerating={isGenerating}
             />
+
+            {activeStudent && (
+                <div className="sk-active-student-bar">
+                    <div className="sk-as-badge">
+                        <i className="fa-solid fa-user-graduate"></i>
+                        <span>Aktif Öğrenci: <strong>{activeStudent.name}</strong></span>
+                        <span className="sk-as-meta">{activeStudent.grade} | {activeStudent.diagnosis?.[0]}</span>
+                    </div>
+                </div>
+            )}
 
             <div className="sk-body">
                 {/* ═══ SOL PANEL: Config ═══ */}
