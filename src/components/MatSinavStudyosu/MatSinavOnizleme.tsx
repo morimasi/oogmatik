@@ -36,7 +36,6 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
 
     return (
         <div
-            id="mat-sinav-print-target"
             className={`mat-sinav-onizleme bg-white ${isPrinting ? 'p-0 shadow-none ring-0' : 'shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] ring-1 ring-black/5'}`}
             style={{
                 fontFamily,
@@ -45,8 +44,6 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
                 fontSize: fontSizePx,
                 lineHeight,
                 padding: isPrinting ? `${marginMm}mm` : `${marginMm * mmToPx}px`,
-                columnCount: columns,
-                columnGap: '12mm',
                 minHeight: isPrinting ? 'auto' : '297mm',
                 width: isPrinting ? '210mm' : 'auto',
                 boxSizing: 'border-box'
@@ -127,7 +124,11 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
             </div>
 
             {/* Sorular Listesi */}
-            <div className="sorular-container" style={{ display: 'block' }}>
+            <div className="sorular-container" style={{ 
+                display: 'block',
+                columnCount: columns,
+                columnGap: '12mm'
+            }}>
                 {sinav.sorular.map((soru, index) => (
                     <div key={soru.id || index} style={{ marginBottom: isPrinting ? '30px' : questionGap, breakInside: 'avoid' }}>
                         <MatSoruCard
