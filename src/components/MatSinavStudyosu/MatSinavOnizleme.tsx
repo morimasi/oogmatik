@@ -1,5 +1,6 @@
 import React from 'react';
-import { MatSinav, MatSoru, PrintConfig } from '../../types/matSinav';
+import { MatSinav, MatSoru } from '../../types/matSinav';
+import { PrintConfig } from '../../types/sinav';
 import { MatSoruCard } from './components/MatSoruCard';
 
 interface MatSinavOnizlemeProps {
@@ -123,13 +124,14 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
             <div 
                 className="sorular-container" 
                 style={{ 
-                    display: 'grid',
-                    gridTemplateColumns: columnsCount > 1 ? `repeat(${columnsCount}, 1fr)` : '1fr',
-                    gap: isPrinting ? '12mm' : questionGap
+                    columnCount: columnsCount,
+                    columnGap: isPrinting ? '12mm' : questionGap,
+                    gap: isPrinting ? '12mm' : questionGap, // for non-print browsers if gap applies
+                    width: '100%'
                 }}
             >
                 {sinav.sorular.map((soru, index) => (
-                    <div key={soru.id || index} style={{ breakInside: 'avoid' }}>
+                    <div key={soru.id || index} style={{ breakInside: 'avoid', marginBottom: isPrinting ? '12mm' : questionGap, display: 'inline-block', width: '100%' }}>
                         <MatSoruCard
                             soru={soru}
                             index={index}
