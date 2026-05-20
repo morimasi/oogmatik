@@ -33,7 +33,30 @@ const migrateRBACSettings = (settings: RBACSettings): RBACSettings => {
       }
     }
 
-    // Admin modülü her rolde olmalı
+    // [Migration] Öğretmenler için Öğrenciler modülü yetkilerini güncelle/kontrol et
+    if (rolePerm.role === 'teacher') {
+      let studentModule = rolePerm.modules.find(m => m.module === 'students');
+      if (!studentModule) {
+        rolePerm.modules.push({
+          module: 'students',
+          enabled: true,
+          actions: ['view', 'create', 'edit', 'export', 'assign']
+        });
+      } else {
+        // Silme yetkisi hariç diğerlerini ekle/aç (Kullanıcı talebi)
+        studentModule.enabled = true;
+        const required = ['view', 'create', 'edit', 'export', 'assign'];
+        required.forEach(act => {
+          if (!studentModule!.actions.includes(act as any)) {
+            studentModule!.actions.push(act as any);
+          }
+        });
+        // Silme yetkisi varsa kaldır (Kullanıcı talebi: silme yetkisi verme)
+        studentModule.actions = studentModule.actions.filter(a => a !== 'delete');
+      }
+    }
+
+    // Admin modülü her rolde olmalı (Admin paneline giriş izni)
     if (!rolePerm.modules.some(m => m.module === 'admin')) {
       rolePerm.modules.push({
         module: 'admin' as PermissionModule,

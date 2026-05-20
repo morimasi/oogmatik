@@ -7,9 +7,17 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Admin helper
+    // Role helpers
+    function getRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
     function isAdmin() {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      return isSignedIn() && (getRole() == 'admin' || getRole() == 'superadmin');
+    }
+
+    function isTeacher() {
+      return isSignedIn() && getRole() == 'teacher';
     }
 
     // User Quotas: Sadece sahibi okuyabilir, sistem günceller
@@ -24,16 +32,27 @@ service cloud.firestore {
       allow create: if isSignedIn();
     }
 
-    // Saved Worksheets: Sahibi okuyabilir/yazabilir, paylaşılanlar okunabilir
+    // Saved Worksheets: Sahibi okuyabilir/yazabilir, paylaşılanlar veya tüm öğretmenler okuyabilir
     match /worksheets/{worksheetId} {
-      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || request.auth.uid in resource.data.sharedWith);
-      allow write, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read: if isSignedIn() && (
+        resource.data.userId == request.auth.uid || 
+        request.auth.uid in resource.data.sharedWith || 
+        isAdmin() || 
+        isTeacher()
+      );
+      allow write: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
       allow create: if isSignedIn();
     }
 
-    // Students: Sahibi okuyabilir/yazabilir, admin hepsi
+    // Students: Sahibi, Admin ve tüm Öğretmenler okuyup düzenleyebilir; sadece Sahibi ve Admin silebilir.
     match /students/{studentId} {
-      allow read, write: if isSignedIn() && (resource.data.teacherId == request.auth.uid || isAdmin());
+      allow read, update: if isSignedIn() && (
+        resource.data.teacherId == request.auth.uid || 
+        isAdmin() || 
+        isTeacher()
+      );
+      allow delete: if isSignedIn() && (resource.data.teacherId == request.auth.uid || isAdmin());
       allow create: if isSignedIn();
     }
 

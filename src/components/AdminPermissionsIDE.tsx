@@ -97,13 +97,13 @@ export const AdminPermissionsIDE: React.FC = () => {
     }
   };
 
-  if (!user || user.role !== 'superadmin') {
+  if (!user || (user.role !== 'superadmin' && user.role !== 'admin')) {
     return (
       <div className="text-center py-20 px-6">
         <div className="max-w-md mx-auto bg-red-500/10 border border-red-500/20 rounded-3xl p-8 backdrop-blur-xl">
           <i className="fa-solid fa-shield-halved text-4xl text-red-500 mb-4"></i>
           <h2 className="text-xl font-bold text-white mb-2">Erişim Reddedildi</h2>
-          <p className="text-red-400/70 text-sm">Bu panele sadece Üst Yönetici (superadmin) erişebilir.</p>
+          <p className="text-red-400/70 text-sm">Bu panele sadece Yönetici ve Üst Yönetici erişebilir.</p>
         </div>
       </div>
     );
