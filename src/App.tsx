@@ -301,7 +301,8 @@ const AppContent = () => {
 
   useEffect(() => {
     if (!authStore.user) return;
-    const unsubscribeStudents = studentStore.fetchStudents(authStore.user.id);
+    const isAdmin = authStore.user.role === 'admin' || authStore.user.email?.includes('admin');
+    const unsubscribeStudents = studentStore.fetchStudents(authStore.user.id, isAdmin);
     return () => unsubscribeStudents();
   }, [authStore.user, studentStore.fetchStudents]);
   const { user } = authStore;

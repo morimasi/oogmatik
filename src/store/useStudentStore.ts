@@ -49,7 +49,7 @@ const sanitizeStudent = (data: unknown): Partial<Student> => {
   };
 };
 
-export const useStudentStore = create<StudentState>()((set, get) => ({
+export const useStudentStore = create<StudentState>()((set: any, get: any) => ({
   students: [],
   activeStudent: null,
   isLoading: false,
@@ -64,33 +64,44 @@ export const useStudentStore = create<StudentState>()((set, get) => ({
       ? query(collection(db, 'students'))
       : query(collection(db, 'students'), where('teacherId', '==', teacherId));
 
-    return onSnapshot(q, (snapshot: QuerySnapshot<DocumentData>) => {
-      const studentList: Student[] = [];
-      snapshot.forEach((doc: any) => {
-        const data = doc.data();
-        studentList.push({
-          id: doc.id,
-          teacherId: data.teacherId || '',
-          createdAt: data.createdAt || new Date().toISOString(),
-          ...sanitizeStudent(data),
-        } as Student);
-      });
-      set({ students: studentList, isLoading: false });
+    return onSnapshot(q, {
+      next: (snapshot: QuerySnapshot<DocumentData>) => {
+        const studentList: Student[] = [];
+        snapshot.forEach((doc: any) => {
+          const data = doc.data();
+          studentList.push({
+            id: doc.id,
+            teacherId: data.teacherId || '',
+            createdAt: data.createdAt || new Date().toISOString(),
+            ...sanitizeStudent(data),
+          } as Student);
+        });
+        set({ students: studentList, isLoading: false });
 
-      const { activeStudent } = get();
-      if (activeStudent && !studentList.find((s: Student) => s.id === activeStudent.id)) {
-        set({ activeStudent: null });
+        const { activeStudent } = get();
+        if (activeStudent && !studentList.find((s: Student) => s.id === activeStudent.id)) {
+          set({ activeStudent: null });
+        }
+      },
+      error: (err) => {
+        console.error("fetchStudents Error:", err);
+        set({ isLoading: false });
       }
     });
   },
 
   addStudent: async (teacherId: string, studentData: unknown) => {
-    const sanitized = sanitizeStudent(studentData);
-    await addDoc(collection(db, 'students'), {
-      ...sanitized,
-      teacherId,
-      createdAt: new Date().toISOString(),
-    });
+    try {
+      const sanitized = sanitizeStudent(studentData);
+      await addDoc(collection(db, 'students'), {
+        ...sanitized,
+        teacherId,
+        createdAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.error("addStudent Hatası:", error);
+      throw error;
+    }
   },
 
   updateStudent: async (id: string, updates: Partial<Student>) => {

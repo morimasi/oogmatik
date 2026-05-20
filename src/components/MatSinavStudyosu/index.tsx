@@ -25,9 +25,9 @@ type TabType = 'onizleme' | 'cevap-anahtari' | 'gecmis';
 
 // ─── Alt bileşenler ──────────────────────────────────────────
 const FmtBtn: React.FC<{ active: boolean; onClick: () => void; children: React.ReactNode; icon?: string; title?: string; }> = ({ active, onClick, children, icon, title }) => (
-    <button onClick={onClick} title={title} className={`px-3 py-1.5 rounded-xl text-xs font-bold border-2 flex items-center justify-center gap-2 transition-all duration-300 ${active ? 'bg-accent text-white border-accent shadow-lg shadow-accent/20 scale-105 z-10' : 'bg-[var(--bg-paper)]/90 text-[var(--text-muted)] border-[var(--border-color)] hover:border-accent/30 hover:text-accent hover:bg-[var(--bg-paper)] hover:shadow-md'}`}>
-        {icon && <span className="text-sm">{icon}</span>}
-        {children}
+    <button onClick={onClick} title={title} className={`px-3 py-1.5 rounded-xl text-[10px] font-black border flex items-center justify-center gap-2 transition-all duration-300 shadow-sm ${active ? 'bg-accent text-white border-accent shadow-accent/20 scale-105 z-10' : 'bg-[var(--bg-paper)]/70 text-[var(--text-muted)] border-[var(--border-color)]/30 hover:border-accent/40 hover:text-accent hover:bg-[var(--bg-paper)] hover:shadow-md'}`}>
+        {icon && <span className="text-sm opacity-80">{icon}</span>}
+        <span className="uppercase tracking-widest">{children}</span>
     </button>
 );
 
@@ -344,20 +344,20 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
                 <div className="lg:col-span-9 flex flex-col overflow-hidden min-h-0">
 
                     {/* Toolbar */}
-                    <div className="flex-none bg-[var(--bg-paper)]/50 backdrop-blur-3xl border-b border-[var(--border-color)] px-6 py-3 flex flex-wrap items-center justify-between gap-4 z-10 transition-all duration-300">
-                        <div className="flex bg-[var(--bg-secondary)]/50 p-1 rounded-2xl backdrop-blur-md">
+                    <div className="flex-none bg-[var(--bg-paper)]/30 backdrop-blur-3xl border-b border-[var(--border-color)]/20 px-6 py-4 flex flex-wrap items-center justify-between gap-4 z-20 transition-all duration-500 shadow-[0_8px_32px_-16px_rgba(0,0,0,0.08)]">
+                        <div className="flex bg-[var(--bg-secondary)]/30 p-1.5 rounded-2xl backdrop-blur-xl border border-[var(--border-color)]/10 shadow-inner">
                             {(['onizleme', 'cevap-anahtari', 'gecmis'] as TabType[]).map((tab) => (
                                 <button key={tab} onClick={() => setActiveTab(tab)} disabled={tab !== 'gecmis' && !aktifSinav}
-                                    className={`px-5 py-2 rounded-xl font-bold text-xs transition-all duration-300 ${activeTab === tab ? 'bg-[var(--bg-paper)] text-accent shadow-lg shadow-accent/20 scale-105' : (tab === 'gecmis' || aktifSinav) ? 'text-[var(--text-muted)] hover:text-accent' : 'text-[var(--text-muted)] opacity-70 cursor-not-allowed'}`}>
+                                    className={`px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all duration-500 ${activeTab === tab ? 'bg-white text-accent shadow-[0_4px_12px_rgba(0,0,0,0.05)] scale-105 z-10' : (tab === 'gecmis' || aktifSinav) ? 'text-[var(--text-muted)] hover:text-accent hover:bg-white/40' : 'text-[var(--text-muted)] opacity-70 cursor-not-allowed'}`}>
                                     {tab === 'onizleme' ? <span className="flex items-center gap-2">👁️ <span className="hidden sm:inline">Önizleme</span></span> : tab === 'cevap-anahtari' ? <span className="flex items-center gap-2">✓ <span className="hidden sm:inline">Cevap Anahtarı</span></span> : <span className="flex items-center gap-2">📋 <span className="hidden sm:inline">Geçmiş ({sinavGecmisi.length})</span></span>}
                                 </button>
                             ))}
                         </div>
-                        <div className="flex gap-2 flex-wrap">
+                        <div className="flex gap-3 flex-wrap">
                             <button
                                 onClick={handleAddToWorkbook}
                                 disabled={!aktifSinav || isSavingToWorkbook}
-                                className="toolbar-btn bg-emerald-600 text-[var(--bg-primary)] border-none shadow-lg shadow-emerald-100 hover:bg-emerald-700 hover:translate-y-[-2px] active:scale-95"
+                                className="toolbar-btn bg-emerald-500/90 text-white border border-emerald-400/20 shadow-lg shadow-emerald-500/10 hover:bg-emerald-600 hover:shadow-emerald-500/20 hover:translate-y-[-2px] active:scale-95 transition-all duration-300"
                             >
                                 {isSavingToWorkbook ? (
                                     <>
@@ -365,48 +365,48 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                                         </svg>
-                                        <span className="hidden sm:inline">Kaydediliyor...</span>
+                                        <span className="hidden sm:inline uppercase tracking-widest text-[10px]">Kaydediliyor...</span>
                                     </>
                                 ) : (
                                     <>
-                                        <span className="text-base">📚</span><span className="hidden sm:inline">Kitapçık</span>
+                                        <span className="text-base">📚</span><span className="hidden sm:inline uppercase tracking-widest text-[10px]">Kitapçığa Ekle</span>
                                     </>
                                 )}
                             </button>
-                            <div className="w-px h-8 bg-[var(--border-color)] mx-2 self-center opacity-40"></div>
+                            <div className="w-px h-8 bg-[var(--border-color)]/20 mx-1 self-center"></div>
                             <button onClick={handlePrint} disabled={!aktifSinav}
-                                className="toolbar-btn bg-[var(--text-primary)] text-[var(--bg-primary)] text-[var(--bg-primary)] border-none shadow-lg hover:bg-black hover:translate-y-[-2px] disabled:opacity-35">
-                                <span className="text-base">🖨️</span><span className="hidden sm:inline">Yazdır</span>
+                                className="toolbar-btn bg-[var(--text-primary)] text-[var(--bg-primary)] border-none shadow-xl hover:bg-black hover:translate-y-[-2px] hover:shadow-2xl active:scale-95 transition-all duration-300 disabled:opacity-30">
+                                <span className="text-base">🖨️</span><span className="hidden sm:inline uppercase tracking-widest text-[10px]">PDF Yazdır</span>
                             </button>
                         </div>
                     </div>
 
                     {/* Format Settings Sub-Toolbar */}
                     {aktifSinav && activeTab === 'onizleme' && (
-                        <div className="flex-none bg-accent/10 backdrop-blur-3xl border-b border-accent/20 px-6 py-2.5 flex flex-wrap items-center gap-x-8 gap-y-3 z-0 anim-slide-in shadow-[inset_0_8px_16px_-8px_rgba(0,0,0,0.05)]">
-                            <div className="flex items-center gap-2 bg-[var(--bg-paper)]/50 p-1 rounded-2xl border border-[var(--border-color)] shadow-sm backdrop-blur-md">
-                                <span className="text-[9px] text-accent/70 font-black uppercase tracking-widest pl-2 pr-1">Tasarım</span>
+                        <div className="flex-none bg-accent/5 backdrop-blur-3xl border-b border-accent/10 px-6 py-3 flex flex-wrap items-center gap-x-12 gap-y-4 z-10 anim-slide-in shadow-[inset_0_-8px_16px_-8px_rgba(0,0,0,0.03)]">
+                            <div className="flex items-center gap-2 bg-white/40 p-1.5 rounded-2xl border border-white/60 shadow-sm backdrop-blur-xl">
+                                <span className="text-[9px] text-accent/60 font-black uppercase tracking-[0.2em] pl-3 pr-2 border-r border-accent/10 mr-1">Tasarım</span>
                                 <FmtBtn active={printConfig.fontFamily === 'helvetica'} onClick={() => updateConfig('fontFamily', 'helvetica')} title="Inter Fontu">Inter</FmtBtn>
                                 <FmtBtn active={printConfig.fontFamily === 'times'} onClick={() => updateConfig('fontFamily', 'times')} title="Times New Roman">Times</FmtBtn>
-                                <div className="w-px h-5 bg-accent/30 mx-1"></div>
+                                <div className="w-px h-6 bg-accent/10 mx-2"></div>
                                 {([9, 10, 11, 12] as const).map((s) => (
                                     <FmtBtn key={s} active={printConfig.fontSize === s} onClick={() => updateConfig('fontSize', s)} title={`${s} Punto`}>{s}pt</FmtBtn>
                                 ))}
                             </div>
-                            <div className="flex items-center gap-2 bg-[var(--bg-paper)]/50 p-1 rounded-2xl border border-[var(--border-color)] shadow-sm backdrop-blur-md">
-                                <span className="text-[9px] text-accent/70 font-black uppercase tracking-widest pl-2 pr-1">Yerleşim</span>
+                            <div className="flex items-center gap-2 bg-white/40 p-1.5 rounded-2xl border border-white/60 shadow-sm backdrop-blur-xl">
+                                <span className="text-[9px] text-accent/60 font-black uppercase tracking-[0.2em] pl-3 pr-2 border-r border-accent/10 mr-1">Yerleşim</span>
                                 <FmtBtn active={printConfig.marginMm === 10} onClick={() => updateConfig('marginMm', 10)} icon="⤢">Dar</FmtBtn>
                                 <FmtBtn active={printConfig.marginMm === 18} onClick={() => updateConfig('marginMm', 18)} icon="◻️">Orta</FmtBtn>
                                 <FmtBtn active={printConfig.marginMm === 25} onClick={() => updateConfig('marginMm', 25)} icon="⤡">Geniş</FmtBtn>
-                                <div className="w-px h-5 bg-accent/30 mx-1"></div>
+                                <div className="w-px h-6 bg-accent/10 mx-2"></div>
                                 <FmtBtn active={printConfig.columns === 1} onClick={() => updateConfig('columns', 1)} icon="📄">Tek</FmtBtn>
                                 <FmtBtn active={printConfig.columns === 2} onClick={() => updateConfig('columns', 2)} icon="📖">Çift</FmtBtn>
                             </div>
-                            <div className="flex items-center gap-2 bg-[var(--bg-paper)]/50 p-1 rounded-2xl border border-[var(--border-color)] shadow-sm backdrop-blur-md">
-                                <span className="text-[9px] text-accent/70 font-black uppercase tracking-widest pl-2 pr-1">Metin</span>
+                            <div className="flex items-center gap-2 bg-white/40 p-1.5 rounded-2xl border border-white/60 shadow-sm backdrop-blur-xl">
+                                <span className="text-[9px] text-accent/60 font-black uppercase tracking-[0.2em] pl-3 pr-2 border-r border-accent/10 mr-1">Metin</span>
                                 <FmtBtn active={printConfig.textAlign === 'left'} onClick={() => updateConfig('textAlign', 'left')} icon="⫷">Sola</FmtBtn>
                                 <FmtBtn active={printConfig.textAlign === 'justify'} onClick={() => updateConfig('textAlign', 'justify')} icon="⫹">Yasla</FmtBtn>
-                                <div className="w-px h-5 bg-accent/30 mx-1"></div>
+                                <div className="w-px h-6 bg-accent/10 mx-2"></div>
                                 <FmtBtn active={printConfig.lineHeight === 1.4} onClick={() => updateConfig('lineHeight', 1.4)}>Sıkı</FmtBtn>
                                 <FmtBtn active={printConfig.lineHeight === 1.6} onClick={() => updateConfig('lineHeight', 1.6)}>Normal</FmtBtn>
                                 <FmtBtn active={printConfig.lineHeight === 1.8} onClick={() => updateConfig('lineHeight', 1.8)}>Ayrık</FmtBtn>

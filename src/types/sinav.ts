@@ -116,7 +116,7 @@ export interface PrintConfig {
 export const DEFAULT_PRINT_CONFIG: PrintConfig = {
   fontSize: 10,
   fontFamily: 'helvetica',
-  columns: 1,
+  columns: 2,
   marginMm: 18,
   questionSpacingMm: 8,
   lineHeight: 1.6,
