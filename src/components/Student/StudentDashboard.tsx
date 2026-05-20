@@ -495,6 +495,7 @@ export function StudentDashboard({ onBack, onLoadMaterial }: StudentDashboardPro
                     worksheets={studentWorksheets}
                     assessments={studentAssessments}
                     curriculums={studentCurriculums}
+                    onNavigateToTab={setActiveTab}
                   />
                 </div>
               )}

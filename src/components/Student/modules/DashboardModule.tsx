@@ -10,6 +10,7 @@ interface DashboardModuleProps {
   worksheets: SavedWorksheet[];
   assessments: SavedAssessment[];
   curriculums: Curriculum[];
+  onNavigateToTab?: (tab: 'overview' | 'materials' | 'assignments' | 'analytics' | 'plans' | 'notes' | 'settings') => void;
 }
 
 export const DashboardModule: React.FC<DashboardModuleProps> = ({
@@ -18,6 +19,7 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
   worksheets,
   assessments,
   curriculums,
+  onNavigateToTab,
 }) => {
   const allAssignments = assignments.length > 0 ? assignments : generateMockAssignments(student.id);
   const allWorksheets = worksheets.length > 0 ? worksheets : generateMockWorksheets(student.id);
@@ -169,10 +171,14 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
       </div>
 
       {/* Recent Materials */}
-      <div className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl p-4">
+      <div 
+        className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl p-4 cursor-pointer hover:border-[var(--accent-color)]/30 transition-all"
+        onClick={() => onNavigateToTab?.('materials')}
+      >
         <h4 className="font-black text-[10px] text-[var(--text-primary)] uppercase tracking-tight mb-3 flex items-center gap-2">
           <i className="fa-solid fa-scroll text-[var(--accent-color)] text-[10px]"></i>
           Son Materyaller
+          <i className="fa-solid fa-chevron-right text-[var(--text-muted)] text-[8px] ml-auto"></i>
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           {allWorksheets.slice(0, 6).map(ws => (
@@ -190,10 +196,14 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
       </div>
 
       {/* Upcoming Assignments */}
-      <div className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl p-4">
+      <div 
+        className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl p-4 cursor-pointer hover:border-[var(--accent-color)]/30 transition-all"
+        onClick={() => onNavigateToTab?.('assignments')}
+      >
         <h4 className="font-black text-[10px] text-[var(--text-primary)] uppercase tracking-tight mb-3 flex items-center gap-2">
           <i className="fa-solid fa-calendar-check text-[var(--accent-color)] text-[10px]"></i>
           Yaklaşan Görevler
+          <i className="fa-solid fa-chevron-right text-[var(--text-muted)] text-[8px] ml-auto"></i>
         </h4>
         <div className="space-y-2">
           {allAssignments.filter(a => a.status !== 'completed').slice(0, 4).map(a => (
