@@ -169,9 +169,10 @@ export function StudentDashboard({ onBack, onLoadMaterial }: StudentDashboardPro
         await updateStudent(formData.id, formData);
       } else {
         // Create
-        await addStudent({
+        if (!user?.id) throw new Error('Kullanıcı oturumu bulunamadı.');
+        await addStudent(user.id, {
           ...(formData as any),
-          avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${formData.name}-${Math.random()}`,
+          avatar: formData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${formData.name}-${Math.random()}`,
         });
       }
       setShowAddForm(false);
@@ -185,6 +186,9 @@ export function StudentDashboard({ onBack, onLoadMaterial }: StudentDashboardPro
         learningStyle: 'Görsel',
         strengths: [],
         weaknesses: [],
+        parentName: '',
+        contactPhone: '',
+        contactEmail: '',
       });
     } catch (e: any) {
       alert(`Kayıt hatası: ${e.message}`);
@@ -266,7 +270,20 @@ export function StudentDashboard({ onBack, onLoadMaterial }: StudentDashboardPro
           </h2>
           <button
             onClick={() => {
-              setFormData({});
+              setFormData({
+                name: '',
+                age: 8,
+                grade: '2. Sınıf',
+                diagnosis: [],
+                interests: [],
+                notes: '',
+                learningStyle: 'Görsel',
+                strengths: [],
+                weaknesses: [],
+                parentName: '',
+                contactPhone: '',
+                contactEmail: '',
+              });
               setFormTab('identity');
               setShowAddForm(true);
             }}
@@ -375,7 +392,24 @@ export function StudentDashboard({ onBack, onLoadMaterial }: StudentDashboardPro
             </div>
             <p className="text-[var(--text-muted)] font-black text-[10px] uppercase tracking-wider">Henüz Kayıt Yok</p>
             <button
-              onClick={() => setShowAddForm(true)}
+              onClick={() => {
+                setFormData({
+                  name: '',
+                  age: 8,
+                  grade: '2. Sınıf',
+                  diagnosis: [],
+                  interests: [],
+                  notes: '',
+                  learningStyle: 'Görsel',
+                  strengths: [],
+                  weaknesses: [],
+                  parentName: '',
+                  contactPhone: '',
+                  contactEmail: '',
+                });
+                setFormTab('identity');
+                setShowAddForm(true);
+              }}
               className="mt-3 text-[var(--accent-color)] font-black text-[9px] uppercase tracking-widest hover:underline"
             >
               Hemen Ekle
