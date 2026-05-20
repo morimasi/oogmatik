@@ -31,9 +31,9 @@ service cloud.firestore {
       allow create: if isSignedIn();
     }
 
-    // Students: Sahibi okuyabilir/yazabilir
+    // Students: Sahibi okuyabilir/yazabilir, admin hepsi
     match /students/{studentId} {
-      allow read, write: if isSignedIn() && resource.data.teacherId == request.auth.uid;
+      allow read, write: if isSignedIn() && (resource.data.teacherId == request.auth.uid || isAdmin());
       allow create: if isSignedIn();
     }
 

@@ -544,12 +544,23 @@ export interface StudentPrivacySettings {
 // FACTORY FUNCTIONS — Sprint 3: Type Safety
 // ═══════════════════════════════════════════════════════════════════════════════
 
+const generateUUID = () => {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return crypto.randomUUID();
+    }
+    // Fallback for insecure contexts (like local network testing)
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+};
+
 /**
  * Varsayılan IEP planı fabrikası
  * @description Boş IEP planı ile başlatır (taslak durumda)
  */
 export const createDefaultIEP = (studentId: string): IEPPlan => ({
-    id: crypto.randomUUID(),
+    id: generateUUID(),
     studentId,
     startDate: new Date().toISOString(),
     endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 yıl sonra
