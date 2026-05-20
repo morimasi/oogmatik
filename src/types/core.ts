@@ -301,6 +301,7 @@ export interface SavedWorksheet {
   id: string;
   userId: string;
   studentId?: string;
+  studentName?: string;
   name: string;
   activityType: ActivityType;
   worksheetData: SingleWorksheetData[];
@@ -334,6 +335,8 @@ export type AppTheme =
 export interface HistoryItem {
   id: string;
   userId: string;
+  studentId?: string;
+  studentName?: string;
   activityType: ActivityType;
   data: SingleWorksheetData[];
   timestamp: string;

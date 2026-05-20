@@ -581,6 +581,8 @@ const AppContent = () => {
     const newItem: HistoryItem = {
       id: Date.now().toString() + Math.random(),
       userId: user?.id || 'guest',
+      studentId: activeStudent?.id,
+      studentName: activeStudent?.name,
       activityType,
       data,
       timestamp: new Date().toISOString(),
@@ -636,8 +638,14 @@ const AppContent = () => {
         activity.icon,
         { id: category.id, title: category.title },
         styleSettings,
-        studentProfile || undefined,
-        studentProfile?.studentId
+        studentProfile || (activeStudent ? {
+          name: activeStudent.name,
+          grade: activeStudent.grade,
+          date: new Date().toLocaleDateString('tr-TR'),
+          school: ''
+        } : undefined),
+        activeStudent?.id || studentProfile?.studentId,
+        activeStudent?.name || studentProfile?.name
       );
       toast.success(`Etkinlik "${name}" adıyla arşivinize kaydedildi.`);
       return saved.id;

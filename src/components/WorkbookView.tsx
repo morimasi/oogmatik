@@ -281,7 +281,7 @@ export const WorkbookView = ({
     try {
       // Find student ID if assigned
       const assignedStudent = students.find((s: any) => s.name === settings.studentName);
-      await worksheetService.saveWorkbook(user.id, settings, items, assignedStudent?.id);
+      await worksheetService.saveWorkbook(user.id, settings, items, assignedStudent?.id, settings.studentName);
       alert(`"${settings.title}" başarıyla arşivinize kaydedildi.`);
     } catch (error: unknown) {
       logError(error instanceof Error ? error : new Error(String(error)), { context: 'WorkbookView.handleSave' });
@@ -363,7 +363,7 @@ KRİTİK KURALLAR:
         const result = (await generateWithSchema(prompt, schema)) as { preface?: string };
         prefaceText = result && result.preface ? result.preface : '';
       } catch (aiErr: unknown) {
-        logWarn("Gemini preface fallback'a düştü:", aiErr instanceof Error ? aiErr : new Error(String(aiErr)));
+        logWarn("Gemini preface fallback'a düştü:", { error: aiErr });
       }
 
       if (!prefaceText) {
@@ -373,7 +373,7 @@ KRİTİK KURALLAR:
       }
       setSettings((s: any) => ({ ...s, teacherNote: prefaceText, aiPreface: prefaceText }));
     } catch (e: unknown) {
-      logError('Preface üretme hatası:', e as Record<string, unknown>);
+      logError('Preface üretme hatası:', { error: e });
     } finally {
       setIsGeneratingPreface(false);
     }
@@ -399,10 +399,10 @@ KRİTİK KURALLAR:
     } else {
       const s = students.find((x: Record<string, unknown>) => x.id === sid);
       if (s) {
-        setSettings((prev: Record<string, unknown>) => ({
+        setSettings((prev: WorkbookSettings) => ({
           ...prev,
           studentName: s.name,
-          schoolName: s.learningStyle || (prev as Record<string, unknown>).schoolName,
+          schoolName: s.learningStyle || prev.schoolName,
         }));
       }
     }

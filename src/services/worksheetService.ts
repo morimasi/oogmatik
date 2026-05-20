@@ -87,6 +87,7 @@ const mapDbToWorksheet = (docData: any, id: string): SavedWorksheet => ({
     id: id,
     userId: docData.userId,
     studentId: docData.studentId,
+    studentName: docData.studentName,
     name: docData.name,
     activityType: docData.activityType as ActivityType,
     worksheetData: deserializeData(docData.worksheetData),
@@ -113,12 +114,14 @@ export const worksheetService = {
         category: { id: string, title: string },
         styleSettings?: StyleSettings,
         studentProfile?: StudentProfile,
-        studentId?: string
+        studentId?: string,
+        studentName?: string
     ): Promise<SavedWorksheet> => {
         try {
             const payload: any = {
                 userId,
                 studentId: studentId || null,
+                studentName: studentName || null,
                 name: name || 'Adsız Etkinlik',
                 activityType,
                 worksheetData: serializeData(data),
@@ -451,11 +454,18 @@ export const worksheetService = {
         }
     },
 
-    saveWorkbook: async (userId: string, settings: WorkbookSettings, items: CollectionItem[], studentId?: string): Promise<SavedWorksheet> => {
+    saveWorkbook: async (
+        userId: string, 
+        settings: WorkbookSettings, 
+        items: CollectionItem[], 
+        studentId?: string,
+        studentName?: string
+    ): Promise<SavedWorksheet> => {
         try {
             const payload: any = {
                 userId,
                 studentId: studentId || null,
+                studentName: studentName || settings.studentName || null,
                 name: settings.title || 'Adsız Kitapçık',
                 activityType: ActivityType.WORKBOOK,
                 worksheetData: "[]",
