@@ -14,6 +14,7 @@ import {
   DocumentData,
   // @ts-ignore
 } from 'firebase/firestore';
+import { createAdvancedStudent, AdvancedStudent } from '../types/student-advanced';
 
 interface StudentState {
   students: Student[];
@@ -28,7 +29,7 @@ interface StudentState {
   deleteStudent: (id: string) => Promise<void>;
 }
 
-const sanitizeStudent = (data: unknown): Partial<Student> => {
+const sanitizeBaseStudent = (data: unknown): Partial<Student> => {
   if (typeof data !== 'object' || data === null) return {};
   const d = data as Record<string, unknown>;
   return {
@@ -69,17 +70,31 @@ export const useStudentStore = create<StudentState>()((set: any, get: any) => ({
         const studentList: Student[] = [];
         snapshot.forEach((doc: any) => {
           const data = doc.data();
-          studentList.push({
+          const baseSanitized = sanitizeBaseStudent(data);
+          
+          // Eğer db'den gelen veride eksik AdvancedStudent fieldları varsa ekle (Migration strategy)
+          const isLegacy = !data.iep || !data.financial;
+          
+          let completeStudent = {
             id: doc.id,
             teacherId: data.teacherId || '',
             createdAt: data.createdAt || new Date().toISOString(),
-            ...sanitizeStudent(data),
-          } as Student);
+            ...baseSanitized,
+            ...data, // DB'deki diğer advanced fieldları ezmesin diye
+          } as Student;
+
+          if (isLegacy) {
+            completeStudent = createAdvancedStudent(completeStudent) as Student;
+          }
+
+          studentList.push(completeStudent);
         });
         set({ students: studentList, isLoading: false });
 
         const { activeStudent } = get();
         if (activeStudent && !studentList.find((s: Student) => s.id === activeStudent.id)) {
+          // Eğer silindiyse aktif öğrenciden çıkar, fakat başka bir sekmede seçili kaldıysa sıfırlamasın diye ufak kontrol
+          // (Opsiyonel olarak kalsın)
           set({ activeStudent: null });
         }
       },
@@ -92,12 +107,19 @@ export const useStudentStore = create<StudentState>()((set: any, get: any) => ({
 
   addStudent: async (teacherId: string, studentData: unknown) => {
     try {
-      const sanitized = sanitizeStudent(studentData);
-      await addDoc(collection(db, 'students'), {
-        ...sanitized,
+      const sanitized = sanitizeBaseStudent(studentData);
+      
+      const tempStudent = {
+        id: 'temp',
         teacherId,
         createdAt: new Date().toISOString(),
-      });
+        ...sanitized,
+      } as Student;
+
+      const advancedStudent = createAdvancedStudent(tempStudent);
+      const { id, ...dataToSave } = advancedStudent; // id'yi firebase atayacak
+
+      await addDoc(collection(db, 'students'), dataToSave);
     } catch (error) {
       console.error("addStudent Hatası:", error);
       throw error;
@@ -105,13 +127,8 @@ export const useStudentStore = create<StudentState>()((set: any, get: any) => ({
   },
 
   updateStudent: async (id: string, updates: Partial<Student>) => {
-    const sanitizedUpdates: { [x: string]: any } = {};
-    const baseSanitized = sanitizeStudent(updates);
-    Object.keys(updates).forEach((key) => {
-      if (key in baseSanitized)
-        sanitizedUpdates[key] = (baseSanitized as Record<string, unknown>)[key];
-    });
-    await updateDoc(doc(db, 'students', id), sanitizedUpdates);
+    // updates direkt db'ye aktarılsın (advanced fieldlar kaybolmasın)
+    await updateDoc(doc(db, 'students', id), updates as any);
   },
 
   deleteStudent: async (id: string) => {
