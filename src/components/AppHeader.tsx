@@ -8,6 +8,7 @@ import { useWorksheetStore } from '../store/useWorksheetStore';
 import { useRBAC } from '../hooks/useRBAC';
 import { ActivityType, View } from '../types';
 import { useMessageStore } from '../store/useMessageStore';
+import { useStudentStore } from '../store/useStudentStore';
 
 interface AppHeaderProps {
     workbookItemsCount: number;
@@ -167,6 +168,7 @@ export const AppHeader = ({
     const { isAdmin } = useRBAC();
     const { setIsSidebarOpen, zenMode, setIsTourActive } = useUIStore();
     const { currentView, setCurrentView, addHistoryView, setSelectedActivity, setWorksheetData, setActiveCurriculumSession } = useWorksheetStore();
+    const { activeStudent } = useStudentStore();
 
     const navigateTo = (view: View) => {
         if (currentView === view) return;
@@ -229,11 +231,38 @@ export const AppHeader = ({
                     </button>
                 </div>
 
-                {/* Sağ: ikon kümesi; sol ile aynı flex-1 → orta blok tam ortada */}
                 <div className="flex min-w-0 flex-1 items-center justify-end gap-1 md:gap-2">
-                    {/* Arama Çubuğu iptal edildi, sağ açılır menüye dahil ediliyor. */}
+                    <AnimatePresence>
+                        {activeStudent && (
+                            <motion.div
+                                initial={{ opacity: 0, x: 20, scale: 0.9 }}
+                                animate={{ opacity: 1, x: 0, scale: 1 }}
+                                exit={{ opacity: 0, x: 20, scale: 0.9 }}
+                                className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-emerald-500/5 hover:bg-emerald-500/10 border border-emerald-500/20 rounded-xl transition-all duration-300 group/active cursor-default mr-1"
+                            >
+                                <div className="relative">
+                                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                                    <div className="absolute inset-0 w-2 h-2 bg-emerald-500 rounded-full animate-ping opacity-30"></div>
+                                </div>
+                                <div className="flex flex-col -space-y-0.5">
+                                    <span className="text-[10px] font-black tracking-tight text-emerald-600 dark:text-emerald-400 uppercase leading-none">
+                                        ODAK: {activeStudent.name.split(' ')[0]}
+                                    </span>
+                                    <span className="text-[7.5px] font-bold text-emerald-600/60 uppercase tracking-widest leading-none">
+                                        {activeStudent.grade} | {activeStudent.diagnosis?.[0] || 'GENEL'}
+                                    </span>
+                                </div>
+                                <button 
+                                    onClick={() => useStudentStore.getState().setActiveStudent(null)}
+                                    className="ml-1 p-1 rounded-md hover:bg-emerald-500/10 text-emerald-600/40 hover:text-emerald-600 transition-colors"
+                                    title="Odağı Kapat"
+                                >
+                                    <i className="fa-solid fa-xmark text-[10px]"></i>
+                                </button>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
-                    {/* Activity & Students Group */}
                     <div className="flex items-center gap-1 p-1 bg-[var(--bg-secondary)]/90 rounded-xl border border-[var(--border-color)] shadow-[inset_0_1px_0_rgba(255,255,255,0.045)] backdrop-blur-sm">
                         <button
                             onClick={() => onOpenStudio('assessment')}
@@ -255,7 +284,6 @@ export const AppHeader = ({
                         </button>
                     </div>
 
-                    {/* Secondary Navigation */}
                     <div className="flex items-center gap-0.5 md:gap-1">
                         <GlobalSearch onSelectActivity={onSelectActivity} />
 

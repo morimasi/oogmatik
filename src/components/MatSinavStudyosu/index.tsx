@@ -6,6 +6,7 @@
 
 import React, { useState } from 'react';
 import { useMatSinavStore } from '../../store/useMatSinavStore';
+import { useStudentStore } from '../../store/useStudentStore';
 import { generateMatExam, refreshSingleQuestion } from '../../services/matSinavService';
 import { MatKazanimPicker } from './MatKazanimPicker';
 import { MatSoruAyarlari } from './MatSoruAyarlari';
@@ -68,6 +69,18 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
         sinavGecmisi,
         removeSinavGecmisi,
     } = useMatSinavStore();
+
+    const { activeStudent } = useStudentStore();
+
+    // --- SYNC WITH GLOBAL STUDENT ---
+    React.useEffect(() => {
+        if (activeStudent) {
+            const grade = parseInt(activeStudent.grade?.replace('. Sınıf', '') || '1');
+            if (!isNaN(grade)) {
+                setSinif(grade);
+            }
+        }
+    }, [activeStudent]);
 
     const [activeTab, setActiveTab] = useState<TabType>('onizleme');
     const [error, setError] = useState<string | null>(null);
@@ -248,6 +261,30 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
                     </div>
                 </div>
             </div>
+
+            {activeStudent && (
+                <div 
+                    style={{ 
+                        padding: '10px 24px', 
+                        background: 'linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, transparent 100%)',
+                        borderBottom: '1px solid rgba(16, 185, 129, 0.1)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        zIndex: 40
+                    }}
+                >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', background: 'var(--bg-paper)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '6px 16px', borderRadius: '99px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
+                        <i className="fa-solid fa-user-graduate" style={{ color: '#10b981', fontSize: '12px' }}></i>
+                        <span style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                            Odak: <strong style={{ color: 'var(--text-primary)' }}>{activeStudent.name}</strong>
+                        </span>
+                        <div style={{ width: '1px', height: '12px', background: 'var(--border-color)' }}></div>
+                        <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>
+                            {activeStudent.grade} | {activeStudent.diagnosis?.[0] || 'Genel'}
+                        </span>
+                    </div>
+                </div>
+            )}
 
             {/* Ana Grid */}
             <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-0 overflow-hidden min-h-0">
