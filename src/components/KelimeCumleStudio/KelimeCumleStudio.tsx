@@ -81,8 +81,8 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
 
 
     const handleAddToWorkbook = () => {
-        if (onAddToWorkbook && content) {
-            onAddToWorkbook('kelime-cumle', content);
+        if (onAddToWorkbook && content && contentChunks) {
+            onAddToWorkbook('kelime-cumle', contentChunks);
             showToast('✅ Kitapçığa eklendi!');
         } else {
             showToast('⚠️ Kitapçığa eklenemedi (Sistem Hazır Değil)');
