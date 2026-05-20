@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { SavedAssessment } from '../../../types';
-import { generateMockAssessments } from './studentDashboardData';
 import { RadarChart } from '../../RadarChart';
 import { LineChart } from '../../LineChart';
 

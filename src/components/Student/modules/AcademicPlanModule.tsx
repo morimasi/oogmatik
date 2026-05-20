@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Curriculum, CurriculumDay } from '../../../types';
-import { EnrichedCurriculum, generateMockCurriculums, PlanRevision } from './studentDashboardData';
+import { EnrichedCurriculum, PlanRevision } from './studentDashboardData';
 
 interface AcademicPlanModuleProps {
   studentId: string;

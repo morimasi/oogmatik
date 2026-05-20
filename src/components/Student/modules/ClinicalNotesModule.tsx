@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ClinicalNote, generateMockClinicalNotes } from './studentDashboardData';
+import { ClinicalNote } from './studentDashboardData';
 
 interface ClinicalNotesModuleProps {
   studentId: string;
@@ -20,15 +20,15 @@ export const ClinicalNotesModule: React.FC<ClinicalNotesModuleProps> = ({
 
   const filtered = activeCategory === 'all'
     ? allNotes
-    : allNotes.filter(n => n.category === activeCategory);
+    : allNotes.filter((n: ClinicalNote) => n.category === activeCategory);
 
-  const sorted = [...filtered].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const sorted = [...filtered].sort((a: ClinicalNote, b: ClinicalNote) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const categoryCounts = {
     all: allNotes.length,
-    baseline: allNotes.filter(n => n.category === 'baseline').length,
-    progress: allNotes.filter(n => n.category === 'progress').length,
-    goal: allNotes.filter(n => n.category === 'goal').length,
+    baseline: allNotes.filter((n: ClinicalNote) => n.category === 'baseline').length,
+    progress: allNotes.filter((n: ClinicalNote) => n.category === 'progress').length,
+    goal: allNotes.filter((n: ClinicalNote) => n.category === 'goal').length,
   };
 
   const categoryConfig: Record<string, { label: string; icon: string; color: string; bg: string; border: string }> = {

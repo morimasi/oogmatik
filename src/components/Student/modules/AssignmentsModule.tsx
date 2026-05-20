@@ -1,6 +1,5 @@
 import React, { useState, useMemo } from 'react';
 import { ActivityAssignment } from '../../../types/assignment';
-import { generateMockAssignments } from './studentDashboardData';
 
 interface AssignmentsModuleProps {
   studentId: string;
@@ -28,10 +27,10 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
   const filtered = useMemo(() => {
     let result = [...allAssignments];
     if (filterStatus !== 'all') {
-      result = result.filter(a => a.status === filterStatus);
+      result = result.filter((a: ActivityAssignment) => a.status === filterStatus);
     }
     if (searchQuery) {
-      result = result.filter(a =>
+      result = result.filter((a: ActivityAssignment) =>
         (a.teacherNotes || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
         a.worksheetId.toLowerCase().includes(searchQuery.toLowerCase())
       );
@@ -174,7 +173,7 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
 
       {/* Assignment List */}
       <div className="space-y-2">
-        {filtered.map(a => (
+        {filtered.map((a: ActivityAssignment) => (
           <div key={a.id} className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl p-3 transition-all hover:border-[var(--accent-color)]/30 group">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-2.5 min-w-0 flex-1">

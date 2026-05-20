@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import { Student } from '../../../types';
+import { Student, SavedWorksheet, SavedAssessment, Curriculum, CurriculumDay } from '../../../types';
 import { ActivityAssignment } from '../../../types/assignment';
-import { SavedWorksheet, SavedAssessment, Curriculum } from '../../../types';
-import { generateMockAssignments, generateMockWorksheets, generateMockAssessments, generateMockCurriculums, generateMockIEPGoals, generateMockGrades, generateMockBehaviorIncidents } from './studentDashboardData';
 
 interface DashboardModuleProps {
   student: Student;
@@ -26,15 +24,15 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
   const allAssessments = assessments;
   const allCurriculums = curriculums;
 
-  const completedAssignments = allAssignments.filter(a => a.status === 'completed').length;
-  const inProgressAssignments = allAssignments.filter(a => a.status === 'in_progress').length;
-  const pendingAssignments = allAssignments.filter(a => a.status === 'pending').length;
-  const avgScore = allAssignments.filter(a => a.score).reduce((acc, a) => acc + (a.score || 0), 0) / (allAssignments.filter(a => a.score).length || 1);
+  const completedAssignments = allAssignments.filter((a: ActivityAssignment) => a.status === 'completed').length;
+  const inProgressAssignments = allAssignments.filter((a: ActivityAssignment) => a.status === 'in_progress').length;
+  const pendingAssignments = allAssignments.filter((a: ActivityAssignment) => a.status === 'pending').length;
+  const avgScore = allAssignments.filter((a: ActivityAssignment) => !!a.score).reduce((acc: number, a: ActivityAssignment) => acc + (a.score || 0), 0) / (allAssignments.filter((a: ActivityAssignment) => !!a.score).length || 1);
 
   const latestAssessment = allAssessments[0];
   const activePlan = allCurriculums[0];
   const planProgress = activePlan
-    ? Math.round((activePlan.schedule.filter(d => d.isCompleted).length / activePlan.schedule.length) * 100)
+    ? Math.round((activePlan.schedule.filter((d: CurriculumDay) => d.isCompleted).length / activePlan.schedule.length) * 100)
     : 0;
 
   const [showShareModal, setShowShareModal] = useState(false);
@@ -121,7 +119,7 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
             <div className="space-y-2.5">
               <p className="text-[9px] text-[var(--text-secondary)] leading-relaxed">{latestAssessment.report.overallSummary.slice(0, 120)}...</p>
               <div className="grid grid-cols-3 gap-2">
-                {latestAssessment.report.chartData.slice(0, 6).map((d, i) => (
+                {latestAssessment.report.chartData.slice(0, 6).map((d: any, i: number) => (
                   <div key={i} className="text-center">
                     <div className="relative w-10 h-10 mx-auto mb-1">
                       <svg className="w-full h-full -rotate-90">

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { SavedWorksheet } from '../../../types';
-import { generateMockWorksheets, getMaterialCategories, MaterialCategory } from './studentDashboardData';
+import { getMaterialCategories, MaterialCategory } from './studentDashboardData';
 
 interface MaterialsModuleProps {
   studentId: string;
@@ -25,15 +25,15 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
   const filtered = useMemo(() => {
     let result = [...allWorksheets];
     if (activeCategory !== 'all') {
-      result = result.filter(ws => (ws.category?.title || 'Genel').toLowerCase() === activeCategory.toLowerCase());
+      result = result.filter((ws: SavedWorksheet) => (ws.category?.title || 'Genel').toLowerCase() === activeCategory.toLowerCase());
     }
     if (searchQuery) {
-      result = result.filter(ws =>
+      result = result.filter((ws: SavedWorksheet) =>
         ws.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (ws.category?.title || '').toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
-    return result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return result.sort((a: SavedWorksheet, b: SavedWorksheet) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [allWorksheets, activeCategory, searchQuery]);
 
   const toggleFavorite = (id: string) => {
