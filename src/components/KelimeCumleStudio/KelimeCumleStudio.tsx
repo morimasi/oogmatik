@@ -13,6 +13,7 @@ import { A4CompactRenderer } from './shared/A4CompactRenderer';
 import { printService } from '../../utils/printService';
 import { worksheetService } from '../../services/worksheetService';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useStudentStore } from '../../store/useStudentStore';
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
 import './KelimeCumleStudio.css';
 
@@ -43,7 +44,20 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
     const [generationMode, setGenerationMode] = useState<'ai' | 'offline'>('offline');
     const { generateOffline, generateAI, isGenerating, error } = useKelimeCumleGenerator();
     const [toastMsg, setToastMsg] = useState<string | null>(null);
+    const { activeStudent } = useStudentStore();
     const [scale, setScale] = useState(0.8); // Default scale to fit height better
+
+    // --- SYNC WITH GLOBAL STUDENT ---
+    useEffect(() => {
+        if (activeStudent) {
+            setConfig(prev => ({
+                ...prev,
+                ageGroup: activeStudent.age <= 7 ? '5-7' : activeStudent.age <= 10 ? '8-10' : activeStudent.age <= 13 ? '11-13' : '14+',
+                difficulty: activeStudent.grade?.includes('1') || activeStudent.grade?.includes('2') ? 'Başlangıç' : activeStudent.grade?.includes('5') ? 'İleri' : 'Orta',
+                title: `${activeStudent.name} için ${prev.type.replace('_', ' ')} Çalışması`
+            }));
+        }
+    }, [activeStudent]);
 
     const handleGenerate = async () => {
         if (generationMode === 'offline') {
@@ -207,6 +221,18 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
                 <div className="kc-bg-orb orb-1"></div>
                 <div className="kc-bg-orb orb-2"></div>
             </div>
+
+            {activeStudent && (
+                <div className="kc-active-student-bar">
+                    <div className="kc-as-badge">
+                        <i className="fa-solid fa-user-graduate"></i>
+                        <span>Aktif Öğrenci: <strong>{activeStudent.name}</strong></span>
+                        <span className="kc-as-meta">
+                            {activeStudent.grade} | {activeStudent.diagnosis?.[0] || 'Genel'}
+                        </span>
+                    </div>
+                </div>
+            )}
 
             <div className="kc-premium-layout">
                 {/* SOL PANEL - Ayarlar (Premium Sidebar) */}
