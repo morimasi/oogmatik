@@ -766,18 +766,48 @@ const AppContent = () => {
     let finalData: any;
 
     if (data === undefined) {
-      // Tek argümanlı çağrı: onAddToWorkbook(data)
       finalData = activityTypeOrData;
-      // Veri içinden tip bulmaya çalış, yoksa seçili aktiviteyi kullan
       finalType = finalData?.activityType || finalData?.type || selectedActivity;
     } else {
-      // İki argümanlı çağrı: onAddToWorkbook(type, data)
       finalType = activityTypeOrData as ActivityType;
       finalData = data;
     }
 
     if (finalType && finalData) {
-      const dataArray = Array.isArray(finalData) ? finalData : [finalData];
+      let dataArray: any[] = [];
+      
+      // ÇOK SAYFALI VERİ ALGILAMA, BÖLME VE AÇMA (ADVANCED FLATTENING)
+      const listKeys = ['sorular', 'questions', 'items', 'activities'];
+      const foundListKey = listKeys.find(key => finalData[key] && Array.isArray(finalData[key]));
+      
+      if (Array.isArray(finalData)) {
+        dataArray = finalData;
+      } else if (finalData.pages && Array.isArray(finalData.pages)) {
+        dataArray = finalData.pages.map((p: any, i: number) => ({
+          ...finalData,
+          pages: undefined,
+          ...p,
+          title: p.title || `${finalData.title || 'Etkinlik'} - Sayfa ${i + 1}`,
+          pageIndex: i
+        }));
+      } else if (foundListKey && finalData[foundListKey].length > 6) {
+        // OTOMATİK SAYFALANDIRMA (AUTO-PAGINATION)
+        // Eğer veri tek bir parça ama içinde çok sayıda madde (örn: 20 soru) varsa, bunları 6'şarlı sayfalara böl
+        const itemsPerPage = 6;
+        const items = finalData[foundListKey];
+        for (let i = 0; i < items.length; i += itemsPerPage) {
+          const chunk = items.slice(i, i + itemsPerPage);
+          dataArray.push({
+            ...finalData,
+            [foundListKey]: chunk,
+            title: `${finalData.title || 'Etkinlik'} - Sayfa ${Math.floor(i / itemsPerPage) + 1}`,
+            pageIndex: Math.floor(i / itemsPerPage)
+          });
+        }
+      } else {
+        dataArray = [finalData];
+      }
+
       const newItems: CollectionItem[] = dataArray.map((sheet: any) => ({
         id: crypto.randomUUID(),
         activityType: finalType,
@@ -785,6 +815,7 @@ const AppContent = () => {
         settings: { ...styleSettings },
         title: sheet.title || ACTIVITIES.find((a) => a.id === finalType)?.title || 'Etkinlik',
       }));
+
       setWorkbookItems((prev: CollectionItem[]) => [...prev, ...newItems]);
       
       const btn = document.getElementById('add-to-wb-btn');
@@ -793,9 +824,11 @@ const AppContent = () => {
         setTimeout(() => btn.classList.remove('scale-125', 'bg-green-500', 'text-white'), 300);
       }
       
-      toast.success('Kitapçığa başarıyla eklendi!');
+      toast.success(`${dataArray.length} sayfa kitapçığa başarıyla eklendi!`);
     }
   };
+
+
   const handleAddToWorkbook = () => {
     if (selectedActivity && worksheetData)
       handleAddToWorkbookGeneral(selectedActivity, worksheetData);
