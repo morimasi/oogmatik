@@ -8,6 +8,7 @@ import { assessmentService } from '../../services/assessmentService';
 import { curriculumService } from '../../services/curriculumService';
 import { assignmentService } from '../../services/assignmentService';
 import { useAssignmentStore } from '../../store/useAssignmentStore';
+import { useToastStore } from '../../store/useToastStore';
 import { ACTIVITIES } from '../../constants';
 
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
@@ -469,10 +470,18 @@ export function StudentDashboard({ onBack, onLoadMaterial }: StudentDashboardPro
 
           <div className="flex gap-2 relative z-10 w-full md:w-auto">
             <button
-              onClick={() => setActiveStudent?.(selectedStudent)}
-              className="flex-1 md:flex-none px-4 py-2 bg-[var(--accent-color)] text-white rounded-xl font-black text-[9px] tracking-widest transition-all hover:shadow-lg shadow-indigo-500/20 active:scale-95 flex items-center justify-center gap-2 uppercase"
+              onClick={() => {
+                setActiveStudent?.(selectedStudent);
+                useToastStore.getState().success(`${selectedStudent.name} başarıyla aktif edildi.`, 2000);
+              }}
+              className={`flex-1 md:flex-none px-4 py-2 rounded-xl font-black text-[9px] tracking-widest transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 uppercase ${
+                activeStudent?.id === selectedStudent.id 
+                  ? 'bg-emerald-500 text-white shadow-emerald-500/20' 
+                  : 'bg-[var(--accent-color)] text-white shadow-indigo-500/20 hover:scale-105'
+              }`}
             >
-              <i className="fa-solid fa-play text-[8px]"></i> AKTİFLEŞTİR
+              <i className={`fa-solid ${activeStudent?.id === selectedStudent.id ? 'fa-check' : 'fa-play'} text-[8px]`}></i>
+              {activeStudent?.id === selectedStudent.id ? 'AKTİF' : 'AKTİFLEŞTİR'}
             </button>
             <button
               onClick={() => {
