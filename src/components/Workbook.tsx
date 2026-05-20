@@ -195,37 +195,27 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }: WorkbookProps) =
         </React.Fragment>
       )}
 
-      {/* 3. ETKİNLİKLER */}
+      {/* 3. ETKİNLİKLER (İÇERİK) */}
       {items.map((item, index) => {
-        if (item.itemType === 'divider') {
-          const dividerEl = (
-            <React.Fragment key={item.id}>
-              {renderDividerPage(item, runningPageNum)}
-              {index < items.length - 1 && (
-                <PageBreakIndicator fromPage={runningPageNum} toPage={runningPageNum + 1} />
-              )}
-            </React.Fragment>
-          );
-          runningPageNum++;
-          return dividerEl;
-        }
-
-        const renderSinglePage = (pageItem: any, pageIdx: number, totalPages: number) => {
+        // BIREYSEL SAYFA RENDERER - Kapsam sorunlarını önlemek için parametrik yapıldı
+        const renderPage = (currentItem: any, currentIndex: number, pageData: any, pIdx: number, total: number) => {
           const pageNum = runningPageNum;
-          const content = (
-            <React.Fragment key={`${item.id}-p${pageIdx}`}>
+          runningPageNum++;
+
+          return (
+            <React.Fragment key={`${currentItem.id}-p${pIdx}`}>
               <div className="relative w-full flex justify-center print:m-0">
                 <div className="relative bg-white shadow-2xl worksheet-page" style={getPageStyle()}>
                   <Watermark />
                   <div className="relative z-10 flex flex-col h-full" style={{ overflow: 'hidden', paddingBottom: '40px' }}>
-                    {item.activityType === 'ASSESSMENT_REPORT' ? (
+                    {currentItem.activityType === 'ASSESSMENT_REPORT' ? (
                       <div className="p-20 text-center flex flex-col items-center justify-center h-full">
                         <i className="fa-solid fa-chart-line text-6xl text-zinc-100 mb-8"></i>
                         <h3 className="text-2xl font-black opacity-20 uppercase tracking-widest">Analiz Raporu</h3>
                       </div>
                     ) : (
                       <WorkbookActivityRenderer
-                        item={{ ...item, data: pageItem }}
+                        item={{ ...currentItem, data: pageData }}
                         settings={settings}
                         pageNum={pageNum}
                         font={font}
@@ -236,21 +226,32 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }: WorkbookProps) =
                   <PageFooter pageNum={pageNum} />
                 </div>
               </div>
-              {(index < items.length - 1 || pageIdx < totalPages - 1) && (
+              {(currentIndex < items.length - 1 || pIdx < total - 1) && (
                 <PageBreakIndicator fromPage={pageNum} toPage={pageNum + 1} />
               )}
             </React.Fragment>
           );
-          runningPageNum++;
-          return content;
         };
+
+        if (item.itemType === 'divider') {
+          const divPageNum = runningPageNum;
+          runningPageNum++;
+          return (
+            <React.Fragment key={item.id}>
+              {renderDividerPage(item, divPageNum)}
+              {index < items.length - 1 && (
+                <PageBreakIndicator fromPage={divPageNum} toPage={divPageNum + 1} />
+              )}
+            </React.Fragment>
+          );
+        }
 
         const pages = (item.data as any)?.pages || (item.data as any)?.sheets;
         if (Array.isArray(pages) && pages.length > 0) {
-          return pages.map((p, pIdx) => renderSinglePage(p, pIdx, pages.length));
+          return pages.map((p, pIdx) => renderPage(item, index, p, pIdx, pages.length));
         }
 
-        return renderSinglePage(item.data, 0, 1);
+        return renderPage(item, index, item.data, 0, 1);
       })}
 
       {/* 4. ARKA KAPAK */}
