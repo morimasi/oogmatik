@@ -192,15 +192,7 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
                 isGenerating={isGenerating}
             />
 
-            {activeStudent && (
-                <div className="sk-active-student-bar">
-                    <div className="sk-as-badge">
-                        <i className="fa-solid fa-user-graduate"></i>
-                        <span>Aktif Öğrenci: <strong>{activeStudent.name}</strong></span>
-                        <span className="sk-as-meta">{activeStudent.grade} | {activeStudent.diagnosis?.[0]}</span>
-                    </div>
-                </div>
-            )}
+
 
             <div className="sk-body">
                 {/* ═══ SOL PANEL: Config ═══ */}

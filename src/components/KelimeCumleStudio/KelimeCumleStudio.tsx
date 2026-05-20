@@ -222,17 +222,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
                 <div className="kc-bg-orb orb-2"></div>
             </div>
 
-            {activeStudent && (
-                <div className="kc-active-student-bar">
-                    <div className="kc-as-badge">
-                        <i className="fa-solid fa-user-graduate"></i>
-                        <span>Aktif Öğrenci: <strong>{activeStudent.name}</strong></span>
-                        <span className="kc-as-meta">
-                            {activeStudent.grade} | {activeStudent.diagnosis?.[0] || 'Genel'}
-                        </span>
-                    </div>
-                </div>
-            )}
+
 
             <div className="kc-premium-layout">
                 {/* SOL PANEL - Ayarlar (Premium Sidebar) */}

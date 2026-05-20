@@ -150,25 +150,7 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
                 isSidebarOpen={isSidebarOpen}
             />
 
-            {activeStudent && (
-                <div 
-                    style={{ 
-                        padding: '0.4rem 1.5rem', 
-                        background: 'linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, transparent 100%)',
-                        borderBottom: '1px solid rgba(16, 185, 129, 0.1)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        zIndex: 20
-                    }}
-                >
-                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', background: 'var(--bg-paper)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '0.25rem 0.8rem', borderRadius: '99px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}>
-                        <i className="fa-solid fa-user-graduate" style={{ color: '#10b981', fontSize: '0.7rem' }}></i>
-                        <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.02em' }}>
-                            Odak: <strong style={{ color: 'var(--text-primary)' }}>{activeStudent.name}</strong>
-                        </span>
-                   </div>
-                </div>
-            )}
+
 
             <div className="flex-1 flex overflow-hidden relative">
 

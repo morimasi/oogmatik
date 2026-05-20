@@ -1,6 +1,8 @@
 import { AppError } from '../utils/AppError.js';
 import { logInfo, logError, logWarn } from '../utils/logger.js';
 import { safeFetch } from '../utils/apiClient.js';
+import { useStudentStore } from '../store/useStudentStore';
+
 
 // Model Seçimi: Gemini 2.5 Flash — Performanslı ve güncel model
 const MASTER_MODEL = 'gemini-2.5-flash';
@@ -92,8 +94,30 @@ export const generateCreativeMultimodal = async (params: {
     safeModel = MASTER_MODEL;
   }
 
+  let finalPrompt = params.prompt;
+  const activeStudent = useStudentStore.getState().activeStudent;
+
+  if (activeStudent) {
+    const diagStr = activeStudent.diagnosis && activeStudent.diagnosis.length > 0
+      ? activeStudent.diagnosis.join(', ')
+      : 'Genel Öğrenme Güçlüğü (Tanısız)';
+      
+    finalPrompt += `
+
+======================================
+[NÖRO-PEDAGOJİK VE KLİNİK BAĞLAM BİLDİRİMİ]
+Hedef Öğrenci: ${activeStudent.name} (Sınıf: ${activeStudent.grade})
+Performans / Tanı Profili: ${diagStr}
+======================================
+ZORUNLU UZMAN KURALLARI (İHLAL EDİLEMEZ):
+1. ZPD UYUMU (Elif Yıldız): Kelime dağarcığı, konseptler ve zorluk derecesi KESİNLİKLE öğrencinin (${activeStudent.grade}) seviyesine uygun olarak, dikkat süresini aşmayacak sadelikte tasarlanacaktır.
+2. KLİNİK VE YASAL DİL (Dr. Ahmet Kaya): Çıktının hiçbir yerinde "disleksisi olduğu için", "öğrenme güçlüğü" veya "uygun bir aktivite" gibi tanı koyucu/etiketleyici bir dil KESİNLİKLE KULLANILMAYACAKTIR.
+3. ÖĞRETMEN NOTU: Çıktıya her zaman (ilgili format destekliyorsa) bu aktivitenin neden oluşturulduğunu açıklayan teşvik edici bir 'pedagogicalNote' eklenmelidir.
+Tüm içeriği bu spesifik bağlama göre optimize et!`;
+  }
+
   const body: any = {
-    prompt: params.prompt,
+    prompt: finalPrompt,
     schema: params.schema,
     temperature: params.temperature ?? 0.1,
     systemInstruction: params.systemInstruction || SYSTEM_INSTRUCTION,

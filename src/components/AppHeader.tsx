@@ -238,26 +238,40 @@ export const AppHeader = ({
                                 initial={{ opacity: 0, x: 20, scale: 0.9 }}
                                 animate={{ opacity: 1, x: 0, scale: 1 }}
                                 exit={{ opacity: 0, x: 20, scale: 0.9 }}
-                                className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-emerald-500/5 hover:bg-emerald-500/10 border border-emerald-500/20 rounded-xl transition-all duration-300 group/active cursor-default mr-1"
+                                className="flex items-center gap-2.5 px-3.5 py-1.5 bg-[var(--bg-paper)]/80 backdrop-blur-xl border border-emerald-500/40 rounded-2xl shadow-[0_4px_20px_rgba(16,185,129,0.15)] transition-all duration-300 group/active cursor-default mr-1 hover:border-emerald-500/60 hover:shadow-[0_4px_25px_rgba(16,185,129,0.25)] ring-1 ring-white/5 z-[100]"
                             >
-                                <div className="relative">
-                                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-                                    <div className="absolute inset-0 w-2 h-2 bg-emerald-500 rounded-full animate-ping opacity-30"></div>
+                                <div className="relative flex items-center justify-center mt-0.5">
+                                    <div className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-40"></div>
+                                    <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.8)] z-10"></div>
                                 </div>
                                 <div className="flex flex-col -space-y-0.5">
-                                    <span className="text-[10px] font-black tracking-tight text-emerald-600 dark:text-emerald-400 uppercase leading-none">
-                                        ODAK: {activeStudent.name.split(' ')[0]}
+                                    <span className="text-[9px] font-black tracking-[0.15em] text-emerald-500 uppercase leading-none opacity-90 drop-shadow-sm">
+                                        AKTİF ODAK
                                     </span>
-                                    <span className="text-[7.5px] font-bold text-emerald-600/60 uppercase tracking-widest leading-none">
-                                        {activeStudent.grade} | {activeStudent.diagnosis?.[0] || 'GENEL'}
+                                    <div className="flex items-center gap-1.5 mt-0.5">
+                                        <i className="fa-solid fa-user-graduate text-emerald-400 text-[11px]"></i>
+                                        <span className="text-[12px] font-black text-[var(--text-primary)] uppercase tracking-tight">
+                                            {activeStudent.name.split(' ')[0]}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="ml-1 pl-2 border-l border-emerald-500/20 flex flex-col justify-center gap-0.5 py-0.5">
+                                    <span className="text-[7.5px] font-bold text-[var(--text-muted)] uppercase tracking-widest leading-none">
+                                        SNF: <span className="text-emerald-400/90">{activeStudent.grade}</span>
+                                    </span>
+                                    <span className="text-[7.5px] font-bold text-[var(--text-muted)] uppercase tracking-widest leading-none">
+                                        PRFL: <span className="text-emerald-400/90">{activeStudent.diagnosis?.[0] || 'GENEL'}</span>
                                     </span>
                                 </div>
                                 <button 
-                                    onClick={() => useStudentStore.getState().setActiveStudent(null)}
-                                    className="ml-1 p-1 rounded-md hover:bg-emerald-500/10 text-emerald-600/40 hover:text-emerald-600 transition-colors"
-                                    title="Odağı Kapat"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        useStudentStore.getState().setActiveStudent(null);
+                                    }}
+                                    className="ml-1 w-6 h-6 flex items-center justify-center rounded-[10px] hover:bg-rose-500/10 text-[var(--text-muted)] hover:text-rose-400 transition-colors shadow-none hover:shadow-[0_0_10px_rgba(244,63,94,0.1)] active:scale-95"
+                                    title="Öğrenci Odağını Kapat"
                                 >
-                                    <i className="fa-solid fa-xmark text-[10px]"></i>
+                                    <i className="fa-solid fa-xmark text-[11px]"></i>
                                 </button>
                             </motion.div>
                         )}

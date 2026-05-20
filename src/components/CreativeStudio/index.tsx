@@ -199,12 +199,7 @@ export const CreativeStudio: React.FC<CreativeStudioProps> = ({ onResult, onCanc
                     </h2>
                     <div className="flex items-center gap-4 mt-2">
                         <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-black opacity-60">Professional Clinical Content Designer</p>
-                        {activeStudent && (
-                            <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full animate-pulse">
-                                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
-                                <span className="text-emerald-500 text-[9px] font-black uppercase tracking-widest">Odak: {activeStudent.name}</span>
-                            </div>
-                        )}
+
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
