@@ -11,7 +11,7 @@ interface SoruCardProps {
   soru: Soru;
   soruNo: number;
   showAnswer?: boolean;
-  fontSizePx?: string;
+  fontSizePt?: string;
   fontFamily?: string;
   lineHeight?: number;
   isPrinting?: boolean;
@@ -21,12 +21,12 @@ export const SoruCard: React.FC<SoruCardProps> = ({
   soru,
   soruNo,
   showAnswer = false,
-  fontSizePx = '14px',
+  fontSizePt = '12pt',
   fontFamily = 'Lexend, sans-serif',
   lineHeight = 1.6,
   isPrinting = false,
 }) => {
-  const textStyle: React.CSSProperties = { fontSize: fontSizePx, fontFamily, color: '#111', lineHeight };
+  const textStyle: React.CSSProperties = { fontSize: fontSizePt, fontFamily, color: '#111', lineHeight };
 
   const getSoruTipiLabel = (): string => {
     const labels: Record<string, string> = {
@@ -141,7 +141,7 @@ export const SoruCard: React.FC<SoruCardProps> = ({
         <div className="flex items-center gap-3">
           <span
             className="font-black text-black"
-            style={{ fontSize: `calc(${fontSizePx} + 2px)` }}
+            style={{ fontSize: `calc(${fontSizePt} + 2pt)` }}
           >
             {soruNo})
           </span>

@@ -511,21 +511,10 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook })
         </div>
       </div>
 
-      {/* GİZLİ BASKI KATMANI — Sınav + Cevap Anahtarı */}
+      {/* GİZLİ BASKI KATMANI — Sadece Sınav */}
       {aktifSinav && (
         <div id="sinav-print-target" className="hidden">
           <SinavOnizleme sinav={aktifSinav} showAnswers={false} config={printConfig} isPrinting={true} />
-          <div style={{ pageBreakBefore: 'always', padding: '20px' }}>
-            <CevapAnahtariComponent cevapAnahtari={aktifSinav.cevapAnahtari} sinavBaslik={aktifSinav.baslik} />
-          </div>
-          {aktifSinav.pedagogicalNote && (
-            <div style={{ pageBreakBefore: 'always', padding: '20px' }}>
-              <div className="p-6 bg-emerald-50 border border-emerald-200 rounded-xl">
-                 <strong className="text-emerald-800 font-bold block mb-2">Öğretmenin Dikkatine:</strong>
-                 <p className="text-emerald-900 leading-relaxed font-medium">{aktifSinav.pedagogicalNote}</p>
-              </div>
-            </div>
-          )}
         </div>
       )}
 

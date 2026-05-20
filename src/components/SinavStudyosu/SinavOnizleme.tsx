@@ -19,8 +19,8 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
   config,
   isPrinting = false,
 }) => {
-  const fontSizePx = config ? `${config.fontSize + 2}px` : '14px';
-  const fontFamily = config?.fontFamily === 'times' ? 'Times New Roman, serif' : 'Lexend, Inter, sans-serif';
+  const fontSizePt = config ? `${config.fontSize}pt` : '12pt';
+  const fontFamily = config?.fontFamily === 'times' ? 'Times New Roman, Times, serif' : (config?.fontFamily === 'helvetica' ? 'Inter, Helvetica, Arial, sans-serif' : 'Lexend, Inter, sans-serif');
   const questionGap = config ? `${config.questionSpacingMm * 2}px` : '16px';
   const lineHeight = config ? config.lineHeight : 1.6;
   const textAlign = config ? config.textAlign : 'left';
@@ -35,11 +35,13 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
         color: '#111',
         backgroundColor: '#fff',
         textAlign,
-        fontSize: fontSizePx,
+        fontSize: fontSizePt,
         lineHeight,
-        padding: isPrinting ? '0' : `${marginMm}px`,
+        padding: isPrinting ? `${marginMm}mm` : `${marginMm * 3.7795275591}px`,
         columnCount: columns,
-        columnGap: '12mm'
+        columnGap: '12mm',
+        width: isPrinting ? '210mm' : 'auto',
+        boxSizing: 'border-box'
       }}
     >
       {/* Başlık Bandı — Yazdırma sırasında sadeleştirilmiş */}
@@ -114,7 +116,7 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
               soru={soru}
               soruNo={index + 1}
               showAnswer={showAnswers}
-              fontSizePx={fontSizePx}
+              fontSizePt={fontSizePt}
               fontFamily={fontFamily}
               lineHeight={lineHeight}
               isPrinting={isPrinting}
