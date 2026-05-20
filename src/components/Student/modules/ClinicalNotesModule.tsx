@@ -12,7 +12,7 @@ export const ClinicalNotesModule: React.FC<ClinicalNotesModuleProps> = ({
   studentId,
   studentName,
 }) => {
-  const allNotes = generateMockClinicalNotes(studentId);
+  const allNotes: ClinicalNote[] = []; // Şimdilik boş liste, gerçek veri servisi eklendiğinde buradan dolacak.
   const [activeCategory, setActiveCategory] = useState<NoteCategory>('all');
   const [selectedNote, setSelectedNote] = useState<ClinicalNote | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);

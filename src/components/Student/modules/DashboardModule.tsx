@@ -21,10 +21,10 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
   curriculums,
   onNavigateToTab,
 }) => {
-  const allAssignments = assignments.length > 0 ? assignments : generateMockAssignments(student.id);
-  const allWorksheets = worksheets.length > 0 ? worksheets : generateMockWorksheets(student.id);
-  const allAssessments = assessments.length > 0 ? assessments : generateMockAssessments(student.id);
-  const allCurriculums = curriculums.length > 0 ? curriculums : generateMockCurriculums(student.id);
+  const allAssignments = assignments;
+  const allWorksheets = worksheets;
+  const allAssessments = assessments;
+  const allCurriculums = curriculums;
 
   const completedAssignments = allAssignments.filter(a => a.status === 'completed').length;
   const inProgressAssignments = allAssignments.filter(a => a.status === 'in_progress').length;

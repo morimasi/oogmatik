@@ -13,7 +13,7 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
   worksheets,
   onLoadMaterial,
 }) => {
-  const allWorksheets = worksheets.length > 0 ? worksheets : generateMockWorksheets(studentId);
+  const allWorksheets = worksheets;
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');

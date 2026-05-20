@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Curriculum } from '../../../types';
+import { Curriculum, CurriculumDay } from '../../../types';
 import { EnrichedCurriculum, generateMockCurriculums, PlanRevision } from './studentDashboardData';
 
 interface AcademicPlanModuleProps {
@@ -11,9 +11,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
   studentId,
   curriculums,
 }) => {
-  const allPlans: EnrichedCurriculum[] = curriculums.length > 0
-    ? curriculums.map(c => ({ ...c, revisions: [], lastReviewed: c.startDate, nextReview: '' }))
-    : generateMockCurriculums(studentId);
+  const allPlans: any[] = curriculums.map(c => ({ ...c, revisions: [], lastReviewed: (c as any).startDate, nextReview: '' }));
 
   const [selectedPlan, setSelectedPlan] = useState<EnrichedCurriculum | null>(null);
   const [showRevisions, setShowRevisions] = useState(false);
@@ -21,7 +19,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
 
   const activePlan = allPlans[0];
   const activeProgress = activePlan
-    ? Math.round((activePlan.schedule.filter(d => d.isCompleted).length / activePlan.schedule.length) * 100)
+    ? Math.round((activePlan.schedule.filter((d: CurriculumDay) => d.isCompleted).length / activePlan.schedule.length) * 100)
     : 0;
 
   const handlePrint = () => { window.print(); };
@@ -148,8 +146,8 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                     <i className="fa-solid fa-bullseye text-[var(--accent-color)] text-[8px]"></i> Hedefler
                   </h5>
                   <div className="space-y-1.5">
-                    {activePlan.goals.map((g, i) => {
-                      const completedDays = activePlan.schedule.filter(d => d.isCompleted).length;
+                    {activePlan.goals.map((g: string, i: number) => {
+                      const completedDays = activePlan.schedule.filter((d: CurriculumDay) => d.isCompleted).length;
                       const isAchieved = i < completedDays;
                       return (
                         <div key={i} className="flex items-start gap-2 p-2 bg-[var(--bg-secondary)] rounded-lg">
@@ -181,7 +179,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
 
             {activePlanTab === 'schedule' && (
               <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
-                {activePlan.schedule.map((day, i) => (
+                {activePlan.schedule.map((day: CurriculumDay, i: number) => (
                   <div key={i} className={`flex items-center gap-3 p-2.5 rounded-xl border transition-all ${day.isCompleted ? 'bg-emerald-500/5 border-emerald-500/10' : 'bg-[var(--bg-secondary)] border-[var(--border-color)]'}`}>
                     <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${day.isCompleted ? 'bg-emerald-500 text-white' : 'bg-[var(--bg-paper)] text-[var(--text-muted)]'}`}>
                       <span className="text-[8px] font-black">{day.day}</span>
@@ -203,7 +201,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
             {activePlanTab === 'revisions' && (
               <div className="space-y-2">
                 {activePlan.revisions.length > 0 ? (
-                  activePlan.revisions.map(rev => (
+                  activePlan.revisions.map((rev: PlanRevision) => (
                     <div key={rev.id} className="p-3 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-color)]">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-[8px] font-bold text-[var(--text-primary)]">{new Date(rev.date).toLocaleDateString('tr-TR')}</span>
@@ -230,7 +228,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
       <div className="space-y-2">
         <h4 className="font-black text-[10px] text-[var(--text-primary)] uppercase tracking-tight">Tüm Planlar</h4>
         {allPlans.map(plan => {
-          const progress = Math.round((plan.schedule.filter(d => d.isCompleted).length / plan.schedule.length) * 100);
+          const progress = Math.round((plan.schedule.filter((d: CurriculumDay) => d.isCompleted).length / plan.schedule.length) * 100);
           return (
             <div
               key={plan.id}

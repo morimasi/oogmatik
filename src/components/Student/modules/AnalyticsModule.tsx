@@ -13,7 +13,7 @@ export const AnalyticsModule: React.FC<AnalyticsModuleProps> = ({
   studentId,
   assessments,
 }) => {
-  const allAssessments = assessments.length > 0 ? assessments : generateMockAssessments(studentId);
+  const allAssessments = assessments;
   const [selectedAssessment, setSelectedAssessment] = useState<SavedAssessment | null>(null);
   const [showDetail, setShowDetail] = useState(false);
 
@@ -121,7 +121,6 @@ export const AnalyticsModule: React.FC<AnalyticsModuleProps> = ({
                 { key: 'spatial', color: '#fbbf24', label: 'Görsel Algı' },
                 { key: 'phonological', color: '#34d399', label: 'Fonolojik' },
               ]}
-              compact
             />
           </div>
         ) : (

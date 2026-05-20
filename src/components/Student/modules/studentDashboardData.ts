@@ -1,6 +1,6 @@
-import { SavedWorksheet, SavedAssessment, Curriculum } from '../../types';
-import { ActivityAssignment } from '../../types/assignment';
-import { IEPGoal, GradeEntry, BehaviorIncident, PortfolioItem } from '../../types/student-advanced';
+import { SavedWorksheet, SavedAssessment, Curriculum } from '../../../types';
+import { ActivityAssignment } from '../../../types/assignment';
+import { IEPGoal, GradeEntry, BehaviorIncident, PortfolioItem } from '../../../types/student-advanced';
 
 export interface ClinicalNote {
   id: string;

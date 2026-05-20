@@ -41,30 +41,9 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
     // State for interactive data (replacing pure mocks with editable state)
     const [goals, setGoals] = useState<IEPGoal[]>(student.iep?.goals || []);
 
-    // Simulated AI Data (In real app, fetch from API)
-    const aiInsights = useMemo<AIInsight[]>(() => [
-        {
-            type: 'weakness',
-            category: 'cognitive',
-            title: 'İşitsel İşlemleme Güçlüğü',
-            description: 'Gürültülü ortamlarda yönergeleri takip etmekte zorlanıyor. Fonolojik farkındalık testlerinde %15 sapma tespit edildi.',
-            confidence: 89,
-            source: ['WISC-R', 'CAS Testi']
-        },
-        {
-            type: 'strength',
-            category: 'academic',
-            title: 'Görsel Uzamsal Zeka',
-            description: 'Geometrik şekiller ve desen tamamlama görevlerinde yaş grubunun %95 üzerinde performans.',
-            confidence: 94,
-            source: ['Raven Matrisleri', 'Görsel Algı Testi']
-        }
-    ], []);
-
-    const predictions = useMemo<PredictionModel[]>(() => [
-        { metric: 'Okuma Hızı (kelime/dk)', currentValue: 45, predictedValue: 52, trend: 'up', riskLevel: 'low' },
-        { metric: 'Dikkat Süresi (dk)', currentValue: 12, predictedValue: 10, trend: 'down', riskLevel: 'high' }
-    ], []);
+    // AI Data (Fetched from API in production)
+    const aiInsights = useMemo<AIInsight[]>(() => [], []);
+    const predictions = useMemo<PredictionModel[]>(() => [], []);
 
     // --- Goal Management ---
     const handleAddGoal = () => {
@@ -74,9 +53,16 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
             id: crypto.randomUUID(),
             title: newGoal.title,
             description: newGoal.description,
-            category: newGoal.category || 'academic',
+            category: (newGoal.category as any) || 'academic',
             status: 'not_started',
             progress: 0,
+            baseline: {
+                description: '',
+                measurementDate: new Date().toISOString(),
+                measurementMethod: 'observation'
+            },
+            shortTermObjective: '',
+            successCriteria: '',
             targetDate: newGoal.targetDate || new Date().toISOString(),
             priority: newGoal.priority || 'medium',
             strategies: [],
@@ -438,7 +424,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                                         const btn = document.getElementById('btn-ai-goal');
                                         if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Üretiliyor...';
                                         try {
-                                            const newAiGoals = await aiStudentService.generateIEPGoals(student);
+                                            const newAiGoals = await aiStudentService.generateIEPGoals(student as any);
                                             const formattedGoals = newAiGoals.map((g: any) => ({
                                                 id: crypto.randomUUID(),
                                                 title: g.title,
@@ -446,6 +432,13 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                                                 category: g.category as any,
                                                 status: 'not_started',
                                                 progress: 0,
+                                                baseline: {
+                                                    description: '',
+                                                    measurementDate: new Date().toISOString(),
+                                                    measurementMethod: 'observation'
+                                                },
+                                                shortTermObjective: '',
+                                                successCriteria: '',
                                                 targetDate: g.targetDate || new Date().toISOString(),
                                                 priority: g.priority as any,
                                                 strategies: [],
@@ -456,7 +449,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                                             const updatedGoals = [...goals, ...formattedGoals];
                                             setGoals(updatedGoals as IEPGoal[]);
                                             if (onUpdate) onUpdate({ ...student.iep, goals: updatedGoals });
-                                        } catch (e) { logError('AI Error', e); }
+                                        } catch (e) { logError('AI Error', e as any); }
                                         if (btn) btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> AI Hedef Üret';
                                     }}
                                     id="btn-ai-goal"

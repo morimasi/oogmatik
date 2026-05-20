@@ -16,7 +16,7 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
   assignments,
   onUpdateAssignment,
 }) => {
-  const allAssignments = assignments.length > 0 ? assignments : generateMockAssignments(studentId);
+  const allAssignments = assignments;
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
   const [sortBy, setSortBy] = useState<SortBy>('dueDate');
   const [searchQuery, setSearchQuery] = useState('');
