@@ -215,12 +215,11 @@ YANIT FORMATI (JSON):
     const validationTasks = await Promise.all(
       agents.map(({ role, category }) =>
         agentService.createTask({
-          role: role as unknown as any,
           type: 'validation',
           description: `Çalışma kâğıdı doğrulama: ${category}`,
           priority: 1,
           input: { worksheet: worksheetContent }
-        })
+        } as any)
       )
     );
 

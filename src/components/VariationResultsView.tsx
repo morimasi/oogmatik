@@ -189,7 +189,7 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
                       )}
                     </div>
                     <h3 className="text-base font-bold text-white line-clamp-2 pr-8">
-                      {String(variation.title ?? '')}
+                      {String((variation as Record<string, unknown>).title ?? '')}
                     </h3>
                   </div>
 

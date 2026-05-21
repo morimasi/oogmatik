@@ -70,7 +70,7 @@ export const WorkbookActivityRenderer = memo(({ item, settings, font, accent }: 
         const RendererComponent = getRendererForType(activityType);
         if (RendererComponent) {
             const activeData = Array.isArray(rawData) ? rawData[0] : rawData;
-            const content = activeData?.content || activeData;
+            const content = (activeData as Record<string, unknown>)?.content || activeData;
             return <RendererComponent config={mergedSettings as any} content={content as any} />;
         }
     }
