@@ -60,7 +60,11 @@ export const generateWithGemini = async (prompt: string, systemInstruction?: str
     prompt,
     systemInstruction: systemInstruction || SYSTEM_INSTRUCTION
   });
-  return result;
+  if (typeof result === 'string') return result;
+  if (typeof result === 'object' && result !== null && 'text' in result) {
+    return String((result as Record<string, unknown>).text);
+  }
+  return JSON.stringify(result);
 };
 
 /**
