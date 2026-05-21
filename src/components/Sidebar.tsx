@@ -81,6 +81,7 @@ const Sidebar = ({
   const [allActivities, setAllActivities] = useState<Activity[]>(ACTIVITIES);
   const [categories, setCategories] = useState<ActivityCategory[]>(ACTIVITY_CATEGORIES);
   const { canAccess, canAccessCategory, canAccessActivity } = useRBAC();
+  const { activeStudent } = useStudentStore();
 
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [lockedCategory, setLockedCategory] = useState<string | null>(null);
@@ -249,6 +250,13 @@ const Sidebar = ({
     setIsLoading(true);
     setWorksheetData(null);
     setError(null);
+
+    // Otomatik Öğrenci Aktifleştirme (Active Student Awareness)
+    const finalOptions = {
+        ...options,
+        studentContext: activeStudent || options.studentContext
+    };
+
     try {
       let result: WorksheetData | null = null;
       if (String(selectedActivity).startsWith('dyn_')) {
@@ -259,14 +267,14 @@ const Sidebar = ({
           result = await generators.generateFromRichPrompt(
             selectedActivity,
             dynamicAct.engineConfig.baseBlueprint,
-            options
+            finalOptions
           );
         }
       }
       if (!result) {
         const response = await activityService.generate(
           selectedActivity,
-          options,
+          finalOptions,
           options.mode === 'ai' ? GeneratorMode.AI : GeneratorMode.OFFLINE
         );
         result = response.data;

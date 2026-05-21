@@ -54,7 +54,7 @@ export const DirectionalCodeReadingSheet: React.FC<Props> = ({ data }) => {
     const aestheticMode = (data.settings as any)?.aestheticMode || 'standard';
     const isPremium = aestheticMode === 'premium' || aestheticMode === 'glassmorphism';
     const legend = CIPHER_LEGEND[cipherType] || CIPHER_LEGEND.arrows;
-    const cols = puzzles.length > 1 ? 'grid-cols-2' : 'grid-cols-1';
+    const cols = 'grid-cols-1'; // HER ZAMAN TEK SÜTUN (A4-Dolu)
 
     return (
         <div className={`
@@ -77,10 +77,10 @@ export const DirectionalCodeReadingSheet: React.FC<Props> = ({ data }) => {
                         <EditableElement 
                             key={pIdx} 
                             className={`
-                                relative flex flex-col gap-4 p-5 print:p-2 border-[1.5px] transition-all duration-300 group break-inside-avoid
+                                relative flex flex-col gap-6 p-8 print:p-4 border-[2px] transition-all duration-300 group break-inside-avoid
                                 ${isPremium 
-                                    ? 'bg-white/80 backdrop-blur-sm border-zinc-200 rounded-[2.5rem] shadow-sm hover:shadow-2xl hover:border-indigo-400' 
-                                    : 'bg-zinc-50 border-zinc-100 rounded-[2rem]'}
+                                    ? 'bg-white/80 backdrop-blur-sm border-zinc-200 rounded-[3rem] shadow-xl hover:border-indigo-400' 
+                                    : 'bg-zinc-50 border-zinc-100 rounded-[2.5rem]'}
                             `}
                         >
                             {/* Badge */}
@@ -133,7 +133,7 @@ export const DirectionalCodeReadingSheet: React.FC<Props> = ({ data }) => {
                                                 return (
                                                     <div
                                                         key={`${y}-${x}`}
-                                                        className={`w-9 h-9 print:w-7 print:h-7 ${bg} flex items-center justify-center transition-colors relative`}
+                                                        className={`w-12 h-12 print:w-10 print:h-10 ${bg} flex items-center justify-center transition-colors relative border-[0.5px] border-zinc-100`}
                                                     >
                                                         {isStart && (
                                                             <div className="absolute inset-1 border-[1.5px] border-indigo-400 rounded flex items-center justify-center bg-indigo-50/30">
@@ -194,7 +194,7 @@ export const DirectionalCodeReadingSheet: React.FC<Props> = ({ data }) => {
                     <span className="text-[8px] text-zinc-500 font-bold">KODLAMA ANAHTARI</span>
                 </div>
                 <div className="flex gap-4 flex-wrap">
-                    {legend.symbols.map((s: unknown) => (
+                    {legend.symbols.map((s: any) => (
                         <div key={s.dir} className="flex items-center gap-3 bg-white/5 backdrop-blur-md border border-white/10 rounded-xl px-4 py-1.5 transition-transform hover:scale-105">
                             <span className="text-amber-400 font-black text-xl drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">{s.sym}</span>
                             <span className="text-zinc-400 text-[10px] font-black uppercase tracking-tighter">= {s.dir}</span>

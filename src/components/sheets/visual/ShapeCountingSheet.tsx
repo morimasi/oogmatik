@@ -43,49 +43,45 @@ export const ShapeCountingSheet = ({
       ${isPremium ? 'premium-mode bg-slate-50/20' : 'bg-white'}
     `}
     >
-      <div className="flex flex-col gap-1 mb-2">
-        <h1 className="text-xl font-black uppercase tracking-tighter text-zinc-900 leading-none">
+      <div className="flex flex-col gap-0.5 mb-1">
+        <h1 className="text-lg font-black uppercase tracking-tighter text-zinc-900 leading-none">
           {data.title || 'FİGÜR-ZEMİN & SEÇİCİ DİKKAT'}
         </h1>
-        <p className="text-[10px] font-medium text-zinc-500 leading-tight">
+        <p className="text-[9px] font-medium text-zinc-500 leading-tight">
           {data.instruction || 'Karmaşık görsel sahadaki hedef şekilleri bulun ve toplam sayısını ilgili kutucuğa yazın.'}
         </p>
-        <div className="h-px bg-zinc-100 w-full mt-1"></div>
       </div>
 
       {/* 1. HEDEF VİZÖRÜ (Aranan Şekil) */}
       <div
-        className={`flex justify-center ${isSingle ? 'mt-10 mb-10 print:mt-4 print:mb-4' : 'mt-4 mb-4'}`}
+        className={`flex justify-center ${isSingle ? 'mt-2 mb-2 print:mt-1 print:mb-1' : 'mt-1 mb-1'}`}
       >
         <div
           className={`
-            relative px-8 print:px-6 py-4 print:py-2 rounded-2xl flex items-center gap-8 print:gap-6 shadow-sm border-2 border-zinc-900 bg-white group hover:scale-[1.01] transition-all duration-500
-            ${isPremium ? 'ring-4 ring-indigo-50/50' : ''}
+            relative px-4 print:px-3 py-2 print:py-1 rounded-xl flex items-center gap-4 print:gap-3 shadow-sm border-2 border-zinc-900 bg-white group hover:scale-[1.01] transition-all duration-500
+            ${isPremium ? 'ring-2 ring-indigo-50/50' : ''}
         `}
         >
           {/* Dekoratif Scanner Çizgisi */}
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent animate-scan"></div>
+          <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-amber-400 to-transparent animate-scan"></div>
 
           <div className="flex flex-col">
-            <span className="text-[8px] font-black uppercase tracking-[0.3em] text-amber-500 mb-0.5 leading-none">
-              ODAKLANILAN HEDEF
+            <span className="text-[7px] font-black uppercase tracking-[0.3em] text-amber-500 mb-0.5 leading-none">
+              HEDEF
             </span>
-            <span className="text-2xl print:text-xl font-black uppercase tracking-tighter leading-none">
+            <span className="text-lg print:text-base font-black uppercase tracking-tighter leading-none">
               {settings?.targetShape?.toUpperCase() || 'ÜÇGEN'}
             </span>
           </div>
 
-          <div className="w-16 h-16 print:w-12 print:h-12 bg-zinc-900 rounded-xl flex items-center justify-center p-3 shadow-lg border-2 border-zinc-100 transform -rotate-3 group-hover:rotate-0 transition-transform">
+          <div className="w-10 h-10 print:w-8 print:h-8 bg-zinc-900 rounded-lg flex items-center justify-center p-2 shadow-lg border border-zinc-100 transform -rotate-3 group-hover:rotate-0 transition-transform">
             <svg
               viewBox="0 0 100 100"
-              className="w-full h-full fill-amber-400 drop-shadow-[0_0_15px_rgba(251,191,36,0.6)]"
+              className="w-full h-full fill-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.6)]"
             >
               <path d={SHAPE_PATHS[settings?.targetShape || 'triangle']} />
             </svg>
           </div>
-
-          {/* Radar Animasyonu */}
-          <div className="absolute -right-2 -top-2 w-6 h-6 rounded-full bg-amber-500 animate-ping opacity-20"></div>
         </div>
       </div>
 
@@ -150,13 +146,13 @@ export const ShapeCountingSheet = ({
                         d={SHAPE_PATHS[item.type] ?? SHAPE_PATHS.triangle}
                         fill={
                           settings?.overlapping
-                            ? `hsla(${isTarget ? '45, 100%, 50%' : '220, 10%, 90%'}, ${isTarget ? 0.08 : 0.02})`
+                            ? `hsla(220, 10%, 90%, ${isTarget ? 0.05 : 0.02})`
                             : 'none'
                         }
-                        stroke={isTarget ? '#18181b' : '#e2e8f0'}
-                        strokeWidth={isTarget ? 4 : 1}
+                        stroke={isTarget ? '#18181b' : '#3f3f46'}
+                        strokeWidth={isTarget ? 2.5 : 2}
                         strokeLinejoin="round"
-                        style={{ mixBlendMode: 'multiply', opacity: isTarget ? 1 : 0.3 }}
+                        style={{ mixBlendMode: 'multiply', opacity: isTarget ? 1 : 0.85 }}
                         className="transition-all duration-300 group-hover/field:opacity-100"
                       />
                     </g>
