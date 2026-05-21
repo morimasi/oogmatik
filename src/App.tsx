@@ -379,6 +379,16 @@ const AppContent = () => {
   const [activeOnboardingModule, setActiveOnboardingModule] = useState<'guide' | 'tour' | 'help' | 'about' | 'developer' | null>(null);
   const [isAdvancedScreeningOpen, setIsAdvancedScreeningOpen] = useState(false);
 
+  // Automatically open GuideModule for first-time login
+  useEffect(() => {
+    if (authStore.user) {
+      const isGuideCompleted = localStorage.getItem(`oogmatik_guide_completed_${authStore.user.id}`) === 'true';
+      if (!isGuideCompleted) {
+        setActiveOnboardingModule('guide');
+      }
+    }
+  }, [authStore.user]);
+
   // Apply UI settings to document root when they change
   useEffect(() => {
     document.documentElement.style.setProperty('--app-font-family', uiSettings.fontFamily);
