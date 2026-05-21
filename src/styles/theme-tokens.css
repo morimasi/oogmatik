@@ -556,12 +556,13 @@
   --c-indigo-700: #4338ca !important;
   /* Kesin arka plan ve metin rengi */
   background-color: white !important;
-  color: black !important;
+  color: #000000 !important;
   /* Tema renklerini muaf tut */
   --accent-color: #6366f1 !important;
   --accent-hover: #4f46e5 !important;
-  --text-primary: #0f172a !important;
-  --text-secondary: #475569 !important;
+  --text-primary: #000000 !important;
+  --text-secondary: #3f3f46 !important;
+  --text-muted: #71717a !important;
   --border-color: #e4e4e7 !important;
 
   /* Dinamik Boyutlandırma (Zenginlik Dikey/Yatay) */
@@ -572,6 +573,43 @@
   transition:
     width 0.4s cubic-bezier(0.4, 0, 0.2, 1),
     min-height 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* WORKSHEET CHILDREN — Color inheritance enforcement (FAZ 4.1)
+ * Tüm alt elemanlar siyah metin miras alır, theme variable'lar ezilir.
+ */
+.worksheet-page * {
+  color: inherit !important;
+  --text-primary: #000000 !important;
+  --text-secondary: #3f3f46 !important;
+  --text-muted: #71717a !important;
+}
+
+/* Override explicit white/light text on dark backgrounds inside worksheet */
+.worksheet-page .text-white {
+  color: #000000 !important;
+}
+
+.worksheet-page .bg-zinc-900,
+.worksheet-page .bg-zinc-800,
+.worksheet-page .bg-zinc-950 {
+  background-color: #f4f4f5 !important;
+}
+
+/* Keep accent colored backgrounds visible */
+.worksheet-page .bg-indigo-600 { background-color: #4f46e5 !important; }
+.worksheet-page .bg-indigo-500 { background-color: #6366f1 !important; }
+.worksheet-page .bg-red-600,
+.worksheet-page .bg-rose-600 { background-color: #dc2626 !important; }
+.worksheet-page .bg-emerald-500,
+.worksheet-page .bg-green-500 { background-color: #10b981 !important; }
+.worksheet-page .bg-amber-500,
+.worksheet-page .bg-yellow-500 { background-color: #f59e0b !important; }
+.worksheet-page .bg-blue-500 { background-color: #3b82f6 !important; }
+
+/* Ensure borders are visible */
+.worksheet-page .border-white {
+  border-color: #e4e4e7 !important;
 }
 
 /* Oryantasyon Değişimleri */

@@ -571,7 +571,7 @@ export const ImageDisplay = React.memo(
 
     return (
       <div
-        className={`relative overflow-hidden rounded-2xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-sm ${className}`}
+        className={`relative overflow-hidden rounded-2xl bg-zinc-50 border border-zinc-200 shadow-sm ${className}`}
         style={{ minHeight: '140px' }}
       >
         {useInlineSvg ? (
