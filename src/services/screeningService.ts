@@ -1,6 +1,4 @@
 import { ScreeningResult, ScreeningProfile } from '../types/screening';
-import { AppError } from '../utils/AppError';
-import { logError } from '../utils/logger';
 
 /**
  * Tarama ve analiz hizmetleri
@@ -22,13 +20,13 @@ export class ScreeningService {
       });
       
       if (!response.ok) {
-        throw new AppError('Tarama kaydedilemedi', 'API_ERROR', response.status);
+        throw new Error('Tarama kaydedilemedi');
       }
       
       const data = await response.json();
       return data.id;
     } catch (error) {
-      logError('Tarama kaydetme hatası:', { error });
+      console.error('Tarama kaydetme hatası:', error);
       throw error;
     }
   }
@@ -40,11 +38,11 @@ export class ScreeningService {
     try {
       const response = await fetch(`/api/screening/student/${studentId}`);
       if (!response.ok) {
-        throw new AppError('Tarama geçmişi alınamadı', 'API_ERROR', response.status);
+        throw new Error('Tarama geçmişi alınamadı');
       }
       return await response.json();
     } catch (error) {
-      logError('Tarama geçmişi hatası:', { error });
+      console.error('Tarama geçmişi hatası:', error);
       return [];
     }
   }
@@ -68,11 +66,11 @@ export class ScreeningService {
 
       const response = await fetch(`/api/screening/all?${queryParams}`);
       if (!response.ok) {
-        throw new AppError('Tarama sonuçları alınamadı', 'API_ERROR', response.status);
+        throw new Error('Tarama sonuçları alınamadı');
       }
       return await response.json();
     } catch (error) {
-      logError('Tarama sonuçları hatası:', { error });
+      console.error('Tarama sonuçları hatası:', error);
       return [];
     }
   }
@@ -91,10 +89,10 @@ export class ScreeningService {
       });
       
       if (!response.ok) {
-        throw new AppError('Tarama güncellenemedi', 'API_ERROR', response.status);
+        throw new Error('Tarama güncellenemedi');
       }
     } catch (error) {
-      logError('Tarama güncelleme hatası:', { error });
+      console.error('Tarama güncelleme hatası:', error);
       throw error;
     }
   }
@@ -116,10 +114,10 @@ export class ScreeningService {
       });
       
       if (!response.ok) {
-        throw new AppError('Tarama silinemedi', 'API_ERROR', response.status);
+        throw new Error('Tarama silinemedi');
       }
     } catch (error) {
-      logError('Tarama silme hatası:', { error });
+      console.error('Tarama silme hatası:', error);
       throw error;
     }
   }
@@ -194,12 +192,12 @@ export class ScreeningService {
       });
       
       if (!response.ok) {
-        throw new AppError('PDF oluşturulamadı', 'API_ERROR', response.status);
+        throw new Error('PDF oluşturulamadı');
       }
       
       return await response.blob();
     } catch (error) {
-      logError('PDF oluşturma hatası:', { error });
+      console.error('PDF oluşturma hatası:', error);
       throw error;
     }
   }
@@ -222,10 +220,10 @@ export class ScreeningService {
       });
       
       if (!response.ok) {
-        throw new AppError('Tarama paylaşılamadı', 'API_ERROR', response.status);
+        throw new Error('Tarama paylaşılamadı');
       }
     } catch (error) {
-      logError('Tarama paylaşma hatası:', { error });
+      console.error('Tarama paylaşma hatası:', error);
       throw error;
     }
   }

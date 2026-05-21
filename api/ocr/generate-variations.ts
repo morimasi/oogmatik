@@ -8,9 +8,6 @@ import { generateVariations } from '../../src/services/ocrVariationService.js';
 import type { VariantGenerationConfig, VariationRequest } from '../../src/services/ocrVariationService.js';
 import type { OCRResult } from '../../src/types.js';
 import { corsMiddleware } from '../../src/utils/cors.js';
-import { RateLimiter } from '../../src/services/rateLimiter.js';
-
-const rateLimiter = new RateLimiter();
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS
@@ -45,19 +42,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({
         success: false,
         error: { message: 'userId alanı zorunludur.', code: 'VALIDATION_ERROR' },
-        timestamp: new Date().toISOString(),
-      });
-    }
-
-    // --- Rate Limiting (Oogmatik Security) ---
-    const rateLimitResult = await rateLimiter.checkLimit(userId, 'free', 'apiGeneration');
-    if (!rateLimitResult.allowed) {
-      return res.status(429).json({
-        success: false,
-        error: { 
-          message: `Çok fazla istek gönderdiniz. Lütfen ${Math.ceil(rateLimitResult.resetAfterMs / 1000)} saniye sonra tekrar deneyin.`, 
-          code: 'RATE_LIMIT_EXCEEDED' 
-        },
         timestamp: new Date().toISOString(),
       });
     }

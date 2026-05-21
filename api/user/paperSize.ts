@@ -4,9 +4,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 import { logInfo, logError, logWarn } from '../../src/utils/logger.js';
-import { RateLimiter } from '../../src/services/rateLimiter.js';
-
-const rateLimiter = new RateLimiter();
 const VALID_PAPER_SIZES = ['A4', 'Letter', 'Legal', 'Extreme_Yatay', 'Extreme_Dikey'] as const;
 type PaperSize = (typeof VALID_PAPER_SIZES)[number];
 
@@ -47,15 +44,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // POST Handler
     if (req.method === 'POST') {
-      const rateLimitResult = await rateLimiter.checkLimit(userId, 'free', 'apiQuery');
-      if (!rateLimitResult.allowed) {
-          return res.status(429).json({
-              success: false,
-              error: 'Rate Limit',
-              message: `Hız sınırı aşıldı. Lütfen ${Math.ceil(rateLimitResult.resetAfterMs / 1000)} saniye sonra deneyin.`
-          });
-      }
-
       const body = req.body || {};
       const paperSize = body.paperSize as string;
 

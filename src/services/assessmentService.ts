@@ -1,7 +1,7 @@
 import { db } from './firebaseClient';
 import * as firestore from "firebase/firestore";
 import { AssessmentReport, SavedAssessment, AdaptiveQuestion, TestCategory, AssessmentConfig } from '../types';
-import { AuthorizationError, AppError } from '../utils/AppError.js';
+import { AuthorizationError } from '../utils/AppError.js';
 import { generateAdaptiveQuestionsFromAI } from './generators/assessment';
 import { generateOfflineAdaptiveQuestions } from './offlineGenerators/assessment';
 import { shuffle } from './offlineGenerators/helpers';
@@ -61,7 +61,7 @@ export const assessmentService = {
             assessments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             return assessments;
         } catch (error) {
-            logError("Error fetching assessments:", { error });
+            logError("Error fetching assessments:", error);
             return [];
         }
     },
@@ -91,7 +91,7 @@ export const assessmentService = {
             assessments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             return assessments;
         } catch (error) {
-            logError("Error fetching student assessments:", { error });
+            logError("Error fetching student assessments:", error);
             return [];
         }
     },
@@ -100,7 +100,7 @@ export const assessmentService = {
         const ref = doc(db, 'saved_assessments', assessmentId);
         const snap = await getDoc(ref);
         if (!snap.exists()) {
-            throw new AppError('Kayıt bulunamadı.', 'NOT_FOUND', 404);
+            throw new Error('Kayıt bulunamadı.');
         }
         const data = snap.data() as { userId?: string };
         if (data.userId !== userId) {
@@ -152,7 +152,7 @@ export const assessmentService = {
             assessments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             return assessments;
         } catch (error) {
-            logError("Error fetching shared assessments:", { error });
+            logError("Error fetching shared assessments:", error);
             return [];
         }
     },
@@ -164,7 +164,7 @@ export const assessmentService = {
         try {
             questionsMap = await generateAdaptiveQuestionsFromAI(selectedSkills, count);
         } catch (error) {
-            logWarn("AI Generation failed for Assessment, falling back to Offline engine.", { error });
+            logWarn("AI Generation failed for Assessment, falling back to Offline engine.", error);
             questionsMap = generateOfflineAdaptiveQuestions(selectedSkills, count);
         }
         return Object.values(questionsMap).flat();

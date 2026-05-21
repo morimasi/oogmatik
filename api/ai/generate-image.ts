@@ -2,12 +2,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { Buffer } from 'buffer';
 import { corsMiddleware } from '../../src/utils/cors.js';
-import { RateLimiter } from '../../src/services/rateLimiter.js';
-import { logInfo, logError, logWarn } from '../../src/utils/logger.js';
 
+import { logInfo, logError, logWarn } from '../../src/utils/logger.js';
 // Hugging Face API Ayarları
 const HF_API_URL = 'https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell';
-const rateLimiter = new RateLimiter();
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // CORS Validation
@@ -19,16 +17,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     try {
         const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-        const { prompt, provider = 'pollinations', width = 1024, height = 1024, userId = 'anonymous' } = body;
-
-        // Rate limiting
-        const rateLimitResult = await rateLimiter.checkLimit(userId, 'free', 'apiGeneration');
-        if (!rateLimitResult.allowed) {
-            return res.status(429).json({ 
-                error: 'Too Many Requests', 
-                message: `You have exceeded the rate limit. Try again in ${Math.ceil(rateLimitResult.resetAfterMs / 1000)} seconds.` 
-            });
-        }
+        const { prompt, provider = 'pollinations', width = 1024, height = 1024 } = body;
 
         if (!prompt) {
             return res.status(400).json({ error: 'Prompt is required' });

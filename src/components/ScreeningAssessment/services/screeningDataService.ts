@@ -1,7 +1,6 @@
 import type { ScreeningResult, EvaluationCategory } from '../../../types/screening';
 import { CATEGORY_LABELS, CATEGORY_COLORS } from '../../../data/screeningQuestions';
 import { useToastStore } from '../../../store/useToastStore';
-import { AppError } from '../../../utils/AppError';
 
 const API_BASE = '/api/screening';
 
@@ -9,7 +8,7 @@ export const screeningDataService = {
   async fetchStudentHistory(studentId: string): Promise<ScreeningResult[]> {
     try {
       const response = await fetch(`${API_BASE}/student/${studentId}`);
-      if (!response.ok) throw new AppError('Geçmiş alınamadı', 'API_ERROR', response.status);
+      if (!response.ok) throw new Error('Geçmiş alınamadı');
       return await response.json();
     } catch {
       return [];
@@ -30,7 +29,7 @@ export const screeningDataService = {
       if (filters?.endDate) params.set('endDate', filters.endDate);
 
       const response = await fetch(`${API_BASE}/all?${params}`);
-      if (!response.ok) throw new AppError('Sonuçlar alınamadı', 'API_ERROR', response.status);
+      if (!response.ok) throw new Error('Sonuçlar alınamadı');
       return await response.json();
     } catch {
       return [];
@@ -44,7 +43,7 @@ export const screeningDataService = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(result),
       });
-      if (!response.ok) throw new AppError('Kaydedilemedi', 'API_ERROR', response.status);
+      if (!response.ok) throw new Error('Kaydedilemedi');
       const data = await response.json();
       useToastStore.getState().addToast('Tarama başarıyla kaydedildi.', 'success');
       return data.id;
@@ -61,7 +60,7 @@ export const screeningDataService = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       });
-      if (!response.ok) throw new AppError('Güncellenemedi', 'API_ERROR', response.status);
+      if (!response.ok) throw new Error('Güncellenemedi');
       useToastStore.getState().addToast('Tarama güncellendi.', 'success');
       return true;
     } catch {
@@ -73,7 +72,7 @@ export const screeningDataService = {
   async deleteResult(id: string): Promise<boolean> {
     try {
       const response = await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
-      if (!response.ok) throw new AppError('Silinemedi', 'API_ERROR', response.status);
+      if (!response.ok) throw new Error('Silinemedi');
       useToastStore.getState().addToast('Tarama silindi.', 'success');
       return true;
     } catch {
@@ -89,7 +88,7 @@ export const screeningDataService = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ screeningId: id, recipientEmail, message }),
       });
-      if (!response.ok) throw new AppError('Paylaşılamadı', 'API_ERROR', response.status);
+      if (!response.ok) throw new Error('Paylaşılamadı');
       useToastStore.getState().addToast('Rapor paylaşıldı.', 'success');
       return true;
     } catch {
@@ -105,7 +104,7 @@ export const screeningDataService = {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(result),
       });
-      if (!response.ok) throw new AppError('PDF oluşturulamadı', 'API_ERROR', response.status);
+      if (!response.ok) throw new Error('PDF oluşturulamadı');
       return await response.blob();
     } catch {
       useToastStore.getState().addToast('PDF oluşturulamadı.', 'error');
