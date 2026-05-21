@@ -131,7 +131,7 @@ export const WorkbookView = ({
   onBack,
 }: WorkbookViewProps) => {
   const { user } = useAuthStore();
-  const { _activeStudent, students } = useStudentStore();
+  const { activeStudent, students } = useStudentStore();
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
   const [activeTab, setActiveTab] = useState<'content' | 'design' | 'assign'>('content');
   const [isSaving, setIsSaving] = useState(false);
@@ -152,6 +152,16 @@ export const WorkbookView = ({
   // Drag & Drop State
   const [draggedItemIndex, setDraggedItemIndex] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // --- SYNC WITH GLOBAL STUDENT (Aktif Öğrenci Farkındalığı) ---
+  React.useEffect(() => {
+    if (activeStudent && !settings.studentName) {
+      setSettings((prev: WorkbookSettings) => ({
+        ...prev,
+        studentName: activeStudent.name,
+      }));
+    }
+  }, [activeStudent]);
 
   const handleRemoveItem = useCallback(
     (id: string) => {
