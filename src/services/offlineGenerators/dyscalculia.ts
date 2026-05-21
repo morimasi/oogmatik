@@ -12,8 +12,8 @@ export const generateOfflineClockReading = async (options: GeneratorOptions): Pr
 };
 
 export const generateOfflineNumberSense = async (options: GeneratorOptions): Promise<NumberSenseData[]> => {
-    const { worksheetCount, difficulty } = options;
-    return Array.from({ length: worksheetCount ?? 1 }, () => {
+    const { worksheetCount, difficulty } = options as Record<string, unknown>;
+    return Array.from({ length: (worksheetCount as number) ?? 1 }, () => {
         const exercises: any[] = [];
         const start = getRandomInt(0, 5);
         exercises.push({ type: 'missing', values: [start, start + 1, start + 2, start + 3], target: start + 2, visualType: 'number-line-advanced' });
@@ -28,8 +28,8 @@ export const generateOfflineMoneyCounting = async (options: GeneratorOptions): P
 };
 
 export const generateOfflineVisualArithmetic = async (options: GeneratorOptions): Promise<VisualArithmeticData[]> => {
-    const { worksheetCount } = options;
-    return Array.from({ length: worksheetCount ?? 1 }, () => ({
+    const { worksheetCount } = options as Record<string, unknown>;
+    return Array.from({ length: (worksheetCount as number) ?? 1 }, () => ({
         title: 'Görsel Aritmetik',
         instruction: 'İşlemleri tamamla.',
         problems: [{ num1: 5, num2: 3, operator: '+', answer: 8, visualType: 'ten-frame' }]
@@ -37,10 +37,10 @@ export const generateOfflineVisualArithmetic = async (options: GeneratorOptions)
 };
 
 export const generateOfflineMathMemoryCards = async (options: GeneratorOptions): Promise<MathMemoryCardsData[]> => {
-    const { worksheetCount, difficulty } = options;
+    const { worksheetCount, difficulty } = options as Record<string, unknown>;
     const pages: MathMemoryCardsData[] = [];
     
-    for (let p = 0; p < worksheetCount; p++) {
+    for (let p = 0; p < (worksheetCount as number); p++) {
         const cards: MathMemoryCard[] = [];
         const pairCount = difficulty === 'Başlangıç' ? 12 : 16; // 24 or 32 cards
         

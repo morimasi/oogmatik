@@ -14,7 +14,7 @@ export const generateMathPuzzleFromAI = async (options: GeneratorOptions) => {
     profile = 'general',
     topic = 'Genel Matematik',
     params = {}
-  } = options;
+  } = options as Record<string, unknown>;
 
   const puzzleType = params.puzzleType || 'visual';
   const operationType = params.operationType || 'mixed';

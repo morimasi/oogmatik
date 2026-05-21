@@ -96,7 +96,7 @@ export const SentenceFiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChan
                 <div className="grid grid-cols-1 gap-4">
                      <CompactToggleGroup
                         label="Cümle Karmaşıklığı"
-                        selected={options.complexity || 'birleşik'}
+                        selected={((options as Record<string, unknown>).complexity as string) || 'birleşik'}
                         onChange={(v: string) => onChange('complexity', v)}
                         options={[
                             { value: 'basit', label: 'Basit' },
@@ -109,7 +109,7 @@ export const SentenceFiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChan
                 <div className="space-y-1">
                     <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block">Pedagojik Profil Odaklı</label>
                     <select
-                        value={options.profile || 'dyslexia'}
+                        value={((options as Record<string, unknown>).profile as string) || 'dyslexia'}
                         onChange={(e) => onChange('profile', e.target.value)}
                         className="w-full p-4 bg-white dark:bg-zinc-900 border-2 border-zinc-100 dark:border-zinc-700 rounded-2xl text-xs font-bold shadow-sm outline-none focus:border-indigo-400"
                     >
@@ -126,10 +126,10 @@ export const SentenceFiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChan
                             <span className="text-[10px] text-zinc-500">A4'e sığır, boşlukları azaltır.</span>
                         </div>
                         <button 
-                            onClick={() => onChange('compact', !options.compact)}
-                            className={`w-12 h-6 rounded-full transition-all relative ${options.compact ? 'bg-indigo-500' : 'bg-zinc-300'}`}
+                            onClick={() => onChange('compact', !(options as Record<string, unknown>).compact)}
+                            className={`w-12 h-6 rounded-full transition-all relative ${(options as Record<string, unknown>).compact ? 'bg-indigo-500' : 'bg-zinc-300'}`}
                         >
-                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${options.compact ? 'left-7' : 'left-1'}`} />
+                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${(options as Record<string, unknown>).compact ? 'left-7' : 'left-1'}`} />
                         </button>
                     </div>
 
@@ -152,10 +152,10 @@ export const SentenceFiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChan
                             <span className="text-[10px] text-zinc-500">Soruların yanına cümlenin yüklemini ekler.</span>
                         </div>
                         <button 
-                            onClick={() => onChange('showPredicate', !options.showPredicate)}
-                            className={`w-12 h-6 rounded-full transition-all relative ${options.showPredicate ? 'bg-indigo-500' : 'bg-zinc-300'}`}
+                            onClick={() => onChange('showPredicate', !(options as Record<string, unknown>).showPredicate)}
+                            className={`w-12 h-6 rounded-full transition-all relative ${(options as Record<string, unknown>).showPredicate ? 'bg-indigo-500' : 'bg-zinc-300'}`}
                         >
-                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${options.showPredicate ? 'left-7' : 'left-1'}`} />
+                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${(options as Record<string, unknown>).showPredicate ? 'left-7' : 'left-1'}`} />
                         </button>
                     </div>
                 </div>

@@ -12,7 +12,7 @@ export interface CompositeGeneratorOptions extends GeneratorOptions {
 export async function generateCompositeWorksheet(
     options: CompositeGeneratorOptions
 ): Promise<CompositeWorksheet> {
-    const { topic, studentAge, difficulty, profile, widgets } = options;
+    const { topic, studentAge, difficulty, profile, widgets } = options as Record<string, unknown>;
 
     if (!topic || widgets.length === 0) {
         throw new AppError('Konu veya seçili bileşen eksik.', 'VALIDATION_ERROR', 400);

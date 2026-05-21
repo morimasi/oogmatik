@@ -39,7 +39,7 @@ export const generateVisualOddOneOutFromAI = async (
     studentContext,
     layout,
     aestheticMode,
-  } = options;
+  } = options as Record<string, unknown>;
 
   const typeDesc =
     visualType === 'geometric'

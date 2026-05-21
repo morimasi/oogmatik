@@ -48,7 +48,7 @@ export const FiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChange }) =>
 
                 <CompactToggleGroup
                     label="Sınıf Seviyesi"
-                    selected={options.classLevel || 1}
+                    selected={((options as Record<string, unknown>).classLevel as string | number) || 1}
                     onChange={(v: any) => onChange('classLevel', v)}
                     options={[
                         { value: 1, label: '1. Sınıf' },

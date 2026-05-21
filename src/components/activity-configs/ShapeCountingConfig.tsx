@@ -71,12 +71,12 @@ export const ShapeCountingConfig: React.FC<{ options: GeneratorOptions; onChange
                             <div className="relative">
                                 <input 
                                     type="checkbox" 
-                                    checked={options.overlapping !== false} 
+                                    checked={(options as Record<string, unknown>).overlapping !== false} 
                                     onChange={e => onChange('overlapping', e.target.checked)} 
                                     className="sr-only" 
                                 />
-                                <div className={`w-10 h-5 rounded-full transition-colors ${options.overlapping !== false ? 'bg-amber-500' : 'bg-zinc-300'}`}></div>
-                                <div className={`absolute top-1 left-1 w-3 h-3 bg-white rounded-full transition-transform ${options.overlapping !== false ? 'translate-x-5' : ''}`}></div>
+                                <div className={`w-10 h-5 rounded-full transition-colors ${(options as Record<string, unknown>).overlapping !== false ? 'bg-amber-500' : 'bg-zinc-300'}`}></div>
+                                <div className={`absolute top-1 left-1 w-3 h-3 bg-white rounded-full transition-transform ${(options as Record<string, unknown>).overlapping !== false ? 'translate-x-5' : ''}`}></div>
                             </div>
                             Nesneler Üst Üste Binmeli mi?
                         </label>
@@ -89,7 +89,7 @@ export const ShapeCountingConfig: React.FC<{ options: GeneratorOptions; onChange
                                 <button
                                     key={style}
                                     onClick={() => onChange('aestheticMode', style)}
-                                    className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all border-2 ${options.aestheticMode === style ? 'bg-amber-500 border-amber-500 text-white shadow-md' : 'bg-white dark:bg-zinc-900 border-zinc-100 dark:border-zinc-800 text-zinc-500'}`}
+                                    className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all border-2 ${((options as Record<string, unknown>).aestheticMode) === style ? 'bg-amber-500 border-amber-500 text-white shadow-md' : 'bg-white dark:bg-zinc-900 border-zinc-100 dark:border-zinc-800 text-zinc-500'}`}
                                 >
                                     {style}
                                 </button>

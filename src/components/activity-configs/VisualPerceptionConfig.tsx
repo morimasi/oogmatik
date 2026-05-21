@@ -70,7 +70,7 @@ export const VisualPerceptionConfig: React.FC<{ options: GeneratorOptions; onCha
                                 <button
                                     key={style}
                                     onClick={() => onChange('aestheticMode', style)}
-                                    className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all border-2 ${options.aestheticMode === style ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' : 'bg-white dark:bg-zinc-900 border-zinc-100 dark:border-zinc-800 text-zinc-500'}`}
+                                    className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all border-2 ${((options as Record<string, unknown>).aestheticMode) === style ? 'bg-indigo-600 border-indigo-600 text-white shadow-md' : 'bg-white dark:bg-zinc-900 border-zinc-100 dark:border-zinc-800 text-zinc-500'}`}
                                 >
                                     {style}
                                 </button>

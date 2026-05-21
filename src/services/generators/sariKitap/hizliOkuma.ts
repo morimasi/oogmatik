@@ -7,7 +7,7 @@ import { generateWithSchema } from '../../geminiClient.js';
 import { GeneratorOptions } from '../../../types.js';
 
 export const generateHizliOkumaFromAI = async (options: GeneratorOptions): Promise<any[]> => {
-    const { topic, difficulty, worksheetCount, ageGroup, customSettings } = options;
+    const { topic, difficulty, worksheetCount, ageGroup, customSettings } = options as Record<string, unknown>;
     
     // UNIQUE CONTENT GENERATION
     const generationSeed = Date.now() + Math.random();

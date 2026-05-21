@@ -143,7 +143,7 @@ export const generateOfflineFamilyLogicTest = async (options: GeneratorOptions):
 };
 
 export const generateOfflineSyllableWordBuilder = async (options: GeneratorOptions): Promise<SyllableWordBuilderData[]> => {
-    const { worksheetCount = 1, _difficulty, _itemCount = 4 } = options;
+    const { worksheetCount = 1, _difficulty, _itemCount = 4 } = options as Record<string, unknown>;
     const words = [
         { word: "ARABA", syllables: ["A", "RA", "BA"], img: "car" },
         { word: "KİTAP", syllables: ["Kİ", "TAP"], img: "book" },

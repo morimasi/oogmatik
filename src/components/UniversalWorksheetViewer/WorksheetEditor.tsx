@@ -239,7 +239,7 @@ export const WorksheetEditor: React.FC<WorksheetEditorProps> = React.memo(({
     const defaults: Partial<WorksheetContentBlock> = {};
     if (type === 'heading') defaults.headingLevel = 2;
     if (type === 'list') defaults.listItems = [''];
-    onAddBlock({ type, content: '', ...defaults });
+    onAddBlock({ id: `block-${Date.now()}`, type, content: '', ...defaults });
   }, [onAddBlock]);
 
   const renderBlock = (block: WorksheetContentBlock, idx: number) => {

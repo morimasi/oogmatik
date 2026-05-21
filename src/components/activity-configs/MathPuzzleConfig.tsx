@@ -30,7 +30,7 @@ export const MathPuzzleConfig: React.FC<{ options: GeneratorOptions; onChange: (
             <div className="grid grid-cols-1 gap-4 p-5 bg-zinc-50/50 dark:bg-zinc-900/20 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-800/50">
                 <CompactSelect 
                     label="Bulmaca Türü" 
-                    value={options.puzzleType || 'visual'} 
+                    value={(options as Record<string, unknown>).puzzleType || 'visual'} 
                     onChange={(v: string) => onChange('puzzleType', v)}
                     options={[
                         { value: 'visual', label: '🍎 Görsel Denklem (Meyveli/Nesneli)' },
@@ -72,12 +72,12 @@ export const MathPuzzleConfig: React.FC<{ options: GeneratorOptions; onChange: (
                 <div className="grid grid-cols-1 gap-2">
                     <ToggleButton 
                         label="Hikayeleştirilmiş Sorular" 
-                        value={options.storyMode ?? true} 
+                        value={(options as Record<string, unknown>).storyMode ?? true} 
                         onChange={(v: boolean) => onChange('storyMode', v)} 
                     />
                     <ToggleButton 
                         label="Hece Renklendirme (Sorularda)" 
-                        value={options.colorfulText ?? false} 
+                        value={(options as Record<string, unknown>).colorfulText ?? false} 
                         onChange={(v: boolean) => onChange('colorfulText', v)} 
                     />
                     <ToggleButton 

@@ -11,10 +11,10 @@ export const generateSentenceFiveWOneHFromAI = async (
   options: GeneratorOptions
 ): Promise<Sentence5W1HData> => {
   const { 
-    itemCount = options.count || options.itemCount || 5, 
+    itemCount = (options as Record<string, unknown>).count || options.itemCount || 5, 
     difficulty = 'Orta', 
     ageGroup = '8-10', 
-    complexity = 'birleşik' 
+    complexity = (options as Record<string, unknown>).complexity || 'birleşik' 
   } = options;
 
   const prompt = `
@@ -66,7 +66,7 @@ export const generateSentenceFiveWOneHFromAI = async (
   try {
     const result = await generateCreativeMultimodal({ prompt });
     
-    if (!result || !result.items) {
+    if (!result || !(result as Record<string, unknown>).items) {
       throw new AppError('AI içeriği üretilemedi.', 'GENERATION_FAILED', 500);
     }
 
@@ -74,7 +74,7 @@ export const generateSentenceFiveWOneHFromAI = async (
       type: 'SENTENCE_5W1H',
       title: 'Cümlede 5N1K Çalışması',
       instruction: 'Aşağıdaki cümleleri okuyunuz ve ilgili 5N1K sorularını cevaplayınız.',
-      items: result.items as unknown as Sentence5W1HItem[],
+      items: (result as Record<string, unknown>).items as unknown as Sentence5W1HItem[],
       settings: {
         difficulty: difficulty as unknown as any,
         topic: options.topic || 'Genel',

@@ -203,8 +203,8 @@ export class InputSanitizer {
    * Sanitize input for AI prompt context
    */
   static sanitizeForPrompt(input: string, maxLength: number = 5000): string {
-    // Use existing prompt security module
-    return sanitizeForPrompt(input, maxLength);
+    const result = sanitizeForPrompt(input, maxLength);
+    return result.sanitized;
   }
 
   /**

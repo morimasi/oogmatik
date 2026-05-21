@@ -7,7 +7,7 @@ export const generateFiveWOneHFromAI = async (options: GeneratorOptions): Promis
     const textLength = options.textLength || 'kısa'; // kısa: 1 paragraf, orta: 2 paragraf, uzun: 3+
     const questionStyle = options.questionStyle || 'test_and_open'; // test_and_open, only_test, only_open_ended
     const student = options.studentContext;
-    const classLevel = Number(options.classLevel) || (typeof student?.grade === 'number' ? student.grade : 8);
+    const classLevel = Number((options as Record<string, unknown>).classLevel) || (typeof student?.grade === 'number' ? student.grade : 8);
     const generationMode = options.generationMode || 'ai';
     const premiumMode = options.premiumMode ?? false;
 

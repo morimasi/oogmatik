@@ -5,7 +5,7 @@ import { getAttentionPrompt, getDyslexiaPrompt } from './prompts.js';
 
 // Comprehensive Syllable Master Lab - UPDATED FOR COMPACT MODE (NO IMAGES)
 export const generateSyllableMasterLabFromAI = async (options: GeneratorOptions): Promise<SyllableMasterLabData[]> => {
-    const { _worksheetCount, difficulty = 'Orta', itemCount, topic, variant = 'split', case: letterCase, syllableRange = '2-3' } = options;
+    const { _worksheetCount, difficulty = 'Orta', itemCount, topic, variant = 'split', case: letterCase, syllableRange = '2-3' } = options as Record<string, unknown>;
 
     const specifics = `
     - ÇALIŞMA MODU: ${variant} (split, combine, complete, rainbow, scrambled)

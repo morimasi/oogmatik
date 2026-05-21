@@ -215,7 +215,7 @@ YANIT FORMATI (JSON):
     const validationTasks = await Promise.all(
       agents.map(({ role, category }) =>
         agentService.createTask({
-          role,
+          role: role as unknown as any,
           type: 'validation',
           description: `Çalışma kâğıdı doğrulama: ${category}`,
           priority: 1,
@@ -258,23 +258,23 @@ YANIT FORMATI (JSON):
         const output = typedResult.output;
 
         // Extract score
-        const score = output.score || (output.isValid ? 100 : 0);
+        const score = (output.score as number) || ((output.isValid as boolean) ? 100 : 0);
         scores[`${category}Score`] = score;
 
         // Extract issues
         if (output.violations && Array.isArray(output.violations)) {
-          output.violations.forEach((violation: string) => {
+          (output.violations as string[]).forEach((violation: string) => {
             issues.push({
-              severity: normalizeSeverity(output.severity),
+              severity: normalizeSeverity(output.severity as string),
               category,
               message: violation,
-              suggestion: output.suggestions?.[0] || 'İyileştirme önerileri mevcut'
+              suggestion: ((output.suggestions as string[])?.[0]) || 'İyileştirme önerileri mevcut'
             });
           });
         }
 
         // Add to approved list if valid
-        if (output.isValid || score > 70) {
+        if ((output.isValid as boolean) || (score as number) > 70) {
           approvedBy.push(agents[index].role);
         }
       }

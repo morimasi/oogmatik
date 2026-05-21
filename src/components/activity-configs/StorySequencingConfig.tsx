@@ -60,7 +60,7 @@ export const StorySequencingConfig: React.FC<ConfigProps> = ({ options, onChange
                             type="number"
                             min={3}
                             max={8}
-                            value={options.panelCount || 4}
+                            value={((options as Record<string, unknown>).panelCount as number) || 4}
                             onChange={(e) => onChange('panelCount', parseInt(e.target.value))}
                             className="w-full p-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold"
                         />
@@ -87,10 +87,10 @@ export const StorySequencingConfig: React.FC<ConfigProps> = ({ options, onChange
                         <span className="text-[9px] text-zinc-500">Önce, sonra, daha sonra gibi ipuçlarını ekler.</span>
                     </div>
                     <button
-                        onClick={() => onChange('showTransitionWords', !options.showTransitionWords)}
-                        className={`px-4 py-1.5 rounded-xl text-[9px] font-black transition-all ${options.showTransitionWords ? 'bg-amber-500 text-white shadow-md' : 'bg-zinc-200 text-zinc-500'}`}
+                        onClick={() => onChange('showTransitionWords', !(options as Record<string, unknown>).showTransitionWords)}
+                        className={`px-4 py-1.5 rounded-xl text-[9px] font-black transition-all ${(options as Record<string, unknown>).showTransitionWords ? 'bg-amber-500 text-white shadow-md' : 'bg-zinc-200 text-zinc-500'}`}
                     >
-                        {options.showTransitionWords ? 'AKTİF' : 'PASİF'}
+                        {(options as Record<string, unknown>).showTransitionWords ? 'AKTİF' : 'PASİF'}
                     </button>
                 </div>
 
@@ -113,10 +113,10 @@ export const StorySequencingConfig: React.FC<ConfigProps> = ({ options, onChange
                             <span className="text-[10px] text-zinc-500">Maksimum panel yoğunluğu sağlar.</span>
                         </div>
                         <button 
-                            onClick={() => onChange('compact', !options.compact)}
-                            className={`w-12 h-6 rounded-full transition-all relative ${options.compact ? 'bg-amber-500' : 'bg-zinc-300'}`}
+                            onClick={() => onChange('compact', !(options as Record<string, unknown>).compact)}
+                            className={`w-12 h-6 rounded-full transition-all relative ${(options as Record<string, unknown>).compact ? 'bg-amber-500' : 'bg-zinc-300'}`}
                         >
-                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${options.compact ? 'left-7' : 'left-1'}`} />
+                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${(options as Record<string, unknown>).compact ? 'left-7' : 'left-1'}`} />
                         </button>
                     </div>
 

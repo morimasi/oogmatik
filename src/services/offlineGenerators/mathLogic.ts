@@ -6,7 +6,7 @@ import { shuffle, getRandomInt, getRandomItems } from './helpers';
  * Matematik Bulmacaları (Meyve Denklemleri) Yerel Üretici
  */
 export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {
-    const { worksheetCount, _difficulty, itemCount = 2 } = options;
+    const { worksheetCount, _difficulty, itemCount = 2 } = options as Record<string, unknown>;
     const pages: MathPuzzleData[] = [];
 
     const objects = [
@@ -71,10 +71,10 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
  * Sayısal Mantık Bilmeceleri (Gizemli Sayılar) Yerel Üretici
  */
 export const generateOfflineNumberLogicRiddles = async (options: GeneratorOptions): Promise<NumberLogicRiddleData[]> => {
-    const { worksheetCount, numberRange = '1-50', itemCount = 6, gridSize = 3, _difficulty } = options;
+    const { worksheetCount, numberRange = '1-50', itemCount = 6, gridSize = 3, _difficulty } = options as Record<string, unknown>;
     const pages: NumberLogicRiddleData[] = [];
 
-    let [min, max] = numberRange.split('-').map(Number);
+    let [min, max] = (numberRange as string).split('-').map(Number);
     if (isNaN(min)) min = 1; if (isNaN(max)) max = 50;
 
     for (let p = 0; p < worksheetCount; p++) {
@@ -134,7 +134,7 @@ export const generateOfflineNumberLogicRiddles = async (options: GeneratorOption
 };
 
 export const generateOfflineNumberPathLogic = async (options: GeneratorOptions): Promise<NumberPathLogicData[]> => {
-    const { worksheetCount, _difficulty, codeLength = 4, itemCount = 14 } = options;
+    const { worksheetCount, _difficulty, codeLength = 4, itemCount = 14 } = options as Record<string, unknown>;
     const pages: NumberPathLogicData[] = [];
     const SYMBOLS = ['circle', 'square', 'triangle', 'hexagon', 'star'];
     const COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];

@@ -3,9 +3,9 @@ import { GeneratorOptions, WordMemoryData, VisualMemoryData, NumberSearchData, F
 import { shuffle, getRandomInt, getRandomItems, getWordsForDifficulty, turkishAlphabet, EMOJIS, COLORS, TR_VOCAB, VISUALLY_SIMILAR_CHARS, EMOJI_MAP } from './helpers';
 
 export const generateOfflineWordMemory = async (options: GeneratorOptions): Promise<WordMemoryData[]> => {
-    const { topic, itemCount, difficulty, worksheetCount, _memorizeRatio } = options;
+    const { topic, itemCount, difficulty, worksheetCount, _memorizeRatio } = options as Record<string, unknown>;
     const results: WordMemoryData[] = [];
-    for (let i = 0; i < worksheetCount; i++) {
+    for (let i = 0; i < (worksheetCount as number); i++) {
         const count = itemCount || 12;
         // Increase ratio slightly for better UX in dual page
         const memorizeCount = Math.max(4, Math.floor(count * 0.6));
@@ -38,12 +38,12 @@ export const generateOfflineWordMemory = async (options: GeneratorOptions): Prom
 
 
 export const generateOfflineVisualMemory = async (options: GeneratorOptions): Promise<VisualMemoryData[]> => {
-    const { itemCount, worksheetCount, _memorizeRatio } = options;
+    const { itemCount, worksheetCount, _memorizeRatio } = options as Record<string, unknown>;
     const results: VisualMemoryData[] = [];
 
     const allEmojis = Object.keys(EMOJI_MAP);
 
-    for (let i = 0; i < worksheetCount; i++) {
+    for (let i = 0; i < (worksheetCount as number); i++) {
         const count = itemCount || 12;
         const memorizeCount = Math.max(4, Math.floor(count * 0.6));
 
@@ -76,11 +76,11 @@ export const generateOfflineVisualMemory = async (options: GeneratorOptions): Pr
 
 
 export const generateOfflineNumberSearch = async (options: GeneratorOptions): Promise<NumberSearchData[]> => {
-    const { worksheetCount, difficulty, itemCount } = options;
+    const { worksheetCount, difficulty, itemCount } = options as Record<string, unknown>;
     const results: NumberSearchData[] = [];
-    const count = itemCount || 30; // Increased to 30
+    const count = (itemCount as number) || 30;
 
-    for (let i = 0; i < worksheetCount; i++) {
+    for (let i = 0; i < (worksheetCount as number); i++) {
         let range = { start: 1, end: count };
         if (difficulty === 'Orta') range = { start: 10, end: 10 + count };
         if (difficulty === 'Zor') range = { start: 100, end: 100 + count };
@@ -104,12 +104,12 @@ export const generateOfflineNumberSearch = async (options: GeneratorOptions): Pr
 
 
 export const generateOfflineFindTheDuplicateInRow = async (options: GeneratorOptions): Promise<FindDuplicateData[]> => {
-    const { itemCount, difficulty, worksheetCount } = options;
+    const { itemCount, difficulty, worksheetCount } = options as Record<string, unknown>;
     const results: FindDuplicateData[] = [];
     const cols = difficulty === 'Başlangıç' ? 10 : (difficulty === 'Orta' ? 15 : 20);
 
-    for (let i = 0; i < worksheetCount; i++) {
-        const rows = Array.from({ length: itemCount || 16 }, () => { // Increased to 16
+    for (let i = 0; i < (worksheetCount as number); i++) {
+        const rows = Array.from({ length: (itemCount as number) || 16 }, () => { // Increased to 16
             let pool = turkishAlphabet.split('');
             if (difficulty === 'Zor') pool = ['b', 'd', 'p', 'q', 'm', 'n', 'u', 'ü'];
 
@@ -141,10 +141,10 @@ export const generateOfflineFindTheDuplicateInRow = async (options: GeneratorOpt
 
 
 export const generateOfflineLetterGridTest = async (options: GeneratorOptions): Promise<LetterGridTestData[]> => {
-    const { gridSize, _difficulty, worksheetCount } = options;
+    const { gridSize, _difficulty, worksheetCount } = options as Record<string, unknown>;
     const results: LetterGridTestData[] = [];
 
-    for (let i = 0; i < worksheetCount; i++) {
+    for (let i = 0; i < (worksheetCount as number); i++) {
         const size = gridSize || 20; // Increased default grid size
         const targets = ['a', 'b', 'd', 'g'];
         const pool = turkishAlphabet.split('');
@@ -189,9 +189,9 @@ export const generateOfflineBurdonTest = async (options: GeneratorOptions): Prom
 // Fix: Removed duplicate generateOfflineFindLetterPair as it is now centrally managed in newActivities.ts
 
 export const generateOfflineTargetSearch = async (options: GeneratorOptions): Promise<TargetSearchData[]> => {
-    const { gridSize, _difficulty, worksheetCount, targetChar, distractorChar, _itemCount } = options;
+    const { gridSize, _difficulty, worksheetCount, targetChar, distractorChar, _itemCount } = options as Record<string, unknown>;
     const results: TargetSearchData[] = [];
-    for (let i = 0; i < worksheetCount; i++) {
+    for (let i = 0; i < (worksheetCount as number); i++) {
         const size = gridSize || 15;
         const target = targetChar || 'd';
         const distractor = distractorChar || 'b';
@@ -211,10 +211,10 @@ export const generateOfflineTargetSearch = async (options: GeneratorOptions): Pr
 };
 
 export const generateOfflineColorWheelMemory = async (options: GeneratorOptions): Promise<ColorWheelMemoryData[]> => {
-    const { itemCount, worksheetCount } = options;
+    const { itemCount, worksheetCount } = options as Record<string, unknown>;
     const results: ColorWheelMemoryData[] = [];
-    for (let i = 0; i < worksheetCount; i++) {
-        const count = itemCount || 8;
+    for (let i = 0; i < (worksheetCount as number); i++) {
+        const count = (itemCount as number) || 8;
         const emojis = getRandomItems(Object.keys(EMOJI_MAP), count);
         const items = emojis.map((emoji, index) => ({
             name: `${EMOJI_MAP[emoji]}`,
@@ -234,7 +234,7 @@ export const generateOfflineColorWheelMemory = async (options: GeneratorOptions)
 };
 
 export const generateOfflineImageComprehension = async (options: GeneratorOptions): Promise<ImageComprehensionData[]> => {
-    const { worksheetCount } = options;
+    const { worksheetCount } = options as Record<string, unknown>;
     const scenes = [
         {
             scene: "Güneşli bir günde parkta çocuklar oynuyor. Kırmızı bir top, sarı bir kaydırak ve yeşil bir salıncak var. Bir köpek de çocukların yanında koşuyor.",
@@ -265,13 +265,13 @@ export const generateOfflineImageComprehension = async (options: GeneratorOption
 
 
 export const generateOfflineCharacterMemory = async (options: GeneratorOptions): Promise<CharacterMemoryData[]> => {
-    const { itemCount, worksheetCount, _memorizeRatio } = options;
+    const { itemCount, worksheetCount, _memorizeRatio } = options as Record<string, unknown>;
     const adjectives = ['Mutlu', 'Üzgün', 'Hızlı', 'Yavaş', 'Büyük', 'Küçük', 'Renkli', 'Komik'];
     const results: CharacterMemoryData[] = [];
     const peopleEmojis = ['👮', '👩‍⚕️', '👨‍🍳', '👩‍🚀', '🧙‍♂️', '🧛‍♀️', '🧜‍♂️', '🧚‍♀️', '🧞‍♂️', '🦹‍♀️'];
 
-    for (let i = 0; i < worksheetCount; i++) {
-        const count = itemCount || 8;
+    for (let i = 0; i < (worksheetCount as number); i++) {
+        const count = (itemCount as number) || 8;
         const memorizeCount = Math.max(4, Math.floor(count * 0.6));
 
         const pool = shuffle(peopleEmojis);
@@ -303,7 +303,7 @@ export const generateOfflineCharacterMemory = async (options: GeneratorOptions):
 
 // IMPROVED STROOP TEST GENERATOR (A4 FILLER)
 export const generateOfflineStroopTest = async (options: GeneratorOptions): Promise<StroopTestData[]> => {
-    const { worksheetCount } = options;
+    const { worksheetCount } = options as Record<string, unknown>;
     const results: StroopTestData[] = [];
 
     // Expanded color map for variety
@@ -322,7 +322,7 @@ export const generateOfflineStroopTest = async (options: GeneratorOptions): Prom
     // 4 Columns x 12 Rows = 48 Items looks standard and professional.
     const TOTAL_ITEMS = 48;
 
-    for (let i = 0; i < worksheetCount; i++) {
+    for (let i = 0; i < (worksheetCount as number); i++) {
         const items = Array.from({ length: TOTAL_ITEMS }).map(() => {
             const textObj = getRandomItems(colorMap, 1)[0];
             // Ensure conflict (interference)
@@ -345,10 +345,10 @@ export const generateOfflineStroopTest = async (options: GeneratorOptions): Prom
 
 
 export const generateOfflineChaoticNumberSearch = async (options: GeneratorOptions): Promise<ChaoticNumberSearchData[]> => {
-    const { itemCount, worksheetCount, difficulty } = options;
+    const { itemCount, worksheetCount, difficulty } = options as Record<string, unknown>;
     const results: ChaoticNumberSearchData[] = [];
-    for (let i = 0; i < worksheetCount; i++) {
-        const count = itemCount || 40;
+    for (let i = 0; i < (worksheetCount as number); i++) {
+        const count = (itemCount as number) || 40;
         const range = { start: 1, end: count };
 
         const targets = Array.from({ length: count ?? 1 }, (_, k) => k + 1);

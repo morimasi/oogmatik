@@ -8,8 +8,9 @@ import {
   AntonymData,
   KelimeCumleBaseData
 } from '../../types/verbal.js';
+import type { GeneratorOptions } from '../../types/core.js';
 
-interface GenerationConfig {
+interface GenerationConfig extends Partial<GeneratorOptions> {
   studentName?: string;
   topic: string;
   difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor' | 'uzman';

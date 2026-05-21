@@ -9,7 +9,7 @@ Tasarım: Sözel Stroop Testi (Verbal Stroop) bir A4 sayfasını dolduracak yoğ
 `;
 
 export const generateReadingSudokuFromAI = async (options: GeneratorOptions): Promise<ReadingSudokuData[]> => {
-    const { difficulty, _worksheetCount, variant = 'letters', gridSize = 4 } = options;
+    const { difficulty, _worksheetCount, variant = 'letters', gridSize = 4 } = options as Record<string, unknown>;
 
     const variantDesc = {
         'letters': 'Dislekside sık karıştırılan harf çiftleri (b-d, p-q, m-n vb.) veya sesli harfler.',
@@ -73,7 +73,7 @@ export const generateReadingSudokuFromAI = async (options: GeneratorOptions): Pr
 };
 
 export const generateSynonymAntonymMatchFromAI = async (options: GeneratorOptions): Promise<SynonymAntonymMatchData[]> => {
-    const { difficulty, _worksheetCount, variant = 'mixed', itemCount = 6 } = options;
+    const { difficulty, _worksheetCount, variant = 'mixed', itemCount = 6 } = options as Record<string, unknown>;
 
     const modeDesc = variant === 'synonym' ? 'Sadece Eş Anlamlılar' : variant === 'antonym' ? 'Sadece Zıt Anlamlılar' : 'Eş ve Zıt Anlamlı Karışık';
 
@@ -134,7 +134,7 @@ export const generateSynonymAntonymMatchFromAI = async (options: GeneratorOption
 };
 
 export const generateReadingStroopFromAI = async (options: GeneratorOptions): Promise<ReadingStroopData[]> => {
-    const { difficulty, worksheetCount, itemCount = 40, variant } = options;
+    const { difficulty, worksheetCount, itemCount = 40, variant } = options as Record<string, unknown>;
 
     const wordTypeMap: Record<string, string> = {
         'colors': 'Temel Renk Adları (Mavi, Kırmızı, Yeşil vb.)',
@@ -198,7 +198,7 @@ export const generateReadingStroopFromAI = async (options: GeneratorOptions): Pr
 };
 
 export const generateStoryComprehensionFromAI = async (options: GeneratorOptions): Promise<StoryData[]> => {
-    const { topic, difficulty, worksheetCount } = options;
+    const { topic, difficulty, worksheetCount } = options as Record<string, unknown>;
 
     // UNIQUE CONTENT GENERATION
     const generationSeed = Date.now() + Math.random();

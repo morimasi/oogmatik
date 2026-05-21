@@ -19,7 +19,7 @@ export async function generateSmartFallbackAI(
   type: ActivityType,
   options: GeneratorOptions
 ): Promise<SingleWorksheetData> {
-  const { topic, difficulty, studentAge, profile } = options;
+  const { topic, difficulty, studentAge, profile } = options as Record<string, unknown>;
   const template = getPromptTemplate(type);
 
   // ── SYSTEM PROMPT ─────────────────────────────────────────────

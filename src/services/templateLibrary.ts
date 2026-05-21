@@ -10,9 +10,9 @@
 
 import type {
     QuestionType,
-    Difficulty,
     ProductionMode,
 } from '../types/ocr-activity';
+import type { Difficulty } from '../types/common';
 import type { AgeGroup, LearningDisabilityProfile } from '../types/creativeStudio';
 
 // ─── Premium Şablon Arayüzü ─────────────────────────────────────────────
