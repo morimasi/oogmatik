@@ -70,7 +70,7 @@ export const AdminDraftReview = () => {
       const refined = await adminService.refineActivityDraft(rawContent);
       setRefinedData((prev: any) => ({ ...prev, ...refined }));
     } catch (error) {
-      logError('Refinement failed:', error);
+      logError(error instanceof Error ? error : String(error));
     } finally {
       setIsRefining(false);
     }

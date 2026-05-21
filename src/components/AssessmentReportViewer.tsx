@@ -118,7 +118,7 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
             alert('Rapor başarıyla paylaşıldı.');
             setIsShareModalOpen(false);
         } catch (e) {
-            logError(e);
+            logError(e instanceof Error ? e : String(e));
             alert('Paylaşım sırasında hata oluştu.');
         }
     };
@@ -130,7 +130,7 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
             await new Promise(resolve => setTimeout(resolve, 50));
             await printService.generatePdf('#report-content-area', `${assessment.studentName}-Rapor`, { action });
         } catch (error) {
-            logError("Rapor yazdırma hatası:", error);
+            logError(error instanceof Error ? error : String(error));
             alert("Rapor yazdırılırken bir hata oluştu.");
         } finally {
             setIsPrinting(false);

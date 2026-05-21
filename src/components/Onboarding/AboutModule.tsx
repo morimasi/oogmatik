@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Users, Target, Award, Globe, Heart, Mail, Twitter, Linkedin, Github, CheckCircle, TrendingUp, Sparkles, ShieldCheck } from 'lucide-react';
+import { X, Users, Target, Award, Globe, Heart, Mail, Twitter, Linkedin, Github, CheckCircle, TrendingUp, Sparkles, Shield as ShieldCheck, Phone } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const AboutModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {

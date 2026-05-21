@@ -34,15 +34,15 @@ export const useScreeningStore = create<ScreeningStore>((set) => ({
   setIsAdvancedScreeningOpen: (open: boolean) => set({ isAdvancedScreeningOpen: open }),
 
   archiveScreening: (id: string) =>
-    set((state) => ({
-      screeningData: state.screeningData.map((item) =>
+    set((state: ScreeningStore) => ({
+      screeningData: state.screeningData.map((item: ScreeningResult) =>
         item.id === id ? { ...item, status: 'archived' as const } : item
       ),
     })),
 
   deleteScreening: (id: string) =>
-    set((state) => ({
-      screeningData: state.screeningData.filter((item) => item.id !== id),
+    set((state: ScreeningStore) => ({
+      screeningData: state.screeningData.filter((item: ScreeningResult) => item.id !== id),
     })),
 
   resetScreening: () => set(initialState),

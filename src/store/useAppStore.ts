@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create, SetState, GetState } from 'zustand';
 
 interface AppState {
     // UI State
@@ -24,7 +24,7 @@ interface AppState {
  * Zustand kullanılarak yüksek performanslı ve basit durum yönetimi sağlar.
  * Named export 'create' kullanılarak eski versiyon uyarıları engellenmiştir.
  */
-export const useAppStore = create<AppState>()((set, get) => ({
+export const useAppStore = create<AppState>()((set: SetState<AppState>, get: GetState<AppState>) => ({
     // Initial State
     isSidebarOpen: true,
     activeModule: null,

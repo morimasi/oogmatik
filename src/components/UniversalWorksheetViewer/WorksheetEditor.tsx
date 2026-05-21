@@ -6,7 +6,7 @@ interface WorksheetEditorProps {
   content: WorksheetContent;
   selectedBlockId: string | null;
   onUpdateContent: (content: WorksheetContent, description?: string) => void;
-  onAddBlock: (block: Omit<WorksheetContentBlock, 'id'>) => void;
+  onAddBlock: (block: WorksheetContentBlock) => void;
   onUpdateBlock: (id: string, patch: Partial<WorksheetContentBlock>) => void;
   onRemoveBlock: (id: string) => void;
   onMoveBlock: (id: string, direction: 'up' | 'down') => void;

@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create, SetState, GetState } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { IMessage, ChatSettings, NotificationPreferences } from '../types/messaging';
 
@@ -41,7 +41,7 @@ interface MessageState {
 
 export const useMessageStore = create<MessageState>()(
   persist(
-    (set, get) => ({
+    (set: SetState<MessageState>, get: GetState<MessageState>) => ({
       activeConversationId: null,
       activeThreadId: null,
       quotingMessage: null,
@@ -50,7 +50,7 @@ export const useMessageStore = create<MessageState>()(
       highlightMessageId: null,
       conversationSettings: {},
 
-      setActiveConversationId: (id) => set({
+      setActiveConversationId: (id: string | null) => set({
         activeConversationId: id,
         activeThreadId: null,
         quotingMessage: null,
@@ -58,17 +58,17 @@ export const useMessageStore = create<MessageState>()(
         highlightMessageId: null,
       }),
 
-      setActiveThreadId: (id) => set({ activeThreadId: id }),
-      setQuotingMessage: (msg) => set({
+      setActiveThreadId: (id: string | null) => set({ activeThreadId: id }),
+      setQuotingMessage: (msg: IMessage | null) => set({
         quotingMessage: msg,
         editingMessage: null,
       }),
-      setEditingMessage: (msg) => set({
+      setEditingMessage: (msg: IMessage | null) => set({
         editingMessage: msg,
         quotingMessage: null,
       }),
-      setUnreadTotalCount: (count) => set({ unreadTotalCount: count }),
-      setHighlightMessageId: (id) => set({ highlightMessageId: id }),
+      setUnreadTotalCount: (count: number) => set({ unreadTotalCount: count }),
+      setHighlightMessageId: (id: string | null) => set({ highlightMessageId: id }),
 
       clearComposerState: () => set({
         quotingMessage: null,

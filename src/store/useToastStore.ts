@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create, SetState } from 'zustand';
 
 export type ToastType = 'success' | 'error' | 'info' | 'warning';
 
@@ -30,7 +30,7 @@ interface ToastState {
 
 let toastCounter = 0;
 
-export const useToastStore = create<ToastState>()((set) => ({
+export const useToastStore = create<ToastState>()((set: SetState<ToastState>) => ({
   toasts: [],
 
   show: (message: string, type: ToastType = 'info', duration: number = 3500, title?: string, onClick?: () => void, action?: ToastAction) => {
@@ -38,11 +38,11 @@ export const useToastStore = create<ToastState>()((set) => ({
     const id = `toast-${Date.now()}-${toastCounter}`;
     const toast: Toast = { id, message, type, duration, title, onClick, action };
 
-    set((state) => ({ toasts: [...state.toasts, toast] }));
+    set((state: ToastState) => ({ toasts: [...state.toasts, toast] }));
 
     if (duration > 0) {
       setTimeout(() => {
-        set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
+        set((state: ToastState) => ({ toasts: state.toasts.filter((t: Toast) => t.id !== id) }));
       }, duration);
     }
   },
@@ -61,7 +61,7 @@ export const useToastStore = create<ToastState>()((set) => ({
   },
 
   dismiss: (id: string) => {
-    set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }));
+    set((state: ToastState) => ({ toasts: state.toasts.filter((t: Toast) => t.id !== id) }));
   },
 
   clear: () => set({ toasts: [] }),

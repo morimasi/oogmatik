@@ -14,7 +14,7 @@ export function useScreeningAssessment() {
     store.setScreeningData(data);
   }, []);
 
-  const filteredData = store.screeningData.filter((item) => {
+  const filteredData = store.screeningData.filter((item: ScreeningResult) => {
     const matchesSearch = item.studentName
       .toLowerCase()
       .includes(store.searchQuery.toLowerCase());

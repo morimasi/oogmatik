@@ -366,16 +366,26 @@ export interface PatternCompletionData extends BaseActivityData {
     settings?: {
         difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor';
         patternType: 'geometric' | 'color_blocks' | 'logic_sequence';
-        gridSize: number; // Örn: 3x3
+        gridSize: number;
+        compactLayout?: boolean;
+        showNumbers?: boolean;
+        compact?: boolean;
     };
     content: {
         title: string;
         instruction: string;
         matrix: PatternCell[];
         options: {
-            id: string; // A, B, C, D
+            id: string;
             isCorrect: boolean;
-            cell: PatternCell; // Seçenekteki parçanın görsel karşılığı
+            cell: PatternCell;
+        }[];
+        puzzles?: {
+            id: string;
+            gridSize: number;
+            patternType: string;
+            matrix: PatternCell[];
+            options: { id: string; isCorrect: boolean; cell: PatternCell }[];
         }[];
     };
 }

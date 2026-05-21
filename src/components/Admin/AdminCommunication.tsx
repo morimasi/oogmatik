@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { Mail, AlertTriangle, Send as SendIcon, Search, RefreshCw, Shield } from 'lucide-react';
+import { Mail, AlertTriangle, Send as SendIcon, Search, RefreshCcw as RefreshCw, Shield } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { messageService } from '../../services/messaging/messageService';
 import { useToastStore } from '../../store/useToastStore';

@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create, SetState } from 'zustand';
 import type {
   SariKitapConfig,
   SariKitapActivityType,
@@ -129,7 +129,7 @@ interface SariKitapState {
   toggleGrid: () => void;
 }
 
-export const useSariKitapStore = create<SariKitapState>((set) => ({
+export const useSariKitapStore = create<SariKitapState>((set: SetState<SariKitapState>) => ({
   activeType: 'nokta',
   config: createDefaultConfig('nokta'),
   isGenerating: false,

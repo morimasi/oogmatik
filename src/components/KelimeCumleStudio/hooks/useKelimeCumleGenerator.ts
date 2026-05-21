@@ -52,7 +52,7 @@ export const useKelimeCumleGenerator = () => {
                 difficulty: config.difficulty
             };
         } catch (err) {
-            logError('AI Generation Error:', err);
+            logError(err instanceof Error ? err : String(err));
             setError('AI içerik üretirken bir hata oluştu. Lütfen tekrar deneyin.');
             throw err;
         } finally {

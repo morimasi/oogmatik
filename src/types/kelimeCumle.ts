@@ -17,6 +17,7 @@ export interface KelimeCumleConfig {
     title: string;
     itemCount: number;
     showAnswers?: boolean;
+    showPredicate?: boolean;
     customInstructions?: string;
     topics: string[];
     // Tasarım Standartları (Yeni)

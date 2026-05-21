@@ -22,16 +22,17 @@ const STATUS_LABELS: Record<ManagedUser['status'], string> = {
   active: '🟢 Aktif',
   pending: '🟡 Beklemede',
   suspended: '🔴 Askıya Alındı',
+  deleted: '⚫ Silindi',
 };
 
 // Seed data
 function generateMockUsers(): ManagedUser[] {
   return [
-    { id: 'u1', name: 'Ahmet Yılmaz', email: 'ahmet@example.com', role: 'admin', status: 'active', createdAt: '2024-01-10T10:00:00Z', lastLogin: new Date().toISOString(), worksheetCount: 42, exportCount: 128 },
-    { id: 'u2', name: 'Ayşe Demir', email: 'ayse@example.com', role: 'teacher', status: 'active', createdAt: '2024-02-15T08:30:00Z', lastLogin: new Date(Date.now() - 3600000).toISOString(), worksheetCount: 87, exportCount: 243 },
-    { id: 'u3', name: 'Mehmet Kaya', email: 'mehmet@example.com', role: 'student', status: 'active', createdAt: '2024-03-01T09:00:00Z', lastLogin: new Date(Date.now() - 86400000).toISOString(), worksheetCount: 12, exportCount: 34 },
-    { id: 'u4', name: 'Fatma Şahin', email: 'fatma@example.com', role: 'teacher', status: 'pending', createdAt: '2024-01-20T11:00:00Z', worksheetCount: 31, exportCount: 89 },
-    { id: 'u5', name: 'Ali Çelik', email: 'ali@example.com', role: 'student', status: 'suspended', createdAt: '2024-04-05T14:00:00Z', worksheetCount: 5, exportCount: 8 },
+    { id: 'u1', name: 'Ahmet Yılmaz', email: 'ahmet@example.com', role: 'admin', status: 'active', createdAt: '2024-01-10T10:00:00Z', lastLogin: new Date().toISOString(), worksheetCount: 42, exportCount: 128, avatar: '' },
+    { id: 'u2', name: 'Ayşe Demir', email: 'ayse@example.com', role: 'teacher', status: 'active', createdAt: '2024-02-15T08:30:00Z', lastLogin: new Date(Date.now() - 3600000).toISOString(), worksheetCount: 87, exportCount: 243, avatar: '' },
+    { id: 'u3', name: 'Mehmet Kaya', email: 'mehmet@example.com', role: 'teacher', status: 'active', createdAt: '2024-03-01T09:00:00Z', lastLogin: new Date(Date.now() - 86400000).toISOString(), worksheetCount: 12, exportCount: 34, avatar: '' },
+    { id: 'u4', name: 'Fatma Şahin', email: 'fatma@example.com', role: 'teacher', status: 'pending', createdAt: '2024-01-20T11:00:00Z', worksheetCount: 31, exportCount: 89, avatar: '' },
+    { id: 'u5', name: 'Ali Çelik', email: 'ali@example.com', role: 'teacher', status: 'suspended', createdAt: '2024-04-05T14:00:00Z', worksheetCount: 5, exportCount: 8, avatar: '' },
   ];
 }
 
@@ -50,7 +51,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
 
   const handleRoleChange = useCallback(
     (userId: string, role: UserRoleType) => {
-      setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, role } : u)));
+      setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, role: role as ManagedUser['role'] } : u)));
       onRoleChange?.(userId, role);
     },
     [onRoleChange],
@@ -124,7 +125,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
         </select>
         <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as ManagedUser['status'] | 'all')} style={selectStyle} aria-label="Durum filtresi">
           <option value="all">Tüm Durumlar</option>
-          {(['active', 'pending', 'suspended'] as const).map((s: unknown) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
+          {(['active', 'pending', 'suspended'] as const).map((s) => <option key={s} value={s}>{STATUS_LABELS[s]}</option>)}
         </select>
       </div>
 

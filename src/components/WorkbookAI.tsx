@@ -9,7 +9,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Sparkles, CheckCircle, X, Loader, AlertTriangle } from 'lucide-react';
+import { Sparkles, CheckCircle, X, Loader2 as Loader, AlertTriangle } from 'lucide-react';
 import { WorkbookAIAssistant, type WorkbookContext } from '../services/workbookAIAssistant/WorkbookAIAssistant';
 import type { Workbook, AISuggestion, AIWorkbookSuggestionType, WorkbookActivityContent } from '../types/workbook';
 import type { ActivitySuggestionResponse, SkillGapResponse, PageBalanceResponse } from '../services/workbookAIAssistant/schemas/workbookAISchemas';

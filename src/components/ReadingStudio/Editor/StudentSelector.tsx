@@ -2,13 +2,14 @@
 import React from 'react';
 import { useStudentStore } from '../../../store/useStudentStore';
 import { useReadingStore } from '../../../store/useReadingStore';
+import type { Student } from '../../../types/student';
 
 export const StudentSelector = () => {
     const { students } = useStudentStore();
     const { activeStudent, setActiveStudent, config, setConfig } = useReadingStore();
 
     const handleSelect = (studentId: string) => {
-        const student = students.find(s => s.id === studentId);
+        const student = students.find((s: Student) => s.id === studentId);
         if (student) {
             setActiveStudent(student);
             setConfig({
@@ -40,7 +41,7 @@ export const StudentSelector = () => {
                     className="w-full bg-zinc-900 border border-zinc-700/50 rounded-xl p-3 text-xs text-white appearance-none cursor-pointer hover:border-accent/50 transition-colors focus:ring-2 focus:ring-accent/20"
                 >
                     <option value="">Serbest Çalışma</option>
-                    {students.map((s: any) => (
+                    {students.map((s: Student) => (
                         <option key={s.id} value={s.id}>{s.name} ({s.grade})</option>
                     ))}
                 </select>

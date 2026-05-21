@@ -37,6 +37,8 @@ const PREVIEW_SETTINGS: StyleSettings = {
   showInstruction: true,
   showImage: false,
   showFooter: true,
+  showAnswers: false,
+  showClues: false,
   smartPagination: true,
   wordSpacing: 2,
   paragraphSpacing: 24,
@@ -826,7 +828,7 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
     } catch (e: unknown) {
       const errorMessage = e instanceof Error ? e.message : 'Bilinmeyen hata.';
       showToast(`❌ Varyasyon üretimi başarısız: ${errorMessage}`, 'error');
-      logError('[OCR Variation] Generation failed:', errorMessage);
+      logError(`[OCR Variation] Generation failed: ${errorMessage}`);
       setStep('studio');
     }
   };

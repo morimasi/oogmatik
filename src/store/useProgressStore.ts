@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create, SetState } from 'zustand';
 import { StudentProgressSnapshot } from '../types/progress';
 import { AppError } from '../utils/AppError';
 import { logError } from '../utils/errorHandler';
@@ -13,7 +13,7 @@ interface ProgressStore {
   clearProgress: () => void;
 }
 
-export const useProgressStore = create<ProgressStore>((set) => ({
+export const useProgressStore = create<ProgressStore>((set: SetState<ProgressStore>) => ({
   snapshot: null,
   isLoading: false,
   error: null,

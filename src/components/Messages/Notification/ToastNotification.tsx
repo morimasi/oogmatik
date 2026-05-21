@@ -1,5 +1,5 @@
 import React from 'react';
-import { useToastStore, ToastType } from '../../../store/useToastStore';
+import { useToastStore, ToastType, Toast } from '../../../store/useToastStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle, AlertCircle, AlertTriangle, Info, Bell } from 'lucide-react';
 
@@ -23,7 +23,7 @@ export const ToastNotification: React.FC = () => {
   return (
     <div className="fixed bottom-8 right-8 z-[200] flex flex-col gap-3 max-w-sm w-full pointer-events-none">
       <AnimatePresence mode="popLayout">
-        {toasts.map((toast) => (
+        {toasts.map((toast: Toast) => (
           <motion.div
             key={toast.id}
             layout
@@ -35,7 +35,7 @@ export const ToastNotification: React.FC = () => {
               bg-[#0f1115]/98 backdrop-blur-[40px] 
               border border-white/[0.08] 
               rounded-[24px] shadow-2xl
-              border-l-4 ${borderMap[toast.type]}
+              border-l-4 ${borderMap[toast.type as ToastType]}
               cursor-pointer
               ${toast.onClick ? 'hover:bg-white/[0.03]' : ''}
               transition-all duration-300
@@ -50,7 +50,7 @@ export const ToastNotification: React.FC = () => {
             <div className="flex items-start gap-4 p-5">
               {/* Icon */}
               <div className="flex-shrink-0 mt-0.5">
-                {iconMap[toast.type]}
+                {iconMap[toast.type as ToastType]}
               </div>
 
               {/* Content */}

@@ -14,8 +14,8 @@ const DEFAULT_COLORS: ThemeColors = {
 };
 
 export const ThemeSyncPanel: React.FC = () => {
-  const themeConfig = useActivityStudioStore((state) => state.themeConfig);
-  const setThemeConfig = useActivityStudioStore((state) => state.setThemeConfig);
+  const themeConfig = useActivityStudioStore((state: ReturnType<typeof useActivityStudioStore>) => state.themeConfig);
+  const setThemeConfig = useActivityStudioStore((state: ReturnType<typeof useActivityStudioStore>) => state.setThemeConfig);
   const [colors, setColors] = useState<ThemeColors>({
     primaryColor: themeConfig?.primaryColor ?? DEFAULT_COLORS.primaryColor,
     secondaryColor: themeConfig?.secondaryColor ?? DEFAULT_COLORS.secondaryColor,

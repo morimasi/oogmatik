@@ -9,7 +9,7 @@ export function useScreeningHistory() {
 
   const filteredData = useMemo(
     () =>
-      screeningData.filter((item) => {
+      screeningData.filter((item: ScreeningResult) => {
         const matchesSearch = item.studentName
           .toLowerCase()
           .includes(searchQuery.toLowerCase());
@@ -22,14 +22,14 @@ export function useScreeningHistory() {
 
   const statsByStatus = useMemo(() => {
     const total = screeningData.length;
-    const completed = screeningData.filter((s) => s.status === 'completed').length;
-    const pending = screeningData.filter((s) => s.status === 'pending').length;
-    const archived = screeningData.filter((s) => s.status === 'archived').length;
+    const completed = screeningData.filter((s: ScreeningResult) => s.status === 'completed').length;
+    const pending = screeningData.filter((s: ScreeningResult) => s.status === 'pending').length;
+    const archived = screeningData.filter((s: ScreeningResult) => s.status === 'archived').length;
     return { total, completed, pending, archived };
   }, [screeningData]);
 
   const highRiskCount = useMemo(
-    () => screeningData.filter((s) => s.riskLevel === 'high').length,
+    () => screeningData.filter((s: ScreeningResult) => s.riskLevel === 'high').length,
     [screeningData]
   );
 
@@ -37,7 +37,7 @@ export function useScreeningHistory() {
     () =>
       screeningData.length > 0
         ? Math.round(
-            screeningData.reduce((sum, s) => sum + s.overallScore, 0) /
+            screeningData.reduce((sum: number, s: ScreeningResult) => sum + s.overallScore, 0) /
               screeningData.length
           )
         : 0,

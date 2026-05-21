@@ -43,6 +43,8 @@ import type {
 // Bu tipler core.ts içinde kullanılıyor ancak index.ts tarafından merkezi olarak export ediliyor.
 // Çakışmayı önlemek için re-export kaldırıldı.
 
+export type { ShapeType } from './common';
+
 export interface SingleWorksheetData extends BaseActivityData {
   layoutArchitecture?: {
     cols?: number;
@@ -274,6 +276,21 @@ export interface GeneratorOptions {
   isElementaryMode?: boolean;
   vocabularySupport?: boolean;
   
+  // Ek aktivite config özellikleri
+  selectedCategories?: string[];
+  showHints?: boolean;
+  aestheticMode?: string;
+  classLevel?: string;
+  puzzleType?: string;
+  storyMode?: boolean;
+  colorfulText?: boolean;
+  complexity?: string;
+  profile?: string;
+  compact?: boolean;
+  showPredicate?: boolean;
+  overlapping?: boolean;
+  panelCount?: number;
+  showTransitionWords?: boolean;
 }
 
 export interface OverlayItem {

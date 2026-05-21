@@ -40,7 +40,7 @@ class ImageService {
             this.cache.set(cacheKey, data.url);
             return data.url;
         } catch (error) {
-            logError('ImageService Error:', error);
+            logError(error instanceof Error ? error : String(error));
             // Fallback to direct Pollinations URL if API fails
             const seed = Math.floor(Math.random() * 1000000);
             const query = encodeURIComponent(options.prompt);

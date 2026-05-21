@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { IMessage } from '../../../types/messaging';
-import { Trash2, Shield, Calendar, Search, ArrowLeft, RefreshCw, RotateCcw, Clock, AlertTriangle } from 'lucide-react';
+import { Trash2, Shield, Calendar, Search, ArrowLeft, RefreshCcw as RefreshCw, RotateCcw, Clock, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { messageService } from '../../../services/messaging/messageService';
 import { messageScheduler } from '../../../services/messaging/messageScheduler';

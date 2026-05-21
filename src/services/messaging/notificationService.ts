@@ -96,4 +96,18 @@ class NotificationService {
   }
 }
 
+export interface NotificationSettings {
+  soundEnabled: boolean;
+  desktopEnabled: boolean;
+  mutedChatIds: string[];
+  showOnLockScreen: boolean;
+}
+
+export const defaultNotificationSettings: NotificationSettings = {
+  soundEnabled: true,
+  desktopEnabled: false,
+  mutedChatIds: [],
+  showOnLockScreen: false,
+};
+
 export const notificationService = new NotificationService();

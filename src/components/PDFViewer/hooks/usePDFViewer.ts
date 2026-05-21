@@ -45,7 +45,7 @@ export function usePDFViewer(options: UsePDFViewerOptions = {}): UsePDFViewerRet
     onZoomChange,
   } = options;
 
-  const setAppZoomScale = useAppStore((s) => s.setZoomScale);
+  const setAppZoomScale = useAppStore((s: ReturnType<typeof useAppStore>) => s.setZoomScale);
 
   const [currentPage, setCurrentPage] = useState<number>(initialPage);
   const [totalPages, setTotalPagesState] = useState<number>(0);

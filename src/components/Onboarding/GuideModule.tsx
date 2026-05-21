@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ChevronRight, BookOpen, Lightbulb, Target, Zap, ArrowRight } from 'lucide-react';
+import { X, ChevronRight, BookOpen, Lightbulb, Target, Sparkles as Zap, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const GuideModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {

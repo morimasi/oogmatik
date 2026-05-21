@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create, SetState, GetState } from 'zustand';
 import {
   GenerationMode,
   SuperStudioDifficulty,
@@ -52,7 +52,7 @@ const initialState = {
 
 import { SUPER_STUDIO_REGISTRY } from '../components/SuperStudio/templates/registry';
 
-export const useSuperStudioStore = create<SuperStudioState>()((set, get) => ({
+export const useSuperStudioStore = create<SuperStudioState>()((set: SetState<SuperStudioState>, get: GetState<SuperStudioState>) => ({
   ...initialState,
 
   setStudentId: (id: string | null) => set({ studentId: id }),

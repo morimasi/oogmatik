@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { IAttachment } from '../../../types/messaging';
-import { Download, Lock, FileText, Shield } from 'lucide-react';
+import { Download, LockKeyhole as Lock, FileText, Shield } from 'lucide-react';
 import { fileSharingService } from '../../../services/messaging/fileSharingService';
 import { motion, AnimatePresence } from 'framer-motion';
 

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../store/useAuthStore';
 import { useToastStore } from '../store/useToastStore';
-import { Mail, Lock, User, Sparkles, ArrowRight, Loader2, Github, Chrome } from 'lucide-react';
+import { Mail, LockKeyhole as Lock, User, Sparkles, ArrowRight, Loader2, Github, Globe as Chrome } from 'lucide-react';
 import DyslexiaLogo from '../components/DyslexiaLogo';
 
 const LoginPage: React.FC = () => {

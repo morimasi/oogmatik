@@ -39,7 +39,7 @@ class LayoutEngine {
           const candidate: Rect = { x, y, w, h };
 
           const isOccupied = this.occupiedSpaces
-            .filter((s: unknown) => s.page === currentPage)
+            .filter((s) => s.page === currentPage)
             .some((s) => this.isOverlapping(candidate, s.rect));
 
           if (!isOccupied) {
@@ -287,7 +287,7 @@ export const convertToLayoutItems = (
 
       if (shouldSplitArray && arrayKeys.length > 0) {
         const mainKey = arrayKeys[0];
-        const items = pageData[mainKey];
+        const items = pageData[mainKey] as any[];
 
         items.forEach((item: any, i: number) => {
           const groupId = `group_${Date.now()}_${pIdx}_${i}`;

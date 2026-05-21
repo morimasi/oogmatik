@@ -54,7 +54,7 @@ export const cacheService = {
         };
       });
     } catch (e) {
-      logWarn('Cache read error (safely ignored):', e);
+      logWarn(e instanceof Error ? e.message : String(e));
       return null;
     }
   },

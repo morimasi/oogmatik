@@ -14,7 +14,7 @@ export const ArchivePanel = () => {
                     setSavedProjects(JSON.parse(data));
                 }
             } catch (e) {
-                logError("Archive loading error", e);
+                logError(e instanceof Error ? e : String(e));
             }
         };
 

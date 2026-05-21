@@ -3,6 +3,7 @@ import { Users, AlertCircle, TrendingUp, Clock, Plus, Eye } from 'lucide-react';
 import { useScreeningAssessment } from '../hooks/useScreeningAssessment';
 import { ScreeningStatsCard } from '../components/shared/ScreeningStatsCard';
 import { RiskBadge } from '../components/shared/RiskBadge';
+import type { ScreeningResult } from '../../../types/screening';
 
 export const DashboardPanel: React.FC = () => {
   const {
@@ -13,11 +14,11 @@ export const DashboardPanel: React.FC = () => {
     getScoreColor,
   } = useScreeningAssessment();
 
-  const highRisk = screeningData.filter((s) => s.riskLevel === 'high').length;
+  const highRisk = screeningData.filter((s: ScreeningResult) => s.riskLevel === 'high').length;
   const avgScore = screeningData.length
-    ? Math.round(screeningData.reduce((s, r) => s + r.overallScore, 0) / screeningData.length)
+    ? Math.round(screeningData.reduce((s: number, r: ScreeningResult) => s + r.overallScore, 0) / screeningData.length)
     : 0;
-  const pendingCount = screeningData.filter((s) => s.status === 'pending').length;
+  const pendingCount = screeningData.filter((s: ScreeningResult) => s.status === 'pending').length;
 
   return (
     <div className="space-y-4">
@@ -70,7 +71,7 @@ export const DashboardPanel: React.FC = () => {
           </button>
         </div>
         <div className="divide-y divide-[var(--border-color)]">
-          {filteredData.slice(0, 5).map((item, i) => (
+          {filteredData.slice(0, 5).map((item: ScreeningResult, i: number) => (
             <motion.div
               key={item.id}
               initial={{ opacity: 0, y: 10 }}

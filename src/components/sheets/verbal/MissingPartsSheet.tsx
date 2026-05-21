@@ -14,7 +14,7 @@ export const MissingPartsSheet: React.FC<{ data: MissingPartsData }> = ({ data }
                 note={data.pedagogicalNote} 
             />
 
-            {settings?.showWordBank && content.wordBank && content.wordBank.length > 0 && (
+            {settings?.showWordBank && content.wordBank && content.wordBank.words.length > 0 && (
                 <div className="mb-8 p-6 bg-zinc-900 rounded-[2.5rem] border-4 border-zinc-200 shadow-2xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-3 opacity-20 rotate-12">
                         <i className="fa-solid fa-box-archive text-[60px] text-white"></i>
@@ -23,7 +23,7 @@ export const MissingPartsSheet: React.FC<{ data: MissingPartsData }> = ({ data }
                         <i className="fa-solid fa-key text-emerald-400"></i> Kelime Havuzu
                     </h4>
                     <div className="flex flex-wrap gap-3">
-                        {content.wordBank.map((word, i) => (
+                        {content.wordBank.words.map((word: string, i: number) => (
                             <div key={i} className="px-5 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white font-bold text-sm transition-all cursor-default">
                                 {word}
                             </div>

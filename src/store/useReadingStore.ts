@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create, SetState, GetState } from 'zustand';
 import { ReadingStudioConfig, LayoutItem, Student } from '../types';
 import { InteractiveStoryData } from '../types/verbal';
 import { A4_HEIGHT_PX } from '../utils/layoutConstants';
@@ -40,7 +40,7 @@ interface ReadingState {
   canRedo: () => boolean;
 }
 
-export const useReadingStore = create<ReadingState>()((set, get) => ({
+export const useReadingStore = create<ReadingState>()((set: SetState<ReadingState>, get: GetState<ReadingState>) => ({
   config: {
     gradeLevel: '3. Sınıf',
     studentName: '',
@@ -87,19 +87,19 @@ export const useReadingStore = create<ReadingState>()((set, get) => ({
   future: [],
 
   // Methods
-  setConfig: (config) => set({ config }),
-  setStoryData: (storyData) => set({ storyData }),
-  setLayout: (layoutUpdate) =>
+  setConfig: (config: ReadingStudioConfig) => set({ config }),
+  setStoryData: (storyData: InteractiveStoryData | null) => set({ storyData }),
+  setLayout: (layoutUpdate: LayoutItem[] | ((prev: LayoutItem[]) => LayoutItem[])) =>
     set((state: ReadingState) => ({
       layout: typeof layoutUpdate === 'function' ? layoutUpdate(state.layout) : layoutUpdate,
     })),
-  setSelectedId: (selectedId) => set({ selectedId }),
-  setDesignMode: (designMode) => set({ designMode }),
-  setActiveStudent: (activeStudent) => set({ activeStudent }),
-  setIsLoading: (isLoading) => set({ isLoading }),
+  setSelectedId: (selectedId: string | null) => set({ selectedId }),
+  setDesignMode: (designMode: boolean) => set({ designMode }),
+  setActiveStudent: (activeStudent: Student | null) => set({ activeStudent }),
+  setIsLoading: (isLoading: boolean) => set({ isLoading }),
 
   // Operations (Optimized for performance)
-  updateComponent: (instanceId, updates, saveToHistory = false) => {
+  updateComponent: (instanceId: string, updates: Partial<LayoutItem>, saveToHistory = false) => {
     const { layout, past } = get();
     if (saveToHistory) {
       const nextPast = [...past.slice(-19), layout];
@@ -112,9 +112,9 @@ export const useReadingStore = create<ReadingState>()((set, get) => ({
     }));
   },
 
-  toggleVisibility: (instanceId) => {
+  toggleVisibility: (instanceId: string) => {
     const { layout, updateComponent, recalculateLayout } = get();
-    const item = layout.find(i => i.instanceId === instanceId);
+    const item = layout.find((i: LayoutItem) => i.instanceId === instanceId);
     if (!item) return;
 
     updateComponent(instanceId, { isVisible: !item.isVisible }, true);

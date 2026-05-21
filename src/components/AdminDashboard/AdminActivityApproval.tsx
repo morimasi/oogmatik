@@ -43,7 +43,7 @@ export const AdminActivityApproval: React.FC = () => {
             const result = await activityApprovalService.getPendingReviews(filterParam);
             setDrafts(result);
         } catch (err) {
-            logError('Taslak yükleme hatası:', err);
+            logError(err instanceof Error ? err : String(err));
         } finally {
             setLoading(false);
         }
@@ -62,7 +62,7 @@ export const AdminActivityApproval: React.FC = () => {
             await loadDrafts();
             setSelectedDraft(null);
         } catch (err) {
-            logError('Onay hatası:', err);
+            logError(err instanceof Error ? err : String(err));
         }
     };
 
@@ -76,7 +76,7 @@ export const AdminActivityApproval: React.FC = () => {
             await loadDrafts();
             setSelectedDraft(null);
         } catch (err) {
-            logError('Red hatası:', err);
+            logError(err instanceof Error ? err : String(err));
         }
     };
 

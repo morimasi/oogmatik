@@ -22,7 +22,7 @@ export const FillBlanksRenderer: React.FC<{ data: FillBlanksData, isPrinting?: b
       {data.content.wordBank && (
         <div className="bg-accent/5 border-2 border-dashed border-accent/20 rounded-2xl p-4 flex flex-wrap gap-3 mb-6">
           <span className="w-full text-[10px] font-bold text-accent/60 uppercase mb-1">Kelime Bankası</span>
-          {data.content.wordBank.map((word, i) => (
+          {data.content.wordBank.map((word: string, i: number) => (
             <span key={i} className="px-3 py-1 bg-white border border-accent/10 rounded-lg text-sm font-bold shadow-sm text-accent">
               {word}
             </span>
@@ -31,13 +31,13 @@ export const FillBlanksRenderer: React.FC<{ data: FillBlanksData, isPrinting?: b
       )}
 
       <div className="grid grid-cols-1 gap-y-4">
-        {data.items.map((item, index) => (
+        {data.items.map((item: { sentence: string }, index: number) => (
           <div key={index} className="flex items-start gap-3 group">
             <span className="w-6 h-6 rounded-full bg-accent text-white text-[10px] flex items-center justify-center font-black flex-shrink-0 mt-1">
               {index + 1}
             </span>
             <div className="flex-1 text-lg leading-relaxed text-gray-800 border-b border-dashed border-gray-200 pb-2 group-hover:border-accent/40 transition-colors">
-              {item.sentence.split('____').map((part, i, arr) => (
+              {item.sentence.split('____').map((part: string, i: number, arr: string[]) => (
                 <React.Fragment key={i}>
                   {part}
                   {i < arr.length - 1 && (
@@ -67,14 +67,14 @@ export const MultipleChoiceVerbalRenderer: React.FC<{ data: MultipleChoiceVerbal
       </div>
       
       <div className={`grid ${data.settings.columnLayout === 2 ? 'grid-cols-2' : 'grid-cols-1'} gap-8`}>
-        {data.items.map((item, idx) => (
+        {data.items.map((item: { question: string; options: string[] }, idx: number) => (
           <div key={idx} className="bg-white rounded-2xl border-2 border-gray-100 p-5 hover:border-accent/20 transition-all cursor-default shadow-sm">
             <div className="flex items-center gap-3 mb-4">
                <span className="text-accent font-black text-lg">{idx + 1}.</span>
                <p className="font-extrabold text-gray-800 leading-tight">{item.question}</p>
             </div>
             <div className="grid grid-cols-1 gap-2">
-              {item.options.map((opt, i) => (
+              {item.options.map((opt: string, i: number) => (
                 <div key={i} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 hover:bg-accent/5 transition-colors group">
                   <span className="w-6 h-6 rounded-lg bg-gray-100 group-hover:bg-accent group-hover:text-white flex items-center justify-center text-[10px] font-black text-gray-400 transition-colors">
                     {['A', 'B', 'C', 'D'][i]}
@@ -102,7 +102,7 @@ export const WordCompletionRenderer: React.FC<{ data: WordCompletionData, isPrin
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {data.items.map((item, idx) => (
+        {data.items.map((item: { imagePrompt?: string; word: string }, idx: number) => (
           <div key={idx} className="flex flex-col items-center p-4 bg-gray-50/50 rounded-2xl border border-gray-100 hover:bg-white hover:shadow-xl hover:border-accent/10 transition-all group">
             {item.imagePrompt && (
                <div className="w-16 h-16 bg-white rounded-xl mb-3 flex items-center justify-center border border-gray-100 shadow-inner group-hover:scale-110 transition-transform">
@@ -110,7 +110,7 @@ export const WordCompletionRenderer: React.FC<{ data: WordCompletionData, isPrin
                </div>
             )}
             <div className="flex gap-1">
-              {item.word.split('').map((char, ci) => (
+              {item.word.split('').map((char: string, ci: number) => (
                 <div key={ci} className={`w-8 h-10 rounded-lg flex items-center justify-center text-xl font-black shadow-sm border-2 ${char === '_' ? 'border-accent bg-white text-transparent animate-pulse' : 'border-gray-200 bg-white text-gray-800'}`}>
                    {char !== '_' ? char : ''}
                 </div>
@@ -129,14 +129,14 @@ export const WordCompletionRenderer: React.FC<{ data: WordCompletionData, isPrin
 export const MixedSentenceRenderer: React.FC<{ data: MixedSentenceData, isPrinting?: boolean }> = ({ data, isPrinting }) => {
   return (
     <div className="space-y-6">
-      {data.items.map((item, idx) => (
-        <div key={idx} className="p-6 bg-white rounded-3xl border-2 border-gray-100 hover:border-accent/40 transition-all shadow-sm">
-          <div className="flex items-center gap-4 mb-4">
-             <div className="w-10 h-10 rounded-2xl bg-accent/10 flex items-center justify-center text-accent font-black">
-                {idx + 1}
-             </div>
-             <div className="flex flex-wrap gap-2">
-                {item.scrambledWords.map((word, wi) => (
+        {data.items.map((item: { scrambledWords: string[] }, idx: number) => (
+          <div key={idx} className="p-6 bg-white rounded-3xl border-2 border-gray-100 hover:border-accent/40 transition-all shadow-sm">
+            <div className="flex items-center gap-4 mb-4">
+               <div className="w-10 h-10 rounded-2xl bg-accent/10 flex items-center justify-center text-accent font-black">
+                  {idx + 1}
+               </div>
+               <div className="flex flex-wrap gap-2">
+                  {item.scrambledWords.map((word: string, wi: number) => (
                   <div key={wi} className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm font-bold text-gray-700 shadow-sm cursor-move hover:bg-accent/5 hover:border-accent/20 transition-colors">
                     {word}
                   </div>
@@ -169,7 +169,7 @@ export const AntonymRenderer: React.FC<{ data: AntonymData, isPrinting?: boolean
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-        {data.items.map((item, idx) => (
+        {data.items.map((item: { word: string }, idx: number) => (
           <div key={idx} className="flex items-center justify-between p-4 bg-white rounded-2xl border-2 border-gray-50 shadow-sm hover:translate-x-1 transition-all">
             <div className="flex items-center gap-4">
                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-black text-gray-400">

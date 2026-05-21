@@ -170,10 +170,10 @@ UYARI:
         required: ['content'],
       };
 
-      const result = await generateWithSchema(prompt, schema);
+      const result = await generateWithSchema(prompt, schema) as { content?: Array<SingleWorksheetData> };
       return result.content as Array<SingleWorksheetData>;
     } catch (error) {
-      logError('AI content generation error:', error);
+      logError(error instanceof Error ? error : String(error));
       // Fallback to basic content generation
       const fallbackContent: Array<SingleWorksheetData> = [];
       for (let i = 1; i <= (options.questionCount || 10); i++) {

@@ -2,7 +2,7 @@ import React from 'react';
 import { ActivityCompletion } from '../../types/progress';
 import { ActivityType } from '../../types';
 import { motion } from 'framer-motion';
-import { Clock, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Clock, CircleCheck as CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface HistoryListProps {
   history: ActivityCompletion[];

@@ -1,5 +1,6 @@
 import React from 'react';
 import { useActivityStudioStore } from '../../../store/useActivityStudioStore';
+import type { ContentBlock } from '../../../types/activityStudio';
 
 interface StepPreviewProps {
   onNext: () => void;
@@ -19,7 +20,7 @@ export const StepPreview: React.FC<StepPreviewProps> = ({ onNext, onBack }) => {
         </h1>
         
         <div className="space-y-4">
-          {content?.map((block, index) => (
+          {content?.map((block: ContentBlock, index: number) => (
             <div key={block.id} className={`p-4 rounded-xl ${
               block.type === 'title' ? 'bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-500/30' :
               block.type === 'question' ? 'bg-indigo-50 dark:bg-indigo-900/20 border-2 border-indigo-500/30' :

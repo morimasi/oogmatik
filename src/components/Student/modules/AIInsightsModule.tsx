@@ -16,7 +16,7 @@ export const AIInsightsModule: React.FC<{ student: AdvancedStudent }> = ({ stude
         const result = await aiStudentService.generateCognitiveInsight(student);
         if (active) setData(result);
       } catch (err) {
-        logError('Bilişsel analiz yüklenemedi', err);
+        logError(err instanceof Error ? err : String(err));
       } finally {
         if (active) setLoading(false);
       }

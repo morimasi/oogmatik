@@ -36,7 +36,7 @@ export const useProblemGenerator = (initialStudentName: string) => {
     const handleGenerateProblems = useCallback(async (): Promise<{ success: boolean; error?: string }> => {
         setIsGenerating(true);
         try {
-            const result = await generateMathProblemsAI(problemConfig);
+            const result = await generateMathProblemsAI(problemConfig) as { problems?: any[]; instruction?: string };
             const mapped = (result.problems || []).map((p: any, i: number) => ({
                 id: `p-${Date.now()}-${i}`,
                 text: p.text || "Soru metni yüklenemedi.",
@@ -51,7 +51,7 @@ export const useProblemGenerator = (initialStudentName: string) => {
             setInstruction(result.instruction || '');
             return { success: true };
         } catch (e) {
-            logError(e);
+            logError(e instanceof Error ? e : String(e));
             return { success: false, error: "Problem üretilemedi. API Hatası." };
         } finally {
             setIsGenerating(false);

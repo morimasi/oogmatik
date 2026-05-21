@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Code, Zap, Rocket, GitBranch, Database, Cloud, Shield, Users, BookOpen, Terminal, Cpu, Globe, ArrowRight, CheckCircle, Star, Github } from 'lucide-react';
+import { X, Code, Sparkles as Zap, Rocket, GitBranch, Database, Cloud, Shield, Users, BookOpen, Terminal, Cpu, Globe, ArrowRight, CheckCircle, Star, Github } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const DeveloperVisionModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {

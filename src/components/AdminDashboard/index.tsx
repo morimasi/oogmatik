@@ -226,7 +226,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
               {activeTab === 'prompts' && <AdminPromptStudio />}
               {activeTab === 'static_content' && <AdminStaticContent />}
               {activeTab === 'feedbacks' && <AdminFeedback />}
-              {activeTab === 'users' && <AdminUserManagement onInspectUser={setInspectingUser} />}
+              {activeTab === 'users' && <AdminUserManagement />}
               {activeTab === 'drafts' && <AdminDraftReview />}
               {activeTab === 'approvals' && <AdminActivityApproval />}
               {activeTab === 'permissions' && <AdminPermissionsIDE />}

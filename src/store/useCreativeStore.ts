@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create, SetState, GetState } from 'zustand';
 import { LayoutItem } from '../types';
 
 interface CreativeState {
@@ -36,7 +36,7 @@ interface CreativeState {
  * useCreativeStore - UniversalStudio Merkezi Deposu
  * Context API'den Zustand'a taşınmış, optimize edilmiş state yönetimi.
  */
-export const useCreativeStore = create<CreativeState>()((set, get) => ({
+export const useCreativeStore = create<CreativeState>()((set: SetState<CreativeState>, get: GetState<CreativeState>) => ({
     // Initial State
     layout: [],
     selectedId: null,

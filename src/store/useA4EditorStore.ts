@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create, SetState, GetState } from 'zustand';
 import { ContentBlock } from '../types/activityStudio';
 
 interface A4EditorState {
@@ -16,7 +16,7 @@ interface A4EditorState {
   addBlock: (block: ContentBlock) => void;
 }
 
-export const useA4EditorStore = create<A4EditorState>()((set, get) => ({
+export const useA4EditorStore = create<A4EditorState>()((set: SetState<A4EditorState>, get: GetState<A4EditorState>) => ({
   isEditorOpen: false,
   setEditorOpen: (isOpen: boolean) => set({ isEditorOpen: isOpen }),
   selectedBlockId: null,
@@ -30,7 +30,7 @@ export const useA4EditorStore = create<A4EditorState>()((set, get) => ({
   setGridSize: (size: number) => set({ gridSize: size }),
   blocks: [],
   addBlock: (block: ContentBlock) =>
-    set((state) => ({
+    set((state: A4EditorState) => ({
       blocks: [...state.blocks, { ...block, id: block.id || crypto.randomUUID() }],
     })),
 }));

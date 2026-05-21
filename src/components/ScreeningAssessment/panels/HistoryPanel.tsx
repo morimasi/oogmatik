@@ -4,6 +4,7 @@ import { ScreeningFilters } from '../components/shared/ScreeningFilters';
 import { RiskBadge } from '../components/shared/RiskBadge';
 import { ReportActions } from '../components/shared/ReportActions';
 import { Users, Eye, Download, Archive, Trash2, Share2 } from 'lucide-react';
+import type { ScreeningResult } from '../../../types/screening';
 
 export const HistoryPanel: React.FC = () => {
   const {
@@ -35,7 +36,7 @@ export const HistoryPanel: React.FC = () => {
     if (selectedIds.size === filteredData.length) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(filteredData.map((d) => d.id)));
+      setSelectedIds(new Set(filteredData.map((d: ScreeningResult) => d.id)));
     }
   };
 
@@ -88,7 +89,7 @@ export const HistoryPanel: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--border-color)]">
-              {filteredData.map((item) => (
+              {filteredData.map((item: ScreeningResult) => (
                 <tr key={item.id} className="hover:bg-[var(--surface-glass)] transition-colors group">
                   <td className="px-3 py-3">
                     <input

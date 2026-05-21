@@ -18,7 +18,7 @@ export const MessageBubble: React.FC<Props> = ({ message, isOwn }) => {
   const { user } = useAuthStore();
   const [hovered, setHovered] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [viewingAttachment, setViewingAttachment] = useState<{ attachment: IMessage['attachments'][0]; userId: string } | null>(null);
+  const [viewingAttachment, setViewingAttachment] = useState<{ attachment: NonNullable<IMessage['attachments']>[number]; userId: string } | null>(null);
   const [showEditHistory, setShowEditHistory] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 

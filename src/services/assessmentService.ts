@@ -61,7 +61,7 @@ export const assessmentService = {
             assessments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             return assessments;
         } catch (error) {
-            logError("Error fetching assessments:", error);
+            logError(error instanceof Error ? error : String(error));
             return [];
         }
     },
@@ -91,7 +91,7 @@ export const assessmentService = {
             assessments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             return assessments;
         } catch (error) {
-            logError("Error fetching student assessments:", error);
+            logError(error instanceof Error ? error : String(error));
             return [];
         }
     },
@@ -152,7 +152,7 @@ export const assessmentService = {
             assessments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             return assessments;
         } catch (error) {
-            logError("Error fetching shared assessments:", error);
+            logError(error instanceof Error ? error : String(error));
             return [];
         }
     },

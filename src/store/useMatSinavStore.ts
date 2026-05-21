@@ -3,7 +3,7 @@
  * Bağımsız state management (mevcut useSinavStore'a dokunmaz)
  */
 
-import { create } from 'zustand';
+import { create, SetState, GetState } from 'zustand';
 import type { MatSinavAyarlari, MatSinav } from '../types/matSinav';
 
 interface MatSinavStoreState {
@@ -69,17 +69,17 @@ function saveGecmis(gecmis: MatSinav[]) {
     }
 }
 
-export const useMatSinavStore = create<MatSinavStoreState>((set, get) => ({
+export const useMatSinavStore = create<MatSinavStoreState>((set: SetState<MatSinavStoreState>, get: GetState<MatSinavStoreState>) => ({
     ayarlar: defaultAyarlar,
     aktifSinav: null,
     isGenerating: false,
     sinavGecmisi: loadGecmis(),
 
-    setAyarlar: (partial) =>
-        set((s) => ({ ayarlar: { ...s.ayarlar, ...partial } })),
+    setAyarlar: (partial: Partial<MatSinavAyarlari>) =>
+        set((s: MatSinavStoreState) => ({ ayarlar: { ...s.ayarlar, ...partial } })),
 
-    setSinif: (sinif) =>
-        set((s) => ({
+    setSinif: (sinif: number) =>
+        set((s: MatSinavStoreState) => ({
             ayarlar: {
                 ...s.ayarlar,
                 sinif,
@@ -88,30 +88,30 @@ export const useMatSinavStore = create<MatSinavStoreState>((set, get) => ({
             },
         })),
 
-    setSecilenUniteler: (uniteler) =>
-        set((s) => ({ ayarlar: { ...s.ayarlar, secilenUniteler: uniteler } })),
+    setSecilenUniteler: (uniteler: string[]) =>
+        set((s: MatSinavStoreState) => ({ ayarlar: { ...s.ayarlar, secilenUniteler: uniteler } })),
 
-    setSecilenKazanimlar: (kazanimlar) =>
-        set((s) => ({ ayarlar: { ...s.ayarlar, secilenKazanimlar: kazanimlar } })),
+    setSecilenKazanimlar: (kazanimlar: string[]) =>
+        set((s: MatSinavStoreState) => ({ ayarlar: { ...s.ayarlar, secilenKazanimlar: kazanimlar } })),
 
-    setSoruDagilimi: (tip, sayi) =>
-        set((s) => ({
+    setSoruDagilimi: (tip: keyof MatSinavAyarlari['soruDagilimi'], sayi: number) =>
+        set((s: MatSinavStoreState) => ({
             ayarlar: {
                 ...s.ayarlar,
                 soruDagilimi: { ...s.ayarlar.soruDagilimi, [tip]: sayi },
             },
         })),
 
-    setAktifSinav: (sinav) => set({ aktifSinav: sinav }),
-    setIsGenerating: (v) => set({ isGenerating: v }),
+    setAktifSinav: (sinav: MatSinav | null) => set({ aktifSinav: sinav }),
+    setIsGenerating: (v: boolean) => set({ isGenerating: v }),
 
-    addSinavGecmisi: (sinav) => {
+    addSinavGecmisi: (sinav: MatSinav) => {
         const gecmis = [sinav, ...get().sinavGecmisi].slice(0, 50);
         saveGecmis(gecmis);
         set({ sinavGecmisi: gecmis });
     },
 
-    removeSinavGecmisi: (id) => {
+    removeSinavGecmisi: (id: string) => {
         const gecmis = get().sinavGecmisi.filter((s: unknown) => s.id !== id);
         saveGecmis(gecmis);
         set({ sinavGecmisi: gecmis });

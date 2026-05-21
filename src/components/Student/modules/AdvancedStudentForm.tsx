@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AdvancedStudent } from '../../../types/student-advanced';
-import { PrivacyService } from '../../../services/privacyService';
+import { dlpService } from '../../../services/privacyService';
 
 import { logInfo, logError, logWarn } from '../../../utils/logger.js';
 interface AdvancedStudentFormProps {
@@ -82,11 +82,11 @@ export const AdvancedStudentForm: React.FC<AdvancedStudentFormProps> = ({ onSave
 
     if (formData.tcNo && formData.tcNo.length === 11) {
       try {
-        const result = PrivacyService.hashTcNo(formData.tcNo);
+        const result = dlpService.hashTcNo(formData.tcNo);
         tcNoHash = result.hash;
         tcNoLastFour = result.lastFour;
       } catch (error) {
-        logError('TC No hashing error:', error);
+        logError(error instanceof Error ? error : String(error));
       }
     }
 
@@ -202,7 +202,7 @@ export const AdvancedStudentForm: React.FC<AdvancedStudentFormProps> = ({ onSave
     { id: 3, title: 'Okul Bilgileri', icon: 'fa-school' },
     { id: 4, title: 'Tanı ve Sağlık', icon: 'fa-file-medical' },
     { id: 5, title: 'Gözlem Notları', icon: 'fa-clipboard-list' },
-  ];
+  ] as const;
 
   return (
     <div className="bg-white dark:bg-zinc-900 rounded-3xl p-8 border border-zinc-200 dark:border-zinc-800 shadow-2xl w-full max-w-4xl mx-auto my-8 font-['Lexend'] animate-in zoom-in-95 duration-300">
@@ -229,7 +229,7 @@ export const AdvancedStudentForm: React.FC<AdvancedStudentFormProps> = ({ onSave
           style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}
         ></div>
 
-        {steps.map((s: unknown) => (
+        {steps.map((s) => (
           <div
             key={s.id}
             className="flex flex-col items-center gap-2 cursor-pointer"

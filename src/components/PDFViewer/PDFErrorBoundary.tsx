@@ -24,7 +24,7 @@ export class PDFErrorBoundary extends Component<PDFErrorBoundaryProps, PDFErrorB
   }
 
   public componentDidCatch(error: Error, info: ErrorInfo) {
-    logError('[PDFErrorBoundary]', error, info);
+    logError(error, { componentStack: info.componentStack });
     this.props.onError?.(error, info);
   }
 

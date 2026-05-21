@@ -28,7 +28,7 @@ export const statsService = {
             });
             return stats;
         } catch (e) {
-            logError("Stats service error:", e);
+            logError(e instanceof Error ? e : String(e));
             return [];
         }
     },

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, X, ArrowRight, Zap } from 'lucide-react';
+import { Check, X, ArrowRight, Sparkles as Zap } from 'lucide-react';
 
 const PricingPage: React.FC = () => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');

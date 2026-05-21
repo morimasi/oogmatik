@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, 
   Settings, 
-  Zap, 
+  ZapOff as Zap, 
   Shield, 
   Eye, 
   EyeOff, 
@@ -18,7 +18,7 @@ import {
   Target,
   BrainCircuit,
   Save,
-  RefreshCw,
+  RefreshCcw as RefreshCw,
   X
 } from 'lucide-react';
 

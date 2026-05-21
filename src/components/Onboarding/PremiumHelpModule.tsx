@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Search, MessageCircle, Phone, Mail, Star, Clock, CheckCircle, ExternalLink, ArrowRight, ShieldCheck } from 'lucide-react';
+import { X, Search, MessageCircle, Phone, Mail, Star, Clock, CheckCircle, ExternalLink, ArrowRight, Shield as ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const PremiumHelpModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {

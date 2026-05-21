@@ -34,7 +34,7 @@ export const StudentSelector = () => {
       } as Student);
       setShowAddForm(false);
     } catch (error) {
-      logError('Error adding student:', error);
+      logError(error instanceof Error ? error : String(error));
     }
   };
 

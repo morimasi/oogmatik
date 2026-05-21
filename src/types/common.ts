@@ -37,6 +37,7 @@ export interface StyleSettings {
     paperTexture?: 'none' | 'ruled' | 'grid' | 'dotted' | 'parchment' | 'sepia' | 'saman';
     gutter?: number;
     contentScale?: number;
+    includeClinicalNotes?: boolean;
 }
 
 export interface BaseActivityData {

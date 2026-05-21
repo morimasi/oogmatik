@@ -46,7 +46,7 @@ const DraggableItem = ({ item, children, canvasWidth }: DraggableItemProps) => {
     return GROUP_COLORS[index % GROUP_COLORS.length];
   };
 
-  const groupColor = isInGroup ? getGroupColor(item.groupId!, groupedItems) : undefined;
+  const groupColor = isInGroup ? getGroupColor(item.groupId as string, groupedItems) : undefined;
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (isLocked) return;
@@ -302,7 +302,7 @@ export const UniversalCanvas = ({ settings }: { settings?: any }) => {
       color: s.color as string,
       fontFamily: s.fontFamily as string,
       fontSize: `${s.fontSize}px`,
-      lineHeight: s.lineHeight as string,
+      lineHeight: String(s.lineHeight),
       textAlign: s.textAlign as any,
       letterSpacing: `${s.letterSpacing}px`,
       fontWeight: (s.fontWeight || 'normal') as any,

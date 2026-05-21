@@ -11,9 +11,9 @@ interface PreviewRendererProps {
 
 export const PreviewRenderer: React.FC<PreviewRendererProps> = ({ title, scenario, pedagogicalNote }) => {
   const a4Ref = useRef<HTMLDivElement>(null);
-  const content = useActivityStudioStore((state) => state.content);
-  const themeConfig = useActivityStudioStore((state) => state.themeConfig);
-  const compactA4Config = useActivityStudioStore((state) => state.compactA4Config);
+  const content = useActivityStudioStore((state: ReturnType<typeof useActivityStudioStore>) => state.content);
+  const themeConfig = useActivityStudioStore((state: ReturnType<typeof useActivityStudioStore>) => state.themeConfig);
+  const compactA4Config = useActivityStudioStore((state: ReturnType<typeof useActivityStudioStore>) => state.compactA4Config);
 
   const effectivePedagogicalNote = pedagogicalNote || useActivityStudioStore.getState().pedagogicalNote;
   const hasBlocks = content && content.length > 0;

@@ -18,7 +18,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
 
   const isAppError = error instanceof AppError;
   const userMessage = isAppError ? error.userMessage : error.message;
-  const errorCode = isAppError ? error.code : 'UNKNOWN_ERROR';
+  const errorCode: string = isAppError ? error.code : 'UNKNOWN_ERROR';
   const isRetryable = isAppError ? error.isRetryable : false;
 
   // Determine icon and color based on error type
@@ -118,7 +118,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
             <p className={`text-xs ${ui.textColor} opacity-75 mt-2`}>
               Lütfen{' '}
               <span className="font-bold">
-                {Math.ceil(error.details.retryAfter / 1000)} saniye
+                {Math.ceil(Number(error.details.retryAfter) / 1000)} saniye
               </span>{' '}
               sonra tekrar deneyin.
             </p>

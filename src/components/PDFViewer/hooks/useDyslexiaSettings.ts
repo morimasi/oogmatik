@@ -32,7 +32,7 @@ export function useDyslexiaSettings(
   const { initialSettings } = options;
 
   // Sync font/lineHeight/letterSpacing with global UIStore style settings
-  const updateStyleSettings = useUIStore((s) => s.updateStyleSettings);
+  const updateStyleSettings = useUIStore((s: ReturnType<typeof useUIStore>) => s.updateStyleSettings);
 
   const [fontFamily, setFontFamilyState] = useState<DyslexiaFontFamily>(
     initialSettings?.fontFamily ?? DEFAULT_DYSLEXIA_SETTINGS.fontFamily,

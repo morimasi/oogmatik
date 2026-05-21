@@ -156,7 +156,7 @@ export const FavoritesSection: React.FC<FavoritesSectionProps> = ({ onSelectActi
                 });
             }
         } catch (e) {
-            logError("Favorites load error", e);
+            logError(e instanceof Error ? e : String(e));
         } finally {
             setLoading(false);
         }

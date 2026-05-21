@@ -11,7 +11,7 @@ import {
   Timer,
   Award,
   BookOpen,
-  Zap,
+  Sparkles as Zap,
   Brain,
   Heart,
   Trophy

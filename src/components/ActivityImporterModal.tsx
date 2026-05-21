@@ -53,7 +53,7 @@ export const ActivityImporterModal: React.FC<ActivityImporterModalProps> = ({ is
             
             setWorksheets(unique);
         } catch (error) {
-            logError("[ActivityImporter] Yukleme hatasi:", error);
+            logError(error instanceof Error ? error : String(error));
         } finally {
             setLoading(false);
         }

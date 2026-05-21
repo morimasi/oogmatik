@@ -1,5 +1,7 @@
 import { ActivityType } from './activity';
-import { UserRole, UserStatus } from './user';
+import { UserRole, UserStatus, UserRoleType } from './user';
+
+export type { UserRoleType };
 
 export type AdminTab =
   | 'dashboard'

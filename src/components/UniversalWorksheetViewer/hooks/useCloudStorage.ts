@@ -180,7 +180,7 @@ export function useCloudStorage(): UseCloudStorageReturn {
       setSyncStatus('idle');
     } catch (err) {
       setSyncStatus('error');
-      logError(`Cloud connect error (${provider}):`, err);
+      logError(err instanceof Error ? err : String(err));
     }
   }, []);
 
@@ -207,7 +207,7 @@ export function useCloudStorage(): UseCloudStorageReturn {
         return file;
       } catch (err) {
         setSyncStatus('error');
-        logError(`Upload error (${provider}):`, err);
+        logError(err instanceof Error ? err : String(err));
     uploadQueueRef.current.push(() => uploadFile(provider, name, content, mimeType).then(() => undefined));
         return null;
       }
@@ -225,7 +225,7 @@ export function useCloudStorage(): UseCloudStorageReturn {
         setCloudFiles(files);
         return files;
       } catch (err) {
-        logError(`List files error (${provider}):`, err);
+        logError(err instanceof Error ? err : String(err));
         return [];
       }
     },

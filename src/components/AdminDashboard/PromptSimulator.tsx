@@ -63,18 +63,18 @@ export const PromptSimulator = ({ prompt }: { prompt: PromptTemplate }) => {
         try {
             // AdminService.testPrompt artık gerçek API çağırıyor
             const aiResponse = await adminService.testPrompt(prompt, variables);
-            logger.info("AI Response:", aiResponse);
+            logger.info("AI Response received", { responseType: typeof aiResponse });
 
             // Gelen veri WorksheetData formatında mı? Değilse uyaralım
             if (!aiResponse || typeof aiResponse !== 'object') {
                 throw new AppError("AI geçerli bir JSON nesnesi döndürmedi.", 'INTERNAL_ERROR', 500);
             }
 
-            setResult(aiResponse);
+            setResult(aiResponse as WorksheetData);
 
 
         } catch (err: any) {
-            logError("Simülasyon Hatası:", err);
+            logError(err instanceof Error ? err : String(err));
             setError(err.message || "Simülasyon sırasında bir hata oluştu.");
         } finally {
             setLoading(false);
@@ -182,6 +182,8 @@ export const PromptSimulator = ({ prompt }: { prompt: PromptTemplate }) => {
                                             showTitle: true,
                                             showStudentInfo: false,
                                             showFooter: true,
+                                            showAnswers: false,
+                                            showClues: false,
                                             themeBorder: 'simple',
                                             scale: 1, borderColor: '#000', borderWidth: 1, margin: 10, columns: 1, gap: 10, orientation: 'portrait',
                                             contentAlign: 'center', fontWeight: 'normal', fontStyle: 'normal', visualStyle: 'card', lineHeight: 1.5,

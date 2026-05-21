@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronDown, Zap, BookOpen, Users, Shield, Sparkles, ArrowRight, CheckCircle2, Star } from 'lucide-react';
+import { ChevronDown, ZapOff as Zap, BookOpen, Users, Shield, Sparkles, ArrowRight, CircleCheck as CheckCircle2, Star } from 'lucide-react';
 
 const LandingPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'teachers' | 'therapists' | 'parents'>('teachers');

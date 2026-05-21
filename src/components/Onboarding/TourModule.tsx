@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Play, SkipForward, ArrowRight, ArrowLeft, CheckCircle, Circle, Rocket } from 'lucide-react';
+import { X, Play, SkipForward, ArrowRight, ArrowLeft, CheckCircle, CircleDot as Circle, Rocket } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const TourModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {

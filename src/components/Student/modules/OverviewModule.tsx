@@ -9,7 +9,7 @@ interface OverviewModuleProps {
 export const OverviewModule: React.FC<OverviewModuleProps> = ({ student }) => {
   // Mock veri simülasyonu (Gerçek veri yoksa gösterim amaçlı)
   const weekDays = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
-  const performanceTrend = [65, 78, 72, 85, 82, 88, 92];
+  const performanceTrend = [65, 78, 72, 85, 82, 88, 92].map((v, i) => ({ date: `G${i + 1}`, value: v }));
 
   const getCognitiveScore = () => {
     const total = student.iep?.goals?.reduce((acc, g) => acc + g.progress, 0) || 0;
@@ -146,11 +146,7 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({ student }) => {
         <div className="h-48">
           <LineChart
             data={performanceTrend}
-            labels={weekDays}
-            color="#4f46e5"
-            tension={0.4}
-            showArea={true}
-            compact={true}
+            lines={[{ key: 'value', color: '#4f46e5', label: 'Performans' }]}
           />
         </div>
       </div>

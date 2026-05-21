@@ -22,7 +22,7 @@ export const adminService = {
                 })
                 .filter((a: any): a is DynamicActivity => !!a && !!a.id);
         } catch (e) {
-            logError("Dinamik aktiviteler yüklenemedi", { error: e });
+            logError(e instanceof Error ? e : String(e), { source: 'adminService' });
             return [];
         }
     },
@@ -201,7 +201,7 @@ export const adminService = {
                 activeSessionsCount: 24
             };
         } catch (error) {
-            logError("Admin metrikleri alınamadı:", { error });
+            logError(error instanceof Error ? error : String(error));
             return null;
         }
     },
@@ -218,7 +218,7 @@ export const adminService = {
                 })
                 .filter((u: any): u is User => !!u && !!u.id);
         } catch (error) {
-            logError("Kullanıcılar yüklenemedi", { error });
+            logError(error instanceof Error ? error : String(error));
             return [];
         }
     },

@@ -9,7 +9,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Search, Grid, List, Plus, Trash2, Copy } from 'lucide-react';
+import { Search, Grid3X3 as Grid, ListOrdered as List, Plus, Trash2, Copy } from 'lucide-react';
 import { listWorkbooks, duplicateWorkbook, deleteWorkbook } from '../services/workbook/workbookService';
 import { getAllTemplates } from '../services/workbook/workbookTemplates';
 import type { Workbook, WorkbookTemplate } from '../types/workbook';

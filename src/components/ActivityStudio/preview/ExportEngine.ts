@@ -42,7 +42,7 @@ export function buildSafePDFMetadata(
   return {
     difficultyLevel: partial.difficultyLevel,
     ageGroup: partial.ageGroup,
-    targetSkills: partial.targetSkills.map((s: unknown) => s.slice(0, 100)),
+    targetSkills: partial.targetSkills.map((s: string) => s.slice(0, 100)),
     generatedDate: new Date().toISOString().split('T')[0],
     pageCount: partial.pageCount ?? 1,
   };
@@ -67,10 +67,11 @@ interface PDFExportOptions {
 export async function exportToPDF(options: PDFExportOptions): Promise<Blob> {
   const { title, blocks, pedagogicalNote, themeConfig, compactA4Config, metadata } = options;
 
-  const [{ jsPDF }, html2canvas] = await Promise.all([
+  const [jspdfModule, html2canvas] = await Promise.all([
     import('jspdf'),
     import('html2canvas'),
   ]);
+  const jsPDF = jspdfModule.default;
 
   const bgPaper = themeConfig?.bgPaper ?? '#FFFDF7';
   const textColor = themeConfig?.textColor ?? '#1A1A2E';

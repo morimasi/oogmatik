@@ -205,7 +205,7 @@ export const ResultDashboard: FC<Props> = ({
         action: 'print',
       });
     } catch (error) {
-      logError('Yazdırma hatası:', error);
+      logError(error instanceof Error ? error : String(error));
       alert('Yazdırma işlemi başlatılamadı.');
     }
   };

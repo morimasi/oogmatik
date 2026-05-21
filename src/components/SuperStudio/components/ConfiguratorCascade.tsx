@@ -28,7 +28,7 @@ export const ConfiguratorCascade: React.FC = () => {
                 addGeneratedContent(res);
             }
         } catch (error) {
-            logError("Üretim sırasında hata:", error);
+            logError(error instanceof Error ? error : String(error));
         } finally {
             setIsGenerating(false);
         }

@@ -59,7 +59,7 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
         scrollToPage: result.scrollToPage,
       };
     } catch (err) {
-      logWarn('[PrintPreviewModal] Preview render hatası:', err);
+      logWarn(err instanceof Error ? err.message : String(err));
       setPreviewReady(false);
     }
   }, [paperSize]);
@@ -131,7 +131,7 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
         await snapshotService.takeSnapshot(targetSelector, title ?? 'etkinlik', 'download_zip', 2);
       }
     } catch (e) {
-      logError('Print/Export error:', e);
+      logError(e instanceof Error ? e : String(e));
     } finally {
       setIsProcessing(false);
       setExportProgress({ open: false, percent: 0, message: '' });

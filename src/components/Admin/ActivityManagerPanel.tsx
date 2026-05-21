@@ -9,7 +9,7 @@ import {
   Search, 
   Filter, 
   Settings, 
-  Zap, 
+  ZapOff as Zap, 
   Shield, 
   Eye, 
   EyeOff, 
@@ -22,7 +22,7 @@ import {
   Target,
   BrainCircuit,
   Save,
-  RefreshCw,
+  RefreshCcw as RefreshCw,
   X
 } from 'lucide-react';
 

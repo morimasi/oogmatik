@@ -3,7 +3,7 @@
  * State management for exam creation workflow
  */
 
-import { create } from 'zustand';
+import { create, SetState } from 'zustand';
 import { SinavAyarlari, Sinav } from '../types/sinav';
 
 interface SinavStoreState {
@@ -57,19 +57,19 @@ const defaultAyarlar: SinavAyarlari = {
   ozelKonu: undefined
 };
 
-export const useSinavStore = create<SinavStoreState>((set) => ({
+export const useSinavStore = create<SinavStoreState>((set: SetState<SinavStoreState>) => ({
   ayarlar: defaultAyarlar,
   aktifSinav: null,
   isGenerating: false,
   kaydedilmisSinavlar: [],
 
-  setAyarlar: (partial) =>
-    set((state) => ({
+  setAyarlar: (partial: Partial<SinavAyarlari>) =>
+    set((state: SinavStoreState) => ({
       ayarlar: { ...state.ayarlar, ...partial }
     })),
 
-  setSinif: (sinif) =>
-    set((state) => ({
+  setSinif: (sinif: number) =>
+    set((state: SinavStoreState) => ({
       ayarlar: {
         ...state.ayarlar,
         sinif,
@@ -78,18 +78,18 @@ export const useSinavStore = create<SinavStoreState>((set) => ({
       }
     })),
 
-  setSecilenUniteler: (uniteler) =>
-    set((state) => ({
+  setSecilenUniteler: (uniteler: string[]) =>
+    set((state: SinavStoreState) => ({
       ayarlar: { ...state.ayarlar, secilenUniteler: uniteler }
     })),
 
-  setSecilenKazanimlar: (kazanimlar) =>
-    set((state) => ({
+  setSecilenKazanimlar: (kazanimlar: string[]) =>
+    set((state: SinavStoreState) => ({
       ayarlar: { ...state.ayarlar, secilenKazanimlar: kazanimlar }
     })),
 
-  setSoruDagilimi: (tip, sayi) =>
-    set((state) => ({
+  setSoruDagilimi: (tip: keyof SinavAyarlari['soruDagilimi'], sayi: number) =>
+    set((state: SinavStoreState) => ({
       ayarlar: {
         ...state.ayarlar,
         soruDagilimi: {
@@ -99,12 +99,12 @@ export const useSinavStore = create<SinavStoreState>((set) => ({
       }
     })),
 
-  setAktifSinav: (sinav) => set({ aktifSinav: sinav }),
+  setAktifSinav: (sinav: Sinav | null) => set({ aktifSinav: sinav }),
 
-  setIsGenerating: (isGenerating) => set({ isGenerating }),
+  setIsGenerating: (isGenerating: boolean) => set({ isGenerating }),
 
-  addKaydedilmisSinav: (sinav) =>
-    set((state) => ({
+  addKaydedilmisSinav: (sinav: Sinav) =>
+    set((state: SinavStoreState) => ({
       kaydedilmisSinavlar: [sinav, ...state.kaydedilmisSinavlar]
     })),
 

@@ -14,10 +14,10 @@ export const ChatSettings: React.FC = () => {
     const toggleMute = () => {
         if (!activeConversationId) return;
         
-        setSettings(prev => {
+        setSettings((prev: NotificationSettings) => {
             const isMuted = prev.mutedChatIds.includes(activeConversationId);
             const newMuted = isMuted 
-                ? prev.mutedChatIds.filter(id => id !== activeConversationId)
+                ? prev.mutedChatIds.filter((id: string) => id !== activeConversationId)
                 : [...prev.mutedChatIds, activeConversationId];
                 
             return { ...prev, mutedChatIds: newMuted };
@@ -58,9 +58,9 @@ export const ChatSettings: React.FC = () => {
                         onClick={async () => {
                             if (!settings.desktopEnabled) {
                                 const granted = await notificationService.requestDesktopPermission();
-                                if (granted) setSettings(s => ({ ...s, desktopEnabled: true }));
+                                if (granted) setSettings((s: NotificationSettings) => ({ ...s, desktopEnabled: true }));
                             } else {
-                                setSettings(s => ({ ...s, desktopEnabled: false }));
+                                setSettings((s: NotificationSettings) => ({ ...s, desktopEnabled: false }));
                             }
                         }}
                         className={`w-10 h-5 rounded-full relative transition-colors ${settings.desktopEnabled ? 'bg-accent-primary' : 'bg-white/10'}`}
@@ -76,7 +76,7 @@ export const ChatSettings: React.FC = () => {
                         <span className="text-sm text-white/80">İçeriği Gizle (Gizlilik)</span>
                     </div>
                     <button 
-                        onClick={() => setSettings(s => ({ ...s, showOnLockScreen: !s.showOnLockScreen }))}
+                        onClick={() => setSettings((s: NotificationSettings) => ({ ...s, showOnLockScreen: !s.showOnLockScreen }))}
                         className={`w-10 h-5 rounded-full relative transition-colors ${!settings.showOnLockScreen ? 'bg-accent-primary' : 'bg-white/10'}`}
                     >
                         <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-transform ${!settings.showOnLockScreen ? 'translate-x-5' : 'translate-x-1'}`} />
@@ -90,7 +90,7 @@ export const ChatSettings: React.FC = () => {
                         <span className="text-sm text-white/80">Bildirim Sesi</span>
                     </div>
                     <button 
-                        onClick={() => setSettings(s => ({ ...s, soundEnabled: !s.soundEnabled }))}
+                        onClick={() => setSettings((s: NotificationSettings) => ({ ...s, soundEnabled: !s.soundEnabled }))}
                         className={`w-10 h-5 rounded-full relative transition-colors ${settings.soundEnabled ? 'bg-accent-primary' : 'bg-white/10'}`}
                     >
                         <div className={`w-4 h-4 bg-white rounded-full absolute top-0.5 transition-transform ${settings.soundEnabled ? 'translate-x-5' : 'translate-x-1'}`} />
