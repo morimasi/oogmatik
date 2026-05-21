@@ -16,9 +16,10 @@ export const generateMathPuzzleFromAI = async (options: GeneratorOptions) => {
     params = {}
   } = options as Record<string, unknown>;
 
-  const puzzleType = params.puzzleType || 'visual';
-  const operationType = params.operationType || 'mixed';
-  const numberRange = params.numberRange || '1-20';
+  const typedParams = params as Record<string, unknown> || {};
+  const puzzleType = typedParams.puzzleType || 'visual';
+  const operationType = typedParams.operationType || 'mixed';
+  const numberRange = typedParams.numberRange || '1-20';
 
   const prompt = `
 [ROL: MATEMATİKSEL MANTIK UZMANI]
@@ -116,7 +117,7 @@ Bu etkinlik, öğrencinin cebirsel düşünme başlangıcı, görsel mantık, e�
     title: result.title as unknown as string,
     instruction: result.instruction as unknown as string,
     pedagogicalNote: result.pedagogicalNote as unknown as string,
-    settings: { ...options, ...params },
+    settings: { ...(options as Record<string, unknown>), ...typedParams },
     content: result,
     puzzles: result.puzzles
   };

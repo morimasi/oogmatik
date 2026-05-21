@@ -56,9 +56,8 @@ export class WorksheetBuilder {
       content: `### 📚 Pedagojik Not\n${note}`,
       style: { 
         backgroundColor: '#eff6ff', 
-        borderRadius: 12,
-        padding: 16
-      },
+        borderRadius: 12
+      } as Record<string, unknown>,
       weight: 5
     });
     return this;

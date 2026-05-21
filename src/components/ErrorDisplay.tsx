@@ -114,11 +114,16 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
           ) : null}
 
           {/* Raw error fallback */}
-          {!isAppError && error ? (
-            <p className={`text-[10px] ${(ui.textColor as unknown as string)} opacity-60 mt-1 font-mono`}>
-              {String(error)}
-            </p>
-          ) : null}
+          {(() => {
+            if (!isAppError && error) {
+              return (
+                <p className={`text-[10px] ${(ui.textColor as unknown as string)} opacity-60 mt-1 font-mono`}>
+                  {String(error)}
+                </p>
+              );
+            }
+            return null;
+          })()}
 
           {/* Rate limit specific info */}
           {error instanceof RateLimitError && (error.details as unknown as Record<string, unknown>)?.retryAfter && (

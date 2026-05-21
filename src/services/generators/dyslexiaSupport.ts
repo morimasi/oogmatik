@@ -24,7 +24,7 @@ export const generateSyllableMasterLabFromAI = async (options: GeneratorOptions)
     4. RAINBOW RENKLERİ: Her hece için farklı, yüksek kontrastlı hex kodları üret.
     `;
 
-    const prompt = getDyslexiaPrompt("Hece Ustası Laboratuvarı (Yüksek Yoğunluklu)", difficulty, specifics, options.studentContext as unknown as Student | undefined);
+    const prompt = getDyslexiaPrompt("Hece Ustası Laboratuvarı (Yüksek Yoğunluklu)", difficulty as string, specifics, options.studentContext as unknown as Student | undefined);
 
     const singleSchema = {
         type: 'OBJECT',
