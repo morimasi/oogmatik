@@ -1,5 +1,5 @@
 import React, { memo, useEffect } from 'react';
-import type { CollectionItem, WorkbookSettings, ActivityType } from '../../types';
+import type { CollectionItem, WorkbookSettings, ActivityType, SingleWorksheetData } from '../../types';
 import { SheetRenderer } from '../SheetRenderer';
 import { MathStudioRenderer } from '../sheet-renderers/MathStudioRenderer';
 import { SuperStudioRenderer } from '../sheet-renderers/SuperStudioRenderer';
@@ -76,11 +76,12 @@ export const WorkbookActivityRenderer = memo(({ item, settings, font, accent }: 
     }
 
     // 6. STANDART SHEET RENDERER (V1 Aktiviteler)
+    const sheetData = Array.isArray(rawData) ? rawData : ([rawData] as SingleWorksheetData[]);
     return (
         <div className="workbook-activity-content w-full flex-1 flex flex-col gap-2">
             <SheetRenderer
                 activityType={item.activityType as ActivityType}
-                data={rawData}
+                data={sheetData as any}
                 settings={mergedSettings}
                 hideWrapper={true}
             />

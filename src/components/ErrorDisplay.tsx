@@ -115,7 +115,12 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
 
           {isAppError ? null : (
             <p className={`text-[10px] ${(ui.textColor as unknown as string)} opacity-60 mt-1 font-mono`}>
-              {String(error)}
+              {(() => {
+                const err = error as unknown;
+                if (!err) return 'Unknown error';
+                if (err instanceof Error) return err.message;
+                return String(err);
+              })()}
             </p>
           )}
 
