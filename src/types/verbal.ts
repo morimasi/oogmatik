@@ -849,3 +849,39 @@ export interface EsAnlamliKelimelerData extends BaseActivityData {
   };
   items: EsAnlamliKelimeItem[];
 }
+
+export interface KelimeCumleBaseData extends BaseActivityData {
+  type?: string;
+  settings?: Record<string, unknown>;
+  content?: {
+    title: string;
+    instruction: string;
+    wordBank?: string[];
+  };
+  items?: Record<string, unknown>[];
+}
+
+export interface FillBlanksData extends KelimeCumleBaseData {
+  type: 'fill_blanks';
+  items?: { sentence: string; blankValue: string }[];
+}
+
+export interface MultipleChoiceVerbalData extends KelimeCumleBaseData {
+  type: 'multiple_choice_verbal';
+  items?: { question: string; options: string[]; correctAnswer: string }[];
+}
+
+export interface WordCompletionData extends KelimeCumleBaseData {
+  type: 'word_completion';
+  items?: { word: string; missingPart: string; imagePrompt: string }[];
+}
+
+export interface MixedSentenceData extends KelimeCumleBaseData {
+  type: 'mixed_sentence';
+  items?: { scrambledWords: string[]; correctSentence: string }[];
+}
+
+export interface AntonymData extends KelimeCumleBaseData {
+  type: 'antonym';
+  items?: { word: string; target: string; contextSentence: string }[];
+}

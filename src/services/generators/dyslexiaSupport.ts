@@ -24,7 +24,7 @@ export const generateSyllableMasterLabFromAI = async (options: GeneratorOptions)
     4. RAINBOW RENKLERİ: Her hece için farklı, yüksek kontrastlı hex kodları üret.
     `;
 
-    const prompt = getDyslexiaPrompt("Hece Ustası Laboratuvarı (Yüksek Yoğunluklu)", difficulty, specifics, options.studentContext as Student | undefined);
+    const prompt = getDyslexiaPrompt("Hece Ustası Laboratuvarı (Yüksek Yoğunluklu)", difficulty, specifics, options.studentContext as unknown as Student | undefined);
 
     const singleSchema = {
         type: 'OBJECT',
@@ -51,7 +51,7 @@ export const generateSyllableMasterLabFromAI = async (options: GeneratorOptions)
         required: ['title', 'instruction', 'items', 'pedagogicalNote']
     };
 
-    return await generateWithSchema(prompt, { type: 'ARRAY', items: singleSchema }) as any;
+    return await generateWithSchema(prompt, { type: 'ARRAY', items: singleSchema }) as unknown as any;
 };
 
 // Letter-Visual Matching (AI Generator)
@@ -70,7 +70,7 @@ export const generateLetterVisualMatchingFromAI = async (options: GeneratorOptio
     3. Eğer kelime çok basit bir geometrik şekil ise (Örn: Kare, Yıldız) veya sembol ise, "imageBase64" alanına doğrudan 100x100 koordinatlı <svg> kodu yazabilirsin.
     `;
 
-    const prompt = getDyslexiaPrompt("Harf-Görsel Eşleme", difficulty, specifics, options.studentContext as Student | undefined);
+    const prompt = getDyslexiaPrompt("Harf-Görsel Eşleme", difficulty, specifics, options.studentContext as unknown as Student | undefined);
 
     const singleSchema = {
         type: 'OBJECT',
@@ -103,5 +103,5 @@ export const generateLetterVisualMatchingFromAI = async (options: GeneratorOptio
         required: ['title', 'instruction', 'pedagogicalNote', 'settings', 'pairs']
     };
 
-    return await generateWithSchema(prompt, { type: 'ARRAY', items: singleSchema }) as any;
+    return await generateWithSchema(prompt, { type: 'ARRAY', items: singleSchema }) as unknown as any;
 };

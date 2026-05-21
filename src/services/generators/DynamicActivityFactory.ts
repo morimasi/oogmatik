@@ -42,7 +42,7 @@ export class DynamicActivityFactory {
             } catch (e) {
                 // Fallback UI or Error view
                 const Fallback = await import('../../components/SheetRenderer');
-                return { default: (Fallback as any).default || Fallback };
+                return { default: (Fallback as unknown as any).default || Fallback };
             }
         });
     }

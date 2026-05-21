@@ -10,7 +10,7 @@ const SCENARIOS = [
 
 export const generateOfflineAlgorithmGenerator = async (options: GeneratorOptions): Promise<AlgorithmData[]> => {
     const { worksheetCount } = options;
-    return Array.from({ length: worksheetCount }, (_, i) => {
+    return Array.from({ length: worksheetCount ?? 1 }, (_, i) => {
         const scenario = SCENARIOS[i % SCENARIOS.length];
         return {
             title: scenario.title,

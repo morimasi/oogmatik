@@ -200,13 +200,13 @@ export const AdvancedMissingPartsConfig: React.FC<ConfigProps> = ({ options, onC
                 </div>
               </div>
               <button
-                onClick={() => onChange(setting.key, !options[setting.key])}
+                onClick={() => onChange(setting.key, !(options as Record<string, unknown>)[setting.key])}
                 className={`w-12 h-6 rounded-full transition-all relative ${
-                  options[setting.key] ? 'bg-blue-500' : 'bg-zinc-300'
+                  (options as Record<string, unknown>)[setting.key] ? 'bg-blue-500' : 'bg-zinc-300'
                 }`}
               >
                 <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${
-                  options[setting.key] ? 'left-7' : 'left-1'
+                  (options as Record<string, unknown>)[setting.key] ? 'left-7' : 'left-1'
                 }`} />
               </button>
             </div>
@@ -310,13 +310,13 @@ export const AdvancedMissingPartsConfig: React.FC<ConfigProps> = ({ options, onC
                   <span className="text-sm font-medium text-zinc-900">{setting.label}</span>
                 </div>
                 <button
-                  onClick={() => onChange(setting.key, !options[setting.key])}
-                  className={`w-10 h-5 rounded-full transition-all relative ${
-                    options[setting.key] ? 'bg-green-500' : 'bg-zinc-300'
-                  }`}
-                >
-                  <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${
-                    options[setting.key] ? 'left-5' : 'left-0.5'
+                onClick={() => onChange(setting.key, !(options as Record<string, unknown>)[setting.key])}
+                className={`w-10 h-5 rounded-full transition-all relative ${
+                  (options as Record<string, unknown>)[setting.key] ? 'bg-green-500' : 'bg-zinc-300'
+                }`}
+              >
+                <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all ${
+                  (options as Record<string, unknown>)[setting.key] ? 'left-5' : 'left-0.5'
                   }`} />
                 </button>
               </div>

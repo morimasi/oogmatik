@@ -30,7 +30,7 @@ export const analyzeReferenceFiles = async (files: MultimodalFile[], _currentPro
   };
 
   // Fix: Removed 'useFlash' property from the generateCreativeMultimodal call as it is not part of the defined type
-  const result = await generateCreativeMultimodal({ prompt, schema, files });
+  const result = await generateCreativeMultimodal({ prompt, schema, files }) as unknown as Record<string, unknown>;
   return `[BLUEPRINT_V1.0]\n${result.blueprintPrompt}\n\n[ANALİZ]: ${result.analysis}`;
 };
 

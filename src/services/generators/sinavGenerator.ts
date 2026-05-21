@@ -104,7 +104,7 @@ export const callGeminiDirect = async (prompt: string, schema: object): Promise<
 
   if (!response.ok) {
     const errData = await response.json().catch(() => ({}));
-    const msg = (errData as Record<string, unknown>)?.error as Record<string, string> | undefined;
+    const msg = (errData as unknown as Record<string, unknown>)?.error as unknown as Record<string, string> | undefined;
     throw new AppError(
       `Gemini API hatası: ${msg?.message || response.statusText}`,
       'GEMINI_API_ERROR',
@@ -115,9 +115,9 @@ export const callGeminiDirect = async (prompt: string, schema: object): Promise<
   }
 
   const data = await response.json();
-  const text = (data as Record<string, unknown>)?.candidates as Array<Record<string, unknown>> | undefined;
-  const responseText = text?.[0]?.content as Record<string, unknown> | undefined;
-  const parts = responseText?.parts as Array<Record<string, string>> | undefined;
+  const text = (data as unknown as Record<string, unknown>)?.candidates as unknown as Array<Record<string, unknown>> | undefined;
+  const responseText = text?.[0]?.content as unknown as Record<string, unknown> | undefined;
+  const parts = responseText?.parts as unknown as Array<Record<string, string>> | undefined;
   const responseValue = parts?.[0]?.text;
 
   if (!responseValue) {
@@ -274,7 +274,7 @@ export const generateExam = async (settings: SinavAyarlari): Promise<Sinav> => {
   const prompt = buildExamPrompt(settings);
 
   try {
-    const aiResponse = await callGeminiDirect(prompt, EXAM_SCHEMA) as any;
+    const aiResponse = await callGeminiDirect(prompt, EXAM_SCHEMA) as unknown as any;
 
 
     // Defensive coding: sorular array kontrolü
@@ -326,7 +326,7 @@ export const generateExam = async (settings: SinavAyarlari): Promise<Sinav> => {
     if (error instanceof AppError) throw error;
 
     const errorMessage = error instanceof Error ? error.message : 'Bilinmeyen hata';
-    logError('[sinavGenerator] Hata', { errorMessage, error: error as Record<string, unknown> });
+    logError('[sinavGenerator] Hata', { errorMessage, error: error as unknown as Record<string, unknown> });
     throw new AppError(
       'Sınav oluşturulurken beklenmeyen bir hata oluştu.',
       'EXAM_GENERATION_ERROR',
@@ -339,5 +339,5 @@ export const generateExam = async (settings: SinavAyarlari): Promise<Sinav> => {
 
 // Registry compatibility wrapper
 export const generateSinavFromAI = async (options: any) => {
-  return await generateExam(options as any);
+  return await generateExam(options as unknown as any);
 };

@@ -144,7 +144,7 @@ export const WorkbookView = ({
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const editingItem = items.find((i: CollectionItem) => i.id === editingItemId);
 
-  // ... (keeping other states same as lines 149-189)
+  // ... (keeping other states same as unknown as lines 149-189)
   // Divider Edit State
   const [editingDividerId, setEditingDividerId] = useState<string | null>(null);
   const editingDivider = items.find((i: CollectionItem) => i.id === editingDividerId);
@@ -396,7 +396,7 @@ KRİTİK KURALLAR:
       reader.onload = (ev) => {
         setSettings((prev: WorkbookSettings) => ({
           ...prev,
-          logoUrl: ev.target?.result as string,
+          logoUrl: ev.target?.result as unknown as string,
         }));
       };
       reader.readAsDataURL(file);
@@ -420,7 +420,7 @@ KRİTİK KURALLAR:
 
   return (
     <div className="h-full flex flex-col relative font-lexend" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
-      {/* Top Toolbar - Compact SaaS Style */}
+      {/* Top Toolbar - Compact Saas unknown as Style */}
       <div className="flex justify-between items-center px-5 py-3 backdrop-blur-2xl shadow-sm shrink-0 z-20 border-b border-[var(--border-color)] bg-[var(--surface-glass)]">
         <div className="flex items-center gap-4">
           <button
@@ -460,7 +460,7 @@ KRİTİK KURALLAR:
             {['edit', 'preview'].map((mode) => (
               <button
                 key={mode}
-                onClick={() => setViewMode(mode as any)}
+                onClick={() => setViewMode(mode as unknown as any)}
                 className={`relative px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-2 transition-all duration-300 z-10 ${mode === viewMode ? 'text-white' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
               >
                 <i className={`fa-solid ${mode === 'edit' ? 'fa-pen-ruler' : 'fa-eye'}`}></i>
@@ -503,7 +503,7 @@ KRİTİK KURALLAR:
       {/* Main Content Area */}
       {viewMode === 'edit' ? (
         <div className="flex flex-1 overflow-hidden">
-          {/* Left Sidebar: Controls - SaaS Minimal */}
+          {/* Left Sidebar: Controls - Saas unknown as Minimal */}
           <div className="w-72 md:w-80 backdrop-blur-xl flex flex-col z-10 shrink-0 border-r border-[var(--border-color)] bg-[var(--bg-paper)]/80">
             {/* Tabs - Modern Bento */}
             <div className="flex p-2 gap-1.5 border-b border-[var(--border-color)] bg-[var(--bg-inset)]/50">
@@ -514,7 +514,7 @@ KRİTİK KURALLAR:
               ].map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
+                  onClick={() => setActiveTab(tab.id as unknown as any)}
                   className={`flex-1 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex flex-col items-center justify-center gap-1.5 ${activeTab === tab.id ? 'bg-[var(--accent-color)] text-white shadow-lg shadow-indigo-500/20' : 'text-[var(--text-muted)] hover:bg-[var(--bg-secondary)]'}`}
                 >
                   <i className={`fa-solid ${tab.icon} text-sm`}></i>
@@ -627,7 +627,7 @@ KRİTİK KURALLAR:
                           {['list', 'grid'].map((mode) => (
                             <button
                               key={mode}
-                              onClick={() => setLayoutMode(mode as any)}
+                              onClick={() => setLayoutMode(mode as unknown as any)}
                               className={`w-6 h-6 rounded flex items-center justify-center transition-all ${layoutMode === mode ? 'bg-[var(--bg-paper)] text-[var(--accent-color)] shadow-sm' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
                               title={mode === 'list' ? 'Liste' : 'Izgara'}
                             >
@@ -756,7 +756,7 @@ KRİTİK KURALLAR:
                         <button
                           key={t.id}
                           onClick={() =>
-                            setSettings((s: WorkbookSettings) => ({ ...s, theme: t.id as any }))
+                            setSettings((s: WorkbookSettings) => ({ ...s, theme: t.id as unknown as any }))
                           }
                           className="group p-4 rounded-2xl border-2 transition-all text-left flex flex-col gap-3 relative overflow-hidden"
                           style={settings.theme === t.id ? { borderColor: 'var(--accent-color)', backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)', boxShadow: 'var(--shadow-premium)' } : { borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-paper)', color: 'var(--text-secondary)' }}
@@ -861,7 +861,7 @@ KRİTİK KURALLAR:
                         <button
                           key={layout.id}
                           onClick={() =>
-                            setSettings((s) => ({ ...s, coverStyle: layout.id as any }))
+                            setSettings((s) => ({ ...s, coverStyle: layout.id as unknown as any }))
                           }
                           className="py-2 px-3 text-[10px] font-black uppercase rounded-xl border-2 transition-all"
                           style={settings.coverStyle === layout.id ? { borderColor: 'var(--accent-color)', backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)' } : { borderColor: 'var(--border-color)', backgroundColor: 'var(--surface-elevated)', color: 'var(--text-muted)' }}
@@ -897,7 +897,7 @@ KRİTİK KURALLAR:
                       <select
                         value={settings.layoutDensity || 'comfortable'}
                         onChange={(e) =>
-                          setSettings((s) => ({ ...s, layoutDensity: e.target.value as any }))
+                          setSettings((s) => ({ ...s, layoutDensity: e.target.value as unknown as any }))
                         }
                         className="w-full p-2.5 rounded-xl text-xs font-bold outline-none"
                         style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
@@ -1075,7 +1075,7 @@ KRİTİK KURALLAR:
                 onTogglePreview={() => { }}
                 isPreviewMode={false}
                 isEditMode={false}
-                worksheetData={[editingItem.data as any]}
+                worksheetData={[editingItem.data as unknown as any]}
               />
             </div>
             <div className="p-4 flex justify-end gap-3" style={{ borderTop: '1px solid var(--border-color)', backgroundColor: 'var(--surface-elevated)' }}>

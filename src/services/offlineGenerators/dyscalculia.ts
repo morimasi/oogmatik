@@ -13,7 +13,7 @@ export const generateOfflineClockReading = async (options: GeneratorOptions): Pr
 
 export const generateOfflineNumberSense = async (options: GeneratorOptions): Promise<NumberSenseData[]> => {
     const { worksheetCount, difficulty } = options;
-    return Array.from({ length: worksheetCount }, () => {
+    return Array.from({ length: worksheetCount ?? 1 }, () => {
         const exercises: any[] = [];
         const start = getRandomInt(0, 5);
         exercises.push({ type: 'missing', values: [start, start + 1, start + 2, start + 3], target: start + 2, visualType: 'number-line-advanced' });
@@ -29,7 +29,7 @@ export const generateOfflineMoneyCounting = async (options: GeneratorOptions): P
 
 export const generateOfflineVisualArithmetic = async (options: GeneratorOptions): Promise<VisualArithmeticData[]> => {
     const { worksheetCount } = options;
-    return Array.from({ length: worksheetCount }, () => ({
+    return Array.from({ length: worksheetCount ?? 1 }, () => ({
         title: 'Görsel Aritmetik',
         instruction: 'İşlemleri tamamla.',
         problems: [{ num1: 5, num2: 3, operator: '+', answer: 8, visualType: 'ten-frame' }]

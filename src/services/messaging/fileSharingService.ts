@@ -81,7 +81,7 @@ export const fileSharingService = {
 
     const scanResult = await fileSharingService.simulateVirusScan(file);
     if (scanResult === "infected") {
-      throw new InternalServerError("Dosyada zararlı yazılım tespit edildi.", "VIRUS_DETECTED");
+      throw new InternalServerError("Dosyada zararlı yazılım tespit edildi.");
     }
 
     const type = getAttachmentType(file);

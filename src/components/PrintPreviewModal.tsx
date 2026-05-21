@@ -46,7 +46,7 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
     try {
       const result = renderAllPagesPreview(
         container,
-        paperSize as PaperSize,
+        paperSize as unknown as PaperSize,
         '.worksheet-page, .a4-page, .universal-mode-canvas, .print-page'
       );
 
@@ -117,12 +117,12 @@ export const PrintPreviewModal: React.FC<PrintPreviewModalProps> = ({
       if (action === 'print') {
         await printService.generatePdf(targetSelector, title, {
           action: 'print',
-          paperSize: paperSize as PaperSize,
+          paperSize: paperSize as unknown as PaperSize,
         });
       } else if (action === 'pdf') {
         setExportProgress({ open: true, percent: 0, message: 'PDF Hazırlanıyor...' });
         await printService.generateRealPdf(targetSelector, title, {
-          paperSize: paperSize as PaperSize,
+          paperSize: paperSize as unknown as PaperSize,
           quality: 'print',
           onProgress: (percent, msg) => setExportProgress({ open: true, percent, message: msg }),
         });

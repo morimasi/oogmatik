@@ -89,5 +89,5 @@ export const generateCiftMetinFromAI = async (config: CiftMetinConfig): Promise<
     };
     
     const schema = { type: 'ARRAY', items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<any[]>;
+    return generateWithSchema(prompt, schema) as unknown as Promise<any[]>;
 };

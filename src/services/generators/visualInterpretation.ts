@@ -84,23 +84,23 @@ JSON ÇIKTI FORMATI: (Yalnızca geçerli JSON döndür)
     });
 
     // Görsel üretimini dene
-    const blocks = (generatedData as Record<string, unknown>)?.layoutArchitecture as Record<string, unknown> | undefined;
-    const blockList = blocks?.blocks as Record<string, unknown>[] | undefined;
+    const blocks = (generatedData as unknown as Record<string, unknown>)?.layoutArchitecture as unknown as Record<string, unknown> | undefined;
+    const blockList = blocks?.blocks as unknown as Record<string, unknown>[] | undefined;
     const imageBlock = blockList?.find(b => b.type === 'image');
-    if (imageBlock && (imageBlock.content as Record<string, unknown>)?.prompt) {
+    if (imageBlock && (imageBlock.content as unknown as Record<string, unknown>)?.prompt) {
       try {
         const imgResponse = await fetch('/api/ai/generate-image', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            prompt: (imageBlock.content as Record<string, unknown>).prompt,
+            prompt: (imageBlock.content as unknown as Record<string, unknown>).prompt,
             style: options.visualStyle || 'illustration'
           })
         });
         if (imgResponse.ok) {
           const imgData = await imgResponse.json() as { base64?: string };
           if (imgData.base64) {
-            (imageBlock.content as Record<string, unknown>).base64 = imgData.base64;
+            (imageBlock.content as unknown as Record<string, unknown>).base64 = imgData.base64;
           }
         }
       } catch {
@@ -113,11 +113,11 @@ JSON ÇIKTI FORMATI: (Yalnızca geçerli JSON döndür)
       generatedData.id = crypto.randomUUID();
     }
 
-    return generatedData as WorksheetData;
+    return generatedData as unknown as WorksheetData;
   }
 }
 
 export const generateVisualInterpretationFromAI = async (options: GeneratorOptions): Promise<WorksheetData> => {
   const generator = new VisualInterpretationGenerator();
-  return generator.generate(options) as Promise<WorksheetData>;
+  return generator.generate(options) as unknown as Promise<WorksheetData>;
 };

@@ -139,7 +139,7 @@ export const generateVisualOddOneOutFromAI = async (
   };
 
   const schema = { type: 'ARRAY', items: singleSchema };
-  return generateWithSchema(prompt, schema) as Promise<VisualOddOneOutData[]>;
+  return generateWithSchema(prompt, schema) as unknown as Promise<VisualOddOneOutData[]>;
 };
 
 export const generateFindTheDifferenceFromAI = async (
@@ -204,5 +204,5 @@ export const generateFindTheDifferenceFromAI = async (
   };
 
   const schema = { type: 'ARRAY', items: singleSchema };
-  return generateWithSchema(prompt, schema) as Promise<FindTheDifferenceData[]>;
+  return generateWithSchema(prompt, schema) as unknown as Promise<FindTheDifferenceData[]>;
 };

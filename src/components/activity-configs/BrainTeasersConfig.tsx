@@ -10,8 +10,8 @@ const CATEGORIES = ['Dil', 'Mantık', 'Sayı', 'Görsel'] as const;
 type CategoryName = (typeof CATEGORIES)[number];
 
 export const BrainTeasersConfig: React.FC<BrainTeasersConfigProps> = ({ options, onChange }) => {
-  const selectedCategories: CategoryName[] = Array.isArray(options.selectedCategories)
-    ? (options.selectedCategories as CategoryName[])
+  const selectedCategories: CategoryName[] = Array.isArray((options as Record<string, unknown>).selectedCategories)
+    ? ((options as Record<string, unknown>).selectedCategories as CategoryName[])
     : [...CATEGORIES];
 
   const toggleCategory = (cat: CategoryName) => {
@@ -111,7 +111,7 @@ export const BrainTeasersConfig: React.FC<BrainTeasersConfigProps> = ({ options,
         <label className="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-xl cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
           <input
             type="checkbox"
-            checked={Boolean(options.showHints)}
+            checked={Boolean((options as Record<string, unknown>).showHints)}
             onChange={(e) => onChange('showHints' as keyof GeneratorOptions, e.target.checked)}
             className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500 border-zinc-300"
           />

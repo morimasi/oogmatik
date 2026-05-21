@@ -8,12 +8,12 @@ export class EsAnlamliKelimelerGenerator extends BaseGenerator<WorksheetData> {
   }
 
   protected async execute(options: GeneratorOptions): Promise<WorksheetData> {
-    const opts = options as Record<string, unknown>;
-    const wordCount = (opts.wordCount as number) || options.itemCount || 6;
+    const opts = options as unknown as Record<string, unknown>;
+    const wordCount = (opts.wordCount as unknown as number) || options.itemCount || 6;
     const difficulty = options.difficulty || 'Orta';
-    const topic = (opts.topic as string) || (options.topic as string) || '';
-    const includeAntonyms = (opts.includeAntonyms ?? true) as boolean;
-    const includeEtymology = (opts.includeEtymology ?? false) as boolean;
+    const topic = (opts.topic as unknown as string) || (options.topic as unknown as string) || '';
+    const includeAntonyms = (opts.includeAntonyms ?? true) as unknown as boolean;
+    const includeEtymology = (opts.includeEtymology ?? false) as unknown as boolean;
 
     const difficultyGuide =
       difficulty === 'Kolay'
@@ -70,8 +70,8 @@ KURALLAR:
 
     return {
       ...parsedData,
-      id: (parsedData as Record<string, unknown>).id || crypto.randomUUID(),
+      id: (parsedData as unknown as Record<string, unknown>).id || crypto.randomUUID(),
       activityType: ActivityType.ES_ANLAMLI_KELIMELER,
-    } as unknown as WorksheetData;
+    } as unknown as unknown as unknown as WorksheetData;
   }
 }

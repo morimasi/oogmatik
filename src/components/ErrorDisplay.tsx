@@ -107,18 +107,25 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
           </p>
 
           {/* Error code for debugging */}
-          {isAppError && (
-            <p className={`text-[10px] ${ui.textColor} opacity-60 mt-1 font-mono`}>
-              Kod: {errorCode}
+          {isAppError ? (
+            <p className={`text-[10px] ${(ui.textColor as unknown as string)} opacity-60 mt-1 font-mono`}>
+              Kod: {String(errorCode)}
             </p>
-          )}
+          ) : null}
+
+          {/* Raw error fallback */}
+          {!isAppError && error ? (
+            <p className={`text-[10px] ${(ui.textColor as unknown as string)} opacity-60 mt-1 font-mono`}>
+              {String(error)}
+            </p>
+          ) : null}
 
           {/* Rate limit specific info */}
-          {error instanceof RateLimitError && error.details?.retryAfter && (
+          {error instanceof RateLimitError && (error.details as unknown as Record<string, unknown>)?.retryAfter && (
             <p className={`text-xs ${ui.textColor} opacity-75 mt-2`}>
               Lütfen{' '}
               <span className="font-bold">
-                {Math.ceil(Number(error.details.retryAfter) / 1000)} saniye
+                {Math.ceil(Number((error.details as unknown as Record<string, unknown>).retryAfter) / 1000)} saniye
               </span>{' '}
               sonra tekrar deneyin.
             </p>

@@ -90,7 +90,7 @@ export const AdminPermissionsIDE: React.FC = () => {
       await rbacService.saveSettings(settings);
       toast.success('Yetki matrisi başarıyla güncellendi');
     } catch (error) {
-      logError('RBAC save UI error', error as any);
+      logError('RBAC save UI error', error as unknown as any);
       toast.error('Ayarlar kaydedilemedi');
     } finally {
       setIsSaving(false);
@@ -118,7 +118,7 @@ export const AdminPermissionsIDE: React.FC = () => {
     );
   }
 
-  const allModules: PermissionModule[] = Object.keys(MODULE_LABELS) as PermissionModule[];
+  const allModules: PermissionModule[] = Object.keys(MODULE_LABELS) as unknown as PermissionModule[];
 
   const actionLabels: Record<PermissionAction, string> = {
       view: 'Gör',
@@ -134,13 +134,23 @@ export const AdminPermissionsIDE: React.FC = () => {
   const roleColors: Record<UserRole, string> = {
     superadmin: 'text-red-400 bg-red-500/10 border-red-500/20',
     admin: 'text-orange-400 bg-orange-500/10 border-orange-500/20',
-    teacher: 'text-blue-400 bg-blue-500/10 border-blue-500/20'
+    teacher: 'text-blue-400 bg-blue-500/10 border-blue-500/20',
+    student: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+    editor: 'text-purple-400 bg-purple-500/10 border-purple-500/20',
+    parent: 'text-pink-400 bg-pink-500/10 border-pink-500/20',
+    guest: 'text-gray-400 bg-gray-500/10 border-gray-500/20',
+    user: 'text-zinc-400 bg-zinc-500/10 border-zinc-500/20',
   };
 
   const roleLabels: Record<UserRole, string> = {
       superadmin: 'Süper Admin',
       admin: 'Yönetici',
-      teacher: 'Öğretmen'
+      teacher: 'Öğretmen',
+      student: 'Öğrenci',
+      editor: 'Editör',
+      parent: 'Veli',
+      guest: 'Misafir',
+      user: 'Kullanıcı',
   };
 
   return (
@@ -174,11 +184,11 @@ export const AdminPermissionsIDE: React.FC = () => {
             key={rolePerm.role}
             onClick={() => setSelectedRole(rolePerm.role)}
             className={`px-6 py-3 rounded-xl border transition-all text-xs font-bold uppercase tracking-widest ${selectedRole === rolePerm.role
-              ? roleColors[rolePerm.role as UserRole] + ' border-current shadow-lg'
+              ? roleColors[rolePerm.role as unknown as UserRole] + ' border-current shadow-lg'
               : 'text-gray-400 bg-transparent border-transparent hover:bg-white/5'
               }`}
           >
-            {roleLabels[rolePerm.role as UserRole] || rolePerm.role.toUpperCase()}
+            {roleLabels[rolePerm.role as unknown as UserRole] || rolePerm.role.toUpperCase()}
           </button>
         ))}
       </div>
@@ -238,11 +248,11 @@ export const AdminPermissionsIDE: React.FC = () => {
                         </button>
                       </td>
                       {Object.keys(actionLabels).map((action) => {
-                        const hasAction = modulePerm?.actions.includes(action as PermissionAction) || false;
+                        const hasAction = modulePerm?.actions.includes(action as unknown as PermissionAction) || false;
                         return (
                           <td key={action} className="py-4 px-3 text-center">
                             <button
-                              onClick={() => toggleAction(selectedRole, module, action as PermissionAction)}
+                              onClick={() => toggleAction(selectedRole, module, action as unknown as PermissionAction)}
                               disabled={!isEnabled}
                               className={`w-8 h-8 rounded-lg transition-all flex items-center justify-center font-bold text-[10px] ${hasAction
                                 ? isEnabled
@@ -288,12 +298,12 @@ export const AdminPermissionsIDE: React.FC = () => {
                     onClick={() => {
                         if (!settings) return;
                         const updated = { ...settings };
-                        (updated.globalSettings as any)[item.key] = !(updated.globalSettings as any)[item.key];
+                        (updated.globalSettings as unknown as any)[item.key] = !(updated.globalSettings as unknown as any)[item.key];
                         setSettings(updated);
                     }}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${ (settings.globalSettings as any)[item.key] ? (item.danger ? 'bg-red-500/20' : 'bg-emerald-500/20') : 'bg-gray-800' }`}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${ (settings.globalSettings as unknown as any)[item.key] ? (item.danger ? 'bg-red-500/20' : 'bg-emerald-500/20') : 'bg-gray-800' }`}
                   >
-                    <span className={`inline-block h-4 w-4 transform rounded-full transition-transform ${ (settings.globalSettings as any)[item.key] ? `translate-x-6 ${item.danger ? 'bg-red-500 shadow-red-500/40' : 'bg-emerald-500 shadow-emerald-500/40'} shadow-lg` : 'translate-x-1 bg-gray-600' }`} />
+                    <span className={`inline-block h-4 w-4 transform rounded-full transition-transform ${ (settings.globalSettings as unknown as any)[item.key] ? `translate-x-6 ${item.danger ? 'bg-red-500 shadow-red-500/40' : 'bg-emerald-500 shadow-emerald-500/40'} shadow-lg` : 'translate-x-1 bg-gray-600' }`} />
                   </button>
                 </div>
               ))}

@@ -120,7 +120,7 @@ A4 sayfasını TAMAMEN dolduracak, 25-40 cümlelik uzun metin üret. Kompakt ve 
 }
 
 export function buildCiftMetinPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
-  const c = config as any;
+  const c = config as unknown as any;
   const interleaveModeLabel = c.interleaveMode === 'kelime' ? 'kelime kelime' : c.interleaveMode === 'satir' ? 'satır satır' : 'paragraf paragraf';
   
   return `${SARI_KITAP_SYSTEM_INSTRUCTION}

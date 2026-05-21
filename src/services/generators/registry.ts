@@ -244,7 +244,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflinePremiumPunctuationMaze,
   },
   [ActivityType.MATH_STUDIO]: {
-    ai: (options) => aiGenerators.generateMathProblemsAI(options as any),
+    ai: (options) => aiGenerators.generateMathProblemsAI(options as unknown as any),
     offline: offlineGenerators.generateOfflinePremiumMathStudio,
   },
   [ActivityType.ALGORITHM_GENERATOR]: {

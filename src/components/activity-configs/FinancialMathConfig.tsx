@@ -39,7 +39,7 @@ export const FinancialMathConfig: React.FC<{ options: GeneratorOptions; onChange
                 <div className="space-y-1">
                     <label className="text-[10px] font-bold text-zinc-500 uppercase block">İşlem Limiti (TL)</label>
                     <select 
-                        value={options.numberRange || '1-100'} 
+                        value={typeof options.numberRange === 'string' ? options.numberRange : '1-100'} 
                         onChange={e => onChange('numberRange', e.target.value)}
                         className="w-full p-2.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold"
                     >

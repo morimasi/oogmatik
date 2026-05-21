@@ -42,7 +42,7 @@ export const ResultDetailPanel: React.FC = () => {
     try {
       const prompt = assessmentEngineService.buildAnalysisPrompt(currentScreening);
       const schema = assessmentEngineService.getAIAnalysisSchema();
-      const response = (await generateWithSchema(prompt, schema)) as AIAnalysisResult;
+      const response = (await generateWithSchema(prompt, schema)) as unknown as AIAnalysisResult;
       setAiAnalysis({
         letter: typeof response?.letter === 'string' ? response.letter : String(response?.letter ?? ''),
         actionSteps: assessmentEngineService.normalizeActionSteps(response?.actionSteps),

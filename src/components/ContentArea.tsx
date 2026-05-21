@@ -149,7 +149,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           activeWorksheetTitle ||
           (Array.isArray(worksheetData)
             ? worksheetData[0]?.title
-            : (worksheetData as any)?.title) ||
+            : (worksheetData as unknown as any)?.title) ||
           'Yeni Etkinlik';
         currentId = await onSave!(title, activityType!, worksheetData);
         if (currentId) {
@@ -188,7 +188,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
           activeWorksheetTitle ||
           (Array.isArray(worksheetData)
             ? worksheetData[0]?.title
-            : (worksheetData as any)?.title) ||
+            : (worksheetData as unknown as any)?.title) ||
           'Yeni Etkinlik';
         currentId = await onSave!(title, activityType!, worksheetData);
         if (currentId) {
@@ -248,7 +248,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       if (currentView !== 'generator' || processedData.length === 0 || isLoading) return;
 
       // Kontrol: Fare A4 kağıdı üzerinde mi?
-      const target = e.target as HTMLElement;
+      const target = e.target as unknown as HTMLElement;
       const isHoveringPaper =
         target.closest('.worksheet-page') || target.closest('[data-worksheet-content="true"]');
 

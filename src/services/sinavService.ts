@@ -55,7 +55,7 @@ export const generateExamViaAPI = async (settings: SinavAyarlari): Promise<Sinav
         'Sunucuya bağlanılamadı. İnternet bağlantınızı kontrol edin.',
         'NETWORK_ERROR',
         0,
-        error,
+        { message: error.message, name: error.name },
         true
       );
     }

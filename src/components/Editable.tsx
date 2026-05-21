@@ -46,9 +46,9 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
     // Reset selection when clicking outside
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
-            if (isEditMode && ref.current && !ref.current.contains(e.target as Node)) {
+            if (isEditMode && ref.current && !ref.current.contains(e.target as unknown as Node)) {
                 // Ignore if clicking a handle
-                if (!(e.target as HTMLElement).closest('.edit-handle')) {
+                if (!(e.target as unknown as HTMLElement).closest('.edit-handle')) {
                     setIsSelected(false);
                 }
             }
@@ -66,7 +66,7 @@ export const EditableElement: React.FC<EditableElementProps> = ({ children, clas
             return;
         }
         // Don't drag if clicking handles or contentEditable
-        if ((e.target as HTMLElement).closest('.edit-handle') || (e.target as HTMLElement).isContentEditable) return;
+        if ((e.target as unknown as HTMLElement).closest('.edit-handle') || (e.target as unknown as HTMLElement).isContentEditable) return;
 
         e.stopPropagation(); // Stop pan of canvas
         setIsSelected(true);
@@ -249,7 +249,7 @@ export const EditableText: React.FC<{
 
     useEffect(() => { setText(safeValue); }, [safeValue]);
 
-    const Tag = tag as any;
+    const Tag = tag as unknown as any;
 
     if (!isEditMode) {
         // Safe render

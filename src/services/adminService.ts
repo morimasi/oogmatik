@@ -295,7 +295,7 @@ export const adminService = {
             required: ["title", "description", "category"]
         });
 
-        return result;
+        return result as Partial<DynamicActivity>;
     },
 
     deleteDraft: async (id: string) => {

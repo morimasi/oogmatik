@@ -71,7 +71,7 @@ export const printService = {
           }, 1000);
       }
     } catch (error) {
-      logError('PDF Generation Error:', error);
+      logError('PDF Generation Error:', typeof error === 'object' && error !== null && !Array.isArray(error) ? error as Record<string, unknown> : undefined);
       document.body.classList.remove('printing-mode');
     }
   },

@@ -13,7 +13,7 @@ export const generateHizliOkumaFromAI = async (options: GeneratorOptions): Promi
     const generationSeed = Date.now() + Math.random();
     
     // Premium settings
-    const settings = customSettings as any || {};
+    const settings = customSettings as unknown as any || {};
     const columnMode = settings.columnMode || 'tek';
     const lineSpacing = settings.lineSpacing || 'orta';
     const rhythmicMode = settings.rhythmicMode !== false;
@@ -76,5 +76,5 @@ export const generateHizliOkumaFromAI = async (options: GeneratorOptions): Promi
     };
     
     const schema = { type: 'ARRAY', items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<any[]>;
+    return generateWithSchema(prompt, schema) as unknown as Promise<any[]>;
 };

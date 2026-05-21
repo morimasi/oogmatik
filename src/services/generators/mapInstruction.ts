@@ -57,13 +57,13 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
         temperature: 0.7
     });
 
-    const items = (Array.isArray(response) ? response : [response]) as any[];
+    const items = (Array.isArray(response) ? response : [response]) as unknown as any[];
 
     // Veri Tamamlama (Post-processing): AI'nın döndüğü objelere eksik 'cities' verisini ekle
     const processedData = items.map(item => ({
         ...item,
         cities: CALIBRATED_CITIES // Tüm koordinat verilerini jeneratörden enjekte ediyoruz
-    })) as MapInstructionData[];
+    })) as unknown as MapInstructionData[];
 
     return processedData;
 };

@@ -25,7 +25,7 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
         'advanced': 'Metaforik dil, zengin sıfat kullanımı, yüksek edebi değer.'
     };
 
-    const profile = config.studentProfile || {} as any;
+    const profile = config.studentProfile || {} as unknown as any;
     const diagnosisStr = profile.diagnosis?.join(', ') || 'Özel Öğrenme Güçlüğü (Genel)';
     const interestsStr = profile.interests?.join(', ') || 'Macera, Bilim, Doğa';
 
@@ -51,7 +51,7 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
     - Sınıf Seviyesi: ${config.gradeLevel}
     
     İÇERİK MİMARİSİ (AŞAĞIDAKİ TÜM BİLEŞENLERİ EKSİKSİZ ÜRET):
-    1. STORY: ${lengthMap[config.length as keyof typeof lengthMap] || lengthMap['medium']} uzunluğunda, ${complexityMap[config.textComplexity as keyof typeof complexityMap] || complexityMap['moderate']} yapıda sürükleyici bir anlatı.
+    1. STORY: ${lengthMap[config.length as unknown as keyof typeof lengthMap] || lengthMap['medium']} uzunluğunda, ${complexityMap[config.textComplexity as unknown as keyof typeof complexityMap] || complexityMap['moderate']} yapıda sürükleyici bir anlatı.
     2. SYLLABIFIED_STORY: Story alanındaki metnin aynısını, her kelimenin hecelerini kısa çizgi ile ayırarak oluştur.
     3. PEDAGOGICAL_GOALS: Bu metinle hedeflenen 3-5 adet bilişsel hedef.
     4. 5N1K: Metne dayalı 6 soru (Kim, Ne, Nerede, Ne Zaman, Nasıl, Neden) ve cevapları.
@@ -127,5 +127,5 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
         required: ['title', 'story', 'syllabifiedStory', 'pedagogicalGoals', 'multipleChoice', 'syllableTrain', 'creativePrompt']
     };
 
-    return await generateWithSchema(prompt, schema);
+    return await generateWithSchema(prompt, schema) as unknown as InteractiveStoryData;
 };

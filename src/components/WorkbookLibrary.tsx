@@ -50,7 +50,7 @@ export const WorkbookLibrary: React.FC<WorkbookLibraryProps> = ({
       const tmpls = getAllTemplates();
       setTemplates(tmpls);
     } catch (error) {
-      logError('Failed to load library:', error as Record<string, unknown>);
+      logError('Failed to load library:', error as unknown as Record<string, unknown>);
     } finally {
       setLoading(false);
     }
@@ -67,7 +67,7 @@ export const WorkbookLibrary: React.FC<WorkbookLibraryProps> = ({
       const duplicated = await duplicateWorkbook(workbookId, userId);
       setWorkbooks([...workbooks, duplicated]);
     } catch (error) {
-      logError('Failed to duplicate:', error as Record<string, unknown>);
+      logError('Failed to duplicate:', error as unknown as Record<string, unknown>);
     }
   }
 
@@ -78,13 +78,13 @@ export const WorkbookLibrary: React.FC<WorkbookLibraryProps> = ({
       await deleteWorkbook(workbookId, userId);
       setWorkbooks(workbooks.filter((wb) => wb.id !== workbookId));
     } catch (err) {
-      logError('Kitapçık silme hatası:', err as Record<string, unknown>);
+      logError('Kitapçık silme hatası:', err as unknown as Record<string, unknown>);
     }
   }
 
   return (
     <div className="workbook-library h-full flex flex-col bg-[var(--bg-default)]">
-      {/* Header - Compact SaaS Style */}
+      {/* Header - Compact Saas unknown as Style */}
       <header className="p-4 bg-[var(--bg-paper)] border-b border-[var(--border-color)]">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
@@ -120,7 +120,7 @@ export const WorkbookLibrary: React.FC<WorkbookLibraryProps> = ({
 
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as any)}
+            onChange={(e) => setStatusFilter(e.target.value as unknown as any)}
             className="px-3 py-2 rounded-xl text-xs font-bold border outline-none bg-[var(--bg-inset)] cursor-pointer"
             style={{ borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
           >

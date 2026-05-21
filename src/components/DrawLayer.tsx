@@ -14,7 +14,7 @@ export const DrawLayer: React.FC<DrawLayerProps> = ({ isActive, zoom }) => {
     const [lineWidth, setLineWidth] = useState(2);
     const [tool, setTool] = useState<'pen' | 'eraser'>('pen');
 
-    // Initialize Canvas Context
+    // Initialize Canvas unknown as Context
     useEffect(() => {
         if (canvasRef.current) {
             const ctx = canvasRef.current.getContext('2d');
@@ -78,8 +78,8 @@ export const DrawLayer: React.FC<DrawLayerProps> = ({ isActive, zoom }) => {
             clientX = e.touches[0].clientX;
             clientY = e.touches[0].clientY;
         } else {
-            clientX = (e as MouseEvent).clientX;
-            clientY = (e as MouseEvent).clientY;
+            clientX = (e as unknown as MouseEvent).clientX;
+            clientY = (e as unknown as MouseEvent).clientY;
         }
 
         return {

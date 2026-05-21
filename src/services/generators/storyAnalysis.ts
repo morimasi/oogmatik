@@ -49,7 +49,7 @@ export const generateStoryAnalysisFromAI = async (options: GeneratorOptions): Pr
     'uzman': { gradeMin: 7, gradeMax: 8, storyLength: 'çok uzun', vocabularyCount: 10, questionCount: 10 }
   };
 
-  const config = difficultyConfig[difficulty as keyof typeof difficultyConfig] || difficultyConfig['orta'];
+  const config = difficultyConfig[difficulty as unknown as keyof typeof difficultyConfig] || difficultyConfig['orta'];
   
   const actualQuestionCount = questionCount || config.questionCount;
   const actualVocabularyCount = vocabularyWordCount || config.vocabularyCount;
@@ -159,7 +159,7 @@ export const generateStoryAnalysisFromAI = async (options: GeneratorOptions): Pr
         ],
         "visualElements": {
           "icons": [
-            { "position": 0, "icon": "fas fa-book", "style": "text-indigo-500 text-xl" }
+            { "position": 0, "icon": "fas unknown as fa-book", "style": "text-indigo-500 text-xl" }
           ]
         }
       },

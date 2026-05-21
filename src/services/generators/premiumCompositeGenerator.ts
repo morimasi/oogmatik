@@ -103,7 +103,7 @@ ${widgetListStr}
                 let cleanedText = rawResponse.text.replace(/```json\n?/i, '').replace(/```\n?/g, '').trim();
                 response = JSON.parse(cleanedText);
             } catch (e) {
-                logError('Markdown JSON parse hatası:', e);
+                logError('Markdown JSON parse hatası:', typeof e === 'object' && e !== null && !Array.isArray(e) ? e as unknown as Record<string, unknown> : undefined);
                 throw new AppError('Yapay zeka yanıtı çözümleyemedi. Lütfen tekrar deneyin.', 'JSON_PARSE_ERROR', 500);
             }
         }
@@ -127,7 +127,7 @@ ${widgetListStr}
         }
 
         if (!response || !response.widgets || !Array.isArray(response.widgets)) {
-            logError('Beklenmeyen AI Yanıtı:', rawResponse);
+            logError('Beklenmeyen AI Yanıtı:', typeof rawResponse === 'object' && rawResponse !== null && !Array.isArray(rawResponse) ? rawResponse as unknown as Record<string, unknown> : undefined);
             throw new AppError('Yapay zeka beklenen formati üretemedi (widgets dizisi bulunamadı). Lütfen tekrar deneyin.', 'INVALID_AI_RESPONSE', 500);
         }
 
@@ -157,9 +157,9 @@ ${widgetListStr}
             status: 'draft',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
-        } as CompositeWorksheet;
+        } as unknown as CompositeWorksheet;
     } catch (error) {
-        logError('Composite Worksheet Generation Error:', error);
+        logError('Composite Worksheet Generation Error:', typeof error === 'object' && error !== null && !Array.isArray(error) ? error as unknown as Record<string, unknown> : undefined);
         throw error;
     }
 }

@@ -43,7 +43,7 @@ export const generateFromRichPrompt = async (
 
     // Tip bazlı direktif (sadece yeni içerik üretiminde)
     const typePatch = !options.isExactClone && options.detectedType
-        ? buildDetectedTypePromptPatch(options.detectedType as OCRDetectedType)
+        ? buildDetectedTypePromptPatch(options.detectedType as unknown as OCRDetectedType)
         : '';
 
     // Yoğunluk direktifi (sadece yeni içerik üretiminde)

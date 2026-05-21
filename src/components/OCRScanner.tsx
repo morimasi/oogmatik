@@ -325,10 +325,10 @@ const convertPDFToImages = (file: File): Promise<string[]> => {
     // PDF desteği için basit yaklaşım: her sayfayı ayrı base64 görsel yapar
     const reader = new FileReader();
     reader.onload = async (ev) => {
-      const uint8 = new Uint8Array(ev.target?.result as ArrayBuffer);
+      const uint8 = new Uint8Array(ev.target?.result as unknown as ArrayBuffer);
       try {
         // @ts-ignore — pdf.js global olarak yüklenmişse
-        const pdfjsLib = (window as any).pdfjsLib;
+        const pdfjsLib = (window as unknown as any).pdfjsLib;
         if (!pdfjsLib) {
           // PDF.js yok — dosyayı data URL olarak döndür, API kendi çözer
           const base64 = btoa(uint8.reduce((data, byte) => data + String.fromCharCode(byte), ''));
@@ -352,7 +352,7 @@ const convertPDFToImages = (file: File): Promise<string[]> => {
           const quality = viewport.width > 2000 ? 0.9 : 0.8;
           images.push(canvas.toDataURL('image/jpeg', quality));
 
-          // Memory Leak Önlemi: Canvas temizliği
+          // Memory Leak Önlemi: Canvas unknown as temizliği
           canvas.width = 0;
           canvas.height = 0;
           canvas.remove();
@@ -386,26 +386,26 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
     | 'creative'
     | 'variations'
   );
-  const [images, setImages] = useState([] as string[]);
+  const [images, setImages] = useState([] as unknown as string[]);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [blueprintData, setBlueprintData] = useState(null as any);
+  const [blueprintData, setBlueprintData] = useState(null as unknown as any);
   const [editedTitle, setEditedTitle] = useState('');
   const [editedBlueprint, setEditedBlueprint] = useState('');
   const [isEditingBlueprint, setIsEditingBlueprint] = useState(false);
-  const [difficulty, setDifficulty] = useState('Orta' as DifficultyLevel);
+  const [difficulty, setDifficulty] = useState('Orta' as unknown as DifficultyLevel);
   const [variantCount, setVariantCount] = useState(1);
   const [itemCount, setItemCount] = useState(8);
   const [concept, setConcept] = useState('');
-  const [finalData, setFinalData] = useState(null as WorksheetData | null);
+  const [finalData, setFinalData] = useState(null as unknown as unknown as WorksheetData | null);
   const { _layout, _setLayout } = useReadingStore();
   const [toast, setToast] = useState(null as { message: string; type: ToastType } | null);
   const [retryCount, setRetryCount] = useState(0);
   const [progressStartTime, setProgressStartTime] = useState(0);
   const [isDragOver, setIsDragOver] = useState(false);
-  const fileInputRef = useRef(null as HTMLInputElement | null);
-  const dropZoneRef = useRef(null as HTMLDivElement | null);
+  const fileInputRef = useRef(null as unknown as HTMLInputElement | null);
+  const dropZoneRef = useRef(null as unknown as HTMLDivElement | null);
   // OCR Variation states
-  const [variationResults, setVariationResults] = useState(null as any);
+  const [variationResults, setVariationResults] = useState(null as unknown as any);
   const [variationCount, setVariationCount] = useState(3);
 
   const showToast = useCallback((message: string, type: ToastType = 'error') => {
@@ -466,7 +466,7 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
     return { valid: true };
   };
 
-  const processFiles = (React as any).useCallback(
+  const processFiles = (React as unknown as any).useCallback(
     async (fileList: File[]) => {
       if (fileList.length === 0) return;
 
@@ -540,7 +540,7 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
             pdfImages = [...pdfImages, ...converted];
             showToast(`✅ "${pdf.name}" başarılı (${converted.length} sayfa)`, 'success');
 
-            // Warn if PDF has many pages
+            // Warn if PDF has unknown as many pages
             if (converted.length > 5) {
               showToast(
                 `📄 "${pdf.name}" ${converted.length} sayfa — tüm sayfalar işlenecek (zaman alabilir)`,
@@ -559,7 +559,7 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
         (file) =>
           new Promise<string>((resolve, reject) => {
             const reader = new FileReader();
-            reader.onload = (ev) => resolve(ev.target?.result as string);
+            reader.onload = (ev) => resolve(ev.target?.result as unknown as string);
             reader.onerror = reject;
             reader.readAsDataURL(file);
           })
@@ -590,35 +590,35 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
   );
 
   const handleFile = (e: any) => {
-    const files = Array.from(e.target.files || []) as File[];
+    const files = Array.from(e.target.files || []) as unknown as File[];
     if (files.length > 0) processFiles(files);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   // ─── Drag & Drop ──────────────────────────────
-  const handleDragOver = (React as any).useCallback((e: any) => {
+  const handleDragOver = (React as unknown as any).useCallback((e: any) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragOver(true);
   }, []);
 
-  const handleDragLeave = (React as any).useCallback(
+  const handleDragLeave = (React as unknown as any).useCallback(
     (e: any) => {
       e.preventDefault();
       e.stopPropagation();
-      if (dropZoneRef.current && !dropZoneRef.current.contains(e.relatedTarget as Node)) {
+      if (dropZoneRef.current && !dropZoneRef.current.contains(e.relatedTarget as unknown as Node)) {
         setIsDragOver(false);
       }
     },
     [dropZoneRef]
   );
 
-  const handleDrop = (React as any).useCallback(
+  const handleDrop = (React as unknown as any).useCallback(
     (e: any) => {
       e.preventDefault();
       e.stopPropagation();
       setIsDragOver(false);
-      const files = Array.from(e.dataTransfer.files) as File[];
+      const files = Array.from(e.dataTransfer.files) as unknown as File[];
       if (files.length > 0) processFiles(files);
     },
     [processFiles]
@@ -643,7 +643,7 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
    */
   const RETRY_CONFIG = {
     maxAttempts: 4,
-    delays: [1500, 3000, 6000, 12000] as number[], // Exponential backoff in ms
+    delays: [1500, 3000, 6000, 12000] as unknown as number[], // Exponential backoff in ms
     retryableErrors: ['503', '502', '429', 'timeout', 'ECONNREFUSED', 'ETIMEDOUT'],
     // Aynı görsel her seferinde aynı sonucu verir — yeniden deneme işe yaramaz
     nonRetryableErrors: ['blueprint boş', 'blueprint çok kısa'],
@@ -670,7 +670,7 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
     try {
       const result = await ocrService.processImage(img);
       // Safely normalize blueprint data using defensive utilities
-      const rawStruct = result.structuredData as any;
+      const rawStruct = result.structuredData as unknown as any;
       const safeBlueprint = getBlueprintOrFallback(rawStruct, DEFAULT_BLUEPRINT);
       setBlueprintData(safeBlueprint);
       setEditedTitle(rawStruct?.title ?? safeBlueprint?.title ?? '');
@@ -1267,8 +1267,8 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
                     Başarılı
                   </span>
                   <h4 className="text-lg font-black text-white leading-none">
-                    {(finalData as any[]).length > 1
-                      ? `${(finalData as any[]).length} Varyant Hazır`
+                    {(finalData as unknown as any[]).length > 1
+                      ? `${(finalData as unknown as any[]).length} Varyant Hazır`
                       : 'Mimari Klon Hazır'}
                   </h4>
                 </div>

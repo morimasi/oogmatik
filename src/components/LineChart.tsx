@@ -61,7 +61,7 @@ export const LineChart = ({ data, lines, height = 250 }: LineChartProps) => {
                 {/* Lines */}
                 {lines.map((line: { key: string; color: string; label: string }) => {
                     const pathD = data.map((d: DataPoint, i: number) => {
-                        const val = d[line.key] as number || 0;
+                        const val = d[line.key] as unknown as number || 0;
                         const x = getX(i);
                         const y = getY(val);
                         return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
@@ -74,7 +74,7 @@ export const LineChart = ({ data, lines, height = 250 }: LineChartProps) => {
 
                             {/* The Dots */}
                             {data.map((d: DataPoint, i: number) => {
-                                const val = d[line.key] as number || 0;
+                                const val = d[line.key] as unknown as number || 0;
                                 return (
                                     <circle
                                         key={i}

@@ -181,7 +181,7 @@ export const getDefaultOptionsForActivity = (
         itemCount: 12,
         difficulty: 'Orta',
         topic: 'Genel Kültür',
-        fontSize: 14,
+        fontSize: 'medium',
         fontFamily: 'Lexend',
         compact: true,
         params: {

@@ -74,11 +74,11 @@ export const generateSentenceFiveWOneHFromAI = async (
       type: 'SENTENCE_5W1H',
       title: 'Cümlede 5N1K Çalışması',
       instruction: 'Aşağıdaki cümleleri okuyunuz ve ilgili 5N1K sorularını cevaplayınız.',
-      items: result.items as Sentence5W1HItem[],
+      items: result.items as unknown as Sentence5W1HItem[],
       settings: {
-        difficulty: difficulty as any,
+        difficulty: difficulty as unknown as any,
         topic: options.topic || 'Genel',
-        itemCount: itemCount as number,
+        itemCount: itemCount as unknown as number,
         showIcons: options.useIcons !== false,
         showPredicate: options.showPredicate === true
       },

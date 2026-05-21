@@ -108,16 +108,16 @@ Bu etkinlik, öğrencinin cebirsel düşünme başlangıcı, görsel mantık, e�
     required: ['title', 'instruction', 'puzzles', 'pedagogicalNote'],
   };
 
-  const result = await generateWithSchema(prompt, schema);
+  const result = await generateWithSchema(prompt, schema) as unknown as Record<string, unknown>;
 
   return {
     id: `math_puzzle_${Date.now()}`,
     activityType: ActivityType.MATH_PUZZLE,
-    title: result.title,
-    instruction: result.instruction,
-    pedagogicalNote: result.pedagogicalNote,
+    title: result.title as unknown as string,
+    instruction: result.instruction as unknown as string,
+    pedagogicalNote: result.pedagogicalNote as unknown as string,
     settings: { ...options, ...params },
-    content: result, // Doğrudan result'ı content olarak pass ediyoruz (puzzles içinde)
-    puzzles: result.puzzles // Gerekirse root'ta da kalsın
+    content: result,
+    puzzles: result.puzzles
   };
 };

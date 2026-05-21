@@ -35,6 +35,13 @@ export const DUMMY_ADVANCED_STUDENTS: AdvancedStudent[] = [
           targetDate: '2026-05-15',
           status: 'in_progress',
           progress: 65,
+          baseline: {
+            description: 'Öğrenci ses birimlerini ayırt etmede zorlanmaktadır.',
+            measurementDate: new Date().toISOString(),
+            measurementMethod: 'observation'
+          },
+          shortTermObjective: 'Hece birimlerini tanıma',
+          successCriteria: '%90 doğrulukla ses birimlerini ayırt etme',
           priority: 'high',
           strategies: ['Renkli heceleme', 'El-göz koordinasyonu'],
           resources: ['Hece kartları'],

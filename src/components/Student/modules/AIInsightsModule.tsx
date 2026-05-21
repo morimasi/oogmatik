@@ -86,7 +86,7 @@ export const AIInsightsModule: React.FC<{ student: AdvancedStudent }> = ({ stude
         <div className="bg-white dark:bg-zinc-900 p-10 rounded-[3.5rem] border border-zinc-200 dark:border-zinc-800 shadow-sm flex flex-col items-center justify-center">
           <h3 className="text-xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter mb-8 w-full text-center">Beceriler Analiz Radarı</h3>
           <div className="scale-110 lg:scale-[1.2]">
-            <RadarChart data={data.radarData} />
+            <RadarChart data={data.radarData.map(d => ({ label: d.skill, value: d.score }))} />
           </div>
         </div>
       </div>
@@ -120,24 +120,27 @@ export const AIInsightsModule: React.FC<{ student: AdvancedStudent }> = ({ stude
         </h3>
 
         <div className="relative pl-10 space-y-12 before:absolute before:left-0 before:top-2 before:bottom-2 before:w-px before:bg-gradient-to-b before:from-indigo-500 before:via-zinc-200 before:to-transparent dark:before:via-zinc-800">
-          {data.timeline.map((step, i) => (
-            <div key={i} className={`relative group/step ${!step.isPast ? 'opacity-60 hover:opacity-100 transition-opacity' : ''}`}>
-              <div className={`absolute -left-[45px] top-1 w-6 h-6 rounded-full border-4 border-white dark:border-zinc-900 ${step.isPast ? 'bg-indigo-600 shadow-xl group-hover/step:scale-125 transition-transform' : 'bg-zinc-300 dark:bg-zinc-800 shadow-sm'}`}></div>
+          {data.timeline.map((step, i) => {
+            const typedStep = step as unknown as { isPast?: boolean; title?: string; desc?: string };
+            return (
+            <div key={i} className={`relative group/step ${!typedStep.isPast ? 'opacity-60 hover:opacity-100 transition-opacity' : ''}`}>
+              <div className={`absolute -left-[45px] top-1 w-6 h-6 rounded-full border-4 border-white dark:border-zinc-900 ${typedStep.isPast ? 'bg-indigo-600 shadow-xl group-hover/step:scale-125 transition-transform' : 'bg-zinc-300 dark:bg-zinc-800 shadow-sm'}`}></div>
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                  <span className={`text-[10px] font-black uppercase tracking-widest block mb-1 ${step.isPast ? 'text-indigo-500' : 'text-zinc-400'}`}>
-                    {step.title}
+                  <span className={`text-[10px] font-black uppercase tracking-widest block mb-1 ${typedStep.isPast ? 'text-indigo-500' : 'text-zinc-400'}`}>
+                    {typedStep.title}
                   </span>
-                  <h4 className="font-black text-lg text-zinc-900 dark:text-white uppercase tracking-tight">{step.desc}</h4>
+                  <h4 className="font-black text-lg text-zinc-900 dark:text-white uppercase tracking-tight">{typedStep.desc}</h4>
                 </div>
-                {step.isPast && (
+                {typedStep.isPast && (
                   <span className="px-4 py-1.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-800/50">
                     Öngörüldü
                   </span>
                 )}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

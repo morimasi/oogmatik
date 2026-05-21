@@ -196,7 +196,7 @@ const Sidebar = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
+      const target = event.target as unknown as HTMLElement;
       if (
         (hoveredCategory || lockedCategory) &&
         !target.closest('.premium-popup-menu') &&
@@ -218,7 +218,7 @@ const Sidebar = ({
         dynamicActs.forEach((da) => {
           if (!mergedActivities.find((ex) => ex.id === da.id)) {
             mergedActivities.push({
-              id: da.id as any,
+              id: da.id as unknown as any,
               title: da.title,
               description: da.description,
               icon: da.icon,
@@ -233,7 +233,7 @@ const Sidebar = ({
             activities: [
               ...new Set([
                 ...cat.activities,
-                ...dynamicActs.filter((da) => da.category === cat.id).map((da) => da.id as any),
+                ...dynamicActs.filter((da) => da.category === cat.id).map((da) => da.id as unknown as any),
               ]),
             ],
           }))

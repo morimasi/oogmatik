@@ -58,5 +58,5 @@ export const generateKopruFromAI = async (options: GeneratorOptions): Promise<an
     };
     
     const schema = { type: 'ARRAY', items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<any[]>;
+    return generateWithSchema(prompt, schema) as unknown as Promise<any[]>;
 };

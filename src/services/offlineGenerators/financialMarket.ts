@@ -4,7 +4,7 @@ import { GeneratorOptions, FinancialMarketData } from '../../types';
 export const generateOfflineFinancialMarketCalculator = async (options: GeneratorOptions): Promise<FinancialMarketData[]> => {
     const { worksheetCount, difficulty } = options;
 
-    return Array.from({ length: worksheetCount }, () => ({
+    return Array.from({ length: worksheetCount ?? 1 }, () => ({
         id: 'finance_' + Date.now(),
         activityType: 'FINANCIAL_MARKET_CALCULATOR' as any,
         title: "Pazar Yeri & Finans",

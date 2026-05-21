@@ -50,7 +50,7 @@ export const generateWordMemoryFromAI = async (options: GeneratorOptions): Promi
         required: ['title', 'memorizeTitle', 'testTitle', 'wordsToMemorize', 'testWords', 'instruction', 'imagePrompt']
     };
     const schema = { type: 'ARRAY', items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<WordMemoryData[]>;
+    return generateWithSchema(prompt, schema) as unknown as Promise<WordMemoryData[]>;
 };
 
 export const generateVisualMemoryFromAI = async (options: GeneratorOptions): Promise<VisualMemoryData[]> => {
@@ -92,7 +92,7 @@ export const generateVisualMemoryFromAI = async (options: GeneratorOptions): Pro
         required: ['title', 'memorizeTitle', 'testTitle', 'itemsToMemorize', 'testItems', 'instruction', 'imagePrompt']
     };
     const schema = { type: 'ARRAY', items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<VisualMemoryData[]>;
+    return generateWithSchema(prompt, schema) as unknown as Promise<VisualMemoryData[]>;
 };
 
 export const generateNumberSearchFromAI = async (options: GeneratorOptions): Promise<NumberSearchData[]> => {
@@ -114,7 +114,7 @@ export const generateNumberSearchFromAI = async (options: GeneratorOptions): Pro
         required: ['title', 'numbers', 'range', 'instruction', 'imagePrompt']
     };
     const schema = { type: 'ARRAY', items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<NumberSearchData[]>;
+    return generateWithSchema(prompt, schema) as unknown as Promise<NumberSearchData[]>;
 };
 
 export const generateFindTheDuplicateInRowFromAI = async (options: GeneratorOptions): Promise<FindDuplicateData[]> => {
@@ -131,7 +131,7 @@ export const generateFindTheDuplicateInRowFromAI = async (options: GeneratorOpti
         required: ['title', 'rows', 'instruction', 'imagePrompt']
     };
     const schema = { type: 'ARRAY', items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<FindDuplicateData[]>;
+    return generateWithSchema(prompt, schema) as unknown as Promise<FindDuplicateData[]>;
 };
 
 export const generateLetterGridTestFromAI = async (options: GeneratorOptions): Promise<LetterGridTestData[]> => {
@@ -154,7 +154,7 @@ export const generateLetterGridTestFromAI = async (options: GeneratorOptions): P
         required: ['title', 'grid', 'targetLetters', 'instruction', 'imagePrompt']
     };
     const schema = { type: 'ARRAY', items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<LetterGridTestData[]>;
+    return generateWithSchema(prompt, schema) as unknown as Promise<LetterGridTestData[]>;
 };
 
 // Fix: Removed duplicate generateFindLetterPairFromAI as it is now centrally managed in newActivities.ts
@@ -175,7 +175,7 @@ export const generateTargetSearchFromAI = async (options: GeneratorOptions): Pro
         required: ['title', 'grid', 'target', 'distractor', 'instruction', 'imagePrompt']
     };
     const schema = { type: 'ARRAY', items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<TargetSearchData[]>;
+    return generateWithSchema(prompt, schema) as unknown as Promise<TargetSearchData[]>;
 };
 
 export const generateColorWheelMemoryFromAI = async (options: GeneratorOptions): Promise<ColorWheelMemoryData[]> => {
@@ -210,7 +210,7 @@ export const generateColorWheelMemoryFromAI = async (options: GeneratorOptions):
         required: ["title", "memorizeTitle", "testTitle", "items", 'instruction', 'imagePrompt']
     };
     const schema = { type: 'ARRAY', items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<ColorWheelMemoryData[]>;
+    return generateWithSchema(prompt, schema) as unknown as Promise<ColorWheelMemoryData[]>;
 };
 
 export const generateImageComprehensionFromAI = async (options: GeneratorOptions): Promise<ImageComprehensionData[]> => {
@@ -235,7 +235,7 @@ export const generateImageComprehensionFromAI = async (options: GeneratorOptions
         required: ["title", "memorizeTitle", "testTitle", "sceneDescription", "imagePrompt", "questions", 'instruction']
     };
     const schema = { type: 'ARRAY', items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<ImageComprehensionData[]>;
+    return generateWithSchema(prompt, schema) as unknown as Promise<ImageComprehensionData[]>;
 };
 
 export const generateCharacterMemoryFromAI = async (options: GeneratorOptions): Promise<CharacterMemoryData[]> => {
@@ -289,7 +289,7 @@ export const generateCharacterMemoryFromAI = async (options: GeneratorOptions): 
         required: ["title", "memorizeTitle", "testTitle", "charactersToMemorize", "testCharacters", 'instruction', 'imagePrompt']
     };
     const schema = { type: 'ARRAY', items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<CharacterMemoryData[]>;
+    return generateWithSchema(prompt, schema) as unknown as Promise<CharacterMemoryData[]>;
 };
 
 export const generateBurdonTestFromAI = async (options: GeneratorOptions): Promise<LetterGridTestData[]> => {
@@ -317,7 +317,7 @@ export const generateStroopTestFromAI = async (options: GeneratorOptions): Promi
         required: ["title", "items", 'instruction', 'imagePrompt']
     };
     const schema = { type: 'ARRAY', items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<StroopTestData[]>;
+    return generateWithSchema(prompt, schema) as unknown as Promise<StroopTestData[]>;
 }
 
 export const generateChaoticNumberSearchFromAI = async (_options: GeneratorOptions): Promise<ChaoticNumberSearchData[]> => {
@@ -348,5 +348,5 @@ export const generateChaoticNumberSearchFromAI = async (_options: GeneratorOptio
         required: ["title", "numbers", "range", 'instruction', 'imagePrompt']
     };
     const schema = { type: 'ARRAY', items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<ChaoticNumberSearchData[]>;
+    return generateWithSchema(prompt, schema) as unknown as Promise<ChaoticNumberSearchData[]>;
 }

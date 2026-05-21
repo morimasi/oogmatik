@@ -59,5 +59,5 @@ export const generateBellekFromAI = async (options: GeneratorOptions): Promise<a
     };
     
     const schema = { type: 'ARRAY', items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<any[]>;
+    return generateWithSchema(prompt, schema) as unknown as Promise<any[]>;
 };

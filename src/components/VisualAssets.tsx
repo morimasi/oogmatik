@@ -148,5 +148,5 @@ export const getBorderCSS = (type: string, color: string = '#3f3f46', width: num
         '--theme-border-type': type,
         '--theme-primary': themeColors?.primary || color,
         '--theme-secondary': themeColors?.secondary || color,
-    } as Record<string, string | number>;
+    } as unknown as Record<string, string | number>;
 };

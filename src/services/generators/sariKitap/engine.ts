@@ -56,10 +56,10 @@ export async function generateSariKitapContent(
             throw new Error(result.error?.message ?? 'AI yanıtı geçersiz');
         }
 
-        const aiData = result.data as Record<string, unknown>;
+        const aiData = result.data as unknown as Record<string, unknown>;
 
         // 3. Hece/Kelime post-processing
-        const rawText = (aiData.rawText as string) ?? '';
+        const rawText = (aiData.rawText as unknown as string) ?? '';
         
         // Nokta ve Köprü kelime bazlı çalışıyorsa metniKelimele kullan
         const useWordLevel = (
@@ -69,13 +69,13 @@ export async function generateSariKitapContent(
         const heceRows = useWordLevel ? metniKelimele(rawText) : metniHecele(rawText);
 
         const content: SariKitapGeneratedContent = {
-            title: (aiData.title as string) ?? 'BursaDisleksi Hızlı Okuma Etkinliği',
-            instructions: (aiData.instructions as string) ?? '',
-            targetSkills: (aiData.targetSkills as string[]) ?? [...config.targetSkills],
+            title: (aiData.title as unknown as string) ?? 'BursaDisleksi Hızlı Okuma Etkinliği',
+            instructions: (aiData.instructions as unknown as string) ?? '',
+            targetSkills: (aiData.targetSkills as unknown as string[]) ?? [...config.targetSkills],
             rawText,
             heceRows,
-            sourceTexts: aiData.sourceTexts as SariKitapGeneratedContent['sourceTexts'],
-            wordBlocks: aiData.wordBlocks as string[][],
+            sourceTexts: aiData.sourceTexts as unknown as SariKitapGeneratedContent['sourceTexts'],
+            wordBlocks: aiData.wordBlocks as unknown as string[][],
             generatedAt: new Date().toISOString(),
             model: 'gemini-2.5-flash',
         };

@@ -85,7 +85,7 @@ export const generateOfflineNumberSearch = async (options: GeneratorOptions): Pr
         if (difficulty === 'Orta') range = { start: 10, end: 10 + count };
         if (difficulty === 'Zor') range = { start: 100, end: 100 + count };
 
-        const targetNumbers = Array.from({ length: count }, (_, k) => k + range.start);
+        const targetNumbers = Array.from({ length: count ?? 1 }, (_, k) => k + range.start);
         const distractors = Array.from({ length: count * 3 }, () => {
             const base = getRandomInt(range.start, range.end + 20);
             return base;
@@ -351,7 +351,7 @@ export const generateOfflineChaoticNumberSearch = async (options: GeneratorOptio
         const count = itemCount || 40;
         const range = { start: 1, end: count };
 
-        const targets = Array.from({ length: count }, (_, k) => k + 1);
+        const targets = Array.from({ length: count ?? 1 }, (_, k) => k + 1);
         const distractorsCount = difficulty === 'Zor' ? count : Math.floor(count / 2);
         const distractors = Array.from({ length: distractorsCount }, () => getRandomInt(count + 1, 99));
 

@@ -56,7 +56,7 @@ export class Validator {
                     if (propertySchema && this.isObject(propertySchema) && data[key] !== undefined) {
                         const isValid = this.validateSchema(data[key], propertySchema as Record<string, unknown>);
                         if (!isValid) {
-                            logWarn(`Validation Error: Key '${key}' failed validation`, data[key]);
+                            logWarn(`Validation Error: Key '${key}' failed validation`, typeof data[key] === 'object' && data[key] !== null && !Array.isArray(data[key]) ? data[key] as Record<string, unknown> : undefined);
                             return false;
                         }
                     }
@@ -81,7 +81,7 @@ export class Validator {
             logError("Data validation failed. Returning fallback.");
             return fallback;
         } catch (e) {
-            logError("Validation exception:", e);
+            logError("Validation exception:", typeof e === 'object' && e !== null && !Array.isArray(e) ? e as Record<string, unknown> : undefined);
             return fallback;
         }
     }

@@ -100,18 +100,19 @@ Konu: ${topic || 'Rastgele'}`;
   });
 
   // ── PREMIUM A4 YAPISI ─────────────────────────────────────────
-  const builder = new WorksheetBuilder(type, response.title)
+  const responseData = response as unknown as Record<string, unknown>;
+  const builder = new WorksheetBuilder(type, responseData.title as unknown as string)
     .addPremiumHeader()
-    .setInstruction(response.instruction)
-    .addPedagogicalNote(response.pedagogicalNote)
+    .setInstruction(responseData.instruction as unknown as string)
+    .addPedagogicalNote(responseData.pedagogicalNote as unknown as string)
     .addPrimaryActivity(
-      response.primaryActivity?.type || 'text',
-      response.primaryActivity?.content || {}
+      (responseData.primaryActivity as unknown as Record<string, unknown>)?.type as unknown as string || 'text',
+      (responseData.primaryActivity as unknown as Record<string, unknown>)?.content as unknown as Record<string, unknown> || {}
     )
     .addSupportingDrill(
-      response.supportingDrill?.title || 'Pekiştirme',
-      response.supportingDrill?.content || {},
-      response.supportingDrill?.type || 'question'
+      (responseData.supportingDrill as unknown as Record<string, unknown>)?.title as unknown as string || 'Pekiştirme',
+      (responseData.supportingDrill as unknown as Record<string, unknown>)?.content as unknown as Record<string, unknown> || {},
+      (responseData.supportingDrill as unknown as Record<string, unknown>)?.type as unknown as string || 'question'
     );
 
   return builder.addSuccessIndicator().build();

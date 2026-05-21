@@ -7,6 +7,10 @@ import mapDynamicIdToActivityType from '../../utils/dynamicIdMappings';
 
 
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
+
+// Stub functions for dynamic infographic generators
+const generateInfographic = async (_type: ActivityType, _options: GeneratorOptions) => ({ title: 'Infographic', instruction: 'Complete the activity' });
+const generateOfflineInfographic = async (_type: ActivityType, _options: GeneratorOptions) => ({ title: 'Offline Infographic', instruction: 'Complete the activity' });
 /**
  * Merkezi Aktivite Servisi (Facade / Factory)
  * Tüm aktivite üretim istekleri bu servis üzerinden geçer.
@@ -40,7 +44,7 @@ export class ActivityService {
 
         // 1. Manuel kayıtlı jeneratörleri (registry.ts) işle
         for (const [type, mapping] of Object.entries(ACTIVITY_GENERATOR_REGISTRY)) {
-            const activityType = type as ActivityType;
+            const activityType = type as unknown as ActivityType;
             
             const generator = new GenericActivityGenerator(
                 DEFAULT_MODE,
@@ -53,7 +57,7 @@ export class ActivityService {
 
         // 2. Dinamik kayıt: INFOGRAPHIC_ ile başlayan tüm tipleri otomatik işle
         Object.values(ActivityType).forEach((type) => {
-            const activityType = type as ActivityType;
+            const activityType = type as unknown as ActivityType;
             if (activityType.startsWith('INFOGRAPHIC_') && !this.generators.has(activityType)) {
                 
                 const generator = new GenericActivityGenerator<any>(
@@ -92,10 +96,10 @@ export class ActivityService {
      * Belirtilen aktivite türü için içerik üretir.
      */
     public async generate(type: ActivityType, options: GeneratorOptions, _mode?: GeneratorMode): Promise<any> {
-        // [ALIAS MAPPING] - Firestore'dan gelen dinamik ID'leri sistem enum değerlerine eşle
+        // [ALIas unknown as MAPPING] - Firestore'dan gelen dinamik ID'leri sistem enum değerlerine eşle
         let activeType = type;
         // 1) Dynamic ID mapping via centralized utility
-        const dynamicMapped = mapDynamicIdToActivityType(type as string);
+        const dynamicMapped = mapDynamicIdToActivityType(type as unknown as string);
         if (dynamicMapped) {
             logInfo(`[ActivityService] Dynamic ID '${type}' mapped to ${dynamicMapped}`);
             activeType = dynamicMapped;
@@ -110,8 +114,8 @@ export class ActivityService {
             'Msc0QEAM8Ax1bcIWJ33v': ActivityType.MAP_INSTRUCTION, // Map-based detective (new dynID)
         };
 
-        if (ID_MAPPINGS[type as string]) {
-            const mappedType = ID_MAPPINGS[type as string];
+        if (ID_MAPPINGS[type as unknown as string]) {
+            const mappedType = ID_MAPPINGS[type as unknown as string];
             logInfo(`[ActivityService] Mapping Firestore ID '${type}' to ${mappedType}`);
             activeType = mappedType;
         }

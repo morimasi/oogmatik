@@ -316,18 +316,18 @@ export const handleAIResponseWithFallback = async <T>(
     if (!validation.isValid) {
       logWarn(
         '[AI Assistant] Validation failed, using fallback:',
-        validation.errors
+        { errors: validation.errors }
       );
       return fallbackGenerator();
     }
 
     if (validation.warnings.length > 0) {
-      logWarn('[AI Assistant] Validation warnings:', validation.warnings);
+      logWarn('[AI Assistant] Validation warnings:', { warnings: validation.warnings });
     }
 
     return (validation.sanitizedOutput as T) || result;
   } catch (error) {
-    logError('[AI Assistant] AI call failed, using fallback:', error);
+    logError('[AI Assistant] AI call failed, using fallback:', typeof error === 'object' && error !== null && !Array.isArray(error) ? error as Record<string, unknown> : undefined);
     return fallbackGenerator();
   }
 };

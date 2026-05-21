@@ -22,7 +22,7 @@ export const useActivitySettings = (activityId: string) => {
 
             return defaultOptions;
         } catch (error) {
-            logWarn('Ayarlar okunurken hata oluştu, varsayılanlar kullanılıyor:', error);
+            logWarn('Ayarlar okunurken hata oluştu, varsayılanlar kullanılıyor:', typeof error === 'object' && error !== null && !Array.isArray(error) ? error as Record<string, unknown> : undefined);
             return getDefaultOptionsForActivity(activityId);
         }
     });
@@ -36,7 +36,7 @@ export const useActivitySettings = (activityId: string) => {
             try {
                 localStorage.setItem(`${STORAGE_PREFIX}${activityId}`, JSON.stringify(newOptions));
             } catch (e) {
-                logError("Ayarlar kaydedilemedi:", e);
+                logError("Ayarlar kaydedilemedi:", typeof e === 'object' && e !== null && !Array.isArray(e) ? e as Record<string, unknown> : undefined);
             }
             
             return newOptions;

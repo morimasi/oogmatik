@@ -69,7 +69,7 @@ export function useAmbientLight(): AmbientLightData {
         };
 
         sensor.onerror = (error: Error) => {
-          logWarn('Ambient Light Sensor error:', error.message);
+          logWarn('Ambient Light Sensor error:', { message: error.message });
         };
 
         sensor.start();
@@ -78,7 +78,7 @@ export function useAmbientLight(): AmbientLightData {
           sensor.stop();
         };
       } catch (error) {
-        logWarn('Failed to initialize Ambient Light Sensor:', error);
+        logWarn('Failed to initialize Ambient Light Sensor:', typeof error === 'object' && error !== null && !Array.isArray(error) ? error as Record<string, unknown> : undefined);
       }
     } else {
       // Fallback: Use time-of-day heuristic

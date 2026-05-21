@@ -90,5 +90,5 @@ JSON Şablonu:
         temperature: 0.7,
     });
 
-    return parsedData as FinancialMarketData;
+    return parsedData as unknown as FinancialMarketData;
 };

@@ -3,6 +3,21 @@ import { logInfo, logError, logWarn } from '../utils/logger.js';
 import { safeFetch } from '../utils/apiClient.js';
 import { useStudentStore } from '../store/useStudentStore';
 
+export interface CreativeMultimodalResult {
+  [key: string]: unknown;
+  content?: unknown;
+  items?: unknown;
+  title?: string;
+  id?: string;
+  data?: unknown;
+  text?: string;
+  refined?: string;
+  analysisPrompt?: string;
+  blueprintPrompt?: string;
+  analysis?: string;
+  refinedPrompt?: string;
+}
+
 
 // Model Seçimi: Gemini 2.5 Flash — Performanslı ve güncel model
 const MASTER_MODEL = 'gemini-2.5-flash';
@@ -82,12 +97,12 @@ export const generateCreativeMultimodal = async (params: {
   thinkingBudget?: number;
   systemInstruction?: string;
   model?: string;
-}) => {
+}): Promise<CreativeMultimodalResult> => {
   if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
     if (params.schema) {
-      return generateDummyDataFromSchema(params.schema);
+      return generateDummyDataFromSchema(params.schema) as CreativeMultimodalResult;
     }
-    return { test: 'data', isValid: true };
+    return { test: 'data', isValid: true } as CreativeMultimodalResult;
   }
 
   // API Proxy endpoint
@@ -144,7 +159,7 @@ Tüm içeriği bu spesifik bağlama göre optimize et!`;
       return await safeFetch<unknown>(url, {
         method: 'POST',
         body: JSON.stringify(body),
-      });
+      }) as Promise<CreativeMultimodalResult>;
     } catch (error: unknown) {
       lastError = error;
       const errorMsg = error instanceof Error ? error.message : String(error);

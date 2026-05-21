@@ -243,27 +243,28 @@ export const WorksheetEditor: React.FC<WorksheetEditorProps> = React.memo(({
   }, [onAddBlock]);
 
   const renderBlock = (block: WorksheetContentBlock, idx: number) => {
-    const isSelected = selectedBlockId === block.id;
+    const blockId = block.id || `block-${Date.now()}-${idx}`;
+    const isSelected = selectedBlockId === blockId;
     const isFirst = idx === 0;
     const isLast = idx === content.blocks.length - 1;
 
     const commonProps = {
       block,
       isSelected,
-      onUpdate: (patch: Partial<WorksheetContentBlock>) => onUpdateBlock(block.id, patch),
-      onSelect: () => onSelectBlock(block.id),
+      onUpdate: (patch: Partial<WorksheetContentBlock>) => onUpdateBlock(blockId, patch),
+      onSelect: () => onSelectBlock(blockId),
     };
 
     return (
-      <div key={block.id} className={styles.blockWrapper}>
+      <div key={blockId} className={styles.blockWrapper}>
         {isSelected && (
           <BlockToolbar
             block={block}
             isFirst={isFirst}
             isLast={isLast}
-            onUpdate={(patch) => onUpdateBlock(block.id, patch)}
-            onRemove={() => onRemoveBlock(block.id)}
-            onMove={(dir) => onMoveBlock(block.id, dir)}
+            onUpdate={(patch) => onUpdateBlock(blockId, patch)}
+            onRemove={() => onRemoveBlock(blockId)}
+            onMove={(dir) => onMoveBlock(blockId, dir)}
           />
         )}
         {block.type === 'text' && <TextBlock {...commonProps} />}
@@ -273,7 +274,7 @@ export const WorksheetEditor: React.FC<WorksheetEditorProps> = React.memo(({
         {block.type === 'divider' && (
           <div
             className={`${styles.block} ${isSelected ? styles.blockSelected : ''}`}
-            onClick={() => onSelectBlock?.(block.id)}
+            onClick={() => onSelectBlock?.(blockId)}
           >
             <hr className={styles.dividerBlock} aria-label="Ayırıcı" />
           </div>
@@ -281,7 +282,7 @@ export const WorksheetEditor: React.FC<WorksheetEditorProps> = React.memo(({
         {block.type === 'image' && (
           <div
             className={`${styles.block} ${isSelected ? styles.blockSelected : ''}`}
-            onClick={() => onSelectBlock?.(block.id)}
+            onClick={() => onSelectBlock?.(blockId)}
           >
             {block.imageUrl ? (
               <img src={block.imageUrl} alt={block.content || 'Görsel'} className={styles.imageBlock} />
@@ -291,7 +292,7 @@ export const WorksheetEditor: React.FC<WorksheetEditorProps> = React.memo(({
                 <input
                   className={styles.imageUrlInput}
                   value={block.content}
-                  onChange={(e) => onUpdateBlock(block.id, { content: e.target.value, imageUrl: e.target.value })}
+                  onChange={(e) => onUpdateBlock(blockId, { content: e.target.value, imageUrl: e.target.value })}
                   placeholder="https://..."
                   aria-label="Görsel URL"
                 />

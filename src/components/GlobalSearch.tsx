@@ -49,7 +49,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ onSelectActivity }) => {
   // Handle click outside to close
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as unknown as Node)) {
         setIsOpen(false);
         setQuery(''); // Reset immediate query
       }

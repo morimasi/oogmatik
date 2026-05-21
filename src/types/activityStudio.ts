@@ -33,6 +33,7 @@ export interface AgentOutput {
   data: Record<string, unknown>;
   tokenUsage: { input: number; output: number };
   timestamp: string;
+  pedagogicalNote?: string;
 }
 
 export interface AgentStatus {

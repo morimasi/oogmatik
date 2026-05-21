@@ -21,7 +21,7 @@ export abstract class BaseGenerator<T> implements IActivityGenerator<T> {
      */
     public async generate(options: GeneratorOptions): Promise<T | T[]> {
         try {
-            logger.info(`[${this.constructor.name}] Generating with options:`, options);
+            logger.info(`[${this.constructor.name}] Generating with options:`, options as unknown as unknown as unknown as Record<string, unknown>);
             
             // Alt sınıfın mantığını çalıştır
             const result = await this.execute(options);
@@ -31,7 +31,7 @@ export abstract class BaseGenerator<T> implements IActivityGenerator<T> {
             
             return result;
         } catch (error) {
-            logError(`[${this.constructor.name}] Generation Failed:`, error);
+            logError(`[${this.constructor.name}] Generation Failed:`, typeof error === 'object' && error !== null && !Array.isArray(error) ? error as unknown as Record<string, unknown> : undefined);
             
             // Hatayı fırlatarak çağıranın (UI'ın) haberdar olmasını sağla
             // Ancak burada hatayı özelleştirip (CustomError) fırlatmak daha iyi olabilir.

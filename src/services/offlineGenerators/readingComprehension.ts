@@ -287,7 +287,7 @@ export const generateOfflineWordsInStory = async (options: GeneratorOptions): Pr
 
 export const generateOfflineStoryAnalysis = async (options: GeneratorOptions): Promise<StoryAnalysisData[]> => {
     const { worksheetCount = 1, difficulty = 'orta' } = options;
-    return Array.from({ length: worksheetCount }, () => {
+    return Array.from({ length: worksheetCount ?? 1 }, () => {
         const { title, story, chosenValues, template } = buildBaseStory(difficulty);
         
         return {
@@ -326,7 +326,7 @@ export const generateOfflineStorySequencing = async (options: GeneratorOptions):
         { title: "Piknik Hazırlığı", steps: ["Sepet hazırlanır.", "Parka gidilir.", "Örtü serilir.", "Yemekler afiyetle yenir."], img: "Picnic prep" }
     ];
 
-    return Array.from({ length: worksheetCount }, () => {
+    return Array.from({ length: worksheetCount ?? 1 }, () => {
         const seq = getRandomItems(sequences, 1)[0];
         if (!seq || !seq.title) {
             throw new Error('StorySequencing: Sequence veya title undefined');
@@ -360,7 +360,7 @@ export const generateOfflineStorySequencing = async (options: GeneratorOptions):
 
 export const generateOfflineStoryCloze = async (options: GeneratorOptions): Promise<any[]> => {
     const { worksheetCount = 1, difficulty = 'orta' } = options;
-    return Array.from({ length: worksheetCount }, () => {
+    return Array.from({ length: worksheetCount ?? 1 }, () => {
         const { title, story, chosenValues } = buildBaseStory(difficulty);
         const words = Object.values(chosenValues).filter(v => typeof v === 'string');
         

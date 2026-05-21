@@ -26,8 +26,8 @@ export const A4CompactRenderer: React.FC<A4CompactRendererProps> = ({
   paperSize = 'A4',
   className = '',
 }: A4CompactRendererProps) => {
-  const paperDims = A4_SIZES[paperSize as keyof typeof A4_SIZES];
-  const presetKey = `compact${itemsPerPage}` as keyof typeof LAYOUT_PRESETS;
+  const paperDims = A4_SIZES[paperSize as unknown as keyof typeof A4_SIZES];
+  const presetKey = `compact${itemsPerPage}` as unknown as keyof typeof LAYOUT_PRESETS;
   const presetConfig = LAYOUT_PRESETS[presetKey];
 
   const config: A4LayoutConfig = {

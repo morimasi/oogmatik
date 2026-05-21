@@ -18,7 +18,6 @@
 
 import { jsPDF } from 'jspdf';
 import { AppError } from '../../utils/AppError';
-import { logError } from '../../utils/errorHandler';
 import { anonymizeWorkbookForSharing } from './workbookSharingService';
 import type { Workbook, WorkbookExportConfig, WorkbookExportFormat } from '../../types/workbook';
 

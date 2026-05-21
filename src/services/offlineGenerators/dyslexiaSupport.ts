@@ -9,7 +9,7 @@ export const generateOfflineSyllableMasterLab = async (options: GeneratorOptions
 
     const [minSyllables, maxSyllables] = syllableRange.split('-').map(Number);
 
-    return Array.from({ length: worksheetCount }, () => {
+    return Array.from({ length: worksheetCount ?? 1 }, () => {
         const pool = getWordsForDifficulty(difficulty || 'Orta', topic || 'animals');
         const filteredPool = pool.filter(word => {
             const sylCount = syllabifyWord(word).length;
@@ -72,7 +72,7 @@ export const generateOfflineLetterVisualMatching = async (options: GeneratorOpti
         'Y': 'Yıldız', 'Z': 'Zürafa'
     };
 
-    return Array.from({ length: worksheetCount }, () => {
+    return Array.from({ length: worksheetCount ?? 1 }, () => {
         const alphabet = Object.keys(letterMap).filter(l => l !== 'Ğ');
         const selectedLetters = getRandomItems(alphabet, count);
 

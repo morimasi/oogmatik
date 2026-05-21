@@ -108,7 +108,7 @@ const Worksheet = ({ activityType, data, settings, studentProfile, showQR }: Wor
       '--display-pedagogical-note': settings.showPedagogicalNote ? 'block' : 'none',
       '--display-image': settings.showImage ? 'block' : 'none',
       '--worksheet-is-compact': settings.compact ? '1' : '0',
-    } as React.CSSProperties;
+    } as unknown as React.CSSProperties;
   }, [settings]);
 
   const isLandscape = settings.orientation === 'landscape';

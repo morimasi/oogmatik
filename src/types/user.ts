@@ -1,5 +1,5 @@
-export type UserRole = 'superadmin' | 'admin' | 'teacher';
-export type UserRoleType = UserRole | 'student' | 'parent' | 'guest' | 'editor';
+export type UserRole = 'superadmin' | 'admin' | 'teacher' | 'student' | 'editor' | 'parent' | 'guest' | 'user';
+export type UserRoleType = UserRole | 'student' | 'parent' | 'guest' | 'editor' | 'user';
 export type UserStatus = 'active' | 'suspended';
 
 export interface User {

@@ -147,7 +147,7 @@ export const SHAPE_COUNTING_CORE_GUIDE = `
 2. **KARMASA (CHAOS)**:
    - Şekillerin rotasyonlarını ve boyutlarını dramatik şekilde değiştirerek görsel tarama yükünü artır.
 3. **KLİNİK ÇELDİRİCİLER**:
-   - Hedef şekle benzeyen (örneğin üçgen aranıyorsa elmas veya pentagon) çeldiriciler ekle.
+   - Hedef şekle benzeyen (örneğin üçgen aranıyorsa elmas unknown as veya pentagon) çeldiriciler ekle.
 `;
 
 export const DIRECTIONAL_TRACKING_CORE_GUIDE = `

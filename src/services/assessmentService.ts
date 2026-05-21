@@ -164,7 +164,7 @@ export const assessmentService = {
         try {
             questionsMap = await generateAdaptiveQuestionsFromAI(selectedSkills, count);
         } catch (error) {
-            logWarn("AI Generation failed for Assessment, falling back to Offline engine.", error);
+            logWarn("AI Generation failed for Assessment, falling back to Offline engine.", typeof error === 'object' && error !== null && !Array.isArray(error) ? error as Record<string, unknown> : undefined);
             questionsMap = generateOfflineAdaptiveQuestions(selectedSkills, count);
         }
         return Object.values(questionsMap).flat();

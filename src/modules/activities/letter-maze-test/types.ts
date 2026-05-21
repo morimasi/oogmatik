@@ -1,4 +1,4 @@
-import { BaseActivityData } from '../../common';
+import { BaseActivityData } from '../../../types/core';
 
 /**
  * Harf Labirenti Test Etkinliği Veri Yapısı

@@ -189,7 +189,7 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
                       )}
                     </div>
                     <h3 className="text-base font-bold text-white line-clamp-2 pr-8">
-                      {variation.title}
+                      {String(variation.title ?? '')}
                     </h3>
                   </div>
 
@@ -213,7 +213,7 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
                   {variation.grafikVeri && (
                     <div className="mt-2 flex justify-center rounded-xl overflow-hidden bg-slate-700/30 p-2">
                       <GraphicRenderer
-                        grafik={variation.grafikVeri as GrafikVerisi}
+                        grafik={variation.grafikVeri as unknown as GrafikVerisi}
                         className="w-full"
                       />
                     </div>
@@ -242,7 +242,7 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
                     <div className="mb-3">
                       <p className="text-xs text-slate-400 font-medium mb-1">Hedef Beceriler:</p>
                       <div className="flex flex-wrap gap-1">
-                        {(variation.targetSkills as string[]).slice(0, 3).map((skill: string, i: number) => (
+                        {(variation.targetSkills as unknown as string[]).slice(0, 3).map((skill: string, i: number) => (
                           <span
                             key={i}
                             className="px-2 py-0.5 text-xs bg-slate-700/30 text-slate-300 rounded-md"

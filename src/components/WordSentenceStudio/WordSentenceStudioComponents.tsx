@@ -15,11 +15,11 @@ export const FillBlanksRenderer: React.FC<{ data: FillBlanksData, isPrinting?: b
   return (
     <div className={`space-y-4 ${isPrinting ? 'p-0' : 'p-6'}`}>
       <div className="border-b-2 border-accent/20 pb-2 mb-4">
-        <h2 className="text-xl font-black text-accent uppercase tracking-tight">{data.content.title}</h2>
-        <p className="text-sm text-gray-500 font-medium">{data.content.instruction}</p>
+        <h2 className="text-xl font-black text-accent uppercase tracking-tight">{data.content?.title}</h2>
+        <p className="text-sm text-gray-500 font-medium">{data.content?.instruction}</p>
       </div>
       
-      {data.content.wordBank && (
+      {data.content?.wordBank && (
         <div className="bg-accent/5 border-2 border-dashed border-accent/20 rounded-2xl p-4 flex flex-wrap gap-3 mb-6">
           <span className="w-full text-[10px] font-bold text-accent/60 uppercase mb-1">Kelime Bankası</span>
           {data.content.wordBank.map((word: string, i: number) => (
@@ -31,7 +31,7 @@ export const FillBlanksRenderer: React.FC<{ data: FillBlanksData, isPrinting?: b
       )}
 
       <div className="grid grid-cols-1 gap-y-4">
-        {data.items.map((item: { sentence: string }, index: number) => (
+        {data.items?.map((item: { sentence: string }, index: number) => (
           <div key={index} className="flex items-start gap-3 group">
             <span className="w-6 h-6 rounded-full bg-accent text-white text-[10px] flex items-center justify-center font-black flex-shrink-0 mt-1">
               {index + 1}
@@ -62,12 +62,12 @@ export const MultipleChoiceVerbalRenderer: React.FC<{ data: MultipleChoiceVerbal
   return (
     <div className="space-y-6">
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-black text-gray-900 leading-none mb-2">{data.content.title}</h2>
+        <h2 className="text-2xl font-black text-gray-900 leading-none mb-2">{data.content?.title}</h2>
         <div className="h-1 w-20 bg-accent mx-auto rounded-full"></div>
       </div>
       
-      <div className={`grid ${data.settings.columnLayout === 2 ? 'grid-cols-2' : 'grid-cols-1'} gap-8`}>
-        {data.items.map((item: { question: string; options: string[] }, idx: number) => (
+      <div className={`grid ${data.settings?.columnLayout === 2 ? 'grid-cols-2' : 'grid-cols-1'} gap-8`}>
+        {data.items?.map((item: { question: string; options: string[] }, idx: number) => (
           <div key={idx} className="bg-white rounded-2xl border-2 border-gray-100 p-5 hover:border-accent/20 transition-all cursor-default shadow-sm">
             <div className="flex items-center gap-3 mb-4">
                <span className="text-accent font-black text-lg">{idx + 1}.</span>
@@ -97,12 +97,12 @@ export const WordCompletionRenderer: React.FC<{ data: WordCompletionData, isPrin
   return (
     <div className="space-y-8">
       <div className="bg-gradient-to-r from-accent/10 to-transparent p-4 rounded-r-3xl border-l-4 border-accent">
-        <h2 className="text-xl font-black text-accent uppercase tracking-tighter">{data.content.title}</h2>
-        <p className="text-xs text-accent/60 font-bold">{data.content.instruction}</p>
+        <h2 className="text-xl font-black text-accent uppercase tracking-tighter">{data.content?.title}</h2>
+        <p className="text-xs text-accent/60 font-bold">{data.content?.instruction}</p>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {data.items.map((item: { imagePrompt?: string; word: string }, idx: number) => (
+        {data.items?.map((item: { imagePrompt?: string; word: string }, idx: number) => (
           <div key={idx} className="flex flex-col items-center p-4 bg-gray-50/50 rounded-2xl border border-gray-100 hover:bg-white hover:shadow-xl hover:border-accent/10 transition-all group">
             {item.imagePrompt && (
                <div className="w-16 h-16 bg-white rounded-xl mb-3 flex items-center justify-center border border-gray-100 shadow-inner group-hover:scale-110 transition-transform">
@@ -129,7 +129,7 @@ export const WordCompletionRenderer: React.FC<{ data: WordCompletionData, isPrin
 export const MixedSentenceRenderer: React.FC<{ data: MixedSentenceData, isPrinting?: boolean }> = ({ data, isPrinting }) => {
   return (
     <div className="space-y-6">
-        {data.items.map((item: { scrambledWords: string[] }, idx: number) => (
+        {data.items?.map((item: { scrambledWords: string[] }, idx: number) => (
           <div key={idx} className="p-6 bg-white rounded-3xl border-2 border-gray-100 hover:border-accent/40 transition-all shadow-sm">
             <div className="flex items-center gap-4 mb-4">
                <div className="w-10 h-10 rounded-2xl bg-accent/10 flex items-center justify-center text-accent font-black">
@@ -169,7 +169,7 @@ export const AntonymRenderer: React.FC<{ data: AntonymData, isPrinting?: boolean
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-        {data.items.map((item: { word: string }, idx: number) => (
+        {data.items?.map((item: { word: string }, idx: number) => (
           <div key={idx} className="flex items-center justify-between p-4 bg-white rounded-2xl border-2 border-gray-50 shadow-sm hover:translate-x-1 transition-all">
             <div className="flex items-center gap-4">
                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-black text-gray-400">

@@ -13,7 +13,7 @@ export const generateQueueOrderingFromAI = async (options: GeneratorOptions): Pr
     const generationSeed = Date.now() + Math.random();
     
     // Premium settings - type-safe access
-    const settings = customSettings as any || {};
+    const settings = customSettings as unknown as any || {};
     const locationType = settings.locationType || 'school';
     const customLocations = settings.customLocations || [];
     const maxQueueSize = settings.maxQueueSize || 10;
@@ -162,5 +162,5 @@ export const generateQueueOrderingFromAI = async (options: GeneratorOptions): Pr
     };
     
     const schema = { type: 'ARRAY', items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<any[]>;
+    return generateWithSchema(prompt, schema) as unknown as Promise<any[]>;
 };

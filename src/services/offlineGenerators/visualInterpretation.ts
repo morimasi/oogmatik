@@ -72,7 +72,7 @@ const VISUAL_SCENES = [
 export const generateOfflineVisualInterpretation = async (options: GeneratorOptions): Promise<WorksheetData> => {
     const { worksheetCount = 1 } = options;
 
-    return Array.from({ length: worksheetCount }, () => {
+    return Array.from({ length: worksheetCount ?? 1 }, () => {
         const scene = VISUAL_SCENES[getRandomInt(0, VISUAL_SCENES.length - 1)];
 
         return {

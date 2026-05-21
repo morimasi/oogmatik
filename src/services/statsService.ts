@@ -56,7 +56,7 @@ export const statsService = {
                 });
             }
         } catch (e) {
-            logWarn("Stats increment warning:", e);
+            logWarn("Stats increment warning:", typeof e === 'object' && e !== null && !Array.isArray(e) ? e as Record<string, unknown> : undefined);
         }
     },
 

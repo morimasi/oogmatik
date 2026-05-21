@@ -55,9 +55,9 @@ export const generateMathMemoryCardsFromAI = async (options: GeneratorOptions): 
         }
     };
 
-    // Fix: Removed the third argument 'gemini-3-flash-preview' as generateWithSchema only expects two arguments
-    const result = await generateWithSchema(prompt, schema);
-    return result.map((p: any) => ({
+    // Fix: Removed the third argument 'gemini-3-flash-preview' as unknown as generateWithSchema only expects two arguments
+    const result = await generateWithSchema(prompt, schema) as unknown as Array<Record<string, unknown>>;
+    return result.map((p: Record<string, unknown>) => ({
         ...p,
         settings: { gridCols: 4, cardCount: itemCount, difficulty, variant, showNumbers }
     }));

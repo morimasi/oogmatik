@@ -5,12 +5,12 @@ import { PatternCompletionData } from '../../types/visual';
 export const generatePatternCompletionFromAI = async (
     options: GeneratorOptions
 ): Promise<PatternCompletionData> => {
-    const opts = options as Record<string, unknown>;
+    const opts = options as unknown as Record<string, unknown>;
     const difficulty = options.difficulty || 'Orta';
-    const gridSize = (opts.gridSize as number) || 3;
-    const patternType = (opts.patternType as string) || 'geometric';
-    const puzzleCount = (opts.puzzleCount as number) || 4;
-    const optionCount = (opts.optionCount as number) || 4;
+    const gridSize = (opts.gridSize as unknown as number) || 3;
+    const patternType = (opts.patternType as unknown as string) || 'geometric';
+    const puzzleCount = (opts.puzzleCount as unknown as number) || 4;
+    const optionCount = (opts.optionCount as unknown as number) || 4;
 
     let typeInstruction = '';
     if (patternType === 'geometric') {
@@ -84,5 +84,5 @@ ZORUNLU JSON ÇIKTISI FORMATI:
         temperature: 0.6,
     });
 
-    return parsedData as PatternCompletionData;
+    return parsedData as unknown as PatternCompletionData;
 };

@@ -40,10 +40,7 @@ import type {
   Difficulty
 } from './common';
 
-// Bu tipler core.ts içinde kullanılıyor ancak index.ts tarafından merkezi olarak export ediliyor.
-// Çakışmayı önlemek için re-export kaldırıldı.
-
-export type { ShapeType } from './common';
+export type { ShapeType, StyleSettings, BaseActivityData, Difficulty } from './common';
 
 export interface SingleWorksheetData extends BaseActivityData {
   layoutArchitecture?: {
@@ -182,7 +179,7 @@ export interface GeneratorOptions {
   depth?: number;
   branchCount?: number;
   fillRatio?: number;
-  layout?: 'radial' | 'tree' | 'horizontal' | 'vertical';
+  layout?: 'radial' | 'tree' | 'horizontal' | 'vertical' | 'ultra_full' | 'ultra_dense';
   nodeStyle?: 'rounded' | 'sharp' | 'circle';
   edgeStyle?: 'straight' | 'curved' | 'orthogonal';
   includeExamples?: boolean;
@@ -291,6 +288,18 @@ export interface GeneratorOptions {
   overlapping?: boolean;
   panelCount?: number;
   showTransitionWords?: boolean;
+  count?: number;
+  customSettings?: Record<string, unknown>;
+  itemsPerPage?: number;
+  locationType?: string;
+  studentAge?: number;
+  padding?: number;
+  _worksheetCount?: number;
+  _studentContext?: Record<string, unknown>;
+  _difficulty?: string;
+  params?: Record<string, unknown>;
+  theme?: string;
+  [key: string]: unknown;
 }
 
 export interface OverlayItem {

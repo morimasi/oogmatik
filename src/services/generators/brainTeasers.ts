@@ -61,7 +61,7 @@ ZORUNLU JSON ÇIKTISI:
     const parsedData = await generateCreativeMultimodal({
       prompt: prompt,
       temperature: 0.7
-    });
+    }) as unknown as Record<string, unknown>;
 
     const result = {
       ...parsedData,
@@ -69,7 +69,7 @@ ZORUNLU JSON ÇIKTISI:
       activityType: ActivityType.BRAIN_TEASERS,
     };
 
-    return [result] as any;
+    return [result] as unknown as any;
   }
 }
 
@@ -77,5 +77,5 @@ ZORUNLU JSON ÇIKTISI:
 export const generateBrainTeasersFromAI = async (options: GeneratorOptions): Promise<WorksheetData> => {
   const generator = new BrainTeasersGenerator();
   const res = await generator.generate(options);
-  return res as WorksheetData;
+  return res as unknown as WorksheetData;
 };

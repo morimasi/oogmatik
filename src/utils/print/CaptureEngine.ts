@@ -40,7 +40,7 @@ export const preloadFontsForCapture = async (): Promise<void> => {
       );
     });
   } catch (e) {
-    logWarn('[CaptureEngine] Font ön-yükleme uyarısı:', e);
+    logWarn('[CaptureEngine] Font ön-yükleme uyarısı:', typeof e === 'object' && e !== null && !Array.isArray(e) ? e as Record<string, unknown> : undefined);
   }
 };
 
@@ -98,7 +98,7 @@ export const onCloneForCapture = (clonedDoc: Document): void => {
       ' body { background: #ffffff !important; margin: 0 !important; padding: 0 !important; }';
     clonedDoc.head.appendChild(extra);
   } catch (e) {
-    logWarn('[CaptureEngine] onClone uyarısı:', e);
+    logWarn('[CaptureEngine] onClone uyarısı:', typeof e === 'object' && e !== null && !Array.isArray(e) ? e as Record<string, unknown> : undefined);
   }
 };
 

@@ -425,7 +425,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                                         if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Üretiliyor...';
                                         try {
                                             const newAiGoals = await aiStudentService.generateIEPGoals(student as any);
-                                            const formattedGoals = newAiGoals.map((g: any) => ({
+                                            const formattedGoals = (newAiGoals ?? []).map((g: any) => ({
                                                 id: crypto.randomUUID(),
                                                 title: g.title,
                                                 description: g.description,

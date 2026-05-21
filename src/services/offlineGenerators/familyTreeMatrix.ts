@@ -4,7 +4,7 @@ import { GeneratorOptions, FamilyTreeMatrixData } from '../../types';
 export const generateOfflineFamilyTreeMatrix = async (options: GeneratorOptions): Promise<FamilyTreeMatrixData[]> => {
     const { worksheetCount, difficulty } = options;
 
-    return Array.from({ length: worksheetCount }, () => ({
+    return Array.from({ length: worksheetCount ?? 1 }, () => ({
         id: 'family_tree_' + Date.now(),
         activityType: 'FAMILY_TREE_MATRIX' as any,
         title: "Akrabalık ve Soy Ağacı Matrisi",

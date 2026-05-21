@@ -14,6 +14,7 @@ import {
   collectionGroup,
   DocumentData,
   QueryDocumentSnapshot,
+  writeBatch,
 } from "firebase/firestore";
 import { db } from "../firebaseClient";
 import { IMessage, IConversation } from "../../types/messaging";

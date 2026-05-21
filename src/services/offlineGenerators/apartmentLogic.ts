@@ -5,7 +5,7 @@ import { shuffle } from './helpers';
 export const generateOfflineApartmentLogicPuzzle = async (options: GeneratorOptions): Promise<ApartmentLogicData[]> => {
     const { worksheetCount, difficulty } = options;
 
-    return Array.from({ length: worksheetCount }, () => ({
+    return Array.from({ length: worksheetCount ?? 1 }, () => ({
         id: 'apartment_' + Date.now(),
         activityType: 'APARTMENT_LOGIC_PUZZLE' as any,
         title: "Nerede Oturuyor?",

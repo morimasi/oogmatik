@@ -216,7 +216,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }: WorkbookProps) =
           );
         }
 
-        const pages = (item.data as any)?.pages || (item.data as any)?.sheets;
+        const pages = (item.data as unknown as any)?.pages || (item.data as unknown as any)?.sheets;
         if (Array.isArray(pages) && pages.length > 0) {
           return pages.map((p, pIdx) => {
             const num = runningPageNum;

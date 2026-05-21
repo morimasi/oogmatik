@@ -16,6 +16,7 @@ const ROLE_LABELS: Record<UserRoleType, string> = {
   guest: '👤 Misafir',
   editor: '📝 Editör',
   superadmin: '🌟 Süper Admin',
+  user: '👤 Kullanıcı',
 };
 
 const STATUS_LABELS: Record<ManagedUser['status'], string> = {

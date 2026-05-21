@@ -115,7 +115,7 @@ export const snapshotService = {
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
       return true;
     } catch (err) {
-      logError('Panoya kopyalama hatası:', err);
+      logError('Panoya kopyalama hatası:', typeof err === 'object' && err !== null && !Array.isArray(err) ? err as Record<string, unknown> : undefined);
       try {
         await navigator.clipboard.writeText(canvas.toDataURL('image/png'));
         return true;
@@ -144,7 +144,7 @@ export const snapshotService = {
         return true;
       } catch (err: unknown) {
         if (err instanceof Error && err.name === 'AbortError') return false;
-        logError('Share hatası:', err);
+        logError('Share hatası:', typeof err === 'object' && err !== null && !Array.isArray(err) ? err as Record<string, unknown> : undefined);
       }
     }
 

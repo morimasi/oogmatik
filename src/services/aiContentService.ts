@@ -210,7 +210,7 @@ export const tryGenerateWithCorrection = async <T>(
 
   for (let i = 0; i <= maxRetries; i++) {
     try {
-      lastResult = await generateWithSchema(currentPrompt, schema);
+      lastResult = await generateWithSchema(currentPrompt, schema) as T;
       const validation = validator(lastResult as T);
 
       if (validation.valid) {

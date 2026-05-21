@@ -64,7 +64,7 @@ export async function enhanceLibraryActivity(request: EnhancementRequest): Promi
     originalTitle: libraryItem.title,
     enhancedTopic: request.topic,
     orchestratorResult,
-    pedagogicalNote: integrationOutput.pedagogicalNote,
+    pedagogicalNote: integrationOutput.pedagogicalNote || '',
     timestamp: new Date().toISOString(),
   };
 }

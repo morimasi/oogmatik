@@ -91,12 +91,12 @@ export const curriculumService = {
             required: ['goals', 'note', 'schedule']
         };
 
-        const result = await generateWithSchema(prompt, schema);
+        const result = await generateWithSchema(prompt, schema) as Record<string, unknown>;
 
-        const schedule = result.schedule.map((day: any) => ({
+        const schedule = (result.schedule as Array<Record<string, unknown>>).map((day: Record<string, unknown>) => ({
             ...day,
             isCompleted: false,
-            activities: day.activities.map((act: any) => ({
+            activities: (day.activities as Array<Record<string, unknown>>).map((act: Record<string, unknown>) => ({
                 ...act,
                 id: uuidv4(),
                 status: 'pending' as CurriculumActivityStatus
@@ -110,9 +110,9 @@ export const curriculumService = {
             grade: student.grade || '',
             startDate: new Date().toISOString(),
             durationDays,
-            goals: result.goals,
+            goals: result.goals as string[],
             schedule: schedule,
-            note: result.note,
+            note: result.note as string,
             interests: student.interests || [],
             weaknesses: student.weaknesses || []
         };

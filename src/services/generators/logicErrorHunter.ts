@@ -88,5 +88,5 @@ TASARIM KURALLARI:
     temperature: 0.8, // Hikaye üretimi için yaratıcılığı artırıyoruz ama formatı koruması lazım
   });
 
-  return parsedData as LogicErrorHunterData;
+  return parsedData as unknown as LogicErrorHunterData;
 };

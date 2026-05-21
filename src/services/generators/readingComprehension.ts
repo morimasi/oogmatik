@@ -16,7 +16,7 @@ export const generateReadingSudokuFromAI = async (options: GeneratorOptions): Pr
         'words': 'Aynı temaya ait (uzay, meyveler, duygular) kısa ve somut kelimeler.',
         'visuals': 'Semboller veya piktogramlar (yıldız, kare, üçgen vb.)',
         'numbers': 'Sayısal veriler.'
-    }[variant as string] || 'Harfler';
+    }[variant as unknown as string] || 'Harfler';
 
     const prompt = `
     [ROL: UZMAN ÖZEL EĞİTİM MATERYALİ TASARIMCISI]
@@ -61,12 +61,12 @@ export const generateReadingSudokuFromAI = async (options: GeneratorOptions): Pr
         }
     };
 
-    const result = await generateWithSchema(prompt, schema) as any[];
+    const result = await generateWithSchema(prompt, schema) as unknown as any[];
     return result.map(p => ({
         ...p,
         settings: {
             size: gridSize,
-            variant: variant as any,
+            variant: variant as unknown as any,
             fontFamily: options.fontFamily || 'OpenDyslexic'
         }
     }));
@@ -130,7 +130,7 @@ export const generateSynonymAntonymMatchFromAI = async (options: GeneratorOption
         }
     };
 
-    return await generateWithSchema(prompt, schema) as Promise<SynonymAntonymMatchData[]>;
+    return await generateWithSchema(prompt, schema) as unknown as Promise<SynonymAntonymMatchData[]>;
 };
 
 export const generateReadingStroopFromAI = async (options: GeneratorOptions): Promise<ReadingStroopData[]> => {
@@ -185,7 +185,7 @@ export const generateReadingStroopFromAI = async (options: GeneratorOptions): Pr
         }
     };
 
-    const result = await generateWithSchema(prompt, schema) as any[];
+    const result = await generateWithSchema(prompt, schema) as unknown as any[];
     return result.map(p => ({
         ...p,
         settings: {
@@ -271,15 +271,15 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
 
     const schema = { type: 'ARRAY', items: singleSchema };
 
-    return generateWithSchema(prompt, schema) as Promise<StoryData[]>;
+    return generateWithSchema(prompt, schema) as unknown as Promise<StoryData[]>;
 };
 
 // generateMissingPartsFromAI yeni dosyasına taşındı.
 
-export const generateStoryCreationPromptFromAI = async (_o: GeneratorOptions) => [] as any;
-export const generateWordsInStoryFromAI = async (_o: GeneratorOptions) => [] as any;
-export const generateProverbSayingSortFromAI = async (_o: GeneratorOptions) => [] as any;
-export const generateProverbWordChainFromAI = async (_o: GeneratorOptions) => [] as any;
-export const generateProverbFillInTheBlankFromAI = async (_o: GeneratorOptions) => [] as any;
-export const generateProverbSearchFromAI = async (_o: GeneratorOptions) => [] as any;
-export const generateProverbSentenceFinderFromAI = async (_o: GeneratorOptions) => [] as any;
+export const generateStoryCreationPromptFromAI = async (_o: GeneratorOptions) => [] as unknown as any;
+export const generateWordsInStoryFromAI = async (_o: GeneratorOptions) => [] as unknown as any;
+export const generateProverbSayingSortFromAI = async (_o: GeneratorOptions) => [] as unknown as any;
+export const generateProverbWordChainFromAI = async (_o: GeneratorOptions) => [] as unknown as any;
+export const generateProverbFillInTheBlankFromAI = async (_o: GeneratorOptions) => [] as unknown as any;
+export const generateProverbSearchFromAI = async (_o: GeneratorOptions) => [] as unknown as any;
+export const generateProverbSentenceFinderFromAI = async (_o: GeneratorOptions) => [] as unknown as any;

@@ -11,7 +11,7 @@ export const generateDirectionalCodeReadingFromAI = async (
   const obstacleDensity = options.obstacleDensity || 25;
   const cipherType = options.cipherType || 'arrows';
   const puzzleCount = 1; // HER ZAMAN TEK GÖREV (A4-Dolu)
-  const aestheticMode = (options as any).aestheticMode || 'ultra-premium';
+  const aestheticMode = (options as unknown as any).aestheticMode || 'ultra-premium';
   const compactMode = false; // Tek görev olduğu için kompakt yerine geniş yerleşim
   const student = options.studentContext;
 
@@ -124,5 +124,5 @@ Aşağıdaki JSON formatında (DirectionalCodeReadingData) çıktı ver:
     temperature: 0.5,
   });
 
-  return parsedData as DirectionalCodeReadingData;
+  return parsedData as unknown as DirectionalCodeReadingData;
 };

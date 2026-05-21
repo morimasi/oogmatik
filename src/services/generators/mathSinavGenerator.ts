@@ -537,8 +537,8 @@ const callGeminiDirect = async (prompt: string, schema: object): Promise<unknown
 
   if (!response.ok) {
     const errData = await response.json().catch(() => ({}));
-    const msg = (errData as Record<string, unknown>)?.error
-      ? String((errData as Record<string, Record<string, string>>).error.message)
+    const msg = (errData as unknown as Record<string, unknown>)?.error
+      ? String((errData as unknown as Record<string, Record<string, string>>).error.message)
       : response.statusText;
     throw new AppError(
       `Gemini API hatası: ${msg}`,
@@ -550,11 +550,11 @@ const callGeminiDirect = async (prompt: string, schema: object): Promise<unknown
   }
 
   const data = await response.json();
-  const text = (data as Record<string, unknown[]>)?.candidates?.[0] as
+  const text = (data as unknown as Record<string, unknown[]>)?.candidates?.[0] as
     | Record<string, unknown>
     | undefined;
-  const textContent = text?.content as Record<string, unknown[]> | undefined;
-  const rawText = (textContent?.parts?.[0] as Record<string, string> | undefined)?.text;
+  const textContent = text?.content as unknown as Record<string, unknown[]> | undefined;
+  const rawText = (textContent?.parts?.[0] as unknown as Record<string, string> | undefined)?.text;
 
   if (!rawText) {
     throw new AppError('Gemini boş yanıt döndürdü.', 'GEMINI_EMPTY_RESPONSE', 502, undefined, true);
@@ -1081,7 +1081,7 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
   const prompt = buildMathExamPrompt(settings);
 
   try {
-    const aiResponse = (await callGeminiDirect(prompt, MATH_EXAM_SCHEMA)) as Record<
+    const aiResponse = (await callGeminiDirect(prompt, MATH_EXAM_SCHEMA)) as unknown as Record<
       string,
       unknown
     >;
@@ -1090,7 +1090,7 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
     if (
       !aiResponse.pedagogicalNote ||
       typeof aiResponse.pedagogicalNote !== 'string' ||
-      (aiResponse.pedagogicalNote as string).length < 100
+      (aiResponse.pedagogicalNote as unknown as string).length < 100
     ) {
       aiResponse.pedagogicalNote =
         `Bu sınav ${settings.sinif}. sınıf Matematik dersi için ${settings.secilenKazanimlar.join(', ')} ` +
@@ -1098,7 +1098,7 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
         `kolay tutulmuştur. Öğretmen geri bildiriminde öğrencinin güçlü yönlerini vurgulaması önerilir.`;
     }
 
-    const rawQuestions = (aiResponse.questions || aiResponse.sorular || []) as any[];
+    const rawQuestions = (aiResponse.questions || aiResponse.sorular || []) as unknown as any[];
     if (!Array.isArray(rawQuestions) || rawQuestions.length === 0) {
       throw new AppError(
         'AI yanıtında soru dizisi bulunamadı.',
@@ -1151,7 +1151,7 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
 
       // Kritik hatalar varsa uyarı ekle (ama sınavı durma, kullanıcıya raporla)
       if (!validation.isValid && validation.errors.length > 0) {
-        logWarn(`[GÖRSEL UYUMSUZLUK] Soru ${i + 1} (${sorular[i].id}):`, validation.errors as unknown as Record<string, unknown>);
+        logWarn(`[GÖRSEL UYUMSUZLUK] Soru ${i + 1} (${sorular[i].id}):`, validation.errors as unknown as unknown as unknown as Record<string, unknown>);
       }
     }
 
@@ -1177,7 +1177,7 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
         kazanimKodu: soru.kazanimKodu,
         cozumAciklamasi: soru.cozum_anahtari,
         gercekYasamBaglantisi: soru.gercek_yasam_baglantisi,
-        seviye: soru.zorluk as any,
+        seviye: soru.zorluk as unknown as any,
       })),
     };
 
@@ -1187,7 +1187,7 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
     const sinav: MatSinav = {
       id: `mat-exam-${Date.now()}`,
       baslik:
-        (aiResponse.baslik as string) || `${settings.sinif}. Sınıf Matematik Değerlendirme Sınavı`,
+        (aiResponse.baslik as unknown as string) || `${settings.sinif}. Sınıf Matematik Değerlendirme Sınavı`,
       sinif: settings.sinif,
       secilenKazanimlar: settings.secilenKazanimlar,
       sorular,
@@ -1195,7 +1195,7 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
       tahminiSure,
       olusturmaTarihi: new Date().toISOString(),
       olusturanKullanici: 'system',
-      // pedagogicalNote: aiResponse.pedagogicalNote as string,
+      // pedagogicalNote: aiResponse.pedagogicalNote as unknown as string,
       cevapAnahtari,
     };
 
@@ -1250,7 +1250,7 @@ ${gorselTalimat}
     required: MATH_EXAM_SCHEMA.properties.questions.items.required,
   };
 
-  const rawResult = (await callGeminiDirect(prompt, singleSchema)) as any;
+  const rawResult = (await callGeminiDirect(prompt, singleSchema)) as unknown as any;
   const result: MatSoru = {
     id: `mat-q-${Date.now()}-${soruIndex}`,
     tip: rawResult.soru_tipi || rawResult.tip || 'coktan_secmeli',
@@ -1278,5 +1278,5 @@ ${gorselTalimat}
 
 // Registry compatibility wrapper
 export const generateMatSinavFromAI = async (options: any) => {
-  return await generateMathExam(options as any);
+  return await generateMathExam(options as unknown as any);
 };

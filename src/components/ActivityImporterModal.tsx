@@ -98,10 +98,10 @@ export const ActivityImporterModal: React.FC<ActivityImporterModalProps> = ({ is
                         title: ws.name || 'İçe Aktarılan Sayfa',
                         activityType: ws.activityType,
                         data: data,
-                        styleSettings: ws.styleSettings as any,
+                        styleSettings: ws.styleSettings as unknown as any,
                         settings: ws.styleSettings || {},
                         originalWorksheetId: ws.id
-                    } as unknown as CollectionItem);
+                    } as unknown as unknown as unknown as CollectionItem);
                 });
             }
         });

@@ -81,5 +81,5 @@ AŞAĞIDAKİ JSON FORMATINDA DÖNÜŞ YAP (Başka hiçbir açıklama ekleme):
         temperature: 0.6, // Dilbilgisi tutarlılığı için biraz düşük tutulur
     });
 
-    return parsedData as ColorfulSyllableReadingData;
+    return parsedData as unknown as ColorfulSyllableReadingData;
 }

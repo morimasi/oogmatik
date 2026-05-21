@@ -18,7 +18,7 @@ const initialState: ScreeningState = {
   isLoading: false,
 };
 
-export const useScreeningStore = create<ScreeningStore>((set) => ({
+export const useScreeningStore = create<ScreeningStore>((set: (partial: Partial<ScreeningStore> | ((state: ScreeningStore) => Partial<ScreeningStore>)) => void) => ({
   ...initialState,
 
   setActiveView: (view: ScreeningView) => set({ activeView: view }),

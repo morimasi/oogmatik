@@ -5,7 +5,7 @@
 
 import { agentService } from './agentService.js';
 import { generateWithSchema } from './geminiClient.js';
-import { WorksheetData, ActivityType } from '../types/core.js';
+import { WorksheetData, SingleWorksheetData, ActivityType } from '../types/core.js';
 import { Student } from '../types/student.js';
 import { ValidationError } from '../utils/AppError.js';
 
@@ -166,7 +166,7 @@ YANIT FORMATI (JSON):
         adaptiveHints: { type: 'ARRAY', items: { type: 'STRING' } }
       },
       required: ['title', 'description', 'activities', 'pedagogicalNote']
-    });
+    }) as Record<string, unknown>;
 
     // Step 2: Multi-agent validation
     const validation = await aiWorksheetService.validateWithAgents(worksheet);
@@ -178,7 +178,7 @@ YANIT FORMATI (JSON):
       description: worksheet.description,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      activities: worksheet.activities.map((act: any, index: number) => ({
+      activities: (worksheet.activities as Array<Record<string, unknown>>).map((act: Record<string, unknown>, index: number) => ({
         id: `act_${index}`,
         type: act.type as ActivityType,
         difficulty: normalizeDifficulty(act.difficulty),
@@ -250,11 +250,12 @@ YANIT FORMATI (JSON):
       });
     }
 
-    validationResults.forEach((result, index) => {
+    validationResults.forEach((result: unknown, index: number) => {
+      const typedResult = result as { status?: string; output?: Record<string, unknown> };
       const { category } = agents[index];
 
-      if (result.status === 'completed' && result.output) {
-        const output = result.output as any;
+      if (typedResult.status === 'completed' && typedResult.output) {
+        const output = typedResult.output;
 
         // Extract score
         const score = output.score || (output.isValid ? 100 : 0);
@@ -417,16 +418,17 @@ YANIT FORMATI (JSON):
     });
 
     const typedResult = result as { optimized?: Partial<WorksheetData>; changes: string[]; improvements: string[] };
+    const ws = worksheet as unknown as SingleWorksheetData;
 
     return {
       optimized: {
-        ...worksheet,
+        ...ws,
         ...(typedResult.optimized || {}),
-        name: typedResult.optimized?.name || worksheet.name,
-        description: typedResult.optimized?.description || worksheet.description,
-        activities: Array.isArray(typedResult.optimized?.activities)
-          ? typedResult.optimized.activities
-          : worksheet.activities,
+        name: (typedResult.optimized as unknown as Record<string, unknown>)?.name || (ws as unknown as Record<string, unknown>)?.name,
+        description: (typedResult.optimized as unknown as Record<string, unknown>)?.description || (ws as unknown as Record<string, unknown>)?.description,
+        activities: Array.isArray((typedResult.optimized as unknown as Record<string, unknown>)?.activities)
+          ? (typedResult.optimized as unknown as Record<string, unknown>).activities as SingleWorksheetData[]
+          : (ws as unknown as Record<string, unknown>)?.activities as SingleWorksheetData[],
       } as WorksheetData,
       changes: typedResult.changes,
       improvements: typedResult.improvements,

@@ -104,7 +104,7 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
 
     const report = assessment.report;
     // Null guard'lar
-    const observations = (report?.observations ?? null) as ClinicalObservation | null;
+    const observations = (report?.observations ?? null) as unknown as ClinicalObservation | null;
     const chartData = report?.chartData ?? [];
     const scores = report?.scores ?? {};
     const analysis = report?.analysis ?? { strengths: [], weaknesses: [], errorAnalysis: [] };
@@ -251,7 +251,7 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                         </div>
                         <div className="space-y-3 break-inside-avoid">
                             {Object.entries(scores).map(([key, value]) => {
-                                const score = value as number;
+                                const score = value as unknown as number;
                                 const label = labelMap[key] || key;
                                 const riskLevel = score > 80 ? 'Yüksek Başarı' : score > 55 ? 'Ortalama' : 'Desteklenmeli';
                                 const colorClass = score > 80 ? 'bg-green-500' : score > 55 ? 'bg-yellow-500' : 'bg-red-500';
@@ -374,7 +374,7 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                                                 </span>
                                                 {onSelectActivity && (
                                                     <button
-                                                        onClick={() => { onSelectActivity(item.activityId as ActivityType); onClose(); }}
+                                                        onClick={() => { onSelectActivity(item.activityId as unknown as ActivityType); onClose(); }}
                                                         className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5"
                                                     >
                                                         <i className="fa-solid fa-play"></i> Üret

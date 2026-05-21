@@ -70,7 +70,7 @@ export const PromptSimulator = ({ prompt }: { prompt: PromptTemplate }) => {
                 throw new AppError("AI geçerli bir JSON nesnesi döndürmedi.", 'INTERNAL_ERROR', 500);
             }
 
-            setResult(aiResponse as WorksheetData);
+            setResult(aiResponse as unknown as WorksheetData);
 
 
         } catch (err: any) {

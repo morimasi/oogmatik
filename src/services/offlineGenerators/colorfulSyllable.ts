@@ -4,7 +4,7 @@ import { GeneratorOptions, ColorfulSyllableReadingData } from '../../types';
 export const generateOfflineColorfulSyllableReading = async (options: GeneratorOptions): Promise<ColorfulSyllableReadingData[]> => {
     const { worksheetCount, difficulty } = options;
 
-    return Array.from({ length: worksheetCount }, () => ({
+    return Array.from({ length: worksheetCount ?? 1 }, () => ({
         id: 'color_syll_' + Date.now(),
         activityType: 'COLORFUL_SYLLABLE_READING' as any,
         title: "Renkli Hece Okuma",

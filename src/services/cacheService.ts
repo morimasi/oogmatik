@@ -71,7 +71,7 @@ export const cacheService = {
         request.onerror = () => reject(request.error);
       });
     } catch (e) {
-      logWarn('Cache write error:', e);
+      logWarn('Cache write error:', typeof e === 'object' && e !== null && !Array.isArray(e) ? e as Record<string, unknown> : undefined);
     }
   },
 
@@ -88,7 +88,7 @@ export const cacheService = {
         request.onerror = () => reject(request.error);
       });
     } catch (e) {
-      logWarn('Draft save error:', e);
+      logWarn('Draft save error:', typeof e === 'object' && e !== null && !Array.isArray(e) ? e as Record<string, unknown> : undefined);
     }
   },
 

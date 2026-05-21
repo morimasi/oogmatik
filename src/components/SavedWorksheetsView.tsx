@@ -59,7 +59,7 @@ function resolveWorksheetCategory(sheet: SavedWorksheet): (typeof ACTIVITY_CATEG
   const fromStored = ACTIVITY_CATEGORIES.find((c) => c.id === sheet.category?.id);
   if (fromStored) return fromStored;
   return ACTIVITY_CATEGORIES.find((c) =>
-    (c.activities as readonly string[]).includes(sheet.activityType)
+    (c.activities as unknown as readonly string[]).includes(sheet.activityType)
   );
 }
 
@@ -370,8 +370,8 @@ export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoa
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
 
-    const [shareModal, setShareModal] = useState({ isOpen: false, item: null as SavedWorksheet | null });
-    const [feedbackModal, setFeedbackModal] = useState({ isOpen: false, item: null as SavedWorksheet | null });
+    const [shareModal, setShareModal] = useState({ isOpen: false, item: null as unknown as SavedWorksheet | null });
+    const [feedbackModal, setFeedbackModal] = useState({ isOpen: false, item: null as unknown as SavedWorksheet | null });
 
     const effectiveUserId = targetUserId || user?.id;
     const isReadOnly = !!targetUserId && targetUserId !== user?.id;

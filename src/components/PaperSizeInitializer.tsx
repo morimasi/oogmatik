@@ -15,19 +15,19 @@ export const PaperSizeInitializer: React.FC = () => {
         try {
           const serverSize = await loadCurrentUserPaperSize();
           if (serverSize) {
-            paperSizeStore.setPaperSize(serverSize as PaperSize);
+            paperSizeStore.setPaperSize(serverSize as unknown as PaperSize);
             localStorage.setItem('oogmatik.paperSize', serverSize);
           } else {
             const local = localStorage.getItem('oogmatik.paperSize');
-            if (local) paperSizeStore.setPaperSize(local as PaperSize);
+            if (local) paperSizeStore.setPaperSize(local as unknown as PaperSize);
           }
         } catch {
           const local = localStorage.getItem('oogmatik.paperSize');
-          if (local) paperSizeStore.setPaperSize(local as PaperSize);
+          if (local) paperSizeStore.setPaperSize(local as unknown as PaperSize);
         }
       } else {
         const local = localStorage.getItem('oogmatik.paperSize');
-        if (local) paperSizeStore.setPaperSize(local as PaperSize);
+        if (local) paperSizeStore.setPaperSize(local as unknown as PaperSize);
       }
     })();
   }, [auth?.user?.id]);

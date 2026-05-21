@@ -65,6 +65,6 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
     };
 
     // Using stable gemini-2.5-flash for reliability
-    const result = await generateWithSchema(prompt, schema);
+    const result = await generateWithSchema(prompt, schema) as unknown as NumberLogicRiddleData[];
     return result;
 };

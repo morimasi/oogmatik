@@ -25,7 +25,7 @@ export async function generateOfflinePremiumMathPuzzle(
     { name: 'Kedi', icon: '🐱' }, { name: 'Köpek', icon: '🐶' }, { name: 'Tavşan', icon: '🐰' }
   ];
 
-  const puzzles = Array.from({ length: count }, (_, pIdx) => {
+  const puzzles = Array.from({ length: count ?? 1 }, (_, pIdx) => {
     const selectedObjects: any[] = getRandomItems(objectPool, 3);
     const v1 = getRandomInt(1, difficulty === 'Zor' ? 15 : 10);
     const v2 = getRandomInt(1, difficulty === 'Zor' ? 10 : 8);

@@ -119,7 +119,7 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
             }
             acc[categoryId].items.push(ws);
             return acc;
-        }, {} as Record<string, GroupType>);
+        }, {} as unknown as Record<string, GroupType>);
 
         // Add Assessments as a specific group if exists (only on first page for simplicity)
         if (page === 0 && sharedAssessments.length > 0) {
@@ -129,7 +129,7 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
                     id: a.id,
                     userId: a.userId,
                     name: `${a.studentName} - ${a.grade}`,
-                    activityType: 'ASSESSMENT_REPORT' as any, // Virtual type for display
+                    activityType: 'ASSESSMENT_REPORT' as unknown as any, // Virtual type for display
                     worksheetData: [],
                     createdAt: a.createdAt,
                     icon: 'fa-solid fa-clipboard-user',
@@ -137,7 +137,7 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
                     sharedBy: a.sharedBy,
                     sharedByName: a.sharedByName,
                     sharedWith: a.sharedWith
-                })) as SavedWorksheet[] // Cast to satisfy type, although structure slightly differs
+                })) as unknown as SavedWorksheet[] // Cast to satisfy type, although structure slightly differs
             };
         }
 
@@ -160,7 +160,7 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
     };
 
     const handleViewItem = (item: SavedWorksheet) => {
-        if (item.activityType === 'ASSESSMENT_REPORT' as any) {
+        if (item.activityType === 'ASSESSMENT_REPORT' as unknown as any) {
             alert("Rapor detayları şu an sadece Değerlendirme Modülü içerisinden görüntülenebilir. Bu özellik yakında eklenecektir.");
             // TODO: Add logic to view shared assessment report modal
         } else {
@@ -230,7 +230,7 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
                                                                     <div>
                                                                         <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{item.name}</div>
                                                                         <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                                                                            {item.activityType === 'ASSESSMENT_REPORT' as any ? 'Rapor' : getActivityTitle(item.activityType)}
+                                                                            {item.activityType === 'ASSESSMENT_REPORT' as unknown as any ? 'Rapor' : getActivityTitle(item.activityType)}
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -260,7 +260,7 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
                                                                     <button onClick={() => handleAddToBooklet(item)} className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-200 p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors" title="Kitapçığa Ekle">
                                                                         <i className="fa-solid fa-book-medical"></i>
                                                                     </button>
-                                                                    {item.activityType !== 'ASSESSMENT_REPORT' as any && (
+                                                                    {item.activityType !== 'ASSESSMENT_REPORT' as unknown as any && (
                                                                         <button onClick={() => handleDeleteWorksheet(item.id)} className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-200 p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors" title="Sil">
                                                                             <i className="fa-solid fa-trash-alt"></i>
                                                                         </button>

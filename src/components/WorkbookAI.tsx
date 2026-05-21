@@ -48,6 +48,8 @@ const DEFAULT_STYLE: StyleSettings = {
   rulerColor: '#000',
   rulerHeight: 1,
   maskOpacity: 0.5,
+  showAnswers: false,
+  showClues: false,
 };
 
 interface WorkbookAIProps {
@@ -76,7 +78,7 @@ export const WorkbookAI: React.FC<WorkbookAIProps> = ({ workbook, onApplySuggest
       const collectionItems: CollectionItem[] = workbook.pages
         .filter((p) => p.type === 'activity')
         .map((p) => {
-          const content = p.content as WorkbookActivityContent;
+          const content = p.content as unknown as WorkbookActivityContent;
           return {
             id: p.id,
             itemType: 'activity',
@@ -86,8 +88,8 @@ export const WorkbookAI: React.FC<WorkbookAIProps> = ({ workbook, onApplySuggest
               title: content.activityType,
               instruction: 'Lütfen etkinliği tamamlayın.',
               difficultyLevel: content.difficulty,
-              ...(content.activityData as object)
-            } as any], // SingleWorksheetData compatibility
+              ...(content.activityData as unknown as object)
+            } as unknown as any], // SingleWorksheetData compatibility
             settings: { ...DEFAULT_STYLE, title: content.activityType }
           };
         });
@@ -98,7 +100,7 @@ export const WorkbookAI: React.FC<WorkbookAIProps> = ({ workbook, onApplySuggest
       
       workbook.pages.forEach(p => {
         if (p.type === 'activity') {
-          const content = p.content as WorkbookActivityContent;
+          const content = p.content as unknown as WorkbookActivityContent;
           distributionMap[content.activityType] = (distributionMap[content.activityType] || 0) + 1;
           if (content.difficulty === 'Kolay') easy++;
           else if (content.difficulty === 'Zor') hard++;
@@ -135,18 +137,21 @@ export const WorkbookAI: React.FC<WorkbookAIProps> = ({ workbook, onApplySuggest
 
       // Combine all suggestions
       const allSuggestions: AISuggestion[] = [
-        ...(activityRes.suggestions || []).map((s: unknown) => ({
-          id: crypto.randomUUID(),
-          type: 'add-activity' as AIWorkbookSuggestionType,
-          title: `${s.activityType} ekle`,
-          description: s.reason,
-          confidence: s.recommendedDifficulty === 'Orta' ? 0.8 : 0.6,
-          data: s,
-          status: 'pending' as const,
-        })),
+        ...(activityRes.suggestions || []).map((s: unknown) => {
+          const suggestion = s as unknown as Record<string, unknown>;
+          return {
+            id: crypto.randomUUID(),
+            type: 'add-activity' as unknown as AIWorkbookSuggestionType,
+            title: `${suggestion.activityType} ekle`,
+            description: String(suggestion.reason || ''),
+            confidence: suggestion.recommendedDifficulty === 'Orta' ? 0.8 : 0.6,
+            data: suggestion,
+            status: 'pending' as const,
+          };
+        }),
         ...(skillRes.gaps || []).map((gap) => ({
           id: crypto.randomUUID(),
-          type: 'fill-skill-gap' as AIWorkbookSuggestionType,
+          type: 'fill-skill-gap' as unknown as AIWorkbookSuggestionType,
           title: `${gap.skillArea} becerisi eksik`,
           description: gap.suggestedActivities?.join(', ') || 'Aktivite önerisi yok',
           confidence: 0.7,
@@ -171,7 +176,7 @@ export const WorkbookAI: React.FC<WorkbookAIProps> = ({ workbook, onApplySuggest
       setSuggestions(allSuggestions.slice(0, 10)); // Max 10 suggestion
     } catch (err) {
       setError('AI önerileri yüklenirken bir hata oluştu');
-      logError(err);
+      logError(err instanceof Error ? err : new Error(String(err)));
     } finally {
       setLoading(false);
     }
@@ -181,16 +186,16 @@ export const WorkbookAI: React.FC<WorkbookAIProps> = ({ workbook, onApplySuggest
     try {
       await onApplySuggestion?.(suggestion);
       setSuggestions(
-        suggestions.map((s: unknown) => (s.id === suggestion.id ? { ...s, status: 'applied' as const } : s))
+        suggestions.map((item) => (item.id === suggestion.id ? { ...item, status: 'applied' as const } : item))
       );
     } catch (error) {
-      logError('Öneri uygulanırken hata:', error);
+      logError('Öneri uygulanırken hata:', typeof error === 'object' && error !== null && !Array.isArray(error) ? error as unknown as Record<string, unknown> : undefined);
     }
   }
 
   function handleReject(suggestionId: string) {
     setSuggestions(
-      suggestions.map((s: unknown) => (s.id === suggestionId ? { ...s, status: 'rejected' as const } : s))
+      suggestions.map((item) => (item.id === suggestionId ? { ...item, status: 'rejected' as const } : item))
     );
   }
 
@@ -257,19 +262,19 @@ export const WorkbookAI: React.FC<WorkbookAIProps> = ({ workbook, onApplySuggest
         <div className="mt-6 pt-6 grid grid-cols-3 gap-4 text-center" style={{ borderTop: '1px solid var(--border-color)' }}>
           <div>
             <div className="text-2xl font-bold" style={{ color: 'var(--accent-color)' }}>
-              {suggestions.filter((s: unknown) => s.status === 'pending').length}
+              {suggestions.filter((s) => s.status === 'pending').length}
             </div>
             <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Bekleyen</div>
           </div>
           <div>
             <div className="text-2xl font-bold" style={{ color: '#22c55e' }}>
-              {suggestions.filter((s: unknown) => s.status === 'applied').length}
+              {suggestions.filter((s) => s.status === 'applied').length}
             </div>
             <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Uygulandı</div>
           </div>
           <div>
             <div className="text-2xl font-bold" style={{ color: 'var(--text-muted)' }}>
-              {suggestions.filter((s: unknown) => s.status === 'rejected').length}
+              {suggestions.filter((s) => s.status === 'rejected').length}
             </div>
             <div className="text-sm" style={{ color: 'var(--text-secondary)' }}>Reddedildi</div>
           </div>

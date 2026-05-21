@@ -117,7 +117,7 @@ export const print = async (
     try {
       window.print();
     } catch (err: unknown) {
-      logError('Print fallback failed:', err instanceof Error ? err.message : String(err));
+      logError('Print fallback failed:', { message: err instanceof Error ? err.message : String(err) });
     }
     return;
   }

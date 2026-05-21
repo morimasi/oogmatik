@@ -15,6 +15,8 @@ import type { LearningDisabilityProfile, AgeGroup } from './creativeStudio';
 import type { OCRResult, OCRDetectedType } from './core';
 import type { Difficulty } from './common';
 
+export type { Difficulty };
+
 // ─── Temel Enumlar ──────────────────────────────────────────────────────
 
 /** Etkinlik üretim modları */
@@ -85,6 +87,7 @@ export interface ActivityMetadata {
     sourceBlueprint?: string;
     /** MEB müfredat kazanım kodu */
     curriculumCode?: string;
+    pedagogicalNote?: string;
 }
 
 /** Onay bilgileri */

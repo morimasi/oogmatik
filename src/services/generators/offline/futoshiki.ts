@@ -69,8 +69,8 @@ export const generateOfflineFutoshiki = async (options: GeneratorOptions): Promi
             const r = Math.floor(Math.random() * (isHorizontal ? size : size - 1));
             const col = Math.floor(Math.random() * (isHorizontal ? size - 1 : size));
 
-            const val1 = board[r][col] as number;
-            const val2 = isHorizontal ? board[r][col + 1] as number : board[r + 1][col] as number;
+            const val1 = board[r][col] as unknown as number;
+            const val2 = isHorizontal ? board[r][col + 1] as unknown as number : board[r + 1][col] as unknown as number;
 
             const exists = constraints.find(c =>
                 (c.r1 === r && c.c1 === col && c.r2 === (isHorizontal ? r : r + 1) && c.c2 === (isHorizontal ? col + 1 : col))

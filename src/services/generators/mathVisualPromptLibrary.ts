@@ -1135,7 +1135,7 @@ export const TUM_GORSEL_PROMPT_SABLONLARI: Record<GrafikVeriTipi, PromptTemplate
     ...VERI_ISLEME_PROMPT_SABLONLARI,
     ...SAYILAR_CEBIR_PROMPT_SABLONLARI,
     ...OLASILIK_PROMPT_SABLONLARI,
-} as Record<GrafikVeriTipi, PromptTemplate>;
+} as unknown as Record<GrafikVeriTipi, PromptTemplate>;
 
 // ─── YARDIMCI FONKSİYONLAR ───────────────────────────────────────
 

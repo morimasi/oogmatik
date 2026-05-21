@@ -63,9 +63,9 @@ export const DirectionalCodeReadingConfig: React.FC<ConfigProps> = ({ options, o
                             ].map((style) => (
                                 <button
                                     key={style.id}
-                                    onClick={() => onChange('aestheticMode' as any, style.id)}
+                                    onClick={() => onChange('aestheticMode' as keyof GeneratorOptions, style.id)}
                                     className={`py-2 text-[9px] font-black rounded-xl border-2 transition-all ${
-                                        (options.aestheticMode || 'standard') === style.id
+                                        ((options as Record<string, unknown>).aestheticMode || 'standard') === style.id
                                             ? 'border-indigo-500 bg-indigo-50 text-indigo-600 dark:bg-indigo-950 dark:text-indigo-400'
                                             : 'border-zinc-100 dark:border-zinc-800 text-zinc-400 hover:border-zinc-200'
                                     }`}

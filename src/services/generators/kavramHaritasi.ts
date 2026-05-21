@@ -4,11 +4,11 @@ import { GeneratorOptions } from '../../types/core';
 export const generateKavramHaritasiFromAI = async (
   options: GeneratorOptions
 ): Promise<any> => {
-  const opts = options as Record<string, unknown>;
+  const opts = options as unknown as Record<string, unknown>;
   const difficulty = options.difficulty || 'Orta';
-  const topic = (opts.topic as string) || 'Genel bir bilimsel konu';
-  const depth = (opts.depth as number) || 2;
-  const branchCount = (opts.branchCount as number) || 3;
+  const topic = (opts.topic as unknown as string) || 'Genel bir bilimsel konu';
+  const depth = (opts.depth as unknown as number) || 2;
+  const branchCount = (opts.branchCount as unknown as number) || 3;
 
   const prompt = `
 Sen bir eğitim teknolojileri uzmanı ve nöro-pedagogsun. Disleksi ve öğrenme güçlüğü çeken çocuklar için yüksek kaliteli, görsel hiyerarşisi net bir "Kavram Haritası" oluşturacaksın.
@@ -28,7 +28,7 @@ TASARIM KURALLARI:
    - parentId: Bağlı olduğu üst kavramın ID'si (root hariç)
    - type: En üst kavram için "root", diğerleri için "concept".
 2. Bilişsel yükü optimize et: Kavramlar arası ilişkiler mantıklı ve müfredata uygun olmalı.
-3. Boşluk Bırakma: Çocuğun doldurması için düğümlerin %${(opts.fillRatio as number) || 60}'ını dolu, kalanını boş (label: "") bırak ama parentId ilişkisini koru.
+3. Boşluk Bırakma: Çocuğun doldurması için düğümlerin %${(opts.fillRatio as unknown as number) || 60}'ını dolu, kalanını boş (label: "") bırak ama parentId ilişkisini koru.
 
 ZORUNLU JSON FORMATI:
 {

@@ -150,7 +150,7 @@ export const generateOfflineSyllableWordBuilder = async (options: GeneratorOptio
         { word: "ELMA", syllables: ["EL", "MA"], img: "apple" },
         { word: "GÜNEŞ", syllables: ["GÜ", "NEŞ"], img: "sun" }
     ];
-    return Array.from({ length: worksheetCount }, () => ({
+    return Array.from({ length: worksheetCount ?? 1 }, () => ({
         title: "Hece Dedektifi",
         instruction: "Karışık verilen heceleri birleştirerek görsele uygun kelimeyi oluştur.",
         words: words.map((w, i) => ({ id: i, targetWord: w.word, syllables: w.syllables, imagePrompt: w.img })),

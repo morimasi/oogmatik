@@ -44,13 +44,13 @@ export const generateHARF_BAGLAMAFromAI = async (options: GeneratorOptions) => {
     required: ['instruction', 'pedagogicalNote', 'items']
   };
 
-  const result = await generateWithSchema(prompt, schema);
+  const result = await generateWithSchema(prompt, schema) as Record<string, unknown>;
 
   return {
     type: ActivityType.HARF_BAGLAMA,
     title: 'Harf Bağlama Etkinliği (Yapay Zeka)',
     difficulty,
-    totalItems: result.items?.length || itemCount,
-    ...result,
+    totalItems: (result.items as Array<unknown>)?.length || itemCount,
+    ...(result as object),
   };
 };

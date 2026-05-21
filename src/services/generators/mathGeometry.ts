@@ -12,7 +12,7 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
         overlapping = true,
         aestheticMode = 'glassmorphism',
         layout = 'single'
-    } = options as any;
+    } = options as unknown as any;
 
     const prompt = `
     ${PEDAGOGICAL_BASE}
@@ -96,7 +96,7 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
     const results = await generateWithSchema(prompt, schema);
     
     // Normalize: Ensure targetShape parameter is used (override AI response if needed)
-    return (results as ShapeCountingData[]).map((item: any) => ({
+    return (results as unknown as ShapeCountingData[]).map((item: any) => ({
         ...item,
         settings: {
             ...item.settings,

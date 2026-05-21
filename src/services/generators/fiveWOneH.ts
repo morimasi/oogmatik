@@ -7,7 +7,7 @@ export const generateFiveWOneHFromAI = async (options: GeneratorOptions): Promis
     const textLength = options.textLength || 'kısa'; // kısa: 1 paragraf, orta: 2 paragraf, uzun: 3+
     const questionStyle = options.questionStyle || 'test_and_open'; // test_and_open, only_test, only_open_ended
     const student = options.studentContext;
-    const classLevel = options.classLevel || (typeof student?.grade === 'number' ? student.grade : 8);
+    const classLevel = Number(options.classLevel) || (typeof student?.grade === 'number' ? student.grade : 8);
     const generationMode = options.generationMode || 'ai';
     const premiumMode = options.premiumMode ?? false;
 
@@ -36,7 +36,7 @@ export const generateFiveWOneHFromAI = async (options: GeneratorOptions): Promis
 
     let studentInstruction = '';
     if (student) {
-        studentInstruction = `ÖZEL ÖĞRENCİ PROFİLİ: Bu metni ${age} yaşındaki, ${student.grade || 'bilinmeyen'} sınıf öğrencisi ${student.name} için kurgula. ${student.learningStyle || ''} öğrenme stiline uygun, ilgisini çekecek öğeler ekle.`;
+        studentInstruction = `ÖZEL ÖĞRENCİ PROFİLİ: Bu metni ${(student as unknown as unknown as unknown as Record<string, unknown>).age || 'bilinmeyen'} yaşındaki, ${student.grade || 'bilinmeyen'} sınıf öğrencisi ${student.name} için kurgula. ${(student as unknown as unknown as unknown as Record<string, unknown>).learningStyle || ''} öğrenme stiline uygun, ilgisini çekecek öğeler ekle.`;
     }
 
     const basePrompt = `
@@ -97,5 +97,5 @@ Lütfen çıktını AŞAĞIDAKİ JSON YAPISINDA ve GEÇERLİ BİR FORMATTA ver (
         thinkingBudget: generationMode === 'fast' ? 0 : 40
     });
 
-    return parsedData as FiveWOneHData;
+    return parsedData as unknown as FiveWOneHData;
 }

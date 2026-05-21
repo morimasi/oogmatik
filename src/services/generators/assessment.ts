@@ -65,16 +65,16 @@ export const generateAdaptiveQuestionsFromAI = async (
         properties: skills.reduce((acc, skill) => {
             acc[skill] = { type: 'ARRAY', items: questionSchema };
             return acc;
-        }, {} as any)
+        }, {} as unknown as any)
     };
 
     try {
-        const rawData = await generateWithSchema(prompt, schema);
+        const rawData = await generateWithSchema(prompt, schema) as unknown as Record<string, unknown>;
         const result: Record<string, AdaptiveQuestion[]> = {};
 
         Object.keys(rawData).forEach(key => {
-            if (skills.includes(key as any)) {
-                result[key] = rawData[key].map((q: any, idx: number) => ({
+            if (skills.includes(key as unknown as any)) {
+                result[key] = (rawData[key] as unknown as Array<Record<string, unknown>>).map((q: Record<string, unknown>, idx: number) => ({
                     ...q,
                     id: `${key}_ai_${Date.now()}_${idx}`,
                     skill: key
@@ -84,7 +84,7 @@ export const generateAdaptiveQuestionsFromAI = async (
 
         return result;
     } catch (error) {
-        logError("AI Assessment Generation Failed:", error);
+        logError("AI Assessment Generation Failed:", typeof error === 'object' && error !== null && !Array.isArray(error) ? error as unknown as Record<string, unknown> : undefined);
         throw error;
     }
 };

@@ -88,5 +88,5 @@ Aşağıdaki JSON formatında kesin ve geçerli bir cevap dön:
         temperature: 0.7,
     });
 
-    return parsedData as FamilyTreeMatrixData;
+    return parsedData as unknown as FamilyTreeMatrixData;
 };

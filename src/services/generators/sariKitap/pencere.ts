@@ -57,5 +57,5 @@ export const generatePencereFromAI = async (options: GeneratorOptions): Promise<
     };
     
     const schema = { type: 'ARRAY', items: singleSchema };
-    return generateWithSchema(prompt, schema) as Promise<any[]>;
+    return generateWithSchema(prompt, schema) as unknown as Promise<any[]>;
 };

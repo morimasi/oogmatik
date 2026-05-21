@@ -58,7 +58,7 @@ export const generateOfflineOddEvenSudoku = async (options: GeneratorOptions): P
                 const j = Math.floor(Math.random() * (i + 1));
                 [firstRow[i], firstRow[j]] = [firstRow[j], firstRow[i]];
             }
-            board[0] = firstRow as number[];
+            board[0] = firstRow as unknown as number[];
             solve(board, size);
 
             const mask: ('odd' | 'even' | null)[][] = Array(size).fill(null).map(() => Array(size).fill(null));
@@ -68,7 +68,7 @@ export const generateOfflineOddEvenSudoku = async (options: GeneratorOptions): P
 
             for (let i = 0; i < size; i++) {
                 for (let j = 0; j < size; j++) {
-                    const val = board[i][j] as number;
+                    const val = board[i][j] as unknown as number;
                     if (Math.random() > 0.4) mask[i][j] = val % 2 === 0 ? 'even' : 'odd';
                     if (Math.random() > emptyRatio) puzzleGrid[i][j] = val;
                 }

@@ -92,5 +92,5 @@ Aşağıdaki JSON formatında döndür (Başka açıklama veya text yazma):
         temperature: 0.8, // Mantık üretiminde yaratıcılık ile kurallılık dengesi
     });
 
-    return parsedData as ApartmentLogicData;
+    return parsedData as unknown as ApartmentLogicData;
 }

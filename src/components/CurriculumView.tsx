@@ -218,7 +218,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onStartC
             await new Promise(resolve => setTimeout(resolve, 50));
             await printService.generatePdf('.curriculum-plan-content', `${formData.name}-EgitimPlani`, { action });
         } catch (e: unknown) {
-            logError(e as AppError);
+            logError(e as unknown as AppError);
         } finally {
             setIsPrinting(false);
         }
@@ -231,14 +231,14 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onStartC
         const newStatus = currentStatus === 'completed' ? 'pending' : 'completed';
 
         try {
-            if (isSaved) await curriculumService.updateActivityStatus(curriculum.id, day, actId, newStatus as any);
+            if (isSaved) await curriculumService.updateActivityStatus(curriculum.id, day, actId, newStatus as unknown as any);
             setCurriculum(prev => {
                 if (!prev) return null;
                 return {
                     ...prev,
                     schedule: prev.schedule.map(d => {
                         if (d.day === day) {
-                            const newActs = d.activities.map(a => a.id === actId ? { ...a, status: newStatus as any } : a);
+                            const newActs = d.activities.map(a => a.id === actId ? { ...a, status: newStatus as unknown as any } : a);
                             return { ...d, activities: newActs, isCompleted: newActs.every(a => a.status === 'completed') };
                         }
                         return d;

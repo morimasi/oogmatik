@@ -52,7 +52,7 @@ export const generateSemanticLinkerAI = async (
   `;
 
   const result = await generateWithSchema(fullPrompt, schema);
-  return result as SemanticLinkerData;
+  return result as unknown as SemanticLinkerData;
 };
 
 export const generateSemanticLinkerOffline = (count: number = 5): SemanticLinkerData => {

@@ -4,7 +4,7 @@ import { AppError } from '../../utils/AppError';
 
 /**
  * Eksik Parçaları Tamamlama - Ultra Gelişmiş AI Üreticisi
- * Premium SaaS kalitesinde, ultra özelleştirilebilir etkinlik üretimi
+ * Premium Saas unknown as kalitesinde, ultra özelleştirilebilir etkinlik üretimi
  */
 export const generateAdvancedMissingPartsFromAI = async (options: GeneratorOptions): Promise<any> => {
   const {
@@ -78,7 +78,7 @@ export const generateAdvancedMissingPartsFromAI = async (options: GeneratorOptio
     }
   };
 
-  const config = difficultyConfig[difficulty as keyof typeof difficultyConfig] || difficultyConfig['orta'];
+  const config = difficultyConfig[difficulty as unknown as keyof typeof difficultyConfig] || difficultyConfig['orta'];
 
   const prompt = `
     SEN BİR DİL VE KONUŞMA TERAPİSTİ UZMANISIN. Disleksi olan çocuklar için "Eksik Parçaları Tamamlama" (Advanced Cloze Test) etkinliği üret.
@@ -152,8 +152,8 @@ export const generateAdvancedMissingPartsFromAI = async (options: GeneratorOptio
         },
         "visualElements": {
           "icons": [
-            { "position": 0, "icon": "fas fa-sun", "style": "text-yellow-500 text-2xl" },
-            { "position": 1, "icon": "fas fa-book", "style": "text-blue-500 text-xl" }
+            { "position": 0, "icon": "fas unknown as fa-sun", "style": "text-yellow-500 text-2xl" },
+            { "position": 1, "icon": "fas unknown as fa-book", "style": "text-blue-500 text-xl" }
           ],
           "images": [],
           "decorations": []
@@ -253,8 +253,8 @@ function validateAndEnhanceResult(result: any, options: GeneratorOptions): any {
  */
 function generateDefaultIcons(paragraphCount: number) {
   const icons = [
-    'fas fa-sun', 'fas fa-book', 'fas fa-puzzle-piece', 'fas fa-star',
-    'fas fa-heart', 'fas fa-rocket', 'fas fa-tree', 'fas fa-cloud'
+    'fas unknown as fa-sun', 'fas unknown as fa-book', 'fas unknown as fa-puzzle-piece', 'fas unknown as fa-star',
+    'fas unknown as fa-heart', 'fas unknown as fa-rocket', 'fas unknown as fa-tree', 'fas unknown as fa-cloud'
   ];
   
   return Array.from({ length: paragraphCount }, (_, i) => ({
