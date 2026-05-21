@@ -22,6 +22,7 @@ import {
   SavedAssessment,
   Curriculum,
 } from './types';
+import { Clock, UserMinus as UserX } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 const ContentArea = lazy(() => import('./components/ContentArea').then(m => ({ default: m.default })));
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from './constants';
@@ -966,6 +967,48 @@ const AppContent = () => {
       <Suspense fallback={<LoadingSpinner />}>
         <LoginPage />
       </Suspense>
+    );
+  }
+
+  if (authStore.user.status === 'pending') {
+    return (
+      <div className="min-h-screen w-screen h-screen flex items-center justify-center bg-[var(--bg-primary)] p-4 font-lexend relative overflow-hidden">
+        {/* Abstract background shapes */}
+        <div className="absolute w-[500px] h-[500px] rounded-full bg-indigo-500/10 blur-[120px] -top-40 -left-40 pointer-events-none" />
+        <div className="absolute w-[400px] h-[400px] rounded-full bg-violet-500/10 blur-[100px] -bottom-20 -right-20 pointer-events-none" />
+        
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-md p-8 rounded-[2.5rem] bg-white/40 dark:bg-black/20 border border-zinc-200 dark:border-white/5 backdrop-blur-2xl shadow-2xl flex flex-col items-center text-center relative"
+        >
+          {/* Clock Icon Wrapper */}
+          <div className="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center mb-6 animate-pulse shadow-lg shadow-amber-500/5">
+            <Clock size={32} className="animate-spin" style={{ animationDuration: '10s' }} />
+          </div>
+
+          <h1 className="text-xl font-black text-[var(--text-primary)] tracking-tight mb-2">Kayıt İşleminiz Başarıyla Tamamlandı! 🎉</h1>
+          <p className="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-4 bg-amber-500/10 px-3 py-1 rounded-full">Yönetici Onayı Bekleniyor</p>
+
+          <p className="text-xs text-[var(--text-secondary)] leading-relaxed mb-4">
+            Oogmatik platformuna başarıyla kayıt oldunuz. Güvenlik ve pedagojik standartlar gereği, öğretmen hesaplarının tamamı yönetici onayından geçmektedir.
+          </p>
+
+          <div className="p-4 bg-white/50 dark:bg-black/30 border border-zinc-200 dark:border-white/5 rounded-2xl w-full text-left mb-6">
+            <h4 className="text-[10px] font-black text-[var(--text-muted)] uppercase mb-2 tracking-wider">Bilgilendirme Notu</h4>
+            <p className="text-[10px] text-[var(--text-secondary)] leading-relaxed">
+              Hesabınız onaylandığında <strong className="text-[var(--text-primary)]">{authStore.user.email}</strong> adresinize otomatik bir onay e-postası gönderilecektir. Sorularınız için <a href="mailto:morimasi@gmail.com" className="text-indigo-500 font-bold hover:underline">morimasi@gmail.com</a> adresi ile iletişime geçebilirsiniz.
+            </p>
+          </div>
+
+          <button
+            onClick={() => authStore.logout()}
+            className="w-full py-3 bg-[var(--bg-secondary)] hover:bg-[var(--bg-tertiary)] text-[var(--text-primary)] text-xs font-black uppercase tracking-wider rounded-2xl border border-[var(--border-color)] transition-all active:scale-95 flex items-center justify-center gap-2 shadow-sm"
+          >
+            <UserX size={14} /> Oturumu Kapat
+          </button>
+        </motion.div>
+      </div>
     );
   }
 

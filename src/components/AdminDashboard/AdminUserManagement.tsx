@@ -17,11 +17,13 @@ import {
   LockKeyhole as Lock,
   LockKeyholeOpen as Unlock,
   CircleCheck as CheckCircle2,
-  AlertCircle
+  AlertCircle,
+  Clock
 } from 'lucide-react';
 import { UserStatus, UserRole } from '../../types';
 import { authService } from '../../services/authService';
 import { adminService } from '../../services/adminService';
+import { emailService } from '../../services/emailService';
 import { UserFilter, ManagedUser } from '../../types/admin';
 import { useToastStore } from '../../store/useToastStore';
 
@@ -123,11 +125,23 @@ export const AdminUserManagement: React.FC = () => {
       return;
     }
 
+    const isApproval = currentStatus === 'pending';
     const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
     try {
       await adminService.updateUserStatus(userId, newStatus as UserStatus);
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: newStatus as any } : u));
-      toast.success(newStatus === 'active' ? 'Hesap aktifleştirildi.' : 'Hesap askıya alındı.');
+      
+      if (isApproval && user) {
+        toast.success('Hesap onaylandı! E-posta gönderiliyor...');
+        const emailSent = await emailService.sendApprovalEmail(user.email, user.name);
+        if (emailSent) {
+          toast.success(`${user.email} adresine onay e-postası otomatik olarak gönderildi.`);
+        } else {
+          toast.error('Onay e-postası gönderilirken bir hata oluştu.');
+        }
+      } else {
+        toast.success(newStatus === 'active' ? 'Hesap aktifleştirildi.' : 'Hesap askıya alındı.');
+      }
     } catch (e) {
       toast.error('Durum güncelleme hatası');
     }
@@ -251,16 +265,18 @@ export const AdminUserManagement: React.FC = () => {
                                 className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all ${
                                     user.status === 'active' 
                                     ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-rose-500/10 hover:text-rose-500 hover:border-rose-500/20 group/st' 
+                                    : user.status === 'pending'
+                                    ? 'bg-amber-500/10 text-amber-500 border-amber-500/20 hover:bg-emerald-500/10 hover:text-emerald-500 hover:border-emerald-500/20 group/st animate-pulse'
                                     : 'bg-rose-500/10 text-rose-500 border-rose-500/20 hover:bg-emerald-500/10 hover:text-emerald-500 hover:border-emerald-500/20 group/st'
                                 }`}
                             >
                                 <span className="group-hover/st:hidden flex items-center gap-2">
-                                  {user.status === 'active' ? <CheckCircle2 size={12} /> : <AlertCircle size={12} />}
-                                  {user.status === 'active' ? 'AKTİF' : 'ASKIYA ALINDI'}
+                                  {user.status === 'active' ? <CheckCircle2 size={12} /> : user.status === 'pending' ? <Clock size={12} /> : <AlertCircle size={12} />}
+                                  {user.status === 'active' ? 'AKTİF' : user.status === 'pending' ? 'ONAY BEKLİYOR' : 'ASKIYA ALINDI'}
                                 </span>
                                 <span className="hidden group-hover/st:flex items-center gap-2">
                                   {user.status === 'active' ? <UserX size={12} /> : <UserCheck size={12} />}
-                                  {user.status === 'active' ? 'ENGELLE' : 'AKTİFLEŞTİR'}
+                                  {user.status === 'active' ? 'ENGELLE' : user.status === 'pending' ? 'ONAYLA & BAŞLAT' : 'AKTİFLEŞTİR'}
                                 </span>
                             </button>
                           )}
