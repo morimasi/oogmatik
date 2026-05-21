@@ -390,7 +390,10 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   },
   [ActivityType.STORY_ANALYSIS]: {
     ai: aiGenerators.generateStoryAnalysisFromAI,
-    offline: offlineGenerators.generateOfflineStoryAnalysis,
+    offline: async (opts) => {
+      const results = await offlineGenerators.generateOfflineStoryAnalysis(opts);
+      return results[0];
+    },
   },
   [ActivityType.STORY_CREATION_PROMPT]: {
     ai: aiGenerators.generateStoryCreationPromptFromAI,

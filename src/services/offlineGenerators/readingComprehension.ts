@@ -292,7 +292,8 @@ export const generateOfflineStoryAnalysis = async (options: GeneratorOptions): P
         
         return {
             title: 'Kapsamlı Hikaye Analizi (Ultra Pro)',
-            instruction: "Hikayeyi dikkatlice oku ve aşağıdaki analiz tablosunu doldur.",
+            instruction: "Hikayeyi dikkatlice oku ve aşağıdaki analiz bölümlerini doldur.",
+            pedagogicalNote: "Bu çalışma öğrencinin çıkarım yapma, ana fikri kavrama ve karakter-mekan ilişkisini kurma becerilerini geliştirir.",
             content: {
                 title,
                 story,
@@ -301,19 +302,20 @@ export const generateOfflineStoryAnalysis = async (options: GeneratorOptions): P
                         { name: chosenValues['character'] || 'Ana Karakter', traits: ['Meraklı', 'Azimli'] }
                     ],
                     setting: {
-                        place: chosenValues['place'] || 'Bilinmeyen Yer',
-                        time: 'Bir zamanlar'
+                        place: '',
+                        time: '',
+                        description: ''
                     },
-                    conflict: 'Hikayede karşılaşılan temel zorluk nedir?',
-                    resolution: 'Bu zorluk nasıl aşıldı?',
-                    mainIdea: (template as any).mainIdea || 'Kendi yolunu bulmak.',
+                    conflict: '',
+                    resolution: '',
+                    mainIdea: '',
                     subThemes: ['Dostluk', 'Cesaret', 'Yardımlaşma']
                 }
             },
             questions: template.questions.map((q: any) => ({
-                type: 'multiple-choice',
+                type: 'open-ended',
                 question: q.q,
-                answer: 'Cevap metinde gizli.'
+                answer: ''
             }))
         };
     });
