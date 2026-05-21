@@ -10,27 +10,14 @@ const MASTER_MODEL = 'gemini-2.5-flash';
 
 // ─── CORS Headers ────────────────────────────────────────────────
 function setCorsHeaders(res: VercelResponse): void {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', '*'); // Consider restricting this later
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 }
 
-// ─── Simple Rate Limiter (In-Memory) ────────────────────────────
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT = 10;
-const RATE_WINDOW_MS = 60_000;
+import { RateLimiter } from '../../src/services/rateLimiter.js';
+const rateLimiter = new RateLimiter();
 
-function checkRateLimit(ip: string): boolean {
-    const now = Date.now();
-    const entry = rateLimitMap.get(ip);
-    if (!entry || now > entry.resetAt) {
-        rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
-        return true;
-    }
-    if (entry.count >= RATE_LIMIT) return false;
-    entry.count++;
-    return true;
-}
 
 // ─── JSON Repair ────────────────────────────────────────────────
 function repairJSON(raw: string): string {
@@ -116,18 +103,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     }
 
     // Rate limit check
-    const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0] ?? req.socket?.remoteAddress ?? 'unknown';
-    if (!checkRateLimit(ip)) {
+    const body = req.body as Record<string, unknown> | null;
+    const userId = body?.userId ? String(body.userId) : 'anonymous';
+
+    const rateLimitResult = await rateLimiter.checkLimit(userId, 'free', 'apiGeneration');
+    if (!rateLimitResult.allowed) {
         res.status(429).json({
             success: false,
-            error: { message: 'Hız sınırı aşıldı. Lütfen bir dakika bekleyin.', code: 'RATE_LIMIT_EXCEEDED' },
+            error: { 
+                message: `Hız sınırı aşıldı. Lütfen ${Math.ceil(rateLimitResult.resetAfterMs / 1000)} saniye bekleyin.`, 
+                code: 'RATE_LIMIT_EXCEEDED' 
+            },
             timestamp: new Date().toISOString(),
         });
         return;
     }
 
     try {
-        const body = req.body as Record<string, unknown>;
+        if (!body) {
+            res.status(400).json({
+                success: false,
+                error: { message: 'Boş istek kabul edilemez.', code: 'BAD_REQUEST' },
+                timestamp: new Date().toISOString(),
+            });
+            return;
+        }
 
         // Validate config
         const validation = validateConfig(body);
