@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ChevronRight, BookOpen, Lightbulb, Target, Sparkles as Zap, ArrowRight } from 'lucide-react';
+import { X, ChevronRight, BookOpen, Lightbulb, Target, Sparkles, ArrowRight, MousePointer, Layers, Wand2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const GuideModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
@@ -8,157 +8,147 @@ export const GuideModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const sections = [
     {
       icon: BookOpen,
-      title: 'Başlangıç Rehberi',
-      description: 'Platformu hızlıca öğrenin',
-      color: 'blue',
+      title: 'İlk Adımlar',
+      description: 'Platforma hızlı giriş',
+      color: 'indigo',
       items: [
-        'Dashboard navigasyonu',
-        'İlk etkinliği oluşturma',
-        'Öğrenci profilleri',
-        'Temel özellikler'
+        { title: 'Dashboard\'a Giriş', desc: 'Ana panel navigasyonu, sol menü ve hızlı erişim butonları' },
+        { title: 'Öğrenci Profili Oluşturma', desc: 'Yeni öğrenci ekleme, yaş grubu ve öğrenme profili belirleme' },
+        { title: 'İlk Etkinlik Üretimi', desc: 'AI ile 30 saniyede kişiselleştirilmiş çalışma kağıdı oluşturma' },
+        { title: 'PDF Export & Yazdırma', desc: 'A4 çıktı alma, kompakt düzen ve yazıcı ayarları' }
       ]
     },
     {
-      icon: Lightbulb,
-      title: 'İpuçları & Püf Noktaları',
-      description: 'Verimliliği artırın',
-      color: 'amber',
+      icon: Wand2,
+      title: 'AI Stüdyoları',
+      description: 'Akıllı içerik üretimi',
+      color: 'violet',
       items: [
-        'Kısayollar ve hızlı erişim',
-        'AI asistan kullanımı',
-        'Şablonlar ve kütüphane',
-        'En iyi uygulamalar'
+        { title: 'Süper Türkçe Stüdyosu', desc: 'MEB uyumlu Türkçe etkinlikleri AI ile üretin' },
+        { title: 'Matematik Stüdyosu', desc: 'Görsel denklem, bulmaca ve problem üretimi' },
+        { title: 'Sarı Kitap', desc: 'Disleksi dostu okuma materyalleri oluşturma' },
+        { title: 'OCR Tarama', desc: 'Fotoğraf/PDF\'den aktivite klonlama ve varyasyon üretme' }
+      ]
+    },
+    {
+      icon: Layers,
+      title: 'Çalışma Defteri',
+      description: 'İçerik organizasyonu',
+      color: 'emerald',
+      items: [
+        { title: 'Workbook Oluşturma', desc: 'Birden fazla aktiviteyi tek defterde birleştirme' },
+        { title: 'Sıralama & Düzenleme', desc: 'Drag-and-drop ile aktivite sıralama' },
+        { title: 'Paylaşım', desc: 'Defteri diğer öğretmenlerle paylaşma' },
+        { title: 'Şablon Kullanımı', desc: 'Hazır şablonlardan hızlı başlangıç' }
       ]
     },
     {
       icon: Target,
-      title: 'Hedef Belirleme',
-      description: 'Öğrenme hedefleri oluşturun',
-      color: 'emerald',
+      title: 'İlerleme Takibi',
+      description: 'Analiz ve raporlama',
+      color: 'amber',
       items: [
-        'Kişiselleştirilmiş planlar',
-        'İlerleme takibi',
-        'Başarı metrikleri',
-        'Raporlama'
+        { title: 'Öğrenci İlerleme Paneli', desc: 'Tamamlanan aktiviteler ve başarı oranları' },
+        { title: 'Bilişsel Değerlendirme', desc: 'Disleksi tarama testi ve radar grafik analizi' },
+        { title: 'BEP Hedefleri', desc: 'Bireysel eğitim planı hedef takibi' },
+        { title: 'Rapor Export', desc: 'PDF rapor oluşturma ve veliye gönderme' }
       ]
     },
     {
-      icon: Zap,
-      title: 'Hızlı Başlangıç',
-      description: '5 dakikada hazır olun',
-      color: 'purple',
+      icon: MousePointer,
+      title: 'Kısayollar & İpuçları',
+      description: 'Verimlilik artırıcı',
+      color: 'rose',
       items: [
-        'Hızlı kurulum',
-        'Demo etkinlikler',
-        'Test modu',
-        'Yayına alım'
+        { title: 'Klavye Kısayolları', desc: 'Ctrl+K: Arama, Ctrl+N: Yeni etkinlik, Ctrl+P: Yazdır' },
+        { title: 'Hızlı Üretim', desc: 'Ayarları kaydet, sonraki üretimde otomatik uygula' },
+        { title: 'Toplu İşlem', desc: 'Birden fazla aktiviteyi aynı anda üret ve dışa aktar' },
+        { title: 'Offline Mod', desc: 'İnternet olmadan önceden üretilmiş içeriklere erişim' }
       ]
     }
   ];
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] flex items-center justify-center p-4 sm:p-6">
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.95, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-[var(--bg-paper)] rounded-[2.5rem] shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-hidden border border-[var(--border-color)] flex flex-col font-['Lexend']"
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-3">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.97 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="bg-[var(--bg-paper)] rounded-3xl shadow-2xl w-full max-w-3xl max-h-[80vh] overflow-hidden border border-[var(--border-color)] flex flex-col font-lexend"
       >
-        {/* Header - Ultra Premium SaaS */}
-        <div className="flex items-center justify-between px-8 py-6 border-b border-[var(--border-color)] bg-[var(--surface-glass)]">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-[var(--accent-color)] rounded-2xl flex items-center justify-center shadow-lg shadow-[var(--accent-muted)]">
-              <BookOpen className="w-6 h-6 text-white" />
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-3 border-b border-[var(--border-color)] bg-[var(--surface-glass)]">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-[var(--accent-color)] rounded-xl flex items-center justify-center">
+              <BookOpen className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-black text-[var(--text-primary)] tracking-tight uppercase">Rehber Merkezi</h2>
-              <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest opacity-60">Platform kullanım kılavuzu</p>
+              <h2 className="text-sm font-black text-[var(--text-primary)] tracking-tight">Rehber Merkezi</h2>
+              <p className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Platform kullanım kılavuzu</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="w-10 h-10 rounded-xl hover:bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] transition-all active:scale-90"
-          >
-            <X className="w-6 h-6" />
+          <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] transition-all">
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Content - Modern Grid */}
-        <div className="flex-1 p-8 overflow-y-auto custom-scrollbar">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {sections.map((section, index) => {
-              const Icon = section.icon;
-              const isActive = activeSection === index;
-              
-              return (
-                <motion.div
-                  key={index}
-                  whileHover={{ y: -4 }}
-                  onClick={() => setActiveSection(index)}
-                  className={`p-6 rounded-3xl border cursor-pointer transition-all relative overflow-hidden group ${
-                    isActive 
-                      ? 'bg-[var(--accent-muted)] border-[var(--accent-color)] shadow-xl shadow-[var(--accent-muted)]' 
-                      : 'bg-[var(--bg-secondary)] border-[var(--border-color)] hover:border-[var(--text-muted)]/30'
-                  }`}
-                >
-                  {isActive && (
-                    <div className="absolute top-0 right-0 p-4 opacity-10">
-                      <Icon className="w-24 h-24 text-[var(--accent-color)]" />
-                    </div>
-                  )}
-
-                  <div className="flex items-center gap-3 mb-4 relative z-10">
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
-                      isActive ? 'bg-[var(--accent-color)] text-white' : 'bg-[var(--bg-paper)] text-[var(--text-muted)] border border-[var(--border-color)]'
-                    }`}>
-                      <Icon className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className={`text-base font-black ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>
-                        {section.title}
-                      </h3>
-                      <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider opacity-60">
-                        {section.description}
-                      </p>
-                    </div>
-                  </div>
-
-                  <ul className="space-y-2 relative z-10">
-                    {section.items.map((item, itemIndex) => (
-                      <li key={itemIndex} className="flex items-center gap-3">
-                        <div className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-[var(--accent-color)]' : 'bg-[var(--text-muted)]/30'}`} />
-                        <span className={`text-sm font-medium ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>
-                          {item}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className={`mt-6 flex items-center gap-2 text-xs font-black uppercase tracking-widest transition-opacity ${isActive ? 'text-[var(--accent-color)]' : 'opacity-0'}`}>
-                    Detayları Görüntüle <ArrowRight className="w-3 h-3" />
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Footer - Minimalist Premium */}
-        <div className="px-8 py-6 border-t border-[var(--border-color)] bg-[var(--surface-glass)] flex items-center justify-between">
-          <div className="flex gap-1.5">
-            {sections.map((_, i) => (
-              <div 
-                key={i} 
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === activeSection ? 'w-8 bg-[var(--accent-color)]' : 'w-1.5 bg-[var(--border-color)]'
-                }`} 
-              />
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto p-4">
+          {/* Section Tabs */}
+          <div className="flex gap-1.5 mb-4 overflow-x-auto pb-1">
+            {sections.map((s, i) => (
+              <button
+                key={i}
+                onClick={() => setActiveSection(i)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold whitespace-nowrap transition-all ${
+                  activeSection === i
+                    ? 'bg-[var(--accent-color)] text-white'
+                    : 'bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                }`}
+              >
+                <s.icon className="w-3 h-3" />
+                {s.title}
+              </button>
             ))}
           </div>
-          <button
-            onClick={onClose}
-            className="px-8 py-3 bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white text-xs font-black uppercase tracking-[0.2em] rounded-2xl shadow-lg shadow-[var(--accent-muted)] transition-all active:scale-95 flex items-center gap-2"
-          >
-            Anladım, Teşekkürler
+
+          {/* Active Section Content */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeSection}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="space-y-2"
+            >
+              {sections[activeSection].items.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="p-3 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-color)] hover:border-[var(--accent-color)]/30 transition-all group"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-6 h-6 rounded-lg bg-[var(--accent-muted)] flex items-center justify-center shrink-0 mt-0.5">
+                      <span className="text-[9px] font-black text-[var(--accent-color)]">{idx + 1}</span>
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-[var(--text-primary)]">{item.title}</h4>
+                      <p className="text-[10px] text-[var(--text-muted)] leading-relaxed mt-0.5">{item.desc}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Footer */}
+        <div className="px-5 py-3 border-t border-[var(--border-color)] bg-[var(--surface-glass)] flex items-center justify-between">
+          <div className="flex gap-1">
+            {sections.map((_, i) => (
+              <div key={i} className={`h-1 rounded-full transition-all ${i === activeSection ? 'w-6 bg-[var(--accent-color)]' : 'w-1 bg-[var(--border-color)]'}`} />
+            ))}
+          </div>
+          <button onClick={onClose} className="px-5 py-2 bg-[var(--accent-color)] text-white text-[10px] font-black uppercase tracking-wider rounded-xl transition-all active:scale-95">
+            Anladım
           </button>
         </div>
       </motion.div>
