@@ -13,6 +13,7 @@ import {
   capturePage,
 } from './CaptureEngine';
 import { forceRenderAllPages, clearRenderAllPagesFlag } from './CSSInjector';
+import { useStudentStore } from '../../store/useStudentStore.js';
 
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
 export interface RealPdfOptions {
@@ -73,7 +74,7 @@ export const generateRealPdf = async (
     await preloadFontsForCapture();
 
     // Dinamik import — kod bölme
-    const jspdfModule: any = await import('jspdf');
+    const jspdfModule = await import('jspdf');
     const jsPDF = jspdfModule.jsPDF || (jspdfModule.default ? jspdfModule.default.jsPDF || jspdfModule.default : null) || jspdfModule;
 
     // PDF oluştur
@@ -83,6 +84,31 @@ export const generateRealPdf = async (
       format: [pageW, pageH],
       compress: true,
     });
+
+    // KVKK Uyumlu Metadata — Öğrenci bilgileri gizli olarak PDF'e eklenir
+    const activeStudent = useStudentStore.getState().activeStudent;
+    pdf.setProperties({
+      title: title,
+      author: 'Oogmatik - Bursa Disleksi EduMind',
+      subject: 'Eğitim Materyali',
+      keywords: 'disleksi, özel eğitim, eğitim materyali',
+      creator: 'Oogmatik AI Engine',
+    });
+
+    // KVKK: Öğrenci bilgileri PDF metadata'ya anonimleştirilmiş şekilde eklenir
+    // Tanı bilgileri asla doğrudan yazılmaz, sadece "destek ihtiyacı" ifadesi kullanılır
+    if (activeStudent) {
+      const studentMeta = {
+        studentId: activeStudent.id || 'anonim',
+        grade: activeStudent.grade || 'bilinmiyor',
+        supportProfile: activeStudent.diagnosis?.length ? 'ozel-destek-aktif' : 'standart',
+        generatedAt: new Date().toISOString(),
+        kvkkCompliant: true,
+      };
+      pdf.setProperties({
+        subject: `Eğitim Materyali - Destek Profili: ${studentMeta.supportProfile}`,
+      });
+    }
 
     // UI öğelerini geçici olarak gizle
     const restoreUI = hideUIElements();

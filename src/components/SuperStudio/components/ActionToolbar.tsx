@@ -90,7 +90,7 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = ({ onAddToWorkbook })
         paperSize: 'A4',
         quality: 'high',
         onProgress: (percent, message) => {
-          console.log(`PDF İlerleme: ${percent}% - ${message}`);
+          logInfo(`PDF İlerleme: ${percent}% - ${message}`);
         }
       });
     } else {

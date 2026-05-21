@@ -5,46 +5,17 @@
  * Pipeline: CORS → Rate Limit → Zod Validation → Gemini 2.5 Flash → JSON Repair → Response
  */
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { corsMiddleware } from '../../src/utils/cors.js';
+import { RateLimiter } from '../../src/services/rateLimiter.js';
+import { RateLimitError, AppError, InternalServerError } from '../../src/utils/AppError.js';
+import { logError } from '../../src/utils/errorHandler.js';
+import { tryRepairJson } from '../../src/utils/jsonRepair.js';
 
 const MASTER_MODEL = 'gemini-2.5-flash';
-
-// ─── CORS Headers ────────────────────────────────────────────────
-function setCorsHeaders(res: VercelResponse): void {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-}
-
-// ─── Simple Rate Limiter (In-Memory) ────────────────────────────
-const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const RATE_LIMIT = 10;
-const RATE_WINDOW_MS = 60_000;
-
-function checkRateLimit(ip: string): boolean {
-    const now = Date.now();
-    const entry = rateLimitMap.get(ip);
-    if (!entry || now > entry.resetAt) {
-        rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
-        return true;
-    }
-    if (entry.count >= RATE_LIMIT) return false;
-    entry.count++;
-    return true;
-}
+const rateLimiter = new RateLimiter();
 
 // ─── JSON Repair ────────────────────────────────────────────────
-function repairJSON(raw: string): string {
-    let cleaned = raw.trim();
-    // Remove markdown code fences
-    cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
-    // Balance braces
-    const opens = (cleaned.match(/{/g) ?? []).length;
-    const closes = (cleaned.match(/}/g) ?? []).length;
-    if (opens > closes) {
-        cleaned += '}'.repeat(opens - closes);
-    }
-    return cleaned;
-}
+// tryRepairJson is now imported from src/utils/jsonRepair.js
 
 // ─── Validate Config (basic, not using zod here to keep API lightweight) ──
 function validateConfig(body: Record<string, unknown>): { valid: boolean; error?: string } {
@@ -103,7 +74,8 @@ Kurallar:
 
 // ─── Main Handler ───────────────────────────────────────────────
 export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
-    setCorsHeaders(res);
+    // CORS Security
+    if (!corsMiddleware(req, res)) return;
 
     if (req.method === 'OPTIONS') {
         res.status(204).end();
@@ -115,18 +87,24 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
         return;
     }
 
-    // Rate limit check
-    const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0] ?? req.socket?.remoteAddress ?? 'unknown';
-    if (!checkRateLimit(ip)) {
-        res.status(429).json({
-            success: false,
-            error: { message: 'Hız sınırı aşıldı. Lütfen bir dakika bekleyin.', code: 'RATE_LIMIT_EXCEEDED' },
-            timestamp: new Date().toISOString(),
-        });
-        return;
-    }
-
     try {
+        // Rate Limiting
+        const userId = (req.headers['x-user-id'] as string) || 'anonymous';
+        const userTier = (req.headers['x-user-tier'] as string) || 'free';
+        try {
+            await rateLimiter.enforceLimit(userId, userTier as 'free' | 'pro' | 'admin', 'apiGeneration');
+        } catch (error) {
+            if (error instanceof RateLimitError) {
+                res.status(429).json({
+                    success: false,
+                    error: { message: error.userMessage, code: error.code },
+                    timestamp: new Date().toISOString(),
+                });
+                return;
+            }
+            throw error;
+        }
+
         const body = req.body as Record<string, unknown>;
 
         // Validate config
@@ -183,19 +161,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
 
         if (!geminiResponse.ok) {
             const errorText = await geminiResponse.text();
-            throw new Error(`Gemini API hatası: ${geminiResponse.status} — ${errorText.slice(0, 200)}`);
+            throw new InternalServerError(`Gemini API hatası: ${geminiResponse.status} — ${errorText.slice(0, 200)}`);
         }
 
         const geminiData = await geminiResponse.json();
         const rawText = geminiData.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
 
         if (!rawText) {
-            throw new Error('Gemini boş yanıt döndü.');
+            throw new InternalServerError('Gemini boş yanıt döndü.');
         }
 
         // Repair and parse JSON
-        const repairedJSON = repairJSON(rawText);
-        const parsed = JSON.parse(repairedJSON);
+        const parsed = tryRepairJson(rawText);
 
         res.status(200).json({
             success: true,
@@ -203,10 +180,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
             timestamp: new Date().toISOString(),
         });
     } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : 'Bilinmeyen hata oluştu';
-        res.status(500).json({
+        const appError = error instanceof AppError ? error : new InternalServerError(error instanceof Error ? error.message : 'Bilinmeyen hata oluştu');
+        logError(appError, { context: 'api/sari-kitap/generate' });
+        res.status(appError.httpStatus).json({
             success: false,
-            error: { message, code: 'GENERATION_ERROR' },
+            error: { message: appError.userMessage, code: appError.code },
             timestamp: new Date().toISOString(),
         });
     }

@@ -9,6 +9,7 @@
 import type { SinavAyarlari, Soru, Sinav, CevapAnahtari } from '../../types/sinav.js';
 import { getKazanimByCode } from '../../data/meb-turkce-kazanim.js';
 import { AppError } from '../../utils/AppError.js';
+import { PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts.js';
 
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
 const MASTER_MODEL = 'gemini-2.5-flash';
@@ -103,9 +104,9 @@ export const callGeminiDirect = async (prompt: string, schema: object): Promise<
 
   if (!response.ok) {
     const errData = await response.json().catch(() => ({}));
-    const msg = (errData as any)?.error?.message || response.statusText;
+    const msg = (errData as Record<string, unknown>)?.error as Record<string, string> | undefined;
     throw new AppError(
-      `Gemini API hatası: ${msg}`,
+      `Gemini API hatası: ${msg?.message || response.statusText}`,
       'GEMINI_API_ERROR',
       502,
       { status: response.status },
@@ -114,9 +115,12 @@ export const callGeminiDirect = async (prompt: string, schema: object): Promise<
   }
 
   const data = await response.json();
-  const text = (data as any)?.candidates?.[0]?.content?.parts?.[0]?.text;
+  const text = (data as Record<string, unknown>)?.candidates as Array<Record<string, unknown>> | undefined;
+  const responseText = text?.[0]?.content as Record<string, unknown> | undefined;
+  const parts = responseText?.parts as Array<Record<string, string>> | undefined;
+  const responseValue = parts?.[0]?.text;
 
-  if (!text) {
+  if (!responseValue) {
     throw new AppError(
       'Gemini boş yanıt döndürdü.',
       'GEMINI_EMPTY_RESPONSE',
@@ -128,10 +132,10 @@ export const callGeminiDirect = async (prompt: string, schema: object): Promise<
 
   // JSON parse — responseMimeType: application/json olduğundan direkt parse
   try {
-    return JSON.parse(text);
+    return JSON.parse(responseValue);
   } catch {
     // Bazen markdown sarmalayabilir
-    const cleaned = text
+    const cleaned = responseValue
       .replace(/[\u200B-\u200D\uFEFF]/g, '')
       .replace(/^```json[\s\S]*?\n/, '')
       .replace(/^```\s*/m, '')
@@ -160,6 +164,9 @@ const buildExamPrompt = (settings: SinavAyarlari): string => {
     settings.soruDagilimi['acik-uclu'];
 
   return `
+${PEDAGOGICAL_BASE}
+${CLINICAL_DIAGNOSTIC_GUIDE}
+
 [ROL: MEB SINAV UZMANI + DİSLEKSİ UZMAN ÖĞRETMENİ]
 
 GÖREV: ${settings.sinif}. sınıf Türkçe dersi için ${toplamSoru} soruluk sınav hazırla.

@@ -116,8 +116,8 @@ export const print = async (
   if (pages.length === 0) {
     try {
       window.print();
-    } catch (err: any) {
-      logError('Print fallback failed:', err);
+    } catch (err: unknown) {
+      logError('Print fallback failed:', err instanceof Error ? err.message : String(err));
     }
     return;
   }
@@ -135,7 +135,7 @@ export const print = async (
     overlay.style.left = '0';
     overlay.style.width = '210mm';
     overlay.style.transform = 'none';
-    (overlay.style as any).scale = 'none';
+    (overlay.style as CSSStyleDeclaration & { scale?: string }).scale = 'none';
     overlay.style.zoom = '1';
     overlay.style.margin = '0';
     overlay.style.padding = '0';

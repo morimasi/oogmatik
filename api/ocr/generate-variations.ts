@@ -8,6 +8,10 @@ import { generateVariations } from '../../src/services/ocrVariationService.js';
 import type { VariantGenerationConfig, VariationRequest } from '../../src/services/ocrVariationService.js';
 import type { OCRResult } from '../../src/types.js';
 import { corsMiddleware } from '../../src/utils/cors.js';
+import { RateLimiter } from '../../src/services/rateLimiter.js';
+import { RateLimitError } from '../../src/utils/AppError.js';
+
+const rateLimiter = new RateLimiter();
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // CORS
@@ -22,7 +26,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
-    const { blueprint, count, userId, config } = req.body as {
+    // Rate Limiting
+    const userId = (req.headers['x-user-id'] as string) || 'anonymous';
+    const userTier = (req.headers['x-user-tier'] as string) || 'free';
+    try {
+      await rateLimiter.enforceLimit(userId, userTier as 'free' | 'pro' | 'admin', 'ocrScan');
+    } catch (error) {
+      if (error instanceof RateLimitError) {
+        return res.status(429).json({
+          success: false,
+          error: { message: error.userMessage, code: error.code },
+          timestamp: new Date().toISOString(),
+        });
+      }
+      throw error;
+    }
+
+    const { blueprint, count, userId: requestUserId, config } = req.body as {
       blueprint: OCRResult;
       count: number;
       userId: string;
@@ -38,7 +58,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    if (!userId) {
+    if (!requestUserId) {
       return res.status(400).json({
         success: false,
         error: { message: 'userId alanı zorunludur.', code: 'VALIDATION_ERROR' },
@@ -58,7 +78,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const request: VariationRequest = {
       blueprint,
       count: parsedCount,
-      userId,
+      userId: requestUserId,
       ...(config && { config }),
     };
 

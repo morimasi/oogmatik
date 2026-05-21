@@ -2,8 +2,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { Buffer } from 'buffer';
 import { corsMiddleware } from '../../src/utils/cors.js';
-
+import { RateLimiter } from '../../src/services/rateLimiter.js';
+import { RateLimitError } from '../../src/utils/AppError.js';
 import { logInfo, logError, logWarn } from '../../src/utils/logger.js';
+
+const rateLimiter = new RateLimiter();
 // Hugging Face API Ayarları
 const HF_API_URL = 'https://api-inference.huggingface.co/models/black-forest-labs/FLUX.1-schnell';
 
@@ -16,6 +19,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
+        // Rate Limiting
+        const userId = (req.headers['x-user-id'] as string) || 'anonymous';
+        const userTier = (req.headers['x-user-tier'] as string) || 'free';
+        try {
+            await rateLimiter.enforceLimit(userId, userTier as 'free' | 'pro' | 'admin', 'ocrScan');
+        } catch (error) {
+            if (error instanceof RateLimitError) {
+                return res.status(429).json({ error: { message: error.userMessage, code: error.code } });
+            }
+            throw error;
+        }
+
         const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
         const { prompt, provider = 'pollinations', width = 1024, height = 1024 } = body;
 
@@ -78,8 +93,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             metadata: { enhancedPrompt }
         });
 
-    } catch (error: any) {
-        logError('Image Generation Error', { error });
-        return res.status(500).json({ error: 'Failed to generate image', message: error.message });
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to generate image';
+        logError('Image Generation Error', { error: errorMessage });
+        return res.status(500).json({ error: 'Failed to generate image', message: errorMessage });
     }
 }

@@ -8,22 +8,22 @@ import { useStudentStore } from '../store/useStudentStore';
 const MASTER_MODEL = 'gemini-2.5-flash';
 
 // Define a simple JSON schema data generator for mocks during tests
-function generateDummyDataFromSchema(schema: any): any {
+function generateDummyDataFromSchema(schema: Record<string, unknown>): unknown {
   if (!schema) return {};
   if (schema.type === 'OBJECT' || schema.type === 'object') {
-    const obj: any = {};
+    const obj: Record<string, unknown> = {};
     if (schema.properties) {
-      for (const [key, prop] of Object.entries(schema.properties)) {
-        obj[key] = generateDummyDataFromSchema(prop);
+      for (const [key, prop] of Object.entries(schema.properties as Record<string, unknown>)) {
+        obj[key] = generateDummyDataFromSchema(prop as Record<string, unknown>);
       }
     }
     return obj;
   }
   if (schema.type === 'ARRAY' || schema.type === 'array') {
-    return [generateDummyDataFromSchema(schema.items)];
+    return [generateDummyDataFromSchema(schema.items as Record<string, unknown>)];
   }
   if (schema.type === 'STRING' || schema.type === 'string') {
-    if (schema.enum && schema.enum.length > 0) return schema.enum[0];
+    if (schema.enum && (schema.enum as unknown[]).length > 0) return (schema.enum as unknown[])[0];
     return 'test string';
   }
   if (schema.type === 'NUMBER' || schema.type === 'number') {
@@ -72,7 +72,7 @@ export const generateWithGemini = async (prompt: string, systemInstruction?: str
  */
 export const generateCreativeMultimodal = async (params: {
   prompt: string;
-  schema?: any;
+  schema?: Record<string, unknown>;
   files?: MultimodalFile[];
   temperature?: number;
   thinkingBudget?: number;
@@ -116,7 +116,7 @@ ZORUNLU UZMAN KURALLARI (İHLAL EDİLEMEZ):
 Tüm içeriği bu spesifik bağlama göre optimize et!`;
   }
 
-  const body: any = {
+  const body: Record<string, unknown> = {
     prompt: finalPrompt,
     schema: params.schema,
     temperature: params.temperature ?? 0.1,
@@ -132,18 +132,18 @@ Tüm içeriği bu spesifik bağlama göre optimize et!`;
 
   // Retry logic for rate limiting & high demand
   const maxAttempts = 5; // Arttırıldı
-  let lastError: any;
+  let lastError: unknown;
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     try {
       logInfo('Gemini API çekilmesi', { attempt: attempt + 1, model: safeModel });
-      return await safeFetch<any>(url, {
+      return await safeFetch<unknown>(url, {
         method: 'POST',
         body: JSON.stringify(body),
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       lastError = error;
-      const errorMsg = error?.message || String(error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
       
       // Hata tipleri: Rate limit (429), High Demand/Service Unavailable (503), Gateway Timeout (504)
       const isRetryable = 
@@ -177,7 +177,7 @@ Tüm içeriği bu spesifik bağlama göre optimize et!`;
   throw lastError;
 };
 
-export const generateWithSchema = async (prompt: string, schema: any) => {
+export const generateWithSchema = async (prompt: string, schema: Record<string, unknown>) => {
   return await generateCreativeMultimodal({ prompt, schema });
 };
 
@@ -214,7 +214,7 @@ export const generateSvgCode = async (prompt: string): Promise<string> => {
   `;
 
   try {
-    const data = await safeFetch<any>('/api/generate', {
+    const data = await safeFetch<Record<string, unknown>>('/api/generate', {
       method: 'POST',
       body: JSON.stringify({
         prompt,
@@ -223,7 +223,7 @@ export const generateSvgCode = async (prompt: string): Promise<string> => {
       }),
     });
 
-    let svgCode = typeof data === 'string' ? data : data.svg || data.code || '';
+    let svgCode = typeof data === 'string' ? data : (data.svg || data.code || '') as string;
 
     // Clean up
     svgCode = svgCode.replace(/```svg/g, '').replace(/```/g, '').trim();
@@ -233,13 +233,13 @@ export const generateSvgCode = async (prompt: string): Promise<string> => {
     }
 
     return svgCode;
-  } catch (error: any) {
-    logError('SVG Generation Error', { error });
+  } catch (error: unknown) {
+    logError('SVG Generation Error', { error: error instanceof Error ? error.message : String(error) });
     return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" stroke="#000" stroke-width="4" fill="none"/></svg>';
   }
 };
 
-export const analyzeImage = async (image: string, prompt: string, schema: any) => {
+export const analyzeImage = async (image: string, prompt: string, schema: Record<string, unknown>) => {
   const mimeType = detectMimeType(image);
   return await generateCreativeMultimodal({
     prompt,

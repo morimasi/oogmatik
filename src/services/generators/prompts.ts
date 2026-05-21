@@ -223,3 +223,35 @@ export const getAttentionPrompt = (title: string, difficulty: string, specifics:
 export const getDyslexiaPrompt = (title: string, difficulty: string, specifics: string, student?: Student): string => {
    return `${PEDAGOGICAL_BASE}\n${CLINICAL_DIAGNOSTIC_GUIDE}\n${getStudentContextPrompt(student)}\n[HEDEF]: ${title}\n[ZORLUK]: ${difficulty}\n[DİSLEKSİ ODAKLI TALİMATLAR]: ${specifics}\n${IMAGE_GENERATION_GUIDE}`;
 };
+
+/**
+ * PEDAGOGICAL NOTE FALLBACK MECHANISM
+ * AI çıktısında pedagogicalNote yoksa veya boşsa, varsayılan bir not ekler.
+ * Bu mekanizma, öğretmene her koşulda pedagojik yönlendirme sağlar.
+ */
+export const ensurePedagogicalNote = <T extends Record<string, unknown>>(
+  data: T,
+  activityType?: string,
+  ageGroup?: string,
+  difficulty?: string
+): T => {
+  // pedagogicalNote kontrolü
+  const hasValidNote = 
+    'pedagogicalNote' in data && 
+    typeof data.pedagogicalNote === 'string' && 
+    data.pedagogicalNote.trim().length > 0;
+
+  if (!hasValidNote) {
+    // Fallback pedagogical note oluştur
+    const fallbackNote = [
+      `Bu aktivite, ${ageGroup || 'hedef'} yaş grubu için ${difficulty || 'uygun'} zorluk seviyesinde tasarlanmıştır.`,
+      activityType ? `${activityType} aktivitesi, öğrencinin bilişsel gelişimini desteklemeyi hedefler.` : '',
+      'Öğretmenler için öneri: Aktivite sırasında öğrenciye yeterli süre tanının ve olumlu geri bildirim verin.',
+      'Disleksi desteğine ihtiyacı olan öğrenciler için yönergeleri sesli olarak tekrar etmek faydalı olacaktır.'
+    ].filter(Boolean).join(' ');
+
+    return { ...data, pedagogicalNote: fallbackNote } as T;
+  }
+
+  return data;
+};

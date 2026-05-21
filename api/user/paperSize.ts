@@ -4,6 +4,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 import { logInfo, logError, logWarn } from '../../src/utils/logger.js';
+import { RateLimiter } from '../../src/services/rateLimiter.js';
+import { RateLimitError } from '../../src/utils/AppError.js';
+
+const rateLimiter = new RateLimiter();
 const VALID_PAPER_SIZES = ['A4', 'Letter', 'Legal', 'Extreme_Yatay', 'Extreme_Dikey'] as const;
 type PaperSize = (typeof VALID_PAPER_SIZES)[number];
 
@@ -34,6 +38,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Identify user
     const userId = (req.headers['x-user-id'] as string) || 'anonymous';
+    const userTier = (req.headers['x-user-tier'] as string) || 'free';
+
+    // Rate Limiting
+    try {
+      await rateLimiter.enforceLimit(userId, userTier as 'free' | 'pro' | 'admin', 'apiQuery');
+    } catch (error) {
+      if (error instanceof RateLimitError) {
+        return res.status(429).json({
+          success: false,
+          error: { message: error.userMessage, code: error.code },
+        });
+      }
+      throw error;
+    }
+
     const key = `user:${userId}:paperSize`;
 
     // GET Handler
@@ -65,9 +84,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     return res.status(405).json({ success: false, error: 'Yöntem izni yok' });
-  } catch (error: any) {
+  } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Bilinmeyen sunucu hatası';
-    logError('[PaperSize API] Hata', { message, error });
+    logError('[PaperSize API] Hata', { message });
     return res.status(500).json({
       success: false,
       error: 'Sunucu hatası',

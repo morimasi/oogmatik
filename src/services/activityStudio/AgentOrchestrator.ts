@@ -1,4 +1,5 @@
 import { AppError } from '../../utils/AppError.js';
+import { logInfo } from '../../utils/logger.js';
 import type {
   AgentId,
   AgentInput,
@@ -147,7 +148,7 @@ export class AgentOrchestrator {
       throw new AppError('Konu bos olamaz.', 'VALIDATION_ERROR', 400);
     }
 
-    console.log(`[Orchestrator] Starting Ultra-Premium Pipeline for: ${sanitized.sanitizedTopic}`);
+    logInfo(`[Orchestrator] Starting Ultra-Premium Pipeline for: ${sanitized.sanitizedTopic}`);
 
     const cacheKey = this.buildCacheKey({
       agentId: 'integration',

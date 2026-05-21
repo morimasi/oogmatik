@@ -54,7 +54,7 @@ export const truncateToLastValidEntry = (str: string): string => {
 /**
  * 3-Katmanlı JSON Onarım Motoru.
  */
-export const tryRepairJson = (jsonStr: string): any => {
+export const tryRepairJson = (jsonStr: string): unknown => {
     if (!jsonStr) throw new AppError('AI yanıt dönmedi.', 'INTERNAL_ERROR', 500);
 
     let cleaned = jsonStr.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
