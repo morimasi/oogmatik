@@ -4,58 +4,91 @@ import { GeneratorOptions } from '../../types.js';
 import { ActivityType } from '../../types/activity.js';
 
 /**
- * Matematik Bulmacaları AI Üretici
+ * Matematik Bulmacaları AI Üretici — Premium Kompakt
+ * Ayarları dinler: puzzleType, operationType, numberRange, storyMode, colorfulText, compactLayout, fastMode
  */
 export const generateMathPuzzleFromAI = async (options: GeneratorOptions) => {
-  const { 
-    difficulty = 'Orta', 
-    itemCount = 2, 
+  const opts = options as Record<string, unknown>;
+  const {
+    difficulty = 'Orta',
+    itemCount = 6,
     ageGroup = '8-10',
-    profile = 'general',
-    topic = 'Genel Matematik',
-    params = {}
-  } = options as Record<string, unknown>;
+  } = opts;
 
-  const typedParams = params as Record<string, unknown> || {};
-  const puzzleType = typedParams.puzzleType || 'visual';
-  const operationType = typedParams.operationType || 'mixed';
-  const numberRange = typedParams.numberRange || '1-20';
+  const puzzleType = (opts.puzzleType as string) || 'visual';
+  const operationType = (opts.operationType as string) || 'mixed';
+  const numberRange = (opts.numberRange as string) || '1-20';
+  const storyMode = (opts.storyMode as boolean) ?? true;
+  const colorfulText = (opts.colorfulText as boolean) ?? false;
+  const compactLayout = (opts.compactLayout as boolean) ?? true;
+  const fastMode = (opts.fastMode as boolean) ?? false;
+
+  const storyInstruction = storyMode
+    ? 'Her bulmacayı kısa bir hikaye/kurgu içine yerleştir (örn: "Elmanın bahçede kayıp değeri...").'
+    : 'Bulmacaları direkt denklem formatında sun, hikaye ekleme.';
+
+  const colorfulInstruction = colorfulText
+    ? 'Denklemlerdeki nesne isimlerini ve sayıları renkli/heceli formatta düşün.'
+    : 'Standart düz metin formatı kullan.';
+
+  const puzzleTypeDesc = puzzleType === 'visual'
+    ? 'Görsel Denklem: Meyveli/nesneli denklemler (🍎+🍎=10)'
+    : puzzleType === 'logic'
+    ? 'Mantık Bilmecesi: Sayı tabanlı mantık soruları ve çıkarımlar'
+    : puzzleType === 'magic_square'
+    ? 'Sihirli Kare & Piramit: Toplam eşitliği tablosu'
+    : 'Karma: Tüm türlerden karışık bulmacalar';
+
+  const operationDesc = operationType === 'add'
+    ? 'Sadece toplama (+)'
+    : operationType === 'mixed'
+    ? 'Toplama ve çıkarma (+, -)'
+    : operationType === 'mult'
+    ? 'Çarpma ve bölme (×, ÷)'
+    : 'Dört işlem (+, -, ×, ÷)';
 
   const prompt = `
-[ROL: MATEMATİKSEL MANTIK UZMANI]
+[ROL: MATEMATIKSEL MANTIK UZMANI + ÖZEL EĞİTİM TASARIMCISI]
 GÖREV: ${ageGroup} yaş grubu için ${difficulty} seviyesinde ${itemCount} adet "Matematik Bulmacası" üret.
 
-STRATEJİ:
-1. "Görsel Denklem" tarzında (meyveli/nesneli) bulmacalar üret. 
-2. Bulmaca Türü: ${puzzleType}
-3. İşlem Kurgusu: ${operationType} (Add: Toplama, Mixed: Toplama/Çıkarma, Expert: Dört İşlem)
-4. Sayı Aralığı: ${numberRange}
-5. Her bulmaca birbirini takip eden 3 denklem ve finalde bilinmeyen 1 sonuç içermelidir.
+TASARIM PRENSİPLERİ:
+- Tür: ${puzzleTypeDesc}
+- İşlem: ${operationDesc}
+- Sayı Aralığı: ${numberRange}
+- ${storyInstruction}
+- ${colorfulInstruction}
+- Düzen: ${compactLayout ? 'Kompakt A4 — Sayfa dolu dolu, minimum boşluk, maksimum bulmaca.' : 'Standart A4 — Rahat boşluklar.'}
+- Mod: ${fastMode ? 'Hızlı mod — Basit, net, hızlı çözülebilir sorular.' : 'Normal mod — Derinlemesine düşünme gerektiren sorular.'}
 
 PEDAGOJİK HEDEF:
-Bu etkinlik, öğrencinin cebirsel düşünme başlangıcı, görsel mantık, eşitlik kavramı ve işlem hızını geliştirir.
+Öğrencinin cebirsel düşünme başlangıcı, görsel mantık, eşitlik kavramı ve işlem hızını geliştirir. Disleksi dostu: net, kısa yönergeler.
 
-ÇIKTI FORMATI (JSON):
+ÇIKTI FORMATI (JSON — SADECE GEÇERLİ JSON):
 {
-  "title": "Gizemli Denklemler: ${topic}",
-  "instruction": "Aşağıdaki nesnelerin değerini bularak soru işaretini cevaplayınız.",
+  "title": "Gizemli Denklemler",
+  "instruction": "Nesnelerin değerini bularak soru işaretini cevapla.",
   "pedagogicalNote": "Öğrencinin görsel sembolleri sayılarla eşleştirme ve mantıksal çıkarım yapma becerisi hedeflenir.",
   "puzzles": [
     {
-      "id": "p1",
       "objects": [
-        { "name": "Elma", "imagePrompt": "minimalist red apple icon, vector art", "value": 5 },
-        { "name": "Armut", "imagePrompt": "minimalist green pear icon, vector art", "value": 3 }
+        { "name": "Elma", "imagePrompt": "minimalist red apple icon, vector art, white background", "value": 5 }
       ],
       "equations": [
-        { "leftSide": [ { "objectName": "Elma", "multiplier": 1 }, { "objectName": "Elma", "multiplier": 1 } ], "rightSide": 10 },
-        { "leftSide": [ { "objectName": "Elma", "multiplier": 1 }, { "objectName": "Armut", "multiplier": 1 } ], "rightSide": 8 }
+        { "leftSide": [ { "objectName": "Elma", "multiplier": 2 } ], "rightSide": 10 }
       ],
-      "finalQuestion": "Elma + Armut",
-      "answer": 8
+      "finalQuestion": "Elma + Elma",
+      "answer": 10
     }
   ]
 }
+
+KURALLAR:
+1. Tam ${itemCount} adet bulmaca üret.
+2. Her bulmacada 2-4 nesne, 3-4 denklem olsun.
+3. Denklemler kademeli zorlaşsın (son denklem en zor).
+4. Final soru önceki denklemlerin çözümüne dayansın.
+5. Nesne isimleri Türkçe ve ${ageGroup} yaşa uygun olsun.
+6. imagePrompt İngilizce, minimalist, beyaz arka plan.
 `;
 
   const schema = {
@@ -69,7 +102,6 @@ Bu etkinlik, öğrencinin cebirsel düşünme başlangıcı, görsel mantık, e�
         items: {
           type: 'OBJECT',
           properties: {
-            id: { type: 'STRING' },
             objects: {
               type: 'ARRAY',
               items: {
@@ -78,7 +110,8 @@ Bu etkinlik, öğrencinin cebirsel düşünme başlangıcı, görsel mantık, e�
                   name: { type: 'STRING' },
                   imagePrompt: { type: 'STRING' },
                   value: { type: 'NUMBER' }
-                }
+                },
+                required: ['name', 'imagePrompt', 'value']
               }
             },
             equations: {
@@ -93,16 +126,19 @@ Bu etkinlik, öğrencinin cebirsel düşünme başlangıcı, görsel mantık, e�
                       properties: {
                         objectName: { type: 'STRING' },
                         multiplier: { type: 'NUMBER' }
-                      }
+                      },
+                      required: ['objectName', 'multiplier']
                     }
                   },
                   rightSide: { type: 'NUMBER' }
-                }
+                },
+                required: ['leftSide', 'rightSide']
               }
             },
             finalQuestion: { type: 'STRING' },
             answer: { type: 'NUMBER' }
-          }
+          },
+          required: ['objects', 'equations', 'finalQuestion', 'answer']
         }
       }
     },
@@ -114,11 +150,100 @@ Bu etkinlik, öğrencinin cebirsel düşünme başlangıcı, görsel mantık, e�
   return {
     id: `math_puzzle_${Date.now()}`,
     activityType: ActivityType.MATH_PUZZLE,
-    title: result.title as unknown as string,
-    instruction: result.instruction as unknown as string,
-    pedagogicalNote: result.pedagogicalNote as unknown as string,
-    settings: { ...(options as Record<string, unknown>), ...typedParams },
+    title: (result.title as string) || 'Matematik Bulmacaları',
+    instruction: (result.instruction as string) || 'Denklemleri çöz, gizli sayıları bul.',
+    pedagogicalNote: (result.pedagogicalNote as string) || '',
+    settings: {
+      difficulty,
+      itemCount,
+      ageGroup,
+      puzzleType,
+      operationType,
+      numberRange,
+      storyMode,
+      colorfulText,
+      compactLayout,
+      fastMode,
+    },
     content: result,
-    puzzles: result.puzzles
+    puzzles: result.puzzles,
+  };
+};
+
+/**
+ * Hızlı Mod — Offline Üretici (AI beklemeden anında üretir)
+ * Ayarları dinler ve anında bulmaca oluşturur
+ */
+export const generateMathPuzzleOffline = (options: GeneratorOptions) => {
+  const opts = options as Record<string, unknown>;
+  const itemCount = (opts.itemCount as number) || 6;
+  const difficulty = (opts.difficulty as string) || 'Orta';
+  const puzzleType = (opts.puzzleType as string) || 'visual';
+  const operationType = (opts.operationType as string) || 'mixed';
+  const numberRange = (opts.numberRange as string) || '1-20';
+
+  const [minVal, maxVal] = numberRange.split('-').map(Number);
+  const min = minVal || 1;
+  const max = maxVal || 20;
+
+  const objects = [
+    { name: 'Elma', imagePrompt: 'minimalist red apple icon, vector art, white background' },
+    { name: 'Armut', imagePrompt: 'minimalist green pear icon, vector art, white background' },
+    { name: 'Portakal', imagePrompt: 'minimalist orange fruit icon, vector art, white background' },
+    { name: 'Çilek', imagePrompt: 'minimalist strawberry icon, vector art, white background' },
+    { name: 'Muz', imagePrompt: 'minimalist yellow banana icon, vector art, white background' },
+    { name: 'Karpuz', imagePrompt: 'minimalist watermelon slice icon, vector art, white background' },
+    { name: 'Üzüm', imagePrompt: 'minimalist grape bunch icon, vector art, white background' },
+    { name: 'Kiraz', imagePrompt: 'minimalist cherry pair icon, vector art, white background' },
+  ];
+
+  const rand = (a: number, b: number) => Math.floor(Math.random() * (b - a + 1)) + a;
+
+  const puzzles = Array.from({ length: itemCount }, (_, idx) => {
+    const usedObjects = objects.slice(idx % objects.length, (idx % objects.length) + 3);
+    if (usedObjects.length < 2) usedObjects.push(...objects.slice(0, 2 - usedObjects.length));
+
+    const values = usedObjects.map(() => rand(min, max));
+    const namedObjects = usedObjects.map((o, i) => ({ ...o, value: values[i] }));
+
+    const equations = [
+      {
+        leftSide: [{ objectName: namedObjects[0].name, multiplier: 1 }],
+        rightSide: values[0],
+      },
+      {
+        leftSide: [
+          { objectName: namedObjects[0].name, multiplier: 1 },
+          { objectName: namedObjects[1].name, multiplier: 1 },
+        ],
+        rightSide: values[0] + values[1],
+      },
+      {
+        leftSide: [
+          { objectName: namedObjects[0].name, multiplier: 1 },
+          { objectName: namedObjects[1].name, multiplier: 1 },
+          ...(namedObjects[2] ? [{ objectName: namedObjects[2].name, multiplier: 1 }] : []),
+        ],
+        rightSide: values[0] + values[1] + (values[2] || 0),
+      },
+    ];
+
+    return {
+      objects: namedObjects,
+      equations,
+      finalQuestion: namedObjects.map(o => o.name).join(' + '),
+      answer: values.reduce((a, b) => a + b, 0),
+    };
+  });
+
+  return {
+    id: `math_puzzle_offline_${Date.now()}`,
+    activityType: ActivityType.MATH_PUZZLE,
+    title: 'Matematik Bulmacaları',
+    instruction: 'Nesnelerin değerini bularak soru işaretini cevapla.',
+    pedagogicalNote: 'Görsel sembollerle cebirsel düşünme ve mantıksal çıkarım becerisi geliştirilir.',
+    settings: { difficulty, itemCount, puzzleType, operationType, numberRange, fastMode: true },
+    puzzles,
+    content: { puzzles },
   };
 };

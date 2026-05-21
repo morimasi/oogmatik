@@ -205,7 +205,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   },
   [ActivityType.MATH_PUZZLE]: {
     ai: aiGenerators.generateMathPuzzleFromAI,
-    offline: offlineGenerators.generateOfflinePremiumMathPuzzle,
+    offline: aiGenerators.generateMathPuzzleOffline,
   },
   [ActivityType.CLOCK_READING]: {
     ai: withAI(ActivityType.CLOCK_READING),
