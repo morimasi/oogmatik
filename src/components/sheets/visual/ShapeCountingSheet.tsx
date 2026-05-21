@@ -146,13 +146,13 @@ export const ShapeCountingSheet = ({
                         d={SHAPE_PATHS[item.type] ?? SHAPE_PATHS.triangle}
                         fill={
                           settings?.overlapping
-                            ? `hsla(220, 10%, 90%, ${isTarget ? 0.05 : 0.02})`
+                            ? `hsla(220, 10%, 90%, 0.05)`
                             : 'none'
                         }
-                        stroke={isTarget ? '#18181b' : '#3f3f46'}
-                        strokeWidth={isTarget ? 2.5 : 2}
+                        stroke="#18181b"
+                        strokeWidth={2.5}
                         strokeLinejoin="round"
-                        style={{ mixBlendMode: 'multiply', opacity: isTarget ? 1 : 0.85 }}
+                        style={{ mixBlendMode: 'multiply', opacity: 1 }}
                         className="transition-all duration-300 group-hover/field:opacity-100"
                       />
                     </g>

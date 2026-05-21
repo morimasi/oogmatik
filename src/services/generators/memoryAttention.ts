@@ -5,22 +5,13 @@ import {
     WordMemoryData, VisualMemoryData, NumberSearchData, FindDuplicateData, LetterGridTestData, FindLetterPairData, TargetSearchData,
     ColorWheelMemoryData, ImageComprehensionData, CharacterMemoryData, StroopTestData, ChaoticNumberSearchData
 } from '../../types';
+import { PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts.js';
 
-const PEDAGOGICAL_PROMPT = `
-ÜST DÜZEY EĞİTİM İÇERİĞİ OLUŞTURMA YÖNERGESİ (PREMIUM KALİTE):
-1.  **Rol:** Sen, "Özel Eğitim ve Üstün Yetenekliler" için materyal hazırlayan uzman bir pedagogsun.
-2.  **Çıktı:** Sadece geçerli JSON.
-3.  **"instruction":** Öğrenciye hitap et. Net, motive edici ve anlaşılır ol.
-4.  **"imagePrompt":** (Çok Önemli) Sen aynı zamanda bir Sanat Yönetmenisin. SVG üretecek bir yapay zeka için detaylı görsel tasviri yaz.
-    - **Stil:** "Flat Vector Art Style", "Educational Illustration", "Clean Lines", "Vibrant Colors".
-    - **Detay:** Asla "bir nesne" deme. "Renkli, eğlenceli ve akılda kalıcı bir oyuncak ayı vektörü" de.
-    - **Amaç:** Görsel, hafızada kalıcı olmalı.
-5.  **İçerik:**
-    - İçerik dolu ve gerçekçi olmalı.
-`;
+const PEDAGOGICAL_PROMPT = `${PEDAGOGICAL_BASE}\n${CLINICAL_DIAGNOSTIC_GUIDE}`;
+
 
 export const generateWordMemoryFromAI = async (options: GeneratorOptions): Promise<WordMemoryData[]> => {
-    const { topic, itemCount, difficulty, worksheetCount, _memorizeRatio } = options;
+    const { topic, itemCount, difficulty, worksheetCount } = options;
     
     // UNIQUE CONTENT GENERATION
     const generationSeed = Date.now() + Math.random();
@@ -63,7 +54,7 @@ export const generateWordMemoryFromAI = async (options: GeneratorOptions): Promi
 };
 
 export const generateVisualMemoryFromAI = async (options: GeneratorOptions): Promise<VisualMemoryData[]> => {
-    const { topic, _itemCount, difficulty, worksheetCount } = options;
+    const { topic, itemCount, difficulty, worksheetCount } = options;
     
     // UNIQUE CONTENT GENERATION
     const generationSeed = Date.now() + Math.random();
@@ -105,7 +96,7 @@ export const generateVisualMemoryFromAI = async (options: GeneratorOptions): Pro
 };
 
 export const generateNumberSearchFromAI = async (options: GeneratorOptions): Promise<NumberSearchData[]> => {
-    const { difficulty, _worksheetCount } = options;
+    const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde Sayı Avı. ${PEDAGOGICAL_PROMPT}`;
     const singleSchema = {
         type: 'OBJECT',
@@ -127,7 +118,7 @@ export const generateNumberSearchFromAI = async (options: GeneratorOptions): Pro
 };
 
 export const generateFindTheDuplicateInRowFromAI = async (options: GeneratorOptions): Promise<FindDuplicateData[]> => {
-    const { difficulty, _worksheetCount } = options;
+    const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde 'İkiliyi Bul'. Her satırda bir karakteri tekrar et. ${PEDAGOGICAL_PROMPT}`;
     const singleSchema = {
         type: 'OBJECT',
@@ -144,7 +135,7 @@ export const generateFindTheDuplicateInRowFromAI = async (options: GeneratorOpti
 };
 
 export const generateLetterGridTestFromAI = async (options: GeneratorOptions): Promise<LetterGridTestData[]> => {
-    const { _gridSize, difficulty, worksheetCount, targetLetters } = options;
+    const { gridSize, difficulty, worksheetCount, targetLetters } = options;
     const prompt = `
     "${difficulty}" seviyesinde Harf Izgarası. 
     Hedefler: ${targetLetters || 'b, d'}.
@@ -169,7 +160,7 @@ export const generateLetterGridTestFromAI = async (options: GeneratorOptions): P
 // Fix: Removed duplicate generateFindLetterPairFromAI as it is now centrally managed in newActivities.ts
 
 export const generateTargetSearchFromAI = async (options: GeneratorOptions): Promise<TargetSearchData[]> => {
-    const { difficulty, _worksheetCount } = options;
+    const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde Hedef Karakter Avı. ${PEDAGOGICAL_PROMPT}`;
     const singleSchema = {
         type: 'OBJECT',
@@ -188,7 +179,7 @@ export const generateTargetSearchFromAI = async (options: GeneratorOptions): Pro
 };
 
 export const generateColorWheelMemoryFromAI = async (options: GeneratorOptions): Promise<ColorWheelMemoryData[]> => {
-    const { _itemCount, difficulty, worksheetCount } = options;
+    const { itemCount, difficulty, worksheetCount } = options;
     const prompt = `
     "${difficulty}" seviyesinde Renk Çemberi Hafıza Oyunu.
     Her öğe için **İngilizce** 'imagePrompt'.
@@ -223,7 +214,7 @@ export const generateColorWheelMemoryFromAI = async (options: GeneratorOptions):
 };
 
 export const generateImageComprehensionFromAI = async (options: GeneratorOptions): Promise<ImageComprehensionData[]> => {
-    const { _topic, difficulty, worksheetCount } = options;
+    const { topic, difficulty, worksheetCount } = options;
     const prompt = `
     "${difficulty}" seviyesinde Resim Anlama.
     Detaylı bir sahne betimle (sceneDescription) ve buna uygun **İngilizce** 'imagePrompt'.
@@ -248,7 +239,7 @@ export const generateImageComprehensionFromAI = async (options: GeneratorOptions
 };
 
 export const generateCharacterMemoryFromAI = async (options: GeneratorOptions): Promise<CharacterMemoryData[]> => {
-    const { _topic, difficulty, worksheetCount } = options;
+    const { topic, difficulty, worksheetCount } = options;
     
     // UNIQUE CONTENT GENERATION
     const generationSeed = Date.now() + Math.random();
@@ -306,7 +297,7 @@ export const generateBurdonTestFromAI = async (options: GeneratorOptions): Promi
 };
 
 export const generateStroopTestFromAI = async (options: GeneratorOptions): Promise<StroopTestData[]> => {
-    const { _worksheetCount } = options;
+    const { worksheetCount } = options;
     const prompt = `Stroop Testi oluştur. Renk isimleri ile renkler uyumsuz olsun. ${PEDAGOGICAL_PROMPT}`;
     const singleSchema = {
         type: 'OBJECT',
