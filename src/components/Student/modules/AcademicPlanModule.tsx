@@ -64,7 +64,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
   const activePlan = localPlans.find(p => p.id === selectedPlanId) || localPlans[0];
 
   const activeProgress = activePlan
-    ? Math.round((activePlan.schedule.filter((d: CurriculumDay) => d.isCompleted).length / activePlan.schedule.length) * 100)
+    ? Math.round((activePlan.schedule.filter((d: CurriculumDay) => d.isCompleted || d.activities?.every((a: any) => a.status === 'completed')).length / activePlan.schedule.length) * 100)
     : 0;
 
   const handlePrint = () => { window.print(); };
@@ -460,7 +460,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                   <div className="space-y-1.5">
                     {activePlan.goals && activePlan.goals.length > 0 ? (
                       activePlan.goals.map((g: string, i: number) => {
-                        const completedDays = activePlan.schedule.filter((d: CurriculumDay) => d.isCompleted).length;
+                        const completedDays = activePlan.schedule.filter((d: CurriculumDay) => d.isCompleted || d.activities?.every((a: any) => a.status === 'completed')).length;
                         const isAchieved = i < completedDays;
                         const isEditingThis = editingGoal === i;
 
@@ -562,6 +562,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                 {activePlan.schedule.map((day: CurriculumDay, i: number) => {
                   const isEditingThis = editingDay === day.day;
                   const isChangingActivity = changingActivityDay === day.day;
+                  const isDayDone = day.isCompleted || day.activities?.every((a: any) => a.status === 'completed');
                   return (
                     <div
                       key={i}
@@ -569,7 +570,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                     >
                       <div
                         className={`flex items-center gap-3 p-2.5 rounded-2xl border transition-all duration-300 group/day ${
-                          day.isCompleted
+                          isDayDone
                             ? 'bg-emerald-500/5 border-emerald-500/10 shadow-sm'
                             : 'bg-[var(--bg-secondary)] border-[var(--border-color)] hover:border-[var(--accent-color)]/20'
                         }`}
@@ -578,13 +579,13 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                         <button
                           onClick={() => handleToggleDay(day.day)}
                           className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 border transition-all duration-300 shadow-sm ${
-                            day.isCompleted
+                            isDayDone
                               ? 'bg-emerald-500 text-white border-transparent'
                               : 'bg-[var(--bg-paper)] text-[var(--text-muted)] border-[var(--border-color)] hover:border-[var(--accent-color)] hover:text-[var(--accent-color)] hover:scale-105'
                           }`}
-                          title={day.isCompleted ? "Yapılmadı olarak işaretle" : "Yapıldı olarak işaretle"}
+                          title={isDayDone ? "Yapılmadı olarak işaretle" : "Yapıldı olarak işaretle"}
                         >
-                          {day.isCompleted ? (
+                          {isDayDone ? (
                             <i className="fa-solid fa-check text-[10px]"></i>
                           ) : (
                             <span className="text-[8px] font-black">{day.day}</span>
@@ -711,7 +712,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
           <h4 className="font-black text-[10px] text-[var(--text-primary)] uppercase tracking-tight">Geçmiş Planlar</h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {localPlans.map(plan => {
-              const progress = Math.round((plan.schedule.filter((d: CurriculumDay) => d.isCompleted).length / plan.schedule.length) * 100);
+              const progress = Math.round((plan.schedule.filter((d: CurriculumDay) => d.isCompleted || d.activities?.every((a: any) => a.status === 'completed')).length / plan.schedule.length) * 100);
               const isCurrentActive = plan.id === selectedPlanId;
               return (
                 <div
