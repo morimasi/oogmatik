@@ -3,23 +3,28 @@ import React, { useState, useEffect } from 'react';
 import { User } from '../types';
 import { useAuthStore } from '../store/useAuthStore';
 import { authService } from '../services/authService';
+import { SharedModuleType, SharePermission } from '../services/profileShareService';
 
 interface ShareModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onShare: (receiverIds: string[]) => void | Promise<void>;
+    onShare: (receiverIds: string[], permission?: SharePermission, message?: string) => void | Promise<void>;
     worksheetId?: string;
     worksheetTitle?: string;
     isSending?: boolean;
+    moduleType?: SharedModuleType;
+    showPermissionSelector?: boolean;
 }
 
-export const ShareModal = ({ isOpen, onClose, onShare, worksheetId, worksheetTitle, isSending }: ShareModalProps) => {
+export const ShareModal = ({ isOpen, onClose, onShare, worksheetId, worksheetTitle, isSending, showPermissionSelector }: ShareModalProps) => {
     const { user } = useAuthStore();
     const [contacts, setContacts] = useState<User[]>([]);
     const [selectedIds, setSelectedIds] = useState<string[]>([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState<'direct' | 'link' | 'qr'>('direct');
     const [copySuccess, setCopySuccess] = useState(false);
+    const [permission, setPermission] = useState<SharePermission>('view');
+    const [shareMessage, setShareMessage] = useState('');
 
     useEffect(() => {
         if (user && isOpen) {
@@ -137,9 +142,34 @@ export const ShareModal = ({ isOpen, onClose, onShare, worksheetId, worksheetTit
 
                             {selectedIds.length > 0 && (
                                 <div className="mt-auto pt-4 border-t border-zinc-100 dark:border-zinc-700/50 flex flex-col gap-3">
+                                    {showPermissionSelector && (
+                                        <div className="space-y-2">
+                                            <div className="flex gap-2">
+                                                <button
+                                                    onClick={() => setPermission('view')}
+                                                    className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${permission === 'view' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-500 hover:bg-zinc-200'}`}
+                                                >
+                                                    <i className="fa-solid fa-eye mr-1" /> Görüntüle
+                                                </button>
+                                                <button
+                                                    onClick={() => setPermission('edit')}
+                                                    className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${permission === 'edit' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-500 hover:bg-zinc-200'}`}
+                                                >
+                                                    <i className="fa-solid fa-pen mr-1" /> Düzenle
+                                                </button>
+                                            </div>
+                                            <textarea
+                                                value={shareMessage}
+                                                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setShareMessage(e.target.value)}
+                                                placeholder="Paylaşıma not ekleyin (isteğe bağlı)..."
+                                                rows={2}
+                                                className="w-full p-2.5 border border-zinc-200 dark:border-zinc-600 rounded-xl bg-zinc-50 dark:bg-zinc-700/50 focus:ring-2 focus:ring-indigo-500 outline-none text-xs resize-none"
+                                            />
+                                        </div>
+                                    )}
                                     <p className="text-xs text-zinc-500 font-medium">{selectedIds.length} kişi seçildi</p>
                                     <button
-                                        onClick={() => onShare?.(selectedIds)}
+                                        onClick={() => onShare?.(selectedIds, permission, shareMessage)}
                                         disabled={isSending}
                                         className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-indigo-200 dark:shadow-none transition-all active:scale-95 disabled:opacity-50"
                                     >
