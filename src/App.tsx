@@ -793,7 +793,6 @@ const AppContent = () => {
           data
         );
         setActiveCurriculumSession(null);
-        navigateTo('students');
         toast.success(`Harika! ${activeCurriculumSession.activityTitle} üretildi ve plana otomatik işlendi! 🎉`);
       } catch (e) {
         console.error("Otomatik plan tamamlama hatası:", e);

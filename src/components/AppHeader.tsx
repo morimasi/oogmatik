@@ -167,7 +167,7 @@ export const AppHeader = ({
     const { user, logout } = useAuthStore();
     const { isAdmin } = useRBAC();
     const { setIsSidebarOpen, zenMode, setIsTourActive } = useUIStore();
-    const { currentView, setCurrentView, addHistoryView, setSelectedActivity, setWorksheetData, setActiveCurriculumSession } = useWorksheetStore();
+    const { currentView, setCurrentView, addHistoryView, setSelectedActivity, setWorksheetData, setActiveCurriculumSession, activeCurriculumSession } = useWorksheetStore();
     const { activeStudent } = useStudentStore();
 
     const navigateTo = (view: View) => {
@@ -278,7 +278,7 @@ export const AppHeader = ({
                     </AnimatePresence>
 
                     <div className="flex items-center gap-1 p-1 bg-[var(--bg-secondary)]/90 rounded-xl border border-[var(--border-color)] shadow-[inset_0_1px_0_rgba(255,255,255,0.045)] backdrop-blur-sm">
-                        {activeStudent && (
+                        {(activeStudent || activeCurriculumSession) && (
                             <button
                                 onClick={() => {
                                     if (typeof onOpenStudio === 'function') onOpenStudio('students');
