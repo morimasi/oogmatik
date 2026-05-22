@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ProfileData } from '../../types/profile';
-import { Student } from '../../types';
+import { Student, SavedWorksheet, AppTheme, UiSettings } from '../../types';
 import { ProfileTabId, PROFILE_TABS } from './constants';
 import { ProfileHeader } from './components/ProfileHeader';
 import { TabNavigation } from './components/TabNavigation';
@@ -18,12 +18,12 @@ interface ProfileProps {
   data: ProfileData;
   activeStudent: Student | null;
   onBack: () => void;
-  onSelectActivity: (id: any) => void;
-  onLoadSaved: (ws: any) => void;
-  theme?: any;
-  uiSettings?: any;
-  onUpdateTheme?: (theme: any) => void;
-  onUpdateUiSettings?: (settings: any) => void;
+  onSelectActivity: (id: string) => void;
+  onLoadSaved: (ws: SavedWorksheet) => void;
+  theme?: AppTheme;
+  uiSettings?: UiSettings;
+  onUpdateTheme?: (theme: AppTheme) => void;
+  onUpdateUiSettings?: (settings: UiSettings) => void;
   onOpenSettingsModal?: () => void;
 }
 

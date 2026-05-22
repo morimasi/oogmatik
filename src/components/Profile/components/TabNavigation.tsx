@@ -1,10 +1,12 @@
 import React from 'react';
 import { PROFILE_TABS, ProfileTabId } from '../constants';
 
+type ProfileTab = typeof PROFILE_TABS[number];
+
 interface TabNavigationProps {
   activeTab: ProfileTabId;
   onTabChange: (tab: ProfileTabId) => void;
-  allowedTabs: any[];
+  allowedTabs: ProfileTab[];
 }
 
 export const TabNavigation: React.FC<TabNavigationProps> = ({
