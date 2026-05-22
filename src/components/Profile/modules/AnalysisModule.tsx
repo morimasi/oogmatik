@@ -6,6 +6,23 @@ import { RadarChart } from '../../RadarChart';
 import { SectionHeader } from '../components/shared/SectionHeader';
 import { BentoCard } from '../components/shared/BentoCard';
 
+type SortKey = 'date' | 'score' | 'student';
+
+const SCORE_KEYS = ['attention', 'memory', 'visual', 'phonological'] as const;
+const SCORE_LABELS: Record<typeof SCORE_KEYS[number], string> = {
+  attention: 'Dikkat',
+  memory: 'Bellek',
+  visual: 'Görsel',
+  phonological: 'Fonolojik',
+};
+
+const SCORE_COLORS: Record<typeof SCORE_KEYS[number], string> = {
+  attention: 'bg-indigo-500',
+  memory: 'bg-emerald-500',
+  visual: 'bg-amber-500',
+  phonological: 'bg-purple-500',
+};
+
 interface AnalysisModuleProps {
   data: ProfileData;
   onShare?: () => void;

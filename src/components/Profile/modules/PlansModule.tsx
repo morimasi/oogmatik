@@ -4,6 +4,20 @@ import { SectionHeader } from '../components/shared/SectionHeader';
 import { curriculumService } from '../../../services/curriculumService';
 import { useToastStore } from '../../../store/useToastStore';
 
+type PlanStatus = 'active' | 'completed' | 'paused';
+
+const STATUS_CONFIG: Record<PlanStatus, { label: string; color: string; dot: string }> = {
+  active: { label: 'Aktif', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400', dot: 'bg-emerald-500' },
+  completed: { label: 'Tamamlandı', color: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400', dot: 'bg-indigo-500' },
+  paused: { label: 'Duraklatıldı', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400', dot: 'bg-amber-500' },
+};
+
+const BEP_PROGRESS: Record<string, { color: string }> = {
+  not_started: { color: 'text-zinc-300 dark:text-zinc-600' },
+  in_progress: { color: 'text-amber-500' },
+  completed: { color: 'text-emerald-500' },
+};
+
 interface PlansModuleProps {
   data: ProfileData;
   onNavigateToCurriculum?: () => void;
