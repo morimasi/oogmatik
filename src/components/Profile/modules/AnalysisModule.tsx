@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { ProfileData } from '../../../types/profile';
 import { SavedAssessment } from '../../../types';
 import { AssessmentReportViewer } from '../../AssessmentReportViewer';
 import { RadarChart } from '../../RadarChart';
 import { SectionHeader } from '../components/shared/SectionHeader';
+import { BentoCard } from '../components/shared/BentoCard';
 
 interface AnalysisModuleProps {
   data: ProfileData;
@@ -15,6 +16,66 @@ export const AnalysisModule: React.FC<AnalysisModuleProps> = ({ data, onShare })
   const [selectedAssessment, setSelectedAssessment] = useState<SavedAssessment | null>(null);
   const [sortBy, setSortBy] = useState<SortKey>('date');
   const [filterStudent, setFilterStudent] = useState('');
+  const [analysisNotes, setAnalysisNotes] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('analysis_notes') || '[]'); }
+    catch { return []; }
+  });
+  const [newAnalysisNote, setNewAnalysisNote] = useState('');
+  const [editingNoteIdx, setEditingNoteIdx] = useState<number | null>(null);
+  const [editingNoteText, setEditingNoteText] = useState('');
+
+  useEffect(() => {
+    localStorage.setItem('analysis_notes', JSON.stringify(analysisNotes));
+  }, [analysisNotes]);
+
+  const addAnalysisNote = useCallback(() => {
+    if (!newAnalysisNote.trim()) return;
+    setAnalysisNotes(prev => [...prev, newAnalysisNote.trim()]);
+    setNewAnalysisNote('');
+  }, [newAnalysisNote]);
+
+  const deleteAnalysisNote = useCallback((idx: number) => {
+    setAnalysisNotes(prev => prev.filter((_, i) => i !== idx));
+  }, []);
+
+  const startEditAnalysisNote = useCallback((idx: number) => {
+    setEditingNoteIdx(idx);
+    setEditingNoteText(analysisNotes[idx]);
+  }, [analysisNotes]);
+
+  const saveEditAnalysisNote = useCallback(() => {
+    if (editingNoteIdx === null || !editingNoteText.trim()) return;
+    setAnalysisNotes(prev => prev.map((n, i) => i === editingNoteIdx ? editingNoteText.trim() : n));
+    setEditingNoteIdx(null);
+    setEditingNoteText('');
+  }, [editingNoteIdx, editingNoteText]);
+
+  const [savedViews, setSavedViews] = useState<Array<{ name: string; sortBy: SortKey; filterStudent: string }>>(() => {
+    try { return JSON.parse(localStorage.getItem('analysis_saved_views') || '[]'); }
+    catch { return []; }
+  });
+  const [viewName, setViewName] = useState('');
+  const [showSaveView, setShowSaveView] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem('analysis_saved_views', JSON.stringify(savedViews));
+  }, [savedViews]);
+
+  const saveCurrentView = useCallback(() => {
+    if (!viewName.trim()) return;
+    setSavedViews(prev => [...prev, { name: viewName.trim(), sortBy, filterStudent }]);
+    setViewName('');
+    setShowSaveView(false);
+  }, [viewName, sortBy, filterStudent]);
+
+  const loadView = useCallback((view: { sortBy: SortKey; filterStudent: string }) => {
+    setSortBy(view.sortBy);
+    setFilterStudent(view.filterStudent);
+  }, []);
+
+  const deleteView = useCallback((idx: number) => {
+    setSavedViews(prev => prev.filter((_, i) => i !== idx));
+  }, []);
 
   const filteredAssessments = useMemo(() => {
     return [...assessments]
@@ -139,7 +200,41 @@ export const AnalysisModule: React.FC<AnalysisModuleProps> = ({ data, onShare })
           <option value="score">↓ Skora göre</option>
           <option value="student">↓ Öğrenciye göre</option>
         </select>
+        {showSaveView ? (
+          <div className="flex gap-2 items-center">
+            <input
+              type="text"
+              value={viewName}
+              onChange={(e) => setViewName(e.target.value)}
+              placeholder="Görünüm adı..."
+              className="px-3 py-2 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl text-xs font-bold outline-none w-40"
+              onKeyDown={(e) => { if (e.key === 'Enter') saveCurrentView(); }}
+            />
+            <button onClick={saveCurrentView} className="px-3 py-2 bg-indigo-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest">Kaydet</button>
+            <button onClick={() => setShowSaveView(false)} className="px-3 py-2 text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)]">İptal</button>
+          </div>
+        ) : (
+          <button onClick={() => setShowSaveView(true)} className="px-3 py-2 bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:text-[var(--accent-color)] rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border border-[var(--border-color)]">
+            <i className="fa-solid fa-floppy-disk mr-1" /> Görünümü Kaydet
+          </button>
+        )}
       </div>
+
+      {/* Kaydedilmiş Görünümler */}
+      {savedViews.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {savedViews.map((view, idx) => (
+            <div key={idx} className="flex items-center gap-1 px-3 py-1.5 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl group">
+              <button onClick={() => loadView(view)} className="text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-colors">
+                <i className="fa-solid fa-bookmark text-[8px] mr-1" />{view.name}
+              </button>
+              <button onClick={() => deleteView(idx)} className="w-4 h-4 flex items-center justify-center text-zinc-400 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
+                <i className="fa-solid fa-xmark text-[8px]" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Tablo */}
       <div className="bg-[var(--bg-paper)] rounded-[2.5rem] border border-[var(--border-color)] overflow-hidden shadow-lg">
@@ -202,6 +297,57 @@ export const AnalysisModule: React.FC<AnalysisModuleProps> = ({ data, onShare })
           </table>
         )}
       </div>
+
+      {/* Analiz Notları */}
+      <BentoCard title="Analiz Notlarım" icon="fa-note-sticky" iconColor="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-500">
+        <div className="space-y-3">
+          {analysisNotes.map((note, idx) => (
+            <div key={idx} className="flex items-start gap-2 p-3 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] group">
+              {editingNoteIdx === idx ? (
+                <div className="flex-1 space-y-2">
+                  <textarea
+                    value={editingNoteText}
+                    onChange={(e) => setEditingNoteText(e.target.value)}
+                    className="w-full p-2 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl text-xs font-bold resize-none outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20"
+                    rows={2}
+                  />
+                  <div className="flex gap-2 justify-end">
+                    <button onClick={() => setEditingNoteIdx(null)} className="px-3 py-1 text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)]">İptal</button>
+                    <button onClick={saveEditAnalysisNote} className="px-3 py-1 bg-emerald-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest">Kaydet</button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-[var(--text-primary)] whitespace-pre-wrap">{note}</p>
+                  </div>
+                  <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => startEditAnalysisNote(idx)} className="w-7 h-7 rounded-lg hover:bg-[var(--bg-paper)] flex items-center justify-center text-zinc-400 hover:text-[var(--accent-color)] transition-all">
+                      <i className="fa-solid fa-pen text-[10px]" />
+                    </button>
+                    <button onClick={() => deleteAnalysisNote(idx)} className="w-7 h-7 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center justify-center text-zinc-400 hover:text-red-500 transition-all">
+                      <i className="fa-solid fa-trash text-[10px]" />
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          ))}
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newAnalysisNote}
+              onChange={(e) => setNewAnalysisNote(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addAnalysisNote(); } }}
+              placeholder="Analiz notu ekle..."
+              className="flex-1 px-4 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20"
+            />
+            <button onClick={addAnalysisNote} disabled={!newAnalysisNote.trim()} className="px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-lg shadow-emerald-600/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50">
+              <i className="fa-solid fa-plus" />
+            </button>
+          </div>
+        </div>
+      </BentoCard>
 
       {/* Modal */}
       {selectedAssessment && (

@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { ProfileData } from '../../../types/profile';
 import { SectionHeader } from '../components/shared/SectionHeader';
+import { curriculumService } from '../../../services/curriculumService';
+import { useToastStore } from '../../../store/useToastStore';
 
 interface PlansModuleProps {
   data: ProfileData;
@@ -9,8 +11,67 @@ interface PlansModuleProps {
 }
 
 export const PlansModule: React.FC<PlansModuleProps> = ({ data, onNavigateToCurriculum, onShare }) => {
-  const { curriculums, loading } = data;
+  const { curriculums, loading, refreshData } = data;
+  const { success, error } = useToastStore();
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [editingProgress, setEditingProgress] = useState<string | null>(null);
+  const [progressValue, setProgressValue] = useState(0);
+  const [editingStatus, setEditingStatus] = useState<string | null>(null);
+  const [addingGoal, setAddingGoal] = useState<string | null>(null);
+  const [goalText, setGoalText] = useState('');
+
+  const handleProgressChange = useCallback(async (planId: string, progress: number) => {
+    try {
+      await curriculumService.updateCurriculum(planId, { progress } as Record<string, unknown>);
+      success('İlerleme güncellendi.');
+      refreshData();
+    } catch {
+      error('Güncelleme başarısız.');
+    }
+    setEditingProgress(null);
+  }, [success, error, refreshData]);
+
+  const handleStatusChange = useCallback(async (planId: string, status: string) => {
+    try {
+      await curriculumService.updateCurriculum(planId, { status } as Record<string, unknown>);
+      success('Durum güncellendi.');
+      refreshData();
+    } catch {
+      error('Güncelleme başarısız.');
+    }
+    setEditingStatus(null);
+  }, [success, error, refreshData]);
+
+  const handleAddGoal = useCallback(async (planId: string) => {
+    if (!goalText.trim()) return;
+    try {
+      const plan = curriculums.find((p: Record<string, unknown>) => p.id === planId);
+      const goals = (plan?.bepGoals as Array<Record<string, unknown>>) || [];
+      await curriculumService.updateCurriculum(planId, {
+        bepGoals: [...goals, { objective: goalText.trim(), progress: 'not_started' }],
+      } as Record<string, unknown>);
+      success('Hedef eklendi.');
+      refreshData();
+    } catch {
+      error('Hedef eklenemedi.');
+    }
+    setAddingGoal(null);
+    setGoalText('');
+  }, [goalText, curriculums, success, error, refreshData]);
+
+  const handleDeleteGoal = useCallback(async (planId: string, goalIdx: number) => {
+    try {
+      const plan = curriculums.find((p: Record<string, unknown>) => p.id === planId);
+      const goals = (plan?.bepGoals as Array<Record<string, unknown>>) || [];
+      await curriculumService.updateCurriculum(planId, {
+        bepGoals: goals.filter((_: unknown, i: number) => i !== goalIdx),
+      } as Record<string, unknown>);
+      success('Hedef silindi.');
+      refreshData();
+    } catch {
+      error('Hedef silinemedi.');
+    }
+  }, [curriculums, success, error, refreshData]);
 
   if (loading) {
     return (
@@ -94,10 +155,24 @@ export const PlansModule: React.FC<PlansModuleProps> = ({ data, onNavigateToCurr
                   <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
                     <i className="fa-solid fa-graduation-cap text-lg" />
                   </div>
-                  <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider flex items-center gap-1.5 ${statusCfg.color}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
-                    {statusCfg.label}
-                  </span>
+                  {editingStatus === planId ? (
+                    <div className="flex gap-1">
+                      {(['active', 'completed', 'paused'] as PlanStatus[]).map(s => {
+                        const cfg = STATUS_CONFIG[s];
+                        return (
+                          <button key={s} onClick={() => handleStatusChange(planId, s)} className={`px-2 py-1 rounded-lg text-[8px] font-black uppercase tracking-wider ${s === status ? cfg.dot.replace('bg-', 'bg-').replace('500', '600') + ' text-white' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)]'}`}>
+                            {cfg.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <button onClick={() => setEditingStatus(planId)} className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider flex items-center gap-1.5 transition-all hover:scale-105 ${statusCfg.color}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dot}`} />
+                      {statusCfg.label}
+                      <i className="fa-solid fa-pen text-[7px] ml-0.5 opacity-60" />
+                    </button>
+                  )}
                 </div>
 
                 <h3 className="text-sm font-black text-[var(--text-primary)] mb-1">{plan.studentName as string || 'Müfredat Planı'}</h3>
@@ -105,11 +180,27 @@ export const PlansModule: React.FC<PlansModuleProps> = ({ data, onNavigateToCurr
                   {plan.grade as string} · {plan.durationDays as number} Gün
                 </p>
 
-                {/* Progress */}
+                {/* Progress (editable) */}
                 <div className="space-y-1.5 mb-4">
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">İlerleme</span>
-                    <span className="text-[10px] font-black text-[var(--text-primary)]">{progress}%</span>
+                    {editingProgress === planId ? (
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="range" min="0" max="100" value={progressValue}
+                          onChange={(e) => setProgressValue(Number(e.target.value))}
+                          className="w-24 h-1.5 bg-indigo-100 dark:bg-indigo-900/30 rounded-full appearance-none cursor-pointer accent-indigo-600"
+                        />
+                        <span className="text-[10px] font-black text-indigo-600 w-8 text-right">{progressValue}%</span>
+                        <button onClick={() => handleProgressChange(planId, progressValue)} className="px-2 py-0.5 bg-indigo-600 text-white rounded text-[8px] font-black">Kaydet</button>
+                        <button onClick={() => setEditingProgress(null)} className="px-2 py-0.5 text-[8px] font-black text-zinc-400">İptal</button>
+                      </div>
+                    ) : (
+                      <button onClick={() => { setEditingProgress(planId); setProgressValue(progress); }} className="flex items-center gap-1 text-[10px] font-black text-[var(--text-primary)] hover:text-[var(--accent-color)] transition-colors">
+                        {progress}%
+                        <i className="fa-solid fa-pen text-[7px] opacity-60" />
+                      </button>
+                    )}
                   </div>
                   <div className="h-2 bg-[var(--bg-secondary)] rounded-full overflow-hidden">
                     <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-1000" style={{ width: `${progress}%` }} />
@@ -119,27 +210,47 @@ export const PlansModule: React.FC<PlansModuleProps> = ({ data, onNavigateToCurr
                   )}
                 </div>
 
-                {/* BEP Goals */}
-                {bepGoals.length > 0 && (
-                  <div className="space-y-2 mb-4">
+                {/* BEP Goals (editable) */}
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center justify-between">
                     <SectionHeader title="BEP Hedefleri" icon="fa-bullseye" />
-                    {(isExpanded ? bepGoals : bepGoals.slice(0, 2)).map((goal, idx) => {
-                      const gStatus = (goal.progress as string) ?? 'not_started';
-                      const gCfg = BEP_PROGRESS[gStatus] ?? BEP_PROGRESS['not_started'];
-                      return (
-                        <div key={idx} className="flex items-start gap-2">
-                          <i className={`fa-solid fa-circle-dot text-[10px] mt-0.5 ${gCfg.color}`} />
-                          <span className="text-[10px] font-bold text-[var(--text-muted)] leading-relaxed flex-1">{goal.objective as string}</span>
-                        </div>
-                      );
-                    })}
-                    {bepGoals.length > 2 && (
-                      <button onClick={() => setExpandedId(isExpanded ? null : planId)} className="text-[9px] font-black text-indigo-600 uppercase tracking-widest hover:underline">
-                        {isExpanded ? 'Daha az göster' : `+${bepGoals.length - 2} hedef daha`}
-                      </button>
-                    )}
+                    <button onClick={() => { setAddingGoal(planId); setGoalText(''); }} className="flex items-center gap-1 px-2 py-1 bg-indigo-100 dark:bg-indigo-900/20 text-indigo-600 rounded-lg text-[8px] font-black uppercase tracking-widest hover:scale-105 transition-all">
+                      <i className="fa-solid fa-plus text-[8px]" /> Hedef Ekle
+                    </button>
                   </div>
-                )}
+                  {bepGoals.length > 0 && (isExpanded ? bepGoals : bepGoals.slice(0, 2)).map((goal, idx) => {
+                    const gStatus = (goal.progress as string) ?? 'not_started';
+                    const gCfg = BEP_PROGRESS[gStatus] ?? BEP_PROGRESS['not_started'];
+                    return (
+                      <div key={idx} className="flex items-start gap-2 group">
+                        <i className={`fa-solid fa-circle-dot text-[10px] mt-0.5 ${gCfg.color}`} />
+                        <span className="text-[10px] font-bold text-[var(--text-muted)] leading-relaxed flex-1">{goal.objective as string}</span>
+                        <button onClick={() => handleDeleteGoal(planId, idx)} className="w-5 h-5 flex items-center justify-center text-zinc-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 shrink-0">
+                          <i className="fa-solid fa-xmark text-[9px]" />
+                        </button>
+                      </div>
+                    );
+                  })}
+                  {bepGoals.length > 2 && (
+                    <button onClick={() => setExpandedId(isExpanded ? null : planId)} className="text-[9px] font-black text-indigo-600 uppercase tracking-widest hover:underline">
+                      {isExpanded ? 'Daha az göster' : `+${bepGoals.length - 2} hedef daha`}
+                    </button>
+                  )}
+                  {addingGoal === planId && (
+                    <div className="flex gap-2 pt-1">
+                      <input
+                        type="text"
+                        value={goalText}
+                        onChange={(e) => setGoalText(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === 'Enter') handleAddGoal(planId); }}
+                        placeholder="Yeni BEP hedefi..."
+                        className="flex-1 px-3 py-1.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg text-[10px] font-bold outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20"
+                        autoFocus
+                      />
+                      <button onClick={() => handleAddGoal(planId)} disabled={!goalText.trim()} className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-[8px] font-black uppercase tracking-widest disabled:opacity-50">Ekle</button>
+                    </div>
+                  )}
+                </div>
 
                 {/* CTA */}
                 <div className="flex gap-2 mt-auto">

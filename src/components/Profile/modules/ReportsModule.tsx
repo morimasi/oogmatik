@@ -1,9 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { ProfileData } from '../../../types/profile';
 import { SavedAssessment } from '../../../types';
 import { StatCard } from '../components/shared/StatCard';
 import { ToggleSwitch } from '../components/shared/ToggleSwitch';
 import { logError } from '../../../utils/errorHandler';
+import { assessmentService } from '../../../services/assessmentService';
+import { useAuthStore } from '../../../store/useAuthStore';
+import { useToastStore } from '../../../store/useToastStore';
 
 interface ReportsModuleProps {
   data: ProfileData;
@@ -11,10 +14,51 @@ interface ReportsModuleProps {
 }
 
 export const ReportsModule: React.FC<ReportsModuleProps> = ({ data, onShare }) => {
-  const { assessments, worksheets, loading } = data;
+  const { assessments, worksheets, loading, refreshData } = data;
+  const { user } = useAuthStore();
+  const { success, error } = useToastStore();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [anonymize, setAnonymize] = useState(true);
   const [exporting, setExporting] = useState(false);
+  const [reportNotes, setReportNotes] = useState<Record<string, string>>(() => {
+    try { return JSON.parse(localStorage.getItem('report_notes') || '{}'); }
+    catch { return {}; }
+  });
+  const [expandedNote, setExpandedNote] = useState<string | null>(null);
+  const [noteText, setNoteText] = useState('');
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    localStorage.setItem('report_notes', JSON.stringify(reportNotes));
+  }, [reportNotes]);
+
+  const saveNote = useCallback((assessmentId: string) => {
+    if (!noteText.trim()) return;
+    setReportNotes(prev => ({ ...prev, [assessmentId]: noteText.trim() }));
+    setExpandedNote(null);
+    setNoteText('');
+  }, [noteText]);
+
+  const deleteNote = useCallback((assessmentId: string) => {
+    const newNotes = { ...reportNotes };
+    delete newNotes[assessmentId];
+    setReportNotes(newNotes);
+  }, [reportNotes]);
+
+  const handleDelete = useCallback(async (assessmentId: string) => {
+    if (!user) return;
+    setDeletingId(assessmentId);
+    try {
+      await assessmentService.deleteAssessment(assessmentId, user.id);
+      success('Değerlendirme silindi.');
+      refreshData();
+    } catch (e) {
+      logError(e instanceof Error ? e : new Error(String(e)), { context: 'ReportsModule.delete' });
+      error('Silme başarısız.');
+    } finally {
+      setDeletingId(null);
+    }
+  }, [user, success, error, refreshData]);
 
   const toggle = (id: string) =>
     setSelectedIds(prev => {
@@ -155,6 +199,12 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({ data, onShare }) =
                     <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
                       {new Date(assessment.createdAt).toLocaleDateString('tr-TR')}
                     </p>
+                    {reportNotes[assessment.id] && (
+                      <p className="text-[9px] font-medium text-[var(--text-muted)] mt-1 italic truncate max-w-[200px]">
+                        <i className="fa-solid fa-note-sticky text-[8px] mr-1 text-amber-500" />
+                        {reportNotes[assessment.id]}
+                      </p>
+                    )}
                   </div>
 
                   {/* Scores */}
@@ -172,11 +222,19 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({ data, onShare }) =
                   {/* Actions */}
                   <div className="flex gap-2">
                     <button
-                      onClick={(e) => e.stopPropagation()}
-                      className="w-9 h-9 flex items-center justify-center bg-[var(--bg-secondary)] group-hover:bg-indigo-600 group-hover:text-white text-[var(--text-muted)] rounded-xl transition-all hover:scale-110"
-                      title="PDF İndir"
+                      onClick={(e) => { e.stopPropagation(); setExpandedNote(assessment.id); setNoteText(reportNotes[assessment.id] || ''); }}
+                      className={`w-9 h-9 flex items-center justify-center rounded-xl transition-all hover:scale-110 ${reportNotes[assessment.id] ? 'bg-amber-100 dark:bg-amber-900/20 text-amber-600' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)] group-hover:bg-indigo-600 group-hover:text-white'}`}
+                      title="Not Ekle"
                     >
-                      <i className="fa-solid fa-download text-xs" />
+                      <i className="fa-solid fa-note-sticky text-xs" />
+                    </button>
+                    <button
+                      onClick={async (e) => { e.stopPropagation(); await handleDelete(assessment.id); }}
+                      disabled={deletingId === assessment.id}
+                      className="w-9 h-9 flex items-center justify-center bg-[var(--bg-secondary)] group-hover:bg-red-500 group-hover:text-white text-[var(--text-muted)] rounded-xl transition-all hover:scale-110 disabled:opacity-50"
+                      title="Sil"
+                    >
+                      {deletingId === assessment.id ? <i className="fa-solid fa-spinner fa-spin text-xs" /> : <i className="fa-solid fa-trash text-xs" />}
                     </button>
                   </div>
                 </div>
@@ -185,6 +243,26 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({ data, onShare }) =
           </div>
         )}
       </div>
+
+      {/* Note Editor Modal */}
+      {expandedNote && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setExpandedNote(null)}>
+          <div className="bg-[var(--bg-paper)] rounded-2xl border border-[var(--border-color)] p-5 w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <h4 className="text-xs font-black text-[var(--text-primary)] mb-3 uppercase tracking-widest">Değerlendirme Notu</h4>
+            <textarea
+              value={noteText}
+              onChange={(e) => setNoteText(e.target.value)}
+              placeholder="Bu değerlendirme için notunuz..."
+              rows={3}
+              className="w-full p-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-xs font-bold resize-none outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20"
+            />
+            <div className="flex gap-2 justify-end mt-3">
+              <button onClick={() => { setExpandedNote(null); setNoteText(''); }} className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">İptal</button>
+              <button onClick={() => saveNote(expandedNote)} className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg">Kaydet</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

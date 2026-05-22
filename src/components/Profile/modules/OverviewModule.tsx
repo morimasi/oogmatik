@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { ProfileData } from '../../../types/profile';
 import { Student, SavedWorksheet } from '../../../types';
 import { BentoCard } from '../components/shared/BentoCard';
@@ -22,6 +22,39 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({
   onShare,
 }) => {
   const { stats, performanceTrends, worksheets, assessments, loading } = data;
+  const [notes, setNotes] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('overview_notes') || '[]'); }
+    catch { return []; }
+  });
+  const [newNote, setNewNote] = useState('');
+  const [editingNoteIdx, setEditingNoteIdx] = useState<number | null>(null);
+  const [editingNoteText, setEditingNoteText] = useState('');
+
+  useEffect(() => {
+    localStorage.setItem('overview_notes', JSON.stringify(notes));
+  }, [notes]);
+
+  const addNote = useCallback(() => {
+    if (!newNote.trim()) return;
+    setNotes(prev => [...prev, newNote.trim()]);
+    setNewNote('');
+  }, [newNote]);
+
+  const deleteNote = useCallback((idx: number) => {
+    setNotes(prev => prev.filter((_, i) => i !== idx));
+  }, []);
+
+  const startEditNote = useCallback((idx: number) => {
+    setEditingNoteIdx(idx);
+    setEditingNoteText(notes[idx]);
+  }, [notes]);
+
+  const saveEditNote = useCallback(() => {
+    if (editingNoteIdx === null || !editingNoteText.trim()) return;
+    setNotes(prev => prev.map((n, i) => i === editingNoteIdx ? editingNoteText.trim() : n));
+    setEditingNoteIdx(null);
+    setEditingNoteText('');
+  }, [editingNoteIdx, editingNoteText]);
 
   const studentScore = useMemo(() => {
     if (!activeStudent || assessments.length === 0) return null;
@@ -180,6 +213,57 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({
             <p className="text-[10px] font-black uppercase tracking-widest">Henüz materyal üretilmemiş</p>
           </div>
         )}
+      </BentoCard>
+
+      {/* Notlar Widget */}
+      <BentoCard title="Özel Notlarım" icon="fa-note-sticky" iconColor="bg-amber-50 dark:bg-amber-900/20 text-amber-500">
+        <div className="space-y-3">
+          {notes.map((note, idx) => (
+            <div key={idx} className="flex items-start gap-2 p-3 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] group">
+              {editingNoteIdx === idx ? (
+                <div className="flex-1 space-y-2">
+                  <textarea
+                    value={editingNoteText}
+                    onChange={(e) => setEditingNoteText(e.target.value)}
+                    className="w-full p-2 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl text-xs font-bold resize-none outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20"
+                    rows={2}
+                  />
+                  <div className="flex gap-2 justify-end">
+                    <button onClick={() => setEditingNoteIdx(null)} className="px-3 py-1 text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)]">İptal</button>
+                    <button onClick={saveEditNote} className="px-3 py-1 bg-indigo-600 text-white rounded-lg text-[9px] font-black uppercase tracking-widest">Kaydet</button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-bold text-[var(--text-primary)] whitespace-pre-wrap">{note}</p>
+                  </div>
+                  <div className="flex gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => startEditNote(idx)} className="w-7 h-7 rounded-lg hover:bg-[var(--bg-paper)] flex items-center justify-center text-zinc-400 hover:text-[var(--accent-color)] transition-all">
+                      <i className="fa-solid fa-pen text-[10px]" />
+                    </button>
+                    <button onClick={() => deleteNote(idx)} className="w-7 h-7 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center justify-center text-zinc-400 hover:text-red-500 transition-all">
+                      <i className="fa-solid fa-trash text-[10px]" />
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          ))}
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newNote}
+              onChange={(e) => setNewNote(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addNote(); } }}
+              placeholder="Yeni not ekle..."
+              className="flex-1 px-4 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20"
+            />
+            <button onClick={addNote} disabled={!newNote.trim()} className="px-4 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl text-[9px] font-black uppercase tracking-widest shadow-lg shadow-indigo-600/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-50">
+              <i className="fa-solid fa-plus" />
+            </button>
+          </div>
+        </div>
       </BentoCard>
     </div>
   );
