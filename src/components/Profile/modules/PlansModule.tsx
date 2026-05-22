@@ -3,6 +3,8 @@ import { ProfileData } from '../../../types/profile';
 import { SectionHeader } from '../components/shared/SectionHeader';
 import { curriculumService } from '../../../services/curriculumService';
 import { useToastStore } from '../../../store/useToastStore';
+import { PlanEditModal } from './PlanEditModal';
+import { PlanPreviewModal } from './PlanPreviewModal';
 
 type PlanStatus = 'active' | 'completed' | 'paused';
 
@@ -33,6 +35,10 @@ export const PlansModule: React.FC<PlansModuleProps> = ({ data, onNavigateToCurr
   const [editingStatus, setEditingStatus] = useState<string | null>(null);
   const [addingGoal, setAddingGoal] = useState<string | null>(null);
   const [goalText, setGoalText] = useState('');
+  const [editPlan, setEditPlan] = useState<Record<string, unknown> | null>(null);
+  const [previewPlan, setPreviewPlan] = useState<Record<string, unknown> | null>(null);
+  const [deletePlan, setDeletePlan] = useState<Record<string, unknown> | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const handleProgressChange = useCallback(async (planId: string, progress: number) => {
     try {
@@ -87,6 +93,22 @@ export const PlansModule: React.FC<PlansModuleProps> = ({ data, onNavigateToCurr
     }
   }, [curriculums, success, error, refreshData]);
 
+  const handleDeleteConfirm = useCallback(async () => {
+    if (!deletePlan) return;
+    const planId = deletePlan.id as string;
+    setDeleting(true);
+    try {
+      await curriculumService.deleteCurriculum(planId);
+      success('Plan kalıcı olarak silindi.');
+      setDeletePlan(null);
+      refreshData();
+    } catch {
+      error('Silme başarısız.');
+    } finally {
+      setDeleting(false);
+    }
+  }, [deletePlan, success, error, refreshData]);
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 animate-pulse">
@@ -116,6 +138,7 @@ export const PlansModule: React.FC<PlansModuleProps> = ({ data, onNavigateToCurr
   }
 
   return (
+    <>
     <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header Bar */}
       <div className="flex items-center justify-between">
@@ -266,13 +289,26 @@ export const PlansModule: React.FC<PlansModuleProps> = ({ data, onNavigateToCurr
                   )}
                 </div>
 
-                {/* CTA */}
+                {/* CTA — Düzenle / Önizle / Sil */}
                 <div className="flex gap-2 mt-auto">
-                  <button className="flex-1 py-2.5 bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-[var(--bg-hover)] transition-colors">
-                    Düzenle
+                  <button
+                    onClick={() => setEditPlan(plan)}
+                    className="flex-1 py-2.5 bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-[var(--bg-hover)] transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-1.5"
+                  >
+                    <i className="fa-solid fa-pen-to-square text-[8px]" /> Düzenle
                   </button>
-                  <button className="w-10 h-10 flex items-center justify-center bg-indigo-600 text-white rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg shadow-indigo-600/20">
-                    <i className="fa-solid fa-play text-xs" />
+                  <button
+                    onClick={() => setPreviewPlan(plan)}
+                    className="flex-1 py-2.5 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-1.5"
+                  >
+                    <i className="fa-solid fa-eye text-[8px]" /> Önizle
+                  </button>
+                  <button
+                    onClick={() => setDeletePlan(plan)}
+                    className="w-10 h-10 flex items-center justify-center bg-rose-50 dark:bg-rose-900/20 text-rose-500 rounded-xl hover:bg-rose-100 dark:hover:bg-rose-900/30 hover:scale-105 active:scale-95 transition-all"
+                    title="Planı Sil"
+                  >
+                    <i className="fa-solid fa-trash-can text-xs" />
                   </button>
                 </div>
               </div>
@@ -281,5 +317,61 @@ export const PlansModule: React.FC<PlansModuleProps> = ({ data, onNavigateToCurr
         })}
       </div>
     </div>
+
+      {/* Edit Modal */}
+      {editPlan && (
+        <PlanEditModal
+          plan={editPlan}
+          onClose={() => setEditPlan(null)}
+          onSaved={refreshData}
+        />
+      )}
+
+      {/* Preview Modal */}
+      {previewPlan && (
+        <PlanPreviewModal
+          plan={previewPlan}
+          onClose={() => setPreviewPlan(null)}
+        />
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {deletePlan && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] flex items-center justify-center p-4 animate-in zoom-in-95 duration-200">
+          <div className="bg-[var(--bg-paper)] dark:bg-zinc-800 rounded-[2.5rem] shadow-2xl w-full max-w-sm border border-[var(--border-color)] overflow-hidden">
+            <div className="bg-gradient-to-r from-rose-600 to-pink-700 p-6 text-center">
+              <div className="w-14 h-14 mx-auto bg-white/15 rounded-2xl flex items-center justify-center mb-3">
+                <i className="fa-solid fa-triangle-exclamation text-2xl text-white" />
+              </div>
+              <h3 className="text-white font-black text-lg">Planı Sil</h3>
+              <p className="text-rose-200 text-[10px] font-bold mt-1">
+                {(deletePlan.studentName as string) || 'Müfredat Planı'}
+              </p>
+            </div>
+            <div className="p-6 text-center">
+              <p className="text-[10px] font-bold text-[var(--text-muted)] leading-relaxed mb-6">
+                Bu planı kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz.
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setDeletePlan(null)}
+                  className="flex-1 py-3 bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[var(--bg-hover)] transition-all"
+                >
+                  İptal
+                </button>
+                <button
+                  onClick={handleDeleteConfirm}
+                  disabled={deleting}
+                  className="flex-1 py-3 bg-gradient-to-r from-rose-600 to-pink-700 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-rose-600/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {deleting ? <i className="fa-solid fa-spinner animate-spin" /> : <i className="fa-solid fa-trash-can" />}
+                  {deleting ? 'Siliniyor...' : 'Evet, Sil'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
