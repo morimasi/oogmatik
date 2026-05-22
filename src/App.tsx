@@ -1233,6 +1233,7 @@ const AppContent = () => {
                         onUpdateTheme={(t: AppTheme) => setTheme(t)}
                         onUpdateUiSettings={(s: UiSettings) => updateUiSettings(s)}
                         onOpenSettingsModal={() => setOpenModal('settings')}
+                        onNavigateToCurriculum={() => navigateTo('curriculum')}
                       />
                     )}
                     {currentView === 'students' && (

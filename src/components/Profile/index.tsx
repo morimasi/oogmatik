@@ -29,6 +29,7 @@ interface ProfileProps {
   onUpdateTheme?: (theme: AppTheme) => void;
   onUpdateUiSettings?: (settings: UiSettings) => void;
   onOpenSettingsModal?: () => void;
+  onNavigateToCurriculum?: () => void;
 }
 
 export const Profile: React.FC<ProfileProps> = ({
@@ -42,6 +43,7 @@ export const Profile: React.FC<ProfileProps> = ({
   onUpdateTheme,
   onUpdateUiSettings,
   onOpenSettingsModal,
+  onNavigateToCurriculum,
 }) => {
   const [activeTab, setActiveTab] = useState<ProfileTabId>('overview');
   const [shareModalOpen, setShareModalOpen] = useState(false);
@@ -105,6 +107,7 @@ export const Profile: React.FC<ProfileProps> = ({
           <PlansModule
             data={data}
             onShare={() => { setSharingModule('plans'); setShareModalOpen(true); }}
+            onNavigateToCurriculum={onNavigateToCurriculum}
           />
         );
       case 'reports':
