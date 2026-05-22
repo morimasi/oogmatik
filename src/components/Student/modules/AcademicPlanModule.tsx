@@ -21,7 +21,14 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
   const toast = useToastStore();
   const [localPlans, setLocalPlans] = useState<any[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
-  const [activePlanTab, setActivePlanTab] = useState<'overview' | 'schedule' | 'revisions'>('overview');
+  const [activePlanTab, setActivePlanTab] = useState<'overview' | 'schedule' | 'revisions'>(() => {
+    const defaultTab = (window as any).academicPlanDefaultTab;
+    if (defaultTab) {
+      delete (window as any).academicPlanDefaultTab;
+      return defaultTab;
+    }
+    return 'overview';
+  });
 
   // Inline editing states
   const [editingDay, setEditingDay] = useState<number | null>(null);

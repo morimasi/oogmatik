@@ -55,7 +55,14 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
   const { user } = useAuthStore();
   const { students, activeStudent, setActiveStudent, addStudent, deleteStudent, updateStudent, isLoading: _contextLoading } = useStudentStore();
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    const defaultTab = (window as any).studentDashboardDefaultTab;
+    if (defaultTab) {
+      delete (window as any).studentDashboardDefaultTab;
+      return defaultTab;
+    }
+    return 'overview';
+  });
 
   // UI State
   const [groupingMode, setGroupingMode] = useState<GroupingMode>('all');

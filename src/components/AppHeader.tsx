@@ -281,6 +281,8 @@ export const AppHeader = ({
                         {(activeStudent || activeCurriculumSession) && (
                             <button
                                 onClick={() => {
+                                    (window as any).studentDashboardDefaultTab = 'plans';
+                                    (window as any).academicPlanDefaultTab = 'schedule';
                                     if (typeof onOpenStudio === 'function') onOpenStudio('students');
                                 }}
                                 className="flex shrink-0 items-center justify-center w-9 h-9 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-all shadow-md hover:shadow-lg active:scale-[0.96] border border-white/10 group/nav animate-pulse"
