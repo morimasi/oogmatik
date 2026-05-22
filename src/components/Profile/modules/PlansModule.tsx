@@ -5,23 +5,10 @@ import { SectionHeader } from '../components/shared/SectionHeader';
 interface PlansModuleProps {
   data: ProfileData;
   onNavigateToCurriculum?: () => void;
+  onShare?: () => void;
 }
 
-type PlanStatus = 'active' | 'completed' | 'paused';
-
-const STATUS_CONFIG: Record<PlanStatus, { label: string; color: string; dot: string }> = {
-  active: { label: 'Aktif', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400', dot: 'bg-emerald-500' },
-  completed: { label: 'Tamamlandı', color: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/20 dark:text-indigo-400', dot: 'bg-indigo-500' },
-  paused: { label: 'Duraklatıldı', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400', dot: 'bg-amber-500' },
-};
-
-const BEP_PROGRESS: Record<string, { label: string; color: string }> = {
-  achieved: { label: 'Başarıldı', color: 'text-emerald-500' },
-  in_progress: { label: 'İlerliyor', color: 'text-amber-500' },
-  not_started: { label: 'Başlamadı', color: 'text-zinc-400' },
-};
-
-export const PlansModule: React.FC<PlansModuleProps> = ({ data, onNavigateToCurriculum }) => {
+export const PlansModule: React.FC<PlansModuleProps> = ({ data, onNavigateToCurriculum, onShare }) => {
   const { curriculums, loading } = data;
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -65,12 +52,19 @@ export const PlansModule: React.FC<PlansModuleProps> = ({ data, onNavigateToCurr
             {curriculums.length} Plan
           </span>
         </div>
-        <button
-          onClick={onNavigateToCurriculum}
-          className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-600/20 hover:scale-105 transition-transform"
-        >
-          <i className="fa-solid fa-plus mr-1.5" /> Yeni Plan
-        </button>
+        <div className="flex items-center gap-2">
+          {onShare && (
+            <button onClick={onShare} className="flex items-center gap-2 px-4 py-2.5 bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:text-[var(--accent-color)] rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-[var(--border-color)]">
+              <i className="fa-solid fa-share-nodes" /> Paylaş
+            </button>
+          )}
+          <button
+            onClick={onNavigateToCurriculum}
+            className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-600/20 hover:scale-105 transition-transform"
+          >
+            <i className="fa-solid fa-plus mr-1.5" /> Yeni Plan
+          </button>
+        </div>
       </div>
 
       {/* Plan Grid */}

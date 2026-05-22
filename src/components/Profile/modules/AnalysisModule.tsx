@@ -7,26 +7,10 @@ import { SectionHeader } from '../components/shared/SectionHeader';
 
 interface AnalysisModuleProps {
   data: ProfileData;
+  onShare?: () => void;
 }
 
-type SortKey = 'date' | 'score' | 'student';
-
-const SCORE_KEYS = ['attention', 'memory', 'visual', 'phonological'] as const;
-const SCORE_LABELS: Record<typeof SCORE_KEYS[number], string> = {
-  attention: 'Dikkat',
-  memory: 'Bellek',
-  visual: 'Görsel',
-  phonological: 'Fonolojik',
-};
-
-const SCORE_COLORS: Record<typeof SCORE_KEYS[number], string> = {
-  attention: 'bg-indigo-500',
-  memory: 'bg-emerald-500',
-  visual: 'bg-amber-500',
-  phonological: 'bg-purple-500',
-};
-
-export const AnalysisModule: React.FC<AnalysisModuleProps> = ({ data }) => {
+export const AnalysisModule: React.FC<AnalysisModuleProps> = ({ data, onShare }) => {
   const { assessments, loading } = data;
   const [selectedAssessment, setSelectedAssessment] = useState<SavedAssessment | null>(null);
   const [sortBy, setSortBy] = useState<SortKey>('date');
@@ -127,7 +111,14 @@ export const AnalysisModule: React.FC<AnalysisModuleProps> = ({ data }) => {
         </div>
       )}
 
-      {/* Filtre */}
+      {/* Share + Filtre */}
+      <div className="flex items-center gap-3 flex-wrap">
+        {onShare && (
+          <button onClick={onShare} className="flex items-center gap-2 px-4 py-3 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-2xl text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--accent-color)] hover:border-[var(--accent-color)]/30 transition-all">
+            <i className="fa-solid fa-share-nodes" /> Paylaş
+          </button>
+        )}
+      </div>
       <div className="flex gap-3 flex-wrap">
         <div className="relative flex-1 min-w-[200px]">
           <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 text-xs" />

@@ -7,12 +7,14 @@ interface TabNavigationProps {
   activeTab: ProfileTabId;
   onTabChange: (tab: ProfileTabId) => void;
   allowedTabs: ProfileTab[];
+  unreadCount?: number;
 }
 
 export const TabNavigation: React.FC<TabNavigationProps> = ({
   activeTab,
   onTabChange,
   allowedTabs,
+  unreadCount = 0,
 }) => {
   return (
     <div className="flex gap-1 p-1 bg-[var(--bg-secondary)] rounded-2xl">
@@ -28,6 +30,11 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
         >
           <i className={tab.icon}></i>
           <span className="hidden sm:inline">{tab.label}</span>
+          {tab.id === 'shared' && unreadCount > 0 && (
+            <span className="px-1.5 py-0.5 bg-indigo-600 text-white text-[8px] font-black rounded-full leading-none">
+              {unreadCount}
+            </span>
+          )}
         </button>
       ))}
     </div>

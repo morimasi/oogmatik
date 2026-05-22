@@ -10,9 +10,13 @@ import { AnalysisModule } from './modules/AnalysisModule';
 import { PlansModule } from './modules/PlansModule';
 import { ReportsModule } from './modules/ReportsModule';
 import { SettingsModule } from './modules/SettingsModule';
+import { SharedContentPanel } from './components/SharedContentPanel';
 import { useStudentStore } from '../../store/useStudentStore';
 import { useRBAC } from '../../hooks/useRBAC';
 import { PermissionModule } from '../../types/rbac';
+import { useProfileShare } from './hooks/useProfileShare';
+import { ShareModal } from '../ShareModal';
+import { SharedModuleType } from '../../services/profileShareService';
 
 interface ProfileProps {
   data: ProfileData;
@@ -40,15 +44,20 @@ export const Profile: React.FC<ProfileProps> = ({
   onOpenSettingsModal,
 }) => {
   const [activeTab, setActiveTab] = useState<ProfileTabId>('overview');
+  const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [sharingModule, setSharingModule] = useState<SharedModuleType>('overview');
+  const [isSharing, setIsSharing] = useState(false);
   const { setActiveStudent: setActiveStudentInStore } = useStudentStore();
   const { canAccess, role } = useRBAC();
+  const { sharedItems, unreadCount, shareModule, removeShare, refreshSharedItems } = useProfileShare();
 
   const tabPermissions: Record<ProfileTabId, PermissionModule | null> = {
-    overview: null, // Always allowed
+    overview: null,
     students: 'students',
     analysis: 'analytics',
     plans: 'planning',
     reports: 'reports',
+    shared: null,
     settings: 'settings',
   };
 
@@ -71,6 +80,7 @@ export const Profile: React.FC<ProfileProps> = ({
             onSelectActivity={onSelectActivity}
             onLoadSaved={onLoadSaved}
             onTabChange={(tab: string) => setActiveTab(tab as ProfileTabId)}
+            onShare={() => { setSharingModule('overview'); setShareModalOpen(true); }}
           />
         );
       case 'students':
@@ -87,18 +97,30 @@ export const Profile: React.FC<ProfileProps> = ({
         return (
           <AnalysisModule
             data={data}
+            onShare={() => { setSharingModule('analysis'); setShareModalOpen(true); }}
           />
         );
       case 'plans':
         return (
           <PlansModule
             data={data}
+            onShare={() => { setSharingModule('plans'); setShareModalOpen(true); }}
           />
         );
       case 'reports':
         return (
           <ReportsModule
             data={data}
+            onShare={() => { setSharingModule('reports'); setShareModalOpen(true); }}
+          />
+        );
+      case 'shared':
+        return (
+          <SharedContentPanel
+            items={sharedItems}
+            loading={false}
+            onOpenModule={(moduleType) => setActiveTab(moduleType as ProfileTabId)}
+            onRemoveShare={removeShare}
           />
         );
       case 'settings':
@@ -132,6 +154,7 @@ export const Profile: React.FC<ProfileProps> = ({
           activeTab={activeTab}
           onTabChange={setActiveTab}
           allowedTabs={allowedTabs}
+          unreadCount={unreadCount}
         />
       </div>
 
@@ -139,6 +162,25 @@ export const Profile: React.FC<ProfileProps> = ({
       <div className="max-w-6xl mx-auto px-6 py-8">
         {renderActiveModule()}
       </div>
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        onShare={async (ids, permission, message) => {
+          if (!ids.length) return;
+          setIsSharing(true);
+          for (const id of ids) {
+            await shareModule(id, sharingModule, permission || 'view', undefined, message);
+          }
+          setIsSharing(false);
+          setShareModalOpen(false);
+          refreshSharedItems();
+        }}
+        isSending={isSharing}
+        showPermissionSelector
+        worksheetTitle={PROFILE_TABS.find(t => t.id === sharingModule)?.label}
+      />
     </div>
   );
 };

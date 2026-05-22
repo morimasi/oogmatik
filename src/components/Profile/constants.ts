@@ -4,6 +4,7 @@ export const PROFILE_TABS = [
   { id: 'analysis', label: 'Analiz', icon: 'fa-solid fa-clipboard-check' },
   { id: 'plans', label: 'Planlar', icon: 'fa-solid fa-graduation-cap' },
   { id: 'reports', label: 'Raporlar', icon: 'fa-solid fa-file-medical' },
+  { id: 'shared', label: 'Benimle Paylaşılanlar', icon: 'fa-solid fa-share-nodes' },
   { id: 'settings', label: 'Ayarlar', icon: 'fa-solid fa-gear' },
 ] as const;
 

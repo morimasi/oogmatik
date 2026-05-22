@@ -11,6 +11,7 @@ interface OverviewModuleProps {
   onSelectActivity: (id: string) => void;
   onLoadSaved: (ws: unknown) => void;
   onTabChange: (tab: string) => void;
+  onShare?: () => void;
 }
 
 export const OverviewModule: React.FC<OverviewModuleProps> = ({
@@ -18,6 +19,7 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({
   activeStudent,
   onLoadSaved,
   onTabChange,
+  onShare,
 }) => {
   const { stats, performanceTrends, worksheets, assessments, loading } = data;
 
@@ -42,6 +44,15 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Share Button */}
+      {onShare && (
+        <div className="flex justify-end">
+          <button onClick={onShare} className="flex items-center gap-2 px-4 py-2 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--accent-color)] hover:border-[var(--accent-color)]/30 transition-all">
+            <i className="fa-solid fa-share-nodes" /> Paylaş
+          </button>
+        </div>
+      )}
+
       {/* KPI Hero */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard

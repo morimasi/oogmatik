@@ -7,9 +7,10 @@ import { logError } from '../../../utils/errorHandler';
 
 interface ReportsModuleProps {
   data: ProfileData;
+  onShare?: () => void;
 }
 
-export const ReportsModule: React.FC<ReportsModuleProps> = ({ data }) => {
+export const ReportsModule: React.FC<ReportsModuleProps> = ({ data, onShare }) => {
   const { assessments, worksheets, loading } = data;
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [anonymize, setAnonymize] = useState(true);
@@ -93,6 +94,11 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({ data }) => {
             <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">KVKK Anonimleştirme</span>
           </div>
         </div>
+        {onShare && (
+          <button onClick={onShare} className="flex items-center gap-2 px-4 py-3 bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:text-[var(--accent-color)] rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-[var(--border-color)]">
+            <i className="fa-solid fa-share-nodes" /> Paylaş
+          </button>
+        )}
         {selectedIds.size > 0 && (
           <button
             onClick={handleBulkExport}
