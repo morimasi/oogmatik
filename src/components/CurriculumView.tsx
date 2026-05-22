@@ -101,7 +101,7 @@ const DayCard: React.FC<{
 
 export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onStartCurriculumActivity, initialPlan, preFillData }) => {
     const { user } = useAuthStore();
-    const { students, setActiveStudent } = useStudentStore();
+    const { students, setActiveStudent, addStudent } = useStudentStore();
 
     const [step, setStep] = useState(0);
     const [loading, setLoading] = useState(false);
@@ -184,6 +184,28 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onStartC
         if (!user || !curriculum) return;
         setIsSaving(true);
         try {
+            let sId = curriculum.studentId;
+
+            // Eğer planın atanmış olduğu bir öğrenci ID'si yoksa otomatik oluştur
+            if (!sId) {
+                const existing = students.find(s => s.name.trim().toLowerCase() === curriculum.studentName.trim().toLowerCase());
+                if (existing) {
+                    sId = existing.id;
+                    curriculum.studentId = existing.id;
+                } else {
+                    // Öğrenci veritabanında yoksa otomatik oluştur
+                    const newStudentId = await addStudent(user.id, {
+                        name: curriculum.studentName,
+                        age: formData.age || 8,
+                        grade: curriculum.grade || formData.grade || '1. Sınıf',
+                        interests: formData.interests || [],
+                        weaknesses: formData.weaknesses || []
+                    });
+                    sId = newStudentId;
+                    curriculum.studentId = newStudentId;
+                }
+            }
+
             const id = await curriculumService.saveCurriculum(user.id, curriculum);
             setCurriculum({ ...curriculum, id });
             setIsSaved(true);

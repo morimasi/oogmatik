@@ -117,7 +117,8 @@ export const useStudentStore = create<StudentState>()((set: any, get: any) => ({
       const advancedStudent = createAdvancedStudent(tempStudent);
       const { id, ...dataToSave } = advancedStudent; // id'yi firebase atayacak
 
-      await addDoc(collection(db, 'students'), dataToSave);
+      const docRef = await addDoc(collection(db, 'students'), dataToSave);
+      return docRef.id;
     } catch (error) {
       console.error("addStudent Hatası:", error);
       throw error;
