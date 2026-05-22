@@ -185,11 +185,13 @@ export const curriculumService = {
         const data = docSnap.data() as Curriculum;
         const newSchedule = data.schedule.map(d => {
             if (d.day === day) {
+                const updatedActivities = d.activities.map(a => 
+                    a.id === activityId ? { ...a, status } : a
+                );
                 return {
                     ...d,
-                    activities: d.activities.map(a => 
-                        a.id === activityId ? { ...a, status } : a
-                    )
+                    activities: updatedActivities,
+                    isCompleted: updatedActivities.every(a => a.status === 'completed')
                 };
             }
             return d;
