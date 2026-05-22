@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { db } from '../../services/firebaseClient';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useStudentStore } from '../../store/useStudentStore';
 import { Student, SavedWorksheet, SavedAssessment, Curriculum } from '../../types';
@@ -100,9 +102,6 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
   // Assignment Store
   const { assignments, fetchStudentAssignments, updateAssignment } = useAssignmentStore();
 
-  // Assignment Unsubscribe Tracking
-  const assignmentListenerUnsub = React.useRef<(() => void) | null>(null);
-
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -111,6 +110,9 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
     [students, selectedStudentId]
   );
 
+  // Real-time listener unsubscriptions
+  const realtimeUnsubs = useRef<Array<() => void>>([]);
+
   // Initial Load Logic
   useEffect(() => {
     if (activeStudent?.id && !selectedStudentId) {
@@ -118,47 +120,76 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
     }
   }, [activeStudent?.id]);
 
-  // Load Student Specific Data when selected
+  // Load Student Specific Data when selected in REAL-TIME
   useEffect(() => {
     if (selectedStudentId) {
-      loadStudentData(selectedStudentId);
+      setLoadingDetails(true);
       
-      // Cleanup previous listener
-      if (assignmentListenerUnsub.current) {
-        assignmentListenerUnsub.current();
+      // Cleanup previous listeners
+      realtimeUnsubs.current.forEach(unsub => {
+        try { unsub(); } catch (e) { console.error(e); }
+      });
+      realtimeUnsubs.current = [];
+
+      try {
+        // 1. Real-time Assignments Listener
+        const unsubAssignments = fetchStudentAssignments(selectedStudentId);
+        realtimeUnsubs.current.push(unsubAssignments);
+
+        // 2. Real-time Worksheets Listener
+        const qWorksheets = query(collection(db, "saved_worksheets"), where("studentId", "==", selectedStudentId));
+        const unsubWorksheets = onSnapshot(qWorksheets, {
+          next: (snapshot) => {
+            const ws = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+            setStudentWorksheets(ws);
+            setLoadingDetails(false);
+          },
+          error: (err) => {
+            console.error("Worksheets listener error:", err);
+            setLoadingDetails(false);
+          }
+        });
+        realtimeUnsubs.current.push(unsubWorksheets);
+
+        // 3. Real-time Assessments (Reports) Listener
+        const qAssessments = query(collection(db, "saved_assessments"), where("studentId", "==", selectedStudentId));
+        const unsubAssessments = onSnapshot(qAssessments, {
+          next: (snapshot) => {
+            const as = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+            setStudentAssessments(as);
+          },
+          error: (err) => console.error("Assessments listener error:", err)
+        });
+        realtimeUnsubs.current.push(unsubAssessments);
+
+        // 4. Real-time Curriculums (Plans) Listener
+        const qCurriculums = query(collection(db, "saved_curriculums"), where("studentId", "==", selectedStudentId));
+        const unsubCurriculums = onSnapshot(qCurriculums, {
+          next: (snapshot) => {
+            const cr = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+            setStudentCurriculums(cr);
+          },
+          error: (err) => console.error("Curriculums listener error:", err)
+        });
+        realtimeUnsubs.current.push(unsubCurriculums);
+
+      } catch (err) {
+        console.error("Error setting up real-time listeners:", err);
+        setLoadingDetails(false);
       }
-      // Start new listener
-      assignmentListenerUnsub.current = fetchStudentAssignments(selectedStudentId);
     }
     
     return () => {
-      if (assignmentListenerUnsub.current) {
-        assignmentListenerUnsub.current();
-        assignmentListenerUnsub.current = null;
-      }
-    }
-  }, [selectedStudentId]);
+      realtimeUnsubs.current.forEach(unsub => {
+        try { unsub(); } catch (e) { console.error(e); }
+      });
+      realtimeUnsubs.current = [];
+    };
+  }, [selectedStudentId, fetchStudentAssignments]);
 
   const loadStudentData = async (id: string) => {
-    setLoadingDetails(true);
-    try {
-      const currentStudent = students.find((s: Student) => s.id === id);
-      if (!currentStudent) return;
-
-      const [ws, as, cr] = await Promise.all([
-        worksheetService.getWorksheetsByStudent(id),
-        assessmentService.getAssessmentsByStudent(id),
-        curriculumService.getCurriculumsByStudent(id),
-      ]);
-
-      setStudentWorksheets(ws);
-      setStudentAssessments(as);
-      setStudentCurriculums(cr);
-    } catch (e: any) {
-      logError('Student data load error', e);
-    } finally {
-      setLoadingDetails(false);
-    }
+    // With real-time listeners fully active, manual polling is no longer required.
+    // We keep this as a dummy/legacy reference for full compatibility.
   };
 
   const handleSaveStudent = async (e: React.FormEvent) => {
