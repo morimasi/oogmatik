@@ -48,13 +48,10 @@ const diagnosisOptions = [
 interface StudentDashboardProps {
   onBack: () => void;
   onLoadMaterial?: (ws: SavedWorksheet) => void;
+  onStartCurriculumActivity?: any;
 }
 
-type TabType = 'overview' | 'materials' | 'assignments' | 'analytics' | 'plans' | 'notes' | 'settings';
-type GroupingMode = 'all' | 'grade' | 'age';
-type FormTab = 'identity' | 'academic' | 'parent';
-
-export function StudentDashboard({ onBack, onLoadMaterial }: StudentDashboardProps) {
+export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActivity }: StudentDashboardProps) {
   const { user } = useAuthStore();
   const { students, activeStudent, setActiveStudent, addStudent, deleteStudent, updateStudent, isLoading: _contextLoading } = useStudentStore();
   const [selectedStudentId, setSelectedStudentId] = useState<string | null>(null);
@@ -578,6 +575,7 @@ export function StudentDashboard({ onBack, onLoadMaterial }: StudentDashboardPro
                     studentId={selectedStudent.id}
                     curriculums={studentCurriculums}
                     onRefresh={() => loadStudentData(selectedStudent.id)}
+                    onStartCurriculumActivity={onStartCurriculumActivity}
                   />
                 </div>
               )}

@@ -776,6 +776,33 @@ const AppContent = () => {
     }
   };
 
+  const handleSetWorksheetData = async (data: any) => {
+    setWorksheetData(data);
+    if (activeCurriculumSession && data) {
+      try {
+        setIsLoading(true);
+        await curriculumService.updateActivityStatus(
+          activeCurriculumSession.planId,
+          activeCurriculumSession.day,
+          activeCurriculumSession.activityId,
+          'completed'
+        );
+        await addSavedWorksheet(
+          `${activeCurriculumSession.studentName} - ${activeCurriculumSession.activityTitle}`,
+          selectedActivity!,
+          data
+        );
+        setActiveCurriculumSession(null);
+        navigateTo('students');
+        toast.success(`Harika! ${activeCurriculumSession.activityTitle} üretildi ve plana otomatik işlendi! 🎉`);
+      } catch (e) {
+        console.error("Otomatik plan tamamlama hatası:", e);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
   /**
    * Kitapçığa ekleme işlemini standardize eden merkezi fonksiyon.
    * Farklı stüdyolar farklı imzalarda çağrı yapabildiği için ( (data) veya (type, data) ) 
@@ -1046,7 +1073,7 @@ const AppContent = () => {
             closeSidebar={() => setIsSidebarOpen(false)}
             selectedActivity={selectedActivity}
             onSelectActivity={handleSelectActivity}
-            setWorksheetData={setWorksheetData}
+            setWorksheetData={handleSetWorksheetData}
             setIsLoading={setIsLoading}
             setError={setError}
             isLoading={isLoading}
@@ -1083,7 +1110,7 @@ const AppContent = () => {
               }}
               activityType={selectedActivity}
               worksheetData={worksheetData}
-              setWorksheetData={setWorksheetData}
+              setWorksheetData={handleSetWorksheetData}
               isLoading={isLoading}
               error={error}
               styleSettings={styleSettings}
@@ -1211,7 +1238,11 @@ const AppContent = () => {
                     )}
                     {currentView === 'students' && (
                       <ProtectedRoute module="students" onBack={handleGoBack}>
-                        <StudentDashboard onBack={handleGoBack} onLoadMaterial={loadSavedWorksheet} />
+                        <StudentDashboard 
+                          onBack={handleGoBack} 
+                          onLoadMaterial={loadSavedWorksheet} 
+                          onStartCurriculumActivity={handleStartCurriculumActivity}
+                        />
                       </ProtectedRoute>
                     )}
                     {currentView === 'admin' && (

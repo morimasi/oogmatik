@@ -3,17 +3,20 @@ import { Curriculum, CurriculumDay } from '../../../types';
 import { EnrichedCurriculum, PlanRevision } from './studentDashboardData';
 import { curriculumService } from '../../../services/curriculumService';
 import { useToastStore } from '../../../store/useToastStore';
+import { ACTIVITIES } from '../../../constants';
 
 interface AcademicPlanModuleProps {
   studentId: string;
   curriculums: Curriculum[];
   onRefresh?: () => void;
+  onStartCurriculumActivity?: any;
 }
 
 export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
   studentId,
   curriculums,
   onRefresh,
+  onStartCurriculumActivity,
 }) => {
   const toast = useToastStore();
   const [localPlans, setLocalPlans] = useState<any[]>([]);
@@ -29,6 +32,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
   const [newGoalText, setNewGoalText] = useState('');
   const [isEditingNote, setIsEditingNote] = useState(false);
   const [tempNote, setTempNote] = useState('');
+  const [changingActivityDay, setChangingActivityDay] = useState<number | null>(null);
 
   useEffect(() => {
     if (curriculums && curriculums.length > 0) {
@@ -84,6 +88,68 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
     }
   };
 
+  // Launch Activity inside Platform
+  const handleLaunchActivity = (dayNum: number, activity: any) => {
+    if (onStartCurriculumActivity && activePlan) {
+      onStartCurriculumActivity(
+        activePlan.id,
+        dayNum,
+        activity.id,
+        activity.activityId,
+        activePlan.studentName,
+        activity.title,
+        activity.difficultyLevel || 'Medium',
+        activity.goal || '',
+        activePlan.studentId || undefined
+      );
+      toast.success(`${activity.title} Aktivitesi Başlatılıyor...`);
+    } else {
+      toast.error('Aktivite başlatma işlevi bulunamadı. Lütfen daha sonra tekrar deneyin.');
+    }
+  };
+
+  // Replace Activity on Day
+  const handleReplaceActivity = async (dayNum: number, selectedActivityId: string) => {
+    if (!activePlan?.id) return;
+
+    const matchedActivity = ACTIVITIES.find(a => a.id === selectedActivityId);
+    if (!matchedActivity) return;
+
+    const updatedSchedule = activePlan.schedule.map((day: any) => {
+      if (day.day === dayNum) {
+        return {
+          ...day,
+          focus: `${matchedActivity.title} Çalışması`,
+          activities: [
+            {
+              id: day.activities[0]?.id || Math.random().toString(36).substr(2, 9),
+              activityId: matchedActivity.id,
+              title: matchedActivity.title,
+              duration: day.activities[0]?.duration || 15,
+              status: 'pending',
+              goal: matchedActivity.title + ' aktivitesi ile gelişim hedeflenmektedir.',
+              difficultyLevel: day.activities[0]?.difficultyLevel || 'Medium'
+            }
+          ],
+          isCompleted: false
+        };
+      }
+      return day;
+    });
+
+    setLocalPlans(prev => prev.map(p => p.id === activePlan.id ? { ...p, schedule: updatedSchedule } : p));
+    setChangingActivityDay(null);
+
+    try {
+      await curriculumService.updateCurriculum(activePlan.id, { schedule: updatedSchedule });
+      toast.success(`Gün ${dayNum} aktivitesi "${matchedActivity.title}" olarak değiştirildi.`);
+      if (onRefresh) onRefresh();
+    } catch (e) {
+      console.error(e);
+      toast.error('Aktivite değiştirilemedi.');
+    }
+  };
+
   // Toggle Day Completion
   const handleToggleDay = async (dayNum: number) => {
     if (!activePlan?.id) return;
@@ -111,7 +177,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
     try {
       // Auto-save to Firestore
       await curriculumService.updateCurriculum(activePlan.id, { schedule: updatedSchedule });
-      toast.success(`Gün ${dayNum} durumu güncellendi ve kaydedildi.`);
+      toast.success(`Gün ${dayNum} tamamlanma durumu güncellendi.`);
       if (onRefresh) onRefresh();
     } catch (error) {
       console.error('Plan güncelleme hatası:', error);
@@ -135,7 +201,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
 
     try {
       await curriculumService.updateCurriculum(activePlan.id, { schedule: updatedSchedule });
-      toast.success(`Gün ${dayNum} içeriği otomatik kaydedildi.`);
+      toast.success(`Gün ${dayNum} içeriği kaydedildi.`);
       if (onRefresh) onRefresh();
     } catch (e) {
       console.error(e);
@@ -152,7 +218,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
 
     try {
       await curriculumService.updateCurriculum(activePlan.id, { note: tempNote });
-      toast.success('Not otomatik kaydedildi.');
+      toast.success('Not kaydedildi.');
       if (onRefresh) onRefresh();
     } catch (e) {
       console.error(e);
@@ -172,7 +238,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
 
     try {
       await curriculumService.updateCurriculum(activePlan.id, { goals: updatedGoals });
-      toast.success('Hedef otomatik kaydedildi.');
+      toast.success('Hedef kaydedildi.');
       if (onRefresh) onRefresh();
     } catch (e) {
       console.error(e);
@@ -192,7 +258,30 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
 
     try {
       await curriculumService.updateCurriculum(activePlan.id, { goals: updatedGoals });
-      toast.success('Yeni hedef eklendi ve kaydedildi.');
+      toast.success('Yeni hedef kaydedildi.');
+      if (onRefresh) onRefresh();
+    } catch (e) {
+      console.error(e);
+      toast.error('Hedef eklenemedi.');
+    }
+  };
+
+  // Add activity directly as goal
+  const handleAddActivityAsGoal = async (actId: string) => {
+    if (!activePlan?.id) return;
+
+    const act = ACTIVITIES.find(a => a.id === actId);
+    if (!act) return;
+
+    const goalText = `"${act.title}" eğitimi ile bilişsel becerilerin ve okuma akıcılığının desteklenmesi`;
+    const updatedGoals = [...(activePlan.goals || []), goalText];
+
+    setLocalPlans(prev => prev.map(p => p.id === activePlan.id ? { ...p, goals: updatedGoals } : p));
+    setIsAddingGoal(false);
+
+    try {
+      await curriculumService.updateCurriculum(activePlan.id, { goals: updatedGoals });
+      toast.success(`"${act.title}" aktivitesi hedeflere eklendi.`);
       if (onRefresh) onRefresh();
     } catch (e) {
       console.error(e);
@@ -210,7 +299,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
 
     try {
       await curriculumService.updateCurriculum(activePlan.id, { goals: updatedGoals });
-      toast.success('Hedef silindi ve kaydedildi.');
+      toast.success('Hedef kaldırıldı.');
       if (onRefresh) onRefresh();
     } catch (e) {
       console.error(e);
@@ -319,26 +408,44 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                     {!isAddingGoal && (
                       <button
                         onClick={() => { setIsAddingGoal(true); setNewGoalText(''); }}
-                        className="text-[8px] font-black text-[var(--accent-color)] uppercase flex items-center gap-1 hover:underline"
+                        className="text-[8px] font-black text-[var(--accent-color)] uppercase flex items-center gap-1 hover:underline animate-bounce"
                       >
-                        <i className="fa-solid fa-plus-circle"></i> Yeni Hedef
+                        <i className="fa-solid fa-plus-circle"></i> Yeni Hedef Ekle
                       </button>
                     )}
                   </div>
 
-                  {/* Add Goal Input */}
+                  {/* Add Goal Input Area with Activities select */}
                   {isAddingGoal && (
-                    <div className="flex gap-1.5 p-2 bg-[var(--bg-secondary)] rounded-xl mb-2.5">
-                      <input
-                        type="text"
-                        placeholder="Örn: Akıcı okuma becerisinin geliştirilmesi"
-                        value={newGoalText}
-                        onChange={e => setNewGoalText(e.target.value)}
-                        onKeyDown={e => { if (e.key === 'Enter') handleAddGoal(); }}
-                        className="flex-1 px-3 py-1.5 text-[9px] font-medium bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg outline-none focus:border-[var(--accent-color)]"
-                      />
-                      <button onClick={handleAddGoal} className="px-3 bg-[var(--accent-color)] text-white text-[8px] font-black uppercase rounded-lg">Ekle</button>
-                      <button onClick={() => setIsAddingGoal(false)} className="px-2 bg-zinc-200 dark:bg-zinc-700 text-[var(--text-primary)] text-[8px] font-black uppercase rounded-lg">İptal</button>
+                    <div className="p-3 bg-[var(--bg-secondary)] rounded-2xl mb-3 border border-[var(--border-color)] space-y-2">
+                      <div className="flex gap-1.5">
+                        <input
+                          type="text"
+                          placeholder="Örn: Akıcı okuma becerisinin geliştirilmesi"
+                          value={newGoalText}
+                          onChange={e => setNewGoalText(e.target.value)}
+                          onKeyDown={e => { if (e.key === 'Enter') handleAddGoal(); }}
+                          className="flex-1 px-3 py-1.5 text-[9px] font-medium bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg outline-none focus:border-[var(--accent-color)]"
+                          autoFocus
+                        />
+                        <button onClick={handleAddGoal} className="px-3 py-1.5 bg-[var(--accent-color)] hover:bg-[var(--accent-color)]/90 text-white text-[8px] font-black uppercase rounded-lg">Kaydet</button>
+                        <button onClick={() => setIsAddingGoal(false)} className="px-2 py-1.5 bg-zinc-200 dark:bg-zinc-700 text-[var(--text-primary)] text-[8px] font-black uppercase rounded-lg">İptal</button>
+                      </div>
+                      
+                      {/* Activities pool select */}
+                      <div className="pt-2 border-t border-[var(--border-color)]">
+                        <label className="text-[7.5px] font-black text-[var(--text-muted)] uppercase tracking-wider block mb-1.5">Aktivite Havuzundan Hedef Ekle</label>
+                        <select
+                          onChange={(e) => { if (e.target.value) handleAddActivityAsGoal(e.target.value); }}
+                          defaultValue=""
+                          className="w-full px-2.5 py-1.5 text-[8.5px] bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg text-[var(--text-secondary)] outline-none focus:border-[var(--accent-color)]"
+                        >
+                          <option value="">-- Tüm Sistemdeki Dijital İçerik Havuzu ({ACTIVITIES.length} Aktivite) --</option>
+                          {ACTIVITIES.map(a => (
+                            <option key={a.id} value={a.id}>{a.title}</option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
                   )}
 
@@ -402,7 +509,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                         onClick={() => { setIsEditingNote(true); setTempNote(activePlan.note); }}
                         className="text-[7px] font-black text-amber-600 uppercase opacity-0 group-hover:opacity-100 transition-opacity hover:underline"
                       >
-                        Düzenle
+                        Notu Düzenle
                       </button>
                     ) : (
                       <div className="flex gap-1.5">
@@ -419,7 +526,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                       autoFocus
                     />
                   ) : (
-                    <p className="text-[9px] text-[var(--text-secondary)] leading-relaxed italic mt-0.5">
+                    <p className="text-[9px] text-[var(--text-secondary)] leading-relaxed italic mt-0.5 font-medium">
                       {activePlan.note ? `"${activePlan.note}"` : 'Eğitim planına özel not eklemek için düzenle butonuna basın.'}
                     </p>
                   )}
@@ -447,71 +554,112 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
               <div className="space-y-2 max-h-[380px] overflow-y-auto custom-scrollbar pr-1">
                 {activePlan.schedule.map((day: CurriculumDay, i: number) => {
                   const isEditingThis = editingDay === day.day;
+                  const isChangingActivity = changingActivityDay === day.day;
                   return (
                     <div
                       key={i}
-                      className={`flex items-center gap-3 p-2.5 rounded-2xl border transition-all duration-300 group/day ${
-                        day.isCompleted
-                          ? 'bg-emerald-500/5 border-emerald-500/10 shadow-sm shadow-emerald-500/5'
-                          : 'bg-[var(--bg-secondary)] border-[var(--border-color)] hover:border-[var(--accent-color)]/20'
-                      }`}
+                      className="space-y-1.5"
                     >
-                      {/* Left Toggle / Index Badge */}
-                      <button
-                        onClick={() => handleToggleDay(day.day)}
-                        className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 border transition-all duration-300 shadow-sm ${
+                      <div
+                        className={`flex items-center gap-3 p-2.5 rounded-2xl border transition-all duration-300 group/day ${
                           day.isCompleted
-                            ? 'bg-emerald-500 text-white border-transparent'
-                            : 'bg-[var(--bg-paper)] text-[var(--text-muted)] border-[var(--border-color)] hover:border-[var(--accent-color)] hover:text-[var(--accent-color)] hover:scale-105'
+                            ? 'bg-emerald-500/5 border-emerald-500/10 shadow-sm'
+                            : 'bg-[var(--bg-secondary)] border-[var(--border-color)] hover:border-[var(--accent-color)]/20'
                         }`}
-                        title={day.isCompleted ? "Yapılmadı olarak işaretle" : "Yapıldı olarak işaretle"}
                       >
-                        {day.isCompleted ? (
-                          <i className="fa-solid fa-check text-[10px]"></i>
-                        ) : (
-                          <span className="text-[8px] font-black">{day.day}</span>
-                        )}
-                      </button>
+                        {/* Left Toggle / Index Badge */}
+                        <button
+                          onClick={() => handleToggleDay(day.day)}
+                          className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 border transition-all duration-300 shadow-sm ${
+                            day.isCompleted
+                              ? 'bg-emerald-500 text-white border-transparent'
+                              : 'bg-[var(--bg-paper)] text-[var(--text-muted)] border-[var(--border-color)] hover:border-[var(--accent-color)] hover:text-[var(--accent-color)] hover:scale-105'
+                          }`}
+                          title={day.isCompleted ? "Yapılmadı olarak işaretle" : "Yapıldı olarak işaretle"}
+                        >
+                          {day.isCompleted ? (
+                            <i className="fa-solid fa-check text-[10px]"></i>
+                          ) : (
+                            <span className="text-[8px] font-black">{day.day}</span>
+                          )}
+                        </button>
 
-                      {/* Middle Text / Inline Edit */}
-                      <div className="flex-1 min-w-0">
-                        {isEditingThis ? (
-                          <div className="flex gap-1">
-                            <input
-                              type="text"
-                              value={tempFocus}
-                              onChange={e => setTempFocus(e.target.value)}
-                              onBlur={() => handleSaveDayFocus(day.day)}
-                              onKeyDown={e => { if (e.key === 'Enter') handleSaveDayFocus(day.day); }}
-                              className="flex-1 px-2 py-0.5 text-[9px] bg-[var(--bg-paper)] border border-[var(--accent-color)] rounded outline-none"
-                              autoFocus
-                            />
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1.5 cursor-pointer" onClick={() => handleToggleDay(day.day)}>
-                            <p className="text-[9px] font-bold text-[var(--text-primary)] group-hover/day:text-[var(--accent-color)] transition-colors duration-200">{day.focus}</p>
-                            <button
-                              onClick={(e) => { e.stopPropagation(); handleStartEditingDay(day); }}
-                              className="opacity-0 group-hover/day:opacity-100 text-zinc-400 hover:text-[var(--accent-color)] transition-all"
+                        {/* Middle Text / Inline Edit */}
+                        <div className="flex-1 min-w-0">
+                          {isEditingThis ? (
+                            <div className="flex gap-1">
+                              <input
+                                type="text"
+                                value={tempFocus}
+                                onChange={e => setTempFocus(e.target.value)}
+                                onBlur={() => handleSaveDayFocus(day.day)}
+                                onKeyDown={e => { if (e.key === 'Enter') handleSaveDayFocus(day.day); }}
+                                className="flex-1 px-2 py-0.5 text-[9px] bg-[var(--bg-paper)] border border-[var(--accent-color)] rounded outline-none"
+                                autoFocus
+                              />
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1.5">
+                              <p className="text-[9px] font-bold text-[var(--text-primary)]">{day.focus}</p>
+                              <button
+                                onClick={() => handleStartEditingDay(day)}
+                                className="opacity-0 group-hover/day:opacity-100 text-zinc-400 hover:text-[var(--accent-color)] transition-all"
+                              >
+                                <i className="fa-solid fa-pen text-[7px]"></i>
+                              </button>
+                            </div>
+                          )}
+                          {day.activities[0] && (
+                            <div 
+                              onClick={() => handleLaunchActivity(day.day, day.activities[0])}
+                              className="flex items-center gap-1 text-[7.5px] text-[var(--text-muted)] font-black uppercase mt-1 cursor-pointer hover:text-[var(--accent-color)] select-none transition-colors duration-200"
+                              title="Tıkla ve Öğrenci İçin Aktiviteyi Başlat"
                             >
-                              <i className="fa-solid fa-pen text-[7px]"></i>
-                            </button>
-                          </div>
-                        )}
-                        {day.activities[0] && (
-                          <p className="text-[7.5px] text-[var(--text-muted)] font-medium mt-0.5">
-                            {day.activities[0].title} — {day.activities[0].duration}dk
-                          </p>
-                        )}
+                              <i className="fa-solid fa-wand-magic-sparkles text-[7px] text-[var(--accent-color)] animate-pulse"></i>
+                              <span className="underline tracking-tight">{day.activities[0].title}</span>
+                              <span className="text-[7px] font-normal lowercase tracking-normal">({day.activities[0].duration}dk • tıkla başlat)</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Right Status Toggle & Action buttons */}
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            onClick={() => {
+                              if (isChangingActivity) setChangingActivityDay(null);
+                              else setChangingActivityDay(day.day);
+                            }}
+                            className="w-6 h-6 rounded-lg bg-[var(--bg-paper)] hover:bg-indigo-50 dark:hover:bg-indigo-950/30 text-zinc-400 hover:text-[var(--accent-color)] flex items-center justify-center border border-[var(--border-color)] transition-all"
+                            title="Görevi/Aktiviteyi Değiştir"
+                          >
+                            <i className="fa-solid fa-sliders-up text-[8px]"></i>
+                          </button>
+                          
+                          <button
+                            onClick={() => handleToggleDay(day.day)}
+                            className={`text-[7px] font-black uppercase px-2.5 py-1 rounded-lg border transition-all duration-300 hover:scale-105 shadow-sm ${statusColor(day.activities[0]?.status || 'pending')}`}
+                          >
+                            {statusLabel(day.activities[0]?.status || 'pending')}
+                          </button>
+                        </div>
                       </div>
 
-                      {/* Right Status Toggle */}
-                      <button
-                        onClick={() => handleToggleDay(day.day)}
-                        className={`text-[7px] font-black uppercase px-2.5 py-1 rounded-lg border transition-all duration-300 hover:scale-105 shadow-sm shrink-0 ${statusColor(day.activities[0]?.status || 'pending')}`}
-                      >
-                        {statusLabel(day.activities[0]?.status || 'pending')}
-                      </button>
+                      {/* Change Activity dropdown panel */}
+                      {isChangingActivity && (
+                        <div className="p-2 bg-[var(--bg-paper)] border border-[var(--accent-color)]/30 rounded-xl mx-2 shadow-sm animate-in slide-in-from-top-2 duration-200">
+                          <label className="text-[7.5px] font-black text-[var(--accent-color)] uppercase tracking-wider block mb-1.5">Görevi / Aktiviteyi Değiştir</label>
+                          <select
+                            onChange={(e) => { if (e.target.value) handleReplaceActivity(day.day, e.target.value); }}
+                            defaultValue={day.activities[0]?.activityId || ""}
+                            className="w-full px-2.5 py-1 text-[8.5px] bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg text-[var(--text-secondary)] outline-none focus:border-[var(--accent-color)]"
+                          >
+                            <option value="" disabled>-- Aktivite Seçin --</option>
+                            {ACTIVITIES.map(a => (
+                              <option key={a.id} value={a.id}>{a.title}</option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
                     </div>
                   );
                 })}
