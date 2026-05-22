@@ -57,13 +57,11 @@ export const useStudentStore = create<StudentState>()((set: any, get: any) => ({
 
   setActiveStudent: (student: Student | null) => set({ activeStudent: student }),
 
-  fetchStudents: (teacherId: string, isAdmin = false) => {
+  fetchStudents: (teacherId: string, _isAdmin = true) => {
     set({ isLoading: true });
     
-    // Admin ise tüm öğrencileri getir, değilse sadece kendi öğrencilerini
-    const q = isAdmin
-      ? query(collection(db, 'students'))
-      : query(collection(db, 'students'), where('teacherId', '==', teacherId));
+    // Herkes tüm öğrencileri görebilir ve değiştirebilir
+    const q = query(collection(db, 'students'));
 
     return onSnapshot(q, {
       next: (snapshot: QuerySnapshot<DocumentData>) => {

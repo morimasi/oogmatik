@@ -41,7 +41,7 @@ export const Profile: React.FC<ProfileProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<ProfileTabId>('overview');
   const { setActiveStudent: setActiveStudentInStore } = useStudentStore();
-  const { canAccess } = useRBAC();
+  const { canAccess, role } = useRBAC();
 
   const tabPermissions: Record<ProfileTabId, PermissionModule | null> = {
     overview: null, // Always allowed
@@ -53,6 +53,10 @@ export const Profile: React.FC<ProfileProps> = ({
   };
 
   const allowedTabs = PROFILE_TABS.filter((tab: { id: ProfileTabId }) => {
+    // Öğretmen ve admin rolleri için tüm sekmeler tamamen kullanıma açık olmalı
+    if (role === 'teacher' || role === 'admin' || role === 'superadmin') {
+      return true;
+    }
     const perm = tabPermissions[tab.id];
     return !perm || canAccess(perm);
   });
