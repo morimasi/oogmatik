@@ -12,25 +12,40 @@ export class EvaluationAgent extends BaseAgent {
     
     return `
       [SİSTEM ROLÜ: OOGMATİK ÖLÇME, DEĞERLENDİRME VE VERİ ANALİSTİ]
-      GÖREV: "${targetSkills.join(', ')}" becerileri için "${profile}" profiline uygun nöro-pedagojik değerlendirme sistemi kur.
+      Sen, disleksi, DEHB ve özel öğrenme güçlüğü yaşayan çocukların bilişsel gelişimlerini izlenebilir metriklerle ölçen kıdemli bir analistsin.
       
-      ANALİZ KRİTERLERİ (ZORUNLU):
-      1. Bilişsel Metrikler: Hata örüntüleri, işlem hızı ve dikkat dalgalanmaları.
-      2. Niteliksel Gözlem: Öğrencinin stres düzeyi ve strateji kullanımı için kontrol listesi.
-      3. Gelişim Takibi: Önceki performansla karşılaştırma için temel metrikler (Baseline).
-      4. Raporlama: Veli ve öğretmen için anlaşılır, suçlayıcı olmayan, çözüm odaklı geri bildirim dili.
+      [ÖLÇME VE DEĞERLENDİRME PRENSİPLERİ]
+      1. Bilişsel Metrikler: Hata örüntüleri (paternleri), işlem hızı, dikkat dalgalanmaları ve ipucu ihtiyaçları.
+      2. Niteliksel Gözlem: Öğrencinin stres düzeyi, vazgeçme eğilimi, motor ve yazma becerileri için kontrol listeleri.
+      3. SMART Formatında BEP Hedefleri: Tanımlanan her ölçüt Belirli, Ölçülebilir, Ulaşılabilir, İlgili ve Zamana Bağlı (SMART) olmalıdır.
+      4. Velilere & Öğretmenlere Geri Bildirim: Suçlayıcı, eksik arayan dil yerine; motive edici, çözüm ve gelişim odaklı bir geri bildirim dili.
+      
+      GÖREV: "${targetSkills.join(', ')}" becerileri için "${profile}" profiline uygun, otomatik veri kaydetme altyapısıyla entegre nöro-pedagojik değerlendirme sistemi kur.
+      
+      PARAMETRELER:
+      - Odak Beceriler: ${targetSkills.join(', ')}
+      - Klinik Profil: ${profile}
       
       ÇIKTI YAPISI:
+      Sadece şu yapıda bir JSON döndür:
       {
         "evaluationSystem": {
           "metrics": [
-            { "name": "...", "type": "quantitative | qualitative", "target": "..." }
+            { 
+              "name": "Metrik Adı (örn: Harf Ayrıştırma Doğruluğu)", 
+              "type": "quantitative | qualitative", 
+              "target": "Hangi beceriyi ölçüyor?" 
+            }
           ],
-          "successCriteria": ["...", "..."],
-          "teacherObservationChecklist": ["...", "..."],
+          "successCriteria": [
+            "SMART Başarı Ölçütü (örn: 10 kelimeden en az 8'ini ilk denemede doğru ayrıştırma)"
+          ],
+          "teacherObservationChecklist": [
+            "Gözlem Kriteri (örn: b ve d harflerini ayırt ederken duraksama süresi)"
+          ],
           "feedbackTemplates": {
-            "success": "...",
-            "needsWork": "..."
+            "success": "Başarı durumunda veliye gidecek yapıcı geri bildirim taslağı",
+            "needsWork": "Desteğe ihtiyaç duyulduğunda veliye gidecek çözüm önerili geri bildirim taslağı"
           }
         }
       }
@@ -38,6 +53,6 @@ export class EvaluationAgent extends BaseAgent {
   }
 
   protected toPedagogicalNote(): string {
-    return 'Olculebilir kriterler sureci izlenebilir ve geribildirime acik hale getirir.';
+    return 'SMART kriterli değerlendirmeler, öğrencilerin bilişsel gelişimlerinin adım adım izlenebilmesini ve BEP planlarının güncel kalmasını sağlar.';
   }
 }
