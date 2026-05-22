@@ -10,8 +10,9 @@ export function useScreeningAssessment() {
   const { addToast } = useToastStore();
 
   useEffect(() => {
-    const data = screeningDataService.getMockData();
-    store.setScreeningData(data);
+    screeningDataService.getUserScreeningsFromFirestore().then((data) => {
+      store.setScreeningData(data.length > 0 ? data : screeningDataService.getMockData());
+    });
   }, []);
 
   const filteredData = store.screeningData.filter((item: ScreeningResult) => {
@@ -34,7 +35,9 @@ export function useScreeningAssessment() {
   const handleSaveScreening = useCallback(async () => {
     if (!store.currentScreening) return;
     store.setIsSaving(true);
-    await screeningDataService.saveResult(store.currentScreening);
+    await screeningDataService.saveResultToFirestore(store.currentScreening);
+    const updated = await screeningDataService.getUserScreeningsFromFirestore();
+    store.setScreeningData(updated);
     store.setIsSaving(false);
   }, [store.currentScreening]);
 
@@ -88,6 +91,15 @@ export function useScreeningAssessment() {
     }
   };
 
+  const handleGeneratePlan = useCallback((studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => {
+    addToast('Eğitim planı oluşturuluyor...', 'info');
+  }, []);
+
+  const handleOpenScreeningDetail = useCallback((screening: ScreeningResult) => {
+    store.setCurrentScreening(screening);
+    store.setActiveView('result-detail');
+  }, []);
+
   return {
     ...store,
     filteredData,
@@ -99,6 +111,8 @@ export function useScreeningAssessment() {
     handleDownloadReport,
     handlePrintReport,
     handleAddToWorkbook,
+    handleGeneratePlan,
+    handleOpenScreeningDetail,
     getScoreColor,
     getRiskBadgeClasses,
     getStatusBadgeClasses,

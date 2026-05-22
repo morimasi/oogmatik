@@ -1,6 +1,9 @@
 import type { ScreeningResult, EvaluationCategory } from '../../../types/screening';
 import { CATEGORY_LABELS, CATEGORY_COLORS } from '../../../data/screeningQuestions';
 import { useToastStore } from '../../../store/useToastStore';
+import { db } from '../../../services/firebaseClient';
+import { collection, addDoc, query, where, getDocs, doc, deleteDoc } from "firebase/firestore";
+import { useAuthStore } from '../../../store/useAuthStore';
 
 const API_BASE = '/api/screening';
 
@@ -109,6 +112,47 @@ export const screeningDataService = {
     } catch {
       useToastStore.getState().addToast('PDF oluşturulamadı.', 'error');
       return null;
+    }
+  },
+
+  async saveResultToFirestore(result: ScreeningResult): Promise<string | null> {
+    const user = useAuthStore.getState().user;
+    if (!user) return null;
+    const { id, ...data } = result;
+    const payload = { ...data, userId: user.id, createdAt: new Date().toISOString() };
+    try {
+      const docRef = await addDoc(collection(db, "saved_screenings"), payload);
+      useToastStore.getState().addToast('Tarama başarıyla kaydedildi.', 'success');
+      return docRef.id;
+    } catch {
+      useToastStore.getState().addToast('Tarama kaydedilemedi.', 'error');
+      return null;
+    }
+  },
+
+  async getUserScreeningsFromFirestore(): Promise<ScreeningResult[]> {
+    const user = useAuthStore.getState().user;
+    if (!user) return [];
+    try {
+      const q = query(collection(db, "saved_screenings"), where("userId", "==", user.id));
+      const snapshot = await getDocs(q);
+      const items: ScreeningResult[] = [];
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data() as any;
+        items.push({ ...data, id: docSnap.id, date: data.date ? new Date(data.date) : new Date(data.createdAt) } as ScreeningResult);
+      });
+      return items.sort((a, b) => new Date(b.generatedAt || b.createdAt!).getTime() - new Date(a.generatedAt || a.createdAt!).getTime());
+    } catch {
+      return [];
+    }
+  },
+
+  async deleteScreeningFromFirestore(id: string): Promise<boolean> {
+    try {
+      await deleteDoc(doc(db, "saved_screenings", id));
+      return true;
+    } catch {
+      return false;
     }
   },
 

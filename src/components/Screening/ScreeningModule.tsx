@@ -11,9 +11,10 @@ interface ScreeningModuleProps {
     onAddToWorkbook?: (item: any) => void; 
     onGeneratePlan?: (studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => void; 
     initialProfile?: ScreeningProfile | null;
+    onResult?: (result: ScreeningResult) => void;
 }
 
-export const ScreeningModule: React.FC<ScreeningModuleProps> = ({ onBack, onSelectActivity, onAddToWorkbook, onGeneratePlan, initialProfile }) => {
+export const ScreeningModule: React.FC<ScreeningModuleProps> = ({ onBack, onSelectActivity, onAddToWorkbook, onGeneratePlan, initialProfile, onResult }) => {
     const [view, setView] = useState<'intro' | 'form' | 'result'>(initialProfile ? 'form' : 'intro');
     const [profile, setProfile] = useState<ScreeningProfile | null>(initialProfile || null);
     const [results, setResults] = useState<ScreeningResult | null>(null);
@@ -26,6 +27,7 @@ export const ScreeningModule: React.FC<ScreeningModuleProps> = ({ onBack, onSele
     const handleComplete = (res: ScreeningResult) => {
         setResults(res);
         setView('result');
+        onResult?.(res);
     };
 
     return (

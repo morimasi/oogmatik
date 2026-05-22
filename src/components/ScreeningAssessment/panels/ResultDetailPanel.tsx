@@ -11,7 +11,11 @@ import type { AIAnalysisResult } from '../services/assessmentEngineService';
 import type { EvaluationCategory } from '../../../types/screening';
 import { ShareModal } from '../../ShareModal';
 
-export const ResultDetailPanel: React.FC = () => {
+interface ResultDetailPanelProps {
+  onGeneratePlan?: (studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => void;
+}
+
+export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGeneratePlan }) => {
   const {
     currentScreening,
     setActiveView,
@@ -191,6 +195,44 @@ export const ResultDetailPanel: React.FC = () => {
           </div>
         ) : null}
       </div>
+
+      {onGeneratePlan && (
+        <div className="bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-pink-500/10 p-6 rounded-2xl border border-indigo-200/50 dark:border-indigo-800/30 text-center">
+          <h3 className="text-base font-black text-[var(--text-primary)] mb-2 uppercase tracking-tight italic">
+            <i className="fa-solid fa-wand-magic-sparkles text-indigo-500 mr-2"></i>
+            Bu Analizden Eğitim Planı Oluştur
+          </h3>
+          <p className="text-xs text-[var(--text-muted)] mb-4 max-w-lg mx-auto">
+            AI, analiz sonuçlarına göre öğrenciye özel günlük aktiviteler, hedefler ve ölçme metrikleri içeren kişiselleştirilmiş bir müfredat planı oluşturacak.
+          </p>
+          <button
+            onClick={() => {
+              const weaknesses: string[] = [];
+              const diagnosisDetails: string[] = [];
+              Object.entries(currentScreening.categoryScores).forEach(([key, val]: [string, any]) => {
+                if (val.riskLevel === 'high' || val.riskLevel === 'moderate') {
+                  weaknesses.push(key);
+                  if (val.findings && val.findings.length > 0) {
+                    diagnosisDetails.push(`${key}: ${val.findings.join(', ')}`);
+                    weaknesses.push(...val.findings);
+                  }
+                }
+              });
+              const diagnosisContext = diagnosisDetails.join('\n');
+              onGeneratePlan(
+                currentScreening.studentName,
+                currentScreening.age || 7,
+                [...new Set(weaknesses)],
+                diagnosisContext
+              );
+            }}
+            className="px-10 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-black text-sm uppercase tracking-widest rounded-2xl shadow-xl shadow-indigo-500/20 transition-all active:scale-95"
+          >
+            <i className="fa-solid fa-graduation-cap mr-2"></i>
+            Kişisel Eğitim Planı Oluştur
+          </button>
+        </div>
+      )}
 
       <ShareModal
         isOpen={isSharing}

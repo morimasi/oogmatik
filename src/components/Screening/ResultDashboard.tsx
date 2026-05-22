@@ -264,7 +264,7 @@ export const ResultDashboard: FC<Props> = ({
       // Detaylı tanı metnini context olarak gönderiyoruz
       const diagnosisContext = diagnosisDetails.join('\n');
 
-      onGeneratePlan(result.studentName, 7, weaknesses, diagnosisContext);
+      onGeneratePlan(result.studentName, result.age || 7, weaknesses, diagnosisContext);
     }
   };
 

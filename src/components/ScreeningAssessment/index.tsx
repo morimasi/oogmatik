@@ -10,12 +10,14 @@ import { AnalyticsPanel } from './panels/AnalyticsPanel';
 import { ResultDetailPanel } from './panels/ResultDetailPanel';
 import { SCREENING_TABS } from './constants';
 import { ReportActions } from './components/shared/ReportActions';
+import { screeningDataService } from './services/screeningDataService';
+import type { ScreeningResult } from '../../types/screening';
 
 interface ScreeningAssessmentProps {
   onClose: () => void;
   userRole: 'teacher' | 'admin' | 'parent';
   studentId?: string;
-  onGeneratePlan?: (data: unknown) => void;
+  onGeneratePlan?: (studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => void;
 }
 
 export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
@@ -23,7 +25,7 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
   userRole,
   onGeneratePlan,
 }) => {
-  const { activeView, setActiveView, setIsAdvancedScreeningOpen } = useScreeningStore();
+  const { activeView, setActiveView, setIsAdvancedScreeningOpen, setScreeningData, setCurrentScreening } = useScreeningStore();
   const { currentScreening, handleSaveScreening, handleDownloadReport, handlePrintReport, handleShareResults, handleAddToWorkbook } =
     useScreeningAssessment();
 
@@ -31,8 +33,6 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
     setIsAdvancedScreeningOpen(true);
     return () => setIsAdvancedScreeningOpen(false);
   }, []);
-
-  const handleOpenAssessment = () => setActiveView('assessment');
 
   const panelVariants = {
     initial: { opacity: 0, y: 8 },
@@ -42,6 +42,23 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
 
   const assessmentFlow = activeView === 'assessment';
   const tabbedView = !assessmentFlow;
+
+  const handleResultReady = async (result: ScreeningResult) => {
+    const savedId = await screeningDataService.saveResultToFirestore(result);
+    if (savedId) {
+      const saved = { ...result, id: savedId };
+      setCurrentScreening(saved);
+      const updated = await screeningDataService.getUserScreeningsFromFirestore();
+      setScreeningData(updated);
+    }
+    setActiveView('result-detail');
+  };
+
+  const handleGeneratePlanWithAutoSave = async (studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => {
+    if (onGeneratePlan) {
+      onGeneratePlan(studentName, age, weaknesses, diagnosisContext);
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3">
@@ -122,7 +139,11 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
                   {activeView === 'new-screening' && <NewScreeningPanel />}
                   {activeView === 'history' && <HistoryPanel />}
                   {activeView === 'analytics' && <AnalyticsPanel />}
-                  {activeView === 'result-detail' && <ResultDetailPanel />}
+                  {activeView === 'result-detail' && (
+                    <ResultDetailPanel
+                      onGeneratePlan={handleGeneratePlanWithAutoSave}
+                    />
+                  )}
                 </motion.div>
               </div>
             </div>
@@ -133,7 +154,12 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
         {assessmentFlow && (
           <div className="flex-1 flex flex-col bg-[var(--bg-primary)] overflow-hidden">
             <div className="flex-1 overflow-y-auto">
-              <ScreeningFormWrapper onComplete={() => setActiveView('dashboard')} onBack={() => setActiveView('new-screening')} />
+              <ScreeningFormWrapper
+                onComplete={() => setActiveView('dashboard')}
+                onBack={() => setActiveView('new-screening')}
+                onResult={handleResultReady}
+                onGeneratePlan={handleGeneratePlanWithAutoSave}
+              />
             </div>
           </div>
         )}
@@ -160,8 +186,17 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
 const ScreeningFormWrapper: React.FC<{
   onComplete: () => void;
   onBack: () => void;
-}> = ({ onComplete, onBack }) => {
-  const { selectedStudentName } = useScreeningStore();
+  onResult?: (result: ScreeningResult) => void;
+  onGeneratePlan?: (studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => void;
+}> = ({ onComplete, onBack, onResult, onGeneratePlan }) => {
+  const { selectedStudentName, selectedStudentId } = useScreeningStore();
+
+  const handleResult = (result: ScreeningResult) => {
+    if (selectedStudentId) {
+      result.studentId = selectedStudentId;
+    }
+    onResult?.(result);
+  };
 
   return (
     <React.Suspense
@@ -181,9 +216,8 @@ const ScreeningFormWrapper: React.FC<{
         onBack={onBack}
         onSelectActivity={() => {}}
         onAddToWorkbook={() => {}}
-        onGeneratePlan={() => {
-          onComplete();
-        }}
+        onResult={handleResult}
+        onGeneratePlan={onGeneratePlan || (() => {})}
       />
     </React.Suspense>
   );

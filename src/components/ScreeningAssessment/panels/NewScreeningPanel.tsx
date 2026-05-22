@@ -1,16 +1,33 @@
 import { Brain, Activity } from 'lucide-react';
 import { useScreeningAssessment } from '../hooks/useScreeningAssessment';
+import { useStudentStore } from '../../../store/useStudentStore';
 import { ScreeningType } from '../types';
 
 export const NewScreeningPanel: React.FC = () => {
   const {
     selectedStudentName,
+    selectedStudentId,
     selectedScreeningType,
     setSelectedStudentName,
+    setSelectedStudentId,
     setSelectedScreeningType,
     handleStartScreening,
     setActiveView,
   } = useScreeningAssessment();
+
+  const { students } = useStudentStore();
+
+  const handleStudentSelect = (id: string) => {
+    if (id === 'manual') {
+      setSelectedStudentId(null);
+      return;
+    }
+    const student = students.find((s: any) => s.id === id);
+    if (student) {
+      setSelectedStudentName(student.name);
+      setSelectedStudentId(student.id);
+    }
+  };
 
   const types: Array<{
     id: ScreeningType;
@@ -39,17 +56,30 @@ export const NewScreeningPanel: React.FC = () => {
           Yeni Tarama Başlat
         </h3>
 
-        <div className="mb-6">
+        {/* Student Selection: Select existing OR type manually */}
+        <div className="mb-4">
           <label className="block text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-2">
-            Öğrenci Adı
+            Öğrenci Seç / Ad Gir
           </label>
-          <input
-            type="text"
-            value={selectedStudentName}
-            onChange={(e) => setSelectedStudentName(e.target.value)}
-            placeholder="Örn: Ahmet Yılmaz"
-            className="w-full px-4 py-3 rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] placeholder-[var(--text-muted)] font-lexend focus:ring-2 focus:ring-[var(--accent-color)] outline-none text-sm"
-          />
+          <div className="space-y-2">
+            <select
+              value={selectedStudentId || 'manual'}
+              onChange={(e) => handleStudentSelect(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] font-lexend focus:ring-2 focus:ring-[var(--accent-color)] outline-none text-sm"
+            >
+              <option value="manual">-- Manuel Giriş --</option>
+              {students.map((s: any) => (
+                <option key={s.id} value={s.id}>{s.name} ({s.grade || s.age ? `${s.age || ''} yaş` : ''})</option>
+              ))}
+            </select>
+            <input
+              type="text"
+              value={selectedStudentName}
+              onChange={(e) => { setSelectedStudentName(e.target.value); setSelectedStudentId(null); }}
+              placeholder="Örn: Ahmet Yılmaz"
+              className="w-full px-4 py-3 rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] placeholder-[var(--text-muted)] font-lexend focus:ring-2 focus:ring-[var(--accent-color)] outline-none text-sm"
+            />
+          </div>
         </div>
 
         <div className="mb-6">
