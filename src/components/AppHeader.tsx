@@ -278,6 +278,18 @@ export const AppHeader = ({
                     </AnimatePresence>
 
                     <div className="flex items-center gap-1 p-1 bg-[var(--bg-secondary)]/90 rounded-xl border border-[var(--border-color)] shadow-[inset_0_1px_0_rgba(255,255,255,0.045)] backdrop-blur-sm">
+                        {activeStudent && (
+                            <button
+                                onClick={() => {
+                                    if (typeof onOpenStudio === 'function') onOpenStudio('students');
+                                }}
+                                className="flex shrink-0 items-center justify-center w-9 h-9 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-all shadow-md hover:shadow-lg active:scale-[0.96] border border-white/10 group/nav animate-pulse"
+                                title="Öğrenci Eğitim Planına Geri Dön"
+                            >
+                                <i className="fa-solid fa-map-location-dot text-[15px] leading-none group-hover/nav:scale-105 transition-transform"></i>
+                            </button>
+                        )}
+
                         <button
                             onClick={() => onOpenStudio('assessment')}
                             className="flex shrink-0 items-center justify-center w-9 h-9 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition-all shadow-md hover:shadow-lg active:scale-[0.96] border border-white/10 group/nav"
