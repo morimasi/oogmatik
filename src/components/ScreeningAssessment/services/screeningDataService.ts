@@ -48,10 +48,10 @@ export const screeningDataService = {
       });
       if (!response.ok) throw new Error('Kaydedilemedi');
       const data = await response.json();
-      useToastStore.getState().addToast('Tarama başarıyla kaydedildi.', 'success');
+      useToastStore.getState().success('Tarama başarıyla kaydedildi.');
       return data.id;
     } catch (error) {
-      useToastStore.getState().addToast('Tarama kaydedilemedi.', 'error');
+      useToastStore.getState().error('Tarama kaydedilemedi.');
       return null;
     }
   },
@@ -64,10 +64,10 @@ export const screeningDataService = {
         body: JSON.stringify(updates),
       });
       if (!response.ok) throw new Error('Güncellenemedi');
-      useToastStore.getState().addToast('Tarama güncellendi.', 'success');
+      useToastStore.getState().success('Tarama güncellendi.');
       return true;
     } catch {
-      useToastStore.getState().addToast('Güncelleme başarısız.', 'error');
+      useToastStore.getState().error('Güncelleme başarısız.');
       return false;
     }
   },
@@ -76,10 +76,10 @@ export const screeningDataService = {
     try {
       const response = await fetch(`${API_BASE}/${id}`, { method: 'DELETE' });
       if (!response.ok) throw new Error('Silinemedi');
-      useToastStore.getState().addToast('Tarama silindi.', 'success');
+      useToastStore.getState().success('Tarama silindi.');
       return true;
     } catch {
-      useToastStore.getState().addToast('Silme başarısız.', 'error');
+      useToastStore.getState().error('Silme başarısız.');
       return false;
     }
   },
@@ -92,10 +92,10 @@ export const screeningDataService = {
         body: JSON.stringify({ screeningId: id, recipientEmail, message }),
       });
       if (!response.ok) throw new Error('Paylaşılamadı');
-      useToastStore.getState().addToast('Rapor paylaşıldı.', 'success');
+      useToastStore.getState().success('Rapor paylaşıldı.');
       return true;
     } catch {
-      useToastStore.getState().addToast('Paylaşım başarısız.', 'error');
+      useToastStore.getState().error('Paylaşım başarısız.');
       return false;
     }
   },
@@ -110,7 +110,7 @@ export const screeningDataService = {
       if (!response.ok) throw new Error('PDF oluşturulamadı');
       return await response.blob();
     } catch {
-      useToastStore.getState().addToast('PDF oluşturulamadı.', 'error');
+      useToastStore.getState().error('PDF oluşturulamadı.');
       return null;
     }
   },
@@ -122,10 +122,10 @@ export const screeningDataService = {
     const payload = { ...data, userId: user.id, createdAt: new Date().toISOString() };
     try {
       const docRef = await addDoc(collection(db, "saved_screenings"), payload);
-      useToastStore.getState().addToast('Tarama başarıyla kaydedildi.', 'success');
+      useToastStore.getState().success('Tarama başarıyla kaydedildi.');
       return docRef.id;
     } catch {
-      useToastStore.getState().addToast('Tarama kaydedilemedi.', 'error');
+      useToastStore.getState().error('Tarama kaydedilemedi.');
       return null;
     }
   },
