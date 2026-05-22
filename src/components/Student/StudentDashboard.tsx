@@ -577,6 +577,7 @@ export function StudentDashboard({ onBack, onLoadMaterial }: StudentDashboardPro
                   <AcademicPlanModule
                     studentId={selectedStudent.id}
                     curriculums={studentCurriculums}
+                    onRefresh={() => loadStudentData(selectedStudent.id)}
                   />
                 </div>
               )}

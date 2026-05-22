@@ -1,23 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Curriculum, CurriculumDay } from '../../../types';
 import { EnrichedCurriculum, PlanRevision } from './studentDashboardData';
+import { curriculumService } from '../../../services/curriculumService';
+import { useToastStore } from '../../../store/useToastStore';
 
 interface AcademicPlanModuleProps {
   studentId: string;
   curriculums: Curriculum[];
+  onRefresh?: () => void;
 }
 
 export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
   studentId,
   curriculums,
+  onRefresh,
 }) => {
-  const allPlans: any[] = curriculums.map(c => ({ ...c, revisions: [], lastReviewed: (c as any).startDate, nextReview: '' }));
-
-  const [selectedPlan, setSelectedPlan] = useState<EnrichedCurriculum | null>(null);
-  const [showRevisions, setShowRevisions] = useState(false);
+  const toast = useToastStore();
+  const [localPlans, setLocalPlans] = useState<any[]>([]);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [activePlanTab, setActivePlanTab] = useState<'overview' | 'schedule' | 'revisions'>('overview');
 
-  const activePlan = allPlans[0];
+  // Inline editing states
+  const [editingDay, setEditingDay] = useState<number | null>(null);
+  const [tempFocus, setTempFocus] = useState('');
+  const [editingGoal, setEditingGoal] = useState<number | null>(null);
+  const [tempGoal, setTempGoal] = useState('');
+  const [isAddingGoal, setIsAddingGoal] = useState(false);
+  const [newGoalText, setNewGoalText] = useState('');
+  const [isEditingNote, setIsEditingNote] = useState(false);
+  const [tempNote, setTempNote] = useState('');
+
+  useEffect(() => {
+    if (curriculums && curriculums.length > 0) {
+      const enriched = curriculums.map(c => ({
+        ...c,
+        revisions: (c as any).revisions || [],
+        lastReviewed: (c as any).lastReviewed || c.startDate || c.createdAt || new Date().toISOString(),
+        nextReview: (c as any).nextReview || '',
+        note: c.note || '',
+        goals: c.goals || []
+      }));
+      setLocalPlans(enriched);
+      if (!selectedPlanId) {
+        setSelectedPlanId(enriched[0].id || null);
+      }
+    } else {
+      setLocalPlans([]);
+      setSelectedPlanId(null);
+    }
+  }, [curriculums]);
+
+  const activePlan = localPlans.find(p => p.id === selectedPlanId) || localPlans[0];
+
   const activeProgress = activePlan
     ? Math.round((activePlan.schedule.filter((d: CurriculumDay) => d.isCompleted).length / activePlan.schedule.length) * 100)
     : 0;
@@ -38,14 +72,149 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
     const url = URL.createObjectURL(blob);
     const el = document.createElement('a');
     el.href = url;
-    el.download = `plan_${plan.id}.json`;
+    el.download = `plan_${plan.id || 'export'}.json`;
     el.click();
     URL.revokeObjectURL(url);
   };
 
   const handleShare = () => {
-    if (navigator.clipboard && selectedPlan) {
-      navigator.clipboard.writeText(`Akademik Plan - ${selectedPlan.studentName} - ${new Date(selectedPlan.startDate).toLocaleDateString('tr-TR')}`);
+    if (navigator.clipboard && activePlan) {
+      navigator.clipboard.writeText(`Akademik Plan - ${activePlan.studentName} - ${new Date(activePlan.startDate).toLocaleDateString('tr-TR')}`);
+      toast.success('Paylaşım linki panoya kopyalandı.');
+    }
+  };
+
+  // Toggle Day Completion
+  const handleToggleDay = async (dayNum: number) => {
+    if (!activePlan?.id) return;
+
+    const updatedSchedule = activePlan.schedule.map((day: any) => {
+      if (day.day === dayNum) {
+        const nextCompleted = !day.isCompleted;
+        return {
+          ...day,
+          isCompleted: nextCompleted,
+          activities: day.activities.map((act: any, idx: number) => {
+            if (idx === 0) {
+              return { ...act, status: nextCompleted ? 'completed' : 'pending' };
+            }
+            return act;
+          })
+        };
+      }
+      return day;
+    });
+
+    // Update local UI immediately
+    setLocalPlans(prev => prev.map(p => p.id === activePlan.id ? { ...p, schedule: updatedSchedule } : p));
+
+    try {
+      // Auto-save to Firestore
+      await curriculumService.updateCurriculum(activePlan.id, { schedule: updatedSchedule });
+      toast.success(`Gün ${dayNum} durumu güncellendi ve kaydedildi.`);
+      if (onRefresh) onRefresh();
+    } catch (error) {
+      console.error('Plan güncelleme hatası:', error);
+      toast.error('Kaydedilirken hata oluştu.');
+    }
+  };
+
+  // Edit Day Focus Inline
+  const handleSaveDayFocus = async (dayNum: number) => {
+    if (!activePlan?.id) return;
+
+    const updatedSchedule = activePlan.schedule.map((day: any) => {
+      if (day.day === dayNum) {
+        return { ...day, focus: tempFocus };
+      }
+      return day;
+    });
+
+    setLocalPlans(prev => prev.map(p => p.id === activePlan.id ? { ...p, schedule: updatedSchedule } : p));
+    setEditingDay(null);
+
+    try {
+      await curriculumService.updateCurriculum(activePlan.id, { schedule: updatedSchedule });
+      toast.success(`Gün ${dayNum} içeriği otomatik kaydedildi.`);
+      if (onRefresh) onRefresh();
+    } catch (e) {
+      console.error(e);
+      toast.error('Güncellenirken hata oluştu.');
+    }
+  };
+
+  // Edit general note inline
+  const handleSaveNote = async () => {
+    if (!activePlan?.id) return;
+
+    setLocalPlans(prev => prev.map(p => p.id === activePlan.id ? { ...p, note: tempNote } : p));
+    setIsEditingNote(false);
+
+    try {
+      await curriculumService.updateCurriculum(activePlan.id, { note: tempNote });
+      toast.success('Not otomatik kaydedildi.');
+      if (onRefresh) onRefresh();
+    } catch (e) {
+      console.error(e);
+      toast.error('Kaydedilirken hata oluştu.');
+    }
+  };
+
+  // Edit goal inline
+  const handleSaveGoal = async (idx: number) => {
+    if (!activePlan?.id) return;
+
+    const updatedGoals = [...activePlan.goals];
+    updatedGoals[idx] = tempGoal;
+
+    setLocalPlans(prev => prev.map(p => p.id === activePlan.id ? { ...p, goals: updatedGoals } : p));
+    setEditingGoal(null);
+
+    try {
+      await curriculumService.updateCurriculum(activePlan.id, { goals: updatedGoals });
+      toast.success('Hedef otomatik kaydedildi.');
+      if (onRefresh) onRefresh();
+    } catch (e) {
+      console.error(e);
+      toast.error('Hedef güncellenemedi.');
+    }
+  };
+
+  // Add new goal
+  const handleAddGoal = async () => {
+    if (!activePlan?.id || !newGoalText.trim()) return;
+
+    const updatedGoals = [...(activePlan.goals || []), newGoalText.trim()];
+
+    setLocalPlans(prev => prev.map(p => p.id === activePlan.id ? { ...p, goals: updatedGoals } : p));
+    setNewGoalText('');
+    setIsAddingGoal(false);
+
+    try {
+      await curriculumService.updateCurriculum(activePlan.id, { goals: updatedGoals });
+      toast.success('Yeni hedef eklendi ve kaydedildi.');
+      if (onRefresh) onRefresh();
+    } catch (e) {
+      console.error(e);
+      toast.error('Hedef eklenemedi.');
+    }
+  };
+
+  // Delete goal
+  const handleDeleteGoal = async (idx: number) => {
+    if (!activePlan?.id) return;
+
+    const updatedGoals = activePlan.goals.filter((_: any, i: number) => i !== idx);
+
+    setLocalPlans(prev => prev.map(p => p.id === activePlan.id ? { ...p, goals: updatedGoals } : p));
+
+    try {
+      await curriculumService.updateCurriculum(activePlan.id, { goals: updatedGoals });
+      toast.success('Hedef silindi ve kaydedildi.');
+      if (onRefresh) onRefresh();
+    } catch (e) {
+      console.error(e);
+      toast.error('Hedef silinemedi.');
     }
   };
 
@@ -68,20 +237,20 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
   };
 
   return (
-    <div className="space-y-4 animate-in fade-in duration-300">
+    <div className="space-y-4 animate-in fade-in duration-300 font-lexend">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-black text-xs tracking-tighter text-[var(--text-primary)] uppercase">Akademik Plan</h3>
-          <p className="text-[8px] font-bold text-[var(--text-muted)] uppercase tracking-widest mt-0.5">
-            {allPlans.length} plan
+          <h3 className="font-black text-xs tracking-tighter text-[var(--text-primary)] uppercase">Öğrenci Eğitim Planı</h3>
+          <p className="text-[8px] font-bold text-[var(--text-muted)] uppercase tracking-wider mt-0.5">
+            {localPlans.length} Toplam Plan • Her işlem otomatik kaydedilir
           </p>
         </div>
         <div className="flex gap-1.5">
           <button onClick={handlePrint} className="w-7 h-7 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all" title="Yazdır">
             <i className="fa-solid fa-print text-[9px]"></i>
           </button>
-          <button onClick={() => selectedPlan && handleDownload(selectedPlan)} className="w-7 h-7 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all" title="İndir">
+          <button onClick={() => activePlan && handleDownload(activePlan)} className="w-7 h-7 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all" title="İndir">
             <i className="fa-solid fa-download text-[9px]"></i>
           </button>
           <button onClick={handleShare} className="w-7 h-7 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all" title="Paylaş">
@@ -91,21 +260,21 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
       </div>
 
       {/* Active Plan Card */}
-      {activePlan && (
-        <div className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl overflow-hidden">
+      {activePlan ? (
+        <div className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl overflow-hidden shadow-sm">
           {/* Plan Header */}
-          <div className="p-4 bg-gradient-to-r from-[var(--accent-color)]/5 to-transparent">
+          <div className="p-4 bg-gradient-to-r from-[var(--accent-color)]/5 to-transparent border-b border-[var(--border-color)]">
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <div className="w-8 h-8 bg-[var(--accent-color)] text-white rounded-lg flex items-center justify-center">
-                    <i className="fa-solid fa-map-location-dot text-sm"></i>
+                  <div className="w-8 h-8 bg-[var(--accent-color)] text-white rounded-lg flex items-center justify-center shadow-md shadow-[var(--accent-color)]/10">
+                    <i className="fa-solid fa-map-location-dot text-sm animate-pulse"></i>
                   </div>
                   <div>
                     <h4 className="font-black text-[11px] text-[var(--text-primary)] uppercase">
                       {new Date(activePlan.startDate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })} Dönemi
                     </h4>
-                    <p className="text-[7px] text-[var(--text-muted)] font-bold">{activePlan.durationDays} Günlük Plan • {activePlan.goals.length} Hedef</p>
+                    <p className="text-[7px] text-[var(--text-muted)] font-bold uppercase tracking-wider">{activePlan.durationDays} Günlük Akış • {activePlan.goals?.length || 0} Hedef</p>
                   </div>
                 </div>
               </div>
@@ -116,7 +285,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
             </div>
 
             {/* Progress Bar */}
-            <div className="w-full bg-[var(--bg-secondary)] rounded-full h-2 mt-3 overflow-hidden">
+            <div className="w-full bg-[var(--bg-secondary)] rounded-full h-1.5 mt-3 overflow-hidden">
               <div
                 className="bg-gradient-to-r from-[var(--accent-color)] to-emerald-500 h-full rounded-full transition-all duration-700"
                 style={{ width: `${activeProgress}%` }}
@@ -125,14 +294,14 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
           </div>
 
           {/* Plan Tabs */}
-          <div className="flex border-t border-[var(--border-color)]">
+          <div className="flex border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/50">
             {(['overview', 'schedule', 'revisions'] as const).map(tab => (
               <button
                 key={tab}
                 onClick={() => setActivePlanTab(tab)}
-                className={`flex-1 py-2 text-[8px] font-black uppercase tracking-wider transition-all ${activePlanTab === tab ? 'bg-[var(--accent-muted)] text-[var(--accent-color)] border-b-2 border-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
+                className={`flex-1 py-2 text-[8px] font-black uppercase tracking-wider transition-all ${activePlanTab === tab ? 'bg-[var(--bg-paper)] text-[var(--accent-color)] border-b-2 border-[var(--accent-color)] font-black' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
               >
-                {tab === 'overview' ? 'Genel' : tab === 'schedule' ? 'Takvim' : 'Revizyonlar'}
+                {tab === 'overview' ? 'Hedefler & Notlar' : tab === 'schedule' ? 'Takvim Akışı' : 'Revizyonlar'}
               </button>
             ))}
           </div>
@@ -140,61 +309,212 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
           {/* Tab Content */}
           <div className="p-4">
             {activePlanTab === 'overview' && (
-              <div className="space-y-3">
+              <div className="space-y-4">
+                {/* Goals */}
                 <div>
-                  <h5 className="font-black text-[9px] text-[var(--text-primary)] uppercase mb-2 flex items-center gap-1.5">
-                    <i className="fa-solid fa-bullseye text-[var(--accent-color)] text-[8px]"></i> Hedefler
-                  </h5>
+                  <div className="flex justify-between items-center mb-2">
+                    <h5 className="font-black text-[9px] text-[var(--text-primary)] uppercase flex items-center gap-1.5">
+                      <i className="fa-solid fa-bullseye text-[var(--accent-color)] text-[8px]"></i> Bireysel Öğrenme Hedefleri
+                    </h5>
+                    {!isAddingGoal && (
+                      <button
+                        onClick={() => { setIsAddingGoal(true); setNewGoalText(''); }}
+                        className="text-[8px] font-black text-[var(--accent-color)] uppercase flex items-center gap-1 hover:underline"
+                      >
+                        <i className="fa-solid fa-plus-circle"></i> Yeni Hedef
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Add Goal Input */}
+                  {isAddingGoal && (
+                    <div className="flex gap-1.5 p-2 bg-[var(--bg-secondary)] rounded-xl mb-2.5">
+                      <input
+                        type="text"
+                        placeholder="Örn: Akıcı okuma becerisinin geliştirilmesi"
+                        value={newGoalText}
+                        onChange={e => setNewGoalText(e.target.value)}
+                        onKeyDown={e => { if (e.key === 'Enter') handleAddGoal(); }}
+                        className="flex-1 px-3 py-1.5 text-[9px] font-medium bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg outline-none focus:border-[var(--accent-color)]"
+                      />
+                      <button onClick={handleAddGoal} className="px-3 bg-[var(--accent-color)] text-white text-[8px] font-black uppercase rounded-lg">Ekle</button>
+                      <button onClick={() => setIsAddingGoal(false)} className="px-2 bg-zinc-200 dark:bg-zinc-700 text-[var(--text-primary)] text-[8px] font-black uppercase rounded-lg">İptal</button>
+                    </div>
+                  )}
+
+                  {/* Goals List */}
                   <div className="space-y-1.5">
-                    {activePlan.goals.map((g: string, i: number) => {
-                      const completedDays = activePlan.schedule.filter((d: CurriculumDay) => d.isCompleted).length;
-                      const isAchieved = i < completedDays;
-                      return (
-                        <div key={i} className="flex items-start gap-2 p-2 bg-[var(--bg-secondary)] rounded-lg">
-                          <i className={`fa-solid ${isAchieved ? 'fa-check-circle text-emerald-500' : 'fa-circle text-[var(--text-muted)]'} text-[8px] mt-0.5`}></i>
-                          <span className="text-[8px] text-[var(--text-secondary)]">{g}</span>
-                        </div>
-                      );
-                    })}
+                    {activePlan.goals && activePlan.goals.length > 0 ? (
+                      activePlan.goals.map((g: string, i: number) => {
+                        const completedDays = activePlan.schedule.filter((d: CurriculumDay) => d.isCompleted).length;
+                        const isAchieved = i < completedDays;
+                        const isEditingThis = editingGoal === i;
+
+                        return (
+                          <div key={i} className="flex items-center justify-between p-2.5 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-color)] hover:border-[var(--accent-color)]/20 transition-all group">
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                              <i className={`fa-solid ${isAchieved ? 'fa-circle-check text-emerald-500' : 'fa-circle text-[var(--text-muted)]'} text-[9px] mt-0.5 shrink-0`}></i>
+                              {isEditingThis ? (
+                                <input
+                                  type="text"
+                                  value={tempGoal}
+                                  onChange={e => setTempGoal(e.target.value)}
+                                  onBlur={() => handleSaveGoal(i)}
+                                  onKeyDown={e => { if (e.key === 'Enter') handleSaveGoal(i); }}
+                                  className="flex-1 px-2 py-0.5 text-[9px] bg-[var(--bg-paper)] border border-[var(--accent-color)] rounded outline-none"
+                                  autoFocus
+                                />
+                              ) : (
+                                <span className="text-[9px] font-medium text-[var(--text-secondary)] truncate">{g}</span>
+                              )}
+                            </div>
+                            {!isEditingThis && (
+                              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity ml-2 shrink-0">
+                                <button
+                                  onClick={() => handleStartEditingGoal(i, g)}
+                                  className="text-zinc-400 hover:text-[var(--accent-color)]"
+                                >
+                                  <i className="fa-solid fa-pen text-[8px]"></i>
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteGoal(i)}
+                                  className="text-zinc-400 hover:text-rose-500"
+                                >
+                                  <i className="fa-solid fa-trash text-[8px]"></i>
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <p className="text-[8px] text-[var(--text-muted)] text-center py-2">Hedef tanımlanmamış. Yeni hedef ekleyin.</p>
+                    )}
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="p-3 bg-[var(--bg-secondary)] rounded-xl">
+
+                {/* General Note */}
+                <div className="p-3 bg-amber-500/5 border border-amber-500/10 rounded-xl relative group">
+                  <div className="flex justify-between items-center mb-1">
+                    <span className="text-[7px] font-black text-amber-600 uppercase">Öğretmen Notu & Pedagojik Stratejiler</span>
+                    {!isEditingNote ? (
+                      <button
+                        onClick={() => { setIsEditingNote(true); setTempNote(activePlan.note); }}
+                        className="text-[7px] font-black text-amber-600 uppercase opacity-0 group-hover:opacity-100 transition-opacity hover:underline"
+                      >
+                        Düzenle
+                      </button>
+                    ) : (
+                      <div className="flex gap-1.5">
+                        <button onClick={handleSaveNote} className="text-[7px] font-black text-emerald-600 uppercase">Kaydet</button>
+                        <button onClick={() => setIsEditingNote(false)} className="text-[7px] font-black text-zinc-500 uppercase">İptal</button>
+                      </div>
+                    )}
+                  </div>
+                  {isEditingNote ? (
+                    <textarea
+                      value={tempNote}
+                      onChange={e => setTempNote(e.target.value)}
+                      className="w-full p-2 text-[9px] font-medium bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg outline-none focus:border-amber-500 h-16 resize-none mt-1"
+                      autoFocus
+                    />
+                  ) : (
+                    <p className="text-[9px] text-[var(--text-secondary)] leading-relaxed italic mt-0.5">
+                      {activePlan.note ? `"${activePlan.note}"` : 'Eğitim planına özel not eklemek için düzenle butonuna basın.'}
+                    </p>
+                  )}
+                </div>
+
+                {/* Plan Metadata */}
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                  <div className="p-3 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-color)]">
+                    <span className="text-[7px] font-bold text-[var(--text-muted)] uppercase">Başlangıç Tarihi</span>
+                    <p className="text-[9px] font-black text-[var(--text-primary)] mt-1">
+                      {new Date(activePlan.startDate).toLocaleDateString('tr-TR')}
+                    </p>
+                  </div>
+                  <div className="p-3 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-color)]">
                     <span className="text-[7px] font-bold text-[var(--text-muted)] uppercase">Son İnceleme</span>
-                    <p className="text-[9px] font-black text-[var(--text-primary)] mt-1">{new Date(activePlan.lastReviewed).toLocaleDateString('tr-TR')}</p>
-                  </div>
-                  <div className="p-3 bg-[var(--bg-secondary)] rounded-xl">
-                    <span className="text-[7px] font-bold text-[var(--text-muted)] uppercase">Sonraki İnceleme</span>
-                    <p className="text-[9px] font-black text-[var(--text-primary)] mt-1">{activePlan.nextReview ? new Date(activePlan.nextReview).toLocaleDateString('tr-TR') : '—'}</p>
+                    <p className="text-[9px] font-black text-[var(--text-primary)] mt-1">
+                      {new Date(activePlan.lastReviewed).toLocaleDateString('tr-TR')}
+                    </p>
                   </div>
                 </div>
-                {activePlan.note && (
-                  <div className="p-3 bg-amber-500/5 border border-amber-500/10 rounded-xl">
-                    <span className="text-[7px] font-bold text-amber-500 uppercase">Not</span>
-                    <p className="text-[8px] text-[var(--text-secondary)] mt-1 leading-relaxed">{activePlan.note}</p>
-                  </div>
-                )}
               </div>
             )}
 
             {activePlanTab === 'schedule' && (
-              <div className="space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
-                {activePlan.schedule.map((day: CurriculumDay, i: number) => (
-                  <div key={i} className={`flex items-center gap-3 p-2.5 rounded-xl border transition-all ${day.isCompleted ? 'bg-emerald-500/5 border-emerald-500/10' : 'bg-[var(--bg-secondary)] border-[var(--border-color)]'}`}>
-                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${day.isCompleted ? 'bg-emerald-500 text-white' : 'bg-[var(--bg-paper)] text-[var(--text-muted)]'}`}>
-                      <span className="text-[8px] font-black">{day.day}</span>
+              <div className="space-y-2 max-h-[380px] overflow-y-auto custom-scrollbar pr-1">
+                {activePlan.schedule.map((day: CurriculumDay, i: number) => {
+                  const isEditingThis = editingDay === day.day;
+                  return (
+                    <div
+                      key={i}
+                      className={`flex items-center gap-3 p-2.5 rounded-2xl border transition-all duration-300 group/day ${
+                        day.isCompleted
+                          ? 'bg-emerald-500/5 border-emerald-500/10 shadow-sm shadow-emerald-500/5'
+                          : 'bg-[var(--bg-secondary)] border-[var(--border-color)] hover:border-[var(--accent-color)]/20'
+                      }`}
+                    >
+                      {/* Left Toggle / Index Badge */}
+                      <button
+                        onClick={() => handleToggleDay(day.day)}
+                        className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 border transition-all duration-300 shadow-sm ${
+                          day.isCompleted
+                            ? 'bg-emerald-500 text-white border-transparent'
+                            : 'bg-[var(--bg-paper)] text-[var(--text-muted)] border-[var(--border-color)] hover:border-[var(--accent-color)] hover:text-[var(--accent-color)] hover:scale-105'
+                        }`}
+                        title={day.isCompleted ? "Yapılmadı olarak işaretle" : "Yapıldı olarak işaretle"}
+                      >
+                        {day.isCompleted ? (
+                          <i className="fa-solid fa-check text-[10px]"></i>
+                        ) : (
+                          <span className="text-[8px] font-black">{day.day}</span>
+                        )}
+                      </button>
+
+                      {/* Middle Text / Inline Edit */}
+                      <div className="flex-1 min-w-0">
+                        {isEditingThis ? (
+                          <div className="flex gap-1">
+                            <input
+                              type="text"
+                              value={tempFocus}
+                              onChange={e => setTempFocus(e.target.value)}
+                              onBlur={() => handleSaveDayFocus(day.day)}
+                              onKeyDown={e => { if (e.key === 'Enter') handleSaveDayFocus(day.day); }}
+                              className="flex-1 px-2 py-0.5 text-[9px] bg-[var(--bg-paper)] border border-[var(--accent-color)] rounded outline-none"
+                              autoFocus
+                            />
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1.5 cursor-pointer" onClick={() => handleToggleDay(day.day)}>
+                            <p className="text-[9px] font-bold text-[var(--text-primary)] group-hover/day:text-[var(--accent-color)] transition-colors duration-200">{day.focus}</p>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); handleStartEditingDay(day); }}
+                              className="opacity-0 group-hover/day:opacity-100 text-zinc-400 hover:text-[var(--accent-color)] transition-all"
+                            >
+                              <i className="fa-solid fa-pen text-[7px]"></i>
+                            </button>
+                          </div>
+                        )}
+                        {day.activities[0] && (
+                          <p className="text-[7.5px] text-[var(--text-muted)] font-medium mt-0.5">
+                            {day.activities[0].title} — {day.activities[0].duration}dk
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Right Status Toggle */}
+                      <button
+                        onClick={() => handleToggleDay(day.day)}
+                        className={`text-[7px] font-black uppercase px-2.5 py-1 rounded-lg border transition-all duration-300 hover:scale-105 shadow-sm shrink-0 ${statusColor(day.activities[0]?.status || 'pending')}`}
+                      >
+                        {statusLabel(day.activities[0]?.status || 'pending')}
+                      </button>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[8px] font-bold text-[var(--text-primary)]">{day.focus}</p>
-                      {day.activities[0] && (
-                        <p className="text-[7px] text-[var(--text-muted)]">{day.activities[0].title} — {day.activities[0].duration}dk</p>
-                      )}
-                    </div>
-                    <span className={`text-[7px] font-black uppercase px-2 py-0.5 rounded-full border ${statusColor(day.activities[0]?.status || 'pending')}`}>
-                      {statusLabel(day.activities[0]?.status || 'pending')}
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
@@ -216,46 +536,57 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                     </div>
                   ))
                 ) : (
-                  <p className="text-[9px] text-[var(--text-muted)] text-center py-4">Henüz revizyon yok.</p>
+                  <p className="text-[9px] text-[var(--text-muted)] text-center py-4">Bu plana ait herhangi bir revizyon kaydı bulunmuyor.</p>
                 )}
               </div>
             )}
           </div>
         </div>
+      ) : (
+        <div className="p-8 bg-[var(--bg-secondary)] rounded-2xl text-center border border-[var(--border-color)]">
+          <i className="fa-solid fa-map-location-dot text-3xl text-[var(--text-muted)] opacity-30 mb-3 block"></i>
+          <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Henüz atanmış bir eğitim planı yok</p>
+          <p className="text-[9px] text-[var(--text-muted)] mt-1">Bu öğrenci için ana menüden 'Plan & Müfredat' modülüne giderek yeni bir eğitim planı üretebilir ve atayabilirsiniz.</p>
+        </div>
       )}
 
       {/* All Plans List */}
-      <div className="space-y-2">
-        <h4 className="font-black text-[10px] text-[var(--text-primary)] uppercase tracking-tight">Tüm Planlar</h4>
-        {allPlans.map(plan => {
-          const progress = Math.round((plan.schedule.filter((d: CurriculumDay) => d.isCompleted).length / plan.schedule.length) * 100);
-          return (
-            <div
-              key={plan.id}
-              className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl p-3 transition-all hover:border-[var(--accent-color)]/30 cursor-pointer"
-              onClick={() => { setSelectedPlan(plan); setActivePlanTab('overview'); }}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 bg-[var(--accent-muted)] text-[var(--accent-color)] rounded-lg flex items-center justify-center">
-                    <i className="fa-solid fa-calendar-lines-pen text-[9px]"></i>
+      {localPlans.length > 1 && (
+        <div className="space-y-2">
+          <h4 className="font-black text-[10px] text-[var(--text-primary)] uppercase tracking-tight">Geçmiş Planlar</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {localPlans.map(plan => {
+              const progress = Math.round((plan.schedule.filter((d: CurriculumDay) => d.isCompleted).length / plan.schedule.length) * 100);
+              const isCurrentActive = plan.id === selectedPlanId;
+              return (
+                <div
+                  key={plan.id}
+                  className={`bg-[var(--bg-paper)] border rounded-xl p-3 transition-all hover:border-[var(--accent-color)]/30 cursor-pointer ${isCurrentActive ? 'border-[var(--accent-color)]' : 'border-[var(--border-color)]'}`}
+                  onClick={() => { setSelectedPlanId(plan.id); setActivePlanTab('overview'); }}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-7 h-7 bg-[var(--accent-muted)] text-[var(--accent-color)] rounded-lg flex items-center justify-center">
+                        <i className="fa-solid fa-calendar-lines-pen text-[9px]"></i>
+                      </div>
+                      <div>
+                        <h4 className="font-black text-[9px] text-[var(--text-primary)] uppercase">
+                          {new Date(plan.startDate).toLocaleDateString('tr-TR')} Dönemi
+                        </h4>
+                        <p className="text-[7px] text-[var(--text-muted)] uppercase tracking-wider">{plan.goals?.length || 0} hedef • {plan.durationDays} gün</p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-black text-[var(--accent-color)]">%{progress}</span>
                   </div>
-                  <div>
-                    <h4 className="font-black text-[9px] text-[var(--text-primary)] uppercase">
-                      {new Date(plan.startDate).toLocaleDateString('tr-TR')} Dönemi
-                    </h4>
-                    <p className="text-[7px] text-[var(--text-muted)]">{plan.goals.length} hedef • {plan.durationDays} gün</p>
+                  <div className="w-full bg-[var(--bg-secondary)] rounded-full h-1 mt-1 overflow-hidden">
+                    <div className="bg-gradient-to-r from-[var(--accent-color)] to-emerald-500 h-full rounded-full transition-all" style={{ width: `${progress}%` }}></div>
                   </div>
                 </div>
-                <span className="text-[10px] font-black text-[var(--accent-color)]">%{progress}</span>
-              </div>
-              <div className="w-full bg-[var(--bg-secondary)] rounded-full h-1.5 overflow-hidden">
-                <div className="bg-gradient-to-r from-[var(--accent-color)] to-emerald-500 h-full rounded-full transition-all" style={{ width: `${progress}%` }}></div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
