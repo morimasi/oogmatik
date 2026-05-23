@@ -2,6 +2,7 @@ import { db } from './firebaseClient';
 import { collection, query, where, getDocs, getDoc, doc, QueryDocumentSnapshot } from "firebase/firestore";
 import { authService } from './authService';
 import { assessmentService } from './assessmentService';
+import { activityLogService } from './activityLogService';
 import { User } from '../types';
 import { TeacherListItem, TeacherDetail, TeacherAnalytics, TeacherActivity, TeacherActivityType, TeacherStudentSummary } from '../types/teacher';
 
@@ -146,6 +147,21 @@ export const teacherService = {
         });
       });
 
+      const logData = await activityLogService.getUserActivities(teacherId);
+      logData.activities.forEach((a: any) => {
+        if (a.type === 'login' || a.type === 'export' || a.type === 'student_added') {
+          recentActivity.push({
+            id: a.id || '',
+            type: a.type as TeacherActivityType,
+            title: a.title || '',
+            details: a.details || '',
+            createdAt: a.createdAt || new Date().toISOString(),
+            targetId: a.targetId || '',
+            metadata: a.metadata || undefined,
+          });
+        }
+      });
+
       recentActivity.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
       const now = new Date();
@@ -163,9 +179,9 @@ export const teacherService = {
         assessment: assessmentCount,
         plan: planCount,
         report: totalReports,
-        login: 0,
-        export: 0,
-        student_added: 0,
+        login: logData.typeCounts['login'] || 0,
+        export: logData.typeCounts['export'] || 0,
+        student_added: logData.typeCounts['student_added'] || 0,
       };
 
       const monthlyTrend: Array<{ month: string; worksheets: number; assessments: number; plans: number }> = [];

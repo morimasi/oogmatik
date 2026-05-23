@@ -15,6 +15,7 @@ import {
   // @ts-ignore
 } from 'firebase/firestore';
 import { createAdvancedStudent, AdvancedStudent } from '../types/student-advanced';
+import { activityLogService } from '../services/activityLogService';
 
 interface StudentState {
   students: Student[];
@@ -118,6 +119,10 @@ export const useStudentStore = create<StudentState>()((set: any, get: any) => ({
       const { id, ...dataToSave } = advancedStudent; // id'yi firebase atayacak
 
       const docRef = await addDoc(collection(db, 'students'), dataToSave);
+
+      const studentName = (studentData as Record<string, unknown>)?.name as string || sanitized.name || 'Öğrenci';
+      activityLogService.logActivity(teacherId, 'student_added', 'Öğrenci Eklendi', studentName, docRef.id);
+
       return docRef.id;
     } catch (error) {
       console.error("addStudent Hatası:", error);

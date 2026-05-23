@@ -13,6 +13,8 @@ import { print, captureAndPrint } from './OverlayPrinter';
 import { generateRealPdf } from './PDFGenerator';
 
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { activityLogService } from '../../services/activityLogService';
+import { auth } from '../../services/firebaseClient';
 /**
  * printService — merkezi yazdırma API'si
  * Tüm bileşenler bu objeyi kullanır.
@@ -69,6 +71,11 @@ export const printService = {
           setTimeout(() => {
             document.title = originalTitle;
           }, 1000);
+      }
+
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        activityLogService.logActivity(currentUser.uid, 'export', 'PDF Dışa Aktarma', title, elementSelector);
       }
     } catch (error) {
       logError('PDF Generation Error:', typeof error === 'object' && error !== null && !Array.isArray(error) ? error as Record<string, unknown> : undefined);

@@ -13,6 +13,7 @@ import * as firestore from "firebase/firestore";
 import { User, UserRole, UserStatus, ActivityType } from '../types.js';
 
 import { logInfo, logError } from '../utils/logger.js';
+import { activityLogService } from './activityLogService';
 const { doc, getDoc, setDoc, updateDoc, collection, getDocs, query, orderBy, limit, deleteDoc, increment } = firestore;
 
 // SUPER ADMIN EMAIL - Hardcoded for security
@@ -68,6 +69,7 @@ export const authService = {
                 throw new AppError('Hesabınız askıya alınmıştır. Lütfen yönetici ile iletişime geçin.', 'INTERNAL_ERROR', 500);
             }
 
+            activityLogService.logActivity(user.uid, 'login', 'Giriş Yapıldı', `E-posta: ${email}`);
             return mappedUser;
         } catch (error: any) {
             logError("Login error details:", {
@@ -108,8 +110,10 @@ export const authService = {
                 bio: ''
             };
             await setDoc(userDocRef, newUserProfile);
+            activityLogService.logActivity(user.uid, 'login', 'İlk Giriş (Google)', `E-posta: ${user.email}`);
         } else {
             await updateDoc(userDocRef, { lastLogin: new Date().toISOString() });
+            activityLogService.logActivity(user.uid, 'login', 'Giriş Yapıldı (Google)', `E-posta: ${user.email}`);
         }
     },
 
@@ -210,6 +214,7 @@ export const authService = {
 
             await setDoc(doc(db, "users", user.uid), newUserProfile);
 
+            activityLogService.logActivity(user.uid, 'login', 'Kayıt Olundu', `E-posta: ${email}`);
             return mapDbUserToAppUser(newUserProfile, user.uid, email);
         } catch (error: any) {
             logError("Register error:", error);
