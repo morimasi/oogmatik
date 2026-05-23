@@ -1,5 +1,8 @@
 import React, { useState, useMemo } from 'react';
+import { doc, deleteDoc } from 'firebase/firestore';
+import { db } from '../../../services/firebaseClient';
 import { SavedWorksheet } from '../../../types';
+import { useToastStore } from '../../../store/useToastStore';
 import { getMaterialCategories, MaterialCategory } from './studentDashboardData';
 
 interface MaterialsModuleProps {
@@ -57,6 +60,16 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
     a.download = `${ws.name.replace(/\s+/g, '_')}.json`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleDelete = async (ws: SavedWorksheet) => {
+    if (!confirm(`"${ws.name}" materyalini silmek istediğinize emin misiniz?`)) return;
+    try {
+      await deleteDoc(doc(db, 'saved_worksheets', ws.id));
+      useToastStore.getState().success('Materyal silindi', 3000);
+    } catch (err) {
+      useToastStore.getState().error('Silme hatası: ' + (err instanceof Error ? err.message : String(err)));
+    }
   };
 
   return (
@@ -152,6 +165,9 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
                   <button onClick={() => handleDownload(ws)} className="w-7 py-1.5 bg-[var(--bg-secondary)] text-[var(--text-muted)] rounded-lg text-[7px] font-bold hover:text-[var(--accent-color)] transition-all flex items-center justify-center">
                     <i className="fa-solid fa-download text-[7px]"></i>
                   </button>
+                  <button onClick={() => handleDelete(ws)} className="w-7 py-1.5 bg-[var(--bg-secondary)] text-[var(--text-muted)] rounded-lg text-[7px] font-bold hover:text-red-500 transition-all flex items-center justify-center">
+                    <i className="fa-solid fa-trash-can text-[7px]"></i>
+                  </button>
                 </div>
               </div>
             </div>
@@ -183,6 +199,9 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
                 </button>
                 <button onClick={() => handleDownload(ws)} className="w-6 h-6 rounded-md bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all">
                   <i className="fa-solid fa-download text-[8px]"></i>
+                </button>
+                <button onClick={() => handleDelete(ws)} className="w-6 h-6 rounded-md bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] hover:text-red-500 transition-all">
+                  <i className="fa-solid fa-trash-can text-[8px]"></i>
                 </button>
               </div>
             </div>
@@ -242,6 +261,9 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
               </button>
               <button onClick={() => { onLoadMaterial?.(showPreview); setShowPreview(null); }} className="flex-1 py-2 bg-[var(--accent-color)] text-white rounded-xl text-[8px] font-bold uppercase hover:opacity-90 transition-all flex items-center justify-center gap-1.5">
                 <i className="fa-solid fa-arrow-right text-[8px]"></i> Etkinliğe Git
+              </button>
+              <button onClick={() => { handleDelete(showPreview); setShowPreview(null); }} className="w-9 py-2 bg-red-500/10 text-red-500 rounded-xl text-[8px] font-bold uppercase hover:bg-red-500/20 transition-all flex items-center justify-center">
+                <i className="fa-solid fa-trash-can text-[8px]"></i>
               </button>
             </div>
           </div>
