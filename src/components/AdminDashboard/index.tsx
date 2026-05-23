@@ -22,6 +22,7 @@ import { AdminDraftReview } from './AdminDraftReview';
 import { AdminActivityApproval } from './AdminActivityApproval';
 import { AdminPermissionsIDE } from './PermissionsIDE';
 import TeacherManagement from './TeacherManagement';
+import { AdminStudentManagement } from './AdminStudentManagement';
 
 interface AdminDashboardProps {
   onBack: () => void;
@@ -177,6 +178,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
           <NavButton active={activeTab === 'dashboard'} label="Genel Bakış" icon="fa-chart-pie" onClick={() => setActiveTab('dashboard')} />
           <NavButton active={activeTab === 'users'} label="Kullanıcılar" icon="fa-users" onClick={() => setActiveTab('users')} />
           <NavButton active={activeTab === 'teachers'} label="Öğretmenler" icon="fa-chalkboard-user" onClick={() => setActiveTab('teachers')} />
+          <NavButton active={activeTab === 'students'} label="Öğrenciler" icon="fa-user-graduate" onClick={() => setActiveTab('students')} />
           <NavButton active={activeTab === 'permissions'} label="Yetki Matrisi" icon="fa-lock" onClick={() => setActiveTab('permissions')} />
 
           <p className="px-4 mt-6 mb-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">İçerik Motoru</p>
@@ -204,6 +206,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
               {activeTab === 'dashboard' && 'Kontrol Paneli'}
               {activeTab === 'users' && 'Kullanıcı Yönetimi'}
               {activeTab === 'teachers' && 'Öğretmen Yönetimi'}
+              {activeTab === 'students' && 'Öğrenci Yönetimi'}
               {activeTab === 'activities' && 'Aktivite Yöneticisi'}
               {activeTab === 'prompts' && 'AI Prompt Laboratuvarı'}
               {activeTab === 'static_content' && 'Veri Kaynakları (CMS)'}
@@ -232,6 +235,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
               {activeTab === 'feedbacks' && <AdminFeedback />}
               {activeTab === 'users' && <AdminUserManagement />}
               {activeTab === 'teachers' && <TeacherManagement />}
+              {activeTab === 'students' && <AdminStudentManagement />}
               {activeTab === 'drafts' && <AdminDraftReview />}
               {activeTab === 'approvals' && <AdminActivityApproval />}
               {activeTab === 'permissions' && <AdminPermissionsIDE />}

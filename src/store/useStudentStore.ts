@@ -58,50 +58,70 @@ export const useStudentStore = create<StudentState>()((set: any, get: any) => ({
 
   setActiveStudent: (student: Student | null) => set({ activeStudent: student }),
 
-  fetchStudents: (teacherId: string, _isAdmin = true) => {
+  fetchStudents: (teacherId: string, isAdmin = true) => {
     set({ isLoading: true });
-    
-    // Herkes tüm öğrencileri görebilir ve değiştirebilir
-    const q = query(collection(db, 'students'));
 
-    return onSnapshot(q, {
-      next: (snapshot: QuerySnapshot<DocumentData>) => {
-        const studentList: Student[] = [];
-        snapshot.forEach((doc: any) => {
+    const buildStudentList = (...snapshots: QuerySnapshot<DocumentData>[]) => {
+      const seen = new Set<string>();
+      const studentList: Student[] = [];
+      for (const snap of snapshots) {
+        snap.forEach((doc: any) => {
+          if (seen.has(doc.id)) return;
+          seen.add(doc.id);
           const data = doc.data();
           const baseSanitized = sanitizeBaseStudent(data);
-          
-          // Eğer db'den gelen veride eksik AdvancedStudent fieldları varsa ekle (Migration strategy)
           const isLegacy = !data.iep || !data.financial;
-          
           let completeStudent = {
             id: doc.id,
             teacherId: data.teacherId || '',
             createdAt: data.createdAt || new Date().toISOString(),
             ...baseSanitized,
-            ...data, // DB'deki diğer advanced fieldları ezmesin diye
+            ...data,
           } as Student;
-
-          if (isLegacy) {
-            completeStudent = createAdvancedStudent(completeStudent) as Student;
-          }
-
+          if (isLegacy) completeStudent = createAdvancedStudent(completeStudent) as Student;
           studentList.push(completeStudent);
         });
-        set({ students: studentList, isLoading: false });
-
-        const { activeStudent } = get();
-        if (activeStudent && !studentList.find((s: Student) => s.id === activeStudent.id)) {
-          // Eğer silindiyse aktif öğrenciden çıkar, fakat başka bir sekmede seçili kaldıysa sıfırlamasın diye ufak kontrol
-          // (Opsiyonel olarak kalsın)
-          set({ activeStudent: null });
-        }
-      },
-      error: (err) => {
-        console.error("fetchStudents Error:", err);
-        set({ isLoading: false });
       }
+      return studentList;
+    };
+
+    if (isAdmin) {
+      const q = query(collection(db, 'students'));
+      return onSnapshot(q, {
+        next: (snapshot) => {
+          const studentList = buildStudentList(snapshot);
+          set({ students: studentList, isLoading: false });
+          const { activeStudent } = get();
+          if (activeStudent && !studentList.find((s: Student) => s.id === activeStudent.id)) set({ activeStudent: null });
+        },
+        error: (err) => { console.error("fetchStudents Error:", err); set({ isLoading: false }); }
+      });
+    }
+
+    const qOwn = query(collection(db, 'students'), where('teacherId', '==', teacherId));
+    const qAssigned = query(collection(db, 'students'), where('assignedTeachers', 'array-contains', teacherId));
+
+    let lastOwn: QuerySnapshot<DocumentData> | null = null;
+    let lastAssigned: QuerySnapshot<DocumentData> | null = null;
+
+    const mergeAndSet = () => {
+      if (!lastOwn || !lastAssigned) return;
+      const studentList = buildStudentList(lastOwn, lastAssigned);
+      set({ students: studentList, isLoading: false });
+      const { activeStudent } = get();
+      if (activeStudent && !studentList.find((s: Student) => s.id === activeStudent.id)) set({ activeStudent: null });
+    };
+
+    const unsubOwn = onSnapshot(qOwn, {
+      next: (snap) => { lastOwn = snap; mergeAndSet(); },
+      error: (err) => { console.error("fetchStudents own Error:", err); set({ isLoading: false }); }
     });
+    const unsubAssigned = onSnapshot(qAssigned, {
+      next: (snap) => { lastAssigned = snap; mergeAndSet(); },
+      error: (err) => { console.error("fetchStudents assigned Error:", err); set({ isLoading: false }); }
+    });
+
+    return () => { unsubOwn(); unsubAssigned(); };
   },
 
   addStudent: async (teacherId: string, studentData: unknown) => {

@@ -7,6 +7,7 @@ export type AdminTab =
   | 'dashboard'
   | 'users'
   | 'teachers'
+  | 'students'
   | 'activities'
   | 'prompts'
   | 'static_content'

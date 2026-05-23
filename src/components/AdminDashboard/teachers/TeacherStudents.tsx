@@ -3,6 +3,8 @@ import { motion } from 'framer-motion';
 import { Search, Users, ArrowUpRight, TrendingUp, TrendingDown, Minus, Filter, GraduationCap, BookOpen, BarChart3, Eye } from 'lucide-react';
 import { TeacherDetail, TeacherStudentSummary } from '../../../types/teacher';
 import { teacherService } from '../../../services/teacherService';
+import { useToastStore } from '../../../store/useToastStore';
+import { AssignTeacherModal } from './AssignTeacherModal';
 
 interface TeacherStudentsProps {
   teacher: TeacherDetail;
@@ -14,6 +16,38 @@ export const TeacherStudents: React.FC<TeacherStudentsProps> = ({ teacher }) => 
   const [selectedStudent, setSelectedStudent] = useState<Record<string, unknown> | null>(null);
   const [studentLoading, setStudentLoading] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
+  const [assignTarget, setAssignTarget] = useState<Record<string, unknown> | null>(null);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [allStudents, setAllStudents] = useState<Array<{ id: string; name: string }>>([]);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [assignSubmitting, setAssignSubmitting] = useState(false);
+  const toast = useToastStore();
+
+  const openAssignModal = async () => {
+    setShowAssignModal(true);
+    setSelectedIds(new Set());
+    try {
+      const list = await teacherService.getAllStudents();
+      setAllStudents(list.map(s => ({ id: s.id, name: s.name })));
+    } catch {
+      toast.error('Öğrenci listesi alınamadı');
+    }
+  };
+
+  const handleAssignSelected = async () => {
+    if (selectedIds.size === 0) return;
+    setAssignSubmitting(true);
+    try {
+      await teacherService.assignStudentsToTeacher(teacher.user.id, Array.from(selectedIds));
+      toast.success(`${selectedIds.size} öğrenci "${teacher.user.name}" öğretmenine atandı`);
+      setShowAssignModal(false);
+      setSelectedIds(new Set());
+    } catch (err) {
+      toast.error('Atama hatası: ' + (err instanceof Error ? err.message : String(err)));
+    } finally {
+      setAssignSubmitting(false);
+    }
+  };
 
   const filtered = useMemo(() => {
     let list = [...teacher.students];
@@ -73,6 +107,9 @@ export const TeacherStudents: React.FC<TeacherStudentsProps> = ({ teacher }) => 
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3 h-3 text-[var(--text-muted)]" />
           <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Öğrenci ara..." className="w-full pl-9 pr-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[10px] font-bold outline-none focus:ring-2 focus:ring-[var(--accent-color)]/20" />
         </div>
+        <button onClick={openAssignModal} className="flex items-center gap-2 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-[8px] font-black uppercase tracking-widest transition-all shadow-md shadow-emerald-500/20">
+          <i className="fa-solid fa-user-plus"></i> Öğrenci Ata
+        </button>
         <div className="flex gap-1 bg-[var(--bg-secondary)] rounded-xl p-1 border border-[var(--border-color)]">
           {([{ key: 'score', label: 'Puana Göre' }, { key: 'name', label: 'İsme Göre' }, { key: 'assessments', label: 'Değerlendirme' }] as const).map(opt => (
             <button key={opt.key} onClick={() => setSortBy(opt.key)} className={`px-2.5 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest transition-all ${sortBy === opt.key ? 'bg-indigo-600 text-white shadow-md' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}>{opt.label}</button>
@@ -212,11 +249,79 @@ export const TeacherStudents: React.FC<TeacherStudentsProps> = ({ teacher }) => 
                 </div>
               ))}
             </div>
-            <div className="border-t border-[var(--border-color)] p-4 flex justify-end">
+            <div className="border-t border-[var(--border-color)] p-4 flex gap-2 justify-end">
+              <button onClick={() => setAssignTarget(selectedStudent)} className="px-4 py-2.5 bg-indigo-100 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-xl text-[8px] font-black uppercase tracking-widest hover:bg-indigo-200 dark:hover:bg-indigo-900/40 transition-all flex items-center gap-1.5">
+                <i className="fa-solid fa-user-plus"></i> Öğretmene Ata
+              </button>
               <button onClick={() => setSelectedStudent(null)} className="px-5 py-2.5 bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[var(--bg-hover)] transition-all">Kapat</button>
             </div>
           </div>
         </div>
+      )}
+
+      {/* Assign Student to This Teacher Modal */}
+      {showAssignModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={() => setShowAssignModal(false)}>
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} onClick={e => e.stopPropagation()} className="bg-[var(--bg-paper)] rounded-[2.5rem] shadow-2xl w-full max-w-lg border border-[var(--border-color)] overflow-hidden">
+            <div className="p-6 border-b border-[var(--border-color)]">
+              <div className="flex items-center justify-between mb-1">
+                <h3 className="text-sm font-black text-[var(--text-primary)] uppercase tracking-wider">Öğrenci Ata</h3>
+                <button onClick={() => setShowAssignModal(false)} className="w-7 h-7 rounded-full hover:bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)]"><i className="fa-solid fa-times text-xs"></i></button>
+              </div>
+              <p className="text-[10px] font-bold text-[var(--text-muted)]">Öğretmen: <span className="text-[var(--text-primary)]">{teacher.user.name}</span></p>
+            </div>
+            <div className="p-4 max-h-96 overflow-y-auto custom-scrollbar space-y-1">
+              {allStudents.length === 0 ? (
+                <div className="py-8 text-center text-[10px] font-bold text-[var(--text-muted)]">Yükleniyor...</div>
+              ) : (
+                allStudents.map(s => {
+                  const isAssigned = teacher.students.some(ts => ts.id === s.id);
+                  const isChecked = selectedIds.has(s.id);
+                  return (
+                    <button
+                      key={s.id}
+                      onClick={() => {
+                        if (isAssigned) return;
+                        const next = new Set(selectedIds);
+                        if (isChecked) next.delete(s.id); else next.add(s.id);
+                        setSelectedIds(next);
+                      }}
+                      disabled={isAssigned}
+                      className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all text-left ${isChecked ? 'bg-[var(--accent-color)]/10 border border-[var(--accent-color)]/30' : 'hover:bg-[var(--bg-secondary)] border border-transparent'} ${isAssigned ? 'opacity-40' : ''}`}
+                    >
+                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${isChecked ? 'bg-[var(--accent-color)] border-[var(--accent-color)]' : 'border-[var(--border-color)]'}`}>
+                        {isChecked && <i className="fa-solid fa-check text-white text-[8px]"></i>}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] font-black text-[var(--text-primary)] truncate">{s.name}</p>
+                      </div>
+                      {isAssigned && <span className="text-[7px] font-bold text-[var(--text-muted)] uppercase">Zaten Atanmış</span>}
+                    </button>
+                  );
+                })
+              )}
+            </div>
+            <div className="p-4 border-t border-[var(--border-color)] flex gap-2">
+              <button onClick={() => setShowAssignModal(false)} className="flex-1 py-2.5 bg-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[var(--bg-hover)] transition-all">İptal</button>
+              <button onClick={handleAssignSelected} disabled={selectedIds.size === 0 || assignSubmitting} className="flex-1 py-2.5 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                {assignSubmitting ? <i className="fa-solid fa-spinner fa-spin"></i> : null}
+                {selectedIds.size} Öğrenciyi Ata
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Assign Teacher Modal (from student detail) */}
+      {assignTarget && (
+        <AssignTeacherModal
+          studentId={(assignTarget.id as string) || ''}
+          studentName={(assignTarget.name as string) || 'Öğrenci'}
+          currentTeacherId={assignTarget.teacherId as string}
+          assignedTeacherIds={assignTarget.assignedTeachers as string[]}
+          onClose={() => { setAssignTarget(null); setSelectedStudent(null); }}
+          onAssigned={() => { setAssignTarget(null); setSelectedStudent(null); }}
+        />
       )}
     </div>
   );

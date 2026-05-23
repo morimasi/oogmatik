@@ -302,7 +302,7 @@ const AppContent = () => {
 
   useEffect(() => {
     if (!authStore.user) return;
-    const isAdmin = authStore.user.role === 'admin' || authStore.user.email?.includes('admin');
+    const isAdmin = authStore.user.role === 'superadmin' || authStore.user.role === 'admin';
     const unsubscribeStudents = studentStore.fetchStudents(authStore.user.id, isAdmin);
     return () => unsubscribeStudents();
   }, [authStore.user, studentStore.fetchStudents]);

@@ -1,9 +1,10 @@
 import { db } from './firebaseClient';
-import { collection, query, where, getDocs, getDoc, doc, QueryDocumentSnapshot } from "firebase/firestore";
+import { collection, query, where, getDocs, getDoc, doc, updateDoc, arrayUnion, arrayRemove, QueryDocumentSnapshot, writeBatch } from "firebase/firestore";
 import { authService } from './authService';
 import { assessmentService } from './assessmentService';
 import { activityLogService } from './activityLogService';
 import { User } from '../types';
+import type { Student } from '../types/student';
 import { TeacherListItem, TeacherDetail, TeacherAnalytics, TeacherActivity, TeacherActivityType, TeacherStudentSummary } from '../types/teacher';
 
 const _prepareDocData = (snap: QueryDocumentSnapshot): Record<string, unknown> => {
@@ -25,8 +26,13 @@ export const teacherService = {
           let reportCount = 0;
 
           try {
-            const studentsSnap = await getDocs(query(collection(db, 'students'), where('teacherId', '==', t.id)));
-            studentCount = studentsSnap.size;
+            const [ownSnap, assignedSnap] = await Promise.all([
+              getDocs(query(collection(db, 'students'), where('teacherId', '==', t.id))),
+              getDocs(query(collection(db, 'students'), where('assignedTeachers', 'array-contains', t.id)))
+            ]);
+            const seen = new Set<string>();
+            [...ownSnap.docs, ...assignedSnap.docs].forEach(d => seen.add(d.id));
+            studentCount = seen.size;
 
             const studentIds = studentsSnap.docs.map(d => d.id);
 
@@ -77,9 +83,19 @@ export const teacherService = {
       const user = allUsers.find((u: User) => u.id === teacherId);
       if (!user) return null;
 
-      const studentsSnap = await getDocs(query(collection(db, 'students'), where('teacherId', '==', teacherId)));
-      const studentIds = studentsSnap.docs.map(d => d.id);
-      const studentNames = studentsSnap.docs.map(d => (d.data().name || '') as string);
+      const [ownStudentsSnap, assignedSnap] = await Promise.all([
+        getDocs(query(collection(db, 'students'), where('teacherId', '==', teacherId))),
+        getDocs(query(collection(db, 'students'), where('assignedTeachers', 'array-contains', teacherId)))
+      ]);
+      const seenIds = new Set<string>();
+      const studentsSnapDocs = [...ownStudentsSnap.docs, ...assignedSnap.docs].filter(d => {
+        if (seenIds.has(d.id)) return false;
+        seenIds.add(d.id);
+        return true;
+      });
+      const studentsSnap = { docs: studentsSnapDocs, size: studentsSnapDocs.length } as any;
+      const studentIds = studentsSnapDocs.map(d => d.id);
+      const studentNames = studentsSnapDocs.map(d => (d.data().name || '') as string);
 
       const assessmentsSnap = await getDocs(query(collection(db, 'saved_assessments'), where('userId', '==', teacherId)));
       const worksheetSnap = await getDocs(query(collection(db, 'saved_worksheets'), where('userId', '==', teacherId)));
@@ -273,5 +289,34 @@ export const teacherService = {
     } catch {
       return null;
     }
+  },
+
+  getAllStudents: async (): Promise<Student[]> => {
+    try {
+      const snap = await getDocs(collection(db, 'students'));
+      return snap.docs.map(d => ({ id: d.id, ...d.data() } as Student));
+    } catch {
+      return [];
+    }
+  },
+
+  assignStudentToTeacher: async (teacherId: string, studentId: string): Promise<void> => {
+    await updateDoc(doc(db, 'students', studentId), {
+      assignedTeachers: arrayUnion(teacherId)
+    });
+  },
+
+  assignStudentsToTeacher: async (teacherId: string, studentIds: string[]): Promise<void> => {
+    const batch = writeBatch(db);
+    studentIds.forEach(id => {
+      batch.update(doc(db, 'students', id), { assignedTeachers: arrayUnion(teacherId) });
+    });
+    await batch.commit();
+  },
+
+  removeStudentFromTeacher: async (teacherId: string, studentId: string): Promise<void> => {
+    await updateDoc(doc(db, 'students', studentId), {
+      assignedTeachers: arrayRemove(teacherId)
+    });
   },
 };

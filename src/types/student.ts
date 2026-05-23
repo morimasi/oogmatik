@@ -1,6 +1,7 @@
 export interface Student {
     id: string;
     teacherId: string;
+    assignedTeachers?: string[];
     name: string;
     age: number;
     grade: string;

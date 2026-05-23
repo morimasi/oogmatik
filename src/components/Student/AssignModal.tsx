@@ -22,7 +22,8 @@ export const AssignModal: React.FC = () => {
   // Sadece öğretmen kendi öğrencilerini listeler
   useEffect(() => {
     if (user?.uid && isAssignModalOpen) {
-      const unsubscribe = fetchStudents(user.uid);
+      const isAdmin = (user as any).role === 'superadmin' || (user as any).role === 'admin';
+      const unsubscribe = fetchStudents(user.uid, isAdmin);
       return () => unsubscribe();
     }
   }, [user?.uid, fetchStudents, isAssignModalOpen]);

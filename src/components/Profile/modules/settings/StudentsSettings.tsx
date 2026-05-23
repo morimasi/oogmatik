@@ -17,10 +17,11 @@ export const StudentsSettings: React.FC<BaseSettingsProps> = ({ data }) => {
 
   useEffect(() => {
     if (user?.id) {
-      const unsubscribe = fetchStudents(user.id);
+      const isAdmin = user.role === 'superadmin' || user.role === 'admin';
+      const unsubscribe = fetchStudents(user.id, isAdmin);
       return () => unsubscribe();
     }
-  }, [user?.id, fetchStudents]);
+  }, [user?.id, fetchStudents, user?.role]);
 
   const filteredStudents = students.filter((student: Student) =>
     student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
