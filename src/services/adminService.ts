@@ -53,6 +53,15 @@ export const adminService = {
         await batch.commit();
     },
 
+    deleteActivitiesBulk: async (ids: string[]) => {
+        const batch = firestore.writeBatch(db);
+        ids.forEach(id => {
+            const ref = doc(db, "config_activities", id);
+            batch.delete(ref);
+        });
+        await batch.commit();
+    },
+
     // --- PROMPT MANAGEMENT ---
     getAllPrompts: async (): Promise<PromptTemplate[]> => {
         const snapshot = await getDocs(collection(db, "config_prompts"));

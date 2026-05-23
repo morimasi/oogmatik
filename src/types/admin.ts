@@ -14,7 +14,30 @@ export type AdminTab =
   | 'feedbacks'
   | 'drafts'
   | 'approvals'
-  | 'permissions';
+  | 'permissions'
+  | 'content_engine';
+
+export interface ContentEngineMetrics {
+  totalTemplates: number;
+  activeGenerators: number;
+  successRate: number;
+  avgLatencyMs: number;
+  totalGenerations: number;
+  tokenUsage: number;
+  errorRate: number;
+  trendingUp: boolean;
+}
+
+export interface GenerationLogEntry {
+  id: string;
+  activityType: string;
+  promptId: string;
+  status: 'success' | 'error' | 'pending';
+  duration: number;
+  tokensUsed: number;
+  createdAt: string;
+  errorMessage?: string;
+}
 
 export interface DynamicActivity {
   id: string;

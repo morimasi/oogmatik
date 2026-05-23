@@ -21,6 +21,7 @@ import { AdminUserManagement } from './AdminUserManagement';
 import { AdminDraftReview } from './AdminDraftReview';
 import { AdminActivityApproval } from './AdminActivityApproval';
 import { AdminPermissionsIDE } from './PermissionsIDE';
+import { AdminContentEngine } from './AdminContentEngine';
 import TeacherManagement from './TeacherManagement';
 import { AdminStudentManagement } from './AdminStudentManagement';
 
@@ -67,8 +68,10 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
     const saved = localStorage.getItem('admin_active_tab') as AdminTab | null;
     const validTabs: AdminTab[] = [
       'dashboard',
+      'content_engine',
       'users',
       'teachers',
+      'students',
       'activities',
       'prompts',
       'static_content',
@@ -182,6 +185,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
           <NavButton active={activeTab === 'permissions'} label="Yetki Matrisi" icon="fa-lock" onClick={() => setActiveTab('permissions')} />
 
           <p className="px-4 mt-6 mb-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">İçerik Motoru</p>
+          <NavButton active={activeTab === 'content_engine'} label="İçerik Motoru" icon="fa-bolt" onClick={() => setActiveTab('content_engine')} />
           <NavButton active={activeTab === 'activities'} label="Aktivite Yöneticisi" icon="fa-layer-group" onClick={() => setActiveTab('activities')} />
           <NavButton active={activeTab === 'prompts'} label="Prompt Stüdyosu" icon="fa-terminal" onClick={() => setActiveTab('prompts')} />
           <NavButton active={activeTab === 'drafts'} label="OCR Taslakları" icon="fa-camera-rotate" onClick={() => setActiveTab('drafts')} />
@@ -207,6 +211,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
               {activeTab === 'users' && 'Kullanıcı Yönetimi'}
               {activeTab === 'teachers' && 'Öğretmen Yönetimi'}
               {activeTab === 'students' && 'Öğrenci Yönetimi'}
+              {activeTab === 'content_engine' && 'İçerik Motoru'}
               {activeTab === 'activities' && 'Aktivite Yöneticisi'}
               {activeTab === 'prompts' && 'AI Prompt Laboratuvarı'}
               {activeTab === 'static_content' && 'Veri Kaynakları (CMS)'}
@@ -229,6 +234,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
           <div className="w-full mx-auto pb-20">
             <React.Suspense fallback={<div className="flex items-center justify-center p-20"><i className="fa-solid fa-spinner fa-spin text-3xl text-indigo-500"></i></div>}>
               {activeTab === 'dashboard' && <AdminAnalytics stats={stats} totalUsers={usersCount} />}
+              {activeTab === 'content_engine' && <AdminContentEngine />}
               {activeTab === 'activities' && <AdminActivityManager />}
               {activeTab === 'prompts' && <AdminPromptStudio />}
               {activeTab === 'static_content' && <AdminStaticContent />}

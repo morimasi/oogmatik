@@ -4,7 +4,7 @@
 > Bu belge, Oogmatik platformundaki tüm modüllerin, işlevlerin ve bileşenlerin kapsamlı açıklamasını içerir.
 > Her ajan geliştirme yapmadan önce ilgili modülü buradan öğrenmeli ve bağlamı anlamalıdır.
 
-**Son Güncelleme**: 2026-05-13
+**Son Güncelleme**: 2026-05-24
 **Kapsam**: Tüm uygulama modülleri, API'ler, servisler ve UI bileşenleri
 
 ---
@@ -234,6 +234,20 @@
 
 ---
 
+### 2.1.5 AdminContentEngine — İçerik Motoru Dashboard (YENİ)
+
+**Dosya Konumu**: `src/components/AdminDashboard/AdminContentEngine.tsx`
+
+**Amaç**: AI destekli içerik üretim altyapısının merkezi kontrol paneli. Tüm içerik alt modüllerine (Aktivite Yöneticisi, Prompt Stüdyosu, İçerik Onayları, Veri Kaynakları) hızlı erişim sağlar.
+
+**İşlevler**:
+1. **Metrik Kartları**: Toplam şablon, başarı oranı, ortalama gecikme süresi, toplam üretim sayısı
+2. **Hızlı Erişim**: Aktivite Yöneticisi, Prompt Stüdyosu, İçerik Onayları, Veri Kaynakları'na tek tıkla navigasyon
+3. **Üretim Kaydı**: Son AI içerik üretimlerinin durum, süre, token kullanımı ile listelenmesi
+4. **Pipeline Sağlığı**: AI servisi, Firebase, Rate Limiter gibi altyapı bileşenlerinin canlı durumu
+
+**Entegrasyon**: `AdminTab` tipine `content_engine` değeri eklenmiştir. AdminDashboard sidebar'da "İçerik Motoru" olarak listelenir.
+
 ### 2.2 AdminActivityManager — Premium Aktivite Denetim Merkezi
 
 **Dosya Konumu**: `src/components/AdminDashboard/AdminActivityManager.tsx`
@@ -246,7 +260,13 @@
 3. **Bulk Actions (Toplu İşlemler)**: Çoklu seçim modu ile aktiviteler topluca silinebilir, dondurulabilir veya aktifleştirilebilir.
 4. **AI Engine DNA**: Her aktivite için Gemini 2.5 Flash `baseBlueprint` ayarı buradan yapılır.
 
-**Service Entegrasyonu**: `services/adminService.ts` (`saveActivitiesBulk`, `updateActivity`)
+**Service Entegrasyonu**: `services/adminService.ts` (`saveActivitiesBulk`, `updateActivity`, `deleteActivitiesBulk`)
+
+**Premium Özellikler**:
+1. **Aktivite Klonlama**: Her kartta klonla butonu, toplu klonlama desteği
+2. **Sıralama Yönetimi**: order alanı üzerinden yukarı/aşağı taşıma
+3. **Toplu Silme**: Çoklu seçim modu ile toplu silme işlemi
+4. **Tip Güvenliği**: `any` tipi yerine generic `updateField<K>` ile type-safe state yönetimi
 
 ---
 
@@ -1024,6 +1044,13 @@ const note = await workbookAIAssistant.generatePedagogicalNote(item);
 3. `JSON.parse()` — Parse et, başarısız → fallback
 
 **AI Mühendisi Notu**: Bu motor %94 başarı oranıyla çalışıyor. DOKUNMA!
+
+**AdminPromptStudio Premium Özellikler**:
+1. **Arama**: Aktivite kategorilerinde canlı arama filtresi
+2. **Modal Tabanlı UI**: `prompt()`/`confirm()` yerine modern modal diyaloglar
+3. **Tip Güvenliği**: `any` kullanımı tamamen kaldırıldı, `LintWarning` tipi eklendi
+4. **Dışa/İçe Aktarma**: Prompt şablonları JSON olarak export/import edilebilir
+5. **Snippet Düzenleme**: Modal bazlı snippet içerik düzenleme
 
 ---
 

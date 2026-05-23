@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { adminService } from '../../services/adminService';
 import { DynamicActivity } from '../../types/admin';
 import { ACTIVITY_CATEGORIES } from '../../constants';
@@ -19,7 +19,10 @@ import {
   BrainCircuit,
   Save,
   RefreshCcw as RefreshCw,
-  X
+  X,
+  Copy,
+  ArrowUpDown,
+  GripVertical
 } from 'lucide-react';
 
 /**
@@ -103,12 +106,28 @@ export const AdminActivityManager: React.FC = () => {
     }
   };
 
-  const handleBulkAction = async (action: 'active' | 'inactive' | 'delete') => {
+  const handleBulkAction = async (action: 'active' | 'inactive' | 'delete' | 'clone') => {
     if (selectedIds.length === 0) return;
     setIsSaving(true);
     try {
       if (action === 'delete') {
-         toast.warn('Silme işlemi şu an için devre dışı');
+        const batch = activities.filter(a => selectedIds.includes(a.id));
+        await adminService.deleteActivitiesBulk(batch.map(a => a.id));
+        setActivities(prev => prev.filter(a => !selectedIds.includes(a.id)));
+        toast.success(`${selectedIds.length} aktivite başarıyla silindi`);
+      } else if (action === 'clone') {
+        const toClone = activities.filter(a => selectedIds.includes(a.id));
+        const clones = toClone.map(a => ({
+          ...a,
+          id: `${a.id}_clone_${Date.now()}`,
+          title: `${a.title} (Kopya)`,
+          isActive: false,
+          order: activities.length + 1,
+          updatedAt: new Date().toISOString(),
+        }));
+        await adminService.saveActivitiesBulk(clones);
+        setActivities(prev => [...prev, ...clones]);
+        toast.success(`${selectedIds.length} aktivite klonlandı`);
       } else {
         const isActive = action === 'active';
         const batch = activities
@@ -125,6 +144,46 @@ export const AdminActivityManager: React.FC = () => {
       toast.error('Toplu işlem başarısız');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleCloneSingle = async (activity: DynamicActivity) => {
+    const clone: DynamicActivity = {
+      ...activity,
+      id: `${activity.id}_clone_${Date.now()}`,
+      title: `${activity.title} (Kopya)`,
+      isActive: false,
+      order: activities.length + 1,
+      updatedAt: new Date().toISOString(),
+    };
+    try {
+      await adminService.saveActivity(clone);
+      setActivities(prev => [...prev, clone]);
+      toast.success(`${activity.title} klonlandı`);
+    } catch {
+      toast.error('Klonlama başarısız');
+    }
+  };
+
+  const moveActivity = async (id: string, direction: 'up' | 'down') => {
+    const sorted = [...activities].sort((a, b) => a.order - b.order);
+    const idx = sorted.findIndex(a => a.id === id);
+    if (idx === -1) return;
+    if (direction === 'up' && idx === 0) return;
+    if (direction === 'down' && idx === sorted.length - 1) return;
+    const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+    const temp = sorted[idx].order;
+    sorted[idx] = { ...sorted[idx], order: sorted[swapIdx].order };
+    sorted[swapIdx] = { ...sorted[swapIdx], order: temp };
+    try {
+      await adminService.saveActivitiesBulk([sorted[idx], sorted[swapIdx]]);
+      setActivities(prev => prev.map(a => {
+        if (a.id === sorted[idx].id) return { ...a, order: sorted[idx].order };
+        if (a.id === sorted[swapIdx].id) return { ...a, order: sorted[swapIdx].order };
+        return a;
+      }));
+    } catch {
+      toast.error('Sıralama güncellenemedi');
     }
   };
 
@@ -266,17 +325,35 @@ export const AdminActivityManager: React.FC = () => {
                   </div>
 
                   <div className="mt-6 pt-4 border-t border-zinc-100 dark:border-white/5 flex items-center justify-between">
-                    <span className="text-[8px] font-mono text-zinc-400 opacity-50">#{act.id}</span>
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedId(act.id);
-                        setIsInspectorOpen(true);
-                      }}
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-xl text-zinc-600 dark:text-zinc-300 hover:bg-indigo-600 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest"
-                    >
-                      Düzenle <Settings size={10} />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); moveActivity(act.id, 'up'); }}
+                        className="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
+                        title="Yukarı taşı"
+                      >
+                        <ArrowUpDown size={12} className="rotate-90" />
+                      </button>
+                      <span className="text-[8px] font-mono text-zinc-400 opacity-50">#{act.order}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleCloneSingle(act); }}
+                        className="p-1.5 rounded-lg text-zinc-400 hover:text-indigo-500 hover:bg-indigo-500/10 transition-all"
+                        title="Klonla"
+                      >
+                        <Copy size={12} />
+                      </button>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedId(act.id);
+                          setIsInspectorOpen(true);
+                        }}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-xl text-zinc-600 dark:text-zinc-300 hover:bg-indigo-600 hover:text-white transition-all text-[10px] font-black uppercase tracking-widest"
+                      >
+                        Düzenle <Settings size={10} />
+                      </button>
+                    </div>
                   </div>
                 </motion.div>
               ))}
@@ -348,12 +425,18 @@ export const AdminActivityManager: React.FC = () => {
                >
                  Tümünü Kapat
                </button>
-               <button 
-                 onClick={() => handleBulkAction('delete')}
-                 className="px-4 py-2 bg-red-600 hover:bg-red-700 text-xs font-black uppercase tracking-widest rounded-xl transition-all"
-               >
-                 Toplu Sil
-               </button>
+                <button 
+                  onClick={() => handleBulkAction('clone')}
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-xs font-black uppercase tracking-widest rounded-xl transition-all"
+                >
+                  Toplu Klonla
+                </button>
+                <button 
+                  onClick={() => handleBulkAction('delete')}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-xs font-black uppercase tracking-widest rounded-xl transition-all"
+                >
+                  Toplu Sil
+                </button>
             </div>
             <button 
               onClick={() => { setSelectedIds([]); setIsSelectionMode(false); }}
@@ -378,15 +461,17 @@ const InspectorContent = ({ id, activity, onClose, onSave, isSaving }: {
 }) => {
   const [formData, setFormData] = useState<DynamicActivity>({ ...activity });
 
-  const updateField = (path: string, value: any) => {
-    const fresh = { ...formData };
-    if (path.includes('.')) {
-      const [p1, p2] = path.split('.');
-      (fresh as any)[p1] = { ...(fresh as any)[p1], [p2]: value };
-    } else {
-      (fresh as any)[path] = value;
-    }
-    setFormData(fresh);
+  const updateField = <K extends keyof DynamicActivity>(path: string, value: DynamicActivity[K]) => {
+    setFormData(prev => {
+      if (path.includes('.')) {
+        const [parent, child] = path.split('.') as [keyof DynamicActivity, string];
+        const parentObj = prev[parent];
+        if (parentObj && typeof parentObj === 'object' && !Array.isArray(parentObj)) {
+          return { ...prev, [parent]: { ...parentObj, [child]: value } };
+        }
+      }
+      return { ...prev, [path]: value };
+    });
   };
 
   return (

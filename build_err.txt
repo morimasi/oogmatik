@@ -1,0 +1,16 @@
+[31m✗[39m Build failed in 549ms
+[31merror during build:
+[31m[vite]: Rollup failed to resolve import "react-dom/client" from "D:/oogmatik/src/index.tsx".
+This is most likely unintended because it can break your application at runtime.
+If you do want to externalize this module explicitly add it to
+`build.rollupOptions.external`[31m
+    at viteLog (file:///D:/oogmatik/node_modules/vite/dist/node/chunks/dep-Dq2t6Dq0.js:46399:15)
+    at file:///D:/oogmatik/node_modules/vite/dist/node/chunks/dep-Dq2t6Dq0.js:46457:18
+    at onwarn (file:///D:/oogmatik/node_modules/@vitejs/plugin-react/dist/index.js:90:7)
+    at file:///D:/oogmatik/node_modules/vite/dist/node/chunks/dep-Dq2t6Dq0.js:46455:7
+    at onRollupLog (file:///D:/oogmatik/node_modules/vite/dist/node/chunks/dep-Dq2t6Dq0.js:46447:5)
+    at onLog (file:///D:/oogmatik/node_modules/vite/dist/node/chunks/dep-Dq2t6Dq0.js:46097:7)
+    at file:///D:/oogmatik/node_modules/rollup/dist/es/shared/node-entry.js:21389:32
+    at Object.logger [as onLog] (file:///D:/oogmatik/node_modules/rollup/dist/es/shared/node-entry.js:23384:9)
+    at ModuleLoader.handleInvalidResolvedId (file:///D:/oogmatik/node_modules/rollup/dist/es/shared/node-entry.js:22128:26)
+    at file:///D:/oogmatik/node_modules/rollup/dist/es/shared/node-entry.js:22086:26[39m
