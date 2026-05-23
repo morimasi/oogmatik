@@ -1,7 +1,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { LayoutItem } from '../../types';
 import { useCreativeStore } from '../../store/useCreativeStore';
-import { BlockRenderer, SheetRenderer } from '../SheetRenderer';
+import { SheetRenderer } from '../SheetRenderer';
+import { BlockRenderer } from '../SheetRenderer/BlockRenderer';
 import { A4_WIDTH_PX, A4_HEIGHT_PX } from '../../utils/layoutConstants';
 
 interface DraggableItemProps {

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ContentEngineMetrics, GenerationLogEntry } from '../../types/admin';
 import { adminService } from '../../services/adminService';
-import { useToastStore } from '../../store/useToastStore';
 
 const MOCK_METRICS: ContentEngineMetrics = {
   totalTemplates: 42,
