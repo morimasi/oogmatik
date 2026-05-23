@@ -867,6 +867,8 @@ const UnifiedContentRenderer = ({
   const unwrappedData = Array.isArray(data) ? data[0] : data;
   const activeData = (unwrappedData as unknown as any)?.data || unwrappedData;
 
+  if (!activeData || typeof activeData !== 'object' || Array.isArray(activeData)) return null;
+
   const architecture = activeData?.layoutArchitecture;
   const rawBlocks: WorksheetBlock[] =
     (architecture?.blocks && architecture.blocks.length > 0 ? architecture.blocks : []) ||
@@ -1293,6 +1295,12 @@ export const SheetRenderer = React.memo(
     const unwrappedData = Array.isArray(data) ? data[0] : data;
     // Extract actual content if wrapped in a .data property 
     const activeData = (unwrappedData as unknown as any)?.data || unwrappedData;
+
+    // Defensive guard: activeData must be a non-null object
+    if (!activeData || typeof activeData !== 'object') return null;
+
+    // Guard: ensure activeData is not an array (unwrapped incorrectly)
+    if (Array.isArray(activeData)) return null;
 
     const isLandscape = settings?.orientation === 'landscape';
     const pageClass = `worksheet-page print-page shadow-2xl mb-8 ${isLandscape ? 'landscape' : ''}`;

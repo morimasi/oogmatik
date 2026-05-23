@@ -41,6 +41,11 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
   const [tempNote, setTempNote] = useState('');
   const [changingActivityDay, setChangingActivityDay] = useState<number | null>(null);
 
+  const handleStartEditingGoal = (idx: number, goal: string) => {
+    setEditingGoal(idx);
+    setTempGoal(goal);
+  };
+
   useEffect(() => {
     if (curriculums && curriculums.length > 0) {
       const enriched = curriculums.map(c => ({

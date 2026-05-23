@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { collection, query, where, onSnapshot, addDoc, Timestamp } from 'firebase/firestore';
+import { db } from '../../../services/firebaseClient';
+import { useAuthStore } from '../../../store/useAuthStore';
 import { ClinicalNote } from './studentDashboardData';
 
 interface ClinicalNotesModuleProps {
@@ -12,11 +15,50 @@ export const ClinicalNotesModule: React.FC<ClinicalNotesModuleProps> = ({
   studentId,
   studentName,
 }) => {
-  const allNotes: ClinicalNote[] = []; // Şimdilik boş liste, gerçek veri servisi eklendiğinde buradan dolacak.
+  const { user } = useAuthStore();
+  const [allNotes, setAllNotes] = useState<ClinicalNote[]>([]);
+  const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState<NoteCategory>('all');
   const [selectedNote, setSelectedNote] = useState<ClinicalNote | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [newNote, setNewNote] = useState({ category: 'progress' as ClinicalNote['category'], title: '', content: '', tags: '' });
+
+  const unsubscribeRef = useRef<(() => void) | null>(null);
+
+  useEffect(() => {
+    if (!studentId) return;
+    setLoading(true);
+
+    const q = query(collection(db, 'clinical_notes'), where('studentId', '==', studentId));
+    const unsub = onSnapshot(q, {
+      next: (snapshot) => {
+        const notes: ClinicalNote[] = snapshot.docs.map(doc => {
+          const d = doc.data();
+          return {
+            id: doc.id,
+            category: d.category || 'progress',
+            date: d.date?.toDate ? d.date.toDate().toISOString() : d.date || new Date().toISOString(),
+            title: d.title || '',
+            content: d.content || '',
+            author: d.author || '',
+            tags: Array.isArray(d.tags) ? d.tags : [],
+            priority: d.priority || 'medium',
+          } as ClinicalNote;
+        });
+        setAllNotes(notes);
+        setLoading(false);
+      },
+      error: (err) => {
+        setError('Notlar yüklenemedi: ' + err.message);
+        setLoading(false);
+      },
+    });
+
+    unsubscribeRef.current = unsub;
+    return () => { unsub(); };
+  }, [studentId]);
 
   const filtered = activeCategory === 'all'
     ? allNotes
@@ -69,10 +111,28 @@ export const ClinicalNotesModule: React.FC<ClinicalNotesModuleProps> = ({
     URL.revokeObjectURL(url);
   };
 
-  const handleSaveNewNote = () => {
-    if (newNote.title && newNote.content) {
+  const handleSaveNewNote = async () => {
+    if (!newNote.title || !newNote.content) return;
+    setSaving(true);
+    setError(null);
+    try {
+      await addDoc(collection(db, 'clinical_notes'), {
+        studentId,
+        category: newNote.category,
+        date: Timestamp.now(),
+        title: newNote.title,
+        content: newNote.content,
+        author: user?.displayName || user?.email || 'Bilinmeyen',
+        tags: newNote.tags ? newNote.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+        priority: 'medium',
+      });
       setShowAddModal(false);
       setNewNote({ category: 'progress', title: '', content: '', tags: '' });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Kayıt hatası';
+      setError(msg);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -83,7 +143,7 @@ export const ClinicalNotesModule: React.FC<ClinicalNotesModuleProps> = ({
         <div>
           <h3 className="font-black text-xs tracking-tighter text-[var(--text-primary)] uppercase">Klinik Notlar</h3>
           <p className="text-[8px] font-bold text-[var(--text-muted)] uppercase tracking-widest mt-0.5">
-            {allNotes.length} not kaydı
+            {loading ? 'Yükleniyor...' : `${allNotes.length} not kaydı`}
           </p>
         </div>
         <div className="flex gap-1.5">
@@ -114,53 +174,67 @@ export const ClinicalNotesModule: React.FC<ClinicalNotesModuleProps> = ({
         ))}
       </div>
 
+      {/* Error */}
+      {error && (
+        <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[8px] text-rose-600 font-bold">{error}</div>
+      )}
+
       {/* Notes Timeline */}
-      <div className="space-y-3">
-        {sorted.map(note => {
-          const config = categoryConfig[note.category];
-          return (
-            <div
-              key={note.id}
-              className={`bg-[var(--bg-paper)] border rounded-xl p-3 transition-all hover:shadow-md cursor-pointer group ${config.border} hover:border-[var(--accent-color)]/30`}
-              onClick={() => setSelectedNote(note)}
-            >
-              <div className="flex items-start gap-3">
-                <div className={`w-8 h-8 ${config.bg} ${config.color} rounded-lg flex items-center justify-center shrink-0`}>
-                  <i className={`fa-solid ${config.icon} text-sm`}></i>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <h4 className="font-black text-[10px] text-[var(--text-primary)] uppercase">{note.title}</h4>
-                    {priorityBadge(note.priority)}
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <svg className="animate-spin h-6 w-6 text-[var(--accent-color)]" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+          </svg>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {sorted.map(note => {
+            const config = categoryConfig[note.category];
+            return (
+              <div
+                key={note.id}
+                className={`bg-[var(--bg-paper)] border rounded-xl p-3 transition-all hover:shadow-md cursor-pointer group ${config.border} hover:border-[var(--accent-color)]/30`}
+                onClick={() => setSelectedNote(note)}
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`w-8 h-8 ${config.bg} ${config.color} rounded-lg flex items-center justify-center shrink-0`}>
+                    <i className={`fa-solid ${config.icon} text-sm`}></i>
                   </div>
-                  <p className="text-[8px] text-[var(--text-secondary)] line-clamp-2 leading-relaxed">{note.content}</p>
-                  <div className="flex items-center gap-3 mt-2">
-                    <span className="text-[7px] text-[var(--text-muted)] font-bold">
-                      <i className="fa-solid fa-calendar mr-1"></i>
-                      {new Date(note.date).toLocaleDateString('tr-TR')}
-                    </span>
-                    <span className="text-[7px] text-[var(--text-muted)] font-bold">
-                      <i className="fa-solid fa-user mr-1"></i>
-                      {note.author}
-                    </span>
-                    <div className="flex gap-1">
-                      {note.tags.slice(0, 2).map((tag, i) => (
-                        <span key={i} className="text-[6px] font-bold text-[var(--accent-color)] bg-[var(--accent-muted)] px-1.5 py-0.5 rounded">{tag}</span>
-                      ))}
-                      {note.tags.length > 2 && (
-                        <span className="text-[6px] text-[var(--text-muted)]">+{note.tags.length - 2}</span>
-                      )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <h4 className="font-black text-[10px] text-[var(--text-primary)] uppercase">{note.title}</h4>
+                      {priorityBadge(note.priority)}
+                    </div>
+                    <p className="text-[8px] text-[var(--text-secondary)] line-clamp-2 leading-relaxed">{note.content}</p>
+                    <div className="flex items-center gap-3 mt-2">
+                      <span className="text-[7px] text-[var(--text-muted)] font-bold">
+                        <i className="fa-solid fa-calendar mr-1"></i>
+                        {new Date(note.date).toLocaleDateString('tr-TR')}
+                      </span>
+                      <span className="text-[7px] text-[var(--text-muted)] font-bold">
+                        <i className="fa-solid fa-user mr-1"></i>
+                        {note.author}
+                      </span>
+                      <div className="flex gap-1">
+                        {note.tags.slice(0, 2).map((tag, i) => (
+                          <span key={i} className="text-[6px] font-bold text-[var(--accent-color)] bg-[var(--accent-muted)] px-1.5 py-0.5 rounded">{tag}</span>
+                        ))}
+                        {note.tags.length > 2 && (
+                          <span className="text-[6px] text-[var(--text-muted)]">+{note.tags.length - 2}</span>
+                        )}
+                      </div>
                     </div>
                   </div>
+                  <i className="fa-solid fa-chevron-right text-[var(--text-muted)] text-[8px] mt-1 opacity-0 group-hover:opacity-100 transition-opacity"></i>
                 </div>
-                <i className="fa-solid fa-chevron-right text-[var(--text-muted)] text-[8px] mt-1 opacity-0 group-hover:opacity-100 transition-opacity"></i>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
-      {sorted.length === 0 && (
+      {!loading && sorted.length === 0 && (
         <div className="flex flex-col items-center justify-center py-12 bg-[var(--bg-paper)]/40 rounded-xl border border-dashed border-[var(--border-color)]">
           <i className="fa-solid fa-notes-medical text-2xl text-[var(--text-muted)] opacity-20 mb-2"></i>
           <p className="text-[var(--text-muted)] font-bold text-[9px] uppercase tracking-widest">Not bulunamadı</p>
@@ -279,8 +353,8 @@ export const ClinicalNotesModule: React.FC<ClinicalNotesModuleProps> = ({
             </div>
             <div className="p-4 border-t border-[var(--border-color)] flex justify-end gap-2">
               <button onClick={() => setShowAddModal(false)} className="px-4 py-2 text-[var(--text-muted)] font-bold text-[9px] rounded-lg hover:bg-[var(--bg-secondary)] transition-all">İptal</button>
-              <button onClick={handleSaveNewNote} className="px-4 py-2 bg-[var(--accent-color)] text-white font-bold text-[9px] rounded-lg hover:opacity-90 transition-all flex items-center gap-1.5">
-                <i className="fa-solid fa-save text-[8px]"></i> Kaydet
+              <button onClick={handleSaveNewNote} disabled={saving || !newNote.title || !newNote.content} className="px-4 py-2 bg-[var(--accent-color)] text-white font-bold text-[9px] rounded-lg hover:opacity-90 transition-all flex items-center gap-1.5 disabled:opacity-50">
+                {saving ? 'Kaydediliyor...' : <><i className="fa-solid fa-save text-[8px]"></i> Kaydet</>}
               </button>
             </div>
           </div>
