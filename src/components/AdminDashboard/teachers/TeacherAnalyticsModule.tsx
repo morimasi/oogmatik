@@ -74,7 +74,7 @@ export const TeacherAnalyticsModule: React.FC<TeacherAnalyticsModuleProps> = ({ 
               <p className="text-2xl font-black text-[var(--text-primary)]">{count}</p>
               <p className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mt-0.5">{ACTIVITY_LABELS[type]}</p>
               <div className="mt-2 h-1.5 bg-[var(--bg-secondary)] rounded-full overflow-hidden">
-                <div className={`h-full rounded-full ${ACTIVITY_COLORS[type].replace('bg-', 'bg-')}`} style={{ width: `${pct}%` }} />
+                <div className={`h-full rounded-full ${ACTIVITY_COLORS[type]}`} style={{ width: `${pct}%` }} />
               </div>
               <p className="text-[8px] font-bold text-zinc-400 mt-1">%{pct}</p>
             </motion.div>
@@ -183,7 +183,7 @@ export const TeacherAnalyticsModule: React.FC<TeacherAnalyticsModuleProps> = ({ 
                     <span className="text-[10px] font-black text-[var(--text-primary)]">{count} <span className="text-[8px] text-zinc-400 font-bold">(%{pct})</span></span>
                   </div>
                   <div className="h-2 bg-[var(--bg-secondary)] rounded-full overflow-hidden">
-                    <div className={`h-full rounded-full ${ACTIVITY_COLORS[type].replace('bg-', 'bg-')}`} style={{ width: `${pct}%` }} />
+                    <div className={`h-full rounded-full ${ACTIVITY_COLORS[type]}`} style={{ width: `${pct}%` }} />
                   </div>
                 </div>
               );

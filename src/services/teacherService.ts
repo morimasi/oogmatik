@@ -2,16 +2,10 @@ import { db } from './firebaseClient';
 import { collection, query, where, getDocs, getDoc, doc, QueryDocumentSnapshot } from "firebase/firestore";
 import { authService } from './authService';
 import { assessmentService } from './assessmentService';
-import { User, UserRole, UserStatus } from '../types';
+import { User } from '../types';
 import { TeacherListItem, TeacherDetail, TeacherAnalytics, TeacherActivity, TeacherActivityType, TeacherStudentSummary } from '../types/teacher';
 
-const _getUserAge = (createdAt: string | undefined): number => {
-  if (!createdAt) return 0;
-  const created = new Date(createdAt).getTime();
-  return Math.floor((Date.now() - created) / (365.25 * 24 * 60 * 60 * 1000));
-};
-
-const _prepareStudentData = (snap: QueryDocumentSnapshot): Record<string, unknown> => {
+const _prepareDocData = (snap: QueryDocumentSnapshot): Record<string, unknown> => {
   const data = snap.data();
   return { id: snap.id, ...data };
 };
@@ -38,9 +32,11 @@ export const teacherService = {
             if (studentIds.length > 0) {
               const assessmentsSnap = await getDocs(query(collection(db, 'saved_assessments'), where('userId', '==', t.id)));
               assessmentCount = assessmentsSnap.size;
-
-              const reportsSnap = await getDocs(query(collection(db, 'saved_assessments'), where('userId', '==', t.id)));
-              reportCount = reportsSnap.size;
+              reportCount = assessmentsSnap.docs.filter(d => {
+                const data = d.data();
+                const report = data.report as Record<string, unknown> | undefined;
+                return report?.scores != null;
+              }).length;
             }
 
             const plansSnap = await getDocs(query(collection(db, 'saved_curriculums'), where('userId', '==', t.id)));
@@ -88,9 +84,9 @@ export const teacherService = {
       const worksheetSnap = await getDocs(query(collection(db, 'saved_worksheets'), where('userId', '==', teacherId)));
       const plansSnap = await getDocs(query(collection(db, 'saved_curriculums'), where('userId', '==', teacherId)));
 
-      const assessments = assessmentsSnap.docs.map(d => _prepareStudentData(d));
-      const worksheets = worksheetSnap.docs.map(d => _prepareStudentData(d));
-      const plans = plansSnap.docs.map(d => _prepareStudentData(d));
+      const assessments = assessmentsSnap.docs.map(d => _prepareDocData(d));
+      const worksheets = worksheetSnap.docs.map(d => _prepareDocData(d));
+      const plans = plansSnap.docs.map(d => _prepareDocData(d));
 
       const assessmentCount = assessments.length;
       const worksheetCount = worksheets.length;
@@ -124,6 +120,7 @@ export const teacherService = {
           title: (w.title as string) || 'Çalışma Kağıdı',
           details: `Oluşturuldu: ${(w.studentName as string) || 'Belirtilmemiş'}`,
           createdAt: (w.createdAt as string) || new Date().toISOString(),
+          targetId: (w.id as string) || '',
         });
       });
 
@@ -134,6 +131,7 @@ export const teacherService = {
           title: `Değerlendirme - ${(a.studentName as string) || 'Öğrenci'}`,
           details: `Puan: ${avgStudentScore}`,
           createdAt: (a.createdAt as string) || new Date().toISOString(),
+          targetId: (a.id as string) || '',
         });
       });
 
@@ -144,6 +142,7 @@ export const teacherService = {
           title: (p.studentName as string) ? `${(p.studentName as string)} için Plan` : 'Müfredat Planı',
           details: `${(p.durationDays as number) || 0} gün`,
           createdAt: (p.createdAt as string) || new Date().toISOString(),
+          targetId: (p.id as string) || '',
         });
       });
 
