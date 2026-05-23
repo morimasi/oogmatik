@@ -1299,8 +1299,18 @@ export const SheetRenderer = React.memo(
     // Defensive guard: activeData must be a non-null object
     if (!activeData || typeof activeData !== 'object') return null;
 
-    // Guard: ensure activeData is not an array (unwrapped incorrectly)
-    if (Array.isArray(activeData)) return null;
+    // SINAV/MAT_SINAV guard: data may arrive as [exam] wrapper
+    const unwrapExam = (val: unknown): unknown => {
+      if (!val) return val;
+      if (Array.isArray(val)) {
+        const first = (val as unknown[])[0];
+        if (first && typeof first === 'object' && !Array.isArray(first) && ('sorular' in first || 'baslik' in first)) return first;
+        return val;
+      }
+      return val;
+    };
+
+    const resolvedData = unwrapExam(activeData);
 
     const isLandscape = settings?.orientation === 'landscape';
     const pageClass = `worksheet-page print-page shadow-2xl mb-8 ${isLandscape ? 'landscape' : ''}`;
@@ -1312,33 +1322,33 @@ export const SheetRenderer = React.memo(
     };
 
     // Special module renders
-    if (activityType === ActivityType.STORY_COMPREHENSION && activeData.layout) {
+    if (activityType === ActivityType.STORY_COMPREHENSION && resolvedData && typeof resolvedData === 'object' && !Array.isArray(resolvedData) && (resolvedData as Record<string, unknown>).layout) {
       return withWrapper(
-        <ReadingStudioContentRenderer layout={activeData.layout} storyData={activeData.storyData} />
+        <ReadingStudioContentRenderer layout={(resolvedData as Record<string, unknown>).layout as never} storyData={(resolvedData as Record<string, unknown>).storyData as never} />
       );
     }
 
-    if (activityType === ActivityType.PREMIUM_STUDIO && activeData.layout) {
+    if (activityType === ActivityType.PREMIUM_STUDIO && resolvedData && typeof resolvedData === 'object' && !Array.isArray(resolvedData) && (resolvedData as Record<string, unknown>).layout) {
       return withWrapper(
-        <ReadingStudioContentRenderer layout={activeData.layout} storyData={activeData.storyData} />
+        <ReadingStudioContentRenderer layout={(resolvedData as Record<string, unknown>).layout as never} storyData={(resolvedData as Record<string, unknown>).storyData as never} />
       );
     }
 
-    if (activityType === ActivityType.MATH_STUDIO && activeData) {
-      return withWrapper(<MathStudioRenderer data={activeData as unknown as any} settings={settings} />);
+    if (activityType === ActivityType.MATH_STUDIO && resolvedData) {
+      return withWrapper(<MathStudioRenderer data={resolvedData as unknown as any} settings={settings} />);
     }
 
-    if (activityType === ActivityType.SUPER_STUDIO && activeData) {
-      return withWrapper(<SuperStudioRenderer data={activeData as unknown as any} />);
+    if (activityType === ActivityType.SUPER_STUDIO && resolvedData) {
+      return withWrapper(<SuperStudioRenderer data={resolvedData as unknown as any} />);
     }
 
-    if (activityType === ActivityType.SARI_KITAP_STUDIO && activeData) {
-      return withWrapper(<SariKitapRenderer data={activeData as unknown as any} />);
+    if (activityType === ActivityType.SARI_KITAP_STUDIO && resolvedData) {
+      return withWrapper(<SariKitapRenderer data={resolvedData as unknown as any} />);
     }
 
     // Sınav Stüdyosu çıktıları (Daha esnek kontrol)
     if (activityType === ActivityType.SINAV || activityType === ActivityType.MAT_SINAV) {
-      const sinav = activeData as unknown as any;
+      const sinav = resolvedData as unknown as any;
       if (sinav && (sinav.sorular || sinav.baslik)) {
         return withWrapper(
           <ExamRenderer
@@ -1350,36 +1360,36 @@ export const SheetRenderer = React.memo(
       }
     }
 
-    if (activityType === ActivityType.KELIME_CUMLE && activeData) {
-      return withWrapper(<KelimeCumleRenderer data={activeData as unknown as any} />);
+    if (activityType === ActivityType.KELIME_CUMLE && resolvedData) {
+      return withWrapper(<KelimeCumleRenderer data={resolvedData as unknown as any} />);
     }
 
     if (activityType === ActivityType.VISUAL_INTERPRETATION) {
       return withWrapper(
-        <VisualInterpretationSheet data={activeData as unknown as any} settings={settings || ({} as unknown as any)} />
+        <VisualInterpretationSheet data={resolvedData as unknown as any} settings={settings || ({} as unknown as any)} />
       );
     }
 
     if (activityType === ActivityType.BRAIN_TEASERS) {
       return withWrapper(
-        <BrainTeasersSheet data={activeData as unknown as any} settings={settings || ({} as unknown as any)} />
+        <BrainTeasersSheet data={resolvedData as unknown as any} settings={settings || ({} as unknown as any)} />
       );
     }
 
     if (activityType === ActivityType.KAVRAM_HARITASI) {
-      return withWrapper(<KavramHaritasiSheet data={activeData as unknown as any} />);
+      return withWrapper(<KavramHaritasiSheet data={resolvedData as unknown as any} />);
     }
 
     if (activityType === ActivityType.ES_ANLAMLI_KELIMELER) {
-      return withWrapper(<EsAnlamliKelimelerSheet data={activeData as unknown as any} />);
+      return withWrapper(<EsAnlamliKelimelerSheet data={resolvedData as unknown as any} />);
     }
 
     if (activityType === ActivityType.INFOGRAPHIC_SHORT_ANSWER) {
-      return withWrapper(<ShortAnswerSheet data={activeData.content || activeData} settings={settings as unknown as any} />);
+      return withWrapper(<ShortAnswerSheet data={(resolvedData as Record<string, unknown>).content || resolvedData} settings={settings as unknown as any} />);
     }
 
-    if (activityType === ActivityType.INFOGRAPHIC_STUDIO && activeData) {
-      return withWrapper(<InfographicRenderer data={activeData as unknown as any} settings={settings} />);
+    if (activityType === ActivityType.INFOGRAPHIC_STUDIO && resolvedData) {
+      return withWrapper(<InfographicRenderer data={resolvedData as unknown as any} settings={settings} />);
     }
 
 
@@ -1387,7 +1397,15 @@ export const SheetRenderer = React.memo(
       return withWrapper(
         <OcrRenderer
           data={
-            data as unknown as unknown as {
+            {
+              content: (data as Record<string, unknown>)?.content as string | undefined,
+              grafikVeri: (data as Record<string, unknown>)?.grafikVeri as Record<string, unknown> | undefined,
+              title: (data as Record<string, unknown>)?.title as string | undefined,
+              pedagogicalNote: (data as Record<string, unknown>)?.pedagogicalNote as string | undefined,
+              targetSkills: (data as Record<string, unknown>)?.targetSkills as string[] | undefined,
+              columns: (data as Record<string, unknown>)?.columns as number | undefined,
+              estimatedFontSize: (data as Record<string, unknown>)?.estimatedFontSize as number | undefined,
+            } as {
               content?: string;
               grafikVeri?: Record<string, unknown>;
               title?: string;
@@ -1402,9 +1420,6 @@ export const SheetRenderer = React.memo(
     }
 
     // Global data check — Sadece data'nın geçerli bir obje olduğunu kontrol et.
-    // NOT: data.title veya data.type kontrolü kaldırıldı çünkü birçok aktivite türü
-    // (puzzles, items, problems, sorular, operations, steps vb.) bu alanları içermiyor
-    // ama geçerli render edilebilir veri içeriyor.
     const isDataEmpty = !data || typeof data !== 'object' || Object.keys(data).length === 0;
 
     if (isDataEmpty) {
@@ -1425,7 +1440,6 @@ export const SheetRenderer = React.memo(
     }
 
     // Mimari veya Blok yapısı varsa UnifiedRenderer kullan (Klon modülü buradan geçer)
-    // ÖNEMLİ: puzzles, items gibi geleneksel veriler doğrudan switch'e gitmeli ki grid yapıları (kolonlar) bozulmasın.
     const isModernLayout = data?.layoutArchitecture || (Array.isArray(data?.blocks) && data.blocks.some((b: any) => b?.type));
 
     if (!hideWrapper && isModernLayout) {
@@ -1438,6 +1452,9 @@ export const SheetRenderer = React.memo(
         />
       );
     }
+
+    // Data'nın geçerli bir obje olduğundan emin ol
+    if (!data || typeof data !== 'object') return null;
 
     let renderedSheet = null;
     // Geleneksel modül renderları

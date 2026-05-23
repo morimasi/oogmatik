@@ -143,11 +143,11 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
                   <span className="uppercase">{ws.activityType}</span>
                 </div>
                 <div className="flex gap-1.5">
-                  <button onClick={() => setShowPreview(ws)} className="flex-1 py-1.5 bg-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-lg text-[7px] font-bold uppercase hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all flex items-center justify-center gap-1">
+                  <button onClick={() => onLoadMaterial?.(ws)} className="flex-1 py-1.5 bg-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-lg text-[7px] font-bold uppercase hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all flex items-center justify-center gap-1">
                     <i className="fa-solid fa-eye text-[7px]"></i> Önizle
                   </button>
-                  <button onClick={() => onLoadMaterial?.(ws)} className="flex-1 py-1.5 bg-[var(--accent-color)] text-white rounded-lg text-[7px] font-bold uppercase hover:opacity-90 transition-all flex items-center justify-center gap-1">
-                    <i className="fa-solid fa-play text-[7px]"></i> Aç
+                  <button onClick={() => { setShowPreview(ws); }} className="flex-1 py-1.5 bg-[var(--accent-color)] text-white rounded-lg text-[7px] font-bold uppercase hover:opacity-90 transition-all flex items-center justify-center gap-1">
+                    <i className="fa-solid fa-info-circle text-[7px]"></i> Bilgi
                   </button>
                   <button onClick={() => handleDownload(ws)} className="w-7 py-1.5 bg-[var(--bg-secondary)] text-[var(--text-muted)] rounded-lg text-[7px] font-bold hover:text-[var(--accent-color)] transition-all flex items-center justify-center">
                     <i className="fa-solid fa-download text-[7px]"></i>
@@ -175,11 +175,11 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
                 <button onClick={() => toggleFavorite(ws.id)} className={`w-6 h-6 rounded-md flex items-center justify-center transition-all ${favorites.has(ws.id) ? 'text-amber-500' : 'text-[var(--text-muted)] hover:text-amber-500'}`}>
                   <i className={`fa-${favorites.has(ws.id) ? 'solid' : 'regular'} fa-star text-[8px]`}></i>
                 </button>
-                <button onClick={() => setShowPreview(ws)} className="w-6 h-6 rounded-md bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all">
+                <button onClick={() => onLoadMaterial?.(ws)} className="w-6 h-6 rounded-md bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all">
                   <i className="fa-solid fa-eye text-[8px]"></i>
                 </button>
-                <button onClick={() => onLoadMaterial?.(ws)} className="w-6 h-6 rounded-md bg-[var(--accent-color)] flex items-center justify-center text-white transition-all">
-                  <i className="fa-solid fa-play text-[8px]"></i>
+                <button onClick={() => { setShowPreview(ws); }} className="w-6 h-6 rounded-md bg-[var(--accent-color)] flex items-center justify-center text-white transition-all">
+                  <i className="fa-solid fa-info-circle text-[8px]"></i>
                 </button>
                 <button onClick={() => handleDownload(ws)} className="w-6 h-6 rounded-md bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all">
                   <i className="fa-solid fa-download text-[8px]"></i>
@@ -241,7 +241,7 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
                 <i className="fa-solid fa-download text-[8px]"></i> İndir
               </button>
               <button onClick={() => { onLoadMaterial?.(showPreview); setShowPreview(null); }} className="flex-1 py-2 bg-[var(--accent-color)] text-white rounded-xl text-[8px] font-bold uppercase hover:opacity-90 transition-all flex items-center justify-center gap-1.5">
-                <i className="fa-solid fa-play text-[8px]"></i> Aç
+                <i className="fa-solid fa-arrow-right text-[8px]"></i> Etkinliğe Git
               </button>
             </div>
           </div>
