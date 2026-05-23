@@ -110,30 +110,36 @@ async function callGemini(prompt: string, systemInstruction: string): Promise<Re
 
   if (!response.ok) {
     const errText = await response.text().catch(() => '');
-    throw new AppError({
-      message: `Reklam uretilemedi: ${response.status}`,
-      code: 'AD_GENERATION_FAILED',
-      details: errText,
-    });
+    throw new AppError(
+      `Reklam uretilemedi: ${response.status}`,
+      'AD_GENERATION_FAILED',
+      500,
+      { details: errText }
+    );
   }
 
-  const data = await response.json() as { content?: unknown };
-  if (!data.content) {
-    throw new AppError({
-      message: 'AI yanitinda icerik bulunamadi',
-      code: 'AD_EMPTY_RESPONSE',
-    });
+  const data = await response.json() as Record<string, unknown>;
+
+  if (data.error) {
+    const errMsg = typeof data.error === 'object' && data.error !== null
+      ? String((data.error as Record<string, unknown>).message || '')
+      : String(data.error);
+    throw new AppError(
+      errMsg || 'AI servisi hata dondurdu',
+      'AD_API_ERROR',
+      500
+    );
   }
 
-  if (typeof data.content === 'string') {
+  if (data.text && typeof data.text === 'string') {
     try {
-      return JSON.parse(data.content) as Record<string, unknown>;
+      return JSON.parse(data.text) as Record<string, unknown>;
     } catch {
-      return { script: data.content } as Record<string, unknown>;
+      return { script: data.text } as Record<string, unknown>;
     }
   }
 
-  return data.content as Record<string, unknown>;
+  return data as Record<string, unknown>;
 }
 
 export async function generateAd(settings: AdStudioSettings, brandKit: BrandKit): Promise<AdOutput> {
