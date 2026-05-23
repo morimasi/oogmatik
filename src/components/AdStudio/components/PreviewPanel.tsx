@@ -175,7 +175,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
           </div>
           <p className="text-[11px] text-zinc-300 leading-relaxed">{output.socialCopy}</p>
         </div>
-        {videoSection}
+        {renderVideoSection()}
       </div>
     );
   }
@@ -191,7 +191,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
         </div>
         <div className="text-[10px] text-zinc-600">Konu: <span className="text-zinc-300 font-bold">{output.emailSubject}</span></div>
         <div className="text-[11px] text-zinc-300 leading-relaxed whitespace-pre-wrap">{output.emailBody}</div>
-        {videoSection}
+        {renderVideoSection()}
       </div>
     );
   }
@@ -215,7 +215,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
         <p className="text-[10px] text-zinc-600">Konu: <span className="text-zinc-300">{output.emailSubject}</span></p>
         <p className="text-[11px] text-zinc-300 mt-1">{output.emailBody}</p>
       </div>
-      {videoSection}
+      {renderVideoSection()}
     </div>
   );
 };
