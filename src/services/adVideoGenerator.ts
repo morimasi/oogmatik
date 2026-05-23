@@ -3,6 +3,7 @@ import type { AdOutput, AdScene } from '../types/adStudio';
 interface VideoOptions {
   format: '9:16' | '16:9';
   onProgress?: (pct: number) => void;
+  signal?: AbortSignal;
 }
 
 function svgToImage(svg: string): Promise<HTMLImageElement> {
@@ -60,7 +61,6 @@ function renderFrame(
 ) {
   ctx.clearRect(0, 0, w, h);
 
-  const accentColor = scene.sceneNo % 2 === 0 ? '#7c3aed' : '#6366f1';
   const accentRgb = scene.sceneNo % 2 === 0 ? '124,58,237' : '99,102,241';
 
   const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
@@ -145,10 +145,25 @@ function wrapText(
   ctx.fillText(line, x, ly);
 }
 
+async function loadLexendFont(): Promise<void> {
+  if (typeof document === 'undefined') return;
+  try {
+    await document.fonts.load('700 16px Lexend');
+  } catch {
+    // Font not critical, fallback used
+  }
+}
+
 export async function generateVideo(
   output: AdOutput,
   options: VideoOptions,
 ): Promise<{ webm: Blob; durationMs: number }> {
+  if (!output.scenes.length) {
+    throw new Error('Video olusturmak icin en az bir sahne gerekli');
+  }
+
+  await loadLexendFont();
+
   const { width, height } = options.format === '9:16'
     ? { width: 1080, height: 1920 }
     : { width: 1920, height: 1080 };
@@ -195,6 +210,11 @@ export async function generateVideo(
     recorder.onerror = () => reject(new Error('Video kaydi basarisiz'));
 
     function render() {
+      if (options.signal?.aborted) {
+        recorder.stop();
+        reject(new Error('Video olusturma iptal edildi'));
+        return;
+      }
       if (currentFrame >= totalFrames) {
         recorder.stop();
         return;

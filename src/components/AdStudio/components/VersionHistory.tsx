@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useAdHistory } from '../../../hooks/useAdHistory';
-import { useAdGenerator } from '../../../hooks/useAdGenerator';
 import { PreviewPanel } from './PreviewPanel';
 import { AD_TARGET_LABELS } from '../../../types/adStudio';
 

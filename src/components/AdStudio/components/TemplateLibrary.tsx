@@ -35,6 +35,12 @@ export const TemplateLibrary: React.FC = () => {
         tone: settings.tone,
         format: settings.format,
         duration: settings.duration,
+        toneMix: settings.toneMix,
+        language: settings.language,
+        urgency: settings.urgency,
+        callToAction: settings.callToAction,
+        season: settings.season,
+        tags: settings.tags,
       },
       createdAt: new Date().toISOString(),
     };
@@ -48,6 +54,12 @@ export const TemplateLibrary: React.FC = () => {
     updateSettings('tone', tpl.settings.tone);
     updateSettings('format', tpl.settings.format);
     updateSettings('duration', tpl.settings.duration);
+    if (tpl.settings.toneMix) updateSettings('toneMix', tpl.settings.toneMix);
+    if (tpl.settings.language) updateSettings('language', tpl.settings.language);
+    if (tpl.settings.urgency) updateSettings('urgency', tpl.settings.urgency);
+    if (tpl.settings.callToAction) updateSettings('callToAction', tpl.settings.callToAction);
+    if (tpl.settings.season) updateSettings('season', tpl.settings.season);
+    if (tpl.settings.tags) updateSettings('tags', tpl.settings.tags);
     setStep(5);
   };
 

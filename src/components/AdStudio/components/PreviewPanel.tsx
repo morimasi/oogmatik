@@ -43,6 +43,58 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
     a.click();
   }, [videoUrl, output.id, videoFormat]);
 
+  const renderVideoSection = () => (
+    <div className="mt-6 pt-4 border-t border-white/5">
+      <div className="flex items-center gap-2 mb-3">
+        <i className="fa-solid fa-video text-indigo-500 text-[10px]" />
+        <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-400">Video</span>
+      </div>
+      <div className="flex items-center gap-2 mb-3">
+        <select
+          value={videoFormat}
+          onChange={e => setVideoFormat(e.target.value as '9:16' | '16:9')}
+          disabled={videoState === 'generating'}
+          className="flex-1 py-1.5 px-2 rounded-lg bg-white/5 border border-white/5 text-zinc-400 text-[9px] font-bold focus:outline-none focus:border-indigo-500/30 cursor-pointer appearance-none disabled:opacity-50"
+        >
+          <option value="9:16" className="bg-zinc-900">9:16 Dikey (TikTok/Reels)</option>
+          <option value="16:9" className="bg-zinc-900">16:9 Yatay (YouTube/Web)</option>
+        </select>
+        <button
+          onClick={handleGenerateVideo}
+          disabled={videoState === 'generating'}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/20 text-indigo-400 text-[9px] font-bold border border-indigo-500/30 hover:bg-indigo-500/30 transition-all disabled:opacity-50"
+        >
+          {videoState === 'generating' ? (
+            <i className="fa-solid fa-circle-notch fa-spin" />
+          ) : (
+            <i className="fa-solid fa-play" />
+          )}
+          {videoState === 'generating' ? `${videoProgress}%` : 'Video Oluştur'}
+        </button>
+      </div>
+      {videoState === 'generating' && (
+        <div className="w-full h-1 rounded-full bg-white/5 overflow-hidden">
+          <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300" style={{ width: `${videoProgress}%` }} />
+        </div>
+      )}
+      {videoState === 'done' && videoUrl && (
+        <div className="space-y-2">
+          <video ref={videoRef} src={videoUrl} controls className="w-full rounded-lg" />
+          <button
+            onClick={handleDownloadVideo}
+            className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30 hover:bg-emerald-500/30 transition-all"
+          >
+            <i className="fa-solid fa-download" />
+            Videoyu İndir (.webm)
+          </button>
+        </div>
+      )}
+      {videoState === 'error' && (
+        <p className="text-[10px] text-red-400">{videoError || 'Video olusturulamadi'}</p>
+      )}
+    </div>
+  );
+
   if (output.format === 'storyboard') {
     return (
       <div className="space-y-3">
@@ -95,57 +147,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
             </div>
           </div>
         ))}
-
-      {/* Video Generator */}
-      <div className="mt-6 pt-4 border-t border-white/5">
-        <div className="flex items-center gap-2 mb-3">
-          <i className="fa-solid fa-video text-indigo-500 text-[10px]" />
-          <span className="text-[9px] font-bold uppercase tracking-widest text-zinc-400">Video</span>
-        </div>
-        <div className="flex items-center gap-2 mb-3">
-          <select
-            value={videoFormat}
-            onChange={e => setVideoFormat(e.target.value as '9:16' | '16:9')}
-            disabled={videoState === 'generating'}
-            className="flex-1 py-1.5 px-2 rounded-lg bg-white/5 border border-white/5 text-zinc-400 text-[9px] font-bold focus:outline-none focus:border-indigo-500/30 cursor-pointer appearance-none disabled:opacity-50"
-          >
-            <option value="9:16" className="bg-zinc-900">9:16 Dikey (TikTok/Reels)</option>
-            <option value="16:9" className="bg-zinc-900">16:9 Yatay (YouTube/Web)</option>
-          </select>
-          <button
-            onClick={handleGenerateVideo}
-            disabled={videoState === 'generating'}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-500/20 text-indigo-400 text-[9px] font-bold border border-indigo-500/30 hover:bg-indigo-500/30 transition-all disabled:opacity-50"
-          >
-            {videoState === 'generating' ? (
-              <i className="fa-solid fa-circle-notch fa-spin" />
-            ) : (
-              <i className="fa-solid fa-play" />
-            )}
-            {videoState === 'generating' ? `${videoProgress}%` : 'Video Oluştur'}
-          </button>
-        </div>
-        {videoState === 'generating' && (
-          <div className="w-full h-1 rounded-full bg-white/5 overflow-hidden">
-            <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300" style={{ width: `${videoProgress}%` }} />
-          </div>
-        )}
-        {videoState === 'done' && videoUrl && (
-          <div className="space-y-2">
-            <video ref={videoRef} src={videoUrl} controls className="w-full rounded-lg" />
-            <button
-              onClick={handleDownloadVideo}
-              className="w-full flex items-center justify-center gap-2 py-2 rounded-lg bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30 hover:bg-emerald-500/30 transition-all"
-            >
-              <i className="fa-solid fa-download" />
-              Videoyu İndir (.webm)
-            </button>
-          </div>
-        )}
-        {videoState === 'error' && (
-          <p className="text-[10px] text-red-400">{videoError || 'Video olusturulamadi'}</p>
-        )}
-      </div>
+      {renderVideoSection()}
       </div>
     );
   }
@@ -173,6 +175,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
           </div>
           <p className="text-[11px] text-zinc-300 leading-relaxed">{output.socialCopy}</p>
         </div>
+        {videoSection}
       </div>
     );
   }
@@ -188,6 +191,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
         </div>
         <div className="text-[10px] text-zinc-600">Konu: <span className="text-zinc-300 font-bold">{output.emailSubject}</span></div>
         <div className="text-[11px] text-zinc-300 leading-relaxed whitespace-pre-wrap">{output.emailBody}</div>
+        {videoSection}
       </div>
     );
   }
@@ -211,6 +215,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
         <p className="text-[10px] text-zinc-600">Konu: <span className="text-zinc-300">{output.emailSubject}</span></p>
         <p className="text-[11px] text-zinc-300 mt-1">{output.emailBody}</p>
       </div>
+      {videoSection}
     </div>
   );
 };

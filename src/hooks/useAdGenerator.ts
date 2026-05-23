@@ -25,6 +25,11 @@ export function useAdGenerator() {
   }, []);
 
   const generate = useCallback(async () => {
+    if (!settings.audience.length) {
+      setError('En az bir hedef kitle seçmelisin');
+      setIsGenerating(false);
+      return;
+    }
     setIsGenerating(true);
     setError(null);
     try {

@@ -133,6 +133,12 @@ export interface AdTemplate {
     tone: AdTone;
     format: AdFormat;
     duration: number;
+    toneMix?: Record<AdTone, number>;
+    language?: 'tr' | 'en';
+    urgency?: 'low' | 'medium' | 'high';
+    callToAction?: string;
+    season?: string;
+    tags?: string[];
   };
   createdAt: string;
 }
