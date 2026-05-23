@@ -6,6 +6,7 @@ export type { UserRoleType };
 export type AdminTab =
   | 'dashboard'
   | 'users'
+  | 'teachers'
   | 'activities'
   | 'prompts'
   | 'static_content'

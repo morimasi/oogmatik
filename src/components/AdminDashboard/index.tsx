@@ -21,6 +21,7 @@ import { AdminUserManagement } from './AdminUserManagement';
 import { AdminDraftReview } from './AdminDraftReview';
 import { AdminActivityApproval } from './AdminActivityApproval';
 import { AdminPermissionsIDE } from './PermissionsIDE';
+import TeacherManagement from './TeacherManagement';
 
 interface AdminDashboardProps {
   onBack: () => void;
@@ -66,6 +67,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
     const validTabs: AdminTab[] = [
       'dashboard',
       'users',
+      'teachers',
       'activities',
       'prompts',
       'static_content',
@@ -174,6 +176,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
           <p className="px-4 mb-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Analiz & Kullanıcı</p>
           <NavButton active={activeTab === 'dashboard'} label="Genel Bakış" icon="fa-chart-pie" onClick={() => setActiveTab('dashboard')} />
           <NavButton active={activeTab === 'users'} label="Kullanıcılar" icon="fa-users" onClick={() => setActiveTab('users')} />
+          <NavButton active={activeTab === 'teachers'} label="Öğretmenler" icon="fa-chalkboard-user" onClick={() => setActiveTab('teachers')} />
           <NavButton active={activeTab === 'permissions'} label="Yetki Matrisi" icon="fa-lock" onClick={() => setActiveTab('permissions')} />
 
           <p className="px-4 mt-6 mb-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">İçerik Motoru</p>
@@ -200,6 +203,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
             <h1 className="text-xl font-black text-[var(--text-primary)] uppercase italic tracking-tighter">
               {activeTab === 'dashboard' && 'Kontrol Paneli'}
               {activeTab === 'users' && 'Kullanıcı Yönetimi'}
+              {activeTab === 'teachers' && 'Öğretmen Yönetimi'}
               {activeTab === 'activities' && 'Aktivite Yöneticisi'}
               {activeTab === 'prompts' && 'AI Prompt Laboratuvarı'}
               {activeTab === 'static_content' && 'Veri Kaynakları (CMS)'}
@@ -227,6 +231,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
               {activeTab === 'static_content' && <AdminStaticContent />}
               {activeTab === 'feedbacks' && <AdminFeedback />}
               {activeTab === 'users' && <AdminUserManagement />}
+              {activeTab === 'teachers' && <TeacherManagement />}
               {activeTab === 'drafts' && <AdminDraftReview />}
               {activeTab === 'approvals' && <AdminActivityApproval />}
               {activeTab === 'permissions' && <AdminPermissionsIDE />}
