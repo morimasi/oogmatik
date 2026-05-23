@@ -44,6 +44,7 @@ import { useUIStore } from './store/useUIStore';
 import { useProfileData } from './components/Profile/hooks/useProfileData';
 import { AppHeader } from './components/AppHeader';
 import { AssignModal } from './components/Student/AssignModal';
+import { useGlobalSettings } from './hooks/useGlobalSettings';
 import { GuideModule, TourModule, PremiumHelpModule, AboutModule, DeveloperVisionModule } from './components/Onboarding';
 const ScreeningAssessment = lazy(() => import('./components/ScreeningAssessment').then(m => ({ default: m.ScreeningAssessment })));
 import LoginPage from './pages/LoginPage';
@@ -390,121 +391,7 @@ const AppContent = () => {
     }
   }, [authStore.user]);
 
-  // Apply UI settings to document root when they change
-  useEffect(() => {
-    document.documentElement.style.setProperty('--app-font-family', uiSettings.fontFamily);
-    document.documentElement.style.setProperty(
-      '--app-font-size-scale',
-      uiSettings.fontSizeScale.toString()
-    );
-    document.documentElement.style.setProperty(
-      '--app-line-height',
-      uiSettings.lineHeight.toString()
-    );
-    document.documentElement.style.setProperty(
-      '--app-letter-spacing',
-      uiSettings.letterSpacing === 'wide' ? '0.05em' : 'normal'
-    );
-    document.documentElement.style.setProperty('--app-saturation', `${uiSettings.saturation}%`);
-
-    // Add a class for wide letter spacing to target specific elements if needed
-    if (uiSettings.letterSpacing === 'wide') {
-      document.documentElement.classList.add('letter-spacing-wide');
-    } else {
-      document.documentElement.classList.remove('letter-spacing-wide');
-    }
-
-    // Apply styles directly to body for inherited properties
-    document.body.style.fontFamily = uiSettings.fontFamily;
-    document.body.style.fontSize = `${16 * uiSettings.fontSizeScale}px`;
-    document.body.style.lineHeight = uiSettings.lineHeight.toString();
-    document.body.style.letterSpacing = uiSettings.letterSpacing === 'wide' ? '0.05em' : 'normal';
-    document.body.style.filter = `saturate(${uiSettings.saturation}%)`;
-
-    // Apply Focus Mode globally
-    if (uiSettings.focusMode) {
-      document.body.classList.add('focus-mode-active');
-    } else {
-      document.body.classList.remove('focus-mode-active');
-    }
-  }, [uiSettings]);
-
-  // Tüm koyu temalar — tema sınıflandırması için merkezi sabit
-  const DARK_THEMES: AppTheme[] = [
-    'dark',
-    'anthracite',
-    'space',
-    'anthracite-gold',
-    'anthracite-cyber',
-    'ocean',
-    'nature',
-  ];
-
-  // Theme effect
-  useEffect(() => {
-    // Handle basic dark/light first
-    const DARK_THEMES: AppTheme[] = [
-      'dark',
-      'anthracite',
-      'space',
-      'anthracite-gold',
-      'anthracite-cyber',
-      'oled-black',
-    ];
-    if (DARK_THEMES.includes(theme) || theme.includes('anthracite')) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-
-    // Remove all theme classes first
-    document.documentElement.classList.remove(
-      'theme-light',
-      'theme-dark',
-      'theme-anthracite',
-      'theme-space',
-      'theme-nature',
-      'theme-ocean',
-      'theme-anthracite-gold',
-      'theme-anthracite-cyber',
-      'theme-oled-black',
-      'theme-dyslexia-cream',
-      'theme-dyslexia-mint'
-    );
-    // Add selected theme class
-    document.documentElement.classList.add(`theme-${theme}`);
-  }, [theme]);
-
-  useEffect(() => {
-    document.documentElement.style.setProperty('--sidebar-width', `${sidebarWidth}px`);
-  }, [sidebarWidth]);
-
-  // FAZ 4: Print trigger — yazdırmadan önce light tema zorlama, sonra eski haline döndürme
-  useEffect(() => {
-    const handleBeforePrint = () => {
-      // Tüm tema sınıflarını kaldır ve light tema uygula
-      document.documentElement.classList.add('printing-forced-light');
-      document.documentElement.classList.remove('dark');
-      document.body.style.filter = 'none';
-    };
-
-    const handleAfterPrint = () => {
-      document.documentElement.classList.remove('printing-forced-light');
-      // Eski temayı geri yükle
-      if (DARK_THEMES.includes(theme)) {
-        document.documentElement.classList.add('dark');
-      }
-      document.body.style.filter = `saturate(${uiSettings.saturation}%)`;
-    };
-
-    window.addEventListener('beforeprint', handleBeforePrint);
-    window.addEventListener('afterprint', handleAfterPrint);
-
-    return () => {
-      window.removeEventListener('beforeprint', handleBeforePrint);
-      window.removeEventListener('afterprint', handleAfterPrint);
-    };
-  }, [theme, uiSettings.saturation]);
+  useGlobalSettings(uiSettings, theme, sidebarWidth);
 
   // Onboarding Modules Event Listeners
   useEffect(() => {

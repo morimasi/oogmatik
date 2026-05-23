@@ -72,70 +72,78 @@ const DraggableItem = ({ item, children, canvasWidth }: DraggableItemProps) => {
     const initialStyle = { ...item.style };
     toggleSelection(item.instanceId, isCtrlKey);
 
+    let animationFrameId: number | null = null;
+
     const onMouseMove = (moveEvent: globalThis.MouseEvent) => {
       if (!isDragging.current) return;
 
-      const dx = moveEvent.clientX - startPos.current.x;
-      const dy = moveEvent.clientY - startPos.current.y;
-
-      if (isResizeHandle) {
-        const initW = Number(initialStyle.w) || 0;
-        const initH = Number(initialStyle.h) || 0;
-        const newW = Math.max(50, Math.round((initW + dx) / 8) * 8);
-        const newH = Math.max(30, Math.round((initH + dy) / 8) * 8);
-        const heightDiff = newH - initH;
-
-        setLayout(
-          initialLayout.current.map((l: LayoutItem) => {
-            if (l.instanceId === item.instanceId) {
-              return { ...l, style: { ...l.style, w: newW, h: newH } };
-            }
-
-            const initY = Number(initialStyle.y) || 0;
-            if (l.pageIndex === item.pageIndex && Number(l.style.y) >= initY + initH - 10) {
-              return { ...l, style: { ...l.style, y: Number(l.style.y) + heightDiff } };
-            }
-            return l;
-          })
-        );
-      } else {
-        const initX = Number(initialStyle.x) || 0;
-        const initY = Number(initialStyle.y) || 0;
-        const initW = Number(initialStyle.w) || 0;
-
-        let newX = Math.round((initX + dx) / 8) * 8;
-        const newY = Math.round((initY + dy) / 8) * 8;
-
-        const centerX = canvasWidth / 2;
-        const itemCenterX = newX + initW / 2;
-
-        if (Math.abs(itemCenterX - centerX) < 15) newX = centerX - initW / 2;
-        if (Math.abs(newX - 20) < 15) newX = 20;
-        if (Math.abs(newX + initW - (canvasWidth - 20)) < 15) newX = canvasWidth - 20 - initW;
-
-        const deltaX = newX - initX;
-        const deltaY = newY - initY;
-
-        setLayout(
-          initialLayout.current.map((l: LayoutItem) => {
-            if (l.instanceId === item.instanceId || (item.groupId && l.groupId === item.groupId)) {
-              const originalL =
-                initialLayout.current.find(
-                  (orig: LayoutItem) => orig.instanceId === l.instanceId
-                ) || l;
-              return {
-                ...l,
-                style: {
-                  ...l.style,
-                  x: Number(originalL.style.x) + deltaX,
-                  y: Number(originalL.style.y) + deltaY,
-                },
-              };
-            }
-            return l;
-          })
-        );
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
       }
+
+      animationFrameId = requestAnimationFrame(() => {
+        const dx = moveEvent.clientX - startPos.current.x;
+        const dy = moveEvent.clientY - startPos.current.y;
+
+        if (isResizeHandle) {
+          const initW = Number(initialStyle.w) || 0;
+          const initH = Number(initialStyle.h) || 0;
+          const newW = Math.max(50, Math.round((initW + dx) / 8) * 8);
+          const newH = Math.max(30, Math.round((initH + dy) / 8) * 8);
+          const heightDiff = newH - initH;
+
+          setLayout(
+            initialLayout.current.map((l: LayoutItem) => {
+              if (l.instanceId === item.instanceId) {
+                return { ...l, style: { ...l.style, w: newW, h: newH } };
+              }
+
+              const initY = Number(initialStyle.y) || 0;
+              if (l.pageIndex === item.pageIndex && Number(l.style.y) >= initY + initH - 10) {
+                return { ...l, style: { ...l.style, y: Number(l.style.y) + heightDiff } };
+              }
+              return l;
+            })
+          );
+        } else {
+          const initX = Number(initialStyle.x) || 0;
+          const initY = Number(initialStyle.y) || 0;
+          const initW = Number(initialStyle.w) || 0;
+
+          let newX = Math.round((initX + dx) / 8) * 8;
+          const newY = Math.round((initY + dy) / 8) * 8;
+
+          const centerX = canvasWidth / 2;
+          const itemCenterX = newX + initW / 2;
+
+          if (Math.abs(itemCenterX - centerX) < 15) newX = centerX - initW / 2;
+          if (Math.abs(newX - 20) < 15) newX = 20;
+          if (Math.abs(newX + initW - (canvasWidth - 20)) < 15) newX = canvasWidth - 20 - initW;
+
+          const deltaX = newX - initX;
+          const deltaY = newY - initY;
+
+          setLayout(
+            initialLayout.current.map((l: LayoutItem) => {
+              if (l.instanceId === item.instanceId || (item.groupId && l.groupId === item.groupId)) {
+                const originalL =
+                  initialLayout.current.find(
+                    (orig: LayoutItem) => orig.instanceId === l.instanceId
+                  ) || l;
+                return {
+                  ...l,
+                  style: {
+                    ...l.style,
+                    x: Number(originalL.style.x) + deltaX,
+                    y: Number(originalL.style.y) + deltaY,
+                  },
+                };
+              }
+              return l;
+            })
+          );
+        }
+      });
     };
 
     const onMouseUp = () => {
@@ -143,6 +151,9 @@ const DraggableItem = ({ item, children, canvasWidth }: DraggableItemProps) => {
         updateComponent(item.instanceId, {});
       }
       isDragging.current = false;
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+      }
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
     };

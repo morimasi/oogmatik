@@ -16,8 +16,8 @@ import { logInfo, logError } from '../utils/logger.js';
 import { activityLogService } from './activityLogService';
 const { doc, getDoc, setDoc, updateDoc, collection, getDocs, query, orderBy, limit, deleteDoc, increment } = firestore;
 
-// SUPER ADMIN EMAIL - Hardcoded for security
-const SUPER_ADMIN_EMAIL = 'morimasi@gmail.com';
+// SUPER ADMIN EMAIL - Ortam değişkeninden alınıyor (Güvenlik)
+const SUPER_ADMIN_EMAIL = import.meta.env.VITE_SUPER_ADMIN_EMAIL || 'morimasi@gmail.com';
 
 // Map Firestore doc to App User type
 const mapDbUserToAppUser = (docData: any, uid: string, email: string): User => {
