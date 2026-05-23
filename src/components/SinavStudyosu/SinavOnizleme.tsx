@@ -65,9 +65,9 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
           </div>
         </div>
       ) : (
-        <div style={{ textAlign: 'center', marginBottom: '20px', borderBottom: '2px solid #000', paddingBottom: '10px' }}>
-          <h1 style={{ fontSize: '24px', fontWeight: '900', textTransform: 'uppercase', marginBottom: '5px' }}>{sinav.baslik}</h1>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', fontSize: '14px', fontWeight: 'bold' }}>
+        <div className="sinav-print-header" style={{ textAlign: 'center', marginBottom: '12px', borderBottom: '1px solid #000', paddingBottom: '6px' }}>
+          <h1 style={{ fontSize: '18px', fontWeight: '900', textTransform: 'uppercase', marginBottom: '4px' }}>{sinav.baslik}</h1>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '11px', fontWeight: 'bold' }}>
             <span>SINIF: {sinav.sinif}</span>
             <span>TOPLAM SORU: {sinav.sorular.length}</span>
             <span>SÜRE: {Math.ceil(sinav.tahminiSure / 60)} DK</span>
@@ -95,10 +95,10 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
       )}
 
       {/* Öğrenci Bilgi Satırı */}
-      <div className={`border border-gray-200 rounded-xl px-4 py-3 mb-5 flex flex-wrap gap-6 text-sm text-gray-600 ${isPrinting ? 'border-black text-black font-bold' : ''}`} style={{ breakInside: 'avoid' }}>
-        <span>Ad Soyad: <span className="border-b border-gray-400 inline-block w-40">&nbsp;</span></span>
-        <span>Sınıf/Şube: <span className="border-b border-gray-400 inline-block w-20">&nbsp;</span></span>
-        <span>Tarih: <span className="border-b border-gray-400 inline-block w-24">&nbsp;</span></span>
+      <div className={`border border-gray-200 rounded-xl px-4 py-2 mb-3 flex flex-wrap gap-4 text-sm text-gray-600 ${isPrinting ? 'border-black text-black font-bold text-xs py-1 mb-2' : ''}`} style={{ breakInside: 'avoid' }}>
+        <span>Ad Soyad: <span className="border-b border-gray-400 inline-block w-32">&nbsp;</span></span>
+        <span>Sınıf/Şube: <span className="border-b border-gray-400 inline-block w-16">&nbsp;</span></span>
+        <span>Tarih: <span className="border-b border-gray-400 inline-block w-20">&nbsp;</span></span>
         {isPrinting && <span className="ml-auto">Puan: ________ / {sinav.toplamPuan}</span>}
       </div>
 
@@ -108,11 +108,11 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
         style={{ 
           display: 'grid',
           gridTemplateColumns: columnsCount > 1 ? `repeat(${columnsCount}, 1fr)` : '1fr',
-          gap: isPrinting ? '12mm' : questionGap
+          gap: isPrinting ? '4mm' : questionGap
         }}
       >
         {sinav.sorular.map((soru, index) => (
-          <div key={soru.id} style={{ breakInside: 'avoid' }}>
+          <div key={soru.id} className="sinav-soru-wrapper">
             <SoruCard
               soru={soru}
               soruNo={index + 1}
@@ -136,6 +136,41 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
             {sinav.pedagogicalNote}
           </p>
         </div>
+      )}
+      {/* Yazdırma için özel CSS — compact layout + sayfa bölünmez soru kartları */}
+      {isPrinting && (
+        <style>{`
+          .sinav-onizleme.is-printing {
+            padding: 6mm 8mm !important;
+            font-size: 9pt !important;
+          }
+          .sinav-onizleme.is-printing .sinav-soru-wrapper {
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          .sinav-onizleme.is-printing .sorular-container {
+            gap: 3mm !important;
+          }
+          .sinav-onizleme.is-printing .sinav-print-header {
+            margin-bottom: 6px !important;
+            padding-bottom: 4px !important;
+          }
+          .sinav-onizleme.is-printing .sinav-print-header h1 {
+            font-size: 16pt !important;
+            margin-bottom: 2px !important;
+          }
+          .sinav-onizleme.is-printing .sinav-print-header div {
+            font-size: 9pt !important;
+            gap: 10px !important;
+          }
+          .sinav-onizleme.is-printing .sinav-soru-wrapper > div {
+            padding: 2mm 3mm !important;
+            margin: 0 !important;
+            border: none !important;
+            border-bottom: 1px dashed #ccc !important;
+            border-radius: 0 !important;
+          }
+        `}</style>
       )}
     </div>
   );
