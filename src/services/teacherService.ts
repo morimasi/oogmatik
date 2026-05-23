@@ -232,4 +232,31 @@ export const teacherService = {
       return null;
     }
   },
+
+  getActivityPreview: async (type: string, targetId: string): Promise<Record<string, unknown> | null> => {
+    try {
+      const collections: Record<string, string> = {
+        worksheet: 'saved_worksheets',
+        assessment: 'saved_assessments',
+        plan: 'saved_curriculums',
+      };
+      const col = collections[type];
+      if (!col) return null;
+      const docSnap = await getDoc(doc(db, col, targetId));
+      if (!docSnap.exists()) return null;
+      return { id: docSnap.id, ...docSnap.data() };
+    } catch {
+      return null;
+    }
+  },
+
+  getStudentPreview: async (studentId: string): Promise<Record<string, unknown> | null> => {
+    try {
+      const docSnap = await getDoc(doc(db, 'students', studentId));
+      if (!docSnap.exists()) return null;
+      return { id: docSnap.id, ...docSnap.data() };
+    } catch {
+      return null;
+    }
+  },
 };
