@@ -21,7 +21,10 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
     setVideoProgress(0);
     setVideoError(null);
     try {
-      const { webm } = await generateVideo(output, {
+      const patchedOutput = screenshot
+        ? { ...output, scenes: output.scenes.map(s => ({ ...s, sceneVisual: screenshot })) }
+        : output;
+      const { webm } = await generateVideo(patchedOutput, {
         format: videoFormat,
         onProgress: setVideoProgress,
       });
@@ -33,7 +36,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
       setVideoError(msg);
       setVideoState('error');
     }
-  }, [output, videoFormat]);
+  }, [output, videoFormat, screenshot]);
 
   const handleDownloadVideo = useCallback(() => {
     if (!videoUrl) return;

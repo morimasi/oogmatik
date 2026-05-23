@@ -21,6 +21,16 @@ function svgToImage(svg: string): Promise<HTMLImageElement> {
   });
 }
 
+function loadSceneImage(visual: string): Promise<HTMLImageElement> {
+  return visual.startsWith('<svg') ? svgToImage(visual) : new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('Image load failed'));
+    img.crossOrigin = 'anonymous';
+    img.src = visual;
+  });
+}
+
 function fillRoundRect(
   ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number
 ) {
@@ -311,7 +321,7 @@ export async function generateVideo(
   const sceneImages: (HTMLImageElement | null)[] = await Promise.all(
     output.scenes.map(async (scene) => {
       if (!scene.sceneVisual) return null;
-      try { return await svgToImage(scene.sceneVisual); }
+      try { return await loadSceneImage(scene.sceneVisual); }
       catch { return null; }
     }),
   );
