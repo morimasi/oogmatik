@@ -1,5 +1,6 @@
 import React from 'react';
 import { useAdGenerator } from '../../hooks/useAdGenerator';
+import { useScreenshotCapture } from '../../hooks/useScreenshotCapture';
 import { StepWizard } from './components/StepWizard';
 import { TargetSelector } from './components/TargetSelector';
 import { AudienceSelector } from './components/AudienceSelector';
@@ -15,12 +16,21 @@ import { CampaignManager } from './components/CampaignManager';
 import { TemplateLibrary } from './components/TemplateLibrary';
 import { MediaLibrary } from './components/MediaLibrary';
 import { ExportPanel } from './components/ExportPanel';
+import { ModulePreview } from './components/ModulePreview';
 
 type Panel = 'studio' | 'history' | 'campaigns' | 'templates' | 'media' | 'brand';
 
 export const AdStudio: React.FC = () => {
   const generator = useAdGenerator();
   const [activePanel, setActivePanel] = React.useState<Panel>('studio');
+  const { previewRef, captured, capture } = useScreenshotCapture();
+
+  React.useEffect(() => {
+    if (generator.output && !captured[generator.output.target]) {
+      const timer = setTimeout(() => capture(generator.output.target), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [generator.output, captured, capture]);
 
   const stepLabels = ['Hedef', 'Kitle', 'Ton', 'Format', 'Ayarlar'];
 
@@ -152,7 +162,14 @@ export const AdStudio: React.FC = () => {
                 <button onClick={() => generator.setError(null)} className="text-[10px] text-zinc-500 underline">Kapat</button>
               </div>
             ) : generator.output ? (
-              <PreviewPanel output={generator.output} />
+              <>
+                <PreviewPanel output={generator.output} screenshot={captured[generator.output.target]} />
+                <div className="absolute opacity-0 pointer-events-none" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+                  <div ref={previewRef}>
+                    <ModulePreview target={generator.output.target} />
+                  </div>
+                </div>
+              </>
             ) : (
               <div className="flex flex-col items-center justify-center h-64 gap-3 text-zinc-500">
                 <i className="fa-solid fa-wand-magic-sparkles text-4xl" />

@@ -3,9 +3,10 @@ import { AdOutput, AD_TARGET_LABELS } from '../../../types/adStudio';
 
 interface PreviewPanelProps {
   output: AdOutput;
+  screenshot?: string;
 }
 
-export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output }) => {
+export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }) => {
   if (output.format === 'storyboard') {
     return (
       <div className="space-y-3">
@@ -25,6 +26,20 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output }) => {
                 </span>
                 <span className="text-[8px] font-mono text-zinc-600">{scene.duration}s</span>
               </div>
+
+              <div className="mb-3 rounded-lg overflow-hidden bg-black/30 border border-white/5">
+                {scene.sceneVisual && scene.sceneVisual.startsWith('<svg') ? (
+                  <div className="w-full [&_svg]:w-full [&_svg]:h-auto" dangerouslySetInnerHTML={{ __html: scene.sceneVisual }} />
+                ) : screenshot ? (
+                  <img src={screenshot} alt={`Sahne ${scene.sceneNo}`} className="w-full h-auto object-cover" />
+                ) : (
+                  <div className="flex items-center justify-center h-[120px] text-zinc-600 text-[10px]">
+                    <i className="fa-solid fa-image mr-2 opacity-50" />
+                    {scene.visualDesc.slice(0, 60)}...
+                  </div>
+                )}
+              </div>
+
               <p className="text-[11px] text-zinc-300 leading-relaxed mb-2">
                 <span className="text-zinc-500 text-[9px] font-bold uppercase tracking-wider">Görsel: </span>
                 {scene.visualDesc}

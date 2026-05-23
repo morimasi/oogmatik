@@ -59,16 +59,23 @@ YANIT FORMATI (JSON):
       "visualDesc": "Gorsel aciklama (kamera, isik, atmosfer)",
       "voiceover": "seslendirme metni",
       "textOverlay": "ekranda gorunecek yazi",
-      "transition": "gecis turu (cut/fade/dissolve)"
+      "transition": "gecis turu (cut/fade/dissolve)",
+      "sceneVisual": "<svg>...</svg>"
     }
   ],
+  "sceneVisuals": {
+    "1": "<svg>…gorsel anlatim…</svg>",
+    "2": "<svg>…gorsel anlatim…</svg>"
+  },
   "script": "tam video senaryo (pazarlama metni olarak)",
   "socialCopy": "sosyal medya postu (280 karakter)",
   "emailSubject": "eposta konu basligi",
   "emailBody": "eposta govde metni"
 }
 
-KURAL: Tum sahnelerin toplam suresi ${settings.duration} saniyeyi gecmesin.`;
+KURAL: Tum sahnelerin toplam suresi ${settings.duration} saniyeyi gecmesin.
+
+KURAL 2: Her sahne icin mutlaka SVG gorsel olustur. SVG 400x300 boyutunda, Oogmatik branding renkleriyle (mor #7c3aed, lacivert #1e1b4b), basit geometrik sekiller ve metin iceren bir illustrasyon olsun. sceneVisuals objesinde sahne numarasi key olarak kullan. SVG kodlarinda tek tirnak kullanma, cift tirnak kullan.`;
 }
 
 async function callGemini(prompt: string, systemInstruction: string): Promise<Record<string, unknown>> {
@@ -94,6 +101,7 @@ async function callGemini(prompt: string, systemInstruction: string): Promise<Re
             transition: { type: 'STRING' },
           },
         }},
+        sceneVisuals: { type: 'OBJECT' },
         script: { type: 'STRING' },
         socialCopy: { type: 'STRING' },
         emailSubject: { type: 'STRING' },
@@ -148,6 +156,7 @@ export async function generateAd(settings: AdStudioSettings, brandKit: BrandKit)
 
   const result = await callGemini(prompt, systemInstr);
 
+  const sceneVisuals = result.sceneVisuals as Record<string, string> | undefined;
   const scenes = Array.isArray(result.scenes) ? result.scenes.map((s: Record<string, unknown>) => ({
     sceneNo: Number(s.sceneNo) || 0,
     duration: Number(s.duration) || 5,
@@ -155,6 +164,7 @@ export async function generateAd(settings: AdStudioSettings, brandKit: BrandKit)
     voiceover: String(s.voiceover || ''),
     textOverlay: String(s.textOverlay || ''),
     transition: String(s.transition || 'cut'),
+    sceneVisual: String(s.sceneVisual || sceneVisuals?.[String(s.sceneNo)] || ''),
   })) : [];
 
   return {

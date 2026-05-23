@@ -84,6 +84,7 @@ export interface AdScene {
   voiceover: string;
   textOverlay: string;
   transition: string;
+  sceneVisual?: string;
 }
 
 export interface AdOutput {
