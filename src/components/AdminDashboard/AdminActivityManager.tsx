@@ -20,9 +20,7 @@ import {
   Save,
   RefreshCcw as RefreshCw,
   X,
-  Copy,
-  ArrowUpDown,
-  GripVertical
+  Copy
 } from 'lucide-react';
 
 /**
@@ -329,9 +327,9 @@ export const AdminActivityManager: React.FC = () => {
                       <button
                         onClick={(e) => { e.stopPropagation(); moveActivity(act.id, 'up'); }}
                         className="p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
-                        title="Yukarı taşı"
+                        title="Sırala"
                       >
-                        <ArrowUpDown size={12} className="rotate-90" />
+                        <i className="fa-solid fa-arrow-up text-[8px]"></i>
                       </button>
                       <span className="text-[8px] font-mono text-zinc-400 opacity-50">#{act.order}</span>
                     </div>
