@@ -15,7 +15,8 @@ export type AdminTab =
   | 'drafts'
   | 'approvals'
   | 'permissions'
-  | 'content_engine';
+  | 'content_engine'
+  | 'ad_studio';
 
 export interface ContentEngineMetrics {
   totalTemplates: number;

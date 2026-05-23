@@ -22,6 +22,7 @@ import { AdminDraftReview } from './AdminDraftReview';
 import { AdminActivityApproval } from './AdminActivityApproval';
 import { AdminPermissionsIDE } from './PermissionsIDE';
 import { AdminContentEngine } from './AdminContentEngine';
+import { AdStudio } from '../AdStudio';
 import TeacherManagement from './TeacherManagement';
 import { AdminStudentManagement } from './AdminStudentManagement';
 
@@ -79,6 +80,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
       'drafts',
       'approvals',
       'permissions',
+      'ad_studio',
     ];
     return saved && validTabs.includes(saved) ? saved : 'dashboard';
   });
@@ -194,6 +196,9 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
 
           <p className="px-4 mt-6 mb-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Destek</p>
           <NavButton active={activeTab === 'feedbacks'} label="Gelen Kutusu" icon="fa-inbox" onClick={() => setActiveTab('feedbacks')} count={3} />
+
+          <p className="px-4 mt-6 mb-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Pazarlama</p>
+          <NavButton active={activeTab === 'ad_studio'} label="Reklam Stüdyosu" icon="fa-wand-magic-sparkles" onClick={() => setActiveTab('ad_studio')} />
         </nav>
 
         <div className="p-4 border-t border-[var(--border-color)]">
@@ -219,6 +224,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
               {activeTab === 'drafts' && 'Taslak Havuzu (OCR)'}
               {activeTab === 'approvals' && 'İçerik Onay Merkezi'}
               {activeTab === 'permissions' && 'Yetkilendirme (RBAC)'}
+              {activeTab === 'ad_studio' && 'Reklam Stüdyosu'}
             </h1>
             <span className="px-2 py-0.5 rounded bg-[var(--bg-secondary)] text-[10px] font-mono text-[var(--text-muted)] border border-[var(--border-color)]">v1.3.0</span>
           </div>
@@ -245,6 +251,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
               {activeTab === 'drafts' && <AdminDraftReview />}
               {activeTab === 'approvals' && <AdminActivityApproval />}
               {activeTab === 'permissions' && <AdminPermissionsIDE />}
+              {activeTab === 'ad_studio' && <AdStudio />}
             </React.Suspense>
           </div>
         </div>

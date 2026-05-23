@@ -1307,5 +1307,72 @@ Tüm ajanlardan geçer not ("approved: true") almayan hiçbir otonom blueprint s
 
 ---
 
+## 14. Reklam Stüdyosu (AdStudio) {#reklam-studyo}
+
+### Dosya Konumu
+`components/AdStudio/`
+
+### Amaç
+Tüm Oogmatik modülleri/stüdyoları için AI destekli, özelleştirilebilir reklam içeriği üretir. Storyboard, video script, sosyal medya, e-posta, basın bülteni, broşür ve web metni formatlarında çıktı verir.
+
+### Ana Bileşen
+- `AdStudio.tsx` — Ana hub: sihirbaz, önizleme, geçmiş, kampanyalar
+- `components/StepWizard.tsx` — 5 adımlı premium sihirbaz
+- `components/TargetSelector.tsx` — Modül/stüdyo seçimi (18+ hedef)
+- `components/AudienceSelector.tsx` — Çoklu hedef kitle + öncelik
+- `components/ToneSelector.tsx` — Ton seçimi + yüzdelik karışım slider'ları
+- `components/FormatPicker.tsx` — 7 format + süre seçici
+- `components/BrandSettings.tsx` — Marka kiti düzenleyici (çoklu, renk, font, slogan)
+- `components/AdvancedOptions.tsx` — Dil, aciliyet, CTA, sezon, etiket
+- `components/PreviewPanel.tsx` — Format bazlı canlı önizleme
+- `components/VersionHistory.tsx` — Versiyon geçmişi, diff, favori, arşiv
+- `components/ABTestPanel.tsx` — A/B varyasyon üret + karşılaştır
+- `components/BatchGenerator.tsx` — Tüm modüller için toplu üretim
+- `components/CampaignManager.tsx` — Kampanya oluşturma/yönetme
+- `components/TemplateLibrary.tsx` — Şablon kaydetme/yükleme/export/import
+- `components/MediaLibrary.tsx` — Görsel asset yönetimi
+- `components/ExportPanel.tsx` — MD/JSON/HTML export + kopyala
+
+### Servis
+- `services/adGeneratorService.ts` — AI prompt motoru (`/api/generate` üzerinden)
+  - `generateAd()` — Tek reklam üretimi
+  - `generateBatch()` — Toplu reklam üretimi
+  - `generateABVariation()` — A/B varyasyon
+  - `exportAd()` — MD/JSON/HTML formatlama
+
+### Hook'lar
+- `hooks/useAdGenerator.ts` — step yönetimi, settings state, generate/loading/error
+- `hooks/useAdHistory.ts` — localStorage persistence, versiyon geçmişi, diff
+- `hooks/useBrandKit.ts` — Marka kiti CRUD (lokal storage)
+
+### Tip Dosyası
+- `types/adStudio.ts` — AdStudioTarget, AdAudience, AdTone, AdFormat, AdOutput, AdCampaign, AdTemplate, BrandKit, AdStudioSettings
+
+### Premium Özellikler (17 adet)
+1. 5 adımlı sihirbaz
+2. 18+ modül/stüdyo hedefi
+3. 5 hedef kitle + çoklu seçim + öncelik
+4. 5 ton + yüzdelik karışım
+5. 7 format (storyboard, video script, social, email, press, brochure, web)
+6. Tam marka kiti yönetimi
+7. Gelişmiş ayarlar (dil, aciliyet, CTA, sezon, etiket)
+8. Canlı önizleme (format bazlı)
+9. Versiyon geçmişi + diff karşılaştırma
+10. A/B test
+11. Toplu üretim
+12. Kampanya yönetimi
+13. Şablon kütüphanesi (import/export)
+14. Medya kütüphanesi (görsel asset)
+15. MD/JSON/HTML export
+16. Kopyala/İndir
+17. Dark glassmorphism design
+
+### Entegrasyon
+- Admin dashboard'da `ad_studio` sekmesi
+- Tüm modüller hedef olarak seçilebilir
+- AI servisi: `/api/generate` endpoint'i (Gemini 2.5 Flash)
+
+---
+
 **NOT**: Bu belge, tüm ajanların Oogmatik uygulamasını tam olarak anlaması için oluşturulmuştur. Her geliştirme öncesi ilgili modül bölümü okunmalıdır.
 
