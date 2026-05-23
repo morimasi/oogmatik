@@ -685,7 +685,10 @@ const AppContent = () => {
       return;
     }
     setSelectedActivity(item.activityType);
-    setWorksheetData(item.worksheetData);
+    let wd = item.worksheetData;
+    if (typeof wd === 'string') { try { wd = JSON.parse(wd); } catch { wd = []; } }
+    if (wd && typeof wd === 'object' && !Array.isArray(wd)) { wd = [wd]; }
+    setWorksheetData(Array.isArray(wd) ? wd : null);
     setActiveWorksheet(item.id, item.name);
     if (item.styleSettings) setStyleSettings(item.styleSettings);
     if (item.studentProfile) {

@@ -140,7 +140,11 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
         const qWorksheets = query(collection(db, "saved_worksheets"), where("studentId", "==", selectedStudentId));
         const unsubWorksheets = onSnapshot(qWorksheets, {
           next: (snapshot) => {
-            const ws = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+            const ws = snapshot.docs.map((doc) => {
+              const raw = doc.data() as any;
+              if (typeof raw.worksheetData === 'string') { try { raw.worksheetData = JSON.parse(raw.worksheetData); } catch { raw.worksheetData = []; } }
+              return { id: doc.id, ...raw } as SavedWorksheet;
+            });
             setStudentWorksheets(ws);
             setLoadingDetails(false);
           },
