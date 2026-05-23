@@ -269,15 +269,12 @@ function renderFrame(
     drawSceneImage(ctx, w, h, img, t);
     ctx.globalAlpha = 1;
   } else if (img) {
+    ctx.globalAlpha = 0.7;
     drawSceneImage(ctx, w, h, img, easedT);
+    ctx.globalAlpha = 1;
   } else if (prevImg && sceneIdx > 0 && t < crossfadeDuration) {
     drawSceneImage(ctx, w, h, prevImg, 0.85);
   }
-
-  img
-    ? (ctx.globalAlpha = 0.7)
-    : (ctx.globalAlpha = 1);
-  ctx.globalAlpha = 1;
 
   drawVignette(ctx, w, h);
   drawBottomOverlay(ctx, w, h);

@@ -75,7 +75,7 @@ YANIT FORMATI (JSON):
 
 KURAL: Tum sahnelerin toplam suresi ${settings.duration} saniyeyi gecmesin.
 
-KURAL 2: Her sahne icin mutlaka SVG gorsel olustur. SVG 400x300 boyutunda, Oogmatik branding renkleriyle (mor #7c3aed, lacivert #1e1b4b), basit geometrik sekiller ve metin iceren bir illustrasyon olsun. sceneVisuals objesinde sahne numarasi key olarak kullan. SVG kodlarinda tek tirnak kullanma, cift tirnak kullan.`;
+KURAL 2: Her sahne icin kisa bir SVG gorsel olustur (400x300, basit geometri, mor #7c3aed ana renk). sceneVisuals objesinde sahne numarasi key olarak kullan.`;
 }
 
 async function callGemini(prompt: string, systemInstruction: string): Promise<Record<string, unknown>> {

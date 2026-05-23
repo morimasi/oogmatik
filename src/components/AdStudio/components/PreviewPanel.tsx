@@ -119,10 +119,10 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
               </div>
 
               <div className="mb-3 rounded-lg overflow-hidden bg-black/30 border border-white/5">
-                {scene.sceneVisual && scene.sceneVisual.startsWith('<svg') ? (
-                  <div className="w-full [&_svg]:w-full [&_svg]:h-auto" dangerouslySetInnerHTML={{ __html: scene.sceneVisual }} />
-                ) : screenshot ? (
+                {screenshot ? (
                   <img src={screenshot} alt={`Sahne ${scene.sceneNo}`} className="w-full h-auto object-cover" />
+                ) : scene.sceneVisual && scene.sceneVisual.startsWith('<svg') ? (
+                  <div className="w-full [&_svg]:w-full [&_svg]:h-auto" dangerouslySetInnerHTML={{ __html: scene.sceneVisual }} />
                 ) : (
                   <div className="flex items-center justify-center h-[120px] text-zinc-600 text-[10px]">
                     <i className="fa-solid fa-image mr-2 opacity-50" />

@@ -5,8 +5,8 @@ export async function captureElementAsDataUrl(element: HTMLElement): Promise<str
   const canvas = await html2canvas(element, {
     backgroundColor: '#0f0a2e',
     scale: 2,
-    useCORS: true,
-    allowTaint: false,
+    useCORS: false,
+    allowTaint: true,
     logging: false,
     width: 400,
     height: 300,
