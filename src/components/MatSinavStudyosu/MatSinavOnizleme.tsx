@@ -34,7 +34,7 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
     return (
         <div
             id="mat-sinav-print-target"
-            className={`mat-sinav-onizleme bg-white ${isPrinting ? 'p-0 shadow-none ring-0' : 'shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] ring-1 ring-black/5'}`}
+            className={`mat-sinav-onizleme bg-white ${isPrinting ? 'is-printing p-0 shadow-none ring-0' : 'shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] ring-1 ring-black/5'}`}
             style={{
                 fontFamily,
                 color: '#000',
@@ -73,12 +73,12 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
                     </div>
                 </div>
             ) : (
-                <div style={{ textAlign: 'center', marginBottom: '25px', borderBottom: '2px solid #000', paddingBottom: '10px' }}>
-                    <h1 style={{ fontSize: '26px', fontWeight: '900', textTransform: 'uppercase', marginBottom: '8px' }}>{sinav.baslik}</h1>
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '30px', fontSize: '15px', fontWeight: 'bold' }}>
+                <div className="mat-sinav-print-header" style={{ textAlign: 'center', marginBottom: '10px', borderBottom: '1px solid #000', paddingBottom: '5px' }}>
+                    <h1 style={{ fontSize: '18px', fontWeight: '900', textTransform: 'uppercase', marginBottom: '3px' }}>{sinav.baslik}</h1>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', fontSize: '10pt', fontWeight: 'bold' }}>
                         <span>SINIF: {sinav.sinif}</span>
-                        <span>TOPLAM SORU: {sinav.sorular.length}</span>
-                        <span>TOPLAM PUAN: {sinav.toplamPuan}</span>
+                        <span>SORU: {sinav.sorular.length}</span>
+                        <span>PUAN: {sinav.toplamPuan}</span>
                         <span>SÜRE: {Math.ceil(sinav.tahminiSure / 60)} DK</span>
                     </div>
                 </div>
@@ -104,20 +104,11 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
             )}
 
             {/* Öğrenci Bilgi Satırı */}
-            <div className={`border-2 rounded-2xl px-6 py-4 mb-8 flex flex-wrap gap-8 text-sm font-bold shadow-sm ${isPrinting ? 'border-black text-black' : 'border-gray-100 text-gray-600'}`} style={{ breakInside: 'avoid' }}>
-                <div className="flex items-center gap-2">
-                    <span>Ad Soyad:</span>
-                    <span className="border-b-2 border-gray-300 w-48 h-6"></span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <span>Sınıf/Şube:</span>
-                    <span className="border-b-2 border-gray-300 w-24 h-6"></span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <span>Tarih:</span>
-                    <span className="border-b-2 border-gray-300 w-28 h-6"></span>
-                </div>
-                {isPrinting && <div className="ml-auto">Puan: ________ / {sinav.toplamPuan}</div>}
+            <div className={`flex flex-wrap gap-4 text-xs font-bold mb-3 ${isPrinting ? 'border border-black px-3 py-2 text-black' : 'border-2 border-gray-100 rounded-2xl px-6 py-4 shadow-sm text-gray-600'}`} style={{ breakInside: 'avoid' }}>
+                <span>Ad Soyad: <span className={`border-b inline-block ${isPrinting ? 'border-black w-32' : 'border-gray-300 w-48 h-6'}`}></span></span>
+                <span>Sınıf/Şube: <span className={`border-b inline-block ${isPrinting ? 'border-black w-16' : 'border-gray-300 w-24 h-6'}`}></span></span>
+                <span>Tarih: <span className={`border-b inline-block ${isPrinting ? 'border-black w-20' : 'border-gray-300 w-28 h-6'}`}></span></span>
+                {isPrinting && <span className="ml-auto">Puan: ________ / {sinav.toplamPuan}</span>}
             </div>
 
             {/* Sorular Listesi */}
@@ -125,13 +116,13 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
                 className="sorular-container" 
                 style={{ 
                     columnCount: columnsCount,
-                    columnGap: isPrinting ? '12mm' : questionGap,
-                    gap: isPrinting ? '12mm' : questionGap, // for non-print browsers if gap applies
+                    columnGap: isPrinting ? '4mm' : questionGap,
+                    gap: isPrinting ? '4mm' : questionGap,
                     width: '100%'
                 }}
             >
                 {sinav.sorular.map((soru, index) => (
-                    <div key={soru.id || index} style={{ breakInside: 'avoid', marginBottom: isPrinting ? '12mm' : questionGap, display: 'inline-block', width: '100%' }}>
+                    <div key={soru.id || index} className="mat-sinav-soru-wrapper" style={{ breakInside: 'avoid', marginBottom: isPrinting ? '4mm' : questionGap, display: 'inline-block', width: '100%' }}>
                         <MatSoruCard
                             soru={soru}
                             index={index}
@@ -144,6 +135,56 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
                     </div>
                 ))}
             </div>
+            
+            {/* Yazdırma için özel CSS — compact layout + sayfa bölünmez sorular */}
+            {isPrinting && (
+                <style>{`
+                    .mat-sinav-onizleme.is-printing {
+                        padding: 5mm 7mm !important;
+                        font-size: 8.5pt !important;
+                    }
+                    .mat-sinav-onizleme.is-printing .mat-sinav-soru-wrapper,
+                    .mat-sinav-onizleme.is-printing .mat-sinav-soru-wrapper > div {
+                        page-break-inside: avoid !important;
+                        break-inside: avoid !important;
+                    }
+                    .mat-sinav-onizleme.is-printing .sorular-container {
+                        gap: 3mm !important;
+                        column-gap: 4mm !important;
+                    }
+                    .mat-sinav-onizleme.is-printing .mat-sinav-print-header {
+                        margin-bottom: 5px !important;
+                        padding-bottom: 3px !important;
+                    }
+                    .mat-sinav-onizleme.is-printing .mat-sinav-print-header h1 {
+                        font-size: 14pt !important;
+                    }
+                    .mat-sinav-onizleme.is-printing .mat-sinav-print-header div {
+                        font-size: 8.5pt !important;
+                        gap: 10px !important;
+                    }
+                    .mat-sinav-onizleme.is-printing .mat-sinav-soru-wrapper > div {
+                        padding: 1.5mm 2mm !important;
+                        margin: 0 !important;
+                        border: none !important;
+                        border-bottom: 0.5px dashed #ccc !important;
+                        border-radius: 0 !important;
+                    }
+                    .mat-sinav-onizleme.is-printing .mat-sinav-soru-wrapper > div .soru-label {
+                        font-size: 10pt !important;
+                    }
+                    .mat-sinav-onizleme.is-printing .mat-sinav-soru-wrapper > div .soru-text {
+                        font-size: 8.5pt !important;
+                        line-height: 1.3 !important;
+                        margin-bottom: 1mm !important;
+                    }
+                    .mat-sinav-onizleme.is-printing .mat-sinav-soru-wrapper > div .secenek {
+                        font-size: 8pt !important;
+                        line-height: 1.2 !important;
+                        padding: 0.3mm 1mm !important;
+                    }
+                `}</style>
+            )}
 
             {/* Alt Bilgi */}
             <div className={`mt-12 pt-6 border-t ${isPrinting ? 'border-black/20 text-black font-bold' : 'border-gray-100 text-gray-400'}`}>

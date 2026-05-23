@@ -88,6 +88,13 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
     const [refreshingIndex, setRefreshingIndex] = useState<number | null>(null);
     const [printConfig, setPrintConfig] = useState<PrintConfig>(DEFAULT_PRINT_CONFIG);
     const [isSavingToWorkbook, setIsSavingToWorkbook] = useState(false);
+    const [savedExamDocId, setSavedExamDocId] = useState<string | null>(null);
+    const [showAssignModal, setShowAssignModal] = useState(false);
+    const [showShareModal, setShowShareModal] = useState(false);
+    const [shareUserId, setShareUserId] = useState('');
+    const [assignedStudentId, setAssignedStudentId] = useState<string | null>(null);
+    const [isAssigning, setIsAssigning] = useState(false);
+    const [isSharing, setIsSharing] = useState(false);
 
     const updateConfig = <K extends keyof PrintConfig>(key: K, val: PrintConfig[K]) => setPrintConfig(c => ({ ...c, [key]: val }));
 
@@ -163,6 +170,98 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
     const handlePrint = () => {
         if (!aktifSinav) return;
         printService.generatePdf('#mat-sinav-print-target', aktifSinav.baslik, { action: 'print' });
+    };
+
+    // ─── Kaydet ────────────────────────────────────────────────────
+    const handleSaveExam = async () => {
+        if (!aktifSinav) return;
+        const user = useAuthStore.getState().user;
+        if (!user) { setError('Lütfen giriş yapın.'); return; }
+        try {
+            setIsSavingToWorkbook(true);
+            const saved = await worksheetService.saveWorksheet(
+                user.id,
+                aktifSinav.baslik || 'Matematik Sınavı',
+                ActivityType.MAT_SINAV,
+                [{
+                    title: aktifSinav.baslik || 'Matematik Sınavı',
+                    instruction: 'Problemleri dikkatlice çözünüz.',
+                    activityType: ActivityType.MAT_SINAV,
+                    data: [aktifSinav],
+                }],
+                'fa-solid fa-square-root-variable',
+                { id: 'math-logic', title: 'Matematik & Mantık' },
+            );
+            setSavedExamDocId(saved.id);
+            showSuccess('Sınav kaydedildi!');
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : 'Bilinmeyen hata';
+            setError(`Kaydetme hatası: ${msg}`);
+        } finally {
+            setIsSavingToWorkbook(false);
+        }
+    };
+
+    // ─── Paylaş ────────────────────────────────────────────────────
+    const handleShareExam = () => {
+        if (!savedExamDocId) {
+            handleSaveExam().then(() => setShowShareModal(true));
+            return;
+        }
+        setShowShareModal(true);
+    };
+
+    const handleConfirmShare = async () => {
+        if (!savedExamDocId || !shareUserId.trim()) return;
+        setIsSharing(true);
+        try {
+            const user = useAuthStore.getState().user;
+            await worksheetService.shareWorksheet(savedExamDocId, user?.id || '', user?.displayName || '', shareUserId.trim());
+            showSuccess('Sınav paylaşıldı!');
+            setShowShareModal(false);
+            setShareUserId('');
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : 'Paylaşma hatası';
+            setError(msg);
+        } finally {
+            setIsSharing(false);
+        }
+    };
+
+    // ─── Öğrenciye Ata ─────────────────────────────────────────────
+    const handleAssignToStudent = async (studentId: string, studentName: string) => {
+        if (!aktifSinav) return;
+        setIsAssigning(true);
+        try {
+            const user = useAuthStore.getState().user;
+            if (!user) { setError('Lütfen giriş yapın.'); return; }
+            const saved = await worksheetService.saveWorksheet(
+                user.id,
+                aktifSinav.baslik || 'Matematik Sınavı',
+                ActivityType.MAT_SINAV,
+                [{
+                    title: aktifSinav.baslik || 'Matematik Sınavı',
+                    instruction: 'Problemleri dikkatlice çözünüz.',
+                    activityType: ActivityType.MAT_SINAV,
+                    data: [aktifSinav],
+                }],
+                'fa-solid fa-user-graduate',
+                { id: 'assigned-exams', title: 'Öğrenci Sınavları' },
+                undefined,
+                undefined,
+                studentId,
+                studentName,
+            );
+            setSavedExamDocId(saved.id);
+            setAssignedStudentId(studentId);
+            showSuccess(`"${studentName}" öğrencisine atandı!`);
+            setShowAssignModal(false);
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : 'Atama hatası';
+            setError(msg);
+        } finally {
+            setIsAssigning(false);
+        }
     };
 
     // ─── Geçmişten Yükle ─────────────────────────────────────────
@@ -368,7 +467,17 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
                                 </button>
                             ))}
                         </div>
-                        <div className="flex gap-3 flex-wrap">
+                        <div className="flex gap-2 flex-wrap">
+                            {[
+                                { label: 'Kaydet', icon: '💾', fn: handleSaveExam, loading: isSavingToWorkbook, color: 'hover:bg-accent', disabled: !aktifSinav || isSavingToWorkbook },
+                                { label: 'Paylaş', icon: '🔗', fn: handleShareExam, loading: false, color: 'hover:bg-purple-600', disabled: !aktifSinav },
+                                { label: 'Öğrenciye Ata', icon: '👤', fn: () => setShowAssignModal(true), loading: false, color: 'hover:bg-amber-600', disabled: !aktifSinav },
+                            ].map(({ label, icon, fn, color, disabled }) => (
+                                <button key={label} onClick={fn} disabled={disabled}
+                                    className={`toolbar-btn bg-[var(--bg-paper)]/90 border-2 border-[var(--border-color)] text-[var(--text-muted)] ${color} hover:text-white shadow-sm hover:shadow-lg backdrop-blur-md hover:translate-y-[-2px]`}>
+                                    <span className="text-base">{icon}</span><span className="hidden lg:inline">{label}</span>
+                                </button>
+                            ))}
                             <button
                                 onClick={handleAddToWorkbook}
                                 disabled={!aktifSinav || isSavingToWorkbook}
@@ -514,6 +623,116 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
                         config={printConfig} 
                         isPrinting={true} 
                     />
+                    {/* Yazdırma CSS — sayfa bölünmez sorular + compact A4 */}
+                    <style>{`
+                        .mat-sinav-onizleme.is-printing {
+                            padding: 5mm 7mm !important;
+                            font-size: 8.5pt !important;
+                        }
+                        .mat-sinav-onizleme.is-printing .mat-sinav-soru-wrapper,
+                        .mat-sinav-onizleme.is-printing .mat-sinav-soru-wrapper > div {
+                            page-break-inside: avoid !important;
+                            break-inside: avoid !important;
+                        }
+                        .mat-sinav-onizleme.is-printing .sorular-container {
+                            gap: 3mm !important;
+                            column-gap: 4mm !important;
+                        }
+                        .mat-sinav-onizleme.is-printing .mat-sinav-print-header {
+                            margin-bottom: 3px !important;
+                            padding-bottom: 2px !important;
+                        }
+                        .mat-sinav-onizleme.is-printing .mat-sinav-print-header h1 {
+                            font-size: 13pt !important;
+                        }
+                        .mat-sinav-onizleme.is-printing .mat-sinav-print-header div {
+                            font-size: 8pt !important;
+                            gap: 8px !important;
+                        }
+                        .mat-sinav-onizleme.is-printing .mat-sinav-soru-wrapper > div {
+                            padding: 1mm 1.5mm !important;
+                            margin: 0 !important;
+                            border: none !important;
+                            border-bottom: 0.5px dashed #ccc !important;
+                            border-radius: 0 !important;
+                        }
+                        .mat-sinav-onizleme.is-printing .mat-sinav-soru-wrapper > div .soru-label {
+                            font-size: 9pt !important;
+                        }
+                        .mat-sinav-onizleme.is-printing .mat-sinav-soru-wrapper > div .soru-text {
+                            font-size: 8pt !important;
+                            line-height: 1.25 !important;
+                            margin-bottom: 0.5mm !important;
+                        }
+                        .mat-sinav-onizleme.is-printing .mat-sinav-soru-wrapper > div .secenek {
+                            font-size: 7.5pt !important;
+                            line-height: 1.15 !important;
+                            padding: 0.2mm 0.8mm !important;
+                        }
+                        @media print {
+                            .mat-sinav-onizleme.is-printing .mat-sinav-soru-wrapper {
+                                page-break-inside: avoid !important;
+                                break-inside: avoid !important;
+                            }
+                        }
+                    `}</style>
+                </div>
+            )}
+
+            {/* ÖĞRENCİYE ATA MODAL */}
+            {showAssignModal && (
+                <div className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-sm flex items-center justify-center" onClick={() => setShowAssignModal(false)}>
+                    <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                        <h2 className="text-lg font-black text-gray-800 mb-4">Öğrenciye Ata</h2>
+                        {useStudentStore.getState().students.length === 0 ? (
+                            <p className="text-sm text-gray-500">Henüz öğrenci eklenmemiş. Lütfen önce öğrenci ekleyin.</p>
+                        ) : (
+                            <div className="space-y-2 max-h-80 overflow-y-auto">
+                                {useStudentStore.getState().students.map((s) => (
+                                    <button
+                                        key={s.id}
+                                        onClick={() => handleAssignToStudent(s.id, s.name)}
+                                        disabled={isAssigning}
+                                        className="w-full text-left px-4 py-3 rounded-2xl border border-gray-200 hover:border-amber-300 hover:bg-amber-50 transition-all flex items-center gap-3 group"
+                                    >
+                                        <span className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-600 font-bold text-sm">
+                                            {s.name.charAt(0)}
+                                        </span>
+                                        <div>
+                                            <div className="font-bold text-sm text-gray-800">{s.name}</div>
+                                            <div className="text-[10px] text-gray-500">{s.grade} · {s.learningStyle}</div>
+                                        </div>
+                                        {isAssigning && <span className="ml-auto text-amber-500"><svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg></span>}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                        <button onClick={() => setShowAssignModal(false)} className="mt-4 w-full py-2.5 rounded-2xl bg-gray-100 text-gray-600 font-bold text-sm hover:bg-gray-200 transition-all">İptal</button>
+                    </div>
+                </div>
+            )}
+
+            {/* PAYLAŞIM MODAL */}
+            {showShareModal && (
+                <div className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-sm flex items-center justify-center" onClick={() => setShowShareModal(false)}>
+                    <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                        <h2 className="text-lg font-black text-gray-800 mb-4">Sınavı Paylaş</h2>
+                        <p className="text-sm text-gray-500 mb-3">Paylaşmak istediğiniz kullanıcının ID'sini girin:</p>
+                        <input
+                            type="text"
+                            value={shareUserId}
+                            onChange={(e) => setShareUserId(e.target.value)}
+                            placeholder="Kullanıcı ID'si"
+                            className="w-full px-4 py-2.5 rounded-2xl border-2 border-gray-200 text-sm font-medium focus:border-purple-400 focus:outline-none"
+                        />
+                        <div className="flex gap-2 mt-4">
+                            <button onClick={handleConfirmShare} disabled={isSharing || !shareUserId.trim()}
+                                className="flex-1 py-2.5 rounded-2xl bg-purple-600 text-white font-bold text-sm hover:bg-purple-700 transition-all disabled:opacity-50">
+                                {isSharing ? 'Paylaşılıyor...' : 'Paylaş'}
+                            </button>
+                            <button onClick={() => setShowShareModal(false)} className="flex-1 py-2.5 rounded-2xl bg-gray-100 text-gray-600 font-bold text-sm hover:bg-gray-200 transition-all">İptal</button>
+                        </div>
+                    </div>
                 </div>
             )}
 

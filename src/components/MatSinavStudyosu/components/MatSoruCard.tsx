@@ -47,86 +47,57 @@ export const MatSoruCard: React.FC<MatSoruCardProps> = ({
 
   if (isPrinting) {
      return (
-        <div className="bg-white p-0 border-none transition-all duration-200" style={{ breakInside: 'avoid' }}>
-            <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center gap-2">
-                    <span className="font-black text-black">
-                        {index + 1})
-                    </span>
-                </div>
-                <div className="flex items-center gap-1">
-                    <span className="text-[11px] text-black font-bold border-b border-dashed border-black/20">
-                        ({soru.puan} Puan)
-                    </span>
-                </div>
+        <div className="bg-white p-0 border-none" style={{ breakInside: 'avoid' }}>
+            <div className="flex items-start justify-between mb-1 soru-label">
+                <span className="font-black text-black">
+                    {index + 1})
+                </span>
+                <span className="text-[9pt] text-black font-bold">({soru.puan} Puan)</span>
             </div>
 
-            <p className="text-sm text-black leading-relaxed font-medium mb-3">
+            <p className="soru-text text-black leading-relaxed font-medium mb-1">
                 {soru.soruMetni}
             </p>
 
             {soru.grafik_verisi && (
-                <div className="mb-4">
+                <div className="mb-1">
                      <GraphicRenderer grafik={soru.grafik_verisi} />
                 </div>
             )}
 
             {soru.tip === 'coktan_secmeli' && soru.secenekler && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 mb-4 px-2">
-                    {Object.entries(soru.secenekler).map(([key, value], si) => {
-                        const isCorrect = showAnswers && String(soru.dogruCevap) === key;
-                        return (
-                            <div key={key} className={`flex items-start gap-2 p-1.5 rounded-lg ${isCorrect ? 'bg-green-50' : ''}`}>
-                                <span className={`font-bold flex-shrink-0 ${isCorrect ? 'text-green-700' : 'text-black'}`}>
-                                    {labels[si]})
-                                </span>
-                                <span className={`leading-tight ${isCorrect ? 'text-green-800' : 'text-black'}`}>{value}</span>
-                                {isCorrect && <span className="ml-auto text-green-600">✓</span>}
-                            </div>
-                        );
-                    })}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-0.5 mb-1 px-1">
+                    {Object.entries(soru.secenekler).map(([key, value], si) => (
+                        <div key={key} className="secenek flex items-start gap-1.5 py-px">
+                            <span className="font-bold flex-shrink-0 text-black">{labels[si]})</span>
+                            <span className="leading-tight text-black">{value}</span>
+                        </div>
+                    ))}
                 </div>
             )}
 
             {soru.tip === 'dogru_yanlis' && (
-                <div className="flex gap-10 mb-4 px-2 text-sm text-black font-medium">
-                    <div className="flex items-center gap-2">
-                        <span>( ) Doğru</span>
-                        {showAnswers && soru.dogruCevap === 'dogru' && <span className="text-green-600 font-black">✓</span>}
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <span>( ) Yanlış</span>
-                        {showAnswers && soru.dogruCevap === 'yanlis' && <span className="text-green-600 font-black">✓</span>}
-                    </div>
+                <div className="secenek flex gap-6 mb-1 px-1 text-black font-medium">
+                    <span>( ) Doğru</span>
+                    <span>( ) Yanlış</span>
                 </div>
             )}
 
             {soru.tip === 'bosluk_doldurma' && (
-                <div className="mb-4 px-2">
-                    <div className="border-b border-dashed border-black/40 w-full h-5 relative flex items-end">
-                        {showAnswers && (
-                            <span className="absolute bottom-1 left-2 text-green-600 font-bold text-xs">
-                                {soru.dogruCevap}
-                            </span>
-                        )}
-                    </div>
+                <div className="mb-1 px-1">
+                    <div className="border-b border-dashed border-black/40 w-full h-4"></div>
                 </div>
             )}
 
             {soru.tip === 'acik_uclu' && (
-                <div className="mb-4 px-2 space-y-4">
+                <div className="mb-1 px-1 space-y-1">
                     {[0, 1, 2, 3].map((i) => (
-                        <div key={i} className="border-b border-black/20 h-6"></div>
+                        <div key={i} className="border-b border-black/20 h-5"></div>
                     ))}
-                    {showAnswers && (
-                        <div className="mt-2 p-3 bg-green-50 border border-green-100 rounded-xl text-xs text-green-800 italic">
-                            <b>Model Cevap:</b> {soru.dogruCevap}
-                        </div>
-                    )}
                 </div>
             )}
             
-            {/* Yazdırırken diğer tüm içerikleri (ipucu, çözüm vb.) kesinlikle gizle (Sınav Kağıdı Saf Olmalı) */}
+            {/* PRINT ONLY — NO answer clues, NO hints, NO solution key, NO real-life context */}
         </div>
      );
   }
