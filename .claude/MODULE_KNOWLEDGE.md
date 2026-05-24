@@ -848,6 +848,20 @@ ScreeningAssessment/
 - `worksheets`: SavedWorksheet[] — Kullanıcının çalışmaları
 - `activeWorksheet`: WorksheetData | null — Aktif düzenlenen
 - `loading`: boolean
+
+---
+
+### 9.2 App.tsx Modüler Hook Mimarisi (Faz-4)
+
+**Klasör Konumu**: `hooks/`
+
+Oogmatik v2 mimarisinde `App.tsx` içerisindeki (God Component) yoğun state yönetimi ayrıştırılarak aşağıdaki "Özel Hook" sistemine taşınmıştır. Ajanlar, component'ler arası navigasyon, worksheet kaydetme ve tarihçe gibi işlemler için bu hook'ları kullanmalıdır:
+
+1. **useNavigationLogic.ts:** Yönlendirme ve menü değiştirme mantığı (`navigateTo`, `handleGoBack`, `handleOpenStudio`, `handleGeneratePlanFromScreening`). `currentView` ve sidebar geçişleri doğrudan buradan yönetilir.
+2. **useHistoryManager.ts:** Kullanıcının geçmiş üretilen kayıtlarını okuma, ekleme ve kalıcı belleğe (localStorage) senkronizasyon etme (`addToHistory`, `handleRestoreFromHistory`).
+3. **useWorksheetManager.ts:** Öğrenci bilgileriyle worksheet kaydetme ve yükleme süreçleri (`addSavedWorksheet`, `loadSavedWorksheet`).
+
+**Yazılım Mühendisi Notu:** Bu 3 hook, God Component olan App.tsx'i ~175 satır hafifletmiş ve test edilebilir otonom yapıya çevirmiştir. Herhangi bir routing veya history isteğinde `App.tsx`'i ellemek yerine doğrudan bu hook'lar çağrılmalıdır. Ayrıca projeden 146 adet (`pixi.js`, `@antv/infographic` vb.) kullanılmayan gereksiz npm paketi arındırılmıştır.
 - `error`: string | null
 
 #### 9.1.4 useA4EditorStore
