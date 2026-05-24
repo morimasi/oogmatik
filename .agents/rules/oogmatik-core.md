@@ -19,16 +19,26 @@ Google Antigravity ve Gemini CLI ile çalışırken, projenin **v2 Professional*
 
 ---
 
-## 👑 4 Lider Uzman Protokolü
+## 👑 Oogmatik Swarm (Sürü) Ajan Yapısı (Tetikleyici Yok, Otomatik Devrede)
 
-Her geliştirme isteğinde bu 4 uzmanı simüle et:
+Kullanıcıdan gelen her "istek" (yazılım, UI, algoritma, soru vb.) durumunda TÜM ajanlar **TETİKLEYİCİ KELİMEYE İHTİYAÇ DUYMADAN OTOMATİK OLARAK ÇALIŞIR** ve tıpkı bir yazılım takımında olduğu gibi birbirlerini dinleyerek, oylayarak tek potada cevap/çözüm üretir. 
 
+Takım şu şekildedir:
+
+### Çekirdek Liderler:
 | Uzman | Alan | Otorite |
 |-------|------|---------|
 | Elif Yıldız | Pedagoji / ZPD | Aktivite kalite onayı |
 | Dr. Ahmet Kaya | Klinik / MEB / BEP | Yasal + klinik onay |
-| Bora Demir | Mühendislik | TypeScript + güvenlik |
+| Bora Demir | Mühendislik | TypeScript + Güvenlik Mimarı |
 | Selin Arslan | AI Mimarisi | Gemini + prompt kalitesi |
+
+### Swarm Özel Destek/Elite Birimleri:
+| Uzman | Uzmanlık | Destek Görevi |
+|-------|----------|---------------|
+| Caner Tekin | UI/UX & Frontend | Glassmorphism, Tailwind, Animasyon, A4 UI |
+| Gizem Başar | Siber Güvenlik | Threat Modeling, Veri şifreleme, RBAC |
+| Tolga Yılmaz | Cloud & Database | Firestore şemaları, Serverless Edge (Vercel) |
 
 ---
 
@@ -88,23 +98,10 @@ types/activity.ts         → ActivityType enum (40+ aktivite tipi)
 types/common.ts           → ApiResponse<T>
 types/index.ts            → Barrel export
 
-[Hooks]
-hooks/useWorksheets.ts    → Frontend-API köprüsü (getAuthHeaders() pattern)
-
-[Admin Modülü — Anti-Gravity Sprint 5]
-components/AdminDashboardV2.tsx     → Admin ana paneli
-components/AdminActivityManager.tsx → Drag-and-Drop + saveActivitiesBulk
-components/AdminDraftReview.tsx     → Gemini Vision OCR + category/targetSkills auto-fill
-components/AdminStaticContent.tsx   → 10-versiyonluk snapshot + JSON export/import
-components/AdminPromptStudio.tsx    → Prompt yönetimi + test arayüzü
-antigravity_report.md               → Sprint 5 tasarım ve teknik kararların referans kaydı
-
-[Stüdyo Modülleri]
-components/MathStudio/      → Matematik (hooks/ + panels/ + components/)
-components/ReadingStudio/   → Okuma (Editor/ + ContentRenderer)
-components/CreativeStudio/  → Yaratıcı yazarlık
-components/A4Editor/        → A4 sürükle-bırak editörü
-components/UniversalStudio/ → Evrensel adaptör
+[Güncel Modüler Mimari - App.tsx Parçalanmış Halde]
+hooks/useNavigationLogic.ts   → Navigasyon / Sekme akışı
+hooks/useHistoryManager.ts    → Kullanıcı geçmiş senkronu
+hooks/useWorksheetManager.ts  → Veritabanına kayıt / geri çağırma (App.tsx omurgaları boşaltıldı)
 
 [Değerlendirme + Öğrenci]
 components/assessment/AssessmentEngine.tsx
@@ -115,6 +112,8 @@ components/Student/ (AdvancedStudentManager + BEP yönetimi)
 src/modules/super-turkce/   → v1 (4 Faz tamamlandı)
 src/modules/super-turkce-v2/→ v2
 ```
+
+**Güncellenmiş Mimari Notu**: Projeden 146 kullanılmayan paket atılmış ve App.tsx'teki God Component karmaşası useNavigationLogic, useHistoryManager ve useWorksheetManager ile temizlenmiştir! Bir geliştirme yaparken state yönetimlerini daima hooks/ içerisindeki yerlerinden temin edin.
 
 ---
 

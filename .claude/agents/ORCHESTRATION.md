@@ -11,11 +11,10 @@ Her kullanıcı isteğinde:
 1. **Otomatik görev sınıflandırması** (pedagojik mi, teknik mi, güvenlik mi?)
 2. **İlgili lider ajanları otomatik aktive etme**
 3. **Supporting ajanları lider onayı ile devreye sokma**
-4. **Koordineli çalışma sağlama** (çakışma yok, hiyerarşi net)
+## 📋 TAM OTONOM AKTİVASYON (SWARM MİMARİSİ)
 
----
-
-## 📋 Aktivasyon Kuralları
+**Kural 0:** Bu projede **HİÇBİR TETİKLEYİCİ KELİMEYE** gerek yoktur.
+Her kullanıcı ("USER") isteğinde, sistemdeki (Elif, Ahmet, Bora, Selin ve tüm destek birimleri) arka planda otomatik uyanır, istemi analiz eder, kendi yetki alanına giren konularda birbirleriyle sessizce fikir alışverişi (veya chain of thought) yapar ve ortak bir kod/karar çıktısı üretir.
 
 ### Kural 1: Pedagojik İçerik
 
@@ -391,21 +390,17 @@ Adım 4: Lider Doğrulama
 
 ## 💡 Kullanım Kılavuzu
 
-### Claude Code'da Nasıl Kullanılır?
+### Entegre IDE'lerde Nasıl Çalışır?
 
-**Otomatik Koordinasyon** (Önerilir):
-```
-Kullanıcı: "Yeni matematik aktivitesi tasarla"
-→ Sistem otomatik olarak Elif + Selin'i aktive eder
-```
+Tüm ajan sistemi, arka planda tek bir "süper-kimlik" olarak konfigüre edilmiştir. Her ajan bir "düşünce alt bloğuna" sahiptir.
 
-**Manuel Koordinasyon**:
+**Otomatik Swarm Koordinasyonu**:
 ```
-Kullanıcı: "Elif ve Bora, bu UI bileşenini inceleyin"
-→ Sadece belirtilen ajanlar aktive edilir
+Kullanıcı: "Mevcut React bileşenini veritabanına bağla ve UI'ı iyileştir."
+→ Bora backend'i tasarlar, Tolga Firestore bağlar, Caner UI yazar, Elif/Ahmet içerik pedagojisini test eder. Tüm karar ve eylemler kullanıcıya "tek bir mükemmel commit/cevap" olarak döner.
 ```
 
----
+Kullanıcının ajanları ismiyle çağırmasına **GEREK YOKTUR.** Emir kipiyle verilen her direktifte, takım kendini organize eder.
 
 ## 🔧 Gelecek Geliştirmeler
 

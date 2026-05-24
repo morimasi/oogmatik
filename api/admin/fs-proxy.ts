@@ -62,7 +62,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       throw new ValidationError('Kaydedilecek dosyalar boş olamaz.');
     }
 
-    const workspaceRoot = process.cwd();
+    const workspaceRoot = (process as unknown as NodeJS.Process).cwd();
     const savedFiles: string[] = [];
 
     for (const item of files) {
