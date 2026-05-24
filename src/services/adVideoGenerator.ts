@@ -291,7 +291,11 @@ function renderFrame(
 async function loadLexendFont(): Promise<void> {
   if (typeof document === 'undefined') return;
   try {
-    await document.fonts.load('700 16px Lexend');
+    await Promise.all([
+      document.fonts.load('700 16px Lexend'),
+      document.fonts.load('500 16px Lexend'),
+      document.fonts.load('400 16px Lexend'),
+    ]);
   } catch {
     // Font not critical, fallback used
   }
@@ -314,7 +318,8 @@ export async function generateVideo(
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
-  const ctx = canvas.getContext('2d')!;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Canvas 2D context olusturulamadi');
 
   const sceneImages: (HTMLImageElement | null)[] = await Promise.all(
     output.scenes.map(async (scene) => {
@@ -336,6 +341,7 @@ export async function generateVideo(
   if (!mimeType) throw new Error('Bu tarayici video kaydini desteklemiyor.');
 
   const stream = canvas.captureStream(fps);
+  if (!stream) throw new Error('Canvas stream olusturulamadi');
   const recorder = new MediaRecorder(stream, { mimeType });
   const chunks: BlobPart[] = [];
   recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };

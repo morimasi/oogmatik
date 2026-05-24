@@ -99,6 +99,7 @@ async function callGemini(prompt: string, systemInstruction: string): Promise<Re
             voiceover: { type: 'STRING' },
             textOverlay: { type: 'STRING' },
             transition: { type: 'STRING' },
+            sceneVisual: { type: 'STRING' },
           },
         }},
         sceneVisuals: { type: 'OBJECT' },

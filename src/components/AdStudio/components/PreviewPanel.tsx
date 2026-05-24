@@ -41,6 +41,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
     abortRef.current?.abort();
     setVideoState('idle');
     setVideoProgress(0);
+    setVideoError(null);
   }, []);
 
   const handleGenerateVideo = useCallback(async () => {
@@ -76,7 +77,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
     if (!videoUrl) return;
     const a = document.createElement('a');
     a.href = videoUrl;
-    a.download = `oogmatik-reklam-${output.id.slice(0, 8)}-${videoFormat}.webm`;
+    a.download = `oogmatik-reklam-${(output.id || '0000').slice(0, 8)}-${videoFormat}.webm`;
     a.click();
   }, [videoUrl, output.id, videoFormat]);
 
