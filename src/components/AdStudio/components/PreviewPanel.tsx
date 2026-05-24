@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { AdOutput, AD_TARGET_LABELS } from '../../../types/adStudio';
 import { generateVideo } from '../../../services/adVideoGenerator';
 
@@ -14,6 +14,26 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
   const [videoProgress, setVideoProgress] = useState(0);
   const [videoError, setVideoError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const blobUrlRef = useRef<string | null>(null);
+
+  const revokeBlobUrl = useCallback(() => {
+    if (blobUrlRef.current) {
+      URL.revokeObjectURL(blobUrlRef.current);
+      blobUrlRef.current = null;
+    }
+  }, []);
+
+  // Reset video state when output changes
+  useEffect(() => {
+    revokeBlobUrl();
+    setVideoUrl(null);
+    setVideoState('idle');
+    setVideoProgress(0);
+    setVideoError(null);
+  }, [output.id, revokeBlobUrl]);
+
+  // Cleanup blob URL on unmount
+  useEffect(() => revokeBlobUrl, [revokeBlobUrl]);
 
   const handleGenerateVideo = useCallback(async () => {
     if (output.scenes.length === 0) return;
@@ -28,7 +48,9 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
         format: videoFormat,
         onProgress: setVideoProgress,
       });
+      revokeBlobUrl();
       const url = URL.createObjectURL(webm);
+      blobUrlRef.current = url;
       setVideoUrl(url);
       setVideoState('done');
     } catch (err: unknown) {
@@ -36,7 +58,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
       setVideoError(msg);
       setVideoState('error');
     }
-  }, [output, videoFormat, screenshot]);
+  }, [output, videoFormat, screenshot, revokeBlobUrl]);
 
   const handleDownloadVideo = useCallback(() => {
     if (!videoUrl) return;

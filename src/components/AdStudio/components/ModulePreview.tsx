@@ -216,7 +216,7 @@ function renderLayout(layout: ModuleLayout, color: string): React.ReactNode {
           {layout.lines.map((line, i) => (
             <div key={i} style={{
               fontSize: 9, color: '#78350f', lineHeight: '16px',
-              fontFamily: 'monospace', padding: '1px 0',
+              padding: '1px 0',
               borderBottom: i < layout.lines.length - 1 ? '1px dashed #d9770640' : 'none',
             }}>{line}</div>
           ))}

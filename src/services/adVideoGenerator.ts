@@ -22,11 +22,12 @@ function svgToImage(svg: string): Promise<HTMLImageElement> {
 }
 
 function loadSceneImage(visual: string): Promise<HTMLImageElement> {
-  return visual.startsWith('<svg') ? svgToImage(visual) : new Promise((resolve, reject) => {
+  if (visual.startsWith('<svg')) return svgToImage(visual);
+  return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => resolve(img);
     img.onerror = () => reject(new Error('Image load failed'));
-    img.crossOrigin = 'anonymous';
+    if (!visual.startsWith('data:')) img.crossOrigin = 'anonymous';
     img.src = visual;
   });
 }
@@ -343,13 +344,23 @@ export async function generateVideo(
     let currentFrame = 0;
     const startTime = performance.now();
 
+    const timeoutMs = Math.max(30000, durationMs * 2);
+    const timeoutId = setTimeout(() => {
+      recorder.stop();
+      reject(new Error('Video olusturma zaman asimi'));
+    }, timeoutMs);
+
     recorder.start();
 
     recorder.onstop = () => {
+      clearTimeout(timeoutId);
       const blob = new Blob(chunks, { type: 'video/webm' });
       resolve({ webm: blob, durationMs });
     };
-    recorder.onerror = () => reject(new Error('Video kaydi basarisiz'));
+    recorder.onerror = () => {
+      clearTimeout(timeoutId);
+      reject(new Error('Video kaydi basarisiz'));
+    };
 
     function render() {
       if (options.signal?.aborted) {

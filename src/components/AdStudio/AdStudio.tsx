@@ -24,11 +24,17 @@ export const AdStudio: React.FC = () => {
   const generator = useAdGenerator();
   const [activePanel, setActivePanel] = React.useState<Panel>('studio');
   const { previewRef, captured, capture } = useScreenshotCapture();
+  const captureTargetRef = React.useRef<string | null>(null);
 
   React.useEffect(() => {
     if (generator.output && !captured[generator.output.target]) {
-      const timer = setTimeout(() => capture(generator.output.target), 500);
-      return () => clearTimeout(timer);
+      captureTargetRef.current = generator.output.target;
+      const timer = setTimeout(async () => {
+        if (captureTargetRef.current === generator.output?.target) {
+          await capture(generator.output.target);
+        }
+      }, 500);
+      return () => { clearTimeout(timer); captureTargetRef.current = null; };
     }
   }, [generator.output, captured, capture]);
 
@@ -164,7 +170,7 @@ export const AdStudio: React.FC = () => {
             ) : generator.output ? (
               <>
                 <PreviewPanel output={generator.output} screenshot={captured[generator.output.target]} />
-                <div className="absolute opacity-0 pointer-events-none" style={{ position: 'fixed', left: '-9999px', top: 0 }}>
+                <div style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }}>
                   <div ref={previewRef}>
                     <ModulePreview target={generator.output.target} />
                   </div>
