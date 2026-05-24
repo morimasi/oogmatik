@@ -1,5 +1,5 @@
 /**
- * Oogmatik Print Engine — Canlı Önizleme Renderer
+ * bdmind Print Engine — Canlı Önizleme Renderer
  * PrintPreviewModal içinde gerçek DOM klonlama + ölçekleme ile
  * "Canlı Önizleme" sunar.
  */

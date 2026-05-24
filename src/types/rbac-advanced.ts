@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — Gelişmiş Yetkilendirme (RBAC) Sistemi
+ * BDMIND — Gelişmiş Yetkilendirme (RBAC) Sistemi
  * 
  * Modül bazlı detaylı yetki yönetimi.
  * Etkinlik kategorileri ve bireysel etkinlikler üzerinde granüler kontrol.

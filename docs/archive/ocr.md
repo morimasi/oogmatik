@@ -585,4 +585,4 @@ src/types/ocr-activity.ts           ← visualDescriptors tipi eklenecek
 
 ---
 
-*Bu belge Oogmatik AI Uzman Ekibi tarafından OCR modülünün kapsamlı analizi sonucu oluşturulmuştur.*
+*Bu belge bdmind AI Uzman Ekibi tarafından OCR modülünün kapsamlı analizi sonucu oluşturulmuştur.*

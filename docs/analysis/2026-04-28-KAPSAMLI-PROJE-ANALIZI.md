@@ -1,4 +1,4 @@
-# OOGMATIK - KAPSAMLI PROJE ANALIZ VE PAZARLAMA RAPORU
+# BDMIND - KAPSAMLI PROJE ANALIZ VE PAZARLAMA RAPORU
 
 **Tarih:** 2026-04-28  
 **Analiz Tipi:** Kapsamli Degerlenndirme  
@@ -8,7 +8,7 @@
 
 ## YONETICI OZETI
 
-**Proje Adi:** Oogmatik (Bursa Disleksi AI V3)  
+**Proje Adi:** bdmind (Bursa Disleksi AI V3)  
 **Slogan:** "Ultra Creative Studio"  
 **Tanim:** Noro-mimari ve ozel egitim icin derinlikli AI destekli materyal uretim platformu  
 **Hedef Kitle:** Ogretmenler, ozel egitim uzmanlari, terapistler, veliler  
@@ -19,7 +19,7 @@
 ## 1. PROJE AMACI VE VIZYONU
 
 ### 1.1 Ana Amac
-Oogmatik, **disleksi, diskalkuli, DEHB ve diger ozel ogrenme guclukleri** yasayan ogrenciler icin yapay zeka destekli, kisisellestirilmis egitim materyalleri ureten bir platformdur.
+bdmind, **disleksi, diskalkuli, DEHB ve diger ozel ogrenme guclukleri** yasayan ogrenciler icin yapay zeka destekli, kisisellestirilmis egitim materyalleri ureten bir platformdur.
 
 ### 1.2 Benzersiz Deger Onerisi (UVP)
 
@@ -51,7 +51,7 @@ Oogmatik, **disleksi, diskalkuli, DEHB ve diger ozel ogrenme guclukleri** yasaya
 ### 2.2 Mevcut Moduller
 
 ```
-OOGMATIK MODULLER
+BDMIND MODULLER
 - Super Turkce Studyosu
   - Okuma Anlama & Yorumlama
   - Mantik Muhakeme & Paragraf
@@ -228,7 +228,7 @@ SEKONDER HEDEF KITLE
 
 ### 6.2 Deger Onerisi Matrisi
 
-| Segment | Ana Agri Noktasi | Oogmatik Cozumu |
+| Segment | Ana Agri Noktasi | bdmind Cozumu |
 |---------|------------------|-----------------|
 | **Ogretmenler** | Materyal hazirlama suresi cok uzun | 5 saniyede AI ile uretim |
 | **Terapistler** | Her ogrenci icin ozel materyal lazim | Kisisellestirilmis icerik |
@@ -307,7 +307,7 @@ BLOG KONULARI ONERISI
 
 ### 7.1 Rakip Karsilastirmasi
 
-| Ozellik | Oogmatik | Genel EdTech | Ozel Egitim Uyg. |
+| Ozellik | bdmind | Genel EdTech | Ozel Egitim Uyg. |
 |---------|----------|--------------|------------------|
 | AI Icerik Uretimi | Var | Yok | Yok |
 | Disleksi-Optimized | Var | Yok | Kismi |
@@ -348,4 +348,4 @@ BLOG KONULARI ONERISI
 
 ---
 
-**Sonuc:** Oogmatik, teknik acidan guclu ve pedagojik olarak saglam temellere sahip bir platformdur. Ana eksiklik **pazarlama ve satis altyapisindadir**. Urun hazir, simdi dunyaya duyurma zamani!
+**Sonuc:** bdmind, teknik acidan guclu ve pedagojik olarak saglam temellere sahip bir platformdur. Ana eksiklik **pazarlama ve satis altyapisindadir**. Urun hazir, simdi dunyaya duyurma zamani!

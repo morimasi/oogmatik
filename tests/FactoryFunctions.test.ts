@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Factory Functions Tests (Sprint 3)
+ * BDMIND - Factory Functions Tests (Sprint 3)
  * Test suite for createAdvancedStudent and module factory functions
  */
 

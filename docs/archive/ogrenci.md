@@ -1,10 +1,10 @@
-# Oogmatik Öğrenci Yönetimi ve Teknik Mimari Dokümantasyonu
+# bdmind Öğrenci Yönetimi ve Teknik Mimari Dokümantasyonu
 
-Bu doküman, Oogmatik platformunun öğrenci merkezli yapısını, pedagojik temelini ve teknik mimari kararlarını detaylandırmaktadır.
+Bu doküman, bdmind platformunun öğrenci merkezli yapısını, pedagojik temelini ve teknik mimari kararlarını detaylandırmaktadır.
 
 ## 1. Mimari Genel Bakış
 
-Oogmatik, **Modüler Stüdyo Mimarisi** üzerine kurulmuştur. Her eğitim alanı (Matematik, Okuma, Yazarlık vb.) bağımsız birer "Stüdyo" olarak tasarlanmıştır.
+bdmind, **Modüler Stüdyo Mimarisi** üzerine kurulmuştur. Her eğitim alanı (Matematik, Okuma, Yazarlık vb.) bağımsız birer "Stüdyo" olarak tasarlanmıştır.
 
 ### Katmanlar
 - **Frontend**: React 18 + TypeScript (Strict Mode).
@@ -66,4 +66,4 @@ Platform; mobil, tablet ve masaüstü cihazlarda kusursuz çalışacak şekilde 
 - **Desktop**: Çok sütunlu editör ve araç çubukları.
 
 ---
-*Hazırlayan: Oogmatik AI Ekip Koordinasyonu (Sprint 5)*
+*Hazırlayan: bdmind AI Ekip Koordinasyonu (Sprint 5)*

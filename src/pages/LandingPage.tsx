@@ -29,7 +29,7 @@ const LandingPage: React.FC = () => {
               <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
                 <Sparkles className="w-5 h-5" />
               </div>
-              <span className="font-bold text-lg">Oogmatik</span>
+              <span className="font-bold text-lg">bdmind</span>
             </div>
             <div className="hidden md:flex items-center gap-8">
               <a href="#features" className="text-slate-300 hover:text-white transition">Özellikler</a>
@@ -134,7 +134,7 @@ const LandingPage: React.FC = () => {
             </h2>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto">
               Disleksi ve özel eğitim gerektiren öğrenciler için uygun materyal hazırlamak saat süren bir işlem.
-              Oogmatik bunu 5 saniyeye düşürüyor.
+              bdmind bunu 5 saniyeye düşürüyor.
             </p>
           </motion.div>
 
@@ -165,7 +165,7 @@ const LandingPage: React.FC = () => {
         <div className="max-w-6xl mx-auto">
           <motion.div {...fadeInUp} className="text-center mb-16">
             <h2 className="text-4xl sm:text-5xl font-bold mb-6">
-              Neden Oogmatik?
+              Neden bdmind?
             </h2>
             <p className="text-xl text-slate-300 max-w-3xl mx-auto">
               Türkiye'nin ilk ve en kapsamlı AI destekli özel eğitim platformu
@@ -313,7 +313,7 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
           <div className="border-t border-slate-800 pt-8 flex items-center justify-between text-slate-400">
-            <p>&copy; 2026 Oogmatik. Tüm hakları saklıdır.</p>
+            <p>&copy; 2026 bdmind. Tüm hakları saklıdır.</p>
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4" />
               <span>Türkiye'nin #1 AI Özel Eğitim Platformu</span>

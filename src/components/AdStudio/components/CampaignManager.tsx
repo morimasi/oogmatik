@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { AdCampaign, AdAudience } from '../../../types/adStudio';
 import { useAdHistory } from '../../../hooks/useAdHistory';
 
-const STORAGE_KEY = 'oogmatik_ad_campaigns';
+const STORAGE_KEY = 'bdmind_ad_campaigns';
 
 function loadCampaigns(): AdCampaign[] {
   try {

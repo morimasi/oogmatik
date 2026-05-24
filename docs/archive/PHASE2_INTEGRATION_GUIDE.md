@@ -1,4 +1,4 @@
-# Phase 2 Integration Guide - OOGMATIK
+# Phase 2 Integration Guide - BDMIND
 
 ## Durum Özeti (Status Summary)
 

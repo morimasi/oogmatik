@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * OOGMATIK - Console.log → Logger Migration Script
+ * BDMIND - Console.log → Logger Migration Script
  * 194 console.log statement'ını logInfo/logError/logWarn'a dönüştür
  * 
  * Usage: node scripts/migrate-console-logs.js [--dry-run] [--pattern=console.log]
@@ -24,7 +24,7 @@ const patternFilter = args.find(arg => arg.startsWith('--pattern='))?.split('=')
 
 console.log(`
 ╔════════════════════════════════════════════════════════════╗
-║  OOGMATIK - Console.log → Logger Migration                 ║
+║  BDMIND - Console.log → Logger Migration                 ║
 ╚════════════════════════════════════════════════════════════╝
 `);
 

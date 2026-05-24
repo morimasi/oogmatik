@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — Klinik Doğrulama Motoru (Faz 2, Task 5)
+ * BDMIND — Klinik Doğrulama Motoru (Faz 2, Task 5)
  *
  * Dr. Ahmet Kaya protokolü:
  * 1. Tanı koyucu dil tespiti (regex)

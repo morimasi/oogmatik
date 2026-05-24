@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - AI Worksheet Service Tests
+ * BDMIND - AI Worksheet Service Tests
  * Test suite for intelligent worksheet generation
  */
 

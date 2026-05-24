@@ -141,7 +141,7 @@ export const BrainTeasersSheet: React.FC<BrainTeasersSheetProps> = ({ data, sett
       {/* Footer summary */}
       <div className="pt-1.5 print:pt-0.5 border-t border-zinc-100 text-center shrink-0">
         <span className="text-[10px] print:text-[8px] text-zinc-400 font-bold uppercase tracking-widest">
-          Oogmatik Zeka Atölyesi • Toplam {puzzles.length} Görev
+          bdmind Zeka Atölyesi • Toplam {puzzles.length} Görev
         </span>
       </div>
     </div>

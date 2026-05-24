@@ -45,7 +45,7 @@ export interface ThemeRecommendation {
  * Analyzes user behavior and recommends optimal themes
  */
 export class ThemeIntelligenceService {
-  private dbName = 'oogmatik-theme-intelligence';
+  private dbName = 'bdmind-theme-intelligence';
   private storeName = 'preferences';
   private db: IDBDatabase | null = null;
 

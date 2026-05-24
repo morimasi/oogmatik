@@ -82,7 +82,7 @@ const PricingPage: React.FC = () => {
               <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
                 <Zap className="w-5 h-5" />
               </div>
-              <span className="font-bold text-lg">Oogmatik</span>
+              <span className="font-bold text-lg">bdmind</span>
             </div>
             <button className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 rounded-lg font-medium transition">
               Şimdi Başla
@@ -223,7 +223,7 @@ const PricingPage: React.FC = () => {
               },
               {
                 q: 'Birden fazla öğretmen için toplu satın alma yapabilir miyim?',
-                a: 'Evet, kurum paketimiz 10+ kullanıcı için tasarlanmıştır. Toplu satın almalar için sales@oogmatik.com ile iletişime geçebilirsiniz.',
+                a: 'Evet, kurum paketimiz 10+ kullanıcı için tasarlanmıştır. Toplu satın almalar için sales@bdmind.com ile iletişime geçebilirsiniz.',
               },
               {
                 q: 'Tüm öğrenci sayılarının materyali üretebilir miyim?',
@@ -259,7 +259,7 @@ const PricingPage: React.FC = () => {
       {/* Footer */}
       <footer className="border-t border-slate-800 px-4 sm:px-6 lg:px-8 py-12 bg-slate-950">
         <div className="max-w-6xl mx-auto text-center text-slate-400">
-          <p>&copy; 2026 Oogmatik. Tüm hakları saklıdır.</p>
+          <p>&copy; 2026 bdmind. Tüm hakları saklıdır.</p>
         </div>
       </footer>
     </div>

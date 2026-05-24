@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — WorkbookAI Assistant Component
+ * BDMIND — WorkbookAI Assistant Component
  *
  * AI-powered suggestions UI for workbook enhancement
  *

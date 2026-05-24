@@ -2,7 +2,7 @@
 trigger: always_on
 ---
 
-# Oogmatik Çekirdek Kuralları (Google Antigravity / IDX)
+# bdmind Çekirdek Kuralları (Google Antigravity / IDX)
 
 ## 🤖 AI Ajan v2 Professional & Otomatik Aktivasyon
 Google Antigravity ve Gemini CLI ile çalışırken, projenin **v2 Professional** AI mimarisi her zaman **otomatik** olarak devrededir.
@@ -13,13 +13,13 @@ Google Antigravity ve Gemini CLI ile çalışırken, projenin **v2 Professional*
 3. **Evrensel Bilgi Hakimiyeti**: Ajanlar, [MODULE_KNOWLEDGE.md](file:///.claude/MODULE_KNOWLEDGE.md) üzerinden uygulamanın TÜM dosya, işlev ve modül haritasına %100 hakimdir.
 
 ## Proje
-**Oogmatik** — Türkiye'deki disleksi, DEHB ve özel öğrenme güçlüğü yaşayan çocuklar için AI destekli kişiselleştirilmiş eğitim materyali platformu.  
+**bdmind** — Türkiye'deki disleksi, DEHB ve özel öğrenme güçlüğü yaşayan çocuklar için AI destekli kişiselleştirilmiş eğitim materyali platformu.  
 **Stack**: React 18 + TypeScript (strict) + Vite + Node.js + Vercel Serverless + Gemini 1.5 Flash + Firebase  
 **Kural #0**: Her içerik gerçek bir çocuğa ulaşır. Hata toleransı = sıfır.
 
 ---
 
-## 👑 Oogmatik Swarm (Sürü) Ajan Yapısı (Tetikleyici Yok, Otomatik Devrede)
+## 👑 bdmind Swarm (Sürü) Ajan Yapısı (Tetikleyici Yok, Otomatik Devrede)
 
 Kullanıcıdan gelen her "istek" (yazılım, UI, algoritma, soru vb.) durumunda TÜM ajanlar **TETİKLEYİCİ KELİMEYE İHTİYAÇ DUYMADAN OTOMATİK OLARAK ÇALIŞIR** ve tıpkı bir yazılım takımında olduğu gibi birbirlerini dinleyerek, oylayarak tek potada cevap/çözüm üretir. 
 

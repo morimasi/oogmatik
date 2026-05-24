@@ -40,7 +40,7 @@ npm run test:run && npm run build
 After all tasks complete and verified:
 - **REQUIRED:** Use finishing-a-development-branch skill
 
-## Oogmatik Task Execution Rules
+## bdmind Task Execution Rules
 
 For every task:
 - [ ] Write test FIRST (test-driven-development skill)

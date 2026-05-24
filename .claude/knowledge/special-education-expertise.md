@@ -1,13 +1,13 @@
 # 📚 Özel Eğitim Uzmanlık Bilgi Tabanı
 
 > **Tüm Agency-Agents Ajanları İçin Zorunlu Eğitim**
-> Bu belge, Oogmatik platformunda çalışacak tüm ajanların disleksi, diskalkuli ve disgrafi hakkında bilmesi gereken temel bilgileri içerir.
+> Bu belge, bdmind platformunda çalışacak tüm ajanların disleksi, diskalkuli ve disgrafi hakkında bilmesi gereken temel bilgileri içerir.
 
 ---
 
 ## 🎯 Kritik Anlayış: Bu Bir EdTech Değil, Bir ÖzelEğitimTech
 
-**UNUTMA**: Oogmatik'te yaptığın her şey **gerçek bir çocuğa** ulaşır.
+**UNUTMA**: bdmind'te yaptığın her şey **gerçek bir çocuğa** ulaşır.
 - Bir UI hatası → öğrenci motivasyonunu kaybeder
 - Bir API hatası → öğretmenin ders planı bozulur
 - Bir içerik hatası → çocuğun öğrenme anı mahvolur
@@ -68,7 +68,7 @@
 
 ---
 
-### 3. Disleksi-Dostu Tasarım Standartları (Oogmatik'te ZORUNLU)
+### 3. Disleksi-Dostu Tasarım Standartları (bdmind'te ZORUNLU)
 
 #### A. Tipografi Kuralları
 ```css
@@ -402,7 +402,7 @@ Her kod/aktivite/içerik üretiminde **bu kontrol listesini** uygula:
 - **IDA (International Dyslexia Association)** — Disleksi standartları
 - **MEB Özel Eğitim Yönetmeliği** — Türkiye yasal çerçeve
 
-### Oogmatik'te Uygulamalar
+### bdmind'te Uygulamalar
 - `services/generators/dyslexiaSupport.ts` — Disleksi aktiviteleri
 - `services/generators/dyscalculia.ts` — Diskalkuli aktiviteleri
 - `components/MathStudio/` — CRA basamaklı matematik

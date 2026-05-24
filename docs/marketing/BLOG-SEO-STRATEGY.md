@@ -1,4 +1,4 @@
-# Blog & SEO Content Strategy for Oogmatik
+# Blog & SEO Content Strategy for bdmind
 
 **Tarih:** 28 Nisan 2026  
 **Sorumlu:** Pazarlama Ekibi  
@@ -82,7 +82,7 @@
 | 2 | Guide | Öğretmenler İçin Disleksi Dostu Sınıf Ortamı | özel eğitim, disleksi | 2000 words |
 | 3 | Case Study | Okul Başarı Hikayesi: AI ile Materyal Üretimi | disleksi materyal, AI | 1500 words |
 | 4 | Blog | Evde Disleksi Desteği: 10 Pratik Yöntem | evde disleksi, veli rehberi | 2500 words |
-| - | Video | Oogmatik Platform Tanıtımı (1 dakika) | oogmatik, AI materyal | YouTube |
+| - | Video | bdmind Platform Tanıtımı (1 dakika) | bdmind, AI materyal | YouTube |
 | - | Social | 20 tweet, 20 Instagram post | Various | Social reach |
 
 ### JUNE 2026
@@ -142,7 +142,7 @@
 - Okul adaptasyonları
 - Ev desteği yöntemleri
 - Teknoloji araçları
-- Oogmatik çözümü (CTA)
+- bdmind çözümü (CTA)
 
 ## Section 5: FAQ (300 kelime)
 - "Disleksia geçer mi?"
@@ -189,7 +189,7 @@
 - [ ] Bireyselleştirilmiş plan
 
 ## Tools & Resources
-- Oogmatik (CTA)
+- bdmind (CTA)
 - Diğer kaynaklar
 
 ## Conclusion
@@ -203,7 +203,7 @@
 ## Executive Summary
 - Okul tanıtımı
 - Problem: Ne zorluk yaşıyorlardı
-- Solution: Oogmatik
+- Solution: bdmind
 - Result: % kaç iyileşme
 
 ## Background
@@ -219,7 +219,7 @@
 - Ölçme-değerlendirme
 
 ## Solution Implementation
-- Oogmatik entegrasyonu
+- bdmind entegrasyonu
 - Öğretmen eğitimi
 - İş akışı değişiklikleri
 - Başarı metriği
@@ -236,7 +236,7 @@
 - Future plans
 
 ## CTA
-- Oogmatik deneme
+- bdmind deneme
 - Benzer okul referans
 ```
 
@@ -439,4 +439,4 @@ Example:
 
 ---
 
-**Bu stratejis ile Oogmatik 6 ayda organik pazarlama başarısı elde edecektir.**
+**Bu stratejis ile bdmind 6 ayda organik pazarlama başarısı elde edecektir.**

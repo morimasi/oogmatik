@@ -3,9 +3,9 @@ import { generateWithSchema } from './geminiClient';
 import { AnimationPayloadType, NeuroProfileParamsType } from '../utils/schemas';
 
 import { logInfo, logError, logWarn } from '../utils/logger.js';
-// Oogmatik Animasyon Stüdyosu v2.0 AI Core Yönergesi
+// bdmind Animasyon Stüdyosu v2.0 AI Core Yönergesi
 const ANIMATION_SYSTEM_INSTRUCTION = `
-Sen "Oogmatik Ultra Premium Animasyon Stüdyosu v2.0" uygulamasının Nöro-Mimari AI motorusun.
+Sen "bdmind Ultra Premium Animasyon Stüdyosu v2.0" uygulamasının Nöro-Mimari AI motorusun.
 GÖREV: Çocuğun nöro-çeşitlilik (disleksi, DEHB, diskalkuli) profiline uygun, Remotion Player'ın anlayacağı milisaniyelik zamanlama (timing) ve geçiş (easing) verilerini üretmek.
 KURALLAR:
 1. Öğrencinin yaşına, profiline ve okuma veya dikkat süresine tamamen uyumlu ol.

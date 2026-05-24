@@ -50,7 +50,7 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
             <div className="space-y-1">
               <div className="flex items-center gap-3">
                 <h1 className="text-3xl font-black text-[var(--text-primary)] tracking-tight">
-                  {user?.name || 'Oogmatik Kullanıcısı'}
+                  {user?.name || 'bdmind Kullanıcısı'}
                 </h1>
                 <span className="px-3 py-1 bg-[var(--accent-muted)] text-[var(--accent-color)] text-[10px] font-black uppercase tracking-widest rounded-lg border border-[var(--accent-color)]/20">
                   {user?.role === 'admin' ? 'Yönetici' : 'Eğitmen'}

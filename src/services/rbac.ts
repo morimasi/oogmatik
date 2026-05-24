@@ -1,7 +1,7 @@
 import { AppError } from '../utils/AppError';
 import { logInfo, logError, logWarn } from '../utils/logger.js';
 /**
- * OOGMATIK - Role-Based Access Control (RBAC)
+ * BDMIND - Role-Based Access Control (RBAC)
  * User roles and permission management
  */
 

@@ -3,7 +3,7 @@ import { WorksheetData } from '../../types/core.js';
 import { logError } from '../../utils/logger.js';
 
 /**
- * OOGMATIK - VARIATION ENGINE (v3 Premium)
+ * BDMIND - VARIATION ENGINE (v3 Premium)
  * Mevcut bir aktiviteyi temel alarak farklı zorluk ve destek seviyelerinde varyasyonlar üretir.
  */
 export class VariationEngine {

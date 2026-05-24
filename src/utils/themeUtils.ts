@@ -1,7 +1,7 @@
 import { DesignSchool } from '../components/InfographicStudio/hooks/useInfographicStudio';
 
 /**
- * Oogmatik Tema Yardımcıları
+ * bdmind Tema Yardımcıları
  *
  * Selin Arslan — AI Mimarı: "Palette Reflection"
  * AI infografik üreticisi, kullanıcının o anki temasını algılayıp,

@@ -1,6 +1,6 @@
 # 🎉 Agency-Agents Entegrasyon Tamamlandı!
 
-> **Oogmatik × Agency-Agents — Tam Entegrasyon Raporu**
+> **bdmind × Agency-Agents — Tam Entegrasyon Raporu**
 > Tarih: 2026-03-28
 > Versiyon: 1.0.0
 
@@ -38,7 +38,7 @@
 ### Hiyerarşi
 
 ```
-[KATMAN 1] Lider Ajanlar (Oogmatik İç Çekirdek)
+[KATMAN 1] Lider Ajanlar (bdmind İç Çekirdek)
   ├── Elif Yıldız (Pedagoji Direktörü)
   ├── Dr. Ahmet Kaya (Klinik Direktör)
   ├── Bora Demir (Mühendislik Direktörü)
@@ -240,7 +240,7 @@ Sistem: ❌ Görev iptal edildi.
 │   └── ORCHESTRATION.md             (Koordinasyon kuralları)
 ├── knowledge/
 │   └── special-education-expertise.md     (Disleksi/diskalkuli/disgrafi bilgi tabanı)
-└── MODULE_KNOWLEDGE.md              (Oogmatik modül bilgisi)
+└── MODULE_KNOWLEDGE.md              (bdmind modül bilgisi)
 ```
 
 ---

@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — Phase 6 (Student Hub & Clinical Tracking) Test Suite
+ * BDMIND — Phase 6 (Student Hub & Clinical Tracking) Test Suite
  * 
  * Tests:
  * 1. Neuro-Student Profile types

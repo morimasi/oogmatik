@@ -428,7 +428,7 @@ vercel --prod
 
 4. **Smoke Test** (Production)
 ```bash
-curl -X POST https://oogmatik.vercel.app/api/ocr/analyze \
+curl -X POST https://bdmind.vercel.app/api/ocr/analyze \
   -H "Content-Type: application/json" \
   -d '{"image":"...","userId":"smoke_test"}'
 ```

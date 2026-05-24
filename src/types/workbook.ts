@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — Workbook Module Type Definitions
+ * BDMIND — Workbook Module Type Definitions
  *
  * Ultra-premium workbook editor tip tanımları
  *

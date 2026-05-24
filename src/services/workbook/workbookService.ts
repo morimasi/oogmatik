@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — Workbook Service
+ * BDMIND — Workbook Service
  *
  * Core CRUD operations for ultra-premium workbook management
  *

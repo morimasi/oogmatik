@@ -8,7 +8,7 @@
 
 ## 🎯 Genel Bakış
 
-Oogmatik Premium UI Theme System, 11 farklı tema ile disleksi-uyumlu, erişilebilir ve görsel olarak sofistike bir kullanıcı deneyimi sunar.
+bdmind Premium UI Theme System, 11 farklı tema ile disleksi-uyumlu, erişilebilir ve görsel olarak sofistike bir kullanıcı deneyimi sunar.
 
 ### Temel Özellikler
 
@@ -122,7 +122,7 @@ import { AppTheme } from '@/types';
 // Manuel tema değiştirme
 function changeTheme(theme: AppTheme) {
   document.documentElement.className = `theme-${theme}`;
-  localStorage.setItem('oogmatik.theme', theme);
+  localStorage.setItem('bdmind.theme', theme);
 }
 
 // Örnek

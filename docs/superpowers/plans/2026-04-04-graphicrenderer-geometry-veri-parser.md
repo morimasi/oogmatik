@@ -142,7 +142,7 @@ describe('Eksik Şekil Tipleri — Tip Tanımı', () => {
 - [ ] **Step 2: Testleri çalıştır, mevcut durum kontrolü**
 
 ```bash
-cd /home/runner/work/oogmatik/oogmatik && npx vitest run tests/matSinavGorsel.test.ts
+cd /home/runner/work/bdmind/bdmind && npx vitest run tests/matSinavGorsel.test.ts
 ```
 Beklenen: Mevcut testler geçer, yeni basit testler de geçer (çünkü inline logic test ediyoruz).
 
@@ -510,14 +510,14 @@ const yaricap = ozellikler?.yaricap ?? geo.radius ?? geo.edgeLengths[0];
 - [ ] **Step 9: Testleri çalıştır**
 
 ```bash
-cd /home/runner/work/oogmatik/oogmatik && npx vitest run tests/matSinavGorsel.test.ts
+cd /home/runner/work/bdmind/bdmind && npx vitest run tests/matSinavGorsel.test.ts
 ```
 Beklenen: PASS (tüm testler)
 
 - [ ] **Step 10: Build kontrol**
 
 ```bash
-cd /home/runner/work/oogmatik/oogmatik && npm run build 2>&1 | tail -20
+cd /home/runner/work/bdmind/bdmind && npm run build 2>&1 | tail -20
 ```
 
 - [ ] **Step 11: Commit**
@@ -666,7 +666,7 @@ if (tip === 'dik_kesisen_dogrular') {
 - [ ] **Step 5: Testleri çalıştır**
 
 ```bash
-cd /home/runner/work/oogmatik/oogmatik && npx vitest run tests/matSinavGorsel.test.ts
+cd /home/runner/work/bdmind/bdmind && npx vitest run tests/matSinavGorsel.test.ts
 ```
 Beklenen: PASS
 
@@ -781,7 +781,7 @@ Satır ~769 (schema description):
 - [ ] **Step 4: Build ve testler**
 
 ```bash
-cd /home/runner/work/oogmatik/oogmatik && npm run build 2>&1 | tail -20
+cd /home/runner/work/bdmind/bdmind && npm run build 2>&1 | tail -20
 npx vitest run tests/matSinavGorsel.test.ts
 ```
 Beklenen: TypeScript hataları yok, testler geçiyor.
@@ -789,7 +789,7 @@ Beklenen: TypeScript hataları yok, testler geçiyor.
 - [ ] **Step 5: Son tam test koşusu**
 
 ```bash
-cd /home/runner/work/oogmatik/oogmatik && npx vitest run 2>&1 | tail -30
+cd /home/runner/work/bdmind/bdmind && npx vitest run 2>&1 | tail -30
 ```
 
 - [ ] **Step 6: Commit**

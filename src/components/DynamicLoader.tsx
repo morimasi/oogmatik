@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Dynamic Loading Messages
+ * BDMIND - Dynamic Loading Messages
  * AI üretim sürecinde dinamik, terminal benzeri loading mesajları
  * "Dr. Ahmet Kaya hedefleri doğruluyor...", "Bilişsel zorluk seviyesi ayarlanıyor..."
  */
@@ -120,7 +120,7 @@ export const TerminalLoader: React.FC<{
         <div className="h-2 w-2 rounded-full bg-red-500" />
         <div className="h-2 w-2 rounded-full bg-yellow-500" />
         <div className="h-2 w-2 rounded-full bg-green-500" />
-        <span className="ml-2">Oogmatik AI Pipeline</span>
+        <span className="ml-2">bdmind AI Pipeline</span>
       </div>
       <div className="space-y-1">
         {steps.map((step, idx) => (

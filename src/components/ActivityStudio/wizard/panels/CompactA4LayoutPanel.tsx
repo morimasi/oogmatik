@@ -179,7 +179,7 @@ export const CompactA4LayoutPanel: React.FC<CompactA4LayoutPanelProps> = ({
         className="rounded-2xl border border-zinc-700 bg-zinc-800/30 p-5 text-sm text-zinc-200 shadow-inner"
         style={{ fontSize: `${config.fontSize}pt`, lineHeight: config.lineHeight }}
       >
-        Oogmatik etkinlik sayfaları özel öğrenme güçlüğü olan çocuklar için okunabilirlik odaklı tasarlandı.
+        bdmind etkinlik sayfaları özel öğrenme güçlüğü olan çocuklar için okunabilirlik odaklı tasarlandı.
       </div>
     </div>
   );

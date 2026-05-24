@@ -62,7 +62,7 @@ service cloud.firestore {
       allow write: if isSignedIn() && request.auth.uid == userId;
     }
 
-    // --- MESSAGING MODULE (OOGMATIK v2) ---
+    // --- MESSAGING MODULE (bdmind v2) ---
 
     // Conversations: Katılımcılar okuyabilir, herkes (auth) yeni bir direkt/grup başlatabilir
     match /conversations/{convId} {

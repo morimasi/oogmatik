@@ -1,5 +1,5 @@
 /**
- * Oogmatik Snapshot Service
+ * bdmind Snapshot Service
  * Ekran görüntüsü alma, panoya kopyalama ve paylaşma.
  * CaptureEngine paylaşımlı modülünü kullanır — kod tekrarı yok.
  */

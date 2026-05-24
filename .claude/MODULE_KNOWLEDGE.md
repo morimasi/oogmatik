@@ -1,7 +1,7 @@
-# OOGMATIK — Uygulama Modül ve İşlev Referansı
+# BDMIND — Uygulama Modül ve İşlev Referansı
 
 > **Tüm Ajanlar İçin Zorunlu Referans Belgesi**
-> Bu belge, Oogmatik platformundaki tüm modüllerin, işlevlerin ve bileşenlerin kapsamlı açıklamasını içerir.
+> Bu belge, bdmind platformundaki tüm modüllerin, işlevlerin ve bileşenlerin kapsamlı açıklamasını içerir.
 > Her ajan geliştirme yapmadan önce ilgili modülü buradan öğrenmeli ve bağlamı anlamalıdır.
 
 **Son Güncelleme**: 2026-05-24
@@ -160,7 +160,7 @@
 
 **Dosya Konumu**: `components/UniversalStudio/`
 
-**Amaç**: Farklı formatlardaki çalışma kâğıtlarını Oogmatik formatına dönüştürme ve entegre etme.
+**Amaç**: Farklı formatlardaki çalışma kâğıtlarını bdmind formatına dönüştürme ve entegre etme.
 
 **Ana Bileşenler**:
 - `UniversalCanvas.tsx` — Evrensel tuval
@@ -169,10 +169,10 @@
 - `UniversalWorksheetWrapper.tsx` — Çalışma kâğıdı sarmalayıcı
 
 **İşlevler**:
-1. **Format Adaptörleri**: PDF, DOCX, images → Oogmatik JSON
+1. **Format Adaptörleri**: PDF, DOCX, images → bdmind JSON
 2. **Otomatik Bileşen Tanıma**: OCR ile metin alanlarını tespit
 3. **Layout Reconstruction**: Orijinal düzeni koruyarak import
-4. **Stil Mapping**: Harici stil kurallarını Oogmatik stiline çevirme
+4. **Stil Mapping**: Harici stil kurallarını bdmind stiline çevirme
 
 **AI Entegrasyonu**: `services/ocrService.ts` (Gemini Vision OCR)
 
@@ -855,7 +855,7 @@ ScreeningAssessment/
 
 **Klasör Konumu**: `hooks/`
 
-Oogmatik v2 mimarisinde `App.tsx` içerisindeki (God Component) yoğun state yönetimi ayrıştırılarak aşağıdaki "Özel Hook" sistemine taşınmıştır. Ajanlar, component'ler arası navigasyon, worksheet kaydetme ve tarihçe gibi işlemler için bu hook'ları kullanmalıdır:
+bdmind v2 mimarisinde `App.tsx` içerisindeki (God Component) yoğun state yönetimi ayrıştırılarak aşağıdaki "Özel Hook" sistemine taşınmıştır. Ajanlar, component'ler arası navigasyon, worksheet kaydetme ve tarihçe gibi işlemler için bu hook'ları kullanmalıdır:
 
 1. **useNavigationLogic.ts:** Yönlendirme ve menü değiştirme mantığı (`navigateTo`, `handleGoBack`, `handleOpenStudio`, `handleGeneratePlanFromScreening`). `currentView` ve sidebar geçişleri doğrudan buradan yönetilir.
 2. **useHistoryManager.ts:** Kullanıcının geçmiş üretilen kayıtlarını okuma, ekleme ve kalıcı belleğe (localStorage) senkronizasyon etme (`addToHistory`, `handleRestoreFromHistory`).
@@ -1327,7 +1327,7 @@ Tüm ajanlardan geçer not ("approved: true") almayan hiçbir otonom blueprint s
 `components/AdStudio/`
 
 ### Amaç
-Tüm Oogmatik modülleri/stüdyoları için AI destekli, özelleştirilebilir reklam içeriği üretir. Storyboard, video script, sosyal medya, e-posta, basın bülteni, broşür ve web metni formatlarında çıktı verir.
+Tüm bdmind modülleri/stüdyoları için AI destekli, özelleştirilebilir reklam içeriği üretir. Storyboard, video script, sosyal medya, e-posta, basın bülteni, broşür ve web metni formatlarında çıktı verir.
 
 ### Ana Bileşen
 - `AdStudio.tsx` — Ana hub: sihirbaz, önizleme, geçmiş, kampanyalar
@@ -1388,5 +1388,5 @@ Tüm Oogmatik modülleri/stüdyoları için AI destekli, özelleştirilebilir re
 
 ---
 
-**NOT**: Bu belge, tüm ajanların Oogmatik uygulamasını tam olarak anlaması için oluşturulmuştur. Her geliştirme öncesi ilgili modül bölümü okunmalıdır.
+**NOT**: Bu belge, tüm ajanların bdmind uygulamasını tam olarak anlaması için oluşturulmuştur. Her geliştirme öncesi ilgili modül bölümü okunmalıdır.
 

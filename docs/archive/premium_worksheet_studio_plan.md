@@ -38,7 +38,7 @@ Stüdyo, "Premium" hissiyatını artırmak için şu özelliklerle donatılacakt
 *   **🛡️ Yönetici (Admin) Onayına Sunma İşlevi:**
     *   Öğretmenlerin (veya sistemin) ürettiği "Premium" kağıtlar doğrudan havuza düşmeyecek.
     *   **"Klinik ve Eğitsel Kurula Gönder" (Submit for Approval)** butonu eklenecek.
-    *   Bu sayede platformun "Oogmatik Global Etkinlik Havuzu"na sadece başöğretmenler veya adminler tarafından pedagojik uygunluğu onaylanmış, hatasız içerikler eklenebilecek.
+    *   Bu sayede platformun "bdmind Global Etkinlik Havuzu"na sadece başöğretmenler veya adminler tarafından pedagojik uygunluğu onaylanmış, hatasız içerikler eklenebilecek.
 
 ---
 
@@ -64,4 +64,4 @@ Stüdyo, "Premium" hissiyatını artırmak için şu özelliklerle donatılacakt
 *   Veritabanında (Firebase/Firestore) `status: "pending_approval" | "approved" | "rejected"` mantığı kurularak "Admin Onay" süreci kodlanacak.
 *   Admin paneline (`AdminDashboard`) "Onay Bekleyen Premium İçerikler" sekmesi eklenecek.
 
-Bu plan uygulandığında Oogmatik; basit araçların bir araya geldiği bir platformdan çıkarak, kendi kendine dünya standartlarında fasiküller basabilen "Akıllı ve Kusursuz bir Dijital Yayın Evine" dönüşecektir.
+Bu plan uygulandığında bdmind; basit araçların bir araya geldiği bir platformdan çıkarak, kendi kendine dünya standartlarında fasiküller basabilen "Akıllı ve Kusursuz bir Dijital Yayın Evine" dönüşecektir.

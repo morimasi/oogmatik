@@ -40,7 +40,7 @@ export class WorksheetBuilder {
       content: {
         title: this.title,
         showStudentInfo: true,
-        logo: 'Oogmatik Premium'
+        logo: 'bdmind Premium'
       },
       weight: 0
     });

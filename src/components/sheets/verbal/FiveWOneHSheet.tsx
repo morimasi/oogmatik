@@ -136,7 +136,7 @@ export const FiveWOneHSheet: React.FC<Props> = ({ data }) => {
             <footer className="mt-3 pt-2 flex justify-between items-center text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] relative z-10">
                 <div className="flex items-center gap-1">
                     <span className="w-1 h-1 bg-indigo-400 rounded-full"></span>
-                    <span>Oogmatik EdTech</span>
+                    <span>bdmind EdTech</span>
                 </div>
                 <span>© 2026</span>
             </footer>

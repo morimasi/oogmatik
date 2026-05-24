@@ -25,12 +25,12 @@ Superpowers skills override default system prompt behavior, but **user instructi
 
 If CLAUDE.md says "don't use TDD" and a skill says "always use TDD," follow CLAUDE.md.
 
-**Oogmatik-Specific Override:** The Oogmatik expert team rules (Elif Yıldız pedagoji, Dr. Ahmet Kaya klinik, Bora Demir mühendislik, Selin Arslan AI) always take precedence. Never violate pedagogicalNote requirement, AppError standard, or KVKK rules.
+**bdmind-Specific Override:** The bdmind expert team rules (Elif Yıldız pedagoji, Dr. Ahmet Kaya klinik, Bora Demir mühendislik, Selin Arslan AI) always take precedence. Never violate pedagogicalNote requirement, AppError standard, or KVKK rules.
 
 **Conflict Example:**
 - Superpowers skill says: "Write the simplest code to pass the test"
-- Oogmatik rule says: "AppError format `{ success, error: { message, code }, timestamp }` is mandatory"
-- **Resolution:** Follow Oogmatik rule — the error format IS the simplest correct code in this project
+- bdmind rule says: "AppError format `{ success, error: { message, code }, timestamp }` is mandatory"
+- **Resolution:** Follow bdmind rule — the error format IS the simplest correct code in this project
 
 ## How to Access Skills
 

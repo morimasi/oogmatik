@@ -24,7 +24,7 @@ export async function generateSmartFallbackAI(
 
   // ── SYSTEM PROMPT ─────────────────────────────────────────────
   const baseSystemPrompt = `
-Sen, Oogmatik platformunun kıdemli Pedagojik İçerik Tasarımcısısın.
+Sen, bdmind platformunun kıdemli Pedagojik İçerik Tasarımcısısın.
 Türkiye'deki disleksi, DEHB ve özel öğrenme güçlüğü yaşayan çocuklar için
 "Ultra Premium" standartlarda A4 çalışma kağıtları üretiyorsun.
 

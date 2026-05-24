@@ -45,7 +45,7 @@ Kullanıcının yüklediği aktivite görselinden **mimari DNA çıkarımı** ya
 
 ```typescript
 /**
- * OOGMATIK - OCR Image Validator
+ * BDMIND - OCR Image Validator
  * Gemini Vision API için dosya boyut/format/güvenlik kontrolü
  */
 
@@ -504,7 +504,7 @@ SADECE metni okuma; sayfa hiyerarşisini, mimari yapısını ve ASIL VERİYİ ek
 
 ```typescript
 /**
- * OOGMATIK - OCR Variation Service
+ * BDMIND - OCR Variation Service
  * Blueprint'ten varyasyon üretimi orkestratörü
  */
 
@@ -1145,4 +1145,4 @@ describe('Image Validator', () => {
 
 ---
 
-Bu mimari tasarım tüm kritik sorunları çözerken, Oogmatik standartlarına %100 uyumludur.
+Bu mimari tasarım tüm kritik sorunları çözerken, bdmind standartlarına %100 uyumludur.

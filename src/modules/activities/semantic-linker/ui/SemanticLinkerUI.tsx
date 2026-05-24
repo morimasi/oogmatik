@@ -49,7 +49,7 @@ export const SemanticLinkerUI = ({ data }: { data: SemanticLinkerData }) => {
       </div>
       
       <div className="w-full mt-6 flex justify-between items-center text-[8px] font-black text-zinc-300 uppercase tracking-widest border-t pt-4">
-        <span>Oogmatik • Anlamsal İlişki Modülü</span>
+        <span>bdmind • Anlamsal İlişki Modülü</span>
         <div className="flex gap-4">
           <span>Doğru: ______</span>
           <span>Yanlış: ______</span>

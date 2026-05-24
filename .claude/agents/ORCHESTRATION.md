@@ -1,7 +1,7 @@
 # 🎭 Ajan Orkestrasyon Sistemi
 
 > **Otomatik Ajan Koordinasyonu**
-> Bu dosya, Oogmatik'te çalışan tüm ajanların otomatik koordinasyonunu sağlar.
+> Bu dosya, bdmind'te çalışan tüm ajanların otomatik koordinasyonunu sağlar.
 
 ---
 

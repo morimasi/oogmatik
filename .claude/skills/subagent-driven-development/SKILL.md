@@ -25,7 +25,7 @@ For each task:
 4. **Dispatch implementer subagent** with:
    - Full task text and context
    - Relevant files to read
-   - Oogmatik-specific rules they must follow
+   - bdmind-specific rules they must follow
    
 5. **Answer any questions** the implementer raises before they proceed
 
@@ -47,12 +47,12 @@ For each task:
 
 11. **Use finishing-a-development-branch skill** to complete
 
-## Oogmatik Subagent Context Template
+## bdmind Subagent Context Template
 
 When dispatching implementer subagents, always include:
 
 ```
-OOGMATIK PROJECT RULES (MANDATORY):
+BDMIND PROJECT RULES (MANDATORY):
 - TypeScript strict: no `any` type, use `unknown` + type guard
 - AppError standard: { success, error: { message, code }, timestamp }
 - pedagogicalNote required in all AI activity outputs

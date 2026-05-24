@@ -729,8 +729,8 @@ const LazyPage: React.FC<{ children: React.ReactNode; pageIdx: number; totalPage
   const ref = React.useRef<HTMLDivElement>(null);
   const forceRenderFlag =
     typeof window !== 'undefined' &&
-    (window as { __oogmatik_force_render_all_pages__?: boolean })
-      .__oogmatik_force_render_all_pages__ === true;
+    (window as { __bdmind_force_render_all_pages__?: boolean })
+      .__bdmind_force_render_all_pages__ === true;
   const [isVisible, setIsVisible] = React.useState(pageIdx < 2 || forceRenderFlag); // İlk 2 sayfa hemen render
   const [hasAnimated, setHasAnimated] = React.useState(pageIdx < 2 || forceRenderFlag);
 
@@ -746,8 +746,8 @@ const LazyPage: React.FC<{ children: React.ReactNode; pageIdx: number; totalPage
       setHasAnimated(true);
     };
     if (typeof window === 'undefined') return undefined;
-    window.addEventListener('oogmatik:render-all-pages', handler);
-    return () => window.removeEventListener('oogmatik:render-all-pages', handler);
+    window.addEventListener('bdmind:render-all-pages', handler);
+    return () => window.removeEventListener('bdmind:render-all-pages', handler);
   }, []);
 
   React.useEffect(() => {

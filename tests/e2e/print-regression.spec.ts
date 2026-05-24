@@ -13,11 +13,11 @@ test.describe('Print Margin Regression (Dynamic Paper Size)', () => {
     // Trigger print
     await page.locator('button[title="Yazdır (PDF)"]').click();
     await page.waitForFunction(
-      () => (window as any).__oogmatik_print_paper_size__ === 'Letter',
+      () => (window as any).__bdmind_print_paper_size__ === 'Letter',
       {},
       { timeout: 5000 }
     );
-    const used = await page.evaluate(() => (window as any).__oogmatik_print_paper_size__);
+    const used = await page.evaluate(() => (window as any).__bdmind_print_paper_size__);
     expect(used).toBe('Letter');
   });
 
@@ -31,7 +31,7 @@ test.describe('Print Margin Regression (Dynamic Paper Size)', () => {
     // Ensure at least a content block exists before print
     await page.locator('button[title="Yazdır (PDF)"]').click();
     await page.waitForFunction(
-      () => (window as any).__oogmatik_print_paper_size__ !== undefined,
+      () => (window as any).__bdmind_print_paper_size__ !== undefined,
       {},
       { timeout: 6000 }
     );
@@ -46,11 +46,11 @@ test.describe('Print Margin Regression (Dynamic Paper Size)', () => {
     }
     await page.locator('button[title="Yazdır (PDF)"]').click();
     await page.waitForFunction(
-      () => (window as any).__oogmatik_print_paper_size__ === 'Legal',
+      () => (window as any).__bdmind_print_paper_size__ === 'Legal',
       {},
       { timeout: 6000 }
     );
-    const used = await page.evaluate(() => (window as any).__oogmatik_print_paper_size__);
+    const used = await page.evaluate(() => (window as any).__bdmind_print_paper_size__);
     expect(used).toBe('Legal');
   });
 });

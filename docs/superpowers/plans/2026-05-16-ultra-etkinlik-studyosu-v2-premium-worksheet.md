@@ -1258,7 +1258,7 @@ git commit -m "test: add premium renderer tests + generator schema validation te
 
 ### Task 9: Son Kontroller & Düzeltmeler
 
-- [ ] **Step 1: Oogmatik zorunlu kontrolleri**
+- [ ] **Step 1: bdmind zorunlu kontrolleri**
 
 ```
 □ TypeScript strict: any yok, ?. ve ?? kullanıldı

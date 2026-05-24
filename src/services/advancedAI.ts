@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — Advanced AI Services
+ * BDMIND — Advanced AI Services
  * 
  * Speech recognition (STT)
  * Text-to-speech (TTS)

@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — Mobile App Service Layer
+ * BDMIND — Mobile App Service Layer
  * 
  * React Native integration
  * Offline mode with sync

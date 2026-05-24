@@ -1,4 +1,4 @@
-# 🔬 OOGMATIK — Kapsamlı Hata, Eksik ve Fazlalık Temizlik Planı
+# 🔬 BDMIND — Kapsamlı Hata, Eksik ve Fazlalık Temizlik Planı
 
 > **Tarih:** 2026-05-24  
 > **Analiz Kapsamı:** Tüm proje dosyaları — 1079+ kaynak dosya  

@@ -7,7 +7,7 @@ import { StudentProgressSnapshot } from '../types/progress.js';
 import { logInfo } from '../utils/logger.js';
 
 /**
- * OOGMATIK - Achievement Service
+ * BDMIND - Achievement Service
  * Başarım ve rozet mantığını yönetir
  */
 export const achievementService = {

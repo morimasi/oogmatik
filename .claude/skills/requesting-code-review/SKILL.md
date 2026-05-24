@@ -49,7 +49,7 @@ HEAD_SHA=$(git rev-parse HEAD)
 - Fix Important issues before proceeding
 - Note Minor issues for later
 
-## Oogmatik-Specific Review Checklist
+## bdmind-Specific Review Checklist
 
 ```
 □ TypeScript strict: no `any`, optional chaining used

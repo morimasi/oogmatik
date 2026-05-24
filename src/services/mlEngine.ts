@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — Predictive Analytics & ML Engine
+ * BDMIND — Predictive Analytics & ML Engine
  * 
  * Machine learning models for:
  * - Student performance prediction

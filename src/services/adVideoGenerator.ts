@@ -241,7 +241,7 @@ function drawWatermark(ctx: CanvasRenderingContext2D, w: number, h: number) {
   ctx.fillStyle = 'rgba(255,255,255,0.12)';
   ctx.textAlign = 'right';
   ctx.textBaseline = 'bottom';
-  ctx.fillText('oogmatik', w * 0.96, h * 0.96);
+  ctx.fillText('bdmind', w * 0.96, h * 0.96);
 }
 
 function renderFrame(

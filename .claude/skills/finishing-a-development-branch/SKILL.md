@@ -79,7 +79,7 @@ gh pr create --title "<title>" --body "$(cat <<'EOF'
 ## Summary
 <2-3 bullets of what changed>
 
-## Oogmatik Checklist
+## bdmind Checklist
 - [ ] pedagogicalNote in all AI outputs
 - [ ] AppError format used
 - [ ] No `any` type

@@ -18,18 +18,18 @@ export const emailService = {
    */
   sendApprovalEmail: async (recipientEmail: string, recipientName: string): Promise<boolean> => {
     try {
-      const subject = '🎉 Oogmatik Hesabınız Onaylandı!';
+      const subject = '🎉 bdmind Hesabınız Onaylandı!';
       const body = `Merhaba Sayın ${recipientName},
 
-Oogmatik platformuna yapmış olduğunuz kayıt başvurusu yöneticimiz tarafından incelenmiş ve onaylanmıştır!
+bdmind platformuna yapmış olduğunuz kayıt başvurusu yöneticimiz tarafından incelenmiş ve onaylanmıştır!
 
 Artık hesabınıza giriş yaparak disleksi ve özel öğrenme güçlüğü olan öğrencileriniz için yapay zeka destekli, kişiselleştirilmiş eğitim materyalleri üretmeye başlayabilirsiniz.
 
-Giriş Yapmak İçin: https://oogmatik.bursadisleksi.com
+Giriş Yapmak İçin: https://bdmind.bursadisleksi.com
 Sorularınız ve Geri Bildirimleriniz İçin: morimasi@gmail.com
 
 Başarılı çalışmalar dileriz,
-Oogmatik Ekibi`;
+bdmind Ekibi`;
 
       logInfo(`Sending automatic approval email to ${recipientEmail}...`);
 

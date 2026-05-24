@@ -95,7 +95,7 @@ export const TourModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
             </div>
             <div>
               <h2 className="text-sm font-black text-[var(--text-primary)] tracking-tight">Platform Turu</h2>
-              <p className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Oogmatik'i adım adım keşfet</p>
+              <p className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider">bdmind'i adım adım keşfet</p>
             </div>
           </div>
           <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] transition-all">

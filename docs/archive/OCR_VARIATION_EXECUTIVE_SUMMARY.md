@@ -1,6 +1,6 @@
 # OCR Varyasyon Sistemi — Mühendislik Tasarım Özeti
 
-**Proje**: Oogmatik
+**Proje**: bdmind
 **Mühendis**: Bora Demir (Senior Full-Stack Engineer & Mühendislik Direktörü)
 **Tarih**: 2026-03-21
 **Branch**: `claude/integrate-ocr-module-variation`

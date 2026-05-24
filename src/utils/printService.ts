@@ -1,5 +1,5 @@
 /**
- * Oogmatik Print Engine — Re-Export Hub
+ * bdmind Print Engine — Re-Export Hub
  *
  * Bu dosya geriye dönük uyumluluk içindir.
  * Asıl implementasyon src/utils/print/ dizinindeki modüllerde yaşar.

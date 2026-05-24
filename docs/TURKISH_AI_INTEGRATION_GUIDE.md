@@ -2,7 +2,7 @@
 
 ## 🎯 Genel Bakış
 
-`turkishAIIntegrationService`, Oogmatik platformunun Türkçe modülleri (super-turkce ve super-turkce-v2) ile yeni AI ajan servislerini entegre eden kapsamlı bir servistir.
+`turkishAIIntegrationService`, bdmind platformunun Türkçe modülleri (super-turkce ve super-turkce-v2) ile yeni AI ajan servislerini entegre eden kapsamlı bir servistir.
 
 ### 4 Uzman Ajan ile Çalışır:
 
@@ -570,4 +570,4 @@ try {
 
 **Son Güncelleme:** 21 Mart 2026
 **Versiyon:** 1.0.0
-**Yazar:** Oogmatik Development Team
+**Yazar:** bdmind Development Team

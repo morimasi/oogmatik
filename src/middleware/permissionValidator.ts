@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Permission Validation Middleware
+ * BDMIND - Permission Validation Middleware
  * Enforce permissions before operations
  */
 

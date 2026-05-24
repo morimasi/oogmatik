@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { MediaAsset } from '../../../types/adStudio';
 
-const STORAGE_KEY = 'oogmatik_media_assets';
+const STORAGE_KEY = 'bdmind_media_assets';
 const MAX_ASSETS = 10;
 const MAX_SIZE = 100 * 1024; // 100KB
 

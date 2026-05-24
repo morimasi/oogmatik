@@ -1,6 +1,6 @@
 # Sarı Kitap Etkinlik Stüdyosu — Kapsamlı Modüler Uygulama Planı
 
-> **Proje**: Oogmatik EdTech Platformu
+> **Proje**: bdmind EdTech Platformu
 > **Modül**: Sarı Kitap Etkinlik Stüdyosu (SariKitapStudio)
 > **Sürüm**: v2.0 — Tam Modüler Mimari
 > **Tarih**: 2026-04-14

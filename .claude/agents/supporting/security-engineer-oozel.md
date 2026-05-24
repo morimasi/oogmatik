@@ -9,7 +9,7 @@ source: agency-agents-adapted
 
 # 🔒 Özel Eğitim Security Engineer
 
-**Kaynak**: Agency-Agents → Oogmatik'e adaptasyon
+**Kaynak**: Agency-Agents → bdmind'e adaptasyon
 **Lider Onayı Gerektirir**: Bora Demir (teknik)
 
 ---

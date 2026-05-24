@@ -77,7 +77,7 @@ export const DeveloperModal: React.FC<DeveloperModalProps> = ({ isOpen, onClose 
                                         <i className="fa-solid fa-microchip-ai"></i> Mühendislik Felsefesi
                                     </h3>
                                     <p className="text-2xl font-medium text-[var(--text-primary)] leading-tight tracking-tight opacity-90">
-                                        "Oogmatik, sadece bir yazılım değil; özel eğitimde <span className="font-black border-b-4 border-[var(--accent-color)]/30">veriye dayalı empati</span> kuran bir yapay zeka ekosistemidir. 
+                                        "bdmind, sadece bir yazılım değil; özel eğitimde <span className="font-black border-b-4 border-[var(--accent-color)]/30">veriye dayalı empati</span> kuran bir yapay zeka ekosistemidir. 
                                         Geliştirdiğimiz her satır kod, bir çocuğun öğrenme bariyerini yıkmak için tasarlandı."
                                     </p>
                                     

@@ -14,11 +14,11 @@ The Universal Worksheet Viewer allows users to view and interact with various wo
 ## Installation
 1. Clone the repository:
    ```bash
-   git clone https://github.com/morimasi/oogmatik.git
+   git clone https://github.com/morimasi/bdmind.git
    ```
 2. Navigate to the project directory:
    ```bash
-   cd oogmatik
+   cd bdmind
    ```
 3. Install the required dependencies:
    ```bash
@@ -35,8 +35,8 @@ The Universal Worksheet Viewer allows users to view and interact with various wo
 
 Kurulum için:
 ```bash
-git clone https://github.com/morimasi/oogmatik.git
-cd oogmatik
+git clone https://github.com/morimasi/bdmind.git
+cd bdmind
 ./install.sh
 ```
 
@@ -51,9 +51,9 @@ cd oogmatik
 
 ---
 
-## 🧑‍💼 Oogmatik'e Özel Ekip Ajanları
+## 🧑‍💼 bdmind'e Özel Ekip Ajanları
 
-Oogmatik, vibecosystem'in 119 genel ajanına ek olarak bu projeye özgü **4 özel ekip üyesi** içerir. Bu ajanlar `.claude/agents/` dizininde tanımlıdır ve Claude Code ile bu projede çalışırken otomatik olarak devreye girer.
+bdmind, vibecosystem'in 119 genel ajanına ek olarak bu projeye özgü **4 özel ekip üyesi** içerir. Bu ajanlar `.claude/agents/` dizininde tanımlıdır ve Claude Code ile bu projede çalışırken otomatik olarak devreye girer.
 
 | Ajan | Kimlik | Ne Zaman Devreye Girer |
 |------|--------|------------------------|
@@ -66,18 +66,18 @@ Oogmatik, vibecosystem'in 119 genel ajanına ek olarak bu projeye özgü **4 öz
 
 ## 📍 Bu Ajanlar Nerede ve Ne Zaman Çalışır?
 
-### Kapsam: Sadece Oogmatik Projesi İçinde
+### Kapsam: Sadece bdmind Projesi İçinde
 
 `.claude/agents/` dizinindeki ajanlar **yalnızca bu projenin klasöründe** Claude Code kullanırken aktiftir. Başka bir projede ya da farklı bir klasörde Claude açtığında bu ajanlar **görünmez**.
 
 ```
 ~/Desktop/
-├── oogmatik/           ← 🟢 Burada açarsan: tüm ajanlar aktif
+├── bdmind/           ← 🟢 Burada açarsan: tüm ajanlar aktif
 │   └── .claude/
 │       └── agents/     ← proje ajanları buradan okunur
 │
-├── baska-proje/        ← 🔴 Burada açarsan: oogmatik ajanları yok
-└── belgeler/           ← 🔴 Burada açarsan: oogmatik ajanları yok
+├── baska-proje/        ← 🔴 Burada açarsan: bdmind ajanları yok
+└── belgeler/           ← 🔴 Burada açarsan: bdmind ajanları yok
 ```
 
 `~/.claude/agents/` (vibecosystem ajanları) ise **her yerde** çalışır — o ajanlar global.
@@ -86,14 +86,14 @@ Oogmatik, vibecosystem'in 119 genel ajanına ek olarak bu projeye özgü **4 öz
 
 ### 🖥️ Adım Adım Kullanım Kılavuzu
 
-#### 1. Claude Code'u Oogmatik Klasöründe Aç
+#### 1. Claude Code'u bdmind Klasöründe Aç
 
 ```bash
-cd oogmatik          # önce projenin klasörüne gir
+cd bdmind          # önce projenin klasörüne gir
 claude               # sonra Claude Code'u başlat
 ```
 
-> ⚠️ `claude` komutunu `~/Desktop` veya `Documents` gibi başka bir yerden açarsan oogmatik ajanlarını bulamazsın. **Her zaman önce `cd oogmatik` yap.**
+> ⚠️ `claude` komutunu `~/Desktop` veya `Documents` gibi başka bir yerden açarsan bdmind ajanlarını bulamazsın. **Her zaman önce `cd bdmind` yap.**
 
 #### 2. Ajanı Çağır
 
@@ -170,7 +170,7 @@ tools: [Read, Edit, Write, Bash, Grep, Glob]
 ## Uzmanlık Alanları
 [Liste]
 
-## Oogmatik'e Özel Görevler
+## bdmind'e Özel Görevler
 [Proje bağlamına özel talimatlar]
 ```
 
@@ -178,11 +178,11 @@ Dosyayı kaydet — Claude Code'u yeniden başlatmana gerek yok, bir sonraki kon
 
 ---
 
-## 🚀 vibecosystem'in Oogmatik Uygulamasına Etkisi
+## 🚀 vibecosystem'in bdmind Uygulamasına Etkisi
 
 ### ✅ Uygulamaya Doğrudan Etkisi Yok
 
-`install.sh` betiği yalnızca **geliştirici ortamını** etkiler — oogmatik uygulamasının çalışma mantığını, kodunu veya performansını **hiçbir şekilde değiştirmez**.
+`install.sh` betiği yalnızca **geliştirici ortamını** etkiler — bdmind uygulamasının çalışma mantığını, kodunu veya performansını **hiçbir şekilde değiştirmez**.
 
 - React/TypeScript kaynak koduna dokunulmaz
 - `package.json`, `vite.config.ts`, API endpoint'leri değişmez
@@ -201,9 +201,9 @@ vibecosystem kurulumundan sonra **Claude Code** ile bu projeyi geliştirirken ot
 | `"test yaz"` | `tdd-guide` → `qa-engineer` |
 | `"API endpoint ekle"` | `backend-dev` → `graphql-expert` → `security-analyst` |
 
-### 🪝 Hook'ların Oogmatik'e Özel Katkısı
+### 🪝 Hook'ların bdmind'e Özel Katkısı
 
-48 hook, Claude Code'un her araç çağrısını izler ve **oogmatik bağlamına** göre otomatik olarak ek bilgi enjekte eder:
+48 hook, Claude Code'un her araç çağrısını izler ve **bdmind bağlamına** göre otomatik olarak ek bilgi enjekte eder:
 
 ```
 "fix the bug"       → compiler-in-loop + error-broadcast     (~2,400 token)
@@ -211,14 +211,14 @@ vibecosystem kurulumundan sonra **Claude Code** ile bu projeyi geliştirirken ot
 "explain this code" → (ek bağlam yok)                        (~800 token)
 ```
 
-Bu sayede örneğin oogmatik'in `api/generate.ts` veya `hooks/useWorksheets.ts` dosyalarında çalışırken Claude otomatik olarak TypeScript tip bilgileri ve proje mimarisini anlayarak daha doğru kod üretir.
+Bu sayede örneğin bdmind'in `api/generate.ts` veya `hooks/useWorksheets.ts` dosyalarında çalışırken Claude otomatik olarak TypeScript tip bilgileri ve proje mimarisini anlayarak daha doğru kod üretir.
 
-### 🧠 Öz-Öğrenme: Oogmatik Hatalarından Ders Çıkarır
+### 🧠 Öz-Öğrenme: bdmind Hatalarından Ders Çıkarır
 
 vibecosystem'in **Self-Learning Pipeline** özelliği, bu projede yapılan her hatayı otomatik olarak bir kurala dönüştürür:
 
 ```
-Oogmatik'te hata oluşur
+bdmind'te hata oluşur
     → passive-learner hatayı yakalar ve etiketler
     → consolidator benzer hataları gruplar (5+ tekrar → kural)
     → Sonraki oturumda aynı hata tipi önlenir

@@ -1,6 +1,6 @@
 import { AppError } from '../utils/AppError.js';
 /**
- * OOGMATIK - JWT Token Verification
+ * BDMIND - JWT Token Verification
  * Secure API authentication with JSON Web Tokens
  */
 

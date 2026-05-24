@@ -1,11 +1,11 @@
-# OOGMATIK — AI Ekip Koordinasyon Protokolü
+# BDMIND — AI Ekip Koordinasyon Protokolü
 
 > Bu dosya Claude Code (ve diğer AI araçlar) tarafından otomatik okunur.
 > Proje klasöründe çalışmaya başladığın andan itibaren bu kurallar aktiftir.
 >
 > **Diğer araçlar için config dosyaları:**
-> Cursor → `.cursor/rules/oogmatik.mdc` | Windsurf → `.windsurfrules`
-> Gemini CLI / Antigravity → `GEMINI.md` + `.agents/rules/oogmatik-core.md` + `.idx/dev.nix`
+> Cursor → `.cursor/rules/bdmind.mdc` | Windsurf → `.windsurfrules`
+> Gemini CLI / Antigravity → `GEMINI.md` + `.agents/rules/bdmind-core.md` + `.idx/dev.nix`
 > GitHub Copilot → `.github/copilot-instructions.md`
 > Continue.dev → `.continue/config.json` | Zed → `.zed/settings.json`
 > Aider → `.aider.conf.yml` | OpenCode → `opencode.json`
@@ -15,7 +15,7 @@
 
 ## 🎯 Projenin Misyonu
 
-**Oogmatik**, Türkiye'deki disleksi, diskalkuli, disgrafi, DEHB ve özel öğrenme güçlüğü yaşayan bireyler için
+**bdmind**, Türkiye'deki disleksi, diskalkuli, disgrafi, DEHB ve özel öğrenme güçlüğü yaşayan bireyler için
 AI destekli kişiselleştirilmiş eğitim materyalleri üreten bir EdTech platformudur.
 
 - **Hedef Kitle**: 4–8. sınıf öğrencileri, özel eğitim öğretmenleri, veliler
@@ -33,7 +33,7 @@ Claude Code ile çalışırken, projenin **v2 Professional** AI mimarisi otomati
 1. **Otomatik Tetikleme**: Her geliştirme isteminde tüm uzman ekip (Ideation, Content, Visual, Flow, Evaluation, Integration) arka planda otomatik olarak analiz yapar.
 2. **Hata Denetimi & Self-Correction**: Ajanlar birbirlerini denetler, halüsinasyonları engeller ve en stabil çözümü sunar.
 3. **Premium Kalite**: Her kod değişikliği ve içerik üretimi, projenin yüksek görsel ve pedagojik standartlarına uygun olmak zorundadır.
-4. Evrensel Bilgi Hakimiyeti: Ajanlar, [MODULE_KNOWLEDGE.md](file:///c:/Users/Administrator/Desktop/oogmatik/.claude/MODULE_KNOWLEDGE.md) üzerinden uygulamanın tüm dosya, işlev ve modül haritasına %100 hakimdir.
+4. Evrensel Bilgi Hakimiyeti: Ajanlar, [MODULE_KNOWLEDGE.md](file:///c:/Users/Administrator/Desktop/bdmind/.claude/MODULE_KNOWLEDGE.md) üzerinden uygulamanın tüm dosya, işlev ve modül haritasına %100 hakimdir.
 
 ### 👥 Ajan Rolleri
 - **IdeationAgent**: Strateji ve nöro-pedagojik konsept.
@@ -101,7 +101,7 @@ Her istemden önce şu dosyaları zihinsel modelinde tut:
 ## 🏗️ Proje Mimarisi — TAM KAPSAM
 
 ```
-oogmatik/
+bdmind/
 │
 ├── api/                              ← Vercel Serverless Functions
 │   ├── generate.ts                   ← Ana AI endpoint (POST /api/generate) — rate limit + CORS + Zod validation
@@ -373,13 +373,13 @@ oogmatik/
 │       └── turkce-super-studyo.spec.ts
 │
 ├── .idx/dev.nix                      ← Google Project IDX / Antigravity ortam yapılandırması
-├── .agents/rules/oogmatik-core.md    ← Antigravity always-on agent kuralları
+├── .agents/rules/bdmind-core.md    ← Antigravity always-on agent kuralları
 ├── .claude/agents/                   ← Claude Code özel ajan tanımları
 │   ├── ozel-ogrenme-uzmani.md        ← Elif Yıldız — Pedagoji
 │   ├── ozel-egitim-uzmani.md         ← Dr. Ahmet Kaya — Klinik/MEB
 │   ├── yazilim-muhendisi.md          ← Bora Demir — Mühendislik
 │   └── ai-muhendisi.md               ← Selin Arslan — AI Mimarisi
-├── .cursor/rules/oogmatik.mdc        ← Cursor AI kuralları
+├── .cursor/rules/bdmind.mdc        ← Cursor AI kuralları
 ├── .windsurfrules                    ← Windsurf AI kuralları
 ├── .github/copilot-instructions.md   ← GitHub Copilot kuralları
 ├── .continue/config.json             ← Continue.dev yapılandırması
@@ -537,12 +537,12 @@ Her görev başlamadan önce ilgili beceriyi çağır:
 ### Öncelik Sırası
 
 ```
-1. CLAUDE.md + Oogmatik kuralları  ← EN YÜKSEK
+1. CLAUDE.md + bdmind kuralları  ← EN YÜKSEK
 2. Superpowers skills (iş akışı)
 3. Default AI behavior             ← EN DÜŞÜK
 ```
 
-Superpowers becerileri Oogmatik kurallarını asla geçemez. `pedagogicalNote`, `AppError`, `any` yasağı, KVKK — bunlar mutlak.
+Superpowers becerileri bdmind kurallarını asla geçemez. `pedagogicalNote`, `AppError`, `any` yasağı, KVKK — bunlar mutlak.
 
 ### Dokümanlar
 
@@ -568,7 +568,7 @@ Bu proje **[upstash/context7](https://github.com/upstash/context7)** MCP sunucus
 
 - React 19, Firebase, Zod, Tailwind CSS gibi kütüphanelerin **güncel** dokümantasyonunu doğrudan prompt'a enjekte eder
 - Halüsinasyon riskini azaltır — AI eski API'leri önermez
-- Oogmatik stack'i (Gemini, Firebase, Vercel) için özellikle kritik
+- bdmind stack'i (Gemini, Firebase, Vercel) için özellikle kritik
 
 ### Desteklenen Araçlar
 
@@ -607,7 +607,7 @@ Herhangi bir prompt'a `use context7` ekle:
 # Örnek: React 19 ile useOptimistic kullan. use context7
 ```
 
-### Oogmatik Stack Kütüphane ID'leri
+### bdmind Stack Kütüphane ID'leri
 
 Sık kullanılan kütüphaneler için hazır ID'ler:
 

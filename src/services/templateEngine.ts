@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — Şablon Motoru (Template Engine)
+ * BDMIND — Şablon Motoru (Template Engine)
  *
  * JSON tabanlı, genişletilebilir etkinlik şablon sistemi.
  * Blueprint'ten yapısal şablon çıkarır, veri uygular ve A4 HTML'e render eder.
@@ -104,7 +104,7 @@ export const templateEngine = {
         sections.push({
             id: generateId('sec'),
             type: 'footer',
-            content: '© Oogmatik Eğitim Platformu',
+            content: '© bdmind Eğitim Platformu',
             position: { row: 101, col: 0, span: columns },
         });
 

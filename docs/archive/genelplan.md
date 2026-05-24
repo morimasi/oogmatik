@@ -1,10 +1,10 @@
-# Oogmatik - Ultra Profesyonel Premium Geliştirme ve Güncelleme Planı (Master Plan)
+# bdmind - Ultra Profesyonel Premium Geliştirme ve Güncelleme Planı (Master Plan)
 
-> **Proje:** Oogmatik EdTech Platformu
+> **Proje:** bdmind EdTech Platformu
 > **Analiz Tarihi:** 2026-03-27
-> **Odak:** Teknik Borçların Kapatılması, Performans Optimizasyonu, Oogmatik Ajan Protokolü Uyumu ve Derinlemesine Revizyon
+> **Odak:** Teknik Borçların Kapatılması, Performans Optimizasyonu, bdmind Ajan Protokolü Uyumu ve Derinlemesine Revizyon
 
-**Hedef:** Sistemdeki kritik protokol ihlallerini gidermek, tip güvenliğini (TypeScript) %100 oranına çıkarmak, kod kalitesini (Lint) standartlaştırmak ve AI/API entegrasyonlarındaki test/runtime hatalarını çözmek suretiyle Oogmatik platformunu "Zero-Defect" (Sıfır Hata) üretim standartlarına taşımak.
+**Hedef:** Sistemdeki kritik protokol ihlallerini gidermek, tip güvenliğini (TypeScript) %100 oranına çıkarmak, kod kalitesini (Lint) standartlaştırmak ve AI/API entegrasyonlarındaki test/runtime hatalarını çözmek suretiyle bdmind platformunu "Zero-Defect" (Sıfır Hata) üretim standartlarına taşımak.
 
 **Mimari:** React 18 + TypeScript (strict) + Vite + Vercel Serverless + Gemini 2.5 Flash + Firebase + Vitest
 
@@ -19,7 +19,7 @@ Yapılan derinlemesine statik analiz ve grep taramaları sonucunda "Uzman Ajan" 
 _Açıklama:_ Proje genelinde kesinlikle yasak olan "any" tipi, "console.log" ve raw "throw new Error" kullanımları tespit edilmiştir.
 
 - [ ] **`any` Tiplerinin Yok Edilmesi:** Proje genelinde tespit edilen 536 adet `any` tipi kullanımları (özellikle `src/utils/schemas.ts`, `services/worksheetService.ts` ve store dosyalarında) tamamen temizlenmeli, yerine `unknown` tipi ve _type guard_ mekanizmaları uygulanmalıdır.
-- [ ] **AppError Standardizasyonu:** Mevcut 60 noktada doğrudan `throw new Error()` kullanıldığı görülmüştür. Bu hatalar, Oogmatik standartlarındaki `AppError` formatına (`{ success, error: { message, code }, timestamp }`) uygun olarak `utils/AppError.ts` içindeki sınıflarla (örn. `ValidationError`, `AuthError`) değiştirilmelidir.
+- [ ] **AppError Standardizasyonu:** Mevcut 60 noktada doğrudan `throw new Error()` kullanıldığı görülmüştür. Bu hatalar, bdmind standartlarındaki `AppError` formatına (`{ success, error: { message, code }, timestamp }`) uygun olarak `utils/AppError.ts` içindeki sınıflarla (örn. `ValidationError`, `AuthError`) değiştirilmelidir.
 - [ ] **Console Log Temizliği:** Üretim ortamında kesinlikle yasak olan `console.log` kullanımları (özellikle AI generatörler ve Audit modüllerindeki 20 adet kullanım) tamamen kaldırılmalı veya `utils/logger.ts` üzerinden seviyelendirilerek yönetilmelidir.
 
 ### Görev 1.2: API Güvenliği ve Rate Limiting
@@ -82,4 +82,4 @@ Yukarıdaki teknik borçlar kapatıldıktan sonra platformu evrensel premium sev
 
 ## 📝 Uygulama Stratejisi (Agentic Execution)
 
-> Bu planın hayata geçirilmesi için **`subagent-driven-development`** (Oogmatik Superpowers) becerisi önerilmektedir. Her bir ana görev, bağımsız bir subagent'a delege edilerek paralel ve güvenli bir şekilde entegre edilecektir. Her adım sonunda zorunlu olarak `npm run test:run` ve `npm run lint` geçmek zorundadır.
+> Bu planın hayata geçirilmesi için **`subagent-driven-development`** (bdmind Superpowers) becerisi önerilmektedir. Her bir ana görev, bağımsız bir subagent'a delege edilerek paralel ve güvenli bir şekilde entegre edilecektir. Her adım sonunda zorunlu olarak `npm run test:run` ve `npm run lint` geçmek zorundadır.

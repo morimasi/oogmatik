@@ -262,7 +262,7 @@
 
 ---
 
-## Oogmatik Rules (MANDATORY)
+## bdmind Rules (MANDATORY)
 
 For all implementers:
 

@@ -556,7 +556,7 @@ export const STORAGE_KEYS = {
   GEMINI_API_KEY: 'gemini_api_key',
   USER_FAVORITES: 'user_favorites',
   USER_HISTORY: 'user_history',
-  PAPER_SIZE: 'oogmatik.paperSize',
+  PAPER_SIZE: 'bdmind.paperSize',
   APP_SIDEBAR_WIDTH: 'app-sidebar-width',
   APP_THEME: 'app-theme',
   APP_UI_SETTINGS: 'app-ui-settings',

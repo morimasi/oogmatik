@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - AI-Enhanced Worksheet Service
+ * BDMIND - AI-Enhanced Worksheet Service
  * Intelligent worksheet generation with multi-agent coordination
  */
 

@@ -26,7 +26,7 @@ describe('printService - Tablet Blank Page Fix', () => {
     vi.restoreAllMocks();
     document.body.innerHTML = '';
     document.body.className = '';
-    const style = document.getElementById('oogmatik-print-style');
+    const style = document.getElementById('bdmind-print-style');
     if (style) style.remove();
   });
 
@@ -227,7 +227,7 @@ describe('printService - Tablet Blank Page Fix', () => {
 
       printService.print('.worksheet-page', 'A4');
 
-      const styleEl = document.getElementById('oogmatik-print-style');
+      const styleEl = document.getElementById('bdmind-print-style');
       expect(styleEl).not.toBeNull();
       expect(styleEl!.textContent).toContain('@page');
       expect(styleEl!.textContent).toContain('printing-mode');
@@ -243,7 +243,7 @@ describe('printService - Tablet Blank Page Fix', () => {
 
       printService.print('.worksheet-page', 'Extreme_Yatay');
 
-      const styleEl = document.getElementById('oogmatik-print-style');
+      const styleEl = document.getElementById('bdmind-print-style');
       expect(styleEl).not.toBeNull();
       expect(styleEl!.textContent).toContain('297mm');
       expect(styleEl!.textContent).toContain('210mm');
@@ -415,7 +415,7 @@ describe('printService - Tablet Blank Page Fix', () => {
       printService.print('.worksheet-page', 'A4');
 
       const overlay = document.getElementById('print-overlay');
-      const wrappers = overlay!.querySelectorAll('.oogmatik-print-wrapper');
+      const wrappers = overlay!.querySelectorAll('.bdmind-print-wrapper');
       expect(wrappers).toHaveLength(pages);
     });
 

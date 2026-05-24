@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { BrandKit } from '../types/adStudio';
 import defaultKit from '../components/AdStudio/assets/default-brand-kit.json';
 
-const STORAGE_KEY = 'oogmatik_brand_kits';
-const ACTIVE_KEY = 'oogmatik_active_brand_kit';
+const STORAGE_KEY = 'bdmind_brand_kits';
+const ACTIVE_KEY = 'bdmind_active_brand_kit';
 
 function loadAll(): BrandKit[] {
   try {

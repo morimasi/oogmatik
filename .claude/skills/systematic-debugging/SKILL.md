@@ -56,7 +56,7 @@ Use for ANY technical issue:
 
 4. **Gather Evidence in Multi-Component Systems**
 
-   For Oogmatik-specific debugging:
+   For bdmind-specific debugging:
    ```typescript
    // Add evidence gathering at each layer:
    // 1. API endpoint - what request is received
@@ -124,7 +124,7 @@ Use for ANY technical issue:
    - Count: How many fixes have you tried?
    - If ≥ 3: Question the architecture
 
-## Oogmatik-Specific Debugging Patterns
+## bdmind-Specific Debugging Patterns
 
 **Gemini JSON Parse Errors:**
 - Check `services/geminiClient.ts` JSON repair motor (3 layers: balanceBraces → truncate → parse)

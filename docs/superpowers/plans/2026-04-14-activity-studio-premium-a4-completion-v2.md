@@ -773,7 +773,7 @@ tests/activityStudio/endToEndFlow.test.ts          ← NEW: Full wizard (mock Ge
     pdf.setProperties({
       title: 'Premium A4 Activity',
       subject: metadata.targetSkills.join(', '),
-      author: 'Oogmatik',
+      author: 'bdmind',
       keywords: metadata.targetSkills.join(', '),
       // NO learningProfile, NO studentName
     });

@@ -1,7 +1,7 @@
 import { logInfo, logError as internalLogError, logWarn } from '../utils/logger.js';
 
 /**
- * OOGMATIK - Error Handler Utilities
+ * BDMIND - Error Handler Utilities
  * Error transformation, retry logic, logging
  */
 

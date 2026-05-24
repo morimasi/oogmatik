@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Merkezi Error Yönetim Sistemi
+ * BDMIND - Merkezi Error Yönetim Sistemi
  * Tüm hataları standardize eden custom Error class
  */
 

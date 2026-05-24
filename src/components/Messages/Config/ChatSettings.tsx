@@ -99,7 +99,7 @@ export const ChatSettings: React.FC = () => {
             </div>
             
             <p className="text-xs text-white/40 mt-4 leading-relaxed italic">
-                Oogmatik iletişim kayıtları KVKK kapsamında saklanmaktadır. Gizlilik modunu açarak push bildirimlerinde mesaj içeriğini şifreleyebilirsiniz.
+                bdmind iletişim kayıtları KVKK kapsamında saklanmaktadır. Gizlilik modunu açarak push bildirimlerinde mesaj içeriğini şifreleyebilirsiniz.
             </p>
         </div>
     );

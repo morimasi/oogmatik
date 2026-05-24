@@ -188,7 +188,7 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
             {/* Alt Bilgi */}
             <div className={`mt-12 pt-6 border-t ${isPrinting ? 'border-black/20 text-black font-bold' : 'border-gray-100 text-gray-400'}`}>
                 <p className="text-[10px] text-center uppercase tracking-[0.2em]">
-                    Oogmatik Süper Matematik Sınav Stüdyosu — MEB 2024-2025
+                    bdmind Süper Matematik Sınav Stüdyosu — MEB 2024-2025
                 </p>
             </div>
         </div>

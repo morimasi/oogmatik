@@ -1,4 +1,4 @@
-/* Oogmatik Merkezi Tema Token Sistemi v3.0 */
+/* bdmind Merkezi Tema Token Sistemi v3.0 */
 @import './theme-tokens.css';
 
 @tailwind base;
@@ -363,7 +363,7 @@
       /* Üstten 1.5 cm, diğer yönlerden 1 cm boşluk */
     }
 
-    /* Oogmatik Layout Gizlemeleri */
+    /* bdmind Layout Gizlemeleri */
     .no-print,
     nav,
     aside,
@@ -421,7 +421,7 @@
       break-inside: avoid !important;
     }
 
-    /* Oogmatik Premium Layout İzolasyonu (Sayı Dedektifi vb. taşmaları önler) */
+    /* bdmind Premium Layout İzolasyonu (Sayı Dedektifi vb. taşmaları önler) */
     .grid,
     .flex {
       max-width: 100% !important;

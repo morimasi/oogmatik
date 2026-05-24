@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — OCR Tabanlı Etkinlik Üretim Modülü Tip Tanımları
+ * BDMIND — OCR Tabanlı Etkinlik Üretim Modülü Tip Tanımları
  *
  * 3 üretim modu:
  *   1. architecture_clone — Görsel → Blueprint → Varyant

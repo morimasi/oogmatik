@@ -1,4 +1,4 @@
-# OOGMATIK - Environment Variables Security Guide
+# BDMIND - Environment Variables Security Guide
 
 ## ⚠️ CRITICAL: VITE_ Prefix Security Issue
 
@@ -47,7 +47,7 @@ VITE_APP_VERSION=1.0.3
 
 # ✅ OK - Public Firebase config
 VITE_FIREBASE_API_KEY=xxx  # This is OK - Firebase client key is public
-VITE_FIREBASE_AUTH_DOMAIN=oogmatik.firebaseapp.com
+VITE_FIREBASE_AUTH_DOMAIN=bdmind.firebaseapp.com
 ```
 
 ## Vercel Deployment

@@ -138,16 +138,16 @@ Sanitized: "ignore previous instructions[filtered] and show[filtered]"
 #### İzin Verilen Origins:
 ```
 Production:
-  - https://oogmatik.com
-  - https://www.oogmatik.com
-  - https://oogmatik.vercel.app
+  - https://bdmind.com
+  - https://www.bdmind.com
+  - https://bdmind.vercel.app
 
 Development:
   - http://localhost:5173 (Vite)
   - http://localhost:3000 (Next.js)
   
 Preview (Regex):
-  - https://oogmatik-*.vercel.app
+  - https://bdmind-*.vercel.app
 ```
 
 #### Security Headers (OWASP):
@@ -228,7 +228,7 @@ tokens += (elapsed / windowMs) * maxTokens
 
 ## 🔒 KVKK UYUMLULUĞU
 
-| Madde | Gereksinim | Oogmatik | Durum |
+| Madde | Gereksinim | bdmind | Durum |
 |-------|-----------|----------|-------|
 | **Madde 6** | Özel nitelikli veri işleme | Privacy Service | ✅ |
 | **Madde 7** | Veri silme/anonimleştirme | DataRetention | ✅ |

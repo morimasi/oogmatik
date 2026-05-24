@@ -1,10 +1,10 @@
-# Oogmatik - Etkinlik Yönetim Mimarisi ve AI Üretim Motoru (v3.0)
+# bdmind - Etkinlik Yönetim Mimarisi ve AI Üretim Motoru (v3.0)
 
 ## 1. Genel Bakış
 
-Oogmatik platformu, Özel Öğrenme Güçlüğü (Disleksi, Diskalkuli, Disgrafi vb.), DEHB ve Otizm Spektrum Bozukluğu (OSB) yaşayan Türk çocuklar için **yapay zeka (Gemini 2.5 Flash) destekli kişiselleştirilmiş eğitim materyali** üreten, 100'den fazla farklı etkinlik tipi ve dinamik arayüz (stüdyo) motorlarına sahip entegre bir sistemdir.
+bdmind platformu, Özel Öğrenme Güçlüğü (Disleksi, Diskalkuli, Disgrafi vb.), DEHB ve Otizm Spektrum Bozukluğu (OSB) yaşayan Türk çocuklar için **yapay zeka (Gemini 2.5 Flash) destekli kişiselleştirilmiş eğitim materyali** üreten, 100'den fazla farklı etkinlik tipi ve dinamik arayüz (stüdyo) motorlarına sahip entegre bir sistemdir.
 
-Bu doküman, sistemin etkinlik veri modellerini, AI üretim akışlarını, pedagojik kısıtlamalarını ve stüdyolar (Routing) arası çalışma kitapçığı (Workbook) entegrasyonlarını kapsar. Oogmatik'in geliştirme süreci modüler ve ölçeklenebilir yapıyı korumak adına **fazlandırılmış (Phased)** bir yaklaşımla tasarlanmıştır.
+Bu doküman, sistemin etkinlik veri modellerini, AI üretim akışlarını, pedagojik kısıtlamalarını ve stüdyolar (Routing) arası çalışma kitapçığı (Workbook) entegrasyonlarını kapsar. bdmind'in geliştirme süreci modüler ve ölçeklenebilir yapıyı korumak adına **fazlandırılmış (Phased)** bir yaklaşımla tasarlanmıştır.
 
 ---
 
@@ -37,7 +37,7 @@ Sistem mimarisi, modüler büyüme hedefleri doğrultusunda aşağıdaki fazlara
 
 ## 3. Yapay Zeka (AI) Üretim Motoru ve Prompt Mimarisi
 
-Oogmatik, içerik üretiminde yalnızca Gemini 2.5 Flash (`services/geminiClient.ts`) motorunu kullanır. Stabiliteyi ve hatasızlığı garanti etmek için aşağıdaki mimari benimsenmiştir:
+bdmind, içerik üretiminde yalnızca Gemini 2.5 Flash (`services/geminiClient.ts`) motorunu kullanır. Stabiliteyi ve hatasızlığı garanti etmek için aşağıdaki mimari benimsenmiştir:
 
 ### JSON Repair (Onarım) Motoru (3 Katmanlı Savunma)
 Modelden dönen metinlerin nadiren JSON formatını bozması ihtimaline karşı sistem şu adımları izler:
@@ -103,7 +103,7 @@ Eğer platforma yeni bir oyun veya ölçme formatı ekleyecekseniz şu kontrol l
 
 ## 7. İnfografik Stüdyosu v3 — 4 Ana Kategori Üretim Motoru Tam Analizi
 
-> **Ajan Aktivasyonu:** Bu bölüm 9 Oogmatik ajanının sıfır tetikleyicili semantik otomatik aktivasyon protokolüyle hazırlanmıştır (ORCHESTRATION.md v2.0).
+> **Ajan Aktivasyonu:** Bu bölüm 9 bdmind ajanının sıfır tetikleyicili semantik otomatik aktivasyon protokolüyle hazırlanmıştır (ORCHESTRATION.md v2.0).
 > Pedagoji: Elif Yıldız | Klinik: Dr. Ahmet Kaya | Mühendislik: Bora Demir | AI: Selin Arslan
 
 Aşağıda InfographicStudio v3'ün **4 öncelikli kategorisi** detaylıca incelenmektedir. Her kategori **10 etkinlik**, her etkinlik **AI + Offline çift motor**, **Ultra Premium Özelleştirme Şeması** ve **A4 Çalışma Sayfası Tasarım Spesifikasyonu** içermektedir.
@@ -736,7 +736,7 @@ Paragraf arası: 8pt
 │  ÖĞRETMENE NOT (pedagojik, 8pt italik):                     │
 │  Bu etkinlik [öğrenme hedefi] kapsamında ZPD uyumlu...      │ ← pedagogicalNote
 └─────────────────────────────────────────────────────────────┘ ← 15mm alt
-  [Sol: 20mm zımbalama]  [Sağ: 15mm]  Oogmatik v3 — Lexend
+  [Sol: 20mm zımbalama]  [Sağ: 15mm]  bdmind v3 — Lexend
 ```
 
 ### 8.5 Baskı Modu Teknik Gereksinimleri

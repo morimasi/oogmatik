@@ -107,7 +107,7 @@ async function mockOAuth2Flow(provider: CloudProvider): Promise<CloudStorageConf
     userEmail: `user@${provider.replace('_', '')}.example`,
     userId: `uid-${getSecureRandomString(8)}`,
     autoSync: false,
-    folderName: `Oogmatik - ${providerLabels[provider]}`,
+    folderName: `bdmind - ${providerLabels[provider]}`,
   };
 }
 

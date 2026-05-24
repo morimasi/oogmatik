@@ -16,7 +16,7 @@
 - [ ] `// @ts-nocheck` satır 1 — TypeScript devre dışı (kritik)
 
 ### ProfileView.tsx
-- [ ] `console.error(e)` → `logError()` ile değiştirilmeli (Oogmatik kural)
+- [ ] `console.error(e)` → `logError()` ile değiştirilmeli (bdmind kural)
 - [ ] AI model default `'gemini-2.5-pro'` → `'gemini-2.5-flash'` (model sabittir)
 - [ ] AI model seçici mevcut — Selin Arslan kuralına göre model değiştirilemez; UI mock olarak bırakılır ancak varsayılan düzeltilir
 - [ ] AI ayarları localStorage'a kaydedilmiyor — sayfa yenilemede kayboluyor

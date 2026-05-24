@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — Real-Time Analytics Dashboard Engine
+ * BDMIND — Real-Time Analytics Dashboard Engine
  * 
  * Live metrics, predictive analytics, cohort analysis
  * A/B testing framework with statistical significance

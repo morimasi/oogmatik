@@ -307,7 +307,7 @@ export const QueueOrderingSheet = ({ data, settings }: QueueOrderingSheetProps) 
         </p>
         <div className="mt-2 pt-3 border-t border-gray-200 flex justify-between items-center">
           <span className={`text-[10px] font-black uppercase tracking-widest ${theme.text} opacity-60`}>
-            Neuro-Oogmatik Özel Eğitim Teknolojileri
+            Neuro-bdmind Özel Eğitim Teknolojileri
           </span>
           <span className={`text-[10px] font-mono text-gray-500`}>
             {locationType?.toUpperCase()} • {difficulty?.toUpperCase()}

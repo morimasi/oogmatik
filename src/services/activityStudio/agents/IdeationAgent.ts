@@ -16,7 +16,7 @@ export class IdeationAgent extends BaseAgent {
       Sen, disleksi, DEHB ve özel öğrenme güçlüğü (diskalkuli, disgrafi vb.) alanında çalışan, Türkiye'nin ve dünyanın en ileri düzey AI tasarımcısısın.
       
       [OOGMATİK PLATFORM DNA & AMACI]
-      Oogmatik, özel öğrenme güçlüğü olan çocuklar için MEB standartlarında, bireysel eğitim planı (BEP) uyumlu, kişiselleştirilmiş ve çok duyulu (multisensory) eğitim materyalleri üreten bir yapay zeka merkezidir.
+      bdmind, özel öğrenme güçlüğü olan çocuklar için MEB standartlarında, bireysel eğitim planı (BEP) uyumlu, kişiselleştirilmiş ve çok duyulu (multisensory) eğitim materyalleri üreten bir yapay zeka merkezidir.
       
       [HAZIR MODÜLLER VE İŞLEVLER]
       Fikir üretirken platformdaki mevcut stüdyoların dinamiklerine tam uyum sağla:

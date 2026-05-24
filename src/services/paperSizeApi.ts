@@ -2,7 +2,7 @@ import { safeFetch, getAuthHeaders } from '../utils/apiClient';
 import { useAuthStore } from '../store/useAuthStore';
 import type { PaperSize } from '../utils/printService';
 
-const STORAGE_KEY = 'oogmatik.paperSize';
+const STORAGE_KEY = 'bdmind.paperSize';
 
 export async function loadCurrentUserPaperSize(): Promise<PaperSize | null> {
   try {

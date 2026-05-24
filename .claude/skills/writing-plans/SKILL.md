@@ -15,7 +15,7 @@ Assume they are a skilled developer, but know almost nothing about our toolset o
 
 **Save plans to:** `docs/superpowers/plans/YYYY-MM-DD-<feature-name>.md`
 
-## Oogmatik-Specific Requirements
+## bdmind-Specific Requirements
 
 Every plan MUST verify:
 - [ ] `pedagogicalNote` field in all AI activity outputs
@@ -120,7 +120,7 @@ git commit -m "feat: add specific feature"
 - Complete code in plan (not "add validation")
 - Exact commands with expected output (`npm run test:run`, `npm run build`)
 - DRY, YAGNI, TDD, frequent commits
-- Oogmatik rules: AppError, pedagogicalNote, no `any`, RateLimiter
+- bdmind rules: AppError, pedagogicalNote, no `any`, RateLimiter
 
 ## Execution Handoff
 

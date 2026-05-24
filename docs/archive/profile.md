@@ -16,10 +16,10 @@ Tam plan: `docs/superpowers/plans/2026-04-10-profile-premium.md`
 - [x] `// @ts-nocheck` kaldırıldı — TypeScript strict mode aktif
 
 ### ProfileView.tsx — Kod Kalitesi
-- [x] `console.error(e)` → `logError()` (AppError ile) — Oogmatik standart
+- [x] `console.error(e)` → `logError()` (AppError ile) — bdmind standart
 - [x] AI model varsayılanı `gemini-2.5-flash` olarak düzeltildi (kural: model sabittir)
 - [x] AI model seçici kaldırıldı → "Sabit" etiketi ile sadece flash gösteriliyor
-- [x] AI ayarları localStorage'a kalıcı olarak kaydediliyor (`oogmatik-ai-settings`)
+- [x] AI ayarları localStorage'a kalıcı olarak kaydediliyor (`bdmind-ai-settings`)
 
 ### ProfileView.tsx — Fonksiyonel Düzeltmeler
 - [x] Avatar değiştirme: `prompt()` → inline URL input + Uygula/İptal

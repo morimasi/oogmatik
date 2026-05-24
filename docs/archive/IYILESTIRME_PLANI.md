@@ -1,4 +1,4 @@
-# 🎯 OOGMATIK PLATFORM — KAPSAMLI İYİLEŞTİRME PLANI
+# 🎯 BDMIND PLATFORM — KAPSAMLI İYİLEŞTİRME PLANI
 
 **Tarih:** 2026-03-21
 **Analiz Kapsamı:** 917 TypeScript dosyası, 220 React bileşeni, 47 AI generatör
@@ -256,9 +256,9 @@ res.setHeader('Access-Control-Allow-Origin', '*');
 ```typescript
 // utils/cors.ts (YENİ)
 const ALLOWED_ORIGINS = [
-  'https://oogmatik.com',
-  'https://www.oogmatik.com',
-  'https://app.oogmatik.com',
+  'https://bdmind.com',
+  'https://www.bdmind.com',
+  'https://app.bdmind.com',
   process.env.NODE_ENV === 'development' ? 'http://localhost:5173' : null
 ].filter(Boolean);
 

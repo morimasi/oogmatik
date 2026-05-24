@@ -1,6 +1,6 @@
 import { AppError } from '../utils/AppError';
 /**
- * OOGMATIK — Etkinlik Onay Servisi
+ * BDMIND — Etkinlik Onay Servisi
  *
  * Üretilen etkinliklerin onay kuyruğunu yönetir.
  * Taslak → Onay Bekliyor → Aktif / Reddedildi akışı.

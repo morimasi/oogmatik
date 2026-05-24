@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Firestore Indexes Configuration
+ * BDMIND - Firestore Indexes Configuration
  * Required composite indexes for optimal query performance
  */
 

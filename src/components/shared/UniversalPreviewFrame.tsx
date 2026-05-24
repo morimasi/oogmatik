@@ -35,7 +35,7 @@ export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
   showDownload = true,
   downloadLink,
   printSelector,
-  printFileName = 'Oogmatik_Etkinlik',
+  printFileName = 'bdmind_Etkinlik',
   bgClass = 'bg-slate-200/50',
   title,
   zoom = 1,
@@ -478,9 +478,9 @@ export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
 
       {/* ═══ ALT BİLGİ (WATERMARK) ═══ */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 opacity-20 select-none grayscale pointer-events-none">
-        <img src="/assets/logo.png" alt="Oogmatik" className="h-3.5 w-auto" />
+        <img src="/assets/logo.png" alt="bdmind" className="h-3.5 w-auto" />
         <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-800">
-          Oogmatik Production Engine
+          bdmind Production Engine
         </span>
       </div>
 

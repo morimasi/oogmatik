@@ -1,4 +1,4 @@
-# Superpowers Integration — Oogmatik
+# Superpowers Integration — bdmind
 
 Bu dizin, `obra/superpowers` geliştirme iş akışı entegrasyonunun belgelerini içerir.
 
@@ -14,7 +14,7 @@ Temel prensipler:
 5. **Code Review** — Her görev sonrası
 6. **Doğrulama** — Tamamlandığını iddia etmeden önce kanıtla
 
-## Oogmatik'e Entegrasyon
+## bdmind'e Entegrasyon
 
 Superpowers becerileri `.claude/skills/` dizininde bulunur ve Claude Code'un `Skill` aracı tarafından kullanılır.
 
@@ -34,19 +34,19 @@ Superpowers becerileri `.claude/skills/` dizininde bulunur ve Claude Code'un `Sk
 | `finishing-a-development-branch` | Uygulama bittiğinde |
 | `using-git-worktrees` | Özellik izolasyonu için |
 
-### Oogmatik Kurallarıyla Öncelik
+### bdmind Kurallarıyla Öncelik
 
-Superpowers skills + Oogmatik kuralları birlikte çalışır:
+Superpowers skills + bdmind kuralları birlikte çalışır:
 
 ```
-1. CLAUDE.md / Oogmatik kuralları (en yüksek öncelik)
+1. CLAUDE.md / bdmind kuralları (en yüksek öncelik)
    ↓
 2. Superpowers skills (iş akışı)
    ↓  
 3. Default AI behavior (en düşük öncelik)
 ```
 
-**Oogmatik kuralları superpowers becerilerini her zaman geçer. Bunlar mutlaktır:**
+**bdmind kuralları superpowers becerilerini her zaman geçer. Bunlar mutlaktır:**
 - `pedagogicalNote` — her AI aktivite çıktısında zorunlu
 - `AppError` standardı — bypass edilemez
 - `any` tipi yasak

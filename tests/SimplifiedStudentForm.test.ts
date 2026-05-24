@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Simplified Student Form Tests (Sprint 2)
+ * BDMIND - Simplified Student Form Tests (Sprint 2)
  * Test 5-field form validation + progressive disclosure
  */
 

@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — Authentication Gate Middleware
+ * BDMIND — Authentication Gate Middleware
  * 
  * Mandatory authentication for all protected routes
  * Blocks unauthorized access and validates JWT tokens

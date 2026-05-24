@@ -1,7 +1,7 @@
 import { logError } from '../../utils/logger.js';
 
 /**
- * OOGMATIK - BEHAVIOR TRACKER (v3 Premium)
+ * BDMIND - BEHAVIOR TRACKER (v3 Premium)
  * Öğrencinin aktivite sırasındaki davranışlarını (düşünme süresi, tıklama hızı vb.) takip eder.
  */
 export interface BehaviorEvent {

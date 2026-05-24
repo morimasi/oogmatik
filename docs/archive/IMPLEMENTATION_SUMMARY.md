@@ -1,4 +1,4 @@
-# Oogmatik - Frontend & Backend Implementation Summary
+# bdmind - Frontend & Backend Implementation Summary
 
 ## Tamamlanan İşler ✅
 

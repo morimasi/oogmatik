@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - PRIVACY SHIELD (v3 Premium)
+ * BDMIND - PRIVACY SHIELD (v3 Premium)
  * Kişisel verileri (PII) maskeler ve anonimleştirir.
  */
 

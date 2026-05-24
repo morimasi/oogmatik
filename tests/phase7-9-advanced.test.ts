@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — Phases 7-9 Final Integration Test Suite
+ * BDMIND — Phases 7-9 Final Integration Test Suite
  * 
  * Tests:
  * 1. Analytics & Reporting Engine

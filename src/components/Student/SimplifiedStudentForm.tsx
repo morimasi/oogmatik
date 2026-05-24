@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Simplified Student Form (Sprint 2)
+ * BDMIND - Simplified Student Form (Sprint 2)
  * 5 zorunlu alan + progressive disclosure UI
  */
 

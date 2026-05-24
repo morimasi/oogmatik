@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - AI Student Service Tests
+ * BDMIND - AI Student Service Tests
  * Test suite for AI-enhanced student analysis
  */
 

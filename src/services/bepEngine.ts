@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — BEP (Bireysel Eğitim Planı) Engine
+ * BDMIND — BEP (Bireysel Eğitim Planı) Engine
  * 
  * AI-powered IEP generator with SMART goals
  * MEB (Ministry of Education) compliant

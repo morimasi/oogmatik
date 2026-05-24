@@ -7,7 +7,7 @@ interface SyllableHighlighterProps {
 }
 
 /**
- * OOGMATIK - DYNAMIC SYLLABLE ENGINE (v3 Premium)
+ * BDMIND - DYNAMIC SYLLABLE ENGINE (v3 Premium)
  * Metni hecelerine ayırır ve disleksi dostu renk paletleriyle vurgular.
  */
 export const SyllableHighlighter: React.FC<SyllableHighlighterProps> = ({ 

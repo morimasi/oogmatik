@@ -157,7 +157,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════════ */
-/* OOGMATIK PREMIUM PRINT STYLESHEET v2.0                                 */
+/* BDMIND PREMIUM PRINT STYLESHEET v2.0                                 */
 /* Lider: Bora Demir (Mühendislik)  Onay: Elif Yıldız (Pedagoji)         */
 /* ═══════════════════════════════════════════════════════════════════════ */
 
@@ -403,7 +403,7 @@
 
     /* ─── 9. SAYFANIN SON SATIRI (Footer) ──────────────────────────── */
 
-    /* Yazdırmada footer gizle, sadece oogmatik damgası göster */
+    /* Yazdırmada footer gizle, sadece bdmind damgası göster */
     .worksheet-footer,
     .sheet-footer {
         page-break-inside: avoid !important;

@@ -113,7 +113,7 @@ export const adminService = {
     },
 
     /**
-     * OOGMATIK - STRESS TEST RUNNER (v3 Premium)
+     * BDMIND - STRESS TEST RUNNER (v3 Premium)
      * Bir promptu çoklu kez çalıştırarak kararlılığını ölçer.
      */
     stressTestPrompt: async (prompt: PromptTemplate, vars: Record<string, string>, count: number = 5) => {

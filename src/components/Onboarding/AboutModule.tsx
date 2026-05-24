@@ -13,7 +13,7 @@ export const AboutModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   ];
 
   const team = [
-    { role: 'Kurucu & Baş Geliştirici', name: 'Oogmatik Ekibi', desc: 'Full-stack geliştirme, AI entegrasyonları' },
+    { role: 'Kurucu & Baş Geliştirici', name: 'bdmind Ekibi', desc: 'Full-stack geliştirme, AI entegrasyonları' },
     { role: 'Pedagojik Danışman', name: 'Özel Eğitim Uzmanları', desc: 'MEB uyumu, BEP hedefleri, disleksi protokolleri' },
     { role: 'Klinik Danışman', name: 'Çocuk Psikologları', desc: 'Bilişsel değerlendirme, DEHB stratejileri' },
     { role: 'Topluluk', name: '500+ Öğretmen', desc: 'Beta test, geri bildirim, içerik üretimi' }
@@ -120,7 +120,7 @@ export const AboutModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
         {/* Footer */}
         <div className="px-5 py-3 border-t border-[var(--border-color)] bg-[var(--surface-glass)] flex items-center justify-between">
-          <p className="text-[9px] text-[var(--text-muted)]">© 2026 Oogmatik. Tüm hakları saklı.</p>
+          <p className="text-[9px] text-[var(--text-muted)]">© 2026 bdmind. Tüm hakları saklı.</p>
           <button onClick={onClose} className="px-5 py-2 bg-[var(--accent-color)] text-white text-[10px] font-black uppercase tracking-wider rounded-xl transition-all active:scale-95">
             Kapat
           </button>

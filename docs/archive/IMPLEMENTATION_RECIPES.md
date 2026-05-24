@@ -1,4 +1,4 @@
-# 🔧 OOGMATIK - PROFESYONEL İYİLEŞTİRME REÇETESI
+# 🔧 BDMIND - PROFESYONEL İYİLEŞTİRME REÇETESI
 **Türkçe: Adım Adım Çözüm Kılavuzu**
 
 ---

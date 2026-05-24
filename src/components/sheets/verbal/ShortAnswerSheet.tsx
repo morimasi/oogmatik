@@ -217,7 +217,7 @@ export const ShortAnswerSheet: React.FC<ShortAnswerSheetProps> = ({ data, compac
       {/* Alt Bilgi */}
       <div className="mt-8 pt-4 border-t border-zinc-200 flex justify-between items-center">
         <p className="text-[9px] text-zinc-400 font-black uppercase tracking-widest">
-          OOGMATIK
+          BDMIND
         </p>
         <p className="text-[9px] text-zinc-400">
           <i className="fa-solid fa-pen-to-square mr-1"></i>

@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — OCR Etkinlik Store (Zustand)
+ * BDMIND — OCR Etkinlik Store (Zustand)
  *
  * OCR tabanlı etkinlik üretim modülünün merkezi durumu.
  * 3 üretim modu, blueprint sonucu, onay kuyruğu ve
@@ -162,7 +162,7 @@ export const useOCRActivityStore = create<OCRActivityState>()(
             },
         }),
         {
-            name: 'oogmatik-ocr-blueprints',
+            name: 'bdmind-ocr-blueprints',
             // Sadece kütüphane verisini localStorage'da sakla
             partialize: (state: OCRActivityState) => ({ savedBlueprints: state.savedBlueprints }),
         }

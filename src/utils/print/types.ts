@@ -1,5 +1,5 @@
 /**
- * Oogmatik Print Engine — Merkezi Tip Tanımları
+ * bdmind Print Engine — Merkezi Tip Tanımları
  * Tüm yazdırma/PDF/önizleme modülleri bu tipleri kullanır.
  */
 

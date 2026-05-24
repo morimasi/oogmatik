@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - OCR Variation Service
+ * BDMIND - OCR Variation Service
  * Blueprint'ten varyasyon üretimi orkestratörü
  *
  * Bu servis OCR blueprint'lerinden aynı mimari yapıda, farklı verilerle

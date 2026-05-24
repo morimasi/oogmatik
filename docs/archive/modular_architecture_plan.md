@@ -1,4 +1,4 @@
-# OOGMATIK "PREMIUM STUDIO" YENİ NESİL MODÜLER MİMARİ PLANI
+# BDMIND "PREMIUM STUDIO" YENİ NESİL MODÜLER MİMARİ PLANI
 
 ## 1. Vizyon ve Felsefe
 Mevcut yapay zeka entegrasyonumuz "tek seferde tüm sayfayı üreten" (monolitik) bir yapıdadır. Yeni "Premium Studio" vizyonumuz, öğretmenlere ve özel eğitim uzmanlarına **tam kontrol** veren, **Bileşen Bazlı (Block-based / Notion tarzı)** bir mimariye geçişi hedefler.
@@ -89,4 +89,4 @@ Aşağıdaki modüller Orton-Gillingham yaklaşımı, UDL (Universal Design for 
 ---
 
 ## 4. Sonuç
-Bu mimari sayesinde Oogmatik, standart bir araçtan çıkarak, öğretmenin pedagojik sınırları çizdiği, yapay zekanın ise bu sınırların içini uzman kalitesinde ve sıfır hatayla doldurduğu **"Ultra Profesyonel Klinik Materyal Stüdyosu"** haline gelecektir.
+Bu mimari sayesinde bdmind, standart bir araçtan çıkarak, öğretmenin pedagojik sınırları çizdiği, yapay zekanın ise bu sınırların içini uzman kalitesinde ve sıfır hatayla doldurduğu **"Ultra Profesyonel Klinik Materyal Stüdyosu"** haline gelecektir.

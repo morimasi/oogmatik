@@ -90,7 +90,7 @@ export const ReadingPyramidSheet = ({ data, settings: globalSettings }: { data: 
             </p>
         </div>
         <p className="text-[7px] text-zinc-300 font-bold italic">
-            Oogmatik Premium • Akıcı Okuma Serisi
+            bdmind Premium • Akıcı Okuma Serisi
         </p>
       </div>
     </div>

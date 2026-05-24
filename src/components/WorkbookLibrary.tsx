@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — WorkbookLibrary Component
+ * BDMIND — WorkbookLibrary Component
  *
  * Premium workbook library/archive UI with filters, search, and templates
  *

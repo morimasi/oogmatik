@@ -2,7 +2,7 @@
 description: Yeni Bir Etkinlik (Activity) Modülü Oluşturma Kuralları
 ---
 
-# Oogmatik Etkinlik Üretim Workflow Kılavuzu
+# bdmind Etkinlik Üretim Workflow Kılavuzu
 
 Bu workflow, kullanıcı "Bana yeni bir X etkinliği ekle" dediğinde tamamen otonom olarak yeni yapının nasıl kurulacağını tanımlar.
 

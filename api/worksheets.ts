@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Worksheets API
+ * BDMIND - Worksheets API
  * CRUD operations with permission validation
  *
  * Vercel API endpoint routes:

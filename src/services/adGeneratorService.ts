@@ -7,8 +7,8 @@ import {
   AD_TARGET_DESCRIPTIONS,
 } from '../types/adStudio';
 
-const AD_SYSTEM_INSTRUCTION = `Sen Oogmatik'in kıdemli reklam yazarısın.
-Oogmatik, disleksi, DEHB ve özel öğrenme güçlüğü yaşayan Türk çocukları için AI destekli eğitim platformudur.
+const AD_SYSTEM_INSTRUCTION = `Sen bdmind'in kıdemli reklam yazarısın.
+bdmind, disleksi, DEHB ve özel öğrenme güçlüğü yaşayan Türk çocukları için AI destekli eğitim platformudur.
 
 KURALLAR:
 1. Asla tani koyucu dil kullanma: "disleksisi var" YERINE "disleksi destegine ihtiyaci var"
@@ -20,7 +20,7 @@ KURALLAR:
 7. Cikti SADECE gecerli JSON olmalidir`;
 
 function buildPrompt(settings: AdStudioSettings, brandKit: BrandKit): string {
-  const moduleDesc = AD_TARGET_DESCRIPTIONS[settings.target] || 'Oogmatik egitim platformu';
+  const moduleDesc = AD_TARGET_DESCRIPTIONS[settings.target] || 'bdmind egitim platformu';
   const audienceLabels: Record<string, string> = {
     teachers: 'Ogretmenler',
     parents: 'Veliler',
@@ -29,7 +29,7 @@ function buildPrompt(settings: AdStudioSettings, brandKit: BrandKit): string {
     investors: 'Yatirimcilar',
   };
 
-  return `BIR OOGMATIK REKLAMI OLUSTUR.
+  return `BIR BDMIND REKLAMI OLUSTUR.
 
 HEDEF MODUL: ${settings.target}
 MODUL ACIKLAMASI: ${moduleDesc}
@@ -44,7 +44,7 @@ ETIKETLER: ${settings.tags.join(', ')}
 SEZON: ${settings.season || 'Genel'}
 
 MARKA BILGILERI:
-- Isim: Oogmatik
+- Isim: bdmind
 - Slogan: ${brandKit.slogan}
 - Web: ${brandKit.website}
 - Renkler: ${brandKit.primaryColor}, ${brandKit.secondaryColor}
@@ -258,7 +258,7 @@ ${output.socialCopy}
 **Govde:** ${output.emailBody}
 
 ---
-_Oogmatik AdStudio ile AI destekli olusturulmustur._`;
+_bdmind AdStudio ile AI destekli olusturulmustur._`;
 
     case 'html': {
       const scenesHtml = output.scenes.map(s => `
@@ -297,7 +297,7 @@ ${scenesHtml}
 <h2>E-posta</h2>
 <p><strong>Konu:</strong> ${output.emailSubject}</p>
 <p>${output.emailBody.replace(/\n/g, '<br>')}</p>
-<p style="color:#64748b;font-size:0.75rem;margin-top:3rem">Oogmatik AdStudio ile AI destekli olusturulmustur.</p>
+<p style="color:#64748b;font-size:0.75rem;margin-top:3rem">bdmind AdStudio ile AI destekli olusturulmustur.</p>
 </body></html>`;
     }
 

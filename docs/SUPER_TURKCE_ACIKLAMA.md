@@ -2,7 +2,7 @@
 
 ## 🎯 Genel Bakış
 
-**Super Türkçe Stüdyosu**, Oogmatik platformunun en gelişmiş Türkçe dil eğitim modülüdür. Disleksi, DEHB ve özel öğrenme güçlüğü yaşayan öğrenciler için özel olarak tasarlanmış, AI destekli kişiselleştirilmiş Türkçe içerik üretim sistemidir.
+**Super Türkçe Stüdyosu**, bdmind platformunun en gelişmiş Türkçe dil eğitim modülüdür. Disleksi, DEHB ve özel öğrenme güçlüğü yaşayan öğrenciler için özel olarak tasarlanmış, AI destekli kişiselleştirilmiş Türkçe içerik üretim sistemidir.
 
 ### Temel Özellikler
 
@@ -758,9 +758,9 @@ GitHub Issues'ta sorun bildirirken şu bilgileri ekleyin:
 
 ## 📜 Lisans
 
-Bu modül Oogmatik platformunun bir parçasıdır ve proje lisansı altında dağıtılır.
+Bu modül bdmind platformunun bir parçasıdır ve proje lisansı altında dağıtılır.
 
-**Telif Hakkı © 2024-2026 Oogmatik EdTech Platform**
+**Telif Hakkı © 2024-2026 bdmind EdTech Platform**
 
 ---
 

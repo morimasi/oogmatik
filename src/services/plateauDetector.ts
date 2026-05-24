@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — Learning Plateau Detection & Early Warning System
+ * BDMIND — Learning Plateau Detection & Early Warning System
  * 
  * Detects learning plateaus early
  * Suggests remedial interventions

@@ -1,5 +1,5 @@
 /**
- * Oogmatik Print Engine — PDF Üretim Modülü
+ * bdmind Print Engine — PDF Üretim Modülü
  * html2canvas + jsPDF ile gerçek PDF dosyası üretir.
  */
 
@@ -89,10 +89,10 @@ export const generateRealPdf = async (
     const activeStudent = useStudentStore.getState().activeStudent;
     pdf.setProperties({
       title: title,
-      author: 'Oogmatik - Bursa Disleksi EduMind',
+      author: 'bdmind - Bursa Disleksi EduMind',
       subject: 'Eğitim Materyali',
       keywords: 'disleksi, özel eğitim, eğitim materyali',
-      creator: 'Oogmatik AI Engine',
+      creator: 'bdmind AI Engine',
     });
 
     // KVKK: Öğrenci bilgileri PDF metadata'ya anonimleştirilmiş şekilde eklenir

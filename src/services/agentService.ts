@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Agent Service Stub
+ * BDMIND - Agent Service Stub
  * Placeholder for multi-agent coordination
  */
 

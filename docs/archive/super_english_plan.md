@@ -1,11 +1,11 @@
 # Super English Sınav Stüdyosu - Geliştirme ve Mimari Planı
 
-> **Proje:** Oogmatik EdTech Platformu
+> **Proje:** bdmind EdTech Platformu
 > **Modül:** Super English Sınav Stüdyosu (Yapay Zeka Destekli Türkçe/İngilizce Sınav Üretici)
 > **Hedef Kitle:** 4., 5., 6., 7., 8. ve 9. Sınıf Öğrencileri (MEB Müfredatı)
 > **Tasarım İlkesi:** Bloom Taksonomisi, ZPD (Yakınsal Gelişim Alanı) ve SpLD (Özel Öğrenme Güçlüğü) Kapsayıcılığı
 
-Bu doküman, Oogmatik 4 Uzman Ajanının (Pedagoji, Klinik/MEB, Mühendislik, AI) ortak kararları doğrultusunda hazırlanmıştır.
+Bu doküman, bdmind 4 Uzman Ajanının (Pedagoji, Klinik/MEB, Mühendislik, AI) ortak kararları doğrultusunda hazırlanmıştır.
 
 ---
 

@@ -48,7 +48,7 @@ export const KelimeCumleRenderer: React.FC<KelimeCumleRendererProps> = ({ data }
           color: '#64748b',
           fontFamily: 'Inter, sans-serif'
       }}>
-          <span>Bursa Disleksi - Oogmatik</span>
+          <span>Bursa Disleksi - bdmind</span>
           <span>© 2024</span>
       </div>
     </div>

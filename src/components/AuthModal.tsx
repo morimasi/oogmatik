@@ -102,7 +102,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }: AuthMod
           );
         } else if (errorMessage.includes('auth/unauthorized-domain')) {
           setError(
-            'Bu alan adı (domain) henüz yetkilendirilmemiş. Lütfen Firebase Console üzerinden "oogmatik.vercel.app" adresini yetkilendirilmiş alan adlarına ekleyin.'
+            'Bu alan adı (domain) henüz yetkilendirilmemiş. Lütfen Firebase Console üzerinden "bdmind.vercel.app" adresini yetkilendirilmiş alan adlarına ekleyin.'
           );
         } else {
           setError(errorMessage);
@@ -179,7 +179,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }: AuthMod
               {mode === 'login' ? 'Hoş Geldiniz!' : 'Hesap Oluştur'}
             </h2>
             <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">
-              Oogmatik Eğitim Ekosistemi
+              bdmind Eğitim Ekosistemi
             </p>
           </div>
 

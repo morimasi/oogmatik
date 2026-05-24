@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Trust & Security Badge Components
+ * BDMIND - Trust & Security Badge Components
  * KVKK güvenlik rozetleri ve AI denetim sertifikası
  * Pazarlama ve güven inşası için UI bileşenleri
  */

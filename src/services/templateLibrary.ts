@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — Premium Etkinlik Kütüphanesi
+ * BDMIND — Premium Etkinlik Kütüphanesi
  *
  * Mod 2 (sıfırdan üretim) için zengin şablon ve içerik bankası.
  * Sınıf düzeyi, beceri alanı, soru tipi bazlı filtreleme.

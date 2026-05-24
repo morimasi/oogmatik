@@ -1,4 +1,4 @@
-# OOGMATIK — Evrensel AI Ekip Koordinasyonu
+# BDMIND — Evrensel AI Ekip Koordinasyonu
 
 > Bu dosya OpenCode, Aider, Continue, Codeium, **Google Antigravity** ve benzeri araçlar tarafından okunur.
 > Proje klasöründe herhangi bir AI aracını kullandığında bu kurallar geçerlidir.
@@ -7,8 +7,8 @@
 > | Araç | Config Dosyası |
 > |------|---------------|
 > | Claude Code | `CLAUDE.md` |
-> | Gemini CLI + Google Antigravity | `GEMINI.md` + `.agents/rules/oogmatik-core.md` + `.idx/dev.nix` |
-> | Cursor | `.cursor/rules/oogmatik.mdc` |
+> | Gemini CLI + Google Antigravity | `GEMINI.md` + `.agents/rules/bdmind-core.md` + `.idx/dev.nix` |
+> | Cursor | `.cursor/rules/bdmind.mdc` |
 > | Windsurf | `.windsurfrules` |
 > | GitHub Copilot | `.github/copilot-instructions.md` |
 > | Continue.dev | `.continue/config.json` |
@@ -27,7 +27,7 @@
 
 ---
 
-## Proje: Oogmatik EdTech Platformu
+## Proje: bdmind EdTech Platformu
 
 Disleksi, DEHB ve özel öğrenme güçlüğü yaşayan Türk çocuklar için AI destekli kişiselleştirilmiş eğitim materyali üretim platformu.
 
@@ -41,7 +41,7 @@ Disleksi, DEHB ve özel öğrenme güçlüğü yaşayan Türk çocuklar için AI
 Uygulama geliştirme ve içerik üretim süreçlerinde **v2 Professional** mimarisi aktiftir. Ajanlar artık manuel çağrıya gerek duymadan **otomatik** olarak devreye girer.
 
 ### 🔄 Otomatik Orkestrasyon & Denetim (Phase 4: Generative Engine)
-- **Oto-Pilot**: Her prompt, [AgentOrchestrator](file:///d:/bbma/bursadisleksi/oogmatik/src/tools/scaffold/AgentOrchestrator.ts) tarafından analiz edilir.
+- **Oto-Pilot**: Her prompt, [AgentOrchestrator](file:///d:/bbma/bursadisleksi/bdmind/src/tools/scaffold/AgentOrchestrator.ts) tarafından analiz edilir.
 - **Multimodal Vision**: CLI üzerinden gelen Resim/PDF verileri `ocrService` ile "Architectural DNA"ya dönüştürülür ve Selin Arslan'a klonlama referansı olarak sunulur.
 - **Marker-Based Injection**: Kod enjeksiyonu asla rastgele yapılmaz. Sadece `// AUTONOM_...` işaretleyicileri arasına güvenli ekleme yapılır.
 - **Self-Correction**: Ajanlar çıktılarını birbirlerine aktarmadan önce halüsinasyon ve hata denetiminden (`validateAndCorrect`) geçerler.
@@ -49,7 +49,7 @@ Uygulama geliştirme ve içerik üretim süreçlerinde **v2 Professional** mimar
 
 
 ### 📚 Tam Sistem Hakimiyeti
-- **Source of Truth**: [MODULE_KNOWLEDGE.md](file:///c:/Users/Administrator/Desktop/oogmatik/.claude/MODULE_KNOWLEDGE.md) belgesi, uygulamanın her bir dosyasını, özelliğini ve işlevini içeren "Evrensel Bilgi Kaynağı"dır.
+- **Source of Truth**: [MODULE_KNOWLEDGE.md](file:///c:/Users/Administrator/Desktop/bdmind/.claude/MODULE_KNOWLEDGE.md) belgesi, uygulamanın her bir dosyasını, özelliğini ve işlevini içeren "Evrensel Bilgi Kaynağı"dır.
 - **Dosya Bilinci**: Ajanlar her dosyayı, her fonksiyonu ve her modülün birbiriyle olan ilişkisini bu belge üzerinden bilir ve geliştirme yaparken bu bağlamı korur.
 - **Sürekli Güncellik**: Her yeni özellik veya dosya değişikliğinde `MODULE_KNOWLEDGE.md` otomatik olarak güncellenir ve ajanların bilgisi taze tutulur.
 
@@ -190,5 +190,5 @@ Güncel kütüphane dokümantasyonu için prompt'a `use context7` ekle.
 
 **Yapılandırma dosyaları:** `.mcp.json` (Claude Code) | `.cursor/mcp.json` (Cursor) | `.continue/config.json` | `.zed/settings.json` | `opencode.json`
 
-**Oogmatik stack için sık kullanılan ID'ler:** `/facebook/react` | `/firebase/firebase-js-sdk` | `/colinhacks/zod` | `/vitejs/vite`
+**bdmind stack için sık kullanılan ID'ler:** `/facebook/react` | `/firebase/firebase-js-sdk` | `/colinhacks/zod` | `/vitejs/vite`
 

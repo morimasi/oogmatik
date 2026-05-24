@@ -1,5 +1,5 @@
 /**
- * Oogmatik Print Engine — Barrel Export
+ * bdmind Print Engine — Barrel Export
  * Geriye dönük uyumluluk: mevcut `printService` API'si korunur.
  * Tüm diğer modüller bu dosya üzerinden erişilebilir.
  */

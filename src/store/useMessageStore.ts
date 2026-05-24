@@ -106,7 +106,7 @@ export const useMessageStore = create<MessageState>()(
       },
     }),
     {
-      name: 'oogmatik-message-store',
+      name: 'bdmind-message-store',
       partialize: (state) => ({
         conversationSettings: state.conversationSettings,
       }),

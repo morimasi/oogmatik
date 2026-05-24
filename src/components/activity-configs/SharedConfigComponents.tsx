@@ -1,7 +1,7 @@
 import React from 'react';
 
 /**
- * OOGMATIK - Shared Config Components
+ * BDMIND - Shared Config Components
  * Tüm jeneratör ayar panellerinde kullanılan ortak, tema uyumlu bileşenler.
  */
 

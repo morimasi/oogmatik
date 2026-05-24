@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Rate Limiting Service
+ * BDMIND - Rate Limiting Service
  * Token Bucket Algorithm - Per-user request limits
  */
 

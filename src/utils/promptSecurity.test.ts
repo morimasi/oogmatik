@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Prompt Security Tests
+ * BDMIND - Prompt Security Tests
  * Vitest test suite for promptSecurity.ts
  */
 

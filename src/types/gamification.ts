@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Gamification Types
+ * BDMIND - Gamification Types
  * Rozetler ve Başarımlar Sistemi Tipleri
  */
 

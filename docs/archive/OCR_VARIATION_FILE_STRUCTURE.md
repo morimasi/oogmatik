@@ -1,6 +1,6 @@
 # OCR Varyasyon Sistemi — Dosya Yapısı ve Değişiklik Matrisi
 
-**Proje**: Oogmatik
+**Proje**: bdmind
 **Sprint**: 6 - OCR Variation Enhancement
 **Mühendis**: Bora Demir
 
@@ -347,7 +347,7 @@ vercel --env=staging
 
 **Smoke Test (Staging):**
 ```bash
-curl https://oogmatik-staging.vercel.app/api/ocr/analyze
+curl https://bdmind-staging.vercel.app/api/ocr/analyze
 ```
 
 ### 2. Production Deploy (Feature Flag)

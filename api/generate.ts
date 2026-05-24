@@ -245,7 +245,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     );
 
     // 6. Success — JSON Repair Engine ile parse et
-    res.setHeader('X-Oogmatik-Deploy', '2024-03-18-v4-MINIMAL');
+    res.setHeader('X-bdmind-Deploy', '2024-03-18-v4-MINIMAL');
     res.setHeader('X-Prompt-Security', 'validated');
     try {
       const parsed = tryRepairJson(result.text);

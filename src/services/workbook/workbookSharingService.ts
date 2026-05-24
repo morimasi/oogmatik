@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — Workbook Sharing Service
+ * BDMIND — Workbook Sharing Service
  *
  * KVKV uyumlu paylaşım ve işbirliği servisi (Dr. Ahmet Kaya onaylı)
  *
@@ -252,7 +252,7 @@ export async function generateShareLink(
 
     // Link oluştur
     const linkToken = uuidv4();
-    const shareLink = `${process.env.VITE_APP_URL || 'https://oogmatik.com'}/workbook/shared/${linkToken}`;
+    const shareLink = `${process.env.VITE_APP_URL || 'https://bdmind.com'}/workbook/shared/${linkToken}`;
 
     // Expiry hesapla
     const expiryDate = new Date();

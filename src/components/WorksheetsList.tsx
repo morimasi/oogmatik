@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Worksheets List Component
+ * BDMIND - Worksheets List Component
  * Display worksheets with filtering, pagination, and CRUD operations
  */
 

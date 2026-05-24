@@ -107,7 +107,7 @@ if (showLanding) {
    - Disleksi destekli kaynakların azlığı
 
 2. Çözüm Sunuşu (10-30 sn)
-   - Oogmatik nedir?
+   - bdmind nedir?
    - AI ile 5 saniyede materyal
 
 3. Demo (30-90 sn)
@@ -145,7 +145,7 @@ if (showLanding) {
    - MEB müfredatı rehberleri
 
 2. **Ürün** (30%)
-   - Oogmatik kullanım rehberleri
+   - bdmind kullanım rehberleri
    - Feature highlights
    - Update announcements
 

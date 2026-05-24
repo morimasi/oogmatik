@@ -13,7 +13,7 @@ Start by understanding the current project context, then ask questions one at a 
 Do NOT invoke any implementation skill, write any code, scaffold any project, or take any implementation action until you have presented a design and the user has approved it. This applies to EVERY project regardless of perceived simplicity.
 </HARD-GATE>
 
-## Oogmatik Expert Team Consultation
+## bdmind Expert Team Consultation
 
 Before finalizing any design, consult relevant expert agents using the Claude Code `Task` tool or direct invocation:
 
@@ -66,7 +66,7 @@ Every project goes through this process. A todo list, a single-function utility,
 - Only one question per message
 - Focus on understanding: purpose, constraints, success criteria
 
-**Oogmatik-Specific Design Checklist:**
+**bdmind-Specific Design Checklist:**
 
 For any feature touching learning content:
 - [ ] `pedagogicalNote` field included in all AI activity outputs
@@ -130,4 +130,4 @@ Wait for the user's response. Only proceed once the user approves.
 - **YAGNI ruthlessly** - Remove unnecessary features from all designs
 - **Explore alternatives** - Always propose 2-3 approaches before settling
 - **Incremental validation** - Present design, get approval before moving on
-- **Expert consultation** — Oogmatik's 4 expert agents must approve their domains
+- **Expert consultation** — bdmind's 4 expert agents must approve their domains

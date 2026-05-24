@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { AdTemplate } from '../../../types/adStudio';
 import { useAdGenerator } from '../../../hooks/useAdGenerator';
 
-const STORAGE_KEY = 'oogmatik_ad_templates';
+const STORAGE_KEY = 'bdmind_ad_templates';
 
 function loadTemplates(): AdTemplate[] {
   try {
@@ -72,7 +72,7 @@ export const TemplateLibrary: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `oogmatik-sablonlar-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `bdmind-sablonlar-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };

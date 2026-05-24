@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - CORS Validation & Security Utility
+ * BDMIND - CORS Validation & Security Utility
  *
  * Güvenli origin validation sistemi - wildcard (*) yerine whitelist kullanır.
  * CORS wildcard kullanımı credentials ile uyumlu değildir ve güvenlik riski oluşturur.
@@ -18,13 +18,13 @@ import { AppError } from './AppError.js';
  */
 const ALLOWED_ORIGINS = [
   // Production domains
-  'https://oogmatik.com',
-  'https://www.oogmatik.com',
-  'https://oogmatik.vercel.app',
+  'https://bdmind.com',
+  'https://www.bdmind.com',
+  'https://bdmind.vercel.app',
   'https://bdmin.vercel.app',
 
   // Preview deployments (Vercel pattern)
-  /^https:\/\/oogmatik.*\.vercel\.app$/,
+  /^https:\/\/bdmind.*\.vercel\.app$/,
   /^https:\/\/bdmin.*\.vercel\.app$/,
 
   // Development
@@ -64,9 +64,9 @@ loadExtraOriginsFromEnv();
 
 /**
  * Vercel preview deployment pattern matcher
- * Örnek: https://oogmatik-git-feature-user.vercel.app
+ * Örnek: https://bdmind-git-feature-user.vercel.app
  */
-const VERCEL_PREVIEW_PATTERN = /^https:\/\/(oogmatik|bdmin).*\.vercel\.app$/;
+const VERCEL_PREVIEW_PATTERN = /^https:\/\/(bdmind|bdmin).*\.vercel\.app$/;
 
 /**
  * Origin'in izin verilen listede olup olmadığını kontrol eder

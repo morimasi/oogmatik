@@ -1,4 +1,4 @@
-# OOGMATIK - MASTER GELISTIRME PLANI
+# BDMIND - MASTER GELISTIRME PLANI
 
 **Tarih:** 2026-04-28  
 **Versiyon:** 1.0  
@@ -231,9 +231,9 @@ FAZ 5 (Performans)
     - Origin validation
 
 [ ] 2. ALLOWED_ORIGINS tanimlari
-    - https://oogmatik.com
-    - https://www.oogmatik.com
-    - https://app.oogmatik.com
+    - https://bdmind.com
+    - https://www.bdmind.com
+    - https://app.bdmind.com
     - localhost:5173 (development)
 
 [ ] 3. Tum API endpoint'lerde uygula

@@ -13,7 +13,7 @@ Write the test first. Watch it fail. Write minimal code to pass.
 
 **Violating the letter of the rules is violating the spirit of the rules.**
 
-## Oogmatik Test Setup
+## bdmind Test Setup
 
 **Test framework:** Vitest (not Jest)
 **Test files:** `tests/` directory (e.g., `tests/MyService.test.ts`)
@@ -26,7 +26,7 @@ Write the test first. Watch it fail. Write minimal code to pass.
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 ```
 
-**Oogmatik test standards:**
+**bdmind test standards:**
 - Every new `services/` function needs a test in `tests/`
 - AppError must be thrown (not raw Error) — test for it explicitly
 - No `any` type in tests either — use `unknown` + type guards
@@ -121,7 +121,7 @@ After green only:
 
 Keep tests green. Don't add behavior.
 
-## Good Tests for Oogmatik
+## Good Tests for bdmind
 
 ```typescript
 import { describe, it, expect, beforeEach, vi } from 'vitest';

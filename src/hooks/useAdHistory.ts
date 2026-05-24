@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AdOutput } from '../types/adStudio';
 
-const STORAGE_KEY = 'oogmatik_ad_history';
+const STORAGE_KEY = 'bdmind_ad_history';
 
 function loadHistory(): AdOutput[] {
   try {

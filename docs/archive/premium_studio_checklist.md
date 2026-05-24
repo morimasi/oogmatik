@@ -1,4 +1,4 @@
-# 🚀 OOGMATIK "PREMIUM STUDIO" GELİŞTİRME CHECKLIST'İ
+# 🚀 BDMIND "PREMIUM STUDIO" GELİŞTİRME CHECKLIST'İ
 
 Bu checklist, "Bileşen Bazlı (Modüler) Çalışma Kağıdı Stüdyosu" ve "Ontolojik Müfredat Motoru" vizyonunun adım adım koda dökülmesi için hazırlanmıştır.
 

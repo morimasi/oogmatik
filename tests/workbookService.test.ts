@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — Workbook Service Tests
+ * BDMIND — Workbook Service Tests
  *
  * Test suite for workbook ultra-premium transformation
  *

@@ -66,7 +66,7 @@ export const useProfileSettings = () => {
     // ─── Bildirim Ayarları ───────────────────────────────────────
     const [notificationSettings, setNotificationSettings] = useState<NotificationSettingsData>(() => {
         try {
-            const stored = localStorage.getItem('oogmatik_notifications');
+            const stored = localStorage.getItem('bdmind_notifications');
             if (stored) return JSON.parse(stored);
         } catch { /* ignore */ }
         return NOTIFICATION_DEFAULTS;
@@ -110,7 +110,7 @@ export const useProfileSettings = () => {
 
     const saveNotificationSettings = useCallback((settings: NotificationSettingsData) => {
         setNotificationSettings(settings);
-        localStorage.setItem('oogmatik_notifications', JSON.stringify(settings));
+        localStorage.setItem('bdmind_notifications', JSON.stringify(settings));
     }, []);
 
     // Debounced auto-save (2 saniye)

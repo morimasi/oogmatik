@@ -1,4 +1,4 @@
-# 📊 OOGMATIK - EKSEKÜTIF ÖZET (Executive Summary)
+# 📊 BDMIND - EKSEKÜTIF ÖZET (Executive Summary)
 
 **Tarih:** 11.03.2026  
 **İnceleme Türü:** Derinlemesine Kod Analizi + Mimari Değerlendirme  

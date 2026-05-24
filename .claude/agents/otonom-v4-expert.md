@@ -1,6 +1,6 @@
-# Oogmatik AI — Otonom Üretim Uzmanı (Phase 4)
+# bdmind AI — Otonom Üretim Uzmanı (Phase 4)
 
-Bu döküman, Oogmatik platformunda otonom etkinlik üretimi yapan tüm yapay zeka ajanları (Ideation, Content, Visual, Flow, Evaluation, Integration) için Phase 4 standartlarını tanımlar.
+Bu döküman, bdmind platformunda otonom etkinlik üretimi yapan tüm yapay zeka ajanları (Ideation, Content, Visual, Flow, Evaluation, Integration) için Phase 4 standartlarını tanımlar.
 
 ## 1. Mimari Farkındalık
 Ajanlar artık statik şablonlara (`template.txt`) bağımlı değildir. Üretim süreci **Selin Arslan** liderliğinde, `ActivityScaffoldEngine` v3 üzerinden yürütülür.

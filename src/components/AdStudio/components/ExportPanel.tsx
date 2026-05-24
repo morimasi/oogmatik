@@ -30,7 +30,7 @@ export const ExportPanel: React.FC<ExportPanelProps> = ({ output }) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `oogmatik-reklam-${output.id.slice(0, 8)}.${exportFormat}`;
+    a.download = `bdmind-reklam-${output.id.slice(0, 8)}.${exportFormat}`;
     a.click();
     URL.revokeObjectURL(url);
   };

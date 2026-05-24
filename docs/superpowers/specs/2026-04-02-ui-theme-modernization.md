@@ -8,7 +8,7 @@
 
 ## 🎯 Executive Summary
 
-Oogmatik platformunun mevcut tema sistemi, 8 tema ile temel işlevsellik sağlıyor. Bu modernizasyon, **Premium UX standartlarını** karşılayan, disleksi-uyumlu, erişilebilir ve görsel olarak sofistike bir tema sistemine evrilmeyi hedefliyor.
+bdmind platformunun mevcut tema sistemi, 8 tema ile temel işlevsellik sağlıyor. Bu modernizasyon, **Premium UX standartlarını** karşılayan, disleksi-uyumlu, erişilebilir ve görsel olarak sofistike bir tema sistemine evrilmeyi hedefliyor.
 
 ### Stratejik Hedefler
 1. **Premium Glassmorphism 2.0**: Depth, micro-interactions, adaptive blur

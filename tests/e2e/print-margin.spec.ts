@@ -15,11 +15,11 @@ test.describe('Print Margin - Dynamic Paper Size (E2E)', () => {
     await page.locator('button[title="Yazdır (PDF)"]').click();
     // Wait for the internal signal that PaperSize was used
     await page.waitForFunction(
-      () => (window as any).__oogmatik_print_paper_size__ !== undefined,
+      () => (window as any).__bdmind_print_paper_size__ !== undefined,
       null,
       { timeout: 5000 }
     );
-    const used = await page.evaluate(() => (window as any).__oogmatik_print_paper_size__);
+    const used = await page.evaluate(() => (window as any).__bdmind_print_paper_size__);
     expect(used).toBe('Letter');
   });
 });

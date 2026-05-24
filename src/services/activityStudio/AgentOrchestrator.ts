@@ -32,7 +32,7 @@ const defaultConfig: OrchestratorConfig = {
 const memoryCache = new Map<string, OrchestratorResult>();
 
 /**
- * OOGMATIK - AI AGENT ORCHESTRATOR (v2 Professional)
+ * BDMIND - AI AGENT ORCHESTRATOR (v2 Professional)
  * Bu sınıf, tüm ajanları otomatik olarak devreye sokar, birbirlerini denetlemelerini sağlar
  * ve halüsinasyonları engelleyerek ultra-premium çıktılar üretir.
  */

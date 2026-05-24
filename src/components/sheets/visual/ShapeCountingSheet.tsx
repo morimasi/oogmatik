@@ -249,7 +249,7 @@ export const ShapeCountingSheet = ({
               CİHAZ / ENGİNE
             </span>
             <span className="text-[10px] font-black tracking-tighter uppercase">
-              Oogmatik Vision v3.8.2
+              bdmind Vision v3.8.2
             </span>
           </div>
           <div

@@ -77,7 +77,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
     if (!videoUrl) return;
     const a = document.createElement('a');
     a.href = videoUrl;
-    a.download = `oogmatik-reklam-${(output.id || '0000').slice(0, 8)}-${videoFormat}.webm`;
+    a.download = `bdmind-reklam-${(output.id || '0000').slice(0, 8)}-${videoFormat}.webm`;
     a.click();
   }, [videoUrl, output.id, videoFormat]);
 
@@ -206,7 +206,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
           <div className="flex items-center gap-2 mb-3">
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-[10px] font-bold">O</div>
             <div>
-              <span className="text-[11px] font-bold text-zinc-200">oogmatik</span>
+              <span className="text-[11px] font-bold text-zinc-200">bdmind</span>
               <span className="text-[8px] text-zinc-500 block">Sponsored</span>
             </div>
           </div>
@@ -216,7 +216,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
           <div className="flex items-center gap-2 mb-3">
             <div className="w-8 h-8 rounded bg-blue-600 flex items-center justify-center text-white text-[10px] font-bold">in</div>
             <div>
-              <span className="text-[11px] font-bold text-zinc-200">Oogmatik</span>
+              <span className="text-[11px] font-bold text-zinc-200">bdmind</span>
               <span className="text-[8px] text-zinc-500 block">Eğitim Teknolojileri</span>
             </div>
           </div>

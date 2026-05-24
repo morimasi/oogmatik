@@ -21,8 +21,8 @@
             const data = await res.json();
             const size = data?.paperSize;
             if (size) {
-              localStorage.setItem('oogmatik.paperSize', size);
-              const ev = new CustomEvent('oogmatik.paperSize.loaded', { detail: size });
+              localStorage.setItem('bdmind.paperSize', size);
+              const ev = new CustomEvent('bdmind.paperSize.loaded', { detail: size });
               window.dispatchEvent(ev);
             }
           }

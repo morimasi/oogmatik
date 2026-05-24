@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Comprehensive Input Sanitization Layer
+ * BDMIND - Comprehensive Input Sanitization Layer
  * Protects against XSS, SQLi, prompt injection, and other input-based attacks
  */
 

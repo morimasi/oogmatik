@@ -16,17 +16,17 @@ export const PaperSizeInitializer: React.FC = () => {
           const serverSize = await loadCurrentUserPaperSize();
           if (serverSize) {
             paperSizeStore.setPaperSize(serverSize as unknown as PaperSize);
-            localStorage.setItem('oogmatik.paperSize', serverSize);
+            localStorage.setItem('bdmind.paperSize', serverSize);
           } else {
-            const local = localStorage.getItem('oogmatik.paperSize');
+            const local = localStorage.getItem('bdmind.paperSize');
             if (local) paperSizeStore.setPaperSize(local as unknown as PaperSize);
           }
         } catch {
-          const local = localStorage.getItem('oogmatik.paperSize');
+          const local = localStorage.getItem('bdmind.paperSize');
           if (local) paperSizeStore.setPaperSize(local as unknown as PaperSize);
         }
       } else {
-        const local = localStorage.getItem('oogmatik.paperSize');
+        const local = localStorage.getItem('bdmind.paperSize');
         if (local) paperSizeStore.setPaperSize(local as unknown as PaperSize);
       }
     })();
@@ -35,7 +35,7 @@ export const PaperSizeInitializer: React.FC = () => {
   useEffect(() => {
     if (!auth?.user) {
       paperSizeStore.setPaperSize('Extreme_Dikey');
-      localStorage.removeItem('oogmatik.paperSize');
+      localStorage.removeItem('bdmind.paperSize');
     }
   }, [auth?.user]);
 

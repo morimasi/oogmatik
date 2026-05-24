@@ -1,4 +1,4 @@
-# OOGMATIK — GitHub Copilot Ekip Koordinasyonu
+# BDMIND — GitHub Copilot Ekip Koordinasyonu
 
 ## 🤖 AI Ajan v2 Professional & Otomatik Aktivasyon
 GitHub Copilot ile çalışırken, projenin **v2 Professional** AI mimarisi her zaman **otomatik** olarak devrededir.
@@ -6,11 +6,11 @@ GitHub Copilot ile çalışırken, projenin **v2 Professional** AI mimarisi her 
 ### 🌟 Temel Protokoller
 1. **Otomatik Tetikleme**: Her geliştirme isteminde tüm uzman ekip (Ideation, Content, Visual, Flow, Evaluation, Integration) arka planda otomatik olarak analiz yapar.
 2. **Hata Denetimi & Self-Correction**: Ajanlar birbirlerini denetler, halüsinasyonları engeller ve en stabil çözümü sunar.
-3. Evrensel Bilgi Hakimiyeti: Ajanlar, [MODULE_KNOWLEDGE.md](file:///c:/Users/Administrator/Desktop/oogmatik/.claude/MODULE_KNOWLEDGE.md) üzerinden uygulamanın TÜM dosya, işlev ve modül haritasına %100 hakimdir.
+3. Evrensel Bilgi Hakimiyeti: Ajanlar, [MODULE_KNOWLEDGE.md](file:///c:/Users/Administrator/Desktop/bdmind/.claude/MODULE_KNOWLEDGE.md) üzerinden uygulamanın TÜM dosya, işlev ve modül haritasına %100 hakimdir.
 
 ---
 
-## 🎯 Proje: Oogmatik EdTech Platformu
+## 🎯 Proje: bdmind EdTech Platformu
 
 Disleksi, DEHB ve özel öğrenme güçlüğü yaşayan Türk çocuklar için AI destekli kişiselleştirilmiş eğitim materyali üretim platformu.
 
@@ -51,7 +51,7 @@ Disleksi, DEHB ve özel öğrenme güçlüğü yaşayan Türk çocuklar için AI
 ## 🏗️ Proje Mimarisi
 
 ```
-oogmatik/
+bdmind/
 ├── api/                              ← Vercel Serverless Functions
 │   ├── generate.ts                   ← Ana AI endpoint — RateLimiter + CORS + Zod validation şablonu
 │   ├── feedback.ts                   ← POST /api/feedback

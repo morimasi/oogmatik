@@ -33,7 +33,7 @@ BEFORE claiming any status or expressing satisfaction:
 5. ONLY THEN: Make the claim
 ```
 
-## Oogmatik Verification Commands
+## bdmind Verification Commands
 
 **Tests pass:**
 ```bash

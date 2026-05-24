@@ -113,7 +113,7 @@ const LoginPage: React.FC = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@oogmatik.com"
+                  placeholder="admin@bdmind.com"
                   className="w-full bg-zinc-950/50 border border-white/5 rounded-2xl py-3.5 pl-11 pr-4 text-sm text-white placeholder:text-zinc-700 outline-none focus:border-indigo-500/50 transition-all"
                 />
               </div>

@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Input Validation Utilities
+ * BDMIND - Input Validation Utilities
  * Basit validators (Zod'a geçilirse daha gelişkin hale getirilecek)
  */
 

@@ -117,7 +117,7 @@ export const SentenceFiveWOneHSheet: React.FC<Props> = ({ data }) => {
             </p>
             <div className="flex items-center gap-1">
                 <div className="w-4 h-4 bg-zinc-100 rounded flex items-center justify-center text-[8px]">⚙️</div>
-                <span className="text-[8px] font-black uppercase tracking-widest text-zinc-400">Oogmatik AI</span>
+                <span className="text-[8px] font-black uppercase tracking-widest text-zinc-400">bdmind AI</span>
             </div>
         </div>
       )}

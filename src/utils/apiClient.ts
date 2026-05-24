@@ -11,7 +11,7 @@ export const getAuthHeaders = (userId: string, userRole: string) => ({
 });
 
 /**
- * OOGMATIK - Güvenli Fetch İstemcisi
+ * BDMIND - Güvenli Fetch İstemcisi
  * Sunucu tarafındaki 500/504 HTML hatalarını JSON parse hatasına dönüşmeden yakalar.
  * 
  * Muhendislik Direktoru Bora Demir: "Naked fetch" kullanımı yasaktır, her zaman safeFetch kullanılmalı.

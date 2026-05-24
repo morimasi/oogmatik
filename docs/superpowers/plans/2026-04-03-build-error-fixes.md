@@ -348,7 +348,7 @@ git commit -m "fix: resolve TS type errors, Firebase exports, and Vercel 12-func
 
 ---
 
-## Oogmatik Compliance Checklist
+## bdmind Compliance Checklist
 
 - [x] `pedagogicalNote` — not touched, no AI activity generators modified
 - [x] `AppError` — existing usage preserved in all ported handlers

@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Student API Tests
+ * BDMIND - Student API Tests
  * Tests for /api/students endpoint (Sprint 1)
  */
 

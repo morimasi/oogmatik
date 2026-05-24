@@ -12,11 +12,11 @@ type PaperSizeState = {
 export const usePaperSizeStore = create<PaperSizeState>()((set: SetState<PaperSizeState>, get: GetState<PaperSizeState>) => ({
   paperSize:
     (typeof window !== 'undefined'
-      ? (localStorage.getItem('oogmatik.paperSize') as PaperSize)
+      ? (localStorage.getItem('bdmind.paperSize') as PaperSize)
       : null) || 'Extreme_Dikey',
   setPaperSize: (p: PaperSize) => {
     set({ paperSize: p });
-    if (typeof window !== 'undefined') localStorage.setItem('oogmatik.paperSize', p);
+    if (typeof window !== 'undefined') localStorage.setItem('bdmind.paperSize', p);
     // Persist to server (best-effort, only works with authenticated user)
     (async () => {
       try {
@@ -50,11 +50,11 @@ export const initPaperSizeForCurrentUser = async (user: User | null) => {
       })();
       if (serverSize) {
         setPaperSize(serverSize);
-        localStorage.setItem('oogmatik.paperSize', serverSize);
+        localStorage.setItem('bdmind.paperSize', serverSize);
         return;
       }
     }
-    const local = localStorage.getItem('oogmatik.paperSize');
+    const local = localStorage.getItem('bdmind.paperSize');
     if (local) {
       setPaperSize(local as PaperSize);
     }
@@ -67,5 +67,5 @@ export const initPaperSizeForCurrentUser = async (user: User | null) => {
 export const resetPaperSizeToDefault = () => {
   const { setPaperSize } = usePaperSizeStore.getState();
   setPaperSize('Extreme_Dikey');
-  if (typeof window !== 'undefined') localStorage.removeItem('oogmatik.paperSize');
+  if (typeof window !== 'undefined') localStorage.removeItem('bdmind.paperSize');
 };

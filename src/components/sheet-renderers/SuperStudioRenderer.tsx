@@ -53,7 +53,7 @@ export const SuperStudioRenderer: React.FC<SuperStudioRendererProps> = ({ data }
 
           {/* Footer */}
           <div style={{ marginTop: '2rem', paddingTop: '0.5rem', borderTop: '1px solid #eee', fontSize: '10px', color: '#999', display: 'flex', justifyContent: 'space-between' }}>
-            <span>© Bursa Disleksi & Oogmatik</span>
+            <span>© Bursa Disleksi & bdmind</span>
             <span>www.bursadisleksi.com</span>
           </div>
         </div>

@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Studio Registry
+ * BDMIND - Studio Registry
  * Uygulamadaki tüm stüdyo ve modüllerin merkezi konfigürasyonu.
  */
 

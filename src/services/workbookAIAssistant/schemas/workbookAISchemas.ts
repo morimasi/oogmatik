@@ -1,7 +1,7 @@
 /**
  * Workbook AI Assistant — JSON Schema Tanimlari
  *
- * OOGMATIK JSON SCHEMA STANDARTLARI:
+ * BDMIND JSON SCHEMA STANDARTLARI:
  * 1. type degerleri BUYUK HARF: 'OBJECT', 'ARRAY', 'STRING', 'NUMBER', 'BOOLEAN'
  * 2. required her zaman tanimli olmali
  * 3. Nullable alanlar icin nullable: true ekle

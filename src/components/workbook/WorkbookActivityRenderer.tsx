@@ -36,7 +36,7 @@ export const WorkbookActivityRenderer = memo(({ item, settings, font, accent }: 
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            (window as any).__oogmatik_force_render_all_pages__ = true;
+            (window as any).__bdmind_force_render_all_pages__ = true;
         }
     }, []);
 

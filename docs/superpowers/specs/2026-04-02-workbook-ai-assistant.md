@@ -346,7 +346,7 @@ export const prefaceSchema = {
 // schemas/common.ts
 
 /**
- * OOGMATIK JSON SCHEMA STANDARTLARI
+ * BDMIND JSON SCHEMA STANDARTLARI
  *
  * KURALLAR:
  * 1. type degerleri BUYUK HARF: 'OBJECT', 'ARRAY', 'STRING', 'NUMBER', 'BOOLEAN'

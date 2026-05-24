@@ -1,5 +1,5 @@
 /**
- * Oogmatik Print Engine — Yakalama Motoru
+ * bdmind Print Engine — Yakalama Motoru
  * Font ön-yükleme, DOM klonlama, pixel lock ve html2canvas wrapper.
  * Bu modül hem printService hem snapshotService tarafından kullanılır.
  */

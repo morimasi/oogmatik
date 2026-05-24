@@ -1,4 +1,4 @@
-# Oogmatik Etkinlik Geliştirme Planı
+# bdmind Etkinlik Geliştirme Planı
 
 > **For agentic workers:** Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -506,7 +506,7 @@ Toplam tahmini süre: ~7 saat (ajanla yapıldığında paralel işlemlerle ~3-4 
 
 ---
 
-## Oogmatik Zorunlu Kontrol (Her Görev Sonrası)
+## bdmind Zorunlu Kontrol (Her Görev Sonrası)
 
 ```
 □ TypeScript strict: any yok, ?. ve ?? kullanıldı
@@ -556,4 +556,4 @@ Toplam tahmini süre: ~7 saat (ajanla yapıldığında paralel işlemlerle ~3-4 
 
 ---
 
-*Plan tarihi: 2026-04-07 | Oogmatik Ekibi*
+*Plan tarihi: 2026-04-07 | bdmind Ekibi*

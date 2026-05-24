@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — PII (Personally Identifiable Information) Anonymizer
+ * BDMIND — PII (Personally Identifiable Information) Anonymizer
  * 
  * KVKK (GDPR) compliant data masking for LLM requests and clinical data
  * Ensures zero data leakage of student identities to AI services

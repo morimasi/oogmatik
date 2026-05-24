@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - OCR Variation Results View
+ * BDMIND - OCR Variation Results View
  *
  * Varyasyon sonuçlarını grid layout'ta gösterir ve WorksheetStore'a eklemeyi sağlar.
  */

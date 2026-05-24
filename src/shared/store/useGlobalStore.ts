@@ -42,7 +42,7 @@ export const useGlobalStore = create<GlobalStoreState>()(
         })),
     }),
     {
-      name: 'oogmatik-global-store',
+      name: 'bdmind-global-store',
     }
   )
 );

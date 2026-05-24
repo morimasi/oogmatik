@@ -2,7 +2,7 @@
 
 ## Özet
 
-`services/privacyService.ts` dosyası, KVKK Madde 6 uyumlu öğrenci veri gizliliği işlevlerini sağlar. Bu servis, Oogmatik platformunda hassas öğrenci verilerinin güvenli işlenmesini garanti eder.
+`services/privacyService.ts` dosyası, KVKK Madde 6 uyumlu öğrenci veri gizliliği işlevlerini sağlar. Bu servis, bdmind platformunda hassas öğrenci verilerinin güvenli işlenmesini garanti eder.
 
 ## Temel Özellikler
 
@@ -361,7 +361,7 @@ Bu servis aşağıdaki KVKK maddelerine uygunluk sağlar:
 
 > "Sağlık ve cinsel hayata ilişkin kişisel veriler ... açık rızaya bağlı olarak işlenebilir."
 
-**Oogmatik Uygulaması:**
+**bdmind Uygulaması:**
 - Tanı bilgileri (disleksi, DEHB) AI sistemlerine gönderilmeden **jenerikleştirilir**.
 - Sağlık bilgileri (ilaç, alerjiler) **asla AI'ya gönderilmez**.
 - Ebeveyn açık rızası olmadan öğrenci profili paylaşılmaz.
@@ -370,7 +370,7 @@ Bu servis aşağıdaki KVKK maddelerine uygunluk sağlar:
 
 > "Veri sorumlusu ... kişisel verilerin hukuka aykırı olarak işlenmesini önlemek ... için uygun güvenlik düzeyini temin etmeye yönelik ... teknik tedbirleri almak zorundadır."
 
-**Oogmatik Uygulaması:**
+**bdmind Uygulaması:**
 - TC Kimlik No: SHA-256 + salt ile hash'leme (**kriptografik güvenlik**)
 - Öğrenci ID: Her AI çağrısında farklı anonim ID (**tracking önleme**)
 - Log redaction: Hassas alanlar otomatik maskeleme (**veri sızıntısı önleme**)

@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Worksheets Hook
+ * BDMIND - Worksheets Hook
  * Frontend synchronization with API using safeFetch for robustness
  */
 

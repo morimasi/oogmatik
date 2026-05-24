@@ -44,7 +44,7 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
          await new Promise(r => setTimeout(r, 500)); // CSS injection bekleme
       }
 
-      await printService.generatePdf(targetSelector, settings.title || 'Oogmatik_Calisma_Kagidi', {
+      await printService.generatePdf(targetSelector, settings.title || 'bdmind_Calisma_Kagidi', {
         action: method === 'pdf' ? 'download' : 'print',
         paperSize: paperSize,
         onProgress: (percent, message) => {

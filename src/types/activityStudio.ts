@@ -7,7 +7,7 @@ export type { Difficulty } from './common';
 
 // ─── AI Model Literal ───────────────────────────────────────────────
 /** Sabit model — değiştirme (Selin Arslan direktifi) */
-export type OogmatikModel = 'gemini-2.5-flash';
+export type bdmindModel = 'gemini-2.5-flash';
 
 /** Batch üst limiti — 5'ten büyük count asla tek çağrıda gitmez */
 export type MaxBatchSize = 5;
@@ -24,7 +24,7 @@ export type AgentId =
 export interface AgentInput {
   goal: StudioGoalConfig;
   sanitizedPrompt: SanitizedPromptInput;
-  model: OogmatikModel;
+  model: bdmindModel;
   previousOutputs: Partial<Record<AgentId, AgentOutput>>;
 }
 
@@ -47,7 +47,7 @@ export interface AgentStatus {
 
 // ─── Orchestrator Contract ──────────────────────────────────────────
 export interface OrchestratorConfig {
-  model: OogmatikModel;
+  model: bdmindModel;
   maxBatchSize: MaxBatchSize;
   cacheEnabled: boolean;
   enabledAgents: AgentId[];
@@ -138,7 +138,7 @@ export interface StudioGoalConfig {
 }
 
 export interface AIGenerationConfig {
-  model: OogmatikModel;
+  model: bdmindModel;
   batchSize: number;
   useCache: boolean;
   temperature?: number;

@@ -1,4 +1,4 @@
-# 🔴 OOGMATIK - DEĞERLENDİRME VE İYİLEŞTİRME RAPORU
+# 🔴 BDMIND - DEĞERLENDİRME VE İYİLEŞTİRME RAPORU
 **Tarih:** 2026-03-11  
 **Sonuç:** Makine tarafından derinlemesine analiz edilmiştir.
 

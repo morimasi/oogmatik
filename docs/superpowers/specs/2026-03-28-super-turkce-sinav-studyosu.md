@@ -2,13 +2,13 @@
 
 **Tarih**: 2026-03-28
 **Durum**: Tasarım Onayı Bekliyor
-**Sahip**: Oogmatik Ekip (Elif Yıldız, Dr. Ahmet Kaya, Bora Demir, Selin Arslan)
+**Sahip**: bdmind Ekip (Elif Yıldız, Dr. Ahmet Kaya, Bora Demir, Selin Arslan)
 
 ---
 
 ## 📋 Executive Summary
 
-**Super Türkçe Sınav Stüdyosu**, Oogmatik platformuna tamamen yeni bir modül olarak eklenecek, MEB 2024-2025 müfredat kazanımlarıyla entegre, AI destekli Türkçe sınav oluşturma sistemidir.
+**Super Türkçe Sınav Stüdyosu**, bdmind platformuna tamamen yeni bir modül olarak eklenecek, MEB 2024-2025 müfredat kazanımlarıyla entegre, AI destekli Türkçe sınav oluşturma sistemidir.
 
 ### Kritik Özellikler
 
@@ -169,7 +169,7 @@
 ### Dosya Yapısı (YENİ MODÜL)
 
 ```
-oogmatik/
+bdmind/
 │
 ├── src/
 │   ├── components/

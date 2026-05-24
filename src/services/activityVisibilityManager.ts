@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — Activity Visibility Management
+ * BDMIND — Activity Visibility Management
  * 
  * Admin can enable/disable activities and categories
  * Per-role visibility control

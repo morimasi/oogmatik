@@ -1,6 +1,6 @@
 # 🧠 Neuro-Prompt Studio v2.0: Mimari Yükseltme Planı
 
-Bu doküman, Oogmatik projesindeki Prompt Studio modülünün, basit bir metin editöründen, gerçek zamanlı etkinlik simülasyonu yapabilen, kendi kendini denetleyen ve uçtan uca test imkanı sunan profesyonel bir IDE'ye (Entegre Geliştirme Ortamı) dönüştürülmesi için hazırlanmıştır.
+Bu doküman, bdmind projesindeki Prompt Studio modülünün, basit bir metin editöründen, gerçek zamanlı etkinlik simülasyonu yapabilen, kendi kendini denetleyen ve uçtan uca test imkanı sunan profesyonel bir IDE'ye (Entegre Geliştirme Ortamı) dönüştürülmesi için hazırlanmıştır.
 
 ## 1. Mevcut Sorun Analizi & Teşhis
 *   **Kopuk Döngü:** Şu anki sistemde prompt yazılıyor, JSON dönüyor ama bu JSON'ın öğrenciye nasıl görüneceği (UI) test edilemiyor.

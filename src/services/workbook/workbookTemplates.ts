@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — Workbook Templates Service
+ * BDMIND — Workbook Templates Service
  *
  * 12 Premium Workbook Templates (Pedagojik olarak Elif Yıldız onaylı)
  *

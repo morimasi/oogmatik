@@ -332,7 +332,7 @@ export const ModulePreview: React.FC<ModulePreviewProps> = ({ target, className 
         >
           O
         </div>
-        <span style={{ fontSize: 9, fontWeight: 700, color: '#e2e8f0' }}>Oogmatik</span>
+        <span style={{ fontSize: 9, fontWeight: 700, color: '#e2e8f0' }}>bdmind</span>
         <span style={{ fontSize: 7, color: '#64748b', marginLeft: 'auto', fontWeight: 600 }}>{label}</span>
       </div>
 

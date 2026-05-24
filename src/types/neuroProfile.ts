@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — Neuro-Student Profile Types
+ * BDMIND — Neuro-Student Profile Types
  * 
  * 360° cognitive profile, learning DNA, and clinical tracking
  * Special education (Disleksi, Diskalkuli, DEHB) focused metrics

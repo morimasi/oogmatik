@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Structured Logging System
+ * BDMIND - Structured Logging System
  * KVKK uyumlu loglama - Kişisel veri loglamayı engeller
  */
 

@@ -167,7 +167,7 @@ const LoadingSpinner = () => (
         <i className="fa-solid fa-brain text-[var(--accent-color)] text-xs animate-pulse"></i>
       </div>
     </div>
-    <p className="mt-4 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.3em] opacity-40">Oogmatik Hazırlanıyor</p>
+    <p className="mt-4 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.3em] opacity-40">bdmind Hazırlanıyor</p>
   </div>
 );
 
@@ -391,7 +391,7 @@ const AppContent = () => {
   // Automatically open GuideModule for first-time login
   useEffect(() => {
     if (authStore.user) {
-      const isGuideCompleted = localStorage.getItem(`oogmatik_guide_completed_${authStore.user.id}`) === 'true';
+      const isGuideCompleted = localStorage.getItem(`bdmind_guide_completed_${authStore.user.id}`) === 'true';
       if (!isGuideCompleted) {
         setActiveOnboardingModule('guide');
       }
@@ -698,7 +698,7 @@ const AppContent = () => {
               });
             });
           } catch (genErr) {
-            logError(`Failed to auto-generate ${activityId}`, genErr);
+            logError(genErr as any, { activityId });
           }
         }
       }
@@ -764,7 +764,7 @@ const AppContent = () => {
           <p className="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-4 bg-amber-500/10 px-3 py-1 rounded-full">Yönetici Onayı Bekleniyor</p>
 
           <p className="text-xs text-[var(--text-secondary)] leading-relaxed mb-4">
-            Oogmatik platformuna başarıyla kayıt oldunuz. Güvenlik ve pedagojik standartlar gereği, öğretmen hesaplarının tamamı yönetici onayından geçmektedir.
+            bdmind platformuna başarıyla kayıt oldunuz. Güvenlik ve pedagojik standartlar gereği, öğretmen hesaplarının tamamı yönetici onayından geçmektedir.
           </p>
 
           <div className="p-4 bg-white/50 dark:bg-black/30 border border-zinc-200 dark:border-white/5 rounded-2xl w-full text-left mb-6">
@@ -1093,7 +1093,7 @@ const AppContent = () => {
             <img
               src="/media__1777555251633.png"
               className="w-full h-full object-cover transition-transform duration-[2000ms] group-hover:scale-105"
-              alt="Oogmatik Premium"
+              alt="bdmind Premium"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0B] via-transparent to-transparent"></div>
             <div className="absolute bottom-10 left-10">
@@ -1158,7 +1158,7 @@ const AppContent = () => {
               </div>
               <div>
                 <h4 className="text-xs font-black text-[var(--text-primary)] uppercase mb-2 tracking-tighter">KİŞİSELLEŞTİRİLMİŞ İZ</h4>
-                <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">Her çocuğun parmak izi kadar eşsiz olduğunu biliyoruz. Oogmatik ile standart değil, "terzi dikimi" eğitim materyalleri saniyeler içinde elinizde.</p>
+                <p className="text-[11px] text-[var(--text-muted)] leading-relaxed">Her çocuğun parmak izi kadar eşsiz olduğunu biliyoruz. bdmind ile standart değil, "terzi dikimi" eğitim materyalleri saniyeler içinde elinizde.</p>
               </div>
             </div>
           </div>

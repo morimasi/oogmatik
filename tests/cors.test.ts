@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - CORS Validation Test Suite
+ * BDMIND - CORS Validation Test Suite
  *
  * @module tests/cors.test.ts
  */
@@ -48,9 +48,9 @@ function createMockRequest(
 describe('CORS Validation System', () => {
   describe('isAllowedOrigin', () => {
     it('production domain kabul edilir', () => {
-      expect(isAllowedOrigin('https://oogmatik.com')).toBe(true);
-      expect(isAllowedOrigin('https://www.oogmatik.com')).toBe(true);
-      expect(isAllowedOrigin('https://oogmatik.vercel.app')).toBe(true);
+      expect(isAllowedOrigin('https://bdmind.com')).toBe(true);
+      expect(isAllowedOrigin('https://www.bdmind.com')).toBe(true);
+      expect(isAllowedOrigin('https://bdmind.vercel.app')).toBe(true);
       expect(isAllowedOrigin('https://bdmin.vercel.app')).toBe(true);
     });
 
@@ -61,8 +61,8 @@ describe('CORS Validation System', () => {
     });
 
     it('Vercel preview deployment pattern kabul edilir', () => {
-      expect(isAllowedOrigin('https://oogmatik-abc123-def456.vercel.app')).toBe(true);
-      expect(isAllowedOrigin('https://oogmatik-git-feature-user.vercel.app')).toBe(true);
+      expect(isAllowedOrigin('https://bdmind-abc123-def456.vercel.app')).toBe(true);
+      expect(isAllowedOrigin('https://bdmind-git-feature-user.vercel.app')).toBe(true);
       expect(isAllowedOrigin('https://bdmin-git-feature-user.vercel.app')).toBe(true);
     });
 
@@ -73,7 +73,7 @@ describe('CORS Validation System', () => {
     it('geçersiz origin reddedilir', () => {
       expect(isAllowedOrigin('https://malicious-site.com')).toBe(false);
       expect(isAllowedOrigin('http://evil.com')).toBe(false);
-      expect(isAllowedOrigin('https://oogmatik.com.evil.com')).toBe(false);
+      expect(isAllowedOrigin('https://bdmind.com.evil.com')).toBe(false);
     });
 
     it('origin header yoksa (same-origin) her ortamda izin verir', () => {
@@ -97,11 +97,11 @@ describe('CORS Validation System', () => {
     });
 
     it('geçerli origin için headers ayarlanır', () => {
-      const req = createMockRequest('POST', 'https://oogmatik.com');
+      const req = createMockRequest('POST', 'https://bdmind.com');
 
       setCorsHeaders(req, res);
 
-      expect(res.setHeader).toHaveBeenCalledWith('Access-Control-Allow-Origin', 'https://oogmatik.com');
+      expect(res.setHeader).toHaveBeenCalledWith('Access-Control-Allow-Origin', 'https://bdmind.com');
       expect(res.setHeader).toHaveBeenCalledWith('Access-Control-Allow-Credentials', 'true');
       expect(res.setHeader).toHaveBeenCalledWith('X-Content-Type-Options', 'nosniff');
     });
@@ -113,7 +113,7 @@ describe('CORS Validation System', () => {
     });
 
     it('custom methods ayarlanır', () => {
-      const req = createMockRequest('POST', 'https://oogmatik.com');
+      const req = createMockRequest('POST', 'https://bdmind.com');
 
       setCorsHeaders(req, res, { methods: ['GET', 'POST'] });
 
@@ -121,7 +121,7 @@ describe('CORS Validation System', () => {
     });
 
     it('custom headers ayarlanır', () => {
-      const req = createMockRequest('POST', 'https://oogmatik.com');
+      const req = createMockRequest('POST', 'https://bdmind.com');
 
       setCorsHeaders(req, res, { headers: ['Content-Type', 'X-Custom-Header'] });
 
@@ -132,7 +132,7 @@ describe('CORS Validation System', () => {
     });
 
     it('credentials devre dışı bırakılabilir', () => {
-      const req = createMockRequest('POST', 'https://oogmatik.com');
+      const req = createMockRequest('POST', 'https://bdmind.com');
 
       setCorsHeaders(req, res, { credentials: false });
 
@@ -140,7 +140,7 @@ describe('CORS Validation System', () => {
     });
 
     it('güvenlik headers her zaman ayarlanır', () => {
-      const req = createMockRequest('POST', 'https://oogmatik.com');
+      const req = createMockRequest('POST', 'https://bdmind.com');
 
       setCorsHeaders(req, res);
 
@@ -159,7 +159,7 @@ describe('CORS Validation System', () => {
     });
 
     it('OPTIONS request 200 döner', () => {
-      const req = createMockRequest('OPTIONS', 'https://oogmatik.com');
+      const req = createMockRequest('OPTIONS', 'https://bdmind.com');
 
       const handled = handleCorsPreflight(req, res);
 
@@ -169,7 +169,7 @@ describe('CORS Validation System', () => {
     });
 
     it('POST request preflight olarak işlenmez', () => {
-      const req = createMockRequest('POST', 'https://oogmatik.com');
+      const req = createMockRequest('POST', 'https://bdmind.com');
 
       const handled = handleCorsPreflight(req, res);
 
@@ -203,7 +203,7 @@ describe('CORS Validation System', () => {
     });
 
     it('geçerli POST request için true döner', () => {
-      const req = createMockRequest('POST', 'https://oogmatik.com');
+      const req = createMockRequest('POST', 'https://bdmind.com');
 
       const valid = validateCorsAndMethod(req, res, ['POST']);
 
@@ -211,7 +211,7 @@ describe('CORS Validation System', () => {
     });
 
     it('OPTIONS request için false döner (preflight handled)', () => {
-      const req = createMockRequest('OPTIONS', 'https://oogmatik.com');
+      const req = createMockRequest('OPTIONS', 'https://bdmind.com');
 
       const valid = validateCorsAndMethod(req, res, ['POST']);
 
@@ -220,7 +220,7 @@ describe('CORS Validation System', () => {
     });
 
     it('geçersiz method için false döner + 405 error', () => {
-      const req = createMockRequest('PUT', 'https://oogmatik.com');
+      const req = createMockRequest('PUT', 'https://bdmind.com');
 
       const valid = validateCorsAndMethod(req, res, ['POST']);
 
@@ -254,8 +254,8 @@ describe('CORS Validation System', () => {
     });
 
     it('multiple methods desteklenir', () => {
-      const reqPost = createMockRequest('POST', 'https://oogmatik.com');
-      const reqGet = createMockRequest('GET', 'https://oogmatik.com');
+      const reqPost = createMockRequest('POST', 'https://bdmind.com');
+      const reqGet = createMockRequest('GET', 'https://bdmind.com');
 
       expect(validateCorsAndMethod(reqPost, res, ['GET', 'POST'])).toBe(true);
       expect(validateCorsAndMethod(reqGet, res, ['GET', 'POST'])).toBe(true);

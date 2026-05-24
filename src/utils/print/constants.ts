@@ -1,5 +1,5 @@
 /**
- * Oogmatik Print Engine — Sabitler
+ * bdmind Print Engine — Sabitler
  * Kağıt boyutları, CSS seçiciler ve yapılandırma sabitleri.
  */
 
@@ -39,10 +39,10 @@ export const UI_HIDE_SELECTORS =
   '.edit-handle, .page-navigator, .no-print, .overlay-ui, .resize-handle, .action-button';
 
 /** Enjekte edilen print style elementinin DOM ID'si */
-export const PRINT_STYLE_ID = 'oogmatik-print-style';
+export const PRINT_STYLE_ID = 'bdmind-print-style';
 
 /** Tüm sayfaları render ettirmek için dispatch edilen event adı */
-export const RENDER_ALL_EVENT = 'oogmatik:render-all-pages';
+export const RENDER_ALL_EVENT = 'bdmind:render-all-pages';
 
 /** PDF kalitesi → html2canvas scale haritası */
 export const QUALITY_SCALE_MAP: Record<'standard' | 'high' | 'print', number> = {

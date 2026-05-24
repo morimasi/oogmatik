@@ -167,7 +167,7 @@ export const PatternCompletionSheet: React.FC<Props> = ({ data, settings: global
 
       {/* FOOTER */}
       <div className="pt-2 mt-auto border-t border-zinc-100 flex justify-between items-center text-[8px] font-black text-slate-400 uppercase tracking-widest shrink-0">
-        <span>Neuro-Oogmatik Özel Eğitim Eğitmen Arayüzü</span>
+        <span>Neuro-bdmind Özel Eğitim Eğitmen Arayüzü</span>
         <span>Modül: Kafayı Çalıştır • Bulmaca Sayısı: {pzCount}</span>
       </div>
     </div>

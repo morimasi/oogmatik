@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — Compact A4 Layout Service
+ * BDMIND — Compact A4 Layout Service
  * Calculations for 4/6/8 puzzle per A4 page rendering
  * Print-ready, responsive, disleksia-compatible
  */

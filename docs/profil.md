@@ -1,7 +1,7 @@
 # Profil Modülü Ultra-Modüler Yeniden Yapılandırma + Süper Türkçe Çoklu Sayfa Desteği
 
 > **Tarih:** 2026-05-08 | **Versiyon:** v1.0 | **Durum:** Onay Bekliyor  
-> **Proje:** Oogmatik EdTech Platform — Profil & Super Türkçe Sprint
+> **Proje:** bdmind EdTech Platform — Profil & Super Türkçe Sprint
 
 ---
 

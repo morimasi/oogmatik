@@ -1,4 +1,4 @@
-# OOGMATIK - GOREV TAKIP LISTESI
+# BDMIND - GOREV TAKIP LISTESI
 
 **Son Guncelleme:** 2026-04-28  
 **Toplam Gorev:** 24  

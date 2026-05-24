@@ -62,7 +62,7 @@ export const AD_TARGET_DESCRIPTIONS: Record<AdStudioTarget, string> = {
   sari_kitap: 'Sarı Kitap metodolojisi ile okuma ve anlama çalışmaları.',
   infographic_studio: 'Görsel bilgi grafikleri ve infografik tasarım aracı.',
   super_studio: 'Tüm stüdyoları tek çatı altında toplayan süper stüdyo modülü.',
-  all_modules: 'Oogmatik platformunun tüm modülleri ve özellikleri.',
+  all_modules: 'bdmind platformunun tüm modülleri ve özellikleri.',
 };
 
 export interface BrandKit {

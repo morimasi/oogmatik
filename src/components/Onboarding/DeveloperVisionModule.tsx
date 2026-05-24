@@ -111,7 +111,7 @@ export const DeveloperVisionModule: React.FC<{ onClose: () => void }> = ({ onClo
 
         {/* Footer */}
         <div className="px-5 py-3 border-t border-[var(--border-color)] bg-[var(--surface-glass)] flex items-center justify-between">
-          <p className="text-[9px] text-[var(--text-muted)]">Oogmatik v2.0 — AI Destekli Eğitim Platformu</p>
+          <p className="text-[9px] text-[var(--text-muted)]">bdmind v2.0 — AI Destekli Eğitim Platformu</p>
           <button onClick={onClose} className="px-5 py-2 bg-[var(--accent-color)] text-white text-[10px] font-black uppercase tracking-wider rounded-xl transition-all active:scale-95">
             Kapat
           </button>

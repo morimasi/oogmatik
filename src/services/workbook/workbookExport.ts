@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — Workbook Export Service
+ * BDMIND — Workbook Export Service
  *
  * Multi-format export (7 formats) with KVKV compliance
  *

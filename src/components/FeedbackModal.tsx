@@ -100,7 +100,7 @@ export const FeedbackModal = ({ isOpen, onClose, activityType, activityTitle }: 
               </motion.div>
               <h3 className="text-2xl font-black text-[var(--text-primary)] mb-4 tracking-tight uppercase">GERİ BİLDİRİM ALINDI</h3>
               <p className="text-[var(--text-secondary)] leading-relaxed text-sm max-w-sm">
-                Fikirleriniz Oogmatik'in geleceğini şekillendiriyor. Gelişimimize katkıda bulunduğunuz için minnettarız.
+                Fikirleriniz bdmind'in geleceğini şekillendiriyor. Gelişimimize katkıda bulunduğunuz için minnettarız.
               </p>
               <div className="mt-10 w-full h-1 bg-[var(--bg-secondary)] rounded-full overflow-hidden">
                 <motion.div 

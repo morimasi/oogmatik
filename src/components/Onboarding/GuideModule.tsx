@@ -73,7 +73,7 @@ export const GuideModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
     }
   ];
 
-  const isMandatory = user ? localStorage.getItem(`oogmatik_guide_completed_${user.id}`) !== 'true' : false;
+  const isMandatory = user ? localStorage.getItem(`bdmind_guide_completed_${user.id}`) !== 'true' : false;
   const allSectionsViewed = viewedSections.length === sections.length;
 
   const handleSectionChange = (index: number) => {
@@ -91,7 +91,7 @@ export const GuideModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
 
   const handleComplete = () => {
     if (user) {
-      localStorage.setItem(`oogmatik_guide_completed_${user.id}`, 'true');
+      localStorage.setItem(`bdmind_guide_completed_${user.id}`, 'true');
     }
     onClose();
   };
@@ -110,7 +110,7 @@ export const GuideModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
               <BookOpen className="w-5 h-5 text-white animate-pulse" />
             </div>
             <div>
-              <h2 className="text-sm font-black text-[var(--text-primary)] tracking-tight">Oogmatik Hızlı Kurulum Rehberi</h2>
+              <h2 className="text-sm font-black text-[var(--text-primary)] tracking-tight">bdmind Hızlı Kurulum Rehberi</h2>
               <p className="text-[9px] font-black text-[var(--accent-color)] uppercase tracking-wider">
                 {isMandatory ? 'İlk kullanım için zorunlu kurulum adımları' : 'Platform kullanım kılavuzu'}
               </p>

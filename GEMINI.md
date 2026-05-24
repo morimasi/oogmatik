@@ -1,14 +1,14 @@
-# OOGMATIK — Gemini AI Ekip Koordinasyon Protokolü
+# BDMIND — Gemini AI Ekip Koordinasyon Protokolü
 
 > Bu dosya **Gemini CLI** (`gemini` komutu) ve **Google Antigravity** IDE tarafından otomatik okunur.
 > Proje klasöründe bu araçlardan herhangi birini açtığında kurallar anında aktiftir.
-> Google Project IDX ortam kurulumu: `.idx/dev.nix` | Agent kuralları: `.agents/rules/oogmatik-core.md`
+> Google Project IDX ortam kurulumu: `.idx/dev.nix` | Agent kuralları: `.agents/rules/bdmind-core.md`
 
 ---
 
-## 🎯 Proje: Oogmatik EdTech Platformu
+## 🎯 Proje: bdmind EdTech Platformu
 
-**Oogmatik**, Türkiye'deki disleksi, DEHB ve özel öğrenme güçlüğü yaşayan çocuklar için
+**bdmind**, Türkiye'deki disleksi, DEHB ve özel öğrenme güçlüğü yaşayan çocuklar için
 AI destekli kişiselleştirilmiş eğitim materyalleri üreten bir EdTech platformudur.
 
 - **Hedef Kitle**: 4–8. sınıf öğrencileri, özel eğitim öğretmenleri, veliler
@@ -26,7 +26,7 @@ Bu projede AI ajanları, Google Antigravity ve Gemini CLI ile **tam senkronize**
 - **Tam Otomatik Devreye Girme**: Geliştirme sürecindeki her adımda ajanlar otomatik olarak tetiklenir ve kolektif bir zeka ile sorunu çözer.
 - **Halüsinasyon Engelleme**: `temperature: 0.1` ve `validateAndCorrect` katmanları ile en kararlı çıktılar garanti edilir.
 - **Ultra-Premium Standartlar**: Her çıktı; görsel, pedagojik ve teknik açıdan projenin "Hata Toleransı Sıfır" kuralına göre denetlenir.
-- **Sistem Bilinci**: Ajanlar, [MODULE_KNOWLEDGE.md](file:///c:/Users/Administrator/Desktop/oogmatik/.claude/MODULE_KNOWLEDGE.md) belgesini kullanarak uygulamanın her dosyasını, fonksiyonunu ve modülünü derinlemesine tanır.
+- **Sistem Bilinci**: Ajanlar, [MODULE_KNOWLEDGE.md](file:///c:/Users/Administrator/Desktop/bdmind/.claude/MODULE_KNOWLEDGE.md) belgesini kullanarak uygulamanın her dosyasını, fonksiyonunu ve modülünü derinlemesine tanır.
 
 ### 👥 Ajan Görev Dağılımı
 - **Ideation**: Stratejik konsept ve sinaptik bağ tasarımı.
@@ -89,7 +89,7 @@ Son kontrol: ilgili lider doğrular
 ## 🏗️ Proje Mimarisi — TAM KAPSAM
 
 ```
-oogmatik/
+bdmind/
 ├── api/                              ← Vercel Serverless Functions
 │   ├── generate.ts                   ← Ana AI endpoint — RateLimiter + CORS + Zod validation
 │   ├── feedback.ts                   ← POST /api/feedback

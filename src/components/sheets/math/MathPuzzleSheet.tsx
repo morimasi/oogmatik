@@ -166,7 +166,7 @@ export const MathPuzzleSheet: React.FC<Props> = ({ data, settings: globalSetting
             {/* Footer */}
             {puzzleCount > 0 && (
                 <div className={`mt-1 print:mt-0.5 py-1 border-t border-dashed border-zinc-200 flex justify-between items-center opacity-50 px-3 print:px-2`}>
-                    <span className="text-[6px] print:text-[5px] font-medium">Oogmatik · Matematik Bulmacaları</span>
+                    <span className="text-[6px] print:text-[5px] font-medium">bdmind · Matematik Bulmacaları</span>
                     <div className="flex gap-2">
                         <span className="text-[6px] print:text-[5px]">🎯 Görsel Mantık</span>
                         <span className="text-[6px] print:text-[5px]"> {puzzleCount} Bulmaca</span>

@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - DLP (Data Loss Prevention) Service
+ * BDMIND - DLP (Data Loss Prevention) Service
  * KVKK Uyumluluğu: Öğrenci adı, tanısı ve skorların bir arada sızmasını engeller.
  */
 

@@ -24,7 +24,7 @@ Kullanıcı isteği: "Ajanları uygulamanın tüm işlevleri ile yeniden profesy
    - **Peer-Review**: Ajanlar arası veri geçişlerinde akran denetimi zorunlu kılındı.
 
 3. **Ultra-Premium Standartlar**:
-   - Her ajan, Oogmatik'in özel tasarım diline (Lexend font, 2.5rem radius, Glassmorphism) ve pedagojik derinliğine (Multisensory, ZPD, Scaffolding) tam hakimdir.
+   - Her ajan, bdmind'in özel tasarım diline (Lexend font, 2.5rem radius, Glassmorphism) ve pedagojik derinliğine (Multisensory, ZPD, Scaffolding) tam hakimdir.
 
 ---
 
@@ -48,4 +48,4 @@ Kullanıcı isteği: "Ajanları uygulamanın tüm işlevleri ile yeniden profesy
 - **KVKK Safe**: DLP servisi ile öğrenci verileri otomatik maskelenir.
 
 ---
-*Bu belge Oogmatik AI Ekip Koordinasyonu tarafından otomatik olarak güncellenmiştir.*
+*Bu belge bdmind AI Ekip Koordinasyonu tarafından otomatik olarak güncellenmiştir.*

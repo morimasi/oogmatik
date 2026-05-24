@@ -2171,4 +2171,4 @@ Kullanıcı → [Kategori Seç: 10 adet] → [Aktivite Türü Seç: 96 adet] →
 
 ---
 
-*Bu ultra premium plan, 4 lider uzman ajan (Elif Yıldız, Dr. Ahmet Kaya, Bora Demir, Selin Arslan) ile visual-storyteller-oozel ve ai-vision-engineer-oozel destek ajanlarının kapsamlı değerlendirmesiyle hazırlanmıştır. **96 aktivite türü** ile Oogmatik, Türkiye'nin özel öğrenme alanındaki en kapsamlı dijital aktivite kütüphanesine sahip olacaktır. Uygulama başlamadan önce her fazın uzman ajan onayı alınmalıdır. Kategori 10 (Klinik & BEP) için Dr. Ahmet Kaya bireysel onayı zorunludur.
+*Bu ultra premium plan, 4 lider uzman ajan (Elif Yıldız, Dr. Ahmet Kaya, Bora Demir, Selin Arslan) ile visual-storyteller-oozel ve ai-vision-engineer-oozel destek ajanlarının kapsamlı değerlendirmesiyle hazırlanmıştır. **96 aktivite türü** ile bdmind, Türkiye'nin özel öğrenme alanındaki en kapsamlı dijital aktivite kütüphanesine sahip olacaktır. Uygulama başlamadan önce her fazın uzman ajan onayı alınmalıdır. Kategori 10 (Klinik & BEP) için Dr. Ahmet Kaya bireysel onayı zorunludur.

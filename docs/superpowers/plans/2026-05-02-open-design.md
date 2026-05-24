@@ -2,7 +2,7 @@
 
 > **For agentic workers:** Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Integrate open-design principles into Oogmatik by adding a 5-dimensional AI self-critique mechanism and top-bar selectable Design Schools (Visual Ecols).
+**Goal:** Integrate open-design principles into bdmind by adding a 5-dimensional AI self-critique mechanism and top-bar selectable Design Schools (Visual Ecols).
 
 **Architecture:** 
 1. **Design Schools:** Add a global `designSchool` state to `useInfographicStudio` store. Expose a selector dropdown in the `PremiumEditToolbar` (top bar). Update `NativeInfographicRenderer` and `themeUtils` to dynamically apply CSS variables/palettes based on the selected school.

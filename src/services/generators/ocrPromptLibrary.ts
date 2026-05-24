@@ -1,5 +1,5 @@
 /**
- * OOGMATIK — OCR Prompt Kütüphanesi
+ * BDMIND — OCR Prompt Kütüphanesi
  *
  * Tüm OCR üretim promptlarının merkezi kaynağı.
  * Hem varyasyon hem klonlama akışlarında kullanılır.

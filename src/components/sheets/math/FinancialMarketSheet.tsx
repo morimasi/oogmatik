@@ -130,7 +130,7 @@ export const FinancialMarketSheet: React.FC<Props> = ({ data }) => {
 
             {/* FOOTER */}
             <div className="pt-4 print:pt-1 mt-auto border-t-2 border-zinc-100 flex justify-between items-center text-[10px] font-black text-slate-300 uppercase tracking-widest">
-                <span>Neuro-Oogmatik Özel Eğitim Teknolojileri</span>
+                <span>Neuro-bdmind Özel Eğitim Teknolojileri</span>
                 <span>Modül: Finansal Market • G: {tasks.length} • Raf: {shelves.length}</span>
             </div>
         </div>

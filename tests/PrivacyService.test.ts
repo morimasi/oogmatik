@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Privacy Service Tests
+ * BDMIND - Privacy Service Tests
  * KVKK Madde 6 uyumlu veri gizliliği testleri
  */
 

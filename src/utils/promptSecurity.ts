@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Prompt Injection Security Module
+ * BDMIND - Prompt Injection Security Module
  * AI Direktoru: Selin Arslan
  *
  * Prompt injection saldirilarina karsi kapsamli guvenlik filtresi.

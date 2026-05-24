@@ -1,4 +1,4 @@
-# 🚀 Oogmatik Animasyon Stüdyosu v2.0 — Ultra Premium Geliştirme Planı
+# 🚀 bdmind Animasyon Stüdyosu v2.0 — Ultra Premium Geliştirme Planı
 
 Bu belge, Remotion Player Engine üzerinde çalışan, AI destekli ve özel öğrenme güçlüğü (disleksi, DEHB, diskalkuli) odaklı, **Ultra Premium** sınıfı profesyonel animasyon üretim merkezinin yol haritasıdır.
 

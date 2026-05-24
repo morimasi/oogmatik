@@ -1,5 +1,5 @@
 /**
- * Oogmatik Print Engine — CSS Enjeksiyon Modülü
+ * bdmind Print Engine — CSS Enjeksiyon Modülü
  * @page kuralları, Print Lock CSS ve yazdırma moduna geçiş yönetimi.
  */
 
@@ -104,7 +104,7 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
  * Tailwind responsive gridleri kağıtta kilitler (Print Lock).
  */
 export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): HTMLStyleElement => {
-  const CORE_STYLE_ID = 'oogmatik-print-core-styles';
+  const CORE_STYLE_ID = 'bdmind-print-core-styles';
 
   let styleEl = document.getElementById(CORE_STYLE_ID) as HTMLStyleElement | null;
   if (!styleEl) {
@@ -129,7 +129,7 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
         margin: 0 !important;
         padding: 0 !important;
       }
-      .oogmatik-print-wrapper {
+      .bdmind-print-wrapper {
         width: 100% !important;
         position: relative;
         display: block;
@@ -144,8 +144,8 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
          komple 2. sayfaya atar, 1. sayfa başlıkla bomboş kalır!
          Bunu önlemek için TÜM 'break' kilitlerini KIRIYORUZ.
       */
-      .oogmatik-print-wrapper, 
-      .oogmatik-print-wrapper *,
+      .bdmind-print-wrapper, 
+      .bdmind-print-wrapper *,
       #print-overlay .worksheet-page,
       #print-overlay .print-item-wrapper {
         page-break-inside: auto !important;
@@ -215,7 +215,7 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
         margin-top: 2mm !important; /* Görseller için ekstra iç güvenlik marjı */
       }
 
-      .oogmatik-print-wrapper {
+      .bdmind-print-wrapper {
         display: block !important;
         background: white !important;
         margin: 0 !important;
@@ -233,8 +233,8 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
       }
 
       /* İçerik Görünürlük Garantisi */
-      .oogmatik-print-wrapper, 
-      .oogmatik-print-wrapper * {
+      .bdmind-print-wrapper, 
+      .bdmind-print-wrapper * {
         visibility: visible !important;
         opacity: 1 !important;
       }
@@ -259,8 +259,8 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
 export const forceRenderAllPages = async (): Promise<void> => {
   if (typeof window === 'undefined') return;
   (
-    window as { __oogmatik_force_render_all_pages__?: boolean }
-  ).__oogmatik_force_render_all_pages__ = true;
+    window as { __bdmind_force_render_all_pages__?: boolean }
+  ).__bdmind_force_render_all_pages__ = true;
   window.dispatchEvent(new Event(RENDER_ALL_EVENT));
   await new Promise<void>((resolve) => {
     requestAnimationFrame(() => {
@@ -274,6 +274,6 @@ export const forceRenderAllPages = async (): Promise<void> => {
  */
 export const clearRenderAllPagesFlag = (): void => {
   if (typeof window === 'undefined') return;
-  delete (window as { __oogmatik_force_render_all_pages__?: boolean })
-    .__oogmatik_force_render_all_pages__;
+  delete (window as { __bdmind_force_render_all_pages__?: boolean })
+    .__bdmind_force_render_all_pages__;
 };

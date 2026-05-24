@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Worksheet Service
+ * BDMIND - Worksheet Service
  * Firestore CRUD + Error Handling + Permission Validation
  */
 

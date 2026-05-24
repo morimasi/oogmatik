@@ -84,7 +84,7 @@ export const SayiDedektifiSheet: React.FC<{ data?: Partial<SayiDedektifiData> }>
 
     {/* Footer Logo/Brand Area */}
     <div className="mt-auto pt-8 flex justify-between items-end opacity-20 grayscale no-print">
-       <div className="text-[10px] font-black uppercase tracking-tighter">Oogmatik Premium Activity</div>
+       <div className="text-[10px] font-black uppercase tracking-tighter">bdmind Premium Activity</div>
        <div className="text-[10px] font-medium italic">Bursa Disleksi Akademisi</div>
     </div>
   </div>

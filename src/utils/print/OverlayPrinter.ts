@@ -1,5 +1,5 @@
 /**
- * Oogmatik Print Engine — Overlay Yazdırma Modülü
+ * bdmind Print Engine — Overlay Yazdırma Modülü
  * DOM klonlama + overlay oluşturma + window.print() tetikleme.
  * Hem düz DOM klonu hem html2canvas tabanlı yazdırma desteklenir.
  */
@@ -225,7 +225,7 @@ export const print = async (
 
     // Wrapper İçine Al
     const wrapper = document.createElement('div');
-    wrapper.className = 'oogmatik-print-wrapper';
+    wrapper.className = 'bdmind-print-wrapper';
     wrapper.appendChild(clone);
 
     wrapperContainer.appendChild(wrapper);

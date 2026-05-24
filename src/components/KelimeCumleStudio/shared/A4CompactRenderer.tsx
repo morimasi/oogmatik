@@ -75,7 +75,7 @@ export const A4CompactRenderer = forwardRef<HTMLDivElement, A4CompactRendererPro
                         color: '#64748b',
                         fontFamily: 'Inter, sans-serif'
                     }}>
-                        <span>Bursa Disleksi - Oogmatik</span>
+                        <span>Bursa Disleksi - bdmind</span>
                         <span>www.bursadisleksi.com</span>
                     </div>
                 </div>

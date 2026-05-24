@@ -1,5 +1,5 @@
 /**
- * OOGMATIK - Agent Service Tests
+ * BDMIND - Agent Service Tests
  * Comprehensive test suite for AI agent coordination system
  */
 
