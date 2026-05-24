@@ -2,7 +2,7 @@
 import React from 'react';
 import { GeneratorOptions } from '../../types';
 
-export const AlgorithmConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: string, v: any) => void }) => {
+export const AlgorithmConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: string, v: unknown) => void }) => {
     return (
         <div className="space-y-5 animate-in fade-in duration-300">
             <div className="p-5 bg-zinc-900 text-white rounded-[2.5rem] border border-white/10 shadow-2xl">
@@ -10,7 +10,7 @@ export const AlgorithmConfig = ({ options, onChange }: { options: GeneratorOptio
                 <input
                     type="text"
                     value={options.topic || ''}
-                    onChange={(e: any) => onChange('topic', e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('topic', e.target.value)}
                     placeholder="Örn: Kek Yapımı, Robot Kontrol..."
                     className="w-full p-4 bg-zinc-800 border border-zinc-700 rounded-2xl text-sm font-bold text-white outline-none focus:border-indigo-500 shadow-inner"
                 />

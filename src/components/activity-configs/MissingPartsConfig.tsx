@@ -4,7 +4,7 @@ import { CompactToggleGroup } from './SharedConfigComponents';
 
 interface ConfigProps {
     options: GeneratorOptions;
-    onChange: (key: keyof GeneratorOptions, value: any) => void;
+    onChange: (key: keyof GeneratorOptions, value: unknown) => void;
 }
 
 /**
@@ -19,7 +19,7 @@ export const MissingPartsConfig: React.FC<ConfigProps> = ({ options, onChange })
                     <i className="fa-solid fa-circle-info text-emerald-500 text-sm"></i>
                     <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Temel Ayarlar</span>
                 </div>
-                
+
                 <div>
                     <label className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-2 block">Metin Teması</label>
                     <input
@@ -97,7 +97,7 @@ export const MissingPartsConfig: React.FC<ConfigProps> = ({ options, onChange })
                     <i className="fa-solid fa-eraser text-emerald-500 text-sm"></i>
                     <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Boşluk Ayarları</span>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
                         <label className="text-[10px] font-bold text-zinc-500 uppercase block">Boşluk Türü</label>
@@ -158,7 +158,7 @@ export const MissingPartsConfig: React.FC<ConfigProps> = ({ options, onChange })
                         <i className="fa-solid fa-key text-indigo-500 text-sm"></i>
                         <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Kelime Havuzu</span>
                     </div>
-                    
+
                     <label className="flex items-center gap-3 p-3 bg-white dark:bg-zinc-700 rounded-xl cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/10 transition-colors border border-zinc-200 dark:border-zinc-600">
                         <input
                             type="checkbox"
@@ -168,7 +168,7 @@ export const MissingPartsConfig: React.FC<ConfigProps> = ({ options, onChange })
                         />
                         <span className="text-[10px] font-bold text-zinc-700 dark:text-zinc-200">Kelime Havuzu Göster</span>
                     </label>
-                    
+
                     <div className="grid grid-cols-2 gap-2">
                         <label className="flex items-center gap-2 p-2 bg-white dark:bg-zinc-700 rounded-lg cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-900/10 transition-colors">
                             <input
@@ -198,7 +198,7 @@ export const MissingPartsConfig: React.FC<ConfigProps> = ({ options, onChange })
                         <i className="fa-solid fa-palette text-amber-500 text-sm"></i>
                         <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Görsel & Düzen</span>
                     </div>
-                    
+
                     <div className="grid grid-cols-2 gap-3">
                         {[
                             { key: 'compactLayout', label: 'Kompakt Layout' },

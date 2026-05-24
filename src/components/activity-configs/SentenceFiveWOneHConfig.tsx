@@ -9,7 +9,7 @@ interface ToggleOption {
 interface CompactToggleGroupProps {
     label: string;
     selected: string | number;
-    onChange: (value: any) => void;
+    onChange: (value: unknown) => void;
     options: ToggleOption[];
 }
 
@@ -32,7 +32,7 @@ const CompactToggleGroup: React.FC<CompactToggleGroupProps> = ({ label, selected
 
 interface ConfigProps {
     options: GeneratorOptions;
-    onChange: (key: keyof GeneratorOptions, value: any) => void;
+    onChange: (key: keyof GeneratorOptions, value: unknown) => void;
 }
 
 /**

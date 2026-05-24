@@ -2,7 +2,7 @@
 import React from 'react';
 import { GeneratorOptions } from '../../types';
 
-export const FinancialMathConfig: React.FC<{ options: GeneratorOptions; onChange: (k: any, v: any) => void }> = ({ options, onChange }) => {
+export const FinancialMathConfig: React.FC<{ options: GeneratorOptions; onChange: (k: keyof GeneratorOptions, v: unknown) => void }> = ({ options, onChange }) => {
     return (
         <div className="space-y-5 animate-in fade-in duration-300">
             <div className="p-4 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-[2rem] border border-emerald-100 dark:border-emerald-800/30">

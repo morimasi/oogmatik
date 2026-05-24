@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { GeneratorOptions } from '../../types';
 import { TurkeyMapSVG } from '../sheets/visual/TurkeyMapSVG';
 
-export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChange: (k: any, v: any) => void }> = ({ options, onChange }) => {
+export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChange: (k: keyof GeneratorOptions, v: unknown) => void }> = ({ options, onChange }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const _regions = [

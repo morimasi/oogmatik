@@ -1,7 +1,7 @@
 import React from 'react';
 import { GeneratorOptions } from '../../types';
 
-export const ReadingPyramidConfig: React.FC<{ options: GeneratorOptions; onChange: (k: any, v: any) => void }> = ({ options, onChange }) => {
+export const ReadingPyramidConfig: React.FC<{ options: GeneratorOptions; onChange: (k: keyof GeneratorOptions, v: unknown) => void }> = ({ options, onChange }) => {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
             {/* Temel Ayarlar - Piramit Yapısı */}

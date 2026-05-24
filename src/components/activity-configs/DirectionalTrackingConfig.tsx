@@ -3,7 +3,7 @@ import { GeneratorOptions } from '../../types';
 
 export const DirectionalTrackingConfig: React.FC<{
   options: GeneratorOptions;
-  onChange: (k: any, v: any) => void;
+  onChange: (k: keyof GeneratorOptions, v: unknown) => void;
 }> = ({ options, onChange }) => {
   // Varsayılan değerleri kontrol et
   const currentRows = options.gridRows || options.gridSize || 8;
@@ -130,7 +130,7 @@ export const DirectionalTrackingConfig: React.FC<{
               key={style.id}
               onClick={() => onChange('aestheticMode', style.id)}
               className={`flex items-center justify-center gap-2 py-3 rounded-2xl text-xs font-bold transition-all border-2 ${
-                ((options as any).aestheticMode || 'standard') === style.id
+                ((options as Record<string, unknown>).aestheticMode || 'standard') === style.id
                   ? 'border-purple-500 bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400'
                   : 'border-zinc-100 dark:border-zinc-800 text-zinc-500 hover:border-zinc-200'
               }`}

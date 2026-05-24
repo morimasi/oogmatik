@@ -2,7 +2,7 @@
 import React from 'react';
 import { GeneratorOptions } from '../../types';
 
-export const WordSearchConfig: React.FC<{ options: GeneratorOptions; onChange: (k: any, v: any) => void }> = ({ options, onChange }) => {
+export const WordSearchConfig: React.FC<{ options: GeneratorOptions; onChange: (k: keyof GeneratorOptions, v: unknown) => void }> = ({ options, onChange }) => {
     
     const rows = options.gridRows || options.gridSize || 12;
     const cols = options.gridCols || options.gridSize || 12;

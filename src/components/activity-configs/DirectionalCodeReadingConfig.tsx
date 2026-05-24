@@ -1,11 +1,11 @@
 import React from 'react';
 import { GeneratorOptions } from '../../types';
 
-const CompactToggleGroup = ({ label, selected, onChange, options }: any) => (
+const CompactToggleGroup = ({ label, selected, onChange, options }: { label: string; selected: string; onChange: (v: string) => void; options: { value: string; label: string }[] }) => (
     <div className="space-y-1 mt-4">
         <label className="text-[10px] font-black text-zinc-400 uppercase block tracking-widest">{label}</label>
         <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl border border-zinc-200 dark:border-zinc-700">
-            {options.map((opt: any) => (
+            {options.map((opt: { value: string; label: string }) => (
                 <button
                     key={opt.value}
                     onClick={() => onChange(opt.value)}
@@ -20,7 +20,7 @@ const CompactToggleGroup = ({ label, selected, onChange, options }: any) => (
 
 interface ConfigProps {
     options: GeneratorOptions;
-    onChange: (key: keyof GeneratorOptions, value: any) => void;
+    onChange: (key: keyof GeneratorOptions, value: unknown) => void;
 }
 
 export const DirectionalCodeReadingConfig: React.FC<ConfigProps> = ({ options, onChange }) => {
@@ -112,14 +112,14 @@ export const DirectionalCodeReadingConfig: React.FC<ConfigProps> = ({ options, o
                                 <span className="text-[10px] font-black text-purple-700 dark:text-purple-300 uppercase tracking-wider">Ultra Kompakt Mod</span>
                             </div>
                             <button
-                                onClick={() => onChange('compactMode' as any, !(options as any).compactMode)}
+                                onClick={() => onChange('compactMode' as any, !(options as Record<string, unknown>).compactMode)}
                                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                                    (options as any).compactMode !== false ? 'bg-purple-600' : 'bg-zinc-300 dark:bg-zinc-600'
+                                    (options as Record<string, unknown>).compactMode !== false ? 'bg-purple-600' : 'bg-zinc-300 dark:bg-zinc-600'
                                 }`}
                             >
                                 <span
                                     className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                        (options as any).compactMode !== false ? 'translate-x-6' : 'translate-x-1'
+                                        (options as Record<string, unknown>).compactMode !== false ? 'translate-x-6' : 'translate-x-1'
                                     }`}
                                 />
                             </button>

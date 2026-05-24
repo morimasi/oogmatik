@@ -47,8 +47,8 @@ const migrateRBACSettings = (settings: RBACSettings): RBACSettings => {
         studentModule.enabled = true;
         const required = ['view', 'create', 'edit', 'export', 'assign'];
         required.forEach(act => {
-          if (!studentModule!.actions.includes(act as any)) {
-            studentModule!.actions.push(act as any);
+          if (!studentModule!.actions.includes(act as PermissionAction)) {
+            studentModule!.actions.push(act as PermissionAction);
           }
         });
         // Silme yetkisi varsa kaldır (Kullanıcı talebi: silme yetkisi verme)
@@ -142,7 +142,7 @@ class RBACService {
 
   canAccessModule(role: UserRole, module: PermissionModule): boolean {
     if (role === 'superadmin') return true;
-    
+
     const rolePerms = this.getSettings().roles.find(r => r.role === role);
     if (!rolePerms) return false;
 

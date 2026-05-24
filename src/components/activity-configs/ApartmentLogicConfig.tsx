@@ -2,14 +2,14 @@ import React from 'react';
 import { GeneratorOptions } from '../../types';
 
 interface ToggleOption {
-    value: any;
+    value: unknown;
     label: string;
 }
 
 interface ToggleGroupProps {
     label: string;
-    selected: any;
-    onChange: (val: any) => void;
+    selected: unknown;
+    onChange: (val: unknown) => void;
     options: ToggleOption[];
 }
 
@@ -28,7 +28,7 @@ const CompactToggleGroup = ({ label, selected, onChange, options }: ToggleGroupP
 
 interface ConfigProps {
     options: GeneratorOptions;
-    onChange: (key: keyof GeneratorOptions, value: any) => void;
+    onChange: (key: keyof GeneratorOptions, value: unknown) => void;
 }
 
 export const ApartmentLogicConfig: React.FC<ConfigProps> = ({ options, onChange }) => {

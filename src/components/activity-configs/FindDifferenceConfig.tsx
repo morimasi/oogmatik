@@ -3,7 +3,7 @@ import { GeneratorOptions } from '../../types';
 
 export const FindDifferenceConfig: React.FC<{
   options: GeneratorOptions;
-  onChange: (k: any, v: any) => void;
+  onChange: (k: keyof GeneratorOptions, v: unknown) => void;
 }> = ({ options, onChange }) => {
   return (
     <div className="space-y-5 animate-in fade-in duration-300">

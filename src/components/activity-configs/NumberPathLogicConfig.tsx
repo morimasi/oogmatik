@@ -2,7 +2,7 @@
 import React from 'react';
 import { GeneratorOptions } from '../../types';
 
-export const NumberPathLogicConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: string, v: any) => void }) => {
+export const NumberPathLogicConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: string, v: unknown) => void }) => {
     return (
         <div className="space-y-5 animate-in fade-in duration-300">
             <div className="p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-[2rem] border border-indigo-100 dark:border-indigo-800/30">

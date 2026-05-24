@@ -2,7 +2,7 @@
 import React from 'react';
 import { GeneratorOptions } from '../../types';
 
-export const StoryStudioConfig: React.FC<{ options: GeneratorOptions; onChange: (k: any, v: any) => void }> = ({ options, onChange }) => {
+export const StoryStudioConfig: React.FC<{ options: GeneratorOptions; onChange: (k: keyof GeneratorOptions, v: unknown) => void }> = ({ options, onChange }) => {
     return (
         <div className="space-y-5 animate-in fade-in duration-300">
             <div className="p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-[2rem] border border-indigo-100 dark:border-indigo-800/30 space-y-4">
@@ -34,8 +34,8 @@ export const StoryStudioConfig: React.FC<{ options: GeneratorOptions; onChange: 
                 ].map(item => (
                     <div key={item.k} className="flex items-center justify-between">
                         <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-300">{item.l}</span>
-                        <div className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${(options as Record<string, any>)[item.k] !== false ? 'bg-indigo-600' : 'bg-zinc-300'}`} onClick={() => onChange(item.k as any, (options as Record<string, any>)[item.k] === false)}>
-                            <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${(options as Record<string, any>)[item.k] !== false ? 'left-4.5' : 'left-0.5'}`}></div>
+                        <div className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${(options as Record<string, unknown>)[item.k] !== false ? 'bg-indigo-600' : 'bg-zinc-300'}`} onClick={() => onChange(item.k as any, (options as Record<string, unknown>)[item.k] === false)}>
+                            <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${(options as Record<string, unknown>)[item.k] !== false ? 'left-4.5' : 'left-0.5'}`}></div>
                         </div>
                     </div>
                 ))}

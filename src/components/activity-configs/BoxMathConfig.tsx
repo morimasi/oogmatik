@@ -4,7 +4,7 @@ import { GeneratorOptions } from '../../types';
 
 interface Props {
   options: GeneratorOptions;
-  onChange: (key: keyof GeneratorOptions, value: any) => void;
+  onChange: (key: keyof GeneratorOptions, value: unknown) => void;
 }
 
 export const BoxMathConfig: React.FC<Props> = ({ options, onChange }) => {
@@ -90,7 +90,7 @@ export const BoxMathConfig: React.FC<Props> = ({ options, onChange }) => {
           {['Başlangıç', 'Orta', 'Zor', 'Uzman'].map((d) => (
             <button
               key={d}
-              onClick={() => onChange('difficulty', d as any)}
+              onClick={() => onChange('difficulty', d as unknown)}
               className={`py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border-2 transition-all ${options.difficulty === d ? 'border-zinc-900 bg-zinc-900 text-white shadow-md' : 'border-white bg-white text-zinc-400 hover:border-zinc-200'}`}
             >
               {d}
@@ -121,7 +121,7 @@ export const BoxMathConfig: React.FC<Props> = ({ options, onChange }) => {
           ].map((v) => (
             <button
               key={v.id}
-              onClick={() => onChange('fontSizePreference', v.id as any)}
+              onClick={() => onChange('fontSizePreference', v.id as unknown)}
               className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border-2 transition-all ${(options.fontSizePreference ?? 'medium') === v.id ? 'border-violet-500 bg-violet-50 text-violet-600 shadow-sm' : 'border-zinc-100 bg-white text-zinc-400 hover:border-zinc-200'}`}
             >
               <i className={`fa-solid ${v.icon} ${v.id === 'small' ? 'text-sm' : v.id === 'large' ? 'text-xl' : 'text-base'}`}></i>

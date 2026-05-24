@@ -3,14 +3,14 @@ import React from 'react';
 import { GeneratorOptions } from '../../types';
 
 interface ToggleOption {
-    value: any;
+    value: unknown;
     label: string;
 }
 
 interface ToggleGroupProps {
     label: string;
-    selected: any;
-    onChange: (val: any) => void;
+    selected: unknown;
+    onChange: (val: unknown) => void;
     options: ToggleOption[];
 }
 
@@ -25,7 +25,7 @@ const CompactToggleGroup = ({ label, selected, onChange, options }: ToggleGroupP
     </div>
 );
 
-export const HiddenPasswordConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: keyof GeneratorOptions, v: any) => void }) => {
+export const HiddenPasswordConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: keyof GeneratorOptions, v: unknown) => void }) => {
     return (
         <div className="space-y-5 animate-in fade-in duration-300">
             <div className="p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-[2rem] border border-indigo-100 dark:border-indigo-800/30">

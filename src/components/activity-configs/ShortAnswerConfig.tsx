@@ -4,7 +4,7 @@ import { CompactToggleGroup } from './SharedConfigComponents';
 
 interface ConfigProps {
     options: GeneratorOptions;
-    onChange: (key: keyof GeneratorOptions, value: any) => void;
+    onChange: (key: keyof GeneratorOptions, value: unknown) => void;
 }
 
 export const ShortAnswerConfig: React.FC<ConfigProps> = ({ options, onChange }) => {
@@ -22,7 +22,7 @@ export const ShortAnswerConfig: React.FC<ConfigProps> = ({ options, onChange }) 
                 ].map((tab) => (
                     <button
                         key={tab.id}
-                        onClick={() => setActiveTab(tab.id as any)}
+                        onClick={() => setActiveTab(tab.id as string)}
                         className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all ${
                             activeTab === tab.id
                                 ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/20 scale-105'

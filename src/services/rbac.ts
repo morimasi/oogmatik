@@ -116,7 +116,7 @@ export const getUserRole = async (userId: string): Promise<UserRoleInfo | null> 
             role: 'student',
             permissions: ROLE_PERMISSIONS['student'],
         };
-    } catch (error: any) {
+    } catch (error: unknown) {
         logError('Error fetching user role', { error: error as Record<string, unknown> });
         return null;
     }
@@ -164,8 +164,10 @@ export const enforcePermission = (
             ? requiredPermission.join(', ')
             : requiredPermission;
 
-        throw new Error(
-            `Yetki yetersiz. Gerekli: ${permStr}${context ? ` (${context})` : ''}`
+        throw new AppError(
+            `Yetki yetersiz. Gerekli: ${permStr}${context ? ` (${context})` : ''}`,
+            'PERMISSION_DENIED',
+            403
         );
     }
 };

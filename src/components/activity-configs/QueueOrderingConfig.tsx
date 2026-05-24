@@ -2,14 +2,14 @@ import React from 'react';
 import { GeneratorOptions } from '../../types';
 
 interface ToggleOption {
-    value: any;
+    value: unknown;
     label: string;
 }
 
 interface ToggleGroupProps {
     label: string;
-    selected: any;
-    onChange: (val: any) => void;
+    selected: unknown;
+    onChange: (val: unknown) => void;
     options: ToggleOption[];
 }
 
@@ -31,8 +31,8 @@ const CompactToggleGroup = ({ label, selected, onChange, options }: ToggleGroupP
 );
 
 interface ConfigProps {
-    options: any;
-    onChange: (key: any, value: any) => void;
+    options: unknown;
+    onChange: (key: keyof GeneratorOptions, value: unknown) => void;
 }
 
 export const QueueOrderingConfig = ({ options, onChange }: ConfigProps) => {

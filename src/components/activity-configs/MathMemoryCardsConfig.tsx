@@ -2,7 +2,7 @@
 import React from 'react';
 import { GeneratorOptions } from '../../types';
 
-const CompactSlider = ({ label, value, onChange, min, max, icon, unit = '' }: any) => (
+const CompactSlider = ({ label, value, onChange, min, max, icon, unit = '' }: { label: string; value: number; onChange: (v: number) => void; min: number; max: number; icon?: string; unit?: string }) => (
     <div className="space-y-1">
         <div className="flex justify-between items-center text-[10px] font-bold text-zinc-500 uppercase">
             <span className="flex items-center gap-1">{icon && <i className={`fa-solid ${icon}`}></i>}{label}</span>
@@ -12,7 +12,7 @@ const CompactSlider = ({ label, value, onChange, min, max, icon, unit = '' }: an
     </div>
 );
 
-const CheckboxTile = ({ label, checked, onChange, icon }: any) => (
+const CheckboxTile = ({ label, checked, onChange, icon }: { label: string; checked: boolean; onChange: (v: boolean) => void; icon?: string }) => (
     <button
         onClick={() => onChange(!checked)}
         className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all ${checked ? 'bg-indigo-50 border-indigo-600 text-indigo-600 dark:bg-indigo-900/20' : 'bg-white border-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:border-zinc-700'}`}
@@ -22,7 +22,7 @@ const CheckboxTile = ({ label, checked, onChange, icon }: any) => (
     </button>
 );
 
-export const MathMemoryCardsConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: string, v: any) => void }) => {
+export const MathMemoryCardsConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: string, v: unknown) => void }) => {
     const toggleOp = (op: string) => {
         const current = options.selectedOperations || [];
         const next = current.includes(op) ? current.filter((o: string) => o !== op) : [...current, op];

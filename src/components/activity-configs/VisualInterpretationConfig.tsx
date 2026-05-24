@@ -4,7 +4,7 @@ import { CompactToggleGroup } from './SharedConfigComponents';
 
 interface VisualInterpretationConfigProps {
   options: GeneratorOptions;
-  onChange: (key: keyof GeneratorOptions, value: any) => void;
+  onChange: (key: keyof GeneratorOptions, value: unknown) => void;
 }
 
 export const VisualInterpretationConfig: React.FC<VisualInterpretationConfigProps> = ({
@@ -145,7 +145,7 @@ export const VisualInterpretationConfig: React.FC<VisualInterpretationConfigProp
               <label className="text-[10px] font-bold text-zinc-500 uppercase block">Soru Tipi</label>
               <select
                 value={options.visualInterpretationStyle || 'mixed'}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange('visualInterpretationStyle', e.target.value as any)}
+                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange('visualInterpretationStyle', e.target.value as unknown as string)}
                 className="w-full p-2.5 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-[10px] font-bold"
               >
                 <option value="mixed">Karışık (Önerilen)</option>

@@ -1,4 +1,4 @@
-// @ts-nocheck
+
 import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { pageTransition } from './utils/motionPresets';
@@ -21,6 +21,7 @@ import {
   GeneratorOptions,
   SavedAssessment,
   Curriculum,
+  Difficulty,
 } from './types';
 import { Clock, UserMinus as UserX } from 'lucide-react';
 import Sidebar from './components/Sidebar';
@@ -51,6 +52,10 @@ import LoginPage from './pages/LoginPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { rbacService } from './services/rbacService';
 import * as offlineGenerators from './services/offlineGenerators';
+
+import { useNavigationLogic } from './hooks/useNavigationLogic';
+import { useHistoryManager } from './hooks/useHistoryManager';
+import { useWorksheetManager } from './hooks/useWorksheetManager';
 
 // Landing Page
 const LandingPage = lazy(() =>
@@ -147,6 +152,8 @@ const initialStyleSettings: StyleSettings = {
   rulerHeight: 80,
   maskOpacity: 0.4,
   footerText: '',
+  showAnswers: false,
+  showClues: false,
 };
 
 type ModalType = 'settings' | 'history' | 'about' | 'developer' | 'pdf-viewer';
@@ -206,7 +213,7 @@ const Modal = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 30 }}
             className={`relative bg-[var(--bg-paper)] rounded-[2.5rem] shadow-2xl w-full ${maxWidth} max-h-[90vh] overflow-hidden flex flex-col border border-[var(--border-color)] font-['Lexend']`}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(e: React.MouseEvent) => e.stopPropagation()}
           >
             {title && (
               <div className="flex items-center justify-between px-8 py-6 border-b border-[var(--border-color)] bg-[var(--surface-glass)]">
@@ -416,181 +423,31 @@ const AppContent = () => {
     };
   }, []);
   const [styleSettings, setStyleSettings] = useState(initialStyleSettings as StyleSettings);
-  const [historyItems, setHistoryItems] = useState(
-    (() => {
-      try {
-        const stored = localStorage.getItem('user_history');
-        return stored ? JSON.parse(stored) : [];
-      } catch {
-        return [];
-      }
-    })() as HistoryItem[]
+  const { navigateTo, handleGoBack, handleOpenStudio, handleGeneratePlanFromScreening } = useNavigationLogic(
+    setScreeningPlanData,
+    setIsAdvancedScreeningOpen
   );
 
-  const navigateTo = (view: View) => {
-    if (currentView === view) return;
-    addHistoryView(currentView);
-    setCurrentView(view);
-  };
-  const handleGoBack = () => {
-    if (currentView === 'generator' && activeCurriculumSession) {
-      setActiveCurriculumSession(null);
-      navigateTo('curriculum');
-      return;
-    }
-    const prevView = popHistoryView();
-    if (prevView) {
-      setCurrentView(prevView);
-    } else {
-      setCurrentView('generator');
-    }
-  };
+  const { addSavedWorksheet, loadSavedWorksheet } = useWorksheetManager(
+    styleSettings,
+    studentProfile,
+    setStudentProfile,
+    setStyleSettings,
+    setIsAuthModalOpen,
+    setWorkbookItems,
+    setWorkbookSettings,
+    setSelectedSavedReport,
+    setLoadedCurriculum,
+    navigateTo,
+    setIsSidebarExpanded
+  );
 
-  // --- NAVIGATION HELPERS (Resets state before switching view) ---
-  const handleOpenStudio = (viewName: View) => {
-    resetGeneratorContext();
-    if (viewName === 'screening') {
-      setIsAdvancedScreeningOpen(true);
-      // Modül açıldığında sidebar'ı kapat
-      setIsSidebarOpen(false);
-    } else {
-      navigateTo(viewName);
-    }
-  };
-
-  const handleGeneratePlanFromScreening = (
-    studentName: string,
-    age: number,
-    weaknesses: string[],
-    diagnosisContext?: string
-  ) => {
-    setScreeningPlanData({ name: studentName, age, weaknesses, diagnosisContext });
-    handleOpenStudio('curriculum');
-  };
-
-  useEffect(() => {
-    localStorage.setItem('user_history', JSON.stringify(historyItems));
-  }, [historyItems]);
-  const addToHistory = (activityType: ActivityType, data: WorksheetData) => {
-    if (!data) return;
-    const activity = ACTIVITIES.find((a) => a.id === activityType);
-    const category = ACTIVITY_CATEGORIES.find((c) => c.activities.includes(activityType));
-    if (!activity || !category) return;
-    const newItem: HistoryItem = {
-      id: Date.now().toString() + Math.random(),
-      userId: user?.id || 'guest',
-      studentId: activeStudent?.id,
-      studentName: activeStudent?.name,
-      activityType,
-      data,
-      timestamp: new Date().toISOString(),
-      title: activity.title,
-      category: { id: category.id, title: category.title },
-    };
-    setHistoryItems((prev: HistoryItem[]) => [newItem, ...prev].slice(0, 100));
-  };
-  const clearHistory = () => {
-    setHistoryItems([]);
-  };
-  const deleteHistoryItem = (id: string) => {
-    setHistoryItems((prev: HistoryItem[]) => prev.filter((i: HistoryItem) => i.id !== id));
-  };
-  const handleRestoreFromHistory = (item: HistoryItem) => {
-    loadSavedWorksheet({
-      id: item.id,
-      userId: item.userId,
-      name: item.title,
-      activityType: item.activityType,
-      worksheetData: item.data,
-      createdAt: item.timestamp,
-      icon: ACTIVITIES.find((a) => a.id === item.activityType)?.icon || 'fa-file',
-      category: item.category,
-    });
-    setOpenModal(null);
-  };
-  const handleSaveHistoryItem = (item: HistoryItem) => {
-    if (!user) {
-      setIsAuthModalOpen(true);
-      return;
-    }
-    addSavedWorksheet(`${item.title} (Geçmiş)`, item.activityType, item.data);
-  };
-  const addSavedWorksheet = async (
-    name: string,
-    activityType: ActivityType,
-    data: SingleWorksheetData[]
-  ) => {
-    if (!user) {
-      setIsAuthModalOpen(true);
-      return;
-    }
-    const activity = ACTIVITIES.find((a) => a.id === activityType);
-    const category = ACTIVITY_CATEGORIES.find((c) => c.activities.includes(activityType));
-    if (!activity || !category) return;
-    try {
-      const saved = await worksheetService.saveWorksheet(
-        user.id,
-        name,
-        activityType,
-        data,
-        activity.icon,
-        { id: category.id, title: category.title },
-        styleSettings,
-        studentProfile || (activeStudent ? {
-          name: activeStudent.name,
-          grade: activeStudent.grade,
-          date: new Date().toLocaleDateString('tr-TR'),
-          school: ''
-        } : undefined),
-        activeStudent?.id || studentProfile?.studentId,
-        activeStudent?.name || studentProfile?.name
-      );
-      toast.success(`Etkinlik "${name}" adıyla arşivinize kaydedildi.`);
-      return saved.id;
-    } catch (e: any) {
-      toast.error(`Kaydedilirken bir hata oluştu: ${(e as Error).message}.`);
-      return null;
-    }
-  };
-
-  const loadSavedWorksheet = (item: SavedWorksheet | Curriculum | SavedAssessment | any) => {
-    if (item.report || item.activityType === ActivityType.ASSESSMENT_REPORT) {
-      setSelectedSavedReport(item as SavedAssessment);
-      return;
-    }
-    if (item.schedule && item.durationDays) {
-      setLoadedCurriculum(item as Curriculum);
-      navigateTo('curriculum');
-      return;
-    }
-    if (item.activityType === ActivityType.WORKBOOK || item.workbookItems) {
-      if (item.workbookItems && item.workbookSettings) {
-        setWorkbookItems(item.workbookItems);
-        setWorkbookSettings(item.workbookSettings);
-        navigateTo('workbook');
-      }
-      return;
-    }
-    setSelectedActivity(item.activityType);
-    let wd = item.worksheetData;
-    if (typeof wd === 'string') { try { wd = JSON.parse(wd); } catch { wd = []; } }
-    if (wd && typeof wd === 'object' && !Array.isArray(wd)) { wd = [wd]; }
-    setWorksheetData(Array.isArray(wd) ? wd : null);
-    setActiveWorksheet(item.id, item.name);
-    if (item.styleSettings) setStyleSettings(item.styleSettings);
-    if (item.studentProfile) {
-      setStudentProfile(item.studentProfile);
-      if (item.studentId) {
-        const s = students.find((x: { id: string }) => x.id === item.studentId);
-        if (s) setActiveStudent(s);
-      }
-    } else {
-      setStudentProfile(null);
-      setActiveStudent(null);
-    }
-    navigateTo('generator');
-    setIsSidebarExpanded(true);
-  };
+  const { historyItems, addToHistory, clearHistory, deleteHistoryItem, handleRestoreFromHistory, handleSaveHistoryItem } = useHistoryManager(
+    addSavedWorksheet,
+    loadSavedWorksheet,
+    setOpenModal,
+    setIsAuthModalOpen
+  );
 
   const handleSelectActivity = (activityType: ActivityType | null) => {
     if (currentView !== 'generator') navigateTo('generator');
@@ -610,7 +467,7 @@ const AppContent = () => {
     activityType: string,
     studentName: string,
     title: string,
-    difficulty: 'Easy' | 'Medium' | 'Hard',
+    difficulty: Difficulty,
     goal: string,
     studentId?: string
   ) => {
@@ -711,11 +568,11 @@ const AppContent = () => {
 
     if (finalType && finalData) {
       let dataArray: any[] = [];
-      
+
       // ÇOK SAYFALI VERİ ALGILAMA, BÖLME VE AÇMA (ADVANCED FLATTENING)
       const listKeys = ['sorular', 'questions', 'items', 'activities'];
       const foundListKey = listKeys.find(key => finalData[key] && Array.isArray(finalData[key]));
-      
+
       if (Array.isArray(finalData)) {
         dataArray = finalData;
       } else if (finalData.pages && Array.isArray(finalData.pages)) {
@@ -753,13 +610,13 @@ const AppContent = () => {
       }));
 
       setWorkbookItems((prev: CollectionItem[]) => [...prev, ...newItems]);
-      
+
       const btn = document.getElementById('add-to-wb-btn');
       if (btn) {
         btn.classList.add('scale-125', 'bg-green-500', 'text-white');
         setTimeout(() => btn.classList.remove('scale-125', 'bg-green-500', 'text-white'), 300);
       }
-      
+
       toast.success(`${dataArray.length} sayfa kitapçığa başarıyla eklendi!`);
     }
   };
@@ -830,7 +687,7 @@ const AppContent = () => {
         const generator = (offlineGenerators as any)[generatorName];
         if (generator) {
           try {
-            const generatedData = await generator(defaultOptions);
+            const generatedData = await generator(defaultOptions as unknown as Record<string, unknown>);
             generatedData.forEach((sheet: any) => {
               newItems.push({
                 id: crypto.randomUUID(),
@@ -892,7 +749,7 @@ const AppContent = () => {
         {/* Abstract background shapes */}
         <div className="absolute w-[500px] h-[500px] rounded-full bg-indigo-500/10 blur-[120px] -top-40 -left-40 pointer-events-none" />
         <div className="absolute w-[400px] h-[400px] rounded-full bg-violet-500/10 blur-[100px] -bottom-20 -right-20 pointer-events-none" />
-        
+
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -972,7 +829,6 @@ const AppContent = () => {
             onOpenReadingStudio={() => handleOpenStudio('reading-studio')}
             onOpenMathStudio={() => handleOpenStudio('math-studio')}
             onOpenSuperTurkce={() => handleOpenStudio('super-turkce')}
-            onOpenInfographicStudio={() => handleOpenStudio('infographic-studio')}
             onOpenActivityStudio={() => handleOpenStudio('activity-studio')}
             onOpenScreening={() => handleOpenStudio('screening')}
             onOpenSinavStudyosu={() => handleOpenStudio('sinav-studyosu')}
@@ -1032,7 +888,6 @@ const AppContent = () => {
               'math-studio',
               'super-turkce',
               'activity-studio',
-              'infographic-studio',
               'ocr',
               'profile',
               'students',
@@ -1093,21 +948,8 @@ const AppContent = () => {
                         />
                       </ProtectedRoute>
                     )}
-                    {currentView === 'infographic-studio' && (
-                      <ProtectedRoute module="infographic-studio" onBack={handleGoBack}>
-                        <InfographicStudio
-                          onBack={() => {
-                            setLoadedInfographicData(null);
-                            handleGoBack();
-                          }}
-                          onSave={addSavedWorksheet}
-                          onAddToWorkbook={handleAddToWorkbookGeneral as any}
-                          initialData={loadedInfographicData}
-                        />
-                      </ProtectedRoute>
-                    )}
                     {currentView === 'ocr' && (
-                      <ProtectedRoute module="ocr" onBack={handleGoBack}>
+                      <ProtectedRoute module="activity-studio" onBack={handleGoBack}>
                         <OCRScanner onBack={handleGoBack} onResult={handleOCRResult} />
                       </ProtectedRoute>
                     )}
@@ -1116,7 +958,7 @@ const AppContent = () => {
                         data={profileData}
                         activeStudent={activeStudent}
                         onBack={handleGoBack}
-                        onSelectActivity={handleSelectActivity}
+                        onSelectActivity={handleSelectActivity as any}
                         onLoadSaved={loadSavedWorksheet}
                         theme={theme}
                         uiSettings={uiSettings}
@@ -1128,9 +970,9 @@ const AppContent = () => {
                     )}
                     {currentView === 'students' && (
                       <ProtectedRoute module="students" onBack={handleGoBack}>
-                        <StudentDashboard 
-                          onBack={handleGoBack} 
-                          onLoadMaterial={loadSavedWorksheet} 
+                        <StudentDashboard
+                          onBack={handleGoBack}
+                          onLoadMaterial={loadSavedWorksheet}
                           onStartCurriculumActivity={handleStartCurriculumActivity}
                         />
                       </ProtectedRoute>

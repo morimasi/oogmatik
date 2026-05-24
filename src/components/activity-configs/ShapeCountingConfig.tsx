@@ -2,7 +2,7 @@
 import React from 'react';
 import { GeneratorOptions } from '../../types';
 
-export const ShapeCountingConfig: React.FC<{ options: GeneratorOptions; onChange: (k: any, v: any) => void }> = ({ options, onChange }) => {
+export const ShapeCountingConfig: React.FC<{ options: GeneratorOptions; onChange: (k: keyof GeneratorOptions, v: unknown) => void }> = ({ options, onChange }) => {
     const shapes = [
         { v: 'triangle', l: 'Üçgen', i: 'fa-play fa-rotate-270' },
         { v: 'circle', l: 'Daire', i: 'fa-circle' },

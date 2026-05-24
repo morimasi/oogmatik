@@ -2,7 +2,7 @@
 import React from 'react';
 import { GeneratorOptions } from '../../types';
 
-export const ClockReadingConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: string, v: any) => void }) => {
+export const ClockReadingConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: string, v: unknown) => void }) => {
     return (
         <div className="space-y-5 animate-in fade-in duration-300">
             <div className="p-4 bg-amber-50/50 dark:bg-amber-900/10 rounded-[2rem] border border-amber-100 dark:border-amber-800/30">
@@ -36,7 +36,7 @@ export const ClockReadingConfig = ({ options, onChange }: { options: GeneratorOp
                         <button
                             key={t.v}
                             onClick={() => onChange('precision', t.v)}
-                            className={`w-full py-2 rounded-xl text-[10px] font-black border transition-all ${((options as any).precision || '15-min') === t.v ? 'bg-indigo-500 text-white border-indigo-500 shadow-sm' : 'bg-white dark:bg-zinc-800 text-zinc-500 border-zinc-200 dark:border-zinc-700'}`}
+                            className={`w-full py-2 rounded-xl text-[10px] font-black border transition-all ${((options as Record<string, unknown>).precision || '15-min') === t.v ? 'bg-indigo-500 text-white border-indigo-500 shadow-sm' : 'bg-white dark:bg-zinc-800 text-zinc-500 border-zinc-200 dark:border-zinc-700'}`}
                         >
                             {t.l}
                         </button>
@@ -68,8 +68,8 @@ export const ClockReadingConfig = ({ options, onChange }: { options: GeneratorOp
                 ].map(item => (
                     <div key={item.k} className="flex items-center justify-between">
                         <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-300">{item.l}</span>
-                        <div className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${((options as any)[item.k] !== false) ? 'bg-indigo-600' : 'bg-zinc-300'}`} onClick={() => onChange(item.k, (options as any)[item.k] === false)}>
-                            <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${((options as any)[item.k] !== false) ? 'left-4.5' : 'left-0.5'}`}></div>
+                        <div className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${((options as Record<string, unknown>)[item.k] !== false) ? 'bg-indigo-600' : 'bg-zinc-300'}`} onClick={() => onChange(item.k, (options as Record<string, unknown>)[item.k] === false)}>
+                            <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${((options as Record<string, unknown>)[item.k] !== false) ? 'left-4.5' : 'left-0.5'}`}></div>
                         </div>
                     </div>
                 ))}

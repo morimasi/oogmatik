@@ -4,7 +4,7 @@ import { CompactToggleGroup } from './SharedConfigComponents';
 
 interface ConfigProps {
     options: GeneratorOptions;
-    onChange: (key: keyof GeneratorOptions, value: any) => void;
+    onChange: (key: keyof GeneratorOptions, value: unknown) => void;
 }
 
 /**

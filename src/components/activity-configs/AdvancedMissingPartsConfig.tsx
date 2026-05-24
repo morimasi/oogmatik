@@ -28,7 +28,7 @@ import {
 
 interface ConfigProps {
   options: GeneratorOptions;
-  onChange: (key: keyof GeneratorOptions, value: any) => void;
+  onChange: (key: keyof GeneratorOptions, value: unknown) => void;
 }
 
 /**
@@ -431,7 +431,7 @@ export const AdvancedMissingPartsConfig: React.FC<ConfigProps> = ({ options, onC
           return (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id as string)}
               className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                 activeTab === tab.id
                   ? 'bg-white text-blue-600 shadow-sm'

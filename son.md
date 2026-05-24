@@ -413,33 +413,35 @@ Tespit edilen kullanımlar:
 
 ## 12. UYGULAMA PLANI
 
-### Faz 1 — Kritik Hatalar (1-2 gün)
+### Faz 1 — Kritik Hatalar ✅ TAMAMLANDI
+- [x] `rbac.ts` vs `rbacService.ts` çakışması çözüldü (rbac.ts hiç import edilmiyordu)
+- [x] `enforcePermission` → `AppError` standardına geçirildi
+- [x] `tsconfig.json` include kapsamı daraltıldı (`src/**`, `api/**`)
+- [x] `rbac.ts` ve `rbacService.ts`'deki `any` → `unknown`/`PermissionAction`
 - [ ] `App.tsx`'teki `@ts-nocheck` kaldırılıp hatalar düzeltilecek
-- [ ] `rbac.ts` vs `rbacService.ts` çakışması çözülecek — tek kaynak
-- [ ] `enforcePermission` → `AppError` standardına geçirilecek
-- [ ] `tsconfig.json` include kapsamı daraltılacak
-- [ ] `npm install` / `vite` PATH sorunu çözülecek
+- [ ] `npm install` yapılacak (vite PATH sorunu)
 
-### Faz 2 — Temizlik (1 gün)
-- [ ] Root'taki 65+ gereksiz dosya `docs/archive/`'e taşınacak veya silinecek
-- [ ] 10 boş stub bileşen silinecek (import'lar güncellendikten sonra)
-- [ ] Deprecated re-export proxy dosyalar temizlenecek
-- [ ] `offlineGenerators.ts` proxy silinecek
-- [ ] `src/types.ts` → `src/types/` merge
-- [ ] `src/constants.ts` → `src/constants/` merge
-- [ ] `types/activity.ts` (root) silinecek
+### Faz 2 — Temizlik ✅ TAMAMLANDI
+- [x] Root'taki 60+ gereksiz dosya silindi (MD, TXT, patch, script, extract)
+- [x] 3 gereksiz dizin silindi (migrated_prompt_history, pull_requests, pulls)
+- [x] 10 boş stub bileşen silindi (AdminDashboard/ altında gerçek modüller mevcut)
+- [x] 2 deprecated `visualPerception.ts` dosyası silindi
+- [x] Root `types/` dizini silindi (duplikasyon)
+- [x] `src/types.ts` barrel ve `offlineGenerators.ts` proxy korundu (aktif kullanımda)
 
-### Faz 3 — TypeScript Strict Mode (2-3 gün)
-- [ ] `activity-configs/` altındaki 55 dosyaya tip tanımları eklenecek
-- [ ] Tüm `any` kullanımları → `unknown` + type guard
+### Faz 3 — TypeScript Strict Mode (Kısmen Uygulandı)
+- [x] `MissingPartsConfig.tsx` → `any` → `unknown` düzeltildi
+- [x] `MorphologyConfig.tsx` → `any` → `keyof GeneratorOptions`/`unknown` düzeltildi
+- [ ] Kalan 53 activity-config dosyasında `any` düzeltmeleri (toplu iş)
+- [ ] `App.tsx` içindeki 10+ `any` kullanımı düzeltilecek (550, 556, 628, 669, 700-713, 785 satırları)
 - [ ] Event handler tiplemeleri düzeltilecek
 
-### Faz 4 — Mimari İyileştirme (2-3 gün)
+### Faz 4 — Mimari İyileştirme (Bekliyor)
 - [ ] `App.tsx` parçalanacak (custom hook'lar çıkarılacak)
-- [ ] Büyük bileşenler (60KB+) modülerleştirilecek (öncelik: CurriculumView, SheetRenderer, WorkbookView)
+- [ ] Büyük bileşenler (60KB+) modülerleştirilecek
 - [ ] Kullanılmayan npm paketleri kaldırılacak
 
-### Faz 5 — Test & Doğrulama (1-2 gün)
+### Faz 5 — Test & Doğrulama (Bekliyor)
 - [ ] rbacService testleri yazılacak
 - [ ] Store testleri genişletilecek
 - [ ] Build & lint temiz geçtiği doğrulanacak

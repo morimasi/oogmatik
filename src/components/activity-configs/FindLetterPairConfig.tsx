@@ -5,7 +5,7 @@ import { CompactToggleGroup, CompactCounter, CompactSlider } from './SharedConfi
 
 interface ConfigProps {
     options: GeneratorOptions;
-    onChange: (key: keyof GeneratorOptions, value: any) => void;
+    onChange: (key: keyof GeneratorOptions, value: unknown) => void;
 }
 
 export const FindLetterPairConfig: React.FC<ConfigProps> = ({ options, onChange }) => {
