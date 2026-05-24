@@ -15,6 +15,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
   const [videoError, setVideoError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const blobUrlRef = useRef<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   const revokeBlobUrl = useCallback(() => {
     if (blobUrlRef.current) {
@@ -25,6 +26,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
 
   // Reset video state when output changes
   useEffect(() => {
+    abortRef.current?.abort();
     revokeBlobUrl();
     setVideoUrl(null);
     setVideoState('idle');
@@ -33,10 +35,18 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
   }, [output.id, revokeBlobUrl]);
 
   // Cleanup blob URL on unmount
-  useEffect(() => revokeBlobUrl, [revokeBlobUrl]);
+  useEffect(() => { abortRef.current?.abort(); revokeBlobUrl(); }, [revokeBlobUrl]);
+
+  const handleCancelVideo = useCallback(() => {
+    abortRef.current?.abort();
+    setVideoState('idle');
+    setVideoProgress(0);
+  }, []);
 
   const handleGenerateVideo = useCallback(async () => {
     if (output.scenes.length === 0) return;
+    abortRef.current?.abort();
+    abortRef.current = new AbortController();
     setVideoState('generating');
     setVideoProgress(0);
     setVideoError(null);
@@ -46,6 +56,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
         : output;
       const { webm } = await generateVideo(patchedOutput, {
         format: videoFormat,
+        signal: abortRef.current.signal,
         onProgress: setVideoProgress,
       });
       revokeBlobUrl();
@@ -54,6 +65,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
       setVideoUrl(url);
       setVideoState('done');
     } catch (err: unknown) {
+      if (err instanceof DOMException && err.name === 'AbortError') return;
       const msg = err instanceof Error ? err.message : 'Video olusturulamadi';
       setVideoError(msg);
       setVideoState('error');
@@ -97,11 +109,20 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
           {videoState === 'generating' ? `${videoProgress}%` : 'Video Oluştur'}
         </button>
       </div>
-      {videoState === 'generating' && (
-        <div className="w-full h-1 rounded-full bg-white/5 overflow-hidden">
-          <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300" style={{ width: `${videoProgress}%` }} />
-        </div>
-      )}
+        {videoState === 'generating' && (
+          <div className="space-y-2">
+            <div className="w-full h-1 rounded-full bg-white/5 overflow-hidden">
+              <div className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300" style={{ width: `${videoProgress}%` }} />
+            </div>
+            <button
+              onClick={handleCancelVideo}
+              className="w-full flex items-center justify-center gap-1.5 py-1 rounded-lg bg-red-500/10 text-red-400 text-[9px] font-bold border border-red-500/20 hover:bg-red-500/20 transition-all"
+            >
+              <i className="fa-solid fa-ban" />
+              İptal
+            </button>
+          </div>
+        )}
       {videoState === 'done' && videoUrl && (
         <div className="space-y-2">
           <video ref={videoRef} src={videoUrl} controls className="w-full rounded-lg" />

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import {
   AdStudioSettings,
   AdOutput,
@@ -16,6 +16,9 @@ export function useAdGenerator() {
   const [output, setOutput] = useState<AdOutput | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const mountedRef = useRef(true);
+
+  useEffect(() => { mountedRef.current = true; return () => { mountedRef.current = false; }; }, []);
 
   const { activeBrandKit } = useBrandKit();
   const { addToHistory } = useAdHistory();
@@ -34,13 +37,15 @@ export function useAdGenerator() {
     setError(null);
     try {
       const result = await generateAdService(settings, activeBrandKit);
+      if (!mountedRef.current) return;
       setOutput(result);
       addToHistory(result);
     } catch (err: unknown) {
+      if (!mountedRef.current) return;
       const msg = err instanceof Error ? err.message : 'Reklam uretilemedi';
       setError(msg);
     } finally {
-      setIsGenerating(false);
+      if (mountedRef.current) setIsGenerating(false);
     }
   }, [settings, activeBrandKit, addToHistory]);
 

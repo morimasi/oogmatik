@@ -340,9 +340,27 @@ export async function generateVideo(
   const chunks: BlobPart[] = [];
   recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
 
+  const sceneFrameMap: { start: number; sceneIdx: number }[] = [];
+  {
+    let acc = 0;
+    for (let i = 0; i < output.scenes.length; i++) {
+      const sceneFrames = output.scenes[i].duration * fps;
+      sceneFrameMap.push({ start: acc, sceneIdx: i });
+      acc += sceneFrames;
+    }
+  }
+
+  function getFrame(frameIndex: number) {
+    for (let i = sceneFrameMap.length - 1; i >= 0; i--) {
+      if (frameIndex >= sceneFrameMap[i].start) return sceneFrameMap[i];
+    }
+    return sceneFrameMap[0];
+  }
+
   return new Promise((resolve, reject) => {
-    let currentFrame = 0;
     const startTime = performance.now();
+    let lastRendered = -1;
+    let lastProgressPct = -1;
 
     const timeoutMs = Math.max(30000, durationMs * 2);
     const timeoutId = setTimeout(() => {
@@ -362,48 +380,48 @@ export async function generateVideo(
       reject(new Error('Video kaydi basarisiz'));
     };
 
-    function render() {
+    function render(now: number) {
       if (options.signal?.aborted) {
         recorder.stop();
         reject(new Error('Video olusturma iptal edildi'));
         return;
       }
-      if (currentFrame >= totalFrames) {
+
+      const elapsed = now - startTime;
+      const frameFloat = (elapsed / 1000) * fps;
+      const expectedFrame = Math.floor(frameFloat);
+
+      if (expectedFrame >= totalFrames) {
+        options.onProgress?.(100);
         recorder.stop();
         return;
       }
 
-      let frameAccum = 0;
-      let sceneIdx = 0;
-      let localFrame = 0;
-      for (let i = 0; i < output.scenes.length; i++) {
-        const sceneFrames = output.scenes[i].duration * fps;
-        if (currentFrame < frameAccum + sceneFrames) {
-          sceneIdx = i;
-          localFrame = currentFrame - frameAccum;
-          break;
+      if (expectedFrame !== lastRendered) {
+        lastRendered = expectedFrame;
+
+        const { sceneIdx } = getFrame(expectedFrame);
+        const scene = output.scenes[sceneIdx];
+        const img = sceneImages[sceneIdx];
+        const prevImg = sceneIdx > 0 ? sceneImages[sceneIdx - 1] : null;
+        const sceneStart = sceneFrameMap[sceneIdx].start;
+        const localFrame = expectedFrame - sceneStart;
+        const totalSceneFrames = scene.duration * fps;
+        const t = totalSceneFrames > 0 ? localFrame / totalSceneFrames : 0;
+        const progress = expectedFrame / totalFrames;
+
+        renderFrame(ctx, width, height, scene, img, prevImg, t, sceneIdx, progress);
+
+        const pct = Math.round((expectedFrame + 1) / totalFrames * 100);
+        if (pct !== lastProgressPct) {
+          lastProgressPct = pct;
+          options.onProgress?.(pct);
         }
-        frameAccum += sceneFrames;
       }
 
-      const scene = output.scenes[sceneIdx];
-      const img = sceneImages[sceneIdx];
-      const prevImg = sceneIdx > 0 ? sceneImages[sceneIdx - 1] : null;
-      const totalSceneFrames = scene.duration * fps;
-      const t = totalSceneFrames > 0 ? localFrame / totalSceneFrames : 0;
-      const progress = currentFrame / totalFrames;
-
-      renderFrame(ctx, width, height, scene, img, prevImg, t, sceneIdx, progress);
-      currentFrame++;
-
-      const pct = Math.min(99, Math.round((currentFrame / totalFrames) * 100));
-      if (currentFrame % fps === 0) options.onProgress?.(pct);
-
-      const elapsed = performance.now() - startTime;
-      const expected = (currentFrame / fps) * 1000;
-      setTimeout(render, Math.max(0, expected - elapsed));
+      requestAnimationFrame(render);
     }
 
-    render();
+    requestAnimationFrame(render);
   });
 }
