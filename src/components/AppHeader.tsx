@@ -174,7 +174,6 @@ export const AppHeader = ({
     const routerNavigate = useNavigate();
 
     const navigateTo = (view: View) => {
-        if (currentView === view) return;
         addHistoryView(currentView);
         // URL-tabanlı navigasyon (react-router-dom)
         if (view === 'generator') routerNavigate('/');

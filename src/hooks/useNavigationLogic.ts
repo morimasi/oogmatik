@@ -18,8 +18,6 @@ export const useNavigationLogic = (
     const { setIsSidebarOpen } = useUIStore();
 
     const navigateTo = (view: View) => {
-        if (currentView === view) return;
-        
         // Map common views to routes
         if (view === 'generator') navigate('/');
         else navigate(`/${view}`);
