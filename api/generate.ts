@@ -148,7 +148,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       async () => {
         let selectedModel = model || MASTER_MODEL;
         // Eski onbelleklenmis verilerden gelebilecek kullanim disi modelleri engelle
-        if (selectedModel.includes('gemini-2.0') || selectedModel.includes('gemini-1.5') || selectedModel.includes('gemini-3')) {
+        // Sadece MASTER_MODEL'e izin ver — diger tum modeller override edilir
+        if (selectedModel !== MASTER_MODEL) {
           selectedModel = MASTER_MODEL;
         }
         // Denenecek güncel API anahtarını al
