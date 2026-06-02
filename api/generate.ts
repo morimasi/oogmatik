@@ -222,10 +222,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               currentKeyIndex++;
               throw new InternalServerError(`[ROTATION] Rate limit yendi, sıradaki API Key'e geçiliyor.`);
             }
-            throw new RateLimitError(
-              `Gemini API Kotası Dolu: ${errorMsg}. Lütfen birkaç saniye sonra yeniden deneyin.`,
-              { retryAfter: 60 }
-            );
+            // Tüm anahtarlar tükendi — Google'ın önerdiği süre kadar bekleyip tekrar dene
+            const retryMatch = errorMsg.match(/retry in ([\d.]+)s/i);
+            const waitSeconds = retryMatch ? Math.ceil(parseFloat(retryMatch[1])) + 3 : 25;
+            await new Promise(resolve => setTimeout(resolve, waitSeconds * 1000));
+            // Anahtarları sıfırla ve tekrar dene (retryWithBackoff motoru devralacak)
+            currentKeyIndex = 0;
+            throw new InternalServerError(`[WAIT-RETRY] ${waitSeconds}s beklendi, tüm anahtarlar sıfırlandı, tekrar deneniyor.`);
           }
 
           throw new InternalServerError(
@@ -242,7 +245,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         return { text };
       },
-      { maxRetries: 2 }
+      { maxRetries: 4 }
     );
 
     // 6. Success — JSON Repair Engine ile parse et
