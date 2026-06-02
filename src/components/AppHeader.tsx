@@ -10,6 +10,8 @@ import { ActivityType, View } from '../types';
 import { useMessageStore } from '../store/useMessageStore';
 import { useStudentStore } from '../store/useStudentStore';
 
+import { useNavigate } from 'react-router-dom';
+
 interface AppHeaderProps {
     workbookItemsCount: number;
     onOpenModal: (modal: 'settings' | 'history' | 'about' | 'developer') => void;
@@ -169,11 +171,14 @@ export const AppHeader = ({
     const { setIsSidebarOpen, zenMode, setIsTourActive } = useUIStore();
     const { currentView, setCurrentView, addHistoryView, setSelectedActivity, setWorksheetData, setActiveCurriculumSession, activeCurriculumSession } = useWorksheetStore();
     const { activeStudent } = useStudentStore();
+    const routerNavigate = useNavigate();
 
     const navigateTo = (view: View) => {
         if (currentView === view) return;
         addHistoryView(currentView);
-        setCurrentView(view);
+        // URL-tabanlı navigasyon (react-router-dom)
+        if (view === 'generator') routerNavigate('/');
+        else routerNavigate(`/${view}`);
     };
 
     return (

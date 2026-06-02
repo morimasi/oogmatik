@@ -852,7 +852,8 @@ const AppContent = () => {
           <AnimatePresence mode="wait">
             <Routes location={location} key={location.pathname.split('/')[0] || '/'}>
               {/* Main Content Area (Generator, History, Archive etc) */}
-              <Route path="/" element={
+              {["/", "/workbook", "/savedList", "/favorites", "/shared", "/assessment"].map((routePath) => (
+              <Route key={routePath} path={routePath} element={
                  <Suspense fallback={<LoadingSpinner />}>
                     <ContentArea
                       currentView={currentView}
@@ -891,6 +892,7 @@ const AppContent = () => {
                     />
                  </Suspense>
               } />
+              ))}
 
               {/* Studios & Special Modules */}
               <Route path="/curriculum" element={
