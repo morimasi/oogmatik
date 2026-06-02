@@ -1,5 +1,5 @@
 import { NumberCapsuleData, GeneratorOptions } from '../../../types';
-
+import { NumberCapsuleDataSchema } from '../../../utils/schemas';
 export const generateOfflineCapsuleGame = async (options: GeneratorOptions): Promise<NumberCapsuleData[]> => {
     const { difficulty, worksheetCount } = options;
     let size = 3;
@@ -94,11 +94,13 @@ export const generateOfflineCapsuleGame = async (options: GeneratorOptions): Pro
             });
         }
 
-        activities.push({
+        const activity = {
             title: `Kapsül Oyunu (${size}x${size})`,
             instruction: `Aşağıdaki ${useOdds ? 'TEK' : 'ÇİFT'} sayıları birer kez kullanarak, sütun/satır ardındaki hedeflere ve kapsül içlerindeki toplamlara ulaşın. (Örn: ${useOdds ? '1,3,5,7,9' : '2,4,6,8,10'})`,
             puzzles: pagePuzzles
-        });
+        };
+        
+        activities.push(NumberCapsuleDataSchema.parse(activity) as NumberCapsuleData);
     }
 
     return activities;

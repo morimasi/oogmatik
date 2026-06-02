@@ -1,4 +1,5 @@
 import { AbcConnectData, GeneratorOptions } from '../../../types';
+import { AbcConnectDataSchema } from '../../../utils/schemas';
 
 /**
  * ABC Bağlama Ultra-Profesyonel Yerel Üretici
@@ -56,13 +57,15 @@ export const generateOfflineAbcConnect = async (options: GeneratorOptions): Prom
             });
         }
 
-        activities.push({
+        const activity = {
             title: `ABC Bağlama (${dim}x${dim})`,
             instruction: 'Sayıları karşılık gelen değerleriyle, çizgiler birbirini kesmeden birleştir.',
             gridDim: dim,
-            variant: (optVariant as unknown as any) || 'roman',
+            variant: (optVariant as string) || 'roman',
             paths
-        });
+        };
+        
+        activities.push(AbcConnectDataSchema.parse(activity) as AbcConnectData);
     }
 
     return activities;

@@ -119,10 +119,17 @@ export const worksheetService = {
         studentName?: string
     ): Promise<SavedWorksheet> => {
         try {
-            const enrichedData = data.map(item => ({
-                ...item,
-                pedagogicalNote: item.pedagogicalNote || 'Bu etkinlik, öğrencinin bilişsel hedeflerine BEP ve ZPD (Yakınsal Gelişim Alanı) pedagojik standartlarına uygun şekilde destek sağlamak amacıyla oluşturulmuştur.'
-            }));
+            const enrichedData = data.map(item => {
+                let note = item.pedagogicalNote;
+                if (!note) {
+                    if (activityType === ActivityType.FUTOSHIKI || activityType === ActivityType.CAPSULE_GAME || activityType === ActivityType.ABC_CONNECT) {
+                        note = 'Bu aktivite, çocuğun görsel dikkatini, sıralı mantıksal düşünme becerisini ve mekansal algısını ZPD standartlarında desteklemek için Oogmatik tarafından otonom olarak üretilmiştir.';
+                    } else {
+                        note = 'Bu etkinlik, öğrencinin bilişsel hedeflerine BEP ve ZPD (Yakınsal Gelişim Alanı) pedagojik standartlarına uygun şekilde destek sağlamak amacıyla oluşturulmuştur.';
+                    }
+                }
+                return { ...item, pedagogicalNote: note };
+            });
 
             let safeProfile = studentProfile ? { ...studentProfile } : undefined;
             if (safeProfile) {
@@ -130,11 +137,13 @@ export const worksheetService = {
                 if ((safeProfile as any).tcNo) (safeProfile as any).tcNo = '[MASKELENDİ]';
                 if ((safeProfile as any).scores) (safeProfile as any).scores = ['[GİZLİ]'];
             }
+            
+            const maskedStudentName = studentName ? dlpService.maskStudentName(studentName) : null;
 
             const payload: any = {
                 userId,
                 studentId: studentId || null,
-                studentName: studentName || null,
+                studentName: maskedStudentName,
                 name: name || 'Adsız Etkinlik',
                 activityType,
                 worksheetData: serializeData(enrichedData),
