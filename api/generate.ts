@@ -24,7 +24,7 @@ import { tryRepairJson } from '../src/utils/jsonRepair.js';
 
 // Types are imported from @vercel/node above
 
-const MASTER_MODEL = 'gemini-1.5-flash-002';
+const MASTER_MODEL = 'gemini-2.5-flash';
 
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi EduMind platformunun kıdemli eğitim mimarı ve pedagoji uzmanısın. [MINIMAL_DEPLOY: 2024_03_18_v4]
