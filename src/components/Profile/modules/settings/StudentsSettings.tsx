@@ -7,7 +7,7 @@ import { SimplifiedStudentForm } from '../../../Student/SimplifiedStudentForm';
 import { BaseSettingsProps } from '../../types';
 
 export const StudentsSettings: React.FC<BaseSettingsProps> = ({ data }) => {
-  const { students, isLoading, fetchStudents, addStudent, updateStudent, deleteStudent } = useStudentStore();
+  const { students, isLoading, addStudent, updateStudent, deleteStudent } = useStudentStore();
   const { user } = useAuthStore();
   const { success, error } = useToastStore();
   const [searchQuery, setSearchQuery] = useState('');
@@ -15,13 +15,7 @@ export const StudentsSettings: React.FC<BaseSettingsProps> = ({ data }) => {
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user?.id) {
-      const isAdmin = user.role === 'superadmin' || user.role === 'admin';
-      const unsubscribe = fetchStudents(user.id, isAdmin);
-      return () => unsubscribe();
-    }
-  }, [user?.id, fetchStudents, user?.role]);
+
 
   const filteredStudents = students.filter((student: Student) =>
     student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -86,7 +80,7 @@ export const StudentsSettings: React.FC<BaseSettingsProps> = ({ data }) => {
           type="text"
           placeholder="Öğrenci ara (isim, sınıf, tanı)..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
           className="w-full pl-12 pr-4 py-3 rounded-2xl border-2 outline-none transition-colors"
           style={{ backgroundColor: 'var(--surface-elevated)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
         />

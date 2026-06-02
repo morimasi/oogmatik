@@ -9,6 +9,7 @@ import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings, Stude
 import { ACTIVITY_CATEGORIES } from '../constants.js';
 import { AppError, NotFoundError, AuthorizationError, DatabaseError, InternalServerError, toAppError } from '../utils/AppError.js';
 import { logError as reportError, retryWithBackoff, withTimeout } from '../utils/errorHandler.js';
+import { dlpService } from './privacyService.js';
 
 import { logInfo, logError, logWarn } from '../utils/logger.js';
 // @ts-ignore - Vercel TS build might not resolve firebase types correctly with node resolution
@@ -118,20 +119,32 @@ export const worksheetService = {
         studentName?: string
     ): Promise<SavedWorksheet> => {
         try {
+            const enrichedData = data.map(item => ({
+                ...item,
+                pedagogicalNote: item.pedagogicalNote || 'Bu etkinlik, öğrencinin bilişsel hedeflerine BEP ve ZPD (Yakınsal Gelişim Alanı) pedagojik standartlarına uygun şekilde destek sağlamak amacıyla oluşturulmuştur.'
+            }));
+
+            let safeProfile = studentProfile ? { ...studentProfile } : undefined;
+            if (safeProfile) {
+                if ((safeProfile as any).diagnosis) (safeProfile as any).diagnosis = '[KVKK Kapsamında Gizlenmiştir]';
+                if ((safeProfile as any).tcNo) (safeProfile as any).tcNo = '[MASKELENDİ]';
+                if ((safeProfile as any).scores) (safeProfile as any).scores = ['[GİZLİ]'];
+            }
+
             const payload: any = {
                 userId,
                 studentId: studentId || null,
                 studentName: studentName || null,
                 name: name || 'Adsız Etkinlik',
                 activityType,
-                worksheetData: serializeData(data),
+                worksheetData: serializeData(enrichedData),
                 icon: icon || 'fa-solid fa-file',
                 category: category || { id: 'uncategorized', title: 'Kategorisiz' },
                 createdAt: new Date().toISOString(),
             };
 
             if (styleSettings) payload.styleSettings = styleSettings;
-            if (studentProfile) payload.studentProfile = studentProfile;
+            if (safeProfile) payload.studentProfile = safeProfile;
 
             const docRef = await addDoc(collection(db, "saved_worksheets"), payload);
             const userRef = doc(db, "users", userId);
@@ -462,6 +475,15 @@ export const worksheetService = {
         studentName?: string
     ): Promise<SavedWorksheet> => {
         try {
+            const enrichedItems = items.map(item => {
+                if (item.data) {
+                    const dataObj = typeof item.data === 'string' ? JSON.parse(item.data) : item.data;
+                    dataObj.pedagogicalNote = dataObj.pedagogicalNote || 'Bu etkinlik, öğrencinin bilişsel hedeflerine BEP ve ZPD (Yakınsal Gelişim Alanı) pedagojik standartlarına uygun şekilde destek sağlamak amacıyla oluşturulmuştur.';
+                    return { ...item, data: dataObj };
+                }
+                return item;
+            });
+
             const payload: any = {
                 userId,
                 studentId: studentId || null,
@@ -473,7 +495,7 @@ export const worksheetService = {
                 category: { id: 'workbook', title: 'Çalışma Kitapçığı' },
                 createdAt: new Date().toISOString(),
                 workbookSettings: settings,
-                workbookItems: serializeData(items)
+                workbookItems: serializeData(enrichedItems)
             };
             const docRef = await addDoc(collection(db, "saved_worksheets"), payload);
             return mapDbToWorksheet(payload, docRef.id);

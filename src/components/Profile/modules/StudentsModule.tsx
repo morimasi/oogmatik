@@ -29,7 +29,7 @@ export const StudentsModule: React.FC<StudentsModuleProps> = ({
 }) => {
   const { stats, loading } = data;
   const [viewMode, setViewMode] = useState<StudentView>('grid');
-  const { students, isLoading: studentsLoading, fetchStudents, addStudent, updateStudent, deleteStudent, setActiveStudent: setActiveStudentInStore } = useStudentStore();
+  const { students, isLoading: studentsLoading, addStudent, updateStudent, deleteStudent, setActiveStudent: setActiveStudentInStore } = useStudentStore();
   const { user } = useAuthStore();
   const { success, error } = useToastStore();
   
@@ -39,13 +39,7 @@ export const StudentsModule: React.FC<StudentsModuleProps> = ({
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (user?.id) {
-      const isAdmin = user.role === 'superadmin' || user.role === 'admin';
-      const unsubscribe = fetchStudents(user.id, isAdmin);
-      return () => unsubscribe();
-    }
-  }, [user?.id, fetchStudents, user?.role]);
+
 
   const filteredStudents = students.filter((student: Student) =>
     student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -160,7 +154,7 @@ export const StudentsModule: React.FC<StudentsModuleProps> = ({
             type="text"
             placeholder="Öğrenci ara (isim, sınıf, tanı)..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
             className="w-full pl-12 pr-4 py-3 rounded-2xl border-2 outline-none transition-colors"
             style={{ backgroundColor: 'var(--surface-elevated)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
           />
@@ -217,7 +211,7 @@ export const StudentsModule: React.FC<StudentsModuleProps> = ({
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center gap-2" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
                   <button
                     onClick={() => {
                       setEditingStudent(student);

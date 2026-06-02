@@ -1,4 +1,5 @@
-import { ActivityType, SavedWorksheet, User, AppTheme, UiSettings } from '../types';
+import { ActivityType, SavedWorksheet, User, AppTheme, UiSettings, SavedAssessment, Curriculum } from '../types';
+import { PerformanceMetrics } from './student-advanced';
 
 export interface ProfileViewProps {
   onBack: () => void;
@@ -15,9 +16,9 @@ export interface ProfileViewProps {
 export interface ProfileData {
   user: User | null;
   isReadOnly: boolean;
-  assessments: any[]; // TODO: Type properly
+  assessments: SavedAssessment[];
   worksheets: SavedWorksheet[];
-  curriculums: any[]; // TODO: Type properly
+  curriculums: Curriculum[];
   loading: boolean;
   stats: {
     totalStudents: number;
@@ -29,6 +30,6 @@ export interface ProfileData {
     weeklyProduction: number;
     streak: number;
   };
-  performanceTrends: any[] | null; // TODO: Type properly
+  performanceTrends: PerformanceMetrics[] | null;
   refreshData: () => Promise<void>;
 }

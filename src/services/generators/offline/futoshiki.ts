@@ -48,11 +48,11 @@ export const generateOfflineFutoshiki = async (options: GeneratorOptions): Promi
         return false;
     };
 
-    for (let c = 0; c < worksheetCount; c++) {
+    for (let c = 0; c < (worksheetCount || 1); c++) {
         const board: (number | null)[][] = Array(size).fill(null).map(() => Array(size).fill(null));
         solveLatinSquare(board, size);
 
-        const constraints: any[] = [];
+        const constraints: { r1: number; c1: number; r2: number; c2: number; type: 'greater' | 'less' }[] = [];
         let activityDensity = 0.5;
         if (density === 'low') activityDensity = 0.3;
         else if (density === 'high') activityDensity = 0.8;

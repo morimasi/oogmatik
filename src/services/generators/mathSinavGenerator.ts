@@ -22,6 +22,7 @@ import {
   validateQuestionVisualConsistency,
   generateExamValidationReport,
 } from '../mathVisualValidator';
+import { safeFetch } from '../../utils/apiClient';
 
 // ─── Kazanım → Görsel Haritalama ─────────────────────────────
 /**
@@ -529,27 +530,11 @@ const callGeminiDirect = async (prompt: string, schema: object): Promise<unknown
     },
   };
 
-  const response = await fetch(url, {
+  const data = await safeFetch<any>(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
 
-  if (!response.ok) {
-    const errData = await response.json().catch(() => ({}));
-    const msg = (errData as unknown as Record<string, unknown>)?.error
-      ? String((errData as unknown as Record<string, Record<string, string>>).error.message)
-      : response.statusText;
-    throw new AppError(
-      `Gemini API hatası: ${msg}`,
-      'GEMINI_API_ERROR',
-      502,
-      { status: response.status },
-      true
-    );
-  }
-
-  const data = await response.json();
   const text = (data as unknown as Record<string, unknown[]>)?.candidates?.[0] as
     | Record<string, unknown>
     | undefined;

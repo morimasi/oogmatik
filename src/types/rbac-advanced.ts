@@ -54,7 +54,9 @@ export type PermissionModule =
   | 'platform-market'
   | 'premium-support'
   | 'about-us'
-  | 'developer-tools';
+  | 'developer-tools'
+  | 'ad-studio'
+  | 'ocr';
 
 export const MODULE_LABELS: Record<PermissionModule, string> = {
   'activity-studio': 'Etkinlik Havuzu',
@@ -83,7 +85,14 @@ export const MODULE_LABELS: Record<PermissionModule, string> = {
   'platform-market': 'Platform Pazarı',
   'premium-support': 'Premium Yardım',
   'about-us': 'Hakkımızda',
-  'developer-tools': 'Geliştirici / API'
+  'developer-tools': 'Geliştirici / API',
+  'ad-studio': 'Reklam Stüdyosu',
+  'ocr': 'Akıllı Tarayıcı (OCR)',
+  'analytics': 'Analiz & Raporlar',
+  'planning': 'Planlama',
+  'reports': 'Raporlar',
+  'settings': 'Ayarlar',
+  'bep': 'BEP Yönetimi'
 };
 
 // ─── Modül Kategorileri (RBAC IDE gruplama) ────────────────────────
@@ -107,7 +116,7 @@ export const MODULE_CATEGORIES: { id: string; label: string; modules: Permission
   {
     id: 'tools-portals',
     label: 'Araçlar ve Portallar',
-    modules: ['students', 'workbook', 'messaging', 'favorites', 'archive', 'shared-materials', 'activity-history']
+    modules: ['students', 'workbook', 'messaging', 'favorites', 'archive', 'shared-materials', 'activity-history', 'ad-studio', 'ocr']
   },
   {
     id: 'admin-platform',
@@ -194,7 +203,8 @@ export const buildDefaultRBAC = (): RBACSettings => {
 
   const toolsPortals: PermissionModule[] = [
     'students', 'workbook', 'messaging',
-    'favorites', 'archive', 'shared-materials', 'activity-history'
+    'favorites', 'archive', 'shared-materials', 'activity-history',
+    'ad-studio', 'ocr'
   ];
 
   const adminPlatform: PermissionModule[] = [

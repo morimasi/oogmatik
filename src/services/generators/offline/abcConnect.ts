@@ -21,9 +21,9 @@ export const generateOfflineAbcConnect = async (options: GeneratorOptions): Prom
 
     const activities: AbcConnectData[] = [];
 
-    for (let c = 0; c < worksheetCount; c++) {
+    for (let c = 0; c < (worksheetCount || 1); c++) {
         const pairCount = Math.floor(dim * (density === 'high' ? 2 : (density === 'low' ? 1.2 : 1.5)));
-        const paths: any[] = [];
+        const paths: { start: { x: number; y: number }; end: { x: number; y: number }; value: string | number; matchValue: string | number; id: string; }[] = [];
         const usedCells = new Set<string>();
 
         const getRandomEmptyCell = () => {
@@ -70,4 +70,4 @@ export const generateOfflineAbcConnect = async (options: GeneratorOptions): Prom
 
 // Aliases for compatibility
 export const generateAbcConnectActivity = (difficulty: string, count: number) =>
-    generateOfflineAbcConnect({ difficulty, worksheetCount: count } as unknown as any);
+    generateOfflineAbcConnect({ difficulty: difficulty as any, worksheetCount: count } as unknown as GeneratorOptions);

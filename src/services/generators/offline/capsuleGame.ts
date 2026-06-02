@@ -14,7 +14,7 @@ export const generateOfflineCapsuleGame = async (options: GeneratorOptions): Pro
 
     const activities: NumberCapsuleData[] = [];
 
-    for (let c = 0; c < worksheetCount; c++) {
+    for (let c = 0; c < (worksheetCount || 1); c++) {
         const useOdds = Math.random() > 0.5;
         const pagePuzzles = [];
 
