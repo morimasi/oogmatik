@@ -8,6 +8,7 @@ import { logInfo, logWarn } from "../utils/logger.js";
 import {
   initializeFirestore,
   persistentLocalCache,
+  persistentMultipleTabManager,
   collection,
   doc,
   getDoc,
@@ -74,11 +75,10 @@ if (process.env.NODE_ENV === 'development') {
 /**
  * Modern Firestore Initialization
  * WebChannel streaming (400 Bad Request) hatalarını önlemek için yapılandırıldı.
- * Not: "Failed to obtain primary lease" hatalarını engellemek için
- * multiTabManager yerine basit Single Tab IndexedDB tercih edildi.
+ * Multi-tab senkronizasyonu FirebaseError (failed-precondition) hatalarını çözer.
  */
 export const db = initializeFirestore(app, {
-  localCache: persistentLocalCache(),
+  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
   experimentalForceLongPolling: true
 });
 
