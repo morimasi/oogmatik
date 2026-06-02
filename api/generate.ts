@@ -24,7 +24,7 @@ import { tryRepairJson } from '../src/utils/jsonRepair.js';
 
 // Types are imported from @vercel/node above
 
-const MASTER_MODEL = 'gemini-1.5-flash-latest';
+const MASTER_MODEL = 'gemini-1.5-flash';
 
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi EduMind platformunun kıdemli eğitim mimarı ve pedagoji uzmanısın. [MINIMAL_DEPLOY: 2024_03_18_v4]
@@ -154,7 +154,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         }
         // Denenecek güncel API anahtarını al
         const apiKey = apiKeys[currentKeyIndex];
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1/models/${selectedModel}:generateContent?key=${apiKey}`;
 
         const contents = [
           {
