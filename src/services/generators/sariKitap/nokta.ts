@@ -36,24 +36,25 @@ export const generateNoktaFromAI = async (options: GeneratorOptions): Promise<an
     const singleSchema = {
         type: 'OBJECT',
         properties: {
-            title: { type: 'STRING' },
-            instruction: { type: 'STRING' },
-            text: { type: 'STRING' },
+            title: { type: 'STRING', description: 'Etkinlik başlığı' },
+            instruction: { type: 'STRING', description: 'Öğrenciye verilen yönerge' },
+            text: { type: 'STRING', description: 'Noktalı okuma metni' },
             words: {
                 type: 'ARRAY',
+                description: 'Nokta yerleşimli kelimeler',
                 items: {
                     type: 'OBJECT',
                     properties: {
-                        word: { type: 'STRING' },
-                        hasDot: { type: 'BOOLEAN' },
-                        dotPosition: { type: 'INTEGER' }
+                        word: { type: 'STRING', description: 'Kelime metni' },
+                        hasDot: { type: 'BOOLEAN', description: 'Altında nokta var mı?' },
+                        dotPosition: { type: 'INTEGER', description: 'Nokta konumu (karakter sırası)' }
                     },
                     required: ['word', 'hasDot']
                 }
             },
-            dotPlacement: { type: 'STRING', enum: ['kelime', 'hece'] },
-            dotDensity: { type: 'INTEGER' },
-            dotStyle: { type: 'STRING', enum: ['yuvarlak', 'kare', 'elips'] }
+            dotPlacement: { type: 'STRING', description: 'Nokta yerleşim düzeyi', enum: ['kelime', 'hece'] },
+            dotDensity: { type: 'INTEGER', description: 'Nokta yoğunluğu (1-10)' },
+            dotStyle: { type: 'STRING', description: 'Nokta görsel stili', enum: ['yuvarlak', 'kare', 'elips'] }
         },
         required: ['title', 'instruction', 'text', 'words']
     };

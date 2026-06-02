@@ -64,61 +64,66 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
     FORMAT: Sadece JSON döndür.
     `;
 
-    const schema = {
+    const     schema = {
         type: 'OBJECT',
         properties: {
-            title: { type: 'STRING' },
-            story: { type: 'STRING' },
-            syllabifiedStory: { type: 'STRING' },
-            genre: { type: 'STRING' },
-            gradeLevel: { type: 'STRING' },
-            pedagogicalGoals: { type: 'ARRAY', items: { type: 'STRING' } },
-            imagePrompt: { type: 'STRING' },
-            creativePrompt: { type: 'STRING' },
+            title: { type: 'STRING', description: 'Hikaye başlığı' },
+            story: { type: 'STRING', description: 'Hikaye metni' },
+            syllabifiedStory: { type: 'STRING', description: 'Hece ayrılmış hikaye metni' },
+            genre: { type: 'STRING', description: 'Tür (masal/macera/bilim)' },
+            gradeLevel: { type: 'STRING', description: 'Sınıf seviyesi' },
+            pedagogicalGoals: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Bilişsel hedefler listesi' },
+            imagePrompt: { type: 'STRING', description: 'Sahne görseli promptu (İngilizce)' },
+            creativePrompt: { type: 'STRING', description: 'Yaratıcı yazma/çizme yönergesi' },
             vocabulary: {
                 type: 'ARRAY',
+                description: 'Zor kelimeler ve anlamları',
                 items: {
                     type: 'OBJECT',
-                    properties: { word: { type: 'STRING' }, definition: { type: 'STRING' }, example: { type: 'STRING' } },
+                    properties: { word: { type: 'STRING', description: 'Hedef kelime' }, definition: { type: 'STRING', description: 'Kelime anlamı' }, example: { type: 'STRING', description: 'Örnek cümle' } },
                     required: ['word', 'definition']
                 }
             },
             syllableTrain: {
                 type: 'ARRAY',
+                description: 'Hece treni kelimeleri',
                 items: {
                     type: 'OBJECT',
-                    properties: { word: { type: 'STRING' }, syllables: { type: 'ARRAY', items: { type: 'STRING' } } },
+                    properties: { word: { type: 'STRING', description: 'Kelime' }, syllables: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Hece listesi' } },
                     required: ['word', 'syllables']
                 }
             },
             fiveW1H: {
                 type: 'ARRAY',
+                description: '5N1K soruları',
                 items: {
                     type: 'OBJECT',
                     properties: {
-                        type: { type: 'STRING', enum: ['who', 'where', 'when', 'what', 'why', 'how'] },
-                        question: { type: 'STRING' },
-                        answer: { type: 'STRING' }
+                        type: { type: 'STRING', enum: ['who', 'where', 'when', 'what', 'why', 'how'], description: 'Soru türü' },
+                        question: { type: 'STRING', description: 'Soru metni' },
+                        answer: { type: 'STRING', description: 'Doğru cevap' }
                     },
                     required: ['type', 'question', 'answer']
                 }
             },
             logicQuestions: {
                 type: 'ARRAY',
+                description: 'Mantık soruları',
                 items: {
                     type: 'OBJECT',
-                    properties: { question: { type: 'STRING' }, answer: { type: 'STRING' }, hint: { type: 'STRING' } },
+                    properties: { question: { type: 'STRING', description: 'Soru metni' }, answer: { type: 'STRING', description: 'Doğru cevap' }, hint: { type: 'STRING', description: 'İpucu' } },
                     required: ['question', 'answer', 'hint']
                 }
             },
             multipleChoice: {
                 type: 'ARRAY',
+                description: 'Çoktan seçmeli sorular',
                 items: {
                     type: 'OBJECT',
                     properties: {
-                        question: { type: 'STRING' },
-                        options: { type: 'ARRAY', items: { type: 'STRING' } },
-                        answer: { type: 'STRING' }
+                        question: { type: 'STRING', description: 'Soru metni' },
+                        options: { type: 'ARRAY', items: { type: 'STRING' }, description: '4 şık (A,B,C,D)' },
+                        answer: { type: 'STRING', description: 'Doğru cevap şıkkı' }
                     },
                     required: ['question', 'options', 'answer']
                 }

@@ -34,6 +34,7 @@ PEDAGOJİK DNA:
 2. Analitik Derinlik: Sadece bilgi sorma; öğrenciye çıkarım yaptır, veriyi yorumlat (LGS Mantığı).
 3. Scaffolding: Zor konularda soru başında mutlaka kısa hatırlatıcı kurallar (bilgi notları) sağla.
 4. KESİN KURAL: Çıktı JSON objesinde mutlaka 'pedagogicalNote' alanını bulundur ve aktivitenin çocuğa pedagojik katkısını öğretmene/veliye açıkla.
+5. İçerik Doluluğu: Tüm alanları (title, instruction, primaryActivity.content, supportingDrill.content vb.) eksiksiz doldur. Hiçbir içerik alanını boş bırakma.
 KURAL: Yanıtın SADECE geçerli bir JSON olmalıdır. Üretimden önce içeriğin pedagojik güvenliğini ve müfredat kazanımını 10 katmanlı bir süzgeçten geçir.
 `;
 
@@ -185,11 +186,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Text prompt
         contents[0].parts.push({ text: combinedPrompt });
 
-        // CRITICAL: We remove generationConfig and systemInstruction COMPLETELY
-        // to ensure NO SNAKE_CASE fields are ever sent to Google API from this proxy.
-        // Google will use the prompt-embedded instructions.
+        // Use generationConfig with responseMimeType to enforce JSON output
+        // Schema is passed as responseSchema for structured generation, plus remains
+        // embedded in the prompt as a text fallback for older models.
         const requestBody: Record<string, unknown> = {
-          contents
+          contents,
+          generationConfig: {
+            responseMimeType: 'application/json',
+            ...(schema ? { responseSchema: schema } : {})
+          }
         };
 
         const response = await fetch(url, {

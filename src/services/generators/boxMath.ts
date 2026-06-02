@@ -48,16 +48,16 @@ export const generateBoxMathFromAI = async (options: GeneratorOptions) => {
   const schema = {
     type: 'OBJECT',
     properties: {
-      instruction: { type: 'STRING' },
+      instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
       problems: {
-        type: 'ARRAY',
+        type: 'ARRAY', description: 'Kutu problemleri dizisi',
         items: {
           type: 'OBJECT',
           properties: {
-            expression: { type: 'STRING' },
-            targetValue: { type: 'NUMBER' },
-            givenValue: { type: 'NUMBER' },
-            answer: { type: 'NUMBER' },
+            expression: { type: 'STRING', description: 'Kutulu denklem ifadesi' },
+            targetValue: { type: 'NUMBER', description: 'Denklemin hedef değeri' },
+            givenValue: { type: 'NUMBER', description: 'Verilen kutu değeri' },
+            answer: { type: 'NUMBER', description: 'Doğru cevap' },
           },
           required: ['expression', 'answer'],
         },

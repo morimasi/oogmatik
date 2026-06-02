@@ -148,7 +148,7 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
                     'visual_clue_card', 'neuro_marker'
                   ]
                 },
-                content: { type: 'OBJECT' },
+                content: { type: 'STRING', description: 'Block content JSON: for header: { text }, for text: { paragraphs: string[] }, for grid: { cells: string[][] }, for table: { headers: string[], rows: string[][] }, for logic_card: { premise: string, options: string[], correctIndex: number }, for image: { url: string, alt: string }, for cloze_test: { text: string, blanks: { key: string, answer: string }[] }, for categorical_sorting: { categories: { name: string, items: string[] }[] }, for match_columns: { left: string[], right: string[], pairs: number[][] }, for visual_clue_card: { image: string, hint: string }, for neuro_marker: { type: string }' },
                 weight: { type: 'INTEGER' }
               },
               required: ['type', 'content']

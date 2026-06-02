@@ -63,30 +63,53 @@ Konu: ${topic || 'Rastgele'}`;
   const USER_PROMPT = baseUserPrompt + '\n\n' + userSuffix;
 
   // ── GEMINI SCHEMA ─────────────────────────────────────────────
+  const activityContentSchema: Record<string, unknown> = template?.extraSchemaFields || {
+    type: 'STRING' as const,
+    description: 'Primary activity data as structured content (items, grid, questions, etc.)'
+  };
+
   const schema = {
     type: 'OBJECT' as const,
     properties: {
-      title: { type: 'STRING' as const },
-      instruction: { type: 'STRING' as const },
-      pedagogicalNote: { type: 'STRING' as const },
+      title: { type: 'STRING' as const, description: 'Activity title, engaging and clear' },
+      instruction: { type: 'STRING' as const, description: 'Step-by-step instruction for the student' },
+      pedagogicalNote: { type: 'STRING' as const, description: 'Teacher/parent note explaining the pedagogical value' },
       primaryActivity: {
         type: 'OBJECT' as const,
         properties: {
-          type: { type: 'STRING' as const },
-          content: { type: 'OBJECT' as const }
+          type: { type: 'STRING' as const, description: 'Content type: text, grid, table, question, svg, list' },
+          content: activityContentSchema
         },
         required: ['type', 'content']
       },
       supportingDrill: {
         type: 'OBJECT' as const,
         properties: {
-          title: { type: 'STRING' as const },
-          type: { type: 'STRING' as const },
-          content: { type: 'OBJECT' as const }
+          title: { type: 'STRING' as const, description: 'Drill title' },
+          type: { type: 'STRING' as const, description: 'question, multiple_choice, fill_blank, matching' },
+          content: {
+            type: 'OBJECT' as const,
+            description: '3-5 reinforcement questions with answers',
+            properties: {
+              questions: {
+                type: 'ARRAY' as const,
+                description: 'List of reinforcement questions',
+                items: {
+                  type: 'OBJECT' as const,
+                  properties: {
+                    question: { type: 'STRING' as const, description: 'The question text' },
+                    answer: { type: 'STRING' as const, description: 'The correct answer' },
+                    options: { type: 'ARRAY' as const, items: { type: 'STRING' as const }, description: 'Optional multiple choice options' }
+                  },
+                  required: ['question', 'answer']
+                }
+              }
+            },
+            required: ['questions']
+          }
         },
         required: ['title', 'type', 'content']
-      },
-      ...(template?.extraSchemaFields || {})
+      }
     },
     required: ['title', 'instruction', 'primaryActivity', 'supportingDrill', 'pedagogicalNote']
   };

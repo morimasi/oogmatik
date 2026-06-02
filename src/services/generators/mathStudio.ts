@@ -89,20 +89,20 @@ export const generateMathProblemsAI = async (config: MathProblemConfig) => {
     const schema = {
         type: 'OBJECT',
         properties: {
-            instruction: { type: 'STRING' },
+            instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' },
             problems: {
-                type: 'ARRAY',
+                type: 'ARRAY', description: 'Matematik problemleri dizisi',
                 items: {
                     type: 'OBJECT',
                     properties: {
-                        text: { type: 'STRING' },
-                        answer: { type: 'STRING' },
-                        operationHint: { type: 'STRING' },
-                        type: { type: 'STRING' },
-                        imagePrompt: { type: 'STRING' },
-                        svgCode: { type: 'STRING' },
-                        options: { type: 'ARRAY', items: { type: 'STRING' } },
-                        steps: { type: 'ARRAY', items: { type: 'STRING' } }
+                        text: { type: 'STRING', description: 'Problem metni' },
+                        answer: { type: 'STRING', description: 'Doğru cevap' },
+                        operationHint: { type: 'STRING', description: 'İşlem ipucu' },
+                        type: { type: 'STRING', description: 'Soru tipi (standard/fill-in/vb.)' },
+                        imagePrompt: { type: 'STRING', description: 'Görsel üretim promptu (İngilizce)' },
+                        svgCode: { type: 'STRING', description: 'SVG görsel kodu' },
+                        options: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Şık seçenekleri' },
+                        steps: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Çözüm adımları' }
                     },
                     required: ['text', 'answer', 'operationHint', 'type']
                 }

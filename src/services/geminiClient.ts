@@ -133,6 +133,7 @@ ZORUNLU UZMAN KURALLARI (İHLAL EDİLEMEZ):
 1. ZPD UYUMU (Elif Yıldız): Kelime dağarcığı, konseptler ve zorluk derecesi KESİNLİKLE öğrencinin (${activeStudent.grade}) seviyesine uygun olarak, dikkat süresini aşmayacak sadelikte tasarlanacaktır.
 2. KLİNİK VE YASAL DİL (Dr. Ahmet Kaya): Çıktının hiçbir yerinde "disleksisi olduğu için", "öğrenme güçlüğü" veya "uygun bir aktivite" gibi tanı koyucu/etiketleyici bir dil KESİNLİKLE KULLANILMAYACAKTIR.
 3. ÖĞRETMEN NOTU: Çıktıya her zaman (ilgili format destekliyorsa) bu aktivitenin neden oluşturulduğunu açıklayan teşvik edici bir 'pedagogicalNote' eklenmelidir.
+4. İÇERİK DOLULUĞU: Tüm JSON alanlarını (sorular, öğeler, grid, içerik blokları vb.) eksiksiz doldur. Hiçbir içerik dizisini veya objesini boş bırakma.
 Tüm içeriği bu spesifik bağlama göre optimize et!`;
   }
 

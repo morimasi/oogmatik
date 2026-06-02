@@ -57,20 +57,21 @@ export const generateHizliOkumaFromAI = async (options: GeneratorOptions): Promi
     const singleSchema = {
         type: 'OBJECT',
         properties: {
-            title: { type: 'STRING' },
-            instructions: { type: 'STRING' },
+            title: { type: 'STRING', description: 'Etkinlik başlığı' },
+            instructions: { type: 'STRING', description: 'Öğrenciye verilen yönerge' },
             wordBlocks: {
                 type: 'ARRAY',
+                description: 'Hızlı okuma kelime blokları',
                 items: {
                     type: 'ARRAY',
                     items: { type: 'STRING' }
                 }
             },
-            difficulty: { type: 'STRING', enum: ['easy', 'medium', 'hard', 'expert'] },
-            columnMode: { type: 'STRING', enum: ['tek', 'cift'] },
-            lineSpacing: { type: 'STRING', enum: ['sıkı', 'orta', 'geniş'] },
-            rhythmicMode: { type: 'BOOLEAN' },
-            totalRows: { type: 'INTEGER' }
+            difficulty: { type: 'STRING', description: 'Zorluk seviyesi', enum: ['easy', 'medium', 'hard', 'expert'] },
+            columnMode: { type: 'STRING', description: 'Sütun modu', enum: ['tek', 'cift'] },
+            lineSpacing: { type: 'STRING', description: 'Satır aralığı', enum: ['sıkı', 'orta', 'geniş'] },
+            rhythmicMode: { type: 'BOOLEAN', description: 'Ritmik arka plan aktif?' },
+            totalRows: { type: 'INTEGER', description: 'Toplam satır sayısı' }
         },
         required: ['title', 'instructions', 'wordBlocks']
     };

@@ -31,25 +31,25 @@ export const generateWordMemoryFromAI = async (options: GeneratorOptions): Promi
     const itemSchema = {
         type: 'OBJECT',
         properties: {
-            text: { type: 'STRING' },
-            imagePrompt: { type: 'STRING' }
+            text: { type: 'STRING', description: 'Kelime metni' },
+            imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' }
         },
         required: ['text', 'imagePrompt']
     };
     const singleSchema = {
         type: 'OBJECT',
         properties: {
-            title: { type: 'STRING' },
-            instruction: { type: 'STRING' },
-            imagePrompt: { type: 'STRING' },
-            memorizeTitle: { type: 'STRING' },
-            testTitle: { type: 'STRING' },
-            wordsToMemorize: { type: 'ARRAY', items: itemSchema },
-            testWords: { type: 'ARRAY', items: itemSchema }
+            title: { type: 'STRING', description: 'Etkinlik başlığı' },
+            instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
+            imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' },
+            memorizeTitle: { type: 'STRING', description: 'Ezberleme aşaması başlığı' },
+            testTitle: { type: 'STRING', description: 'Test aşaması başlığı' },
+            wordsToMemorize: { type: 'ARRAY', items: itemSchema, description: 'Ezberlenecek kelimeler' },
+            testWords: { type: 'ARRAY', items: itemSchema, description: 'Test kelimeleri' }
         },
         required: ['title', 'memorizeTitle', 'testTitle', 'wordsToMemorize', 'testWords', 'instruction', 'imagePrompt']
     };
-    const schema = { type: 'ARRAY', items: singleSchema };
+    const schema = { type: 'ARRAY', description: 'Kelime hafıza test sayfaları', items: singleSchema };
     return generateWithSchema(prompt, schema) as unknown as Promise<WordMemoryData[]>;
 };
 
@@ -73,25 +73,25 @@ export const generateVisualMemoryFromAI = async (options: GeneratorOptions): Pro
     const itemSchema = {
         type: 'OBJECT',
         properties: {
-            description: { type: 'STRING' },
-            imagePrompt: { type: 'STRING' }
+            description: { type: 'STRING', description: 'Nesne tanımı (Türkçe)' },
+            imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' }
         },
         required: ['description', 'imagePrompt']
     };
     const singleSchema = {
         type: 'OBJECT',
         properties: {
-            title: { type: 'STRING' },
-            instruction: { type: 'STRING' },
-            imagePrompt: { type: 'STRING' },
-            memorizeTitle: { type: 'STRING' },
-            testTitle: { type: 'STRING' },
-            itemsToMemorize: { type: 'ARRAY', items: itemSchema },
-            testItems: { type: 'ARRAY', items: itemSchema }
+            title: { type: 'STRING', description: 'Etkinlik başlığı' },
+            instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
+            imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' },
+            memorizeTitle: { type: 'STRING', description: 'Ezberleme aşaması başlığı' },
+            testTitle: { type: 'STRING', description: 'Test aşaması başlığı' },
+            itemsToMemorize: { type: 'ARRAY', items: itemSchema, description: 'Ezberlenecek nesneler' },
+            testItems: { type: 'ARRAY', items: itemSchema, description: 'Test nesneleri' }
         },
         required: ['title', 'memorizeTitle', 'testTitle', 'itemsToMemorize', 'testItems', 'instruction', 'imagePrompt']
     };
-    const schema = { type: 'ARRAY', items: singleSchema };
+    const schema = { type: 'ARRAY', description: 'Görsel hafıza test sayfaları', items: singleSchema };
     return generateWithSchema(prompt, schema) as unknown as Promise<VisualMemoryData[]>;
 };
 
@@ -101,19 +101,20 @@ export const generateNumberSearchFromAI = async (options: GeneratorOptions): Pro
     const singleSchema = {
         type: 'OBJECT',
         properties: {
-            title: { type: 'STRING' },
-            instruction: { type: 'STRING' },
-            imagePrompt: { type: 'STRING' },
-            numbers: { type: 'ARRAY', items: { type: 'STRING' } },
+            title: { type: 'STRING', description: 'Etkinlik başlığı' },
+            instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
+            imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' },
+            numbers: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Bulunacak sayılar listesi' },
             range: {
                 type: 'OBJECT',
-                properties: { start: { type: 'INTEGER' }, end: { type: 'INTEGER' } },
+                description: 'Sayı aralığı',
+                properties: { start: { type: 'INTEGER', description: 'Başlangıç' }, end: { type: 'INTEGER', description: 'Bitiş' } },
                 required: ['start', 'end']
             }
         },
         required: ['title', 'numbers', 'range', 'instruction', 'imagePrompt']
     };
-    const schema = { type: 'ARRAY', items: singleSchema };
+    const schema = { type: 'ARRAY', description: 'Sayı avı sayfaları', items: singleSchema };
     return generateWithSchema(prompt, schema) as unknown as Promise<NumberSearchData[]>;
 };
 
@@ -123,14 +124,14 @@ export const generateFindTheDuplicateInRowFromAI = async (options: GeneratorOpti
     const singleSchema = {
         type: 'OBJECT',
         properties: {
-            title: { type: 'STRING' },
-            instruction: { type: 'STRING' },
-            imagePrompt: { type: 'STRING' },
-            rows: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } } }
+            title: { type: 'STRING', description: 'Etkinlik başlığı' },
+            instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
+            imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' },
+            rows: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } }, description: 'Karakter satırları (her satırda tekrar var)' }
         },
         required: ['title', 'rows', 'instruction', 'imagePrompt']
     };
-    const schema = { type: 'ARRAY', items: singleSchema };
+    const schema = { type: 'ARRAY', description: 'İkili bul sayfaları', items: singleSchema };
     return generateWithSchema(prompt, schema) as unknown as Promise<FindDuplicateData[]>;
 };
 
@@ -145,15 +146,15 @@ export const generateLetterGridTestFromAI = async (options: GeneratorOptions): P
     const singleSchema = {
         type: 'OBJECT',
         properties: {
-            title: { type: 'STRING' },
-            instruction: { type: 'STRING' },
-            imagePrompt: { type: 'STRING' },
-            grid: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } } },
-            targetLetters: { type: 'ARRAY', items: { type: 'STRING' } }
+            title: { type: 'STRING', description: 'Etkinlik başlığı' },
+            instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
+            imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' },
+            grid: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } }, description: 'Harf ızgarası' },
+            targetLetters: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Bulunacak harfler' }
         },
         required: ['title', 'grid', 'targetLetters', 'instruction', 'imagePrompt']
     };
-    const schema = { type: 'ARRAY', items: singleSchema };
+    const schema = { type: 'ARRAY', description: 'Harf ızgarası sayfaları', items: singleSchema };
     return generateWithSchema(prompt, schema) as unknown as Promise<LetterGridTestData[]>;
 };
 
@@ -165,16 +166,16 @@ export const generateTargetSearchFromAI = async (options: GeneratorOptions): Pro
     const singleSchema = {
         type: 'OBJECT',
         properties: {
-            title: { type: 'STRING' },
-            instruction: { type: 'STRING' },
-            imagePrompt: { type: 'STRING' },
-            grid: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } } },
-            target: { type: 'STRING' },
-            distractor: { type: 'STRING' }
+            title: { type: 'STRING', description: 'Etkinlik başlığı' },
+            instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
+            imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' },
+            grid: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } }, description: 'Karakter ızgarası' },
+            target: { type: 'STRING', description: 'Hedef karakter' },
+            distractor: { type: 'STRING', description: 'Çeldirici karakter' }
         },
         required: ['title', 'grid', 'target', 'distractor', 'instruction', 'imagePrompt']
     };
-    const schema = { type: 'ARRAY', items: singleSchema };
+    const schema = { type: 'ARRAY', description: 'Hedef karakter avı sayfaları', items: singleSchema };
     return generateWithSchema(prompt, schema) as unknown as Promise<TargetSearchData[]>;
 };
 
@@ -189,19 +190,20 @@ export const generateColorWheelMemoryFromAI = async (options: GeneratorOptions):
     const singleSchema = {
         type: 'OBJECT',
         properties: {
-            title: { type: 'STRING' },
-            instruction: { type: 'STRING' },
-            imagePrompt: { type: 'STRING' },
-            memorizeTitle: { type: 'STRING' },
-            testTitle: { type: 'STRING' },
+            title: { type: 'STRING', description: 'Etkinlik başlığı' },
+            instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
+            imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' },
+            memorizeTitle: { type: 'STRING', description: 'Ezberleme aşaması başlığı' },
+            testTitle: { type: 'STRING', description: 'Test aşaması başlığı' },
             items: {
                 type: 'ARRAY',
+                description: 'Renk çemberi öğeleri',
                 items: {
                     type: 'OBJECT',
                     properties: {
-                        name: { type: 'STRING' },
-                        color: { type: 'STRING' },
-                        imagePrompt: { type: 'STRING' }
+                        name: { type: 'STRING', description: 'Nesne adı' },
+                        color: { type: 'STRING', description: 'Renk değeri (hex/css)' },
+                        imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' }
                     },
                     required: ["name", "color", "imagePrompt"]
                 }
@@ -209,7 +211,7 @@ export const generateColorWheelMemoryFromAI = async (options: GeneratorOptions):
         },
         required: ["title", "memorizeTitle", "testTitle", "items", 'instruction', 'imagePrompt']
     };
-    const schema = { type: 'ARRAY', items: singleSchema };
+    const schema = { type: 'ARRAY', description: 'Renk hafıza sayfaları', items: singleSchema };
     return generateWithSchema(prompt, schema) as unknown as Promise<ColorWheelMemoryData[]>;
 };
 
@@ -224,17 +226,17 @@ export const generateImageComprehensionFromAI = async (options: GeneratorOptions
     const singleSchema = {
         type: 'OBJECT',
         properties: {
-            title: { type: 'STRING' },
-            instruction: { type: 'STRING' },
-            imagePrompt: { type: 'STRING' },
-            memorizeTitle: { type: 'STRING' },
-            testTitle: { type: 'STRING' },
-            sceneDescription: { type: 'STRING' },
-            questions: { type: 'ARRAY', items: { type: 'STRING' } }
+            title: { type: 'STRING', description: 'Etkinlik başlığı' },
+            instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
+            imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' },
+            memorizeTitle: { type: 'STRING', description: 'İnceleme aşaması başlığı' },
+            testTitle: { type: 'STRING', description: 'Soru aşaması başlığı' },
+            sceneDescription: { type: 'STRING', description: 'Sahne betimlemesi (Türkçe)' },
+            questions: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Resimle ilgili sorular' }
         },
         required: ["title", "memorizeTitle", "testTitle", "sceneDescription", "imagePrompt", "questions", 'instruction']
     };
-    const schema = { type: 'ARRAY', items: singleSchema };
+    const schema = { type: 'ARRAY', description: 'Resim anlama sayfaları', items: singleSchema };
     return generateWithSchema(prompt, schema) as unknown as Promise<ImageComprehensionData[]>;
 };
 
@@ -258,29 +260,31 @@ export const generateCharacterMemoryFromAI = async (options: GeneratorOptions): 
     const singleSchema = {
         type: 'OBJECT',
         properties: {
-            title: { type: 'STRING' },
-            instruction: { type: 'STRING' },
-            imagePrompt: { type: 'STRING' },
-            memorizeTitle: { type: 'STRING' },
-            testTitle: { type: 'STRING' },
+            title: { type: 'STRING', description: 'Etkinlik başlığı' },
+            instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
+            imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' },
+            memorizeTitle: { type: 'STRING', description: 'Ezberleme aşaması başlığı' },
+            testTitle: { type: 'STRING', description: 'Test aşaması başlığı' },
             charactersToMemorize: {
                 type: 'ARRAY',
+                description: 'Ezberlenecek karakterler',
                 items: {
                     type: 'OBJECT',
                     properties: {
-                        description: { type: 'STRING' },
-                        imagePrompt: { type: 'STRING' }
+                        description: { type: 'STRING', description: 'Karakter tanımı' },
+                        imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' }
                     },
                     required: ["description", "imagePrompt"]
                 }
             },
             testCharacters: {
                 type: 'ARRAY',
+                description: 'Test karakterleri',
                 items: {
                     type: 'OBJECT',
                     properties: {
-                        description: { type: 'STRING' },
-                        imagePrompt: { type: 'STRING' }
+                        description: { type: 'STRING', description: 'Karakter tanımı' },
+                        imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' }
                     },
                     required: ["description", "imagePrompt"]
                 }
@@ -288,7 +292,7 @@ export const generateCharacterMemoryFromAI = async (options: GeneratorOptions): 
         },
         required: ["title", "memorizeTitle", "testTitle", "charactersToMemorize", "testCharacters", 'instruction', 'imagePrompt']
     };
-    const schema = { type: 'ARRAY', items: singleSchema };
+    const schema = { type: 'ARRAY', description: 'Karakter hafıza sayfaları', items: singleSchema };
     return generateWithSchema(prompt, schema) as unknown as Promise<CharacterMemoryData[]>;
 };
 
@@ -302,21 +306,22 @@ export const generateStroopTestFromAI = async (options: GeneratorOptions): Promi
     const singleSchema = {
         type: 'OBJECT',
         properties: {
-            title: { type: 'STRING' },
-            instruction: { type: 'STRING' },
-            imagePrompt: { type: 'STRING' },
+            title: { type: 'STRING', description: 'Etkinlik başlığı' },
+            instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
+            imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' },
             items: {
                 type: 'ARRAY',
+                description: 'Stroop maddeleri',
                 items: {
                     type: 'OBJECT',
-                    properties: { text: { type: 'STRING' }, color: { type: 'STRING' } },
+                    properties: { text: { type: 'STRING', description: 'Renk adı metni' }, color: { type: 'STRING', description: 'Yazı rengi (çelişen)' } },
                     required: ["text", "color"]
                 }
             }
         },
         required: ["title", "items", 'instruction', 'imagePrompt']
     };
-    const schema = { type: 'ARRAY', items: singleSchema };
+    const schema = { type: 'ARRAY', description: 'Stroop test sayfaları', items: singleSchema };
     return generateWithSchema(prompt, schema) as unknown as Promise<StroopTestData[]>;
 }
 
@@ -325,28 +330,29 @@ export const generateChaoticNumberSearchFromAI = async (_options: GeneratorOptio
     const singleSchema = {
         type: 'OBJECT',
         properties: {
-            title: { type: 'STRING' },
-            instruction: { type: 'STRING' },
-            imagePrompt: { type: 'STRING' },
+            title: { type: 'STRING', description: 'Etkinlik başlığı' },
+            instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
+            imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' },
             numbers: {
                 type: 'ARRAY',
+                description: 'Kaotik yerleşimli sayılar',
                 items: {
                     type: 'OBJECT',
                     properties: {
-                        value: { type: 'INTEGER' },
-                        x: { type: 'NUMBER' },
-                        y: { type: 'NUMBER' },
-                        size: { type: 'NUMBER' },
-                        rotation: { type: 'NUMBER' },
-                        color: { type: 'STRING' }
+                        value: { type: 'INTEGER', description: 'Sayı değeri' },
+                        x: { type: 'NUMBER', description: 'X koordinatı' },
+                        y: { type: 'NUMBER', description: 'Y koordinatı' },
+                        size: { type: 'NUMBER', description: 'Yazı boyutu' },
+                        rotation: { type: 'NUMBER', description: 'Dönüş açısı (derece)' },
+                        color: { type: 'STRING', description: 'Renk (hex/css)' }
                     },
                     required: ["value", "x", "y", "size", "color"]
                 }
             },
-            range: { type: 'OBJECT', properties: { start: { type: 'INTEGER' }, end: { type: 'INTEGER' } }, required: ["start", "end"] }
+            range: { type: 'OBJECT', description: 'Sayı aralığı', properties: { start: { type: 'INTEGER', description: 'Başlangıç' }, end: { type: 'INTEGER', description: 'Bitiş' } }, required: ["start", "end"] }
         },
         required: ["title", "numbers", "range", 'instruction', 'imagePrompt']
     };
-    const schema = { type: 'ARRAY', items: singleSchema };
+    const schema = { type: 'ARRAY', description: 'Kaotik sayı avı sayfaları', items: singleSchema };
     return generateWithSchema(prompt, schema) as unknown as Promise<ChaoticNumberSearchData[]>;
 }

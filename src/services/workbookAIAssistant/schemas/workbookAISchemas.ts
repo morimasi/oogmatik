@@ -34,26 +34,29 @@ export const WorkbookAISchemas = {
     properties: {
       suggestions: {
         type: 'ARRAY',
+        description: 'Önerilen aktiviteler listesi',
         items: {
           type: 'OBJECT',
           properties: {
-            activityType: { type: 'STRING' },
-            reason: { type: 'STRING' },
+            activityType: { type: 'STRING', description: 'Aktivite türü adı' },
+            reason: { type: 'STRING', description: 'Öneri gerekçesi' },
             recommendedDifficulty: {
               type: 'STRING',
+              description: 'Önerilen zorluk seviyesi',
               enum: ['Kolay', 'Orta', 'Zor'],
             },
             targetSkills: {
               type: 'ARRAY',
+              description: 'Hedef beceriler',
               items: { type: 'STRING' },
             },
-            zpdJustification: { type: 'STRING' },
-            priority: { type: 'NUMBER' },
+            zpdJustification: { type: 'STRING', description: 'ZPD gerekçesi' },
+            priority: { type: 'NUMBER', description: 'Öncelik sırası' },
           },
           required: ['activityType', 'reason', 'recommendedDifficulty', 'targetSkills'],
         },
       },
-      analysisNote: { type: 'STRING' },
+      analysisNote: { type: 'STRING', description: 'Genel analiz notu' },
     },
     required: ['suggestions', 'analysisNote'],
   },
@@ -66,21 +69,23 @@ export const WorkbookAISchemas = {
     properties: {
       gaps: {
         type: 'ARRAY',
+        description: 'Tespit edilen beceri boşlukları',
         items: {
           type: 'OBJECT',
           properties: {
-            skillArea: { type: 'STRING' },
-            currentCoverage: { type: 'NUMBER' },
-            recommendedCoverage: { type: 'NUMBER' },
+            skillArea: { type: 'STRING', description: 'Beceri alanı adı' },
+            currentCoverage: { type: 'NUMBER', description: 'Mevcut kapsama oranı' },
+            recommendedCoverage: { type: 'NUMBER', description: 'Hedef kapsama oranı' },
             suggestedActivities: {
               type: 'ARRAY',
+              description: 'Önerilen aktiviteler',
               items: { type: 'STRING' },
             },
           },
           required: ['skillArea', 'currentCoverage', 'recommendedCoverage'],
         },
       },
-      overallBalance: { type: 'STRING' },
+      overallBalance: { type: 'STRING', description: 'Genel beceri dengesi değerlendirmesi' },
     },
     required: ['gaps', 'overallBalance'],
   },
@@ -91,33 +96,38 @@ export const WorkbookAISchemas = {
   pageBalance: {
     type: 'OBJECT',
     properties: {
-      overallScore: { type: 'NUMBER' },
+      overallScore: { type: 'NUMBER', description: 'Genel denge puanı (0-100)' },
       verdict: {
         type: 'STRING',
+        description: 'Denge değerlendirme kararı',
         enum: ['Mukemmel', 'Iyi', 'Iyilestirilebilir', 'Kritik'],
       },
       balanceIssues: {
         type: 'ARRAY',
+        description: 'Denge sorunları listesi',
         items: {
           type: 'OBJECT',
           properties: {
-            pageIndex: { type: 'NUMBER' },
-            issue: { type: 'STRING' },
+            pageIndex: { type: 'NUMBER', description: 'Sayfa indeksi' },
+            issue: { type: 'STRING', description: 'Sorun açıklaması' },
             severity: {
               type: 'STRING',
+              description: 'Sorun şiddeti',
               enum: ['low', 'medium', 'high'],
             },
-            suggestion: { type: 'STRING' },
+            suggestion: { type: 'STRING', description: 'Çözüm önerisi' },
           },
           required: ['pageIndex', 'issue', 'severity', 'suggestion'],
         },
       },
       strengths: {
         type: 'ARRAY',
+        description: 'Güçlü yönler',
         items: { type: 'STRING' },
       },
       recommendations: {
         type: 'ARRAY',
+        description: 'İyileştirme önerileri',
         items: { type: 'STRING' },
       },
     },
@@ -132,19 +142,21 @@ export const WorkbookAISchemas = {
     properties: {
       distribution: {
         type: 'OBJECT',
+        description: 'Zorluk seviyesi dağılımı',
         properties: {
-          easy: { type: 'NUMBER' },
-          medium: { type: 'NUMBER' },
-          hard: { type: 'NUMBER' },
+          easy: { type: 'NUMBER', description: 'Kolay aktivite yüzdesi' },
+          medium: { type: 'NUMBER', description: 'Orta aktivite yüzdesi' },
+          hard: { type: 'NUMBER', description: 'Zor aktivite yüzdesi' },
         },
         required: ['easy', 'medium', 'hard'],
       },
-      scaffoldingScore: { type: 'NUMBER' },
+      scaffoldingScore: { type: 'NUMBER', description: 'İskeleleme puanı (0-100)' },
       issues: {
         type: 'ARRAY',
+        description: 'Dağılım sorunları',
         items: { type: 'STRING' },
       },
-      recommendation: { type: 'STRING' },
+      recommendation: { type: 'STRING', description: 'Dağılım iyileştirme önerisi' },
     },
     required: ['distribution', 'scaffoldingScore', 'recommendation'],
   },
@@ -155,23 +167,25 @@ export const WorkbookAISchemas = {
   themeConsistency: {
     type: 'OBJECT',
     properties: {
-      consistencyScore: { type: 'NUMBER' },
+      consistencyScore: { type: 'NUMBER', description: 'Tema tutarlılık puanı (0-100)' },
       detectedThemes: {
         type: 'ARRAY',
+        description: 'Tespit edilen temalar',
         items: { type: 'STRING' },
       },
       inconsistencies: {
         type: 'ARRAY',
+        description: 'Tema tutarsızlıkları',
         items: {
           type: 'OBJECT',
           properties: {
-            pageIndex: { type: 'NUMBER' },
-            issue: { type: 'STRING' },
+            pageIndex: { type: 'NUMBER', description: 'Sayfa indeksi' },
+            issue: { type: 'STRING', description: 'Tutarsızlık açıklaması' },
           },
           required: ['pageIndex', 'issue'],
         },
       },
-      suggestion: { type: 'STRING' },
+      suggestion: { type: 'STRING', description: 'Tutarlılık iyileştirme önerisi' },
     },
     required: ['consistencyScore', 'detectedThemes', 'suggestion'],
   },
@@ -182,18 +196,20 @@ export const WorkbookAISchemas = {
   metadataFill: {
     type: 'OBJECT',
     properties: {
-      category: { type: 'STRING' },
+      category: { type: 'STRING', description: 'Aktivite kategorisi' },
       targetSkills: {
         type: 'ARRAY',
+        description: 'Hedef beceriler',
         items: { type: 'STRING' },
       },
-      cognitiveDomain: { type: 'STRING' },
-      estimatedDuration: { type: 'NUMBER' },
+      cognitiveDomain: { type: 'STRING', description: 'Bilişsel alan adı' },
+      estimatedDuration: { type: 'NUMBER', description: 'Tahmini süre (dakika)' },
       prerequisites: {
         type: 'ARRAY',
+        description: 'Ön koşul beceriler',
         items: { type: 'STRING' },
       },
-      pedagogicalNote: { type: 'STRING' },
+      pedagogicalNote: { type: 'STRING', description: 'Pedagojik amaç açıklaması' },
     },
     required: ['category', 'targetSkills', 'cognitiveDomain', 'pedagogicalNote'],
   },
@@ -204,7 +220,7 @@ export const WorkbookAISchemas = {
   pedagogicalNote: {
     type: 'OBJECT',
     properties: {
-      pedagogicalNote: { type: 'STRING' },
+      pedagogicalNote: { type: 'STRING', description: 'Etkinliğin pedagojik amacı ve gerekçesi' },
     },
     required: ['pedagogicalNote'],
   },
@@ -215,7 +231,7 @@ export const WorkbookAISchemas = {
   preface: {
     type: 'OBJECT',
     properties: {
-      preface: { type: 'STRING' },
+      preface: { type: 'STRING', description: 'Önsöz metni' },
     },
     required: ['preface'],
   },
@@ -228,18 +244,19 @@ export const WorkbookAISchemas = {
     properties: {
       optimizedOrder: {
         type: 'ARRAY',
+        description: 'Optimize edilmiş sıralama',
         items: {
           type: 'OBJECT',
           properties: {
-            originalIndex: { type: 'NUMBER' },
-            newIndex: { type: 'NUMBER' },
-            reason: { type: 'STRING' },
+            originalIndex: { type: 'NUMBER', description: 'Orijinal sıra indeksi' },
+            newIndex: { type: 'NUMBER', description: 'Yeni sıra indeksi' },
+            reason: { type: 'STRING', description: 'Değişiklik gerekçesi' },
           },
           required: ['originalIndex', 'newIndex'],
         },
       },
-      improvementScore: { type: 'NUMBER' },
-      pedagogicalRationale: { type: 'STRING' },
+      improvementScore: { type: 'NUMBER', description: 'İyileştirme puanı (0-100)' },
+      pedagogicalRationale: { type: 'STRING', description: 'Pedagojik gerekçe açıklaması' },
     },
     required: ['optimizedOrder', 'improvementScore', 'pedagogicalRationale'],
   },
@@ -252,6 +269,7 @@ export const WorkbookAISchemas = {
     properties: {
       notes: {
         type: 'ARRAY',
+        description: 'Pedagojik not listesi (5 adet)',
         items: { type: 'STRING' },
       },
     },

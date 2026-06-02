@@ -31,17 +31,17 @@ export const generateAlgorithmGeneratorFromAI = async (options: GeneratorOptions
         items: {
             type: 'OBJECT',
             properties: {
-                title: { type: 'STRING' },
-                instruction: { type: 'STRING' },
+                title: { type: 'STRING', description: 'Algoritma başlığı' },
+                instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
                 challenge: { type: 'STRING', description: "Algoritmanın çözdüğü temel problem/senaryo" },
                 steps: {
-                    type: 'ARRAY',
+                    type: 'ARRAY', description: 'Algoritma adım dizisi',
                     minItems: 5,
                     items: {
                         type: 'OBJECT',
                         properties: {
-                            id: { type: 'INTEGER' },
-                            type: { type: 'STRING', enum: ['start', 'process', 'decision', 'input', 'output', 'end'] },
+                            id: { type: 'INTEGER', description: 'Adım sıra numarası' },
+                            type: { type: 'STRING', description: 'Adım türü', enum: ['start', 'process', 'decision', 'input', 'output', 'end'] },
                             text: { type: 'STRING', description: "Adımın eylem cümlesi" }
                         },
                         required: ['id', 'type', 'text']

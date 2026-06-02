@@ -29,16 +29,16 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
         items: {
             type: 'OBJECT',
             properties: {
-                title: { type: 'STRING' },
-                instruction: { type: 'STRING' },
-                sumTarget: { type: 'INTEGER' },
+                title: { type: 'STRING', description: 'Etkinlik başlığı' },
+                instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' },
+                sumTarget: { type: 'INTEGER', description: 'Toplam hedef değeri' },
                 puzzles: {
                     type: 'ARRAY',
                     description: `Dizi uzunluğu tam olarak ${itemCount} olmalı.`,
                     items: {
                         type: 'OBJECT',
                         properties: {
-                            id: { type: 'STRING' },
+                            id: { type: 'STRING', description: 'Bulmaca benzersiz kimliği' },
                             riddleParts: {
                                 type: 'ARRAY',
                                 description: `BU DİZİ TAM OLARAK ${gridSize} ADET OBJE İÇERMELİDİR.`,
@@ -47,15 +47,15 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
                                     properties: {
                                         text: { type: 'STRING', description: "Kısa ve eylemsel ipucu cümlesi." },
                                         icon: { type: 'STRING', description: "FontAwesome ikon kodu (örn: fa-microchip, fa-dna)" },
-                                        type: { type: 'STRING', enum: ['parity', 'digits', 'comparison', 'arithmetic', 'range'] }
+                                        type: { type: 'STRING', description: 'İpucu matematik türü', enum: ['parity', 'digits', 'comparison', 'arithmetic', 'range'] }
                                     },
                                     required: ['text', 'icon', 'type']
                                 }
                             },
                             visualDistraction: { type: 'ARRAY', items: { type: 'INTEGER' }, description: "Arka plan için 5-6 adet rastgele sayı." },
                             options: { type: 'ARRAY', items: { type: 'STRING' }, description: "4 adet birbirine yakın seçenek." },
-                            answer: { type: 'STRING' },
-                            answerValue: { type: 'INTEGER' }
+                            answer: { type: 'STRING', description: 'Doğru cevap metni' },
+                            answerValue: { type: 'INTEGER', description: 'Doğru cevap sayısal değeri' }
                         },
                         required: ['riddleParts', 'options', 'answer', 'answerValue', 'visualDistraction']
                     }

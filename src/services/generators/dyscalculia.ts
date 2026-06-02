@@ -32,20 +32,20 @@ export const generateMathMemoryCardsFromAI = async (options: GeneratorOptions): 
         items: {
             type: 'OBJECT',
             properties: {
-                title: { type: 'STRING' },
-                instruction: { type: 'STRING' },
-                pedagogicalNote: { type: 'STRING' },
+                title: { type: 'STRING', description: 'Etkinlik başlığı' },
+                instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' },
+                pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' },
                 cards: {
-                    type: 'ARRAY',
+                    type: 'ARRAY', description: 'Hafıza kartları dizisi',
                     items: {
                         type: 'OBJECT',
                         properties: {
-                            id: { type: 'STRING' },
-                            pairId: { type: 'STRING' },
-                            type: { type: 'STRING', enum: ['operation', 'number', 'visual', 'text'] },
-                            content: { type: 'STRING' },
-                            visualType: { type: 'STRING', nullable: true },
-                            numValue: { type: 'NUMBER' }
+                            id: { type: 'STRING', description: 'Kart benzersiz kimliği' },
+                            pairId: { type: 'STRING', description: 'Eşleştirme grup ID' },
+                            type: { type: 'STRING', description: 'Kart türü', enum: ['operation', 'number', 'visual', 'text'] },
+                            content: { type: 'STRING', description: 'Kart içeriği (işlem/sayı/metin)' },
+                            visualType: { type: 'STRING', description: 'Görsel stil tipi', nullable: true },
+                            numValue: { type: 'NUMBER', description: 'Sayısal değer' }
                         },
                         required: ['id', 'pairId', 'type', 'content', 'numValue']
                     }

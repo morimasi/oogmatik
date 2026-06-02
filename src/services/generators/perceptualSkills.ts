@@ -83,52 +83,52 @@ export const generateVisualOddOneOutFromAI = async (
   const singleSchema = {
     type: 'OBJECT',
     properties: {
-      title: { type: 'STRING' },
-      instruction: { type: 'STRING' },
+      title: { type: 'STRING', description: 'Etkinlik başlığı' },
+      instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' },
       settings: {
-        type: 'OBJECT',
+        type: 'OBJECT', description: 'Etkinlik ayarları',
         properties: {
-          difficulty: { type: 'STRING' },
-          layout: { type: 'STRING' },
-          aestheticMode: { type: 'STRING' },
-          cognitiveLoad: { type: 'NUMBER' },
-          showClinicalNotes: { type: 'BOOLEAN' },
+          difficulty: { type: 'STRING', description: 'Zorluk seviyesi' },
+          layout: { type: 'STRING', description: 'Sayfa düzeni' },
+          aestheticMode: { type: 'STRING', description: 'Estetik stil' },
+          cognitiveLoad: { type: 'NUMBER', description: 'Bilişsel yük endeksi (1-10)' },
+          showClinicalNotes: { type: 'BOOLEAN', description: 'Klinik notları göster' },
         },
       },
       rows: {
-        type: 'ARRAY',
+        type: 'ARRAY', description: 'Görsel satır dizisi',
         items: {
           type: 'OBJECT',
           properties: {
             items: {
-              type: 'ARRAY',
+              type: 'ARRAY', description: 'Satırdaki öğeler',
               items: {
                 type: 'OBJECT',
                 properties: {
                   svgPaths: {
-                    type: 'ARRAY',
+                    type: 'ARRAY', description: 'SVG yol verileri',
                     items: {
                       type: 'OBJECT',
                       properties: {
-                        d: { type: 'STRING' },
-                        fill: { type: 'STRING' },
-                        stroke: { type: 'STRING' },
+                        d: { type: 'STRING', description: 'SVG path d değeri' },
+                        fill: { type: 'STRING', description: 'Dolgu rengi' },
+                        stroke: { type: 'STRING', description: 'Çizgi rengi' },
                       },
                     },
                   },
-                  label: { type: 'STRING' },
-                  rotation: { type: 'NUMBER' },
-                  isMirrored: { type: 'BOOLEAN' },
+                  label: { type: 'STRING', description: 'Öğe etiketi' },
+                  rotation: { type: 'NUMBER', description: 'Dönüş açısı' },
+                  isMirrored: { type: 'BOOLEAN', description: 'Ayna yansıması durumu' },
                 },
               },
             },
-            correctIndex: { type: 'INTEGER' },
-            reason: { type: 'STRING' },
+            correctIndex: { type: 'INTEGER', description: 'Doğru cevap indeksi' },
+            reason: { type: 'STRING', description: 'Farklı olma nedeni' },
             clinicalMeta: {
-              type: 'OBJECT',
+              type: 'OBJECT', description: 'Klinik meta veriler',
               properties: {
-                targetedError: { type: 'STRING' },
-                cognitiveLoad: { type: 'NUMBER' },
+                targetedError: { type: 'STRING', description: 'Hedeflenen hata türü' },
+                cognitiveLoad: { type: 'NUMBER', description: 'Bilişsel yük değeri' },
               },
             },
           },
@@ -184,18 +184,18 @@ export const generateFindTheDifferenceFromAI = async (
   const singleSchema = {
     type: 'OBJECT',
     properties: {
-      title: { type: 'STRING' },
-      instruction: { type: 'STRING' },
-      gridA: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } } },
-      gridB: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } } },
-      diffCount: { type: 'INTEGER' },
+      title: { type: 'STRING', description: 'Etkinlik başlığı' },
+      instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' },
+      gridA: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } }, description: 'Referans tablo' },
+      gridB: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } }, description: 'Farklı tablo' },
+      diffCount: { type: 'INTEGER', description: 'Fark sayısı' },
       rows: {
-        type: 'ARRAY',
+        type: 'ARRAY', description: 'Fark satır verileri',
         items: {
           type: 'OBJECT',
           properties: {
-            items: { type: 'ARRAY', items: { type: 'STRING' } },
-            clinicalMeta: { type: 'OBJECT', properties: { errorType: { type: 'STRING' } } },
+            items: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Satır öğeleri' },
+            clinicalMeta: { type: 'OBJECT', description: 'Klinik meta veri', properties: { errorType: { type: 'STRING', description: 'Hata türü' } } },
           },
         },
       },

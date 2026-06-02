@@ -103,7 +103,7 @@ async function callGemini(prompt: string, systemInstruction: string): Promise<Re
             sceneVisual: { type: 'STRING' },
           },
         }},
-        sceneVisuals: { type: 'OBJECT' },
+        sceneVisuals: { type: 'OBJECT', description: 'Visual style guide: { colorPalette: string[], mood: string, typography: { font: string, sizes: object }, keyVisuals: string[], transitions: { type: string, duration: number }[] }' },
         script: { type: 'STRING' },
         socialCopy: { type: 'STRING' },
         emailSubject: { type: 'STRING' },

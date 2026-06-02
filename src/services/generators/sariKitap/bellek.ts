@@ -36,24 +36,25 @@ export const generateBellekFromAI = async (options: GeneratorOptions): Promise<a
     const singleSchema = {
         type: 'OBJECT',
         properties: {
-            title: { type: 'STRING' },
-            instruction: { type: 'STRING' },
-            category: { type: 'STRING' },
+            title: { type: 'STRING', description: 'Etkinlik başlığı' },
+            instruction: { type: 'STRING', description: 'Öğrenciye verilen yönerge' },
+            category: { type: 'STRING', description: 'Kelime kategorisi' },
             phases: {
                 type: 'ARRAY',
+                description: 'Bellek aşamaları (A-Çalışma B-Hatırlama C-Karışık D-Cümle)',
                 items: {
                     type: 'OBJECT',
                     properties: {
-                        phase: { type: 'STRING', enum: ['A', 'B', 'C', 'D'] },
-                        studyWords: { type: 'ARRAY', items: { type: 'STRING' } },
-                        blankIndices: { type: 'ARRAY', items: { type: 'INTEGER' } },
-                        distractors: { type: 'ARRAY', items: { type: 'STRING' } }
+                        phase: { type: 'STRING', description: 'Aşama kodu', enum: ['A', 'B', 'C', 'D'] },
+                        studyWords: { type: 'ARRAY', description: 'Ezberlenecek kelimeler', items: { type: 'STRING' } },
+                        blankIndices: { type: 'ARRAY', description: 'Boş bırakılacak indisler', items: { type: 'INTEGER' } },
+                        distractors: { type: 'ARRAY', description: 'Dikkat dağıtıcı kelimeler', items: { type: 'STRING' } }
                     },
                     required: ['phase', 'studyWords', 'blankIndices']
                 }
             },
-            blockCount: { type: 'INTEGER' },
-            gridColumns: { type: 'INTEGER' }
+            blockCount: { type: 'INTEGER', description: 'Kelime blok sayısı' },
+            gridColumns: { type: 'INTEGER', description: 'Grid sütun sayısı' }
         },
         required: ['title', 'instruction', 'phases']
     };

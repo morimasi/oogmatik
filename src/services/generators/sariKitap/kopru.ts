@@ -36,23 +36,24 @@ export const generateKopruFromAI = async (options: GeneratorOptions): Promise<an
     const singleSchema = {
         type: 'OBJECT',
         properties: {
-            title: { type: 'STRING' },
-            instruction: { type: 'STRING' },
-            text: { type: 'STRING' },
+            title: { type: 'STRING', description: 'Etkinlik başlığı' },
+            instruction: { type: 'STRING', description: 'Öğrenciye verilen yönerge' },
+            text: { type: 'STRING', description: 'Köprülü okuma metni' },
             wordGroups: {
                 type: 'ARRAY',
+                description: 'Köprülü kelime grupları',
                 items: {
                     type: 'OBJECT',
                     properties: {
-                        words: { type: 'ARRAY', items: { type: 'STRING' } },
-                        hasBridge: { type: 'BOOLEAN' },
-                        bridgeHeight: { type: 'NUMBER' }
+                        words: { type: 'ARRAY', description: 'Grup içindeki kelimeler', items: { type: 'STRING' } },
+                        hasBridge: { type: 'BOOLEAN', description: 'Köprü içeriyor mu?' },
+                        bridgeHeight: { type: 'NUMBER', description: 'Köprü yüksekliği (birim)' }
                     },
                     required: ['words', 'hasBridge']
                 }
             },
-            bridgePlacement: { type: 'STRING', enum: ['kelime', 'hece'] },
-            bridgeStyle: { type: 'STRING', enum: ['yay', 'düz', 'noktalı'] }
+            bridgePlacement: { type: 'STRING', description: 'Köprü yerleşim düzeyi', enum: ['kelime', 'hece'] },
+            bridgeStyle: { type: 'STRING', description: 'Köprü görsel stili', enum: ['yay', 'düz', 'noktalı'] }
         },
         required: ['title', 'instruction', 'text', 'wordGroups']
     };

@@ -94,49 +94,49 @@ KURALLAR:
   const schema = {
     type: 'OBJECT',
     properties: {
-      title: { type: 'STRING' },
-      instruction: { type: 'STRING' },
-      pedagogicalNote: { type: 'STRING' },
+      title: { type: 'STRING', description: 'Etkinlik başlığı' },
+      instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' },
+      pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' },
       puzzles: {
-        type: 'ARRAY',
+        type: 'ARRAY', description: 'Bulmaca dizisi',
         items: {
           type: 'OBJECT',
           properties: {
             objects: {
-              type: 'ARRAY',
+              type: 'ARRAY', description: 'Bulmaca nesneleri',
               items: {
                 type: 'OBJECT',
                 properties: {
-                  name: { type: 'STRING' },
-                  imagePrompt: { type: 'STRING' },
-                  value: { type: 'NUMBER' }
+                  name: { type: 'STRING', description: 'Nesne adı' },
+                  imagePrompt: { type: 'STRING', description: 'Görsel üretim promptu (İngilizce)' },
+                  value: { type: 'NUMBER', description: 'Nesnenin sayısal değeri' }
                 },
                 required: ['name', 'imagePrompt', 'value']
               }
             },
             equations: {
-              type: 'ARRAY',
+              type: 'ARRAY', description: 'Denklem listesi',
               items: {
                 type: 'OBJECT',
                 properties: {
                   leftSide: {
-                    type: 'ARRAY',
+                    type: 'ARRAY', description: 'Denklemin sol tarafı',
                     items: {
                       type: 'OBJECT',
                       properties: {
-                        objectName: { type: 'STRING' },
-                        multiplier: { type: 'NUMBER' }
+                        objectName: { type: 'STRING', description: 'Nesne referans adı' },
+                        multiplier: { type: 'NUMBER', description: 'Nesne çarpanı' }
                       },
                       required: ['objectName', 'multiplier']
                     }
                   },
-                  rightSide: { type: 'NUMBER' }
+                  rightSide: { type: 'NUMBER', description: 'Denklemin sağ taraf değeri' }
                 },
                 required: ['leftSide', 'rightSide']
               }
             },
-            finalQuestion: { type: 'STRING' },
-            answer: { type: 'NUMBER' }
+            finalQuestion: { type: 'STRING', description: 'Son soru metni' },
+            answer: { type: 'NUMBER', description: 'Doğru cevap' }
           },
           required: ['objects', 'equations', 'finalQuestion', 'answer']
         }

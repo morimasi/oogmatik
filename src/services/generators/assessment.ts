@@ -53,8 +53,9 @@ export const generateAdaptiveQuestionsFromAI = async (
             subSkill: { type: 'STRING' },
             errorTags: {
                 type: 'OBJECT',
-                description: "Map of Option Text to Error Tag Key",
-                nullable: true
+                description: "Map of Option Text to Error Tag Key. Format: { optionText: errorTagKey }. Example: { '5': 'counting_error', '10': 'place_value_error' }",
+                nullable: true,
+                properties: {}
             }
         },
         required: ['text', 'options', 'correct', 'difficulty', 'skill', 'errorTags']

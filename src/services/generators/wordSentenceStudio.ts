@@ -41,26 +41,27 @@ export const generateFillBlanks = async (config: GenerationConfig): Promise<Fill
   const schema = {
     type: 'OBJECT',
     properties: {
-      settings: { type: 'OBJECT' },
+      settings: { type: 'OBJECT', description: 'Activity settings', properties: { compactLayout: { type: 'BOOLEAN', description: 'Dar yerleşim' }, fontSize: { type: 'STRING', enum: ['small', 'medium', 'large'], description: 'Yazı boyutu' }, showWordBank: { type: 'BOOLEAN', description: 'Kelime bankası göster' }, maxAttempts: { type: 'INTEGER', description: 'Maksimum deneme' }, hintEnabled: { type: 'BOOLEAN', description: 'İpucu aktif' }, randomizeOrder: { type: 'BOOLEAN', description: 'Rastgele sırala' } } },
       content: {
         type: 'OBJECT',
         properties: {
-          title: { type: 'STRING' },
-          instruction: { type: 'STRING' },
-          wordBank: { type: 'ARRAY', items: { type: 'STRING' } }
+          title: { type: 'STRING', description: 'Etkinlik başlığı' },
+          instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
+          wordBank: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Tüm cevapların listesi' }
         }
       },
       items: {
         type: 'ARRAY',
+        description: 'Boşluk doldurma maddeleri',
         items: {
           type: 'OBJECT',
           properties: {
-            sentence: { type: 'STRING' },
-            blankValue: { type: 'STRING' }
+            sentence: { type: 'STRING', description: 'Boşluk içeren cümle (___)' },
+            blankValue: { type: 'STRING', description: 'Doğru cevap kelime' }
           }
         }
       },
-      pedagogicalNote: { type: 'STRING' }
+      pedagogicalNote: { type: 'STRING', description: 'Öğretmene pedagojik not' }
     }
   };
 
@@ -98,22 +99,23 @@ export const generateMultipleChoiceVerbal = async (config: GenerationConfig): Pr
       content: {
         type: 'OBJECT',
         properties: {
-          title: { type: 'STRING' },
-          instruction: { type: 'STRING' }
+          title: { type: 'STRING', description: 'Etkinlik başlığı' },
+          instruction: { type: 'STRING', description: 'Öğrenci yönergesi' }
         }
       },
       items: {
         type: 'ARRAY',
+        description: 'Çoktan seçmeli sorular',
         items: {
           type: 'OBJECT',
           properties: {
-            question: { type: 'STRING' },
-            options: { type: 'ARRAY', items: { type: 'STRING' } },
-            correctAnswer: { type: 'STRING' }
+            question: { type: 'STRING', description: 'Soru metni' },
+            options: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Seçenek listesi (4 şık)' },
+            correctAnswer: { type: 'STRING', description: 'Doğru cevap' }
           }
         }
       },
-      pedagogicalNote: { type: 'STRING' }
+      pedagogicalNote: { type: 'STRING', description: 'Öğretmene pedagojik not' }
     }
   };
 
@@ -142,19 +144,20 @@ export const generateWordCompletion = async (config: GenerationConfig): Promise<
   const schema = {
     type: 'OBJECT',
     properties: {
-      content: { type: 'OBJECT', properties: { title: { type: 'STRING' }, instruction: { type: 'STRING' } } },
+      content: { type: 'OBJECT', description: 'İçerik başlık ve yönerge', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, instruction: { type: 'STRING', description: 'Öğrenci yönergesi' } } },
       items: {
         type: 'ARRAY',
+        description: 'Kelime tamamlama maddeleri',
         items: {
           type: 'OBJECT',
           properties: {
-            word: { type: 'STRING' },
-            missingPart: { type: 'STRING' },
-            imagePrompt: { type: 'STRING' }
+            word: { type: 'STRING', description: 'Eksik harfli kelime (ör: El_a)' },
+            missingPart: { type: 'STRING', description: 'Eksik harf/hece' },
+            imagePrompt: { type: 'STRING', description: 'Görsel ipucu (İngilizce)' }
           }
         }
       },
-      pedagogicalNote: { type: 'STRING' }
+      pedagogicalNote: { type: 'STRING', description: 'Öğretmene pedagojik not' }
     }
   };
 
@@ -183,18 +186,19 @@ export const generateMixedSentence = async (config: GenerationConfig): Promise<M
   const schema = {
     type: 'OBJECT',
     properties: {
-      content: { type: 'OBJECT', properties: { title: { type: 'STRING' }, instruction: { type: 'STRING' } } },
+      content: { type: 'OBJECT', description: 'İçerik başlık ve yönerge', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, instruction: { type: 'STRING', description: 'Öğrenci yönergesi' } } },
       items: {
         type: 'ARRAY',
+        description: 'Karışık cümle maddeleri',
         items: {
           type: 'OBJECT',
           properties: {
-            scrambledWords: { type: 'ARRAY', items: { type: 'STRING' } },
-            correctSentence: { type: 'STRING' }
+            scrambledWords: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Karıştırılmış kelimeler' },
+            correctSentence: { type: 'STRING', description: 'Doğru cümle sıralaması' }
           }
         }
       },
-      pedagogicalNote: { type: 'STRING' }
+      pedagogicalNote: { type: 'STRING', description: 'Öğretmene pedagojik not' }
     }
   };
 
@@ -223,19 +227,20 @@ export const generateAntonyms = async (config: GenerationConfig): Promise<Antony
   const schema = {
     type: 'OBJECT',
     properties: {
-      content: { type: 'OBJECT', properties: { title: { type: 'STRING' }, instruction: { type: 'STRING' } } },
+      content: { type: 'OBJECT', description: 'İçerik başlık ve yönerge', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, instruction: { type: 'STRING', description: 'Öğrenci yönergesi' } } },
       items: {
         type: 'ARRAY',
+        description: 'Zıt anlam çiftleri',
         items: {
           type: 'OBJECT',
           properties: {
-            word: { type: 'STRING' },
-            target: { type: 'STRING' },
-            contextSentence: { type: 'STRING' }
+            word: { type: 'STRING', description: 'Kaynak kelime' },
+            target: { type: 'STRING', description: 'Zıt anlamlısı' },
+            contextSentence: { type: 'STRING', description: 'Örnek cümle' }
           }
         }
       },
-      pedagogicalNote: { type: 'STRING' }
+      pedagogicalNote: { type: 'STRING', description: 'Öğretmene pedagojik not' }
     }
   };
 

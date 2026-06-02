@@ -77,7 +77,7 @@ ${widgetListStr}
                         id: { type: 'STRING' },
                         type: { type: 'STRING', enum: ['infographic', 'math_graphic', 'reading_passage', 'quiz_block', 'text_block'] },
                         activityId: { type: 'STRING' },
-                        data: { type: 'OBJECT' }
+                        data: { type: 'STRING', description: 'Widget data JSON: for infographic: { title, icon, stats: { label, value }[] }, for math_graphic: { equation, solution, steps: string[], visualization: string }, for reading_passage: { text, questions: { q, options, answer }[] }, for quiz_block: { question, options, correctIndex, explanation }, for text_block: { body, format: "plain"|"rich" }' }
                     },
                     required: ['id', 'type', 'activityId', 'data']
                 }

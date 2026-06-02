@@ -36,22 +36,23 @@ export const generatePencereFromAI = async (options: GeneratorOptions): Promise<
     const singleSchema = {
         type: 'OBJECT',
         properties: {
-            title: { type: 'STRING' },
-            instruction: { type: 'STRING' },
+            title: { type: 'STRING', description: 'Etkinlik başlığı' },
+            instruction: { type: 'STRING', description: 'Öğrenciye verilen yönerge' },
             paragraphs: {
                 type: 'ARRAY',
+                description: 'Pencere okuma paragrafları',
                 items: {
                     type: 'OBJECT',
                     properties: {
-                        text: { type: 'STRING' },
-                        windowSize: { type: 'INTEGER' },
-                        revealSpeed: { type: 'STRING', enum: ['yavaş', 'orta', 'hızlı'] }
+                        text: { type: 'STRING', description: 'Paragraf metni' },
+                        windowSize: { type: 'INTEGER', description: 'Pencere boyutu (karakter)' },
+                        revealSpeed: { type: 'STRING', description: 'Açılma hızı', enum: ['yavaş', 'orta', 'hızlı'] }
                     },
                     required: ['text', 'windowSize', 'revealSpeed']
                 }
             },
-            visibilityRatio: { type: 'NUMBER' },
-            gridColumns: { type: 'INTEGER' }
+            visibilityRatio: { type: 'NUMBER', description: 'Görünürlük oranı 0-1' },
+            gridColumns: { type: 'INTEGER', description: 'Grid sütun sayısı' }
         },
         required: ['title', 'instruction', 'paragraphs']
     };

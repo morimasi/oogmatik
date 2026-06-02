@@ -41,20 +41,22 @@ export const generateCiftMetinFromAI = async (config: CiftMetinConfig): Promise<
     const singleSchema = {
         type: 'OBJECT',
         properties: {
-            title: { type: 'STRING' },
-            instruction: { type: 'STRING' },
+            title: { type: 'STRING', description: 'Etkinlik başlığı' },
+            instruction: { type: 'STRING', description: 'Öğrenciye verilen yönerge' },
             sourceA: {
                 type: 'OBJECT',
+                description: 'Birinci kaynak metin',
                 properties: {
-                    title: { type: 'STRING' },
-                    text: { type: 'STRING' },
+                    title: { type: 'STRING', description: 'Kaynak A başlığı' },
+                    text: { type: 'STRING', description: 'Kaynak A metni' },
                     questions: {
                         type: 'ARRAY',
+                        description: '5N1K anlama soruları',
                         items: {
                             type: 'OBJECT',
                             properties: {
-                                q: { type: 'STRING' },
-                                a: { type: 'STRING' }
+                                q: { type: 'STRING', description: 'Soru metni' },
+                                a: { type: 'STRING', description: 'Cevap metni' }
                             },
                             required: ['q', 'a']
                         }
@@ -64,16 +66,18 @@ export const generateCiftMetinFromAI = async (config: CiftMetinConfig): Promise<
             },
             sourceB: {
                 type: 'OBJECT',
+                description: 'İkinci kaynak metin',
                 properties: {
-                    title: { type: 'STRING' },
-                    text: { type: 'STRING' },
+                    title: { type: 'STRING', description: 'Kaynak B başlığı' },
+                    text: { type: 'STRING', description: 'Kaynak B metni' },
                     questions: {
                         type: 'ARRAY',
+                        description: '5N1K anlama soruları',
                         items: {
                             type: 'OBJECT',
                             properties: {
-                                q: { type: 'STRING' },
-                                a: { type: 'STRING' }
+                                q: { type: 'STRING', description: 'Soru metni' },
+                                a: { type: 'STRING', description: 'Cevap metni' }
                             },
                             required: ['q', 'a']
                         }
@@ -81,9 +85,9 @@ export const generateCiftMetinFromAI = async (config: CiftMetinConfig): Promise<
                 },
                 required: ['title', 'text', 'questions']
             },
-            interleaveMode: { type: 'STRING', enum: ['kelime', 'satir', 'paragraf'] },
-            interleaveRatio: { type: 'INTEGER' },
-            pedagogicalNote: { type: 'STRING' }
+            interleaveMode: { type: 'STRING', description: 'Metin karıştırma modu', enum: ['kelime', 'satir', 'paragraf'] },
+            interleaveRatio: { type: 'INTEGER', description: 'Karışım oranı (yüzde)' },
+            pedagogicalNote: { type: 'STRING', description: 'Etkinliğin pedagojik amacı' }
         },
         required: ['title', 'instruction', 'sourceA', 'sourceB', 'interleaveMode']
     };

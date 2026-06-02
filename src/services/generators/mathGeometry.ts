@@ -50,42 +50,42 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
         items: {
             type: 'OBJECT',
             properties: {
-                title: { type: 'STRING' },
-                instruction: { type: 'STRING' },
-                pedagogicalNote: { type: 'STRING' },
-                correctCount: { type: 'INTEGER' },
+                title: { type: 'STRING', description: 'Etkinlik başlığı' },
+                instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' },
+                pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' },
+                correctCount: { type: 'INTEGER', description: 'Hedef şeklin doğru sayısı' },
                 settings: {
-                    type: 'OBJECT',
+                    type: 'OBJECT', description: 'Etkinlik ayarları',
                     properties: {
-                        difficulty: { type: 'STRING' },
-                        itemCount: { type: 'NUMBER' },
-                        targetShape: { type: 'STRING' },
-                        layout: { type: 'STRING' },
-                        overlapping: { type: 'BOOLEAN' },
-                        aestheticMode: { type: 'STRING' }
+                        difficulty: { type: 'STRING', description: 'Zorluk seviyesi' },
+                        itemCount: { type: 'NUMBER', description: 'Toplam nesne sayısı' },
+                        targetShape: { type: 'STRING', description: 'Hedef şekil türü' },
+                        layout: { type: 'STRING', description: 'Sayfa düzeni' },
+                        overlapping: { type: 'BOOLEAN', description: 'Üst üste binme durumu' },
+                        aestheticMode: { type: 'STRING', description: 'Estetik stil' }
                     }
                 },
                 searchField: {
-                    type: 'ARRAY',
+                    type: 'ARRAY', description: 'Nesne listesi',
                     items: {
                         type: 'OBJECT',
                         properties: {
-                            id: { type: 'STRING' },
-                            type: { type: 'STRING' },
-                            color: { type: 'STRING' },
-                            rotation: { type: 'NUMBER' },
-                            size: { type: 'NUMBER' },
-                            x: { type: 'NUMBER' },
-                            y: { type: 'NUMBER' }
+                            id: { type: 'STRING', description: 'Nesne kimliği' },
+                            type: { type: 'STRING', description: 'Şekil türü' },
+                            color: { type: 'STRING', description: 'Renk kodu (hex)' },
+                            rotation: { type: 'NUMBER', description: 'Dönüş açısı (0-360)' },
+                            size: { type: 'NUMBER', description: 'Boyut katsayısı (0.5-1.2)' },
+                            x: { type: 'NUMBER', description: 'Yatay konum (0-100)' },
+                            y: { type: 'NUMBER', description: 'Dikey konum (0-100)' }
                         },
                         required: ['type', 'color', 'x', 'y']
                     }
                 },
                 clinicalMeta: {
-                    type: 'OBJECT',
+                    type: 'OBJECT', description: 'Klinik meta veriler',
                     properties: {
-                        figureGroundComplexity: { type: 'NUMBER' },
-                        overlappingRatio: { type: 'NUMBER' }
+                        figureGroundComplexity: { type: 'NUMBER', description: 'Figür-zemin karmaşıklığı (1-10)' },
+                        overlappingRatio: { type: 'NUMBER', description: 'Üst üste binme oranı (0-1)' }
                     }
                 }
             },

@@ -35,23 +35,25 @@ export const generateReadingSudokuFromAI = async (options: GeneratorOptions): Pr
     ÇIKTI: JSON formatında bir dizi.
     `;
 
-    const schema = {
+    const         schema = {
         type: 'ARRAY',
+        description: 'Dil Sudokusu sayfaları',
         items: {
             type: 'OBJECT',
             properties: {
-                title: { type: 'STRING' },
-                instruction: { type: 'STRING' },
-                grid: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING', nullable: true } } },
-                solution: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } } },
+                title: { type: 'STRING', description: 'Etkinlik başlığı' },
+                instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
+                grid: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING', nullable: true } }, description: 'Başlangıç ızgarası (null=boş)' },
+                solution: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } }, description: 'Tamamlanmış çözüm ızgarası' },
                 symbols: {
                     type: 'ARRAY',
+                    description: 'Kullanılan sembol/harf listesi',
                     items: {
                         type: 'OBJECT',
                         properties: {
-                            value: { type: 'STRING' },
-                            label: { type: 'STRING' },
-                            imagePrompt: { type: 'STRING' }
+                            value: { type: 'STRING', description: 'Sembol değeri' },
+                            label: { type: 'STRING', description: 'Görünen etiket' },
+                            imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' }
                         },
                         required: ['value']
                     }
@@ -92,35 +94,38 @@ export const generateSynonymAntonymMatchFromAI = async (options: GeneratorOption
     ÇIKTI: JSON.
     `;
 
-    const schema = {
+    const     schema = {
         type: 'ARRAY',
+        description: 'Eş/Zıt anlam bulmaca sayfaları',
         items: {
             type: 'OBJECT',
             properties: {
-                title: { type: 'STRING' },
-                instruction: { type: 'STRING' },
-                mode: { type: 'STRING' },
+                title: { type: 'STRING', description: 'Etkinlik başlığı' },
+                instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
+                mode: { type: 'STRING', description: 'synonym|antonym|mixed' },
                 pairs: {
                     type: 'ARRAY',
+                    description: 'Kelime çiftleri',
                     items: {
                         type: 'OBJECT',
                         properties: {
-                            source: { type: 'STRING' },
-                            target: { type: 'STRING' },
-                            type: { type: 'STRING' }
+                            source: { type: 'STRING', description: 'Kaynak kelime' },
+                            target: { type: 'STRING', description: 'Eş/Zıt anlamlısı' },
+                            type: { type: 'STRING', description: 'synonym veya antonym' }
                         },
                         required: ['source', 'target', 'type']
                     }
                 },
                 sentences: {
                     type: 'ARRAY',
+                    description: 'Bağlam cümleleri',
                     items: {
                         type: 'OBJECT',
                         properties: {
-                            text: { type: 'STRING' },
-                            word: { type: 'STRING' },
-                            target: { type: 'STRING' },
-                            type: { type: 'STRING' }
+                            text: { type: 'STRING', description: 'Cümle metni' },
+                            word: { type: 'STRING', description: 'Hedef kelime' },
+                            target: { type: 'STRING', description: 'İstenen cevap' },
+                            type: { type: 'STRING', description: 'synonym veya antonym' }
                         },
                         required: ['text', 'word', 'target', 'type']
                     }
@@ -162,20 +167,22 @@ export const generateReadingStroopFromAI = async (options: GeneratorOptions): Pr
     ${worksheetCount} adet sayfa üret.
     `;
 
-    const schema = {
+    const     schema = {
         type: 'ARRAY',
+        description: 'Stroop test sayfaları',
         items: {
             type: 'OBJECT',
             properties: {
-                title: { type: 'STRING' },
-                instruction: { type: 'STRING' },
+                title: { type: 'STRING', description: 'Etkinlik başlığı' },
+                instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
                 grid: {
                     type: 'ARRAY',
+                    description: 'Kelime-renk eşleşmeleri',
                     items: {
                         type: 'OBJECT',
                         properties: {
-                            text: { type: 'STRING' },
-                            color: { type: 'STRING' }
+                            text: { type: 'STRING', description: 'Yazılacak kelime' },
+                            color: { type: 'STRING', description: 'Kelimenin rengi (çelişen)' }
                         },
                         required: ['text', 'color']
                     }
@@ -230,37 +237,39 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
     ${worksheetCount} adet üret.
     `;
 
-    const singleSchema = {
+    const     singleSchema = {
         type: 'OBJECT',
         properties: {
-            title: { type: 'STRING' },
-            story: { type: 'STRING' },
-            imagePrompt: { type: 'STRING' },
-            mainIdea: { type: 'STRING' },
-            characters: { type: 'ARRAY', items: { type: 'STRING' } },
-            setting: { type: 'STRING' },
+            title: { type: 'STRING', description: 'Hikaye başlığı' },
+            story: { type: 'STRING', description: 'Hikaye metni' },
+            imagePrompt: { type: 'STRING', description: 'Sahne görseli promptu (İngilizce)' },
+            mainIdea: { type: 'STRING', description: 'Ana fikir özeti' },
+            characters: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Karakter listesi' },
+            setting: { type: 'STRING', description: 'Hikaye mekanı/zamanı' },
             vocabulary: {
                 type: 'ARRAY',
+                description: 'Öğrenilmesi gereken kelimeler',
                 items: {
                     type: 'OBJECT',
                     properties: {
-                        word: { type: 'STRING' },
-                        definition: { type: 'STRING' }
+                        word: { type: 'STRING', description: 'Hedef kelime' },
+                        definition: { type: 'STRING', description: 'Çocuk dostu tanım' }
                     },
                     required: ['word', 'definition']
                 }
             },
-            creativeTask: { type: 'STRING' },
+            creativeTask: { type: 'STRING', description: 'Yaratıcı görev yönergesi' },
             questions: {
                 type: 'ARRAY',
+                description: 'Okuduğunu anlama soruları',
                 items: {
                     type: 'OBJECT',
                     properties: {
-                        type: { type: 'STRING', enum: ['multiple-choice', 'true-false', 'open-ended'] },
-                        question: { type: 'STRING' },
-                        options: { type: 'ARRAY', items: { type: 'STRING' }, nullable: true },
-                        answer: { type: 'STRING' },
-                        isTrue: { type: 'BOOLEAN', nullable: true }
+                        type: { type: 'STRING', enum: ['multiple-choice', 'true-false', 'open-ended'], description: 'Soru türü' },
+                        question: { type: 'STRING', description: 'Soru metni' },
+                        options: { type: 'ARRAY', items: { type: 'STRING' }, nullable: true, description: 'Çoktan seçmeli şıklar' },
+                        answer: { type: 'STRING', description: 'Doğru cevap' },
+                        isTrue: { type: 'BOOLEAN', nullable: true, description: 'Doğru/Yanlış sorusu için' }
                     },
                     required: ['type', 'question', 'answer']
                 }
@@ -269,7 +278,7 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
         required: ['title', 'story', 'imagePrompt', 'mainIdea', 'characters', 'setting', 'questions', 'vocabulary', 'creativeTask']
     };
 
-    const schema = { type: 'ARRAY', items: singleSchema };
+    const schema = { type: 'ARRAY', description: 'Hikaye sayfaları', items: singleSchema };
 
     return generateWithSchema(prompt, schema) as unknown as Promise<StoryData[]>;
 };

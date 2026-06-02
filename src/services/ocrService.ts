@@ -230,12 +230,13 @@ export const ocrService = {
                             aciklama: { type: 'STRING', description: 'Görselin Türkçe açıklaması' },
                             veri: {
                                 type: 'ARRAY',
+                                description: 'Veri noktaları (etiket-deger-birim üçlüsü)',
                                 items: {
                                     type: 'OBJECT',
                                     properties: {
-                                        etiket: { type: 'STRING' },
-                                        deger: { type: 'NUMBER' },
-                                        birim: { type: 'STRING' }
+                                        etiket: { type: 'STRING', description: 'Veri etiketi adı' },
+                                        deger: { type: 'NUMBER', description: 'Veri değeri sayısal' },
+                                        birim: { type: 'STRING', description: 'Değerin birimi' }
                                     }
                                 }
                             }

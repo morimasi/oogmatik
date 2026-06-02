@@ -30,9 +30,9 @@ export class VariationEngine {
       const result = await generateWithSchema(prompt, {
         type: 'OBJECT',
         properties: {
-          easy: { type: 'OBJECT' },
-          hard: { type: 'OBJECT' },
-          visualSupport: { type: 'OBJECT' }
+          easy: { type: 'STRING', description: 'Easy difficulty variant: mirror the original activity structure but simplify all questions/items. Fill every content field completely. Return as JSON string.' },
+          hard: { type: 'STRING', description: 'Hard difficulty variant: mirror the original activity structure but increase complexity. Fill every content field completely. Return as JSON string.' },
+          visualSupport: { type: 'STRING', description: 'Visual support variant: mirror the original activity structure but replace text with visual/imagery descriptions. Fill every content field completely. Return as JSON string.' }
         },
         required: ['easy', 'hard', 'visualSupport']
       });

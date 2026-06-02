@@ -29,20 +29,20 @@ export const generateSyllableMasterLabFromAI = async (options: GeneratorOptions)
     const singleSchema = {
         type: 'OBJECT',
         properties: {
-            title: { type: 'STRING' },
-            instruction: { type: 'STRING' },
-            pedagogicalNote: { type: 'STRING' },
-            mode: { type: 'STRING' },
+            title: { type: 'STRING', description: 'Etkinlik başlığı' },
+            instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' },
+            pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' },
+            mode: { type: 'STRING', description: 'Çalışma modu (split/combine/vb.)' },
             items: {
-                type: 'ARRAY',
+                type: 'ARRAY', description: 'Hece kelime öğeleri',
                 items: {
                     type: 'OBJECT',
                     properties: {
-                        word: { type: 'STRING' },
-                        syllables: { type: 'ARRAY', items: { type: 'STRING' } },
-                        missingIndex: { type: 'INTEGER', nullable: true },
-                        scrambledIndices: { type: 'ARRAY', items: { type: 'INTEGER' }, nullable: true },
-                        syllableCount: { type: 'INTEGER' }
+                        word: { type: 'STRING', description: 'Tam kelime' },
+                        syllables: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Hece listesi' },
+                        missingIndex: { type: 'INTEGER', description: 'Eksik hece indeksi', nullable: true },
+                        scrambledIndices: { type: 'ARRAY', items: { type: 'INTEGER' }, description: 'Karışık hece sırası', nullable: true },
+                        syllableCount: { type: 'INTEGER', description: 'Hece sayısı' }
                     },
                     required: ['word', 'syllables', 'syllableCount']
                 }
@@ -75,26 +75,26 @@ export const generateLetterVisualMatchingFromAI = async (options: GeneratorOptio
     const singleSchema = {
         type: 'OBJECT',
         properties: {
-            title: { type: 'STRING' },
-            instruction: { type: 'STRING' },
-            pedagogicalNote: { type: 'STRING' },
+            title: { type: 'STRING', description: 'Etkinlik başlığı' },
+            instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' },
+            pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' },
             settings: {
-                type: 'OBJECT',
+                type: 'OBJECT', description: 'Etkinlik ayarları',
                 properties: {
-                    showTracing: { type: 'BOOLEAN' },
-                    showWord: { type: 'BOOLEAN' }
+                    showTracing: { type: 'BOOLEAN', description: 'İzleme yönergesini göster' },
+                    showWord: { type: 'BOOLEAN', description: 'Kelimeyi göster' }
                 },
                 required: ['showTracing', 'showWord']
             },
             pairs: {
-                type: 'ARRAY',
+                type: 'ARRAY', description: 'Harf-kelime eşleme çiftleri',
                 items: {
                     type: 'OBJECT',
                     properties: {
-                        letter: { type: 'STRING' },
-                        word: { type: 'STRING' },
-                        imagePrompt: { type: 'STRING' },
-                        imageBase64: { type: 'STRING', nullable: true }
+                        letter: { type: 'STRING', description: 'Harf karakteri' },
+                        word: { type: 'STRING', description: 'Harfi içeren kelime' },
+                        imagePrompt: { type: 'STRING', description: 'Görsel üretim promptu (İngilizce)' },
+                        imageBase64: { type: 'STRING', description: 'SVG base64 kodu', nullable: true }
                     },
                     required: ['letter', 'word', 'imagePrompt']
                 }
