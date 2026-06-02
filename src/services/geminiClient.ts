@@ -2,6 +2,7 @@ import { AppError } from '../utils/AppError.js';
 import { logInfo, logError, logWarn } from '../utils/logger.js';
 import { safeFetch } from '../utils/apiClient.js';
 import { useStudentStore } from '../store/useStudentStore';
+import { AIValidatorService } from './aiValidatorService.js';
 
 export interface CreativeMultimodalResult {
   [key: string]: unknown;
@@ -156,22 +157,27 @@ Tüm içeriği bu spesifik bağlama göre optimize et!`;
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     try {
       logInfo('Gemini API çekilmesi', { attempt: attempt + 1, model: safeModel });
-      return await safeFetch<unknown>(url, {
+      const responseData = await safeFetch<unknown>(url, {
         method: 'POST',
         body: JSON.stringify(body),
-      }) as Promise<CreativeMultimodalResult>;
+      });
+
+      // ZOD Validasyonu: AI Halüsinasyonlarına Karşı Süper Kalkan
+      return AIValidatorService.validateOutput(responseData) as CreativeMultimodalResult;
+
     } catch (error: unknown) {
       lastError = error;
       const errorMsg = error instanceof Error ? error.message : String(error);
       
-      // Hata tipleri: Rate limit (429), High Demand/Service Unavailable (503), Gateway Timeout (504)
+      // Hata tipleri: Rate limit (429), High Demand/Service Unavailable (503), Gateway Timeout (504), Zod (VALIDATION_FAILED)
       const isRetryable = 
         errorMsg.includes('quota') || 
         errorMsg.includes('429') || 
         errorMsg.includes('503') || 
         errorMsg.includes('demand') ||
         errorMsg.includes('overloaded') ||
-        errorMsg.includes('504');
+        errorMsg.includes('504') ||
+        errorMsg.includes('VALIDATION_FAILED');
 
       if (isRetryable && attempt < maxAttempts - 1) {
         // Üssel bekleme (Exponential Backoff): 2s, 4s, 8s, 16s...
