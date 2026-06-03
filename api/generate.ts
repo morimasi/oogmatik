@@ -196,9 +196,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // IMPORTANT: Use sanitizedPrompt instead of raw prompt
         let combinedPrompt = `[SISTEM TALIMATI BASLANGICI]\n${systemInstruction || SYSTEM_INSTRUCTION}\n[SISTEM TALIMATI BITISI]\n\n[KULLANICI ISTEGI]:\n${sanitizedPrompt}`;
 
-        // Schema responseSchema'e gömülüdür — prompt'a eklemek token israfıdır
+        // Schema hem responseSchema'de (API yapısal zorlama) hem prompt'ta (AI rehberlik) olmalı
         if (schema) {
-          combinedPrompt += '\n\nYanıt responseSchema ile tanımlanan JSON yapısına uygun olmalıdır.';
+          combinedPrompt += '\n\n[ZORUNLU JSON YAPISI]:\nAşağıdaki şemaya HARFİYEN uyun. Tüm alanları eksiksiz doldurun.\n' + JSON.stringify(schema, null, 2);
         }
 
         // Text prompt
