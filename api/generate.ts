@@ -22,7 +22,25 @@ import { tryRepairJson } from '../src/utils/jsonRepair.js';
 
 // JSON onarım kodu src/utils/jsonRepair.ts dosyasına aktarıldı.
 
-// Types are imported from @vercel/node above
+// Schema type'lerini lowercase'e çevir (JSON Schema standardı)
+// Gemini responseSchema STRING yerine string, OBJECT yerine object bekler
+function lowerSchemaTypes(schema: Record<string, unknown>): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(schema)) {
+    if (key === 'type' && typeof value === 'string') {
+      result[key] = value.toLowerCase();
+    } else if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+      result[key] = lowerSchemaTypes(value as Record<string, unknown>);
+    } else if (Array.isArray(value)) {
+      result[key] = value.map(v =>
+        typeof v === 'object' && v !== null ? lowerSchemaTypes(v as Record<string, unknown>) : v
+      );
+    } else {
+      result[key] = value;
+    }
+  }
+  return result;
+}
 
 const MASTER_MODEL = 'gemini-2.5-flash';
 
@@ -178,22 +196,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // IMPORTANT: Use sanitizedPrompt instead of raw prompt
         let combinedPrompt = `[SISTEM TALIMATI BASLANGICI]\n${systemInstruction || SYSTEM_INSTRUCTION}\n[SISTEM TALIMATI BITISI]\n\n[KULLANICI ISTEGI]:\n${sanitizedPrompt}`;
 
-        // Schema'yi Google REST API'in icine nesne olarak basamadigimiz icin Prompt'a yillayalim.
+        // Schema responseSchema'e gömülüdür — prompt'a eklemek token israfıdır
         if (schema) {
-          combinedPrompt += '\n\n[ZORUNLU JSON YAPISI (ZORUNLU ŞEMA)]:\nAşağıdaki JSON şemasına ve anahtar kelimelerine HARFİYEN UYMALISIN. Çıktı sadece geçerli bir JSON olmalı.\n' + JSON.stringify(schema, null, 2);
+          combinedPrompt += '\n\nYanıt responseSchema ile tanımlanan JSON yapısına uygun olmalıdır.';
         }
 
         // Text prompt
         contents[0].parts.push({ text: combinedPrompt });
 
         // Use generationConfig with responseMimeType to enforce JSON output
-        // Schema is passed as responseSchema for structured generation, plus remains
-        // embedded in the prompt as a text fallback for older models.
+        // Schema propertly typed as responseSchema for structured generation
         const requestBody: Record<string, unknown> = {
           contents,
           generationConfig: {
             responseMimeType: 'application/json',
-            ...(schema ? { responseSchema: schema } : {})
+            ...(schema ? { responseSchema: lowerSchemaTypes(schema) } : {})
           }
         };
 
