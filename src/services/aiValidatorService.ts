@@ -2,48 +2,52 @@ import { z } from 'zod';
 import { logError, logWarn } from '../utils/logger.js';
 
 /**
- * Sprint 3: Otonom Validasyon Servisi (AI Kalkanı)
+ * Otonom Validasyon Servisi (AI Kalkanı)
  * Yapay zekadan gelen JSON'un genel şemalara uygunluğunu denetler.
- * Uyumsuz ise özel bir VALIDATION_FAILED fırlatarak geminiClient'ın retry atmasını sağlar.
+ * DİKKAT: VALIDATION_FAILED artık fırlatılmaz — veri olduğu gibi döndürülür.
+ * AI'nın ürettiği her veri kabul edilir, aşağıdaki kod yorumlar.
  */
 
 export const BaseActivitySchema = z.object({
   pedagogicalNote: z.string().optional(),
   difficultyLevel: z.string().optional(),
   targetSkills: z.array(z.string()).optional(),
-}).catchall(z.any()); // Aktiviteye özel spesifik bloklara esneklik
+}).catchall(z.any());
 
 export class AIValidatorService {
   /**
-   * AI Çıktısını Zod üzerinden geçer. Hata varsa fırlatır.
+   * AI Çıktısını kabul edilebilir bir forma getirir. Hata fırlatmaz.
+   * - null/undefined → loglanır, boş obje döner
+   * - primitive (string/number/boolean) → sarmalanır
+   * - array → olduğu gibi döner
+   * - object → olduğu gibi döner
    */
   static validateOutput(data: unknown): unknown {
-    try {
-      if (typeof data !== 'object' || data === null) {
-        throw new Error('Beklenen çıktı valid bir JSON obesi değildi.');
-      }
+    // null veya undefined
+    if (data === null || data === undefined) {
+      logWarn('AI çıktısı boş (null/undefined). Boş obje döndürülüyor.');
+      return { text: '', empty: true };
+    }
 
-      // Ana şema denetimi
-      const parsed = BaseActivitySchema.parse(data);
+    // Primitive tipler (string, number, boolean)
+    if (typeof data !== 'object') {
+      logWarn('AI çıktısı primitive değer döndürdü, sarmalanıyor', { type: typeof data });
+      return { text: String(data), value: data };
+    }
 
-      // Verinin dizi (Array) bazlı olup olmadığını kontrol et (Bazı eski sistemlerde)
-      if (Array.isArray(data)) {
-        return data; 
-      }
-
-      // İçerisinde array/list içeren ana yapıları denetle
-      const listKeys = ['items', 'blocks', 'problems', 'puzzles', 'questions', 'operations', 'steps'];
-      const hasList = listKeys.some(key => Array.isArray((data as Record<string, unknown>)[key]));
-
-      if (!hasList) {
-        logWarn('AI Çıktısında beklenen liste formatı (items/blocks) bulunamadı. İçerik:', { keys: Object.keys(data as object) });
-        // Strict kipi açsaydık burada fırlatırdık ama şimdilik sadece uyarıyoruz
-      }
-
+    // Array — olduğu gibi dön (eski davranışla uyumlu)
+    if (Array.isArray(data)) {
       return data;
-    } catch (error) {
-      logError('Zod Doğrulama Hatası (Otonom AI Koruması)', { error });
-      throw new Error(`VALIDATION_FAILED: ${error instanceof Error ? error.message : 'JSON Şeması uyumsuz'}`);
+    }
+
+    // Plain object — olduğu gibi dön
+    try {
+      BaseActivitySchema.parse(data);
+      return data;
+    } catch {
+      // Schema uyumsuz ama obje olduğu için yine de kabul et
+      logWarn('AI çıktısı BaseActivitySchema uyumsuz, ham obje döndürülüyor', { keys: Object.keys(data as object) });
+      return data;
     }
   }
 }

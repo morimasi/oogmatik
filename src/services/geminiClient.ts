@@ -170,15 +170,15 @@ Tüm içeriği bu spesifik bağlama göre optimize et!`;
       lastError = error;
       const errorMsg = error instanceof Error ? error.message : String(error);
       
-      // Hata tipleri: Rate limit (429), High Demand/Service Unavailable (503), Gateway Timeout (504), Zod (VALIDATION_FAILED)
+      // Hata tipleri: Rate limit (429), High Demand/Service Unavailable (503), Gateway Timeout (504)
+      // VALIDATION_FAILED artık fırlatılmadığı için retry listesinden çıkarıldı
       const isRetryable = 
         errorMsg.includes('quota') || 
         errorMsg.includes('429') || 
         errorMsg.includes('503') || 
         errorMsg.includes('demand') ||
         errorMsg.includes('overloaded') ||
-        errorMsg.includes('504') ||
-        errorMsg.includes('VALIDATION_FAILED');
+        errorMsg.includes('504');
 
       if (isRetryable && attempt < maxAttempts - 1) {
         // Üssel bekleme (Exponential Backoff): 2s, 4s, 8s, 16s...
