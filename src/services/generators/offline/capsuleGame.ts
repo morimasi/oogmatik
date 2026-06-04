@@ -1,7 +1,7 @@
 import { NumberCapsuleData, GeneratorOptions } from '../../../types';
 
 export const generateOfflineCapsuleGame = async (options: GeneratorOptions): Promise<NumberCapsuleData[]> => {
-    const { difficulty, worksheetCount } = options;
+    const { difficulty, worksheetCount = 1 } = options;
     let size = 3;
     if (difficulty === 'Orta') size = 4;
     if (difficulty === 'Zor' || difficulty === 'Uzman') size = 5;

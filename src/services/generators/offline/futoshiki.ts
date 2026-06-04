@@ -5,7 +5,7 @@ import { FutoshikiData, GeneratorOptions } from '../../../types';
  * 4x4'ten 7x7'ye kadar dinamik boyut desteği ve akıllı zorluk seviyeleri içerir.
  */
 export const generateOfflineFutoshiki = async (options: GeneratorOptions): Promise<FutoshikiData[]> => {
-    const { difficulty, worksheetCount, gridSize, density, hintLevel } = options;
+    const { difficulty, worksheetCount = 1, gridSize, density, hintLevel } = options;
 
     let size = gridSize || 4;
     if (!gridSize) {

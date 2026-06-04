@@ -5,7 +5,7 @@ import { AbcConnectData, GeneratorOptions } from '../../../types';
  * Çoklu modlar (Romen, Harf, Nokta, İşlem) ve akıllı yerleşim içerir.
  */
 export const generateOfflineAbcConnect = async (options: GeneratorOptions): Promise<AbcConnectData[]> => {
-    const { difficulty, worksheetCount, gridSize, variant: optVariant, density } = options;
+    const { difficulty, worksheetCount = 1, gridSize, variant: optVariant, density } = options;
 
     let dim = gridSize || 5;
     if (!gridSize) {
