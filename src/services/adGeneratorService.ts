@@ -1,5 +1,4 @@
 import { AppError } from '../utils/AppError';
-import { safeFetch } from '../utils/apiClient';
 import {
   AdStudioSettings,
   BrandKit,
@@ -86,7 +85,7 @@ async function callGemini(prompt: string, systemInstruction: string): Promise<Re
     prompt,
     systemInstruction,
     temperature: 0.7,
-    // model alanı gönderilmiyor — backend MASTER_MODEL kullanacak
+    model: 'gemini-2.5-flash',
     schema: {
       type: 'OBJECT',
       properties: {
@@ -103,7 +102,7 @@ async function callGemini(prompt: string, systemInstruction: string): Promise<Re
             sceneVisual: { type: 'STRING' },
           },
         }},
-        sceneVisuals: { type: 'OBJECT', description: 'Visual style guide: { colorPalette: string[], mood: string, typography: { font: string, sizes: object }, keyVisuals: string[], transitions: { type: string, duration: number }[] }' },
+        sceneVisuals: { type: 'OBJECT' },
         script: { type: 'STRING' },
         socialCopy: { type: 'STRING' },
         emailSubject: { type: 'STRING' },
@@ -112,10 +111,23 @@ async function callGemini(prompt: string, systemInstruction: string): Promise<Re
     },
   };
 
-  const data = await safeFetch<Record<string, unknown>>(url, {
+  const response = await fetch(url, {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
+
+  if (!response.ok) {
+    const errText = await response.text().catch(() => '');
+    throw new AppError(
+      `Reklam uretilemedi: ${response.status}`,
+      'AD_GENERATION_FAILED',
+      500,
+      { details: errText }
+    );
+  }
+
+  const data = await response.json() as Record<string, unknown>;
 
   if (data.error) {
     const errMsg = typeof data.error === 'object' && data.error !== null

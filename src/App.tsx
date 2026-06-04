@@ -1,5 +1,5 @@
+
 import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { pageTransition } from './utils/motionPresets';
 import { useToastStore } from './store/useToastStore';
@@ -283,8 +283,6 @@ import { useStudentStore } from './store/useStudentStore';
 
 import { logInfo, logError, logWarn } from './utils/logger.js';
 const AppContent = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
   const authStore = useAuthStore();
   const studentStore = useStudentStore();
   const toast = useToastStore();
@@ -320,7 +318,10 @@ const AppContent = () => {
   const { activeStudent, setActiveStudent, students } = studentStore;
 
   const {
+    currentView,
     setCurrentView,
+    addHistoryView,
+    popHistoryView,
     selectedActivity,
     setSelectedActivity,
     worksheetData,
@@ -334,13 +335,6 @@ const AppContent = () => {
     setError,
     resetGeneratorContext,
   } = useWorksheetStore();
-
-  // Sync currentView with URL
-  const currentView = location.pathname === '/' ? 'generator' : location.pathname.substring(1).split('/')[0] as View;
-
-  useEffect(() => {
-    setCurrentView(currentView);
-  }, [currentView, setCurrentView]);
 
   const [loadedCurriculum, setLoadedCurriculum] = useState(null as Curriculum | null);
 
@@ -847,233 +841,193 @@ const AppContent = () => {
             onWidthChange={setSidebarWidth}
           />
         </div>
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <Suspense fallback={<LoadingSpinner />}>
+            <ContentArea
+              currentView={currentView as View}
+              onBackToGenerator={() => {
+                if (currentView !== 'generator') handleGoBack();
+                else {
+                  setSelectedActivity(null);
+                  setWorksheetData(null as any);
+                  setActiveCurriculumSession(null);
+                }
+              }}
+              activityType={selectedActivity}
+              worksheetData={worksheetData}
+              setWorksheetData={handleSetWorksheetData}
+              isLoading={isLoading}
+              error={error}
+              styleSettings={styleSettings}
+              onStyleChange={setStyleSettings}
+              onSave={addSavedWorksheet}
+              onLoadSaved={loadSavedWorksheet}
+              onFeedback={() => setIsFeedbackOpen(true)}
+              onOpenAuth={() => setIsAuthModalOpen(true)}
+              onSelectActivity={handleSelectActivity}
+              workbookItems={workbookItems}
+              setWorkbookItems={setWorkbookItems}
+              workbookSettings={workbookSettings}
+              setWorkbookSettings={setWorkbookSettings}
+              onAddToWorkbook={handleAddToWorkbook}
+              onAutoGenerateWorkbook={handleAutoGenerateWorkbook}
+              studentProfile={studentProfile}
+              zenMode={zenMode}
+              toggleZenMode={() => setZenMode(!zenMode)}
+              activeCurriculumSession={activeCurriculumSession}
+              onCompleteCurriculumActivity={handleCompleteCurriculumActivity}
+              onAddDirectToWorkbook={handleAddDirectToWorkbook}
+            />
+          </Suspense>
 
-        <div className="flex-1 flex flex-col overflow-hidden relative">
+          {/* SPECIAL RENDER FOR STUDIOS WHEN IN THAT VIEW - MOVED INSIDE CONTENT CONTAINER */}
           <AnimatePresence mode="wait">
-            <Routes location={location} key={location.pathname.split('/')[0] || '/'}>
-              {/* Main Content Area (Generator, History, Archive etc) */}
-              {["/", "/workbook", "/savedList", "/favorites", "/shared", "/assessment"].map((routePath) => (
-              <Route key={routePath} path={routePath} element={
-                 <Suspense fallback={<LoadingSpinner />}>
-                    <ContentArea
-                      currentView={currentView}
-                      onBackToGenerator={() => {
-                        if (currentView !== 'generator') handleGoBack();
-                        else {
-                          setSelectedActivity(null);
-                          setWorksheetData(null as any);
-                          setActiveCurriculumSession(null);
-                        }
-                      }}
-                      activityType={selectedActivity}
-                      worksheetData={worksheetData}
-                      setWorksheetData={handleSetWorksheetData}
-                      isLoading={isLoading}
-                      error={error}
-                      styleSettings={styleSettings}
-                      onStyleChange={setStyleSettings}
-                      onSave={addSavedWorksheet}
-                      onLoadSaved={loadSavedWorksheet}
-                      onFeedback={() => setIsFeedbackOpen(true)}
-                      onOpenAuth={() => setIsAuthModalOpen(true)}
-                      onSelectActivity={handleSelectActivity}
-                      workbookItems={workbookItems}
-                      setWorkbookItems={setWorkbookItems}
-                      workbookSettings={workbookSettings}
-                      setWorkbookSettings={setWorkbookSettings}
-                      onAddToWorkbook={handleAddToWorkbook}
-                      onAutoGenerateWorkbook={handleAutoGenerateWorkbook}
-                      studentProfile={studentProfile}
-                      zenMode={zenMode}
-                      toggleZenMode={() => setZenMode(!zenMode)}
-                      activeCurriculumSession={activeCurriculumSession}
-                      onCompleteCurriculumActivity={handleCompleteCurriculumActivity}
-                      onAddDirectToWorkbook={handleAddDirectToWorkbook}
-                    />
-                 </Suspense>
-              } />
-              ))}
-
-              {/* Studios & Special Modules */}
-              <Route path="/curriculum" element={
-                <ProtectedRoute module="curriculum" onBack={handleGoBack}>
-                  <motion.div className="absolute inset-0 bg-[var(--bg-primary)] z-[60] overflow-y-auto" variants={pageTransition} initial="initial" animate="animate" exit="exit">
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <CurriculumView
+            {[
+              'curriculum',
+              'reading-studio',
+              'math-studio',
+              'super-turkce',
+              'activity-studio',
+              'ocr',
+              'profile',
+              'students',
+              'admin',
+              'screening',
+              'sinav-studyosu',
+              'mat-sinav-studyosu',
+              'sari-kitap-studio',
+              'kelime-cumle-studio',
+              'messages',
+            ].includes(currentView) && (
+                <motion.div
+                  key={currentView}
+                  className={`absolute inset-0 bg-[var(--bg-primary)] overflow-y-auto overflow-x-hidden ${currentView === 'admin' ? 'z-[75]' : 'z-[60]'}`}
+                  variants={pageTransition}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                >
+                  <Suspense fallback={<LoadingSpinner />}>
+                    {currentView === 'curriculum' && (
+                      <ProtectedRoute module="curriculum" onBack={handleGoBack}>
+                        <CurriculumView
+                          onBack={handleGoBack}
+                          onSelectActivity={handleSelectActivity as any}
+                          onStartCurriculumActivity={handleStartCurriculumActivity}
+                          initialPlan={loadedCurriculum}
+                          preFillData={screeningPlanData}
+                        />
+                      </ProtectedRoute>
+                    )}
+                    {currentView === 'reading-studio' && (
+                      <ProtectedRoute module="reading-studio" onBack={handleGoBack}>
+                        <ReadingStudio
+                          onBack={handleGoBack}
+                          onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                        />
+                      </ProtectedRoute>
+                    )}
+                    {currentView === 'math-studio' && (
+                      <ProtectedRoute module="math-studio" onBack={handleGoBack}>
+                        <MathStudio
+                          onBack={handleGoBack}
+                          onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                        />
+                      </ProtectedRoute>
+                    )}
+                    {currentView === 'super-turkce' && (
+                      <ProtectedRoute module="super-studio" onBack={handleGoBack}>
+                        <SuperStudio />
+                      </ProtectedRoute>
+                    )}
+                    {currentView === 'activity-studio' && (
+                      <ProtectedRoute module="activity-studio" onBack={handleGoBack}>
+                        <ActivityStudio
+                          onBack={handleGoBack}
+                          onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                        />
+                      </ProtectedRoute>
+                    )}
+                    {currentView === 'ocr' && (
+                      <ProtectedRoute module="activity-studio" onBack={handleGoBack}>
+                        <OCRScanner onBack={handleGoBack} onResult={handleOCRResult} />
+                      </ProtectedRoute>
+                    )}
+                    {currentView === 'profile' && (
+                      <Profile
+                        data={profileData}
+                        activeStudent={activeStudent}
                         onBack={handleGoBack}
                         onSelectActivity={handleSelectActivity as any}
-                        onStartCurriculumActivity={handleStartCurriculumActivity}
-                        initialPlan={loadedCurriculum}
-                        preFillData={screeningPlanData}
+                        onLoadSaved={loadSavedWorksheet}
+                        theme={theme}
+                        uiSettings={uiSettings}
+                        onUpdateTheme={(t: AppTheme) => setTheme(t)}
+                        onUpdateUiSettings={(s: UiSettings) => updateUiSettings(s)}
+                        onOpenSettingsModal={() => setOpenModal('settings')}
+                        onNavigateToCurriculum={() => navigateTo('curriculum')}
                       />
-                    </Suspense>
-                  </motion.div>
-                </ProtectedRoute>
-              } />
-
-              <Route path="/reading-studio" element={
-                <ProtectedRoute module="reading-studio" onBack={handleGoBack}>
-                  <motion.div className="absolute inset-0 bg-[var(--bg-primary)] z-[60] overflow-y-auto" variants={pageTransition} initial="initial" animate="animate" exit="exit">
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <ReadingStudio onBack={handleGoBack} onAddToWorkbook={handleAddToWorkbookGeneral as any} />
-                    </Suspense>
-                  </motion.div>
-                </ProtectedRoute>
-              } />
-
-              <Route path="/math-studio" element={
-                <ProtectedRoute module="math-studio" onBack={handleGoBack}>
-                  <motion.div className="absolute inset-0 bg-[var(--bg-primary)] z-[60] overflow-y-auto" variants={pageTransition} initial="initial" animate="animate" exit="exit">
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <MathStudio onBack={handleGoBack} onAddToWorkbook={handleAddToWorkbookGeneral as any} />
-                    </Suspense>
-                  </motion.div>
-                </ProtectedRoute>
-              } />
-
-              <Route path="/super-turkce" element={
-                <ProtectedRoute module="super-studio" onBack={handleGoBack}>
-                  <motion.div className="absolute inset-0 bg-[var(--bg-primary)] z-[60] overflow-y-auto" variants={pageTransition} initial="initial" animate="animate" exit="exit">
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <SuperStudio />
-                    </Suspense>
-                  </motion.div>
-                </ProtectedRoute>
-              } />
-
-              <Route path="/activity-studio" element={
-                <ProtectedRoute module="activity-studio" onBack={handleGoBack}>
-                  <motion.div className="absolute inset-0 bg-[var(--bg-primary)] z-[60] overflow-y-auto" variants={pageTransition} initial="initial" animate="animate" exit="exit">
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <ActivityStudio onBack={handleGoBack} onAddToWorkbook={handleAddToWorkbookGeneral as any} />
-                    </Suspense>
-                  </motion.div>
-                </ProtectedRoute>
-              } />
-
-              <Route path="/ocr" element={
-                <ProtectedRoute module="activity-studio" onBack={handleGoBack}>
-                  <motion.div className="absolute inset-0 bg-[var(--bg-primary)] z-[60] overflow-y-auto" variants={pageTransition} initial="initial" animate="animate" exit="exit">
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <OCRScanner onBack={handleGoBack} onResult={handleOCRResult} />
-                    </Suspense>
-                  </motion.div>
-                </ProtectedRoute>
-              } />
-
-              <Route path="/profile" element={
-                <motion.div className="absolute inset-0 bg-[var(--bg-primary)] z-[60] overflow-y-auto" variants={pageTransition} initial="initial" animate="animate" exit="exit">
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <Profile
-                      data={profileData}
-                      activeStudent={activeStudent}
-                      onBack={handleGoBack}
-                      onSelectActivity={handleSelectActivity as any}
-                      onLoadSaved={loadSavedWorksheet}
-                      theme={theme}
-                      uiSettings={uiSettings}
-                      onUpdateTheme={(t: AppTheme) => setTheme(t)}
-                      onUpdateUiSettings={(s: UiSettings) => updateUiSettings(s)}
-                      onOpenSettingsModal={() => setOpenModal('settings')}
-                      onNavigateToCurriculum={() => navigateTo('curriculum')}
-                    />
+                    )}
+                    {currentView === 'students' && (
+                      <ProtectedRoute module="students" onBack={handleGoBack}>
+                        <StudentDashboard
+                          onBack={handleGoBack}
+                          onLoadMaterial={loadSavedWorksheet}
+                          onStartCurriculumActivity={handleStartCurriculumActivity}
+                        />
+                      </ProtectedRoute>
+                    )}
+                    {currentView === 'admin' && (
+                      <ProtectedRoute module="admin" onBack={handleGoBack}>
+                        <AdminDashboard onBack={handleGoBack} />
+                      </ProtectedRoute>
+                    )}
+                    {currentView === 'screening' && (
+                      <ProtectedRoute module="screening" onBack={handleGoBack}>
+                        <ScreeningModule
+                          onBack={handleGoBack}
+                          onSelectActivity={handleSelectActivity}
+                          onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                          onGeneratePlan={(n: string, a: number, w: string[], c?: string) =>
+                            handleGeneratePlanFromScreening(n, a, w, c)
+                          }
+                        />
+                      </ProtectedRoute>
+                    )}
+                    {currentView === 'sinav-studyosu' && (
+                      <ProtectedRoute module="sinav-studyosu" onBack={handleGoBack}>
+                        <SinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />
+                      </ProtectedRoute>
+                    )}
+                    {currentView === 'mat-sinav-studyosu' && (
+                      <ProtectedRoute module="math-studio" onBack={handleGoBack}>
+                        <MatSinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />
+                      </ProtectedRoute>
+                    )}
+                    {currentView === 'sari-kitap-studio' && (
+                      <ProtectedRoute module="sari-kitap" onBack={handleGoBack}>
+                        <SariKitapStudio
+                          onBack={handleGoBack}
+                          onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                        />
+                      </ProtectedRoute>
+                    )}
+                    {currentView === 'kelime-cumle-studio' && (
+                      <ProtectedRoute module="kelime-cumle" onBack={handleGoBack}>
+                        <KelimeCumleStudio
+                          onBack={handleGoBack}
+                          onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                        />
+                      </ProtectedRoute>
+                    )}
+                    {currentView === 'messages' && (
+                      <ProtectedRoute module="messaging" onBack={handleGoBack}>
+                        <MessagingModule />
+                      </ProtectedRoute>
+                    )}
                   </Suspense>
                 </motion.div>
-              } />
-
-              <Route path="/students" element={
-                <ProtectedRoute module="students" onBack={handleGoBack}>
-                  <motion.div className="absolute inset-0 bg-[var(--bg-primary)] z-[60] overflow-y-auto" variants={pageTransition} initial="initial" animate="animate" exit="exit">
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <StudentDashboard
-                        onBack={handleGoBack}
-                        onLoadMaterial={loadSavedWorksheet}
-                        onStartCurriculumActivity={handleStartCurriculumActivity}
-                      />
-                    </Suspense>
-                  </motion.div>
-                </ProtectedRoute>
-              } />
-
-              <Route path="/admin" element={
-                <ProtectedRoute module="admin" onBack={handleGoBack}>
-                  <motion.div className="absolute inset-0 bg-[var(--bg-primary)] z-[75] overflow-y-auto" variants={pageTransition} initial="initial" animate="animate" exit="exit">
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <AdminDashboard onBack={handleGoBack} />
-                    </Suspense>
-                  </motion.div>
-                </ProtectedRoute>
-              } />
-
-              <Route path="/screening" element={
-                <ProtectedRoute module="screening" onBack={handleGoBack}>
-                  <motion.div className="absolute inset-0 bg-[var(--bg-primary)] z-[60] overflow-y-auto" variants={pageTransition} initial="initial" animate="animate" exit="exit">
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <ScreeningModule
-                        onBack={handleGoBack}
-                        onSelectActivity={handleSelectActivity}
-                        onAddToWorkbook={handleAddToWorkbookGeneral as any}
-                        onGeneratePlan={(n: string, a: number, w: string[], c?: string) =>
-                          handleGeneratePlanFromScreening(n, a, w, c)
-                        }
-                      />
-                    </Suspense>
-                  </motion.div>
-                </ProtectedRoute>
-              } />
-
-              <Route path="/sinav-studyosu" element={
-                <ProtectedRoute module="sinav-studyosu" onBack={handleGoBack}>
-                  <motion.div className="absolute inset-0 bg-[var(--bg-primary)] z-[60] overflow-y-auto" variants={pageTransition} initial="initial" animate="animate" exit="exit">
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <SinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />
-                    </Suspense>
-                  </motion.div>
-                </ProtectedRoute>
-              } />
-
-              <Route path="/mat-sinav-studyosu" element={
-                <ProtectedRoute module="math-studio" onBack={handleGoBack}>
-                  <motion.div className="absolute inset-0 bg-[var(--bg-primary)] z-[60] overflow-y-auto" variants={pageTransition} initial="initial" animate="animate" exit="exit">
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <MatSinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />
-                    </Suspense>
-                  </motion.div>
-                </ProtectedRoute>
-              } />
-
-              <Route path="/sari-kitap-studio" element={
-                <ProtectedRoute module="sari-kitap" onBack={handleGoBack}>
-                  <motion.div className="absolute inset-0 bg-[var(--bg-primary)] z-[60] overflow-y-auto" variants={pageTransition} initial="initial" animate="animate" exit="exit">
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <SariKitapStudio onBack={handleGoBack} onAddToWorkbook={handleAddToWorkbookGeneral as any} />
-                    </Suspense>
-                  </motion.div>
-                </ProtectedRoute>
-              } />
-
-              <Route path="/kelime-cumle-studio" element={
-                <ProtectedRoute module="kelime-cumle" onBack={handleGoBack}>
-                  <motion.div className="absolute inset-0 bg-[var(--bg-primary)] z-[60] overflow-y-auto" variants={pageTransition} initial="initial" animate="animate" exit="exit">
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <KelimeCumleStudio onBack={handleGoBack} onAddToWorkbook={handleAddToWorkbookGeneral as any} />
-                    </Suspense>
-                  </motion.div>
-                </ProtectedRoute>
-              } />
-
-              <Route path="/messages" element={
-                <ProtectedRoute module="messaging" onBack={handleGoBack}>
-                  <motion.div className="absolute inset-0 bg-[var(--bg-primary)] z-[60] overflow-y-auto" variants={pageTransition} initial="initial" animate="animate" exit="exit">
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <MessagingModule />
-                    </Suspense>
-                  </motion.div>
-                </ProtectedRoute>
-              } />
-
-              {/* Redirect any other paths to home */}
-            </Routes>
+              )}
           </AnimatePresence>
         </div>
       </div>
@@ -1271,10 +1225,10 @@ const AppContent = () => {
 
 export const App = () => {
   return (
-    <Router>
+    <>
       <PaperSizeInitializer />
       <AppContent />
       <ToastContainer />
-    </Router>
+    </>
   );
 };

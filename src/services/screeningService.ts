@@ -1,5 +1,4 @@
 import { ScreeningResult, ScreeningProfile } from '../types/screening';
-import { safeFetch } from '../utils/apiClient';
 
 /**
  * Tarama ve analiz hizmetleri
@@ -11,10 +10,20 @@ export class ScreeningService {
    */
   static async saveScreeningResult(result: ScreeningResult): Promise<string> {
     try {
-      const data = await safeFetch<{ id: string }>('/api/screening/save', {
+      // Firebase veya diğer veritabanı implementation
+      const response = await fetch('/api/screening/save', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(result),
       });
+      
+      if (!response.ok) {
+        throw new Error('Tarama kaydedilemedi');
+      }
+      
+      const data = await response.json();
       return data.id;
     } catch (error) {
       console.error('Tarama kaydetme hatası:', error);
@@ -27,7 +36,11 @@ export class ScreeningService {
    */
   static async getStudentScreeningHistory(studentId: string): Promise<ScreeningResult[]> {
     try {
-      return await safeFetch<ScreeningResult[]>(`/api/screening/student/${studentId}`);
+      const response = await fetch(`/api/screening/student/${studentId}`);
+      if (!response.ok) {
+        throw new Error('Tarama geçmişi alınamadı');
+      }
+      return await response.json();
     } catch (error) {
       console.error('Tarama geçmişi hatası:', error);
       return [];
@@ -51,7 +64,11 @@ export class ScreeningService {
         queryParams.append('endDate', filters.dateRange.end.toISOString());
       }
 
-      return await safeFetch<ScreeningResult[]>(`/api/screening/all?${queryParams}`);
+      const response = await fetch(`/api/screening/all?${queryParams}`);
+      if (!response.ok) {
+        throw new Error('Tarama sonuçları alınamadı');
+      }
+      return await response.json();
     } catch (error) {
       console.error('Tarama sonuçları hatası:', error);
       return [];
@@ -63,10 +80,17 @@ export class ScreeningService {
    */
   static async updateScreeningResult(id: string, updates: Partial<ScreeningResult>): Promise<void> {
     try {
-      await safeFetch(`/api/screening/${id}`, {
+      const response = await fetch(`/api/screening/${id}`, {
         method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(updates),
       });
+      
+      if (!response.ok) {
+        throw new Error('Tarama güncellenemedi');
+      }
     } catch (error) {
       console.error('Tarama güncelleme hatası:', error);
       throw error;
@@ -85,9 +109,13 @@ export class ScreeningService {
    */
   static async deleteScreeningResult(id: string): Promise<void> {
     try {
-      await safeFetch(`/api/screening/${id}`, {
+      const response = await fetch(`/api/screening/${id}`, {
         method: 'DELETE',
       });
+      
+      if (!response.ok) {
+        throw new Error('Tarama silinemedi');
+      }
     } catch (error) {
       console.error('Tarama silme hatası:', error);
       throw error;
@@ -179,14 +207,21 @@ export class ScreeningService {
    */
   static async shareScreeningResult(id: string, recipientEmail: string, message?: string): Promise<void> {
     try {
-      await safeFetch('/api/screening/share', {
+      const response = await fetch('/api/screening/share', {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           screeningId: id,
           recipientEmail,
           message,
         }),
       });
+      
+      if (!response.ok) {
+        throw new Error('Tarama paylaşılamadı');
+      }
     } catch (error) {
       console.error('Tarama paylaşma hatası:', error);
       throw error;

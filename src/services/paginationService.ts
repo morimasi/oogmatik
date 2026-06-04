@@ -13,24 +13,16 @@ const _HEADER_COST = 160;   // PedagogicalHeader ortalama maliyeti (40mm)
 const _STUDENT_INFO_COST = 60; // Öğrenci bilgi şeridi (15mm)
 const CONTINUATION_HEADER_COST = 80; // Devam sayfası mini-header maliyeti
 
-const recursiveSafeText = (val: unknown): string => {
+const recursiveSafeText = (val: any): string => {
     if (typeof val === 'string') return val;
     if (Array.isArray(val)) return val.map(recursiveSafeText).join(' ');
     if (val && typeof val === 'object') return Object.values(val).map(recursiveSafeText).join(' ');
     return '';
 };
 
-const getBlockWeight = (block: WorksheetBlock | Record<string, unknown>): number => {
-    if (!block) return 0;
-    
-    // YENİ: Blok harici (soru, bulmaca vb) karmaşık objelerin dinamik ağırlığını hesapla
-    const type = (block as WorksheetBlock).type;
-    const content = (block as WorksheetBlock).content as Record<string, any>;
-    
-    if (!type && !content) {
-        return calculateActivityWeight(block as Record<string, unknown>);
-    }
-
+const getBlockWeight = (block: WorksheetBlock): number => {
+    const type = block.type;
+    const content: any = block.content;
     if (!content) return 0;
 
     switch (type) {
@@ -78,39 +70,10 @@ const getBlockWeight = (block: WorksheetBlock | Record<string, unknown>): number
 };
 
 /**
- * Dinamik Ağırlık Hesaplama (Sprint 3)
- * Standart "blocks" dışındaki "questions", "puzzles", "items" gibi listeler için ağırlık hesaplar.
- */
-const calculateActivityWeight = (item: Record<string, unknown>): number => {
-    if (!item || typeof item !== 'object') return 70;
-    let baseWeight = 75; // Güvenli minimum boşluk
-    
-    // Metin yoğunluğu
-    const textStr = String(item.question || item.text || item.sentence || item.description || item.content || '');
-    if (textStr.length > 0) {
-        const lines = Math.ceil(textStr.length / 75);
-        baseWeight += lines * 28;
-    }
-    
-    // Şıklar veya alt maddeler
-    const opts = (item.options || item.choices || item.words || item.items || item.pairs) as unknown[];
-    if (Array.isArray(opts)) {
-        baseWeight += opts.length * 30; // Her satır için 30 birim
-    }
-
-    // Tablo veya matrisler (örneğin Sudoku)
-    if (Array.isArray(item.grid) || Array.isArray(item.matrix)) {
-        baseWeight += 120; // Büyük görseller veya tablolar
-    }
-
-    return baseWeight;
-};
-
-/**
  * Sayfa sınırını aşan blokları böler.
  */
 const splitLargeBlock = (block: WorksheetBlock, maxWeight: number): WorksheetBlock[] => {
-    const content = block.content as Record<string, any>;
+    const content: any = block.content;
     const weight = getBlockWeight(block);
     if (weight <= maxWeight) return [block];
 
@@ -202,11 +165,11 @@ export const paginationService = {
         const isAlreadyProcessed = data.length > 1 && data.every(p => p._currentPage !== undefined);
         if (isAlreadyProcessed) return data;
 
-        const pages: Record<string, unknown>[] = [];
-        let currentItems: Record<string, unknown>[] = [];
+        const pages: any[] = [];
+        let currentItems: any[] = [];
         let currentWeight = 0;
         let pageIndex = 0;
-        const originalPageTemplate = { ...((data[0] as Record<string, unknown>) || {}) };
+        const originalPageTemplate = { ...(data[0] || {}) };
 
         // Orijinal veri anahtarını tespit et
         let targetKey = 'blocks';
@@ -225,29 +188,28 @@ export const paginationService = {
         });
 
         // Veriyi bir düz listeye aç (bölme işlemiyle beraber)
-        const rawItems: Record<string, unknown>[] = [];
+        const rawItems: any[] = [];
         data.forEach(page => {
-            const pageObj = page as Record<string, unknown>;
-            const listKey = pageObj.blocks ? 'blocks' : (pageObj.puzzles ? 'puzzles' : (pageObj.operations ? 'operations' : (pageObj.steps ? 'steps' : (pageObj.problems ? 'problems' : (pageObj.items ? 'items' : null)))));
-            if (listKey && Array.isArray(pageObj[listKey])) {
-                (pageObj[listKey] as Record<string, unknown>[]).forEach((item) => {
-                    const weight = getBlockWeight(item as unknown as WorksheetBlock);
+            const listKey = page.blocks ? 'blocks' : (page.puzzles ? 'puzzles' : (page.operations ? 'operations' : (page.steps ? 'steps' : (page.problems ? 'problems' : (page.items ? 'items' : null)))));
+            if (listKey && Array.isArray(page[listKey])) {
+                page[listKey].forEach((item: any) => {
+                    const weight = page.blocks ? getBlockWeight(item) : 70;
                     if (weight > MAX_PAGE_WEIGHT - CONTINUATION_HEADER_COST) {
-                        const splitBlocks = splitLargeBlock(item as unknown as WorksheetBlock, MAX_PAGE_WEIGHT - CONTINUATION_HEADER_COST);
-                        rawItems.push(...(splitBlocks as unknown as Record<string, unknown>[]));
+                        const splitBlocks = splitLargeBlock(item, MAX_PAGE_WEIGHT - CONTINUATION_HEADER_COST);
+                        rawItems.push(...splitBlocks);
                     } else {
                         rawItems.push(item);
                     }
                 });
             } else {
-                rawItems.push(pageObj);
+                rawItems.push(page);
             }
         });
 
 
 
         rawItems.forEach((item) => {
-            const weight = getBlockWeight(item as unknown as WorksheetBlock);
+            const weight = getBlockWeight(item);
             const limit = pageIndex === 0 ? MAX_PAGE_WEIGHT : MAX_PAGE_WEIGHT - CONTINUATION_HEADER_COST;
 
             if (currentWeight + weight > limit && currentItems.length > 0) {
@@ -281,7 +243,7 @@ export const paginationService = {
             page._currentPage = i + 1;
         });
 
-        return pages as unknown as WorksheetData;
+        return pages;
     }
 };
 

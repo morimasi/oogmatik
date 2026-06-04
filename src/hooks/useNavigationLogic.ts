@@ -1,15 +1,16 @@
 import { View, ActivityType } from '../types';
 import { useWorksheetStore } from '../store/useWorksheetStore';
 import { useUIStore } from '../store/useUIStore';
-import { useNavigate } from 'react-router-dom';
 
 export const useNavigationLogic = (
     setScreeningPlanData: (data: any) => void,
     setIsAdvancedScreeningOpen: (open: boolean) => void
 ) => {
-    const navigate = useNavigate();
     const {
         currentView,
+        setCurrentView,
+        addHistoryView,
+        popHistoryView,
         activeCurriculumSession,
         setActiveCurriculumSession,
         resetGeneratorContext,
@@ -18,9 +19,9 @@ export const useNavigationLogic = (
     const { setIsSidebarOpen } = useUIStore();
 
     const navigateTo = (view: View) => {
-        // Map common views to routes
-        if (view === 'generator') navigate('/');
-        else navigate(`/${view}`);
+        if (currentView === view) return;
+        addHistoryView(currentView);
+        setCurrentView(view);
     };
 
     const handleGoBack = () => {
@@ -29,7 +30,12 @@ export const useNavigationLogic = (
             navigateTo('curriculum');
             return;
         }
-        navigate(-1);
+        const prevView = popHistoryView();
+        if (prevView) {
+            setCurrentView(prevView);
+        } else {
+            setCurrentView('generator');
+        }
     };
 
     const handleOpenStudio = (viewName: View) => {

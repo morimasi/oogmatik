@@ -2,7 +2,6 @@ import { AppError } from '../utils/AppError.js';
 import { logInfo, logError, logWarn } from '../utils/logger.js';
 import { safeFetch } from '../utils/apiClient.js';
 import { useStudentStore } from '../store/useStudentStore';
-import { AIValidatorService } from './aiValidatorService.js';
 
 export interface CreativeMultimodalResult {
   [key: string]: unknown;
@@ -133,7 +132,6 @@ ZORUNLU UZMAN KURALLARI (İHLAL EDİLEMEZ):
 1. ZPD UYUMU (Elif Yıldız): Kelime dağarcığı, konseptler ve zorluk derecesi KESİNLİKLE öğrencinin (${activeStudent.grade}) seviyesine uygun olarak, dikkat süresini aşmayacak sadelikte tasarlanacaktır.
 2. KLİNİK VE YASAL DİL (Dr. Ahmet Kaya): Çıktının hiçbir yerinde "disleksisi olduğu için", "öğrenme güçlüğü" veya "uygun bir aktivite" gibi tanı koyucu/etiketleyici bir dil KESİNLİKLE KULLANILMAYACAKTIR.
 3. ÖĞRETMEN NOTU: Çıktıya her zaman (ilgili format destekliyorsa) bu aktivitenin neden oluşturulduğunu açıklayan teşvik edici bir 'pedagogicalNote' eklenmelidir.
-4. İÇERİK DOLULUĞU: Tüm JSON alanlarını (sorular, öğeler, grid, içerik blokları vb.) eksiksiz doldur. Hiçbir içerik dizisini veya objesini boş bırakma.
 Tüm içeriği bu spesifik bağlama göre optimize et!`;
   }
 
@@ -158,20 +156,15 @@ Tüm içeriği bu spesifik bağlama göre optimize et!`;
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     try {
       logInfo('Gemini API çekilmesi', { attempt: attempt + 1, model: safeModel });
-      const responseData = await safeFetch<unknown>(url, {
+      return await safeFetch<unknown>(url, {
         method: 'POST',
         body: JSON.stringify(body),
-      });
-
-      // ZOD Validasyonu: AI Halüsinasyonlarına Karşı Süper Kalkan
-      return AIValidatorService.validateOutput(responseData) as CreativeMultimodalResult;
-
+      }) as Promise<CreativeMultimodalResult>;
     } catch (error: unknown) {
       lastError = error;
       const errorMsg = error instanceof Error ? error.message : String(error);
       
       // Hata tipleri: Rate limit (429), High Demand/Service Unavailable (503), Gateway Timeout (504)
-      // VALIDATION_FAILED artık fırlatılmadığı için retry listesinden çıkarıldı
       const isRetryable = 
         errorMsg.includes('quota') || 
         errorMsg.includes('429') || 

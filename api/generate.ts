@@ -22,37 +22,18 @@ import { tryRepairJson } from '../src/utils/jsonRepair.js';
 
 // JSON onarım kodu src/utils/jsonRepair.ts dosyasına aktarıldı.
 
-// Schema type'lerini lowercase'e çevir (JSON Schema standardı)
-// Gemini responseSchema STRING yerine string, OBJECT yerine object bekler
-function lowerSchemaTypes(schema: Record<string, unknown>): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(schema)) {
-    if (key === 'type' && typeof value === 'string') {
-      result[key] = value.toLowerCase();
-    } else if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-      result[key] = lowerSchemaTypes(value as Record<string, unknown>);
-    } else if (Array.isArray(value)) {
-      result[key] = value.map(v =>
-        typeof v === 'object' && v !== null ? lowerSchemaTypes(v as Record<string, unknown>) : v
-      );
-    } else {
-      result[key] = value;
-    }
-  }
-  return result;
-}
+// Types are imported from @vercel/node above
 
 const MASTER_MODEL = 'gemini-2.5-flash';
 
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi EduMind platformunun kıdemli eğitim mimarı ve pedagoji uzmanısın. [MINIMAL_DEPLOY: 2024_03_18_v4]
-MİSYON: 1-8. sınıf seviyesinde, MEB 2024-2025 müfredatıyla %100 uyumlu, LGS/PISA standartlarında "Premium" içerik üretmek.
+MİSYON: 4-8. sınıf seviyesinde, MEB 2024-2025 müfredatıyla %100 uyumlu, LGS/PISA standartlarında "Premium" içerik üretmek.
 PEDAGOJİK DNA:
 1. Disleksi hassasiyeti: Cümleler net, yönergeler adım adım ve görselleştirilebilir olmalı.
 2. Analitik Derinlik: Sadece bilgi sorma; öğrenciye çıkarım yaptır, veriyi yorumlat (LGS Mantığı).
 3. Scaffolding: Zor konularda soru başında mutlaka kısa hatırlatıcı kurallar (bilgi notları) sağla.
 4. KESİN KURAL: Çıktı JSON objesinde mutlaka 'pedagogicalNote' alanını bulundur ve aktivitenin çocuğa pedagojik katkısını öğretmene/veliye açıkla.
-5. İçerik Doluluğu: Tüm alanları (title, instruction, primaryActivity.content, supportingDrill.content vb.) eksiksiz doldur. Hiçbir içerik alanını boş bırakma.
 KURAL: Yanıtın SADECE geçerli bir JSON olmalıdır. Üretimden önce içeriğin pedagojik güvenliğini ve müfredat kazanımını 10 katmanlı bir süzgeçten geçir.
 `;
 
@@ -167,8 +148,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       async () => {
         let selectedModel = model || MASTER_MODEL;
         // Eski onbelleklenmis verilerden gelebilecek kullanim disi modelleri engelle
-        // Sadece MASTER_MODEL'e izin ver — diger tum modeller override edilir
-        if (selectedModel !== MASTER_MODEL) {
+        if (selectedModel.includes('gemini-2.0') || selectedModel.includes('gemini-1.5') || selectedModel.includes('gemini-3')) {
           selectedModel = MASTER_MODEL;
         }
         // Denenecek güncel API anahtarını al
@@ -176,7 +156,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${selectedModel}:generateContent?key=${apiKey}`;
 
         const contents = [
-           {
+          {
             role: 'user',
             parts: [] as any[],
           },
@@ -196,22 +176,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // IMPORTANT: Use sanitizedPrompt instead of raw prompt
         let combinedPrompt = `[SISTEM TALIMATI BASLANGICI]\n${systemInstruction || SYSTEM_INSTRUCTION}\n[SISTEM TALIMATI BITISI]\n\n[KULLANICI ISTEGI]:\n${sanitizedPrompt}`;
 
-        // Schema hem responseSchema'de (API yapısal zorlama) hem prompt'ta (AI rehberlik) olmalı
+        // Schema'yi Google REST API'in icine nesne olarak basamadigimiz icin Prompt'a yillayalim.
         if (schema) {
-          combinedPrompt += '\n\n[ZORUNLU JSON YAPISI]:\nAşağıdaki şemaya HARFİYEN uyun. Tüm alanları eksiksiz doldurun.\n' + JSON.stringify(schema, null, 2);
+          combinedPrompt += '\n\n[ZORUNLU JSON YAPISI (ZORUNLU ŞEMA)]:\nAşağıdaki JSON şemasına ve anahtar kelimelerine HARFİYEN UYMALISIN. Çıktı sadece geçerli bir JSON olmalı.\n' + JSON.stringify(schema, null, 2);
         }
 
         // Text prompt
         contents[0].parts.push({ text: combinedPrompt });
 
-        // Use generationConfig with responseMimeType to enforce JSON output
-        // Schema propertly typed as responseSchema for structured generation
+        // CRITICAL: We remove generationConfig and systemInstruction COMPLETELY
+        // to ensure NO SNAKE_CASE fields are ever sent to Google API from this proxy.
+        // Google will use the prompt-embedded instructions.
         const requestBody: Record<string, unknown> = {
-          contents,
-          generationConfig: {
-            responseMimeType: 'application/json',
-            ...(schema ? { responseSchema: lowerSchemaTypes(schema) } : {})
-          }
+          contents
         };
 
         const response = await fetch(url, {
@@ -244,13 +221,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
               currentKeyIndex++;
               throw new InternalServerError(`[ROTATION] Rate limit yendi, sıradaki API Key'e geçiliyor.`);
             }
-            // Tüm anahtarlar tükendi — Google'ın önerdiği süre kadar bekleyip tekrar dene
-            const retryMatch = errorMsg.match(/retry in ([\d.]+)s/i);
-            const waitSeconds = retryMatch ? Math.ceil(parseFloat(retryMatch[1])) + 3 : 25;
-            await new Promise(resolve => setTimeout(resolve, waitSeconds * 1000));
-            // Anahtarları sıfırla ve tekrar dene (retryWithBackoff motoru devralacak)
-            currentKeyIndex = 0;
-            throw new InternalServerError(`[WAIT-RETRY] ${waitSeconds}s beklendi, tüm anahtarlar sıfırlandı, tekrar deneniyor.`);
+            throw new RateLimitError(
+              `Gemini API Kotası Dolu: ${errorMsg}. Lütfen birkaç saniye sonra yeniden deneyin.`,
+              { retryAfter: 60 }
+            );
           }
 
           throw new InternalServerError(
@@ -267,7 +241,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         return { text };
       },
-      { maxRetries: 4 }
+      { maxRetries: 2 }
     );
 
     // 6. Success — JSON Repair Engine ile parse et

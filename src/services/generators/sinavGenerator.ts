@@ -12,7 +12,6 @@ import { AppError } from '../../utils/AppError.js';
 import { PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts.js';
 
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
-import { safeFetch } from '../../utils/apiClient.js';
 const MASTER_MODEL = 'gemini-2.5-flash';
 
 // ─── Doğrudan Gemini REST API çağrısı (Vercel serverless uyumlu) ────────────
@@ -97,11 +96,25 @@ export const callGeminiDirect = async (prompt: string, schema: object): Promise<
     }
   };
 
-  const data = await safeFetch<any>(url, {
+  const response = await fetch(url, {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
   });
 
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    const msg = (errData as unknown as Record<string, unknown>)?.error as unknown as Record<string, string> | undefined;
+    throw new AppError(
+      `Gemini API hatası: ${msg?.message || response.statusText}`,
+      'GEMINI_API_ERROR',
+      502,
+      { status: response.status },
+      true
+    );
+  }
+
+  const data = await response.json();
   const text = (data as unknown as Record<string, unknown>)?.candidates as unknown as Array<Record<string, unknown>> | undefined;
   const responseText = text?.[0]?.content as unknown as Record<string, unknown> | undefined;
   const parts = responseText?.parts as unknown as Array<Record<string, string>> | undefined;

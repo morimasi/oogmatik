@@ -9,7 +9,7 @@ import { useToastStore } from '../../store/useToastStore';
 
 export const AssignModal: React.FC = () => {
   const { isAssignModalOpen, activeWorksheetId, setIsAssignModalOpen, createAssignment } = useAssignmentStore();
-  const { students } = useStudentStore();
+  const { students, fetchStudents } = useStudentStore();
   const { user } = useAuthStore();
   const { error } = useToastStore();
 
@@ -19,7 +19,14 @@ export const AssignModal: React.FC = () => {
   const [teacherNotes, setTeacherNotes] = useState('');
   const [dueDate, setDueDate] = useState('');
 
-
+  // Sadece öğretmen kendi öğrencilerini listeler
+  useEffect(() => {
+    if (user?.uid && isAssignModalOpen) {
+      const isAdmin = (user as any).role === 'superadmin' || (user as any).role === 'admin';
+      const unsubscribe = fetchStudents(user.uid, isAdmin);
+      return () => unsubscribe();
+    }
+  }, [user?.uid, fetchStudents, isAssignModalOpen]);
 
   // Modal kapandığında state temizle
   useEffect(() => {
@@ -119,7 +126,7 @@ export const AssignModal: React.FC = () => {
                   <input
                     type="text"
                     value={searchTerm}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
+                    onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Öğrenci ara..."
                     className="w-full bg-slate-800 border border-slate-700 rounded-xl py-2.5 pl-10 pr-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-inter"
                   />
@@ -181,7 +188,7 @@ export const AssignModal: React.FC = () => {
                 <input 
                   type="date" 
                   value={dueDate}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDueDate(e.target.value)}
+                  onChange={(e) => setDueDate(e.target.value)}
                   className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-inter"
                 />
               </div>
@@ -194,7 +201,7 @@ export const AssignModal: React.FC = () => {
                 </label>
                 <textarea 
                   value={teacherNotes}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setTeacherNotes(e.target.value)}
+                  onChange={(e) => setTeacherNotes(e.target.value)}
                   placeholder="Bu etkinlikte dikkat edilmesi gerekenler, hedef puan vb."
                   className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white placeholder-slate-500 min-h-[80px] focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-inter"
                 />

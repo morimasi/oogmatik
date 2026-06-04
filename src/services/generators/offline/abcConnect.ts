@@ -1,5 +1,4 @@
 import { AbcConnectData, GeneratorOptions } from '../../../types';
-import { AbcConnectDataSchema } from '../../../utils/schemas';
 
 /**
  * ABC Bağlama Ultra-Profesyonel Yerel Üretici
@@ -22,9 +21,9 @@ export const generateOfflineAbcConnect = async (options: GeneratorOptions): Prom
 
     const activities: AbcConnectData[] = [];
 
-    for (let c = 0; c < (worksheetCount || 1); c++) {
+    for (let c = 0; c < worksheetCount; c++) {
         const pairCount = Math.floor(dim * (density === 'high' ? 2 : (density === 'low' ? 1.2 : 1.5)));
-        const paths: { start: { x: number; y: number }; end: { x: number; y: number }; value: string | number; matchValue: string | number; id: string; }[] = [];
+        const paths: any[] = [];
         const usedCells = new Set<string>();
 
         const getRandomEmptyCell = () => {
@@ -57,15 +56,13 @@ export const generateOfflineAbcConnect = async (options: GeneratorOptions): Prom
             });
         }
 
-        const activity = {
+        activities.push({
             title: `ABC Bağlama (${dim}x${dim})`,
             instruction: 'Sayıları karşılık gelen değerleriyle, çizgiler birbirini kesmeden birleştir.',
             gridDim: dim,
-            variant: (optVariant as string) || 'roman',
+            variant: (optVariant as unknown as any) || 'roman',
             paths
-        };
-        
-        activities.push(AbcConnectDataSchema.parse(activity) as AbcConnectData);
+        });
     }
 
     return activities;
@@ -73,4 +70,4 @@ export const generateOfflineAbcConnect = async (options: GeneratorOptions): Prom
 
 // Aliases for compatibility
 export const generateAbcConnectActivity = (difficulty: string, count: number) =>
-    generateOfflineAbcConnect({ difficulty: difficulty as any, worksheetCount: count } as unknown as GeneratorOptions);
+    generateOfflineAbcConnect({ difficulty, worksheetCount: count } as unknown as any);

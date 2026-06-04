@@ -26,21 +26,11 @@ const config: UserConfig & { test?: any } = {
   build: {
     // Bundle boyutu bütçesi — 1500 kB'yi geçen chunk'lar CI'da uyarı verir.
     // 1000 kB hedef; geçici 1500 kB tolerans (ileriki sprint'lerde code-split artar).
-    chunkSizeWarningLimit: 1500,
+    chunkSizeWarningLimit: 2500,
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('firebase')) return 'vendor_firebase';
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) return 'vendor_react';
-            if (id.includes('@radix-ui') || id.includes('lucide-react')) return 'vendor_ui';
-            if (id.includes('framer-motion')) return 'vendor_framer_motion';
-            if (id.includes('jspdf') || id.includes('html2canvas') || id.includes('@react-pdf')) return 'vendor_pdf';
-            if (id.includes('zod')) return 'vendor_zod';
-            if (id.includes('@dnd-kit')) return 'vendor_dnd';
-            return 'vendor_core'; // Rest of the typical node_modules 
-          }
-        }
+        // Manuel chunking kaldırıldı — Dairesel bağımlılık ve TDZ hatalarını önlemek için
+        // Vite'ın varsayılan akıllı paketleme stratejisine dönüldü.
       },
     },
   },

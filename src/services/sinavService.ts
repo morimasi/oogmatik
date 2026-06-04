@@ -5,26 +5,69 @@
 
 import type { SinavAyarlari, Sinav } from '../types/sinav';
 import { AppError } from '../utils/AppError';
-import { safeFetch } from '../utils/apiClient';
 
 /**
  * API endpoint'ine sınav oluşturma isteği gönder
  */
 export const generateExamViaAPI = async (settings: SinavAyarlari): Promise<Sinav> => {
-  const data = await safeFetch<{success: boolean, data: Sinav}>('/api/generate-exam', {
-    method: 'POST',
-    body: JSON.stringify(settings)
-  });
+  try {
+    const response = await fetch('/api/generate-exam', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        // TODO: AuthStore'dan userId al
+        'x-user-id': 'current-user-id'
+      },
+      body: JSON.stringify(settings)
+    });
 
-  if (!data.success || !data.data) {
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new AppError(
+        data.error?.message || 'Sınav oluşturulurken hata oluştu.',
+        data.error?.code || 'API_ERROR',
+        response.status,
+        data,
+        response.status >= 500 // Retry only on server errors
+      );
+    }
+
+    if (!data.success || !data.data) {
+      throw new AppError(
+        'API yanıtı geçersiz format.',
+        'INVALID_API_RESPONSE',
+        500,
+        data,
+        false
+      );
+    }
+
+    return data.data as Sinav;
+  } catch (error: unknown) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+
+    // Network errors
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new AppError(
+        'Sunucuya bağlanılamadı. İnternet bağlantınızı kontrol edin.',
+        'NETWORK_ERROR',
+        0,
+        { message: error.message, name: error.name },
+        true
+      );
+    }
+
+    // Unknown errors
+    const errorMessage = error instanceof Error ? error.message : 'Bilinmeyen hata';
     throw new AppError(
-      'API yanıtı geçersiz format.',
-      'INVALID_API_RESPONSE',
+      'Beklenmeyen bir hata oluştu.',
+      'UNKNOWN_ERROR',
       500,
-      data,
+      { originalError: errorMessage },
       false
     );
   }
-
-  return data.data;
 };

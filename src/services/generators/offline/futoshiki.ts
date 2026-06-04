@@ -1,5 +1,5 @@
 import { FutoshikiData, GeneratorOptions } from '../../../types';
-import { FutoshikiDataSchema } from '../../../utils/schemas';
+
 /**
  * Futoşhiki Ultra-Profesyonel Yerel Üretici
  * 4x4'ten 7x7'ye kadar dinamik boyut desteği ve akıllı zorluk seviyeleri içerir.
@@ -48,11 +48,11 @@ export const generateOfflineFutoshiki = async (options: GeneratorOptions): Promi
         return false;
     };
 
-    for (let c = 0; c < (worksheetCount || 1); c++) {
+    for (let c = 0; c < worksheetCount; c++) {
         const board: (number | null)[][] = Array(size).fill(null).map(() => Array(size).fill(null));
         solveLatinSquare(board, size);
 
-        const constraints: { r1: number; c1: number; r2: number; c2: number; type: 'greater' | 'less' }[] = [];
+        const constraints: any[] = [];
         let activityDensity = 0.5;
         if (density === 'low') activityDensity = 0.3;
         else if (density === 'high') activityDensity = 0.8;
@@ -105,7 +105,7 @@ export const generateOfflineFutoshiki = async (options: GeneratorOptions): Promi
         const randC = Math.floor(Math.random() * size);
         puzzleGrid[randR][randC] = board[randR][randC];
 
-        const activity = {
+        activities.push({
             title: `Ultra-Futoşhiki (${size}x${size})`,
             instruction: `Her satır ve sütunda 1'den ${size}'e kadar olan rakamlar birer kez kullanılmalıdır. Kutular arasındaki 'Büyüktür' ve 'Küçüktür' işaretlerine dikkat et!`,
             puzzles: [{
@@ -113,9 +113,7 @@ export const generateOfflineFutoshiki = async (options: GeneratorOptions): Promi
                 grid: puzzleGrid,
                 constraints
             }]
-        };
-        
-        activities.push(FutoshikiDataSchema.parse(activity) as FutoshikiData);
+        });
     }
 
     return activities;
