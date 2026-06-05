@@ -1,5 +1,7 @@
 import { AppError } from '../utils/AppError';
 import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { db } from './firebaseClient.js';
+import { doc, getDoc } from 'firebase/firestore';
 /**
  * BDMIND - Role-Based Access Control (RBAC)
  * User roles and permission management
@@ -98,23 +100,18 @@ export const hasPermission = (
  */
 export const getUserRole = async (userId: string): Promise<UserRoleInfo | null> => {
     try {
-        // TODO: Fetch from Firestore
-        // const userDoc = await getDoc(doc(db, 'users', userId));
-        // if (!userDoc.exists()) return null;
-        // const data = userDoc.data();
-        // return {
-        //     userId,
-        //     role: data.role as UserRole,
-        //     school: data.school,
-        //     department: data.department,
-        //     permissions: ROLE_PERMISSIONS[data.role as UserRole],
-        // };
-
-        // Placeholder
+        if (!userId) return null;
+        
+        const userDoc = await getDoc(doc(db, 'users', userId));
+        if (!userDoc.exists()) return null;
+        
+        const data = userDoc.data();
         return {
             userId,
-            role: 'student',
-            permissions: ROLE_PERMISSIONS['student'],
+            role: (data.role as UserRole) || 'student',
+            school: data.school,
+            department: data.department,
+            permissions: ROLE_PERMISSIONS[(data.role as UserRole) || 'student'] || ROLE_PERMISSIONS['student'],
         };
     } catch (error: unknown) {
         logError('Error fetching user role', { error: error as Record<string, unknown> });

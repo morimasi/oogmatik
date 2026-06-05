@@ -17,7 +17,7 @@ export class PlateauDetector {
   /**
    * Detect learning plateau
    */
-  detectPlateau(metrics: BehavioralMetrics): PlateauAlert | null {
+  detectPlateau(metrics: BehavioralMetrics, studentId: string): PlateauAlert | null {
     const { progressVelocity, engagement } = metrics;
 
     // Check if plateau is detected
@@ -38,7 +38,7 @@ export class PlateauDetector {
     const remedialActions = this.generateRemedialActions(metrics);
 
     return {
-      studentId: 'student_id_placeholder', // TODO: Pass as parameter
+      studentId,
       detectedAt: new Date().toISOString(),
       metric: 'overall_progress',
       duration,
@@ -102,11 +102,11 @@ export class PlateauDetector {
   /**
    * Early Warning System
    */
-  detectEarlyWarning(metrics: BehavioralMetrics): EarlyWarning[] {
+  detectEarlyWarning(metrics: BehavioralMetrics, studentId: string): EarlyWarning[] {
     const warnings: EarlyWarning[] = [];
 
     // Check plateau risk
-    const plateau = this.detectPlateau(metrics);
+    const plateau = this.detectPlateau(metrics, studentId);
     if (plateau) {
       warnings.push({
         studentId: plateau.studentId,
@@ -125,7 +125,7 @@ export class PlateauDetector {
     // Check regression
     if (metrics.progressVelocity.monthly < -10) {
       warnings.push({
-        studentId: 'student_id_placeholder',
+        studentId,
         riskType: 'regression',
         detectedAt: new Date().toISOString(),
         confidence: 85,
@@ -141,7 +141,7 @@ export class PlateauDetector {
     // Check engagement drop
     if (metrics.engagement.completionRate < 50 || metrics.engagement.abandonRate > 40) {
       warnings.push({
-        studentId: 'student_id_placeholder',
+        studentId,
         riskType: 'engagement_drop',
         detectedAt: new Date().toISOString(),
         confidence: 80,
@@ -157,7 +157,7 @@ export class PlateauDetector {
     // Check behavioral issues
     if (metrics.motivation.frustrationTolerance === 'low' && metrics.errorPatterns.impulsivity > 50) {
       warnings.push({
-        studentId: 'student_id_placeholder',
+        studentId,
         riskType: 'behavioral',
         detectedAt: new Date().toISOString(),
         confidence: 75,

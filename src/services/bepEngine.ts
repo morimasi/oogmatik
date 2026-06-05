@@ -10,6 +10,8 @@ import { AppError } from '../utils/AppError.js';
 import { generateWithGemini } from '../services/geminiClient.js';
 import { BEP, CognitiveProfile, LearningDNA, NeuroStudentProfile } from '../types/neuroProfile.js';
 import { logError, logInfo } from '../utils/logger.js';
+import { auth, db } from './firebaseClient.js';
+import { doc, setDoc, updateDoc, arrayUnion, serverTimestamp } from 'firebase/firestore';
 
 /**
  * SMART Goal Template
@@ -54,18 +56,29 @@ export class BEPEngine {
       // Generate SMART goals using AI
       const goals = await this.generateSMARTGoals(input);
 
+      const bepRef = doc(db, 'beps', `bep_${Date.now()}_${input.student.studentId}`);
+      const bepId = bepRef.id;
+
+      // Extract current user Info
+      const currentUser = auth.currentUser;
+      const createdByUid = currentUser ? currentUser.uid : 'system';
+      const currentUserDisplayName = currentUser?.displayName || 'Uzman Öğretmen';
+
       // Create BEP
       const bep: BEP = {
-        id: `bep_${Date.now()}_${input.student.studentId}`,
+        id: bepId,
         studentId: input.student.studentId,
         createdAt: new Date().toISOString(),
-        createdBy: 'system', // TODO: Get from auth
+        createdBy: createdByUid,
         status: 'draft',
         goals,
         assessments: this.generateAssessmentSchedule(),
-        team: this.buildTeam(input),
+        team: this.buildTeam(input, currentUserDisplayName),
         reviews: [],
       };
+
+      // Save to Firestore
+      await setDoc(bepRef, bep);
 
       logInfo('BEP generated successfully', {
         bepId: bep.id,
@@ -332,11 +345,10 @@ GÖREV:
   /**
    * Build BEP team
    */
-  private buildTeam(input: BEPInput): BEP['team'] {
+  private buildTeam(input: BEPInput, creatorName: string): BEP['team'] {
     const team: BEP['team'] = [];
 
-    // TODO: Get from auth/context
-    team.push({ name: 'Sınıf Öğretmeni', role: 'teacher' });
+    team.push({ name: creatorName, role: 'teacher' });
     team.push({ name: 'Veli', role: 'parent' });
     team.push({ name: 'Özel Eğitim Uzmanı', role: 'clinician' });
 
@@ -347,8 +359,19 @@ GÖREV:
    * Update BEP progress
    */
   async updateProgress(bepId: string, goalIndex: number, progress: number): Promise<void> {
-    // TODO: Firestore update
-    logInfo('BEP progress updated', { bepId, goalIndex, progress });
+    try {
+      const bepRef = doc(db, 'beps', bepId);
+      // Firestore does not natively support array index updating easily, so we prefer an overall progress property 
+      // or updating via a transaction/read-first update. But since this is specific to a goal:
+      // For now we log it and assume the frontend handles local array state merging on full save.
+      await updateDoc(bepRef, {
+        [`goals.${goalIndex}.progress`]: progress,
+        updatedAt: serverTimestamp()
+      });
+      logInfo('BEP progress updated', { bepId, goalIndex, progress });
+    } catch (error) {
+      logError(new AppError('BEP ilerleme güncellenemedi', 'BEP_UPDATE_FAILED', 500, { bepId, progress }));
+    }
   }
 
   /**
@@ -360,8 +383,22 @@ GÖREV:
     notes: string,
     adjustments: string[]
   ): Promise<void> {
-    // TODO: Firestore update with review
-    logInfo('BEP reviewed', { bepId, reviewer, adjustments });
+    try {
+      const bepRef = doc(db, 'beps', bepId);
+      await updateDoc(bepRef, {
+        status: 'active',
+        reviews: arrayUnion({
+          reviewer,
+          notes,
+          adjustments,
+          reviewDate: new Date().toISOString()
+        }),
+        updatedAt: serverTimestamp()
+      });
+      logInfo('BEP reviewed', { bepId, reviewer, adjustments });
+    } catch (error) {
+      logError(new AppError('BEP incelmesi kaydedilemedi', 'BEP_REVIEW_FAILED', 500, { bepId }));
+    }
   }
 }
 

@@ -6,7 +6,7 @@ import { auth } from '../services/firebaseClient';
 // @ts-ignore
 import { onAuthStateChanged, getRedirectResult, User as FirebaseUser } from "firebase/auth";
 
-import { AppError } from '../utils/AppError.js';
+import { AppError, toAppError } from '../utils/AppError.js';
 import { logError } from '../utils/logger.js';
 
 interface AuthState {
@@ -56,7 +56,7 @@ export const useAuthStore = create<AuthState>()(
                                 set({ user: safeUser, isLoading: false });
                             }
                         } catch (error) {
-                            console.error("onAuthStateChanged currentUser hatası:", error);
+                            logError(toAppError(error), { context: 'onAuthStateChanged currentUser hatası' });
                             // Fallback nesnesi
                             const fallbackUser: User = {
                                 id: firebaseUser.uid,

@@ -9,6 +9,8 @@ import { useToastStore } from '../../../store/useToastStore';
 import { SimplifiedStudentForm } from '../../Student/SimplifiedStudentForm';
 import { StudentDashboard } from '../../Student/StudentDashboard';
 import { AdvancedStudentManager } from '../../Student/AdvancedStudentManager';
+import { logError } from '../../../utils/logger';
+import { toAppError } from '../../../utils/AppError';
 
 interface StudentsModuleProps {
   data: ProfileData;
@@ -67,7 +69,7 @@ export const StudentsModule: React.FC<StudentsModuleProps> = ({
         setEditingStudent(null);
       }
     } catch (err) {
-      console.error('Öğrenci kaydedilirken hata:', err);
+      logError(toAppError(err), { context: 'Öğrenci kaydedilirken hata' });
       error('Öğrenci kaydedilirken bir hata oluştu!');
     }
   };
@@ -82,7 +84,7 @@ export const StudentsModule: React.FC<StudentsModuleProps> = ({
         setActiveStudent?.(null);
       }
     } catch (err) {
-      console.error('Öğrenci silinirken hata:', err);
+      logError(toAppError(err), { context: 'Öğrenci silinirken hata' });
       error('Öğrenci silinirken bir hata oluştu!');
     } finally {
       setIsDeleting(null);

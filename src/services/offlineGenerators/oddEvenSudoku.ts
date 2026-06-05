@@ -1,1 +1,1 @@
-export * from '../generators/offline/oddEvenSudoku';
+// DEPRECATED PROXY FILE - TO BE DELETED

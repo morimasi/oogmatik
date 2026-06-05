@@ -69,19 +69,20 @@ export class AssistantCache {
 
     // 2. IndexedDB kontrol
     try {
-      const dbEntry = await cacheService.get(key);
+      const entryRaw = await cacheService.get(key);
+      const dbEntry = entryRaw as { timestamp?: number } | null | undefined;
       if (
         dbEntry &&
-        (dbEntry as any).timestamp &&
-        Date.now() - (dbEntry as any).timestamp < CACHE_TTL_MS
+        dbEntry.timestamp &&
+        Date.now() - dbEntry.timestamp < CACHE_TTL_MS
       ) {
         // Memory cache'e de yaz (sonraki erisimleri hizlandirmak icin)
         this.memoryCache.set(key, {
-          data: dbEntry,
-          timestamp: (dbEntry as any).timestamp,
+          data: entryRaw,
+          timestamp: dbEntry.timestamp,
           promptHash: key,
         });
-        return dbEntry as T;
+        return entryRaw as T;
       }
     } catch {
       // Cache miss — sessizce devam et
@@ -105,7 +106,10 @@ export class AssistantCache {
     this.memoryCache.set(key, entry);
 
     // IndexedDB (async, fire-and-forget)
-    cacheService.set(key, { ...data, timestamp: Date.now() } as any).catch(() => {
+    cacheService.set(
+      key,
+      { ...(typeof data === 'object' && data !== null ? data : { val: data }), timestamp: Date.now() } as unknown as any
+    ).catch(() => {
       // Sessiz basarisizlik — kritik degil
     });
   }

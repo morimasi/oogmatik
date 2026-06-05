@@ -4,12 +4,14 @@ import { EnrichedCurriculum, PlanRevision } from './studentDashboardData';
 import { curriculumService } from '../../../services/curriculumService';
 import { useToastStore } from '../../../store/useToastStore';
 import { ACTIVITIES } from '../../../constants';
+import { logError } from '../../../utils/logger';
+import { toAppError } from '../../../utils/AppError';
 
 interface AcademicPlanModuleProps {
   studentId: string;
   curriculums: Curriculum[];
   onRefresh?: () => void;
-  onStartCurriculumActivity?: any;
+  onStartCurriculumActivity?: (...args: unknown[]) => void;
 }
 
 export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
@@ -157,8 +159,8 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
       toast.success(`Gün ${dayNum} aktivitesi "${matchedActivity.title}" olarak değiştirildi.`);
       if (onRefresh) onRefresh();
     } catch (e) {
-      console.error(e);
-      toast.error('Aktivite değiştirilemedi.');
+      logError(toAppError(e), { context: 'AcademicPlanModule güncelleme işlemi' });
+      toast.error('Kaydedilirken hata oluştu.');
     }
   };
 
@@ -615,7 +617,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                             <div className="flex items-center gap-1.5">
                               <p className="text-[9px] font-bold text-[var(--text-primary)]">{day.focus}</p>
                               <button
-                                onClick={() => handleStartEditingDay(day)}
+                                onClick={() => handleStartEditingGoal(i, day.focus)}
                                 className="opacity-0 group-hover/day:opacity-100 text-zinc-400 hover:text-[var(--accent-color)] transition-all"
                               >
                                 <i className="fa-solid fa-pen text-[7px]"></i>

@@ -1,6 +1,6 @@
 import { ScreeningResult, ScreeningProfile } from '../types/screening';
-
-/**
+import { logError } from '../utils/logger';
+import { toAppError } from '../utils/AppError';/**
  * Tarama ve analiz hizmetleri
  * Veritabanı işlemleri ve veri yönetimi
  */
@@ -26,7 +26,7 @@ export class ScreeningService {
       const data = await response.json();
       return data.id;
     } catch (error) {
-      console.error('Tarama kaydetme hatası:', error);
+      logError(toAppError(error), { context: 'Tarama kaydetme hatası' });
       throw error;
     }
   }
@@ -42,7 +42,7 @@ export class ScreeningService {
       }
       return await response.json();
     } catch (error) {
-      console.error('Tarama geçmişi hatası:', error);
+      logError(toAppError(error), { context: 'Tarama geçmişi hatası' });
       return [];
     }
   }
@@ -70,7 +70,7 @@ export class ScreeningService {
       }
       return await response.json();
     } catch (error) {
-      console.error('Tarama sonuçları hatası:', error);
+      logError(toAppError(error), { context: 'Tarama sonuçları hatası' });
       return [];
     }
   }
@@ -92,7 +92,7 @@ export class ScreeningService {
         throw new Error('Tarama güncellenemedi');
       }
     } catch (error) {
-      console.error('Tarama güncelleme hatası:', error);
+      logError(toAppError(error), { context: 'Tarama güncelleme hatası' });
       throw error;
     }
   }
@@ -117,7 +117,7 @@ export class ScreeningService {
         throw new Error('Tarama silinemedi');
       }
     } catch (error) {
-      console.error('Tarama silme hatası:', error);
+      logError(toAppError(error), { context: 'Tarama silme hatası' });
       throw error;
     }
   }
@@ -197,7 +197,7 @@ export class ScreeningService {
       
       return await response.blob();
     } catch (error) {
-      console.error('PDF oluşturma hatası:', error);
+      logError(toAppError(error), { context: 'PDF oluşturma hatası' });
       throw error;
     }
   }
@@ -223,7 +223,7 @@ export class ScreeningService {
         throw new Error('Tarama paylaşılamadı');
       }
     } catch (error) {
-      console.error('Tarama paylaşma hatası:', error);
+      logError(toAppError(error), { context: 'Tarama paylaşma hatası' });
       throw error;
     }
   }

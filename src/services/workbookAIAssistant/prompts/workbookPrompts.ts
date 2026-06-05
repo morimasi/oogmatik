@@ -14,6 +14,10 @@
 
 import type { CollectionItem, WorkbookSettings } from '../../../types';
 
+export interface ExtendedCollectionItem extends CollectionItem {
+  difficulty?: string;
+}
+
 // ============================================================
 // CONTEXT TYPES
 // ============================================================
@@ -140,7 +144,7 @@ ${compressed}
 export const buildDifficultyAnalysisPrompt = (items: CollectionItem[]): string => {
   const difficulties = items
     .filter((i) => i.itemType !== 'divider')
-    .map((i, idx) => `${idx + 1}:${(i as any).difficulty || 'Orta'}`)
+    .map((i, idx) => `${idx + 1}:${(i as ExtendedCollectionItem).difficulty || 'Orta'}`)
     .join(',');
 
   return `
@@ -216,7 +220,7 @@ Disleksi, diskalkuli ve DEHB alanlarinda uzman.
 [AKTIVITE]
 Tur: ${item.activityType}
 Baslik: ${item.title}
-Zorluk: ${(item as any).difficulty || 'Orta'}
+Zorluk: ${(item as ExtendedCollectionItem).difficulty || 'Orta'}
 
 [GOREV]
 Ogretmen/veliye pedagojik not yaz:
@@ -318,7 +322,8 @@ Odak: ${topActivities.join(', ')}
  * Metadata tamamlama prompt'u
  */
 export const buildMetadataFillPrompt = (item: CollectionItem): string => {
-  const contentSummary = JSON.stringify((item as any).data?.[0] || {}).substring(0, 300);
+  const dataObj = Array.isArray(item.data) ? item.data[0] : item.data;
+  const contentSummary = JSON.stringify(dataObj || {}).substring(0, 300);
 
   return `
 [SISTEM ROL: EGITIM ICERIGI SINIFLANDIRMA UZMANI]
@@ -381,7 +386,7 @@ export const compressItemsForPrompt = (items: CollectionItem[]): string => {
   return items
     .map(
       (item, idx) =>
-        `${idx + 1}|${item.itemType === 'divider' ? 'DIV' : item.activityType}|${(item.title || '').substring(0, 25)}|${(item as any).difficulty || '-'}`
+        `${idx + 1}|${item.itemType === 'divider' ? 'DIV' : item.activityType}|${(item.title || '').substring(0, 25)}|${(item as ExtendedCollectionItem).difficulty || '-'}`
     )
     .join('\n');
 };
@@ -404,7 +409,7 @@ export const buildWorkbookContext = (
     if (item.itemType !== 'divider') {
       activityCounts[item.activityType] = (activityCounts[item.activityType] || 0) + 1;
 
-      const difficulty = (item as any).difficulty || 'Orta';
+      const difficulty = (item as ExtendedCollectionItem).difficulty || 'Orta';
       if (difficulty === 'Kolay') easyCount++;
       else if (difficulty === 'Zor') hardCount++;
       else mediumCount++;

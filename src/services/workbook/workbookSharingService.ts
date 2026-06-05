@@ -17,7 +17,7 @@
 // @ts-ignore
 import { doc, updateDoc, arrayUnion, arrayRemove, Timestamp } from 'firebase/firestore';
 import { db } from '../firebaseClient';
-import { AppError, ValidationError } from '../../utils/AppError';
+import { AppError, ValidationError, toAppError } from '../../utils/AppError';
 import { logError } from '../../utils/errorHandler.js';
 import { v4 as uuidv4 } from 'uuid';
 import { getWorkbookById, updateWorkbook } from './workbookService.js';
@@ -86,7 +86,7 @@ export async function addCollaborator(
     return await getWorkbookById(workbookId, ownerId);
   } catch (error) {
     if (error instanceof AppError) throw error;
-    logError(error as any, { source: 'addCollaborator' });
+    logError(toAppError(error), { source: 'addCollaborator' });
     throw new AppError('İşbirlikçi eklenirken bir hata oluştu', 'COLLABORATOR_ADD_FAILED', 500, {
       workbookId,
       collaboratorEmail,
@@ -123,7 +123,7 @@ export async function removeCollaborator(
     return await getWorkbookById(workbookId, ownerId);
   } catch (error) {
     if (error instanceof AppError) throw error;
-    logError(error as any, { source: 'removeCollaborator' });
+    logError(toAppError(error), { source: 'removeCollaborator' });
     throw new AppError(
       'İşbirlikçi kaldırılırken bir hata oluştu',
       'COLLABORATOR_REMOVE_FAILED',
@@ -164,13 +164,13 @@ export async function updateCollaboratorPermission(
     };
 
     await updateWorkbook(workbookId, ownerId, {
-      collaborators: updatedCollaborators as any,
+      collaborators: updatedCollaborators,
     });
 
     return await getWorkbookById(workbookId, ownerId);
   } catch (error) {
     if (error instanceof AppError) throw error;
-    logError(error as any, { source: 'updateCollaboratorPermission' });
+    logError(toAppError(error), { source: 'updateCollaboratorPermission' });
     throw new AppError(
       'İşbirlikçi izni güncellenirken bir hata oluştu',
       'PERMISSION_UPDATE_FAILED',
@@ -218,13 +218,13 @@ export async function updateShareSettings(
     };
 
     await updateWorkbook(workbookId, userId, {
-      shareSettings: updatedSettings as any,
-    });
+      shareSettings: updatedSettings,
+    } as Partial<Workbook>);
 
     return await getWorkbookById(workbookId, userId);
   } catch (error) {
     if (error instanceof AppError) throw error;
-    logError(error as any, { source: 'updateShareSettings' });
+    logError(toAppError(error), { source: 'updateShareSettings' });
     throw new AppError(
       'Paylaşım ayarları güncellenirken bir hata oluştu',
       'SHARE_SETTINGS_UPDATE_FAILED',
@@ -266,13 +266,13 @@ export async function generateShareLink(
     };
 
     await updateWorkbook(workbookId, userId, {
-      shareSettings: updatedSettings as any,
-    });
+      shareSettings: updatedSettings,
+    } as Partial<Workbook>);
 
     return shareLink;
   } catch (error) {
     if (error instanceof AppError) throw error;
-    logError(error as any, { source: 'generateShareLink' });
+    logError(toAppError(error), { source: 'generateShareLink' });
     throw new AppError(
       'Paylaşım linki oluşturulurken bir hata oluştu',
       'SHARE_LINK_CREATE_FAILED',
@@ -305,11 +305,11 @@ export async function revokeShareLink(workbookId: string, userId: string): Promi
     };
 
     await updateWorkbook(workbookId, userId, {
-      shareSettings: updatedSettings as any,
-    });
+      shareSettings: updatedSettings,
+    } as Partial<Workbook>);
   } catch (error) {
     if (error instanceof AppError) throw error;
-    logError(error as any, { source: 'revokeShareLink' });
+    logError(toAppError(error), { source: 'revokeShareLink' });
     throw new AppError(
       'Paylaşım linki iptal edilirken bir hata oluştu',
       'SHARE_LINK_REVOKE_FAILED',

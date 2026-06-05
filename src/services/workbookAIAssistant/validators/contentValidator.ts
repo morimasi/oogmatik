@@ -261,8 +261,9 @@ export class ContentValidator {
     }
 
     // Katman 2: ActivityType
-    if (options.validateActivityTypes && data && (data as any).suggestions) {
-      const activityResult = this.validateActivityTypes((data as any).suggestions);
+    const dataObj = data as { suggestions?: ActivitySuggestion[] } | null | undefined;
+    if (options.validateActivityTypes && dataObj && dataObj.suggestions) {
+      const activityResult = this.validateActivityTypes(dataObj.suggestions);
       allErrors.push(...activityResult.errors);
       allWarnings.push(...activityResult.warnings);
     }
@@ -275,8 +276,8 @@ export class ContentValidator {
     }
 
     // Katman 5: Tutarlilik (sadece suggestion'lar icin)
-    if (data && (data as any).suggestions && Array.isArray((data as any).suggestions)) {
-      for (const suggestion of (data as any).suggestions) {
+    if (dataObj && dataObj.suggestions && Array.isArray(dataObj.suggestions)) {
+      for (const suggestion of dataObj.suggestions) {
         const consistencyResult = this.validateContextConsistency(suggestion, context);
         allWarnings.push(...consistencyResult.warnings);
       }

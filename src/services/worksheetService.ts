@@ -21,38 +21,38 @@ const _FIRESTORE_TIMEOUT = 10000;
 const _FIRESTORE_RETRY_CONFIG = {
     maxRetries: 3,
     initialDelay: 500,
-    shouldRetry: (error: any) => {
+    shouldRetry: (error: unknown) => {
         // Retry on network errors, not on permission errors
-        const message = error?.message || '';
-        return message.includes('DEADLINE_EXCEEDED') ||
+        const message = error instanceof Error ? error.message : (error as Record<string, unknown>)?.message || '';
+        return typeof message === 'string' && (message.includes('DEADLINE_EXCEEDED') ||
             message.includes('UNAVAILABLE') ||
-            message.includes('RESOURCE_EXHAUSTED');
+            message.includes('RESOURCE_EXHAUSTED'));
     }
 };
 
 /**
  * Serialize worksheet data to JSON string
  */
-const serializeData = (data: any): string => {
+const serializeData = (data: unknown): string => {
     try {
         return JSON.stringify(data);
     } catch (e) {
         reportError(
             new InternalServerError('Veri serileştirilemedi'),
-            { context: 'serializeData', originalError: e as any }
+            { context: 'serializeData', originalError: e }
         );
         return "[]";
     }
 };
 
-const deserializeData = (data: any): SingleWorksheetData[] => {
+const deserializeData = (data: unknown): SingleWorksheetData[] => {
     if (!data) return [];
 
-    let parsed: any = [];
+    let parsed: unknown = [];
     if (typeof data === 'string') {
         try {
             parsed = JSON.parse(data);
-        } catch (e: any) {
+        } catch (e) {
             logError("Deserialization error", { error: e });
             return [];
         }
@@ -61,10 +61,10 @@ const deserializeData = (data: any): SingleWorksheetData[] => {
     }
 
     if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-        return [parsed];
+        return [parsed as SingleWorksheetData];
     }
 
-    return Array.isArray(parsed) ? parsed : [];
+    return Array.isArray(parsed) ? (parsed as SingleWorksheetData[]) : [];
 };
 
 /**
@@ -83,25 +83,25 @@ export function worksheetMatchesArchiveCategory(sheet: SavedWorksheet, categoryI
 
 const _MAX_ARCHIVE_ROWS = 2800;
 
-const mapDbToWorksheet = (docData: any, id: string): SavedWorksheet => ({
+const mapDbToWorksheet = (docData: firestore.DocumentData, id: string): SavedWorksheet => ({
     id: id,
-    userId: docData.userId,
-    studentId: docData.studentId,
-    studentName: docData.studentName,
-    name: docData.name,
+    userId: docData.userId as string,
+    studentId: docData.studentId as string | undefined,
+    studentName: docData.studentName as string | undefined,
+    name: docData.name as string,
     activityType: docData.activityType as ActivityType,
     worksheetData: deserializeData(docData.worksheetData),
-    createdAt: docData.createdAt,
-    icon: docData.icon || 'fa-solid fa-file',
-    category: docData.category || { id: 'uncategorized', title: 'Kategorisiz' },
-    sharedBy: docData.sharedBy,
-    sharedByName: docData.sharedByName,
-    sharedWith: docData.sharedWith,
-    styleSettings: docData.styleSettings,
-    studentProfile: docData.studentProfile,
+    createdAt: docData.createdAt as string,
+    icon: docData.icon as string || 'fa-solid fa-file',
+    category: docData.category as { id: string; title: string } || { id: 'uncategorized', title: 'Kategorisiz' },
+    sharedBy: docData.sharedBy as string | undefined,
+    sharedByName: docData.sharedByName as string | undefined,
+    sharedWith: docData.sharedWith as string | string[] | undefined,
+    styleSettings: docData.styleSettings as StyleSettings | undefined,
+    studentProfile: docData.studentProfile as StudentProfile | undefined,
     // Fixed: Cast deserialized data to CollectionItem[] to match type definition
     workbookItems: docData.workbookItems ? (deserializeData(docData.workbookItems) as unknown as CollectionItem[]) : undefined,
-    workbookSettings: docData.workbookSettings
+    workbookSettings: docData.workbookSettings as WorkbookSettings | undefined
 });
 
 export const worksheetService = {
@@ -118,7 +118,7 @@ export const worksheetService = {
         studentName?: string
     ): Promise<SavedWorksheet> => {
         try {
-            const payload: any = {
+            const payload: Record<string, unknown> = {
                 userId,
                 studentId: studentId || null,
                 studentName: studentName || null,
@@ -137,16 +137,16 @@ export const worksheetService = {
             const userRef = doc(db, "users", userId);
             try {
                 await updateDoc(userRef, { worksheetCount: increment(1) });
-            } catch (countErr: any) {
-                logWarn("worksheetCount güncellenemedi", { error: countErr as Record<string, unknown> });
+            } catch (countErr) {
+                logWarn("worksheetCount güncellenemedi", { error: countErr });
             }
 
             return {
                 ...mapDbToWorksheet(payload, docRef.id),
                 worksheetData: data
             };
-        } catch (error: any) {
-            logError("Error saving worksheet", { error: error as Record<string, unknown> });
+        } catch (error) {
+            logError("Error saving worksheet", { error });
             throw error;
         }
     },
@@ -177,7 +177,7 @@ export const worksheetService = {
 
             const querySnapshot = await getDocs(qRef);
             const rows: SavedWorksheet[] = [];
-            querySnapshot.forEach((d: any) => {
+            querySnapshot.forEach((d: firestore.QueryDocumentSnapshot<firestore.DocumentData>) => {
                 const data = d.data();
                 rows.push(mapDbToWorksheet(data, d.id));
             });
@@ -210,10 +210,11 @@ export const worksheetService = {
             });
 
             return { items: sliced, total, count: total };
-        } catch (error: any) {
-            logError('getUserWorksheets yükleme hatası', { error: error?.message || error });
+        } catch (error: unknown) {
+            const err = error as Record<string, unknown>;
+            logError('getUserWorksheets yükleme hatası', { error: err?.message || error });
             // If it's a failed-precondition, it's almost certainly a missing index
-            if (error?.code === 'failed-precondition') {
+            if (err?.code === 'failed-precondition') {
                 logWarn('Firestore indeksi eksik! İndeks oluşturulana kadar basit sorgu kullanılacak.');
                 // Try one more time with zero ordering (Firestore will return in arbitrary order, we sort in memory)
                 try {
@@ -223,7 +224,7 @@ export const worksheetService = {
                     );
                     const snap = await getDocs(fallbackQ);
                     const fallbackRows: SavedWorksheet[] = [];
-                    snap.forEach((d: any) => fallbackRows.push(mapDbToWorksheet(d.data(), d.id)));
+                    snap.forEach((d: firestore.QueryDocumentSnapshot<firestore.DocumentData>) => fallbackRows.push(mapDbToWorksheet(d.data(), d.id)));
                     fallbackRows.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
                     
                     const filtered = categoryId && categoryId !== 'all'
@@ -248,13 +249,13 @@ export const worksheetService = {
             const q = query(collection(db, "saved_worksheets"), where("studentId", "==", studentId));
             const querySnapshot = await getDocs(q);
             const items: SavedWorksheet[] = [];
-            querySnapshot.forEach((doc: any) => {
+            querySnapshot.forEach((doc: firestore.QueryDocumentSnapshot<firestore.DocumentData>) => {
                 items.push(mapDbToWorksheet(doc.data(), doc.id));
             });
             items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             return items;
-        } catch (error: any) {
-            logError("Error fetching student worksheets", { error: error as Record<string, unknown> });
+        } catch (error) {
+            logError("Error fetching student worksheets", { error });
             return [];
         }
     },
@@ -270,21 +271,21 @@ export const worksheetService = {
             );
             const querySnapshot = await getDocs(q);
             const items: SavedWorksheet[] = [];
-            querySnapshot.forEach((doc: any) => {
+            querySnapshot.forEach((doc: firestore.QueryDocumentSnapshot<firestore.DocumentData>) => {
                 items.push(mapDbToWorksheet(doc.data(), doc.id));
             });
             return { items, count: null };
-        } catch (error: any) {
-            logWarn("Firestore Shared Query Error", { error: error as Record<string, unknown> });
+        } catch (error) {
+            logWarn("Firestore Shared Query Error", { error });
             // Fallback for missing index
             const qFallback = query(
                 collection(db, "saved_worksheets")
             );
             const querySnapshot = await getDocs(qFallback);
             const items: SavedWorksheet[] = [];
-            querySnapshot.forEach((doc: any) => {
-                const data = doc.data() as any;
-                const sharedWith = data.sharedWith;
+            querySnapshot.forEach((doc: firestore.QueryDocumentSnapshot<firestore.DocumentData>) => {
+                const data = doc.data();
+                const sharedWith = data.sharedWith as string | string[] | undefined;
                 if (sharedWith === userId || (Array.isArray(sharedWith) && sharedWith.includes(userId))) {
                     items.push(mapDbToWorksheet(data, doc.id));
                 }
@@ -302,7 +303,7 @@ export const worksheetService = {
             throw new NotFoundError('Paylaşılacak çalışma sayfası bulunamadı');
         }
 
-        const data = docSnap.data();
+        const data = docSnap.data() as firestore.DocumentData;
         const currentSharedWith = data.sharedWith || [];
         const receivers = Array.isArray(receiverIds) ? receiverIds : [receiverIds];
 
@@ -333,7 +334,7 @@ export const worksheetService = {
                 throw new NotFoundError('Çalışma sayfası bulunamadı');
             }
 
-            const data = docSnap.data();
+            const data = docSnap.data() as firestore.DocumentData;
             const worksheet = mapDbToWorksheet(data, docSnap.id);
 
             // Access control: Owner or shared with user
@@ -378,7 +379,7 @@ export const worksheetService = {
                 throw new NotFoundError('Çalışma sayfası bulunamadı');
             }
 
-            const data = docSnap.data();
+            const data = docSnap.data() as firestore.DocumentData;
 
             // Verify ownership
             if (data.userId !== userId) {
@@ -386,18 +387,18 @@ export const worksheetService = {
             }
 
             // Prepare update payload
-            const payload = { ...updateData };
-            delete (payload as any).id;
-            delete (payload as any).userId;
-            delete (payload as any).createdAt;
-            (payload as any).updatedAt = new Date().toISOString();
+            const payload: Record<string, unknown> = { ...updateData };
+            delete payload.id;
+            delete payload.userId;
+            delete payload.createdAt;
+            payload.updatedAt = new Date().toISOString();
 
             // Serialize if needed
             if (payload.worksheetData && Array.isArray(payload.worksheetData)) {
-                (payload as any).worksheetData = serializeData(payload.worksheetData);
+                payload.worksheetData = serializeData(payload.worksheetData);
             }
             if (payload.workbookItems && Array.isArray(payload.workbookItems)) {
-                (payload as any).workbookItems = serializeData(payload.workbookItems);
+                payload.workbookItems = serializeData(payload.workbookItems);
             }
 
             await updateDoc(docRef, payload);
@@ -432,7 +433,7 @@ export const worksheetService = {
                 throw new NotFoundError('Çalışma sayfası bulunamadı');
             }
 
-            const data = docSnap.data();
+            const data = docSnap.data() as firestore.DocumentData;
 
             // Verify ownership
             if (data.userId !== userId) {
@@ -462,7 +463,7 @@ export const worksheetService = {
         studentName?: string
     ): Promise<SavedWorksheet> => {
         try {
-            const payload: any = {
+            const payload: Record<string, unknown> = {
                 userId,
                 studentId: studentId || null,
                 studentName: studentName || settings.studentName || null,

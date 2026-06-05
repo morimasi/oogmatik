@@ -258,8 +258,7 @@ export const authService = {
                 };
             }
         } catch (error: any) {
-            console.error("Vercel'de yakalanan kritik getCurrentUser hatası:", error);
-            logError("Get current user error:", error);
+            logError("Get current user error:", { detail: String(error) });
             return null;
         }
     },

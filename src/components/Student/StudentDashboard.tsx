@@ -14,6 +14,7 @@ import { useToastStore } from '../../store/useToastStore';
 import { ACTIVITIES } from '../../constants';
 
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { toAppError } from '../../utils/AppError.js';
 
 // Module imports
 import { DashboardModule } from './modules/DashboardModule';
@@ -47,10 +48,14 @@ const diagnosisOptions = [
   'Dil ve Konuşma Güçlüğü',
 ];
 
+type TabType = 'overview' | 'assignments' | 'materials' | 'analytics' | 'plans' | 'notes' | 'settings';
+type GroupingMode = 'all' | 'grade' | 'age';
+type FormTab = 'identity' | 'academic' | 'parent';
+
 interface StudentDashboardProps {
   onBack: () => void;
   onLoadMaterial?: (ws: SavedWorksheet) => void;
-  onStartCurriculumActivity?: any;
+  onStartCurriculumActivity?: unknown;
 }
 
 export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActivity }: StudentDashboardProps) {
@@ -127,7 +132,7 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
       
       // Cleanup previous listeners
       realtimeUnsubs.current.forEach(unsub => {
-        try { unsub(); } catch (e) { console.error(e); }
+        try { unsub(); } catch (e) { logError(toAppError(e), { context: 'unsub cleanup' }); }
       });
       realtimeUnsubs.current = [];
 
@@ -149,7 +154,7 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
             setLoadingDetails(false);
           },
           error: (err) => {
-            console.error("Worksheets listener error:", err);
+            logError(toAppError(err), { context: 'Worksheets listener error' });
             setLoadingDetails(false);
           }
         });
@@ -162,7 +167,7 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
             const as = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
             setStudentAssessments(as);
           },
-          error: (err) => console.error("Assessments listener error:", err)
+          error: (err) => logError(toAppError(err), { context: 'Assessments listener error' })
         });
         realtimeUnsubs.current.push(unsubAssessments);
 
@@ -173,19 +178,19 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
             const cr = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
             setStudentCurriculums(cr);
           },
-          error: (err) => console.error("Curriculums listener error:", err)
+          error: (err) => logError(toAppError(err), { context: 'Curriculums listener error' })
         });
         realtimeUnsubs.current.push(unsubCurriculums);
 
       } catch (err) {
-        console.error("Error setting up real-time listeners:", err);
+        logError(toAppError(err), { context: 'Error setting up real-time listeners' });
         setLoadingDetails(false);
       }
     }
     
     return () => {
       realtimeUnsubs.current.forEach(unsub => {
-        try { unsub(); } catch (e) { console.error(e); }
+        try { unsub(); } catch (e) { logError(toAppError(e), { context: 'unsub return cleanup' }); }
       });
       realtimeUnsubs.current = [];
     };

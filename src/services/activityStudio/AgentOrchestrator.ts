@@ -1,5 +1,5 @@
-import { AppError } from '../../utils/AppError.js';
-import { logInfo } from '../../utils/logger.js';
+import { AppError, toAppError } from '../../utils/AppError.js';
+import { logInfo, logError, logWarn } from '../../utils/logger.js';
 import type {
   AgentId,
   AgentInput,
@@ -70,7 +70,7 @@ export class AgentOrchestrator {
     const difficultyMismatch = goal.difficulty === 'Kolay' && (rawContent.length > 5000 || (rawContent.match(/zor/gi) || []).length > 5);
 
     if (isMalformed || hasForbiddenPhrases || difficultyMismatch) {
-        console.warn(`[Orchestrator] Issue detected in ${agentId}. Retrying with strict correction...`);
+        logWarn(`[Orchestrator] Issue detected in ${agentId}. Retrying with strict correction...`, { isMalformed, hasForbiddenPhrases, difficultyMismatch });
         
         // AUTO-CORRECTION PROMPT
         const correctionPrompt = `
@@ -95,8 +95,8 @@ export class AgentOrchestrator {
                 data: parsed,
                 timestamp: this.deps.now(),
             };
-        } catch {
-            console.error(`[Orchestrator] Self-correction failed for ${agentId}. Using original output.`);
+        } catch (err) {
+            logError(toAppError(err), { context: `Orchestrator Self-correction failed for ${agentId}. Using original output.` });
             return output;
         }
     }

@@ -16,6 +16,8 @@ import {
 } from './WordSentenceStudioComponents.js';
 import { useUIStore } from '../../store/useUIStore.js';
 import { useAppStore } from '../../store/useAppStore.js';
+import { logError } from '../../utils/logger.js';
+import { toAppError } from '../../utils/AppError.js';
 
 type StudioFormat = 'fill_blanks' | 'multiple_choice' | 'word_completion' | 'mixed_sentence' | 'antonyms';
 
@@ -49,7 +51,7 @@ export const WordSentenceStudio: React.FC = () => {
       }
       setData(result);
     } catch (error) {
-      console.error("Üretim hatası:", error);
+      logError(toAppError(error), { context: 'Üretim hatası' });
     } finally {
       setIsLoading(false);
     }

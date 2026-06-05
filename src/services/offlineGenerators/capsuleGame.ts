@@ -1,1 +1,1 @@
-export * from '../generators/offline/capsuleGame';
+// DEPRECATED PROXY FILE - TO BE DELETED

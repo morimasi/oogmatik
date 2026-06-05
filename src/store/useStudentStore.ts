@@ -14,6 +14,9 @@ import {
   DocumentData,
   // @ts-ignore
 } from 'firebase/firestore';
+import { StudentProfile, StudentAIProfile } from '../types';
+import { logError } from '../utils/logger';
+import { toAppError } from '../utils/AppError';
 import { createAdvancedStudent, AdvancedStudent } from '../types/student-advanced';
 import { activityLogService } from '../services/activityLogService';
 
@@ -94,7 +97,7 @@ export const useStudentStore = create<StudentState>()((set: any, get: any) => ({
           const { activeStudent } = get();
           if (activeStudent && !studentList.find((s: Student) => s.id === activeStudent.id)) set({ activeStudent: null });
         },
-        error: (err) => { console.error("fetchStudents Error:", err); set({ isLoading: false }); }
+        error: (err) => { logError(toAppError(err), { context: 'fetchStudents Error' }); set({ isLoading: false }); }
       });
     }
 
@@ -114,11 +117,11 @@ export const useStudentStore = create<StudentState>()((set: any, get: any) => ({
 
     const unsubOwn = onSnapshot(qOwn, {
       next: (snap) => { lastOwn = snap; mergeAndSet(); },
-      error: (err) => { console.error("fetchStudents own Error:", err); set({ isLoading: false }); }
+      error: (err) => { logError(toAppError(err), { context: 'fetchStudents own Error' }); set({ isLoading: false }); }
     });
     const unsubAssigned = onSnapshot(qAssigned, {
       next: (snap) => { lastAssigned = snap; mergeAndSet(); },
-      error: (err) => { console.error("fetchStudents assigned Error:", err); set({ isLoading: false }); }
+      error: (err) => { logError(toAppError(err), { context: 'fetchStudents assigned Error' }); set({ isLoading: false }); }
     });
 
     return () => { unsubOwn(); unsubAssigned(); };
@@ -145,7 +148,7 @@ export const useStudentStore = create<StudentState>()((set: any, get: any) => ({
 
       return docRef.id;
     } catch (error) {
-      console.error("addStudent Hatası:", error);
+      logError(toAppError(error), { context: 'addStudent Hatası' });
       throw error;
     }
   },

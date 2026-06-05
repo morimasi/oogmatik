@@ -15,9 +15,9 @@ export interface ProfileViewProps {
 export interface ProfileData {
   user: User | null;
   isReadOnly: boolean;
-  assessments: any[]; // TODO: Type properly
+  assessments: Record<string, unknown>[];
   worksheets: SavedWorksheet[];
-  curriculums: any[]; // TODO: Type properly
+  curriculums: Record<string, unknown>[];
   loading: boolean;
   stats: {
     totalStudents: number;
@@ -29,6 +29,6 @@ export interface ProfileData {
     weeklyProduction: number;
     streak: number;
   };
-  performanceTrends: any[] | null; // TODO: Type properly
+  performanceTrends: Record<string, unknown>[] | null;
   refreshData: () => Promise<void>;
 }

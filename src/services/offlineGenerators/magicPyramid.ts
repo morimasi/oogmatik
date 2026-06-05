@@ -1,1 +1,1 @@
-export * from '../generators/offline/magicPyramid';
+// DEPRECATED PROXY FILE - TO BE DELETED

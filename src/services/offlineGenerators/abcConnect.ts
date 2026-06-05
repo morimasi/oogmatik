@@ -1,1 +1,1 @@
-export * from '../generators/offline/abcConnect';
+// DEPRECATED PROXY FILE - TO BE DELETED

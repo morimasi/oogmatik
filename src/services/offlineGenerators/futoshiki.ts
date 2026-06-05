@@ -1,1 +1,1 @@
-export * from '../generators/offline/futoshiki';
+// DEPRECATED PROXY FILE - TO BE DELETED

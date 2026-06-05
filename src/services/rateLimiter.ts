@@ -3,7 +3,8 @@
  * Token Bucket Algorithm - Per-user request limits
  */
 
-import { RateLimitError } from '../utils/AppError.js';
+import { RateLimitError, toAppError } from '../utils/AppError.js';
+import { logError } from '../utils/logger.js';
 import { db, doc, getDoc, setDoc, updateDoc } from './firebaseClient.js';
 
 /**
@@ -118,7 +119,7 @@ export class UserQuotaService {
 
             return { allowed, remaining, resetAfterMs };
         } catch (error) {
-            console.error('Quota check failed:', error);
+            logError(toAppError(error), { context: 'Quota check failed' });
             // Hata durumunda (Firebase kapalı vb.) fallback olarak izin ver
             return { allowed: true, remaining: 0, resetAfterMs: 0 };
         }

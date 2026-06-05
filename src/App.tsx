@@ -56,6 +56,7 @@ import * as offlineGenerators from './services/offlineGenerators';
 import { useNavigationLogic } from './hooks/useNavigationLogic';
 import { useHistoryManager } from './hooks/useHistoryManager';
 import { useWorksheetManager } from './hooks/useWorksheetManager';
+import { useWorkbookActions } from './hooks/useWorkbookActions';
 
 // Landing Page
 const LandingPage = lazy(() =>
@@ -116,168 +117,22 @@ const SariKitapStudio = lazy(() =>
 const KelimeCumleStudio = lazy(() =>
   import('./components/KelimeCumleStudio').then((module) => ({ default: module.default }))
 );
-const MessagingModule = lazy(() =>
-  import('./components/Messages/index').then((module) => ({ default: module.MessagingModule }))
-);
 
-const initialStyleSettings: StyleSettings = {
-  fontSize: 18,
-  scale: 1,
-  borderColor: '#3f3f46',
-  borderWidth: 1,
-  margin: 10,
-  columns: 1,
-  gap: 15,
-  orientation: 'portrait',
-  themeBorder: 'simple',
-  contentAlign: 'left',
-  fontWeight: 'normal',
-  fontStyle: 'normal',
-  visualStyle: 'card',
-  showPedagogicalNote: false,
-  showMascot: false,
-  showStudentInfo: true,
-  showTitle: true,
-  showInstruction: true,
-  showImage: true,
-  showFooter: true,
-  smartPagination: true,
-  fontFamily: 'Lexend',
-  lineHeight: 1.6,
-  letterSpacing: 0,
-  wordSpacing: 2,
-  paragraphSpacing: 24,
-  focusMode: false,
-  rulerColor: '#6366f1',
-  rulerHeight: 80,
-  maskOpacity: 0.4,
-  footerText: '',
-  showAnswers: false,
-  showClues: false,
-};
+
+import { LoadingSpinner } from './components/shared/LoadingSpinner';
+import { Modal } from './components/shared/Modal';
+import { initialStyleSettings } from './constants/initialSettings';
+import { tourSteps } from './constants/tourSteps';
 
 type ModalType = 'settings' | 'history' | 'about' | 'developer' | 'pdf-viewer';
 
-const LoadingSpinner = () => (
-  <div className="flex flex-col items-center justify-center h-full w-full min-h-[200px] animate-in fade-in duration-700">
-    <div className="relative">
-      <div className="w-12 h-12 border-4 border-[var(--accent-muted)] rounded-full"></div>
-      <div className="absolute top-0 left-0 w-12 h-12 border-4 border-[var(--accent-color)] border-t-transparent rounded-full animate-spin"></div>
-      <div className="absolute inset-0 flex items-center justify-center">
-        <i className="fa-solid fa-brain text-[var(--accent-color)] text-xs animate-pulse"></i>
-      </div>
-    </div>
-    <p className="mt-4 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.3em] opacity-40">bdmind Hazırlanıyor</p>
-  </div>
-);
 
-const Modal = ({
-  isOpen,
-  onClose,
-  title,
-  children,
-  maxWidth = 'max-w-2xl'
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  title?: string;
-  children: React.ReactNode;
-  maxWidth?: string;
-}) => {
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
 
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 overflow-hidden">
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="absolute inset-0 bg-black/60 backdrop-blur-md"
-          />
 
-          {/* Modal Container */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 30 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 30 }}
-            className={`relative bg-[var(--bg-paper)] rounded-[2.5rem] shadow-2xl w-full ${maxWidth} max-h-[90vh] overflow-hidden flex flex-col border border-[var(--border-color)] font-['Lexend']`}
-            onClick={(e: React.MouseEvent) => e.stopPropagation()}
-          >
-            {title && (
-              <div className="flex items-center justify-between px-8 py-6 border-b border-[var(--border-color)] bg-[var(--surface-glass)]">
-                <h2 className="text-xl font-black text-[var(--text-primary)] tracking-tight uppercase">
-                  {title}
-                </h2>
-                <button
-                  onClick={onClose}
-                  className="w-10 h-10 rounded-xl hover:bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] transition-all active:scale-90"
-                >
-                  <i className="fa-solid fa-times text-xl"></i>
-                </button>
-              </div>
-            )}
-            <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-              {children}
-            </div>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
-  );
-};
 
 import { DeveloperModal } from './components/DeveloperModal';
 
-const tourSteps: TourStep[] = [
-  {
-    targetId: 'tour-logo',
-    title: 'Hoş Geldiniz',
-    content: 'Bursa Disleksi EduMind platformuna hoş geldiniz. Hızlı bir tura başlayalım mı?',
-    position: 'bottom',
-  },
-  {
-    targetId: 'tour-search',
-    title: 'Etkinlik Arama',
-    content: 'İstediğiniz etkinliği veya konuyu buradan hızla bulabilirsiniz.',
-    position: 'bottom',
-  },
-  {
-    targetId: 'tour-sidebar',
-    title: 'Kategoriler',
-    content: 'Sol menüden etkinlik kategorilerine ulaşabilirsiniz.',
-    position: 'right',
-  },
-  {
-    targetId: 'tour-workbook-btn',
-    title: 'Çalışma Kitapçığı',
-    content: 'Seçtiğiniz etkinlikleri buraya ekleyerek tek bir PDF kitapçık oluşturabilirsiniz.',
-    position: 'bottom',
-  },
-  {
-    targetId: 'tour-ocr-btn',
-    title: 'Akıllı Tarayıcı (OCR)',
-    content: 'Fiziksel kağıtları tarayıp dijitalleştirmek için bu ikonu kullanın.',
-    position: 'right',
-  },
-  {
-    targetId: 'tour-history-btn',
-    title: 'Geçmiş',
-    content: 'Daha önce oluşturduğunuz etkinliklere buradan ulaşabilirsiniz.',
-    position: 'bottom',
-  },
-];
+
 
 import { useStudentStore } from './store/useStudentStore';
 
@@ -361,25 +216,7 @@ const AppContent = () => {
 
   const [studentProfile, setStudentProfile] = useState(null as StudentProfile | null);
   const [isStudentModalOpen, setIsStudentModalOpen] = useState(false);
-  const [selectedSavedReport, setSelectedSavedReport] = useState(null as SavedAssessment | null);
-  const [workbookItems, setWorkbookItems] = useState([] as CollectionItem[]);
-  const [workbookSettings, setWorkbookSettings] = useState({
-    title: 'Çalışma Kitapçığı',
-    studentName: '',
-    schoolName: '',
-    year: new Date().getFullYear().toString(),
-    teacherNote: '',
-    theme: 'modern',
-    accentColor: '#4f46e5',
-    coverStyle: 'centered',
-    showTOC: true,
-    showPageNumbers: true,
-    showWatermark: false,
-    watermarkOpacity: 0.05,
-    showBackCover: true,
-  } as WorkbookSettings);
-
-  // Screening to Plan Bridge
+  const [selectedSavedReport, setSelectedSavedReport] = useState(null as SavedAssessment | null);  // Screening to Plan Bridge
   const [screeningPlanData, setScreeningPlanData] = useState(
     null as { name: string; age: number; weaknesses: string[]; diagnosisContext?: string } | null
   );
@@ -426,6 +263,26 @@ const AppContent = () => {
   const { navigateTo, handleGoBack, handleOpenStudio, handleGeneratePlanFromScreening } = useNavigationLogic(
     setScreeningPlanData,
     setIsAdvancedScreeningOpen
+  );
+  
+  const {
+    workbookItems,
+    setWorkbookItems,
+    workbookSettings,
+    setWorkbookSettings,
+    handleAddToWorkbookGeneral,
+    handleAddToWorkbook,
+    handleAddDirectToWorkbook,
+    handleAutoGenerateWorkbook,
+  } = useWorkbookActions(
+    styleSettings,
+    selectedActivity,
+    worksheetData,
+    user,
+    studentProfile,
+    toast,
+    setIsLoading,
+    navigateTo
   );
 
   const { addSavedWorksheet, loadSavedWorksheet } = useWorksheetManager(
@@ -482,7 +339,7 @@ const AppContent = () => {
       goal,
     });
     if (studentId) {
-      const s = students.find((x: any) => x.id === studentId);
+      const s = students.find((x: { id: string }) => x.id === studentId);
       if (s) setActiveStudent(s);
     } else {
       setStudentProfile({
@@ -523,7 +380,7 @@ const AppContent = () => {
     }
   };
 
-  const handleSetWorksheetData = async (data: any) => {
+  const handleSetWorksheetData = async (data: WorksheetData | null) => {
     setWorksheetData(data);
     if (activeCurriculumSession && data) {
       try {
@@ -549,172 +406,11 @@ const AppContent = () => {
     }
   };
 
-  /**
-   * Kitapçığa ekleme işlemini standardize eden merkezi fonksiyon.
-   * Farklı stüdyolar farklı imzalarda çağrı yapabildiği için ( (data) veya (type, data) ) 
-   * burada her iki duruma da uyum sağlanır.
-   */
-  const handleAddToWorkbookGeneral = (activityTypeOrData: ActivityType | any, data?: any) => {
-    let finalType: ActivityType;
-    let finalData: any;
-
-    if (data === undefined) {
-      finalData = activityTypeOrData;
-      finalType = finalData?.activityType || finalData?.type || selectedActivity;
-    } else {
-      finalType = activityTypeOrData as ActivityType;
-      finalData = data;
-    }
-
-    if (finalType && finalData) {
-      let dataArray: any[] = [];
-
-      // ÇOK SAYFALI VERİ ALGILAMA, BÖLME VE AÇMA (ADVANCED FLATTENING)
-      const listKeys = ['sorular', 'questions', 'items', 'activities'];
-      const foundListKey = listKeys.find(key => finalData[key] && Array.isArray(finalData[key]));
-
-      if (Array.isArray(finalData)) {
-        dataArray = finalData;
-      } else if (finalData.pages && Array.isArray(finalData.pages)) {
-        dataArray = finalData.pages.map((p: any, i: number) => ({
-          ...finalData,
-          pages: undefined,
-          ...p,
-          title: p.title || `${finalData.title || 'Etkinlik'} - Sayfa ${i + 1}`,
-          pageIndex: i
-        }));
-      } else if (foundListKey && finalData[foundListKey].length > 6) {
-        // OTOMATİK SAYFALANDIRMA (AUTO-PAGINATION)
-        // Eğer veri tek bir parça ama içinde çok sayıda madde (örn: 20 soru) varsa, bunları 6'şarlı sayfalara böl
-        const itemsPerPage = 6;
-        const items = finalData[foundListKey];
-        for (let i = 0; i < items.length; i += itemsPerPage) {
-          const chunk = items.slice(i, i + itemsPerPage);
-          dataArray.push({
-            ...finalData,
-            [foundListKey]: chunk,
-            title: `${finalData.title || 'Etkinlik'} - Sayfa ${Math.floor(i / itemsPerPage) + 1}`,
-            pageIndex: Math.floor(i / itemsPerPage)
-          });
-        }
-      } else {
-        dataArray = [finalData];
-      }
-
-      const newItems: CollectionItem[] = dataArray.map((sheet: any) => ({
-        id: crypto.randomUUID(),
-        activityType: finalType,
-        data: sheet,
-        settings: { ...styleSettings },
-        title: sheet.title || ACTIVITIES.find((a) => a.id === finalType)?.title || 'Etkinlik',
-      }));
-
-      setWorkbookItems((prev: CollectionItem[]) => [...prev, ...newItems]);
-
-      const btn = document.getElementById('add-to-wb-btn');
-      if (btn) {
-        btn.classList.add('scale-125', 'bg-green-500', 'text-white');
-        setTimeout(() => btn.classList.remove('scale-125', 'bg-green-500', 'text-white'), 300);
-      }
-
-      toast.success(`${dataArray.length} sayfa kitapçığa başarıyla eklendi!`);
-    }
-  };
-
-
-  const handleAddToWorkbook = () => {
-    if (selectedActivity && worksheetData)
-      handleAddToWorkbookGeneral(selectedActivity, worksheetData);
-  };
-  const handleAddDirectToWorkbook = (item: CollectionItem) => {
-    const newItems: CollectionItem[] = [
-      {
-        id: crypto.randomUUID(),
-        activityType: item.activityType,
-        data: item.data,
-        settings: { ...styleSettings, ...item.settings },
-        title: item.title,
-      },
-    ];
-    setWorkbookItems((prev: CollectionItem[]) => [...prev, ...newItems]);
-  };
-
-  const handleOCRResult = (result: any) => {
+  const handleOCRResult = (result: unknown) => {
     setSelectedActivity(ActivityType.OCR_CONTENT);
-    setWorksheetData(result);
+    setWorksheetData(result as WorksheetData);
     navigateTo('generator');
     setIsSidebarExpanded(true);
-  };
-  const handleAutoGenerateWorkbook = async (report: AssessmentReport) => {
-    setIsLoading(true);
-    navigateTo('workbook');
-    const newItems: CollectionItem[] = [];
-    const defaultOptions: GeneratorOptions = {
-      mode: 'fast',
-      difficulty: 'Orta',
-      worksheetCount: 1,
-      itemCount: 10,
-      gridSize: 10,
-      operationType: 'mixed',
-      numberRange: '1-20',
-    };
-    try {
-      const reportItem: CollectionItem = {
-        id: crypto.randomUUID(),
-        activityType: ActivityType.ASSESSMENT_REPORT,
-        data: {
-          id: 'temp-report',
-          userId: user?.id || 'guest',
-          studentName: studentProfile?.name || 'Öğrenci',
-          gender: 'Erkek',
-          age: 7,
-          grade: studentProfile?.grade || '1. Sınıf',
-          createdAt: new Date().toISOString(),
-          report: report,
-        } as unknown as Record<string, unknown>,
-        settings: { ...styleSettings, showStudentInfo: false, showFooter: false },
-        title: `Rapor: ${studentProfile?.name || 'Öğrenci'}`,
-      };
-      newItems.push(reportItem);
-      for (const roadItem of report.roadmap) {
-        const activityId = roadItem.activityId as ActivityType;
-        const pascalName = activityId
-          .toLowerCase()
-          .split('_')
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join('');
-        const generatorName = `generateOffline${pascalName}`;
-        const generator = (offlineGenerators as any)[generatorName];
-        if (generator) {
-          try {
-            const generatedData = await generator(defaultOptions as unknown as Record<string, unknown>);
-            generatedData.forEach((sheet: any) => {
-              newItems.push({
-                id: crypto.randomUUID(),
-                activityType: activityId,
-                data: sheet,
-                settings: { ...styleSettings },
-                title: ACTIVITIES.find((a) => a.id === activityId)?.title || activityId,
-              });
-            });
-          } catch (genErr) {
-            logError(genErr as any, { activityId });
-          }
-        }
-      }
-      setWorkbookItems(newItems);
-      setWorkbookSettings((prev: WorkbookSettings) => ({
-        ...prev,
-        title: `Kişisel Gelişim Planı`,
-        studentName: studentProfile?.name || '',
-        teacherNote:
-          'Bu kitapçık, yapılan değerlendirme sonucunda belirlenen ihtiyaçlara yönelik olarak yapay zeka tarafından otomatik oluşturulmuştur.',
-      }));
-    } catch (_e) {
-      toast.error('Otomatik kitaçık oluşturulurken bir hata meydana geldi.');
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   // Check if we should show landing page
@@ -944,7 +640,7 @@ const AppContent = () => {
                       <ProtectedRoute module="activity-studio" onBack={handleGoBack}>
                         <ActivityStudio
                           onBack={handleGoBack}
-                          onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                          onAddToWorkbook={(data: unknown) => handleAddToWorkbookGeneral(data as Record<string, unknown>)}
                         />
                       </ProtectedRoute>
                     )}
@@ -958,7 +654,7 @@ const AppContent = () => {
                         data={profileData}
                         activeStudent={activeStudent}
                         onBack={handleGoBack}
-                        onSelectActivity={handleSelectActivity as any}
+                        onSelectActivity={(id: string) => handleSelectActivity(id as ActivityType)}
                         onLoadSaved={loadSavedWorksheet}
                         theme={theme}
                         uiSettings={uiSettings}
@@ -987,7 +683,7 @@ const AppContent = () => {
                         <ScreeningModule
                           onBack={handleGoBack}
                           onSelectActivity={handleSelectActivity}
-                          onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                          onAddToWorkbook={(data: unknown) => handleAddToWorkbookGeneral(data as Record<string, unknown>)}
                           onGeneratePlan={(n: string, a: number, w: string[], c?: string) =>
                             handleGeneratePlanFromScreening(n, a, w, c)
                           }
@@ -996,19 +692,19 @@ const AppContent = () => {
                     )}
                     {currentView === 'sinav-studyosu' && (
                       <ProtectedRoute module="sinav-studyosu" onBack={handleGoBack}>
-                        <SinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />
+                        <SinavStudyosu onAddToWorkbook={(type: ActivityType, data: unknown) => handleAddToWorkbookGeneral(type, data as Record<string, unknown>)} />
                       </ProtectedRoute>
                     )}
                     {currentView === 'mat-sinav-studyosu' && (
                       <ProtectedRoute module="math-studio" onBack={handleGoBack}>
-                        <MatSinavStudyosu onAddToWorkbook={handleAddToWorkbookGeneral as any} />
+                        <MatSinavStudyosu onAddToWorkbook={(type: ActivityType, data: unknown) => handleAddToWorkbookGeneral(type, data as Record<string, unknown>)} />
                       </ProtectedRoute>
                     )}
                     {currentView === 'sari-kitap-studio' && (
                       <ProtectedRoute module="sari-kitap" onBack={handleGoBack}>
                         <SariKitapStudio
                           onBack={handleGoBack}
-                          onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                          onAddToWorkbook={() => handleAddToWorkbookGeneral(ActivityType.SARI_KITAP_STUDIO, worksheetData as Record<string, unknown>)}
                         />
                       </ProtectedRoute>
                     )}
@@ -1016,15 +712,11 @@ const AppContent = () => {
                       <ProtectedRoute module="kelime-cumle" onBack={handleGoBack}>
                         <KelimeCumleStudio
                           onBack={handleGoBack}
-                          onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                          onAddToWorkbook={(data: unknown) => handleAddToWorkbookGeneral(ActivityType.KELIME_CUMLE, data as Record<string, unknown>)}
                         />
                       </ProtectedRoute>
                     )}
-                    {currentView === 'messages' && (
-                      <ProtectedRoute module="messaging" onBack={handleGoBack}>
-                        <MessagingModule />
-                      </ProtectedRoute>
-                    )}
+
                   </Suspense>
                 </motion.div>
               )}

@@ -5,6 +5,8 @@ import { useToastStore } from '../../../../store/useToastStore';
 import { Student } from '../../../../types/student';
 import { SimplifiedStudentForm } from '../../../Student/SimplifiedStudentForm';
 import { BaseSettingsProps } from '../../types';
+import { logError } from '../../../../utils/logger';
+import { toAppError } from '../../../../utils/AppError';
 
 export const StudentsSettings: React.FC<BaseSettingsProps> = ({ data }) => {
   const { students, isLoading, fetchStudents, addStudent, updateStudent, deleteStudent } = useStudentStore();
@@ -43,7 +45,7 @@ export const StudentsSettings: React.FC<BaseSettingsProps> = ({ data }) => {
         setEditingStudent(null);
       }
     } catch (err) {
-      console.error('Öğrenci kaydedilirken hata:', err);
+      logError(toAppError(err), { context: 'Öğrenci kaydedilirken hata (Settings)' });
       error('Öğrenci kaydedilirken bir hata oluştu!');
     }
   };
@@ -54,7 +56,7 @@ export const StudentsSettings: React.FC<BaseSettingsProps> = ({ data }) => {
       await deleteStudent(studentId);
       success('Öğrenci başarıyla silindi!');
     } catch (err) {
-      console.error('Öğrenci silinirken hata:', err);
+      logError(toAppError(err), { context: 'Öğrenci silinirken hata (Settings)' });
       error('Öğrenci silinirken bir hata oluştu!');
     } finally {
       setIsDeleting(null);
