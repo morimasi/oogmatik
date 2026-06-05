@@ -188,6 +188,8 @@ const AppContent = () => {
     setIsLoading,
     error,
     setError,
+    studioData,
+    setStudioData,
     resetGeneratorContext,
   } = useWorksheetStore();
 
@@ -621,6 +623,7 @@ const AppContent = () => {
                         <ReadingStudio
                           onBack={handleGoBack}
                           onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                          initialData={studioData}
                         />
                       </ProtectedRoute>
                     )}
@@ -629,6 +632,7 @@ const AppContent = () => {
                         <MathStudio
                           onBack={handleGoBack}
                           onAddToWorkbook={handleAddToWorkbookGeneral as any}
+                          initialData={studioData}
                         />
                       </ProtectedRoute>
                     )}
@@ -698,7 +702,10 @@ const AppContent = () => {
                     )}
                     {currentView === 'mat-sinav-studyosu' && (
                       <ProtectedRoute module="math-studio" onBack={handleGoBack}>
-                        <MatSinavStudyosu onAddToWorkbook={(type: ActivityType, data: unknown) => handleAddToWorkbookGeneral(type, data as Record<string, unknown>)} />
+                        <MatSinavStudyosu 
+                          onAddToWorkbook={(type: ActivityType, data: unknown) => handleAddToWorkbookGeneral(type, data as Record<string, unknown>)} 
+                          initialData={studioData}
+                        />
                       </ProtectedRoute>
                     )}
                     {currentView === 'sari-kitap-studio' && (
@@ -706,6 +713,7 @@ const AppContent = () => {
                         <SariKitapStudio
                           onBack={handleGoBack}
                           onAddToWorkbook={() => handleAddToWorkbookGeneral(ActivityType.SARI_KITAP_STUDIO, worksheetData as Record<string, unknown>)}
+                          initialData={studioData}
                         />
                       </ProtectedRoute>
                     )}

@@ -11,13 +11,16 @@ export const useDrillGenerator = (pageMargin: number) => {
     const [drillConfig, setDrillConfig] = useState<MathDrillConfig>({ ...DEFAULT_DRILL_CONFIG });
     const [generatedDrills, setGeneratedDrills] = useState<MathOperation[]>([]);
     const generationCounter = useRef(0);
+    const isInternalChange = useRef(false);
 
     // Generate drills whenever config changes — ALWAYS auto-fill A4 page
     useEffect(() => {
-        // Force autoFillPage ON — user cannot turn it off
-        const effectiveConfig = { ...drillConfig, autoFillPage: true };
+        if (isInternalChange.current) {
+            isInternalChange.current = false;
+            return;
+        }
 
-        // Calculate exact items that fit on one A4 page
+        const effectiveConfig = { ...drillConfig, autoFillPage: true };
         const targetCount = calculateItemsPerPage(effectiveConfig, pageMargin);
 
         const items = generateMathDrillSet(
@@ -60,6 +63,7 @@ export const useDrillGenerator = (pageMargin: number) => {
         drillConfig,
         setDrillConfig,
         generatedDrills,
+        setGeneratedDrills,
         toggleDrillOp,
         regenerate,
     };

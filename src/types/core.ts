@@ -392,6 +392,7 @@ export type View =
   | 'sari-kitap-studio'
   | 'kelime-cumle-studio'
   | 'messages'
+  | 'infographic-studio'
   | 'students';
 
 export interface UiSettings {

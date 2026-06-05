@@ -11,6 +11,7 @@ export interface WorksheetStoreState {
   activeWorksheetTitle: string;
   isLoading: boolean;
   error: string | null;
+  studioData: any | null;
 
   // Actions
   setCurrentView: (view: View) => void;
@@ -18,6 +19,7 @@ export interface WorksheetStoreState {
   popHistoryView: () => View | undefined;
   setSelectedActivity: (activity: ActivityType | null) => void;
   setWorksheetData: (data: WorksheetData | null) => void;
+  setStudioData: (data: any | null) => void;
   setActiveCurriculumSession: (session: ActiveCurriculumSession | null) => void;
   setActiveWorksheet: (id: string | null, title?: string) => void;
   setIsLoading: (isLoading: boolean) => void;
@@ -30,6 +32,7 @@ export const useWorksheetStore = create<WorksheetStoreState>()((set: SetState<Wo
   viewHistory: [],
   selectedActivity: null,
   worksheetData: null,
+  studioData: null,
   activeCurriculumSession: null,
   activeWorksheetId: null,
   activeWorksheetTitle: '',
@@ -49,6 +52,7 @@ export const useWorksheetStore = create<WorksheetStoreState>()((set: SetState<Wo
   },
   setSelectedActivity: (activity: ActivityType | null) => set({ selectedActivity: activity }),
   setWorksheetData: (data: WorksheetData | null) => set({ worksheetData: data }),
+  setStudioData: (data: any | null) => set({ studioData: data }),
   setActiveCurriculumSession: (session: ActiveCurriculumSession | null) =>
     set({ activeCurriculumSession: session }),
   setActiveWorksheet: (id: string | null, title?: string) =>

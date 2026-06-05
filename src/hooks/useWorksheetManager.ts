@@ -23,7 +23,7 @@ export const useWorksheetManager = (
 ) => {
     const { user } = useAuthStore();
     const { activeStudent, setActiveStudent, students } = useStudentStore();
-    const { setSelectedActivity, setWorksheetData, setActiveWorksheet } = useWorksheetStore();
+    const { setSelectedActivity, setWorksheetData, setStudioData, setActiveWorksheet } = useWorksheetStore();
     const toast = useToastStore();
 
     const addSavedWorksheet = async (
@@ -80,6 +80,33 @@ export const useWorksheetManager = (
                 setWorkbookSettings(item.workbookSettings);
                 navigateTo('workbook');
             }
+            return;
+        }
+
+        // --- Studio Routing ---
+        const studioViews: Record<string, View> = {
+            [ActivityType.MATH_STUDIO]: 'math-studio',
+            [ActivityType.MAT_SINAV]: 'mat-sinav-studyosu',
+            [ActivityType.SINAV]: 'sinav-studyosu',
+            [ActivityType.SARI_KITAP_STUDIO]: 'sari-kitap-studio',
+            [ActivityType.KELIME_CUMLE]: 'kelime-cumle-studio',
+            [ActivityType.PREMIUM_STUDIO]: 'activity-studio',
+            [ActivityType.INFOGRAPHIC_STUDIO]: 'infographic-studio'
+        };
+
+        const targetView = studioViews[item.activityType];
+
+        if (targetView) {
+            let wd = item.worksheetData;
+            if (typeof wd === 'string') { try { wd = JSON.parse(wd); } catch { wd = []; } }
+            // Stüdyolarda worksheetData genellikle array içindeki ilk objedir (isMathStudio: true vb.)
+            const studioPayload = Array.isArray(wd) ? wd[0] : wd;
+            
+            setStudioData(studioPayload);
+            setSelectedActivity(item.activityType);
+            setActiveWorksheet(item.id, item.name);
+            navigateTo(targetView);
+            setIsSidebarExpanded(true);
             return;
         }
 

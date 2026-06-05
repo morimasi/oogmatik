@@ -23,9 +23,10 @@ import './SariKitapStudio.css';
 interface SariKitapStudioInnerProps {
     onBack: () => void;
     onAddToWorkbook?: () => void;
+    initialData?: any;
 }
 
-const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerProps) => {
+const SariKitapStudioInner = ({ onBack, onAddToWorkbook, initialData }: SariKitapStudioInnerProps) => {
     const {
         activeType,
         config,
@@ -56,6 +57,15 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook }: SariKitapStudioInnerP
             });
         }
     }, [activeStudent]);
+
+    // --- INITIAL DATA LOAD ---
+    React.useEffect(() => {
+        if (initialData) {
+            if (initialData.type) setActiveType(initialData.type);
+            if (initialData.config) updateConfig(initialData.config);
+            if (initialData.content) setContent(initialData.content);
+        }
+    }, [initialData]);
     const { generate } = useSariKitapGenerator();
     const { exportToPDF, exportToPNG } = useExportActions();
     const previewRef = useRef<HTMLDivElement>(null);

@@ -34,9 +34,10 @@ import { AdvancedPanel } from './panels/AdvancedPanel';
 interface MathStudioProps {
     onBack: () => void;
     onAddToWorkbook?: (data: any) => void;
+    initialData?: any;
 }
 
-export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook }) => {
+export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook, initialData }) => {
     const { user } = useAuthStore();
     const { students, activeStudent } = useStudentStore();
     const { toasts, showToast, removeToast } = useToast();
@@ -72,6 +73,24 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
             problem.setProblemConfig(prev => ({ ...prev, studentName: activeStudent.name }));
         }
     }, [activeStudent]);
+
+    // --- INITIAL DATA LOAD ---
+    useEffect(() => {
+        if (initialData && initialData.isMathStudio) {
+            if (initialData.mode) setMode(initialData.mode);
+            if (initialData.pageConfig) setPageConfig(initialData.pageConfig);
+            if (initialData.themeConfig) setThemeConfig(initialData.themeConfig);
+            
+            if (initialData.mode === 'drill' && initialData.config) {
+                drill.setDrillConfig(initialData.config);
+                if (initialData.items) drill.setGeneratedDrills(initialData.items);
+            } else if (initialData.mode === 'problem_ai' && initialData.config) {
+                problem.setProblemConfig(initialData.config);
+                if (initialData.items) problem.setGeneratedProblems(initialData.items);
+                if (initialData.instruction) problem.setInstruction(initialData.instruction);
+            }
+        }
+    }, [initialData]);
 
     // --- STUDENT SELECT ---
     const handleSelectStudent = (sid: string) => {

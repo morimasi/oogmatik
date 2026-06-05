@@ -20,9 +20,10 @@ import { ActivityType } from '../../types/activity';
 interface ReadingStudioInnerProps {
   onBack: () => void;
   onAddToWorkbook: (type?: any, data?: any) => void;
+  initialData?: any;
 }
 
-const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps) => {
+const ReadingStudioInner = ({ onBack, onAddToWorkbook, initialData }: ReadingStudioInnerProps) => {
   const {
     config,
     setStoryData,
@@ -70,6 +71,17 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
       useReadingStore.getState().setConfig(newConfig);
     }
   }, [globalActiveStudent]);
+  
+  // --- INITIAL DATA LOAD ---
+  useEffect(() => {
+    if (initialData) {
+        if (initialData.config) useReadingStore.getState().setConfig(initialData.config);
+        if (initialData.storyData) setStoryData(initialData.storyData);
+        if (initialData.layout) setLayout(initialData.layout);
+        
+        setTimeout(() => recalculateLayout(), 100);
+    }
+  }, [initialData]);
 
   const [sidebarTab, setSidebarTab] = useState(
     'production' as 'production' | 'library' | 'styling' | 'content' | 'archive'
@@ -488,6 +500,6 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps
   );
 };
 
-export const ReadingStudio = ({ onBack, onAddToWorkbook }: ReadingStudioInnerProps) => {
-  return <ReadingStudioInner onBack={onBack} onAddToWorkbook={onAddToWorkbook} />;
+export const ReadingStudio = ({ onBack, onAddToWorkbook, initialData }: ReadingStudioInnerProps) => {
+  return <ReadingStudioInner onBack={onBack} onAddToWorkbook={onAddToWorkbook} initialData={initialData} />;
 };

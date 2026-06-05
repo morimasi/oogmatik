@@ -71,9 +71,10 @@ const FmtBtn: React.FC<{
 
 interface SinavStudyosuProps {
   onAddToWorkbook?: (activityType: ActivityType, data: unknown) => void;
+  initialData?: any;
 }
 
-export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook }) => {
+export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook, initialData }) => {
   const {
     ayarlar,
     setSinif,
@@ -99,6 +100,16 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook })
       }
     }
   }, [activeStudent]);
+
+  // --- INITIAL DATA LOAD ---
+  React.useEffect(() => {
+    if (initialData && Array.isArray(initialData.data) && initialData.data[0]) {
+      const exam = initialData.data[0];
+      setAktifSinav(exam);
+      if (initialData.printConfig) setPrintConfig(initialData.printConfig);
+      setActiveTab('onizleme');
+    }
+  }, [initialData]);
 
   const [activeTab, setActiveTab] = useState<TabType>('onizleme');
   const [error, setError] = useState<string | null>(null);
