@@ -74,20 +74,25 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook,
         }
     }, [activeStudent]);
 
-    // --- INITIAL DATA LOAD ---
+    // --- INITIAL DATA LOAD (HYDRATION) ---
     useEffect(() => {
-        if (initialData && initialData.isMathStudio) {
-            if (initialData.mode) setMode(initialData.mode);
-            if (initialData.pageConfig) setPageConfig(initialData.pageConfig);
-            if (initialData.themeConfig) setThemeConfig(initialData.themeConfig);
+        if (initialData) {
+            // Support both direct and nested structure
+            const data = initialData.content || initialData;
             
-            if (initialData.mode === 'drill' && initialData.config) {
-                drill.setDrillConfig(initialData.config);
-                if (initialData.items) drill.setGeneratedDrills(initialData.items);
-            } else if (initialData.mode === 'problem_ai' && initialData.config) {
-                problem.setProblemConfig(initialData.config);
-                if (initialData.items) problem.setGeneratedProblems(initialData.items);
-                if (initialData.instruction) problem.setInstruction(initialData.instruction);
+            if (data.mode) setMode(data.mode);
+            if (data.pageConfig) setPageConfig(data.pageConfig);
+            if (data.themeConfig) setThemeConfig(data.themeConfig);
+            
+            const items = data.items || data.drills || data.problems;
+
+            if (data.mode === 'drill' && data.config) {
+                drill.setDrillConfig(data.config);
+                if (items) drill.setGeneratedDrills(items);
+            } else if ((data.mode === 'problem_ai' || data.mode === 'problem') && data.config) {
+                problem.setProblemConfig(data.config);
+                if (items) problem.setGeneratedProblems(items);
+                if (data.instruction) problem.setInstruction(data.instruction);
             }
         }
     }, [initialData]);

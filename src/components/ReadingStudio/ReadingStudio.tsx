@@ -72,14 +72,17 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook, initialData }: ReadingStu
     }
   }, [globalActiveStudent]);
   
-  // --- INITIAL DATA LOAD ---
+  // --- INITIAL DATA LOAD (HYDRATION) ---
   useEffect(() => {
     if (initialData) {
-        if (initialData.config) useReadingStore.getState().setConfig(initialData.config);
-        if (initialData.storyData) setStoryData(initialData.storyData);
-        if (initialData.layout) setLayout(initialData.layout);
+        const data = initialData.content || initialData;
         
-        setTimeout(() => recalculateLayout(), 100);
+        if (data.config) useReadingStore.getState().setConfig(data.config);
+        if (data.storyData) setStoryData(data.storyData);
+        if (data.layout) setLayout(data.layout);
+        
+        // Final recalculation to ensure A4 fits correctly
+        setTimeout(() => recalculateLayout(), 150);
     }
   }, [initialData]);
 

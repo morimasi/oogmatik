@@ -101,13 +101,18 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook, i
     }
   }, [activeStudent]);
 
-  // --- INITIAL DATA LOAD ---
+  // --- INITIAL DATA LOAD (HYDRATION) ---
   React.useEffect(() => {
-    if (initialData && Array.isArray(initialData.data) && initialData.data[0]) {
-      const exam = initialData.data[0];
-      setAktifSinav(exam);
-      if (initialData.printConfig) setPrintConfig(initialData.printConfig);
-      setActiveTab('onizleme');
+    if (initialData) {
+      const dataObj = initialData.content || initialData;
+      // In exams, the actual exam object is usually in data[0] or content.data[0]
+      const exam = dataObj.data?.[0] || dataObj.content?.[0] || (Array.isArray(dataObj) ? dataObj[0] : null);
+      
+      if (exam) {
+        setAktifSinav(exam);
+        if (dataObj.printConfig) setPrintConfig(dataObj.printConfig);
+        setActiveTab('onizleme');
+      }
     }
   }, [initialData]);
 
