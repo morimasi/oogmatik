@@ -3,6 +3,8 @@
  * ReadingStudio, CreativeStudio, UniversalStudio tarafından kullanılır.
  */
 
+import { StudentProfile } from './student';
+
 // ── LayoutSectionId ─────────────────────────────────────────────
 export type LayoutSectionId =
     | 'header'
@@ -59,6 +61,7 @@ export interface LayoutItem {
 
 // ── ReadingStudioConfig ─────────────────────────────────────────
 export interface ReadingStudioConfig {
+    studentProfile?: Partial<StudentProfile>;
     gradeLevel: string;
     studentName: string;
     topic: string;

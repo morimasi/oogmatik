@@ -55,7 +55,7 @@ type FormTab = 'identity' | 'academic' | 'parent';
 interface StudentDashboardProps {
   onBack: () => void;
   onLoadMaterial?: (ws: SavedWorksheet) => void;
-  onStartCurriculumActivity?: unknown;
+  onStartCurriculumActivity?: (...args: any[]) => void;
 }
 
 export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActivity }: StudentDashboardProps) {

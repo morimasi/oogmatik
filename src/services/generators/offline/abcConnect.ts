@@ -60,7 +60,7 @@ export const generateOfflineAbcConnect = async (options: GeneratorOptions): Prom
             title: `ABC Bağlama (${dim}x${dim})`,
             instruction: 'Sayıları karşılık gelen değerleriyle, çizgiler birbirini kesmeden birleştir.',
             gridDim: dim,
-            variant: (optVariant as unknown as any) || 'roman',
+            variant: (optVariant as 'roman' | 'case' | 'dots' | 'math') || 'roman',
             paths
         });
     }
@@ -70,4 +70,4 @@ export const generateOfflineAbcConnect = async (options: GeneratorOptions): Prom
 
 // Aliases for compatibility
 export const generateAbcConnectActivity = (difficulty: string, count: number) =>
-    generateOfflineAbcConnect({ difficulty, worksheetCount: count } as unknown as any);
+    generateOfflineAbcConnect({ difficulty, worksheetCount: count } as GeneratorOptions);

@@ -399,7 +399,8 @@ const AppContent = () => {
         setActiveCurriculumSession(null);
         toast.success(`Harika! ${activeCurriculumSession.activityTitle} üretildi ve plana otomatik işlendi! 🎉`);
       } catch (e) {
-        console.error("Otomatik plan tamamlama hatası:", e);
+        logError(e instanceof Error ? e : new Error(String(e)), { context: 'handleSetWorksheetData:autoCompletePlan' });
+        toast.error('Plan tamamlama sırasında bir hata oluştu. Lütfen tekrar deneyin.');
       } finally {
         setIsLoading(false);
       }
