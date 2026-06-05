@@ -1,4 +1,4 @@
-import { create, SetState, GetState } from 'zustand';
+import { create } from 'zustand';
 import { ActivityType, WorksheetData, ActiveCurriculumSession, View } from '../types';
 
 export interface WorksheetStoreState {
@@ -27,7 +27,7 @@ export interface WorksheetStoreState {
   resetGeneratorContext: () => void;
 }
 
-export const useWorksheetStore = create<WorksheetStoreState>()((set: SetState<WorksheetStoreState>, get: GetState<WorksheetStoreState>) => ({
+export const useWorksheetStore = create<WorksheetStoreState>((set: any, get: any) => ({
   currentView: 'generator',
   viewHistory: [],
   selectedActivity: null,

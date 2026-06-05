@@ -51,9 +51,10 @@ const SectionHeader: React.FC<{ icon: string; title: string; badge?: string; isO
 
 interface MatSinavStudyosuProps {
     onAddToWorkbook?: (activityType: ActivityType, data: unknown) => void;
+    initialData?: any;
 }
 
-export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkbook }) => {
+export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkbook, initialData }) => {
     const {
         ayarlar,
         setSinif,
@@ -81,6 +82,16 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
             }
         }
     }, [activeStudent]);
+
+    // --- INITIAL DATA LOAD ---
+    React.useEffect(() => {
+        if (initialData && Array.isArray(initialData.data) && initialData.data[0]) {
+            const exam = initialData.data[0];
+            setAktifSinav(exam);
+            if (initialData.printConfig) setPrintConfig(initialData.printConfig);
+            setActiveTab('onizleme');
+        }
+    }, [initialData]);
 
     const [activeTab, setActiveTab] = useState<TabType>('onizleme');
     const [error, setError] = useState<string | null>(null);
@@ -688,7 +699,7 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
                             <p className="text-sm text-gray-500">Henüz öğrenci eklenmemiş. Lütfen önce öğrenci ekleyin.</p>
                         ) : (
                             <div className="space-y-2 max-h-80 overflow-y-auto">
-                                {useStudentStore.getState().students.map((s) => (
+                                {useStudentStore.getState().students.map((s: any) => (
                                     <button
                                         key={s.id}
                                         onClick={() => handleAssignToStudent(s.id, s.name)}

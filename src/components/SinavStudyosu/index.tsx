@@ -640,7 +640,7 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook, i
               <p className="text-sm text-gray-500">Henüz öğrenci eklenmemiş. Lütfen önce öğrenci ekleyin.</p>
             ) : (
               <div className="space-y-2 max-h-80 overflow-y-auto">
-                {useStudentStore.getState().students.map((s) => (
+                {useStudentStore.getState().students.map((s: any) => (
                   <button
                     key={s.id}
                     onClick={() => handleAssignToStudent(s.id, s.name)}
