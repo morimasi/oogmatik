@@ -66,7 +66,7 @@ export const generateAdaptiveQuestionsFromAI = async (
         properties: skills.reduce((acc, skill) => {
             acc[skill] = { type: 'ARRAY', items: questionSchema };
             return acc;
-        }, {} as unknown as any)
+        }, {} as Record<string, unknown>)
     };
 
     try {
@@ -74,12 +74,12 @@ export const generateAdaptiveQuestionsFromAI = async (
         const result: Record<string, AdaptiveQuestion[]> = {};
 
         Object.keys(rawData).forEach(key => {
-            if (skills.includes(key as unknown as any)) {
-                result[key] = (rawData[key] as unknown as Array<Record<string, unknown>>).map((q: Record<string, unknown>, idx: number) => ({
+            if (skills.includes(key as TestCategory)) {
+                result[key] = (rawData[key] as unknown as Array<Partial<AdaptiveQuestion>>).map((q: Partial<AdaptiveQuestion>, idx: number) => ({
                     ...q,
                     id: `${key}_ai_${Date.now()}_${idx}`,
                     skill: key
-                }));
+                } as AdaptiveQuestion));
             }
         });
 

@@ -1,4 +1,3 @@
-// @ts-ignore - Vercel types optional
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import {
   AppError,

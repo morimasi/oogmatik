@@ -1,6 +1,6 @@
 
 import { generateWithSchema } from '../geminiClient.js';
-import { InteractiveStoryData, ReadingStudioConfig } from '../../types.js';
+import { InteractiveStoryData, ReadingStudioConfig, StudentProfile } from '../../types.js';
 
 /**
  * Generate UNIQUE, non-repetitive reading content with AI
@@ -25,9 +25,8 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
         'advanced': 'Metaforik dil, zengin sıfat kullanımı, yüksek edebi değer.'
     };
 
-    const profile = config.studentProfile || {} as unknown as any;
-    const diagnosisStr = profile.diagnosis?.join(', ') || 'Özel Öğrenme Güçlüğü (Genel)';
-    const interestsStr = profile.interests?.join(', ') || 'Macera, Bilim, Doğa';
+    const diagnosisStr = config.studentProfile?.diagnosis?.join(', ') || 'Özel Öğrenme Güçlüğü (Genel)';
+    const interestsStr = config.studentProfile?.interests?.join(', ') || 'Macera, Bilim, Doğa';
 
     // Unique content generation seed - ensures different content each time
     const generationSeed = Date.now() + Math.random();
