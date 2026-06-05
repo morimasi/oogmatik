@@ -308,6 +308,7 @@ export const capturePage = async (
     height: page.offsetHeight,
     x: 0,
     y: 0,
+    removeContainer: true,
     onclone: (_clonedDoc: Document, clonedEl: HTMLElement) => {
       onCloneForCapture(_clonedDoc);
       clonedEl.style.transform = 'none';
