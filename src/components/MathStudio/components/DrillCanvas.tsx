@@ -103,8 +103,8 @@ export const DrillCanvas: React.FC<DrillCanvasProps> = ({
                         {pageItems.map((op, i) => (
                             <div key={op.id} className="flex justify-center items-start">
                                 {drillConfig.orientation === 'vertical'
-                                    ? <OperationCardVertical op={op} fontSize={drillConfig.fontSize} showText={drillConfig.showTextRepresentation} themeConfig={themeConfig} index={pageIdx * perPage + i} />
-                                    : <OperationCardHorizontal op={op} fontSize={drillConfig.fontSize} showText={drillConfig.showTextRepresentation} themeConfig={themeConfig} index={pageIdx * perPage + i} />
+                                    ? <OperationCardVertical op={op} fontSize={drillConfig.fontSize} fontWeight={drillConfig.fontWeight} showText={drillConfig.showTextRepresentation} themeConfig={themeConfig} index={pageIdx * perPage + i} />
+                                    : <OperationCardHorizontal op={op} fontSize={drillConfig.fontSize} fontWeight={drillConfig.fontWeight} showText={drillConfig.showTextRepresentation} themeConfig={themeConfig} index={pageIdx * perPage + i} />
                                 }
                             </div>
                         ))}

@@ -9,11 +9,12 @@ import { ThemeConfig, BORDER_STYLES, NUMBERING_STYLES } from '../constants';
 interface ProblemCardProps {
     problem: MathProblem;
     showSolutionBox: boolean;
+    fontWeight: number;
     index: number;
     themeConfig: ThemeConfig;
 }
 
-export const ProblemCard: React.FC<ProblemCardProps> = ({ problem, showSolutionBox, index, themeConfig }) => {
+export const ProblemCard: React.FC<ProblemCardProps> = ({ problem, showSolutionBox, fontWeight, index, themeConfig }) => {
     // Determine border class based on themeConfig.borderStyle
     let borderClass = 'border-transparent';
     if (themeConfig.borderStyle === 'thin') borderClass = 'border-zinc-200 border';
@@ -32,7 +33,10 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({ problem, showSolutionB
                     </div>
                 )}
                 <div className="flex-1">
-                    <p className="text-base font-medium text-zinc-900 leading-relaxed text-justify font-dyslexic border-b border-zinc-100 pb-1">
+                    <p 
+                        className="text-base text-zinc-900 leading-relaxed text-justify font-dyslexic border-b border-zinc-100 pb-1"
+                        style={{ fontWeight: fontWeight }}
+                    >
                         <EditableText value={problem.text} tag="span" />
                     </p>
 

@@ -221,6 +221,7 @@ export interface MathDrillConfig {
   useThirdNumber: boolean;
   showTextRepresentation: boolean;
   autoFillPage: boolean;
+  fontWeight: number;
   orientation: 'vertical' | 'horizontal';
   showAnswer: boolean;
   fontSize: number;
@@ -268,8 +269,10 @@ export interface MathProblemConfig {
   numberRange: string;
   problemStyle: 'simple' | 'story' | 'logic';
   complexity: '1-step' | '2-step' | 'multi-step';
-  problemTypes: ('standard' | 'fill-in' | 'true-false' | 'comparison')[]; // Eklendi: Çoklu soru tipleri
-  generateImages: boolean; // Eklendi: Görsel ipucu üretme toggle'ı
+  problemTypes: ('standard' | 'fill-in' | 'true-false' | 'comparison')[]; 
+  generateImages: boolean; 
+  fontWeight: number;
+  autoFillPage: boolean;
 }
 
 export interface LogicGridPuzzleData extends BaseActivityData {

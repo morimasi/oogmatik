@@ -67,9 +67,36 @@ export const ProblemSettingsPanel: React.FC<ProblemSettingsPanelProps> = ({
                     </div>
                     <div>
                         <label className="text-[9px] font-bold text-white/70 uppercase mb-1.5 block">Adet</label>
-                        <select value={problemConfig.count} onChange={e => setProblemConfig({ ...problemConfig, count: Number(e.target.value) })} className="w-full p-2.5 bg-black/40 border border-white/10 rounded-lg text-xs text-white outline-none font-bold">
+                        <select 
+                            disabled={problemConfig.autoFillPage}
+                            value={problemConfig.count} 
+                            onChange={e => setProblemConfig({ ...problemConfig, count: Number(e.target.value) })} 
+                            className={`w-full p-2.5 bg-black/40 border border-white/10 rounded-lg text-xs text-white outline-none font-bold ${problemConfig.autoFillPage ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
                             {Array.from({ length: 20 }, (_, i) => i + 1).map(n => <option key={n} value={n}>{n} Soru</option>)}
                         </select>
+                    </div>
+                </div>
+
+                {/* Font Weight */}
+                <div>
+                    <label className="text-[9px] font-bold text-white/70 uppercase mb-2 block flex justify-between">
+                        <span>Yazı Tipi Kalınlığı</span>
+                        <span className="text-accent">{problemConfig.fontWeight}</span>
+                    </label>
+                    <input 
+                        type="range" 
+                        min="100" 
+                        max="800"
+                        step="100"
+                        value={problemConfig.fontWeight}
+                        onChange={e => setProblemConfig({ ...problemConfig, fontWeight: Number(e.target.value) })}
+                        className="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-accent"
+                    />
+                    <div className="flex justify-between mt-1 px-1">
+                        <span className="text-[8px] text-white/40">İnce</span>
+                        <span className="text-[8px] text-white/40">Normal</span>
+                        <span className="text-[8px] text-white/40">Kalın</span>
                     </div>
                 </div>
 
@@ -140,6 +167,15 @@ export const ProblemSettingsPanel: React.FC<ProblemSettingsPanelProps> = ({
             <label className="flex items-center gap-3 p-4 bg-zinc-900 rounded-xl cursor-pointer border border-zinc-800 hover:border-accent/50 transition-colors">
                 <input type="checkbox" checked={problemConfig.includeSolutionBox} onChange={e => setProblemConfig({ ...problemConfig, includeSolutionBox: e.target.checked })} className="w-5 h-5 rounded text-accent focus:ring-accent/5 bg-black border-zinc-700" />
                 <span className="text-sm font-bold text-zinc-300">Çözüm ve İşlem Kutusu Ekle</span>
+            </label>
+
+            {/* Auto Fill Page Toggle */}
+            <label className="flex items-center gap-3 p-4 bg-accent/10 rounded-xl cursor-pointer border border-accent/30 hover:border-accent/50 transition-colors shadow-[0_0_15px_rgba(var(--accent-rgb),0.1)]">
+                <input type="checkbox" checked={problemConfig.autoFillPage} onChange={e => setProblemConfig({ ...problemConfig, autoFillPage: e.target.checked })} className="w-5 h-5 rounded text-accent focus:ring-accent/5 bg-black border-accent/20" />
+                <div className="flex flex-col">
+                    <span className="text-sm font-bold text-accent">A4 Sayfayı Tam Doldur</span>
+                    <span className="text-[10px] text-accent/70">Zorluğa göre adet otomatik ayarlanır.</span>
+                </div>
             </label>
         </div>
     </div>

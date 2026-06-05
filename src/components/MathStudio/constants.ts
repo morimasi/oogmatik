@@ -39,6 +39,7 @@ export const DEFAULT_DRILL_CONFIG = {
   useThirdNumber: false,
   showTextRepresentation: false,
   autoFillPage: true,
+  fontWeight: 400,
   orientation: 'vertical' as const,
   showAnswer: false,
   fontSize: 28, // Slighly larger premium default
@@ -57,6 +58,8 @@ export const DEFAULT_PROBLEM_CONFIG = {
   complexity: '1-step' as const,
   problemTypes: ['standard'] as ('standard' | 'fill-in' | 'true-false' | 'comparison')[],
   generateImages: false,
+  fontWeight: 400,
+  autoFillPage: true,
 };
 
 // Default page config

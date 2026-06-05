@@ -69,6 +69,7 @@ export const ProblemCanvas: React.FC<ProblemCanvasProps> = ({
                                     key={prob.id}
                                     problem={prob}
                                     showSolutionBox={problemConfig.includeSolutionBox}
+                                    fontWeight={problemConfig.fontWeight}
                                     index={startIndex + i}
                                     themeConfig={themeConfig}
                                 />

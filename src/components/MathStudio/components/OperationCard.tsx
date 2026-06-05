@@ -9,6 +9,7 @@ import { ThemeConfig, BORDER_STYLES, NUMBERING_STYLES, PAPER_THEMES, BorderStyle
 interface OperationCardProps {
   op: MathOperation;
   fontSize: number;
+  fontWeight: number;
   showText: boolean;
   themeConfig: ThemeConfig;
   index: number;
@@ -30,6 +31,7 @@ const getCardStyle = (themeConfig: ThemeConfig, borderStyle: BorderStyle) => {
 export const OperationCardVertical: React.FC<OperationCardProps> = ({
   op,
   fontSize,
+  fontWeight,
   showText,
   themeConfig,
   index,
@@ -43,6 +45,7 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
         className="flex font-mono font-bold leading-none break-inside-avoid relative group"
         style={{ 
           fontSize: `${fontSize}px`,
+          fontWeight: fontWeight,
           ...getCardStyle(themeConfig, themeConfig.borderStyle)
         }}
       >
@@ -153,6 +156,7 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
 export const OperationCardHorizontal: React.FC<OperationCardProps> = ({
   op,
   fontSize,
+  fontWeight,
   showText,
   themeConfig,
   index,
@@ -165,6 +169,7 @@ export const OperationCardHorizontal: React.FC<OperationCardProps> = ({
       className="flex flex-wrap items-center gap-3 font-mono font-bold break-inside-avoid relative group"
       style={{ 
         fontSize: `${fontSize}px`,
+        fontWeight: fontWeight,
         ...getCardStyle(themeConfig, themeConfig.borderStyle)
       }}
     >

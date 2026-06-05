@@ -51,7 +51,7 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook 
 
     // --- HOOKS ---
     const drill = useDrillGenerator(pageConfig.margin);
-    const problem = useProblemGenerator(activeStudent?.name || '');
+    const problem = useProblemGenerator(activeStudent?.name || '', pageConfig.margin);
 
     const exportActions = useExportActions({
         userId: user?.id,

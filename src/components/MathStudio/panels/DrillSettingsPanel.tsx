@@ -241,19 +241,36 @@ export const DrillSettingsPanel: React.FC<DrillSettingsPanelProps> = ({
           </div>
         </div>
       </div>
+      <div className="space-y-4">
+        <div>
+          <label className="block text-[9px] text-zinc-500 mb-1.5 font-bold uppercase">
+            Yazı Büyüklüğü ({drillConfig.fontSize}px)
+          </label>
+          <input
+            type="range"
+            min="14"
+            max="48"
+            value={drillConfig.fontSize}
+            onChange={(e) => setDrillConfig({ ...drillConfig, fontSize: Number(e.target.value) })}
+            className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-accent"
+          />
+        </div>
 
-      <div>
-        <label className="block text-[9px] text-zinc-500 mb-1.5 font-bold uppercase">
-          Yazı Büyüklüğü ({drillConfig.fontSize}px)
-        </label>
-        <input
-          type="range"
-          min="14"
-          max="48"
-          value={drillConfig.fontSize}
-          onChange={(e) => setDrillConfig({ ...drillConfig, fontSize: Number(e.target.value) })}
-          className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-accent"
-        />
+        <div>
+          <label className="block text-[9px] text-zinc-500 mb-1.5 font-bold uppercase flex justify-between">
+            <span>Yazı Tipi Kalınlığı</span>
+            <span className="text-accent">{drillConfig.fontWeight}</span>
+          </label>
+          <input
+            type="range"
+            min="100"
+            max="800"
+            step="100"
+            value={drillConfig.fontWeight}
+            onChange={(e) => setDrillConfig({ ...drillConfig, fontWeight: Number(e.target.value) })}
+            className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-accent"
+          />
+        </div>
       </div>
     </div>
   </div>

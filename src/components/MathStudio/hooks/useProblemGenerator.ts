@@ -4,9 +4,10 @@ import { useState, useCallback } from 'react';
 import { MathProblemConfig, MathProblem } from '../../../types/math';
 import { generateMathProblemsAI } from '../../../services/generators/mathStudio';
 import { DEFAULT_PROBLEM_CONFIG } from '../constants';
+import { calculateItemsPerPage } from '../utils';
 
 import { logInfo, logError, logWarn } from '../../../utils/logger.js';
-export const useProblemGenerator = (initialStudentName: string) => {
+export const useProblemGenerator = (initialStudentName: string, pageMargin: number = 38) => {
     const [problemConfig, setProblemConfig] = useState<MathProblemConfig>({
         ...DEFAULT_PROBLEM_CONFIG,
         studentName: initialStudentName || '',
@@ -36,7 +37,14 @@ export const useProblemGenerator = (initialStudentName: string) => {
     const handleGenerateProblems = useCallback(async (): Promise<{ success: boolean; error?: string }> => {
         setIsGenerating(true);
         try {
-            const result = await generateMathProblemsAI(problemConfig) as { problems?: any[]; instruction?: string };
+            // If autoFillPage is ON, dynamically calculate the count based on A4 capacity
+            const effectiveCount = problemConfig.autoFillPage 
+                ? calculateItemsPerPage(problemConfig, pageMargin)
+                : problemConfig.count;
+
+            const finalConfig = { ...problemConfig, count: effectiveCount };
+
+            const result = await generateMathProblemsAI(finalConfig) as { problems?: any[]; instruction?: string };
             const mapped = (result.problems || []).map((p: any, i: number) => ({
                 id: `p-${Date.now()}-${i}`,
                 text: p.text || "Soru metni yüklenemedi.",

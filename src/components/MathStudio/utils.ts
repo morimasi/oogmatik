@@ -70,14 +70,36 @@ const estimateItemHeightForOp = (op: string, config: MathDrillConfig): number =>
 };
 
 /**
+ * Estimates the pixel height of an AI problem based on config.
+ */
+const estimateProblemHeight = (config: any): number => {
+  const fs = config.fontSize || 18;
+  const styleWeights = { simple: 1.0, story: 2.2, logic: 3.5 };
+  const complexityWeights = { '1-step': 1.0, '2-step': 1.5, 'multi-step': 2.2 };
+
+  const baseLineHeight = styleWeights[config.problemStyle as keyof typeof styleWeights] || 1.5;
+  const complexityMultiplier = complexityWeights[config.complexity as keyof typeof complexityWeights] || 1.0;
+
+  let height = fs * 1.5 * (baseLineHeight * complexityMultiplier + 2); // Text block
+  if (config.includeSolutionBox) height += 120;
+  if (config.generateImages) height += 100;
+
+  return height + 32; // padding
+};
+
+/**
  * Estimates the pixel height of a single drill item based on config.
  * For mixed operations, calculates weighted average across all selected ops.
  */
-export const estimateItemHeight = (config: MathDrillConfig): number => {
-  const ops = config.selectedOperations.filter(o => o !== 'mixed');
+export const estimateItemHeight = (config: any): number => {
+  // If it is a problem config (has problemStyle)
+  if ('problemStyle' in config) {
+    return estimateProblemHeight(config);
+  }
+
+  const ops = config.selectedOperations?.filter((o: string) => o !== 'mixed') || [];
 
   if (ops.length === 0) {
-    // Fallback: treat as add
     return estimateItemHeightForOp('add', config);
   }
 
@@ -85,32 +107,23 @@ export const estimateItemHeight = (config: MathDrillConfig): number => {
     return estimateItemHeightForOp(ops[0], config);
   }
 
-  // Mixed operations: average height across all selected ops
-  const totalHeight = ops.reduce((sum, op) => sum + estimateItemHeightForOp(op, config), 0);
+  const totalHeight = ops.reduce((sum: number, op: string) => sum + estimateItemHeightForOp(op, config), 0);
   return totalHeight / ops.length;
 };
 
 /**
- * Calculates the maximum number of drill items that fit on a single A4 page.
- * Uses a 5% safety margin to prevent overflow.
+ * Calculates the maximum number of items that fit on a single A4 page.
  */
-export const calculateItemsPerPage = (config: MathDrillConfig, pageMargin: number): number => {
+export const calculateItemsPerPage = (config: any, pageMargin: number): number => {
   const usableHeight = A4_HEIGHT_PX - HEADER_HEIGHT - FOOTER_HEIGHT - pageMargin * 2;
   const itemH = estimateItemHeight(config);
-  const gapY = config.gap || 12;
+  const gapY = config.gap || (('problemStyle' in config) ? 24 : 12);
 
-  // Rows: how many items fit vertically
   const rows = Math.floor(usableHeight / (itemH + gapY));
-
-  // Columns: use configured value (user controls this)
-  const cols = Math.max(1, Math.min(8, config.cols));
+  const cols = config.cols || 1;
 
   const totalItems = Math.max(1, rows * cols);
-
-  // Apply 5% safety margin to prevent edge-case overflow
-  const safeItems = Math.max(1, Math.floor(totalItems * 0.95));
-
-  return safeItems;
+  return Math.max(1, Math.floor(totalItems * 0.95));
 };
 
 /**
