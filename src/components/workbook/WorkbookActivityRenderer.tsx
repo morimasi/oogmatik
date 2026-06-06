@@ -5,6 +5,8 @@ import { MathStudioRenderer } from '../sheet-renderers/MathStudioRenderer';
 import { SuperStudioRenderer } from '../sheet-renderers/SuperStudioRenderer';
 import { KelimeCumleRenderer } from '../sheet-renderers/KelimeCumleRenderer';
 import { SariKitapRenderer } from '../sheet-renderers/SariKitapRenderer';
+import { SinavRenderer } from '../sheet-renderers/SinavRenderer';
+import { MatSinavRenderer } from '../sheet-renderers/MatSinavRenderer';
 import { CiftMetinRenderer } from '../SariKitapStudio/modules/ciftMetin/CiftMetinRenderer';
 import { PencereRenderer } from '../SariKitapStudio/modules/pencere';
 import { NoktaRenderer } from '../SariKitapStudio/modules/nokta';
@@ -65,7 +67,17 @@ export const WorkbookActivityRenderer = memo(({ item, settings, font, accent }: 
         return <SariKitapRenderer data={rawData} settings={mergedSettings} />;
     }
 
-    // 5. SARI KİTAP ALT MODÜLLERİ (Direct Render)
+    // 5. SINAV STUDYOSU
+    if (activityType === 'SINAV') {
+        return <SinavRenderer data={rawData} settings={mergedSettings} />;
+    }
+
+    // 6. MAT SINAV STUDYOSU
+    if (activityType === 'MAT_SINAV') {
+        return <MatSinavRenderer data={rawData} settings={mergedSettings} />;
+    }
+
+    // 7. SARI KİTAP ALT MODÜLLERİ (Direct Render)
     if (SARI_KITAP_TYPES.has(activityType)) {
         const RendererComponent = getRendererForType(activityType);
         if (RendererComponent) {
