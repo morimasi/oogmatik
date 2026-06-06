@@ -85,11 +85,16 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
 
     // --- INITIAL DATA LOAD ---
     React.useEffect(() => {
-        if (initialData && Array.isArray(initialData.data) && initialData.data[0]) {
-            const exam = initialData.data[0];
-            setAktifSinav(exam);
-            if (initialData.printConfig) setPrintConfig(initialData.printConfig);
-            setActiveTab('onizleme');
+        if (initialData) {
+            const dataObj = initialData.content || initialData;
+            // In exams, the actual exam object could be data[0], content[0], or dataObj itself if it has 'sorular' array.
+            const exam = dataObj.data?.[0] || dataObj.content?.[0] || (Array.isArray(dataObj) ? dataObj[0] : (dataObj.sorular ? dataObj : null));
+            
+            if (exam) {
+                setAktifSinav(exam);
+                if (dataObj.printConfig) setPrintConfig(dataObj.printConfig);
+                setActiveTab('onizleme');
+            }
         }
     }, [initialData]);
 
@@ -199,6 +204,7 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
                     instruction: 'Problemleri dikkatlice çözünüz.',
                     activityType: ActivityType.MAT_SINAV,
                     data: [aktifSinav],
+                    printConfig: printConfig,
                 }],
                 'fa-solid fa-square-root-variable',
                 { id: 'math-logic', title: 'Matematik & Mantık' },
@@ -255,6 +261,7 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
                     instruction: 'Problemleri dikkatlice çözünüz.',
                     activityType: ActivityType.MAT_SINAV,
                     data: [aktifSinav],
+                    printConfig: printConfig,
                 }],
                 'fa-solid fa-user-graduate',
                 { id: 'assigned-exams', title: 'Öğrenci Sınavları' },
