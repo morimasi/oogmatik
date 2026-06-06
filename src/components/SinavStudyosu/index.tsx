@@ -105,8 +105,8 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook, i
   React.useEffect(() => {
     if (initialData) {
       const dataObj = initialData.content || initialData;
-      // In exams, the actual exam object could be data[0], content[0], or dataObj itself if it has 'sorular' array.
-      const exam = dataObj.data?.[0] || dataObj.content?.[0] || (Array.isArray(dataObj) ? dataObj[0] : (dataObj.sorular ? dataObj : null));
+      // In exams, the actual exam object is usually in data[0] or content.data[0]
+      const exam = dataObj.data?.[0] || dataObj.content?.[0] || (Array.isArray(dataObj) ? dataObj[0] : null);
       
       if (exam) {
         setAktifSinav(exam);
@@ -219,7 +219,6 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook, i
           instruction: 'Soruları dikkatlice okuyunuz.',
           activityType: ActivityType.SINAV,
           data: [aktifSinav],
-          printConfig: printConfig,
         }],
         'fa-solid fa-file-lines',
         { id: 'reading-comprehension', title: 'Okuduğunu Anlama' },

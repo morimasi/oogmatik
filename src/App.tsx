@@ -697,7 +697,7 @@ const AppContent = () => {
                     )}
                     {currentView === 'sinav-studyosu' && (
                       <ProtectedRoute module="sinav-studyosu" onBack={handleGoBack}>
-                        <SinavStudyosu onAddToWorkbook={(type: ActivityType, data: unknown) => handleAddToWorkbookGeneral(type, data as Record<string, unknown>)} />
+                        <SinavStudyosu onAddToWorkbook={(type: ActivityType, data: unknown) => handleAddToWorkbookGeneral(type, data as Record<string, unknown>)} initialData={studioData} />
                       </ProtectedRoute>
                     )}
                     {currentView === 'mat-sinav-studyosu' && (
