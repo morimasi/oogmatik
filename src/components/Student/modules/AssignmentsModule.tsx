@@ -1,5 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { ActivityAssignment } from '../../../types/assignment';
+import { useAuthStore } from '../../../store/useAuthStore';
+import { useAssignmentStore } from '../../../store/useAssignmentStore';
+import { useGetUserWorksheets } from '../../../hooks/useWorksheets';
+import { useToastStore } from '../../../store/useToastStore';
 
 interface AssignmentsModuleProps {
   studentId: string;
@@ -21,6 +25,7 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAssignment, setSelectedAssignment] = useState<ActivityAssignment | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showNewAssignModal, setShowNewAssignModal] = useState(false);
   const [editNotes, setEditNotes] = useState('');
   const [editScore, setEditScore] = useState<number | undefined>(undefined);
 
@@ -125,6 +130,9 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
           </p>
         </div>
         <div className="flex gap-1.5">
+          <button onClick={() => setShowNewAssignModal(true)} className="px-3 py-1 rounded-lg bg-[var(--accent-color)] border border-[var(--accent-color)] flex items-center justify-center text-white hover:opacity-90 transition-all font-bold text-[9px] uppercase tracking-widest shadow-md">
+            <i className="fa-solid fa-plus mr-1.5"></i> Yeni Ata
+          </button>
           <button onClick={handlePrint} className="w-7 h-7 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all" title="Yazdır">
             <i className="fa-solid fa-print text-[9px]"></i>
           </button>
@@ -266,6 +274,122 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
           </div>
         </div>
       )}
+
+      {/* New Assignment Modal */}
+      <NewAssignmentModal 
+        isOpen={showNewAssignModal} 
+        onClose={() => setShowNewAssignModal(false)} 
+        studentId={studentId} 
+      />
     </div>
+  );
+};
+
+const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; studentId: string }> = ({ isOpen, onClose, studentId }) => {
+  const { user } = useAuthStore();
+  const { createAssignment, isLoading } = useAssignmentStore();
+  const worksheetsData = useGetUserWorksheets({
+    userId: user?.id || '',
+    userRole: user?.role || 'teacher',
+    pageSize: 50
+  });
+
+  const [selectedWorksheetId, setSelectedWorksheetId] = useState('');
+  const [dueDate, setDueDate] = useState('');
+  const [notes, setNotes] = useState('');
+
+  if (!isOpen) return null;
+
+  const handleAssign = async () => {
+    if (!selectedWorksheetId) {
+      useToastStore.getState().error('Lütfen bir etkinlik seçin.');
+      return;
+    }
+    
+    // Convert to ISO string if needed, or keep string format
+    const isoDueDate = dueDate ? new Date(`${dueDate}T23:59:59`).toISOString() : undefined;
+
+    const success = await createAssignment({
+      studentIds: [studentId],
+      worksheetId: selectedWorksheetId,
+      dueDate: isoDueDate,
+      teacherNotes: notes
+    }, user?.id || 'system');
+    
+    if (success) {
+      onClose();
+      // Reset form variables
+      setSelectedWorksheetId('');
+      setDueDate('');
+      setNotes('');
+    }
+  };
+
+  return (
+        <div className="fixed inset-0 z-[75] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[var(--bg-paper)] rounded-2xl shadow-2xl w-full max-w-md border border-[var(--border-color)] flex flex-col max-h-[85vh]">
+            <div className="p-4 border-b border-[var(--border-color)] flex justify-between items-center shrink-0">
+              <h3 className="font-black text-xs text-[var(--text-primary)] uppercase"><i className="fa-solid fa-plus mr-2 text-[var(--accent-color)]"></i> Yeni Atama Yap</h3>
+              <button onClick={onClose} className="w-6 h-6 rounded-full hover:bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)]">
+                <i className="fa-solid fa-times text-[9px]"></i>
+              </button>
+            </div>
+            <div className="p-4 space-y-4 overflow-y-auto">
+              
+              <div>
+                <label className="block text-[8px] font-bold text-[var(--text-muted)] uppercase mb-1.5">Etkinlik / İçerik Seçimi <span className="text-rose-500">*</span></label>
+                {worksheetsData.loading ? (
+                    <div className="p-4 text-center text-xs font-bold animate-pulse text-[var(--accent-color)]">İçerikleriniz Yükleniyor...</div>
+                ) : (
+                    <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                        {worksheetsData.data?.items.map(w => (
+                            <div key={w.id} 
+                                onClick={() => setSelectedWorksheetId(w.id)}
+                                className={`p-3 rounded-xl border cursor-pointer transition-all ${selectedWorksheetId === w.id ? 'border-[var(--accent-color)] bg-[var(--accent-color)]/5' : 'border-[var(--border-color)] bg-[var(--bg-secondary)] hover:border-[var(--accent-color)]/30'}`}>
+                                <div className="flex justify-between items-start gap-2">
+                                  <h4 className="font-bold text-[10px] text-[var(--text-primary)] leading-tight">{w.name || "İsimsiz İçerik"}</h4>
+                                  {selectedWorksheetId === w.id && <i className="fa-solid fa-circle-check text-[var(--accent-color)] text-[10px]"></i>}
+                                </div>
+                                <p className="text-[8px] text-[var(--text-muted)] mt-1 font-bold">{w.activityType} • {new Date(w.createdAt).toLocaleDateString('tr-TR')}</p>
+                            </div>
+                        ))}
+                        {(!worksheetsData.data?.items || worksheetsData.data.items.length === 0) && (
+                            <div className="text-center p-4">
+                                <p className="text-[9px] font-bold text-[var(--text-muted)]">Kataloğunuzda kayıtlı etkinlik bulunmuyor.</p>
+                            </div>
+                        )}
+                    </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-[8px] font-bold text-[var(--text-muted)] uppercase mb-1.5">Teslim Tarihi (Opsiyonel)</label>
+                <input
+                  type="date"
+                  value={dueDate}
+                  onChange={e => setDueDate(e.target.value)}
+                  className="w-full p-2.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[9px] outline-none focus:ring-1 focus:ring-[var(--accent-color)]/50 text-[var(--text-primary)] font-bold"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[8px] font-bold text-[var(--text-muted)] uppercase mb-1.5">Öğretmen Notu (Opsiyonel)</label>
+                <textarea
+                  value={notes}
+                  onChange={e => setNotes(e.target.value)}
+                  className="w-full p-2.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[9px] outline-none focus:ring-1 focus:ring-[var(--accent-color)]/50 text-[var(--text-primary)] h-20 resize-none font-medium"
+                  placeholder="Bu etkinlikte şunlara dikkat etmelisin..."
+                />
+              </div>
+
+            </div>
+            <div className="p-4 border-t border-[var(--border-color)] flex justify-end gap-2 shrink-0">
+              <button disabled={isLoading} onClick={onClose} className="px-4 py-2 text-[var(--text-muted)] font-bold text-[9px] rounded-lg hover:bg-[var(--bg-secondary)] transition-all uppercase tracking-widest">İptal</button>
+              <button disabled={isLoading || !selectedWorksheetId} onClick={handleAssign} className="px-6 py-2 bg-[var(--accent-color)] text-white font-black text-[9px] rounded-lg hover:opacity-90 transition-all flex items-center gap-2 shadow-lg shadow-[var(--accent-color)]/20 disabled:opacity-50 uppercase tracking-widest">
+                {isLoading ? <i className="fa-solid fa-spinner fa-spin text-[10px]"></i> : <i className="fa-solid fa-paper-plane text-[10px]"></i>} Ata
+              </button>
+            </div>
+          </div>
+        </div>
   );
 };
