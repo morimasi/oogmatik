@@ -199,6 +199,7 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
                     instruction: 'Problemleri dikkatlice çözünüz.',
                     activityType: ActivityType.MAT_SINAV,
                     data: [aktifSinav],
+                    printConfig,
                 }],
                 'fa-solid fa-square-root-variable',
                 { id: 'math-logic', title: 'Matematik & Mantık' },
@@ -255,6 +256,7 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
                     instruction: 'Problemleri dikkatlice çözünüz.',
                     activityType: ActivityType.MAT_SINAV,
                     data: [aktifSinav],
+                    printConfig,
                 }],
                 'fa-solid fa-user-graduate',
                 { id: 'assigned-exams', title: 'Öğrenci Sınavları' },
@@ -292,8 +294,9 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
         if (onAddToWorkbook) {
             // Canlı çalışma kitabına ekle (App state)
             onAddToWorkbook(ActivityType.MAT_SINAV, {
-                ...aktifSinav,
                 title: aktifSinav.baslik || 'Matematik Sınavı',
+                instruction: 'Problemleri dikkatlice çözünüz.',
+                data: [aktifSinav],
                 printConfig,
             });
             showSuccess('✅ Sınav çalışma kitabına eklendi!');
@@ -312,6 +315,7 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
                 instruction: 'Matematik problemlerini dikkatlice çözünüz.',
                 activityType: ActivityType.MAT_SINAV,
                 data: [aktifSinav],
+                printConfig,
             };
             worksheetService.saveWorksheet(
                 user.id,

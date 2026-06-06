@@ -8,6 +8,7 @@ import { printService } from '../../utils/printService';
 import { useAuthStore } from '../../store/useAuthStore';
 import { assessmentService } from '../../services/assessmentService';
 import { ShareModal } from '../ShareModal';
+import { useStudentStore } from '../../store/useStudentStore';
 
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
 interface Props {
@@ -143,12 +144,16 @@ export const ResultDashboard: FC<Props> = ({
       },
     };
 
+    const studentStore = useStudentStore.getState();
+    const activeStudentId = studentStore.activeStudent?.id || null;
+
     return {
       id: savedId || crypto.randomUUID(),
       userId: user?.id || 'guest',
+      studentId: activeStudentId,
       studentName: result.studentName,
       gender: 'Erkek', // Default or add to form
-      age: 7, // Default or add to form
+      age: result.age || 7, // Default or add to form
       grade: '1. Sınıf',
       createdAt: new Date().toISOString(),
       report: reportData,
