@@ -77,8 +77,8 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-black text-xs tracking-tighter text-[var(--text-primary)] uppercase">Materyaller</h3>
-          <p className="text-[8px] font-bold text-[var(--text-muted)] uppercase tracking-widest mt-0.5">
+          <h3 className="font-bold text-sm tracking-tight text-[var(--text-primary)] uppercase">Materyaller</h3>
+          <p className="text-[10px] font-medium text-[var(--text-muted)] uppercase tracking-widest mt-0.5">
             {allWorksheets.length} materyal • {categories.length} kategori
           </p>
         </div>
@@ -96,13 +96,13 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
 
       {/* Search */}
       <div className="relative">
-        <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] text-[8px]"></i>
+        <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] text-[10px]"></i>
         <input
           type="text"
           placeholder="Materyal ara..."
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
-          className="w-full pl-8 pr-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[9px] outline-none focus:ring-1 focus:ring-[var(--accent-color)]/50 text-[var(--text-primary)]"
+          className="w-full pl-8 pr-3 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[11px] outline-none focus:ring-1 focus:ring-[var(--accent-color)]/50 text-[var(--text-primary)]"
         />
       </div>
 
@@ -110,7 +110,7 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
       <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
         <button
           onClick={() => setActiveCategory('all')}
-          className={`px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-wider whitespace-nowrap transition-all ${activeCategory === 'all' ? 'bg-[var(--accent-color)] text-white shadow-lg shadow-[var(--accent-color)]/20' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)] border border-[var(--border-color)] hover:border-[var(--accent-color)]/50'}`}
+          className={`px-3 py-1.5 rounded-full text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap transition-all ${activeCategory === 'all' ? 'bg-[var(--accent-color)] text-white shadow-lg shadow-[var(--accent-color)]/20' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)] border border-[var(--border-color)] hover:border-[var(--accent-color)]/50'}`}
         >
           Tümü ({allWorksheets.length})
         </button>
@@ -118,9 +118,9 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
           <button
             key={cat.id}
             onClick={() => setActiveCategory(cat.label)}
-            className={`px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-1.5 ${activeCategory === cat.label ? 'bg-[var(--accent-color)] text-white shadow-lg shadow-[var(--accent-color)]/20' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)] border border-[var(--border-color)] hover:border-[var(--accent-color)]/50'}`}
+            className={`px-3 py-1.5 rounded-full text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-1.5 ${activeCategory === cat.label ? 'bg-[var(--accent-color)] text-white shadow-lg shadow-[var(--accent-color)]/20' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)] border border-[var(--border-color)] hover:border-[var(--accent-color)]/50'}`}
           >
-            <i className={`fa-solid ${cat.icon} text-[7px]`}></i>
+            <i className={`fa-solid ${cat.icon} text-[9px]`}></i>
             {cat.label} ({cat.count})
           </button>
         ))}
@@ -139,34 +139,34 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
                       <i className={`fa-solid ${ws.icon} text-sm`}></i>
                     </div>
                     <div className="min-w-0">
-                      <h4 className="font-black text-[10px] text-[var(--text-primary)] uppercase truncate leading-tight">{ws.name}</h4>
-                      <span className="text-[7px] font-bold text-[var(--text-muted)]">{ws.category?.title || 'Genel'}</span>
+                      <h4 className="font-bold text-xs text-[var(--text-primary)] uppercase truncate leading-tight">{ws.name}</h4>
+                      <span className="text-[9px] font-medium text-[var(--text-muted)]">{ws.category?.title || 'Genel'}</span>
                     </div>
                   </div>
                   <button onClick={() => toggleFavorite(ws.id)} className={`w-6 h-6 rounded-md flex items-center justify-center transition-all ${favorites.has(ws.id) ? 'text-amber-500 bg-amber-500/10' : 'text-[var(--text-muted)] opacity-0 group-hover:opacity-100 hover:text-amber-500'}`} title="Favorilere Ekle">
-                    <i className={`fa-${favorites.has(ws.id) ? 'solid' : 'regular'} fa-star text-[9px]`}></i>
+                    <i className={`fa-${favorites.has(ws.id) ? 'solid' : 'regular'} fa-star text-[11px]`}></i>
                   </button>
                 </div>
               </div>
 
               {/* Card Body */}
               <div className="p-3 pt-2">
-                <div className="flex items-center justify-between text-[7px] text-[var(--text-muted)] font-bold mb-2">
+                <div className="flex items-center justify-between text-[9px] text-[var(--text-muted)] font-medium mb-2">
                   <span><i className="fa-solid fa-calendar mr-1"></i>{new Date(ws.createdAt).toLocaleDateString('tr-TR')}</span>
                   <span className="uppercase">{ws.activityType}</span>
                 </div>
                 <div className="flex gap-1.5">
-                  <button onClick={() => onLoadMaterial?.(ws)} className="flex-1 py-1.5 bg-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-lg text-[7px] font-bold uppercase hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all flex items-center justify-center gap-1">
-                    <i className="fa-solid fa-eye text-[7px]"></i> Önizle
+                  <button onClick={() => onLoadMaterial?.(ws)} className="flex-1 py-1.5 bg-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-lg text-[9px] font-medium uppercase hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all flex items-center justify-center gap-1">
+                    <i className="fa-solid fa-eye text-[9px]"></i> Önizle
                   </button>
-                  <button onClick={() => { setShowPreview(ws); }} className="flex-1 py-1.5 bg-[var(--accent-color)] text-white rounded-lg text-[7px] font-bold uppercase hover:opacity-90 transition-all flex items-center justify-center gap-1">
-                    <i className="fa-solid fa-info-circle text-[7px]"></i> Bilgi
+                  <button onClick={() => { setShowPreview(ws); }} className="flex-1 py-1.5 bg-[var(--accent-color)] text-white rounded-lg text-[9px] font-medium uppercase hover:opacity-90 transition-all flex items-center justify-center gap-1">
+                    <i className="fa-solid fa-info-circle text-[9px]"></i> Bilgi
                   </button>
-                  <button onClick={() => handleDownload(ws)} className="w-7 py-1.5 bg-[var(--bg-secondary)] text-[var(--text-muted)] rounded-lg text-[7px] font-bold hover:text-[var(--accent-color)] transition-all flex items-center justify-center">
-                    <i className="fa-solid fa-download text-[7px]"></i>
+                  <button onClick={() => handleDownload(ws)} className="w-7 py-1.5 bg-[var(--bg-secondary)] text-[var(--text-muted)] rounded-lg text-[9px] font-medium hover:text-[var(--accent-color)] transition-all flex items-center justify-center">
+                    <i className="fa-solid fa-download text-[9px]"></i>
                   </button>
-                  <button onClick={() => handleDelete(ws)} className="w-7 py-1.5 bg-[var(--bg-secondary)] text-[var(--text-muted)] rounded-lg text-[7px] font-bold hover:text-red-500 transition-all flex items-center justify-center">
-                    <i className="fa-solid fa-trash-can text-[7px]"></i>
+                  <button onClick={() => handleDelete(ws)} className="w-7 py-1.5 bg-[var(--bg-secondary)] text-[var(--text-muted)] rounded-lg text-[9px] font-medium hover:text-red-500 transition-all flex items-center justify-center">
+                    <i className="fa-solid fa-trash-can text-[9px]"></i>
                   </button>
                 </div>
               </div>
@@ -181,27 +181,27 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
                 <i className={`fa-solid ${ws.icon} text-sm`}></i>
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="font-black text-[10px] text-[var(--text-primary)] uppercase truncate">{ws.name}</h4>
+                <h4 className="font-bold text-xs text-[var(--text-primary)] uppercase truncate">{ws.name}</h4>
                 <div className="flex items-center gap-3 mt-0.5">
-                  <span className="text-[7px] font-bold text-[var(--text-muted)]">{ws.category?.title}</span>
-                  <span className="text-[7px] text-[var(--text-muted)]">{new Date(ws.createdAt).toLocaleDateString('tr-TR')}</span>
+                  <span className="text-[9px] font-medium text-[var(--text-muted)]">{ws.category?.title}</span>
+                  <span className="text-[9px] text-[var(--text-muted)]">{new Date(ws.createdAt).toLocaleDateString('tr-TR')}</span>
                 </div>
               </div>
               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button onClick={() => toggleFavorite(ws.id)} className={`w-6 h-6 rounded-md flex items-center justify-center transition-all ${favorites.has(ws.id) ? 'text-amber-500' : 'text-[var(--text-muted)] hover:text-amber-500'}`}>
-                  <i className={`fa-${favorites.has(ws.id) ? 'solid' : 'regular'} fa-star text-[8px]`}></i>
+                  <i className={`fa-${favorites.has(ws.id) ? 'solid' : 'regular'} fa-star text-[10px]`}></i>
                 </button>
                 <button onClick={() => onLoadMaterial?.(ws)} className="w-6 h-6 rounded-md bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all">
-                  <i className="fa-solid fa-eye text-[8px]"></i>
+                  <i className="fa-solid fa-eye text-[10px]"></i>
                 </button>
                 <button onClick={() => { setShowPreview(ws); }} className="w-6 h-6 rounded-md bg-[var(--accent-color)] flex items-center justify-center text-white transition-all">
-                  <i className="fa-solid fa-info-circle text-[8px]"></i>
+                  <i className="fa-solid fa-info-circle text-[10px]"></i>
                 </button>
                 <button onClick={() => handleDownload(ws)} className="w-6 h-6 rounded-md bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all">
-                  <i className="fa-solid fa-download text-[8px]"></i>
+                  <i className="fa-solid fa-download text-[10px]"></i>
                 </button>
                 <button onClick={() => handleDelete(ws)} className="w-6 h-6 rounded-md bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] hover:text-red-500 transition-all">
-                  <i className="fa-solid fa-trash-can text-[8px]"></i>
+                  <i className="fa-solid fa-trash-can text-[10px]"></i>
                 </button>
               </div>
             </div>
@@ -212,7 +212,7 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
       {filtered.length === 0 && (
         <div className="flex flex-col items-center justify-center py-12 bg-[var(--bg-paper)]/40 rounded-xl border border-dashed border-[var(--border-color)]">
           <i className="fa-solid fa-folder-open text-2xl text-[var(--text-muted)] opacity-20 mb-2"></i>
-          <p className="text-[var(--text-muted)] font-bold text-[9px] uppercase tracking-widest">Materyal bulunamadı</p>
+          <p className="text-[var(--text-muted)] font-medium text-[11px] uppercase tracking-widest">Materyal bulunamadı</p>
         </div>
       )}
 
@@ -226,44 +226,44 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
                   <i className={`fa-solid ${showPreview.icon} text-sm`}></i>
                 </div>
                 <div>
-                  <h3 className="font-black text-xs text-[var(--text-primary)] uppercase">{showPreview.name}</h3>
-                  <p className="text-[7px] text-[var(--text-muted)]">{showPreview.category?.title}</p>
+                  <h3 className="font-bold text-sm text-[var(--text-primary)] uppercase">{showPreview.name}</h3>
+                  <p className="text-[9px] text-[var(--text-muted)]">{showPreview.category?.title}</p>
                 </div>
               </div>
               <button onClick={() => setShowPreview(null)} className="w-6 h-6 rounded-full hover:bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)]">
-                <i className="fa-solid fa-times text-[9px]"></i>
+                <i className="fa-solid fa-times text-[11px]"></i>
               </button>
             </div>
             <div className="p-4 flex-1 overflow-y-auto">
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="p-3 bg-[var(--bg-secondary)] rounded-xl">
-                    <span className="text-[7px] font-bold text-[var(--text-muted)] uppercase">Oluşturulma</span>
-                    <p className="text-[9px] font-black text-[var(--text-primary)] mt-1">{new Date(showPreview.createdAt).toLocaleDateString('tr-TR')}</p>
+                    <span className="text-[9px] font-medium text-[var(--text-muted)] uppercase">Oluşturulma</span>
+                    <p className="text-[11px] font-bold text-[var(--text-primary)] mt-1">{new Date(showPreview.createdAt).toLocaleDateString('tr-TR')}</p>
                   </div>
                   <div className="p-3 bg-[var(--bg-secondary)] rounded-xl">
-                    <span className="text-[7px] font-bold text-[var(--text-muted)] uppercase">Aktivite Türü</span>
-                    <p className="text-[9px] font-black text-[var(--text-primary)] mt-1 uppercase">{showPreview.activityType}</p>
+                    <span className="text-[9px] font-medium text-[var(--text-muted)] uppercase">Aktivite Türü</span>
+                    <p className="text-[11px] font-bold text-[var(--text-primary)] mt-1 uppercase">{showPreview.activityType}</p>
                   </div>
                 </div>
                 <div className="p-3 bg-[var(--bg-secondary)] rounded-xl">
-                  <span className="text-[7px] font-bold text-[var(--text-muted)] uppercase">Kategori</span>
-                  <p className="text-[9px] font-black text-[var(--text-primary)] mt-1">{showPreview.category?.title || 'Genel'}</p>
+                  <span className="text-[9px] font-medium text-[var(--text-muted)] uppercase">Kategori</span>
+                  <p className="text-[11px] font-bold text-[var(--text-primary)] mt-1">{showPreview.category?.title || 'Genel'}</p>
                 </div>
               </div>
             </div>
             <div className="p-4 border-t border-[var(--border-color)] flex gap-2">
-              <button onClick={handlePrint} className="flex-1 py-2 bg-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-xl text-[8px] font-bold uppercase hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all flex items-center justify-center gap-1.5">
-                <i className="fa-solid fa-print text-[8px]"></i> Yazdır
+              <button onClick={handlePrint} className="flex-1 py-2 bg-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-xl text-[10px] font-medium uppercase hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all flex items-center justify-center gap-1.5">
+                <i className="fa-solid fa-print text-[10px]"></i> Yazdır
               </button>
-              <button onClick={() => handleDownload(showPreview)} className="flex-1 py-2 bg-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-xl text-[8px] font-bold uppercase hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all flex items-center justify-center gap-1.5">
-                <i className="fa-solid fa-download text-[8px]"></i> İndir
+              <button onClick={() => handleDownload(showPreview)} className="flex-1 py-2 bg-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-xl text-[10px] font-medium uppercase hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all flex items-center justify-center gap-1.5">
+                <i className="fa-solid fa-download text-[10px]"></i> İndir
               </button>
-              <button onClick={() => { onLoadMaterial?.(showPreview); setShowPreview(null); }} className="flex-1 py-2 bg-[var(--accent-color)] text-white rounded-xl text-[8px] font-bold uppercase hover:opacity-90 transition-all flex items-center justify-center gap-1.5">
-                <i className="fa-solid fa-arrow-right text-[8px]"></i> Etkinliğe Git
+              <button onClick={() => { onLoadMaterial?.(showPreview); setShowPreview(null); }} className="flex-1 py-2 bg-[var(--accent-color)] text-white rounded-xl text-[10px] font-medium uppercase hover:opacity-90 transition-all flex items-center justify-center gap-1.5">
+                <i className="fa-solid fa-arrow-right text-[10px]"></i> Etkinliğe Git
               </button>
-              <button onClick={() => { handleDelete(showPreview); setShowPreview(null); }} className="w-9 py-2 bg-red-500/10 text-red-500 rounded-xl text-[8px] font-bold uppercase hover:bg-red-500/20 transition-all flex items-center justify-center">
-                <i className="fa-solid fa-trash-can text-[8px]"></i>
+              <button onClick={() => { handleDelete(showPreview); setShowPreview(null); }} className="w-9 py-2 bg-red-500/10 text-red-500 rounded-xl text-[10px] font-medium uppercase hover:bg-red-500/20 transition-all flex items-center justify-center">
+                <i className="fa-solid fa-trash-can text-[10px]"></i>
               </button>
             </div>
           </div>

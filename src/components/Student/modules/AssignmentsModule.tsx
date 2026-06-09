@@ -120,7 +120,7 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
       pending: 'Bekliyor',
       abandoned: 'Terke',
     };
-    return <span className={`text-[7px] font-black uppercase px-2 py-0.5 rounded-full border ${map[status] || ''}`}>{label[status] || status}</span>;
+    return <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border ${map[status] || ''}`}>{label[status] || status}</span>;
   };
 
   return (
@@ -128,13 +128,13 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-black text-xs tracking-tighter text-[var(--text-primary)] uppercase">Atamalar</h3>
-          <p className="text-[8px] font-bold text-[var(--text-muted)] uppercase tracking-widest mt-0.5">
+          <h3 className="font-bold text-sm tracking-tight text-[var(--text-primary)] uppercase">Atamalar</h3>
+          <p className="text-[10px] font-medium text-[var(--text-muted)] uppercase tracking-widest mt-0.5">
             {allAssignments.length} toplam atama
           </p>
         </div>
         <div className="flex gap-1.5">
-          <button onClick={() => setShowNewAssignModal(true)} className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-fuchsia-600 flex items-center justify-center text-white hover:opacity-90 hover:shadow-lg hover:shadow-indigo-500/30 transition-all font-black text-[9px] uppercase tracking-widest shadow-md shadow-indigo-500/20 border border-white/10">
+          <button onClick={() => setShowNewAssignModal(true)} className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-fuchsia-600 flex items-center justify-center text-white hover:opacity-90 hover:shadow-lg hover:shadow-indigo-500/30 transition-all font-bold text-[10px] uppercase tracking-widest shadow-md shadow-indigo-500/20 border border-white/10">
             <i className="fa-solid fa-plus mr-1.5"></i> Yeni Ata
           </button>
           <button onClick={handlePrint} className="w-7 h-7 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all" title="Yazdır">
@@ -176,7 +176,7 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
           <button
             key={key}
             onClick={() => setFilterStatus(key)}
-            className={`flex-1 py-1.5 text-[7px] font-black uppercase tracking-wider rounded-md transition-all flex items-center justify-center gap-1.5 ${filterStatus === key ? 'bg-[var(--bg-paper)] shadow-sm text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
+            className={`flex-1 py-1.5 text-[9px] font-bold uppercase tracking-wider rounded-md transition-all flex items-center justify-center gap-1.5 ${filterStatus === key ? 'bg-[var(--bg-paper)] shadow-sm text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
           >
             {label} <span className="opacity-60">({statusCounts[key]})</span>
           </button>
@@ -194,23 +194,23 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h4 className="font-black text-[10px] text-[var(--text-primary)] uppercase">#{a.worksheetId.slice(0, 6)}</h4>
+                    <h4 className="font-bold text-xs text-[var(--text-primary)] uppercase">#{a.worksheetId.slice(0, 6)}</h4>
                     {statusBadge(a.status)}
                     {a.score !== undefined && (
-                      <span className={`text-[8px] font-black px-1.5 py-0.5 rounded ${a.score >= 80 ? 'bg-emerald-500/10 text-emerald-500' : a.score >= 60 ? 'bg-amber-500/10 text-amber-500' : 'bg-rose-500/10 text-rose-500'}`}>
+                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${a.score >= 80 ? 'bg-emerald-500/10 text-emerald-500' : a.score >= 60 ? 'bg-amber-500/10 text-amber-500' : 'bg-rose-500/10 text-rose-500'}`}>
                         {a.score} puan
                       </span>
                     )}
                   </div>
                   {a.teacherNotes && (
-                    <p className="text-[8px] text-[var(--text-muted)] mt-1 leading-relaxed">{a.teacherNotes}</p>
+                    <p className="text-[10px] text-[var(--text-muted)] mt-1 leading-relaxed">{a.teacherNotes}</p>
                   )}
                   <div className="flex items-center gap-3 mt-1.5">
-                    <span className="text-[7px] text-[var(--text-muted)] font-bold">
+                    <span className="text-[9px] text-[var(--text-muted)] font-medium">
                       <i className="fa-solid fa-calendar mr-1"></i>
                       {a.dueDate ? new Date(a.dueDate).toLocaleDateString('tr-TR') : 'Süresiz'}
                     </span>
-                    <span className="text-[7px] text-[var(--text-muted)] font-bold">
+                    <span className="text-[9px] text-[var(--text-muted)] font-medium">
                       <i className="fa-solid fa-user mr-1"></i>
                       {new Date(a.assignedAt).toLocaleDateString('tr-TR')}
                     </span>
@@ -243,14 +243,14 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
         <div className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[var(--bg-paper)] rounded-2xl shadow-2xl w-full max-w-md border border-[var(--border-color)]">
             <div className="p-4 border-b border-[var(--border-color)] flex justify-between items-center">
-              <h3 className="font-black text-xs text-[var(--text-primary)] uppercase">Atama Düzenle</h3>
+              <h3 className="font-bold text-sm text-[var(--text-primary)] uppercase">Atama Düzenle</h3>
               <button onClick={() => setShowEditModal(false)} className="w-6 h-6 rounded-full hover:bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)]">
                 <i className="fa-solid fa-times text-[9px]"></i>
               </button>
             </div>
             <div className="p-4 space-y-4">
               <div>
-                <label className="block text-[8px] font-bold text-[var(--text-muted)] uppercase mb-1.5">Notlar</label>
+                <label className="block text-[10px] font-medium text-[var(--text-muted)] uppercase mb-1.5">Notlar</label>
                 <textarea
                   value={editNotes}
                   onChange={e => setEditNotes(e.target.value)}
@@ -434,8 +434,8 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
               <i className="fa-solid fa-paper-plane text-white text-[10px]"></i>
             </div>
             <div>
-              <h3 className="font-black text-xs text-[var(--text-primary)] uppercase tracking-tight">Yeni Atama Yap</h3>
-              <p className="text-[7px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Etkinlik veya stüdyo seçin</p>
+              <h3 className="font-bold text-sm text-[var(--text-primary)] uppercase tracking-tight">Yeni Atama Yap</h3>
+              <p className="text-[9px] font-medium text-[var(--text-muted)] uppercase tracking-widest">Etkinlik veya stüdyo seçin</p>
             </div>
           </div>
           <button onClick={onClose} className="w-7 h-7 rounded-full hover:bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] transition-all">
@@ -453,7 +453,7 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
               <button
                 key={key}
                 onClick={() => { setActiveTab(key); setSearchQuery(''); setSelectedCatalogType(''); setSelectedWorksheetId(''); }}
-                className={`flex-1 py-2 text-[8px] font-black uppercase tracking-wider rounded-md transition-all flex items-center justify-center gap-1.5 ${activeTab === key ? 'bg-[var(--bg-paper)] shadow-sm text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
+                className={`flex-1 py-2 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all flex items-center justify-center gap-1.5 ${activeTab === key ? 'bg-[var(--bg-paper)] shadow-sm text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
               >
                 <i className={`fa-solid ${icon} text-[8px]`}></i> {label}
               </button>
@@ -489,7 +489,7 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
 
               {/* Activities grouped by category */}
               <div>
-                <p className="text-[7px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-2">
+                <p className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-2">
                   <i className="fa-solid fa-puzzle-piece mr-1 text-indigo-500"></i>
                   Etkinlikler
                   <span className="ml-1.5 opacity-60">({filteredCatalog.length})</span>
@@ -502,8 +502,8 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
                     if (catActivities.length === 0) return null;
                     return (
                       <div key={cat.id}>
-                        <p className="text-[7px] font-black text-[var(--text-secondary)] uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-                          <i className={`${cat.icon} text-[8px] text-indigo-400`}></i>
+                        <p className="text-[9px] font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                          <i className={`${cat.icon} text-[9px] text-indigo-400`}></i>
                           {cat.title}
                           <span className="opacity-50">({catActivities.length})</span>
                         </p>
@@ -518,8 +518,8 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
                                 <i className={`${activity.icon || 'fa-solid fa-puzzle-piece'} text-[9px]`}></i>
                               </div>
                               <div className="min-w-0 flex-1">
-                                <h4 className="font-bold text-[9px] text-[var(--text-primary)] leading-tight truncate">{activity.title}</h4>
-                                <p className="text-[7px] text-[var(--text-muted)] mt-0.5 truncate">{activity.description}</p>
+                                <h4 className="font-semibold text-[10px] text-[var(--text-primary)] leading-tight truncate">{activity.title}</h4>
+                                <p className="text-[9px] text-[var(--text-muted)] mt-0.5 truncate">{activity.description}</p>
                               </div>
                               <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${selectedCatalogType === activity.id ? 'border-indigo-500 bg-indigo-500' : 'border-[var(--border-color)]'}`}>
                                 {selectedCatalogType === activity.id && <i className="fa-solid fa-check text-white text-[6px]"></i>}
@@ -538,8 +538,8 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
                     if (uncategorised.length === 0) return null;
                     return (
                       <div>
-                        <p className="text-[7px] font-black text-[var(--text-secondary)] uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-                          <i className="fa-solid fa-shapes text-[8px] text-indigo-400"></i>
+                        <p className="text-[9px] font-bold text-[var(--text-secondary)] uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                          <i className="fa-solid fa-shapes text-[9px] text-indigo-400"></i>
                           Diğer Etkinlikler
                           <span className="opacity-50">({uncategorised.length})</span>
                         </p>
@@ -554,8 +554,8 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
                                 <i className={`${activity.icon || 'fa-solid fa-puzzle-piece'} text-[9px]`}></i>
                               </div>
                               <div className="min-w-0 flex-1">
-                                <h4 className="font-bold text-[9px] text-[var(--text-primary)] leading-tight truncate">{activity.title}</h4>
-                                <p className="text-[7px] text-[var(--text-muted)] mt-0.5 truncate">{activity.description}</p>
+                                <h4 className="font-semibold text-[10px] text-[var(--text-primary)] leading-tight truncate">{activity.title}</h4>
+                                <p className="text-[9px] text-[var(--text-muted)] mt-0.5 truncate">{activity.description}</p>
                               </div>
                               <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${selectedCatalogType === activity.id ? 'border-indigo-500 bg-indigo-500' : 'border-[var(--border-color)]'}`}>
                                 {selectedCatalogType === activity.id && <i className="fa-solid fa-check text-white text-[6px]"></i>}
@@ -578,7 +578,7 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
 
               {/* Studios */}
               <div>
-                <p className="text-[7px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-2">
+                <p className="text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-2">
                   <i className="fa-solid fa-wand-magic-sparkles mr-1 text-fuchsia-500"></i>
                   Stüdyolar
                   <span className="ml-1.5 opacity-60">({filteredStudios.length})</span>
@@ -596,9 +596,9 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
                           <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-all ${selectedCatalogType === type ? 'bg-fuchsia-500/20 text-fuchsia-600' : 'bg-[var(--bg-paper)] text-[var(--text-muted)] group-hover/card:text-fuchsia-500'}`}>
                             <i className={`fa-solid ${studio.icon} text-[11px]`}></i>
                           </div>
-                          <p className="text-[8px] font-black text-[var(--text-primary)] leading-tight">{studio.label}</p>
+                          <p className="text-[10px] font-bold text-[var(--text-primary)] leading-tight">{studio.label}</p>
                           {selectedCatalogType === type && (
-                            <span className="text-[6px] font-black text-fuchsia-600 uppercase tracking-widest">Seçili</span>
+                            <span className="text-[8px] font-bold text-fuchsia-600 uppercase tracking-widest">Seçili</span>
                           )}
                         </div>
                       </div>

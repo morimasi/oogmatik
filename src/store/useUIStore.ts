@@ -62,6 +62,7 @@ const initialStyleSettings: StyleSettings = {
 const initialUiSettings: UiSettings = {
   fontFamily: 'Lexend',
   fontSizeScale: 1,
+  fontWeight: 'normal',
   letterSpacing: 'normal',
   lineHeight: 1.6,
   saturation: 100,

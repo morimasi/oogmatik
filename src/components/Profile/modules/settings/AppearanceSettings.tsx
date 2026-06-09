@@ -33,6 +33,14 @@ const ANIMATION_LEVELS = [
     { id: 'none', label: 'Kapalı', desc: 'Erişilebilirlik modu' },
 ] as const;
 
+const FONT_WEIGHTS = [
+    { id: 'thin', label: 'İnce', weight: 300 },
+    { id: 'normal', label: 'Normal', weight: 400 },
+    { id: 'medium', label: 'Orta', weight: 500 },
+    { id: 'bold', label: 'Kalın', weight: 700 },
+    { id: 'black', label: 'Siyah', weight: 900 },
+] as const;
+
 export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
     theme,
     uiSettings,
@@ -148,6 +156,28 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
                             <span className="text-[8px] font-black text-indigo-600 uppercase">{uiSettings?.lineHeight ?? 1.6}</span>
                             <span className="text-[8px] font-black text-zinc-400 uppercase">Geniş</span>
                         </div>
+                    </div>
+                </div>
+
+                {/* Font Kalınlığı */}
+                <div className="mt-5">
+                    <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-3 ml-1">Yazı Kalınlığı</label>
+                    <div className="flex gap-2">
+                        {FONT_WEIGHTS.map((w) => (
+                            <button
+                                key={w.id}
+                                onClick={() => onUpdateUiSettings?.({ ...(uiSettings || {} as any), fontWeight: w.id as any })}
+                                className={`flex-1 py-3 rounded-xl text-[10px] uppercase tracking-widest transition-all border ${
+                                    (uiSettings?.fontWeight ?? 'normal') === w.id
+                                        ? 'border-indigo-500 bg-indigo-600 text-white shadow-lg shadow-indigo-500/20'
+                                        : 'border-[var(--border-color)] bg-[var(--bg-paper)] text-[var(--text-muted)] hover:border-indigo-300'
+                                }`}
+                                style={{ fontWeight: w.weight }}
+                            >
+                                <span className="block text-lg mb-0.5" style={{ fontWeight: w.weight }}>Aa</span>
+                                {w.label}
+                            </button>
+                        ))}
                     </div>
                 </div>
             </div>

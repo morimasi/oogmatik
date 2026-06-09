@@ -12,6 +12,7 @@
 
   body {
     font-family: 'Lexend', sans-serif;
+    font-weight: var(--app-font-weight, 400);
     transition:
       background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
       color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -39,6 +40,20 @@
   /* Messaging Module Active State - Hide Sidebar definitively */
   .messaging-active aside {
     display: none !important;
+  }
+
+  /* Global Font Weight Override — Görünüm ayarlarından kontrol edilir */
+  /* When user sets a font weight preference, it overrides all Tailwind weight utilities */
+  [style*="--app-font-weight"] .font-thin,
+  [style*="--app-font-weight"] .font-extralight,
+  [style*="--app-font-weight"] .font-light,
+  [style*="--app-font-weight"] .font-normal,
+  [style*="--app-font-weight"] .font-medium,
+  [style*="--app-font-weight"] .font-semibold,
+  [style*="--app-font-weight"] .font-bold,
+  [style*="--app-font-weight"] .font-extrabold,
+  [style*="--app-font-weight"] .font-black {
+    font-weight: var(--app-font-weight, 400);
   }
 }
 

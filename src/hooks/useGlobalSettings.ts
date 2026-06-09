@@ -12,6 +12,10 @@ export const useGlobalSettings = (
         document.documentElement.style.setProperty('--app-font-size-scale', uiSettings.fontSizeScale.toString());
         document.documentElement.style.setProperty('--app-line-height', uiSettings.lineHeight.toString());
         document.documentElement.style.setProperty('--app-letter-spacing', uiSettings.letterSpacing === 'wide' ? '0.05em' : 'normal');
+
+        // Font weight mapping: thin=300, normal=400, medium=500, bold=700, black=900
+        const weightMap: Record<string, string> = { thin: '300', normal: '400', medium: '500', bold: '700', black: '900' };
+        document.documentElement.style.setProperty('--app-font-weight', weightMap[uiSettings.fontWeight] || '400');
         document.documentElement.style.setProperty('--app-saturation', `${uiSettings.saturation}%`);
         document.documentElement.style.setProperty('--app-contrast', `${uiSettings.contrastLevel}%`);
 

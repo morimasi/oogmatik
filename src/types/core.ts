@@ -398,6 +398,7 @@ export type View =
 export interface UiSettings {
   fontFamily: string;
   fontSizeScale: number;
+  fontWeight: 'thin' | 'normal' | 'medium' | 'bold' | 'black';
   letterSpacing: 'normal' | 'wide';
   lineHeight: number;
   saturation: number;

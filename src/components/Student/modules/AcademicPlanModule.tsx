@@ -344,8 +344,8 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-black text-xs tracking-tighter text-[var(--text-primary)] uppercase">Öğrenci Eğitim Planı</h3>
-          <p className="text-[8px] font-bold text-[var(--text-muted)] uppercase tracking-wider mt-0.5">
+          <h3 className="font-bold text-sm tracking-tight text-[var(--text-primary)] uppercase">Öğrenci Eğitim Planı</h3>
+          <p className="text-[10px] font-medium text-[var(--text-muted)] uppercase tracking-wider mt-0.5">
             {localPlans.length} Toplam Plan • Her işlem otomatik kaydedilir
           </p>
         </div>
@@ -374,16 +374,16 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                     <i className="fa-solid fa-map-location-dot text-sm animate-pulse"></i>
                   </div>
                   <div>
-                    <h4 className="font-black text-[11px] text-[var(--text-primary)] uppercase">
+                    <h4 className="font-bold text-[11px] text-[var(--text-primary)] uppercase">
                       {new Date(activePlan.startDate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })} Dönemi
                     </h4>
-                    <p className="text-[7px] text-[var(--text-muted)] font-bold uppercase tracking-wider">{activePlan.durationDays} Günlük Akış • {activePlan.goals?.length || 0} Hedef</p>
+                    <p className="text-[9px] text-[var(--text-muted)] font-medium uppercase tracking-wider">{activePlan.durationDays} Günlük Akış • {activePlan.goals?.length || 0} Hedef</p>
                   </div>
                 </div>
               </div>
               <div className="text-right">
-                <span className="text-2xl font-black text-[var(--accent-color)]">%{activeProgress}</span>
-                <p className="text-[7px] text-[var(--text-muted)] font-bold uppercase">Tamamlandı</p>
+                <span className="text-2xl font-bold text-[var(--accent-color)]">%{activeProgress}</span>
+                <p className="text-[9px] text-[var(--text-muted)] font-medium uppercase">Tamamlandı</p>
               </div>
             </div>
 
@@ -402,7 +402,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
               <button
                 key={tab}
                 onClick={() => setActivePlanTab(tab)}
-                className={`flex-1 py-2 text-[8px] font-black uppercase tracking-wider transition-all ${activePlanTab === tab ? 'bg-[var(--bg-paper)] text-[var(--accent-color)] border-b-2 border-[var(--accent-color)] font-black' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
+                className={`flex-1 py-2 text-[10px] font-semibold uppercase tracking-wider transition-all ${activePlanTab === tab ? 'bg-[var(--bg-paper)] text-[var(--accent-color)] border-b-2 border-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
               >
                 {tab === 'overview' ? 'Hedefler & Notlar' : tab === 'schedule' ? 'Takvim Akışı' : 'Revizyonlar'}
               </button>
@@ -416,13 +416,13 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                 {/* Goals */}
                 <div>
                   <div className="flex justify-between items-center mb-2">
-                    <h5 className="font-black text-[9px] text-[var(--text-primary)] uppercase flex items-center gap-1.5">
-                      <i className="fa-solid fa-bullseye text-[var(--accent-color)] text-[8px]"></i> Bireysel Öğrenme Hedefleri
+                    <h5 className="font-bold text-[11px] text-[var(--text-primary)] uppercase flex items-center gap-1.5">
+                      <i className="fa-solid fa-bullseye text-[var(--accent-color)] text-[10px]"></i> Bireysel Öğrenme Hedefleri
                     </h5>
                     {!isAddingGoal && (
                       <button
                         onClick={() => { setIsAddingGoal(true); setNewGoalText(''); }}
-                        className="text-[8px] font-black text-[var(--accent-color)] uppercase flex items-center gap-1 hover:underline animate-bounce"
+                        className="text-[10px] font-semibold text-[var(--accent-color)] uppercase flex items-center gap-1 hover:underline animate-bounce"
                       >
                         <i className="fa-solid fa-plus-circle"></i> Yeni Hedef Ekle
                       </button>
@@ -439,20 +439,20 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                           value={newGoalText}
                           onChange={e => setNewGoalText(e.target.value)}
                           onKeyDown={e => { if (e.key === 'Enter') handleAddGoal(); }}
-                          className="flex-1 px-3 py-1.5 text-[9px] font-medium bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg outline-none focus:border-[var(--accent-color)]"
+                          className="flex-1 px-3 py-1.5 text-[11px] font-medium bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg outline-none focus:border-[var(--accent-color)]"
                           autoFocus
                         />
-                        <button onClick={handleAddGoal} className="px-3 py-1.5 bg-[var(--accent-color)] hover:bg-[var(--accent-color)]/90 text-white text-[8px] font-black uppercase rounded-lg">Kaydet</button>
-                        <button onClick={() => setIsAddingGoal(false)} className="px-2 py-1.5 bg-zinc-200 dark:bg-zinc-700 text-[var(--text-primary)] text-[8px] font-black uppercase rounded-lg">İptal</button>
+                        <button onClick={handleAddGoal} className="px-3 py-1.5 bg-[var(--accent-color)] hover:bg-[var(--accent-color)]/90 text-white text-[10px] font-semibold uppercase rounded-lg">Kaydet</button>
+                        <button onClick={() => setIsAddingGoal(false)} className="px-2 py-1.5 bg-zinc-200 dark:bg-zinc-700 text-[var(--text-primary)] text-[10px] font-semibold uppercase rounded-lg">İptal</button>
                       </div>
                       
                       {/* Activities pool select */}
                       <div className="pt-2 border-t border-[var(--border-color)]">
-                        <label className="text-[7.5px] font-black text-[var(--text-muted)] uppercase tracking-wider block mb-1.5">Aktivite Havuzundan Hedef Ekle</label>
+                        <label className="text-[9px] font-semibold text-[var(--text-muted)] uppercase tracking-wider block mb-1.5">Aktivite Havuzundan Hedef Ekle</label>
                         <select
                           onChange={(e) => { if (e.target.value) handleAddActivityAsGoal(e.target.value); }}
                           defaultValue=""
-                          className="w-full px-2.5 py-1.5 text-[8.5px] bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg text-[var(--text-secondary)] outline-none focus:border-[var(--accent-color)]"
+                          className="w-full px-2.5 py-1.5 text-[10px] bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg text-[var(--text-secondary)] outline-none focus:border-[var(--accent-color)]"
                         >
                           <option value="">-- Tüm Sistemdeki Dijital İçerik Havuzu ({ACTIVITIES.length} Aktivite) --</option>
                           {ACTIVITIES.map(a => (
@@ -474,7 +474,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                         return (
                           <div key={i} className="flex items-center justify-between p-2.5 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-color)] hover:border-[var(--accent-color)]/20 transition-all group">
                             <div className="flex items-center gap-2 flex-1 min-w-0">
-                              <i className={`fa-solid ${isAchieved ? 'fa-circle-check text-emerald-500' : 'fa-circle text-[var(--text-muted)]'} text-[9px] mt-0.5 shrink-0`}></i>
+                              <i className={`fa-solid ${isAchieved ? 'fa-circle-check text-emerald-500' : 'fa-circle text-[var(--text-muted)]'} text-[11px] mt-0.5 shrink-0`}></i>
                               {isEditingThis ? (
                                 <input
                                   type="text"
@@ -482,11 +482,11 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                                   onChange={e => setTempGoal(e.target.value)}
                                   onBlur={() => handleSaveGoal(i)}
                                   onKeyDown={e => { if (e.key === 'Enter') handleSaveGoal(i); }}
-                                  className="flex-1 px-2 py-0.5 text-[9px] bg-[var(--bg-paper)] border border-[var(--accent-color)] rounded outline-none"
+                                  className="flex-1 px-2 py-0.5 text-[11px] bg-[var(--bg-paper)] border border-[var(--accent-color)] rounded outline-none"
                                   autoFocus
                                 />
                               ) : (
-                                <span className="text-[9px] font-medium text-[var(--text-secondary)] truncate">{g}</span>
+                                <span className="text-[11px] font-medium text-[var(--text-secondary)] truncate">{g}</span>
                               )}
                             </div>
                             {!isEditingThis && (
@@ -495,13 +495,13 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                                   onClick={() => handleStartEditingGoal(i, g)}
                                   className="text-zinc-400 hover:text-[var(--accent-color)]"
                                 >
-                                  <i className="fa-solid fa-pen text-[8px]"></i>
+                                  <i className="fa-solid fa-pen text-[10px]"></i>
                                 </button>
                                 <button
                                   onClick={() => handleDeleteGoal(i)}
                                   className="text-zinc-400 hover:text-rose-500"
                                 >
-                                  <i className="fa-solid fa-trash text-[8px]"></i>
+                                  <i className="fa-solid fa-trash text-[10px]"></i>
                                 </button>
                               </div>
                             )}
@@ -509,7 +509,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                         );
                       })
                     ) : (
-                      <p className="text-[8px] text-[var(--text-muted)] text-center py-2">Hedef tanımlanmamış. Yeni hedef ekleyin.</p>
+                      <p className="text-[10px] text-[var(--text-muted)] text-center py-2">Hedef tanımlanmamış. Yeni hedef ekleyin.</p>
                     )}
                   </div>
                 </div>
@@ -517,18 +517,18 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                 {/* General Note */}
                 <div className="p-3 bg-amber-500/5 border border-amber-500/10 rounded-xl relative group">
                   <div className="flex justify-between items-center mb-1">
-                    <span className="text-[7px] font-black text-amber-600 uppercase">Öğretmen Notu & Pedagojik Stratejiler</span>
+                    <span className="text-[9px] font-semibold text-amber-600 uppercase">Öğretmen Notu & Pedagojik Stratejiler</span>
                     {!isEditingNote ? (
                       <button
                         onClick={() => { setIsEditingNote(true); setTempNote(activePlan.note); }}
-                        className="text-[7px] font-black text-amber-600 uppercase opacity-0 group-hover:opacity-100 transition-opacity hover:underline"
+                        className="text-[9px] font-semibold text-amber-600 uppercase opacity-0 group-hover:opacity-100 transition-opacity hover:underline"
                       >
                         Notu Düzenle
                       </button>
                     ) : (
                       <div className="flex gap-1.5">
-                        <button onClick={handleSaveNote} className="text-[7px] font-black text-emerald-600 uppercase">Kaydet</button>
-                        <button onClick={() => setIsEditingNote(false)} className="text-[7px] font-black text-zinc-500 uppercase">İptal</button>
+                        <button onClick={handleSaveNote} className="text-[9px] font-semibold text-emerald-600 uppercase">Kaydet</button>
+                        <button onClick={() => setIsEditingNote(false)} className="text-[9px] font-semibold text-zinc-500 uppercase">İptal</button>
                       </div>
                     )}
                   </div>
@@ -536,11 +536,11 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                     <textarea
                       value={tempNote}
                       onChange={e => setTempNote(e.target.value)}
-                      className="w-full p-2 text-[9px] font-medium bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg outline-none focus:border-amber-500 h-16 resize-none mt-1"
+                      className="w-full p-2 text-[11px] font-medium bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg outline-none focus:border-amber-500 h-16 resize-none mt-1"
                       autoFocus
                     />
                   ) : (
-                    <p className="text-[9px] text-[var(--text-secondary)] leading-relaxed italic mt-0.5 font-medium">
+                    <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed italic mt-0.5 font-medium">
                       {activePlan.note ? `"${activePlan.note}"` : 'Eğitim planına özel not eklemek için düzenle butonuna basın.'}
                     </p>
                   )}
@@ -549,14 +549,14 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                 {/* Plan Metadata */}
                 <div className="grid grid-cols-2 gap-3 pt-1">
                   <div className="p-3 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-color)]">
-                    <span className="text-[7px] font-bold text-[var(--text-muted)] uppercase">Başlangıç Tarihi</span>
-                    <p className="text-[9px] font-black text-[var(--text-primary)] mt-1">
+                    <span className="text-[9px] font-medium text-[var(--text-muted)] uppercase">Başlangıç Tarihi</span>
+                    <p className="text-[11px] font-bold text-[var(--text-primary)] mt-1">
                       {new Date(activePlan.startDate).toLocaleDateString('tr-TR')}
                     </p>
                   </div>
                   <div className="p-3 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-color)]">
-                    <span className="text-[7px] font-bold text-[var(--text-muted)] uppercase">Son İnceleme</span>
-                    <p className="text-[9px] font-black text-[var(--text-primary)] mt-1">
+                    <span className="text-[9px] font-medium text-[var(--text-muted)] uppercase">Son İnceleme</span>
+                    <p className="text-[11px] font-bold text-[var(--text-primary)] mt-1">
                       {new Date(activePlan.lastReviewed).toLocaleDateString('tr-TR')}
                     </p>
                   </div>
@@ -595,7 +595,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                           {isDayDone ? (
                             <i className="fa-solid fa-check text-[10px]"></i>
                           ) : (
-                            <span className="text-[8px] font-black">{day.day}</span>
+                            <span className="text-[10px] font-bold">{day.day}</span>
                           )}
                         </button>
 
@@ -609,30 +609,30 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                                 onChange={e => setTempFocus(e.target.value)}
                                 onBlur={() => handleSaveDayFocus(day.day)}
                                 onKeyDown={e => { if (e.key === 'Enter') handleSaveDayFocus(day.day); }}
-                                className="flex-1 px-2 py-0.5 text-[9px] bg-[var(--bg-paper)] border border-[var(--accent-color)] rounded outline-none"
+                                className="flex-1 px-2 py-0.5 text-[11px] bg-[var(--bg-paper)] border border-[var(--accent-color)] rounded outline-none"
                                 autoFocus
                               />
                             </div>
                           ) : (
                             <div className="flex items-center gap-1.5">
-                              <p className="text-[9px] font-bold text-[var(--text-primary)]">{day.focus}</p>
+                              <p className="text-[11px] font-medium text-[var(--text-primary)]">{day.focus}</p>
                               <button
                                 onClick={() => handleStartEditingGoal(i, day.focus)}
                                 className="opacity-0 group-hover/day:opacity-100 text-zinc-400 hover:text-[var(--accent-color)] transition-all"
                               >
-                                <i className="fa-solid fa-pen text-[7px]"></i>
+                                <i className="fa-solid fa-pen text-[9px]"></i>
                               </button>
                             </div>
                           )}
                           {day.activities[0] && (
                             <div 
                               onClick={() => handleLaunchActivity(day.day, day.activities[0])}
-                              className="flex items-center gap-1 text-[7.5px] text-[var(--text-muted)] font-black uppercase mt-1 cursor-pointer hover:text-[var(--accent-color)] select-none transition-colors duration-200"
+                              className="flex items-center gap-1 text-[9px] text-[var(--text-muted)] font-semibold uppercase mt-1 cursor-pointer hover:text-[var(--accent-color)] select-none transition-colors duration-200"
                               title="Tıkla ve Öğrenci İçin Aktiviteyi Başlat"
                             >
-                              <i className="fa-solid fa-wand-magic-sparkles text-[7px] text-[var(--accent-color)] animate-pulse"></i>
+                              <i className="fa-solid fa-wand-magic-sparkles text-[9px] text-[var(--accent-color)] animate-pulse"></i>
                               <span className="underline tracking-tight">{day.activities[0].title}</span>
-                              <span className="text-[7px] font-normal lowercase tracking-normal">({day.activities[0].duration}dk • tıkla başlat)</span>
+                              <span className="text-[9px] font-normal lowercase tracking-normal">({day.activities[0].duration}dk • tıkla başlat)</span>
                             </div>
                           )}
                         </div>
@@ -647,12 +647,12 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                             className="w-6 h-6 rounded-lg bg-[var(--bg-paper)] hover:bg-indigo-50 dark:hover:bg-indigo-950/30 text-zinc-400 hover:text-[var(--accent-color)] flex items-center justify-center border border-[var(--border-color)] transition-all"
                             title="Görevi/Aktiviteyi Değiştir"
                           >
-                            <i className="fa-solid fa-sliders-up text-[8px]"></i>
+                            <i className="fa-solid fa-sliders-up text-[10px]"></i>
                           </button>
                           
                           <button
                             onClick={() => handleToggleDay(day.day)}
-                            className={`text-[7px] font-black uppercase px-2.5 py-1 rounded-lg border transition-all duration-300 hover:scale-105 shadow-sm ${statusColor(day.activities[0]?.status || 'pending')}`}
+                            className={`text-[9px] font-semibold uppercase px-2.5 py-1 rounded-lg border transition-all duration-300 hover:scale-105 shadow-sm ${statusColor(day.activities[0]?.status || 'pending')}`}
                           >
                             {statusLabel(day.activities[0]?.status || 'pending')}
                           </button>
@@ -662,11 +662,11 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                       {/* Change Activity dropdown panel */}
                       {isChangingActivity && (
                         <div className="p-2 bg-[var(--bg-paper)] border border-[var(--accent-color)]/30 rounded-xl mx-2 shadow-sm animate-in slide-in-from-top-2 duration-200">
-                          <label className="text-[7.5px] font-black text-[var(--accent-color)] uppercase tracking-wider block mb-1.5">Görevi / Aktiviteyi Değiştir</label>
+                          <label className="text-[9px] font-semibold text-[var(--accent-color)] uppercase tracking-wider block mb-1.5">Görevi / Aktiviteyi Değiştir</label>
                           <select
                             onChange={(e) => { if (e.target.value) handleReplaceActivity(day.day, e.target.value); }}
                             defaultValue={day.activities[0]?.activityId || ""}
-                            className="w-full px-2.5 py-1 text-[8.5px] bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg text-[var(--text-secondary)] outline-none focus:border-[var(--accent-color)]"
+                            className="w-full px-2.5 py-1 text-[10px] bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg text-[var(--text-secondary)] outline-none focus:border-[var(--accent-color)]"
                           >
                             <option value="" disabled>-- Aktivite Seçin --</option>
                             {ACTIVITIES.map(a => (
@@ -687,19 +687,19 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                   activePlan.revisions.map((rev: PlanRevision) => (
                     <div key={rev.id} className="p-3 bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-color)]">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-[8px] font-bold text-[var(--text-primary)]">{new Date(rev.date).toLocaleDateString('tr-TR')}</span>
-                        <span className="text-[7px] text-[var(--text-muted)]">{rev.author}</span>
+                        <span className="text-[10px] font-medium text-[var(--text-primary)]">{new Date(rev.date).toLocaleDateString('tr-TR')}</span>
+                        <span className="text-[9px] text-[var(--text-muted)]">{rev.author}</span>
                       </div>
-                      <p className="text-[8px] text-[var(--text-secondary)] mb-2">{rev.changeDescription}</p>
+                      <p className="text-[10px] text-[var(--text-secondary)] mb-2">{rev.changeDescription}</p>
                       <div className="flex gap-2">
-                        <span className="text-[7px] font-bold text-rose-500 bg-rose-500/10 px-2 py-0.5 rounded line-through">{rev.previousValue}</span>
-                        <i className="fa-solid fa-arrow-right text-[6px] text-[var(--text-muted)] self-center"></i>
-                        <span className="text-[7px] font-bold text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded">{rev.newValue}</span>
+                        <span className="text-[9px] font-medium text-rose-500 bg-rose-500/10 px-2 py-0.5 rounded line-through">{rev.previousValue}</span>
+                        <i className="fa-solid fa-arrow-right text-[8px] text-[var(--text-muted)] self-center"></i>
+                        <span className="text-[9px] font-medium text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded">{rev.newValue}</span>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <p className="text-[9px] text-[var(--text-muted)] text-center py-4">Bu plana ait herhangi bir revizyon kaydı bulunmuyor.</p>
+                  <p className="text-[11px] text-[var(--text-muted)] text-center py-4">Bu plana ait herhangi bir revizyon kaydı bulunmuyor.</p>
                 )}
               </div>
             )}
@@ -708,15 +708,15 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
       ) : (
         <div className="p-8 bg-[var(--bg-secondary)] rounded-2xl text-center border border-[var(--border-color)]">
           <i className="fa-solid fa-map-location-dot text-3xl text-[var(--text-muted)] opacity-30 mb-3 block"></i>
-          <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">Henüz atanmış bir eğitim planı yok</p>
-          <p className="text-[9px] text-[var(--text-muted)] mt-1">Bu öğrenci için ana menüden 'Plan & Müfredat' modülüne giderek yeni bir eğitim planı üretebilir ve atayabilirsiniz.</p>
+          <p className="text-xs font-medium text-[var(--text-muted)] uppercase tracking-wider">Henüz atanmış bir eğitim planı yok</p>
+          <p className="text-[11px] text-[var(--text-muted)] mt-1">Bu öğrenci için ana menüden 'Plan & Müfredat' modülüne giderek yeni bir eğitim planı üretebilir ve atayabilirsiniz.</p>
         </div>
       )}
 
       {/* All Plans List */}
       {localPlans.length > 1 && (
         <div className="space-y-2">
-          <h4 className="font-black text-[10px] text-[var(--text-primary)] uppercase tracking-tight">Geçmiş Planlar</h4>
+          <h4 className="font-bold text-xs text-[var(--text-primary)] uppercase tracking-tight">Geçmiş Planlar</h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {localPlans.map(plan => {
               const progress = Math.round((plan.schedule.filter((d: CurriculumDay) => d.isCompleted || d.activities?.every((a: any) => a.status === 'completed')).length / plan.schedule.length) * 100);
@@ -730,16 +730,16 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <div className="w-7 h-7 bg-[var(--accent-muted)] text-[var(--accent-color)] rounded-lg flex items-center justify-center">
-                        <i className="fa-solid fa-calendar-lines-pen text-[9px]"></i>
+                        <i className="fa-solid fa-calendar-lines-pen text-[11px]"></i>
                       </div>
                       <div>
-                        <h4 className="font-black text-[9px] text-[var(--text-primary)] uppercase">
+                        <h4 className="font-bold text-[11px] text-[var(--text-primary)] uppercase">
                           {new Date(plan.startDate).toLocaleDateString('tr-TR')} Dönemi
                         </h4>
-                        <p className="text-[7px] text-[var(--text-muted)] uppercase tracking-wider">{plan.goals?.length || 0} hedef • {plan.durationDays} gün</p>
+                        <p className="text-[9px] text-[var(--text-muted)] uppercase tracking-wider">{plan.goals?.length || 0} hedef • {plan.durationDays} gün</p>
                       </div>
                     </div>
-                    <span className="text-[10px] font-black text-[var(--accent-color)]">%{progress}</span>
+                    <span className="text-xs font-bold text-[var(--accent-color)]">%{progress}</span>
                   </div>
                   <div className="w-full bg-[var(--bg-secondary)] rounded-full h-1 mt-1 overflow-hidden">
                     <div className="bg-gradient-to-r from-[var(--accent-color)] to-emerald-500 h-full rounded-full transition-all" style={{ width: `${progress}%` }}></div>

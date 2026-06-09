@@ -69,8 +69,8 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
       {/* Header Actions */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-black text-xs tracking-tighter text-[var(--text-primary)] uppercase">Genel Bakış</h3>
-          <p className="text-[8px] font-bold text-[var(--text-muted)] uppercase tracking-widest mt-0.5">
+          <h3 className="font-bold text-sm tracking-tight text-[var(--text-primary)] uppercase">Genel Bakış</h3>
+          <p className="text-[10px] font-medium text-[var(--text-muted)] uppercase tracking-widest mt-0.5">
             {student.name} — {student.grade}
           </p>
         </div>
@@ -111,44 +111,44 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Quick Performance */}
         <div className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl p-4">
-          <h4 className="font-black text-[10px] text-[var(--text-primary)] uppercase tracking-tight mb-3 flex items-center gap-2">
-            <i className="fa-solid fa-brain text-[var(--accent-color)] text-[10px]"></i>
+          <h4 className="font-bold text-xs text-[var(--text-primary)] uppercase tracking-tight mb-3 flex items-center gap-2">
+            <i className="fa-solid fa-brain text-[var(--accent-color)] text-xs"></i>
             Son Değerlendirme
           </h4>
           {latestAssessment ? (
             <div className="space-y-2.5">
-              <p className="text-[9px] text-[var(--text-secondary)] leading-relaxed">{latestAssessment.report.overallSummary.slice(0, 120)}...</p>
+              <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">{latestAssessment.report.overallSummary.slice(0, 120)}...</p>
               <div className="grid grid-cols-3 gap-2">
                 {latestAssessment.report.chartData.slice(0, 6).map((d: any, i: number) => (
                   <div key={i} className="text-center">
-                    <div className="relative w-10 h-10 mx-auto mb-1">
+                    <div className="relative w-11 h-11 mx-auto mb-1">
                       <svg className="w-full h-full -rotate-90">
                         <circle cx="20" cy="20" r="16" fill="none" stroke="currentColor" strokeWidth="3" className="text-[var(--bg-secondary)]" />
                         <circle cx="20" cy="20" r="16" fill="none" stroke="currentColor" strokeWidth="3" strokeDasharray={100} strokeDashoffset={100 - d.value} strokeLinecap="round" className="text-[var(--accent-color)]" />
                       </svg>
-                      <span className="absolute inset-0 flex items-center justify-center text-[7px] font-black text-[var(--text-primary)]">{d.value}</span>
+                      <span className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-[var(--text-primary)]">{d.value}</span>
                     </div>
-                    <span className="text-[6px] font-bold text-[var(--text-muted)] uppercase">{d.label}</span>
+                    <span className="text-[8px] font-medium text-[var(--text-muted)] uppercase">{d.label}</span>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <p className="text-[9px] text-[var(--text-muted)]">Değerlendirme verisi yok.</p>
+            <p className="text-[11px] text-[var(--text-muted)]">Değerlendirme verisi yok.</p>
           )}
         </div>
 
         {/* Active Plan Progress */}
         <div className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl p-4">
-          <h4 className="font-black text-[10px] text-[var(--text-primary)] uppercase tracking-tight mb-3 flex items-center gap-2">
-            <i className="fa-solid fa-map-location-dot text-[var(--accent-color)] text-[10px]"></i>
+          <h4 className="font-bold text-xs text-[var(--text-primary)] uppercase tracking-tight mb-3 flex items-center gap-2">
+            <i className="fa-solid fa-map-location-dot text-[var(--accent-color)] text-xs"></i>
             Aktif Plan
           </h4>
           {activePlan ? (
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-[9px] font-bold text-[var(--text-secondary)]">{new Date(activePlan.startDate).toLocaleDateString('tr-TR')} Dönemi</span>
-                <span className="text-[8px] font-black text-[var(--accent-color)] bg-[var(--accent-muted)] px-2 py-0.5 rounded-full">%{planProgress}</span>
+                <span className="text-[10px] font-medium text-[var(--text-secondary)]">{new Date(activePlan.startDate).toLocaleDateString('tr-TR')} Dönemi</span>
+                <span className="text-[10px] font-bold text-[var(--accent-color)] bg-[var(--accent-muted)] px-2 py-0.5 rounded-full">%{planProgress}</span>
               </div>
               <div className="w-full bg-[var(--bg-secondary)] rounded-full h-2 overflow-hidden">
                 <div className="bg-gradient-to-r from-[var(--accent-color)] to-emerald-500 h-full rounded-full transition-all" style={{ width: `${planProgress}%` }}></div>
@@ -157,13 +157,13 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
                 {activePlan.goals.slice(0, 3).map((g, i) => (
                   <div key={i} className="flex items-start gap-2">
                     <i className={`fa-solid ${i < activePlan.schedule.filter(d => d.isCompleted).length ? 'fa-check text-emerald-500' : 'fa-circle text-[var(--text-muted)]'} text-[7px] mt-0.5`}></i>
-                    <span className="text-[8px] text-[var(--text-secondary)]">{g}</span>
+                    <span className="text-[10px] text-[var(--text-secondary)]">{g}</span>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <p className="text-[9px] text-[var(--text-muted)]">Aktif plan yok.</p>
+            <p className="text-[11px] text-[var(--text-muted)]">Aktif plan yok.</p>
           )}
         </div>
       </div>
@@ -173,10 +173,10 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
         className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl p-4 cursor-pointer hover:border-[var(--accent-color)]/30 transition-all"
         onClick={() => onNavigateToTab?.('materials')}
       >
-        <h4 className="font-black text-[10px] text-[var(--text-primary)] uppercase tracking-tight mb-3 flex items-center gap-2">
-          <i className="fa-solid fa-scroll text-[var(--accent-color)] text-[10px]"></i>
+        <h4 className="font-bold text-xs text-[var(--text-primary)] uppercase tracking-tight mb-3 flex items-center gap-2">
+          <i className="fa-solid fa-scroll text-[var(--accent-color)] text-xs"></i>
           Son Materyaller
-          <i className="fa-solid fa-chevron-right text-[var(--text-muted)] text-[8px] ml-auto"></i>
+          <i className="fa-solid fa-chevron-right text-[var(--text-muted)] text-[9px] ml-auto"></i>
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           {allWorksheets.slice(0, 6).map(ws => (
@@ -185,8 +185,8 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
                 <i className={`fa-solid ${ws.icon} text-[9px]`}></i>
               </div>
               <div className="min-w-0">
-                <p className="text-[8px] font-black text-[var(--text-primary)] uppercase truncate">{ws.name}</p>
-                <p className="text-[7px] text-[var(--text-muted)]">{new Date(ws.createdAt).toLocaleDateString('tr-TR')}</p>
+                <p className="text-[10px] font-bold text-[var(--text-primary)] uppercase truncate">{ws.name}</p>
+                <p className="text-[9px] text-[var(--text-muted)]">{new Date(ws.createdAt).toLocaleDateString('tr-TR')}</p>
               </div>
             </div>
           ))}
@@ -198,10 +198,10 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
         className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl p-4 cursor-pointer hover:border-[var(--accent-color)]/30 transition-all"
         onClick={() => onNavigateToTab?.('assignments')}
       >
-        <h4 className="font-black text-[10px] text-[var(--text-primary)] uppercase tracking-tight mb-3 flex items-center gap-2">
-          <i className="fa-solid fa-calendar-check text-[var(--accent-color)] text-[10px]"></i>
+        <h4 className="font-bold text-xs text-[var(--text-primary)] uppercase tracking-tight mb-3 flex items-center gap-2">
+          <i className="fa-solid fa-calendar-check text-[var(--accent-color)] text-xs"></i>
           Yaklaşan Görevler
-          <i className="fa-solid fa-chevron-right text-[var(--text-muted)] text-[8px] ml-auto"></i>
+          <i className="fa-solid fa-chevron-right text-[var(--text-muted)] text-[9px] ml-auto"></i>
         </h4>
         <div className="space-y-2">
           {allAssignments.filter(a => a.status !== 'completed').slice(0, 4).map(a => (
@@ -209,12 +209,12 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
               <div className="flex items-center gap-2 min-w-0">
                 <div className={`w-2 h-2 rounded-full shrink-0 ${a.status === 'in_progress' ? 'bg-amber-500 animate-pulse' : 'bg-blue-500'}`}></div>
                 <div className="min-w-0">
-                  <p className="text-[8px] font-black text-[var(--text-primary)] uppercase truncate">#{a.worksheetId.slice(0, 6)}</p>
-                  {a.teacherNotes && <p className="text-[7px] text-[var(--text-muted)] truncate">{a.teacherNotes.slice(0, 50)}...</p>}
+                  <p className="text-[10px] font-bold text-[var(--text-primary)] uppercase truncate">#{a.worksheetId.slice(0, 6)}</p>
+                  {a.teacherNotes && <p className="text-[9px] text-[var(--text-muted)] truncate">{a.teacherNotes.slice(0, 50)}...</p>}
                 </div>
               </div>
               {a.dueDate && (
-                <span className="text-[7px] font-bold text-[var(--text-muted)] whitespace-nowrap ml-2">{new Date(a.dueDate).toLocaleDateString('tr-TR')}</span>
+                <span className="text-[9px] font-medium text-[var(--text-muted)] whitespace-nowrap ml-2">{new Date(a.dueDate).toLocaleDateString('tr-TR')}</span>
               )}
             </div>
           ))}

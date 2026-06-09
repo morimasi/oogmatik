@@ -62,6 +62,7 @@
   /* UI Ayarları */
   --ui-font: var(--app-font-family, 'Lexend', sans-serif);
   --ui-scale: var(--app-font-size-scale, 1);
+  --ui-weight: var(--app-font-weight, 400);
   --ui-spacing: var(--app-letter-spacing, normal);
   --ui-line-height: var(--app-line-height, 1.6);
   --ui-saturation: var(--app-saturation, 100%);
