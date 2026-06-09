@@ -330,8 +330,6 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
   const [searchQuery, setSearchQuery] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
-  if (!isOpen) return null;
-
   // ── Catalog: flat list of all ACTIVITIES ──────────────────────────────────────
   const filteredCatalog = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
@@ -369,6 +367,8 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
       (w.activityType || '').toLowerCase().includes(q)
     );
   }, [worksheetsData.data, searchQuery]);
+
+  if (!isOpen) return null;
 
   // ── Main assign handler ──────────────────────────────────────────────────────
   const handleAssign = async () => {
