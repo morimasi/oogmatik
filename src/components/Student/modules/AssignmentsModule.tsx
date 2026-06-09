@@ -130,7 +130,7 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
           </p>
         </div>
         <div className="flex gap-1.5">
-          <button onClick={() => setShowNewAssignModal(true)} className="px-3 py-1 rounded-lg bg-[var(--accent-color)] border border-[var(--accent-color)] flex items-center justify-center text-white hover:opacity-90 transition-all font-bold text-[9px] uppercase tracking-widest shadow-md">
+          <button onClick={() => setShowNewAssignModal(true)} className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-fuchsia-600 flex items-center justify-center text-white hover:opacity-90 hover:shadow-lg hover:shadow-indigo-500/30 transition-all font-black text-[9px] uppercase tracking-widest shadow-md shadow-indigo-500/20 border border-white/10">
             <i className="fa-solid fa-plus mr-1.5"></i> Yeni Ata
           </button>
           <button onClick={handlePrint} className="w-7 h-7 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all" title="Yazdır">
@@ -297,8 +297,19 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
   const [selectedWorksheetId, setSelectedWorksheetId] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [notes, setNotes] = useState('');
+  const [worksheetSearch, setWorksheetSearch] = useState('');
 
   if (!isOpen) return null;
+
+  // Filter worksheets based on search query (by name or activity type)
+  const filteredWorksheets = worksheetsData.data?.items?.filter(w => {
+    if (!worksheetSearch) return true;
+    const q = worksheetSearch.toLowerCase();
+    return (
+      (w.name || '').toLowerCase().includes(q) ||
+      (w.activityType || '').toLowerCase().includes(q)
+    );
+  }) || [];
 
   const handleAssign = async () => {
     if (!selectedWorksheetId) {
@@ -306,7 +317,6 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
       return;
     }
     
-    // Convert to ISO string if needed, or keep string format
     const isoDueDate = dueDate ? new Date(`${dueDate}T23:59:59`).toISOString() : undefined;
 
     const success = await createAssignment({
@@ -318,75 +328,161 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
     
     if (success) {
       onClose();
-      // Reset form variables
       setSelectedWorksheetId('');
       setDueDate('');
       setNotes('');
+      setWorksheetSearch('');
     }
+  };
+
+  const activityTypeIcon = (type: string) => {
+    const map: Record<string, string> = {
+      'worksheet': 'fa-file-lines',
+      'exam': 'fa-clipboard-check',
+      'quiz': 'fa-question-circle',
+      'activity': 'fa-puzzle-piece',
+      'reading': 'fa-book-open',
+      'math': 'fa-calculator',
+    };
+    return map[type?.toLowerCase()] || 'fa-file';
   };
 
   return (
         <div className="fixed inset-0 z-[75] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[var(--bg-paper)] rounded-2xl shadow-2xl w-full max-w-md border border-[var(--border-color)] flex flex-col max-h-[85vh]">
+            {/* Header */}
             <div className="p-4 border-b border-[var(--border-color)] flex justify-between items-center shrink-0">
-              <h3 className="font-black text-xs text-[var(--text-primary)] uppercase"><i className="fa-solid fa-plus mr-2 text-[var(--accent-color)]"></i> Yeni Atama Yap</h3>
-              <button onClick={onClose} className="w-6 h-6 rounded-full hover:bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)]">
-                <i className="fa-solid fa-times text-[9px]"></i>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-600 to-fuchsia-600 flex items-center justify-center shadow-md shadow-indigo-500/20">
+                  <i className="fa-solid fa-paper-plane text-white text-[10px]"></i>
+                </div>
+                <div>
+                  <h3 className="font-black text-xs text-[var(--text-primary)] uppercase tracking-tight">Yeni Atama Yap</h3>
+                  <p className="text-[7px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Arşivinizden içerik seçin</p>
+                </div>
+              </div>
+              <button onClick={onClose} className="w-7 h-7 rounded-full hover:bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] transition-all">
+                <i className="fa-solid fa-times text-[10px]"></i>
               </button>
             </div>
             <div className="p-4 space-y-4 overflow-y-auto">
               
+              {/* Worksheet Selection with Search */}
               <div>
-                <label className="block text-[8px] font-bold text-[var(--text-muted)] uppercase mb-1.5">Etkinlik / İçerik Seçimi <span className="text-rose-500">*</span></label>
+                <label className="block text-[8px] font-bold text-[var(--text-muted)] uppercase mb-1.5">
+                  Etkinlik / İçerik Seçimi <span className="text-rose-500">*</span>
+                </label>
                 {worksheetsData.loading ? (
-                    <div className="p-4 text-center text-xs font-bold animate-pulse text-[var(--accent-color)]">İçerikleriniz Yükleniyor...</div>
+                    <div className="p-6 flex flex-col items-center justify-center gap-2">
+                      <i className="fa-solid fa-spinner fa-spin text-xl text-[var(--accent-color)]"></i>
+                      <span className="text-[9px] font-bold text-[var(--text-muted)]">İçerikleriniz Yükleniyor...</span>
+                    </div>
                 ) : (
-                    <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
-                        {worksheetsData.data?.items.map(w => (
+                  <>
+                    {/* Search Bar */}
+                    <div className="relative mb-2">
+                      <i className="fa-solid fa-search absolute left-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] text-[8px]"></i>
+                      <input
+                        type="text"
+                        placeholder="İçerik adı veya tür ile ara..."
+                        value={worksheetSearch}
+                        onChange={e => setWorksheetSearch(e.target.value)}
+                        className="w-full pl-8 pr-3 py-2 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[9px] outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/50 text-[var(--text-primary)] font-medium transition-all"
+                      />
+                      {worksheetSearch && (
+                        <button onClick={() => setWorksheetSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[var(--text-muted)] hover:text-[var(--text-primary)]">
+                          <i className="fa-solid fa-times-circle text-[9px]"></i>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Results count */}
+                    <div className="flex items-center justify-between mb-2 px-1">
+                      <span className="text-[7px] font-bold text-[var(--text-muted)] uppercase tracking-widest">
+                        {filteredWorksheets.length} içerik bulundu
+                      </span>
+                      {worksheetSearch && (
+                        <button onClick={() => setWorksheetSearch('')} className="text-[7px] font-bold text-indigo-500 hover:text-indigo-600 uppercase tracking-widest">
+                          Filtreyi Temizle
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Worksheet List */}
+                    <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1 custom-scrollbar">
+                        {filteredWorksheets.map(w => (
                             <div key={w.id} 
                                 onClick={() => setSelectedWorksheetId(w.id)}
-                                className={`p-3 rounded-xl border cursor-pointer transition-all ${selectedWorksheetId === w.id ? 'border-[var(--accent-color)] bg-[var(--accent-color)]/5' : 'border-[var(--border-color)] bg-[var(--bg-secondary)] hover:border-[var(--accent-color)]/30'}`}>
+                                className={`p-3 rounded-xl border cursor-pointer transition-all group/card ${selectedWorksheetId === w.id ? 'border-indigo-500 bg-indigo-500/5 shadow-sm shadow-indigo-500/10' : 'border-[var(--border-color)] bg-[var(--bg-secondary)] hover:border-indigo-500/30 hover:bg-[var(--bg-paper)]'}`}>
                                 <div className="flex justify-between items-start gap-2">
-                                  <h4 className="font-bold text-[10px] text-[var(--text-primary)] leading-tight">{w.name || "İsimsiz İçerik"}</h4>
-                                  {selectedWorksheetId === w.id && <i className="fa-solid fa-circle-check text-[var(--accent-color)] text-[10px]"></i>}
+                                  <div className="flex items-start gap-2.5 min-w-0 flex-1">
+                                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${selectedWorksheetId === w.id ? 'bg-indigo-500/20 text-indigo-600' : 'bg-[var(--bg-paper)] text-[var(--text-muted)] group-hover/card:text-indigo-500'} transition-all`}>
+                                      <i className={`fa-solid ${activityTypeIcon(w.activityType)} text-[9px]`}></i>
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                      <h4 className="font-bold text-[10px] text-[var(--text-primary)] leading-tight truncate">{w.name || "İsimsiz İçerik"}</h4>
+                                      <div className="flex items-center gap-2 mt-0.5">
+                                        <span className="text-[7px] font-black text-[var(--text-muted)] uppercase tracking-wider bg-[var(--bg-paper)] px-1.5 py-0.5 rounded border border-[var(--border-color)]">{w.activityType || 'Genel'}</span>
+                                        <span className="text-[7px] text-[var(--text-muted)] font-bold">{new Date(w.createdAt).toLocaleDateString('tr-TR')}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${selectedWorksheetId === w.id ? 'border-indigo-500 bg-indigo-500' : 'border-[var(--border-color)]'}`}>
+                                    {selectedWorksheetId === w.id && <i className="fa-solid fa-check text-white text-[7px]"></i>}
+                                  </div>
                                 </div>
-                                <p className="text-[8px] text-[var(--text-muted)] mt-1 font-bold">{w.activityType} • {new Date(w.createdAt).toLocaleDateString('tr-TR')}</p>
                             </div>
                         ))}
-                        {(!worksheetsData.data?.items || worksheetsData.data.items.length === 0) && (
-                            <div className="text-center p-4">
-                                <p className="text-[9px] font-bold text-[var(--text-muted)]">Kataloğunuzda kayıtlı etkinlik bulunmuyor.</p>
+                        {filteredWorksheets.length === 0 && (
+                            <div className="flex flex-col items-center justify-center py-8">
+                                <i className="fa-solid fa-folder-open text-2xl text-[var(--text-muted)] opacity-20 mb-2"></i>
+                                <p className="text-[9px] font-bold text-[var(--text-muted)] text-center">
+                                  {worksheetSearch ? 'Aramanızla eşleşen içerik bulunamadı.' : 'Kataloğunuzda kayıtlı etkinlik bulunmuyor.'}
+                                </p>
+                                {worksheetSearch && (
+                                  <button onClick={() => setWorksheetSearch('')} className="mt-2 text-[8px] font-bold text-indigo-500 hover:text-indigo-600">
+                                    Aramayı Temizle
+                                  </button>
+                                )}
                             </div>
                         )}
                     </div>
+                  </>
                 )}
               </div>
 
+              {/* Due Date */}
               <div>
-                <label className="block text-[8px] font-bold text-[var(--text-muted)] uppercase mb-1.5">Teslim Tarihi (Opsiyonel)</label>
+                <label className="block text-[8px] font-bold text-[var(--text-muted)] uppercase mb-1.5">
+                  <i className="fa-solid fa-calendar-day mr-1 text-indigo-500"></i>Teslim Tarihi (Opsiyonel)
+                </label>
                 <input
                   type="date"
                   value={dueDate}
                   onChange={e => setDueDate(e.target.value)}
-                  className="w-full p-2.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[9px] outline-none focus:ring-1 focus:ring-[var(--accent-color)]/50 text-[var(--text-primary)] font-bold"
+                  className="w-full p-2.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[9px] outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/50 text-[var(--text-primary)] font-bold transition-all"
                 />
               </div>
 
+              {/* Teacher Notes */}
               <div>
-                <label className="block text-[8px] font-bold text-[var(--text-muted)] uppercase mb-1.5">Öğretmen Notu (Opsiyonel)</label>
+                <label className="block text-[8px] font-bold text-[var(--text-muted)] uppercase mb-1.5">
+                  <i className="fa-solid fa-pen-fancy mr-1 text-indigo-500"></i>Öğretmen Notu (Opsiyonel)
+                </label>
                 <textarea
                   value={notes}
                   onChange={e => setNotes(e.target.value)}
-                  className="w-full p-2.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[9px] outline-none focus:ring-1 focus:ring-[var(--accent-color)]/50 text-[var(--text-primary)] h-20 resize-none font-medium"
+                  className="w-full p-2.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[9px] outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/50 text-[var(--text-primary)] h-20 resize-none font-medium transition-all"
                   placeholder="Bu etkinlikte şunlara dikkat etmelisin..."
                 />
               </div>
 
             </div>
+            {/* Footer Actions */}
             <div className="p-4 border-t border-[var(--border-color)] flex justify-end gap-2 shrink-0">
               <button disabled={isLoading} onClick={onClose} className="px-4 py-2 text-[var(--text-muted)] font-bold text-[9px] rounded-lg hover:bg-[var(--bg-secondary)] transition-all uppercase tracking-widest">İptal</button>
-              <button disabled={isLoading || !selectedWorksheetId} onClick={handleAssign} className="px-6 py-2 bg-[var(--accent-color)] text-white font-black text-[9px] rounded-lg hover:opacity-90 transition-all flex items-center gap-2 shadow-lg shadow-[var(--accent-color)]/20 disabled:opacity-50 uppercase tracking-widest">
-                {isLoading ? <i className="fa-solid fa-spinner fa-spin text-[10px]"></i> : <i className="fa-solid fa-paper-plane text-[10px]"></i>} Ata
+              <button disabled={isLoading || !selectedWorksheetId} onClick={handleAssign} className="px-6 py-2.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-fuchsia-600 text-white font-black text-[9px] rounded-xl hover:opacity-90 hover:shadow-lg hover:shadow-indigo-500/30 transition-all flex items-center gap-2 shadow-lg shadow-indigo-500/20 disabled:opacity-40 disabled:cursor-not-allowed uppercase tracking-widest border border-white/10">
+                {isLoading ? <><i className="fa-solid fa-spinner fa-spin text-[10px]"></i> Atanıyor...</> : <><i className="fa-solid fa-paper-plane text-[10px]"></i> Ata</>}
               </button>
             </div>
           </div>
