@@ -51,20 +51,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
   activeCurriculumSession,
 }) => {
   const { students, activeStudent, setActiveStudent } = useStudentStore();
-
-  // activity null/undefined kontrolü
-  if (!activity) {
-    return (
-      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-[var(--bg-primary)]">
-        <i className="fa-solid fa-circle-notch fa-spin text-2xl text-[var(--accent-color)] mb-4"></i>
-        <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">
-          Etkinlik Verileri Yükleniyor...
-        </p>
-      </div>
-    );
-  }
-
-  const { options, updateOption } = useActivitySettings(activity.id);
+  const { options, updateOption } = useActivitySettings(activity?.id ?? '');
 
   // MÜFREDAT SEANSI AKTİFSE PARAMETRELERİ OTOMATİK AYARLA
   useEffect(() => {
@@ -83,6 +70,18 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
       }
     }
   }, [activeCurriculumSession]);
+
+  // activity null/undefined kontrolü
+  if (!activity) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-[var(--bg-primary)]">
+        <i className="fa-solid fa-circle-notch fa-spin text-2xl text-[var(--accent-color)] mb-4"></i>
+        <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">
+          Etkinlik Verileri Yükleniyor...
+        </p>
+      </div>
+    );
+  }
 
   const handleChange = (key: keyof GeneratorOptions, value: any) => {
     if (activeCurriculumSession && (key === 'difficulty' || key === 'topic')) return; // Müfredat modunda kilitli

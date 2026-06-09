@@ -117,11 +117,11 @@ const NodeBox: React.FC<NodeBoxProps> = ({ node, x, y }) => {
 
 export const KavramHaritasiSheet: React.FC<Props> = ({ data }) => {
   const activity = Array.isArray(data) ? data[0] : data;
-  if (!activity) return null;
-
-  const nodes: KavramHaritasiNode[] = activity.nodes || [];
-  const edges: KavramHaritasiEdge[] = activity.edges || [];
+  const nodes: KavramHaritasiNode[] = activity?.nodes || [];
+  const edges: KavramHaritasiEdge[] = activity?.edges || [];
   const positions = useMemo(() => calcPositions(nodes), [nodes]);
+
+  if (!activity) return null;
 
   return (
     <div className="w-full h-full p-4 print:p-2 flex flex-col bg-white font-['Lexend'] text-zinc-900 gap-3 print:gap-2">

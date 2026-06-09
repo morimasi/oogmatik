@@ -380,29 +380,26 @@ const UnifiedContentRenderer = ({
   const { isEditorOpen, selectedBlockId, setSelectedBlockId, snapToGrid, gridSize } =
     useA4EditorStore();
 
-  if (!data) return null;
+  // DnD sensors — editor modunda blok sıralama için (hook — must be before early returns)
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
-  // Robust unwrapping
+  // Robust unwrapping (null-safe for hook ordering)
   const unwrappedData = Array.isArray(data) ? data[0] : data;
   const activeData = (unwrappedData as unknown as any)?.data || unwrappedData;
+  const isValidData = !!activeData && typeof activeData === 'object' && !Array.isArray(activeData);
 
-  if (!activeData || typeof activeData !== 'object' || Array.isArray(activeData)) return null;
-
-  const architecture = activeData?.layoutArchitecture;
-  const rawBlocks: WorksheetBlock[] =
-    (architecture?.blocks && architecture.blocks.length > 0 ? architecture.blocks : []) ||
-    (activeData?.blocks && activeData.blocks.length > 0 ? activeData.blocks : []) ||
-    (activeData?.puzzles && activeData.puzzles.length > 0 ? activeData.puzzles : []) ||
-    (activeData?.operations && activeData.operations.length > 0 ? activeData.operations : []) ||
-    (activeData?.items && activeData.items.length > 0 ? activeData.items : []) ||
-    (activeData?.problems && activeData.problems.length > 0 ? activeData.problems : []) ||
-    (activeData?.steps && activeData.steps.length > 0 ? activeData.steps : []) ||
-    [];
+  const architecture = isValidData ? activeData?.layoutArchitecture : undefined;
+  const rawBlocks: WorksheetBlock[] = isValidData
+    ? ((architecture?.blocks && architecture.blocks.length > 0 ? architecture.blocks : []) ||
+       (activeData?.blocks && activeData.blocks.length > 0 ? activeData.blocks : []) ||
+       (activeData?.puzzles && activeData.puzzles.length > 0 ? activeData.puzzles : []) ||
+       (activeData?.operations && activeData.operations.length > 0 ? activeData.operations : []) ||
+       (activeData?.items && activeData.items.length > 0 ? activeData.items : []) ||
+       (activeData?.problems && activeData.problems.length > 0 ? activeData.problems : []) ||
+       (activeData?.steps && activeData.steps.length > 0 ? activeData.steps : []) ||
+       [])
+    : [];
   const cols = (architecture?.cols && architecture.cols > 1) ? architecture.cols : (settings?.columns || 1);
-
-
-  // DnD sensors — editor modunda blok sıralama için
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
   const snapModifier: Modifier = ({ transform }) => {
     if (!transform || !snapToGrid) return transform;
@@ -474,6 +471,8 @@ const UnifiedContentRenderer = ({
     });
     return pagesResult;
   }, [rawBlocks, settings?.showStudentInfo]);
+
+  if (!data || !isValidData) return null;
 
   const renderPage = (pageBlocks: WorksheetBlock[], pageIdx: number) => {
     const isLandscape = settings?.orientation === 'landscape';
