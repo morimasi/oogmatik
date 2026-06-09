@@ -237,7 +237,7 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
       <ShareModal
         isOpen={isSharing}
         onClose={() => setIsSharing(false)}
-        onShare={(receiverIds: string[]) => {
+        onShare={() => {
           handleShareResults(currentScreening.id);
           setIsSharing(false);
         }}

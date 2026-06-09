@@ -35,29 +35,29 @@ export const ScreeningIntro: React.FC<Props> = ({ onStart }) => {
     return (
         <div className="flex flex-col lg:flex-row gap-12 items-start animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Hero Section */}
-            <div className="flex-1 space-y-8">
-                <div className="bg-[var(--bg-paper)] rounded-[3rem] p-10 border border-[var(--border-color)] shadow-2xl relative overflow-hidden group">
+            <div className="flex-1 space-y-4">
+                <div className="bg-[var(--bg-paper)] rounded-2xl p-6 border border-[var(--border-color)] shadow-xl relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-80 h-80 bg-[var(--accent-color)]/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none group-hover:bg-[var(--accent-color)]/20 transition-colors duration-700"></div>
                     <div className="relative z-10">
-                        <div className="w-20 h-20 bg-gradient-to-br from-[var(--accent-color)] to-purple-600 rounded-[2rem] flex items-center justify-center text-4xl text-white shadow-2xl shadow-[var(--accent-muted)] mb-8 rotate-3 group-hover:rotate-0 transition-transform duration-500">
+                        <div className="w-14 h-14 bg-gradient-to-br from-[var(--accent-color)] to-purple-600 rounded-xl flex items-center justify-center text-2xl text-white shadow-xl shadow-[var(--accent-muted)] mb-5 rotate-3 group-hover:rotate-0 transition-transform duration-500">
                             <i className="fa-solid fa-magnifying-glass-chart"></i>
                         </div>
-                        <h1 className="text-5xl font-black text-[var(--text-primary)] mb-6 tracking-tighter leading-[0.95] uppercase italic">
+                        <h1 className="text-2xl font-black text-[var(--text-primary)] mb-3 tracking-tight leading-tight uppercase italic">
                             Erken <span className="text-[var(--accent-color)]">Farkındalık,</span> <br/>
                             Geleceği Değiştirir.
                         </h1>
-                        <p className="text-xl font-medium text-[var(--text-secondary)] leading-relaxed mb-10 opacity-80">
+                        <p className="text-sm font-medium text-[var(--text-secondary)] leading-relaxed mb-6 opacity-80">
                             Bu modül, çocuğunuzun öğrenme süreçlerindeki güçlü ve desteklenmesi gereken yönlerini keşfetmenize yardımcı olan bilimsel temelli bir tarama aracıdır.
                         </p>
                         
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="bg-[var(--bg-secondary)] p-6 rounded-[2rem] border border-[var(--border-color)] hover:bg-[var(--bg-paper)] transition-all group/card">
-                                <i className="fa-solid fa-brain text-[var(--accent-color)] mb-4 text-2xl group-hover-card:scale-110 transition-transform"></i>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div className="bg-[var(--bg-secondary)] p-4 rounded-xl border border-[var(--border-color)] hover:bg-[var(--bg-paper)] transition-all group/card">
+                                <i className="fa-solid fa-brain text-[var(--accent-color)] mb-2 text-lg group-hover-card:scale-110 transition-transform"></i>
                                 <h4 className="font-black text-sm mb-1 text-[var(--text-primary)] uppercase tracking-tight">6 Bilişsel Alan</h4>
                                 <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest opacity-60">Dikkat, Okuma, Yazma, Matematik ve Bellek.</p>
                             </div>
-                            <div className="bg-[var(--bg-secondary)] p-6 rounded-[2rem] border border-[var(--border-color)] hover:bg-[var(--bg-paper)] transition-all group/card">
-                                <i className="fa-solid fa-wand-magic-sparkles text-amber-500 mb-4 text-2xl group-hover-card:scale-110 transition-transform"></i>
+                            <div className="bg-[var(--bg-secondary)] p-4 rounded-xl border border-[var(--border-color)] hover:bg-[var(--bg-paper)] transition-all group/card">
+                                <i className="fa-solid fa-wand-magic-sparkles text-amber-500 mb-2 text-lg group-hover-card:scale-110 transition-transform"></i>
                                 <h4 className="font-black text-sm mb-1 text-[var(--text-primary)] uppercase tracking-tight">AI Destekli Analiz</h4>
                                 <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest opacity-60">Yapay zeka tabanlı öneriler ve yol haritası.</p>
                             </div>
@@ -65,11 +65,11 @@ export const ScreeningIntro: React.FC<Props> = ({ onStart }) => {
                     </div>
                 </div>
 
-                <div className="p-8 bg-amber-500/10 border-l-8 border-amber-500 rounded-r-[2.5rem] shadow-lg">
-                    <h4 className="font-black text-amber-500 mb-3 flex items-center gap-3 uppercase tracking-tighter italic text-lg">
+                <div className="p-5 bg-amber-500/10 border-l-4 border-amber-500 rounded-r-xl shadow-lg">
+                    <h4 className="font-black text-amber-500 mb-2 flex items-center gap-2 uppercase tracking-tight italic text-sm">
                         <i className="fa-solid fa-triangle-exclamation animate-pulse"></i> ÖNEMLİ YASAL UYARI
                     </h4>
-                    <p className="text-sm font-medium text-amber-500/90 leading-relaxed mb-6">
+                    <p className="text-xs font-medium text-amber-500/90 leading-relaxed mb-4">
                         Bu test <strong>tıbbi bir tanı aracı değildir</strong>. Sonuçlar sadece eğitimsel yönlendirme, farkındalık ve öğretim planlaması amaçlıdır. Kesin tanı için lütfen çocuk psikiyatristine başvurunuz.
                     </p>
                     <label className="flex items-center gap-4 cursor-pointer group/check w-fit">
@@ -85,9 +85,9 @@ export const ScreeningIntro: React.FC<Props> = ({ onStart }) => {
             </div>
 
             {/* Form Section */}
-            <div className="w-full lg:w-[400px] bg-[var(--bg-paper)] p-10 rounded-[3rem] border border-[var(--border-color)] shadow-2xl sticky top-24">
-                <h3 className="text-2xl font-black text-[var(--text-primary)] mb-8 italic uppercase tracking-tighter">Öğrenci Profili</h3>
-                <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="w-full lg:w-[380px] bg-[var(--bg-paper)] p-6 rounded-2xl border border-[var(--border-color)] shadow-xl sticky top-24">
+                <h3 className="text-lg font-black text-[var(--text-primary)] mb-5 italic uppercase tracking-tight">Öğrenci Profili</h3>
+                <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
                         <label className="block text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.3em] mb-3">Kim Dolduruyor?</label>
                         <div className="flex bg-[var(--bg-secondary)] p-1.5 rounded-2xl border border-[var(--border-color)]">
@@ -117,7 +117,7 @@ export const ScreeningIntro: React.FC<Props> = ({ onStart }) => {
                     <button 
                         type="submit" 
                         disabled={!accepted || !name}
-                        className={`w-full py-5 ${themeClasses.buttonPrimary} font-black rounded-2xl shadow-2xl transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed mt-8 flex items-center justify-center gap-3 uppercase tracking-[0.2em] text-xs group`}
+                        className={`w-full py-3.5 ${themeClasses.buttonPrimary} font-black rounded-xl shadow-xl transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed mt-4 flex items-center justify-center gap-2 uppercase tracking-widest text-xs group`}
                     >
                         Taramayı Başlat 
                         <i className="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>

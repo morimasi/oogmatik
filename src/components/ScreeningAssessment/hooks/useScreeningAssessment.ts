@@ -2,6 +2,7 @@ import { useEffect, useCallback } from 'react';
 import { useScreeningStore } from '../store/useScreeningStore';
 import { screeningDataService } from '../services/screeningDataService';
 import { useToastStore } from '../../../store/useToastStore';
+import { printService } from '../../../utils/printService';
 import type { ScreeningResult, EvaluationCategory } from '../../../types/screening';
 import type { ScreeningType } from '../types';
 
@@ -51,12 +52,23 @@ export function useScreeningAssessment() {
     addToast('Tarama silindi.', 'success');
   }, []);
 
-  const handleShareResults = useCallback((_id: string) => {
-    addToast('Paylaşım bağlantısı panoya kopyalandı.', 'success');
+  const handleShareResults = useCallback((id: string) => {
+    const url = `${window.location.origin}/screening/${id}`;
+    navigator.clipboard.writeText(url).then(() => {
+      addToast('Paylaşım bağlantısı panoya kopyalandı.', 'success');
+    }).catch(() => {
+      addToast('Paylaşım bağlantısı kopyalanamadı.', 'error');
+    });
   }, []);
 
-  const handleDownloadReport = useCallback((_data: ScreeningResult) => {
-    addToast('Rapor PDF olarak indiriliyor...', 'info');
+  const handleDownloadReport = useCallback(async (data: ScreeningResult) => {
+    try {
+      addToast('Rapor hazırlanıyor...', 'info');
+      await printService.generatePdf('#printable-report', `Disleksi_Tarama_${data.studentName}`, { action: 'download' });
+    } catch {
+      // Fallback: open print dialog
+      window.print();
+    }
   }, []);
 
   const handlePrintReport = useCallback(() => {

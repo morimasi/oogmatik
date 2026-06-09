@@ -8,8 +8,12 @@ export const NewScreeningPanel: React.FC = () => {
     selectedStudentName,
     selectedStudentId,
     selectedScreeningType,
+    selectedStudentAge,
+    selectedStudentGrade,
     setSelectedStudentName,
     setSelectedStudentId,
+    setSelectedStudentAge,
+    setSelectedStudentGrade,
     setSelectedScreeningType,
     handleStartScreening,
     setActiveView,
@@ -79,6 +83,37 @@ export const NewScreeningPanel: React.FC = () => {
               placeholder="Örn: Ahmet Yılmaz"
               className="w-full px-4 py-3 rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] placeholder-[var(--text-muted)] font-lexend focus:ring-2 focus:ring-[var(--accent-color)] outline-none text-sm"
             />
+          </div>
+        </div>
+
+        {/* Age & Grade Selection */}
+        <div className="grid grid-cols-2 gap-3 mb-4">
+          <div>
+            <label className="block text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-2">
+              Yaş
+            </label>
+            <input
+              type="number"
+              min={5}
+              max={15}
+              value={selectedStudentAge}
+              onChange={(e) => setSelectedStudentAge(Number(e.target.value))}
+              className="w-full px-4 py-3 rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] font-lexend focus:ring-2 focus:ring-[var(--accent-color)] outline-none text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-[9px] font-black uppercase tracking-widest text-[var(--text-muted)] mb-2">
+              Sınıf
+            </label>
+            <select
+              value={selectedStudentGrade}
+              onChange={(e) => setSelectedStudentGrade(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] font-lexend focus:ring-2 focus:ring-[var(--accent-color)] outline-none text-sm cursor-pointer"
+            >
+              {['Okul Öncesi', '1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf', '5. Sınıf', '6. Sınıf', '7. Sınıf', '8. Sınıf'].map((g) => (
+                <option key={g} value={g}>{g}</option>
+              ))}
+            </select>
           </div>
         </div>
 

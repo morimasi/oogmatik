@@ -57,7 +57,7 @@ export const QuestionnaireForm: React.FC<Props> = ({ profile, onComplete, onCanc
     return (
         <div className="w-full px-4">
             {/* Progress Bar */}
-            <div className="mb-10">
+            <div className="mb-6">
                 <div className="flex justify-between items-end mb-3">
                     <div>
                         <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">Mevcut Alan</p>
@@ -77,22 +77,22 @@ export const QuestionnaireForm: React.FC<Props> = ({ profile, onComplete, onCanc
             </div>
 
             {/* Questions Card */}
-            <div className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-[3rem] p-10 shadow-2xl mb-10 animate-in fade-in slide-in-from-right-4 duration-500 relative overflow-hidden" key={currentCategory}>
-                <div className="absolute top-0 right-0 p-8 opacity-5">
-                    <i className="fa-solid fa-clipboard-check text-9xl text-[var(--text-primary)]"></i>
+            <div className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-2xl p-6 shadow-xl mb-6 animate-in fade-in slide-in-from-right-4 duration-500 relative overflow-hidden" key={currentCategory}>
+                <div className="absolute top-0 right-0 p-4 opacity-5">
+                    <i className="fa-solid fa-clipboard-check text-6xl text-[var(--text-primary)]"></i>
                 </div>
 
-                <h3 className="text-2xl font-black text-[var(--text-primary)] mb-10 border-b border-[var(--border-color)] pb-6 flex items-center gap-4 italic uppercase tracking-tighter">
-                    <span className="w-12 h-12 rounded-2xl bg-[var(--accent-muted)] text-[var(--accent-color)] flex items-center justify-center border border-[var(--accent-color)]/20 not-italic">
+                <h3 className="text-base font-black text-[var(--text-primary)] mb-6 border-b border-[var(--border-color)] pb-4 flex items-center gap-3 italic uppercase tracking-tight">
+                    <span className="w-9 h-9 rounded-xl bg-[var(--accent-muted)] text-[var(--accent-color)] flex items-center justify-center border border-[var(--accent-color)]/20 text-sm not-italic">
                         {currentStep + 1}
                     </span>
                     {CATEGORY_LABELS[currentCategory]}
                 </h3>
                 
-                <div className="space-y-12 relative z-10">
+                <div className="space-y-6 relative z-10">
                     {categoryQuestions.map((q, idx) => (
-                        <div key={q.id} className="p-6 rounded-[2rem] hover:bg-[var(--surface-glass)] transition-all group border border-transparent hover:border-[var(--border-color)]">
-                            <p className="text-xl font-bold text-[var(--text-primary)] mb-6 leading-tight">
+                        <div key={q.id} className="p-4 rounded-xl hover:bg-[var(--surface-glass)] transition-all group border border-transparent hover:border-[var(--border-color)]">
+                            <p className="text-sm font-bold text-[var(--text-primary)] mb-4 leading-tight">
                                 <span className="text-[var(--accent-color)] mr-3 opacity-40 font-black italic">{idx + 1}.</span>
                                 {q.text}
                             </p>
@@ -108,13 +108,13 @@ export const QuestionnaireForm: React.FC<Props> = ({ profile, onComplete, onCanc
                                     <button
                                         key={opt.val}
                                         onClick={() => handleAnswer(q.id, opt.val)}
-                                        className={`group/opt flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all active:scale-95 ${
+                                        className={`group/opt flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all active:scale-95 ${
                                             answers[q.id] === opt.val
                                                 ? 'border-[var(--accent-color)] bg-[var(--accent-color)] text-white shadow-xl shadow-[var(--accent-muted)] transform scale-105'
                                                 : 'border-[var(--border-color)] bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:border-[var(--text-secondary)] hover:bg-[var(--bg-paper)]'
                                         }`}
                                     >
-                                        <span className={`text-2xl font-black mb-1 transition-colors ${answers[q.id] === opt.val ? 'text-white' : 'text-[var(--text-muted)]/30 group-hover-opt:text-[var(--text-secondary)]'}`}>{opt.val}</span>
+                                        <span className={`text-lg font-black mb-0.5 transition-colors ${answers[q.id] === opt.val ? 'text-white' : 'text-[var(--text-muted)]/30 group-hover-opt:text-[var(--text-secondary)]'}`}>{opt.val}</span>
                                         <span className={`text-[9px] font-black uppercase tracking-widest ${answers[q.id] === opt.val ? 'text-white/80' : ''}`}>{opt.label}</span>
                                     </button>
                                 ))}
@@ -125,11 +125,11 @@ export const QuestionnaireForm: React.FC<Props> = ({ profile, onComplete, onCanc
             </div>
 
             {/* Navigation */}
-            <div className="flex justify-between items-center px-4">
+            <div className="flex justify-between items-center px-2">
                 <button 
                     onClick={handlePrev} 
                     disabled={currentStep === 0}
-                    className="flex items-center gap-3 px-8 py-4 text-[var(--text-muted)] font-black uppercase tracking-widest hover:text-[var(--text-primary)] disabled:opacity-20 transition-all hover:-translate-x-2"
+                    className="flex items-center gap-2 px-5 py-2.5 text-[var(--text-muted)] font-black uppercase tracking-widest hover:text-[var(--text-primary)] disabled:opacity-20 transition-all hover:-translate-x-1 text-[10px]"
                 >
                     <i className="fa-solid fa-chevron-left"></i> Geri
                 </button>
@@ -149,7 +149,7 @@ export const QuestionnaireForm: React.FC<Props> = ({ profile, onComplete, onCanc
                     <button 
                         onClick={handleNext} 
                         disabled={!isCategoryComplete}
-                        className="px-10 py-5 bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white font-black rounded-[2rem] shadow-2xl shadow-[var(--accent-muted)] transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed uppercase tracking-[0.2em] text-xs flex items-center gap-3 group"
+                        className="px-6 py-3 bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white font-black rounded-xl shadow-xl shadow-[var(--accent-muted)] transition-all active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed uppercase tracking-widest text-[10px] flex items-center gap-2 group"
                     >
                         {currentStep === categories.length - 1 ? 'Analizi Tamamla' : 'Sonraki Adım'} 
                         <i className="fa-solid fa-chevron-right group-hover:translate-x-1 transition-transform"></i>

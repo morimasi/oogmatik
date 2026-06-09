@@ -32,7 +32,7 @@ export const ResultDashboard: FC<Props> = ({
   onGeneratePlan,
 }: Props) => {
   const { user } = useAuthStore();
-  const [aiAnalysis, setAiAnalysis] = useState<any>(null);
+  const [aiAnalysis, setAiAnalysis] = useState<{ letter: string; actionSteps: unknown[] } | null>(null);
   const [loadingAi, setLoadingAi] = useState(false);
 
   // Action States
@@ -44,7 +44,7 @@ export const ResultDashboard: FC<Props> = ({
   // Prepare Chart Data
   const chartData = Object.entries(result.categoryScores).map(([key, data]) => ({
     label: CATEGORY_LABELS[key] || key,
-    value: (data as any).score,
+    value: data.score,
   }));
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export const ResultDashboard: FC<Props> = ({
       const riskSummary = Object.entries(result.categoryScores)
         .map(
           ([cat, data]) =>
-            `${CATEGORY_LABELS[cat]}: %${(data as any).score} (${(data as any).riskLabel})`
+            `${CATEGORY_LABELS[cat]}: %${data.score} (${data.riskLabel})`
         )
         .join('\n');
 
@@ -70,7 +70,7 @@ export const ResultDashboard: FC<Props> = ({
             ${riskSummary}
 
             BULGULAR: ${Object.values(result.categoryScores)
-              .flatMap((s) => (s as any).findings)
+              .flatMap((s) => s.findings)
               .join(', ')}
 
             İSTENEN ÇIKTI (JSON):
@@ -89,7 +89,7 @@ export const ResultDashboard: FC<Props> = ({
         required: ['letter', 'actionSteps'],
       };
 
-      const response: any = await generateWithSchema(prompt, schema);
+      const response = await generateWithSchema(prompt, schema) as { letter?: unknown; actionSteps?: unknown[] };
 
       // Normalize response: ensure actionSteps items are always strings.
       // Gemini sometimes returns objects like {intervention, description, area}
@@ -111,8 +111,8 @@ export const ResultDashboard: FC<Props> = ({
         letter: typeof response?.letter === 'string' ? response.letter : String(response?.letter ?? ''),
         actionSteps: normalizedActionSteps,
       });
-    } catch (e: any) {
-      logError('AI Error', e);
+    } catch (e: unknown) {
+      logError('AI Error', e as Error);
     } finally {
       setLoadingAi(false);
     }
@@ -123,17 +123,17 @@ export const ResultDashboard: FC<Props> = ({
     const reportData: AssessmentReport = {
       overallSummary: aiAnalysis?.letter || 'Analiz bekleniyor...',
       scores: Object.entries(result.categoryScores).reduce(
-        (acc, [k, v]) => ({ ...acc, [k]: (v as any).score }),
+        (acc, [k, v]) => ({ ...acc, [k]: v.score }),
         {}
       ),
       chartData: chartData.map((c) => ({ ...c, fullMark: 100 })),
       analysis: {
         strengths: [], // Screening doesn't separate explicitly yet
         weaknesses: Object.values(result.categoryScores)
-          .filter((s: any) => s.riskLevel === 'high')
-          .map((s: any) => s.findings)
+          .filter((s) => s.riskLevel === 'high')
+          .map((s) => s.findings)
           .flat(),
-        errorAnalysis: Object.values(result.categoryScores).flatMap((s: any) => s.findings),
+        errorAnalysis: Object.values(result.categoryScores).flatMap((s) => s.findings),
       },
       roadmap: [], // Can be populated
       observations: {
@@ -152,9 +152,9 @@ export const ResultDashboard: FC<Props> = ({
       userId: user?.id || 'guest',
       studentId: activeStudentId,
       studentName: result.studentName,
-      gender: 'Erkek', // Default or add to form
-      age: result.age || 7, // Default or add to form
-      grade: '1. Sınıf',
+      gender: 'Belirtilmemiş',
+      age: result.age || 7,
+      grade: result.grade || 'Belirtilmemiş',
       createdAt: new Date().toISOString(),
       report: reportData,
     };
@@ -179,8 +179,8 @@ export const ResultDashboard: FC<Props> = ({
       );
       setIsSaved(true);
       alert('Rapor başarıyla arşivinize kaydedildi.');
-    } catch (e: any) {
-      logError('Save Error', e);
+    } catch (e: unknown) {
+      logError('Save Error', e as Error);
       alert('Kaydetme hatası.');
     } finally {
       setIsSaving(false);
@@ -274,9 +274,9 @@ export const ResultDashboard: FC<Props> = ({
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500 pb-20">
+    <div className="space-y-4 animate-in fade-in duration-500 pb-12">
       {/* Header / Toolbar */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-6 bg-[var(--bg-paper)] p-6 rounded-[2.5rem] border border-[var(--border-color)] shadow-xl sticky top-4 z-30 backdrop-blur-md">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-[var(--bg-paper)] p-4 rounded-2xl border border-[var(--border-color)] shadow-lg sticky top-4 z-30 backdrop-blur-md">
         <div>
           <div className="flex items-center gap-3 mb-1">
             <span
@@ -288,7 +288,7 @@ export const ResultDashboard: FC<Props> = ({
               {new Date(result.generatedAt).toLocaleDateString()}
             </span>
           </div>
-          <h2 className="text-2xl font-black text-[var(--text-primary)]">
+          <h2 className="text-base font-black text-[var(--text-primary)]">
             {result.studentName}
           </h2>
         </div>
@@ -296,7 +296,7 @@ export const ResultDashboard: FC<Props> = ({
         <div className="flex flex-wrap gap-2 justify-end">
           <button
             onClick={handleCreateSmartPlan}
-            className="group relative px-6 py-3 bg-[var(--accent-color)] text-white rounded-2xl font-black text-xs flex items-center gap-3 transition-all shadow-xl shadow-[var(--accent-muted)] hover:scale-105 active:scale-95 overflow-hidden"
+            className="group relative px-4 py-2.5 bg-[var(--accent-color)] text-white rounded-xl font-black text-[10px] flex items-center gap-2 transition-all shadow-lg shadow-[var(--accent-muted)] hover:scale-105 active:scale-95 overflow-hidden"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <span className="relative flex items-center gap-2">
@@ -350,10 +350,10 @@ export const ResultDashboard: FC<Props> = ({
       </div>
 
       {/* Main Interactive Dashboard (Screen View) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Chart & Summary */}
-        <div className="bg-[var(--bg-paper)] p-8 rounded-[2.5rem] border border-[var(--border-color)] shadow-sm flex flex-col items-center justify-center min-h-[400px]">
-          <h4 className="font-bold text-[var(--text-muted)] uppercase tracking-widest mb-6 text-sm">
+        <div className="bg-[var(--bg-paper)] p-5 rounded-2xl border border-[var(--border-color)] shadow-sm flex flex-col items-center justify-center min-h-[320px]">
+          <h4 className="font-bold text-[var(--text-muted)] uppercase tracking-widest mb-4 text-[10px]">
             Bilişsel Risk Haritası
           </h4>
           <RadarChart data={chartData} />
@@ -364,17 +364,17 @@ export const ResultDashboard: FC<Props> = ({
           {Object.entries(result.categoryScores).map(([cat, data]) => (
             <div
               key={cat}
-              className={`p-5 rounded-2xl border-l-8 ${(data as any).color === 'red' ? 'border-rose-500' : (data as any).color === 'yellow' ? 'border-amber-500' : 'border-emerald-500'} bg-[var(--bg-paper)] border border-[var(--border-color)] shadow-sm flex justify-between items-center transition-transform hover:scale-[1.01]`}
+              className={`p-4 rounded-xl border-l-4 ${data.color === 'red' ? 'border-rose-500' : data.color === 'yellow' ? 'border-amber-500' : 'border-emerald-500'} bg-[var(--bg-paper)] border border-[var(--border-color)] shadow-sm flex justify-between items-center transition-transform hover:scale-[1.01]`}
             >
               <div>
-                <h4 className="font-bold text-[var(--text-primary)]">{CATEGORY_LABELS[cat]}</h4>
-                <p className="text-xs text-[var(--text-muted)] mt-1">{(data as any).riskLabel}</p>
+                <h4 className="font-bold text-sm text-[var(--text-primary)]">{CATEGORY_LABELS[cat]}</h4>
+                <p className="text-[10px] text-[var(--text-muted)] mt-0.5">{data.riskLabel}</p>
               </div>
               <div className="text-right">
                 <span
-                  className={`text-2xl font-black ${(data as any).score > 50 ? 'text-rose-500' : 'text-emerald-500'}`}
+                  className={`text-xl font-black ${data.score > 50 ? 'text-rose-500' : 'text-emerald-500'}`}
                 >
-                  %{(data as any).score}
+                  %{data.score}
                 </span>
               </div>
             </div>
@@ -383,12 +383,12 @@ export const ResultDashboard: FC<Props> = ({
       </div>
 
       {/* AI Analysis Section */}
-      <div className="bg-[var(--accent-muted)] p-8 rounded-[2.5rem] border border-[var(--accent-color)]/20 relative overflow-hidden">
+      <div className="bg-[var(--accent-muted)] p-5 rounded-2xl border border-[var(--accent-color)]/20 relative overflow-hidden">
         <div className="absolute top-0 right-0 p-6 opacity-5 rotate-12">
           <i className="fa-solid fa-wand-magic-sparkles text-9xl text-[var(--accent-color)]"></i>
         </div>
 
-        <h3 className="text-lg font-black text-[var(--accent-color)] mb-6 flex items-center gap-2">
+        <h3 className="text-sm font-black text-[var(--accent-color)] mb-4 flex items-center gap-2">
           <i className="fa-solid fa-robot"></i> Uzman Görüşü (AI)
         </h3>
 
@@ -398,18 +398,18 @@ export const ResultDashboard: FC<Props> = ({
             <p className="animate-pulse font-bold">Veriler analiz ediliyor ve rapor yazılıyor...</p>
           </div>
         ) : aiAnalysis ? (
-          <div className="space-y-6 relative z-10">
-            <div className="prose prose-indigo max-w-none text-[var(--text-primary)] leading-relaxed bg-[var(--bg-paper)]/50 p-6 rounded-2xl border border-[var(--border-color)] shadow-sm">
-              {typeof (aiAnalysis as any).letter === 'string'
-                ? (aiAnalysis as any).letter
-                : JSON.stringify((aiAnalysis as any).letter)}
+          <div className="space-y-4 relative z-10">
+            <div className="prose prose-indigo max-w-none text-sm text-[var(--text-primary)] leading-relaxed bg-[var(--bg-paper)]/50 p-4 rounded-xl border border-[var(--border-color)] shadow-sm">
+              {typeof aiAnalysis.letter === 'string'
+                ? aiAnalysis.letter
+                : JSON.stringify(aiAnalysis.letter)}
             </div>
 
-            <h4 className="font-black text-xs text-[var(--accent-color)] uppercase tracking-widest mt-4">
+            <h4 className="font-black text-[10px] text-[var(--accent-color)] uppercase tracking-widest mt-3">
               Ev & Okul İçin Öneriler
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {(aiAnalysis as any).actionSteps?.map((step: string, i: number) => (
+              {aiAnalysis.actionSteps?.map((step: unknown, i: number) => (
                 <div
                   key={i}
                   className="bg-[var(--bg-paper)] p-4 rounded-xl border border-[var(--border-color)] shadow-sm flex gap-3"
@@ -417,7 +417,7 @@ export const ResultDashboard: FC<Props> = ({
                   <div className="w-6 h-6 bg-[var(--accent-color)] text-white rounded-full flex items-center justify-center font-bold text-xs shrink-0">
                     {i + 1}
                   </div>
-                  <p className="text-sm font-bold text-[var(--text-primary)]">{renderActionStep(step)}</p>
+                  <p className="text-xs font-bold text-[var(--text-primary)]">{renderActionStep(step)}</p>
                 </div>
               ))}
             </div>

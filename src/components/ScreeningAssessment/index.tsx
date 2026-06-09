@@ -189,7 +189,7 @@ const ScreeningFormWrapper: React.FC<{
   onResult?: (result: ScreeningResult) => void;
   onGeneratePlan?: (studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => void;
 }> = ({ onComplete, onBack, onResult, onGeneratePlan }) => {
-  const { selectedStudentName, selectedStudentId } = useScreeningStore();
+  const { selectedStudentName, selectedStudentId, selectedStudentAge, selectedStudentGrade } = useScreeningStore();
 
   const handleResult = (result: ScreeningResult) => {
     if (selectedStudentId) {
@@ -209,8 +209,8 @@ const ScreeningFormWrapper: React.FC<{
       <ScreeningModule
         initialProfile={{
           studentName: selectedStudentName,
-          age: 7,
-          grade: '1. Sınıf',
+          age: selectedStudentAge,
+          grade: selectedStudentGrade,
           respondent: 'teacher',
         }}
         onBack={onBack}

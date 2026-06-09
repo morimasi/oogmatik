@@ -33,6 +33,8 @@ export interface ScreeningState {
   selectedScreeningType: ScreeningType;
   selectedStudentName: string;
   selectedStudentId: string | null;
+  selectedStudentAge: number;
+  selectedStudentGrade: string;
   isAdvancedScreeningOpen: boolean;
   isSaving: boolean;
   isLoading: boolean;
@@ -47,6 +49,8 @@ export interface ScreeningActions {
   setSelectedScreeningType: (type: ScreeningType) => void;
   setSelectedStudentName: (name: string) => void;
   setSelectedStudentId: (id: string | null) => void;
+  setSelectedStudentAge: (age: number) => void;
+  setSelectedStudentGrade: (grade: string) => void;
   setSelectedStudents: (students: string[]) => void;
   setIsSaving: (saving: boolean) => void;
   setIsLoading: (loading: boolean) => void;

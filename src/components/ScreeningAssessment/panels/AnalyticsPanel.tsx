@@ -3,6 +3,12 @@ import { useScreeningAnalytics } from '../hooks/useScreeningAnalytics';
 import { CATEGORY_LABELS } from '../../../data/screeningQuestions';
 import type { EvaluationCategory } from '../../../types/screening';
 
+const RISK_COLOR_MAP: Record<string, { text: string; bg: string }> = {
+  emerald: { text: 'text-emerald-500', bg: 'bg-emerald-500' },
+  amber:   { text: 'text-amber-500',   bg: 'bg-amber-500' },
+  rose:    { text: 'text-rose-500',    bg: 'bg-rose-500' },
+};
+
 export const AnalyticsPanel: React.FC = () => {
   const { analytics, categoryChartData, riskDistributionData, monthlyTrendData, hasData } =
     useScreeningAnalytics();
@@ -33,7 +39,7 @@ export const AnalyticsPanel: React.FC = () => {
                   <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
                     {item.name}
                   </span>
-                  <span className={`text-xs font-black text-${item.color}-500`}>
+                  <span className={`text-xs font-black ${RISK_COLOR_MAP[item.color]?.text ?? 'text-zinc-500'}`}>
                     {item.value} (%{item.percentage})
                   </span>
                 </div>
@@ -42,7 +48,7 @@ export const AnalyticsPanel: React.FC = () => {
                     initial={{ width: 0 }}
                     animate={{ width: `${item.percentage}%` }}
                     transition={{ duration: 1, ease: 'easeOut' }}
-                    className={`h-full rounded-full bg-${item.color}-500`}
+                    className={`h-full rounded-full ${RISK_COLOR_MAP[item.color]?.bg ?? 'bg-zinc-500'}`}
                   />
                 </div>
               </div>
