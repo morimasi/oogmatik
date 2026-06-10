@@ -144,6 +144,7 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
                   {activeView === 'result-detail' && (
                     <ResultDetailPanel
                       onGeneratePlan={handleGeneratePlanWithAutoSave}
+                      onAddToWorkbook={onAddToWorkbook}
                     />
                   )}
                 </motion.div>

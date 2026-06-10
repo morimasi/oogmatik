@@ -6,6 +6,7 @@ import { useAuthStore } from '../../../store/useAuthStore';
 import { useToastStore } from '../../../store/useToastStore';
 import { printService } from '../../../utils/printService';
 import type { ScreeningResult, EvaluationCategory } from '../../../types/screening';
+import type { ClinicalObservation } from '../../../types';
 import type { SharePermission } from '../../../services/profileShareService';
 
 interface UseScreeningAssessmentOptions {
@@ -13,6 +14,13 @@ interface UseScreeningAssessmentOptions {
 }
 
 const mapScreeningToSavedAssessment = (screening: ScreeningResult) => {
+  const observations: ClinicalObservation = {
+    anxietyLevel: 'medium',
+    attentionSpan: 'focused',
+    motorSkills: 'typical',
+    notes: `Tarama raporu: ${screening.studentName}`,
+  };
+
   return {
     id: screening.id,
     userId: screening.studentId || 'unknown',
@@ -39,12 +47,7 @@ const mapScreeningToSavedAssessment = (screening: ScreeningResult) => {
         errorAnalysis: Object.values(screening.categoryScores).flatMap((score) => score.findings),
       },
       roadmap: [],
-      observations: {
-        anxietyLevel: 'medium',
-        attentionSpan: 'average',
-        motorSkills: 'typical',
-        notes: `Tarama raporu: ${screening.studentName}`,
-      },
+      observations,
     },
   };
 };
@@ -52,7 +55,7 @@ const mapScreeningToSavedAssessment = (screening: ScreeningResult) => {
 export function useScreeningAssessment(options?: UseScreeningAssessmentOptions) {
   const store = useScreeningStore();
   const { user } = useAuthStore();
-  const { addToast } = useToastStore();
+  const toast = useToastStore();
 
   useEffect(() => {
     screeningDataService.getUserScreeningsFromFirestore().then((data) => {
@@ -71,7 +74,7 @@ export function useScreeningAssessment(options?: UseScreeningAssessmentOptions) 
 
   const handleStartScreening = useCallback(() => {
     if (!store.selectedStudentName.trim()) {
-      addToast('Lütfen öğrenci adı girin.', 'error');
+      toast.error('Lütfen öğrenci adı girin.');
       return;
     }
     store.setActiveView('assessment');
@@ -88,32 +91,32 @@ export function useScreeningAssessment(options?: UseScreeningAssessmentOptions) 
 
   const handleArchiveScreening = useCallback((id: string) => {
     store.archiveScreening(id);
-    addToast('Tarama arşive taşındı.', 'success');
+    toast.success('Tarama arşive taşındı.');
   }, []);
 
   const handleDeleteScreening = useCallback((id: string) => {
     store.deleteScreening(id);
-    addToast('Tarama silindi.', 'success');
+    toast.success('Tarama silindi.');
   }, []);
 
   const handleShareResults = useCallback((id: string) => {
     const url = `${window.location.origin}/screening/${id}`;
     navigator.clipboard.writeText(url).then(() => {
-      addToast('Paylaşım bağlantısı panoya kopyalandı.', 'success');
+      toast.success('Paylaşım bağlantısı panoya kopyalandı.');
     }).catch(() => {
-      addToast('Paylaşım bağlantısı kopyalanamadı.', 'error');
+      toast.error('Paylaşım bağlantısı kopyalanamadı.');
     });
-  }, [addToast]);
+  }, [toast]);
 
   const handleShareScreeningResult = useCallback(
     async (screeningId: string, receiverIds: string[], permission?: SharePermission, message?: string) => {
       const screening = store.screeningData.find((item) => item.id === screeningId) || store.currentScreening;
       if (!screening) {
-        addToast('Paylaşılacak tarama sonucu bulunamadı.', 'error');
+        toast.error('Paylaşılacak tarama sonucu bulunamadı.');
         return;
       }
       if (!user) {
-        addToast('Paylaşmak için oturum açmanız gerekiyor.', 'error');
+        toast.error('Paylaşmak için oturum açmanız gerekiyor.');
         return;
       }
       try {
@@ -123,22 +126,22 @@ export function useScreeningAssessment(options?: UseScreeningAssessmentOptions) 
             assessmentService.shareAssessment(assessment, user.id, user.name, receiverId, permission, message)
           )
         );
-        addToast('Tarama raporu başarıyla paylaşıldı.', 'success');
+        toast.success('Tarama raporu başarıyla paylaşıldı.');
       } catch (error) {
-        addToast('Tarama paylaşımı sırasında hata oluştu.', 'error');
+        toast.error('Tarama paylaşımı sırasında hata oluştu.');
       }
     },
-    [store.screeningData, store.currentScreening, user, addToast]
+    [store.screeningData, store.currentScreening, user, toast]
   );
 
   const handleDownloadReport = useCallback(async (data: ScreeningResult) => {
     try {
-      addToast('Rapor hazırlanıyor...', 'info');
+      toast.info('Rapor hazırlanıyor...');
       await printService.generatePdf('#printable-report', `Disleksi_Tarama_${data.studentName}`, { action: 'download' });
     } catch {
       window.print();
     }
-  }, [addToast]);
+  }, [toast]);
 
   const handlePrintReport = useCallback(() => {
     window.print();
@@ -147,12 +150,12 @@ export function useScreeningAssessment(options?: UseScreeningAssessmentOptions) 
   const handleAddToWorkbook = useCallback((data: ScreeningResult) => {
     if (options?.onAddToWorkbook) {
       options.onAddToWorkbook(data);
-      addToast(`${data.studentName} sonuçları çalışma kitabına eklendi.`, 'success');
+      toast.success(`${data.studentName} sonuçları çalışma kitabına eklendi.`);
       return;
     }
 
-    addToast('Çalışma kitabına ekleme yapılamadı.', 'error');
-  }, [options, addToast]);
+    toast.error('Çalışma kitabına ekleme yapılamadı.');
+  }, [options, toast]);
 
   const getScoreColor = (score: number): string => {
     if (score >= 70) return 'text-emerald-500';
@@ -179,8 +182,8 @@ export function useScreeningAssessment(options?: UseScreeningAssessmentOptions) 
   };
 
   const handleGeneratePlan = useCallback((studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => {
-    addToast('Eğitim planı oluşturuluyor...', 'info');
-  }, []);
+    toast.info('Eğitim planı oluşturuluyor...');
+  }, [toast]);
 
   const handleOpenScreeningDetail = useCallback((screening: ScreeningResult) => {
     store.setCurrentScreening(screening);
