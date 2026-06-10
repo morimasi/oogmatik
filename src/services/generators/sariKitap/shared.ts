@@ -243,14 +243,25 @@ export function getPromptBuilder(type: SariKitapActivityType): PromptBuilderFn {
   return PROMPT_BUILDERS[type];
 }
 
-export function getSariKitapPromptTopic(options: Record<string, unknown> | { topic?: string }): string {
-  const maybeTopics = options.topics;
+type SariKitapPromptOptions = {
+  topics?: unknown;
+  topic?: unknown;
+};
+
+export function getSariKitapPromptTopic(options: unknown): string {
+  if (typeof options !== 'object' || options === null) {
+    return 'Genel';
+  }
+
+  const payload = options as SariKitapPromptOptions;
+  const maybeTopics = payload.topics;
   if (Array.isArray(maybeTopics) && maybeTopics.length > 0) {
     return maybeTopics.join(', ');
   }
 
-  if (typeof options.topic === 'string' && options.topic.trim()) {
-    return options.topic.trim();
+  const maybeTopic = payload.topic;
+  if (typeof maybeTopic === 'string' && maybeTopic.trim()) {
+    return maybeTopic.trim();
   }
 
   return 'Genel';
