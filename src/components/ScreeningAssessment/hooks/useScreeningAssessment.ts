@@ -1,13 +1,57 @@
 import { useEffect, useCallback } from 'react';
 import { useScreeningStore } from '../store/useScreeningStore';
 import { screeningDataService } from '../services/screeningDataService';
+import { assessmentService } from '../../../services/assessmentService';
+import { useAuthStore } from '../../../store/useAuthStore';
 import { useToastStore } from '../../../store/useToastStore';
 import { printService } from '../../../utils/printService';
 import type { ScreeningResult, EvaluationCategory } from '../../../types/screening';
-import type { ScreeningType } from '../types';
+import type { SharePermission } from '../../../services/profileShareService';
 
-export function useScreeningAssessment() {
+interface UseScreeningAssessmentOptions {
+  onAddToWorkbook?: (data: ScreeningResult) => void;
+}
+
+const mapScreeningToSavedAssessment = (screening: ScreeningResult) => {
+  return {
+    id: screening.id,
+    userId: screening.studentId || 'unknown',
+    studentId: screening.studentId,
+    studentName: screening.studentName,
+    gender: 'Kız' as const,
+    age: screening.age,
+    grade: screening.grade,
+    createdAt: new Date().toISOString(),
+    report: {
+      overallSummary: screening.aiAnalysis || 'Tarama sonuçları kaydedildi.',
+      scores: Object.entries(screening.categoryScores).reduce(
+        (acc, [key, value]) => ({ ...acc, [key]: value.score }),
+        {} as Record<string, number>
+      ),
+      chartData: Object.entries(screening.categoryScores).map(([key, value]) => ({
+        label: key,
+        value: value.score,
+        fullMark: 100,
+      })),
+      analysis: {
+        strengths: screening.strengths || [],
+        weaknesses: screening.weaknesses || [],
+        errorAnalysis: Object.values(screening.categoryScores).flatMap((score) => score.findings),
+      },
+      roadmap: [],
+      observations: {
+        anxietyLevel: 'medium',
+        attentionSpan: 'average',
+        motorSkills: 'typical',
+        notes: `Tarama raporu: ${screening.studentName}`,
+      },
+    },
+  };
+};
+
+export function useScreeningAssessment(options?: UseScreeningAssessmentOptions) {
   const store = useScreeningStore();
+  const { user } = useAuthStore();
   const { addToast } = useToastStore();
 
   useEffect(() => {
@@ -59,25 +103,56 @@ export function useScreeningAssessment() {
     }).catch(() => {
       addToast('Paylaşım bağlantısı kopyalanamadı.', 'error');
     });
-  }, []);
+  }, [addToast]);
+
+  const handleShareScreeningResult = useCallback(
+    async (screeningId: string, receiverIds: string[], permission?: SharePermission, message?: string) => {
+      const screening = store.screeningData.find((item) => item.id === screeningId) || store.currentScreening;
+      if (!screening) {
+        addToast('Paylaşılacak tarama sonucu bulunamadı.', 'error');
+        return;
+      }
+      if (!user) {
+        addToast('Paylaşmak için oturum açmanız gerekiyor.', 'error');
+        return;
+      }
+      try {
+        const assessment = mapScreeningToSavedAssessment(screening);
+        await Promise.all(
+          receiverIds.map((receiverId) =>
+            assessmentService.shareAssessment(assessment, user.id, user.name, receiverId, permission, message)
+          )
+        );
+        addToast('Tarama raporu başarıyla paylaşıldı.', 'success');
+      } catch (error) {
+        addToast('Tarama paylaşımı sırasında hata oluştu.', 'error');
+      }
+    },
+    [store.screeningData, store.currentScreening, user, addToast]
+  );
 
   const handleDownloadReport = useCallback(async (data: ScreeningResult) => {
     try {
       addToast('Rapor hazırlanıyor...', 'info');
       await printService.generatePdf('#printable-report', `Disleksi_Tarama_${data.studentName}`, { action: 'download' });
     } catch {
-      // Fallback: open print dialog
       window.print();
     }
-  }, []);
+  }, [addToast]);
 
   const handlePrintReport = useCallback(() => {
     window.print();
   }, []);
 
   const handleAddToWorkbook = useCallback((data: ScreeningResult) => {
-    addToast(`${data.studentName} sonuçları çalışma kitabına eklendi.`, 'success');
-  }, []);
+    if (options?.onAddToWorkbook) {
+      options.onAddToWorkbook(data);
+      addToast(`${data.studentName} sonuçları çalışma kitabına eklendi.`, 'success');
+      return;
+    }
+
+    addToast('Çalışma kitabına ekleme yapılamadı.', 'error');
+  }, [options, addToast]);
 
   const getScoreColor = (score: number): string => {
     if (score >= 70) return 'text-emerald-500';
@@ -120,6 +195,7 @@ export function useScreeningAssessment() {
     handleArchiveScreening,
     handleDeleteScreening,
     handleShareResults,
+    handleShareScreeningResult,
     handleDownloadReport,
     handlePrintReport,
     handleAddToWorkbook,

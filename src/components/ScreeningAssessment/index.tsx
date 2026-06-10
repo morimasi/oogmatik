@@ -25,6 +25,7 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
   onClose,
   userRole,
   onGeneratePlan,
+  onAddToWorkbook,
 }) => {
   const { activeView, setActiveView, setIsAdvancedScreeningOpen, setScreeningData, setCurrentScreening } = useScreeningStore();
   const { currentScreening, handleSaveScreening, handleDownloadReport, handlePrintReport, handleShareResults, handleShareScreeningResult, handleAddToWorkbook } =
@@ -160,6 +161,7 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
                 onBack={() => setActiveView('new-screening')}
                 onResult={handleResultReady}
                 onGeneratePlan={handleGeneratePlanWithAutoSave}
+                onAddToWorkbook={onAddToWorkbook}
               />
             </div>
           </div>
@@ -189,7 +191,8 @@ const ScreeningFormWrapper: React.FC<{
   onBack: () => void;
   onResult?: (result: ScreeningResult) => void;
   onGeneratePlan?: (studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => void;
-}> = ({ onComplete, onBack, onResult, onGeneratePlan }) => {
+  onAddToWorkbook?: (item: any) => void;
+}> = ({ onComplete, onBack, onResult, onGeneratePlan, onAddToWorkbook }) => {
   const { selectedStudentName, selectedStudentId, selectedStudentAge, selectedStudentGrade } = useScreeningStore();
 
   const handleResult = (result: ScreeningResult) => {
@@ -216,7 +219,7 @@ const ScreeningFormWrapper: React.FC<{
         }}
         onBack={onBack}
         onSelectActivity={() => {}}
-        onAddToWorkbook={() => {}}
+        onAddToWorkbook={onAddToWorkbook}
         onResult={handleResult}
         onGeneratePlan={onGeneratePlan || (() => {})}
       />

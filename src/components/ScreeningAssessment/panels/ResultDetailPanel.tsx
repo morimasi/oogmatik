@@ -13,9 +13,10 @@ import { ShareModal } from '../../ShareModal';
 
 interface ResultDetailPanelProps {
   onGeneratePlan?: (studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => void;
+  onAddToWorkbook?: (data: any) => void;
 }
 
-export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGeneratePlan }) => {
+export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGeneratePlan, onAddToWorkbook }) => {
   const {
     currentScreening,
     setActiveView,
@@ -27,7 +28,7 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
     handleAddToWorkbook,
     isSaving,
     getScoreColor,
-  } = useScreeningAssessment();
+  } = useScreeningAssessment({ onAddToWorkbook });
 
   const [aiAnalysis, setAiAnalysis] = useState<AIAnalysisResult | null>(null);
   const [loadingAi, setLoadingAi] = useState(false);

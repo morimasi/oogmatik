@@ -919,6 +919,7 @@ const AppContent = () => {
           onClose={() => setIsAdvancedScreeningOpen(false)}
           userRole={user?.role || 'teacher'}
           onGeneratePlan={handleGeneratePlanFromScreening}
+          onAddToWorkbook={handleAddToWorkbook}
         />
       )}
     </div>
