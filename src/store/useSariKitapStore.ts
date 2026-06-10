@@ -1,4 +1,4 @@
-import { create, SetState } from 'zustand';
+import { create } from 'zustand';
 import type {
   SariKitapConfig,
   SariKitapActivityType,
@@ -17,7 +17,7 @@ const DEFAULT_TYPOGRAPHY: SariKitapBaseConfig['typography'] = {
 const createDefaultConfig = (type: SariKitapActivityType): SariKitapConfig => {
   const base: SariKitapBaseConfig = {
     ageGroup: '8-10',
-    difficulty: 'Orta',
+    difficulty: 'Başlangıç',
     profile: 'dyslexia',
     durationMins: 20,
     topics: ['BursaDisleksi Hızlı Okuma'],
@@ -127,11 +127,12 @@ interface SariKitapState {
   setError: (error: string | null) => void;
   setPreviewScale: (scale: number) => void;
   toggleGrid: () => void;
+  resetStudio: () => void;
 }
 
-export const useSariKitapStore = create<SariKitapState>((set: SetState<SariKitapState>) => ({
-  activeType: 'nokta',
-  config: createDefaultConfig('nokta'),
+export const useSariKitapStore = create<SariKitapState>()((set) => ({
+  activeType: 'pencere',
+  config: createDefaultConfig('pencere'),
   isGenerating: false,
   generationMode: 'ai',
   generatedContent: null,
@@ -165,9 +166,21 @@ export const useSariKitapStore = create<SariKitapState>((set: SetState<SariKitap
 
   setError: (error: string | null) => set({ error }),
 
-  setPreviewScale: (scale: number) => set({ previewScale: scale }),
+  setPreviewScale: (scale: number) => set({ previewScale: Math.min(1.5, Math.max(0.3, scale)) }),
 
   toggleGrid: () => set((state: SariKitapState) => ({ showGrid: !state.showGrid })),
+
+  resetStudio: () => set({
+    activeType: 'pencere',
+    config: createDefaultConfig('pencere'),
+    isGenerating: false,
+    generationMode: 'ai',
+    generatedContent: null,
+    error: null,
+    previewScale: 1,
+    showGrid: false,
+    recentGenerations: [],
+  }),
 }));
 
 // Export createDefaultConfig for test compatibility

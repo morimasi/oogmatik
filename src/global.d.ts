@@ -1,7 +1,3 @@
-declare module 'zustand' {
-    export function create<_T>(...args: any[]): any;
-}
-
 declare module '@vercel/node' {
     export type VercelRequest = any;
     export type VercelResponse = any;
