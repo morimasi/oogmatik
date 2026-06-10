@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create, SetState, GetState } from 'zustand';
 import { Student } from '../types';
 import { db } from '../services/firebaseClient';
 import {
@@ -54,7 +54,7 @@ const sanitizeBaseStudent = (data: unknown): Partial<Student> => {
   };
 };
 
-export const useStudentStore = create<StudentState>()((set: any, get: any) => ({
+export const useStudentStore = create<StudentState>()((set: SetState<StudentState>, get: GetState<StudentState>) => ({
   students: [],
   activeStudent: null,
   isLoading: false,
