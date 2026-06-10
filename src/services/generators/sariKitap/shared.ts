@@ -242,3 +242,16 @@ const PROMPT_BUILDERS: Record<SariKitapActivityType, PromptBuilderFn> = {
 export function getPromptBuilder(type: SariKitapActivityType): PromptBuilderFn {
   return PROMPT_BUILDERS[type];
 }
+
+export function getSariKitapPromptTopic(options: Record<string, unknown> | { topic?: string }): string {
+  const maybeTopics = options.topics;
+  if (Array.isArray(maybeTopics) && maybeTopics.length > 0) {
+    return maybeTopics.join(', ');
+  }
+
+  if (typeof options.topic === 'string' && options.topic.trim()) {
+    return options.topic.trim();
+  }
+
+  return 'Genel';
+}

@@ -5,21 +5,36 @@
 
 import { generateWithSchema } from '../../geminiClient.js';
 import { GeneratorOptions } from '../../../types.js';
+import { getSariKitapPromptTopic } from './shared';
 
 export const generateHizliOkumaFromAI = async (options: GeneratorOptions): Promise<any[]> => {
-    const { topic, difficulty, worksheetCount, ageGroup, customSettings } = options as Record<string, unknown>;
-    
+    const {
+      difficulty,
+      worksheetCount,
+      ageGroup,
+      wordsPerBlock,
+      blockRows,
+      showTimer,
+      rhythmicMode,
+      autoFill,
+      columnMode,
+      lineSpacing,
+    } = options as Record<string, unknown>;
+    const topic = getSariKitapPromptTopic(options as Record<string, unknown>);
+
     // UNIQUE CONTENT GENERATION
     const generationSeed = Date.now() + Math.random();
     
-    // Premium settings
-    const settings = customSettings as unknown as any || {};
-    const columnMode = settings.columnMode || 'tek';
-    const lineSpacing = settings.lineSpacing || 'orta';
-    const rhythmicMode = settings.rhythmicMode !== false;
-    
+    const effectiveColumnMode = typeof columnMode === 'string' ? columnMode : 'tek';
+    const effectiveLineSpacing = typeof lineSpacing === 'string' ? lineSpacing : 'normal';
+    const effectiveRhythmicMode = rhythmicMode !== false;
+    const effectiveWordsPerBlock = typeof wordsPerBlock === 'number' ? wordsPerBlock : 3;
+    const effectiveBlockRows = typeof blockRows === 'number' ? blockRows : 30;
+    const effectiveAutoFill = autoFill !== false;
+    const effectiveShowTimer = showTimer !== false;
+
     const prompt = `
-    "${difficulty}" seviyesinde, "${topic || 'genel'}" temalı HIZLI OKUMA materyali üret.
+    "${difficulty || 'Orta'}" seviyesinde, "${topic}" temalı HIZLI OKUMA materyali üret.
     
     ⚠️ KRİTİK: HER ÜRETİMDE BENZERSİZ İÇERİK!
     - Rastgelelik tohumu: ${generationSeed}
@@ -27,9 +42,18 @@ export const generateHizliOkumaFromAI = async (options: GeneratorOptions): Promi
     - Yaş grubu: ${ageGroup || '8-10 yaş'}
     
     HIZLI OKUMA NEDİR?
-    - Kelimeler satır satır gösterilir
+    - Kelimeler blok halinde seriyal gösterilir
     - Öğrenci hızlıca okumaya çalışır
     - Görsel tarama ve kelime tanıma becerilerini geliştirir
+    
+    🎯 SETİNGLER:
+    - Satır başına kelime: ${effectiveWordsPerBlock}
+    - Satır sayısı: ${effectiveBlockRows}
+    - Sütun modu: ${effectiveColumnMode === 'cift' ? 'Çift sütun' : 'Tek sütun'}
+    - Satır aralığı: ${effectiveLineSpacing}
+    - Zamanlayıcı: ${effectiveShowTimer ? 'Göster' : 'Gizle'}
+    - Ritmik mod: ${effectiveRhythmicMode ? 'Aktif' : 'Pasif'}
+    - Otomatik doldurma: ${effectiveAutoFill ? 'Açık' : 'Kapalı'}
     
     🎯 ZORLUK SEVİYELERİ:
     - easy (Kolay): 2-3 kelimeli satırlar, kısa kelimeler
@@ -41,15 +65,16 @@ export const generateHizliOkumaFromAI = async (options: GeneratorOptions): Promi
     1. Başlık: Konuyla ilgili kısa, ilgi çekici başlık
     2. Yönerge: "Satır satır ilerleyerek kelimeleri olabildiğince hızlı okuyun."
     3. Kelime blokları: 
-       - Her satırda 2-6 kelime (zorluğa göre)
-       - Toplam 20-40 satır
+       - Her satırda ${effectiveWordsPerBlock} kelime
+       - Toplam ${effectiveBlockRows} satır
        - Kelimeler yaş grubuna uygun olmalı
        - Anlamlı cümleler oluşturmalı (her satır kendi içinde anlamlı olabilir)
     
     🎨 GÖRSEL AYARLAR:
-    - Sütun Modu: ${columnMode === 'cift' ? 'Çift sütun (20 satır x 2)' : 'Tek sütun (30-40 satır)'}
-    - Satır Aralığı: ${lineSpacing}
-    - Ritmik Mod: ${rhythmicMode ? 'Aktif (her 2. satır farklı arka plan)' : 'Pasif'}
+    - Sütun Modu: ${effectiveColumnMode === 'cift' ? 'Çift sütun (20 satır x 2)' : 'Tek sütun (30-40 satır)'}
+    - Satır Aralığı: ${effectiveLineSpacing}
+    - Ritmik Mod: ${effectiveRhythmicMode ? 'Aktif (her 2. satır farklı arka plan)' : 'Pasif'}
+    - Otomatik Doldurma: ${effectiveAutoFill ? 'Açık' : 'Kapalı'}
     
     ${worksheetCount || 1} adet üret.
     `;

@@ -5,9 +5,11 @@
 
 import { generateWithSchema } from '../../geminiClient.js';
 import { GeneratorOptions } from '../../../types.js';
+import { getSariKitapPromptTopic } from './shared';
 
 export const generateNoktaFromAI = async (options: GeneratorOptions): Promise<any[]> => {
-    const { topic, difficulty, worksheetCount, ageGroup } = options;
+    const { difficulty, worksheetCount, ageGroup } = options;
+    const topic = getSariKitapPromptTopic(options as Record<string, unknown>);
     
     // UNIQUE CONTENT GENERATION
     const generationSeed = Date.now() + Math.random();

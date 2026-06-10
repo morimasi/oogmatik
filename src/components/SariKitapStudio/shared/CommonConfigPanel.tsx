@@ -85,7 +85,7 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = React.memo(
                                 <label className="sk-label">Konu</label>
                                 <select
                                     className="sk-select"
-                                    value={config.topics[0] ?? 'Doğa'}
+                                    value={config.topics[0] ?? TOPICS[0]}
                                     onChange={(e) => onUpdate?.({ topics: [e.target.value] })}
                                 >
                                     {TOPICS.map((t) => (
