@@ -23,6 +23,7 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
     handleDownloadReport,
     handlePrintReport,
     handleShareResults,
+    handleShareScreeningResult,
     handleAddToWorkbook,
     isSaving,
     getScoreColor,
@@ -237,12 +238,53 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
       <ShareModal
         isOpen={isSharing}
         onClose={() => setIsSharing(false)}
-        onShare={() => {
-          handleShareResults(currentScreening.id);
+        onShare={async (receiverIds, permission, message) => {
+          await handleShareScreeningResult(currentScreening.id, receiverIds, permission, message);
           setIsSharing(false);
         }}
         worksheetTitle={`Tarama Raporu: ${currentScreening.studentName}`}
       />
+
+      <div id="printable-report" className="hidden" aria-hidden="true">
+        <div className="print-page bg-white text-black p-8 font-sans" style={{ width: '210mm', minHeight: '297mm' }}>
+          <header className="mb-8">
+            <h1 className="text-3xl font-black uppercase">Tarama Sonuç Raporu</h1>
+            <p className="text-sm text-zinc-500 mt-2">{currentScreening.studentName} · {new Date(currentScreening.generatedAt).toLocaleDateString('tr-TR')}</p>
+          </header>
+          <section className="mb-6">
+            <h2 className="text-lg font-bold mb-2">Genel Değerlendirme</h2>
+            <p className="text-sm leading-relaxed text-zinc-700">Bu rapor, öğrenciye ait tarama sonuçlarının özetini ve önerileri içerir. Klinik tanı yerine geçmez.</p>
+          </section>
+          <section className="mb-6">
+            <h3 className="text-base font-bold mb-3">Özet Skorlar</h3>
+            <table className="w-full text-sm border-collapse border border-zinc-300">
+              <thead>
+                <tr className="bg-zinc-100">
+                  <th className="p-3 text-left">Alan</th>
+                  <th className="p-3 text-right">Risk</th>
+                  <th className="p-3 text-right">Skor</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(Object.keys(currentScreening.categoryScores) as EvaluationCategory[]).map((category) => {
+                  const score = currentScreening.categoryScores[category];
+                  return (
+                    <tr key={category} className="border-t border-zinc-200">
+                      <td className="p-3 text-left font-bold">{CATEGORY_LABELS[category] || category}</td>
+                      <td className="p-3 text-right">{score.riskLabel}</td>
+                      <td className="p-3 text-right">%{score.score}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </section>
+          <section>
+            <h3 className="text-base font-bold mb-3">AI Analiz Özeti</h3>
+            <p className="text-sm leading-relaxed text-zinc-700">{aiAnalysis?.letter || 'AI analizi henüz hazır değil.'}</p>
+          </section>
+        </div>
+      </div>
     </div>
   );
 };

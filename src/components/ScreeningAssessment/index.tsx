@@ -18,6 +18,7 @@ interface ScreeningAssessmentProps {
   userRole: 'teacher' | 'admin' | 'parent';
   studentId?: string;
   onGeneratePlan?: (studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => void;
+  onAddToWorkbook?: (data: ScreeningResult) => void;
 }
 
 export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
@@ -26,8 +27,8 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
   onGeneratePlan,
 }) => {
   const { activeView, setActiveView, setIsAdvancedScreeningOpen, setScreeningData, setCurrentScreening } = useScreeningStore();
-  const { currentScreening, handleSaveScreening, handleDownloadReport, handlePrintReport, handleShareResults, handleAddToWorkbook } =
-    useScreeningAssessment();
+  const { currentScreening, handleSaveScreening, handleDownloadReport, handlePrintReport, handleShareResults, handleShareScreeningResult, handleAddToWorkbook } =
+    useScreeningAssessment({ onAddToWorkbook });
 
   useEffect(() => {
     setIsAdvancedScreeningOpen(true);

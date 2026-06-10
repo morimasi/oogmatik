@@ -109,7 +109,7 @@ export const assessmentService = {
         await deleteDoc(ref);
     },
 
-    shareAssessment: async (assessment: SavedAssessment, senderId: string, senderName: string, receiverId: string): Promise<void> => {
+    shareAssessment: async (assessment: SavedAssessment, senderId: string, senderName: string, receiverId: string, permission?: SharePermission, message?: string): Promise<void> => {
         const payload = {
             userId: senderId,
             studentName: assessment.studentName,
@@ -120,6 +120,8 @@ export const assessmentService = {
             sharedBy: senderId,
             sharedByName: senderName || 'Anonim',
             sharedWith: receiverId,
+            permission: permission || 'view',
+            message: message || '',
             createdAt: new Date().toISOString()
         };
         await addDoc(collection(db, "saved_assessments"), payload);

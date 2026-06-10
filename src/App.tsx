@@ -20,6 +20,7 @@ import {
   AssessmentReport,
   GeneratorOptions,
   SavedAssessment,
+  ScreeningResult,
   Curriculum,
   Difficulty,
 } from './types';
