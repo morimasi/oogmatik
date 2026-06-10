@@ -919,7 +919,7 @@ const AppContent = () => {
           onClose={() => setIsAdvancedScreeningOpen(false)}
           userRole={user?.role || 'teacher'}
           onGeneratePlan={handleGeneratePlanFromScreening}
-          onAddToWorkbook={(data) => handleAddToWorkbookGeneral(ActivityType.ASSESSMENT_REPORT, data as Record<string, unknown>)}
+          onAddToWorkbook={(data) => handleAddToWorkbookGeneral(ActivityType.ASSESSMENT_REPORT, data as unknown as Record<string, unknown>)}
         />
       )}
     </div>

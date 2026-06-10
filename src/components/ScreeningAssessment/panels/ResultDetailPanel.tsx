@@ -8,12 +8,12 @@ import { CATEGORY_LABELS } from '../../../data/screeningQuestions';
 import { assessmentEngineService } from '../services/assessmentEngineService';
 import { generateWithSchema } from '../../../services/geminiClient';
 import type { AIAnalysisResult } from '../services/assessmentEngineService';
-import type { EvaluationCategory } from '../../../types/screening';
+import type { EvaluationCategory, ScreeningResult } from '../../../types/screening';
 import { ShareModal } from '../../ShareModal';
 
 interface ResultDetailPanelProps {
   onGeneratePlan?: (studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => void;
-  onAddToWorkbook?: (data: any) => void;
+  onAddToWorkbook?: (data: ScreeningResult) => void;
 }
 
 export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGeneratePlan, onAddToWorkbook }) => {
