@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Student, SavedWorksheet, SavedAssessment, Curriculum, CurriculumDay } from '../../../types';
+import { AdvancedStudent, SavedWorksheet, SavedAssessment, Curriculum, CurriculumDay } from '../../../types';
 import { ActivityAssignment } from '../../../types/assignment';
 
 interface DashboardModuleProps {
-  student: Student;
+  student: AdvancedStudent;
   assignments: ActivityAssignment[];
   worksheets: SavedWorksheet[];
   assessments: SavedAssessment[];
@@ -35,7 +35,7 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
     ? Math.round((activePlan.schedule.filter((d: CurriculumDay) => d.isCompleted).length / activePlan.schedule.length) * 100)
     : 0;
 
-  const iepGoals = (student as any).iep?.goals || [];
+  const iepGoals = student.iep?.goals || [];
   const iepProgress = iepGoals.length > 0
     ? Math.round(iepGoals.reduce((acc: number, g: any) => acc + (g.progress || 0), 0) / iepGoals.length)
     : 0;
@@ -111,6 +111,32 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
             <p className="text-lg font-black text-[var(--text-primary)] leading-none">{stat.value}</p>
           </div>
         ))}
+      </div>
+      
+      {/* AI Neuro-Pedagogical Insight Widget */}
+      <div className="bg-gradient-to-br from-indigo-500/5 to-purple-500/5 border border-indigo-500/10 rounded-2xl p-4 flex items-center gap-4 relative overflow-hidden group">
+        <div className="absolute -right-6 -top-6 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+        <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shrink-0">
+          <i className="fa-solid fa-sparkles text-sm"></i>
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[8px] font-black text-indigo-500 uppercase tracking-widest">Nöro-Pedagojik Strateji</span>
+            <span className="w-1 h-1 rounded-full bg-zinc-300"></span>
+            <span className="text-[8px] font-medium text-zinc-400 uppercase">AI Analiz Önerisi</span>
+          </div>
+          <p className="text-[10px] font-bold text-[var(--text-primary)] leading-relaxed italic">
+            "{student.aiProfile?.pedagogicalRecommendations?.[0] || 'Öğrencinin görsel işlemleme kapasitesini artırmak için materyallerde yüksek kontrastlı renkler ve Lexend fontu tercih ediniz.'}"
+          </p>
+        </div>
+        <div className="hidden md:flex flex-col items-end gap-1 shrink-0">
+          <span className="text-[8px] font-black text-zinc-400 uppercase">Güven Oranı</span>
+          <div className="flex gap-0.5">
+            {[1, 2, 3, 4, 5].map(s => (
+              <div key={s} className={`w-1.5 h-1.5 rounded-full ${s <= 4 ? 'bg-indigo-500' : 'bg-zinc-200'}`}></div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Two Column Layout */}

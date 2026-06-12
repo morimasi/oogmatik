@@ -2,111 +2,58 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Auth helper
-    function isSignedIn() {
+    // Yardımcı Fonksiyonlar
+    function isAuthenticated() {
       return request.auth != null;
     }
-
-    // Role helpers
-    function getRole() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
-    }
-
+    
     function isAdmin() {
-      return isSignedIn() && (getRole() == 'admin' || getRole() == 'superadmin');
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
-
+    
     function isTeacher() {
-      return isSignedIn() && getRole() == 'teacher';
+      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'teacher';
     }
 
-    // User Quotas: Sadece sahibi okuyabilir, sistem günceller
-    match /user_quotas/{quotaId} {
-      allow read: if isSignedIn() && quotaId.startsWith(request.auth.uid);
-      allow write: if isAdmin(); // Sadece admin/system güncelleyebilir
-    }
-
-    // Saved Curriculums: Sahibi okuyabilir/yazabilir
-    match /saved_curriculums/{curriculumId} {
-      allow read, write: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow create: if isSignedIn();
-    }
-
-    // Saved Worksheets: Sahibi okuyabilir/yazabilir, paylaşılanlar veya tüm öğretmenler okuyabilir
-    match /worksheets/{worksheetId} {
-      allow read: if isSignedIn() && (
-        resource.data.userId == request.auth.uid || 
-        request.auth.uid in resource.data.sharedWith || 
-        isAdmin() || 
-        isTeacher()
-      );
-      allow write: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
-      allow delete: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
-      allow create: if isSignedIn();
-    }
-
-    // Students: Sahibi, Admin ve tüm Öğretmenler okuyup düzenleyebilir; sadece Sahibi ve Admin silebilir.
-    match /students/{studentId} {
-      allow read, update: if isSignedIn() && (
-        resource.data.teacherId == request.auth.uid || 
-        isAdmin() || 
-        isTeacher()
-      );
-      allow delete: if isSignedIn() && (resource.data.teacherId == request.auth.uid || isAdmin());
-      allow create: if isSignedIn();
-    }
-
-    // Users: Sahibi okuyabilir, admin hepsi
+    // Kullanıcı Profilleri
     match /users/{userId} {
-      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
-      allow write: if isSignedIn() && request.auth.uid == userId;
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || request.auth.uid == userId;
     }
 
-    // --- FAZ 0: GÜVENLİK YAMALARI ---
-
-    // Assessments: Sahibi, Admin ve Öğretmenler
-    match /saved_assessments/{assessmentId} {
-      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin() || isTeacher());
-      allow write: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
-      allow create: if isSignedIn();
+    // Öğrenci Verileri (KVKK Hassasiyeti)
+    match /students/{studentId} {
+      allow read: if isAdmin() || isTeacher(); // TODO: Add specific teacher-student mapping in production
+      allow write: if isAdmin() || isTeacher();
+      
+      // IEP ve Altkoleksiyonlar
+      match /{allSubcollections=**} {
+        allow read, write: if isAdmin() || isTeacher();
+      }
     }
 
-    // Shared Profile Content
-    match /shared_profile_content/{shareId} {
-      allow read: if isSignedIn() && (resource.data.recipientId == request.auth.uid || resource.data.ownerId == request.auth.uid || isAdmin());
-      allow create: if isSignedIn();
-      allow delete: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+    // Çalışma Kağıtları ve Şablonlar
+    match /worksheets/{worksheetId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isTeacher();
+    }
+    
+    match /templates/{templateId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
     }
 
-    // Activity Assignments
-    match /activity_assignments/{assignId} {
-      allow read: if isSignedIn();
-      allow write: if isSignedIn() && (isAdmin() || isTeacher());
+    // Geri Bildirimler
+    match /feedbacks/{feedbackId} {
+      allow read: if isAdmin() || isTeacher();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin();
     }
 
-    // Clinical Notes
-    match /clinical_notes/{noteId} {
-      allow read: if isSignedIn() && (resource.data.teacherId == request.auth.uid || isAdmin());
-      allow write: if isSignedIn() && (resource.data.teacherId == request.auth.uid || isAdmin());
-      allow create: if isSignedIn();
-    }
-
-    // Feedback
-    match /feedback/{feedbackId} {
-      allow create: if isSignedIn();
-      allow read: if isAdmin();
-    }
-
-    // Audit Logs
-    match /audit_logs/{logId} {
-      allow read: if isAdmin();
-      allow create: if isSignedIn();
-    }
-
-    // Teacher Data
-    match /teacher_data/{teacherId} {
-      allow read: if isSignedIn() && (request.auth.uid == teacherId || isAdmin());
-      allow write: if isSignedIn() && (request.auth.uid == teacherId || isAdmin());
+    // Global Ayarlar
+    match /settings/{settingId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
     }
   }
 }

@@ -11,7 +11,6 @@ export * from './creativeStudio';
 export * from './activityStudio';
 export * from './student-advanced';
 export * from './progress';
-export * from './messaging';
 export * from './user';
 export * from './student';
 export * from './studio';
