@@ -42,6 +42,7 @@ export const generateMathProblemsAI = async (config: MathProblemConfig) => {
     - **Sayı Aralığı:** ${config.numberRange} (Sonuçlar ve ara işlemler bu aralıkta kalmalı).
     - **Zorluk Seviyesi:** ${config.difficulty} (Bu seviyeye kesinlikle uy!)
     - **Problem Yapısı:** ${complexityDesc}.
+    ${config.bepGoals && config.bepGoals.length > 0 ? `- **BEP Hedefleri (Kritik):** ${config.bepGoals.join(', ')} (Bu hedeflere yönelik içerik üret!)` : ''}
     - **Tarz:** ${config.problemStyle === 'story' ? 'Hikayeleştirilmiş, uzun betimlemeli' : config.problemStyle === 'logic' ? 'Mantık bulmacası tarzında' : 'Kısa, net ve anlaşılır'}.
     ${config.generateImages ? '- **Görsel İpucu:** Her soru için uygun bir İngilizce "imagePrompt" üret (dall-e tarzı).' : ''}
 

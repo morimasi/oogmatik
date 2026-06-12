@@ -20,7 +20,7 @@ const { doc, getDoc, setDoc, updateDoc, collection, getDocs, query, orderBy, lim
 const SUPER_ADMIN_EMAIL = import.meta.env.VITE_SUPER_ADMIN_EMAIL || 'morimasi@gmail.com';
 
 // Map Firestore doc to App User type
-const mapDbUserToAppUser = (docData: any, uid: string, email: string): User => {
+const mapDbUserToAppUser = (docData: Record<string, any>, uid: string, email: string): User => {
     // Force superadmin role for specific email
     const role = email === SUPER_ADMIN_EMAIL ? 'superadmin' : (docData.role || 'teacher');
     
@@ -40,7 +40,10 @@ const mapDbUserToAppUser = (docData: any, uid: string, email: string): User => {
         profession: docData.profession || '',
         institution: docData.institution || '',
         phone: docData.phone || '',
-        bio: docData.bio || ''
+        bio: docData.bio || '',
+        pedagogySettings: docData.pedagogySettings,
+        aiAssistantSettings: docData.aiAssistantSettings,
+        notificationSettings: docData.notificationSettings
     };
 };
 
@@ -275,6 +278,9 @@ export const authService = {
         if (updates.institution !== undefined) dbUpdates.institution = updates.institution;
         if (updates.phone !== undefined) dbUpdates.phone = updates.phone;
         if (updates.bio !== undefined) dbUpdates.bio = updates.bio;
+        if (updates.pedagogySettings) dbUpdates.pedagogySettings = updates.pedagogySettings;
+        if (updates.aiAssistantSettings) dbUpdates.aiAssistantSettings = updates.aiAssistantSettings;
+        if ((updates as any).notificationSettings) dbUpdates.notificationSettings = (updates as any).notificationSettings;
 
         await updateDoc(userDocRef, dbUpdates);
 
@@ -347,10 +353,10 @@ export const authService = {
             }
             
             const snapshots = await Promise.all(batches);
-            snapshots.forEach(snapshot => {
-                snapshot.forEach(doc => {
+            snapshots.forEach((snapshot: firestore.QuerySnapshot<firestore.DocumentData>) => {
+                snapshot.forEach((doc: firestore.QueryDocumentSnapshot<firestore.DocumentData>) => {
                     const data = doc.data();
-                    results.push(mapDbUserToAppUser(data, doc.id, data.email));
+                    results.push(mapDbUserToAppUser(data, doc.id, data.email as string));
                 });
             });
             
@@ -368,9 +374,9 @@ export const authService = {
             const q = query(collection(db, "users"), orderBy("createdAt", "desc"), limit(100));
             const querySnapshot = await getDocs(q);
             const users: User[] = [];
-            querySnapshot.forEach((doc: any) => {
+            querySnapshot.forEach((doc: firestore.QueryDocumentSnapshot<firestore.DocumentData>) => {
                 const data = doc.data() as any;
-                users.push(mapDbUserToAppUser(data, doc.id, data.email));
+                users.push(mapDbUserToAppUser(data, doc.id, data.email as string));
             });
             return { users: users, count: users.length };
         } catch (error: any) {

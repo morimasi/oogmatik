@@ -40,4 +40,9 @@ export interface User {
     voiceAssistant: boolean;
     analysisDepth: 'detailed' | 'summary' | 'bullet';
   };
+  notificationSettings?: {
+    browser: boolean;
+    email: boolean;
+    mobile: boolean;
+  };
 }

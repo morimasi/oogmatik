@@ -597,7 +597,6 @@ const AppContent = () => {
               'mat-sinav-studyosu',
               'sari-kitap-studio',
               'kelime-cumle-studio',
-              'messages',
             ].includes(currentView) && (
                 <motion.div
                   key={currentView}

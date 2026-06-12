@@ -21,7 +21,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
   onStartCurriculumActivity,
 }) => {
   const toast = useToastStore();
-  const [localPlans, setLocalPlans] = useState<any[]>([]);
+  const [localPlans, setLocalPlans] = useState<EnrichedCurriculum[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [activePlanTab, setActivePlanTab] = useState<'overview' | 'schedule' | 'revisions'>(() => {
     const defaultTab = (window as any).academicPlanDefaultTab;
@@ -50,7 +50,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
 
   useEffect(() => {
     if (curriculums && curriculums.length > 0) {
-      const enriched = curriculums.map(c => ({
+      const enriched = curriculums.map((c: Curriculum) => ({
         ...c,
         revisions: (c as any).revisions || [],
         lastReviewed: (c as any).lastReviewed || c.startDate || c.createdAt || new Date().toISOString(),
@@ -68,7 +68,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
     }
   }, [curriculums]);
 
-  const activePlan = localPlans.find(p => p.id === selectedPlanId) || localPlans[0];
+  const activePlan = localPlans.find((p: EnrichedCurriculum) => p.id === selectedPlanId) || localPlans[0];
 
   const activeProgress = activePlan
     ? Math.round((activePlan.schedule.filter((d: CurriculumDay) => d.isCompleted || d.activities?.every((a: any) => a.status === 'completed')).length / activePlan.schedule.length) * 100)
@@ -129,7 +129,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
     const matchedActivity = ACTIVITIES.find(a => a.id === selectedActivityId);
     if (!matchedActivity) return;
 
-    const updatedSchedule = activePlan.schedule.map((day: any) => {
+    const updatedSchedule = activePlan.schedule.map((day: CurriculumDay) => {
       if (day.day === dayNum) {
         return {
           ...day,
@@ -151,7 +151,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
       return day;
     });
 
-    setLocalPlans(prev => prev.map(p => p.id === activePlan.id ? { ...p, schedule: updatedSchedule } : p));
+    setLocalPlans((prev: EnrichedCurriculum[]) => prev.map((p: EnrichedCurriculum) => p.id === activePlan.id ? { ...p, schedule: updatedSchedule } : p));
     setChangingActivityDay(null);
 
     try {
@@ -168,7 +168,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
   const handleToggleDay = async (dayNum: number) => {
     if (!activePlan?.id) return;
 
-    const updatedSchedule = activePlan.schedule.map((day: any) => {
+    const updatedSchedule = activePlan.schedule.map((day: CurriculumDay) => {
       if (day.day === dayNum) {
         const nextCompleted = !day.isCompleted;
         return {
@@ -186,7 +186,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
     });
 
     // Update local UI immediately
-    setLocalPlans(prev => prev.map(p => p.id === activePlan.id ? { ...p, schedule: updatedSchedule } : p));
+    setLocalPlans((prev: EnrichedCurriculum[]) => prev.map((p: EnrichedCurriculum) => p.id === activePlan.id ? { ...p, schedule: updatedSchedule } : p));
 
     try {
       // Auto-save to Firestore
@@ -203,14 +203,14 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
   const handleSaveDayFocus = async (dayNum: number) => {
     if (!activePlan?.id) return;
 
-    const updatedSchedule = activePlan.schedule.map((day: any) => {
+    const updatedSchedule = activePlan.schedule.map((day: CurriculumDay) => {
       if (day.day === dayNum) {
         return { ...day, focus: tempFocus };
       }
       return day;
     });
 
-    setLocalPlans(prev => prev.map(p => p.id === activePlan.id ? { ...p, schedule: updatedSchedule } : p));
+    setLocalPlans((prev: EnrichedCurriculum[]) => prev.map((p: EnrichedCurriculum) => p.id === activePlan.id ? { ...p, schedule: updatedSchedule } : p));
     setEditingDay(null);
 
     try {
@@ -227,7 +227,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
   const handleSaveNote = async () => {
     if (!activePlan?.id) return;
 
-    setLocalPlans(prev => prev.map(p => p.id === activePlan.id ? { ...p, note: tempNote } : p));
+    setLocalPlans((prev: EnrichedCurriculum[]) => prev.map((p: EnrichedCurriculum) => p.id === activePlan.id ? { ...p, note: tempNote } : p));
     setIsEditingNote(false);
 
     try {
@@ -247,7 +247,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
     const updatedGoals = [...activePlan.goals];
     updatedGoals[idx] = tempGoal;
 
-    setLocalPlans(prev => prev.map(p => p.id === activePlan.id ? { ...p, goals: updatedGoals } : p));
+    setLocalPlans((prev: EnrichedCurriculum[]) => prev.map((p: EnrichedCurriculum) => p.id === activePlan.id ? { ...p, goals: updatedGoals } : p));
     setEditingGoal(null);
 
     try {
@@ -266,7 +266,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
 
     const updatedGoals = [...(activePlan.goals || []), newGoalText.trim()];
 
-    setLocalPlans(prev => prev.map(p => p.id === activePlan.id ? { ...p, goals: updatedGoals } : p));
+    setLocalPlans((prev: EnrichedCurriculum[]) => prev.map((p: EnrichedCurriculum) => p.id === activePlan.id ? { ...p, goals: updatedGoals } : p));
     setNewGoalText('');
     setIsAddingGoal(false);
 
@@ -307,9 +307,9 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
   const handleDeleteGoal = async (idx: number) => {
     if (!activePlan?.id) return;
 
-    const updatedGoals = activePlan.goals.filter((_: any, i: number) => i !== idx);
+    const updatedGoals = activePlan.goals.filter((_: string, i: number) => i !== idx);
 
-    setLocalPlans(prev => prev.map(p => p.id === activePlan.id ? { ...p, goals: updatedGoals } : p));
+    setLocalPlans((prev: EnrichedCurriculum[]) => prev.map((p: EnrichedCurriculum) => p.id === activePlan.id ? { ...p, goals: updatedGoals } : p));
 
     try {
       await curriculumService.updateCurriculum(activePlan.id, { goals: updatedGoals });
@@ -413,6 +413,23 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
           <div className="p-4">
             {activePlanTab === 'overview' && (
               <div className="space-y-4">
+                {/* MEB Compliance Header */}
+                <div className="flex items-center justify-between p-3 bg-indigo-500/5 border border-indigo-500/10 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center">
+                      <i className="fa-solid fa-graduation-cap text-indigo-500 text-xs"></i>
+                    </div>
+                    <div>
+                      <h5 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">MEB 2024-2025 Müfredat Uyumu</h5>
+                      <p className="text-[9px] text-zinc-500 font-medium">Bireyselleştirilmiş Eğitim Programı (BEP) Standartları</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-500 rounded-lg border border-emerald-500/20">
+                    <i className="fa-solid fa-shield-check text-[9px]"></i>
+                    <span className="text-[9px] font-black uppercase tracking-widest">Uyumlu</span>
+                  </div>
+                </div>
+
                 {/* Goals */}
                 <div>
                   <div className="flex justify-between items-center mb-2">
@@ -718,7 +735,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
         <div className="space-y-2">
           <h4 className="font-bold text-xs text-[var(--text-primary)] uppercase tracking-tight">Geçmiş Planlar</h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {localPlans.map(plan => {
+            {localPlans.map((plan: EnrichedCurriculum) => {
               const progress = Math.round((plan.schedule.filter((d: CurriculumDay) => d.isCompleted || d.activities?.every((a: any) => a.status === 'completed')).length / plan.schedule.length) * 100);
               const isCurrentActive = plan.id === selectedPlanId;
               return (

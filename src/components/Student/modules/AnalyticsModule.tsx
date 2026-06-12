@@ -16,14 +16,19 @@ export const AnalyticsModule: React.FC<AnalyticsModuleProps> = ({
   const [selectedAssessment, setSelectedAssessment] = useState<SavedAssessment | null>(null);
   const [showDetail, setShowDetail] = useState(false);
 
+  const scoreKeys = Array.from(new Set(allAssessments.flatMap(a => Object.keys(a.report.scores))));
+
   const trendData = allAssessments
-    .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
-    .map(a => ({
-      date: new Date(a.createdAt).toLocaleDateString('tr-TR', { month: 'short', day: 'numeric' }),
-      attention: a.report.scores.attention || 0,
-      spatial: a.report.scores.spatial || 0,
-      phonological: a.report.scores.phonological || 0,
-    }));
+    .sort((a: SavedAssessment, b: SavedAssessment) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+    .map((a: SavedAssessment) => {
+      const dataPoint: any = {
+        date: new Date(a.createdAt).toLocaleDateString('tr-TR', { month: 'short', day: 'numeric' }),
+      };
+      scoreKeys.forEach((key: string) => {
+        dataPoint[key] = (a.report.scores as Record<string, number>)[key] || 0;
+      });
+      return dataPoint;
+    });
 
   const latestAssessment = allAssessments[0];
   const firstAssessment = allAssessments[allAssessments.length - 1];
@@ -90,7 +95,7 @@ export const AnalyticsModule: React.FC<AnalyticsModuleProps> = ({
             Gelişim Özeti
           </h4>
           <div className="grid grid-cols-3 gap-3">
-            {Object.keys(latestAssessment.report.scores).map(key => {
+            {Object.keys(latestAssessment.report.scores).map((key: string) => {
               const improvement = getImprovement(key as keyof typeof latestAssessment.report.scores);
               return (
                 <div key={key} className="text-center">
@@ -119,7 +124,10 @@ export const AnalyticsModule: React.FC<AnalyticsModuleProps> = ({
                 { key: 'attention', color: '#818cf8', label: 'Dikkat' },
                 { key: 'spatial', color: '#fbbf24', label: 'Görsel Algı' },
                 { key: 'phonological', color: '#34d399', label: 'Fonolojik' },
-              ]}
+                { key: 'memory', color: '#f472b6', label: 'Bellek' },
+                { key: 'logic', color: '#a78bfa', label: 'Mantık' },
+                { key: 'reading', color: '#60a5fa', label: 'Okuma' },
+              ].filter(l => scoreKeys.includes(l.key))}
             />
           </div>
         ) : (
@@ -130,7 +138,7 @@ export const AnalyticsModule: React.FC<AnalyticsModuleProps> = ({
       {/* Assessment History */}
       <div className="space-y-2">
         <h4 className="font-bold text-xs text-[var(--text-primary)] uppercase tracking-tight">Değerlendirme Geçmişi</h4>
-        {allAssessments.map((a, i) => (
+        {allAssessments.map((a: SavedAssessment, i: number) => (
           <div
             key={a.id}
             className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl p-3 transition-all hover:border-[var(--accent-color)]/30 cursor-pointer group"
@@ -149,7 +157,7 @@ export const AnalyticsModule: React.FC<AnalyticsModuleProps> = ({
                   </div>
                   <p className="text-[10px] text-[var(--text-muted)] mt-1 line-clamp-2">{a.report.overallSummary}</p>
                   <div className="flex flex-wrap gap-1.5 mt-2">
-                    {a.report.chartData.slice(0, 4).map((d, j) => (
+                    {a.report.chartData.slice(0, 4).map((d: any, j: number) => (
                       <span key={j} className="text-[9px] font-medium text-[var(--text-muted)] bg-[var(--bg-secondary)] px-1.5 py-0.5 rounded">
                         {d.label}: {d.value}
                       </span>
@@ -194,7 +202,7 @@ export const AnalyticsModule: React.FC<AnalyticsModuleProps> = ({
                     <i className="fa-solid fa-check-circle text-[10px]"></i> Güçlü Yönler
                   </h4>
                   <ul className="space-y-1">
-                    {selectedAssessment.report.analysis.strengths.map((s, i) => (
+                    {selectedAssessment.report.analysis.strengths.map((s: string, i: number) => (
                       <li key={i} className="text-[10px] text-[var(--text-secondary)] flex items-start gap-1.5">
                         <span className="w-1 h-1 bg-emerald-500 rounded-full mt-1 shrink-0"></span>
                         {s}
@@ -207,7 +215,7 @@ export const AnalyticsModule: React.FC<AnalyticsModuleProps> = ({
                     <i className="fa-solid fa-triangle-exclamation text-[10px]"></i> Destek Alanları
                   </h4>
                   <ul className="space-y-1">
-                    {selectedAssessment.report.analysis.weaknesses.map((w, i) => (
+                    {selectedAssessment.report.analysis.weaknesses.map((w: string, i: number) => (
                       <li key={i} className="text-[10px] text-[var(--text-secondary)] flex items-start gap-1.5">
                         <span className="w-1 h-1 bg-amber-500 rounded-full mt-1 shrink-0"></span>
                         {w}
@@ -223,7 +231,7 @@ export const AnalyticsModule: React.FC<AnalyticsModuleProps> = ({
                   <i className="fa-solid fa-route text-[var(--accent-color)] text-[10px]"></i> Önerilen Yol Haritası
                 </h4>
                 <div className="space-y-2">
-                  {selectedAssessment.report.roadmap.map((r, i) => (
+                  {selectedAssessment.report.roadmap.map((r: any, i: number) => (
                     <div key={i} className="flex items-start gap-2 p-2 bg-[var(--bg-paper)] rounded-lg">
                       <i className="fa-solid fa-bullseye text-[var(--accent-color)] text-[10px] mt-0.5"></i>
                       <div>

@@ -35,6 +35,11 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
     ? Math.round((activePlan.schedule.filter((d: CurriculumDay) => d.isCompleted).length / activePlan.schedule.length) * 100)
     : 0;
 
+  const iepGoals = (student as any).iep?.goals || [];
+  const iepProgress = iepGoals.length > 0
+    ? Math.round(iepGoals.reduce((acc: number, g: any) => acc + (g.progress || 0), 0) / iepGoals.length)
+    : 0;
+
   const [showShareModal, setShowShareModal] = useState(false);
 
   const handlePrint = () => {
@@ -93,6 +98,7 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
           { label: 'Tamamlanan', value: completedAssignments, icon: 'fa-check-circle', color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
           { label: 'Devam Eden', value: inProgressAssignments, icon: 'fa-spinner', color: 'text-amber-500', bg: 'bg-amber-500/10' },
           { label: 'Bekleyen', value: pendingAssignments, icon: 'fa-clock', color: 'text-blue-500', bg: 'bg-blue-500/10' },
+          { label: 'BEP Gelişim', value: `%${iepProgress}`, icon: 'fa-bullseye', color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
           { label: 'Ort. Skor', value: `${Math.round(avgScore)}`, icon: 'fa-chart-line', color: 'text-purple-500', bg: 'bg-purple-500/10' },
         ].map((stat, i) => (
           <div key={i} className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl p-3 transition-all hover:border-[var(--accent-color)]/30">
@@ -154,9 +160,9 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
                 <div className="bg-gradient-to-r from-[var(--accent-color)] to-emerald-500 h-full rounded-full transition-all" style={{ width: `${planProgress}%` }}></div>
               </div>
               <div className="space-y-1.5">
-                {activePlan.goals.slice(0, 3).map((g, i) => (
+                {activePlan.goals.slice(0, 3).map((g: string, i: number) => (
                   <div key={i} className="flex items-start gap-2">
-                    <i className={`fa-solid ${i < activePlan.schedule.filter(d => d.isCompleted).length ? 'fa-check text-emerald-500' : 'fa-circle text-[var(--text-muted)]'} text-[7px] mt-0.5`}></i>
+                    <i className={`fa-solid ${i < activePlan.schedule.filter((d: CurriculumDay) => d.isCompleted).length ? 'fa-check text-emerald-500' : 'fa-circle text-[var(--text-muted)]'} text-[7px] mt-0.5`}></i>
                     <span className="text-[10px] text-[var(--text-secondary)]">{g}</span>
                   </div>
                 ))}
@@ -164,6 +170,25 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
             </div>
           ) : (
             <p className="text-[11px] text-[var(--text-muted)]">Aktif plan yok.</p>
+          )}
+
+          {iepGoals.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-[var(--border-color)]">
+              <h5 className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-2">BEP Hedefleri</h5>
+              <div className="space-y-3">
+                {iepGoals.slice(0, 2).map((goal: any) => (
+                  <div key={goal.id}>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-[10px] font-bold text-[var(--text-primary)] truncate">{goal.title}</span>
+                      <span className="text-[9px] font-black text-[var(--accent-color)]">%{goal.progress}</span>
+                    </div>
+                    <div className="w-full bg-[var(--bg-secondary)] rounded-full h-1 overflow-hidden">
+                      <div className="bg-[var(--accent-color)] h-full" style={{ width: `${goal.progress}%` }}></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       </div>
@@ -179,7 +204,7 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
           <i className="fa-solid fa-chevron-right text-[var(--text-muted)] text-[9px] ml-auto"></i>
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-          {allWorksheets.slice(0, 6).map(ws => (
+          {allWorksheets.slice(0, 6).map((ws: SavedWorksheet) => (
             <div key={ws.id} className="flex items-center gap-2 p-2 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-color)]/50 hover:border-[var(--accent-color)]/30 transition-all">
               <div className="w-7 h-7 bg-[var(--accent-muted)] text-[var(--accent-color)] rounded-lg flex items-center justify-center shrink-0">
                 <i className={`fa-solid ${ws.icon} text-[9px]`}></i>
@@ -204,7 +229,7 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
           <i className="fa-solid fa-chevron-right text-[var(--text-muted)] text-[9px] ml-auto"></i>
         </h4>
         <div className="space-y-2">
-          {allAssignments.filter(a => a.status !== 'completed').slice(0, 4).map(a => (
+          {allAssignments.filter((a: ActivityAssignment) => a.status !== 'completed').slice(0, 4).map((a: ActivityAssignment) => (
             <div key={a.id} className="flex items-center justify-between p-2 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-color)]/50">
               <div className="flex items-center gap-2 min-w-0">
                 <div className={`w-2 h-2 rounded-full shrink-0 ${a.status === 'in_progress' ? 'bg-amber-500 animate-pulse' : 'bg-blue-500'}`}></div>

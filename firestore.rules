@@ -62,22 +62,51 @@ service cloud.firestore {
       allow write: if isSignedIn() && request.auth.uid == userId;
     }
 
-    // --- MESSAGING MODULE (bdmind v2) ---
+    // --- FAZ 0: GÜVENLİK YAMALARI ---
 
-    // Conversations: Katılımcılar okuyabilir, herkes (auth) yeni bir direkt/grup başlatabilir
-    match /conversations/{convId} {
-      allow read: if isSignedIn() && (request.auth.uid in resource.data.participantIds || isAdmin());
+    // Assessments: Sahibi, Admin ve Öğretmenler
+    match /saved_assessments/{assessmentId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin() || isTeacher());
+      allow write: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
       allow create: if isSignedIn();
-      allow update: if isSignedIn() && (request.auth.uid in resource.data.participantIds || isAdmin());
-      allow delete: if isAdmin(); // Sadece sistem siler
+    }
 
-      // Messages: Sadece konuşma katılımcıları okuyabilir ve yazabilir
-      match /messages/{msgId} {
-        allow read: if isSignedIn() && get(/databases/$(database)/documents/conversations/$(convId)).data.participantIds.hasAny([request.auth.uid]) || isAdmin();
-        allow create: if isSignedIn() && get(/databases/$(database)/documents/conversations/$(convId)).data.participantIds.hasAny([request.auth.uid]);
-        allow update: if isSignedIn() && (request.auth.uid == resource.data.senderId || isAdmin());
-        allow delete: if isAdmin();
-      }
+    // Shared Profile Content
+    match /shared_profile_content/{shareId} {
+      allow read: if isSignedIn() && (resource.data.recipientId == request.auth.uid || resource.data.ownerId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn();
+      allow delete: if isSignedIn() && (resource.data.ownerId == request.auth.uid || isAdmin());
+    }
+
+    // Activity Assignments
+    match /activity_assignments/{assignId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && (isAdmin() || isTeacher());
+    }
+
+    // Clinical Notes
+    match /clinical_notes/{noteId} {
+      allow read: if isSignedIn() && (resource.data.teacherId == request.auth.uid || isAdmin());
+      allow write: if isSignedIn() && (resource.data.teacherId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn();
+    }
+
+    // Feedback
+    match /feedback/{feedbackId} {
+      allow create: if isSignedIn();
+      allow read: if isAdmin();
+    }
+
+    // Audit Logs
+    match /audit_logs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isSignedIn();
+    }
+
+    // Teacher Data
+    match /teacher_data/{teacherId} {
+      allow read: if isSignedIn() && (request.auth.uid == teacherId || isAdmin());
+      allow write: if isSignedIn() && (request.auth.uid == teacherId || isAdmin());
     }
   }
 }

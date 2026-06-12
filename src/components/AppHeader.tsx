@@ -7,7 +7,6 @@ import { useUIStore } from '../store/useUIStore';
 import { useWorksheetStore } from '../store/useWorksheetStore';
 import { useRBAC } from '../hooks/useRBAC';
 import { ActivityType, View } from '../types';
-import { useMessageStore } from '../store/useMessageStore';
 import { useStudentStore } from '../store/useStudentStore';
 
 interface AppHeaderProps {
@@ -326,22 +325,6 @@ export const AppHeader = ({
                             {workbookItemsCount > 0 && (
                                 <span className="absolute -top-0.5 -right-0.5 bg-[var(--accent-color)] text-white text-[7px] font-black min-w-[1rem] h-4 px-0.5 flex items-center justify-center rounded-full border-2 border-[var(--bg-paper)] shadow-sm tabular-nums">
                                     {workbookItemsCount}
-                                </span>
-                            )}
-                        </button>
-
-                        <button
-                            onClick={() => {
-                                if (typeof setIsSidebarOpen === 'function') setIsSidebarOpen(false);
-                                navigateTo('messages');
-                            }}
-                            className="relative flex shrink-0 items-center justify-center w-9 h-9 text-[var(--accent-color)] hover:text-[var(--text-primary)] transition-all rounded-lg hover:bg-[var(--accent-muted)] border border-transparent hover:border-[var(--accent-color)]/20 group/nav"
-                            title="İletişim Merkezi"
-                        >
-                            <i className="fa-solid fa-comment-dots text-[16px] leading-none group-hover/nav:scale-110 transition-transform"></i>
-                            {useMessageStore.getState().unreadTotalCount > 0 && (
-                                <span className="absolute -top-0.5 -right-0.5 bg-rose-500 text-white text-[7px] font-black min-w-[1rem] h-4 px-0.5 flex items-center justify-center rounded-full border-2 border-[var(--bg-paper)] shadow-[0_0_8px_rgba(244,63,94,0.4)] animate-pulse">
-                                    {useMessageStore.getState().unreadTotalCount}
                                 </span>
                             )}
                         </button>

@@ -273,6 +273,7 @@ export interface MathProblemConfig {
   generateImages: boolean; 
   fontWeight: number;
   autoFillPage: boolean;
+  bepGoals?: string[];
 }
 
 export interface LogicGridPuzzleData extends BaseActivityData {

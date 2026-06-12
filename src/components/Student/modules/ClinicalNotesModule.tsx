@@ -11,10 +11,7 @@ interface ClinicalNotesModuleProps {
 
 type NoteCategory = 'all' | 'baseline' | 'progress' | 'goal';
 
-export const ClinicalNotesModule: React.FC<ClinicalNotesModuleProps> = ({
-  studentId,
-  studentName,
-}) => {
+export const ClinicalNotesModule = ({ studentId, studentName }: { studentId: string; studentName: string }) => {
   const { user } = useAuthStore();
   const [allNotes, setAllNotes] = useState<ClinicalNote[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,7 +20,7 @@ export const ClinicalNotesModule: React.FC<ClinicalNotesModuleProps> = ({
   const [showAddModal, setShowAddModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [newNote, setNewNote] = useState({ category: 'progress' as ClinicalNote['category'], title: '', content: '', tags: '' });
+  const [newNote, setNewNote] = useState({ category: 'progress' as ClinicalNote['category'], title: '', content: '', tags: '', priority: 'medium' as ClinicalNote['priority'] });
 
   const unsubscribeRef = useRef<(() => void) | null>(null);
 
@@ -32,28 +29,25 @@ export const ClinicalNotesModule: React.FC<ClinicalNotesModuleProps> = ({
     setLoading(true);
 
     const q = query(collection(db, 'clinical_notes'), where('studentId', '==', studentId));
-    const unsub = onSnapshot(q, {
-      next: (snapshot) => {
-        const notes: ClinicalNote[] = snapshot.docs.map(doc => {
-          const d = doc.data();
-          return {
-            id: doc.id,
-            category: d.category || 'progress',
-            date: d.date?.toDate ? d.date.toDate().toISOString() : d.date || new Date().toISOString(),
-            title: d.title || '',
-            content: d.content || '',
-            author: d.author || '',
-            tags: Array.isArray(d.tags) ? d.tags : [],
-            priority: d.priority || 'medium',
-          } as ClinicalNote;
-        });
-        setAllNotes(notes);
-        setLoading(false);
-      },
-      error: (err) => {
-        setError('Notlar yüklenemedi: ' + err.message);
-        setLoading(false);
-      },
+    const unsub = onSnapshot(q, (snapshot: QuerySnapshot<DocumentData>) => {
+      const notes: ClinicalNote[] = snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => {
+        const d = doc.data();
+        return {
+          id: doc.id,
+          category: d.category || 'progress',
+          date: d.date?.toDate ? d.date.toDate().toISOString() : d.date || new Date().toISOString(),
+          title: d.title || '',
+          content: d.content || '',
+          author: d.author || '',
+          tags: Array.isArray(d.tags) ? d.tags : [],
+          priority: d.priority || 'medium',
+        } as ClinicalNote;
+      });
+      setAllNotes(notes);
+      setLoading(false);
+    }, (err: Error) => {
+      setError('Notlar yüklenemedi: ' + err.message);
+      setLoading(false);
     });
 
     unsubscribeRef.current = unsub;
@@ -66,7 +60,7 @@ export const ClinicalNotesModule: React.FC<ClinicalNotesModuleProps> = ({
 
   const sorted = [...filtered].sort((a: ClinicalNote, b: ClinicalNote) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  const categoryCounts = {
+  const categoryCounts: Record<NoteCategory, number> = {
     all: allNotes.length,
     baseline: allNotes.filter((n: ClinicalNote) => n.category === 'baseline').length,
     progress: allNotes.filter((n: ClinicalNote) => n.category === 'progress').length,
@@ -123,11 +117,11 @@ export const ClinicalNotesModule: React.FC<ClinicalNotesModuleProps> = ({
         title: newNote.title,
         content: newNote.content,
         author: user?.displayName || user?.email || 'Bilinmeyen',
-        tags: newNote.tags ? newNote.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
-        priority: 'medium',
+        tags: newNote.tags ? newNote.tags.split(',').map((t: string) => t.trim()).filter(Boolean) : [],
+        priority: newNote.priority,
       });
       setShowAddModal(false);
-      setNewNote({ category: 'progress', title: '', content: '', tags: '' });
+      setNewNote({ category: 'progress', title: '', content: '', tags: '', priority: 'medium' });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Kayıt hatası';
       setError(msg);
@@ -136,9 +130,18 @@ export const ClinicalNotesModule: React.FC<ClinicalNotesModuleProps> = ({
     }
   };
 
+  const handleDeleteNote = async (id: string) => {
+    if (!window.confirm('Bu notu silmek istediğinize emin misiniz?')) return;
+    try {
+      await deleteDoc(doc(db, 'clinical_notes', id));
+      if (selectedNote?.id === id) setSelectedNote(null);
+    } catch (err: any) {
+      setError('Not silinemedi: ' + err.message);
+    }
+  };
+
   return (
     <div className="space-y-4 animate-in fade-in duration-300">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h3 className="font-bold text-sm tracking-tight text-[var(--text-primary)] uppercase">Klinik Notlar</h3>
@@ -159,7 +162,6 @@ export const ClinicalNotesModule: React.FC<ClinicalNotesModuleProps> = ({
         </div>
       </div>
 
-      {/* Category Tabs */}
       <div className="flex bg-[var(--bg-secondary)] p-0.5 rounded-lg">
         {([['all', 'Tümü', 'fa-layer-group'], ['baseline', 'Başlangıç', 'fa-flag-checkered'], ['progress', 'İlerleme', 'fa-chart-line'], ['goal', 'Hedefler', 'fa-bullseye']] as [NoteCategory, string, string][]).map(([key, label, icon]) => (
           <button
@@ -174,12 +176,10 @@ export const ClinicalNotesModule: React.FC<ClinicalNotesModuleProps> = ({
         ))}
       </div>
 
-      {/* Error */}
       {error && (
         <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-[10px] text-rose-600 font-medium">{error}</div>
       )}
 
-      {/* Notes Timeline */}
       {loading ? (
         <div className="flex items-center justify-center py-12">
           <svg className="animate-spin h-6 w-6 text-[var(--accent-color)]" viewBox="0 0 24 24" fill="none">
@@ -241,7 +241,6 @@ export const ClinicalNotesModule: React.FC<ClinicalNotesModuleProps> = ({
         </div>
       )}
 
-      {/* Note Detail Modal */}
       {selectedNote && (
         <div className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[var(--bg-paper)] rounded-2xl shadow-2xl w-full max-w-lg border border-[var(--border-color)] max-h-[80vh] flex flex-col">
@@ -255,9 +254,14 @@ export const ClinicalNotesModule: React.FC<ClinicalNotesModuleProps> = ({
                   <p className="text-[9px] text-[var(--text-muted)]">{new Date(selectedNote.date).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                 </div>
               </div>
-              <button onClick={() => setSelectedNote(null)} className="w-6 h-6 rounded-full hover:bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)]">
-                <i className="fa-solid fa-times text-[11px]"></i>
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => handleDeleteNote(selectedNote.id)} className="w-6 h-6 rounded-full hover:bg-rose-500/10 flex items-center justify-center text-rose-500" title="Sil">
+                  <i className="fa-solid fa-trash-can text-[10px]"></i>
+                </button>
+                <button onClick={() => setSelectedNote(null)} className="w-6 h-6 rounded-full hover:bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)]">
+                  <i className="fa-solid fa-times text-[11px]"></i>
+                </button>
+              </div>
             </div>
             <div className="p-4 flex-1 overflow-y-auto space-y-4">
               <div className="flex items-center gap-2">
@@ -269,9 +273,9 @@ export const ClinicalNotesModule: React.FC<ClinicalNotesModuleProps> = ({
               <div className="p-3 bg-[var(--bg-secondary)] rounded-xl">
                 <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed whitespace-pre-line">{selectedNote.content}</p>
               </div>
-              <div className="flex flex-wrap gap-1.5">
-                {selectedNote.tags.map((tag, i) => (
-                  <span key={i} className="text-[9px] font-medium text-[var(--accent-color)] bg-[var(--accent-muted)] px-2 py-0.5 rounded-full">{tag}</span>
+              <div className="flex flex-wrap gap-1">
+                {selectedNote.tags?.map((tag: string, i: number) => (
+                  <span key={i} className="px-1.5 py-0.5 bg-[var(--bg-secondary)] text-[var(--text-muted)] text-[8px] rounded uppercase font-medium">#{tag}</span>
                 ))}
               </div>
             </div>
@@ -295,7 +299,6 @@ export const ClinicalNotesModule: React.FC<ClinicalNotesModuleProps> = ({
         </div>
       )}
 
-      {/* Add Note Modal */}
       {showAddModal && (
         <div className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[var(--bg-paper)] rounded-2xl shadow-2xl w-full max-w-md border border-[var(--border-color)]">
@@ -326,8 +329,8 @@ export const ClinicalNotesModule: React.FC<ClinicalNotesModuleProps> = ({
                 <input
                   type="text"
                   value={newNote.title}
-                  onChange={e => setNewNote(prev => ({ ...prev, title: e.target.value }))}
-                  className="w-full p-2.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[11px] outline-none focus:ring-1 focus:ring-[var(--accent-color)]/50 text-[var(--text-primary)]"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewNote((prev: any) => ({ ...prev, title: e.target.value }))}
+                  className="w-full bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[11px] text-[var(--text-primary)] focus:border-[var(--accent-color)] transition-all"
                   placeholder="Not başlığı..."
                 />
               </div>
@@ -335,19 +338,33 @@ export const ClinicalNotesModule: React.FC<ClinicalNotesModuleProps> = ({
                 <label className="block text-[10px] font-medium text-[var(--text-muted)] uppercase mb-1.5">İçerik</label>
                 <textarea
                   value={newNote.content}
-                  onChange={e => setNewNote(prev => ({ ...prev, content: e.target.value }))}
-                  className="w-full p-2.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[11px] outline-none focus:ring-1 focus:ring-[var(--accent-color)]/50 text-[var(--text-primary)] h-32 resize-none"
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewNote((prev: any) => ({ ...prev, content: e.target.value }))}
+                  className="w-full bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[11px] text-[var(--text-primary)] focus:border-[var(--accent-color)] h-32 transition-all resize-none"
                   placeholder="Klinik gözlem notları..."
                 />
+              </div>
+              <div>
+                <label className="block text-[10px] font-medium text-[var(--text-muted)] uppercase mb-1.5">Öncelik</label>
+                <div className="flex gap-2">
+                  {(['low', 'medium', 'high'] as const).map(p => (
+                    <button
+                      key={p}
+                      onClick={() => setNewNote((prev: any) => ({ ...prev, priority: p }))}
+                      className={`flex-1 py-2 rounded-lg text-[10px] font-medium uppercase transition-all border ${newNote.priority === p ? 'bg-[var(--accent-muted)] border-[var(--accent-color)] text-[var(--accent-color)]' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)] border-[var(--border-color)]'}`}
+                    >
+                      {p === 'low' ? 'Düşük' : p === 'medium' ? 'Orta' : 'Yüksek'}
+                    </button>
+                  ))}
+                </div>
               </div>
               <div>
                 <label className="block text-[10px] font-medium text-[var(--text-muted)] uppercase mb-1.5">Etiketler (virgülle ayırın)</label>
                 <input
                   type="text"
                   value={newNote.tags}
-                  onChange={e => setNewNote(prev => ({ ...prev, tags: e.target.value }))}
-                  className="w-full p-2.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[11px] outline-none focus:ring-1 focus:ring-[var(--accent-color)]/50 text-[var(--text-primary)]"
-                  placeholder="ilerleme, fonolojik, dikkat..."
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewNote((prev: any) => ({ ...prev, tags: e.target.value }))}
+                  className="w-full bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[11px] text-[var(--text-primary)] focus:border-[var(--accent-color)] transition-all"
+                  placeholder="örn: okuma, odaklanma, sosyal..."
                 />
               </div>
             </div>
