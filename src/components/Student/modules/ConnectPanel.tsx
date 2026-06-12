@@ -51,7 +51,7 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
                 const list = snap.docs.map(doc => ({ id: doc.id, name: doc.data().name }));
                 setAllStudents(list);
             } catch (err) {
-                logError("Bağlam listesi yüklenemedi:", err);
+                logError("Bağlam listesi yüklenemedi:", { error: err });
             }
         };
         fetchAll();
@@ -59,7 +59,7 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
         setIsLoadingContacts(true);
         messagingService.fetchInternalUsers(currentUser.id)
             .then(data => setContacts(data || []))
-            .catch(err => logError("Kişiler yüklenirken hata oluştu:", err))
+            .catch(err => logError("Kişiler yüklenirken hata oluştu:", { error: err }))
             .finally(() => setIsLoadingContacts(false));
     }, [currentUser.id]);
 
