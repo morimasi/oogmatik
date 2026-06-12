@@ -80,86 +80,96 @@ export const generateOfflineShapeCounting = async (
 ): Promise<ShapeCountingData[]> => {
   const worksheetCount = options.worksheetCount || 1;
   const difficulty = options.difficulty || 'Orta';
+  // Nesne yoğunluğu: 5-50 arası tam duyarlı kullanım
   const itemCount = options.itemCount || 30;
   const results: ShapeCountingData[] = [];
 
-  // Zorluk seviyesine göre hedef/çeldirici oranı
+  // Zorluk seviyesine göre hedef/çeldirici oranı ve şekil kütüphanesi
   const difficultyConfigs: Record<string, { targetRatio: number; types: string[] }> = {
     Başlangıç: { targetRatio: 0.4, types: ['circle', 'square', 'triangle'] },
-    Orta: { targetRatio: 0.3, types: ['circle', 'square', 'triangle', 'star', 'hexagon'] },
-    Zor: { targetRatio: 0.2, types: SHAPE_TYPES },
-    Uzman: { targetRatio: 0.15, types: SHAPE_TYPES },
+    Orta: { targetRatio: 0.35, types: ['circle', 'square', 'triangle', 'star', 'hexagon'] },
+    Zor: { targetRatio: 0.25, types: SHAPE_TYPES },
+    Uzman: { targetRatio: 0.2, types: SHAPE_TYPES },
   };
   const config = difficultyConfigs[difficulty] || difficultyConfigs['Orta'];
 
-    const targetShape = (options as any).targetShape || 'triangle';
+  const targetShape = (options as any).targetShape || 'triangle';
 
-    for (let p = 0; p < worksheetCount; p++) {
-      // A4 sayfasında tek bir ana bölge oluştur (Geniş Bakış Açısı için)
-      const puzzles: any[] = [];
+  for (let p = 0; p < worksheetCount; p++) {
+    const puzzles: any[] = [];
 
-      for (let section = 0; section < 1; section++) {
-        const searchField: any[] = [];
-        let targetCount = 0;
-        const currentItemCount = itemCount; // Kullanıcının seçtiği yoğunluğa tam sadık kalıyoruz
+    // Tek bir ana geniş saha (Görsel Tarama için)
+    for (let section = 0; section < 1; section++) {
+      const searchField: any[] = [];
+      let targetCount = 0;
+      
+      // Örtüşme (overlapping) kontrolü - her durumda aktif ama yoğunluk arttıkça görsel yük artmalı
+      const isOverlapping = (options as any).overlapping !== false;
 
-        for (let i = 0; i < currentItemCount; i++) {
-          const isTarget = Math.random() < config.targetRatio;
-          const type = isTarget
-            ? targetShape
-            : getRandomItems(
-                config.types.filter((t) => t !== targetShape),
-                1
-              )[0];
+      for (let i = 0; i < itemCount; i++) {
+        const isTarget = Math.random() < config.targetRatio;
+        const type = isTarget
+          ? targetShape
+          : getRandomItems(
+              config.types.filter((t) => t !== targetShape),
+              1
+            )[0];
 
-          if (type === targetShape) targetCount++;
+        if (type === targetShape) targetCount++;
 
-          searchField.push({
-            id: `s-${section}-${i}`,
-            type: type as any,
-            x: getRandomInt(2, 98),
-            y: getRandomInt(2, 98),
-            rotation: getRandomInt(0, 359),
-            size: getRandomInt(15, 35) / 10, // 1.5 - 3.5 scale (daha dengeli yoğunluk)
-            color: 'black',
-          });
-        }
-
-        // Eğer hiç hedef üretilmemişse (özellikle düşük yoğunluklarda), rastgele bir tanesini hedefe dönüştür
-        if (targetCount === 0 && searchField.length > 0) {
-          const randomIndex = getRandomInt(0, searchField.length - 1);
-          searchField[randomIndex].type = targetShape as any;
-          targetCount = 1;
-        }
-
-        puzzles.push({
-          id: `section-${section}`,
-          searchField: shuffle(searchField),
-          correctCount: targetCount,
-          difficultyScore: 5,
+        // Koordinatları yoğunluk arttıkça merkeze veya dağınık yay ( item sayısına göre dengele )
+        searchField.push({
+          id: `shape-${p}-${section}-${i}`,
+          type: type as any,
+          x: getRandomInt(5, 95),
+          y: getRandomInt(5, 95),
+          rotation: getRandomInt(0, 360),
+          // Yoğunluk 40+ ise şekilleri biraz küçült ki her şey görülebilsin
+          size: (itemCount > 40 ? getRandomInt(12, 28) : getRandomInt(15, 35)) / 10,
+          color: 'black',
         });
       }
 
-      const meta = getOfflineMetadata(ActivityType.VISUAL_PERCEPTION);
+      // Güvenlik: Eğer hiç hedef üretilmemişse (itemCount çok düşükken olabilir), zorla ekle
+      if (targetCount === 0 && itemCount > 0) {
+        const idx = getRandomInt(0, searchField.length - 1);
+        searchField[idx].type = targetShape as any;
+        targetCount = 1;
+      }
 
-      results.push({
-        title: `Görsel Tarama: ${targetShape === 'triangle' ? 'Üçgen' : targetShape === 'circle' ? 'Daire' : targetShape} Avı`,
-        instruction:
-          `Aşağıdaki geniş alanda bulunan TÜM ${targetShape.toUpperCase()}LARI bul ve sayısını kutucuğa yaz. Şekiller farklı boyut ve açılarda olabilir, dikkatli incele!`,
-        targetSkills: meta.targetSkills,
-        settings: {
-          difficulty: mapDifficulty(difficulty || 'Orta'),
-          targetShape: targetShape,
-          layout: 'single',
-          overlapping: true,
-          isProfessionalMode: true,
-          showClinicalNotes: false,
+      puzzles.push({
+        id: `section-${p}-${section}`,
+        searchField: shuffle(searchField),
+        correctCount: targetCount,
+        // Klinik zorluk skoru (yoğunluk ve şekil benzerliğine göre)
+        clinicalMeta: {
+          figureGroundComplexity: Math.min(10, Math.ceil(itemCount / 5)),
+          overlappingRatio: isOverlapping ? 0.6 : 0.1,
         },
-        sections: puzzles as any,
       });
     }
+
+    const meta = getOfflineMetadata(ActivityType.VISUAL_PERCEPTION);
+
+    results.push({
+      title: `Görsel Tarama: ${targetShape === 'triangle' ? 'Üçgen' : targetShape === 'circle' ? 'Daire' : targetShape} Avı`,
+      instruction:
+        `Aşağıdaki alandaki TÜM ${targetShape.toUpperCase()}LARI bul ve sayısını kutucuğa yaz. Şekiller iç içe geçmiş veya ters dönmüş olabilir!`,
+      targetSkills: meta.targetSkills,
+      settings: {
+        difficulty: mapDifficulty(difficulty || 'Orta'),
+        targetShape: targetShape,
+        layout: 'single',
+        overlapping: (options as any).overlapping !== false,
+        isProfessionalMode: true,
+        showClinicalNotes: true,
+      } as any,
+      sections: puzzles as any,
+    });
+  }
   return results;
 };
+
 
 export const generateOfflineGridDrawing = async (
   options: GeneratorOptions

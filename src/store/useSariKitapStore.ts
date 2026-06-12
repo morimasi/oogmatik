@@ -20,7 +20,7 @@ const createDefaultConfig = (type: SariKitapActivityType): SariKitapConfig => {
     difficulty: 'Başlangıç',
     profile: 'dyslexia',
     durationMins: 20,
-    topics: ['BursaDisleksi Hızlı Okuma'],
+    topics: ['Edebiyat'],
     learningObjectives: ['Okuma akıcılığı ve dikkat gelişimi'],
     targetSkills: ['Görsel Algı', 'Dikkat'],
     typography: { ...DEFAULT_TYPOGRAPHY },
