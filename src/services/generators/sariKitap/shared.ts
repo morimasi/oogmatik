@@ -124,7 +124,7 @@ PARAMETRELER:
 - Nokta Stili: ${c.dotStyle || 'yuvarlak'}
 - Kılavuz Çizgi Göster: ${c.showGuideLine ? 'Evet' : 'Hayır'}
 
-A4 sayfasını TAMAMEN dolduracak, 25-40 cümlelik uzun bir metin üret. İçerik kompakt ve dopdolu olmalıdır. Boşluk minimumda tutulmalıdır. Konu '${config.topics.join(', ')}' olmalı ve bu konunun gerektirdiği 'KONU SADAKATİ' (v2) kurallarına KESİN bir bağlılıkla uyulmalıdır. Her üretim tamamen özgün olmalıdır. Çıktı sadece geçerli bir JSON olmalıdır.`;
+15-20 cümlelik, A4 sayfasını dolduracak uzunlukta bir metin üret. İçerik kompakt ve dopdolu olmalıdır. Boşluk minimumda tutulmalıdır. Konu '${config.topics.join(', ')}' olmalı ve bu konunun gerektirdiği 'KONU SADAKATİ' (v2) kurallarına KESİN bir bağlılıkla uyulmalıdır. Her üretim tamamen özgün olmalıdır. Çıktı sadece geçerli bir JSON olmalıdır.`;
 }
 
 export function buildKopruPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
@@ -144,7 +144,7 @@ PARAMETRELER:
 - Köprü Stili: ${c.bridgeStyle || 'yay'}
 - Metin Yoğunluğu: ${c.textDensity || 'orta'}
 
-A4 sayfasını TAMAMEN dolduracak, ${c.textDensity === 'yüksek' ? '30-45' : c.textDensity === 'düşük' ? '15-20' : '25-40'} cümlelik uzun metin üret. Kompakt ve dopdolu A4 sayfası. Konu '${config.topics.join(', ')}' olmalı ve bu konunun gerektirdiği 'KONU SADAKATİ' (v2) kuralları KESİN uygulanmalıdır. Çıktı sadece geçerli bir JSON olmalıdır.`;
+15-20 cümlelik, ${c.textDensity === 'yüksek' ? 'yoğun' : c.textDensity === 'düşük' ? 'seyrek' : 'dengeli'} bir metin üret. Kompakt ve dopdolu A4 sayfası. Konu '${config.topics.join(', ')}' olmalı ve bu konunun gerektirdiği 'KONU SADAKATİ' (v2) kuralları KESİN uygulanmalıdır. Çıktı sadece geçerli bir JSON olmalıdır.`;
 }
 
 export function buildCiftMetinPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
@@ -201,7 +201,7 @@ PARAMETRELER:
 - Karışım Oranı: ${c.interleaveRatio || 1}
 ${_sourcePdfRef ? `- Referans PDF: ${_sourcePdfRef}` : ''}
 
-Her hikaye en az 20-25 cümle olsun. İki hikaye birbirinden tamamen farklı konularda olmalı ama seçilen konu '${config.topics.join(', ')}' etrafında şekillenmeli. 'KONU SADAKATİ' (v2) kurallarını her iki metne de KESİN uygula. A4 sayfasını taşmayacak ama olabildiğince tam dolduracak kadar uzun ve zengin içerik üret. Her bir hikaye için 3 adet 5N1K (Kim, Ne, Nerede vb.) sorusu mutlaka eklenmelidir. Her üretim benzersiz ve yaratıcı olmalıdır. Çıktı sadece geçerli bir JSON olmalıdır.`;
+Her hikaye en az 10-15 cümle olsun. İki hikaye birbirinden tamamen farklı konularda olmalı ama seçilen konu '${config.topics.join(', ')}' etrafında şekillenmeli. 'KONU SADAKATİ' (v2) kurallarını her iki metne de KESİN uygula. A4 sayfasını taşmayacak kadar kompakt ve zengin içerik üret. Her bir hikaye için 3 adet 5N1K (Kim, Ne, Nerede vb.) sorusu mutlaka eklenmelidir. Her üretim benzersiz ve yaratıcı olmalıdır. Çıktı sadece geçerli bir JSON olmalıdır.`;
 }
 
 export function buildBellekPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {

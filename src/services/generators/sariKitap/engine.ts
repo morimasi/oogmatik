@@ -7,6 +7,7 @@ import type { SariKitapConfig, SariKitapGeneratedContent } from '../../../types/
 import { getPromptBuilder } from './shared';
 import { metniHecele, metniKelimele } from '../../../utils/heceAyirici';
 import { generateWithSchema } from '../../geminiClient';
+import { processPencereContent, processNoktaContent, processKopruContent } from '../../offlineGenerators/sariKitap/heceMotoru';
 
 interface GenerateOptions {
     config: SariKitapConfig;
@@ -59,12 +60,21 @@ export async function generateSariKitapContent(
     // 3. Hece/Kelime post-processing
     const rawText = (aiData.rawText as string) ?? '';
     
-    // Nokta ve Köprü kelime bazlı çalışıyorsa metniKelimele kullan
-    const useWordLevel = (
-        (config.type === 'nokta' && config.dotPlacement === 'kelime') ||
-        (config.type === 'kopru' && config.bridgePlacement === 'kelime')
-    );
-    const heceRows = useWordLevel ? metniKelimele(rawText) : metniHecele(rawText);
+    let heceRows = [];
+    if (config.type === 'pencere') {
+        heceRows = processPencereContent(config, rawText);
+    } else if (config.type === 'nokta') {
+        heceRows = processNoktaContent(config, rawText);
+    } else if (config.type === 'kopru') {
+        heceRows = processKopruContent(config, rawText);
+    } else {
+        // Diğer tipler için standart fallback
+        const useWordLevel = (
+            (config.type === 'nokta' && config.dotPlacement === 'kelime') ||
+            (config.type === 'kopru' && config.bridgePlacement === 'kelime')
+        );
+        heceRows = useWordLevel ? metniKelimele(rawText) : metniHecele(rawText);
+    }
 
     const content: SariKitapGeneratedContent = {
         title: aiData.title ?? 'BursaDisleksi Hızlı Okuma Etkinliği',
