@@ -466,7 +466,7 @@ export const worksheetService = {
             const payload: Record<string, unknown> = {
                 userId,
                 studentId: studentId || null,
-                studentName: studentName || settings.studentName || null,
+                studentName: studentName || null,
                 name: settings.title || 'Adsız Kitapçık',
                 activityType: ActivityType.WORKBOOK,
                 worksheetData: "[]",
