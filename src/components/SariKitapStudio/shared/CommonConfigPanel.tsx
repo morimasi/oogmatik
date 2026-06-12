@@ -93,6 +93,25 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = React.memo(
                                     ))}
                                 </select>
                             </div>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem', background: 'var(--bg-inset)', borderRadius: '0.75rem', marginTop: '0.5rem' }}>
+                                <label className="sk-label" style={{ margin: 0, fontSize: '0.7rem' }}>✨ Benzersiz İçerik</label>
+                                <button
+                                    onClick={() => onUpdate?.({ isUnique: !config.isUnique })}
+                                    style={{
+                                        background: config.isUnique ? 'var(--accent-color)' : 'var(--bg-muted)',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '2rem',
+                                        padding: '0.2rem 0.6rem',
+                                        fontSize: '0.6rem',
+                                        fontWeight: 900,
+                                        cursor: 'pointer',
+                                        transition: 'all 0.2s ease'
+                                    }}
+                                >
+                                    {config.isUnique ? 'AKTİF' : 'PASİF'}
+                                </button>
+                            </div>
                          </div>
                      )}
                  </div>

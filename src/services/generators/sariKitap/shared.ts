@@ -19,24 +19,29 @@ KURALLAR:
    - 8-10: orta uzunlukta kelimeler (max 3 hece)
    - 11-13: daha karmaşık kelimeler
    - 14+: serbest
-7. BENZERSİZLİK VE ÖZGÜNLÜK (KRİTİK): Her metin tamamen yeni, özgün ve yaratıcı olmalıdır. Klişelerden kaçın. Seçilen konuyu (Edebiyat, Sanat, Müzik, Spor, Teknoloji, Gerçek Hayat, Masal, Hikaye, Biyografi, Fıkra) derinlemesine ve ilgi çekici şekilde işle. Asla birbirinin aynısı metinler üretme.
-8. KONU SADAKATİ: Eğer konu "Edebiyat" ise edebi bir dil ve kurgu, "Fıkra" ise mizahi bir yapı, "Teknoloji" ise modern kavramlar kullan.
+7. BENZERSİZLİK VE ÖZGÜNLÜK (RADİKAL): Her metin tamamen yeni, özgün ve yaratıcı olmalıdır. Klişelerden kaçın. Seçilen konuyu (Edebiyat, Sanat, Müzik, Spor, Teknoloji, Gerçek Hayat, Masal, Hikaye, Biyografi, Fıkra) derinlemesine kurgula. Asla birbirinin aynısı metinler üretme. Her üretimde farklı karakterler, farklı olaylar ve farklı bir dil örgüsü kullan.
+8. KONU SADAKATİ (STABİL): 
+   - SANAT & MÜZİK: Estetik, kültürel terimler, enstrümanlar ve sanat akımları ile harmanlanmış zengin metinler.
+   - TEKNOLOJİ & SPOR: Modern kavramlar, dinamik anlatımlar, inovasyon ve performans odaklı terminoloji.
+   - BİYOGRAFİ & FIKRA: Karakter derinliği olan yaşam öyküleri veya disleksi dostu, zekice kurgulanmış mizahi metinler.
+
+9. BAŞLIK VE METİN ÖZGÜNLÜĞÜ: Her etkinliğin başlığı (title) konuyla ilgili ve daha önce hiç kullanılmamış, yaratıcı bir başlık olmalıdır. Örn: "Sanatın Işığı", "Teknoloji Gezginleri" vb.
 
 STİL REHBERİ (BURSADİSLEKSİ HIZLI OKUMA):
 - Metinler tutarlı, ilgi çekici ve pedagojik olarak yapılandırılmış olmalı.
 - Sayfa düzeni dopdolu ve profesyonel bir çalışma kağıdı görünümünde olmalı.
 - Boşluklar minimal tutulmalı, içerik maksimize edilmelidir.
-- Zorluk seviyeleri arasında PROGRESİF (3x) artış olmalıdır (Uzunluk ve Karmaşıklık).
-- Metinler mutlaka SEÇİLEN KONU etrafında kurgulanmalıdır.
+- Zorluk seviyeleri arasında PROGRESİF (3x) artış olmalıdır.
+- Metinler mutlaka SEÇİLEN KONU etrafında DERİNLİMESİNE kurgulanmalıdır. Konunun dokusunu metne yansıt.
 - İlk cümle her zaman güven inşası için çok kolay olmalıdır.
 
 ÇIKTI FORMATI (JSON):
 {
-  "title": "string",
-  "instructions": "string",
-  "targetSkills": ["string"],
-  "rawText": "string",
-  "pedagogicalNote": "string"
+  "title": "Benzersiz ve yaratıcı başlık",
+  "instructions": "Öğrenciye yönelik net talimat",
+  "targetSkills": ["Geliştirilen beceriler"],
+  "rawText": "Konuya tam uyumlu, benzersiz ve zengin metin",
+  "pedagogicalNote": "Öğretmene bu özel içeriğin faydalarını açıklayan 1-2 cümlelik profesyonel not"
 }`;
 
 function getReferenceExample(type: SariKitapActivityType): string {
@@ -47,7 +52,7 @@ function getReferenceExample(type: SariKitapActivityType): string {
   const randomIndex = Math.floor(Math.random() * examples.length);
   const ex = examples[randomIndex];
   
-  return `\nREFERANS ÖRNEK (Bu stile ve zorluğa uygun üret):\nBaşlık: ${ex.title}\nMetin: ${ex.text}\n`;
+  return `\nREFERANS (SADECE YAPI ÖRNEĞİDİR, BU METNİ KLONLAMA, SEÇİLEN KONUDA YEPYENİ VE ÖZGÜN BİR METİN ÜRET):\nBAŞLIK: ${ex.title}\nMETİN: ${ex.text}\n`;
 }
 
 // ─── Prompt Builder Tipleri ──────────────────────────────────────
@@ -110,7 +115,7 @@ PARAMETRELER:
 - Konular: ${config.topics.join(', ')}
 - Benzersizlik Anahtarı: ${config.seed || getRandomSeed()}
 
-A4 sayfasını TAMAMEN dolduracak, 25-40 cümlelik uzun bir metin üret. İçerik kompakt ve dopdolu olmalıdır. Boşluk minimumda tutulmalıdır. Konu '${config.topics.join(', ')}' olmalı.`;
+A4 sayfasını TAMAMEN dolduracak, 25-40 cümlelik uzun bir metin üret. İçerik kompakt ve dopdolu olmalıdır. Boşluk minimumda tutulmalıdır. Konu '${config.topics.join(', ')}' olmalı ve bu konunun gerektirdiği 'KONU SADAKATİ' (v2) kurallarına KESİN bir bağlılıkla uyulmalıdır. Her üretim tamamen özgün olmalıdır.`;
 }
 
 export function buildKopruPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
@@ -126,7 +131,7 @@ PARAMETRELER:
 - Konular: ${config.topics.join(', ')}
 - Benzersizlik Anahtarı: ${config.seed || getRandomSeed()}
 
-A4 sayfasını TAMAMEN dolduracak, 25-40 cümlelik uzun metin üret. Kompakt ve dopdolu A4 sayfası. Konu '${config.topics.join(', ')}' olmalı.`;
+A4 sayfasını TAMAMEN dolduracak, 25-40 cümlelik uzun metin üret. Kompakt ve dopdolu A4 sayfası. Konu '${config.topics.join(', ')}' olmalı ve bu konunun gerektirdiği 'KONU SADAKATİ' (v2) kuralları KESİN uygulanmalıdır.`;
 }
 
 export function buildCiftMetinPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
@@ -180,7 +185,7 @@ PARAMETRELER:
 - Benzersizlik Anahtarı: ${config.seed || getRandomSeed()}
 ${_sourcePdfRef ? `- Referans PDF: ${_sourcePdfRef}` : ''}
 
-Her hikaye en az 20-25 cümle olsun. İki hikaye birbirinden tamamen farklı konularda olmalı ama seçilen konu '${config.topics.join(', ')}' etrafında şekillenmeli. A4 sayfasını taşmayacak ama olabildiğince tam dolduracak kadar uzun ve zengin içerik üret. Her bir hikaye için 3 adet 5N1K (Kim, Ne, Nerede vb.) sorusu mutlaka eklenmelidir.`;
+Her hikaye en az 20-25 cümle olsun. İki hikaye birbirinden tamamen farklı konularda olmalı ama seçilen konu '${config.topics.join(', ')}' etrafında şekillenmeli. 'KONU SADAKATİ' (v2) kurallarını her iki metne de KESİN uygula. A4 sayfasını taşmayacak ama olabildiğince tam dolduracak kadar uzun ve zengin içerik üret. Her bir hikaye için 3 adet 5N1K (Kim, Ne, Nerede vb.) sorusu mutlaka eklenmelidir. Her üretim benzersiz ve yaratıcı olmalıdır.`;
 }
 
 export function buildBellekPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
@@ -214,7 +219,7 @@ PARAMETRELER:
 - Konular: ${config.topics.join(', ')}
 - Benzersizlik Anahtarı: ${config.seed || getRandomSeed()}
 
-Toplam 16-20 kelime üret. 8-10 dikkat dağıtıcı kelime ekle. 4 cümle şablonu üret. A4 sayfasını 4 bölümle kompakt olarak doldur. Kelimeler mutlaka '${config.topics.join(', ')}' konusuyla ilgili olmalıdır.`;
+Toplam 16-20 kelime üret. 8-10 dikkat dağıtıcı kelime ekle. 4 cümle şablonu üret. A4 sayfasını 4 bölümle kompakt olarak doldur. Kelimeler mutlaka '${config.topics.join(', ')}' konusuyla ilgili olmalıdır. 'KONU SADAKATİ' kurallarını KESİN uygula ve metni benzersiz hale getir.`;
 }
 
 export function buildHizliOkumaPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
@@ -238,7 +243,7 @@ PARAMETRELER:
 - Konular: ${config.topics.join(', ')}
 - Benzersizlik Anahtarı: ${config.seed || getRandomSeed()}
 
-Her satırda 3-4 kelime, toplam 35-40 satır üret. A4 sayfasını TAMAMEN doldur. Boşluk bırakma. Kompakt ve dopdolu bir çalışma kağıdı olmalı. Kelimeler '${config.topics.join(', ')}' konusuyla ilgili ve benzersiz olmalıdır.`;
+Her satırda 3-4 kelime, toplam 35-40 satır üret. A4 sayfasını TAMAMEN doldur. Boşluk bırakma. Kompakt ve dopdolu bir çalışma kağıdı olmalı. Kelimeler '${config.topics.join(', ')}' konusuyla ilgili ve KESİNLİKLE benzersiz olmalıdır. 'KONU SADAKATİ' kuralları her satırda hissedilmelidir.`;
 }
 
 // ─── Prompt Router ───────────────────────────────────────────────
