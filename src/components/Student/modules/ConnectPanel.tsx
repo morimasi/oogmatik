@@ -5,6 +5,7 @@ import { AdvancedStudent } from '../../../types/student-advanced';
 import { logError } from '../../../utils/logger';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStudentStore } from '../../../store/useStudentStore';
+import { useUIStore } from '../../../store/useUIStore';
 
 interface ConnectPanelProps {
     student: AdvancedStudent | null;
@@ -14,6 +15,7 @@ interface ConnectPanelProps {
 
 export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser, onClose }) => {
     const { students } = useStudentStore();
+    const { setUnreadMessageCount } = useUIStore();
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputText, setInputText] = useState('');
     const [isSending, setIsSending] = useState(false);
@@ -43,7 +45,7 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
             .finally(() => setIsLoadingContacts(false));
     }, [currentUser.id]);
 
-    // Mesajları Dinle
+    // Mesajları Dinle ve Okundu Olarak İşaretle
     useEffect(() => {
         const params: any = {};
         if (activeChat.type === 'student') params.studentId = activeChat.id;
@@ -55,6 +57,18 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
             setTimeout(() => {
                 if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
             }, 100);
+
+            // Panel açıkken gelen okunmamış mesajları anında okundu işaretle
+            msgs.forEach((msg: Message) => {
+                if (msg.senderId !== currentUser.id) {
+                    const readBy: string[] = (msg as any).readBy || [];
+                    if (!readBy.includes(currentUser.id)) {
+                        messagingService.markAsRead(msg.id!, currentUser.id).catch(() => {});
+                    }
+                }
+            });
+            // Sayacı global store'da da hemen sıfırla
+            setUnreadMessageCount(0);
         });
         return () => unsubscribe();
     }, [activeChat.id, activeChat.type, currentUser.id]);

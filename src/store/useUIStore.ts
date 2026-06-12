@@ -24,6 +24,8 @@ export interface UIStoreState {
   showConnect: boolean;
   setShowConnect: (show: boolean) => void;
   toggleConnect: () => void;
+  unreadMessageCount: number;
+  setUnreadMessageCount: (count: number) => void;
 }
 
 const initialStyleSettings: StyleSettings = {
@@ -102,6 +104,8 @@ export const useUIStore = create<UIStoreState>()(
       showConnect: false,
       setShowConnect: (show) => set({ showConnect: show }),
       toggleConnect: () => set((state) => ({ showConnect: !state.showConnect })),
+      unreadMessageCount: 0,
+      setUnreadMessageCount: (count) => set({ unreadMessageCount: count }),
     }),
     {
       name: 'app-ui-storage', // localStorage key

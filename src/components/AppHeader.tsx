@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DyslexiaLogo from './DyslexiaLogo';
 import GlobalSearch from './GlobalSearch';
@@ -8,6 +8,7 @@ import { useWorksheetStore } from '../store/useWorksheetStore';
 import { useRBAC } from '../hooks/useRBAC';
 import { ActivityType, View } from '../types';
 import { useStudentStore } from '../store/useStudentStore';
+import { messagingService } from '../services/messagingService';
 
 interface AppHeaderProps {
     workbookItemsCount: number;
@@ -165,9 +166,23 @@ export const AppHeader = ({
 }: AppHeaderProps) => {
     const { user, logout } = useAuthStore();
     const { isAdmin, canAccess } = useRBAC();
-    const { setIsSidebarOpen, zenMode, setIsTourActive, showConnect, toggleConnect } = useUIStore();
+    const { setIsSidebarOpen, zenMode, setIsTourActive, showConnect, toggleConnect, unreadMessageCount, setUnreadMessageCount } = useUIStore();
     const { currentView, setCurrentView, addHistoryView, setSelectedActivity, setWorksheetData, setActiveCurriculumSession, activeCurriculumSession } = useWorksheetStore();
     const { activeStudent } = useStudentStore();
+
+    // ─── Okunmamış mesaj sayacı — gerçek zamanlı Firestore listener ───
+    useEffect(() => {
+        if (!user?.id || !canAccess('messaging')) return;
+        const unsub = messagingService.listenToUnreadCount(user.id, (count) => {
+            setUnreadMessageCount(count);
+        });
+        return () => unsub?.();
+    }, [user?.id]);
+
+    // Connect panel açıkken okunmamış sayacı sıfırla
+    useEffect(() => {
+        if (showConnect) setUnreadMessageCount(0);
+    }, [showConnect]);
 
     const navigateTo = (view: View) => {
         if (currentView === view) return;
@@ -317,7 +332,14 @@ export const AppHeader = ({
                                 title="Oogmatik Connect"
                             >
                                 <i className="fa-solid fa-comments text-[15px] leading-none group-hover/nav:scale-105 transition-transform"></i>
-                                <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse"></span>
+                                {/* Okunmamış mesaj badge'i */}
+                                {unreadMessageCount > 0 ? (
+                                    <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-rose-500 text-white text-[9px] font-black flex items-center justify-center rounded-full border-2 border-[var(--bg-paper)] shadow-lg shadow-rose-500/40 animate-bounce tabular-nums z-10">
+                                        {unreadMessageCount > 99 ? '99+' : unreadMessageCount}
+                                    </span>
+                                ) : (
+                                    <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse"></span>
+                                )}
                             </button>
                         )}
                     </div>

@@ -10,7 +10,8 @@ import {
     Timestamp,
     updateDoc,
     doc,
-    getDocs
+    getDocs,
+    arrayUnion
 } from 'firebase/firestore';
 import { db } from './firebaseClient';
 import { Message, Attachment } from '../types/messaging';
@@ -128,17 +129,51 @@ export const messagingService = {
     },
 
     /**
-     * Mesajı Okundu Olarak İşaretle
+     * Mesajı Okundu Olarak İşaretle (userId'yi readBy dizisine atomic ekler)
      */
     markAsRead: async (messageId: string, userId: string) => {
         try {
             const docRef = doc(db, 'messages', messageId);
             await updateDoc(docRef, {
                 isRead: true,
-                readBy: serverTimestamp() // Basit bir dizi yönetimi veya son okuyan bilgisi
+                readBy: arrayUnion(userId)
             });
         } catch (error) {
             logError("markAsRead failed:", { error });
+        }
+    },
+
+    /**
+     * Okunmamış Mesaj Sayısı - Gerçek Zamanlı Listener
+     * Kullanıcıya gelen ama readBy dizisinde userId'si olmayan mesajları sayar.
+     */
+    listenToUnreadCount: (userId: string, callback: (count: number) => void) => {
+        try {
+            // Kendisine ait olmayan tüm mesajlarda okunmamışları say
+            const q = query(
+                collection(db, 'messages'),
+                where('readBy', 'not-in', [[userId]]),
+                limit(100)
+            );
+
+            return onSnapshot(q, (snapshot) => {
+                let count = 0;
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data({ serverTimestamps: 'estimate' });
+                    // Kendisi tarafından gönderilmemiş ve readBy'da userId yoksa okunmamış
+                    if (data.senderId !== userId) {
+                        const readBy: string[] = data.readBy || [];
+                        if (!readBy.includes(userId)) count++;
+                    }
+                });
+                callback(count);
+            }, (error) => {
+                logError('listenToUnreadCount error:', { error });
+                callback(0);
+            });
+        } catch (error) {
+            logError('listenToUnreadCount failed:', { error });
+            return () => {};
         }
     },
 
