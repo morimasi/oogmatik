@@ -45,6 +45,14 @@ export const feedbackService = {
         await updateDoc(feedbackRef, { status });
     },
 
+    submitReply: async (feedbackId: string, reply: string, resolve: boolean = false): Promise<void> => {
+        const feedbackRef = doc(db, "feedbacks", feedbackId);
+        await updateDoc(feedbackRef, { 
+            adminReply: reply,
+            status: resolve ? 'resolved' : 'replied'
+        });
+    },
+
     deleteFeedback: async (feedbackId: string): Promise<void> => {
         await deleteDoc(doc(db, "feedbacks", feedbackId));
     }
