@@ -19,41 +19,36 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
     const [isSending, setIsSending] = useState(false);
     
     // UI State
-    const [activeView, setActiveView] = useState<'chat' | 'contacts' | 'direct'>('chat');
-    const [activeChat, setActiveChat] = useState<{ id: string; name: string; type: 'student' | 'user' } | null>(
-        student ? { id: student.id, name: student.name, type: 'student' } : null
+    const [activeChat, setActiveChat] = useState<{ id: string; name: string; type: 'global' | 'student' | 'user' }>(
+        student 
+            ? { id: student.id, name: student.name, type: student.id === 'global' ? 'global' : 'student' }
+            : { id: 'global', name: 'Genel Kanallar', type: 'global' }
     );
-    const [selectedContextStudent, setSelectedContextStudent] = useState<AdvancedStudent | null>(student);
+    const [selectedContextStudent, setSelectedContextStudent] = useState<AdvancedStudent | null>(
+        student?.id !== 'global' ? student : null
+    );
     
     const [contacts, setContacts] = useState<any[]>([]);
     const [isLoadingContacts, setIsLoadingContacts] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
     const [previewFile, setPreviewFile] = useState<string | null>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // İlk açılışta ve kullanıcı değiştikçe kişileri çek
+    // Kişileri Çek
     useEffect(() => {
         setIsLoadingContacts(true);
         messagingService.fetchInternalUsers(currentUser.id)
-            .then(data => {
-                setContacts(data || []);
-            })
-            .catch(err => {
-                logError("Kişiler yüklenirken hata oluştu:", err);
-            })
-            .finally(() => {
-                setIsLoadingContacts(false);
-            });
+            .then(data => setContacts(data || []))
+            .catch(err => logError("Kişiler yüklenirken hata oluştu:", err))
+            .finally(() => setIsLoadingContacts(false));
     }, [currentUser.id]);
 
     // Mesajları Dinle
     useEffect(() => {
-        if (!activeChat) return;
-        
-        const params = activeChat.type === 'student' 
-            ? { studentId: activeChat.id }
-            : { participantIds: [currentUser.id, activeChat.id] };
+        const params: any = {};
+        if (activeChat.type === 'student') params.studentId = activeChat.id;
+        else if (activeChat.type === 'user') params.participantIds = [currentUser.id, activeChat.id];
+        // global tipinde param boş gönderilir ki genel kanalı dinlesin
 
         const unsubscribe = messagingService.listenToMessages(params, (msgs) => {
             setMessages(msgs);
@@ -62,10 +57,10 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
             }, 100);
         });
         return () => unsubscribe();
-    }, [activeChat?.id, activeChat?.type, currentUser.id]);
+    }, [activeChat.id, activeChat.type, currentUser.id]);
 
     const handleSend = async (attachment?: Attachment) => {
-        if ((!inputText.trim() && !attachment) || isSending || !activeChat) return;
+        if ((!inputText.trim() && !attachment) || isSending) return;
         setIsSending(true);
         try {
             const params: any = {
@@ -76,14 +71,12 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
                 attachment
             };
 
-            if (activeChat.type === 'student') {
-                params.studentId = activeChat.id;
-            } else {
-                params.participantIds = [currentUser.id, activeChat.id];
-            }
+            if (activeChat.type === 'student') params.studentId = activeChat.id;
+            else if (activeChat.type === 'user') params.participantIds = [currentUser.id, activeChat.id];
+            else params.isGlobal = true;
 
             // Öğrenci bağlamı ekle
-            if (selectedContextStudent) {
+            if (activeChat.type !== 'student' && selectedContextStudent) {
                 params.contextStudentId = selectedContextStudent.id;
                 params.contextStudentName = selectedContextStudent.name;
             }
@@ -101,7 +94,6 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Dosyayı oku (Base64 simülasyonu - üretimde Cloud Storage kullanılmalı)
         const reader = new FileReader();
         reader.onload = async (event) => {
             const base64 = event.target?.result as string;
@@ -131,117 +123,202 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
         return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     };
 
-    const filteredContacts = contacts.filter(c => 
-        c.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
     return (
-        <div className="flex flex-col h-full bg-[var(--bg-paper)]/95 backdrop-blur-3xl border-l border-[var(--border-color)] font-['Lexend'] shadow-2xl relative overflow-hidden ring-1 ring-white/5">
-            {/* Header */}
-            <div className="p-6 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/30 backdrop-blur-md relative z-10">
-                <div className="flex justify-between items-center mb-6">
-                    <div className="flex items-center gap-4">
-                        {(activeView === 'direct' || (activeView === 'chat' && !student)) && (
+        <div className="flex h-full bg-[var(--bg-paper)]/95 backdrop-blur-3xl font-['Lexend'] shadow-[-20px_0_50px_rgba(0,0,0,0.5)] border-l border-[var(--border-color)] overflow-hidden rounded-l-[1.5rem]">
+            
+            {/* SOL SABİT AVATAR LİSTESİ */}
+            <div className="w-[75px] shrink-0 border-r border-[#ffffff0a] bg-black/20 flex flex-col items-center py-5 z-20">
+                {/* Global Chat İkonu */}
+                <div className="group relative w-full flex justify-center mb-1">
+                    <button 
+                        onClick={() => setActiveChat({ id: 'global', name: 'Genel Kanallar', type: 'global' })}
+                        className={`w-12 h-12 rounded-[1.2rem] flex items-center justify-center transition-all ${
+                            activeChat.type === 'global'
+                                ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20 scale-105' 
+                                : 'bg-[#ffffff08] text-[var(--accent-color)] hover:bg-[#ffffff15] hover:scale-105 border border-white/5'
+                        }`}
+                    >
+                        <i className={`fa-solid fa-earth-europe text-xl ${activeChat.type === 'global' ? '' : 'opacity-80'}`}></i>
+                    </button>
+                    {/* Tooltip */}
+                    <div className="absolute left-16 top-1/2 -translate-y-1/2 px-2 py-1 bg-black text-white text-[10px] font-bold rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl border border-white/10">
+                        Genel Sohbet Alanı
+                    </div>
+                </div>
+
+                <div className="w-8 h-px bg-white/10 my-4 rounded-full" />
+
+                {/* Kullanıcı Listesi */}
+                <div className="flex-1 w-full overflow-y-auto px-1 space-y-3 custom-scrollbar flex flex-col items-center">
+                    {isLoadingContacts ? (
+                        <div className="w-full flex justify-center mt-4 opacity-50">
+                            <i className="fa-solid fa-spinner fa-spin text-lg text-[var(--accent-color)]"></i>
+                        </div>
+                    ) : (
+                        contacts.map((contact) => (
+                            <div key={contact.id} className="group relative w-full flex justify-center">
+                                <button 
+                                    onClick={() => setActiveChat({ id: contact.id, name: contact.name, type: 'user' })}
+                                    className={`relative w-12 h-12 rounded-full overflow-hidden transition-all flex items-center justify-center font-bold text-sm shadow-md border-2 
+                                        ${activeChat.id === contact.id 
+                                            ? 'border-emerald-500 scale-110 z-10 shadow-emerald-500/30' 
+                                            : 'border-transparent hover:border-white/20 hover:scale-105 bg-[#ffffff05]'}`}
+                                >
+                                    {contact.avatar && contact.avatar.includes('http') ? (
+                                        <img src={contact.avatar} alt={contact.name} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <div className="w-full h-full bg-gradient-to-br from-neutral-800 to-neutral-900 flex items-center justify-center text-white/50 border border-white/5 rounded-full">
+                                            {contact.name.charAt(0)}
+                                        </div>
+                                    )}
+                                    {contact.isOnline && (
+                                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-black rounded-full"></span>
+                                    )}
+                                </button>
+                                {/* Tooltip */}
+                                <div className="absolute left-16 top-1/2 -translate-y-1/2 px-2.5 py-1.5 bg-black text-white rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity flex flex-col z-50 shadow-xl border border-white/10 min-w-max">
+                                    <span className="text-[11px] font-black">{contact.name}</span>
+                                    <span className="text-[8px] text-[var(--accent-color)] uppercase tracking-wider">{contact.role}</span>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </div>
+
+            {/* SAĞ ÇALIŞMA ALANI - AKTİF SOHBET */}
+            <div className="flex-1 flex flex-col relative h-full">
+                {/* Header */}
+                <div className="px-6 py-5 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/30 relative z-10 shrink-0 flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                        {activeChat.type !== 'global' && (
                             <button 
-                                onClick={() => setActiveView('contacts')}
-                                className="w-8 h-8 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all flex items-center justify-center hover:scale-105 active:scale-95"
+                                onClick={() => setActiveChat({ id: 'global', name: 'Genel Kanallar', type: 'global' })}
+                                className="w-8 h-8 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white transition-all flex items-center justify-center hover:bg-white/10 mr-1"
+                                title="Genel Kanala Dön"
                             >
-                                <i className="fa-solid fa-chevron-left text-xs"></i>
+                                <i className="fa-solid fa-arrow-left text-xs"></i>
                             </button>
                         )}
-                        <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[var(--accent-color)]/20 to-[var(--accent-color)]/10 text-[var(--accent-color)] flex items-center justify-center border border-[var(--accent-color)]/20 shadow-inner">
-                            <i className={`fa-solid ${activeChat ? 'fa-user-circle' : 'fa-comments-alt'} text-lg`}></i>
-                        </div>
                         <div>
-                            <h3 className="text-[13px] font-black text-[var(--text-primary)] uppercase tracking-widest leading-none">
-                                {activeChat ? activeChat.name : 'Oogmatik Connect'}
-                            </h3>
-                            <p className="text-[8px] text-[var(--text-muted)] font-black uppercase tracking-[0.2em] mt-1.5 opacity-60">
-                                {activeChat ? (activeChat.type === 'student' ? 'Öğrenci Kanalı' : 'Özel Mesajlaşma') : 'Güvenli İletişim Ağı'}
+                            <div className="flex items-center gap-2">
+                                <h3 className="text-sm font-black text-[var(--text-primary)] uppercase tracking-widest leading-none flex items-center gap-2">
+                                    {activeChat.type === 'global' && <i className="fa-solid fa-users text-indigo-500"></i>}
+                                    {activeChat.type === 'user' && <i className="fa-solid fa-lock text-emerald-500 text-xs"></i>}
+                                    {activeChat.name}
+                                </h3>
+                            </div>
+                            <p className="text-[9px] text-[var(--text-muted)] font-black uppercase tracking-[0.2em] mt-2 opacity-60">
+                                {activeChat.type === 'global' ? 'Herkese Açık Sohbet' : activeChat.type === 'student' ? 'Öğrenci Özel Kanalı' : 'Uçtan Uca Birebir Sohbet'}
                             </p>
                         </div>
                     </div>
-                    <button onClick={onClose} className="w-9 h-9 rounded-2xl bg-white/5 hover:bg-rose-500/10 text-[var(--text-muted)] hover:text-rose-500 transition-all flex items-center justify-center border border-[var(--border-color)] hover:border-rose-500/20 group">
-                        <i className="fa-solid fa-times text-sm group-hover:rotate-90 transition-transform duration-300"></i>
+                    
+                    <button onClick={onClose} className="w-8 h-8 rounded-full bg-white/5 hover:bg-rose-500/20 text-[var(--text-muted)] hover:text-rose-500 border border-transparent hover:border-rose-500/30 transition-all flex items-center justify-center group shrink-0">
+                        <i className="fa-solid fa-times text-xs group-hover:rotate-90 transition-transform duration-300"></i>
                     </button>
                 </div>
 
-                {/* Tabs / Context Picker */}
-                {!activeChat || activeView === 'contacts' ? (
-                     <div className="flex gap-2 p-1.5 bg-[var(--bg-secondary)]/50 rounded-2xl border border-[var(--border-color)]">
-                        <button 
-                            onClick={() => setActiveView('chat')}
-                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeView === 'chat' ? 'bg-[var(--accent-color)] text-white shadow-xl scale-[1.02]' : 'text-[var(--text-muted)] hover:bg-[var(--bg-paper)]'}`}
+                {/* Bağlam Seçici (Özel Chat ise) */}
+                {activeChat.type !== 'student' && (
+                    <div className="px-6 py-2 bg-black/10 border-b border-white/5 flex items-center gap-2 shrink-0">
+                        <i className="fa-solid fa-bullseye text-[9px] text-indigo-400"></i>
+                        <span className="text-[9px] font-black text-indigo-400/80 uppercase tracking-widest leading-none mt-0.5">ÖĞRENCİ BAĞLAMI:</span>
+                        <select 
+                            value={selectedContextStudent?.id || ''}
+                            onChange={(e) => {
+                                const s = students.find(x => x.id === e.target.value);
+                                setSelectedContextStudent(s as any || null);
+                            }}
+                            className="bg-transparent border-none text-[10px] font-bold text-[var(--text-primary)] focus:ring-0 p-0 flex-1 hover:text-white transition-colors cursor-pointer"
                         >
-                            <i className="fa-solid fa-comment-dots text-xs"></i> Mesajlar
-                        </button>
-                        <button 
-                            onClick={() => setActiveView('contacts')}
-                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeView === 'contacts' ? 'bg-[var(--accent-color)] text-white shadow-xl scale-[1.02]' : 'text-[var(--text-muted)] hover:bg-[var(--bg-paper)]'}`}
-                        >
-                            <i className="fa-solid fa-address-book text-xs"></i> Kişiler
-                        </button>
+                            <option value="" className="bg-[var(--bg-paper)] text-[var(--text-muted)]">Genel Konu (Bağlam Yok)</option>
+                            {students.map(s => (
+                                <option key={s.id} value={s.id} className="bg-[var(--bg-paper)]">{s.name}</option>
+                            ))}
+                        </select>
                     </div>
-                ) : (
-                    <div className="flex items-center justify-between p-2.5 bg-indigo-500/5 rounded-2xl border border-indigo-500/10 backdrop-blur-md">
-                        <div className="flex items-center gap-3">
-                            <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest ml-2">BAĞLAM:</span>
-                            <select 
-                                value={selectedContextStudent?.id || ''}
-                                onChange={(e) => {
-                                    const s = students.find(x => x.id === e.target.value);
-                                    setSelectedContextStudent(s as any || null);
-                                }}
-                                className="bg-transparent border-none text-[10px] font-black text-[var(--text-primary)] uppercase tracking-tight focus:ring-0 p-0 cursor-pointer hover:text-indigo-400 transition-colors"
-                            >
-                                <option value="" className="bg-[var(--bg-paper)] text-[var(--text-muted)]">Öğrenci Seçin...</option>
-                                {students.map(s => (
-                                    <option key={s.id} value={s.id} className="bg-[var(--bg-paper)] text-[var(--text-primary)]">{s.name}</option>
-                                ))}
-                            </select>
+                )}
+
+                {/* Chat Alanı */}
+                <div 
+                    ref={scrollRef}
+                    className="flex-1 overflow-y-auto px-5 py-6 space-y-6 custom-scrollbar relative bg-gradient-to-b from-transparent to-black/20"
+                >
+                    {messages.length === 0 ? (
+                        <div className="flex-1 h-full flex flex-col items-center justify-center text-center px-6 relative">
+                            <div className="w-16 h-16 rounded-3xl bg-[var(--bg-secondary)] flex items-center justify-center mb-5 opacity-40 border border-[var(--border-color)] rotate-3 shadow-inner">
+                                <i className="fa-solid fa-leaf text-2xl text-[var(--text-muted)]"></i>
+                            </div>
+                            <h4 className="text-xs font-black text-[var(--text-primary)] uppercase tracking-widest mb-2 opacity-50">Sayfa Tertemiz</h4>
+                            <p className="text-[9px] font-medium text-[var(--text-muted)] leading-relaxed max-w-[200px]">Bu konuşma alanında henüz başlayan bir sohbet yok.</p>
                         </div>
-                        {selectedContextStudent && (
-                             <button 
-                                onClick={() => setSelectedContextStudent(null)}
-                                className="w-5 h-5 rounded-md hover:bg-rose-500/10 text-rose-500/50 hover:text-rose-500 transition-all flex items-center justify-center"
-                             >
-                                <i className="fa-solid fa-times text-[10px]"></i>
-                             </button>
-                        )}
-                    </div>
-                )}
-            </div>
+                    ) : (
+                        messages.map((msg: any) => (
+                            <div key={msg.id} className={`flex flex-col ${msg.senderId === currentUser.id ? 'items-end' : 'items-start'} group/msg shrink-0`}>
+                                <div className={`flex items-center gap-2 mb-1.5 px-0.5 ${msg.senderId === currentUser.id ? 'flex-row-reverse' : ''}`}>
+                                    <span className={`text-[8.5px] font-black uppercase tracking-widest ${msg.senderId === currentUser.id ? 'text-[var(--accent-color)]' : 'text-neutral-400'}`}>
+                                        {msg.senderName}
+                                    </span>
+                                    <span className="text-[7.5px] text-[var(--text-muted)] font-bold opacity-30">{formatMessageDate(msg.createdAt)}</span>
+                                    {msg.senderId === currentUser.id && (
+                                         <button 
+                                            onClick={() => handleDeleteMessage(msg.id)}
+                                            className="opacity-0 group-hover/msg:opacity-100 w-5 h-5 rounded-md hover:bg-rose-500/10 text-rose-500/50 transition-all flex items-center justify-center"
+                                         >
+                                            <i className="fa-solid fa-trash-alt text-[8px]"></i>
+                                         </button>
+                                    )}
+                                </div>
+                                
+                                <div className={`max-w-[88%] rounded-[1.2rem] relative shadow-lg transition-all duration-300 shrink-0 border
+                                    ${msg.senderId === currentUser.id 
+                                        ? 'bg-gradient-to-br from-[var(--accent-color)] to-indigo-600 border-indigo-500/30 text-white rounded-tr-none' 
+                                        : 'bg-[var(--bg-secondary)] text-[var(--text-primary)] border-[var(--border-color)] rounded-tl-none'}`}
+                                >
+                                    {msg.contextStudentName && (
+                                         <div className="px-3 py-1.5 bg-black/20 rounded-t-[1.2rem] border-b border-white/5 text-[7px] font-black uppercase tracking-widest opacity-80 flex items-center gap-1.5">
+                                            <i className="fa-solid fa-tags text-[8px] opacity-60"></i>
+                                            ÖĞRENCİ: {msg.contextStudentName}
+                                         </div>
+                                    )}
+                                    
+                                    <div className="p-3.5 pt-3.5 shrink-0 text-[11px] leading-relaxed font-medium">
+                                        {msg.attachment ? (
+                                            <div className="space-y-3">
+                                                {msg.attachment.type === 'image' ? (
+                                                    <div 
+                                                        className="cursor-zoom-in overflow-hidden rounded-xl border border-white/10 group/preview bg-black/20"
+                                                        onClick={() => setPreviewFile(msg.attachment.url)}
+                                                    >
+                                                        <img src={msg.attachment.url} className="w-full h-auto max-h-48 object-cover group-hover:scale-105 transition-transform duration-700" alt="Görsel" />
+                                                    </div>
+                                                ) : (
+                                                    <div className="p-3 bg-black/20 rounded-xl flex items-center gap-3 border border-white/5 hover:bg-black/30 transition-colors cursor-pointer">
+                                                        <div className="w-8 h-8 rounded-lg bg-rose-500 flex items-center justify-center text-white shrink-0">
+                                                            <i className="fa-solid fa-file-pdf text-[10px]"></i>
+                                                        </div>
+                                                        <div className="flex-1 min-w-0 pr-2">
+                                                            <p className="text-[10px] font-bold uppercase truncate">{msg.attachment.name}</p>
+                                                            <p className="text-[7.5px] opacity-60 font-bold mt-0.5 tracking-widest">PDF BELGESİ</p>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {msg.text && <p className="mt-2 tracking-tight whitespace-pre-wrap">{msg.text}</p>}
+                                            </div>
+                                        ) : (
+                                            <p className="whitespace-pre-wrap tracking-tight">{msg.text}</p>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
 
-            {/* Content Area */}
-            <div className="flex-1 overflow-hidden relative">
-                {activeView === 'contacts' ? (
-                    <ViewContacts 
-                        contacts={filteredContacts}
-                        isLoading={isLoadingContacts}
-                        searchQuery={searchQuery} 
-                        setSearchQuery={setSearchQuery}
-                        onSelect={(u: any) => {
-                            setActiveChat({ id: u.id, name: u.name, type: 'user' });
-                            setActiveView('chat'); // 'direct' yerine 'chat'e dönüp ViewChat basacağız
-                        }}
-                    />
-                ) : (
-                    <ViewChat 
-                        messages={messages} 
-                        activeChat={activeChat}
-                        currentUser={currentUser} 
-                        scrollRef={scrollRef} 
-                        formatMessageDate={formatMessageDate}
-                        onDelete={handleDeleteMessage}
-                        onPreview={setPreviewFile}
-                    />
-                )}
-            </div>
-
-            {/* Input Area */}
-            {activeChat && activeView !== 'contacts' && (
-                <div className="p-6 pt-2 bg-gradient-to-t from-[var(--bg-paper)] to-transparent relative z-10">
-                    <div className="p-2.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-[2rem] flex items-center gap-2 focus-within:border-[var(--accent-color)]/30 focus-within:ring-8 focus-within:ring-[var(--accent-color)]/5 transition-all shadow-inner hover:shadow-lg group/input">
+                {/* Girdi Alanı */}
+                <div className="p-4 pt-1 bg-gradient-to-t from-[var(--bg-paper)] via-[var(--bg-paper)] to-transparent shrink-0">
+                    <div className="p-1.5 bg-[#ffffff05] backdrop-blur-md border border-[var(--border-color)] rounded-[2rem] flex items-end gap-1.5 focus-within:border-[var(--accent-color)]/30 focus-within:bg-[#ffffff08] transition-all shadow-inner relative group/input">
                         <input 
                             type="file" 
                             ref={fileInputRef}
@@ -251,31 +328,43 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
                         />
                         <button 
                             onClick={() => fileInputRef.current?.click()}
-                            className="w-11 h-11 shrink-0 rounded-full bg-[var(--bg-paper)] hover:bg-[var(--accent-color)]/10 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all border border-[var(--border-color)] shadow-sm active:scale-95"
-                            title="Dosya Ekle"
+                            className="w-10 h-10 shrink-0 rounded-[1.5rem] bg-white/5 hover:bg-[var(--accent-color)]/20 flex items-center justify-center text-[var(--accent-color)] transition-all border border-transparent hover:border-[var(--accent-color)]/30 active:scale-95"
+                            title="Dosya veya Resim Ekle"
                         >
-                            <i className="fa-solid fa-plus text-sm"></i>
+                            <i className="fa-solid fa-paperclip text-xs"></i>
                         </button>
-                        <input 
-                            type="text" 
+                        
+                        <textarea 
                             value={inputText}
                             onChange={(e) => setInputText(e.target.value)}
-                            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                            placeholder={`${activeChat.name.split(' ')[0]}'ye yazın...`}
-                            className="flex-1 bg-transparent border-none focus:ring-0 text-xs font-bold text-[var(--text-primary)] placeholder-[var(--text-muted)]/50 tracking-tight"
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    handleSend();
+                                }
+                            }}
+                            placeholder={`${activeChat.name}'ye yazın...`}
+                            rows={1}
+                            className="flex-1 bg-transparent border-none focus:ring-0 text-[11px] font-bold text-[var(--text-primary)] placeholder-[var(--text-muted)] p-3 resize-none max-h-24 custom-scrollbar"
+                            style={{ minHeight: '40px' }}
                         />
+                        
                         <button 
                             onClick={() => handleSend()}
                             disabled={(!inputText.trim()) || isSending}
-                            className="w-11 h-11 shrink-0 rounded-full bg-[var(--accent-color)] text-white flex items-center justify-center disabled:opacity-30 disabled:scale-95 disabled:grayscale hover:scale-105 active:scale-90 transition-all shadow-lg shadow-[var(--accent-color)]/30"
+                            className="w-10 h-10 shrink-0 rounded-[1.5rem] bg-[var(--accent-color)] text-white flex items-center justify-center disabled:opacity-30 disabled:scale-95 disabled:grayscale hover:scale-105 active:scale-90 transition-all shadow-lg shadow-[var(--accent-color)]/20 mb-0.5 mr-0.5"
                         >
-                            <i className={`fa-solid ${isSending ? 'fa-spinner fa-spin' : 'fa-paper-plane'} text-sm`}></i>
+                            <i className={`fa-solid ${isSending ? 'fa-spinner fa-spin' : 'fa-paper-plane'} text-xs ml-0.5`}></i>
                         </button>
                     </div>
+                    <div className="text-center mt-2">
+                        <span className="text-[7.5px] font-bold uppercase tracking-widest text-white/20">shift + enter alt satır</span>
+                    </div>
                 </div>
-            )}
 
-            {/* Zoom / Preview Modal */}
+            </div>
+
+            {/* Önizleme Modalı */}
             <AnimatePresence>
                 {previewFile && (
                     <motion.div 
@@ -285,18 +374,15 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
                         className="fixed inset-0 z-[2000] bg-black/95 backdrop-blur-2xl flex items-center justify-center p-10 cursor-zoom-out"
                         onClick={() => setPreviewFile(null)}
                     >
-                        <motion.button 
-                            className="absolute top-8 right-8 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all z-10"
-                            onClick={() => setPreviewFile(null)}
-                        >
+                        <button className="absolute top-8 right-8 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all z-10 border border-white/10">
                             <i className="fa-solid fa-times text-xl"></i>
-                        </motion.button>
+                        </button>
                         <motion.img 
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
                             src={previewFile} 
-                            className="max-w-full max-h-full rounded-2xl shadow-2xl object-contain border border-white/5" 
-                            alt="Önizleme"
+                            className="max-w-full max-h-[90vh] rounded-2xl shadow-[0_0_100px_rgba(0,0,0,1)] object-contain border border-white/10" 
+                            alt="Dosya Önizleme"
                         />
                     </motion.div>
                 )}
@@ -304,154 +390,3 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
         </div>
     );
 };
-
-/* --- Alt Bileşenler --- */
-
-const ViewChat = ({ messages, activeChat, currentUser, scrollRef, formatMessageDate, onDelete, onPreview }: any) => (
-    <div 
-        ref={scrollRef}
-        className="h-full overflow-y-auto px-6 py-6 space-y-6 custom-scrollbar flex-1 relative flex flex-col"
-    >
-        {!activeChat ? (
-             <div className="flex-1 flex flex-col items-center justify-center text-center px-10 relative mt-20">
-                <div className="w-20 h-20 rounded-full bg-indigo-500/5 flex items-center justify-center mb-6 border border-indigo-500/10">
-                     <i className="fa-solid fa-comments text-3xl text-indigo-500/50"></i>
-                </div>
-                <h4 className="text-xs font-black text-[var(--text-primary)] uppercase tracking-widest mb-2">Konuşma Seçilmedi</h4>
-                <p className="text-[9px] font-medium text-[var(--text-muted)] leading-relaxed max-w-[200px] uppercase tracking-tighter opacity-50">Sohbet başlatmak için kişiler listesine göz atın.</p>
-            </div>
-        ) : messages.length === 0 ? (
-            <div className="flex-1 flex flex-col items-center justify-center text-center px-10 relative mt-20">
-                <div className="w-20 h-20 rounded-[2rem] bg-[var(--bg-secondary)] flex items-center justify-center mb-6 opacity-40 border border-[var(--border-color)] rotate-3">
-                     <i className="fa-solid fa-leaf text-3xl text-[var(--text-muted)]"></i>
-                </div>
-                <h4 className="text-xs font-black text-[var(--text-primary)] uppercase tracking-widest mb-2 opacity-50">Sayfa Tertemiz</h4>
-                <p className="text-[9px] font-medium text-[var(--text-muted)] leading-relaxed max-w-[200px]">Bu konuşmada henüz bir kayıt bulunmuyor.</p>
-            </div>
-        ) : (
-            messages.map((msg: any) => (
-                <div key={msg.id} className={`flex flex-col ${msg.senderId === currentUser.id ? 'items-end' : 'items-start'} group/msg shrink-0`}>
-                    <div className={`flex items-center gap-2 mb-1.5 px-1 ${msg.senderId === currentUser.id ? 'flex-row-reverse' : ''}`}>
-                        <span className={`text-[8px] font-black uppercase tracking-widest ${msg.senderId === currentUser.id ? 'text-[var(--accent-color)]' : 'text-[var(--text-muted)]'}`}>
-                            {msg.senderName}
-                        </span>
-                        <span className="text-[7.5px] text-[var(--text-muted)] font-bold opacity-30">{formatMessageDate(msg.createdAt)}</span>
-                        {msg.senderId === currentUser.id && (
-                             <button 
-                                onClick={() => onDelete(msg.id)}
-                                className="opacity-0 group-hover/msg:opacity-100 w-5 h-5 rounded-md hover:bg-rose-500/10 text-rose-500/50 transition-all flex items-center justify-center"
-                             >
-                                <i className="fa-solid fa-trash-alt text-[8px]"></i>
-                             </button>
-                        )}
-                    </div>
-                    
-                    <div className={`max-w-[85%] rounded-[1.4rem] relative shadow-sm transition-all duration-300 shrink-0
-                        ${msg.senderId === currentUser.id 
-                            ? 'bg-[var(--accent-color)] text-white rounded-tr-none' 
-                            : 'bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-tl-none border border-[var(--border-color)]'}`}
-                    >
-                        {msg.contextStudentName && (
-                             <div className="px-3 py-1 bg-black/10 rounded-t-[1.4rem] border-b border-white/5 text-[7px] font-black uppercase tracking-widest opacity-70 flex items-center gap-1">
-                                <i className="fa-solid fa-tags text-[8px] opacity-40"></i>
-                                {msg.contextStudentName}
-                             </div>
-                        )}
-                        
-                        <div className="p-4 pt-4 shrink-0">
-                            {msg.attachment ? (
-                                <div className="space-y-3">
-                                    {msg.attachment.type === 'image' ? (
-                                        <div 
-                                            className="cursor-zoom-in overflow-hidden rounded-xl border border-white/10 group/preview"
-                                            onClick={() => onPreview(msg.attachment.url)}
-                                        >
-                                            <img src={msg.attachment.url} className="w-full h-auto max-h-48 object-cover group-hover:scale-105 transition-transform duration-700" alt="Görsel" />
-                                        </div>
-                                    ) : (
-                                        <div className="p-3 bg-black/20 rounded-xl flex items-center gap-3 border border-white/5">
-                                            <div className="w-9 h-9 rounded-lg bg-rose-500 flex items-center justify-center text-white">
-                                                <i className="fa-solid fa-file-pdf"></i>
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="text-[10px] font-black uppercase truncate">{msg.attachment.name}</p>
-                                                <p className="text-[8px] opacity-50 font-bold">PDF BELGESİ</p>
-                                            </div>
-                                        </div>
-                                    )}
-                                    {msg.text && <p className="text-[12px] font-bold leading-tight tracking-tight mt-2">{msg.text}</p>}
-                                </div>
-                            ) : (
-                                <p className="text-[12px] font-bold leading-[1.5] tracking-tight">{msg.text}</p>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            ))
-        )}
-    </div>
-);
-
-const ViewContacts = ({ contacts, isLoading, searchQuery, setSearchQuery, onSelect }: any) => (
-    <div className="h-full flex flex-col min-h-0">
-        <div className="px-6 py-4 shrink-0 border-b border-[var(--border-color)] bg-[var(--bg-paper)]/50 z-10 sticky top-0">
-            <div className="relative group">
-                <i className="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-xs text-[var(--text-muted)] group-focus-within:text-[var(--accent-color)] transition-colors"></i>
-                <input 
-                    type="text" 
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Eğitimci veya veli ara..."
-                    className="w-full bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-[1.2rem] py-3.5 pl-11 pr-4 text-[10px] font-black text-[var(--text-primary)] placeholder-[var(--text-muted)]/50 focus:ring-4 focus:ring-[var(--accent-color)]/10 focus:border-[var(--accent-color)]/30 transition-all shadow-sm"
-                />
-            </div>
-        </div>
-        
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1.5 custom-scrollbar relative z-0">
-            {isLoading ? (
-                <div className="h-full flex flex-col items-center justify-center text-center opacity-50 mt-10">
-                    <i className="fa-solid fa-circle-notch fa-spin text-2xl text-[var(--accent-color)] mb-4"></i>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-primary)]">Kullanıcılar Yükleniyor...</p>
-                </div>
-            ) : contacts.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center opacity-30 text-center mt-10">
-                    <i className="fa-solid fa-user-astronaut text-3xl mb-4"></i>
-                    <p className="text-[10px] font-black uppercase tracking-widest">Arama sonucu yok veya kullanıcı bulunamadı.</p>
-                </div>
-            ) : (
-                contacts.map((contact: any) => (
-                    <div 
-                        key={contact.id} 
-                        onClick={() => onSelect(contact)}
-                        className="flex items-center gap-3.5 p-3.5 rounded-[1.4rem] hover:bg-white hover:border-[var(--border-color)] border border-transparent transition-all group cursor-pointer active:scale-95 shadow-sm hover:shadow-md shrink-0 bg-[var(--bg-secondary)]/30 hover:bg-[var(--bg-paper)]"
-                    >
-                        <div className="relative">
-                            <div className="w-12 h-12 rounded-[1.2rem] bg-gradient-to-br from-[var(--bg-secondary)] to-[var(--bg-paper)] border border-[var(--border-color)] flex items-center justify-center text-[var(--accent-color)] overflow-hidden shadow-inner group-hover:rotate-3 transition-transform">
-                                {contact.avatar && contact.avatar.includes('http') ? (
-                                    <img src={contact.avatar} alt={contact.name} className="w-full h-full object-cover" />
-                                ) : (
-                                    <span className="font-black text-sm uppercase opacity-40">{contact.name.charAt(0)}</span>
-                                )}
-                            </div>
-                            {contact.isOnline && (
-                                <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-[3px] border-white rounded-full shadow-sm"></span>
-                            )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <h4 className="text-[12px] font-black text-[var(--text-primary)] truncate group-hover:text-[var(--accent-color)] transition-colors">{contact.name}</h4>
-                            <div className="flex items-center gap-2 mt-0.5">
-                                <span className={`text-[8px] font-black text-white px-2 py-0.5 rounded-lg uppercase tracking-tighter shadow-sm
-                                    ${contact.role === 'admin' ? 'bg-indigo-500' : 'bg-emerald-500'}`}>
-                                    {contact.role === 'admin' ? 'Yönetici' : 'Uzman'}
-                                </span>
-                            </div>
-                        </div>
-                        <div className="w-8 h-8 rounded-full bg-[var(--bg-paper)] shadow-inner opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all translate-x-4 group-hover:translate-x-0 border border-[var(--border-color)]">
-                             <i className="fa-solid fa-comment-dots text-[10px] text-[var(--accent-color)]"></i>
-                        </div>
-                    </div>
-                ))
-            )}
-        </div>
-    </div>
-);
