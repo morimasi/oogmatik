@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { RendererProps } from '../../registry';
 import type { KopruConfig } from '../../../../types/sariKitap';
+import { metniKelimele, metniHecele } from '../../../../utils/heceAyirici';
 
 /**
  * Köprü Renderer — Kaynak PDF Standartlarında (Gökkuşağı Yay Modeli)
@@ -10,13 +11,45 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
     if (config.type !== 'kopru') return null;
     const c = config as KopruConfig;
 
+    // Ayarların anında etki etmesi için rawText'ten dinamik heceleme/kelimeleme yapıyoruz
+    const displayRows = useMemo(() => {
+        if (content.rawText) {
+            return c.bridgePlacement === 'hece' ? metniHecele(content.rawText) : metniKelimele(content.rawText);
+        }
+        return content.heceRows;
+    }, [content.rawText, content.heceRows, c.bridgePlacement]);
+
     // Görseldeki standartlara göre ölçekleme (Punto: Dinamik, Yay: 3px kalınlık)
     const fontSizePx = (c.typography.fontSize || 22) * 1.5; // pt to px conversion factor
-    const bThickness = 3;
+    const bThickness = c.bridgeThickness ?? 3;
     const bColor = c.bridgeColor ?? '#18181b';
+    const bridgeStyle = c.bridgeStyle || 'yay';
     
     // Satır aralığı — görseldeki gibi ferah
     const rowGap = '4rem';
+
+    const renderBridge = () => {
+        if (bridgeStyle === 'düz') {
+            return (
+                <svg width="100%" height="24" viewBox="0 0 100 24" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
+                    <line x1="0" y1="20" x2="100" y2="20" stroke={bColor} strokeWidth={bThickness} vectorEffect="non-scaling-stroke" />
+                </svg>
+            );
+        } else if (bridgeStyle === 'noktalı') {
+            return (
+                <svg width="100%" height="24" viewBox="0 0 100 24" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
+                    <path d="M 0,24 Q 50,0 100,24" fill="none" stroke={bColor} strokeWidth={bThickness} strokeDasharray="4,4" vectorEffect="non-scaling-stroke" strokeLinecap="round" />
+                </svg>
+            );
+        } else {
+            // Varsayılan yay stili
+            return (
+                <svg width="100%" height="24" viewBox="0 0 100 24" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
+                    <path d="M 0,24 Q 50,0 100,24" fill="none" stroke={bColor} strokeWidth={bThickness} vectorEffect="non-scaling-stroke" strokeLinecap="round" />
+                </svg>
+            );
+        }
+    };
 
     return (
         <div className="sk-renderer-kopru" style={{
@@ -38,49 +71,8 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
                 gap: rowGap,
                 zIndex: 1
             }}>
-                {/* 1. Senaryo: AI 'words' dizisi gelirse */}
-                {content.words && (
-                    <div style={{ 
-                        display: 'flex', 
-                        flexDirection: 'row', 
-                        flexWrap: 'wrap', 
-                        alignItems: 'flex-end', 
-                        width: '100%',
-                        rowGap: '3rem',
-                        columnGap: '0.2rem'
-                    }}>
-                        {content.words.map((w, wi) => (
-                            <React.Fragment key={`ai-w-${wi}`}>
-                                <div style={{
-                                    fontSize: `${fontSizePx}px`,
-                                    fontWeight: 400,
-                                    lineHeight: '1.2',
-                                    paddingBottom: '2px', 
-                                    whiteSpace: 'nowrap'
-                                }}>
-                                    {w.word}
-                                </div>
-
-                                {wi < content.words!.length - 1 && (
-                                    <div style={{
-                                        width: '40px',
-                                        display: 'flex',
-                                        alignItems: 'flex-end',
-                                        padding: '0 4px', 
-                                        marginBottom: '6px' 
-                                    }}>
-                                        <svg width="100%" height="20" viewBox="0 0 100 24" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
-                                            <path d="M 0,24 Q 50,0 100,24" fill="none" stroke={bColor} strokeWidth={bThickness} strokeLinecap="round" />
-                                        </svg>
-                                    </div>
-                                )}
-                            </React.Fragment>
-                        ))}
-                    </div>
-                )}
-
-                {/* 2. Senaryo: Geleneksel 'heceRows' gelirse */}
-                {!content.words && (content.heceRows || []).map((row, ri) => {
+                {/* Dinamik oluşturulan satırlar */}
+                {(displayRows || []).map((row, ri) => {
                     const words = row.syllables || [];
                     if (words.length === 0) return null;
 
@@ -93,7 +85,9 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
                             width: '100%',
                             rowGap: '2.5rem' 
                         }}>
-                            {words.map((s, si) => (
+                            {words.map((s, si) => {
+                                if (!s || s.syllable.trim() === '') return null;
+                                return (
                                 <React.Fragment key={`w-${si}`}>
                                     <div style={{
                                         fontSize: `${fontSizePx}px`,
@@ -107,19 +101,17 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
 
                                     {si < words.length - 1 && (
                                         <div style={{
-                                            width: '50px',
+                                            width: `${c.bridgeWidth ?? 50}px`,
                                             display: 'flex',
                                             alignItems: 'flex-end',
                                             padding: '0 4px', 
                                             marginBottom: '8px' 
                                         }}>
-                                            <svg width="100%" height="24" viewBox="0 0 100 24" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
-                                                <path d="M 0,24 Q 50,0 100,24" fill="none" stroke={bColor} strokeWidth={bThickness} vectorEffect="non-scaling-stroke" strokeLinecap="round" />
-                                            </svg>
+                                            {renderBridge()}
                                         </div>
                                     )}
                                 </React.Fragment>
-                            ))}
+                            )})}
                         </div>
                     );
                 })}

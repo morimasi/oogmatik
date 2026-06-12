@@ -1,6 +1,7 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import type { RendererProps } from '../../registry';
 import type { NoktaConfig } from '../../../../types/sariKitap';
+import { metniKelimele, metniHecele } from '../../../../utils/heceAyirici';
 
 /**
  * Nokta Renderer — Kelime Bazlı
@@ -10,6 +11,14 @@ import type { NoktaConfig } from '../../../../types/sariKitap';
 export const NoktaRenderer = memo(({ config, content }: RendererProps) => {
     if (config.type !== 'nokta') return null;
     const c = config as NoktaConfig;
+
+    // Ayarların anında etki etmesi için rawText'ten dinamik heceleme/kelimeleme yapıyoruz
+    const displayRows = useMemo(() => {
+        if (content.rawText) {
+            return c.dotPlacement === 'hece' ? metniHecele(content.rawText) : metniKelimele(content.rawText);
+        }
+        return content.heceRows;
+    }, [content.rawText, content.heceRows, c.dotPlacement]);
 
     const fontSize = `${c.compactFontSize ?? 16}pt`;
     const gapVal = `${(c.wordGap ?? 0.5)}rem`;
@@ -66,36 +75,8 @@ export const NoktaRenderer = memo(({ config, content }: RendererProps) => {
                 padding: '0.5rem', alignItems: 'flex-start', alignContent: 'flex-start',
                 lineHeight: 1.5
             }}>
-                {/* 1. Senaryo: Düz 'words' dizisi gelirse (AI üretimi) */}
-                {content.words && content.words.map((w, wi) => {
-                    if (!w || !w.word) return null;
-                    return (
-                        <div key={wi} style={{
-                            display: 'flex', flexDirection: 'column',
-                            alignItems: 'center', gap: '0.2rem',
-                            minWidth: 'fit-content'
-                        }}>
-                            <span role="text" style={{
-                                fontSize, fontWeight: 500, lineHeight: 1.2,
-                                fontFamily: 'Lexend, sans-serif', color: '#18181b',
-                                whiteSpace: 'nowrap'
-                            }}>
-                                {w.word}
-                            </span>
-                            {/* hasDot kontrolü veya her zaman nokta basımı */}
-                            {(w.hasDot !== false) && renderDot(dotSz, dotClr, c.dotStyle || 'yuvarlak')}
-                            {c.showGuideLine && (
-                                <div style={{
-                                    width: '100%', height: '1px',
-                                    background: '#cbd5e1', marginTop: '0.05rem'
-                                }} />
-                            )}
-                        </div>
-                    );
-                })}
-
-                {/* 2. Senaryo: Yapılandırılmış 'heceRows' gelirse (Offline/Manuel) */}
-                {!content.words && content.heceRows?.map((row, ri) => {
+                {/* Dinamik oluşturulan satırlar */}
+                {displayRows?.map((row, ri) => {
                     if (!row || !row.syllables) return null;
                     return (
                         <div key={ri} style={{
@@ -104,7 +85,11 @@ export const NoktaRenderer = memo(({ config, content }: RendererProps) => {
                             marginBottom: '1rem', alignItems: 'flex-start'
                         }}>
                             {(row.syllables || []).map((s, si) => {
-                                if (!s) return null;
+                                if (!s || s.syllable.trim() === '') return null;
+                                
+                                // AI üretiminde s.dotBelow false gelir, bu yüzden dotDensity ayarına göre noktaları render ediyoruz.
+                                const shouldShowDot = !c.dotDensity || si % c.dotDensity === 0;
+                                
                                 return (
                                     <div key={si} style={{
                                         display: 'flex', flexDirection: 'column',
@@ -116,7 +101,13 @@ export const NoktaRenderer = memo(({ config, content }: RendererProps) => {
                                         }}>
                                             {s.syllable}
                                         </span>
-                                        {s.dotBelow && renderDot(dotSz, dotClr, c.dotStyle)}
+                                        {shouldShowDot ? renderDot(dotSz, dotClr, c.dotStyle || 'yuvarlak') : <div style={{ height: dotSz }}></div>}
+                                        {c.showGuideLine && (
+                                            <div style={{
+                                                width: '100%', height: '1px',
+                                                background: '#cbd5e1', marginTop: '0.05rem'
+                                            }} />
+                                        )}
                                     </div>
                                 );
                             })}

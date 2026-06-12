@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { RendererProps } from '../../registry';
 import type { HizliOkumaConfig } from '../../../../types/sariKitap';
 
@@ -11,7 +11,19 @@ export const HizliOkumaRenderer = React.memo(({ config, content }: RendererProps
     if (config.type !== 'hizli_okuma') return null;
     const c = config as HizliOkumaConfig;
 
-    const blocks = content.wordBlocks ?? [];
+    // Ayarların anında etki etmesi için kelime bloklarını dinamik olarak oluştur
+    const blocks = useMemo(() => {
+        if (content.rawText) {
+            const words = content.rawText.split(/\s+/).filter(w => w.length > 0);
+            const wordsPerBlock = c.wordsPerBlock || 3;
+            const newBlocks: string[][] = [];
+            for (let i = 0; i < words.length; i += wordsPerBlock) {
+                newBlocks.push(words.slice(i, i + wordsPerBlock));
+            }
+            return newBlocks;
+        }
+        return content.wordBlocks ?? [];
+    }, [content.rawText, content.wordBlocks, c.wordsPerBlock]);
 
     // Satır aralığı
     const rowGap = c.lineSpacing === 'sıkı' ? '0.05rem' : c.lineSpacing === 'geniş' ? '0.35rem' : '0.15rem';
@@ -29,7 +41,7 @@ export const HizliOkumaRenderer = React.memo(({ config, content }: RendererProps
             display: 'flex', flexDirection: 'column', gap: rowGap, flex: 1
         }}>
             {columnBlocks.map((row: string[], ri: number) => {
-                if (!row) return null;
+                if (!row || row.length === 0) return null;
                 const globalIndex = startIndex + ri;
                 const isZebra = c.rhythmicMode && globalIndex % 2 === 1;
                 return (

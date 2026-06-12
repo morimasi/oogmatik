@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { RendererProps } from '../../registry';
 import type { BellekConfig } from '../../../../types/sariKitap';
 
@@ -24,10 +24,35 @@ export const BellekRenderer = React.memo(({ config, content }: RendererProps) =>
     const c = config as BellekConfig;
 
     const memData = content.memoryData;
-    const studyWords = memData?.studyWords ?? content.wordBlocks?.flat() ?? [];
-    const blankIndices = new Set(memData?.blankIndices ?? []);
-    const distractors = memData?.distractors ?? [];
-    const sentencePrompts = memData?.sentencePrompts ?? [];
+    
+    // Ayarların anında etki etmesi için dinamik dilimleme yap
+    const blockCount = c.blockCount || 12;
+    const studyWords = useMemo(() => {
+        const allWords = memData?.studyWords ?? content.wordBlocks?.flat() ?? [];
+        return allWords.slice(0, blockCount);
+    }, [memData?.studyWords, content.wordBlocks, blockCount]);
+
+    // Dinamik boşluk indeksleri
+    const blankIndices = useMemo(() => {
+        const ratio = c.blankRatio || 0.4;
+        const blankCount = Math.max(1, Math.floor(studyWords.length * ratio));
+        const indices = new Set<number>();
+        while (indices.size < blankCount && indices.size < studyWords.length) {
+            indices.add(Math.floor(Math.random() * studyWords.length));
+        }
+        return indices;
+    }, [studyWords.length, c.blankRatio]);
+
+    const distractors = useMemo(() => {
+        const allDistractors = memData?.distractors ?? [];
+        const distCount = c.distractorRatio === 'yüksek' ? 12 : c.distractorRatio === 'düşük' ? 5 : 8;
+        return allDistractors.slice(0, distCount);
+    }, [memData?.distractors, c.distractorRatio]);
+
+    const sentencePrompts = useMemo(() => {
+        const allPrompts = memData?.sentencePrompts ?? [];
+        return allPrompts.slice(0, c.sentenceLines || 4);
+    }, [memData?.sentencePrompts, c.sentenceLines]);
 
     const phases = c.phases ?? ['A', 'B', 'C', 'D'];
     const cols = c.gridColumns ?? 4;
@@ -39,7 +64,7 @@ export const BellekRenderer = React.memo(({ config, content }: RendererProps) =>
     }
 
     // Faz C: karışık liste
-    const mixedList = shuffleForRender([...studyWords, ...distractors]);
+    const mixedList = useMemo(() => shuffleForRender([...studyWords, ...distractors]), [studyWords, distractors]);
 
     const sectionStyle: React.CSSProperties = {
         marginBottom: '0.4rem',
@@ -170,7 +195,6 @@ export const BellekRenderer = React.memo(({ config, content }: RendererProps) =>
                         display: 'flex', flexWrap: 'wrap', gap: '0.25rem'
                     }}>
                         {mixedList.map((word, i) => {
-                            const isOriginal = studyWords.includes(word);
                             return (
                                 <div key={i} style={{
                                     border: '1px solid #94a3b8',

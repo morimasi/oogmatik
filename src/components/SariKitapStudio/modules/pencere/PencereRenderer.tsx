@@ -1,6 +1,7 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import type { RendererProps } from '../../registry';
-import type { PencereConfig, HeceRow, HeceData } from '../../../../types/sariKitap';
+import type { PencereConfig, HeceData } from '../../../../types/sariKitap';
+import { metniHecele } from '../../../../utils/heceAyirici';
 
 /**
  * Pencere Renderer — Grid Tablo Yapısı
@@ -11,14 +12,31 @@ export const PencereRenderer = memo(({ config, content }: RendererProps) => {
     if (config.type !== 'pencere') return null;
     const c = config as PencereConfig;
 
-    // Tüm heceleri tek düz dizi olarak al (heceRows veya words üzerinden)
-    const allSyllables: HeceData[] = content.words 
-        ? content.words.map(w => ({ syllable: w.word, isHighlighted: w.hasDot !== false, dotBelow: false, bridgeNext: false }))
-        : (content.heceRows?.flatMap(r => r.syllables) ?? []);
+    // Ayarların anında etki etmesi için rawText'ten dinamik heceleme yapıyoruz
+    const allSyllables: HeceData[] = useMemo(() => {
+        if (content.rawText) {
+            const rows = metniHecele(content.rawText);
+            const flat = rows.flatMap(r => r.syllables);
+            
+            // Pencere görünürlük mantığını config'e göre uygula
+            // Örnek: windowSize kadar göster, sonra biraz gizle
+            const wSize = c.windowSize || 2;
+            const maskPatternLength = wSize + (c.showSequential ? 1 : 2); // Kaç hecede bir pencere açılacak
+            
+            return flat.map((s, i) => {
+                // Basit bir pencere deseni: wSize kadar görünür, kalanı gizli
+                const isVisible = (i % maskPatternLength) < wSize;
+                return { ...s, isHighlighted: isVisible };
+            });
+        }
+        
+        return content.words 
+            ? content.words.map(w => ({ syllable: w.word, isHighlighted: w.hasDot !== false, dotBelow: false, bridgeNext: false }))
+            : (content.heceRows?.flatMap(r => r.syllables) ?? []);
+    }, [content.rawText, content.heceRows, content.words, c.windowSize, c.showSequential]);
 
     // Grid sütun sayısını hecelere göre belirle
-    const configCols = (c as any).gridColumns;
-    const colCount = configCols === '6' ? 6 : configCols === '8' ? 8 : configCols === '10' ? 10 : (allSyllables.length > 60 ? 10 : allSyllables.length > 40 ? 8 : 6);
+    const colCount = allSyllables.length > 80 ? 10 : allSyllables.length > 50 ? 8 : 6;
     const rowCount = Math.ceil(allSyllables.length / colCount);
 
     const maskBg = c.maskColor ?? '#1e293b';
