@@ -77,7 +77,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                 logInfo("AI Bilişsel Analiz tamamlandı.");
             }
         } catch (error) {
-            logError("AI Analiz hatası:", error);
+            logError("AI Analiz hatası:", { error });
         } finally {
             setIsGeneratingAI(false);
         }
@@ -260,7 +260,7 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
                                     <div className="bg-white dark:bg-zinc-900 p-8 rounded-[3rem] border border-zinc-100 dark:border-zinc-800 flex flex-col items-center">
                                         <h4 className="text-sm font-black uppercase self-start mb-6">Bilişsel Radar</h4>
                                         <div className="w-full h-80">
-                                            <RadarChart data={aiResult.radarData} />
+                                            <RadarChart data={aiResult.radarData.map(d => ({ label: d.subject, value: d.value }))} />
                                         </div>
                                     </div>
                                     <div className="space-y-4">
