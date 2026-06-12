@@ -8,6 +8,7 @@ import { getPromptBuilder } from './shared';
 import { metniHecele, metniKelimele } from '../../../utils/heceAyirici';
 import { generateOffline } from '../../offlineGenerators/sariKitap';
 import { sariKitapCacheService } from '../../sariKitapService';
+import { generateWithSchema } from '../../geminiClient';
 
 interface GenerateOptions {
     config: SariKitapConfig;
@@ -17,7 +18,7 @@ interface GenerateOptions {
 
 /**
  * AI ile BursaDisleksi Hızlı Okuma içerik üretimi
- * Pipeline: Cache check → Prompt build → Gemini API → JSON repair → Hece post-processing → Cache set
+ * Pipeline: Cache check → Prompt build → Gemini Client (Client-Side) → Hece post-processing → Cache set
  * Fallback: AI başarısız → offline üretici
  */
 export async function generateSariKitapContent(
@@ -37,7 +38,7 @@ export async function generateSariKitapContent(
 
     // 2. AI üretim denemesi
     try {
-        // Her seferinde benzersiz üretim için yeni bir seed ekle
+        // Her seferinde benzersiz üretim için yeni bir seed enjekte et
         const updatedConfig = { 
             ...config, 
             seed: Math.random().toString(36).substring(7) + Date.now().toString() 
@@ -46,26 +47,31 @@ export async function generateSariKitapContent(
         const promptBuilder = getPromptBuilder(updatedConfig.type);
         const prompt = promptBuilder(updatedConfig, sourcePdfReference);
 
-        const response = await fetch('/api/sari-kitap/generate', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ config: updatedConfig, sourcePdfReference }),
-        });
+        // Define expected schema for JSON repair and type safety
+        const schema = {
+            type: 'OBJECT',
+            properties: {
+                title: { type: 'STRING' },
+                rawText: { type: 'STRING' },
+                pedagogicalNote: { type: 'STRING' },
+                instructions: { type: 'STRING' },
+                targetSkills: { type: 'ARRAY', items: { type: 'STRING' } },
+                sourceTexts: { type: 'OBJECT' },
+                wordBlocks: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } } },
+                memoryData: { type: 'OBJECT' }
+            },
+            required: ['title', 'rawText']
+        };
 
-        if (!response.ok) {
-            throw new Error(`API hatası: ${response.status}`);
+        // Use the robust geminiClient instead of direct fetch
+        const aiData = await generateWithSchema(prompt, schema) as any;
+
+        if (!aiData || (!aiData.rawText && !aiData.wordBlocks)) {
+            throw new Error('AI yanıtı geçersiz veya boş.');
         }
-
-        const result = await response.json();
-
-        if (!result.success || !result.data) {
-            throw new Error(result.error?.message ?? 'AI yanıtı geçersiz');
-        }
-
-        const aiData = result.data as unknown as Record<string, unknown>;
 
         // 3. Hece/Kelime post-processing
-        const rawText = (aiData.rawText as unknown as string) ?? '';
+        const rawText = (aiData.rawText as string) ?? '';
         
         // Nokta ve Köprü kelime bazlı çalışıyorsa metniKelimele kullan
         const useWordLevel = (
@@ -75,13 +81,14 @@ export async function generateSariKitapContent(
         const heceRows = useWordLevel ? metniKelimele(rawText) : metniHecele(rawText);
 
         const content: SariKitapGeneratedContent = {
-            title: (aiData.title as unknown as string) ?? 'BursaDisleksi Hızlı Okuma Etkinliği',
-            instructions: (aiData.instructions as unknown as string) ?? '',
-            targetSkills: (aiData.targetSkills as unknown as string[]) ?? [...config.targetSkills],
+            title: aiData.title ?? 'BursaDisleksi Hızlı Okuma Etkinliği',
+            instructions: aiData.instructions ?? '',
+            targetSkills: aiData.targetSkills ?? [...config.targetSkills],
             rawText,
             heceRows,
-            sourceTexts: aiData.sourceTexts as unknown as SariKitapGeneratedContent['sourceTexts'],
-            wordBlocks: aiData.wordBlocks as unknown as string[][],
+            sourceTexts: aiData.sourceTexts,
+            wordBlocks: aiData.wordBlocks,
+            memoryData: aiData.memoryData,
             generatedAt: new Date().toISOString(),
             model: 'gemini-2.5-flash',
         };
@@ -92,8 +99,9 @@ export async function generateSariKitapContent(
         }
 
         return content;
-    } catch {
-        // 5. AI fallback → offline üretici
+    } catch (err) {
+        // AI fallback → offline üretici
+        console.error('Sarı Kitap AI hatası:', err);
         return generateOffline(config);
     }
 }
