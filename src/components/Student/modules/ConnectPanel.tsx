@@ -70,7 +70,6 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
                 text: inputText.trim()
             };
 
-            // Undefined değerleri Firestore kabul etmediği için (ignoreUndefinedProperties yoksa) null/undefined property olmamalı
             if (attachmentParam) {
                 params.attachment = attachmentParam;
             }
@@ -79,14 +78,35 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
             else if (activeChat.type === 'user') params.participantIds = [currentUser.id, activeChat.id];
             else params.isGlobal = true;
 
-            // Öğrenci bağlamı ekle
             if (activeChat.type !== 'student' && selectedContextStudent) {
                 params.contextStudentId = selectedContextStudent.id;
                 params.contextStudentName = selectedContextStudent.name;
             }
 
+            // --- OPTIMISTIC UI UPDATE ---
+            // Firestore milisaniyelik gecikmesini ve yerel cache kısıtlamalarını (limit drop) bypass edip
+            // mesajı anında ekranda gösteriyoruz (0ms latency). Gerçek veritabanı yansıması daha sonra snapshot'ı ezecektir.
+            const tempMessage: Message = {
+                id: 'temp-' + Date.now(),
+                ...params,
+                createdAt: new Date().toISOString(),
+                isRead: true,
+                readBy: [currentUser.id]
+            };
+            
+            setMessages(prev => {
+                // Eğer daha önce eklendiyse (çakışma önleyici) mükerrer gösterimi engelle
+                if (prev.find(m => m.id === tempMessage.id)) return prev;
+                return [...prev, tempMessage];
+            });
+
+            setTimeout(() => {
+                if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+            }, 50);
+
+            setInputText(''); // Yazı alanını UI'da anında temizle
+
             await messagingService.sendMessage(params);
-            setInputText('');
         } catch (error) {
             logError("Message send failed:", { error });
         } finally {
