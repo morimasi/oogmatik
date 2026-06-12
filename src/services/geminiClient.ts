@@ -113,8 +113,18 @@ export const generateCreativeMultimodal = async (params: {
     safeModel = MASTER_MODEL;
   }
 
-  let finalPrompt = params.prompt;
   const activeStudent = useStudentStore.getState().activeStudent;
+  let finalPrompt = params.prompt;
+
+  // GLOBAL BENZERSİZLİK MEKANİZMASI: Her isteğe rastgele bir tohum ve yaratıcılık talimatı ekle
+  const uniquenessSeed = Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+  finalPrompt += `
+
+======================================
+[GLOBAL UNIQENESS & CREATIVITY PROTOCOL - v2]
+SEED: ${uniquenessSeed}
+TALİMAT: Bu üretimde KESİNLİKLE daha önceki desenlerden kaçın. Yaratıcı, özgün ve şaşırtıcı içerikler kurgula. Klişelere düşme, her kelime seçiminde 'Benzersizlik' prensibine sadık kal.
+======================================`;
 
   if (activeStudent) {
     const diagStr = activeStudent.diagnosis && activeStudent.diagnosis.length > 0
