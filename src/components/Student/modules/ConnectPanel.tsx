@@ -31,6 +31,11 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
     const scrollRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    // İlk açılışta ve kullanıcı değiştikçe kişileri çek
+    useEffect(() => {
+        messagingService.fetchInternalUsers(currentUser.id).then(setContacts);
+    }, [currentUser.id]);
+
     // Mesajları Dinle
     useEffect(() => {
         if (!activeChat) return;
@@ -47,13 +52,6 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
         });
         return () => unsubscribe();
     }, [activeChat?.id, activeChat?.type, currentUser.id]);
-
-    // Kullanıcıları Çek
-    useEffect(() => {
-        if (activeView === 'contacts') {
-            messagingService.fetchInternalUsers(currentUser.id).then(setContacts);
-        }
-    }, [activeView, currentUser.id]);
 
     const handleSend = async (attachment?: Attachment) => {
         if ((!inputText.trim() && !attachment) || isSending || !activeChat) return;
@@ -212,7 +210,7 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
                         setSearchQuery={setSearchQuery}
                         onSelect={(u: any) => {
                             setActiveChat({ id: u.id, name: u.name, type: 'user' });
-                            setActiveView('direct');
+                            setActiveView('chat'); // 'direct' yerine 'chat'e dönüp ViewChat basacağız
                         }}
                     />
                 ) : (
