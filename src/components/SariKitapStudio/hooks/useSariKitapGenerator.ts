@@ -1,12 +1,10 @@
 import { useCallback } from 'react';
 import { useSariKitapStore } from '../../../store/useSariKitapStore';
 import { generateSariKitapContent } from '../../../services/generators/sariKitap/engine';
-import { generateOffline } from '../../../services/offlineGenerators/sariKitap';
 
 export function useSariKitapGenerator() {
     const {
         config,
-        generationMode,
         isGenerating,
         setGenerating,
         setContent,
@@ -20,36 +18,19 @@ export function useSariKitapGenerator() {
         setError(null);
 
         try {
-            if (generationMode === 'offline') {
-                const content = generateOffline(config);
-                setContent(content);
-            } else {
-                // Unified AI generation via Sari Kitap AI Engine
-                const content = await generateSariKitapContent({
-                    config,
-                    useCache: !config.isUnique
-                });
-                
-                setContent(content);
-            }
+            // AI-only unique content generation
+            const content = await generateSariKitapContent({
+                config
+            });
+            
+            setContent(content);
         } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Üretim sırasında hata oluştu';
             setError(message);
-
-            // AI fail → offline fallback otomatik
-            if (generationMode === 'ai') {
-                try {
-                    const fallback = generateOffline(config);
-                    setContent(fallback);
-                    setError(null);
-                } catch {
-                    setError('Çevrimdışı üretim de başarısız oldu.');
-                }
-            }
         } finally {
             setGenerating(false);
         }
-    }, [config, generationMode, isGenerating, setGenerating, setContent, setError]);
+    }, [config, isGenerating, setGenerating, setContent, setError]);
 
     return { generate, isGenerating };
 }

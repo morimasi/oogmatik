@@ -50,13 +50,6 @@ describe('useSariKitapStore', () => {
         expect(updated.config.type).toBe('pencere');
     });
 
-    it('setGenerationMode doğru çalışır', () => {
-        useSariKitapStore.getState().setGenerationMode('offline');
-        expect(useSariKitapStore.getState().generationMode).toBe('offline');
-        useSariKitapStore.getState().setGenerationMode('ai');
-        expect(useSariKitapStore.getState().generationMode).toBe('ai');
-    });
-
     it('toggleGrid grid durumunu değiştirir', () => {
         const initial = useSariKitapStore.getState().showGrid;
         useSariKitapStore.getState().toggleGrid();
@@ -77,7 +70,6 @@ describe('useSariKitapStore', () => {
     it('resetStudio tüm değerleri başlangıca döndürür', () => {
         const store = useSariKitapStore.getState();
         store.setActiveType('bellek');
-        store.setGenerationMode('offline');
         store.setError('test error');
         store.resetStudio();
         const reset = useSariKitapStore.getState();

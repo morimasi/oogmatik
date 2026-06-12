@@ -31,7 +31,6 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook, initialData }: SariKita
         activeType,
         config,
         isGenerating,
-        generationMode,
         generatedContent,
         error,
         previewScale,
@@ -39,7 +38,6 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook, initialData }: SariKita
         recentGenerations,
         setActiveType,
         updateConfig,
-        setGenerationMode,
         setContent,
     } = useSariKitapStore();
 
@@ -212,8 +210,6 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook, initialData }: SariKita
                     <CommonConfigPanel
                         config={config}
                         onUpdate={updateConfig}
-                        generationMode={generationMode}
-                        onModeChange={setGenerationMode}
                     />
 
                     {ConfigPanel && (
