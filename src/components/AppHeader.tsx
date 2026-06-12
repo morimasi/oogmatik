@@ -326,21 +326,26 @@ export const AppHeader = ({
                         </button>
 
                         {canAccess('messaging') && (
-                            <button
-                                onClick={() => toggleConnect()}
-                                className={`flex shrink-0 items-center justify-center w-9 h-9 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg transition-all active:scale-[0.96] shadow-sm group/nav relative overflow-hidden ${showConnect ? 'text-indigo-500 bg-indigo-500/10 border-indigo-500/30' : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
-                                title="Oogmatik Connect"
-                            >
-                                <i className="fa-solid fa-comments text-[15px] leading-none group-hover/nav:scale-105 transition-transform"></i>
-                                {/* Okunmamış mesaj badge'i */}
-                                {unreadMessageCount > 0 ? (
-                                    <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-rose-500 text-white text-[9px] font-black flex items-center justify-center rounded-full border-2 border-[var(--bg-paper)] shadow-lg shadow-rose-500/40 animate-bounce tabular-nums z-10">
+                            // Wrapper div: badge buton sınırlarını aşabileceği için overflow-visible burada
+                            <div className="relative">
+                                <button
+                                    onClick={() => toggleConnect()}
+                                    className={`flex shrink-0 items-center justify-center w-9 h-9 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg transition-all active:scale-[0.96] shadow-sm group/nav relative ${showConnect ? 'text-indigo-500 bg-indigo-500/10 border-indigo-500/30' : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
+                                    title="Oogmatik Connect"
+                                >
+                                    <i className="fa-solid fa-comments text-[15px] leading-none group-hover/nav:scale-105 transition-transform"></i>
+                                    {/* Okunmamış yok → küçük indigo nokta (buton içinde kalır) */}
+                                    {unreadMessageCount === 0 && (
+                                        <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse"></span>
+                                    )}
+                                </button>
+                                {/* Okunmamış badge — butonun DIŞINDA, wrapper div'e konumlandırıldı, asla kırpılmaz */}
+                                {unreadMessageCount > 0 && (
+                                    <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 bg-rose-500 text-white text-[9px] font-black flex items-center justify-center rounded-full border-2 border-[var(--bg-paper)] shadow-lg shadow-rose-500/50 animate-bounce tabular-nums z-[200] pointer-events-none">
                                         {unreadMessageCount > 99 ? '99+' : unreadMessageCount}
                                     </span>
-                                ) : (
-                                    <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse"></span>
                                 )}
-                            </button>
+                            </div>
                         )}
                     </div>
 

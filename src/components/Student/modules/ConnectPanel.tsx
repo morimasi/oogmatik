@@ -6,6 +6,7 @@ import { logError } from '../../../utils/logger';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStudentStore } from '../../../store/useStudentStore';
 import { useUIStore } from '../../../store/useUIStore';
+import { useRBAC } from '../../../hooks/useRBAC';
 
 interface ConnectPanelProps {
     student: AdvancedStudent | null;
@@ -16,6 +17,15 @@ interface ConnectPanelProps {
 export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser, onClose }) => {
     const { students } = useStudentStore();
     const { setUnreadMessageCount } = useUIStore();
+    const { canAccess } = useRBAC();
+    
+    // Güvenlik: Yetkisi olmayan kullanıcıyı dışarı at
+    useEffect(() => {
+        if (!canAccess('messaging')) {
+            onClose?.();
+        }
+    }, [canAccess, onClose]);
+
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputText, setInputText] = useState('');
     const [isSending, setIsSending] = useState(false);
