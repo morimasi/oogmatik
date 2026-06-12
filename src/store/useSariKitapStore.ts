@@ -112,7 +112,7 @@ interface SariKitapState {
   activeType: SariKitapActivityType;
   config: SariKitapConfig;
   isGenerating: boolean;
-  generationMode: 'ai' | 'offline';
+  generationMode: 'ai'; // 'offline' kaldırıldı
   generatedContent: SariKitapGeneratedContent | null;
   error: string | null;
   previewScale: number;
@@ -122,7 +122,6 @@ interface SariKitapState {
   // Actions
   setActiveType: (type: SariKitapActivityType) => void;
   updateConfig: (updates: Partial<SariKitapConfig>) => void;
-  setGenerationMode: (mode: 'ai' | 'offline') => void;
   setContent: (content: SariKitapGeneratedContent | null) => void;
   setGenerating: (isGenerating: boolean) => void;
   setError: (error: string | null) => void;
@@ -152,8 +151,6 @@ export const useSariKitapStore = create<SariKitapState>()((set) => ({
   updateConfig: (updates: Partial<SariKitapConfig>) => set((state: SariKitapState) => ({
     config: { ...state.config, ...updates } as SariKitapConfig
   })),
-
-  setGenerationMode: (mode: 'ai' | 'offline') => set({ generationMode: mode }),
 
   setContent: (content: SariKitapGeneratedContent | null) => set((state: SariKitapState) => {
     if (!content) return { generatedContent: null };

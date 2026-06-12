@@ -6,12 +6,10 @@ import { AGE_GROUPS, DIFFICULTIES, PROFILES, TOPICS } from '../constants';
 interface CommonConfigPanelProps {
     config: SariKitapConfig;
     onUpdate: (updates: Partial<SariKitapConfig>) => void;
-    generationMode: 'ai' | 'offline';
-    onModeChange: (mode: 'ai' | 'offline') => void;
 }
 
 export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = React.memo(
-    ({ config, onUpdate, generationMode, onModeChange }) => {
+    ({ config, onUpdate }) => {
         const [openSections, setOpenSections] = React.useState<string[]>(['pedagoji', 'visual']);
 
         const toggleSection = (id: string) => {
@@ -28,26 +26,7 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = React.memo(
                     <span>🛠️</span> Kontrol Paneli
                 </div>
 
-                {/* 1. Üretim Modu (Her zaman görünür) */}
-                <div className="sk-panel" style={{ padding: '0.75rem', marginBottom: '0.5rem' }}>
-                    <label className="sk-label">Üretim Modu</label>
-                    <div className="sk-mode-toggle" style={{ display: 'flex', background: 'var(--bg-inset)', borderRadius: '0.75rem', padding: '0.25rem' }}>
-                        <button
-                            className={`sk-toggle-btn ${generationMode === 'ai' ? 'active' : ''}`}
-                            style={{ flex: 1, padding: '0.5rem', borderRadius: '0.5rem', fontSize: '0.75rem', fontWeight: 700 }}
-                            onClick={() => onModeChange?.('ai')}
-                        >
-                            🤖 AI
-                        </button>
-                        <button
-                            className={`sk-toggle-btn ${generationMode === 'offline' ? 'active' : ''}`}
-                            style={{ flex: 1, padding: '0.5rem', borderRadius: '0.5rem', fontSize: '0.75rem', fontWeight: 700 }}
-                            onClick={() => onModeChange?.('offline')}
-                        >
-                            ⚡ Hızlı
-                        </button>
-                    </div>
-                </div>
+                {/* 1. Üretim Modu (Kaldırıldı - Sadece AI Aktif) */}
 
                 {/* 2. Pedagojik Filtreler (Accordion) */}
                 <div className={`sk-accordion-item ${isSectionOpen('pedagoji') ? 'open' : ''}`}>
