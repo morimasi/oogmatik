@@ -19,14 +19,15 @@ KURALLAR:
    - 8-10: orta uzunlukta kelimeler (max 3 hece)
    - 11-13: daha karmaşık kelimeler
    - 14+: serbest
-7. BENZERSİZLİK VE ÖZGÜNLÜK: Her metin tamamen yeni, özgün ve yaratıcı olmalıdır. Klişelerden kaçın. Seçilen konuyu derinlemesine ve ilgi çekici şekilde işle. Asla birbirinin aynısı metinler üretme.
+7. BENZERSİZLİK VE ÖZGÜNLÜK (KRİTİK): Her metin tamamen yeni, özgün ve yaratıcı olmalıdır. Klişelerden kaçın. Seçilen konuyu (Edebiyat, Sanat, Müzik, Spor, Teknoloji, Gerçek Hayat, Masal, Hikaye, Biyografi, Fıkra) derinlemesine ve ilgi çekici şekilde işle. Asla birbirinin aynısı metinler üretme.
+8. KONU SADAKATİ: Eğer konu "Edebiyat" ise edebi bir dil ve kurgu, "Fıkra" ise mizahi bir yapı, "Teknoloji" ise modern kavramlar kullan.
 
 STİL REHBERİ (BURSADİSLEKSİ HIZLI OKUMA):
 - Metinler tutarlı, ilgi çekici ve pedagojik olarak yapılandırılmış olmalı.
 - Sayfa düzeni dopdolu ve profesyonel bir çalışma kağıdı görünümünde olmalı.
 - Boşluklar minimal tutulmalı, içerik maksimize edilmelidir.
 - Zorluk seviyeleri arasında PROGRESİF (3x) artış olmalıdır (Uzunluk ve Karmaşıklık).
-- Metinler mutlaka SEÇİLEN KONU etrafında (Edebiyat, Spor, Teknoloji, Fıkra vb.) kurgulanmalıdır.
+- Metinler mutlaka SEÇİLEN KONU etrafında kurgulanmalıdır.
 - İlk cümle her zaman güven inşası için çok kolay olmalıdır.
 
 ÇIKTI FORMATI (JSON):
@@ -34,7 +35,8 @@ STİL REHBERİ (BURSADİSLEKSİ HIZLI OKUMA):
   "title": "string",
   "instructions": "string",
   "targetSkills": ["string"],
-  "rawText": "string"
+  "rawText": "string",
+  "pedagogicalNote": "string"
 }`;
 
 function getReferenceExample(type: SariKitapActivityType): string {

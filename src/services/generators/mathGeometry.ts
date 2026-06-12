@@ -23,26 +23,21 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
     
     PARAMETRELER:
     - Hedef Şekil: ${targetShape} (Öğrenci bu şekli sayacak).
-    - Toplam Nesne Sayısı: ${itemCount}.
-    - Yerleşim Stili: ${variant === 'mixed' ? 'Kaotik/Karmaşık (Chaotic)' : 'Düzenli Izgara (Grid)'}.
-    - Üst Üste Binme (Overlapping): ${overlapping ? 'EVET (Teşvik et, iç içe geçsinler)' : 'HAYIR'}.
+    - Toplam Nesne Sayısı: ${itemCount} (KESİNLİKLE tam olarak bu sayıda nesne üret).
+    - Yerleşim Stili: ${variant === 'mixed' ? 'Kaotik (Chaotic)' : 'Düzenli Izgara (Grid)'}.
+    - Üst Üste Binme (Overlapping): ${overlapping ? 'EVET (Maksimum seviyede iç içe geçsinler)' : 'HAYIR'}.
     - Zorluk Seviyesi: ${difficulty}.
-    - Estetik Mod: ${aestheticMode}.
-    - A4 Yerleşim: ${layout}.
     
     STRATEJİ:
-    1. [KRİTİK]: Şekillerin birbirinin üzerine binmesine, iç içe geçmesine ve yoğun kümelenmesine izin ver. Bu, figür-zemin ayırt etme becerisini ölçer.
-    2. [A4 DOLDURMA]: Sayfa üzerindeki boşlukları minimuma indir, alanı dopdolu (high density) şekillerle donat. Sayfanın en az %90'ı şekillerle dolu olmalıdır.
-    3. [SEÇİCİ DİKKAT]: Hedef şekil ile diğer şekiller arasındaki görsel farkı (renk/kontrast) minimumda tut. Hepsi benzer bir görsel ağırlığa sahip olmalı ki öğrenci sadece şekil formuna odaklanarak ayrıştırma yapabilsin.
-    4. Hedef şekil olan "${targetShape}" nesnelerini toplam nesne sayısının yaklaşık %15-20'si kadar üret (Zorluk için oranı biraz düşür).
-    5. Diğer nesneleri (circle, square, star, hexagon, pentagon, diamond) güçlü çeldiriciler olarak kullan.
-    6. Koordinatlar (x, y) 0-100 arasındadır. Yoğun kümeler oluşturmak için nesneleri birbirine yakın koordinatlara yerleştir.
-    7. Rotasyon (0-360) ve Boyut (0.5 - 1.2) çeşitliliği ile karmaşıklığı artır.
+    1. [YOĞUNLUK]: Sayfayı TAMAMEN şekillerle doldur. Nesneler birbirine çok yakın ve iç içe (overlapping) olmalıdır.
+    2. [HEDEF ADEDİ]: Toplam ${itemCount} nesne içinde tam olarak ${Math.ceil(itemCount * 0.3)} adet "${targetShape}" üret.
+    3. [ÇELDİRİCİLER]: Diğer nesneleri (circle, square, star, hexagon, pentagon, diamond) hedef şekle çok yakın boyut ve renklerde seçerek ayırt etmeyi zorlaştır.
+    4. Koordinatlar (0-100) arasında rastgele ama yoğun kümeler oluşturacak şekilde dağıtılmalıdır. Sayfanın en az %95'i kapsanmalıdır.
+    5. Birbirinden farklı rotasyon (0-360) ve boyut varyasyonları ekle.
     
     ÇIKTI BİLGİSİ:
     - correctCount: Hedef şeklin tam adedi.
     - searchField: Nesne listesi (x, y, type, color, rotation, size).
-    - clinicalMeta: { figureGroundComplexity: number (1-10), overlappingRatio: number (0-1) }.
     `;
 
     const schema = {

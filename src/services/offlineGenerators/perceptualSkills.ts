@@ -163,6 +163,7 @@ export const generateOfflineShapeCounting = async (
         overlapping: (options as any).overlapping !== false,
         isProfessionalMode: true,
         showClinicalNotes: true,
+        itemCount: itemCount
       } as any,
       sections: puzzles as any,
     });
