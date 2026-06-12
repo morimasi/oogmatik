@@ -178,6 +178,39 @@ export const messagingService = {
     },
 
     /**
+     * Kişi Başına Okunmamış Mesaj Sayısı - Gerçek Zamanlı Listener
+     * Her senderId için ayrı sayaç tutar → sol sidebar badge'leri için kullanılır.
+     */
+    listenToUnreadCountPerContact: (userId: string, callback: (counts: Record<string, number>) => void) => {
+        try {
+            const q = query(
+                collection(db, 'messages'),
+                where('senderId', '!=', userId),
+                limit(200)
+            );
+
+            return onSnapshot(q, (snapshot) => {
+                const counts: Record<string, number> = {};
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data({ serverTimestamps: 'estimate' });
+                    const readBy: string[] = data.readBy || [];
+                    if (!readBy.includes(userId)) {
+                        const sender: string = data.senderId || 'unknown';
+                        counts[sender] = (counts[sender] || 0) + 1;
+                    }
+                });
+                callback(counts);
+            }, (error) => {
+                logError('listenToUnreadCountPerContact error:', { error });
+                callback({});
+            });
+        } catch (error) {
+            logError('listenToUnreadCountPerContact failed:', { error });
+            return () => {};
+        }
+    },
+
+    /**
      * Uygulama İçi Kullanıcıları Getir (Kişiler Listesi)
      */
     fetchInternalUsers: async (excludeUserId: string) => {

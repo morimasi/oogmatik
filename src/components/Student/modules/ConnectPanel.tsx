@@ -33,6 +33,8 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
     const [contacts, setContacts] = useState<any[]>([]);
     const [isLoadingContacts, setIsLoadingContacts] = useState(false);
     const [previewFile, setPreviewFile] = useState<string | null>(null);
+    // Kişi başına okunmamış mesaj sayaçları { [contactId]: count }
+    const [perContactUnread, setPerContactUnread] = useState<Record<string, number>>({});
     const scrollRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -43,6 +45,14 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
             .then(data => setContacts(data || []))
             .catch(err => logError("Kişiler yüklenirken hata oluştu:", err))
             .finally(() => setIsLoadingContacts(false));
+    }, [currentUser.id]);
+
+    // Kişi başına okunmamış sayaç — gerçek zamanlı listener
+    useEffect(() => {
+        const unsub = messagingService.listenToUnreadCountPerContact(currentUser.id, (counts) => {
+            setPerContactUnread(counts);
+        });
+        return () => unsub?.();
     }, [currentUser.id]);
 
     // Mesajları Dinle ve Okundu Olarak İşaretle
@@ -200,21 +210,33 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
                         contacts.map((contact) => (
                             <div key={contact.id} className="group relative w-full flex flex-col items-center justify-center">
                                 <button 
-                                    onClick={() => setActiveChat({ id: contact.id, name: contact.name, type: 'user' })}
-                                    className={`relative w-12 h-12 rounded-full overflow-hidden transition-all flex items-center justify-center font-bold text-lg shadow-md border-[2.5px] shrink-0
+                                    onClick={() => {
+                                        setActiveChat({ id: contact.id, name: contact.name, type: 'user' });
+                                        // Bu kişinin sayacını sıfırla (markAsRead listener tarafından da temizlenecek)
+                                        setPerContactUnread(prev => ({ ...prev, [contact.id]: 0 }));
+                                    }}
+                                    className={`relative w-12 h-12 rounded-full overflow-visible transition-all flex items-center justify-center font-bold text-lg shadow-md border-[2.5px] shrink-0
                                         ${activeChat.id === contact.id 
                                             ? 'border-emerald-500 scale-110 z-10 shadow-emerald-500/30' 
                                             : 'border-transparent hover:border-white/20 hover:scale-105 bg-[#ffffff05]'}`}
                                 >
-                                    {contact.avatar && contact.avatar.includes('http') ? (
-                                        <img src={contact.avatar} alt={contact.name} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className="w-full h-full bg-gradient-to-br from-neutral-800 to-neutral-900 flex items-center justify-center text-white/50 border border-white/5 rounded-full">
-                                            {contact.name.charAt(0)}
-                                        </div>
-                                    )}
-                                    {contact.isOnline && (
-                                        <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-black rounded-full"></span>
+                                    <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center">
+                                        {contact.avatar && contact.avatar.includes('http') ? (
+                                            <img src={contact.avatar} alt={contact.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="w-full h-full bg-gradient-to-br from-neutral-800 to-neutral-900 flex items-center justify-center text-white/50 border border-white/5 rounded-full">
+                                                {contact.name.charAt(0)}
+                                            </div>
+                                        )}
+                                        {contact.isOnline && (
+                                            <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-black rounded-full"></span>
+                                        )}
+                                    </div>
+                                    {/* Kişi başına okunmamış mesaj badge'i */}
+                                    {(perContactUnread[contact.id] ?? 0) > 0 && (
+                                        <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-rose-500 text-white text-[9px] font-black flex items-center justify-center rounded-full border-2 border-black shadow-lg shadow-rose-500/40 animate-bounce tabular-nums z-20">
+                                            {perContactUnread[contact.id] > 99 ? '99+' : perContactUnread[contact.id]}
+                                        </span>
                                     )}
                                 </button>
                                 <span className={`text-[8.5px] mt-1.5 font-bold uppercase tracking-tight text-center leading-tight truncate w-14 ${activeChat.id === contact.id ? 'text-emerald-400' : 'text-zinc-500 group-hover:text-zinc-300 transition-colors'}`}>
