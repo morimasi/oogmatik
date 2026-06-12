@@ -13,15 +13,15 @@
  * - KVKV uyumu zorunlu — öğrenci adı + tanı + skor birlikte görünmez
  */
 
-import { ActivityType, LearningDisabilityProfile, AgeGroup, Difficulty } from './index';
+import { ActivityType } from './activity';
+import { LearningDisabilityProfile, AgeGroup } from './creativeStudio';
+import { Difficulty } from './common';
 
 export interface StudentProfile {
   id?: string;
   learningDisabilityProfile?: LearningDisabilityProfile;
   ageGroup?: AgeGroup;
 }
-
-export type { LearningDisabilityProfile, AgeGroup };
 
 // ============================================================================
 // WORKBOOK EXPORT/IMPORT FORMATS
@@ -417,6 +417,8 @@ export interface WorkbookPageStudentNote {
  */
 export interface WorkbookSettings {
   // Sayfa düzeni
+  title: string;
+  studentName: string;
   pageSize: 'A4' | 'Letter' | 'B5';
   orientation: 'portrait' | 'landscape';
   layout: WorkbookPageLayout;

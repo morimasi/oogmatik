@@ -39,6 +39,7 @@ export const AD_TARGET_LABELS: Record<AdStudioTarget, string> = {
   sari_kitap: 'Sarı Kitap',
   infographic_studio: 'İnfografik Stüdyosu',
   super_studio: 'Süper Stüdyo',
+  ad_studio: 'Reklam Stüdyosu',
   all_modules: 'Tüm Modüller',
 };
 
@@ -62,6 +63,7 @@ export const AD_TARGET_DESCRIPTIONS: Record<AdStudioTarget, string> = {
   sari_kitap: 'Sarı Kitap metodolojisi ile okuma ve anlama çalışmaları.',
   infographic_studio: 'Görsel bilgi grafikleri ve infografik tasarım aracı.',
   super_studio: 'Tüm stüdyoları tek çatı altında toplayan süper stüdyo modülü.',
+  ad_studio: 'Ürün ve hizmet tanıtımı için AI destekli reklam ve pazarlama içerikleri üretir.',
   all_modules: 'bdmind platformunun tüm modülleri ve özellikleri.',
 };
 

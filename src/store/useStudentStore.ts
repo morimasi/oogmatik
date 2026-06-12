@@ -1,4 +1,4 @@
-import { create, SetState, GetState } from 'zustand';
+import { create } from 'zustand';
 import { Student } from '../types';
 import { db } from '../services/firebaseClient';
 import {
@@ -28,7 +28,7 @@ interface StudentState {
   // Actions
   setActiveStudent: (student: Student | null) => void;
   fetchStudents: (teacherId: string, isAdmin?: boolean) => () => void;
-  addStudent: (teacherId: string, studentData: unknown) => Promise<void>;
+  addStudent: (teacherId: string, studentData: unknown) => Promise<string>;
   updateStudent: (id: string, updates: Partial<Student>) => Promise<void>;
   deleteStudent: (id: string) => Promise<void>;
 }
@@ -54,7 +54,7 @@ const sanitizeBaseStudent = (data: unknown): Partial<Student> => {
   };
 };
 
-export const useStudentStore = create<StudentState>()((set: SetState<StudentState>, get: GetState<StudentState>) => ({
+export const useStudentStore = create<StudentState>()((set, get) => ({
   students: [],
   activeStudent: null,
   isLoading: false,

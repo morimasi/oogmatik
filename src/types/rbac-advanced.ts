@@ -83,7 +83,12 @@ export const MODULE_LABELS: Record<PermissionModule, string> = {
   'platform-market': 'Platform Pazarı',
   'premium-support': 'Premium Yardım',
   'about-us': 'Hakkımızda',
-  'developer-tools': 'Geliştirici / API'
+  'developer-tools': 'Geliştirici / API',
+  'analytics': 'Analitik ve Takip',
+  'planning': 'Akademik Planlama',
+  'reports': 'Raporlar ve Çıktılar',
+  'settings': 'Sistem Ayarları',
+  'bep': 'BEP Yönetimi'
 };
 
 // ─── Modül Kategorileri (RBAC IDE gruplama) ────────────────────────
@@ -107,7 +112,7 @@ export const MODULE_CATEGORIES: { id: string; label: string; modules: Permission
   {
     id: 'tools-portals',
     label: 'Araçlar ve Portallar',
-    modules: ['students', 'workbook', 'messaging', 'favorites', 'archive', 'shared-materials', 'activity-history']
+    modules: ['students', 'workbook', 'messaging', 'favorites', 'archive', 'shared-materials', 'activity-history', 'analytics', 'planning', 'reports', 'settings', 'bep']
   },
   {
     id: 'admin-platform',

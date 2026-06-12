@@ -101,7 +101,7 @@ const mapDbToWorksheet = (docData: firestore.DocumentData, id: string): SavedWor
     studentProfile: docData.studentProfile as StudentProfile | undefined,
     // Fixed: Cast deserialized data to CollectionItem[] to match type definition
     workbookItems: docData.workbookItems ? (deserializeData(docData.workbookItems) as unknown as CollectionItem[]) : undefined,
-    workbookSettings: docData.workbookSettings as WorkbookSettings | undefined
+    workbookSettings: docData.workbookSettings as any
 });
 
 export const worksheetService = {
