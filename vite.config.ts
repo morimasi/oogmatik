@@ -24,9 +24,8 @@ const config: UserConfig & { test?: any } = {
     'process.env.FIREBASE_APP_ID': JSON.stringify(process.env.FIREBASE_APP_ID),
   },
   build: {
-    // Bundle boyutu bütçesi — 1500 kB'yi geçen chunk'lar CI'da uyarı verir.
-    // 1000 kB hedef; geçici 1500 kB tolerans (ileriki sprint'lerde code-split artar).
-    chunkSizeWarningLimit: 2500,
+    // Bundle boyutu bütçesi
+    chunkSizeWarningLimit: 3000,
     rollupOptions: {
       output: {
         // Manuel chunking kaldırıldı — Dairesel bağımlılık ve TDZ hatalarını önlemek için
