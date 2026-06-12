@@ -168,6 +168,22 @@ export const AppHeader = ({
     const { setIsSidebarOpen, zenMode, setIsTourActive, showConnect, toggleConnect } = useUIStore();
     const { currentView, setCurrentView, addHistoryView, setSelectedActivity, setWorksheetData, setActiveCurriculumSession, activeCurriculumSession } = useWorksheetStore();
     const { activeStudent } = useStudentStore();
+    
+    // --- BİLDİRİM ROZETİ STATE'İ ---
+    const [unreadCount, setUnreadCount] = React.useState(0);
+
+    // Global Okunmamış Mesaj Sayısını Dinle
+    React.useEffect(() => {
+        if (!user || !user.id || !canAccess('messaging')) return;
+        
+        import('../services/messagingService').then(({ messagingService }) => {
+            const unsubscribe = messagingService.listenToUnreadCount(user.id, (count) => {
+                setUnreadCount(count);
+            });
+            // Component umount olursa dinlemeyi kes
+            return () => unsubscribe();
+        });
+    }, [user?.id, canAccess]);
 
     const navigateTo = (view: View) => {
         if (currentView === view) return;

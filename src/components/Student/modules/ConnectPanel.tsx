@@ -52,6 +52,14 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
 
         const unsubscribe = messagingService.listenToMessages(params, (msgs) => {
             setMessages(msgs);
+
+            // Gelen mesajları "Okundu" olarak işaretle
+            msgs.forEach(msg => {
+                if (msg.senderId !== currentUser.id && (!msg.readBy || !msg.readBy.includes(currentUser.id))) {
+                    messagingService.markAsRead(msg.id, currentUser.id);
+                }
+            });
+
             setTimeout(() => {
                 if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
             }, 100);
@@ -135,6 +143,9 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
     const handleDeleteMessage = async (id: string) => {
         if (!window.confirm('Bu mesajı silmek istediğinize emin misiniz?')) return;
         try {
+            // --- OPTIMISTIC UI DELETE ---
+            // Sunucu yanıtını beklemeden mesajı ekrandan anında (%100 hız ile) yok et
+            setMessages(prev => prev.filter(m => m.id !== id));
             await messagingService.deleteMessage(id);
         } catch (error) {
             logError("Delete failed:", { error });
