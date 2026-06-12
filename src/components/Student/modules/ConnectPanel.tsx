@@ -210,7 +210,7 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
                         contacts={filteredContacts} 
                         searchQuery={searchQuery} 
                         setSearchQuery={setSearchQuery}
-                        onSelect={(u) => {
+                        onSelect={(u: any) => {
                             setActiveChat({ id: u.id, name: u.name, type: 'user' });
                             setActiveView('direct');
                         }}

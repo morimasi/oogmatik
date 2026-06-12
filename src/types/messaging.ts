@@ -1,6 +1,6 @@
 import { Timestamp } from 'firebase/firestore';
 
-export type AttachmentType = 'activity' | 'assessment' | 'file' | 'image' | 'voice' | 'link';
+export type AttachmentType = 'activity' | 'assessment' | 'file' | 'image' | 'pdf' | 'voice' | 'link';
 
 export interface Attachment {
     type: AttachmentType;
@@ -20,7 +20,11 @@ export interface Message {
     senderName: string;
     text?: string;
     attachment?: Attachment;
-    createdAt: string; // ISO String (For sorting in UI)
+    participantIds?: string[]; // İkili sohbetler için
+    contextStudentId?: string; // Mesajın ilgili olduğu öğrenci
+    contextStudentName?: string;
+    isGlobal?: boolean;
+    createdAt: string; 
     dbTimestamp: Timestamp; // Firestore Server Timestamp
     isRead: boolean;
     readBy?: string[];
