@@ -269,7 +269,7 @@ export const authService = {
     updateProfile: async (userId: string, updates: Partial<User>): Promise<User> => {
         const userDocRef = doc(db, "users", userId);
 
-        const dbUpdates: any = {};
+        const dbUpdates: Partial<User> = {};
         if (updates.name) dbUpdates.name = updates.name;
         if (updates.avatar) dbUpdates.avatar = updates.avatar;
         if (updates.worksheetCount !== undefined) dbUpdates.worksheetCount = updates.worksheetCount;
@@ -280,9 +280,9 @@ export const authService = {
         if (updates.bio !== undefined) dbUpdates.bio = updates.bio;
         if (updates.pedagogySettings) dbUpdates.pedagogySettings = updates.pedagogySettings;
         if (updates.aiAssistantSettings) dbUpdates.aiAssistantSettings = updates.aiAssistantSettings;
-        if ((updates as any).notificationSettings) dbUpdates.notificationSettings = (updates as any).notificationSettings;
+        if (updates.notificationSettings) dbUpdates.notificationSettings = updates.notificationSettings;
 
-        await updateDoc(userDocRef, dbUpdates);
+        await updateDoc(userDocRef, dbUpdates as any);
 
         const updatedSnap = await getDoc(userDocRef);
         const data = updatedSnap.data() as Record<string, any>;

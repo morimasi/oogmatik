@@ -28,7 +28,10 @@ interface IEPModuleProps {
     onUpdate?: (updatedIEP: any) => void;
 }
 
-export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
+export const IEPModule: React.FC<IEPModuleProps> = ({ 
+    student, 
+    onUpdate 
+}: IEPModuleProps) => {
     const [activeTab, setActiveTab] = useState<'dashboard' | 'analysis' | 'goals' | 'reports'>('dashboard');
     const [newGoal, setNewGoal] = useState<Partial<IEPGoal>>({});
     const [showGoalModal, setShowGoalModal] = useState(false);
@@ -157,6 +160,27 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
         setShowReviewModal(false);
         if (onUpdate) onUpdate({ ...student.iep, goals: updatedGoals });
     };
+
+    // --- AI Cognitive Insight ---
+    const [cognitiveData, setCognitiveData] = useState<any>(null);
+    const [loadingCognitive, setLoadingCognitive] = useState(false);
+
+    const fetchCognitiveInsight = async () => {
+        if (!student.id) return;
+        setLoadingCognitive(true);
+        try {
+            const data = await aiStudentService.generateCognitiveInsight(student as any);
+            setCognitiveData(data);
+        } catch (error) {
+            logError('Cognitive Insight Error', error as any);
+        } finally {
+            setLoadingCognitive(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchCognitiveInsight();
+    }, [student.id]);
 
     // Components
     const TabButton = ({ id, icon, label }: { id: any, icon: string, label: string }) => (

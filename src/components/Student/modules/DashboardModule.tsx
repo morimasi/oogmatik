@@ -18,7 +18,7 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
   assessments,
   curriculums,
   onNavigateToTab,
-}) => {
+}: DashboardModuleProps) => {
   const allAssignments = assignments;
   const allWorksheets = worksheets;
   const allAssessments = assessments;

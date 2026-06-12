@@ -141,27 +141,98 @@ GÖREV: Aşağıdaki öğrenci verilerine dayanarak bilişsel profil analizi ve 
   },
 
   generateCognitiveInsight: async (student: AdvancedStudent): Promise<CognitiveProfileResult> => {
-    const weaknesses = student.weaknesses || [];
-    const strengths = student.strengths || [];
-    const scores: Record<string, number> = {};
-    const radarData: { skill: string; score: number }[] = [];
-    
-    const allSkills = [...new Set([...weaknesses, ...strengths])];
-    for (const skill of allSkills) {
-      const score = strengths.includes(skill) ? 75 : 35;
-      scores[skill] = score;
-      radarData.push({ skill, score });
-    }
+    const prompt = `
+[ROL: Baş Nöro-Psikolog ve Özel Eğitim Stratejisti]
 
-    return {
-      scores,
-      radarData,
-      insights: ['Profil analiz edildi'],
-      recommendations: ['BEP hedefleri gözden geçirilmeli'],
-      summary: 'Bilişsel profil analizi tamamlandı',
-      strengths: strengths.map(s => ({ label: s, trend: 'up' as const })),
-      strategies: [{ title: 'Odak Stratejisi', text: 'BEP hedeflerine odaklan', icon: 'fa-target', color: 'indigo' }],
-      timeline: [{ date: new Date().toISOString(), event: 'Profil oluşturuldu' }]
+GÖREV: Aşağıdaki öğrenci profiline dayanarak, görselleştirilebilir radar verileri ve derinlemesine bilişsel analiz içeren bir rapor üret.
+
+ÖĞRENCİ:
+- İsim: ${student.name}
+- Sınıf: ${student.grade}
+- Güçlü Yönler: ${student.strengths?.join(', ')}
+- Zayıf Yönler: ${student.weaknesses?.join(', ')}
+
+İSTENEN ÇIKTI (JSON):
+- scores: Her beceri (Dikkat, Bellek, Mantık, Dil, Görsel Algı) için 0-100 puan.
+- radarData: Radar chart için [{ skill: string, score: number }] formatında dizi.
+- insights: 3 adet kritik bilişsel içgörü.
+- recommendations: Öğretmen için 3 spesifik tavsiye.
+- summary: 2 cümlelik nöro-pedagojik özet.
+- strengths: En güçlü 3 alan ve trendi.
+- strategies: Uygulanabilir 2 adet mikro-strateji (icon, color, title, text). icon için Lucide/FontAwesome sınıfları kullan.
+- timeline: Önemli nöro-pedagojik kilometre taşları.
+
+Öğrencinin disleksi/DEHB profilini göz önünde bulundurarak empatik ve klinik olarak doğru bir dil kullan.
+`;
+
+    const schema = {
+      type: 'OBJECT',
+      properties: {
+        scores: { type: 'OBJECT', additionalProperties: { type: 'NUMBER' } },
+        radarData: {
+          type: 'ARRAY',
+          items: {
+            type: 'OBJECT',
+            properties: {
+              skill: { type: 'STRING' },
+              score: { type: 'NUMBER' }
+            }
+          }
+        },
+        insights: { type: 'ARRAY', items: { type: 'STRING' } },
+        recommendations: { type: 'ARRAY', items: { type: 'STRING' } },
+        summary: { type: 'STRING' },
+        strengths: {
+          type: 'ARRAY',
+          items: {
+            type: 'OBJECT',
+            properties: {
+              label: { type: 'STRING' },
+              trend: { type: 'STRING', enum: ['up', 'down', 'stable'] }
+            }
+          }
+        },
+        strategies: {
+          type: 'ARRAY',
+          items: {
+            type: 'OBJECT',
+            properties: {
+              title: { type: 'STRING' },
+              text: { type: 'STRING' },
+              icon: { type: 'STRING' },
+              color: { type: 'STRING' }
+            }
+          }
+        },
+        timeline: {
+          type: 'ARRAY',
+          items: {
+            type: 'OBJECT',
+            properties: {
+              date: { type: 'STRING' },
+              event: { type: 'STRING' }
+            }
+          }
+        }
+      },
+      required: ['scores', 'radarData', 'insights', 'recommendations', 'summary', 'strengths', 'strategies']
     };
+
+    try {
+      return await generateWithSchema(prompt, schema) as CognitiveProfileResult;
+    } catch (error) {
+      logError(error instanceof Error ? error : String(error), { context: 'aiStudentService:generateCognitiveInsight' });
+      // Fallback to minimal valid object
+      return {
+        scores: { 'Genel': 50 },
+        radarData: [{ skill: 'Genel', score: 50 }],
+        insights: ['Analiz sırasında bir hata oluştu.'],
+        recommendations: ['Lütfen teknik ekiple iletişime geçin.'],
+        summary: 'Veri işleme hatası.',
+        strengths: [{ label: 'Bilinmiyor', trend: 'stable' }],
+        strategies: [{ title: 'Hata', text: 'Tekrar deneyin', icon: 'fa-exclamation-triangle', color: 'rose' }],
+        timeline: [{ date: new Date().toISOString(), event: 'Hata oluştu' }]
+      };
+    }
   }
 };

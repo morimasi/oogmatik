@@ -11,12 +11,12 @@ interface AnalyticsModuleProps {
 export const AnalyticsModule: React.FC<AnalyticsModuleProps> = ({
   studentId,
   assessments,
-}) => {
+}: AnalyticsModuleProps) => {
   const allAssessments = assessments;
   const [selectedAssessment, setSelectedAssessment] = useState<SavedAssessment | null>(null);
   const [showDetail, setShowDetail] = useState(false);
 
-  const scoreKeys = Array.from(new Set(allAssessments.flatMap(a => Object.keys(a.report.scores))));
+  const scoreKeys = Array.from(new Set(allAssessments.flatMap((a: SavedAssessment) => Object.keys(a.report.scores))));
 
   const trendData = allAssessments
     .sort((a: SavedAssessment, b: SavedAssessment) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
@@ -24,7 +24,7 @@ export const AnalyticsModule: React.FC<AnalyticsModuleProps> = ({
       const dataPoint: any = {
         date: new Date(a.createdAt).toLocaleDateString('tr-TR', { month: 'short', day: 'numeric' }),
       };
-      scoreKeys.forEach((key: string) => {
+      (scoreKeys as string[]).forEach((key: string) => {
         dataPoint[key] = (a.report.scores as Record<string, number>)[key] || 0;
       });
       return dataPoint;
@@ -41,7 +41,7 @@ export const AnalyticsModule: React.FC<AnalyticsModuleProps> = ({
   const handlePrint = () => { window.print(); };
 
   const handleDownload = () => {
-    const data = allAssessments.map(a => ({
+    const data = allAssessments.map((a: SavedAssessment) => ({
       id: a.id,
       date: a.createdAt,
       scores: a.report.scores,

@@ -19,7 +19,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
   curriculums,
   onRefresh,
   onStartCurriculumActivity,
-}) => {
+}: AcademicPlanModuleProps) => {
   const toast = useToastStore();
   const [localPlans, setLocalPlans] = useState<EnrichedCurriculum[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
@@ -290,7 +290,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
     const goalText = `"${act.title}" eğitimi ile bilişsel becerilerin ve okuma akıcılığının desteklenmesi`;
     const updatedGoals = [...(activePlan.goals || []), goalText];
 
-    setLocalPlans(prev => prev.map(p => p.id === activePlan.id ? { ...p, goals: updatedGoals } : p));
+    setLocalPlans((prev: EnrichedCurriculum[]) => prev.map((p: EnrichedCurriculum) => p.id === activePlan.id ? { ...p, goals: updatedGoals } : p));
     setIsAddingGoal(false);
 
     try {
@@ -454,8 +454,8 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                           type="text"
                           placeholder="Örn: Akıcı okuma becerisinin geliştirilmesi"
                           value={newGoalText}
-                          onChange={e => setNewGoalText(e.target.value)}
-                          onKeyDown={e => { if (e.key === 'Enter') handleAddGoal(); }}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewGoalText(e.target.value)}
+                          onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter') handleAddGoal(); }}
                           className="flex-1 px-3 py-1.5 text-[11px] font-medium bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg outline-none focus:border-[var(--accent-color)]"
                           autoFocus
                         />
@@ -467,7 +467,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                       <div className="pt-2 border-t border-[var(--border-color)]">
                         <label className="text-[9px] font-semibold text-[var(--text-muted)] uppercase tracking-wider block mb-1.5">Aktivite Havuzundan Hedef Ekle</label>
                         <select
-                          onChange={(e) => { if (e.target.value) handleAddActivityAsGoal(e.target.value); }}
+                          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => { if (e.target.value) handleAddActivityAsGoal(e.target.value); }}
                           defaultValue=""
                           className="w-full px-2.5 py-1.5 text-[10px] bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg text-[var(--text-secondary)] outline-none focus:border-[var(--accent-color)]"
                         >
@@ -496,9 +496,9 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                                 <input
                                   type="text"
                                   value={tempGoal}
-                                  onChange={e => setTempGoal(e.target.value)}
+                                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempGoal(e.target.value)}
                                   onBlur={() => handleSaveGoal(i)}
-                                  onKeyDown={e => { if (e.key === 'Enter') handleSaveGoal(i); }}
+                                  onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter') handleSaveGoal(i); }}
                                   className="flex-1 px-2 py-0.5 text-[11px] bg-[var(--bg-paper)] border border-[var(--accent-color)] rounded outline-none"
                                   autoFocus
                                 />
@@ -552,7 +552,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                   {isEditingNote ? (
                     <textarea
                       value={tempNote}
-                      onChange={e => setTempNote(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setTempNote(e.target.value)}
                       className="w-full p-2 text-[11px] font-medium bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg outline-none focus:border-amber-500 h-16 resize-none mt-1"
                       autoFocus
                     />
@@ -601,12 +601,8 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                       >
                         {/* Left Toggle / Index Badge */}
                         <button
-                          onClick={() => handleToggleDay(day.day)}
-                          className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 border transition-all duration-300 shadow-sm ${
-                            isDayDone
-                              ? 'bg-emerald-500 text-white border-transparent'
-                              : 'bg-[var(--bg-paper)] text-[var(--text-muted)] border-[var(--border-color)] hover:border-[var(--accent-color)] hover:text-[var(--accent-color)] hover:scale-105'
-                          }`}
+                          onClick={(e: React.MouseEvent) => { e.stopPropagation(); handleToggleDay(day.day); }}
+                          className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all ${isDayDone ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 'bg-[var(--bg-paper)] text-[var(--text-muted)] border-[var(--border-color)] hover:border-[var(--accent-color)] hover:text-[var(--accent-color)] hover:scale-105'}`}
                           title={isDayDone ? "Yapılmadı olarak işaretle" : "Yapıldı olarak işaretle"}
                         >
                           {isDayDone ? (
@@ -623,9 +619,9 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                               <input
                                 type="text"
                                 value={tempFocus}
-                                onChange={e => setTempFocus(e.target.value)}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTempFocus(e.target.value)}
                                 onBlur={() => handleSaveDayFocus(day.day)}
-                                onKeyDown={e => { if (e.key === 'Enter') handleSaveDayFocus(day.day); }}
+                                onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter') handleSaveDayFocus(day.day); }}
                                 className="flex-1 px-2 py-0.5 text-[11px] bg-[var(--bg-paper)] border border-[var(--accent-color)] rounded outline-none"
                                 autoFocus
                               />
@@ -681,7 +677,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
                         <div className="p-2 bg-[var(--bg-paper)] border border-[var(--accent-color)]/30 rounded-xl mx-2 shadow-sm animate-in slide-in-from-top-2 duration-200">
                           <label className="text-[9px] font-semibold text-[var(--accent-color)] uppercase tracking-wider block mb-1.5">Görevi / Aktiviteyi Değiştir</label>
                           <select
-                            onChange={(e) => { if (e.target.value) handleReplaceActivity(day.day, e.target.value); }}
+                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => { if (e.target.value) handleReplaceActivity(day.day, e.target.value); }}
                             defaultValue={day.activities[0]?.activityId || ""}
                             className="w-full px-2.5 py-1 text-[10px] bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg text-[var(--text-secondary)] outline-none focus:border-[var(--accent-color)]"
                           >
