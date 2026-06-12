@@ -219,7 +219,7 @@ GÖREV: Aşağıdaki öğrenci profiline dayanarak, görselleştirilebilir radar
     };
 
     try {
-      return await generateWithSchema(prompt, schema) as CognitiveProfileResult;
+      return await generateWithSchema(prompt, schema) as unknown as CognitiveProfileResult;
     } catch (error) {
       logError(error instanceof Error ? error : String(error), { context: 'aiStudentService:generateCognitiveInsight' });
       // Fallback to minimal valid object
