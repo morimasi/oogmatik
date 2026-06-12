@@ -57,7 +57,7 @@ export const ShapeCountingConfig: React.FC<{ options: GeneratorOptions; onChange
                         <span className="text-amber-600 font-black">{options.itemCount || 24}</span>
                     </div>
                     <input 
-                        type="range" min={10} max={80} step={5}
+                        type="range" min={5} max={50} step={1}
                         value={options.itemCount || 24} 
                         onChange={e => onChange('itemCount', parseInt(e.target.value))} 
                         className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-amber-500" 

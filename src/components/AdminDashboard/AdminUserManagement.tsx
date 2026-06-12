@@ -18,7 +18,8 @@ import {
   LockKeyholeOpen as Unlock,
   CircleCheck as CheckCircle2,
   AlertCircle,
-  Clock
+  Clock,
+  Archive as ArchiveIconUI
 } from 'lucide-react';
 import { UserStatus, UserRole } from '../../types';
 import { authService } from '../../services/authService';
@@ -62,12 +63,17 @@ export const AdminUserManagement: React.FC = () => {
     status: 'all',
     sortBy: 'newest'
   });
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const toast = useToastStore();
 
   const SUPER_ADMIN_EMAIL = 'morimasi@gmail.com';
 
   useEffect(() => {
     loadUsers();
+    // Menü dışına tıklanınca kapat
+    const closeMenu = () => setOpenMenuId(null);
+    window.addEventListener('click', closeMenu);
+    return () => window.removeEventListener('click', closeMenu);
   }, []);
 
   const loadUsers = async () => {
@@ -87,7 +93,11 @@ export const AdminUserManagement: React.FC = () => {
       const matchSearch = user.name.toLowerCase().includes(filter.search.toLowerCase()) || 
                           user.email.toLowerCase().includes(filter.search.toLowerCase());
       const matchRole = filter.role === 'all' || user.role === filter.role;
-      const matchStatus = filter.status === 'all' || user.status === filter.status;
+      // Arşivlenmişleri sadece 'archived' filtresi seçiliyse göster, yoksa gizle
+      const matchStatus = filter.status === 'all' 
+        ? user.status !== 'archived'
+        : user.status === filter.status;
+        
       return matchSearch && matchRole && matchStatus;
     }).sort((a, b) => {
       if (filter.sortBy === 'newest') return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
@@ -128,7 +138,7 @@ export const AdminUserManagement: React.FC = () => {
     const isApproval = currentStatus === 'pending';
     const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
     try {
-      await adminService.updateUserStatus(userId, newStatus as UserStatus);
+      await adminService.updateUserStatus(userId, newStatus as any);
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: newStatus as any } : u));
       
       if (isApproval && user) {
@@ -144,6 +154,39 @@ export const AdminUserManagement: React.FC = () => {
       }
     } catch (e) {
       toast.error('Durum güncelleme hatası');
+    }
+  };
+
+  const handleDeleteUser = async (user: ManagedUser) => {
+    if (user.email === SUPER_ADMIN_EMAIL) {
+      toast.error('Super Admin silinemez!');
+      return;
+    }
+    if (!confirm(`${user.name} kullanıcısını kalıcı olarak silmek istediğinize emin misiniz?`)) return;
+
+    try {
+      await adminService.deleteUser(user.id);
+      setUsers(prev => prev.filter(u => u.id !== user.id));
+      toast.success('Kullanıcı başarıyla silindi.');
+    } catch (e) {
+      toast.error('Kullanıcı silinirken hata oluştu.');
+    }
+  };
+
+  const handleArchiveUser = async (userId: string, isArchived: boolean) => {
+    const user = users.find(u => u.id === userId);
+    if (user?.email === SUPER_ADMIN_EMAIL) {
+      toast.error('Super Admin arşivlenemez!');
+      return;
+    }
+
+    const newStatus = isArchived ? 'active' : 'archived';
+    try {
+      await adminService.updateUserStatus(userId, newStatus);
+      setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: newStatus as any } : u));
+      toast.success(isArchived ? 'Kullanıcı arşivden çıkarıldı.' : 'Kullanıcı arşivlendi.');
+    } catch (e) {
+      toast.error('Arşivleme işlemi başarısız.');
     }
   };
 
@@ -185,10 +228,11 @@ export const AdminUserManagement: React.FC = () => {
               onChange={e => setFilter({...filter, status: e.target.value as any})}
               className="bg-transparent text-xs font-bold uppercase tracking-widest outline-none py-2"
             >
-              <option value="all">Tüm Durumlar</option>
+              <option value="all">Aktif & Bekleyenler</option>
               <option value="active">Aktif</option>
               <option value="suspended">Askıda</option>
-              <option value="pending">Beklemede</option>
+              <option value="pending">Onay Bekliyor</option>
+              <option value="archived">Arşivlenmiş</option>
             </select>
           </div>
 
@@ -228,19 +272,22 @@ export const AdminUserManagement: React.FC = () => {
                 <AnimatePresence>
                   {filteredUsers.map((user, idx) => {
                     const isSuperAdmin = user.email === SUPER_ADMIN_EMAIL;
+                    const isUserArchived = user.status === 'archived';
+
                     return (
                       <motion.tr 
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: Math.min(idx * 0.05, 0.5) }}
                         key={user.id} 
-                        className={`hover:bg-white/50 dark:hover:bg-white/5 transition-all group ${isSuperAdmin ? 'bg-indigo-500/5 dark:bg-indigo-500/5' : ''}`}
+                        className={`hover:bg-white/50 dark:hover:bg-white/5 transition-all group ${isSuperAdmin ? 'bg-indigo-500/5 dark:bg-indigo-500/5' : ''} ${isUserArchived ? 'opacity-40 grayscale-[0.5]' : ''}`}
                       >
                         <td className="px-8 py-5">
                           <div className="flex items-center gap-4">
                             <div className="relative">
                                <img src={user.avatar} alt="" className="w-12 h-12 rounded-2xl border-2 border-white dark:border-zinc-800 shadow-md group-hover:scale-105 transition-transform" />
-                               <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-zinc-900 ${user.status === 'active' ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                               <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-zinc-900 
+                                ${user.status === 'active' ? 'bg-emerald-500' : user.status === 'archived' ? 'bg-zinc-500' : 'bg-rose-500'}`} />
                             </div>
                             <div className="min-w-0">
                                 <div className="flex items-center gap-2">
@@ -267,14 +314,16 @@ export const AdminUserManagement: React.FC = () => {
                                     ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20 hover:bg-rose-500/10 hover:text-rose-500 hover:border-rose-500/20 group/st' 
                                     : user.status === 'pending'
                                     ? 'bg-amber-500/10 text-amber-500 border-amber-500/20 hover:bg-emerald-500/10 hover:text-emerald-500 hover:border-emerald-500/20 group/st animate-pulse'
+                                    : user.status === 'archived'
+                                    ? 'bg-zinc-500/10 text-zinc-500 border-zinc-500/20'
                                     : 'bg-rose-500/10 text-rose-500 border-rose-500/20 hover:bg-emerald-500/10 hover:text-emerald-500 hover:border-emerald-500/20 group/st'
                                 }`}
                             >
                                 <span className="group-hover/st:hidden flex items-center gap-2">
-                                  {user.status === 'active' ? <CheckCircle2 size={12} /> : user.status === 'pending' ? <Clock size={12} /> : <AlertCircle size={12} />}
-                                  {user.status === 'active' ? 'AKTİF' : user.status === 'pending' ? 'ONAY BEKLİYOR' : 'ASKIYA ALINDI'}
+                                  {user.status === 'active' ? <CheckCircle2 size={12} /> : user.status === 'pending' ? <Clock size={12} /> : user.status === 'archived' ? <ArchiveIconUI size={12} /> : <AlertCircle size={12} />}
+                                  {user.status === 'active' ? 'AKTİF' : user.status === 'pending' ? 'ONAY BEKLİYOR' : user.status === 'archived' ? 'ARŞİVLENMİŞ' : 'ASKIYA ALINDI'}
                                 </span>
-                                <span className="hidden group-hover/st:flex items-center gap-2">
+                                <span className={user.status === 'archived' ? 'hidden' : 'hidden group-hover/st:flex items-center gap-2'}>
                                   {user.status === 'active' ? <UserX size={12} /> : <UserCheck size={12} />}
                                   {user.status === 'active' ? 'ENGELLE' : user.status === 'pending' ? 'ONAYLA & BAŞLAT' : 'AKTİFLEŞTİR'}
                                 </span>
@@ -314,10 +363,46 @@ export const AdminUserManagement: React.FC = () => {
                           </div>
                         </td>
 
-                        <td className="px-8 py-5 text-right">
-                          <button className="p-3 rounded-2xl bg-zinc-100 dark:bg-white/5 text-zinc-400 hover:text-indigo-500 hover:bg-indigo-500/10 transition-all active:scale-90">
+                        <td className="px-8 py-5 text-right relative">
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenMenuId(openMenuId === user.id ? null : user.id);
+                            }}
+                            className={`p-3 rounded-2xl bg-zinc-100 dark:bg-white/5 text-zinc-400 hover:text-indigo-500 hover:bg-indigo-500/10 transition-all active:scale-90 ${openMenuId === user.id ? 'bg-indigo-500/10 text-indigo-500 ring-2 ring-indigo-500/20' : ''}`}
+                          >
                               <MoreHorizontal size={18} />
                           </button>
+
+                          <AnimatePresence>
+                            {openMenuId === user.id && (
+                              <motion.div 
+                                initial={{ opacity: 0, scale: 0.95, y: 10, x: -10 }}
+                                animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
+                                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                                className="absolute right-8 top-full mt-2 w-48 bg-white dark:bg-[#121212] border border-zinc-200 dark:border-white/10 rounded-2xl shadow-2xl z-[100] overflow-hidden backdrop-blur-xl"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <div className="p-2 space-y-1">
+                                  <button onClick={() => {toast.info("Düzenleme özelliği yakında!"); setOpenMenuId(null);}} className="w-full flex items-center gap-3 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-600 dark:text-zinc-400 hover:bg-indigo-500/10 hover:text-indigo-500 rounded-xl transition-all">
+                                    <Search size={14} /> Bilgileri Görüntüle
+                                  </button>
+                                  <button onClick={() => {handleStatusChange(user.id, user.status); setOpenMenuId(null);}} className="w-full flex items-center gap-3 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-600 dark:text-zinc-400 hover:bg-amber-500/10 hover:text-amber-500 rounded-xl transition-all">
+                                    {user.status === 'suspended' ? <Unlock size={14} /> : <Lock size={14} />}
+                                    {user.status === 'suspended' ? 'Erişimi Aç' : 'Erişimi Engelle'}
+                                  </button>
+                                  <button onClick={() => {handleArchiveUser(user.id, isUserArchived); setOpenMenuId(null);}} className="w-full flex items-center gap-3 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-600 dark:text-zinc-400 hover:bg-blue-500/10 hover:text-blue-500 rounded-xl transition-all">
+                                    <ArchiveIconUI size={14} /> 
+                                    {isUserArchived ? 'Arşivden Çıkar' : 'Arşive Gönder'}
+                                  </button>
+                                  <div className="h-px bg-zinc-100 dark:bg-white/5 my-1" />
+                                  <button onClick={() => {handleDeleteUser(user); setOpenMenuId(null);}} className="w-full flex items-center gap-3 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all">
+                                    <UserX size={14} /> Kaydı Tamamen Sil
+                                  </button>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
                         </td>
                       </motion.tr>
                     );

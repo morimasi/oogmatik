@@ -237,9 +237,14 @@ export const adminService = {
         await updateDoc(doc(db, "users", userId), { role: newRole });
     },
 
-    updateUserStatus: async (userId: string, newStatus: UserStatus) => {
+    updateUserStatus: async (userId: string, newStatus: UserStatus | 'archived' | 'deleted') => {
         if (!userId) return;
         await updateDoc(doc(db, "users", userId), { status: newStatus });
+    },
+
+    deleteUser: async (userId: string) => {
+        if (!userId) return;
+        await deleteDoc(doc(db, "users", userId));
     },
 
     // --- DRAFTS (OCR) ---

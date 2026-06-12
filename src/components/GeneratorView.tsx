@@ -88,6 +88,20 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
     updateOption(key, value);
   };
 
+  // OTOMATİK ÜRETİM (Anında Etki İçin)
+  // Kullanıcı ayarları değiştirdiğinde 'Hızlı Üret' (Fast Mode) otomatik tetiklenir.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Sadece sayfa ilk açıldığında değil, opsiyonlar gerçekten değiştiğinde tetiklenmesi için 
+      // ve AI maliyetinden kaçınmak için sadece 'fast' modu kullanıyoruz.
+      if (!isLoading && activity?.id) {
+        onGenerate({ ...options, mode: 'fast' });
+      }
+    }, 800); // 800ms debounce
+    
+    return () => clearTimeout(timer);
+  }, [options, activity?.id]); // onGenerate dependency'sini kaldırdım çünkü referansı değişebilir ve sonsuz döngü yaratabilir
+
   const handleStudentChange = (id: string) => {
     if (activeCurriculumSession) return; // Müfredat modunda kilitli
     if (id === 'anonymous') setActiveStudent(null);

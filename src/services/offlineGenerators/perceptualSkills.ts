@@ -101,7 +101,7 @@ export const generateOfflineShapeCounting = async (
       for (let section = 0; section < 1; section++) {
         const searchField: any[] = [];
         let targetCount = 0;
-        const currentItemCount = itemCount + 50; // Tek sayfa olduğu için yoğunluğu MAKSİMUMA çıkarıyoruz
+        const currentItemCount = itemCount; // Kullanıcının seçtiği yoğunluğa tam sadık kalıyoruz
 
         for (let i = 0; i < currentItemCount; i++) {
           const isTarget = Math.random() < config.targetRatio;
@@ -123,6 +123,13 @@ export const generateOfflineShapeCounting = async (
             size: getRandomInt(15, 35) / 10, // 1.5 - 3.5 scale (daha dengeli yoğunluk)
             color: 'black',
           });
+        }
+
+        // Eğer hiç hedef üretilmemişse (özellikle düşük yoğunluklarda), rastgele bir tanesini hedefe dönüştür
+        if (targetCount === 0 && searchField.length > 0) {
+          const randomIndex = getRandomInt(0, searchField.length - 1);
+          searchField[randomIndex].type = targetShape as any;
+          targetCount = 1;
         }
 
         puzzles.push({

@@ -199,7 +199,7 @@ export interface ServiceHealth {
   lastChecked?: string;
 }
 export type ServiceStatus = 'up' | 'down' | 'degraded' | 'operational';
-export type ExtendedUserStatus = UserStatus | 'pending' | 'deleted';
+export type ExtendedUserStatus = UserStatus | 'pending' | 'deleted' | 'archived';
 
 export interface ManagedUser {
   id: string;
