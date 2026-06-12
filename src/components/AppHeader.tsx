@@ -165,7 +165,7 @@ export const AppHeader = ({
 }: AppHeaderProps) => {
     const { user, logout } = useAuthStore();
     const { isAdmin } = useRBAC();
-    const { setIsSidebarOpen, zenMode, setIsTourActive } = useUIStore();
+    const { setIsSidebarOpen, zenMode, setIsTourActive, showConnect, toggleConnect } = useUIStore();
     const { currentView, setCurrentView, addHistoryView, setSelectedActivity, setWorksheetData, setActiveCurriculumSession, activeCurriculumSession } = useWorksheetStore();
     const { activeStudent } = useStudentStore();
 
@@ -311,11 +311,11 @@ export const AppHeader = ({
                         </button>
 
                         <button
-                            onClick={() => useUIStore.getState().toggleConnect()}
-                            className={`flex shrink-0 items-center justify-center w-9 h-9 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg transition-all active:scale-[0.96] shadow-sm group/nav relative overflow-hidden ${useUIStore.getState().showConnect ? 'text-indigo-500 bg-indigo-500/10 border-indigo-500/30' : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
+                            onClick={() => toggleConnect()}
+                            className={`flex shrink-0 items-center justify-center w-9 h-9 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg transition-all active:scale-[0.96] shadow-sm group/nav relative overflow-hidden ${showConnect ? 'text-indigo-500 bg-indigo-500/10 border-indigo-500/30' : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
                             title="Oogmatik Connect"
                         >
-                            <i className="fa-solid fa-comments-alt text-[15px] leading-none group-hover/nav:scale-105 transition-transform"></i>
+                            <i className="fa-solid fa-message text-[15px] leading-none group-hover/nav:scale-105 transition-transform"></i>
                             <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse"></span>
                         </button>
                     </div>
