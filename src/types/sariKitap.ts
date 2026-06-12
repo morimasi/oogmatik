@@ -68,6 +68,8 @@ export interface SariKitapBaseConfig {
   typography: SariKitapTypography;
   pageNumber: number; // Sayfa numarası (dinamik)
   pedagogicalNote?: string;
+  seed?: string;       // Benzersizlik için rastgele anahtar
+  isUnique?: boolean;  // Her seferinde yeni içerik zorlaması
 }
 
 const SariKitapBaseConfigSchema = z.object({
@@ -81,6 +83,8 @@ const SariKitapBaseConfigSchema = z.object({
   typography: TypographySchema,
   pageNumber: z.number().min(1).max(999).default(1),
   pedagogicalNote: z.string().optional(),
+  seed: z.string().optional(),
+  isUnique: z.boolean().optional().default(true),
 });
 
 // ─── Tip-Spesifik Config'ler (Discriminated Union) ───────────────

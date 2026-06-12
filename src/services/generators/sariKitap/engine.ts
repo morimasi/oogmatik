@@ -25,8 +25,8 @@ export async function generateSariKitapContent(
 ): Promise<SariKitapGeneratedContent> {
     const { config, sourcePdfReference, useCache = true } = options;
 
-    // 1. Cache kontrolü
-    if (useCache) {
+    // 1. Cache kontrolü (Benzersiz içerik istenmiyorsa)
+    if (useCache && !config.isUnique) {
         try {
             const cached = await sariKitapCacheService.getCached(config);
             if (cached) return cached;
@@ -37,13 +37,19 @@ export async function generateSariKitapContent(
 
     // 2. AI üretim denemesi
     try {
-        const promptBuilder = getPromptBuilder(config.type);
-        const prompt = promptBuilder(config, sourcePdfReference);
+        // Her seferinde benzersiz üretim için yeni bir seed ekle
+        const updatedConfig = { 
+            ...config, 
+            seed: Math.random().toString(36).substring(7) + Date.now().toString() 
+        };
+
+        const promptBuilder = getPromptBuilder(updatedConfig.type);
+        const prompt = promptBuilder(updatedConfig, sourcePdfReference);
 
         const response = await fetch('/api/sari-kitap/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ config, sourcePdfReference }),
+            body: JSON.stringify({ config: updatedConfig, sourcePdfReference }),
         });
 
         if (!response.ok) {

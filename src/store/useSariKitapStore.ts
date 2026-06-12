@@ -25,6 +25,7 @@ const createDefaultConfig = (type: SariKitapActivityType): SariKitapConfig => {
     targetSkills: ['Görsel Algı', 'Dikkat'],
     typography: { ...DEFAULT_TYPOGRAPHY },
     pageNumber: 3, // Standart başlangıç sayfası
+    isUnique: true, // Her seferinde benzersiz içerik
   };
 
   switch (type) {

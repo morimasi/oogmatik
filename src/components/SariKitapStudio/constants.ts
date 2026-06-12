@@ -75,7 +75,7 @@ export const PROFILES = [
 ] as const;
 
 export const TOPICS = [
-    'BursaDisleksi Hızlı Okuma', 'Uzay & Astronomi', 'Bilim & Teknoloji', 'Türk Tarihi', 
-    'Doğa & Çevre', 'LGS Hazırlık', 'Edebiyat', 'Macera', 'Meslekler', 
-    'Hayvanlar Alemi', 'Sanat & Kültür', 'Matematik Dünyası'
+    'Edebiyat', 'Sanat', 'Müzik', 'Spor', 'Teknoloji', 'Gerçek Hayat', 'Masal', 'Hikaye', 
+    'Biyografi', 'Fıkra', 'Uzay & Astronomi', 'Bilim & Teknoloji', 'Türk Tarihi', 
+    'Doğa & Çevre', 'LGS Hazırlık', 'Meslekler', 'Hayvanlar Alemi', 'Matematik Dünyası'
 ] as const;

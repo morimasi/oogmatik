@@ -19,13 +19,14 @@ KURALLAR:
    - 8-10: orta uzunlukta kelimeler (max 3 hece)
    - 11-13: daha karmaşık kelimeler
    - 14+: serbest
+7. BENZERSİZLİK VE ÖZGÜNLÜK: Her metin tamamen yeni, özgün ve yaratıcı olmalıdır. Klişelerden kaçın. Seçilen konuyu derinlemesine ve ilgi çekici şekilde işle. Asla birbirinin aynısı metinler üretme.
 
 STİL REHBERİ (BURSADİSLEKSİ HIZLI OKUMA):
 - Metinler tutarlı, ilgi çekici ve pedagojik olarak yapılandırılmış olmalı.
 - Sayfa düzeni dopdolu ve profesyonel bir çalışma kağıdı görünümünde olmalı.
 - Boşluklar minimal tutulmalı, içerik maksimize edilmelidir.
 - Zorluk seviyeleri arasında PROGRESİF (3x) artış olmalıdır (Uzunluk ve Karmaşıklık).
-- Metinler gerçek hayat hikayeleri, doğa veya okul temalı olmalıdır.
+- Metinler mutlaka SEÇİLEN KONU etrafında (Edebiyat, Spor, Teknoloji, Fıkra vb.) kurgulanmalıdır.
 - İlk cümle her zaman güven inşası için çok kolay olmalıdır.
 
 ÇIKTI FORMATI (JSON):
@@ -60,6 +61,10 @@ function ageGroupDescription(ageGroup: string): string {
   }
 }
 
+function getRandomSeed(): string {
+    return Math.random().toString(36).substring(7) + Date.now().toString();
+}
+
 function difficultyDescription(difficulty: string): string {
   switch (difficulty) {
     case 'Başlangıç': return 'Başlangıç seviyesi — ~60 kelime, 10-12 kısa cümle, çok basit yapı';
@@ -84,9 +89,10 @@ PARAMETRELER:
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
 - Hedef beceriler: ${config.targetSkills.join(', ')}
+- Benzersizlik Anahtarı: ${getRandomSeed()}
 ${_sourcePdfRef ? `- Referans PDF: ${_sourcePdfRef}` : ''}
 
-15-20 cümlelik, A4 sayfasını dolduracak uzunlukta bir metin üret. İlk cümle mutlaka kolay olsun (güven inşası). Metin pedagojik olarak tutarlı bir hikaye veya bilgilendirici metin olmalıdır.`;
+15-20 cümlelik, A4 sayfasını dolduracak uzunlukta bir metin üret. İlk cümle mutlaka kolay olsun (güven inşası). Metin pedagojik olarak tutarlı bir hikaye veya bilgilendirici metin olmalıdır. Seviyeye uygun ve seçilen konuya tam uyumlu bir metin kurgula.`;
 }
 
 export function buildNoktaPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
@@ -100,8 +106,9 @@ PARAMETRELER:
 - Yaş Grubu: ${ageGroupDescription(config.ageGroup)}
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
+- Benzersizlik Anahtarı: ${getRandomSeed()}
 
-A4 sayfasını TAMAMEN dolduracak, 25-40 cümlelik uzun bir metin üret. İçerik kompakt ve dopdolu olmalıdır. Boşluk minimumda tutulmalıdır.`;
+A4 sayfasını TAMAMEN dolduracak, 25-40 cümlelik uzun bir metin üret. İçerik kompakt ve dopdolu olmalıdır. Boşluk minimumda tutulmalıdır. Konu '${config.topics.join(', ')}' olmalı.`;
 }
 
 export function buildKopruPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
@@ -115,8 +122,9 @@ PARAMETRELER:
 - Yaş Grubu: ${ageGroupDescription(config.ageGroup)}
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
+- Benzersizlik Anahtarı: ${getRandomSeed()}
 
-A4 sayfasını TAMAMEN dolduracak, 25-40 cümlelik uzun metin üret. Kompakt ve dopdolu A4 sayfası.`;
+A4 sayfasını TAMAMEN dolduracak, 25-40 cümlelik uzun metin üret. Kompakt ve dopdolu A4 sayfası. Konu '${config.topics.join(', ')}' olmalı.`;
 }
 
 export function buildCiftMetinPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
@@ -167,6 +175,7 @@ PARAMETRELER:
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
 - Hedef Beceriler: ${config.targetSkills.join(', ')}
+- Benzersizlik Anahtarı: ${getRandomSeed()}
 ${_sourcePdfRef ? `- Referans PDF: ${_sourcePdfRef}` : ''}
 
 Her hikaye en az 20-25 cümle olsun. İki hikaye birbirinden tamamen farklı konularda olmalı ama seçilen konu '${config.topics.join(', ')}' etrafında şekillenmeli. A4 sayfasını taşmayacak ama olabildiğince tam dolduracak kadar uzun ve zengin içerik üret. Her bir hikaye için 3 adet 5N1K (Kim, Ne, Nerede vb.) sorusu mutlaka eklenmelidir.`;
@@ -201,8 +210,9 @@ PARAMETRELER:
 - Yaş Grubu: ${ageGroupDescription(config.ageGroup)}
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
+- Benzersizlik Anahtarı: ${getRandomSeed()}
 
-Toplam 16-20 kelime üret. 8-10 dikkat dağıtıcı kelime ekle. 4 cümle şablonu üret. A4 sayfasını 4 bölümle kompakt olarak doldur.`;
+Toplam 16-20 kelime üret. 8-10 dikkat dağıtıcı kelime ekle. 4 cümle şablonu üret. A4 sayfasını 4 bölümle kompakt olarak doldur. Kelimeler mutlaka '${config.topics.join(', ')}' konusuyla ilgili olmalıdır.`;
 }
 
 export function buildHizliOkumaPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
@@ -224,8 +234,9 @@ PARAMETRELER:
 - Yaş Grubu: ${ageGroupDescription(config.ageGroup)}
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
+- Benzersizlik Anahtarı: ${getRandomSeed()}
 
-Her satırda 3-4 kelime, toplam 35-40 satır üret. A4 sayfasını TAMAMEN doldur. Boşluk bırakma. Kompakt ve dopdolu bir çalışma kağıdı olmalı.`;
+Her satırda 3-4 kelime, toplam 35-40 satır üret. A4 sayfasını TAMAMEN doldur. Boşluk bırakma. Kompakt ve dopdolu bir çalışma kağıdı olmalı. Kelimeler '${config.topics.join(', ')}' konusuyla ilgili ve benzersiz olmalıdır.`;
 }
 
 // ─── Prompt Router ───────────────────────────────────────────────
