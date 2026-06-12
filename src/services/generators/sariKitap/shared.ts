@@ -85,6 +85,7 @@ function difficultyDescription(difficulty: string): string {
 // ─── Modül-Spesifik Prompt Builder'lar ───────────────────────────
 
 export function buildPencerePrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
+  const c = config as any;
   return `${SARI_KITAP_SYSTEM_INSTRUCTION}
 ${getReferenceExample('pencere')}
 
@@ -97,45 +98,57 @@ PARAMETRELER:
 - Konular: ${config.topics.join(', ')}
 - Hedef beceriler: ${config.targetSkills.join(', ')}
 - Benzersizlik Anahtarı: ${config.seed || getRandomSeed()}
+- Pencere Boyutu (Kelime Sayısı): ${c.windowSize || 2}
+- Gösterim Hızı: ${c.revealSpeed || 'orta'}
+- Ardışık Gösterim: ${c.showSequential ? 'Evet' : 'Hayır'}
 ${_sourcePdfRef ? `- Referans PDF: ${_sourcePdfRef}` : ''}
 
-15-20 cümlelik, A4 sayfasını dolduracak uzunlukta bir metin üret. İlk cümle mutlaka kolay olsun (güven inşası). Metin pedagojik olarak tutarlı bir hikaye veya bilgilendirici metin olmalıdır. Seviyeye uygun ve seçilen konuya tam uyumlu bir metin kurgula.`;
+15-20 cümlelik, A4 sayfasını dolduracak uzunlukta bir metin üret. İlk cümle mutlaka kolay olsun (güven inşası). Metin pedagojik olarak tutarlı bir hikaye veya bilgilendirici metin olmalıdır. Seviyeye uygun ve seçilen konuya tam uyumlu bir metin kurgula. Çıktı sadece geçerli bir JSON olmalıdır.`;
 }
 
 export function buildNoktaPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
+  const c = config as any;
   return `${SARI_KITAP_SYSTEM_INSTRUCTION}
 ${getReferenceExample('nokta')}
 
 GÖREV: "Nokta Takibi" formatında metin üret.
-FORMAT: Her KELİMENİN altında nokta işareti bulunur (hece altında DEĞİL). Göz takibi hızını artırır, kelime tanıma otomatikliğini geliştirir.
+FORMAT: Her kelimenin veya hecenin altında nokta işareti bulunur. Göz takibi hızını artırır, kelime tanıma otomatikliğini geliştirir.
 
 PARAMETRELER:
 - Yaş Grubu: ${ageGroupDescription(config.ageGroup)}
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
 - Benzersizlik Anahtarı: ${config.seed || getRandomSeed()}
+- Nokta Yerleşimi: ${c.dotPlacement || 'kelime'} (Buna uygun metin yoğunluğu ayarla)
+- Nokta Yoğunluğu: ${c.dotDensity || 1}
+- Nokta Stili: ${c.dotStyle || 'yuvarlak'}
+- Kılavuz Çizgi Göster: ${c.showGuideLine ? 'Evet' : 'Hayır'}
 
-A4 sayfasını TAMAMEN dolduracak, 25-40 cümlelik uzun bir metin üret. İçerik kompakt ve dopdolu olmalıdır. Boşluk minimumda tutulmalıdır. Konu '${config.topics.join(', ')}' olmalı ve bu konunun gerektirdiği 'KONU SADAKATİ' (v2) kurallarına KESİN bir bağlılıkla uyulmalıdır. Her üretim tamamen özgün olmalıdır.`;
+A4 sayfasını TAMAMEN dolduracak, 25-40 cümlelik uzun bir metin üret. İçerik kompakt ve dopdolu olmalıdır. Boşluk minimumda tutulmalıdır. Konu '${config.topics.join(', ')}' olmalı ve bu konunun gerektirdiği 'KONU SADAKATİ' (v2) kurallarına KESİN bir bağlılıkla uyulmalıdır. Her üretim tamamen özgün olmalıdır. Çıktı sadece geçerli bir JSON olmalıdır.`;
 }
 
 export function buildKopruPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
+  const c = config as any;
   return `${SARI_KITAP_SYSTEM_INSTRUCTION}
 ${getReferenceExample('kopru')}
 
 GÖREV: "Köprü Okuma" formatında metin üret.
-FORMAT: Her KELİME arasına yay/köprü işareti konur (hece arası DEĞİL). Köprü 4 sesli harf uzunluğunda, kelimeler arası 1 karakter boşluk. Göz sıçrama egzersizi.
+FORMAT: Göz sıçrama egzersizi için kelimeler veya heceler arasına yay/köprü işareti konur.
 
 PARAMETRELER:
 - Yaş Grubu: ${ageGroupDescription(config.ageGroup)}
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
 - Benzersizlik Anahtarı: ${config.seed || getRandomSeed()}
+- Köprü Yerleşimi: ${c.bridgePlacement || 'kelime'}
+- Köprü Stili: ${c.bridgeStyle || 'yay'}
+- Metin Yoğunluğu: ${c.textDensity || 'orta'}
 
-A4 sayfasını TAMAMEN dolduracak, 25-40 cümlelik uzun metin üret. Kompakt ve dopdolu A4 sayfası. Konu '${config.topics.join(', ')}' olmalı ve bu konunun gerektirdiği 'KONU SADAKATİ' (v2) kuralları KESİN uygulanmalıdır.`;
+A4 sayfasını TAMAMEN dolduracak, ${c.textDensity === 'yüksek' ? '30-45' : c.textDensity === 'düşük' ? '15-20' : '25-40'} cümlelik uzun metin üret. Kompakt ve dopdolu A4 sayfası. Konu '${config.topics.join(', ')}' olmalı ve bu konunun gerektirdiği 'KONU SADAKATİ' (v2) kuralları KESİN uygulanmalıdır. Çıktı sadece geçerli bir JSON olmalıdır.`;
 }
 
 export function buildCiftMetinPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
-  const c = config as unknown as any;
+  const c = config as any;
   const interleaveModeLabel = c.interleaveMode === 'kelime' ? 'kelime kelime' : c.interleaveMode === 'satir' ? 'satır satır' : 'paragraf paragraf';
   
   return `${SARI_KITAP_SYSTEM_INSTRUCTION}
@@ -183,12 +196,16 @@ PARAMETRELER:
 - Konular: ${config.topics.join(', ')}
 - Hedef Beceriler: ${config.targetSkills.join(', ')}
 - Benzersizlik Anahtarı: ${config.seed || getRandomSeed()}
+- Kaynak A Stili: ${c.sourceAStyle || 'normal'}
+- Kaynak B Stili: ${c.sourceBStyle || 'bold'}
+- Karışım Oranı: ${c.interleaveRatio || 1}
 ${_sourcePdfRef ? `- Referans PDF: ${_sourcePdfRef}` : ''}
 
-Her hikaye en az 20-25 cümle olsun. İki hikaye birbirinden tamamen farklı konularda olmalı ama seçilen konu '${config.topics.join(', ')}' etrafında şekillenmeli. 'KONU SADAKATİ' (v2) kurallarını her iki metne de KESİN uygula. A4 sayfasını taşmayacak ama olabildiğince tam dolduracak kadar uzun ve zengin içerik üret. Her bir hikaye için 3 adet 5N1K (Kim, Ne, Nerede vb.) sorusu mutlaka eklenmelidir. Her üretim benzersiz ve yaratıcı olmalıdır.`;
+Her hikaye en az 20-25 cümle olsun. İki hikaye birbirinden tamamen farklı konularda olmalı ama seçilen konu '${config.topics.join(', ')}' etrafında şekillenmeli. 'KONU SADAKATİ' (v2) kurallarını her iki metne de KESİN uygula. A4 sayfasını taşmayacak ama olabildiğince tam dolduracak kadar uzun ve zengin içerik üret. Her bir hikaye için 3 adet 5N1K (Kim, Ne, Nerede vb.) sorusu mutlaka eklenmelidir. Her üretim benzersiz ve yaratıcı olmalıdır. Çıktı sadece geçerli bir JSON olmalıdır.`;
 }
 
 export function buildBellekPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
+  const c = config as any;
   return `${SARI_KITAP_SYSTEM_INSTRUCTION}
 ${getReferenceExample('bellek')}
 
@@ -218,11 +235,17 @@ PARAMETRELER:
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
 - Benzersizlik Anahtarı: ${config.seed || getRandomSeed()}
+- Blok Sayısı: ${c.blockCount || 12}
+- Blok Boyutu: ${c.blockSize || 'orta'}
+- Kategori: ${c.category || 'karışık'}
+- Tekrar Sayısı: ${c.repetitionCount || 2}
+- Cümle Sayısı: ${c.sentenceLines || 4}
 
-Toplam 16-20 kelime üret. 8-10 dikkat dağıtıcı kelime ekle. 4 cümle şablonu üret. A4 sayfasını 4 bölümle kompakt olarak doldur. Kelimeler mutlaka '${config.topics.join(', ')}' konusuyla ilgili olmalıdır. 'KONU SADAKATİ' kurallarını KESİN uygula ve metni benzersiz hale getir.`;
+Toplam ${c.blockCount || 12} kelime üret. ${c.distractorRatio === 'yüksek' ? 12 : c.distractorRatio === 'düşük' ? 5 : 8} dikkat dağıtıcı kelime ekle. ${c.sentenceLines || 4} cümle şablonu üret. A4 sayfasını 4 bölümle kompakt olarak doldur. Kelimeler mutlaka '${c.category && c.category !== 'karışık' ? c.category : config.topics.join(', ')}' konusuyla ilgili olmalıdır. 'KONU SADAKATİ' kurallarını KESİN uygula ve metni benzersiz hale getir. Çıktı sadece geçerli bir JSON olmalıdır.`;
 }
 
 export function buildHizliOkumaPrompt(config: SariKitapConfig, _sourcePdfRef?: string): string {
+  const c = config as any;
   return `${SARI_KITAP_SYSTEM_INSTRUCTION}
 ${getReferenceExample('hizli_okuma')}
 
@@ -242,8 +265,12 @@ PARAMETRELER:
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
 - Benzersizlik Anahtarı: ${config.seed || getRandomSeed()}
+- Blok Başına Kelime: ${c.wordsPerBlock || 3}
+- Satır Sayısı: ${c.blockRows || 10} (Otomatik doldurma ${c.autoFill ? 'Açık, sayfa dolana kadar satır ekle' : 'Kapalı'})
+- Sütun Modu: ${c.columnMode || 'tek'}
+- Ritmik Mod: ${c.rhythmicMode ? 'Aktif' : 'Pasif'}
 
-Her satırda 3-4 kelime, toplam 35-40 satır üret. A4 sayfasını TAMAMEN doldur. Boşluk bırakma. Kompakt ve dopdolu bir çalışma kağıdı olmalı. Kelimeler '${config.topics.join(', ')}' konusuyla ilgili ve KESİNLİKLE benzersiz olmalıdır. 'KONU SADAKATİ' kuralları her satırda hissedilmelidir.`;
+Her satırda ${c.wordsPerBlock || 3} kelime, toplam ${c.autoFill ? '35-40' : c.blockRows || 10} satır üret. A4 sayfasını TAMAMEN doldur. Boşluk bırakma. Kompakt ve dopdolu bir çalışma kağıdı olmalı. Kelimeler '${config.topics.join(', ')}' konusuyla ilgili ve KESİNLİKLE benzersiz olmalıdır. 'KONU SADAKATİ' kuralları her satırda hissedilmelidir. Çıktı sadece geçerli bir JSON olmalıdır.`;
 }
 
 // ─── Prompt Router ───────────────────────────────────────────────

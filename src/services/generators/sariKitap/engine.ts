@@ -46,13 +46,13 @@ export async function generateSariKitapContent(
             wordBlocks: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } } },
             memoryData: { type: 'OBJECT' }
         },
-        required: ['title', 'rawText']
+        required: ['title']
     };
 
     // Use the robust geminiClient instead of direct fetch
     const aiData = await generateWithSchema(prompt, schema) as any;
 
-    if (!aiData || (!aiData.rawText && !aiData.wordBlocks)) {
+    if (!aiData || (!aiData.rawText && !aiData.wordBlocks && !aiData.sourceTexts)) {
         throw new Error('AI yanıtı geçersiz veya boş.');
     }
 
