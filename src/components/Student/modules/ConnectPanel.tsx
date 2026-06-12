@@ -59,17 +59,21 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
         return () => unsubscribe();
     }, [activeChat.id, activeChat.type, currentUser.id]);
 
-    const handleSend = async (attachment?: Attachment) => {
-        if ((!inputText.trim() && !attachment) || isSending) return;
+    const handleSend = async (attachmentParam?: Attachment) => {
+        if ((!inputText.trim() && !attachmentParam) || isSending) return;
         setIsSending(true);
         try {
             const params: any = {
                 senderId: currentUser.id,
                 senderName: currentUser.name,
                 senderRole: currentUser.role as any,
-                text: inputText.trim(),
-                attachment
+                text: inputText.trim()
             };
+
+            // Undefined değerleri Firestore kabul etmediği için (ignoreUndefinedProperties yoksa) null/undefined property olmamalı
+            if (attachmentParam) {
+                params.attachment = attachmentParam;
+            }
 
             if (activeChat.type === 'student') params.studentId = activeChat.id;
             else if (activeChat.type === 'user') params.participantIds = [currentUser.id, activeChat.id];
@@ -127,39 +131,40 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
         <div className="flex h-full bg-[var(--bg-paper)]/95 backdrop-blur-3xl font-['Lexend'] shadow-[-20px_0_50px_rgba(0,0,0,0.5)] border-l border-[var(--border-color)] overflow-hidden rounded-l-[1.5rem]">
             
             {/* SOL SABİT AVATAR LİSTESİ */}
-            <div className="w-[75px] shrink-0 border-r border-[#ffffff0a] bg-black/20 flex flex-col items-center py-5 z-20">
+            <div className="w-[85px] shrink-0 border-r border-[#ffffff0a] bg-black/20 flex flex-col items-center py-5 z-20">
                 {/* Global Chat İkonu */}
-                <div className="group relative w-full flex justify-center mb-1">
+                <div className="group relative w-full flex flex-col items-center justify-center mb-1">
                     <button 
                         onClick={() => setActiveChat({ id: 'global', name: 'Genel Kanallar', type: 'global' })}
                         className={`w-12 h-12 rounded-[1.2rem] flex items-center justify-center transition-all ${
                             activeChat.type === 'global'
-                                ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/20 scale-105' 
+                                ? 'bg-indigo-500 text-white shadow-[#4f46e5]/30 shadow-lg scale-105' 
                                 : 'bg-[#ffffff08] text-[var(--accent-color)] hover:bg-[#ffffff15] hover:scale-105 border border-white/5'
                         }`}
                     >
                         <i className={`fa-solid fa-earth-europe text-xl ${activeChat.type === 'global' ? '' : 'opacity-80'}`}></i>
                     </button>
+                    <span className={`text-[8.5px] mt-2 font-black uppercase tracking-tight text-center leading-tight truncate w-14 ${activeChat.type === 'global' ? 'text-indigo-400' : 'text-zinc-500'}`}>Genel</span>
                     {/* Tooltip */}
-                    <div className="absolute left-16 top-1/2 -translate-y-1/2 px-2 py-1 bg-black text-white text-[10px] font-bold rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl border border-white/10">
+                    <div className="absolute left-16 top-6 -translate-y-1/2 px-2 py-1 bg-black text-white text-[10px] font-bold rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50 shadow-xl border border-white/10">
                         Genel Sohbet Alanı
                     </div>
                 </div>
 
-                <div className="w-8 h-px bg-white/10 my-4 rounded-full" />
+                <div className="w-8 h-px bg-white/10 my-3 rounded-full" />
 
                 {/* Kullanıcı Listesi */}
-                <div className="flex-1 w-full overflow-y-auto px-1 space-y-3 custom-scrollbar flex flex-col items-center">
+                <div className="flex-1 w-full overflow-y-auto px-1 pb-4 space-y-4 custom-scrollbar flex flex-col items-center hide-scrollbar-on-idle">
                     {isLoadingContacts ? (
                         <div className="w-full flex justify-center mt-4 opacity-50">
                             <i className="fa-solid fa-spinner fa-spin text-lg text-[var(--accent-color)]"></i>
                         </div>
                     ) : (
                         contacts.map((contact) => (
-                            <div key={contact.id} className="group relative w-full flex justify-center">
+                            <div key={contact.id} className="group relative w-full flex flex-col items-center justify-center">
                                 <button 
                                     onClick={() => setActiveChat({ id: contact.id, name: contact.name, type: 'user' })}
-                                    className={`relative w-12 h-12 rounded-full overflow-hidden transition-all flex items-center justify-center font-bold text-sm shadow-md border-2 
+                                    className={`relative w-12 h-12 rounded-full overflow-hidden transition-all flex items-center justify-center font-bold text-lg shadow-md border-[2.5px] shrink-0
                                         ${activeChat.id === contact.id 
                                             ? 'border-emerald-500 scale-110 z-10 shadow-emerald-500/30' 
                                             : 'border-transparent hover:border-white/20 hover:scale-105 bg-[#ffffff05]'}`}
@@ -172,13 +177,16 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
                                         </div>
                                     )}
                                     {contact.isOnline && (
-                                        <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-black rounded-full"></span>
+                                        <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-black rounded-full"></span>
                                     )}
                                 </button>
+                                <span className={`text-[8.5px] mt-1.5 font-bold uppercase tracking-tight text-center leading-tight truncate w-14 ${activeChat.id === contact.id ? 'text-emerald-400' : 'text-zinc-500 group-hover:text-zinc-300 transition-colors'}`}>
+                                    {contact.name.split(' ')[0]}
+                                </span>
                                 {/* Tooltip */}
-                                <div className="absolute left-16 top-1/2 -translate-y-1/2 px-2.5 py-1.5 bg-black text-white rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity flex flex-col z-50 shadow-xl border border-white/10 min-w-max">
+                                <div className="absolute left-16 top-6 -translate-y-1/2 px-2.5 py-1.5 bg-black text-white rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity flex flex-col z-50 shadow-xl border border-white/10 min-w-max">
                                     <span className="text-[11px] font-black">{contact.name}</span>
-                                    <span className="text-[8px] text-[var(--accent-color)] uppercase tracking-wider">{contact.role}</span>
+                                    <span className="text-[8px] text-emerald-400 uppercase tracking-wider">{contact.role === 'admin' ? 'Yönetici' : 'Uzman'}</span>
                                 </div>
                             </div>
                         ))
