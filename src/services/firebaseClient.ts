@@ -63,8 +63,11 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 export const auth = getAuth(app);
 
+const isDev = (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') || 
+              (typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.MODE === 'development');
+
 // Development mode domain check
-if (import.meta.env.MODE === 'development') {
+if (isDev) {
   logInfo("Firebase Auth initialized with domain: " + firebaseConfig.authDomain);
   if (!firebaseConfig.apiKey || firebaseConfig.apiKey.includes('AIzaSyDEnRD')) {
     logWarn("Firebase API Key is present but ensure it is the correct one for your project.");
