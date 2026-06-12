@@ -210,6 +210,8 @@ const AppContent = () => {
     setIsTourActive,
     uiSettings,
     updateUiSettings,
+    showConnect,
+    setShowConnect
   } = useUIStore();
 
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
@@ -915,22 +917,22 @@ const AppContent = () => {
 
       {/* Premium Floating Chat Panel (Oogmatik Connect) */}
       <AnimatePresence>
-        {useUIStore.getState().showConnect && activeStudent && (
+        {showConnect && (
           <motion.div
             initial={{ opacity: 0, x: 400, scale: 0.9 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, x: 400, scale: 0.9 }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed right-0 top-[88px] bottom-0 w-[400px] z-[1000] shadow-[-20px_0_50px_rgba(0,0,0,0.5)]"
+            className="fixed right-0 top-[88px] bottom-0 w-[410px] z-[1000] shadow-[-20px_0_50px_rgba(0,0,0,0.5)]"
           >
             <ConnectPanel 
-              student={activeStudent as any}
+              student={activeStudent || { id: 'global', name: 'Genel Kanallar' } as any}
               currentUser={{ 
                 id: authStore.user?.id || 'guest', 
                 name: authStore.user?.name || 'Misafir', 
-                role: (authStore.user?.role === 'admin' ? 'admin' : (authStore.user?.role === 'user' ? 'teacher' : 'teacher')) as any
+                role: (authStore.user?.role === 'admin' ? 'admin' : 'teacher') as any
               }}
-              onClose={() => useUIStore.getState().setShowConnect(false)}
+              onClose={() => setShowConnect(false)}
             />
           </motion.div>
         )}

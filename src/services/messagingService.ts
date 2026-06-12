@@ -19,28 +19,55 @@ import { logError, logInfo } from '../utils/logger';
 export const messagingService = {
     /**
      * Mesaj Dinleyicisi (Real-time)
-     * Sadece son 50 mesajı çeker.
+     * Opsiyonel filtreler: studentId (öğrenci odaklı) veya participantIds (ikili sohbet)
      */
-    listenToMessages: (studentId: string, callback: (messages: Message[]) => void) => {
+    listenToMessages: (params: { studentId?: string; participantIds?: string[] }, callback: (messages: Message[]) => void) => {
         try {
-            const q = query(
-                collection(db, `messages`),
-                where('studentId', '==', studentId),
-                orderBy('dbTimestamp', 'desc'),
-                limit(50)
-            );
+            let q;
+            
+            if (params.participantIds) {
+                // İkili sohbet: Her iki katılımcının da içinde olduğu mesajlar
+                q = query(
+                    collection(db, `messages`),
+                    where('participantIds', 'array-contains', params.participantIds[0]),
+                    orderBy('dbTimestamp', 'desc'),
+                    limit(50)
+                );
+            } else if (params.studentId) {
+                q = query(
+                    collection(db, `messages`),
+                    where('studentId', '==', params.studentId),
+                    orderBy('dbTimestamp', 'desc'),
+                    limit(50)
+                );
+            } else {
+                // Genel Duyurular / Sistem Kanalları
+                q = query(
+                    collection(db, `messages`),
+                    where('isGlobal', '==', true),
+                    orderBy('dbTimestamp', 'desc'),
+                    limit(50)
+                );
+            }
 
             return onSnapshot(q, (snapshot) => {
                 const messages: Message[] = [];
                 snapshot.forEach((doc) => {
                     const data = doc.data();
+                    
+                    // İkili sohbet filtresi (Firestore array-contains kısıtlaması nedeniyle manuel çift yönlü kontrol)
+                    if (params.participantIds) {
+                        const messageParticipants = data.participantIds || [];
+                        const isRelevant = params.participantIds.every(id => messageParticipants.includes(id));
+                        if (!isRelevant) return;
+                    }
+
                     messages.push({
                         id: doc.id,
                         ...data,
                         createdAt: data.dbTimestamp?.toDate?.().toISOString() || new Date().toISOString()
                     } as Message);
                 });
-                // UI için tarihe göre (eskiden yeniye) sırala
                 callback(messages.reverse());
             }, (error) => {
                 logError("Messaging listener error:", { error });
@@ -55,12 +82,14 @@ export const messagingService = {
      * Mesaj Gönder (Metin ve/veya Eklenti)
      */
     sendMessage: async (params: {
-        studentId: string;
+        studentId?: string;
+        participantIds?: string[];
         senderId: string;
         senderName: string;
-        senderRole: 'teacher' | 'parent';
+        senderRole: 'teacher' | 'parent' | 'admin';
         text?: string;
         attachment?: Attachment;
+        isGlobal?: boolean;
     }) => {
         try {
             const messageData = {
@@ -75,6 +104,20 @@ export const messagingService = {
             return docRef.id;
         } catch (error) {
             logError("sendMessage failed:", { error });
+            throw error;
+        }
+    },
+
+    /**
+     * Mesaj Sil
+     */
+    deleteMessage: async (messageId: string) => {
+        try {
+            const { deleteDoc } = await import('firebase/firestore');
+            await deleteDoc(doc(db, 'messages', messageId));
+            logInfo("Mesaj silindi:", { messageId });
+        } catch (error) {
+            logError("deleteMessage failed:", { error });
             throw error;
         }
     },
