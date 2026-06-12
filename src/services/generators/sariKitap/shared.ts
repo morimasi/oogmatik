@@ -89,7 +89,7 @@ PARAMETRELER:
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
 - Hedef beceriler: ${config.targetSkills.join(', ')}
-- Benzersizlik Anahtarı: ${getRandomSeed()}
+- Benzersizlik Anahtarı: ${config.seed || getRandomSeed()}
 ${_sourcePdfRef ? `- Referans PDF: ${_sourcePdfRef}` : ''}
 
 15-20 cümlelik, A4 sayfasını dolduracak uzunlukta bir metin üret. İlk cümle mutlaka kolay olsun (güven inşası). Metin pedagojik olarak tutarlı bir hikaye veya bilgilendirici metin olmalıdır. Seviyeye uygun ve seçilen konuya tam uyumlu bir metin kurgula.`;
@@ -106,7 +106,7 @@ PARAMETRELER:
 - Yaş Grubu: ${ageGroupDescription(config.ageGroup)}
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
-- Benzersizlik Anahtarı: ${getRandomSeed()}
+- Benzersizlik Anahtarı: ${config.seed || getRandomSeed()}
 
 A4 sayfasını TAMAMEN dolduracak, 25-40 cümlelik uzun bir metin üret. İçerik kompakt ve dopdolu olmalıdır. Boşluk minimumda tutulmalıdır. Konu '${config.topics.join(', ')}' olmalı.`;
 }
@@ -122,7 +122,7 @@ PARAMETRELER:
 - Yaş Grubu: ${ageGroupDescription(config.ageGroup)}
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
-- Benzersizlik Anahtarı: ${getRandomSeed()}
+- Benzersizlik Anahtarı: ${config.seed || getRandomSeed()}
 
 A4 sayfasını TAMAMEN dolduracak, 25-40 cümlelik uzun metin üret. Kompakt ve dopdolu A4 sayfası. Konu '${config.topics.join(', ')}' olmalı.`;
 }
@@ -175,7 +175,7 @@ PARAMETRELER:
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
 - Hedef Beceriler: ${config.targetSkills.join(', ')}
-- Benzersizlik Anahtarı: ${getRandomSeed()}
+- Benzersizlik Anahtarı: ${config.seed || getRandomSeed()}
 ${_sourcePdfRef ? `- Referans PDF: ${_sourcePdfRef}` : ''}
 
 Her hikaye en az 20-25 cümle olsun. İki hikaye birbirinden tamamen farklı konularda olmalı ama seçilen konu '${config.topics.join(', ')}' etrafında şekillenmeli. A4 sayfasını taşmayacak ama olabildiğince tam dolduracak kadar uzun ve zengin içerik üret. Her bir hikaye için 3 adet 5N1K (Kim, Ne, Nerede vb.) sorusu mutlaka eklenmelidir.`;
@@ -210,7 +210,7 @@ PARAMETRELER:
 - Yaş Grubu: ${ageGroupDescription(config.ageGroup)}
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
-- Benzersizlik Anahtarı: ${getRandomSeed()}
+- Benzersizlik Anahtarı: ${config.seed || getRandomSeed()}
 
 Toplam 16-20 kelime üret. 8-10 dikkat dağıtıcı kelime ekle. 4 cümle şablonu üret. A4 sayfasını 4 bölümle kompakt olarak doldur. Kelimeler mutlaka '${config.topics.join(', ')}' konusuyla ilgili olmalıdır.`;
 }
@@ -234,7 +234,7 @@ PARAMETRELER:
 - Yaş Grubu: ${ageGroupDescription(config.ageGroup)}
 - Zorluk: ${difficultyDescription(config.difficulty)}
 - Konular: ${config.topics.join(', ')}
-- Benzersizlik Anahtarı: ${getRandomSeed()}
+- Benzersizlik Anahtarı: ${config.seed || getRandomSeed()}
 
 Her satırda 3-4 kelime, toplam 35-40 satır üret. A4 sayfasını TAMAMEN doldur. Boşluk bırakma. Kompakt ve dopdolu bir çalışma kağıdı olmalı. Kelimeler '${config.topics.join(', ')}' konusuyla ilgili ve benzersiz olmalıdır.`;
 }

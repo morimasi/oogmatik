@@ -43,33 +43,17 @@ function validatePromptSecurity(text: string): boolean {
 }
 
 // ─── Build Gemini Prompt ────────────────────────────────────────
-function buildPrompt(config: Record<string, unknown>): string {
-    const type = config.type as string;
-    const ageGroup = config.ageGroup ?? '8-10';
-    const difficulty = config.difficulty ?? 'Orta';
-    const topics = (config.topics as string[])?.join(', ') ?? 'Doğa';
+import { getPromptBuilder } from '../../src/services/generators/sariKitap/shared.js';
+import { SariKitapConfig } from '../../src/types/sariKitap.js';
 
-    return `Sen bir özel eğitim materyali üreticisisin. Sarı Kitap formatında "${type}" tipinde bir okuma etkinliği oluştur.
-
-Hedef Kitle: ${ageGroup} yaş grubu
-Zorluk: ${difficulty}
-Konular: ${topics}
-
-Yanıtını JSON formatında döndür:
-{
-  "title": "Etkinlik başlığı",
-  "rawText": "Tam metin içeriği",
-  "pedagogicalNote": "Öğretmene yönelik pedagojik açıklama",
-  "instructions": "Öğrenciye yönelik talimat",
-  "targetSkills": ["beceri1", "beceri2"]
-}
-
-Kurallar:
-- Metin yaş grubuna uygun olmalı
-- Türkçe dil bilgisi kurallarına uymalı
-- Disleksi desteğine uygun, kısa cümleler kullan
-- pedagogicalNote MUTLAKA olmalı
-- rawText en az 3 paragraf olmalı`;
+function buildPrompt(config: Record<string, unknown>, sourcePdfReference?: string): string {
+    try {
+        const builder = getPromptBuilder(config.type as any);
+        return builder(config as unknown as SariKitapConfig, sourcePdfReference);
+    } catch (err) {
+        // Fallback to simple prompt if builder fails
+        return `Sarı Kitap "${config.type}" formatında, ${config.ageGroup} yaş grubu için ${config.difficulty} zorlukta benzersiz bir okuma etkinliği üret. Konu: ${(config.topics as string[])?.join(', ') || 'Genel'}.`;
+    }
 }
 
 // ─── Main Handler ───────────────────────────────────────────────
@@ -119,9 +103,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
         }
 
         const config = body.config as Record<string, unknown>;
+        const sourcePdfRef = body.sourcePdfReference as string | undefined;
 
         // Security check
-        const prompt = buildPrompt(config);
+        const prompt = buildPrompt(config, sourcePdfRef);
         if (!validatePromptSecurity(prompt)) {
             res.status(400).json({
                 success: false,
