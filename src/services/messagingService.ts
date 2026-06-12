@@ -53,7 +53,7 @@ export const messagingService = {
             return onSnapshot(q, (snapshot) => {
                 const messages: Message[] = [];
                 snapshot.forEach((doc) => {
-                    const data = doc.data();
+                    const data = doc.data({ serverTimestamps: 'estimate' });
                     
                     // İkili sohbet filtresi (Firestore array-contains kısıtlaması nedeniyle manuel çift yönlü kontrol)
                     if (params.participantIds) {
@@ -68,7 +68,12 @@ export const messagingService = {
                         createdAt: data.dbTimestamp?.toDate?.().toISOString() || new Date().toISOString()
                     } as Message);
                 });
-                callback(messages.reverse());
+
+                // Firestore bazen yerel yazmalarda pending serverTimestamp() içerenlere null muamelesi yapıp snapshot sonuna iter.
+                // Bu yüzden snapshot sırasına güvenmek yerine "createdAt" e göre kronolojik artan (eskiden yeniye) sıralıyoruz.
+                messages.sort((a, b) => new Date(a.createdAt!).getTime() - new Date(b.createdAt!).getTime());
+                
+                callback(messages);
             }, (error) => {
                 logError("Messaging listener error:", { error });
             });
