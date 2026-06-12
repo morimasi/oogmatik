@@ -4,9 +4,10 @@ import { Message, Attachment } from '../../../types/messaging';
 import { AdvancedStudent } from '../../../types/student-advanced';
 import { logError } from '../../../utils/logger';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useStudentStore } from '../../../store/useStudentStore';
 import { useUIStore } from '../../../store/useUIStore';
 import { useRBAC } from '../../../hooks/useRBAC';
+import { db } from '../../../services/firebaseClient';
+import { collection, query, getDocs, orderBy } from 'firebase/firestore';
 
 interface ConnectPanelProps {
     student: AdvancedStudent | null;
@@ -15,17 +16,10 @@ interface ConnectPanelProps {
 }
 
 export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser, onClose }) => {
-    const { students } = useStudentStore();
     const { setUnreadMessageCount } = useUIStore();
     const { canAccess } = useRBAC();
     
-    // Güvenlik: Yetkisi olmayan kullanıcıyı dışarı at
-    useEffect(() => {
-        if (!canAccess('messaging')) {
-            onClose?.();
-        }
-    }, [canAccess, onClose]);
-
+    const [allStudents, setAllStudents] = useState<{id: string, name: string}[]>([]);
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputText, setInputText] = useState('');
     const [isSending, setIsSending] = useState(false);
@@ -48,14 +42,33 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
     const scrollRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Kişileri Çek
+    // Tüm öğrencileri çek (Bağlam listesi için herkese açık)
     useEffect(() => {
+        const fetchAll = async () => {
+            try {
+                const q = query(collection(db, 'students'), orderBy('name', 'asc'));
+                const snap = await getDocs(q);
+                const list = snap.docs.map(doc => ({ id: doc.id, name: doc.data().name }));
+                setAllStudents(list);
+            } catch (err) {
+                logError("Bağlam listesi yüklenemedi:", err);
+            }
+        };
+        fetchAll();
+        
         setIsLoadingContacts(true);
         messagingService.fetchInternalUsers(currentUser.id)
             .then(data => setContacts(data || []))
             .catch(err => logError("Kişiler yüklenirken hata oluştu:", err))
             .finally(() => setIsLoadingContacts(false));
     }, [currentUser.id]);
+
+    // Güvenlik: Yetkisi olmayan kullanıcıyı dışarı at
+    useEffect(() => {
+        if (!canAccess('messaging')) {
+            onClose?.();
+        }
+    }, [canAccess, onClose]);
 
     // Kişi başına okunmamış sayaç — gerçek zamanlı listener
     useEffect(() => {
@@ -304,13 +317,13 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
                         <select 
                             value={selectedContextStudent?.id || ''}
                             onChange={(e) => {
-                                const s = students.find(x => x.id === e.target.value);
+                                const s = allStudents.find(x => x.id === e.target.value);
                                 setSelectedContextStudent(s as any || null);
                             }}
                             className="bg-transparent border-none text-[10px] font-bold text-[var(--text-primary)] focus:ring-0 p-0 flex-1 hover:text-white transition-colors cursor-pointer"
                         >
                             <option value="" className="bg-[var(--bg-paper)] text-[var(--text-muted)]">Genel Konu (Bağlam Yok)</option>
-                            {students.map(s => (
+                            {allStudents.map(s => (
                                 <option key={s.id} value={s.id} className="bg-[var(--bg-paper)]">{s.name}</option>
                             ))}
                         </select>
