@@ -21,6 +21,9 @@ export interface UIStoreState {
   updateUiSettings: (settings: Partial<UiSettings>) => void;
   updateStyleSettings: (settings: Partial<StyleSettings>) => void;
   setShowDeveloperModal: (show: boolean) => void;
+  showConnect: boolean;
+  setShowConnect: (show: boolean) => void;
+  toggleConnect: () => void;
 }
 
 const initialStyleSettings: StyleSettings = {
@@ -96,6 +99,9 @@ export const useUIStore = create<UIStoreState>()(
           styleSettings: { ...state.styleSettings, ...newSettings },
         })),
       setShowDeveloperModal: (show) => set({ showDeveloperModal: show }),
+      showConnect: false,
+      setShowConnect: (show) => set({ showConnect: show }),
+      toggleConnect: () => set((state) => ({ showConnect: !state.showConnect })),
     }),
     {
       name: 'app-ui-storage', // localStorage key
