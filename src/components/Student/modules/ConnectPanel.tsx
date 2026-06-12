@@ -26,6 +26,7 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
     const [selectedContextStudent, setSelectedContextStudent] = useState<AdvancedStudent | null>(student);
     
     const [contacts, setContacts] = useState<any[]>([]);
+    const [isLoadingContacts, setIsLoadingContacts] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [previewFile, setPreviewFile] = useState<string | null>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -33,7 +34,17 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
 
     // İlk açılışta ve kullanıcı değiştikçe kişileri çek
     useEffect(() => {
-        messagingService.fetchInternalUsers(currentUser.id).then(setContacts);
+        setIsLoadingContacts(true);
+        messagingService.fetchInternalUsers(currentUser.id)
+            .then(data => {
+                setContacts(data || []);
+            })
+            .catch(err => {
+                logError("Kişiler yüklenirken hata oluştu:", err);
+            })
+            .finally(() => {
+                setIsLoadingContacts(false);
+            });
     }, [currentUser.id]);
 
     // Mesajları Dinle
@@ -205,7 +216,8 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
             <div className="flex-1 overflow-hidden relative">
                 {activeView === 'contacts' ? (
                     <ViewContacts 
-                        contacts={filteredContacts} 
+                        contacts={filteredContacts}
+                        isLoading={isLoadingContacts}
                         searchQuery={searchQuery} 
                         setSearchQuery={setSearchQuery}
                         onSelect={(u: any) => {
@@ -298,10 +310,10 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
 const ViewChat = ({ messages, activeChat, currentUser, scrollRef, formatMessageDate, onDelete, onPreview }: any) => (
     <div 
         ref={scrollRef}
-        className="h-full overflow-y-auto px-6 py-6 space-y-6 custom-scrollbar"
+        className="h-full overflow-y-auto px-6 py-6 space-y-6 custom-scrollbar flex-1 relative flex flex-col"
     >
         {!activeChat ? (
-             <div className="h-full flex flex-col items-center justify-center text-center px-10">
+             <div className="flex-1 flex flex-col items-center justify-center text-center px-10 relative mt-20">
                 <div className="w-20 h-20 rounded-full bg-indigo-500/5 flex items-center justify-center mb-6 border border-indigo-500/10">
                      <i className="fa-solid fa-comments text-3xl text-indigo-500/50"></i>
                 </div>
@@ -309,7 +321,7 @@ const ViewChat = ({ messages, activeChat, currentUser, scrollRef, formatMessageD
                 <p className="text-[9px] font-medium text-[var(--text-muted)] leading-relaxed max-w-[200px] uppercase tracking-tighter opacity-50">Sohbet başlatmak için kişiler listesine göz atın.</p>
             </div>
         ) : messages.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-center px-10">
+            <div className="flex-1 flex flex-col items-center justify-center text-center px-10 relative mt-20">
                 <div className="w-20 h-20 rounded-[2rem] bg-[var(--bg-secondary)] flex items-center justify-center mb-6 opacity-40 border border-[var(--border-color)] rotate-3">
                      <i className="fa-solid fa-leaf text-3xl text-[var(--text-muted)]"></i>
                 </div>
@@ -318,7 +330,7 @@ const ViewChat = ({ messages, activeChat, currentUser, scrollRef, formatMessageD
             </div>
         ) : (
             messages.map((msg: any) => (
-                <div key={msg.id} className={`flex flex-col ${msg.senderId === currentUser.id ? 'items-end' : 'items-start'} group/msg`}>
+                <div key={msg.id} className={`flex flex-col ${msg.senderId === currentUser.id ? 'items-end' : 'items-start'} group/msg shrink-0`}>
                     <div className={`flex items-center gap-2 mb-1.5 px-1 ${msg.senderId === currentUser.id ? 'flex-row-reverse' : ''}`}>
                         <span className={`text-[8px] font-black uppercase tracking-widest ${msg.senderId === currentUser.id ? 'text-[var(--accent-color)]' : 'text-[var(--text-muted)]'}`}>
                             {msg.senderName}
@@ -334,7 +346,7 @@ const ViewChat = ({ messages, activeChat, currentUser, scrollRef, formatMessageD
                         )}
                     </div>
                     
-                    <div className={`max-w-[85%] rounded-[1.4rem] relative shadow-sm transition-all duration-300
+                    <div className={`max-w-[85%] rounded-[1.4rem] relative shadow-sm transition-all duration-300 shrink-0
                         ${msg.senderId === currentUser.id 
                             ? 'bg-[var(--accent-color)] text-white rounded-tr-none' 
                             : 'bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-tl-none border border-[var(--border-color)]'}`}
@@ -346,7 +358,7 @@ const ViewChat = ({ messages, activeChat, currentUser, scrollRef, formatMessageD
                              </div>
                         )}
                         
-                        <div className="p-4 pt-4">
+                        <div className="p-4 pt-4 shrink-0">
                             {msg.attachment ? (
                                 <div className="space-y-3">
                                     {msg.attachment.type === 'image' ? (
@@ -380,9 +392,9 @@ const ViewChat = ({ messages, activeChat, currentUser, scrollRef, formatMessageD
     </div>
 );
 
-const ViewContacts = ({ contacts, searchQuery, setSearchQuery, onSelect }: any) => (
+const ViewContacts = ({ contacts, isLoading, searchQuery, setSearchQuery, onSelect }: any) => (
     <div className="h-full flex flex-col min-h-0">
-        <div className="px-6 py-4">
+        <div className="px-6 py-4 shrink-0 border-b border-[var(--border-color)] bg-[var(--bg-paper)]/50 z-10 sticky top-0">
             <div className="relative group">
                 <i className="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-xs text-[var(--text-muted)] group-focus-within:text-[var(--accent-color)] transition-colors"></i>
                 <input 
@@ -395,22 +407,27 @@ const ViewContacts = ({ contacts, searchQuery, setSearchQuery, onSelect }: any) 
             </div>
         </div>
         
-        <div className="flex-1 overflow-y-auto px-4 space-y-1 custom-scrollbar">
-            {contacts.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center opacity-30 text-center">
+        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-1.5 custom-scrollbar relative z-0">
+            {isLoading ? (
+                <div className="h-full flex flex-col items-center justify-center text-center opacity-50 mt-10">
+                    <i className="fa-solid fa-circle-notch fa-spin text-2xl text-[var(--accent-color)] mb-4"></i>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-[var(--text-primary)]">Kullanıcılar Yükleniyor...</p>
+                </div>
+            ) : contacts.length === 0 ? (
+                <div className="h-full flex flex-col items-center justify-center opacity-30 text-center mt-10">
                     <i className="fa-solid fa-user-astronaut text-3xl mb-4"></i>
-                    <p className="text-[10px] font-black uppercase tracking-widest">Arama sonucu yok</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest">Arama sonucu yok veya kullanıcı bulunamadı.</p>
                 </div>
             ) : (
                 contacts.map((contact: any) => (
                     <div 
                         key={contact.id} 
                         onClick={() => onSelect(contact)}
-                        className="flex items-center gap-3.5 p-3.5 rounded-[1.4rem] hover:bg-white hover:border-[var(--border-color)] border border-transparent transition-all group cursor-pointer active:scale-95 shadow-sm hover:shadow-md"
+                        className="flex items-center gap-3.5 p-3.5 rounded-[1.4rem] hover:bg-white hover:border-[var(--border-color)] border border-transparent transition-all group cursor-pointer active:scale-95 shadow-sm hover:shadow-md shrink-0 bg-[var(--bg-secondary)]/30 hover:bg-[var(--bg-paper)]"
                     >
                         <div className="relative">
                             <div className="w-12 h-12 rounded-[1.2rem] bg-gradient-to-br from-[var(--bg-secondary)] to-[var(--bg-paper)] border border-[var(--border-color)] flex items-center justify-center text-[var(--accent-color)] overflow-hidden shadow-inner group-hover:rotate-3 transition-transform">
-                                {contact.avatar ? (
+                                {contact.avatar && contact.avatar.includes('http') ? (
                                     <img src={contact.avatar} alt={contact.name} className="w-full h-full object-cover" />
                                 ) : (
                                     <span className="font-black text-sm uppercase opacity-40">{contact.name.charAt(0)}</span>
@@ -425,15 +442,12 @@ const ViewContacts = ({ contacts, searchQuery, setSearchQuery, onSelect }: any) 
                             <div className="flex items-center gap-2 mt-0.5">
                                 <span className={`text-[8px] font-black text-white px-2 py-0.5 rounded-lg uppercase tracking-tighter shadow-sm
                                     ${contact.role === 'admin' ? 'bg-indigo-500' : 'bg-emerald-500'}`}>
-                                    {contact.role === 'admin' ? 'Admin' : 'Uzman'}
-                                </span>
-                                <span className="text-[8px] text-[var(--text-muted)] font-black uppercase tracking-tighter opacity-60">
-                                    {contact.role === 'admin' ? 'Sistem Yöneticisi' : 'Özel Eğitimci'}
+                                    {contact.role === 'admin' ? 'Yönetici' : 'Uzman'}
                                 </span>
                             </div>
                         </div>
-                        <div className="w-8 h-8 rounded-full bg-[var(--bg-secondary)] opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all translate-x-4 group-hover:translate-x-0">
-                             <i className="fa-solid fa-chevron-right text-[10px] text-[var(--accent-color)]"></i>
+                        <div className="w-8 h-8 rounded-full bg-[var(--bg-paper)] shadow-inner opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all translate-x-4 group-hover:translate-x-0 border border-[var(--border-color)]">
+                             <i className="fa-solid fa-comment-dots text-[10px] text-[var(--accent-color)]"></i>
                         </div>
                     </div>
                 ))
