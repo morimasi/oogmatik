@@ -52,14 +52,6 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
 
         const unsubscribe = messagingService.listenToMessages(params, (msgs) => {
             setMessages(msgs);
-
-            // Gelen mesajları "Okundu" olarak işaretle
-            msgs.forEach(msg => {
-                if (msg.senderId !== currentUser.id && (!msg.readBy || !msg.readBy.includes(currentUser.id))) {
-                    messagingService.markAsRead(msg.id, currentUser.id);
-                }
-            });
-
             setTimeout(() => {
                 if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
             }, 100);

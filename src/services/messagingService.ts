@@ -10,8 +10,7 @@ import {
     Timestamp,
     updateDoc,
     doc,
-    getDocs,
-    arrayUnion
+    getDocs
 } from 'firebase/firestore';
 import { db } from './firebaseClient';
 import { Message, Attachment } from '../types/messaging';
@@ -136,45 +135,10 @@ export const messagingService = {
             const docRef = doc(db, 'messages', messageId);
             await updateDoc(docRef, {
                 isRead: true,
-                readBy: arrayUnion(userId)
+                readBy: serverTimestamp() // Basit bir dizi yönetimi veya son okuyan bilgisi
             });
         } catch (error) {
             logError("markAsRead failed:", { error });
-        }
-    },
-
-    /**
-     * Kullanıcı İçin Okunmamış Mesaj Sayısını Dinle (Global Badge)
-     */
-    listenToUnreadCount: (userId: string, callback: (count: number) => void) => {
-        try {
-            const q = query(
-                collection(db, `messages`),
-                orderBy('dbTimestamp', 'desc'),
-                limit(100)
-            );
-
-            return onSnapshot(q, (snapshot) => {
-                let unreadCount = 0;
-                snapshot.forEach((doc) => {
-                    const data = doc.data();
-                    const readBy = data.readBy || [];
-                    const participants = data.participantIds || [];
-                    
-                    // Kendi yazdığı mesajları unread sayma
-                    if (data.senderId === userId) return;
-
-                    // Bu kullanıcıya ait olan veya herkesi (global) ilgilendiren okunmamış mesajları say
-                    const isGlobal = data.isGlobal === true;
-                    if ((isGlobal || participants.includes(userId)) && !readBy.includes(userId)) {
-                        unreadCount++;
-                    }
-                });
-                callback(unreadCount);
-            });
-        } catch (error) {
-            logError("listenToUnreadCount failed:", { error });
-            return () => {};
         }
     },
 
