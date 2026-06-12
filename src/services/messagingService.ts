@@ -92,5 +92,32 @@ export const messagingService = {
         } catch (error) {
             logError("markAsRead failed:", { error });
         }
+    },
+
+    /**
+     * Uygulama İçi Kullanıcıları Getir (Kişiler Listesi)
+     */
+    fetchInternalUsers: async (excludeUserId: string) => {
+        try {
+            const q = query(collection(db, 'users'), limit(100));
+            const snapshot = await getDocs(q);
+            const users: any[] = [];
+            snapshot.forEach((doc) => {
+                const data = doc.data();
+                if (doc.id !== excludeUserId) {
+                    users.push({
+                        id: doc.id,
+                        name: data.name || data.displayName || 'İsimsiz Kullanıcı',
+                        role: data.role || 'teacher',
+                        avatar: data.avatar || data.photoURL || '',
+                        isOnline: data.isOnline || false
+                    });
+                }
+            });
+            return users;
+        } catch (error) {
+            logError("fetchInternalUsers failed:", { error });
+            return [];
+        }
     }
 };
