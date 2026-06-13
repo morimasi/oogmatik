@@ -958,12 +958,12 @@ export const SheetRenderer = React.memo(
     }
 
     // Mimari veya Blok yapısı varsa UnifiedRenderer kullan (Klon modülü buradan geçer)
-    const isModernLayout = data?.layoutArchitecture || (Array.isArray(data?.blocks) && data.blocks.some((b: any) => b?.type));
+    const isModernLayout = activeData?.layoutArchitecture || (Array.isArray(activeData?.blocks) && activeData.blocks.some((b: any) => b?.type));
 
     if (!hideWrapper && isModernLayout) {
       return (
         <UnifiedContentRenderer
-          data={data}
+          data={activeData}
           activityType={activityType}
           studentProfile={studentProfile}
           settings={settings}
@@ -979,174 +979,174 @@ export const SheetRenderer = React.memo(
     switch (activityType) {
       case ActivityType.ALGORITHM_GENERATOR:
         renderedSheet = (
-          <AlgorithmSheet data={data as unknown as unknown as unknown as unknown as AlgorithmData} settings={settings} />
+          <AlgorithmSheet data={activeData as unknown as unknown as unknown as unknown as AlgorithmData} settings={settings} />
         );
         break;
       case ActivityType.MATH_STUDIO:
       case ActivityType.MATH_PUZZLE:
         renderedSheet = (
-          <MathPuzzleSheet data={data as unknown as unknown as unknown as unknown as MathPuzzleData} settings={settings} />
+          <MathPuzzleSheet data={activeData as unknown as unknown as unknown as unknown as MathPuzzleData} settings={settings} />
         );
         break;
       case ActivityType.NUMBER_PATTERN:
         renderedSheet = (
-          <NumberPatternSheet data={data as unknown as unknown as unknown as unknown as NumberPatternData} settings={settings} />
+          <NumberPatternSheet data={activeData as unknown as unknown as unknown as unknown as NumberPatternData} settings={settings} />
         );
         break;
       case ActivityType.REAL_LIFE_MATH_PROBLEMS:
         renderedSheet = (
           <RealLifeMathProblemsSheet
-            data={data as unknown as unknown as unknown as unknown as RealLifeProblemData}
+            data={activeData as unknown as unknown as unknown as unknown as RealLifeProblemData}
             settings={settings}
           />
         );
         break;
       case ActivityType.LOGIC_GRID_PUZZLE:
         renderedSheet = (
-          <LogicGridPuzzleSheet data={data as unknown as unknown as unknown as unknown as LogicGridPuzzleData} settings={settings} />
+          <LogicGridPuzzleSheet data={activeData as unknown as unknown as unknown as unknown as LogicGridPuzzleData} settings={settings} />
         );
         break;
       case ActivityType.FUTOSHIKI:
         renderedSheet = (
-          <FutoshikiSheet data={data as unknown as unknown as unknown as unknown as FutoshikiData} settings={settings} />
+          <FutoshikiSheet data={activeData as unknown as unknown as unknown as unknown as FutoshikiData} settings={settings} />
         );
         break;
       case ActivityType.NUMBER_PYRAMID:
         renderedSheet = (
-          <NumberPyramidSheet data={data as unknown as unknown as unknown as unknown as NumberPyramidData} settings={settings} />
+          <NumberPyramidSheet data={activeData as unknown as unknown as unknown as unknown as NumberPyramidData} settings={settings} />
         );
         break;
       case ActivityType.ODD_ONE_OUT:
         renderedSheet = (
-          <OddOneOutSheet data={data as unknown as unknown as unknown as unknown as OddOneOutData} settings={settings} />
+          <OddOneOutSheet data={activeData as unknown as unknown as unknown as unknown as OddOneOutData} settings={settings} />
         );
         break;
       case ActivityType.NUMBER_LOGIC_RIDDLES:
         renderedSheet = (
           <NumberLogicRiddleSheet
-            data={data as unknown as unknown as unknown as unknown as NumberLogicRiddleData}
+            data={activeData as unknown as unknown as unknown as unknown as NumberLogicRiddleData}
             settings={settings}
           />
         );
         break;
       case ActivityType.NUMBER_PATH_LOGIC:
         renderedSheet = (
-          <NumberPathLogicSheet data={data as unknown as unknown as unknown as unknown as NumberPathLogicData} settings={settings} />
+          <NumberPathLogicSheet data={activeData as unknown as unknown as unknown as unknown as NumberPathLogicData} settings={settings} />
         );
         break;
       case ActivityType.VISUAL_ARITHMETIC:
         renderedSheet = (
           <VisualArithmeticSheet
-            data={data as unknown as unknown as unknown as unknown as VisualArithmeticData}
+            data={activeData as unknown as unknown as unknown as unknown as VisualArithmeticData}
             settings={settings}
           />
         );
         break;
       case ActivityType.CLOCK_READING:
         renderedSheet = (
-          <ClockReadingSheet data={data as unknown as unknown as unknown as unknown as ClockReadingData} settings={settings} />
+          <ClockReadingSheet data={activeData as unknown as unknown as unknown as unknown as ClockReadingData} settings={settings} />
         );
         break;
       case ActivityType.NUMBER_SENSE:
         renderedSheet = (
-          <NumberSenseSheet data={data as unknown as unknown as unknown as unknown as NumberSenseData} settings={settings} />
+          <NumberSenseSheet data={activeData as unknown as unknown as unknown as unknown as NumberSenseData} settings={settings} />
         );
         break;
       case ActivityType.MONEY_COUNTING:
         renderedSheet = (
-          <MoneyCountingSheet data={data as unknown as unknown as unknown as unknown as MoneyCountingData} settings={settings} />
+          <MoneyCountingSheet data={activeData as unknown as unknown as unknown as unknown as MoneyCountingData} settings={settings} />
         );
         break;
       case ActivityType.MATH_MEMORY_CARDS:
         renderedSheet = (
-          <MathMemoryCardsSheet data={data as unknown as unknown as unknown as unknown as MathMemoryCardsData} settings={settings} />
+          <MathMemoryCardsSheet data={activeData as unknown as unknown as unknown as unknown as MathMemoryCardsData} settings={settings} />
         );
         break;
       case ActivityType.SPATIAL_GRID:
         renderedSheet = (
-          <SpatialGridSheet data={data as unknown as unknown as unknown as unknown as SpatialGridData} settings={settings} />
+          <SpatialGridSheet data={activeData as unknown as unknown as unknown as unknown as SpatialGridData} settings={settings} />
         );
         break;
       case ActivityType.CONCEPT_MATCH:
         renderedSheet = (
-          <ConceptMatchSheet data={data as unknown as unknown as unknown as unknown as ConceptMatchData} settings={settings} />
+          <ConceptMatchSheet data={activeData as unknown as unknown as unknown as unknown as ConceptMatchData} settings={settings} />
         );
         break;
       case ActivityType.ESTIMATION:
         renderedSheet = (
-          <EstimationSheet data={data as unknown as unknown as unknown as unknown as EstimationData} settings={settings} />
+          <EstimationSheet data={activeData as unknown as unknown as unknown as unknown as EstimationData} settings={settings} />
         );
         break;
       case ActivityType.ABC_CONNECT:
         renderedSheet = (
-          <AbcConnectSheet data={data as unknown as unknown as unknown as unknown as AbcConnectData} settings={settings} />
+          <AbcConnectSheet data={activeData as unknown as unknown as unknown as unknown as AbcConnectData} settings={settings} />
         );
         break;
       case ActivityType.ODD_EVEN_SUDOKU:
         renderedSheet = (
-          <OddEvenSudokuSheet data={data as unknown as unknown as unknown as unknown as OddEvenSudokuData} settings={settings} />
+          <OddEvenSudokuSheet data={activeData as unknown as unknown as unknown as unknown as OddEvenSudokuData} settings={settings} />
         );
         break;
       case ActivityType.MAGIC_PYRAMID:
         renderedSheet = (
-          <MagicPyramidSheet data={data as unknown as unknown as unknown as unknown as MagicPyramidData} settings={settings} />
+          <MagicPyramidSheet data={activeData as unknown as unknown as unknown as unknown as MagicPyramidData} settings={settings} />
         );
         break;
       case ActivityType.CAPSULE_GAME:
         renderedSheet = (
-          <CapsuleGameSheet data={data as unknown as unknown as unknown as unknown as NumberCapsuleData} settings={settings} />
+          <CapsuleGameSheet data={activeData as unknown as unknown as unknown as unknown as NumberCapsuleData} settings={settings} />
         );
         break;
       case ActivityType.WORD_MEMORY:
         renderedSheet = (
-          <WordMemorySheet data={data as unknown as unknown as unknown as unknown as WordMemoryData} settings={settings} />
+          <WordMemorySheet data={activeData as unknown as unknown as unknown as unknown as WordMemoryData} settings={settings} />
         );
         break;
       case ActivityType.VISUAL_MEMORY:
         renderedSheet = (
-          <VisualMemorySheet data={data as unknown as unknown as unknown as unknown as VisualMemoryData} settings={settings} />
+          <VisualMemorySheet data={activeData as unknown as unknown as unknown as unknown as VisualMemoryData} settings={settings} />
         );
         break;
       case ActivityType.CHARACTER_MEMORY:
         renderedSheet = (
-          <CharacterMemorySheet data={data as unknown as unknown as unknown as unknown as CharacterMemoryData} settings={settings} />
+          <CharacterMemorySheet data={activeData as unknown as unknown as unknown as unknown as CharacterMemoryData} settings={settings} />
         );
         break;
       case ActivityType.COLOR_WHEEL_MEMORY:
         renderedSheet = (
-          <ColorWheelSheet data={data as unknown as unknown as unknown as unknown as ColorWheelMemoryData} settings={settings} />
+          <ColorWheelSheet data={activeData as unknown as unknown as unknown as unknown as ColorWheelMemoryData} settings={settings} />
         );
         break;
       case ActivityType.IMAGE_COMPREHENSION:
         renderedSheet = (
           <ImageComprehensionSheet
-            data={data as unknown as unknown as unknown as unknown as ImageComprehensionData}
+            data={activeData as unknown as unknown as unknown as unknown as ImageComprehensionData}
             settings={settings}
           />
         );
         break;
       case ActivityType.STROOP_TEST:
         renderedSheet = (
-          <StroopTestSheet data={data as unknown as unknown as unknown as unknown as StroopTestData} settings={settings} />
+          <StroopTestSheet data={activeData as unknown as unknown as unknown as unknown as StroopTestData} settings={settings} />
         );
         break;
       case ActivityType.BURDON_TEST:
-        renderedSheet = <BurdonTestSheet data={data as unknown as any} settings={settings} />;
+        renderedSheet = <BurdonTestSheet data={activeData as unknown as any} settings={settings} />;
         break;
       case ActivityType.LETTER_GRID_TEST:
         renderedSheet = (
-          <LetterGridTestSheet data={data as unknown as unknown as unknown as unknown as LetterGridTestData} settings={settings} />
+          <LetterGridTestSheet data={activeData as unknown as unknown as unknown as unknown as LetterGridTestData} settings={settings} />
         );
         break;
       case ActivityType.NUMBER_SEARCH:
         renderedSheet = (
-          <NumberSearchSheet data={data as unknown as unknown as unknown as unknown as NumberSearchData} settings={settings} />
+          <NumberSearchSheet data={activeData as unknown as unknown as unknown as unknown as NumberSearchData} settings={settings} />
         );
         break;
       case ActivityType.CHAOTIC_NUMBER_SEARCH:
         renderedSheet = (
           <ChaoticNumberSearchSheet
-            data={data as unknown as unknown as unknown as unknown as ChaoticNumberSearchData}
+            data={activeData as unknown as unknown as unknown as unknown as ChaoticNumberSearchData}
             settings={settings}
           />
         );
@@ -1154,53 +1154,53 @@ export const SheetRenderer = React.memo(
       case ActivityType.ATTENTION_DEVELOPMENT:
         renderedSheet = (
           <AttentionDevelopmentSheet
-            data={data as unknown as unknown as unknown as unknown as AttentionDevelopmentData}
+            data={activeData as unknown as unknown as unknown as unknown as AttentionDevelopmentData}
             settings={settings}
           />
         );
         break;
       case ActivityType.ATTENTION_FOCUS:
         renderedSheet = (
-          <AttentionFocusSheet data={data as unknown as unknown as unknown as unknown as AttentionFocusData} settings={settings} />
+          <AttentionFocusSheet data={activeData as unknown as unknown as unknown as unknown as AttentionFocusData} settings={settings} />
         );
         break;
       case ActivityType.FIND_DUPLICATE:
         renderedSheet = (
-          <FindDuplicateSheet data={data as unknown as unknown as unknown as unknown as FindDuplicateData} settings={settings} />
+          <FindDuplicateSheet data={activeData as unknown as unknown as unknown as unknown as FindDuplicateData} settings={settings} />
         );
         break;
       case ActivityType.FIND_LETTER_PAIR:
         renderedSheet = (
-          <FindLetterPairSheet data={data as unknown as unknown as unknown as unknown as FindLetterPairData} settings={settings} />
+          <FindLetterPairSheet data={activeData as unknown as unknown as unknown as unknown as FindLetterPairData} settings={settings} />
         );
         break;
       case ActivityType.TARGET_SEARCH:
         renderedSheet = (
-          <TargetSearchSheet data={data as unknown as unknown as unknown as unknown as TargetSearchData} settings={settings} />
+          <TargetSearchSheet data={activeData as unknown as unknown as unknown as unknown as TargetSearchData} settings={settings} />
         );
         break;
       case ActivityType.SYLLABLE_MASTER_LAB:
         renderedSheet = (
           <SyllableMasterLabSheet
-            data={data as unknown as unknown as unknown as unknown as SyllableMasterLabData}
+            data={activeData as unknown as unknown as unknown as unknown as SyllableMasterLabData}
             settings={settings}
           />
         );
         break;
       case ActivityType.READING_SUDOKU:
         renderedSheet = (
-          <ReadingSudokuSheet data={data as unknown as unknown as unknown as unknown as ReadingSudokuData} settings={settings} />
+          <ReadingSudokuSheet data={activeData as unknown as unknown as unknown as unknown as ReadingSudokuData} settings={settings} />
         );
         break;
       case ActivityType.READING_STROOP:
         renderedSheet = (
-          <ReadingStroopSheet data={data as unknown as unknown as unknown as unknown as ReadingStroopData} settings={settings} />
+          <ReadingStroopSheet data={activeData as unknown as unknown as unknown as unknown as ReadingStroopData} settings={settings} />
         );
         break;
       case ActivityType.SYNONYM_ANTONYM_MATCH:
         renderedSheet = (
           <SynonymAntonymMatchSheet
-            data={data as unknown as unknown as unknown as unknown as SynonymAntonymMatchData}
+            data={activeData as unknown as unknown as unknown as unknown as SynonymAntonymMatchData}
             settings={settings}
           />
         );
@@ -1208,7 +1208,7 @@ export const SheetRenderer = React.memo(
       case ActivityType.SYLLABLE_WORD_BUILDER:
         renderedSheet = (
           <SyllableWordBuilderSheet
-            data={data as unknown as unknown as unknown as unknown as SyllableWordBuilderData}
+            data={activeData as unknown as unknown as unknown as unknown as SyllableWordBuilderData}
             settings={settings}
           />
         );
@@ -1216,74 +1216,74 @@ export const SheetRenderer = React.memo(
       case ActivityType.LETTER_VISUAL_MATCHING:
         renderedSheet = (
           <LetterVisualMatchingSheet
-            data={data as unknown as unknown as unknown as unknown as LetterVisualMatchingData}
+            data={activeData as unknown as unknown as unknown as unknown as LetterVisualMatchingData}
             settings={settings}
           />
         );
         break;
       case ActivityType.FAMILY_RELATIONS:
         renderedSheet = (
-          <FamilyRelationsSheet data={data as unknown as unknown as unknown as unknown as FamilyRelationsData} settings={settings} />
+          <FamilyRelationsSheet data={activeData as unknown as unknown as unknown as unknown as FamilyRelationsData} settings={settings} />
         );
         break;
       case ActivityType.FAMILY_LOGIC_TEST:
         renderedSheet = (
-          <FamilyLogicSheet data={data as unknown as unknown as unknown as unknown as FamilyLogicTestData} settings={settings} />
+          <FamilyLogicSheet data={activeData as unknown as unknown as unknown as unknown as FamilyLogicTestData} settings={settings} />
         );
         break;
       case ActivityType.MORPHOLOGY_MATRIX:
         renderedSheet = (
           <MorphologyMatrixSheet
-            data={data as unknown as unknown as unknown as unknown as MorphologyMatrixData}
+            data={activeData as unknown as unknown as unknown as unknown as MorphologyMatrixData}
             settings={settings}
           />
         );
         break;
       case ActivityType.READING_PYRAMID:
         renderedSheet = (
-          <ReadingPyramidSheet data={data as unknown as unknown as unknown as unknown as ReadingPyramidData} settings={settings} />
+          <ReadingPyramidSheet data={activeData as unknown as unknown as unknown as unknown as ReadingPyramidData} settings={settings} />
         );
         break;
       case ActivityType.READING_FLOW:
         renderedSheet = (
-          <ReadingFlowSheet data={data as unknown as unknown as unknown as unknown as ReadingFlowData} settings={settings} />
+          <ReadingFlowSheet data={activeData as unknown as unknown as unknown as unknown as ReadingFlowData} settings={settings} />
         );
         break;
       case ActivityType.PHONOLOGICAL_AWARENESS:
         renderedSheet = (
           <PhonologicalAwarenessSheet
-            data={data as unknown as unknown as unknown as unknown as PhonologicalAwarenessData}
+            data={activeData as unknown as unknown as unknown as unknown as PhonologicalAwarenessData}
             settings={settings}
           />
         );
         break;
       case ActivityType.RAPID_NAMING:
         renderedSheet = (
-          <RapidNamingSheet data={data as unknown as unknown as unknown as unknown as RapidNamingData} settings={settings} />
+          <RapidNamingSheet data={activeData as unknown as unknown as unknown as unknown as RapidNamingData} settings={settings} />
         );
         break;
       case ActivityType.LETTER_DISCRIMINATION:
         renderedSheet = (
           <LetterDiscriminationSheet
-            data={data as unknown as unknown as unknown as unknown as LetterDiscriminationData}
+            data={activeData as unknown as unknown as unknown as unknown as LetterDiscriminationData}
             settings={settings}
           />
         );
         break;
       case ActivityType.MIRROR_LETTERS:
         renderedSheet = (
-          <MirrorLettersSheet data={data as unknown as unknown as unknown as unknown as MirrorLettersData} settings={settings} />
+          <MirrorLettersSheet data={activeData as unknown as unknown as unknown as unknown as MirrorLettersData} settings={settings} />
         );
         break;
       case ActivityType.SYLLABLE_TRAIN:
         renderedSheet = (
-          <SyllableTrainSheet data={data as unknown as unknown as unknown as unknown as SyllableTrainData} settings={settings} />
+          <SyllableTrainSheet data={activeData as unknown as unknown as unknown as unknown as SyllableTrainData} settings={settings} />
         );
         break;
       case ActivityType.VISUAL_TRACKING_LINES:
         renderedSheet = (
           <VisualTrackingLinesSheet
-            data={data as unknown as unknown as unknown as unknown as VisualTrackingLineData}
+            data={activeData as unknown as unknown as unknown as unknown as VisualTrackingLineData}
             settings={settings}
           />
         );
@@ -1291,20 +1291,20 @@ export const SheetRenderer = React.memo(
       case ActivityType.BACKWARD_SPELLING:
         renderedSheet = (
           <BackwardSpellingSheet
-            data={data as unknown as unknown as unknown as unknown as BackwardSpellingData}
+            data={activeData as unknown as unknown as unknown as unknown as BackwardSpellingData}
             settings={settings}
           />
         );
         break;
       case ActivityType.CODE_READING:
         renderedSheet = (
-          <CodeReadingSheet data={data as unknown as unknown as unknown as unknown as CodeReadingData} settings={settings} />
+          <CodeReadingSheet data={activeData as unknown as unknown as unknown as unknown as CodeReadingData} settings={settings} />
         );
         break;
       case ActivityType.ATTENTION_TO_QUESTION:
         renderedSheet = (
           <AttentionToQuestionSheet
-            data={data as unknown as unknown as unknown as unknown as AttentionToQuestionData}
+            data={activeData as unknown as unknown as unknown as unknown as AttentionToQuestionData}
             settings={settings}
           />
         );
@@ -1312,87 +1312,87 @@ export const SheetRenderer = React.memo(
       case ActivityType.HANDWRITING_PRACTICE:
         renderedSheet = (
           <HandwritingPracticeSheet
-            data={data as unknown as unknown as unknown as unknown as HandwritingPracticeData}
+            data={activeData as unknown as unknown as unknown as unknown as HandwritingPracticeData}
             settings={settings}
           />
         );
         break;
       case ActivityType.MAP_INSTRUCTION:
         renderedSheet = (
-          <MapDetectiveSheet data={data as unknown as unknown as unknown as unknown as MapInstructionData} settings={settings} />
+          <MapDetectiveSheet data={activeData as unknown as unknown as unknown as unknown as MapInstructionData} settings={settings} />
         );
         break;
       case ActivityType.FIVE_W_ONE_H:
-        renderedSheet = <FiveWOneHSheet data={data as unknown as any} settings={settings} />;
+        renderedSheet = <FiveWOneHSheet data={activeData as unknown as any} settings={settings} />;
         break;
       case ActivityType.SENTENCE_5W1H:
-        renderedSheet = <SentenceFiveWOneHSheet data={data as unknown as any} />;
+        renderedSheet = <SentenceFiveWOneHSheet data={activeData as unknown as any} />;
         break;
       case ActivityType.STORY_ANALYSIS:
-        renderedSheet = <StoryAnalysisSheet data={data as unknown as unknown as unknown as unknown as StoryAnalysisData} />;
+        renderedSheet = <StoryAnalysisSheet data={activeData as unknown as unknown as unknown as unknown as StoryAnalysisData} />;
         break;
       case ActivityType.STORY_SEQUENCING:
-        renderedSheet = <StorySequencingSheet data={data as unknown as unknown as unknown as unknown as StorySequencingData} />;
+        renderedSheet = <StorySequencingSheet data={activeData as unknown as unknown as unknown as unknown as StorySequencingData} />;
         break;
       case ActivityType.MISSING_PARTS:
-        renderedSheet = <AdvancedMissingPartsSheet data={data as unknown as unknown as unknown as unknown as MissingPartsData} />;
+        renderedSheet = <AdvancedMissingPartsSheet data={activeData as unknown as unknown as unknown as unknown as MissingPartsData} />;
         break;
       case ActivityType.INFOGRAPHIC_SHORT_ANSWER:
-        renderedSheet = <ShortAnswerSheet data={data.content || data} settings={settings} />;
+        renderedSheet = <ShortAnswerSheet data={activeData.content || activeData} settings={settings} />;
         break;
       case ActivityType.COLORFUL_SYLLABLE_READING:
-        renderedSheet = <ColorfulSyllableReadingSheet data={data as unknown as any} settings={settings} />;
+        renderedSheet = <ColorfulSyllableReadingSheet data={activeData as unknown as any} settings={settings} />;
         break;
       case ActivityType.FAMILY_TREE_MATRIX:
-        renderedSheet = <FamilyTreeMatrixSheet data={data as unknown as any} settings={settings} />;
+        renderedSheet = <FamilyTreeMatrixSheet data={activeData as unknown as any} settings={settings} />;
         break;
       case ActivityType.APARTMENT_LOGIC_PUZZLE:
-        renderedSheet = <ApartmentLogicSheet data={data as unknown as any} settings={settings} />;
+        renderedSheet = <ApartmentLogicSheet data={activeData as unknown as any} settings={settings} />;
         break;
       case ActivityType.FINANCIAL_MARKET_CALCULATOR:
-        renderedSheet = <FinancialMarketSheet data={data as unknown as any} settings={settings} />;
+        renderedSheet = <FinancialMarketSheet data={activeData as unknown as any} settings={settings} />;
         break;
       case ActivityType.DIRECTIONAL_CODE_READING:
-        renderedSheet = <DirectionalCodeReadingSheet data={data as unknown as any} settings={settings} />;
+        renderedSheet = <DirectionalCodeReadingSheet data={activeData as unknown as any} settings={settings} />;
         break;
       case ActivityType.LOGIC_ERROR_HUNTER:
-        renderedSheet = <LogicErrorHunterSheet data={data as unknown as any} settings={settings} />;
+        renderedSheet = <LogicErrorHunterSheet data={activeData as unknown as any} settings={settings} />;
         break;
       case ActivityType.PATTERN_COMPLETION:
-        renderedSheet = <PatternCompletionSheet data={data as unknown as any} settings={settings} />;
+        renderedSheet = <PatternCompletionSheet data={activeData as unknown as any} settings={settings} />;
         break;
       case ActivityType.FIND_THE_DIFFERENCE:
         renderedSheet = (
           <FindTheDifferenceSheet
-            data={data as unknown as unknown as unknown as unknown as FindTheDifferenceData}
+            data={activeData as unknown as unknown as unknown as unknown as FindTheDifferenceData}
             settings={settings}
           />
         );
         break;
       case ActivityType.VISUAL_ODD_ONE_OUT:
         renderedSheet = (
-          <VisualOddOneOutSheet data={data as unknown as unknown as unknown as unknown as VisualOddOneOutData} settings={settings} />
+          <VisualOddOneOutSheet data={activeData as unknown as unknown as unknown as unknown as VisualOddOneOutData} settings={settings} />
         );
         break;
       case ActivityType.GRID_DRAWING:
         renderedSheet = (
-          <GridDrawingSheet data={data as unknown as unknown as unknown as unknown as GridDrawingData} settings={settings} />
+          <GridDrawingSheet data={activeData as unknown as unknown as unknown as unknown as GridDrawingData} settings={settings} />
         );
         break;
       case ActivityType.SYMMETRY_DRAWING:
         renderedSheet = (
-          <SymmetryDrawingSheet data={data as unknown as unknown as unknown as unknown as SymmetryDrawingData} settings={settings} />
+          <SymmetryDrawingSheet data={activeData as unknown as unknown as unknown as unknown as SymmetryDrawingData} settings={settings} />
         );
         break;
       case ActivityType.SHAPE_COUNTING:
         renderedSheet = (
-          <ShapeCountingSheet data={data as unknown as unknown as unknown as unknown as ShapeCountingData} settings={settings} />
+          <ShapeCountingSheet data={activeData as unknown as unknown as unknown as unknown as ShapeCountingData} settings={settings} />
         );
         break;
       case ActivityType.DIRECTIONAL_TRACKING:
         renderedSheet = (
           <DirectionalTrackingSheet
-            data={data as unknown as unknown as unknown as unknown as DirectionalTrackingData}
+            data={activeData as unknown as unknown as unknown as unknown as DirectionalTrackingData}
             settings={settings}
           />
         );
@@ -1400,40 +1400,40 @@ export const SheetRenderer = React.memo(
       case ActivityType.HIDDEN_PASSWORD_GRID:
         renderedSheet = (
           <HiddenPasswordGridSheet
-            data={data as unknown as unknown as unknown as unknown as HiddenPasswordGridData}
+            data={activeData as unknown as unknown as unknown as unknown as HiddenPasswordGridData}
             settings={settings}
           />
         );
         break;
       case ActivityType.WORD_SEARCH:
         renderedSheet = (
-          <WordSearchSheet data={data as unknown as unknown as unknown as unknown as WordSearchData} settings={settings} />
+          <WordSearchSheet data={activeData as unknown as unknown as unknown as unknown as WordSearchData} settings={settings} />
         );
         break;
       case ActivityType.INFOGRAPHIC_STUDIO:
       // Delegate to modular renderer to support orientation-aware layout
 
       case ActivityType.ANAGRAM:
-        renderedSheet = <AnagramSheet data={data as unknown as unknown as unknown as unknown as AnagramsData} settings={settings} />;
+        renderedSheet = <AnagramSheet data={activeData as unknown as unknown as unknown as unknown as AnagramsData} settings={settings} />;
         break;
       case ActivityType.CROSSWORD:
         renderedSheet = (
-          <CrosswordSheet data={data as unknown as unknown as unknown as unknown as CrosswordData} settings={settings} />
+          <CrosswordSheet data={activeData as unknown as unknown as unknown as unknown as CrosswordData} settings={settings} />
         );
         break;
       case ActivityType.BOX_MATH:
-        renderedSheet = <BoxMathSheet data={data as unknown as any} settings={settings} />;
+        renderedSheet = <BoxMathSheet data={activeData as unknown as any} settings={settings} />;
         break;
       case ActivityType.QUEUE_ORDERING:
-        renderedSheet = <QueueOrderingSheet data={data as unknown as any} settings={settings} />;
+        renderedSheet = <QueueOrderingSheet data={activeData as unknown as any} settings={settings} />;
         break;
       case ActivityType.VISUAL_INTERPRETATION:
-        renderedSheet = <VisualInterpretationSheet data={data as unknown as any} settings={settings} />;
+        renderedSheet = <VisualInterpretationSheet data={activeData as unknown as any} settings={settings} />;
         break;
       case activityType as unknown as any:
         renderedSheet = (
           <UnifiedContentRenderer
-            data={data}
+            data={activeData}
             activityType={activityType}
             studentProfile={studentProfile}
             settings={settings}
@@ -1441,9 +1441,9 @@ export const SheetRenderer = React.memo(
         );
         break;
       case ActivityType.LETTER_CONNECT:
-        return <LetterConnectSheet data={data} />;
+        return <LetterConnectSheet data={activeData} />;
       case ActivityType.HARF_BAGLAMA:
-        return <HarfBaglamaSheet data={data} />;
+        return <HarfBaglamaSheet data={activeData} />;
 
       // AUTONOM_CASES_START
       // AUTONOM_CASES_END
@@ -1452,7 +1452,7 @@ export const SheetRenderer = React.memo(
 
         renderedSheet = (
           <UnifiedContentRenderer
-            data={data}
+            data={activeData}
             activityType={activityType}
             studentProfile={studentProfile}
             settings={settings}

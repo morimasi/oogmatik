@@ -4,7 +4,7 @@ import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
 export const FindLetterPairSheet = ({ data }: { data: FindLetterPairData }) => {
-  const { grids, settings } = data;
+  const { grids = [], settings = { gridSize: 8 } as any } = data || {};
 
   // Grid yerleşimi: Öğe sayısına göre sütun belirleme
   const gridColsClass =
