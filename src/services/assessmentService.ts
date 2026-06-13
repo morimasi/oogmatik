@@ -109,7 +109,7 @@ export const assessmentService = {
         await deleteDoc(ref);
     },
 
-    shareAssessment: async (assessment: SavedAssessment, senderId: string, senderName: string, receiverId: string, permission?: SharePermission, message?: string): Promise<void> => {
+    shareAssessment: async (assessment: SavedAssessment, senderId: string, senderName: string, receiverId: string, permission?: string, message?: string): Promise<void> => {
         const payload = {
             userId: senderId,
             studentName: assessment.studentName,

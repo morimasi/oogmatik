@@ -112,7 +112,7 @@ export const useCreativeStore = create<CreativeState>()((set, get) => ({
         const groupId = item.groupId;
         set((state) => {
             const nextGroups = { ...state.groupedItems };
-            delete nextGroups[groupId];
+            delete nextGroups[groupId as string];
             return {
                 layout: state.layout.map((l) =>
                     l.groupId === groupId ? { ...l, groupId: undefined } : l

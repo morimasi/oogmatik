@@ -70,8 +70,8 @@ export async function generateSariKitapContent(
     } else {
         // Diğer tipler için standart fallback
         const useWordLevel = (
-            (config.type === 'nokta' && (config as any).dotPlacement === 'kelime') ||
-            (config.type === 'kopru' && (config as any).bridgePlacement === 'kelime')
+            ((config as any).type === 'nokta' && (config as any).dotPlacement === 'kelime') ||
+            ((config as any).type === 'kopru' && (config as any).bridgePlacement === 'kelime')
         );
         heceRows = useWordLevel ? metniKelimele(rawText) : metniHecele(rawText);
     }

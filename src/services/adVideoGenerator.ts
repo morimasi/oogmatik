@@ -416,7 +416,7 @@ export async function generateVideo(
         const t = totalSceneFrames > 0 ? localFrame / totalSceneFrames : 0;
         const progress = expectedFrame / totalFrames;
 
-        renderFrame(ctx, width, height, scene, img, prevImg, t, sceneIdx, progress);
+        renderFrame(ctx!, width, height, scene, img, prevImg, t, sceneIdx, progress);
 
         const pct = Math.round((expectedFrame + 1) / totalFrames * 100);
         if (pct !== lastProgressPct) {

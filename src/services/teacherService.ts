@@ -210,7 +210,7 @@ export const teacherService = {
       }
 
       const students: TeacherStudentSummary[] = await Promise.all(
-        studentsSnap.docs.map(async (doc) => {
+        studentsSnap.docs.map(async (doc: any) => {
           const data = doc.data();
           const sAssessments = await assessmentService.getAssessmentsByStudent(doc.id);
           const scores = sAssessments

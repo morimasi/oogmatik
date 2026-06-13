@@ -3,7 +3,7 @@ import { ProfileData } from '../../../types/profile';
 import { Student, SavedWorksheet } from '../../../types';
 import { BentoCard } from '../components/shared/BentoCard';
 import { StatCard } from '../components/shared/StatCard';
-import { LineChart } from '../../LineChart';
+import { LineChart, DataPoint } from '../../LineChart';
 
 interface OverviewModuleProps {
   data: ProfileData;

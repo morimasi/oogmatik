@@ -1,7 +1,7 @@
 
 import React from 'react';
 
-interface DataPoint {
+export interface DataPoint {
     date: string;
     [key: string]: number | string;
 }

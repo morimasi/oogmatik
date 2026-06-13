@@ -32,6 +32,8 @@ export function processPencereContent(
             isHighlighted: config.showSequential
                 ? i % (windowSize + 1) < windowSize
                 : Math.random() < visibilityRatio,
+            dotBelow: false,
+            bridgeNext: false,
         })),
     }));
 }
@@ -53,7 +55,9 @@ export function processNoktaContent(
         syllables: row.syllables.map((s: { isHighlighted?: boolean; dotBelow?: boolean; bridgeNext?: boolean; syllable?: string }, i) => ({
             ...s,
             syllable: (s as any).syllable ?? '',
+            isHighlighted: false,
             dotBelow: i % density === 0,
+            bridgeNext: false,
         })),
     }));
 }
@@ -74,6 +78,8 @@ export function processKopruContent(
         syllables: row.syllables.map((s: { isHighlighted?: boolean; dotBelow?: boolean; bridgeNext?: boolean; syllable?: string }, i) => ({
             ...s,
             syllable: (s as any).syllable ?? '',
+            isHighlighted: false,
+            dotBelow: false,
             bridgeNext: i < row.syllables.length - 1,
         })),
     }));

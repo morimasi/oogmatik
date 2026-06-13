@@ -18,9 +18,8 @@ import type {
   WorkbookTemplate,
   WorkbookTemplateType,
   WorkbookTheme,
-  LearningDisabilityProfile,
-  AgeGroup,
 } from '../../types/workbook';
+import type { LearningDisabilityProfile, AgeGroup } from '../../types/creativeStudio';
 import { ActivityType } from '../../types/activity';
 import { AppError } from '../../utils/AppError';
 

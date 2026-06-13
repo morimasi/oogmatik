@@ -1,5 +1,6 @@
 import { generateWithSchema } from './geminiClient.js';
 import { Curriculum, CurriculumActivityStatus, Student } from '../types.js';
+import type { Difficulty } from '../types/common.js';
 import { ACTIVITIES } from '../constants.js';
 import { db } from './firebaseClient.js';
 import { 
@@ -95,10 +96,17 @@ export const curriculumService = {
 
         const schedule = (result.schedule as Array<Record<string, unknown>>).map((day: Record<string, unknown>) => ({
             ...day,
+            day: day.day as number,
+            focus: day.focus as string,
             isCompleted: false,
             activities: (day.activities as Array<Record<string, unknown>>).map((act: Record<string, unknown>) => ({
                 ...act,
                 id: uuidv4(),
+                activityId: act.activityId as string,
+                title: act.title as string,
+                duration: act.duration as number,
+                goal: act.goal as string,
+                difficultyLevel: act.difficultyLevel as Difficulty,
                 status: 'pending' as CurriculumActivityStatus
             }))
         }));

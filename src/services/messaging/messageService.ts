@@ -46,13 +46,13 @@ export const messageService = {
   createConversation: async (conversationData: Omit<IConversation, "id" | "createdAt" | "updatedAt">): Promise<string> => {
     try {
       const convRef = doc(collection(db, CONVERSATIONS_COLLECTION));
-      const newConv: IConversation = {
+      const newConv = {
         ...conversationData,
         id: convRef.id,
-        participantIds: conversationData.participants.map(p => p.userId),
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now()
-      };
+        participantIds: (conversationData as any).participants.map((p: any) => p.userId),
+        createdAt: (Timestamp.now() as any).toDate(),
+        updatedAt: (Timestamp.now() as any).toDate()
+      } as IConversation;
 
       await setDoc(convRef, newConv);
       return convRef.id;

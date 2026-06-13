@@ -147,7 +147,7 @@ const Sidebar = ({
                 window.dispatchEvent(event);
               }
             }
-        }))
+        } as StudioItem))
     })).filter(group => group.items.length > 0);
   }, [
     onOpenScreening, onOpenCurriculum, onOpenReadingStudio, onOpenMathStudio,

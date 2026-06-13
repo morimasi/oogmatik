@@ -1,4 +1,4 @@
-import { DesignSchool } from '../components/InfographicStudio/hooks/useInfographicStudio';
+type DesignSchool = 'default' | 'brutalist' | 'warm-editorial' | 'tech-utility';
 
 /**
  * bdmind Tema Yardımcıları

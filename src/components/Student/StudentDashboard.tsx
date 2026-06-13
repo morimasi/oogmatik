@@ -3,7 +3,7 @@ import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../services/firebaseClient';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useStudentStore } from '../../store/useStudentStore';
-import { Student, SavedWorksheet, SavedAssessment, Curriculum } from '../../types';
+import { Student, SavedWorksheet, SavedAssessment, Curriculum, AdvancedStudent } from '../../types';
 import { ActivityAssignment } from '../../types/assignment';
 import { worksheetService } from '../../services/worksheetService';
 import { assessmentService } from '../../services/assessmentService';

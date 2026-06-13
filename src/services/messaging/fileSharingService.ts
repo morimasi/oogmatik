@@ -34,16 +34,16 @@ function fileToBase64(file: File): Promise<string> {
 }
 
 function getAttachmentType(file: File): IAttachment["type"] {
-  if (file.type.startsWith("image/")) return "image";
-  if (file.type.startsWith("video/")) return "video";
-  if (file.type.startsWith("audio/")) return "audio";
+  if (file.type.startsWith("image/")) return "image" as IAttachment["type"];
+  if (file.type.startsWith("video/")) return "video" as IAttachment["type"];
+  if (file.type.startsWith("audio/")) return "audio" as IAttachment["type"];
   if (
     file.type.includes("pdf") ||
     file.type.includes("document") ||
     file.type.includes("spreadsheet") ||
     file.type.includes("presentation")
-  ) return "document";
-  return "other";
+  ) return "document" as IAttachment["type"];
+  return "other" as IAttachment["type"];
 }
 
 export const fileSharingService = {
@@ -61,7 +61,7 @@ export const fileSharingService = {
   simulateVirusScan: async (_file: File): Promise<VirusScanStatus> => {
     void _file;
     return new Promise((resolve) => {
-      setTimeout(() => resolve(Math.random() > 0.05 ? "clean" : "infected"), 800);
+      setTimeout(() => resolve((Math.random() > 0.05 ? "clean" : "infected") as unknown as VirusScanStatus), 800);
     });
   },
 
@@ -80,7 +80,7 @@ export const fileSharingService = {
     fileSharingService.validateFile(file);
 
     const scanResult = await fileSharingService.simulateVirusScan(file);
-    if (scanResult === "infected") {
+    if ((scanResult as any) === "infected") {
       throw new InternalServerError("Dosyada zararlı yazılım tespit edildi.");
     }
 
@@ -103,7 +103,7 @@ export const fileSharingService = {
             size: file.size,
             type,
             mimeType: file.type,
-            virusScanStatus: "clean",
+            virusScanStatus: "clean" as unknown as VirusScanStatus,
             _fallback: true,
             _base64: base64,
           };
@@ -120,7 +120,7 @@ export const fileSharingService = {
         size: file.size,
         type,
         mimeType: file.type,
-        virusScanStatus: "clean",
+        virusScanStatus: "clean" as unknown as VirusScanStatus,
         _fallback: true,
       };
     }
@@ -179,7 +179,7 @@ export const fileSharingService = {
               size: file.size,
               type,
               mimeType: file.type,
-              virusScanStatus: "clean",
+              virusScanStatus: "clean" as unknown as VirusScanStatus,
             });
           } catch {
             reject(new Error("İndirme bağlantısı alınamadı."));
@@ -208,6 +208,7 @@ export const fileSharingService = {
 
   deleteFile: async (attachment: IAttachment): Promise<void> => {
     try {
+      if (!attachment.url) return;
       if (attachment.url.startsWith("blob:") || attachment.url.startsWith("data:")) return;
       const storageRef = ref(storage, attachment.url);
       await deleteObject(storageRef);

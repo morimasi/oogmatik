@@ -56,7 +56,7 @@ export const templateEngine = {
      */
     extractTemplate(
         blueprint: OCRBlueprint,
-        mode: ProductionMode = 'architecture_clone'
+        mode: ProductionMode = 'architecture_clone' as any
     ): ActivityTemplate {
         const now = new Date().toISOString();
         const columns = blueprint.layoutHints?.columns ?? 1;

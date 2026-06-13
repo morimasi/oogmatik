@@ -47,7 +47,7 @@ bdmind Ekibi`;
       logInfo(`Approval email successfully sent and recorded for: ${recipientEmail}`);
       return true;
     } catch (error) {
-      logError('Error sending/recording approval email:', error);
+      logError('Error sending/recording approval email:', error as Record<string, unknown>);
       return false;
     }
   }

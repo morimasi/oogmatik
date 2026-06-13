@@ -26,7 +26,7 @@ export const assignmentService = {
    * Yeni bir atama (veya toplu atama) oluşturur.
    */
   createAssignments: wrapAsync(
-    async (payload: CreateAssignmentPayload, assignedBy: string): Promise<ActivityAssignment[]> => {
+    (async (payload: CreateAssignmentPayload, assignedBy: string): Promise<ActivityAssignment[]> => {
       if (!payload.studentIds || payload.studentIds.length === 0) {
         throw new ValidationError("En az bir öğrenci seçmelisiniz.");
       }
@@ -63,7 +63,7 @@ export const assignmentService = {
       });
 
       return assignments;
-    },
+    }) as (...args: unknown[]) => Promise<unknown>,
     'Atama oluşturma başarısız',
     'CREATE_ASSIGNMENT_ERROR'
   ),
@@ -72,7 +72,7 @@ export const assignmentService = {
    * Bir öğretmenin atadığı tüm görevleri getirir.
    */
   getAssignmentsByTeacher: wrapAsync(
-    async (teacherId: string): Promise<ActivityAssignment[]> => {
+    (async (teacherId: string): Promise<ActivityAssignment[]> => {
       const q = query(
         collection(db, COLLECTION_NAME),
         where("assignedBy", "==", teacherId)
@@ -83,7 +83,7 @@ export const assignmentService = {
       });
 
       return querySnapshot.docs.map(doc => doc.data() as ActivityAssignment);
-    },
+    }) as (...args: unknown[]) => Promise<unknown>,
     'Atamalar getirilemedi',
     'FETCH_TEACHER_ASSIGNMENTS_ERROR'
   ),
@@ -92,7 +92,7 @@ export const assignmentService = {
    * Bir öğrenciye ait atamaları getirir.
    */
   getAssignmentsByStudent: wrapAsync(
-    async (studentId: string): Promise<ActivityAssignment[]> => {
+    (async (studentId: string): Promise<ActivityAssignment[]> => {
       const q = query(
         collection(db, COLLECTION_NAME),
         where("studentId", "==", studentId)
@@ -103,7 +103,7 @@ export const assignmentService = {
       });
 
       return querySnapshot.docs.map(doc => doc.data() as ActivityAssignment);
-    },
+    }) as (...args: unknown[]) => Promise<unknown>,
     'Atamalar getirilemedi',
     'FETCH_STUDENT_ASSIGNMENTS_ERROR'
   ),
@@ -112,7 +112,7 @@ export const assignmentService = {
    * Atamanın durumunu vs günceller.
    */
   updateAssignment: wrapAsync(
-    async (assignmentId: string, payload: AssignmentUpdatePayload): Promise<void> => {
+    (async (assignmentId: string, payload: AssignmentUpdatePayload): Promise<void> => {
       if (!assignmentId) {
         throw new ValidationError("Atama ID'si eksik.");
       }
@@ -140,7 +140,7 @@ export const assignmentService = {
       await updateDoc(docRef, updateData).catch((err) => {
          throw new DatabaseError("Atama güncellenirken bir veritabanı hatası oluştu.", err);
       });
-    },
+    }) as (...args: unknown[]) => Promise<unknown>,
     'Atama güncellenemedi',
     'UPDATE_ASSIGNMENT_ERROR'
   )

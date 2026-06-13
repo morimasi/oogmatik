@@ -6,9 +6,9 @@ import {
     createAdvancedStudent
 } from '../types/student-advanced';
 import { 
-    ActivityType, 
-    ApiResponse
+    ActivityType
 } from '../types';
+import { ApiResponse } from '../utils/errorHandler';
 import { logError, logInfo } from '../utils/logger';
 
 // --- TYPES FOR AI RESULTS ---
@@ -40,7 +40,7 @@ export const aiStudentService = {
             const baseData = { id: studentDoc.id, ...studentDoc.data() } as any;
             return createAdvancedStudent(baseData);
         } catch (error) {
-            logError("getFullStudentProfile error:", error);
+            logError("getFullStudentProfile error:", error as Record<string, unknown>);
             return null;
         }
     },
@@ -140,15 +140,16 @@ export const aiStudentService = {
             };
 
         } catch (error) {
-            logError("generateCognitiveInsight error:", error);
+            logError("generateCognitiveInsight error:", error as Record<string, unknown>);
             return {
                 success: false,
                 error: { 
                     message: "Bilişsel analiz sırasında bir hata oluştu.",
-                    code: "AI_ANALYSIS_FAILED"
-                },
-                timestamp: new Date().toISOString()
-            };
+                    code: "AI_ANALYSIS_FAILED",
+                    httpStatus: 500,
+                    timestamp: new Date().toISOString()
+                }
+            } as ApiResponse<CognitiveProfileResult>;
         }
     }
 };

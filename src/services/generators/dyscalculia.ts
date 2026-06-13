@@ -62,7 +62,7 @@ export const generateMathMemoryCardsFromAI = async (options: GeneratorOptions): 
         instruction: (p.instruction as string) ?? '',
         cards: (p.cards as MathMemoryCard[]) ?? [],
         pedagogicalNote: p.pedagogicalNote as string | undefined,
-        settings: { gridCols: 4, cardCount: itemCount, difficulty, variant, showNumbers }
+        settings: { gridCols: 4, cardCount: itemCount ?? 16, difficulty: difficulty ?? 'Orta', variant: variant ?? 'op-res', showNumbers: showNumbers ?? true }
     }));
 };
 // ... diğer generatorlar
