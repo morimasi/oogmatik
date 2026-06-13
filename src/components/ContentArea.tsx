@@ -461,14 +461,14 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             <AssessmentModule
               onBack={onBackToGenerator}
               onSelectActivity={onSelectActivity!}
-              onAddToWorkbook={onAddDirectToWorkbook}
-              onAutoGenerateWorkbook={onAutoGenerateWorkbook}
-            />
-          </React.Suspense>
-        </div>
-      )}
+               onAddToWorkbook={(assessment: SavedAssessment) => onAddDirectToWorkbook?.(assessment as unknown as CollectionItem)}
+               onAutoGenerateWorkbook={onAutoGenerateWorkbook}
+             />
+           </React.Suspense>
+         </div>
+       )}
 
-      {currentView === 'mat-sinav-studyosu' && (
+       {currentView === 'mat-sinav-studyosu' && (
         <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
           <React.Suspense
             fallback={
@@ -492,9 +492,9 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             }
           >
             <ActivityStudio
-              onBack={onBackToGenerator}
-              onAddToWorkbook={onAddDirectToWorkbook}
-            />
+               onBack={onBackToGenerator}
+               onAddToWorkbook={(item: unknown) => onAddDirectToWorkbook?.(item as CollectionItem)}
+             />
           </React.Suspense>
         </div>
       )}

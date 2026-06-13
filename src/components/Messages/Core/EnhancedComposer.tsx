@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { fileSharingService, UploadProgress } from '../../../services/messaging/fileSharingService';
 import { messageService } from '../../../services/messaging/messageService';
 import { useAuthStore } from '../../../store/useAuthStore';
-import { IAttachment } from '../../../types/messaging';
+import { Attachment } from '../../../types/messaging';
 import { useToastStore } from '../../../store/useToastStore';
 
 export const EnhancedComposer: React.FC = () => {
@@ -14,7 +14,7 @@ export const EnhancedComposer: React.FC = () => {
   const [text, setText] = useState('');
   const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'done' | 'fallback'>('idle');
   const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
-  const [pendingAttachment, setPendingAttachment] = useState<(Omit<IAttachment, "id"> & { _fallback?: boolean; _base64?: string }) | null>(null);
+  const [pendingAttachment, setPendingAttachment] = useState<(Omit<Attachment, "id"> & { _fallback?: boolean; _base64?: string }) | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -38,7 +38,7 @@ export const EnhancedComposer: React.FC = () => {
           senderId: user.id,
           type: pendingAttachment ? 'file' : 'text',
           text: text.trim(),
-          attachments: pendingAttachment ? [{ ...pendingAttachment, id: `att-${Date.now()}` } as IAttachment] : [],
+          attachments: pendingAttachment ? [{ ...pendingAttachment, id: `att-${Date.now()}` } as Attachment] : [],
           threadId: activeThreadId || undefined,
           quoteData: quotingMessage
             ? { messageId: quotingMessage.id, originalSenderId: quotingMessage.senderId, originalSenderName: senderName, originalText: quotingMessage.text || 'Dosya' }

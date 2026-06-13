@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { getMinFontPT } from '@/services/compactA4LayoutService';
 import { useActivityStudioStore } from '@/store/useActivityStudioStore';
 import type {
+  ActivityStudioState,
   AgeGroup,
   CompactA4Config,
   LearningDisabilityProfile,
@@ -44,8 +45,8 @@ export const CompactA4LayoutPanel: React.FC<CompactA4LayoutPanelProps> = ({
   ageGroup = '8-10',
   profile = 'dyslexia',
 }) => {
-  const setCompactA4Config = useActivityStudioStore((state: ReturnType<typeof useActivityStudioStore>) => state.setCompactA4Config);
-  const existingConfig = useActivityStudioStore((state: ReturnType<typeof useActivityStudioStore>) => state.compactA4Config);
+  const setCompactA4Config = useActivityStudioStore((state: ActivityStudioState) => state.setCompactA4Config);
+  const existingConfig = useActivityStudioStore((state: ActivityStudioState) => state.compactA4Config);
   const minFont = useMemo(() => getMinFontPT(ageGroup, profile), [ageGroup, profile]);
 
   const [config, setConfig] = useState<CompactA4Config>(() => {

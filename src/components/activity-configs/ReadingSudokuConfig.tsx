@@ -2,12 +2,12 @@
 import React from 'react';
 import { GeneratorOptions } from '../../types';
 
-const CompactToggleGroup = ({ label, selected, onChange, options }: { label: string; selected: string; onChange: (v: string) => void; options: { value: string; label: string }[] }) => (
+const CompactToggleGroup = ({ label, selected, onChange, options }: { label: string; selected: string | number; onChange: (v: string | number) => void; options: { value: string | number; label: string }[] }) => (
     <div className="space-y-1">
         <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block">{label}</label>
         <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
-            {options.map((opt: { value: string; label: string }) => (
-                <button key={opt.value} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-white dark:bg-zinc-600 shadow-sm text-indigo-600 dark:text-indigo-300' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}>{opt.label}</button>
+            {options.map((opt) => (
+                <button key={String(opt.value)} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-white dark:bg-zinc-600 shadow-sm text-indigo-600 dark:text-indigo-300' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}>{opt.label}</button>
             ))}
         </div>
     </div>
@@ -20,7 +20,7 @@ export const ReadingSudokuConfig: React.FC<{ options: GeneratorOptions; onChange
                 <CompactToggleGroup 
                     label="İçerik Türü" 
                     selected={options.variant || 'letters'} 
-                    onChange={(v: string) => onChange('variant', v)} 
+                    onChange={(v) => onChange('variant', v)} 
                     options={[
                         { value: 'letters', label: 'Harf' },
                         { value: 'words', label: 'Kelime' },
@@ -33,7 +33,7 @@ export const ReadingSudokuConfig: React.FC<{ options: GeneratorOptions; onChange
                 <CompactToggleGroup 
                     label="Izgara Boyutu" 
                     selected={options.gridSize || 4} 
-                    onChange={(v: number) => onChange('gridSize', v)} 
+                    onChange={(v) => onChange('gridSize', v)} 
                     options={[
                         { value: 4, label: '4x4 (Kolay)' },
                         { value: 6, label: '6x6 (Orta)' },

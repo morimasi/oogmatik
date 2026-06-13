@@ -17,9 +17,9 @@ const CompactToggleGroup = ({ label, selected, onChange, options }: ToggleGroupP
     <div className="space-y-1 mt-4">
         <label className="text-[10px] font-black text-[var(--text-secondary)] uppercase block">{label}</label>
         <div className="flex bg-[var(--bg-secondary)] p-1 rounded-lg border border-[var(--border-color)]">
-            {options.map((opt) => (
+            {options.map((opt, idx) => (
                 <button 
-                    key={opt.value} 
+                    key={idx} 
                     onClick={() => onChange(opt.value)} 
                     className={`flex-1 py-1.5 text-[10px] font-black rounded-md transition-all ${selected === opt.value ? 'bg-[var(--bg-paper)] shadow-md text-[var(--accent-color)] border border-[var(--border-color)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-glass)]'}`}
                 >
@@ -31,7 +31,7 @@ const CompactToggleGroup = ({ label, selected, onChange, options }: ToggleGroupP
 );
 
 interface ConfigProps {
-    options: unknown;
+    options: GeneratorOptions;
     onChange: (key: keyof GeneratorOptions, value: unknown) => void;
 }
 
@@ -83,7 +83,7 @@ export const QueueOrderingConfig = ({ options, onChange }: ConfigProps) => {
                             type="number"
                             min={1}
                             max={10}
-                            value={options.problemCount || 4}
+                            value={(options.problemCount as number) || 4}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('problemCount', parseInt(e.target.value))}
                             className="w-full p-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl text-xs font-black text-[var(--text-primary)] outline-none focus:border-[var(--accent-color)]"
                         />
@@ -94,7 +94,7 @@ export const QueueOrderingConfig = ({ options, onChange }: ConfigProps) => {
                             type="number"
                             min={3}
                             max={15}
-                            value={options.maxQueueSize || 10}
+                            value={(options.maxQueueSize as number) || 10}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('maxQueueSize', parseInt(e.target.value))}
                             className="w-full p-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl text-xs font-black text-[var(--text-primary)] outline-none focus:border-[var(--accent-color)]"
                         />
@@ -124,7 +124,7 @@ export const QueueOrderingConfig = ({ options, onChange }: ConfigProps) => {
                 <CompactToggleGroup
                     label="İkon Stili"
                     selected={options.iconStyle || 'emoji'}
-                    onChange={(v: string) => onChange('iconStyle', v)}
+                    onChange={(v: unknown) => onChange('iconStyle', v as string)}
                     options={[
                         { value: 'emoji', label: 'Emoji' },
                         { value: 'avatar', label: 'Profil' },

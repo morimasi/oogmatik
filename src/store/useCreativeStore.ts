@@ -1,4 +1,4 @@
-import { create, SetState, GetState } from 'zustand';
+import { create } from 'zustand';
 import { LayoutItem } from '../types';
 
 interface CreativeState {
@@ -36,7 +36,7 @@ interface CreativeState {
  * useCreativeStore - UniversalStudio Merkezi Deposu
  * Context API'den Zustand'a taşınmış, optimize edilmiş state yönetimi.
  */
-export const useCreativeStore = create<CreativeState>()((set: SetState<CreativeState>, get: GetState<CreativeState>) => ({
+export const useCreativeStore = create<CreativeState>()((set, get) => ({
     // Initial State
     layout: [],
     selectedId: null,
@@ -46,27 +46,27 @@ export const useCreativeStore = create<CreativeState>()((set: SetState<CreativeS
     groupedItems: {},
 
     // Basic Setters
-    setLayout: (layoutUpdate: LayoutItem[] | ((prev: LayoutItem[]) => LayoutItem[])) => set((state: CreativeState) => ({
+    setLayout: (layoutUpdate: LayoutItem[] | ((prev: LayoutItem[]) => LayoutItem[])) => set((state) => ({
         layout: typeof layoutUpdate === 'function' ? layoutUpdate(state.layout) : layoutUpdate
     })),
 
     setSelectedId: (id: string | null) => set({ selectedId: id }),
 
-    setSelectedIds: (idsUpdate: string[] | ((prev: string[]) => string[])) => set((state: CreativeState) => ({
+    setSelectedIds: (idsUpdate: string[] | ((prev: string[]) => string[])) => set((state) => ({
         selectedIds: typeof idsUpdate === 'function' ? idsUpdate(state.selectedIds) : idsUpdate
     })),
 
     setDesignMode: (mode: boolean) => set({ designMode: mode }),
 
     // Advanced Actions
-    updateComponent: (instanceId: string, updates: Partial<LayoutItem>) => set((state: CreativeState) => ({
-        layout: state.layout.map((item: LayoutItem) =>
+    updateComponent: (instanceId: string, updates: Partial<LayoutItem>) => set((state) => ({
+        layout: state.layout.map((item) =>
             item.instanceId === instanceId ? { ...item, ...updates } : item
         )
     })),
 
-    updateMultipleComponents: (instanceIds: string[], updates: Partial<LayoutItem>) => set((state: CreativeState) => ({
-        layout: state.layout.map((item: LayoutItem) =>
+    updateMultipleComponents: (instanceIds: string[], updates: Partial<LayoutItem>) => set((state) => ({
+        layout: state.layout.map((item) =>
             instanceIds.includes(item.instanceId) ? { ...item, ...updates } : item
         )
     })),
@@ -75,10 +75,10 @@ export const useCreativeStore = create<CreativeState>()((set: SetState<CreativeS
 
     toggleSelection: (instanceId: string, isCtrlKey: boolean) => {
         if (isCtrlKey) {
-            set((state: CreativeState) => {
+            set((state) => {
                 const isSelected = state.selectedIds.includes(instanceId);
                 const nextIds = isSelected
-                    ? state.selectedIds.filter((id: string) => id !== instanceId)
+                    ? state.selectedIds.filter((id) => id !== instanceId)
                     : [...state.selectedIds, instanceId];
                 return { selectedIds: nextIds, selectedId: null };
             });
@@ -93,8 +93,8 @@ export const useCreativeStore = create<CreativeState>()((set: SetState<CreativeS
         if (itemsToGroup.length < 2) return;
 
         const groupId = `group_${Date.now()}`;
-        set((state: CreativeState) => ({
-            layout: state.layout.map((item: LayoutItem) =>
+        set((state) => ({
+            layout: state.layout.map((item) =>
                 itemsToGroup.includes(item.instanceId) ? { ...item, groupId } : item
             ),
             groupedItems: { ...state.groupedItems, [groupId]: itemsToGroup }
@@ -106,15 +106,15 @@ export const useCreativeStore = create<CreativeState>()((set: SetState<CreativeS
         const itemId = selectedId || selectedIds[0];
         if (!itemId) return;
 
-        const item = layout.find((l: LayoutItem) => l.instanceId === itemId);
+        const item = layout.find((l) => l.instanceId === itemId);
         if (!item?.groupId) return;
 
         const groupId = item.groupId;
-        set((state: CreativeState) => {
+        set((state) => {
             const nextGroups = { ...state.groupedItems };
             delete nextGroups[groupId];
             return {
-                layout: state.layout.map((l: LayoutItem) =>
+                layout: state.layout.map((l) =>
                     l.groupId === groupId ? { ...l, groupId: undefined } : l
                 ),
                 groupedItems: nextGroups
@@ -125,7 +125,7 @@ export const useCreativeStore = create<CreativeState>()((set: SetState<CreativeS
     lockSelected: () => {
         const { selectedIds, selectedId } = get();
         const itemsToLock = selectedIds.length > 0 ? selectedIds : (selectedId ? [selectedId] : []);
-        set((state: CreativeState) => ({
+        set((state) => ({
             lockedItems: [...new Set([...state.lockedItems, ...itemsToLock])]
         }));
     },
@@ -133,16 +133,16 @@ export const useCreativeStore = create<CreativeState>()((set: SetState<CreativeS
     unlockSelected: () => {
         const { selectedIds, selectedId } = get();
         const itemsToUnlock = selectedIds.length > 0 ? selectedIds : (selectedId ? [selectedId] : []);
-        set((state: CreativeState) => ({
-            lockedItems: state.lockedItems.filter((id: string) => !itemsToUnlock.includes(id))
+        set((state) => ({
+            lockedItems: state.lockedItems.filter((id) => !itemsToUnlock.includes(id))
         }));
     },
 
     deleteSelected: () => {
         const { selectedIds, selectedId, clearSelection } = get();
         const itemsToDelete = selectedIds.length > 0 ? selectedIds : (selectedId ? [selectedId] : []);
-        set((state: CreativeState) => ({
-            layout: state.layout.map((item: LayoutItem) =>
+        set((state) => ({
+            layout: state.layout.map((item) =>
                 itemsToDelete.includes(item.instanceId) ? { ...item, isVisible: false } : item
             )
         }));

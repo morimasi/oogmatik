@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Activity, Clock, TrendingUp, Users, FileText, ClipboardCheck, GraduationCap, ArrowUpRight, Calendar } from 'lucide-react';
+import { Activity, Clock, TrendingUp, Users, FileText, Award, ArrowRight, Calendar } from 'lucide-react';
 import { TeacherDetail, TeacherActivity } from '../../../types/teacher';
 import { ACTIVITY_LABELS, ACTIVITY_ICONS, ACTIVITY_COLORS, ACTIVITY_BG_COLORS } from './constants';
 import { teacherService } from '../../../services/teacherService';
@@ -50,7 +50,7 @@ export const TeacherOverview: React.FC<TeacherOverviewProps> = ({ teacher }) => 
               <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform`}>
                 <i className={`fa-solid ${stat.icon}`} />
               </div>
-              <ArrowUpRight className="w-4 h-4 text-[var(--text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
+              <ArrowRight className="w-4 h-4 text-[var(--text-muted)] opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
             <p className="text-3xl font-black text-[var(--text-primary)]">{stat.value}</p>
             <p className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mt-0.5">{stat.label}</p>
@@ -142,7 +142,7 @@ export const TeacherOverview: React.FC<TeacherOverviewProps> = ({ teacher }) => 
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-[9px] font-black text-[var(--text-primary)]">{ACTIVITY_LABELS[act.type]}</span>
-                  {act.targetId && <ArrowUpRight className="w-2.5 h-2.5 text-[var(--accent-color)] opacity-0 group-hover:opacity-100 transition-opacity" />}
+                  {act.targetId && <ArrowRight className="w-2.5 h-2.5 text-[var(--accent-color)] opacity-0 group-hover:opacity-100 transition-opacity" />}
                 </div>
                 <p className="text-[10px] font-bold text-[var(--text-muted)] truncate">{act.title}</p>
                 <p className="text-[8px] font-bold text-zinc-400">{act.details}</p>

@@ -69,7 +69,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
     };
   };
 
-  const ui = getErrorUI();
+  const ui: { icon: string; bgColor: string; borderColor: string; textColor: string; iconColor: string } = getErrorUI();
 
   return (
     <div
@@ -105,24 +105,6 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
           <p className={`text-xs ${ui.textColor} opacity-90 leading-relaxed`}>
             {userMessage}
           </p>
-
-          {/* Error code for debugging */}
-          {isAppError ? (
-            <p className={`text-[10px] ${(ui.textColor as unknown as string)} opacity-60 mt-1 font-mono`}>
-              Kod: {String(errorCode)}
-            </p>
-          ) : null}
-
-          {isAppError ? null : (
-            <p className={`text-[10px] ${(ui.textColor as unknown as string)} opacity-60 mt-1 font-mono`}>
-              {(() => {
-                const err = error as unknown;
-                if (!err) return 'Unknown error';
-                if (err instanceof Error) return err.message;
-                return String(err);
-              })()}
-            </p>
-          )}
 
           {/* Rate limit specific info */}
           {error instanceof RateLimitError && (error.details as unknown as Record<string, unknown>)?.retryAfter && (

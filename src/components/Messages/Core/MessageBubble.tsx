@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { IMessage } from '../../../types/messaging';
+import { Message } from '../../../types/messaging';
 import { useMessageStore } from '../../../store/useMessageStore';
 import { Reply, Trash2, Paperclip, Download, ZoomIn, X, Edit3, CornerUpRight, History, Check, CheckCheck } from 'lucide-react';
 import { Timestamp } from 'firebase/firestore';
@@ -11,14 +11,14 @@ import { EditHistory } from '../Features/EditHistory';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { fileSharingService } from '../../../services/messaging/fileSharingService';
 
-interface Props { message: IMessage; isOwn: boolean; }
+interface Props { message: Message; isOwn: boolean; }
 
 export const MessageBubble: React.FC<Props> = ({ message, isOwn }) => {
   const { setQuotingMessage, setEditingMessage, setActiveThreadId, getConversationSettings } = useMessageStore();
   const { user } = useAuthStore();
   const [hovered, setHovered] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [viewingAttachment, setViewingAttachment] = useState<{ attachment: NonNullable<IMessage['attachments']>[number]; userId: string } | null>(null);
+  const [viewingAttachment, setViewingAttachment] = useState<{ attachment: NonNullable<Message['attachments']>[number]; userId: string } | null>(null);
   const [showEditHistory, setShowEditHistory] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 

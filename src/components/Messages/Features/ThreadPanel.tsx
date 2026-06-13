@@ -3,7 +3,7 @@ import { useMessageStore } from '../../../store/useMessageStore';
 import { MessageBubble } from '../Core/MessageBubble';
 import { EnhancedComposer } from '../Core/EnhancedComposer';
 import { X, CornerUpRight, MessageSquare } from 'lucide-react';
-import { IMessage } from '../../../types/messaging';
+import { Message } from '../../../types/messaging';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { messageService } from '../../../services/messaging/messageService';
 
@@ -11,8 +11,8 @@ export const ThreadPanel: React.FC = () => {
   const { activeConversationId, activeThreadId, setActiveThreadId } = useMessageStore();
   const { user } = useAuthStore();
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [replies, setReplies] = useState<IMessage[]>([]);
-  const [originalMessage, setOriginalMessage] = useState<IMessage | null>(null);
+  const [replies, setReplies] = useState<Message[]>([]);
+  const [originalMessage, setOriginalMessage] = useState<Message | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {

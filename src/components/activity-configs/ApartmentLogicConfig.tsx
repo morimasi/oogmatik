@@ -17,8 +17,8 @@ const CompactToggleGroup = ({ label, selected, onChange, options }: ToggleGroupP
     <div className="space-y-1 mt-4">
         <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block">{label}</label>
         <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
-            {options.map((opt) => (
-                <button key={opt.value} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-white dark:bg-zinc-600 shadow-sm text-indigo-600 dark:text-indigo-300' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}>
+            {options.map((opt, idx) => (
+                <button key={idx} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-white dark:bg-zinc-600 shadow-sm text-indigo-600 dark:text-indigo-300' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}>
                     {opt.label}
                 </button>
             ))}
@@ -77,7 +77,7 @@ export const ApartmentLogicConfig: React.FC<ConfigProps> = ({ options, onChange 
                 <CompactToggleGroup
                     label="Değişken Karmaşıklığı (Her Dairedeki Özellik)"
                     selected={options.variableCount || 2}
-                    onChange={(v: number) => onChange('variableCount', v)}
+                    onChange={(v: unknown) => onChange('variableCount', v as number)}
                     options={[
                         { value: 1, label: 'Sadece İsim (1D)' },
                         { value: 2, label: 'İsim + Meslek/Hayvan (2D)' },

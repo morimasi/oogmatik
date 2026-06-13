@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Search, GraduationCap, ArrowLeft, RefreshCw, Mail, Calendar } from 'lucide-react';
+import { Search, Award, ArrowLeft, RefreshCw, Mail, Calendar } from 'lucide-react';
 import { teacherService } from '../../services/teacherService';
 import { useToastStore } from '../../store/useToastStore';
 import { TeacherListItem, TeacherDetail } from '../../types/teacher';
@@ -190,7 +190,7 @@ const TeacherManagement: React.FC = () => {
       ) : filteredTeachers.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <div className="w-24 h-24 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 rounded-[2.5rem] flex items-center justify-center mb-6 shadow-inner">
-            <GraduationCap className="w-10 h-10 text-indigo-400 opacity-50" />
+            <Award className="w-10 h-10 text-indigo-400 opacity-50" />
           </div>
           <h3 className="text-xl font-black text-[var(--text-primary)] mb-2">
             {searchTerm || statusFilter !== 'all' ? 'Eşleşen Öğretmen Bulunamadı' : 'Henüz Öğretmen Yok'}

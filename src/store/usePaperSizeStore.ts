@@ -1,4 +1,4 @@
-import { create, SetState, GetState } from 'zustand';
+import { create } from 'zustand';
 import { PaperSize } from '../utils/printService';
 import { saveCurrentUserPaperSize } from '../services/paperSizeApi';
 import { User } from '../types';
@@ -9,7 +9,7 @@ type PaperSizeState = {
   setPaperSize: (p: PaperSize) => void;
 };
 
-export const usePaperSizeStore = create<PaperSizeState>()((set: SetState<PaperSizeState>, get: GetState<PaperSizeState>) => ({
+export const usePaperSizeStore = create<PaperSizeState>()((set, get) => ({
   paperSize:
     (typeof window !== 'undefined'
       ? (localStorage.getItem('bdmind.paperSize') as PaperSize)

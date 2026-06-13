@@ -1,8 +1,8 @@
 import React from 'react';
-import { IAttachment } from '../../../types/messaging';
+import { Attachment } from '../../../types/messaging';
 
 interface MediaGalleryProps {
-    attachments: IAttachment[];
+    attachments: Attachment[];
 }
 
 export const MediaGallery: React.FC<MediaGalleryProps> = ({ attachments }) => {

@@ -1,4 +1,4 @@
-import { create, SetState, GetState } from 'zustand';
+import { create } from 'zustand';
 import { ReadingStudioConfig, LayoutItem, Student } from '../types';
 import { InteractiveStoryData } from '../types/verbal';
 import { A4_HEIGHT_PX } from '../utils/layoutConstants';
@@ -40,7 +40,7 @@ interface ReadingState {
   canRedo: () => boolean;
 }
 
-export const useReadingStore = create<ReadingState>()((set: SetState<ReadingState>, get: GetState<ReadingState>) => ({
+export const useReadingStore = create<ReadingState>()((set, get) => ({
   config: {
     gradeLevel: '3. Sınıf',
     studentName: '',
@@ -90,7 +90,7 @@ export const useReadingStore = create<ReadingState>()((set: SetState<ReadingStat
   setConfig: (config: ReadingStudioConfig) => set({ config }),
   setStoryData: (storyData: InteractiveStoryData | null) => set({ storyData }),
   setLayout: (layoutUpdate: LayoutItem[] | ((prev: LayoutItem[]) => LayoutItem[])) =>
-    set((state: ReadingState) => ({
+    set((state) => ({
       layout: typeof layoutUpdate === 'function' ? layoutUpdate(state.layout) : layoutUpdate,
     })),
   setSelectedId: (selectedId: string | null) => set({ selectedId }),
@@ -105,8 +105,8 @@ export const useReadingStore = create<ReadingState>()((set: SetState<ReadingStat
       const nextPast = [...past.slice(-19), layout];
       set({ past: nextPast, future: [] });
     }
-    set((state: ReadingState) => ({
-      layout: state.layout.map((item: LayoutItem) =>
+    set((state) => ({
+      layout: state.layout.map((item) =>
         item.instanceId === instanceId ? { ...item, ...updates } : item
       ),
     }));
@@ -114,7 +114,7 @@ export const useReadingStore = create<ReadingState>()((set: SetState<ReadingStat
 
   toggleVisibility: (instanceId: string) => {
     const { layout, updateComponent, recalculateLayout } = get();
-    const item = layout.find((i: LayoutItem) => i.instanceId === instanceId);
+    const item = layout.find((i) => i.instanceId === instanceId);
     if (!item) return;
 
     updateComponent(instanceId, { isVisible: !item.isVisible }, true);
@@ -123,7 +123,7 @@ export const useReadingStore = create<ReadingState>()((set: SetState<ReadingStat
   },
 
   recalculateLayout: () => {
-    set((state: ReadingState) => {
+    set((state) => {
       const margin = 30;
       let currentY = 20;
       let currentPage = 0;
@@ -206,7 +206,7 @@ export const useReadingStore = create<ReadingState>()((set: SetState<ReadingStat
       specificData: compDef.specificData || {},
     } as unknown as LayoutItem;
 
-    set((state: ReadingState) => ({
+    set((state) => ({
       layout: [...state.layout, newComp],
       selectedId: newComp.instanceId,
     }));

@@ -3,7 +3,7 @@
  * State management for exam creation workflow
  */
 
-import { create, SetState } from 'zustand';
+import { create } from 'zustand';
 import { SinavAyarlari, Sinav } from '../types/sinav';
 
 interface SinavStoreState {
@@ -57,19 +57,19 @@ const defaultAyarlar: SinavAyarlari = {
   ozelKonu: undefined
 };
 
-export const useSinavStore = create<SinavStoreState>((set: SetState<SinavStoreState>) => ({
+export const useSinavStore = create<SinavStoreState>((set) => ({
   ayarlar: defaultAyarlar,
   aktifSinav: null,
   isGenerating: false,
   kaydedilmisSinavlar: [],
 
   setAyarlar: (partial: Partial<SinavAyarlari>) =>
-    set((state: SinavStoreState) => ({
+    set((state) => ({
       ayarlar: { ...state.ayarlar, ...partial }
     })),
 
   setSinif: (sinif: number) =>
-    set((state: SinavStoreState) => ({
+    set((state) => ({
       ayarlar: {
         ...state.ayarlar,
         sinif,
@@ -79,17 +79,17 @@ export const useSinavStore = create<SinavStoreState>((set: SetState<SinavStoreSt
     })),
 
   setSecilenUniteler: (uniteler: string[]) =>
-    set((state: SinavStoreState) => ({
+    set((state) => ({
       ayarlar: { ...state.ayarlar, secilenUniteler: uniteler }
     })),
 
   setSecilenKazanimlar: (kazanimlar: string[]) =>
-    set((state: SinavStoreState) => ({
+    set((state) => ({
       ayarlar: { ...state.ayarlar, secilenKazanimlar: kazanimlar }
     })),
 
   setSoruDagilimi: (tip: keyof SinavAyarlari['soruDagilimi'], sayi: number) =>
-    set((state: SinavStoreState) => ({
+    set((state) => ({
       ayarlar: {
         ...state.ayarlar,
         soruDagilimi: {
@@ -104,7 +104,7 @@ export const useSinavStore = create<SinavStoreState>((set: SetState<SinavStoreSt
   setIsGenerating: (isGenerating: boolean) => set({ isGenerating }),
 
   addKaydedilmisSinav: (sinav: Sinav) =>
-    set((state: SinavStoreState) => ({
+    set((state) => ({
       kaydedilmisSinavlar: [sinav, ...state.kaydedilmisSinavlar]
     })),
 

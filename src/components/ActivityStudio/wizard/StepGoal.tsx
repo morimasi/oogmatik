@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { DEFAULT_TARGET_SKILLS } from '../constants';
 import { useActivityStudioStore } from '../../../store/useActivityStudioStore';
 import type { StudioGoalConfig } from '../../../types/activityStudio';
+import type { AgeGroup, LearningDisabilityProfile } from '../../../types/creativeStudio';
 import { LibraryExplorer } from '../goal/LibraryExplorer';
 
 interface StepGoalProps {
@@ -81,9 +82,9 @@ export const StepGoal: React.FC<StepGoalProps> = ({ onNext }) => {
         ...mergedGoal, 
         topic: item.topicTemplate,
         activityType: item.activityType,
-        ageGroup: item.ageGroups[0],
+        ageGroup: item.ageGroups[0] as AgeGroup,
         duration: item.suggestedDuration,
-        profile: item.profiles[0]
+        profile: item.profiles[0] as LearningDisabilityProfile
       });
     }
   };

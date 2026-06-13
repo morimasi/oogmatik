@@ -17,8 +17,8 @@ const CompactToggleGroup: React.FC<CompactToggleGroupProps> = ({ label, selected
     <div className="space-y-1">
         <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block">{label}</label>
         <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
-            {options.map((opt) => (
-                <button key={opt.value} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-white dark:bg-zinc-600 shadow-sm text-indigo-600 dark:text-indigo-300' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}>
+            {options.map((opt, idx) => (
+                <button key={idx} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-white dark:bg-zinc-600 shadow-sm text-indigo-600 dark:text-indigo-300' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}>
                     {opt.label}
                 </button>
             ))}
@@ -49,7 +49,7 @@ export const FiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChange }) =>
                 <CompactToggleGroup
                     label="Sınıf Seviyesi"
                     selected={((options as Record<string, unknown>).classLevel as string | number) || 1}
-                    onChange={(v: any) => onChange('classLevel', v)}
+                    onChange={(v: unknown) => onChange('classLevel', v)}
                     options={[
                         { value: 1, label: '1. Sınıf' },
                         { value: 2, label: '2. Sınıf' },
@@ -65,7 +65,7 @@ export const FiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChange }) =>
                 <CompactToggleGroup
                     label="Metin Uzunluğu"
                     selected={options.textLength || 'kısa'}
-                    onChange={(v: string) => onChange('textLength', v)}
+                    onChange={(v: unknown) => onChange('textLength', v as string)}
                     options={[
                         { value: 'kısa', label: 'Kısa (~4 Satır)' },
                         { value: 'orta', label: 'Orta (1 Paragraf)' },
@@ -79,7 +79,7 @@ export const FiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChange }) =>
                 <CompactToggleGroup
                     label="Zorluk Seviyesi"
                     selected={options.difficulty || '7-8'}
-                    onChange={(v: string) => onChange('difficulty', v)}
+                    onChange={(v: unknown) => onChange('difficulty', v as string)}
                     options={[
                         { value: '1-2', label: '1-2. Sınıf' },
                         { value: '3-4', label: '3-4. Sınıf' },
@@ -91,7 +91,7 @@ export const FiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChange }) =>
                 <CompactToggleGroup
                     label="Üretim Modu"
                     selected={options.generationMode || 'ai'}
-                    onChange={(v: string) => onChange('generationMode', v)}
+                    onChange={(v: unknown) => onChange('generationMode', v as string)}
                     options={[
                         { value: 'fast', label: 'Hızlı' },
                         { value: 'ai', label: 'AI Modu' }
@@ -101,7 +101,7 @@ export const FiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChange }) =>
                 <CompactToggleGroup
                     label="Soru Formati"
                     selected={options.questionStyle || 'test_and_open'}
-                    onChange={(v: string) => onChange('questionStyle', v)}
+                    onChange={(v: unknown) => onChange('questionStyle', v as string)}
                     options={[
                         { value: 'test_and_open', label: 'Karma Mod' },
                         { value: 'only_test', label: 'Sadece Şıklı' },

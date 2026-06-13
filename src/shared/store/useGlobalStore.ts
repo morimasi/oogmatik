@@ -1,4 +1,4 @@
-import { create, SetState } from 'zustand';
+import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 export type Theme = 'light' | 'dark' | 'high-contrast' | 'warm' | 'cool';
@@ -26,7 +26,7 @@ export interface GlobalStoreState {
 
 export const useGlobalStore = create<GlobalStoreState>()(
   persist(
-    (set: SetState<GlobalStoreState>) => ({
+    (set) => ({
       theme: 'light',
       dyslexiaSettings: {
         fontFamily: 'OpenDyslexic',
@@ -37,7 +37,7 @@ export const useGlobalStore = create<GlobalStoreState>()(
       },
       setTheme: (theme: Theme) => set({ theme }),
       updateDyslexiaSettings: (settings: Partial<DyslexiaSettings>) =>
-        set((state: GlobalStoreState) => ({
+        set((state) => ({
           dyslexiaSettings: { ...state.dyslexiaSettings, ...settings },
         })),
     }),

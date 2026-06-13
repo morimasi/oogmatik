@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useActivityStudioStore } from '@/store/useActivityStudioStore';
 import { getContrastRatio, isAccessibleContrast } from '@/services/themeContrastService';
-import type { ThemeConfig } from '@/types/activityStudio';
+import type { ThemeConfig, ActivityStudioState } from '@/types/activityStudio';
 
 type ThemeColors = Omit<ThemeConfig, 'contrastChecks'>;
 
@@ -14,8 +14,8 @@ const DEFAULT_COLORS: ThemeColors = {
 };
 
 export const ThemeSyncPanel: React.FC = () => {
-  const themeConfig = useActivityStudioStore((state: ReturnType<typeof useActivityStudioStore>) => state.themeConfig);
-  const setThemeConfig = useActivityStudioStore((state: ReturnType<typeof useActivityStudioStore>) => state.setThemeConfig);
+  const themeConfig = useActivityStudioStore((state: ActivityStudioState) => state.themeConfig);
+  const setThemeConfig = useActivityStudioStore((state: ActivityStudioState) => state.setThemeConfig);
   const [colors, setColors] = useState<ThemeColors>({
     primaryColor: themeConfig?.primaryColor ?? DEFAULT_COLORS.primaryColor,
     secondaryColor: themeConfig?.secondaryColor ?? DEFAULT_COLORS.secondaryColor,

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Users, ArrowUpRight, TrendingUp, TrendingDown, Minus, Filter, GraduationCap, BookOpen, BarChart3, Eye } from 'lucide-react';
+import { Search, Users, ArrowRight, TrendingUp, TrendingDown, Minus, Filter, Award, BookOpen, BarChart3, Eye } from 'lucide-react';
 import { TeacherDetail, TeacherStudentSummary } from '../../../types/teacher';
 import { teacherService } from '../../../services/teacherService';
 import { useToastStore } from '../../../store/useToastStore';
@@ -124,7 +124,7 @@ export const TeacherStudents: React.FC<TeacherStudentsProps> = ({ teacher }) => 
       {/* Student Grid */}
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
-          <GraduationCap className="w-12 h-12 text-zinc-300 mb-4" />
+          <Award className="w-12 h-12 text-zinc-300 mb-4" />
           <p className="text-sm font-bold text-[var(--text-muted)]">Eşleşen öğrenci bulunamadı.</p>
         </div>
       ) : viewMode === 'grid' ? (
@@ -148,7 +148,7 @@ export const TeacherStudents: React.FC<TeacherStudentsProps> = ({ teacher }) => 
                     <p className="text-[9px] font-bold text-[var(--text-muted)]">{s.grade || 'Sınıf belirtilmemiş'} · {s.age} yaş</p>
                   </div>
                 </div>
-                <ArrowUpRight className="w-4 h-4 text-[var(--accent-color)] opacity-0 group-hover:opacity-100 transition-opacity" />
+                <ArrowRight className="w-4 h-4 text-[var(--accent-color)] opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
               <div className="grid grid-cols-3 gap-2 mb-3">
                 <div className="bg-[var(--bg-secondary)] rounded-xl p-2.5 text-center border border-[var(--border-color)]">

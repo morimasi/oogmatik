@@ -122,7 +122,7 @@ export const ActivityManagerPanel: React.FC = () => {
     try {
       if (action === 'delete') {
          // Silme mantığı - adminService'e deleteActivity eklenmeli veya batch silme
-         toast.warn('Silme işlemi şu an için devre dışı');
+         toast.warning('Silme işlemi şu an için devre dışı');
       } else {
         const isActive = action === 'active';
         const batch = activities

@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, FileText, ClipboardCheck, GraduationCap, ExternalLink } from 'lucide-react';
+import { X, FileText, Award, ExternalLink } from 'lucide-react';
 import { ACTIVITY_LABELS, ACTIVITY_ICONS, ACTIVITY_COLORS } from './constants';
 import { TeacherActivityType } from '../../../types/teacher';
 
@@ -42,13 +42,13 @@ export const ActivityPreviewModal: React.FC<ActivityPreviewModalProps> = ({ type
             <p className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">Başlık</p>
             <p className="text-sm font-black text-[var(--text-primary)]">{(data.title as string) || 'Adsız Çalışma Kağıdı'}</p>
           </div>
-          {data.studentName && (
+          {Boolean(data.studentName) && (
             <div className="bg-[var(--bg-secondary)] rounded-2xl p-4 border border-[var(--border-color)]">
               <p className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">Öğrenci</p>
               <p className="text-sm font-black text-[var(--text-primary)]">{data.studentName as string}</p>
             </div>
           )}
-          {data.difficulty && (
+          {Boolean(data.difficulty) && (
             <div className="bg-[var(--bg-secondary)] rounded-2xl p-4 border border-[var(--border-color)]">
               <p className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-1">Zorluk</p>
               <p className="text-sm font-black text-[var(--text-primary)]">{data.difficulty as string}</p>

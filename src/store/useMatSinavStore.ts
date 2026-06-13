@@ -3,7 +3,7 @@
  * Bağımsız state management (mevcut useSinavStore'a dokunmaz)
  */
 
-import { create, SetState, GetState } from 'zustand';
+import { create } from 'zustand';
 import type { MatSinavAyarlari, MatSinav } from '../types/matSinav';
 
 interface MatSinavStoreState {
@@ -69,17 +69,17 @@ function saveGecmis(gecmis: MatSinav[]) {
     }
 }
 
-export const useMatSinavStore = create<MatSinavStoreState>((set: SetState<MatSinavStoreState>, get: GetState<MatSinavStoreState>) => ({
+export const useMatSinavStore = create<MatSinavStoreState>((set, get) => ({
     ayarlar: defaultAyarlar,
     aktifSinav: null,
     isGenerating: false,
     sinavGecmisi: loadGecmis(),
 
     setAyarlar: (partial: Partial<MatSinavAyarlari>) =>
-        set((s: MatSinavStoreState) => ({ ayarlar: { ...s.ayarlar, ...partial } })),
+        set((s) => ({ ayarlar: { ...s.ayarlar, ...partial } })),
 
     setSinif: (sinif: number) =>
-        set((s: MatSinavStoreState) => ({
+        set((s) => ({
             ayarlar: {
                 ...s.ayarlar,
                 sinif,
@@ -89,13 +89,13 @@ export const useMatSinavStore = create<MatSinavStoreState>((set: SetState<MatSin
         })),
 
     setSecilenUniteler: (uniteler: string[]) =>
-        set((s: MatSinavStoreState) => ({ ayarlar: { ...s.ayarlar, secilenUniteler: uniteler } })),
+        set((s) => ({ ayarlar: { ...s.ayarlar, secilenUniteler: uniteler } })),
 
     setSecilenKazanimlar: (kazanimlar: string[]) =>
-        set((s: MatSinavStoreState) => ({ ayarlar: { ...s.ayarlar, secilenKazanimlar: kazanimlar } })),
+        set((s) => ({ ayarlar: { ...s.ayarlar, secilenKazanimlar: kazanimlar } })),
 
     setSoruDagilimi: (tip: keyof MatSinavAyarlari['soruDagilimi'], sayi: number) =>
-        set((s: MatSinavStoreState) => ({
+        set((s) => ({
             ayarlar: {
                 ...s.ayarlar,
                 soruDagilimi: { ...s.ayarlar.soruDagilimi, [tip]: sayi },

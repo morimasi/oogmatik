@@ -9,7 +9,7 @@ interface ToggleOption {
 interface CompactToggleGroupProps {
     label: string;
     selected: string | number;
-    onChange: (value: unknown) => void;
+    onChange: (value: string | number) => void;
     options: ToggleOption[];
 }
 
@@ -85,7 +85,7 @@ export const SentenceFiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChan
                 <CompactToggleGroup
                     label="Zorluk Seviyesi"
                     selected={options.difficulty || 'Orta'}
-                    onChange={(v: string) => onChange('difficulty', v)}
+                    onChange={(v) => onChange('difficulty', v)}
                     options={[
                         { value: 'Kolay', label: 'Basit' },
                         { value: 'Orta', label: 'Standart' },
@@ -97,7 +97,7 @@ export const SentenceFiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChan
                      <CompactToggleGroup
                         label="Cümle Karmaşıklığı"
                         selected={((options as Record<string, unknown>).complexity as string) || 'birleşik'}
-                        onChange={(v: string) => onChange('complexity', v)}
+                        onChange={(v) => onChange('complexity', v)}
                         options={[
                             { value: 'basit', label: 'Basit' },
                             { value: 'birleşik', label: 'Birleşik' },

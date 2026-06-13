@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { StudentEyeView } from './StudentEyeView';
 import { A4CompactRenderer } from './A4CompactRenderer';
 import { useActivityStudioStore } from '@/store/useActivityStudioStore';
+import type { ActivityStudioState } from '@/types/activityStudio';
 
 interface PreviewRendererProps {
   title: string;
@@ -11,11 +12,11 @@ interface PreviewRendererProps {
 
 export const PreviewRenderer: React.FC<PreviewRendererProps> = ({ title, scenario, pedagogicalNote }) => {
   const a4Ref = useRef<HTMLDivElement>(null);
-  const content = useActivityStudioStore((state: ReturnType<typeof useActivityStudioStore>) => state.content);
-  const themeConfig = useActivityStudioStore((state: ReturnType<typeof useActivityStudioStore>) => state.themeConfig);
-  const compactA4Config = useActivityStudioStore((state: ReturnType<typeof useActivityStudioStore>) => state.compactA4Config);
+  const content = useActivityStudioStore((state: ActivityStudioState) => state.content);
+  const themeConfig = useActivityStudioStore((state: ActivityStudioState) => state.themeConfig);
+  const compactA4Config = useActivityStudioStore((state: ActivityStudioState) => state.compactA4Config);
 
-  const effectivePedagogicalNote = pedagogicalNote || useActivityStudioStore.getState().pedagogicalNote;
+  const effectivePedagogicalNote = pedagogicalNote || useActivityStudioStore.getState().pedagogicalNote || '';
   const hasBlocks = content && content.length > 0;
 
   return (

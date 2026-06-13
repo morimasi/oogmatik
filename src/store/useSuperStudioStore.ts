@@ -1,4 +1,4 @@
-import { create, SetState, GetState } from 'zustand';
+import { create } from 'zustand';
 import {
   GenerationMode,
   SuperStudioDifficulty,
@@ -52,7 +52,7 @@ const initialState = {
 
 import { SUPER_STUDIO_REGISTRY } from '../components/SuperStudio/templates/registry';
 
-export const useSuperStudioStore = create<SuperStudioState>()((set: SetState<SuperStudioState>, get: GetState<SuperStudioState>) => ({
+export const useSuperStudioStore = create<SuperStudioState>()((set, get) => ({
   ...initialState,
 
   setStudentId: (id: string | null) => set({ studentId: id }),
@@ -62,14 +62,14 @@ export const useSuperStudioStore = create<SuperStudioState>()((set: SetState<Sup
   setGenerationMode: (mode: GenerationMode) => set({ generationMode: mode }),
 
   toggleTemplate: (templateId: string) =>
-    set((state: SuperStudioState) => {
+    set((state) => {
       const isSelected = state.selectedTemplates.includes(templateId);
       if (isSelected) {
         // Remove template
         const newSettings = { ...state.templateSettings };
         delete newSettings[templateId];
         return {
-          selectedTemplates: state.selectedTemplates.filter((id: string) => id !== templateId),
+          selectedTemplates: state.selectedTemplates.filter((id) => id !== templateId),
           templateSettings: newSettings,
         };
       } else {
@@ -86,7 +86,7 @@ export const useSuperStudioStore = create<SuperStudioState>()((set: SetState<Sup
     }),
 
   setTemplateSetting: (templateId: string, payload: unknown) =>
-    set((state: SuperStudioState) => ({
+    set((state) => ({
       templateSettings: {
         ...state.templateSettings,
         [templateId]: {
@@ -97,7 +97,7 @@ export const useSuperStudioStore = create<SuperStudioState>()((set: SetState<Sup
     })),
 
   addGeneratedContent: (content: GeneratedContentPayload) =>
-    set((state: SuperStudioState) => ({
+    set((state) => ({
       generatedContents: [...state.generatedContents, content],
     })),
 

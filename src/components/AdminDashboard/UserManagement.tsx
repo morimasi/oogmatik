@@ -24,6 +24,7 @@ const STATUS_LABELS: Record<ManagedUser['status'], string> = {
   pending: '🟡 Beklemede',
   suspended: '🔴 Askıya Alındı',
   deleted: '⚫ Silindi',
+  archived: '⚪ Arşivlendi',
 };
 
 // Seed data

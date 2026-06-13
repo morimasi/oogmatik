@@ -1,6 +1,6 @@
-import { create, SetState, GetState } from 'zustand';
+import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { IMessage, ChatSettings, NotificationPreferences } from '../types/messaging';
+import { Message, ChatSettings, NotificationPreferences } from '../types/messaging';
 
 const defaultNotificationPreferences: NotificationPreferences = {
   soundEnabled: true,
@@ -18,8 +18,8 @@ const defaultChatSettings: ChatSettings = {
 interface MessageState {
   activeConversationId: string | null;
   activeThreadId: string | null;
-  quotingMessage: IMessage | null;
-  editingMessage: IMessage | null;
+  quotingMessage: Message | null;
+  editingMessage: Message | null;
   unreadTotalCount: number;
   highlightMessageId: string | null;
 
@@ -28,8 +28,8 @@ interface MessageState {
 
   setActiveConversationId: (id: string | null) => void;
   setActiveThreadId: (id: string | null) => void;
-  setQuotingMessage: (msg: IMessage | null) => void;
-  setEditingMessage: (msg: IMessage | null) => void;
+  setQuotingMessage: (msg: Message | null) => void;
+  setEditingMessage: (msg: Message | null) => void;
   setUnreadTotalCount: (count: number) => void;
   setHighlightMessageId: (id: string | null) => void;
   clearComposerState: () => void;
@@ -41,7 +41,7 @@ interface MessageState {
 
 export const useMessageStore = create<MessageState>()(
   persist(
-    (set: SetState<MessageState>, get: GetState<MessageState>) => ({
+    (set, get) => ({
       activeConversationId: null,
       activeThreadId: null,
       quotingMessage: null,
@@ -59,11 +59,11 @@ export const useMessageStore = create<MessageState>()(
       }),
 
       setActiveThreadId: (id: string | null) => set({ activeThreadId: id }),
-      setQuotingMessage: (msg: IMessage | null) => set({
+      setQuotingMessage: (msg: Message | null) => set({
         quotingMessage: msg,
         editingMessage: null,
       }),
-      setEditingMessage: (msg: IMessage | null) => set({
+      setEditingMessage: (msg: Message | null) => set({
         editingMessage: msg,
         quotingMessage: null,
       }),

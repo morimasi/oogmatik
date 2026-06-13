@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { IMessage } from '../../../types/messaging';
+import { Message } from '../../../types/messaging';
 import { Trash2, Shield, Calendar, Search, ArrowLeft, RefreshCcw as RefreshCw, RotateCcw, Clock, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { messageService } from '../../../services/messaging/messageService';
@@ -31,7 +31,7 @@ function getDaysRemaining(deletedAt: Timestamp | null | undefined): number {
 }
 
 export const ArchivePanel: React.FC<ArchivePanelProps> = ({ onClose }) => {
-  const [deletedMessages, setDeletedMessages] = useState<IMessage[]>([]);
+  const [deletedMessages, setDeletedMessages] = useState<Message[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [restoringId, setRestoringId] = useState<string | null>(null);
@@ -50,7 +50,7 @@ export const ArchivePanel: React.FC<ArchivePanelProps> = ({ onClose }) => {
     loadDeleted();
   }, [loadDeleted]);
 
-  const handleRestore = async (msg: IMessage) => {
+  const handleRestore = async (msg: Message) => {
     setRestoringId(msg.id);
     try {
       await messageService.restoreMessage(msg.conversationId, msg.id);

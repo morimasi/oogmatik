@@ -1,4 +1,4 @@
-import { create, SetState } from 'zustand';
+import { create } from 'zustand';
 import { db } from '../services/firebaseClient';
 import {
   collection,
@@ -35,7 +35,7 @@ interface AssignmentState {
   updateAssignment: (id: string, updates: AssignmentUpdatePayload) => Promise<boolean>;
 }
 
-export const useAssignmentStore = create<AssignmentState>()((set: SetState<AssignmentState>) => ({
+export const useAssignmentStore = create<AssignmentState>()((set) => ({
   assignments: [],
   isLoading: false,
   isAssignModalOpen: false,

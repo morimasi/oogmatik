@@ -138,7 +138,7 @@ export const FavoritesSection: React.FC<FavoritesSectionProps> = ({ onSelectActi
             if (targetUserId) {
                 const targetUser = await authService.getContacts(targetUserId).then(users => users.find(u => u.id === targetUserId)) || (user?.id === targetUserId ? user : null);
                 if (targetUser && targetUser.favorites) {
-                    favIds = targetUser.favorites;
+                    favIds = targetUser.favorites as ActivityType[];
                 }
             } else {
                 favIds = statsService.getFavorites();

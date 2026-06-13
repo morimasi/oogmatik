@@ -18,9 +18,9 @@ const CompactToggleGroup = ({ label, selected, onChange, options }: ToggleGroupP
     <div className="space-y-1">
         <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block tracking-wider">{label}</label>
         <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl border border-zinc-200 dark:border-zinc-700">
-            {options.map((opt: ToggleOption) => (
+            {options.map((opt: ToggleOption, idx: number) => (
                 <button
-                    key={opt.value}
+                    key={idx}
                     onClick={() => onChange(opt.value)}
                     className={`flex-1 py-2 text-[10px] font-black rounded-lg transition-all ${selected === opt.value ? 'bg-white dark:bg-zinc-600 shadow-md text-cyan-600 dark:text-cyan-200' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'}`}
                 >
@@ -38,7 +38,7 @@ export const AbcConnectConfig = ({ options, onChange }: { options: GeneratorOpti
                 <CompactToggleGroup
                     label="Eşleştirme Türü (Varyant)"
                     selected={options.variant || 'roman'}
-                    onChange={(v: string) => onChange('variant', v)}
+                    onChange={(v: unknown) => onChange('variant', v as string)}
                     options={[
                         { value: 'roman', label: 'Romen' },
                         { value: 'case', label: 'Harf' },
@@ -52,7 +52,7 @@ export const AbcConnectConfig = ({ options, onChange }: { options: GeneratorOpti
                 <CompactToggleGroup
                     label="Izgara Boyutu"
                     selected={options.gridSize || 5}
-                    onChange={(v: number) => onChange('gridSize', v)}
+                    onChange={(v: unknown) => onChange('gridSize', v as number)}
                     options={[
                         { value: 4, label: '4x4' },
                         { value: 5, label: '5x5' },
@@ -64,7 +64,7 @@ export const AbcConnectConfig = ({ options, onChange }: { options: GeneratorOpti
                 <CompactToggleGroup
                     label="Yol Karmaşıklığı"
                     selected={options.density || 'medium'}
-                    onChange={(v: string) => onChange('density', v)}
+                    onChange={(v: unknown) => onChange('density', v as string)}
                     options={[
                         { value: 'low', label: 'Seyrek' },
                         { value: 'medium', label: 'Normal' },

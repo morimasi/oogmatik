@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { BarChart3, TrendingUp, TrendingDown, PieChart, CalendarDays, Activity, Target, Download } from 'lucide-react';
+import { BarChart3, TrendingUp, TrendingDown, PieChart, Calendar, Activity, Target, Download } from 'lucide-react';
 import { TeacherDetail, TeacherActivityType } from '../../../types/teacher';
 import { ACTIVITY_LABELS, ACTIVITY_ICONS, ACTIVITY_COLORS, MONTH_NAMES } from './constants';
 
@@ -169,7 +169,7 @@ export const TeacherAnalyticsModule: React.FC<TeacherAnalyticsModuleProps> = ({ 
 
         <div className="bg-[var(--bg-paper)] rounded-[2rem] border border-[var(--border-color)] p-6 shadow-lg">
           <h3 className="text-[10px] font-black text-[var(--text-primary)] uppercase tracking-[0.15em] flex items-center gap-2 mb-4">
-            <CalendarDays className="w-3.5 h-3.5 text-amber-500" /> Aktivite Detayları
+            <Calendar className="w-3.5 h-3.5 text-amber-500" /> Aktivite Detayları
           </h3>
           <div className="space-y-3">
             {activityTypeData.map(([type, count]) => {
@@ -196,7 +196,7 @@ export const TeacherAnalyticsModule: React.FC<TeacherAnalyticsModuleProps> = ({ 
       <div className="bg-[var(--bg-paper)] rounded-[2rem] border border-[var(--border-color)] overflow-hidden shadow-lg">
         <div className="flex items-center justify-between px-6 pt-6 pb-4">
           <h3 className="text-[10px] font-black text-[var(--text-primary)] uppercase tracking-[0.15em] flex items-center gap-2">
-            <CalendarDays className="w-3.5 h-3.5 text-indigo-500" /> Aylık Dağılım Tablosu
+            <Calendar className="w-3.5 h-3.5 text-indigo-500" /> Aylık Dağılım Tablosu
           </h3>
           <button onClick={exportReport} className="px-3 py-1.5 bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:text-[var(--accent-color)] rounded-xl text-[8px] font-black uppercase tracking-widest border border-[var(--border-color)] transition-all inline-flex items-center gap-1.5">
             <Download className="w-3 h-3" /> Raporu Dışa Aktar

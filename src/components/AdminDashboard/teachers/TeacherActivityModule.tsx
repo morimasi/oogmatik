@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Clock, Filter, Calendar, ArrowUpRight, Download, Search, RefreshCw } from 'lucide-react';
+import { Clock, Filter, Calendar, ArrowRight, Download, Search, RefreshCw } from 'lucide-react';
 import { TeacherDetail, TeacherActivity, TeacherActivityType } from '../../../types/teacher';
 import { ACTIVITY_LABELS, ACTIVITY_ICONS, ACTIVITY_COLORS, ACTIVITY_BORDER_COLORS, ACTIVITY_BG_COLORS } from './constants';
 import { teacherService } from '../../../services/teacherService';
@@ -137,7 +137,7 @@ export const TeacherActivityModule: React.FC<TeacherActivityModuleProps> = ({ te
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className="text-[10px] font-black text-[var(--text-primary)]">{act.title}</span>
                     <span className={`px-1.5 py-0.5 rounded text-[7px] font-black uppercase ${ACTIVITY_COLORS[act.type]} text-white`}>{ACTIVITY_LABELS[act.type]}</span>
-                    {act.targetId && <ArrowUpRight className="w-3 h-3 text-[var(--accent-color)] opacity-0 group-hover:opacity-100 transition-opacity ml-auto" />}
+                    {act.targetId && <ArrowRight className="w-3 h-3 text-[var(--accent-color)] opacity-0 group-hover:opacity-100 transition-opacity ml-auto" />}
                   </div>
                   {act.details && <p className="text-[9px] font-bold text-[var(--text-muted)]">{act.details}</p>}
                   {act.metadata && Object.keys(act.metadata).length > 0 && (

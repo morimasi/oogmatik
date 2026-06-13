@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useLayoutEffect, useCallback } from 'react';
 import { useMessageStore } from '../../../store/useMessageStore';
-import { IMessage, IConversation } from '../../../types/messaging';
+import { Message } from '../../../types/messaging';
 import { MessageBubble } from './MessageBubble';
 import { EnhancedComposer } from './EnhancedComposer';
 import { useAuthStore } from '../../../store/useAuthStore';
@@ -26,9 +26,9 @@ export const ChatWindow: React.FC = () => {
   const { theme, setTheme } = useGlobalStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const [messages, setMessages] = useState<IMessage[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [conversation, setConversation] = useState<IConversation | null>(null);
+  const [conversation, setConversation] = useState<Record<string, unknown> | null>(null);
   const [recipient, setRecipient] = useState<User | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const lastMessageCount = useRef(0);

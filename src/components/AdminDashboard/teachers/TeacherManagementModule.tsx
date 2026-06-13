@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { Shield, AlertTriangle, CheckCircle, XCircle, Calendar, Mail, Crown, Boxes, ChevronRight, UserCog, Ban, UserCheck, RefreshCw, Trash2, KeyRound, Clock, Lock, Unlock, Eye, EyeOff } from 'lucide-react';
+import { Shield, AlertTriangle, CheckCircle, XCircle, Calendar, Mail, Star, Box, ChevronRight, Settings, UserCheck, RefreshCw, Trash2, Clock, Lock, Unlock, Eye, EyeOff } from 'lucide-react';
 import { TeacherDetail } from '../../../types/teacher';
 import { adminService } from '../../../services/adminService';
 import { useToastStore } from '../../../store/useToastStore';
@@ -101,7 +101,7 @@ export const TeacherManagementModule: React.FC<TeacherManagementModuleProps> = (
                 disabled={suspending}
                 className={`w-full py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg transition-all flex items-center justify-center gap-2 ${t.user.status === 'active' ? 'bg-gradient-to-r from-rose-500 to-pink-600 text-white shadow-rose-500/20 hover:scale-[1.02]' : 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-emerald-500/20 hover:scale-[1.02]'} active:scale-95 disabled:opacity-60`}
               >
-                {suspending ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : t.user.status === 'active' ? <Ban className="w-3.5 h-3.5" /> : <UserCheck className="w-3.5 h-3.5" />}
+                {suspending ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : t.user.status === 'active' ? <XCircle className="w-3.5 h-3.5" /> : <UserCheck className="w-3.5 h-3.5" />}
                 {suspending ? 'İşleniyor...' : t.user.status === 'active' ? 'Hesabı Askıya Al' : 'Hesabı Aktifleştir'}
               </button>
             )}
@@ -116,12 +116,12 @@ export const TeacherManagementModule: React.FC<TeacherManagementModuleProps> = (
           className="bg-[var(--bg-paper)] rounded-[2rem] border border-[var(--border-color)] p-6 shadow-lg"
         >
           <h3 className="text-[10px] font-black text-[var(--text-primary)] uppercase tracking-[0.15em] flex items-center gap-2 mb-4">
-            <KeyRound className="w-3.5 h-3.5 text-indigo-500" /> Rol Yetkilendirme
+            <Lock className="w-3.5 h-3.5 text-indigo-500" /> Rol Yetkilendirme
           </h3>
           <div className="p-4 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 rounded-2xl border border-indigo-200 dark:border-indigo-800 mb-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg">
-                <UserCog className="w-6 h-6" />
+                <Settings className="w-6 h-6" />
               </div>
               <div>
                 <p className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest">Mevcut Rol</p>

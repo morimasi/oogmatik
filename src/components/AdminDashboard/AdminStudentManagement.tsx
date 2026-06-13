@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, GraduationCap, RefreshCw } from 'lucide-react';
+import { Search, Award, RefreshCw } from 'lucide-react';
 import { Student } from '../../types';
 import { teacherService } from '../../services/teacherService';
 import { useToastStore } from '../../store/useToastStore';
@@ -67,7 +67,7 @@ export const AdminStudentManagement: React.FC = () => {
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <div className="w-24 h-24 bg-gradient-to-br from-blue-500/10 to-indigo-500/10 rounded-[2.5rem] flex items-center justify-center mb-6 shadow-inner">
-            <GraduationCap className="w-10 h-10 text-blue-400 opacity-50" />
+            <Award className="w-10 h-10 text-blue-400 opacity-50" />
           </div>
           <h3 className="text-xl font-black text-[var(--text-primary)] mb-2">{search ? 'Eşleşen Öğrenci Bulunamadı' : 'Henüz Öğrenci Yok'}</h3>
         </div>
