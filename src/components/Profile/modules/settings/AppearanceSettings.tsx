@@ -181,6 +181,32 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
                     </div>
                 </div>
             </div>
+
+            {/* Varsayılana Sıfırla */}
+            <div className="pt-4 border-t border-[var(--border-color)]">
+                <button
+                    onClick={() => {
+                        if (window.confirm('Tüm görünüm ayarları varsayılana dönecek. Emin misiniz?')) {
+                            onUpdateTheme?.('anthracite');
+                            onUpdateUiSettings?.({
+                                fontFamily: 'Lexend',
+                                fontSizeScale: 1,
+                                fontWeight: 'normal',
+                                letterSpacing: 'normal',
+                                lineHeight: 1.6,
+                                saturation: 100,
+                                compactMode: false,
+                                premiumIntensity: 60,
+                                contrastLevel: 50,
+                            });
+                        }
+                    }}
+                    className="w-full py-4 rounded-2xl border-2 border-red-200 dark:border-red-900/40 bg-red-50/50 dark:bg-red-950/20 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-950/40 hover:border-red-400 transition-all flex items-center justify-center gap-3 group"
+                >
+                    <i className="fa-solid fa-rotate-left text-lg group-hover:-rotate-12 transition-transform"></i>
+                    <span className="text-[11px] font-black uppercase tracking-[0.2em]">Varsayılana Dön</span>
+                </button>
+            </div>
         </div>
     );
 };

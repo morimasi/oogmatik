@@ -4,7 +4,7 @@ import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
 export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }) => {
-  const { mode, items } = data;
+  const { mode, items = [] } = data;
 
   const renderItem = (item: any, idx: number) => {
     const isSplit = mode === 'split';
@@ -25,7 +25,7 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
                 {item.word}
               </h4>
               <div className="flex gap-1.5 justify-center">
-                {item.syllables.map((_: any, sIdx: number) => (
+                {item.syllables?.map((_: any, sIdx: number) => (
                   <div
                     key={sIdx}
                     className="w-10 h-8 border-[1.5px] border-zinc-900 rounded-md flex items-center justify-center bg-zinc-50"
@@ -40,7 +40,7 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
           {isCombine && (
             <div className="flex flex-col items-center gap-2">
               <div className="flex gap-1 flex-wrap justify-center">
-                {item.syllables.map((s: any, sIdx: number) => {
+                {item.syllables?.map((s: any, sIdx: number) => {
                   const textVal = typeof s === 'object' && s !== null ? s.value || s.text || '' : s;
                   return (
                     <div
@@ -58,7 +58,7 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
 
           {isRainbow && (
             <div className="flex items-center justify-center gap-1.5 flex-wrap py-1">
-              {item.syllables.map((s: any, sIdx: number) => {
+              {item.syllables?.map((s: any, sIdx: number) => {
                 const colors = ['#be123c', '#1d4ed8', '#047857', '#b45309', '#6d28d9', '#0e7490'];
                 const color = colors[sIdx % colors.length];
                 const textVal = typeof s === 'object' && s !== null ? s.value || s.text || '' : s;
@@ -95,7 +95,7 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
                 })}
               </div>
               <div className="flex gap-1.5 px-1">
-                {item.syllables.map((_: any, i: number) => (
+                {item.syllables?.map((_: any, i: number) => (
                   <div
                     key={i}
                     className="flex-1 h-7 border-b-[2px] border-zinc-900 bg-zinc-50/50"

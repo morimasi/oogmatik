@@ -76,7 +76,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   ] as const;
 
   const handleReset = () => {
-    if (confirm('Ayarlar sıfırlanacak. Emin misiniz?')) {
+    if (confirm('Tüm görünüm ayarları varsayılana dönecek. Emin misiniz?')) {
       onUpdateUiSettings({
         fontFamily: 'Lexend',
         fontSizeScale: 1,
@@ -85,8 +85,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         lineHeight: 1.6,
         saturation: 100,
         compactMode: false,
-        premiumIntensity: 80,
-        contrastLevel: 0,
+        premiumIntensity: 60,
+        contrastLevel: 50,
       });
       onUpdateTheme('anthracite');
     }
