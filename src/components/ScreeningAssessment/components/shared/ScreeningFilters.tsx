@@ -1,10 +1,11 @@
 import { Search } from 'lucide-react';
+import type { ScreeningFilterStatus } from '../../types';
 
 interface ScreeningFiltersProps {
   searchQuery: string;
-  filterStatus: string;
+  filterStatus: ScreeningFilterStatus;
   onSearchChange: (query: string) => void;
-  onFilterChange: (status: string) => void;
+  onFilterChange: (status: ScreeningFilterStatus) => void;
 }
 
 export const ScreeningFilters: React.FC<ScreeningFiltersProps> = ({
@@ -27,7 +28,7 @@ export const ScreeningFilters: React.FC<ScreeningFiltersProps> = ({
       </div>
       <select
         value={filterStatus}
-        onChange={(e) => onFilterChange(e.target.value)}
+        onChange={(e) => onFilterChange(e.target.value as ScreeningFilterStatus)}
         className="px-4 py-3 rounded-xl border border-[var(--border-color)] bg-[var(--bg-primary)] text-[var(--text-primary)] font-lexend text-xs font-black uppercase tracking-widest cursor-pointer outline-none focus:ring-2 focus:ring-[var(--accent-color)]"
       >
         <option value="all">Tüm Kayıtlar</option>

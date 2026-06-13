@@ -32,16 +32,43 @@
 - `AuditLog` tab eklendi
 - Feedback badge gerçek sayıdan geliyor
 
+### Faz 4 — Tip Güvenliği ✅
+- `ContentArea.tsx` → `@ts-nocheck` kaldırıldı, tüm tip hataları düzeltildi
+- `SharedWorksheetsView.tsx` → `@ts-nocheck` kaldırıldı, tüm tip hataları düzeltildi
+- `GeneratorView.tsx` → `@ts-nocheck` kaldırıldı, tüm tip hataları düzeltildi
+- `ScreeningAssessment/types.ts` → `export type` düzeltildi
+- `ResultDashboard.tsx` → logError hataları, gender/studentId tipleri düzeltildi
+- `HistoryPanel.tsx` / `ScreeningFilters.tsx` → type mismatch düzeltildi
+- `screeningDataService.ts` → createdAt type safety iyileştirildi
+- `ContentArea.tsx` → ContentAreaProps tipleri düzeltildi (onSave, onAddDirectToWorkbook)
+- `premium-builder.test.ts` → vitest import eklendi, tip hatası düzeltildi
+
+### Hece Ustası Kelime Havuzu Genişletme ✅
+- `easy_words`: 80 → 280 kelime (+200)
+- `medium_words`: 97 → 297 kelime (+200)
+- `hard_words`: 100 → 300 kelime (+200)
+- `expert_words`: 113 → 313 kelime (+200)
+
+### SheetRenderer Map Hatası ✅
+- `SyllableMasterLabSheet.tsx` → `items` varsayılanı `[]`, `syllables?.map` optional chaining
+
+### Görünüm Ayarları Varsayılana Dön Butonu ✅
+- `AppearanceSettings.tsx` → "Varsayılana Dön" butonu eklendi
+- `SettingsModal.tsx` → reset değerleri ana varsayılanlarla uyumlu hale getirildi
+
 ### Test & Build
 - `tests/scoringEngine.test.ts` eklendi
 - `npm run build` başarılı
 
 ### Kalan İşler (sonraki sprint)
-- `@ts-nocheck` kaldırma (ContentArea, SharedWorksheetsView)
-- AdminAnalytics mock → gerçek metrik
-- Geçmiş Firebase senkronu
-- `/screening/:id` deep link route
-- WorkbookAI → WorkbookView entegrasyonu
+- AdminAnalytics mock → gerçek metrik (F3.3)
+- AdminContentEngine mock → gerçek (F3.4)
+- Geçmiş Firebase senkronu (F5.4)
+- `/screening/:id` deep link route (F5.3)
+- WorkbookAI → WorkbookView entegrasyonu (F2.12)
+- `alert()` → toast sistemi migrasyonu (F2.13)
+- `SUPER_ADMIN_EMAIL` → env variable (F3.9)
+- Faz 5 paylaşım/geçmiş iyileştirmeleri
 
 ---
 

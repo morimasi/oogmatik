@@ -1,9 +1,8 @@
-// @ts-nocheck
 import React, { useState, useEffect, useCallback, memo } from 'react';
 import {
   Activity,
-  _ActivityType,
   GeneratorOptions,
+  Student,
   StudentProfile,
   ActiveCurriculumSession,
 } from '../types';
@@ -23,7 +22,7 @@ interface GeneratorViewProps {
   activeCurriculumSession?: ActiveCurriculumSession | null;
 }
 
-const DefaultActivityConfig = ({ options, onChange }: any) => (
+const DefaultActivityConfig: React.FC<{ options: GeneratorOptions; onChange: (key: keyof GeneratorOptions, value: unknown) => void }> = ({ options, onChange }) => (
   <div className="p-3 bg-[var(--surface-glass)] rounded-xl border border-[var(--border-color)] space-y-3 shadow-inner animate-in fade-in">
     <div className="space-y-1">
       <label className="text-[9px] font-bold text-[var(--text-muted)] uppercase block">
@@ -57,7 +56,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
   useEffect(() => {
     if (activeCurriculumSession) {
       // Müfredat zorluk seviyesini eşleştir
-      const diffMap: Record<string, any> = {
+      const diffMap: Record<string, string> = {
         Easy: 'Başlangıç',
         Medium: 'Orta',
         Hard: 'Zor',
@@ -83,7 +82,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
     );
   }
 
-  const handleChange = (key: keyof GeneratorOptions, value: any) => {
+  const handleChange = (key: keyof GeneratorOptions, value: unknown) => {
     if (activeCurriculumSession && (key === 'difficulty' || key === 'topic')) return; // Müfredat modunda kilitli
     updateOption(key, value);
   };
@@ -111,7 +110,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
     }
   };
 
-  const ConfigComponent = getActivityConfigComponent(activity.id) || DefaultActivityConfig;
+  const ConfigComponent: React.ComponentType<{ options: GeneratorOptions; onChange: (key: keyof GeneratorOptions, value: unknown) => void }> = (getActivityConfigComponent(activity.id) as React.ComponentType<{ options: GeneratorOptions; onChange: (key: keyof GeneratorOptions, value: unknown) => void }> | undefined) || DefaultActivityConfig;
 
   return (
     <div className="flex flex-col h-full bg-[var(--bg-paper)] border-r border-[var(--border-color)] shadow-xl overflow-hidden w-full transition-all duration-300">
@@ -181,7 +180,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
                 className="w-full p-1.5 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg text-[11px] font-bold text-[var(--text-primary)] outline-none cursor-pointer disabled:cursor-not-allowed"
               >
                 <option value="anonymous">Misafir / Atanmamış</option>
-                {students.map((s: unknown) => (
+                {students.map((s: Student) => (
                   <option key={s.id} value={s.id}>
                     {s.name} ({s.grade})
                   </option>

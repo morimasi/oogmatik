@@ -1,6 +1,5 @@
-// @ts-nocheck
 import React, { useState, useMemo, useEffect } from 'react';
-import { SavedWorksheet, SavedAssessment } from '../types';
+import { SavedWorksheet, SavedAssessment, ActivityType } from '../types';
 import { ACTIVITIES } from '../constants';
 import { useAuthStore } from '../store/useAuthStore';
 import { worksheetService } from '../services/worksheetService';
@@ -44,7 +43,7 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
             setSharedAssessments(assessments);
             setCount(count || 0);
         } catch (e) {
-            logError(e);
+            logError(e instanceof Error ? e : String(e));
         } finally {
             setLoading(false);
         }
@@ -68,7 +67,6 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
         try {
             setLoading(true);
             // Copy to user's own collection
-            const { _id, ..._rest } = item;
             await worksheetService.saveWorksheet(
                 user.id,
                 `${item.name} (Arşiv)`,
@@ -82,7 +80,7 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
             );
             alert('İçerik başarıyla arşivinize eklendi.');
         } catch (e) {
-            logError(e);
+            logError(e instanceof Error ? e : String(e));
             alert('Arşivleme sırasında bir hata oluştu.');
         } finally {
             setLoading(false);
@@ -129,7 +127,7 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
                     id: a.id,
                     userId: a.userId,
                     name: `${a.studentName} - ${a.grade}`,
-                    activityType: 'ASSESSMENT_REPORT' as unknown as any, // Virtual type for display
+                    activityType: ActivityType.ASSESSMENT_REPORT, // Virtual type for display
                     worksheetData: [],
                     createdAt: a.createdAt,
                     icon: 'fa-solid fa-clipboard-user',
@@ -137,7 +135,7 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
                     sharedBy: a.sharedBy,
                     sharedByName: a.sharedByName,
                     sharedWith: a.sharedWith
-                })) as unknown as SavedWorksheet[] // Cast to satisfy type, although structure slightly differs
+                })) as SavedWorksheet[]
             };
         }
 
@@ -160,7 +158,7 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
     };
 
     const handleViewItem = (item: SavedWorksheet) => {
-        if (item.activityType === 'ASSESSMENT_REPORT' as unknown as any) {
+        if (item.activityType === ActivityType.ASSESSMENT_REPORT) {
             alert("Rapor detayları şu an sadece Değerlendirme Modülü içerisinden görüntülenebilir. Bu özellik yakında eklenecektir.");
             // TODO: Add logic to view shared assessment report modal
         } else {
@@ -230,7 +228,7 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
                                                                     <div>
                                                                         <div className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{item.name}</div>
                                                                         <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                                                                            {item.activityType === 'ASSESSMENT_REPORT' as unknown as any ? 'Rapor' : getActivityTitle(item.activityType)}
+                                                                            {item.activityType === ActivityType.ASSESSMENT_REPORT ? 'Rapor' : getActivityTitle(item.activityType)}
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -260,7 +258,7 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
                                                                     <button onClick={() => handleAddToBooklet(item)} className="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-200 p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors" title="Kitapçığa Ekle">
                                                                         <i className="fa-solid fa-book-medical"></i>
                                                                     </button>
-                                                                    {item.activityType !== 'ASSESSMENT_REPORT' as unknown as any && (
+                                                                    {item.activityType !== ActivityType.ASSESSMENT_REPORT && (
                                                                         <button onClick={() => handleDeleteWorksheet(item.id)} className="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-200 p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors" title="Sil">
                                                                             <i className="fa-solid fa-trash-alt"></i>
                                                                         </button>

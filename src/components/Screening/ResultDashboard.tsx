@@ -112,7 +112,7 @@ export const ResultDashboard: FC<Props> = ({
         actionSteps: normalizedActionSteps,
       });
     } catch (e: unknown) {
-      logError('AI Error', e as Error);
+      logError('AI Error', { error: e instanceof Error ? e.message : String(e) });
     } finally {
       setLoadingAi(false);
     }
@@ -150,9 +150,9 @@ export const ResultDashboard: FC<Props> = ({
     return {
       id: savedId || crypto.randomUUID(),
       userId: user?.id || 'guest',
-      studentId: activeStudentId,
+      studentId: activeStudentId ?? undefined,
       studentName: result.studentName,
-      gender: 'Belirtilmemiş',
+      gender: 'Kız',
       age: result.age || 7,
       grade: result.grade || 'Belirtilmemiş',
       createdAt: new Date().toISOString(),
@@ -180,7 +180,7 @@ export const ResultDashboard: FC<Props> = ({
       setIsSaved(true);
       alert('Rapor başarıyla arşivinize kaydedildi.');
     } catch (e: unknown) {
-      logError('Save Error', e as Error);
+      logError('Save Error', { error: e instanceof Error ? e.message : String(e) });
       alert('Kaydetme hatası.');
     } finally {
       setIsSaving(false);
@@ -535,7 +535,7 @@ export const ResultDashboard: FC<Props> = ({
                 <i className="fa-solid fa-road"></i> Önerilen Yol Haritası
               </h3>
               <div className="space-y-4">
-                {aiAnalysis?.actionSteps?.map((step: string, i: number) => (
+                {aiAnalysis?.actionSteps?.map((step: unknown, i: number) => (
                   <div key={i} className="flex gap-4">
                     <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shrink-0">
                       {i + 1}

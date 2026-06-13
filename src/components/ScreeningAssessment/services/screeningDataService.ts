@@ -138,10 +138,10 @@ export const screeningDataService = {
       const snapshot = await getDocs(q);
       const items: ScreeningResult[] = [];
       snapshot.forEach((docSnap) => {
-        const data = docSnap.data() as any;
-        items.push({ ...data, id: docSnap.id, date: data.date ? new Date(data.date) : new Date(data.createdAt) } as ScreeningResult);
+        const data = docSnap.data();
+        items.push({ ...data, id: docSnap.id, date: data?.date ? new Date(data.date) : new Date() } as ScreeningResult);
       });
-      return items.sort((a, b) => new Date(b.generatedAt || b.createdAt!).getTime() - new Date(a.generatedAt || a.createdAt!).getTime());
+      return items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     } catch {
       return [];
     }

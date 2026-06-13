@@ -1,9 +1,9 @@
-// @ts-nocheck
-import React, { memo, useState, useRef, useEffect, useCallback } from 'react';
+import React, { memo, useState, useRef, useEffect } from 'react';
 import {
   ActivityType,
   WorksheetData,
   SavedWorksheet,
+  SavedAssessment,
   SingleWorksheetData,
   StyleSettings,
   View,
@@ -11,9 +11,9 @@ import {
   WorkbookSettings,
   StudentProfile,
   AssessmentReport,
-  _OverlayItem,
+  Curriculum,
+  WorksheetBlock,
 } from '../types';
-import _Worksheet from './Worksheet';
 import { Toolbar } from './Toolbar';
 import { SavedWorksheetsView } from './SavedWorksheetsView';
 import { SharedWorksheetsView } from './SharedWorksheetsView';
@@ -29,12 +29,14 @@ import { useWorksheetStore } from '../store/useWorksheetStore';
 import { usePaperSizeStore } from '../store/usePaperSizeStore';
 import { useAssignmentStore } from '../store/useAssignmentStore';
 import { paginationService } from '../services/paginationService';
+import { worksheetService } from '../services/worksheetService';
+import { useToastStore } from '../store/useToastStore';
 
 import { UniversalWorksheetWrapper } from './UniversalStudio/UniversalWorksheetWrapper';
 import { A4EditorPanel } from './A4Editor/A4EditorPanel';
 import { UniversalPreviewFrame } from './shared/UniversalPreviewFrame';
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError } from '../utils/logger.js';
 interface ContentAreaProps {
   currentView: View;
   onBackToGenerator: () => void;
@@ -45,8 +47,8 @@ interface ContentAreaProps {
   error: string | null;
   styleSettings: StyleSettings;
   onStyleChange: (settings: StyleSettings) => void;
-  onSave: (name: string, activityType: ActivityType, data: SingleWorksheetData[]) => void;
-  onLoadSaved: (worksheet: SavedWorksheet) => void;
+  onSave: (name: string, activityType: ActivityType, data: SingleWorksheetData[]) => Promise<string | undefined | null>;
+  onLoadSaved: (item: SavedWorksheet | SavedAssessment | Curriculum) => void;
   onFeedback: () => void;
   onOpenAuth: () => void;
   onSelectActivity?: (activityType: ActivityType) => void;
@@ -68,7 +70,7 @@ interface ContentAreaProps {
   } | null;
   onCompleteCurriculumActivity?: () => void;
   // New handler for direct item addition (like from reports)
-  onAddDirectToWorkbook?: (item: any) => void;
+  onAddDirectToWorkbook?: (item: CollectionItem) => void;
 }
 
 const LandingText = memo(() => {
@@ -78,7 +80,6 @@ const LandingText = memo(() => {
       {text.split('').map((char, i) => {
         if (char === ' ') return <span key={i}> </span>;
         // Rastgele harfleri animasyonlu yap (Bursa Disleksi logosu mantığıyla)
-        const _isAnimated = true;
         const delay = Math.random() * -10;
         const duration = 5 + Math.random() * 5;
         return (
@@ -116,7 +117,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   setWorkbookSettings,
   onAddToWorkbook,
   onAutoGenerateWorkbook,
-  _studentProfile,
+  studentProfile: _studentProfile,
   zenMode,
   toggleZenMode,
   activeCurriculumSession,
@@ -141,15 +142,13 @@ const ContentArea: React.FC<ContentAreaProps> = ({
 
     setIsShareSending(true);
     try {
-      let currentId = activeWorksheetId;
+      let currentId: string | null | undefined = activeWorksheetId;
 
       // If not saved yet, save it first
       if (!currentId && worksheetData) {
         const title =
           activeWorksheetTitle ||
-          (Array.isArray(worksheetData)
-            ? worksheetData[0]?.title
-            : (worksheetData as unknown as any)?.title) ||
+          (worksheetData[0]?.title) ||
           'Yeni Etkinlik';
         currentId = await onSave!(title, activityType!, worksheetData);
         if (currentId) {
@@ -164,9 +163,10 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       } else {
         useToastStore.getState().warning('Önce çalışmayı kaydetmelisiniz.');
       }
-    } catch (error: any) {
-      logError('Share error:', error);
-      useToastStore.getState().error(`Paylaşım başarısız: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Bilinmeyen hata';
+      logError('Share error:', { error });
+      useToastStore.getState().error(`Paylaşım başarısız: ${message}`);
     } finally {
       setIsShareSending(false);
     }
@@ -180,15 +180,13 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     }
 
     try {
-      let currentId = activeWorksheetId;
+      let currentId: string | null | undefined = activeWorksheetId;
 
       // If not saved yet, save it first
       if (!currentId && worksheetData) {
         const title =
           activeWorksheetTitle ||
-          (Array.isArray(worksheetData)
-            ? worksheetData[0]?.title
-            : (worksheetData as unknown as any)?.title) ||
+          (worksheetData[0]?.title) ||
           'Yeni Etkinlik';
         currentId = await onSave!(title, activityType!, worksheetData);
         if (currentId) {
@@ -201,9 +199,10 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       } else {
         useToastStore.getState().warning('Önce çalışmayı kaydetmelisiniz.');
       }
-    } catch (error: any) {
-      logError('Assign error:', error);
-      useToastStore.getState().error(`Atama başlatılamadı: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Bilinmeyen hata';
+      logError('Assign error:', { error });
+      useToastStore.getState().error(`Atama başlatılamadı: ${message}`);
     }
   };
   const { isEditMode, setEditMode, zoomScale, setZoomScale } = useAppStore();
@@ -215,12 +214,12 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   const processedData = React.useMemo(() => {
     if (!worksheetData) return [];
 
-    const safeData = Array.isArray(worksheetData) ? [...worksheetData] : [{ ...worksheetData }];
+    const safeData = [...worksheetData];
 
     // Assign IDs to blocks if they don't have one, to allow editor selection
     safeData.forEach((ws) => {
-      const blocks = ws.layoutArchitecture?.blocks || ws.blocks || [];
-      blocks.forEach((block: any, idx: number) => {
+      const blocks: WorksheetBlock[] = ws.layoutArchitecture?.blocks || ws.blocks || [];
+      blocks.forEach((block, idx) => {
         if (!block.id)
           block.id = `block_${Date.now()}_${idx}_${Math.random().toString(36).substr(2, 5)}`;
       });
@@ -237,7 +236,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     }
 
     return safeData;
-  }, [worksheetData, activityType, styleSettings.smartPagination, styleSettings.columns, styleSettings.rows]);
+  }, [worksheetData, activityType, styleSettings.smartPagination, styleSettings.columns]);
 
   // Native Wheel Listener to prevent default scroll and strictly zoom
   useEffect(() => {
@@ -389,7 +388,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                       mode="html"
                       title={
                         activeWorksheetTitle ||
-                        ACTIVITIES.find((a: any) => a.id === activityType)?.title ||
+                        ACTIVITIES.find((a) => a.id === activityType)?.title ||
                         'Yeni Etkinlik'
                       }
                       zoom={zoomScale}
