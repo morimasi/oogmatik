@@ -39,10 +39,16 @@ export const generateRealPdf = async (
     const onProgress = options?.onProgress;
     const captureScale = QUALITY_SCALE_MAP[quality];
 
+    // Detecting landscape from container class
+    const isLandscape = document.querySelector(rootSelector)?.classList.contains('orientation-landscape') ?? false;
+
     // Kağıt boyutları (mm) - Fallback ekle
     const dims = PAPER_DIMENSIONS[paperSize] || PAPER_DIMENSIONS.A4;
-    const pageW = parseFloat(dims?.width || '210mm');
-    const pageH = parseFloat(dims?.height || '297mm');
+    let pageW = parseFloat(dims?.width || '210mm');
+    let pageH = parseFloat(dims?.height || '297mm');
+    if (isLandscape) {
+      [pageW, pageH] = [pageH, pageW];
+    }
 
     onProgress?.(5, 'Sayfalar taranıyor...');
 
@@ -79,8 +85,9 @@ export const generateRealPdf = async (
     const jsPDF = JsPdfCtor as any;
 
     // PDF oluştur
+    const pdfOrientation = isLandscape ? 'landscape' : 'portrait';
     const pdf = new jsPDF({
-      orientation: 'portrait',
+      orientation: pdfOrientation,
       unit: 'mm',
       format: [pageW, pageH],
       compress: true,
@@ -132,7 +139,7 @@ export const generateRealPdf = async (
 
         // İlk sayfa zaten oluşturuldu, sonrakiler için yeni sayfa ekle
         if (i > 0) {
-          pdf.addPage([pageW, pageH], 'portrait');
+          pdf.addPage([pageW, pageH], pdfOrientation);
         }
 
         // Görüntüyü tam sayfa olarak ekle

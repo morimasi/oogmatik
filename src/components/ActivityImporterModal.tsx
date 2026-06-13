@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { SavedWorksheet, CollectionItem, ActivityType } from '../types';
+import { SavedWorksheet, CollectionItem, ActivityType, StyleSettings } from '../types';
 import { worksheetService } from '../services/worksheetService';
 import { useAuthStore } from '../store/useAuthStore';
 
@@ -90,19 +90,27 @@ export const ActivityImporterModal: React.FC<ActivityImporterModalProps> = ({ is
         const newItems: CollectionItem[] = [];
 
         selectedWorksheets.forEach(ws => {
-            if (Array.isArray(ws.worksheetData)) {
-                ws.worksheetData.forEach((data) => {
-                    newItems.push({
-                        id: crypto.randomUUID(),
-                        itemType: 'activity',
-                        title: ws.name || 'İçe Aktarılan Sayfa',
-                        activityType: ws.activityType,
-                        data: data,
-                        styleSettings: ws.styleSettings as unknown as any,
-                        settings: ws.styleSettings || {},
-                        originalWorksheetId: ws.id
-                    } as unknown as unknown as unknown as CollectionItem);
-                });
+            if (!Array.isArray(ws.worksheetData) || ws.worksheetData.length === 0) return;
+
+            if (ws.worksheetData.length === 1) {
+                newItems.push({
+                    id: crypto.randomUUID(),
+                    itemType: 'activity',
+                    title: ws.name || 'İçe Aktarılan Sayfa',
+                    activityType: ws.activityType,
+                    data: ws.worksheetData[0],
+                    settings: ws.styleSettings || ({} as StyleSettings),
+                } as CollectionItem);
+            } else {
+                // Çok sayfalı: tüm worksheetData'yı pages dizisi olarak tek item'da grupla
+                newItems.push({
+                    id: crypto.randomUUID(),
+                    itemType: 'activity',
+                    title: ws.name || 'İçe Aktarılan Sayfa',
+                    activityType: ws.activityType,
+                    data: { pages: ws.worksheetData },
+                    settings: ws.styleSettings || ({} as StyleSettings),
+                } as CollectionItem);
             }
         });
 

@@ -156,7 +156,7 @@ export const print = async (
   wrapperContainer.className = 'print-pages-container';
   overlay.appendChild(wrapperContainer);
 
-  const isLandscape = pages[0]?.classList.contains('landscape');
+  const isLandscape = roots.some(r => r.classList.contains('orientation-landscape')) ?? false;
 
   // Print Lock CSS enjeksiyonu
   injectPrintLockCSS(paperSize, isLandscape);
