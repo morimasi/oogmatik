@@ -26,7 +26,7 @@ interface WorkbookActivityRendererProps {
 
 const SARI_KITAP_TYPES = new Set(['cift_metin', 'pencere', 'nokta', 'kopru', 'bellek', 'hizli_okuma']);
 
-export const WorkbookActivityRenderer = memo(({ item, settings, font, accent }: WorkbookActivityRendererProps) => {
+export const WorkbookActivityRenderer = memo(({ item, settings, font }: WorkbookActivityRendererProps) => {
     const mergedSettings = {
         ...settings,
         ...item.settings,

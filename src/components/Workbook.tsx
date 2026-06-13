@@ -1,6 +1,5 @@
 import React from 'react';
-import { CollectionItem, WorkbookSettings, ActivityType } from '../types';
-import { ACTIVITIES } from '../constants';
+import { CollectionItem, WorkbookSettings } from '../types';
 import DyslexiaLogo from './DyslexiaLogo';
 import { WorkbookActivityRenderer } from './workbook/WorkbookActivityRenderer';
 import '../styles/workbookPremium.css';
