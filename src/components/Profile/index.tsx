@@ -51,7 +51,7 @@ export const Profile: React.FC<ProfileProps> = ({
   const [isSharing, setIsSharing] = useState(false);
   const { setActiveStudent: setActiveStudentInStore } = useStudentStore();
   const { canAccess, role } = useRBAC();
-  const { sharedItems, unreadCount, shareModule, removeShare, refreshSharedItems } = useProfileShare();
+  const { sharedItems, unreadCount, shareModule, removeShare, markAsRead, refreshSharedItems } = useProfileShare();
 
   const tabPermissions: Record<ProfileTabId, PermissionModule | null> = {
     overview: null,
@@ -124,6 +124,7 @@ export const Profile: React.FC<ProfileProps> = ({
             loading={false}
             onOpenModule={(moduleType) => setActiveTab(moduleType as ProfileTabId)}
             onRemoveShare={removeShare}
+            onMarkAsRead={markAsRead}
           />
         );
       case 'settings':

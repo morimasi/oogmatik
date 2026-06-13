@@ -2,7 +2,7 @@ import React from 'react';
 import { SectionHeader } from '../../components/shared/SectionHeader';
 import { ToggleSwitch } from '../../components/shared/ToggleSwitch';
 import type { AppearanceSettingsProps } from '../../types';
-import type { AppTheme } from '../../../../types';
+import type { AppTheme, UiSettings } from '../../../../types';
 
 const THEMES: { name: string; id: AppTheme; color: string; border?: boolean }[] = [
     { name: 'Antrasit Pro', id: 'anthracite', color: 'bg-[#1a1a1a]' },
@@ -96,7 +96,13 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
                     {RADIUS_OPTIONS.map(r => (
                         <button
                             key={r.id}
-                            className="flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest bg-[var(--bg-paper)] text-[var(--text-muted)] hover:bg-[var(--bg-hover)] transition-all border border-[var(--border-color)]"
+                            type="button"
+                            onClick={() => onUpdateUiSettings?.({ ...(uiSettings || {} as UiSettings), borderRadius: r.id })}
+                            className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border ${
+                                (uiSettings?.borderRadius ?? 'xl') === r.id
+                                    ? 'border-indigo-500 bg-indigo-600 text-white'
+                                    : 'bg-[var(--bg-paper)] text-[var(--text-muted)] hover:bg-[var(--bg-hover)] border-[var(--border-color)]'
+                            }`}
                         >
                             {r.label}
                         </button>
@@ -111,7 +117,13 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
                     {ANIMATION_LEVELS.map(a => (
                         <button
                             key={a.id}
-                            className="p-4 rounded-2xl bg-[var(--bg-paper)] border border-[var(--border-color)] hover:border-indigo-300 transition-all text-center"
+                            type="button"
+                            onClick={() => onUpdateUiSettings?.({ ...(uiSettings || {} as UiSettings), animationLevel: a.id })}
+                            className={`p-4 rounded-2xl border transition-all text-center ${
+                                (uiSettings?.animationLevel ?? 'full') === a.id
+                                    ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20'
+                                    : 'bg-[var(--bg-paper)] border-[var(--border-color)] hover:border-indigo-300'
+                            }`}
                         >
                             <span className="block text-xs font-black text-[var(--text-primary)] mb-1">{a.label}</span>
                             <span className="block text-[9px] font-bold text-[var(--text-muted)] uppercase tracking-wider">{a.desc}</span>
@@ -128,15 +140,16 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
                         <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Font Boyutu Ölçeği</label>
                         <input
                             type="range"
-                            min="80"
-                            max="140"
-                            value={(uiSettings?.fontSizeScale ?? 100)}
-                            onChange={(e) => onUpdateUiSettings?.({ ...(uiSettings || {} as any), fontSizeScale: Number(e.target.value) })}
+                            min="0.8"
+                            max="1.5"
+                            step="0.05"
+                            value={uiSettings?.fontSizeScale ?? 1}
+                            onChange={(e) => onUpdateUiSettings?.({ ...(uiSettings || {} as UiSettings), fontSizeScale: parseFloat(e.target.value) })}
                             className="w-full h-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                         />
                         <div className="flex justify-between mt-1 px-1">
                             <span className="text-[8px] font-black text-zinc-400 uppercase">Küçük</span>
-                            <span className="text-[8px] font-black text-indigo-600 uppercase">%{uiSettings?.fontSizeScale ?? 100}</span>
+                            <span className="text-[8px] font-black text-indigo-600 uppercase">%{Math.round((uiSettings?.fontSizeScale ?? 1) * 100)}</span>
                             <span className="text-[8px] font-black text-zinc-400 uppercase">Büyük</span>
                         </div>
                     </div>
@@ -198,6 +211,8 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
                                 compactMode: false,
                                 premiumIntensity: 60,
                                 contrastLevel: 50,
+                                borderRadius: 'xl',
+                                animationLevel: 'full',
                             });
                         }
                     }}

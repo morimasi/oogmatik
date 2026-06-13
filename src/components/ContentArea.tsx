@@ -22,7 +22,7 @@ import { ACTIVITIES } from '../constants';
 import { SkeletonLoader } from './SkeletonLoader';
 import { FavoritesSection } from './FavoritesSection';
 import { ShareModal } from './ShareModal';
-import { WorkbookView } from './WorkbookView';
+import { WorkbookHub } from './WorkbookHub';
 import { ProtectedRoute } from './ProtectedRoute';
 import { useAppStore } from '../store/useAppStore';
 import { useWorksheetStore } from '../store/useWorksheetStore';
@@ -415,7 +415,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                   </ProtectedRoute>
                 ) : currentView === 'workbook' ? (
                   <ProtectedRoute module="workbook" onBack={onBackToGenerator}>
-                    <WorkbookView
+                    <WorkbookHub
                       items={workbookItems}
                       setItems={setWorkbookItems}
                       settings={workbookSettings}
@@ -424,12 +424,16 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                     />
                   </ProtectedRoute>
                 ) : currentView === 'favorites' ? (
-                  <FavoritesSection
-                    onSelectActivity={onSelectActivity!}
-                    onBack={onBackToGenerator}
-                  />
+                  <ProtectedRoute module="favorites" onBack={onBackToGenerator}>
+                    <FavoritesSection
+                      onSelectActivity={onSelectActivity!}
+                      onBack={onBackToGenerator}
+                    />
+                  </ProtectedRoute>
                 ) : currentView === 'shared' ? (
-                  <SharedWorksheetsView onLoad={onLoadSaved} onBack={onBackToGenerator} />
+                  <ProtectedRoute module="shared-materials" onBack={onBackToGenerator}>
+                    <SharedWorksheetsView onLoad={onLoadSaved} onBack={onBackToGenerator} />
+                  </ProtectedRoute>
                 ) : null}
               </div>
             )}

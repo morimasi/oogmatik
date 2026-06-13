@@ -25,6 +25,8 @@ import { AdminContentEngine } from './AdminContentEngine';
 import { AdStudio } from '../AdStudio';
 import TeacherManagement from './TeacherManagement';
 import { AdminStudentManagement } from './AdminStudentManagement';
+import { AuditLog } from './AuditLog';
+import { feedbackService } from '../../services/feedbackService';
 
 interface AdminDashboardProps {
   onBack: () => void;
@@ -81,6 +83,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
       'approvals',
       'permissions',
       'ad_studio',
+      'audit_log',
     ];
     return saved && validTabs.includes(saved) ? saved : 'dashboard';
   });
@@ -92,6 +95,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
   const [stats, setStats] = useState<ActivityStats[]>([]);
   const [_loading, setLoading] = useState(true);
   const [usersCount, setUsersCount] = useState(0);
+  const [feedbackCount, setFeedbackCount] = useState(0);
   const [inspectingUser, setInspectingUser] = useState<User | null>(null);
   const [inspectView, setInspectView] = useState<'profile' | 'archive' | 'favorites'>('profile');
 
@@ -102,12 +106,14 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
   const loadBaseData = async () => {
     setLoading(true);
     try {
-      const [usersData, statsData] = await Promise.all([
+      const [usersData, statsData, feedbackData] = await Promise.all([
         authService.getAllUsers(0, PAGE_SIZE),
         statsService.getAllStats(),
+        feedbackService.getAllFeedbacks(0, 50),
       ]);
       setUsersCount(usersData.count || 0);
       setStats(statsData);
+      setFeedbackCount(feedbackData.feedbacks.filter(f => f.status === 'new').length);
     } catch (e: unknown) {
       logError('Admin load error', e as Record<string, unknown>);
     } finally {
@@ -185,6 +191,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
           <NavButton active={activeTab === 'teachers'} label="Öğretmenler" icon="fa-chalkboard-user" onClick={() => setActiveTab('teachers')} />
           <NavButton active={activeTab === 'students'} label="Öğrenciler" icon="fa-user-graduate" onClick={() => setActiveTab('students')} />
           <NavButton active={activeTab === 'permissions'} label="Yetki Matrisi" icon="fa-lock" onClick={() => setActiveTab('permissions')} />
+          <NavButton active={activeTab === 'audit_log'} label="Denetim Kaydı" icon="fa-clipboard-list" onClick={() => setActiveTab('audit_log')} />
 
           <p className="px-4 mt-6 mb-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">İçerik Motoru</p>
           <NavButton active={activeTab === 'content_engine'} label="İçerik Motoru" icon="fa-bolt" onClick={() => setActiveTab('content_engine')} />
@@ -195,7 +202,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
           <NavButton active={activeTab === 'static_content'} label="Veri Kaynakları" icon="fa-database" onClick={() => setActiveTab('static_content')} />
 
           <p className="px-4 mt-6 mb-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Destek</p>
-          <NavButton active={activeTab === 'feedbacks'} label="Gelen Kutusu" icon="fa-inbox" onClick={() => setActiveTab('feedbacks')} count={3} />
+          <NavButton active={activeTab === 'feedbacks'} label="Gelen Kutusu" icon="fa-inbox" onClick={() => setActiveTab('feedbacks')} count={feedbackCount || undefined} />
 
           <p className="px-4 mt-6 mb-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Pazarlama</p>
           <NavButton active={activeTab === 'ad_studio'} label="Reklam Stüdyosu" icon="fa-wand-magic-sparkles" onClick={() => setActiveTab('ad_studio')} />
@@ -224,6 +231,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
               {activeTab === 'drafts' && 'Taslak Havuzu (OCR)'}
               {activeTab === 'approvals' && 'İçerik Onay Merkezi'}
               {activeTab === 'permissions' && 'Yetkilendirme (RBAC)'}
+              {activeTab === 'audit_log' && 'Denetim Kaydı'}
               {activeTab === 'ad_studio' && 'Reklam Stüdyosu'}
             </h1>
             <span className="px-2 py-0.5 rounded bg-[var(--bg-secondary)] text-[10px] font-mono text-[var(--text-muted)] border border-[var(--border-color)]">v1.3.0</span>
@@ -251,6 +259,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
               {activeTab === 'drafts' && <AdminDraftReview />}
               {activeTab === 'approvals' && <AdminActivityApproval />}
               {activeTab === 'permissions' && <AdminPermissionsIDE />}
+              {activeTab === 'audit_log' && <AuditLog />}
               {activeTab === 'ad_studio' && <AdStudio />}
             </React.Suspense>
           </div>

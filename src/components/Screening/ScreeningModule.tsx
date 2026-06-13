@@ -25,9 +25,12 @@ export const ScreeningModule: React.FC<ScreeningModuleProps> = ({ onBack, onSele
     };
 
     const handleComplete = (res: ScreeningResult) => {
+        if (onResult) {
+            onResult(res);
+            return;
+        }
         setResults(res);
         setView('result');
-        onResult?.(res);
     };
 
     return (

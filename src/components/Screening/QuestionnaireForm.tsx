@@ -39,7 +39,7 @@ export const QuestionnaireForm: React.FC<Props> = ({ profile, onComplete, onCanc
             window.scrollTo({ top: 0, behavior: 'smooth' });
         } else {
             // Finish
-            const result = scoringEngine.calculate(answers, profile.respondent, profile.studentName);
+            const result = scoringEngine.calculate(answers, profile);
             onComplete(result);
         }
     };

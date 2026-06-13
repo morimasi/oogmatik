@@ -405,6 +405,8 @@ export interface UiSettings {
   compactMode: boolean;
   premiumIntensity: number; // 0-100 (blur/glass effect)
   contrastLevel: number; // 0-100
+  borderRadius?: 'none' | 'sm' | 'xl' | 'full';
+  animationLevel?: 'full' | 'reduced' | 'none';
 }
 
 export interface CollectionItem {
@@ -627,6 +629,7 @@ export interface CurriculumActivity {
 
 export interface Curriculum {
   id: string;
+  userId?: string;
   studentId?: string;
   studentName: string;
   grade: string;
@@ -638,6 +641,9 @@ export interface Curriculum {
   interests: string[];
   weaknesses: string[];
   createdAt?: string;
+  progress?: number;
+  status?: 'draft' | 'active' | 'completed' | 'archived';
+  bepGoals?: string[];
 }
 
 export type OCRDetectedType =

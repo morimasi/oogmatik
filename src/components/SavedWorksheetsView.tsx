@@ -31,7 +31,7 @@ import {
 import { cn } from '../utils/tailwindUtils';
 
 import { logInfo, logError, logWarn } from '../utils/logger.js';
-interface SharedWorksheetsViewProps {
+interface SavedWorksheetsViewProps {
     onLoad: (item: SavedWorksheet | SavedAssessment | Curriculum) => void;
     onBack: () => void;
     targetUserId?: string;
@@ -352,7 +352,7 @@ const PlanCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
 
 // --- Main View ---
 
-export const SavedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLoad, onBack, targetUserId }) => {
+export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad, onBack, targetUserId }) => {
     const toast = useToastStore();
     const { user } = useAuthStore();
     const [activeTab, setActiveTab] = useState<'materials' | 'reports' | 'plans'>('materials');

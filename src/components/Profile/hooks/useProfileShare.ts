@@ -7,6 +7,7 @@ interface UseProfileShareReturn {
   loading: boolean;
   shareModule: (recipientId: string, moduleType: SharedModuleType, permission: SharePermission, contentId?: string, message?: string) => Promise<boolean>;
   removeShare: (shareId: string) => Promise<boolean>;
+  markAsRead: (shareId: string) => Promise<boolean>;
   refreshSharedItems: () => Promise<void>;
   unreadCount: number;
 }
@@ -54,7 +55,15 @@ export const useProfileShare = (): UseProfileShareReturn => {
     return ok;
   }, []);
 
+  const markAsRead = useCallback(async (shareId: string): Promise<boolean> => {
+    const ok = await profileShareService.markAsRead(shareId);
+    if (ok) {
+      setSharedItems(prev => prev.map(s => s.id === shareId ? { ...s, readAt: new Date().toISOString() } : s));
+    }
+    return ok;
+  }, []);
+
   const unreadCount = sharedItems.filter(s => !s.readAt).length;
 
-  return { sharedItems, loading, shareModule, removeShare, refreshSharedItems, unreadCount };
+  return { sharedItems, loading, shareModule, removeShare, markAsRead, refreshSharedItems, unreadCount };
 };

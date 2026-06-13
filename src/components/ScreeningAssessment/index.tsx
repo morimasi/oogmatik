@@ -11,6 +11,8 @@ import { ResultDetailPanel } from './panels/ResultDetailPanel';
 import { SCREENING_TABS } from './constants';
 import { ReportActions } from './components/shared/ReportActions';
 import { screeningDataService } from './services/screeningDataService';
+import { CognitiveTestPanel } from './components/CognitiveTests/CognitiveTestPanel';
+import { useToastStore } from '../../store/useToastStore';
 import type { ScreeningResult } from '../../types/screening';
 
 interface ScreeningAssessmentProps {
@@ -27,7 +29,8 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
   onGeneratePlan,
   onAddToWorkbook,
 }) => {
-  const { activeView, setActiveView, setIsAdvancedScreeningOpen, setScreeningData, setCurrentScreening } = useScreeningStore();
+  const { activeView, setActiveView, setIsAdvancedScreeningOpen, setScreeningData, setCurrentScreening, selectedStudentName } = useScreeningStore();
+  const toast = useToastStore();
   const { currentScreening, handleSaveScreening, handleDownloadReport, handlePrintReport, handleShareResults, handleShareScreeningResult, handleAddToWorkbook } =
     useScreeningAssessment({ onAddToWorkbook });
 
@@ -42,7 +45,7 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
     exit: { opacity: 0, y: -8 },
   };
 
-  const assessmentFlow = activeView === 'assessment';
+  const assessmentFlow = activeView === 'assessment' || activeView === 'cognitive-battery';
   const tabbedView = !assessmentFlow;
 
   const handleResultReady = async (result: ScreeningResult) => {
@@ -157,13 +160,24 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
         {assessmentFlow && (
           <div className="flex-1 flex flex-col bg-[var(--bg-primary)] overflow-hidden">
             <div className="flex-1 overflow-y-auto">
-              <ScreeningFormWrapper
-                onComplete={() => setActiveView('dashboard')}
-                onBack={() => setActiveView('new-screening')}
-                onResult={handleResultReady}
-                onGeneratePlan={handleGeneratePlanWithAutoSave}
-                onAddToWorkbook={onAddToWorkbook}
-              />
+              {activeView === 'cognitive-battery' ? (
+                <CognitiveTestPanel
+                  studentName={selectedStudentName || 'Öğrenci'}
+                  onBack={() => setActiveView('new-screening')}
+                  onComplete={() => {
+                    toast.success('İnteraktif bilişsel batarya tamamlandı.');
+                    setActiveView('dashboard');
+                  }}
+                />
+              ) : (
+                <ScreeningFormWrapper
+                  onComplete={() => setActiveView('dashboard')}
+                  onBack={() => setActiveView('new-screening')}
+                  onResult={handleResultReady}
+                  onGeneratePlan={handleGeneratePlanWithAutoSave}
+                  onAddToWorkbook={onAddToWorkbook}
+                />
+              )}
             </div>
           </div>
         )}
@@ -216,6 +230,7 @@ const ScreeningFormWrapper: React.FC<{
           studentName: selectedStudentName,
           age: selectedStudentAge,
           grade: selectedStudentGrade,
+          studentId: selectedStudentId || undefined,
           respondent: 'teacher',
         }}
         onBack={onBack}

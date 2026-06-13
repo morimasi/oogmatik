@@ -1,4 +1,4 @@
-import { ScreeningResult, EvaluationCategory } from '../types/screening.js';
+import { ScreeningResult, EvaluationCategory, ScreeningProfile } from '../types/screening.js';
 import {
   SCREENING_QUESTIONS,
   CATEGORY_LABELS,
@@ -8,9 +8,9 @@ import {
 export const scoringEngine = {
   calculate: (
     answers: Record<string, number>, // questionId: value (0-4)
-    respondentType: 'parent' | 'teacher',
-    studentName: string
+    profile: ScreeningProfile
   ): ScreeningResult => {
+    const { respondent: respondentType, studentName, age, grade, studentId } = profile;
     const scores: Partial<
       Record<
         EvaluationCategory,
@@ -109,10 +109,10 @@ export const scoringEngine = {
 
     return {
       id: `screening_${Date.now()}`,
-      studentId: 'unknown',
+      studentId: studentId || 'unknown',
       studentName,
-      age: 8,
-      grade: '2',
+      age: age || 8,
+      grade: grade || '2',
       date: new Date(),
       totalScore,
       overallScore: totalScore,

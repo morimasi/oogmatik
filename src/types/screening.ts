@@ -56,4 +56,6 @@ export interface ScreeningProfile {
     age: number;
     grade: string;
     respondent: 'parent' | 'teacher';
+    studentId?: string;
+    gender?: 'Kız' | 'Erkek';
 }

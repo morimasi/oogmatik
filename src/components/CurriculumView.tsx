@@ -11,6 +11,7 @@ import { AppError } from '../utils/AppError';
 import { Difficulty } from '../types/common';
 import { ACTIVITIES } from '../constants';
 import { useToastStore } from '../store/useToastStore';
+import { profileShareService } from '../services/profileShareService';
 
 interface CurriculumViewProps {
     onBack: () => void;
@@ -312,6 +313,40 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onStartC
             toast.error('Kaydetme hatası.');
         } finally {
             setIsSaving(false);
+        }
+    };
+
+    const handleShareCurriculum = async (receiverIds: string[], permission?: 'view' | 'edit', message?: string) => {
+        if (!user || !curriculum) {
+            toast.error('Paylaşım için önce planı kaydedin.');
+            return;
+        }
+        if (!isSaved && !curriculum.id) {
+            await handleSave();
+        }
+        const planId = curriculum.id;
+        if (!planId) {
+            toast.error('Plan kaydedilemedi, paylaşım yapılamıyor.');
+            return;
+        }
+        try {
+            await Promise.all(
+                receiverIds.map((recipientId) =>
+                    profileShareService.shareModule({
+                        ownerId: user.id,
+                        ownerName: user.name,
+                        recipientId,
+                        moduleType: 'plans',
+                        contentId: planId,
+                        permission: permission || 'view',
+                        message,
+                    })
+                )
+            );
+            toast.success('Eğitim planı paylaşıldı.');
+            setIsShareModalOpen(false);
+        } catch {
+            toast.error('Paylaşım sırasında hata oluştu.');
         }
     };
 
@@ -915,7 +950,13 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onStartC
                     {renderWizard()}
                 </div>
             </div>
-            <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} onShare={() => { }} />
+            <ShareModal
+                isOpen={isShareModalOpen}
+                onClose={() => setIsShareModalOpen(false)}
+                onShare={handleShareCurriculum}
+                worksheetTitle={curriculum?.studentName ? `${curriculum.studentName} — Eğitim Planı` : 'Eğitim Planı'}
+                showPermissionSelector
+            />
         </div>
     );
 };

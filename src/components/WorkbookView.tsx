@@ -2,10 +2,13 @@ import React, { useState, useRef, useCallback } from 'react';
 import { CollectionItem, WorkbookSettings, StyleSettings, ActivityType } from '../types';
 import Workbook from './Workbook';
 import { worksheetService } from '../services/worksheetService';
+import { updateWorkbook, createWorkbook } from '../services/workbook/workbookService';
+import { collectionItemsToWorkbookPages, legacySettingsToV2 } from '../utils/workbookBridge';
 import { printService } from '../utils/printService';
 import { Toolbar } from './Toolbar';
 import { useAuthStore } from '../store/useAuthStore';
 import { useStudentStore } from '../store/useStudentStore';
+import { useToastStore } from '../store/useToastStore';
 import { ActivityImporterModal } from './ActivityImporterModal';
 import { generateWithSchema } from '../services/geminiClient.js';
 import { motion } from 'framer-motion';
@@ -17,6 +20,7 @@ interface WorkbookViewProps {
   settings: WorkbookSettings;
   setSettings: React.Dispatch<React.SetStateAction<WorkbookSettings>>;
   onBack: () => void;
+  workbookId?: string | null;
 }
 
 const COLORS = [
@@ -129,9 +133,11 @@ export const WorkbookView = ({
   settings,
   setSettings,
   onBack,
+  workbookId = null,
 }: WorkbookViewProps) => {
   const { user } = useAuthStore();
   const { activeStudent, students } = useStudentStore();
+  const toast = useToastStore();
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
   const [activeTab, setActiveTab] = useState<'content' | 'design' | 'assign'>('content');
   const [isSaving, setIsSaving] = useState(false);
@@ -279,23 +285,42 @@ export const WorkbookView = ({
 
   const handleSave = async () => {
     if (!user) {
-      alert('Kaydetmek için lütfen giriş yapın.');
+      toast.error('Kaydetmek için lütfen giriş yapın.');
       return;
     }
     if (items.length === 0) {
-      alert('Kitapçık boş. Lütfen önce içerik ekleyin.');
+      toast.error('Kitapçık boş. Lütfen önce içerik ekleyin.');
       return;
     }
 
     setIsSaving(true);
     try {
-      // Find student ID if assigned
-      const assignedStudent = students.find((s: any) => s.name === settings.studentName);
+      const assignedStudent = students.find((s: { name: string; id?: string }) => s.name === settings.studentName);
+      const pages = collectionItemsToWorkbookPages(workbookId || `wb_${Date.now()}`, items);
+      const v2Settings = legacySettingsToV2(settings);
+
+      if (workbookId) {
+        await updateWorkbook(workbookId, user.id, {
+          title: settings.title,
+          pages,
+          settings: v2Settings,
+        });
+      } else {
+        const created = await createWorkbook(user.id, {
+          title: settings.title,
+          templateType: 'academic-standard',
+          assignedStudentId: assignedStudent?.id,
+          settings: v2Settings,
+        });
+        await updateWorkbook(created.id, user.id, { pages, title: settings.title });
+      }
+
+      // Legacy arşiv uyumluluğu
       await worksheetService.saveWorkbook(user.id, settings, items, assignedStudent?.id, settings.studentName);
-      alert(`"${settings.title}" başarıyla arşivinize kaydedildi.`);
+      toast.success(`"${settings.title}" başarıyla kaydedildi.`);
     } catch (error: unknown) {
       logError(error instanceof Error ? error : new Error(String(error)), { context: 'WorkbookView.handleSave' });
-      alert('Kaydetme sırasında bir hata oluştu.');
+      toast.error('Kaydetme sırasında bir hata oluştu.');
     } finally {
       setIsSaving(false);
     }
@@ -311,7 +336,7 @@ export const WorkbookView = ({
       });
     } catch (error: unknown) {
       logError(error instanceof Error ? error : new Error(String(error)), { context: 'WorkbookView.handleAction' });
-      alert('Kitapçık oluşturulurken bir hata meydana geldi.');
+      toast.error('Kitapçık oluşturulurken bir hata meydana geldi.');
     } finally {
       setIsPrinting(false);
     }

@@ -1,32 +1,38 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
-    // Yardımcı Fonksiyonlar
+
     function isAuthenticated() {
       return request.auth != null;
     }
-    
-    function isAdmin() {
-      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
-    
+
+    function isAdmin() {
+      return isAuthenticated() && userDoc().role in ['admin', 'superadmin'];
+    }
+
     function isTeacher() {
-      return isAuthenticated() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'teacher';
+      return isAuthenticated() && userDoc().role in ['teacher', 'admin', 'superadmin'];
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
     }
 
     // Kullanıcı Profilleri
     match /users/{userId} {
       allow read: if isAuthenticated();
-      allow write: if isAdmin() || request.auth.uid == userId;
+      allow write: if isAdmin() || isOwner(userId);
     }
 
     // Öğrenci Verileri (KVKK Hassasiyeti)
     match /students/{studentId} {
-      allow read: if isAdmin() || isTeacher(); // TODO: Add specific teacher-student mapping in production
+      allow read: if isAdmin() || isTeacher();
       allow write: if isAdmin() || isTeacher();
-      
-      // IEP ve Altkoleksiyonlar
+
       match /{allSubcollections=**} {
         allow read, write: if isAdmin() || isTeacher();
       }
@@ -37,10 +43,93 @@ service cloud.firestore {
       allow read: if isAuthenticated();
       allow write: if isAdmin() || isTeacher();
     }
-    
+
+    match /saved_worksheets/{worksheetId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+    }
+
+    match /saved_assessments/{assessmentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+    }
+
+    match /saved_curriculums/{curriculumId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+    }
+
+    match /saved_screenings/{screeningId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+    }
+
     match /templates/{templateId} {
       allow read: if isAuthenticated();
       allow write: if isAdmin();
+    }
+
+    // Admin config koleksiyonları
+    match /config_activities/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /config_prompts/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /config_snippets/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /config_static_content/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /activity_drafts/{docId} {
+      allow read, write: if isAdmin() || isTeacher();
+    }
+
+    match /approval_queue/{docId} {
+      allow read, write: if isAdmin() || isTeacher();
+    }
+
+    match /feedback_signals/{docId} {
+      allow read: if isAdmin() || isTeacher();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin();
+    }
+
+    // Workbook v2
+    match /workbooks/{workbookId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+    }
+
+    match /workbook_pages/{pageId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /workbook_versions/{versionId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Profil paylaşımı
+    match /shared_profile_content/{shareId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update, delete: if isAdmin()
+        || (isAuthenticated() && resource.data.ownerId == request.auth.uid)
+        || (isAuthenticated() && resource.data.recipientId == request.auth.uid);
     }
 
     // Geri Bildirimler

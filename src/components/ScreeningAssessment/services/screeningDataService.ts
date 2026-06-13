@@ -2,7 +2,7 @@ import type { ScreeningResult, EvaluationCategory } from '../../../types/screeni
 import { CATEGORY_LABELS, CATEGORY_COLORS } from '../../../data/screeningQuestions';
 import { useToastStore } from '../../../store/useToastStore';
 import { db } from '../../../services/firebaseClient';
-import { collection, addDoc, query, where, getDocs, doc, deleteDoc } from "firebase/firestore";
+import { collection, addDoc, query, where, getDocs, doc, deleteDoc, updateDoc } from "firebase/firestore";
 import { useAuthStore } from '../../../store/useAuthStore';
 
 const API_BASE = '/api/screening';
@@ -150,6 +150,15 @@ export const screeningDataService = {
   async deleteScreeningFromFirestore(id: string): Promise<boolean> {
     try {
       await deleteDoc(doc(db, "saved_screenings", id));
+      return true;
+    } catch {
+      return false;
+    }
+  },
+
+  async updateScreeningInFirestore(id: string, updates: Partial<ScreeningResult>): Promise<boolean> {
+    try {
+      await updateDoc(doc(db, "saved_screenings", id), updates as Record<string, unknown>);
       return true;
     } catch {
       return false;

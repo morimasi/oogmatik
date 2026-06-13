@@ -32,6 +32,21 @@ export const useGlobalSettings = (
             '--premium-opacity', 
             `${0.5 + (uiSettings.premiumIntensity / 100) * 0.4}`
         );
+
+        const radiusMap: Record<string, string> = {
+            none: '0px',
+            sm: '0.375rem',
+            xl: '1rem',
+            full: '9999px',
+        };
+        document.documentElement.style.setProperty(
+            '--app-border-radius',
+            radiusMap[uiSettings.borderRadius ?? 'xl'] ?? '1rem'
+        );
+
+        const animationLevel = uiSettings.animationLevel ?? 'full';
+        document.documentElement.classList.toggle('motion-reduce', animationLevel === 'none');
+        document.documentElement.classList.toggle('motion-reduced', animationLevel === 'reduced');
     }, [uiSettings]);
 
     // Handle basic dark/light theme classes

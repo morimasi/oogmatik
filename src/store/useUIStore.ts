@@ -74,6 +74,8 @@ const initialUiSettings: UiSettings = {
   compactMode: false,
   premiumIntensity: 60,
   contrastLevel: 50,
+  borderRadius: 'xl',
+  animationLevel: 'full',
 };
 
 // theme, sidebarWidth ve uiSettings gibi değerleri persist edeceğiz.

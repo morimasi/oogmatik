@@ -13,7 +13,7 @@ interface UseScreeningAssessmentOptions {
   onAddToWorkbook?: (data: ScreeningResult) => void;
 }
 
-const mapScreeningToSavedAssessment = (screening: ScreeningResult) => {
+const mapScreeningToSavedAssessment = (screening: ScreeningResult, authUserId: string) => {
   const observations: ClinicalObservation = {
     anxietyLevel: 'medium',
     attentionSpan: 'focused',
@@ -23,10 +23,10 @@ const mapScreeningToSavedAssessment = (screening: ScreeningResult) => {
 
   return {
     id: screening.id,
-    userId: screening.studentId || 'unknown',
+    userId: authUserId,
     studentId: screening.studentId,
     studentName: screening.studentName,
-    gender: 'Kız' as const,
+    gender: (screening as ScreeningResult & { gender?: 'Kız' | 'Erkek' }).gender || 'Kız' as const,
     age: screening.age,
     grade: screening.grade,
     createdAt: new Date().toISOString(),
@@ -59,7 +59,8 @@ export function useScreeningAssessment(options?: UseScreeningAssessmentOptions) 
 
   useEffect(() => {
     screeningDataService.getUserScreeningsFromFirestore().then((data) => {
-      store.setScreeningData(data.length > 0 ? data : screeningDataService.getMockData());
+      const fallback = import.meta.env.DEV ? screeningDataService.getMockData() : [];
+      store.setScreeningData(data.length > 0 ? data : fallback);
     });
   }, []);
 
@@ -77,8 +78,19 @@ export function useScreeningAssessment(options?: UseScreeningAssessmentOptions) 
       toast.error('Lütfen öğrenci adı girin.');
       return;
     }
+    if (store.selectedScreeningType === 'developmental') {
+      toast.info('Gelişimsel tarama yakında eklenecek. Bilişsel tarama başlatılıyor.');
+    }
     store.setActiveView('assessment');
-  }, [store.selectedStudentName]);
+  }, [store.selectedStudentName, store.selectedScreeningType, toast]);
+
+  const handleStartCognitiveBattery = useCallback(() => {
+    if (!store.selectedStudentName.trim()) {
+      toast.error('Lütfen öğrenci adı girin.');
+      return;
+    }
+    store.setActiveView('cognitive-battery');
+  }, [store.selectedStudentName, toast]);
 
   const handleSaveScreening = useCallback(async () => {
     if (!store.currentScreening) return;
@@ -89,15 +101,27 @@ export function useScreeningAssessment(options?: UseScreeningAssessmentOptions) 
     store.setIsSaving(false);
   }, [store.currentScreening]);
 
-  const handleArchiveScreening = useCallback((id: string) => {
-    store.archiveScreening(id);
-    toast.success('Tarama arşive taşındı.');
-  }, []);
+  const handleArchiveScreening = useCallback(async (id: string) => {
+    const ok = await screeningDataService.updateScreeningInFirestore(id, { status: 'archived' });
+    if (ok) {
+      store.archiveScreening(id);
+      const updated = await screeningDataService.getUserScreeningsFromFirestore();
+      store.setScreeningData(updated.length > 0 ? updated : (import.meta.env.DEV ? screeningDataService.getMockData() : []));
+      toast.success('Tarama arşive taşındı.');
+    } else {
+      toast.error('Arşivleme başarısız.');
+    }
+  }, [toast]);
 
-  const handleDeleteScreening = useCallback((id: string) => {
-    store.deleteScreening(id);
-    toast.success('Tarama silindi.');
-  }, []);
+  const handleDeleteScreening = useCallback(async (id: string) => {
+    const ok = await screeningDataService.deleteScreeningFromFirestore(id);
+    if (ok) {
+      store.deleteScreening(id);
+      toast.success('Tarama silindi.');
+    } else {
+      toast.error('Silme başarısız.');
+    }
+  }, [toast]);
 
   const handleShareResults = useCallback((id: string) => {
     const url = `${window.location.origin}/screening/${id}`;
@@ -120,7 +144,7 @@ export function useScreeningAssessment(options?: UseScreeningAssessmentOptions) 
         return;
       }
       try {
-        const assessment = mapScreeningToSavedAssessment(screening);
+        const assessment = mapScreeningToSavedAssessment(screening, user.id);
         await Promise.all(
           receiverIds.map((receiverId) =>
             assessmentService.shareAssessment(assessment, user.id, user.name, receiverId, permission, message)
@@ -158,15 +182,17 @@ export function useScreeningAssessment(options?: UseScreeningAssessmentOptions) 
   }, [options, toast]);
 
   const getScoreColor = (score: number): string => {
-    if (score >= 70) return 'text-emerald-500';
+    // Yüksek skor = yüksek risk (semptom sıklığı)
+    if (score >= 70) return 'text-rose-500';
     if (score >= 50) return 'text-amber-500';
-    return 'text-rose-500';
+    return 'text-emerald-500';
   };
 
   const getRiskBadgeClasses = (level: string): string => {
     switch (level) {
       case 'low': return 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20';
-      case 'medium': return 'text-amber-500 bg-amber-500/10 border-amber-500/20';
+      case 'medium':
+      case 'moderate': return 'text-amber-500 bg-amber-500/10 border-amber-500/20';
       case 'high': return 'text-rose-500 bg-rose-500/10 border-rose-500/20';
       default: return 'text-zinc-500 bg-zinc-500/10 border-zinc-500/20';
     }
@@ -194,6 +220,7 @@ export function useScreeningAssessment(options?: UseScreeningAssessmentOptions) 
     ...store,
     filteredData,
     handleStartScreening,
+    handleStartCognitiveBattery,
     handleSaveScreening,
     handleArchiveScreening,
     handleDeleteScreening,

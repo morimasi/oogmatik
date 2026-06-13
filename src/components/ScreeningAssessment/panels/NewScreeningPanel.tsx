@@ -17,6 +17,7 @@ export const NewScreeningPanel: React.FC = () => {
     setSelectedScreeningType,
     handleStartScreening,
     setActiveView,
+    handleStartCognitiveBattery,
   } = useScreeningAssessment();
 
   const { students } = useStudentStore();
@@ -150,19 +151,27 @@ export const NewScreeningPanel: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-4 border-t border-[var(--border-color)]">
+        <div className="flex items-center justify-between pt-4 border-t border-[var(--border-color)] gap-2 flex-wrap">
           <button
             onClick={() => setActiveView('dashboard')}
             className="px-5 py-2.5 text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
           >
             Vazgeç
           </button>
-          <button
-            onClick={handleStartScreening}
-            className="px-8 py-3 bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-[var(--accent-muted)] transition-all active:scale-95"
-          >
-            Değerlendirmeyi Başlat
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={handleStartCognitiveBattery}
+              className="px-5 py-3 border-2 border-[var(--accent-color)] text-[var(--accent-color)] text-[10px] font-black uppercase tracking-widest rounded-xl transition-all active:scale-95"
+            >
+              İnteraktif Batarya
+            </button>
+            <button
+              onClick={handleStartScreening}
+              className="px-8 py-3 bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-[var(--accent-muted)] transition-all active:scale-95"
+            >
+              Anket Taraması
+            </button>
+          </div>
         </div>
       </div>
     </div>

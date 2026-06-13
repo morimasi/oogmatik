@@ -6,6 +6,7 @@ export type ScreeningView =
   | 'history'
   | 'analytics'
   | 'assessment'
+  | 'cognitive-battery'
   | 'result-detail';
 
 export type ScreeningFilterStatus = 'all' | 'completed' | 'pending' | 'archived';
@@ -60,4 +61,4 @@ export interface ScreeningActions {
   resetScreening: () => void;
 }
 
-export { ScreeningResult, EvaluationCategory, ScreeningProfile };
+export type { ScreeningResult, EvaluationCategory, ScreeningProfile };

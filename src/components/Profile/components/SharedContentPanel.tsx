@@ -18,6 +18,7 @@ interface SharedContentPanelProps {
   loading: boolean;
   onOpenModule: (moduleType: SharedContent['moduleType']) => void;
   onRemoveShare: (shareId: string) => Promise<boolean>;
+  onMarkAsRead?: (shareId: string) => Promise<boolean>;
 }
 
 export const SharedContentPanel: React.FC<SharedContentPanelProps> = ({
@@ -25,6 +26,7 @@ export const SharedContentPanel: React.FC<SharedContentPanelProps> = ({
   loading,
   onOpenModule,
   onRemoveShare,
+  onMarkAsRead,
 }) => {
   if (loading) {
     return (
@@ -58,7 +60,10 @@ export const SharedContentPanel: React.FC<SharedContentPanelProps> = ({
         return (
           <div
             key={item.id}
-            onClick={() => onOpenModule(item.moduleType)}
+            onClick={() => {
+              if (item.id && isUnread) onMarkAsRead?.(item.id);
+              onOpenModule(item.moduleType);
+            }}
             className={`relative flex items-center gap-4 p-5 rounded-2xl border-2 transition-all cursor-pointer hover:scale-[1.01] active:scale-[0.99] ${isUnread
               ? 'bg-indigo-50 dark:bg-indigo-900/10 border-indigo-200 dark:border-indigo-800'
               : 'bg-[var(--bg-paper)] border-[var(--border-color)] hover:border-[var(--accent-color)]/30'

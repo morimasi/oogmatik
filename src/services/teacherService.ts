@@ -34,9 +34,7 @@ export const teacherService = {
             [...ownSnap.docs, ...assignedSnap.docs].forEach(d => seen.add(d.id));
             studentCount = seen.size;
 
-            const studentIds = studentsSnap.docs.map(d => d.id);
-
-            if (studentIds.length > 0) {
+            if (studentCount > 0) {
               const assessmentsSnap = await getDocs(query(collection(db, 'saved_assessments'), where('userId', '==', t.id)));
               assessmentCount = assessmentsSnap.size;
               reportCount = assessmentsSnap.docs.filter(d => {
