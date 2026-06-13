@@ -14,6 +14,7 @@ import { KopruRenderer } from '../SariKitapStudio/modules/kopru';
 import { BellekRenderer } from '../SariKitapStudio/modules/bellek';
 import { HizliOkumaRenderer } from '../SariKitapStudio/modules/hizliOkuma';
 import type { RendererProps } from '../SariKitapStudio/registry';
+import { AssessmentReportSheet } from '../sheets/AssessmentReportSheet';
 
 interface WorkbookActivityRendererProps {
     item: CollectionItem;
@@ -85,6 +86,12 @@ export const WorkbookActivityRenderer = memo(({ item, settings, font, accent }: 
             const content = (activeData as Record<string, unknown>)?.content || activeData;
             return <RendererComponent config={mergedSettings as any} content={content as any} />;
         }
+    }
+
+    // 8. ASSESSMENT REPORT
+    if (activityType === 'ASSESSMENT_REPORT') {
+        const activeData = Array.isArray(rawData) ? rawData[0] : rawData;
+        return <AssessmentReportSheet data={activeData as unknown as any} />;
     }
 
     // 6. STANDART SHEET RENDERER (V1 Aktiviteler)

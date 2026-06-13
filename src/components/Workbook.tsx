@@ -92,20 +92,13 @@ const WorkbookPage: React.FC<WorkbookPageProps> = ({
         <div className="relative bg-white shadow-2xl worksheet-page" style={style}>
           <Watermark settings={settings} />
           <div className="relative z-10 flex flex-col h-full" style={{ overflow: 'hidden', paddingBottom: '40px' }}>
-            {item.activityType === 'ASSESSMENT_REPORT' ? (
-              <div className="p-20 text-center flex flex-col items-center justify-center h-full">
-                <i className="fa-solid fa-chart-line text-6xl text-zinc-100 mb-8"></i>
-                <h3 className="text-2xl font-black opacity-20 uppercase tracking-widest">Analiz Raporu</h3>
-              </div>
-            ) : (
-              <WorkbookActivityRenderer
-                item={{ ...item, data: pageData }}
-                settings={settings}
-                pageNum={pageNum}
-                font={font}
-                accent={accent}
-              />
-            )}
+            <WorkbookActivityRenderer
+              item={{ ...item, data: pageData }}
+              settings={settings}
+              pageNum={pageNum}
+              font={font}
+              accent={accent}
+            />
           </div>
           <PageFooter pageNum={pageNum} settings={settings} />
         </div>
