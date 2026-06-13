@@ -15,7 +15,7 @@ interface GenerationConfig extends Partial<GeneratorOptions> {
   topic: string;
   difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor' | 'uzman';
   ageGroup: '5-7' | '8-10' | '11-13' | '14+';
-  gradeLevel: number;
+  gradeLevel: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
   itemCount: number;
   studentProfile?: any;
 }
@@ -65,10 +65,12 @@ export const generateFillBlanks = async (config: GenerationConfig): Promise<Fill
     }
   };
 
-  const result = await generateWithSchema(prompt, schema);
+  const result = await generateWithSchema(prompt, schema) as Record<string, unknown>;
   return {
     ...result,
     type: 'fill_blanks',
+    instruction: (result?.content as Record<string, unknown>)?.instruction as string || '',
+    title: (result?.content as Record<string, unknown>)?.title as string || '',
     settings: {
       ...config,
       compactLayout: true,
@@ -119,10 +121,12 @@ export const generateMultipleChoiceVerbal = async (config: GenerationConfig): Pr
     }
   };
 
-  const result = await generateWithSchema(prompt, schema);
+  const result = await generateWithSchema(prompt, schema) as Record<string, unknown>;
   return {
     ...result,
     type: 'multiple_choice_verbal',
+    instruction: (result?.content as Record<string, unknown>)?.instruction as string || '',
+    title: (result?.content as Record<string, unknown>)?.title as string || '',
     settings: { ...config, compactLayout: true, fontSize: 'medium', lineHeight: 'normal', showVisualHints: false }
   };
 };
@@ -161,10 +165,12 @@ export const generateWordCompletion = async (config: GenerationConfig): Promise<
     }
   };
 
-  const result = await generateWithSchema(prompt, schema);
+  const result = await generateWithSchema(prompt, schema) as Record<string, unknown>;
   return {
     ...result,
     type: 'word_completion',
+    instruction: (result?.content as Record<string, unknown>)?.instruction as string || '',
+    title: (result?.content as Record<string, unknown>)?.title as string || '',
     settings: { ...config, compactLayout: true, fontSize: 'large', lineHeight: 'relaxed', showVisualHints: true }
   };
 };
@@ -202,10 +208,12 @@ export const generateMixedSentence = async (config: GenerationConfig): Promise<M
     }
   };
 
-  const result = await generateWithSchema(prompt, schema);
+  const result = await generateWithSchema(prompt, schema) as Record<string, unknown>;
   return {
     ...result,
     type: 'mixed_sentence',
+    instruction: (result?.content as Record<string, unknown>)?.instruction as string || '',
+    title: (result?.content as Record<string, unknown>)?.title as string || '',
     settings: { ...config, compactLayout: true, fontSize: 'medium', lineHeight: 'very_relaxed', showVisualHints: false }
   };
 };
@@ -244,10 +252,12 @@ export const generateAntonyms = async (config: GenerationConfig): Promise<Antony
     }
   };
 
-  const result = await generateWithSchema(prompt, schema);
+  const result = await generateWithSchema(prompt, schema) as Record<string, unknown>;
   return {
     ...result,
     type: 'antonym',
+    instruction: (result?.content as Record<string, unknown>)?.instruction as string || '',
+    title: (result?.content as Record<string, unknown>)?.title as string || '',
     settings: { ...config, compactLayout: true, fontSize: 'small', lineHeight: 'tight', showVisualHints: false, columnLayout: 2 }
   };
 };

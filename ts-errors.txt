@@ -1,0 +1,1171 @@
+[96msrc/components/Profile/modules/OverviewModule.tsx[0m:[93m130[0m:[93m15[0m - [91merror[0m[90m TS2322: [0mType 'Record<string, unknown>[]' is not assignable to type 'DataPoint[]'.
+  Property 'date' is missing in type 'Record<string, unknown>' but required in type 'DataPoint'.
+
+[7m130[0m               data={performanceTrends}
+[7m   [0m [91m              ~~~~[0m
+
+  [96msrc/components/LineChart.tsx[0m:[93m5[0m:[93m5[0m
+    [7m5[0m     date: string;
+    [7m [0m [96m    ~~~~[0m
+    'date' is declared here.
+  [96msrc/components/LineChart.tsx[0m:[93m10[0m:[93m5[0m
+    [7m10[0m     data: DataPoint[];
+    [7m  [0m [96m    ~~~~[0m
+    The expected type comes from property 'data' which is declared here on type 'IntrinsicAttributes & LineChartProps'
+
+[96msrc/components/Profile/modules/ReportsModule.tsx[0m:[93m71[0m:[93m20[0m - [91merror[0m[90m TS2345: [0mArgument of type '(prev: Set<string>) => Set<unknown>' is not assignable to parameter of type 'SetStateAction<Set<string>>'.
+  Type '(prev: Set<string>) => Set<unknown>' is not assignable to type '(prevState: Set<string>) => Set<string>'.
+    Type 'Set<unknown>' is not assignable to type 'Set<string>'.
+      Type 'unknown' is not assignable to type 'string'.
+
+[7m71[0m     setSelectedIds(prev =>
+[7m  [0m [91m                   ~~~~~~~[0m
+[7m72[0m       prev.size === assessments.length ? new Set() : new Set(assessments.map((a) => a.id))
+[7m  [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/components/Profile/modules/ReportsModule.tsx[0m:[93m78[0m:[93m7[0m - [91merror[0m[90m TS2362: [0mThe left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+
+[7m78[0m       assessments.reduce((sum: number, a: SavedAssessment) => {
+[7m  [0m [91m      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m79[0m         const scores = a.report.scores as Record<string, number>;
+[7m  [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m80[0m         return sum + (scores['attention'] ?? 0);
+[7m  [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m81[0m       }, 0) / assessments.length
+[7m  [0m [91m~~~~~~~~~~~[0m
+
+[96msrc/components/Profile/modules/ReportsModule.tsx[0m:[93m78[0m:[93m26[0m - [91merror[0m[90m TS2769: [0mNo overload matches this call.
+  Overload 1 of 3, '(callbackfn: (previousValue: Record<string, unknown>, currentValue: Record<string, unknown>, currentIndex: number, array: Record<string, unknown>[]) => Record<string, unknown>, initialValue: Record<...>): Record<...>', gave the following error.
+    Argument of type '(sum: number, a: SavedAssessment) => number' is not assignable to parameter of type '(previousValue: Record<string, unknown>, currentValue: Record<string, unknown>, currentIndex: number, array: Record<string, unknown>[]) => Record<string, unknown>'.
+      Types of parameters 'sum' and 'previousValue' are incompatible.
+        Type 'Record<string, unknown>' is not assignable to type 'number'.
+  Overload 2 of 3, '(callbackfn: (previousValue: number, currentValue: Record<string, unknown>, currentIndex: number, array: Record<string, unknown>[]) => number, initialValue: number): number', gave the following error.
+    Argument of type '(sum: number, a: SavedAssessment) => number' is not assignable to parameter of type '(previousValue: number, currentValue: Record<string, unknown>, currentIndex: number, array: Record<string, unknown>[]) => number'.
+      Types of parameters 'a' and 'currentValue' are incompatible.
+        Type 'Record<string, unknown>' is missing the following properties from type 'SavedAssessment': id, userId, studentName, gender, and 4 more.
+
+[7m78[0m       assessments.reduce((sum: number, a: SavedAssessment) => {
+[7m  [0m [91m                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[96msrc/components/Profile/modules/ReportsModule.tsx[0m:[93m170[0m:[93m30[0m - [91merror[0m[90m TS2345: [0mArgument of type '(assessment: SavedAssessment) => JSX.Element' is not assignable to parameter of type '(value: Record<string, unknown>, index: number, array: Record<string, unknown>[]) => Element'.
+  Types of parameters 'assessment' and 'value' are incompatible.
+    Type 'Record<string, unknown>' is missing the following properties from type 'SavedAssessment': id, userId, studentName, gender, and 4 more.
+
+[7m170[0m             {assessments.map((assessment: SavedAssessment) => {
+[7m   [0m [91m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/components/ReadingStudio/Editor/AIProductionPanel.tsx[0m:[93m6[0m:[93m32[0m - [91merror[0m[90m TS2339: [0mProperty '_isLoading' does not exist on type 'ReadingState'.
+
+[7m6[0m     const { config, setConfig, _isLoading } = useReadingStore();
+[7m [0m [91m                               ~~~~~~~~~~[0m
+
+[96msrc/components/ReadingStudio/Editor/AIProductionPanel.tsx[0m:[93m47[0m:[93m25[0m - [91merror[0m[90m TS2322: [0mType '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+
+[7m47[0m                         value={config.phonemeFocus || ''}
+[7m  [0m [91m                        ~~~~~[0m
+
+  [96mnode_modules/@types/react/index.d.ts[0m:[93m3312[0m:[93m9[0m
+    [7m3312[0m         value?: string | readonly string[] | number | undefined;
+    [7m    [0m [96m        ~~~~~[0m
+    The expected type comes from property 'value' which is declared here on type 'DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>'
+
+[96msrc/components/ReadingStudio/Editor/ContentPanel.tsx[0m:[93m44[0m:[93m29[0m - [91merror[0m[90m TS2322: [0mType '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+
+[7m44[0m                             value={data.title || ''}
+[7m  [0m [91m                            ~~~~~[0m
+
+  [96mnode_modules/@types/react/index.d.ts[0m:[93m3312[0m:[93m9[0m
+    [7m3312[0m         value?: string | readonly string[] | number | undefined;
+    [7m    [0m [96m        ~~~~~[0m
+    The expected type comes from property 'value' which is declared here on type 'DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>'
+
+[96msrc/components/ReadingStudio/Editor/ContentPanel.tsx[0m:[93m53[0m:[93m29[0m - [91merror[0m[90m TS2322: [0mType '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+
+[7m53[0m                             value={data.subtitle || ''}
+[7m  [0m [91m                            ~~~~~[0m
+
+  [96mnode_modules/@types/react/index.d.ts[0m:[93m3312[0m:[93m9[0m
+    [7m3312[0m         value?: string | readonly string[] | number | undefined;
+    [7m    [0m [96m        ~~~~~[0m
+    The expected type comes from property 'value' which is declared here on type 'DetailedHTMLProps<InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>'
+
+[96msrc/components/ReadingStudio/Editor/ContentPanel.tsx[0m:[93m66[0m:[93m29[0m - [91merror[0m[90m TS2322: [0mType '{}' is not assignable to type 'string | number | readonly string[] | undefined'.
+
+[7m66[0m                             value={data.text || ''}
+[7m  [0m [91m                            ~~~~~[0m
+
+  [96mnode_modules/@types/react/index.d.ts[0m:[93m3533[0m:[93m9[0m
+    [7m3533[0m         value?: string | readonly string[] | number | undefined;
+    [7m    [0m [96m        ~~~~~[0m
+    The expected type comes from property 'value' which is declared here on type 'DetailedHTMLProps<TextareaHTMLAttributes<HTMLTextAreaElement>, HTMLTextAreaElement>'
+
+[96msrc/components/ReadingStudio/Editor/ContentPanel.tsx[0m:[93m78[0m:[93m41[0m - [91merror[0m[90m TS2339: [0mProperty 'map' does not exist on type '{}'.
+
+[7m78[0m                     {(data.words || []).map((v: any, i: number) => (
+[7m  [0m [91m                                        ~~~[0m
+
+[96msrc/components/ReadingStudio/Editor/ContentPanel.tsx[0m:[93m84[0m:[93m58[0m - [91merror[0m[90m TS2488: [0mType 'unknown' must have a '[Symbol.iterator]()' method that returns an iterator.
+
+[7m84[0m                                     const newWords = [...data.words];
+[7m  [0m [91m                                                         ~~~~~~~~~~[0m
+
+[96msrc/components/ReadingStudio/Editor/ContentPanel.tsx[0m:[93m94[0m:[93m58[0m - [91merror[0m[90m TS2488: [0mType 'unknown' must have a '[Symbol.iterator]()' method that returns an iterator.
+
+[7m94[0m                                     const newWords = [...data.words];
+[7m  [0m [91m                                                         ~~~~~~~~~~[0m
+
+[96msrc/components/ReadingStudio/Editor/ContentPanel.tsx[0m:[93m109[0m:[93m45[0m - [91merror[0m[90m TS2339: [0mProperty 'map' does not exist on type '{}'.
+
+[7m109[0m                     {(data.questions || []).map((q: any, i: number) => (
+[7m   [0m [91m                                            ~~~[0m
+
+[96msrc/components/ReadingStudio/Editor/ContentPanel.tsx[0m:[93m115[0m:[93m58[0m - [91merror[0m[90m TS2488: [0mType 'unknown' must have a '[Symbol.iterator]()' method that returns an iterator.
+
+[7m115[0m                                         const newQ = [...data.questions];
+[7m   [0m [91m                                                         ~~~~~~~~~~~~~~[0m
+
+[96msrc/components/ReadingStudio/Editor/ContentPanel.tsx[0m:[93m132[0m:[93m54[0m - [91merror[0m[90m TS2488: [0mType 'unknown' must have a '[Symbol.iterator]()' method that returns an iterator.
+
+[7m132[0m                                     const newQ = [...data.questions];
+[7m   [0m [91m                                                     ~~~~~~~~~~~~~~[0m
+
+[96msrc/components/ReadingStudio/Editor/ContentPanel.tsx[0m:[93m148[0m:[93m45[0m - [91merror[0m[90m TS2339: [0mProperty 'question' does not exist on type '{}'.
+
+[7m148[0m                         value={data.puzzle?.question || data.puzzle?.text || ''}
+[7m   [0m [91m                                            ~~~~~~~~[0m
+
+[96msrc/components/ReadingStudio/Editor/ContentPanel.tsx[0m:[93m148[0m:[93m70[0m - [91merror[0m[90m TS2339: [0mProperty 'text' does not exist on type '{}'.
+
+[7m148[0m                         value={data.puzzle?.question || data.puzzle?.text || ''}
+[7m   [0m [91m                                                                     ~~~~[0m
+
+[96msrc/components/ReadingStudio/Editor/ContentPanel.tsx[0m:[93m150[0m:[93m52[0m - [91merror[0m[90m TS2698: [0mSpread types may only be created from object types.
+
+[7m150[0m                             updateData({ puzzle: { ...data.puzzle, question: e.target.value, text: e.target.value } });
+[7m   [0m [91m                                                   ~~~~~~~~~~~~~~[0m
+
+[96msrc/components/ReadingStudio/Editor/ContentPanel.tsx[0m:[93m157[0m:[93m45[0m - [91merror[0m[90m TS2339: [0mProperty 'hint' does not exist on type '{}'.
+
+[7m157[0m                         value={data.puzzle?.hint || ''}
+[7m   [0m [91m                                            ~~~~[0m
+
+[96msrc/components/ReadingStudio/Editor/ContentPanel.tsx[0m:[93m159[0m:[93m52[0m - [91merror[0m[90m TS2698: [0mSpread types may only be created from object types.
+
+[7m159[0m                             updateData({ puzzle: { ...data.puzzle, hint: e.target.value } });
+[7m   [0m [91m                                                   ~~~~~~~~~~~~~~[0m
+
+[96msrc/components/ReadingStudio/Editor/StudentSelector.tsx[0m:[93m22[0m:[93m21[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'diagnosis' does not exist in type 'Partial<StudentProfile>'.
+
+[7m22[0m                     diagnosis: student.diagnosis,
+[7m  [0m [91m                    ~~~~~~~~~[0m
+
+  [96msrc/types/studio.ts[0m:[93m64[0m:[93m5[0m
+    [7m64[0m     studentProfile?: Partial<StudentProfile>;
+    [7m  [0m [96m    ~~~~~~~~~~~~~~[0m
+    The expected type comes from property 'studentProfile' which is declared here on type 'ReadingStudioConfig'
+
+[96msrc/components/SariKitapStudio/SariKitapStudio.tsx[0m:[93m52[0m:[93m17[0m - [91merror[0m[90m TS2353: [0mObject literal may only specify known properties, and 'studentName' does not exist in type 'Partial<SariKitapConfig>'.
+
+[7m52[0m                 studentName: activeStudent.name,
+[7m  [0m [91m                ~~~~~~~~~~~[0m
+
+[96msrc/components/Sidebar.tsx[0m:[93m425[0m:[93m38[0m - [91merror[0m[90m TS2345: [0mArgument of type '(group: { title: string; items: StudioItem[]; }, gIdx: number) => JSX.Element' is not assignable to parameter of type '(value: { items: { onClick: () => void; id: string; label: string; icon: string; color: string; actionType?: "event" | "callback" | undefined; eventName?: string | undefined; }[]; title: string; }, index: number, array: { ...; }[]) => Element'.
+  Types of parameters 'group' and 'value' are incompatible.
+    Type '{ items: { onClick: () => void; id: string; label: string; icon: string; color: string; actionType?: "callback" | "event"; eventName?: string; }[]; title: string; }' is not assignable to type '{ title: string; items: StudioItem[]; }'.
+      Types of property 'items' are incompatible.
+        Type '{ onClick: () => void; id: string; label: string; icon: string; color: string; actionType?: "event" | "callback" | undefined; eventName?: string | undefined; }[]' is not assignable to type 'StudioItem[]'.
+          Type '{ onClick: () => void; id: string; label: string; icon: string; color: string; actionType?: "callback" | "event"; eventName?: string; }' is not assignable to type 'StudioItem'.
+            Types of property 'actionType' are incompatible.
+              Type '"event" | "callback" | undefined' is not assignable to type '"event" | "callback"'.
+                Type 'undefined' is not assignable to type '"event" | "callback"'.
+
+[7m425[0m                     studioGroups.map((group: { title: string; items: StudioItem[] }, gIdx: number) => (
+[7m   [0m [91m                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m426[0m                       <div key={gIdx} className="space-y-0.5">
+[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m...[0m 
+[7m436[0m                       </div>
+[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[7m437[0m                     ))
+[7m   [0m [91m~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/components/SinavStudyosu/index.tsx[0m:[93m250[0m:[93m83[0m - [91merror[0m[90m TS2339: [0mProperty 'displayName' does not exist on type 'User'.
+
+[7m250[0m       await worksheetService.shareWorksheet(savedExamDocId, user?.id || '', user?.displayName || '', shareUserId.trim());
+[7m   [0m [91m                                                                                  ~~~~~~~~~~~[0m
+
+[96msrc/components/Student/AssignModal.tsx[0m:[93m24[0m:[93m15[0m - [91merror[0m[90m TS2339: [0mProperty 'uid' does not exist on type 'User'.
+
+[7m24[0m     if (user?.uid && isAssignModalOpen) {
+[7m  [0m [91m              ~~~[0m
+
+[96msrc/components/Student/AssignModal.tsx[0m:[93m26[0m:[93m46[0m - [91merror[0m[90m TS2339: [0mProperty 'uid' does not exist on type 'User'.
+
+[7m26[0m       const unsubscribe = fetchStudents(user.uid, isAdmin);
+[7m  [0m [91m                                             ~~~[0m
+
+[96msrc/components/Student/AssignModal.tsx[0m:[93m29[0m:[93m13[0m - [91merror[0m[90m TS2339: [0mProperty 'uid' does not exist on type 'User'.
+
+[7m29[0m   }, [user?.uid, fetchStudents, isAssignModalOpen]);
+[7m  [0m [91m            ~~~[0m
+
+[96msrc/components/Student/AssignModal.tsx[0m:[93m70[0m:[93m16[0m - [91merror[0m[90m TS2339: [0mProperty 'uid' does not exist on type 'User'.
+
+[7m70[0m     if (!user?.uid) return;
+[7m  [0m [91m               ~~~[0m
+
+[96msrc/components/Student/AssignModal.tsx[0m:[93m78[0m:[93m13[0m - [91merror[0m[90m TS2339: [0mProperty 'uid' does not exist on type 'User'.
+
+[7m78[0m     }, user.uid);
+[7m  [0m [91m            ~~~[0m
+
+[96msrc/components/Student/modules/AcademicPlanModule.tsx[0m:[93m154[0m:[93m19[0m - [91merror[0m[90m TS2345: [0mArgument of type '(prev: EnrichedCurriculum[]) => { schedule: (CurriculumDay | { focus: string; activities: { id: string; activityId: ActivityType; title: string; duration: number; status: string; goal: string; difficultyLevel: Difficulty; }[]; isCompleted: boolean; day: number; })[]; ... 17 more ...; bepGoals?: string[]; }[]' is not assignable to parameter of type 'SetStateAction<EnrichedCurriculum[]>'.
+  Type '(prev: EnrichedCurriculum[]) => { schedule: (CurriculumDay | { focus: string; activities: { id: string; activityId: ActivityType; title: string; duration: number; status: string; goal: string; difficultyLevel: Difficulty; }[]; isCompleted: boolean; day: number; })[]; ... 17 more ...; bepGoals?: string[]; }[]' is not assignable to type '(prevState: EnrichedCurriculum[]) => EnrichedCurriculum[]'.
+    Type '{ schedule: (CurriculumDay | { focus: string; activities: { id: string; activityId: ActivityType; title: string; duration: number; status: string; goal: string; difficultyLevel: Difficulty; }[]; isCompleted: boolean; day: number; })[]; ... 17 more ...; bepGoals?: string[] | undefined; }[]' is not assignable to type 'EnrichedCurriculum[]'.
+      Type '{ schedule: (CurriculumDay | { focus: string; activities: { id: string; activityId: ActivityType; title: string; duration: number; status: string; goal: string; difficultyLevel: Difficulty; }[]; isCompleted: boolean; day: number; })[]; ... 17 more ...; bepGoals?: string[]; }' is not assignable to type 'EnrichedCurriculum'.
+        Types of property 'schedule' are incompatible.
+          Type '(CurriculumDay | { focus: string; activities: { id: string; activityId: ActivityType; title: string; duration: number; status: string; goal: string; difficultyLevel: Difficulty; }[]; isCompleted: boolean; day: number; })[]' is not assignable to type 'CurriculumDay[]'.
+            Type 'CurriculumDay | { focus: string; activities: { id: string; activityId: ActivityType; title: string; duration: number; status: string; goal: string; difficultyLevel: Difficulty; }[]; isCompleted: boolean; day: number; }' is not assignable to type 'CurriculumDay'.
+              Type '{ focus: string; activities: { id: string; activityId: ActivityType; title: string; duration: number; status: string; goal: string; difficultyLevel: Difficulty; }[]; isCompleted: boolean; day: number; }' is not assignable to type 'CurriculumDay'.
+                Types of property 'activities' are incompatible.
+                  Type '{ id: string; activityId: ActivityType; title: string; duration: number; status: string; goal: string; difficultyLevel: Difficulty; }[]' is not assignable to type 'CurriculumActivity[]'.
+                    Type '{ id: string; activityId: ActivityType; title: string; duration: number; status: string; goal: string; difficultyLevel: Difficulty; }' is not assignable to type 'CurriculumActivity'.
+                      Types of property 'status' are incompatible.
+                        Type 'string' is not assignable to type 'CurriculumActivityStatus'.
+
+[7m154[0m     setLocalPlans((prev: EnrichedCurriculum[]) => prev.map((p: EnrichedCurriculum) => p.id === activePlan.id ? { ...p, schedule: updatedSchedule } : p));
+[7m   [0m [91m                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/components/Student/modules/AcademicPlanModule.tsx[0m:[93m158[0m:[93m65[0m - [91merror[0m[90m TS2322: [0mType '(CurriculumDay | { focus: string; activities: { id: string; activityId: ActivityType; title: string; duration: number; status: string; goal: string; difficultyLevel: Difficulty; }[]; isCompleted: boolean; day: number; })[]' is not assignable to type 'CurriculumDay[]'.
+  Type 'CurriculumDay | { focus: string; activities: { id: string; activityId: ActivityType; title: string; duration: number; status: string; goal: string; difficultyLevel: Difficulty; }[]; isCompleted: boolean; day: number; }' is not assignable to type 'CurriculumDay'.
+    Type '{ focus: string; activities: { id: string; activityId: ActivityType; title: string; duration: number; status: string; goal: string; difficultyLevel: Difficulty; }[]; isCompleted: boolean; day: number; }' is not assignable to type 'CurriculumDay'.
+      Types of property 'activities' are incompatible.
+        Type '{ id: string; activityId: ActivityType; title: string; duration: number; status: string; goal: string; difficultyLevel: Difficulty; }[]' is not assignable to type 'CurriculumActivity[]'.
+          Type '{ id: string; activityId: ActivityType; title: string; duration: number; status: string; goal: string; difficultyLevel: Difficulty; }' is not assignable to type 'CurriculumActivity'.
+            Types of property 'status' are incompatible.
+              Type 'string' is not assignable to type 'CurriculumActivityStatus'.
+
+[7m158[0m       await curriculumService.updateCurriculum(activePlan.id, { schedule: updatedSchedule });
+[7m   [0m [91m                                                                ~~~~~~~~[0m
+
+  [96msrc/types/core.ts[0m:[93m639[0m:[93m3[0m
+    [7m639[0m   schedule: CurriculumDay[];
+    [7m   [0m [96m  ~~~~~~~~[0m
+    The expected type comes from property 'schedule' which is declared here on type 'Partial<Curriculum>'
+
+[96msrc/components/Student/modules/AIInsightsModule.tsx[0m:[93m67[0m:[93m104[0m - [91merror[0m[90m TS2551: [0mProperty 'trend' does not exist on type 'string'. Did you mean 'trimEnd'?
+
+[7m67[0m                   <div key={idx} className={`flex items-center gap-2 px-4 py-2 border rounded-xl ${str.trend === 'up' ? 'bg-emerald-500/10 border-emerald-500/20' :
+[7m  [0m [91m                                                                                                       ~~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.es2019.string.d.ts[0m:[93m21[0m:[93m5[0m
+    [7m21[0m     trimEnd(): string;
+    [7m  [0m [96m    ~~~~~~~~~~~~~~~~~~[0m
+    'trimEnd' is declared here.
+
+[96msrc/components/Student/modules/AIInsightsModule.tsx[0m:[93m68[0m:[93m25[0m - [91merror[0m[90m TS2551: [0mProperty 'trend' does not exist on type 'string'. Did you mean 'trimEnd'?
+
+[7m68[0m                     str.trend === 'down' ? 'bg-rose-500/10 border-rose-500/20' :
+[7m  [0m [91m                        ~~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.es2019.string.d.ts[0m:[93m21[0m:[93m5[0m
+    [7m21[0m     trimEnd(): string;
+    [7m  [0m [96m    ~~~~~~~~~~~~~~~~~~[0m
+    'trimEnd' is declared here.
+
+[96msrc/components/Student/modules/AIInsightsModule.tsx[0m:[93m71[0m:[93m26[0m - [91merror[0m[90m TS2551: [0mProperty 'trend' does not exist on type 'string'. Did you mean 'trimEnd'?
+
+[7m71[0m                     {str.trend === 'up' && <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>}
+[7m  [0m [91m                         ~~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.es2019.string.d.ts[0m:[93m21[0m:[93m5[0m
+    [7m21[0m     trimEnd(): string;
+    [7m  [0m [96m    ~~~~~~~~~~~~~~~~~~[0m
+    'trimEnd' is declared here.
+
+[96msrc/components/Student/modules/AIInsightsModule.tsx[0m:[93m72[0m:[93m26[0m - [91merror[0m[90m TS2551: [0mProperty 'trend' does not exist on type 'string'. Did you mean 'trimEnd'?
+
+[7m72[0m                     {str.trend === 'stable' && <span className="w-2 h-2 rounded-full bg-amber-500"></span>}
+[7m  [0m [91m                         ~~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.es2019.string.d.ts[0m:[93m21[0m:[93m5[0m
+    [7m21[0m     trimEnd(): string;
+    [7m  [0m [96m    ~~~~~~~~~~~~~~~~~~[0m
+    'trimEnd' is declared here.
+
+[96msrc/components/Student/modules/AIInsightsModule.tsx[0m:[93m73[0m:[93m26[0m - [91merror[0m[90m TS2551: [0mProperty 'trend' does not exist on type 'string'. Did you mean 'trimEnd'?
+
+[7m73[0m                     {str.trend === 'down' && <span className="w-2 h-2 rounded-full bg-rose-500"></span>}
+[7m  [0m [91m                         ~~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.es2019.string.d.ts[0m:[93m21[0m:[93m5[0m
+    [7m21[0m     trimEnd(): string;
+    [7m  [0m [96m    ~~~~~~~~~~~~~~~~~~[0m
+    'trimEnd' is declared here.
+
+[96msrc/components/Student/modules/AIInsightsModule.tsx[0m:[93m74[0m:[93m78[0m - [91merror[0m[90m TS2551: [0mProperty 'trend' does not exist on type 'string'. Did you mean 'trimEnd'?
+
+[7m74[0m                     <span className={`text-[10px] font-black uppercase ${str.trend === 'up' ? 'text-emerald-400' :
+[7m  [0m [91m                                                                             ~~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.es2019.string.d.ts[0m:[93m21[0m:[93m5[0m
+    [7m21[0m     trimEnd(): string;
+    [7m  [0m [96m    ~~~~~~~~~~~~~~~~~~[0m
+    'trimEnd' is declared here.
+
+[96msrc/components/Student/modules/AIInsightsModule.tsx[0m:[93m75[0m:[93m27[0m - [91merror[0m[90m TS2551: [0mProperty 'trend' does not exist on type 'string'. Did you mean 'trimEnd'?
+
+[7m75[0m                       str.trend === 'down' ? 'text-rose-400' :
+[7m  [0m [91m                          ~~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.es2019.string.d.ts[0m:[93m21[0m:[93m5[0m
+    [7m21[0m     trimEnd(): string;
+    [7m  [0m [96m    ~~~~~~~~~~~~~~~~~~[0m
+    'trimEnd' is declared here.
+
+[96msrc/components/Student/modules/AIInsightsModule.tsx[0m:[93m77[0m:[93m32[0m - [91merror[0m[90m TS2339: [0mProperty 'label' does not exist on type 'string'.
+
+[7m77[0m                       }`}>{str.label}</span>
+[7m  [0m [91m                               ~~~~~[0m
+
+[96msrc/components/Student/modules/AIInsightsModule.tsx[0m:[93m89[0m:[93m67[0m - [91merror[0m[90m TS2339: [0mProperty 'skill' does not exist on type '{ subject: string; value: number; fullMark: number; }'.
+
+[7m89[0m             <RadarChart data={data.radarData.map(d => ({ label: d.skill, value: d.score }))} />
+[7m  [0m [91m                                                                  ~~~~~[0m
+
+[96msrc/components/Student/modules/AIInsightsModule.tsx[0m:[93m89[0m:[93m83[0m - [91merror[0m[90m TS2339: [0mProperty 'score' does not exist on type '{ subject: string; value: number; fullMark: number; }'.
+
+[7m89[0m             <RadarChart data={data.radarData.map(d => ({ label: d.skill, value: d.score }))} />
+[7m  [0m [91m                                                                                  ~~~~~[0m
+
+[96msrc/components/Student/modules/AIInsightsModule.tsx[0m:[93m96[0m:[93m15[0m - [91merror[0m[90m TS2339: [0mProperty 'strategies' does not exist on type 'CognitiveProfileResult'.
+
+[7m96[0m         {data.strategies.map((item, i) => (
+[7m  [0m [91m              ~~~~~~~~~~[0m
+
+[96msrc/components/Student/modules/AIInsightsModule.tsx[0m:[93m96[0m:[93m31[0m - [91merror[0m[90m TS7006: [0mParameter 'item' implicitly has an 'any' type.
+
+[7m96[0m         {data.strategies.map((item, i) => (
+[7m  [0m [91m                              ~~~~[0m
+
+[96msrc/components/Student/modules/AIInsightsModule.tsx[0m:[93m96[0m:[93m37[0m - [91merror[0m[90m TS7006: [0mParameter 'i' implicitly has an 'any' type.
+
+[7m96[0m         {data.strategies.map((item, i) => (
+[7m  [0m [91m                                    ~[0m
+
+[96msrc/components/Student/modules/AIInsightsModule.tsx[0m:[93m123[0m:[93m17[0m - [91merror[0m[90m TS2339: [0mProperty 'timeline' does not exist on type 'CognitiveProfileResult'.
+
+[7m123[0m           {data.timeline.map((step, i) => {
+[7m   [0m [91m                ~~~~~~~~[0m
+
+[96msrc/components/Student/modules/AIInsightsModule.tsx[0m:[93m123[0m:[93m31[0m - [91merror[0m[90m TS7006: [0mParameter 'step' implicitly has an 'any' type.
+
+[7m123[0m           {data.timeline.map((step, i) => {
+[7m   [0m [91m                              ~~~~[0m
+
+[96msrc/components/Student/modules/AIInsightsModule.tsx[0m:[93m123[0m:[93m37[0m - [91merror[0m[90m TS7006: [0mParameter 'i' implicitly has an 'any' type.
+
+[7m123[0m           {data.timeline.map((step, i) => {
+[7m   [0m [91m                                    ~[0m
+
+[96msrc/components/Student/modules/AssignmentsModule.tsx[0m:[93m320[0m:[93m5[0m - [91merror[0m[90m TS2322: [0mType 'UserRole' is not assignable to type '"admin" | "teacher" | "student" | "parent"'.
+  Type '"superadmin"' is not assignable to type '"admin" | "teacher" | "student" | "parent"'.
+
+[7m320[0m     userRole: user?.role || 'teacher',
+[7m   [0m [91m    ~~~~~~~~[0m
+
+  [96msrc/hooks/useWorksheets.ts[0m:[93m28[0m:[93m5[0m
+    [7m28[0m     userRole: 'admin' | 'teacher' | 'parent' | 'student';
+    [7m  [0m [96m    ~~~~~~~~[0m
+    The expected type comes from property 'userRole' which is declared here on type 'UseWorksheetsOptions'
+
+[96msrc/components/Student/modules/ClinicalNotesModule.tsx[0m:[93m32[0m:[93m44[0m - [91merror[0m[90m TS2304: [0mCannot find name 'QuerySnapshot'.
+
+[7m32[0m     const unsub = onSnapshot(q, (snapshot: QuerySnapshot<DocumentData>) => {
+[7m  [0m [91m                                           ~~~~~~~~~~~~~[0m
+
+[96msrc/components/Student/modules/ClinicalNotesModule.tsx[0m:[93m32[0m:[93m58[0m - [91merror[0m[90m TS2552: [0mCannot find name 'DocumentData'. Did you mean 'Document'?
+
+[7m32[0m     const unsub = onSnapshot(q, (snapshot: QuerySnapshot<DocumentData>) => {
+[7m  [0m [91m                                                         ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m10400[0m:[93m13[0m
+    [7m10400[0m declare var Document: {
+    [7m     [0m [96m            ~~~~~~~~[0m
+    'Document' is declared here.
+
+[96msrc/components/Student/modules/ClinicalNotesModule.tsx[0m:[93m33[0m:[93m61[0m - [91merror[0m[90m TS2304: [0mCannot find name 'QueryDocumentSnapshot'.
+
+[7m33[0m       const notes: ClinicalNote[] = snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => {
+[7m  [0m [91m                                                            ~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/components/Student/modules/ClinicalNotesModule.tsx[0m:[93m33[0m:[93m83[0m - [91merror[0m[90m TS2552: [0mCannot find name 'DocumentData'. Did you mean 'Document'?
+
+[7m33[0m       const notes: ClinicalNote[] = snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => {
+[7m  [0m [91m                                                                                  ~~~~~~~~~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m10400[0m:[93m13[0m
+    [7m10400[0m declare var Document: {
+    [7m     [0m [96m            ~~~~~~~~[0m
+    'Document' is declared here.
+
+[96msrc/components/Student/modules/ClinicalNotesModule.tsx[0m:[93m119[0m:[93m23[0m - [91merror[0m[90m TS2339: [0mProperty 'displayName' does not exist on type 'User'.
+
+[7m119[0m         author: user?.displayName || user?.email || 'Bilinmeyen',
+[7m   [0m [91m                      ~~~~~~~~~~~[0m
+
+[96msrc/components/Student/modules/ClinicalNotesModule.tsx[0m:[93m136[0m:[93m13[0m - [91merror[0m[90m TS2304: [0mCannot find name 'deleteDoc'.
+
+[7m136[0m       await deleteDoc(doc(db, 'clinical_notes', id));
+[7m   [0m [91m            ~~~~~~~~~[0m
+
+[96msrc/components/Student/modules/ClinicalNotesModule.tsx[0m:[93m136[0m:[93m23[0m - [91merror[0m[90m TS2304: [0mCannot find name 'doc'.
+
+[7m136[0m       await deleteDoc(doc(db, 'clinical_notes', id));
+[7m   [0m [91m                      ~~~[0m
+
+[96msrc/components/Student/modules/DashboardModule.tsx[0m:[93m129[0m:[93m34[0m - [91merror[0m[90m TS2339: [0mProperty 'pedagogicalRecommendations' does not exist on type 'StudentAIProfile'.
+
+[7m129[0m             "{student.aiProfile?.pedagogicalRecommendations?.[0] || 'Öğrencinin görsel işlemleme kapasitesini artırmak için materyallerde yüksek kontrastlı renkler ve Lexend fontu tercih ediniz.'}"
+[7m   [0m [91m                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/components/Student/StudentDashboard.tsx[0m:[93m580[0m:[93m21[0m - [91merror[0m[90m TS2740: [0mType 'Student' is missing the following properties from type 'AdvancedStudent': iep, financial, attendance, academic, and 3 more.
+
+[7m580[0m                     student={selectedStudent}
+[7m   [0m [91m                    ~~~~~~~[0m
+
+  [96msrc/components/Student/modules/DashboardModule.tsx[0m:[93m6[0m:[93m3[0m
+    [7m6[0m   student: AdvancedStudent;
+    [7m [0m [96m  ~~~~~~~[0m
+    The expected type comes from property 'student' which is declared here on type 'IntrinsicAttributes & DashboardModuleProps'
+
+[96msrc/components/Student/StudentSelector.tsx[0m:[93m10[0m:[93m21[0m - [91merror[0m[90m TS2339: [0mProperty '_activeStudent' does not exist on type 'StudentState'.
+
+[7m10[0m   const { students, _activeStudent, setActiveStudent, addStudent } = useStudentStore();
+[7m  [0m [91m                    ~~~~~~~~~~~~~~[0m
+
+[96msrc/components/SuperStudio/components/ActionToolbar.tsx[0m:[93m18[0m:[93m11[0m - [91merror[0m[90m TS2339: [0mProperty 'addToast' does not exist on type 'ToastState'.
+
+[7m18[0m   const { addToast } = useToastStore();
+[7m  [0m [91m          ~~~~~~~~[0m
+
+[96msrc/components/SuperStudio/index.tsx[0m:[93m28[0m:[93m11[0m - [91merror[0m[90m TS2339: [0mProperty 'addToast' does not exist on type 'ToastState'.
+
+[7m28[0m   const { addToast } = useToastStore();
+[7m  [0m [91m          ~~~~~~~~[0m
+
+[96msrc/components/VariationResultsView.tsx[0m:[93m35[0m:[93m11[0m - [91merror[0m[90m TS2339: [0mProperty '_addWorksheet' does not exist on type 'AppState'.
+
+[7m35[0m   const { _addWorksheet } = useAppStore();
+[7m  [0m [91m          ~~~~~~~~~~~~~[0m
+
+[96msrc/components/VariationResultsView.tsx[0m:[93m196[0m:[93m19[0m - [91merror[0m[90m TS2322: [0mType 'unknown' is not assignable to type 'ReactNode'.
+
+[7m196[0m                   {/* Preview */}
+[7m   [0m [91m                  ~~~~~~~~~~~~~~~[0m
+
+[96msrc/components/WordSentenceStudio/WordSentenceStudio.tsx[0m:[93m30[0m:[93m11[0m - [91merror[0m[90m TS2339: [0mProperty 'currentStudent' does not exist on type 'AppState'.
+
+[7m30[0m   const { currentStudent } = useAppStore();
+[7m  [0m [91m          ~~~~~~~~~~~~~~[0m
+
+[96msrc/services/adVideoGenerator.ts[0m:[93m419[0m:[93m21[0m - [91merror[0m[90m TS2345: [0mArgument of type 'CanvasRenderingContext2D | null' is not assignable to parameter of type 'CanvasRenderingContext2D'.
+  Type 'null' is not assignable to type 'CanvasRenderingContext2D'.
+
+[7m419[0m         renderFrame(ctx, width, height, scene, img, prevImg, t, sceneIdx, progress);
+[7m   [0m [91m                    ~~~[0m
+
+[96msrc/services/aiStudentService.ts[0m:[93m10[0m:[93m5[0m - [91merror[0m[90m TS2305: [0mModule '"../types"' has no exported member 'ApiResponse'.
+
+[7m10[0m     ApiResponse
+[7m  [0m [91m    ~~~~~~~~~~~[0m
+
+[96msrc/services/aiStudentService.ts[0m:[93m43[0m:[93m54[0m - [91merror[0m[90m TS2345: [0mArgument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+
+[7m43[0m             logError("getFullStudentProfile error:", error);
+[7m  [0m [91m                                                     ~~~~~[0m
+
+[96msrc/services/aiStudentService.ts[0m:[93m143[0m:[93m57[0m - [91merror[0m[90m TS2345: [0mArgument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+
+[7m143[0m             logError("generateCognitiveInsight error:", error);
+[7m   [0m [91m                                                        ~~~~~[0m
+
+[96msrc/services/assessmentService.ts[0m:[93m112[0m:[93m129[0m - [91merror[0m[90m TS2552: [0mCannot find name 'SharePermission'. Did you mean 'Permissions'?
+
+[7m112[0m     shareAssessment: async (assessment: SavedAssessment, senderId: string, senderName: string, receiverId: string, permission?: SharePermission, message?: string): Promise<void> => {
+[7m   [0m [91m                                                                                                                                ~~~~~~~~~~~~~~~[0m
+
+  [96mnode_modules/typescript/lib/lib.dom.d.ts[0m:[93m23896[0m:[93m13[0m
+    [7m23896[0m declare var Permissions: {
+    [7m     [0m [96m            ~~~~~~~~~~~[0m
+    'Permissions' is declared here.
+
+[96msrc/services/assignmentService.ts[0m:[93m29[0m:[93m5[0m - [91merror[0m[90m TS2345: [0mArgument of type '(payload: CreateAssignmentPayload, assignedBy: string) => Promise<ActivityAssignment[]>' is not assignable to parameter of type '(...args: unknown[]) => Promise<unknown>'.
+  Types of parameters 'payload' and 'args' are incompatible.
+    Type 'unknown' is not assignable to type 'CreateAssignmentPayload'.
+
+[7m29[0m     async (payload: CreateAssignmentPayload, assignedBy: string): Promise<ActivityAssignment[]> => {
+[7m  [0m [91m    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/services/assignmentService.ts[0m:[93m75[0m:[93m5[0m - [91merror[0m[90m TS2345: [0mArgument of type '(teacherId: string) => Promise<ActivityAssignment[]>' is not assignable to parameter of type '(...args: unknown[]) => Promise<unknown>'.
+  Types of parameters 'teacherId' and 'args' are incompatible.
+    Type 'unknown' is not assignable to type 'string'.
+
+[7m75[0m     async (teacherId: string): Promise<ActivityAssignment[]> => {
+[7m  [0m [91m    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/services/assignmentService.ts[0m:[93m95[0m:[93m5[0m - [91merror[0m[90m TS2345: [0mArgument of type '(studentId: string) => Promise<ActivityAssignment[]>' is not assignable to parameter of type '(...args: unknown[]) => Promise<unknown>'.
+  Types of parameters 'studentId' and 'args' are incompatible.
+    Type 'unknown' is not assignable to type 'string'.
+
+[7m95[0m     async (studentId: string): Promise<ActivityAssignment[]> => {
+[7m  [0m [91m    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/services/assignmentService.ts[0m:[93m115[0m:[93m5[0m - [91merror[0m[90m TS2345: [0mArgument of type '(assignmentId: string, payload: AssignmentUpdatePayload) => Promise<void>' is not assignable to parameter of type '(...args: unknown[]) => Promise<unknown>'.
+  Types of parameters 'assignmentId' and 'args' are incompatible.
+    Type 'unknown' is not assignable to type 'string'.
+
+[7m115[0m     async (assignmentId: string, payload: AssignmentUpdatePayload): Promise<void> => {
+[7m   [0m [91m    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/services/curriculumService.ts[0m:[93m114[0m:[93m13[0m - [91merror[0m[90m TS2322: [0mType '{ isCompleted: boolean; activities: { id: string; status: CurriculumActivityStatus; }[]; }[]' is not assignable to type 'CurriculumDay[]'.
+  Type '{ isCompleted: boolean; activities: { id: string; status: CurriculumActivityStatus; }[]; }' is missing the following properties from type 'CurriculumDay': day, focus
+
+[7m114[0m             schedule: schedule,
+[7m   [0m [91m            ~~~~~~~~[0m
+
+  [96msrc/types/core.ts[0m:[93m639[0m:[93m3[0m
+    [7m639[0m   schedule: CurriculumDay[];
+    [7m   [0m [96m  ~~~~~~~~[0m
+    The expected type comes from property 'schedule' which is declared here on type 'Curriculum'
+
+[96msrc/services/emailService.ts[0m:[93m50[0m:[93m59[0m - [91merror[0m[90m TS2345: [0mArgument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+
+[7m50[0m       logError('Error sending/recording approval email:', error);
+[7m  [0m [91m                                                          ~~~~~[0m
+
+[96msrc/services/generators/dyscalculia.ts[0m:[93m60[0m:[93m5[0m - [91merror[0m[90m TS2322: [0mType '{ settings: { gridCols: number; cardCount: number | undefined; difficulty: string; variant: string | undefined; showNumbers: boolean | undefined; }; }[]' is not assignable to type 'MathMemoryCardsData[]'.
+  Type '{ settings: { gridCols: number; cardCount: number | undefined; difficulty: string; variant: string | undefined; showNumbers: boolean | undefined; }; }' is missing the following properties from type 'MathMemoryCardsData': cards, title, instruction
+
+[7m60[0m     return result.map((p: Record<string, unknown>) => ({
+[7m  [0m [91m    ~~~~~~[0m
+
+[96msrc/services/generators/offline/magicPyramid.ts[0m:[93m14[0m:[93m25[0m - [91merror[0m[90m TS18048: [0m'worksheetCount' is possibly 'undefined'.
+
+[7m14[0m     for (let c = 0; c < worksheetCount; c++) {
+[7m  [0m [91m                        ~~~~~~~~~~~~~~[0m
+
+[96msrc/services/generators/offline/oddEvenSudoku.ts[0m:[93m51[0m:[93m25[0m - [91merror[0m[90m TS18048: [0m'worksheetCount' is possibly 'undefined'.
+
+[7m51[0m     for (let c = 0; c < worksheetCount; c++) {
+[7m  [0m [91m                        ~~~~~~~~~~~~~~[0m
+
+[96msrc/services/generators/perceptualSkills.ts[0m:[93m71[0m:[93m42[0m - [91merror[0m[90m TS2339: [0mProperty 'diagnosis' does not exist on type '{}'.
+
+[7m71[0m     - Öğrenci Profili: ${studentContext?.diagnosis?.join(', ') || 'Genel Gelişim'}.
+[7m  [0m [91m                                         ~~~~~~~~~[0m
+
+[96msrc/services/generators/premiumCompositeGenerator.ts[0m:[93m17[0m:[93m19[0m - [91merror[0m[90m TS18046: [0m'widgets' is of type 'unknown'.
+
+[7m17[0m     if (!topic || widgets.length === 0) {
+[7m  [0m [91m                  ~~~~~~~[0m
+
+[96msrc/services/generators/premiumCompositeGenerator.ts[0m:[93m21[0m:[93m27[0m - [91merror[0m[90m TS18046: [0m'widgets' is of type 'unknown'.
+
+[7m21[0m     const widgetListStr = widgets.map((w, i) => `${i + 1}. Bileşen: ${w.activityId}`).join('\n');
+[7m  [0m [91m                          ~~~~~~~[0m
+
+[96msrc/services/generators/premiumCompositeGenerator.ts[0m:[93m21[0m:[93m40[0m - [91merror[0m[90m TS7006: [0mParameter 'w' implicitly has an 'any' type.
+
+[7m21[0m     const widgetListStr = widgets.map((w, i) => `${i + 1}. Bileşen: ${w.activityId}`).join('\n');
+[7m  [0m [91m                                       ~[0m
+
+[96msrc/services/generators/premiumCompositeGenerator.ts[0m:[93m21[0m:[93m43[0m - [91merror[0m[90m TS7006: [0mParameter 'i' implicitly has an 'any' type.
+
+[7m21[0m     const widgetListStr = widgets.map((w, i) => `${i + 1}. Bileşen: ${w.activityId}`).join('\n');
+[7m  [0m [91m                                          ~[0m
+
+[96msrc/services/generators/premiumCompositeGenerator.ts[0m:[93m62[0m:[93m53[0m - [91merror[0m[90m TS18046: [0m'widgets' is of type 'unknown'.
+
+[7m62[0m     const USER_PROMPT = `Bana belirtilen bağlamda ${widgets.length} bileşenli, '${topic}' konulu bir Master JSON üret.`;
+[7m  [0m [91m                                                    ~~~~~~~[0m
+
+[96msrc/services/generators/premiumCompositeGenerator.ts[0m:[93m112[0m:[93m26[0m - [91merror[0m[90m TS2322: [0mType '{}' is not assignable to type 'string'.
+
+[7m112[0m             response = { title: topic, topic: topic, difficultyLevel: difficulty, targetSkills: [], ageGroup: studentAge, widgets: response };
+[7m   [0m [91m                         ~~~~~[0m
+
+  [96msrc/services/geminiClient.ts[0m:[93m10[0m:[93m3[0m
+    [7m10[0m   title?: string;
+    [7m  [0m [96m  ~~~~~[0m
+    The expected type comes from property 'title' which is declared here on type 'CreativeMultimodalResult'
+
+[96msrc/services/generators/premiumCompositeGenerator.ts[0m:[93m114[0m:[93m13[0m - [91merror[0m[90m TS2322: [0mType '{}' is not assignable to type 'CreativeMultimodalResult'.
+  Index signature for type 'string' is missing in type '{}'.
+
+[7m114[0m             response = response.premiumCompositeWorksheet;
+[7m   [0m [91m            ~~~~~~~~[0m
+
+[96msrc/services/generators/premiumCompositeGenerator.ts[0m:[93m116[0m:[93m13[0m - [91merror[0m[90m TS2322: [0mType '{}' is not assignable to type 'CreativeMultimodalResult'.
+  Index signature for type 'string' is missing in type '{}'.
+
+[7m116[0m             response = response.worksheet;
+[7m   [0m [91m            ~~~~~~~~[0m
+
+[96msrc/services/generators/premiumCompositeGenerator.ts[0m:[93m118[0m:[93m13[0m - [91merror[0m[90m TS2322: [0mType '{}' is not assignable to type 'CreativeMultimodalResult'.
+  Index signature for type 'string' is missing in type '{}'.
+
+[7m118[0m             response = response.data;
+[7m   [0m [91m            ~~~~~~~~[0m
+
+[96msrc/services/generators/premiumCompositeGenerator.ts[0m:[93m136[0m:[93m17[0m - [91merror[0m[90m TS18046: [0m'widgets' is of type 'unknown'.
+
+[7m136[0m             if (widgets[index]) {
+[7m   [0m [91m                ~~~~~~~[0m
+
+[96msrc/services/generators/premiumCompositeGenerator.ts[0m:[93m137[0m:[93m24[0m - [91merror[0m[90m TS18046: [0m'widgets' is of type 'unknown'.
+
+[7m137[0m                 w.id = widgets[index].id;
+[7m   [0m [91m                       ~~~~~~~[0m
+
+[96msrc/services/generators/premiumCompositeGenerator.ts[0m:[93m138[0m:[93m32[0m - [91merror[0m[90m TS18046: [0m'widgets' is of type 'unknown'.
+
+[7m138[0m                 w.activityId = widgets[index].activityId;
+[7m   [0m [91m                               ~~~~~~~[0m
+
+[96msrc/services/generators/readingComprehension.ts[0m:[93m86[0m:[93m53[0m - [91merror[0m[90m TS2345: [0mArgument of type 'unknown' is not assignable to parameter of type 'number'.
+
+[7m86[0m     ADET: ${itemCount} çift kelime ve ${Math.min(4, itemCount)} adet bağlamsal cümle.
+[7m  [0m [91m                                                    ~~~~~~~~~[0m
+
+[96msrc/services/generators/readingComprehension.ts[0m:[93m154[0m:[93m42[0m - [91merror[0m[90m TS2538: [0mType '{}' cannot be used as an index type.
+
+[7m154[0m     const selectedWordType = wordTypeMap[variant || 'colors'];
+[7m   [0m [91m                                         ~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/services/generators/readingStudio.ts[0m:[93m28[0m:[93m49[0m - [91merror[0m[90m TS2339: [0mProperty 'diagnosis' does not exist on type 'Partial<StudentProfile>'.
+
+[7m28[0m     const diagnosisStr = config.studentProfile?.diagnosis?.join(', ') || 'Özel Öğrenme Güçlüğü (Genel)';
+[7m  [0m [91m                                                ~~~~~~~~~[0m
+
+[96msrc/services/generators/readingStudio.ts[0m:[93m29[0m:[93m49[0m - [91merror[0m[90m TS2339: [0mProperty 'interests' does not exist on type 'Partial<StudentProfile>'.
+
+[7m29[0m     const interestsStr = config.studentProfile?.interests?.join(', ') || 'Macera, Bilim, Doğa';
+[7m  [0m [91m                                                ~~~~~~~~~[0m
+
+[96msrc/services/generators/sariKitap/engine.ts[0m:[93m73[0m:[93m14[0m - [91merror[0m[90m TS2367: [0mThis comparison appears to be unintentional because the types '"cift_metin" | "hizli_okuma" | "bellek"' and '"nokta"' have no overlap.
+
+[7m73[0m             (config.type === 'nokta' && config.dotPlacement === 'kelime') ||
+[7m  [0m [91m             ~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/services/generators/sariKitap/engine.ts[0m:[93m73[0m:[93m48[0m - [91merror[0m[90m TS2339: [0mProperty 'dotPlacement' does not exist on type 'never'.
+
+[7m73[0m             (config.type === 'nokta' && config.dotPlacement === 'kelime') ||
+[7m  [0m [91m                                               ~~~~~~~~~~~~[0m
+
+[96msrc/services/generators/sariKitap/engine.ts[0m:[93m74[0m:[93m14[0m - [91merror[0m[90m TS2367: [0mThis comparison appears to be unintentional because the types '"cift_metin" | "hizli_okuma" | "bellek"' and '"kopru"' have no overlap.
+
+[7m74[0m             (config.type === 'kopru' && config.bridgePlacement === 'kelime')
+[7m  [0m [91m             ~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/services/generators/sariKitap/engine.ts[0m:[93m74[0m:[93m48[0m - [91merror[0m[90m TS2339: [0mProperty 'bridgePlacement' does not exist on type 'never'.
+
+[7m74[0m             (config.type === 'kopru' && config.bridgePlacement === 'kelime')
+[7m  [0m [91m                                               ~~~~~~~~~~~~~~~[0m
+
+[96msrc/services/generators/wordGames.ts[0m:[93m68[0m:[93m5[0m - [91merror[0m[90m TS2322: [0mType '{ settings: { gridSize: number; itemCount: number; cellStyle: string; letterCase: "upper" | "lower"; }; }[]' is not assignable to type 'HiddenPasswordGridData[]'.
+  Type '{ settings: { gridSize: number; itemCount: number; cellStyle: string; letterCase: "upper" | "lower"; }; }' is missing the following properties from type 'HiddenPasswordGridData': grids, title, instruction
+
+[7m68[0m     return result.map((page: Record<string, unknown>) => ({
+[7m  [0m [91m    ~~~~~~[0m
+
+[96msrc/services/generators/wordSentenceStudio.ts[0m:[93m13[0m:[93m11[0m - [91merror[0m[90m TS2430: [0mInterface 'GenerationConfig' incorrectly extends interface 'Partial<GeneratorOptions>'.
+  Types of property 'gradeLevel' are incompatible.
+    Type 'number' is not assignable to type '2 | 1 | 3 | 4 | 5 | 6 | 7 | 8 | undefined'.
+
+[7m13[0m interface GenerationConfig extends Partial<GeneratorOptions> {
+[7m  [0m [91m          ~~~~~~~~~~~~~~~~[0m
+
+[96msrc/services/generators/wordSentenceStudio.ts[0m:[93m69[0m:[93m3[0m - [91merror[0m[90m TS2741: [0mProperty 'instruction' is missing in type '{ type: "fill_blanks"; settings: { compactLayout: boolean; fontSize: string; lineHeight: string; showVisualHints: boolean; studentName?: string; topic: string; difficulty: "\u00E7ok kolay" | "kolay" | "orta" | "zor" | "uzman"; ... 205 more ...; theme?: string | undefined; }; ... 10 more ...; refinedPrompt?: string; }' but required in type 'FillBlanksData'.
+
+[7m69[0m   return {
+[7m  [0m [91m  ~~~~~~[0m
+
+  [96msrc/types/common.ts[0m:[93m45[0m:[93m5[0m
+    [7m45[0m     instruction: string;
+    [7m  [0m [96m    ~~~~~~~~~~~[0m
+    'instruction' is declared here.
+
+[96msrc/services/generators/wordSentenceStudio.ts[0m:[93m123[0m:[93m3[0m - [91merror[0m[90m TS2741: [0mProperty 'instruction' is missing in type '{ type: "multiple_choice_verbal"; settings: { compactLayout: boolean; fontSize: string; lineHeight: string; showVisualHints: boolean; studentName?: string; topic: string; difficulty: "\u00E7ok kolay" | "kolay" | "orta" | "zor" | "uzman"; ... 205 more ...; theme?: string | undefined; }; ... 10 more ...; refinedPrompt...' but required in type 'MultipleChoiceVerbalData'.
+
+[7m123[0m   return {
+[7m   [0m [91m  ~~~~~~[0m
+
+  [96msrc/types/common.ts[0m:[93m45[0m:[93m5[0m
+    [7m45[0m     instruction: string;
+    [7m  [0m [96m    ~~~~~~~~~~~[0m
+    'instruction' is declared here.
+
+[96msrc/services/generators/wordSentenceStudio.ts[0m:[93m165[0m:[93m3[0m - [91merror[0m[90m TS2741: [0mProperty 'instruction' is missing in type '{ type: "word_completion"; settings: { compactLayout: boolean; fontSize: string; lineHeight: string; showVisualHints: boolean; studentName?: string; topic: string; difficulty: "\u00E7ok kolay" | "kolay" | "orta" | "zor" | "uzman"; ... 205 more ...; theme?: string | undefined; }; ... 10 more ...; refinedPrompt?: stri...' but required in type 'WordCompletionData'.
+
+[7m165[0m   return {
+[7m   [0m [91m  ~~~~~~[0m
+
+  [96msrc/types/common.ts[0m:[93m45[0m:[93m5[0m
+    [7m45[0m     instruction: string;
+    [7m  [0m [96m    ~~~~~~~~~~~[0m
+    'instruction' is declared here.
+
+[96msrc/services/generators/wordSentenceStudio.ts[0m:[93m206[0m:[93m3[0m - [91merror[0m[90m TS2741: [0mProperty 'instruction' is missing in type '{ type: "mixed_sentence"; settings: { compactLayout: boolean; fontSize: string; lineHeight: string; showVisualHints: boolean; studentName?: string; topic: string; difficulty: "\u00E7ok kolay" | "kolay" | "orta" | "zor" | "uzman"; ... 205 more ...; theme?: string | undefined; }; ... 10 more ...; refinedPrompt?: strin...' but required in type 'MixedSentenceData'.
+
+[7m206[0m   return {
+[7m   [0m [91m  ~~~~~~[0m
+
+  [96msrc/types/common.ts[0m:[93m45[0m:[93m5[0m
+    [7m45[0m     instruction: string;
+    [7m  [0m [96m    ~~~~~~~~~~~[0m
+    'instruction' is declared here.
+
+[96msrc/services/generators/wordSentenceStudio.ts[0m:[93m248[0m:[93m3[0m - [91merror[0m[90m TS2741: [0mProperty 'instruction' is missing in type '{ type: "antonym"; settings: { compactLayout: boolean; fontSize: string; lineHeight: string; showVisualHints: boolean; columnLayout: number; studentName?: string; topic: string; difficulty: "\u00E7ok kolay" | "kolay" | "orta" | "zor" | "uzman"; ... 204 more ...; theme?: string | undefined; }; ... 10 more ...; refine...' but required in type 'AntonymData'.
+
+[7m248[0m   return {
+[7m   [0m [91m  ~~~~~~[0m
+
+  [96msrc/types/common.ts[0m:[93m45[0m:[93m5[0m
+    [7m45[0m     instruction: string;
+    [7m  [0m [96m    ~~~~~~~~~~~[0m
+    'instruction' is declared here.
+
+[96msrc/services/messaging/fileSharingService.ts[0m:[93m45[0m:[93m5[0m - [91merror[0m[90m TS2322: [0mType '"document"' is not assignable to type 'AttachmentType'.
+
+[7m45[0m   ) return "document";
+[7m  [0m [91m    ~~~~~~[0m
+
+[96msrc/services/messaging/fileSharingService.ts[0m:[93m46[0m:[93m3[0m - [91merror[0m[90m TS2322: [0mType '"other"' is not assignable to type 'AttachmentType'.
+
+[7m46[0m   return "other";
+[7m  [0m [91m  ~~~~~~[0m
+
+[96msrc/services/messaging/fileSharingService.ts[0m:[93m64[0m:[93m32[0m - [91merror[0m[90m TS2345: [0mArgument of type 'string' is not assignable to parameter of type 'VirusScanStatus | PromiseLike<VirusScanStatus>'.
+  Type 'string' is not assignable to type 'VirusScanStatus | PromiseLike<VirusScanStatus>'.
+
+[7m64[0m       setTimeout(() => resolve(Math.random() > 0.05 ? "clean" : "infected"), 800);
+[7m  [0m [91m                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/services/messaging/fileSharingService.ts[0m:[93m83[0m:[93m9[0m - [91merror[0m[90m TS2367: [0mThis comparison appears to be unintentional because the types 'VirusScanStatus' and 'string' have no overlap.
+
+[7m83[0m     if (scanResult === "infected") {
+[7m  [0m [91m        ~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/services/messaging/fileSharingService.ts[0m:[93m106[0m:[93m13[0m - [91merror[0m[90m TS2322: [0mType 'string' is not assignable to type 'VirusScanStatus'.
+
+[7m106[0m             virusScanStatus: "clean",
+[7m   [0m [91m            ~~~~~~~~~~~~~~~[0m
+
+  [96msrc/types/messaging.ts[0m:[93m13[0m:[93m5[0m
+    [7m13[0m     virusScanStatus?: VirusScanStatus;
+    [7m  [0m [96m    ~~~~~~~~~~~~~~~[0m
+    The expected type comes from property 'virusScanStatus' which is declared here on type 'Omit<Attachment, "id"> & { _fallback?: boolean | undefined; _base64?: string | undefined; }'
+
+[96msrc/services/messaging/fileSharingService.ts[0m:[93m123[0m:[93m9[0m - [91merror[0m[90m TS2322: [0mType 'string' is not assignable to type 'VirusScanStatus'.
+
+[7m123[0m         virusScanStatus: "clean",
+[7m   [0m [91m        ~~~~~~~~~~~~~~~[0m
+
+  [96msrc/types/messaging.ts[0m:[93m13[0m:[93m5[0m
+    [7m13[0m     virusScanStatus?: VirusScanStatus;
+    [7m  [0m [96m    ~~~~~~~~~~~~~~~[0m
+    The expected type comes from property 'virusScanStatus' which is declared here on type 'Omit<Attachment, "id"> & { _fallback?: boolean | undefined; _base64?: string | undefined; }'
+
+[96msrc/services/messaging/fileSharingService.ts[0m:[93m182[0m:[93m15[0m - [91merror[0m[90m TS2322: [0mType 'string' is not assignable to type 'VirusScanStatus'.
+
+[7m182[0m               virusScanStatus: "clean",
+[7m   [0m [91m              ~~~~~~~~~~~~~~~[0m
+
+[96msrc/services/messaging/fileSharingService.ts[0m:[93m211[0m:[93m11[0m - [91merror[0m[90m TS18048: [0m'attachment.url' is possibly 'undefined'.
+
+[7m211[0m       if (attachment.url.startsWith("blob:") || attachment.url.startsWith("data:")) return;
+[7m   [0m [91m          ~~~~~~~~~~~~~~[0m
+
+[96msrc/services/messaging/fileSharingService.ts[0m:[93m211[0m:[93m49[0m - [91merror[0m[90m TS18048: [0m'attachment.url' is possibly 'undefined'.
+
+[7m211[0m       if (attachment.url.startsWith("blob:") || attachment.url.startsWith("data:")) return;
+[7m   [0m [91m                                                ~~~~~~~~~~~~~~[0m
+
+[96msrc/services/messaging/messageService.ts[0m:[93m52[0m:[93m25[0m - [91merror[0m[90m TS18046: [0m'conversationData.participants' is of type 'unknown'.
+
+[7m52[0m         participantIds: conversationData.participants.map(p => p.userId),
+[7m  [0m [91m                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/services/messaging/messageService.ts[0m:[93m52[0m:[93m59[0m - [91merror[0m[90m TS7006: [0mParameter 'p' implicitly has an 'any' type.
+
+[7m52[0m         participantIds: conversationData.participants.map(p => p.userId),
+[7m  [0m [91m                                                          ~[0m
+
+[96msrc/services/messaging/messageService.ts[0m:[93m53[0m:[93m9[0m - [91merror[0m[90m TS2322: [0mType 'Timestamp' is not assignable to type 'string'.
+
+[7m53[0m         createdAt: Timestamp.now(),
+[7m  [0m [91m        ~~~~~~~~~[0m
+
+  [96msrc/types/messaging.ts[0m:[93m71[0m:[93m3[0m
+    [7m71[0m   createdAt: string;
+    [7m  [0m [96m  ~~~~~~~~~[0m
+    The expected type comes from property 'createdAt' which is declared here on type 'IConversation'
+
+[96msrc/services/messaging/messageService.ts[0m:[93m54[0m:[93m9[0m - [91merror[0m[90m TS2322: [0mType 'Timestamp' is not assignable to type 'string'.
+
+[7m54[0m         updatedAt: Timestamp.now()
+[7m  [0m [91m        ~~~~~~~~~[0m
+
+  [96msrc/types/messaging.ts[0m:[93m72[0m:[93m3[0m
+    [7m72[0m   updatedAt: string;
+    [7m  [0m [96m  ~~~~~~~~~[0m
+    The expected type comes from property 'updatedAt' which is declared here on type 'IConversation'
+
+[96msrc/services/offlineGenerators/clockReading.ts[0m:[93m44[0m:[93m25[0m - [91merror[0m[90m TS18048: [0m'worksheetCount' is possibly 'undefined'.
+
+[7m44[0m     for (let p = 0; p < worksheetCount; p++) {
+[7m  [0m [91m                        ~~~~~~~~~~~~~~[0m
+
+[96msrc/services/offlineGenerators/dyscalculia.ts[0m:[93m80[0m:[93m44[0m - [91merror[0m[90m TS2322: [0mType 'unknown' is not assignable to type 'string'.
+
+[7m80[0m             settings: { showNumbers: true, difficulty },
+[7m  [0m [91m                                           ~~~~~~~~~~[0m
+
+[96msrc/services/offlineGenerators/financialMath.ts[0m:[93m17[0m:[93m25[0m - [91merror[0m[90m TS18048: [0m'worksheetCount' is possibly 'undefined'.
+
+[7m17[0m     for (let p = 0; p < worksheetCount; p++) {
+[7m  [0m [91m                        ~~~~~~~~~~~~~~[0m
+
+[96msrc/services/offlineGenerators/mapDetective.ts[0m:[93m123[0m:[93m25[0m - [91merror[0m[90m TS18048: [0m'worksheetCount' is possibly 'undefined'.
+
+[7m123[0m     for (let p = 0; p < worksheetCount; p++) {
+[7m   [0m [91m                        ~~~~~~~~~~~~~~[0m
+
+[96msrc/services/offlineGenerators/mathLogic.ts[0m:[93m18[0m:[93m25[0m - [91merror[0m[90m TS18046: [0m'worksheetCount' is of type 'unknown'.
+
+[7m18[0m     for (let p = 0; p < worksheetCount; p++) {
+[7m  [0m [91m                        ~~~~~~~~~~~~~~[0m
+
+[96msrc/services/offlineGenerators/mathLogic.ts[0m:[93m20[0m:[93m29[0m - [91merror[0m[90m TS18046: [0m'itemCount' is of type 'unknown'.
+
+[7m20[0m         for (let i = 0; i < itemCount; i++) {
+[7m  [0m [91m                            ~~~~~~~~~[0m
+
+[96msrc/services/offlineGenerators/mathLogic.ts[0m:[93m80[0m:[93m25[0m - [91merror[0m[90m TS18046: [0m'worksheetCount' is of type 'unknown'.
+
+[7m80[0m     for (let p = 0; p < worksheetCount; p++) {
+[7m  [0m [91m                        ~~~~~~~~~~~~~~[0m
+
+[96msrc/services/offlineGenerators/mathLogic.ts[0m:[93m84[0m:[93m29[0m - [91merror[0m[90m TS18046: [0m'itemCount' is of type 'unknown'.
+
+[7m84[0m         for (let i = 0; i < itemCount; i++) {
+[7m  [0m [91m                            ~~~~~~~~~[0m
+
+[96msrc/services/offlineGenerators/mathLogic.ts[0m:[93m103[0m:[93m58[0m - [91merror[0m[90m TS2345: [0mArgument of type 'unknown' is not assignable to parameter of type 'number | undefined'.
+
+[7m103[0m             const selectedHints = shuffle(pool).slice(0, gridSize);
+[7m   [0m [91m                                                         ~~~~~~~~[0m
+
+[96msrc/services/offlineGenerators/mathLogic.ts[0m:[93m104[0m:[93m42[0m - [91merror[0m[90m TS18046: [0m'gridSize' is of type 'unknown'.
+
+[7m104[0m             while(selectedHints.length < gridSize) {
+[7m   [0m [91m                                         ~~~~~~~~[0m
+
+[96msrc/services/offlineGenerators/mathLogic.ts[0m:[93m141[0m:[93m25[0m - [91merror[0m[90m TS18046: [0m'worksheetCount' is of type 'unknown'.
+
+[7m141[0m     for (let p = 0; p < worksheetCount; p++) {
+[7m   [0m [91m                        ~~~~~~~~~~~~~~[0m
+
+[96msrc/services/offlineGenerators/mathLogic.ts[0m:[93m148[0m:[93m37[0m - [91merror[0m[90m TS2769: [0mNo overload matches this call.
+  Overload 1 of 4, '(iterable: ArrayLike<unknown> | Iterable<unknown>, mapfn: (v: unknown, k: number) => { startNumber: number; steps: ({ symbol: string; expectedValue: number; fallbackOperation: string; } | { ...; })[]; }, thisArg?: any): { ...; }[]', gave the following error.
+    Type 'unknown' is not assignable to type 'number'.
+  Overload 2 of 4, '(arrayLike: ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { startNumber: number; steps: ({ symbol: string; expectedValue: number; fallbackOperation: string; } | { symbol: string; expectedValue: number; fallbackOperation?: undefined; })[]; }, thisArg?: any): { ...; }[]', gave the following error.
+    Type 'unknown' is not assignable to type 'number'.
+
+[7m148[0m         const chains = Array.from({ length: itemCount }, () => {
+[7m   [0m [91m                                    ~~~~~~[0m
+
+
+[96msrc/services/offlineGenerators/memoryAttention.ts[0m:[93m11[0m:[93m54[0m - [91merror[0m[90m TS2362: [0mThe left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+
+[7m11[0m         const memorizeCount = Math.max(4, Math.floor(count * 0.6));
+[7m  [0m [91m                                                     ~~~~~[0m
+
+[96msrc/services/offlineGenerators/memoryAttention.ts[0m:[93m13[0m:[93m42[0m - [91merror[0m[90m TS2345: [0mArgument of type 'unknown' is not assignable to parameter of type 'string'.
+
+[7m13[0m         let pool = getWordsForDifficulty(difficulty, topic || 'Rastgele');
+[7m  [0m [91m                                         ~~~~~~~~~~[0m
+
+[96msrc/services/offlineGenerators/memoryAttention.ts[0m:[93m14[0m:[93m27[0m - [91merror[0m[90m TS2362: [0mThe left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+
+[7m14[0m         if (pool.length < count * 2) pool = [...pool, ...getWordsForDifficulty(difficulty, 'Rastgele')];
+[7m  [0m [91m                          ~~~~~[0m
+
+[96msrc/services/offlineGenerators/memoryAttention.ts[0m:[93m14[0m:[93m80[0m - [91merror[0m[90m TS2345: [0mArgument of type 'unknown' is not assignable to parameter of type 'string'.
+
+[7m14[0m         if (pool.length < count * 2) pool = [...pool, ...getWordsForDifficulty(difficulty, 'Rastgele')];
+[7m  [0m [91m                                                                               ~~~~~~~~~~[0m
+
+[96msrc/services/offlineGenerators/memoryAttention.ts[0m:[93m21[0m:[93m72[0m - [91merror[0m[90m TS2362: [0mThe left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+
+[7m21[0m         const distractors = pool.slice(memorizeCount, memorizeCount + (count - memorizeCount));
+[7m  [0m [91m                                                                       ~~~~~[0m
+
+[96msrc/services/offlineGenerators/memoryAttention.ts[0m:[93m48[0m:[93m54[0m - [91merror[0m[90m TS2362: [0mThe left-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.
+
+[7m48[0m         const memorizeCount = Math.max(4, Math.floor(count * 0.6));
+[7m  [0m [91m                                                     ~~~~~[0m
+
+[96msrc/services/offlineGenerators/memoryAttention.ts[0m:[93m52[0m:[93m55[0m - [91merror[0m[90m TS2345: [0mArgument of type '{}' is not assignable to parameter of type 'number'.
+
+[7m52[0m         const distractors = pool.slice(memorizeCount, count); // Total needed
+[7m  [0m [91m                                                      ~~~~~[0m
+
+[96msrc/services/offlineGenerators/memoryAttention.ts[0m:[93m154[0m:[93m25[0m - [91merror[0m[90m TS2365: [0mOperator '<' cannot be applied to types 'number' and '{}'.
+
+[7m154[0m         for (let r = 0; r < size; r++) {
+[7m   [0m [91m                        ~~~~~~~~[0m
+
+[96msrc/services/offlineGenerators/memoryAttention.ts[0m:[93m199[0m:[93m35[0m - [91merror[0m[90m TS2769: [0mNo overload matches this call.
+  Overload 1 of 4, '(iterable: ArrayLike<unknown> | Iterable<unknown>, mapfn: (v: unknown, k: number) => {}[], thisArg?: any): {}[][]', gave the following error.
+    Type '{}' is not assignable to type 'number'.
+  Overload 2 of 4, '(arrayLike: ArrayLike<unknown>, mapfn: (v: unknown, k: number) => {}[], thisArg?: any): {}[][]', gave the following error.
+    Type '{}' is not assignable to type 'number'.
+
+[7m199[0m         const grid = Array.from({ length: size }, () => Array.from({ length: size }, () => Math.random() > 0.3 ? distractor : target));
+[7m   [0m [91m                                  ~~~~~~[0m
+
+
+[96msrc/services/offlineGenerators/memoryAttention.ts[0m:[93m199[0m:[93m70[0m - [91merror[0m[90m TS2769: [0mNo overload matches this call.
+  Overload 1 of 4, '(iterable: ArrayLike<unknown> | Iterable<unknown>, mapfn: (v: unknown, k: number) => {}, thisArg?: any): {}[]', gave the following error.
+    Type '{}' is not assignable to type 'number'.
+  Overload 2 of 4, '(arrayLike: ArrayLike<unknown>, mapfn: (v: unknown, k: number) => {}, thisArg?: any): {}[]', gave the following error.
+    Type '{}' is not assignable to type 'number'.
+
+[7m199[0m         const grid = Array.from({ length: size }, () => Array.from({ length: size }, () => Math.random() > 0.3 ? distractor : target));
+[7m   [0m [91m                                                                     ~~~~~~[0m
+
+
+[96msrc/services/offlineGenerators/memoryAttention.ts[0m:[93m205[0m:[93m13[0m - [91merror[0m[90m TS2322: [0mType '{}[][]' is not assignable to type 'string[][]'.
+  Type '{}[]' is not assignable to type 'string[]'.
+    Type '{}' is not assignable to type 'string'.
+
+[7m205[0m             grid,
+[7m   [0m [91m            ~~~~[0m
+
+  [96msrc/types/verbal.ts[0m:[93m345[0m:[93m3[0m
+    [7m345[0m   grid: string[][];
+    [7m   [0m [96m  ~~~~[0m
+    The expected type comes from property 'grid' which is declared here on type 'TargetSearchData'
+
+[96msrc/services/offlineGenerators/memoryAttention.ts[0m:[93m206[0m:[93m13[0m - [91merror[0m[90m TS2322: [0mType '{}' is not assignable to type 'string'.
+
+[7m206[0m             target,
+[7m   [0m [91m            ~~~~~~[0m
+
+  [96msrc/types/verbal.ts[0m:[93m346[0m:[93m3[0m
+    [7m346[0m   target: string;
+    [7m   [0m [96m  ~~~~~~[0m
+    The expected type comes from property 'target' which is declared here on type 'TargetSearchData'
+
+[96msrc/services/offlineGenerators/memoryAttention.ts[0m:[93m207[0m:[93m13[0m - [91merror[0m[90m TS2322: [0mType '{}' is not assignable to type 'string'.
+
+[7m207[0m             distractor
+[7m   [0m [91m            ~~~~~~~~~~[0m
+
+  [96msrc/types/verbal.ts[0m:[93m347[0m:[93m3[0m
+    [7m347[0m   distractor: string;
+    [7m   [0m [96m  ~~~~~~~~~~[0m
+    The expected type comes from property 'distractor' which is declared here on type 'TargetSearchData'
+
+[96msrc/services/offlineGenerators/memoryAttention.ts[0m:[93m250[0m:[93m25[0m - [91merror[0m[90m TS18046: [0m'worksheetCount' is of type 'unknown'.
+
+[7m250[0m     for (let i = 0; i < worksheetCount; i++) {
+[7m   [0m [91m                        ~~~~~~~~~~~~~~[0m
+
+[96msrc/services/offlineGenerators/newActivities.ts[0m:[93m153[0m:[93m25[0m - [91merror[0m[90m TS2769: [0mNo overload matches this call.
+  Overload 1 of 4, '(iterable: ArrayLike<unknown> | Iterable<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; words: { id: number; targetWord: string; syllables: string[]; imagePrompt: string; }[]; syllableBank: string[]; }, thisArg?: any): { ...; }[]', gave the following error.
+    Type '{}' is not assignable to type 'number'.
+  Overload 2 of 4, '(arrayLike: ArrayLike<unknown>, mapfn: (v: unknown, k: number) => { title: string; instruction: string; words: { id: number; targetWord: string; syllables: string[]; imagePrompt: string; }[]; syllableBank: string[]; }, thisArg?: any): { ...; }[]', gave the following error.
+    Type '{}' is not assignable to type 'number'.
+
+[7m153[0m     return Array.from({ length: worksheetCount ?? 1 }, () => ({
+[7m   [0m [91m                        ~~~~~~[0m
+
+
+[96msrc/services/offlineGenerators/sariKitap/heceMotoru.ts[0m:[93m27[0m:[93m5[0m - [91merror[0m[90m TS2322: [0mType '{ syllables: { isHighlighted: boolean; dotBelow?: boolean | undefined; bridgeNext?: boolean | undefined; }[]; lineIndex: number; }[]' is not assignable to type 'HeceRow[]'.
+  Type '{ syllables: { isHighlighted: boolean; dotBelow?: boolean; bridgeNext?: boolean; }[]; lineIndex: number; }' is not assignable to type 'HeceRow'.
+    Types of property 'syllables' are incompatible.
+      Type '{ isHighlighted: boolean; dotBelow?: boolean | undefined; bridgeNext?: boolean | undefined; }[]' is not assignable to type 'HeceData[]'.
+        Property 'syllable' is missing in type '{ isHighlighted: boolean; dotBelow?: boolean; bridgeNext?: boolean; }' but required in type 'HeceData'.
+
+[7m27[0m     return rows.map((row) => ({
+[7m  [0m [91m    ~~~~~~[0m
+
+  [96msrc/types/sariKitap.ts[0m:[93m33[0m:[93m3[0m
+    [7m33[0m   syllable: string;
+    [7m  [0m [96m  ~~~~~~~~[0m
+    'syllable' is declared here.
+
+[96msrc/services/offlineGenerators/sariKitap/heceMotoru.ts[0m:[93m50[0m:[93m5[0m - [91merror[0m[90m TS2322: [0mType '{ syllables: { dotBelow: boolean; isHighlighted?: boolean | undefined; bridgeNext?: boolean | undefined; }[]; lineIndex: number; }[]' is not assignable to type 'HeceRow[]'.
+  Type '{ syllables: { dotBelow: boolean; isHighlighted?: boolean; bridgeNext?: boolean; }[]; lineIndex: number; }' is not assignable to type 'HeceRow'.
+    Types of property 'syllables' are incompatible.
+      Type '{ dotBelow: boolean; isHighlighted?: boolean | undefined; bridgeNext?: boolean | undefined; }[]' is not assignable to type 'HeceData[]'.
+        Property 'syllable' is missing in type '{ dotBelow: boolean; isHighlighted?: boolean; bridgeNext?: boolean; }' but required in type 'HeceData'.
+
+[7m50[0m     return rows.map((row) => ({
+[7m  [0m [91m    ~~~~~~[0m
+
+  [96msrc/types/sariKitap.ts[0m:[93m33[0m:[93m3[0m
+    [7m33[0m   syllable: string;
+    [7m  [0m [96m  ~~~~~~~~[0m
+    'syllable' is declared here.
+
+[96msrc/services/offlineGenerators/sariKitap/heceMotoru.ts[0m:[93m70[0m:[93m5[0m - [91merror[0m[90m TS2322: [0mType '{ syllables: { bridgeNext: boolean; isHighlighted?: boolean | undefined; dotBelow?: boolean | undefined; }[]; lineIndex: number; }[]' is not assignable to type 'HeceRow[]'.
+  Type '{ syllables: { bridgeNext: boolean; isHighlighted?: boolean; dotBelow?: boolean; }[]; lineIndex: number; }' is not assignable to type 'HeceRow'.
+    Types of property 'syllables' are incompatible.
+      Type '{ bridgeNext: boolean; isHighlighted?: boolean | undefined; dotBelow?: boolean | undefined; }[]' is not assignable to type 'HeceData[]'.
+        Property 'syllable' is missing in type '{ bridgeNext: boolean; isHighlighted?: boolean; dotBelow?: boolean; }' but required in type 'HeceData'.
+
+[7m70[0m     return rows.map((row) => ({
+[7m  [0m [91m    ~~~~~~[0m
+
+  [96msrc/types/sariKitap.ts[0m:[93m33[0m:[93m3[0m
+    [7m33[0m   syllable: string;
+    [7m  [0m [96m  ~~~~~~~~[0m
+    'syllable' is declared here.
+
+[96msrc/services/offlineGenerators/sayiDedektifi.ts[0m:[93m108[0m:[93m20[0m - [91merror[0m[90m TS2552: [0mCannot find name 'SayiDedektifRiddle'. Did you mean 'SayiDedektifiRiddle'?
+
+[7m108[0m     const riddles: SayiDedektifRiddle[] = [];
+[7m   [0m [91m                   ~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/services/screenshotCaptureService.ts[0m:[93m17[0m:[93m7[0m - [91merror[0m[90m TS2739: [0mType '{ dashboard: string; users: string; teachers: string; students: string; activities: string; prompts: string; static_content: string; feedbacks: string; drafts: string; approvals: string; permissions: string; ... 8 more ...; all_modules: string; }' is missing the following properties from type 'Record<AdStudioTarget, string>': ad_studio, audit_log
+
+[7m17[0m const MODULE_COLORS: Record<AdStudioTarget, string> = {
+[7m  [0m [91m      ~~~~~~~~~~~~~[0m
+
+[96msrc/services/teacherService.ts[0m:[93m213[0m:[93m38[0m - [91merror[0m[90m TS7006: [0mParameter 'doc' implicitly has an 'any' type.
+
+[7m213[0m         studentsSnap.docs.map(async (doc) => {
+[7m   [0m [91m                                     ~~~[0m
+
+[96msrc/services/templateEngine.ts[0m:[93m59[0m:[93m9[0m - [91merror[0m[90m TS2322: [0mType '"architecture_clone"' is not assignable to type '"prompt_generation"'.
+
+[7m59[0m         mode: ProductionMode = 'architecture_clone'
+[7m  [0m [91m        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/services/workbook/workbookExport.ts[0m:[93m91[0m:[93m13[0m - [91merror[0m[90m TS18048: [0m'workbook.settings.pageSize' is possibly 'undefined'.
+
+[7m91[0m     format: workbook.settings.pageSize.toLowerCase() as 'a4' | 'letter',
+[7m  [0m [91m            ~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/services/workbook/workbookSharingService.ts[0m:[93m68[0m:[93m21[0m - [91merror[0m[90m TS2339: [0mProperty 'uid' does not exist on type 'User'.
+
+[7m68[0m       userId: user?.uid || uuidv4(),
+[7m  [0m [91m                    ~~~[0m
+
+[96msrc/services/workbook/workbookTemplates.ts[0m:[93m21[0m:[93m3[0m - [91merror[0m[90m TS2459: [0mModule '"../../types/workbook"' declares 'LearningDisabilityProfile' locally, but it is not exported.
+
+[7m21[0m   LearningDisabilityProfile,
+[7m  [0m [91m  ~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  [96msrc/types/workbook.ts[0m:[93m17[0m:[93m10[0m
+    [7m17[0m import { LearningDisabilityProfile, AgeGroup } from './creativeStudio';
+    [7m  [0m [96m         ~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+    'LearningDisabilityProfile' is declared here.
+
+[96msrc/services/workbook/workbookTemplates.ts[0m:[93m22[0m:[93m3[0m - [91merror[0m[90m TS2459: [0mModule '"../../types/workbook"' declares 'AgeGroup' locally, but it is not exported.
+
+[7m22[0m   AgeGroup,
+[7m  [0m [91m  ~~~~~~~~[0m
+
+  [96msrc/types/workbook.ts[0m:[93m17[0m:[93m37[0m
+    [7m17[0m import { LearningDisabilityProfile, AgeGroup } from './creativeStudio';
+    [7m  [0m [96m                                    ~~~~~~~~[0m
+    'AgeGroup' is declared here.
+
+[96msrc/store/useCreativeStore.ts[0m:[93m115[0m:[93m31[0m - [91merror[0m[90m TS2538: [0mType '{}' cannot be used as an index type.
+
+[7m115[0m             delete nextGroups[groupId];
+[7m   [0m [91m                              ~~~~~~~[0m
+
+[96msrc/store/useMatSinavStore.ts[0m:[93m115[0m:[93m58[0m - [91merror[0m[90m TS2352: [0mConversion of type 'MatSinav' to type 'Record<string, unknown>' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Index signature for type 'string' is missing in type 'MatSinav'.
+
+[7m115[0m         const gecmis = get().sinavGecmisi.filter((s) => (s as Record<string, unknown>).id !== id);
+[7m   [0m [91m                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[96msrc/utils/print/PDFGenerator.ts[0m:[93m78[0m:[93m83[0m - [91merror[0m[90m TS2339: [0mProperty 'jsPDF' does not exist on type 'typeof jsPDF'.
+
+[7m78[0m     const jsPDF = jspdfModule.jsPDF || (jspdfModule.default ? jspdfModule.default.jsPDF || jspdfModule.default : null) || jspdfModule;
+[7m  [0m [91m                                                                                  ~~~~~[0m
+
+[96msrc/utils/themeUtils.ts[0m:[93m1[0m:[93m30[0m - [91merror[0m[90m TS2307: [0mCannot find module '../components/InfographicStudio/hooks/useInfographicStudio' or its corresponding type declarations.
+
+[7m1[0m import { DesignSchool } from '../components/InfographicStudio/hooks/useInfographicStudio';
+[7m [0m [91m                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+Found 161 errors in 57 files.
+
+Errors  Files
+     1  src/components/Profile/modules/OverviewModule.tsx[90m:130[0m
+     4  src/components/Profile/modules/ReportsModule.tsx[90m:71[0m
+     2  src/components/ReadingStudio/Editor/AIProductionPanel.tsx[90m:6[0m
+    14  src/components/ReadingStudio/Editor/ContentPanel.tsx[90m:44[0m
+     1  src/components/ReadingStudio/Editor/StudentSelector.tsx[90m:22[0m
+     1  src/components/SariKitapStudio/SariKitapStudio.tsx[90m:52[0m
+     1  src/components/Sidebar.tsx[90m:425[0m
+     1  src/components/SinavStudyosu/index.tsx[90m:250[0m
+     5  src/components/Student/AssignModal.tsx[90m:24[0m
+     2  src/components/Student/modules/AcademicPlanModule.tsx[90m:154[0m
+    16  src/components/Student/modules/AIInsightsModule.tsx[90m:67[0m
+     1  src/components/Student/modules/AssignmentsModule.tsx[90m:320[0m
+     7  src/components/Student/modules/ClinicalNotesModule.tsx[90m:32[0m
+     1  src/components/Student/modules/DashboardModule.tsx[90m:129[0m
+     1  src/components/Student/StudentDashboard.tsx[90m:580[0m
+     1  src/components/Student/StudentSelector.tsx[90m:10[0m
+     1  src/components/SuperStudio/components/ActionToolbar.tsx[90m:18[0m
+     1  src/components/SuperStudio/index.tsx[90m:28[0m
+     2  src/components/VariationResultsView.tsx[90m:35[0m
+     1  src/components/WordSentenceStudio/WordSentenceStudio.tsx[90m:30[0m
+     1  src/services/adVideoGenerator.ts[90m:419[0m
+     3  src/services/aiStudentService.ts[90m:10[0m
+     1  src/services/assessmentService.ts[90m:112[0m
+     4  src/services/assignmentService.ts[90m:29[0m
+     1  src/services/curriculumService.ts[90m:114[0m
+     1  src/services/emailService.ts[90m:50[0m
+     1  src/services/generators/dyscalculia.ts[90m:60[0m
+     1  src/services/generators/offline/magicPyramid.ts[90m:14[0m
+     1  src/services/generators/offline/oddEvenSudoku.ts[90m:51[0m
+     1  src/services/generators/perceptualSkills.ts[90m:71[0m
+    12  src/services/generators/premiumCompositeGenerator.ts[90m:17[0m
+     2  src/services/generators/readingComprehension.ts[90m:86[0m
+     2  src/services/generators/readingStudio.ts[90m:28[0m
+     4  src/services/generators/sariKitap/engine.ts[90m:73[0m
+     1  src/services/generators/wordGames.ts[90m:68[0m
+     6  src/services/generators/wordSentenceStudio.ts[90m:13[0m
+     9  src/services/messaging/fileSharingService.ts[90m:45[0m
+     4  src/services/messaging/messageService.ts[90m:52[0m
+     1  src/services/offlineGenerators/clockReading.ts[90m:44[0m
+     1  src/services/offlineGenerators/dyscalculia.ts[90m:80[0m
+     1  src/services/offlineGenerators/financialMath.ts[90m:17[0m
+     1  src/services/offlineGenerators/mapDetective.ts[90m:123[0m
+     8  src/services/offlineGenerators/mathLogic.ts[90m:18[0m
+    14  src/services/offlineGenerators/memoryAttention.ts[90m:11[0m
+     1  src/services/offlineGenerators/newActivities.ts[90m:153[0m
+     3  src/services/offlineGenerators/sariKitap/heceMotoru.ts[90m:27[0m
+     1  src/services/offlineGenerators/sayiDedektifi.ts[90m:108[0m
+     1  src/services/screenshotCaptureService.ts[90m:17[0m
+     1  src/services/teacherService.ts[90m:213[0m
+     1  src/services/templateEngine.ts[90m:59[0m
+     1  src/services/workbook/workbookExport.ts[90m:91[0m
+     1  src/services/workbook/workbookSharingService.ts[90m:68[0m
+     2  src/services/workbook/workbookTemplates.ts[90m:21[0m
+     1  src/store/useCreativeStore.ts[90m:115[0m
+     1  src/store/useMatSinavStore.ts[90m:115[0m
+     1  src/utils/print/PDFGenerator.ts[90m:78[0m
+     1  src/utils/themeUtils.ts[90m:1[0m

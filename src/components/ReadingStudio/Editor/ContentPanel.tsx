@@ -18,7 +18,7 @@ export const ContentPanel = () => {
         );
     }
 
-    const data = selectedItem.specificData || {};
+    const data = (selectedItem.specificData || {}) as Record<string, any>;
 
     const updateData = (updates: any) => {
         updateComponent(selectedItem.instanceId, {

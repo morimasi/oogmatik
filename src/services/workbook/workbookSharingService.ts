@@ -65,7 +65,7 @@ export async function addCollaborator(
     // Yeni collaborator
     const user = useAuthStore.getState().user;
     const newCollaborator: WorkbookCollaborator = {
-      userId: user?.uid || uuidv4(),
+      userId: user?.id || uuidv4(),
       userName: collaboratorEmail.split('@')[0],
       userEmail: collaboratorEmail,
       permission,

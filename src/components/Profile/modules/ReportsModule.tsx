@@ -14,7 +14,8 @@ interface ReportsModuleProps {
 }
 
 export const ReportsModule: React.FC<ReportsModuleProps> = ({ data, onShare }) => {
-  const { assessments, worksheets, loading, refreshData } = data;
+  const { assessments: rawAssessments, worksheets, loading, refreshData } = data;
+  const assessments = rawAssessments as unknown as SavedAssessment[];
   const { user } = useAuthStore();
   const { success, error } = useToastStore();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());

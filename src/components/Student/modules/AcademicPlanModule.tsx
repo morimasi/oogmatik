@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Curriculum, CurriculumDay } from '../../../types';
+import { Curriculum, CurriculumDay, CurriculumActivityStatus } from '../../../types';
 import { EnrichedCurriculum, PlanRevision } from './studentDashboardData';
 import { curriculumService } from '../../../services/curriculumService';
 import { useToastStore } from '../../../store/useToastStore';
@@ -140,9 +140,9 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
               activityId: matchedActivity.id,
               title: matchedActivity.title,
               duration: day.activities[0]?.duration || 15,
-              status: 'pending',
+              status: 'pending' as CurriculumActivityStatus,
               goal: matchedActivity.title + ' aktivitesi ile gelişim hedeflenmektedir.',
-              difficultyLevel: day.activities[0]?.difficultyLevel || 'Medium'
+              difficultyLevel: (day.activities[0]?.difficultyLevel || 'Orta') as any
             }
           ],
           isCompleted: false
@@ -176,7 +176,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
           isCompleted: nextCompleted,
           activities: day.activities.map((act: any, idx: number) => {
             if (idx === 0) {
-              return { ...act, status: nextCompleted ? 'completed' : 'pending' };
+              return { ...act, status: (nextCompleted ? 'completed' : 'pending') as CurriculumActivityStatus };
             }
             return act;
           })

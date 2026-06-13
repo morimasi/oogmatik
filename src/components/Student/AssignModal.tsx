@@ -21,12 +21,12 @@ export const AssignModal: React.FC = () => {
 
   // Sadece öğretmen kendi öğrencilerini listeler
   useEffect(() => {
-    if (user?.uid && isAssignModalOpen) {
+    if (user?.id && isAssignModalOpen) {
       const isAdmin = (user as any).role === 'superadmin' || (user as any).role === 'admin';
-      const unsubscribe = fetchStudents(user.uid, isAdmin);
+      const unsubscribe = fetchStudents(user.id, isAdmin);
       return () => unsubscribe();
     }
-  }, [user?.uid, fetchStudents, isAssignModalOpen]);
+  }, [user?.id, fetchStudents, isAssignModalOpen]);
 
   // Modal kapandığında state temizle
   useEffect(() => {
@@ -67,7 +67,7 @@ export const AssignModal: React.FC = () => {
       error("Lütfen en az bir öğrenci seçin.");
       return;
     }
-    if (!user?.uid) return;
+    if (!user?.id) return;
 
     setIsSubmitting(true);
     const success = await createAssignment({
@@ -75,7 +75,7 @@ export const AssignModal: React.FC = () => {
       worksheetId: activeWorksheetId,
       dueDate: dueDate || undefined,
       teacherNotes: teacherNotes || undefined
-    }, user.uid);
+    }, user.id);
 
     setIsSubmitting(false);
     if (success) {

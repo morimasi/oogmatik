@@ -88,7 +88,7 @@ async function exportToPDF(workbook: Workbook, config: WorkbookExportConfig): Pr
   const pdf = new jsPDF({
     orientation: workbook.settings.orientation === 'landscape' ? 'l' : 'p',
     unit: 'mm',
-    format: workbook.settings.pageSize.toLowerCase() as 'a4' | 'letter',
+    format: (workbook.settings.pageSize || 'A4').toLowerCase() as 'a4' | 'letter',
   });
 
   // Kapak sayfası
@@ -212,8 +212,8 @@ async function exportToInteractiveHTML(
   <title>${workbook.title}</title>
   <style>
     body {
-      font-family: ${workbook.settings.fontFamily}, sans-serif;
-      line-height: ${workbook.settings.lineHeight};
+      font-family: ${workbook.settings.fontFamily || 'Lexend'}, sans-serif;
+      line-height: ${workbook.settings.lineHeight || 1.5};
       margin: 0;
       padding: 20px;
       background: #f5f5f5;

@@ -3,7 +3,7 @@ import React from 'react';
 import { useReadingStore } from '../../../store/useReadingStore';
 
 export const AIProductionPanel = () => {
-    const { config, setConfig, _isLoading } = useReadingStore();
+    const { config, setConfig } = useReadingStore();
 
     const update = (updates: Partial<typeof config>) => setConfig({ ...config, ...updates });
 
@@ -44,7 +44,7 @@ export const AIProductionPanel = () => {
                     <label className="text-[10px] font-bold text-zinc-400 uppercase block mb-1.5 font-mono">Ses/Harf Odağı (Müdahale)</label>
                     <input
                         type="text"
-                        value={config.phonemeFocus || ''}
+                        value={(config.phonemeFocus as string) || ''}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => update({ phonemeFocus: e.target.value })}
                         className="w-full bg-zinc-900 border border-zinc-700/50 rounded-xl p-3 text-xs text-white font-mono placeholder:opacity-30"
                         placeholder="Örn: b-d, s-z, p-b"
@@ -53,8 +53,8 @@ export const AIProductionPanel = () => {
 
                 <div className="grid grid-cols-2 gap-3">
                     <button
-                        onClick={() => update({ syllableFocus: !config.syllableFocus })}
-                        className={`p-3 rounded-xl border text-[10px] font-black uppercase tracking-tight transition-all ${config.syllableFocus ? 'bg-accent border-accent text-white shadow-lg' : 'bg-transparent border-zinc-800 text-zinc-500 hover:border-zinc-700'}`}
+                        onClick={() => update({ syllableFocus: !(config.syllableFocus as boolean) })}
+                        className={`p-3 rounded-xl border text-[10px] font-black uppercase tracking-tight transition-all ${(config.syllableFocus as boolean) ? 'bg-accent border-accent text-white shadow-lg' : 'bg-transparent border-zinc-800 text-zinc-500 hover:border-zinc-700'}`}
                     >
                         <i className="fa-solid fa-layer-group mr-2"></i>
                         Heceleme Modu

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { AdvancedStudent } from '../../../types/student-advanced';
 import { RadarChart } from '../../RadarChart';
-import { aiStudentService, CognitiveProfileResult } from '../../../services/aiStudentService';
+import { aiStudentService } from '../../../services/aiStudentService';
 
 import { logInfo, logError, logWarn } from '../../../utils/logger.js';
 export const AIInsightsModule: React.FC<{ student: AdvancedStudent }> = ({ student }) => {
-  const [data, setData] = useState<CognitiveProfileResult | null>(null);
+  const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -14,7 +14,7 @@ export const AIInsightsModule: React.FC<{ student: AdvancedStudent }> = ({ stude
       setLoading(true);
       try {
         const result = await aiStudentService.generateCognitiveInsight(student);
-        if (active) setData(result);
+        if (active) setData(result as any);
       } catch (err) {
         logError(err instanceof Error ? err : String(err));
       } finally {
@@ -63,7 +63,7 @@ export const AIInsightsModule: React.FC<{ student: AdvancedStudent }> = ({ stude
               </div>
 
               <div className="flex flex-wrap gap-4">
-                {data.strengths.map((str, idx) => (
+                {(data.strengths as any[]).map((str: any, idx: number) => (
                   <div key={idx} className={`flex items-center gap-2 px-4 py-2 border rounded-xl ${str.trend === 'up' ? 'bg-emerald-500/10 border-emerald-500/20' :
                     str.trend === 'down' ? 'bg-rose-500/10 border-rose-500/20' :
                       'bg-amber-500/10 border-amber-500/20'
@@ -86,14 +86,14 @@ export const AIInsightsModule: React.FC<{ student: AdvancedStudent }> = ({ stude
         <div className="bg-white dark:bg-zinc-900 p-10 rounded-[3.5rem] border border-zinc-200 dark:border-zinc-800 shadow-sm flex flex-col items-center justify-center">
           <h3 className="text-xl font-black text-zinc-900 dark:text-white uppercase tracking-tighter mb-8 w-full text-center">Beceriler Analiz Radarı</h3>
           <div className="scale-110 lg:scale-[1.2]">
-            <RadarChart data={data.radarData.map(d => ({ label: d.skill, value: d.score }))} />
+            <RadarChart data={data.radarData.map((d: any) => ({ label: d.skill ?? d.subject, value: d.score ?? d.value }))} />
           </div>
         </div>
       </div>
 
       {/* Orta: Stratejik Öneriler (Bento Grid) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {data.strategies.map((item, i) => (
+        {data.strategies.map((item: any, i: number) => (
           <div key={i} className="bg-white dark:bg-zinc-900 p-8 rounded-[3rem] border border-zinc-200 dark:border-zinc-800 shadow-sm hover:shadow-2xl transition-all group overflow-hidden relative">
             <div className={`w-14 h-14 rounded-2xl bg-${item.color}-50 dark:bg-${item.color}-900/20 flex items-center justify-center text-${item.color}-600 mb-6 group-hover:scale-110 transition-transform shadow-inner`}>
               <i className={`fa-solid ${item.icon} text-2xl`}></i>
@@ -120,7 +120,7 @@ export const AIInsightsModule: React.FC<{ student: AdvancedStudent }> = ({ stude
         </h3>
 
         <div className="relative pl-10 space-y-12 before:absolute before:left-0 before:top-2 before:bottom-2 before:w-px before:bg-gradient-to-b before:from-indigo-500 before:via-zinc-200 before:to-transparent dark:before:via-zinc-800">
-          {data.timeline.map((step, i) => {
+          {(data.timeline || []).map((step: any, i: number) => {
             const typedStep = step as unknown as { isPast?: boolean; title?: string; desc?: string };
             return (
             <div key={i} className={`relative group/step ${!typedStep.isPast ? 'opacity-60 hover:opacity-100 transition-opacity' : ''}`}>

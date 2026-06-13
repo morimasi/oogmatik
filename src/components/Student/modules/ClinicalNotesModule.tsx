@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { collection, query, where, onSnapshot, addDoc, Timestamp } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, addDoc, Timestamp, deleteDoc, doc, QuerySnapshot, DocumentData, QueryDocumentSnapshot } from 'firebase/firestore';
 import { db } from '../../../services/firebaseClient';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { ClinicalNote } from './studentDashboardData';
@@ -116,7 +116,7 @@ export const ClinicalNotesModule = ({ studentId, studentName }: { studentId: str
         date: Timestamp.now(),
         title: newNote.title,
         content: newNote.content,
-        author: user?.displayName || user?.email || 'Bilinmeyen',
+        author: (user as any)?.displayName || user?.email || 'Bilinmeyen',
         tags: newNote.tags ? newNote.tags.split(',').map((t: string) => t.trim()).filter(Boolean) : [],
         priority: newNote.priority,
       });
@@ -135,8 +135,8 @@ export const ClinicalNotesModule = ({ studentId, studentName }: { studentId: str
     try {
       await deleteDoc(doc(db, 'clinical_notes', id));
       if (selectedNote?.id === id) setSelectedNote(null);
-    } catch (err: any) {
-      setError('Not silinemedi: ' + err.message);
+    } catch (err: unknown) {
+      setError('Not silinemedi: ' + (err instanceof Error ? err.message : String(err)));
     }
   };
 
@@ -329,7 +329,7 @@ export const ClinicalNotesModule = ({ studentId, studentName }: { studentId: str
                 <input
                   type="text"
                   value={newNote.title}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewNote((prev: any) => ({ ...prev, title: e.target.value }))}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewNote(prev => ({ ...prev, title: e.target.value }))}
                   className="w-full bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[11px] text-[var(--text-primary)] focus:border-[var(--accent-color)] transition-all"
                   placeholder="Not başlığı..."
                 />
@@ -338,7 +338,7 @@ export const ClinicalNotesModule = ({ studentId, studentName }: { studentId: str
                 <label className="block text-[10px] font-medium text-[var(--text-muted)] uppercase mb-1.5">İçerik</label>
                 <textarea
                   value={newNote.content}
-                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewNote((prev: any) => ({ ...prev, content: e.target.value }))}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewNote(prev => ({ ...prev, content: e.target.value }))}
                   className="w-full bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[11px] text-[var(--text-primary)] focus:border-[var(--accent-color)] h-32 transition-all resize-none"
                   placeholder="Klinik gözlem notları..."
                 />
@@ -349,7 +349,7 @@ export const ClinicalNotesModule = ({ studentId, studentName }: { studentId: str
                   {(['low', 'medium', 'high'] as const).map(p => (
                     <button
                       key={p}
-                      onClick={() => setNewNote((prev: any) => ({ ...prev, priority: p }))}
+                      onClick={() => setNewNote(prev => ({ ...prev, priority: p }))}
                       className={`flex-1 py-2 rounded-lg text-[10px] font-medium uppercase transition-all border ${newNote.priority === p ? 'bg-[var(--accent-muted)] border-[var(--accent-color)] text-[var(--accent-color)]' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)] border-[var(--border-color)]'}`}
                     >
                       {p === 'low' ? 'Düşük' : p === 'medium' ? 'Orta' : 'Yüksek'}
@@ -362,7 +362,7 @@ export const ClinicalNotesModule = ({ studentId, studentName }: { studentId: str
                 <input
                   type="text"
                   value={newNote.tags}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewNote((prev: any) => ({ ...prev, tags: e.target.value }))}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewNote(prev => ({ ...prev, tags: e.target.value }))}
                   className="w-full bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[11px] text-[var(--text-primary)] focus:border-[var(--accent-color)] transition-all"
                   placeholder="örn: okuma, odaklanma, sosyal..."
                 />

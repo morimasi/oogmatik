@@ -12,7 +12,7 @@ export interface CompositeGeneratorOptions extends GeneratorOptions {
 export async function generateCompositeWorksheet(
     options: CompositeGeneratorOptions
 ): Promise<CompositeWorksheet> {
-    const { topic, studentAge, difficulty, profile, widgets } = options as Record<string, unknown>;
+    const { topic, studentAge, difficulty, profile, widgets } = options;
 
     if (!topic || widgets.length === 0) {
         throw new AppError('Konu veya seçili bileşen eksik.', 'VALIDATION_ERROR', 400);
@@ -95,7 +95,7 @@ ${widgetListStr}
         });
 
         // Güvenlik kontrolü ve JSON Onarımı
-        let response = rawResponse;
+        let response: Record<string, unknown> = rawResponse as unknown as Record<string, unknown>;
 
         // Eğer AI yanıtı doğrudan bir metin stringi içine (Markdown json bloğu) gömdüyse onu ayıkla
         if (rawResponse && typeof rawResponse.text === 'string') {
@@ -109,13 +109,13 @@ ${widgetListStr}
         }
 
         if (Array.isArray(response)) {
-            response = { title: topic, topic: topic, difficultyLevel: difficulty, targetSkills: [], ageGroup: studentAge, widgets: response };
+            response = { title: topic || '', topic: topic || '', difficultyLevel: difficulty || '', targetSkills: [], ageGroup: studentAge?.toString() || '', widgets: response };
         } else if (response && response.premiumCompositeWorksheet) {
-            response = response.premiumCompositeWorksheet;
+            response = response.premiumCompositeWorksheet as Record<string, unknown>;
         } else if (response && response.worksheet) {
-            response = response.worksheet;
+            response = response.worksheet as Record<string, unknown>;
         } else if (response && response.data) {
-            response = response.data;
+            response = response.data as Record<string, unknown>;
         }
         
         // Eğer AI 'widgets' yerine 'activities', 'components', 'items' gibi başka bir isim verdiyse, objenin içindeki ilk diziyi (array) bul
