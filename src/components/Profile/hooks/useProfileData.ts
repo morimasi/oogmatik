@@ -98,9 +98,9 @@ export const useProfileData = (targetUser?: User): ProfileData => {
   return {
     user,
     isReadOnly,
-    assessments,
+    assessments: assessments as unknown as Record<string, unknown>[],
     worksheets,
-    curriculums,
+    curriculums: curriculums as unknown as Record<string, unknown>[],
     loading,
     stats,
     performanceTrends,

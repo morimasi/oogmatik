@@ -397,7 +397,7 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
   const [itemCount, setItemCount] = useState(8);
   const [concept, setConcept] = useState('');
   const [finalData, setFinalData] = useState(null as unknown as unknown as WorksheetData | null);
-  const { _layout, _setLayout } = useReadingStore();
+  const { _layout, _setLayout } = useReadingStore() as any;
   const [toast, setToast] = useState(null as { message: string; type: ToastType } | null);
   const [retryCount, setRetryCount] = useState(0);
   const [progressStartTime, setProgressStartTime] = useState(0);
@@ -785,9 +785,9 @@ export const OCRScanner = ({ onBack, onResult }: OCRScannerProps) => {
             },
           },
           count: variationCount,
-          userId: user?.uid || 'anonymous',
+          userId: (user as any)?.uid || user?.id || 'anonymous',
           config: {
-            targetProfile: activeStudent?.learningDisabilities?.[0] || 'mixed',
+            targetProfile: (activeStudent as any)?.learningDisabilities?.[0] || 'mixed',
             ageGroup: activeStudent?.age
               ? activeStudent.age <= 7
                 ? '5-7'

@@ -27,12 +27,12 @@ export const QuoteBlock: React.FC<QuoteBlockProps> = ({ quoteData, isOwn, onScro
         <span className={`font-bold text-[11px] leading-none ${isOwn ? 'text-white/70' : 'text-accent-primary'}`}>
           {quoteData.originalSenderName}
         </span>
-        {quoteData.selectedText && (
+        {!!quoteData.selectedText && (
           <span className="text-[9px] text-white/30 italic">(seçili alıntı)</span>
         )}
       </div>
       <span className="opacity-60 leading-relaxed line-clamp-2 text-[11px]">
-        {quoteData.selectedText || quoteData.originalText}
+        {(quoteData.selectedText as string) || quoteData.originalText}
       </span>
       {onScrollToOriginal && (
         <div className="absolute inset-0 rounded-r-xl hover:bg-white/[0.03] transition-colors" />

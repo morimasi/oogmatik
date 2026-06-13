@@ -119,6 +119,8 @@ function validateUserId(userId: string | undefined): void {
  */
 function getDefaultSettings(): WorkbookSettings {
   return {
+    title: '',
+    studentName: '',
     pageSize: 'A4',
     orientation: 'portrait',
     layout: {

@@ -111,7 +111,7 @@ export const ChatWindow: React.FC = () => {
     );
   }
 
-  const displayName = conversation?.type === 'group' ? (conversation.title || 'Grup') : (recipient?.name || 'Yükleniyor...');
+  const displayName = conversation?.type === 'group' ? ((conversation.title as string) || 'Grup') : (recipient?.name || 'Yükleniyor...');
   const displayAvatar = recipient?.avatar || `https://api.dicebear.com/7.x/initials/svg?seed=${displayName}`;
 
   return (

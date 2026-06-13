@@ -17,7 +17,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
   if (!error) return null;
 
   const isAppError = error instanceof AppError;
-  const userMessage = isAppError ? error.userMessage : error.message;
+  const userMessage: string = isAppError ? (error as AppError).userMessage : error.message;
   const errorCode: string = isAppError ? error.code : 'UNKNOWN_ERROR';
   const isRetryable = isAppError ? error.isRetryable : false;
 
@@ -106,16 +106,19 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
             {userMessage}
           </p>
 
-          {/* Rate limit specific info */}
-          {error instanceof RateLimitError && (error.details as unknown as Record<string, unknown>)?.retryAfter && (
-            <p className={`text-xs ${ui.textColor} opacity-75 mt-2`}>
-              Lütfen{' '}
-              <span className="font-bold">
-                {Math.ceil(Number((error.details as unknown as Record<string, unknown>).retryAfter) / 1000)} saniye
-              </span>{' '}
-              sonra tekrar deneyin.
-            </p>
-          )}
+          {error instanceof RateLimitError && (() => {
+            const retryAfter = (error.details as Record<string, unknown>)?.retryAfter;
+            if (!retryAfter) return null;
+            return (
+              <p className={`text-xs ${ui.textColor} opacity-75 mt-2`}>
+                Lütfen{' '}
+                <span className="font-bold">
+                  {Math.ceil(Number(retryAfter) / 1000)} saniye
+                </span>{' '}
+                sonra tekrar deneyin.
+              </p>
+            );
+          })()}
 
           {/* Validation error details */}
           {error instanceof ValidationError && error.details && (

@@ -62,7 +62,7 @@ export const MessageBubble: React.FC<Props> = ({ message, isOwn }) => {
           {message.attachments?.some(a => a.type === 'image') && !message.isDeleted && (
             <div className="flex flex-wrap gap-0.5 p-0.5">
               {message.attachments.filter(a => a.type === 'image').map(att => (
-                <div key={att.id} onClick={() => setSelectedImage(att.url)} className="relative cursor-pointer overflow-hidden rounded-lg bg-[var(--bg-default)] max-w-[180px]">
+                <div key={att.id} onClick={() => setSelectedImage(att.url || null)} className="relative cursor-pointer overflow-hidden rounded-lg bg-[var(--bg-default)] max-w-[180px]">
                   <img src={att.url} alt={att.name} className="w-full h-auto max-h-[180px] object-cover hover:scale-105 transition-transform" />
                   <div className="absolute inset-0 bg-black/20 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center"><ZoomIn className="w-5 h-5 text-white/80" /></div>
                 </div>
@@ -80,7 +80,7 @@ export const MessageBubble: React.FC<Props> = ({ message, isOwn }) => {
                   {message.editHistory?.length ? <button onClick={() => setShowEditHistory(true)} className="text-[8px] italic hover:opacity-80 flex items-center gap-1"><History className="w-2 h-2" />düzenlendi</button> : null}
                   {message.replyCount ? <button onClick={handleThreadReply} className="text-[8px] font-medium flex items-center gap-1 hover:opacity-80"><CornerUpRight className="w-2 h-2" />{message.replyCount}</button> : null}
                   <span className="text-[9px] font-medium flex items-center gap-0.5">
-                    {fmt(message.createdAt)}
+                    {fmt(message.createdAt as unknown as Timestamp)}
                     {isOwn && showReadReceipts && (
                       isRead ? <CheckCheck className="w-3 h-3 text-white ml-0.5" /> : <Check className="w-3 h-3 opacity-70 ml-0.5" />
                     )}
@@ -96,7 +96,7 @@ export const MessageBubble: React.FC<Props> = ({ message, isOwn }) => {
                 <button key={att.id} onClick={() => user && setViewingAttachment({ attachment: att, userId: user.id })}
                   className={`w-full flex items-center gap-2 p-1.5 rounded-lg border transition-all ${isOwn ? 'bg-white/10 border-white/10 hover:bg-white/20' : 'bg-[var(--bg-default)] border-[var(--border-color)] hover:bg-[var(--bg-paper)]'}`}>
                   <div className={`p-1 rounded ${isOwn ? 'bg-white/10' : 'bg-[var(--accent-muted)] text-[var(--accent-color)]'}`}><Paperclip className="w-3 h-3" /></div>
-                  <div className="flex-1 min-w-0 text-left"><div className="text-[10px] font-semibold truncate">{att.name}</div><div className="text-[7px] opacity-50">{fileSharingService.formatFileSize(att.size)}</div></div>
+                  <div className="flex-1 min-w-0 text-left"><div className="text-[10px] font-semibold truncate">{att.name}</div><div className="text-[7px] opacity-50">{fileSharingService.formatFileSize(att.size || 0)}</div></div>
                   <Download className="w-3 h-3 opacity-30 flex-shrink-0" />
                 </button>
               ))}

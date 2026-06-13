@@ -41,9 +41,14 @@ export const AdminCommunication: React.FC = () => {
 
       await messageService.sendMessage({
         conversationId: convId,
+        studentId: user.id,
         senderId: user.id,
+        senderRole: user.role as 'teacher' | 'parent' | 'admin',
+        senderName: user.name || 'Sistem',
         type: 'system',
         text: broadcastText,
+        isRead: false,
+        dbTimestamp: { seconds: Math.floor(Date.now() / 1000), nanoseconds: 0 } as any,
       });
 
       useToastStore.getState().success('Sistem duyurusu tüm kullanıcılara iletildi.', 4000, 'Duyuru Gönderildi');

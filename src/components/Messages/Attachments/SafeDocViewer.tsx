@@ -17,7 +17,7 @@ export const SafeDocViewer: React.FC<SafeDocViewerProps> = ({ attachment, userId
   const handleSecureDownload = async () => {
     setIsLoading(true);
     try {
-      const tokenUrl = await fileSharingService.generateSecureTokenUrl(attachment.url, userId);
+      const tokenUrl = await fileSharingService.generateSecureTokenUrl(attachment.url!, userId);
       setSecureUrl(tokenUrl);
       window.open(tokenUrl, '_blank', 'noopener,noreferrer');
     } catch {
@@ -51,9 +51,9 @@ export const SafeDocViewer: React.FC<SafeDocViewerProps> = ({ attachment, userId
             <div className="min-w-0">
               <h3 className="text-white font-bold text-lg truncate">{attachment.name}</h3>
               <div className="flex items-center gap-2 mt-1">
-                <span className="text-xs text-white/40">{fileSharingService.getFileCategory(attachment.mimeType)}</span>
+                <span className="text-xs text-white/40">{fileSharingService.getFileCategory(attachment.mimeType || '')}</span>
                 <span className="text-white/10">•</span>
-                <span className="text-xs text-white/40">{fileSharingService.formatFileSize(attachment.size)}</span>
+                <span className="text-xs text-white/40">{fileSharingService.formatFileSize(attachment.size || 0)}</span>
                 <span className="text-white/10">•</span>
                 <Shield className="w-3 h-3 text-green-500/60" />
                 <span className="text-[10px] text-green-500/60 font-medium">Güvenli</span>

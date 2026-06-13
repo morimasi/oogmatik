@@ -9,7 +9,7 @@ interface OverviewModuleProps {
   data: ProfileData;
   activeStudent: Student | null;
   onSelectActivity: (id: string) => void;
-  onLoadSaved: (ws: unknown) => void;
+  onLoadSaved: (ws: SavedWorksheet) => void;
   onTabChange: (tab: string) => void;
   onShare?: () => void;
 }

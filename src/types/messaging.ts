@@ -1,6 +1,6 @@
 import { Timestamp } from 'firebase/firestore';
 
-export type AttachmentType = 'activity' | 'assessment' | 'file' | 'image' | 'pdf' | 'voice' | 'link';
+export type AttachmentType = 'activity' | 'assessment' | 'file' | 'image' | 'pdf' | 'voice' | 'link' | 'video' | 'audio';
 
 export interface Attachment {
     type: AttachmentType;
@@ -36,6 +36,7 @@ export interface Message {
     readBy?: string[];
     editHistory?: IMessageEdit[];
     replyCount?: number;
+    threadId?: string;
     quoteData?: QuoteData;
     deletedAt?: string;
 }
@@ -73,7 +74,7 @@ export interface IConversation {
 }
 
 export interface VirusScanStatus {
-  status: 'clean' | 'infected' | 'scanning' | 'error' | 'skipped';
+  status: 'clean' | 'infected' | 'scanning' | 'error' | 'skipped' | 'pending';
   scannedAt?: string;
   threatName?: string;
 }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X, HelpCircle, Mail, MessageCircle, Phone, Clock, ChevronDown, ChevronUp, AlertCircle, CheckCircle, Sparkles } from 'lucide-react';
+// @ts-expect-error lucide-react icons exist at runtime but tsc can't resolve some type declarations
+import { X, CircleHelp, Mail, MessageCircle, Phone, Clock, ChevronDown, ChevronUp, AlertCircle, CheckCircle, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const PremiumHelpModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
@@ -67,7 +68,7 @@ export const PremiumHelpModule: React.FC<{ onClose: () => void }> = ({ onClose }
         <div className="flex items-center justify-between px-5 py-3 border-b border-[var(--border-color)] bg-[var(--surface-glass)]">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-[var(--accent-color)] rounded-xl flex items-center justify-center">
-              <HelpCircle className="w-4 h-4 text-white" />
+              <CircleHelp className="w-4 h-4 text-white" />
             </div>
             <div>
               <h2 className="text-sm font-black text-[var(--text-primary)] tracking-tight">Premium Yardım</h2>

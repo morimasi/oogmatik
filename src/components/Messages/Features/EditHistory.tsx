@@ -73,7 +73,7 @@ export const EditHistory: React.FC<EditHistoryProps> = ({ editHistory, onClose }
               <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4">
                 <div className="flex items-center gap-2 mb-2 text-xs text-white/30">
                   <Clock className="w-3 h-3" />
-                  <span>{formatEditTime(edit.editedAt)}</span>
+                  <span>{formatEditTime(edit.editedAt as unknown as Timestamp)}</span>
                   {index === 0 && (
                     <span className="px-2 py-0.5 bg-accent-primary/10 text-accent-primary text-[10px] rounded-full font-medium">Son</span>
                   )}

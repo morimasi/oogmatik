@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import { CollectionItem, WorkbookSettings, StyleSettings, ActivityType } from '../types';
+import { CollectionItem, WorkbookSettings, StyleSettings, ActivityType, Student } from '../types';
 import Workbook from './Workbook';
 import { worksheetService } from '../services/worksheetService';
 import { updateWorkbook, createWorkbook } from '../services/workbook/workbookService';
@@ -432,7 +432,7 @@ KRİTİK KURALLAR:
     if (sid === 'anonymous') {
       setSettings((prev: WorkbookSettings) => ({ ...prev, studentName: '' }));
     } else {
-      const s = students.find((x: Record<string, unknown>) => x.id === sid);
+      const s = students.find((x: Student) => x.id === sid);
       if (s) {
         setSettings((prev: WorkbookSettings) => ({
           ...prev,

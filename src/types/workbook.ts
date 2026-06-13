@@ -416,46 +416,46 @@ export interface WorkbookPageStudentNote {
  * Workbook ayarları
  */
 export interface WorkbookSettings {
-  // Sayfa düzeni
   title: string;
   studentName: string;
-  pageSize: 'A4' | 'Letter' | 'B5';
-  orientation: 'portrait' | 'landscape';
-  layout: WorkbookPageLayout;
-
-  // Tipografi
-  fontFamily: string;
-  baseFontSize: number; // px
-  lineHeight: number;
-  letterSpacing: number; // px
-  wordSpacing: number; // px
-
-  // Disleksi uyumu
-  dyslexiaMode: boolean;
-  highlightSyllables: boolean;
+  schoolName?: string;
+  year?: string;
+  teacherNote?: string;
+  theme?: string;
+  accentColor?: string;
+  coverStyle?: 'centered' | 'left' | 'split' | 'hero' | 'minimalist';
+  showTOC?: boolean;
+  showPageNumbers?: boolean;
+  showWatermark?: boolean;
+  watermarkOpacity?: number;
+  showBackCover?: boolean;
+  logoUrl?: string;
+  aiPreface?: string;
+  isAiGeneratedCover?: boolean;
+  aiCoverConcept?: string;
+  layoutDensity?: 'compact' | 'comfortable' | 'spacious';
+  showHeaderOnEveryPage?: boolean;
+  customBackCoverNote?: string;
+  margin?: number;
+  pageSize?: 'A4' | 'Letter' | 'B5';
+  orientation?: 'portrait' | 'landscape';
+  layout?: WorkbookPageLayout;
+  fontFamily?: string;
+  baseFontSize?: number;
+  lineHeight?: number;
+  letterSpacing?: number;
+  wordSpacing?: number;
+  dyslexiaMode?: boolean;
+  highlightSyllables?: boolean;
   syllableColors?: string[];
-
-  // İçerik yapısı
-  showPageNumbers: boolean;
-  showTableOfContents: boolean;
-  showAnswerKey: boolean;
-  includeDividerPages: boolean;
-
-  // Export
-  defaultExportFormat: WorkbookExportFormat;
-
-  // Print
-  printMargins: {
-    top: number;
-    right: number;
-    bottom: number;
-    left: number;
-  };
-
-  // Accessibility
-  highContrast: boolean;
-  largePrint: boolean;
-  screenReaderOptimized: boolean;
+  showTableOfContents?: boolean;
+  showAnswerKey?: boolean;
+  includeDividerPages?: boolean;
+  defaultExportFormat?: WorkbookExportFormat;
+  printMargins?: { top: number; right: number; bottom: number; left: number };
+  highContrast?: boolean;
+  largePrint?: boolean;
+  screenReaderOptimized?: boolean;
 }
 
 // ============================================================================

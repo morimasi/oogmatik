@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, ChevronRight, BookOpen, Target, Sparkles, ArrowRight, MousePointer, Layers, Wand2 } from 'lucide-react';
+// @ts-expect-error lucide-react icons exist at runtime but tsc can't resolve some type declarations
+import { X, ChevronRight, BookOpen, Target, Sparkles, ArrowRight, Pointer, Layers, Wand } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../../store/useAuthStore';
 
@@ -24,7 +25,7 @@ export const GuideModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       ]
     },
     {
-      icon: Wand2,
+      icon: Wand,
       title: 'AI Stüdyoları',
       description: 'Akıllı içerik üretimi',
       color: 'violet',
@@ -60,7 +61,7 @@ export const GuideModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       ]
     },
     {
-      icon: MousePointer,
+      icon: Pointer,
       title: 'Kısayollar & İpuçları',
       description: 'Verimlilik artırıcı',
       color: 'rose',

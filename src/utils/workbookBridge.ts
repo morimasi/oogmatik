@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import type { CollectionItem, WorkbookSettings as LegacyWorkbookSettings, StyleSettings } from '../types';
+import type { CollectionItem, WorkbookSettings as LegacyWorkbookSettings, StyleSettings, Difficulty, AgeGroup } from '../types';
 import type {
   Workbook,
   WorkbookPage,
@@ -104,10 +104,10 @@ export function collectionItemsToWorkbookPages(workbookId: string, items: Collec
       activityType: item.activityType,
       activityData: item.data,
       targetSkills: [],
-      difficulty: 'easy',
+      difficulty: 'easy' as Difficulty,
       estimatedDuration: 15,
       profile: 'dyslexia',
-      ageGroup: 'elementary',
+      ageGroup: 'elementary' as AgeGroup,
     };
 
     return {

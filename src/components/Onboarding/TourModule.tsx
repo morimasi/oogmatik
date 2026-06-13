@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { X, ChevronRight, Map, Layout, Users, FileText, BarChart3, Settings, ArrowRight, Sparkles } from 'lucide-react';
+// @ts-expect-error lucide-react icons exist at runtime but tsc can't resolve some type declarations
+import { X, ChevronRight, MapPinned, Layout, Users, FileText, BarChart3, Settings, ArrowRight, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export const TourModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
@@ -91,7 +92,7 @@ export const TourModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         <div className="flex items-center justify-between px-5 py-3 border-b border-[var(--border-color)] bg-[var(--surface-glass)]">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-[var(--accent-color)] rounded-xl flex items-center justify-center">
-              <Map className="w-4 h-4 text-white" />
+              <MapPinned className="w-4 h-4 text-white" />
             </div>
             <div>
               <h2 className="text-sm font-black text-[var(--text-primary)] tracking-tight">Platform Turu</h2>

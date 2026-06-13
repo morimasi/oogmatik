@@ -119,7 +119,7 @@ export const ArchivePanel: React.FC<ArchivePanelProps> = ({ onClose }) => {
           <>
             <div className="px-1 py-0.5 text-[9px] text-[var(--text-secondary)] font-medium uppercase tracking-wider">{filtered.length} Arşiv Kaydı</div>
             {filtered.map((msg, i) => {
-              const daysLeft = getDaysRemaining(msg.deletedAt);
+              const daysLeft = getDaysRemaining(msg.deletedAt as unknown as Timestamp | null | undefined);
               return (
                 <motion.div key={msg.id} initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.02 }}
                   className="p-3 rounded-xl bg-[var(--bg-paper)] border border-[var(--border-color)] hover:border-amber-500/30 transition-all group shadow-sm">
@@ -134,7 +134,7 @@ export const ArchivePanel: React.FC<ArchivePanelProps> = ({ onClose }) => {
                         </span>
                         <span className="text-[9px] text-[var(--text-secondary)] flex items-center gap-1">
                           <Calendar className="w-3 h-3" />
-                          {formatTime(msg.deletedAt)}
+                          {formatTime(msg.deletedAt as unknown as Timestamp | null | undefined)}
                         </span>
                       </div>
 

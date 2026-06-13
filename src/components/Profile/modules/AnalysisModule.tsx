@@ -29,7 +29,8 @@ interface AnalysisModuleProps {
 }
 
 export const AnalysisModule: React.FC<AnalysisModuleProps> = ({ data, onShare }) => {
-  const { assessments, loading } = data;
+  const { loading } = data;
+  const assessments = data.assessments as unknown as SavedAssessment[];
   const [selectedAssessment, setSelectedAssessment] = useState<SavedAssessment | null>(null);
   const [sortBy, setSortBy] = useState<SortKey>('date');
   const [filterStudent, setFilterStudent] = useState('');

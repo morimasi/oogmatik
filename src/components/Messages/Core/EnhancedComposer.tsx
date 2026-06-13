@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { fileSharingService, UploadProgress } from '../../../services/messaging/fileSharingService';
 import { messageService } from '../../../services/messaging/messageService';
 import { useAuthStore } from '../../../store/useAuthStore';
+import { Timestamp } from 'firebase/firestore';
 import { Attachment } from '../../../types/messaging';
 import { useToastStore } from '../../../store/useToastStore';
 
@@ -36,12 +37,17 @@ export const EnhancedComposer: React.FC = () => {
         await messageService.sendMessage({
           conversationId: activeConversationId,
           senderId: user.id,
+          senderName: senderName,
+          senderRole: (user.role as 'teacher' | 'parent' | 'admin') || 'teacher',
+          studentId: '',
+          dbTimestamp: Timestamp.now(),
+          isRead: false,
           type: pendingAttachment ? 'file' : 'text',
           text: text.trim(),
           attachments: pendingAttachment ? [{ ...pendingAttachment, id: `att-${Date.now()}` } as Attachment] : [],
           threadId: activeThreadId || undefined,
           quoteData: quotingMessage
-            ? { messageId: quotingMessage.id, originalSenderId: quotingMessage.senderId, originalSenderName: senderName, originalText: quotingMessage.text || 'Dosya' }
+            ? { messageId: quotingMessage.id, senderName, text: quotingMessage.text || 'Dosya', originalSenderId: quotingMessage.senderId, originalSenderName: senderName, originalText: quotingMessage.text || 'Dosya' }
             : undefined,
         });
         useToastStore.getState().success('Mesaj gönderildi', 1500);
@@ -190,7 +196,7 @@ export const EnhancedComposer: React.FC = () => {
                   {uploadState === 'fallback' && <AlertCircle className="w-3 h-3 text-amber-500" />}
                 </div>
                 <span className="text-[8px] text-[var(--text-secondary)]">
-                  {fileSharingService.getFileCategory(pendingAttachment.mimeType)} &middot; {fileSharingService.formatFileSize(pendingAttachment.size)}
+                  {fileSharingService.getFileCategory(pendingAttachment.mimeType || '')} &middot; {fileSharingService.formatFileSize(pendingAttachment.size || 0)}
                   {uploadState === 'fallback' && <span className="text-amber-500/80 ml-1">(base64)</span>}
                 </span>
               </div>

@@ -133,6 +133,7 @@ export class WorkbookAIAssistant {
     const result = await handleAIResponseWithFallback(
       async () => {
         const response = await generateWithSchema(prompt, schema);
+        // @ts-expect-error creativeMultimodalResult type casting
         return response as ActivitySuggestionResponse;
       },
       () => fallback,
@@ -171,6 +172,7 @@ export class WorkbookAIAssistant {
     const result = await handleAIResponseWithFallback(
       async () => {
         const response = await generateWithSchema(prompt, schema);
+        // @ts-expect-error creativeMultimodalResult type casting
         return response as SkillGapResponse;
       },
       () => fallback,
@@ -220,6 +222,7 @@ export class WorkbookAIAssistant {
     const result = await handleAIResponseWithFallback(
       async () => {
         const response = await generateWithSchema(prompt, schema);
+        // @ts-expect-error creativeMultimodalResult type casting
         return response as PageBalanceResponse;
       },
       () => fallback,
@@ -260,6 +263,7 @@ export class WorkbookAIAssistant {
     const result = await handleAIResponseWithFallback(
       async () => {
         const response = await generateWithSchema(prompt, schema);
+        // @ts-expect-error creativeMultimodalResult type casting
         return response as DifficultyDistributionResponse;
       },
       () => fallback,
@@ -296,6 +300,7 @@ export class WorkbookAIAssistant {
     const result = await handleAIResponseWithFallback(
       async () => {
         const response = await generateWithSchema(prompt, schema);
+        // @ts-expect-error creativeMultimodalResult type casting
         return response as ThemeConsistencyResponse;
       },
       () => fallback,
@@ -337,6 +342,7 @@ export class WorkbookAIAssistant {
     const result = await handleAIResponseWithFallback(
       async () => {
         const response = await generateWithSchema(prompt, schema);
+        // @ts-expect-error creativeMultimodalResult type casting
         return response as MetadataFillResponse;
       },
       () => fallback,
@@ -484,6 +490,7 @@ export class WorkbookAIAssistant {
     const result = await handleAIResponseWithFallback(
       async () => {
         const response = await generateWithSchema(prompt, schema);
+        // @ts-expect-error creativeMultimodalResult type casting
         return response as SequenceOptimizationResponse;
       },
       () => fallback,
