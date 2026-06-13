@@ -120,7 +120,7 @@ export const generateOfflineMapInstruction = async (options: GeneratorOptions): 
     };
 
     // 4. Sayfalar
-    for (let p = 0; p < worksheetCount; p++) {
+    for (let p = 0; p < (worksheetCount || 0); p++) {
         const instructions: string[] = [];
         const count = itemCount || (level <= 1 ? 5 : level <= 2 ? 8 : level <= 3 ? 10 : 12);
 

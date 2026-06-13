@@ -422,7 +422,7 @@ const Sidebar = ({
 
                 <div className="max-h-[60vh] overflow-y-auto custom-scrollbar px-1 py-1 space-y-1">
                   {activeCategory === 'studios' ? (
-                    studioGroups.map((group: { title: string; items: StudioItem[] }, gIdx: number) => (
+                    studioGroups.map((group, gIdx: number) => (
                       <div key={gIdx} className="space-y-0.5">
                         <p className="px-2 pt-1 text-[7px] font-black text-[var(--accent-color)] uppercase tracking-tight opacity-70">{group.title}</p>
                         <div className="grid grid-cols-1 gap-0">

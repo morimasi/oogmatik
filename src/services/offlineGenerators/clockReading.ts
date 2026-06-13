@@ -41,7 +41,7 @@ export const generateOfflineClockReading = async (options: GeneratorOptions): Pr
     
     const results: ClockReadingData[] = [];
 
-    for (let p = 0; p < worksheetCount; p++) {
+    for (let p = 0; p < (worksheetCount || 0); p++) {
         const clocks = Array.from({ length: itemCount }, () => {
             const hour = getRandomInt(1, 12);
             let minute = 0;

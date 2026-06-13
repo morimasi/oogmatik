@@ -317,7 +317,7 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
   const { createAssignment, isLoading: isCreating } = useAssignmentStore();
   const worksheetsData = useGetUserWorksheets({
     userId: user?.id || '',
-    userRole: user?.role || 'teacher',
+    userRole: (user?.role || 'teacher') as "admin" | "teacher" | "student" | "parent",
     pageSize: 50
   });
 

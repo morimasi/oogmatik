@@ -247,7 +247,7 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook, i
     setIsSharing(true);
     try {
       const user = useAuthStore.getState().user;
-      await worksheetService.shareWorksheet(savedExamDocId, user?.id || '', user?.displayName || '', shareUserId.trim());
+      await worksheetService.shareWorksheet(savedExamDocId, user?.id || '', (user as any)?.displayName || '', shareUserId.trim());
       showSuccess('Sınav paylaşıldı!');
       setShowShareModal(false);
       setShareUserId('');

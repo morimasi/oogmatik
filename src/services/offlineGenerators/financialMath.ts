@@ -14,7 +14,7 @@ export const generateOfflineMoneyCounting = async (options: GeneratorOptions): P
     const allNotes = [200, 100, 50, 20, 10, 5];
     const allCoins = [1, 0.5, 0.25, 0.1, 0.05];
 
-    for (let p = 0; p < worksheetCount; p++) {
+    for (let p = 0; p < (worksheetCount || 0); p++) {
         const puzzles = Array.from({ length: itemCount }, () => {
             const selectedNotes: { value: number; count: number }[] = [];
             const selectedCoins: { value: number; count: number }[] = [];

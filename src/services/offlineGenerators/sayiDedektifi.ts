@@ -105,7 +105,7 @@ export const generateOfflineSayiDedektifi = async (
   const [min, max] = rangeMap[difficulty] || [1, 100];
 
   for (let i = 0; i < worksheetCount; i++) {
-    const riddles: SayiDedektifRiddle[] = [];
+    const riddles: SayiDedektifiRiddle[] = [];
     const usedNumbers = new Set<number>();
 
     while (riddles.length < itemCount) {

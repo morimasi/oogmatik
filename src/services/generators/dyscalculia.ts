@@ -1,6 +1,6 @@
 
 import { generateWithSchema } from '../geminiClient.js';
-import { GeneratorOptions, MathMemoryCardsData } from '../../types.js';
+import { GeneratorOptions, MathMemoryCardsData, MathMemoryCard } from '../../types.js';
 import { getMathPrompt } from './prompts.js';
 
 export const generateMathMemoryCardsFromAI = async (options: GeneratorOptions): Promise<MathMemoryCardsData[]> => {
@@ -58,7 +58,10 @@ export const generateMathMemoryCardsFromAI = async (options: GeneratorOptions): 
     // Fix: Removed the third argument 'gemini-3-flash-preview' as unknown as generateWithSchema only expects two arguments
     const result = await generateWithSchema(prompt, schema) as unknown as Array<Record<string, unknown>>;
     return result.map((p: Record<string, unknown>) => ({
-        ...p,
+        title: (p.title as string) ?? '',
+        instruction: (p.instruction as string) ?? '',
+        cards: (p.cards as MathMemoryCard[]) ?? [],
+        pedagogicalNote: p.pedagogicalNote as string | undefined,
         settings: { gridCols: 4, cardCount: itemCount, difficulty, variant, showNumbers }
     }));
 };

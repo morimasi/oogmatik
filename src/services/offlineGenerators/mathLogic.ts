@@ -9,15 +9,18 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
     const { worksheetCount, _difficulty, itemCount = 2 } = options as Record<string, unknown>;
     const pages: MathPuzzleData[] = [];
 
+    const wc = worksheetCount as number || 0;
+    const ic = itemCount as number || 2;
+
     const objects = [
         { name: 'Elma', prompt: 'apple' }, { name: 'Armut', prompt: 'pear' }, 
         { name: 'Muz', prompt: 'banana' }, { name: 'Çilek', prompt: 'strawberry' },
         { name: 'Karpuz', prompt: 'watermelon' }, { name: 'Portakal', prompt: 'orange' }
     ];
 
-    for (let p = 0; p < worksheetCount; p++) {
+    for (let p = 0; p < wc; p++) {
         const puzzles = [];
-        for (let i = 0; i < itemCount; i++) {
+        for (let i = 0; i < ic; i++) {
             const selectedObjs = getRandomItems(objects, 3);
             const val1 = getRandomInt(2, 10);
             const val2 = getRandomInt(2, 10);
@@ -77,11 +80,11 @@ export const generateOfflineNumberLogicRiddles = async (options: GeneratorOption
     let [min, max] = (numberRange as string).split('-').map(Number);
     if (isNaN(min)) min = 1; if (isNaN(max)) max = 50;
 
-    for (let p = 0; p < worksheetCount; p++) {
+    for (let p = 0; p < ((worksheetCount as number) || 0); p++) {
         const puzzles = [];
         let total = 0;
 
-        for (let i = 0; i < itemCount; i++) {
+        for (let i = 0; i < ((itemCount as number) || 0); i++) {
             const target = getRandomInt(min, max);
             total += target;
             
@@ -100,8 +103,8 @@ export const generateOfflineNumberLogicRiddles = async (options: GeneratorOption
                 { text: `Birler basamağım ${units}'dir.`, icon: 'fa-hashtag', type: 'digits' }
             ];
 
-            const selectedHints = shuffle(pool).slice(0, gridSize);
-            while(selectedHints.length < gridSize) {
+            const selectedHints = shuffle(pool).slice(0, (gridSize as number) || 3);
+            while(selectedHints.length < ((gridSize as number) || 3)) {
                 selectedHints.push({ text: `Ben ${target} sayısına yakın bir yerdeyim.`, icon: 'fa-location-dot', type: 'arithmetic' as any });
             }
 
@@ -138,14 +141,14 @@ export const generateOfflineNumberPathLogic = async (options: GeneratorOptions):
     const pages: NumberPathLogicData[] = [];
     const SYMBOLS = ['circle', 'square', 'triangle', 'hexagon', 'star'];
     const COLORS = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
-    for (let p = 0; p < worksheetCount; p++) {
+    for (let p = 0; p < ((worksheetCount as number) || 0); p++) {
         const legend = SYMBOLS.map((s, i) => {
             const operations = ['+', '-', '+', '*'];
             const op = operations[i % operations.length];
             const value = op === '*' ? getRandomInt(2, 4) : getRandomInt(2, 8);
             return { symbol: s, operation: op, value, color: COLORS[i] };
         });
-        const chains = Array.from({ length: itemCount }, () => {
+        const chains = Array.from({ length: (itemCount as number) || 14 }, () => {
             const startNumber = getRandomInt(2, 10);
             const steps = [];
             let currentVal = startNumber;

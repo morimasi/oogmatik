@@ -577,7 +577,7 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
               {activeTab === 'overview' && (
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <DashboardModule
-                    student={selectedStudent}
+                    student={selectedStudent as AdvancedStudent}
                     assignments={assignments}
                     worksheets={studentWorksheets}
                     assessments={studentAssessments}

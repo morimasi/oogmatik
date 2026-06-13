@@ -66,7 +66,9 @@ export const generateHiddenPasswordGridFromAI = async (options: GeneratorOptions
     // Fix: Removed the third argument 'gemini-3-flash-preview' as unknown as generateWithSchema only expects two arguments
     const result = await generateWithSchema(prompt, schema) as unknown as Array<Record<string, unknown>>;
     return result.map((page: Record<string, unknown>) => ({
-        ...page,
+        title: (page.title as string) ?? '',
+        instruction: (page.instruction as string) ?? '',
+        grids: (page.grids as HiddenPasswordGridData['grids']) ?? [],
         settings: {
             gridSize,
             itemCount,

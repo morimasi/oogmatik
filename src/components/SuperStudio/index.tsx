@@ -25,7 +25,7 @@ export const SuperStudio: React.FC<SuperStudioProps> = ({ onAddToWorkbook }) => 
     clearGeneratedContents,
     setIsGenerating,
   } = useSuperStudioStore();
-  const { addToast } = useToastStore();
+  const { show: addToast } = useToastStore();
 
   const handleGenerate = async () => {
     if (selectedTemplates.length === 0) {

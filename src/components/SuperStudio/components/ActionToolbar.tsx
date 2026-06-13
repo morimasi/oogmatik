@@ -15,7 +15,7 @@ interface ActionToolbarProps {
 export const ActionToolbar: React.FC<ActionToolbarProps> = ({ onAddToWorkbook }) => {
   const { generatedContents, isGenerating } = useSuperStudioStore();
   const { user } = useAuthStore();
-  const { addToast } = useToastStore();
+  const { show: addToast } = useToastStore();
 
   const handleSave = async () => {
     if (!user) {

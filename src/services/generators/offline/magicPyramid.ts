@@ -11,7 +11,7 @@ export const generateOfflineMagicPyramid = async (options: GeneratorOptions): Pr
     // A4'e sığacak şekilde, katman sayısına göre sayfa başına piramit sayısını belirliyoruz.
     const pyramidsPerSheet = layers === 6 ? 4 : 6;
 
-    for (let c = 0; c < worksheetCount; c++) {
+    for (let c = 0; c < (worksheetCount || 0); c++) {
         const step = Math.floor(Math.random() * 4) + 2;
         const pagePyramids = [];
 

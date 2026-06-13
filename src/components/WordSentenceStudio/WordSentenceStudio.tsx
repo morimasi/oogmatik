@@ -27,7 +27,7 @@ export const WordSentenceStudio: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   
   const { updateStyleSettings } = useUIStore();
-  const { currentStudent } = useAppStore();
+  const currentStudent = (useAppStore() as any).currentStudent;
 
   const handleGenerate = async () => {
     setIsLoading(true);

@@ -23,7 +23,7 @@ export const StudentSelector = () => {
                     interests: student.interests,
                     strengths: student.strengths,
                     weaknesses: student.weaknesses
-                }
+                } as any
             });
         } else {
             setActiveStudent(null);

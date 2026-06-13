@@ -49,7 +49,6 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook, initialData }: SariKita
     React.useEffect(() => {
         if (activeStudent) {
             updateConfig({
-                studentName: activeStudent.name,
                 studentGrade: activeStudent.grade || '2. Sınıf',
                 focus: activeStudent.diagnosis?.[0] || 'Genel Gelişim'
             });

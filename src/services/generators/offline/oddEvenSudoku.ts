@@ -48,7 +48,7 @@ export const generateOfflineOddEvenSudoku = async (options: GeneratorOptions): P
 
     const puzzlesPerSheet = size === 6 ? 4 : 6;
 
-    for (let c = 0; c < worksheetCount; c++) {
+    for (let c = 0; c < (worksheetCount || 0); c++) {
         const pagePuzzles = [];
 
         for (let p = 0; p < puzzlesPerSheet; p++) {

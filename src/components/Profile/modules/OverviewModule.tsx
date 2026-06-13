@@ -127,7 +127,7 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({
         >
           {performanceTrends && performanceTrends.length >= 2 ? (
             <LineChart
-              data={performanceTrends}
+              data={performanceTrends as DataPoint[]}
               lines={[{ key: 'score', color: '#6366f1', label: 'Genel Skor' }]}
             />
           ) : (

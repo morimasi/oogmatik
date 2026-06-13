@@ -25,8 +25,8 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
         'advanced': 'Metaforik dil, zengin sıfat kullanımı, yüksek edebi değer.'
     };
 
-    const diagnosisStr = config.studentProfile?.diagnosis?.join(', ') || 'Özel Öğrenme Güçlüğü (Genel)';
-    const interestsStr = config.studentProfile?.interests?.join(', ') || 'Macera, Bilim, Doğa';
+    const diagnosisStr = (config.studentProfile as any)?.diagnosis?.join(', ') || 'Özel Öğrenme Güçlüğü (Genel)';
+    const interestsStr = (config.studentProfile as any)?.interests?.join(', ') || 'Macera, Bilim, Doğa';
 
     // Unique content generation seed - ensures different content each time
     const generationSeed = Date.now() + Math.random();

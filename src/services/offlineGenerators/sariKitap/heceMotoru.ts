@@ -26,8 +26,9 @@ export function processPencereContent(
     
     return rows.map((row) => ({
         ...row,
-        syllables: row.syllables.map((s: { isHighlighted?: boolean; dotBelow?: boolean; bridgeNext?: boolean }, i) => ({
+        syllables: row.syllables.map((s: { isHighlighted?: boolean; dotBelow?: boolean; bridgeNext?: boolean; syllable?: string }, i) => ({
             ...s,
+            syllable: (s as any).syllable ?? '',
             isHighlighted: config.showSequential
                 ? i % (windowSize + 1) < windowSize
                 : Math.random() < visibilityRatio,
@@ -49,8 +50,9 @@ export function processNoktaContent(
 
     return rows.map((row) => ({
         ...row,
-        syllables: row.syllables.map((s: { isHighlighted?: boolean; dotBelow?: boolean; bridgeNext?: boolean }, i) => ({
+        syllables: row.syllables.map((s: { isHighlighted?: boolean; dotBelow?: boolean; bridgeNext?: boolean; syllable?: string }, i) => ({
             ...s,
+            syllable: (s as any).syllable ?? '',
             dotBelow: i % density === 0,
         })),
     }));
@@ -69,8 +71,9 @@ export function processKopruContent(
 
     return rows.map((row) => ({
         ...row,
-        syllables: row.syllables.map((s: { isHighlighted?: boolean; dotBelow?: boolean; bridgeNext?: boolean }, i) => ({
+        syllables: row.syllables.map((s: { isHighlighted?: boolean; dotBelow?: boolean; bridgeNext?: boolean; syllable?: string }, i) => ({
             ...s,
+            syllable: (s as any).syllable ?? '',
             bridgeNext: i < row.syllables.length - 1,
         })),
     }));

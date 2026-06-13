@@ -126,7 +126,7 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
             <span className="text-[8px] font-medium text-zinc-400 uppercase">AI Analiz Önerisi</span>
           </div>
           <p className="text-[10px] font-bold text-[var(--text-primary)] leading-relaxed italic">
-            "{student.aiProfile?.pedagogicalRecommendations?.[0] || 'Öğrencinin görsel işlemleme kapasitesini artırmak için materyallerde yüksek kontrastlı renkler ve Lexend fontu tercih ediniz.'}"
+            "{(student.aiProfile as any)?.pedagogicalRecommendations?.[0] || 'Öğrencinin görsel işlemleme kapasitesini artırmak için materyallerde yüksek kontrastlı renkler ve Lexend fontu tercih ediniz.'}"
           </p>
         </div>
         <div className="hidden md:flex flex-col items-end gap-1 shrink-0">

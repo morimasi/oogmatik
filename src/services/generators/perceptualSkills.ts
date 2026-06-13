@@ -68,7 +68,7 @@ export const generateVisualOddOneOutFromAI = async (
     - Estetik Stil: ${aestheticMode || 'standard'}.
     - Satır Başı Öğe Sayısı: ${gridSize || 4}.
     - Üretilecek Satır Sayısı: ${rowCount} (Dopdolu bir sayfa için KESİNLİKLE bu sayıda satır üret).
-    - Öğrenci Profili: ${studentContext?.diagnosis?.join(', ') || 'Genel Gelişim'}.
+    - Öğrenci Profili: ${(studentContext as any)?.diagnosis?.join(', ') || 'Genel Gelişim'}.
     
     STRATEJİ:
     1. Bilişsel yük endeksine göre şekiller arası görsel benzerliği ayarla.
@@ -166,7 +166,7 @@ export const generateFindTheDifferenceFromAI = async (
     - Veri Tipi: ${typeDesc}.
     - Zorluk: ${difficulty}.
     - Hedef Fark Sayısı: ${itemCount}.
-    - Öğrenci Profili: ${studentContext?.diagnosis?.join(', ') || 'Genel Gelişim'}.
+    - Öğrenci Profili: ${(studentContext as any)?.diagnosis?.join(', ') || 'Genel Gelişim'}.
     
     STRATEJİ:
     1. İki adet grid oluştur (gridA ve gridB).

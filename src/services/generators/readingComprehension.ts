@@ -83,7 +83,7 @@ export const generateSynonymAntonymMatchFromAI = async (options: GeneratorOption
     [ROL: UZMAN EĞİTİM MATERYALİ TASARIMCISI]
     GÖREV: "${difficulty}" seviyesinde, disleksi dostu bir "Eş ve Zıt Anlamlı Kelime Bulmacası" oluştur.
     MOD: ${modeDesc}
-    ADET: ${itemCount} çift kelime ve ${Math.min(4, itemCount)} adet bağlamsal cümle.
+    ADET: ${(itemCount as number) || 0} çift kelime ve ${Math.min(4, (itemCount as number) || 0)} adet bağlamsal cümle.
 
     KURALLAR:
     1. Kelimeler somut ve disleksik bireylerin kelime dağarcığını geliştirecek nitelikte seçilmeli.
@@ -151,7 +151,7 @@ export const generateReadingStroopFromAI = async (options: GeneratorOptions): Pr
         'mirror_chars': 'Ayna harflerle başlayan kelimeler (Balık, Dalga, Polat, Oluk vb. - b,d,p,q odaklı)'
     };
 
-    const selectedWordType = wordTypeMap[variant || 'colors'];
+    const selectedWordType = wordTypeMap[(variant as string) || 'colors'];
 
     const prompt = `
     "${difficulty}" seviyesinde Sözel Stroop Testi üret.

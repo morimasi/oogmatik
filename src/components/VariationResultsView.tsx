@@ -32,7 +32,7 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
 }) => {
   const [selectedIndices, setSelectedIndices] = useState<Set<number>>(new Set());
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
-  const { _addWorksheet } = useAppStore();
+  const _addWorksheet = (useAppStore() as any)._addWorksheet;
 
   const toggleSelect = (index: number) => {
     const newSelected = new Set(selectedIndices);
@@ -210,14 +210,14 @@ export const VariationResultsView: React.FC<VariationResultsViewProps> = ({
                   </div>
 
                   {/* Görsel veri varsa GraphicRenderer ile göster */}
-                  {variation.grafikVeri && (
+                  {variation.grafikVeri ? (
                     <div className="mt-2 flex justify-center rounded-xl overflow-hidden bg-slate-700/30 p-2">
                       <GraphicRenderer
                         grafik={variation.grafikVeri as unknown as GrafikVerisi}
                         className="w-full"
                       />
                     </div>
-                  )}
+                  ) : null}
 
                   {/* Expand Button */}
                   <button
