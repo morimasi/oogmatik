@@ -47,7 +47,6 @@ import type {
   WorkbookListQuery,
   WorkbookStats,
   WorkbookVersion,
-  WORKBOOK_CONSTRAINTS,
 } from '../../types/workbook';
 
 // ============================================================================

@@ -296,10 +296,10 @@ export const WorkbookView = ({
     setIsSaving(true);
     try {
       const assignedStudent = students.find((s: { name: string; id?: string }) => s.name === settings.studentName);
-      const pages = collectionItemsToWorkbookPages(workbookId || `wb_${Date.now()}`, items);
       const v2Settings = legacySettingsToV2(settings);
 
       if (workbookId) {
+        const pages = collectionItemsToWorkbookPages(workbookId, items);
         await updateWorkbook(workbookId, user.id, {
           title: settings.title,
           pages,
@@ -312,6 +312,7 @@ export const WorkbookView = ({
           assignedStudentId: assignedStudent?.id,
           settings: v2Settings,
         });
+        const pages = collectionItemsToWorkbookPages(created.id, items);
         await updateWorkbook(created.id, user.id, { pages, title: settings.title });
       }
 
