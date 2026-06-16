@@ -641,7 +641,7 @@ const AppContent = () => {
                     )}
                     {currentView === 'super-turkce' && (
                       <ProtectedRoute module="super-studio" onBack={handleGoBack}>
-                        <SuperStudio />
+                        <SuperStudio onAddToWorkbook={(type: any, data: any) => handleAddToWorkbookGeneral(type, data)} />
                       </ProtectedRoute>
                     )}
                     {currentView === 'activity-studio' && (
@@ -724,7 +724,7 @@ const AppContent = () => {
                       <ProtectedRoute module="kelime-cumle" onBack={handleGoBack}>
                         <KelimeCumleStudio
                           onBack={handleGoBack}
-                          onAddToWorkbook={(data: unknown) => handleAddToWorkbookGeneral(ActivityType.KELIME_CUMLE, data as Record<string, unknown>)}
+                          onAddToWorkbook={(_type: unknown, data: unknown) => handleAddToWorkbookGeneral(ActivityType.KELIME_CUMLE, data as Record<string, unknown>)}
                         />
                       </ProtectedRoute>
                     )}

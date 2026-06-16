@@ -9,12 +9,31 @@ interface WorkbookProps {
   settings: WorkbookSettings;
 }
 
-// --- HELPER FUNCTIONS (OUTSIDE OF COMPONENT) ---
+// --- THEME PALETTES ---
+
+const THEME_PALETTES: Record<string, { coverBg: string; coverText: string; coverAccent: string; pageAccent: string }> = {
+  modern:    { coverBg: '#ffffff',        coverText: '#18181b', coverAccent: '#4f46e5', pageAccent: '#4f46e5' },
+  classic:   { coverBg: '#fefce8',        coverText: '#451a03', coverAccent: '#d97706', pageAccent: '#b45309' },
+  minimal:   { coverBg: '#fafafa',        coverText: '#27272a', coverAccent: '#52525b', pageAccent: '#71717a' },
+  academic:  { coverBg: '#0f172a',        coverText: '#f8fafc', coverAccent: '#3b82f6', pageAccent: '#2563eb' },
+  artistic:  { coverBg: '#0d9488',        coverText: '#ffffff', coverAccent: '#14b8a6', pageAccent: '#0d9488' },
+  space:     { coverBg: '#020617',        coverText: '#e2e8f0', coverAccent: '#8b5cf6', pageAccent: '#7c3aed' },
+  nature:    { coverBg: '#f0fdf4',        coverText: '#14532d', coverAccent: '#22c55e', pageAccent: '#16a34a' },
+  cyber:     { coverBg: '#000000',        coverText: '#fdf4ff', coverAccent: '#d946ef', pageAccent: '#e879f9' },
+  luxury:    { coverBg: '#1c1917',        coverText: '#fef3c7', coverAccent: '#f59e0b', pageAccent: '#d97706' },
+  playful:   { coverBg: '#fdf2f8',        coverText: '#831843', coverAccent: '#ec4899', pageAccent: '#db2777' },
+};
+
+const DENSITY_PADDING: Record<string, string> = {
+  compact:     '10mm',
+  comfortable: '15mm',
+  spacious:    '22mm',
+};
 
 const getPageStyle = (isLandscape: boolean, font: string, settings: WorkbookSettings, extra = {}) => ({
   width: isLandscape ? '297mm' : '210mm',
   height: isLandscape ? '210mm' : '297mm',
-  padding: settings.margin ? `${settings.margin}mm` : '15mm',
+  padding: settings.margin ? `${settings.margin}mm` : (DENSITY_PADDING[settings.layoutDensity || ''] || '15mm'),
   margin: '0 auto',
   backgroundColor: 'white',
   color: 'black',
@@ -119,19 +138,68 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }: WorkbookProps) =
   let runningPageNum = 1;
 
   const renderCover = () => {
-    const logo = settings.logoUrl ? <img src={settings.logoUrl} className="h-20 w-auto object-contain" alt="Logo" /> : <DyslexiaLogo className="h-16 w-auto text-current" />;
+    const palette = THEME_PALETTES[settings.theme || ''] || THEME_PALETTES.modern;
+    const logo = settings.logoUrl ? <img src={settings.logoUrl} className="h-20 w-auto object-contain" alt="Logo" /> : <DyslexiaLogo className="h-16 w-auto" />;
+    const coverStyle = settings.coverStyle || 'centered';
+
+    const coverInner = (content: React.ReactNode, posClass: string) => (
+      <div className={`w-full h-full flex flex-col overflow-hidden relative`} style={{ backgroundColor: palette.coverBg, color: palette.coverText }}>
+        <div className={`p-16 flex flex-col h-full relative z-10 ${posClass}`}>
+          {content}
+        </div>
+      </div>
+    );
+
+    const layouts: Record<string, React.ReactNode> = {
+      centered: coverInner(
+        <div className="flex flex-col h-full justify-center items-center text-center">
+          <div className="mb-10">{logo}</div>
+          <h1 className="text-7xl font-black mb-8 uppercase leading-none" style={{ color: palette.coverText }}>{settings.title}</h1>
+          <h2 className="text-4xl font-black tracking-tight mb-4" style={{ color: palette.coverText }}>{settings.studentName}</h2>
+          <p className="font-black text-xl uppercase" style={{ color: palette.coverAccent }}>{settings.schoolName}</p>
+        </div>, 'items-center text-center'
+      ),
+      left: coverInner(
+        <div className="flex flex-col h-full justify-between">
+          <div>{logo}</div>
+          <div className="flex-1 flex flex-col justify-center">
+            <h1 className="text-7xl font-black mb-8 uppercase leading-none" style={{ color: palette.coverText }}>{settings.title}</h1>
+            <h2 className="text-4xl font-black tracking-tight mb-4" style={{ color: palette.coverText }}>{settings.studentName}</h2>
+            <p className="font-black text-xl uppercase" style={{ color: palette.coverAccent }}>{settings.schoolName}</p>
+          </div>
+          <div />
+        </div>, 'items-start text-left'
+      ),
+      split: coverInner(
+        <div className="flex flex-row h-full items-center gap-12">
+          <div className="flex-1">{logo}</div>
+          <div className="flex-1">
+            <h1 className="text-6xl font-black mb-6 uppercase leading-none" style={{ color: palette.coverText }}>{settings.title}</h1>
+            <h2 className="text-3xl font-black tracking-tight mb-4" style={{ color: palette.coverText }}>{settings.studentName}</h2>
+            <p className="font-black text-lg uppercase" style={{ color: palette.coverAccent }}>{settings.schoolName}</p>
+          </div>
+        </div>, 'items-center'
+      ),
+      hero: coverInner(
+        <div className="flex flex-col h-full justify-end pb-20">
+          <div className="mb-6">{logo}</div>
+          <h1 className="text-8xl font-black mb-4 uppercase leading-[0.9]" style={{ color: palette.coverText }}>{settings.title}</h1>
+          <h2 className="text-4xl font-black tracking-tight mb-2" style={{ color: palette.coverAccent }}>{settings.studentName}</h2>
+          <p className="font-black text-lg uppercase opacity-60" style={{ color: palette.coverText }}>{settings.schoolName}</p>
+        </div>, 'items-start text-left'
+      ),
+      minimalist: coverInner(
+        <div className="flex flex-col h-full justify-center items-center text-center">
+          <h1 className="text-6xl font-black mb-4 uppercase leading-none tracking-tighter" style={{ color: palette.coverText }}>{settings.title}</h1>
+          <div className="w-16 h-0.5 mb-4" style={{ backgroundColor: palette.coverAccent }} />
+          {settings.studentName && <h2 className="text-2xl font-black tracking-tight" style={{ color: palette.coverText }}>{settings.studentName}</h2>}
+        </div>, 'items-center text-center'
+      ),
+    };
+
     return (
       <div className="worksheet-page premium-glow" style={getPageStyle(isLandscape, font, settings)}>
-        <div className="w-full h-full flex flex-col bg-white overflow-hidden relative" style={{ borderLeft: `25mm solid ${accent}` }}>
-          <div className="p-20 flex flex-col h-full justify-between relative z-10 text-left">
-            <div>{logo}</div>
-            <div>
-              <h1 className="text-7xl font-black text-zinc-900 mb-8 uppercase leading-none">{settings.title}</h1>
-              <h2 className="text-4xl font-black text-zinc-800 tracking-tight">{settings.studentName}</h2>
-            </div>
-            <p className="font-black text-xl text-zinc-900 uppercase">{settings.schoolName}</p>
-          </div>
-        </div>
+        {layouts[coverStyle] || layouts.centered}
       </div>
     );
   };

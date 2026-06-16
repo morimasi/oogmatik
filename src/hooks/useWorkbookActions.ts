@@ -252,11 +252,27 @@ export const useWorkbookActions = (
   };
 
   const handleAddDirectToWorkbook = (item: CollectionItem) => {
+    // Çok sayfalı veriyi algıla ve normalize et
+    const raw = item.data;
+    let normalizedData: unknown = raw;
+
+    if (raw && typeof raw === 'object') {
+      if (Array.isArray(raw)) {
+        // Doğrudan array → pages dizisi olarak grupla
+        normalizedData = { pages: raw };
+      } else if (Array.isArray((raw as Record<string, unknown>).pages)) {
+        // Zaten pages var → dokunma
+      } else if (Array.isArray((raw as Record<string, unknown>).sheets)) {
+        // sheets → pages'e dönüştür
+        normalizedData = { ...raw, pages: (raw as Record<string, unknown>).sheets };
+      }
+    }
+
     const newItems: CollectionItem[] = [
       {
         id: crypto.randomUUID(),
         activityType: item.activityType,
-        data: item.data,
+        data: normalizedData as CollectionItem['data'],
         settings: { ...styleSettings, ...item.settings },
         title: item.title,
       },
