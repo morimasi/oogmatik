@@ -75,6 +75,7 @@ export const useWorkbookActions = (
         drills: 8,         // Matematik drilleri
         paragraphs: 2,     // Paragraf bazlı içerikler
         sections: 3,       // Bölümler
+        instructions: 5,   // Yönerge listeleri (Harita Dedektifi vb.)
       };
 
       const listKeys = Object.keys(PAGINATION_CONFIG);
@@ -119,11 +120,33 @@ export const useWorkbookActions = (
         }));
 
       if (Array.isArray(finalData)) {
-        // Doğrudan array olarak gelen veri → tek item'da pages dizisi
-        const mergedPages = mergePageData(finalData, {}, false);
+        // Doğrudan array olarak gelen veri → her elemanın iç listelerini de kontrol et
+        const expandedPages: Record<string, unknown>[] = [];
+        for (const elem of finalData) {
+          const elemListKey = listKeys.find(
+            (key) => (elem as any)[key] && Array.isArray((elem as any)[key]) && (elem as any)[key].length > PAGINATION_CONFIG[key]
+          );
+          if (elemListKey && (elem as any)[elemListKey].length > PAGINATION_CONFIG[elemListKey]) {
+            const itemsPerPage = PAGINATION_CONFIG[elemListKey];
+            const allItems = (elem as any)[elemListKey] as unknown[];
+            const totalPages = Math.ceil(allItems.length / itemsPerPage);
+            for (let i = 0; i < allItems.length; i += itemsPerPage) {
+              const chunk = allItems.slice(i, i + itemsPerPage);
+              expandedPages.push({
+                ...elem,
+                [elemListKey]: chunk,
+                pageIndex: Math.floor(i / itemsPerPage),
+                _totalPages: totalPages,
+                title: `${(elem as any).title || (elem as any).baslik || 'Etkinlik'} - Sayfa ${Math.floor(i / itemsPerPage) + 1}/${totalPages}`,
+              });
+            }
+          } else {
+            expandedPages.push({ ...elem, pageIndex: expandedPages.length });
+          }
+        }
         dataArray = [{
           title: (finalData[0] as any)?.title || 'Etkinlik',
-          pages: mergedPages,
+          pages: expandedPages,
         }];
 
       } else if (deepUnwrappedData.pages && Array.isArray(deepUnwrappedData.pages)) {
