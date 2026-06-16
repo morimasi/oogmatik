@@ -137,6 +137,7 @@ export interface MathMemoryCardsData extends BaseActivityData {
     difficulty: string;
     variant: string;
     showNumbers?: boolean;
+    fastMode?: boolean;
   };
 }
 
