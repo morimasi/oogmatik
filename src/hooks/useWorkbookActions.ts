@@ -38,6 +38,15 @@ export const useWorkbookActions = (
     showWatermark: false,
     watermarkOpacity: 0.05,
     showBackCover: true,
+    pageSize: 'A4',
+    orientation: 'portrait',
+    margin: 15,
+    layoutDensity: 'comfortable',
+    fontFamily: 'Lexend',
+    lineHeight: 1.6,
+    wordSpacing: 2,
+    dyslexiaMode: false,
+    highlightSyllables: false,
   } as WorkbookSettings);
 
   const handleAddToWorkbookGeneral = (

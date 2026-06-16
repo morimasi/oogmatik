@@ -30,22 +30,38 @@ const DENSITY_PADDING: Record<string, string> = {
   spacious:    '22mm',
 };
 
-const getPageStyle = (isLandscape: boolean, font: string, settings: WorkbookSettings, extra = {}) => ({
-  width: isLandscape ? '297mm' : '210mm',
-  height: isLandscape ? '210mm' : '297mm',
-  padding: settings.margin ? `${settings.margin}mm` : (DENSITY_PADDING[settings.layoutDensity || ''] || '15mm'),
-  margin: '0 auto',
-  backgroundColor: 'white',
-  color: 'black',
-  position: 'relative' as const,
-  overflow: 'hidden' as const,
-  boxShadow: '0 0 40px rgba(0,0,0,0.1)',
-  fontFamily: font,
-  boxSizing: 'border-box' as const,
-  display: 'flex' as const,
-  flexDirection: 'column' as const,
-  ...extra,
-});
+const PAGE_SIZES: Record<string, { w: string; h: string }> = {
+  A4: { w: '210mm', h: '297mm' },
+  A5: { w: '148mm', h: '210mm' },
+  Letter: { w: '216mm', h: '279mm' },
+  B5: { w: '176mm', h: '250mm' },
+};
+
+const getPageStyle = (isLandscape: boolean, font: string, settings: WorkbookSettings, extra = {}) => {
+  const size = PAGE_SIZES[settings.pageSize || 'A4'] || PAGE_SIZES.A4;
+  const width = isLandscape ? size.h : size.w;
+  const height = isLandscape ? size.w : size.h;
+  
+  return {
+    width,
+    height,
+    padding: settings.margin !== undefined ? `${settings.margin}mm` : (DENSITY_PADDING[settings.layoutDensity || ''] || '15mm'),
+    margin: '0 auto',
+    backgroundColor: 'white',
+    color: 'black',
+    position: 'relative' as const,
+    overflow: 'hidden' as const,
+    boxShadow: '0 0 40px rgba(0,0,0,0.1)',
+    fontFamily: font,
+    boxSizing: 'border-box' as const,
+    display: 'flex' as const,
+    flexDirection: 'column' as const,
+    lineHeight: settings.lineHeight || 1.6,
+    letterSpacing: `${settings.letterSpacing || 0}px`,
+    wordSpacing: `${settings.wordSpacing || 2}px`,
+    ...extra,
+  };
+};
 
 const Watermark = ({ settings }: { settings: WorkbookSettings }) => {
   if (!settings.showWatermark) return null;
@@ -107,7 +123,10 @@ const WorkbookPage: React.FC<WorkbookPageProps> = ({
   return (
     <React.Fragment key={`${item.id}-p${pIdx}`}>
       <div className="relative w-full flex justify-center print:m-0">
-        <div className="relative bg-white shadow-2xl worksheet-page" style={style}>
+        <div 
+          className={`relative bg-white shadow-2xl worksheet-page ${settings.dyslexiaMode ? 'dyslexia-ultra-mode' : ''} ${settings.highlightSyllables ? 'highlight-syllables-active' : ''}`} 
+          style={style}
+        >
           <Watermark settings={settings} />
           <div className="relative z-10 flex flex-col h-full" style={{ overflow: 'hidden', paddingBottom: '40px' }}>
             <WorkbookActivityRenderer
@@ -276,7 +295,17 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }: WorkbookProps) =
           );
         }
 
-        const pages = (item.data as unknown as any)?.pages || (item.data as unknown as any)?.sheets;
+        // --- MULTI-PAGE DETECTION ---
+        let pages = (item.data as any)?.pages || (item.data as any)?.sheets;
+        
+        // Eğer data direkt array ise (bazı v1 aktiviteleri)
+        if (!pages && Array.isArray(item.data) && item.data.length > 0) {
+          // Eğer içindeki ilk eleman bir sayfa gibi görünüyorsa (örn: _currentPage varsa)
+          if (item.data[0]._currentPage !== undefined || item.data[0].blocks || item.data[0].puzzles) {
+            pages = item.data;
+          }
+        }
+
         if (Array.isArray(pages) && pages.length > 0) {
           return pages.map((p, pIdx) => {
             const num = runningPageNum;

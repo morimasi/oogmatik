@@ -711,324 +711,288 @@ KRİTİK KURALLAR:
               )}
 
               {activeTab === 'design' && (
-                <>
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <label className="text-xs font-bold uppercase" style={{ color: 'var(--text-muted)' }}>
-                        Kapak Teması & AI Tasarım
-                      </label>
-                      <label className="flex items-center gap-2 cursor-pointer group">
-                        <span className="text-[10px] font-black uppercase" style={{ color: 'var(--accent-color)' }}>
-                          AI Kapak Üret
-                        </span>
-                        <div
-                          className={`w-8 h-4 rounded-full relative transition-colors`}
-                          style={{ backgroundColor: settings.isAiGeneratedCover ? 'var(--accent-color)' : 'var(--text-muted)' }}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={settings.isAiGeneratedCover}
-                            onChange={(e: any) =>
-                              setSettings((s: any) => ({
-                                ...s,
-                                isAiGeneratedCover: e.target.checked,
-                              }))
-                            }
-                            className="hidden"
-                          />
-                          <div
-                            className={`w-2.5 h-2.5 bg-white rounded-full absolute top-[3px] transition-all ${settings.isAiGeneratedCover ? 'left-[18px]' : 'left-[3px]'}`}
-                          ></div>
-                        </div>
-                      </label>
+                <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500 pb-10">
+                  {/* --- 1. CORE STYLE (PREMIUM) --- */}
+                  <div className="p-5 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-inset)]/30 space-y-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--accent-color)] flex items-center gap-2">
+                        <i className="fa-solid fa-palette"></i> ANA TEMA
+                      </h4>
+                      <span className="ultra-badge">ULTRA MULTI PROF</span>
                     </div>
 
-                    {settings.isAiGeneratedCover && (
-                      <div className="mb-4 p-3 rounded-xl space-y-2 animate-in fade-in slide-in-from-top-2" style={{ backgroundColor: 'var(--accent-muted)', border: '1px solid var(--border-color)' }}>
-                        <label className="text-[10px] font-bold" style={{ color: 'var(--accent-color)' }}>
-                          AI Konsept Promtu (Örn: Uzay temalı öğrenme)
-                        </label>
-                        <input
-                          type="text"
-                          value={settings.aiCoverConcept || ''}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            setSettings((s: WorkbookSettings) => ({
-                              ...s,
-                              aiCoverConcept: e.target.value,
-                            }))
-                          }
-                          className="w-full p-2.5 rounded-lg text-xs outline-none focus:ring-2"
-                          style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
-                          placeholder="Görsel konseptini tanımlayın..."
-                        />
-                      </div>
-                    )}
-
-                    <div
-                      className={`grid grid-cols-2 gap-3 pb-4 ${settings.isAiGeneratedCover ? 'opacity-50 pointer-events-none' : ''}`}
-                    >
+                    <div className="grid grid-cols-2 gap-2">
                       {[
-                        { id: 'modern', icon: 'fa-clapperboard', label: 'Modern' },
-                        { id: 'classic', icon: 'fa-monument', label: 'Klasik' },
-                        { id: 'minimal', icon: 'fa-leaf', label: 'Minimalist' },
-                        { id: 'academic', icon: 'fa-graduation-cap', label: 'Akademik' },
-                        { id: 'artistic', icon: 'fa-palette', label: 'Sanatsal' },
-                        { id: 'space', icon: 'fa-shuttle-space', label: 'Uzay' },
-                        { id: 'nature', icon: 'fa-tree', label: 'Doğa' },
-                        { id: 'cyber', icon: 'fa-microchip', label: 'Cyberpunk' },
-                        { id: 'luxury', icon: 'fa-gem', label: 'Premium' },
-                        { id: 'playful', icon: 'fa-child-reaching', label: 'Eğlenceli' },
+                        { id: 'modern', label: 'Modern', icon: 'fa-clapperboard' },
+                        { id: 'classic', label: 'Klasik', icon: 'fa-monument' },
+                        { id: 'minimal', label: 'Minimal', icon: 'fa-leaf' },
+                        { id: 'academic', label: 'Akademik', icon: 'fa-graduation-cap' },
+                        { id: 'artistic', label: 'Sanatsal', icon: 'fa-palette' },
+                        { id: 'space', label: 'Uzay', icon: 'fa-shuttle-space' },
+                        { id: 'nature', label: 'Doğa', icon: 'fa-tree' },
+                        { id: 'cyber', label: 'Cyber', icon: 'fa-microchip' },
+                        { id: 'luxury', label: 'Premium', icon: 'fa-gem' },
+                        { id: 'playful', label: 'Eğlenceli', icon: 'fa-child-reaching' },
                       ].map((t) => (
                         <button
                           key={t.id}
-                          onClick={() =>
-                            setSettings((s: WorkbookSettings) => ({ ...s, theme: t.id as unknown as any }))
-                          }
-                          className="group p-4 rounded-2xl border-2 transition-all text-left flex flex-col gap-3 relative overflow-hidden"
-                          style={settings.theme === t.id ? { borderColor: 'var(--accent-color)', backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)', boxShadow: 'var(--shadow-premium)' } : { borderColor: 'var(--border-color)', backgroundColor: 'var(--bg-paper)', color: 'var(--text-secondary)' }}
+                          onClick={() => setSettings((s) => ({ ...s, theme: t.id }))}
+                          className={`flex flex-col gap-2 p-3 rounded-xl border-2 transition-all text-left relative overflow-hidden group ${settings.theme === t.id ? 'border-[var(--accent-color)] bg-[var(--accent-muted)]' : 'border-[var(--border-color)] bg-[var(--bg-paper)] opacity-70 hover:opacity-100'}`}
                         >
-                          <div
-                            className="w-10 h-10 rounded-xl flex items-center justify-center transition-all"
-                            style={settings.theme === t.id ? { backgroundColor: 'var(--accent-color)', color: '#fff', transform: 'rotate(6deg)' } : { backgroundColor: 'var(--surface-elevated)', color: 'var(--text-muted)' }}
-                          >
-                            <i className={`fa-solid ${t.icon} text-sm`}></i>
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${settings.theme === t.id ? 'bg-[var(--accent-color)] text-white shadow-lg shadow-indigo-500/30' : 'bg-[var(--surface-elevated)] text-[var(--text-muted)]'}`}>
+                            <i className={`fa-solid ${t.icon} text-xs`}></i>
                           </div>
-                          <span className="text-[10px] font-black uppercase tracking-widest">{t.label}</span>
-                          {settings.theme === t.id && (
-                            <div className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full animate-pulse" style={{ backgroundColor: 'var(--accent-color)' }}></div>
-                          )}
+                          <span className="text-[9px] font-black uppercase tracking-tight">{t.label}</span>
+                          {settings.theme === t.id && <div className="absolute top-1 right-1 w-1 h-1 rounded-full bg-[var(--accent-color)] animate-pulse"></div>}
                         </button>
                       ))}
                     </div>
-                  </div>
 
-                  {/* Accent Color */}
-                  <div>
-                    <label className="block text-xs font-bold uppercase mb-3" style={{ color: 'var(--text-muted)' }}>
-                      Vurgu Rengi
-                    </label>
-                    <div className="flex flex-wrap gap-3">
-                      {COLORS.map((c) => (
-                        <button
-                          key={c}
-                          onClick={() => setSettings((s) => ({ ...s, accentColor: c }))}
-                          className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-transform hover:scale-110 ${settings.accentColor === c ? 'ring-2 ring-offset-2' : 'border-transparent'}`}
-                          style={{ backgroundColor: c, ...(settings.accentColor === c ? { borderColor: 'var(--text-primary)', ringColor: 'var(--text-muted)' } : {}) }}
-                        >
-                          {settings.accentColor === c && (
-                            <i className="fa-solid fa-check text-white text-xs"></i>
-                          )}
-                        </button>
-                      ))}
-                      <div className="relative w-8 h-8 rounded-full overflow-hidden border-2 cursor-pointer" style={{ borderColor: 'var(--border-color)' }}>
-                        <input
-                          type="color"
-                          value={settings.accentColor}
-                          onChange={(e) =>
-                            setSettings((s) => ({ ...s, accentColor: e.target.value }))
-                          }
-                          className="absolute -top-2 -left-2 w-12 h-12 p-0 border-0 cursor-pointer"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Logo Upload */}
-                  <div>
-                    <label className="block text-xs font-bold uppercase mb-3" style={{ color: 'var(--text-muted)' }}>
-                      Okul / Kurum Logosu
-                    </label>
-                    <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-xl border-2 border-dashed flex items-center justify-center overflow-hidden" style={{ backgroundColor: 'var(--surface-elevated)', borderColor: 'var(--border-color)' }}>
-                        {settings.logoUrl ? (
-                          <img src={settings.logoUrl} className="w-full h-full object-contain" />
-                        ) : (
-                          <i className="fa-solid fa-image text-xl" style={{ color: 'var(--text-muted)' }}></i>
-                        )}
-                      </div>
-                      <button
-                        onClick={() => fileInputRef.current?.click()}
-                        className="px-4 py-2 rounded-lg text-sm font-bold transition-colors hover:opacity-80"
-                        style={{ backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
-                      >
-                        Logo Seç
-                      </button>
-                      <input
-                        type="file"
-                        ref={fileInputRef}
-                        onChange={handleLogoUpload}
-                        className="hidden"
-                        accept="image/*"
-                      />
-                      {settings.logoUrl && (
-                        <button
-                          onClick={() => setSettings((s) => ({ ...s, logoUrl: undefined }))}
-                          className="text-red-500 text-sm hover:underline"
-                        >
-                          Kaldır
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Cover Layout */}
-                  <div>
-                    <label className="block text-xs font-bold uppercase mb-3" style={{ color: 'var(--text-muted)' }}>
-                      Kapak Düzeni
-                    </label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {[
-                        { id: 'centered', label: 'Merkezi' },
-                        { id: 'left', label: 'Sol' },
-                        { id: 'split', label: 'Bölünmüş' },
-                        { id: 'hero', label: 'Görsel Odaklı' },
-                        { id: 'minimalist', label: 'Minimal' },
-                      ].map((layout) => (
-                        <button
-                          key={layout.id}
-                          onClick={() =>
-                            setSettings((s) => ({ ...s, coverStyle: layout.id as unknown as any }))
-                          }
-                          className="py-2 px-3 text-[10px] font-black uppercase rounded-xl border-2 transition-all"
-                          style={settings.coverStyle === layout.id ? { borderColor: 'var(--accent-color)', backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)' } : { borderColor: 'var(--border-color)', backgroundColor: 'var(--surface-elevated)', color: 'var(--text-muted)' }}
-                        >
-                          {layout.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Premium Typography & Density */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold uppercase mb-2" style={{ color: 'var(--text-muted)' }}>
-                        Yazı Tipi
+                    <div className="pt-3">
+                      <label className="block text-[9px] font-black uppercase tracking-widest mb-3 px-1 text-[var(--text-muted)]">
+                        VURGU RENGİ
                       </label>
-                      <select
-                        value={settings.fontFamily || 'OpenDyslexic'}
-                        onChange={(e) => setSettings((s) => ({ ...s, fontFamily: e.target.value }))}
-                        className="w-full p-2.5 rounded-xl text-xs font-bold outline-none"
-                        style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
-                      >
-                        <option value="OpenDyslexic">OpenDyslexic</option>
-                        <option value="Inter">Inter (Sade)</option>
-                        <option value="Lexend">Lexend</option>
-                        <option value="Comic Neue">Comic Neue</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold uppercase mb-2" style={{ color: 'var(--text-muted)' }}>
-                        Yoğunluk
-                      </label>
-                      <select
-                        value={settings.layoutDensity || 'comfortable'}
-                        onChange={(e) =>
-                          setSettings((s) => ({ ...s, layoutDensity: e.target.value as unknown as any }))
-                        }
-                        className="w-full p-2.5 rounded-xl text-xs font-bold outline-none"
-                        style={{ backgroundColor: 'var(--bg-inset)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
-                      >
-                        <option value="compact">Sıkı</option>
-                        <option value="comfortable">Rahat</option>
-                        <option value="spacious">Geniş</option>
-                      </select>
+                      <div className="flex flex-wrap gap-2">
+                        {COLORS.map((c) => (
+                          <button
+                            key={c}
+                            onClick={() => setSettings((s) => ({ ...s, accentColor: c }))}
+                            className={`w-7 h-7 rounded-full border-2 transition-transform hover:scale-110 active:scale-90 ${settings.accentColor === c ? 'border-[var(--text-primary)] ring-2 ring-[var(--accent-muted)]' : 'border-transparent'}`}
+                            style={{ backgroundColor: c }}
+                          >
+                            {settings.accentColor === c && <i className="fa-solid fa-check text-white text-[10px]"></i>}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
-                  {/* Toggles */}
-                  <div className="space-y-3 pt-4" style={{ borderTop: '1px solid var(--border-color)' }}>
-                    <label className="flex items-center justify-between cursor-pointer group">
-                      <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>
-                        İçindekiler Tablosu
-                      </span>
-                      <div
-                        className="w-10 h-5 rounded-full relative transition-colors"
-                        style={{ backgroundColor: settings.showTOC ? 'var(--accent-color)' : 'var(--text-muted)' }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={settings.showTOC}
-                          onChange={(e) =>
-                            setSettings((s) => ({ ...s, showTOC: e.target.checked }))
-                          }
-                          className="hidden"
-                        />
-                        <div
-                          className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${settings.showTOC ? 'left-6' : 'left-1'}`}
-                        ></div>
+                  {/* --- 2. PAGE LAYOUT & DENSITY --- */}
+                  <div className="p-5 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-inset)]/30 space-y-5">
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--accent-color)] flex items-center gap-2">
+                      <i className="fa-solid fa-file-invoice"></i> SAYFA DÜZENİ
+                    </h4>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-[9px] font-black uppercase text-[var(--text-muted)]">Kâğıt Boyutu</label>
+                        <select
+                          value={settings.pageSize || 'A4'}
+                          onChange={(e) => setSettings((s) => ({ ...s, pageSize: e.target.value as any }))}
+                          className="w-full premium-input"
+                        >
+                          <option value="A4">A4 Standart</option>
+                          <option value="A5">A5 Cep</option>
+                          <option value="Letter">Letter</option>
+                        </select>
                       </div>
-                    </label>
-                    <label className="flex items-center justify-between cursor-pointer group">
-                      <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>
-                        Sayfa Numaraları
-                      </span>
-                      <div
-                        className="w-10 h-5 rounded-full relative transition-colors"
-                        style={{ backgroundColor: settings.showPageNumbers ? 'var(--accent-color)' : 'var(--text-muted)' }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={settings.showPageNumbers}
-                          onChange={(e) =>
-                            setSettings((s) => ({ ...s, showPageNumbers: e.target.checked }))
-                          }
-                          className="hidden"
-                        />
-                        <div
-                          className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${settings.showPageNumbers ? 'left-6' : 'left-1'}`}
-                        ></div>
+                      <div className="space-y-2">
+                        <label className="text-[9px] font-black uppercase text-[var(--text-muted)]">Yönelim</label>
+                        <div className="flex p-0.5 rounded-lg bg-[var(--surface-elevated)] border border-[var(--border-color)]">
+                          <button
+                            onClick={() => setSettings((s) => ({ ...s, orientation: 'portrait' }))}
+                            className={`flex-1 py-1.5 rounded-md text-[9px] font-black uppercase transition-all ${settings.orientation === 'portrait' ? 'bg-[var(--bg-paper)] text-[var(--accent-color)] shadow-sm' : 'text-[var(--text-muted)]'}`}
+                          >
+                            DİKEY
+                          </button>
+                          <button
+                            onClick={() => setSettings((s) => ({ ...s, orientation: 'landscape' }))}
+                            className={`flex-1 py-1.5 rounded-md text-[9px] font-black uppercase transition-all ${settings.orientation === 'landscape' ? 'bg-[var(--bg-paper)] text-[var(--accent-color)] shadow-sm' : 'text-[var(--text-muted)]'}`}
+                          >
+                            YATAY
+                          </button>
+                        </div>
                       </div>
-                    </label>
-                    <label className="flex items-center justify-between cursor-pointer group">
-                      <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>
-                        Arka Kapak
-                      </span>
-                      <div
-                        className="w-10 h-5 rounded-full relative transition-colors"
-                        style={{ backgroundColor: settings.showBackCover ? 'var(--accent-color)' : 'var(--text-muted)' }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={settings.showBackCover}
-                          onChange={(e) =>
-                            setSettings((s) => ({ ...s, showBackCover: e.target.checked }))
-                          }
-                          className="hidden"
-                        />
-                        <div
-                          className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${settings.showBackCover ? 'left-6' : 'left-1'}`}
-                        ></div>
-                      </div>
-                    </label>
+                    </div>
+
                     <div className="space-y-2">
-                      <label className="flex items-center justify-between cursor-pointer group">
-                        <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>
-                          Filigran (Logo)
-                        </span>
-                        <div
-                          className="w-10 h-5 rounded-full relative transition-colors"
-                          style={{ backgroundColor: settings.showWatermark ? 'var(--accent-color)' : 'var(--text-muted)' }}
+                      <div className="flex justify-between items-center">
+                        <label className="text-[9px] font-black uppercase text-[var(--text-muted)]">Sayfa Kenar Boşluğu (mm)</label>
+                        <span className="text-[10px] font-black text-[var(--accent-color)]">{settings.margin || 15}mm</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="5"
+                        max="35"
+                        step="1"
+                        value={settings.margin || 15}
+                        onChange={(e) => setSettings((s) => ({ ...s, margin: parseInt(e.target.value) }))}
+                        className="w-full h-1 bg-[var(--border-color)] rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)]"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[9px] font-black uppercase text-[var(--text-muted)]">İçerik Yoğunluğu</label>
+                      <div className="grid grid-cols-3 gap-2">
+                        {['compact', 'comfortable', 'spacious'].map((d) => (
+                          <button
+                            key={d}
+                            onClick={() => setSettings((s) => ({ ...s, layoutDensity: d as any }))}
+                            className={`py-2 rounded-xl text-[8px] font-black uppercase border-2 transition-all ${settings.layoutDensity === d ? 'border-[var(--accent-color)] bg-[var(--accent-muted)] text-[var(--accent-color)]' : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--text-muted)]'}`}
+                          >
+                            {d === 'compact' ? 'Sıkı' : d === 'comfortable' ? 'Rahat' : 'Geniş'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* --- 3. TYPOGRAPHY PRO --- */}
+                  <div className="p-5 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-inset)]/30 space-y-5">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--accent-color)] flex items-center gap-2">
+                        <i className="fa-solid fa-font"></i> TİPOGRAFİ PRO
+                      </h4>
+                      <span className="pro-badge">PRO</span>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-[9px] font-black uppercase text-[var(--text-muted)]">Ana Yazı Tipi</label>
+                        <select
+                          value={settings.fontFamily || 'Lexend'}
+                          onChange={(e) => setSettings((s) => ({ ...s, fontFamily: e.target.value }))}
+                          className="w-full premium-input"
                         >
+                          <option value="Lexend">Lexend (Önerilen)</option>
+                          <option value="OpenDyslexic">OpenDyslexic</option>
+                          <option value="Inter">Inter (Minimalist)</option>
+                          <option value="Comic Neue">Comic Neue</option>
+                          <option value="Atkinson Hyperlegible">Hyperlegible</option>
+                        </select>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-black uppercase text-[var(--text-muted)]">Satır Aralığı</label>
                           <input
-                            type="checkbox"
-                            checked={settings.showWatermark}
-                            onChange={(e) =>
-                              setSettings((s) => ({ ...s, showWatermark: e.target.checked }))
-                            }
-                            className="hidden"
+                            type="number"
+                            step="0.1"
+                            min="1"
+                            max="3"
+                            value={settings.lineHeight || 1.6}
+                            onChange={(e) => setSettings((s) => ({ ...s, lineHeight: parseFloat(e.target.value) }))}
+                            className="w-full premium-input"
                           />
-                          <div
-                            className={`w-3 h-3 bg-white rounded-full absolute top-1 transition-all ${settings.showWatermark ? 'left-6' : 'left-1'}`}
-                          ></div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[9px] font-black uppercase text-[var(--text-muted)]">Kelime Aralığı</label>
+                          <input
+                            type="number"
+                            step="1"
+                            min="0"
+                            max="10"
+                            value={settings.wordSpacing || 2}
+                            onChange={(e) => setSettings((s) => ({ ...s, wordSpacing: parseInt(e.target.value) }))}
+                            className="w-full premium-input"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* --- 4. DYSLEXIA & ACCESSIBILITY --- */}
+                  <div className="p-5 rounded-2xl border border-indigo-500/20 bg-indigo-500/5 space-y-4">
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-600 flex items-center gap-2">
+                      <i className="fa-solid fa-universal-access"></i> ERİŞİLEBİLİRLİK
+                    </h4>
+
+                    <div className="space-y-3">
+                      <label className="flex items-center justify-between cursor-pointer group">
+                        <div className="flex flex-col">
+                          <span className="text-[11px] font-black uppercase tracking-tight">Disleksi Modu</span>
+                          <span className="text-[8px] opacity-60">Kontrast ve odak artırıcı katman</span>
+                        </div>
+                        <div
+                          className={`w-10 h-5 rounded-full relative transition-all ${settings.dyslexiaMode ? 'bg-indigo-600 shadow-md shadow-indigo-500/40' : 'bg-zinc-300'}`}
+                          onClick={() => setSettings(s => ({ ...s, dyslexiaMode: !s.dyslexiaMode }))}
+                        >
+                          <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-0.75 transition-all ${settings.dyslexiaMode ? 'left-5.5' : 'left-1'}`}></div>
                         </div>
                       </label>
+
+                      <label className="flex items-center justify-between cursor-pointer group">
+                        <div className="flex flex-col">
+                          <span className="text-[11px] font-black uppercase tracking-tight">Hece Vurgulama</span>
+                          <span className="text-[8px] opacity-60">Okuma akıcılığı için renkli heceler</span>
+                        </div>
+                        <div
+                          className={`w-10 h-5 rounded-full relative transition-all ${settings.highlightSyllables ? 'bg-indigo-600 shadow-md shadow-indigo-500/40' : 'bg-zinc-300'}`}
+                          onClick={() => setSettings(s => ({ ...s, highlightSyllables: !s.highlightSyllables }))}
+                        >
+                          <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-0.75 transition-all ${settings.highlightSyllables ? 'left-5.5' : 'left-1'}`}></div>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* --- 5. BRANDING & NAVIGATION --- */}
+                  <div className="p-5 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-inset)]/30 space-y-5">
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--text-muted)] flex items-center gap-2">
+                      <i className="fa-solid fa-sliders"></i> DİĞER AYARLAR
+                    </h4>
+
+                    <div className="space-y-4">
+                      {/* Logo Upload (Enhanced) */}
+                      <div className="space-y-2">
+                        <label className="text-[9px] font-black uppercase text-[var(--text-muted)]">Kurum Logosu</label>
+                        <div className="flex items-center gap-4">
+                          <div className="w-14 h-14 rounded-xl border-2 border-dashed flex items-center justify-center overflow-hidden bg-[var(--surface-elevated)] border-[var(--border-color)]">
+                            {settings.logoUrl ? (
+                              <img src={settings.logoUrl} className="w-full h-full object-contain" alt="logo" />
+                            ) : (
+                              <i className="fa-solid fa-image text-zinc-300"></i>
+                            )}
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <button
+                              onClick={() => fileInputRef.current?.click()}
+                              className="px-4 py-2 rounded-lg bg-[var(--accent-color)] text-white text-[9px] font-black uppercase tracking-widest hover:opacity-90 transition-all"
+                            >
+                              YÜKLE
+                            </button>
+                            <input type="file" ref={fileInputRef} onChange={handleLogoUpload} className="hidden" accept="image/*" />
+                            {settings.logoUrl && (
+                              <button
+                                onClick={() => setSettings((s) => ({ ...s, logoUrl: undefined }))}
+                                className="text-[8px] font-black text-rose-500 uppercase hover:underline"
+                              >
+                                KALDIR
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3 pt-2">
+                        {[
+                          { id: 'showTOC', label: 'İçindekiler Tablosu', icon: 'fa-list-ol' },
+                          { id: 'showPageNumbers', label: 'Sayfa Numaraları', icon: 'fa-1' },
+                          { id: 'showWatermark', label: 'Filigran (Logo)', icon: 'fa-stamp' },
+                          { id: 'showBackCover', label: 'Arka Kapak', icon: 'fa-book-bookmark' },
+                        ].map((opt) => (
+                          <label key={opt.id} className="flex items-center justify-between cursor-pointer group">
+                            <div className="flex items-center gap-2">
+                              <i className={`fa-solid ${opt.icon} text-[10px] text-[var(--text-muted)]`}></i>
+                              <span className="text-[10px] font-black uppercase tracking-tight" style={{ color: 'var(--text-primary)' }}>
+                                {opt.label}
+                              </span>
+                            </div>
+                            <div
+                              className={`w-9 h-4.5 rounded-full relative transition-all ${(settings as any)[opt.id] ? 'bg-[var(--accent-color)] shadow-sm' : 'bg-zinc-300'}`}
+                              onClick={() => setSettings(s => ({ ...s, [opt.id]: !(s as any)[opt.id] }))}
+                            >
+                              <div className={`w-3 h-3 bg-white rounded-full absolute top-0.75 transition-all ${(settings as any)[opt.id] ? 'left-5' : 'left-1'}`}></div>
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+
                       {settings.showWatermark && (
-                        <div className="p-3 rounded-lg" style={{ backgroundColor: 'var(--surface-elevated)', border: '1px solid var(--border-color)' }}>
-                          <div className="flex justify-between mb-1">
-                            <span className="text-xs font-bold" style={{ color: 'var(--text-secondary)' }}>Opaklık</span>
-                            <span className="text-xs font-mono" style={{ color: 'var(--text-secondary)' }}>
-                              {Math.round((settings.watermarkOpacity || 0.05) * 100)}%
-                            </span>
+                        <div className="p-3 rounded-xl bg-[var(--surface-elevated)] space-y-2 animate-in zoom-in-95">
+                          <div className="flex justify-between items-center">
+                            <span className="text-[9px] font-black uppercase text-[var(--text-muted)]">Filigran Opaklığı</span>
+                            <span className="text-[9px] font-black text-[var(--accent-color)]">{Math.round((settings.watermarkOpacity || 0.05) * 100)}%</span>
                           </div>
                           <input
                             type="range"
@@ -1036,20 +1000,14 @@ KRİTİK KURALLAR:
                             max="0.2"
                             step="0.01"
                             value={settings.watermarkOpacity || 0.05}
-                            onChange={(e) =>
-                              setSettings((s) => ({
-                                ...s,
-                                watermarkOpacity: parseFloat(e.target.value),
-                              }))
-                            }
-                            className="w-full h-1 bg-zinc-300 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                            onChange={(e) => setSettings((s) => ({ ...s, watermarkOpacity: parseFloat(e.target.value) }))}
+                            className="w-full h-1 bg-[var(--border-color)] rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)]"
                           />
                         </div>
                       )}
                     </div>
                   </div>
-
-                </>
+                </div>
               )}
             </div>
           </div>
