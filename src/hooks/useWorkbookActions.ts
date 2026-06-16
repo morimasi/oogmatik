@@ -270,16 +270,18 @@ export const useWorkbookActions = (
         dataArray = [finalData];
       }
 
-      const newItems: CollectionItem[] = dataArray.map((sheet: Record<string, unknown>) => ({
-        id: uuidv4(),
-        activityType: finalType,
-        data: sheet,
-        settings: { ...styleSettings },
-        title: (typeof sheet.title === 'string' ? sheet.title : '') 
-          || (typeof sheet.baslik === 'string' ? sheet.baslik : '')
-          || ACTIVITIES.find((a) => a.id === finalType)?.title 
-          || 'Etkinlik',
-      }));
+      const newItems: CollectionItem[] = dataArray
+        .filter(sheet => sheet !== null && sheet !== undefined)
+        .map((sheet: Record<string, unknown>) => ({
+          id: uuidv4(),
+          activityType: finalType,
+          data: sheet,
+          settings: { ...styleSettings },
+          title: (typeof sheet.title === 'string' ? sheet.title : '') 
+            || (typeof sheet.baslik === 'string' ? sheet.baslik : '')
+            || ACTIVITIES.find((a) => a.id === finalType)?.title 
+            || 'Etkinlik',
+        }));
 
       setWorkbookItems((prev: CollectionItem[]) => [...prev, ...newItems]);
 

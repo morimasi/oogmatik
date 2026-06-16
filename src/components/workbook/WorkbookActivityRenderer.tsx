@@ -44,6 +44,8 @@ export const WorkbookActivityRenderer = memo(({ item, settings, font }: Workbook
     }, []);
 
     const rawData = item.data;
+    if (!rawData) return null;
+    
     const activityType = item.activityType as string;
 
     // --- ÖZEL STUDIO RENDERERLARI ---
@@ -94,8 +96,12 @@ export const WorkbookActivityRenderer = memo(({ item, settings, font }: Workbook
         return <AssessmentReportSheet data={activeData as unknown as any} />;
     }
 
-    // 6. STANDART SHEET RENDERER (V1 Aktiviteler)
+    // 9. STANDART SHEET RENDERER (V1 Aktiviteler)
     const sheetData = Array.isArray(rawData) ? rawData : ([rawData] as SingleWorksheetData[]);
+    
+    // Check if sheetData[0] is valid
+    if (!sheetData[0]) return null;
+
     return (
         <div className="workbook-activity-content w-full flex-1 flex flex-col gap-2">
             <SheetRenderer

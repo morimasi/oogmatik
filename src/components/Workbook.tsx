@@ -287,7 +287,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }: WorkbookProps) =
         </React.Fragment>
       )}
 
-      {items.map((item, index) => {
+      {items.filter(item => !!item).map((item, index) => {
         if (item.itemType === 'divider') {
           const divPageNum = runningPageNum;
           runningPageNum++;

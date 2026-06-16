@@ -204,6 +204,7 @@ import { SuperStudioRenderer } from './sheet-renderers/SuperStudioRenderer';
 import { KelimeCumleRenderer } from './sheet-renderers/KelimeCumleRenderer';
 import { SariKitapRenderer } from './sheet-renderers/SariKitapRenderer';
 import { InfographicRenderer } from './sheet-renderers/InfographicRenderer';
+import { OcrRenderer } from './sheet-renderers/OcrRenderer';
 import { PedagogicalHeader, ImageDisplay } from './sheets/common';
 
 import { EditableText } from './Editable';
@@ -383,22 +384,22 @@ const UnifiedContentRenderer = ({
   // DnD sensors — editor modunda blok sıralama için (hook — must be before early returns)
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }));
 
-  // Robust unwrapping (null-safe for hook ordering)
   const unwrappedData = Array.isArray(data) ? data[0] : data;
-  const activeData = (unwrappedData as unknown as any)?.data || unwrappedData;
-  const isValidData = !!activeData && typeof activeData === 'object' && !Array.isArray(activeData);
+  if (!unwrappedData) return null;
+  
+  const activeData = (unwrappedData as any)?.data || unwrappedData;
+  if (!activeData || typeof activeData !== 'object' || Array.isArray(activeData)) return null;
 
-  const architecture = isValidData ? activeData?.layoutArchitecture : undefined;
-  const rawBlocks: WorksheetBlock[] = isValidData
-    ? ((architecture?.blocks && architecture.blocks.length > 0 ? architecture.blocks : []) ||
-       (activeData?.blocks && activeData.blocks.length > 0 ? activeData.blocks : []) ||
-       (activeData?.puzzles && activeData.puzzles.length > 0 ? activeData.puzzles : []) ||
-       (activeData?.operations && activeData.operations.length > 0 ? activeData.operations : []) ||
-       (activeData?.items && activeData.items.length > 0 ? activeData.items : []) ||
-       (activeData?.problems && activeData.problems.length > 0 ? activeData.problems : []) ||
-       (activeData?.steps && activeData.steps.length > 0 ? activeData.steps : []) ||
-       [])
-    : [];
+  const isValidData = true; // Guaranteed by checks above
+
+  const architecture = activeData?.layoutArchitecture;
+  const rawBlocks: WorksheetBlock[] = activeData?.blocks ||
+       activeData?.puzzles ||
+       activeData?.operations ||
+       activeData?.items ||
+       activeData?.problems ||
+       activeData?.steps ||
+       [];
   const cols = (architecture?.cols && architecture.cols > 1) ? architecture.cols : (settings?.columns || 1);
 
   const snapModifier: Modifier = ({ transform }) => {
@@ -811,11 +812,22 @@ export const SheetRenderer = React.memo(
 
     // Robust unwrapping: Take first element if array, then check for .data envelope
     const unwrappedData = Array.isArray(data) ? data[0] : data;
+    
+    // Safety check: if data was an array but first element is null/undefined
+    if (Array.isArray(data) && !unwrappedData) return null;
+
     // Extract actual content if wrapped in a .data property 
-    const activeData = (unwrappedData as unknown as any)?.data || unwrappedData;
+    const activeData = (unwrappedData as any)?.data || unwrappedData;
 
     // Defensive guard: activeData must be a non-null object
-    if (!activeData || typeof activeData !== 'object') return null;
+    if (!activeData || typeof activeData !== 'object' || Array.isArray(activeData)) {
+      // If it's still an array here, it means we have a double-nested array or something unexpected
+      if (Array.isArray(activeData) && activeData.length > 0) {
+          // Try one more level of unwrapping
+          return <SheetRenderer {...props} data={activeData[0]} />;
+      }
+      return null;
+    }
 
     // SINAV/MAT_SINAV guard: data may arrive as [exam] wrapper
     const unwrapExam = (val: unknown): unknown => {
@@ -1430,16 +1442,6 @@ export const SheetRenderer = React.memo(
       case ActivityType.VISUAL_INTERPRETATION:
         renderedSheet = <VisualInterpretationSheet data={activeData as unknown as any} settings={settings} />;
         break;
-      case activityType as unknown as any:
-        renderedSheet = (
-          <UnifiedContentRenderer
-            data={activeData}
-            activityType={activityType}
-            studentProfile={studentProfile}
-            settings={settings}
-          />
-        );
-        break;
       case ActivityType.LETTER_CONNECT:
         return <LetterConnectSheet data={activeData} />;
       case ActivityType.HARF_BAGLAMA:
@@ -1449,7 +1451,6 @@ export const SheetRenderer = React.memo(
       // AUTONOM_CASES_END
 
       default:
-
         renderedSheet = (
           <UnifiedContentRenderer
             data={activeData}

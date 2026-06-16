@@ -42,8 +42,8 @@ export const PedagogicalHeader = React.memo(
     note,
     data,
   }: {
-    title: string;
-    instruction: string;
+    title?: string;
+    instruction?: string;
     note?: string;
     data?: BaseActivityData;
   }) => (
@@ -51,10 +51,10 @@ export const PedagogicalHeader = React.memo(
       <div className="flex items-start justify-between gap-6 print:gap-1">
         <div className="flex-1">
           <h3 className="text-3xl font-black text-black uppercase tracking-tighter leading-tight mb-3 print:text-lg print:mb-0">
-            {title}
+            {title || ''}
           </h3>
           <p className="instruction text-base font-bold text-zinc-700 leading-normal italic print:text-[10px] print:leading-tight">
-            {instruction}
+            {instruction || ''}
           </p>
         </div>
         {data?.targetedErrors && (
