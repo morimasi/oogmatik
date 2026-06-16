@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import { 
   ActivityType, 
   CollectionItem, 
@@ -74,45 +75,58 @@ export const useWorkbookActions = (
 
       // Sayfalanabilir liste anahtarları ve her biri için ideal sayfa başına öğe sayısı  
       const PAGINATION_CONFIG: Record<string, number> = {
-        sorular: 4,        // Sınav soruları — A4'te max 4 uzun soru sığar
-        questions: 4,      // İngilizce eşdeğeri
-        items: 6,          // Genel aktivite öğeleri
-        activities: 4,     // Alt aktiviteler
-        exercises: 5,      // Egzersizler
-        problems: 4,       // Matematik problemleri
-        words: 15,         // Kelime listeleri
-        drills: 8,         // Matematik drilleri
-        paragraphs: 2,     // Paragraf bazlı içerikler
-        sections: 3,       // Bölümler
-        instructions: 5,   // Yönerge listeleri (Harita Dedektifi vb.)
-        blocks: 4,         // Blok tabanlı içerikler
+        sorular: 4,        // Sınav soruları
+        questions: 4,      
+        items: 6,          
+        activities: 4,     
+        exercises: 5,      
+        problems: 4,       
+        words: 15,         
+        drills: 8,         
+        paragraphs: 2,     
+        sections: 3,       
+        instructions: 5,   
+        blocks: 4,         
+        cells: 20,         // Grid cells
+        data: 10,          // Generic data array
+        sheets: 1,         // Sheets are usually already pages
+        list: 10,
+        options: 10,
       };
 
       const listKeys = Object.keys(PAGINATION_CONFIG);
 
-      // 1. DOĞRUDAN LİSTE ANAHTARI BULMAYA ÇALIŞ
-      let foundListKey = listKeys.find(key => finalData[key] && Array.isArray(finalData[key]) && finalData[key].length > 0);
+      // 1. OTOMATİK LİSTE TESPİTİ (En uzun array'i bul)
+      let foundListKey: string | undefined = undefined;
+      let maxLen = 0;
 
-      // 2. DERİN İÇ İÇE YAPI TESPİTİ: data: [sinavObj] kalıbı (Sınav Stüdyoları)
-      //    MatSinavStudyosu: { title, data: [aktifSinav], printConfig }
-      //    Bu kalıpta gerçek soru listesi data[0].sorular'dadır
-      let deepUnwrappedData = finalData;
-      if (!foundListKey && finalData.data && Array.isArray(finalData.data) && finalData.data.length === 1) {
-        const innerObj = finalData.data[0];
-        if (innerObj && typeof innerObj === 'object') {
-          const innerListKey = listKeys.find(key => innerObj[key] && Array.isArray(innerObj[key]) && innerObj[key].length > 0);
-          if (innerListKey) {
-            // İç objeyi düzleştir: dış envelope bilgilerini koru, iç objeyi yaygınlaştır
-            deepUnwrappedData = {
-              ...finalData,
-              data: undefined, // wrapper array'i kaldır
-              ...innerObj,
-              title: finalData.title || innerObj.title || innerObj.baslik,
-              printConfig: finalData.printConfig || innerObj.printConfig,
-            };
-            foundListKey = innerListKey;
+      for (const key of Object.keys(finalData)) {
+        if (Array.isArray(finalData[key]) && finalData[key].length > (PAGINATION_CONFIG[key] || 5)) {
+          if (finalData[key].length > maxLen) {
+            maxLen = finalData[key].length;
+            foundListKey = key;
           }
         }
+      }
+
+      // 2. DERİN İÇ İÇE YAPI TESPİTİ (Örn: Sınav Stüdyoları)
+      let deepUnwrappedData = finalData;
+      if (!foundListKey && finalData.data && Array.isArray(finalData.data) && finalData.data.length > 0) {
+          // Eğer data[0] içinde bir liste varsa onu kullan
+          const firstElem = finalData.data[0];
+          if (firstElem && typeof firstElem === 'object') {
+              for (const key of Object.keys(firstElem)) {
+                  if (Array.isArray(firstElem[key]) && firstElem[key].length > 0) {
+                      foundListKey = key;
+                      deepUnwrappedData = {
+                          ...finalData,
+                          ...firstElem,
+                          title: finalData.title || firstElem.title || firstElem.baslik,
+                      };
+                      break;
+                  }
+              }
+          }
       }
 
       // 3. SAYFALANDIRMA KARARI — Tüm çok sayfalı veriler TEK bir CollectionItem
@@ -257,7 +271,7 @@ export const useWorkbookActions = (
       }
 
       const newItems: CollectionItem[] = dataArray.map((sheet: Record<string, unknown>) => ({
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         activityType: finalType,
         data: sheet,
         settings: { ...styleSettings },
@@ -309,7 +323,7 @@ export const useWorkbookActions = (
 
     const newItems: CollectionItem[] = [
       {
-        id: crypto.randomUUID(),
+        id: uuidv4(),
         activityType: item.activityType,
         data: normalizedData as CollectionItem['data'],
         settings: { ...styleSettings, ...item.settings },

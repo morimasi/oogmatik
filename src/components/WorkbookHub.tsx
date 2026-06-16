@@ -33,11 +33,15 @@ export const WorkbookHub: React.FC<WorkbookHubProps> = ({
     try {
       const full = await getWorkbookById(workbook.id, user.id);
       setItems(workbookToCollectionItems(full));
+      
+      // Tüm ayarları merge et (varsayılan değerlerle beraber)
       setSettings((prev) => ({
         ...prev,
+        ...full.settings,
         title: full.title,
         studentName: full.settings.studentName || prev.studentName,
       }));
+      
       setActiveWorkbookId(full.id);
       setMode('editor');
     } catch {

@@ -39,19 +39,23 @@ const PAGE_SIZES: Record<string, { w: string; h: string }> = {
 
 const getPageStyle = (isLandscape: boolean, font: string, settings: WorkbookSettings, extra = {}) => {
   const size = PAGE_SIZES[settings.pageSize || 'A4'] || PAGE_SIZES.A4;
+  
+  // Real dimensions in mm for the style object
   const width = isLandscape ? size.h : size.w;
   const height = isLandscape ? size.w : size.h;
   
+  const padding = settings.margin !== undefined ? `${settings.margin}mm` : (DENSITY_PADDING[settings.layoutDensity || ''] || '15mm');
+
   return {
     width,
     height,
-    padding: settings.margin !== undefined ? `${settings.margin}mm` : (DENSITY_PADDING[settings.layoutDensity || ''] || '15mm'),
+    padding,
     margin: '0 auto',
     backgroundColor: 'white',
     color: 'black',
     position: 'relative' as const,
     overflow: 'hidden' as const,
-    boxShadow: '0 0 40px rgba(0,0,0,0.1)',
+    boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
     fontFamily: font,
     boxSizing: 'border-box' as const,
     display: 'flex' as const,
@@ -59,6 +63,8 @@ const getPageStyle = (isLandscape: boolean, font: string, settings: WorkbookSett
     lineHeight: settings.lineHeight || 1.6,
     letterSpacing: `${settings.letterSpacing || 0}px`,
     wordSpacing: `${settings.wordSpacing || 2}px`,
+    // Important: Print properties
+    pageBreakAfter: 'always' as const,
     ...extra,
   };
 };

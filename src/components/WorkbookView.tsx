@@ -534,13 +534,13 @@ KRİTİK KURALLAR:
             {/* Tabs - Modern Bento */}
             <div className="flex p-2 gap-1.5 border-b border-[var(--border-color)] bg-[var(--bg-inset)]/50">
               {[
-                { id: 'content', icon: 'fa-layer-group', label: 'İçerik' },
-                { id: 'design', icon: 'fa-paintbrush', label: 'Tasarım' },
-                { id: 'assign', icon: 'fa-user-graduate', label: 'Atama' },
+                { id: 'content' as const, icon: 'fa-layer-group', label: 'İçerik' },
+                { id: 'design' as const, icon: 'fa-paintbrush', label: 'Tasarım' },
+                { id: 'assign' as const, icon: 'fa-user-graduate', label: 'Atama' },
               ].map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as unknown as any)}
+                  onClick={() => setActiveTab(tab.id)}
                   className={`flex-1 py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex flex-col items-center justify-center gap-1.5 ${activeTab === tab.id ? 'bg-[var(--accent-color)] text-white shadow-lg shadow-indigo-500/20' : 'text-[var(--text-muted)] hover:bg-[var(--bg-secondary)]'}`}
                 >
                   <i className={`fa-solid ${tab.icon} text-sm`}></i>
@@ -712,11 +712,11 @@ KRİTİK KURALLAR:
 
               {activeTab === 'design' && (
                 <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500 pb-10">
-                  {/* --- 1. CORE STYLE (PREMIUM) --- */}
+                  {/* --- 1. CORE STYLE (ULTRA PREMIUM) --- */}
                   <div className="p-5 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-inset)]/30 space-y-4">
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--accent-color)] flex items-center gap-2">
-                        <i className="fa-solid fa-palette"></i> ANA TEMA
+                        <i className="fa-solid fa-wand-magic-sparkles"></i> TASARIM STÜDYOSU
                       </h4>
                       <span className="ultra-badge">ULTRA MULTI PROF</span>
                     </div>
@@ -725,7 +725,7 @@ KRİTİK KURALLAR:
                       {[
                         { id: 'modern', label: 'Modern', icon: 'fa-clapperboard' },
                         { id: 'classic', label: 'Klasik', icon: 'fa-monument' },
-                        { id: 'minimal', label: 'Minimal', icon: 'fa-leaf' },
+                        { id: 'minimal', label: 'Minimalist', icon: 'fa-leaf' },
                         { id: 'academic', label: 'Akademik', icon: 'fa-graduation-cap' },
                         { id: 'artistic', label: 'Sanatsal', icon: 'fa-palette' },
                         { id: 'space', label: 'Uzay', icon: 'fa-shuttle-space' },
@@ -747,23 +747,65 @@ KRİTİK KURALLAR:
                         </button>
                       ))}
                     </div>
+                  </div>
 
-                    <div className="pt-3">
-                      <label className="block text-[9px] font-black uppercase tracking-widest mb-3 px-1 text-[var(--text-muted)]">
-                        VURGU RENGİ
-                      </label>
-                      <div className="flex flex-wrap gap-2">
-                        {COLORS.map((c) => (
-                          <button
-                            key={c}
-                            onClick={() => setSettings((s) => ({ ...s, accentColor: c }))}
-                            className={`w-7 h-7 rounded-full border-2 transition-transform hover:scale-110 active:scale-90 ${settings.accentColor === c ? 'border-[var(--text-primary)] ring-2 ring-[var(--accent-muted)]' : 'border-transparent'}`}
-                            style={{ backgroundColor: c }}
-                          >
-                            {settings.accentColor === c && <i className="fa-solid fa-check text-white text-[10px]"></i>}
-                          </button>
-                        ))}
+                  {/* --- 2. COVER & BRANDING --- */}
+                  <div className="p-5 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-inset)]/30 space-y-5">
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--accent-color)] flex items-center gap-2">
+                      <i className="fa-solid fa-id-card"></i> KAPAK VE KURUMSAL
+                    </h4>
+
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-[9px] font-black uppercase text-[var(--text-muted)] mb-2 block">Kapak Düzeni</label>
+                        <div className="grid grid-cols-2 gap-2">
+                          {[
+                            { id: 'centered', label: 'Merkezi' },
+                            { id: 'left', label: 'Sol' },
+                            { id: 'split', label: 'Bölünmüş' },
+                            { id: 'hero', label: 'Görsel Odaklı' },
+                            { id: 'minimalist', label: 'Minimal' },
+                          ].map((layout) => (
+                            <button
+                              key={layout.id}
+                              onClick={() => setSettings((s) => ({ ...s, coverStyle: layout.id as any }))}
+                              className={`py-2 px-3 text-[9px] font-black uppercase rounded-xl border-2 transition-all ${settings.coverStyle === layout.id ? 'border-[var(--accent-color)] bg-[var(--accent-muted)] text-[var(--accent-color)]' : 'border-[var(--border-color)] bg-[var(--bg-paper)] text-[var(--text-muted)]'}`}
+                            >
+                              {layout.label}
+                            </button>
+                          ))}
+                        </div>
                       </div>
+
+                      <div className="flex items-center justify-between p-3 rounded-xl bg-indigo-500/5 border border-indigo-500/10">
+                        <div className="flex flex-col">
+                          <span className="text-[10px] font-black uppercase text-indigo-600">AI Kapak Tasarımı</span>
+                          <span className="text-[8px] text-[var(--text-muted)]">Dall-E / Midjourney konseptli</span>
+                        </div>
+                        <input
+                          type="checkbox"
+                          className="hidden"
+                          id="ai-cover-toggle"
+                          checked={!!settings.isAiGeneratedCover}
+                          onChange={(e) => setSettings(s => ({ ...s, isAiGeneratedCover: e.target.checked }))}
+                        />
+                        <label htmlFor="ai-cover-toggle" className={`w-9 h-4.5 rounded-full relative cursor-pointer transition-all ${settings.isAiGeneratedCover ? 'bg-indigo-600' : 'bg-zinc-300'}`}>
+                          <div className={`w-3 h-3 bg-white rounded-full absolute top-0.75 transition-all ${settings.isAiGeneratedCover ? 'left-5' : 'left-1'}`}></div>
+                        </label>
+                      </div>
+
+                      {settings.isAiGeneratedCover && (
+                        <div className="space-y-2 animate-in slide-in-from-top-2">
+                          <label className="text-[9px] font-black uppercase text-indigo-600">AI Görsel Konsepti</label>
+                          <input
+                            type="text"
+                            value={settings.aiCoverConcept || ''}
+                            onChange={(e) => setSettings(s => ({ ...s, aiCoverConcept: e.target.value }))}
+                            className="w-full premium-input border-indigo-200 focus:border-indigo-500"
+                            placeholder="Örn: Ormanda kitap okuyan sevimli hayvanlar..."
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -903,9 +945,14 @@ KRİTİK KURALLAR:
                           <span className="text-[11px] font-black uppercase tracking-tight">Disleksi Modu</span>
                           <span className="text-[8px] opacity-60">Kontrast ve odak artırıcı katman</span>
                         </div>
+                        <input
+                          type="checkbox"
+                          className="hidden"
+                          checked={!!settings.dyslexiaMode}
+                          onChange={(e) => setSettings(s => ({ ...s, dyslexiaMode: e.target.checked }))}
+                        />
                         <div
                           className={`w-10 h-5 rounded-full relative transition-all ${settings.dyslexiaMode ? 'bg-indigo-600 shadow-md shadow-indigo-500/40' : 'bg-zinc-300'}`}
-                          onClick={() => setSettings(s => ({ ...s, dyslexiaMode: !s.dyslexiaMode }))}
                         >
                           <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-0.75 transition-all ${settings.dyslexiaMode ? 'left-5.5' : 'left-1'}`}></div>
                         </div>
@@ -916,9 +963,14 @@ KRİTİK KURALLAR:
                           <span className="text-[11px] font-black uppercase tracking-tight">Hece Vurgulama</span>
                           <span className="text-[8px] opacity-60">Okuma akıcılığı için renkli heceler</span>
                         </div>
+                        <input
+                          type="checkbox"
+                          className="hidden"
+                          checked={!!settings.highlightSyllables}
+                          onChange={(e) => setSettings(s => ({ ...s, highlightSyllables: e.target.checked }))}
+                        />
                         <div
                           className={`w-10 h-5 rounded-full relative transition-all ${settings.highlightSyllables ? 'bg-indigo-600 shadow-md shadow-indigo-500/40' : 'bg-zinc-300'}`}
-                          onClick={() => setSettings(s => ({ ...s, highlightSyllables: !s.highlightSyllables }))}
                         >
                           <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-0.75 transition-all ${settings.highlightSyllables ? 'left-5.5' : 'left-1'}`}></div>
                         </div>
@@ -978,9 +1030,14 @@ KRİTİK KURALLAR:
                                 {opt.label}
                               </span>
                             </div>
+                            <input
+                              type="checkbox"
+                              className="hidden"
+                              checked={!!(settings as any)[opt.id]}
+                              onChange={(e) => setSettings(s => ({ ...s, [opt.id]: e.target.checked }))}
+                            />
                             <div
                               className={`w-9 h-4.5 rounded-full relative transition-all ${(settings as any)[opt.id] ? 'bg-[var(--accent-color)] shadow-sm' : 'bg-zinc-300'}`}
-                              onClick={() => setSettings(s => ({ ...s, [opt.id]: !(s as any)[opt.id] }))}
                             >
                               <div className={`w-3 h-3 bg-white rounded-full absolute top-0.75 transition-all ${(settings as any)[opt.id] ? 'left-5' : 'left-1'}`}></div>
                             </div>
