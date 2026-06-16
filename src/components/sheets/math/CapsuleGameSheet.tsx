@@ -3,88 +3,127 @@ import { NumberCapsuleData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableText } from '../../Editable';
 
+const CAPSULE_COLORS = [
+  'bg-amber-100 border-amber-400',
+  'bg-sky-100 border-sky-400',
+  'bg-rose-100 border-rose-400',
+  'bg-lime-100 border-lime-400',
+  'bg-violet-100 border-violet-400',
+  'bg-teal-100 border-teal-400',
+  'bg-orange-100 border-orange-400',
+  'bg-pink-100 border-pink-400',
+  'bg-emerald-100 border-emerald-400',
+  'bg-cyan-100 border-cyan-400',
+];
+
 export const CapsuleGameSheet = ({ data }: { data: NumberCapsuleData }) => {
-    // Normalise puzzles structure
-    const puzzles = data.puzzles && data.puzzles.length > 0 
-        ? data.puzzles 
-        : (data.grid ? [{ grid: data.grid, capsules: data.capsules || [], rowTargets: data.rowTargets, colTargets: data.colTargets }] : []);
+  const puzzle = data.puzzles?.[0] || (data.grid ? { grid: data.grid, capsules: data.capsules || [], rowTargets: data.rowTargets, colTargets: data.colTargets } : null);
+  if (!puzzle) return null;
 
-    // Determine grid layout based on number of puzzles
-    let gridColsClass = 'grid-cols-1';
-    if (puzzles.length >= 5) {
-        gridColsClass = 'grid-cols-2 md:grid-cols-3';
-    } else if (puzzles.length >= 2) {
-        gridColsClass = 'grid-cols-2';
-    }
+  const { grid, capsules = [], rowTargets = [], colTargets = [] } = puzzle;
+  const rows = grid.length;
+  const cols = grid[0]?.length || 0;
+  const isOdd = data.instruction?.includes('TEK') || data.instruction?.includes('Tek') || false;
 
-    return (
-        <div className="flex flex-col font-lexend mt-4 print:mt-1 h-full w-full">
-            <PedagogicalHeader title={data?.title} instruction={data?.instruction} data={data} />
+  return (
+    <div className="flex flex-col bg-white font-['Lexend'] min-h-[297mm] p-4 print:p-3">
+      <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
 
-            <div className={`grid ${gridColsClass} gap-6 print:gap-4 mt-6 print:mt-3 mb-4 print:mb-2 flex-1 place-content-center items-center justify-items-center break-inside-avoid`}>
-                {puzzles.map((puzzle, pIndex) => (
-                    <div key={pIndex} className="flex flex-col items-center scale-90 md:scale-100 print:scale-[0.85] origin-top">
-                        <div
-                            className="bg-zinc-50 border-4 border-slate-700 p-4 print:p-2 rounded-3xl relative shadow-md"
-                            style={{
-                                display: 'grid',
-                                gridTemplateColumns: `repeat(${puzzle.grid[0]?.length || 4}, 1fr)`,
-                                gap: '4px'
-                            }}
-                        >
-                            {/* Headers For Columns */}
-                            <div className="col-span-full grid" style={{ gridTemplateColumns: `repeat(${puzzle.grid[0]?.length || 4}, 1fr)`, gap: '4px', marginBottom: '8px' }}>
-                                {puzzle.colTargets?.map((target, idx) => (
-                                    <div key={`col-${idx}`} className="text-center font-black text-lg md:text-xl text-teal-600 bg-teal-50 py-1.5 md:py-2 rounded-xl border-b-2 border-teal-200">
-                                        {target}
-                                    </div>
-                                ))}
-                            </div>
+      {/* Legend */}
+      <div className="flex flex-wrap gap-2 items-center mb-2 text-[8px] font-bold text-zinc-500">
+        <span className="text-indigo-600 font-black uppercase tracking-wider text-[7px]">KAPSÜL</span>
+        {capsules.slice(0, 3).map((cap, i) => (
+          <span key={cap.id} className={`px-1.5 py-0.5 rounded border ${CAPSULE_COLORS[i % CAPSULE_COLORS.length]} text-zinc-700 text-[7px] font-bold`}>
+            {cap.target}
+          </span>
+        ))}
+        {capsules.length > 3 && <span className="text-zinc-400">+{capsules.length - 3}</span>}
+        <span className="ml-auto text-[7px] text-zinc-400">{isOdd ? 'Tek' : 'Çift'} sayılar</span>
+      </div>
 
-                            {puzzle.grid.map((row, rIndex) => (
-                                <React.Fragment key={rIndex}>
-                                    {row.map((_, cIndex) => {
-                                        // Find if this cell is part of a capsule
-                                        const capsule = puzzle.capsules?.find((cap) => cap.cells.some((c) => c.y === rIndex && c.x === cIndex));
-                                        const isFirstInCapsule = capsule?.cells[0].y === rIndex && capsule?.cells[0].x === cIndex;
+      {/* Game Grid */}
+      <div className="flex-1 flex items-center justify-center">
+        <div className="inline-flex flex-col">
+          {/* Column Targets */}
+          <div className="flex ml-9 mb-1">
+            {colTargets.map((t, c) => (
+              <div
+                key={c}
+                className="w-10 h-7 flex items-center justify-center font-black text-sm text-teal-700 bg-teal-50 border border-teal-300 rounded-md mx-px"
+              >
+                {t}
+              </div>
+            ))}
+          </div>
 
-                                        const inCapsuleClass = capsule ? 'bg-amber-100/50 border-amber-300' : 'bg-white border-slate-200';
+          {/* Grid Rows */}
+          <div className="flex flex-col gap-px">
+            {grid.map((row, r) => (
+              <div key={r} className="flex items-center gap-1">
+                {/* Row cells */}
+                <div className="flex gap-px">
+                  {row.map((_, c) => {
+                    const capsuleIdx = capsules.findIndex((cap) => cap.cells.some((cell) => cell.x === c && cell.y === r));
+                    const capsule = capsuleIdx >= 0 ? capsules[capsuleIdx] : null;
+                    const isFirst = capsule ? capsule.cells[0].x === c && capsule.cells[0].y === r : false;
+                    const colorClass = capsuleIdx >= 0 ? CAPSULE_COLORS[capsuleIdx % CAPSULE_COLORS.length] : 'bg-white border-zinc-300';
 
-                                        return (
-                                            <div
-                                                key={`${rIndex}-${cIndex}`}
-                                                className={`relative w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 border-2 rounded-xl flex items-center justify-center shadow-sm ${inCapsuleClass}`}
-                                            >
-                                                <EditableText value="" tag="span" className="text-2xl md:text-3xl font-black text-slate-800" />
-                                                {isFirstInCapsule && (
-                                                    <div className="absolute -top-3 -left-2 bg-indigo-600 text-white text-[10px] md:text-xs font-bold px-1.5 py-0.5 rounded-full shadow-sm z-10 border border-indigo-700">
-                                                        {capsule.target}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
-                                    {/* Row Target on the Right */}
-                                    <div className="flex items-center justify-center font-black text-lg md:text-xl text-indigo-600 bg-indigo-50 px-2 md:px-4 print:px-2 rounded-xl border-l-2 border-indigo-200 ml-1 md:ml-2">
-                                        {puzzle.rowTargets?.[rIndex]}
-                                    </div>
-                                </React.Fragment>
-                            ))}
-                        </div>
-                        {puzzles.length > 1 && (
-                            <div className="mt-3 font-bold text-slate-400 text-sm">Bulmaca #{pIndex + 1}</div>
+                    return (
+                      <div
+                        key={c}
+                        className={`relative w-10 h-10 border-2 rounded-lg flex items-center justify-center shadow-sm ${colorClass}`}
+                      >
+                        <EditableText value="" tag="span" placeholder="" className="text-base font-black text-zinc-800 w-full h-full flex items-center justify-center" />
+                        {isFirst && capsule && (
+                          <div className="absolute -top-2.5 -left-2.5 bg-indigo-600 text-white text-[7px] font-black px-1.5 py-0.5 rounded-md border border-white shadow-sm leading-none z-10">
+                            {capsule.target}
+                          </div>
                         )}
-                    </div>
-                ))}
-            </div>
-
-            {puzzles.length > 0 && (
-                <div className="mt-auto print:mt-4 flex gap-3 text-xs md:text-sm font-medium text-slate-500 bg-slate-50 px-4 md:px-6 print:px-3 py-2 md:py-3 rounded-2xl border border-slate-200 w-full mb-4">
-                    <i className="fa-solid fa-circle-info text-indigo-400 mt-0.5 md:mt-1"></i>
-                    <p>Satırdaki ve sütundaki sayıların toplamı mavi kutuları; kapsül (sarı) içindeki sayıların toplamı ise kapsülün sol üstündeki sayıyı vermelidir.</p>
+                      </div>
+                    );
+                  })}
                 </div>
-            )}
+                {/* Row Target */}
+                <div className="w-9 h-10 flex items-center justify-center font-black text-sm text-indigo-700 bg-indigo-50 border border-indigo-300 rounded-lg ml-1">
+                  {rowTargets[r]}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-    );
-};
+      </div>
 
+      {/* Info Footer */}
+      <div className="mt-2 flex items-center gap-2 text-[8px] font-medium text-zinc-400 bg-zinc-50 rounded-xl px-3 py-2 border border-zinc-200">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-400 shrink-0">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
+        <span>Her satır/sütun toplamı belirtilen hedefe ulaşmalı. Kapsül (renkli grup) içindeki sayıların toplamı, kapsülün sol üstündeki sayıyı vermeli.</span>
+      </div>
+
+      {/* Clinical Panel */}
+      <div className="mt-2 pt-2 grid grid-cols-4 gap-2 px-3 pb-3 rounded-t-2xl bg-zinc-900 text-white">
+        <div className="col-span-1 flex flex-col justify-center">
+          <span className="text-[8px] font-black uppercase leading-tight text-zinc-400">
+            SAYISAL<br />AKIL
+          </span>
+        </div>
+        {[
+          { label: 'SÜRE', val: '__:__', unit: 'dk' },
+          { label: 'DOĞRU', val: '__', unit: '/' + (rows * cols) },
+          { label: 'PUAN', val: '___', unit: 'p' },
+        ].map((item) => (
+          <div key={item.label} className="bg-white/10 border border-white/10 rounded-lg p-2 flex flex-col justify-between">
+            <span className="text-[7px] font-black text-zinc-500 uppercase">{item.label}</span>
+            <div className="flex items-end gap-0.5">
+              <span className="text-sm font-black text-white">{item.val}</span>
+              <span className="text-[6px] font-bold text-zinc-500 mb-0.5">{item.unit}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};

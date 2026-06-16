@@ -19,7 +19,8 @@ export async function generateSmartFallbackAI(
   type: ActivityType,
   options: GeneratorOptions
 ): Promise<SingleWorksheetData> {
-  const { topic, difficulty, studentAge, profile } = options as Record<string, unknown>;
+  const opts = options as Record<string, unknown>;
+  const { topic, difficulty, studentAge, profile, variant, subVariant, itemCount, mixedMode, includeElapsed, includeRoutine } = opts;
   const template = getPromptTemplate(type);
 
   // ── SYSTEM PROMPT ─────────────────────────────────────────────
@@ -42,13 +43,22 @@ BAĞLAM:
 - Konu: ${topic || 'Rastgele'}
 `;
 
-  const specificSuffix = template?.systemPromptSuffix || `
+  let specificSuffix = template?.systemPromptSuffix || `
 Görevin: "${type}" aktivitesi için premium çalışma kağıdı üret.
 YAPI:
 - Ana Görev (Primary Task): Aktivite türüne özgü ana içerik bloğu.
 - Destekleyici Dril (Supporting Drill): 3-5 kısa pekiştirme sorusu.
 - Pedagojik Not: Hangi bilişsel beceriyi geliştirdiği (bilimsel temelli).
 FORMAT: JSON olarak dön.`;
+
+  // Inject variant options into prompt placeholders
+  specificSuffix = specificSuffix
+    .replace('{variant}', (variant as string) || 'analog-to-digital')
+    .replace('{subVariant}', (subVariant as string) || 'standard')
+    .replace('{itemCount}', String(itemCount || 12))
+    .replace('{mixedMode}', mixedMode ? 'Açık' : 'Kapalı')
+    .replace('{includeElapsed}', includeElapsed ? 'Açık' : 'Kapalı')
+    .replace('{includeRoutine}', includeRoutine ? 'Açık' : 'Kapalı');
 
   const SYSTEM_PROMPT = baseSystemPrompt + '\n' + specificSuffix;
 

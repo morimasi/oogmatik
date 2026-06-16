@@ -85,6 +85,11 @@ export interface NumberCapsuleData extends BaseActivityData {
   grid?: (number | null)[][];
   rowTargets?: number[];
   colTargets?: number[];
+  settings?: {
+    difficulty?: string;
+    gridSize?: number;
+    aestheticMode?: 'standard' | 'premium' | 'uzay' | 'gizli' | 'hazine' | 'ultra-compact';
+  };
 }
 
 export interface OddEvenSudokuData extends BaseActivityData {
@@ -187,7 +192,8 @@ export interface MoneyCountingData extends BaseActivityData {
 }
 
 export interface ClockReadingData extends BaseActivityData {
-  variant?: string;
+  variant: 'analog-to-digital' | 'digital-to-analog' | 'verbal-match';
+  subVariant?: string;
   clocks: {
     hour: number;
     minute: number;
@@ -202,6 +208,11 @@ export interface ClockReadingData extends BaseActivityData {
     showHands?: boolean;
     showOptions?: boolean;
     difficulty?: string;
+    precision?: string;
+    itemCount?: number;
+    mixedMode?: boolean;
+    includeElapsed?: boolean;
+    includeRoutine?: boolean;
   };
 }
 

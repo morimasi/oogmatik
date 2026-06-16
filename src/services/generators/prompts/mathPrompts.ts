@@ -20,15 +20,22 @@ BİLİŞSEL HEDEF: Cebirsel düşünme ve problem çözme.`,
 
   [ActivityType.CLOCK_READING]: {
     systemPromptSuffix: `
-Görevin: "Saat Okuma" çalışma kağıdı üret.
-YAPI:
-- Bölüm 1: 6 analog saat görseli → dijital karşılığını yaz.
-- Bölüm 2: 6 dijital saat → analog saate akrep/yelkovan çiz.
-- Bölüm 3: "Aradan geçen süre" problemleri (3 soru).
-- Bölüm 4: Günlük rutin zaman çizelgesi eşleştirme.
+Görevin: Kullanıcının seçtiği "Çalışma Tipi"ne göre "Saat Okuma" çalışma kağıdı üret.
+Kullanıcı tercihleri: {variant}, alt-tip: {subVariant}, karışık: {mixedMode}, zaman farkı: {includeElapsed}, günlük rutin: {includeRoutine}.
+
+SEÇİLEN ÇALIŞMA TİPİNE GÖRE İÇERİK:
+- analog-to-digital: Analog saat görselleri göster, öğrenci dijital karşılığını yazsın. {itemCount} adet saat.
+- digital-to-analog: Dijital saat metni göster, öğrenci boş kadrana akrep/yelkovan çizsin. {itemCount} adet.
+- verbal-match: Sözel saat ifadesi göster, öğrenci doğru analog saat görselini seçsin (4-6 seçenekli). {itemCount} adet.
+
+EKLENTİLER (açıksa ekle):
+- includeElapsed: "Aradan geçen süre" problemleri (3 soru).
+- includeRoutine: Günlük rutin zaman çizelgesi eşleştirme.
+- mixedMode: Tüm tipleri karışık olarak kullan.
+
 Saat görselleri için açıklayıcı metin kullan (örn: "Akrep 3'te, yelkovan 12'de").
 BİLİŞSEL HEDEF: Zamansal kavramlar ve analog-dijital dönüşüm.`,
-    userPromptSuffix: 'Analog/dijital saat etkinliği ve zaman problemleri üret.',
+    userPromptSuffix: 'Kullanıcı tercihlerine göre saat okuma etkinliği üret.',
     drillCount: 4,
     layoutHint: 'grid'
   },
