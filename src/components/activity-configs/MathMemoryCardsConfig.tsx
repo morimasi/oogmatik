@@ -93,6 +93,16 @@ export const MathMemoryCardsConfig = ({ options, onChange }: { options: Generato
                         <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${options.showNumbers !== false ? 'left-4.5' : 'left-0.5'}`}></div>
                     </div>
                 </div>
+
+                <div className="flex items-center justify-between p-1">
+                    <span className="text-[10px] font-black text-zinc-400 uppercase flex items-center gap-1">⚡ Hızlı Mod</span>
+                    <div
+                        className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${(options.fastMode as boolean) ? 'bg-emerald-500' : 'bg-zinc-300'}`}
+                        onClick={() => onChange('fastMode', !(options.fastMode as boolean))}
+                    >
+                        <div className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${(options.fastMode as boolean) ? 'left-4.5' : 'left-0.5'}`}></div>
+                    </div>
+                </div>
             </div>
         </div>
     );

@@ -23,6 +23,8 @@ export const generateMathMemoryCardsFromAI = async (options: GeneratorOptions): 
     2. Kart tiplerini 'operation', 'number', 'visual' veya 'text' olarak belirle.
     3. 'visual' kartlarda 'visualType' mutlaka '${visualStyle}' olsun.
     4. Rakamlar Türk müfredatına ve çocuk seviyesine uygun, tam sayı olsun.
+
+    MOD: ${(options as any).fastMode ? 'Hızlı Mod — Çok basit sayılar (1-10 arası), tek işlem, kolay eşleştirme, hızlı kavranabilir kartlar.' : 'Normal mod — Çeşitli zorlukta sayılar ve işlemler, daha zengin içerik.'}
     `;
 
     const prompt = getMathPrompt("Hafıza Atölyesi: Matematik Kartları", difficulty, rule, studentContext);
@@ -82,7 +84,8 @@ export const generateMathMemoryCardsFromAI = async (options: GeneratorOptions): 
             cardCount: itemCount ?? 16, 
             difficulty: difficulty ?? 'Orta', 
             variant: variant ?? 'op-res', 
-            showNumbers: showNumbers ?? true 
+            showNumbers: showNumbers ?? true,
+            fastMode: (options as any).fastMode ?? false
         }
     }));
 };

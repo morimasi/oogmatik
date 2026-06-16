@@ -393,13 +393,13 @@ const UnifiedContentRenderer = ({
   const isValidData = true; // Guaranteed by checks above
 
   const architecture = activeData?.layoutArchitecture;
-  const rawBlocks: WorksheetBlock[] = activeData?.blocks ||
+  const rawBlocksRaw = activeData?.blocks ||
        activeData?.puzzles ||
        activeData?.operations ||
        activeData?.items ||
        activeData?.problems ||
-       activeData?.steps ||
-       [];
+       activeData?.steps;
+  const rawBlocks: WorksheetBlock[] = Array.isArray(rawBlocksRaw) ? rawBlocksRaw : [];
   const cols = (architecture?.cols && architecture.cols > 1) ? architecture.cols : (settings?.columns || 1);
 
   const snapModifier: Modifier = ({ transform }) => {

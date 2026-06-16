@@ -53,13 +53,22 @@ const MemoryCardUI = ({ card, showCheckCode }: { card: MathMemoryCard, showCheck
 
 export const MathMemoryCardsSheet = ({ data }: { data: MathMemoryCardsData }) => {
     const cardCount = data.cards?.length || 0;
-    // Optimize columns for exactly 24 or 32 cards (4 cols is perfect for A4)
+    const fastMode = data.settings?.fastMode ?? false;
     const cols = 'grid-cols-4';
     const rows = cardCount > 24 ? 'grid-rows-8' : 'grid-rows-6';
 
     return (
         <div className="flex flex-col h-full font-lexend p-2 bg-white">
-            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+            <div className="flex items-start justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                    <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+                </div>
+                {fastMode && (
+                    <span className="text-[7px] font-black uppercase tracking-wider text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full border border-emerald-200 shrink-0 mt-1">
+                        ⚡ Hızlı
+                    </span>
+                )}
+            </div>
 
             <div
                 className={`flex-1 grid ${cols} ${rows} gap-1.5 mt-2 print:mt-1 content-start`}
