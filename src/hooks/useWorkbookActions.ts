@@ -58,34 +58,164 @@ export const useWorkbookActions = (
     if (finalType && finalData) {
       let dataArray: Record<string, unknown>[] = [];
 
-      // ÇOK SAYFALI VERİ ALGILAMA, BÖLME VE AÇMA (ADVANCED FLATTENING)
-      const listKeys = ['sorular', 'questions', 'items', 'activities'];
-      const foundListKey = listKeys.find(key => finalData[key] && Array.isArray(finalData[key]));
+      // ═══════════════════════════════════════════════════════════════
+      // ÇOK SAYFALI VERİ ALGILAMA, BÖLME VE AÇMA (ADVANCED FLATTENING v2)
+      // Her stüdyonun farklı veri yapısını doğru sayfalandırır.
+      // ═══════════════════════════════════════════════════════════════
+
+      // Sayfalanabilir liste anahtarları ve her biri için ideal sayfa başına öğe sayısı  
+      const PAGINATION_CONFIG: Record<string, number> = {
+        sorular: 4,        // Sınav soruları — A4'te max 4 uzun soru sığar
+        questions: 4,      // İngilizce eşdeğeri
+        items: 6,          // Genel aktivite öğeleri
+        activities: 4,     // Alt aktiviteler
+        exercises: 5,      // Egzersizler
+        problems: 4,       // Matematik problemleri
+        words: 15,         // Kelime listeleri
+        drills: 8,         // Matematik drilleri
+        paragraphs: 2,     // Paragraf bazlı içerikler
+        sections: 3,       // Bölümler
+      };
+
+      const listKeys = Object.keys(PAGINATION_CONFIG);
+
+      // 1. DOĞRUDAN LİSTE ANAHTARI BULMAYA ÇALIŞ
+      let foundListKey = listKeys.find(key => finalData[key] && Array.isArray(finalData[key]) && finalData[key].length > 0);
+
+      // 2. DERİN İÇ İÇE YAPI TESPİTİ: data: [sinavObj] kalıbı (Sınav Stüdyoları)
+      //    MatSinavStudyosu: { title, data: [aktifSinav], printConfig }
+      //    Bu kalıpta gerçek soru listesi data[0].sorular'dadır
+      let deepUnwrappedData = finalData;
+      if (!foundListKey && finalData.data && Array.isArray(finalData.data) && finalData.data.length === 1) {
+        const innerObj = finalData.data[0];
+        if (innerObj && typeof innerObj === 'object') {
+          const innerListKey = listKeys.find(key => innerObj[key] && Array.isArray(innerObj[key]) && innerObj[key].length > 0);
+          if (innerListKey) {
+            // İç objeyi düzleştir: dış envelope bilgilerini koru, iç objeyi yaygınlaştır
+            deepUnwrappedData = {
+              ...finalData,
+              data: undefined, // wrapper array'i kaldır
+              ...innerObj,
+              title: finalData.title || innerObj.title || innerObj.baslik,
+              printConfig: finalData.printConfig || innerObj.printConfig,
+            };
+            foundListKey = innerListKey;
+          }
+        }
+      }
+
+      // 3. SAYFALANDIRMA KARARI — Tüm çok sayfalı veriler TEK bir CollectionItem
+      //    altında data.pages dizisi olarak gruplanır. Workbook.tsx pages dizisini
+      //    algılar ve her sayfayı ayrı ayrı render eder.
+      // =========================================================================
+      
+      // Yardımcı: her sayfaya parent özellikleri ve pageIndex ekler
+      const mergePageData = (pages: Record<string, unknown>[], base: Record<string, unknown>, mergeParentProps = true) =>
+        pages.map((p, i) => ({
+          ...(mergeParentProps ? base : {}),
+          ...p,
+          pageIndex: i,
+          title: p.title || `${(base.title || base.baslik || 'Etkinlik')} - Sayfa ${i + 1}`,
+        }));
 
       if (Array.isArray(finalData)) {
-        dataArray = finalData;
-      } else if (finalData.pages && Array.isArray(finalData.pages)) {
-        dataArray = (finalData.pages as Record<string, unknown>[]).map((p, i: number) => ({
-          ...finalData,
-          pages: undefined,
-          ...p,
-          title: p.title || `${finalData.title || 'Etkinlik'} - Sayfa ${i + 1}`,
-          pageIndex: i
-        }));
-      } else if (foundListKey && finalData[foundListKey].length > 6) {
-        // OTOMATİK SAYFALANDIRMA (AUTO-PAGINATION)
-        const itemsPerPage = 6;
-        const items = finalData[foundListKey];
-        for (let i = 0; i < items.length; i += itemsPerPage) {
-          const chunk = items.slice(i, i + itemsPerPage);
-          dataArray.push({
-            ...finalData,
-            [foundListKey]: chunk,
-            title: `${finalData.title || 'Etkinlik'} - Sayfa ${Math.floor(i / itemsPerPage) + 1}`,
-            pageIndex: Math.floor(i / itemsPerPage)
-          });
+        // Doğrudan array olarak gelen veri → tek item'da pages dizisi
+        const mergedPages = mergePageData(finalData, {}, false);
+        dataArray = [{
+          title: (finalData[0] as any)?.title || 'Etkinlik',
+          pages: mergedPages,
+        }];
+
+      } else if (deepUnwrappedData.pages && Array.isArray(deepUnwrappedData.pages)) {
+        // pages anahtarı olan yapı → parent props her sayfaya merge edilir
+        const mergedPages = mergePageData(
+          deepUnwrappedData.pages as Record<string, unknown>[],
+          deepUnwrappedData,
+          true
+        );
+        dataArray = [{
+          ...deepUnwrappedData,
+          title: deepUnwrappedData.title || (mergedPages[0] as any)?.title || 'Etkinlik',
+          pages: mergedPages,
+        }];
+
+      } else if (deepUnwrappedData.sheets && Array.isArray(deepUnwrappedData.sheets)) {
+        // sheets anahtarı olan yapı → pages'e dönüştür
+        const mergedSheets = mergePageData(
+          deepUnwrappedData.sheets as Record<string, unknown>[],
+          deepUnwrappedData,
+          true
+        );
+        dataArray = [{
+          ...deepUnwrappedData,
+          title: deepUnwrappedData.title || (mergedSheets[0] as any)?.title || 'Etkinlik',
+          pages: mergedSheets,
+        }];
+
+      } else if (foundListKey) {
+        // Listeli veri: itemsPerPage'e göre otomatik sayfalandır, TEK item'da grupla
+        const sourceData = deepUnwrappedData;
+        const itemsPerPage = PAGINATION_CONFIG[foundListKey] || 6;
+        const allItems = sourceData[foundListKey] as unknown[];
+        
+        if (allItems.length > itemsPerPage) {
+          const chunks: Record<string, unknown>[] = [];
+          for (let i = 0; i < allItems.length; i += itemsPerPage) {
+            const chunk = allItems.slice(i, i + itemsPerPage);
+            const pageNum = Math.floor(i / itemsPerPage) + 1;
+            const totalPages = Math.ceil(allItems.length / itemsPerPage);
+            chunks.push({
+              ...sourceData,
+              [foundListKey]: chunk,
+              title: `${sourceData.title || sourceData.baslik || 'Etkinlik'} - Sayfa ${pageNum}/${totalPages}`,
+              pageIndex: pageNum - 1,
+              _totalPages: totalPages,
+            });
+          }
+          dataArray = [{
+            ...sourceData,
+            title: sourceData.title || sourceData.baslik || 'Etkinlik',
+            pages: chunks,
+          }];
+        } else {
+          dataArray = [sourceData];
         }
+
+      } else if (deepUnwrappedData.layout && Array.isArray(deepUnwrappedData.layout)) {
+        // ReadingStudio: layout öğelerini pageIndex'e göre grupla
+        const layoutItems = deepUnwrappedData.layout as Array<{ pageIndex?: number; [key: string]: unknown }>;
+        const pageGroups = new Map<number, typeof layoutItems>();
+        
+        layoutItems.forEach(item => {
+          const pageIdx = item.pageIndex ?? 0;
+          if (!pageGroups.has(pageIdx)) pageGroups.set(pageIdx, []);
+          pageGroups.get(pageIdx)!.push(item);
+        });
+
+        if (pageGroups.size > 1) {
+          const sortedPages = [...pageGroups.entries()].sort((a, b) => a[0] - b[0]);
+          const layoutPages = sortedPages.map(([, items], i) => ({
+            ...deepUnwrappedData,
+            layout: items,
+            pageIndex: i,
+            title: `${deepUnwrappedData.title || 'Okuma Etkinliği'} - Sayfa ${i + 1}`,
+          }));
+          dataArray = [{
+            ...deepUnwrappedData,
+            title: deepUnwrappedData.title || 'Okuma Etkinliği',
+            pages: layoutPages,
+          }];
+        } else {
+          dataArray = [deepUnwrappedData];
+        }
+
       } else {
+        // Tek sayfa — hiçbir çok sayfalı kalıp algılanmadı
+        dataArray = [deepUnwrappedData];
+      }
+
+      // Boş array koruması
+      if (dataArray.length === 0) {
         dataArray = [finalData];
       }
 
@@ -94,7 +224,10 @@ export const useWorkbookActions = (
         activityType: finalType,
         data: sheet,
         settings: { ...styleSettings },
-        title: (typeof sheet.title === 'string' ? sheet.title : '') || ACTIVITIES.find((a) => a.id === finalType)?.title || 'Etkinlik',
+        title: (typeof sheet.title === 'string' ? sheet.title : '') 
+          || (typeof sheet.baslik === 'string' ? sheet.baslik : '')
+          || ACTIVITIES.find((a) => a.id === finalType)?.title 
+          || 'Etkinlik',
       }));
 
       setWorkbookItems((prev: CollectionItem[]) => [...prev, ...newItems]);
@@ -105,7 +238,10 @@ export const useWorkbookActions = (
         setTimeout(() => btn.classList.remove('scale-125', 'bg-green-500', 'text-white'), 300);
       }
 
-      toast.success(`${dataArray.length} sayfa kitapçığa başarıyla eklendi!`);
+      const totalPages = dataArray.length === 1 && Array.isArray(dataArray[0]?.pages)
+        ? dataArray[0]!.pages!.length
+        : dataArray.length;
+      toast.success(`${totalPages} sayfa kitapçığa başarıyla eklendi!`);
     }
   };
 
@@ -141,7 +277,7 @@ export const useWorkbookActions = (
         studentName: studentProfile?.name || '',
         teacherNote: 'Bu kitapçık, yapılan değerlendirme sonucunda belirlenen ihtiyaçlara yönelik olarak yapay zeka tarafından otomatik oluşturulmuştur.',
       }));
-    } catch (_e) {
+    } catch {
       toast.error('Otomatik kitapçık oluşturulurken bir hata meydana geldi.');
     } finally {
       setIsLoading(false);
