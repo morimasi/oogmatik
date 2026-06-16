@@ -64,7 +64,21 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
         }
     };
 
-    // Using stable gemini-2.5-flash for reliability
-    const result = await generateWithSchema(prompt, schema) as unknown as NumberLogicRiddleData[];
-    return result;
+    const rawResult = await generateWithSchema(prompt, schema);
+    
+    // Güvenli dizi dönüşümü
+    let result: any[] = [];
+    if (Array.isArray(rawResult)) {
+        result = rawResult;
+    } else if (rawResult && typeof rawResult === 'object') {
+        const potential = (rawResult as any).items || (rawResult as any).puzzles || (rawResult as any).data;
+        result = Array.isArray(potential) ? potential : [rawResult];
+    }
+
+    return result.filter(p => p && typeof p === 'object').map((p: any) => ({
+        ...p,
+        title: p.title || 'Sayısal Dedektiflik Lab',
+        instruction: p.instruction || 'İpuçlarını takip et ve doğru sayıyı bul.',
+        puzzles: Array.isArray(p.puzzles) ? p.puzzles : []
+    })) as NumberLogicRiddleData[];
 };

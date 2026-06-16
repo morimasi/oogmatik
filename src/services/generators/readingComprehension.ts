@@ -63,8 +63,11 @@ export const generateReadingSudokuFromAI = async (options: GeneratorOptions): Pr
         }
     };
 
-    const result = await generateWithSchema(prompt, schema) as unknown as any[];
-    return result.map(p => ({
+    const rawResult = await generateWithSchema(prompt, schema);
+    let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
+    if (!Array.isArray(result)) result = [result];
+
+    return result.filter(p => p && typeof p === 'object').map(p => ({
         ...p,
         settings: {
             size: gridSize,
@@ -192,8 +195,11 @@ export const generateReadingStroopFromAI = async (options: GeneratorOptions): Pr
         }
     };
 
-    const result = await generateWithSchema(prompt, schema) as unknown as any[];
-    return result.map(p => ({
+    const rawResult = await generateWithSchema(prompt, schema);
+    let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
+    if (!Array.isArray(result)) result = [result];
+
+    return result.filter(p => p && typeof p === 'object').map(p => ({
         ...p,
         settings: {
             cols: options.gridSize || 4,

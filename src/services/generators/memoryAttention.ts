@@ -50,7 +50,17 @@ export const generateWordMemoryFromAI = async (options: GeneratorOptions): Promi
         required: ['title', 'memorizeTitle', 'testTitle', 'wordsToMemorize', 'testWords', 'instruction', 'imagePrompt']
     };
     const schema = { type: 'ARRAY', description: 'Kelime hafıza test sayfaları', items: singleSchema };
-    return generateWithSchema(prompt, schema) as unknown as Promise<WordMemoryData[]>;
+    
+    const rawResult = await generateWithSchema(prompt, schema);
+    let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
+    if (!Array.isArray(result)) result = [result];
+
+    return result.filter(p => p && typeof p === 'object').map((p: any) => ({
+        ...p,
+        title: p.title || 'Kelime Hafıza Testi',
+        wordsToMemorize: Array.isArray(p.wordsToMemorize) ? p.wordsToMemorize : [],
+        testWords: Array.isArray(p.testWords) ? p.testWords : []
+    })) as any;
 };
 
 export const generateVisualMemoryFromAI = async (options: GeneratorOptions): Promise<VisualMemoryData[]> => {
@@ -92,7 +102,17 @@ export const generateVisualMemoryFromAI = async (options: GeneratorOptions): Pro
         required: ['title', 'memorizeTitle', 'testTitle', 'itemsToMemorize', 'testItems', 'instruction', 'imagePrompt']
     };
     const schema = { type: 'ARRAY', description: 'Görsel hafıza test sayfaları', items: singleSchema };
-    return generateWithSchema(prompt, schema) as unknown as Promise<VisualMemoryData[]>;
+    
+    const rawResult = await generateWithSchema(prompt, schema);
+    let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
+    if (!Array.isArray(result)) result = [result];
+
+    return result.filter(p => p && typeof p === 'object').map((p: any) => ({
+        ...p,
+        title: p.title || 'Görsel Hafıza Testi',
+        itemsToMemorize: Array.isArray(p.itemsToMemorize) ? p.itemsToMemorize : [],
+        testItems: Array.isArray(p.testItems) ? p.testItems : []
+    })) as any;
 };
 
 export const generateNumberSearchFromAI = async (options: GeneratorOptions): Promise<NumberSearchData[]> => {
@@ -115,7 +135,16 @@ export const generateNumberSearchFromAI = async (options: GeneratorOptions): Pro
         required: ['title', 'numbers', 'range', 'instruction', 'imagePrompt']
     };
     const schema = { type: 'ARRAY', description: 'Sayı avı sayfaları', items: singleSchema };
-    return generateWithSchema(prompt, schema) as unknown as Promise<NumberSearchData[]>;
+    
+    const rawResult = await generateWithSchema(prompt, schema);
+    let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
+    if (!Array.isArray(result)) result = [result];
+
+    return result.filter(p => p && typeof p === 'object').map((p: any) => ({
+        ...p,
+        title: p.title || 'Sayı Avı',
+        numbers: Array.isArray(p.numbers) ? p.numbers : []
+    })) as any;
 };
 
 export const generateFindTheDuplicateInRowFromAI = async (options: GeneratorOptions): Promise<FindDuplicateData[]> => {
@@ -132,7 +161,16 @@ export const generateFindTheDuplicateInRowFromAI = async (options: GeneratorOpti
         required: ['title', 'rows', 'instruction', 'imagePrompt']
     };
     const schema = { type: 'ARRAY', description: 'İkili bul sayfaları', items: singleSchema };
-    return generateWithSchema(prompt, schema) as unknown as Promise<FindDuplicateData[]>;
+    
+    const rawResult = await generateWithSchema(prompt, schema);
+    let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
+    if (!Array.isArray(result)) result = [result];
+
+    return result.filter(p => p && typeof p === 'object').map((p: any) => ({
+        ...p,
+        title: p.title || 'İkiliyi Bul',
+        rows: Array.isArray(p.rows) ? p.rows : []
+    })) as any;
 };
 
 export const generateLetterGridTestFromAI = async (options: GeneratorOptions): Promise<LetterGridTestData[]> => {
@@ -155,7 +193,17 @@ export const generateLetterGridTestFromAI = async (options: GeneratorOptions): P
         required: ['title', 'grid', 'targetLetters', 'instruction', 'imagePrompt']
     };
     const schema = { type: 'ARRAY', description: 'Harf ızgarası sayfaları', items: singleSchema };
-    return generateWithSchema(prompt, schema) as unknown as Promise<LetterGridTestData[]>;
+    
+    const rawResult = await generateWithSchema(prompt, schema);
+    let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
+    if (!Array.isArray(result)) result = [result];
+
+    return result.filter(p => p && typeof p === 'object').map((p: any) => ({
+        ...p,
+        title: p.title || 'Harf Izgarası',
+        grid: Array.isArray(p.grid) ? p.grid : [],
+        targetLetters: Array.isArray(p.targetLetters) ? p.targetLetters : []
+    })) as any;
 };
 
 // Fix: Removed duplicate generateFindLetterPairFromAI as it is now centrally managed in newActivities.ts
@@ -176,7 +224,16 @@ export const generateTargetSearchFromAI = async (options: GeneratorOptions): Pro
         required: ['title', 'grid', 'target', 'distractor', 'instruction', 'imagePrompt']
     };
     const schema = { type: 'ARRAY', description: 'Hedef karakter avı sayfaları', items: singleSchema };
-    return generateWithSchema(prompt, schema) as unknown as Promise<TargetSearchData[]>;
+    
+    const rawResult = await generateWithSchema(prompt, schema);
+    let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
+    if (!Array.isArray(result)) result = [result];
+
+    return result.filter(p => p && typeof p === 'object').map((p: any) => ({
+        ...p,
+        title: p.title || 'Hedef Karakter Avı',
+        grid: Array.isArray(p.grid) ? p.grid : []
+    })) as any;
 };
 
 export const generateColorWheelMemoryFromAI = async (options: GeneratorOptions): Promise<ColorWheelMemoryData[]> => {
@@ -212,7 +269,16 @@ export const generateColorWheelMemoryFromAI = async (options: GeneratorOptions):
         required: ["title", "memorizeTitle", "testTitle", "items", 'instruction', 'imagePrompt']
     };
     const schema = { type: 'ARRAY', description: 'Renk hafıza sayfaları', items: singleSchema };
-    return generateWithSchema(prompt, schema) as unknown as Promise<ColorWheelMemoryData[]>;
+    
+    const rawResult = await generateWithSchema(prompt, schema);
+    let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
+    if (!Array.isArray(result)) result = [result];
+
+    return result.filter(p => p && typeof p === 'object').map((p: any) => ({
+        ...p,
+        title: p.title || 'Renk Çemberi Hafıza Oyunu',
+        items: Array.isArray(p.items) ? p.items : []
+    })) as any;
 };
 
 export const generateImageComprehensionFromAI = async (options: GeneratorOptions): Promise<ImageComprehensionData[]> => {
@@ -237,7 +303,16 @@ export const generateImageComprehensionFromAI = async (options: GeneratorOptions
         required: ["title", "memorizeTitle", "testTitle", "sceneDescription", "imagePrompt", "questions", 'instruction']
     };
     const schema = { type: 'ARRAY', description: 'Resim anlama sayfaları', items: singleSchema };
-    return generateWithSchema(prompt, schema) as unknown as Promise<ImageComprehensionData[]>;
+    
+    const rawResult = await generateWithSchema(prompt, schema);
+    let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
+    if (!Array.isArray(result)) result = [result];
+
+    return result.filter(p => p && typeof p === 'object').map((p: any) => ({
+        ...p,
+        title: p.title || 'Resim Anlama',
+        questions: Array.isArray(p.questions) ? p.questions : []
+    })) as any;
 };
 
 export const generateCharacterMemoryFromAI = async (options: GeneratorOptions): Promise<CharacterMemoryData[]> => {
@@ -293,7 +368,17 @@ export const generateCharacterMemoryFromAI = async (options: GeneratorOptions): 
         required: ["title", "memorizeTitle", "testTitle", "charactersToMemorize", "testCharacters", 'instruction', 'imagePrompt']
     };
     const schema = { type: 'ARRAY', description: 'Karakter hafıza sayfaları', items: singleSchema };
-    return generateWithSchema(prompt, schema) as unknown as Promise<CharacterMemoryData[]>;
+    
+    const rawResult = await generateWithSchema(prompt, schema);
+    let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
+    if (!Array.isArray(result)) result = [result];
+
+    return result.filter(p => p && typeof p === 'object').map((p: any) => ({
+        ...p,
+        title: p.title || 'Karakter Hafıza',
+        charactersToMemorize: Array.isArray(p.charactersToMemorize) ? p.charactersToMemorize : [],
+        testCharacters: Array.isArray(p.testCharacters) ? p.testCharacters : []
+    })) as any;
 };
 
 export const generateBurdonTestFromAI = async (options: GeneratorOptions): Promise<LetterGridTestData[]> => {
@@ -322,10 +407,19 @@ export const generateStroopTestFromAI = async (options: GeneratorOptions): Promi
         required: ["title", "items", 'instruction', 'imagePrompt']
     };
     const schema = { type: 'ARRAY', description: 'Stroop test sayfaları', items: singleSchema };
-    return generateWithSchema(prompt, schema) as unknown as Promise<StroopTestData[]>;
+    
+    const rawResult = await generateWithSchema(prompt, schema);
+    let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
+    if (!Array.isArray(result)) result = [result];
+
+    return result.filter(p => p && typeof p === 'object').map((p: any) => ({
+        ...p,
+        title: p.title || 'Stroop Testi',
+        items: Array.isArray(p.items) ? p.items : []
+    })) as any;
 }
 
-export const generateChaoticNumberSearchFromAI = async (_options: GeneratorOptions): Promise<ChaoticNumberSearchData[]> => {
+export const generateChaoticNumberSearchFromAI = async (options: GeneratorOptions): Promise<ChaoticNumberSearchData[]> => {
     const prompt = `Kaotik Sayı Avı. ${PEDAGOGICAL_PROMPT}`;
     const singleSchema = {
         type: 'OBJECT',
@@ -354,5 +448,14 @@ export const generateChaoticNumberSearchFromAI = async (_options: GeneratorOptio
         required: ["title", "numbers", "range", 'instruction', 'imagePrompt']
     };
     const schema = { type: 'ARRAY', description: 'Kaotik sayı avı sayfaları', items: singleSchema };
-    return generateWithSchema(prompt, schema) as unknown as Promise<ChaoticNumberSearchData[]>;
+    
+    const rawResult = await generateWithSchema(prompt, schema);
+    let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
+    if (!Array.isArray(result)) result = [result];
+
+    return result.filter(p => p && typeof p === 'object').map((p: any) => ({
+        ...p,
+        title: p.title || 'Kaotik Sayı Avı',
+        numbers: Array.isArray(p.numbers) ? p.numbers : []
+    })) as any;
 }

@@ -88,10 +88,12 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
         }
     };
 
-    const results = await generateWithSchema(prompt, schema);
+    const rawResult = await generateWithSchema(prompt, schema);
+    let results: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
+    if (!Array.isArray(results)) results = [results];
     
     // Normalize: Ensure targetShape parameter is used (override AI response if needed)
-    return (results as unknown as ShapeCountingData[]).map((item: any) => ({
+    return results.filter(item => item && typeof item === 'object').map((item: any) => ({
         ...item,
         settings: {
             ...item.settings,
