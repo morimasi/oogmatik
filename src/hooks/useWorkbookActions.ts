@@ -55,7 +55,7 @@ export const useWorkbookActions = (
       finalData = data;
     }
 
-    if (finalType && finalData) {
+    if (finalType && finalData && !(Array.isArray(finalData) && finalData.length === 0)) {
       let dataArray: Record<string, unknown>[] = [];
 
       // ═══════════════════════════════════════════════════════════════
@@ -76,6 +76,7 @@ export const useWorkbookActions = (
         paragraphs: 2,     // Paragraf bazlı içerikler
         sections: 3,       // Bölümler
         instructions: 5,   // Yönerge listeleri (Harita Dedektifi vb.)
+        blocks: 4,         // Blok tabanlı içerikler
       };
 
       const listKeys = Object.keys(PAGINATION_CONFIG);
@@ -123,10 +124,11 @@ export const useWorkbookActions = (
         // Doğrudan array olarak gelen veri → her elemanın iç listelerini de kontrol et
         const expandedPages: Record<string, unknown>[] = [];
         for (const elem of finalData) {
+          if (!elem || typeof elem !== 'object') continue;
           const elemListKey = listKeys.find(
             (key) => (elem as any)[key] && Array.isArray((elem as any)[key]) && (elem as any)[key].length > PAGINATION_CONFIG[key]
           );
-          if (elemListKey && (elem as any)[elemListKey].length > PAGINATION_CONFIG[elemListKey]) {
+          if (elemListKey) {
             const itemsPerPage = PAGINATION_CONFIG[elemListKey];
             const allItems = (elem as any)[elemListKey] as unknown[];
             const totalPages = Math.ceil(allItems.length / itemsPerPage);
@@ -141,13 +143,16 @@ export const useWorkbookActions = (
               });
             }
           } else {
-            expandedPages.push({ ...elem, pageIndex: expandedPages.length });
+            const hasContent = Object.keys(elem as object).some(k => k !== 'id' && k !== 'type' && k !== 'metadata');
+            if (hasContent) {
+              expandedPages.push({ ...elem, pageIndex: expandedPages.length });
+            }
           }
         }
-        dataArray = [{
+        dataArray = expandedPages.length > 0 ? [{
           title: (finalData[0] as any)?.title || 'Etkinlik',
           pages: expandedPages,
-        }];
+        }] : [];
 
       } else if (deepUnwrappedData.pages && Array.isArray(deepUnwrappedData.pages)) {
         // pages anahtarı olan yapı → parent props her sayfaya merge edilir
@@ -269,7 +274,7 @@ export const useWorkbookActions = (
   };
 
   const handleAddToWorkbook = () => {
-    if (selectedActivity && worksheetData) {
+    if (selectedActivity && worksheetData && (!Array.isArray(worksheetData) || worksheetData.length > 0)) {
       handleAddToWorkbookGeneral(selectedActivity, worksheetData);
     }
   };
@@ -278,6 +283,8 @@ export const useWorkbookActions = (
     // Çok sayfalı veriyi algıla ve normalize et
     const raw = item.data;
     let normalizedData: unknown = raw;
+
+    if (Array.isArray(raw) && raw.length === 0) return;
 
     if (raw && typeof raw === 'object') {
       if (Array.isArray(raw)) {
