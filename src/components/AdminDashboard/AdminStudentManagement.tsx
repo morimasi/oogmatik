@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, Award, RefreshCw, MoreHorizontal, Trash2, Pencil, LayoutGrid, CircleX } from 'lucide-react';
+import { Search, Award, RefreshCw, MoreHorizontal, Trash2, Pencil, Gauge, CircleX } from 'lucide-react';
 import { Student } from '../../types';
 import { teacherService } from '../../services/teacherService';
 import { adminService } from '../../services/adminService';
@@ -136,7 +136,7 @@ export const AdminStudentManagement: React.FC = () => {
                             onClick={(e) => { e.stopPropagation(); setOpenMenuId(null); handleViewDashboard(s); }}
                             className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold text-zinc-700 dark:text-zinc-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors text-left"
                           >
-                            <LayoutGrid className="w-3.5 h-3.5 text-indigo-500" /> Dashboard'a Git
+                            <Gauge className="w-3.5 h-3.5 text-indigo-500" /> Dashboard'a Git
                           </button>
                           <button
                             onClick={(e) => { e.stopPropagation(); setOpenMenuId(null); setEditTarget(s); }}
@@ -218,7 +218,7 @@ export const AdminStudentManagement: React.FC = () => {
                   <td className="p-3 pr-5 text-center">
                     <div className="flex items-center justify-center gap-1">
                       <button onClick={() => { handleViewDashboard(s); }} className="px-2 py-1 bg-indigo-100 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 rounded-lg text-[8px] font-black hover:scale-105 transition-all inline-flex items-center gap-1" title="Dashboard">
-                        <LayoutGrid className="w-3 h-3" />
+                        <Gauge className="w-3 h-3" />
                       </button>
                       <button onClick={() => setEditTarget(s)} className="px-2 py-1 bg-emerald-100 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg text-[8px] font-black hover:scale-105 transition-all inline-flex items-center gap-1" title="Düzenle">
                         <Pencil className="w-3 h-3" />
