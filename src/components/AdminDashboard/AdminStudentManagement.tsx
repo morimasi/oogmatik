@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, Award, RefreshCw, MoreHorizontal, Trash2, Pencil, Gauge, CircleX } from 'lucide-react';
+import { Search, Award, RefreshCw, MoreHorizontal, Trash2, Pencil, CircleX } from 'lucide-react';
+import { icons } from 'lucide-react';
+const Gauge = icons.Gauge;
 import { Student } from '../../types';
 import { teacherService } from '../../services/teacherService';
 import { adminService } from '../../services/adminService';
