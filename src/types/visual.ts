@@ -176,7 +176,7 @@ export interface DirectionalTrackingData extends BaseActivityData {
         showClinicalNotes?: boolean;
         gridSize?: number;
         contentType?: 'letters' | 'numbers' | 'mixed' | 'words';
-        aestheticMode?: 'standard' | 'premium' | 'glassmorphism' | 'ultra-compact';
+        aestheticMode?: 'standard' | 'premium' | 'glassmorphism' | 'uzay' | 'gizli' | 'hazine' | 'ultra-compact';
     };
     puzzles: {
         grid: string[][];

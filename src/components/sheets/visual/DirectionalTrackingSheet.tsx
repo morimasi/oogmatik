@@ -3,56 +3,52 @@ import { DirectionalTrackingData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableElement } from '../../Editable';
 
-type StepType = { dir?: string; direction?: string; count?: number };
+type PuzzleItem = DirectionalTrackingData['puzzles'][number];
 
-type ExtendedPuzzle = DirectionalTrackingData['puzzles'][number] & {
-  steps?: StepType[];
-  answerLength?: number;
-  cipherAnswer?: string;
-};
-
-const ArrowIcon = ({ dir, compact = false }: { dir: string; compact?: boolean }) => {
-  const rotations: Record<string, number> = {
-    right: 0,
-    down: 90,
-    left: 180,
-    up: 270,
+const SvgArrow = ({ dir, compact = false }: { dir: string; compact?: boolean }) => {
+  const size = compact ? 18 : 22;
+  const paths: Record<string, string> = {
+    right: 'M3 12h14M13 6l6 6-6 6',
+    down: 'M12 3v14M6 13l6 6 6-6',
+    left: 'M21 12H7M11 6l-6 6 6 6',
+    up: 'M12 21V7M6 11l6-6 6 6',
   };
-
+  const d = paths[dir] || paths.right;
   return (
-    <div
-      className={`${compact ? 'w-8 h-8 rounded-lg' : 'w-10 h-10 rounded-xl'} flex items-center justify-center bg-zinc-50 border-2 border-zinc-200 group-hover:border-indigo-500 transition-all relative shadow-sm`}
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="text-zinc-800"
+      style={{ display: 'block' }}
     >
-      <i
-        className={`fa-solid fa-arrow-right text-zinc-800 ${compact ? 'text-xs' : 'text-sm'}`}
-        style={{ transform: `rotate(${rotations[dir] || 0}deg)` }}
-      ></i>
-    </div>
+      <path d={d} />
+    </svg>
   );
 };
 
-const LegendPanel = () => (
-  <div className="bg-zinc-900 rounded-xl p-3 print:p-2 flex flex-wrap gap-2 items-center mb-4 print:mb-2">
-    <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mr-2">
-      ŞİFRE TABLOSU:
-    </span>
-    <div className="grid grid-cols-4 gap-2 w-full mt-1">
-      {(
-        [
-          { sym: '↑', label: 'Yukarı' },
-          { sym: '↓', label: 'Aşağı' },
-          { sym: '→', label: 'Sağa' },
-          { sym: '←', label: 'Sola' },
-        ] as const
-      ).map((s: { sym: string; label: string }) => (
-        <div key={s.sym} className="bg-zinc-800 rounded-lg p-2 flex items-center gap-2">
-          <span className="text-white font-black text-lg w-6 text-center">{s.sym}</span>
-          <span className="text-zinc-400 text-[9px] font-bold">{s.label}</span>
-        </div>
-      ))}
-    </div>
+const ArrowBox = ({ dir, compact = false }: { dir: string; compact?: boolean }) => (
+  <div
+    className={`${compact ? 'w-7 h-7' : 'w-9 h-9'} flex items-center justify-center bg-zinc-50 border border-zinc-300 rounded-lg print:border-zinc-400`}
+  >
+    <SvgArrow dir={dir} compact={compact} />
   </div>
 );
+
+const LegendItem = ({ sym, label }: { sym: string; label: string }) => {
+  const dirMap: Record<string, string> = { '↑': 'up', '↓': 'down', '→': 'right', '←': 'left' };
+  return (
+    <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-800/80 rounded-lg border border-zinc-700/50">
+      <SvgArrow dir={dirMap[sym] || 'right'} compact />
+      <span className="text-zinc-400 text-[9px] font-bold">{label}</span>
+    </div>
+  );
+};
 
 export const DirectionalTrackingSheet = ({
   data,
@@ -61,7 +57,7 @@ export const DirectionalTrackingSheet = ({
   data: DirectionalTrackingData;
   settings?: any;
 }) => {
-  const puzzles = (data?.puzzles || []) as ExtendedPuzzle[];
+  const puzzles = (data?.puzzles || []) as PuzzleItem[];
   const settings = data?.settings;
   const isLandscape = globalSettings?.orientation === 'landscape';
   const isSingle = puzzles.length === 1;
@@ -69,7 +65,6 @@ export const DirectionalTrackingSheet = ({
     (settings as any)?.aestheticMode || globalSettings?.aestheticMode || 'standard';
   const isPremium = ['premium', 'glassmorphism', 'uzay', 'gizli', 'hazine', 'ultra-compact'].includes(aestheticMode);
 
-  // Theme Colors
   const themeColors: Record<string, { bg: string; border: string; accent: string; text: string; icon: string }> = {
     standard: { bg: 'bg-zinc-50/50', border: 'border-zinc-100', accent: 'bg-indigo-600', text: 'text-zinc-900', icon: 'text-indigo-600' },
     premium: { bg: 'bg-white/80', border: 'border-zinc-200', accent: 'bg-zinc-900', text: 'text-zinc-900', icon: 'text-indigo-600' },
@@ -82,26 +77,42 @@ export const DirectionalTrackingSheet = ({
   const currentTheme = themeColors[aestheticMode] || themeColors.standard;
   const isUltraCompact = aestheticMode === 'ultra-compact';
 
+  const arrowDirs = [
+    { sym: '↑', label: 'Yukarı', dir: 'up' },
+    { sym: '↓', label: 'Aşağı', dir: 'down' },
+    { sym: '→', label: 'Sağa', dir: 'right' },
+    { sym: '←', label: 'Sola', dir: 'left' },
+  ] as const;
+
   return (
     <div
       className={`
-      flex flex-col h-full bg-white font-['Lexend'] text-zinc-900 overflow-hidden relative p-10 print:p-6 min-h-[210mm] ${isLandscape ? 'landscape' : 'min-h-[297mm]'}
+      flex flex-col bg-white font-['Lexend'] text-zinc-900 overflow-hidden relative p-6 print:p-4 min-h-[297mm]
+      ${isLandscape ? 'landscape min-h-[210mm]' : ''}
       ${isPremium ? 'bg-slate-50/10' : 'bg-white'}
     `}
     >
       <PedagogicalHeader
         title={data?.title || 'YÖNSEL İZ SÜRME & ŞİFRE ÇÖZÜCÜ'}
         instruction={
-          isUltraCompact 
-            ? 'Başlangıçtan okları takip et, şifreyi çöz.' 
+          isUltraCompact
+            ? 'Başlangıçtan okları takip et, şifreyi çöz.'
             : (data?.instruction || 'İşaretli başlangıç noktasından okların yönünü adım adım takip edin ve bulduğunuz karakterleri sırasıyla şifre kutularına yazın.')
         }
         note={data?.pedagogicalNote}
       />
 
-      <div
-        className={`grid grid-cols-1 gap-6 print:gap-2 flex-1 content-stretch items-stretch`}
-      >
+      {/* Legend Panel - compact */}
+      <div className="flex flex-wrap gap-1.5 mb-3 print:mb-2 items-center">
+        <span className="text-[8px] font-black text-indigo-500 uppercase tracking-widest mr-1 print:mr-1">
+          ŞİFRE TABLOSU:
+        </span>
+        {arrowDirs.map((a) => (
+          <LegendItem key={a.sym} sym={a.sym} label={a.label} />
+        ))}
+      </div>
+
+      <div className={`flex-1 grid grid-cols-1 gap-4 print:gap-3 content-stretch items-stretch`}>
         {puzzles.map((puzzle, idx) => {
           const answerBoxCount = puzzle.cipherAnswer
             ? puzzle.cipherAnswer.length
@@ -112,157 +123,91 @@ export const DirectionalTrackingSheet = ({
               key={idx}
               className={`
                   relative border-[1.5px] transition-all duration-300 group break-inside-avoid flex flex-col justify-center
-                  ${isUltraCompact ? 'gap-2 p-3' : 'gap-6 p-8'}
-                  ${currentTheme.bg} ${currentTheme.border} rounded-[2rem]
-                  ${isPremium ? 'backdrop-blur-sm shadow-sm hover:shadow-lg' : ''}
+                  ${isUltraCompact ? 'gap-2 p-3' : 'gap-4 p-5'}
+                  ${currentTheme.bg} ${currentTheme.border} rounded-[1.5rem] print:rounded-xl
+                  ${isPremium ? 'backdrop-blur-sm shadow-sm' : ''}
                   ${isSingle ? 'flex-1 w-full max-w-none' : ''}
               `}
             >
               {/* Badge */}
               <div
                 className={`
-                  absolute -top-3 left-8 px-4 py-1 rounded-xl text-[9px] font-black uppercase tracking-widest z-10 shadow-md border-2 border-white
+                  absolute -top-2.5 left-6 px-3 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest z-10 shadow-sm border border-white
                   ${currentTheme.accent} text-white
               `}
               >
                 GÖREV {idx + 1}
               </div>
 
-              {/* 1. ALGORİTMA YÖRÜNGESİ (YATAY - ÜSTTE) */}
-              <div className={`${isUltraCompact ? 'p-2' : 'p-4'} bg-zinc-950 rounded-2xl border-2 border-white shadow-lg relative overflow-hidden group/path`}>
-                {!isUltraCompact && (
-                  <h5 className="text-[9px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-2.5 flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 bg-amber-500 rounded-full shadow-[0_0_8px_#f59e0b]"></div>
-                    ALGORİTMA YÖRÜNGESİ
-                  </h5>
-                )}
-
-                {puzzle.steps && puzzle.steps.length > 0 ? (
-                  <div className="flex flex-wrap gap-1.5">
-                    {puzzle.steps.map((step, i) => (
-                      <div
-                        key={i}
-                        className="flex items-center gap-1.5 px-2 py-1 bg-white/5 border border-white/10 rounded-lg transition-transform hover:scale-105"
-                      >
-                        <ArrowIcon dir={step.dir ?? step.direction ?? 'right'} compact={isUltraCompact} />
-                        <span className={`${isUltraCompact ? 'text-[10px]' : 'text-xs'} font-black text-white`}>{step.count}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex flex-wrap gap-1.5">
-                    {puzzle.path.map((dir, dIdx) => (
-                      <div
-                        key={dIdx}
-                        className="p-1 px-2.5 py-1 bg-white/5 border border-white/10 rounded-lg"
-                      >
-                        <ArrowIcon dir={dir} compact={isUltraCompact} />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* 2. GRID VE BİLGİ ALANI (ORTA) */}
-              <div className={`flex flex-row ${isUltraCompact ? 'gap-3' : 'gap-6'} items-center justify-center`}>
-                <div className={`${isUltraCompact ? 'p-1' : 'p-3'} bg-white rounded-2xl border-2 border-zinc-100 shadow-inner ring-4 ring-zinc-50/50`}>
-                  {/* Grid Labels (Top) */}
-                  {!isUltraCompact && (
-                    <div className="flex ml-8 mb-1">
-                      {puzzle.grid[0].map((_, c) => (
-                        <span
-                          key={c}
-                          className="w-9 h-5 flex items-center justify-center text-[9px] font-black text-zinc-300 uppercase tracking-widest"
-                        >
-                          {String.fromCharCode(65 + c)}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="flex">
-                    {/* Grid Labels (Left) */}
-                    {!isUltraCompact && (
-                      <div className="flex flex-col mr-1">
-                        {puzzle.grid.map((_, r) => (
-                          <span
-                            key={r}
-                            className="w-7 h-9 flex items-center justify-center text-[9px] font-black text-zinc-300"
-                          >
-                            {r + 1}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Main Grid */}
+              {/* 1. ALGORİTMA YÖRÜNGESİ */}
+              <div className={`${isUltraCompact ? 'p-1.5' : 'p-3'} bg-zinc-950 rounded-xl border border-white/20`}>
+                <div className="flex flex-wrap gap-1">
+                  {(() => {
+                const stepsList: { dir: string; count: number }[] = puzzle.steps && puzzle.steps.length > 0
+                  ? puzzle.steps.map(s => ({ dir: s.dir ?? s.direction ?? 'right', count: s.count ?? 1 }))
+                  : puzzle.path.map(d => ({ dir: d, count: 1 }));
+                return stepsList.map((step, i) => (
                     <div
-                      className="grid bg-zinc-200 gap-px border-2 border-zinc-950 rounded-xl overflow-hidden shadow-xl"
-                      style={{
-                        gridTemplateColumns: `repeat(${puzzle.grid[0].length}, minmax(0, 1fr))`,
-                      }}
+                      key={i}
+                      className="flex items-center gap-1 px-1.5 py-1 bg-white/10 border border-white/10 rounded-md"
                     >
-                      {puzzle.grid.map((row, r) =>
-                        row.map((cell, c) => {
-                          const isStart = r === puzzle.startPos.r && c === puzzle.startPos.c;
-                          const cellSize = isUltraCompact ? 'w-7 h-7' : 'w-9 h-9';
-                          return (
-                            <div
-                              key={`${r}-${c}`}
-                              className={`
-                                ${cellSize} print:w-7 print:h-7 bg-white flex items-center justify-center font-black text-base relative transition-colors
-                                ${isStart ? 'bg-indigo-50/50' : 'hover:bg-zinc-50'}
-                            `}
-                            >
-                              {isStart && (
-                                <div className="absolute inset-1 border-[1.5px] border-indigo-400 rounded flex items-center justify-center bg-indigo-50/30">
-                                  <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-ping"></div>
-                                </div>
-                              )}
-                              <span
-                                className={`
-                                  ${isStart ? 'text-indigo-600 scale-75' : 'text-zinc-900'}
-                                  ${cell === '' ? 'opacity-0' : 'opacity-100'}
-                                  ${isUltraCompact ? 'text-sm' : ''}
-                              `}
-                              >
-                                {cell || '?'}
-                              </span>
-                            </div>
-                          );
-                        })
-                      )}
+                      <SvgArrow dir={step.dir} compact />
+                      {step.count > 1 ? (
+                        <span className="text-[9px] font-black text-white">{step.count}</span>
+                      ) : null}
                     </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-3">
-                  <div className={`${isUltraCompact ? 'px-2 py-1 text-[8px]' : 'px-4 py-2 text-[9px]'} flex items-center gap-2 font-black ${currentTheme.icon} uppercase tracking-widest bg-zinc-50 px-4 py-2 rounded-full border border-zinc-100 shadow-sm backdrop-blur-sm`}>
-                    <i className="fa-solid fa-location-crosshairs"></i>
-                    {!isUltraCompact && 'BAŞLANGIÇ: '}
-                    <span className="text-zinc-900">
-                      {String.fromCharCode(65 + puzzle.startPos.c)}
-                      {puzzle.startPos.r + 1}
-                    </span>
-                  </div>
+                  ));
+                })()}
                 </div>
               </div>
 
-              {/* 3. ŞİFRE ALANI (YATAY - ALTTA) */}
-              <div className={`${isUltraCompact ? 'p-2' : 'p-4'} bg-white rounded-2xl border-2 border-zinc-100 shadow-sm ring-4 ring-zinc-50/50`}>
-                {!isUltraCompact && (
-                  <div className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em] mb-2 flex items-center gap-2">
-                    <i className="fa-solid fa-key text-[8px]"></i>
-                    TESPİT EDİLEN ŞİFRE
+              {/* 2. GRID + INFO */}
+              <div className={`flex flex-row ${isUltraCompact ? 'gap-2' : 'gap-4'} items-center justify-center`}>
+                <div className={`${isUltraCompact ? 'p-1' : 'p-2'} bg-white rounded-xl border border-zinc-200 shadow-inner`}>
+                  <div
+                    className="grid bg-zinc-200 gap-px border-2 border-zinc-950 rounded-lg overflow-hidden shadow-md"
+                    style={{
+                      gridTemplateColumns: `repeat(${puzzle.grid[0].length}, minmax(0, 1fr))`,
+                    }}
+                  >
+                    {puzzle.grid.map((row, r) =>
+                      row.map((cell, c) => {
+                        const isStart = r === puzzle.startPos.r && c === puzzle.startPos.c;
+                        return (
+                          <div
+                            key={`${r}-${c}`}
+                            className={`w-7 h-7 print:w-6 print:h-6 bg-white flex items-center justify-center font-black text-sm relative ${isStart ? 'bg-indigo-100' : ''}`}
+                          >
+                            {isStart && (
+                              <div className="absolute inset-0.5 border-2 border-indigo-500 rounded flex items-center justify-center bg-indigo-50">
+                                <div className={`w-2 h-2 rounded-full ${isUltraCompact ? '' : 'animate-ping'} bg-indigo-500`}></div>
+                              </div>
+                            )}
+                            <span className={`${isStart ? 'text-indigo-700' : 'text-zinc-800'} ${cell === '' ? 'opacity-20' : ''} text-xs`}>
+                              {cell || '·'}
+                            </span>
+                          </div>
+                        );
+                      })
+                    )}
                   </div>
-                )}
-                <div className="flex gap-1.5 flex-wrap">
+                </div>
+
+                <div className="flex items-center gap-1.5 px-2.5 py-1.5 bg-zinc-50 rounded-full border border-zinc-200 text-[8px] font-black text-indigo-600 uppercase tracking-wider">
+                  <SvgArrow dir="right" compact />
+                  <span className="text-zinc-800">{String.fromCharCode(65 + puzzle.startPos.c)}{puzzle.startPos.r + 1}</span>
+                </div>
+              </div>
+
+              {/* 3. ŞİFRE ALANI */}
+              <div className={`${isUltraCompact ? 'p-2' : 'p-3'} bg-white rounded-xl border border-zinc-200`}>
+                <div className="flex gap-1 flex-wrap justify-center">
                   {Array.from({ length: answerBoxCount }).map((_, i) => (
                     <div
                       key={i}
-                      className={`${isUltraCompact ? 'w-7 h-7 text-sm' : 'w-10 h-10 text-xl'} border-2 border-zinc-950 bg-zinc-50 rounded-lg flex items-center justify-center font-mono font-black text-zinc-900 group-hover:bg-indigo-50 transition-colors`}
+                      className={`${isUltraCompact ? 'w-6 h-6 text-xs' : 'w-8 h-8 text-base'} border-2 border-zinc-800 bg-zinc-50 rounded-md flex items-center justify-center font-mono font-black text-zinc-400`}
                     >
-                      <span className="opacity-10 text-zinc-400">_</span>
+                      _
                     </div>
                   ))}
                 </div>
@@ -272,94 +217,65 @@ export const DirectionalTrackingSheet = ({
         })}
       </div>
 
-      {/* Şerif Tablosu (Kod Anahtarı) - Sayfa Altı Kompakt Panel */}
-      <div
-        className={`
-          mt-6 rounded-3xl p-4 print:p-2 flex flex-wrap gap-6 items-center shadow-2xl border-4 border-white ring-8 ring-zinc-50/20
-          ${isPremium ? 'bg-zinc-950 text-white' : 'bg-zinc-900 text-white'}
-      `}
-      >
-        <div className="flex flex-col border-r border-white/10 pr-6">
-          <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-0.5">
+      {/* KOD ANAHTARI */}
+      <div className="mt-3 print:mt-2 rounded-2xl p-3 flex flex-wrap gap-3 items-center border-2 border-zinc-800 bg-zinc-950 text-white shadow-lg">
+        <div className="flex flex-col border-r border-white/20 pr-4">
+          <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest">
             KOD ANAHTARI
           </span>
-          <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-tighter">
-            Yönelge Protokolü v4.1
+          <span className="text-[7px] font-bold text-zinc-500 uppercase tracking-tight">
+            Yönelge Protokolü
           </span>
         </div>
-        <div className="flex gap-4 flex-wrap">
-          {(
-            [
-              { sym: '↑', label: 'Yukarı' },
-              { sym: '↓', label: 'Aşağı' },
-              { sym: '→', label: 'Sağa' },
-              { sym: '←', label: 'Sola' },
-            ] as const
-          ).map((s: { sym: string; label: string }) => (
+        <div className="flex gap-2 flex-wrap">
+          {arrowDirs.map((a) => (
             <div
-              key={s.sym}
-              className="bg-white/5 backdrop-blur-md border border-white/10 rounded-xl px-4 py-2 flex items-center gap-3 hover:bg-white/10 transition-colors"
+              key={a.sym}
+              className="bg-white/10 border border-white/10 rounded-lg px-2.5 py-1.5 flex items-center gap-2"
             >
-              <span className="text-amber-400 font-black text-xl w-6 text-center drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">
-                {s.sym}
-              </span>
-              <span className="text-zinc-300 text-[10px] font-black uppercase tracking-tighter">
-                {s.label}
-              </span>
+              <SvgArrow dir={a.dir} compact />
+              <span className="text-zinc-300 text-[8px] font-black uppercase tracking-tight">{a.label}</span>
             </div>
           ))}
         </div>
 
-        <div className="ml-auto flex items-center gap-4 text-[10px] font-bold text-zinc-500">
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
-            AKTİF TAKİP
+        <div className="ml-auto flex items-center gap-3 text-[8px] font-bold text-zinc-500">
+          <div className="flex items-center gap-1.5">
+            <div className="w-1.5 h-1.5 bg-indigo-500 rounded-full"></div>
+            TAKİP
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-            VERİ DOĞRULAMA
+          <div className="flex items-center gap-1.5">
+            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
+            VERİ
           </div>
         </div>
       </div>
 
-      {/* KLİNİK PANEL (EN ALT - DARALTIMIŞ) */}
-      <div
-        className={`
-          mt-4 pt-4 grid grid-cols-4 gap-4 px-6 pb-4 rounded-t-[2.5rem] shadow-lg
-          ${isPremium ? 'bg-zinc-900 text-white' : 'bg-indigo-950 text-white'}
-      `}
-      >
+      {/* KLİNİK PANEL */}
+      <div className="mt-2 pt-2 grid grid-cols-5 gap-2 px-3 pb-3 rounded-t-2xl bg-zinc-900 text-white shadow-inner">
         <div className="col-span-1 flex flex-col justify-center">
-          <span className="text-[11px] font-black uppercase tracking-tight leading-none">
-            VİZÜO-MOTOR <br />
-            ANALİZ ANALİTİĞİ
+          <span className="text-[8px] font-black uppercase leading-tight text-zinc-400">
+            VİZÜO-MOTOR<br />ANALİZ
           </span>
         </div>
-
         {[
           { label: 'SÜRE', val: '__:__', unit: 'dk' },
           { label: 'HATA', val: '___', unit: 'ad' },
+          { label: 'PUAN', val: '___', unit: 'p' },
         ].map((item) => (
-          <div
-            key={item.label}
-            className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col justify-between"
-          >
-            <span className="text-[8px] font-black text-zinc-500 uppercase">{item.label}</span>
-            <div className="flex items-end gap-1">
-              <span className="text-lg font-black text-white">{item.val}</span>
-              <span className="text-[7px] font-bold text-zinc-500 mb-1">{item.unit}</span>
+          <div key={item.label} className="bg-white/10 border border-white/10 rounded-lg p-2 flex flex-col justify-between">
+            <span className="text-[7px] font-black text-zinc-500 uppercase">{item.label}</span>
+            <div className="flex items-end gap-0.5">
+              <span className="text-sm font-black text-white">{item.val}</span>
+              <span className="text-[6px] font-bold text-zinc-500 mb-0.5">{item.unit}</span>
             </div>
           </div>
         ))}
-
-        <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex flex-col justify-between">
-          <span className="text-[8px] font-black text-zinc-500 uppercase">DİKKAT</span>
-          <div className="flex gap-1.5">
-            {[1, 2, 3, 4, 5].map((s: number) => (
-              <div
-                key={s}
-                className="w-4 h-4 rounded-md border border-white/10 transition-colors hover:bg-amber-400"
-              ></div>
+        <div className="bg-white/10 border border-white/10 rounded-lg p-2 flex flex-col justify-between col-span-1">
+          <span className="text-[7px] font-black text-zinc-500 uppercase">DİKKAT</span>
+          <div className="flex gap-1">
+            {[1, 2, 3, 4, 5].map((s) => (
+              <div key={s} className="w-3 h-3 rounded border border-white/20 bg-white/5"></div>
             ))}
           </div>
         </div>
