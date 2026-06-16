@@ -510,6 +510,7 @@ export interface MissingPartsData extends BaseActivityData {
     syllableColoring: boolean;
     useIcons: boolean;
     showVisualHints: boolean;
+    fastMode?: boolean;
     
     // Zorluk Detayları
     includeDistractors: boolean;

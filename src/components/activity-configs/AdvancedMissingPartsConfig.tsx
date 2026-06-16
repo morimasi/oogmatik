@@ -185,7 +185,8 @@ export const AdvancedMissingPartsConfig: React.FC<ConfigProps> = ({ options, onC
           { key: 'compactLayout', label: 'Kompakt Düzen', icon: Layout, desc: 'A4 sayfasına maksimum içerik' },
           { key: 'syllableColoring', label: 'Hece Renklendirme', icon: Palette, desc: 'Okumayı kolaylaştırır' },
           { key: 'useIcons', label: 'Görsel İkonlar', icon: Eye, desc: 'Anlama desteği' },
-          { key: 'showVisualHints', label: 'Görsel İpuçları', icon: Zap, desc: 'Zeka ipuçları' }
+          { key: 'showVisualHints', label: 'Görsel İpuçları', icon: Zap, desc: 'Zeka ipuçları' },
+          { key: 'fastMode', label: '⚡ Hızlı Mod', icon: Zap, desc: 'Basit kelimeler, hızlı çözüm' }
         ].map((setting) => {
           const Icon = setting.icon;
           return (
@@ -230,7 +231,7 @@ export const AdvancedMissingPartsConfig: React.FC<ConfigProps> = ({ options, onC
             <select
               value={options.semanticComplexity || 'medium'}
               onChange={(e) => onChange('semanticComplexity', e.target.value)}
-              className="w-full p-2 border border-zinc-200 rounded-lg text-sm"
+              className="w-full p-2 border border-zinc-200 rounded-lg text-sm text-zinc-900 bg-white"
             >
               <option value="low">Düşük (Basit anlam)</option>
               <option value="medium">Orta (Günlük dil)</option>
@@ -242,7 +243,7 @@ export const AdvancedMissingPartsConfig: React.FC<ConfigProps> = ({ options, onC
             <select
               value={options.sentenceComplexity || 'simple'}
               onChange={(e) => onChange('sentenceComplexity', e.target.value)}
-              className="w-full p-2 border border-zinc-200 rounded-lg text-sm"
+              className="w-full p-2 border border-zinc-200 rounded-lg text-sm text-zinc-900 bg-white"
             >
               <option value="simple">Basit (Yan cümleler)</option>
               <option value="compound">Birleşik (Bağlaçlı)</option>

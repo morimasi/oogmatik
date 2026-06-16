@@ -22,6 +22,7 @@ export const generateAdvancedMissingPartsFromAI = async (options: GeneratorOptio
     showVisualHints = false,
     includeDistractors = true,
     distractorCount = 4,
+    fastMode = false,
     semanticComplexity = 'medium',
     sentenceComplexity = 'compound',
     showInstructions = true,
@@ -35,43 +36,44 @@ export const generateAdvancedMissingPartsFromAI = async (options: GeneratorOptio
   } = options;
 
   // Zorluk seviyesine göre parametreler
+  const isFast = fastMode === true;
   const difficultyConfig = {
     'çok kolay': { 
-      paragraphs: 2, 
-      blanksPerParagraph: 3, 
-      wordLength: '4-6 harf', 
+      paragraphs: isFast ? 1 : 2, 
+      blanksPerParagraph: isFast ? 2 : 3, 
+      wordLength: isFast ? '3-4 harf' : '4-6 harf', 
       sentenceStructure: 'basit',
       vocabulary: 'günlük',
       distractorDifficulty: 'çok farklı'
     },
     'kolay': { 
-      paragraphs: 2, 
-      blanksPerParagraph: 4, 
-      wordLength: '5-7 harf', 
+      paragraphs: isFast ? 1 : 2, 
+      blanksPerParagraph: isFast ? 2 : 4, 
+      wordLength: isFast ? '4-5 harf' : '5-7 harf', 
       sentenceStructure: 'basit-birleşik',
       vocabulary: 'günlük-temel',
       distractorDifficulty: 'farklı'
     },
     'orta': { 
-      paragraphs: 3, 
-      blanksPerParagraph: 4, 
-      wordLength: '6-8 harf', 
+      paragraphs: isFast ? 2 : 3, 
+      blanksPerParagraph: isFast ? 3 : 4, 
+      wordLength: isFast ? '5-6 harf' : '6-8 harf', 
       sentenceStructure: 'birleşik',
       vocabulary: 'geniş',
       distractorDifficulty: 'benzer'
     },
     'zor': { 
-      paragraphs: 3, 
-      blanksPerParagraph: 5, 
-      wordLength: '7-10 harf', 
+      paragraphs: isFast ? 2 : 3, 
+      blanksPerParagraph: isFast ? 3 : 5, 
+      wordLength: isFast ? '5-7 harf' : '7-10 harf', 
       sentenceStructure: 'karmaşık',
       vocabulary: 'akademik',
       distractorDifficulty: 'çok benzer'
     },
     'uzman': { 
-      paragraphs: 4, 
-      blanksPerParagraph: 6, 
-      wordLength: '8-12 harf', 
+      paragraphs: isFast ? 2 : 4, 
+      blanksPerParagraph: isFast ? 4 : 6, 
+      wordLength: isFast ? '6-8 harf' : '8-12 harf', 
       sentenceStructure: 'çok karmaşık',
       vocabulary: 'uzman',
       distractorDifficulty: 'kafa karıştırıcı'
@@ -95,6 +97,7 @@ export const generateAdvancedMissingPartsFromAI = async (options: GeneratorOptio
     - Kelime dağarcığı: ${config.vocabulary}
     - Anlamsal karmaşıklık: ${semanticComplexity}
     - Görsel ipuçları: ${showVisualHints ? 'Evet' : 'Hayır'}
+    - Hızlı Mod: ${fastMode ? 'Aktif — Basit kelimeler, kısa cümleler, az boşluk, hızlı çözülebilir içerik.' : 'Pasif — Normal zengin içerik'}
 
     🎨 TASARIM ÖZELLİKLERİ:
     - Düzen: ${compactLayout ? 'Ultra kompakt A4' : 'Geniş açıklamalı'}
@@ -176,6 +179,7 @@ export const generateAdvancedMissingPartsFromAI = async (options: GeneratorOptio
     - Gerçek ve anlamlı içerik üret
     - Yaş grubuna uygun dil kullan
     - ${compactLayout ? 'Kompakt ve yoğun içerik' : 'Geniş açıklamalı içerik'}
+    - ${fastMode ? 'HEDEF: Çok basit, günlük kelimeler, 5-6 harf, kısa cümleler, minimum boşluk sayısı, öğrencinin hızlıca tamamlayabileceği kolay içerik.' : 'HEDEF: Normal zorlukta, çeşitli kelimeler, zengin içerik.'}
   `;
 
   try {
