@@ -86,7 +86,7 @@ KURALLAR:
 1. Tam ${itemCount} adet bulmaca üret.
 2. Her bulmacada 2-4 nesne, 3-4 denklem olsun.
 3. Denklemler kademeli zorlaşsın (son denklem en zor).
-4. Final soru önceki denklemlerin çözümüne dayansın.
+4. FINAL SORU (finalQuestion): Denklemlerde çözülen nesne değerlerini kullanarak YENİ bir işlem olmalı. Örn: denklemler "Elma=5, Armut=3" dediyse final soru "2×Elma + 3×Armut" veya "Elma×Armut" gibi denklemlerde GÖRÜNMEYEN yeni bir kombinasyon olmalı. "Elma+Armut" gibi direkt değer toplama olmamalı.
 5. Nesne isimleri Türkçe ve ${ageGroup} yaşa uygun olsun.
 6. imagePrompt İngilizce, minimalist, beyaz arka plan.
 `;
@@ -220,19 +220,27 @@ export const generateMathPuzzleOffline = (options: GeneratorOptions) => {
       },
       {
         leftSide: [
-          { objectName: namedObjects[0].name, multiplier: 1 },
+          { objectName: namedObjects[0].name, multiplier: 2 },
           { objectName: namedObjects[1].name, multiplier: 1 },
-          ...(namedObjects[2] ? [{ objectName: namedObjects[2].name, multiplier: 1 }] : []),
         ],
-        rightSide: values[0] + values[1] + (values[2] || 0),
+        rightSide: 2 * values[0] + values[1],
       },
     ];
+
+    // Yeni kombinasyon: denklemlerde görünmeyen farklı bir işlem
+    const useMultiply = namedObjects.length > 2 ? Math.random() > 0.5 : true;
+    const opSymbol = useMultiply ? '×' : '+';
+    const finalValue = useMultiply ? values[0] * values[1] : values[0] + values[1];
+    const finalQ = namedObjects.length > 2
+      ? `(${namedObjects[0].name} ${opSymbol} ${namedObjects[1].name}) + ${namedObjects[2].name}`
+      : `${namedObjects[0].name} ${opSymbol} ${namedObjects[1].name}`;
+    const finalAnswer = namedObjects.length > 2 ? finalValue + (values[2] || 0) : finalValue;
 
     return {
       objects: namedObjects,
       equations,
-      finalQuestion: namedObjects.map(o => o.name).join(' + '),
-      answer: values.reduce((a, b) => a + b, 0),
+      finalQuestion: finalQ,
+      answer: finalAnswer,
     };
   });
 

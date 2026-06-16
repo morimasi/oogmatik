@@ -83,20 +83,28 @@ const PuzzleCard = ({ puzzle, index, compact }: { puzzle: Record<string, unknown
                 </div>
             </div>
 
-            {/* Denklemler */}
-            <div className={`${compact ? 'p-1.5 print:p-1' : 'p-2 print:p-1.5'} space-y-0.5`}>
+            {/* İpuçları Bölümü */}
+            <div className={`${compact ? 'px-1.5 pt-1' : 'px-2 pt-1.5'}`}>
+                <div className="flex items-center gap-1 mb-0.5">
+                    <span className="text-[6px] font-black text-amber-600 uppercase tracking-widest bg-amber-50 px-1 py-0.5 rounded leading-none">İpuçları</span>
+                    <div className="flex-1 border-t border-dashed border-zinc-200" />
+                </div>
+            </div>
+            <div className={`${compact ? 'p-1.5 print:p-1 pt-0.5' : 'p-2 print:p-1.5 pt-0.5'} space-y-0.5`}>
                 {equations.map((eq: Record<string, unknown>, eIdx: number) => (
                     <EquationRow key={eIdx} eq={eq} objects={objects} compact={compact} />
                 ))}
             </div>
 
-            {/* Final Soru */}
-            <div className={`${compact ? 'mx-1.5 mb-1.5 p-1.5' : 'mx-2 mb-2 p-2'} bg-indigo-50 rounded-lg border border-indigo-100 flex items-center justify-center gap-1.5`}>
-                <span className={`${compact ? 'text-[7px]' : 'text-[8px]'} font-black text-indigo-400 uppercase tracking-wider`}>SONUÇ</span>
-                <span className={`${compact ? 'text-xs' : 'text-sm'} font-black text-zinc-800`}>{finalQuestion}</span>
-                <span className="text-indigo-600 font-black text-sm">=</span>
-                <div className={`w-7 h-5 print:w-5 print:h-4 border-2 border-indigo-500 bg-white rounded flex items-center justify-center ${compact ? 'text-xs' : 'text-sm'} font-black text-transparent`}>
-                    ?
+            {/* Final Soru (Yeni Kombinasyon) */}
+            <div className={`${compact ? 'mx-1.5 mb-1.5 p-1.5' : 'mx-2 mb-2 p-2'} bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg flex flex-col items-center gap-0.5 shadow-md`}>
+                <span className="text-[7px] font-black text-white/80 uppercase tracking-widest">➡ Gerçek Soru</span>
+                <div className="flex items-center gap-1.5">
+                    <span className={`${compact ? 'text-xs' : 'text-sm'} font-black text-white`}>{finalQuestion}</span>
+                    <span className="text-white font-black text-sm">=</span>
+                    <div className={`w-7 h-5 print:w-5 print:h-4 border-2 border-white/50 bg-white/20 rounded flex items-center justify-center ${compact ? 'text-xs' : 'text-sm'} font-black text-transparent`}>
+                        ?
+                    </div>
                 </div>
             </div>
         </EditableElement>
