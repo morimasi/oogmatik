@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-// @ts-expect-error lucide-react icons exist at runtime but tsc can't resolve some type declarations
 import { X, CircleHelp, Mail, MessageCircle, Phone, Clock, ChevronDown, ChevronUp, AlertCircle, CheckCircle, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 

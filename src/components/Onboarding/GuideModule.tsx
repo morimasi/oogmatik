@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-// @ts-expect-error lucide-react icons exist at runtime but tsc can't resolve some type declarations
 import { X, ChevronRight, BookOpen, Target, Sparkles, ArrowRight, Pointer, Layers, Wand } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../../store/useAuthStore';
