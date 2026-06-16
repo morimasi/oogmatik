@@ -63,12 +63,21 @@ export const generateHiddenPasswordGridFromAI = async (options: GeneratorOptions
         }
     };
 
-    // Fix: Removed the third argument 'gemini-3-flash-preview' as unknown as generateWithSchema only expects two arguments
-    const result = await generateWithSchema(prompt, schema) as unknown as Array<Record<string, unknown>>;
-    return result.map((page: Record<string, unknown>) => ({
-        title: (page.title as string) ?? '',
-        instruction: (page.instruction as string) ?? '',
-        grids: (page.grids as HiddenPasswordGridData['grids']) ?? [],
+    const rawResult = await generateWithSchema(prompt, schema);
+    
+    // Güvenli dizi dönüşümü
+    let result: any[] = [];
+    if (Array.isArray(rawResult)) {
+        result = rawResult;
+    } else if (rawResult && typeof rawResult === 'object') {
+        const potential = (rawResult as any).items || (rawResult as any).data || (rawResult as any).grids;
+        result = Array.isArray(potential) ? potential : [rawResult];
+    }
+
+    return result.filter(p => p && typeof p === 'object').map((page: any) => ({
+        title: (page.title as string) ?? 'Gizli Şifre Matrisi',
+        instruction: (page.instruction as string) ?? 'Şifreyi bulmak için harfleri takip et.',
+        grids: Array.isArray(page.grids) ? page.grids : [],
         settings: {
             gridSize,
             itemCount,

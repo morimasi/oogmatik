@@ -55,14 +55,35 @@ export const generateMathMemoryCardsFromAI = async (options: GeneratorOptions): 
         }
     };
 
-    // Fix: Removed the third argument 'gemini-3-flash-preview' as unknown as generateWithSchema only expects two arguments
-    const result = await generateWithSchema(prompt, schema) as unknown as Array<Record<string, unknown>>;
-    return result.map((p: Record<string, unknown>) => ({
-        title: (p.title as string) ?? '',
-        instruction: (p.instruction as string) ?? '',
-        cards: (p.cards as MathMemoryCard[]) ?? [],
+    const rawResult = await generateWithSchema(prompt, schema);
+    
+    // Güvenli dizi dönüşümü (Gemini bazen array yerine object dönebilir)
+    let result: any[] = [];
+    if (Array.isArray(rawResult)) {
+        result = rawResult;
+    } else if (rawResult && typeof rawResult === 'object') {
+        // Eğer Gemini objeyi 'items' veya 'cards' içine sarmaladıysa oradan al
+        const wrapped = (rawResult as any).items || (rawResult as any).puzzles || (rawResult as any).data;
+        if (Array.isArray(wrapped)) {
+            result = wrapped;
+        } else {
+            // Eğer doğrudan tek bir obje olarak döndüyse (title, cards vb. içeren)
+            result = [rawResult];
+        }
+    }
+
+    return result.filter(p => p && typeof p === 'object').map((p: any) => ({
+        title: (p.title as string) ?? 'Matematik Hafıza Kartları',
+        instruction: (p.instruction as string) ?? 'Kartları dikkatlice incele ve eşlerini bul.',
+        cards: Array.isArray(p.cards) ? p.cards : [],
         pedagogicalNote: p.pedagogicalNote as string | undefined,
-        settings: { gridCols: 4, cardCount: itemCount ?? 16, difficulty: difficulty ?? 'Orta', variant: variant ?? 'op-res', showNumbers: showNumbers ?? true }
+        settings: { 
+            gridCols: 4, 
+            cardCount: itemCount ?? 16, 
+            difficulty: difficulty ?? 'Orta', 
+            variant: variant ?? 'op-res', 
+            showNumbers: showNumbers ?? true 
+        }
     }));
 };
 // ... diğer generatorlar
