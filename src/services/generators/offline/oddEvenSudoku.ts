@@ -87,7 +87,13 @@ export const generateOfflineOddEvenSudoku = async (options: GeneratorOptions): P
         activities.push({
             title: `Tek / Çift Sudoku (${size}x${size})`,
             instruction: `Sudoku kurallarına ek olarak; yeşil renkli kutulara sadece TEK, mavi renkli kutulara sadece ÇİFT sayılar gelmelidir.`,
-            puzzles: pagePuzzles
+            puzzles: pagePuzzles,
+            settings: {
+                difficulty,
+                gridSize: size,
+                aestheticMode: customSettings.aestheticMode || 'standard',
+                showPositionNumbers: customSettings.showPositionNumbers ?? true
+            }
         });
     }
 

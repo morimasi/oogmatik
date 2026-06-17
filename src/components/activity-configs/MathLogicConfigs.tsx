@@ -1,12 +1,17 @@
 import React from 'react';
 
 interface Props {
-  options: Record<string, unknown>;
-  onChange: (opts: Record<string, unknown>) => void;
+  options: GeneratorOptions;
+  onChange: (key: keyof GeneratorOptions, value: unknown) => void;
 }
 
 export const OddEvenSudokuConfig: React.FC<Props> = ({ options, onChange }) => {
-  const o = (options?.['oddEvenSudoku'] || {}) as Record<string, unknown>;
+  const o = (options as any).oddEvenSudoku || {};
+  
+  const update = (updates: Record<string, any>) => {
+    onChange('oddEvenSudoku' as any, { ...o, ...updates });
+  };
+
   return (
     <div className="space-y-6 p-4">
       <div className="pb-3 border-b border-zinc-100">
@@ -19,9 +24,7 @@ export const OddEvenSudokuConfig: React.FC<Props> = ({ options, onChange }) => {
           <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Grid Boyutu</label>
           <select
             value={(o.gridSize as number) || 4}
-            onChange={(e) =>
-              onChange({ ...options, oddEvenSudoku: { ...o, gridSize: Number(e.target.value) } })
-            }
+            onChange={(e) => update({ gridSize: Number(e.target.value) })}
             className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl p-2.5 text-sm font-bold focus:border-indigo-500 transition-colors"
           >
             <option value={4}>4x4 (Standart)</option>
@@ -34,9 +37,7 @@ export const OddEvenSudokuConfig: React.FC<Props> = ({ options, onChange }) => {
           <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Görsel Stil</label>
           <select
             value={(o.aestheticMode as string) || 'premium'}
-            onChange={(e) =>
-              onChange({ ...options, oddEvenSudoku: { ...o, aestheticMode: e.target.value } })
-            }
+            onChange={(e) => update({ aestheticMode: e.target.value })}
             className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl p-2.5 text-sm font-bold focus:border-indigo-500 transition-colors"
           >
             <option value="standard">Standart</option>
@@ -51,7 +52,7 @@ export const OddEvenSudokuConfig: React.FC<Props> = ({ options, onChange }) => {
           <input
             type="checkbox"
             checked={Boolean(o.showPositionNumbers ?? true)}
-            onChange={(e) => onChange({ ...options, oddEvenSudoku: { ...o, showPositionNumbers: e.target.checked } })}
+            onChange={(e) => update({ showPositionNumbers: e.target.checked })}
             className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500 border-zinc-300"
           />
           <span className="text-sm font-bold text-indigo-900">
@@ -65,7 +66,12 @@ export const OddEvenSudokuConfig: React.FC<Props> = ({ options, onChange }) => {
 };
 
 export const CapsuleGameConfig: React.FC<Props> = ({ options, onChange }) => {
-  const o = (options?.['capsuleGame'] || {}) as Record<string, unknown>;
+  const o = (options as any).capsuleGame || {};
+
+  const update = (updates: Record<string, any>) => {
+    onChange('capsuleGame' as any, { ...o, ...updates });
+  };
+
   return (
     <div className="space-y-6 p-4">
       <div className="pb-3 border-b border-zinc-100">
@@ -78,9 +84,7 @@ export const CapsuleGameConfig: React.FC<Props> = ({ options, onChange }) => {
           <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Matris Boyutu</label>
           <select
             value={(o.gridSize as number) || 4}
-            onChange={(e) =>
-              onChange({ ...options, capsuleGame: { ...o, gridSize: Number(e.target.value) } })
-            }
+            onChange={(e) => update({ gridSize: Number(e.target.value) })}
             className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl p-2.5 text-sm font-bold focus:border-emerald-500 transition-colors"
           >
             <option value={3}>3x3 (Başlangıç)</option>
@@ -95,9 +99,7 @@ export const CapsuleGameConfig: React.FC<Props> = ({ options, onChange }) => {
           <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Sayı Seti</label>
           <select
             value={(o.numberSet as string) || 'mixed'}
-            onChange={(e) =>
-              onChange({ ...options, capsuleGame: { ...o, numberSet: e.target.value } })
-            }
+            onChange={(e) => update({ numberSet: e.target.value })}
             className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl p-2.5 text-sm font-bold focus:border-emerald-500 transition-colors"
           >
             <option value="mixed">Karışık (1-10)</option>
@@ -120,7 +122,7 @@ export const CapsuleGameConfig: React.FC<Props> = ({ options, onChange }) => {
             ].map(op => (
               <button
                 key={op.id}
-                onClick={() => onChange({ ...options, capsuleGame: { ...o, operation: op.id } })}
+                onClick={() => update({ operation: op.id })}
                 className={`flex-1 flex flex-col items-center py-2 px-1 rounded-xl border-2 transition-all ${
                   (o.operation || 'addition') === op.id 
                   ? 'bg-emerald-500 border-emerald-500 text-white shadow-md' 
@@ -145,7 +147,7 @@ export const CapsuleGameConfig: React.FC<Props> = ({ options, onChange }) => {
           ].map(theme => (
             <button
               key={theme.id}
-              onClick={() => onChange({ ...options, capsuleGame: { ...o, aestheticMode: theme.id } })}
+              onClick={() => update({ aestheticMode: theme.id })}
               className={`py-2 px-1 rounded-lg text-[10px] font-black uppercase border-2 transition-all ${
                 (o.aestheticMode || 'crystal') === theme.id 
                 ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200 scale-105' 
@@ -162,7 +164,12 @@ export const CapsuleGameConfig: React.FC<Props> = ({ options, onChange }) => {
 };
 
 export const MagicPyramidConfig: React.FC<Props> = ({ options, onChange }) => {
-  const o = (options?.['magicPyramid'] || {}) as Record<string, unknown>;
+  const o = (options as any).magicPyramid || {};
+
+  const update = (updates: Record<string, any>) => {
+    onChange('magicPyramid' as any, { ...o, ...updates });
+  };
+
   return (
     <div className="space-y-6 p-4">
       <div className="pb-3 border-b border-zinc-100">
@@ -175,9 +182,7 @@ export const MagicPyramidConfig: React.FC<Props> = ({ options, onChange }) => {
           <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Katman Sayısı</label>
           <select
             value={(o.layers as number) || 5}
-            onChange={(e) =>
-              onChange({ ...options, magicPyramid: { ...o, layers: Number(e.target.value) } })
-            }
+            onChange={(e) => update({ layers: Number(e.target.value) })}
             className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl p-2.5 text-sm font-bold focus:border-amber-500 transition-colors"
           >
             <option value={4}>4 Katman (Mini)</option>
@@ -191,9 +196,7 @@ export const MagicPyramidConfig: React.FC<Props> = ({ options, onChange }) => {
           <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Sayma Adımı</label>
           <select
             value={(o.step as number) || 2}
-            onChange={(e) =>
-              onChange({ ...options, magicPyramid: { ...o, step: Number(e.target.value) } })
-            }
+            onChange={(e) => update({ step: Number(e.target.value) })}
             className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl p-2.5 text-sm font-bold focus:border-amber-500 transition-colors"
           >
             <option value={1}>1'er sayma</option>
@@ -212,7 +215,7 @@ export const MagicPyramidConfig: React.FC<Props> = ({ options, onChange }) => {
           {['classic', 'forest', 'desert', 'ocean'].map(t => (
             <button
               key={t}
-              onClick={() => onChange({ ...options, magicPyramid: { ...o, theme: t } })}
+              onClick={() => update({ theme: t })}
               className={`flex-1 py-3 rounded-xl border-2 font-black text-[10px] uppercase transition-all ${
                 (o.theme || 'classic') === t
                 ? 'bg-amber-500 border-amber-500 text-white shadow-lg'

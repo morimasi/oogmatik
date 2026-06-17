@@ -357,8 +357,16 @@ export const generateAbcConnectFromAI = async (options: GeneratorOptions): Promi
 
 export const generateMagicPyramidFromAI = async (options: GeneratorOptions): Promise<MagicPyramidData[]> => {
     const { difficulty, worksheetCount } = options;
-    const prompt = `"${difficulty}" seviyesinde "Sihirli Piramit" bulmacası. Tepeden tabana ritmik bir yol oluştur. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
-    const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, pyramids: { type: 'ARRAY', description: 'Piramit dizisi', items: { type: 'OBJECT', properties: { layers: { type: 'INTEGER', description: 'Katman sayısı' }, apex: { type: 'INTEGER', description: 'Tepe değeri' }, step: { type: 'INTEGER', description: 'Adım/artış miktarı' }, grid: { type: 'ARRAY', description: 'Piramit ızgarası', items: { type: 'ARRAY', items: { type: 'INTEGER' } } }, correctPath: { type: 'ARRAY', description: 'Doğru yol dizisi', items: { type: 'INTEGER' } } }, required: ["layers", "apex", "step", "grid", "correctPath"] } } }, required: ["title", "instruction", "pyramids"] };
+    const customSettings = (options as any).magicPyramid || {};
+    const layers = customSettings.layers || 5;
+    const step = customSettings.step || 2;
+
+    const prompt = `"${difficulty}" seviyesinde "Sihirli Piramit" üret. 
+    Kural 1: En üstten (apex) başlayarak aşağıya doğru ${step}'er ritmik sayarak ilerlenen bir yol (correctPath) olmalı.
+    Kural 2: Piramit ${layers} katmanlı olmalı.
+    ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
+
+    const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, pyramids: { type: 'ARRAY', description: 'Piramitler', items: { type: 'OBJECT', properties: { layers: { type: 'INTEGER' }, apex: { type: 'INTEGER' }, step: { type: 'INTEGER' }, grid: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'INTEGER' } } }, correctPath: { type: 'ARRAY', items: { type: 'INTEGER' } } }, required: ["layers", "apex", "step", "grid", "correctPath"] } } }, required: ["title", "instruction", "pyramids"] };
     const schema = { type: 'ARRAY', items: singleSchema };
     
     const rawResult = await generateWithSchema(prompt, schema);
@@ -369,14 +377,62 @@ export const generateMagicPyramidFromAI = async (options: GeneratorOptions): Pro
         ...p,
         title: p.title || 'Sihirli Piramit',
         instruction: p.instruction || 'Doğru yolu takip et.',
-        pyramids: Array.isArray(p.pyramids) ? p.pyramids : []
+        pyramids: Array.isArray(p.pyramids) ? p.pyramids : [],
+        theme: customSettings.theme || 'classic'
     })) as any;
 };
 
 export const generateNumberCapsuleFromAI = async (options: GeneratorOptions): Promise<NumberCapsuleData[]> => {
     const { difficulty, worksheetCount } = options;
-    const prompt = `"${difficulty}" seviyesinde "Sayı Kapsülleri" (Capsule Game). Izgara dışındaki hedeflere ulaşacak şekilde rakamları yerleştir. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
-    const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, grid: { type: 'ARRAY', description: 'Izgara hücre değerleri', items: { type: 'ARRAY', items: { type: 'INTEGER', nullable: true } } }, rowTargets: { type: 'ARRAY', description: 'Satır hedef değerleri', items: { type: 'INTEGER' } }, colTargets: { type: 'ARRAY', description: 'Sütun hedef değerleri', items: { type: 'INTEGER' } }, capsules: { type: 'ARRAY', description: 'Kapsül dizisi', items: { type: 'OBJECT', properties: { id: { type: 'STRING', description: 'Benzersiz kimlik' }, target: { type: 'INTEGER', description: 'Hedef değer' }, cells: { type: 'ARRAY', description: 'Hücre koordinatları', items: { type: 'OBJECT', properties: { x: { type: 'INTEGER', description: 'Sütun indeksi' }, y: { type: 'INTEGER', description: 'Satır indeksi' } } } } }, required: ["id", "target", "cells"] } } }, required: ["title", "instruction", "grid", "capsules"] };
+    const customSettings = (options as any).capsuleGame || {};
+    const size = customSettings.gridSize || 4;
+    const operation = customSettings.operation || 'addition';
+    const numberSet = customSettings.numberSet || 'mixed';
+
+    const opText = operation === 'multiplication' ? 'çarpma' : operation === 'subtraction' ? 'çıkarma' : operation === 'division' ? 'bölme' : 'toplama';
+    const setCondition = numberSet === 'even' ? 'sadece çift sayılar' : numberSet === 'odd' ? 'sadece tek sayılar' : numberSet === 'prime' ? 'sadece asal sayılar' : 'karışık sayılar';
+
+    const prompt = `"${difficulty}" seviyesinde ${size}x${size} boyutunda "Sayı Kapsülleri" (Capsule Game) üret. 
+    Kural 1: Izgara dışındaki (rowTargets ve colTargets) hedefler, satır/sütun toplamlarını temsil eder.
+    Kural 2: Kapsül (capsules) içindeki sayılar ${opText} işlemine göre kapsül hedefine ulaşmalıdır.
+    Kural 3: Sayı havuzu olarak ${setCondition} kullan.
+    ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
+
+    const singleSchema = { 
+        type: 'OBJECT', 
+        properties: { 
+            title: { type: 'STRING', description: 'Etkinlik başlığı' }, 
+            instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, 
+            pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, 
+            grid: { type: 'ARRAY', description: 'Izgara hücre değerleri', items: { type: 'ARRAY', items: { type: 'INTEGER', nullable: true } } }, 
+            rowTargets: { type: 'ARRAY', description: 'Satır hedef değerleri', items: { type: 'INTEGER' } }, 
+            colTargets: { type: 'ARRAY', description: 'Sütun hedef değerleri', items: { type: 'INTEGER' } }, 
+            capsules: { 
+                type: 'ARRAY', 
+                description: 'Kapsül dizisi', 
+                items: { 
+                    type: 'OBJECT', 
+                    properties: { 
+                        id: { type: 'STRING', description: 'Benzersiz kimlik (örn: "15+", "4x")' }, 
+                        target: { type: 'INTEGER', description: 'Hedef değer' }, 
+                        cells: { 
+                            type: 'ARRAY', 
+                            description: 'Hücre koordinatları', 
+                            items: { 
+                                type: 'OBJECT', 
+                                properties: { 
+                                    x: { type: 'INTEGER', description: 'Sütun indeksi' }, 
+                                    y: { type: 'INTEGER', description: 'Satır indeksi' } 
+                                } 
+                            } 
+                        } 
+                    }, 
+                    required: ["id", "target", "cells"] 
+                } 
+            } 
+        }, 
+        required: ["title", "instruction", "grid", "capsules"] 
+    };
     const schema = { type: 'ARRAY', items: singleSchema };
     
     const rawResult = await generateWithSchema(prompt, schema);
@@ -387,13 +443,26 @@ export const generateNumberCapsuleFromAI = async (options: GeneratorOptions): Pr
         ...p,
         title: p.title || 'Sayı Kapsülleri',
         instruction: p.instruction || 'Rakamları yerleştirerek hedeflere ulaş.',
-        capsules: Array.isArray(p.capsules) ? p.capsules : []
+        capsules: Array.isArray(p.capsules) ? p.capsules : [],
+        settings: {
+            difficulty,
+            gridSize: size,
+            operation: operation,
+            aestheticMode: customSettings.aestheticMode || 'crystal'
+        }
     })) as any;
 };
 
 export const generateOddEvenSudokuFromAI = async (options: GeneratorOptions): Promise<OddEvenSudokuData[]> => {
     const { difficulty, worksheetCount } = options;
-    const prompt = `"${difficulty}" seviyesinde "Tek ve Çift Sudoku". Renklerle (örn: odd=Tek, even=Çift) kısıtlanmış 4x4 veya 6x6 sudoku. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
+    const customSettings = (options as any).oddEvenSudoku || {};
+    const size = customSettings.gridSize || 4;
+
+    const prompt = `"${difficulty}" seviyesinde ${size}x${size} boyutunda "Tek ve Çift Sudoku" üret. 
+    Kural 1: Standart Sudoku kuralları geçerlidir (satır ve sütunda rakam tekrarı yok).
+    Kural 2: oddEvenMask dizisindeki 'odd' değerleri için sadece TEK, 'even' değerleri için sadece ÇİFT sayılar gelmelidir. 
+    ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
+
     const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, puzzles: { type: 'ARRAY', description: 'Sudoku bulmacaları', items: { type: 'OBJECT', properties: { size: { type: 'INTEGER', description: 'Izgara boyutu' }, grid: { type: 'ARRAY', description: 'Izgara hücre değerleri', items: { type: 'ARRAY', items: { type: 'INTEGER', nullable: true } } }, oddEvenMask: { type: 'ARRAY', description: 'Tek/çift maskesi', items: { type: 'ARRAY', items: { type: 'STRING', enum: ['odd', 'even', null], nullable: true } } } }, required: ["size", "grid", "oddEvenMask"] } } }, required: ["title", "instruction", "puzzles"] };
     const schema = { type: 'ARRAY', items: singleSchema };
     
@@ -405,7 +474,13 @@ export const generateOddEvenSudokuFromAI = async (options: GeneratorOptions): Pr
         ...p,
         title: p.title || 'Tek/Çift Sudoku',
         instruction: p.instruction || 'Sudoku kurallarına göre doldur.',
-        puzzles: Array.isArray(p.puzzles) ? p.puzzles : []
+        puzzles: Array.isArray(p.puzzles) ? p.puzzles : [],
+        settings: {
+            difficulty,
+            gridSize: size,
+            aestheticMode: customSettings.aestheticMode || 'standard',
+            showPositionNumbers: customSettings.showPositionNumbers ?? true
+        }
     })) as any;
 };
 
