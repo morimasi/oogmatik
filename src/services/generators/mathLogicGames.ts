@@ -4,7 +4,11 @@ import { GeneratorOptions, NumberLogicRiddleData } from '../../types.js';
 import { getMathPrompt } from './prompts.js';
 
 export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions): Promise<NumberLogicRiddleData[]> => {
-    const { difficulty = 'Orta', itemCount = 6, gridSize = 3, studentContext } = options;
+    const customSettings = (options as any).numberLogicRiddles || {};
+    const difficulty = options.difficulty || 'Orta';
+    const itemCount = customSettings.itemCount || options.itemCount || 6;
+    const gridSize = customSettings.gridSize || options.gridSize || 3;
+    const studentContext = options.studentContext;
 
     const rule = `
     [KRİTİK GÖREV: YÜKSEK HASSASİYETLİ SAYİSAL ANALİZ]
@@ -79,6 +83,14 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
         ...p,
         title: p.title || 'Sayısal Dedektiflik Lab',
         instruction: p.instruction || 'İpuçlarını takip et ve doğru sayıyı bul.',
-        puzzles: Array.isArray(p.puzzles) ? p.puzzles : []
+        puzzles: Array.isArray(p.puzzles) ? p.puzzles : [],
+        settings: {
+            difficulty: difficulty,
+            itemCount: itemCount,
+            gridSize: gridSize,
+            showIcons: customSettings.showIcons !== false,
+            showVisualDistraction: customSettings.showVisualDistraction !== false,
+            aestheticMode: customSettings.aestheticMode || 'standard'
+        }
     })) as NumberLogicRiddleData[];
 };

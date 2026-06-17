@@ -8,9 +8,11 @@ export class BrainTeasersGenerator extends BaseGenerator<WorksheetData> {
   }
 
   protected async execute(options: GeneratorOptions): Promise<WorksheetData> {
+    const customSettings = (options as any).brainTeasers || {};
     const difficulty = options.difficulty || 'Orta';
-    const topic = options.topic || 'Genel Mantık';
-    const puzzleCount = options.itemCount || 10; // Hızlı mod ve premium uyumu için artırıldı
+    const topic = customSettings.topic || options.topic || 'Genel Mantık';
+    const puzzleCount = customSettings.puzzleCount || options.itemCount || 10;
+    const showHints = customSettings.showHints !== false;
 
     const prompt = `
 Sen "Zeka ve Mantık Oyunları" alanında uzman bir eğitmensin.
@@ -20,7 +22,7 @@ Boşluk bırakmaktan kaçın, sayfayı zenginleştir.
 GÖREV: ${puzzleCount} adet birbirinden farklı, yüksek kaliteli Türkçe zeka sorusu üret.
 
 PARAMETRELER:
-- Konu: ${topic}
+- Konu/Tür: ${topic}
 - Zorluk: ${difficulty}
 - Yaş Grubu: ${options.ageGroup || '8-10'}
 
@@ -62,6 +64,15 @@ ZORUNLU JSON ÇIKTISI:
       prompt: prompt,
       temperature: 0.7
     }) as unknown as Record<string, unknown>;
+
+    // Filter hints if disabled
+    if (Array.isArray(parsedData.puzzles) && !showHints) {
+      parsedData.puzzles = parsedData.puzzles.map((p: any) => {
+        const newP = { ...p };
+        delete newP.hint;
+        return newP;
+      });
+    }
 
     const result = {
       ...parsedData,

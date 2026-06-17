@@ -36,6 +36,13 @@ interface ConfigProps {
 }
 
 export const QueueOrderingConfig = ({ options, onChange }: ConfigProps) => {
+    const o = (options as any).queueOrdering || {};
+
+    const update = (key: string, val: unknown) => {
+        onChange('queueOrdering' as any, { ...o, [key]: val });
+        onChange(key as any, val); // fallback for top-level access
+    };
+
     return (
         <div className="space-y-4 animate-in fade-in duration-300">
             {/* Lokasyon ve Tema */}
@@ -44,8 +51,8 @@ export const QueueOrderingConfig = ({ options, onChange }: ConfigProps) => {
                     <div className="space-y-1">
                         <label className="text-[10px] font-black text-[var(--text-secondary)] uppercase block">Senaryo Mekanı</label>
                         <select
-                            value={options.locationType || 'school'}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange('locationType', e.target.value)}
+                            value={o.locationType || options.locationType || 'school'}
+                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => update('locationType', e.target.value)}
                             className="w-full p-2 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl text-[11px] font-bold text-[var(--text-primary)] outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]"
                         >
                             <option value="school">Okul / Kantin</option>
@@ -60,8 +67,8 @@ export const QueueOrderingConfig = ({ options, onChange }: ConfigProps) => {
                     <div className="space-y-1">
                         <label className="text-[10px] font-black text-[var(--text-secondary)] uppercase block">Görsel Tema</label>
                         <select
-                            value={options.theme || 'indigo'}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange('theme', e.target.value)}
+                            value={o.theme || options.theme || 'indigo'}
+                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => update('theme', e.target.value)}
                             className="w-full p-2 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl text-[11px] font-bold text-[var(--text-primary)] outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]"
                         >
                             <option value="indigo">Gece Mavisi</option>
@@ -83,8 +90,8 @@ export const QueueOrderingConfig = ({ options, onChange }: ConfigProps) => {
                             type="number"
                             min={1}
                             max={10}
-                            value={(options.problemCount as number) || 4}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('problemCount', parseInt(e.target.value))}
+                            value={o.problemCount || options.problemCount || 4}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => update('problemCount', parseInt(e.target.value))}
                             className="w-full p-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl text-xs font-black text-[var(--text-primary)] outline-none focus:border-[var(--accent-color)]"
                         />
                     </div>
@@ -94,37 +101,37 @@ export const QueueOrderingConfig = ({ options, onChange }: ConfigProps) => {
                             type="number"
                             min={3}
                             max={15}
-                            value={(options.maxQueueSize as number) || 10}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('maxQueueSize', parseInt(e.target.value))}
+                            value={o.maxQueueSize || options.maxQueueSize || 10}
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => update('maxQueueSize', parseInt(e.target.value))}
                             className="w-full p-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl text-xs font-black text-[var(--text-primary)] outline-none focus:border-[var(--accent-color)]"
                         />
                     </div>
                 </div>
 
                 <div className="mt-5 space-y-4">
-                    <div className="flex items-center justify-between group cursor-pointer" onClick={() => onChange('showVisualClues', options.showVisualClues !== false ? false : true)}>
+                    <div className="flex items-center justify-between group cursor-pointer" onClick={() => update('showVisualClues', (o.showVisualClues ?? options.showVisualClues) !== false ? false : true)}>
                         <label className="text-[10px] font-bold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] uppercase transition-colors cursor-pointer">Görsel İpuçları Göster</label>
                         <button
-                            className={`w-10 h-5 rounded-full transition-colors relative ${options.showVisualClues !== false ? 'bg-[var(--accent-color)]' : 'bg-[var(--border-color)]/70'}`}
+                            className={`w-10 h-5 rounded-full transition-colors relative ${(o.showVisualClues ?? options.showVisualClues) !== false ? 'bg-[var(--accent-color)]' : 'bg-[var(--border-color)]/70'}`}
                         >
-                            <div className={`w-3 h-3 rounded-full bg-white absolute top-1 transition-transform ${options.showVisualClues !== false ? 'left-6 shadow-md' : 'left-1'}`} />
+                            <div className={`w-3 h-3 rounded-full bg-white absolute top-1 transition-transform ${(o.showVisualClues ?? options.showVisualClues) !== false ? 'left-6 shadow-md' : 'left-1'}`} />
                         </button>
                     </div>
 
-                    <div className="flex items-center justify-between group cursor-pointer" onClick={() => onChange('showPositionNumbers', options.showPositionNumbers !== false ? false : true)}>
+                    <div className="flex items-center justify-between group cursor-pointer" onClick={() => update('showPositionNumbers', (o.showPositionNumbers ?? options.showPositionNumbers) !== false ? false : true)}>
                         <label className="text-[10px] font-bold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] uppercase transition-colors cursor-pointer">Sıra Numaralarını Göster</label>
                         <button
-                            className={`w-10 h-5 rounded-full transition-colors relative ${options.showPositionNumbers !== false ? 'bg-[var(--accent-color)]' : 'bg-[var(--border-color)]/70'}`}
+                            className={`w-10 h-5 rounded-full transition-colors relative ${(o.showPositionNumbers ?? options.showPositionNumbers) !== false ? 'bg-[var(--accent-color)]' : 'bg-[var(--border-color)]/70'}`}
                         >
-                            <div className={`w-3 h-3 rounded-full bg-white absolute top-1 transition-transform ${options.showPositionNumbers !== false ? 'left-6 shadow-md' : 'left-1'}`} />
+                            <div className={`w-3 h-3 rounded-full bg-white absolute top-1 transition-transform ${(o.showPositionNumbers ?? options.showPositionNumbers) !== false ? 'left-6 shadow-md' : 'left-1'}`} />
                         </button>
                     </div>
                 </div>
 
                 <CompactToggleGroup
                     label="İkon Stili"
-                    selected={options.iconStyle || 'emoji'}
-                    onChange={(v: unknown) => onChange('iconStyle', v as string)}
+                    selected={o.iconStyle || options.iconStyle || 'emoji'}
+                    onChange={(v: unknown) => update('iconStyle', v as string)}
                     options={[
                         { value: 'emoji', label: 'Emoji' },
                         { value: 'avatar', label: 'Profil' },

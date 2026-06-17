@@ -99,7 +99,3 @@ export const GizemliSayilarConfig: React.FC<Props> = ({ options, onChange }) => 
     </div>
   );
 };
-
-export default GizemliSayilarConfig;
-
-export default GizemliSayilarConfig;

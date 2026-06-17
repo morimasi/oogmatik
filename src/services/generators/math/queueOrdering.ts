@@ -13,26 +13,26 @@ export const generateQueueOrderingFromAI = async (options: GeneratorOptions): Pr
     const generationSeed = Date.now() + Math.random();
     
     // Premium settings - type-safe access
-    const settings = customSettings as unknown as any || {};
-    const locationType = settings.locationType || 'school';
+    const settings = (options as any).queueOrdering || customSettings as unknown as any || {};
+    const locationType = options.locationType || settings.locationType || 'school';
     const customLocations = settings.customLocations || [];
-    const maxQueueSize = settings.maxQueueSize || 10;
-    const minQueueSize = settings.minQueueSize || 5;
-    const problemCount = settings.problemCount || 4;
+    const maxQueueSize = options.maxQueueSize || settings.maxQueueSize || 10;
+    const minQueueSize = options.minQueueSize || settings.minQueueSize || 5;
+    const problemCount = options.problemCount || settings.problemCount || 4;
     
     // Ultra-premium theme and style options
-    const theme = settings.theme || 'indigo';
-    const iconStyle = settings.iconStyle || 'emoji';
-    const layout = settings.layout || 'grid';
-    const visualDensity = settings.visualDensity || 'comfortable';
-    const fontSize = settings.fontSize || 'medium';
-    const cardStyle = settings.cardStyle || 'elevated';
-    const headerStyle = settings.headerStyle || 'gradient';
-    const highlightKeywords = settings.highlightKeywords !== false;
-    const showScenario = settings.showScenario !== false;
-    const showVisualClues = settings.showVisualClues !== false;
-    const showPositionNumbers = settings.showPositionNumbers !== false;
-    const showAnswers = settings.showAnswers || false;
+    const theme = options.theme || settings.theme || 'indigo';
+    const iconStyle = options.iconStyle || settings.iconStyle || 'emoji';
+    const layout = options.layout || settings.layout || 'grid';
+    const visualDensity = options.visualDensity || settings.visualDensity || 'comfortable';
+    const fontSize = options.fontSize || settings.fontSize || 'medium';
+    const cardStyle = options.cardStyle || settings.cardStyle || 'elevated';
+    const headerStyle = options.headerStyle || settings.headerStyle || 'gradient';
+    const highlightKeywords = (options.highlightKeywords !== undefined ? options.highlightKeywords : settings.highlightKeywords) !== false;
+    const showScenario = (options.showScenario !== undefined ? options.showScenario : settings.showScenario) !== false;
+    const showVisualClues = (options.showVisualClues !== undefined ? options.showVisualClues : settings.showVisualClues) !== false;
+    const showPositionNumbers = (options.showPositionNumbers !== undefined ? options.showPositionNumbers : settings.showPositionNumbers) !== false;
+    const showAnswers = options.showAnswers || settings.showAnswers || false;
     const customInstruction = settings.customInstruction || '';
     
     const prompt = `
