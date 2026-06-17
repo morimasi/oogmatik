@@ -34,16 +34,18 @@ const CompactToggleGroup = ({ label, selected, onChange, options }: ToggleGroupP
 export const AbcConnectConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: keyof GeneratorOptions, v: unknown) => void }) => {
     const o = (options as any).abcConnect || {};
     
-    const update = (key: string, val: unknown) => {
+    const update = (key: keyof GeneratorOptions, val: unknown) => {
+        // Hem nested objeyi hem de top-level options'ı güncelle ki jeneratörler her iki yerden de okuyabilsin
         onChange('abcConnect' as any, { ...o, [key]: val });
+        onChange(key, val);
     };
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="p-5 bg-cyan-50/30 dark:bg-cyan-900/10 rounded-[2.5rem] border border-cyan-100 dark:border-cyan-800/30 shadow-sm">
                 <CompactToggleGroup
-                    label="Eşleştirme Türü (Varyant)"
-                    selected={o.variant || 'roman'}
+                    label="EŞLEŞTİRME TÜRÜ (VARYANT)"
+                    selected={options.variant || o.variant || 'roman'}
                     onChange={(v: unknown) => update('variant', v as string)}
                     options={[
                         { value: 'roman', label: 'Romen' },
@@ -56,8 +58,8 @@ export const AbcConnectConfig = ({ options, onChange }: { options: GeneratorOpti
 
             <div className="p-5 bg-zinc-50 dark:bg-zinc-800/50 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 space-y-5 shadow-inner">
                 <CompactToggleGroup
-                    label="Izgara Boyutu"
-                    selected={o.gridSize || 5}
+                    label="IZGARA BOYUTU"
+                    selected={options.gridSize || o.gridSize || 5}
                     onChange={(v: unknown) => update('gridSize', v as number)}
                     options={[
                         { value: 4, label: '4x4' },
@@ -68,8 +70,8 @@ export const AbcConnectConfig = ({ options, onChange }: { options: GeneratorOpti
                 />
 
                 <CompactToggleGroup
-                    label="Yol Karmaşıklığı"
-                    selected={o.density || 'medium'}
+                    label="YOL KARMAŞIKLIĞI"
+                    selected={options.density || o.density || 'medium'}
                     onChange={(v: unknown) => update('density', v as string)}
                     options={[
                         { value: 'low', label: 'Seyrek' },

@@ -256,10 +256,11 @@ export const generateOfflineSymmetryDrawing = async (
 export const generateOfflineFindTheDifference = async (
   options: GeneratorOptions
 ): Promise<FindTheDifferenceData[]> => {
+  const customSettings = (options as any).findDifference || {};
   const worksheetCount = options.worksheetCount || 1;
   const difficulty = options.difficulty || 'Orta';
-  const itemCount = options.itemCount || 5;
-  const findDiffType = options.findDiffType || 'visual';
+  const itemCount = customSettings.itemCount || options.itemCount || 5;
+  const findDiffType = customSettings.findDiffType || options.findDiffType || 'visual';
   const results: FindTheDifferenceData[] = [];
 
   const EMOJIS = [
@@ -284,7 +285,10 @@ export const generateOfflineFindTheDifference = async (
   ];
 
   for (let p = 0; p < worksheetCount; p++) {
-    const size = difficulty === 'Başlangıç' ? 4 : difficulty === 'Orta' ? 5 : 6;
+    let size = customSettings.gridSize || (difficulty === 'Başlangıç' ? 4 : difficulty === 'Orta' ? 5 : 6);
+    // Boundary check for size vs itemCount
+    const maxItems = size * size;
+    const finalItemCount = Math.min(itemCount, maxItems - 1);
 
     // Veri havuzu seçimi
     let sourcePool = EMOJIS;
@@ -310,7 +314,7 @@ export const generateOfflineFindTheDifference = async (
     const diffPositions: { r: number; c: number }[] = [];
 
     // Farkları yerleştir
-    while (diffPositions.length < itemCount) {
+    while (diffPositions.length < finalItemCount) {
       const r = getRandomInt(0, size - 1);
       const c = getRandomInt(0, size - 1);
       if (!diffPositions.some((pos) => pos.r === r && pos.c === c)) {
@@ -323,10 +327,10 @@ export const generateOfflineFindTheDifference = async (
 
     results.push({
       title: 'DİKKAT VE AYRIŞTIRMA: İKİ TABLO ARASINDAKİ FARKLAR',
-      instruction: `Soldaki tablo ile sağdaki tablo arasındaki ${itemCount} farkı bulup sağdakinde işaretleyin.`,
+      instruction: `Soldaki tablo ile sağdaki tablo arasındaki ${finalItemCount} farkı bulup sağdakinde işaretleyin.`,
       settings: {
         difficulty: mapDifficulty(difficulty || 'Orta'),
-        layout: 'side_by_side',
+        layout: customSettings.layout || 'side_by_side',
         itemType: findDiffType as any,
         isProfessionalMode: true,
         showClinicalNotes: true,
@@ -334,7 +338,7 @@ export const generateOfflineFindTheDifference = async (
       },
       gridA,
       gridB,
-      diffCount: itemCount,
+      diffCount: finalItemCount,
       rows: gridB.map((row) => ({
         items: row,
         correctIndex: -1,

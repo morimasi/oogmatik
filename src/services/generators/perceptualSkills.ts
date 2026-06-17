@@ -145,7 +145,11 @@ export const generateVisualOddOneOutFromAI = async (
 export const generateFindTheDifferenceFromAI = async (
   options: GeneratorOptions
 ): Promise<FindTheDifferenceData[]> => {
-  const { difficulty, _worksheetCount, findDiffType, itemCount = 5, studentContext } = options;
+  const customSettings = (options as any).findDifference || {};
+  const { difficulty, _worksheetCount, studentContext } = options;
+  const itemCount = customSettings.itemCount || options.itemCount || 5;
+  const findDiffType = customSettings.findDiffType || options.findDiffType || 'visual';
+  const gridSize = customSettings.gridSize || 5;
 
   const typeDesc =
     findDiffType === 'word' || findDiffType === 'semantic'
@@ -163,13 +167,14 @@ export const generateFindTheDifferenceFromAI = async (
     GÖREV: [İKİ TABLO ARASINDAKİ FARKLARI BULMA]
     
     PARAMETRELER:
+    - Izgara Boyutu: ${gridSize}x${gridSize}.
     - Veri Tipi: ${typeDesc}.
     - Zorluk: ${difficulty}.
     - Hedef Fark Sayısı: ${itemCount}.
     - Öğrenci Profili: ${(studentContext as any)?.diagnosis?.join(', ') || 'Genel Gelişim'}.
     
     STRATEJİ:
-    1. İki adet grid oluştur (gridA ve gridB).
+    1. İki adet grid oluştur (gridA ve gridB). Boyut mutlaka ${gridSize}x${gridSize} olmalı.
     2. gridA referans tablodur, gridB ise ${itemCount} adet fark barındırır.
     3. Farklar disleksi/dikkat profiline göre seçilmelidir (örn: b yerine d, m yerine n).
     4. [KRİTİK]: Tüm metinler, kelimeler ve içerikler %100 TÜRKÇE olmalıdır. İngilizce kelime KESİNLİKLE kullanma.
