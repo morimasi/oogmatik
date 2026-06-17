@@ -16,7 +16,7 @@ const CAPSULE_COLORS = [
   'bg-cyan-100 border-cyan-400',
 ];
 
-export const CapsuleGameSheet = ({ data }: { data: NumberCapsuleData }) => {
+export const CapsuleGameSheet = ({ data, settings: _settings }: { data: NumberCapsuleData; settings?: unknown }) => {
   const puzzle = data.puzzles?.[0] || (data.grid ? { grid: data.grid, capsules: data.capsules || [], rowTargets: data.rowTargets, colTargets: data.colTargets } : null);
   if (!puzzle) return null;
 
