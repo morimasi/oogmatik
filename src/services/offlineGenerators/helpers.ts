@@ -195,17 +195,57 @@ export const generateConnectedPath = (dim: number, complexity: number): [number,
     return lines;
 };
 
-export const generateSudokuGrid = (n: number, difficulty: string): (number | null)[][] => {
-    const size = n;
-    const boxH = size === 9 ? 3 : (size === 6 ? 2 : 2);
-    const boxW = size === 9 ? 3 : (size === 6 ? 3 : 2);
-    const grid: number[][] = Array.from({ length: size }, () => Array(size).fill(0));
+const countSolutions = (puzzle: (number | null)[][], size: number, boxH: number, boxW: number, limit = 2): number => {
+    const grid = puzzle.map(row => [...row]) as number[][];
+    let count = 0;
+
     const isValid = (r: number, c: number, num: number) => {
         for (let k = 0; k < size; k++) if (grid[r][k] === num || grid[k][c] === num) return false;
         const sr = Math.floor(r / boxH) * boxH, sc = Math.floor(c / boxW) * boxW;
         for (let i = 0; i < boxH; i++) for (let j = 0; j < boxW; j++) if (grid[sr + i][sc + j] === num) return false;
         return true;
     };
+
+    const findEmpty = () => {
+        for (let r = 0; r < size; r++) {
+            for (let c = 0; c < size; c++) {
+                if (grid[r][c] === 0) return [r, c] as [number, number];
+            }
+        }
+        return null;
+    };
+
+    const backtrack = () => {
+        if (count >= limit) return;
+        const empty = findEmpty();
+        if (!empty) { count++; return; }
+        const [r, c] = empty;
+        for (let num = 1; num <= size; num++) {
+            if (isValid(r, c, num)) {
+                grid[r][c] = num;
+                backtrack();
+                grid[r][c] = 0;
+                if (count >= limit) return;
+            }
+        }
+    };
+    backtrack();
+    return count;
+};
+
+export const generateSudokuGrid = (n: number, difficulty: string): (number | null)[][] => {
+    const size = n;
+    const boxH = size === 9 ? 3 : (size === 6 ? 2 : 2);
+    const boxW = size === 9 ? 3 : (size === 6 ? 3 : 2);
+    const grid: number[][] = Array.from({ length: size }, () => Array(size).fill(0));
+
+    const isValid = (r: number, c: number, num: number) => {
+        for (let k = 0; k < size; k++) if (grid[r][k] === num || grid[k][c] === num) return false;
+        const sr = Math.floor(r / boxH) * boxH, sc = Math.floor(c / boxW) * boxW;
+        for (let i = 0; i < boxH; i++) for (let j = 0; j < boxW; j++) if (grid[sr + i][sc + j] === num) return false;
+        return true;
+    };
+
     const solve = (r: number, c: number): boolean => {
         if (r === size) return true;
         const nr = c === size - 1 ? r + 1 : r;
@@ -221,13 +261,28 @@ export const generateSudokuGrid = (n: number, difficulty: string): (number | nul
         }
         return false;
     };
+
     solve(0, 0);
-    const removeCount = difficulty === 'Başlangıç' ? size * size * 0.3 : difficulty === 'Orta' ? size * size * 0.5 : size * size * 0.6;
+
+    const targetRemovals = difficulty === 'Başlangıç' ? Math.floor(size * size * 0.35)
+        : difficulty === 'Orta' ? Math.floor(size * size * 0.5)
+        : Math.floor(size * size * 0.65);
+
     const puzzle = grid.map(row => [...row]) as (number | null)[][];
+    const cells = Array.from({ length: size * size }, (_, i) => [Math.floor(i / size), i % size] as [number, number]);
+    shuffle(cells);
+
     let removed = 0;
-    while (removed < removeCount) {
-        const r = getRandomInt(0, size - 1), c = getRandomInt(0, size - 1);
-        if (puzzle[r][c] !== null) { puzzle[r][c] = null; removed++; }
+    for (const [r, c] of cells) {
+        if (removed >= targetRemovals) break;
+        const backup = puzzle[r][c];
+        puzzle[r][c] = null;
+        const solutions = countSolutions(puzzle, size, boxH, boxW, 2);
+        if (solutions === 1) {
+            removed++;
+        } else {
+            puzzle[r][c] = backup;
+        }
     }
     return puzzle;
 };

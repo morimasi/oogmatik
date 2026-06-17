@@ -23,12 +23,14 @@ export const generateReadingSudokuFromAI = async (options: GeneratorOptions): Pr
     GÖREV: "${difficulty}" zorluk seviyesinde, ${gridSize}x${gridSize} boyutunda bir "Dil Sudokusu" üret.
     TEMA/VARYANT: ${variantDesc}
     
-    KURALLAR:
-    1. Sudoku kuralları geçerlidir: Her öğe her satırda, sütunda ve ${gridSize === 4 ? '2x2' : '3x2'} blokta sadece bir kez bulunmalıdır.
-    2. 'grid' alanı, başlangıçta görünen öğeleri içermeli; boş hücreler null olmalıdır.
-    3. 'solution' alanı, sudokunun tamamlanmış halini içermelidir.
-    4. 'symbols' listesi, kullanılan tüm öğeleri (harf, kelime veya görsel prompt) içermelidir.
-    5. Disleksi Dostu: Yazı tipi olarak 'OpenDyslexic' veya 'Lexend' önerilir.
+    KRİTİK KURALLAR (MUTLAKA UYULMALI):
+    1. Sudoku kuralları: Her öğe her satırda, sütunda ve ${gridSize === 4 ? '2x2' : gridSize === 6 ? '2x3' : '3x3'} blokta TAM OLARAK BİR KEZ bulunmalıdır.
+    2. 'grid' alanı: Başlangıç ızgarası - çözülebilir, TEK BİR ÇÖZÜMÜ OLAN bir sudoku olmalı. Boş hücreler null.
+    3. 'solution' alanı: Sudokunun EKSİKSİZ, DOĞRU çözümü (tüm hücreler dolu).
+    4. 'grid' + 'solution' TUTARLI OLMALI: Solution'daki dolu hücreler, grid'deki dolu hücrelerle AYNI değerde olmalı.
+    5. 'symbols' listesi: Kullanılan tüm öğeler (harf/kelime/görsel).
+    6. Zorluk: Başlangıç=%35 boş, Orta=%50 boş, Zor=%65 boş - HER ZAMAN TEK ÇÖZÜMLÜ OLMALI.
+    7. Disleksi Dostu: Yazı tipi 'OpenDyslexic' veya 'Lexend'.
     
     Öğrenci Profili: ${options.studentContext?.diagnosis?.join(', ') || 'Disleksi Riski'}.
     
