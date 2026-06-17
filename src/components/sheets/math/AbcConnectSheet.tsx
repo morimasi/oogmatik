@@ -21,10 +21,10 @@ const DieDots = ({ value }: { value: number }) => {
     const dots = dotPositions[value % 10] || [4];
 
     return (
-        <div className="grid grid-cols-3 gap-1 w-8 h-8 md:w-10 md:h-10 p-1.5 bg-slate-100 rounded-lg shadow-inner border border-slate-200">
+        <div className="grid grid-cols-3 gap-0.5 w-[80%] h-[80%] p-1 bg-slate-100 rounded-lg shadow-inner border border-slate-200">
             {Array.from({ length: 9 }).map((_, i) => (
                 <div key={i} className={`flex items-center justify-center`}>
-                    {dots.includes(i) && <div className="w-1.5 h-1.5 md:w-2 md:h-2 bg-slate-700 rounded-full" />}
+                    {dots.includes(i) && <div className="w-[60%] h-[60%] bg-slate-700 rounded-full" />}
                 </div>
             ))}
         </div>
@@ -42,78 +42,65 @@ export const AbcConnectSheet = ({ data }: { data: AbcConnectData }) => {
                 data={data}
             />
 
-            <div className="flex-1 flex items-center justify-center mt-10 print:mt-3">
-                <div
-                    className="relative bg-white/50 backdrop-blur-sm border-[4px] border-slate-200 rounded-[2.5rem] shadow-xl p-8 print:p-2 print:p-3"
-                    style={{
-                        display: 'grid',
-                        gridTemplateColumns: `repeat(${gridDim}, minmax(0, 1fr))`,
-                        gap: gridDim > 6 ? '8px' : '16px',
-                        width: '100%',
-                        maxWidth: '600px',
-                        aspectRatio: '1/1'
-                    }}
-                >
-                    {/* Background Grid Lines */}
-                    <div className="absolute inset-0 pointer-events-none" style={{
-                        backgroundImage: `
-                            linear-gradient(to right, #cbd5e1 1px, transparent 1px),
-                            linear-gradient(to bottom, #cbd5e1 1px, transparent 1px)
-                        `,
-                        backgroundSize: `${100 / gridDim}% ${100 / gridDim}%`,
-                        backgroundPosition: '0 0',
-                        opacity: 0.5
-                    }} />
+            <div className="flex-1 flex items-center justify-center mt-10 print:mt-3 px-4">
+                <div className="relative bg-white/50 backdrop-blur-sm border-[4px] border-slate-200 rounded-[2.5rem] shadow-xl p-6 print:p-4 w-full max-w-[600px]">
                     
-                    {/* Darker Grid Border for printing */}
-                    <div className="absolute inset-0 border border-slate-300 pointer-events-none print:border-slate-400" />
+                    <div 
+                        className="w-full aspect-square border-t-[3px] border-l-[3px] border-slate-300"
+                        style={{
+                            display: 'grid',
+                            gridTemplateColumns: `repeat(${gridDim}, 1fr)`,
+                            gridTemplateRows: `repeat(${gridDim}, 1fr)`,
+                        }}
+                    >
+                        {Array.from({ length: gridDim * gridDim }).map((_, index) => {
+                            const x = index % gridDim;
+                            const y = Math.floor(index / gridDim);
 
+                            const startPath = paths.find((p) => p.start.x === x && p.start.y === y);
+                            const endPath = paths.find((p) => p.end.x === x && p.end.y === y);
 
-                    {Array.from({ length: gridDim * gridDim }).map((_, index) => {
-                        const x = index % gridDim;
-                        const y = Math.floor(index / gridDim);
+                            const isStart = !!startPath;
+                            const path = startPath || endPath;
 
-                        const startPath = paths.find((p) => p.start.x === x && p.start.y === y);
-                        const endPath = paths.find((p) => p.end.x === x && p.end.y === y);
-
-                        const isStart = !!startPath;
-                        const _isEnd = !!endPath;
-                        const path = startPath || endPath;
-
-                        if (!path) {
                             return (
-                                <div key={index} className="flex items-center justify-center opacity-40">
-                                    <div className="w-2 h-2 rounded-full bg-slate-300" />
-                                </div>
-                            );
-                        }
-
-                        const content = isStart ? path.value : path.matchValue;
-                        const isDots = typeof content === 'string' && content.startsWith('dots-');
-                        const displayValue = isDots ? parseInt(content.split('-')[1]) : content;
-
-                        return (
-                            <div key={index} className="relative flex items-center justify-center z-10 transition-transform hover:scale-110">
-                                <div className={`
-                                    w-12 h-12 md:w-16 md:h-16 
-                                    ${isStart ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-blue-200' : 'bg-white text-slate-800 shadow-slate-100'} 
-                                    rounded-2xl flex items-center justify-center 
-                                    text-xl md:text-2xl font-black 
-                                    shadow-lg border-2 
-                                    ${isStart ? 'border-blue-400' : 'border-slate-200'}
-                                `}>
-                                    {isDots ? (
-                                        <DieDots value={displayValue as number} />
+                                <div 
+                                    key={index} 
+                                    className="relative border-b-[3px] border-r-[3px] border-slate-300 flex items-center justify-center"
+                                >
+                                    {!path ? (
+                                        <div className="w-2.5 h-2.5 rounded-full bg-slate-300 opacity-40" />
                                     ) : (
-                                        displayValue
+                                        <div className="relative z-10 transition-transform hover:scale-110 flex items-center justify-center w-full h-full">
+                                            <div className={`
+                                                w-[80%] h-[80%] max-w-[64px] max-h-[64px] min-w-[32px] min-h-[32px]
+                                                ${isStart ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-200' : 'bg-white text-slate-800 shadow-sm'} 
+                                                rounded-2xl flex items-center justify-center 
+                                                text-lg sm:text-xl md:text-2xl font-black 
+                                                border-2 
+                                                ${isStart ? 'border-blue-400' : 'border-slate-200'}
+                                            `}>
+                                                {(() => {
+                                                    const content = isStart ? path.value : path.matchValue;
+                                                    const isDots = typeof content === 'string' && content.startsWith('dots-');
+                                                    const displayValue = isDots ? parseInt(content.split('-')[1]) : content;
+                                                    
+                                                    return isDots ? (
+                                                        <DieDots value={displayValue as number} />
+                                                    ) : (
+                                                        <span>{displayValue}</span>
+                                                    );
+                                                })()}
+                                            </div>
+                                            <div className="absolute top-[2%] right-[2%] bg-amber-400 w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center text-[10px] md:text-xs text-white font-black border-2 border-white shadow-sm z-20">
+                                                {path.id.split('-')[1]}
+                                            </div>
+                                        </div>
                                     )}
                                 </div>
-                                <div className="absolute -top-2 -right-2 bg-amber-400 w-5 h-5 rounded-full flex items-center justify-center text-[10px] text-white font-bold border-2 border-white shadow-sm">
-                                    {path.id.split('-')[1]}
-                                </div>
-                            </div>
-                        );
-                    })}
+                            );
+                        })}
+                    </div>
                 </div>
             </div>
 

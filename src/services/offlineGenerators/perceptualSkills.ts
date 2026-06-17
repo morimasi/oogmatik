@@ -259,33 +259,18 @@ export const generateOfflineFindTheDifference = async (
   const customSettings = (options as any).findDifference || {};
   const worksheetCount = options.worksheetCount || 1;
   const difficulty = options.difficulty || 'Orta';
-  const itemCount = customSettings.itemCount || options.itemCount || 5;
-  const findDiffType = customSettings.findDiffType || options.findDiffType || 'visual';
+  const itemCount = options.itemCount || customSettings.itemCount || 5;
+  const findDiffType = options.findDiffType || customSettings.findDiffType || 'visual';
+  const layout = (options as any).layout || customSettings.layout || 'side_by_side';
   const results: FindTheDifferenceData[] = [];
 
   const EMOJIS = [
-    '🍎',
-    '🚗',
-    '🏠',
-    '⭐',
-    '🎈',
-    '📚',
-    '⚽',
-    '☀️',
-    '🌙',
-    '🌲',
-    '🌺',
-    '🎁',
-    '🐱',
-    '🐶',
-    '🦁',
-    '🐢',
-    '🦋',
-    '🐝',
+    '🍎', '🚗', '🏠', '⭐', '🎈', '📚', '⚽', '☀️', '🌙', '🌲', 
+    '🌺', '🎁', '🐱', '🐶', '🦁', '🐢', '🦋', '🐝', '🏀', '🚁'
   ];
 
   for (let p = 0; p < worksheetCount; p++) {
-    let size = customSettings.gridSize || (difficulty === 'Başlangıç' ? 4 : difficulty === 'Orta' ? 5 : 6);
+    let size = options.gridSize || customSettings.gridSize || (difficulty === 'Başlangıç' ? 4 : difficulty === 'Orta' ? 5 : 6);
     // Boundary check for size vs itemCount
     const maxItems = size * size;
     const finalItemCount = Math.min(itemCount, maxItems - 1);
@@ -330,7 +315,7 @@ export const generateOfflineFindTheDifference = async (
       instruction: `Soldaki tablo ile sağdaki tablo arasındaki ${finalItemCount} farkı bulup sağdakinde işaretleyin.`,
       settings: {
         difficulty: mapDifficulty(difficulty || 'Orta'),
-        layout: customSettings.layout || 'side_by_side',
+        layout: layout as any,
         itemType: findDiffType as any,
         isProfessionalMode: true,
         showClinicalNotes: true,

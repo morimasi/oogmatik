@@ -7,8 +7,9 @@ export const FindDifferenceConfig: React.FC<{
 }> = ({ options, onChange }) => {
   const o = (options as any).findDifference || {};
   
-  const update = (updates: Record<string, any>) => {
-    onChange('findDifference' as any, { ...o, ...updates });
+  const update = (key: keyof GeneratorOptions, val: unknown) => {
+    onChange('findDifference' as any, { ...o, [key]: val });
+    onChange(key, val);
   };
 
   return (
@@ -31,9 +32,9 @@ export const FindDifferenceConfig: React.FC<{
           ].map((t) => (
             <button
               key={t.v}
-              onClick={() => update({ findDiffType: t.v })}
+              onClick={() => update('findDiffType' as any, t.v)}
               className={`py-3 rounded-xl text-[10px] font-black border transition-all flex flex-col items-center gap-1 ${
-                (o.findDiffType || 'visual') === t.v 
+                (options.findDiffType || o.findDiffType || 'visual') === t.v 
                 ? 'bg-rose-600 text-white border-rose-600 shadow-lg' 
                 : 'bg-white text-zinc-500 border-zinc-100 hover:border-rose-200'
               }`}
@@ -52,9 +53,9 @@ export const FindDifferenceConfig: React.FC<{
             {[4, 5, 6, 8, 10].map((n) => (
               <button
                 key={n}
-                onClick={() => update({ gridSize: n })}
+                onClick={() => update('gridSize', n)}
                 className={`py-2 rounded-lg text-xs font-black border transition-all ${
-                  (o.gridSize || 5) === n 
+                  (options.gridSize || o.gridSize || 5) === n 
                   ? 'bg-zinc-900 text-white border-zinc-900 shadow-md' 
                   : 'bg-white border-zinc-200 text-zinc-400 hover:border-zinc-300'
                 }`}
@@ -72,11 +73,11 @@ export const FindDifferenceConfig: React.FC<{
                type="range"
                min={1}
                max={15}
-               value={o.itemCount || 5}
-               onChange={(e) => update({ itemCount: parseInt(e.target.value) })}
+               value={options.itemCount || o.itemCount || 5}
+               onChange={(e) => update('itemCount', parseInt(e.target.value))}
                className="flex-1 accent-rose-600"
              />
-             <span className="w-8 text-center font-black text-rose-600 text-sm">{o.itemCount || 5}</span>
+             <span className="w-8 text-center font-black text-rose-600 text-sm">{options.itemCount || o.itemCount || 5}</span>
           </div>
         </div>
 
@@ -102,8 +103,8 @@ export const FindDifferenceConfig: React.FC<{
          <label className="flex items-center gap-3 p-3 bg-zinc-50 rounded-2xl cursor-pointer border border-zinc-100 hover:bg-white transition-all">
             <input 
                 type="checkbox" 
-                checked={o.layout === 'side_by_side'} 
-                onChange={(e) => update({ layout: e.target.checked ? 'side_by_side' : 'rows' })}
+                checked={(options as any).layout === 'side_by_side' || o.layout === 'side_by_side'} 
+                onChange={(e) => update('layout' as any, e.target.checked ? 'side_by_side' : 'rows')}
                 className="w-5 h-5 rounded text-rose-600 focus:ring-rose-500 border-zinc-300"
             />
             <span className="text-sm font-bold text-zinc-700">Tabloları Yan Yana Göster</span>
