@@ -10,18 +10,24 @@ const CATEGORIES = ['Dil', 'Mantık', 'Sayı', 'Görsel'] as const;
 type CategoryName = (typeof CATEGORIES)[number];
 
 export const BrainTeasersConfig: React.FC<BrainTeasersConfigProps> = ({ options, onChange }) => {
-  const selectedCategories: CategoryName[] = Array.isArray((options as Record<string, unknown>).selectedCategories)
-    ? ((options as Record<string, unknown>).selectedCategories as CategoryName[])
+  const o = (options as any).brainTeasers || {};
+  
+  const update = (updates: Record<string, any>) => {
+    onChange('brainTeasers' as any, { ...o, ...updates });
+  };
+
+  const selectedCategories: CategoryName[] = Array.isArray(o.selectedCategories)
+    ? (o.selectedCategories as CategoryName[])
     : [...CATEGORIES];
 
   const toggleCategory = (cat: CategoryName) => {
     const next = selectedCategories.includes(cat)
       ? selectedCategories.filter((c) => c !== cat)
       : [...selectedCategories, cat];
-    if (next.length > 0) onChange('selectedCategories' as keyof GeneratorOptions, next);
+    if (next.length > 0) update({ selectedCategories: next });
   };
 
-  const puzzleCount = typeof options.puzzleCount === 'number' ? options.puzzleCount : 6;
+  const puzzleCount = typeof o.puzzleCount === 'number' ? o.puzzleCount : 6;
 
   return (
     <div className="space-y-6">
@@ -32,8 +38,8 @@ export const BrainTeasersConfig: React.FC<BrainTeasersConfigProps> = ({ options,
             Zeka Sorusu Türü
           </label>
           <select
-            value={options.topic || 'mixed'}
-            onChange={(e) => onChange('topic', e.target.value)}
+            value={o.topic || 'mixed'}
+            onChange={(e) => update({ topic: e.target.value })}
             className="w-full bg-zinc-100 dark:bg-zinc-800 border-none rounded-xl p-3 text-sm font-medium focus:ring-2 focus:ring-indigo-500"
           >
             <option value="mixed">Karışık (Önerilen)</option>
@@ -70,14 +76,14 @@ export const BrainTeasersConfig: React.FC<BrainTeasersConfigProps> = ({ options,
           <input
             type="range"
             min={3}
-            max={8}
+            max={15}
             step={1}
             value={puzzleCount}
-            onChange={(e) => onChange('puzzleCount', parseInt(e.target.value))}
+            onChange={(e) => update({ puzzleCount: parseInt(e.target.value) })}
             className="w-full accent-indigo-500"
           />
           <div className="flex justify-between text-[10px] text-zinc-400 mt-1">
-            <span>3</span><span>8</span>
+            <span>3</span><span>15</span>
           </div>
         </div>
       </div>
@@ -107,34 +113,15 @@ export const BrainTeasersConfig: React.FC<BrainTeasersConfigProps> = ({ options,
 
       {/* Ekstra Seçenekler */}
       <div className="space-y-3 pt-2 border-t border-zinc-100 dark:border-zinc-800">
-        {/* İpuçlarını Göster */}
         <label className="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-xl cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
           <input
             type="checkbox"
-            checked={Boolean((options as Record<string, unknown>).showHints)}
-            onChange={(e) => onChange('showHints' as keyof GeneratorOptions, e.target.checked)}
+            checked={Boolean(o.showHints)}
+            onChange={(e) => update({ showHints: e.target.checked })}
             className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500 border-zinc-300"
           />
           <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
             İpuçlarını Göster
-            <span className="block text-xs text-zinc-400 font-normal">
-              Her bulmaca altında küçük bir ipucu gösterir.
-            </span>
-          </span>
-        </label>
-
-        <label className="flex items-center gap-3 p-3 bg-zinc-50 dark:bg-zinc-900/50 rounded-xl cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
-          <input
-            type="checkbox"
-            checked={Boolean(options.includeCreativeTask)}
-            onChange={(e) => onChange('includeCreativeTask', e.target.checked)}
-            className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500 border-zinc-300"
-          />
-          <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-            Yaratıcı Düşünme Görevi Ekle
-            <span className="block text-xs text-zinc-400 font-normal">
-              Çocuğun kendi sorusunu üretmesi için alan bırakır.
-            </span>
           </span>
         </label>
       </div>

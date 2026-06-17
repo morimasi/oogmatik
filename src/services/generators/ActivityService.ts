@@ -108,6 +108,7 @@ export class ActivityService {
             'PZW4TWcMW7eB89z1M2EB': ActivityType.ES_ANLAMLI_KELIMELER,
             'L0L6Y9PrZNzsiJ2Ott7g': ActivityType.MATH_PUZZLE, // Meyveli Toplama
             'vY3R8kM9z1P2Q3R4S5T6': ActivityType.NUMBER_LOGIC_RIDDLES, // Gizemli Sayılar
+            'ACT_1766403743393': ActivityType.NUMBER_LOGIC_RIDDLES, // Gizemli Sayılar (New ID)
             'k3R8kM9z1P2Q3R4S5T6a': ActivityType.BRAIN_TEASERS, // Kafayı Çalıştır
             'MfH9I6jyuvHJWTadIb91': ActivityType.NUMBER_SENSE, // Sayı Dedektifi
             'ücgwen_1769002912962': ActivityType.SHAPE_COUNTING, // Kaç Tane Üçgen Var

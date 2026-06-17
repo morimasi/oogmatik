@@ -82,22 +82,28 @@ const sequenceFind = [
 ];
 
 export const generateOfflineBrainTeasers = async (options: GeneratorOptions): Promise<WorksheetData[]> => {
+  const customSettings = (options as any).brainTeasers || {};
   const {
     worksheetCount = 1,
     difficulty = 'Orta',
-    itemCount = 12,
+    itemCount = customSettings.puzzleCount || 12,
     ageGroup = '8-10',
   } = options;
+
+  const selectedCategories = customSettings.selectedCategories || ['Dil', 'Mantık', 'Sayı', 'Görsel'];
 
   const pages: BrainTeasersData[] = [];
 
   for (let p = 0; p < worksheetCount; p++) {
-    const puzzlePool = [
-      ...riddles.map(q => ({ ...q, type: 'riddle' as const, category: 'Dil', visual: '🔍' })),
-      ...lateralThinking.map(q => ({ ...q, type: 'lateral_thinking' as const, category: 'Mantık', visual: '🧠' })),
-      ...visualMath.map(q => ({ ...q, type: 'visual_math' as const, category: 'Sayı', visual: '🔢' })),
-      ...sequenceFind.map(q => ({ ...q, type: 'sequence_find' as const, category: 'Görsel', visual: '🖼️' }))
-    ];
+    const puzzlePool = [];
+    if (selectedCategories.includes('Dil')) puzzlePool.push(...riddles.map(q => ({ ...q, type: 'riddle' as const, category: 'Dil', visual: '🔍' })));
+    if (selectedCategories.includes('Mantık')) puzzlePool.push(...lateralThinking.map(q => ({ ...q, type: 'lateral_thinking' as const, category: 'Mantık', visual: '🧠' })));
+    if (selectedCategories.includes('Sayı')) puzzlePool.push(...visualMath.map(q => ({ ...q, type: 'visual_math' as const, category: 'Sayı', visual: '🔢' })));
+    if (selectedCategories.includes('Görsel')) puzzlePool.push(...sequenceFind.map(q => ({ ...q, type: 'sequence_find' as const, category: 'Görsel', visual: '🖼️' })));
+
+    if (puzzlePool.length === 0) {
+      puzzlePool.push(...riddles.map(q => ({ ...q, type: 'riddle' as const, category: 'Dil', visual: '🔍' })));
+    }
 
     const shuffled = [...puzzlePool].sort(() => 0.5 - Math.random());
     const selected = shuffled.slice(0, itemCount);
@@ -113,7 +119,8 @@ export const generateOfflineBrainTeasers = async (options: GeneratorOptions): Pr
       puzzles: selected.map((puzzle, i) => ({
         ...puzzle,
         id: `p${i + 1}`,
-        difficulty_stars: getRandomInt(1, 3)
+        difficulty_stars: getRandomInt(1, 3),
+        hint: customSettings.showHints ? puzzle.hint : undefined
       }))
     });
   }

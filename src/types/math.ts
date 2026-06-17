@@ -7,6 +7,14 @@ export interface NumberLogicRiddleData extends BaseActivityData {
   showVisualAid?: boolean;
   numberRangeStart?: number;
   numberRangeEnd?: number;
+  settings?: {
+    difficulty?: string;
+    itemCount?: number;
+    gridSize?: number;
+    showIcons?: boolean;
+    showVisualDistraction?: boolean;
+    aestheticMode?: 'standard' | 'detective' | 'neon' | 'cyber';
+  };
   puzzles: {
     id: string;
     riddleParts: {

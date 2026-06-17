@@ -5,6 +5,7 @@
  */
 
 import { GeneratorOptions } from '../../../types.js';
+import { shuffle } from '../helpers';
 
 export const generateOfflineQueueOrdering = async (options: GeneratorOptions): Promise<any> => {
     const { topic, difficulty, worksheetCount, ageGroup, customSettings } = options;

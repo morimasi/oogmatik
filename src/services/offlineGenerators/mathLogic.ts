@@ -78,7 +78,15 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
  * Sayısal Mantık Bilmeceleri (Gizemli Sayılar) Yerel Üretici
  */
 export const generateOfflineNumberLogicRiddles = async (options: GeneratorOptions): Promise<NumberLogicRiddleData[]> => {
-    const { worksheetCount, numberRange = '1-50', itemCount = 6, gridSize = 3, _difficulty } = options as Record<string, unknown>;
+    const customSettings = (options as any).numberLogicRiddles || {};
+    const { 
+        worksheetCount = 1, 
+        numberRange = '1-50', 
+        itemCount = customSettings.itemCount || 6, 
+        gridSize = customSettings.gridSize || 3, 
+        _difficulty 
+    } = options as Record<string, unknown>;
+    
     const pages: NumberLogicRiddleData[] = [];
 
     let [min, max] = (numberRange as string).split('-').map(Number);
@@ -123,7 +131,7 @@ export const generateOfflineNumberLogicRiddles = async (options: GeneratorOption
                 riddle: selectedHints.map(h => h.text).join(' '),
                 riddleParts: selectedHints as any,
                 boxes: Array.from({length: 5}, () => [getRandomInt(min, max), getRandomInt(min, max)]),
-                visualDistraction: Array.from({length: 6}, () => getRandomInt(min, max)),
+                visualDistraction: customSettings.showVisualDistraction !== false ? Array.from({length: 8}, () => getRandomInt(min, max)) : [],
                 options: shuffle([String(target), ...Array.from(distractors)]),
                 answer: String(target),
                 answerValue: target
@@ -134,7 +142,15 @@ export const generateOfflineNumberLogicRiddles = async (options: GeneratorOption
             title: "Sayı Dedektifi: Gizemli Sayılar",
             instruction: "İpuçlarını incele, tüm şartları sağlayan tek sayıyı bul!",
             sumTarget: total,
-            puzzles
+            puzzles,
+            settings: {
+                difficulty: options.difficulty,
+                itemCount: itemCount as number,
+                gridSize: gridSize as number,
+                showIcons: customSettings.showIcons !== false,
+                showVisualDistraction: customSettings.showVisualDistraction !== false,
+                aestheticMode: customSettings.aestheticMode || 'standard'
+            }
         });
     }
     return pages;
