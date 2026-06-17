@@ -303,6 +303,7 @@ export interface DirectionalCodeReadingData extends BaseActivityData {
         obstacleDensity: number;
         cipherType: 'arrows' | 'letters' | 'colors' | string;
         puzzleCount?: number;
+        codeLength?: number;
         aestheticMode?: 'standard' | 'premium' | 'glassmorphism' | 'ultra-compact';
         compactMode?: boolean;
     };

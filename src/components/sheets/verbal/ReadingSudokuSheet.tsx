@@ -8,22 +8,6 @@ export const ReadingSudokuSheet = ({ data }: { data: ReadingSudokuData }) => {
   const isBig = size > 4;
   const symbols = data.symbols || [];
 
-  const getSymbolColor = (idx: number) => {
-    const colors = [
-      'from-violet-500 to-purple-600',
-      'from-emerald-500 to-teal-600',
-      'from-amber-500 to-orange-600',
-      'from-rose-500 to-pink-600',
-      'from-cyan-500 to-blue-600',
-      'from-fuchsia-500 to-pink-600',
-      'from-lime-500 to-green-600',
-      'from-sky-500 to-indigo-600',
-      'from-red-500 to-rose-600',
-      'from-teal-500 to-cyan-600'
-    ];
-    return colors[idx % colors.length];
-  };
-
   return (
     <div className="flex flex-col bg-white font-lexend text-black relative overflow-visible">
       <div className="px-6 pt-6 print:px-0 print:pt-0">
@@ -35,51 +19,28 @@ export const ReadingSudokuSheet = ({ data }: { data: ReadingSudokuData }) => {
       </div>
 
       <div className="px-6 pb-6 print:px-0 print:pb-0 mt-6 print:mt-2 space-y-6 print:space-y-3">
-        <div className="bg-gradient-to-br from-zinc-900 via-zinc-800 to-zinc-900 rounded-3xl p-6 print:p-3 shadow-2xl border border-zinc-700/50">
-          <div className="flex items-center gap-3 mb-5 print:mb-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
-              <span className="text-white text-sm font-black">🎯</span>
-            </div>
-            <h5 className="text-[11px] font-black uppercase tracking-[0.25em] text-indigo-400">
-              Sembol Havuzu
-            </h5>
-          </div>
-
-          <div className={`grid ${symbols.length <= 4 ? 'grid-cols-4' : symbols.length <= 6 ? 'grid-cols-3' : 'grid-cols-4'} gap-3 print:gap-1.5 max-w-xl`}>
-            {symbols.map((sym, idx) => (
-              <div
-                key={idx}
-                className="group relative"
-              >
-                <div className={`
-                  aspect-square rounded-2xl flex items-center justify-center
-                  bg-gradient-to-br ${getSymbolColor(idx)}
-                  shadow-lg shadow-black/20 border border-white/10
-                  transform transition-all duration-200 hover:scale-105 hover:shadow-xl
-                  ${isBig ? 'p-1.5' : 'p-3'}
+        <div className="flex items-center gap-2 print:gap-1">
+          {symbols.map((sym, idx) => (
+            <div
+              key={idx}
+              className={`
+                border border-zinc-300 flex items-center justify-center rounded-md
+                ${isBig ? 'w-12 h-12' : 'w-20 h-20'}
+              `}
+              style={{ fontFamily: data.settings.fontFamily }}
+            >
+              {sym.imagePrompt ? (
+                <span className="font-black text-zinc-500 text-sm">{sym.value}</span>
+              ) : (
+                <span className={`
+                  font-black text-zinc-600 select-none
+                  ${isBig ? 'text-base' : 'text-2xl'}
                 `}>
-                  {sym.imagePrompt ? (
-                    <div className="w-full h-full flex items-center justify-center text-white text-lg">
-                      <span>{sym.value}</span>
-                    </div>
-                  ) : (
-                    <span className="text-white font-black tracking-tight select-none"
-                      style={{
-                        fontSize: isBig ? 'clamp(0.875rem, 2vw, 1.25rem)' : 'clamp(1rem, 2.5vw, 1.75rem)',
-                        fontFamily: data.settings.fontFamily
-                      }}>
-                      {sym.value}
-                    </span>
-                  )}
-                </div>
-                {sym.label && sym.label !== sym.value && (
-                  <span className="block text-center text-[8px] font-bold text-zinc-500 mt-1 truncate uppercase tracking-wide">
-                    {sym.label}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
+                  {sym.value}
+                </span>
+              )}
+            </div>
+          ))}
         </div>
 
         <div className="flex items-center justify-center">

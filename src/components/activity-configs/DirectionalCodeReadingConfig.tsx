@@ -102,6 +102,40 @@ export const DirectionalCodeReadingConfig: React.FC<ConfigProps> = ({ options, o
                                 className="w-full h-1.5 bg-zinc-100 dark:bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-indigo-600"
                             />
                         </div>
+
+                        <div className="col-span-2">
+                            <div className="flex justify-between items-center text-[10px] font-black text-zinc-500 uppercase mb-2">
+                                <span>Hedef Şifre Uzunluğu</span>
+                                <span className="text-indigo-600">{options.codeLength || 15} Adım</span>
+                            </div>
+                            <div className="relative pt-1">
+                                <div className="flex justify-between text-[7px] font-bold text-zinc-300 uppercase tracking-tighter mb-1 px-0.5">
+                                    <span>Kısa (5)</span>
+                                    <span>Standart (15)</span>
+                                    <span>Orta (25)</span>
+                                    <span>Uzun (35)</span>
+                                    <span>Maraton (50)</span>
+                                </div>
+                                <input
+                                    type="range" min={5} max={50} step={1}
+                                    value={options.codeLength || 15}
+                                    onChange={e => onChange('codeLength', parseInt(e.target.value))}
+                                    className="w-full h-2 bg-gradient-to-r from-emerald-200 via-indigo-200 to-rose-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                                />
+                                <div className="flex justify-between text-[8px] text-zinc-400 font-bold mt-1">
+                                    <span className="text-emerald-500">🟢 Kolay</span>
+                                    <span className="text-amber-500">🟡 Orta</span>
+                                    <span className="text-rose-500">🔴 Zorlayıcı</span>
+                                </div>
+                            </div>
+                            <p className="text-[8px] text-zinc-400 mt-2 leading-relaxed">
+                                <span className="font-black text-indigo-500">Bilişsel Yük:</span>{' '}
+                                {(options.codeLength || 15) <= 10 ? 'Düşük — Kısa süreli bellek hafif yüklenir.' :
+                                 (options.codeLength || 15) <= 20 ? 'Normal — Standart dikkat süresi ve sıralı işlemleme.' :
+                                 (options.codeLength || 15) <= 35 ? 'Yüksek — İleri düzey çalışma belleği ve planlama gerektirir.' :
+                                 'Çok Yüksek — Üst düzey yönetici fonksiyonları ve uzun süreli odaklanma gerektirir.'}
+                            </p>
+                        </div>
                     </div>
 
                     {/* Ultra Compact Mode Toggle */}
