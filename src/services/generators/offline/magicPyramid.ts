@@ -64,7 +64,8 @@ export const generateOfflineMagicPyramid = async (options: GeneratorOptions): Pr
             title: `${step}'er Sayma Piramidi`,
             instruction: `Yukarıdan aşağıya doğru ritmik sayarak in ve doğru yolu bul.`,
             instructionPrefix: `${step}'er ritmik sayma`,
-            pyramids: pagePyramids
+            pyramids: pagePyramids,
+            theme: customSettings.theme || 'classic'
         });
     }
 

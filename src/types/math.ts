@@ -419,6 +419,7 @@ export interface MagicPyramidData extends BaseActivityData {
     correctPath: number[];
   }[];
   instructionPrefix?: string;
+  theme?: string;
 }
 
 export interface ApartmentResident {
