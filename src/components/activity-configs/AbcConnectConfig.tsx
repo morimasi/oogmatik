@@ -32,13 +32,19 @@ const CompactToggleGroup = ({ label, selected, onChange, options }: ToggleGroupP
 );
 
 export const AbcConnectConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: keyof GeneratorOptions, v: unknown) => void }) => {
+    const o = (options as any).abcConnect || {};
+    
+    const update = (key: string, val: unknown) => {
+        onChange('abcConnect' as any, { ...o, [key]: val });
+    };
+
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
             <div className="p-5 bg-cyan-50/30 dark:bg-cyan-900/10 rounded-[2.5rem] border border-cyan-100 dark:border-cyan-800/30 shadow-sm">
                 <CompactToggleGroup
                     label="Eşleştirme Türü (Varyant)"
-                    selected={options.variant || 'roman'}
-                    onChange={(v: unknown) => onChange('variant', v as string)}
+                    selected={o.variant || 'roman'}
+                    onChange={(v: unknown) => update('variant', v as string)}
                     options={[
                         { value: 'roman', label: 'Romen' },
                         { value: 'case', label: 'Harf' },
@@ -51,8 +57,8 @@ export const AbcConnectConfig = ({ options, onChange }: { options: GeneratorOpti
             <div className="p-5 bg-zinc-50 dark:bg-zinc-800/50 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 space-y-5 shadow-inner">
                 <CompactToggleGroup
                     label="Izgara Boyutu"
-                    selected={options.gridSize || 5}
-                    onChange={(v: unknown) => onChange('gridSize', v as number)}
+                    selected={o.gridSize || 5}
+                    onChange={(v: unknown) => update('gridSize', v as number)}
                     options={[
                         { value: 4, label: '4x4' },
                         { value: 5, label: '5x5' },
@@ -63,8 +69,8 @@ export const AbcConnectConfig = ({ options, onChange }: { options: GeneratorOpti
 
                 <CompactToggleGroup
                     label="Yol Karmaşıklığı"
-                    selected={options.density || 'medium'}
-                    onChange={(v: unknown) => onChange('density', v as string)}
+                    selected={o.density || 'medium'}
+                    onChange={(v: unknown) => update('density', v as string)}
                     options={[
                         { value: 'low', label: 'Seyrek' },
                         { value: 'medium', label: 'Normal' },

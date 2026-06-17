@@ -338,9 +338,22 @@ export const generateLogicGridPuzzleFromAI = async (options: GeneratorOptions): 
     })) as any;
 };
 export const generateAbcConnectFromAI = async (options: GeneratorOptions): Promise<AbcConnectData[]> => {
-    const { difficulty, worksheetCount, gridSize = 5 } = options;
-    const prompt = `"${difficulty}" seviyesinde "ABC Bağlama" bulmacası. ${gridSize}x${gridSize} bir ızgara üzerinde rakamları (veya Romen rakamlarını) eşleriyle çizgiler kesişmeden birleştirecek bir yapı kurgula. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
-    const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, gridDim: { type: 'INTEGER', description: 'Izgara boyutu' }, variant: { type: 'STRING', description: 'Bulmaca çeşidi', enum: ['roman', 'case', 'dots', 'math'] }, paths: { type: 'ARRAY', description: 'Bağlantı yolları', items: { type: 'OBJECT', properties: { start: { type: 'OBJECT', description: 'Başlangıç noktası', properties: { x: { type: 'INTEGER', description: 'Sütun indeksi' }, y: { type: 'INTEGER', description: 'Satır indeksi' } } }, end: { type: 'OBJECT', description: 'Bitiş noktası', properties: { x: { type: 'INTEGER', description: 'Sütun indeksi' }, y: { type: 'INTEGER', description: 'Satır indeksi' } } }, value: { type: 'STRING', description: 'Bağlantı değeri' }, matchValue: { type: 'STRING', description: 'Eşleşen değer' }, id: { type: 'STRING', description: 'Benzersiz kimlik' } }, required: ["start", "end", "value", "matchValue", "id"] } } }, required: ["title", "instruction", "gridDim", "paths"] };
+    const { difficulty, worksheetCount } = options;
+    const customSettings = (options as any).abcConnect || {};
+    const size = customSettings.gridSize || 5;
+    const variant = customSettings.variant || 'roman';
+    
+    const variantDesc = variant === 'roman' ? 'Romen rakamları ile eşleştirme' : 
+                        variant === 'case' ? 'Büyük/küçük harf eşleştirme' : 
+                        variant === 'dots' ? 'Nokta sayıları ile eşleştirme' : 
+                        'Basit toplama işlemleri ile eşleştirme';
+
+    const prompt = `"${difficulty}" seviyesinde ${size}x${size} boyutunda "ABC Bağlama" (ABC Connect) üret. 
+    Varyant: ${variantDesc}.
+    Kural: Her sembolün ızgara üzerinde bir başlangıç ve bir bitiş noktası olmalı.
+    ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
+    
+    const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING' }, instruction: { type: 'STRING' }, pedagogicalNote: { type: 'STRING' }, gridDim: { type: 'INTEGER' }, variant: { type: 'STRING', enum: ['roman', 'case', 'dots', 'math'] }, paths: { type: 'ARRAY', items: { type: 'OBJECT', properties: { id: { type: 'STRING' }, start: { type: 'OBJECT', properties: { x: { type: 'INTEGER' }, y: { type: 'INTEGER' } } }, end: { type: 'OBJECT', properties: { x: { type: 'INTEGER' }, y: { type: 'INTEGER' } } }, value: { type: 'STRING' }, matchValue: { type: 'STRING' } } } } }, required: ["title", "instruction", "gridDim", "paths"] };
     const schema = { type: 'ARRAY', items: singleSchema };
     
     const rawResult = await generateWithSchema(prompt, schema);
@@ -350,8 +363,8 @@ export const generateAbcConnectFromAI = async (options: GeneratorOptions): Promi
     return result.filter(p => p && typeof p === 'object').map((p: any) => ({
         ...p,
         title: p.title || 'ABC Bağlama',
-        instruction: p.instruction || 'Aynı karakterleri birbirine bağla.',
-        paths: Array.isArray(p.paths) ? p.paths : []
+        gridDim: size,
+        variant: variant
     })) as any;
 };
 
