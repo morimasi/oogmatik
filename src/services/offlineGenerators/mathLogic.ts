@@ -22,9 +22,11 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
         const puzzles = [];
         for (let i = 0; i < ic; i++) {
             const selectedObjs = getRandomItems(objects, 3);
-            const val1 = getRandomInt(2, 10);
-            const val2 = getRandomInt(2, 10);
-            const val3 = getRandomInt(2, 10);
+            
+            // Generate values that ensure positive results and interesting puzzles
+            const val1 = getRandomInt(5, 15);
+            const val2 = getRandomInt(2, val1 - 1); // Ensure val1 > val2 for subtraction
+            const val3 = getRandomInt(1, 10);
 
             puzzles.push({
                 id: `puzzle-${i}`,
@@ -35,17 +37,17 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
                 ],
                 equations: [
                     {
-                        leftSide: [{ objectName: selectedObjs[0].name, multiplier: 2 }],
+                        leftSide: [{ objectName: selectedObjs[0].name, multiplier: 3 }],
                         operator: '+',
-                        rightSide: val1 * 2
+                        rightSide: val1 * 3
                     },
                     {
                         leftSide: [
                             { objectName: selectedObjs[0].name, multiplier: 1 },
-                            { objectName: selectedObjs[1].name, multiplier: 1 }
+                            { objectName: selectedObjs[1].name, multiplier: 2 }
                         ],
                         operator: '+',
-                        rightSide: val1 + val2
+                        rightSide: val1 + (val2 * 2)
                     },
                     {
                         leftSide: [
@@ -56,14 +58,16 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
                         rightSide: val2 - val3
                     }
                 ],
-                finalQuestion: `${selectedObjs[0].name} + ${selectedObjs[2].name} = ?`,
-                answer: (val1 + val3).toString()
+                // More complex final question using combinations of discovered values
+                finalQuestion: `${selectedObjs[0].name} + ${selectedObjs[1].name} - ${selectedObjs[2].name} = ?`,
+                answer: ((val1 + val2) - val3).toString()
             });
         }
 
         pages.push({
-            title: "Matematiksel Gizem",
-            instruction: "Nesnelerin değerlerini denklemlerden bul ve son işlemi çöz!",
+            title: "Matematiksel Mantık Bulmacası",
+            instruction: "Tablodaki nesnelerin sayısal değerlerini denklemleri çözerek bul ve son işlemi tamamla!",
+            pedagogicalNote: "Bu çalışma, cebirsel düşüncenin temelini oluşturan sembolik temsil ve denklem çözme becerilerini geliştirir.",
             puzzles
         });
     }

@@ -28,6 +28,7 @@ const getObjectEmoji = (name: string): string => {
 const EquationRow = ({ eq, objects, compact = false }: { eq: Record<string, unknown>; objects: Array<Record<string, unknown>>; compact?: boolean }) => {
     const leftSide = (eq.leftSide as Array<Record<string, unknown>>) || [];
     const rightSide = eq.rightSide;
+    const operator = (eq.operator as string) || '+';
 
     return (
         <div className={`flex items-center justify-center gap-1 print:gap-0.5 py-0.5 ${compact ? 'border-b border-zinc-100/50' : 'border-b border-zinc-100'} last:border-0`}>
@@ -39,7 +40,7 @@ const EquationRow = ({ eq, objects, compact = false }: { eq: Record<string, unkn
 
                     return (
                         <React.Fragment key={i}>
-                            {i > 0 && <span className="text-zinc-400 font-bold text-xs print:text-[10px] mx-0.5">+</span>}
+                            {i > 0 && <span className="text-zinc-400 font-bold text-xs print:text-[10px] mx-0.5">{operator}</span>}
                             <div className="flex items-center gap-0.5">
                                 {multiplier > 1 && (
                                     <span className={`font-black text-indigo-600 leading-none ${compact ? 'text-[9px] print:text-[7px]' : 'text-xs print:text-[9px]'}`}>

@@ -196,7 +196,7 @@ export const generateConnectedPath = (dim: number, complexity: number): [number,
 };
 
 const countSolutions = (puzzle: (number | null)[][], size: number, boxH: number, boxW: number, limit = 2): number => {
-    const grid = puzzle.map(row => [...row]) as number[][];
+    const grid = puzzle.map(row => row.map(cell => cell === null ? 0 : cell));
     let count = 0;
 
     const isValid = (r: number, c: number, num: number) => {
@@ -233,7 +233,7 @@ const countSolutions = (puzzle: (number | null)[][], size: number, boxH: number,
     return count;
 };
 
-export const generateSudokuGrid = (n: number, difficulty: string): (number | null)[][] => {
+export const generateSudokuGrid = (n: number, difficulty: string): { puzzle: (number | null)[][], solution: number[][] } => {
     const size = n;
     const boxH = size === 9 ? 3 : (size === 6 ? 2 : 2);
     const boxW = size === 9 ? 3 : (size === 6 ? 3 : 2);
@@ -264,6 +264,8 @@ export const generateSudokuGrid = (n: number, difficulty: string): (number | nul
 
     solve(0, 0);
 
+    const solution = grid.map(row => [...row]);
+
     const targetRemovals = difficulty === 'Başlangıç' ? Math.floor(size * size * 0.35)
         : difficulty === 'Orta' ? Math.floor(size * size * 0.5)
         : Math.floor(size * size * 0.65);
@@ -284,7 +286,7 @@ export const generateSudokuGrid = (n: number, difficulty: string): (number | nul
             puzzle[r][c] = backup;
         }
     }
-    return puzzle;
+    return { puzzle, solution };
 };
 
 export const generateLatinSquare = (n: number): number[][] => {

@@ -80,8 +80,8 @@ export const BrainTeasersSheet: React.FC<BrainTeasersSheetProps> = ({ data, sett
         </div>
       )}
 
-      {/* Puzzles Grid — 2 columns, dense */}
-      <div className="grid grid-cols-2 gap-2 print:gap-1 flex-1 content-start mt-2">
+      {/* Puzzles Grid — 2 or 3 columns based on count, dense */}
+      <div className={`grid ${puzzles.length > 10 ? 'grid-cols-3' : 'grid-cols-2'} gap-2 print:gap-1 flex-1 content-start mt-2`}>
         {puzzles.map((puzzle, idx) => {
           const cat = (puzzle.category || 'Mantık') as CategoryKey;
           const style = CATEGORY_STYLE[cat] ?? DEFAULT_STYLE;
@@ -90,47 +90,37 @@ export const BrainTeasersSheet: React.FC<BrainTeasersSheetProps> = ({ data, sett
           return (
             <div
               key={puzzle.id || idx}
-              className={`rounded-xl border-[1.5px] ${style.bg} ${style.border} overflow-hidden flex flex-col h-full shadow-sm`}
+              className={`rounded-lg border-[1.5px] ${style.bg} ${style.border} overflow-hidden flex flex-col h-full shadow-sm`}
             >
               {/* Card Header */}
-              <div className={`flex items-center justify-between px-3 py-1 print:px-2 print:py-0.5 ${style.badge} bg-opacity-10 shrink-0 border-b ${style.border}`}>
-                <div className="flex items-center gap-1.5">
-                  <span className={`text-[9px] print:text-[7px] font-black uppercase tracking-widest text-white px-2 py-0.5 rounded-full ${style.badge}`}>
+              <div className={`flex items-center justify-between px-2 py-0.5 print:px-1.5 print:py-0 ${style.badge} bg-opacity-10 shrink-0 border-b ${style.border}`}>
+                <div className="flex items-center gap-1">
+                  <span className={`text-[7px] print:text-[6px] font-black uppercase tracking-widest text-white px-1.5 py-0 rounded-full ${style.badge}`}>
                     {cat}
                   </span>
-                  <span className="text-[10px] print:text-[8px] leading-none">{renderStars(stars)}</span>
+                  <span className="text-[8px] print:text-[6px] leading-none">{renderStars(stars)}</span>
                 </div>
-                <span className="text-[10px] print:text-[8px] font-black text-zinc-400">#{idx + 1}</span>
+                <span className="text-[8px] print:text-[6px] font-black text-zinc-400">#{idx + 1}</span>
               </div>
 
               {/* Card Body */}
-              <div className="px-3 py-2 print:px-2 print:py-1 flex flex-col flex-1 gap-1 justify-between">
+              <div className="px-2 py-1.5 print:px-1.5 print:py-0.5 flex flex-col flex-1 gap-0.5 justify-between">
                 <div>
-                   {/* Visual emoji */}
-                   {puzzle.visual && typeof puzzle.visual === 'string' && (
-                     <div className="text-lg print:text-base mb-1">{puzzle.visual}</div>
-                   )}
-
                    {/* Question */}
                    <p
-                     className="text-sm print:text-[10.5px] font-bold text-zinc-800 leading-tight"
-                     style={{ lineHeight: settings.lineHeight }}
+                     className="text-xs print:text-[9.5px] font-bold text-zinc-800 leading-[1.1]"
+                     style={{ lineHeight: 1.1 }}
                    >
                      {puzzle.q}
                    </p>
                 </div>
 
-                <div className="mt-auto flex flex-col gap-1 shrink-0 pt-1 border-t border-zinc-100/50">
+                <div className="mt-auto flex flex-col gap-0.5 shrink-0 pt-0.5 border-t border-zinc-100/50">
                   {/* Answer line */}
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[8px] print:text-[7px] font-bold text-zinc-300 uppercase tracking-wider whitespace-nowrap">Cevap:</span>
-                    <div className="flex-1 border-b border-dashed border-zinc-300"></div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[7px] print:text-[6px] font-bold text-zinc-300 uppercase tracking-wider whitespace-nowrap">Cevap:</span>
+                    <div className="flex-1 border-b border-dashed border-zinc-200"></div>
                   </div>
-
-                  {/* Hint */}
-                  {puzzle.hint && (
-                    <p className="text-[9px] print:text-[7.5px] italic text-zinc-400 font-medium">💡 {puzzle.hint}</p>
-                  )}
                 </div>
               </div>
             </div>

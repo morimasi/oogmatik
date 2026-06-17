@@ -8,449 +8,188 @@ interface Props {
 export const OddEvenSudokuConfig: React.FC<Props> = ({ options, onChange }) => {
   const o = (options?.['oddEvenSudoku'] || {}) as Record<string, unknown>;
   return (
-    <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
-        <h4 className="font-bold">Odd Even Sudoku</h4>
+    <div className="space-y-6 p-4">
+      <div className="pb-3 border-b border-zinc-100">
+        <h4 className="font-black text-indigo-900 uppercase tracking-tight text-lg">Tek / Çift Sudoku</h4>
+        <p className="text-[10px] text-zinc-500 font-medium">Mantık ve sayı kısıtlamalı ultra premium sudoku</p>
       </div>
-      <div>
-        <label className="block text-xs font-bold mb-2">Grid Boyutu</label>
-        <select
-          value={(o.gridSize as number) || 4}
-          onChange={(e) =>
-            onChange({ ...options, oddEvenSudoku: { ...o, gridSize: Number(e.target.value) } })
-          }
-          className="w-full p-2 border-2 rounded-lg"
-        >
-          <option value={4}>4x4</option>
-          <option value={6}>6x6</option>
-          <option value={9}>9x9</option>
-        </select>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Grid Boyutu</label>
+          <select
+            value={(o.gridSize as number) || 4}
+            onChange={(e) =>
+              onChange({ ...options, oddEvenSudoku: { ...o, gridSize: Number(e.target.value) } })
+            }
+            className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl p-2.5 text-sm font-bold focus:border-indigo-500 transition-colors"
+          >
+            <option value={4}>4x4 (Standart)</option>
+            <option value={6}>6x6 (Düşündürücü)</option>
+            <option value={9}>9x9 (Uzman)</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Görsel Stil</label>
+          <select
+            value={(o.aestheticMode as string) || 'premium'}
+            onChange={(e) =>
+              onChange({ ...options, oddEvenSudoku: { ...o, aestheticMode: e.target.value } })
+            }
+            className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl p-2.5 text-sm font-bold focus:border-indigo-500 transition-colors"
+          >
+            <option value="standard">Standart</option>
+            <option value="premium">Premium Glass</option>
+            <option value="high-contrast">Yüksek Kontrast</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="space-y-3 pt-2">
+        <label className="flex items-center gap-3 p-3 bg-indigo-50/50 rounded-xl cursor-pointer border border-indigo-100/50 hover:bg-indigo-50 transition-colors">
+          <input
+            type="checkbox"
+            checked={Boolean(o.showPositionNumbers ?? true)}
+            onChange={(e) => onChange({ ...options, oddEvenSudoku: { ...o, showPositionNumbers: e.target.checked } })}
+            className="w-5 h-5 rounded text-indigo-600 focus:ring-indigo-500 border-zinc-300"
+          />
+          <span className="text-sm font-bold text-indigo-900">
+            Klavuz Numaraları Göster
+            <span className="block text-[10px] text-indigo-400 font-normal">Zorluğu azaltmak için koordinat ekler.</span>
+          </span>
+        </label>
       </div>
     </div>
   );
 };
 
-export const KendokuConfig: React.FC<Props> = ({ options, onChange }) => {
-  const o = (options?.['kendoku'] || {}) as Record<string, unknown>;
+export const CapsuleGameConfig: React.FC<Props> = ({ options, onChange }) => {
+  const o = (options?.['capsuleGame'] || {}) as Record<string, unknown>;
   return (
-    <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
-        <h4 className="font-bold">Kendoku</h4>
+    <div className="space-y-6 p-4">
+      <div className="pb-3 border-b border-zinc-100">
+        <h4 className="font-black text-emerald-900 uppercase tracking-tight text-lg">Kapsül Oyunu</h4>
+        <p className="text-[10px] text-zinc-500 font-medium">Bölge toplamları ve matris mantığı</p>
       </div>
-      <div>
-        <label className="block text-xs font-bold mb-2">Grid Boyutu</label>
-        <select
-          value={(o.gridSize as number) || 4}
-          onChange={(e) =>
-            onChange({ ...options, kendoku: { ...o, gridSize: Number(e.target.value) } })
-          }
-          className="w-full p-2 border-2 rounded-lg"
-        >
-          <option value={4}>4x4</option>
-          <option value={5}>5x5</option>
-          <option value={6}>6x6</option>
-        </select>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Matris Boyutu</label>
+          <select
+            value={(o.gridSize as number) || 4}
+            onChange={(e) =>
+              onChange({ ...options, capsuleGame: { ...o, gridSize: Number(e.target.value) } })
+            }
+            className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl p-2.5 text-sm font-bold focus:border-emerald-500 transition-colors"
+          >
+            <option value={3}>3x3 (Başlangıç)</option>
+            <option value={4}>4x4 (Orta Seviye)</option>
+            <option value={5}>5x5 (Zorlu)</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Sayı Seti</label>
+          <select
+            value={(o.numberSet as string) || 'mixed'}
+            onChange={(e) =>
+              onChange({ ...options, capsuleGame: { ...o, numberSet: e.target.value } })
+            }
+            className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl p-2.5 text-sm font-bold focus:border-emerald-500 transition-colors"
+          >
+            <option value="mixed">Karışık (1-10)</option>
+            <option value="even">Sadece Çiftler</option>
+            <option value="odd">Sadece Tekler</option>
+            <option value="prime">Asal Sayılar</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100/50">
+        <h5 className="text-[10px] font-black text-emerald-800 uppercase mb-3 tracking-widest">Tema Modları</h5>
+        <div className="grid grid-cols-3 gap-2">
+          {['premium', 'space', 'hazine'].map(theme => (
+            <button
+              key={theme}
+              onClick={() => onChange({ ...options, capsuleGame: { ...o, aestheticMode: theme } })}
+              className={`py-2 px-1 rounded-lg text-[10px] font-black uppercase border-2 transition-all ${
+                (o.aestheticMode || 'premium') === theme 
+                ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200 scale-105' 
+                : 'bg-white border-zinc-100 text-zinc-400 hover:border-emerald-200'
+              }`}
+            >
+              {theme === 'premium' ? 'Kristal' : theme === 'space' ? 'Galaksi' : 'Antik'}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
 };
 
-export const NumberPyramidConfig: React.FC<Props> = ({ options, onChange }) => {
-  const o = (options?.['numberPyramid'] || {}) as Record<string, unknown>;
+export const MagicPyramidConfig: React.FC<Props> = ({ options, onChange }) => {
+  const o = (options?.['magicPyramid'] || {}) as Record<string, unknown>;
   return (
-    <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
-        <h4 className="font-bold">Sayı Piramidi</h4>
+    <div className="space-y-6 p-4">
+      <div className="pb-3 border-b border-zinc-100">
+        <h4 className="font-black text-amber-900 uppercase tracking-tight text-lg">Sihirli Piramit</h4>
+        <p className="text-[10px] text-zinc-500 font-medium">Ritmik sayma ve görsel takip labirenti</p>
       </div>
-      <div>
-        <label className="block text-xs font-bold mb-2">Yükseklik</label>
-        <input
-          type="number"
-          value={(o.height as number) || 3}
-          onChange={(e) =>
-            onChange({ ...options, numberPyramid: { ...o, height: Number(e.target.value) } })
-          }
-          className="w-full p-2 border-2 rounded-lg"
-          min={2}
-          max={6}
-        />
-      </div>
-    </div>
-  );
-};
 
-export const VisualArithmeticConfig: React.FC<Props> = ({ options, onChange }) => {
-  const o = (options?.['visualArithmetic'] || {}) as Record<string, unknown>;
-  return (
-    <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
-        <h4 className="font-bold">Görsel Aritmetik</h4>
-      </div>
-      <div>
-        <label className="block text-xs font-bold mb-2">İşlem Türü</label>
-        <select
-          value={(o.operationType as string) || 'mixed'}
-          onChange={(e) =>
-            onChange({ ...options, visualArithmetic: { ...o, operationType: e.target.value } })
-          }
-          className="w-full p-2 border-2 rounded-lg"
-        >
-          <option value="mixed">Karışık</option>
-          <option value="add">Toplama</option>
-          <option value="subtract">Çıkarma</option>
-          <option value="multiply">Çarpma</option>
-        </select>
-      </div>
-    </div>
-  );
-};
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Katman Sayısı</label>
+          <select
+            value={(o.layers as number) || 5}
+            onChange={(e) =>
+              onChange({ ...options, magicPyramid: { ...o, layers: Number(e.target.value) } })
+            }
+            className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl p-2.5 text-sm font-bold focus:border-amber-500 transition-colors"
+          >
+            <option value={4}>4 Katman (Mini)</option>
+            <option value={5}>5 Katman (Standart)</option>
+            <option value={6}>6 Katman (Mega)</option>
+            <option value={7}>7 Katman (Giga)</option>
+          </select>
+        </div>
 
-export const NumberSenseConfig: React.FC<Props> = ({ options, onChange }) => {
-  const o = (options?.['numberSense'] || {}) as Record<string, unknown>;
-  return (
-    <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
-        <h4 className="font-bold">Sayı Hissi</h4>
+        <div>
+          <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Sayma Adımı</label>
+          <select
+            value={(o.step as number) || 2}
+            onChange={(e) =>
+              onChange({ ...options, magicPyramid: { ...o, step: Number(e.target.value) } })
+            }
+            className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl p-2.5 text-sm font-bold focus:border-amber-500 transition-colors"
+          >
+            <option value={1}>1'er sayma</option>
+            <option value={2}>2'şer sayma</option>
+            <option value={3}>3'er sayma</option>
+            <option value={4}>4'er sayma</option>
+            <option value={5}>5'er sayma</option>
+            <option value={10}>10'ar sayma</option>
+          </select>
+        </div>
       </div>
-      <div>
-        <label className="block text-xs font-bold mb-2">Zorluk</label>
-        <select
-          value={(o.difficulty as string) || 'Orta'}
-          onChange={(e) =>
-            onChange({ ...options, numberSense: { ...o, difficulty: e.target.value } })
-          }
-          className="w-full p-2 border-2 rounded-lg"
-        >
-          <option value="Başlangıç">Başlangıç</option>
-          <option value="Orta">Orta</option>
-          <option value="Zor">Zor</option>
-        </select>
-      </div>
-    </div>
-  );
-};
 
-export const LogicGridPuzzleConfig: React.FC<Props> = ({ options, onChange }) => {
-  const o = (options?.['logicGridPuzzle'] || {}) as Record<string, unknown>;
-  return (
-    <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
-        <h4 className="font-bold">Mantık Grid Bulmaca</h4>
-      </div>
       <div>
-        <label className="block text-xs font-bold mb-2">Öğe Sayısı</label>
-        <input
-          type="number"
-          value={(o.itemCount as number) || 3}
-          onChange={(e) =>
-            onChange({ ...options, logicGridPuzzle: { ...o, itemCount: Number(e.target.value) } })
-          }
-          className="w-full p-2 border-2 rounded-lg"
-          min={2}
-          max={5}
-        />
-      </div>
-    </div>
-  );
-};
-
-export const PunctuationMazeConfig: React.FC<Props> = ({ options, onChange }) => {
-  const o = (options?.['punctuationMaze'] || {}) as Record<string, unknown>;
-  return (
-    <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
-        <h4 className="font-bold">Noktalama Labirenti</h4>
-      </div>
-      <div>
-        <label className="block text-xs font-bold mb-2">Cümle Sayısı</label>
-        <input
-          type="number"
-          value={(o.sentenceCount as number) || 5}
-          onChange={(e) =>
-            onChange({
-              ...options,
-              punctuationMaze: { ...o, sentenceCount: Number(e.target.value) },
-            })
-          }
-          className="w-full p-2 border-2 rounded-lg"
-          min={3}
-          max={10}
-        />
-      </div>
-    </div>
-  );
-};
-
-export const MathStudioConfig: React.FC<Props> = ({ options, onChange }) => {
-  const o = (options?.['mathStudio'] || {}) as Record<string, unknown>;
-  return (
-    <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
-        <h4 className="font-bold">Matematik Stüdyosu</h4>
-      </div>
-      <div>
-        <label className="block text-xs font-bold mb-2">Zorluk</label>
-        <select
-          value={(o.difficulty as string) || 'Orta'}
-          onChange={(e) =>
-            onChange({ ...options, mathStudio: { ...o, difficulty: e.target.value } })
-          }
-          className="w-full p-2 border-2 rounded-lg"
-        >
-          <option value="Başlangıç">Başlangıç</option>
-          <option value="Orta">Orta</option>
-          <option value="Zor">Zor</option>
-        </select>
-      </div>
-    </div>
-  );
-};
-
-export const RealLifeMathProblemsConfig: React.FC<Props> = ({ options, onChange }) => {
-  const o = (options?.['realLifeMathProblems'] || {}) as Record<string, unknown>;
-  return (
-    <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
-        <h4 className="font-bold">Günlük Matematik</h4>
-      </div>
-      <div>
-        <label className="block text-xs font-bold mb-2">Problem Sayısı</label>
-        <input
-          type="number"
-          value={(o.problemCount as number) || 5}
-          onChange={(e) =>
-            onChange({
-              ...options,
-              realLifeMathProblems: { ...o, problemCount: Number(e.target.value) },
-            })
-          }
-          className="w-full p-2 border-2 rounded-lg"
-          min={3}
-          max={10}
-        />
-      </div>
-    </div>
-  );
-};
-
-export const AttentionDevelopmentConfig: React.FC<Props> = ({ options, onChange }) => {
-  const o = (options?.['attentionDevelopment'] || {}) as Record<string, unknown>;
-  return (
-    <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
-        <h4 className="font-bold">Dikkat Gelişimi</h4>
-      </div>
-      <div>
-        <label className="block text-xs font-bold mb-2">Süre (saniye)</label>
-        <input
-          type="number"
-          value={(o.duration as number) || 60}
-          onChange={(e) =>
-            onChange({
-              ...options,
-              attentionDevelopment: { ...o, duration: Number(e.target.value) },
-            })
-          }
-          className="w-full p-2 border-2 rounded-lg"
-          min={30}
-          max={180}
-        />
-      </div>
-    </div>
-  );
-};
-
-export const AnagramConfig: React.FC<Props> = ({ options, onChange }) => {
-  const o = (options?.['anagram'] || {}) as Record<string, unknown>;
-  return (
-    <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
-        <h4 className="font-bold">Anagram</h4>
-      </div>
-      <div>
-        <label className="block text-xs font-bold mb-2">Kelime Sayısı</label>
-        <input
-          type="number"
-          value={(o.wordCount as number) || 5}
-          onChange={(e) =>
-            onChange({ ...options, anagram: { ...o, wordCount: Number(e.target.value) } })
-          }
-          className="w-full p-2 border-2 rounded-lg"
-          min={3}
-          max={10}
-        />
-      </div>
-    </div>
-  );
-};
-
-export const CrosswordConfig: React.FC<Props> = ({ options, onChange }) => {
-  const o = (options?.['crossword'] || {}) as Record<string, unknown>;
-  return (
-    <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
-        <h4 className="font-bold">Çapraz Bulmaca</h4>
-      </div>
-      <div>
-        <label className="block text-xs font-bold mb-2">Izgara Boyutu</label>
-        <select
-          value={(o.gridSize as number) || 10}
-          onChange={(e) =>
-            onChange({ ...options, crossword: { ...o, gridSize: Number(e.target.value) } })
-          }
-          className="w-full p-2 border-2 rounded-lg"
-        >
-          <option value={8}>8x8</option>
-          <option value={10}>10x10</option>
-          <option value={12}>12x12</option>
-        </select>
-      </div>
-    </div>
-  );
-};
-
-export const OddOneOutConfig: React.FC<Props> = ({ options, onChange }) => {
-  const o = (options?.['oddOneOut'] || {}) as Record<string, unknown>;
-  return (
-    <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
-        <h4 className="font-bold">Farklı Olanı Bul</h4>
-      </div>
-      <div>
-        <label className="block text-xs font-bold mb-2">Öğe Sayısı</label>
-        <input
-          type="number"
-          value={(o.itemCount as number) || 4}
-          onChange={(e) =>
-            onChange({ ...options, oddOneOut: { ...o, itemCount: Number(e.target.value) } })
-          }
-          className="w-full p-2 border-2 rounded-lg"
-          min={3}
-          max={6}
-        />
-      </div>
-    </div>
-  );
-};
-
-export const ConceptMatchConfig: React.FC<Props> = ({ options, onChange }) => {
-  const o = (options?.['conceptMatch'] || {}) as Record<string, unknown>;
-  return (
-    <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
-        <h4 className="font-bold">Kavram Eşleştirme</h4>
-      </div>
-      <div>
-        <label className="block text-xs font-bold mb-2">Eşleşme Sayısı</label>
-        <input
-          type="number"
-          value={(o.matchCount as number) || 5}
-          onChange={(e) =>
-            onChange({ ...options, conceptMatch: { ...o, matchCount: Number(e.target.value) } })
-          }
-          className="w-full p-2 border-2 rounded-lg"
-          min={3}
-          max={8}
-        />
-      </div>
-    </div>
-  );
-};
-
-export const EstimationConfig: React.FC<Props> = ({ options, onChange }) => {
-  const o = (options?.['estimation'] || {}) as Record<string, unknown>;
-  return (
-    <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
-        <h4 className="font-bold">Tahmin</h4>
-      </div>
-      <div>
-        <label className="block text-xs font-bold mb-2">Zorluk</label>
-        <select
-          value={(o.difficulty as string) || 'Orta'}
-          onChange={(e) =>
-            onChange({ ...options, estimation: { ...o, difficulty: e.target.value } })
-          }
-          className="w-full p-2 border-2 rounded-lg"
-        >
-          <option value="Başlangıç">Başlangıç</option>
-          <option value="Orta">Orta</option>
-          <option value="Zor">Zor</option>
-        </select>
-      </div>
-    </div>
-  );
-};
-
-export const SpatialGridConfig: React.FC<Props> = ({ options, onChange }) => {
-  const o = (options?.['spatialGrid'] || {}) as Record<string, unknown>;
-  return (
-    <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
-        <h4 className="font-bold">Uzaysal Grid</h4>
-      </div>
-      <div>
-        <label className="block text-xs font-bold mb-2">Grid Boyutu</label>
-        <select
-          value={(o.gridSize as number) || 5}
-          onChange={(e) =>
-            onChange({ ...options, spatialGrid: { ...o, gridSize: Number(e.target.value) } })
-          }
-          className="w-full p-2 border-2 rounded-lg"
-        >
-          <option value={4}>4x4</option>
-          <option value={5}>5x5</option>
-          <option value={6}>6x6</option>
-        </select>
-      </div>
-    </div>
-  );
-};
-
-export const DotPaintingConfig: React.FC<Props> = ({ options, onChange }) => {
-  const o = (options?.['dotPainting'] || {}) as Record<string, unknown>;
-  return (
-    <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
-        <h4 className="font-bold">Nokta Boyama</h4>
-      </div>
-      <div>
-        <label className="block text-xs font-bold mb-2">Nokta Sayısı</label>
-        <input
-          type="number"
-          value={(o.dotCount as number) || 10}
-          onChange={(e) =>
-            onChange({ ...options, dotPainting: { ...o, dotCount: Number(e.target.value) } })
-          }
-          className="w-full p-2 border-2 rounded-lg"
-          min={5}
-          max={20}
-        />
-      </div>
-    </div>
-  );
-};
-
-export const ShapeSudokuConfig: React.FC<Props> = ({ options, onChange }) => {
-  const o = (options?.['shapeSudoku'] || {}) as Record<string, unknown>;
-  return (
-    <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
-        <h4 className="font-bold">Şekil Sudoku</h4>
-      </div>
-      <div>
-        <label className="block text-xs font-bold mb-2">Grid Boyutu</label>
-        <select
-          value={(o.gridSize as number) || 4}
-          onChange={(e) =>
-            onChange({ ...options, shapeSudoku: { ...o, gridSize: Number(e.target.value) } })
-          }
-          className="w-full p-2 border-2 rounded-lg"
-        >
-          <option value={4}>4x4</option>
-          <option value={6}>6x6</option>
-          <option value={9}>9x9</option>
-        </select>
+        <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Arka Plan Teması</label>
+        <div className="flex gap-2">
+          {['classic', 'forest', 'desert', 'ocean'].map(t => (
+            <button
+              key={t}
+              onClick={() => onChange({ ...options, magicPyramid: { ...o, theme: t } })}
+              className={`flex-1 py-3 rounded-xl border-2 font-black text-[10px] uppercase transition-all ${
+                (o.theme || 'classic') === t
+                ? 'bg-amber-500 border-amber-500 text-white shadow-lg'
+                : 'bg-zinc-50 border-zinc-100 text-zinc-400'
+              }`}
+            >
+              {t === 'classic' ? 'Kum' : t === 'forest' ? 'Orman' : t === 'desert' ? 'Güneş' : 'Buz'}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

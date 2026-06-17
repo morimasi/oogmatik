@@ -279,6 +279,17 @@ export const QueueOrderingSheet = ({ data, settings }: QueueOrderingSheetProps) 
                   {problem.questionText}
                 </span>
               </p>
+              
+              {/* Distractors / Options */}
+              {problem.options && (
+                <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-2">
+                  {problem.options.map((opt: string, oIdx: number) => (
+                    <div key={oIdx} className="bg-white/80 border border-slate-200 rounded-lg p-2 text-center text-sm font-bold text-slate-700 shadow-sm">
+                      {opt}. sıra
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Answer Box - Premium Design */}

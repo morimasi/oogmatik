@@ -54,12 +54,20 @@ export const AbcConnectSheet = ({ data }: { data: AbcConnectData }) => {
                         aspectRatio: '1/1'
                     }}
                 >
-                    {/* Background Dot Grid */}
-                    <div className="absolute inset-0 pointer-events-none opacity-20" style={{
-                        backgroundImage: 'radial-gradient(circle, #64748b 2px, transparent 2.5px)',
+                    {/* Background Grid Lines */}
+                    <div className="absolute inset-0 pointer-events-none" style={{
+                        backgroundImage: `
+                            linear-gradient(to right, #cbd5e1 1px, transparent 1px),
+                            linear-gradient(to bottom, #cbd5e1 1px, transparent 1px)
+                        `,
                         backgroundSize: `${100 / gridDim}% ${100 / gridDim}%`,
-                        backgroundPosition: 'center center'
+                        backgroundPosition: '0 0',
+                        opacity: 0.5
                     }} />
+                    
+                    {/* Darker Grid Border for printing */}
+                    <div className="absolute inset-0 border border-slate-300 pointer-events-none print:border-slate-400" />
+
 
                     {Array.from({ length: gridDim * gridDim }).map((_, index) => {
                         const x = index % gridDim;

@@ -46,11 +46,11 @@ export const generateOfflineReadingSudoku = async (options: GeneratorOptions): P
                 : Array.from({ length: gridSize }, (_, i) => (i + 1).toString());
 
     return Array.from({ length: worksheetCount ?? 1 }, () => {
-        const rawGrid = generateSudokuGrid(gridSize, difficulty ?? 'Orta');
+        const { puzzle, solution: solvedNumbers } = generateSudokuGrid(gridSize, difficulty ?? 'Orta');
 
         // Map numbers to symbols
-        const mappedGrid = rawGrid.map(row => row.map(cell => cell ? selectedSymbols[cell - 1] : null));
-        const solution = rawGrid.map(row => row.map(cell => selectedSymbols[(cell || 1) - 1]));
+        const mappedGrid = puzzle.map(row => row.map(cell => cell ? selectedSymbols[cell - 1] : null));
+        const solution = solvedNumbers.map(row => row.map(cell => selectedSymbols[cell - 1]));
 
         return {
             title: "Dil ve Mantık Sudokusu",

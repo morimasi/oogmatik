@@ -2,8 +2,12 @@ import { OddEvenSudokuData, GeneratorOptions } from '../../../types';
 
 export const generateOfflineOddEvenSudoku = async (options: GeneratorOptions): Promise<OddEvenSudokuData[]> => {
     const { difficulty, worksheetCount } = options;
-    let size = 4;
-    if (difficulty === 'Zor' || difficulty === 'Uzman') size = 6;
+    const customSettings = (options as any).oddEvenSudoku || {};
+    
+    let size = customSettings.gridSize || 4;
+    if (!customSettings.gridSize) {
+        if (difficulty === 'Zor' || difficulty === 'Uzman') size = 6;
+    }
 
     const activities: OddEvenSudokuData[] = [];
 

@@ -87,7 +87,6 @@ export const generateOfflineQueueOrdering = async (options: GeneratorOptions): P
         // Difficulty based logically constrained scenario generation
         if (difficultyLevel === 'easy') {
             // Easy: Sadece 1 bilinmeyen, hemen önü veya arkası.
-            // totalPeople = 5 -> posA = 2, 3, veya 4 olabilir.
             const posA = Math.floor(Math.random() * (totalPeople - 2)) + 2; 
             const isBehind = Math.random() > 0.5;
             answer = isBehind ? posA + 1 : posA - 1;
@@ -95,70 +94,44 @@ export const generateOfflineQueueOrdering = async (options: GeneratorOptions): P
             people.push({ id: `person-${i}-0`, name: personA, position: posA, icon: '👦', clue: `Baştan ${posA}. sırada` });
             
             scenario = `${location.name}nde toplam ${totalPeople} kişi beklemektedir. `;
-            scenario += `Bilinenlere göre ${personA} sıranın baştan ${posA}. kişisidir. `;
-            scenario += `${questionPerson} ise ${personA}'nın hemen ${isBehind ? 'arkasında' : 'önünde'} durmaktadır. Buna göre,`;
+            scenario += `${personA} sıranın baştan ${posA}. kişisidir. `;
+            scenario += `${questionPerson} ise ${personA}'nın hemen ${isBehind ? 'arkasında' : 'önünde'} durmaktadır.`;
         } 
         else if (difficultyLevel === 'medium') {
             // Medium: 2 kişi verilip arası veya 2-3 adım sonrası.
-            const posA = Math.floor(Math.random() * (totalPeople - 4)) + 2; // e.g. 2
-            const offsetB = Math.random() > 0.5 ? 2 : 1; 
-            const posB = posA + offsetB; // e.g. 4
+            const posA = Math.floor(Math.random() * (totalPeople - 4)) + 2;
+            const offsetB = 2; 
+            const posB = posA + offsetB;
             
-            if (offsetB === 2 && Math.random() > 0.5) {
-                // Q is specifically between A and B
-                answer = posA + 1;
-                people.push({ id: `person-${i}-0`, name: personA, position: posA, icon: '👦', clue: `Baştan ${posA}. sırada` });
-                people.push({ id: `person-${i}-1`, name: personB, position: posB, icon: '👧', clue: `Baştan ${posB}. sırada` });
-                
-                scenario = `${location.name}nde toplam ${totalPeople} kişi beklemektedir. `;
-                scenario += `${personA} baştan ${posA}. sırada, ${personB} ise baştan ${posB}. sıradadır. `;
-                scenario += `${questionPerson}, ${personA} ile ${personB}'nin tam ortasında durmaktadır. Buna göre,`;
-            } else {
-                // Q is behind/front of A by exactly 2 or 3 steps.
-                const isBehind = Math.random() > 0.5;
-                const offsetQ = Math.floor(Math.random() * 2) + 2; // 2 or 3 steps
-                
-                answer = isBehind ? posA + offsetQ : posA - offsetQ;
-                
-                if (answer < 1) answer = posA + offsetQ;
-                if (answer > totalPeople) answer = posA - offsetQ;
-                
-                const finalIsBehind = answer > posA;
-                const finalOffset = Math.abs(answer - posA);
-
-                people.push({ id: `person-${i}-0`, name: personA, position: posA, icon: '👦', clue: `Baştan ${posA}. sırada` });
-                
-                scenario = `${location.name}nde toplam ${totalPeople} kişi beklemektedir. `;
-                scenario += `${personA} sıranın baştan ${posA}. kişisidir. `;
-                scenario += `${questionPerson}, ${personA}'nın ${finalOffset} sıra ${finalIsBehind ? 'arkasındadır' : 'önündedir'}. Buna göre,`;
-            }
+            answer = posA + 1;
+            people.push({ id: `person-${i}-0`, name: personA, position: posA, icon: '👦', clue: `Baştan ${posA}. sırada` });
+            people.push({ id: `person-${i}-1`, name: personB, position: posB, icon: '👧', clue: `Baştan ${posB}. sırada` });
+            
+            scenario = `${location.name}nde toplam ${totalPeople} kişi beklemektedir. `;
+            scenario += `${personA} baştan ${posA}. sırada, ${personB} ise baştan ${posB}. sıradadır. `;
+            scenario += `${questionPerson}, ${personA} ile ${personB}'nin tam ortasında durmaktadır.`;
         }
         else {
             // Hard / Expert: Sondan pozisyon hesaplamaları veya 3 adımlı zincir.
-            let answerFromEnd = Math.floor(Math.random() * (totalPeople - 3)) + 2; 
-            answer = totalPeople - answerFromEnd + 1; // Mutlak baştan pozisyon. 
-            // e.g. total=10, answerFromEnd=3 -> answer = 8.
+            const posA = Math.floor(Math.random() * (totalPeople - 5)) + 2;
+            const posB = posA + 2;
+            answer = posB + 1; // Question person is behind B
             
-            let posA = answer - 2; // A is 2 steps ahead of Q.
-            if (posA < 1) { // Sınır kontrolü (Boundary bug fix)
-                posA = 2;
-                answer = 4;
-                answerFromEnd = totalPeople - answer + 1;
-            }
-
             people.push({ id: `person-${i}-0`, name: personA, position: posA, icon: '👦', clue: `Baştan ${posA}. sırada` });
+            people.push({ id: `person-${i}-1`, name: personB, position: posB, icon: '👧' }); // Position hidden in scenario
             
-            const isQFromEnd = Math.random() > 0.5;
-
             scenario = `${location.name}nde toplam ${totalPeople} kişi beklemektedir. `;
             scenario += `${personA} sıranın baştan ${posA}. kişisidir. `;
-            
-            if (isQFromEnd) {
-                scenario += `${questionPerson} ise sıranın sondan ${answerFromEnd}. kişisidir. Buna göre,`;
-            } else {
-                scenario += `${questionPerson}, ${personA}'nın 2 sıra arkasında yer almaktadır. Buna göre,`;
-            }
+            scenario += `${personB}, ${personA}'nın iki sıra arkasındadır. `;
+            scenario += `${questionPerson} ise ${personB}'nin hemen arkasındadır.`;
         }
+
+        const distractors = new Set<number>();
+        while(distractors.size < 3) {
+            const d = Math.floor(Math.random() * totalPeople) + 1;
+            if (d !== answer) distractors.add(d);
+        }
+        const options_list = shuffle([answer, ...Array.from(distractors)]).map(String);
         
         problems.push({
             id: `problem-${i}`,
@@ -169,6 +142,7 @@ export const generateOfflineQueueOrdering = async (options: GeneratorOptions): P
             questionPerson,
             questionText,
             answer,
+            options: options_list,
             scenario,
             difficulty: difficultyLevel,
             steps: difficultyLevel === 'easy' ? 1 : difficultyLevel === 'medium' ? 2 : 3,

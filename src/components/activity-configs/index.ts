@@ -48,6 +48,12 @@ import { EsAnlamliKelimelerConfig } from './EsAnlamliKelimelerConfig';
 import { BoxMathConfig } from './BoxMathConfig';
 
 
+import { 
+  OddEvenSudokuConfig, 
+  MagicPyramidConfig, 
+  CapsuleGameConfig 
+} from './MathLogicConfigs';
+
 export const ActivityConfigRegistry: Record<string, any> = {
   [ActivityType.MATH_MEMORY_CARDS]: MathMemoryCardsConfig,
   [ActivityType.FIND_LETTER_PAIR]: FindLetterPairConfig,
@@ -96,6 +102,10 @@ export const ActivityConfigRegistry: Record<string, any> = {
   [ActivityType.MISSING_PARTS]: AdvancedMissingPartsConfig,
 
   [ActivityType.QUEUE_ORDERING]: QueueOrderingConfig,
+  
+  [ActivityType.ODD_EVEN_SUDOKU]: OddEvenSudokuConfig,
+  [ActivityType.MAGIC_PYRAMID]: MagicPyramidConfig,
+  [ActivityType.CAPSULE_GAME]: CapsuleGameConfig,
   // AUTONOM_CONFIG_REGISTRY_START
   // AUTONOM_CONFIG_REGISTRY_END
 };

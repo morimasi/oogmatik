@@ -2,20 +2,29 @@ import { NumberCapsuleData, GeneratorOptions } from '../../../types';
 
 export const generateOfflineCapsuleGame = async (options: GeneratorOptions): Promise<NumberCapsuleData[]> => {
   const { difficulty, worksheetCount = 1 } = options;
+  const customSettings = (options as any).capsuleGame || {};
+  
   // Single puzzle per page — use larger grid to fill A4
-  let size = 4;
-  if (difficulty === 'Kolay') size = 3;
-  if (difficulty === 'Orta') size = 4;
-  if (difficulty === 'Zor' || difficulty === 'Uzman') size = 5;
+  let size = customSettings.gridSize || 4;
+  if (!customSettings.gridSize) {
+    if (difficulty === 'Kolay') size = 3;
+    if (difficulty === 'Orta') size = 4;
+    if (difficulty === 'Zor' || difficulty === 'Uzman') size = 5;
+  }
 
   const activities: NumberCapsuleData[] = [];
 
   for (let c = 0; c < worksheetCount; c++) {
-    const useOdds = Math.random() > 0.5;
+    let useOdds = Math.random() > 0.5;
+    if (customSettings.numberSet === 'even') useOdds = false;
+    if (customSettings.numberSet === 'odd') useOdds = true;
+
     const puzzleGrid: (number | null)[][] = Array(size).fill(null).map(() => Array(size).fill(null));
     const solutionGrid: number[][] = Array(size).fill(0).map(() => Array(size).fill(0));
 
-    const baseNumbers = useOdds ? [1, 3, 5, 7, 9] : [2, 4, 6, 8, 10];
+    let baseNumbers = useOdds ? [1, 3, 5, 7, 9] : [2, 4, 6, 8, 10];
+    if (customSettings.numberSet === 'prime') baseNumbers = [2, 3, 5, 7, 11, 13, 17].slice(0, 5);
+    if (customSettings.numberSet === 'mixed') baseNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
     for (let i = 0; i < size; i++) {
       for (let j = 0; j < size; j++) {
@@ -94,7 +103,7 @@ export const generateOfflineCapsuleGame = async (options: GeneratorOptions): Pro
       settings: {
         difficulty,
         gridSize: size,
-        aestheticMode: 'premium',
+        aestheticMode: customSettings.aestheticMode || 'premium',
       },
     });
   }

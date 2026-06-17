@@ -85,11 +85,12 @@ export interface NumberCapsuleData extends BaseActivityData {
   grid?: (number | null)[][];
   rowTargets?: number[];
   colTargets?: number[];
-  settings?: {
-    difficulty?: string;
-    gridSize?: number;
-    aestheticMode?: 'standard' | 'premium' | 'uzay' | 'gizli' | 'hazine' | 'ultra-compact';
-  };
+    settings?: {
+      difficulty?: string;
+      gridSize?: number;
+      operation?: 'addition' | 'subtraction' | 'multiplication' | 'division';
+      aestheticMode?: 'standard' | 'premium' | 'space' | 'hazine' | 'ultra-compact' | 'crystal' | 'galaxy' | 'antique';
+    };
 }
 
 export interface OddEvenSudokuData extends BaseActivityData {
@@ -524,6 +525,7 @@ export interface QueueOrderingProblem {
   questionPerson: string; // Sorulan kişinin adı
   questionText: string; // "yunus kaçıncı sırada oturmaktadır?"
   answer: number; // Doğru cevap
+  options?: string[]; // Çoktan seçmeli seçenekler
   scenario: string; // Tam senaryo metni
   difficulty: 'easy' | 'medium' | 'hard' | 'expert';
   steps?: number; // Çözüm için gerekli adım sayısı

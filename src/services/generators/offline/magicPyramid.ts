@@ -2,17 +2,20 @@ import { MagicPyramidData, GeneratorOptions } from '../../../types';
 
 export const generateOfflineMagicPyramid = async (options: GeneratorOptions): Promise<MagicPyramidData[]> => {
     const { difficulty, worksheetCount } = options;
+    const customSettings = (options as any).magicPyramid || {};
     const activities: MagicPyramidData[] = [];
 
-    let layers = 5;
-    if (difficulty === 'Başlangıç') layers = 4;
-    if (difficulty === 'Zor' || difficulty === 'Uzman') layers = 6;
+    let layers = customSettings.layers || 5;
+    if (!customSettings.layers) {
+        if (difficulty === 'Başlangıç') layers = 4;
+        if (difficulty === 'Zor' || difficulty === 'Uzman') layers = 6;
+    }
 
     // A4'e sığacak şekilde, katman sayısına göre sayfa başına piramit sayısını belirliyoruz.
-    const pyramidsPerSheet = layers === 6 ? 4 : 6;
+    const pyramidsPerSheet = layers >= 6 ? 4 : 6;
 
     for (let c = 0; c < (worksheetCount || 0); c++) {
-        const step = Math.floor(Math.random() * 4) + 2;
+        const step = customSettings.step || Math.floor(Math.random() * 4) + 2;
         const pagePyramids = [];
 
         for (let p = 0; p < pyramidsPerSheet; p++) {

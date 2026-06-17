@@ -85,7 +85,7 @@ export const generateOfflineBrainTeasers = async (options: GeneratorOptions): Pr
   const {
     worksheetCount = 1,
     difficulty = 'Orta',
-    itemCount = 10,
+    itemCount = 12,
     ageGroup = '8-10',
   } = options;
 
@@ -106,7 +106,7 @@ export const generateOfflineBrainTeasers = async (options: GeneratorOptions): Pr
       id: `brain-teasers-${p}-${Date.now()}`,
       activityType: 'BRAIN_TEASERS',
       title: 'Kafayı Çalıştır: Zeka Oyunları',
-      instruction: 'Aşağıdaki zeka sorularını ve mantık bilmecelerini çözebilir misin? İpucuna bakmadan önce iyice düşün!',
+      instruction: 'Zekanı konuştur! Bilmeceleri çöz, mantık hatalarını bul ve sayısal gizemleri aydınlat.',
       difficultyLevel: difficulty,
       ageGroup: ageGroup as any,
       profile: (options as any).profile || 'general',
