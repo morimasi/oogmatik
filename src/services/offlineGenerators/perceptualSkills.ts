@@ -349,6 +349,27 @@ export const generateOfflineFindTheDifference = async (
   return results;
 };
 
+const TURKISH_WORDS: Record<string, string[]> = {
+  'Başlangıç': ['AL', 'EL', 'AT', 'ET', 'OK', 'OL', 'ON', 'AN', 'EN', 'KA', 'KE', 'LA'],
+  'Orta': ['KEDİ', 'ELMA', 'OKUL', 'ARKA', 'YOL', 'SU', 'KALP', 'MASA', 'SEL', 'KOLİ', 'KALE', 'ALİ', 'CAN', 'CANO', 'KUM', 'KAM'],
+  'Zor': ['KİTAP', 'ARMUT', 'KAPLAN', 'PARK', 'ÜZÜM', 'AĞAÇ', 'DENİZ', 'KARIN', 'ÇANTA', 'YILDIZ', 'BALIK'],
+  'Uzman': ['OKYANUS', 'TİYATRO', 'GÖZLÜK', 'KALEMLİK', 'ÇİKOLATA', 'ZAMBAK', 'İSTASYON', 'BİSİKLET'],
+};
+
+const DIRS = [
+  { label: 'right', dr: 0, dc: 1 },
+  { label: 'down', dr: 1, dc: 0 },
+  { label: 'left', dr: 0, dc: -1 },
+  { label: 'up', dr: -1, dc: 0 },
+];
+
+const getValidDirections = (r: number, c: number, rows: number, cols: number, used: Set<string>) =>
+  DIRS.filter((d) => {
+    const nr = r + d.dr;
+    const nc = c + d.dc;
+    return nr >= 0 && nr < rows && nc >= 0 && nc < cols && !used.has(`${nr},${nc}`);
+  });
+
 export const generateOfflineDirectionalTracking = async (
   options: GeneratorOptions
 ): Promise<DirectionalCodeReadingData[]> => {
@@ -358,101 +379,104 @@ export const generateOfflineDirectionalTracking = async (
 
   const rows = options.gridRows || options.gridSize || 8;
   const cols = options.gridCols || options.gridSize || 8;
+  const pool = concept === 'numbers'
+    ? Array.from({ length: 10 }, (_, i) => String(i))
+    : turkishAlphabet.split('');
+  const wordList = TURKISH_WORDS[difficulty] || TURKISH_WORDS['Orta'];
 
   for (let p = 0; p < worksheetCount; p++) {
     const puzzles: any[] = [];
-
-    // 2. Determine Difficulty Parameters
-    const configMap: Record<string, { pathLength: number; obstacles: number }> = {
-      Başlangıç: { pathLength: 5, obstacles: 0.1 },
-      Orta: { pathLength: 8, obstacles: 0.2 },
-      Zor: { pathLength: 12, obstacles: 0.25 },
-      Uzman: { pathLength: 16, obstacles: 0.3 },
-    };
-    const difficultyKey = difficulty as string;
-    const config = configMap[difficultyKey] || configMap['Orta'];
+    const usedWords = new Set<string>();
 
     for (let q = 0; q < itemCount; q++) {
-      // İçerik havuzu belirleme (Harfler vs Sayılar)
-      let pool = turkishAlphabet.split('');
-      if (concept === 'numbers') {
-        pool = Array.from({ length: 10 }, (_, i) => String(i));
-      }
+      // Pick an unused word
+      const available = wordList.filter((w) => !usedWords.has(w));
+      const targetWord = available.length > 0
+        ? available[getRandomInt(0, available.length - 1)]
+        : wordList[getRandomInt(0, wordList.length - 1)];
+      usedWords.add(targetWord);
 
-      const grid: string[][] = Array.from({ length: rows }, () =>
-        Array.from({ length: cols }, () => getRandomItems(pool, 1)[0])
-      );
+      // Initialize empty grid
+      const grid: string[][] = Array.from({ length: rows }, () => Array(rows).fill(''));
+      const used = new Set<string>();
+
+      // Pick a start position in the interior (not too close to edges)
+      const margin = 2;
+      const maxR = rows - margin;
+      const maxC = cols - margin;
+      let cr = getRandomInt(margin, Math.max(margin, maxR - 1));
+      let cc = getRandomInt(margin, Math.max(margin, maxC - 1));
 
       const path: { r: number; c: number; char: string; direction: string }[] = [];
 
-      // Başlangıç noktasını grid'in biraz daha iç kısımlarından seçerek çok fazla kenara çarpmayı engelle
-      let cr = getRandomInt(0, rows - 1);
-      let cc = getRandomInt(0, cols - 1);
+      // Place first letter
+      const firstChar = concept === 'numbers' ? targetWord : targetWord[0];
+      grid[cr][cc] = firstChar;
+      used.add(`${cr},${cc}`);
+      path.push({ r: cr, c: cc, char: firstChar, direction: 'start' });
 
-      const directions = [
-        { label: 'right', dr: 0, dc: 1, icon: 'fa-arrow-right' },
-        { label: 'left', dr: 0, dc: -1, icon: 'fa-arrow-left' },
-        { label: 'down', dr: 1, dc: 0, icon: 'fa-arrow-down' },
-        { label: 'up', dr: -1, dc: 0, icon: 'fa-arrow-up' },
-      ];
+      // Build path for remaining letters
+      const letters = concept === 'numbers'
+        ? targetWord.split('')
+        : targetWord.substring(1).split('');
 
-      // Başlangıç noktasını da path'e (0. adım olarak) ekleyelim, sadece yönü "start" olsun
-      path.push({ r: cr, c: cc, char: grid[cr][cc], direction: 'start' });
+      for (const letter of letters) {
+        const validDirs = getValidDirections(cr, cc, rows, cols, used);
+        if (validDirs.length === 0) break;
 
-      for (let i = 0; i < config.pathLength; i++) {
-        // Geçerli bir yön bulana kadar dene (grid sınırları dışına çıkmamak için)
-        const validMoves = directions.filter((d) => {
-          const nr = cr + d.dr;
-          const nc = cc + d.dc;
-          return nr >= 0 && nr < rows && nc >= 0 && nc < cols;
-        });
-
-        if (validMoves.length === 0) break; // Sıkışırsa dur (normalde olmaz ama tedbir)
-
-        const move = getRandomItems(validMoves, 1)[0];
+        const move = validDirs[getRandomInt(0, validDirs.length - 1)];
         cr += move.dr;
         cc += move.dc;
-
-        path.push({ r: cr, c: cc, char: grid[cr][cc], direction: move.label });
+        grid[cr][cc] = letter;
+        used.add(`${cr},${cc}`);
+        path.push({ r: cr, c: cc, char: letter, direction: move.label });
       }
 
+      // Fill empty cells with random chars
+      const fillPool = concept === 'numbers' ? pool : pool.filter((ch) => ch !== firstChar);
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          if (!grid[r][c]) {
+            grid[r][c] = fillPool[getRandomInt(0, fillPool.length - 1)];
+          }
+        }
+      }
+
+      const cipherAnswer = path.map((pt) => pt.char).join('');
+
       puzzles.push({
-        id: `puzzle-${q}`,
-        title: `ŞİFRE BLOĞU 0${q + 1}`,
+        id: `puzzle-${q}-${targetWord}`,
+        title: `ŞİFRE ${q + 1}`,
         grid,
-        // İlk eleman (start) yön içermediği için yörünge adımlarından (1. elemandan itibaren) yönleri alıyoruz
-        path: path.slice(1).map((p) => p.direction),
-        steps: path.slice(1).map((p, i) => ({
+        path: path.slice(1).map((pt) => pt.direction),
+        steps: path.slice(1).map((pt, i) => ({
           step: i + 1,
           count: 1,
-          dir: p.direction,
-          direction: p.direction,
+          dir: pt.direction,
+          direction: pt.direction,
         })),
         startPos: { r: path[0].r, c: path[0].c },
-        // Başlangıç harfi + takip eden harfler hedef şifreyi oluşturur
-        targetWord: path.map((pt) => pt.char).join(''),
+        targetWord: cipherAnswer,
+        cipherAnswer,
+        answerLength: cipherAnswer.length,
         clinicalMeta: {
           perceptualLoad: 0.6 + (rows * cols) / 200,
-          attentionShiftCount: config.pathLength,
+          attentionShiftCount: path.length - 1,
         },
       });
     }
 
-    // Grid boyutuna ve soru sayısına göre layout belirleme
-    let layout = 'grid_2x1';
-    if (itemCount === 1) layout = 'single';
-    else if (itemCount > 2) layout = 'grid_compact';
+    const layout = itemCount === 1 ? 'single' : itemCount > 2 ? 'grid_compact' : 'grid_2x1';
 
     results.push({
       title: 'YÖNSEL İZ SÜRME & ŞİFRE ÇÖZÜCÜ',
-      instruction:
-        'İşaretli başlangıç vektöründen okların yönünü adım adım takip edin ve bulduğunuz karakterleri sırasıyla şifre alanına yazın.',
+      instruction: 'Başlangıç noktasından okları takip ederek harfleri topla. Topladığın harfler bir kelime oluşturuyor!',
       settings: {
         difficulty: mapDifficulty(difficulty || 'Orta'),
         layout: layout as any,
-        aestheticMode: aestheticMode,
+        aestheticMode,
         rotationEnabled: false,
-        pathComplexity: config.pathLength,
+        pathComplexity: puzzles[0]?.steps?.length || 5,
         isProfessionalMode: true,
         showClinicalNotes: true,
         gridSize: rows,

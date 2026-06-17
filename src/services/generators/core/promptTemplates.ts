@@ -508,14 +508,23 @@ BİLİŞSEL HEDEF: Görsel tarama, harf dizisi tanıma ve seçici dikkat.`,
   [ActivityType.DIRECTIONAL_TRACKING]: {
     systemPromptSuffix: `
 Görevin: "Yönsel İz Sürme (Kod Çözme)" çalışma kağıdı üret.
+
+KRİTİK KURAL — TUTARLILIK:
+1. ÖNCE gizli bir Türkçe KELİME seç (örn: KEDİ, ELMA, OKUL, KİTAP, ARABA, ÇİKOLATA vb.).
+2. Kelimenin zorluğu bulmaca zorluğuna uygun olsun (kısa→kolay, uzun→zor).
+3. Izgarada, kelimenin harflerini başlangıç noktasından itibaren belirli bir yol (→↓←↑) boyunca sıralı olarak yerleştir.
+4. Kalan hücreleri rastgele harflerle doldur.
+5. Yön komutları (→↓→→↑←) bu gizli kelimenin harflerini toplamak için gereken yönler OLSUN.
+6. Sonuç: öğrenci okları takip ettiğinde ortaya anlamlı bir kelime çıkmalı.
+
 YAPI:
 - 8×8 harf ızgarası + başlangıç noktası.
-- Yön komutları dizisi (→↓→→↑← gibi) ile ızgarada ilerle.
-- Topladığın harfler gizli kelimeyi oluşturur.
-- 3 farklı zorlukta iz sürme (kısa→uzun komut dizisi).
+- Yön komutları dizisi ile ızgarada ilerle — her adım bir harf toplar.
+- Toplanan harfler gizli KELİMEYİ oluşturur (anlamsız harf dizisi değil!).
+- 3 farklı zorlukta iz sürme.
 - Bonus: Öğrenci kendi yön kodunu yazsın.
 BİLİŞSEL HEDEF: Yön tayini, ardışık işlem ve çalışma belleği.`,
-    userPromptSuffix: 'Ok yönlerini takip ederek gizli kelime bulma etkinliği üret.',
+    userPromptSuffix: 'Önce gizli kelimeyi belirle, sonra ızgarada yolunu oluştur. Ok yönlerini takip eden anlamlı bir Türkçe kelime bulsun.',
     drillCount: 3,
     layoutHint: 'grid'
   },
