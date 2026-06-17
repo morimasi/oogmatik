@@ -86,6 +86,8 @@ export const CapsuleGameConfig: React.FC<Props> = ({ options, onChange }) => {
             <option value={3}>3x3 (Başlangıç)</option>
             <option value={4}>4x4 (Orta Seviye)</option>
             <option value={5}>5x5 (Zorlu)</option>
+            <option value={7}>7x7 (İleri Düzey)</option>
+            <option value={10}>10x10 (Profesyonel)</option>
           </select>
         </div>
 
@@ -106,20 +108,51 @@ export const CapsuleGameConfig: React.FC<Props> = ({ options, onChange }) => {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 gap-4">
+        <div>
+          <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">İşlem Seti</label>
+          <div className="flex gap-2">
+            {[
+              { id: 'addition', label: 'Toplama', icon: 'plus' },
+              { id: 'subtraction', label: 'Çıkarma', icon: 'minus' },
+              { id: 'multiplication', label: 'Çarpma', icon: 'xmark' },
+              { id: 'division', label: 'Bölme', icon: 'divide' }
+            ].map(op => (
+              <button
+                key={op.id}
+                onClick={() => onChange({ ...options, capsuleGame: { ...o, operation: op.id } })}
+                className={`flex-1 flex flex-col items-center py-2 px-1 rounded-xl border-2 transition-all ${
+                  (o.operation || 'addition') === op.id 
+                  ? 'bg-emerald-500 border-emerald-500 text-white shadow-md' 
+                  : 'bg-white border-zinc-100 text-zinc-400 hover:border-emerald-200'
+                }`}
+              >
+                <i className={`fa-solid fa-${op.icon} text-sm mb-1`}></i>
+                <span className="text-[9px] font-bold">{op.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100/50">
         <h5 className="text-[10px] font-black text-emerald-800 uppercase mb-3 tracking-widest">Tema Modları</h5>
         <div className="grid grid-cols-3 gap-2">
-          {['premium', 'space', 'hazine'].map(theme => (
+          {[
+            { id: 'crystal', label: 'Kristal' },
+            { id: 'galaxy', label: 'Galaksi' },
+            { id: 'antique', label: 'Antik' }
+          ].map(theme => (
             <button
-              key={theme}
-              onClick={() => onChange({ ...options, capsuleGame: { ...o, aestheticMode: theme } })}
+              key={theme.id}
+              onClick={() => onChange({ ...options, capsuleGame: { ...o, aestheticMode: theme.id } })}
               className={`py-2 px-1 rounded-lg text-[10px] font-black uppercase border-2 transition-all ${
-                (o.aestheticMode || 'premium') === theme 
+                (o.aestheticMode || 'crystal') === theme.id 
                 ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200 scale-105' 
                 : 'bg-white border-zinc-100 text-zinc-400 hover:border-emerald-200'
               }`}
             >
-              {theme === 'premium' ? 'Kristal' : theme === 'space' ? 'Galaksi' : 'Antik'}
+              {theme.label}
             </button>
           ))}
         </div>

@@ -24,32 +24,61 @@ export const CapsuleGameSheet = ({ data, settings: _settings }: { data: NumberCa
   const rows = grid.length;
   const cols = grid[0]?.length || 0;
   const isOdd = data.instruction?.includes('TEK') || data.instruction?.includes('Tek') || false;
+  const aestheticMode = data.settings?.aestheticMode || 'crystal';
+  const operation = data.settings?.operation || 'addition';
+
+  const themeStyles = {
+    crystal: {
+      bg: 'bg-white',
+      gridBg: 'bg-slate-50/50',
+      cellBorder: 'border-slate-200',
+      headerText: 'text-indigo-900',
+      accent: 'indigo'
+    },
+    galaxy: {
+      bg: 'bg-slate-950',
+      gridBg: 'bg-indigo-950/20',
+      cellBorder: 'border-indigo-800',
+      headerText: 'text-indigo-200',
+      accent: 'purple',
+      textColor: 'text-white'
+    },
+    antique: {
+      bg: 'bg-stone-50',
+      gridBg: 'bg-orange-100/20',
+      cellBorder: 'border-stone-300',
+      headerText: 'text-stone-800',
+      accent: 'amber'
+    }
+  };
+
+  const theme = themeStyles[aestheticMode as keyof typeof themeStyles] || themeStyles.crystal;
 
   return (
-    <div className="flex flex-col bg-white font-['Lexend'] min-h-[297mm] p-4 print:p-3">
+    <div className={`flex flex-col ${theme.bg} ${theme.textColor || 'text-black'} font-['Lexend'] min-h-[297mm] p-4 print:p-3 transition-colors duration-500`}>
       <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
 
       {/* Legend */}
       <div className="flex flex-wrap gap-2 items-center mb-2 text-[8px] font-bold text-zinc-500">
-        <span className="text-indigo-600 font-black uppercase tracking-wider text-[7px]">KAPSÜL</span>
-        {capsules.slice(0, 3).map((cap, i) => (
+        <span className={`${theme.headerText} font-black uppercase tracking-wider text-[7px]`}>KAPSÜL HEDEFLERİ</span>
+        {capsules.slice(0, 5).map((cap, i) => (
           <span key={cap.id} className={`px-1.5 py-0.5 rounded border ${CAPSULE_COLORS[i % CAPSULE_COLORS.length]} text-zinc-700 text-[7px] font-bold`}>
             {cap.target}
           </span>
         ))}
-        {capsules.length > 3 && <span className="text-zinc-400">+{capsules.length - 3}</span>}
-        <span className="ml-auto text-[7px] text-zinc-400">{isOdd ? 'Tek' : 'Çift'} sayılar</span>
+        {capsules.length > 5 && <span className="text-zinc-400">+{capsules.length - 5}</span>}
+        <span className={`ml-auto text-[7px] ${theme.headerText} opacity-60`}>{isOdd ? 'Tek' : 'Çift'} sayılar</span>
       </div>
 
       {/* Game Grid */}
-      <div className="flex-1 flex items-center justify-center">
+      <div className={`flex-1 flex items-center justify-center ${theme.gridBg} rounded-[2.5rem] p-8 border-4 ${theme.cellBorder} shadow-inner m-4`}>
         <div className="inline-flex flex-col">
           {/* Column Targets */}
-          <div className="flex ml-9 mb-1">
+          <div className="flex ml-11 mb-2">
             {colTargets.map((t, c) => (
               <div
                 key={c}
-                className="w-10 h-7 flex items-center justify-center font-black text-sm text-teal-700 bg-teal-50 border border-teal-300 rounded-md mx-px"
+                className={`w-12 h-8 flex items-center justify-center font-black text-sm ${aestheticMode === 'galaxy' ? 'text-cyan-300 bg-cyan-900/30' : 'text-teal-700 bg-teal-50'} border-2 border-teal-300 rounded-lg mx-px shadow-sm`}
               >
                 {t}
               </div>
@@ -57,11 +86,14 @@ export const CapsuleGameSheet = ({ data, settings: _settings }: { data: NumberCa
           </div>
 
           {/* Grid Rows */}
-          <div className="flex flex-col gap-px">
+          <div className="flex flex-col gap-1">
             {grid.map((row, r) => (
-              <div key={r} className="flex items-center gap-1">
+              <div key={r} className="flex items-center gap-2">
+                {/* Row Label (Space for targets) */}
+                <div className="w-9"></div>
+
                 {/* Row cells */}
-                <div className="flex gap-px">
+                <div className="flex gap-1">
                   {row.map((_, c) => {
                     const capsuleIdx = capsules.findIndex((cap) => cap.cells.some((cell) => cell.x === c && cell.y === r));
                     const capsule = capsuleIdx >= 0 ? capsules[capsuleIdx] : null;
@@ -71,12 +103,12 @@ export const CapsuleGameSheet = ({ data, settings: _settings }: { data: NumberCa
                     return (
                       <div
                         key={c}
-                        className={`relative w-10 h-10 border-2 rounded-lg flex items-center justify-center shadow-sm ${colorClass}`}
+                        className={`relative w-12 h-12 border-3 rounded-xl flex items-center justify-center shadow-md transition-all ${colorClass} hover:scale-105`}
                       >
-                        <EditableText value="" tag="span" placeholder="" className="text-base font-black text-zinc-800 w-full h-full flex items-center justify-center" />
+                        <EditableText value="" tag="span" placeholder="" className={`text-lg font-black ${aestheticMode === 'galaxy' ? 'text-white' : 'text-zinc-800'} w-full h-full flex items-center justify-center`} />
                         {isFirst && capsule && (
-                          <div className="absolute -top-2.5 -left-2.5 bg-indigo-600 text-white text-[7px] font-black px-1.5 py-0.5 rounded-md border border-white shadow-sm leading-none z-10">
-                            {capsule.target}
+                          <div className={`absolute -top-3 -left-3 ${aestheticMode === 'galaxy' ? 'bg-purple-600' : 'bg-indigo-600'} text-white text-[8px] font-black px-2 py-1 rounded-lg border-2 border-white shadow-lg leading-none z-10`}>
+                            {capsule.id.includes('+') || capsule.id.includes('×') || capsule.id.includes('-') || capsule.id.includes('÷') ? capsule.id : capsule.target}
                           </div>
                         )}
                       </div>
@@ -84,7 +116,7 @@ export const CapsuleGameSheet = ({ data, settings: _settings }: { data: NumberCa
                   })}
                 </div>
                 {/* Row Target */}
-                <div className="w-9 h-10 flex items-center justify-center font-black text-sm text-indigo-700 bg-indigo-50 border border-indigo-300 rounded-lg ml-1">
+                <div className={`w-10 h-12 flex items-center justify-center font-black text-sm ${aestheticMode === 'galaxy' ? 'text-purple-300 bg-purple-900/30' : 'text-indigo-700 bg-indigo-50'} border-2 border-indigo-300 rounded-xl ml-1 shadow-sm`}>
                   {rowTargets[r]}
                 </div>
               </div>
@@ -94,17 +126,14 @@ export const CapsuleGameSheet = ({ data, settings: _settings }: { data: NumberCa
       </div>
 
       {/* Info Footer */}
-      <div className="mt-2 flex items-center gap-2 text-[8px] font-medium text-zinc-400 bg-zinc-50 rounded-xl px-3 py-2 border border-zinc-200">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-indigo-400 shrink-0">
-          <circle cx="12" cy="12" r="10" />
-          <line x1="12" y1="16" x2="12" y2="12" />
-          <line x1="12" y1="8" x2="12.01" y2="8" />
-        </svg>
-        <span>Her satır/sütun toplamı belirtilen hedefe ulaşmalı. Kapsül (renkli grup) içindeki sayıların toplamı, kapsülün sol üstündeki sayıyı vermeli.</span>
+      <div className={`mt-2 flex items-center gap-2 text-[8px] font-medium ${aestheticMode === 'galaxy' ? 'text-indigo-300 bg-indigo-900/20' : 'text-zinc-400 bg-zinc-50'} rounded-xl px-4 py-3 border border-zinc-200`}>
+        <i className={`fa-solid fa-circle-info ${theme.headerText} text-sm shrink-0`} />
+        <span>Kapsül içindeki sayılar {operation === 'multiplication' ? 'ÇARPILDIĞINDA' : operation === 'subtraction' ? 'ÇIKARILDIĞINDA' : operation === 'division' ? 'BÖLÜNDÜĞÜNDE' : 'TOPLANDIĞINDA'} kapsülün köşesindeki hedefe ulaşmalı.</span>
       </div>
 
       {/* Clinical Panel */}
-      <div className="mt-2 pt-2 grid grid-cols-4 gap-2 px-3 pb-3 rounded-t-2xl bg-zinc-900 text-white">
+      <div className={`mt-2 pt-2 grid grid-cols-4 gap-2 px-3 pb-3 rounded-2xl ${aestheticMode === 'galaxy' ? 'bg-indigo-900/40 border border-indigo-800' : 'bg-zinc-900'} text-white`}>
+
         <div className="col-span-1 flex flex-col justify-center">
           <span className="text-[8px] font-black uppercase leading-tight text-zinc-400">
             SAYISAL<br />AKIL
