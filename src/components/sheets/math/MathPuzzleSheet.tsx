@@ -11,14 +11,14 @@ interface Props {
 
 // Basit nesne emoji haritası — ImageDisplay yerine inline render
 const OBJECT_EMOJI: Record<string, string> = {
-  'Elma': '🍎', 'Armut': '🍐', 'Portakal': '🍊', 'Çilek': '',
-  'Muz': '🍌', 'Karpuz': '', 'Üzüm': '🍇', 'Kiraz': '',
-  'Kavun': '🍈', 'Şeftali': '🍑', 'Limon': '', 'Elmas': '💎',
-  'Yıldız': '⭐', 'Kalp': '❤️', 'Top': '⚽', 'Araba': '',
-  'Kelebek': '', 'Kedi': '', 'Köpek': '', 'Balık': '',
-  'Kuş': '', 'Güneş': '️', 'Ay': '', 'Bulut': '☁️',
-  'Ağaç': '', 'Çiçek': '🌸', 'Ev': '🏠', 'Kitap': '📚',
-  'Kalem': '✏️', 'Silgi': '🧹', 'Saat': '⏰', 'Para': '',
+  'Elma': '🍎', 'Armut': '🍐', 'Portakal': '🍊', 'Çilek': '🍓',
+  'Muz': '🍌', 'Karpuz': '🍉', 'Üzüm': '🍇', 'Kiraz': '🍒',
+  'Kavun': '🍈', 'Şeftali': '🍑', 'Limon': '🍋', 'Elmas': '💎',
+  'Yıldız': '⭐', 'Kalp': '❤️', 'Top': '⚽', 'Araba': '🚗',
+  'Kelebek': '🦋', 'Kedi': '🐱', 'Köpek': '🐶', 'Balık': '🐟',
+  'Kuş': '🐦', 'Güneş': '☀️', 'Ay': '🌙', 'Bulut': '☁️',
+  'Ağaç': '🌳', 'Çiçek': '🌸', 'Ev': '🏠', 'Kitap': '📚',
+  'Kalem': '✏️', 'Silgi': '🧹', 'Saat': '⏰', 'Para': '💰',
 };
 
 const getObjectEmoji = (name: string): string => {

@@ -6,61 +6,164 @@ import { shuffle, getRandomInt, getRandomItems } from './helpers';
  * Matematik Bulmacaları (Meyve Denklemleri) Yerel Üretici
  */
 export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Promise<MathPuzzleData[]> => {
-    const { worksheetCount, _difficulty, itemCount = 2 } = options as Record<string, unknown>;
+    const { worksheetCount = 1 } = options;
+    const itemCount = (options.itemCount || 6) as number;
+    const operationType = (options.operationType || 'mixed') as string;
+    const numberRange = (options.numberRange || '1-20') as string;
+    const puzzleType = (options.puzzleType || 'visual') as string;
+    const wc = worksheetCount as number || 1;
+    const ic = itemCount as number || 6;
+
     const pages: MathPuzzleData[] = [];
 
-    const wc = worksheetCount as number || 0;
-    const ic = itemCount as number || 2;
-
     const objects = [
-        { name: 'Elma', prompt: 'apple' }, { name: 'Armut', prompt: 'pear' }, 
+        { name: 'Elma', prompt: 'apple' }, { name: 'Armut', prompt: 'pear' },
         { name: 'Muz', prompt: 'banana' }, { name: 'Çilek', prompt: 'strawberry' },
-        { name: 'Karpuz', prompt: 'watermelon' }, { name: 'Portakal', prompt: 'orange' }
+        { name: 'Karpuz', prompt: 'watermelon' }, { name: 'Portakal', prompt: 'orange' },
+        { name: 'Üzüm', prompt: 'grape' }, { name: 'Kiraz', prompt: 'cherry' },
+        { name: 'Limon', prompt: 'lemon' }, { name: 'Şeftali', prompt: 'peach' }
     ];
+
+    let [rangeMin, rangeMax] = numberRange.split('-').map(Number);
+    if (isNaN(rangeMin)) rangeMin = 1;
+    if (isNaN(rangeMax)) rangeMax = 20;
+
+    const pickValues = (opType: string) => {
+        let a: number, b: number, c: number;
+        switch (opType) {
+            case 'add':
+                a = getRandomInt(rangeMin, rangeMax / 2);
+                b = getRandomInt(rangeMin, rangeMax / 2);
+                c = getRandomInt(rangeMin, rangeMax / 2);
+                break;
+            case 'mult':
+                a = getRandomInt(2, Math.min(10, rangeMax / 2));
+                b = getRandomInt(2, Math.min(10, rangeMax / 2));
+                c = getRandomInt(2, Math.min(10, rangeMax / 2));
+                break;
+            case 'expert':
+                a = getRandomInt(rangeMin, rangeMax);
+                b = getRandomInt(rangeMin, rangeMax);
+                c = getRandomInt(rangeMin, rangeMax);
+                break;
+            default:
+                a = getRandomInt(rangeMin, rangeMax / 2);
+                b = getRandomInt(rangeMin, rangeMax / 2);
+                c = getRandomInt(rangeMin, rangeMax / 2);
+        }
+        return { a: Math.max(a, 1), b: Math.max(b, 1), c: Math.max(c, 1) };
+    };
+
+    const makeObjects = (objs: typeof objects, vals: { a: number; b: number; c: number }) => [
+        { name: objs[0].name, value: vals.a, imagePrompt: objs[0].prompt },
+        { name: objs[1].name, value: vals.b, imagePrompt: objs[1].prompt },
+        { name: objs[2].name, value: vals.c, imagePrompt: objs[2].prompt }
+    ];
+
+    const makeAddEquations = (objs: typeof objects, vals: { a: number; b: number; c: number }) => [
+        {
+            leftSide: [{ objectName: objs[0].name, multiplier: 2 }],
+            operator: '+',
+            rightSide: vals.a * 2
+        },
+        {
+            leftSide: [{ objectName: objs[1].name, multiplier: 3 }],
+            operator: '+',
+            rightSide: vals.b * 3
+        },
+        {
+            leftSide: [
+                { objectName: objs[0].name, multiplier: 1 },
+                { objectName: objs[1].name, multiplier: 1 },
+                { objectName: objs[2].name, multiplier: 1 }
+            ],
+            operator: '+',
+            rightSide: vals.a + vals.b + vals.c
+        }
+    ];
+
+    const makeMixedEquations = (objs: typeof objects, vals: { a: number; b: number; c: number }) => {
+        const eqs: any[] = [];
+        const { a, b, c } = vals;
+        const useAdd = Math.random() > 0.5;
+
+        eqs.push({
+            leftSide: [{ objectName: objs[0].name, multiplier: 2 }],
+            operator: '+',
+            rightSide: a * 2
+        });
+
+        if (useAdd) {
+            eqs.push({
+                leftSide: [
+                    { objectName: objs[0].name, multiplier: 1 },
+                    { objectName: objs[1].name, multiplier: 2 }
+                ],
+                operator: '+',
+                rightSide: a + b * 2
+            });
+            const [bigger, smaller] = b >= c ? [objs[1].name, objs[2].name] : [objs[2].name, objs[1].name];
+            const diff = Math.abs(b - c);
+            eqs.push({
+                leftSide: [
+                    { objectName: bigger, multiplier: 1 },
+                    { objectName: smaller, multiplier: 1 }
+                ],
+                operator: '-',
+                rightSide: diff
+            });
+        } else {
+            eqs.push({
+                leftSide: [
+                    { objectName: objs[0].name, multiplier: 1 },
+                    { objectName: objs[1].name, multiplier: 1 }
+                ],
+                operator: '+',
+                rightSide: a + b
+            });
+            eqs.push({
+                leftSide: [
+                    { objectName: objs[1].name, multiplier: 1 },
+                    { objectName: objs[2].name, multiplier: 1 }
+                ],
+                operator: '+',
+                rightSide: b + c
+            });
+        }
+        return eqs;
+    };
+
+    const makeFinalQuestion = (objs: typeof objects, vals: { a: number; b: number; c: number }, opType: string): { question: string; answer: number } => {
+        const { a, b, c } = vals;
+        const patterns: { q: string; a: number }[] = [
+            { q: `${objs[0].name} + ${objs[1].name} + ${objs[2].name} = ?`, a: a + b + c },
+            { q: `${objs[0].name} + ${objs[1].name} - ${objs[2].name} = ?`, a: Math.max(a + b - c, 1) },
+            { q: `${objs[0].name} × 2 + ${objs[1].name} = ?`, a: a * 2 + b },
+            { q: `${objs[0].name} + ${objs[1].name} × 2 = ?`, a: a + b * 2 }
+        ];
+
+        if (opType === 'add') return patterns[0];
+        if (opType === 'mult') return { q: `${objs[0].name} × ${objs[1].name} = ?`, a: a * b };
+
+        return patterns[getRandomInt(0, patterns.length - 1)];
+    };
 
     for (let p = 0; p < wc; p++) {
         const puzzles = [];
         for (let i = 0; i < ic; i++) {
             const selectedObjs = getRandomItems(objects, 3);
-            
-            // Generate values that ensure positive results and interesting puzzles
-            const val1 = getRandomInt(5, 15);
-            const val2 = getRandomInt(2, val1 - 1); // Ensure val1 > val2 for subtraction
-            const val3 = getRandomInt(1, 10);
+            const vals = pickValues(operationType);
+            const eqs = operationType === 'add' ? makeAddEquations(selectedObjs, vals)
+                : makeMixedEquations(selectedObjs, vals);
+            const { question, answer } = makeFinalQuestion(selectedObjs, vals, operationType);
+            const puzzleObjects = makeObjects(selectedObjs, vals);
 
             puzzles.push({
                 id: `puzzle-${i}`,
-                objects: [
-                    { name: selectedObjs[0].name, value: val1, imagePrompt: selectedObjs[0].prompt },
-                    { name: selectedObjs[1].name, value: val2, imagePrompt: selectedObjs[1].prompt },
-                    { name: selectedObjs[2].name, value: val3, imagePrompt: selectedObjs[2].prompt }
-                ],
-                equations: [
-                    {
-                        leftSide: [{ objectName: selectedObjs[0].name, multiplier: 3 }],
-                        operator: '+',
-                        rightSide: val1 * 3
-                    },
-                    {
-                        leftSide: [
-                            { objectName: selectedObjs[0].name, multiplier: 1 },
-                            { objectName: selectedObjs[1].name, multiplier: 2 }
-                        ],
-                        operator: '+',
-                        rightSide: val1 + (val2 * 2)
-                    },
-                    {
-                        leftSide: [
-                            { objectName: selectedObjs[1].name, multiplier: 1 },
-                            { objectName: selectedObjs[2].name, multiplier: 1 }
-                        ],
-                        operator: '-',
-                        rightSide: val2 - val3
-                    }
-                ],
-                // More complex final question using combinations of discovered values
-                finalQuestion: `${selectedObjs[0].name} + ${selectedObjs[1].name} - ${selectedObjs[2].name} = ?`,
-                answer: ((val1 + val2) - val3).toString()
+                objects: puzzleObjects,
+                equations: eqs,
+                finalQuestion: question,
+                answer: answer.toString()
             });
         }
 
