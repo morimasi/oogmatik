@@ -292,12 +292,24 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
         }
 
         if (onAddToWorkbook) {
+            // Soruları 4'erli sayfalara böl
+            const sorular = aktifSinav.sorular || [];
+            const perPage = 4;
+            const pages = [];
+            for (let i = 0; i < sorular.length; i += perPage) {
+                pages.push({
+                   ...aktifSinav,
+                   sorular: sorular.slice(i, i + perPage),
+                   title: aktifSinav.baslik || 'Matematik Sınavı',
+                   instruction: 'Problemleri dikkatlice çözünüz.',
+                   printConfig,
+                });
+            }
+
             // Canlı çalışma kitabına ekle (App state)
             onAddToWorkbook(ActivityType.MAT_SINAV, {
                 title: aktifSinav.baslik || 'Matematik Sınavı',
-                instruction: 'Problemleri dikkatlice çözünüz.',
-                data: [aktifSinav],
-                printConfig,
+                pages
             });
             showSuccess('✅ Sınav çalışma kitabına eklendi!');
         } else {

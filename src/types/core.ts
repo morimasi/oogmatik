@@ -409,11 +409,23 @@ export interface UiSettings {
   animationLevel?: 'full' | 'reduced' | 'none';
 }
 
+export interface WorkbookPageData {
+  pageIndex: number;
+  pageTitle: string;      // "Etkinlik - Sayfa 1/3"
+  data: Record<string, unknown> | SingleWorksheetData;  // Renderer'a gönderilecek ham veri
+}
+
+export interface WorkbookPageContract {
+  activityType: ActivityType;  // Renderer seçimi için
+  title: string;               // İçindekiler için
+  pages: WorkbookPageData[];   // HER ZAMAN array — tek sayfa bile olsa
+}
+
 export interface CollectionItem {
   id: string;
   activityType: ActivityType;
   itemType?: 'activity' | 'divider';
-  data: SingleWorksheetData[] | Record<string, unknown>;
+  data: WorkbookPageContract | SingleWorksheetData[] | Record<string, unknown>; // Yeni contract eklendi, eskiler fallback için
   settings: StyleSettings;
   overrideStyle?: Partial<StyleSettings>;
   title: string;

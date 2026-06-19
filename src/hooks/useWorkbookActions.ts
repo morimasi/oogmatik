@@ -9,10 +9,13 @@ import {
   StudentProfile, 
   StyleSettings, 
   User,
-  View
+  View,
+  WorkbookPageContract,
+  SingleWorksheetData
 } from '../types';
 import { ACTIVITIES } from '../constants';
 import { autoGenerateService } from '../services/autoGenerateService';
+import { paginationService } from '../services/paginationService';
 
 export const useWorkbookActions = (
   styleSettings: StyleSettings,
@@ -50,6 +53,32 @@ export const useWorkbookActions = (
     highlightSyllables: false,
   } as WorkbookSettings);
 
+  // ═══════════════════════════════════════════════════════════════
+  // YENİ CORE KONTRAK: addToWorkbook
+  // ═══════════════════════════════════════════════════════════════
+  const addToWorkbook = (contract: WorkbookPageContract) => {
+    const newItem: CollectionItem = {
+      id: uuidv4(),
+      activityType: contract.activityType,
+      data: contract, // Doğrudan sözleşmeyi data olarak kaydediyoruz
+      settings: { ...styleSettings },
+      title: contract.title || 'Etkinlik',
+    };
+
+    setWorkbookItems((prev: CollectionItem[]) => [...prev, newItem]);
+
+    const btn = document.getElementById('add-to-wb-btn');
+    if (btn) {
+      btn.classList.add('scale-125', 'bg-green-500', 'text-white');
+      setTimeout(() => btn.classList.remove('scale-125', 'bg-green-500', 'text-white'), 300);
+    }
+
+    toast.success(`${contract.pages.length} sayfa kitapçığa başarıyla eklendi!`);
+  };
+
+  // ═══════════════════════════════════════════════════════════════
+  // GERİYE UYUMLULUK: handleAddToWorkbookGeneral
+  // ═══════════════════════════════════════════════════════════════
   const handleAddToWorkbookGeneral = (
     activityTypeOrData: ActivityType | Record<string, unknown>, 
     data?: Record<string, unknown> | WorksheetData
@@ -65,244 +94,64 @@ export const useWorkbookActions = (
       finalData = data;
     }
 
-    if (finalType && finalData && !(Array.isArray(finalData) && finalData.length === 0)) {
-      let dataArray: Record<string, unknown>[] = [];
+    if (!finalType || !finalData || (Array.isArray(finalData) && finalData.length === 0)) return;
 
-      // ═══════════════════════════════════════════════════════════════
-      // ÇOK SAYFALI VERİ ALGILAMA, BÖLME VE AÇMA (ADVANCED FLATTENING v2)
-      // Her stüdyonun farklı veri yapısını doğru sayfalandırır.
-      // ═══════════════════════════════════════════════════════════════
+    const titleStr = (Array.isArray(finalData) ? finalData[0]?.title : finalData?.title) 
+      || finalData?.baslik 
+      || ACTIVITIES.find((a) => a.id === finalType)?.title 
+      || 'Global Etkinlik';
 
-      // Sayfalanabilir liste anahtarları ve her biri için ideal sayfa başına öğe sayısı  
-      const PAGINATION_CONFIG: Record<string, number> = {
-        sorular: 4,        // Sınav soruları
-        questions: 4,      
-        items: 6,          
-        activities: 4,     
-        exercises: 5,      
-        problems: 4,       
-        words: 15,         
-        drills: 8,         
-        paragraphs: 2,     
-        sections: 3,       
-        instructions: 5,   
-        blocks: 4,         
-        cells: 20,         // Grid cells
-        data: 10,          // Generic data array
-        sheets: 1,         // Sheets are usually already pages
-        list: 10,
-        options: 10,
-      };
-
-      const listKeys = Object.keys(PAGINATION_CONFIG);
-
-      // 1. OTOMATİK LİSTE TESPİTİ (En uzun array'i bul)
-      let foundListKey: string | undefined = undefined;
-      let maxLen = 0;
-
-      for (const key of Object.keys(finalData)) {
-        if (Array.isArray(finalData[key]) && finalData[key].length > (PAGINATION_CONFIG[key] || 5)) {
-          if (finalData[key].length > maxLen) {
-            maxLen = finalData[key].length;
-            foundListKey = key;
-          }
-        }
-      }
-
-      // 2. DERİN İÇ İÇE YAPI TESPİTİ (Örn: Sınav Stüdyoları)
-      let deepUnwrappedData = finalData;
-      if (!foundListKey && finalData.data && Array.isArray(finalData.data) && finalData.data.length > 0) {
-          // Eğer data[0] içinde bir liste varsa onu kullan
-          const firstElem = finalData.data[0];
-          if (firstElem && typeof firstElem === 'object') {
-              for (const key of Object.keys(firstElem)) {
-                  if (Array.isArray(firstElem[key]) && firstElem[key].length > 0) {
-                      foundListKey = key;
-                      deepUnwrappedData = {
-                          ...finalData,
-                          ...firstElem,
-                          title: finalData.title || firstElem.title || firstElem.baslik,
-                      };
-                      break;
-                  }
-              }
-          }
-      }
-
-      // İç içe data[0] yapısı dışarı açıldıktan sonra 'data' alanını temizle.
-      // renderer'lar (MatSinavRenderer, SinavRenderer) hala aktif olan data[0]'ı
-      // tüm sorularla birlikte bulur ve sayfalanmış sorular yerine onu kullanır.
-      // Bu da her sayfada aynı tüm soruların görünmesine yol açar.
-      if (deepUnwrappedData !== finalData && 'data' in deepUnwrappedData) {
-          delete (deepUnwrappedData as Record<string, unknown>).data;
-      }
-
-      // 3. SAYFALANDIRMA KARARI — Tüm çok sayfalı veriler TEK bir CollectionItem
-      //    altında data.pages dizisi olarak gruplanır. Workbook.tsx pages dizisini
-      //    algılar ve her sayfayı ayrı ayrı render eder.
-      // =========================================================================
-      
-      // Yardımcı: her sayfaya parent özellikleri ve pageIndex ekler
-      const mergePageData = (pages: Record<string, unknown>[], base: Record<string, unknown>, mergeParentProps = true) =>
-        pages.map((p, i) => ({
-          ...(mergeParentProps ? base : {}),
-          ...p,
+    // Eğer veri zaten WorkbookPageContract formatındaysa (veya pages dizisi varsa)
+    if (finalData.pages && Array.isArray(finalData.pages)) {
+      const contract: WorkbookPageContract = {
+        activityType: finalType,
+        title: titleStr as string,
+        pages: finalData.pages.map((p: any, i: number) => ({
           pageIndex: i,
-          title: p.title || `${(base.title || base.baslik || 'Etkinlik')} - Sayfa ${i + 1}`,
-        }));
+          pageTitle: `${titleStr} - Sayfa ${i + 1}`,
+          data: p.data || p
+        }))
+      };
+      addToWorkbook(contract);
+      return;
+    }
 
-      if (Array.isArray(finalData)) {
-        // Doğrudan array olarak gelen veri → her elemanın iç listelerini de kontrol et
-        const expandedPages: Record<string, unknown>[] = [];
-        for (const elem of finalData) {
-          if (!elem || typeof elem !== 'object') continue;
-          const elemListKey = listKeys.find(
-            (key) => (elem as any)[key] && Array.isArray((elem as any)[key]) && (elem as any)[key].length > PAGINATION_CONFIG[key]
-          );
-          if (elemListKey) {
-            const itemsPerPage = PAGINATION_CONFIG[elemListKey];
-            const allItems = (elem as any)[elemListKey] as unknown[];
-            const totalPages = Math.ceil(allItems.length / itemsPerPage);
-            for (let i = 0; i < allItems.length; i += itemsPerPage) {
-              const chunk = allItems.slice(i, i + itemsPerPage);
-              expandedPages.push({
-                ...elem,
-                [elemListKey]: chunk,
-                pageIndex: Math.floor(i / itemsPerPage),
-                _totalPages: totalPages,
-                title: `${(elem as any).title || (elem as any).baslik || 'Etkinlik'} - Sayfa ${Math.floor(i / itemsPerPage) + 1}/${totalPages}`,
-              });
-            }
-          } else {
-            const hasContent = Object.keys(elem as object).some(k => k !== 'id' && k !== 'type' && k !== 'metadata');
-            if (hasContent) {
-              expandedPages.push({ ...elem, pageIndex: expandedPages.length });
-            }
-          }
-        }
-        dataArray = expandedPages.length > 0 ? [{
-          title: (finalData[0] as any)?.title || 'Etkinlik',
-          pages: expandedPages,
-        }] : [];
+    if (Array.isArray(finalData)) {
+      // Eğer array'in elemanları "contentChunks" gibi önceden sayfalara bölünmüşse (örn: KelimeCumleStudio)
+      // veya MathStudio gibi exports'lardan geliyorsa
+      // Gelen array elemanlarında zaten sayfalama ile ilgili bir özellik var mı diye bakalım
+      const firstElem = finalData[0];
+      const isPreChunked = firstElem && (firstElem.itemsPerPage || firstElem.isAlreadyChunked || firstElem._currentPage !== undefined);
 
-      } else if (deepUnwrappedData.pages && Array.isArray(deepUnwrappedData.pages)) {
-        // pages anahtarı olan yapı → parent props her sayfaya merge edilir
-        const mergedPages = mergePageData(
-          deepUnwrappedData.pages as Record<string, unknown>[],
-          deepUnwrappedData,
-          true
-        );
-        dataArray = [{
-          ...deepUnwrappedData,
-          title: deepUnwrappedData.title || (mergedPages[0] as any)?.title || 'Etkinlik',
-          pages: mergedPages,
-        }];
-
-      } else if (deepUnwrappedData.sheets && Array.isArray(deepUnwrappedData.sheets)) {
-        // sheets anahtarı olan yapı → pages'e dönüştür
-        const mergedSheets = mergePageData(
-          deepUnwrappedData.sheets as Record<string, unknown>[],
-          deepUnwrappedData,
-          true
-        );
-        dataArray = [{
-          ...deepUnwrappedData,
-          title: deepUnwrappedData.title || (mergedSheets[0] as any)?.title || 'Etkinlik',
-          pages: mergedSheets,
-        }];
-
-      } else if (foundListKey) {
-        // Listeli veri: itemsPerPage'e göre otomatik sayfalandır, TEK item'da grupla
-        const sourceData = deepUnwrappedData;
-        const itemsPerPage = PAGINATION_CONFIG[foundListKey] || 6;
-        const allItems = sourceData[foundListKey] as unknown[];
-        
-        if (allItems.length > itemsPerPage) {
-          const chunks: Record<string, unknown>[] = [];
-          for (let i = 0; i < allItems.length; i += itemsPerPage) {
-            const chunk = allItems.slice(i, i + itemsPerPage);
-            const pageNum = Math.floor(i / itemsPerPage) + 1;
-            const totalPages = Math.ceil(allItems.length / itemsPerPage);
-            chunks.push({
-              ...sourceData,
-              [foundListKey]: chunk,
-              title: `${sourceData.title || sourceData.baslik || 'Etkinlik'} - Sayfa ${pageNum}/${totalPages}`,
-              pageIndex: pageNum - 1,
-              _totalPages: totalPages,
-            });
-          }
-          dataArray = [{
-            ...sourceData,
-            title: sourceData.title || sourceData.baslik || 'Etkinlik',
-            pages: chunks,
-          }];
-        } else {
-          dataArray = [sourceData];
-        }
-
-      } else if (deepUnwrappedData.layout && Array.isArray(deepUnwrappedData.layout)) {
-        // ReadingStudio: layout öğelerini pageIndex'e göre grupla
-        const layoutItems = deepUnwrappedData.layout as Array<{ pageIndex?: number; [key: string]: unknown }>;
-        const pageGroups = new Map<number, typeof layoutItems>();
-        
-        layoutItems.forEach(item => {
-          const pageIdx = item.pageIndex ?? 0;
-          if (!pageGroups.has(pageIdx)) pageGroups.set(pageIdx, []);
-          pageGroups.get(pageIdx)!.push(item);
-        });
-
-        if (pageGroups.size > 1) {
-          const sortedPages = [...pageGroups.entries()].sort((a, b) => a[0] - b[0]);
-          const layoutPages = sortedPages.map(([, items], i) => ({
-            ...deepUnwrappedData,
-            layout: items,
-            pageIndex: i,
-            title: `${deepUnwrappedData.title || 'Okuma Etkinliği'} - Sayfa ${i + 1}`,
-          }));
-          dataArray = [{
-            ...deepUnwrappedData,
-            title: deepUnwrappedData.title || 'Okuma Etkinliği',
-            pages: layoutPages,
-          }];
-        } else {
-          dataArray = [deepUnwrappedData];
-        }
-
-      } else {
-        // Tek sayfa — hiçbir çok sayfalı kalıp algılanmadı
-        dataArray = [deepUnwrappedData];
+      let pagedData: any = finalData;
+      if (!isPreChunked) {
+        pagedData = paginationService.process(finalData as SingleWorksheetData[], finalType, styleSettings);
       }
-
-      // Boş array koruması
-      if (dataArray.length === 0) {
-        dataArray = [finalData];
-      }
-
-      const newItems: CollectionItem[] = dataArray
-        .filter(sheet => sheet !== null && sheet !== undefined)
-        .map((sheet: Record<string, unknown>) => ({
-          id: uuidv4(),
-          activityType: finalType,
-          data: sheet,
-          settings: { ...styleSettings },
-          title: (typeof sheet.title === 'string' ? sheet.title : '') 
-            || (typeof sheet.baslik === 'string' ? sheet.baslik : '')
-            || ACTIVITIES.find((a) => a.id === finalType)?.title 
-            || 'Etkinlik',
-        }));
-
-      setWorkbookItems((prev: CollectionItem[]) => [...prev, ...newItems]);
-
-      const btn = document.getElementById('add-to-wb-btn');
-      if (btn) {
-        btn.classList.add('scale-125', 'bg-green-500', 'text-white');
-        setTimeout(() => btn.classList.remove('scale-125', 'bg-green-500', 'text-white'), 300);
-      }
-
-      const totalPages = dataArray.length === 1 && Array.isArray(dataArray[0]?.pages)
-        ? dataArray[0]!.pages!.length
-        : dataArray.length;
-      toast.success(`${totalPages} sayfa kitapçığa başarıyla eklendi!`);
+      
+      const contract: WorkbookPageContract = {
+        activityType: finalType,
+        title: titleStr as string,
+        pages: pagedData.map((pageData: any, index: number) => ({
+          pageIndex: index,
+          pageTitle: `${titleStr} - Sayfa ${index + 1}`,
+          data: pageData
+        }))
+      };
+      
+      addToWorkbook(contract);
+    } else {
+      // It's a single object without contract format, fallback as a single page
+      const contract: WorkbookPageContract = {
+        activityType: finalType,
+        title: titleStr as string,
+        pages: [{
+          pageIndex: 0,
+          pageTitle: titleStr as string,
+          data: finalData
+        }]
+      };
+      
+      addToWorkbook(contract);
     }
   };
 
@@ -313,34 +162,36 @@ export const useWorkbookActions = (
   };
 
   const handleAddDirectToWorkbook = (item: CollectionItem) => {
-    // Çok sayfalı veriyi algıla ve normalize et
+    // If it's old structure, convert it to a contract if possible
     const raw = item.data;
-    let normalizedData: unknown = raw;
-
-    if (Array.isArray(raw) && raw.length === 0) return;
-
-    if (raw && typeof raw === 'object') {
-      if (Array.isArray(raw)) {
-        // Doğrudan array → pages dizisi olarak grupla
-        normalizedData = { pages: raw };
-      } else if (Array.isArray((raw as Record<string, unknown>).pages)) {
-        // Zaten pages var → dokunma
-      } else if (Array.isArray((raw as Record<string, unknown>).sheets)) {
-        // sheets → pages'e dönüştür
-        normalizedData = { ...raw, pages: (raw as Record<string, unknown>).sheets };
+    let contract: WorkbookPageContract;
+    
+    if (raw && typeof raw === 'object' && 'pages' in raw && Array.isArray((raw as any).pages)) {
+      if ((raw as any).pages[0] && 'pageIndex' in (raw as any).pages[0]) {
+         contract = raw as WorkbookPageContract; 
+      } else {
+         contract = {
+           activityType: item.activityType,
+           title: item.title,
+           pages: (raw as any).pages.map((p: any, i: number) => ({
+             pageIndex: i,
+             pageTitle: `${item.title} - Sayfa ${i + 1}`,
+             data: p
+           }))
+         };
       }
-    }
-
-    const newItems: CollectionItem[] = [
-      {
-        id: uuidv4(),
+    } else {
+       contract = {
         activityType: item.activityType,
-        data: normalizedData as CollectionItem['data'],
-        settings: { ...styleSettings, ...item.settings },
         title: item.title,
-      },
-    ];
-    setWorkbookItems((prev: CollectionItem[]) => [...prev, ...newItems]);
+        pages: [{
+          pageIndex: 0,
+          pageTitle: item.title,
+          data: raw as Record<string, unknown> | SingleWorksheetData
+        }]
+       }
+    }
+    addToWorkbook(contract);
   };
 
   const handleAutoGenerateWorkbook = async (report: AssessmentReport) => {
@@ -372,5 +223,6 @@ export const useWorkbookActions = (
     handleAddToWorkbook,
     handleAddDirectToWorkbook,
     handleAutoGenerateWorkbook,
+    addToWorkbook // YENİ EKLENDİ
   };
 };

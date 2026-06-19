@@ -74,9 +74,12 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = ({ onAddToWorkbook })
         isSuperStudio: true
     }));
     
-    // Süper Türkçe Stüdyosu genellikle çok sayfalı olabilir, 
-    // ama workbook her sayfayı bir CollectionItem olarak alır.
-    onAddToWorkbook(ActivityType.PREMIUM_STUDIO, pages);
+    // Süper Türkçe Stüdyosu genellikle çok sayfalı olabilir.
+    // Yeni WorkbookPageContract standartımız gereği bunu obje içerisinde pages olarak iletiyoruz.
+    onAddToWorkbook(ActivityType.PREMIUM_STUDIO, {
+        title: pages[0]?.title || 'Süper Türkçe Etkinliği',
+        pages
+    });
   };
 
   const handlePrint = () => {

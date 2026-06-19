@@ -176,12 +176,15 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook, initialData }: SariKita
 
     const handleAddToWorkbookBridge = useCallback(() => {
         if (activeType && generatedContent && onAddToWorkbook) {
-            (onAddToWorkbook as any)(ActivityType.SARI_KITAP_STUDIO, [{
+            (onAddToWorkbook as any)(ActivityType.SARI_KITAP_STUDIO, {
                 title: generatedContent.title || 'Hızlı Okuma Etkinliği',
-                type: activeType,
-                content: generatedContent,
-                config: config
-            }]);
+                pages: [{
+                    title: generatedContent.title || 'Hızlı Okuma Etkinliği',
+                    type: activeType,
+                    content: generatedContent,
+                    config: config
+                }]
+            });
             toast.success('Kitapçığa başarıyla eklendi!');
         }
     }, [activeType, generatedContent, config, onAddToWorkbook, toast]);

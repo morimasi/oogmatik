@@ -302,15 +302,7 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }: WorkbookProps) =
         }
 
         // --- MULTI-PAGE DETECTION ---
-        let pages = (item.data as any)?.pages || (item.data as any)?.sheets;
-        
-        // Eğer data direkt array ise (bazı v1 aktiviteleri)
-        if (!pages && Array.isArray(item.data) && item.data.length > 0) {
-          // Eğer içindeki ilk eleman bir sayfa gibi görünüyorsa (örn: _currentPage varsa)
-          if (item.data[0]._currentPage !== undefined || item.data[0].blocks || item.data[0].puzzles) {
-            pages = item.data;
-          }
-        }
+        const pages = (item.data as any)?.pages;
 
         if (Array.isArray(pages) && pages.length > 0) {
           return pages.map((p, pIdx) => {

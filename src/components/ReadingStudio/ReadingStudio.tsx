@@ -240,15 +240,26 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook, initialData }: ReadingStu
       alert('Önce bir hikaye oluşturmalısınız.');
       return;
     }
-    // Reading Studio verisini standardize et
-    const workbookData = {
-      title: storyData?.title || config.topic || 'Okuma Etkinliği',
-      instruction: 'Hikayeyi dikkatlice okuyunuz ve soruları cevaplayınız.',
-      layout: layout,
-      storyData: storyData,
-      config: config
-    };
-    onAddToWorkbook(ActivityType.STORY_COMPREHENSION, workbookData);
+    
+    // Canvas'taki öğeleri sayfalara grupla
+    const maxPage = Math.max(...layout.map(item => item.pageIndex || 0));
+    const pages = [];
+    
+    for (let i = 0; i <= maxPage; i++) {
+        const pageLayout = layout.filter(item => (item.pageIndex || 0) === i);
+        if (pageLayout.length > 0) {
+            pages.push({
+                layout: pageLayout,
+                storyData: storyData,
+                config: config
+            });
+        }
+    }
+
+    onAddToWorkbook(ActivityType.STORY_COMPREHENSION, {
+        title: storyData?.title || config.topic || 'Okuma Etkinliği',
+        pages: pages
+    });
   };
 
   const handleSave = async () => {
