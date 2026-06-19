@@ -10,7 +10,7 @@ class FascicleStorageService {
   public async uploadFasciclePdf(blob: Blob, fascicleId: string, extension: string = 'pdf'): Promise<string> {
     try {
       const storage = getStorage();
-      const storageRef = ref(storage, \`fascicles/\${fascicleId}.\${extension}\`);
+      const storageRef = ref(storage, `fascicles/${fascicleId}.${extension}`);
       
       const uploadTask = await uploadBytesResumable(storageRef, blob, {
         contentType: 'application/pdf',

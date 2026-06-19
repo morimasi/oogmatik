@@ -120,7 +120,7 @@ const FasciclePdfDoc: React.FC<BuildPdfOptions> = ({ fascicle, watermarkText, qr
   
   // Free QR generator API for digital transformation
   const qrImageSrc = qrUrl 
-    ? \`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=\${encodeURIComponent(qrUrl)}\`
+    ? `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrUrl)}`
     : null;
 
   return (
@@ -182,7 +182,7 @@ const FasciclePdfDoc: React.FC<BuildPdfOptions> = ({ fascicle, watermarkText, qr
               </View>
            )}
 
-           <Text style={styles.pageNumber} render={({ pageNumber }) => \`Sayfa \${pageNumber}\`} fixed />
+           <Text style={styles.pageNumber} render={({ pageNumber }) => `Sayfa ${pageNumber}`} fixed />
         </Page>
       ))}
     </Document>
@@ -194,8 +194,8 @@ const FasciclePdfDoc: React.FC<BuildPdfOptions> = ({ fascicle, watermarkText, qr
  */
 export const buildFasciclePdfBlob = async (options: BuildPdfOptions): Promise<Blob> => {
   try {
-     const doc = React.createElement(FasciclePdfDoc, options);
-     const pdfStream = await pdf(doc).toBlob();
+     const doc = <FasciclePdfDoc {...options} />;
+     const pdfStream = await pdf(doc as any).toBlob();
      return pdfStream;
   } catch (error) {
      console.error("PDF Generate Error", error);

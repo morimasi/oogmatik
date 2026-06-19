@@ -40,7 +40,7 @@ class FascicleAIEngine {
     };
 
     try {
-      const resultObj = await generateWithSchema(prompt, schema as Record<string, unknown>) as { suggestions: string[] };
+      const resultObj = await generateWithSchema(prompt, schema as any) as { suggestions: string[] };
       return resultObj.suggestions || [];
     } catch (error) {
       logError("AI Smart Suggestion Hatası", error);
@@ -89,7 +89,7 @@ class FascicleAIEngine {
     };
 
     try {
-      const resultObj = await generateWithSchema(prompt, schema as Record<string, unknown>) as { orderedIds: string[] };
+      const resultObj = await generateWithSchema(prompt, schema as any) as { orderedIds: string[] };
       // Fallback
       if (!resultObj.orderedIds || resultObj.orderedIds.length !== items.length) {
          return items.map(i => i.id);
@@ -135,7 +135,7 @@ class FascicleAIEngine {
     };
 
     try {
-       const resultObj = await generateWithSchema(prompt, schema as Record<string, unknown>) as { summaryText: string };
+       const resultObj = await generateWithSchema(prompt, schema as any) as { summaryText: string };
        return resultObj.summaryText || 'Bu fasikül, öğrencinin bireysel becerilerini desteklemek için özenle hazırlanmıştır.';
     } catch(error) {
        logError("AI Executive Summary Hatası", error);
