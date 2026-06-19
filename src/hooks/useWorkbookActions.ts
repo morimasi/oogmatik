@@ -77,9 +77,9 @@ export const useWorkbookActions = (
       // ═══════════════════════════════════════════════════════════════
 
       const PAGINATION_CONFIG: Record<string, number> = {
-        sorular: 4,        // Sınav soruları (ideal yoğunluk)
+        sorular: 4,        // Sınav soruları
         questions: 4,      
-        items: 6,          
+        items: 6,          // Standart listeler
         activities: 4,     
         exercises: 5,      
         problems: 4,       
@@ -87,9 +87,11 @@ export const useWorkbookActions = (
         drills: 8,         
         paragraphs: 2,     
         sections: 3,       
-        blocks: 4,         
+        blocks: 4,         // Worksheet (V1) blokları
+        puzzles: 2,        // Bulmacalar (Kelime avı vb.)
+        operations: 10,    // Matematik işlemleri
         data: 10,
-        content: 1,        // Bazı stüdyolarda content tek sayfaya sığmalı
+        content: 1,
       };
 
       // 1. DERİN VERİ ÇÖZÜMLEME (Recursive Unwrapping)
