@@ -92,8 +92,6 @@ export const useWorkbookActions = (
         content: 1,        // Bazı stüdyolarda content tek sayfaya sığmalı
       };
 
-      const listKeys = Object.keys(PAGINATION_CONFIG);
-
       // 1. DERİN VERİ ÇÖZÜMLEME (Recursive Unwrapping)
       let deepUnwrappedData = finalData;
       
@@ -103,6 +101,13 @@ export const useWorkbookActions = (
               ...deepUnwrappedData,
               ...deepUnwrappedData.content,
               _originalContent: deepUnwrappedData.content // Yedekle
+          };
+      } else if (Array.isArray(deepUnwrappedData.data) && deepUnwrappedData.data.length === 1) {
+          // data: [ {...} ] formatını da çöz
+          deepUnwrappedData = {
+              ...deepUnwrappedData,
+              ...deepUnwrappedData.data[0],
+              _originalData: deepUnwrappedData.data
           };
       }
 
@@ -114,7 +119,7 @@ export const useWorkbookActions = (
       for (const key of Object.keys(deepUnwrappedData)) {
         if (Array.isArray(deepUnwrappedData[key]) && deepUnwrappedData[key].length > 0) {
           // Eğer bu anahtar PAGINATION_CONFIG içindeyse veya 'data'/'items' gibi jenerikse
-          if (PAGINATION_CONFIG[key] || ['data', 'items', 'list', 'elements'].includes(key)) {
+          if (PAGINATION_CONFIG[key] || ['data', 'items', 'list', 'elements', 'sorular', 'questions'].includes(key)) {
             if (deepUnwrappedData[key].length > maxLen) {
               maxLen = deepUnwrappedData[key].length;
               foundListKey = key;
@@ -136,41 +141,56 @@ export const useWorkbookActions = (
           const chunk = allItems.slice(i, i + itemsPerPage);
           const pageNum = Math.floor(i / itemsPerPage) + 1;
           
-          chunks.push({
+          const pageObj = {
             ...deepUnwrappedData,
             [foundListKey]: chunk, // Sadece o sayfanın elemanlarını koy
             _isPage: true,
             pageIndex: pageNum - 1,
             _totalPages: totalPages,
             title: `${deepUnwrappedData.title || deepUnwrappedData.baslik || 'Etkinlik'} - Sayfa ${pageNum}/${totalPages}`
-          });
+          };
+
+          // KRİTİK: Renderer Uyumluluğu İçin 'content' Anahtarını Korumalıyız
+          // Eğer renderer 'item.content' bekliyorsa, pageObj'in kendisini content olarak da sunalım.
+          (pageObj as any).content = { ...pageObj };
+          
+          chunks.push(pageObj);
         }
         
         dataArray = [{
           ...deepUnwrappedData,
           title: deepUnwrappedData.title || deepUnwrappedData.baslik || 'Etkinlik',
-          pages: chunks, // Workbook.tsx'in beklediği format
+          pages: chunks, // Workbook.tsx'in beklediği ana format
+          _isMultiPage: true
         }];
 
       } else if (deepUnwrappedData.pages && Array.isArray(deepUnwrappedData.pages)) {
         // Zaten pages var
         dataArray = [{
           ...deepUnwrappedData,
-          pages: deepUnwrappedData.pages.map((p: any, i: number) => ({
-            ...deepUnwrappedData,
-            ...p,
-            pageIndex: i,
-          }))
+          pages: deepUnwrappedData.pages.map((p: any, i: number) => {
+            const pageObj = {
+                ...deepUnwrappedData,
+                ...p,
+                pageIndex: i,
+              };
+            (pageObj as any).content = { ...pageObj };
+            return pageObj;
+          })
         }];
       } else if (deepUnwrappedData.sheets && Array.isArray(deepUnwrappedData.sheets)) {
         // sheets -> pages
         dataArray = [{
           ...deepUnwrappedData,
-          pages: deepUnwrappedData.sheets.map((s: any, i: number) => ({
-            ...deepUnwrappedData,
-            ...s,
-            pageIndex: i,
-          }))
+          pages: deepUnwrappedData.sheets.map((s: any, i: number) => {
+            const pageObj = {
+                ...deepUnwrappedData,
+                ...s,
+                pageIndex: i,
+              };
+            (pageObj as any).content = { ...pageObj };
+            return pageObj;
+          })
         }];
       } else {
         // TEK SAYFALIK YAPI

@@ -302,26 +302,37 @@ const Workbook: React.FC<WorkbookProps> = ({ items, settings }: WorkbookProps) =
         }
 
         // --- MULTI-PAGE DETECTION ---
+        // useWorkbookActions tarafından chunklanan sayfalar 'pages' içinde toplanır.
         let pages = (item.data as any)?.pages || (item.data as any)?.sheets;
         
-        // Eğer data direkt array ise (bazı v1 aktiviteleri)
+        // Failsafe: Eğer data doğrudan array ise ve elemanları sayfa gibi görünüyorsa
         if (!pages && Array.isArray(item.data) && item.data.length > 0) {
-          // Eğer içindeki ilk eleman bir sayfa gibi görünüyorsa (örn: _currentPage varsa)
-          if (item.data[0]._currentPage !== undefined || item.data[0].blocks || item.data[0].puzzles) {
+          if (item.data[0]._currentPage !== undefined || item.data[0]._isPage || item.data[0].blocks || (item.data[0] as any).content) {
             pages = item.data;
           }
         }
 
         if (Array.isArray(pages) && pages.length > 0) {
-          return pages.map((p, pIdx) => {
+          // Çok sayfalı içerik
+          return (pages as any[]).map((p, pIdx) => {
             const num = runningPageNum;
             runningPageNum++;
+            
+            // Eğer p.data varsa onu kullan, yoksa p'nin kendisi veridir (chunk)
+            const pageContent = p.data || p;
+            
             return (
               <WorkbookPage 
                 key={`${item.id}-p${pIdx}`}
-                item={item} pageData={p} pageNum={num} 
-                settings={settings} font={font} accent={accent} 
-                pIdx={pIdx} total={pages.length} isLastItem={index === items.length - 1}
+                item={item} 
+                pageData={pageContent} 
+                pageNum={num} 
+                settings={settings} 
+                font={font} 
+                accent={accent} 
+                pIdx={pIdx} 
+                total={pages.length} 
+                isLastItem={index === items.length - 1}
                 isLandscape={isLandscape}
               />
             );

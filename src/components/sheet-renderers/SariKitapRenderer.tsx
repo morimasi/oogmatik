@@ -16,17 +16,26 @@ export const SariKitapRenderer: React.FC<SariKitapRendererProps> = ({ data, sett
   // data might be wrapped in an array or direct object depending on how it was loaded
   const item = Array.isArray(data) ? data[0] : data;
   
-  if (!item || !item.content) {
+  if (!item) {
     return (
       <div className="p-8 text-center text-gray-400 italic">
-        Sarı Kitap içeriği yüklenemedi.
+        Sarı Kitap verisi bulunamadı.
       </div>
     );
   }
 
-  const activeType = item.type || item.activeType;
-  const content = item.content || item._originalContent || item;
-  const config = item.config || (item.typography ? item : {});
+  // Self-healing data extraction: Veri ya root'tadır, ya .content içindedir, ya da kendisi content'tir.
+  const content = item.content || (item.soru || item.metin || item.puzzles ? item : null);
+  const activeType = item.type || item.activeType || content?.type || content?.activeType;
+  const config = item.config || (item.typography ? item : (content?.config || {}));
+
+  if (!content) {
+    return (
+      <div className="p-8 text-center text-gray-400 italic">
+        İçerik yapısı çözülemedi.
+      </div>
+    );
+  }
   
   const activeModule = getModule(activeType);
   
