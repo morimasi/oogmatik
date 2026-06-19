@@ -20,7 +20,6 @@ export * from './rbac-advanced';
 export * from './teacher';
 export * from './neuroProfile';
 export * from './gamification';
-export * from './workbook';
 export * from './sinav';
 export * from './matSinav';
 export * from './kelimeCumle';
@@ -36,7 +35,6 @@ export * from './activity';
 // ==========================================
 
 export type { StudentProfile } from './student';
-export type { WorkbookSettings } from './workbook';
 export type { AgeGroup, LearningDisabilityProfile } from './creativeStudio';
 export type { 
   ActivityPermission, 

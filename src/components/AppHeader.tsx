@@ -11,7 +11,6 @@ import { useStudentStore } from '../store/useStudentStore';
 import { messagingService } from '../services/messagingService';
 
 interface AppHeaderProps {
-    workbookItemsCount: number;
     onOpenModal: (modal: 'settings' | 'history' | 'about' | 'developer') => void;
     onOpenFeedback: () => void;
     onOpenAuth: () => void;
@@ -157,7 +156,6 @@ export const DropdownItem = ({
 );
 
 export const AppHeader = ({
-    workbookItemsCount,
     onOpenModal,
     onOpenFeedback,
     onOpenAuth,
@@ -351,21 +349,6 @@ export const AppHeader = ({
 
                     <div className="flex items-center gap-0.5 md:gap-1">
                         <GlobalSearch onSelectActivity={onSelectActivity} />
-
-                        <div className="w-px self-stretch min-h-[1rem] max-h-[1.5rem] bg-[var(--border-color)] mx-0.5 opacity-35" aria-hidden />
-
-                        <button
-                            onClick={() => navigateTo('workbook')}
-                            className="relative flex shrink-0 items-center justify-center w-9 h-9 text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all rounded-lg hover:bg-[var(--bg-secondary)] border border-transparent hover:border-[var(--border-color)]/30 group/nav"
-                            title="Çalışma Dosyam"
-                        >
-                            <i className="fa-solid fa-folder-plus text-[15px] leading-none group-hover/nav:scale-105 transition-transform"></i>
-                            {workbookItemsCount > 0 && (
-                                <span className="absolute -top-0.5 -right-0.5 bg-[var(--accent-color)] text-white text-[7px] font-black min-w-[1rem] h-4 px-0.5 flex items-center justify-center rounded-full border-2 border-[var(--bg-paper)] shadow-sm tabular-nums">
-                                    {workbookItemsCount}
-                                </span>
-                            )}
-                        </button>
 
                         <div className="w-px self-stretch min-h-[1rem] max-h-[1.5rem] bg-[var(--border-color)] mx-1 opacity-45" aria-hidden />
 

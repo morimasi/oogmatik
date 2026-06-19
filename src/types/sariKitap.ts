@@ -286,7 +286,6 @@ export interface SariKitapDocument {
   updatedAt: string;
   tags: string[];
   isFavorite: boolean;
-  workbookId?: string;
 }
 
 // ─── Generation Request Şeması ───────────────────────────────────

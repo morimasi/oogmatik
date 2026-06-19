@@ -5,7 +5,6 @@ export const VIEWS: Record<string, View> = {
   GENERATOR: 'generator',
   ACTIVITY_STUDIO: 'activity-studio',
   SAVED_LIST: 'savedList',
-  WORKBOOK: 'workbook',
   FAVORITES: 'favorites',
   SHARED: 'shared',
   ADMIN: 'admin',

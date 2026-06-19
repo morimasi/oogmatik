@@ -341,8 +341,6 @@ export interface SavedWorksheet {
   isPrivate?: boolean;
   styleSettings?: StyleSettings;
   studentProfile?: StudentProfile;
-  workbookItems?: CollectionItem[];
-  workbookSettings?: WorkbookSettings;
 }
 
 export type AppTheme =
@@ -375,7 +373,6 @@ export type View =
   | 'generator'
   | 'activity-studio'
   | 'savedList'
-  | 'workbook'
   | 'favorites'
   | 'shared'
   | 'admin'
@@ -409,23 +406,11 @@ export interface UiSettings {
   animationLevel?: 'full' | 'reduced' | 'none';
 }
 
-export interface WorkbookPageData {
-  pageIndex: number;
-  pageTitle: string;      // "Etkinlik - Sayfa 1/3"
-  data: Record<string, unknown> | SingleWorksheetData;  // Renderer'a gönderilecek ham veri
-}
-
-export interface WorkbookPageContract {
-  activityType: ActivityType;  // Renderer seçimi için
-  title: string;               // İçindekiler için
-  pages: WorkbookPageData[];   // HER ZAMAN array — tek sayfa bile olsa
-}
-
 export interface CollectionItem {
   id: string;
   activityType: ActivityType;
   itemType?: 'activity' | 'divider';
-  data: WorkbookPageContract | SingleWorksheetData[] | Record<string, unknown>; // Yeni contract eklendi, eskiler fallback için
+  data: SingleWorksheetData[] | Record<string, unknown>;
   settings: StyleSettings;
   overrideStyle?: Partial<StyleSettings>;
   title: string;
@@ -434,44 +419,6 @@ export interface CollectionItem {
     subtitle: string;
     icon: string;
   };
-}
-
-export interface WorkbookSettings {
-  title: string;
-  studentName: string;
-  schoolName: string;
-  year: string;
-  teacherNote: string;
-  theme:
-  | 'modern'
-  | 'classic'
-  | 'fun'
-  | 'minimal'
-  | 'academic'
-  | 'artistic'
-  | 'space'
-  | 'nature'
-  | 'geometric'
-  | 'cyber'
-  | 'luxury'
-  | 'playful';
-  accentColor: string;
-  coverStyle: 'centered' | 'left' | 'split' | 'hero' | 'minimalist';
-  showTOC: boolean;
-  showPageNumbers: boolean;
-  showWatermark: boolean;
-  watermarkOpacity: number;
-  showBackCover: boolean;
-  logoUrl?: string;
-  aiPreface?: string;
-  isAiGeneratedCover?: boolean;
-  aiCoverConcept?: string;
-  fontFamily?: string;
-  layoutDensity?: 'compact' | 'comfortable' | 'spacious';
-  showHeaderOnEveryPage?: boolean;
-  customBackCoverNote?: string;
-  orientation?: 'portrait' | 'landscape';
-  margin?: number;
 }
 
 export interface SubTestResult {

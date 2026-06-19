@@ -5,7 +5,7 @@
 
 import { db } from './firebaseClient.js';
 import * as firestore from "firebase/firestore";
-import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings, StudentProfile, CollectionItem, WorkbookSettings } from '../types.js';
+import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings, StudentProfile, CollectionItem } from '../types.js';
 import { ACTIVITY_CATEGORIES } from '../constants.js';
 import { AppError, NotFoundError, AuthorizationError, DatabaseError, InternalServerError, toAppError } from '../utils/AppError.js';
 import { logError as reportError, retryWithBackoff, withTimeout } from '../utils/errorHandler.js';
@@ -72,9 +72,6 @@ const deserializeData = (data: unknown): SingleWorksheetData[] => {
  */
 export function worksheetMatchesArchiveCategory(sheet: SavedWorksheet, categoryId: string): boolean {
     if (categoryId === 'all') return true;
-    if (categoryId === 'workbook') {
-        return sheet.activityType === ActivityType.WORKBOOK || sheet.category?.id === 'workbook';
-    }
     const meta = ACTIVITY_CATEGORIES.find((c) => c.id === categoryId);
     if (sheet.category?.id === categoryId) return true;
     if (!meta) return sheet.category?.id === categoryId;
@@ -98,10 +95,7 @@ const mapDbToWorksheet = (docData: firestore.DocumentData, id: string): SavedWor
     sharedByName: docData.sharedByName as string | undefined,
     sharedWith: docData.sharedWith as string | string[] | undefined,
     styleSettings: docData.styleSettings as StyleSettings | undefined,
-    studentProfile: docData.studentProfile as StudentProfile | undefined,
-    // Fixed: Cast deserialized data to CollectionItem[] to match type definition
-    workbookItems: docData.workbookItems ? (deserializeData(docData.workbookItems) as unknown as CollectionItem[]) : undefined,
-    workbookSettings: docData.workbookSettings as any
+    studentProfile: docData.studentProfile as StudentProfile | undefined
 });
 
 export const worksheetService = {
@@ -397,9 +391,6 @@ export const worksheetService = {
             if (payload.worksheetData && Array.isArray(payload.worksheetData)) {
                 payload.worksheetData = serializeData(payload.worksheetData);
             }
-            if (payload.workbookItems && Array.isArray(payload.workbookItems)) {
-                payload.workbookItems = serializeData(payload.workbookItems);
-            }
 
             await updateDoc(docRef, payload);
 
@@ -452,34 +443,6 @@ export const worksheetService = {
                 userId
             });
             throw appError;
-        }
-    },
-
-    saveWorkbook: async (
-        userId: string, 
-        settings: WorkbookSettings, 
-        items: CollectionItem[], 
-        studentId?: string,
-        studentName?: string
-    ): Promise<SavedWorksheet> => {
-        try {
-            const payload: Record<string, unknown> = {
-                userId,
-                studentId: studentId || null,
-                studentName: studentName || null,
-                name: settings.title || 'Adsız Kitapçık',
-                activityType: ActivityType.WORKBOOK,
-                worksheetData: "[]",
-                icon: 'fa-solid fa-book-journal-whills',
-                category: { id: 'workbook', title: 'Çalışma Kitapçığı' },
-                createdAt: new Date().toISOString(),
-                workbookSettings: settings,
-                workbookItems: serializeData(items)
-            };
-            const docRef = await addDoc(collection(db, "saved_worksheets"), payload);
-            return mapDbToWorksheet(payload, docRef.id);
-        } catch (error) {
-            throw error;
         }
     }
 };

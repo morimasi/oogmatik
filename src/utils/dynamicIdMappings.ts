@@ -57,11 +57,10 @@ export const DYNAMIC_ID_MAPPINGS: Record<string, ActivityType> = {
   'activity_proverb_search': ActivityType.PROVERB_SEARCH,
   'activity_proverb_sentence_finder': ActivityType.PROVERB_SENTENCE_FINDER,
   
-  // Assessment & Workbook
+  // Assessment 
   'activity_missing_parts': ActivityType.MISSING_PARTS,
   'activity_ocr_content': ActivityType.OCR_CONTENT,
   'activity_assessment_report': ActivityType.ASSESSMENT_REPORT,
-  'activity_workbook': ActivityType.WORKBOOK,
   
   // Advanced Math Puzzles
   'activity_futoshi': ActivityType.FUTOSHIKI,

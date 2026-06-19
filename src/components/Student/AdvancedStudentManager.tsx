@@ -139,7 +139,7 @@ export const AdvancedStudentManager: React.FC<{
     ai_insights: 'analytics',
     iep: 'bep',
     academic: 'reports',
-    portfolio: 'workbook',
+    portfolio: 'favorites',
     behavior: 'reports',
     financial: 'evaluation',
     attendance: 'reports',

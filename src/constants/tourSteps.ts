@@ -20,12 +20,6 @@ export const tourSteps: TourStep[] = [
     position: 'right',
   },
   {
-    targetId: 'tour-workbook-btn',
-    title: 'Çalışma Kitapçığı',
-    content: 'Seçtiğiniz etkinlikleri buraya ekleyerek tek bir PDF kitapçık oluşturabilirsiniz.',
-    position: 'bottom',
-  },
-  {
     targetId: 'tour-ocr-btn',
     title: 'Akıllı Tarayıcı (OCR)',
     content: 'Fiziksel kağıtları tarayıp dijitalleştirmek için bu ikonu kullanın.',

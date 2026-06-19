@@ -14,8 +14,6 @@ export const useWorksheetManager = (
     setStudentProfile: (profile: StudentProfile | null) => void,
     setStyleSettings: (settings: StyleSettings) => void,
     setIsAuthModalOpen: (open: boolean) => void,
-    setWorkbookItems: (items: any) => void,
-    setWorkbookSettings: (settings: any) => void,
     setSelectedSavedReport: (report: any) => void,
     setLoadedCurriculum: (curriculum: any) => void,
     navigateTo: (view: View) => void,
@@ -72,14 +70,6 @@ export const useWorksheetManager = (
         if (item.schedule && item.durationDays) {
             setLoadedCurriculum(item);
             navigateTo('curriculum');
-            return;
-        }
-        if (item.activityType === ActivityType.WORKBOOK || item.workbookItems) {
-            if (item.workbookItems && item.workbookSettings) {
-                setWorkbookItems(item.workbookItems);
-                setWorkbookSettings(item.workbookSettings);
-                navigateTo('workbook');
-            }
             return;
         }
 

@@ -26,7 +26,6 @@ export type PermissionModule =
   | 'sari-kitap'
   | 'kelime-cumle'
   | 'students'
-  | 'workbook'
   | 'messaging'
   | 'analytics'
   | 'planning'

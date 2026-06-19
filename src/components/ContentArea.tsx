@@ -8,7 +8,6 @@ import {
   StyleSettings,
   View,
   CollectionItem,
-  WorkbookSettings,
   StudentProfile,
   AssessmentReport,
   Curriculum,
@@ -22,7 +21,6 @@ import { ACTIVITIES } from '../constants';
 import { SkeletonLoader } from './SkeletonLoader';
 import { FavoritesSection } from './FavoritesSection';
 import { ShareModal } from './ShareModal';
-import { WorkbookHub } from './WorkbookHub';
 import { ProtectedRoute } from './ProtectedRoute';
 import { useAppStore } from '../store/useAppStore';
 import { useWorksheetStore } from '../store/useWorksheetStore';
@@ -52,12 +50,6 @@ interface ContentAreaProps {
   onFeedback: () => void;
   onOpenAuth: () => void;
   onSelectActivity?: (activityType: ActivityType) => void;
-  workbookItems: CollectionItem[];
-  setWorkbookItems: React.Dispatch<React.SetStateAction<CollectionItem[]>>;
-  workbookSettings: WorkbookSettings;
-  setWorkbookSettings: React.Dispatch<React.SetStateAction<WorkbookSettings>>;
-  onAddToWorkbook: () => void; // This is the general trigger
-  onAutoGenerateWorkbook?: (report: AssessmentReport) => void;
   studentProfile?: StudentProfile | null;
   zenMode: boolean;
   toggleZenMode: () => void;
@@ -69,8 +61,6 @@ interface ContentAreaProps {
     studentName: string;
   } | null;
   onCompleteCurriculumActivity?: () => void;
-  // New handler for direct item addition (like from reports)
-  onAddDirectToWorkbook?: (item: CollectionItem) => void;
 }
 
 const LandingText = memo(() => {
@@ -111,18 +101,11 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   onFeedback,
   onOpenAuth,
   onSelectActivity,
-  workbookItems,
-  setWorkbookItems,
-  workbookSettings,
-  setWorkbookSettings,
-  onAddToWorkbook,
-  onAutoGenerateWorkbook,
   studentProfile: _studentProfile,
   zenMode,
   toggleZenMode,
   activeCurriculumSession,
   onCompleteCurriculumActivity,
-  onAddDirectToWorkbook,
 }) => {
   const { user } = useAuthStore();
   const {
@@ -279,11 +262,9 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   const breadcrumbs =
     currentView === 'savedList'
       ? ['Ana Sayfa', 'Arşivim']
-      : currentView === 'workbook'
-        ? ['Ana Sayfa', 'Kitapçık']
-        : currentView === 'favorites'
-          ? ['Ana Sayfa', 'Atölyem']
-          : ['Ana Sayfa'];
+      : currentView === 'favorites'
+        ? ['Ana Sayfa', 'Atölyem']
+        : ['Ana Sayfa'];
 
   // Lazy imports for large modules
   const AssessmentModule = React.lazy(() =>
@@ -323,8 +304,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             onShare={() => setIsShareModalOpen(true)}
             onTogglePreview={toggleZenMode}
             isPreviewMode={zenMode}
-            onAddToWorkbook={() => onAddToWorkbook()}
-            workbookItemCount={workbookItems.length}
             onToggleEdit={() => setEditMode(!isEditMode)}
             isEditMode={isEditMode}
             worksheetData={processedData}
@@ -403,20 +382,10 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                 )}
               </>
             ) : (
-              <div className={`w-full h-full ${currentView === 'workbook' ? '' : 'p-8 max-w-7xl'}`}>
+              <div className="w-full h-full p-8 max-w-7xl">
                 {currentView === 'savedList' ? (
                   <ProtectedRoute module="archive" onBack={onBackToGenerator}>
                     <SavedWorksheetsView onLoad={onLoadSaved} onBack={onBackToGenerator} />
-                  </ProtectedRoute>
-                ) : currentView === 'workbook' ? (
-                  <ProtectedRoute module="workbook" onBack={onBackToGenerator}>
-                    <WorkbookHub
-                      items={workbookItems}
-                      setItems={setWorkbookItems}
-                      settings={workbookSettings}
-                      setSettings={setWorkbookSettings}
-                      onBack={onBackToGenerator}
-                    />
                   </ProtectedRoute>
                 ) : currentView === 'favorites' ? (
                   <ProtectedRoute module="favorites" onBack={onBackToGenerator}>
@@ -445,7 +414,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         <A4EditorPanel worksheetData={worksheetData} setWorksheetData={setWorksheetData} />
       </div>
 
-      {currentView === 'assessment' && (
+{currentView === 'assessment' && (
         <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
           <React.Suspense
             fallback={
@@ -457,12 +426,10 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             <AssessmentModule
               onBack={onBackToGenerator}
               onSelectActivity={onSelectActivity!}
-               onAddToWorkbook={(assessment: SavedAssessment) => onAddDirectToWorkbook?.(assessment as unknown as CollectionItem)}
-               onAutoGenerateWorkbook={onAutoGenerateWorkbook}
-             />
-           </React.Suspense>
-         </div>
-       )}
+            />
+          </React.Suspense>
+        </div>
+      )}
 
        {currentView === 'mat-sinav-studyosu' && (
         <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">

@@ -15,7 +15,6 @@ import {
   View,
   UiSettings,
   CollectionItem,
-  WorkbookSettings,
   StudentProfile,
   AssessmentReport,
   GeneratorOptions,
@@ -57,7 +56,6 @@ import * as offlineGenerators from './services/offlineGenerators';
 import { useNavigationLogic } from './hooks/useNavigationLogic';
 import { useHistoryManager } from './hooks/useHistoryManager';
 import { useWorksheetManager } from './hooks/useWorksheetManager';
-import { useWorkbookActions } from './hooks/useWorkbookActions';
 
 // Landing Page
 const LandingPage = lazy(() =>
@@ -270,26 +268,6 @@ const AppContent = () => {
     setScreeningPlanData,
     setIsAdvancedScreeningOpen
   );
-  
-  const {
-    workbookItems,
-    setWorkbookItems,
-    workbookSettings,
-    setWorkbookSettings,
-    handleAddToWorkbookGeneral,
-    handleAddToWorkbook,
-    handleAddDirectToWorkbook,
-    handleAutoGenerateWorkbook,
-  } = useWorkbookActions(
-    styleSettings,
-    selectedActivity,
-    worksheetData,
-    user,
-    studentProfile,
-    toast,
-    setIsLoading,
-    navigateTo
-  );
 
   const { addSavedWorksheet, loadSavedWorksheet } = useWorksheetManager(
     styleSettings,
@@ -297,8 +275,6 @@ const AppContent = () => {
     setStudentProfile,
     setStyleSettings,
     setIsAuthModalOpen,
-    setWorkbookItems,
-    setWorkbookSettings,
     setSelectedSavedReport,
     setLoadedCurriculum,
     navigateTo,
@@ -493,7 +469,6 @@ const AppContent = () => {
       className={`flex flex-col h-screen bg-[var(--bg-primary)] font-sans transition-colors duration-300 ${styleSettings.orientation === 'landscape' ? 'app-orientation-landscape' : 'app-orientation-portrait'}`}
     >
       <AppHeader
-        workbookItemsCount={workbookItems.length}
         onOpenModal={(modal: ModalType) => setOpenModal(modal)}
         onOpenFeedback={() => setIsFeedbackOpen(true)}
         onOpenAuth={() => setIsAuthModalOpen(true)}
@@ -509,10 +484,10 @@ const AppContent = () => {
           ></div>
         )}
         <div
-          className={`transition-all duration-500 ease-in-out h-full relative group/sidebar-container ${isAdvancedScreeningOpen || zenMode || ['workbook', 'assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students', 'curriculum', 'screening', 'reading-studio', 'math-studio', 'super-turkce', 'infographic-studio', 'activity-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'sari-kitap-studio', 'kelime-cumle-studio', 'ocr'].includes(currentView) ? 'w-0 opacity-0 pointer-events-none' : 'opacity-100'}`}
+          className={`transition-all duration-500 ease-in-out h-full relative group/sidebar-container ${isAdvancedScreeningOpen || zenMode || ['assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students', 'curriculum', 'screening', 'reading-studio', 'math-studio', 'super-turkce', 'infographic-studio', 'activity-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'sari-kitap-studio', 'kelime-cumle-studio', 'ocr'].includes(currentView) ? 'w-0 opacity-0 pointer-events-none' : 'opacity-100'}`}
           style={{
             width:
-              isAdvancedScreeningOpen || zenMode || ['workbook', 'assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students', 'curriculum', 'screening', 'reading-studio', 'math-studio', 'super-turkce', 'infographic-studio', 'activity-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'sari-kitap-studio', 'kelime-cumle-studio', 'ocr'].includes(currentView)
+              isAdvancedScreeningOpen || zenMode || ['assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students', 'curriculum', 'screening', 'reading-studio', 'math-studio', 'super-turkce', 'infographic-studio', 'activity-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'sari-kitap-studio', 'kelime-cumle-studio', 'ocr'].includes(currentView)
                 ? 0
                 : (currentView === 'generator' && selectedActivity) ? 296 : 250,
           }}
@@ -568,18 +543,11 @@ const AppContent = () => {
               onFeedback={() => setIsFeedbackOpen(true)}
               onOpenAuth={() => setIsAuthModalOpen(true)}
               onSelectActivity={handleSelectActivity}
-              workbookItems={workbookItems}
-              setWorkbookItems={setWorkbookItems}
-              workbookSettings={workbookSettings}
-              setWorkbookSettings={setWorkbookSettings}
-              onAddToWorkbook={handleAddToWorkbook}
-              onAutoGenerateWorkbook={handleAutoGenerateWorkbook}
               studentProfile={studentProfile}
               zenMode={zenMode}
               toggleZenMode={() => setZenMode(!zenMode)}
               activeCurriculumSession={activeCurriculumSession}
               onCompleteCurriculumActivity={handleCompleteCurriculumActivity}
-              onAddDirectToWorkbook={handleAddDirectToWorkbook}
             />
           </Suspense>
 

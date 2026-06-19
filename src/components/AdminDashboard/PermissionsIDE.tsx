@@ -61,7 +61,6 @@ const MODULE_ICONS: Record<string, React.ReactNode> = {
   'sari-kitap': <BookOpen size={16} />,
   'kelime-cumle': <BookOpen size={16} />,
   'students': <Users size={16} />,
-  'workbook': <BookOpen size={16} />,
   'messaging': <FileText size={16} />,
   'favorites': <Target size={16} />,
   'archive': <FileText size={16} />,

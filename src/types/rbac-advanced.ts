@@ -37,7 +37,6 @@ export type PermissionModule =
   | 'sari-kitap'
   | 'kelime-cumle'
   | 'students'
-  | 'workbook'
   | 'messaging'
   | 'analytics'
   | 'planning'
@@ -71,7 +70,6 @@ export const MODULE_LABELS: Record<PermissionModule, string> = {
   'sari-kitap': 'Hızlı Okuma Stüdyosu',
   'kelime-cumle': 'Kelime-Cümle Stüdyosu',
   'students': 'Öğrenciler',
-  'workbook': 'Çalışma Kitapçığı',
   'messaging': 'Mesajlar',
   'favorites': 'Favori Etkinliklerim',
   'archive': 'Dijital Arşiv',
@@ -112,7 +110,7 @@ export const MODULE_CATEGORIES: { id: string; label: string; modules: Permission
   {
     id: 'tools-portals',
     label: 'Araçlar ve Portallar',
-    modules: ['students', 'workbook', 'messaging', 'favorites', 'archive', 'shared-materials', 'activity-history', 'analytics', 'planning', 'reports', 'settings', 'bep']
+    modules: ['students', 'messaging', 'favorites', 'archive', 'shared-materials', 'activity-history', 'analytics', 'planning', 'reports', 'settings', 'bep']
   },
   {
     id: 'admin-platform',
@@ -198,7 +196,7 @@ export const buildDefaultRBAC = (): RBACSettings => {
   ];
 
   const toolsPortals: PermissionModule[] = [
-    'students', 'workbook', 'messaging',
+    'students', 'messaging',
     'favorites', 'archive', 'shared-materials', 'activity-history'
   ];
 
