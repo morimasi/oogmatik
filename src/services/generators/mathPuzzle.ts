@@ -178,11 +178,9 @@ export const generateMathPuzzleOffline = (options: GeneratorOptions) => {
   const opts = options as Record<string, unknown>;
   const itemCount = (opts.itemCount as number) || 6;
   const difficulty = (opts.difficulty as string) || 'Orta';
-  const puzzleType = (opts.puzzleType as string) || 'visual';
   const operationType = (opts.operationType as string) || 'mixed';
-  const numberRange = (opts.numberRange as string) || '1-20';
 
-  const [minVal, maxVal] = numberRange.split('-').map(Number);
+  const [minVal, maxVal] = ((opts.numberRange as string) || '1-20').split('-').map(Number);
   const min = minVal || 1;
   const max = maxVal || 20;
 
@@ -199,48 +197,75 @@ export const generateMathPuzzleOffline = (options: GeneratorOptions) => {
 
   const rand = (a: number, b: number) => Math.floor(Math.random() * (b - a + 1)) + a;
 
+  const pick3 = () => {
+    const shuffled = [...objects].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 3);
+  };
+
   const puzzles = Array.from({ length: itemCount }, (_, idx) => {
-    const usedObjects = objects.slice(idx % objects.length, (idx % objects.length) + 3);
-    if (usedObjects.length < 2) usedObjects.push(...objects.slice(0, 2 - usedObjects.length));
+    const usedObjects = pick3();
+    const vals = [rand(min, Math.floor(max / 2)), rand(min, Math.floor(max / 2)), rand(min, Math.floor(max / 2))];
+    const namedObjects = usedObjects.map((o, i) => ({ ...o, value: vals[i] }));
+    const [a, b, c] = vals;
 
-    const values = usedObjects.map(() => rand(min, max));
-    const namedObjects = usedObjects.map((o, i) => ({ ...o, value: values[i] }));
-
-    const equations = [
+    const eqs: any[] = [
       {
-        leftSide: [{ objectName: namedObjects[0].name, multiplier: 1 }],
-        rightSide: values[0],
+        leftSide: [{ objectName: namedObjects[0].name, multiplier: 2 }],
+        operator: '+',
+        rightSide: a * 2,
       },
-      {
+    ];
+
+    if (operationType === 'add' || Math.random() > 0.5) {
+      eqs.push({
+        leftSide: [
+          { objectName: namedObjects[0].name, multiplier: 1 },
+          { objectName: namedObjects[1].name, multiplier: 2 },
+        ],
+        operator: '+',
+        rightSide: a + b * 2,
+      });
+      const [bigger, smaller] = b >= c
+        ? [namedObjects[1].name, namedObjects[2].name]
+        : [namedObjects[2].name, namedObjects[1].name];
+      eqs.push({
+        leftSide: [{ objectName: bigger, multiplier: 1 }, { objectName: smaller, multiplier: 1 }],
+        operator: '-',
+        rightSide: Math.abs(b - c),
+      });
+    } else {
+      eqs.push({
         leftSide: [
           { objectName: namedObjects[0].name, multiplier: 1 },
           { objectName: namedObjects[1].name, multiplier: 1 },
         ],
-        rightSide: values[0] + values[1],
-      },
-      {
+        operator: '+',
+        rightSide: a + b,
+      });
+      eqs.push({
         leftSide: [
-          { objectName: namedObjects[0].name, multiplier: 2 },
           { objectName: namedObjects[1].name, multiplier: 1 },
+          { objectName: namedObjects[2].name, multiplier: 1 },
         ],
-        rightSide: 2 * values[0] + values[1],
-      },
-    ];
+        operator: '+',
+        rightSide: b + c,
+      });
+    }
 
-    // Yeni kombinasyon: denklemlerde görünmeyen farklı bir işlem
-    const useMultiply = namedObjects.length > 2 ? Math.random() > 0.5 : true;
-    const opSymbol = useMultiply ? '×' : '+';
-    const finalValue = useMultiply ? values[0] * values[1] : values[0] + values[1];
-    const finalQ = namedObjects.length > 2
-      ? `(${namedObjects[0].name} ${opSymbol} ${namedObjects[1].name}) + ${namedObjects[2].name}`
-      : `${namedObjects[0].name} ${opSymbol} ${namedObjects[1].name}`;
-    const finalAnswer = namedObjects.length > 2 ? finalValue + (values[2] || 0) : finalValue;
+    const qPatterns = [
+      `${namedObjects[0].name} + ${namedObjects[1].name} + ${namedObjects[2].name} = ?`,
+      `${namedObjects[0].name} + ${namedObjects[1].name} - ${namedObjects[2].name} = ?`,
+      `2 × ${namedObjects[0].name} + ${namedObjects[1].name} = ?`,
+      `${namedObjects[0].name} + 2 × ${namedObjects[1].name} = ?`,
+    ];
+    const aPatterns = [a + b + c, Math.max(a + b - c, 1), a * 2 + b, a + b * 2];
+    const pi = rand(0, qPatterns.length - 1);
 
     return {
       objects: namedObjects,
-      equations,
-      finalQuestion: finalQ,
-      answer: finalAnswer,
+      equations: eqs,
+      finalQuestion: qPatterns[pi],
+      answer: aPatterns[pi],
     };
   });
 
@@ -250,7 +275,7 @@ export const generateMathPuzzleOffline = (options: GeneratorOptions) => {
     title: 'Matematik Bulmacaları',
     instruction: 'Nesnelerin değerini bularak soru işaretini cevapla.',
     pedagogicalNote: 'Görsel sembollerle cebirsel düşünme ve mantıksal çıkarım becerisi geliştirilir.',
-    settings: { difficulty, itemCount, puzzleType, operationType, numberRange, fastMode: true },
+    settings: { difficulty, itemCount, puzzleType: 'visual', operationType, numberRange: `${min}-${max}`, fastMode: true },
     puzzles,
     content: { puzzles },
   };
