@@ -6,10 +6,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MarkdownRenderer } from '../../Common/MarkdownRenderer';
 
 interface A4PreviewPanelProps {
-  onAddToWorkbook?: (activityType: any, data: any) => void;
 }
 
-export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = ({ onAddToWorkbook }) => {
+export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
   const { generatedContents, isGenerating } = useSuperStudioStore();
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [showAllPages, setShowAllPages] = useState(false);
@@ -129,7 +128,7 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = ({ onAddToWorkbook 
           </button>
         )}
 
-        <ActionToolbar onAddToWorkbook={onAddToWorkbook} />
+        <ActionToolbar />
       </div>
 
       {/* A4 Canvas Area */}

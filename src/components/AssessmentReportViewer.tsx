@@ -14,7 +14,6 @@ interface AssessmentReportViewerProps {
     onManualSave?: () => Promise<void>;
     isSaving?: boolean;
     isSaved?: boolean;
-    onAddToWorkbook?: (assessment: SavedAssessment) => void;
     onAutoGenerateWorkbook?: (report: AssessmentReport) => void;
     onSelectActivity?: (id: ActivityType) => void;
     onGeneratePlan?: (name: string, age: number, weaknesses: string[], context?: string) => void;
@@ -93,7 +92,6 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
     onManualSave,
     isSaving,
     isSaved,
-    onAddToWorkbook,
     onAutoGenerateWorkbook,
     onSelectActivity
 }) => {
@@ -167,7 +165,7 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                     </button>
                 </header>
 
-                {/* Toolbar */}
+{/* Toolbar */}
                 <div className="flex justify-end items-center gap-2 p-3 bg-zinc-50 border-b border-zinc-200 flex-wrap flex-shrink-0">
                     <button onClick={() => handleAction('download')} disabled={isPrinting}
                         className="flex items-center gap-2 px-3 py-1.5 bg-red-100 text-red-700 rounded-lg text-xs font-bold hover:bg-red-200 disabled:opacity-50 transition-colors">
@@ -185,21 +183,8 @@ export const AssessmentReportViewer: React.FC<AssessmentReportViewerProps> = ({
                     <div className="h-6 w-px bg-zinc-300 mx-1"></div>
                     {onAutoGenerateWorkbook && (
                         <button onClick={() => onAutoGenerateWorkbook(report)}
-                            className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg text-xs font-bold hover:shadow-lg transition-all shadow-md">
-                            <i className="fa-solid fa-wand-magic-sparkles"></i> Akıllı Rota
-                        </button>
-                    )}
-                    {onAddToWorkbook && (
-                        <button onClick={() => onAddToWorkbook(assessment)}
-                            className="flex items-center gap-2 px-3 py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-all">
-                            <i className="fa-solid fa-plus-circle"></i> Rapora Ekle
-                        </button>
-                    )}
-                    {onManualSave && (
-                        <button onClick={onManualSave} disabled={isSaving || isSaved}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${isSaved ? 'bg-green-100 text-green-700 border border-green-200 cursor-default' : 'bg-white text-zinc-700 border border-zinc-300 hover:bg-zinc-100'}`}>
-                            {isSaving ? <i className="fa-solid fa-spinner fa-spin"></i> : isSaved ? <i className="fa-solid fa-check"></i> : <i className="fa-solid fa-save"></i>}
-                            <span className="hidden sm:inline">{isSaved ? 'Kaydedildi' : 'Kaydet'}</span>
+                            className="flex items-center gap-2 px-3 py-1.5 bg-indigo-100 text-indigo-700 rounded-lg text-xs font-bold hover:bg-indigo-200 transition-colors">
+                            <i className="fa-solid fa-wand-magic-sparkles"></i> Kitapçık Oluştur
                         </button>
                     )}
                 </div>

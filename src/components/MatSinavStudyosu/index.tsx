@@ -50,11 +50,10 @@ const SectionHeader: React.FC<{ icon: string; title: string; badge?: string; isO
 );
 
 interface MatSinavStudyosuProps {
-    onAddToWorkbook?: (activityType: ActivityType, data: unknown) => void;
     initialData?: any;
 }
 
-export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkbook, initialData }) => {
+export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ initialData }) => {
     const {
         ayarlar,
         setSinif,
@@ -282,69 +281,6 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ onAddToWorkb
         if (!sinav) return;
         setAktifSinav(sinav);
         setActiveTab('onizleme');
-    };
-
-    // ─── Workbook Integration — Çalışma Kitabına Ekle ──────────────
-    const handleAddToWorkbook = () => {
-        if (!aktifSinav) {
-            setError('Lütfen önce bir sınav oluşturun.');
-            return;
-        }
-
-        if (onAddToWorkbook) {
-            // Soruları 4'erli sayfalara böl
-            const sorular = aktifSinav.sorular || [];
-            const perPage = 4;
-            const pages = [];
-            for (let i = 0; i < sorular.length; i += perPage) {
-                pages.push({
-                   ...aktifSinav,
-                   sorular: sorular.slice(i, i + perPage),
-                   title: aktifSinav.baslik || 'Matematik Sınavı',
-                   instruction: 'Problemleri dikkatlice çözünüz.',
-                   printConfig,
-                });
-            }
-
-            // Canlı çalışma kitabına ekle (App state)
-            onAddToWorkbook(ActivityType.MAT_SINAV, {
-                title: aktifSinav.baslik || 'Matematik Sınavı',
-                pages
-            });
-            showSuccess('✅ Sınav çalışma kitabına eklendi!');
-        } else {
-            // Fallback: Arşive kaydet (onAddToWorkbook prop yoksa)
-            setIsSavingToWorkbook(true);
-            setError(null);
-            const user = useAuthStore.getState().user;
-            if (!user) {
-                setError('Lütfen giriş yapın.');
-                setIsSavingToWorkbook(false);
-                return;
-            }
-            const worksheetData = {
-                title: aktifSinav.baslik || 'Matematik Sınavı',
-                instruction: 'Matematik problemlerini dikkatlice çözünüz.',
-                activityType: ActivityType.MAT_SINAV,
-                data: [aktifSinav],
-                printConfig,
-            };
-            worksheetService.saveWorksheet(
-                user.id,
-                aktifSinav.baslik || 'Matematik Sınavı',
-                ActivityType.MAT_SINAV,
-                [worksheetData],
-                'fa-solid fa-square-root-variable',
-                { id: 'math-logic', title: 'Matematik & Mantık' },
-            ).then(() => {
-                showSuccess('✅ Sınav arşive kaydedildi!');
-            }).catch((err: unknown) => {
-                const msg = err instanceof Error ? err.message : 'Bilinmeyen hata';
-                setError(`Kaydetme hatası: ${msg}`);
-            }).finally(() => {
-                setIsSavingToWorkbook(false);
-            });
-        }
     };
 
     return (

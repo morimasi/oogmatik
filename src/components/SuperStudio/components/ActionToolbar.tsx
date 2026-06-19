@@ -9,10 +9,9 @@ import { SingleWorksheetData, ActivityType } from '../../../types';
 import { logInfo, logError, logWarn } from '../../../utils/logger.js';
 
 interface ActionToolbarProps {
-  onAddToWorkbook?: (activityType: any, data: any) => void;
 }
 
-export const ActionToolbar: React.FC<ActionToolbarProps> = ({ onAddToWorkbook }) => {
+export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
   const { generatedContents, isGenerating } = useSuperStudioStore();
   const { user } = useAuthStore();
   const { show: addToast } = useToastStore();
@@ -64,24 +63,6 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = ({ onAddToWorkbook })
     }
   };
 
-  const handleAddToWorkbook = () => {
-    if (generatedContents.length === 0 || !onAddToWorkbook) return;
-    
-    const content = generatedContents[0];
-    const pages = content.pages.map((page: any) => ({
-        ...page,
-        activityType: content.templateId,
-        isSuperStudio: true
-    }));
-    
-    // Süper Türkçe Stüdyosu genellikle çok sayfalı olabilir.
-    // Yeni WorkbookPageContract standartımız gereği bunu obje içerisinde pages olarak iletiyoruz.
-    onAddToWorkbook(ActivityType.PREMIUM_STUDIO, {
-        title: pages[0]?.title || 'Süper Türkçe Etkinliği',
-        pages
-    });
-  };
-
   const handlePrint = () => {
     const targetSelector = '.super-reading-preview-area';
     const allPages = document.querySelectorAll('.super-reading-preview-area .a4-page, .super-reading-preview-area .worksheet-page');
@@ -114,15 +95,6 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = ({ onAddToWorkbook })
       >
         <i className="fa-solid fa-cloud-arrow-up text-teal-400"></i>
         <span className="hidden sm:inline">Kaydet</span>
-      </button>
-      <button
-        onClick={handleAddToWorkbook}
-        className="px-4 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold transition-all border border-slate-700/50 flex items-center gap-2 backdrop-blur-md hover:scale-105 active:scale-95 disabled:opacity-30 disabled:pointer-events-none shadow-sm"
-        title="Kayıtlı Bir Kitapçığa Ekle"
-        disabled={generatedContents.length === 0 || !onAddToWorkbook}
-      >
-        <i className="fa-solid fa-book-medical text-amber-400"></i>
-        <span className="hidden sm:inline">Kitapçığa Ekle</span>
       </button>
       <button
         onClick={handlePrint}

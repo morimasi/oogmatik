@@ -13,13 +13,12 @@ import { logInfo, logError, logWarn } from '../utils/logger.js';
 interface AssessmentModuleProps {
     onBack: () => void;
     onSelectActivity: (id: ActivityType) => void;
-    onAddToWorkbook?: (assessment: SavedAssessment) => void;
     onAutoGenerateWorkbook?: (report: any) => void;
 }
 
 import { DOMAINS, DOMAIN_COLORS, DOMAIN_ICON_COLORS, DOMAIN_ACTIVITY_MAP } from '../constants/assessmentConstants';
 
-export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, onAutoGenerateWorkbook }: AssessmentModuleProps) => {
+export const AssessmentModule = ({ onBack, onSelectActivity, onAutoGenerateWorkbook }: AssessmentModuleProps) => {
     const { user } = useAuthStore();
     const { students, activeStudent, setActiveStudent } = useStudentStore();
 
@@ -553,7 +552,6 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAddToWorkbook, on
                 assessment={finalReport}
                 onClose={() => { setView('setup'); onBack(); }}
                 user={user}
-                onAddToWorkbook={onAddToWorkbook}
                 onAutoGenerateWorkbook={onAutoGenerateWorkbook}
                 onSelectActivity={onSelectActivity}
             />

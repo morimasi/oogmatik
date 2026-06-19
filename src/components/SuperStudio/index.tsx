@@ -9,10 +9,9 @@ import { generateSuperStudioContent } from '../../services/generators/superStudi
 
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
 interface SuperStudioProps {
-  onAddToWorkbook?: (activityType: any, data: any) => void;
 }
 
-export const SuperStudio: React.FC<SuperStudioProps> = ({ onAddToWorkbook }) => {
+export const SuperStudio: React.FC<SuperStudioProps> = () => {
   const {
     isGenerating,
     selectedTemplates,
@@ -106,7 +105,7 @@ export const SuperStudio: React.FC<SuperStudioProps> = ({ onAddToWorkbook }) => 
 
       {/* Sağ Panel: A4 Önizleme ve Operasyonlar */}
       <div className="flex-1 flex flex-col bg-[var(--bg-primary)] relative overflow-hidden">
-        <A4PreviewPanel onAddToWorkbook={onAddToWorkbook} />
+        <A4PreviewPanel />
       </div>
     </div>
   );

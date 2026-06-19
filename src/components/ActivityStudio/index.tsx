@@ -5,10 +5,9 @@ import { usePedagogicGates } from './hooks/usePedagogicGates';
 
 interface ActivityStudioProps {
   onBack: () => void;
-  onAddToWorkbook?: (item: unknown) => void;
 }
 
-export const ActivityStudio: React.FC<ActivityStudioProps> = ({ onBack, onAddToWorkbook }) => {
+export const ActivityStudio: React.FC<ActivityStudioProps> = ({ onBack }) => {
   const { wizardData, isGenerating, error } = useActivityStudioStore();
   const { validateGoal } = usePedagogicGates();
   const gateSummary = validateGoal(wizardData.goal);
