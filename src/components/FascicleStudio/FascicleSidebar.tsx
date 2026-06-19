@@ -1,6 +1,6 @@
-import { Layers, Plus, FileText } from 'lucide-react';
-import { v4 as uuidv4 } from 'uuid';
-import toast from 'react-hot-toast';
+import React from 'react';
+import { 
+  DndContext, 
   closestCenter,
   KeyboardSensor,
   PointerSensor,
@@ -16,7 +16,9 @@ import {
 } from '@dnd-kit/sortable';
 import { useFascicleStore } from '../../store/useFascicleStore';
 import { SortableItem } from './SortableItem';
-import { FasciclePreview } from './FasciclePreview';
+import { Layers, Plus, FileText } from 'lucide-react';
+import { v4 as uuidv4 } from 'uuid';
+import toast from 'react-hot-toast';
 
 export const FascicleSidebar: React.FC = () => {
   const { items, reorderItems, removeItem, addItem } = useFascicleStore();
@@ -53,8 +55,8 @@ export const FascicleSidebar: React.FC = () => {
   const handleAutoSort = async () => {
     toast.loading('AI Sayfaları pedagojik olarak sıralıyor...', { id: 'ai-sort' });
     try {
-       const resultObj = await generateWithSchema(prompt, schema as unknown as Record<string, unknown>) as { suggestions: string[] };
-       const newOrderIds = resultObj.suggestions || [];
+       const { fascicleAIEngine } = await import('../../services/fascicleAIEngine');
+       const newOrderIds = await fascicleAIEngine.autoSortByDifficulty(items);
        
        newOrderIds.forEach((id, index) => {
           const oldIndex = items.findIndex(i => i.id === id);

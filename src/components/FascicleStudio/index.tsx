@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { useFascicleStore } from '../../store/useFascicleStore';
 import { FascicleSidebar } from './FascicleSidebar';
 import { FasciclePreview } from './FasciclePreview';
-import { Button } from '../Common/Button'; // Assuming a common Button exists, fallback to standard HTML button if needed
 import { FileDown, RefreshCcw, Save, Undo, Redo, LayoutTemplate } from 'lucide-react';
 import { fascicleService } from '../../services/fascicleService';
 import toast from 'react-hot-toast';
