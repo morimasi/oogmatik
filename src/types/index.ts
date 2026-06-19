@@ -28,6 +28,7 @@ export * from './adStudio';
 export * from './superStudio';
 export * from './assignment';
 export * from './activity';
+export * from './fascicle';
 
 // ==========================================
 // FAZ 4: EXPORT AMBIGUITY ÇÖZÜMLERİ
