@@ -1,6 +1,6 @@
-import React from 'react';
-import { 
-  DndContext, 
+import { Layers, Plus, FileText } from 'lucide-react';
+import { v4 as uuidv4 } from 'uuid';
+import toast from 'react-hot-toast';
   closestCenter,
   KeyboardSensor,
   PointerSensor,
@@ -16,8 +16,7 @@ import {
 } from '@dnd-kit/sortable';
 import { useFascicleStore } from '../../store/useFascicleStore';
 import { SortableItem } from './SortableItem';
-import { Layers, Plus, FileText } from 'lucide-react';
-import { v4 as uuidv4 } from 'uuid';
+import { FasciclePreview } from './FasciclePreview';
 
 export const FascicleSidebar: React.FC = () => {
   const { items, reorderItems, removeItem, addItem } = useFascicleStore();
@@ -49,6 +48,24 @@ export const FascicleSidebar: React.FC = () => {
       content: { sample: true },
       pedagogicalNote: 'ZPD adaptasyonu için eklenmiş örnek aktivite.'
     });
+  };
+
+  const handleAutoSort = async () => {
+    toast.loading('AI Sayfaları pedagojik olarak sıralıyor...', { id: 'ai-sort' });
+    try {
+       const resultObj = await generateWithSchema(prompt, schema as unknown as Record<string, unknown>) as { suggestions: string[] };
+       const newOrderIds = resultObj.suggestions || [];
+       
+       newOrderIds.forEach((id, index) => {
+          const oldIndex = items.findIndex(i => i.id === id);
+          if (oldIndex !== -1 && oldIndex !== index) {
+             reorderItems(oldIndex, index);
+          }
+       });
+       toast.success('Pedagojik ZPD sıralaması uygulandı!', { id: 'ai-sort' });
+    } catch(err) {
+       toast.error('Sıralama başarısız oldu.', { id: 'ai-sort' });
+    }
   };
 
   return (
@@ -97,10 +114,17 @@ export const FascicleSidebar: React.FC = () => {
            <span>Toplam Sayfa:</span>
            <span className="font-bold text-white text-sm">{items.reduce((acc, curr) => acc + curr.pageCount, 0)} sf</span>
          </div>
-         <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-            <p className="text-xs text-blue-300">
-              💡 <strong>AI Asistan:</strong> Pedagojik sıralama için "Zorluk Göre Diz" butonunu kullanabilirsiniz.
+         <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg flex flex-col items-start">
+            <p className="text-[11px] text-blue-300 mb-2 leading-tight">
+              💡 <strong>AI Asistan:</strong> Pedagojik ZPD kurallarına göre (Kolaydan Zora) sıralayabilirsiniz.
             </p>
+            <button 
+               onClick={handleAutoSort}
+               disabled={items.length < 2}
+               className="text-xs bg-blue-600 hover:bg-blue-500 text-white py-1 px-3 rounded w-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            >
+               AI Pedagojik Diziliş Uygula
+            </button>
          </div>
       </div>
     </div>
