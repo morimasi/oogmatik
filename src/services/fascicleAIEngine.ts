@@ -40,10 +40,10 @@ class FascicleAIEngine {
     };
 
     try {
-      const resultObj = await generateWithSchema(prompt, schema as any) as { suggestions: string[] };
+      const resultObj = await generateWithSchema(prompt, schema) as { suggestions: string[] };
       return resultObj.suggestions || [];
     } catch (error) {
-      logError("AI Smart Suggestion Hatası", error);
+      logError(error, { context: "AI Smart Suggestion Hatası" });
       throw new AppError("Öneriler alınırken AI motorunda bir sorun yaşandı.", "AI_SUGGESTION_ERROR", 500);
     }
   }
@@ -89,14 +89,15 @@ class FascicleAIEngine {
     };
 
     try {
-      const resultObj = await generateWithSchema(prompt, schema as any) as { orderedIds: string[] };
+      // @ts-ignore: Strict type mismatch with Gemini param
+      const resultObj = await generateWithSchema(prompt, schema) as { orderedIds: string[] };
       // Fallback
       if (!resultObj.orderedIds || resultObj.orderedIds.length !== items.length) {
          return items.map(i => i.id);
       }
       return resultObj.orderedIds;
     } catch (error) {
-      logError("AI Sorting Hatası", error);
+      logError(error, { context: "AI Sorting Hatası" });
       return items.map(i => i.id); // Hata anında sıralamayı bozma
     }
   }
@@ -135,10 +136,10 @@ class FascicleAIEngine {
     };
 
     try {
-       const resultObj = await generateWithSchema(prompt, schema as any) as { summaryText: string };
+       const resultObj = await generateWithSchema(prompt, schema) as { summaryText: string };
        return resultObj.summaryText || 'Bu fasikül, öğrencinin bireysel becerilerini desteklemek için özenle hazırlanmıştır.';
     } catch(error) {
-       logError("AI Executive Summary Hatası", error);
+       logError(error, { context: "AI Executive Summary Hatası" });
        return 'Bu fasikül, öğrencinin bireysel becerilerini olumlu yönde desteklemek ve geliştirmek için özel bir seçki ile hazırlanmıştır.';
     }
   }
