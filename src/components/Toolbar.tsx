@@ -19,6 +19,8 @@ interface ToolbarProps {
   onSave: () => void;
   onAssign?: () => void;
   onShare?: () => void;
+  onAddToWorkbook?: () => void;
+  workbookItemCount?: number;
   onSpeak?: () => void;
   isSpeaking?: boolean;
   onStopSpeak?: () => void;
@@ -38,6 +40,8 @@ export const Toolbar = ({
   onSave,
   onAssign,
   onShare,
+  onAddToWorkbook,
+  workbookItemCount = 0,
   onSpeak,
   isSpeaking,
   onStopSpeak,
@@ -197,6 +201,8 @@ export const Toolbar = ({
           onSave={onSave}
           onAssign={onAssign}
           onShare={onShare}
+          onAddToWorkbook={onAddToWorkbook}
+          workbookItemCount={workbookItemCount}
         />
       </div>
     </div>
