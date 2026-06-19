@@ -6,7 +6,7 @@ export interface FascicleItem {
   id: string; // Benzersiz öğe ID'si
   originalActivityId?: string; // Daha önce üretilmişse referans ID'si
   type: string; // 'worksheet', 'exam', 'reading', 'visual_perception' vb.
-  content: any; // Bileşen renderı için JSON/nesne veya markup
+  content: unknown; // Bileşen renderı için JSON/nesne veya markup
   pageCount: number; // Kaç sayfa kaplayacağı (genelde 1)
   difficulty: FascicleDifficulty;
   pedagogicalNote?: string;

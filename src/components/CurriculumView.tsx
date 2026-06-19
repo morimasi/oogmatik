@@ -11,6 +11,7 @@ import { AppError } from '../utils/AppError';
 import { Difficulty } from '../types/common';
 import { ACTIVITIES } from '../constants';
 import { useToastStore } from '../store/useToastStore';
+import { useFascicleStore } from '../store/useFascicleStore';
 import { profileShareService } from '../services/profileShareService';
 
 interface CurriculumViewProps {
@@ -938,6 +939,22 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onStartC
                             <button onClick={() => setIsShareModalOpen(true)} className="w-10 h-10 rounded-xl hover:bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] transition-colors border border-[var(--border-color)]" title="Paylaş"><i className="fa-solid fa-share-nodes"></i></button>
                             <button onClick={() => handlePrint('download')} disabled={isPrinting} className="w-10 h-10 rounded-xl bg-[var(--text-primary)] text-[var(--bg-paper)] hover:opacity-90 flex items-center justify-center transition-colors">{isPrinting ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-file-pdf"></i>}</button>
                             <button onClick={() => handlePrint('print')} disabled={isPrinting} className="w-10 h-10 rounded-xl bg-[var(--text-primary)] text-[var(--bg-paper)] hover:opacity-90 flex items-center justify-center transition-colors"><i className="fa-solid fa-print"></i></button>
+                            <button
+                                onClick={() => {
+                                    const { addItem, items } = useFascicleStore.getState();
+                                    addItem({
+                                        id: crypto.randomUUID(),
+                                        type: 'curriculum',
+                                        difficulty: 'Orta',
+                                        pageCount: curriculum ? Object.keys(curriculum.days || {}).length : 1,
+                                        order: items.length,
+                                        content: { curriculum },
+                                        pedagogicalNote: 'Müfredat Stüdyosu\'ndan eklendi.'
+                                    });
+                                }}
+                                className="w-10 h-10 rounded-xl bg-fuchsia-600 hover:bg-fuchsia-500 text-white flex items-center justify-center transition-colors shadow-sm"
+                                title="Fasiküle Ekle"
+                            ><i className="fa-solid fa-layer-group"></i></button>
                             <button onClick={handleSave} disabled={isSaved || isSaving} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2 shadow-lg ${isSaved ? 'bg-emerald-600 text-white cursor-default' : 'bg-[var(--accent-color)] text-white hover:bg-[var(--accent-hover)]'}`}>
                                 {isSaving ? <i className="fa-solid fa-circle-notch fa-spin"></i> : isSaved ? <><i className="fa-solid fa-check"></i> Plan Kaydedildi</> : <><i className="fa-solid fa-save"></i> Planı Arşivle</>}
                             </button>

@@ -30,7 +30,6 @@ import { ACTIVITIES, ACTIVITY_CATEGORIES } from './constants';
 import DyslexiaLogo from './components/DyslexiaLogo';
 import { FeedbackModal } from './components/FeedbackModal';
 import { AuthModal } from './components/AuthModal';
-import { worksheetService } from './services/worksheetService';
 import { curriculumService } from './services/curriculumService';
 import { SettingsModal } from './components/SettingsModal';
 import { TourGuide, TourStep } from './components/TourGuide';
@@ -295,27 +294,29 @@ const AppContent = () => {
     setIsAuthModalOpen
   );
 
-  const handleAddToWorkbookGeneral = (typeOrData: any, dataOrNothing?: any) => {
+  const handleAddToWorkbookGeneral = (typeOrData: unknown, dataOrNothing?: unknown) => {
     const { addItem, items } = useFascicleStore.getState();
     let type: string;
-    let data: any;
+    let data: unknown;
 
     if (dataOrNothing !== undefined) {
       type = String(typeOrData);
       data = dataOrNothing;
     } else {
-      type = (typeOrData as any).activityType || selectedActivity || 'premium-studio';
+      const obj = typeOrData as Record<string, unknown> | null;
+      type = (obj?.activityType as string) || selectedActivity || 'premium-studio';
       data = typeOrData;
     }
 
+    const dataRecord = data as Record<string, unknown> | null;
     addItem({
       id: crypto.randomUUID(),
       type: type,
       difficulty: 'Orta',
-      pageCount: Array.isArray(data?.pages) ? data.pages.length : 1,
+      pageCount: Array.isArray(dataRecord?.pages) ? dataRecord.pages.length : 1,
       order: items.length,
       content: data,
-      pedagogicalNote: (data as any)?.pedagogicalNote || 'Stüdyodan eklendi.'
+      pedagogicalNote: (dataRecord?.pedagogicalNote as string) || 'Stüdyodan eklendi.'
     });
     toast.success('Fasiküle başarıyla eklendi!');
   };

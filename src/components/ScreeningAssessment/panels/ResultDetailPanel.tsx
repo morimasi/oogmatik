@@ -24,7 +24,6 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
     handlePrintReport,
     handleShareResults,
     handleShareScreeningResult,
-    handleAddToWorkbook,
     isSaving,
     getScoreColor,
   } = useScreeningAssessment({});

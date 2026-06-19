@@ -2,6 +2,8 @@
 
 import React from 'react';
 import { MathMode } from '../../../types/math';
+import { useFascicleStore } from '../../../store/useFascicleStore';
+import toast from 'react-hot-toast';
 
 interface MathHeaderProps {
     mode: MathMode;
@@ -75,8 +77,25 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
             <button onClick={onShare} className="w-9 h-9 rounded-xl bg-zinc-800 hover:bg-zinc-700 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" title="Paylaş">
                 <i className="fa-solid fa-share-nodes"></i>
             </button>
-
-
+            <button
+                onClick={() => {
+                    const { addItem, items } = useFascicleStore.getState();
+                    addItem({
+                        id: crypto.randomUUID(),
+                        type: 'math-studio',
+                        difficulty: 'Orta',
+                        pageCount: 1,
+                        order: items.length,
+                        content: { mode },
+                        pedagogicalNote: 'Matematik Stüdyosu\'ndan eklendi.'
+                    });
+                    toast.success('Fasiküle eklendi!');
+                }}
+                className="w-9 h-9 rounded-xl bg-fuchsia-600 hover:bg-fuchsia-500 flex items-center justify-center text-white transition-colors shadow-sm"
+                title="Fasiküle Ekle"
+            >
+                <i className="fa-solid fa-layer-group"></i>
+            </button>
 
             <button
                 onClick={onSave}

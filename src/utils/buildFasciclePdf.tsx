@@ -9,7 +9,8 @@ import {
   Image,
   Font
 } from '@react-pdf/renderer';
-import { FascicleDocument, FascicleItem } from '../types/fascicle';
+import { FascicleDocument } from '../types/fascicle';
+import { logError } from '../utils/logger.js';
 
 // Disleksi dostu Lexend fontunu yükleme (Vercel'deki static klasörde varsayılarak veya Google API'den)
 Font.register({
@@ -197,8 +198,8 @@ export const buildFasciclePdfBlob = async (options: BuildPdfOptions): Promise<Bl
      const doc = <FasciclePdfDoc {...options} />;
      const pdfStream = await pdf(doc as any).toBlob();
      return pdfStream;
-  } catch (error) {
-     console.error("PDF Generate Error", error);
-     throw error;
-  }
+   } catch (error) {
+      logError("PDF Generate Error: " + String(error));
+      throw error;
+   }
 };

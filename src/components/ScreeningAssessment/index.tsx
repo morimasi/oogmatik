@@ -29,7 +29,7 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
 }) => {
   const { activeView, setActiveView, setIsAdvancedScreeningOpen, setScreeningData, setCurrentScreening, selectedStudentName } = useScreeningStore();
   const toast = useToastStore();
-  const { currentScreening, handleSaveScreening, handleDownloadReport, handlePrintReport, handleShareResults, handleShareScreeningResult, handleAddToWorkbook } =
+  const { currentScreening, handleSaveScreening, handleDownloadReport, handlePrintReport, handleShareResults, handleShareScreeningResult } =
     useScreeningAssessment({});
 
   useEffect(() => {

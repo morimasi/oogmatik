@@ -4,6 +4,7 @@ import { FascicleSidebar } from './FascicleSidebar';
 import { FasciclePreview } from './FasciclePreview';
 import { FileDown, RefreshCcw, Save, Undo, Redo, LayoutTemplate } from 'lucide-react';
 import { fascicleService } from '../../services/fascicleService';
+import { logError } from '../../utils/logger.js';
 import toast from 'react-hot-toast';
 
 interface FascicleStudioProps {
@@ -17,7 +18,7 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
     // Auto-save logic triggers when items or metadata changes, if there is an ID (not just local draft)
     // For local drafts, we might generate a temp ID.
     if (currentFascicleId) {
-       fascicleService.autoSaveDraft(currentFascicleId, { metadata, items }).catch(console.error);
+       fascicleService.autoSaveDraft(currentFascicleId, { metadata, items }).catch(err => logError('AutoSave failed', err));
     }
   }, [items, metadata, currentFascicleId]);
 

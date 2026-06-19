@@ -7,6 +7,7 @@ import { printService } from '../../../utils/printService';
 import { SingleWorksheetData, ActivityType } from '../../../types';
 
 import { logInfo, logError, logWarn } from '../../../utils/logger.js';
+import { useFascicleStore } from '../../../store/useFascicleStore';
 
 interface ActionToolbarProps {
 }
@@ -88,14 +89,35 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
   return (
     <div className="flex gap-3">
       <button
-        onClick={handleSave}
-        disabled={isGenerating || generatedContents.length === 0}
-        className="px-4 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold transition-all border border-slate-700/50 flex items-center gap-2 backdrop-blur-md hover:scale-105 active:scale-95 disabled:opacity-30 disabled:pointer-events-none shadow-sm"
-        title="Sisteme Kaydet veya Arşivle"
-      >
-        <i className="fa-solid fa-cloud-arrow-up text-teal-400"></i>
-        <span className="hidden sm:inline">Kaydet</span>
-      </button>
+         onClick={handleSave}
+         disabled={isGenerating || generatedContents.length === 0}
+         className="px-4 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold transition-all border border-slate-700/50 flex items-center gap-2 backdrop-blur-md hover:scale-105 active:scale-95 disabled:opacity-30 disabled:pointer-events-none shadow-sm"
+         title="Sisteme Kaydet veya Arşivle"
+       >
+         <i className="fa-solid fa-cloud-arrow-up text-teal-400"></i>
+         <span className="hidden sm:inline">Kaydet</span>
+       </button>
+       <button
+         onClick={() => {
+             const { addItem, items } = useFascicleStore.getState();
+             addItem({
+                 id: crypto.randomUUID(),
+                 type: 'super-turkce',
+                 difficulty: 'Orta',
+                 pageCount: generatedContents.length,
+                 order: items.length,
+                 content: { generatedContents },
+                 pedagogicalNote: 'Süper Türkçe Stüdyosu\'ndan eklendi.'
+             });
+             addToast('Fasiküle başarıyla eklendi!', 'success');
+         }}
+         disabled={isGenerating || generatedContents.length === 0}
+         className="px-4 py-2 bg-fuchsia-600/80 hover:bg-fuchsia-600 text-white rounded-xl text-xs font-semibold transition-all border border-fuchsia-500/50 flex items-center gap-2 backdrop-blur-md hover:scale-105 active:scale-95 disabled:opacity-30 disabled:pointer-events-none shadow-sm"
+         title="Fasiküle Ekle"
+       >
+         <i className="fa-solid fa-layer-group"></i>
+         <span className="hidden sm:inline">Fasiküle Ekle</span>
+       </button>
       <button
         onClick={handlePrint}
         disabled={isGenerating || generatedContents.length === 0}

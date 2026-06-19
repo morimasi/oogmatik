@@ -15,6 +15,7 @@ import { AppError } from '../../utils/AppError';
 import { worksheetService } from '../../services/worksheetService';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useStudentStore } from '../../store/useStudentStore';
+import { useFascicleStore } from '../../store/useFascicleStore';
 import { ActivityType } from '../../types';
 import type { Soru, CevapAnahtari } from '../../types/sinav';
 
@@ -201,6 +202,21 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
     } finally {
       setIsDownloading(false);
     }
+  };
+
+  const handleAddToFascicle = () => {
+    if (!aktifSinav) return;
+    const { addItem, items } = useFascicleStore.getState();
+    addItem({
+      id: crypto.randomUUID(),
+      type: 'sinav-studyosu',
+      difficulty: 'Orta',
+      pageCount: aktifSinav.sorular?.length || 1,
+      order: items.length,
+      content: { sinav: aktifSinav },
+      pedagogicalNote: 'Sınav Stüdyosu\'ndan eklendi.'
+    });
+    showSuccess('Kitapçığa eklendi!');
   };
 
   const handleSaveExam = async () => {
@@ -475,23 +491,11 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
                 </button>
               ))}
               <button
-                onClick={handleAddToWorkbook}
+                onClick={handleAddToFascicle}
                 disabled={!aktifSinav || isSavingToWorkbook}
                 className="toolbar-btn bg-emerald-600 text-[var(--bg-primary)] border-none shadow-lg shadow-emerald-100 hover:bg-emerald-700 hover:translate-y-[-2px] active:scale-95"
               >
-                {isSavingToWorkbook ? (
-                  <>
-                    <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    <span className="hidden sm:inline">Kaydediliyor...</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="text-base">📚</span><span className="hidden sm:inline">Kitapçık</span>
-                  </>
-                )}
+                <span className="text-base">📚</span><span className="hidden sm:inline">Kitapçık</span>
               </button>
               <div className="w-px h-8 bg-[var(--border-color)] mx-2 self-center opacity-40"></div>
               <button 

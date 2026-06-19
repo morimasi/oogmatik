@@ -30,7 +30,7 @@ class FascicleService {
           
           resolve();
         } catch (error) {
-          logError("AutoSave Hatası", error);
+          logError("AutoSave Hatası", { originalError: error instanceof Error ? error.message : String(error) });
           reject(new AppError('Fasikül taslağı otomatik kaydedilemedi.', 'AUTO_SAVE_ERROR', 500, { originalError: error instanceof Error ? error.message : String(error) }));
         }
       }, this.AUTO_SAVE_DELAY_MS);

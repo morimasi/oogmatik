@@ -129,7 +129,7 @@ const Sidebar = ({
       'infographic-studio': 'infographic-studio',
       'sari-kitap-studio': 'sari-kitap',
       'kelime-cumle-studio': 'kelime-cumle',
-      'fascicle-studio': 'fascicle-studio' as any,
+      'fascicle-studio': 'fascicle-studio',
     };
 
     return STUDIO_GROUPS.map(group => ({

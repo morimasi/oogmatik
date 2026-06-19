@@ -1,5 +1,7 @@
 import React from 'react';
 import { useActivityStudioStore } from '../../store/useActivityStudioStore';
+import { useFascicleStore } from '../../store/useFascicleStore';
+import { useToastStore } from '../../store/useToastStore';
 import { WizardContainer } from './wizard/WizardContainer';
 import { usePedagogicGates } from './hooks/usePedagogicGates';
 
@@ -22,13 +24,34 @@ export const ActivityStudio: React.FC<ActivityStudioProps> = ({ onBack }) => {
               Pedagojik AI Altyapısı & Bireyselleştirilmiş İçerik
             </p>
           </div>
-          <button
-            type="button"
-            onClick={onBack}
-            className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-6 py-2.5 text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] hover:bg-[var(--bg-paper)] hover:text-[var(--text-primary)] transition-all active:scale-95"
-          >
-            Geri Dön
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                const { addItem, items } = useFascicleStore.getState();
+                addItem({
+                  id: crypto.randomUUID(),
+                  type: 'activity-studio',
+                  difficulty: 'Orta',
+                  pageCount: 1,
+                  order: items.length,
+                  content: { wizardData },
+                  pedagogicalNote: 'Etkinlik Stüdyosu\'ndan eklendi.'
+                });
+                useToastStore.getState().success('Fasiküle başarıyla eklendi!');
+              }}
+              className="rounded-xl border border-fuchsia-500/30 bg-fuchsia-500/10 px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-fuchsia-400 hover:bg-fuchsia-500/20 transition-all active:scale-95 flex items-center gap-2"
+            >
+              <i className="fa-solid fa-layer-group"></i>
+              Fasiküle Ekle
+            </button>
+            <button
+              type="button"
+              onClick={onBack}
+              className="rounded-xl border border-[var(--border-color)] bg-[var(--bg-secondary)] px-6 py-2.5 text-[10px] font-black uppercase tracking-widest text-[var(--text-secondary)] hover:bg-[var(--bg-paper)] hover:text-[var(--text-primary)] transition-all active:scale-95"
+            >
+              Geri Dön
+            </button>
+          </div>
         </div>
 
         {isGenerating && (

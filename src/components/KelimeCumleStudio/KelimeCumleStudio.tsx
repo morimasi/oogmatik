@@ -14,6 +14,7 @@ import { printService } from '../../utils/printService';
 import { worksheetService } from '../../services/worksheetService';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useStudentStore } from '../../store/useStudentStore';
+import { useFascicleStore } from '../../store/useFascicleStore';
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
 import './KelimeCumleStudio.css';
 
@@ -279,6 +280,26 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
                             </button>
                             <button className="kc-btn-action" onClick={handleSaveToArchive} style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white' }}>
                                 📦 <span>Arşive Kaydet</span>
+                            </button>
+                            <button
+                                className="kc-btn-action"
+                                onClick={() => {
+                                    const { addItem, items } = useFascicleStore.getState();
+                                    addItem({
+                                        id: crypto.randomUUID(),
+                                        type: 'kelime-cumle',
+                                        difficulty: 'Orta',
+                                        pageCount: 1,
+                                        order: items.length,
+                                        content: { content, config },
+                                        pedagogicalNote: 'Kelime-Cümle Stüdyosu\'ndan eklendi.'
+                                    });
+                                    setToastMsg('Kitapçığa eklendi!');
+                                    setTimeout(() => setToastMsg(null), 3000);
+                                }}
+                                style={{ background: 'linear-gradient(135deg, #a855f7, #d946ef)', color: 'white' }}
+                            >
+                                📚 <span>Fasiküle Ekle</span>
                             </button>
                         </div>
                         

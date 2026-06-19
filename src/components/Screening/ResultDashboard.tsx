@@ -21,6 +21,7 @@ interface Props {
     weaknesses: string[],
     diagnosisContext?: string
   ) => void;
+  onAddToWorkbook?: (item: any) => void;
 }
 
 export const ResultDashboard: FC<Props> = ({
@@ -28,6 +29,7 @@ export const ResultDashboard: FC<Props> = ({
   onRestart,
   onSelectActivity,
   onGeneratePlan,
+  onAddToWorkbook,
 }: Props) => {
   const { user } = useAuthStore();
   const [aiAnalysis, setAiAnalysis] = useState<{ letter: string; actionSteps: unknown[] } | null>(null);
@@ -301,6 +303,14 @@ export const ResultDashboard: FC<Props> = ({
           >
             <i className="fa-solid fa-share-nodes"></i> Paylaş
           </button>
+          {onAddToWorkbook && (
+            <button
+              onClick={() => onAddToWorkbook(result)}
+              className="px-4 py-2 bg-fuchsia-500/10 hover:bg-fuchsia-500/20 text-fuchsia-400 rounded-xl font-bold text-xs flex items-center gap-2 transition-all border border-fuchsia-500/30"
+            >
+              <i className="fa-solid fa-layer-group"></i> Fasiküle Ekle
+            </button>
+          )}
           <button
             onClick={handleSave}
             disabled={isSaved || isSaving || !user}

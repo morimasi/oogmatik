@@ -1,10 +1,9 @@
 import { 
   FascicleItem, 
   FascicleMetadata, 
-  FascicleDifficulty, 
   FascicleAiSuggestionRequest 
 } from '../types/fascicle';
-import { generateWithSchema, generateWithGemini } from './geminiClient';
+import { generateWithSchema } from './geminiClient';
 import { logError } from '../utils/errorHandler';
 import { AppError } from '../utils/AppError';
 
@@ -89,7 +88,6 @@ class FascicleAIEngine {
     };
 
     try {
-      // @ts-ignore: Strict type mismatch with Gemini param
       const resultObj = await generateWithSchema(prompt, schema) as { orderedIds: string[] };
       // Fallback
       if (!resultObj.orderedIds || resultObj.orderedIds.length !== items.length) {

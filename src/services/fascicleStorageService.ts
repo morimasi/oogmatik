@@ -1,6 +1,7 @@
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { collection, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
 import { AppError } from '../utils/AppError';
+import { logError, logWarn } from '../utils/logger.js';
 import { db } from './firebaseClient';
 
 class FascicleStorageService {
@@ -19,7 +20,7 @@ class FascicleStorageService {
       const downloadURL = await getDownloadURL(uploadTask.ref);
       return downloadURL;
     } catch (error) {
-      console.error("Storage Upload Hatası:", error);
+      logError("Storage Upload Hatası: " + String(error));
       throw new AppError('PDF dosyası buluta yüklenemedi.', 'STORAGE_UPLOAD_ERROR', 500, { originalError: error instanceof Error ? error.message : String(error) });
     }
   }
@@ -47,7 +48,7 @@ class FascicleStorageService {
       }
     } catch (error) {
       // Analitik hataları genelde process'i durdurmamalı.
-      console.warn("Analytic Log Hatası:", error);
+      logWarn("Analytic Log Hatası: " + String(error));
     }
   }
 }

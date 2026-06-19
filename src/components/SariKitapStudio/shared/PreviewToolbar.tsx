@@ -7,6 +7,7 @@ interface PreviewToolbarProps {
     onExportPNG: () => void;
     onSave: () => void;
     onShare: () => void;
+    onAddToWorkbook?: () => void;
     isGenerating: boolean;
 }
 
@@ -16,6 +17,7 @@ export const PreviewToolbar = ({
     onExportPNG,
     onSave,
     onShare,
+    onAddToWorkbook,
     isGenerating,
 }: PreviewToolbarProps) => {
     const { 
@@ -82,6 +84,17 @@ export const PreviewToolbar = ({
                 <i className="fa-solid fa-link"></i>
                 Paylaş
             </button>
+            {onAddToWorkbook && (
+                <button
+                    className={`h-9 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-[11px] uppercase tracking-wider transition-all ${isGenerating || !generatedContent ? 'opacity-40 cursor-not-allowed bg-fuchsia-500/20 text-fuchsia-400/50 border border-fuchsia-500/20' : 'bg-fuchsia-500/10 hover:bg-fuchsia-500/20 text-fuchsia-400 border border-fuchsia-500/30'}`}
+                    onClick={onAddToWorkbook}
+                    disabled={isGenerating || !generatedContent}
+                    title="Fasiküle Ekle"
+                >
+                    <i className="fa-solid fa-layer-group"></i>
+                    Fasiküle Ekle
+                </button>
+            )}
         </div>
 
             {/* Sağ Taraftaki Scale ve Ayarlar */}
