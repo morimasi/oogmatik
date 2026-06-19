@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSettings, WorksheetData } from '../types';
+import { ActivityType, StyleSettings, WorksheetData } from '../types';
 import { useA4EditorStore } from '../store/useA4EditorStore';
 import { 
   Divider, 
@@ -30,6 +30,7 @@ interface ToolbarProps {
   onCompleteCurriculumTask?: () => void;
   onFeedback?: () => void;
   worksheetData?: WorksheetData;
+  activityType?: ActivityType | string;
 }
 
 export const Toolbar = ({
@@ -48,6 +49,8 @@ export const Toolbar = ({
   isCurriculumMode,
   onCompleteCurriculumTask,
   onFeedback,
+  worksheetData,
+  activityType,
 }: ToolbarProps) => {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const { isEditorOpen, setEditorOpen } = useA4EditorStore();
@@ -197,6 +200,8 @@ export const Toolbar = ({
           onSave={onSave}
           onAssign={onAssign}
           onShare={onShare}
+          worksheetData={worksheetData}
+          activityType={activityType}
         />
       </div>
     </div>

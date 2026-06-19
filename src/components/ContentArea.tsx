@@ -307,6 +307,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             onToggleEdit={() => setEditMode(!isEditMode)}
             isEditMode={isEditMode}
             worksheetData={processedData}
+            activityType={activityType}
             isCurriculumMode={!!activeCurriculumSession}
             onCompleteCurriculumTask={onCompleteCurriculumActivity}
           />

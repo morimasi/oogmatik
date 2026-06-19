@@ -5,6 +5,7 @@ import { usePaperSizeStore } from '../../store/usePaperSizeStore';
 import { printService, PaperSize } from '../../utils/printService';
 import { ExportProgressModal } from '../ExportProgressModal';
 import { useToastStore } from '../../store/useToastStore';
+import { useFascicleStore } from '../../store/useFascicleStore';
 import { logError } from '../../utils/logger.js';
 import { snapshotService } from '../../utils/snapshotService';
 
@@ -13,6 +14,8 @@ interface ActionModuleProps {
   onSave: () => void;
   onAssign?: () => void;
   onShare?: () => void;
+  worksheetData?: WorksheetData;
+  activityType?: string;
 }
 
 export const ActionModule: React.FC<ActionModuleProps> = ({
@@ -20,12 +23,32 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
   onSave,
   onAssign,
   onShare,
+  worksheetData,
+  activityType,
 }) => {
   const [exportProgress, setExportProgress] = useState({ open: false, percent: 0, message: '' });
   const [snapshotMenuOpen, setSnapshotMenuOpen] = useState(false);
   const paperSizeStore = usePaperSizeStore();
   const toast = useToastStore();
   const paperSize = paperSizeStore.paperSize;
+
+  const handleAddToFascicle = () => {
+    if (!worksheetData || !activityType) {
+      toast.warning('Fasiküle eklemek için önce bir etkinlik oluşturun.');
+      return;
+    }
+    const { addItem, items } = useFascicleStore.getState();
+    addItem({
+      id: crypto.randomUUID(),
+      type: activityType,
+      difficulty: 'Orta',
+      pageCount: Array.isArray(worksheetData) ? worksheetData.length : 1,
+      order: items.length,
+      content: worksheetData,
+      pedagogicalNote: 'Stüdyodan eklendi.'
+    });
+    toast.success('Fasiküle başarıyla eklendi!');
+  };
 
   const handleUnifiedPrint = async (method: 'pdf' | 'print' | 'v2') => {
     try {
@@ -148,6 +171,12 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
                 colorClass="text-sky-500"
             />
         )}
+        <IconButton 
+            icon="fa-layer-group" 
+            title="Fasiküle Ekle" 
+            onClick={handleAddToFascicle}
+            colorClass="text-fuchsia-500"
+        />
       </div>
     </div>
   );
