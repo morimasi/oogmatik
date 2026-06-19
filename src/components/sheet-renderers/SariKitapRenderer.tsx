@@ -25,8 +25,8 @@ export const SariKitapRenderer: React.FC<SariKitapRendererProps> = ({ data, sett
   }
 
   const activeType = item.type || item.activeType;
-  const content = item.content;
-  const config = item.config || {};
+  const content = item.content || item._originalContent || item;
+  const config = item.config || (item.typography ? item : {});
   
   const activeModule = getModule(activeType);
   

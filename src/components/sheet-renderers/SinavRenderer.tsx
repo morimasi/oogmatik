@@ -9,15 +9,18 @@ interface SinavRendererProps {
 
 export const SinavRenderer: React.FC<SinavRendererProps> = ({ data, settings }) => {
     // data[0] veya data'nın kendisi SingleWorksheetData olabilir.
-    // Studio'dan gelen veride ana nesne içerisinde sınav objesi 'data' dizisi altındadır.
     const activeData = Array.isArray(data) ? data[0] : data;
     
-    // Sinav objesini ayıkla (SinavOnizleme'nin beklediği format)
-    // SinavStudyosu.tsx içindeki handleAddToWorkbook'tan gelen yapı: { ...aktifSinav, printConfig }
-    const sinavObj = activeData?.data?.[0] || activeData;
+    // Sinav objesini ayıkla
+    // Eğer data bir 'chunk' ise (useWorkbookActions tarafından bölünmüş), 
+    // sorular dizisi doğrudan activeData içindedir.
+    const sinavObj = activeData;
     const printConfig = activeData?.printConfig || (activeData?.config as any);
 
-    if (!sinavObj || !sinavObj.sorular) {
+    // Eğer sorular yoksa, meta verilerin içindeki asıl nesneyi ara
+    const finalSinav = (sinavObj?.sorular) ? sinavObj : (activeData?.data?.[0] || activeData);
+
+    if (!finalSinav || !finalSinav.sorular) {
         return (
             <div className="p-8 text-center text-gray-400">
                 Sınav verisi yüklenemedi.
