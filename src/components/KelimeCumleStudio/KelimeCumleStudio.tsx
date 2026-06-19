@@ -19,11 +19,10 @@ import './KelimeCumleStudio.css';
 
 interface KelimeCumleStudioProps {
     onBack?: () => void;
-    onAddToWorkbook?: (activityType: any, data: any) => void;
     onSaveToArchive?: (name: string, activityType: string, data: any) => Promise<void>;
 }
 
-const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWorkbook, onSaveToArchive }) => {
+const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToArchive }) => {
     const { user } = useAuthStore();
     const [config, setConfig] = useState<KelimeCumleConfig>({
         id: crypto.randomUUID(),
@@ -93,15 +92,6 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
         printService.generatePdf('.print-page', content?.title || 'Kelime_Cumle_Calismasi', { action: 'download' });
     };
 
-
-    const handleAddToWorkbook = () => {
-        if (onAddToWorkbook && content && contentChunks) {
-            onAddToWorkbook('kelime-cumle', contentChunks);
-            showToast('✅ Kitapçığa eklendi!');
-        } else {
-            showToast('⚠️ Kitapçığa eklenemedi (Sistem Hazır Değil)');
-        }
-    };
 
     // ARŞIVE KAYDETME FONKSİYONU
     const handleSaveToArchive = async () => {
@@ -299,9 +289,6 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onAddToWo
                             <button onClick={() => setScale(prev => Math.min(1.5, prev + 0.1))} className="kc-zoom-btn">➕</button>
                         </div>
 
-                        <button className="kc-btn-accent-glow" onClick={handleAddToWorkbook}>
-                            📚 Sınıf Kitapçığına Ekle
-                        </button>
                     </div>
 
                     <div className="kc-preview-viewport custom-scrollbar">

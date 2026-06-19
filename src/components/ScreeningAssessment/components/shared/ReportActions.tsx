@@ -5,7 +5,6 @@ interface ReportActionsProps {
   onDownload?: () => void;
   onPrint?: () => void;
   onShare?: () => void;
-  onAddToWorkbook?: () => void;
   onBack?: () => void;
   onClose?: () => void;
   isSaving?: boolean;
@@ -18,7 +17,6 @@ export const ReportActions: React.FC<ReportActionsProps> = ({
   onDownload,
   onPrint,
   onShare,
-  onAddToWorkbook,
   onBack,
   onClose,
   isSaving,
@@ -57,11 +55,6 @@ export const ReportActions: React.FC<ReportActionsProps> = ({
       {onShare && (
         <button onClick={onShare} className={buttonBase} title="Paylaş">
           <Share2 className="w-4 h-4" />
-        </button>
-      )}
-      {onAddToWorkbook && (
-        <button onClick={onAddToWorkbook} className={buttonBase} title="Kitapçığa Ekle">
-          <BookOpen className="w-4 h-4" />
         </button>
       )}
       {onClose && (

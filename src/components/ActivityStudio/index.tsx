@@ -57,25 +57,6 @@ export const ActivityStudio: React.FC<ActivityStudioProps> = ({ onBack }) => {
         <div className="w-full">
           <WizardContainer />
         </div>
-
-        {onAddToWorkbook && (
-          <div className="mt-12 flex justify-end">
-            <button
-              type="button"
-              onClick={() =>
-                onAddToWorkbook({
-                  id: `activity-studio-${Date.now()}`,
-                  type: 'activity-studio',
-                  data: wizardData,
-                })
-              }
-              className="rounded-2xl bg-[var(--accent-color)] px-10 py-5 text-xs font-black uppercase tracking-[0.2em] text-white shadow-2xl shadow-[var(--accent-muted)] hover:bg-[var(--accent-hover)] transition-all active:scale-95 flex items-center gap-3"
-            >
-              <i className="fa-solid fa-book-medical"></i>
-              Çalışma Kitapçığına Ekle
-            </button>
-          </div>
-        )}
       </div>
     </section>
   );

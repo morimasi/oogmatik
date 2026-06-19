@@ -7,7 +7,6 @@ interface PreviewToolbarProps {
     onExportPNG: () => void;
     onSave: () => void;
     onShare: () => void;
-    onAddToWorkbook?: () => void;
     isGenerating: boolean;
 }
 
@@ -17,7 +16,6 @@ export const PreviewToolbar = ({
     onExportPNG,
     onSave,
     onShare,
-    onAddToWorkbook,
     isGenerating,
 }: PreviewToolbarProps) => {
     const { 
@@ -75,27 +73,16 @@ export const PreviewToolbar = ({
                 </div>
 
                 <div className="w-px h-5 mx-1" style={{ backgroundColor: 'var(--border-color)' }}></div>
-                <button
-                    className={`h-9 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-[11px] uppercase tracking-wider transition-all ${isGenerating || !generatedContent ? 'opacity-40 cursor-not-allowed bg-transparent text-zinc-500 border border-transparent' : 'bg-transparent hover:bg-zinc-800/50 text-zinc-300 border border-zinc-700/50'}`}
-                    onClick={onShare}
-                    disabled={isGenerating || !generatedContent}
-                    title="Paylaş"
-                >
-                    <i className="fa-solid fa-link"></i>
-                    Paylaş
-                </button>
-                {onAddToWorkbook && (
-                    <button
-                        className={`h-9 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-[11px] uppercase tracking-wider transition-all ${isGenerating || !generatedContent ? 'opacity-40 cursor-not-allowed bg-transparent text-zinc-500 border border-transparent' : 'bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 border border-purple-500/30'}`}
-                        onClick={onAddToWorkbook}
-                        disabled={isGenerating || !generatedContent}
-                        title="Kitapçığa Ekle"
-                    >
-                        <i className="fa-solid fa-book-open"></i>
-                        Kitapçığa Ekle
-                    </button>
-                )}
-            </div>
+            <button
+                className={`h-9 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-[11px] uppercase tracking-wider transition-all ${isGenerating || !generatedContent ? 'opacity-40 cursor-not-allowed bg-transparent text-zinc-500 border border-transparent' : 'bg-transparent hover:bg-zinc-800/50 text-zinc-300 border border-zinc-700/50'}`}
+                onClick={onShare}
+                disabled={isGenerating || !generatedContent}
+                title="Paylaş"
+            >
+                <i className="fa-solid fa-link"></i>
+                Paylaş
+            </button>
+        </div>
 
             {/* Sağ Taraftaki Scale ve Ayarlar */}
             <div className="flex items-center gap-4 pr-2">

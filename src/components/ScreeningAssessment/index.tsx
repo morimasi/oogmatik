@@ -20,19 +20,17 @@ interface ScreeningAssessmentProps {
   userRole: 'teacher' | 'admin' | 'parent';
   studentId?: string;
   onGeneratePlan?: (studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => void;
-  onAddToWorkbook?: (data: ScreeningResult) => void;
 }
 
 export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
   onClose,
   userRole,
   onGeneratePlan,
-  onAddToWorkbook,
 }) => {
   const { activeView, setActiveView, setIsAdvancedScreeningOpen, setScreeningData, setCurrentScreening, selectedStudentName } = useScreeningStore();
   const toast = useToastStore();
   const { currentScreening, handleSaveScreening, handleDownloadReport, handlePrintReport, handleShareResults, handleShareScreeningResult, handleAddToWorkbook } =
-    useScreeningAssessment({ onAddToWorkbook });
+    useScreeningAssessment({});
 
   useEffect(() => {
     setIsAdvancedScreeningOpen(true);
@@ -90,7 +88,6 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
                 onDownload={() => handleDownloadReport(currentScreening)}
                 onPrint={handlePrintReport}
                 onShare={() => handleShareResults(currentScreening.id)}
-                onAddToWorkbook={() => handleAddToWorkbook(currentScreening)}
                 onClose={onClose}
               />
             )}
@@ -147,7 +144,6 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
                   {activeView === 'result-detail' && (
                     <ResultDetailPanel
                       onGeneratePlan={handleGeneratePlanWithAutoSave}
-                      onAddToWorkbook={onAddToWorkbook}
                     />
                   )}
                 </motion.div>
@@ -175,7 +171,6 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
                   onBack={() => setActiveView('new-screening')}
                   onResult={handleResultReady}
                   onGeneratePlan={handleGeneratePlanWithAutoSave}
-                  onAddToWorkbook={onAddToWorkbook}
                 />
               )}
             </div>
@@ -206,8 +201,7 @@ const ScreeningFormWrapper: React.FC<{
   onBack: () => void;
   onResult?: (result: ScreeningResult) => void;
   onGeneratePlan?: (studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => void;
-  onAddToWorkbook?: (item: any) => void;
-}> = ({ onComplete, onBack, onResult, onGeneratePlan, onAddToWorkbook }) => {
+}> = ({ onComplete, onBack, onResult, onGeneratePlan }) => {
   const { selectedStudentName, selectedStudentId, selectedStudentAge, selectedStudentGrade } = useScreeningStore();
 
   const handleResult = (result: ScreeningResult) => {
@@ -235,7 +229,6 @@ const ScreeningFormWrapper: React.FC<{
         }}
         onBack={onBack}
         onSelectActivity={() => {}}
-        onAddToWorkbook={onAddToWorkbook}
         onResult={handleResult}
         onGeneratePlan={onGeneratePlan || (() => {})}
       />

@@ -15,7 +15,6 @@ interface Props {
   result: ScreeningResult;
   onRestart: () => void;
   onSelectActivity?: (id: any) => void;
-  onAddToWorkbook?: (item: any) => void;
   onGeneratePlan?: (
     studentName: string,
     age: number,
@@ -28,7 +27,6 @@ export const ResultDashboard: FC<Props> = ({
   result,
   onRestart,
   onSelectActivity,
-  onAddToWorkbook,
   onGeneratePlan,
 }: Props) => {
   const { user } = useAuthStore();
@@ -215,21 +213,7 @@ export const ResultDashboard: FC<Props> = ({
     }
   };
 
-  const handleAddToWorkbookClick = () => {
-    if (onAddToWorkbook) {
-      const data = mapToSavedAssessment();
-      // Wrap in format expected by Workbook (CollectionItemish)
-      const item = {
-        id: crypto.randomUUID(),
-        activityType: 'ASSESSMENT_REPORT',
-        title: `Rapor: ${result.studentName}`,
-        data: data,
-        settings: { showTitle: true },
-      };
-      onAddToWorkbook(item.data);
-      alert('Rapor kitapçığa eklendi!');
-    }
-  };
+
 
   // Helper to safely render action steps (might be objects from Gemini)
   const renderActionStep = (step: unknown): string => {
@@ -317,14 +301,6 @@ export const ResultDashboard: FC<Props> = ({
           >
             <i className="fa-solid fa-share-nodes"></i> Paylaş
           </button>
-          {onAddToWorkbook && (
-            <button
-              onClick={handleAddToWorkbookClick}
-              className="px-4 py-2 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-500 border border-indigo-500/20 rounded-xl font-bold text-xs flex items-center gap-2 transition-all"
-            >
-              <i className="fa-solid fa-book-medical"></i> Kitapçığa Ekle
-            </button>
-          )}
           <button
             onClick={handleSave}
             disabled={isSaved || isSaving || !user}

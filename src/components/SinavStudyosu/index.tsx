@@ -70,11 +70,10 @@ const FmtBtn: React.FC<{
 );
 
 interface SinavStudyosuProps {
-  onAddToWorkbook?: (activityType: ActivityType, data: unknown) => void;
   initialData?: any;
 }
 
-export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook, initialData }) => {
+export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => {
   const {
     ayarlar,
     setSinif,
@@ -292,67 +291,6 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ onAddToWorkbook, i
       setError(msg);
     } finally {
       setIsAssigning(false);
-    }
-  };
-
-  // Workbook Integration — Çalışma Kitabına Ekle
-  const handleAddToWorkbook = () => {
-    if (!aktifSinav) {
-      setError('Lütfen önce bir sınav oluşturun.');
-      return;
-    }
-
-    if (onAddToWorkbook) {
-      // Soruları 4'erli sayfalara böl
-      const sorular = aktifSinav.sorular || [];
-      const perPage = 4;
-      const pages = [];
-      for (let i = 0; i < sorular.length; i += perPage) {
-        pages.push({
-           ...aktifSinav,
-           sorular: sorular.slice(i, i + perPage),
-           title: aktifSinav.baslik || 'Türkçe Sınavı',
-           printConfig,
-        });
-      }
-
-      // Canlı çalışma kitabına ekle (App state)
-      onAddToWorkbook(ActivityType.SINAV, {
-        title: aktifSinav.baslik || 'Türkçe Sınavı',
-        pages
-      });
-      showSuccess('✅ Sınav çalışma kitabına eklendi!');
-    } else {
-      // Fallback: Arşive kaydet (onAddToWorkbook prop yoksa)
-      setIsSavingToWorkbook(true);
-      setError(null);
-      const user = useAuthStore.getState().user;
-      if (!user) {
-        setError('Lütfen giriş yapın.');
-        setIsSavingToWorkbook(false);
-        return;
-      }
-      const worksheetData = {
-        title: aktifSinav.baslik || 'Türkçe Sınavı',
-        instruction: 'Soruları dikkatlice okuyunuz ve en doğru cevabı veriniz.',
-        activityType: ActivityType.SINAV,
-        data: [aktifSinav],
-      };
-      worksheetService.saveWorksheet(
-        user.id,
-        aktifSinav.baslik || 'Türkçe Sınavı',
-        ActivityType.SINAV,
-        [worksheetData],
-        'fa-solid fa-file-lines',
-        { id: 'reading-comprehension', title: 'Okuduğunu Anlama' },
-      ).then(() => {
-        showSuccess('✅ Sınav arşive kaydedildi!');
-      }).catch((err: unknown) => {
-        const msg = err instanceof Error ? err.message : 'Bilinmeyen hata';
-        setError(`Kaydetme hatası: ${msg}`);
-      }).finally(() => {
-        setIsSavingToWorkbook(false);
-      });
     }
   };
 

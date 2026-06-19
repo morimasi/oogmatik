@@ -33,11 +33,10 @@ import { AdvancedPanel } from './panels/AdvancedPanel';
 
 interface MathStudioProps {
     onBack: () => void;
-    onAddToWorkbook?: (data: any) => void;
     initialData?: any;
 }
 
-export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook, initialData }) => {
+export const MathStudio: React.FC<MathStudioProps> = ({ onBack, initialData }) => {
     const { user } = useAuthStore();
     const { students, activeStudent } = useStudentStore();
     const { toasts, showToast, removeToast } = useToast();
@@ -63,7 +62,6 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook,
         pageConfig,
         generatedDrills: drill.generatedDrills,
         generatedProblems: problem.generatedProblems,
-        onAddToWorkbook,
     });
 
     // --- SYNC ---
@@ -166,7 +164,6 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, onAddToWorkbook,
                 onPrint={exportActions.handlePrint}
                 onSave={handleSave}
                 onShare={() => setIsShareModalOpen(true)}
-                onAddToWorkbook={onAddToWorkbook ? exportActions.handleAddToWorkbook : undefined}
                 onRegenerate={handleRegenerate}
                 onToggleSidebar={() => setIsSidebarOpen(prev => !prev)}
                 isPrinting={exportActions.isPrinting}

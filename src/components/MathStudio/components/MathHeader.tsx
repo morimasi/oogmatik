@@ -10,7 +10,6 @@ interface MathHeaderProps {
     onPrint: (action: 'print' | 'download') => void;
     onSave: () => void;
     onShare: () => void;
-    onAddToWorkbook?: () => void;
     onRegenerate: () => void;
     onToggleSidebar: () => void;
     isPrinting: boolean;
@@ -19,7 +18,7 @@ interface MathHeaderProps {
 }
 
 export const MathHeader: React.FC<MathHeaderProps> = ({
-    mode, setMode, onBack, onPrint, onSave, onShare, onAddToWorkbook,
+    mode, setMode, onBack, onPrint, onSave, onShare,
     onRegenerate, onToggleSidebar, isPrinting, isSaving, isSidebarOpen,
 }) => (
     <div className="h-14 bg-[#18181b] border-b border-zinc-800 flex justify-between items-center px-4 shrink-0 z-50">
@@ -77,11 +76,7 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
                 <i className="fa-solid fa-share-nodes"></i>
             </button>
 
-            {onAddToWorkbook && (
-                <button onClick={onAddToWorkbook} className="w-9 h-9 rounded-xl bg-zinc-800 hover:bg-emerald-600 flex items-center justify-center text-zinc-400 hover:text-white transition-colors" title="Kitapçığa Ekle">
-                    <i className="fa-solid fa-plus-circle"></i>
-                </button>
-            )}
+
 
             <button
                 onClick={onSave}

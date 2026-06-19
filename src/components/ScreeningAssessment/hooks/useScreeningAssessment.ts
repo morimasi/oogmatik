@@ -10,7 +10,6 @@ import type { ClinicalObservation } from '../../../types';
 import type { SharePermission } from '../../../services/profileShareService';
 
 interface UseScreeningAssessmentOptions {
-  onAddToWorkbook?: (data: ScreeningResult) => void;
 }
 
 const mapScreeningToSavedAssessment = (screening: ScreeningResult, authUserId: string) => {
@@ -52,7 +51,7 @@ const mapScreeningToSavedAssessment = (screening: ScreeningResult, authUserId: s
   };
 };
 
-export function useScreeningAssessment(options?: UseScreeningAssessmentOptions) {
+export function useScreeningAssessment() {
   const store = useScreeningStore();
   const { user } = useAuthStore();
   const toast = useToastStore();
@@ -171,16 +170,6 @@ export function useScreeningAssessment(options?: UseScreeningAssessmentOptions) 
     window.print();
   }, []);
 
-  const handleAddToWorkbook = useCallback((data: ScreeningResult) => {
-    if (options?.onAddToWorkbook) {
-      options.onAddToWorkbook(data);
-      toast.success(`${data.studentName} sonuçları çalışma kitabına eklendi.`);
-      return;
-    }
-
-    toast.error('Çalışma kitabına ekleme yapılamadı.');
-  }, [options, toast]);
-
   const getScoreColor = (score: number): string => {
     // Yüksek skor = yüksek risk (semptom sıklığı)
     if (score >= 70) return 'text-rose-500';
@@ -228,7 +217,6 @@ export function useScreeningAssessment(options?: UseScreeningAssessmentOptions) 
     handleShareScreeningResult,
     handleDownloadReport,
     handlePrintReport,
-    handleAddToWorkbook,
     handleGeneratePlan,
     handleOpenScreeningDetail,
     getScoreColor,

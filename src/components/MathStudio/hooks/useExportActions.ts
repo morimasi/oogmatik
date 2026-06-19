@@ -16,7 +16,6 @@ interface ExportDeps {
     pageConfig: MathPageConfig;
     generatedDrills: MathOperation[];
     generatedProblems: MathProblem[];
-    onAddToWorkbook?: (data: any) => void;
 }
 
 export const useExportActions = (deps: ExportDeps) => {
@@ -95,12 +94,6 @@ export const useExportActions = (deps: ExportDeps) => {
         }
     }, [deps.pageConfig.title]);
 
-    const handleAddToWorkbook = useCallback(() => {
-        if (deps.onAddToWorkbook) {
-            deps.onAddToWorkbook(getExportData());
-        }
-    }, [deps.onAddToWorkbook, getExportData]);
-
     return {
         isSaving,
         isPrinting,
@@ -108,6 +101,5 @@ export const useExportActions = (deps: ExportDeps) => {
         handleSave,
         handleShare,
         handlePrint,
-        handleAddToWorkbook,
     };
 };

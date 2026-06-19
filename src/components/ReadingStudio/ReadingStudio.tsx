@@ -19,11 +19,10 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { ActivityType } from '../../types/activity';
 interface ReadingStudioInnerProps {
   onBack: () => void;
-  onAddToWorkbook: (type?: any, data?: any) => void;
   initialData?: any;
 }
 
-const ReadingStudioInner = ({ onBack, onAddToWorkbook, initialData }: ReadingStudioInnerProps) => {
+const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) => {
   const {
     config,
     setStoryData,
@@ -233,33 +232,6 @@ const ReadingStudioInner = ({ onBack, onAddToWorkbook, initialData }: ReadingStu
     } catch (e) {
       logError(e as any);
     }
-  };
-
-  const handleAddToWorkbookClick = () => {
-    if (!layout || layout.length === 0) {
-      alert('Önce bir hikaye oluşturmalısınız.');
-      return;
-    }
-    
-    // Canvas'taki öğeleri sayfalara grupla
-    const maxPage = Math.max(...layout.map(item => item.pageIndex || 0));
-    const pages = [];
-    
-    for (let i = 0; i <= maxPage; i++) {
-        const pageLayout = layout.filter(item => (item.pageIndex || 0) === i);
-        if (pageLayout.length > 0) {
-            pages.push({
-                layout: pageLayout,
-                storyData: storyData,
-                config: config
-            });
-        }
-    }
-
-    onAddToWorkbook(ActivityType.STORY_COMPREHENSION, {
-        title: storyData?.title || config.topic || 'Okuma Etkinliği',
-        pages: pages
-    });
   };
 
   const handleSave = async () => {
