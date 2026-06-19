@@ -316,15 +316,8 @@ const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) =>
             >
               <i className="fa-solid fa-print"></i>
             </button>
-            <button
-               onClick={handleAddToWorkbookClick}
-               className="studio-icon-btn w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--bg-secondary)] border-amber-500/50 text-amber-500 hover:bg-amber-500 hover:text-white transition-all shadow-sm"
-               title="Kitapçığa Ekle"
-            >
-               <i className="fa-solid fa-book-medical"></i>
-            </button>
-            <button
-              onClick={handleSave}
+             <button
+               onClick={handleSave}
               className="studio-icon-btn w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--accent-color)] border border-[var(--accent-color)] text-white shadow-lg shadow-[var(--accent-muted)] hover:opacity-90"
               title="Arşive Kaydet"
             >
@@ -486,6 +479,6 @@ const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) =>
   );
 };
 
-export const ReadingStudio = ({ onBack, onAddToWorkbook, initialData }: ReadingStudioInnerProps) => {
-  return <ReadingStudioInner onBack={onBack} onAddToWorkbook={onAddToWorkbook} initialData={initialData} />;
+export const ReadingStudio = ({ onBack, initialData }: ReadingStudioInnerProps) => {
+  return <ReadingStudioInner onBack={onBack} initialData={initialData} />;
 };
