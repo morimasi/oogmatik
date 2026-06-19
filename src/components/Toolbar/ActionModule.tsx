@@ -13,8 +13,6 @@ interface ActionModuleProps {
   onSave: () => void;
   onAssign?: () => void;
   onShare?: () => void;
-  onAddToWorkbook?: () => void;
-  workbookItemCount?: number;
 }
 
 export const ActionModule: React.FC<ActionModuleProps> = ({
@@ -22,8 +20,6 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
   onSave,
   onAssign,
   onShare,
-  onAddToWorkbook,
-  workbookItemCount = 0,
 }) => {
   const [exportProgress, setExportProgress] = useState({ open: false, percent: 0, message: '' });
   const [snapshotMenuOpen, setSnapshotMenuOpen] = useState(false);
@@ -135,13 +131,6 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
             title="Arşive Kaydet" 
             onClick={onSave}
             colorClass="text-amber-500"
-        />
-        <IconButton 
-            icon="fa-book-medical" 
-            title="Kitapçığa Ekle" 
-            onClick={onAddToWorkbook}
-            badge={workbookItemCount}
-            colorClass="text-indigo-500"
         />
         {onAssign && (
             <IconButton 
