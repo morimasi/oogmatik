@@ -129,6 +129,14 @@ export const useWorkbookActions = (
           }
       }
 
+      // İç içe data[0] yapısı dışarı açıldıktan sonra 'data' alanını temizle.
+      // renderer'lar (MatSinavRenderer, SinavRenderer) hala aktif olan data[0]'ı
+      // tüm sorularla birlikte bulur ve sayfalanmış sorular yerine onu kullanır.
+      // Bu da her sayfada aynı tüm soruların görünmesine yol açar.
+      if (deepUnwrappedData !== finalData && 'data' in deepUnwrappedData) {
+          delete (deepUnwrappedData as Record<string, unknown>).data;
+      }
+
       // 3. SAYFALANDIRMA KARARI — Tüm çok sayfalı veriler TEK bir CollectionItem
       //    altında data.pages dizisi olarak gruplanır. Workbook.tsx pages dizisini
       //    algılar ve her sayfayı ayrı ayrı render eder.
