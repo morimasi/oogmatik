@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DyslexiaLogo from './DyslexiaLogo';
 import GlobalSearch from './GlobalSearch';
@@ -9,6 +9,8 @@ import { useRBAC } from '../hooks/useRBAC';
 import { ActivityType, View } from '../types';
 import { useStudentStore } from '../store/useStudentStore';
 import { messagingService } from '../services/messagingService';
+import { useToastStore } from '../store/useToastStore';
+import { useFascicleStore } from '../store/useFascicleStore';
 
 interface AppHeaderProps {
     onOpenModal: (modal: 'settings' | 'history' | 'about' | 'developer') => void;
@@ -16,6 +18,9 @@ interface AppHeaderProps {
     onOpenAuth: () => void;
     onSelectActivity: (activity: ActivityType | null) => void;
     onOpenStudio: (viewName: View) => void;
+    onOpenKelimeCumleStudio?: () => void;
+    onOpenFascicleStudio?: () => void;
+    activeCurriculumSession?: any | null;
 }
 
 /** Yalnızca DESTEK menüsü — ultra kompakt, tema token’ları */
@@ -161,14 +166,17 @@ export const AppHeader = ({
     onOpenAuth,
     onSelectActivity,
     onOpenStudio,
+    onOpenKelimeCumleStudio,
+    onOpenFascicleStudio,
+    activeCurriculumSession,
 }: AppHeaderProps) => {
     const { user, logout } = useAuthStore();
     const { isAdmin, canAccess } = useRBAC();
     const { setIsSidebarOpen, zenMode, setIsTourActive, showConnect, toggleConnect, unreadMessageCount, setUnreadMessageCount } = useUIStore();
-    const { currentView, setCurrentView, addHistoryView, setSelectedActivity, setWorksheetData, setActiveCurriculumSession, activeCurriculumSession } = useWorksheetStore();
+    const { currentView, setCurrentView, addHistoryView, setSelectedActivity, setWorksheetData, setActiveCurriculumSession: _setSession } = useWorksheetStore();
     const { activeStudent } = useStudentStore();
+    const toast = useToastStore();
 
-    // ─── Okunmamış mesaj sayacı — gerçek zamanlı Firestore listener ───
     useEffect(() => {
         if (!user?.id || !canAccess('messaging')) return;
         const unsub = messagingService.listenToUnreadCount(user.id, (count) => {
@@ -177,7 +185,6 @@ export const AppHeader = ({
         return () => unsub?.();
     }, [user?.id]);
 
-    // Connect panel açıkken okunmamış sayacı sıfırla
     useEffect(() => {
         if (showConnect) setUnreadMessageCount(0);
     }, [showConnect]);
@@ -188,12 +195,17 @@ export const AppHeader = ({
         setCurrentView(view);
     };
 
+    const handleOpenStudio = (view: View) => {
+        if (view === 'kelime-cumle-studio' && onOpenKelimeCumleStudio) onOpenKelimeCumleStudio();
+        else if (view === 'fascicle-studio' && onOpenFascicleStudio) onOpenFascicleStudio();
+        else onOpenStudio(view);
+    };
+
     return (
         <header
             className={`relative bg-[var(--bg-paper)] border-b border-[var(--border-color)] shadow-xl z-[90] transition-all duration-500 font-['Lexend'] ${zenMode ? '-mt-24 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}
         >
             <div className="w-full px-6 md:px-8 py-4 flex items-center gap-3 md:gap-4">
-                {/* Sol: logo eş geniş şerit (sağ ile dengeli orta blok için flex-1) */}
                 <div className="flex min-w-0 flex-1 items-center justify-start gap-4 md:gap-6">
                     <button
                         onClick={() => {
@@ -210,7 +222,7 @@ export const AppHeader = ({
                             navigateTo('generator');
                             setSelectedActivity(null);
                             setWorksheetData(null);
-                            setActiveCurriculumSession(null);
+                            _setSession(null);
                         }}
                         className="relative group flex shrink-0 items-center gap-3"
                         type="button"
@@ -222,7 +234,6 @@ export const AppHeader = ({
                     </button>
                 </div>
 
-                {/* Orta: başlıklar tam yatay merkez; sol–sağ şeritleri eşit flex-1 ile dengelenir */}
                 <div className="hidden shrink-0 flex-col items-center justify-center text-center md:flex">
                     <button
                         type="button"
@@ -230,7 +241,7 @@ export const AppHeader = ({
                             navigateTo('generator');
                             setSelectedActivity(null);
                             setWorksheetData(null);
-                            setActiveCurriculumSession(null);
+                            _setSession(null);
                         }}
                         className="group flex flex-col items-center justify-center px-3 transition-transform duration-500"
                     >
@@ -290,6 +301,13 @@ export const AppHeader = ({
                     </AnimatePresence>
 
                     <div className="flex items-center gap-1 p-1 bg-[var(--bg-secondary)]/90 rounded-xl border border-[var(--border-color)] shadow-[inset_0_1px_0_rgba(255,255,255,0.045)] backdrop-blur-sm">
+                        <button
+                            onClick={() => handleOpenStudio('fascicle-studio')}
+                            className="flex shrink-0 items-center justify-center w-9 h-9 bg-fuchsia-600 hover:bg-fuchsia-500 text-white rounded-lg transition-all shadow-md hover:shadow-lg active:scale-[0.96] border border-white/10 group/nav"
+                            title="Fasikül & Kitapçık Stüdyosu"
+                        >
+                            <i className="fa-solid fa-layer-group text-[15px] leading-none group-hover/nav:scale-105 transition-transform"></i>
+                        </button>
                         {(activeStudent || activeCurriculumSession) && (
                             <button
                                 onClick={() => {
@@ -324,7 +342,6 @@ export const AppHeader = ({
                         </button>
 
                         {canAccess('messaging') && (
-                            // Wrapper div: badge buton sınırlarını aşabileceği için overflow-visible burada
                             <div className="relative">
                                 <button
                                     onClick={() => toggleConnect()}
@@ -332,12 +349,10 @@ export const AppHeader = ({
                                     title="Oogmatik Connect"
                                 >
                                     <i className="fa-solid fa-comments text-[15px] leading-none group-hover/nav:scale-105 transition-transform"></i>
-                                    {/* Okunmamış yok → küçük indigo nokta (buton içinde kalır) */}
                                     {unreadMessageCount === 0 && (
                                         <span className="absolute top-1 right-1 w-1.5 h-1.5 bg-indigo-500 rounded-full animate-pulse"></span>
                                     )}
                                 </button>
-                                {/* Okunmamış badge — butonun DIŞINDA, wrapper div'e konumlandırıldı, asla kırpılmaz */}
                                 {unreadMessageCount > 0 && (
                                     <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] px-1 bg-rose-500 text-white text-[9px] font-black flex items-center justify-center rounded-full border-2 border-[var(--bg-paper)] shadow-lg shadow-rose-500/50 animate-bounce tabular-nums z-[200] pointer-events-none">
                                         {unreadMessageCount > 99 ? '99+' : unreadMessageCount}

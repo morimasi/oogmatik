@@ -57,6 +57,7 @@ interface SidebarProps {
   onOpenMatSinavStudyosu?: () => void;
   onOpenSariKitapStudio?: () => void;
   onOpenKelimeCumleStudio?: () => void;
+  onOpenFascicleStudio?: () => void;
   activeCurriculumSession?: ActiveCurriculumSession | null;
   width?: number;
   onWidthChange?: (width: number) => void;
@@ -85,6 +86,7 @@ const Sidebar = ({
   onOpenMatSinavStudyosu,
   onOpenSariKitapStudio,
   onOpenKelimeCumleStudio,
+  onOpenFascicleStudio,
   activeCurriculumSession,
 }: SidebarProps) => {
   const [allActivities, setAllActivities] = useState<Activity[]>(ACTIVITIES);
@@ -110,6 +112,7 @@ const Sidebar = ({
       'mat-sinav-studyosu': () => typeof onOpenMatSinavStudyosu === 'function' && onOpenMatSinavStudyosu(),
       'sari-kitap-studio': () => typeof onOpenSariKitapStudio === 'function' && onOpenSariKitapStudio(),
       'kelime-cumle-studio': () => typeof onOpenKelimeCumleStudio === 'function' && onOpenKelimeCumleStudio(),
+      'fascicle-studio': () => typeof onOpenFascicleStudio === 'function' && onOpenFascicleStudio(),
       'activity-studio': () => typeof onOpenActivityStudio === 'function' && onOpenActivityStudio(),
       'infographic-studio': () => typeof onOpenInfographicStudio === 'function' && onOpenInfographicStudio(),
     };
@@ -126,6 +129,7 @@ const Sidebar = ({
       'infographic-studio': 'infographic-studio',
       'sari-kitap-studio': 'sari-kitap',
       'kelime-cumle-studio': 'kelime-cumle',
+      'fascicle-studio': 'fascicle-studio' as any,
     };
 
     return STUDIO_GROUPS.map(group => ({
@@ -153,7 +157,7 @@ const Sidebar = ({
     onOpenScreening, onOpenCurriculum, onOpenReadingStudio, onOpenMathStudio,
     onOpenSuperTurkce, onOpenSinavStudyosu, onOpenMatSinavStudyosu,
     onOpenActivityStudio, onOpenInfographicStudio, onOpenSariKitapStudio,
-    onOpenKelimeCumleStudio
+    onOpenKelimeCumleStudio, onOpenFascicleStudio
   ]);
 
   const handleCategoryMouseEnter = (categoryId: string, event: React.MouseEvent<HTMLButtonElement>) => {

@@ -6,7 +6,11 @@ import { FileDown, RefreshCcw, Save, Undo, Redo, LayoutTemplate } from 'lucide-r
 import { fascicleService } from '../../services/fascicleService';
 import toast from 'react-hot-toast';
 
-export const FascicleStudio: React.FC = () => {
+interface FascicleStudioProps {
+  onBack?: () => void;
+}
+
+export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
   const { currentFascicleId, metadata, items, undo, redo, past, future } = useFascicleStore();
 
   useEffect(() => {

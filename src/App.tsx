@@ -44,6 +44,7 @@ import { useWorksheetStore } from './store/useWorksheetStore';
 import { useUIStore } from './store/useUIStore';
 import { useProfileData } from './components/Profile/hooks/useProfileData';
 import { AppHeader } from './components/AppHeader';
+import { useFascicleStore } from './store/useFascicleStore';
 import { AssignModal } from './components/Student/AssignModal';
 import { useGlobalSettings } from './hooks/useGlobalSettings';
 import { GuideModule, TourModule, PremiumHelpModule, AboutModule, DeveloperVisionModule } from './components/Onboarding';
@@ -116,6 +117,9 @@ const SariKitapStudio = lazy(() =>
 const KelimeCumleStudio = lazy(() =>
   import('./components/KelimeCumleStudio').then((module) => ({ default: module.default }))
 );
+const FascicleStudio = lazy(() =>
+  import('./components/FascicleStudio').then((module) => ({ default: module.default }))
+);
 
 
 import { LoadingSpinner } from './components/shared/LoadingSpinner';
@@ -137,6 +141,8 @@ import { useStudentStore } from './store/useStudentStore';
 
 import { logInfo, logError, logWarn } from './utils/logger.js';
 import { ConnectPanel } from './components/Student/modules/ConnectPanel';
+import { LoadingSpinner as LoadingPlaceholder } from './components/shared/LoadingSpinner';
+
 const AppContent = () => {
   const authStore = useAuthStore();
   const studentStore = useStudentStore();
@@ -228,6 +234,7 @@ const AppContent = () => {
   // Onboarding Modules State
   const [activeOnboardingModule, setActiveOnboardingModule] = useState<'guide' | 'tour' | 'help' | 'about' | 'developer' | null>(null);
   const [isAdvancedScreeningOpen, setIsAdvancedScreeningOpen] = useState(false);
+  const [isScreeningOpen, setIsScreeningOpen] = useState(false);
 
   // Automatically open GuideModule for first-time login
   useEffect(() => {
@@ -288,6 +295,31 @@ const AppContent = () => {
     setIsAuthModalOpen
   );
 
+  const handleAddToWorkbookGeneral = (typeOrData: any, dataOrNothing?: any) => {
+    const { addItem, items } = useFascicleStore.getState();
+    let type: string;
+    let data: any;
+
+    if (dataOrNothing !== undefined) {
+      type = String(typeOrData);
+      data = dataOrNothing;
+    } else {
+      type = (typeOrData as any).activityType || selectedActivity || 'premium-studio';
+      data = typeOrData;
+    }
+
+    addItem({
+      id: crypto.randomUUID(),
+      type: type,
+      difficulty: 'Orta',
+      pageCount: Array.isArray(data?.pages) ? data.pages.length : 1,
+      order: items.length,
+      content: data,
+      pedagogicalNote: (data as any)?.pedagogicalNote || 'Stüdyodan eklendi.'
+    });
+    toast.success('Fasiküle başarıyla eklendi!');
+  };
+
   const handleSelectActivity = (activityType: ActivityType | null) => {
     if (currentView !== 'generator') navigateTo('generator');
     setActiveCurriculumSession(null);
@@ -295,7 +327,6 @@ const AppContent = () => {
     setWorksheetData(null);
     setActiveWorksheet(null);
     setError(null);
-    setCurrentView('generator');
     if (isSidebarOpen) setIsSidebarOpen(false);
     if (activityType) setIsSidebarExpanded(true);
   };
@@ -484,10 +515,9 @@ const AppContent = () => {
           ></div>
         )}
         <div
-          className={`transition-all duration-500 ease-in-out h-full relative group/sidebar-container ${isAdvancedScreeningOpen || zenMode || ['assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students', 'curriculum', 'screening', 'reading-studio', 'math-studio', 'super-turkce', 'infographic-studio', 'activity-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'sari-kitap-studio', 'kelime-cumle-studio', 'ocr'].includes(currentView) ? 'w-0 opacity-0 pointer-events-none' : 'opacity-100'}`}
           style={{
             width:
-              isAdvancedScreeningOpen || zenMode || ['assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students', 'curriculum', 'screening', 'reading-studio', 'math-studio', 'super-turkce', 'infographic-studio', 'activity-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'sari-kitap-studio', 'kelime-cumle-studio', 'ocr'].includes(currentView)
+              isAdvancedScreeningOpen || zenMode || ['assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students', 'curriculum', 'screening', 'reading-studio', 'math-studio', 'super-turkce', 'infographic-studio', 'activity-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'sari-kitap-studio', 'kelime-cumle-studio', 'fascicle-studio', 'ocr'].includes(currentView)
                 ? 0
                 : (currentView === 'generator' && selectedActivity) ? 296 : 250,
           }}
@@ -513,6 +543,7 @@ const AppContent = () => {
             onOpenMatSinavStudyosu={() => handleOpenStudio('mat-sinav-studyosu')}
             onOpenSariKitapStudio={() => handleOpenStudio('sari-kitap-studio')}
             onOpenKelimeCumleStudio={() => handleOpenStudio('kelime-cumle-studio')}
+            onOpenFascicleStudio={() => handleOpenStudio('fascicle-studio')}
             activeCurriculumSession={activeCurriculumSession}
             isExpanded={isSidebarExpanded}
             width={sidebarWidth}
@@ -568,6 +599,7 @@ const AppContent = () => {
               'mat-sinav-studyosu',
               'sari-kitap-studio',
               'kelime-cumle-studio',
+              'fascicle-studio',
             ].includes(currentView) && (
                 <motion.div
                   key={currentView}
@@ -593,7 +625,6 @@ const AppContent = () => {
                       <ProtectedRoute module="reading-studio" onBack={handleGoBack}>
                         <ReadingStudio
                           onBack={handleGoBack}
-                          onAddToWorkbook={handleAddToWorkbookGeneral as any}
                           initialData={studioData}
                         />
                       </ProtectedRoute>
@@ -602,21 +633,19 @@ const AppContent = () => {
                       <ProtectedRoute module="math-studio" onBack={handleGoBack}>
                         <MathStudio
                           onBack={handleGoBack}
-                          onAddToWorkbook={handleAddToWorkbookGeneral as any}
                           initialData={studioData}
                         />
                       </ProtectedRoute>
                     )}
                     {currentView === 'super-turkce' && (
                       <ProtectedRoute module="super-studio" onBack={handleGoBack}>
-                        <SuperStudio onAddToWorkbook={(type: any, data: any) => handleAddToWorkbookGeneral(type, data)} />
+                        <SuperStudio />
                       </ProtectedRoute>
                     )}
                     {currentView === 'activity-studio' && (
                       <ProtectedRoute module="activity-studio" onBack={handleGoBack}>
                         <ActivityStudio
                           onBack={handleGoBack}
-                          onAddToWorkbook={(data: unknown) => handleAddToWorkbookGeneral(data as Record<string, unknown>)}
                         />
                       </ProtectedRoute>
                     )}
@@ -668,13 +697,12 @@ const AppContent = () => {
                     )}
                     {currentView === 'sinav-studyosu' && (
                       <ProtectedRoute module="sinav-studyosu" onBack={handleGoBack}>
-                        <SinavStudyosu onAddToWorkbook={(type: ActivityType, data: unknown) => handleAddToWorkbookGeneral(type, data as Record<string, unknown>)} initialData={studioData} />
+                        <SinavStudyosu initialData={studioData} />
                       </ProtectedRoute>
                     )}
                     {currentView === 'mat-sinav-studyosu' && (
                       <ProtectedRoute module="math-studio" onBack={handleGoBack}>
                         <MatSinavStudyosu 
-                          onAddToWorkbook={(type: ActivityType, data: unknown) => handleAddToWorkbookGeneral(type, data as Record<string, unknown>)} 
                           initialData={studioData}
                         />
                       </ProtectedRoute>
@@ -689,14 +717,19 @@ const AppContent = () => {
                       </ProtectedRoute>
                     )}
                     {currentView === 'kelime-cumle-studio' && (
-                      <ProtectedRoute module="kelime-cumle" onBack={handleGoBack}>
-                        <KelimeCumleStudio
-                          onBack={handleGoBack}
-                          onAddToWorkbook={(_type: unknown, data: unknown) => handleAddToWorkbookGeneral(ActivityType.KELIME_CUMLE, data as Record<string, unknown>)}
-                        />
+                      <ProtectedRoute module="kelime-cumle" onBack={() => navigateTo('generator')}>
+                        <React.Suspense fallback={<LoadingPlaceholder />}>
+                          <KelimeCumleStudio onBack={() => navigateTo('generator')} />
+                        </React.Suspense>
                       </ProtectedRoute>
                     )}
-
+                    {currentView === 'fascicle-studio' && (
+                      <ProtectedRoute module="fascicle-studio" onBack={() => navigateTo('generator')}>
+                        <React.Suspense fallback={<LoadingPlaceholder />}>
+                          <FascicleStudio onBack={() => navigateTo('generator')} />
+                        </React.Suspense>
+                      </ProtectedRoute>
+                    )}
                   </Suspense>
                 </motion.div>
               )}
@@ -910,9 +943,8 @@ const AppContent = () => {
       {isAdvancedScreeningOpen && (
         <ScreeningAssessment
           onClose={() => setIsAdvancedScreeningOpen(false)}
-          userRole={(user?.role === 'admin' ? 'admin' : 'teacher')}
+          userRole={(user?.role === 'admin' || user?.role === 'superadmin') ? 'admin' : (user?.role === 'teacher' ? 'teacher' : 'parent')}
           onGeneratePlan={handleGeneratePlanFromScreening}
-          onAddToWorkbook={(data) => handleAddToWorkbookGeneral(ActivityType.ASSESSMENT_REPORT, data as unknown as Record<string, unknown>)}
         />
       )}
     </div>

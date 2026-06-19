@@ -390,6 +390,7 @@ export type View =
   | 'kelime-cumle-studio'
   | 'messages'
   | 'infographic-studio'
+  | 'fascicle-studio'
   | 'students';
 
 export interface UiSettings {

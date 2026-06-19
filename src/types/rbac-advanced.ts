@@ -53,6 +53,7 @@ export type PermissionModule =
   | 'platform-market'
   | 'premium-support'
   | 'about-us'
+  | 'fascicle-studio'
   | 'developer-tools';
 
 export const MODULE_LABELS: Record<PermissionModule, string> = {
@@ -86,7 +87,8 @@ export const MODULE_LABELS: Record<PermissionModule, string> = {
   'planning': 'Akademik Planlama',
   'reports': 'Raporlar ve Çıktılar',
   'settings': 'Sistem Ayarları',
-  'bep': 'BEP Yönetimi'
+  'bep': 'BEP Yönetimi',
+  'fascicle-studio': 'Fasikül & Kitapçık Stüdyosu'
 };
 
 // ─── Modül Kategorileri (RBAC IDE gruplama) ────────────────────────
@@ -105,7 +107,7 @@ export const MODULE_CATEGORIES: { id: string; label: string; modules: Permission
   {
     id: 'creative-studios',
     label: 'Yaratıcı Atölye Stüdyoları',
-    modules: ['super-studio', 'infographic-studio', 'sari-kitap', 'kelime-cumle']
+    modules: ['super-studio', 'infographic-studio', 'sari-kitap', 'kelime-cumle', 'fascicle-studio']
   },
   {
     id: 'tools-portals',
@@ -192,7 +194,7 @@ export const buildDefaultRBAC = (): RBACSettings => {
   ];
 
   const creativeStudios: PermissionModule[] = [
-    'super-studio', 'infographic-studio', 'sari-kitap', 'kelime-cumle'
+    'super-studio', 'infographic-studio', 'sari-kitap', 'kelime-cumle', 'fascicle-studio'
   ];
 
   const toolsPortals: PermissionModule[] = [

@@ -42,6 +42,7 @@ export type PermissionModule =
   | 'platform-market'
   | 'premium-support'
   | 'about-us'
+  | 'fascicle-studio'
   | 'developer-tools';
 
 export interface CategoryPermission {
