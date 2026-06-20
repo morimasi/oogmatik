@@ -27,9 +27,10 @@ export const ExamRenderer: React.FC<Props> = ({ examType, data, settings }) => {
   const isPrinting = true; // ExamRenderer genellikle yazdırma/önizleme odağında çağrılır
 
   // Soru gap / margin ayarlarını StyleSettings'ten sync et
+  const printConfigFromData = (data as any).printConfig || (data as any).settings;
   const config: PrintConfig = {
-    ...(data as any).printConfig,
-    columns: settings?.columns || (data as any).printConfig?.columns || 1,
+    ...printConfigFromData,
+    columns: printConfigFromData?.columns || settings?.columns || 1,
     fontSize: settings?.fontSize === 'büyük' ? 14 : (settings?.fontSize === 'küçük' ? 10 : 12),
     questionSpacingMm: Number(settings?.margin || 10),
   };

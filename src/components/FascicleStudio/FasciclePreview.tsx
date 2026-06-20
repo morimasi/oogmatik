@@ -85,8 +85,17 @@ export const FasciclePreview: React.FC = () => {
              {items.length > 0 ? items.map((item, index) => {
                // İçerikten dinamik ayarları çek (Sınav stüdyosunun 2 sütun gibi ayarlarını korumak için)
                const contentObj = (item.content as any) || {};
+               const isExam = item.type === ActivityType.SINAV || item.type === ActivityType.MAT_SINAV;
+               const defaultColumns = isExam ? 2 : 1;
+               
                // Hedef ayarlar genelde printConfig, settings veya config adıyla content içine paketlenir
-               const dynamicSettings = contentObj.settings || contentObj.printConfig || contentObj.config || contentObj.styleSettings || {};
+               const dynamicSettings = {
+                 columns: defaultColumns, // Fallback default based on type
+                 ...(contentObj.settings || {}),
+                 ...(contentObj.printConfig || {}),
+                 ...(contentObj.config || {}),
+                 ...(contentObj.styleSettings || {})
+               };
 
                return (
                  <div key={item.id} className="relative group/page">
@@ -119,7 +128,7 @@ export const FasciclePreview: React.FC = () => {
                              borderColor: '#e2e8f0',
                              borderWidth: 1,
                              margin: 10,
-                             columns: 1,
+                             columns: defaultColumns,
                              gap: 20,
                              orientation: 'portrait',
                              themeBorder: 'none',
