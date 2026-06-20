@@ -169,6 +169,11 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, initialData }) =
                 isPrinting={exportActions.isPrinting}
                 isSaving={exportActions.isSaving}
                 isSidebarOpen={isSidebarOpen}
+                drillConfig={drill.drillConfig}
+                problemConfig={problem.problemConfig}
+                pageConfig={pageConfig}
+                generatedDrills={drill.generatedDrills}
+                generatedProblems={problem.generatedProblems}
             />
 
 

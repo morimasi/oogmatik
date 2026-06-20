@@ -3,6 +3,7 @@
 import React from 'react';
 import { MathMode } from '../../../types/math';
 import { useFascicleStore } from '../../../store/useFascicleStore';
+import { ActivityType } from '../../../types';
 import toast from 'react-hot-toast';
 
 interface MathHeaderProps {
@@ -17,11 +18,18 @@ interface MathHeaderProps {
     isPrinting: boolean;
     isSaving: boolean;
     isSidebarOpen: boolean;
+    // Data for Fascicle
+    drillConfig?: any;
+    problemConfig?: any;
+    pageConfig?: any;
+    generatedDrills?: any[];
+    generatedProblems?: any[];
 }
 
 export const MathHeader: React.FC<MathHeaderProps> = ({
     mode, setMode, onBack, onPrint, onSave, onShare,
     onRegenerate, onToggleSidebar, isPrinting, isSaving, isSidebarOpen,
+    drillConfig, problemConfig, pageConfig, generatedDrills, generatedProblems
 }) => (
     <div className="h-14 bg-[#18181b] border-b border-zinc-800 flex justify-between items-center px-4 shrink-0 z-50">
         {/* LEFT */}
@@ -79,15 +87,33 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
             </button>
             <button
                 onClick={() => {
-                    const { addItem, items } = useFascicleStore.getState();
+                    const { addItem, items: fascicleItems } = useFascicleStore.getState();
+                    
+                    // Prepare the full data package for Fascicle
+                    const isDrill = mode === 'drill';
+                    const activeConfig = isDrill ? drillConfig : problemConfig;
+                    const activeItems = isDrill ? generatedDrills : generatedProblems;
+
+                    if (!activeItems || activeItems.length === 0) {
+                        toast.error('Lütfen önce içerik üretin!');
+                        return;
+                    }
+
                     addItem({
                         id: crypto.randomUUID(),
-                        type: 'math-studio',
-                        difficulty: 'Orta',
+                        type: ActivityType.MATH_STUDIO,
+                        difficulty: activeConfig?.difficulty || 'Orta',
                         pageCount: 1,
-                        order: items.length,
-                        content: { mode },
-                        pedagogicalNote: 'Matematik Stüdyosu\'ndan eklendi.'
+                        order: fascicleItems.length,
+                        content: { 
+                            mode,
+                            config: activeConfig,
+                            pageConfig,
+                            items: activeItems
+                        },
+                        pedagogicalNote: isDrill 
+                            ? `${activeConfig?.selectedOperations?.join(', ')} işlemleri üzerine yoğunlaşan pratik çalışması.`
+                            : `${activeConfig?.topic} konusunu ele alan AI destekli problem çözme etkinliği.`
                     });
                     toast.success('Fasiküle eklendi!');
                 }}

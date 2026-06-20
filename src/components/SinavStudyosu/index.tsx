@@ -209,11 +209,11 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
     const { addItem, items } = useFascicleStore.getState();
     addItem({
       id: crypto.randomUUID(),
-      type: 'sinav-studyosu',
+      type: ActivityType.SINAV,
       difficulty: 'Orta',
-      pageCount: aktifSinav.sorular?.length || 1,
+      pageCount: Math.ceil((aktifSinav.sorular?.length || 1) / 4), // Soru sayısına göre tahmini sayfa
       order: items.length,
-      content: { sinav: aktifSinav },
+      content: aktifSinav,
       pedagogicalNote: 'Sınav Stüdyosu\'ndan eklendi.'
     });
     showSuccess('Kitapçığa eklendi!');

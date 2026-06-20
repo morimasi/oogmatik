@@ -3,6 +3,31 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Trash2 } from 'lucide-react';
 import { FascicleItem } from '../../types/fascicle';
+import { ActivityType } from '../../types/activity';
+
+const formatTitle = (type: string) => {
+  if (!type) return 'İsimsiz İçerik';
+  
+  const titles: Record<string, string> = {
+    [ActivityType.SINAV]: 'Türkçe Sınavı',
+    [ActivityType.MAT_SINAV]: 'Matematik Sınavı',
+    [ActivityType.MATH_STUDIO]: 'Matematik Etkinliği',
+    [ActivityType.SUPER_STUDIO]: 'Süper Türkçe',
+    [ActivityType.KELIME_CUMLE]: 'Kelime-Cümle Stüdyosu',
+    [ActivityType.CURRICULUM]: 'Eğitim Planı',
+    [ActivityType.ACTIVITY_STUDIO]: 'Ultra Etkinlik',
+    [ActivityType.SARI_KITAP_STUDIO]: 'Sarı Kitap Okuma',
+    'worksheet': 'Çalışma Kağıdı',
+    'reading': 'Okuma Parçası'
+  };
+
+  if (titles[type]) return titles[type];
+  
+  // Fallback: HECE_PARKURU -> Hece Parkuru
+  return type.split('_').map(word => 
+    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+  ).join(' ');
+};
 
 interface SortableItemProps {
   id: string;
@@ -44,7 +69,7 @@ export const SortableItem: React.FC<SortableItemProps> = ({ id, item, onRemove }
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between mb-1">
            <p className="text-sm font-medium text-white truncate max-w-[180px]">
-             {item.type === 'worksheet' ? 'Çalışma Kağıdı' : item.type === 'reading' ? 'Okuma Parçası' : item.type}
+             {(item.content as any)?.title || (item.content as any)?.wizardData?.goal?.topic || formatTitle(item.type)}
            </p>
            <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-slate-700/50 text-slate-400">
              {item.difficulty}

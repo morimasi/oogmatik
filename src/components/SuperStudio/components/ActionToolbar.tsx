@@ -25,7 +25,6 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
     if (generatedContents.length === 0) return;
 
     try {
-      // İlk sayfa baz alınarak kaydediliyor
       const content = generatedContents[0];
       const firstPage = content?.pages?.[0] as Record<string, unknown> | undefined;
 
@@ -34,7 +33,6 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
         return;
       }
 
-      // SingleWorksheetData formatına dönüştür
       const worksheetData: SingleWorksheetData[] = [
         {
           id: content.id,
@@ -53,9 +51,6 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
         worksheetData,
         'fa-solid fa-wand-magic-sparkles',
         { id: 'reading-comprehension', title: 'Okuduğunu Anlama' },
-        undefined,
-        undefined,
-        'default-student'
       );
       addToast('Çalışma başarıyla buluta kaydedildi.', 'success');
     } catch (error) {
@@ -66,24 +61,10 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
 
   const handlePrint = () => {
     const targetSelector = '.super-reading-preview-area';
-    const allPages = document.querySelectorAll('.super-reading-preview-area .a4-page, .super-reading-preview-area .worksheet-page');
-    const hasMultiplePages = allPages.length > 1;
-
-    if (hasMultiplePages) {
-      // Çoklu sayfa: gerçek PDF motoru kullan
-      printService.generateRealPdf(targetSelector, 'Super_Turkce_Etkinlik', {
-        paperSize: 'A4',
-        quality: 'high',
-        onProgress: (percent, message) => {
-          logInfo(`PDF İlerleme: ${percent}% - ${message}`);
-        }
-      });
-    } else {
-      // Tek sayfa: overlay print kullan
-      printService.generatePdf(targetSelector, 'Super_Turkce_Etkinlik', {
-        action: 'print'
-      });
-    }
+    printService.generateRealPdf(targetSelector, 'Super_Turkce_Etkinlik', {
+      paperSize: 'A4',
+      quality: 'high',
+    });
   };
 
   return (
@@ -97,16 +78,17 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
          <i className="fa-solid fa-cloud-arrow-up text-teal-400"></i>
          <span className="hidden sm:inline">Kaydet</span>
        </button>
+       
        <button
          onClick={() => {
              const { addItem, items } = useFascicleStore.getState();
              addItem({
                  id: crypto.randomUUID(),
-                 type: 'super-turkce',
+                 type: ActivityType.SUPER_STUDIO,
                  difficulty: 'Orta',
                  pageCount: generatedContents.length,
                  order: items.length,
-                 content: { generatedContents },
+                 content: { content: generatedContents },
                  pedagogicalNote: 'Süper Türkçe Stüdyosu\'ndan eklendi.'
              });
              addToast('Fasiküle başarıyla eklendi!', 'success');
@@ -118,6 +100,7 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
          <i className="fa-solid fa-layer-group"></i>
          <span className="hidden sm:inline">Fasiküle Ekle</span>
        </button>
+
       <button
         onClick={handlePrint}
         disabled={isGenerating || generatedContents.length === 0}

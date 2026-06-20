@@ -37,15 +37,21 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
       toast.warning('Fasiküle eklemek için önce bir etkinlik oluşturun.');
       return;
     }
+
+    // Normalize activityType to match ActivityType enum (UPPERCASE)
+    const normalizedType = activityType.toUpperCase().replace(/-/g, '_');
+    
     const { addItem, items } = useFascicleStore.getState();
+    const firstPage = Array.isArray(worksheetData) ? worksheetData[0] : worksheetData;
+    
     addItem({
       id: crypto.randomUUID(),
-      type: activityType,
+      type: normalizedType as any,
       difficulty: 'Orta',
       pageCount: Array.isArray(worksheetData) ? worksheetData.length : 1,
       order: items.length,
-      content: worksheetData,
-      pedagogicalNote: 'Stüdyodan eklendi.'
+      content: worksheetData, // V1 renderers handle the array or object directly
+      pedagogicalNote: (firstPage as any)?.pedagogicalNote || 'Kütüphaneden eklenen global etkinlik.'
     });
     toast.success('Fasiküle başarıyla eklendi!');
   };

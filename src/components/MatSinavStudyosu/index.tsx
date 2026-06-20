@@ -189,11 +189,11 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ initialData 
         const { addItem, items } = useFascicleStore.getState();
         addItem({
             id: crypto.randomUUID(),
-            type: 'mat-sinav-studyosu',
+            type: ActivityType.MAT_SINAV,
             difficulty: 'Orta',
-            pageCount: aktifSinav.sorular?.length || 1,
+            pageCount: Math.ceil((aktifSinav.sorular?.length || 1) / 4), // Ortalama sayfa hesabı
             order: items.length,
-            content: { sinav: aktifSinav },
+            content: aktifSinav, // Direkt sınav objesini gönderiyoruz, SheetRenderer bunu handleder
             pedagogicalNote: 'Matematik Sınav Stüdyosu\'ndan eklendi.'
         });
         showSuccess('Kitapçığa eklendi!');

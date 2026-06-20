@@ -317,34 +317,34 @@ const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) =>
             >
               <i className="fa-solid fa-print"></i>
             </button>
-              <button
-                onClick={handleSave}
-               className="studio-icon-btn w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--accent-color)] border border-[var(--accent-color)] text-white shadow-lg shadow-[var(--accent-muted)] hover:opacity-90"
-               title="Arşive Kaydet"
-             >
-               <i className="fa-solid fa-floppy-disk"></i>
-             </button>
-             <button
-                onClick={() => {
-                    const { addItem, items } = useFascicleStore.getState();
-                    addItem({
-                        id: crypto.randomUUID(),
-                        type: 'reading-studio',
-                        difficulty: 'Orta',
-                        pageCount: storyData ? 1 : 0,
-                        order: items.length,
-                        content: { storyData, config, layout },
-                        pedagogicalNote: 'Okuma Stüdyosu\'ndan eklendi.'
-                    });
-                    toast.success('Fasiküle başarıyla eklendi!');
-                }}
-               className="studio-icon-btn w-10 h-10 rounded-xl flex items-center justify-center bg-fuchsia-600 border border-fuchsia-600 text-white shadow-lg hover:opacity-90"
-               title="Fasiküle Ekle"
-             >
-               <i className="fa-solid fa-layer-group"></i>
-             </button>
-           </div>
-         </header>
+            <button
+              onClick={handleSave}
+              className="studio-icon-btn w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--accent-color)] border border-[var(--accent-color)] text-white shadow-lg shadow-[var(--accent-muted)] hover:opacity-90"
+              title="Arşive Kaydet"
+            >
+              <i className="fa-solid fa-floppy-disk"></i>
+            </button>
+            <button
+              onClick={() => {
+                const { addItem, items } = useFascicleStore.getState();
+                addItem({
+                  id: crypto.randomUUID(),
+                  type: ActivityType.STORY_COMPREHENSION,
+                  difficulty: 'Orta',
+                  pageCount: storyData ? 1 : 0,
+                  order: items.length,
+                  content: { storyData, config, layout },
+                  pedagogicalNote: 'Okuma Stüdyosu\'ndan eklendi. Hikaye anlama ve 5N1K analizi içerir.'
+                });
+                toast.success('Fasiküle başarıyla eklendi!');
+              }}
+              className="studio-icon-btn w-10 h-10 rounded-xl flex items-center justify-center bg-fuchsia-600 border border-fuchsia-600 text-white shadow-lg hover:opacity-90"
+              title="Fasiküle Ekle"
+            >
+              <i className="fa-solid fa-layer-group"></i>
+            </button>
+          </div>
+        </header>
       )}
 
       <div className="flex-1 flex overflow-hidden">

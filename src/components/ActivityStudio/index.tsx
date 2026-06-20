@@ -4,6 +4,7 @@ import { useFascicleStore } from '../../store/useFascicleStore';
 import { useToastStore } from '../../store/useToastStore';
 import { WizardContainer } from './wizard/WizardContainer';
 import { usePedagogicGates } from './hooks/usePedagogicGates';
+import { ActivityType } from '../../types';
 
 interface ActivityStudioProps {
   onBack: () => void;
@@ -28,13 +29,18 @@ export const ActivityStudio: React.FC<ActivityStudioProps> = ({ onBack }) => {
             <button
               onClick={() => {
                 const { addItem, items } = useFascicleStore.getState();
+                const studioState = useActivityStudioStore.getState();
                 addItem({
                   id: crypto.randomUUID(),
-                  type: 'activity-studio',
+                  type: ActivityType.ACTIVITY_STUDIO,
                   difficulty: 'Orta',
                   pageCount: 1,
                   order: items.length,
-                  content: { wizardData },
+                  content: { 
+                    wizardData: studioState.wizardData,
+                    content: studioState.content,
+                    pedagogicalNote: studioState.pedagogicalNote
+                  },
                   pedagogicalNote: 'Etkinlik Stüdyosu\'ndan eklendi.'
                 });
                 useToastStore.getState().success('Fasiküle başarıyla eklendi!');

@@ -16,6 +16,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { useStudentStore } from '../../store/useStudentStore';
 import { useFascicleStore } from '../../store/useFascicleStore';
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { ActivityType } from '../../types';
 import './KelimeCumleStudio.css';
 
 interface KelimeCumleStudioProps {
@@ -45,15 +46,14 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
     const { generateOffline, generateAI, isGenerating, error } = useKelimeCumleGenerator();
     const [toastMsg, setToastMsg] = useState<string | null>(null);
     const { activeStudent } = useStudentStore();
-    const [scale, setScale] = useState(0.8); // Default scale to fit height better
+    const [scale, setScale] = useState(0.8);
 
-    // --- SYNC WITH GLOBAL STUDENT ---
     useEffect(() => {
         if (activeStudent) {
             setConfig(prev => ({
                 ...prev,
                 ageGroup: activeStudent.age <= 7 ? '5-7' : activeStudent.age <= 10 ? '8-10' : activeStudent.age <= 13 ? '11-13' : '14+',
-                difficulty: activeStudent.grade?.includes('1') || activeStudent.grade?.includes('2') ? 'Başlangıç' : activeStudent.grade?.includes('5') ? 'İleri' : 'Orta',
+                difficulty: activeStudent.grade?.includes('1') || activeStudent.grade?.includes('2') ? 'Orta' : activeStudent.grade?.includes('5') ? 'Zor' : 'Orta',
                 title: `${activeStudent.name} için ${prev.type.replace('_', ' ')} Çalışması`
             }));
         }
@@ -73,7 +73,6 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
         }
     };
 
-    // İlk yüklemede ve ayar değişimlerinde (Hızlı Mod ise) otomatik üret
     useEffect(() => {
         if (generationMode === 'offline') {
             handleGenerate();
@@ -93,8 +92,6 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
         printService.generatePdf('.print-page', content?.title || 'Kelime_Cumle_Calismasi', { action: 'download' });
     };
 
-
-    // ARŞIVE KAYDETME FONKSİYONU
     const handleSaveToArchive = async () => {
         if (!content || !user) {
             showToast('⚠️ Kaydetmek için giriş yapmalısınız');
@@ -102,19 +99,17 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
         }
 
         try {
-            // İçeriği hazırla
             const name = `${config.type === 'bosluk_doldurma' ? 'Boşluk Doldurma' : 
                            config.type === 'test' ? 'Çoktan Seçmeli' : 
                            config.type === 'kelime_tamamlama' ? 'Kelime Tamamlama' : 
                            config.type === 'karisik_cumle' ? 'Karışık Cümle' : 
                            'Zıt Anlam'} - ${new Date().toLocaleDateString('tr-TR')}`;
             
-            const activityType = `KELIME_CUMLE_${config.type.toUpperCase()}` as any;
+            const activityType = ActivityType.KELIME_CUMLE;
             
-            // SingleWorksheetData formatına çevir
             const worksheetData = [{
                 id: `kc-${Date.now()}`,
-                type: activityType as any,
+                type: activityType,
                 title: name,
                 instruction: content.instructions || 'Yönerge yok',
                 items: content.items,
@@ -124,7 +119,6 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
                 createdAt: new Date().toISOString()
             }];
             
-            // Firestore'a kaydet
             await worksheetService.saveWorksheet(
                 user.id,
                 name,
@@ -132,12 +126,8 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
                 worksheetData,
                 activityInfo.icon || 'fa-solid fa-file',
                 { id: 'reading-verbal', title: 'Okuma & Dil' },
-                undefined, // styleSettings
-                undefined, // studentProfile
-                undefined  // studentId
             );
 
-            // Eğer onSaveToArchive prop'u varsa onu da çağır
             if (onSaveToArchive) {
                 await onSaveToArchive(name, activityType, worksheetData);
             }
@@ -149,36 +139,21 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
         }
     };
 
-    const handleShare = () => {
-        showToast('🔗 Paylaşım bağlantısı kopyalandı!');
-    };
-
-    // Chunking Logic - Kullanıcı tarafından istenen adet kadar soru üret ve sayfala
     const contentChunks = useMemo(() => {
         if (!content || !content.items || content.items.length === 0) return [];
-        
-        // Kullanıcının istediği adet kadar soru üretildi mi kontrol et
-        const expectedCount = config.itemCount || 20;
-        if (content.items.length !== expectedCount) {
-            logWarn(`Beklenen: ${expectedCount} soru, üretilen: ${content.items.length} soru`);
-        }
-        
-        // Kullanıcının belirlediği sayfa başına soru sayısı veya optimal varsayılan değer
         let perPage: number;
         if (config.itemsPerPage) {
             perPage = config.itemsPerPage;
         } else {
             switch (config.type) {
-                case 'bosluk_doldurma': perPage = 10; break; // Orta uzunlukta cümleler
-                case 'test': perPage = 5; break; // Çoktan seçmeli (az yer kaplar)
-                case 'kelime_tamamlama': perPage = 12; break; // Kısa kelimeler
-                case 'karisik_cumle': perPage = 8; break; // Kelime dizileri
-                case 'zit_anlam': perPage = 15; break; // Kısa kelime çiftleri
+                case 'bosluk_doldurma': perPage = 10; break;
+                case 'test': perPage = 5; break;
+                case 'kelime_tamamlama': perPage = 12; break;
+                case 'karisik_cumle': perPage = 8; break;
+                case 'zit_anlam': perPage = 15; break;
                 default: perPage = 10; break;
             }
         }
-
-        // Tüm soruları sayfalara böl
         const chunks = [];
         for (let i = 0; i < content.items.length; i += perPage) {
             chunks.push({
@@ -186,12 +161,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
                 items: content.items.slice(i, i + perPage)
             });
         }
-        
-        // Eğer hiç sayfa oluşmadıysa (items boşsa bile) en az bir sayfa göster
-        if (chunks.length === 0) {
-            chunks.push(content);
-        }
-        
+        if (chunks.length === 0) chunks.push(content);
         return chunks;
     }, [content, config.type, config.itemCount, config.itemsPerPage]);
 
@@ -207,24 +177,16 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
                 </div>
             )}
             
-            {/* Animasyonlu Arkaplan - Tema Duyarlı */}
             <div className="kc-premium-bg">
                 <div className="kc-bg-orb orb-1"></div>
                 <div className="kc-bg-orb orb-2"></div>
             </div>
 
-
-
             <div className="kc-premium-layout">
-                {/* SOL PANEL - Ayarlar (Premium Sidebar) */}
                 <div className="kc-sidebar-glass">
                     <div className="kc-sidebar-header">
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.4rem' }}>
-                            {onBack && (
-                                <button onClick={onBack} className="kc-btn-back" title="Geri Dön">
-                                    ←
-                                </button>
-                            )}
+                            {onBack && <button onClick={onBack} className="kc-btn-back" title="Geri Dön">←</button>}
                             <h1 className="kc-brand-title">Kelime-Cümle</h1>
                         </div>
                         <p className="kc-brand-subtitle">Ultra Premium Şablon Stüdyosu</p>
@@ -232,7 +194,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
 
                     <div className="kc-sidebar-scrollable custom-scrollbar">
                         <TypeSelectorPanel 
-                            types={Object.entries(KELIME_CUMLE_REGISTRY).map(([key, val]) => ({
+                            types={Object.entries(KELIME_C_REGISTRY).map(([key, val]) => ({
                                 id: key,
                                 title: val.title,
                                 icon: val.icon,
@@ -249,11 +211,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
                                     case 'zit_anlam': defaultPerPage = 15; break;
                                     default: defaultPerPage = 10; break;
                                 }
-                                setConfig(prev => ({ 
-                                    ...prev, 
-                                    type: newType,
-                                    itemsPerPage: defaultPerPage
-                                }));
+                                setConfig(prev => ({ ...prev, type: newType, itemsPerPage: defaultPerPage }));
                             }}
                         />
 
@@ -268,34 +226,26 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
                     </div>
                 </div>
 
-                {/* SAĞ PANEL - Canlı Önizleme Alanı */}
                 <div className="kc-preview-glass">
                     <div className="kc-toolbar-glass">
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
-                            <button className="kc-btn-action" onClick={handlePrint}>
-                                🖨️ <span>Yazdır</span>
-                            </button>
-                            <button className="kc-btn-action" onClick={handleDownload}>
-                                💾 <span>İndir</span>
-                            </button>
-                            <button className="kc-btn-action" onClick={handleSaveToArchive} style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white' }}>
-                                📦 <span>Arşive Kaydet</span>
-                            </button>
+                            <button className="kc-btn-action" onClick={handlePrint}>🖨️ <span>Yazdır</span></button>
+                            <button className="kc-btn-action" onClick={handleDownload}>💾 <span>İndir</span></button>
+                            <button className="kc-btn-action" onClick={handleSaveToArchive} style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white' }}>📦 <span>Arşive Kaydet</span></button>
                             <button
                                 className="kc-btn-action"
                                 onClick={() => {
-                                    const { addItem, items } = useFascicleStore.getState();
+                                    const { addItem, items: fascicleItems } = useFascicleStore.getState();
                                     addItem({
                                         id: crypto.randomUUID(),
-                                        type: 'kelime-cumle',
+                                        type: ActivityType.KELIME_CUMLE,
                                         difficulty: 'Orta',
-                                        pageCount: 1,
-                                        order: items.length,
+                                        pageCount: contentChunks.length,
+                                        order: fascicleItems.length,
                                         content: { content, config },
                                         pedagogicalNote: 'Kelime-Cümle Stüdyosu\'ndan eklendi.'
                                     });
-                                    setToastMsg('Kitapçığa eklendi!');
-                                    setTimeout(() => setToastMsg(null), 3000);
+                                    showToast('✅ Kitapçığa eklendi!');
                                 }}
                                 style={{ background: 'linear-gradient(135deg, #a855f7, #d946ef)', color: 'white' }}
                             >
@@ -303,13 +253,11 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
                             </button>
                         </div>
                         
-                        {/* Zoom Kontrolleri */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--bg-tertiary)', padding: '2px 8px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
                             <button onClick={() => setScale(prev => Math.max(0.4, prev - 0.1))} className="kc-zoom-btn">➖</button>
                             <span style={{ fontSize: '0.75rem', fontWeight: 700, minWidth: '35px', textAlign: 'center' }}>%{Math.round(scale * 100)}</span>
                             <button onClick={() => setScale(prev => Math.min(1.5, prev + 0.1))} className="kc-zoom-btn">➕</button>
                         </div>
-
                     </div>
 
                     <div className="kc-preview-viewport custom-scrollbar">
@@ -328,22 +276,9 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
                                                 wordSpacing: config.wordSpacing || 1.5
                                             }}
                                         >
-                                            <div className="print-page a4-page clinic-high-contrast" style={{ 
-                                                height: '100%', 
-                                                width: '100%', 
-                                                display: 'flex', 
-                                                flexDirection: 'column',
-                                                backgroundColor: '#ffffff', // Her zamana beyaz zemin
-                                                color: '#1a1a1a', // Klinik siyah metin
-                                                position: 'relative'
-                                            }}>
-                                                <div className="page-indicator" style={{ position: 'absolute', top: '10px', right: '15px', fontSize: '10px', color: '#94a3b8', fontStyle: 'italic' }}>
-                                                    Sayfa {idx + 1} / {contentChunks.length}
-                                                </div>
-                                                <Renderer 
-                                                    content={chunk} 
-                                                    showAnswers={config.showAnswers} 
-                                                />
+                                            <div className="print-page a4-page clinic-high-contrast" style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column', backgroundColor: '#ffffff', color: '#1a1a1a', position: 'relative' }}>
+                                                <div className="page-indicator" style={{ position: 'absolute', top: '10px', right: '15px', fontSize: '10px', color: '#94a3b8', fontStyle: 'italic' }}>Sayfa {idx + 1} / {contentChunks.length}</div>
+                                                <Renderer content={chunk} showAnswers={config.showAnswers} />
                                             </div>
                                         </A4CompactRenderer>
                                     ))
@@ -361,5 +296,8 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
         </div>
     );
 };
+
+// Internal registry access fix
+const KELIME_C_REGISTRY = KELIME_CUMLE_REGISTRY as any;
 
 export default KelimeCumleStudio;

@@ -12,6 +12,7 @@ import { Difficulty } from '../types/common';
 import { ACTIVITIES } from '../constants';
 import { useToastStore } from '../store/useToastStore';
 import { useFascicleStore } from '../store/useFascicleStore';
+import { ActivityType } from '../types';
 import { profileShareService } from '../services/profileShareService';
 
 interface CurriculumViewProps {
@@ -944,9 +945,9 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onStartC
                                     const { addItem, items } = useFascicleStore.getState();
                                     addItem({
                                         id: crypto.randomUUID(),
-                                        type: 'curriculum',
+                                        type: ActivityType.CURRICULUM,
                                         difficulty: 'Orta',
-                                        pageCount: curriculum ? Object.keys(curriculum.days || {}).length : 1,
+                                        pageCount: curriculum ? curriculum.schedule.length : 1,
                                         order: items.length,
                                         content: { curriculum },
                                         pedagogicalNote: 'Müfredat Stüdyosu\'ndan eklendi.'
