@@ -99,7 +99,7 @@ export const FascicleCoverPage: React.FC<FascicleCoverPageProps> = ({ settings, 
         <h3 className={`text-sm font-bold mt-6 italic ${getColorClass('text')} opacity-70 uppercase tracking-widest`}>
           {settings.subtitle || 'Kişiselleştirilmiş Eğitim Materyali'}
         </h3>
-        {fascicleTitle && (
+        {fascicleTitle && fascicleTitle !== 'İsimsiz Fasikül' && (
           <div className="mt-6 px-8 py-3 rounded-2xl" style={{ backgroundColor: 'var(--accent-muted, rgba(99,102,241,0.08))', border: '1px solid var(--accent-muted, rgba(99,102,241,0.15))' }}>
             <span className="text-base font-bold text-gray-700">{fascicleTitle}</span>
           </div>
