@@ -6,7 +6,7 @@ import { FascicleSidebar } from './FascicleSidebar';
 import { FasciclePreview } from './FasciclePreview';
 import { FascicleTemplatesModal } from './FascicleTemplatesModal';
 import { ShareModal } from '../ShareModal';
-import { FileDown, Undo, Redo, LayoutTemplate, Save, Share2, UserPlus } from 'lucide-react';
+import { FileDown, Undo, Redo, LayoutTemplate, Save, Share2, UserPlus, Printer } from 'lucide-react';
 import { fascicleService } from '../../services/fascicleService';
 import { worksheetService } from '../../services/worksheetService';
 import { printService } from '../../utils/printService';
@@ -49,6 +49,23 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
     } catch (error) {
         logError(error as Error, { context: 'Fasikül PDF olarak indirilemedi' });
         toast.error('PDF işlemi başlatılamadı. Lütfen tekrar deneyin.', { id: 'print-toast' });
+    } finally {
+        setIsPrinting(false);
+    }
+  };
+
+  const handlePrint = async () => {
+    try {
+        setIsPrinting(true);
+        toast.loading('Yazdırma modülü hazırlanıyor...', { id: 'print-toast' });
+        await printService.generatePdf('#fascicle-print-container', metadata.title || 'Ozel_Egitim_Fasikulu', {
+            action: 'print',
+            quality: 'high'
+        });
+        toast.success('Yazdırma sırasına eklendi!', { id: 'print-toast' });
+    } catch (error) {
+        logError(error as Error, { context: 'Fasikül yazdırılamadı' });
+        toast.error('Yazdırma işlemi başlatılamadı. Lütfen tekrar deneyin.', { id: 'print-toast' });
     } finally {
         setIsPrinting(false);
     }
@@ -194,6 +211,13 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
              onClick={() => setIsTemplatesModalOpen(true)}
              className="flex items-center px-3 py-2 bg-slate-800 text-white border border-white/10 rounded-xl hover:bg-slate-700 transition text-sm font-medium">
              <LayoutTemplate size={16} className="mr-2" /> Şablonlar
+          </button>
+          
+          <button 
+             onClick={handlePrint}
+             disabled={items.length === 0 || isPrinting}
+             className="flex items-center px-4 py-2 bg-slate-800 text-white border border-white/10 rounded-xl hover:bg-slate-700 transition text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+             <Printer size={16} className="mr-2 text-blue-300" /> Yazdır
           </button>
           
           <button 

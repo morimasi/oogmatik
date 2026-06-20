@@ -42,7 +42,7 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
                 lineHeight,
                 padding: isPrinting ? `${marginMm}mm` : `${marginMm * mmToPx}px`,
                 minHeight: isPrinting ? 'auto' : '297mm',
-                width: isPrinting ? '210mm' : 'auto',
+                width: '100%',
                 boxSizing: 'border-box'
             }}
         >

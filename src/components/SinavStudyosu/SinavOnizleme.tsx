@@ -35,7 +35,7 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
         fontSize: fontSizePt,
         lineHeight,
         padding: isPrinting ? `${marginMm}mm` : `${marginMm * 3.7795275591}px`,
-        width: isPrinting ? '210mm' : 'auto',
+        width: '100%',
         boxSizing: 'border-box'
       }}
     >
