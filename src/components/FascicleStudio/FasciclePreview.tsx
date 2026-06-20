@@ -76,6 +76,9 @@ export const FasciclePreview: React.FC = () => {
 
                     {/* Gerçek Render Alanı */}
                     <div className="w-[210mm] min-h-[297mm] mx-auto shrink-0 shadow-2xl mb-12 bg-white relative print-exact border border-[var(--border-color)]">
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 overflow-hidden p-12">
+                        <img src="/assets/logo.png" alt="" className="w-full h-full object-contain opacity-[0.03]" />
+                      </div>
                       <Suspense fallback={
                         <div className="w-[21cm] h-[29.7cm] flex items-center justify-center bg-white">
                           <div className="animate-spin rounded-full h-12 w-12" style={{ borderBottomColor: 'var(--accent-color)', borderLeftColor: 'transparent', borderRightColor: 'transparent', borderTopColor: 'transparent', borderWidth: '3px' }}></div>

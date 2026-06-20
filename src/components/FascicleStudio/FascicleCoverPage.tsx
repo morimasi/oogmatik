@@ -1,6 +1,7 @@
 import React from 'react';
 import { CoverPageSettings } from '../../types/fascicle';
 import { Student } from '../../types';
+import DyslexiaLogo from '../DyslexiaLogo';
 
 interface FascicleCoverPageProps {
   settings: CoverPageSettings;
@@ -25,16 +26,16 @@ export const FascicleCoverPage: React.FC<FascicleCoverPageProps> = ({ settings, 
     }
   };
 
-  const getColorClass = (type: 'text' | 'bg' | 'border', opacity = '') => {
-    const colorMap: Record<string, string> = {
-      indigo: type === 'text' ? 'text-indigo-600' : type === 'bg' ? 'bg-indigo-600' : 'border-indigo-600',
-      blue: type === 'text' ? 'text-blue-600' : type === 'bg' ? 'bg-blue-600' : 'border-blue-600',
-      emerald: type === 'text' ? 'text-emerald-600' : type === 'bg' ? 'bg-emerald-600' : 'border-emerald-600',
-      rose: type === 'text' ? 'text-rose-600' : type === 'bg' ? 'bg-rose-600' : 'border-rose-600',
-      amber: type === 'text' ? 'text-amber-600' : type === 'bg' ? 'bg-amber-600' : 'border-amber-600',
-      violet: type === 'text' ? 'text-violet-600' : type === 'bg' ? 'bg-violet-600' : 'border-violet-600',
+  const getColorClass = (type: 'text' | 'bg' | 'border') => {
+    const colorMap: Record<string, Record<string, string>> = {
+      indigo: { text: 'text-indigo-600', bg: 'bg-indigo-600', border: 'border-indigo-600' },
+      blue: { text: 'text-blue-600', bg: 'bg-blue-600', border: 'border-blue-600' },
+      emerald: { text: 'text-emerald-600', bg: 'bg-emerald-600', border: 'border-emerald-600' },
+      rose: { text: 'text-rose-600', bg: 'bg-rose-600', border: 'border-rose-600' },
+      amber: { text: 'text-amber-600', bg: 'bg-amber-600', border: 'border-amber-600' },
+      violet: { text: 'text-violet-600', bg: 'bg-violet-600', border: 'border-violet-600' },
     };
-    return colorMap[settings.primaryColor] || colorMap['indigo'];
+    return colorMap[settings.primaryColor]?.[type] || colorMap.indigo[type];
   };
 
   return (
@@ -44,6 +45,11 @@ export const FascicleCoverPage: React.FC<FascicleCoverPageProps> = ({ settings, 
         boxSizing: 'border-box'
       }}
     >
+      {/* Watermark */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden p-12">
+        <img src="/assets/logo.png" alt="" className="w-full h-full object-contain opacity-[0.04]" />
+      </div>
+
       {/* Decorative Elements */}
       {settings.themeStyle === 'modern' && (
         <>
@@ -68,31 +74,35 @@ export const FascicleCoverPage: React.FC<FascicleCoverPageProps> = ({ settings, 
         </>
       )}
 
-      {/* Header section (School Name & Logo space) */}
-      <div className="relative z-10 flex flex-col items-center pt-8">
-        <div className={`w-28 h-28 rounded-3xl flex items-center justify-center mb-6 shadow-xl bg-white border-4 ${getColorClass('border')} print:shadow-none`}>
-          <i className={`fa-solid fa-graduation-cap text-5xl ${getColorClass('text')}`} />
+      {/* Header section */}
+      <div className="relative z-10 flex flex-col items-center pt-4">
+        <div className={`w-24 h-24 rounded-2xl flex items-center justify-center mb-4 bg-white border-2 ${getColorClass('border')} print:shadow-none shadow-lg overflow-hidden p-2`}>
+          <DyslexiaLogo className="w-full h-full" />
         </div>
         {settings.schoolName && (
-          <h2 className="text-xl font-bold text-gray-500 uppercase tracking-[0.2em] text-center mb-2">
+          <h2 className="text-lg font-bold text-gray-500 uppercase tracking-[0.2em] text-center mb-1">
             {settings.schoolName}
           </h2>
         )}
-        <div className={`w-24 h-1 mt-4 rounded-full ${getColorClass('bg')}`} />
+        <div className={`w-16 h-0.5 mt-3 rounded-full ${getColorClass('bg')}`} />
       </div>
 
-      {/* Main Title Section */}
-      <div className="relative z-10 flex-col items-center justify-center text-center my-auto pt-16 pb-12">
-        <h3 className={`text-2xl font-bold mb-4 italic ${getColorClass('text')} opacity-80 uppercase tracking-widest`}>
+      {/* BDMIND Branding */}
+      <div className="relative z-10 flex flex-col items-center justify-center text-center my-auto pt-8 pb-8">
+        <h1 className="text-[4rem] leading-[1] font-black text-gray-800 drop-shadow-sm" style={{ fontFamily: 'Lexend, sans-serif', letterSpacing: '-0.02em' }}>
+          BDMIND
+        </h1>
+        <div className={`w-20 h-1 my-4 rounded-full ${getColorClass('bg')}`} />
+        <h2 className="text-lg font-black text-gray-500 uppercase tracking-[0.35em]">
+          EDU-TECH PLATFORM
+        </h2>
+        <h3 className={`text-sm font-bold mt-6 italic ${getColorClass('text')} opacity-70 uppercase tracking-widest`}>
           {settings.subtitle || 'Kişiselleştirilmiş Eğitim Materyali'}
         </h3>
-        <h1 className="text-[3.5rem] leading-[1.1] font-black text-gray-800 drop-shadow-sm mb-8" style={{ fontFamily: 'Lexend, sans-serif' }}>
-          {settings.title || fascicleTitle || 'Eğitim Fasikülü'}
-        </h1>
-        {fascicleTitle && settings.title && fascicleTitle !== settings.title && (
-            <h2 className="text-3xl font-bold text-gray-600 mt-4 underline decoration-2 underline-offset-8 decoration-gray-300">
-                {fascicleTitle}
-            </h2>
+        {fascicleTitle && (
+          <div className="mt-6 px-8 py-3 rounded-2xl" style={{ backgroundColor: 'var(--accent-muted, rgba(99,102,241,0.08))', border: '1px solid var(--accent-muted, rgba(99,102,241,0.15))' }}>
+            <span className="text-base font-bold text-gray-700">{fascicleTitle}</span>
+          </div>
         )}
       </div>
 
