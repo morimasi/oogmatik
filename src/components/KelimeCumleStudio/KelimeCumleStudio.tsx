@@ -53,7 +53,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
             setConfig(prev => ({
                 ...prev,
                 ageGroup: activeStudent.age <= 7 ? '5-7' : activeStudent.age <= 10 ? '8-10' : activeStudent.age <= 13 ? '11-13' : '14+',
-                difficulty: activeStudent.grade?.includes('1') || activeStudent.grade?.includes('2') ? 'Orta' : activeStudent.grade?.includes('5') ? 'Zor' : 'Orta',
+                difficulty: activeStudent.grade?.includes('1') || activeStudent.grade?.includes('2') ? 'Orta' : activeStudent.grade?.includes('5') ? 'İleri' : 'Orta',
                 title: `${activeStudent.name} için ${prev.type.replace('_', ' ')} Çalışması`
             }));
         }
@@ -194,7 +194,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
 
                     <div className="kc-sidebar-scrollable custom-scrollbar">
                         <TypeSelectorPanel 
-                            types={Object.entries(KELIME_C_REGISTRY).map(([key, val]) => ({
+                            types={Object.entries(KELIME_CUMLE_REGISTRY).map(([key, val]) => ({
                                 id: key,
                                 title: val.title,
                                 icon: val.icon,
