@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   DndContext, 
   closestCenter,
@@ -16,12 +16,14 @@ import {
 } from '@dnd-kit/sortable';
 import { useFascicleStore } from '../../store/useFascicleStore';
 import { SortableItem } from './SortableItem';
-import { Layers, Plus, FileText } from 'lucide-react';
+import { Layers, Plus, FileText, Image as ImageIcon } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import toast from 'react-hot-toast';
+import { FascicleCoverSettingsModal } from './FascicleCoverSettingsModal';
 
 export const FascicleSidebar: React.FC = () => {
   const { items, reorderItems, removeItem, addItem } = useFascicleStore();
+  const [isCoverSettingsOpen, setIsCoverSettingsOpen] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -76,14 +78,28 @@ export const FascicleSidebar: React.FC = () => {
           <Layers size={16} className="mr-2 text-blue-400" />
           Fasikül İçeriği ({items.length})
         </h3>
-        <button 
-          onClick={handleAddSampleItem}
-          className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded transition-colors"
-          title="Parça Ekle"
-        >
-          <Plus size={16} />
-        </button>
+        <div className="flex items-center gap-1">
+          <button 
+            onClick={() => setIsCoverSettingsOpen(true)}
+            className="p-1.5 text-slate-400 hover:text-white hover:bg-indigo-500/20 rounded transition-colors"
+            title="Premium Kapak Ayarları"
+          >
+            <ImageIcon size={16} className="text-indigo-400" />
+          </button>
+          <button 
+            onClick={handleAddSampleItem}
+            className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded transition-colors"
+            title="Parça Ekle"
+          >
+            <Plus size={16} />
+          </button>
+        </div>
       </div>
+
+      <FascicleCoverSettingsModal 
+        isOpen={isCoverSettingsOpen} 
+        onClose={() => setIsCoverSettingsOpen(false)} 
+      />
 
       <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
         {items.length === 0 ? (

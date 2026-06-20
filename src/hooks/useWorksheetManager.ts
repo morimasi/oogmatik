@@ -3,6 +3,7 @@ import { useStudentStore } from '../store/useStudentStore';
 import { useWorksheetStore } from '../store/useWorksheetStore';
 import { useToastStore } from '../store/useToastStore';
 import { useUIStore } from '../store/useUIStore';
+import { useFascicleStore } from '../store/useFascicleStore';
 import { worksheetService } from '../services/worksheetService';
 import { ActivityType, SingleWorksheetData, SavedWorksheet, Curriculum, SavedAssessment, StyleSettings, StudentProfile, WorksheetData, View } from '../types';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
@@ -81,7 +82,8 @@ export const useWorksheetManager = (
             [ActivityType.SARI_KITAP_STUDIO]: 'sari-kitap-studio',
             [ActivityType.KELIME_CUMLE]: 'kelime-cumle-studio',
             [ActivityType.PREMIUM_STUDIO]: 'activity-studio',
-            [ActivityType.INFOGRAPHIC_STUDIO]: 'infographic-studio'
+            [ActivityType.INFOGRAPHIC_STUDIO]: 'infographic-studio',
+            [ActivityType.FASCICLE]: 'fascicle-studio'
         };
 
         const targetView = studioViews[item.activityType];
@@ -92,6 +94,21 @@ export const useWorksheetManager = (
             // Stüdyolarda worksheetData genellikle array içindeki ilk objedir (isMathStudio: true vb.)
             const studioPayload = Array.isArray(wd) ? wd[0] : wd;
             
+            if (item.activityType === ActivityType.FASCICLE) {
+                useFascicleStore.getState().setFascicle({
+                    id: item.originalWorksheetId || item.id,
+                    metadata: studioPayload.metadata,
+                    items: studioPayload.items,
+                    createdAt: item.createdAt || new Date().toISOString(),
+                    creatorId: item.userId || '',
+                    assignedStudentIds: item.studentId ? [item.studentId] : [],
+                    isDraft: false
+                } as any);
+                navigateTo(targetView);
+                setIsSidebarExpanded(true);
+                return;
+            }
+
             setStudioData(studioPayload);
             setSelectedActivity(item.activityType);
             setActiveWorksheet(item.id, item.name);

@@ -35,6 +35,15 @@ const initialMetadata: FascicleMetadata = {
   theme: 'default',
   estimatedDurationMin: 40,
   qrEnabled: true,
+  coverPageSettings: {
+    enabled: true,
+    title: 'Özel Eğitim Fasikülü',
+    subtitle: 'Kişiselleştirilmiş Öğrenme Materyali',
+    themeStyle: 'modern',
+    primaryColor: 'indigo',
+    showStudentLine: true,
+    schoolName: 'Oogmatik Eğitim Platformu'
+  }
 };
 
 export const useFascicleStore = create<FascicleState>()(

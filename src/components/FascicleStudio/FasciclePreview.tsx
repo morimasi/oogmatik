@@ -3,9 +3,12 @@ import { useFascicleStore } from '../../store/useFascicleStore';
 import { Eye, Smartphone, Monitor, Info, LayoutTemplate } from 'lucide-react';
 import { SheetRenderer } from '../SheetRenderer';
 import { ActivityType, SingleWorksheetData, StyleSettings } from '../../types';
+import { FascicleCoverPage } from './FascicleCoverPage';
+import { useStudentStore } from '../../store/useStudentStore';
 
 export const FasciclePreview: React.FC = () => {
   const { items, metadata } = useFascicleStore();
+  const { activeStudent } = useStudentStore();
   const [viewState, setViewState] = useState<'desktop' | 'mobile'>('desktop');
 
   return (
@@ -37,49 +40,9 @@ export const FasciclePreview: React.FC = () => {
       <div className={`flex-1 overflow-y-auto custom-scrollbar flex flex-col items-center pb-20 transition-transform duration-300 origin-top ${viewState === 'mobile' ? 'scale-[0.85]' : 'scale-100'}`}>
          <div id="fascicle-print-container" className="w-full flex flex-col items-center">
              {/* Kapak Sayfası */}
-             <div className="worksheet-page print-page w-[21cm] min-h-[29.7cm] bg-white shadow-2xl rounded-sm mb-8 flex flex-col relative overflow-hidden shrink-0">
-                 {/* Header Design */}
-                 <div className="h-64 bg-gradient-to-br from-indigo-600 via-blue-600 to-indigo-800 flex flex-col items-center justify-center p-12 text-center print-exact">
-                    <div className="bg-white/20 backdrop-blur-md px-4 py-1 rounded-full text-[10px] font-black text-white uppercase tracking-[0.3em] mb-4 border border-white/20 print-exact">
-                       Eğitim Fasikülü
-                    </div>
-                    <h1 className="text-5xl font-black text-white tracking-tighter drop-shadow-2xl leading-none print-text-black">
-                       {metadata.title || 'Yeni Fasikül'}
-                    </h1>
-                    <div className="mt-6 w-24 h-1 bg-white/40 rounded-full print-exact" />
-                 </div>
-                 
-                 {/* Metadata Info */}
-                 <div className="p-16 flex-1 flex flex-col justify-between items-center text-slate-800">
-                    <div className="w-full max-w-md space-y-6">
-                      <div className="flex justify-between items-center border-b border-slate-100 pb-4">
-                         <span className="text-slate-400 text-xs font-black uppercase tracking-widest">Öğrenci Profili</span>
-                         <span className="font-black text-lg text-indigo-600 uppercase tracking-tight">
-                            {metadata.targetProfile === 'all' ? 'Genel Gelişim' : 
-                             metadata.targetProfile === 'dyslexia' ? 'Disleksi Desteği' : 
-                             metadata.targetProfile === 'dyscalculia' ? 'Diskalkuli Desteği' : metadata.targetProfile}
-                         </span>
-                      </div>
-                      <div className="flex justify-between items-center border-b border-slate-100 pb-4">
-                         <span className="text-slate-400 text-xs font-black uppercase tracking-widest">Yaş Grubu</span>
-                         <span className="font-black text-lg text-slate-800">{metadata.targetAgeGroup} Yaş Seviyesi</span>
-                      </div>
-                      <div className="flex justify-between items-center border-b border-slate-100 pb-4">
-                         <span className="text-slate-400 text-xs font-black uppercase tracking-widest">Tahmini Süre</span>
-                         <span className="font-black text-lg text-slate-800">{metadata.estimatedDurationMin} Dakika</span>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col items-center">
-                       <div className="w-24 h-24 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-center mb-4 opacity-50">
-                          <i className="fa-solid fa-qrcode text-4xl text-slate-300"></i>
-                       </div>
-                       <p className="text-[10px] text-slate-300 font-black uppercase tracking-[0.5em]">bdmind AI Engine v2.5</p>
-                    </div>
-                 </div>
-
-                 <div className="h-2 bg-gradient-to-r from-blue-500 to-indigo-600 print-exact" />
-             </div>
+             {metadata.coverPageSettings && (
+               <FascicleCoverPage settings={metadata.coverPageSettings} student={activeStudent} fascicleTitle={metadata.title} />
+             )}
 
              {/* İçerik Sayfaları (Items) */}
              {items.length > 0 ? items.map((item, index) => {

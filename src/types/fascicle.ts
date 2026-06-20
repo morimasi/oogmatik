@@ -13,6 +13,17 @@ export interface FascicleItem {
   order: number; // Sıralama indeksi
 }
 
+export interface CoverPageSettings {
+  enabled: boolean;
+  title: string;
+  subtitle?: string;
+  themeStyle: 'modern' | 'playful' | 'elegant' | 'geometric';
+  primaryColor: string;
+  showStudentLine: boolean;
+  schoolName?: string;
+  date?: string;
+}
+
 export interface FascicleMetadata {
   title: string;
   description?: string;
@@ -22,6 +33,7 @@ export interface FascicleMetadata {
   estimatedDurationMin: number;
   qrEnabled: boolean;
   watermarkText?: string;
+  coverPageSettings?: CoverPageSettings;
 }
 
 export interface FascicleDocument {
