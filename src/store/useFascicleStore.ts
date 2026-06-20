@@ -18,6 +18,7 @@ interface FascicleState {
   removeItem: (itemId: string) => void;
   reorderItems: (startIndex: number, endIndex: number) => void;
   updateItem: (itemId: string, updates: Partial<FascicleItem>) => void;
+  setItems: (items: FascicleItem[]) => void;
   
   // Undo/Redo
   undo: () => void;
@@ -106,11 +107,20 @@ export const useFascicleStore = create<FascicleState>()(
       },
 
       updateItem: (itemId, updates) => {
-        const { metadata, items, past } = get();
+        const { items, metadata, past } = get();
         set({
-          past: [...past, { metadata, items }],
+          past: [...past, { items, metadata }],
           future: [],
-          items: items.map((i) => i.id === itemId ? { ...i, ...updates } : i)
+          items: items.map(item => item.id === itemId ? { ...item, ...updates } : item)
+        });
+      },
+
+      setItems: (newItems) => {
+        const { items, metadata, past } = get();
+        set({
+          past: [...past, { items, metadata }],
+          future: [],
+          items: newItems
         });
       },
 

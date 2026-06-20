@@ -58,12 +58,11 @@ export const FascicleSidebar: React.FC = () => {
        const { fascicleAIEngine } = await import('../../services/fascicleAIEngine');
        const newOrderIds = await fascicleAIEngine.autoSortByDifficulty(items);
        
-       newOrderIds.forEach((id, index) => {
-          const oldIndex = items.findIndex(i => i.id === id);
-          if (oldIndex !== -1 && oldIndex !== index) {
-             reorderItems(oldIndex, index);
-          }
-       });
+       const sortedItems = newOrderIds.map(id => items.find(i => i.id === id)).filter(Boolean) as typeof items;
+       
+       if (sortedItems.length === items.length) {
+         useFascicleStore.getState().setItems(sortedItems);
+       }
        toast.success('Pedagojik ZPD sıralaması uygulandı!', { id: 'ai-sort' });
     } catch(err) {
        toast.error('Sıralama başarısız oldu.', { id: 'ai-sort' });

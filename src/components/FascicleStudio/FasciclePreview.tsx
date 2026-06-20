@@ -103,7 +103,7 @@ export const FasciclePreview: React.FC = () => {
                     </div>
 
                     {/* Gerçek Render Alanı */}
-                    <div className="overflow-hidden shadow-2xl mb-12 bg-white">
+                    <div className="w-[210mm] min-h-[297mm] mx-auto shrink-0 shadow-2xl mb-12 bg-white relative print-exact border border-slate-100">
                       <Suspense fallback={
                         <div className="w-[21cm] h-[29.7cm] flex items-center justify-center bg-white">
                           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
