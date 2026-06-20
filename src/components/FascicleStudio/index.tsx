@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useFascicleStore } from '../../store/useFascicleStore';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useAssignmentStore } from '../../store/useAssignmentStore';
 import { FascicleSidebar } from './FascicleSidebar';
 import { FasciclePreview } from './FasciclePreview';
 import { FascicleTemplatesModal } from './FascicleTemplatesModal';
+import { ShareModal } from '../ShareModal';
 import { FileDown, Undo, Redo, LayoutTemplate, Save, Share2, UserPlus } from 'lucide-react';
 import { fascicleService } from '../../services/fascicleService';
 import { worksheetService } from '../../services/worksheetService';
@@ -19,8 +21,15 @@ interface FascicleStudioProps {
 export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
   const { currentFascicleId, metadata, items, undo, redo, past, future } = useFascicleStore();
   const { user } = useAuthStore();
+  const { setIsAssignModalOpen } = useAssignmentStore();
+  
   const [isPrinting, setIsPrinting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [savedFascicleId, setSavedFascicleId] = useState<string | null>(null);
+  
+  const [isTemplatesModalOpen, setIsTemplatesModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
 
   useEffect(() => {
     if (currentFascicleId) {
@@ -45,16 +54,20 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
     }
   };
 
-  const handleSaveArchive = async () => {
+  const handleSaveArchive = async (silent = false): Promise<string | null> => {
     if (!user) {
-        toast.error('Kaydetmek için giriş yapmalısınız.');
-        return;
+        if (!silent) toast.error('Kaydetmek için giriş yapmalısınız.');
+        return null;
     }
+    
+    // Zaten kaydedilmiş ise tekrar tekrar kaydetmemek için önceki id'yi dönebiliriz.
+    // Ancak güncellemeleri de kaydetmek istiyorsak yeni kayıt atar.
+    // Şimdilik yeniden kaybediyoruz.
     try {
         setIsSaving(true);
-        toast.loading('Dijital Arşive kaydediliyor...', { id: 'save-toast' });
+        if (!silent) toast.loading('Dijital Arşive kaydediliyor...', { id: 'save-toast' });
         
-        await worksheetService.saveWorksheet(
+        const saved = await worksheetService.saveWorksheet(
             user.id,
             metadata.title || 'İsimsiz Fasikül',
             ActivityType.FASCICLE,
@@ -63,24 +76,67 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
             { id: 'fascicles', title: 'Fasiküller' }
         );
         
-        toast.success('Fasikül başarıyla Arşive kaydedildi!', { id: 'save-toast' });
+        setSavedFascicleId(saved.id);
+        
+        if (!silent) toast.success('Fasikül başarıyla Arşive kaydedildi!', { id: 'save-toast' });
+        return saved.id;
     } catch (error) {
         logError(error as Error, { context: 'Fasikül arşive kaydedilemedi' });
-        toast.error('Kaydetme işlemi başarısız oldu.', { id: 'save-toast' });
+        if (!silent) toast.error('Kaydetme işlemi başarısız oldu.', { id: 'save-toast' });
+        return null;
     } finally {
         setIsSaving(false);
     }
   };
 
-  const handleAssignStudent = () => {
-    toast('Öğrenciye Atama modülü (Student Dashboard Sent) yakında eklenecek!', { icon: '🚧' });
+  const handleAssignStudent = async () => {
+    let id = savedFascicleId;
+    if (!id) {
+       id = await handleSaveArchive(true);
+    }
+    if (id) {
+       setIsAssignModalOpen(true, id);
+    } else {
+       toast.error("Öğrenciye atamadan önce doküman oluşturulamadı.");
+    }
   };
 
-  const handleShare = () => {
-    toast('Uygulama İçi Paylaşım Ağ modülü yakında eklenecek!', { icon: '🚧' });
+  const handleShareBtnClick = async () => {
+    let id = savedFascicleId;
+    if (!id) {
+       id = await handleSaveArchive(true);
+    }
+    if (id) {
+       setIsShareModalOpen(true);
+    } else {
+       toast.error("Paylaşımdan önce doküman oluşturulamadı.");
+    }
   };
 
-  const [isTemplatesModalOpen, setIsTemplatesModalOpen] = useState(false);
+  const onConfirmShare = async (receiverIds: string[], permission?: unknown, message?: string) => {
+    if (!savedFascicleId || !user) return;
+    setIsSharing(true);
+    try {
+        await worksheetService.shareWorksheet(
+            savedFascicleId,
+            user.id,
+            (user as { displayName?: string }).displayName || user.name || '',
+            receiverIds
+        );
+        
+        // Gerekirse message / not özelliğini entegre etmek için bir toast gösterebiliriz.
+        if (message && message.trim().length > 0) {
+           toast.success("Paylaşım ve ilişikli notunuz başarıyla gönderildi!");
+        } else {
+           toast.success("Fasikül başarıyla paylaşıldı!");
+        }
+        setIsShareModalOpen(false);
+    } catch (error) {
+        toast.error("Paylaşım gönderilirken bir hata oluştu.");
+    } finally {
+        setIsSharing(false);
+    }
+  };
 
   return (
     <div className="flex flex-col h-full bg-slate-900 text-slate-100 font-inter">
@@ -112,7 +168,7 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
           </div>
           
           <button 
-             onClick={handleSaveArchive}
+             onClick={() => handleSaveArchive(false)}
              disabled={isSaving || items.length === 0}
              className="flex items-center px-3 py-2 bg-slate-800 text-slate-200 border border-white/5 rounded-xl hover:bg-slate-700 transition disabled:opacity-50 text-sm font-medium">
              <Save size={16} className="mr-2 text-emerald-400" /> {isSaving ? 'Kaydediliyor...' : 'Arşive Kaydet'}
@@ -120,14 +176,14 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
           
           <button 
              onClick={handleAssignStudent}
-             disabled={items.length === 0}
+             disabled={items.length === 0 || isSaving}
              className="flex items-center px-3 py-2 bg-slate-800 text-slate-200 border border-white/5 rounded-xl hover:bg-slate-700 transition disabled:opacity-50 text-sm font-medium">
              <UserPlus size={16} className="mr-2 text-blue-400" /> Öğrenciye Ata
           </button>
 
           <button 
-             onClick={handleShare}
-             disabled={items.length === 0}
+             onClick={handleShareBtnClick}
+             disabled={items.length === 0 || isSaving}
              className="flex items-center px-3 py-2 bg-slate-800 text-slate-200 border border-white/5 rounded-xl hover:bg-slate-700 transition disabled:opacity-50 text-sm font-medium">
              <Share2 size={16} className="mr-2 text-purple-400" /> Paylaş
           </button>
@@ -167,8 +223,20 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
         isOpen={isTemplatesModalOpen} 
         onClose={() => setIsTemplatesModalOpen(false)} 
       />
+
+      {/* Paylaşım Modalı */}
+      <ShareModal
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          onShare={onConfirmShare}
+          worksheetId={savedFascicleId || undefined}
+          worksheetTitle={metadata.title || 'Fasikül'}
+          isSending={isSharing}
+          showPermissionSelector={true}
+      />
     </div>
   );
 };
+
 
 export default FascicleStudio;
