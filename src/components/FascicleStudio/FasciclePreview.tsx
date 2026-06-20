@@ -12,24 +12,24 @@ export const FasciclePreview: React.FC = () => {
   const [viewState, setViewState] = useState<'desktop' | 'mobile'>('desktop');
 
   return (
-    <div className="w-full max-w-4xl h-full flex flex-col bg-slate-950">
+    <div className="w-full max-w-4xl h-full flex flex-col">
       
       {/* Preview Toolbar */}
-      <div className="flex justify-between items-center px-4 py-3 mb-6 bg-slate-900 border border-white/5 rounded-xl shadow-lg no-print">
-         <div className="flex items-center text-slate-300">
+      <div className="glass-layer-2 flex justify-between items-center px-4 py-3 mb-6 rounded-[var(--radius-premium)] no-print">
+         <div className="flex items-center text-[var(--text-secondary)]">
             <Eye size={18} className="mr-2" />
             <span className="text-sm font-medium">Canlı Önizleme Modu ({viewState === 'desktop' ? 'Baskı Ebatı' : 'Mobil/Tablet'})</span>
          </div>
          <div className="flex space-x-2">
             <button 
                onClick={() => setViewState('mobile')}
-               className={`p-1.5 rounded transition ${viewState === 'mobile' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`} 
+               className={`studio-icon-btn p-1.5 rounded-lg ${viewState === 'mobile' ? 'text-[var(--accent-color)] border border-[var(--accent-muted)]' : ''}`}
                title="Mobil/Tablet Küçültülmüş Görünüm">
               <Smartphone size={16} />
             </button>
             <button 
                onClick={() => setViewState('desktop')}
-               className={`p-1.5 rounded transition ${viewState === 'desktop' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`} 
+               className={`studio-icon-btn p-1.5 rounded-lg ${viewState === 'desktop' ? 'text-[var(--accent-color)] border border-[var(--accent-muted)]' : ''}`}
                title="Gerçek Baskı Görünümü">
               <Monitor size={16} />
             </button>
@@ -64,21 +64,21 @@ export const FasciclePreview: React.FC = () => {
                  <div key={item.id} className="relative group/page">
                     {/* Page Header Info (Floating) */}
                     <div className="absolute -left-48 top-0 w-40 h-full no-print hidden xl:flex flex-col gap-4 py-4 pointer-events-none">
-                       <div className="bg-slate-900/80 backdrop-blur-sm border border-white/10 p-4 rounded-2xl pointer-events-auto">
-                          <span className="text-[9px] font-black text-blue-400 uppercase tracking-widest block mb-1">Sayfa {index + 2}</span>
-                          <h4 className="text-xs font-bold text-white leading-tight">{item.type.replace(/-/g, ' ').toUpperCase()}</h4>
+                       <div className="glass-layer-3 p-4 rounded-2xl pointer-events-auto">
+                          <span className="text-[9px] font-black uppercase tracking-widest block mb-1" style={{ color: 'var(--accent-color)' }}>Sayfa {index + 2}</span>
+                          <h4 className="text-xs font-bold text-[var(--text-primary)] leading-tight">{item.type.replace(/-/g, ' ').toUpperCase()}</h4>
                           <div className="mt-2 flex items-center gap-1.5">
                              <span className={`w-1.5 h-1.5 rounded-full ${item.difficulty === 'Zor' ? 'bg-red-500' : item.difficulty === 'Orta' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-                             <span className="text-[10px] text-slate-400">{item.difficulty} Seviye</span>
+                             <span className="text-[10px] text-[var(--text-muted)]">{item.difficulty} Seviye</span>
                           </div>
                        </div>
                     </div>
 
                     {/* Gerçek Render Alanı */}
-                    <div className="w-[210mm] min-h-[297mm] mx-auto shrink-0 shadow-2xl mb-12 bg-white relative print-exact border border-slate-100">
+                    <div className="w-[210mm] min-h-[297mm] mx-auto shrink-0 shadow-2xl mb-12 bg-white relative print-exact border border-[var(--border-color)]">
                       <Suspense fallback={
                         <div className="w-[21cm] h-[29.7cm] flex items-center justify-center bg-white">
-                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                          <div className="animate-spin rounded-full h-12 w-12" style={{ borderBottomColor: 'var(--accent-color)', borderLeftColor: 'transparent', borderRightColor: 'transparent', borderTopColor: 'transparent', borderWidth: '3px' }}></div>
                         </div>
                       }>
                          <SheetRenderer 
@@ -126,25 +126,25 @@ export const FasciclePreview: React.FC = () => {
 
                     {/* Pedagogical Note */}
                     {item.pedagogicalNote && (
-                      <div className="w-[21cm] -mt-10 mb-20 p-6 bg-blue-50/80 backdrop-blur-sm border border-blue-100 rounded-2xl flex gap-4 no-print mx-auto">
-                         <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center shrink-0 text-white shadow-lg shadow-blue-500/20">
+                      <div className="w-[21cm] -mt-10 mb-20 p-6 glass-layer-2 rounded-2xl flex gap-4 no-print mx-auto">
+                         <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-lg" style={{ backgroundColor: 'var(--accent-color)', color: '#ffffff', boxShadow: '0 4px 12px var(--accent-muted)' }}>
                             <Info size={20} />
                          </div>
                          <div>
-                            <h4 className="text-blue-900 font-black text-xs uppercase tracking-widest mb-1">Pedagojik Not</h4>
-                            <p className="text-blue-800/80 text-sm leading-relaxed">{item.pedagogicalNote}</p>
+                            <h4 className="font-black text-xs uppercase tracking-widest mb-1" style={{ color: 'var(--accent-color)' }}>Pedagojik Not</h4>
+                            <p className="text-[var(--text-secondary)] text-sm leading-relaxed">{item.pedagogicalNote}</p>
                          </div>
                       </div>
                     )}
                  </div>
                );
              }) : (
-                <div className="bg-slate-900/50 backdrop-blur-md border border-white/5 p-12 rounded-3xl text-center max-w-md mt-12 no-print">
-                   <div className="w-20 h-20 bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-6 text-slate-500">
+                <div className="glass-layer-3 p-12 rounded-[var(--radius-premium)] text-center max-w-md mt-12 no-print">
+                   <div className="w-20 h-20 bg-[var(--bg-paper)] rounded-2xl flex items-center justify-center mx-auto mb-6 text-[var(--text-muted)]">
                       <LayoutTemplate size={40} />
                    </div>
-                   <h3 className="text-xl font-bold text-white mb-2">Fasikülünüz Henüz Boş</h3>
-                   <p className="text-slate-400 text-sm leading-relaxed">
+                   <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">Fasikülünüz Henüz Boş</h3>
+                   <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
                       Matematik, Okuma veya Sınav stüdyolarından içerik ekleyerek disleksi dostu bir fasikül oluşturmaya başlayın.
                    </p>
                 </div>

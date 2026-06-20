@@ -51,43 +51,43 @@ export const FascicleTemplatesModal: React.FC<FascicleTemplatesModalProps> = ({ 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-slate-900 border border-white/10 rounded-2xl shadow-2xl w-full max-w-4xl flex flex-col max-h-[85vh] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}>
+      <div className="glass-layer-3 rounded-[var(--radius-premium)] w-full max-w-4xl flex flex-col max-h-[85vh] overflow-hidden">
         
         {/* Header */}
-        <div className="p-6 border-b border-white/5 flex justify-between items-center bg-slate-800/50">
+        <div className="p-6 border-b border-[var(--border-color)] flex justify-between items-center bg-[var(--bg-paper)]/50">
           <div>
-            <h2 className="text-2xl font-bold text-white">Fasikül Şablonları</h2>
-            <p className="text-sm text-slate-400 mt-1">Önceden tasarlanmış hazır uzman paketleri ile tek tıkla fasikül oluşturun.</p>
+            <h2 className="text-2xl font-bold text-[var(--text-primary)]">Fasikül Şablonları</h2>
+            <p className="text-sm text-[var(--text-muted)] mt-1">Önceden tasarlanmış hazır uzman paketleri ile tek tıkla fasikül oluşturun.</p>
           </div>
           <button 
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition"
+            className="studio-icon-btn p-2 rounded-xl"
           >
             <X size={24} />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-8 overflow-y-auto custom-scrollbar flex-1 bg-slate-950">
+        <div className="p-8 overflow-y-auto custom-scrollbar flex-1" style={{ backgroundColor: 'var(--bg-secondary)' }}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {TEMPLATES.map(template => (
               <div 
                 key={template.id}
                 onClick={() => handleApplyTemplate(template.id)}
-                className="group p-6 bg-slate-900 border border-white/10 rounded-2xl hover:border-blue-500/50 hover:bg-slate-800 cursor-pointer transition-all flex flex-col relative overflow-hidden"
+                className="card-glow group p-6 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-[var(--radius-premium)] cursor-pointer transition-all flex flex-col relative overflow-hidden"
               >
-                <div className="absolute top-4 right-4 px-2 py-1 bg-white/5 rounded text-[10px] font-black text-slate-300 uppercase tracking-widest border border-white/5">
+                <div className="absolute top-4 right-4 px-2 py-1 rounded text-[10px] font-black uppercase tracking-widest border" style={{ backgroundColor: 'var(--surface-glass)', color: 'var(--text-muted)', borderColor: 'var(--border-color)' }}>
                   {template.badge}
                 </div>
-                <div className="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-xl bg-[var(--bg-secondary)] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   {template.icon}
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">{template.title}</h3>
-                <p className="text-slate-400 text-sm leading-relaxed">{template.description}</p>
-                <div className="mt-4 pt-4 border-t border-white/5 flex justify-between items-center text-xs text-slate-500 font-medium">
+                <h3 className="text-lg font-bold text-[var(--text-primary)] mb-2">{template.title}</h3>
+                <p className="text-[var(--text-muted)] text-sm leading-relaxed">{template.description}</p>
+                <div className="mt-4 pt-4 border-t border-[var(--border-color)] flex justify-between items-center text-xs text-[var(--text-muted)] font-medium">
                   <span>5 Sayfa</span>
-                  <span className="text-blue-400 group-hover:bg-blue-600 group-hover:text-white px-3 py-1 rounded-full transition-colors">Yükle &rarr;</span>
+                  <span className="px-3 py-1 rounded-full transition-colors" style={{ color: 'var(--accent-color)' }}>Yükle &rarr;</span>
                 </div>
               </div>
             ))}

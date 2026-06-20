@@ -156,20 +156,20 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-900 text-slate-100 font-inter">
+    <div className="flex flex-col h-full bg-[var(--bg-primary)] text-[var(--text-primary)]">
       {/* Top Header */}
-      <div className="flex items-center justify-between p-4 border-b border-white/10 bg-slate-800/50 backdrop-blur-md">
+      <div className="glass-layer-2 flex items-center justify-between p-4 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/80">
         <div className="flex flex-col">
-          <h2 className="text-xl font-bold text-white tracking-wide">{metadata.title || 'İsimsiz Fasikül'}</h2>
-          <span className="text-xs text-slate-400">Ultra-Premium Fasikül Oluşturucu v2.5</span>
+          <h2 className="text-xl font-bold text-[var(--text-primary)] tracking-wide">{metadata.title || 'İsimsiz Fasikül'}</h2>
+          <span className="text-xs text-[var(--text-muted)]">Ultra-Premium Fasikül Oluşturucu v2.5</span>
         </div>
 
         <div className="flex items-center space-x-2 xl:space-x-3">
-          <div className="flex items-center bg-slate-800 rounded-lg p-1 border border-white/5 mr-1">
+          <div className="flex items-center bg-[var(--bg-paper)] rounded-[var(--radius-premium)] p-1 border border-[var(--border-color)] mr-1">
             <button 
               onClick={undo} 
               disabled={past.length === 0}
-              className={`p-1.5 rounded-md transition-colors ${past.length > 0 ? 'hover:bg-slate-700 text-slate-300' : 'text-slate-600 cursor-not-allowed'}`}
+              className={`p-1.5 rounded-md transition-colors ${past.length > 0 ? 'hover:bg-[var(--bg-secondary)] text-[var(--text-primary)]' : 'text-[var(--text-muted)] cursor-not-allowed'}`}
               title="Geri Al"
             >
               <Undo size={16} />
@@ -177,7 +177,7 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
             <button 
               onClick={redo} 
               disabled={future.length === 0}
-              className={`p-1.5 rounded-md transition-colors ${future.length > 0 ? 'hover:bg-slate-700 text-slate-300' : 'text-slate-600 cursor-not-allowed'}`}
+              className={`p-1.5 rounded-md transition-colors ${future.length > 0 ? 'hover:bg-[var(--bg-secondary)] text-[var(--text-primary)]' : 'text-[var(--text-muted)] cursor-not-allowed'}`}
               title="İleri Sar"
             >
               <Redo size={16} />
@@ -187,43 +187,50 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
           <button 
              onClick={() => handleSaveArchive(false)}
              disabled={isSaving || items.length === 0}
-             className="flex items-center px-3 py-2 bg-slate-800 text-slate-200 border border-white/5 rounded-xl hover:bg-slate-700 transition disabled:opacity-50 text-sm font-medium">
-             <Save size={16} className="mr-2 text-emerald-400" /> {isSaving ? 'Kaydediliyor...' : 'Arşive Kaydet'}
+             className="btn-accent-glow flex items-center px-3 py-2 bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-[var(--radius-premium)] hover:bg-[var(--bg-secondary)] transition disabled:opacity-50 text-sm font-medium">
+             <Save size={16} className="mr-2 text-emerald-500" /> {isSaving ? 'Kaydediliyor...' : 'Arşive Kaydet'}
           </button>
           
           <button 
              onClick={handleAssignStudent}
              disabled={items.length === 0 || isSaving}
-             className="flex items-center px-3 py-2 bg-slate-800 text-slate-200 border border-white/5 rounded-xl hover:bg-slate-700 transition disabled:opacity-50 text-sm font-medium">
-             <UserPlus size={16} className="mr-2 text-blue-400" /> Öğrenciye Ata
+             className="btn-accent-glow flex items-center px-3 py-2 bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-[var(--radius-premium)] hover:bg-[var(--bg-secondary)] transition disabled:opacity-50 text-sm font-medium">
+             <UserPlus size={16} className="mr-2 text-[var(--accent-color)]" /> Öğrenciye Ata
           </button>
 
           <button 
              onClick={handleShareBtnClick}
              disabled={items.length === 0 || isSaving}
-             className="flex items-center px-3 py-2 bg-slate-800 text-slate-200 border border-white/5 rounded-xl hover:bg-slate-700 transition disabled:opacity-50 text-sm font-medium">
-             <Share2 size={16} className="mr-2 text-purple-400" /> Paylaş
+             className="btn-accent-glow flex items-center px-3 py-2 bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-[var(--radius-premium)] hover:bg-[var(--bg-secondary)] transition disabled:opacity-50 text-sm font-medium">
+             <Share2 size={16} className="mr-2" style={{ color: 'var(--accent-color)' }} /> Paylaş
           </button>
 
-          <div className="w-px h-6 bg-slate-700 mx-1"></div>
+          <div className="w-px h-6 bg-[var(--border-color)] mx-1"></div>
 
           <button 
              onClick={() => setIsTemplatesModalOpen(true)}
-             className="flex items-center px-3 py-2 bg-slate-800 text-white border border-white/10 rounded-xl hover:bg-slate-700 transition text-sm font-medium">
+             className="btn-accent-glow flex items-center px-3 py-2 bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-[var(--radius-premium)] hover:bg-[var(--bg-secondary)] transition text-sm font-medium">
              <LayoutTemplate size={16} className="mr-2" /> Şablonlar
           </button>
           
           <button 
              onClick={handlePrint}
              disabled={items.length === 0 || isPrinting}
-             className="flex items-center px-4 py-2 bg-slate-800 text-white border border-white/10 rounded-xl hover:bg-slate-700 transition text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">
-             <Printer size={16} className="mr-2 text-blue-300" /> Yazdır
+             className="btn-accent-glow flex items-center px-4 py-2 bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-[var(--radius-premium)] hover:bg-[var(--bg-secondary)] transition text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+             <Printer size={16} className="mr-2 text-[var(--text-secondary)]" /> Yazdır
           </button>
           
           <button 
              onClick={handleDownloadPdf}
              disabled={items.length === 0 || isPrinting}
-             className="flex items-center px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg shadow-blue-900/50 hover:shadow-blue-900/80 transition-all font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+             className="flex items-center px-5 py-2 rounded-[var(--radius-premium)] font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+             style={{
+               background: 'linear-gradient(135deg, var(--accent-color), var(--accent-hover))',
+               color: '#ffffff',
+               boxShadow: '0 4px 16px var(--accent-muted)'
+             }}
+             onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 24px var(--accent-muted)'}
+             onMouseLeave={e => e.currentTarget.style.boxShadow = '0 4px 16px var(--accent-muted)'}
           >
              <FileDown size={18} className="mr-2" /> {isPrinting ? 'Hazırlanıyor...' : 'PDF İndir'}
           </button>
@@ -233,12 +240,12 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
       {/* Split View Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Left Panel: Content Organizer (Drag & Drop) */}
-        <div className="w-1/3 max-w-sm border-r border-white/10 bg-slate-900 overflow-y-auto custom-scrollbar">
+        <div className="w-1/3 max-w-sm border-r border-[var(--border-color)] bg-[var(--bg-secondary)] overflow-y-auto custom-scrollbar">
            <FascicleSidebar />
         </div>
 
         {/* Right Panel: Live PDF Preview */}
-        <div className="flex-1 overflow-auto bg-slate-950 flex justify-center p-8 custom-scrollbar relative">
+        <div className="flex-1 overflow-auto viewport-surface flex justify-center p-8 custom-scrollbar relative">
            <FasciclePreview />
         </div>
       </div>

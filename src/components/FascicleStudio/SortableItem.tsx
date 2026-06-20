@@ -53,36 +53,45 @@ export const SortableItem: React.FC<SortableItemProps> = ({ id, item, onRemove }
   return (
     <div
       ref={setNodeRef}
-      style={style}
-      className={`relative flex items-center p-3 mb-2 rounded-xl border border-white/10 bg-slate-800/80 backdrop-blur-sm shadow-sm
-        ${isDragging ? 'opacity-50 z-50 shadow-xl border-blue-500/50 scale-[1.02]' : 'hover:border-white/20 hover:bg-slate-800'}
-        transition-colors`}
+      style={{
+        ...style,
+        borderColor: isDragging ? 'var(--accent-color)' : undefined,
+        boxShadow: isDragging ? '0 0 30px var(--accent-muted), 0 4px 16px rgba(0,0,0,0.3)' : undefined
+      }}
+      className={`relative flex items-center p-3 mb-2 rounded-[var(--radius-premium)] border border-[var(--border-color)] bg-[var(--bg-paper)]/80 shadow-sm
+        ${isDragging ? 'opacity-50 z-50 scale-[1.02]' : 'hover:border-[var(--border-color)] hover:bg-[var(--bg-paper)]'}
+        transition-all`}
     >
       <div 
         {...attributes} 
         {...listeners} 
-        className="cursor-grab active:cursor-grabbing p-1.5 text-slate-500 hover:text-slate-300 mr-2 rounded hover:bg-white/5"
+        className="cursor-grab active:cursor-grabbing p-1.5 text-[var(--text-muted)] hover:text-[var(--text-secondary)] mr-2 rounded hover:bg-[var(--surface-glass)]"
       >
         <GripVertical size={18} />
       </div>
       
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between mb-1">
-           <p className="text-sm font-medium text-white truncate max-w-[180px]">
+           <p className="text-sm font-medium text-[var(--text-primary)] truncate max-w-[180px]">
              {(item.content as any)?.title || (item.content as any)?.wizardData?.goal?.topic || formatTitle(item.type)}
            </p>
-           <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-slate-700/50 text-slate-400">
+           <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full"
+             style={{
+               backgroundColor: 'var(--accent-muted)',
+               color: 'var(--accent-color)'
+             }}
+           >
              {item.difficulty}
            </span>
         </div>
-        <p className="text-xs text-slate-400 truncate">
+        <p className="text-xs text-[var(--text-muted)] truncate">
           {item.pedagogicalNote || 'Pedagojik Not Eklenmemiş'}
         </p>
       </div>
 
       <button 
         onClick={() => onRemove(item.id)}
-        className="ml-3 p-1.5 text-slate-500 hover:text-red-400 hover:bg-red-400/10 rounded transition-colors"
+        className="studio-icon-btn ml-3 p-1.5 rounded-lg"
         title="Sayfayı Çıkar"
       >
         <Trash2 size={16} />

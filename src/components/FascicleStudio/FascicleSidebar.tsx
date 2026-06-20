@@ -72,23 +72,23 @@ export const FascicleSidebar: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-900 border-r border-slate-800">
-      <div className="p-4 border-b border-white/5 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-slate-300 flex items-center uppercase tracking-wider">
-          <Layers size={16} className="mr-2 text-blue-400" />
+    <div className="flex flex-col h-full bg-[var(--bg-secondary)]">
+      <div className="p-4 border-b border-[var(--border-color)] flex items-center justify-between">
+        <h3 className="text-sm font-semibold text-[var(--text-primary)] flex items-center uppercase tracking-wider">
+          <Layers size={16} className="mr-2" style={{ color: 'var(--accent-color)' }} />
           Fasikül İçeriği ({items.length})
         </h3>
         <div className="flex items-center gap-1">
           <button 
             onClick={() => setIsCoverSettingsOpen(true)}
-            className="p-1.5 text-slate-400 hover:text-white hover:bg-indigo-500/20 rounded transition-colors"
+            className="studio-icon-btn p-1.5 rounded-lg"
             title="Premium Kapak Ayarları"
           >
-            <ImageIcon size={16} className="text-indigo-400" />
+            <ImageIcon size={16} style={{ color: 'var(--accent-color)' }} />
           </button>
           <button 
             onClick={handleAddSampleItem}
-            className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded transition-colors"
+            className="studio-icon-btn p-1.5 rounded-lg"
             title="Parça Ekle"
           >
             <Plus size={16} />
@@ -103,10 +103,10 @@ export const FascicleSidebar: React.FC = () => {
 
       <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
         {items.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-48 text-center px-4 border-2 border-dashed border-white/10 rounded-xl bg-white/5">
-            <FileText size={32} className="text-slate-600 mb-3" />
-            <p className="text-sm text-slate-400 font-medium">Fasikülünüz boş.</p>
-            <p className="text-xs text-slate-500 mt-1">Sınav, rapor veya çalışma kağıtlarını buraya sürükleyebilirsiniz.</p>
+          <div className="flex flex-col items-center justify-center h-48 text-center px-4 border-2 border-dashed border-[var(--border-color)] rounded-[var(--radius-premium)] bg-[var(--bg-paper)]">
+            <FileText size={32} className="text-[var(--text-muted)] mb-3 opacity-50" />
+            <p className="text-sm text-[var(--text-secondary)] font-medium">Fasikülünüz boş.</p>
+            <p className="text-xs text-[var(--text-muted)] mt-1">Sınav, rapor veya çalışma kağıtlarını buraya sürükleyebilirsiniz.</p>
           </div>
         ) : (
           <DndContext 
@@ -126,21 +126,26 @@ export const FascicleSidebar: React.FC = () => {
         )}
       </div>
 
-      <div className="p-4 bg-slate-950/50 border-t border-white/5">
-         <div className="flex justify-between items-center text-xs text-slate-400">
+      <div className="p-4 bg-[var(--bg-secondary)] border-t border-[var(--border-color)]">
+         <div className="flex justify-between items-center text-xs text-[var(--text-muted)]">
            <span>Toplam Sayfa:</span>
-           <span className="font-bold text-white text-sm">{items.reduce((acc, curr) => acc + curr.pageCount, 0)} sf</span>
+           <span className="font-bold text-[var(--text-primary)] text-sm">{items.reduce((acc, curr) => acc + curr.pageCount, 0)} sf</span>
          </div>
-         <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg flex flex-col items-start">
-            <p className="text-[11px] text-blue-300 mb-2 leading-tight">
-              💡 <strong>AI Asistan:</strong> Pedagojik ZPD kurallarına göre (Kolaydan Zora) sıralayabilirsiniz.
+         <div className="mt-3 p-3 glass-layer-1 rounded-[var(--radius-premium)] flex flex-col items-start">
+            <p className="text-[11px] text-[var(--text-secondary)] mb-2 leading-tight">
+              <span style={{ color: 'var(--accent-color)' }}>AI Asistan:</span> Pedagojik ZPD kurallarına göre (Kolaydan Zora) sıralayabilirsiniz.
             </p>
             <button 
                onClick={handleAutoSort}
                disabled={items.length < 2}
-               className="text-xs bg-blue-600 hover:bg-blue-500 text-white py-1 px-3 rounded w-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+               className="w-full font-semibold py-1.5 px-3 rounded-lg flex items-center justify-center transition-all text-xs disabled:opacity-50"
+               style={{
+                 background: 'var(--accent-color)',
+                 color: '#ffffff'
+               }}
             >
-               AI Pedagojik Diziliş Uygula
+               <i className="fa-solid fa-wand-magic-sparkles mr-2"></i>
+               Oto ZPD Sırala
             </button>
          </div>
       </div>
