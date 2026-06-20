@@ -193,7 +193,7 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ initialData 
             difficulty: 'Orta',
             pageCount: Math.ceil((aktifSinav.sorular?.length || 1) / 4), // Ortalama sayfa hesabı
             order: items.length,
-            content: aktifSinav, // Direkt sınav objesini gönderiyoruz, SheetRenderer bunu handleder
+            content: { ...aktifSinav, printConfig }, // PrintConfig ile birleştirerek gönderiyoruz
             pedagogicalNote: 'Matematik Sınav Stüdyosu\'ndan eklendi.'
         });
         showSuccess('Kitapçığa eklendi!');

@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useState } from 'react';
 import { useFascicleStore } from '../../store/useFascicleStore';
 import { Eye, Smartphone, Monitor, Info, LayoutTemplate } from 'lucide-react';
 import { SheetRenderer } from '../SheetRenderer';
@@ -6,28 +6,35 @@ import { ActivityType, SingleWorksheetData, StyleSettings } from '../../types';
 
 export const FasciclePreview: React.FC = () => {
   const { items, metadata } = useFascicleStore();
+  const [viewState, setViewState] = useState<'desktop' | 'mobile'>('desktop');
 
   return (
     <div className="w-full max-w-4xl h-full flex flex-col bg-slate-950">
       
       {/* Preview Toolbar */}
-      <div className="flex justify-between items-center px-4 py-3 mb-6 bg-slate-900 border border-white/5 rounded-xl shadow-lg">
+      <div className="flex justify-between items-center px-4 py-3 mb-6 bg-slate-900 border border-white/5 rounded-xl shadow-lg no-print">
          <div className="flex items-center text-slate-300">
             <Eye size={18} className="mr-2" />
-            <span className="text-sm font-medium">Canlı Önizleme Modu</span>
+            <span className="text-sm font-medium">Canlı Önizleme Modu ({viewState === 'desktop' ? 'Baskı Ebatı' : 'Mobil/Tablet'})</span>
          </div>
          <div className="flex space-x-2">
-            <button className="p-1.5 bg-slate-800 text-slate-300 rounded hover:bg-slate-700 transition" title="Mobil Görünüm">
+            <button 
+               onClick={() => setViewState('mobile')}
+               className={`p-1.5 rounded transition ${viewState === 'mobile' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`} 
+               title="Mobil/Tablet Küçültülmüş Görünüm">
               <Smartphone size={16} />
             </button>
-            <button className="p-1.5 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded hover:bg-blue-500/30 transition" title="Baskı/Masaüstü Görünüm">
+            <button 
+               onClick={() => setViewState('desktop')}
+               className={`p-1.5 rounded transition ${viewState === 'desktop' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`} 
+               title="Gerçek Baskı Görünümü">
               <Monitor size={16} />
             </button>
          </div>
       </div>
 
       {/* A4 Paper Mockup Scroll Area */}
-      <div className="flex-1 overflow-y-auto custom-scrollbar flex flex-col items-center pb-20">
+      <div className={`flex-1 overflow-y-auto custom-scrollbar flex flex-col items-center pb-20 transition-transform duration-300 origin-top ${viewState === 'mobile' ? 'scale-[0.85]' : 'scale-100'}`}>
          <div id="fascicle-print-container" className="w-full flex flex-col items-center">
              {/* Kapak Sayfası */}
              <div className="worksheet-page print-page w-[21cm] min-h-[29.7cm] bg-white shadow-2xl rounded-sm mb-8 flex flex-col relative overflow-hidden shrink-0">
