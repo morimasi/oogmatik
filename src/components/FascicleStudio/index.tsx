@@ -160,7 +160,7 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
       {/* Top Header */}
       <div className="glass-layer-2 flex items-center justify-between p-4 border-b border-[var(--border-color)] bg-[var(--bg-secondary)]/80">
         <div className="flex flex-col">
-          <h2 className="text-xl font-bold text-[var(--text-primary)] tracking-wide">{metadata.title || 'İsimsiz Fasikül'}</h2>
+          <h2 className="text-xl font-bold text-[var(--text-primary)] tracking-wide">Fasikül Stüdyosu</h2>
           <span className="text-xs text-[var(--text-muted)]">Ultra-Premium Fasikül Oluşturucu v2.5</span>
         </div>
 
