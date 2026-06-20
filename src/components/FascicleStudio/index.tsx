@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useFascicleStore } from '../../store/useFascicleStore';
 import { FascicleSidebar } from './FascicleSidebar';
 import { FasciclePreview } from './FasciclePreview';
 import { FileDown, RefreshCcw, Save, Undo, Redo, LayoutTemplate } from 'lucide-react';
 import { fascicleService } from '../../services/fascicleService';
+import { printService } from '../../utils/printService';
 import { logError } from '../../utils/logger.js';
 import toast from 'react-hot-toast';
 
@@ -13,6 +14,7 @@ interface FascicleStudioProps {
 
 export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
   const { currentFascicleId, metadata, items, undo, redo, past, future } = useFascicleStore();
+  const [isPrinting, setIsPrinting] = useState(false);
 
   useEffect(() => {
     // Auto-save logic triggers when items or metadata changes, if there is an ID (not just local draft)
@@ -23,8 +25,19 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
   }, [items, metadata, currentFascicleId]);
 
   const handlePublish = async () => {
-    // PDF generation and Firebase publish workflow (Placeholder for now)
-    toast.success('Fasikül üretim sırasına alındı!');
+    try {
+        setIsPrinting(true);
+        toast.loading('Fasikül sayfaları hazırlanıyor...', { id: 'print-toast' });
+        await printService.generatePdf('#fascicle-print-container', metadata.title || 'Ozel_Egitim_Fasikulu', {
+            action: 'print'
+        });
+        toast.success('Baskı / PDF işlemi başlatıldı!', { id: 'print-toast' });
+    } catch (error) {
+        logError(error as Error, { context: 'Fasikül yazdırılamadı' });
+        toast.error('Yazdırma işlemi başlatılamadı.', { id: 'print-toast' });
+    } finally {
+        setIsPrinting(false);
+    }
   };
 
   return (
