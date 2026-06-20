@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useFascicleStore } from '../../store/useFascicleStore';
+import { useAuthStore } from '../../store/useAuthStore';
 import { FascicleSidebar } from './FascicleSidebar';
 import { FasciclePreview } from './FasciclePreview';
-import { FileDown, RefreshCcw, Save, Undo, Redo, LayoutTemplate } from 'lucide-react';
+import { FascicleTemplatesModal } from './FascicleTemplatesModal';
+import { FileDown, Undo, Redo, LayoutTemplate, Save, Share2, UserPlus } from 'lucide-react';
 import { fascicleService } from '../../services/fascicleService';
+import { worksheetService } from '../../services/worksheetService';
 import { printService } from '../../utils/printService';
 import { logError } from '../../utils/logger.js';
+import { ActivityType } from '../../types';
 import toast from 'react-hot-toast';
 
 interface FascicleStudioProps {
@@ -14,31 +18,69 @@ interface FascicleStudioProps {
 
 export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
   const { currentFascicleId, metadata, items, undo, redo, past, future } = useFascicleStore();
+  const { user } = useAuthStore();
   const [isPrinting, setIsPrinting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    // Auto-save logic triggers when items or metadata changes, if there is an ID (not just local draft)
-    // For local drafts, we might generate a temp ID.
     if (currentFascicleId) {
        fascicleService.autoSaveDraft(currentFascicleId, { metadata, items }).catch(err => logError('AutoSave failed', err));
     }
   }, [items, metadata, currentFascicleId]);
 
-  const handlePublish = async () => {
+  const handleDownloadPdf = async () => {
     try {
         setIsPrinting(true);
-        toast.loading('Fasikül sayfaları hazırlanıyor...', { id: 'print-toast' });
+        toast.loading('PDF dosyası hazırlanıyor ve indiriliyor...', { id: 'print-toast' });
         await printService.generatePdf('#fascicle-print-container', metadata.title || 'Ozel_Egitim_Fasikulu', {
-            action: 'print'
+            action: 'download',
+            quality: 'high'
         });
-        toast.success('Baskı / PDF işlemi başlatıldı!', { id: 'print-toast' });
+        toast.success('PDF indirme işlemi tamamlandı!', { id: 'print-toast' });
     } catch (error) {
-        logError(error as Error, { context: 'Fasikül yazdırılamadı' });
-        toast.error('Yazdırma işlemi başlatılamadı.', { id: 'print-toast' });
+        logError(error as Error, { context: 'Fasikül PDF olarak indirilemedi' });
+        toast.error('PDF işlemi başlatılamadı. Lütfen tekrar deneyin.', { id: 'print-toast' });
     } finally {
         setIsPrinting(false);
     }
   };
+
+  const handleSaveArchive = async () => {
+    if (!user) {
+        toast.error('Kaydetmek için giriş yapmalısınız.');
+        return;
+    }
+    try {
+        setIsSaving(true);
+        toast.loading('Dijital Arşive kaydediliyor...', { id: 'save-toast' });
+        
+        await worksheetService.saveWorksheet(
+            user.id,
+            metadata.title || 'İsimsiz Fasikül',
+            ActivityType.FASCICLE,
+            [{ metadata, items }] as any,
+            'fa-solid fa-layer-group',
+            { id: 'fascicles', title: 'Fasiküller' }
+        );
+        
+        toast.success('Fasikül başarıyla Arşive kaydedildi!', { id: 'save-toast' });
+    } catch (error) {
+        logError(error as Error, { context: 'Fasikül arşive kaydedilemedi' });
+        toast.error('Kaydetme işlemi başarısız oldu.', { id: 'save-toast' });
+    } finally {
+        setIsSaving(false);
+    }
+  };
+
+  const handleAssignStudent = () => {
+    toast('Öğrenciye Atama modülü (Student Dashboard Sent) yakında eklenecek!', { icon: '🚧' });
+  };
+
+  const handleShare = () => {
+    toast('Uygulama İçi Paylaşım Ağ modülü yakında eklenecek!', { icon: '🚧' });
+  };
+
+  const [isTemplatesModalOpen, setIsTemplatesModalOpen] = useState(false);
 
   return (
     <div className="flex flex-col h-full bg-slate-900 text-slate-100 font-inter">
@@ -49,35 +91,61 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
           <span className="text-xs text-slate-400">Ultra-Premium Fasikül Oluşturucu v2.5</span>
         </div>
 
-        <div className="flex items-center space-x-3">
-          <div className="flex items-center bg-slate-800 rounded-lg p-1 border border-white/5 mr-2">
+        <div className="flex items-center space-x-2 xl:space-x-3">
+          <div className="flex items-center bg-slate-800 rounded-lg p-1 border border-white/5 mr-1">
             <button 
               onClick={undo} 
               disabled={past.length === 0}
-              className={`p-2 rounded-md transition-colors ${past.length > 0 ? 'hover:bg-slate-700 text-slate-300' : 'text-slate-600 cursor-not-allowed'}`}
+              className={`p-1.5 rounded-md transition-colors ${past.length > 0 ? 'hover:bg-slate-700 text-slate-300' : 'text-slate-600 cursor-not-allowed'}`}
               title="Geri Al"
             >
-              <Undo size={18} />
+              <Undo size={16} />
             </button>
             <button 
               onClick={redo} 
               disabled={future.length === 0}
-              className={`p-2 rounded-md transition-colors ${future.length > 0 ? 'hover:bg-slate-700 text-slate-300' : 'text-slate-600 cursor-not-allowed'}`}
+              className={`p-1.5 rounded-md transition-colors ${future.length > 0 ? 'hover:bg-slate-700 text-slate-300' : 'text-slate-600 cursor-not-allowed'}`}
               title="İleri Sar"
             >
-              <Redo size={18} />
+              <Redo size={16} />
             </button>
           </div>
           
-          <button className="flex items-center px-4 py-2 bg-slate-800 text-white border border-white/10 rounded-xl hover:bg-slate-700 transition">
+          <button 
+             onClick={handleSaveArchive}
+             disabled={isSaving || items.length === 0}
+             className="flex items-center px-3 py-2 bg-slate-800 text-slate-200 border border-white/5 rounded-xl hover:bg-slate-700 transition disabled:opacity-50 text-sm font-medium">
+             <Save size={16} className="mr-2 text-emerald-400" /> {isSaving ? 'Kaydediliyor...' : 'Arşive Kaydet'}
+          </button>
+          
+          <button 
+             onClick={handleAssignStudent}
+             disabled={items.length === 0}
+             className="flex items-center px-3 py-2 bg-slate-800 text-slate-200 border border-white/5 rounded-xl hover:bg-slate-700 transition disabled:opacity-50 text-sm font-medium">
+             <UserPlus size={16} className="mr-2 text-blue-400" /> Öğrenciye Ata
+          </button>
+
+          <button 
+             onClick={handleShare}
+             disabled={items.length === 0}
+             className="flex items-center px-3 py-2 bg-slate-800 text-slate-200 border border-white/5 rounded-xl hover:bg-slate-700 transition disabled:opacity-50 text-sm font-medium">
+             <Share2 size={16} className="mr-2 text-purple-400" /> Paylaş
+          </button>
+
+          <div className="w-px h-6 bg-slate-700 mx-1"></div>
+
+          <button 
+             onClick={() => setIsTemplatesModalOpen(true)}
+             className="flex items-center px-3 py-2 bg-slate-800 text-white border border-white/10 rounded-xl hover:bg-slate-700 transition text-sm font-medium">
              <LayoutTemplate size={16} className="mr-2" /> Şablonlar
           </button>
           
           <button 
-             onClick={handlePublish}
-             className="flex items-center px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg shadow-blue-900/50 hover:shadow-blue-900/80 transition-all font-medium"
+             onClick={handleDownloadPdf}
+             disabled={items.length === 0 || isPrinting}
+             className="flex items-center px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg shadow-blue-900/50 hover:shadow-blue-900/80 transition-all font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
           >
-             <FileDown size={18} className="mr-2" /> PDF Oluştur
+             <FileDown size={18} className="mr-2" /> {isPrinting ? 'Hazırlanıyor...' : 'PDF İndir'}
           </button>
         </div>
       </div>
@@ -94,6 +162,11 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
            <FasciclePreview />
         </div>
       </div>
+      
+      <FascicleTemplatesModal 
+        isOpen={isTemplatesModalOpen} 
+        onClose={() => setIsTemplatesModalOpen(false)} 
+      />
     </div>
   );
 };

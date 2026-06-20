@@ -116,6 +116,7 @@ export enum ActivityType {
   SUPER_TURKCE_V2 = 'SUPER_TURKCE_V2',
   KELIME_CUMLE = 'KELIME_CUMLE',
   CURRICULUM = 'CURRICULUM',
+  FASCICLE = 'FASCICLE',
   // ── İNFOGRAFİK STÜDYOSUv3 — 96 Premium Aktivite Türü ───────────────────────
   // Kategori 1: Görsel & Mekansal (10 tip)
   INFOGRAPHIC_CONCEPT_MAP = 'INFOGRAPHIC_CONCEPT_MAP',
