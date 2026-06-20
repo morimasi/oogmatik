@@ -17,6 +17,7 @@ import { PermissionModule } from '../../types/rbac';
 import { useProfileShare } from './hooks/useProfileShare';
 import { ShareModal } from '../ShareModal';
 import { SharedModuleType } from '../../services/profileShareService';
+import { useSharedWorksheets } from './hooks/useSharedWorksheets';
 
 interface ProfileProps {
   data: ProfileData;
@@ -52,6 +53,7 @@ export const Profile: React.FC<ProfileProps> = ({
   const { setActiveStudent: setActiveStudentInStore } = useStudentStore();
   const { canAccess, role } = useRBAC();
   const { sharedItems, unreadCount, shareModule, removeShare, markAsRead, refreshSharedItems } = useProfileShare();
+  const { worksheets: sharedWorksheets } = useSharedWorksheets();
 
   const tabPermissions: Record<ProfileTabId, PermissionModule | null> = {
     overview: null,
@@ -121,8 +123,10 @@ export const Profile: React.FC<ProfileProps> = ({
         return (
           <SharedContentPanel
             items={sharedItems}
+            worksheets={sharedWorksheets}
             loading={false}
             onOpenModule={(moduleType) => setActiveTab(moduleType as ProfileTabId)}
+            onLoadWorksheet={onLoadSaved}
             onRemoveShare={removeShare}
             onMarkAsRead={markAsRead}
           />
