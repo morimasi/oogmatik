@@ -5,7 +5,7 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { AppError, AuthenticationError, AuthorizationError } from '../utils/AppError.js';
-import { hasRole } from '../services/rbac.js';
+import { hasRole, UserRole as OldUserRole } from '../services/rbac.js';
 import { UserRole } from '../types/user.js';
 import { rbacService } from '../services/rbacService.js';
 import { logError } from '../utils/errorHandler.js';
@@ -161,7 +161,7 @@ export const requireRole = (requiredRole: UserRole | UserRole[]) => {
             const { userId, role } = authenticate(req);
 
             // Check role
-            if (!hasRole(role, requiredRole)) {
+            if (!hasRole(role as OldUserRole, requiredRole as OldUserRole | OldUserRole[])) {
                 const roleStr = Array.isArray(requiredRole)
                     ? requiredRole.join(', ')
                     : requiredRole;
