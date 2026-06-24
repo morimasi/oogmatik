@@ -71,14 +71,16 @@ export const useGetUserWorksheets = ({
                     loading: false,
                     error: null,
                 });
-            } catch (error: any) {
+            } catch (error: unknown) {
+                const errMessage = error instanceof AppError ? error.userMessage : (error instanceof Error ? error.message : 'Çalışma sayfaları yükleme başarısız');
+                const errCode = error instanceof AppError ? error.code : 'FETCH_ERROR';
                 logError('useGetUserWorksheets error', error);
                 setState({
                     data: null,
                     loading: false,
                     error: {
-                        message: error.userMessage || error.message || 'Çalışma sayfaları yükleme başarısız',
-                        code: error.code || 'FETCH_ERROR',
+                        message: errMessage,
+                        code: errCode,
                     },
                 });
             }
@@ -121,14 +123,16 @@ export const useGetWorksheet = (
                     loading: false,
                     error: null,
                 });
-            } catch (error: any) {
+            } catch (error: unknown) {
+                const errMessage = error instanceof AppError ? error.userMessage : (error instanceof Error ? error.message : 'Çalışma sayfası yükleme başarısız');
+                const errCode = error instanceof AppError ? error.code : 'FETCH_ERROR';
                 logError('useGetWorksheet error', error);
                 setState({
                     data: null,
                     loading: false,
                     error: {
-                        message: error.userMessage || error.message,
-                        code: error.code || 'FETCH_ERROR',
+                        message: errMessage,
+                        code: errCode,
                     },
                 });
             }
@@ -170,11 +174,13 @@ export const useCreateWorksheet = (userId: string, userRole: string) => {
                 });
 
                 return result.data;
-            } catch (error: any) {
+            } catch (error: unknown) {
+                const errorMessage = error instanceof AppError ? error.userMessage : (error instanceof Error ? error.message : 'Çalışma sayfası oluşturma başarısız');
+                const errorCode = error instanceof AppError ? error.code : 'CREATE_ERROR';
                 logError('useCreateWorksheet error', error);
                 const errorState = {
-                    message: error.userMessage || error.message,
-                    code: error.code || 'CREATE_ERROR',
+                    message: errorMessage,
+                    code: errorCode,
                 };
                 setState({
                     data: null,
@@ -218,11 +224,13 @@ export const useUpdateWorksheet = (userId: string, userRole: string) => {
                 });
 
                 return result.data;
-            } catch (error: any) {
+            } catch (error: unknown) {
+                const errorMessage = error instanceof AppError ? error.userMessage : (error instanceof Error ? error.message : 'Çalışma sayfası güncelleme başarısız');
+                const errorCode = error instanceof AppError ? error.code : 'UPDATE_ERROR';
                 logError('useUpdateWorksheet error', error);
                 const errorState = {
-                    message: error.userMessage || error.message,
-                    code: error.code || 'UPDATE_ERROR',
+                    message: errorMessage,
+                    code: errorCode,
                 };
                 setState({
                     data: null,
@@ -259,11 +267,13 @@ export const useDeleteWorksheet = (userId: string, userRole: string) => {
 
                 setState({ loading: false, error: null });
                 return true;
-            } catch (error: any) {
+            } catch (error: unknown) {
+                const errorMessage = error instanceof AppError ? error.userMessage : (error instanceof Error ? error.message : 'Çalışma sayfası silme başarısız');
+                const errorCode = error instanceof AppError ? error.code : 'DELETE_ERROR';
                 logError('useDeleteWorksheet error', error);
                 const errorState = {
-                    message: error.userMessage || error.message,
-                    code: error.code || 'DELETE_ERROR',
+                    message: errorMessage,
+                    code: errorCode,
                 };
                 setState({
                     loading: false,
@@ -300,11 +310,13 @@ export const useShareWorksheet = (userId: string, userRole: string) => {
 
                 setState({ loading: false, error: null });
                 return true;
-            } catch (error: any) {
+            } catch (error: unknown) {
+                const errorMessage = error instanceof AppError ? error.userMessage : (error instanceof Error ? error.message : 'Paylaşma başarısız');
+                const errorCode = error instanceof AppError ? error.code : 'SHARE_ERROR';
                 logError('useShareWorksheet error', error);
                 const errorState = {
-                    message: error.userMessage || error.message,
-                    code: error.code || 'SHARE_ERROR',
+                    message: errorMessage,
+                    code: errorCode,
                 };
                 setState({
                     loading: false,
@@ -357,14 +369,16 @@ export const useGetSharedWorksheets = ({
                     loading: false,
                     error: null,
                 });
-            } catch (error: any) {
+            } catch (error: unknown) {
+                const errMessage = error instanceof AppError ? error.userMessage : (error instanceof Error ? error.message : 'Paylaşılan çalışma sayfaları yükleme başarısız');
+                const errCode = error instanceof AppError ? error.code : 'FETCH_ERROR';
                 logError('useGetSharedWorksheets error', error);
                 setState({
                     data: null,
                     loading: false,
                     error: {
-                        message: error.userMessage || error.message,
-                        code: error.code || 'FETCH_ERROR',
+                        message: errMessage,
+                        code: errCode,
                     },
                 });
             }

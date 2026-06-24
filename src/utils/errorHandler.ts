@@ -555,8 +555,8 @@ export function withErrorHandling(
       (res as any).locals.requestId = req.headers['x-request-id'] || `req-${Date.now()}`;
 
       await Promise.resolve(handler(req, res));
-    } catch (error) {
-      handleApiError(error, res, `${req.method} ${req.url}`);
+      } catch (error: unknown) {
+        handleApiError(error, res, `${req.method} ${req.url}`);
     }
   };
 }

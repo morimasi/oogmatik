@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { curriculumService } from '../../services/curriculumService';
-import { Curriculum, CurriculumDay, Student } from '../../types';
+import { Curriculum, CurriculumDay, Student, CurriculumActivityStatus } from '../../types';
 import { printService } from '../../utils/printService';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useStudentStore } from '../../store/useStudentStore';
@@ -230,7 +230,7 @@ export function useCurriculumState({ initialPlan, preFillData }: UseCurriculumSt
         if (!curriculum) return;
         const dayData = curriculum.schedule.find(d => d.day === day);
         const currentStatus = dayData?.activities.find(a => a.id === actId)?.status;
-        const newStatus = currentStatus === 'completed' ? 'pending' : 'completed';
+        const newStatus: CurriculumActivityStatus = currentStatus === 'completed' ? 'pending' : 'completed';
 
         try {
             if (isSaved) await curriculumService.updateActivityStatus(curriculum.id, day, actId, newStatus);
@@ -376,7 +376,7 @@ export function useCurriculumState({ initialPlan, preFillData }: UseCurriculumSt
         editingDay, tempFocus, changingActivityDay,
         setStep, setFormData, setPlanDuration, setDiagnosisContext, setExistingPlans,
         setEditingDay, setTempFocus, setEditingGoal, setTempGoal, setIsAddingGoal, setNewGoalText,
-        setIsEditingNote, setTempNote, setChangingActivityDay,
+        setIsEditingNote, setTempNote,         setChangingActivityDay, setIsShareModalOpen,
         handleStudentSelect, handleGenerate, handleSave, handleShareCurriculum,
         handleDeletePlan, handlePrint, handleToggleActivity, handleSaveDayNote,
         handleLoadPlan, handleSaveGoal, handleStartEditingGoal, handleAddGoal,

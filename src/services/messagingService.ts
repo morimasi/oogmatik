@@ -78,7 +78,7 @@ export const messagingService = {
             }, (error) => {
                 logError("Messaging listener error:", { error });
             });
-        } catch (error) {
+        } catch (error: unknown) {
             logError("listenToMessages failed:", { error });
             return () => {};
         }
@@ -108,7 +108,7 @@ export const messagingService = {
             const docRef = await addDoc(collection(db, 'messages'), messageData);
             logInfo("Mesaj gönderildi:", { messageId: docRef.id });
             return docRef.id;
-        } catch (error) {
+        } catch (error: unknown) {
             logError("sendMessage failed:", { error });
             throw error;
         }
@@ -122,7 +122,7 @@ export const messagingService = {
             const { deleteDoc } = await import('firebase/firestore');
             await deleteDoc(doc(db, 'messages', messageId));
             logInfo("Mesaj silindi:", { messageId });
-        } catch (error) {
+        } catch (error: unknown) {
             logError("deleteMessage failed:", { error });
             throw error;
         }
@@ -138,7 +138,7 @@ export const messagingService = {
                 isRead: true,
                 readBy: arrayUnion(userId)
             });
-        } catch (error) {
+        } catch (error: unknown) {
             logError("markAsRead failed:", { error });
         }
     },
@@ -171,7 +171,7 @@ export const messagingService = {
                 logError('listenToUnreadCount error:', { error });
                 callback(0);
             });
-        } catch (error) {
+        } catch (error: unknown) {
             logError('listenToUnreadCount failed:', { error });
             return () => {};
         }
@@ -204,7 +204,7 @@ export const messagingService = {
                 logError('listenToUnreadCountPerContact error:', { error });
                 callback({});
             });
-        } catch (error) {
+        } catch (error: unknown) {
             logError('listenToUnreadCountPerContact failed:', { error });
             return () => {};
         }
@@ -217,7 +217,14 @@ export const messagingService = {
         try {
             const q = query(collection(db, 'users'), limit(100));
             const snapshot = await getDocs(q);
-            const users: any[] = [];
+            interface InternalUser {
+                id: string;
+                name: string;
+                role: string;
+                avatar: string;
+                isOnline: boolean;
+            }
+            const users: InternalUser[] = [];
             snapshot.forEach((doc) => {
                 const data = doc.data();
                 if (doc.id !== excludeUserId) {
@@ -231,7 +238,7 @@ export const messagingService = {
                 }
             });
             return users;
-        } catch (error) {
+        } catch (error: unknown) {
             logError("fetchInternalUsers failed:", { error });
             return [];
         }

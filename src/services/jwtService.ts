@@ -54,8 +54,8 @@ export class JWTService {
                 expiresIn: this.EXPIRATION_TIME,
                 algorithm: 'HS256',
             });
-        } catch (error: any) {
-            logError('[JWT] Error generating token', { error: error as Record<string, unknown> });
+        } catch (error: unknown) {
+            logError('[JWT] Error generating token', { error });
             throw new AppError('Token generation failed', 'INTERNAL_ERROR', 500);
         }
     }
@@ -69,8 +69,8 @@ export class JWTService {
                 expiresIn: this.REFRESH_EXPIRATION,
                 algorithm: 'HS256',
             });
-        } catch (error: any) {
-            logError('[JWT] Error generating refresh token', { error: error as Record<string, unknown> });
+        } catch (error: unknown) {
+            logError('[JWT] Error generating refresh token', { error });
             throw new AppError('Refresh token generation failed', 'INTERNAL_ERROR', 500);
         }
     }
@@ -85,11 +85,11 @@ export class JWTService {
             }) as TokenPayload;
 
             return decoded;
-        } catch (error: any) {
-            if (error.name === 'TokenExpiredError') {
+        } catch (error: unknown) {
+            if (error instanceof Error && error.name === 'TokenExpiredError') {
                 throw new AppError('Token has expired', 'INTERNAL_ERROR', 500);
             }
-            if (error.name === 'JsonWebTokenError') {
+            if (error instanceof Error && error.name === 'JsonWebTokenError') {
                 throw new AppError('Invalid token', 'INTERNAL_ERROR', 500);
             }
             throw new AppError('Token verification failed', 'INTERNAL_ERROR', 500);
@@ -102,8 +102,8 @@ export class JWTService {
     static decodeToken(token: string): TokenPayload | null {
         try {
             return jwt.decode(token) as TokenPayload;
-        } catch (error: any) {
-            logError('[JWT] Error decoding token', { error: error as Record<string, unknown> });
+        } catch (error: unknown) {
+            logError('[JWT] Error decoding token', { error });
             return null;
         }
     }
@@ -138,8 +138,8 @@ export class JWTService {
                 token: this.generateToken(payload),
                 refreshToken: this.generateRefreshToken(payload),
             };
-        } catch (error: any) {
-            logError('[JWT] Error refreshing token', { error: error as Record<string, unknown> });
+        } catch (error: unknown) {
+            logError('[JWT] Error refreshing token', { error });
             throw new AppError('Token refresh failed', 'INTERNAL_ERROR', 500);
         }
     }
@@ -187,14 +187,15 @@ export const jwtMiddleware = (req: any, res: any, next: any) => {
         };
 
         next();
-    } catch (error: any) {
-        logError('[JWT] Token verification middleware error', { error: error as Record<string, unknown> });
-        return res.status(401).json({
-            error: {
-                message: error.message || 'Token verification failed',
-                code: 'AUTH_INVALID',
-            },
-        });
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'Token verification failed';
+            logError('[JWT] Token verification middleware error', { error });
+            return res.status(401).json({
+                error: {
+                    message,
+                    code: 'AUTH_INVALID',
+                },
+            });
     }
 };
 
@@ -215,9 +216,9 @@ export const optionalJWTMiddleware = (req: any, res: any, next: any) => {
                 role: payload.role,
             };
         }
-    } catch (error: any) {
-        // Ignore errors in optional middleware
-        logWarn('[JWT] Optional token verification failed', { error: error as Record<string, unknown> });
+        } catch (error: unknown) {
+            // Ignore errors in optional middleware
+            logWarn('[JWT] Optional token verification failed', { error });
     }
 
     next();
@@ -275,13 +276,14 @@ export const loginHandler = async (req: any, res: any) => {
             },
             timestamp: new Date().toISOString(),
         });
-    } catch (error: any) {
-        return res.status(500).json({
-            error: {
-                message: error.message || 'Login failed',
-                code: 'LOGIN_ERROR',
-            },
-        });
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'Login failed';
+            return res.status(500).json({
+                error: {
+                    message,
+                    code: 'LOGIN_ERROR',
+                },
+            });
     }
 };
 
@@ -312,13 +314,14 @@ export const refreshTokenHandler = async (req: any, res: any) => {
             },
             timestamp: new Date().toISOString(),
         });
-    } catch (error: any) {
-        return res.status(401).json({
-            error: {
-                message: error.message || 'Token refresh failed',
-                code: 'REFRESH_ERROR',
-            },
-        });
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'Token refresh failed';
+            return res.status(401).json({
+                error: {
+                    message,
+                    code: 'REFRESH_ERROR',
+                },
+            });
     }
 };
 
@@ -359,11 +362,12 @@ export const validateTokenHandler = async (req: any, res: any) => {
                 expiresAt: new Date(payload.exp * 1000),
             },
         });
-    } catch (error: any) {
-        return res.status(401).json({
-            success: false,
-            message: error.message || 'Invalid token',
-        });
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : 'Invalid token';
+            return res.status(401).json({
+                success: false,
+                message,
+            });
     }
 };
 
