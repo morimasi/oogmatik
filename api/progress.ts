@@ -4,7 +4,7 @@ import { permissionService } from '../src/middleware/permissionValidator.js';
 import { AppError, toAppError } from '../src/utils/AppError.js';
 import { logError } from '../src/utils/errorHandler.js';
 import { rbacService } from '../src/services/rbacService.js';
-import { RateLimiter } from '../src/services/rateLimiter.js';
+import { RateLimiter, UserTier } from '../src/services/rateLimiter.js';
 import { corsMiddleware } from '../src/utils/cors.js';
 
 const rateLimiter = new RateLimiter();
@@ -23,7 +23,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     const userId = (req.headers['x-user-id'] as string) || 'anonymous';
     const userTier = (req.headers['x-user-tier'] as string) || 'free';
 
-    await rateLimiter.enforceLimit(userId, userTier, 'apiQuery');
+    await rateLimiter.enforceLimit(userId, userTier as UserTier, 'apiQuery');
 
     if (method === 'GET') {
       const studentId = query.studentId as string;

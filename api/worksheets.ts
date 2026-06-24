@@ -19,7 +19,7 @@ import { validateSaveWorksheetRequest } from '../src/utils/schemas.js';
 import { AppError, toAppError } from '../src/utils/AppError.js';
 import { logError } from '../src/utils/errorHandler.js';
 import { rbacService } from '../src/services/rbacService.js';
-import { RateLimiter } from '../src/services/rateLimiter.js';
+import { RateLimiter, UserTier } from '../src/services/rateLimiter.js';
 import { RateLimitError } from '../src/utils/AppError.js';
 import { corsMiddleware } from '../src/utils/cors.js';
 
@@ -49,7 +49,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     const userTier = (req.headers['x-user-tier'] as string) || 'free';
 
     try {
-      await rateLimiter.enforceLimit(actualUserId, userTier, 'apiQuery');
+      await rateLimiter.enforceLimit(actualUserId, userTier as UserTier, 'apiQuery');
     } catch (error) {
       if (error instanceof RateLimitError) {
         res.status(429).json({ error: { message: error.userMessage, code: error.code } });
