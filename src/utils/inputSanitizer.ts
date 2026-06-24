@@ -163,7 +163,7 @@ export class InputSanitizer {
   /**
    * Sanitize object by recursively sanitizing all string properties
    */
-  static sanitizeObject<T extends Record<string, any>>(
+  static sanitizeObject<T extends Record<string, unknown>>(
     obj: unknown,
     schema?: Record<string, SanitizationOptions>
   ): T {
@@ -171,7 +171,7 @@ export class InputSanitizer {
       throw new ValidationError('Input must be an object');
     }
 
-    const sanitized: Record<string, any> = {};
+    const sanitized: Record<string, unknown> = {};
 
     for (const [key, value] of Object.entries(obj)) {
       // Skip if not a valid identifier

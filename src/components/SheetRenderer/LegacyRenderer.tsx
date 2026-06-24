@@ -260,7 +260,7 @@ export function renderLegacySheet(
       );
       break;
     case ActivityType.BURDON_TEST:
-      renderedSheet = <BurdonTestSheet data={activeData as unknown as any} settings={settings} />;
+      renderedSheet = <BurdonTestSheet data={activeData as Record<string, unknown>} settings={settings} />;
       break;
     case ActivityType.LETTER_GRID_TEST:
       renderedSheet = (
@@ -440,10 +440,10 @@ export function renderLegacySheet(
       );
       break;
     case ActivityType.FIVE_W_ONE_H:
-      renderedSheet = <FiveWOneHSheet data={activeData as unknown as any} settings={settings} />;
+      renderedSheet = <FiveWOneHSheet data={activeData as Record<string, unknown>} settings={settings} />;
       break;
     case ActivityType.SENTENCE_5W1H:
-      renderedSheet = <SentenceFiveWOneHSheet data={activeData as unknown as any} />;
+      renderedSheet = <SentenceFiveWOneHSheet data={activeData as Record<string, unknown>} />;
       break;
     case ActivityType.STORY_ANALYSIS:
       renderedSheet = <StoryAnalysisSheet data={activeData as unknown as unknown as unknown as unknown as StoryAnalysisData} />;
@@ -458,25 +458,25 @@ export function renderLegacySheet(
       renderedSheet = <ShortAnswerSheet data={activeData.content || activeData} settings={settings} />;
       break;
     case ActivityType.COLORFUL_SYLLABLE_READING:
-      renderedSheet = <ColorfulSyllableReadingSheet data={activeData as unknown as any} settings={settings} />;
+      renderedSheet = <ColorfulSyllableReadingSheet data={activeData as Record<string, unknown>} settings={settings} />;
       break;
     case ActivityType.FAMILY_TREE_MATRIX:
-      renderedSheet = <FamilyTreeMatrixSheet data={activeData as unknown as any} settings={settings} />;
+      renderedSheet = <FamilyTreeMatrixSheet data={activeData as Record<string, unknown>} settings={settings} />;
       break;
     case ActivityType.APARTMENT_LOGIC_PUZZLE:
-      renderedSheet = <ApartmentLogicSheet data={activeData as unknown as any} settings={settings} />;
+      renderedSheet = <ApartmentLogicSheet data={activeData as Record<string, unknown>} settings={settings} />;
       break;
     case ActivityType.FINANCIAL_MARKET_CALCULATOR:
-      renderedSheet = <FinancialMarketSheet data={activeData as unknown as any} settings={settings} />;
+      renderedSheet = <FinancialMarketSheet data={activeData as Record<string, unknown>} settings={settings} />;
       break;
     case ActivityType.DIRECTIONAL_CODE_READING:
-      renderedSheet = <DirectionalCodeReadingSheet data={activeData as unknown as any} settings={settings} />;
+      renderedSheet = <DirectionalCodeReadingSheet data={activeData as Record<string, unknown>} settings={settings} />;
       break;
     case ActivityType.LOGIC_ERROR_HUNTER:
-      renderedSheet = <LogicErrorHunterSheet data={activeData as unknown as any} settings={settings} />;
+      renderedSheet = <LogicErrorHunterSheet data={activeData as Record<string, unknown>} settings={settings} />;
       break;
     case ActivityType.PATTERN_COMPLETION:
-      renderedSheet = <PatternCompletionSheet data={activeData as unknown as any} settings={settings} />;
+      renderedSheet = <PatternCompletionSheet data={activeData as Record<string, unknown>} settings={settings} />;
       break;
     case ActivityType.FIND_THE_DIFFERENCE:
       renderedSheet = (
@@ -528,13 +528,13 @@ export function renderLegacySheet(
       );
       break;
     case ActivityType.BOX_MATH:
-      renderedSheet = <BoxMathSheet data={activeData as unknown as any} settings={settings} />;
+      renderedSheet = <BoxMathSheet data={activeData as Record<string, unknown>} settings={settings} />;
       break;
     case ActivityType.QUEUE_ORDERING:
-      renderedSheet = <QueueOrderingSheet data={activeData as unknown as any} settings={settings} />;
+      renderedSheet = <QueueOrderingSheet data={activeData as Record<string, unknown>} settings={settings} />;
       break;
     case ActivityType.VISUAL_INTERPRETATION:
-      renderedSheet = <VisualInterpretationSheet data={activeData as unknown as any} settings={settings} />;
+      renderedSheet = <VisualInterpretationSheet data={activeData as Record<string, unknown>} settings={settings} />;
       break;
 
     // AUTONOM_CASES_START

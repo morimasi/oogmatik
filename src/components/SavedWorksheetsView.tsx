@@ -417,8 +417,8 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
                 setPlans(plData);
                 setHasMore(false);
             }
-        } catch (e: any) {
-            logError(e);
+        } catch (e: unknown) {
+            logError(e instanceof Error ? e : String(e));
         } finally {
             setLoading(false);
             setLoadingMore(false);

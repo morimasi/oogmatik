@@ -12,7 +12,7 @@ type CategoryName = (typeof CATEGORIES)[number];
 export const BrainTeasersConfig: React.FC<BrainTeasersConfigProps> = ({ options, onChange }) => {
   const o = (options as any).brainTeasers || {};
   
-  const update = (updates: Record<string, any>) => {
+  const update = (updates: Record<string, unknown>) => {
     onChange('brainTeasers' as any, { ...o, ...updates });
   };
 

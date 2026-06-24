@@ -90,7 +90,7 @@ export const AdminPermissionsIDE: React.FC = () => {
       await rbacService.saveSettings(settings);
       toast.success('Yetki matrisi başarıyla güncellendi');
     } catch (error) {
-      logError('RBAC save UI error', error as unknown as any);
+      logError('RBAC save UI error', { error: error instanceof Error ? error.message : String(error) });
       toast.error('Ayarlar kaydedilemedi');
     } finally {
       setIsSaving(false);
@@ -298,12 +298,12 @@ export const AdminPermissionsIDE: React.FC = () => {
                     onClick={() => {
                         if (!settings) return;
                         const updated = { ...settings };
-                        (updated.globalSettings as unknown as any)[item.key] = !(updated.globalSettings as unknown as any)[item.key];
+                        (updated.globalSettings as Record<string, boolean>)[item.key] = !(updated.globalSettings as Record<string, boolean>)[item.key];
                         setSettings(updated);
                     }}
-                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${ (settings.globalSettings as unknown as any)[item.key] ? (item.danger ? 'bg-red-500/20' : 'bg-emerald-500/20') : 'bg-gray-800' }`}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${ (settings.globalSettings as Record<string, boolean>)[item.key] ? (item.danger ? 'bg-red-500/20' : 'bg-emerald-500/20') : 'bg-gray-800' }`}
                   >
-                    <span className={`inline-block h-4 w-4 transform rounded-full transition-transform ${ (settings.globalSettings as unknown as any)[item.key] ? `translate-x-6 ${item.danger ? 'bg-red-500 shadow-red-500/40' : 'bg-emerald-500 shadow-emerald-500/40'} shadow-lg` : 'translate-x-1 bg-gray-600' }`} />
+                    <span className={`inline-block h-4 w-4 transform rounded-full transition-transform ${ (settings.globalSettings as Record<string, boolean>)[item.key] ? `translate-x-6 ${item.danger ? 'bg-red-500 shadow-red-500/40' : 'bg-emerald-500 shadow-emerald-500/40'} shadow-lg` : 'translate-x-1 bg-gray-600' }`} />
                   </button>
                 </div>
               ))}

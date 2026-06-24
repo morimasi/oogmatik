@@ -10,7 +10,7 @@ import { generateOfflineSuperStudioTemplate } from './superOfflineEngine';
 
 interface GenerateParams {
   templates: string[];
-  settings: Record<string, any>;
+  settings: Record<string, unknown>;
   mode: GenerationMode;
   grade: string | null;
   topic: string;
@@ -135,7 +135,7 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
       content += '\n\n[Sorular üretilemedi — AI yanıtında sorular bulunamadı]';
     } else {
       content += '\n\n## Sorular\n';
-      (questions as unknown as any[]).forEach((q: any, i: number) => {
+      (questions as unknown[]).forEach((q: any, i: number) => {
         const questionText: string = q?.question || '[Soru metni eksik]';
         const answerText: string = q?.answer || '[Cevap eksik]';
         content += `\n${i + 1}. ${questionText}\n   Cevap: ${answerText}\n`;
@@ -154,7 +154,7 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
       content += '[Kurallar üretilemedi]\n\n';
     } else {
       content += '### Kurallar\n';
-      (rules as unknown as any[]).forEach((rule: any) => {
+      (rules as unknown[]).forEach((rule: any) => {
         content += `- ${rule || '[Kural eksik]'}\n`;
       });
       content += '\n';
@@ -163,7 +163,7 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
       content += '[Alıştırmalar üretilemedi]';
     } else {
       content += '### Alıştırmalar\n';
-      (exercises as unknown as any[]).forEach((ex: any, i: number) => {
+      (exercises as unknown[]).forEach((ex: any, i: number) => {
         const q: string = ex?.question || '[Alıştırma metni eksik]';
         const a: string = ex?.answer || '[Cevap eksik]';
         content += `\n${i + 1}. ${q}\n   Cevap: ${a}\n`;
@@ -179,7 +179,7 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
       return '[Problemler üretilemedi — AI yanıtında problem bulunamadı]';
     }
     let content = '';
-    (problems as unknown as any[]).forEach((p: any, i: number) => {
+    (problems as unknown[]).forEach((p: any, i: number) => {
       const q: string = p?.question || '[Problem metni eksik]';
       content += `\n${i + 1}. ${q}\n`;
       if (p?.hint) content += `   İpucu: ${p.hint}\n`;
@@ -280,7 +280,7 @@ export const generateSuperStudioContent = async (
           const cached = await cacheService.get(cacheKey);
           if (cached) {
             cachedResults.push({
-              ...(cached as unknown as any),
+              ...(cached as Record<string, unknown>),
               id: `cache-${Date.now()}-${tpl}`,
               fromCache: true,
             });
@@ -349,7 +349,7 @@ export const generateSuperStudioContent = async (
         if (cacheService) {
           const cacheKey = generateCacheKey(tpl, templateSettings, grade, difficulty);
           try {
-            await cacheService.set(cacheKey, payload as unknown as any);
+            await cacheService.set(cacheKey, payload as Record<string, unknown>);
             logInfo(`[Super Türkçe] Cache yazıldı: ${tpl}`);
           } catch (e) {
             logWarn(`[Super Türkçe] Cache yazma hatası (${tpl}):`, { error: String(e) });
@@ -361,8 +361,8 @@ export const generateSuperStudioContent = async (
           templateId: tpl,
           data: payload,
         };
-      } catch (apiError: any) {
-        logError(`[Super Türkçe] Şablon hatası (${tpl}):`, { error: apiError?.message || String(apiError) });
+      } catch (apiError: unknown) {
+        logError(`[Super Türkçe] Şablon hatası (${tpl}):`, { error: apiError instanceof Error ? apiError.message : String(apiError) });
         throw apiError;
       }
     });
@@ -416,13 +416,13 @@ export const generateSuperStudioContent = async (
     }
 
     return allResults;
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof AppError) throw error;
     throw new AppError(
       'Üretim sırasında beklenmeyen bir hata oluştu.',
       'GENERATOR_ERROR',
       500,
-      { error: String(error) } as unknown as any,
+      { error: String(error) } as Record<string, unknown>,
       true
     );
   }

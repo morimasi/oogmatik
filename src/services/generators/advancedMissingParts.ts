@@ -204,8 +204,8 @@ export const generateAdvancedMissingPartsFromAI = async (options: GeneratorOptio
         version: '2.0-ultra-advanced'
       }
     };
-  } catch (error: any) {
-    throw new AppError('Gelişmiş Eksik Parçaları Tamamlama üretilirken hata: ' + error.message, 'AI_ERROR', 500);
+  } catch (error: unknown) {
+    throw new AppError('Gelişmiş Eksik Parçaları Tamamlama üretilirken hata: ' + (error instanceof Error ? error.message : String(error)), 'AI_ERROR', 500);
   }
 };
 

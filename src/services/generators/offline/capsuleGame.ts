@@ -149,4 +149,4 @@ export const generateOfflineCapsuleGame = async (options: GeneratorOptions): Pro
 
 // Aliases for compatibility
 export const generateCapsuleGameActivity = (difficulty: string, count: number) =>
-    generateOfflineCapsuleGame({ difficulty, worksheetCount: count } as unknown as any);
+    generateOfflineCapsuleGame({ difficulty, worksheetCount: count } as Record<string, unknown>);

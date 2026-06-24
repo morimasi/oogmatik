@@ -57,7 +57,7 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
         temperature: 0.7
     });
 
-    const items = (Array.isArray(response) ? response : [response]) as unknown as any[];
+    const items = (Array.isArray(response) ? response : [response]) as unknown[];
 
     // Veri Tamamlama (Post-processing): AI'nın döndüğü objelere eksik 'cities' verisini ekle
     const processedData = items.map(item => ({

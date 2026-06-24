@@ -28,7 +28,7 @@ export interface PushNotification {
   id: string;
   title: string;
   body: string;
-  data?: Record<string, any>;
+  data?: Record<string, unknown>;
   scheduledAt?: string;
   priority: 'low' | 'normal' | 'high';
 }
@@ -185,7 +185,7 @@ export class MobileAppService {
     deviceToken: string,
     title: string,
     body: string,
-    data?: Record<string, any>
+    data?: Record<string, unknown>
   ): Promise<void> {
     try {
       // TODO: Integrate with FCM/APNs

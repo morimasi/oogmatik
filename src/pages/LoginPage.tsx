@@ -26,8 +26,8 @@ const LoginPage: React.FC = () => {
         await register(email, password, name);
         toast.success('Hesabınız başarıyla oluşturuldu.');
       }
-    } catch (error: any) {
-      toast.error(error.message || 'Bir hata oluştu.');
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : String(error));
     } finally {
       setLoading(false);
     }
@@ -36,8 +36,8 @@ const LoginPage: React.FC = () => {
   const handleGoogleLogin = async () => {
     try {
       await loginWithGoogle();
-    } catch (error: any) {
-      toast.error(error.message || 'Google ile giriş başarısız.');
+    } catch (error: unknown) {
+      toast.error(error instanceof Error ? error.message : String(error));
     }
   };
 

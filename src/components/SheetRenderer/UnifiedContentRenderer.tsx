@@ -348,7 +348,7 @@ export const UnifiedContentRenderer = ({
         style={{
           backgroundColor: 'white',
           color: 'black',
-          colorScheme: 'light' as unknown as any,
+          colorScheme: 'light' as const,
           boxSizing: 'border-box',
           padding: settings?.compact
             ? (isLandscape ? '5mm 8mm' : '5mm')

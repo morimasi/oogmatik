@@ -37,7 +37,7 @@ export class VariationEngine {
         required: ['easy', 'hard', 'visualSupport']
       });
 
-      return result as unknown as any;
+      return result as Record<string, unknown>;
     } catch (e) {
       logError('VariationEngine error', e as unknown as Record<string, unknown>);
       throw e;

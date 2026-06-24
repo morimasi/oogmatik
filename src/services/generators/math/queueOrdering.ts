@@ -13,7 +13,7 @@ export const generateQueueOrderingFromAI = async (options: GeneratorOptions): Pr
     const generationSeed = Date.now() + Math.random();
     
     // Premium settings - type-safe access
-    const settings = (options as any).queueOrdering || customSettings as unknown as any || {};
+    const settings = (options as any).queueOrdering || customSettings as Record<string, unknown> || {};
     const locationType = options.locationType || settings.locationType || 'school';
     const customLocations = settings.customLocations || [];
     const maxQueueSize = options.maxQueueSize || settings.maxQueueSize || 10;

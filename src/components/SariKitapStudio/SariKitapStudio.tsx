@@ -121,8 +121,8 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook, initialData }: SariKita
                 { id: 'reading-verbal', title: 'Okuma & Dil' }
             );
             toast.success('Etkinlik başarıyla kaydedildi!');
-        } catch (err: any) {
-            logError('Save error:', err);
+        } catch (err: unknown) {
+            logError('Save error:', { error: err instanceof Error ? err.message : String(err) });
             toast.error('Kaydedilirken bir hata oluştu.');
         }
     }, [user, generatedContent, activeType, config, toast]);
@@ -166,8 +166,8 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook, initialData }: SariKita
             
             toast.success('Paylaşım başarıyla gönderildi!');
             setIsShareModalOpen(false);
-        } catch (err: any) {
-            logError('Share error:', err);
+        } catch (err: unknown) {
+            logError('Share error:', { error: err instanceof Error ? err.message : String(err) });
             toast.error('Paylaşırken bir hata oluştu.');
         } finally {
             setIsSharing(false);

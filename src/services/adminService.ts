@@ -125,8 +125,8 @@ export const adminService = {
                 const res = await adminService.testPrompt(prompt, vars);
                 results.push({ success: true, data: res });
                 successCount++;
-            } catch (e: any) {
-                results.push({ success: false, error: e.message });
+            } catch (e: unknown) {
+                results.push({ success: false, error: e instanceof Error ? e.message : String(e) });
             }
         }
 

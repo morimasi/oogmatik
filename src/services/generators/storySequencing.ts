@@ -46,7 +46,7 @@ export const generateStorySequencingFromAI = async (options: GeneratorOptions): 
       data: result,
       metadata: { difficulty, ageGroup }
     };
-  } catch (error: any) {
-    throw new AppError('Olay Sıralama üretilirken hata: ' + error.message, 'AI_ERROR', 500);
+  } catch (error: unknown) {
+    throw new AppError('Olay Sıralama üretilirken hata: ' + (error instanceof Error ? error.message : String(error)), 'AI_ERROR', 500);
   }
 };

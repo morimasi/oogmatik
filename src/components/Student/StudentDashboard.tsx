@@ -235,8 +235,8 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
         contactPhone: '',
         contactEmail: '',
       });
-    } catch (e: any) {
-      alert(`Kayıt hatası: ${e.message}`);
+    } catch (e: unknown) {
+      alert(`Kayıt hatası: ${e instanceof Error ? e.message : String(e)}`);
     }
   };
 

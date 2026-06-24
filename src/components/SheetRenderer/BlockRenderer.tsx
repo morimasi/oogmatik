@@ -10,8 +10,8 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
   if (!content) return null;
 
   const blockStyle = {
-    textAlign: (block.style?.textAlign as unknown as any) || 'left',
-    fontWeight: (block.style?.fontWeight as unknown as any) || 'normal',
+    textAlign: (block.style?.textAlign as React.CSSProperties['textAlign']) || 'left',
+    fontWeight: (block.style?.fontWeight as React.CSSProperties['fontWeight']) || 'normal',
     fontSize: block.style?.fontSize ? `${block.style.fontSize}px` : undefined,
     backgroundColor: block.style?.backgroundColor || 'transparent',
     borderRadius: block.style?.borderRadius ? `${block.style.borderRadius}px` : undefined,

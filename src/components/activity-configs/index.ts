@@ -54,7 +54,7 @@ import {
   CapsuleGameConfig 
 } from './MathLogicConfigs';
 
-export const ActivityConfigRegistry: Record<string, any> = {
+export const ActivityConfigRegistry: Record<string, unknown> = {
   [ActivityType.MATH_MEMORY_CARDS]: MathMemoryCardsConfig,
   [ActivityType.FIND_LETTER_PAIR]: FindLetterPairConfig,
   [ActivityType.READING_SUDOKU]: ReadingSudokuConfig,

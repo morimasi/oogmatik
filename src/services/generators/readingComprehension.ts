@@ -73,7 +73,7 @@ export const generateReadingSudokuFromAI = async (options: GeneratorOptions): Pr
         ...p,
         settings: {
             size: gridSize,
-            variant: variant as unknown as any,
+            variant: variant as string,
             fontFamily: options.fontFamily || 'OpenDyslexic'
         }
     }));
@@ -293,10 +293,10 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
 
 // generateMissingPartsFromAI yeni dosyasına taşındı.
 
-export const generateStoryCreationPromptFromAI = async (_o: GeneratorOptions) => [] as unknown as any;
-export const generateWordsInStoryFromAI = async (_o: GeneratorOptions) => [] as unknown as any;
-export const generateProverbSayingSortFromAI = async (_o: GeneratorOptions) => [] as unknown as any;
-export const generateProverbWordChainFromAI = async (_o: GeneratorOptions) => [] as unknown as any;
-export const generateProverbFillInTheBlankFromAI = async (_o: GeneratorOptions) => [] as unknown as any;
-export const generateProverbSearchFromAI = async (_o: GeneratorOptions) => [] as unknown as any;
-export const generateProverbSentenceFinderFromAI = async (_o: GeneratorOptions) => [] as unknown as any;
+export const generateStoryCreationPromptFromAI = async (_o: GeneratorOptions) => [] as unknown as never[];
+export const generateWordsInStoryFromAI = async (_o: GeneratorOptions) => [] as unknown as never[];
+export const generateProverbSayingSortFromAI = async (_o: GeneratorOptions) => [] as unknown as never[];
+export const generateProverbWordChainFromAI = async (_o: GeneratorOptions) => [] as unknown as never[];
+export const generateProverbFillInTheBlankFromAI = async (_o: GeneratorOptions) => [] as unknown as never[];
+export const generateProverbSearchFromAI = async (_o: GeneratorOptions) => [] as unknown as never[];
+export const generateProverbSentenceFinderFromAI = async (_o: GeneratorOptions) => [] as unknown as never[];

@@ -21,8 +21,8 @@ export const OCRResults = ({ finalData, onResult }: OCRResultsProps) => {
               Başarılı
             </span>
             <h4 className="text-lg font-black text-white leading-none">
-              {(finalData as unknown as any[]).length > 1
-                ? `${(finalData as unknown as any[]).length} Varyant Hazır`
+              {(finalData as unknown[]).length > 1
+                ? `${(finalData as unknown[]).length} Varyant Hazır`
                 : 'Mimari Klon Hazır'}
             </h4>
           </div>

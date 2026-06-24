@@ -9,7 +9,7 @@ export const GizemliSayilarConfig: React.FC<Props> = ({ options, onChange }) => 
   const opts = options as Record<string, unknown>;
   const gizemli = (opts.numberLogicRiddles || {}) as Record<string, unknown>;
 
-  const update = (updates: Record<string, any>) => {
+  const update = (updates: Record<string, unknown>) => {
     onChange({
       ...opts,
       numberLogicRiddles: { ...gizemli, ...updates }

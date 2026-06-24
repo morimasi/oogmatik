@@ -56,7 +56,7 @@ export const generateMissingPartsFromAI = async (options: GeneratorOptions): Pro
       data: result,
       metadata: { difficulty, ageGroup }
     };
-  } catch (error: any) {
-    throw new AppError('Eksik Parçaları Tamamlama üretilirken hata: ' + error.message, 'AI_ERROR', 500);
+  } catch (error: unknown) {
+    throw new AppError('Eksik Parçaları Tamamlama üretilirken hata: ' + (error instanceof Error ? error.message : String(error)), 'AI_ERROR', 500);
   }
 };

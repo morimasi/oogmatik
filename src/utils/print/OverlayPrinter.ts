@@ -260,8 +260,8 @@ export const print = async (
 
     // Browser afterprint'i desteklemiyorsa fallback temizlik
     setTimeout(cleanup, 2000);
-  } catch (err: any) {
-    logError('Print trigger failed:', err);
+  } catch (err: unknown) {
+    logError('Print trigger failed:', err instanceof Error ? err : String(err));
     document.documentElement.className = prevTheme;
     document.body.classList.remove('printing-mode');
     if (overlay) overlay.style.display = 'none';
@@ -376,8 +376,8 @@ export const captureAndPrint = async (
     setTimeout(() => {
       try {
         window.print();
-      } catch (e: any) {
-        logError('Capture print failed', e);
+      } catch (e: unknown) {
+        logError('Capture print failed', e instanceof Error ? e : String(e));
       } finally {
         document.documentElement.className = prevTheme;
         document.body.classList.remove('printing-mode');
@@ -403,8 +403,8 @@ export const captureAndPrint = async (
               window.open(blobUrl, '_blank');
               setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
             }
-          } catch (fallbackErr: any) {
-            logError('Mobile print fallback failed', fallbackErr);
+          } catch (fallbackErr: unknown) {
+            logError('Mobile print fallback failed', fallbackErr instanceof Error ? fallbackErr : String(fallbackErr));
           }
         }
       }, 3000);

@@ -18,11 +18,12 @@ export const ContentPanel = () => {
         );
     }
 
-    const data = (selectedItem.specificData || {}) as Record<string, any>;
+    const data = (selectedItem.specificData || {}) as Record<string, unknown>;
+    const sd = data as { title?: string; subtitle?: string; text?: string; words?: Array<{ word: string; definition: string }>; imageUrl?: string; answers?: Array<{ text: string; correct: boolean }>; value?: string; questions?: Array<{ type?: string; question?: string; text?: string }>; puzzle?: { question?: string; text?: string; hint?: string } };
 
     const updateData = (updates: any) => {
         updateComponent(selectedItem.instanceId, {
-            specificData: { ...data, ...updates }
+                specificData: { ...sd, ...updates }
         }, true);
     };
 
@@ -41,7 +42,7 @@ export const ContentPanel = () => {
                         <label className="text-[9px] font-bold text-zinc-500 uppercase px-1">Başlık</label>
                         <input
                             type="text"
-                            value={data.title || ''}
+                            value={sd.title || ''}
                             onChange={(e) => updateData({ title: e.target.value })}
                             className="bg-zinc-900 border border-zinc-700/50 rounded-xl p-2.5 text-xs text-white"
                         />
@@ -50,7 +51,7 @@ export const ContentPanel = () => {
                         <label className="text-[9px] font-bold text-zinc-500 uppercase px-1">Alt Başlık</label>
                         <input
                             type="text"
-                            value={data.subtitle || ''}
+                            value={sd.subtitle || ''}
                             onChange={(e) => updateData({ subtitle: e.target.value })}
                             className="bg-zinc-900 border border-zinc-700/50 rounded-xl p-2.5 text-xs text-white"
                         />
@@ -63,7 +64,7 @@ export const ContentPanel = () => {
                     <div className="flex flex-col gap-1.5">
                         <label className="text-[9px] font-bold text-zinc-500 uppercase px-1">Hikaye Metni</label>
                         <textarea
-                            value={data.text || ''}
+                            value={sd.text || ''}
                             onChange={(e) => updateData({ text: e.target.value })}
                             rows={15}
                             className="bg-zinc-900 border border-zinc-700/50 rounded-xl p-3 text-xs text-white resize-none custom-scrollbar"
@@ -75,13 +76,13 @@ export const ContentPanel = () => {
             {selectedItem.id === 'vocabulary' && (
                 <div className="space-y-4">
                     <label className="text-[9px] font-bold text-zinc-500 uppercase px-1">Kelimeler</label>
-                    {(data.words || []).map((v: any, i: number) => (
+                    {(sd.words || []).map((v: any, i: number) => (
                         <div key={i} className="flex flex-col gap-2 p-3 bg-zinc-900 border border-zinc-700/50 rounded-xl">
                             <input
                                 type="text"
                                 value={v.word}
                                 onChange={(e) => {
-                                    const newWords = [...data.words];
+                                    const newWords = [...sd.words!];
                                     newWords[i] = { ...newWords[i], word: e.target.value };
                                     updateData({ words: newWords });
                                 }}
@@ -91,7 +92,7 @@ export const ContentPanel = () => {
                             <textarea
                                 value={v.definition}
                                 onChange={(e) => {
-                                    const newWords = [...data.words];
+                                    const newWords = [...sd.words!];
                                     newWords[i] = { ...newWords[i], definition: e.target.value };
                                     updateData({ words: newWords });
                                 }}
@@ -106,13 +107,13 @@ export const ContentPanel = () => {
             {(selectedItem.id === '5n1k' || selectedItem.id === 'questions' || selectedItem.id === 'questions_test') && (
                 <div className="space-y-4">
                     <label className="text-[9px] font-bold text-zinc-500 uppercase px-1">Sorular</label>
-                    {(data.questions || []).map((q: any, i: number) => (
+                    {(sd.questions || []).map((q: any, i: number) => (
                         <div key={i} className="flex flex-col gap-2 p-3 bg-zinc-900 border border-zinc-700/50 rounded-xl">
                             {selectedItem.id === '5n1k' && (
                                 <select
                                     value={q.type}
                                     onChange={(e) => {
-                                        const newQ = [...data.questions];
+                                        const newQ = [...sd.questions!];
                                         newQ[i] = { ...newQ[i], type: e.target.value };
                                         updateData({ questions: newQ });
                                     }}
@@ -129,7 +130,7 @@ export const ContentPanel = () => {
                             <textarea
                                 value={q.question || q.text || ''}
                                 onChange={(e) => {
-                                    const newQ = [...data.questions];
+                                    const newQ = [...sd.questions!];
                                     newQ[i] = { ...newQ[i], question: e.target.value, text: e.target.value };
                                     updateData({ questions: newQ });
                                 }}
@@ -145,18 +146,18 @@ export const ContentPanel = () => {
                 <div className="space-y-4">
                     <label className="text-[9px] font-bold text-zinc-500 uppercase px-1">Mantık Sorusu</label>
                     <textarea
-                        value={data.puzzle?.question || data.puzzle?.text || ''}
+                        value={sd.puzzle?.question || sd.puzzle?.text || ''}
                         onChange={(e) => {
-                            updateData({ puzzle: { ...data.puzzle, question: e.target.value, text: e.target.value } });
+                            updateData({ puzzle: { ...sd.puzzle, question: e.target.value, text: e.target.value } });
                         }}
                         className="bg-zinc-900 border border-zinc-700/50 rounded-xl p-3 text-xs text-white resize-none custom-scrollbar h-24"
                         placeholder="Soru metni"
                     />
                     <input
                         type="text"
-                        value={data.puzzle?.hint || ''}
+                        value={sd.puzzle?.hint || ''}
                         onChange={(e) => {
-                            updateData({ puzzle: { ...data.puzzle, hint: e.target.value } });
+                            updateData({ puzzle: { ...sd.puzzle, hint: e.target.value } });
                         }}
                         className="bg-zinc-900 border border-zinc-700/50 rounded-xl p-2.5 text-xs text-white w-full"
                         placeholder="İpucu"

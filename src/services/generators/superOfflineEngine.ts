@@ -47,7 +47,7 @@ export const generateOfflineSuperStudioTemplate = (
 // --- YARDIMCI JENERATÖRLER ---
 
 function generateOkumaAnlamaOffline(settings: any, topic: string, difficulty: string): string {
-  const words = getWordsForDifficulty(difficulty as unknown as any, 'animals');
+  const words = getWordsForDifficulty(difficulty as string, 'animals');
   const story = `Dün sabah erkenden ${words[0]} ile ${words[1]} ormana gitmişler. Orada çok güzel bir ${words[2]} görmüşler. Birdenbire karşılarına bir ${words[3]} çıkmış. Hep birlikte çok eğlenmişler ama akşam olunca eve dönmeleri gerekmiş. Bu harika macerayı hiç unutmamışlar.`;
   
   let md = `# 📖 ${topic} - OKUMA ANLAMA\n\n`;

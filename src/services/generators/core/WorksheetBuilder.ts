@@ -69,7 +69,7 @@ export class WorksheetBuilder {
    */
   public addPrimaryActivity(type: string, content: any): this {
     this.blocks.push({
-      type: type as unknown as any,
+      type: type as string,
       content: content,
       weight: 10
     });
@@ -87,7 +87,7 @@ export class WorksheetBuilder {
         weight: 20
     });
     this.blocks.push({
-      type: type as unknown as any,
+      type: type as string,
       content: content,
       style: { backgroundColor: '#fefce8', borderRadius: 12 },
       weight: 21

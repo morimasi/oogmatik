@@ -78,10 +78,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }: AuthMod
       if (isMounted.current) {
         onClose();
       }
-    } catch (err: any) {
-      logError('Auth operation failed:', err);
+    } catch (err: unknown) {
+      logError('Auth operation failed:', { error: err instanceof Error ? err.message : String(err) });
       if (isMounted.current) {
-        const errorMessage = err?.message || 'Bilinmeyen bir hata oluştu.';
+        const errorMessage = err instanceof Error ? err.message : String(err);
         // Translate common Firebase/Supabase errors
         if (
           errorMessage.includes('Invalid login credentials') ||
@@ -127,10 +127,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }: AuthMod
       if (isMounted.current) {
         onClose();
       }
-    } catch (err: any) {
-      logError('Google login failed:', err);
+    } catch (err: unknown) {
+      logError('Google login failed:', { error: err instanceof Error ? err.message : String(err) });
       if (isMounted.current) {
-        setError(err?.message || 'Google ile giriş yapılırken bir hata oluştu.');
+        setError(err instanceof Error ? err.message : String(err));
       }
     } finally {
       if (isMounted.current) {

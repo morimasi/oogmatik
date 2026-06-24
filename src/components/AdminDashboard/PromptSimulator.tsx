@@ -73,9 +73,9 @@ export const PromptSimulator = ({ prompt }: { prompt: PromptTemplate }) => {
             setResult(aiResponse as unknown as WorksheetData);
 
 
-        } catch (err: any) {
+        } catch (err: unknown) {
             logError(err instanceof Error ? err : String(err));
-            setError(err.message || "Simülasyon sırasında bir hata oluştu.");
+            setError(err instanceof Error ? err.message : String(err));
         } finally {
             setLoading(false);
         }

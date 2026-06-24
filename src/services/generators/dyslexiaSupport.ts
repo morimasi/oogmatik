@@ -51,7 +51,7 @@ export const generateSyllableMasterLabFromAI = async (options: GeneratorOptions)
         required: ['title', 'instruction', 'items', 'pedagogicalNote']
     };
 
-    return await generateWithSchema(prompt, { type: 'ARRAY', items: singleSchema }) as unknown as any;
+    return await generateWithSchema(prompt, { type: 'ARRAY', items: singleSchema }) as Record<string, unknown>[];
 };
 
 // Letter-Visual Matching (AI Generator)
@@ -103,5 +103,5 @@ export const generateLetterVisualMatchingFromAI = async (options: GeneratorOptio
         required: ['title', 'instruction', 'pedagogicalNote', 'settings', 'pairs']
     };
 
-    return await generateWithSchema(prompt, { type: 'ARRAY', items: singleSchema }) as unknown as any;
+    return await generateWithSchema(prompt, { type: 'ARRAY', items: singleSchema }) as Record<string, unknown>[];
 };

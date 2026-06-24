@@ -12,7 +12,7 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
         overlapping = true,
         aestheticMode = 'glassmorphism',
         layout = 'single'
-    } = options as unknown as any;
+    } = options as Record<string, unknown>;
 
     const prompt = `
     ${PEDAGOGICAL_BASE}

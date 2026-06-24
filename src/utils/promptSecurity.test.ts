@@ -349,11 +349,11 @@ describe('promptSecurity', () => {
 
       try {
         validatePromptOrThrow(input);
-      } catch (error: any) {
-        expect(error.name).toBe('ValidationError');
-        expect(error.details).toHaveProperty('code', 'PROMPT_INJECTION_DETECTED');
-        expect(error.details).toHaveProperty('threatCount');
-        expect(error.details).toHaveProperty('threatCategories');
+      } catch (error: unknown) {
+        expect((error as Error).name).toBe('ValidationError');
+        expect((error as { details: Record<string, unknown> }).details).toHaveProperty('code', 'PROMPT_INJECTION_DETECTED');
+        expect((error as { details: Record<string, unknown> }).details).toHaveProperty('threatCount');
+        expect((error as { details: Record<string, unknown> }).details).toHaveProperty('threatCategories');
       }
     });
 

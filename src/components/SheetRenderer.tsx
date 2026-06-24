@@ -128,13 +128,13 @@ export const SheetRenderer = React.memo(
 
     if (activityType === ActivityType.VISUAL_INTERPRETATION) {
       return withWrapper(
-        <VisualInterpretationSheet data={resolvedData as unknown as any} settings={settings || ({} as unknown as any)} />
+        <VisualInterpretationSheet data={resolvedData as unknown as any} settings={settings || {} as unknown as any} />
       );
     }
 
     if (activityType === ActivityType.BRAIN_TEASERS) {
       return withWrapper(
-        <BrainTeasersSheet data={resolvedData as unknown as any} settings={settings || ({} as unknown as any)} />
+        <BrainTeasersSheet data={resolvedData as unknown as any} settings={settings || {} as unknown as any} />
       );
     }
 
@@ -147,7 +147,7 @@ export const SheetRenderer = React.memo(
     }
 
     if (activityType === ActivityType.INFOGRAPHIC_SHORT_ANSWER) {
-      return withWrapper(<ShortAnswerSheet data={((resolvedData as Record<string, unknown>).content || resolvedData) as any} />);
+      return withWrapper(<ShortAnswerSheet data={((resolvedData as Record<string, unknown>).content || resolvedData) as unknown as any} />);
     }
 
     if (activityType === ActivityType.INFOGRAPHIC_STUDIO && resolvedData) {

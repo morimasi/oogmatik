@@ -11,7 +11,7 @@ export const generateDirectionalCodeReadingFromAI = async (
   const obstacleDensity = options.obstacleDensity || 25;
   const cipherType = options.cipherType || 'arrows';
   const puzzleCount = 1;
-  const aestheticMode = (options as unknown as any).aestheticMode || 'ultra-premium';
+  const aestheticMode = (options as Record<string, unknown>).aestheticMode || 'ultra-premium';
   const codeLength = options.codeLength || 15;
   const student = options.studentContext;
 

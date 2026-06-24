@@ -11,7 +11,7 @@ export interface Attachment {
     thumbnail?: string; // Küçük resim
     mimeType?: string;
     virusScanStatus?: VirusScanStatus;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
 }
 
 export interface Message {

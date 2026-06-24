@@ -67,8 +67,8 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
             try {
                 const newContent = await generateAI(config);
                 setContent(newContent);
-            } catch (e: any) {
-                logError(e);
+            } catch (e: unknown) {
+                logError(e instanceof Error ? e : String(e));
             }
         }
     };
@@ -133,8 +133,8 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
             }
 
             showToast(`✅ "${name}" adıyla arşive kaydedildi!`);
-        } catch (error: any) {
-            logError('Arşive kaydetme hatası:', error as Record<string, unknown>);
+        } catch (error: unknown) {
+            logError('Arşive kaydetme hatası:', { error: error instanceof Error ? error.message : String(error) });
             showToast('❌ Arşive kaydedilirken bir hata oluştu');
         }
     };

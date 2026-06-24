@@ -110,9 +110,9 @@ export function useAdminStats(): UseAdminStatsReturn {
         setExportAnalytics(generateExportAnalytics());
         setLastUpdatedAt(new Date().toISOString());
         setError(null);
-      } catch (err: any) {
+      } catch (err: unknown) {
         if (!cancelled) {
-          setError(err.message || 'Veri yüklenirken hata oluştu');
+          setError(err instanceof Error ? err.message : String(err));
         }
       } finally {
         if (!cancelled) setLoading(false);

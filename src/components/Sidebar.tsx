@@ -231,7 +231,7 @@ const Sidebar = ({
         dynamicActs.forEach((da) => {
           if (!mergedActivities.find((ex) => ex.id === da.id)) {
             mergedActivities.push({
-              id: da.id as unknown as any,
+              id: da.id as unknown as string,
               title: da.title,
               description: da.description,
               icon: da.icon,
@@ -246,7 +246,7 @@ const Sidebar = ({
             activities: [
               ...new Set([
                 ...cat.activities,
-                ...dynamicActs.filter((da) => da.category === cat.id).map((da) => da.id as unknown as any),
+                ...dynamicActs.filter((da) => da.category === cat.id).map((da) => da.id as unknown as string),
               ]),
             ],
           }))
@@ -297,8 +297,8 @@ const Sidebar = ({
         onAddToHistory(selectedActivity, result);
         statsService.incrementUsage(selectedActivity).catch(console.error);
       }
-    } catch (e: any) {
-      setError(e.message);
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : String(e));
     } finally {
       setIsLoading(false);
     }

@@ -13,7 +13,12 @@ export const generateOfflineKavramHaritasi = async (
   const opts = options as Record<string, unknown>;
   const topic = (opts.topic as string) || 'Genel Fen Bilimleri';
 
-  const database: Record<string, any> = {
+interface ConceptMapEntry {
+  nodes: Array<{ id: string; label: string; type?: string; parentId?: string }>;
+  matching: Array<{ q: string; a: string }>;
+}
+
+const database: Record<string, ConceptMapEntry> = {
     'Canlılar Sınıflandırması': {
       nodes: [
         { id: '1', label: 'Canlılar', type: 'root' },

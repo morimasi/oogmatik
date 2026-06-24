@@ -225,9 +225,9 @@ export const tryGenerateWithCorrection = async <T>(
       KRİTİK DÜZELTME GEREKİYOR: Son denemeniz şu hatayı verdi: "${validation.error}". 
       Lütfen bu hatayı giderin ve şemaya %100 uyumlu, sentaktik olarak hatasız bir kod/veri kümesi döndürün.`;
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (i === maxRetries) throw error;
-      logWarn(`API Bağlantı Hatası — Deneme: ${i + 1}`, { error: error.message });
+      logWarn(`API Bağlantı Hatası — Deneme: ${i + 1}`, { error: error instanceof Error ? error.message : String(error) });
       await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, i)));
     }
   }

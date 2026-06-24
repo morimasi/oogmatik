@@ -21,30 +21,30 @@ const { doc, getDoc, setDoc, updateDoc, collection, getDocs, query, orderBy, lim
 const SUPER_ADMIN_EMAIL = import.meta.env.VITE_SUPER_ADMIN_EMAIL || 'morimasi@gmail.com';
 
 // Map Firestore doc to App User type
-const mapDbUserToAppUser = (docData: Record<string, any>, uid: string, email: string): User => {
-    // Force superadmin role for specific email
-    const role = email === SUPER_ADMIN_EMAIL ? 'superadmin' : (docData.role || 'teacher');
+const mapDbUserToAppUser = (docData: Record<string, unknown>, uid: string, email: string): User => {
+    const d = docData;
+    const role = email === SUPER_ADMIN_EMAIL ? 'superadmin' : ((d.role as string) || 'teacher');
     
     return {
         id: uid,
         email: email,
-        name: docData.name || email?.split('@')[0] || 'Kullanıcı',
+        name: (d.name as string) || email?.split('@')[0] || 'Kullanıcı',
         role: role,
-        avatar: docData.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-        createdAt: docData.createdAt || new Date().toISOString(),
-        lastLogin: docData.lastLogin || new Date().toISOString(),
-        worksheetCount: docData.worksheetCount || 0,
-        status: docData.status || 'active',
-        subscriptionPlan: docData.subscriptionPlan || 'free',
-        favorites: docData.favorites || [],
-        lastActiveActivity: docData.lastActiveActivity || undefined,
-        profession: docData.profession || '',
-        institution: docData.institution || '',
-        phone: docData.phone || '',
-        bio: docData.bio || '',
-        pedagogySettings: docData.pedagogySettings,
-        aiAssistantSettings: docData.aiAssistantSettings,
-        notificationSettings: docData.notificationSettings
+        avatar: (d.avatar as string) || `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
+        createdAt: (d.createdAt as string) || new Date().toISOString(),
+        lastLogin: (d.lastLogin as string) || new Date().toISOString(),
+        worksheetCount: (d.worksheetCount as number) || 0,
+        status: (d.status as string) || 'active',
+        subscriptionPlan: (d.subscriptionPlan as string) || 'free',
+        favorites: (d.favorites as string[]) || [],
+        lastActiveActivity: d.lastActiveActivity as string | undefined,
+        profession: (d.profession as string) || '',
+        institution: (d.institution as string) || '',
+        phone: (d.phone as string) || '',
+        bio: (d.bio as string) || '',
+        pedagogySettings: d.pedagogySettings as Record<string, unknown> | undefined,
+        aiAssistantSettings: d.aiAssistantSettings as Record<string, unknown> | undefined,
+        notificationSettings: d.notificationSettings as Record<string, unknown> | undefined
     };
 };
 
@@ -75,20 +75,22 @@ export const authService = {
 
             activityLogService.logActivity(user.uid, 'login', 'Giriş Yapıldı', `E-posta: ${email}`);
             return mappedUser;
-        } catch (error: any) {
+        } catch (error: unknown) {
+            const errMsg = error instanceof Error ? error.message : String(error);
+            const errCode = error && typeof error === 'object' && 'code' in error ? String((error as { code: string }).code) : undefined;
             logError("Login error details:", {
-                code: error.code,
-                message: error.message,
+                code: errCode,
+                message: errMsg,
                 email: email
             });
             
-            if (error.code === 'auth/operation-not-allowed') {
+            if (errCode === 'auth/operation-not-allowed') {
                 throw new AppError("Sistem Hatası: Email/Şifre girişi Firebase Console üzerinden etkinleştirilmemiş. Lütfen 'Authentication > Sign-in method' altından aktif edin.", 'INTERNAL_ERROR', 500);
             }
-            if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+            if (errCode === 'auth/invalid-credential' || errCode === 'auth/user-not-found' || errCode === 'auth/wrong-password') {
                 throw new AppError("Giriş yapılamadı: E-posta adresi veya şifre hatalı.", 'INTERNAL_ERROR', 500);
             }
-            throw new AppError(`Giriş hatası: ${error.message}`, 'INTERNAL_ERROR', 500);
+            throw new AppError(`Giriş hatası: ${errMsg}`, 'INTERNAL_ERROR', 500);
         }
     },
 
@@ -133,14 +135,16 @@ export const authService = {
             if (result?.user) {
                 await authService._handleGoogleUser(result.user);
             }
-        } catch (error: any) {
-            logError("Google login error:", { code: error.code, message: error.message });
+        } catch (error: unknown) {
+            const errMsg = error instanceof Error ? error.message : String(error);
+            const errCode = error && typeof error === 'object' && 'code' in error ? String((error as { code: string }).code) : undefined;
+            logError("Google login error:", { code: errCode, message: errMsg });
             
-            if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled') {
+            if (errCode === 'auth/popup-closed-by-user' || errCode === 'auth/cancelled') {
                 throw new AppError("Giriş işlemi sizin tarafınızdan iptal edildi.", 'CANCELLED', 400);
             }
             
-            throw new AppError(`Google ile giriş yapılamadı: ${error.message}`, 'INTERNAL_ERROR', 500);
+            throw new AppError(`Google ile giriş yapılamadı: ${errMsg}`, 'INTERNAL_ERROR', 500);
         }
     },
     handleRedirectResult: async (): Promise<User | null> => {
@@ -183,8 +187,8 @@ export const authService = {
                 });
                 return mapDbUserToAppUser(userDocSnap.data(), user.uid, user.email!);
             }
-        } catch (error: any) {
-            logError("Handle redirect result error:", error);
+        } catch (error: unknown) {
+            logError("Handle redirect result error:", error instanceof Error ? error : String(error));
             return null;
         }
     },
@@ -220,10 +224,12 @@ export const authService = {
 
             activityLogService.logActivity(user.uid, 'login', 'Kayıt Olundu', `E-posta: ${email}`);
             return mapDbUserToAppUser(newUserProfile, user.uid, email);
-        } catch (error: any) {
-            logError("Register error:", error);
-            if (error.code === 'auth/email-already-in-use') throw new AppError("Bu e-posta adresi zaten kayıtlı.", 'INTERNAL_ERROR', 500);
-            throw new AppError("Kayıt hatası: " + error.message, 'INTERNAL_ERROR', 500);
+        } catch (error: unknown) {
+            const errMsg = error instanceof Error ? error.message : String(error);
+            const errCode = error && typeof error === 'object' && 'code' in error ? String((error as { code: string }).code) : undefined;
+            logError("Register error:", error instanceof Error ? error : String(error));
+            if (errCode === 'auth/email-already-in-use') throw new AppError("Bu e-posta adresi zaten kayıtlı.", 'INTERNAL_ERROR', 500);
+            throw new AppError("Kayıt hatası: " + errMsg, 'INTERNAL_ERROR', 500);
         }
     },
 
@@ -261,7 +267,7 @@ export const authService = {
                     bio: ''
                 };
             }
-        } catch (error: any) {
+        } catch (error: unknown) {
             logError("Get current user error:", { detail: String(error) });
             return null;
         }
@@ -286,7 +292,7 @@ export const authService = {
         await updateDoc(userDocRef, dbUpdates as any);
 
         const updatedSnap = await getDoc(userDocRef);
-        const data = updatedSnap.data() as Record<string, any>;
+        const data = updatedSnap.data() as Record<string, unknown>;
         return mapDbUserToAppUser(data, userId, auth.currentUser?.email || '');
     },
 
@@ -301,8 +307,8 @@ export const authService = {
                     date: new Date().toISOString()
                 }
             });
-        } catch (e: any) {
-            logError("Failed to record activity generation for user", e);
+        } catch (e: unknown) {
+            logError("Failed to record activity generation for user", e instanceof Error ? e : String(e));
         }
     },
 
@@ -333,8 +339,8 @@ export const authService = {
                 }
             });
             return users;
-        } catch (error: any) {
-            logError("Get contacts error:", error);
+        } catch (error: unknown) {
+            logError("Get contacts error:", error instanceof Error ? error : String(error));
             return [];
         }
     },
@@ -362,8 +368,8 @@ export const authService = {
             });
             
             return results;
-        } catch (error: any) {
-            logError("Get multiple users error:", error);
+        } catch (error: unknown) {
+            logError("Get multiple users error:", error instanceof Error ? error : String(error));
             return [];
         }
     },
@@ -380,8 +386,8 @@ export const authService = {
                 users.push(mapDbUserToAppUser(data, doc.id, data.email as string));
             });
             return { users: users, count: users.length };
-        } catch (error: any) {
-            logError("Get all users error:", error);
+        } catch (error: unknown) {
+            logError("Get all users error:", error instanceof Error ? error : String(error));
             return { users: [], count: 0 };
         }
     },

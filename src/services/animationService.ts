@@ -92,8 +92,8 @@ export class AnimationService {
       // Veriyi direkt döndürüyoruz çünkü geminiClient repair ve parse işlemlerini arka planda hallediyor.
       // Dışarıdan component tarafına giderken Zod parse (schemas.ts içinden) kullanılabilir.
       return data as AnimationPayloadType;
-    } catch (error: any) {
-      logError('AnimationService Hatası:', error);
+    } catch (error: unknown) {
+      logError('AnimationService Hatası:', error instanceof Error ? error : String(error));
       throw new AppError(
         'Animasyon senaryosu oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.',
         'ANIMATION_GENERATION_FAILED',

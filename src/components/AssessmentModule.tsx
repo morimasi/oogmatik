@@ -451,7 +451,7 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAutoGenerateWorkb
                                 <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1.5">Kaygı Düzeyi</label>
                                 <div className="flex bg-zinc-100 dark:bg-zinc-900 rounded-lg p-1 gap-0.5">
                                     {[['low', 'Düşük'], ['medium', 'Orta'], ['high', 'Yüksek']].map(([v, l]) => (
-                                        <button key={v} onClick={() => setObservations(o => ({ ...o, anxietyLevel: v as unknown as any }))}
+                                        <button key={v} onClick={() => setObservations(o => ({ ...o, anxietyLevel: v as unknown as "low" | "high" | "medium" }))}
                                             className={`flex-1 py-1.5 text-[10px] font-black rounded transition-colors ${observations.anxietyLevel === v ? 'bg-white dark:bg-zinc-600 shadow-sm text-black dark:text-white' : 'text-zinc-400'}`}>
                                             {l}
                                         </button>
@@ -461,7 +461,7 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAutoGenerateWorkb
                             <div>
                                 <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1.5">Dikkat Süresi</label>
                                 <select value={observations.attentionSpan}
-                                    onChange={e => setObservations(o => ({ ...o, attentionSpan: e.target.value as unknown as any }))}
+                                    onChange={e => setObservations(o => ({ ...o, attentionSpan: e.target.value as "focused" | "distracted" | "hyperactive" }))}
                                     className="w-full p-2 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-bold outline-none">
                                     <option value="focused">Odaklanmış</option>
                                     <option value="distracted">Çabuk Dağılan</option>
@@ -471,7 +471,7 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAutoGenerateWorkb
                             <div>
                                 <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1.5">Motor Beceriler</label>
                                 <select value={observations.motorSkills}
-                                    onChange={e => setObservations(o => ({ ...o, motorSkills: e.target.value as unknown as any }))}
+                                    onChange={e => setObservations(o => ({ ...o, motorSkills: e.target.value as "typical" | "delayed" | "precise" }))}
                                     className="w-full p-2 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-bold outline-none">
                                     <option value="typical">Tipik</option>
                                     <option value="delayed">Gecikmeli</option>
@@ -482,7 +482,7 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAutoGenerateWorkb
                                 <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1.5">İşbirliği</label>
                                 <div className="flex bg-zinc-100 dark:bg-zinc-900 rounded-lg p-1 gap-0.5">
                                     {[['cooperative', 'İyi'], ['reluctant', 'İsteksiz'], ['resistant', 'Dirençli']].map(([v, l]) => (
-                                        <button key={v} onClick={() => setObservations(o => ({ ...o, cooperationLevel: v as unknown as any }))}
+                                        <button key={v} onClick={() => setObservations(o => ({ ...o, cooperationLevel: v as unknown as "cooperative" | "reluctant" | "resistant" }))}
                                             className={`flex-1 py-1.5 text-[10px] font-black rounded transition-colors ${observations.cooperationLevel === v ? 'bg-white dark:bg-zinc-600 shadow-sm text-black dark:text-white' : 'text-zinc-400'}`}>
                                             {l}
                                         </button>
@@ -493,7 +493,7 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAutoGenerateWorkb
                                 <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1.5">Yorulma İndeksi</label>
                                 <div className="flex bg-zinc-100 dark:bg-zinc-900 rounded-lg p-1 gap-0.5">
                                     {[['normal', 'Normal'], ['mild', 'Hafif'], ['severe', 'Belirgin']].map(([v, l]) => (
-                                        <button key={v} onClick={() => setObservations(o => ({ ...o, fatigueIndex: v as unknown as any }))}
+                                        <button key={v} onClick={() => setObservations(o => ({ ...o, fatigueIndex: v as unknown as "normal" | "mild" | "severe" }))}
                                             className={`flex-1 py-1.5 text-[10px] font-black rounded transition-colors ${observations.fatigueIndex === v ? 'bg-white dark:bg-zinc-600 shadow-sm text-black dark:text-white' : 'text-zinc-400'}`}>
                                             {l}
                                         </button>
@@ -504,7 +504,7 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAutoGenerateWorkb
                                 <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1.5">Hayal Kırıklığı Toleransı</label>
                                 <div className="flex bg-zinc-100 dark:bg-zinc-900 rounded-lg p-1 gap-0.5">
                                     {[['high', 'İyi'], ['medium', 'Orta'], ['low', 'Düşük']].map(([v, l]) => (
-                                        <button key={v} onClick={() => setObservations(o => ({ ...o, frustrationTolerance: v as unknown as any }))}
+                                        <button key={v} onClick={() => setObservations(o => ({ ...o, frustrationTolerance: v as unknown as "low" | "medium" | "high" }))}
                                             className={`flex-1 py-1.5 text-[10px] font-black rounded transition-colors ${observations.frustrationTolerance === v ? 'bg-white dark:bg-zinc-600 shadow-sm text-black dark:text-white' : 'text-zinc-400'}`}>
                                             {l}
                                         </button>
@@ -514,7 +514,7 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAutoGenerateWorkb
                             <div>
                                 <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1.5">Sözel İfade</label>
                                 <select value={observations.verbalization}
-                                    onChange={e => setObservations(o => ({ ...o, verbalization: e.target.value as unknown as any }))}
+                                    onChange={e => setObservations(o => ({ ...o, verbalization: e.target.value as "adequate" | "limited" | "excessive" }))}
                                     className="w-full p-2 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-bold outline-none">
                                     <option value="adequate">Yeterli</option>
                                     <option value="limited">Kısıtlı</option>
@@ -525,7 +525,7 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAutoGenerateWorkb
                                 <label className="block text-[10px] font-bold text-zinc-400 uppercase mb-1.5">Göz Teması</label>
                                 <div className="flex bg-zinc-100 dark:bg-zinc-900 rounded-lg p-1 gap-0.5">
                                     {[['normal', 'Normal'], ['reduced', 'Az'], ['avoidant', 'Kaçınan']].map(([v, l]) => (
-                                        <button key={v} onClick={() => setObservations(o => ({ ...o, eyeContact: v as unknown as any }))}
+                                        <button key={v} onClick={() => setObservations(o => ({ ...o, eyeContact: v as unknown as "normal" | "reduced" | "avoidant" }))}
                                             className={`flex-1 py-1.5 text-[10px] font-black rounded transition-colors ${observations.eyeContact === v ? 'bg-white dark:bg-zinc-600 shadow-sm text-black dark:text-white' : 'text-zinc-400'}`}>
                                             {l}
                                         </button>

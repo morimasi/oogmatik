@@ -1098,7 +1098,7 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
         `kolay tutulmuştur. Öğretmen geri bildiriminde öğrencinin güçlü yönlerini vurgulaması önerilir.`;
     }
 
-    const rawQuestions = (aiResponse.questions || aiResponse.sorular || []) as unknown as any[];
+    const rawQuestions = (aiResponse.questions || aiResponse.sorular || []) as unknown[];
     if (!Array.isArray(rawQuestions) || rawQuestions.length === 0) {
       throw new AppError(
         'AI yanıtında soru dizisi bulunamadı.',
@@ -1177,7 +1177,7 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
         kazanimKodu: soru.kazanimKodu,
         cozumAciklamasi: soru.cozum_anahtari,
         gercekYasamBaglantisi: soru.gercek_yasam_baglantisi,
-        seviye: soru.zorluk as unknown as any,
+        seviye: soru.zorluk as string,
       })),
     };
 
@@ -1250,7 +1250,7 @@ ${gorselTalimat}
     required: MATH_EXAM_SCHEMA.properties.questions.items.required,
   };
 
-  const rawResult = (await callGeminiDirect(prompt, singleSchema)) as unknown as any;
+  const rawResult = (await callGeminiDirect(prompt, singleSchema)) as Record<string, unknown>;
   const result: MatSoru = {
     id: `mat-q-${Date.now()}-${soruIndex}`,
     tip: rawResult.soru_tipi || rawResult.tip || 'coktan_secmeli',
@@ -1278,5 +1278,5 @@ ${gorselTalimat}
 
 // Registry compatibility wrapper
 export const generateMatSinavFromAI = async (options: any) => {
-  return await generateMathExam(options as unknown as any);
+  return await generateMathExam(options as Record<string, unknown>);
 };

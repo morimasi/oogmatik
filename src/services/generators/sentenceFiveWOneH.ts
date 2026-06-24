@@ -76,7 +76,7 @@ export const generateSentenceFiveWOneHFromAI = async (
       instruction: 'Aşağıdaki cümleleri okuyunuz ve ilgili 5N1K sorularını cevaplayınız.',
       items: (result as Record<string, unknown>).items as unknown as Sentence5W1HItem[],
       settings: {
-        difficulty: difficulty as unknown as any,
+        difficulty: difficulty as string,
         topic: options.topic || 'Genel',
         itemCount: itemCount as unknown as number,
         showIcons: options.useIcons !== false,
@@ -90,13 +90,13 @@ export const generateSentenceFiveWOneHFromAI = async (
         showPredicate: options.showPredicate
       }
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof AppError) throw error;
     throw new AppError(
       'Cümlede 5N1K içeriği üretilirken bir hata oluştu.',
       'AI_GENERATOR_ERROR',
       500,
-      { originalError: error?.message || String(error) }
+      { originalError: error instanceof Error ? error.message : String(error) }
     );
   }
 };

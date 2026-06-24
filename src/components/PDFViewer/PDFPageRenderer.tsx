@@ -79,8 +79,8 @@ export const PDFPageRenderer: React.FC<PDFPageRendererProps> = React.memo(
         await renderTaskRef.current.promise;
         renderTaskRef.current = null;
         onPageRendered?.();
-      } catch (err: any) {
-        if (err?.name === 'RenderingCancelledException') return;
+      } catch (err: unknown) {
+        if (err instanceof Error && err.name === 'RenderingCancelledException') return;
         onRenderError?.(err instanceof Error ? err : new Error(String(err)));
       }
     }, [pdfDocument, pageNumber, zoom, fitMode, containerWidth, containerHeight, dyslexiaSettings, onPageRendered, onRenderError]);

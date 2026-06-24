@@ -8,7 +8,7 @@ interface Props {
 export const OddEvenSudokuConfig: React.FC<Props> = ({ options, onChange }) => {
   const o = (options as any).oddEvenSudoku || {};
   
-  const update = (updates: Record<string, any>) => {
+  const update = (updates: Record<string, unknown>) => {
     onChange('oddEvenSudoku' as any, { ...o, ...updates });
   };
 
@@ -68,7 +68,7 @@ export const OddEvenSudokuConfig: React.FC<Props> = ({ options, onChange }) => {
 export const CapsuleGameConfig: React.FC<Props> = ({ options, onChange }) => {
   const o = (options as any).capsuleGame || {};
 
-  const update = (updates: Record<string, any>) => {
+  const update = (updates: Record<string, unknown>) => {
     onChange('capsuleGame' as any, { ...o, ...updates });
   };
 
@@ -166,7 +166,7 @@ export const CapsuleGameConfig: React.FC<Props> = ({ options, onChange }) => {
 export const MagicPyramidConfig: React.FC<Props> = ({ options, onChange }) => {
   const o = (options as any).magicPyramid || {};
 
-  const update = (updates: Record<string, any>) => {
+  const update = (updates: Record<string, unknown>) => {
     onChange('magicPyramid' as any, { ...o, ...updates });
   };
 

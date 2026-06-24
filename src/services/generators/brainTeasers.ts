@@ -80,7 +80,7 @@ ZORUNLU JSON ÇIKTISI:
       activityType: ActivityType.BRAIN_TEASERS,
     };
 
-    return [result] as unknown as any;
+    return [result] as unknown as Record<string, unknown>[];
   }
 }
 

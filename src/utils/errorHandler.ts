@@ -449,7 +449,7 @@ export const batchOperation = async <T, R>(
 /**
  * ERROR CONTEXT: Error'a context ekle
  */
-export const addErrorContext = (error: AppError, context: Record<string, any>): AppError => {
+export const addErrorContext = (error: AppError, context: Record<string, unknown>): AppError => {
   return new AppError(
     error.userMessage,
     error.code,

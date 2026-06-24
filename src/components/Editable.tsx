@@ -249,7 +249,7 @@ export const EditableText: React.FC<{
 
     useEffect(() => { setText(safeValue); }, [safeValue]);
 
-    const Tag = tag as unknown as any;
+    const Tag = tag as React.ElementType<React.HTMLAttributes<HTMLElement>>;
 
     if (!isEditMode) {
         // Safe render

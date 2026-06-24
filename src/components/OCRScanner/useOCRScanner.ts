@@ -69,7 +69,7 @@ const convertPDFToImages = (file: File): Promise<string[]> => {
     reader.onload = async (ev) => {
       const uint8 = new Uint8Array(ev.target?.result as unknown as ArrayBuffer);
       try {
-        const pdfjsLib = (window as unknown as any).pdfjsLib;
+        const pdfjsLib = (window as unknown as Record<string, unknown>).pdfjsLib as { GlobalWorkerOptions: { workerSrc: string }; getDocument: (params: { data: Uint8Array }) => { promise: Promise<{ numPages: number; getPage: (n: number) => Promise<{ getViewport: (params: { scale: number }) => { width: number; height: number }; render: (params: { canvasContext: CanvasRenderingContext2D; viewport: { width: number; height: number } }) => { promise: Promise<void> } }> }> } } | undefined;
         if (!pdfjsLib) {
           const base64 = btoa(uint8.reduce((data, byte) => data + String.fromCharCode(byte), ''));
           resolve([`data:application/pdf;base64,${base64}`]);
@@ -244,7 +244,7 @@ export const useOCRScanner = (
 
     try {
       const result = await ocrService.processImage(img);
-      const rawStruct = result.structuredData as unknown as any;
+      const rawStruct = result.structuredData as unknown as Record<string, unknown>;
       const safeBlueprint = getBlueprintOrFallback(rawStruct, DEFAULT_BLUEPRINT);
       setBlueprintData(safeBlueprint);
       setEditedTitle(rawStruct?.title ?? safeBlueprint?.title ?? '');
