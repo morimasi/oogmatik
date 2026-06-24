@@ -24,6 +24,7 @@ import {
   writeBatch,
   runTransaction,
   increment,
+  serverTimestamp,
   type QueryConstraint,
   type DocumentData,
 } from "firebase/firestore";
@@ -46,6 +47,7 @@ export {
   writeBatch,
   runTransaction,
   increment,
+  serverTimestamp,
   type QueryConstraint,
   type DocumentData,
 };

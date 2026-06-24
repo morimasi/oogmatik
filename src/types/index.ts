@@ -15,7 +15,6 @@ export * from './user';
 export * from './student';
 export * from './studio';
 export * from './profile';
-export * from './rbac';
 export * from './rbac-advanced';
 export * from './teacher';
 export * from './neuroProfile';

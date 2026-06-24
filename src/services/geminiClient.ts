@@ -2,6 +2,7 @@ import { AppError } from '../utils/AppError.js';
 import { logInfo, logError, logWarn } from '../utils/logger.js';
 import { safeFetch } from '../utils/apiClient.js';
 import { useStudentStore } from '../store/useStudentStore';
+import { db, doc, setDoc, serverTimestamp } from '../services/firebaseClient.js';
 
 export interface CreativeMultimodalResult {
   [key: string]: unknown;
@@ -166,10 +167,36 @@ Tüm içeriği bu spesifik bağlama göre optimize et!`;
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     try {
       logInfo('Gemini API çekilmesi', { attempt: attempt + 1, model: safeModel });
-      return await safeFetch<unknown>(url, {
+      const data = await safeFetch<Record<string, unknown>>(url, {
         method: 'POST',
         body: JSON.stringify(body),
-      }) as Promise<CreativeMultimodalResult>;
+      });
+
+      // Token usage tracking
+      const usageData = data?.usageMetadata as { promptTokenCount?: number; candidatesTokenCount?: number; totalTokenCount?: number } | undefined;
+      if (usageData) {
+        logInfo('Gemini API token kullanımı', {
+          promptTokens: usageData.promptTokenCount,
+          candidateTokens: usageData.candidatesTokenCount,
+          totalTokens: usageData.totalTokenCount,
+          model: MASTER_MODEL
+        });
+
+        try {
+          const tokenRef = doc(db, 'activity_stats', `ai-tokens-${Date.now()}`);
+          await setDoc(tokenRef, {
+            timestamp: serverTimestamp(),
+            promptTokens: usageData.promptTokenCount,
+            candidateTokens: usageData.candidatesTokenCount,
+            totalTokens: usageData.totalTokenCount,
+            model: MASTER_MODEL
+          });
+        } catch {
+          // Sessizce geç - analytics kaydı kritik değil
+        }
+      }
+
+      return data as CreativeMultimodalResult;
     } catch (error: unknown) {
       lastError = error;
       const errorMsg = error instanceof Error ? error.message : String(error);

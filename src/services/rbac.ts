@@ -197,16 +197,4 @@ export const hasHigherPrivilege = (role1: UserRole, role2: UserRole): boolean =>
     return hierarchy[role1] > hierarchy[role2];
 };
 
-/**
- * RBAC Service
- */
-export const rbacService = {
-    hasRole,
-    hasPermission,
-    getUserRole,
-    canPerformAction,
-    enforcePermission,
-    getPermissions,
-    getAllRoles,
-    hasHigherPrivilege,
-};
+

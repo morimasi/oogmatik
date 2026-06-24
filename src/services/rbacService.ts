@@ -140,6 +140,13 @@ class RBACService {
     this.settings = newSettings;
   }
 
+  hasRole(role: UserRole, requiredRole: UserRole | UserRole[]): boolean {
+    if (Array.isArray(requiredRole)) {
+      return requiredRole.includes(role);
+    }
+    return role === requiredRole;
+  }
+
   canAccessModule(role: UserRole, module: PermissionModule): boolean {
     if (role === 'superadmin') return true;
 

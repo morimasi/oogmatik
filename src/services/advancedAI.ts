@@ -82,6 +82,14 @@ export interface LearningPath {
   nextModule: string;
 }
 
+// TODO: Google Cloud Vision API / ML model (handwriting OCR)
+// Handwriting OCR için: Google Cloud Vision document_text_detection
+const detectHandwriting = async (imageBase64: string): Promise<string> => {
+  // Şimdilik placeholder - Vision API entegrasyonu planlanıyor
+  logInfo('Handwriting OCR çağrısı', { imageSize: imageBase64.length });
+  return '';
+};
+
 /**
  * Advanced AI Service
  */
@@ -222,26 +230,21 @@ export class AdvancedAIService {
         language,
       });
 
-      // TODO: Integrate with Google Cloud Vision API or custom ML model
+      // Handwriting OCR için: Google Cloud Vision document_text_detection
+      // Base64'e çevir - Vision API entegrasyonu planlanıyor
+      const imageBase64 = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.readAsDataURL(imageBlob);
+      });
+      const detectedText = await detectHandwriting(imageBase64);
+
       const result: HandwritingResult = {
-        text: 'Bu bir el yazısı örneğidir.\nÖğrencinin yazdığı metin.',
-        confidence: 0.87,
+        text: detectedText,
+        confidence: 0,
         language,
-        lines: [
-          {
-            text: 'Bu bir el yazısı örneğidir.',
-            confidence: 0.89,
-            boundingBox: { x: 10, y: 20, width: 300, height: 40 },
-          },
-          {
-            text: 'Öğrencinin yazdığı metin.',
-            confidence: 0.85,
-            boundingBox: { x: 10, y: 70, width: 280, height: 40 },
-          },
-        ],
-        corrections: [
-          { from: 'örneğidir', to: 'örneğidir', reason: 'Noktalama' },
-        ],
+        lines: [],
+        corrections: [],
       };
 
       logInfo('Handwriting recognition completed', {
