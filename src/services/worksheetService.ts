@@ -12,7 +12,7 @@ import { logError as reportError, retryWithBackoff, withTimeout } from '../utils
 
 import { logInfo, logError, logWarn } from '../utils/logger.js';
 // @ts-ignore - Vercel TS build might not resolve firebase types correctly with node resolution
-const { collection, addDoc, query, where, getDocs, doc, updateDoc, increment, deleteDoc, getDoc, orderBy, limit, _startAfter } = firestore;
+const { collection, addDoc, query, where, getDocs, doc, updateDoc, increment, deleteDoc, getDoc, orderBy, limit } = firestore;
 
 /**
  * Firestore timeout configurations (ms)
@@ -127,10 +127,16 @@ export const worksheetService = {
             if (styleSettings) payload.styleSettings = styleSettings;
             if (studentProfile) payload.studentProfile = studentProfile;
 
-            const docRef = await addDoc(collection(db, "saved_worksheets"), payload);
+            const docRef = await retryWithBackoff(
+                () => addDoc(collection(db, "saved_worksheets"), payload),
+                { maxRetries: 3 }
+            );
             const userRef = doc(db, "users", userId);
             try {
-                await updateDoc(userRef, { worksheetCount: increment(1) });
+                await retryWithBackoff(
+                    () => updateDoc(userRef, { worksheetCount: increment(1) }),
+                    { maxRetries: 3 }
+                );
             } catch (countErr) {
                 logWarn("worksheetCount güncellenemedi", { error: countErr });
             }
@@ -306,12 +312,15 @@ export const worksheetService = {
             ? [...new Set([...currentSharedWith, ...receivers])]
             : [...new Set([currentSharedWith, ...receivers])].filter(i => i);
 
-        await updateDoc(docRef, {
-            sharedWith: updatedSharedWith,
-            sharedBy: senderId,
-            sharedByName: senderName,
-            updatedAt: new Date().toISOString()
-        });
+        await retryWithBackoff(
+            () => updateDoc(docRef, {
+                sharedWith: updatedSharedWith,
+                sharedBy: senderId,
+                sharedByName: senderName,
+                updatedAt: new Date().toISOString()
+            }),
+            { maxRetries: 3 }
+        );
     },
 
     /**
@@ -392,7 +401,10 @@ export const worksheetService = {
                 payload.worksheetData = serializeData(payload.worksheetData);
             }
 
-            await updateDoc(docRef, payload);
+            await retryWithBackoff(
+                () => updateDoc(docRef, payload),
+                { maxRetries: 3 }
+            );
 
             // Return updated worksheet
             return mapDbToWorksheet({ ...data, ...payload }, worksheetId);
@@ -431,7 +443,10 @@ export const worksheetService = {
                 throw new AuthorizationError('Bu çalışmayı silme izniniz yok');
             }
 
-            await deleteDoc(docRef);
+            await retryWithBackoff(
+                () => deleteDoc(docRef),
+                { maxRetries: 3 }
+            );
         } catch (error) {
             if (error instanceof AppError) {
                 throw error;

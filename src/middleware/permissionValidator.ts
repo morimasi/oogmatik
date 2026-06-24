@@ -5,7 +5,9 @@
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { AppError, AuthenticationError, AuthorizationError } from '../utils/AppError.js';
-import { hasPermission, hasRole, UserRole, Permission } from '../services/rbac.js';
+import { hasRole } from '../services/rbac.js';
+import { UserRole } from '../types/user.js';
+import { rbacService } from '../services/rbacService.js';
 import { logError } from '../utils/errorHandler.js';
 import { JWTService } from '../services/jwtService.js';
 
@@ -73,17 +75,58 @@ export const authenticate = (req: VercelRequest): {
 };
 
 /**
+ * Parse old permission string (e.g. 'create:worksheet') into module+action for rbacService
+ */
+const parsePermission = (permission: string): { module: string; action: string } | null => {
+    const [action, resource] = permission.split(':');
+    if (!action || !resource) return null;
+
+    const resourceMap: Record<string, string> = {
+        worksheet: 'activity-studio',
+        users: 'admin',
+        content: 'admin',
+        analytics: 'analytics',
+        data: 'reports',
+    };
+
+    const actionMap: Record<string, string> = {
+        create: 'create',
+        read: 'view',
+        update: 'edit',
+        delete: 'delete',
+        share: 'assign',
+        manage: 'manage',
+        view: 'view',
+        export: 'export',
+    };
+
+    return {
+        module: resourceMap[resource] || resource,
+        action: actionMap[action] || action,
+    };
+};
+
+/**
  * Middleware factory - check if user has required permission
  */
 export const requirePermission = (
-    requiredPermission: Permission | Permission[]
+    requiredPermission: string | string[]
 ) => {
     return (req: VercelRequest, _res: VercelResponse): { userId: string; role: UserRole } | null => {
         try {
             const { userId, role } = authenticate(req);
 
-            // Check permission
-            if (!hasPermission(role, requiredPermission)) {
+            const checkSingle = (perm: string): boolean => {
+                const parsed = parsePermission(perm);
+                if (!parsed) return false;
+                return rbacService.hasPermission(role, parsed.module as any, parsed.action as any);
+            };
+
+            const hasAccess = Array.isArray(requiredPermission)
+                ? requiredPermission.some(checkSingle)
+                : checkSingle(requiredPermission);
+
+            if (!hasAccess) {
                 const permStr = Array.isArray(requiredPermission)
                     ? requiredPermission.join(', ')
                     : requiredPermission;

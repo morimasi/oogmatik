@@ -5,18 +5,23 @@
 
 import type { SinavAyarlari, Sinav } from '../types/sinav';
 import { AppError } from '../utils/AppError';
+import { useAuthStore } from '../store/useAuthStore';
 
 /**
  * API endpoint'ine sınav oluşturma isteği gönder
  */
 export const generateExamViaAPI = async (settings: SinavAyarlari): Promise<Sinav> => {
+  const userId = useAuthStore.getState().user?.id;
+  if (!userId) {
+    throw new AppError('Kullanıcı oturumu bulunamadı', 'AUTH_REQUIRED');
+  }
+
   try {
     const response = await fetch('/api/generate-exam', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        // TODO: AuthStore'dan userId al
-        'x-user-id': 'current-user-id'
+        'x-user-id': userId
       },
       body: JSON.stringify(settings)
     });

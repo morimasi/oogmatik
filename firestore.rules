@@ -30,11 +30,14 @@ service cloud.firestore {
 
     // Öğrenci Verileri (KVKK Hassasiyeti)
     match /students/{studentId} {
-      allow read: if isAdmin() || isTeacher();
-      allow write: if isAdmin() || isTeacher();
+      allow read: if isAdmin() || 
+        (isTeacher() && resource.data.assignedTeachers hasAny request.auth.uid);
+      allow write: if isAdmin();
 
       match /{allSubcollections=**} {
-        allow read, write: if isAdmin() || isTeacher();
+        allow read: if isAdmin() || 
+          (isTeacher() && resource.data.assignedTeachers hasAny request.auth.uid);
+        allow write: if isAdmin();
       }
     }
 
@@ -45,9 +48,12 @@ service cloud.firestore {
     }
 
     match /saved_worksheets/{worksheetId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow update, delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+      allow read: if isAuthenticated() && 
+        (resource.data.userId == request.auth.uid || 
+         resource.data.sharedWith hasAny request.auth.uid);
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow delete: if isAdmin() || resource.data.userId == request.auth.uid;
     }
 
     match /saved_assessments/{assessmentId} {
@@ -116,11 +122,11 @@ service cloud.firestore {
     }
 
     match /workbook_pages/{pageId} {
-      allow read, write: if isAuthenticated();
+      allow read, write: if isAuthenticated() && resource.data.userId == request.auth.uid;
     }
 
     match /workbook_versions/{versionId} {
-      allow read, write: if isAuthenticated();
+      allow read, write: if isAuthenticated() && resource.data.userId == request.auth.uid;
     }
 
     // Profil paylaşımı
@@ -143,6 +149,14 @@ service cloud.firestore {
     match /settings/{settingId} {
       allow read: if isAuthenticated();
       allow write: if isAdmin();
+    }
+
+    // Fascicles
+    match /fascicles/{fascicleId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && request.resource.data.creatorId == request.auth.uid;
+      allow update: if isAuthenticated() && resource.data.creatorId == request.auth.uid;
+      allow delete: if isAdmin();
     }
   }
 }

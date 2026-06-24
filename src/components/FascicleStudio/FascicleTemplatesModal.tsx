@@ -45,8 +45,7 @@ export const FascicleTemplatesModal: React.FC<FascicleTemplatesModalProps> = ({ 
   if (!isOpen) return null;
 
   const handleApplyTemplate = (templateId: string) => {
-    // Burada ileride template servisinden çekilen sayfalar setItems içerisine gömülecek.
-    toast.success('Şablon seçici başarıyla entegre edildi. İçerik veritabanı bağlanıyor...');
+    toast.info('Şablon içerikleri henüz hazır değil. Çok yakında eklenecek.');
     onClose();
   };
 

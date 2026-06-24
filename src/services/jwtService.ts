@@ -7,6 +7,7 @@ import { AppError } from '../utils/AppError.js';
 import jwt from 'jsonwebtoken';
 
 import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { db, collection, query, where, getDocs } from './firebaseClient.js';
 export interface TokenPayload {
     userId: string;
     email: string;
@@ -229,9 +230,6 @@ export const loginHandler = async (req: any, res: any) => {
     try {
         const { email, password } = req.body;
 
-        // TODO: Verify email and password against database
-        // This is a placeholder for demonstration
-
         if (!email || !password) {
             return res.status(400).json({
                 error: {
@@ -241,12 +239,28 @@ export const loginHandler = async (req: any, res: any) => {
             });
         }
 
-        // Mock user (in production, fetch from database)
+        // Firestore'da email ile kullanıcı ara
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("email", "==", email));
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            return res.status(401).json({
+                error: {
+                    message: 'Kullanıcı bulunamadı',
+                    code: 'AUTH_USER_NOT_FOUND',
+                },
+            });
+        }
+
+        const userDoc = querySnapshot.docs[0];
+        const userData = userDoc.data();
+
         const user = {
-            userId: 'user123',
-            email: email,
-            name: 'John Doe',
-            role: 'teacher' as const,
+            userId: userDoc.id,
+            email: userData.email || email,
+            name: userData.name || 'Kullanıcı',
+            role: userData.role || 'teacher',
         };
 
         const token = JWTService.generateToken(user);

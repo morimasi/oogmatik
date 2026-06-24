@@ -68,7 +68,7 @@ export const useFascicleStore = create<FascicleState>()(
       updateMetadata: (newMeta) => {
         const { metadata, items, past } = get();
         set({
-          past: [...past, { metadata, items }],
+          past: [...past.slice(-29), { metadata, items }],
           future: [],
           metadata: { ...metadata, ...newMeta }
         });
@@ -77,7 +77,7 @@ export const useFascicleStore = create<FascicleState>()(
       addItem: (item) => {
         const { metadata, items, past } = get();
         set({
-          past: [...past, { metadata, items }],
+          past: [...past.slice(-29), { metadata, items }],
           future: [],
           items: [...items, { ...item, order: items.length }]
         });
@@ -90,7 +90,7 @@ export const useFascicleStore = create<FascicleState>()(
           .map((i, idx) => ({ ...i, order: idx }));
         
         set({
-          past: [...past, { metadata, items }],
+          past: [...past.slice(-29), { metadata, items }],
           future: [],
           items: newItems
         });
@@ -109,7 +109,7 @@ export const useFascicleStore = create<FascicleState>()(
         }));
 
         set({
-          past: [...past, { metadata, items }],
+          past: [...past.slice(-29), { metadata, items }],
           future: [],
           items: orderedItems
         });
@@ -118,7 +118,7 @@ export const useFascicleStore = create<FascicleState>()(
       updateItem: (itemId, updates) => {
         const { items, metadata, past } = get();
         set({
-          past: [...past, { items, metadata }],
+          past: [...past.slice(-29), { items, metadata }],
           future: [],
           items: items.map(item => item.id === itemId ? { ...item, ...updates } : item)
         });
@@ -127,7 +127,7 @@ export const useFascicleStore = create<FascicleState>()(
       setItems: (newItems) => {
         const { items, metadata, past } = get();
         set({
-          past: [...past, { items, metadata }],
+          past: [...past.slice(-29), { items, metadata }],
           future: [],
           items: newItems
         });
@@ -156,7 +156,7 @@ export const useFascicleStore = create<FascicleState>()(
         const newFuture = future.slice(1);
         
         set({
-          past: [...past, { metadata, items }],
+          past: [...past.slice(-29), { metadata, items }],
           future: newFuture,
           metadata: next.metadata,
           items: next.items
@@ -175,10 +175,10 @@ export const useFascicleStore = create<FascicleState>()(
     }),
     {
       name: 'bdmind-fascicle-draft-storage',
-      partialize: (state) => ({ 
+      partialize: (state) => ({
         currentFascicleId: state.currentFascicleId,
-        metadata: state.metadata,
-        items: state.items
+        metadata: state.metadata
+        // items localStorage'a yazılmıyor — fascicleService.autoSave'e bırakıldı
       }),
     }
   )

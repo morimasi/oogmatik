@@ -1,5 +1,5 @@
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { collection, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, updateDoc, increment } from 'firebase/firestore';
 import { AppError } from '../utils/AppError';
 import { logError, logWarn } from '../utils/logger.js';
 import { db } from './firebaseClient';
@@ -43,8 +43,10 @@ class FascicleStorageService {
       // View count ve lastViewed alanlarını raw documento yansıt
       if (actionType === 'VIEW') {
          const docRef = doc(db, 'fascicles', fascicleId);
-         // Increment logic generally needs array or increment payload, using basic update here
-         // Assume logic is abstracted in the real db
+         await updateDoc(docRef, {
+            viewCount: increment(1),
+            lastViewedAt: serverTimestamp()
+         });
       }
     } catch (error) {
       // Analitik hataları genelde process'i durdurmamalı.

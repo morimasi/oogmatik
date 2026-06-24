@@ -545,6 +545,7 @@ const AppContent = () => {
             onOpenSariKitapStudio={() => handleOpenStudio('sari-kitap-studio')}
             onOpenKelimeCumleStudio={() => handleOpenStudio('kelime-cumle-studio')}
             onOpenFascicleStudio={() => handleOpenStudio('fascicle-studio')}
+            onOpenInfographicStudio={() => handleOpenStudio('infographic-studio')}
             activeCurriculumSession={activeCurriculumSession}
             isExpanded={isSidebarExpanded}
             width={sidebarWidth}
@@ -601,6 +602,7 @@ const AppContent = () => {
               'sari-kitap-studio',
               'kelime-cumle-studio',
               'fascicle-studio',
+              'infographic-studio',
             ].includes(currentView) && (
                 <motion.div
                   key={currentView}
@@ -728,6 +730,13 @@ const AppContent = () => {
                       <ProtectedRoute module="fascicle-studio" onBack={() => navigateTo('generator')}>
                         <React.Suspense fallback={<LoadingPlaceholder />}>
                           <FascicleStudio onBack={() => navigateTo('generator')} />
+                        </React.Suspense>
+                      </ProtectedRoute>
+                    )}
+                    {currentView === 'infographic-studio' && (
+                      <ProtectedRoute module="infographic-studio" onBack={() => navigateTo('generator')}>
+                        <React.Suspense fallback={<LoadingPlaceholder />}>
+                          <SuperStudio />
                         </React.Suspense>
                       </ProtectedRoute>
                     )}

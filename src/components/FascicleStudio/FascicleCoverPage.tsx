@@ -26,6 +26,15 @@ export const FascicleCoverPage: React.FC<FascicleCoverPageProps> = ({ settings, 
     }
   };
 
+  const COLOR_LIGHT_BG: Record<string, string> = {
+    indigo: 'bg-indigo-200/40',
+    blue: 'bg-blue-200/40',
+    emerald: 'bg-emerald-200/40',
+    rose: 'bg-rose-200/40',
+    amber: 'bg-amber-200/40',
+    violet: 'bg-violet-200/40',
+  };
+
   const getColorClass = (type: 'text' | 'bg' | 'border') => {
     const colorMap: Record<string, Record<string, string>> = {
       indigo: { text: 'text-indigo-600', bg: 'bg-indigo-600', border: 'border-indigo-600' },
@@ -53,8 +62,8 @@ export const FascicleCoverPage: React.FC<FascicleCoverPageProps> = ({ settings, 
       {/* Decorative Elements */}
       {settings.themeStyle === 'modern' && (
         <>
-          <div className={`absolute top-0 right-0 w-64 h-64 bg-${settings.primaryColor}-200/40 rounded-bl-[100px] -mr-10 -mt-10`} />
-          <div className={`absolute bottom-0 left-0 w-80 h-80 bg-${settings.primaryColor}-200/30 rounded-tr-[120px] -ml-20 -mb-20`} />
+          <div className={`absolute top-0 right-0 w-64 h-64 ${COLOR_LIGHT_BG[settings.primaryColor] || 'bg-indigo-200/40'} rounded-full blur-3xl opacity-30 -z-10`} />
+          <div className={`absolute bottom-0 left-0 w-80 h-80 ${COLOR_LIGHT_BG[settings.primaryColor] || 'bg-indigo-200/30'} rounded-full blur-3xl opacity-30 -z-10`} />
         </>
       )}
 

@@ -2,7 +2,7 @@ import { FascicleDocument } from '../types/fascicle';
 import { AppError } from '../utils/AppError';
 import { logError } from '../utils/errorHandler';
 import { db } from './firebaseClient'; /* Oogmatik projesindeki Firebase db referansı varsayılarak eklendi */
-import { doc, setDoc, getDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, getDoc, collection, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
 
 class FascicleService {
   private autoSaveTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -11,7 +11,7 @@ class FascicleService {
   /**
    * Arka planda debounce ile (2sn bekleyerek) taslak kaydı atar.
    */
-  public autoSaveDraft(fascicleId: string, data: Partial<FascicleDocument>): Promise<void> {
+  public autoSaveDraft(fascicleId: string, data: Partial<FascicleDocument>, authenticatedUserId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       // Önceki timer varsa temizle
       if (this.autoSaveTimeout) {
@@ -22,6 +22,14 @@ class FascicleService {
         try {
           // Firebase Cloud Firestore kaydı
           const fascicleRef = doc(collection(db, 'fascicles'), fascicleId);
+          const existingSnap = await getDoc(fascicleRef);
+          if (existingSnap.exists()) {
+            const existingData = existingSnap.data() as FascicleDocument;
+            if (existingData.creatorId !== authenticatedUserId) {
+              reject(new AppError('Yalnızca kendi fasiküllerinizi düzenleyebilirsiniz', 'FORBIDDEN', 403));
+              return;
+            }
+          }
           await setDoc(fascicleRef, {
             ...data,
             updatedAt: serverTimestamp(),
@@ -40,7 +48,10 @@ class FascicleService {
   /**
    * Tamamlanmış (isDraft: false) fasikülü DB'ye kaydeder.
    */
-  public async publishFascicle(fascicle: FascicleDocument, pdfUrl: string): Promise<void> {
+  public async publishFascicle(fascicle: FascicleDocument, pdfUrl: string, authenticatedUserId: string): Promise<void> {
+    if (fascicle.creatorId !== authenticatedUserId) {
+      throw new AppError('Yalnızca kendi fasiküllerinizi yayınlayabilirsiniz', 'FORBIDDEN', 403);
+    }
     try {
       const fascicleRef = doc(collection(db, 'fascicles'), fascicle.id);
       await setDoc(fascicleRef, {
@@ -58,8 +69,13 @@ class FascicleService {
    * Öğrenciye atanan fasikülleri çeker. (Basit mock get)
    */
   public async getAssignedFascicles(studentId: string): Promise<FascicleDocument[]> {
-    // Burada ileride firebase "where" sorgusu olacak
-    return [];
+    const q = query(
+      collection(db, 'fascicles'),
+      where('assignedStudentIds', 'array-contains', studentId),
+      where('activityType', '==', 'FASCICLE')
+    );
+    const snap = await getDocs(q);
+    return snap.docs.map(d => ({ id: d.id, ...d.data() } as unknown as FascicleDocument));
   }
 }
 

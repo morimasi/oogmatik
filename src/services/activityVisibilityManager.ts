@@ -7,6 +7,8 @@
  */
 
 import { ActivityType } from '../types/activity';
+import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from './firebaseClient';
 
 /**
  * Activity Visibility Status
@@ -115,8 +117,12 @@ export class ActivityVisibilityManager {
 
     this.visibilityCache.set(activityType, visibility);
     
-    // TODO: Save to Firestore
-    // await setDoc(doc(db, 'activityVisibility', activityType), visibility);
+    const docRef = doc(db, 'settings', 'activityVisibility');
+    await setDoc(docRef, {
+      activities: Object.fromEntries(this.visibilityCache),
+      updatedAt: serverTimestamp(),
+      updatedBy: adminId
+    }, { merge: true });
   }
 
   /**
@@ -143,8 +149,12 @@ export class ActivityVisibilityManager {
 
     this.categoryCache.set(categoryId, visibility);
     
-    // TODO: Save to Firestore
-    // await setDoc(doc(db, 'categoryVisibility', categoryId), visibility);
+    const catRef = doc(db, 'settings', 'categoryVisibility');
+    await setDoc(catRef, {
+      categories: Object.fromEntries(this.categoryCache),
+      updatedAt: serverTimestamp(),
+      updatedBy: adminId
+    }, { merge: true });
   }
 
   /**
@@ -191,9 +201,28 @@ export class ActivityVisibilityManager {
    * Reset to defaults
    */
   async resetToDefaults(adminId: string): Promise<void> {
-    // TODO: Load default configurations
     this.visibilityCache.clear();
     this.categoryCache.clear();
+
+    const docSnap = await getDoc(doc(db, 'settings', 'activityVisibility'));
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      if (data.activities) {
+        for (const [key, value] of Object.entries(data.activities)) {
+          this.visibilityCache.set(key, value as ActivityVisibility);
+        }
+      }
+    }
+
+    const catSnap = await getDoc(doc(db, 'settings', 'categoryVisibility'));
+    if (catSnap.exists()) {
+      const data = catSnap.data();
+      if (data.categories) {
+        for (const [key, value] of Object.entries(data.categories)) {
+          this.categoryCache.set(key, value as CategoryVisibility);
+        }
+      }
+    }
   }
 
   /**

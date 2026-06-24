@@ -8,6 +8,7 @@
 
 import { AppError } from '../utils/AppError.js';
 import { generateWithGemini } from '../services/geminiClient.js';
+import { dlpService } from './privacyService.js';
 import { BEP, CognitiveProfile, LearningDNA, NeuroStudentProfile } from '../types/neuroProfile.js';
 import { logError, logInfo } from '../utils/logger.js';
 import { auth, db } from './firebaseClient.js';
@@ -149,13 +150,17 @@ export class BEPEngine {
     cognitive: CognitiveProfile,
     learning: LearningDNA
   ): string {
+    const sanitizedDiagnosis = student.diagnosis?.length
+      ? student.diagnosis.map(d => dlpService.sanitizeDiagnosisForAI(d).sanitized).join(', ')
+      : 'özel öğrenme desteği';
+
     return `
-Sen özel eğitim uzmanısın. ${student.name} adlı öğrenci için Bireysel Eğitim Planı (BEP) hazırla.
+Sen özel eğitim uzmanısın. Öğrenci için Bireysel Eğitim Planı (BEP) hazırla.
 
 ÖĞRENCİ PROFİLİ:
 - Yaş: ${student.age}
 - Sınıf: ${student.grade}
-- Tanılar: ${student.diagnosis.join(', ')}
+- Destek alanları: ${sanitizedDiagnosis}
 - Öğrenme Stili: Görsel ${learning.learningStyles.visual}%, İşitsel ${learning.learningStyles.auditory}%
 
 BİLİŞSEL PROFİL:
@@ -176,6 +181,7 @@ GÖREV:
 2. Her hedef için kanıta dayalı stratejiler öner
 3. Uyarlama ve destekleri listele
 4. MEB müfredatına uygun olsun
+5. Kesinlikle tanı koyucu dil kullanma (disleksisi var, DEHB'li gibi). Bunun yerine 'disleksi desteğine ihtiyacı var' gibi ifadeler kullan.
 
 ÇIKTI FORMATI (JSON):
 [
