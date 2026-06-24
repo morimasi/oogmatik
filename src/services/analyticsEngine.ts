@@ -8,6 +8,8 @@
 
 import { AppError } from '../utils/AppError.js';
 import { logInfo, logError } from '../utils/logger.js';
+import { collection, query, where, getDocs, orderBy, limit, Timestamp } from 'firebase/firestore';
+import { db } from './firebaseClient.js';
 
 /**
  * Dashboard Metrics
@@ -119,35 +121,97 @@ export class AnalyticsEngine {
   /**
    * Get real-time dashboard metrics
    */
-  async getDashboardMetrics(): Promise<DashboardMetrics> {
+  async getDashboardMetrics(userId: string): Promise<DashboardMetrics> {
     try {
-      // TODO: Fetch from Firestore/Firebase
+      const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const startOfWeek = new Date(startOfToday.getTime() - now.getDay() * 24 * 60 * 60 * 1000);
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+
+      const studentsSnap = await getDocs(
+        query(collection(db, 'students'), where('teacherId', '==', userId))
+      );
+
+      const activitiesTodaySnap = await getDocs(
+        query(
+          collection(db, 'activity_logs'),
+          where('userId', '==', userId),
+          where('timestamp', '>=', Timestamp.fromDate(startOfToday))
+        )
+      );
+
+      const worksheetsMonthSnap = await getDocs(
+        query(
+          collection(db, 'saved_worksheets'),
+          where('userId', '==', userId),
+          where('createdAt', '>=', Timestamp.fromDate(startOfMonth))
+        )
+      );
+
+      const newUsersTodaySnap = await getDocs(
+        query(
+          collection(db, 'users'),
+          where('createdAt', '>=', Timestamp.fromDate(startOfToday))
+        )
+      );
+
+      const newUsersWeekSnap = await getDocs(
+        query(
+          collection(db, 'users'),
+          where('createdAt', '>=', Timestamp.fromDate(startOfWeek))
+        )
+      );
+
+      const newUsersMonthSnap = await getDocs(
+        query(
+          collection(db, 'users'),
+          where('createdAt', '>=', Timestamp.fromDate(startOfMonth))
+        )
+      );
+
+      const aiRequestsTodaySnap = await getDocs(
+        query(
+          collection(db, 'activity_logs'),
+          where('userId', '==', userId),
+          where('type', '==', 'ai_request'),
+          where('timestamp', '>=', Timestamp.fromDate(startOfToday))
+        )
+      );
+
+      const recentSessionsSnap = await getDocs(
+        query(
+          collection(db, 'activity_logs'),
+          where('userId', '==', userId),
+          where('timestamp', '>=', Timestamp.fromDate(fiveMinutesAgo))
+        )
+      );
+
       const metrics: DashboardMetrics = {
-        activeUsers: 42,
-        activeSessions: 38,
-        currentStreak: 15,
-        activitiesCompleted: 1247,
-        worksheetsGenerated: 89,
-        aiRequestsToday: 156,
-        avgCompletionRate: 73.5,
-        avgAccuracy: 68.2,
-        avgSessionDuration: 22.4,
-        newUsersToday: 5,
-        newUsersThisWeek: 23,
-        newUsersThisMonth: 87,
-        mrr: 4500,
-        churnRate: 3.2,
-        ltv: 450,
+        activeUsers: studentsSnap.size,
+        activeSessions: recentSessionsSnap.size,
+        currentStreak: 0,
+        activitiesCompleted: activitiesTodaySnap.size,
+        worksheetsGenerated: worksheetsMonthSnap.size,
+        aiRequestsToday: aiRequestsTodaySnap.size,
+        avgCompletionRate: 0,
+        avgAccuracy: 0,
+        avgSessionDuration: 0,
+        newUsersToday: newUsersTodaySnap.size,
+        newUsersThisWeek: newUsersWeekSnap.size,
+        newUsersThisMonth: newUsersMonthSnap.size,
+        mrr: 0,
+        churnRate: 0,
+        ltv: 0,
       };
-      
-      // Cache for 30 seconds
+
       this.metricsCache.set('current', metrics);
-      
+
       logInfo('Dashboard metrics retrieved', {
         activeUsers: metrics.activeUsers,
         completionRate: metrics.avgCompletionRate,
       });
-      
+
       return metrics;
     } catch (error) {
       const appError = new AppError(
@@ -340,7 +404,7 @@ export class AnalyticsEngine {
   /**
    * Export Report (CSV format)
    */
-  exportToCSV(data: Record<string, any>[], filename: string): string {
+  exportToCSV(data: Record<string, unknown>[], filename: string): string {
     if (data.length === 0) {
       return '';
     }

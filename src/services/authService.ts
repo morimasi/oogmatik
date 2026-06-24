@@ -7,6 +7,7 @@ import {
     signOut, 
     updateProfile as updateAuthProfile,
     GoogleAuthProvider,
+    getAuth,
 } from "firebase/auth";
 import type { UserCredential } from "firebase/auth";
 import * as firestore from "firebase/firestore";
@@ -14,7 +15,7 @@ import { User, UserRole, UserStatus, ActivityType } from '../types.js';
 
 import { logInfo, logError } from '../utils/logger.js';
 import { activityLogService } from './activityLogService';
-const { doc, getDoc, setDoc, updateDoc, collection, getDocs, query, orderBy, limit, deleteDoc, increment } = firestore;
+const { doc, getDoc, setDoc, updateDoc, collection, getDocs, query, orderBy, limit, deleteDoc, increment, where } = firestore;
 
 // SUPER ADMIN EMAIL - Ortam değişkeninden alınıyor (Güvenlik)
 const SUPER_ADMIN_EMAIL = import.meta.env.VITE_SUPER_ADMIN_EMAIL || 'morimasi@gmail.com';
@@ -387,20 +388,27 @@ export const authService = {
 
     // --- ADMIN ACTIONS ---
 
-    deleteUser: async (userId: string): Promise<void> => {
-        // Güvenlik Uyarısı (FAZ 2)
-        // Client-side SDK üzerinden başka bir kullanıcının Auth kaydı SİLİNEMEZ.
-        // Şimdilik sadece firestore belgesini siliyoruz. 
-        // DOĞRU YÖNTEM: Firebase Cloud Functions `httpsCallable` ile backend'de admin.auth().deleteUser(uid) çağırmak.
-
+    deleteUser: async (userId: string, isSelfDelete: boolean = true): Promise<void> => {
+        // Firestore dokümanını sil
         await deleteDoc(doc(db, "users", userId));
 
-        /* Örnek Cloud Function Entegrasyonu:
-        import { getFunctions, httpsCallable } from 'firebase/functions';
-        const functions = getFunctions(app, 'europe-west1');
-        const deleteAuthUser = httpsCallable(functions, 'deleteAuthUser');
-        await deleteAuthUser({ uid: userId });
-        */
+        // Öğrenci verilerini temizle (KVKK Madde 7)
+        const studentsSnap = await getDocs(
+            query(collection(db, 'students'), where('teacherId', '==', userId))
+        );
+        const deletePromises = studentsSnap.docs.map(d => deleteDoc(d.ref));
+        await Promise.all(deletePromises);
+
+        // Firebase Auth kaydını sil
+        if (isSelfDelete) {
+            const authInstance = getAuth();
+            if (authInstance.currentUser) {
+                await authInstance.currentUser.delete();
+            }
+        } else {
+            // Admin silmesi için Cloud Function gerekli
+            // TODO: Call Cloud Function: admin.auth().deleteUser(userId)
+        }
     },
 
     toggleUserStatus: async (userId: string, currentStatus: string): Promise<void> => {

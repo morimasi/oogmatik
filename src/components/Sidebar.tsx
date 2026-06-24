@@ -20,7 +20,7 @@ import { GeneratorMode } from '../services/generators/core/types';
 import { adminService } from '../services/adminService';
 import { useStudentStore } from '../store/useStudentStore';
 import { useRBAC } from '../hooks/useRBAC';
-import { PermissionModule } from '../types/rbac';
+import { PermissionModule } from '../types/rbac-advanced';
 import { logError } from '../utils/logger.js';
 import './PremiumPopupStyles.css';
 

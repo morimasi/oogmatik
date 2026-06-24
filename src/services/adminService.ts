@@ -7,7 +7,7 @@ import { User, UserRole, UserStatus } from '../types/core.js';
 import { generateWithSchema } from './geminiClient.js';
 
 import { logError } from '../utils/logger.js';
-const { collection, doc, getDocs, setDoc, updateDoc, deleteDoc, getDoc } = firestore;
+const { collection, doc, getDocs, setDoc, updateDoc, deleteDoc, getDoc, query, where } = firestore;
 
 export const adminService = {
     // Tüm dinamik aktiviteleri getir
@@ -245,6 +245,14 @@ export const adminService = {
     deleteUser: async (userId: string) => {
         if (!userId) return;
         await deleteDoc(doc(db, "users", userId));
+
+        const studentsSnap = await getDocs(
+            query(collection(db, 'students'), where('teacherId', '==', userId))
+        );
+        const deletePromises = studentsSnap.docs.map(d => deleteDoc(d.ref));
+        await Promise.all(deletePromises);
+
+        // TODO: Cloud Function ile admin.auth().deleteUser(userId) çağrılmalı
     },
 
     // --- DRAFTS (OCR) ---

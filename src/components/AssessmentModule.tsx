@@ -9,6 +9,7 @@ import { assessmentService } from '../services/assessmentService';
 import { generateAssessmentReport } from '../services/assessmentGenerator';
 import { ACTIVITIES } from '../constants';
 import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { useToastStore } from '../store/useToastStore';
 
 interface AssessmentModuleProps {
     onBack: () => void;
@@ -21,6 +22,7 @@ import { DOMAINS, DOMAIN_COLORS, DOMAIN_ICON_COLORS, DOMAIN_ACTIVITY_MAP } from 
 export const AssessmentModule = ({ onBack, onSelectActivity, onAutoGenerateWorkbook }: AssessmentModuleProps) => {
     const { user } = useAuthStore();
     const { students, activeStudent, setActiveStudent } = useStudentStore();
+    const toast = useToastStore();
 
     const [view, setView] = useState<'setup' | 'running' | 'report'>('setup');
     const [activeTestIndex, setActiveTestIndex] = useState(0);
@@ -74,11 +76,11 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAutoGenerateWorkb
 
     const startBattery = () => {
         if (!studentName.trim()) {
-            alert("Lütfen öğrenci adını giriniz.");
+            toast.error('Lütfen öğrenci adını giriniz.');
             return;
         }
         if (selectedDomains.length === 0) {
-            alert("En az bir test seçiniz.");
+            toast.error('En az bir test seçiniz.');
             return;
         }
         setResults([]);

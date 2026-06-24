@@ -261,7 +261,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onStartC
             setStep(4);
             setIsSaved(false);
         } catch (_e) {
-            alert("Plan oluşturulurken bir hata oluştu.");
+            toast.error('Plan oluşturulurken bir hata oluştu.');
         } finally {
             setLoading(false);
         }
@@ -360,9 +360,9 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onStartC
                 await curriculumService.deleteCurriculum(curriculum.id);
                 setCurriculum(null);
                 setStep(0);
-                alert("Plan silindi.");
+                toast.success('Plan silindi.');
             } catch (_e) {
-                alert("Silme hatası.");
+                toast.error('Silme hatası.');
             } finally {
                 setLoading(false);
             }
@@ -403,7 +403,7 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onStartC
                     })
                 };
             });
-        } catch (_e) { alert("Durum güncellenemedi."); }
+        } catch (_e) { toast.error('Durum güncellenemedi.'); }
     };
 
     const handleSaveDayNote = async (dayNum: number, note: string) => {

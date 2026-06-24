@@ -1,6 +1,6 @@
 import React from 'react';
 import { useRBAC } from '../hooks/useRBAC';
-import { PermissionModule } from '../types/rbac';
+import { PermissionModule } from '../types/rbac-advanced';
 import { motion } from 'framer-motion';
 import { ShieldAlert, ArrowLeft } from 'lucide-react';
 

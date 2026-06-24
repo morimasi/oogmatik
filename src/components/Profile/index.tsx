@@ -13,7 +13,7 @@ import { SettingsModule } from './modules/SettingsModule';
 import { SharedContentPanel } from './components/SharedContentPanel';
 import { useStudentStore } from '../../store/useStudentStore';
 import { useRBAC } from '../../hooks/useRBAC';
-import { PermissionModule } from '../../types/rbac';
+import { PermissionModule } from '../../types/rbac-advanced';
 import { useProfileShare } from './hooks/useProfileShare';
 import { ShareModal } from '../ShareModal';
 import { SharedModuleType } from '../../services/profileShareService';
