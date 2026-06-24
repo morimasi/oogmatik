@@ -428,17 +428,64 @@ export class AnalyticsEngine {
     improvement: number;
     recommendations: string[];
   }> {
-    // TODO: Fetch from Firestore
-    return {
-      performance: 75,
-      attendance: 88,
-      improvement: 12,
-      recommendations: [
-        'Okuma pratiği artırılmalı',
-        'Görsel destek kullanımı',
-        'Pomodoro tekniği uygulanmalı',
-      ],
-    };
+    try {
+      const q = query(collection(db, 'activity_logs'), where('studentId', '==', studentId));
+      const logsSnap = await getDocs(q);
+
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+      let totalScore = 0;
+      let totalActivities = 0;
+      let thisMonthActivities = 0;
+      let lastMonthActivities = 0;
+      let daysActive = new Set<string>();
+
+      logsSnap.forEach(doc => {
+        const data = doc.data();
+        const timestamp = data.timestamp?.toDate?.() ?? new Date(data.timestamp);
+        const dayKey = timestamp.toISOString().slice(0, 10);
+
+        totalScore += data.score ?? 0;
+        totalActivities++;
+        daysActive.add(dayKey);
+
+        if (timestamp >= startOfMonth) {
+          thisMonthActivities++;
+        }
+        if (timestamp >= lastMonth && timestamp < startOfMonth) {
+          lastMonthActivities++;
+        }
+      });
+
+      const totalDays = Math.max(
+        Math.round((now.getTime() - new Date(now.getFullYear(), 0, 1).getTime()) / (24 * 60 * 60 * 1000)),
+        1
+      );
+      const attendance = Math.round((daysActive.size / totalDays) * 100);
+      const performance = totalActivities > 0 ? Math.round((totalScore / totalActivities) * 100) : 0;
+      const improvement = lastMonthActivities > 0
+        ? Math.round(((thisMonthActivities - lastMonthActivities) / lastMonthActivities) * 100)
+        : 0;
+
+      const recommendations: string[] = [];
+      if (performance < 60) recommendations.push('Temel kavram tekrarı yapılmalı');
+      if (attendance < 70) recommendations.push('Düzenli çalışma alışkanlığı kazandırılmalı');
+      if (improvement < 0) recommendations.push('Motivasyon artırıcı aktiviteler eklenmeli');
+      if (recommendations.length === 0) recommendations.push('Mevcut performans korunmalı, yeni hedefler belirlenmeli');
+
+      return { performance, attendance, improvement, recommendations };
+    } catch (error) {
+      const appError = new AppError(
+        'Öğrenci raporu alınamadı',
+        'STUDENT_REPORT_FETCH_FAILED',
+        500,
+        { error: error instanceof Error ? error.message : String(error) }
+      );
+      logError(appError);
+      throw appError;
+    }
   }
 }
 

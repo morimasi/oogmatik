@@ -9,6 +9,32 @@ import { AppError } from '../../../utils/AppError';
 import { logError } from '../../../utils/errorHandler';
 import { ProfileData } from '../../../types/profile';
 
+const calculateStreak = (activityLogs: any[]): number => {
+  if (!activityLogs.length) return 0;
+  const sorted = [...activityLogs]
+    .map(log => new Date(log.timestamp?.toDate?.() || log.timestamp || log.createdAt))
+    .sort((a, b) => b.getTime() - a.getTime());
+
+  let streak = 1;
+  const today = new Date();
+  const oneDayMs = 86400000;
+
+  const lastDate = sorted[0];
+  const daysSinceLast = Math.floor((today.getTime() - lastDate.getTime()) / oneDayMs);
+  if (daysSinceLast > 1) return 0;
+
+  for (let i = 1; i < sorted.length; i++) {
+    const diff = Math.abs(sorted[i - 1].getTime() - sorted[i].getTime());
+    if (diff <= oneDayMs * 1.5) {
+      streak++;
+    } else {
+      break;
+    }
+  }
+
+  return streak;
+};
+
 export const useProfileData = (targetUser?: User): ProfileData => {
   const { user: authUser } = useAuthStore();
   const { students } = useStudentStore();
@@ -88,7 +114,7 @@ export const useProfileData = (targetUser?: User): ProfileData => {
       weekAgo.setDate(weekAgo.getDate() - 7);
       return new Date(w.createdAt) > weekAgo;
     }).length),
-    streak: 0, // TODO: Implement streak calculation
+    streak: calculateStreak(worksheets),
   }), [students.length, worksheets.length, assessments.length, curriculums.length, avgScore, monthlyNewStudents, worksheets]);
 
   const refreshData = async () => {
