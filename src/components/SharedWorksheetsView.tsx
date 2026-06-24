@@ -24,6 +24,7 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
     const [loading, setLoading] = useState(true);
     const [page, setPage] = useState(0);
     const [count, setCount] = useState(0);
+    const [selectedAssessment, setSelectedAssessment] = useState<SavedAssessment | null>(null);
 
     useEffect(() => {
         if (user) {
@@ -159,8 +160,10 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
 
     const handleViewItem = (item: SavedWorksheet) => {
         if (item.activityType === ActivityType.ASSESSMENT_REPORT) {
-            alert("Rapor detayları şu an sadece Değerlendirme Modülü içerisinden görüntülenebilir. Bu özellik yakında eklenecektir.");
-            // TODO: Add logic to view shared assessment report modal
+            const assessment = sharedAssessments.find(a => a.id === item.id);
+            if (assessment) {
+                setSelectedAssessment(assessment);
+            }
         } else {
             onLoad(item);
         }
@@ -296,6 +299,16 @@ export const SharedWorksheetsView: React.FC<SharedWorksheetsViewProps> = ({ onLo
                         </div>
                     )}
                 </>
+            )}
+
+            {selectedAssessment && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setSelectedAssessment(null)}>
+                    <div className="bg-white dark:bg-zinc-800 rounded-2xl p-6 max-w-lg w-full mx-4 max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                        <h3 className="text-lg font-semibold mb-4">Değerlendirme Raporu</h3>
+                        <pre className="text-sm whitespace-pre-wrap">{JSON.stringify(selectedAssessment.report, null, 2)}</pre>
+                        <button onClick={() => setSelectedAssessment(null)} className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg">Kapat</button>
+                    </div>
+                </div>
             )}
         </div>
     );
