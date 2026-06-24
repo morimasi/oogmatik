@@ -3,7 +3,7 @@ import { progressService } from '../src/services/progressService.js';
 import { permissionService } from '../src/middleware/permissionValidator.js';
 import { AppError, toAppError } from '../src/utils/AppError.js';
 import { logError } from '../src/utils/errorHandler.js';
-import { hasPermission } from '../src/services/rbac.js';
+import { rbacService } from '../src/services/rbacService.js';
 import { RateLimiter } from '../src/services/rateLimiter.js';
 import { corsMiddleware } from '../src/utils/cors.js';
 
@@ -23,7 +23,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     const userId = (req.headers['x-user-id'] as string) || 'anonymous';
     const userTier = (req.headers['x-user-tier'] as string) || 'free';
 
-    await rateLimiter.enforceLimit(userId, userTier as any, 'apiQuery');
+    await rateLimiter.enforceLimit(userId, userTier, 'apiQuery');
 
     if (method === 'GET') {
       const studentId = query.studentId as string;
@@ -40,7 +40,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
 
     } else if (method === 'POST') {
       const user = permissionService.authenticate(req);
-      if (!hasPermission(user.role, 'update:worksheet')) { // Benzer bir yetki kullanıyoruz
+      if (!rbacService.hasPermission(user.role as any, 'activity-studio' as any, 'update' as any)) {
         return res.status(403).json({ error: { message: 'Bu işlem için yetkiniz yok', code: 'PERMISSION_DENIED' } });
       }
 

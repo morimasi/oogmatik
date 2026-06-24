@@ -274,7 +274,7 @@ export const generateExam = async (settings: SinavAyarlari): Promise<Sinav> => {
   const prompt = buildExamPrompt(settings);
 
   try {
-    const aiResponse = await callGeminiDirect(prompt, EXAM_SCHEMA) as Record<string, unknown>;
+    const aiResponse = await callGeminiDirect(prompt, EXAM_SCHEMA) as any;
 
 
     // Defensive coding: sorular array kontrolü
@@ -339,5 +339,5 @@ export const generateExam = async (settings: SinavAyarlari): Promise<Sinav> => {
 
 // Registry compatibility wrapper
 export const generateSinavFromAI = async (options: any) => {
-  return await generateExam(options as Record<string, unknown>);
+  return await generateExam(options as any);
 };
