@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DyslexiaLogo from './DyslexiaLogo';
 import GlobalSearch from './GlobalSearch';
@@ -375,10 +375,11 @@ export const AppHeader = ({
                         </HeaderDropdown>
 
                         <HeaderDropdown label="DESTEK" icon="fa-headset" menuVariant="supportCompact">
-                            <DropdownItemSupportCompact icon="fa-circle-play" label="Rehber Turu Başlat" onClick={() => setIsTourActive(true)} />
-                            <DropdownItemSupportCompact icon="fa-headset" label="Premium Yardım Masası" onClick={onOpenFeedback} />
-                            <DropdownItemSupportCompact icon="fa-circle-question" label="Platform Hakkımızda" onClick={() => onOpenModal('about')} />
-                            <DropdownItemSupportCompact icon="fa-laptop-code" label="Geliştirici Vizyonu" onClick={() => onOpenModal('developer')} />
+                            <DropdownItemSupportCompact icon="fa-book-open" label="Rehber" onClick={() => window.dispatchEvent(new CustomEvent('openGuide'))} />
+                            <DropdownItemSupportCompact icon="fa-play" label="Platform Turu" onClick={() => window.dispatchEvent(new CustomEvent('openTour'))} />
+                            <DropdownItemSupportCompact icon="fa-headset" label="Premium Yardım" onClick={() => window.dispatchEvent(new CustomEvent('openHelp'))} />
+                            <DropdownItemSupportCompact icon="fa-info-circle" label="Hakkımızda" onClick={() => window.dispatchEvent(new CustomEvent('openAbout'))} />
+                            <DropdownItemSupportCompact icon="fa-code" label="Geliştirici" onClick={() => window.dispatchEvent(new CustomEvent('openDeveloper'))} />
                         </HeaderDropdown>
 
                         <div className="w-px self-stretch min-h-[1rem] max-h-[1.5rem] bg-[var(--border-color)] mx-1 opacity-45" aria-hidden />

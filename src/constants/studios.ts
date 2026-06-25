@@ -63,7 +63,7 @@ export const STUDIO_GROUPS: StudioGroup[] = [
             },
             {
                 id: 'sinav-studyosu',
-                label: 'Sınav Stüdyosu',
+                label: 'Türkçe Sınav Stüdyosu',
                 icon: 'fa-clipboard-check',
                 color: 'text-amber-500',
                 actionType: 'callback'
@@ -107,51 +107,6 @@ export const STUDIO_GROUPS: StudioGroup[] = [
                 icon: 'fa-font',
                 color: 'text-indigo-500',
                 actionType: 'callback'
-            },
-        ],
-    },
-    {
-        title: 'Yardım & Destek',
-        items: [
-            {
-                id: 'guide',
-                label: 'Rehber',
-                icon: 'fa-book-open',
-                color: 'text-blue-500',
-                actionType: 'event',
-                eventName: 'openGuide'
-            },
-            {
-                id: 'tour',
-                label: 'Platform Turu',
-                icon: 'fa-play',
-                color: 'text-green-500',
-                actionType: 'event',
-                eventName: 'openTour'
-            },
-            {
-                id: 'help',
-                label: 'Premium Yardım',
-                icon: 'fa-headset',
-                color: 'text-purple-500',
-                actionType: 'event',
-                eventName: 'openHelp'
-            },
-            {
-                id: 'about',
-                label: 'Hakkımızda',
-                icon: 'fa-info-circle',
-                color: 'text-indigo-500',
-                actionType: 'event',
-                eventName: 'openAbout'
-            },
-            {
-                id: 'developer',
-                label: 'Geliştirici',
-                icon: 'fa-code',
-                color: 'text-slate-600',
-                actionType: 'event',
-                eventName: 'openDeveloper'
             },
         ],
     },
