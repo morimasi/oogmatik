@@ -42,21 +42,21 @@ export const STUDIO_GROUPS: StudioGroup[] = [
         items: [
             {
                 id: 'reading',
-                label: 'Okuma Stüdyosu',
+                label: 'Okuma-Anlama Stüdyosu',
                 icon: 'fa-book-open',
                 color: 'text-rose-500',
                 actionType: 'callback'
             },
             {
                 id: 'math',
-                label: 'Matematik Stüdyosu',
+                label: 'Matematik İşlem Stüdyosu',
                 icon: 'fa-calculator',
                 color: 'text-blue-500',
                 actionType: 'callback'
             },
             {
                 id: 'super-turkce',
-                label: 'Süper Türkçe Stüdyosu',
+                label: 'Türkçe Anlama Stüdyosu',
                 icon: 'fa-wand-magic-sparkles',
                 color: 'text-teal-500',
                 actionType: 'callback'
