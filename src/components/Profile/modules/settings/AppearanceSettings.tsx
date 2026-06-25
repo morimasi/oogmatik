@@ -4,15 +4,18 @@ import { ToggleSwitch } from '../../components/shared/ToggleSwitch';
 import type { AppearanceSettingsProps } from '../../types';
 import type { AppTheme, UiSettings } from '../../../../types';
 
-const THEMES: { name: string; id: AppTheme; color: string; border?: boolean }[] = [
-    { name: 'Antrasit Pro', id: 'anthracite', color: 'bg-[#1a1a1a]' },
-    { name: 'Okyanus', id: 'ocean', color: 'bg-blue-600' },
-    { name: 'Işık Kaplı', id: 'light', color: 'bg-white', border: true },
-    { name: 'Uzay Gezgini', id: 'space', color: 'bg-slate-900' },
-    { name: 'Doğa', id: 'nature', color: 'bg-emerald-600' },
-    { name: 'OLED Siyah', id: 'oled-black', color: 'bg-black' },
-    { name: 'Krem (Disleksi)', id: 'dyslexia-cream', color: 'bg-amber-50', border: true },
-    { name: 'Nane (Disleksi)', id: 'dyslexia-mint', color: 'bg-emerald-50', border: true },
+const THEMES: { name: string; id: AppTheme; color: string; border?: boolean; group: string }[] = [
+    { name: 'Anthracite', id: 'anthracite', color: 'bg-[#1a1a1a]', group: 'Karanlık' },
+    { name: 'Obsidian Deep', id: 'dark', color: 'bg-[#09090B]', group: 'Karanlık' },
+    { name: 'Deep Space', id: 'space', color: 'bg-slate-900', group: 'Karanlık' },
+    { name: 'Imperial Stone', id: 'anthracite-gold', color: 'bg-[#1C1917]', group: 'Karanlık' },
+    { name: 'Cyber Punk', id: 'anthracite-cyber', color: 'bg-[#020202]', group: 'Karanlık' },
+    { name: 'OLED Black', id: 'oled-black', color: 'bg-black', group: 'Karanlık' },
+    { name: 'Milk & Honey', id: 'light', color: 'bg-white', border: true, group: 'Açık' },
+    { name: 'Nordic Mist', id: 'ocean', color: 'bg-blue-600', group: 'Doğa' },
+    { name: 'Emerald Forest', id: 'nature', color: 'bg-emerald-600', group: 'Doğa' },
+    { name: 'Krem Mavi (BDA)', id: 'dyslexia-cream', color: 'bg-amber-50', border: true, group: 'Premium' },
+    { name: 'Nane Yeşili', id: 'dyslexia-mint', color: 'bg-emerald-50', border: true, group: 'Premium' },
 ];
 
 const DENSITIES = [

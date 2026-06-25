@@ -1,9 +1,21 @@
 import { useEffect } from 'react';
 import { UiSettings, AppTheme } from '../types';
 
+const DARK_THEMES: AppTheme[] = [
+    'dark',
+    'anthracite',
+    'space',
+    'anthracite-gold',
+    'anthracite-cyber',
+    'oled-black',
+];
+
+const isDarkTheme = (t: AppTheme): boolean =>
+    DARK_THEMES.includes(t) || t.includes('anthracite');
+
 export const useGlobalSettings = (
-    uiSettings: UiSettings, 
-    theme: AppTheme, 
+    uiSettings: UiSettings,
+    theme: AppTheme,
     sidebarWidth: number
 ) => {
     // Apply UI settings to document root when they change
@@ -51,16 +63,7 @@ export const useGlobalSettings = (
 
     // Handle basic dark/light theme classes
     useEffect(() => {
-        const DARK_THEMES: AppTheme[] = [
-            'dark',
-            'anthracite',
-            'space',
-            'anthracite-gold',
-            'anthracite-cyber',
-            'oled-black',
-        ];
-        
-        if (DARK_THEMES.includes(theme) || theme.includes('anthracite')) {
+        if (isDarkTheme(theme)) {
             document.documentElement.classList.add('dark');
         } else {
             document.documentElement.classList.remove('dark');
@@ -73,7 +76,7 @@ export const useGlobalSettings = (
             .join(' ');
 
         // Add new theme classes
-        if (DARK_THEMES.includes(theme) || theme.includes('anthracite')) document.documentElement.classList.add('dark');
+        if (isDarkTheme(theme)) document.documentElement.classList.add('dark');
         if (uiSettings.compactMode) document.documentElement.classList.add('ui-compact');
         document.documentElement.classList.add(`theme-${theme}`);
     }, [theme, uiSettings.compactMode]);
@@ -93,12 +96,7 @@ export const useGlobalSettings = (
 
         const handleAfterPrint = () => {
             document.documentElement.classList.remove('printing-forced-light');
-            
-            const DARK_THEMES: AppTheme[] = [
-                'dark', 'anthracite', 'space', 'anthracite-gold', 
-                'anthracite-cyber', 'oled-black'
-            ];
-            if (DARK_THEMES.includes(theme) || theme.includes('anthracite')) {
+            if (isDarkTheme(theme)) {
                 document.documentElement.classList.add('dark');
             }
         };
