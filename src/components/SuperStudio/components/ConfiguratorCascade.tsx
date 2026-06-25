@@ -1,34 +1,87 @@
+import React, { useState } from 'react';
 import { useSuperStudioStore } from '../../../store/useSuperStudioStore';
 import { generateSuperStudioContent } from '../../../services/generators/superStudioGenerator';
 import { getTemplateById } from '../templates';
+import { assessContentQuality } from '../../../utils/contentQuality';
+import { optimizePrompt } from '../../../utils/promptOptimizer';
 
 import { logInfo, logError, logWarn } from '../../../utils/logger.js';
+
 export const ConfiguratorCascade: React.FC = () => {
     const {
         selectedTemplates, templateSettings, generationMode, grade, topic, difficulty, studentId,
-        setIsGenerating, isGenerating, clearGeneratedContents, addGeneratedContent, setTemplateSetting
+        generationParams, setGenerationParams,
+        setIsGenerating, isGenerating, clearGeneratedContents, addGeneratedContent, setTemplateSetting,
+        setGenerationProgress, setGenerationStep, setCurrentTemplate,
+        addToHistory,
     } = useSuperStudioStore();
+
+    const [showAdvanced, setShowAdvanced] = useState(false);
+    const [qualityScores, setQualityScores] = useState<Record<string, number>>({});
 
     const handleGenerate = async () => {
         setIsGenerating(true);
         clearGeneratedContents();
+        setGenerationProgress(0);
+        setGenerationStep('prompt');
 
         try {
-            const results = await generateSuperStudioContent({
-                templates: selectedTemplates,
-                settings: templateSettings,
-                mode: generationMode,
-                grade,
-                topic,
-                difficulty,
-                studentId
-            });
+            const total = selectedTemplates.length;
+            const results = [];
+            for (let i = 0; i < total; i++) {
+                const tpl = selectedTemplates[i];
+                setCurrentTemplate(tpl);
+                setGenerationStep('api');
+                setGenerationProgress(Math.round(((i) / total) * 60));
 
-            for (const res of results) {
-                addGeneratedContent(res);
+                const batchResults = await generateSuperStudioContent({
+                    templates: [tpl],
+                    settings: templateSettings,
+                    mode: generationMode,
+                    grade,
+                    topic,
+                    difficulty,
+                    studentId,
+                });
+
+                setGenerationStep('processing');
+                setGenerationProgress(Math.round(((i + 0.5) / total) * 80));
+
+                for (const res of batchResults) {
+                    const contentStr = res.pages?.[0]?.content as string || '';
+                    const quality = assessContentQuality(contentStr, { grade, difficulty });
+                    setQualityScores(prev => ({ ...prev, [res.id]: quality.overall }));
+
+                    if (quality.overall >= 50) {
+                        results.push(res);
+                        addToHistory({
+                            id: res.id,
+                            templateId: tpl,
+                            prompt: topic || 'Genel',
+                            temperature: generationParams.temperature,
+                            topP: generationParams.topP,
+                            thinkingBudget: generationParams.thinkingBudget,
+                            difficulty,
+                            grade,
+                            topic,
+                            qualityScore: quality.overall,
+                            createdAt: Date.now(),
+                            output: res,
+                        });
+                    }
+                    addGeneratedContent(res);
+                }
+
+                setGenerationStep('saving');
+                setGenerationProgress(Math.round(((i + 1) / total) * 100));
             }
+
+            setGenerationStep('done');
+            setGenerationProgress(100);
         } catch (error) {
             logError(error instanceof Error ? error : String(error));
+            setGenerationStep('idle');
+            setGenerationProgress(0);
         } finally {
             setIsGenerating(false);
         }
@@ -48,6 +101,7 @@ export const ConfiguratorCascade: React.FC = () => {
                 <span className="w-1.5 h-5 bg-teal-500 rounded-full mr-2"></span>
                 Şablon Ayarları (Premium)
             </h2>
+
             {selectedTemplates.map((templateId: string, index: number) => {
                 const templateDef = getTemplateById(templateId);
                 if (!templateDef) return null;
@@ -75,6 +129,104 @@ export const ConfiguratorCascade: React.FC = () => {
                     </div>
                 );
             })}
+
+            {/* Generation Parameters - motor.md Faz 1.1 */}
+            <div className="bg-slate-800/70 border border-slate-700/60 rounded-xl p-4">
+                <button
+                    onClick={() => setShowAdvanced(!showAdvanced)}
+                    className="flex items-center justify-between w-full text-sm font-semibold text-slate-300"
+                >
+                    <span className="flex items-center gap-2">
+                        <i className="fa-solid fa-sliders text-teal-400"></i>
+                        Üretim Parametreleri
+                    </span>
+                    <i className={`fa-solid fa-chevron-${showAdvanced ? 'up' : 'down'} text-slate-500 transition-transform`}></i>
+                </button>
+
+                {showAdvanced && (
+                    <div className="mt-4 space-y-4">
+                        <div>
+                            <label className="flex justify-between text-xs text-slate-400 mb-1">
+                                <span>Temperature (Yaratıcılık)</span>
+                                <span className="font-mono text-teal-400">{generationParams.temperature.toFixed(2)}</span>
+                            </label>
+                            <input
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.05"
+                                value={generationParams.temperature}
+                                onChange={(e) => setGenerationParams({ temperature: parseFloat(e.target.value) })}
+                                className="w-full accent-teal-500"
+                            />
+                            <div className="flex justify-between text-[10px] text-slate-600 mt-0.5">
+                                <span>Kesin</span>
+                                <span>Yaratıcı</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="flex justify-between text-xs text-slate-400 mb-1">
+                                <span>Top-P (Çeşitlilik)</span>
+                                <span className="font-mono text-teal-400">{generationParams.topP.toFixed(2)}</span>
+                            </label>
+                            <input
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.05"
+                                value={generationParams.topP}
+                                onChange={(e) => setGenerationParams({ topP: parseFloat(e.target.value) })}
+                                className="w-full accent-teal-500"
+                            />
+                            <div className="flex justify-between text-[10px] text-slate-600 mt-0.5">
+                                <span>Odaklı</span>
+                                <span>Çeşitli</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="flex justify-between text-xs text-slate-400 mb-1">
+                                <span>Thinking Budget (Düşünme Süresi)</span>
+                                <span className="font-mono text-teal-400">{generationParams.thinkingBudget}</span>
+                            </label>
+                            <input
+                                type="range"
+                                min="0"
+                                max="8192"
+                                step="256"
+                                value={generationParams.thinkingBudget}
+                                onChange={(e) => setGenerationParams({ thinkingBudget: parseInt(e.target.value) })}
+                                className="w-full accent-teal-500"
+                            />
+                            <div className="flex justify-between text-[10px] text-slate-600 mt-0.5">
+                                <span>Hızlı</span>
+                                <span>Derin</span>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Quality Scores Display */}
+            {Object.keys(qualityScores).length > 0 && (
+                <div className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-3">
+                    <h4 className="text-xs font-semibold text-slate-400 mb-2 flex items-center gap-1.5">
+                        <i className="fa-solid fa-chart-line text-emerald-400"></i>
+                        Kalite Skorları
+                    </h4>
+                    <div className="space-y-1">
+                        {Object.entries(qualityScores).map(([id, score]) => (
+                            <div key={id} className="flex items-center justify-between text-xs">
+                                <span className="text-slate-500 truncate max-w-[200px]">{id.slice(0, 30)}</span>
+                                <span className={`font-bold ${score >= 70 ? 'text-emerald-400' : score >= 50 ? 'text-amber-400' : 'text-red-400'}`}>
+                                    {score}/100
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <button
                 onClick={handleGenerate}

@@ -95,6 +95,7 @@ export const generateCreativeMultimodal = async (params: {
   schema?: Record<string, unknown>;
   files?: MultimodalFile[];
   temperature?: number;
+  topP?: number;
   thinkingBudget?: number;
   systemInstruction?: string;
   model?: string;
@@ -150,6 +151,8 @@ Tüm içeriği bu spesifik bağlama göre optimize et!`;
     prompt: finalPrompt,
     schema: params.schema,
     temperature: params.temperature ?? 0.1,
+    topP: params.topP ?? 0.9,
+    thinkingBudget: params.thinkingBudget ?? 2048,
     systemInstruction: params.systemInstruction || SYSTEM_INSTRUCTION,
     model: safeModel,
   };
@@ -233,8 +236,12 @@ Tüm içeriği bu spesifik bağlama göre optimize et!`;
   throw lastError;
 };
 
-export const generateWithSchema = async (prompt: string, schema: Record<string, unknown>) => {
-  return await generateCreativeMultimodal({ prompt, schema });
+export const generateWithSchema = async (
+  prompt: string,
+  schema: Record<string, unknown>,
+  params?: { temperature?: number; topP?: number; thinkingBudget?: number }
+) => {
+  return await generateCreativeMultimodal({ prompt, schema, ...params });
 };
 
 

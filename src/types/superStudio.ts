@@ -15,3 +15,24 @@ export interface GeneratedContentPayload {
   createdAt: number;
   fromCache?: boolean; // Cache'ten geldi mi?
 }
+
+// Standart Generator Error — motor.md Yapısal 5.3
+export type GeneratorErrorCode =
+  | 'RATE_LIMIT'
+  | 'INVALID_RESPONSE'
+  | 'CACHE_MISS'
+  | 'NETWORK_ERROR'
+  | 'VALIDATION_FAILED'
+  | 'NO_TEMPLATE_SELECTED'
+  | 'BATCH_GENERATION_FAILED'
+  | 'INTERNAL_ERROR'
+  | 'GENERATOR_ERROR';
+
+export interface GeneratorError {
+  code: GeneratorErrorCode;
+  message: string;
+  retryable: boolean;
+  fallbackToOffline: boolean;
+  userMessage: string;
+  details?: Record<string, unknown>;
+}

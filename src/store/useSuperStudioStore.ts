@@ -5,6 +5,29 @@ import {
   GeneratedContentPayload,
 } from '../types/superStudio';
 
+export interface GenerationParams {
+  temperature: number;
+  topP: number;
+  thinkingBudget: number;
+}
+
+export type GenerationStep = 'idle' | 'prompt' | 'api' | 'processing' | 'saving' | 'done';
+
+export interface GenerationHistoryEntry {
+  id: string;
+  templateId: string;
+  prompt: string;
+  temperature: number;
+  topP: number;
+  thinkingBudget: number;
+  difficulty: SuperStudioDifficulty;
+  grade: string | null;
+  topic: string;
+  qualityScore?: number;
+  createdAt: number;
+  output: GeneratedContentPayload;
+}
+
 interface SuperStudioState {
   // Main Settings
   studentId: string | null;
@@ -12,6 +35,9 @@ interface SuperStudioState {
   topic: string;
   difficulty: SuperStudioDifficulty;
   generationMode: GenerationMode;
+
+  // Generation Params (motor.md Phase 1.1)
+  generationParams: GenerationParams;
 
   // Templates
   selectedTemplates: string[];
@@ -21,6 +47,14 @@ interface SuperStudioState {
   generatedContents: GeneratedContentPayload[];
   isGenerating: boolean;
 
+  // Progress (motor.md Phase 1.3)
+  generationProgress: number;
+  generationStep: GenerationStep;
+  currentTemplate: string;
+
+  // History (motor.md Phase 3.1)
+  generationHistory: GenerationHistoryEntry[];
+
   // Actions
   setStudentId: (id: string | null) => void;
   setGrade: (grade: string | null) => void;
@@ -28,12 +62,21 @@ interface SuperStudioState {
   setDifficulty: (diff: SuperStudioDifficulty) => void;
   setGenerationMode: (mode: GenerationMode) => void;
 
+  setGenerationParams: (params: Partial<GenerationParams>) => void;
+
   toggleTemplate: (templateId: string) => void;
   setTemplateSetting: (templateId: string, payload: unknown) => void;
 
   addGeneratedContent: (content: GeneratedContentPayload) => void;
   clearGeneratedContents: () => void;
   setIsGenerating: (isGenerating: boolean) => void;
+
+  setGenerationProgress: (progress: number) => void;
+  setGenerationStep: (step: GenerationStep) => void;
+  setCurrentTemplate: (templateId: string) => void;
+
+  addToHistory: (entry: GenerationHistoryEntry) => void;
+  clearHistory: () => void;
 
   resetStore: () => void;
 }
@@ -44,10 +87,19 @@ const initialState = {
   topic: '',
   difficulty: 'Orta' as SuperStudioDifficulty,
   generationMode: 'ai' as GenerationMode,
+  generationParams: {
+    temperature: 0.7,
+    topP: 0.9,
+    thinkingBudget: 2048,
+  } as GenerationParams,
   selectedTemplates: [],
   templateSettings: {},
   generatedContents: [],
   isGenerating: false,
+  generationProgress: 0,
+  generationStep: 'idle' as GenerationStep,
+  currentTemplate: '',
+  generationHistory: [] as GenerationHistoryEntry[],
 };
 
 import { SUPER_STUDIO_REGISTRY } from '../components/SuperStudio/templates/registry';
@@ -61,11 +113,15 @@ export const useSuperStudioStore = create<SuperStudioState>()((set, get) => ({
   setDifficulty: (diff: SuperStudioDifficulty) => set({ difficulty: diff }),
   setGenerationMode: (mode: GenerationMode) => set({ generationMode: mode }),
 
+  setGenerationParams: (params: Partial<GenerationParams>) =>
+    set((state) => ({
+      generationParams: { ...state.generationParams, ...params },
+    })),
+
   toggleTemplate: (templateId: string) =>
     set((state) => {
       const isSelected = state.selectedTemplates.includes(templateId);
       if (isSelected) {
-        // Remove template
         const newSettings = { ...state.templateSettings };
         delete newSettings[templateId];
         return {
@@ -73,7 +129,6 @@ export const useSuperStudioStore = create<SuperStudioState>()((set, get) => ({
           templateSettings: newSettings,
         };
       } else {
-        // Add template with defaults from registry
         const templateDef = SUPER_STUDIO_REGISTRY.find((t) => t.id === templateId);
         return {
           selectedTemplates: [...state.selectedTemplates, templateId],
@@ -104,6 +159,17 @@ export const useSuperStudioStore = create<SuperStudioState>()((set, get) => ({
   clearGeneratedContents: () => set({ generatedContents: [] }),
 
   setIsGenerating: (isGenerating: boolean) => set({ isGenerating }),
+
+  setGenerationProgress: (progress: number) => set({ generationProgress: progress }),
+  setGenerationStep: (step: GenerationStep) => set({ generationStep: step }),
+  setCurrentTemplate: (templateId: string) => set({ currentTemplate: templateId }),
+
+  addToHistory: (entry: GenerationHistoryEntry) =>
+    set((state) => ({
+      generationHistory: [entry, ...state.generationHistory].slice(0, 100),
+    })),
+
+  clearHistory: () => set({ generationHistory: [] }),
 
   resetStore: () => set(initialState),
 }));

@@ -16,6 +16,9 @@ interface GenerateParams {
   topic: string;
   difficulty: SuperStudioDifficulty;
   studentId: string | null;
+  temperature?: number;
+  topP?: number;
+  thinkingBudget?: number;
 }
 
 /**
@@ -205,7 +208,7 @@ export const generateSuperStudioContent = async (
   params: GenerateParams
 ): Promise<GeneratedContentPayload[]> => {
   try {
-    const { templates, settings, mode, grade, topic, difficulty, studentId } = params;
+    const { templates, settings, mode, grade, topic, difficulty, studentId, temperature, topP, thinkingBudget } = params;
 
     if (!templates || templates.length === 0) {
       throw new AppError(
@@ -307,8 +310,8 @@ export const generateSuperStudioContent = async (
       const schema = buildSchemaForTemplate(tpl);
 
       try {
-        logInfo(`[Super Türkçe] Calling API for: ${tpl}`);
-        const aiResponse = await generateWithSchema(prompt, schema);
+        logInfo(`[Super Türkçe] Calling API for: ${tpl}`, { temperature, topP, thinkingBudget });
+        const aiResponse = await generateWithSchema(prompt, schema, { temperature, topP, thinkingBudget });
         logInfo(
           `[Super Türkçe] API response for ${tpl}:`,
           { 
