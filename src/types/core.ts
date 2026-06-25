@@ -514,6 +514,7 @@ export interface ActivityStats {
 
 export type FeedbackCategory = 'general' | 'bug' | 'feature' | 'content';
 export type FeedbackStatus = 'new' | 'read' | 'in-progress' | 'replied' | 'resolved';
+export type FeedbackPriority = 'low' | 'medium' | 'high' | 'urgent';
 
 export interface FeedbackItem {
   id: string;
@@ -528,6 +529,8 @@ export interface FeedbackItem {
   timestamp: string;
   status: FeedbackStatus;
   adminReply?: string;
+  priority?: FeedbackPriority;
+  attachments?: string[];
 }
 
 
