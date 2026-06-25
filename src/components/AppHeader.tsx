@@ -9,12 +9,9 @@ import { useRBAC } from '../hooks/useRBAC';
 import { ActivityType, View } from '../types';
 import { useStudentStore } from '../store/useStudentStore';
 import { messagingService } from '../services/messagingService';
-import { useToastStore } from '../store/useToastStore';
-import { useFascicleStore } from '../store/useFascicleStore';
 
 interface AppHeaderProps {
     onOpenModal: (modal: 'settings' | 'history' | 'about' | 'developer') => void;
-    onOpenFeedback: () => void;
     onOpenAuth: () => void;
     onSelectActivity: (activity: ActivityType | null) => void;
     onOpenStudio: (viewName: View) => void;
@@ -162,7 +159,6 @@ export const DropdownItem = ({
 
 export const AppHeader = ({
     onOpenModal,
-    onOpenFeedback,
     onOpenAuth,
     onSelectActivity,
     onOpenStudio,
@@ -172,10 +168,9 @@ export const AppHeader = ({
 }: AppHeaderProps) => {
     const { user, logout } = useAuthStore();
     const { isAdmin, canAccess } = useRBAC();
-    const { setIsSidebarOpen, zenMode, setIsTourActive, showConnect, toggleConnect, unreadMessageCount, setUnreadMessageCount } = useUIStore();
+    const { setIsSidebarOpen, zenMode, showConnect, toggleConnect, unreadMessageCount, setUnreadMessageCount } = useUIStore();
     const { currentView, setCurrentView, addHistoryView, setSelectedActivity, setWorksheetData, setActiveCurriculumSession: _setSession } = useWorksheetStore();
     const { activeStudent } = useStudentStore();
-    const toast = useToastStore();
 
     useEffect(() => {
         if (!user?.id || !canAccess('messaging')) return;

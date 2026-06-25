@@ -502,7 +502,6 @@ const AppContent = () => {
     >
       <AppHeader
         onOpenModal={(modal: ModalType) => setOpenModal(modal)}
-        onOpenFeedback={() => setIsFeedbackOpen(true)}
         onOpenAuth={() => setIsAuthModalOpen(true)}
         onSelectActivity={handleSelectActivity}
         onOpenStudio={handleOpenStudio}
