@@ -37,9 +37,9 @@ const styles = StyleSheet.create({
     zIndex: -1,
   },
   watermarkText: {
-    fontSize: 60,
-    color: '#e2e8f0',
-    opacity: 0.3,
+    fontSize: 48,
+    color: '#f8fafc',
+    opacity: 0.06,
     transform: 'rotate(-45deg)',
   },
   coverTitle: {
