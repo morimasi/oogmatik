@@ -51,7 +51,7 @@ export const FascicleCoverSettingsModal: React.FC<FascicleCoverSettingsModalProp
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div className="absolute inset-0" style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }} onClick={onClose} />
-      <div className="relative w-full max-w-xl glass-layer-3 rounded-[var(--radius-premium)] flex flex-col overflow-hidden max-h-[90vh]">
+      <div className="relative w-full max-w-xl rounded-[var(--radius-premium)] flex flex-col overflow-hidden max-h-[90vh]" style={{ backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)' }}>
         <div className="px-6 py-4 border-b border-[var(--border-color)] flex items-center justify-between bg-[var(--bg-paper)]/50">
           <h2 className="text-xl font-bold text-[var(--text-primary)] flex items-center">
             <LayoutTemplate className="mr-3" size={24} style={{ color: 'var(--accent-color)' }} />

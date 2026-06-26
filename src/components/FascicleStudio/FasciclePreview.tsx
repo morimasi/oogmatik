@@ -125,7 +125,7 @@ export const FasciclePreview: React.FC = () => {
               {showTemplates && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setShowTemplates(false)} />
-                  <div className="absolute right-0 top-full mt-2 z-50 w-80 glass-layer-3 rounded-2xl border border-[var(--border-color)] shadow-2xl overflow-hidden">
+                  <div className="absolute right-0 top-full mt-2 z-50 w-80 rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)' }}>
                     <div className="p-3 border-b border-[var(--border-color)] flex items-center justify-between">
                       <h4 className="text-sm font-bold text-[var(--text-primary)]">Kayıtlı Şablonlar</h4>
                       <span className="text-xs text-[var(--text-muted)]">{templates.length} adet</span>
@@ -203,7 +203,7 @@ export const FasciclePreview: React.FC = () => {
       {/* Save as Template Confirm Modal */}
       {showSaveConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
-          <div className="glass-layer-3 rounded-2xl p-6 w-full max-w-md border border-[var(--border-color)]">
+          <div className="rounded-2xl p-6 w-full max-w-md" style={{ backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)' }}>
             <h3 className="text-lg font-bold text-[var(--text-primary)] mb-2">Şablon Olarak Kaydet</h3>
             <p className="text-sm text-[var(--text-muted)] mb-4">
               Mevcut fasikül ({items.length} aktivite) şablon olarak kaydedilecek. Daha sonra tekrar yükleyebilirsiniz.

@@ -51,7 +51,7 @@ export const FascicleTemplatesModal: React.FC<FascicleTemplatesModalProps> = ({ 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}>
-      <div className="glass-layer-3 rounded-[var(--radius-premium)] w-full max-w-4xl flex flex-col max-h-[85vh] overflow-hidden">
+      <div className="rounded-[var(--radius-premium)] w-full max-w-4xl flex flex-col max-h-[85vh] overflow-hidden" style={{ backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)' }}>
         
         {/* Header */}
         <div className="p-6 border-b border-[var(--border-color)] flex justify-between items-center bg-[var(--bg-paper)]/50">
