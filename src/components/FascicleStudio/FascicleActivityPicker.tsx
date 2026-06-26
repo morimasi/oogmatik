@@ -29,6 +29,7 @@ export const FascicleActivityPicker: React.FC<FascicleActivityPickerProps> = ({ 
         difficulty: metadata.targetAgeGroup === '5-7' ? 'Başlangıç' : metadata.targetAgeGroup === '8-10' ? 'Orta' : 'Zor',
         topic: metadata.title || 'Genel',
         itemCount: 8,
+        worksheetCount: 1,
       };
 
       let result: any;
