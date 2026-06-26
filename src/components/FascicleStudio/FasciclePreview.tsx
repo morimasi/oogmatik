@@ -66,7 +66,7 @@ export const FasciclePreview: React.FC = () => {
   return (
     <div className="w-full max-w-4xl h-full flex flex-col">
       {/* Preview Toolbar */}
-      <div className="glass-layer-2 flex justify-between items-center px-4 py-3 mb-6 rounded-[var(--radius-premium)] no-print">
+       <div className="glass-layer-2 flex justify-between items-center px-4 py-3 mb-6 rounded-[var(--radius-premium)] no-print relative z-20">
          <div className="flex items-center text-[var(--text-secondary)]">
             <Eye size={18} className="mr-2" />
             <span className="text-sm font-medium">Canlı Önizleme Modu ({viewState === 'desktop' ? 'Baskı Ebatı' : 'Mobil/Tablet'})</span>
