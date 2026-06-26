@@ -125,14 +125,14 @@ export const FasciclePreview: React.FC = () => {
               {showTemplates && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setShowTemplates(false)} />
-                  <div className="absolute right-0 top-full mt-2 z-50 w-80 rounded-2xl overflow-hidden" style={{ backgroundColor: 'transparent' }}>
-                    <div className="p-3 flex items-center justify-between" style={{ backgroundColor: 'transparent' }}>
+                  <div className="absolute right-0 top-full mt-2 z-50 w-80 glass-layer-3 rounded-2xl border border-[var(--border-color)] shadow-2xl overflow-hidden">
+                    <div className="p-3 border-b border-[var(--border-color)] flex items-center justify-between">
                       <h4 className="text-sm font-bold text-[var(--text-primary)]">Kayıtlı Şablonlar</h4>
                       <span className="text-xs text-[var(--text-muted)]">{templates.length} adet</span>
                     </div>
-                    <div className="max-h-72 overflow-y-auto custom-scrollbar p-2 space-y-1" style={{ backgroundColor: 'transparent' }}>
+                    <div className="max-h-72 overflow-y-auto custom-scrollbar p-2 space-y-1">
                       {templates.length === 0 ? (
-                        <div className="text-center py-6 text-[var(--text-muted)] text-xs" style={{ backgroundColor: 'transparent' }}>
+                        <div className="text-center py-6 text-[var(--text-muted)] text-xs">
                           <BookTemplate size={24} className="mx-auto mb-2 opacity-50" />
                           <p>Henüz kayıtlı şablon yok.</p>
                           <p className="mt-1">Fasikülü oluşturup kaydedin.</p>
@@ -142,8 +142,7 @@ export const FasciclePreview: React.FC = () => {
                           <div
                             key={tpl.id}
                             onClick={() => handleLoadTemplate(tpl)}
-                            className="p-3 rounded-xl hover:border-[var(--accent-muted)] cursor-pointer transition-all group"
-                            style={{ backgroundColor: 'transparent' }}
+                            className="p-3 rounded-xl bg-[var(--bg-paper)]/50 border border-[var(--border-color)] hover:border-[var(--accent-muted)] cursor-pointer transition-all group"
                           >
                             <div className="flex items-start justify-between">
                               <div className="min-w-0 flex-1">
@@ -168,7 +167,7 @@ export const FasciclePreview: React.FC = () => {
                         ))
                       )}
                     </div>
-                    <div className="p-2 text-center" style={{ backgroundColor: 'transparent' }}>
+                    <div className="p-2 border-t border-[var(--border-color)] text-center">
                       <span className="text-[10px] text-[var(--text-muted)]">Bir şablona tıklayarak fasikülü tamamen yükleyin</span>
                     </div>
                   </div>
@@ -203,7 +202,7 @@ export const FasciclePreview: React.FC = () => {
 
       {/* Save as Template Confirm Modal */}
       {showSaveConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'transparent' }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
           <div className="glass-layer-3 rounded-2xl p-6 w-full max-w-md border border-[var(--border-color)]">
             <h3 className="text-lg font-bold text-[var(--text-primary)] mb-2">Şablon Olarak Kaydet</h3>
             <p className="text-sm text-[var(--text-muted)] mb-4">
