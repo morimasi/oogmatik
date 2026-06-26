@@ -1,26 +1,152 @@
-import React, { Suspense, useState } from 'react';
+import React, { Suspense, useState, useCallback } from 'react';
 import { useFascicleStore } from '../../store/useFascicleStore';
-import { Eye, Smartphone, Monitor, Info, LayoutTemplate } from 'lucide-react';
+import { useFascicleTemplateStore, SavedFascicleTemplate } from '../../store/useFascicleTemplateStore';
+import { Eye, Smartphone, Monitor, Info, LayoutTemplate, BookTemplate, Save, Trash2, Check, Loader2, X } from 'lucide-react';
 import { SheetRenderer } from '../SheetRenderer';
 import { ActivityType, SingleWorksheetData, StyleSettings } from '../../types';
 import { FascicleCoverPage } from './FascicleCoverPage';
 import { useStudentStore } from '../../store/useStudentStore';
+import { v4 as uuidv4 } from 'uuid';
+import toast from 'react-hot-toast';
 
 export const FasciclePreview: React.FC = () => {
-  const { items, metadata } = useFascicleStore();
+  const { items, metadata, setFascicle } = useFascicleStore();
+  const { templates, saveTemplate, deleteTemplate } = useFascicleTemplateStore();
   const { activeStudent } = useStudentStore();
   const [viewState, setViewState] = useState<'desktop' | 'mobile'>('desktop');
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [showSaveConfirm, setShowSaveConfirm] = useState(false);
+  const [templateName, setTemplateName] = useState('');
+
+  const handleSaveAsTemplate = useCallback(() => {
+    if (items.length === 0) {
+      toast.error('Kaydedilecek içerik bulunamadı.');
+      return;
+    }
+    const name = templateName.trim() || `${metadata.title || 'Fasikül'} Şablonu`;
+    const desc = `${items.length} aktivite, ${items.reduce((s, i) => s + i.pageCount, 0)} sayfa`;
+    saveTemplate({
+      title: name,
+      description: desc,
+      metadata: { ...metadata },
+      items: JSON.parse(JSON.stringify(items)),
+      pageCount: items.reduce((s, i) => s + i.pageCount, 0),
+      activityCount: items.length,
+    });
+    toast.success('Fasikül şablon olarak kaydedildi!');
+    setShowSaveConfirm(false);
+    setTemplateName('');
+  }, [items, metadata, saveTemplate, templateName]);
+
+  const handleLoadTemplate = useCallback((tpl: SavedFascicleTemplate) => {
+    const freshItems = tpl.items.map(item => ({
+      ...item,
+      id: uuidv4(),
+    }));
+    setFascicle({
+      id: `fascicle-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      metadata: tpl.metadata,
+      items: freshItems,
+      creatorId: '',
+      assignedStudentIds: [],
+      isDraft: true,
+    });
+    setShowTemplates(false);
+    toast.success(`"${tpl.title}" yüklendi!`);
+  }, [setFascicle]);
+
+  const handleDeleteTemplate = useCallback((e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    deleteTemplate(id);
+    toast.success('Şablon silindi.');
+  }, [deleteTemplate]);
 
   return (
     <div className="w-full max-w-4xl h-full flex flex-col">
-      
       {/* Preview Toolbar */}
       <div className="glass-layer-2 flex justify-between items-center px-4 py-3 mb-6 rounded-[var(--radius-premium)] no-print">
          <div className="flex items-center text-[var(--text-secondary)]">
             <Eye size={18} className="mr-2" />
             <span className="text-sm font-medium">Canlı Önizleme Modu ({viewState === 'desktop' ? 'Baskı Ebatı' : 'Mobil/Tablet'})</span>
          </div>
-         <div className="flex space-x-2">
+         <div className="flex items-center space-x-2">
+            {/* Template Save Button */}
+            {items.length > 0 && (
+              <button
+                onClick={() => setShowSaveConfirm(true)}
+                className="studio-icon-btn p-1.5 rounded-lg text-[var(--text-muted)] hover:text-emerald-400"
+                title="Fasikülü Şablon Olarak Kaydet"
+              >
+                <Save size={16} />
+              </button>
+            )}
+
+            {/* Template Load Button */}
+            <div className="relative">
+              <button
+                onClick={() => setShowTemplates(!showTemplates)}
+                className={`studio-icon-btn p-1.5 rounded-lg ${showTemplates ? 'text-[var(--accent-color)] border border-[var(--accent-muted)]' : ''}`}
+                title="Kayıtlı Fasikül Şablonları"
+              >
+                <BookTemplate size={16} />
+              </button>
+
+              {showTemplates && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setShowTemplates(false)} />
+                  <div className="absolute right-0 top-full mt-2 z-50 w-80 glass-layer-3 rounded-2xl border border-[var(--border-color)] shadow-2xl overflow-hidden">
+                    <div className="p-3 border-b border-[var(--border-color)] flex items-center justify-between">
+                      <h4 className="text-sm font-bold text-[var(--text-primary)]">Kayıtlı Şablonlar</h4>
+                      <span className="text-xs text-[var(--text-muted)]">{templates.length} adet</span>
+                    </div>
+                    <div className="max-h-72 overflow-y-auto custom-scrollbar p-2 space-y-1">
+                      {templates.length === 0 ? (
+                        <div className="text-center py-6 text-[var(--text-muted)] text-xs">
+                          <BookTemplate size={24} className="mx-auto mb-2 opacity-50" />
+                          <p>Henüz kayıtlı şablon yok.</p>
+                          <p className="mt-1">Fasikülü oluşturup kaydedin.</p>
+                        </div>
+                      ) : (
+                        templates.map((tpl) => (
+                          <div
+                            key={tpl.id}
+                            onClick={() => handleLoadTemplate(tpl)}
+                            className="p-3 rounded-xl bg-[var(--bg-paper)]/50 border border-[var(--border-color)] hover:border-[var(--accent-muted)] cursor-pointer transition-all group"
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="min-w-0 flex-1">
+                                <h5 className="text-sm font-semibold text-[var(--text-primary)] truncate">{tpl.title}</h5>
+                                <p className="text-xs text-[var(--text-muted)] mt-0.5">{tpl.description}</p>
+                                <div className="flex items-center gap-2 mt-1.5">
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)' }}>
+                                    {tpl.activityCount} aktivite
+                                  </span>
+                                  <span className="text-[10px] text-[var(--text-muted)]">{tpl.pageCount} sayfa</span>
+                                  <span className="text-[10px] text-[var(--text-muted)]">{new Date(tpl.createdAt).toLocaleDateString('tr-TR')}</span>
+                                </div>
+                              </div>
+                              <button
+                                onClick={(e) => handleDeleteTemplate(e, tpl.id)}
+                                className="studio-icon-btn p-1 rounded-lg opacity-0 group-hover:opacity-100 text-[var(--text-muted)] hover:text-red-400 transition-all shrink-0 ml-2"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    <div className="p-2 border-t border-[var(--border-color)] text-center">
+                      <span className="text-[10px] text-[var(--text-muted)]">Bir şablona tıklayarak fasikülü tamamen yükleyin</span>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* View Toggle */}
             <button 
                onClick={() => setViewState('mobile')}
                className={`studio-icon-btn p-1.5 rounded-lg ${viewState === 'mobile' ? 'text-[var(--accent-color)] border border-[var(--accent-muted)]' : ''}`}
@@ -36,6 +162,42 @@ export const FasciclePreview: React.FC = () => {
          </div>
       </div>
 
+      {/* Save as Template Confirm Modal */}
+      {showSaveConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
+          <div className="glass-layer-3 rounded-2xl p-6 w-full max-w-md border border-[var(--border-color)]">
+            <h3 className="text-lg font-bold text-[var(--text-primary)] mb-2">Şablon Olarak Kaydet</h3>
+            <p className="text-sm text-[var(--text-muted)] mb-4">
+              Mevcut fasikül ({items.length} aktivite) şablon olarak kaydedilecek. Daha sonra tekrar yükleyebilirsiniz.
+            </p>
+            <input
+              type="text"
+              value={templateName}
+              onChange={(e) => setTemplateName(e.target.value)}
+              placeholder="Şablon adı (opsiyonel)"
+              className="w-full bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl px-4 py-2.5 text-sm text-[var(--text-primary)] outline-none focus:border-[var(--accent-color)] transition-colors mb-4"
+              autoFocus
+            />
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => { setShowSaveConfirm(false); setTemplateName(''); }}
+                className="px-4 py-2 rounded-xl text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-color)] hover:bg-[var(--bg-paper)] transition-all"
+              >
+                İptal
+              </button>
+              <button
+                onClick={handleSaveAsTemplate}
+                className="px-4 py-2 rounded-xl text-sm font-semibold flex items-center gap-2 transition-all"
+                style={{ background: 'var(--accent-color)', color: '#ffffff' }}
+              >
+                <Save size={16} />
+                Kaydet
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* A4 Paper Mockup Scroll Area */}
       <div className={`flex-1 overflow-y-auto custom-scrollbar flex flex-col items-center pb-20 transition-transform duration-300 origin-top ${viewState === 'mobile' ? 'scale-[0.85]' : 'scale-100'}`}>
          <div id="fascicle-print-container" className="w-full flex flex-col items-center">
@@ -46,14 +208,12 @@ export const FasciclePreview: React.FC = () => {
 
              {/* İçerik Sayfaları (Items) */}
              {items.length > 0 ? items.map((item, index) => {
-               // İçerikten dinamik ayarları çek (Sınav stüdyosunun 2 sütun gibi ayarlarını korumak için)
                const contentObj = (item.content as any) || {};
                const isExam = item.type === ActivityType.SINAV || item.type === ActivityType.MAT_SINAV;
                const defaultColumns = isExam ? 2 : 1;
                
-               // Hedef ayarlar genelde printConfig, settings veya config adıyla content içine paketlenir
                const dynamicSettings = {
-                 columns: defaultColumns, // Fallback default based on type
+                 columns: defaultColumns,
                  ...(contentObj.settings || {}),
                  ...(contentObj.printConfig || {}),
                  ...(contentObj.config || {}),
@@ -62,7 +222,6 @@ export const FasciclePreview: React.FC = () => {
 
                return (
                  <div key={item.id} className="relative group/page">
-                    {/* Page Header Info (Floating) */}
                     <div className="absolute -left-48 top-0 w-40 h-full no-print hidden xl:flex flex-col gap-4 py-4 pointer-events-none">
                        <div className="glass-layer-3 p-4 rounded-2xl pointer-events-auto">
                           <span className="text-[9px] font-black uppercase tracking-widest block mb-1" style={{ color: 'var(--accent-color)' }}>Sayfa {index + 2}</span>
@@ -74,7 +233,6 @@ export const FasciclePreview: React.FC = () => {
                        </div>
                     </div>
 
-                    {/* Gerçek Render Alanı */}
                     <div className="w-[210mm] min-h-[297mm] mx-auto shrink-0 shadow-2xl mb-12 bg-white relative print-exact border border-[var(--border-color)]">
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 overflow-hidden p-12">
                         <img src="/assets/logo.png" alt="" className="w-full h-full object-contain opacity-[0.03]" />
@@ -121,13 +279,12 @@ export const FasciclePreview: React.FC = () => {
                              rulerColor: '#e2e8f0',
                              rulerHeight: 0,
                              maskOpacity: 0,
-                             ...dynamicSettings // STÜDYO'NUN KENDİ AYARLARINI (İKİ SÜTUN VS) KULLAN!
+                             ...dynamicSettings
                            } as StyleSettings}
                          />
                       </Suspense>
                     </div>
 
-                    {/* Pedagogical Note */}
                     {item.pedagogicalNote && (
                       <div className="w-[21cm] -mt-10 mb-20 p-6 glass-layer-2 rounded-2xl flex gap-4 no-print mx-auto">
                          <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-lg" style={{ backgroundColor: 'var(--accent-color)', color: '#ffffff', boxShadow: '0 4px 12px var(--accent-muted)' }}>
