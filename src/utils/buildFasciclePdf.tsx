@@ -9,7 +9,7 @@ import {
   Image,
   Font
 } from '@react-pdf/renderer';
-import { FascicleDocument } from '../types/fascicle';
+import { FascicleDocument, WatermarkSettings } from '../types/fascicle';
 import { logError } from '../utils/logger.js';
 
 // Disleksi dostu Lexend fontunu yükleme (Vercel'deki static klasörde varsayılarak veya Google API'den)
@@ -113,10 +113,13 @@ const styles = StyleSheet.create({
 interface BuildPdfOptions {
   fascicle: FascicleDocument;
   watermarkText?: string;
+  watermarkSettings?: WatermarkSettings;
   qrUrl?: string; // Tıklanınca açılacak url, buna göre QR üretilecek
 }
 
-const FasciclePdfDoc: React.FC<BuildPdfOptions> = ({ fascicle, watermarkText, qrUrl }) => {
+const FasciclePdfDoc: React.FC<BuildPdfOptions> = ({ fascicle, watermarkText, watermarkSettings, qrUrl }) => {
+  const ws = watermarkSettings || (watermarkText ? { enabled: true, type: 'text' as const, text: watermarkText, opacity: 6, color: '#f8fafc', fontSize: 48, rotation: -45 } : undefined);
+  const showWatermark = ws?.enabled;
   const meta = fascicle.metadata;
   
   // Free QR generator API for digital transformation
@@ -128,9 +131,9 @@ const FasciclePdfDoc: React.FC<BuildPdfOptions> = ({ fascicle, watermarkText, qr
     <Document title={meta.title}>
       {/* Kapak Sayfası */}
       <Page size="A4" style={styles.page}>
-         {watermarkText && (
-            <View style={styles.watermarkContainer}>
-               <Text style={styles.watermarkText}>{watermarkText}</Text>
+         {showWatermark && (
+            <View style={{ ...styles.watermarkContainer, opacity: (ws?.opacity ?? 6) / 100 }}>
+               <Text style={{ ...styles.watermarkText, fontSize: ws?.fontSize ?? 48, color: ws?.color ?? '#f8fafc' }}>{ws?.text || 'bdmind'}</Text>
             </View>
          )}
 
@@ -161,11 +164,11 @@ const FasciclePdfDoc: React.FC<BuildPdfOptions> = ({ fascicle, watermarkText, qr
       {/* İçerik Sayfaları */}
       {fascicle.items.map((item, idx) => (
         <Page key={item.id} size="A4" style={styles.page}>
-           {watermarkText && (
-            <View style={styles.watermarkContainer}>
-               <Text style={styles.watermarkText}>{watermarkText}</Text>
+         {showWatermark && (
+            <View style={{ ...styles.watermarkContainer, opacity: (ws?.opacity ?? 6) / 100 }}>
+               <Text style={{ ...styles.watermarkText, fontSize: ws?.fontSize ?? 48, color: ws?.color ?? '#f8fafc' }}>{ws?.text || 'bdmind'}</Text>
             </View>
-           )}
+            )}
 
            <View style={styles.sectionHeader}>
              <Text style={styles.sectionTitle}>Bölüm {idx + 1}: {item.type}</Text>

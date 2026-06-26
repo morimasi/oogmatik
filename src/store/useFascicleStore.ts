@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { FascicleItem, FascicleMetadata, FascicleDocument } from '../types/fascicle';
+import { FascicleItem, FascicleMetadata, FascicleDocument, WatermarkSettings } from '../types/fascicle';
 import { persist } from 'zustand/middleware';
 
 interface FascicleState {
@@ -49,6 +49,15 @@ const initialMetadata: FascicleMetadata = {
     primaryColor: 'indigo',
     showStudentLine: true,
     schoolName: 'Oogmatik Eğitim Platformu'
+  },
+  watermarkSettings: {
+    enabled: false,
+    type: 'text',
+    text: 'bdmind',
+    opacity: 5,
+    color: '#cbd5e1',
+    fontSize: 48,
+    rotation: -45
   }
 };
 

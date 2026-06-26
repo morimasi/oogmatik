@@ -13,6 +13,16 @@ export interface FascicleItem {
   order: number; // Sıralama indeksi
 }
 
+export interface WatermarkSettings {
+  enabled: boolean;
+  type: 'text' | 'image';
+  text: string;
+  opacity: number;
+  color: string;
+  fontSize: number;
+  rotation: number;
+}
+
 export interface CoverPageSettings {
   enabled: boolean;
   title: string;
@@ -33,6 +43,7 @@ export interface FascicleMetadata {
   estimatedDurationMin: number;
   qrEnabled: boolean;
   watermarkText?: string;
+  watermarkSettings?: WatermarkSettings;
   coverPageSettings?: CoverPageSettings;
 }
 

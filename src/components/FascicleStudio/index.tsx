@@ -58,10 +58,7 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
     try {
         setIsPrinting(true);
         toast.loading('Yazdırma modülü hazırlanıyor...', { id: 'print-toast' });
-        await printService.generatePdf('#fascicle-print-container', metadata.title || 'Ozel_Egitim_Fasikulu', {
-            action: 'print',
-            quality: 'high'
-        });
+        await printService.captureAndPrint('#fascicle-print-container', metadata.title || 'Ozel_Egitim_Fasikulu', 'print');
         toast.success('Yazdırma sırasına eklendi!', { id: 'print-toast' });
     } catch (error) {
         logError(error as Error, { context: 'Fasikül yazdırılamadı' });

@@ -96,6 +96,7 @@ export const print = async (
 ): Promise<void> => {
   if (typeof window === 'undefined') return;
 
+  await forceRenderAllPages();
   ensurePrintStyle(paperSize);
 
   // 1. Yazdırılacak sayfaları topla

@@ -50,7 +50,7 @@ export const FascicleTemplatesModal: React.FC<FascicleTemplatesModalProps> = ({ 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'transparent' }}>
       <div className="glass-layer-3 rounded-[var(--radius-premium)] w-full max-w-4xl flex flex-col max-h-[85vh] overflow-hidden">
         
         {/* Header */}

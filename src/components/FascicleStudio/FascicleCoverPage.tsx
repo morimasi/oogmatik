@@ -1,5 +1,5 @@
 import React from 'react';
-import { CoverPageSettings } from '../../types/fascicle';
+import { CoverPageSettings, WatermarkSettings } from '../../types/fascicle';
 import { Student } from '../../types';
 import DyslexiaLogo from '../DyslexiaLogo';
 
@@ -7,9 +7,10 @@ interface FascicleCoverPageProps {
   settings: CoverPageSettings;
   student: Student | null;
   fascicleTitle?: string;
+  watermarkSettings?: WatermarkSettings;
 }
 
-export const FascicleCoverPage: React.FC<FascicleCoverPageProps> = ({ settings, student, fascicleTitle }) => {
+export const FascicleCoverPage: React.FC<FascicleCoverPageProps> = ({ settings, student, fascicleTitle, watermarkSettings }) => {
   if (!settings.enabled) return null;
 
   const getThemeClasses = () => {
@@ -55,9 +56,28 @@ export const FascicleCoverPage: React.FC<FascicleCoverPageProps> = ({ settings, 
       }}
     >
       {/* Watermark */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden p-12">
-        <img src="/assets/logo.png" alt="" className="w-full h-full object-contain opacity-[0.04]" />
-      </div>
+      {watermarkSettings?.enabled && (
+        watermarkSettings.type === 'image' ? (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden p-12" style={{ opacity: watermarkSettings.opacity / 100 }}>
+            <img src="/assets/logo.png" alt="" className="w-full h-full object-contain" />
+          </div>
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden" style={{ transform: `rotate(${watermarkSettings.rotation}deg)` }}>
+            <span style={{
+              fontSize: `${watermarkSettings.fontSize}px`,
+              color: watermarkSettings.color,
+              opacity: watermarkSettings.opacity / 100,
+              fontWeight: 700,
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              userSelect: 'none',
+              fontFamily: 'Lexend, sans-serif',
+            }}>
+              {watermarkSettings.text}
+            </span>
+          </div>
+        )
+      )}
 
       {/* Decorative Elements */}
       {settings.themeStyle === 'modern' && (

@@ -1,13 +1,41 @@
 import React, { Suspense, useState, useCallback } from 'react';
 import { useFascicleStore } from '../../store/useFascicleStore';
 import { useFascicleTemplateStore, SavedFascicleTemplate } from '../../store/useFascicleTemplateStore';
-import { Eye, Smartphone, Monitor, Info, LayoutTemplate, BookTemplate, Save, Trash2, Check, Loader2, X } from 'lucide-react';
+import { Eye, Smartphone, Monitor, Info, LayoutTemplate, BookTemplate, Save, Trash2, Check, Loader2, X, Droplets } from 'lucide-react';
 import { SheetRenderer } from '../SheetRenderer';
 import { ActivityType, SingleWorksheetData, StyleSettings } from '../../types';
+import { WatermarkSettings } from '../../types/fascicle';
 import { FascicleCoverPage } from './FascicleCoverPage';
+import { FascicleWatermarkSettingsModal } from './FascicleWatermarkSettingsModal';
 import { useStudentStore } from '../../store/useStudentStore';
 import { v4 as uuidv4 } from 'uuid';
 import toast from 'react-hot-toast';
+
+const renderWatermark = (ws: WatermarkSettings) => {
+  if (ws.type === 'image') {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 overflow-hidden p-12" style={{ opacity: ws.opacity / 100 }}>
+        <img src="/assets/logo.png" alt="" className="w-full h-full object-contain" />
+      </div>
+    );
+  }
+  return (
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 overflow-hidden" style={{ transform: `rotate(${ws.rotation}deg)` }}>
+      <span style={{
+        fontSize: `${ws.fontSize}px`,
+        color: ws.color,
+        opacity: ws.opacity / 100,
+        fontWeight: 700,
+        letterSpacing: '0.1em',
+        textTransform: 'uppercase',
+        userSelect: 'none',
+        fontFamily: 'Lexend, sans-serif',
+      }}>
+        {ws.text}
+      </span>
+    </div>
+  );
+};
 
 export const FasciclePreview: React.FC = () => {
   const { items, metadata, setFascicle } = useFascicleStore();
@@ -18,6 +46,7 @@ export const FasciclePreview: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
   const [templateName, setTemplateName] = useState('');
+  const [showWatermarkSettings, setShowWatermarkSettings] = useState(false);
 
   const handleSaveAsTemplate = useCallback(() => {
     if (items.length === 0) {
@@ -96,14 +125,14 @@ export const FasciclePreview: React.FC = () => {
               {showTemplates && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setShowTemplates(false)} />
-                  <div className="absolute right-0 top-full mt-2 z-50 w-80 glass-layer-3 rounded-2xl border border-[var(--border-color)] shadow-2xl overflow-hidden">
-                    <div className="p-3 border-b border-[var(--border-color)] flex items-center justify-between">
+                  <div className="absolute right-0 top-full mt-2 z-50 w-80 rounded-2xl overflow-hidden" style={{ backgroundColor: 'transparent' }}>
+                    <div className="p-3 flex items-center justify-between" style={{ backgroundColor: 'transparent' }}>
                       <h4 className="text-sm font-bold text-[var(--text-primary)]">Kayıtlı Şablonlar</h4>
                       <span className="text-xs text-[var(--text-muted)]">{templates.length} adet</span>
                     </div>
-                    <div className="max-h-72 overflow-y-auto custom-scrollbar p-2 space-y-1">
+                    <div className="max-h-72 overflow-y-auto custom-scrollbar p-2 space-y-1" style={{ backgroundColor: 'transparent' }}>
                       {templates.length === 0 ? (
-                        <div className="text-center py-6 text-[var(--text-muted)] text-xs">
+                        <div className="text-center py-6 text-[var(--text-muted)] text-xs" style={{ backgroundColor: 'transparent' }}>
                           <BookTemplate size={24} className="mx-auto mb-2 opacity-50" />
                           <p>Henüz kayıtlı şablon yok.</p>
                           <p className="mt-1">Fasikülü oluşturup kaydedin.</p>
@@ -113,7 +142,8 @@ export const FasciclePreview: React.FC = () => {
                           <div
                             key={tpl.id}
                             onClick={() => handleLoadTemplate(tpl)}
-                            className="p-3 rounded-xl bg-[var(--bg-paper)]/50 border border-[var(--border-color)] hover:border-[var(--accent-muted)] cursor-pointer transition-all group"
+                            className="p-3 rounded-xl hover:border-[var(--accent-muted)] cursor-pointer transition-all group"
+                            style={{ backgroundColor: 'transparent' }}
                           >
                             <div className="flex items-start justify-between">
                               <div className="min-w-0 flex-1">
@@ -138,13 +168,22 @@ export const FasciclePreview: React.FC = () => {
                         ))
                       )}
                     </div>
-                    <div className="p-2 border-t border-[var(--border-color)] text-center">
+                    <div className="p-2 text-center" style={{ backgroundColor: 'transparent' }}>
                       <span className="text-[10px] text-[var(--text-muted)]">Bir şablona tıklayarak fasikülü tamamen yükleyin</span>
                     </div>
                   </div>
                 </>
               )}
             </div>
+
+            {/* Watermark Settings */}
+            <button
+              onClick={() => setShowWatermarkSettings(true)}
+              className={`studio-icon-btn p-1.5 rounded-lg ${metadata.watermarkSettings?.enabled ? 'text-[var(--accent-color)] border border-[var(--accent-muted)]' : ''}`}
+              title="Filigran Ayarları"
+            >
+              <Droplets size={16} />
+            </button>
 
             {/* View Toggle */}
             <button 
@@ -164,7 +203,7 @@ export const FasciclePreview: React.FC = () => {
 
       {/* Save as Template Confirm Modal */}
       {showSaveConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'transparent' }}>
           <div className="glass-layer-3 rounded-2xl p-6 w-full max-w-md border border-[var(--border-color)]">
             <h3 className="text-lg font-bold text-[var(--text-primary)] mb-2">Şablon Olarak Kaydet</h3>
             <p className="text-sm text-[var(--text-muted)] mb-4">
@@ -202,9 +241,9 @@ export const FasciclePreview: React.FC = () => {
       <div className={`flex-1 overflow-y-auto custom-scrollbar flex flex-col items-center pb-20 transition-transform duration-300 origin-top ${viewState === 'mobile' ? 'scale-[0.85]' : 'scale-100'}`}>
          <div id="fascicle-print-container" className="w-full flex flex-col items-center">
              {/* Kapak Sayfası */}
-             {metadata.coverPageSettings && (
-               <FascicleCoverPage settings={metadata.coverPageSettings} student={activeStudent} fascicleTitle={metadata.title} />
-             )}
+              {metadata.coverPageSettings && (
+                <FascicleCoverPage settings={metadata.coverPageSettings} student={activeStudent} fascicleTitle={metadata.title} watermarkSettings={metadata.watermarkSettings} />
+              )}
 
              {/* İçerik Sayfaları (Items) */}
              {items.length > 0 ? items.map((item, index) => {
@@ -234,9 +273,7 @@ export const FasciclePreview: React.FC = () => {
                     </div>
 
                     <div className="w-[210mm] min-h-[297mm] mx-auto shrink-0 shadow-2xl mb-12 bg-white relative print-exact border border-[var(--border-color)]">
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 overflow-hidden p-12">
-                        <img src="/assets/logo.png" alt="" className="w-full h-full object-contain opacity-[0.03]" />
-                      </div>
+                      {metadata.watermarkSettings?.enabled && renderWatermark(metadata.watermarkSettings)}
                       <Suspense fallback={
                         <div className="w-[21cm] h-[29.7cm] flex items-center justify-center bg-white">
                           <div className="animate-spin rounded-full h-12 w-12" style={{ borderBottomColor: 'var(--accent-color)', borderLeftColor: 'transparent', borderRightColor: 'transparent', borderTopColor: 'transparent', borderWidth: '3px' }}></div>
@@ -311,6 +348,11 @@ export const FasciclePreview: React.FC = () => {
              )}
          </div>
       </div>
+
+      <FascicleWatermarkSettingsModal
+        isOpen={showWatermarkSettings}
+        onClose={() => setShowWatermarkSettings(false)}
+      />
     </div>
   );
 };
