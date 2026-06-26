@@ -213,7 +213,7 @@ export class ThemeIntelligenceService {
       );
 
       if (lightPreferences.length > 5) {
-        recommendedTheme = 'light';
+        recommendedTheme = 'light-warm';
         confidence += 0.3;
         factors.push('Gündüz saatlerinde aydınlık tema tercihiniz var');
       }

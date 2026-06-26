@@ -40,6 +40,11 @@ const THEME_GROUPS: { label: string; themes: ThemeEntry[] }[] = [
     label: 'Açık',
     themes: [
       { id: 'light', name: 'Milk & Honey', color: '#F8FAFC', accent: '#4F46E5', desc: 'Ferah' },
+      { id: 'light-warm', name: 'Sıcak Amber', color: '#FFFAF5', accent: '#F59E0B', desc: 'Samimi', premium: true },
+      { id: 'light-cool', name: 'Gök Mavisi', color: '#F0F9FF', accent: '#0284C7', desc: 'Ferah', premium: true },
+      { id: 'light-rose', name: 'Yumuşak Gül', color: '#FFF5F7', accent: '#E11D48', desc: 'Zarif', premium: true },
+      { id: 'light-lavender', name: 'Lavanta', color: '#F8F6FF', accent: '#7C3AED', desc: 'Huzurlu', premium: true },
+      { id: 'light-sage', name: 'Adaçayı', color: '#F4F9F5', accent: '#059669', desc: 'Doğal', premium: true },
     ],
   },
   {

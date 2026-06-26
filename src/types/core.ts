@@ -345,6 +345,11 @@ export interface SavedWorksheet {
 
 export type AppTheme =
   | 'light'
+  | 'light-warm'
+  | 'light-cool'
+  | 'light-rose'
+  | 'light-lavender'
+  | 'light-sage'
   | 'dark'
   | 'anthracite'
   | 'space'

@@ -104,6 +104,156 @@
 }
 
 /* ----------------------------------------------------------------
+ * 2-a. LIGHT WARM — Sıcak Amber/Şeftali Tonları, Samimi
+ * ---------------------------------------------------------------- */
+:root.theme-light-warm {
+  --accent-h: 38;
+  --accent-s: 92%;
+  --accent-l: 56%;
+  --accent-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+  --accent-hover: hsl(var(--accent-h), 88%, 46%);
+  --accent-muted: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.08);
+
+  --bg-primary-rgb: 255, 250, 245;
+  --bg-secondary-rgb: 255, 245, 235;
+  --bg-paper-rgb: 255, 255, 255;
+  --bg-inset-rgb: 255, 245, 235;
+
+  --surface-glass: rgba(0, 0, 0, 0.03);
+  --surface-glass-blur: 12px;
+  --surface-elevated: rgba(0, 0, 0, 0.05);
+
+  --text-primary: #1c1917;
+  --text-secondary: #57534e;
+  --text-muted: #a8a29e;
+  --border-color: rgba(0, 0, 0, 0.06);
+
+  --shadow-premium: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --bg-viewport: rgb(245, 235, 225);
+  --bg-viewport-dot: rgba(0, 0, 0, 0.04);
+}
+
+/* ----------------------------------------------------------------
+ * 2-b. LIGHT COOL — Soğuk Gök Mavisi Tonları, Ferah
+ * ---------------------------------------------------------------- */
+:root.theme-light-cool {
+  --accent-h: 202;
+  --accent-s: 97%;
+  --accent-l: 48%;
+  --accent-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+  --accent-hover: hsl(var(--accent-h), 92%, 38%);
+  --accent-muted: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.08);
+
+  --bg-primary-rgb: 240, 249, 255;
+  --bg-secondary-rgb: 230, 242, 252;
+  --bg-paper-rgb: 255, 255, 255;
+  --bg-inset-rgb: 230, 242, 252;
+
+  --surface-glass: rgba(0, 0, 0, 0.03);
+  --surface-glass-blur: 12px;
+  --surface-elevated: rgba(0, 0, 0, 0.05);
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border-color: rgba(0, 0, 0, 0.06);
+
+  --shadow-premium: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --bg-viewport: rgb(220, 235, 245);
+  --bg-viewport-dot: rgba(0, 0, 0, 0.04);
+}
+
+/* ----------------------------------------------------------------
+ * 2-c. LIGHT ROSE — Yumuşak Gül/Pembemsi Tonlar, Zarif
+ * ---------------------------------------------------------------- */
+:root.theme-light-rose {
+  --accent-h: 350;
+  --accent-s: 89%;
+  --accent-l: 56%;
+  --accent-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+  --accent-hover: hsl(var(--accent-h), 84%, 46%);
+  --accent-muted: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.08);
+
+  --bg-primary-rgb: 255, 245, 247;
+  --bg-secondary-rgb: 255, 237, 241;
+  --bg-paper-rgb: 255, 255, 255;
+  --bg-inset-rgb: 255, 237, 241;
+
+  --surface-glass: rgba(0, 0, 0, 0.03);
+  --surface-glass-blur: 12px;
+  --surface-elevated: rgba(0, 0, 0, 0.05);
+
+  --text-primary: #1a0f14;
+  --text-secondary: #5c444c;
+  --text-muted: #a48a92;
+  --border-color: rgba(0, 0, 0, 0.06);
+
+  --shadow-premium: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --bg-viewport: rgb(240, 225, 230);
+  --bg-viewport-dot: rgba(0, 0, 0, 0.04);
+}
+
+/* ----------------------------------------------------------------
+ * 2-d. LIGHT LAVENDER — Yumuşak Lavanta/Mor Tonlar, Huzurlu
+ * ---------------------------------------------------------------- */
+:root.theme-light-lavender {
+  --accent-h: 262;
+  --accent-s: 83%;
+  --accent-l: 57%;
+  --accent-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+  --accent-hover: hsl(var(--accent-h), 76%, 47%);
+  --accent-muted: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.08);
+
+  --bg-primary-rgb: 248, 246, 255;
+  --bg-secondary-rgb: 241, 237, 252;
+  --bg-paper-rgb: 255, 255, 255;
+  --bg-inset-rgb: 241, 237, 252;
+
+  --surface-glass: rgba(0, 0, 0, 0.03);
+  --surface-glass-blur: 12px;
+  --surface-elevated: rgba(0, 0, 0, 0.05);
+
+  --text-primary: #0f0a1a;
+  --text-secondary: #4c445c;
+  --text-muted: #948aa4;
+  --border-color: rgba(0, 0, 0, 0.06);
+
+  --shadow-premium: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --bg-viewport: rgb(230, 225, 240);
+  --bg-viewport-dot: rgba(0, 0, 0, 0.04);
+}
+
+/* ----------------------------------------------------------------
+ * 2-e. LIGHT SAGE — Adaçayı Yeşili Tonları, Doğal Sakin
+ * ---------------------------------------------------------------- */
+:root.theme-light-sage {
+  --accent-h: 162;
+  --accent-s: 93%;
+  --accent-l: 41%;
+  --accent-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+  --accent-hover: hsl(var(--accent-h), 87%, 33%);
+  --accent-muted: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.08);
+
+  --bg-primary-rgb: 244, 249, 245;
+  --bg-secondary-rgb: 235, 245, 238;
+  --bg-paper-rgb: 255, 255, 255;
+  --bg-inset-rgb: 235, 245, 238;
+
+  --surface-glass: rgba(0, 0, 0, 0.03);
+  --surface-glass-blur: 12px;
+  --surface-elevated: rgba(0, 0, 0, 0.05);
+
+  --text-primary: #0a1a14;
+  --text-secondary: #3d5c4e;
+  --text-muted: #84a493;
+  --border-color: rgba(0, 0, 0, 0.06);
+
+  --shadow-premium: 0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+  --bg-viewport: rgb(225, 238, 230);
+  --bg-viewport-dot: rgba(0, 0, 0, 0.04);
+}
+
+/* ----------------------------------------------------------------
  * 3. OBSIDIAN DEEP (Dark) — Kararlı, Derin, Profesyonel
  * ---------------------------------------------------------------- */
 :root.theme-dark {
