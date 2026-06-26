@@ -4,9 +4,9 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { useAssignmentStore } from '../../store/useAssignmentStore';
 import { FascicleSidebar } from './FascicleSidebar';
 import { FasciclePreview } from './FasciclePreview';
-import { FascicleTemplatesModal } from './FascicleTemplatesModal';
+import { FascicleActivityPicker } from './FascicleActivityPicker';
 import { ShareModal } from '../ShareModal';
-import { FileDown, Undo, Redo, LayoutTemplate, Save, Share2, UserPlus, Printer } from 'lucide-react';
+import { FileDown, Undo, Redo, Sparkles, Save, Share2, UserPlus, Printer } from 'lucide-react';
 import { fascicleService } from '../../services/fascicleService';
 import { worksheetService } from '../../services/worksheetService';
 import { printService } from '../../utils/printService';
@@ -27,7 +27,7 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [savedFascicleId, setSavedFascicleId] = useState<string | null>(null);
   
-  const [isTemplatesModalOpen, setIsTemplatesModalOpen] = useState(false);
+  const [isActivityPickerOpen, setIsActivityPickerOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
 
@@ -208,9 +208,10 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
           <div className="w-px h-6 bg-[var(--border-color)] mx-1"></div>
 
           <button 
-             onClick={() => setIsTemplatesModalOpen(true)}
-             className="btn-accent-glow flex items-center px-3 py-2 bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-[var(--radius-premium)] hover:bg-[var(--bg-secondary)] transition text-sm font-medium">
-             <LayoutTemplate size={16} className="mr-2" /> Şablonlar
+             onClick={() => setIsActivityPickerOpen(true)}
+             className="btn-accent-glow flex items-center px-3 py-2 bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-[var(--radius-premium)] hover:bg-[var(--bg-secondary)] transition text-sm font-medium"
+             style={{ boxShadow: '0 0 20px var(--accent-muted)' }}>
+             <Sparkles size={16} className="mr-2" style={{ color: 'var(--accent-color)' }} /> Etkinlik Havuzu
           </button>
           
           <button 
@@ -250,9 +251,9 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
         </div>
       </div>
       
-      <FascicleTemplatesModal 
-        isOpen={isTemplatesModalOpen} 
-        onClose={() => setIsTemplatesModalOpen(false)} 
+      <FascicleActivityPicker 
+        isOpen={isActivityPickerOpen} 
+        onClose={() => setIsActivityPickerOpen(false)} 
       />
 
       {/* Paylaşım Modalı */}

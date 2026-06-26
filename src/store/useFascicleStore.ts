@@ -11,6 +11,10 @@ interface FascicleState {
   past: { items: FascicleItem[]; metadata: FascicleMetadata }[];
   future: { items: FascicleItem[]; metadata: FascicleMetadata }[];
   
+  // Selected item for editing/regeneration
+  selectedItemId: string | null;
+  expandedItemId: string | null;
+  
   // Actions
   setFascicle: (fascicle: FascicleDocument) => void;
   updateMetadata: (metadata: Partial<FascicleMetadata>) => void;
@@ -19,6 +23,8 @@ interface FascicleState {
   reorderItems: (startIndex: number, endIndex: number) => void;
   updateItem: (itemId: string, updates: Partial<FascicleItem>) => void;
   setItems: (items: FascicleItem[]) => void;
+  selectItem: (itemId: string | null) => void;
+  toggleExpandItem: (itemId: string | null) => void;
   
   // Undo/Redo
   undo: () => void;
@@ -54,6 +60,8 @@ export const useFascicleStore = create<FascicleState>()(
       items: [],
       past: [],
       future: [],
+      selectedItemId: null,
+      expandedItemId: null,
 
       setFascicle: (fascicle) => {
         set({
@@ -122,6 +130,12 @@ export const useFascicleStore = create<FascicleState>()(
           future: [],
           items: items.map(item => item.id === itemId ? { ...item, ...updates } : item)
         });
+      },
+
+      selectItem: (itemId) => set({ selectedItemId: itemId }),
+      toggleExpandItem: (itemId) => {
+        const { expandedItemId } = get();
+        set({ expandedItemId: expandedItemId === itemId ? null : itemId });
       },
 
       setItems: (newItems) => {
