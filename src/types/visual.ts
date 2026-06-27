@@ -36,32 +36,34 @@ export interface ShapeCountingData extends BaseActivityData {
 export interface FindTheDifferenceData extends BaseActivityData {
     settings?: {
         difficulty: 'beginner' | 'intermediate' | 'expert' | 'clinical';
-        differenceType: 'visual' | 'character' | 'morphological' | 'symbolic';
-        itemType: 'svg' | 'text' | 'image' | 'character' | 'word';
-        layout: 'single' | 'grid_compact' | 'ultra_dense' | 'side_by_side';
+        layout: 'side_by_side' | 'stacked' | 'grid_2x2' | 'compact';
+        itemType: 'visual' | 'char' | 'number' | 'word' | 'abstract' | 'mixed';
+        differenceType: 'visual' | 'character' | 'morphological' | 'symbolic' | 'numeric' | 'semantic' | 'mirror';
         isProfessionalMode: boolean;
         showClinicalNotes?: boolean;
+        puzzleCount?: number;
+        gridSize?: number;
+        differenceCount?: number;
+        aestheticMode?: 'standard' | 'premium' | 'glassmorphism' | 'ultra-compact';
     };
-    gridA?: unknown[][]; // Legacy support
-    gridB?: unknown[][]; // Legacy support
-    diffCount?: number;   // Legacy support
-    puzzles?: {
-        gridA: unknown[][];
-        gridB: unknown[][];
+    puzzles: {
+        gridA: any[][];
+        gridB: any[][];
         diffCount: number;
-        title?: string;
-    }[];
-    rows: {
-        items: unknown[]; // Supports strings, SVG objects, or references
-        correctIndex: number;
-        visualDistractionLevel: 'low' | 'medium' | 'high' | 'extreme';
+        title: string;
         clinicalMeta?: {
+            discriminationFactor?: number;
+            targetCognitiveSkill?: string;
+            perceptualLoad?: number;
             errorType?: string;
-            rotationAngle?: number;
             isMirrored?: boolean;
-            strokeDifference?: string;
         };
     }[];
+    // Legacy support
+    gridA?: any[][];
+    gridB?: any[][];
+    diffCount?: number;
+    rows?: any[];
 }
 
 export interface WordComparisonData extends BaseActivityData {

@@ -1,135 +1,102 @@
+
 import React from 'react';
 import { GeneratorOptions } from '../../types';
 
-export const FindDifferenceConfig: React.FC<{
-  options: GeneratorOptions;
-  onChange: (k: keyof GeneratorOptions, v: unknown) => void;
-}> = ({ options, onChange }) => {
-  const o = (options as any).findDifference || {};
-  
-  const update = (key: keyof GeneratorOptions, val: unknown) => {
-    onChange('findDifference' as any, { ...o, [key]: val });
-    onChange(key, val);
-  };
+export const FindDifferenceConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: keyof GeneratorOptions, v: unknown) => void }) => {
+    return (
+        <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+            {/* Izgara ve Varyasyon Sistemi */}
+            <div className="p-4 bg-zinc-900 text-white rounded-[2rem] border border-zinc-800 shadow-2xl relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                    <i className="fa-solid fa-border-all text-4xl"></i>
+                </div>
+                <label className="text-[10px] font-black text-indigo-400 uppercase mb-3 block text-center tracking-widest">Izgara Sistemi</label>
+                
+                <div className="space-y-4 relative z-10">
+                    <div className="grid grid-cols-4 gap-2">
+                        {[4, 5, 6, 8].map(n => (
+                            <button
+                                key={n}
+                                onClick={() => onChange('gridSize', n)}
+                                className={`py-2 text-[10px] font-black rounded-xl border-2 transition-all ${options.gridSize === n || (!options.gridSize && n === 5) ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg' : 'bg-zinc-800 border-zinc-700 text-zinc-500 hover:border-zinc-600'}`}
+                            >
+                                {n}x{n}
+                            </button>
+                        ))}
+                    </div>
 
-  return (
-    <div className="space-y-6 animate-in fade-in duration-300 p-4">
-      <div className="pb-3 border-b border-zinc-100">
-        <h4 className="font-black text-rose-900 uppercase tracking-tight text-lg">Farkı Bul Atölyesi</h4>
-        <p className="text-[10px] text-zinc-500 font-medium">Görsel dikkat ve ayrıştırma analizi</p>
-      </div>
+                    <div className="flex gap-2">
+                        {[1, 2, 4].map(count => (
+                            <button
+                                key={count}
+                                onClick={() => onChange('puzzleCount', count)}
+                                className={`flex-1 py-2 rounded-xl border-2 font-black text-[10px] transition-all ${options.puzzleCount === count || (!options.puzzleCount && count === 1) ? 'bg-rose-600 border-rose-600 text-white shadow-md' : 'bg-zinc-800 border-zinc-700 text-zinc-500 hover:border-zinc-600'}`}
+                            >
+                                {count} Görev
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
 
-      <div className="p-4 bg-rose-50/50 rounded-[2rem] border border-rose-100">
-        <label className="text-[10px] font-black text-rose-600 uppercase mb-3 block text-center tracking-widest">
-          İçerik Varyantı
-        </label>
-        <div className="grid grid-cols-2 gap-2">
-          {[
-            { v: 'char', l: 'Harfler', i: 'fa-font' },
-            { v: 'number', l: 'Sayılar', i: 'fa-hashtag' },
-            { v: 'word', l: 'Kelimeler', i: 'fa-align-left' },
-            { v: 'visual', l: 'Semboller', i: 'fa-shapes' },
-          ].map((t) => (
-            <button
-              key={t.v}
-              onClick={() => update('findDiffType' as any, t.v)}
-              className={`py-3 rounded-xl text-[10px] font-black border transition-all flex flex-col items-center gap-1 ${
-                (options.findDiffType || o.findDiffType || 'visual') === t.v 
-                ? 'bg-rose-600 text-white border-rose-600 shadow-lg' 
-                : 'bg-white text-zinc-500 border-zinc-100 hover:border-rose-200'
-              }`}
-            >
-              <i className={`fa-solid ${t.i} text-xs`}></i>
-              {t.l}
-            </button>
-          ))}
+            {/* Uyaran Kategorisi */}
+            <div className="p-5 bg-white dark:bg-zinc-800 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 space-y-5">
+                <div className="space-y-3">
+                    <label className="text-[10px] font-black text-zinc-400 uppercase block tracking-widest pl-1 text-center">Uyaran Kategorisi (Fark Tipi)</label>
+                    <div className="grid grid-cols-2 gap-2">
+                        <button 
+                            onClick={() => onChange('concept', 'visual')}
+                            className={`p-3 rounded-xl border-2 text-[10px] font-black uppercase flex flex-col items-center gap-2 transition-all ${options.concept === 'visual' || !options.concept ? 'bg-zinc-50 border-indigo-500 text-indigo-600 shadow-sm' : 'bg-zinc-50/50 border-zinc-100 text-zinc-400 opacity-60'}`}
+                        >
+                            <i className="fa-solid fa-shapes text-lg"></i>
+                            Görsel / Emoji
+                        </button>
+                        <button 
+                            onClick={() => onChange('concept', 'mirror')}
+                            className={`p-3 rounded-xl border-2 text-[10px] font-black uppercase flex flex-col items-center gap-2 transition-all ${options.concept === 'mirror' ? 'bg-zinc-50 border-indigo-500 text-indigo-600 shadow-sm' : 'bg-zinc-50/50 border-zinc-100 text-zinc-400 opacity-60'}`}
+                        >
+                            <i className="fa-solid fa-arrows-left-right text-lg"></i>
+                            Mirror (b/d, p/q)
+                        </button>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                        <button 
+                            onClick={() => onChange('concept', 'number')}
+                            className={`p-3 rounded-xl border-2 text-[10px] font-black uppercase flex flex-col items-center gap-2 transition-all ${options.concept === 'number' ? 'bg-zinc-50 border-indigo-500 text-indigo-600 shadow-sm' : 'bg-zinc-50/50 border-zinc-100 text-zinc-400 opacity-60'}`}
+                        >
+                            Sayısal
+                        </button>
+                        <button 
+                            onClick={() => onChange('concept', 'abstract')}
+                            className={`p-3 rounded-xl border-2 text-[10px] font-black uppercase flex flex-col items-center gap-2 transition-all ${options.concept === 'abstract' ? 'bg-zinc-50 border-indigo-500 text-indigo-600 shadow-sm' : 'bg-zinc-50/50 border-zinc-100 text-zinc-400 opacity-60'}`}
+                        >
+                            Sembolik
+                        </button>
+                        <button 
+                            onClick={() => onChange('concept', 'word')}
+                            className={`p-3 rounded-xl border-2 text-[10px] font-black uppercase flex flex-col items-center gap-2 transition-all ${options.concept === 'word' ? 'bg-zinc-50 border-indigo-500 text-indigo-600 shadow-sm' : 'bg-zinc-50/50 border-zinc-100 text-zinc-400 opacity-60'}`}
+                        >
+                            Sözel
+                        </button>
+                    </div>
+                </div>
+
+                <div className="h-px bg-zinc-100 dark:bg-zinc-700 mx-2"></div>
+
+                {/* Akıllı A4 Bilgi */}
+                <div className="p-4 bg-indigo-50 rounded-2xl flex items-center gap-4 border border-indigo-100 relative overflow-hidden group">
+                    <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500"></div>
+                    <div className="w-8 h-8 rounded-full bg-indigo-500 text-white flex items-center justify-center flex-shrink-0 shadow-lg">
+                        <i className="fa-solid fa-wand-magic-sparkles text-xs"></i>
+                    </div>
+                    <div>
+                        <p className="text-[9px] font-black text-indigo-950 uppercase leading-none">Smart-A4 Protokolü</p>
+                        <p className="text-[7px] font-bold text-indigo-600 uppercase mt-1 leading-tight italic">
+                            Seçilen görev sayısına göre hücre boyutları ve sayfa yerleşimi otomatik milimetrik hesaplanacaktır.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-
-      <div className="space-y-4">
-        <div>
-          <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Izgara Boyutu (N x N)</label>
-          <div className="grid grid-cols-4 gap-2">
-            {[4, 5, 6, 8, 10].map((n) => (
-              <button
-                key={n}
-                onClick={() => update('gridSize', n)}
-                className={`py-2 rounded-lg text-xs font-black border transition-all ${
-                  (options.gridSize || o.gridSize || 5) === n 
-                  ? 'bg-zinc-900 text-white border-zinc-900 shadow-md' 
-                  : 'bg-white border-zinc-200 text-zinc-400 hover:border-zinc-300'
-                }`}
-              >
-                {n}x{n}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Hedef Fark Sayısı</label>
-          <div className="flex items-center gap-4 bg-zinc-50 p-3 rounded-2xl border border-zinc-100">
-             <input
-               type="range"
-               min={1}
-               max={15}
-               value={options.itemCount || o.itemCount || 5}
-               onChange={(e) => update('itemCount', parseInt(e.target.value))}
-               className="flex-1 accent-rose-600"
-             />
-             <span className="w-8 text-center font-black text-rose-600 text-sm">{options.itemCount || o.itemCount || 5}</span>
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Izgara Sayısı (Sayfa Başına)</label>
-          <div className="grid grid-cols-3 gap-2">
-            {[1, 2, 4].map((n) => (
-              <button
-                key={n}
-                onClick={() => update('puzzleCount' as any, n)}
-                className={`py-2 rounded-lg text-xs font-black border transition-all ${
-                  (options.puzzleCount || o.puzzleCount || 1) === n 
-                  ? 'bg-rose-600 text-white border-rose-600 shadow-md' 
-                  : 'bg-white border-zinc-200 text-zinc-400 hover:border-zinc-300'
-                }`}
-              >
-                {n} Izgara
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Zorluk Seviyesi</label>
-          <div className="flex bg-zinc-100 p-1 rounded-xl border border-zinc-200">
-            {['Başlangıç', 'Orta', 'Zor'].map((l) => (
-              <button
-                key={l}
-                onClick={() => onChange('difficulty', l)}
-                className={`flex-1 py-2 rounded-lg text-[10px] font-black uppercase transition-all ${
-                  options.difficulty === l ? 'bg-white text-rose-600 shadow-sm' : 'text-zinc-500'
-                }`}
-              >
-                {l}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <div className="pt-2">
-         <label className="flex items-center gap-3 p-3 bg-zinc-50 rounded-2xl cursor-pointer border border-zinc-100 hover:bg-white transition-all">
-            <input 
-                type="checkbox" 
-                checked={(options as any).layout === 'side_by_side' || o.layout === 'side_by_side'} 
-                onChange={(e) => update('layout' as any, e.target.checked ? 'side_by_side' : 'rows')}
-                className="w-5 h-5 rounded text-rose-600 focus:ring-rose-500 border-zinc-300"
-            />
-            <span className="text-sm font-bold text-zinc-700">Tabloları Yan Yana Göster</span>
-         </label>
-      </div>
-    </div>
-  );
+    );
 };
-

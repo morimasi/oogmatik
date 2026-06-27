@@ -291,63 +291,53 @@ export const generateOfflineSymmetryDrawing = async (
 export const generateOfflineFindTheDifference = async (
   options: GeneratorOptions
 ): Promise<FindTheDifferenceData[]> => {
-  const customSettings = (options as any).findDifference || {};
   const worksheetCount = options.worksheetCount || 1;
   const difficulty = options.difficulty || 'Orta';
-  const itemCount = options.itemCount || customSettings.itemCount || 5;
-  const findDiffType = options.findDiffType || customSettings.findDiffType || 'visual';
-  const layout = (options as any).layout || customSettings.layout || 'side_by_side';
-  const puzzleCount = options.puzzleCount || customSettings.puzzleCount || 1;
+  const puzzleCount = options.puzzleCount || 1;
+  const gridSize = options.gridSize || (difficulty === 'Başlangıç' ? 4 : difficulty === 'Orta' ? 5 : 6);
+  const diffType = options.concept || 'visual'; // visual, mirror, number, word, abstract
+
   const results: FindTheDifferenceData[] = [];
 
-  const EMOJIS = [
-    '🍎', '🚗', '🏠', '⭐', '🎈', '📚', '⚽', '☀️', '🌙', '🌲', 
-    '🌺', '🎁', '🐱', '🐶', '🦁', '🐢', '🦋', '🐝', '🏀', '🚁'
-  ];
+  // Veri Havuzları
+  const EMOJI_POOL = ['🍎', '🚗', '🏠', '⭐', '🎈', '📚', '⚽', '☀️', '🌙', '🌲', '🌺', '🎁', '🐱', '🐶', '🦁', '🐢', '🦋', '🐝', '🏀', '🚁', '🍔', '🍕', '🍦', '🍩', '🚲', '🚀', '🛸', '🌈', '🔥', '💧'];
+  const MIRROR_CHARS = [['b', 'd'], ['p', 'q'], ['m', 'n'], ['s', 'ş'], ['c', 'ç'], ['u', 'n'], ['6', '9'], ['3', 'E'], ['5', 'S'], ['z', 's']];
+  const ABSTRACT_SYMBOLS = ['▲', '▼', '◀', '▶', '●', '○', '■', '□', '◆', '◇', '⬢', '⬣', '◈', '◉', '◎', '★', '☆', '✦', '✧', '⚛'];
 
   for (let p = 0; p < worksheetCount; p++) {
-    const puzzles: { gridA: unknown[][]; gridB: unknown[][]; diffCount: number; title: string }[] = [];
+    const puzzles = [];
     
     for (let c = 0; c < puzzleCount; c++) {
-      let size = options.gridSize || customSettings.gridSize || (difficulty === 'Başlangıç' ? 4 : difficulty === 'Orta' ? 5 : 6);
+      const size = gridSize;
+      const diffCount = difficulty === 'Başlangıç' ? 3 : difficulty === 'Orta' ? 5 : 8;
       
-      // If we have multiple puzzles on one page, we should restrict the size to prevent overcrowding
-      if (puzzleCount > 1 && size > 6) size = 6;
-      if (puzzleCount > 2 && size > 5) size = 5;
+      // Havuz Belirleme
+      let pool = EMOJI_POOL;
+      if (diffType === 'mirror') pool = MIRROR_CHARS.flat();
+      else if (diffType === 'abstract') pool = ABSTRACT_SYMBOLS;
+      else if (diffType === 'number') pool = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+      else if (diffType === 'word') pool = difficulty === 'Başlangıç' ? TURKISH_WORDS_EASY : (difficulty === 'Orta' ? TURKISH_WORDS_MEDIUM : TURKISH_WORDS_HARD);
 
-      const maxItems = size * size;
-      const finalItemCount = Math.min(itemCount, maxItems - 1);
-
-      // Veri havuzu seçimi
-      let sourcePool = EMOJIS;
-      if (findDiffType === 'char' || findDiffType === 'linguistic') {
-        sourcePool = turkishAlphabet.split('');
-      } else if (findDiffType === 'number' || findDiffType === 'numeric') {
-        sourcePool = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-      } else if (findDiffType === 'word' || findDiffType === 'semantic') {
-        sourcePool =
-          difficulty === 'Başlangıç'
-            ? TURKISH_WORDS_EASY
-            : difficulty === 'Orta'
-              ? TURKISH_WORDS_MEDIUM
-              : TURKISH_WORDS_HARD;
-      }
-
-      // İki farklı grid oluştur
-      const gridA: string[][] = Array.from({ length: size }, () =>
-        Array.from({ length: size }, () => getRandomItems(sourcePool, 1)[0])
+      // Grid Üretimi
+      const gridA: any[][] = Array.from({ length: size }, () => 
+        Array.from({ length: size }, () => getRandomItems(pool, 1)[0])
       );
 
-      const gridB = gridA.map((row) => [...row]);
+      const gridB = gridA.map(row => [...row]);
       const diffPositions: { r: number; c: number }[] = [];
 
-      // Farkları yerleştir
-      while (diffPositions.length < finalItemCount) {
+      while (diffPositions.length < diffCount) {
         const r = getRandomInt(0, size - 1);
         const c = getRandomInt(0, size - 1);
-        if (!diffPositions.some((pos) => pos.r === r && pos.c === c)) {
-          let newVal = getRandomItems(sourcePool, 1)[0];
-          while (newVal === gridA[r][c]) newVal = getRandomItems(sourcePool, 1)[0];
+        if (!diffPositions.some(pos => pos.r === r && pos.c === c)) {
+          let newVal = getRandomItems(pool, 1)[0];
+          // Mirror modunda özellikle eşini koymaya çalış
+          if (diffType === 'mirror') {
+             const pair = MIRROR_CHARS.find(s => s.includes(gridA[r][c]));
+             if (pair) newVal = pair.find(x => x !== gridA[r][c])!;
+          }
+          while (newVal === gridA[r][c]) newVal = getRandomItems(pool, 1)[0];
+          
           gridB[r][c] = newVal;
           diffPositions.push({ r, c });
         }
@@ -356,38 +346,35 @@ export const generateOfflineFindTheDifference = async (
       puzzles.push({
         gridA,
         gridB,
-        diffCount: finalItemCount,
-        title: puzzleCount > 1 ? `Işınlanma Görevi ${c + 1}` : 'Fark Bulma Görevi'
+        diffCount,
+        title: `Gövde-Zihin Görevi #${c + 1}`,
+        clinicalMeta: {
+          discriminationFactor: difficulty === 'Başlangıç' ? 0.6 : 0.85,
+          targetCognitiveSkill: 'Saccadic Visual Scan',
+          perceptualLoad: (size * size) / 25,
+          errorType: diffType === 'mirror' ? 'Mirror Reversal' : 'Visual Substitution'
+        }
       });
     }
 
+    const layout = puzzleCount === 1 ? 'side_by_side' : (puzzleCount === 2 ? 'stacked' : 'grid_2x2');
+
     results.push({
-      title: 'GÖRSEL DİKKAT: İKİ TABLO ARASINDAKİ FARKLAR',
-      instruction: puzzleCount > 1 
-          ? `Aşağıdaki ${puzzleCount} farklı ızgara çiftini incele ve belirtilen farkları bul.`
-          : `Soldaki tablo ile sağdaki tablo arasındaki farkları bulup sağdakinde işaretleyin.`,
+      title: 'FARK BUL: GÖRSEL TARAMA & DİKKAT MATRİSİ',
+      instruction: 'Birinci tablo ile ikinci tablo arasındaki farkları bulup sağdakinde işaretleyin.',
       settings: {
         difficulty: mapDifficulty(difficulty || 'Orta'),
         layout: layout as any,
-        itemType: findDiffType as any,
+        itemType: (diffType === 'mirror' ? 'char' : diffType as any),
+        differenceType: diffType as any,
         isProfessionalMode: true,
         showClinicalNotes: true,
-        differenceType: findDiffType as any,
+        puzzleCount,
+        gridSize,
+        differenceCount: puzzles[0].diffCount,
+        aestheticMode: 'premium'
       },
-      puzzles,
-      // Keeping legacy for single puzzle if needed, but the Sheet will focus on puzzles array
-      gridA: puzzles[0].gridA,
-      gridB: puzzles[0].gridB,
-      diffCount: puzzles[0].diffCount,
-      rows: puzzles[0].gridB.map((row) => ({
-        items: row,
-        correctIndex: -1,
-        visualDistractionLevel: 'medium',
-        clinicalMeta: {
-          errorType: 'Görsel Fark',
-          isMirrored: false,
-        },
-      })),
+      puzzles: puzzles as any
     });
   }
   return results;
