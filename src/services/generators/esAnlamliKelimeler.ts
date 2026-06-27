@@ -1,77 +1,51 @@
 import { generateCreativeMultimodal } from '../geminiClient';
-import { ActivityType, GeneratorOptions, WorksheetData } from '../../types';
-import { BaseGenerator } from './core/BaseGenerator';
+import { GeneratorOptions } from '../../types/core';
 
-export class EsAnlamliKelimelerGenerator extends BaseGenerator<WorksheetData> {
-  constructor() {
-    super();
-  }
+export const generateEsAnlamliKelimelerFromAI = async (
+  options: GeneratorOptions
+): Promise<any> => {
+  const opts = options as unknown as Record<string, unknown>;
+  const topic = (opts.topic as string) || 'Genel Türkçe';
+  const difficulty = options.difficulty || 'Orta';
 
-  protected async execute(options: GeneratorOptions): Promise<WorksheetData> {
-    const opts = options as unknown as Record<string, unknown>;
-    const wordCount = (opts.wordCount as unknown as number) || options.itemCount || 6;
-    const difficulty = options.difficulty || 'Orta';
-    const topic = (opts.topic as unknown as string) || (options.topic as unknown as string) || '';
-    const includeAntonyms = (opts.includeAntonyms ?? true) as unknown as boolean;
-    const includeEtymology = (opts.includeEtymology ?? false) as unknown as boolean;
+  const prompt = `
+İsim: Dil Bilgisi Profesörü & Bulmaca Tasarımcısı
+Görev: "${topic}" temalı, disleksi dostu bir "Eş Anlamlı Kelimeler: Bağlama" etkinliği üret.
 
-    const difficultyGuide =
-      difficulty === 'Kolay'
-        ? 'Günlük hayatta sık kullanılan, somut anlamı olan basit kelimeler (mutlu, büyük, hızlı vb.)'
-        : difficulty === 'Orta'
-          ? 'Ders kitaplarında geçen, orta düzey kelimeler (sevinç, devasa, çevik vb.)'
-          : 'Edebi metinlerde ve akademik dilde kullanılan gelişmiş kelimeler (neşe, muazzam, süratli vb.)';
-
-    const topicLine = topic
-      ? `- Konu/Tema: ${topic} alanıyla ilgili kelimeler tercih edilmeli`
-      : '';
-
-    const prompt = `Sen Türkçe kelime bilgisi uzmanı bir eğitmensin. ${wordCount} farklı Türkçe kelime için eş anlamlılar ve bağlamlı kullanım etkinliği üret.
-
-PARAMETRELER:
-- Kelime Sayısı: ${wordCount}
-- Zorluk: ${difficulty}
-- Kılavuz: ${difficultyGuide}
-${topicLine}
-- Zıt Anlam: ${includeAntonyms ? 'Her kelime için zıt anlam ekle' : 'Zıt anlam ekleme'}
-- Etimoloji: ${includeEtymology ? 'Kısa köken/anlam notu ekle' : 'Etimoloji ekleme'}
-
-ZORUNLU JSON ÇIKTISI:
+KURAL 1: Veri Yapısı (JSON)
 {
-  "id": "eak_uuid",
+  "id": "eak_ai_v2",
   "activityType": "ES_ANLAMLI_KELIMELER",
-  "title": "Eş Anlamlı Kelimeler Etkinliği",
-  "instruction": "Her kelimenin eş anlamlılarını incele ve boşluklu cümleyi doğru kelime ile tamamla.",
-  "pedagogicalNote": "Bu etkinlik öğrencinin söz varlığını genişletir, bağlam ipuçlarını kullanarak doğru kelime seçme becerisini geliştirir. Türkçede anlamdaş kelimelerin kullanım bağlamlarını ayırt etme hedeflenir.",
-  "items": [
-    {
-      "id": "item_1",
-      "sourceWord": "MUTLU",
-      "synonyms": ["Sevinçli", "Neşeli", "Memnun"],
-      "antonym": "Üzgün",
-      "exampleSentence": "Sınav sonuçlarını görünce çok _______ oldu.",
-      "correctAnswer": "mutlu",
-      "emoji": "😊",
-      "etymologyNote": "Arapça 'mutlak' kökünden gelir; özgür ve serbest anlamı taşır.",
-      "usageContext": "Günlük"
+  "title": "${topic} - Anlam Yolculuğu",
+  "instruction": "Kelimeleri anlamdaşları ile eşleştir ve cümleleri uygun kelimelerle tamamla.",
+  "pedagogicalNote": "Semantik bağlama ve akıcılık odaklıdır.",
+  "content": {
+    "pairs": [
+      { "word": "Kavram1", "synonym": "Anlamdaş1" }
+    ],
+    "leftColumn": ["Kavram1", "Kavram2", "Kavram3"],
+    "rightColumn": ["Anlamdaş2", "Anlamdaş1", "Anlamdaş3"],
+    "fillInTheBlanks": [
+       { "sentence": "Cümle yapısı (boşluklu)", "answer": "eş anlamlısı" }
+    ],
+    "insight": {
+       "title": "Kısa Bilgi",
+       "text": "Kelime kökeni veya ilginç bir kullanım notu."
     }
-  ]
-}
-
-KURALLAR:
-1. Her kelimede en az 2, en fazla 4 eş anlamlı
-2. exampleSentence'te _______ yerine sourceWord veya eş anlamlısı kullanılabilmeli
-3. correctAnswer lowercase, sourceWord uppercase
-4. emoji kelimeyi görsel olarak temsil etmeli
-5. Tüm metinler Türkçe
-6. Kelimeler birbirinden farklı anlam alanlarından seçilmeli`;
-
-    const parsedData = await generateCreativeMultimodal({ prompt, temperature: 0.65 });
-
-    return {
-      ...parsedData,
-      id: (parsedData as unknown as Record<string, unknown>).id || crypto.randomUUID(),
-      activityType: ActivityType.ES_ANLAMLI_KELIMELER,
-    } as unknown as unknown as unknown as WorksheetData;
   }
 }
+
+KURAL 2: Zorluk Seviyesi (${difficulty})
+- Kelimeler birbirine çok benzememeli (zıt anlamlılar ile karıştırma riski minimizasyonu).
+- ${difficulty === 'Zor' ? 'Akademik ve edebi kelimeler seç.' : 'Basit ve günlük kelimeler seç.'}
+
+ZORUNLU: Sadece JSON döndür.
+  `;
+
+  const parsedData = await generateCreativeMultimodal({
+    prompt: prompt,
+    temperature: 0.4,
+  });
+
+  return parsedData;
+};

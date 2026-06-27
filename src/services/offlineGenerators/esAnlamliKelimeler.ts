@@ -1,66 +1,51 @@
 import { ActivityType } from '../../types/activity';
 import { GeneratorOptions } from '../../types/core';
+import { shuffle } from './helpers';
 
 export const generateOfflineEsAnlamliKelimeler = async (
   options: GeneratorOptions
 ): Promise<any[]> => {
-  const { worksheetCount = 1, difficulty = 'Orta' } = options;
+  const { difficulty = 'Orta', itemCount = 12 } = options;
   const opts = options as Record<string, unknown>;
-  const itemCount = (opts.itemCount as number) || (opts.wordCount as number) || 8;
 
-  // Gerçek Türkçe Eş Anlamlı Kelimeler Veritabanı
-  const database = [
-    { word: 'Cevap', synonym: 'Yanıt' },
-    { word: 'Soru', synonym: 'Sual' },
-    { word: 'Hediye', synonym: 'Armağan' },
-    { word: 'Okul', synonym: 'Mektep' },
-    { word: 'Öğrenci', synonym: 'Talebe' },
-    { word: 'Öğretmen', synonym: 'Muallim' },
-    { word: 'Misafir', synonym: 'Konuk' },
-    { word: 'Zaman', synonym: 'Vakit' },
-    { word: 'Güçlü', synonym: 'Kuvvetli' },
-    { word: 'Akıllı', synonym: 'Zeki' },
-    { word: 'Yaşlı', synonym: 'İhtiyar' },
-    { word: 'Genç', synonym: 'Taze' },
-    { word: 'Doktor', synonym: 'Hekim' },
-    { word: 'Doğa', synonym: 'Tabiat' },
-    { word: 'Büyük', synonym: 'İri' },
-    { word: 'Hızlı', synonym: 'Süratli' },
-    { word: 'Uzak', synonym: 'Irak' },
-    { word: 'Yıl', synonym: 'Sene' },
-    { word: 'Düş', synonym: 'Rüya' },
-    { word: 'Anı', synonym: 'Hatıra' },
-    { word: 'Barış', synonym: 'Sulh' },
-    { word: 'Kırmızı', synonym: 'Al' },
-    { word: 'Beyaz', synonym: 'Ak' },
-    { word: 'Siyah', synonym: 'Kara' }
+  const dictionary = [
+    { w: 'Cevap', s: 'Yanıt' }, { w: 'Soru', s: 'Sual' }, { w: 'Hediye', s: 'Armağan' },
+    { w: 'Okul', s: 'Mektep' }, { w: 'Öğrenci', s: 'Talebe' }, { w: 'Öğretmen', s: 'Muallim' },
+    { w: 'Misafir', s: 'Konuk' }, { w: 'Zaman', s: 'Vakit' }, { w: 'Güçlü', s: 'Kuvvetli' },
+    { w: 'Akıllı', s: 'Zeki' }, { w: 'Yaşlı', s: 'İhtiyar' }, { w: 'Doktor', s: 'Hekim' },
+    { w: 'Doğa', synonym: 'Tabiat' }, { w: 'Büyük', s: 'İri' }, { w: 'Hızlı', s: 'Süratli' },
+    { w: 'Uzak', s: 'Irak' }, { w: 'Yıl', s: 'Sene' }, { w: 'Düş', s: 'Rüya' },
+    { w: 'Anı', s: 'Hatıra' }, { w: 'Barış', s: 'Sulh' }, { w: 'Kırmızı', s: 'Al' },
+    { w: 'Beyaz', s: 'Ak' }, { w: 'Siyah', s: 'Kara' }, { w: 'Yoksul', s: 'Fakir' },
+    { w: 'Zengin', s: 'Varlıklı' }, { w: 'Islak', s: 'Yaş' }, { w: 'Kelim', s: 'Sözcük' },
+    { w: 'Cümle', s: 'Tümce' }, { w: 'Hikaye', s: 'Öykü' }, { w: 'Olay', s: 'Vaka' }
   ];
 
-  const results: any[] = [];
+  const shuffled = shuffle([...dictionary]);
+  const pairs = shuffled.slice(0, itemCount).map(p => ({ word: p.w, synonym: p.s || (p as any).synonym }));
 
-  for (let i = 0; i < worksheetCount; i++) {
-    // Rastgele kelimeleri seç
-    const shuffled = [...database].sort(() => 0.5 - Math.random());
-    const selectedPairs = shuffled.slice(0, itemCount);
-
-    results.push({
-      id: `esanlamli_${Date.now()}_${i}`,
-      activityType: ActivityType.ES_ANLAMLI_KELIMELER,
-      title: 'Eş Anlamlı Kelimeler: Kelime Bağlama',
-      instruction: 'Aşağıdaki kelimeleri eş anlamlıları ile eşleştirin veya kutucuklara yazın.',
-      pedagogicalNote: 'Bu çalışma, öğrencinin kelime hazinesini zenginleştirerek okuma ve anlama becerilerini (verbal fluency) geliştirmeyi hedefler.',
-      settings: {
-        ...options,
-        layoutType: opts.layoutType || 'match_columns'
-      },
-      content: {
-        pairs: selectedPairs,
-        title: 'Kelime Bağlama Oyunu'
+  return [{
+    id: `synonym_v2_${Date.now()}`,
+    activityType: ActivityType.ES_ANLAMLI_KELIMELER,
+    title: 'KAVRAM VE ANLAM İSTASYONU',
+    instruction: 'Kelimeleri eş anlamlıları ile eşleştir ve alt bölümdeki anlam yolculuğunu tamamla.',
+    pedagogicalNote: 'Semantik akıcılık ve kelime haznesi derinliği hedeflenmektedir. Bu etkinlik A4 sayfasını maksimum yoğunlukta doldurur.',
+    settings: { ...options, premiumGrid: true },
+    content: {
+      pairs: shuffle([...pairs]),
+      leftColumn: shuffle(pairs.map(p => p.word)),
+      rightColumn: shuffle(pairs.map(p => p.synonym)),
+      fillInTheBlanks: [
+        { sentence: "Ona çok güzel bir ........... (hediye) aldım.", answer: "armağan" },
+        { sentence: "Bu ........... (vakit) dışarı çıkmak tehlikeli.", answer: "zaman" },
+        { sentence: "Sınavdaki tüm ........... (yanıt) doğruydu.", answer: "cevaplar" }
+      ],
+      insight: {
+          title: "Biliyor musun?",
+          text: "'Sözcük' kelimesi Türkçe kökenliyken, 'Kelime' kelimesi Arapçadan dilimize geçmiştir ancak her ikisi de tam olarak aynı anlamı taşır."
       }
-    });
-  }
-
-  return results;
+    }
+  }];
 };
 
 export default generateOfflineEsAnlamliKelimeler;
