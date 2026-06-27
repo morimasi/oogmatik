@@ -1,6 +1,6 @@
 import React from 'react';
 import { PedagogicalHeader } from '../common';
-import { Lightbulb, CheckCircle2, ShieldQuestion, BrainCircuit, Award } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 
 export const ShortAnswerSheet = React.memo(({ data }: { data: any }) => {
   const content = data.content || {};
@@ -32,7 +32,7 @@ export const ShortAnswerSheet = React.memo(({ data }: { data: any }) => {
                             </div>
                             {q.hint && settings.includeHints !== false && (
                                 <div className="p-1.5 bg-amber-100 text-amber-700 rounded-lg animate-pulse" title={q.hint}>
-                                    <Lightbulb size={12} />
+                                    <LucideIcons.Lightbulb size={12} />
                                 </div>
                             )}
                         </div>
@@ -68,7 +68,7 @@ export const ShortAnswerSheet = React.memo(({ data }: { data: any }) => {
 
                     {/* Soru Alt Bilgi (Opsiyonel) */}
                     <div className="mt-4 flex justify-end opacity-20 group-hover:opacity-100 transition-opacity">
-                        <CheckCircle2 size={12} className="text-zinc-300" />
+                        <LucideIcons.CheckCircle2 size={12} className="text-zinc-300" />
                     </div>
                 </div>
             ))}
@@ -78,10 +78,10 @@ export const ShortAnswerSheet = React.memo(({ data }: { data: any }) => {
         <div className="grid grid-cols-4 gap-6 print:gap-3 items-stretch mt-auto">
             <div className="col-span-3 p-6 print:p-3 bg-zinc-950 text-white rounded-[3rem] relative overflow-hidden flex items-center gap-6 shadow-2xl">
                 <div className="absolute top-0 right-0 p-8 opacity-5">
-                    <ShieldQuestion size={128} />
+                    <LucideIcons.ShieldQuestion size={128} />
                 </div>
                 <div className="w-16 h-16 rounded-[2rem] bg-indigo-600 flex items-center justify-center shadow-xl border border-white/10 shrink-0">
-                    <BrainCircuit className="text-white" size={32} />
+                    <LucideIcons.BrainCircuit className="text-white" size={32} />
                 </div>
                 <div className="relative z-10">
                    <h5 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">{insight.title || 'BİLİŞSEL İPUCU'}</h5>
@@ -92,7 +92,7 @@ export const ShortAnswerSheet = React.memo(({ data }: { data: any }) => {
             </div>
 
             <div className="p-6 print:p-3 bg-zinc-100 text-zinc-900 rounded-[3rem] flex flex-col justify-center items-center text-center border-2 border-zinc-200 shadow-sm">
-                <Award size={24} className="text-indigo-600 mb-2" />
+                <LucideIcons.Award size={24} className="text-indigo-600 mb-2" />
                 <span className="text-[7px] font-black uppercase tracking-[0.2em] mb-1 opacity-50">ÖLÇÜMLENEN</span>
                 <span className="text-[10px] font-black tracking-tighter uppercase whitespace-nowrap">KRİTİK DÜŞÜNME</span>
             </div>

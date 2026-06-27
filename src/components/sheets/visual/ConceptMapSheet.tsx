@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { PedagogicalHeader } from '../common';
-import { HelpCircle, Library, Info, BarChart3, Cpu } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 
 interface ConceptNode {
   id: string;
@@ -117,7 +117,7 @@ export const ConceptMapSheet: React.FC<{ data: any }> = React.memo(({ data }) =>
           {/* Kelime Bankası */}
           <div className="flex-[2] bg-zinc-900 rounded-[3rem] p-6 print:p-3 relative overflow-hidden shadow-2xl">
               <div className="flex items-center gap-2 mb-4">
-                  <div className="w-6 h-6 rounded-lg bg-indigo-500 flex items-center justify-center"><Library size={12} color="#FFF" /></div>
+                  <div className="w-6 h-6 rounded-lg bg-indigo-500 flex items-center justify-center"><LucideIcons.Library size={12} color="#FFF" /></div>
                   <span className="text-[10px] font-black text-white uppercase tracking-widest">KAVRAM HAVUZU</span>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -131,7 +131,7 @@ export const ConceptMapSheet: React.FC<{ data: any }> = React.memo(({ data }) =>
 
           {/* İnfografik Özet */}
           <div className="flex-[3] bg-indigo-600 rounded-[3.5rem] p-6 print:p-3 text-white flex flex-col justify-between relative overflow-hidden shadow-2xl">
-              <div className="absolute top-0 right-0 p-6 opacity-10 rotate-12"><Info size={80} /></div>
+              <div className="absolute top-0 right-0 p-6 opacity-10 rotate-12"><LucideIcons.Info size={80} /></div>
               <div className="relative z-10">
                   <h5 className="text-[10px] font-black uppercase tracking-[0.2em] mb-2 opacity-80">INSIGHT REPORT</h5>
                   <p className="text-xs print:text-[10px] font-medium leading-relaxed italic opacity-95">
@@ -143,7 +143,7 @@ export const ConceptMapSheet: React.FC<{ data: any }> = React.memo(({ data }) =>
                       <span className="text-[7px] font-black opacity-50 uppercase">VERİ SETİ</span>
                       <span className="text-[10px] font-black uppercase tracking-tighter">{content.topic || 'GENEL'}</span>
                   </div>
-                  <BarChart3 className="opacity-50" size={20} />
+                  <LucideIcons.BarChart3 className="opacity-50" size={20} />
               </div>
           </div>
       </div>
@@ -151,7 +151,7 @@ export const ConceptMapSheet: React.FC<{ data: any }> = React.memo(({ data }) =>
       {/* KLİNİK FOOTER */}
       <div className="mt-6 pt-4 border-t-2 border-zinc-100 flex justify-between items-center px-6">
           <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-zinc-100 flex items-center justify-center"><Cpu className="text-zinc-400" size={18} /></div>
+              <div className="w-10 h-10 rounded-2xl bg-zinc-100 flex items-center justify-center"><LucideIcons.Cpu className="text-zinc-400" size={18} /></div>
               <div>
                   <p className="text-[7px] font-black text-zinc-400 uppercase tracking-widest leading-none mb-1">PROGRAMLANMIŞ İNFOGRAFİK</p>
                   <p className="text-sm font-black text-zinc-800 tracking-tight">SEMANTİK HARİTALAMA V5.0</p>
@@ -168,6 +168,6 @@ export const ConceptMapSheet: React.FC<{ data: any }> = React.memo(({ data }) =>
 });
 
 const IconRenderer = ({ name, size, color }: { name: string; size: number; color: string }) => {
-    // Statik analiz (Vite/Bundler tree-shaking hatasını engellemek için)
-    return <HelpCircle size={size} color={color} strokeWidth={2.5} />;
+    const Icon = (LucideIcons as any)[name] || LucideIcons.HelpCircle;
+    return <Icon size={size} color={color} strokeWidth={2.5} />;
 };

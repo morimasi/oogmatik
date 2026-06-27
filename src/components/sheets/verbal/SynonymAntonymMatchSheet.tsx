@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { PedagogicalHeader } from '../common';
 import { EditableText } from '../../Editable';
-import { KeyRound, Sparkles, Languages, PenLine, Lightbulb, Workflow } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 
 export const SynonymAntonymMatchSheet = React.memo(({ data }: { data: any }) => {
   const content = data.content || data;
@@ -45,7 +45,7 @@ export const SynonymAntonymMatchSheet = React.memo(({ data }: { data: any }) => 
           {/* Sol Sütun (Hedefler) */}
           <div className="space-y-3">
             <h5 className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-              <KeyRound size={12} /> ANAHTAR KELİMELER
+              <LucideIcons.KeyRound size={12} /> ANAHTAR KELİMELER
             </h5>
             {leftColumn.map((item: string, idx: number) => (
               <div
@@ -63,7 +63,7 @@ export const SynonymAntonymMatchSheet = React.memo(({ data }: { data: any }) => 
           {/* Sağ Sütun (Karşılıklar) */}
           <div className="space-y-3">
             <h5 className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-              <Sparkles size={12} /> ANLAMDAŞLAR
+              <LucideIcons.Sparkles size={12} /> ANLAMDAŞLAR
             </h5>
             {rightColumn.map((item: string, idx: number) => (
               <div
@@ -82,13 +82,13 @@ export const SynonymAntonymMatchSheet = React.memo(({ data }: { data: any }) => 
         {/* Orta Bölüm: Bağlam Avcısı (Cümleler) - Premium Tasarım */}
         <div className="p-8 print:p-4 bg-zinc-950 text-white rounded-[3rem] shadow-2xl relative overflow-hidden flex-shrink-0">
             <div className="absolute top-0 right-0 p-8 opacity-5">
-                <Languages size={120} />
+                <LucideIcons.Languages size={120} />
             </div>
 
             <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6 print:mb-2">
                     <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shadow-lg border border-white/10">
-                        <PenLine className="text-white" size={24} />
+                        <LucideIcons.PenLine className="text-white" size={24} />
                     </div>
                     <div>
                         <p className="text-[8px] font-black text-indigo-400 uppercase tracking-[0.3em] leading-none mb-1">SEMANTİK ANALİZ</p>
@@ -131,7 +131,7 @@ export const SynonymAntonymMatchSheet = React.memo(({ data }: { data: any }) => 
         <div className="grid grid-cols-4 gap-6 print:gap-3 items-stretch mt-auto">
             <div className="col-span-3 p-6 print:p-4 border-2 border-indigo-100 bg-indigo-50/30 rounded-[3rem] relative overflow-hidden flex items-center gap-6">
                 <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-sm border border-indigo-100 shrink-0">
-                    <Lightbulb className="text-indigo-600" size={32} />
+                    <LucideIcons.Lightbulb className="text-indigo-600" size={32} />
                 </div>
                 <div>
                    <h5 className="text-[10px] font-black text-indigo-600 uppercase tracking-widest mb-1">{insight.title || 'DİL BİLGİSİ NOTU'}</h5>
@@ -142,7 +142,7 @@ export const SynonymAntonymMatchSheet = React.memo(({ data }: { data: any }) => 
             </div>
 
             <div className="p-6 print:p-3 bg-zinc-900 text-white rounded-[3rem] flex flex-col justify-center items-center text-center shadow-lg border border-white/5">
-                <Workflow size={24} className="text-indigo-400 mb-2" />
+                <LucideIcons.Workflow size={24} className="text-indigo-400 mb-2" />
                 <span className="text-[11px] font-black tracking-tighter uppercase whitespace-nowrap">BDMIND</span>
                 <span className="text-[7px] font-black uppercase opacity-50 tracking-[0.2em]">VERBAL ENGINE</span>
             </div>
