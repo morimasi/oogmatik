@@ -25,33 +25,43 @@ const ComplexShapeRenderer = ({
   item,
   size = 35,
 }: {
-  item: VisualOddOneOutItem;
+  item: VisualOddOneOutItem | string | any;
   size?: number;
 }) => {
   if (!item) return null;
+
+  // Eğer item doğrudan bir string (emoji veya harf) ise
+  const isString = typeof item === 'string';
+  const label = isString ? item : item.label;
+  const svgPaths = !isString ? item.svgPaths : null;
+  const svg = !isString ? item.svg : null;
+  const segments = !isString ? item.segments : null;
+  const rotation = !isString ? (item.rotation || 0) : 0;
+  const scale = !isString ? (item.scale || 1) : 1;
+  const isMirrored = !isString ? item.isMirrored : false;
 
   return (
     <div
       className="transition-all duration-300 flex items-center justify-center p-1 w-full h-full transform"
       style={{
-        transform: `rotate(${item.rotation || 0}deg) scale(${item.scale || 1}) ${item.isMirrored ? 'scaleX(-1)' : ''}`,
+        transform: `rotate(${rotation}deg) scale(${scale}) ${isMirrored ? 'scaleX(-1)' : ''}`,
       }}
     >
-      {item.svgPaths ? (
-        <SvgFromPaths paths={item.svgPaths} />
-      ) : item.svg ? (
+      {svgPaths ? (
+        <SvgFromPaths paths={svgPaths} />
+      ) : svg ? (
         <div
           className="w-full h-full flex items-center justify-center [&_svg]:w-full [&_svg]:h-full"
-          dangerouslySetInnerHTML={{ __html: item.svg }}
+          dangerouslySetInnerHTML={{ __html: svg }}
         />
-      ) : item.label ? (
+      ) : label ? (
         <span
-          className="font-black text-zinc-900 select-none font-mono leading-none"
+          className="font-black text-zinc-900 select-none font-mono leading-none flex items-center justify-center"
           style={{ fontSize: `${size}px` }}
         >
-          {item.label}
+          {label}
         </span>
-      ) : item.segments ? (
+      ) : segments ? (
         <div className="w-full h-full scale-150">
            <SegmentDisplay segments={item.segments} />
         </div>
