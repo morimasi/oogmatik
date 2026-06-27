@@ -232,39 +232,57 @@ export const generateOfflineSymmetryDrawing = async (
   const worksheetCount = options.worksheetCount || 1;
   const difficulty = options.difficulty || 'Orta';
   const gridSize = options.gridSize || 8;
-  const concept = options.concept || 'mirror_v';
+  const axis = options.concept || 'mirror_v'; // mirror_v, mirror_h, diagonal, both
+  const puzzleCount = options.puzzleCount || 1;
   const results: SymmetryDrawingData[] = [];
 
   for (let p = 0; p < worksheetCount; p++) {
-    // Simetrik çizgiler üret
-    const lines = generateConnectedPath(gridSize / 2, 3).map((line) => ({
-      x1: line[0][0],
-      y1: line[0][1],
-      x2: line[1][0],
-      y2: line[1][1],
-      color: 'black',
-    }));
+    const drawings = [];
+    
+    for (let d = 0; d < puzzleCount; d++) {
+        // Zorluk seviyesine göre çizgi sayısı ve bükülme (node) sayısı
+        const nodeCount = difficulty === 'Başlangıç' ? 3 : difficulty === 'Orta' ? 5 : 7;
+        const halfSize = Math.floor(gridSize / 2);
+        
+        // Simetrik çizgiler üret
+        const rawLines = generateConnectedPath(halfSize, nodeCount).map((line) => ({
+          x1: line[0][0],
+          y1: line[0][1],
+          x2: line[1][0],
+          y2: line[1][1],
+          color: 'black',
+        }));
+
+        drawings.push({
+          lines: rawLines,
+          dots: [],
+          title: `Görev ${d + 1}`,
+          clinicalMeta: {
+              complexity: nodeCount,
+              targetCognitiveSkill: 'Symmetric Mapping',
+              isHighDensity: gridSize > 10
+          }
+        });
+    }
+
+    const layout = puzzleCount === 1 ? 'single' : puzzleCount === 2 ? 'grid_2x1' : 'grid_2x2';
 
     results.push({
-      title: 'Simetri Tamamlama',
-      instruction: 'Desenleri simetri eksenine göre aynadaki yansıması olacak şekilde tamamlayın.',
+      title: 'SİMETRİ TAMAMLAMA (GÖRSEL AKIL YÜRÜTME)',
+      instruction: 'Şekillerin simetri eksenine göre aynadaki yansımasını hatasız bir şekilde tamamlayın.',
       gridDim: gridSize,
       settings: {
         difficulty: mapDifficulty(difficulty || 'Orta'),
-        axis: concept === 'mirror_h' ? 'horizontal' : 'vertical',
+        axis: (axis === 'mirror_h' ? 'horizontal' : axis === 'diagonal' ? 'diagonal' : axis === 'both' ? 'both' : 'vertical') as any,
         gridType: 'dots',
-        layout: 'single',
-        showGhostPoints: false,
-        showCoordinates: (options as any).showCoordinates !== false,
+        layout: layout as any,
+        showGhostPoints: (options as any).showGhostPoints || false,
+        showCoordinates: options.showCoordinates !== false,
         isProfessionalMode: true,
+        puzzleCount,
+        colorMode: 'premium'
       },
-      drawings: [
-        {
-          lines,
-          dots: [],
-          title: 'Simetri',
-        },
-      ],
+      drawings: drawings as any,
     });
   }
   return results;

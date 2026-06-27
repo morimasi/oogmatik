@@ -156,13 +156,15 @@ export interface GridDrawingData extends BaseActivityData {
 export interface SymmetryDrawingData extends BaseActivityData {
     settings?: {
         difficulty: 'beginner' | 'intermediate' | 'expert' | 'clinical';
-        axis: 'vertical' | 'horizontal' | 'diagonal';
+        axis: 'vertical' | 'horizontal' | 'diagonal' | 'both';
         gridType: 'dots' | 'squares' | 'crosses';
         layout: 'single' | 'grid_2x1' | 'grid_2x2';
         showGhostPoints: boolean;
         showCoordinates: boolean;
         isProfessionalMode: boolean;
         showClinicalNotes?: boolean;
+        puzzleCount?: number;
+        colorMode?: 'bw' | 'premium' | 'educational';
     };
     gridDim: number;
     drawings: {

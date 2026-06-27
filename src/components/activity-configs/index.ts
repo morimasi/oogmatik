@@ -32,6 +32,7 @@ import { StorySequencingConfig } from './StorySequencingConfig';
 import { MissingPartsConfig } from './MissingPartsConfig';
 import { AdvancedMissingPartsConfig } from './AdvancedMissingPartsConfig';
 import { QueueOrderingConfig } from './QueueOrderingConfig';
+import { SymmetryDrawingConfig } from './SymmetryDrawingConfig';
 
 import { FiveWOneHConfig } from './FiveWOneHConfig';
 import { ColorfulSyllableReadingConfig } from './ColorfulSyllableReadingConfig';
@@ -82,6 +83,7 @@ export const ActivityConfigRegistry: Record<string, unknown> = {
   [ActivityType.DIRECTIONAL_TRACKING]: DirectionalTrackingConfig,
   [ActivityType.FUTOSHIKI]: FutoshikiConfig,
   [ActivityType.ABC_CONNECT]: AbcConnectConfig,
+  [ActivityType.SYMMETRY_DRAWING]: SymmetryDrawingConfig,
 
   [ActivityType.FIVE_W_ONE_H]: FiveWOneHConfig,
   [ActivityType.COLORFUL_SYLLABLE_READING]: ColorfulSyllableReadingConfig,
@@ -113,6 +115,7 @@ export const ActivityConfigRegistry: Record<string, unknown> = {
 export { EsAnlamliKelimelerConfig } from './EsAnlamliKelimelerConfig';
 export { LetterConnectConfig } from '../../modules/activities/letter-connect/ui/ConfigPanel';
 export { HarfBaglamaConfig } from '../../modules/activities/harf-baglama/ui/ConfigPanel';
+export { SymmetryDrawingConfig } from './SymmetryDrawingConfig';
 
 
 // AUTONOM_CONFIG_EXPORTS_START
