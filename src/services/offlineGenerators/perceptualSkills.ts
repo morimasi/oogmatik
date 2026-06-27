@@ -177,30 +177,47 @@ export const generateOfflineGridDrawing = async (
 ): Promise<GridDrawingData[]> => {
   const worksheetCount = options.worksheetCount || 1;
   const difficulty = options.difficulty || 'Orta';
+  const puzzleCount = options.puzzleCount || 4; // Sayfa başına varyasyon
+  const gridSize = options.gridSize || 8; // Kare sayısı (Izgara boyutu)
+  
   const results: GridDrawingData[] = [];
 
   for (let p = 0; p < worksheetCount; p++) {
-    // Ultra Pro Premium: Tek sayfada 4 farklı ızgara görevi (Dolu Dolu)
-    const patterns = getRandomItems(Object.keys(PREDEFINED_GRID_PATTERNS), 4);
-    const drawings = patterns.map((pName, idx) => ({
+    // Mevcut desen havuzundan seçim yap
+    const availablePatterns = Object.keys(PREDEFINED_GRID_PATTERNS);
+    const selectedPatternNames = getRandomItems(availablePatterns, puzzleCount);
+    
+    const drawings = selectedPatternNames.map((pName, idx) => ({
       lines: PREDEFINED_GRID_PATTERNS[pName],
       title: `Görev ${idx + 1}: ${pName}`,
-      complexityLevel: idx === 0 ? 'easy' : idx < 3 ? 'medium' : 'hard',
+      complexityLevel: idx % 3 === 0 ? 'easy' : idx % 3 === 1 ? 'medium' : 'hard',
+      clinicalMeta: {
+        crossingPoints: Math.floor(Math.random() * 5) + 2,
+        angleTypes: ['right', 'acute'],
+        isSymmetric: false,
+      },
     }));
 
+    // Layout belirleme: Varyasyon sayısına göre akıllı yerleşim
+    let layout: any = 'grid_2x2';
+    if (puzzleCount === 1) layout = 'stacked';
+    else if (puzzleCount === 2) layout = 'stacked'; // 2 tane alt alta daha iyi durur
+    else if (puzzleCount > 2) layout = 'grid_2x2';
+
     results.push({
-      title: 'Kare Kopyalama (Ultra Pro Matris)',
+      title: 'KARE KOPYALAMA (MOTOR PREZİSYON)',
       instruction:
-        'Sol taraftaki desenleri sağdaki boş ızgaralara noktaları ve çizgileri takip ederek kopyalayın. Görsel hafızanı ve el becerini kullan!',
-      gridDim: (options.gridSize || 8),
+        'Sol taraftaki desenleri sağdaki boş ızgaralara noktaları ve çizgileri takip ederek kopyalayın. Dikkatli ve sabırlı ol!',
+      gridDim: gridSize,
       settings: {
         difficulty: mapDifficulty(difficulty || 'Orta'),
-        layout: 'grid_2x2' as any, // 4 puzzle için 2x2 yerleşim
+        layout,
         gridType: 'dots',
-        transformMode: 'copy',
-        showCoordinates: false,
+        transformMode: (options.concept as any) || 'copy',
+        showCoordinates: options.showCoordinates !== false,
         isProfessionalMode: true,
         showClinicalNotes: true,
+        puzzleCount,
       } as any,
       drawings: drawings as any,
     } as any);
