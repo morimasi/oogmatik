@@ -1,112 +1,117 @@
 import React from 'react';
-import { MissingPartsData } from '../../../types';
+import { PedagogicalHeader } from '../common';
+import * as LucideIcons from 'lucide-react';
 
-const getBlankStyle = (settings: MissingPartsData['settings']) => {
-  const sizeStyles: Record<string, string> = {
-    small: 'min-w-[50px] inline-block mx-0.5',
-    medium: 'min-w-[80px] inline-block mx-1',
-    large: 'min-w-[120px] inline-block mx-1.5'
-  };
-  const borderStyles: Record<string, string> = {
-    underline: 'border-b-2 border-zinc-800',
-    dashed: 'border-b-2 border-dashed border-zinc-600',
-    solid: 'border-b-4 border-zinc-900',
-    dotted: 'border-b-2 border-dotted border-zinc-500'
-  };
-  return `${sizeStyles[settings?.blankSize || 'medium']} ${borderStyles[settings?.blankStyle || 'underline']}`;
-};
-
-export const AdvancedMissingPartsSheet: React.FC<{ data: MissingPartsData }> = ({ data }) => {
-  const { content, settings } = data;
-  const paragraphs = Array.isArray(content?.paragraphs) ? content.paragraphs : [];
-  const wordBank = content?.wordBank;
-  const compact = settings?.compactLayout !== false;
+export const AdvancedMissingPartsSheet: React.FC<{ data: any }> = React.memo(({ data }) => {
+  const content = data.content || {};
+  const items = content.items || [];
+  const wordBank = content.wordBank || [];
+  const insight = content.insight || { title: 'BİLGİ', text: 'Eksik kelimeleri bulmak için cümleyi bir bütün olarak değerlendirin.' };
+  const topic = content.topic || 'Genel';
 
   return (
-    <div className="flex flex-col w-full bg-white font-lexend text-black relative overflow-hidden">
-      {/* Premium Header */}
-      <div className="flex items-center justify-between px-2 py-1.5 border-b border-zinc-200 bg-gradient-to-r from-zinc-50 to-white">
-        <div className="flex items-center gap-1.5 min-w-0">
-          <div className="w-1 h-5 bg-gradient-to-b from-emerald-500 to-blue-500 rounded-full shrink-0" />
-          <div className="min-w-0">
-            <h1 className="text-xs font-black text-zinc-900 leading-tight truncate">{content?.title || data.title || 'Eksik Parçaları Tamamlama'}</h1>
-            <p className="text-[8px] text-zinc-500 leading-tight truncate">{content?.instruction || data.instruction || 'Boşlukları uygun kelimelerle doldurun.'}</p>
-          </div>
-        </div>
-        {settings?.fastMode && (
-          <span className="text-[7px] font-black uppercase tracking-wider text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full border border-emerald-200 shrink-0 leading-none">
-            ⚡ Hızlı
-          </span>
+    <div className="flex flex-col min-h-[297mm] h-full font-['Lexend'] text-zinc-900 bg-white p-8 print:p-4 overflow-hidden professional-worksheet relative">
+      <PedagogicalHeader
+        title={data.title || 'EKSİK PARÇALARI TAMAMLA'}
+        instruction={data.instruction || 'Cümlelerdeki boşlukları anlam bütünlüğüne uygun şekilde doldurun.'}
+        note={data.pedagogicalNote}
+      />
+
+      <div className="flex-1 flex flex-col gap-8 print:gap-4 mt-6">
+        
+        {/* ÜST PANEL: KELİME HAVUZU (KOMPAKT) */}
+        {wordBank.length > 0 && (
+            <div className="p-6 print:p-3 bg-zinc-900 rounded-[2.5rem] shadow-xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 opacity-10">
+                    <LucideIcons.Search size={64} color="#FFF" />
+                </div>
+                <div className="flex items-center gap-3 mb-4 print:mb-2">
+                    <div className="w-8 h-8 rounded-xl bg-orange-500 flex items-center justify-center shadow-lg">
+                        <LucideIcons.Box size={16} color="#FFF" />
+                    </div>
+                    <div>
+                        <p className="text-[7px] font-black text-orange-400 uppercase tracking-widest leading-none mb-1">HAVUZU KULLAN</p>
+                        <h4 className="text-sm font-black text-white uppercase tracking-tight">KAVRAM BANKASI</h4>
+                    </div>
+                </div>
+                <div className="flex flex-wrap gap-2 relative z-10">
+                    {wordBank.map((word: string, i: number) => (
+                        <div key={i} className="px-3 py-1.5 bg-white/10 rounded-xl text-[10px] font-bold text-white border border-white/5 uppercase tracking-tight">
+                            {word}
+                        </div>
+                    ))}
+                </div>
+            </div>
         )}
-      </div>
 
-      {data.pedagogicalNote && (
-        <div className="mx-1.5 mt-1 mb-0.5 p-1 bg-amber-50 rounded border border-amber-100 print:hidden">
-          <p className="text-[7px] text-amber-700 leading-tight">
-            <span className="font-black">Not:</span> {data.pedagogicalNote}
-          </p>
-        </div>
-      )}
+        {/* ANA İÇERİK: CÜMLELER */}
+        <div className="flex-1 space-y-4 print:space-y-2">
+            {items.map((item: any, idx: number) => (
+                <div key={idx} className="group relative p-6 print:p-3 bg-zinc-50/50 border-2 border-zinc-100 rounded-[2rem] hover:bg-zinc-100 transition-all flex gap-6 items-start">
+                    {/* Sıra No */}
+                    <div className="w-10 h-10 rounded-2xl bg-white border-2 border-zinc-200 flex items-center justify-center shrink-0 shadow-sm">
+                        <span className="text-xs font-black text-zinc-400">{idx + 1}</span>
+                    </div>
 
-      {/* Word Bank */}
-      {wordBank && Array.isArray(wordBank.words) && wordBank.words.length > 0 && (
-        <div className={`mx-1.5 mb-1 p-1.5 bg-zinc-900 rounded-lg border border-zinc-700 ${compact ? 'p-1' : 'p-2'}`}>
-          <div className="flex items-center gap-1 mb-1">
-            <span className="text-[7px] font-black text-emerald-400 uppercase tracking-wider">Kelime Havuzu</span>
-            <span className="text-[6px] text-zinc-500">({wordBank.words.length})</span>
-          </div>
-          <div className="flex flex-wrap gap-1">
-            {wordBank.words.map((word, i) => (
-              <span key={i} className="px-1.5 py-0.5 bg-white/10 text-white text-[9px] font-bold rounded border border-white/10">
-                {word}
-              </span>
+                    <div className="flex-1 space-y-2">
+                        <p className="text-lg print:text-[13px] font-medium leading-relaxed text-zinc-800">
+                            {(item.text || "").split('...........').map((part: string, i: number, arr: any[]) => (
+                                <React.Fragment key={i}>
+                                    {part}
+                                    {i < arr.length - 1 && (
+                                        <span className="inline-block min-w-[120px] border-b-2 border-dashed border-orange-400 mx-2 text-transparent">
+                                            ..........
+                                        </span>
+                                    )}
+                                </React.Fragment>
+                            ))}
+                        </p>
+                        
+                        {/* İpucu (Varsa) */}
+                        {item.hint && (
+                            <div className="flex items-center gap-1 opacity-40">
+                                <LucideIcons.HelpCircle size={10} />
+                                <span className="text-[9px] font-bold">İPUCU: {item.hint}</span>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Kontrol Kutusu Print'te görünür, interaktif değil */}
+                    <div className="w-6 h-6 rounded-lg border-2 border-zinc-200 shrink-0 mt-1"></div>
+                </div>
             ))}
-          </div>
         </div>
-      )}
 
-      {/* Main Content */}
-      <div className="flex-1 px-1.5 py-1 print:py-0.5">
-        <div className={`space-y-2 ${compact ? 'space-y-1.5' : 'space-y-3'}`}>
-          {paragraphs.map((paragraph, pIdx) => (
-            <div key={paragraph.id || pIdx} className={`relative ${compact ? 'p-1.5' : 'p-3'} bg-zinc-50/30 rounded-lg border border-zinc-100`}>
-              {settings?.showParagraphNumbers !== false && (
-                <span className="absolute -top-1.5 -left-1.5 px-1.5 py-0.5 bg-gradient-to-r from-emerald-500 to-blue-500 text-white rounded text-[6px] font-black uppercase leading-none shadow">
-                  {pIdx + 1}
-                </span>
-              )}
-              <p className={`text-justify text-zinc-800 leading-relaxed ${compact ? 'text-xs leading-snug' : 'text-sm'}`}>
-                {paragraph?.parts?.map((part, iIdx) => (
-                  part.isBlank ? (
-                    <span key={iIdx} className={`${getBlankStyle(settings)} align-middle`}>
-                      <span className="text-zinc-400 text-[8px] font-medium">[___]</span>
-                    </span>
-                  ) : (
-                    <span key={iIdx}>{part.text}</span>
-                  )
-                ))}
-              </p>
+        {/* ALT BÖLÜM: INSIGHT & ANALİZ */}
+        <div className="grid grid-cols-4 gap-6 print:gap-3 items-stretch mt-auto">
+            <div className="col-span-3 p-6 print:p-3 bg-indigo-50/50 border-2 border-indigo-100 rounded-[2.5rem] relative overflow-hidden flex items-center gap-6">
+                <div className="w-14 h-14 rounded-[1.5rem] bg-white flex items-center justify-center shadow-lg border border-indigo-100 shrink-0">
+                    <LucideIcons.ShieldCheck className="text-indigo-600" size={28} />
+                </div>
+                <div>
+                   <h5 className="text-[9px] font-black text-indigo-600 uppercase tracking-widest mb-1">{insight.title || 'DİLSEL VERİ'}</h5>
+                   <p className="text-[11px] print:text-[9px] font-bold text-zinc-600 leading-snug italic max-w-xl">
+                      {insight.text}
+                   </p>
+                </div>
             </div>
-          ))}
+
+            <div className="p-6 print:p-3 bg-zinc-950 text-white rounded-[2.5rem] flex flex-col justify-center items-center text-center shadow-2xl">
+                <LucideIcons.Target size={24} className="text-orange-400 mb-2" />
+                <span className="text-[8px] font-black uppercase tracking-[0.2em] mb-1 opacity-50">BAŞARI</span>
+                <span className="text-[11px] font-black tracking-tighter uppercase whitespace-nowrap">TAMAMLAMA</span>
+            </div>
         </div>
       </div>
 
-      {/* Evaluation Footer */}
-      <div className="mt-auto border-t border-zinc-300 mx-1.5 pt-1 pb-1 print:pt-0.5 print:pb-0.5 break-inside-avoid">
-        <div className="grid grid-cols-4 gap-1.5">
-          {[
-            { label: 'SÜRE', cls: 'bg-zinc-50 border-zinc-200 text-zinc-400' },
-            { label: 'DOĞRU', cls: 'bg-emerald-50 border-emerald-200 text-emerald-600' },
-            { label: 'YANLIŞ', cls: 'bg-red-50 border-red-200 text-red-500' },
-            { label: 'PUAN', cls: 'bg-indigo-600 border-indigo-700 text-white' },
-          ].map(({ label, cls }) => (
-            <div key={label} className={`p-1 rounded-lg border ${cls}`}>
-              <p className="text-[6px] font-black uppercase tracking-wider mb-0.5">{label}</p>
-              <div className="h-4 border-b border-dashed opacity-40" style={{ borderColor: 'currentColor' }} />
-            </div>
-          ))}
-        </div>
+      {/* KLİNİK İMZALAR */}
+      <div className="mt-4 flex justify-between items-center text-[7px] font-black text-zinc-300 px-6 uppercase tracking-[0.4em]">
+          <span>© BDMIND VERBAL STUDIO V5.1</span>
+          <div className="flex gap-4">
+              <span>LEXEND_TYPEFACE</span>
+              <span>CLOZE_ANALYSIS_SYNC</span>
+          </div>
       </div>
     </div>
   );
-};
+});
