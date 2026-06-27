@@ -309,7 +309,9 @@ export const generateOfflineFindTheDifference = async (
     
     for (let c = 0; c < puzzleCount; c++) {
       const size = gridSize;
-      const diffCount = difficulty === 'Başlangıç' ? 3 : difficulty === 'Orta' ? 5 : 8;
+      // Güvenli sınır: grid'deki toplam hücre sayısından az olmalı (sonsuz döngü önlemi)
+      const rawDiffCount = difficulty === 'Başlangıç' ? 3 : difficulty === 'Orta' ? 5 : 8;
+      const diffCount = Math.min(rawDiffCount, Math.floor(size * size * 0.6));
       
       // Havuz Belirleme
       let pool = EMOJI_POOL;
