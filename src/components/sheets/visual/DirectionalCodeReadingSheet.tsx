@@ -1,7 +1,7 @@
 import React from 'react';
 import { DirectionalCodeReadingData } from '../../../types';
 import { PedagogicalHeader } from '../common';
-import * as LucideIcons from 'lucide-react';
+import { Terminal, Compass } from 'lucide-react';
 
 export const DirectionalCodeReadingSheet: React.FC<{ data: DirectionalCodeReadingData }> = ({ data }) => {
   const puzzles = data?.puzzles || [];
@@ -89,7 +89,7 @@ export const DirectionalCodeReadingSheet: React.FC<{ data: DirectionalCodeReadin
                       <i className="fa-solid fa-code text-5xl"></i>
                   </div>
                   <p className="text-[8px] font-black text-indigo-400 uppercase tracking-[0.2em] mb-4 flex items-center gap-2">
-                       <LucideIcons.Terminal size={10} /> ROTA PROTOKOLÜ
+                       <Terminal size={10} /> ROTA PROTOKOLÜ
                   </p>
                   <div className="flex flex-wrap gap-2 justify-start relative z-10">
                       {puzzle.instructions.map((ins: any, iIdx: number) => (
@@ -125,7 +125,7 @@ export const DirectionalCodeReadingSheet: React.FC<{ data: DirectionalCodeReadin
       <div className="mt-6 p-6 bg-zinc-950 text-white rounded-[3rem] flex justify-between items-center relative overflow-hidden shadow-2xl border border-white/5">
           <div className="flex gap-6 items-center">
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center shadow-xl border border-white/20">
-                  <LucideIcons.Compass className="text-white animate-pulse" size={28} />
+                  <Compass className="text-white animate-pulse" size={28} />
               </div>
               <div>
                   <p className="text-[8px] font-black text-indigo-400 uppercase tracking-widest leading-none mb-1">PROGRAMLANABİLİR BİLİŞSEL ROTA</p>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { PedagogicalHeader } from '../common';
-import * as LucideIcons from 'lucide-react';
+import { Search, Box, HelpCircle, ShieldCheck, Target } from 'lucide-react';
 
 export const AdvancedMissingPartsSheet: React.FC<{ data: any }> = React.memo(({ data }) => {
   const content = data.content || {};
@@ -23,11 +23,11 @@ export const AdvancedMissingPartsSheet: React.FC<{ data: any }> = React.memo(({ 
         {wordBank.length > 0 && (
             <div className="p-6 print:p-3 bg-zinc-900 rounded-[2.5rem] shadow-xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-4 opacity-10">
-                    <LucideIcons.Search size={64} color="#FFF" />
+                    <Search size={64} color="#FFF" />
                 </div>
                 <div className="flex items-center gap-3 mb-4 print:mb-2">
                     <div className="w-8 h-8 rounded-xl bg-orange-500 flex items-center justify-center shadow-lg">
-                        <LucideIcons.Box size={16} color="#FFF" />
+                        <Box size={16} color="#FFF" />
                     </div>
                     <div>
                         <p className="text-[7px] font-black text-orange-400 uppercase tracking-widest leading-none mb-1">HAVUZU KULLAN</p>
@@ -70,7 +70,7 @@ export const AdvancedMissingPartsSheet: React.FC<{ data: any }> = React.memo(({ 
                         {/* İpucu (Varsa) */}
                         {item.hint && (
                             <div className="flex items-center gap-1 opacity-40">
-                                <LucideIcons.HelpCircle size={10} />
+                                <HelpCircle size={10} />
                                 <span className="text-[9px] font-bold">İPUCU: {item.hint}</span>
                             </div>
                         )}
@@ -86,7 +86,7 @@ export const AdvancedMissingPartsSheet: React.FC<{ data: any }> = React.memo(({ 
         <div className="grid grid-cols-4 gap-6 print:gap-3 items-stretch mt-auto">
             <div className="col-span-3 p-6 print:p-3 bg-indigo-50/50 border-2 border-indigo-100 rounded-[2.5rem] relative overflow-hidden flex items-center gap-6">
                 <div className="w-14 h-14 rounded-[1.5rem] bg-white flex items-center justify-center shadow-lg border border-indigo-100 shrink-0">
-                    <LucideIcons.ShieldCheck className="text-indigo-600" size={28} />
+                    <ShieldCheck className="text-indigo-600" size={28} />
                 </div>
                 <div>
                    <h5 className="text-[9px] font-black text-indigo-600 uppercase tracking-widest mb-1">{insight.title || 'DİLSEL VERİ'}</h5>
@@ -97,7 +97,7 @@ export const AdvancedMissingPartsSheet: React.FC<{ data: any }> = React.memo(({ 
             </div>
 
             <div className="p-6 print:p-3 bg-zinc-950 text-white rounded-[2.5rem] flex flex-col justify-center items-center text-center shadow-2xl">
-                <LucideIcons.Target size={24} className="text-orange-400 mb-2" />
+                <Target size={24} className="text-orange-400 mb-2" />
                 <span className="text-[8px] font-black uppercase tracking-[0.2em] mb-1 opacity-50">BAŞARI</span>
                 <span className="text-[11px] font-black tracking-tighter uppercase whitespace-nowrap">TAMAMLAMA</span>
             </div>
