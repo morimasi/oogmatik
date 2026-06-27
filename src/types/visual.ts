@@ -41,17 +41,10 @@ export interface FindTheDifferenceData extends BaseActivityData {
         layout: 'single' | 'grid_compact' | 'ultra_dense' | 'side_by_side';
         isProfessionalMode: boolean;
         showClinicalNotes?: boolean;
-        gridCount?: number;
     };
     gridA?: unknown[][];
     gridB?: unknown[][];
     diffCount?: number;
-    puzzles?: {
-        gridA: any[][];
-        gridB: any[][];
-        diffCount: number;
-        title?: string;
-    }[];
     rows: {
         items: unknown[]; // Supports strings, SVG objects, or references
         correctIndex: number;
@@ -129,13 +122,12 @@ export interface VisualOddOneOutData extends BaseActivityData {
 export interface GridDrawingData extends BaseActivityData {
     settings?: {
         difficulty: 'beginner' | 'intermediate' | 'expert' | 'clinical';
-        layout: 'side_by_side' | 'stacked' | 'single' | 'grid_2x1' | 'grid_2x2';
+        layout: 'side_by_side' | 'stacked';
         gridType: 'dots' | 'squares' | 'crosses';
         transformMode: 'copy' | 'mirror_v' | 'mirror_h' | 'rotate_90' | 'rotate_180';
         showCoordinates: boolean;
         isProfessionalMode: boolean;
         showClinicalNotes?: boolean;
-        puzzleCount?: number;
     };
     gridDim: number;
     drawings: {
@@ -153,21 +145,19 @@ export interface GridDrawingData extends BaseActivityData {
 export interface SymmetryDrawingData extends BaseActivityData {
     settings?: {
         difficulty: 'beginner' | 'intermediate' | 'expert' | 'clinical';
-        axis: 'vertical' | 'horizontal' | 'diagonal' | 'mixed';
+        axis: 'vertical' | 'horizontal' | 'diagonal';
         gridType: 'dots' | 'squares' | 'crosses';
         layout: 'single' | 'grid_2x1' | 'grid_2x2';
         showGhostPoints: boolean;
         showCoordinates: boolean;
         isProfessionalMode: boolean;
         showClinicalNotes?: boolean;
-        puzzleCount?: number;
     };
     gridDim: number;
     drawings: {
         lines: { x1: number; y1: number; x2: number; y2: number; color?: string }[];
         dots: { x: number; y: number; color?: string }[];
         title: string;
-        axis?: 'vertical' | 'horizontal' | 'diagonal';
         clinicalMeta?: {
             asymmetryIndex: number; // 0-1 range
             complexity: number;

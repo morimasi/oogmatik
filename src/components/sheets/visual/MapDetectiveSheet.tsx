@@ -56,11 +56,11 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
     const _isRegionFocused = data.cities && data.cities.length < 50;
 
     return (
-        <div className="flex flex-col h-full bg-white p-2 print:p-0 font-sans text-black overflow-visible">
+        <div className="flex flex-col h-full  bg-white p-2 print:p-0 font-sans text-black overflow-visible">
             <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
 
             {/* HARİTA KANVASI */}
-            <div className="relative w-full aspect-[1000/500] bg-white border-[6px] border-zinc-900 rounded-[3.5rem] overflow-hidden shadow-2xl mb-10 print:mb-2 group min-h-[450px] print:min-h-[300px] print:border-4 print:rounded-3xl">
+            <div className="relative w-full aspect-[1000/500] bg-white border-[6px] border-zinc-900 rounded-[3.5rem] overflow-hidden shadow-2xl mb-10 print:mb-3 print:mb-4 print:mb-1 group min-h-[450px] print:min-h-0 print:border-4 print:mb-6 print:mb-2 print:rounded-3xl">
 
                 {/* Zemin Harita Katmanı — padding YOK, tam inset-0 */}
                 <div className="absolute inset-0 w-full h-full  bg-slate-50 z-10 flex items-center justify-center">
@@ -162,14 +162,14 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
             </div>
 
             {/* YÖNERGE LİSTESİ */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 print:gap-x-2 gap-y-6 print:gap-y-1.5 p-8 print:p-2 bg-zinc-50 rounded-[4rem] print:rounded-2xl border-2 border-zinc-100 shadow-inner">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 print:gap-x-4 gap-y-6 print:gap-y-3 p-8 print:p-2 print:p-4 print:p-1 bg-zinc-50 rounded-[4rem] print:rounded-2xl border-2 border-zinc-100 shadow-inner">
                 {(data.instructions || []).map((inst, i) => (
-                    <EditableElement key={i} className="flex items-start gap-5 print:gap-2 p-5 print:p-1.5 bg-white rounded-[2rem] print:rounded-xl border border-zinc-200 shadow-sm hover:border-indigo-500 hover:shadow-indigo-100 transition-all group cursor-default">
-                        <div className="w-10 h-10 print:w-6 print:h-6 rounded-2xl print:rounded-lg bg-zinc-900 text-white flex items-center justify-center text-sm print:text-[10px] font-black shrink-0 shadow-lg group-hover:scale-110 group-hover:bg-indigo-600 transition-all">
+                    <EditableElement key={i} className="flex items-start gap-5 print:gap-1 print:gap-3 p-5 print:p-1 print:p-3 bg-white rounded-[2rem] print:rounded-xl border border-zinc-200 shadow-sm hover:border-indigo-500 hover:shadow-indigo-100 transition-all group cursor-default">
+                        <div className="w-10 h-10 print:w-8 print:h-8 rounded-2xl print:rounded-xl bg-zinc-900 text-white flex items-center justify-center text-sm print:text-xs font-black shrink-0 shadow-lg group-hover:scale-110 group-hover:bg-indigo-600 transition-all">
                             {i + 1}
                         </div>
                         <div className="flex-1 pt-0.5">
-                            <p className="text-[15px] print:text-[11px] font-bold text-zinc-800 leading-snug tracking-tight">
+                            <p className="text-[15px] print:text-sm font-bold text-zinc-800 leading-snug tracking-tight">
                                 <EditableText value={inst} tag="span" />
                             </p>
                         </div>
@@ -180,8 +180,8 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
                 ))}
             </div>
 
-            <div className="mt-auto pt-10 print:pt-2 flex justify-between items-center px-10 print:px-2 border-t border-zinc-100 opacity-30 print:opacity-50">
-                <div className="flex gap-12 print:gap-2">
+            <div className="mt-auto pt-10 print:pt-3 print:pt-4 print:pt-1 flex justify-between items-center px-10 print:px-3 print:px-2 border-t border-zinc-100 opacity-30 print:opacity-50">
+                <div className="flex gap-12 print:gap-3 print:gap-4 print:gap-1">
                     <div className="flex flex-col">
                         <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">Sistem</span>
                         <span className="text-[11px] font-bold text-zinc-800 uppercase">Manuel Görsel Entegrasyonu</span>
