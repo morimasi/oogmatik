@@ -5,8 +5,9 @@ import {
   GridDrawingData,
   SymmetryDrawingData,
   ShapeCountingData,
+  DirectionalTrackingData,
+  DirectionalCodeReadingData,
 } from '../../types';
-import { DirectionalCodeReadingData } from '../../types/visual';
 import { GeneratorOptions } from '../../types/core';
 import {
   getRandomInt,
@@ -457,11 +458,11 @@ export const generateOfflineFindTheDifference = async (
   return results;
 };
 
-const TURKISH_WORDS: Record<string, string[]> = {
-  'Başlangıç': ['AL', 'EL', 'AT', 'ET', 'OK', 'OL', 'ON', 'AN', 'EN', 'KA', 'KE', 'LA'],
-  'Orta': ['KEDİ', 'ELMA', 'OKUL', 'ARKA', 'YOL', 'SU', 'KALP', 'MASA', 'SEL', 'KOLİ', 'KALE', 'ALİ', 'CAN', 'CANO', 'KUM', 'KAM'],
-  'Zor': ['KİTAP', 'ARMUT', 'KAPLAN', 'PARK', 'ÜZÜM', 'AĞAÇ', 'DENİZ', 'KARIN', 'ÇANTA', 'YILDIZ', 'BALIK'],
-  'Uzman': ['OKYANUS', 'TİYATRO', 'GÖZLÜK', 'KALEMLİK', 'ÇİKOLATA', 'ZAMBAK', 'İSTASYON', 'BİSİKLET'],
+const TURKISH_PHONOLOGY_WORDS: Record<string, string[]> = {
+  'Başlangıç': ['AT', 'EL', 'OK', 'AL', 'İT', 'OT', 'ET', 'AY', 'EY', 'AS', 'AD', 'AK'],
+  'Orta': ['KEDİ', 'ELMA', 'OKUL', 'MASA', 'KAPI', 'KİTAP', 'KALEM', 'YAZI', 'BİLGİ', 'DENİZ', 'GÜNEŞ', 'BULUT'],
+  'Zor': ['KELEBEK', 'ÇİKOLATA', 'OYUNCAK', 'İSTASYON', 'PENCERE', 'KIRLANGIÇ', 'KAPLUMBAĞA', 'GÖKKUŞAĞI'],
+  'Uzman': ['ÜNİVERSİTE', 'BİLGİSAYAR', 'TELEVİZYON', 'KÜTÜPHANE', 'CUMHURİYET', 'MATEMATİK', 'ÖĞRETMEN'],
 };
 
 const DIRS = [
@@ -480,117 +481,110 @@ const getValidDirections = (r: number, c: number, rows: number, cols: number, us
 
 export const generateOfflineDirectionalTracking = async (
   options: GeneratorOptions
-): Promise<DirectionalCodeReadingData[]> => {
-  const { worksheetCount = 1, difficulty = 'Orta', itemCount = 3, concept = 'letters' } = options;
+): Promise<DirectionalTrackingData[]> => {
+  const { worksheetCount = 1, difficulty = 'Orta', concept = 'letters' } = options;
+  const itemCount = options.itemCount || 1; // Sayfa başına puzzle sayısı
+  const codeLength = options.codeLength || (difficulty === 'Zor' ? 8 : 5);
   const aestheticMode = (options as any).aestheticMode || 'standard';
-  const results: DirectionalCodeReadingData[] = [];
-
-  const rows = options.gridRows || options.gridSize || 8;
-  const cols = options.gridCols || options.gridSize || 8;
-  const pool = concept === 'numbers'
-    ? Array.from({ length: 10 }, (_, i) => String(i))
-    : turkishAlphabet.split('');
-  const wordList = TURKISH_WORDS[difficulty] || TURKISH_WORDS['Orta'];
+  
+  const results: DirectionalTrackingData[] = [];
+  const rows = options.gridRows || 8;
+  const cols = options.gridCols || 8;
+  const alphabet = turkishAlphabet.split('');
 
   for (let p = 0; p < worksheetCount; p++) {
     const puzzles: any[] = [];
-    const usedWords = new Set<string>();
-
+    
     for (let q = 0; q < itemCount; q++) {
-      // Pick an unused word
-      const available = wordList.filter((w) => !usedWords.has(w));
-      const targetWord = available.length > 0
-        ? available[getRandomInt(0, available.length - 1)]
-        : wordList[getRandomInt(0, wordList.length - 1)];
-      usedWords.add(targetWord);
+      // Pick a word based on difficulty and codeLength
+      const pool = TURKISH_PHONOLOGY_WORDS[difficulty] || TURKISH_PHONOLOGY_WORDS['Orta'];
+      let targetWord = pool[getRandomInt(0, pool.length - 1)];
+      
+      // If codeLength is strict, try to match it
+      if (concept === 'numbers') {
+        targetWord = Array.from({ length: codeLength }, () => String(getRandomInt(0, 9))).join('');
+      } else if (targetWord.length > codeLength) {
+        targetWord = targetWord.substring(0, codeLength);
+      } else if (targetWord.length < codeLength && concept === 'letters') {
+        // Extend word with random letters if too short
+        while (targetWord.length < codeLength) {
+            targetWord += alphabet[getRandomInt(0, alphabet.length - 1)];
+        }
+      }
 
-      // Initialize empty grid
-      const grid: string[][] = Array.from({ length: rows }, () => Array(rows).fill(''));
+      const grid: string[][] = Array.from({ length: rows }, () => Array(cols).fill(''));
       const used = new Set<string>();
-
-      // Pick a start position in the interior (not too close to edges)
-      const margin = 2;
-      const maxR = rows - margin;
-      const maxC = cols - margin;
-      let cr = getRandomInt(margin, Math.max(margin, maxR - 1));
-      let cc = getRandomInt(margin, Math.max(margin, maxC - 1));
-
-      const path: { r: number; c: number; char: string; direction: string }[] = [];
-
-      // Place first letter
-      const firstChar = concept === 'numbers' ? targetWord : targetWord[0];
-      grid[cr][cc] = firstChar;
+      
+      // Start position (avoid edges for better path growth)
+      let cr = getRandomInt(1, rows - 2);
+      let cc = getRandomInt(1, cols - 2);
+      const path: any[] = [];
+      
+      // Place first char
+      grid[cr][cc] = targetWord[0];
       used.add(`${cr},${cc}`);
-      path.push({ r: cr, c: cc, char: firstChar, direction: 'start' });
+      path.push({ r: cr, c: cc, char: targetWord[0], direction: 'start' });
 
-      // Build path for remaining letters
-      const letters = concept === 'numbers'
-        ? targetWord.split('')
-        : targetWord.substring(1).split('');
-
-      for (const letter of letters) {
+      // Path creation
+      for (let i = 1; i < targetWord.length; i++) {
         const validDirs = getValidDirections(cr, cc, rows, cols, used);
-        if (validDirs.length === 0) break;
+        if (validDirs.length === 0) break; // Path blocked
 
         const move = validDirs[getRandomInt(0, validDirs.length - 1)];
         cr += move.dr;
         cc += move.dc;
-        grid[cr][cc] = letter;
+        grid[cr][cc] = targetWord[i];
         used.add(`${cr},${cc}`);
-        path.push({ r: cr, c: cc, char: letter, direction: move.label });
+        path.push({ r: cr, c: cc, char: targetWord[i], direction: move.label });
       }
 
-      // Fill empty cells with random chars
-      const fillPool = concept === 'numbers' ? pool : pool.filter((ch) => ch !== firstChar);
+      // Fill noise
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
           if (!grid[r][c]) {
-            grid[r][c] = fillPool[getRandomInt(0, fillPool.length - 1)];
+            grid[r][c] = concept === 'numbers' ? String(getRandomInt(0, 9)) : alphabet[getRandomInt(0, alphabet.length - 1)];
           }
         }
       }
 
-      const cipherAnswer = path.map((pt) => pt.char).join('');
-
+      const finalWord = path.map(pt => pt.char).join('');
+      
       puzzles.push({
-        id: `puzzle-${q}-${targetWord}`,
-        title: `ŞİFRE ${q + 1}`,
+        id: `dt-${p}-${q}`,
+        title: `GÖREVSETİ #${q + 1}`,
         grid,
-        path: path.slice(1).map((pt) => pt.direction),
+        path: path.slice(1).map(pt => pt.direction),
         steps: path.slice(1).map((pt, i) => ({
-          step: i + 1,
-          count: 1,
-          dir: pt.direction,
-          direction: pt.direction,
+            step: i + 1,
+            count: 1,
+            dir: pt.direction,
+            direction: pt.direction
         })),
         startPos: { r: path[0].r, c: path[0].c },
-        targetWord: cipherAnswer,
-        cipherAnswer,
-        answerLength: cipherAnswer.length,
+        targetWord: finalWord,
+        cipherAnswer: finalWord,
+        answerLength: finalWord.length,
         clinicalMeta: {
-          perceptualLoad: 0.6 + (rows * cols) / 200,
-          attentionShiftCount: path.length - 1,
-        },
+            perceptualLoad: (rows * cols) / 64,
+            attentionShiftCount: path.length - 1
+        }
       });
     }
 
-    const layout = itemCount === 1 ? 'single' : itemCount > 2 ? 'grid_compact' : 'grid_2x1';
-
     results.push({
-      title: 'YÖNSEL İZ SÜRME & ŞİFRE ÇÖZÜCÜ',
-      instruction: 'Başlangıç noktasından okları takip ederek harfleri topla. Topladığın harfler bir kelime oluşturuyor!',
+      title: 'YÖNSEL İZ SÜRME VE ALGORİTMİK DİKKAT',
+      instruction: 'Başlangıç noktasından başlayarak okları takip et ve ulaştığın harfleri sırayla şifre kutusuna yaz.',
       settings: {
-        difficulty: mapDifficulty(difficulty || 'Orta'),
-        layout: layout as any,
+        difficulty: mapDifficulty(difficulty),
+        layout: itemCount > 2 ? 'grid_compact' : 'grid_2x1',
         aestheticMode,
-        rotationEnabled: false,
-        pathComplexity: puzzles[0]?.steps?.length || 5,
-        isProfessionalMode: true,
-        showClinicalNotes: true,
         gridSize: rows,
         contentType: concept as any,
+        isProfessionalMode: true,
+        showClinicalNotes: true,
+        itemCount
       } as any,
-      puzzles,
+      puzzles
     } as any);
   }
   return results;
