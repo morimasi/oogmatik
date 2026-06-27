@@ -107,11 +107,11 @@ export interface VisualOddOneOutData extends BaseActivityData {
     settings?: {
         difficulty: 'beginner' | 'intermediate' | 'expert' | 'clinical';
         layout: 'single' | 'grid_compact' | 'ultra_dense' | 'ultra_full' | 'protocol';
-        itemType: 'svg' | 'text' | 'image' | 'character' | 'emoji' | 'mixed';
+        itemType: 'svg' | 'text' | 'image' | 'character' | 'emoji' | 'mixed' | 'abstract';
         subType?: 'character_discrimination' | 'symbolic_logic' | 'object_recognition' | 'foveal_scan';
         isProfessionalMode: boolean;
         showClinicalNotes?: boolean;
-        cognitiveLoad?: number;
+        puzzleCount?: number;
         rowCount?: number;
         itemsPerRow?: number;
         aestheticMode?: 'standard' | 'premium' | 'glassmorphism' | 'ultra-compact';
