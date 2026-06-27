@@ -262,6 +262,7 @@ export const generateOfflineFindTheDifference = async (
   const itemCount = options.itemCount || customSettings.itemCount || 5;
   const findDiffType = options.findDiffType || customSettings.findDiffType || 'visual';
   const layout = (options as any).layout || customSettings.layout || 'side_by_side';
+  const puzzleCount = options.puzzleCount || customSettings.puzzleCount || 1;
   const results: FindTheDifferenceData[] = [];
 
   const EMOJIS = [
@@ -270,49 +271,66 @@ export const generateOfflineFindTheDifference = async (
   ];
 
   for (let p = 0; p < worksheetCount; p++) {
-    let size = options.gridSize || customSettings.gridSize || (difficulty === 'Başlangıç' ? 4 : difficulty === 'Orta' ? 5 : 6);
-    // Boundary check for size vs itemCount
-    const maxItems = size * size;
-    const finalItemCount = Math.min(itemCount, maxItems - 1);
+    const puzzles: { gridA: unknown[][]; gridB: unknown[][]; diffCount: number; title: string }[] = [];
+    
+    for (let c = 0; c < puzzleCount; c++) {
+      let size = options.gridSize || customSettings.gridSize || (difficulty === 'Başlangıç' ? 4 : difficulty === 'Orta' ? 5 : 6);
+      
+      // If we have multiple puzzles on one page, we should restrict the size to prevent overcrowding
+      if (puzzleCount > 1 && size > 6) size = 6;
+      if (puzzleCount > 2 && size > 5) size = 5;
 
-    // Veri havuzu seçimi
-    let sourcePool = EMOJIS;
-    if (findDiffType === 'char' || findDiffType === 'linguistic') {
-      sourcePool = turkishAlphabet.split('');
-    } else if (findDiffType === 'number' || findDiffType === 'numeric') {
-      sourcePool = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-    } else if (findDiffType === 'word' || findDiffType === 'semantic') {
-      sourcePool =
-        difficulty === 'Başlangıç'
-          ? TURKISH_WORDS_EASY
-          : difficulty === 'Orta'
-            ? TURKISH_WORDS_MEDIUM
-            : TURKISH_WORDS_HARD;
-    }
+      const maxItems = size * size;
+      const finalItemCount = Math.min(itemCount, maxItems - 1);
 
-    // İki farklı grid oluştur
-    const gridA: string[][] = Array.from({ length: size }, () =>
-      Array.from({ length: size }, () => getRandomItems(sourcePool, 1)[0])
-    );
-
-    const gridB = gridA.map((row) => [...row]);
-    const diffPositions: { r: number; c: number }[] = [];
-
-    // Farkları yerleştir
-    while (diffPositions.length < finalItemCount) {
-      const r = getRandomInt(0, size - 1);
-      const c = getRandomInt(0, size - 1);
-      if (!diffPositions.some((pos) => pos.r === r && pos.c === c)) {
-        let newVal = getRandomItems(sourcePool, 1)[0];
-        while (newVal === gridA[r][c]) newVal = getRandomItems(sourcePool, 1)[0];
-        gridB[r][c] = newVal;
-        diffPositions.push({ r, c });
+      // Veri havuzu seçimi
+      let sourcePool = EMOJIS;
+      if (findDiffType === 'char' || findDiffType === 'linguistic') {
+        sourcePool = turkishAlphabet.split('');
+      } else if (findDiffType === 'number' || findDiffType === 'numeric') {
+        sourcePool = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+      } else if (findDiffType === 'word' || findDiffType === 'semantic') {
+        sourcePool =
+          difficulty === 'Başlangıç'
+            ? TURKISH_WORDS_EASY
+            : difficulty === 'Orta'
+              ? TURKISH_WORDS_MEDIUM
+              : TURKISH_WORDS_HARD;
       }
+
+      // İki farklı grid oluştur
+      const gridA: string[][] = Array.from({ length: size }, () =>
+        Array.from({ length: size }, () => getRandomItems(sourcePool, 1)[0])
+      );
+
+      const gridB = gridA.map((row) => [...row]);
+      const diffPositions: { r: number; c: number }[] = [];
+
+      // Farkları yerleştir
+      while (diffPositions.length < finalItemCount) {
+        const r = getRandomInt(0, size - 1);
+        const c = getRandomInt(0, size - 1);
+        if (!diffPositions.some((pos) => pos.r === r && pos.c === c)) {
+          let newVal = getRandomItems(sourcePool, 1)[0];
+          while (newVal === gridA[r][c]) newVal = getRandomItems(sourcePool, 1)[0];
+          gridB[r][c] = newVal;
+          diffPositions.push({ r, c });
+        }
+      }
+
+      puzzles.push({
+        gridA,
+        gridB,
+        diffCount: finalItemCount,
+        title: puzzleCount > 1 ? `Işınlanma Görevi ${c + 1}` : 'Fark Bulma Görevi'
+      });
     }
 
     results.push({
-      title: 'DİKKAT VE AYRIŞTIRMA: İKİ TABLO ARASINDAKİ FARKLAR',
-      instruction: `Soldaki tablo ile sağdaki tablo arasındaki ${finalItemCount} farkı bulup sağdakinde işaretleyin.`,
+      title: 'GÖRSEL DİKKAT: İKİ TABLO ARASINDAKİ FARKLAR',
+      instruction: puzzleCount > 1 
+          ? `Aşağıdaki ${puzzleCount} farklı ızgara çiftini incele ve belirtilen farkları bul.`
+          : `Soldaki tablo ile sağdaki tablo arasındaki farkları bulup sağdakinde işaretleyin.`,
       settings: {
         difficulty: mapDifficulty(difficulty || 'Orta'),
         layout: layout as any,
@@ -321,10 +339,12 @@ export const generateOfflineFindTheDifference = async (
         showClinicalNotes: true,
         differenceType: findDiffType as any,
       },
-      gridA,
-      gridB,
-      diffCount: finalItemCount,
-      rows: gridB.map((row) => ({
+      puzzles,
+      // Keeping legacy for single puzzle if needed, but the Sheet will focus on puzzles array
+      gridA: puzzles[0].gridA,
+      gridB: puzzles[0].gridB,
+      diffCount: puzzles[0].diffCount,
+      rows: puzzles[0].gridB.map((row) => ({
         items: row,
         correctIndex: -1,
         visualDistractionLevel: 'medium',

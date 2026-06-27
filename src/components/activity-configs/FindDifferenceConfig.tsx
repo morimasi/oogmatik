@@ -82,6 +82,25 @@ export const FindDifferenceConfig: React.FC<{
         </div>
 
         <div>
+          <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Izgara Sayısı (Sayfa Başına)</label>
+          <div className="grid grid-cols-3 gap-2">
+            {[1, 2, 4].map((n) => (
+              <button
+                key={n}
+                onClick={() => update('puzzleCount' as any, n)}
+                className={`py-2 rounded-lg text-xs font-black border transition-all ${
+                  (options.puzzleCount || o.puzzleCount || 1) === n 
+                  ? 'bg-rose-600 text-white border-rose-600 shadow-md' 
+                  : 'bg-white border-zinc-200 text-zinc-400 hover:border-zinc-300'
+                }`}
+              >
+                {n} Izgara
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
           <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Zorluk Seviyesi</label>
           <div className="flex bg-zinc-100 p-1 rounded-xl border border-zinc-200">
             {['Başlangıç', 'Orta', 'Zor'].map((l) => (

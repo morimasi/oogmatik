@@ -42,9 +42,15 @@ export interface FindTheDifferenceData extends BaseActivityData {
         isProfessionalMode: boolean;
         showClinicalNotes?: boolean;
     };
-    gridA?: unknown[][];
-    gridB?: unknown[][];
-    diffCount?: number;
+    gridA?: unknown[][]; // Legacy support
+    gridB?: unknown[][]; // Legacy support
+    diffCount?: number;   // Legacy support
+    puzzles?: {
+        gridA: unknown[][];
+        gridB: unknown[][];
+        diffCount: number;
+        title?: string;
+    }[];
     rows: {
         items: unknown[]; // Supports strings, SVG objects, or references
         correctIndex: number;
