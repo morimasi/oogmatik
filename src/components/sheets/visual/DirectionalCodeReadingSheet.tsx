@@ -1,6 +1,7 @@
 import React from 'react';
 import { DirectionalCodeReadingData } from '../../../types';
 import { PedagogicalHeader } from '../common';
+import * as LucideIcons from 'lucide-react';
 
 export const DirectionalCodeReadingSheet: React.FC<{ data: DirectionalCodeReadingData }> = ({ data }) => {
   const puzzles = data?.puzzles || [];
