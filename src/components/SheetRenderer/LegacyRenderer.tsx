@@ -96,6 +96,7 @@ import { ShapeCountingSheet } from '../sheets/visual/ShapeCountingSheet';
 import { DirectionalTrackingSheet } from '../sheets/visual/DirectionalTrackingSheet';
 import { VisualInterpretationSheet } from '../sheets/visual/VisualInterpretationSheet';
 import { BoxMathSheet } from '../sheets/math/BoxMathSheet';
+import { ConceptMapSheet } from '../sheets/visual/ConceptMapSheet';
 import { QueueOrderingSheet } from '../sheet-renderers/QueueOrderingSheet';
 
 export function renderLegacySheet(
@@ -535,6 +536,10 @@ export function renderLegacySheet(
       break;
     case ActivityType.VISUAL_INTERPRETATION:
       renderedSheet = <VisualInterpretationSheet data={activeData as Record<string, unknown>} settings={settings} />;
+      break;
+
+    case ActivityType.KAVRAM_HARITASI:
+      renderedSheet = <ConceptMapSheet data={activeData} />;
       break;
 
     // AUTONOM_CASES_START
