@@ -153,9 +153,6 @@ export const SymmetryDrawingSheet = ({ data }: { data: SymmetryDrawingData }) =>
         </div>
     );
 };
-        </div>
-    );
-};
 
 
 

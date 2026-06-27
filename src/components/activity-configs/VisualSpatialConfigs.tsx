@@ -54,30 +54,6 @@ export const GridDrawingConfig: React.FC<Props> = ({ options, onChange }) => {
   );
 };
 
-export const SymmetryDrawingConfig: React.FC<Props> = ({ options, onChange }) => {
-  const o = (options?.['symmetryDrawing'] || {}) as Record<string, unknown>;
-  return (
-    <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
-        <h4 className="font-bold">Simetri Çizim</h4>
-      </div>
-      <div>
-        <label className="block text-xs font-bold mb-2">Simetri Ekseni</label>
-        <select
-          value={(o.axis as string) || 'vertical'}
-          onChange={(e) =>
-            onChange({ ...options, symmetryDrawing: { ...o, axis: e.target.value } })
-          }
-          className="w-full p-2 border-2 rounded-lg"
-        >
-          <option value="vertical">Dikey</option>
-          <option value="horizontal">Yatay</option>
-          <option value="both">Her İkisi</option>
-        </select>
-      </div>
-    </div>
-  );
-};
 
 export const VisualTrackingLinesConfig: React.FC<Props> = ({ options, onChange }) => {
   const o = (options?.['visualTrackingLines'] || {}) as Record<string, unknown>;
