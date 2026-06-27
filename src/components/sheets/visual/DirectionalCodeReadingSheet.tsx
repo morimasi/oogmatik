@@ -4,21 +4,24 @@ import { DirectionalCodeReadingData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 
 export const DirectionalCodeReadingSheet: React.FC<{ data: DirectionalCodeReadingData }> = ({ data }) => {
-  const content = data?.content;
-  const puzzles = content?.puzzles || [];
-  const settings = data?.settings;
+  // Veri yapısı hem 'data.puzzles' hem de 'data.content.puzzles' olabilir.
+  // Legacy ve yeni yapıları desteklemek için esnek davranıyoruz.
+  const content = data?.content || (data as any);
+  const puzzles = (data as any)?.puzzles || (content as any)?.puzzles || [];
+  const settings = (data as any)?.settings || (content as any)?.settings;
   const cipherType = settings?.cipherType || 'arrows';
 
   return (
     <div className="flex flex-col min-h-[297mm] h-full font-['Lexend'] text-zinc-900 bg-white p-8 print:p-4 overflow-hidden professional-worksheet relative">
       <PedagogicalHeader
-        title={data?.title || content?.title || 'ŞİFRE VE ROTA MATRİSİ'}
-        instruction={data?.instruction || 'Yönerge kutusundaki kodları takip ederek başlangıçtan bitişe ulaş.'}
-        note={data?.pedagogicalNote || content?.pedagogicalNote}
+        title={(data as any)?.title || (content as any)?.title || 'ŞİFRE VE ROTA MATRİSİ'}
+        instruction={(data as any)?.instruction || (content as any)?.instruction || 'Yönerge kutusundaki kodları takip ederek başlangıçtan bitişe ulaş.'}
+        note={(data as any)?.pedagogicalNote || (content as any)?.pedagogicalNote}
       />
 
       <div className={`flex-1 grid ${puzzles.length > 1 ? 'grid-cols-2 mt-4' : 'grid-cols-1 mt-8'} gap-8 print:gap-4 content-stretch`}>
         {puzzles.map((puzzle: any, pIdx: number) => {
+          if (!puzzle || !puzzle.grid || !puzzle.grid[0]) return null;
           const gridRows = puzzle.grid.length;
           const gridCols = puzzle.grid[0].length;
 

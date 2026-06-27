@@ -15,7 +15,7 @@ interface ConceptNode {
 }
 
 export const ConceptMapSheet: React.FC<{ data: any }> = React.memo(({ data }) => {
-  const content = data.content || {};
+  const content = data.content || (data as any);
   const nodes: ConceptNode[] = useMemo(() => content.nodes || [], [content.nodes]);
   const settings = data.settings || {};
   

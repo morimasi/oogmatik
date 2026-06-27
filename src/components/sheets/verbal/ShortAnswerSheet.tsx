@@ -3,7 +3,7 @@ import { PedagogicalHeader } from '../common';
 import { Lightbulb, CheckCircle2, ShieldQuestion, BrainCircuit, Award } from 'lucide-react';
 
 export const ShortAnswerSheet = React.memo(({ data }: { data: any }) => {
-  const content = data.content || {};
+  const content = data.content || (data as any);
   const questions = content.questions || [];
   const settings = data.settings || {};
   const insight = content.insight || { title: 'BİLGİ', text: 'Cevapları kısa, öz ve net bir şekilde yazmaya özen gösterin.' };
@@ -14,9 +14,9 @@ export const ShortAnswerSheet = React.memo(({ data }: { data: any }) => {
   return (
     <div className="flex flex-col min-h-[297mm] h-full font-['Lexend'] text-zinc-900 bg-white p-8 print:p-4 overflow-hidden professional-worksheet relative">
       <PedagogicalHeader
-        title={data.title || 'KISA CEVAPLI SORULAR'}
-        instruction={data.instruction || 'Soruları dikkatle okuyun ve cevapları boşluklara yazın.'}
-        note={data.pedagogicalNote}
+        title={data.title || content.title || 'KISA CEVAPLI SORULAR'}
+        instruction={data.instruction || content.instruction || 'Soruları dikkatle okuyun ve cevapları boşluklara yazın.'}
+        note={data.pedagogicalNote || content.pedagogicalNote}
       />
 
       <div className="flex-1 flex flex-col gap-6 print:gap-3 mt-6">

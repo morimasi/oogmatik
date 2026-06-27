@@ -3,7 +3,7 @@ import { PedagogicalHeader } from '../common';
 import { Search, Box, HelpCircle, ShieldCheck, Target } from 'lucide-react';
 
 export const AdvancedMissingPartsSheet: React.FC<{ data: any }> = React.memo(({ data }) => {
-  const content = data.content || {};
+  const content = data.content || (data as any);
   const items = content.items || [];
   const wordBank = content.wordBank || [];
   const insight = content.insight || { title: 'BİLGİ', text: 'Eksik kelimeleri bulmak için cümleyi bir bütün olarak değerlendirin.' };
@@ -12,9 +12,9 @@ export const AdvancedMissingPartsSheet: React.FC<{ data: any }> = React.memo(({ 
   return (
     <div className="flex flex-col min-h-[297mm] h-full font-['Lexend'] text-zinc-900 bg-white p-8 print:p-4 overflow-hidden professional-worksheet relative">
       <PedagogicalHeader
-        title={data.title || 'EKSİK PARÇALARI TAMAMLA'}
-        instruction={data.instruction || 'Cümlelerdeki boşlukları anlam bütünlüğüne uygun şekilde doldurun.'}
-        note={data.pedagogicalNote}
+        title={data.title || content.title || 'EKSİK PARÇALARI TAMAMLA'}
+        instruction={data.instruction || content.instruction || 'Cümlelerdeki boşlukları anlam bütünlüğüne uygun şekilde doldurun.'}
+        note={data.pedagogicalNote || content.pedagogicalNote}
       />
 
       <div className="flex-1 flex flex-col gap-8 print:gap-4 mt-6">
