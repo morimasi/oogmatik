@@ -67,164 +67,165 @@ export const VisualOddOneOutSheet = ({
   data: VisualOddOneOutData;
   settings?: StyleSettings;
 }) => {
-  // Graceful fallback for invalid or missing data
   if (!data || !data.rows || (Array.isArray(data.rows) && data.rows.length === 0)) {
     return (
       <div className="p-4 border border-yellow-300 bg-yellow-50 text-yellow-800 rounded-md">
-        Geçersiz infografik verisi veya içerik yok. Lütfen içerik kaynağını kontrol edin.
+        Geçersiz infografik verisi veya içerik yok.
       </div>
     );
   }
+
   const settings = data.settings;
   const isLandscape = globalSettings?.orientation === 'landscape';
-  const isUltraFull = settings?.layout === 'ultra_full' || globalSettings?.compact;
-  const isUltraDense = settings?.layout === 'ultra_dense' || isUltraFull;
-  const isPremium =
-    settings?.aestheticMode === 'premium' || settings?.aestheticMode === 'glassmorphism';
+  const aestheticMode = settings?.aestheticMode || 'premium';
+  const isPremium = aestheticMode === 'premium' || aestheticMode === 'glassmorphism';
+  const itemsPerRow = settings?.itemsPerRow || 6;
+  const rowCount = data.rows.length;
+  const difficulty = settings?.difficulty || 'intermediate';
 
   // Grid sütun sayısını ayarla: A4 sayfası için optimize edilmiş kompakt yapı
-  // 1 sütun: Geniş ferah, 2 sütun: Kompakt ve dolu dolu
-  let gridCols = isUltraFull
-    ? 'grid-cols-2'
-    : isUltraDense
-      ? 'grid-cols-2'
-      : 'grid-cols-1';
-  
-  if (isLandscape) gridCols = isUltraFull ? 'grid-cols-3' : 'grid-cols-2';
+  const useTwoColumnLayout = rowCount > 12 && itemsPerRow <= 6;
+  const gridCols = useTwoColumnLayout ? (isLandscape ? 'grid-cols-3' : 'grid-cols-2') : 'grid-cols-1';
 
   return (
     <div
       className={`
-            flex flex-col min-h-full print:min-h-0 font-sans text-black overflow-visible professional-worksheet 
-             p-6 print:p-2
-            ${isPremium ? 'bg-slate-50/50' : 'bg-white'}
-        `}
+        flex flex-col min-h-[297mm] h-full font-['Lexend'] text-zinc-900 overflow-hidden professional-worksheet 
+        p-8 print:p-4 transition-all duration-500
+        ${aestheticMode === 'glassmorphism' ? 'bg-slate-50/50' : 'bg-white'}
+      `}
     >
       <PedagogicalHeader
-        title={data?.title || 'GÖRSEL AYRIŞTIRMA & DİKKAT'}
+        title={data?.title || 'GÖRSEL AYRIŞTIRMA & DİKKAT TESTİ'}
         instruction={data?.instruction || 'Diğerlerinden farklı olan öğeyi bulup işaretleyin.'}
-        note={data?.pedagogicalNote}
       />
 
       <div
-        className={`grid ${gridCols} gap-x-3 gap-y-4 print:gap-x-2 print:gap-y-2 mt-4 print:mt-1 flex-1 content-start pb-6 print:pb-2`}
+        className={`grid ${gridCols} gap-x-4 gap-y-2 print:gap-x-2 print:gap-y-1.5 mt-6 print:mt-2 flex-1 content-start overflow-hidden`}
       >
         {(data.rows || []).map((row, i) => (
           <EditableElement
             key={i}
             className={`
-                            flex flex-col p-3 print:p-1.5 border-[1.5px] relative break-inside-avoid transition-all duration-300 group
-                            ${
-                              isPremium
-                                ? 'bg-white/80 backdrop-blur-sm border-zinc-200 rounded-2xl shadow-sm hover:shadow-md hover:border-indigo-400'
-                                : 'bg-zinc-50/30 border-zinc-100 rounded-xl hover:bg-white hover:border-zinc-200'
-                            }
-                        `}
+                flex flex-col p-3 print:p-1.5 border-[1.5px] relative break-inside-avoid transition-all duration-300 group
+                ${
+                  aestheticMode === 'glassmorphism'
+                    ? 'bg-white/70 backdrop-blur-md border-white shadow-sm rounded-2xl'
+                    : isPremium
+                    ? 'bg-zinc-50/50 border-zinc-100 rounded-xl hover:border-indigo-200'
+                    : 'bg-white border-zinc-200 rounded-lg'
+                }
+            `}
           >
-            {/* Üst Bilgi Satırı */}
-            <div className="flex justify-between items-center mb-2 print:mb-0.5">
+            {/* Üst Bilgi Satırı - Ultra Compact */}
+            <div className="flex justify-between items-center mb-2 print:mb-1">
               <div className="flex items-center gap-2">
                 <div
                   className={`
-                                    w-5 h-5 flex items-center justify-center font-black text-[9px] rounded-md shadow-sm transition-all group-hover:scale-110
-                                    ${isPremium ? 'bg-zinc-900 text-white' : 'bg-indigo-600 text-white'}
-                                `}
+                    w-5 h-5 flex items-center justify-center font-black text-[9px] rounded-lg shadow-sm
+                    ${isPremium ? 'bg-zinc-900 text-white' : 'bg-indigo-600 text-white'}
+                  `}
                 >
                   {i + 1}
                 </div>
-                {row.clinicalMeta?.targetedError && settings?.showClinicalNotes && !isUltraFull && (
-                  <span className="text-[5px] font-black text-zinc-400 uppercase tracking-widest bg-zinc-100 px-1 py-0.5 rounded border border-zinc-200">
-                    {row.clinicalMeta.targetedError.replace('_', ' ')}
-                  </span>
+                {settings?.showClinicalNotes && row.clinicalMeta?.isMirrorTask && (
+                   <span className="text-[6px] font-black bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded border border-amber-100 uppercase tracking-tighter">
+                     AYNA ETKİSİ
+                   </span>
                 )}
               </div>
 
-              {settings?.showClinicalNotes && row.clinicalMeta?.cognitiveLoad && (
-                <div className="flex items-center gap-1">
-                  <div className="flex gap-0.5">
-                    {[...Array(5)].map((_, idx) => (
-                      <div
-                        key={idx}
-                        className={`w-0.5 h-1 rounded-full ${idx < row.clinicalMeta!.cognitiveLoad! / 2 ? 'bg-amber-400' : 'bg-zinc-200'}`}
-                      ></div>
-                    ))}
+              {settings?.showClinicalNotes && row.clinicalMeta?.discriminationFactor && (
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[6px] font-black text-zinc-400 uppercase tracking-widest">AYRIŞTIRMA</span>
+                  <div className="w-12 h-1.5 bg-zinc-100 rounded-full overflow-hidden border border-zinc-200">
+                    <div 
+                        className="h-full bg-indigo-500 transition-all duration-700" 
+                        style={{ width: `${row.clinicalMeta.discriminationFactor * 100}%` }}
+                    ></div>
                   </div>
-                  <span className="text-[4px] font-black text-zinc-400 uppercase">
-                    %{row.clinicalMeta.cognitiveLoad * 10}
-                  </span>
                 </div>
               )}
             </div>
 
+            {/* İçerik Izgarası - Dinamik Sütunlar */}
             <div
-              className="grid grid-cols-4 gap-1.5 items-center justify-items-center py-0.5"
+              className="grid gap-1.5 print:gap-1 items-center justify-items-center py-1"
+              style={{ gridTemplateColumns: `repeat(${itemsPerRow}, 1fr)` }}
             >
               {(row.items || []).map((item, j) => (
-                <div key={j} className="flex flex-col items-center gap-1 w-full max-w-[55px]">
+                <div key={j} className="flex flex-col items-center gap-1 w-full group/item">
                   <div
                     className={`
-                                        aspect-square w-full bg-white rounded-lg border-[1px] flex items-center justify-center transition-all
-                                        hover:border-indigo-500 hover:shadow-md cursor-pointer 
-                                        ${isPremium ? 'border-zinc-100' : 'border-zinc-200'}
-                                    `}
+                        aspect-square w-full bg-white rounded-xl border-[1.5px] flex items-center justify-center transition-all
+                        group-hover/item:border-indigo-400 group-hover/item:shadow-lg cursor-pointer relative
+                        ${isPremium ? 'border-zinc-100' : 'border-zinc-200'}
+                    `}
                   >
-                    <ComplexShapeRenderer item={item} size={30} />
+                    <ComplexShapeRenderer item={item} size={itemsPerRow > 7 ? 25 : 35} />
+                    
+                    {/* Seçim İşareti Alanı (Çıktıda görsel rehber) */}
+                    <div className="absolute top-1 right-1 w-2 h-2 rounded-full border border-zinc-100 opacity-20"></div>
                   </div>
-                  <div className="w-3 h-3 rounded border-[1px] border-zinc-100 flex items-center justify-center group-hover:border-indigo-200 transition-colors">
-                    <div className="w-1 h-1 rounded-sm bg-zinc-50 group-hover:bg-indigo-400/20 transition-all"></div>
-                  </div>
+                  
+                  {/* Klinik Tip: Alt kutucuk */}
+                  <div className="w-3 h-1.5 rounded-full bg-zinc-100/50 border border-zinc-200/50 group-hover/item:bg-indigo-100 transition-colors"></div>
                 </div>
               ))}
             </div>
 
-            {settings?.showClinicalNotes && row.reason && !isUltraFull && (
-              <div className="mt-1 pt-1 border-t border-dashed border-zinc-100 flex items-start">
-                <p className="text-[6px] text-zinc-400 font-bold leading-tight uppercase italic">
-                  <EditableText value={row.reason} tag="span" />
-                </p>
-              </div>
+            {/* Alt Klinik Not - Sadece Profesyonel Modda ve Alan Varsa */}
+            {settings?.showClinicalNotes && row.reason && rowCount < 16 && (
+                <div className="mt-1.5 flex items-center gap-2 opacity-40">
+                    <div className="w-1 h-1 rounded-full bg-zinc-400"></div>
+                    <span className="text-[6px] font-bold text-zinc-500 italic uppercase">
+                        <EditableText value={row.reason} tag="span" />
+                    </span>
+                </div>
             )}
           </EditableElement>
         ))}
       </div>
 
-      {/* Premium Footer */}
+      {/* Premium Footer - Ultra Sleek */}
       <div
         className={`
-                mt-auto px-8 print:px-4 py-5 print:py-2 rounded-[2.5rem] border-4 border-white flex justify-between items-center shadow-2xl
-                ${isPremium ? 'bg-zinc-950 text-white' : 'bg-indigo-950 text-white'}
-            `}
+          mt-6 print:mt-2 px-6 print:px-4 py-4 print:py-2 rounded-3xl border border-white/20 flex justify-between items-center shadow-2xl relative overflow-hidden
+          ${isPremium ? 'bg-zinc-900 text-white' : 'bg-indigo-950 text-white'}
+        `}
       >
-        <div className="flex gap-8 items-center">
+        {/* Dekoratif Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-transparent pointer-events-none"></div>
+
+        <div className="flex gap-8 items-center relative z-10">
           <div className="flex flex-col">
-            <span className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.4em] mb-1">
-              PROGRAMMATİK ODAK
+            <span className="text-[6px] font-black text-indigo-400 uppercase tracking-[0.4em] mb-1">
+              KLİNİK PROTOKOL
             </span>
             <div className="flex items-center gap-2">
-              <i
-                className={`fa-solid fa-microchip ${isPremium ? 'text-indigo-400' : 'text-zinc-400'}`}
-              ></i>
-              <span className="text-xs font-black tracking-tight">
-                {settings?.subType?.replace('_', ' ').toUpperCase() || 'GÖRSEL AYRIŞTIRMA TESTİ'}
-              </span>
+              <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center border border-white/10">
+                <i className="fa-solid fa-microchip text-indigo-400 text-sm"></i>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[10px] font-black tracking-tight leading-none mb-0.5">
+                  {settings?.itemType?.toUpperCase() || 'KARIŞIK'} TABLO ANALİZİ
+                </span>
+                <span className="text-[6px] font-bold text-zinc-500">ID: VIS-ODD-{rowCount}-{itemsPerRow}</span>
+              </div>
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="text-right">
-            <span className="block text-[6px] font-black text-zinc-500 uppercase tracking-widest leading-none">
-              PROFESYONEL ÖLÇEK
+
+        <div className="flex items-center gap-6 relative z-10">
+          <div className="h-8 w-px bg-white/10 hidden sm:block"></div>
+          <div className="text-right flex flex-col items-end">
+            <div className="flex items-center gap-2 mb-1">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span className="text-[6px] font-black text-zinc-400 uppercase tracking-widest">DİNAMİK ÜRETİM AKTİF</span>
+            </div>
+            <span className="text-[9px] font-black tracking-tighter opacity-70 uppercase bg-white/5 px-2 py-0.5 rounded-lg border border-white/10">
+              V2 Professional • {difficulty.toUpperCase()}
             </span>
-            <span className="text-[9px] font-black tracking-tighter opacity-70 uppercase">
-              Klinik Tanılama • Ultra Paket
-            </span>
-          </div>
-          <div
-            className={`w-9 h-9 rounded-xl flex items-center justify-center border ${isPremium ? 'bg-zinc-900 border-zinc-800' : 'bg-indigo-900 border-indigo-800'}`}
-          >
-            <i
-              className={`fa-solid fa-shield-halved ${isPremium ? 'text-indigo-400' : 'text-zinc-500'} text-base`}
-            ></i>
           </div>
         </div>
       </div>

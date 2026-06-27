@@ -503,76 +503,65 @@ export const generateOfflineVisualOddOneOut = async (
   const worksheetCount = options.worksheetCount || 1;
   const difficulty = options.difficulty || 'Orta';
   const visualType = options.visualType || 'mixed';
+  const aestheticMode = (options as any).aestheticMode || 'premium';
+  
   const results: VisualOddOneOutData[] = [];
 
   // Görsel benzerlik ve yön karışıklığı yaratan setler (Özellikle disleksi için)
   const letterSets = [
-    ['b', 'd'],
-    ['p', 'q'],
-    ['m', 'n'],
-    ['s', 'ş'],
-    ['c', 'ç'],
-    ['O', 'Q'],
-    ['E', 'F'],
-    ['6', '9'],
-    ['3', 'E'],
-    ['5', 'S'],
-    ['u', 'n'],
-    ['f', 't'],
-    ['v', 'y'],
-    ['a', 'e'],
-    ['g', 'ğ'],
-    ['ı', 'i'],
-    ['o', 'ö'],
-    ['u', 'ü'],
+    ['b', 'd'], ['p', 'q'], ['m', 'n'], ['s', 'ş'], ['c', 'ç'], ['O', 'Q'],
+    ['E', 'F'], ['6', '9'], ['3', 'E'], ['5', 'S'], ['u', 'n'], ['f', 't'],
+    ['v', 'y'], ['a', 'e'], ['g', 'ğ'], ['ı', 'l'], ['o', 'ö'], ['u', 'ü'],
+    ['z', 's'], ['k', 'h'], ['M', 'W'], ['V', 'U'], ['G', 'C'], ['Z', '2'],
+    ['S', '8'], ['B', '8'], ['0', 'O'], ['1', 'l'], ['X', 'K'], ['H', 'N'],
   ];
 
   const emojiSets = [
-    ['🙂', '🙃'],
-    ['🚗', '🚙'],
-    ['🍎', '🍅'],
-    ['☀️', '🏵️'],
-    ['🌲', '🌳'],
-    ['🐶', '🐻'],
-    ['⚽', '🏀'],
-    ['🎈', '🪀'],
-    ['🏠', '🏡'],
-    ['🚲', '🛵'],
-    ['🐱', '🐯'],
-    ['🐟', '🐬'],
-    ['🚀', '🛸'],
-    ['🌜', '🌛'],
-    ['🌻', '🌷'],
+    ['🙂', '🙃'], ['🚗', '🚙'], ['🍎', '🍅'], ['☀️', '🏵️'], ['🌲', '🌳'],
+    ['🐶', '🐻'], ['⚽', '🏀'], ['🎈', '🪀'], ['🏠', '🏡'], ['🚲', '🛵'],
+    ['🐱', '🐯'], ['🐟', '🐬'], ['🚀', '🛸'], ['🌜', '🌛'], ['🌻', '🌷'],
+    ['🦁', '🐱'], ['🦋', '🐝'], ['🍓', '🍒'], ['🍉', '🍇'], ['🍦', '🍧'],
+    ['🎮', '🕹️'], ['🎸', '🎻'], ['🎹', '🪗'], ['📱', '☎️'], ['💻', '🖥️'],
+    ['✈️', '🚁'], ['🚢', '🚤'], ['🌋', '⛰️'], ['🏙️', '🏘️'], ['⛺', '🛖'],
+  ];
+
+  const abstractSets = [
+    ['▰', '▱'], ['▲', '▼'], ['◀', '▶'], ['⬢', '⬣'], ['◆', '◇'], 
+    ['●', '○'], ['■', '□'], ['⬖', '⬗'], ['⬘', '⬙'], ['⬚', '▢'],
+    ['◈', '◇'], ['◉', '◎'], ['⚓', '⛯'], ['⚕', '⚖'], ['☯', '☮'],
   ];
 
   for (let p = 0; p < worksheetCount; p++) {
     const rows: any[] = [];
 
     // Profesyonel bol içerik: A4'ü dolduracak şekilde optimize edildi
-    const rowCount = difficulty === 'Başlangıç' ? 10 : difficulty === 'Orta' ? 14 : 18;
-    const itemCount =
-      options.itemCount || (difficulty === 'Başlangıç' ? 5 : difficulty === 'Orta' ? 6 : 8);
+    // rowCount ve itemCount (itemsPerRow) seçeneklerden alınır
+    const rowCount = (options as any).rowCount || (difficulty === 'Başlangıç' ? 10 : difficulty === 'Orta' ? 14 : 18);
+    const itemsPerRow = options.itemCount || (difficulty === 'Başlangıç' ? 5 : difficulty === 'Orta' ? 6 : 8);
 
     for (let r = 0; r < rowCount; r++) {
-      const isCharType = visualType === 'character';
-      const isVisualType =
-        visualType === 'geometric' || visualType === 'abstract' || visualType === 'complex';
+      let pool = emojiSets;
+      if (visualType === 'character') pool = letterSets;
+      else if (visualType === 'abstract') pool = abstractSets;
+      else if (visualType === 'mixed') {
+          const rand = Math.random();
+          pool = rand < 0.4 ? letterSets : rand < 0.8 ? emojiSets : abstractSets;
+      }
 
-      const useEmoji = isVisualType ? true : isCharType ? false : Math.random() > 0.6;
-      const set = getRandomItems(useEmoji ? emojiSets : letterSets, 1)[0];
+      const set = getRandomItems(pool, 1)[0];
       const isReversed = Math.random() > 0.5;
       const baseChar = isReversed ? set[1] : set[0];
       const oddChar = isReversed ? set[0] : set[1];
 
       const items: VisualOddOneOutItem[] = [];
-      const correctIndex = getRandomInt(0, itemCount - 1);
+      const correctIndex = getRandomInt(0, itemsPerRow - 1);
 
-      for (let i = 0; i < itemCount; i++) {
+      for (let i = 0; i < itemsPerRow; i++) {
         items.push({
           label: i === correctIndex ? oddChar : baseChar,
           rotation:
-            (difficulty === 'Zor' || difficulty === 'Uzman') && !useEmoji
-              ? getRandomInt(-10, 10)
+            (difficulty === 'Zor' || difficulty === 'Uzman') && (visualType !== 'emoji')
+              ? getRandomInt(-15, 15)
               : 0,
           scale: 1,
           isMirrored: false,
@@ -584,10 +573,10 @@ export const generateOfflineVisualOddOneOut = async (
         correctIndex,
         reason: `'${baseChar}' arasına '${oddChar}' gizlenmiş.`,
         clinicalMeta: {
-          discriminationFactor: 0.85,
-          isMirrorTask: ['b', 'd', 'p', 'q', 'u', 'n', '3', 'E', '6', '9'].includes(baseChar),
+          discriminationFactor: difficulty === 'Başlangıç' ? 0.7 : difficulty === 'Orta' ? 0.85 : 0.95,
+          isMirrorTask: ['b', 'd', 'p', 'q', 'u', 'n', '3', 'E', '6', '9', 'M', 'W', 'u', 'n'].includes(baseChar),
           targetCognitiveSkill: 'Visual Discrimination',
-          errorType: 'Görsel Farklılık',
+          errorType: 'Görsel Ayrıştırma',
         },
       });
     }
@@ -596,16 +585,19 @@ export const generateOfflineVisualOddOneOut = async (
 
     results.push({
       activityType: 'VISUAL_ODD_ONE_OUT' as any,
-      title: 'GÖRSEL AYRIŞTIRMA VE KETLEME (Premium)',
+      title: 'GÖRSEL AYRIŞTIRMA VE DİKKAT TESTİ',
       instruction:
-        'Her satırda diğerlerinden farklı (yönü, şekli veya türü değişik) olan öğeyi bularak işaretleyin.',
+        'Aşağıdaki her satırda diğerlerinden farklı (yönü, şekli veya türü değişik) olan öğeyi bularak işaretleyin.',
       targetSkills: meta.targetSkills,
       settings: {
         difficulty: mapDifficulty(difficulty || 'Orta'),
-        layout: itemCount >= 7 ? 'ultra_dense' : 'grid_compact',
-        itemType: 'character',
+        layout: itemsPerRow >= 8 ? 'ultra_dense' : 'grid_compact',
+        itemType: (visualType as any),
         isProfessionalMode: true,
         showClinicalNotes: true,
+        rowCount,
+        itemsPerRow,
+        aestheticMode: aestheticMode as any,
         subType: 'character_discrimination',
       },
       rows,

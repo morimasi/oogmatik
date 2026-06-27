@@ -75,7 +75,7 @@ export interface GeneratorOptions {
   studentContext?: Student;
   memorizeRatio?: number;
   targetLetters?: string;
-  visualType?: 'geometric' | 'abstract' | 'character' | 'complex';
+  visualType?: 'geometric' | 'abstract' | 'character' | 'complex' | 'emoji' | 'mixed';
   fontFamily?: string;
   case?: 'upper' | 'lower';
   numberRange?: string | [number, number];
