@@ -1,229 +1,112 @@
 import React from 'react';
-import type { ShortAnswerData } from '../../../types/verbal';
+import { PedagogicalHeader } from '../common';
+import * as LucideIcons from 'lucide-react';
 
-interface ShortAnswerSheetProps {
-  data: ShortAnswerData;
-  compact?: boolean;
-}
+export const ShortAnswerSheet = React.memo(({ data }: { data: any }) => {
+  const content = data.content || {};
+  const questions = content.questions || [];
+  const settings = data.settings || {};
+  const insight = content.insight || { title: 'BİLGİ', text: 'Cevapları kısa, öz ve net bir şekilde yazmaya özen gösterin.' };
 
-export const ShortAnswerSheet: React.FC<ShortAnswerSheetProps> = ({ data, compact = false }) => {
-  const settings = data.settings;
-
-  const getFontSize = () => {
-    switch (settings?.fontSize) {
-      case 'small': return 'text-xs';
-      case 'large': return 'text-lg';
-      case 'xl': return 'text-xl';
-      default: return 'text-sm';
-    }
-  };
-
-  const getLineHeight = () => {
-    switch (settings?.lineHeight) {
-      case 'tight': return 'leading-tight';
-      case 'relaxed': return 'leading-relaxed';
-      case 'very_relaxed': return 'leading-loose';
-      default: return 'leading-normal';
-    }
-  };
-
-  const getMarginSize = () => {
-    switch (settings?.marginSize) {
-      case 'narrow': return 'p-6';
-      case 'wide': return 'p-16';
-      default: return 'p-10';
-    }
-  };
-
-  const getLineBorder = () => {
-    const style = settings?.lineStyle || 'single';
-    const color = settings?.lineColor || 'standard';
-    
-    let borderStyle = 'border-b';
-    let borderWidth = 'border-b';
-    
-    switch (style) {
-      case 'double': borderStyle = 'border-b-2 border-b-double'; break;
-      case 'dotted': borderStyle = 'border-b border-b-dotted'; break;
-      case 'dashed': borderStyle = 'border-b border-b-dashed'; break;
-    }
-    
-    let borderColor = 'border-zinc-400';
-    switch (color) {
-      case 'light': borderColor = 'border-zinc-300'; break;
-      case 'dark': borderColor = 'border-zinc-700'; break;
-      case 'blue': borderColor = 'border-blue-500'; break;
-      case 'green': borderColor = 'border-emerald-500'; break;
-      case 'red': borderColor = 'border-rose-500'; break;
-    }
-    
-    return `${borderStyle} ${borderColor}`;
-  };
-
-  const getColorTheme = () => {
-    switch (settings?.colorTheme) {
-      case 'blue': return { primary: 'text-blue-700', accent: 'bg-blue-50', border: 'border-blue-200' };
-      case 'green': return { primary: 'text-emerald-700', accent: 'bg-emerald-50', border: 'border-emerald-200' };
-      case 'purple': return { primary: 'text-purple-700', accent: 'bg-purple-50', border: 'border-purple-200' };
-      case 'amber': return { primary: 'text-amber-700', accent: 'bg-amber-50', border: 'border-amber-200' };
-      default: return { primary: 'text-zinc-800', accent: 'bg-zinc-50', border: 'border-zinc-200' };
-    }
-  };
-
-  const theme = getColorTheme();
-
-  const exampleQuestions = data.questions?.length > 0 ? data.questions : [
-    { id: 'q1', question: '1. Kendi adınızı ve soyadınızı yazın.', lines: 2, points: 5 },
-    { id: 'q2', question: '2. En sevdiğiniz hayvan hangisidir? Nedenini kısaca açıklayın.', lines: 3, points: 10 },
-    { id: 'q3', question: '3. Bugün hava nasıl? Bir cümle ile anlatın.', lines: 2, points: 5 },
-    { id: 'q4', question: '4. Okulda en sevdiğiniz ders hangisidir?', lines: 1, points: 3 },
-    { id: 'q5', question: '5. Hafta sonu ne yapmak istersiniz?', lines: 2, points: 8 },
-    { id: 'q6', question: '6. En sevdiğiniz rengi yazın ve bir nesne çizin.', lines: 1, points: 4 },
-    { id: 'q7', question: '7. Bir arkadaşınıza nasıl yardım edersiniz?', lines: 3, points: 10 },
-    { id: 'q8', question: '8. En sevdiğiniz meyve nedir?', lines: 1, points: 3 },
-    { id: 'q9', question: '9. Evde en sevdiğiniz yer neresidir? Neden?', lines: 2, points: 8 },
-    { id: 'q10', question: '10. Gelecekte ne olmak istiyorsunuz? Açıklayın.', lines: 4, points: 12 },
-    { id: 'q11', question: '11. En sevdiğiniz oyun hangisidir?', lines: 1, points: 3 },
-    { id: 'q12', question: '12. Doğayı sevmek için ne yapmalıyız?', lines: 2, points: 8 },
-    { id: 'q13', question: '13. Bugün ne yedin?', lines: 1, points: 3 },
-    { id: 'q14', question: '14. Ailenizle en sevdiğiniz aktivite nedir?', lines: 2, points: 8 },
-    { id: 'q15', question: '15. Kış mevsiminde ne giyersiniz?', lines: 2, points: 7 },
-    { id: 'q16', question: '16. En sevdiğiniz kitabın adını yazın.', lines: 1, points: 3 },
-  ];
+  const lineStyle = settings.lineStyle || 'single';
+  const answerLineCount = settings.answerLineCount || 3;
 
   return (
-    <div className={`
-      w-full bg-white
-      ${getMarginSize()}
-      font-["Lexend"]
-      ${compact ? 'max-w-4xl mx-auto' : ''}
-    `}>
-      {/* Başlık Bölümü */}
-      <div className={`text-center mb-8 pb-6 border-b-2 ${theme.border}`}>
-        <h1 className={`
-          font-black mb-2
-          ${compact ? 'text-2xl' : 'text-3xl'}
-          ${theme.primary}
-        `}>
-          {data.content?.title || 'KISA CEVAPLI SORULAR'}
-        </h1>
-        
-        {data.content?.subtitle && (
-          <h2 className="text-sm font-semibold text-zinc-500 mb-2">
-            {data.content.subtitle}
-          </h2>
-        )}
+    <div className="flex flex-col min-h-[297mm] h-full font-['Lexend'] text-zinc-900 bg-white p-8 print:p-4 overflow-hidden professional-worksheet relative">
+      <PedagogicalHeader
+        title={data.title || 'KISA CEVAPLI SORULAR'}
+        instruction={data.instruction || 'Soruları dikkatle okuyun ve cevapları boşluklara yazın.'}
+        note={data.pedagogicalNote}
+      />
 
-        {data.content?.instruction && (
-          <p className={`
-            text-zinc-600
-            ${compact ? 'text-xs' : 'text-sm'}
-            italic
-          `}>
-            {data.content.instruction}
-          </p>
-        )}
+      <div className="flex-1 flex flex-col gap-6 print:gap-3 mt-6">
+        {/* İKİ SÜTUNLU SORU ALANI */}
+        <div className="grid grid-cols-2 gap-6 print:gap-4 flex-1 content-start">
+            {questions.map((q: any, idx: number) => (
+                <div key={q.id || idx} className="group flex flex-col p-5 print:p-3 bg-zinc-50/40 border-2 border-zinc-100 rounded-[2.5rem] hover:bg-zinc-100/50 transition-all relative break-inside-avoid shadow-sm">
+                    {/* Soru Üst Bar (No + Puan) */}
+                    <div className="flex justify-between items-start mb-3">
+                        <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-xl bg-zinc-900 text-white flex items-center justify-center text-xs font-black shadow-lg">
+                                {idx + 1}
+                            </div>
+                            {q.hint && settings.includeHints !== false && (
+                                <div className="p-1.5 bg-amber-100 text-amber-700 rounded-lg animate-pulse" title={q.hint}>
+                                    <LucideIcons.Lightbulb size={12} />
+                                </div>
+                            )}
+                        </div>
+                        {settings.includePoints !== false && (
+                            <div className="px-2 py-1 bg-white border border-zinc-200 rounded-lg shadow-sm">
+                                <span className="text-[9px] font-black text-zinc-400">PUAN: ____ / {q.points || 10}</span>
+                            </div>
+                        )}
+                    </div>
 
-        <div className="flex justify-center gap-6 mt-4">
-          <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
-            {settings?.ageGroup === 'okul_oncesi' ? 'OKUL ÖNCESİ' : `${settings?.ageGroup || '8-10'} YAŞ`}
-          </span>
-          <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
-            {settings?.difficulty || 'ORTA'} SEVİYE
-          </span>
-          <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">
-            {settings?.gradeLevel === 0 ? 'OKUL ÖNCESİ' : `${settings?.gradeLevel || 3}. SINIF`}
-          </span>
-        </div>
-      </div>
+                    {/* Soru Metni */}
+                    <p className="text-sm print:text-[12px] font-extrabold leading-tight text-zinc-800 mb-4 px-1">
+                        {q.text || q.question}
+                    </p>
 
-      {/* Etkinlik İçeriği - İki Sütunlu */}
-      <div className={`
-        ${settings?.columnLayout === 'two-column' 
-          ? 'grid grid-cols-2 gap-x-8 gap-y-6' 
-          : 'space-y-5'}
-      `}>
-        {exampleQuestions.map((q, index) => (
-          <div 
-            key={q.id} 
-            className={`
-              space-y-2
-              ${settings?.showBorders ? `p-3 rounded-xl ${theme.accent} border ${theme.border}` : ''}
-            `}
-          >
-            <div className="flex justify-between items-start gap-2">
-              <p className={`
-                font-bold text-zinc-800
-                ${getFontSize()}
-                ${getLineHeight()}
-                flex-1
-              `}>
-                {q.question}
-              </p>
-              
-              {settings?.includePoints !== false && q.points && (
-                <span className={`
-                  text-[10px] font-black px-2 py-0.5 rounded-full
-                  ${theme.accent} ${theme.primary}
-                `}>
-                  {q.points}p
-                </span>
-              )}
-            </div>
-            
-            {/* Cevap Satırları */}
-            {settings?.includeAnswerLines !== false && Array.from({ 
-              length: q.lines || settings?.answerLineCount || 2 
-            }).map((_, lineIndex) => (
-              <div 
-                key={`${q.id}-line-${lineIndex}`} 
-                className={`
-                  w-full py-1.5
-                  ${getLineBorder()}
-                `}
-              />
+                    {/* Cevap Alanı (Dinamik Stil) */}
+                    <div className="flex-1 space-y-2 mt-auto">
+                        {lineStyle === 'single' && Array.from({ length: answerLineCount }).map((_, i) => (
+                            <div key={i} className="h-6 border-b border-zinc-200 border-dashed"></div>
+                        ))}
+                        
+                        {lineStyle === 'square' && (
+                            <div className="h-16 w-full opacity-10" style={{ 
+                                backgroundImage: `linear-gradient(to right, #ccc 1px, transparent 1px), linear-gradient(to bottom, #ccc 1px, transparent 1px)`,
+                                backgroundSize: '15px 15px'
+                            }}></div>
+                        )}
+
+                        {lineStyle === 'blank' && (
+                            <div className="h-16 w-full border-2 border-zinc-100 border-dashed rounded-xl bg-white/50"></div>
+                        )}
+                    </div>
+
+                    {/* Soru Alt Bilgi (Opsiyonel) */}
+                    <div className="mt-4 flex justify-end opacity-20 group-hover:opacity-100 transition-opacity">
+                        <LucideIcons.CheckCircle2 size={12} className="text-zinc-300" />
+                    </div>
+                </div>
             ))}
-            
-            {/* İpucu */}
-            {settings?.includeHints && q.hint && (
-              <p className={`
-                text-[10px] italic
-                ${theme.primary}
-              `}>
-                <i className="fa-solid fa-lightbulb mr-1"></i>
-                {q.hint}
-              </p>
-            )}
-          </div>
-        ))}
+        </div>
+
+        {/* ALT BÖLÜM: BİLGİ KARTI & ANALİZ */}
+        <div className="grid grid-cols-4 gap-6 print:gap-3 items-stretch mt-auto">
+            <div className="col-span-3 p-6 print:p-3 bg-zinc-950 text-white rounded-[3rem] relative overflow-hidden flex items-center gap-6 shadow-2xl">
+                <div className="absolute top-0 right-0 p-8 opacity-5">
+                    <LucideIcons.ShieldQuestion size={128} />
+                </div>
+                <div className="w-16 h-16 rounded-[2rem] bg-indigo-600 flex items-center justify-center shadow-xl border border-white/10 shrink-0">
+                    <LucideIcons.BrainCircuit className="text-white" size={32} />
+                </div>
+                <div className="relative z-10">
+                   <h5 className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1">{insight.title || 'BİLİŞSEL İPUCU'}</h5>
+                   <p className="text-xs print:text-[10px] font-medium leading-relaxed italic opacity-90 max-w-xl">
+                      {insight.text}
+                   </p>
+                </div>
+            </div>
+
+            <div className="p-6 print:p-3 bg-zinc-100 text-zinc-900 rounded-[3rem] flex flex-col justify-center items-center text-center border-2 border-zinc-200 shadow-sm">
+                <LucideIcons.Award size={24} className="text-indigo-600 mb-2" />
+                <span className="text-[7px] font-black uppercase tracking-[0.2em] mb-1 opacity-50">ÖLÇÜMLENEN</span>
+                <span className="text-[10px] font-black tracking-tighter uppercase whitespace-nowrap">KRİTİK DÜŞÜNME</span>
+            </div>
+        </div>
       </div>
 
-      {/* Pedagojik Not */}
-      {data.pedagogicalNote && (
-        <div className={`
-          mt-8 p-4 rounded-xl
-          ${theme.accent} border ${theme.border}
-        `}>
-          <p className={`
-            text-[10px] font-bold leading-relaxed
-            ${theme.primary}
-          `}>
-            <i className="fa-solid fa-graduation-cap mr-2"></i>
-            <strong>ÖĞRETMENE NOT:</strong> {data.pedagogicalNote}
-          </p>
-        </div>
-      )}
-
-      {/* Alt Bilgi */}
-      <div className="mt-8 pt-4 border-t border-zinc-200 flex justify-between items-center">
-        <p className="text-[9px] text-zinc-400 font-black uppercase tracking-widest">
-          BDMIND
-        </p>
-        <p className="text-[9px] text-zinc-400">
-          <i className="fa-solid fa-pen-to-square mr-1"></i>
-          Kısa Cevaplı Sorular
-        </p>
+      {/* FOOTER META */}
+      <div className="mt-4 flex justify-between items-center text-[7px] font-black text-zinc-300 px-6 uppercase tracking-[0.4em]">
+          <span>© BDMIND ASSESSMENT STUDIO V5.2</span>
+          <div className="flex gap-4">
+              <span>LEXEND_TYPEFACE</span>
+              <span>SHORT_ANSWER_MATRIX</span>
+          </div>
       </div>
     </div>
   );
-};
+});
