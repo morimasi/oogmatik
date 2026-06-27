@@ -117,7 +117,17 @@ export interface VisualOddOneOutData extends BaseActivityData {
         aestheticMode?: 'standard' | 'premium' | 'glassmorphism' | 'ultra-compact';
         visualStyle?: string;
     };
-    rows: {
+    puzzles?: {
+        rows: {
+            items: any[];
+            oddIndex: number;
+            clinicalNote?: string;
+        }[];
+        title?: string;
+        description?: string;
+        targetSkill?: string;
+    }[];
+    rows?: {
         items: VisualOddOneOutItem[];
         correctIndex: number;
         reason?: string;
