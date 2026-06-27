@@ -41,10 +41,17 @@ export interface FindTheDifferenceData extends BaseActivityData {
         layout: 'single' | 'grid_compact' | 'ultra_dense' | 'side_by_side';
         isProfessionalMode: boolean;
         showClinicalNotes?: boolean;
+        gridCount?: number;
     };
     gridA?: unknown[][];
     gridB?: unknown[][];
     diffCount?: number;
+    puzzles?: {
+        gridA: any[][];
+        gridB: any[][];
+        diffCount: number;
+        title?: string;
+    }[];
     rows: {
         items: unknown[]; // Supports strings, SVG objects, or references
         correctIndex: number;

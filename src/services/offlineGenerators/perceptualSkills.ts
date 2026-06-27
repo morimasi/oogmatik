@@ -262,6 +262,7 @@ export const generateOfflineFindTheDifference = async (
   const itemCount = options.itemCount || customSettings.itemCount || 5;
   const findDiffType = options.findDiffType || customSettings.findDiffType || 'visual';
   const layout = (options as any).layout || customSettings.layout || 'side_by_side';
+  const gridCount = (options as any).gridCount || customSettings.gridCount || 1;
   const results: FindTheDifferenceData[] = [];
 
   const EMOJIS = [
@@ -270,49 +271,63 @@ export const generateOfflineFindTheDifference = async (
   ];
 
   for (let p = 0; p < worksheetCount; p++) {
-    let size = options.gridSize || customSettings.gridSize || (difficulty === 'Başlangıç' ? 4 : difficulty === 'Orta' ? 5 : 6);
-    // Boundary check for size vs itemCount
-    const maxItems = size * size;
-    const finalItemCount = Math.min(itemCount, maxItems - 1);
+    const puzzles = [];
+    
+    for (let g = 0; g < gridCount; g++) {
+      let size = options.gridSize || customSettings.gridSize || (difficulty === 'Başlangıç' ? 4 : difficulty === 'Orta' ? 5 : 6);
+      
+      // gridCount arttıkça otomatik küçülme (A4 optimizasyonu)
+      if (gridCount > 2 && !options.gridSize) size = Math.min(size, 4);
+      else if (gridCount > 1 && !options.gridSize) size = Math.min(size, 5);
 
-    // Veri havuzu seçimi
-    let sourcePool = EMOJIS;
-    if (findDiffType === 'char' || findDiffType === 'linguistic') {
-      sourcePool = turkishAlphabet.split('');
-    } else if (findDiffType === 'number' || findDiffType === 'numeric') {
-      sourcePool = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-    } else if (findDiffType === 'word' || findDiffType === 'semantic') {
-      sourcePool =
-        difficulty === 'Başlangıç'
-          ? TURKISH_WORDS_EASY
-          : difficulty === 'Orta'
-            ? TURKISH_WORDS_MEDIUM
-            : TURKISH_WORDS_HARD;
-    }
+      const maxItems = size * size;
+      const finalItemCount = Math.min(itemCount, maxItems - 1);
 
-    // İki farklı grid oluştur
-    const gridA: string[][] = Array.from({ length: size }, () =>
-      Array.from({ length: size }, () => getRandomItems(sourcePool, 1)[0])
-    );
-
-    const gridB = gridA.map((row) => [...row]);
-    const diffPositions: { r: number; c: number }[] = [];
-
-    // Farkları yerleştir
-    while (diffPositions.length < finalItemCount) {
-      const r = getRandomInt(0, size - 1);
-      const c = getRandomInt(0, size - 1);
-      if (!diffPositions.some((pos) => pos.r === r && pos.c === c)) {
-        let newVal = getRandomItems(sourcePool, 1)[0];
-        while (newVal === gridA[r][c]) newVal = getRandomItems(sourcePool, 1)[0];
-        gridB[r][c] = newVal;
-        diffPositions.push({ r, c });
+      let sourcePool = EMOJIS;
+      if (findDiffType === 'char' || findDiffType === 'linguistic') {
+        sourcePool = turkishAlphabet.split('');
+      } else if (findDiffType === 'number' || findDiffType === 'numeric') {
+        sourcePool = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+      } else if (findDiffType === 'word' || findDiffType === 'semantic') {
+        sourcePool =
+          difficulty === 'Başlangıç'
+            ? TURKISH_WORDS_EASY
+            : difficulty === 'Orta'
+              ? TURKISH_WORDS_MEDIUM
+              : TURKISH_WORDS_HARD;
       }
+
+      const gridA: string[][] = Array.from({ length: size }, () =>
+        Array.from({ length: size }, () => getRandomItems(sourcePool, 1)[0])
+      );
+
+      const gridB = gridA.map((row) => [...row]);
+      const diffPositions: { r: number; c: number }[] = [];
+
+      while (diffPositions.length < finalItemCount) {
+        const r = getRandomInt(0, size - 1);
+        const c = getRandomInt(0, size - 1);
+        if (!diffPositions.some((pos) => pos.r === r && pos.c === c)) {
+          let newVal = getRandomItems(sourcePool, 1)[0];
+          while (newVal === gridA[r][c]) newVal = getRandomItems(sourcePool, 1)[0];
+          gridB[r][c] = newVal;
+          diffPositions.push({ r, c });
+        }
+      }
+
+      puzzles.push({
+        gridA,
+        gridB,
+        diffCount: finalItemCount,
+        title: gridCount > 1 ? `BÖLÜM ${g + 1}` : undefined
+      });
     }
 
     results.push({
       title: 'DİKKAT VE AYRIŞTIRMA: İKİ TABLO ARASINDAKİ FARKLAR',
-      instruction: `Soldaki tablo ile sağdaki tablo arasındaki ${finalItemCount} farkı bulup sağdakinde işaretleyin.`,
+      instruction: gridCount > 1 
+        ? `Aşağıdaki her bölümde soldaki tablo ile sağdaki tablo arasındaki farkları bulun.`
+        : `Soldaki tablo ile sağdaki tablo arasındaki ${puzzles[0].diffCount} farkı bulup sağdakinde işaretleyin.`,
       settings: {
         difficulty: mapDifficulty(difficulty || 'Orta'),
         layout: layout as any,
@@ -320,11 +335,14 @@ export const generateOfflineFindTheDifference = async (
         isProfessionalMode: true,
         showClinicalNotes: true,
         differenceType: findDiffType as any,
+        gridCount
       },
-      gridA,
-      gridB,
-      diffCount: finalItemCount,
-      rows: gridB.map((row) => ({
+      puzzles,
+      // Geriye dönük uyumluluk için ilk puzzle verilerini köke koy
+      gridA: puzzles[0].gridA,
+      gridB: puzzles[0].gridB,
+      diffCount: puzzles[0].diffCount,
+      rows: puzzles[0].gridB.map((row: any[]) => ({
         items: row,
         correctIndex: -1,
         visualDistractionLevel: 'medium',
@@ -480,66 +498,46 @@ export const generateOfflineDirectionalTracking = async (
 export const generateOfflineVisualOddOneOut = async (
   options: GeneratorOptions
 ): Promise<VisualOddOneOutData[]> => {
+  const customSettings = (options as any).visualOddOneOut || {};
   const worksheetCount = options.worksheetCount || 1;
   const difficulty = options.difficulty || 'Orta';
-  const visualType = options.visualType || 'mixed';
+  const itemType = customSettings.itemType || options.itemType || 'character';
+  const layout = customSettings.layout || (options as any).layout || 'grid_compact';
   const results: VisualOddOneOutData[] = [];
 
   // Görsel benzerlik ve yön karışıklığı yaratan setler (Özellikle disleksi için)
   const letterSets = [
-    ['b', 'd'],
-    ['p', 'q'],
-    ['m', 'n'],
-    ['s', 'ş'],
-    ['c', 'ç'],
-    ['O', 'Q'],
-    ['E', 'F'],
-    ['6', '9'],
-    ['3', 'E'],
-    ['5', 'S'],
-    ['u', 'n'],
-    ['f', 't'],
-    ['v', 'y'],
-    ['a', 'e'],
-    ['g', 'ğ'],
-    ['ı', 'i'],
-    ['o', 'ö'],
-    ['u', 'ü'],
+    ['b', 'd'], ['p', 'q'], ['m', 'n'], ['s', 'ş'], ['c', 'ç'], ['O', 'Q'], ['E', 'F'],
+    ['6', '9'], ['3', 'E'], ['5', 'S'], ['u', 'n'], ['f', 't'], ['v', 'y'], ['a', 'e']
   ];
 
   const emojiSets = [
-    ['🙂', '🙃'],
-    ['🚗', '🚙'],
-    ['🍎', '🍅'],
-    ['☀️', '🏵️'],
-    ['🌲', '🌳'],
-    ['🐶', '🐻'],
-    ['⚽', '🏀'],
-    ['🎈', '🪀'],
-    ['🏠', '🏡'],
-    ['🚲', '🛵'],
-    ['🐱', '🐯'],
-    ['🐟', '🐬'],
-    ['🚀', '🛸'],
-    ['🌜', '🌛'],
-    ['🌻', '🌷'],
+    ['🙂', '🙃'], ['🚗', '🚙'], ['🍎', '🍅'], ['☀️', '🏵️'], ['🌲', '🌳'], ['🐶', '🐻'],
+    ['⚽', '🏀'], ['🎈', '🪀'], ['🏠', '🏡'], ['🚲', '🛵'], ['🐱', '🐯'], ['🐟', '🐬']
+  ];
+
+  const shapePacks = [
+    ['○', '◌'], ['□', '⬚'], ['△', '▲'], ['◇', '◈'], ['★', '☆'], ['♥', '♡'], ['●', '○']
   ];
 
   for (let p = 0; p < worksheetCount; p++) {
     const rows: any[] = [];
+    
+    // Layout'a göre satır sayısı (A4 doluluk optimizasyonu)
+    let rowCount = 14; // Default Orta
+    if (layout === 'ultra_dense') rowCount = 22;
+    else if (layout === 'protocol') rowCount = 10;
+    else if (difficulty === 'Başlangıç') rowCount = 12;
+    else if (difficulty === 'Zor' || difficulty === 'Uzman') rowCount = 18;
 
-    // Profesyonel bol içerik: A4'ü dolduracak şekilde optimize edildi
-    const rowCount = difficulty === 'Başlangıç' ? 10 : difficulty === 'Orta' ? 14 : 18;
-    const itemCount =
-      options.itemCount || (difficulty === 'Başlangıç' ? 5 : difficulty === 'Orta' ? 6 : 8);
+    const itemCount = customSettings.itemCount || options.itemCount || (difficulty === 'Başlangıç' ? 5 : 6);
 
     for (let r = 0; r < rowCount; r++) {
-      const isCharType = visualType === 'character';
-      const isVisualType =
-        visualType === 'geometric' || visualType === 'abstract' || visualType === 'complex';
+      let set;
+      if (itemType === 'svg') set = getRandomItems(shapePacks, 1)[0];
+      else if (itemType === 'image') set = getRandomItems(emojiSets, 1)[0];
+      else set = getRandomItems(letterSets, 1)[0];
 
-      const useEmoji = isVisualType ? true : isCharType ? false : Math.random() > 0.6;
-      const set = getRandomItems(useEmoji ? emojiSets : letterSets, 1)[0];
       const isReversed = Math.random() > 0.5;
       const baseChar = isReversed ? set[1] : set[0];
       const oddChar = isReversed ? set[0] : set[1];
@@ -550,10 +548,7 @@ export const generateOfflineVisualOddOneOut = async (
       for (let i = 0; i < itemCount; i++) {
         items.push({
           label: i === correctIndex ? oddChar : baseChar,
-          rotation:
-            (difficulty === 'Zor' || difficulty === 'Uzman') && !useEmoji
-              ? getRandomInt(-10, 10)
-              : 0,
+          rotation: (difficulty === 'Zor' || difficulty === 'Uzman') ? getRandomInt(-10, 10) : 0,
           scale: 1,
           isMirrored: false,
         });
@@ -576,14 +571,13 @@ export const generateOfflineVisualOddOneOut = async (
 
     results.push({
       activityType: 'VISUAL_ODD_ONE_OUT' as any,
-      title: 'GÖRSEL AYRIŞTIRMA VE KETLEME (Premium)',
-      instruction:
-        'Her satırda diğerlerinden farklı (yönü, şekli veya türü değişik) olan öğeyi bularak işaretleyin.',
+      title: 'GÖRSEL AYRIŞTIRMA VE KETLEME',
+      instruction: 'Her satırda diğerlerinden farklı olan öğeyi bularak işaretleyin.',
       targetSkills: meta.targetSkills,
       settings: {
         difficulty: mapDifficulty(difficulty || 'Orta'),
-        layout: itemCount >= 7 ? 'ultra_dense' : 'grid_compact',
-        itemType: 'character',
+        layout: layout as any,
+        itemType: itemType as any,
         isProfessionalMode: true,
         showClinicalNotes: true,
         subType: 'character_discrimination',

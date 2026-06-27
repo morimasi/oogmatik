@@ -10,7 +10,7 @@ export const FindTheDifferenceSheet = ({
   settings?: StyleSettings;
 }) => {
   // Graceful fallback for invalid or missing data to avoid blank pages
-  if (!data || !data.gridA || !data.gridB || data.gridA.length === 0 || data.gridB.length === 0) {
+  if (!data || (!data.gridA && (!data.puzzles || data.puzzles.length === 0))) {
     return (
       <div className="p-4 border border-yellow-300 bg-yellow-50 text-yellow-800 rounded-md">
         Geçersiz infografik verisi veya boş içerik. Lütfen içerik kaynağını kontrol edin.
@@ -22,85 +22,98 @@ export const FindTheDifferenceSheet = ({
   const isLandscape = globalSettings?.orientation === 'landscape';
   const isUltraDense = settings?.layout === 'ultra_dense' || globalSettings?.compact;
   const isGridCompact = settings?.layout === 'grid_compact' || isUltraDense;
-  const isSideBySide = settings?.layout === 'side_by_side' || (data.gridA && data.gridB);
+  const isSideBySide = settings?.layout === 'side_by_side' || (data.gridA && data.gridB) || (data.puzzles && data.puzzles.length > 0);
 
-  if (isSideBySide && data.gridA && data.gridB) {
-    const gridSize = data.gridA[0].length;
-    // Calculate cell size to fit side-by-side
-    // A4 width is ~800px in many renderers. 2 grids + gaps + padding.
-    // For 10x10, 30px per cell is 300px per grid. Total 600px + gaps. Fits well.
-    const cellSize = gridSize > 8 ? 'w-8 h-8 print:w-7 print:h-7 text-sm' : 
-                     gridSize > 6 ? 'w-10 h-10 print:w-9 print:h-9 text-base' : 
-                     'w-12 h-12 print:w-11 print:h-11 text-xl';
+  if (isSideBySide && (data.gridA || (data.puzzles && data.puzzles.length > 0))) {
+    const puzzles = data.puzzles && data.puzzles.length > 0 ? data.puzzles : [{
+      gridA: data.gridA,
+      gridB: data.gridB,
+      diffCount: data.diffCount,
+      title: null
+    }];
 
     return (
       <div
-        className={`flex flex-col h-full bg-white font-['Lexend'] text-zinc-900 overflow-hidden relative p-6 print:p-2 min-h-[297mm] transition-all duration-500`}
+        className={`flex flex-col h-full bg-white font-['Lexend'] text-zinc-900 overflow-hidden relative p-8 print:p-2 min-h-[297mm] transition-all duration-500`}
       >
         <PedagogicalHeader
           title={data?.title || 'FARK BULMACA: GÖRSEL DİKKAT'}
-          instruction={
-            data?.instruction ||
-            `Sol taraftaki referans tablo ile sağ taraftaki tablo arasındaki ${data.diffCount || ''} farkı bulup sağdakinde işaretleyin.`
-          }
+          instruction={data?.instruction}
           data={data}
         />
 
-        <div
-          className="flex-1 flex flex-row gap-2 print:gap-1 mt-4 print:mt-2 items-start justify-center px-1 print:px-0"
-        >
-          {/* Tablo A - Referans */}
-          <div className="flex-1 flex flex-col items-center gap-2 print:gap-1 w-full overflow-hidden">
-            <div className="px-3 py-1 bg-zinc-800 text-white text-[7px] font-black uppercase tracking-[0.2em] rounded-t-xl shadow-sm border-b border-zinc-700 w-full text-center">
-              REFERANS
-            </div>
-            <div
-              className="w-full grid gap-0.5 p-2 print:p-0.5 border-[3px] border-zinc-800 bg-zinc-50 rounded-b-2xl shadow-lg"
-              style={{ gridTemplateColumns: `repeat(${gridSize}, 1fr)` }}
-            >
-              {data.gridA.flat().map((cell, i) => (
-                <div
-                  key={i}
-                  className={`aspect-square border border-zinc-200 rounded flex items-center justify-center font-black bg-white shadow-sm overflow-hidden ${cellSize}`}
-                >
-                  <EditableText value={String(cell)} tag="span" className="scale-90" />
-                </div>
-              ))}
-            </div>
-          </div>
+        <div className={`flex-1 flex flex-col gap-8 print:gap-4 mt-6 print:mt-2 justify-center`}>
+          {puzzles.map((puzzle: any, pIdx: number) => {
+            if (!puzzle.gridA || !puzzle.gridB) return null;
+            const gridSize = puzzle.gridA[0]?.length || 0;
+            if (gridSize === 0) return null;
 
-          {/* Ayırıcı */}
-          <div className="flex flex-col items-center justify-center h-full py-20 opacity-5 px-0.5">
-             <div className="w-px h-full bg-zinc-400"></div>
-          </div>
+            const cellSize = gridSize > 8 ? 'w-7 h-7 print:w-6 print:h-6 text-[10px]' : 
+                             gridSize > 6 ? 'w-9 h-9 print:w-8 print:h-8 text-xs' : 
+                             'w-12 h-12 print:w-10 print:h-10 text-lg';
 
-          {/* Tablo B - Farkları İşaretle */}
-          <div className="flex-1 flex flex-col items-center gap-2 print:gap-1 w-full overflow-hidden">
-            <div className="px-3 py-1 bg-indigo-600 text-white text-[7px] font-black uppercase tracking-[0.2em] rounded-t-xl shadow-sm border-b border-indigo-500 w-full text-center">
-              FARKLARI BUL
-            </div>
-            <div
-              className="w-full grid gap-0.5 p-2 print:p-0.5 border-[3px] border-indigo-600 bg-white rounded-b-2xl shadow-lg"
-              style={{ gridTemplateColumns: `repeat(${gridSize}, 1fr)` }}
-            >
-              {data.gridB.flat().map((cell, i) => (
-                <div
-                  key={i}
-                  className={`aspect-square border border-indigo-100 rounded flex items-center justify-center font-black hover:bg-indigo-50 cursor-pointer transition-all relative group bg-white shadow-sm overflow-hidden ${cellSize}`}
-                >
-                  <EditableText value={String(cell)} tag="span" className="scale-90" />
-                  <div className="absolute inset-0 rounded border-2 border-transparent group-hover:border-indigo-400 border-dashed m-0.5"></div>
+            return (
+              <div key={pIdx} className="flex flex-col gap-3 print:gap-1.5">
+                {puzzle.title && (
+                  <div className="flex items-center gap-3">
+                    <div className="h-px flex-1 bg-zinc-200"></div>
+                    <span className="text-[10px] font-black text-zinc-400 uppercase tracking-widest">{puzzle.title}</span>
+                    <div className="h-px flex-1 bg-zinc-200"></div>
+                  </div>
+                )}
+                
+                <div className="flex flex-row gap-6 print:gap-3 items-start justify-center px-1 print:px-0">
+                  {/* Tablo A - Referans */}
+                  <div className="flex-1 flex flex-col items-center gap-2 print:gap-1 w-full overflow-hidden">
+                    <div className="px-3 py-1 bg-zinc-800 text-white text-[7px] font-black uppercase tracking-[0.2em] rounded-t-xl shadow-sm border-b border-zinc-700 w-full text-center">
+                      REFERANS
+                    </div>
+                    <div
+                      className="w-full grid gap-0.5 p-2 print:p-0.5 border-[3px] border-zinc-800 bg-zinc-50 rounded-b-2xl shadow-lg"
+                      style={{ gridTemplateColumns: `repeat(${gridSize}, 1fr)` }}
+                    >
+                      {puzzle.gridA.flat().map((cell: any, i: number) => (
+                        <div
+                          key={i}
+                          className={`aspect-square border border-zinc-200 rounded flex items-center justify-center font-black bg-white shadow-sm overflow-hidden ${cellSize}`}
+                        >
+                          <EditableText value={String(cell)} tag="span" className="scale-90" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Tablo B - Farkları İşaretle */}
+                  <div className="flex-1 flex flex-col items-center gap-2 print:gap-1 w-full overflow-hidden">
+                    <div className="px-3 py-1 bg-indigo-600 text-white text-[7px] font-black uppercase tracking-[0.2em] rounded-t-xl shadow-sm border-b border-indigo-500 w-full text-center">
+                      FARKLARI BUL ({puzzle.diffCount})
+                    </div>
+                    <div
+                      className="w-full grid gap-0.5 p-2 print:p-0.5 border-[3px] border-indigo-600 bg-white rounded-b-2xl shadow-lg"
+                      style={{ gridTemplateColumns: `repeat(${gridSize}, 1fr)` }}
+                    >
+                      {puzzle.gridB.flat().map((cell: any, i: number) => (
+                        <div
+                          key={i}
+                          className={`aspect-square border border-indigo-100 rounded flex items-center justify-center font-black hover:bg-indigo-50 cursor-pointer transition-all relative group bg-white shadow-sm overflow-hidden ${cellSize}`}
+                        >
+                          <EditableText value={String(cell)} tag="span" className="scale-90" />
+                          <div className="absolute inset-0 rounded border-2 border-transparent group-hover:border-indigo-400 border-dashed m-0.5"></div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
+            );
+          })}
         </div>
 
         {/* Alt Klinik Panel - Ultra Compact */}
-        <div className="mt-4 print:mt-2 grid grid-cols-4 gap-2 pt-4 border-t border-zinc-100">
+        <div className="mt-6 print:mt-1 grid grid-cols-4 gap-2 pt-4 border-t border-zinc-100 no-print">
           <div className="bg-zinc-900 text-white rounded-xl p-3 flex flex-col justify-between h-16 shadow-md">
             <span className="text-[6px] font-black text-indigo-400 uppercase tracking-widest">HEDEF</span>
-            <span className="text-sm font-black">{data.diffCount} FARK</span>
+            <span className="text-sm font-black">{settings?.gridCount || 1} GÖREV</span>
           </div>
           <div className="bg-white border border-zinc-200 rounded-xl p-3 flex flex-col justify-between h-16 shadow-sm">
             <span className="text-[6px] font-black text-zinc-400 uppercase tracking-widest">SÜRE</span>
@@ -109,7 +122,7 @@ export const FindTheDifferenceSheet = ({
           <div className="bg-white border border-zinc-200 rounded-xl p-3 flex flex-col justify-between h-16 shadow-sm col-span-2">
             <span className="text-[6px] font-black text-zinc-400 uppercase tracking-widest">TAKİP</span>
             <div className="flex gap-1.5 overflow-hidden">
-              {Array.from({ length: Math.min(10, data.diffCount || 5) }).map((_, i) => (
+              {Array.from({ length: 10 }).map((_, i) => (
                 <div key={i} className="w-4 h-4 rounded-full border border-zinc-200 bg-zinc-50/50"></div>
               ))}
             </div>
