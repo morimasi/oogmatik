@@ -201,8 +201,6 @@ export const generateOfflineVisualOddOneOut = async (
           pool = difficulty === 'Zor' ? ['B', 'D', 'P', 'Q', '0', 'O', 'S', '5', 'Z', '2', 'G', '6'] : ['A', 'B', 'C', '1', '2', '3', 'K', 'L', 'M'];
         } else if (visualType === 'abstract') {
           pool = ABSTRACT_SYMBOLS;
-        } else if (visualType === 'math') {
-          pool = MATH_SYMBOLS;
         }
 
         const items = getRandomItems(pool, 2);
@@ -596,65 +594,6 @@ export const generateOfflineDirectionalTracking = async (
     } as any);
   }
   return results;
-      else if (visualType === 'mixed') {
-          const rand = Math.random();
-          pool = rand < 0.4 ? letterSets : rand < 0.8 ? emojiSets : abstractSets;
-      }
-
-      const set = getRandomItems(pool, 1)[0];
-      const isReversed = Math.random() > 0.5;
-      const baseChar = isReversed ? set[1] : set[0];
-      const oddChar = isReversed ? set[0] : set[1];
-
-      const items: VisualOddOneOutItem[] = [];
-      const correctIndex = getRandomInt(0, itemsPerRow - 1);
-
-      for (let i = 0; i < itemsPerRow; i++) {
-        items.push({
-          label: i === correctIndex ? oddChar : baseChar,
-          rotation:
-            (difficulty === 'Zor' || difficulty === 'Uzman') && (visualType !== 'emoji')
-              ? getRandomInt(-15, 15)
-              : 0,
-          scale: 1,
-          isMirrored: false,
-        });
-      }
-
-      rows.push({
-        items,
-        correctIndex,
-        reason: `'${baseChar}' arasına '${oddChar}' gizlenmiş.`,
-        clinicalMeta: {
-          discriminationFactor: difficulty === 'Başlangıç' ? 0.7 : difficulty === 'Orta' ? 0.85 : 0.95,
-          isMirrorTask: ['b', 'd', 'p', 'q', 'u', 'n', '3', 'E', '6', '9', 'M', 'W', 'u', 'n'].includes(baseChar),
-          targetCognitiveSkill: 'Visual Discrimination',
-          errorType: 'Görsel Ayrıştırma',
-        },
-      });
-    }
-
-    const meta = getOfflineMetadata(ActivityType.VISUAL_ODD_ONE_OUT);
-
-    results.push({
-      activityType: 'VISUAL_ODD_ONE_OUT' as any,
-      title: 'GÖRSEL AYRIŞTIRMA VE DİKKAT TESTİ',
-      instruction:
-        'Aşağıdaki her satırda diğerlerinden farklı (yönü, şekli veya türü değişik) olan öğeyi bularak işaretleyin.',
-      targetSkills: meta.targetSkills,
-      settings: {
-        difficulty: mapDifficulty(difficulty || 'Orta'),
-        layout: itemsPerRow >= 8 ? 'ultra_dense' : 'grid_compact',
-        itemType: (visualType as any),
-        isProfessionalMode: true,
-        showClinicalNotes: true,
-        rowCount,
-        itemsPerRow,
-        aestheticMode: aestheticMode as any,
-        subType: 'character_discrimination',
-      },
-      rows,
-    } as any);
-  }
-  return results;
 };
+
+

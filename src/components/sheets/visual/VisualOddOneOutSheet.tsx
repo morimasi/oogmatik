@@ -1,30 +1,10 @@
 import React from 'react';
 import { VisualOddOneOutData, VisualOddOneOutItem, StyleSettings } from '../../../types';
-import { PedagogicalHeader, SegmentDisplay } from '../common';
-import { EditableElement, EditableText } from '../../Editable';
-
-const SvgFromPaths = ({ paths }: { paths: any[] }) => {
-  if (!paths || paths.length === 0) return null;
-  return (
-    <svg viewBox="0 0 100 100" className="w-full h-full p-1" preserveAspectRatio="xMidYMid meet">
-      {paths.map((p, i) => (
-        <path
-          key={i}
-          d={p.d}
-          fill={p.fill || 'none'}
-          stroke={p.stroke || '#18181b'}
-          strokeWidth="4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      ))}
-    </svg>
-  );
-};
+import { PedagogicalHeader } from '../common';
 
 const ComplexShapeRenderer = ({
   item,
-  size = 80,
+  size = 35,
 }: {
   item: VisualOddOneOutItem;
   size?: number;
@@ -38,21 +18,13 @@ const ComplexShapeRenderer = ({
         transform: `rotate(${item.rotation || 0}deg) scale(${item.scale || 1}) ${item.isMirrored ? 'scaleX(-1)' : ''}`,
       }}
     >
-      {item.svgPaths ? (
-        <SvgFromPaths paths={item.svgPaths} />
-      ) : item.svg ? (
-        <div
-          className="w-full h-full flex items-center justify-center overflow-hidden [&_svg]:max-w-full [&_svg]:max-h-full [&_svg]:w-auto [&_svg]:h-auto"
-          dangerouslySetInnerHTML={{ __html: item.svg }}
-        />
-      ) : item.label ? (
+      {item.label ? (
         <span
-          className={`font-black text-zinc-900 select-none font-mono ${size < 40 ? 'text-lg' : 'text-4xl'}`}
+          className={`font-black text-zinc-900 select-none font-mono leading-none flex items-center justify-center`}
+          style={{ fontSize: `${size}px` }}
         >
           {item.label}
         </span>
-      ) : item.segments ? (
-        <SegmentDisplay segments={item.segments} />
       ) : (
         <div className="w-8 h-8 border-2 border-zinc-200 rounded-full"></div>
       )}
@@ -67,168 +39,118 @@ export const VisualOddOneOutSheet = ({
   data: VisualOddOneOutData;
   settings?: StyleSettings;
 }) => {
-  if (!data || !data.rows || (Array.isArray(data.rows) && data.rows.length === 0)) {
-    return (
-      <div className="p-4 border border-yellow-300 bg-yellow-50 text-yellow-800 rounded-md">
-        Geçersiz infografik verisi veya içerik yok.
-      </div>
-    );
-  }
+  const settings = data?.settings;
+  const puzzles = data?.puzzles || [];
+  const legacyRows = data?.rows || [];
+  
+  // Eğer puzzle yoksa ve row varsa, tek bir puzzle gibi davran
+  const effectivePuzzles = puzzles.length > 0 
+    ? puzzles 
+    : (legacyRows.length > 0 ? [{ rows: legacyRows, title: 'Görsel Tarama Matrisi' }] : []);
 
-  const settings = data.settings;
-  const isLandscape = globalSettings?.orientation === 'landscape';
+  const puzzleCount = effectivePuzzles.length;
+  const itemsPerRow = settings?.itemsPerRow || 6;
   const aestheticMode = settings?.aestheticMode || 'premium';
   const isPremium = aestheticMode === 'premium' || aestheticMode === 'glassmorphism';
-  const itemsPerRow = settings?.itemsPerRow || 6;
-  const rowCount = data.rows.length;
-  const difficulty = settings?.difficulty || 'intermediate';
 
-  // Grid sütun sayısını ayarla: A4 sayfası için optimize edilmiş kompakt yapı
-  const useTwoColumnLayout = rowCount > 12 && itemsPerRow <= 6;
-  const gridCols = useTwoColumnLayout ? (isLandscape ? 'grid-cols-3' : 'grid-cols-2') : 'grid-cols-1';
+  // A4 Yerleşim Hesaplaması
+  const gridCols = puzzleCount > 1 ? 'grid-cols-2' : 'grid-cols-1';
+
+  const renderPuzzleSet = (puzzle: any, pIdx: number) => {
+    return (
+      <div 
+        key={pIdx} 
+        className={`flex flex-col p-4 print:p-2 border-[1.5px] rounded-[2.5rem] relative break-inside-avoid transition-all duration-300 ${isPremium ? 'bg-zinc-50/50 border-zinc-100 shadow-sm' : 'bg-white border-zinc-200'}`}
+      >
+        {/* Set Header */}
+        <div className="flex justify-between items-center mb-4 print:mb-2 px-2">
+            <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-xl bg-zinc-900 text-white flex items-center justify-center text-[10px] font-black">{pIdx + 1}</span>
+                <span className="text-[10px] font-black text-zinc-900 uppercase tracking-widest">{puzzle.title || 'DİKKAT SETİ'}</span>
+            </div>
+            <span className="text-[7px] font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100 uppercase">
+                {puzzle.targetSkill || 'Görsel Ayrıştırma'}
+            </span>
+        </div>
+
+        {/* Rows Grid */}
+        <div className="flex flex-col gap-2 print:gap-1.5">
+            {puzzle.rows.map((row: any, rIdx: number) => (
+                <div key={rIdx} className="flex items-center gap-3 group">
+                    {/* Row Index */}
+                    <div className="w-4 h-4 rounded-md bg-zinc-100 text-zinc-400 flex items-center justify-center text-[8px] font-black group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                        {rIdx + 1}
+                    </div>
+
+                    {/* Items */}
+                    <div 
+                        className="flex-1 grid gap-1.5 print:gap-1 items-center"
+                        style={{ gridTemplateColumns: `repeat(${itemsPerRow}, 1fr)` }}
+                    >
+                        {row.items.map((item: any, iIdx: number) => (
+                            <div 
+                                key={iIdx} 
+                                className={`aspect-square w-full rounded-xl border-[1.5px] flex items-center justify-center transition-all cursor-pointer relative bg-white ${isPremium ? 'border-zinc-100 hover:border-indigo-400 hover:shadow-lg' : 'border-zinc-200 hover:border-zinc-400'}`}
+                            >
+                                <ComplexShapeRenderer item={item} size={itemsPerRow > 7 ? 16 : 24} />
+                                {/* Selection Dot */}
+                                <div className="absolute bottom-1 right-1 w-1 h-1 rounded-full bg-zinc-100 opacity-30"></div>
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Target Answer Slot (for professional worksheets) */}
+                    <div className="w-8 h-8 rounded-xl border-2 border-dashed border-zinc-200 flex items-center justify-center group-hover:border-indigo-200 transition-colors">
+                        <i className="fa-solid fa-pencil text-[8px] text-zinc-200 group-hover:text-indigo-200"></i>
+                    </div>
+                </div>
+            ))}
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <div
-      className={`
-        flex flex-col min-h-[297mm] h-full font-['Lexend'] text-zinc-900 overflow-hidden professional-worksheet 
-        p-8 print:p-4 transition-all duration-500
-        ${aestheticMode === 'glassmorphism' ? 'bg-slate-50/50' : 'bg-white'}
-      `}
-    >
+    <div className={`flex flex-col min-h-[297mm] h-full font-['Lexend'] text-zinc-900 bg-white overflow-hidden professional-worksheet`}>
       <PedagogicalHeader
-        title={data?.title || 'GÖRSEL AYRIŞTIRMA & DİKKAT TESTİ'}
-        instruction={data?.instruction || 'Diğerlerinden farklı olan öğeyi bulup işaretleyin.'}
+        title={data?.title || 'GÖRSEL FARKLIYI BUL'}
+        instruction={data?.instruction || 'Her satırda diğerlerinden farklı olan öğeyi bulup işaretleyin.'}
       />
 
-      <div
-        className={`grid ${gridCols} gap-x-4 gap-y-2 print:gap-x-2 print:gap-y-1.5 mt-6 print:mt-2 flex-1 content-start overflow-hidden`}
-      >
-        {(data.rows || []).map((row, i) => (
-          <EditableElement
-            key={i}
-            className={`
-                flex flex-col p-3 print:p-1.5 border-[1.5px] relative break-inside-avoid transition-all duration-300 group
-                ${
-                  aestheticMode === 'glassmorphism'
-                    ? 'bg-white/70 backdrop-blur-md border-white shadow-sm rounded-2xl'
-                    : isPremium
-                    ? 'bg-zinc-50/50 border-zinc-100 rounded-xl hover:border-indigo-200'
-                    : 'bg-white border-zinc-200 rounded-lg'
-                }
-            `}
-          >
-            {/* Üst Bilgi Satırı - Ultra Compact */}
-            <div className="flex justify-between items-center mb-2 print:mb-1">
-              <div className="flex items-center gap-2">
-                <div
-                  className={`
-                    w-5 h-5 flex items-center justify-center font-black text-[9px] rounded-lg shadow-sm
-                    ${isPremium ? 'bg-zinc-900 text-white' : 'bg-indigo-600 text-white'}
-                  `}
-                >
-                  {i + 1}
-                </div>
-                {settings?.showClinicalNotes && row.clinicalMeta?.isMirrorTask && (
-                   <span className="text-[6px] font-black bg-amber-50 text-amber-600 px-1.5 py-0.5 rounded border border-amber-100 uppercase tracking-tighter">
-                     AYNA ETKİSİ
-                   </span>
-                )}
-              </div>
-
-              {settings?.showClinicalNotes && row.clinicalMeta?.discriminationFactor && (
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[6px] font-black text-zinc-400 uppercase tracking-widest">AYRIŞTIRMA</span>
-                  <div className="w-12 h-1.5 bg-zinc-100 rounded-full overflow-hidden border border-zinc-200">
-                    <div 
-                        className="h-full bg-indigo-500 transition-all duration-700" 
-                        style={{ width: `${row.clinicalMeta.discriminationFactor * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* İçerik Izgarası - Dinamik Sütunlar */}
-            <div
-              className="grid gap-1.5 print:gap-1 items-center justify-items-center py-1"
-              style={{ gridTemplateColumns: `repeat(${itemsPerRow}, 1fr)` }}
-            >
-              {(row.items || []).map((item, j) => (
-                <div key={j} className="flex flex-col items-center gap-1 w-full group/item">
-                  <div
-                    className={`
-                        aspect-square w-full bg-white rounded-xl border-[1.5px] flex items-center justify-center transition-all
-                        group-hover/item:border-indigo-400 group-hover/item:shadow-lg cursor-pointer relative
-                        ${isPremium ? 'border-zinc-100' : 'border-zinc-200'}
-                    `}
-                  >
-                    <ComplexShapeRenderer item={item} size={itemsPerRow > 7 ? 25 : 35} />
-                    
-                    {/* Seçim İşareti Alanı (Çıktıda görsel rehber) */}
-                    <div className="absolute top-1 right-1 w-2 h-2 rounded-full border border-zinc-100 opacity-20"></div>
-                  </div>
-                  
-                  {/* Klinik Tip: Alt kutucuk */}
-                  <div className="w-3 h-1.5 rounded-full bg-zinc-100/50 border border-zinc-200/50 group-hover/item:bg-indigo-100 transition-colors"></div>
-                </div>
-              ))}
-            </div>
-
-            {/* Alt Klinik Not - Sadece Profesyonel Modda ve Alan Varsa */}
-            {settings?.showClinicalNotes && row.reason && rowCount < 16 && (
-                <div className="mt-1.5 flex items-center gap-2 opacity-40">
-                    <div className="w-1 h-1 rounded-full bg-zinc-400"></div>
-                    <span className="text-[6px] font-bold text-zinc-500 italic uppercase">
-                        <EditableText value={row.reason} tag="span" />
-                    </span>
-                </div>
-            )}
-          </EditableElement>
-        ))}
+      <div className={`flex-1 grid ${gridCols} gap-8 print:gap-4 mt-8 print:mt-4 px-8 print:px-4 content-start`}>
+        {effectivePuzzles.map((p, i) => renderPageItem(p, i))}
       </div>
 
-      {/* Premium Footer - Ultra Sleek */}
-      <div
-        className={`
-          mt-6 print:mt-2 px-6 print:px-4 py-4 print:py-2 rounded-3xl border border-white/20 flex justify-between items-center shadow-2xl relative overflow-hidden
-          ${isPremium ? 'bg-zinc-900 text-white' : 'bg-indigo-950 text-white'}
-        `}
-      >
-        {/* Dekoratif Gradient */}
-        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-transparent pointer-events-none"></div>
-
-        <div className="flex gap-8 items-center relative z-10">
-          <div className="flex flex-col">
-            <span className="text-[6px] font-black text-indigo-400 uppercase tracking-[0.4em] mb-1">
-              KLİNİK PROTOKOL
-            </span>
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-white/5 flex items-center justify-center border border-white/10">
-                <i className="fa-solid fa-microchip text-indigo-400 text-sm"></i>
+      {/* Premium Dark Footer */}
+      <div className="mt-auto p-6 print:p-3 bg-zinc-950 text-white rounded-t-[3rem] flex justify-between items-center shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[100px]"></div>
+          
+          <div className="flex gap-4 items-center relative z-10">
+              <div className="w-10 h-10 rounded-2xl bg-indigo-600 flex items-center justify-center border border-indigo-400">
+                  <i className="fa-solid fa-eye text-white text-lg"></i>
               </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-black tracking-tight leading-none mb-0.5">
-                  {settings?.itemType?.toUpperCase() || 'KARIŞIK'} TABLO ANALİZİ
-                </span>
-                <span className="text-[6px] font-bold text-zinc-500">ID: VIS-ODD-{rowCount}-{itemsPerRow}</span>
+              <div className="flex flex-col text-left">
+                  <span className="text-[7px] font-black text-indigo-400 uppercase tracking-widest leading-none mb-1">DİKKAT MATRİSİ ANALİZİ</span>
+                  <span className="text-sm font-black uppercase">Visuo-Spatial Discrimination</span>
               </div>
-            </div>
           </div>
-        </div>
 
-        <div className="flex items-center gap-6 relative z-10">
-          <div className="h-8 w-px bg-white/10 hidden sm:block"></div>
-          <div className="text-right flex flex-col items-end">
-            <div className="flex items-center gap-2 mb-1">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span className="text-[6px] font-black text-zinc-400 uppercase tracking-widest">DİNAMİK ÜRETİM AKTİF</span>
-            </div>
-            <span className="text-[9px] font-black tracking-tighter opacity-70 uppercase bg-white/5 px-2 py-0.5 rounded-lg border border-white/10">
-              V2 Professional • {difficulty.toUpperCase()}
-            </span>
+          <div className="flex gap-8 items-center relative z-10">
+              <div className="flex flex-col items-end">
+                <span className="text-[7px] font-black text-zinc-500 uppercase tracking-widest mb-1">Uyaran Türü</span>
+                <span className="text-[10px] font-black text-indigo-300 uppercase italic">{(settings?.itemType || 'MIXED').toUpperCase()}</span>
+              </div>
+              <div className="w-px h-8 bg-white/20"></div>
+              <div className="flex flex-col items-center">
+                  <span className="text-[14px] font-black text-white">{puzzleCount} x {settings?.rowCount || effectivePuzzles[0]?.rows?.length}</span>
+                  <span className="text-[6px] font-bold text-zinc-500 uppercase">SATIR KAPASİTESİ</span>
+              </div>
           </div>
-        </div>
       </div>
     </div>
   );
+
+  function renderPageItem(p: any, i: number) {
+      return renderPuzzleSet(p, i);
+  }
 };
