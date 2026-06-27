@@ -113,50 +113,148 @@ export const VisualOddOneOutConfig: React.FC<Props> = ({ options, onChange }) =>
 };
 
 export const GridDrawingConfig: React.FC<Props> = ({ options, onChange }) => {
-  const o = (options?.['gridDrawing'] || {}) as Record<string, unknown>;
+  const o = (options?.['gridDrawing'] || {}) as Record<string, any>;
+  
+  const update = (key: string, val: any) => {
+    onChange({
+      ...options,
+      gridDrawing: { ...o, [key]: val }
+    });
+  };
+
   return (
-    <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
-        <h4 className="font-bold">Grid Çizim</h4>
+    <div className="space-y-6 animate-in fade-in duration-300 p-4">
+      <div className="pb-3 border-b border-zinc-100">
+        <h4 className="font-black text-emerald-900 uppercase tracking-tight text-lg">Kare Kopyalama</h4>
+        <p className="text-[10px] text-zinc-500 font-medium">Uzamsal algı ve motor planlama</p>
       </div>
-      <div>
-        <label className="block text-xs font-bold mb-2">Grid Boyutu</label>
-        <select
-          value={(o.gridSize as number) || 10}
-          onChange={(e) =>
-            onChange({ ...options, gridDrawing: { ...o, gridSize: Number(e.target.value) } })
-          }
-          className="w-full p-2 border-2 rounded-lg"
-        >
-          <option value={8}>8x8</option>
-          <option value={10}>10x10</option>
-          <option value={12}>12x12</option>
-        </select>
+
+      <div className="space-y-4">
+        <div>
+          <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Matris Boyutu</label>
+          <div className="grid grid-cols-3 gap-2">
+            {[8, 10, 12].map((n) => (
+              <button
+                key={n}
+                onClick={() => update('gridSize', n)}
+                className={`py-2 rounded-lg text-xs font-black border transition-all ${
+                  (o.gridSize || 10) === n 
+                  ? 'bg-emerald-600 text-white border-emerald-600 shadow-md' 
+                  : 'bg-white border-zinc-200 text-zinc-400 hover:border-emerald-200'
+                }`}
+              >
+                {n}x{n}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+           <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Varyasyon Sayısı (A4)</label>
+           <div className="grid grid-cols-3 gap-2">
+             {[1, 2, 4].map((n) => (
+               <button
+                 key={n}
+                 onClick={() => update('puzzleCount', n)}
+                 className={`py-2 rounded-lg text-xs font-black border transition-all ${
+                   (o.puzzleCount || 4) === n 
+                   ? 'bg-zinc-900 text-white border-zinc-900 shadow-md' 
+                   : 'bg-white border-zinc-200 text-zinc-400 hover:border-zinc-300'
+                 }`}
+               >
+                 {n} Etkinlik
+               </button>
+             ))}
+           </div>
+           <p className="text-[9px] text-zinc-400 mt-2 italic">* 4 etkinlik seçeneği A4 sayfayı tam doldurur.</p>
+        </div>
       </div>
     </div>
   );
 };
 
 export const SymmetryDrawingConfig: React.FC<Props> = ({ options, onChange }) => {
-  const o = (options?.['symmetryDrawing'] || {}) as Record<string, unknown>;
+  const o = (options?.['symmetryDrawing'] || {}) as Record<string, any>;
+  
+  const update = (key: string, val: any) => {
+    onChange({
+      ...options,
+      symmetryDrawing: { ...o, [key]: val }
+    });
+  };
+
   return (
-    <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
-        <h4 className="font-bold">Simetri Çizim</h4>
+    <div className="space-y-6 animate-in fade-in duration-300 p-4">
+      <div className="pb-3 border-b border-zinc-100">
+        <h4 className="font-black text-blue-900 uppercase tracking-tight text-lg">Simetri Tamamlama</h4>
+        <p className="text-[10px] text-zinc-500 font-medium">Lateralizasyon ve görsel bütünleme</p>
       </div>
-      <div>
-        <label className="block text-xs font-bold mb-2">Simetri Ekseni</label>
-        <select
-          value={(o.axis as string) || 'vertical'}
-          onChange={(e) =>
-            onChange({ ...options, symmetryDrawing: { ...o, axis: e.target.value } })
-          }
-          className="w-full p-2 border-2 rounded-lg"
-        >
-          <option value="vertical">Dikey</option>
-          <option value="horizontal">Yatay</option>
-          <option value="both">Her İkisi</option>
-        </select>
+
+      <div className="space-y-4">
+        <div>
+          <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Simetri Ekseni</label>
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { v: 'vertical', l: 'Dikey Eksen' },
+              { v: 'horizontal', l: 'Yatay Eksen' },
+              { v: 'diagonal', l: 'Diyagonal' },
+              { v: 'mixed', l: 'Karışık' }
+            ].map((a) => (
+              <button
+                key={a.v}
+                onClick={() => update('axis', a.v)}
+                className={`py-2 px-1 rounded-lg text-[10px] font-black border transition-all ${
+                  (o.axis || 'vertical') === a.v 
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-md' 
+                  : 'bg-white border-zinc-200 text-zinc-400 hover:border-blue-200'
+                }`}
+              >
+                {a.l}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div>
+           <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Görev Sayısı</label>
+           <div className="grid grid-cols-3 gap-2">
+             {[1, 2, 4].map((n) => (
+               <button
+                 key={n}
+                 onClick={() => update('puzzleCount', n)}
+                 className={`py-2 rounded-lg text-xs font-black border transition-all ${
+                   (o.puzzleCount || 1) === n 
+                   ? 'bg-zinc-900 text-white border-zinc-900 shadow-md' 
+                   : 'bg-white border-zinc-200 text-zinc-400 hover:border-zinc-300'
+                 }`}
+               >
+                 {n} Görev
+               </button>
+             ))}
+           </div>
+        </div>
+
+        <div>
+           <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Izgara Türü</label>
+           <div className="grid grid-cols-2 gap-2">
+             {[
+               { v: 'dots', l: 'Noktalı' },
+               { v: 'squares', l: 'Kareli' }
+             ].map((t) => (
+               <button
+                 key={t.v}
+                 onClick={() => update('gridType', t.v)}
+                 className={`py-2 rounded-lg text-[10px] font-black border transition-all ${
+                   (o.gridType || 'dots') === t.v 
+                   ? 'bg-zinc-100 text-blue-600 border-blue-200' 
+                   : 'bg-white border-zinc-200 text-zinc-400 hover:border-zinc-200'
+                 }`}
+               >
+                 {t.l}
+               </button>
+             ))}
+           </div>
+        </div>
       </div>
     </div>
   );

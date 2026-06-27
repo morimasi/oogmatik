@@ -175,32 +175,36 @@ export const generateOfflineShapeCounting = async (
 export const generateOfflineGridDrawing = async (
   options: GeneratorOptions
 ): Promise<GridDrawingData[]> => {
+  const customSettings = (options as any).gridDrawing || {};
   const worksheetCount = options.worksheetCount || 1;
   const difficulty = options.difficulty || 'Orta';
+  const puzzleCount = customSettings.puzzleCount || (options as any).puzzleCount || 4;
+  const gridSize = customSettings.gridSize || options.gridSize || 10;
   const results: GridDrawingData[] = [];
 
   for (let p = 0; p < worksheetCount; p++) {
-    // Ultra Pro Premium: Tek sayfada 4 farklı ızgara görevi (Dolu Dolu)
-    const patterns = getRandomItems(Object.keys(PREDEFINED_GRID_PATTERNS), 4);
+    // varyasyon sayısına göre desenleri seç
+    const patterns = getRandomItems(Object.keys(PREDEFINED_GRID_PATTERNS), puzzleCount);
     const drawings = patterns.map((pName, idx) => ({
       lines: PREDEFINED_GRID_PATTERNS[pName],
-      title: `Görev ${idx + 1}: ${pName}`,
+      title: `Gövde ${idx + 1}: ${pName}`,
       complexityLevel: idx === 0 ? 'easy' : idx < 3 ? 'medium' : 'hard',
     }));
 
     results.push({
-      title: 'Kare Kopyalama (Ultra Pro Matris)',
+      title: 'KARE KOPYALAMA (UZAMSAL ALGI)',
       instruction:
-        'Sol taraftaki desenleri sağdaki boş ızgaralara noktaları ve çizgileri takip ederek kopyalayın. Görsel hafızanı ve el becerini kullan!',
-      gridDim: (options.gridSize || 8),
+        'Sol taraftaki desenleri sağdaki boş alanlara noktaları ve çizgileri takip ederek kopyalayın.',
+      gridDim: gridSize,
       settings: {
         difficulty: mapDifficulty(difficulty || 'Orta'),
-        layout: 'grid_2x2' as any, // 4 puzzle için 2x2 yerleşim
+        layout: (puzzleCount === 1 ? 'single' : puzzleCount === 2 ? 'grid_2x1' : 'grid_2x2') as any,
         gridType: 'dots',
         transformMode: 'copy',
         showCoordinates: false,
         isProfessionalMode: true,
         showClinicalNotes: true,
+        puzzleCount
       } as any,
       drawings: drawings as any,
     } as any);
@@ -212,42 +216,55 @@ export const generateOfflineGridDrawing = async (
 export const generateOfflineSymmetryDrawing = async (
   options: GeneratorOptions
 ): Promise<SymmetryDrawingData[]> => {
+  const customSettings = (options as any).symmetryDrawing || {};
   const worksheetCount = options.worksheetCount || 1;
   const difficulty = options.difficulty || 'Orta';
-  const gridSize = options.gridSize || 8;
-  const concept = options.concept || 'mirror_v';
+  const puzzleCount = customSettings.puzzleCount || (options as any).puzzleCount || 1;
+  const gridSize = customSettings.gridSize || options.gridSize || 10;
+  const layout = (puzzleCount === 1 ? 'single' : puzzleCount === 2 ? 'grid_2x1' : 'grid_2x2');
   const results: SymmetryDrawingData[] = [];
 
   for (let p = 0; p < worksheetCount; p++) {
-    // Simetrik çizgiler üret
-    const lines = generateConnectedPath(gridSize / 2, 3).map((line) => ({
-      x1: line[0][0],
-      y1: line[0][1],
-      x2: line[1][0],
-      y2: line[1][1],
-      color: 'black',
-    }));
+    const drawings = [];
+    for (let i = 0; i < puzzleCount; i++) {
+        // Belirtilen aksa göre çizgi üret
+        const currentAxis = customSettings.axis === 'mixed' 
+            ? getRandomItems(['vertical', 'horizontal', 'diagonal'], 1)[0]
+            : customSettings.axis || 'vertical';
+
+        // Simetrik çizgiler üret (gridSize'a bağlı karmaşıklık)
+        const lineCount = difficulty === 'Başlangıç' ? 3 : difficulty === 'Orta' ? 5 : 7;
+        const lines = generateConnectedPath(gridSize / 2, lineCount).map((line) => ({
+          x1: line[0][0],
+          y1: line[0][1],
+          x2: line[1][0],
+          y2: line[1][1],
+          color: 'black',
+        }));
+
+        drawings.push({
+            lines,
+            dots: [],
+            title: `Simetri Görevi ${i + 1}`,
+            axis: currentAxis
+        });
+    }
 
     results.push({
-      title: 'Simetri Tamamlama',
+      title: 'SİMETRİ TAMAMLAMA (GÖRSEL BÜTÜNLEME)',
       instruction: 'Desenleri simetri eksenine göre aynadaki yansıması olacak şekilde tamamlayın.',
       gridDim: gridSize,
       settings: {
         difficulty: mapDifficulty(difficulty || 'Orta'),
-        axis: concept === 'mirror_h' ? 'horizontal' : 'vertical',
-        gridType: 'dots',
-        layout: 'single',
+        axis: customSettings.axis || 'vertical',
+        gridType: customSettings.gridType || 'dots',
+        layout: layout as any,
         showGhostPoints: false,
         showCoordinates: (options as any).showCoordinates !== false,
         isProfessionalMode: true,
+        puzzleCount
       },
-      drawings: [
-        {
-          lines,
-          dots: [],
-          title: 'Simetri',
-        },
-      ],
+      drawings: drawings as any,
     });
   }
   return results;
