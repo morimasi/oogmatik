@@ -134,10 +134,9 @@ export const print = async (
     overlay.style.position = 'absolute';
     overlay.style.top = '0';
     overlay.style.left = '0';
-    overlay.style.width = '210mm';
-    overlay.style.transform = 'none';
-    (overlay.style as CSSStyleDeclaration & { scale?: string }).scale = 'none';
-    overlay.style.zoom = '1';
+    overlay.style.width = '100%';
+    overlay.style.height = 'auto';
+    overlay.style.overflow = 'visible';
     overlay.style.margin = '0';
     overlay.style.padding = '0';
     overlay.style.zIndex = '2147483647';
@@ -189,6 +188,7 @@ export const print = async (
     clone.style.width = '100%';
     clone.style.minWidth = '100%';
     clone.style.maxWidth = '100%';
+    clone.style.height = 'auto';
     clone.style.overflow = 'visible';
     clone.style.boxSizing = 'border-box';
     
@@ -262,7 +262,7 @@ export const print = async (
     // Browser afterprint'i desteklemiyorsa fallback temizlik
     setTimeout(cleanup, 2000);
   } catch (err: unknown) {
-    logError('Print trigger failed:', err instanceof Error ? err : String(err));
+    logError('Print trigger failed:', { error: err instanceof Error ? err.message : String(err) });
     document.documentElement.className = prevTheme;
     document.body.classList.remove('printing-mode');
     if (overlay) overlay.style.display = 'none';
@@ -378,7 +378,7 @@ export const captureAndPrint = async (
       try {
         window.print();
       } catch (e: unknown) {
-        logError('Capture print failed', e instanceof Error ? e : String(e));
+        logError('Capture print failed', { error: e instanceof Error ? e.message : String(e) });
       } finally {
         document.documentElement.className = prevTheme;
         document.body.classList.remove('printing-mode');
@@ -405,7 +405,7 @@ export const captureAndPrint = async (
               setTimeout(() => URL.revokeObjectURL(blobUrl), 60000);
             }
           } catch (fallbackErr: unknown) {
-            logError('Mobile print fallback failed', fallbackErr instanceof Error ? fallbackErr : String(fallbackErr));
+            logError('Mobile print fallback failed', { error: fallbackErr instanceof Error ? fallbackErr.message : String(fallbackErr) });
           }
         }
       }, 3000);

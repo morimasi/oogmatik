@@ -47,10 +47,10 @@ export const PedagogicalHeader = React.memo(
     note?: string;
     data?: BaseActivityData;
   }) => (
-    <div className="pedagogical-header mb-6 w-full border-b-4 border-zinc-900 pb-4 print:mb-1 print:pb-1 print:border-b-[1pt]">
+    <div className="pedagogical-header mb-2 w-full border-b-2 border-zinc-900 pb-1 print:mb-0.5 print:pb-0.5 print:border-b">
       <div className="flex items-start justify-between gap-6 print:gap-1">
         <div className="flex-1">
-          <h3 className="text-3xl font-black text-black uppercase tracking-tighter leading-tight mb-3 print:text-lg print:mb-0">
+          <h3 className="text-3xl font-black text-black uppercase tracking-tighter leading-tight mb-1 print:text-lg print:mb-0">
             {title || ''}
           </h3>
           <p className="instruction text-base font-bold text-zinc-700 leading-normal italic print:text-[10px] print:leading-tight">
@@ -71,7 +71,7 @@ export const PedagogicalHeader = React.memo(
         )}
       </div>
       {note && (
-        <p className="note mt-3 text-[10px] text-zinc-500 font-medium leading-relaxed max-w-3xl print:mt-2 print:text-[9px] print:leading-tight">
+        <p className="note mt-1 text-[10px] text-zinc-500 font-medium leading-relaxed max-w-3xl print:mt-0.5 print:text-[9px] print:leading-tight">
           <i className="fa-solid fa-graduation-cap mr-2"></i>
           {note}
         </p>

@@ -86,22 +86,11 @@
 
   body {
     font-family: 'Lexend', 'Georgia', serif !important;
-    font-size: 12pt !important;
-    line-height: 1.6 !important;
+    /* font-size ve line-height zorlaması kaldırıldı — etkinliklerin kendi değerleri korunsun */
   }
 
-  h1 {
-    font-size: 24pt !important;
-    page-break-after: avoid;
-  }
-
-  h2 {
-    font-size: 18pt !important;
-    page-break-after: avoid;
-  }
-
-  h3 {
-    font-size: 14pt !important;
+  h1, h2, h3 {
+    /* font-size zorlaması kaldırıldı — etkinliklerin orijinal boyutları korunsun */
     page-break-after: avoid;
   }
 
@@ -135,18 +124,9 @@
   }
 
   /* === Link Handling === */
-
-  /* Show URLs after links (optional) */
+  /* URL gösterimi kaldırıldı — etkinliklerde gereksiz metin çıkmasını önler */
   a[href]:after {
-    content: ' (' attr(href) ')';
-    font-size: 0.8em;
-    color: #666;
-  }
-
-  /* Don't show URLs for internal anchors */
-  a[href^='#']:after,
-  a[href^='javascript:']:after {
-    content: '';
+    content: none;
   }
 
   /* === Table Optimization === */
@@ -192,7 +172,7 @@
   /* === Margins & Spacing === */
 
   @page {
-    margin: 15mm 10mm 10mm 10mm !important;
+    margin: 5mm !important;
     size: A4;
   }
 

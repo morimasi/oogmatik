@@ -371,11 +371,10 @@
       overflow: visible !important;
     }
 
-    /* Print Dialog Margin/Size */
+    /* Print Dialog Margin/Size - Kompakt yapı için 5mm olarak güncellendi */
     @page {
       size: A4 portrait;
-      margin: 15mm 10mm 10mm 10mm !important;
-      /* Üstten 1.5 cm, diğer yönlerden 1 cm boşluk */
+      margin: 5mm !important;
     }
 
     /* bdmind Layout Gizlemeleri */
@@ -395,14 +394,13 @@
     .print-page {
       margin: 0 auto !important;
       padding: 0 !important;
-      /* Kenar boşlukları @page margin (10mm) ile kontrol ediliyor */
+      /* Kenar boşlukları @page margin (5mm) ile kontrol ediliyor */
       page-break-after: always !important;
-      /* Her worksheet divinden sonra yazıcı kağıdı yenilesin */
       break-after: page !important;
       position: relative !important;
       box-shadow: none !important;
-      overflow: hidden !important;
-      /* Taşmaları engellemek için */
+      overflow: visible !important;
+      /* Taşmaların doğal sayfa akışına (page-break) izin vermesi için visible yapıldı */
       background-color: white !important;
     }
 
@@ -448,8 +446,7 @@
       page-break-inside: avoid !important;
     }
 
-    /* Fontların ve Kelimelerin Üst Üste Binmesini (Ligatures & Spacing Hatalarını) Önle */
-    /* Fontların ve Kelimelerin Üst Üste Binmesini (Ligatures & Spacing Hatalarını) Önle */
+    /* Yazı Denetimi - Etkinliklerin kendi ayarlarını koruması sağlandı */
     p,
     h1,
     h2,
@@ -468,25 +465,23 @@
       max-width: 100% !important;
     }
 
-    /* LEXEND FONT PRINT GUARANTEE — Disleksi Tasarım Standardı */
-    /* Print modunda Lexend fontunun bozulmadığını garanti eder */
-    *,
-    *::before,
-    *::after {
+    /* LEXEND FONT PRINT GUARANTEE — Sadece Çalışma Kağıdı İçeriğine Odaklan */
+    .worksheet-page,
+    .worksheet-page *,
+    .worksheet-page *::before,
+    .worksheet-page *::after {
       font-family: 'Lexend', sans-serif !important;
-      line-height: 1.6 !important; /* Geniş satır aralığı — disleksi standardı */
     }
 
-    /* Başlıklar için okunabilirlik artırma */
+    /* Başlıklar için kompakt boşluk */
     h1, h2, h3, h4, h5, h6 {
       font-weight: 600 !important;
-      margin-bottom: 0.5em !important;
+      margin-bottom: 0.15em !important;
     }
 
-    /* Paragraflar için disleksi dostu boşluk */
+    /* Paragraflar için doğal akış */
     p {
-      margin-bottom: 1em !important;
-      max-width: 65ch !important; /* Optimal okuma genişliği */
+      margin-bottom: 0.5em !important;
     }
 
     /* Premium Print Layout & Klonlama Stabilizasyonu */

@@ -75,7 +75,7 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
       }
 
       body.printing-mode #print-overlay .print-page {
-        overflow: hidden !important;
+        overflow: visible !important;
       }
 
       body.printing-mode #print-overlay img {
@@ -139,15 +139,11 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
       }
       /* 
          Kocaman beyaz boşluklara (Giant Blank Spaces) kesin çözüm:
-         Eğer bir kapsayıcıda Tailwind 'break-inside-avoid' varsa ve
-         içerik uzadıkça 1 sayfayı aşıyorsa, tarayıcı bunu bölemeyeceği için
-         komple 2. sayfaya atar, 1. sayfa başlıkla bomboş kalır!
-         Bunu önlemek için TÜM 'break' kilitlerini KIRIYORUZ.
+         TÜM 'break' kilitlerini genel olarak kırıyoruz ancak 
+         tablo ve grid konteynerlarını (kullanıcı isteğiyle) koruyoruz.
       */
       .bdmind-print-wrapper, 
-      .bdmind-print-wrapper *,
-      #print-overlay .worksheet-page,
-      #print-overlay .print-item-wrapper {
+      .bdmind-print-wrapper *:not(.block-table-container):not(.block-grid-container):not(table):not(.grid) {
         page-break-inside: auto !important;
         break-inside: auto !important;
         page-break-before: auto !important;
@@ -187,6 +183,7 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         text-rendering: optimizeLegibility !important;
+        line-height: inherit !important; /* Global 1.6 zorlaması kaldırıldı */
       }
 
       /* Kâğıt kenarlarında güvenlik boşluğu (Tarayıcı marjının yerini alan padding) */
