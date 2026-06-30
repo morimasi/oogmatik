@@ -128,17 +128,14 @@ export const PreviewToolbar = ({
                 >
                     #
                 </button>
+                <div className="w-px h-5 mx-1" style={{ backgroundColor: 'var(--border-color)' }}></div>
                 <button
-                    className={`sk-btn sk-btn-icon ${showPedagogicalNote ? 'active' : ''}`}
+                    className={`h-9 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-[11px] uppercase tracking-wider transition-all ${showPedagogicalNote ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30 shadow-lg shadow-amber-500/10' : 'bg-transparent hover:bg-zinc-800/50 text-zinc-300 border border-zinc-700/50'}`}
                     onClick={togglePedagogicalNote}
                     title={showPedagogicalNote ? 'Öğretmen Notunu Gizle' : 'Öğretmen Notunu Göster'}
-                    style={{ 
-                        backgroundColor: showPedagogicalNote ? 'var(--accent-primary)' : 'transparent',
-                        color: showPedagogicalNote ? 'white' : 'var(--sk-text-primary)',
-                        borderColor: showPedagogicalNote ? 'var(--accent-primary)' : 'var(--border-color)'
-                    }}
                 >
-                    <i className="fa-solid fa-graduation-cap text-[12px]"></i>
+                    <i className="fa-solid fa-graduation-cap"></i>
+                    Not
                 </button>
             </div>
 
