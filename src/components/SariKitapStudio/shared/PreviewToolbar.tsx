@@ -28,6 +28,13 @@ export const PreviewToolbar = ({
         toggleGrid,
         generatedContent 
     } = useSariKitapStore();
+    
+    const showPedagogicalNote = useUIStore((state) => state.styleSettings.showPedagogicalNote);
+    const setShowPedagogicalNote = useUIStore((state) => state.updateStyleSettings);
+
+    const togglePedagogicalNote = () => {
+        setShowPedagogicalNote({ showPedagogicalNote: !showPedagogicalNote });
+    };
 
     return (
         <div className="flex items-center justify-between w-full p-2 mb-6 rounded-2xl shadow-xl z-30" style={{ backgroundColor: 'var(--surface-glass)', backdropFilter: 'blur(20px)', border: '1px solid var(--border-color)' }}>
@@ -120,6 +127,18 @@ export const PreviewToolbar = ({
                     title="Izgara Göster/Gizle"
                 >
                     #
+                </button>
+                <button
+                    className={`sk-btn sk-btn-icon ${showPedagogicalNote ? 'active' : ''}`}
+                    onClick={togglePedagogicalNote}
+                    title={showPedagogicalNote ? 'Öğretmen Notunu Gizle' : 'Öğretmen Notunu Göster'}
+                    style={{ 
+                        backgroundColor: showPedagogicalNote ? 'var(--accent-primary)' : 'transparent',
+                        color: showPedagogicalNote ? 'white' : 'var(--sk-text-primary)',
+                        borderColor: showPedagogicalNote ? 'var(--accent-primary)' : 'var(--border-color)'
+                    }}
+                >
+                    <i className="fa-solid fa-graduation-cap text-[12px]"></i>
                 </button>
             </div>
 

@@ -115,6 +115,7 @@ export const useUIStore = create<UIStoreState>()(
         theme: state.theme,
         sidebarWidth: state.sidebarWidth,
         uiSettings: state.uiSettings,
+        styleSettings: state.styleSettings,
       }),
     }
   )
