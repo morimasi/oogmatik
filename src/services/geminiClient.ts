@@ -99,6 +99,7 @@ export const generateCreativeMultimodal = async (params: {
   thinkingBudget?: number;
   systemInstruction?: string;
   model?: string;
+  skipStudentContext?: boolean; // Hız için öğrenci bağlamını ve uniqueness seed'i atlar
 }): Promise<CreativeMultimodalResult> => {
   if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
     if (params.schema) {
@@ -115,18 +116,20 @@ export const generateCreativeMultimodal = async (params: {
     safeModel = MASTER_MODEL;
   }
 
-  const activeStudent = useStudentStore.getState().activeStudent;
+  const activeStudent = params.skipStudentContext ? null : useStudentStore.getState().activeStudent;
   let finalPrompt = params.prompt;
 
   // GLOBAL BENZERSİZLİK MEKANİZMASI: Her isteğe rastgele bir tohum ve yaratıcılık talimatı ekle
-  const uniquenessSeed = Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
-  finalPrompt += `
+  if (!params.skipStudentContext) {
+    const uniquenessSeed = Math.random().toString(36).substring(2, 10) + Date.now().toString(36);
+    finalPrompt += `
 
 ======================================
 [GLOBAL UNIQENESS & CREATIVITY PROTOCOL - v2]
 SEED: ${uniquenessSeed}
 TALİMAT: Bu üretimde KESİNLİKLE daha önceki desenlerden kaçın. Yaratıcı, özgün ve şaşırtıcı içerikler kurgula. Klişelere düşme, her kelime seçiminde 'Benzersizlik' prensibine sadık kal.
 ======================================`;
+  }
 
   if (activeStudent) {
     const diagStr = activeStudent.diagnosis && activeStudent.diagnosis.length > 0
@@ -152,7 +155,7 @@ Tüm içeriği bu spesifik bağlama göre optimize et!`;
     schema: params.schema,
     temperature: params.temperature ?? 0.1,
     topP: params.topP ?? 0.9,
-    thinkingBudget: params.thinkingBudget ?? 1024,
+    thinkingBudget: params.thinkingBudget ?? 512,
     systemInstruction: params.systemInstruction || SYSTEM_INSTRUCTION,
     model: safeModel,
   };
@@ -239,7 +242,7 @@ Tüm içeriği bu spesifik bağlama göre optimize et!`;
 export const generateWithSchema = async (
   prompt: string,
   schema: Record<string, unknown>,
-  params?: { temperature?: number; topP?: number; thinkingBudget?: number }
+  params?: { temperature?: number; topP?: number; thinkingBudget?: number; skipStudentContext?: boolean }
 ) => {
   return await generateCreativeMultimodal({ prompt, schema, ...params });
 };
