@@ -209,8 +209,6 @@ export class RateLimiter {
             lastRefill: Date.now()
         };
         await setDoc(quotaRef, bucket);
-        // Memory cache'i de güncelle
-        setCachedBucket(userId, limitKey, bucket);
     }
 }
 
