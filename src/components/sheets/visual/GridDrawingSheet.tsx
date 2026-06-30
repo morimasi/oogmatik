@@ -18,10 +18,10 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
     // Grid modunda hücreler daha küçük olmalı
     const availableWidth = isGridMode ? 320 : 500;
     const cellSize = isGridMode
-        ? Math.min(24, Math.floor(availableWidth / (gridDim * 1.8)))
+        ? Math.max(12, Math.min(18, Math.floor(availableWidth / (gridDim * 1.8))))
         : isStacked 
-        ? Math.min(36, Math.floor(availableWidth / (gridDim + 1)))
-        : Math.min(26, Math.floor(availableWidth / (gridDim * 2 + 2)));
+        ? Math.max(14, Math.min(puzzleCount > 1 ? 22 : 32, Math.floor(availableWidth / (gridDim + 1.2))))
+        : Math.max(16, Math.min(24, Math.floor(availableWidth / (gridDim * 2 + 2))));
 
     const totalSize = gridDim * cellSize;
     const showCoords = settings?.showCoordinates;

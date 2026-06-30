@@ -122,8 +122,8 @@ export const generateOfflineShapeCounting = async (
         searchField.push({
           id: `shape-${p}-${section}-${i}`,
           type: type as any,
-          x: getRandomInt(5, 95),
-          y: getRandomInt(5, 95),
+          x: getRandomInt(15, 85),
+          y: getRandomInt(15, 85),
           rotation: getRandomInt(0, 360),
           // Yoğunluk 40+ ise şekilleri biraz küçült ki her şey görülebilsin
           size: (itemCount > 40 ? getRandomInt(12, 28) : getRandomInt(15, 35)) / 10,

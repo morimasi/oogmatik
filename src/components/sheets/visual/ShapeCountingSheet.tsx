@@ -4,13 +4,13 @@ import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
 const SHAPE_PATHS: Record<string, string> = {
-  triangle: 'M 50 15 L 85 85 L 15 85 Z',
-  circle: 'M 50 50 m -35 0 a 35 35 0 1 0 70 0 a 35 35 0 1 0 -70 0',
-  square: 'M 20 20 L 80 20 L 80 80 L 20 80 Z',
-  star: 'M 50 10 L 61 35 L 88 35 L 66 52 L 75 78 L 50 62 L 25 78 L 34 52 L 12 35 L 39 35 Z',
-  hexagon: 'M 50 10 L 85 30 L 85 70 L 50 90 L 15 70 L 15 30 Z',
-  pentagon: 'M 50 10 L 90 40 L 75 85 L 25 85 L 10 40 Z',
-  diamond: 'M 50 10 L 85 50 L 50 90 L 15 50 Z',
+  triangle: 'M 0 -35 L 35 35 L -35 35 Z',
+  circle: 'M 0 0 m -35 0 a 35 35 0 1 0 70 0 a 35 35 0 1 0 -70 0',
+  square: 'M -30 -30 L 30 -30 L 30 30 L -30 30 Z',
+  star: 'M 0 -40 L 11 -15 L 38 -15 L 16 2 L 25 28 L 0 12 L -25 28 L -16 2 L -38 -15 L -11 -15 Z',
+  hexagon: 'M 0 -40 L 35 -20 L 35 20 L 0 40 L -35 20 L -35 -20 Z',
+  pentagon: 'M 0 -40 L 40 -10 L 25 35 L -25 35 L -40 -10 Z',
+  diamond: 'M 0 -40 L 35 0 L 0 40 L -35 0 Z',
 };
 
 export const ShapeCountingSheet = ({
@@ -76,7 +76,7 @@ export const ShapeCountingSheet = ({
 
           <div className="w-10 h-10 print:w-8 print:h-8 bg-zinc-900 rounded-lg flex items-center justify-center p-2 shadow-lg border border-zinc-100 transform -rotate-3 group-hover:rotate-0 transition-transform">
             <svg
-              viewBox="0 0 100 100"
+              viewBox="-50 -50 100 100"
               className="w-full h-full fill-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.6)]"
             >
               <path d={SHAPE_PATHS[settings?.targetShape || 'triangle']} />
@@ -114,9 +114,10 @@ export const ShapeCountingSheet = ({
             {/* Arama Alanı */}
             <div
               className={`
-                relative border-2 border-zinc-100 rounded-2xl bg-zinc-50/20 overflow-hidden mb-4 print:mb-2 shadow-inner group/field
+                relative border-2 border-zinc-100 rounded-2xl bg-zinc-50/20 overflow-hidden search-field-container mb-4 print:mb-2 shadow-inner group/field
                 ${isSingle ? 'flex-1' : 'aspect-square'}
               `}
+              style={{ overflow: 'hidden' }}
             >
               <svg
                 viewBox="0 0 500 500"
@@ -134,7 +135,7 @@ export const ShapeCountingSheet = ({
                   const tx = (item.x ?? 50) * 5;
                   const ty = (item.y ?? 50) * 5;
                   const rot = item.rotation ?? 0;
-                  const sc = (item.size ?? 1) * 0.9;
+                  const sc = (item.size ?? 1) * 0.55;
                   const isTarget = item.type === settings?.targetShape;
 
                   return (

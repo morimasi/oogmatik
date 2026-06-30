@@ -30,9 +30,9 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
     
     STRATEJİ:
     1. [YOĞUNLUK]: Sayfayı TAMAMEN şekillerle doldur. Nesneler birbirine çok yakın ve iç içe (overlapping) olmalıdır.
-    2. [HEDEF ADEDİ]: Toplam ${itemCount} nesne içinde tam olarak ${Math.ceil(itemCount * 0.3)} adet "${targetShape}" üret.
+    2. [HEDEF ADEDİ]: Toplam ${itemCount} nesne içinde tam olarak ${Math.ceil(Number(itemCount) * 0.3)} adet "${targetShape}" üret.
     3. [ÇELDİRİCİLER]: Diğer nesneleri (circle, square, star, hexagon, pentagon, diamond) hedef şekle çok yakın boyut ve renklerde seçerek ayırt etmeyi zorlaştır.
-    4. Koordinatlar (0-100) arasında rastgele ama yoğun kümeler oluşturacak şekilde dağıtılmalıdır. Sayfanın en az %95'i kapsanmalıdır.
+    4. Koordinatlar (15-85) arasında rastgele ama yoğun kümeler oluşturacak şekilde dağıtılmalıdır. Kenarlardan taşmayı önlemek için bu sınırlar KESİN kuraldır.
     5. Birbirinden farklı rotasyon (0-360) ve boyut varyasyonları ekle.
     
     ÇIKTI BİLGİSİ:
