@@ -8,6 +8,64 @@ import { logError } from '../utils/logger.js';
 import { db, doc, getDoc, setDoc, updateDoc } from './firebaseClient.js';
 
 /**
+ * In-memory token bucket cache (Vercel/Node instance ömrü boyunca)
+ * Firestore round-trip'leri azaltır
+ */
+const memoryBucketCache = new Map<string, TokenBucket>();
+const CACHE_TTL_MS = 30000; // 30 saniye
+
+function getCacheKey(userId: string, limitKey: string): string {
+    return `${userId}_${limitKey}`;
+}
+
+function getCachedBucket(userId: string, limitKey: LimitKey): TokenBucket | null {
+    const key = getCacheKey(userId, limitKey);
+    const cached = memoryBucketCache.get(key);
+    if (!cached) return null;
+    // TTL kontrolü (basitçe timestamp ile)
+    // Bucket'ın lastRefill'i eskiyse cache'ten sil
+    if (Date.now() - cached.lastRefill > CACHE_TTL_MS) {
+        memoryBucketCache.delete(key);
+        return null;
+    }
+    return cached;
+}
+
+function setCachedBucket(userId: string, limitKey: LimitKey, bucket: TokenBucket): void {
+    const key = getCacheKey(userId, limitKey);
+    memoryBucketCache.set(key, bucket);
+}
+
+/**
+ * In-memory token bucket cache (hız için)
+ * Firestore round-trip'lerini minimize eder
+ */
+const memoryCache = new Map<string, { bucket: TokenBucket; expiry: number }>();
+const CACHE_TTL = 30000; // 30 saniye
+
+function getCacheKey(userId: string, limitKey: LimitKey): string {
+    return `${userId}_${limitKey}`;
+}
+
+function getCachedBucket(userId: string, limitKey: LimitKey): TokenBucket | null {
+    const key = getCacheKey(userId, limitKey);
+    const cached = memoryCache.get(key);
+    if (cached && cached.expiry > Date.now()) {
+        return cached.bucket;
+    }
+    return null;
+}
+
+function setCachedBucket(userId: string, limitKey: LimitKey, bucket: TokenBucket): void {
+    const key = getCacheKey(userId, limitKey);
+    memoryCache.set(key, { bucket, expiry: Date.now() + CACHE_TTL });
+}
+
+function invalidateCache(userId: string, limitKey: LimitKey): void {
+    memoryCache.delete(getCacheKey(userId, limitKey));
+}
+
+/**
  * Token Bucket: Her user'ın belirli süre içinde yapabileceği request sayısı
  */
 interface TokenBucket {
@@ -24,22 +82,22 @@ export interface RateLimitConfig {
 }
 
 /**
- * User tier'larına göre limit
+ * User tier'larına göre limit - ARTIRILDI (production için)
  */
 const RATE_LIMIT_PRESETS = {
     free: {
-        apiGeneration: { tokens: 20, windowMs: 3600000 },    // 20 req/hour
-        apiQuery: { tokens: 100, windowMs: 3600000 },        // 100 req/hour
-        worksheetSave: { tokens: 50, windowMs: 3600000 },    // 50/hour
-        ocrScan: { tokens: 5, windowMs: 3600000 },            // 5/hour
-        apiFsProxy: { tokens: 20, windowMs: 3600000 }         // 20/hour
+        apiGeneration: { tokens: 50, windowMs: 3600000 },    // 50 req/hour (was 20)
+        apiQuery: { tokens: 200, windowMs: 3600000 },        // 200 req/hour (was 100)
+        worksheetSave: { tokens: 100, windowMs: 3600000 },   // 100/hour (was 50)
+        ocrScan: { tokens: 10, windowMs: 3600000 },          // 10/hour (was 5)
+        apiFsProxy: { tokens: 50, windowMs: 3600000 }        // 50/hour (was 20)
     },
     pro: {
         apiGeneration: { tokens: 200, windowMs: 3600000 },   // 200 req/hour
         apiQuery: { tokens: 1000, windowMs: 3600000 },       // 1000 req/hour
         worksheetSave: { tokens: 500, windowMs: 3600000 },   // 500/hour
-        ocrScan: { tokens: 50, windowMs: 3600000 },           // 50/hour
-        apiFsProxy: { tokens: 200, windowMs: 3600000 }        // 200/hour
+        ocrScan: { tokens: 50, windowMs: 3600000 },          // 50/hour
+        apiFsProxy: { tokens: 200, windowMs: 3600000 }       // 200/hour
     },
     admin: {
         apiGeneration: { tokens: 10000, windowMs: 3600000 },
@@ -81,48 +139,58 @@ export class UserQuotaService {
         if (!userId) return { allowed: true, remaining: 999, resetAfterMs: 0 };
 
         const config = RATE_LIMIT_PRESETS[tier][limitKey];
-        const quotaRef = doc(db, 'user_quotas', `${userId}_${limitKey}`);
         const now = Date.now();
 
-        try {
-            const docSnap = await getDoc(quotaRef);
-            let bucket: TokenBucket;
+        // 1. Memory cache'ten oku (hızlı path)
+        let bucket = getCachedBucket(userId, limitKey);
+        let isNewBucket = false;
 
-            if (!docSnap.exists()) {
-                // Yeni bucket oluştur
-                bucket = {
-                    tokens: config.tokens,
-                    lastRefill: now
-                };
-                await setDoc(quotaRef, bucket);
-            } else {
-                bucket = docSnap.data() as TokenBucket;
+        if (!bucket) {
+            // Cache miss: Firestore'dan oku
+            const quotaRef = doc(db, 'user_quotas', `${userId}_${limitKey}`);
+            try {
+                const docSnap = await getDoc(quotaRef);
+
+                if (!docSnap.exists()) {
+                    // Yeni bucket oluştur
+                    bucket = {
+                        tokens: config.tokens,
+                        lastRefill: now
+                    };
+                    isNewBucket = true;
+                    await setDoc(quotaRef, bucket);
+                } else {
+                    bucket = docSnap.data() as TokenBucket;
+                }
+            } catch (error) {
+                logError(toAppError(error), { context: 'Quota check failed' });
+                // Hata durumunda fallback: izin ver
+                return { allowed: true, remaining: 0, resetAfterMs: 0 };
             }
-
-            // Refill tokens
-            this.refillTokens(bucket, config, now);
-
-            // Check if allowed
-            const allowed = bucket.tokens >= cost;
-
-            if (allowed) {
-                bucket.tokens -= cost;
-                await updateDoc(quotaRef, {
-                    tokens: bucket.tokens,
-                    lastRefill: bucket.lastRefill
-                });
-            }
-
-            const remaining = Math.floor(bucket.tokens);
-            const timeSinceRefill = now - bucket.lastRefill;
-            const resetAfterMs = Math.max(0, config.windowMs - timeSinceRefill);
-
-            return { allowed, remaining, resetAfterMs };
-        } catch (error) {
-            logError(toAppError(error), { context: 'Quota check failed' });
-            // Hata durumunda (Firebase kapalı vb.) fallback olarak izin ver
-            return { allowed: true, remaining: 0, resetAfterMs: 0 };
         }
+
+        // Refill tokens
+        this.refillTokens(bucket, config, now);
+
+        // Check if allowed
+        const allowed = bucket.tokens >= cost;
+
+        if (allowed) {
+            bucket.tokens -= cost;
+            // Memory cache'e yaz (hızlı)
+            setCachedBucket(userId, limitKey, bucket);
+            // Firestore'a async yaz (blocking değil)
+            updateDoc(doc(db, 'user_quotas', `${userId}_${limitKey}`), {
+                tokens: bucket.tokens,
+                lastRefill: bucket.lastRefill
+            }).catch(() => {}); // Sessizce başarısız olsun
+        }
+
+        const remaining = Math.floor(bucket.tokens);
+        const timeSinceRefill = now - bucket.lastRefill;
+        const resetAfterMs = Math.max(0, config.windowMs - timeSinceRefill);
+
+        return { allowed, remaining, resetAfterMs };
     }
 
     /**
@@ -204,10 +272,13 @@ export class RateLimiter {
         // For admin use - reset quota to full
         const config = RATE_LIMIT_PRESETS.admin[limitKey];
         const quotaRef = doc(db, 'user_quotas', `${userId}_${limitKey}`);
-        await setDoc(quotaRef, {
+        const bucket = {
             tokens: config.tokens,
             lastRefill: Date.now()
-        });
+        };
+        await setDoc(quotaRef, bucket);
+        // Memory cache'i de güncelle
+        setCachedBucket(userId, limitKey, bucket);
     }
 }
 

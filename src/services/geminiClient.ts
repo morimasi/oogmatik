@@ -152,7 +152,7 @@ Tüm içeriği bu spesifik bağlama göre optimize et!`;
     schema: params.schema,
     temperature: params.temperature ?? 0.1,
     topP: params.topP ?? 0.9,
-    thinkingBudget: params.thinkingBudget ?? 2048,
+    thinkingBudget: params.thinkingBudget ?? 1024,
     systemInstruction: params.systemInstruction || SYSTEM_INSTRUCTION,
     model: safeModel,
   };
@@ -164,7 +164,7 @@ Tüm içeriği bu spesifik bağlama göre optimize et!`;
   }
 
   // Retry logic for rate limiting & high demand
-  const maxAttempts = 5; // Arttırıldı
+  const maxAttempts = 3; // Azaltıldı: 5 → 3 (hız için)
   let lastError: unknown;
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {

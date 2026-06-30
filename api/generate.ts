@@ -240,19 +240,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         return { text };
       },
-      { maxRetries: 2 }
+      { maxRetries: 1 }
     );
 
-    // 6. Success — JSON Repair Engine ile parse et
+    // 6. Success — JSON Repair Engine ile parse et (sadece schema varsa)
     res.setHeader('X-bdmind-Deploy', '2024-03-18-v4-MINIMAL');
     res.setHeader('X-Prompt-Security', 'validated');
-    try {
-      const parsed = tryRepairJson(result.text);
-      return res.status(200).json(parsed);
-    } catch {
-      // Gemini düz metin döndürdüyse (SVG gibi) string olarak dön
-      return res.status(200).json({ text: result.text });
+    if (schema) {
+      try {
+        const parsed = tryRepairJson(result.text);
+        return res.status(200).json(parsed);
+      } catch {
+        return res.status(200).json({ text: result.text });
+      }
     }
+    // Schema yoksa ham metni döndür (hız için JSON repair atlanır)
+    return res.status(200).json({ text: result.text });
   } catch (error: unknown) {
     return handleError(res, toAppError(error));
   }
