@@ -1,6 +1,5 @@
 import React from 'react';
 import { useSariKitapStore } from '../../../store/useSariKitapStore';
-import { useUIStore } from '../../../store/useUIStore';
 
 interface PreviewToolbarProps {
     onPrint: () => void;
@@ -28,13 +27,6 @@ export const PreviewToolbar = ({
         toggleGrid,
         generatedContent 
     } = useSariKitapStore();
-    
-    const showPedagogicalNote = useUIStore((state) => state.styleSettings.showPedagogicalNote);
-    const setShowPedagogicalNote = useUIStore((state) => state.updateStyleSettings);
-
-    const togglePedagogicalNote = () => {
-        setShowPedagogicalNote({ showPedagogicalNote: !showPedagogicalNote });
-    };
 
     return (
         <div className="flex items-center justify-between w-full p-2 mb-6 rounded-2xl shadow-xl z-30" style={{ backgroundColor: 'var(--surface-glass)', backdropFilter: 'blur(20px)', border: '1px solid var(--border-color)' }}>
@@ -127,15 +119,6 @@ export const PreviewToolbar = ({
                     title="Izgara Göster/Gizle"
                 >
                     #
-                </button>
-                <div className="w-px h-5 mx-1" style={{ backgroundColor: 'var(--border-color)' }}></div>
-                <button
-                    className={`h-9 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-[11px] uppercase tracking-wider transition-all ${showPedagogicalNote ? 'bg-amber-500/15 text-amber-400 border border-amber-500/30 shadow-lg shadow-amber-500/10' : 'bg-transparent hover:bg-zinc-800/50 text-zinc-300 border border-zinc-700/50'}`}
-                    onClick={togglePedagogicalNote}
-                    title={showPedagogicalNote ? 'Öğretmen Notunu Gizle' : 'Öğretmen Notunu Göster'}
-                >
-                    <i className="fa-solid fa-graduation-cap"></i>
-                    Not
                 </button>
             </div>
 

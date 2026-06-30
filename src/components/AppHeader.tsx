@@ -168,7 +168,7 @@ export const AppHeader = ({
 }: AppHeaderProps) => {
     const { user, logout } = useAuthStore();
     const { isAdmin, canAccess } = useRBAC();
-    const { setIsSidebarOpen, zenMode, showConnect, toggleConnect, unreadMessageCount, setUnreadMessageCount } = useUIStore();
+    const { setIsSidebarOpen, zenMode, showConnect, toggleConnect, unreadMessageCount, setUnreadMessageCount, styleSettings, updateStyleSettings } = useUIStore();
     const { currentView, setCurrentView, addHistoryView, setSelectedActivity, setWorksheetData, setActiveCurriculumSession: _setSession } = useWorksheetStore();
     const { activeStudent } = useStudentStore();
 
@@ -355,6 +355,13 @@ export const AppHeader = ({
                                 )}
                             </div>
                         )}
+                        <button
+                            onClick={() => updateStyleSettings({ showPedagogicalNote: !styleSettings.showPedagogicalNote })}
+                            className={`flex shrink-0 items-center justify-center w-9 h-9 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg transition-all active:scale-[0.96] shadow-sm group/nav ${styleSettings.showPedagogicalNote ? 'text-amber-400 bg-amber-500/10 border-amber-500/30 shadow-lg shadow-amber-500/10' : 'text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
+                            title={styleSettings.showPedagogicalNote ? 'Öğretmen Notunu Gizle' : 'Öğretmen Notunu Göster'}
+                        >
+                            <i className="fa-solid fa-graduation-cap text-[15px] leading-none group-hover/nav:scale-105 transition-transform"></i>
+                        </button>
                     </div>
 
                     <div className="flex items-center gap-0.5 md:gap-1">
