@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSariKitapStore } from '../../../store/useSariKitapStore';
+import { useUIStore } from '../../../store/useUIStore';
 
 interface PreviewToolbarProps {
     onPrint: () => void;

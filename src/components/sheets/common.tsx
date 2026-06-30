@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { ShapeType, BaseActivityData } from '../../types';
+import { useUIStore } from '../../store/useUIStore';
 
 // --- KLİNİK RENK PALETİ ---
 export const CLINICAL_COLORS = {
@@ -46,38 +47,42 @@ export const PedagogicalHeader = React.memo(
     instruction?: string;
     note?: string;
     data?: BaseActivityData;
-  }) => (
-    <div className="pedagogical-header mb-2 w-full border-b-2 border-zinc-900 pb-1 print:mb-0.5 print:pb-0.5 print:border-b">
-      <div className="flex items-start justify-between gap-6 print:gap-1">
-        <div className="flex-1">
-          <h3 className="text-3xl font-black text-black uppercase tracking-tighter leading-tight mb-1 print:text-lg print:mb-0">
-            {title || ''}
-          </h3>
-          <p className="instruction text-base font-bold text-zinc-700 leading-normal italic print:text-[10px] print:leading-tight">
-            {instruction || ''}
-          </p>
-        </div>
-        {data?.targetedErrors && (
-          <div className="flex flex-wrap gap-1 justify-end max-w-[200px] no-print">
-            {data.targetedErrors.map((tag: string) => (
-              <span
-                key={tag}
-                className="text-[7px] font-black bg-zinc-100 text-zinc-500 px-1.5 py-0.5 rounded border border-zinc-200 uppercase tracking-widest"
-              >
-                {tag.replace('_', ' ')}
-              </span>
-            ))}
+  }) => {
+    const showPedagogicalNote = useUIStore((state) => state.styleSettings.showPedagogicalNote);
+
+    return (
+      <div className="pedagogical-header mb-2 w-full border-b-2 border-zinc-900 pb-1 print:mb-0.5 print:pb-0.5 print:border-b">
+        <div className="flex items-start justify-between gap-6 print:gap-1">
+          <div className="flex-1">
+            <h3 className="text-3xl font-black text-black uppercase tracking-tighter leading-tight mb-1 print:text-lg print:mb-0">
+              {title || ''}
+            </h3>
+            <p className="instruction text-base font-bold text-zinc-700 leading-normal italic print:text-[10px] print:leading-tight">
+              {instruction || ''}
+            </p>
           </div>
+          {data?.targetedErrors && (
+            <div className="flex flex-wrap gap-1 justify-end max-w-[200px] no-print">
+              {data.targetedErrors.map((tag: string) => (
+                <span
+                  key={tag}
+                  className="text-[7px] font-black bg-zinc-100 text-zinc-500 px-1.5 py-0.5 rounded border border-zinc-200 uppercase tracking-widest"
+                >
+                  {tag.replace('_', ' ')}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+        {showPedagogicalNote && note && (
+          <p className="note mt-1 text-[10px] text-zinc-500 font-medium leading-relaxed max-w-3xl print:mt-0.5 print:text-[9px] print:leading-tight">
+            <i className="fa-solid fa-graduation-cap mr-2"></i>
+            {note}
+          </p>
         )}
       </div>
-      {note && (
-        <p className="note mt-1 text-[10px] text-zinc-500 font-medium leading-relaxed max-w-3xl print:mt-0.5 print:text-[9px] print:leading-tight">
-          <i className="fa-solid fa-graduation-cap mr-2"></i>
-          {note}
-        </p>
-      )}
-    </div>
-  )
+    );
+  }
 );
 
 export const TenFrame = ({ count, color = '#4f46e5' }: { count: number; color?: string }) => (
