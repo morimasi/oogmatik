@@ -8,64 +8,6 @@ import { logError } from '../utils/logger.js';
 import { db, doc, getDoc, setDoc, updateDoc } from './firebaseClient.js';
 
 /**
- * In-memory token bucket cache (Vercel/Node instance ömrü boyunca)
- * Firestore round-trip'leri azaltır
- */
-const memoryBucketCache = new Map<string, TokenBucket>();
-const CACHE_TTL_MS = 30000; // 30 saniye
-
-function getCacheKey(userId: string, limitKey: string): string {
-    return `${userId}_${limitKey}`;
-}
-
-function getCachedBucket(userId: string, limitKey: LimitKey): TokenBucket | null {
-    const key = getCacheKey(userId, limitKey);
-    const cached = memoryBucketCache.get(key);
-    if (!cached) return null;
-    // TTL kontrolü (basitçe timestamp ile)
-    // Bucket'ın lastRefill'i eskiyse cache'ten sil
-    if (Date.now() - cached.lastRefill > CACHE_TTL_MS) {
-        memoryBucketCache.delete(key);
-        return null;
-    }
-    return cached;
-}
-
-function setCachedBucket(userId: string, limitKey: LimitKey, bucket: TokenBucket): void {
-    const key = getCacheKey(userId, limitKey);
-    memoryBucketCache.set(key, bucket);
-}
-
-/**
- * In-memory token bucket cache (hız için)
- * Firestore round-trip'lerini minimize eder
- */
-const memoryCache = new Map<string, { bucket: TokenBucket; expiry: number }>();
-const CACHE_TTL = 30000; // 30 saniye
-
-function getCacheKey(userId: string, limitKey: LimitKey): string {
-    return `${userId}_${limitKey}`;
-}
-
-function getCachedBucket(userId: string, limitKey: LimitKey): TokenBucket | null {
-    const key = getCacheKey(userId, limitKey);
-    const cached = memoryCache.get(key);
-    if (cached && cached.expiry > Date.now()) {
-        return cached.bucket;
-    }
-    return null;
-}
-
-function setCachedBucket(userId: string, limitKey: LimitKey, bucket: TokenBucket): void {
-    const key = getCacheKey(userId, limitKey);
-    memoryCache.set(key, { bucket, expiry: Date.now() + CACHE_TTL });
-}
-
-function invalidateCache(userId: string, limitKey: LimitKey): void {
-    memoryCache.delete(getCacheKey(userId, limitKey));
-}
-
-/**
  * Token Bucket: Her user'ın belirli süre içinde yapabileceği request sayısı
  */
 interface TokenBucket {
@@ -110,6 +52,35 @@ const RATE_LIMIT_PRESETS = {
 
 export type LimitKey = keyof typeof RATE_LIMIT_PRESETS['free'];
 export type UserTier = 'free' | 'pro' | 'admin';
+
+/**
+ * In-memory token bucket cache (Vercel/Node instance ömrü boyunca)
+ * Firestore round-trip'leri azaltır
+ */
+const memoryBucketCache = new Map<string, TokenBucket>();
+const CACHE_TTL_MS = 30000; // 30 saniye
+
+function getCacheKey(userId: string, limitKey: string): string {
+    return `${userId}_${limitKey}`;
+}
+
+function getCachedBucket(userId: string, limitKey: LimitKey): TokenBucket | null {
+    const key = getCacheKey(userId, limitKey);
+    const cached = memoryBucketCache.get(key);
+    if (!cached) return null;
+    // TTL kontrolü (basitçe timestamp ile)
+    // Bucket'ın lastRefill'i eskiyse cache'ten sil
+    if (Date.now() - cached.lastRefill > CACHE_TTL_MS) {
+        memoryBucketCache.delete(key);
+        return null;
+    }
+    return cached;
+}
+
+function setCachedBucket(userId: string, limitKey: LimitKey, bucket: TokenBucket): void {
+    const key = getCacheKey(userId, limitKey);
+    memoryBucketCache.set(key, bucket);
+}
 
 /**
  * UserQuota Service (Persistent Rate Limiting)
