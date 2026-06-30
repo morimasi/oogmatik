@@ -14,14 +14,31 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
     // Layout logic: 1 ve 2 için alt alta (stacked), 4 için 2x2 grid
     const isGridMode = puzzleCount > 2;
 
-    // Hücre boyutu hesaplama (A4 dikey alanı için optimize edildi)
-    // Grid modunda hücreler daha küçük olmalı
-    const availableWidth = isGridMode ? 320 : 500;
-    const cellSize = isGridMode
-        ? Math.max(12, Math.min(18, Math.floor(availableWidth / (gridDim * 1.8))))
-        : isStacked 
-        ? Math.max(14, Math.min(puzzleCount > 1 ? 22 : 32, Math.floor(availableWidth / (gridDim + 1.2))))
-        : Math.max(16, Math.min(24, Math.floor(availableWidth / (gridDim * 2 + 2))));
+    // A4 Baskı Alanı Optimizasyonu (Kullanılabilir Ortalama Alan: Yükseklik 840px, Genişlik 700px)
+    const usableHeight = 840;
+    const usableWidth = 700;
+
+    let calcCell = 24;
+    
+    if (isGridMode) {
+        // 2x2 mod: Dikeyde 4 ızgara (2 box alt alta, içlerinde 2şer ızgara)
+        calcCell = Math.floor((usableHeight / 4) / (gridDim + 1.5));
+        const limitW = Math.floor((usableWidth / 2) / (gridDim + 2));
+        calcCell = Math.min(calcCell, limitW);
+    } else if (isStacked) {
+        // Tek sütun alt alta puzzle
+        calcCell = Math.floor((usableHeight / (puzzleCount * 2)) / (gridDim + 1.2));
+        const limitW = Math.floor(usableWidth / (gridDim + 2));
+        calcCell = Math.min(calcCell, limitW);
+    } else {
+        // Yan yana (Referans // Uygulama)
+        calcCell = Math.floor((usableHeight / puzzleCount) / (gridDim + 1.5));
+        const limitW = Math.floor((usableWidth / 2) / (gridDim + 2));
+        calcCell = Math.min(calcCell, limitW);
+    }
+
+    // A4 tam sığdırma ve gereksiz boşlukları/küçülmeleri önleme sınırları
+    const cellSize = Math.max(18, Math.min(36, calcCell));
 
     const totalSize = gridDim * cellSize;
     const showCoords = settings?.showCoordinates;
