@@ -27,7 +27,16 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
   userRole,
   onGeneratePlan,
 }) => {
-  const { activeView, setActiveView, setIsAdvancedScreeningOpen, setScreeningData, setCurrentScreening, selectedStudentName } = useScreeningStore();
+  const {
+    activeView,
+    setActiveView,
+    setIsAdvancedScreeningOpen,
+    setScreeningData,
+    setCurrentScreening,
+    selectedStudentName,
+    selectedStudentAge,
+    selectedStudentGrade,
+  } = useScreeningStore();
   const toast = useToastStore();
   const { currentScreening, handleSaveScreening, handleDownloadReport, handlePrintReport, handleShareResults, handleShareScreeningResult } =
     useScreeningAssessment({});
@@ -159,6 +168,9 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
               {activeView === 'cognitive-battery' ? (
                 <CognitiveTestPanel
                   studentName={selectedStudentName || 'Öğrenci'}
+                  studentAge={selectedStudentAge}
+                  studentGrade={selectedStudentGrade}
+                  studentConcerns={[]}
                   onBack={() => setActiveView('new-screening')}
                   onComplete={() => {
                     toast.success('İnteraktif bilişsel batarya tamamlandı.');

@@ -1,9 +1,12 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { SubTestResult } from '../../../types';
+import type { AdaptiveAssessmentConfig, TestVariation } from '../../ScreeningAssessment/services/professionalAssessmentService';
 
 interface RapidNamingTestProps {
     onComplete: (result: SubTestResult) => void;
+    variation?: TestVariation;
+    adaptiveConfig?: AdaptiveAssessmentConfig;
 }
 
 // Premium FontAwesome ikonları + isim etiketi
@@ -17,7 +20,11 @@ const OBJECTS = [
 
 const GRID_SIZE = 20;
 
-export const RapidNamingTest = ({ onComplete }: RapidNamingTestProps) => {
+export const RapidNamingTest = ({
+    onComplete,
+    variation,
+    adaptiveConfig,
+}: RapidNamingTestProps) => {
     const [phase, setPhase] = useState<'intro' | 'running' | 'done'>('intro');
     const [items, setItems] = useState<typeof OBJECTS[0][]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -121,8 +128,10 @@ export const RapidNamingTest = ({ onComplete }: RapidNamingTestProps) => {
                 <div className="relative z-10 text-center max-w-md">
                     <h3 className="text-4xl font-black text-zinc-900 dark:text-white mb-4 bg-gradient-to-r from-cyan-600 to-blue-600 bg-clip-text text-transparent">Hızlı İsimlendirme (RAN)</h3>
                     <p className="text-zinc-600 dark:text-zinc-300 text-lg leading-relaxed font-medium">
-                        Sıradaki nesneyi <span className="font-black text-cyan-600 bg-cyan-100 dark:bg-cyan-900/50 px-2 py-1 rounded-lg">olabildiğince hızlı</span> tanımla.
-                        Yanlış seçersen ekran kırmızı yanıp söner — tekrar dene!
+                        {variation?.description || 'Sıradaki nesneyi olabildiğince hızlı tanımla.'}
+                    </p>
+                    <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">
+                        {adaptiveConfig?.guidance || 'Dikkatini korumak için kısa ve net yönergeler kullan.'}
                     </p>
                 </div>
                 
@@ -177,7 +186,7 @@ export const RapidNamingTest = ({ onComplete }: RapidNamingTestProps) => {
             <div className="relative z-10 w-full max-w-4xl">
                 <div className="mb-8 text-center">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-2xl font-black text-zinc-700 dark:text-zinc-200">Hızlı İsimlendirme</h3>
+                        <h3 className="text-2xl font-black text-zinc-700 dark:text-zinc-200">{variation?.title || 'Hızlı İsimlendirme'}</h3>
                         <button
                             onClick={handleShowHint}
                             disabled={showHint}
@@ -194,6 +203,10 @@ export const RapidNamingTest = ({ onComplete }: RapidNamingTestProps) => {
                             <span>{GRID_SIZE}</span>
                             <span className="text-xs bg-cyan-100 dark:bg-cyan-900/50 text-cyan-700 dark:text-cyan-300 px-2 py-1 rounded-full">tamamlandı</span>
                         </div>
+                    </div>
+                    <div className="mb-4 text-sm text-zinc-500 dark:text-zinc-400 text-center">
+                        <p className="font-semibold">{adaptiveConfig?.pacingLabel || 'dengeli'}</p>
+                        <p className="text-xs">{adaptiveConfig?.difficultyHint || 'Zorluk seviyesini kontrollü tut.'}</p>
                         {errors > 0 && (
                             <div className="flex items-center gap-2 text-red-400">
                                 <i className="fa-solid fa-exclamation-triangle"></i>

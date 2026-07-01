@@ -1,9 +1,12 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { SubTestResult } from '../../../types';
+import type { AdaptiveAssessmentConfig, TestVariation } from '../../ScreeningAssessment/services/professionalAssessmentService';
 
 interface StroopInteractiveTestProps {
     onComplete: (result: SubTestResult) => void;
+    variation?: TestVariation;
+    adaptiveConfig?: AdaptiveAssessmentConfig;
 }
 
 interface TrialResult {
@@ -21,7 +24,11 @@ const colors = [
     { name: 'SARI', hex: '#eab308', pattern: 'bg-yellow-500' }
 ];
 
-export const StroopInteractiveTest: React.FC<StroopInteractiveTestProps> = ({ onComplete }) => {
+export const StroopInteractiveTest: React.FC<StroopInteractiveTestProps> = ({
+    onComplete,
+    variation,
+    adaptiveConfig,
+}) => {
     const [phase, setPhase] = useState<'intro' | 'running' | 'done'>('intro');
     // FIX: trial sayacını ayrı bir ref'le takip ederek stale closure sorununu önle
     const trialCountRef = useRef(0);
@@ -159,8 +166,10 @@ export const StroopInteractiveTest: React.FC<StroopInteractiveTestProps> = ({ on
                 <div className="relative z-10 text-center max-w-md">
                     <h3 className="text-4xl font-black text-zinc-900 dark:text-white mb-4 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Stroop Dikkat Testi</h3>
                     <p className="text-zinc-600 dark:text-zinc-300 text-lg leading-relaxed font-medium">
-                        Kelimeyi değil, <span className="font-black text-purple-600 bg-purple-100 dark:bg-purple-900/50 px-2 py-1 rounded-lg">yazının rengini</span> seç.
-                        Yanıltıcı olacak — dikkatini koru!
+                        {variation?.description || 'Kelimeyi değil, yazının rengini seç.'}
+                    </p>
+                    <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">
+                        {adaptiveConfig?.guidance || 'Dikkatini korumak için kısa ve net yönergeler kullan.'}
                     </p>
                 </div>
                 
@@ -221,7 +230,7 @@ export const StroopInteractiveTest: React.FC<StroopInteractiveTestProps> = ({ on
                 <div className="mb-12 text-center w-full px-8">
                     <div className="flex items-center justify-between mb-4">
                         <h3 className="text-lg font-black text-zinc-700 dark:text-zinc-200 uppercase tracking-wider">
-                            Yazının rengini seç
+                            {variation?.title || 'Yazının rengini seç'}
                         </h3>
                         <button
                             onClick={handleShowHint}
@@ -237,6 +246,10 @@ export const StroopInteractiveTest: React.FC<StroopInteractiveTestProps> = ({ on
                         <span className="text-xs px-3 py-1 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 rounded-full">
                             {Math.round((trialCountRef.current / TOTAL_TRIALS) * 100)}%
                         </span>
+                    </div>
+                    <div className="text-left mb-3 text-sm text-zinc-500 dark:text-zinc-400">
+                        <p className="font-semibold">{adaptiveConfig?.pacingLabel || 'dengeli'}</p>
+                        <p className="text-xs">{adaptiveConfig?.difficultyHint || 'Zorluk seviyesini kontrollü tut.'}</p>
                     </div>
                     <div className="w-full h-3 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden shadow-inner">
                         <div

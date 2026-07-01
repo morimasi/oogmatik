@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { CognitiveDomain, SubTestResult } from '../../types';
+import { getAdaptiveAssessmentConfig, getAssessmentTestVariation } from '../ScreeningAssessment/services/professionalAssessmentService';
 import { MatrixMemoryTest } from './tests/MatrixMemoryTest';
 import { StroopInteractiveTest } from './tests/StroopInteractiveTest';
 import { RapidNamingTest } from './tests/RapidNamingTest';
@@ -16,16 +17,40 @@ import { VerbalComprehensionTest } from './tests/VerbalComprehensionTest';
 interface AssessmentEngineProps {
     domain: CognitiveDomain;
     onComplete: (result: SubTestResult) => void;
+    studentName?: string;
+    studentAge?: number;
+    studentGrade?: string;
+    studentConcerns?: string[];
 }
 
-export const AssessmentEngine: React.FC<AssessmentEngineProps> = ({ domain, onComplete }) => {
+export const AssessmentEngine: React.FC<AssessmentEngineProps> = ({
+    domain,
+    onComplete,
+    studentName = 'Öğrenci',
+    studentAge = 7,
+    studentGrade = '1. Sınıf',
+    studentConcerns = [],
+}) => {
+    const variation = getAssessmentTestVariation(domain, {
+        studentName,
+        age: studentAge,
+        grade: studentGrade,
+        concerns: studentConcerns,
+    });
+    const adaptiveConfig = getAdaptiveAssessmentConfig(domain, {
+        studentName,
+        age: studentAge,
+        grade: studentGrade,
+        concerns: studentConcerns,
+    });
+
     switch (domain) {
         case 'visual_spatial_memory':
             return <MatrixMemoryTest onComplete={onComplete} />;
         case 'selective_attention':
-            return <StroopInteractiveTest onComplete={onComplete} />;
+            return <StroopInteractiveTest onComplete={onComplete} variation={variation} adaptiveConfig={adaptiveConfig} />;
         case 'processing_speed':
-            return <RapidNamingTest onComplete={onComplete} />;
+            return <RapidNamingTest onComplete={onComplete} variation={variation} adaptiveConfig={adaptiveConfig} />;
         case 'logical_reasoning':
             return <LogicTest onComplete={onComplete} />;
         case 'phonological_loop':

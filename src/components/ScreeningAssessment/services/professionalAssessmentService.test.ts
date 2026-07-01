@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildProfessionalAssessmentPrompt,
   buildStudentProfileContext,
+  getAdaptiveAssessmentConfig,
   getAssessmentTestVariation,
 } from './professionalAssessmentService';
 
@@ -60,5 +61,17 @@ describe('professionalAssessmentService', () => {
 
     expect(variation.title).toContain('İşlem Hızı');
     expect(variation.description).toContain('Ela');
+  });
+
+  it('adapts trial count and guidance for younger learners', () => {
+    const config = getAdaptiveAssessmentConfig('processing_speed', {
+      studentName: 'Ela',
+      age: 7,
+      grade: '2. Sınıf',
+      concerns: ['dikkat'],
+    });
+
+    expect(config.trialCount).toBe(12);
+    expect(config.guidance).toContain('kısa');
   });
 });

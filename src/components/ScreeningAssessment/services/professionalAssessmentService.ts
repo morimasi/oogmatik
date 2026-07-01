@@ -22,6 +22,13 @@ export interface TestVariation {
   difficultyHint: string;
 }
 
+export interface AdaptiveAssessmentConfig {
+  trialCount: number;
+  guidance: string;
+  difficultyHint: string;
+  pacingLabel: string;
+}
+
 export const buildStudentProfileContext = (context: ProfessionalAssessmentContext): string => {
   const sections = [
     `Öğrenci: ${context.studentName}`,
@@ -90,6 +97,40 @@ export const getAssessmentTestVariation = (
       description: `${context.studentName} için kişiselleştirilmiş ve pedagojik olarak dengeli bir test akışı.`,
       guidance: 'Öğrencinin yaş ve sınıf düzeyine uygun sade yönergeler kullan.',
       difficultyHint: 'Zorluk seviyesini hafif ve kontrollü tut.',
+    },
+  };
+
+  return map[domain] ?? map.default;
+};
+
+export const getAdaptiveAssessmentConfig = (
+  domain: string,
+  context: Pick<ProfessionalAssessmentContext, 'studentName' | 'age' | 'grade' | 'concerns'>
+): AdaptiveAssessmentConfig => {
+  const concernText = context.concerns?.join(', ') || 'genel bilişsel destek';
+  const isYoungerLearner = context.age <= 8;
+  const baseGuidance = isYoungerLearner
+    ? `Bu bölümde ${context.studentName} için kısa ve net yönergeler kullan; her adımı sakin bir cümleyle ver.`
+    : `Bu bölümde ${context.studentName} için ${concernText} alanına odaklanarak net ve yapılandırılmış yönergeler ver.`;
+
+  const map: Record<string, AdaptiveAssessmentConfig> = {
+    processing_speed: {
+      trialCount: isYoungerLearner ? 12 : 20,
+      guidance: `${baseGuidance} Öğrencinin dikkatini korumak için 1-2 örnek deneme yap.` ,
+      difficultyHint: isYoungerLearner ? 'Başlangıçta kolay tut, sonra hafifçe zorlaştır.' : 'Başlangıçta orta seviye, sonra zorluğa çık.',
+      pacingLabel: isYoungerLearner ? 'yavaş ve destekleyici' : 'dengeli ve odaklı',
+    },
+    selective_attention: {
+      trialCount: isYoungerLearner ? 10 : 16,
+      guidance: `${baseGuidance} Dikkat dağıtıcı unsurları azaltıp kısa bir odak süreci sun.`,
+      difficultyHint: 'Dikkat süresini kademeli artır.',
+      pacingLabel: isYoungerLearner ? 'kısa ve tekrarlı' : 'sabit ve kontrollü',
+    },
+    default: {
+      trialCount: isYoungerLearner ? 10 : 14,
+      guidance: `${baseGuidance} Öğrencinin yaş ve sınıf düzeyine uygun sade bir akış sun.`,
+      difficultyHint: 'Zorluk seviyesini hafif ve kontrollü tut.',
+      pacingLabel: 'yumuşak ve destekleyici',
     },
   };
 

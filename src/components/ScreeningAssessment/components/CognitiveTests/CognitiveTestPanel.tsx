@@ -11,6 +11,9 @@ const AssessmentEngine = lazy(() =>
 
 interface CognitiveTestPanelProps {
   studentName: string;
+  studentAge?: number;
+  studentGrade?: string;
+  studentConcerns?: string[];
   onComplete: (results: SubTestResult[]) => void;
   onBack: () => void;
 }
@@ -37,6 +40,9 @@ const TEST_DOMAINS: Array<{
 
 export const CognitiveTestPanel: React.FC<CognitiveTestPanelProps> = ({
   studentName,
+  studentAge = 7,
+  studentGrade = '1. Sınıf',
+  studentConcerns = [],
   onComplete,
   onBack,
 }) => {
@@ -177,7 +183,14 @@ export const CognitiveTestPanel: React.FC<CognitiveTestPanelProps> = ({
             </div>
           }
         >
-          <AssessmentEngine domain={currentTest.domain} onComplete={handleTestComplete} />
+          <AssessmentEngine
+            domain={currentTest.domain}
+            onComplete={handleTestComplete}
+            studentName={studentName}
+            studentAge={studentAge}
+            studentGrade={studentGrade}
+            studentConcerns={studentConcerns}
+          />
         </Suspense>
       </div>
     </div>
