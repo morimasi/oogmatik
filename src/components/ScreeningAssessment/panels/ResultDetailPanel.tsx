@@ -10,6 +10,11 @@ import { generateWithSchema } from '../../../services/geminiClient';
 import type { AIAnalysisResult } from '../services/assessmentEngineService';
 import type { EvaluationCategory, ScreeningResult } from '../../../types/screening';
 import { ShareModal } from '../../ShareModal';
+import {
+  buildProfessionalAssessmentPrompt,
+  buildProfessionalAssessmentReport,
+  buildStudentProfileContext,
+} from '../services/professionalAssessmentService';
 
 interface ResultDetailPanelProps {
   onGeneratePlan?: (studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => void;
@@ -33,6 +38,7 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
   const [aiError, setAiError] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [professionalReport, setProfessionalReport] = useState<ReturnType<typeof buildProfessionalAssessmentReport> | null>(null);
 
   useEffect(() => {
     if (!currentScreening) return;
@@ -51,6 +57,35 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
         letter: typeof response?.letter === 'string' ? response.letter : String(response?.letter ?? ''),
         actionSteps: assessmentEngineService.normalizeActionSteps(response?.actionSteps),
       });
+
+      const studentContext = {
+        studentName: currentScreening.studentName,
+        age: currentScreening.age,
+        grade: currentScreening.grade,
+        strengths: currentScreening.strengths ?? [],
+        concerns: Object.entries(currentScreening.categoryScores)
+          .filter(([, value]) => value.riskLevel === 'high' || value.riskLevel === 'moderate')
+          .map(([key]) => key),
+        supportContext: 'sessiz çalışma alanı ve kısa, tekrarlı destek oturumları',
+      };
+
+      const professionalPrompt = buildProfessionalAssessmentPrompt(currentScreening, studentContext);
+      const professionalReportData = buildProfessionalAssessmentReport(currentScreening, studentContext);
+      setProfessionalReport(professionalReportData);
+
+      if (typeof professionalPrompt === 'string' && professionalPrompt.length > 0) {
+        void generateWithSchema(professionalPrompt, {
+          type: 'OBJECT',
+          properties: {
+            summary: { type: 'STRING' },
+            recommendations: { type: 'ARRAY', items: { type: 'STRING' } },
+            cautions: { type: 'ARRAY', items: { type: 'STRING' } },
+            strengths: { type: 'ARRAY', items: { type: 'STRING' } },
+            bePGoals: { type: 'ARRAY', items: { type: 'STRING' } },
+          },
+          required: ['summary', 'recommendations', 'cautions', 'strengths', 'bePGoals'],
+        });
+      }
     } catch {
       setAiError(true);
     } finally {
@@ -148,6 +183,60 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
         <h3 className="text-sm font-black text-[var(--accent-color)] mb-4 flex items-center gap-2 uppercase tracking-tight italic">
           AI Uzman Görüşü
         </h3>
+
+        {professionalReport && (
+          <div className="mb-5 space-y-3 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-paper)]/70 p-4">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-widest text-[var(--accent-color)]">Öğrenci Profili</p>
+              <p className="mt-2 text-sm text-[var(--text-primary)] leading-relaxed">{buildStudentProfileContext({
+                studentName: currentScreening.studentName,
+                age: currentScreening.age,
+                grade: currentScreening.grade,
+                strengths: professionalReport.strengths,
+                concerns: Object.entries(currentScreening.categoryScores)
+                  .filter(([, value]) => value.riskLevel === 'high' || value.riskLevel === 'moderate')
+                  .map(([key]) => key),
+                supportContext: 'sessiz çalışma alanı ve kısa, tekrarlı destek oturumları',
+              })}</p>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="rounded-xl border border-emerald-200/60 bg-emerald-50/70 p-3">
+                <p className="text-[10px] font-black uppercase tracking-widest text-emerald-700">Güçlü Yönler</p>
+                <ul className="mt-2 space-y-1 text-sm text-emerald-900">
+                  {(professionalReport.strengths.length > 0 ? professionalReport.strengths : ['Henüz net güçlü yön belirtilmedi.']).map((item, index) => (
+                    <li key={index}>• {item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rounded-xl border border-amber-200/60 bg-amber-50/70 p-3">
+                <p className="text-[10px] font-black uppercase tracking-widest text-amber-700">Dikkat Edilecek Alanlar</p>
+                <ul className="mt-2 space-y-1 text-sm text-amber-900">
+                  {(professionalReport.cautions.length > 0 ? professionalReport.cautions : ['Dikkat alanı henüz belirlenmedi.']).map((item, index) => (
+                    <li key={index}>• {item}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="rounded-xl border border-indigo-200/60 bg-indigo-50/70 p-3">
+                <p className="text-[10px] font-black uppercase tracking-widest text-indigo-700">Öneriler</p>
+                <ul className="mt-2 space-y-1 text-sm text-indigo-900">
+                  {professionalReport.recommendations.map((item, index) => (
+                    <li key={index}>• {item}</li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rounded-xl border border-fuchsia-200/60 bg-fuchsia-50/70 p-3">
+                <p className="text-[10px] font-black uppercase tracking-widest text-fuchsia-700">BEP Hedefleri</p>
+                <ul className="mt-2 space-y-1 text-sm text-fuchsia-900">
+                  {professionalReport.bePGoals.map((item, index) => (
+                    <li key={index}>• {item}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        )}
 
         {loadingAi ? (
           <div className="flex flex-col items-center py-8 text-[var(--accent-color)]">
