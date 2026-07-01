@@ -6,7 +6,6 @@ type OcrData = {
   content?: string;
   grafikVeri?: Record<string, unknown>;
   title?: string;
-  pedagogicalNote?: string;
   targetSkills?: string[];
   /** Sütun sayısı (blueprint'ten alınır, varsayılan 1) */
   columns?: number;
@@ -232,23 +231,6 @@ export const OcrRenderer: React.FC<Props> = ({ data }) => {
         </div>
       )}
 
-      {/* Pedagojik not (sadece ekranda, baskıda gizli) */}
-      {data.pedagogicalNote && (
-        <div
-          className="print:hidden"
-          style={{
-            marginTop: '8px',
-            padding: '6px 8px',
-            backgroundColor: '#eef2ff',
-            border: '1px solid #c7d2fe',
-            borderRadius: '6px',
-          }}
-        >
-          <p style={{ fontSize: '10px', color: '#3730a3', margin: 0 }}>
-            <strong>Öğretmen Notu:</strong> {data.pedagogicalNote}
-          </p>
-        </div>
-      )}
 
       {/* Kompakt print CSS */}
       <style>{`

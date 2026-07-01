@@ -13,7 +13,7 @@ interface ActivityPublisherProps {
 export const ActivityPublisher: React.FC<ActivityPublisherProps> = ({ blueprint, onClose, onSuccess }) => {
     const [config, setConfig] = useState<Partial<DynamicActivity>>({
         title: blueprint.title || "Yeni Aktivite",
-        description: blueprint.pedagogicalNote || "Kişiselleştirilmiş klinik çalışma.",
+        description: "Kişiselleştirilmiş klinik çalışma.",
         category: 'visual-perception',
         icon: 'fa-wand-magic-sparkles',
         isActive: true,

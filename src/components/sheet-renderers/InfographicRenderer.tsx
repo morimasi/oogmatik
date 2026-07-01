@@ -77,7 +77,7 @@ export const InfographicRenderer: React.FC<InfographicRendererProps> = ({ data }
   
   const title = wizardData.title || wizardData.goal?.title || 'Etkinlik';
   const blocks = wizardData.blocks || [];
-  const pedagogicalNote = wizardData.goal?.pedagogicalNote || '';
+
   const themeConfig = wizardData.themeConfig || null;
   const compactA4Config = wizardData.compactA4Config || null;
 
@@ -118,24 +118,6 @@ export const InfographicRenderer: React.FC<InfographicRendererProps> = ({ data }
             );
           })}
         </div>
-
-        {/* Pedagojik Not Footer */}
-        {pedagogicalNote && (
-          <div
-            style={{
-              marginTop: '40px',
-              borderTop: '2px solid #f3f4f6',
-              paddingTop: '12px',
-              fontSize: '10pt',
-              color: '#666',
-              fontStyle: 'italic',
-              textTransform: 'none'
-            }}
-          >
-            <span style={{ fontWeight: '700', fontSize: '8pt', textTransform: 'uppercase', display: 'block', marginBottom: '4px', letterSpacing: '0.1em' }}>Klinik & Pedagojik Not</span>
-            {pedagogicalNote}
-          </div>
-        )}
     </div>
   );
 };

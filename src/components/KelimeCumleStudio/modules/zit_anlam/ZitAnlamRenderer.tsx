@@ -61,21 +61,6 @@ export const ZitAnlamRenderer: React.FC<Props> = ({ content, showAnswers }) => {
                 ))}
             </div>
 
-            <div style={{ 
-                marginTop: 'auto', 
-                padding: '0.4rem 0.75rem', 
-                background: '#f8fafc', 
-                borderRadius: '0.25rem', 
-                border: '1px solid #e2e8f0',
-                borderLeft: '4px solid #3b82f6'
-            }}>
-                <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#1e40af', textTransform: 'uppercase', marginBottom: '2px' }}>
-                    Pedagojik Not
-                </div>
-                <div style={{ fontSize: '0.7rem', color: '#1e3a8a', lineHeight: 1.2 }}>
-                    {content.pedagogicalNote}
-                </div>
-            </div>
         </div>
     );
 };

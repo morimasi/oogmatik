@@ -162,7 +162,6 @@ export const SheetRenderer = React.memo(
               content: (data as Record<string, unknown>)?.content as string | undefined,
               grafikVeri: (data as Record<string, unknown>)?.grafikVeri as Record<string, unknown> | undefined,
               title: (data as Record<string, unknown>)?.title as string | undefined,
-              pedagogicalNote: (data as Record<string, unknown>)?.pedagogicalNote as string | undefined,
               targetSkills: (data as Record<string, unknown>)?.targetSkills as string[] | undefined,
               columns: (data as Record<string, unknown>)?.columns as number | undefined,
               estimatedFontSize: (data as Record<string, unknown>)?.estimatedFontSize as number | undefined,
@@ -170,7 +169,6 @@ export const SheetRenderer = React.memo(
               content?: string;
               grafikVeri?: Record<string, unknown>;
               title?: string;
-              pedagogicalNote?: string;
               targetSkills?: string[];
               columns?: number;
               estimatedFontSize?: number;

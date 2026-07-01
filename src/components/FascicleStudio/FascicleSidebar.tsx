@@ -84,7 +84,6 @@ export const FascicleSidebar: React.FC = () => {
       const content = Array.isArray(result) ? result : [result];
       updateItem(item.id, {
         content: { data: content, title: result?.title || '', generatedAt: Date.now() },
-        pedagogicalNote: result?.pedagogicalNote || item.pedagogicalNote,
       });
 
       toast.success(`${item.type} başarıyla yeniden üretildi!`, { id: `regen-${item.id}` });

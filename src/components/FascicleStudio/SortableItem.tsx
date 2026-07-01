@@ -83,9 +83,7 @@ export const SortableItem: React.FC<SortableItemProps> = ({ id, item, onRemove, 
               {hasError ? 'Hata' : item.difficulty}
             </span>
           </div>
-          <p className="text-xs text-[var(--text-muted)] truncate">
-            {item.pedagogicalNote || 'Pedagojik Not Eklenmemiş'}
-          </p>
+        </div>
         </div>
 
         <div className="flex items-center gap-1 ml-2">
@@ -116,7 +114,7 @@ export const SortableItem: React.FC<SortableItemProps> = ({ id, item, onRemove, 
                 contentData.slice(0, 3).map((d: any, i: number) => (
                   <div key={i} className="p-2 bg-[var(--bg-paper)] rounded-lg mb-1">
                     <span className="font-semibold text-[var(--text-primary)]">{d.title || d.instruction || `Adım ${i + 1}`}</span>
-                    {d.pedagogicalNote && <p className="text-[var(--text-muted)] mt-0.5">{d.pedagogicalNote}</p>}
+
                   </div>
                 ))
               ) : (

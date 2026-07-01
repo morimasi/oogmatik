@@ -111,9 +111,7 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
                             pageConfig,
                             items: activeItems
                         },
-                        pedagogicalNote: isDrill 
-                            ? `${activeConfig?.selectedOperations?.join(', ')} işlemleri üzerine yoğunlaşan pratik çalışması.`
-                            : `${activeConfig?.topic} konusunu ele alan AI destekli problem çözme etkinliği.`
+
                     });
                     toast.success('Fasiküle eklendi!');
                 }}

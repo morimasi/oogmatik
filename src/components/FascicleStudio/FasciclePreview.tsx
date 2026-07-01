@@ -319,18 +319,6 @@ export const FasciclePreview: React.FC = () => {
                          />
                       </Suspense>
                     </div>
-
-                    {item.pedagogicalNote && (
-                      <div className="w-[21cm] -mt-10 mb-20 p-6 glass-layer-2 rounded-2xl flex gap-4 no-print mx-auto">
-                         <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-lg" style={{ backgroundColor: 'var(--accent-color)', color: '#ffffff', boxShadow: '0 4px 12px var(--accent-muted)' }}>
-                            <Info size={20} />
-                         </div>
-                         <div>
-                            <h4 className="font-black text-xs uppercase tracking-widest mb-1" style={{ color: 'var(--accent-color)' }}>Pedagojik Not</h4>
-                            <p className="text-[var(--text-secondary)] text-sm leading-relaxed">{item.pedagogicalNote}</p>
-                         </div>
-                      </div>
-                    )}
                  </div>
                );
              }) : (

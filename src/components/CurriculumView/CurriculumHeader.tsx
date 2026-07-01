@@ -47,7 +47,7 @@ export const CurriculumHeader: React.FC<CurriculumHeaderProps> = ({ onBack, step
                                     pageCount: curriculum ? curriculum.schedule.length : 1,
                                     order: items.length,
                                     content: { curriculum },
-                                    pedagogicalNote: 'Müfredat Stüdyosu\'ndan eklendi.'
+
                                 });
                             }}
                             className="w-10 h-10 rounded-xl bg-fuchsia-600 hover:bg-fuchsia-500 text-white flex items-center justify-center transition-colors shadow-sm"

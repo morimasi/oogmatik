@@ -431,19 +431,6 @@ export const validateOrThrow = (validationResult: {
  */
 
 /**
- * Pedagojik not şeması
- */
-export const PedagogicalNoteSchema = z.object({
-  title: z.string().min(1, 'Başlık gereklidir'),
-  content: z.string().min(1, 'İçerik gereklidir'),
-  targetSkills: z.array(z.string()).optional(),
-  difficulty: z.enum(['Kolay', 'Orta', 'Zor']).optional(),
-  ageGroup: z.enum(['5-7', '8-10', '11-13', '14+']).optional(),
-  learningObjectives: z.array(z.string()).optional(),
-  clinicalNotes: z.string().optional(),
-});
-
-/**
  * Pedagojik anahtar kelimeler
  */
 export const PEDAGOGICAL_KEYWORDS = [

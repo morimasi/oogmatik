@@ -243,7 +243,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
                                         pageCount: contentChunks.length,
                                         order: fascicleItems.length,
                                         content: { content, config },
-                                        pedagogicalNote: 'Kelime-Cümle Stüdyosu\'ndan eklendi.'
+
                                     });
                                     showToast('✅ Kitapçığa eklendi!');
                                 }}

@@ -153,7 +153,6 @@ const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) =>
         isVisible: false,
         pageIndex: 0,
         specificData: { 
-            note: result.pedagogicalNote,
             goals: (result as any).pedagogicalGoals 
         },
         style: { h: 180, fontSize: 12, fontFamily: 'Lexend', backgroundColor: '#ecfdf5', borderColor: '#10b981', borderWidth: 1, borderStyle: 'solid', borderRadius: 12, padding: 15 } as any
@@ -334,7 +333,7 @@ const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) =>
                   pageCount: storyData ? 1 : 0,
                   order: items.length,
                   content: { storyData, config, layout },
-                  pedagogicalNote: 'Okuma Stüdyosu\'ndan eklendi. Hikaye anlama ve 5N1K analizi içerir.'
+
                 });
                 toast.success('Fasiküle başarıyla eklendi!');
               }}

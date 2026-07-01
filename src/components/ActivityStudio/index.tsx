@@ -39,9 +39,7 @@ export const ActivityStudio: React.FC<ActivityStudioProps> = ({ onBack }) => {
                   content: { 
                     wizardData: studioState.wizardData,
                     content: studioState.content,
-                    pedagogicalNote: studioState.pedagogicalNote
                   },
-                  pedagogicalNote: 'Etkinlik Stüdyosu\'ndan eklendi.'
                 });
                 useToastStore.getState().success('Fasiküle başarıyla eklendi!');
               }}

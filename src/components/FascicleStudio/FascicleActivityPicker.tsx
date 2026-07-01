@@ -52,8 +52,6 @@ export const FascicleActivityPicker: React.FC<FascicleActivityPickerProps> = ({ 
 
       const content = Array.isArray(result) ? result : [result];
       const title = (result?.title) || ACTIVITIES.find(a => a.id === type)?.title || type;
-      const pedagogicalNote = result?.pedagogicalNote || `ZPD uyumlu ${metadata.targetAgeGroup} yaş grubu için ${title} etkinliği.`;
-
       addItem({
         id: uuidv4(),
         type,
@@ -61,7 +59,6 @@ export const FascicleActivityPicker: React.FC<FascicleActivityPickerProps> = ({ 
         pageCount: 1,
         order: items.length,
         content: { data: content, title, generatedAt: Date.now() },
-        pedagogicalNote,
       });
 
       logInfo(`[Fascicle] Activity added: ${type}`);
@@ -75,7 +72,7 @@ export const FascicleActivityPicker: React.FC<FascicleActivityPickerProps> = ({ 
         pageCount: 1,
         order: items.length,
         content: { error: true, title: ACTIVITIES.find(a => a.id === type)?.title || type },
-        pedagogicalNote: 'İçerik üretilemedi. Tekrar deneyin.',
+
       });
     } finally {
       setGeneratingId(null);

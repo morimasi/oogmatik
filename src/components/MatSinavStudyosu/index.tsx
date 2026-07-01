@@ -194,7 +194,7 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ initialData 
             pageCount: Math.ceil((aktifSinav.sorular?.length || 1) / 4), // Ortalama sayfa hesabı
             order: items.length,
             content: { ...aktifSinav, printConfig }, // PrintConfig ile birleştirerek gönderiyoruz
-            pedagogicalNote: 'Matematik Sınav Stüdyosu\'ndan eklendi.'
+
         });
         showSuccess('Kitapçığa eklendi!');
     };

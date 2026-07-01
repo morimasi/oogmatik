@@ -46,13 +46,6 @@ export const SariKitapRenderer: React.FC<SariKitapRendererProps> = ({ data, sett
         <Renderer config={config} content={content} />
       </ErrorBoundary>
       
-      {/* Optional: Add pedagogical note if available in wrapper */}
-      {content.pedagogicalNote && (
-         <div className="mt-8 pt-4 border-l-4 border-indigo-500 pl-4 bg-indigo-50/50 py-2 rounded-r-lg">
-            <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest block mb-1">Pedagojik Not</span>
-            <p className="text-xs text-gray-600 italic leading-relaxed">{content.pedagogicalNote}</p>
-         </div>
-      )}
     </div>
   );
 };

@@ -178,33 +178,6 @@ export const KelimeTamamlamaRenderer: React.FC<Props> = ({ content, showAnswers 
                 })}
             </div>
 
-            {/* Alt Bilgi & Pedagoji */}
-            <div style={{ 
-                marginTop: '1rem', 
-                padding: '0.6rem 0.8rem', 
-                background: '#f8fafc', 
-                borderRadius: '0.5rem', 
-                border: '1px solid #e2e8f0',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem'
-            }}>
-                <div style={{ 
-                    fontSize: '0.65rem', 
-                    fontWeight: 900, 
-                    color: '#6366f1', 
-                    textTransform: 'uppercase',
-                    writingMode: 'vertical-lr',
-                    transform: 'rotate(180deg)',
-                    borderRight: '1px solid #e2e8f0',
-                    paddingRight: '0.4rem'
-                }}>
-                    PEDAGOJİ
-                </div>
-                <div style={{ fontSize: '0.75rem', color: '#475569', lineHeight: 1.3, flex: 1 }}>
-                    {content.pedagogicalNote}
-                </div>
-            </div>
         </div>
     );
 };

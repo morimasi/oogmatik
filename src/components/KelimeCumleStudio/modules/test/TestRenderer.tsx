@@ -67,20 +67,6 @@ export const TestRenderer: React.FC<Props> = ({ content, showAnswers }) => {
                 ))}
             </div>
 
-            <div style={{ 
-                marginTop: 'auto', 
-                padding: '1rem', 
-                background: '#f8fafc', 
-                borderRadius: '0.5rem', 
-                borderLeft: '4px solid #3b82f6' 
-            }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#1e40af', textTransform: 'uppercase', marginBottom: '0.25rem' }}>
-                    Pedagojik Not
-                </div>
-                <div style={{ fontSize: '0.8rem', color: '#1e3a8a', lineHeight: 1.4 }}>
-                    {content.pedagogicalNote}
-                </div>
-            </div>
         </div>
     );
 };
