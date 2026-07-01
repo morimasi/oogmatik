@@ -6,6 +6,8 @@ import { MapInstructionData } from '../../../types';
 import { PedagogicalHeader } from '../common';
 import { EditableText } from '../../Editable';
 import { TurkeyMapSVG } from './TurkeyMapSVG';
+import { WorldMapSVG } from './WorldMapSVG';
+import { TreasureMapSVG } from './TreasureMapSVG';
 
 const CompassRose = () => (
     <div className="flex flex-col items-center opacity-70 scale-110">
@@ -84,18 +86,8 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
         };
     }, [data.instructions, data.title, measureAndScale]);
 
-    // Öncelik: Kullanıcı tarafından yüklenen harita görseli > Harita tipine göre varsayılan
     const isCustomMap = !!data.imageBase64;
     const mapType = data.settings?.mapType || 'turkey';
-
-    const defaultMapSources: Record<string, string> = {
-        turkey: "https://upload.wikimedia.org/wikipedia/commons/1/12/Turkey_provinces_blank_map.svg",
-        world: "https://upload.wikimedia.org/wikipedia/commons/8/83/BlankMap-World_1985.svg",
-        treasure: ""
-    };
-
-    const mapSource = data.imageBase64 || defaultMapSources[mapType] || defaultMapSources['turkey'];
-    const _isRegionFocused = data.cities && data.cities.length < 50;
     const isTurkey = mapType === 'turkey' && !isCustomMap;
 
     return (
@@ -120,11 +112,24 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
 
                     {/* Zemin Harita Katmanı */}
                     <div className="absolute inset-0 w-full h-full bg-slate-50 z-10 flex items-center justify-center">
-                        {isCustomMap || !isTurkey ? (
+                        {isCustomMap ? (
                             <img
-                                src={mapSource}
-                                alt={mapType === 'world' ? 'Dünya Haritası' : mapType === 'treasure' ? 'Hazine Haritası' : 'Özel Harita'}
+                                src={data.imageBase64}
+                                alt="Özel Harita"
                                 className="w-full h-full object-cover absolute inset-0"
+                            />
+                        ) : mapType === 'world' ? (
+                            <WorldMapSVG
+                                showRegionLabels={true}
+                                width="100%"
+                                height="100%"
+                                className="w-full h-full absolute inset-0"
+                            />
+                        ) : mapType === 'treasure' ? (
+                            <TreasureMapSVG
+                                width="100%"
+                                height="100%"
+                                className="w-full h-full absolute inset-0"
                             />
                         ) : (
                             <TurkeyMapSVG
