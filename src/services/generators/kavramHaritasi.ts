@@ -18,7 +18,6 @@ KURAL 1: Veri Yapısı (JSON)
   "activityType": "KAVRAM_HARITASI",
   "title": "${topic} İnfografik Haritası",
   "instruction": "Kavram haritasındaki hiyerarşik boşlukları tamamla ve alt kısımdaki analizleri gerçekleştir.",
-  "pedagogicalNote": "Bu etkinlik, semantik hafızayı yapılandırır.",
   "settings": { "difficulty": "${difficulty}", "isAI": true },
   "content": {
     "topic": "${topic}",

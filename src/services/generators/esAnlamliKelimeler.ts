@@ -18,7 +18,6 @@ KURAL 1: Veri Yapısı (JSON)
   "activityType": "ES_ANLAMLI_KELIMELER",
   "title": "${topic} - Anlam Yolculuğu",
   "instruction": "Kelimeleri anlamdaşları ile eşleştir ve cümleleri uygun kelimelerle tamamla.",
-  "pedagogicalNote": "Semantik bağlama ve akıcılık odaklıdır.",
   "content": {
     "pairs": [
       { "word": "Kavram1", "synonym": "Anlamdaş1" }

@@ -36,7 +36,6 @@ export const generateMathMemoryCardsFromAI = async (options: GeneratorOptions): 
             properties: {
                 title: { type: 'STRING', description: 'Etkinlik başlığı' },
                 instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' },
-                pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' },
                 cards: {
                     type: 'ARRAY', description: 'Hafıza kartları dizisi',
                     items: {
@@ -78,7 +77,6 @@ export const generateMathMemoryCardsFromAI = async (options: GeneratorOptions): 
         title: (p.title as string) ?? 'Matematik Hafıza Kartları',
         instruction: (p.instruction as string) ?? 'Kartları dikkatlice incele ve eşlerini bul.',
         cards: Array.isArray(p.cards) ? p.cards : [],
-        pedagogicalNote: p.pedagogicalNote as string | undefined,
         settings: { 
             gridCols: 4, 
             cardCount: itemCount ?? 16, 

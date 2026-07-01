@@ -31,7 +31,6 @@ export const generateSyllableMasterLabFromAI = async (options: GeneratorOptions)
         properties: {
             title: { type: 'STRING', description: 'Etkinlik başlığı' },
             instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' },
-            pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' },
             mode: { type: 'STRING', description: 'Çalışma modu (split/combine/vb.)' },
             items: {
                 type: 'ARRAY', description: 'Hece kelime öğeleri',
@@ -48,7 +47,7 @@ export const generateSyllableMasterLabFromAI = async (options: GeneratorOptions)
                 }
             }
         },
-        required: ['title', 'instruction', 'items', 'pedagogicalNote']
+        required: ['title', 'instruction', 'items']
     };
 
     return await generateWithSchema(prompt, { type: 'ARRAY', items: singleSchema }) as Record<string, unknown>[];
@@ -77,7 +76,6 @@ export const generateLetterVisualMatchingFromAI = async (options: GeneratorOptio
         properties: {
             title: { type: 'STRING', description: 'Etkinlik başlığı' },
             instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' },
-            pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' },
             settings: {
                 type: 'OBJECT', description: 'Etkinlik ayarları',
                 properties: {
@@ -100,7 +98,7 @@ export const generateLetterVisualMatchingFromAI = async (options: GeneratorOptio
                 }
             }
         },
-        required: ['title', 'instruction', 'pedagogicalNote', 'settings', 'pairs']
+        required: ['title', 'instruction', 'settings', 'pairs']
     };
 
     return await generateWithSchema(prompt, { type: 'ARRAY', items: singleSchema }) as Record<string, unknown>[];

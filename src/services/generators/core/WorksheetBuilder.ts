@@ -48,23 +48,6 @@ export class WorksheetBuilder {
   }
 
   /**
-   * Pedagojik notu ekler.
-   */
-  public addPedagogicalNote(note: string): this {
-    this.blocks.push({
-      type: 'text',
-      content: `### 📚 Pedagojik Not\n${note}`,
-      style: { 
-        backgroundColor: '#eff6ff', 
-        borderRadius: 12
-      } as Record<string, unknown>,
-      weight: 5
-    });
-    return this;
-  }
-
-
-  /**
    * Ana etkinlik içeriğini ekler.
    */
   public addPrimaryActivity(type: string, content: any): this {

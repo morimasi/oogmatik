@@ -83,7 +83,6 @@ Konu: ${topic || 'Rastgele'}`;
     properties: {
       title: { type: 'STRING' as const, description: 'Activity title, engaging and clear' },
       instruction: { type: 'STRING' as const, description: 'Step-by-step instruction for the student' },
-      pedagogicalNote: { type: 'STRING' as const, description: 'Teacher/parent note explaining the pedagogical value' },
       primaryActivity: {
         type: 'OBJECT' as const,
         properties: {
@@ -121,7 +120,7 @@ Konu: ${topic || 'Rastgele'}`;
         required: ['title', 'type', 'content']
       }
     },
-    required: ['title', 'instruction', 'primaryActivity', 'supportingDrill', 'pedagogicalNote']
+    required: ['title', 'instruction', 'primaryActivity', 'supportingDrill']
   };
 
   // ── GEMINI ÇAĞRISI ────────────────────────────────────────────
@@ -137,7 +136,6 @@ Konu: ${topic || 'Rastgele'}`;
   const builder = new WorksheetBuilder(type, responseData.title as unknown as string)
     .addPremiumHeader()
     .setInstruction(responseData.instruction as unknown as string)
-    .addPedagogicalNote(responseData.pedagogicalNote as unknown as string)
     .addPrimaryActivity(
       (responseData.primaryActivity as unknown as Record<string, unknown>)?.type as unknown as string || 'text',
       (responseData.primaryActivity as unknown as Record<string, unknown>)?.content as unknown as Record<string, unknown> || {}

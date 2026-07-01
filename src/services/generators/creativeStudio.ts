@@ -129,7 +129,6 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
     properties: {
       title: { type: 'STRING' },
       instruction: { type: 'STRING' },
-      pedagogicalNote: { type: 'STRING' },
       layoutArchitecture: {
         type: 'OBJECT',
         properties: {

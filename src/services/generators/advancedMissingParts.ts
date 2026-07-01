@@ -19,7 +19,6 @@ KURAL 1: Veri Yapısı (JSON)
   "activityType": "MISSING_PARTS",
   "title": "${topic} - Eksik Parçaları Tamamla",
   "instruction": "Cümlelerdeki boşlukları anlam bütünlüğünü bozmayacak şekilde tamamla.",
-  "pedagogicalNote": "Bağlamsal ipuçlarını kullanma ve semantik tamamlama becerisi odaklıdır.",
   "content": {
     "items": [
       { "id": "1", "text": "Cümle yapısı (boşluk için ........... kullan)", "answer": "eksik_kelime", "hint": "İpucu" }
