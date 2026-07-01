@@ -228,15 +228,17 @@ export const getDyslexiaPrompt = (title: string, difficulty: string, specifics: 
  * PEDAGOGICAL NOTE FALLBACK MECHANISM
  * Bu mekanizma, öğretmene her koşulda pedagojik yönlendirme sağlar.
  */
+export const applyPedagogicalNoteFallback = <T extends Record<string, unknown>>(
   data: T,
   activityType?: string,
   ageGroup?: string,
   difficulty?: string
 ): T => {
-  const hasValidNote = 
+  const hasValidNote =
+    typeof (data as { pedagogicalNote?: unknown }).pedagogicalNote === 'string' &&
+    ((data as { pedagogicalNote?: string }).pedagogicalNote ?? '').trim().length > 0;
 
   if (!hasValidNote) {
-    // Fallback pedagogical note oluştur
     const fallbackNote = [
       `Bu aktivite, ${ageGroup || 'hedef'} yaş grubu için ${difficulty || 'uygun'} zorluk seviyesinde tasarlanmıştır.`,
       activityType ? `${activityType} aktivitesi, öğrencinin bilişsel gelişimini desteklemeyi hedefler.` : '',
@@ -244,6 +246,10 @@ export const getDyslexiaPrompt = (title: string, difficulty: string, specifics: 
       'Disleksi desteğine ihtiyacı olan öğrenciler için yönergeleri sesli olarak tekrar etmek faydalı olacaktır.'
     ].filter(Boolean).join(' ');
 
+    return {
+      ...data,
+      pedagogicalNote: fallbackNote,
+    } as T;
   }
 
   return data;
