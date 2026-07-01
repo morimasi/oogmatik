@@ -175,8 +175,6 @@ export const AssignModal: React.FC = () => {
               </div>
             </div>
 
-            </div>
-
             {/* Tarih */}
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-300 font-inter flex items-center gap-2">

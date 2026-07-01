@@ -35,7 +35,6 @@ export interface BEPInput {
   student: NeuroStudentProfile;
   assessmentData: CognitiveProfile;
   learningProfile: LearningDNA;
-  teacherNotes?: string;
   parentInput?: string;
   previousBEP?: BEP;
 }

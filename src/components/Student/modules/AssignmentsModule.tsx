@@ -390,7 +390,6 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
       studentIds: [studentId],
       worksheetId: finalWorksheetId,
       dueDate: isoDueDate,
-      teacherNotes: notes
     }, user?.id || 'system');
 
     if (success) {
@@ -398,7 +397,6 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
       setSelectedWorksheetId('');
       setSelectedCatalogType('');
       setDueDate('');
-      setNotes('');
       setSearchQuery('');
       setActiveTab('catalog');
     }
@@ -665,19 +663,6 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
               value={dueDate}
               onChange={e => setDueDate(e.target.value)}
               className="w-full p-2.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[9px] outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/50 text-[var(--text-primary)] font-bold transition-all"
-            />
-          </div>
-
-          {/* ── Teacher Notes ── */}
-          <div>
-            <label className="block text-[8px] font-bold text-[var(--text-muted)] uppercase mb-1.5">
-              <i className="fa-solid fa-pen-fancy mr-1 text-indigo-500"></i>Öğretmen Notu (Opsiyonel)
-            </label>
-            <textarea
-              value={notes}
-              onChange={e => setNotes(e.target.value)}
-              className="w-full p-2.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[9px] outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/50 text-[var(--text-primary)] h-20 resize-none font-medium transition-all"
-              placeholder="Bu etkinlikte şunlara dikkat etmelisin..."
             />
           </div>
 

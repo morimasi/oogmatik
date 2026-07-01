@@ -10,7 +10,7 @@ const MAP_TYPE_LABELS: Record<string, string> = {
 };
 
 const MAP_TYPE_DESCRIPTIONS: Record<string, string> = {
-    turkey: 'Türkiye'nin şehirlerini, bölgelerini ve coğrafi özelliklerini kullan.',
+    turkey: "Türkiye'nin şehirlerini, bölgelerini ve coğrafi özelliklerini kullan.",
     world: 'Dünya üzerindeki ülkeleri, kıtaları ve okyanusları kullan. Şehir adları yerine ülke adları kullan, koordinatlar gerçek dünya koordinatlarına yakın olsun.',
     treasure: 'Hayali bir hazine adasında geçen bir etkinlik. Koylar, mağaralar, tepeler, nehirler gibi hayali yer adları kullan.'
 };

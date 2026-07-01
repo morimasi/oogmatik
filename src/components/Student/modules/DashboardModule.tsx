@@ -261,7 +261,6 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
                 <div className={`w-2 h-2 rounded-full shrink-0 ${a.status === 'in_progress' ? 'bg-amber-500 animate-pulse' : 'bg-blue-500'}`}></div>
                 <div className="min-w-0">
                   <p className="text-[10px] font-bold text-[var(--text-primary)] uppercase truncate">#{a.worksheetId.slice(0, 6)}</p>
-                  {a.teacherNotes && <p className="text-[9px] text-[var(--text-muted)] truncate">{a.teacherNotes.slice(0, 50)}...</p>}
                 </div>
               </div>
               {a.dueDate && (
