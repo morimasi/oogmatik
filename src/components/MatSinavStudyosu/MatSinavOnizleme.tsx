@@ -33,7 +33,6 @@ export const MatSinavOnizleme: React.FC<MatSinavOnizlemeProps> = ({
 
     return (
         <div
-            id={isPrinting ? 'mat-sinav-print-inner' : undefined}
             className={`mat-sinav-onizleme bg-white print-exact ${isPrinting ? 'is-printing p-0 shadow-none ring-0' : 'shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] ring-1 ring-black/5'}`}
             style={{
                 fontFamily,

@@ -583,19 +583,23 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ initialData 
             {/* GİZLİ BASKI KATMANI — Sadece Sınav */}
             {aktifSinav && (
                 <div id="mat-sinav-print-target" className="hidden">
-                    <MatSinavOnizleme 
-                        sinav={aktifSinav} 
-                        onUpdateSoru={handleUpdateSoru} 
-                        onRefreshSoru={handleRefreshSoru} 
-                        refreshingIndex={null} 
-                        config={printConfig} 
-                        isPrinting={true} 
-                    />
+                    <div id="mat-sinav-print-inner">
+                        <MatSinavOnizleme 
+                            sinav={aktifSinav} 
+                            onUpdateSoru={handleUpdateSoru} 
+                            onRefreshSoru={handleRefreshSoru} 
+                            refreshingIndex={null} 
+                            config={printConfig} 
+                            isPrinting={true} 
+                        />
+                    </div>
                     {/* Yazdırma CSS — sayfa bölünmez sorular + compact A4 */}
                     <style>{`
                         .mat-sinav-onizleme.is-printing {
                             padding: 5mm 7mm !important;
                             font-size: 8.5pt !important;
+                            page-break-after: avoid !important;
+                            break-after: avoid !important;
                         }
                         .mat-sinav-onizleme.is-printing .mat-sinav-soru-wrapper,
                         .mat-sinav-onizleme.is-printing .mat-sinav-soru-wrapper > div {

@@ -60,8 +60,7 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
       body.printing-mode #print-overlay .worksheet-page,
         body.printing-mode #print-overlay .print-page,
         body.printing-mode #print-overlay .universal-mode-canvas,
-        body.printing-mode #print-overlay .a4-page,
-        body.printing-mode #print-overlay .print-exact {
+        body.printing-mode #print-overlay .a4-page {
           width: 100% !important;
           max-width: 100% !important;
           min-height: 100% !important;
@@ -73,6 +72,19 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
           page-break-inside: auto !important;
           page-break-after: always !important;
           break-after: page !important;
+        }
+        body.printing-mode #print-overlay .print-exact {
+          width: 100% !important;
+          max-width: 100% !important;
+          min-height: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          box-sizing: border-box !important;
+          box-shadow: none !important;
+          break-inside: auto !important;
+          page-break-inside: auto !important;
+          page-break-after: avoid !important;
+          break-after: avoid !important;
         }
 
       body.printing-mode #print-overlay .print-page {
@@ -188,13 +200,25 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
       }
 
       /* Kâğıt kenarlarında güvenlik boşluğu (Tarayıcı marjının yerini alan padding) */
-      .print-page, .worksheet-page, .a4-page, .print-exact {
+      .print-page, .worksheet-page, .a4-page {
         margin: 0 !important;
         box-sizing: border-box !important;
         box-shadow: none !important;
         border: none !important;
         page-break-after: always !important;
         break-after: page !important;
+        background: white !important;
+        display: block !important;
+        position: relative !important;
+        overflow: visible !important;
+      }
+      .print-exact {
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        box-shadow: none !important;
+        border: none !important;
+        page-break-after: avoid !important;
+        break-after: avoid !important;
         background: white !important;
         display: block !important;
         position: relative !important;
