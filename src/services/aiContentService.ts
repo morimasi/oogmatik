@@ -124,7 +124,6 @@ Her öğe için:
       "visualDescription": "Görsel açıklama (varsa)",
       "answerKey": "Cevap veya çözüm",
       "difficulty": "Kolay/Orta/Zor",
-      "teacherNotes": "Öğretmenler için notlar ve ipuçları",
       "focusArea": "odak-alani"
     }
   ]
@@ -152,7 +151,6 @@ UYARI:
                 visualDescription: { type: 'STRING' },
                 answerKey: { type: 'STRING' },
                 difficulty: { type: 'STRING' },
-                teacherNotes: { type: 'STRING' },
                 focusArea: { type: 'STRING' },
               },
               required: [
@@ -161,7 +159,6 @@ UYARI:
                 'content',
                 'answerKey',
                 'difficulty',
-                'teacherNotes',
                 'focusArea',
               ],
             },

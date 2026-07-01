@@ -30,7 +30,6 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
   const [selectedAssignment, setSelectedAssignment] = useState<ActivityAssignment | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showNewAssignModal, setShowNewAssignModal] = useState(false);
-  const [editNotes, setEditNotes] = useState('');
   const [editScore, setEditScore] = useState<number | undefined>(undefined);
 
   const filtered = useMemo(() => {
@@ -40,7 +39,6 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
     }
     if (searchQuery) {
       result = result.filter((a: ActivityAssignment) =>
-        (a.teacherNotes || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
         a.worksheetId.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
@@ -69,7 +67,6 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
   const handleSaveEdit = () => {
     if (selectedAssignment && onUpdateAssignment) {
       const updates: Partial<ActivityAssignment> = {};
-      if (editNotes !== selectedAssignment.teacherNotes) updates.teacherNotes = editNotes;
       if (editScore !== undefined && editScore !== selectedAssignment.score) updates.score = editScore;
       if (Object.keys(updates).length > 0) {
         onUpdateAssignment(selectedAssignment.id, updates);
@@ -81,7 +78,6 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
 
   const handleOpenEdit = (assignment: ActivityAssignment) => {
     setSelectedAssignment(assignment);
-    setEditNotes(assignment.teacherNotes || '');
     setEditScore(assignment.score);
     setShowEditModal(true);
   };
@@ -95,7 +91,6 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
       status: a.status,
       dueDate: a.dueDate,
       score: a.score,
-      notes: a.teacherNotes,
       assignedAt: a.assignedAt,
     }));
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -202,9 +197,6 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
                       </span>
                     )}
                   </div>
-                  {a.teacherNotes && (
-                    <p className="text-[10px] text-[var(--text-muted)] mt-1 leading-relaxed">{a.teacherNotes}</p>
-                  )}
                   <div className="flex items-center gap-3 mt-1.5">
                     <span className="text-[9px] text-[var(--text-muted)] font-medium">
                       <i className="fa-solid fa-calendar mr-1"></i>
@@ -249,14 +241,6 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
               </button>
             </div>
             <div className="p-4 space-y-4">
-              <div>
-                <label className="block text-[10px] font-medium text-[var(--text-muted)] uppercase mb-1.5">Notlar</label>
-                <textarea
-                  value={editNotes}
-                  onChange={e => setEditNotes(e.target.value)}
-                  className="w-full p-2.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[9px] outline-none focus:ring-1 focus:ring-[var(--accent-color)]/50 text-[var(--text-primary)] h-24 resize-none"
-                />
-              </div>
               <div>
                 <label className="block text-[8px] font-bold text-[var(--text-muted)] uppercase mb-1.5">Skor</label>
                 <input
@@ -326,7 +310,6 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
   const [selectedWorksheetId, setSelectedWorksheetId] = useState('');
   const [selectedCatalogType, setSelectedCatalogType] = useState<string>('');
   const [dueDate, setDueDate] = useState('');
-  const [notes, setNotes] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 

@@ -51,7 +51,6 @@ export const assignmentService = {
           status: 'pending',
           statusUpdatedAt: now,
           dueDate: payload.dueDate,
-          teacherNotes: payload.teacherNotes
         };
 
         batch.set(newDocRef, assignment);

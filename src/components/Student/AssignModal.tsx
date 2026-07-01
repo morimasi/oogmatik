@@ -16,7 +16,6 @@ export const AssignModal: React.FC = () => {
   const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [teacherNotes, setTeacherNotes] = useState('');
   const [dueDate, setDueDate] = useState('');
 
   // Sadece öğretmen kendi öğrencilerini listeler
@@ -33,7 +32,6 @@ export const AssignModal: React.FC = () => {
     if (!isAssignModalOpen) {
       setSelectedStudents(new Set());
       setSearchTerm('');
-      setTeacherNotes('');
       setDueDate('');
     }
   }, [isAssignModalOpen]);
@@ -73,8 +71,7 @@ export const AssignModal: React.FC = () => {
     const success = await createAssignment({
       studentIds: Array.from(selectedStudents),
       worksheetId: activeWorksheetId,
-      dueDate: dueDate || undefined,
-      teacherNotes: teacherNotes || undefined
+      dueDate: dueDate || undefined
     }, user.id);
 
     setIsSubmitting(false);
@@ -178,34 +175,20 @@ export const AssignModal: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Tarih */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300 font-inter flex items-center gap-2">
-                  <Calendar size={16} /> 
-                  Bitiş Tarihi (İsteğe Bağlı)
-                </label>
-                <input 
-                  type="date" 
-                  value={dueDate}
-                  onChange={(e) => setDueDate(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-inter"
-                />
-              </div>
+            </div>
 
-              {/* Eğitmen Notları */}
-              {/* DIKKAT: KVKK Uyumu - Tanı bilgisi vs buraya girilmemeli */}
-              <div className="space-y-2 md:col-span-2">
-                <label className="text-sm font-medium text-slate-300 font-inter">
-                  Öğretmen Notları (Gizli - Sadece Siz Görürsünüz)
-                </label>
-                <textarea 
-                  value={teacherNotes}
-                  onChange={(e) => setTeacherNotes(e.target.value)}
-                  placeholder="Bu etkinlikte dikkat edilmesi gerekenler, hedef puan vb."
-                  className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white placeholder-slate-500 min-h-[80px] focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-inter"
-                />
-              </div>
+            {/* Tarih */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-300 font-inter flex items-center gap-2">
+                <Calendar size={16} /> 
+                Bitiş Tarihi (İsteğe Bağlı)
+              </label>
+              <input 
+                type="date" 
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 font-inter"
+              />
             </div>
 
           </div>

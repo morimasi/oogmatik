@@ -18,17 +18,37 @@ const DIFFICULTY_MAP: Record<string, number> = {
     'Başlangıç': 1, 'Orta': 2, 'Zor': 3, 'Uzman': 4, 'Klinik': 5
 };
 
+const MAP_TYPE_LABELS: Record<string, string> = {
+    turkey: 'Türkiye Haritası',
+    world: 'Dünya Haritası',
+    treasure: 'Hazine Haritası'
+};
+
+function generateFallbackCoords(count: number) {
+    const coords = [];
+    for (let i = 0; i < count; i++) {
+        coords.push({
+            id: `loc_${i}`,
+            name: `Konum ${i + 1}`,
+            x: 100 + Math.random() * 800,
+            y: 50 + Math.random() * 400,
+            region: 'Genel'
+        });
+    }
+    return coords;
+}
+
 export const generateOfflineMapInstruction = async (options: GeneratorOptions): Promise<MapInstructionData[]> => {
     const { worksheetCount, difficulty, itemCount, mapInstructionTypes, showCityNames, markerStyle, emphasizedRegion, customInput } = options;
+    const mapType = options.mapType || 'turkey';
     const results: MapInstructionData[] = [];
     const level = DIFFICULTY_MAP[difficulty || 'Orta'] || 2;
 
-    // 1. Odak Bölgeye Göre Şehir Havuzunu Filtrele
+    // 1. Harita tipine göre içerik havuzu
     const isRegionFocused = emphasizedRegion && emphasizedRegion !== 'all';
-    const cityPool = isRegionFocused
-        ? CALIBRATED_CITIES.filter(c => c.region === emphasizedRegion)
-        : CALIBRATED_CITIES;
-
+    const cityPool = mapType === 'turkey'
+        ? (isRegionFocused ? CALIBRATED_CITIES.filter(c => c.region === emphasizedRegion) : CALIBRATED_CITIES)
+        : [];
     const safeCityPool = cityPool.length > 0 ? cityPool : CALIBRATED_CITIES;
 
     // 2. Aktif Yönerge Tiplerini Belirle
@@ -39,7 +59,41 @@ export const generateOfflineMapInstruction = async (options: GeneratorOptions): 
     // 3. Yönerge Üretici
     const generateInstruction = (): string => {
         const type = getRandomItems(activeTypes, 1)[0];
+        const locationLabel = mapType === 'world' ? 'ülke' : mapType === 'treasure' ? 'nokta' : 'il';
         const randomCity = safeCityPool[getRandomInt(0, safeCityPool.length - 1)];
+        const regionLabel = mapType === 'world' ? 'kıta' : mapType === 'treasure' ? 'bölge' : 'bölge';
+
+        if (mapType !== 'turkey') {
+            const worldLocations = [
+                'Kuzey Kutbu', 'Amazon Ormanları', 'Sahra Çölü', 'Himalayalar',
+                'Büyük Mercan Resifi', 'İskandinavya', 'Antarktika', 'Pasifik Okyanusu',
+                'And Dağları', 'Nil Nehri', 'Grönland', 'Madagaskar'
+            ];
+            const treasureLocations = [
+                'Yılan Koyu', 'Kafatası Mağarası', 'Üç Tepeler', 'Gümüş Nehir',
+                'Yanardağ Geçidi', 'Fener Burnu', 'Batık Gemi Koyu', 'Yaslı Orman',
+                'Kum Fırtınası Vahası', 'Mercan Adası', 'Kara Uçurum', 'Define Mağarası'
+            ];
+
+            const pool = mapType === 'treasure'
+                ? treasureLocations
+                : worldLocations;
+            const loc = pool[getRandomInt(0, pool.length - 1)];
+            const loc2 = pool[getRandomInt(0, pool.length - 1)];
+
+            if (type === 'spatial_logic') {
+                const dirs = ['KUZEYİNDEKİ', 'GÜNEYİNDEKİ', 'DOĞUSUNDAKİ', 'BATISINDAKİ'];
+                return `${loc} noktasının hemen ${dirs[getRandomInt(0, 3)]} ${locationLabel} bul ve işaretle.`;
+            }
+            if (type === 'linguistic_geo') {
+                const chars = ['A', 'B', 'M', 'S', 'T', 'K', 'E', 'D'];
+                return `İsminde "${chars[getRandomInt(0, chars.length - 1)]}" harfi geçen bir ${locationLabel} bul ve daire içine al.`;
+            }
+            if (type === 'route_planning') {
+                return `${loc} noktasından ${loc2} noktasına en kısa rotayı çiz.`;
+            }
+            return `${loc} noktasını haritada bul ve üzerine bir ${['YILDIZ', 'DAİRE', 'ÇARPİ', 'OK'][getRandomInt(0, 3)]} çiz.`;
+        }
 
         if (type === 'spatial_logic') {
             const directions = ['KUZEYİNDEKİ', 'GÜNEYİNDEKİ', 'DOĞUSUNDAKİ', 'BATISINDAKİ'];
@@ -128,21 +182,32 @@ export const generateOfflineMapInstruction = async (options: GeneratorOptions): 
             instructions.push(generateInstruction());
         }
 
-        const regionLabel = emphasizedRegion === 'all' || !emphasizedRegion ? 'Türkiye' : emphasizedRegion + ' Bölgesi';
+        const regionLabel = mapType === 'turkey'
+            ? (emphasizedRegion === 'all' || !emphasizedRegion ? 'Türkiye' : emphasizedRegion + ' Bölgesi')
+            : mapType === 'world' ? 'Dünya' : 'Hazine Adası';
         const diffLabel = difficulty || 'Orta';
+        const titleLabel = MAP_TYPE_LABELS[mapType] || 'Türkiye';
+        const instructionBase = mapType === 'world'
+            ? 'Haritadaki ülkeleri ve kıtaları inceleyerek yönergeleri hatasız uygula.'
+            : mapType === 'treasure'
+                ? 'Hazine adasındaki noktaları ve gizemli yerleri keşfederek yönergeleri uygula.'
+                : `${diffLabel} Seviyesi — Haritadaki illeri ve bölgeleri inceleyerek yönergeleri hatasız uygula.`;
 
         results.push({
-            title: `Harita Dedektifi: ${regionLabel} Analizi`,
-            instruction: `${diffLabel} Seviyesi — Haritadaki illeri ve bölgeleri inceleyerek yönergeleri hatasız uygula.`,
+            title: `Harita Dedektifi: ${titleLabel}`,
+            instruction: instructionBase,
             imageBase64: customInput,
-            emphasizedRegion: emphasizedRegion || 'all',
+            emphasizedRegion: mapType === 'turkey' ? (emphasizedRegion || 'all') : mapType,
             difficultyLevel: level as 1 | 2 | 3 | 4 | 5,
-            cities: isRegionFocused ? safeCityPool.map(c => ({ ...c })) : CALIBRATED_CITIES.map(c => ({ ...c })),
+            cities: mapType === 'turkey'
+                ? (isRegionFocused ? safeCityPool.map(c => ({ ...c })) : CALIBRATED_CITIES.map(c => ({ ...c })))
+                : generateFallbackCoords(15),
             instructions,
             settings: {
                 showCityNames: showCityNames !== undefined ? showCityNames : true,
                 markerStyle: (markerStyle as any) || 'circle',
-                difficulty: diffLabel
+                difficulty: diffLabel,
+                mapType
             }
         });
     }

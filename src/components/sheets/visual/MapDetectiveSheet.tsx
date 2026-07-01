@@ -84,10 +84,19 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
         };
     }, [data.instructions, data.title, measureAndScale]);
 
-    // Öncelik: Kullanıcı tarafından yüklenen harita görseli > Wikimedia Fallback
+    // Öncelik: Kullanıcı tarafından yüklenen harita görseli > Harita tipine göre varsayılan
     const isCustomMap = !!data.imageBase64;
-    const mapSource = data.imageBase64 || "https://upload.wikimedia.org/wikipedia/commons/1/12/Turkey_provinces_blank_map.svg";
+    const mapType = data.settings?.mapType || 'turkey';
+
+    const defaultMapSources: Record<string, string> = {
+        turkey: "https://upload.wikimedia.org/wikipedia/commons/1/12/Turkey_provinces_blank_map.svg",
+        world: "https://upload.wikimedia.org/wikipedia/commons/8/83/BlankMap-World_1985.svg",
+        treasure: ""
+    };
+
+    const mapSource = data.imageBase64 || defaultMapSources[mapType] || defaultMapSources['turkey'];
     const _isRegionFocused = data.cities && data.cities.length < 50;
+    const isTurkey = mapType === 'turkey' && !isCustomMap;
 
     return (
         <div className="flex flex-col bg-white font-sans text-black print:p-0"
@@ -111,10 +120,10 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
 
                     {/* Zemin Harita Katmanı */}
                     <div className="absolute inset-0 w-full h-full bg-slate-50 z-10 flex items-center justify-center">
-                        {isCustomMap ? (
+                        {isCustomMap || !isTurkey ? (
                             <img
                                 src={mapSource}
-                                alt="Özel Harita"
+                                alt={mapType === 'world' ? 'Dünya Haritası' : mapType === 'treasure' ? 'Hazine Haritası' : 'Özel Harita'}
                                 className="w-full h-full object-cover absolute inset-0"
                             />
                         ) : (
@@ -198,10 +207,11 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
                         </div>
                     )}
 
-                    {/* Manuel Harita Modu Rozeti */}
-                    {isCustomMap && (
-                        <div className="absolute top-3 right-4 bg-indigo-600 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg border-2 border-white z-40">
-                            <i className="fa-solid fa-wand-magic-sparkles mr-1"></i>AI Analiz Aktif
+                    {/* Harita Tipi Rozeti */}
+                    {!isCustomMap && (
+                        <div className="absolute top-3 right-4 bg-zinc-900/80 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg border border-white/20 z-40">
+                            <i className={`fa-solid mr-1 ${mapType === 'world' ? 'fa-globe' : mapType === 'treasure' ? 'fa-gem' : 'fa-map'}`}></i>
+                            {mapType === 'world' ? 'Dünya' : mapType === 'treasure' ? 'Hazine' : 'Türkiye'}
                         </div>
                     )}
                 </div>
