@@ -58,21 +58,22 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
       }
 
       body.printing-mode #print-overlay .worksheet-page,
-      body.printing-mode #print-overlay .print-page,
-      body.printing-mode #print-overlay .universal-mode-canvas,
-      body.printing-mode #print-overlay .a4-page {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-height: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        box-sizing: border-box !important;
-        box-shadow: none !important;
-        break-inside: auto !important;
-        page-break-inside: auto !important;
-        page-break-after: always !important;
-        break-after: page !important;
-      }
+        body.printing-mode #print-overlay .print-page,
+        body.printing-mode #print-overlay .universal-mode-canvas,
+        body.printing-mode #print-overlay .a4-page,
+        body.printing-mode #print-overlay .print-exact {
+          width: 100% !important;
+          max-width: 100% !important;
+          min-height: 100% !important;
+          margin: 0 !important;
+          padding: 0 !important;
+          box-sizing: border-box !important;
+          box-shadow: none !important;
+          break-inside: auto !important;
+          page-break-inside: auto !important;
+          page-break-after: always !important;
+          break-after: page !important;
+        }
 
       body.printing-mode #print-overlay .print-page {
         overflow: visible !important;
@@ -187,7 +188,7 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
       }
 
       /* Kâğıt kenarlarında güvenlik boşluğu (Tarayıcı marjının yerini alan padding) */
-      .print-page, .worksheet-page, .a4-page {
+      .print-page, .worksheet-page, .a4-page, .print-exact {
         margin: 0 !important;
         box-sizing: border-box !important;
         box-shadow: none !important;
@@ -201,7 +202,7 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
       }
 
       /* Sayfa başı zorunlu boşluk kalkanı (Minimal 0.5cm ayarı için azaltıldı) */
-      .print-page::before, .worksheet-page::before, .a4-page::before {
+      .print-page::before, .worksheet-page::before, .a4-page::before, .print-exact::before {
         content: "" !important;
         display: block !important;
         height: 1mm !important;

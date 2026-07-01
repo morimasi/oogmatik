@@ -180,7 +180,7 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ initialData 
     // ─── Yazdır ───────────────────────────────────────────────────
     const handlePrint = () => {
         if (!aktifSinav) return;
-        printService.generatePdf('#mat-sinav-print-target', aktifSinav.baslik, { action: 'print' });
+        printService.generatePdf('#mat-sinav-print-inner', aktifSinav.baslik, { action: 'print' });
     };
 
     // ─── Fasiküle Ekle ────────────────────────────────────────────
