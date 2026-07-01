@@ -187,7 +187,7 @@ export const PromptSimulator = ({ prompt }: { prompt: PromptTemplate }) => {
                                             themeBorder: 'simple',
                                             scale: 1, borderColor: '#000', borderWidth: 1, margin: 10, columns: 1, gap: 10, orientation: 'portrait',
                                             contentAlign: 'center', fontWeight: 'normal', fontStyle: 'normal', visualStyle: 'card', lineHeight: 1.5,
-                                            letterSpacing: 0, wordSpacing: 0, paragraphSpacing: 10, showPedagogicalNote: false, showMascot: false,
+                                            letterSpacing: 0, wordSpacing: 0, paragraphSpacing: 10, showMascot: false,
                                             showInstruction: true, showImage: false, smartPagination: false, focusMode: false, rulerColor: 'red', rulerHeight: 10, maskOpacity: 0.5,
                                             footerText: ''
                                         }}

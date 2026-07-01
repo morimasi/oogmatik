@@ -33,7 +33,6 @@ export interface AgentOutput {
   data: Record<string, unknown>;
   tokenUsage: { input: number; output: number };
   timestamp: string;
-  pedagogicalNote?: string;
 }
 
 export interface AgentStatus {
@@ -205,7 +204,6 @@ export interface ActivityLibraryItem {
   sortOrder: number;
   topicTemplate: string;
   searchIndex: string;
-  pedagogicalNote?: string;
 }
 
 export interface ActivityLibraryQuery {
@@ -227,7 +225,6 @@ export interface ContentBlock {
   content: string;
   videoUrl?: string;
   imageUrl?: string;
-  pedagogicalNote?: string;
 }
 
 // ─── Bileşen Fabrikası ──────────────────────────────────────────────
@@ -299,7 +296,6 @@ export interface ActivityStudioState {
     approval: ApprovalMetadata | null;
   };
   content: ContentBlock[] | null;
-  pedagogicalNote: string | null;
   themeConfig: ThemeConfig | null;
   compactA4Config: CompactA4Config | null;
   exportSettings: ExportSettings | null;
@@ -307,7 +303,6 @@ export interface ActivityStudioState {
   updateGoal: (data: Partial<StudioGoalConfig>) => void;
   setSelectedLibraryItem: (id: string, topic?: string) => void;
   setContent: (blocks: ContentBlock[]) => void;
-  setPedagogicalNote: (note: string | null) => void;
   setThemeConfig: (config: Partial<ThemeConfig>) => void;
   setCompactA4Config: (config: Partial<CompactA4Config>) => void;
   setExportSettings: (settings: Partial<ExportSettings>) => void;

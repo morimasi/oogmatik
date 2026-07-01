@@ -59,7 +59,6 @@ class FascicleAIEngine {
       id: i.id,
       type: i.type,
       currentDifficulty: i.difficulty,
-      pedagogicalNote: i.pedagogicalNote
     }));
 
     const prompt = `
@@ -107,7 +106,6 @@ class FascicleAIEngine {
     const summaryInfoItems = items.map(i => ({
        type: i.type,
        difficulty: i.difficulty,
-       focus: i.pedagogicalNote
     }));
 
     const prompt = `

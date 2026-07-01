@@ -117,7 +117,6 @@ PARAMETRELER:
 Yukarıdaki parametrelere göre kişiselleştirilmiş, disleksi-dostu bir çalışma kâğıdı üret.
 
 STANDARTLAR:
-✓ pedagogicalNote mutlaka ekle
 ✓ İlk aktivite kolay olmalı (güven inşası)
 ✓ Lexend font kullan
 ✓ Geniş satır aralığı
@@ -137,7 +136,6 @@ YANIT FORMATI (JSON):
       "estimatedTime": number
     }
   ],
-  "pedagogicalNote": "Öğretmen notları ve açıklamalar",
   "materialsNeeded": ["materyal 1"],
   "adaptiveHints": ["ipucu 1"]
 }`;
@@ -161,11 +159,10 @@ YANIT FORMATI (JSON):
             }
           }
         },
-        pedagogicalNote: { type: 'STRING' },
         materialsNeeded: { type: 'ARRAY', items: { type: 'STRING' } },
         adaptiveHints: { type: 'ARRAY', items: { type: 'STRING' } }
       },
-      required: ['title', 'description', 'activities', 'pedagogicalNote']
+      required: ['title', 'description', 'activities']
     }) as Record<string, unknown>;
 
     // Step 2: Multi-agent validation
@@ -230,15 +227,6 @@ YANIT FORMATI (JSON):
     const scores: Record<string, number> = {};
     const issues: AIWorksheetValidation['issues'] = [];
     const approvedBy: string[] = [];
-
-    if (!worksheetContent?.pedagogicalNote || typeof worksheetContent.pedagogicalNote !== 'string') {
-      issues.push({
-        severity: 'critical',
-        category: 'pedagogical',
-        message: 'pedagogicalNote eksik veya geçersiz.',
-        suggestion: 'Her çalışma kâğıdına anlamlı bir pedagogicalNote ekleyin.'
-      });
-    }
 
     if (!Array.isArray(worksheetContent?.activities) || worksheetContent.activities.length === 0) {
       issues.push({

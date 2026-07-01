@@ -53,7 +53,6 @@ export function buildSafePDFMetadata(
 interface PDFExportOptions {
   title: string;
   blocks: ContentBlock[];
-  pedagogicalNote: string;
   themeConfig: ThemeConfig | null;
   compactA4Config: CompactA4Config | null;
   metadata: SafePDFMetadata;
@@ -65,7 +64,7 @@ interface PDFExportOptions {
  * KVKK: metadata'da learningProfile / studentName YOK.
  */
 export async function exportToPDF(options: PDFExportOptions): Promise<Blob> {
-  const { title, blocks, pedagogicalNote, themeConfig, compactA4Config, metadata } = options;
+  const { title, blocks, themeConfig, compactA4Config, metadata } = options;
 
   const [jspdfModule, html2canvas] = await Promise.all([
     import('jspdf'),
@@ -120,18 +119,6 @@ export async function exportToPDF(options: PDFExportOptions): Promise<Blob> {
     container.appendChild(el);
   }
 
-  // Pedagojik not footer — ZORUNLU 11pt (Elif direktifi: 8pt YASAK)
-  if (pedagogicalNote) {
-    const footer = document.createElement('div');
-    const safeNote = sanitizeDiagnosticLanguage(sanitizeForKVKK(pedagogicalNote));
-    footer.style.cssText = `
-      margin-top: 20px; border-top: 1px solid #ddd; padding-top: 4px;
-      font-size: 11pt; color: #666; font-family: 'Lexend', Arial, sans-serif; line-height: 1.6;
-    `;
-    footer.innerHTML = `<strong>Pedagojik Not: </strong>${safeNote}`;
-    container.appendChild(footer);
-  }
-
   document.body.appendChild(container);
 
   try {
@@ -176,7 +163,6 @@ export interface ExportRequestExtended {
   format: 'pdf' | 'png' | 'json';
   title: string;
   blocks: ContentBlock[];
-  pedagogicalNote: string;
   themeConfig: ThemeConfig | null;
   compactA4Config: CompactA4Config | null;
   metadata: SafePDFMetadata;
@@ -198,7 +184,6 @@ export async function exportStudioOutput(request: ExportRequestExtended | Export
       return exportToPDF({
         title: ext.title,
         blocks: ext.blocks,
-        pedagogicalNote: ext.pedagogicalNote,
         themeConfig: ext.themeConfig,
         compactA4Config: ext.compactA4Config,
         metadata: ext.metadata,

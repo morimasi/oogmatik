@@ -34,7 +34,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['magictodo', 'görev', 'yürütücü işlev', 'planlama'],
     sortOrder: 1,
     topicTemplate: 'Bavul hazırlamak veya ödev yapmak gibi kompleks bir görevi adım adım parçala',
-    pedagogicalNote: 'Zor ve devasa görünen görevlerin (Task Paralysis) küçük lokmalara ayrılması DEHB motivasyonunu başlatır.',
   },
   {
     id: 'advanced-adhd-002',
@@ -54,7 +53,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['dopamin', 'odak', 'ritim', 'pomodoro'],
     sortOrder: 2,
     topicTemplate: '5 dakikalık ritimli odak süresi ardına görsel tarama bulmacası',
-    pedagogicalNote: 'Akustik izolasyon ve görev sonu mikro-ödülleri, odaklanmayı bir oyuna dönüştürerek sürdürülebilirliği artırır.',
   },
   {
     id: 'advanced-adhd-003',
@@ -74,7 +72,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['duygu', 'ton', 'empati', 'AI'],
     sortOrder: 3,
     topicTemplate: 'Pasif-agresif metinleri tespit et ve arkadaşça yeniden yaz',
-    pedagogicalNote: 'Yazılı metinlerdeki ince duygusal ipuçlarını (Social Cues) algılamakta zorlanan profiller için empati provasıdır.',
   },
   {
     id: 'advanced-adhd-004',
@@ -94,7 +91,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['hata', 'redaksiyon', 'tarama'],
     sortOrder: 4,
     topicTemplate: 'Bir sayfada sadece "y" harflerinin eksik yazıldığı metni temizle',
-    pedagogicalNote: 'Normal bir metni okumaktansa içinde pürüz aramaya çalışmak, aşırı hareketli dikkati "ava" odaklar.',
   },
   {
     id: 'advanced-adhd-005',
@@ -114,7 +110,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['mind-map', 'zihin', 'şema', 'organize'],
     sortOrder: 5,
     topicTemplate: 'Beyin fırtınası öğelerini ana, alt ve kök dallara ayır',
-    pedagogicalNote: 'Görsel hiyerarşi, fikirlerin kafada düz çizgiler yerine mekansal ağlar halinde oturtulmasını sağlar.',
   },
   {
     id: 'advanced-dyslexia-006',
@@ -134,7 +129,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['ella', 'masal', 'AI', 'interaktif'],
     sortOrder: 6,
     topicTemplate: 'Dinozor ve roket kombinasyonunda b-sesi ağırlıklı hikaye üret',
-    pedagogicalNote: 'Çocuğun hikaye mimarı olması okumaya karşı var olan (korku) bariyerini yıkar, sahiplenmeyi artırır.',
   },
   {
     id: 'advanced-dyslexia-007',
@@ -154,7 +148,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['voicedream', 'senkron', 'işitsel', 'vurgu'],
     sortOrder: 7,
     topicTemplate: 'Vurgulandığı anda kelimeyi oku ve ritmi kaçırma',
-    pedagogicalNote: 'Metin takibini işitsel rehberle eşzamanlamak kod çözme (decoding) yükünü anında hafifletir.',
   },
   {
     id: 'advanced-dyslexia-008',
@@ -174,7 +167,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['karaoke', 'hece', 'müzik', 'sesli'],
     sortOrder: 8,
     topicTemplate: 'Şarkı ritmiyle akan hece gruplarını yüksek sesle söyle',
-    pedagogicalNote: 'Okumayı müzikal bir göreve (ritmik eşleşme) çevirmek stres merkezini değil, yaratıcılık merkezini aktive eder.',
   },
   {
     id: 'advanced-dyslexia-009',
@@ -194,7 +186,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['3d', 'küp', 'sanal', 'hece'],
     sortOrder: 9,
     topicTemplate: 'Küpün ön yüzlerindeki heceleri döndürerek üç harfli kelimeler avla',
-    pedagogicalNote: '2D harflerin 3D nesneler üzerine taşınması harflerin kalıcılığını artırarak yön karışıklığını minimize eder.',
   },
   {
     id: 'advanced-dyslexia-010',
@@ -214,7 +205,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['labirent', 'ayna', 'yön', 'gezinme'],
     sortOrder: 10,
     topicTemplate: 'Sadece (d) harfinin bulunduğu patikadan merkezi bul',
-    pedagogicalNote: 'Yön algısını bir mekana girmekle (labirent) özdeşleştirmek motor-hafıza kaydını derinleştirir.',
   },
   {
     id: 'advanced-dyslexia-011',
@@ -234,7 +224,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['fabrika', 'gramer', 'inşa', 'yapı'],
     sortOrder: 11,
     topicTemplate: 'Karışık sıvadaki kelimelerden doğru gramer dairesini inşa et',
-    pedagogicalNote: 'Cümle ögelerini fiziksel roller (temel, kolon, çatı) ile mimarlandırarak dilbilgisi kurallarını soyutluktan çıkarır.',
   },
   {
     id: 'advanced-dyslexia-012',
@@ -254,7 +243,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['font', 'vurgu', 'metin', 'dinamik'],
     sortOrder: 12,
     topicTemplate: 'Uzun metinlerde m harflerini kırmızı ve kalın yaparak takip et',
-    pedagogicalNote: 'Harf bazlı algısal (perceptual) manipülasyonlar en aza indirgenmiş zorluk ile akıcılık duvarlarını yıkar.',
   },
   {
     id: 'advanced-dyscalculia-013',
@@ -274,7 +262,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['modmath', 'tablo', 'hizalama', 'işlem'],
     sortOrder: 13,
     topicTemplate: '4 basamaklı sayıları hizalama kutucuklarında yerlerine tuttur ve topla',
-    pedagogicalNote: 'Disgrafi kaynaklı hizalama yanlışlarını sıfırlayarak, problemi rakam yerine kurgulayanın üzerine odaklanmasını sağlar.',
   },
   {
     id: 'advanced-dyscalculia-014',
@@ -294,7 +281,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['blok', 'denklem', 'formül', 'puzzle'],
     sortOrder: 14,
     topicTemplate: 'Eşittir sembolünün iki yanını denk yapacak blokları kilitle',
-    pedagogicalNote: 'Matematiksel işlemleri fiziksel olarak birleştirmek algoritmik mantığı somut oyun dinamiğine dönüştürür.',
   },
   {
     id: 'advanced-dyscalculia-015',
@@ -314,7 +300,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['geoboard', 'lastik', 'geometri', 'alan'],
     sortOrder: 15,
     topicTemplate: 'Alanı 16 birim kare olan şekli sanal lastiklerle ger',
-    pedagogicalNote: 'Görsel geometri çalışmaları (özellikle motor harekete bağlı) matematik fobisini iyileştiren önemli bir destektir.',
   },
   {
     id: 'advanced-dyscalculia-016',
@@ -334,7 +319,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['borsa', 'kesir', 'yüzde', 'gerçek yaşam'],
     sortOrder: 16,
     topicTemplate: 'Hisse senediniz 1/4 değer kazandığında tam fiyatını hesapla',
-    pedagogicalNote: 'Sayıları, hayatın dinamik ve ilgi çekici bir aracı (para/kazanç) ile sunmak soyut matematiği uygulanabilir kılar.',
   },
   {
     id: 'advanced-dyscalculia-017',
@@ -354,7 +338,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['çubuk', 'cuisenaire', 'bozma', 'renk'],
     sortOrder: 17,
     topicTemplate: '4 cm lik sarı çubuğun yanına 6 cm ye tamamlayacak rengi koy',
-    pedagogicalNote: 'Uzunluk/Renk ilişkisiyle yapılan sayı bağları çocuklarda ezberlemeksizin doğal bir 10luk sistem içgüdüsü oluşturur.',
   },
   {
     id: 'advanced-dyscalculia-018',
@@ -374,7 +357,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['zaman', 'analog', 'dijital', 'dönüşüm'],
     sortOrder: 18,
     topicTemplate: 'Diferansiyeli bozulan saate doğru ibre değerini ata',
-    pedagogicalNote: 'Çoklu temsiller (analog-dijital-yazı) aynı eylemde birlikte gösterildiğinde beynin ağ oluşturma (syncing) mekanizması hızlanır.',
   },
   {
     id: 'advanced-dyscalculia-019',
@@ -394,7 +376,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['piksel', 'denge', 'kefe', 'eşitlik'],
     sortOrder: 19,
     topicTemplate: 'Sol kefedeki 12 birimlik ağırlığı dengelemek için sağa ağırlık bırak',
-    pedagogicalNote: 'Matematiksel "Eşittir" kavramı bir süreç değil bir "denge" halidir. Fiziksel ağırlık simülasyonu bu kavrayışı sıfır hata ile aktarır.',
   },
   {
     id: 'advanced-dyscalculia-020',
@@ -414,7 +395,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['şifre', 'kasa', 'örüntü', 'ritmik'],
     sortOrder: 20,
     topicTemplate: 'Kasanın 4-8-(?)-16 algoritmasını kırarak açılışı tamamla',
-    pedagogicalNote: 'Problemi matematik kağıdından çıkarıp bağlamlı bir tehlike/oyun (Oyunlaştırma) dünyasına taşımak, test kaygısını (Math Anxiety) baypas eder.',
   },
   {
     id: 'adhd-kinesthetic-001',
@@ -434,7 +414,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['kinestetik', 'beden', 'hece', 'hareket'],
     sortOrder: 1,
     topicTemplate: 'Zıplayarak ve el çırparak kısa heceleri söyle',
-    pedagogicalNote: 'Fiziksel aktivite DEHB destek ihtiyacı olan öğrencilerde odaklanmayı artırır ve enerjiyi öğrenmeye kanalize eder.',
   },
   {
     id: 'adhd-focus-002',
@@ -454,7 +433,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['pomodoro', 'odak', 'zaman', 'ödül'],
     sortOrder: 2,
     topicTemplate: '15 dakikalık odaklanma serisi ve hedef bulma',
-    pedagogicalNote: 'Görevleri kısa zaman dilimlerine bölmek (mikro-bloklama) yürüteç işlev yükünü hafifletir.',
   },
   {
     id: 'adhd-impulse-003',
@@ -474,7 +452,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['tuzak', 'dürtü', 'eş sesli', 'dedektif'],
     sortOrder: 3,
     topicTemplate: 'Kısa hikayedeki yanlış kullanımları ve tuzakları tespit et',
-    pedagogicalNote: 'Bilinçli tuzaklar, öğrencinin dürtüsel okuma hızını yavaşlatıp dikkatli tarama refleksini tetikler.',
   },
   {
     id: 'adhd-flow-004',
@@ -494,7 +471,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['depar', 'hız', 'akıcılık', 'kapsül'],
     sortOrder: 4,
     topicTemplate: 'Kısa süreli metin taraması ve ana fikir yakalama',
-    pedagogicalNote: 'Kısa süreli meydan okumalar dopamin salgısını uyararak performansı ve motivasyonu maksimize eder.',
   },
   {
     id: 'adhd-visual-005',
@@ -514,7 +490,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['ritim', 'sıralama', 'görsel', 'kareli'],
     sortOrder: 5,
     topicTemplate: 'Kareli kağıda görsel ritmi aktar',
-    pedagogicalNote: 'Ritmi görsel çizime dönüştürmek çoklu-duyusal entegrasyonu güçlendirerek dikkat dağınıklığını önler.',
   },
   {
     id: 'dyslexia-tactile-006',
@@ -534,7 +509,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['dokunsal', 'harf', 'inşa', 'şablon'],
     sortOrder: 6,
     topicTemplate: 'b ve d gibi karışan harfleri dokunarak inşa etme',
-    pedagogicalNote: 'Orton-Gillingham prensiplerini baz alarak kinetik hafızayı harf yönlemesine dahil eder.',
   },
   {
     id: 'dyslexia-family-007',
@@ -554,7 +528,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['aile', 'kelime', 'grup', 'şato'],
     sortOrder: 7,
     topicTemplate: 'Aynı hece kökünden türeyen kelimelerin ağacını kur',
-    pedagogicalNote: 'Farklı kelimelerdeki aynı ses-yazım yapılarını (Word Families) tanımak okuma hızlanmasını sağlar.',
   },
   {
     id: 'dyslexia-color-008',
@@ -574,7 +547,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['renk', 'cümle', 'gramer', 'tren'],
     sortOrder: 8,
     topicTemplate: 'Mavi özne ve kırmızı yüklem vagonlarını birleştir',
-    pedagogicalNote: 'Semantik birimleri (özne, yüklem) renk kodlarıyla ayırmak anlamsal karmaşayı önler.',
   },
   {
     id: 'dyslexia-shadow-009',
@@ -594,7 +566,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['gölge', 'pencere', 'satır takibi', 'fokus'],
     sortOrder: 9,
     topicTemplate: 'Gölgeli maske ile satır satır okuma',
-    pedagogicalNote: 'Dikkat alanını daraltarak (maskeleme tekniği) görsel kalabalıktan (crowding) kaynaklanan harf atlamalarını kesin şekilde durdurur.',
   },
   {
     id: 'dyslexia-mirror-010',
@@ -614,7 +585,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['ayna', 'matris', 'fark', 'karmaşık'],
     sortOrder: 10,
     topicTemplate: 'Karmaşık d-b-p-q ormanında doğru yönü bulma',
-    pedagogicalNote: 'Yoğun matris taramaları görsel algısal işlemleme hızını kalıcı olarak pekiştirir.',
   },
   {
     id: 'dyslexia-memory-011',
@@ -634,7 +604,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['hafıza', 'hikaye', 'sembol', 'zincir'],
     sortOrder: 11,
     topicTemplate: 'Dinlediğin kısa öyküyü 4 sembolle hatırlatma kodu oluştur',
-    pedagogicalNote: 'Görsel destek kullanarak (dual-coding) kısa süreli bellekten uzun süreli belleğe geçişi kolaylaştırır.',
   },
   {
     id: 'dyslexia-vowel-012',
@@ -654,7 +623,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['sesli', 'asansör', 'vokal', 'labirent'],
     sortOrder: 12,
     topicTemplate: 'İnce ve kalın ünlüleri asansörle doğru katlara taşı',
-    pedagogicalNote: 'Sesleri konumsal (yukarı/aşağı) olarak eşleştirmek sesbirimsel (phonemic) farkındalığı güçlendirir.',
   },
   {
     id: 'dyscalculia-touch-013',
@@ -674,7 +642,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['touchmath', 'galaksi', 'dokunma', 'hesap'],
     sortOrder: 13,
     topicTemplate: 'Noktaları takip ederek sayma ve aritmetik işlem yap',
-    pedagogicalNote: 'TouchMath metodolojisi sayıları sembolik olmaktan çıkarıp somut sayılabilir nesnelere dönüştürür. Kesin ve güvenilir bir zemin sağlar.',
   },
   {
     id: 'dyscalculia-fraction-014',
@@ -694,7 +661,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['pizza', 'kesir', 'bütün', 'dilim'],
     sortOrder: 14,
     topicTemplate: 'Kesir ifade eden parçaları birleştirip tam oluştur',
-    pedagogicalNote: 'Kesirler diskalkulide aşılması en güç kavramlardan biridir; dairesel ve net dilimlemeler soyutluluğu ortadan kaldırır.',
   },
   {
     id: 'dyscalculia-spatial-015',
@@ -714,7 +680,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['uzamsal', 'blok', 'perspektif', '3d'],
     sortOrder: 15,
     topicTemplate: 'Farklı açılardan verilmiş blokların haritasını eşleştir',
-    pedagogicalNote: 'Uzamsal zeka gelişimi (spatial reasoning), gelişmiş matematik (geometri/cebir) kavramlarının altyapısıdır.',
   },
   {
     id: 'dyscalculia-line-016',
@@ -734,7 +699,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['doğru', 'çizgi', 'kurbağa', 'zıplama'],
     sortOrder: 16,
     topicTemplate: 'Kurbağanın zıplama mesafesine göre sonuçları hesapla',
-    pedagogicalNote: 'Mesafenin (uzunluğun) sayı büyüklüğünü temsil etmesi somut bir "büyüklük hissi" oluşturur.',
   },
   {
     id: 'dyscalculia-money-017',
@@ -754,7 +718,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['para', 'alışveriş', 'dedektif', 'fiş'],
     sortOrder: 17,
     topicTemplate: 'Alışveriş listesine göre ne kadar ödemen veya para üstü alman gerektiğini hesapla',
-    pedagogicalNote: 'Matematiğin günlük yaşama doğrudan aktarıldığı "Gerçek Yaşam Senaryoları" (Life Skills) kaygıyı yenmede en etkin yöntemdir.',
   },
   {
     id: 'dyscalculia-time-018',
@@ -774,7 +737,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['zaman', 'saat', 'çark', 'analog'],
     sortOrder: 18,
     topicTemplate: '45 dakikalık dilimi boya ve kaçta çeyrek dondüğünü eşleştir',
-    pedagogicalNote: 'Zaman soyut bir boyuttur; çarklarla alanı (alan = zaman) eşleştirmek zamanın geçişini görsel olarak belgelendirir.',
   },
   {
     id: 'dyscalculia-pattern-019',
@@ -794,7 +756,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['örüntü', 'ritim', 'müzik', 'sayma'],
     sortOrder: 19,
     topicTemplate: 'Eksik ritim dizisini doldurarak örüntüyü tamamla',
-    pedagogicalNote: 'Matematik temelde örüntülerin sesidir. Ritmik algıyı görsele dökmek çarpmaya/bölmeye kuvvetli bir temel atar.',
   },
   {
     id: 'dyscalculia-logic-020',
@@ -814,7 +775,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['mantık', 'denklem', 'terazi', 'denge'],
     sortOrder: 20,
     topicTemplate: 'Terazinin dengede kalması için eksik ağırlıkları hesapla ve yerleştir',
-    pedagogicalNote: 'Cebirsel düşünceyi, rakamlar yerine terazi üzerindeki ağırlıklar gibi temel fizik kuralları üzerinden sezgisel bir biçimde aşılar.',
   },
   {
     id: 'dyslexia-hece-001',
@@ -834,7 +794,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['hece', 'okuma', 'ses', 'baslangic'],
     sortOrder: 10,
     topicTemplate: 'Acik hece ile baslayan gunluk kelimeler',
-    pedagogicalNote: 'Ilk adim kolay tutulur ve ogrenciye hizli basari hissi saglar.',
   },
   {
     id: 'dyslexia-hece-002',
@@ -854,7 +813,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['hece', 'renk', 'eslestirme', 'ses'],
     sortOrder: 20,
     topicTemplate: 'Renkli kartlarla hece ayirma',
-    pedagogicalNote: 'Renkli ipuclari disleksi desteğine ihtiyaci olan ogrencilerde ayirt etmeyi kolaylastirir.',
   },
   {
     id: 'dyslexia-akicilik-003',
@@ -874,7 +832,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['okuma', 'akicilik', 'ritim'],
     sortOrder: 30,
     topicTemplate: 'Kisa cumlelerle ritmik okuma',
-    pedagogicalNote: 'Tekrarlayan ama kisa diziler bilişsel yuklenmeyi azaltirken akiciligi destekler.',
   },
   {
     id: 'dyslexia-gorsel-004',
@@ -894,7 +851,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['harf', 'ayna', 'b d', 'gorsel'],
     sortOrder: 40,
     topicTemplate: 'Benzer harf ciftleri ile ayirt etme',
-    pedagogicalNote: 'Gorsel ayirt etme gorevleri erken hata fark etmeyi destekler.',
   },
   {
     id: 'dyslexia-anlama-005',
@@ -914,7 +870,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['metin', 'anlama', 'ipuclari'],
     sortOrder: 50,
     topicTemplate: 'Kisa metinde ipucu sozcuk bulma',
-    pedagogicalNote: 'Ipuclariyla okuma anlama, akicilik dusuk olsa da anlamaya erisim yollarini genisletir.',
   },
   {
     id: 'dyslexia-yazim-006',
@@ -934,7 +889,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['kelime', 'kart', 'hece', 'kurma'],
     sortOrder: 60,
     topicTemplate: 'Gunluk yasamdan iki heceli kelimeler',
-    pedagogicalNote: 'Parca-bütün iliskisini somutlastirarak kelime olusturmayi kolaylastirir.',
   },
   {
     id: 'dyslexia-phon-007',
@@ -954,7 +908,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['ses', 'baslangic sesi', 'bitis sesi'],
     sortOrder: 70,
     topicTemplate: 'Baslangic sesine gore esya ayirma',
-    pedagogicalNote: 'Ses odakli ilk adimlar hece ve kelime isleme icin guclu bir zemin olusturur.',
   },
   {
     id: 'dyslexia-phon-008',
@@ -974,7 +927,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['hece', 'tren', 'rota', 'oyun'],
     sortOrder: 80,
     topicTemplate: 'Hece duraklariyla kelime tamamlama',
-    pedagogicalNote: 'Sira takibi ve heceleme ayni akista birlestigi icin coklu destek sunar.',
   },
   {
     id: 'dyscalculia-sayi-001',
@@ -994,7 +946,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['sayi', 'buyuk kucuk', 'karsilastirma'],
     sortOrder: 90,
     topicTemplate: '1-20 arasi sayilari buyukluklerine gore sirala',
-    pedagogicalNote: 'Somut siralama gorevleri sayi anlamini guclendirir ve soyut yukten kacar.',
   },
   {
     id: 'dyscalculia-mantik-002',
@@ -1014,7 +965,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['matematik', 'kutu', 'oruntu'],
     sortOrder: 100,
     topicTemplate: 'Artan sayi kutularini tamamla',
-    pedagogicalNote: 'Gorsel kutular sayisal iliskileri daha gorunur hale getirir.',
   },
   {
     id: 'dyscalculia-zihin-003',
@@ -1034,7 +984,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['aritmetik', 'gorsel', 'adim'],
     sortOrder: 110,
     topicTemplate: 'Resimli toplama ve cikarma zinciri',
-    pedagogicalNote: 'Resim destegi islem basamaklarini gozle gorulebilir hale getirir.',
   },
   {
     id: 'dyscalculia-zaman-004',
@@ -1054,7 +1003,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['saat', 'zaman', 'dakika'],
     sortOrder: 120,
     topicTemplate: 'Tam ve bucuk saatleri ayirt et',
-    pedagogicalNote: 'Zaman dilimleri renk kodlariyla somutlastiginda kavram kalici hale gelir.',
   },
   {
     id: 'dyscalculia-para-005',
@@ -1074,7 +1022,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['para', 'sayma', 'market'],
     sortOrder: 130,
     topicTemplate: 'Markette odeme tamamlama',
-    pedagogicalNote: 'Gundelik baglam kullanmak matematik kaygisini azaltir ve transferi kolaylastirir.',
   },
   {
     id: 'dyscalculia-mantiksal-006',
@@ -1094,7 +1041,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['sayi yolu', 'mantik', 'problem'],
     sortOrder: 140,
     topicTemplate: 'Eksik sayi adimlariyla hedefe ulas',
-    pedagogicalNote: 'Adim adim ilerleme, islemsel baskiyi azaltirken mantiksal bag kurdurur.',
   },
   {
     id: 'adhd-dikkat-001',
@@ -1114,7 +1060,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['dikkat', 'arama', 'hedef'],
     sortOrder: 150,
     topicTemplate: 'Hedef sembolleri hizli bulma',
-    pedagogicalNote: 'Kisa bloklar DEHB desteğine ihtiyaci olan ogrenciler icin odagi korumayi kolaylastirir.',
   },
   {
     id: 'adhd-dikkat-002',
@@ -1134,7 +1079,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['burdon', 'tarama', 'dikkat'],
     sortOrder: 160,
     topicTemplate: 'Hedef sembolleri satir satir tara',
-    pedagogicalNote: 'Mini bolumlere ayrilan sure, yurutucu islev yukunu dengeler.',
   },
   {
     id: 'adhd-planlama-003',
@@ -1154,7 +1098,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['algoritma', 'siralama', 'planlama'],
     sortOrder: 170,
     topicTemplate: 'Gunluk rutini dogru siraya koy',
-    pedagogicalNote: 'Siralama kartlari yurutucu islevleri somut hareketlere baglar.',
   },
   {
     id: 'adhd-calismabellegi-004',
@@ -1174,7 +1117,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['hafiza', 'kelime', 'bellek'],
     sortOrder: 180,
     topicTemplate: 'Uc adimli kelime dizilerini geri cagir',
-    pedagogicalNote: 'Kisa ama tekrarli bellek denemeleri basari ihtimalini artirir.',
   },
   {
     id: 'adhd-yonerge-005',
@@ -1194,7 +1136,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['yon', 'kod', 'takip'],
     sortOrder: 190,
     topicTemplate: 'Yon kartlariyla hedefe ulas',
-    pedagogicalNote: 'Net ve kisitli adim sayisi odagin dagilmasini azaltir.',
   },
   {
     id: 'mixed-okuma-001',
@@ -1214,7 +1155,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['5n1k', 'metin', 'soru'],
     sortOrder: 200,
     topicTemplate: 'Kisa olay metninde 5N1K cevapla',
-    pedagogicalNote: 'Yapilandirilmis soru kalibi, dikkat ve anlama zorluklarini ayni anda destekler.',
   },
   {
     id: 'mixed-gorsel-002',
@@ -1234,7 +1174,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['gorsel', 'fark', 'dikkat'],
     sortOrder: 210,
     topicTemplate: 'Iki resim arasindaki farklari bul',
-    pedagogicalNote: 'Ipuclu karsilastirma, hata sayisi artmadan dikkat yogunlugunu korur.',
   },
   {
     id: 'mixed-gorsel-003',
@@ -1254,7 +1193,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['sekil', 'sayma', 'renk'],
     sortOrder: 220,
     topicTemplate: 'Ayni sekilleri gruplayip say',
-    pedagogicalNote: 'Gorsel destekli sayma gorevleri hem dikkat hem sayi takibini destekler.',
   },
   {
     id: 'mixed-anlatim-004',
@@ -1274,7 +1212,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['hikaye', 'siralama', 'anlatim'],
     sortOrder: 230,
     topicTemplate: 'Uc sahneyi mantikli siraya koy',
-    pedagogicalNote: 'Siralama destekleri yazili ifade oncesinde guvenli bir dusunme zemini sunar.',
   },
   {
     id: 'mixed-kavram-005',
@@ -1294,7 +1231,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['kavram', 'esleme', 'ipucu'],
     sortOrder: 240,
     topicTemplate: 'Benzer kavramlari dogru ciftlerle eslestir',
-    pedagogicalNote: 'Gorsel ipuclariyla desteklenen esleme gorevleri okuma yukunu dengeler.',
   },
   {
     id: 'mixed-gorsel-006',
@@ -1314,7 +1250,6 @@ const rawLibraryItems: RawLibraryItem[] = [
     keywords: ['grid', 'cizim', 'yonerge'],
     sortOrder: 250,
     topicTemplate: 'Kareli alanda adim adim sekil olustur',
-    pedagogicalNote: 'Uzamsal ve yurutucu becerileri ayni etkinlikte dengeli bicimde calistirir.',
   },
 ];
 

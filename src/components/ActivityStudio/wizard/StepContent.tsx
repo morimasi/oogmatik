@@ -25,33 +25,28 @@ export const StepContent: React.FC<StepContentProps> = ({ onNext, onBack }) => {
         type: 'explanation' as BlockType,
         order: 0,
         content: `Bugün ${goal.topic} konusunda çalışacağız. Bu etkinlik ${goal.targetSkills.join(', ')} becerilerini geliştirecek.`,
-        pedagogicalNote: 'Öğrencinin dikkatini çekmek için ilgi çekici bir giriş.'
       },
       {
         id: 'block_2',
         type: 'activity' as BlockType,
         order: 1,
         content: '1. Adım: Konu ile ilgili kısa bir metin okuyun.',
-        pedagogicalNote: 'Okuma becerisini pekiştirme.'
       },
       {
         id: 'block_3',
         type: 'question' as BlockType,
         order: 2,
         content: 'Soru: Metinde en çok neyi sevdiniz? Neden?',
-        pedagogicalNote: 'Eleştirel düşünme becerisini geliştirme.'
       },
       {
         id: 'block_4',
         type: 'activity' as BlockType,
         order: 3,
         content: '2. Adım: Kendi cümlenizi yazın.',
-        pedagogicalNote: 'Yazma becerisini pekiştirme.'
       }
     ];
 
     store.setContent(blocks);
-    store.setPedagogicalNote('Bu etkinlik, öğrencinin okuma, yazma ve eleştirel düşünme becerilerini destekler.');
     onNext();
   };
 

@@ -7,16 +7,14 @@ import type { ActivityStudioState } from '@/types/activityStudio';
 interface PreviewRendererProps {
   title: string;
   scenario: string;
-  pedagogicalNote: string;
 }
 
-export const PreviewRenderer: React.FC<PreviewRendererProps> = ({ title, scenario, pedagogicalNote }) => {
+export const PreviewRenderer: React.FC<PreviewRendererProps> = ({ title, scenario }) => {
   const a4Ref = useRef<HTMLDivElement>(null);
   const content = useActivityStudioStore((state: ActivityStudioState) => state.content);
   const themeConfig = useActivityStudioStore((state: ActivityStudioState) => state.themeConfig);
   const compactA4Config = useActivityStudioStore((state: ActivityStudioState) => state.compactA4Config);
 
-  const effectivePedagogicalNote = pedagogicalNote || useActivityStudioStore.getState().pedagogicalNote || '';
   const hasBlocks = content && content.length > 0;
 
   return (
@@ -35,19 +33,13 @@ export const PreviewRenderer: React.FC<PreviewRendererProps> = ({ title, scenari
             ref={a4Ref}
             title={title}
             blocks={content}
-            pedagogicalNote={effectivePedagogicalNote}
             themeConfig={themeConfig}
             compactA4Config={compactA4Config}
           />
         </div>
       ) : (
-        /* Öğretmen Notu fallback */
         <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-6 backdrop-blur-md">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="h-1.5 w-1.5 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]"></div>
-            <h4 className="text-sm font-black text-amber-400 uppercase tracking-tight">Pedagojik Not</h4>
-          </div>
-          <p className="text-sm leading-relaxed text-zinc-300 italic">{effectivePedagogicalNote}</p>
+          <p className="text-sm leading-relaxed text-zinc-300 italic">İçerik bulunamadı.</p>
         </div>
       )}
     </div>

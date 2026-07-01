@@ -51,7 +51,6 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
       pageCount: Array.isArray(worksheetData) ? worksheetData.length : 1,
       order: items.length,
       content: worksheetData, // V1 renderers handle the array or object directly
-      pedagogicalNote: (firstPage as any)?.pedagogicalNote || 'Kütüphaneden eklenen global etkinlik.'
     });
     toast.success('Fasiküle başarıyla eklendi!');
   };

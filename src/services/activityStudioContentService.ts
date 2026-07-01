@@ -26,12 +26,10 @@ function sanitizeText(raw: string, maxLength: number): string {
 
 /**
  * Yeni bir ContentBlock oluşturur.
- * Elif kuralı: pedagogicalNote zorunlu — öğretmene "neden bu aktivite" açıklaması.
  */
 export function createActivityBlock(input: {
   type: BlockType;
   content: string;
-  pedagogicalNote: string;
   order?: number;
   videoUrl?: string;
   imageUrl?: string;
@@ -41,7 +39,6 @@ export function createActivityBlock(input: {
     type: input.type,
     order: input.order ?? 0,
     content: input.content,
-    pedagogicalNote: input.pedagogicalNote,
     videoUrl: input.videoUrl,
     imageUrl: input.imageUrl,
   };
@@ -68,26 +65,23 @@ export function removeActivityBlock(blocks: ContentBlock[], id: string): Content
 // ─── OrchestratorResult → ContentBlock[] Dönüşümü ──────────────────
 
 /**
- * AI orkestrasyon sonucundan ContentBlock dizisi + pedagojik not çıkarır.
+ * AI orkestrasyon sonucundan ContentBlock dizisi çıkarır.
  *
  * Selin kuralı: `unknown` + type guard — `any` yasak.
- * Elif kuralı: Her blokta pedagogicalNote zorunlu; blok notu yoksa
- *              ajan seviyesindeki not fallback olarak kullanılır.
  */
 export function extractContentBlocks(
   orchestratorResult: OrchestratorResult
-): { blocks: ContentBlock[]; pedagogicalNote: string } {
+): { blocks: ContentBlock[] } {
   const contentAgent = orchestratorResult.agentOutputs?.['content'];
 
   if (!contentAgent?.data) {
-    return { blocks: [], pedagogicalNote: '' };
+    return { blocks: [] };
   }
 
-  const agentPedNote = contentAgent.pedagogicalNote ?? '';
   const rawData = contentAgent.data as Record<string, unknown>;
 
   if (typeof rawData !== 'object' || rawData === null) {
-    return { blocks: [], pedagogicalNote: agentPedNote };
+    return { blocks: [] };
   }
 
   // BaseAgent içerisinden dönen raw property'si (AI'nin JSON çıktısı)
@@ -108,7 +102,7 @@ export function extractContentBlocks(
   }
 
   if (typeof payload !== 'object' || payload === null) {
-    return { blocks: [], pedagogicalNote: agentPedNote };
+    return { blocks: [] };
   }
 
   const dataObj = payload as Record<string, unknown>;
@@ -116,14 +110,12 @@ export function extractContentBlocks(
 
   const blocks: ContentBlock[] = rawBlocks.map((raw: unknown, idx: number) => {
     const item = (typeof raw === 'object' && raw !== null ? raw : {}) as Record<string, unknown>;
-    const blockNote = typeof item['pedagogicalNote'] === 'string' ? item['pedagogicalNote'] : '';
 
     return {
       id: `block_${idx}`,
       type: (typeof item['type'] === 'string' ? item['type'] : 'activity') as BlockType,
       order: idx,
       content: String(item['content'] ?? ''),
-      pedagogicalNote: blockNote || agentPedNote,
       videoUrl: typeof item['videoUrl'] === 'string' ? item['videoUrl'] : undefined,
       imageUrl: typeof item['imageUrl'] === 'string' ? item['imageUrl'] : undefined,
     };
@@ -131,7 +123,6 @@ export function extractContentBlocks(
 
   return {
     blocks,
-    pedagogicalNote: agentPedNote,
   };
 }
 

@@ -11,7 +11,6 @@ export function usePedagogicGates() {
       ageGroup: goal.ageGroup,
       difficulty: goal.difficulty,
       targetSkills: goal.targetSkills,
-      pedagogicalNote: 'Bu etkinlik ogrencinin hedef becerilerini adim adim destekler.',
       itemDifficulties: ['Kolay', 'Kolay', goal.difficulty],
     });
   };

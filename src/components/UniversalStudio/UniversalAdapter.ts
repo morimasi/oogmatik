@@ -337,7 +337,6 @@ export const convertToLayoutItems = (
             [mainKey]: [item],
             title: undefined,
             instruction: undefined,
-            pedagogicalNote: undefined,
             imagePrompt: undefined,
           };
 

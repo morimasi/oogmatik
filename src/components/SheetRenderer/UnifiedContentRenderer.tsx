@@ -407,7 +407,6 @@ export const UnifiedContentRenderer = ({
           <PedagogicalHeader
             title={pageIdx === 0 ? (data?.title || '') : `${data?.title || ''} (Dvm.)`}
             instruction={pageIdx === 0 ? data?.instruction : 'Lütfen çalışmaya devam edin.'}
-            note={pageIdx === 0 ? data?.pedagogicalNote : ''}
             data={data}
           />
 

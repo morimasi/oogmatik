@@ -7,7 +7,6 @@ export type Riddle = { id: string; mysteryNumber: number; clues?: RiddleClue[] }
 export interface PremiumContentBlock {
   header?: string;
   instruction?: string;
-  pedagogicalNote?: string;
   riddles?: Riddle[];
   // allow arbitrary settings for future extensibility
   [key: string]: any;
@@ -23,11 +22,6 @@ export class PremiumBlockBuilder {
 
   setInstruction(instruction: string): this {
     this.content.instruction = instruction;
-    return this;
-  }
-
-  addPedagogicalNote(note: string): this {
-    this.content.pedagogicalNote = note;
     return this;
   }
 

@@ -123,7 +123,6 @@ YANIT FORMATI — GEÇERLİ JSON:
 {
   "title": "${topic} - Yaratıcı Yazarlık Stüdyosu",
   "content": "Tüm görevleri içeren Markdown bloğu. # H1 başlıkla başla. A4'ü tamamen doldur.",
-  "pedagogicalNote": "ZORUNLU: Bu etkinliğin yaratıcı yazma becerilerini, hayal gücünü ve ifade yeteneğini nasıl geliştirdiğini, ${densityLabel} yerleşimin neden seçildiğini ve öğretmenin dikkat etmesi gereken noktaları açıkla (en az 100 karakter)."
 }
 `;
 

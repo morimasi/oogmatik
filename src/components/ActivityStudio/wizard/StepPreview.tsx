@@ -8,7 +8,7 @@ interface StepPreviewProps {
 }
 
 export const StepPreview: React.FC<StepPreviewProps> = ({ onNext, onBack }) => {
-  const { wizardData, content, pedagogicalNote } = useActivityStudioStore();
+  const { wizardData, content } = useActivityStudioStore();
 
   return (
     <div className="space-y-6">
@@ -37,24 +37,10 @@ export const StepPreview: React.FC<StepPreviewProps> = ({ onNext, onBack }) => {
               <p className="text-sm font-bold text-zinc-800 dark:text-zinc-100 leading-relaxed">
                 {block.content}
               </p>
-              {block.pedagogicalNote && (
-                <p className="text-[10px] text-amber-600 dark:text-amber-400 mt-2 italic">
-                  <i className="fa-solid fa-graduation-cap mr-1"></i>
-                  {block.pedagogicalNote}
-                </p>
-              )}
             </div>
           ))}
         </div>
 
-        {pedagogicalNote && (
-          <div className="mt-6 p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-xl border border-indigo-500/30">
-            <p className="text-[10px] font-bold text-indigo-800 dark:text-indigo-300 leading-relaxed">
-              <i className="fa-solid fa-lightbulb mr-1.5"></i>
-              {pedagogicalNote}
-            </p>
-          </div>
-        )}
       </div>
 
       <div className="flex gap-3 pt-4">

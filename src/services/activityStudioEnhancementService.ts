@@ -16,7 +16,6 @@ export interface EnhancedActivityOutput {
   originalTitle: string;
   enhancedTopic: string;
   orchestratorResult: OrchestratorResult;
-  pedagogicalNote: string;
   timestamp: string;
 }
 
@@ -57,14 +56,11 @@ export async function enhanceLibraryActivity(request: EnhancementRequest): Promi
     throw new AppError('AI gelistirme islemi basarisiz oldu.', 'AI_ENHANCEMENT_FAILED', 500, { original: err }, true);
   }
 
-  const integrationOutput: AgentOutput = orchestratorResult.agentOutputs.integration;
-
   return {
     libraryItemId: libraryItem.id,
     originalTitle: libraryItem.title,
     enhancedTopic: request.topic,
     orchestratorResult,
-    pedagogicalNote: integrationOutput.pedagogicalNote || '',
     timestamp: new Date().toISOString(),
   };
 }

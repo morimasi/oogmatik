@@ -179,14 +179,7 @@ const FasciclePdfDoc: React.FC<BuildPdfOptions> = ({ fascicle, watermarkText, wa
               <Text style={{ fontSize: 10, color: '#94a3b8', marginTop: 5 }}>({item.difficulty} Seviyesi)</Text>
            </View>
 
-           {item.pedagogicalNote && (
-              <View style={styles.teacherNote}>
-                 <Text style={styles.teacherNoteTitle}>Pedagojik Not</Text>
-                 <Text style={styles.teacherNoteText}>{item.pedagogicalNote}</Text>
-              </View>
-           )}
-
-           <Text style={styles.pageNumber} render={({ pageNumber }) => `Sayfa ${pageNumber}`} fixed />
+            <Text style={styles.pageNumber} render={({ pageNumber }) => `Sayfa ${pageNumber}`} fixed />
         </Page>
       ))}
     </Document>

@@ -31,7 +31,6 @@ export const PREVIEW_SETTINGS: StyleSettings = {
   fontFamily: 'Lexend',
   lineHeight: 1.4,
   letterSpacing: 0,
-  showPedagogicalNote: true,
   showMascot: false,
   showStudentInfo: true,
   showTitle: true,

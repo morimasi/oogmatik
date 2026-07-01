@@ -122,16 +122,6 @@ export const WordSentenceStudio: React.FC = () => {
               {activeFormat === 'mixed_sentence' && <MixedSentenceRenderer data={data} />}
               {activeFormat === 'antonyms' && <AntonymRenderer data={data} />}
               
-              {data.pedagogicalNote && (
-                <div className="mt-12 pt-8 border-t border-gray-100 border-dashed">
-                  <div className="bg-emerald-50/50 rounded-3xl p-6 border border-emerald-100">
-                    <h4 className="text-[10px] font-black text-emerald-600 uppercase mb-2 tracking-widest">DİSLEKSİ MÜDAHALE ANALİZİ (ÖĞRETMEN NOTU)</h4>
-                    <p className="text-xs text-emerald-800 leading-relaxed font-medium italic">
-                       {data.pedagogicalNote}
-                    </p>
-                  </div>
-                </div>
-              )}
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center h-full min-h-[297mm] opacity-20 filter grayscale">

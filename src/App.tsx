@@ -316,7 +316,6 @@ const AppContent = () => {
       pageCount: Array.isArray(dataRecord?.pages) ? dataRecord.pages.length : 1,
       order: items.length,
       content: data,
-      pedagogicalNote: (dataRecord?.pedagogicalNote as string) || 'Stüdyodan eklendi.'
     });
     toast.success('Fasiküle başarıyla eklendi!');
   };

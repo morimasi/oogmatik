@@ -119,7 +119,6 @@ YANIT FORMATI — GEÇERLİ JSON:
 {
   "title": "${topic} - Yazım ve Noktalama",
   "content": "Tüm görevleri içeren Markdown bloğu. # H1 başlıkla başla. A4'ü tamamen doldur.",
-  "pedagogicalNote": "ZORUNLU: Bu etkinliğin yazım ve noktalama becerilerini nasıl geliştirdiğini, ${densityLabel} yerleşimin neden seçildiğini ve öğretmenin dikkat etmesi gereken noktaları açıkla (en az 100 karakter)."
 }
 `;
 

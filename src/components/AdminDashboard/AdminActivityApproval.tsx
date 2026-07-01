@@ -303,14 +303,6 @@ export const AdminActivityApproval: React.FC = () => {
                 ))}
               </div>
 
-              {/* Pedagogical Note */}
-              {selectedDraft.metadata?.pedagogicalNote && (
-                <div className="p-4 mb-6 rounded-xl bg-indigo-500/5 border-l-4 border-indigo-500">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-indigo-500 mb-1">Pedagojik Not</p>
-                  <p className="text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">{selectedDraft.metadata.pedagogicalNote}</p>
-                </div>
-              )}
-
               {/* Target Skills */}
               {selectedDraft.metadata?.targetSkills && selectedDraft.metadata.targetSkills.length > 0 && (
                 <div className="mb-6">

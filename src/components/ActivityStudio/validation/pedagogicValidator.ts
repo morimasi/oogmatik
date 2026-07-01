@@ -5,7 +5,6 @@ export interface PedagogicValidationInput {
   ageGroup: AgeGroup;
   difficulty: Difficulty;
   targetSkills: string[];
-  pedagogicalNote: string;
   itemDifficulties: Difficulty[];
 }
 
@@ -25,10 +24,6 @@ const allowedByAge: Record<AgeGroup, Difficulty[]> = {
 export function validatePedagogicRules(input: PedagogicValidationInput): PedagogicValidationResult {
   const errors: string[] = [];
   const warnings: string[] = [];
-
-  if (input.pedagogicalNote.trim().length < 20) {
-    errors.push('pedagogicalNote en az 20 karakter olmalidir.');
-  }
 
   if (input.targetSkills.length < 2) {
     errors.push('En az 2 targetSkills zorunludur.');

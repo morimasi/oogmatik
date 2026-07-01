@@ -34,7 +34,6 @@ export const useActivityStudioStore = create<ActivityStudioState>()((set: (parti
     approval: null,
   },
   content: null,
-  pedagogicalNote: null,
   themeConfig: null,
   compactA4Config: null,
   exportSettings: null,
@@ -68,7 +67,6 @@ export const useActivityStudioStore = create<ActivityStudioState>()((set: (parti
       enhancementTopic: topic,
     }),
   setContent: (blocks: ContentBlock[]) => set({ content: blocks }),
-  setPedagogicalNote: (note: string | null) => set({ pedagogicalNote: note }),
   setThemeConfig: (config: Partial<ThemeConfig>) =>
     set((state: ActivityStudioState) => ({
       themeConfig: state.themeConfig
@@ -104,7 +102,6 @@ export const useActivityStudioStore = create<ActivityStudioState>()((set: (parti
         approval: null,
       },
       content: null,
-      pedagogicalNote: null,
       themeConfig: null,
       compactA4Config: null,
       exportSettings: null,

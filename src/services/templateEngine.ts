@@ -5,7 +5,6 @@
  * Blueprint'ten yapısal şablon çıkarır, veri uygular ve A4 HTML'e render eder.
  *
  * Bora Demir: TypeScript strict, any yasak, AppError standardı.
- * Elif Yıldız: pedagogicalNote her şablonda zorunlu.
  */
 
 import type {
@@ -127,7 +126,6 @@ export const templateEngine = {
                 estimatedDuration: estimateDuration(questionCount),
                 targetSkills: [],
                 learningObjectives: [],
-                pedagogicalNote: '',
                 productionMode: mode,
                 sourceBlueprint: blueprint.worksheetBlueprint.substring(0, 200),
             },
@@ -206,22 +204,6 @@ export const templateEngine = {
             html += renderSection(section, layout.columns);
         }
 
-        // Pedagojik not (öğretmen için — basılı çıktıda görünür)
-        if (metadata.pedagogicalNote) {
-            html += `
-  <div style="
-    margin-top: 16px;
-    padding: 12px;
-    background: #f0f4ff;
-    border-left: 4px solid #6366f1;
-    border-radius: 0 8px 8px 0;
-    font-size: 12px;
-    color: #4b5563;
-  ">
-    <strong>📝 Pedagojik Not:</strong> ${escapeHtml(metadata.pedagogicalNote)}
-  </div>`;
-        }
-
         html += '\n</div>';
         return html;
     },
@@ -238,11 +220,6 @@ export const templateEngine = {
         if (!template.metadata.title || template.metadata.title.length < 3) {
             errors.push({ field: 'metadata.title', message: 'Başlık en az 3 karakter olmalıdır.', severity: 'error' });
             qualityScore -= 15;
-        }
-
-        if (!template.metadata.pedagogicalNote || template.metadata.pedagogicalNote.length < 20) {
-            errors.push({ field: 'metadata.pedagogicalNote', message: 'Pedagojik not en az 20 karakter olmalıdır.', severity: 'error' });
-            qualityScore -= 30;
         }
 
         if (template.metadata.targetSkills.length === 0) {
