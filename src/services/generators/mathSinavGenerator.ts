@@ -1211,24 +1211,30 @@ export const regenerateSingleQuestion = async (
   let gorselTalimat = '';
 
   if (gorselGereksinim) {
-    gorselTalimat = `Bu kazanım görsel GEREKTİRİR. grafik_verisi ZORUNLU:\n  tip="${gorselGereksinim.zorunluGorsel}" → ${gorselGereksinim.aciklama}`;
+    gorselTalimat =
+      'Bu kazanım görsel GEREKTİRİR. grafik_verisi ZORUNLU:\n  tip="' +
+      gorselGereksinim.zorunluGorsel +
+      '" → ' +
+      gorselGereksinim.aciklama;
   } else if (settings.gorselVeriEklensinMi) {
-    gorselTalimat = `Mümkünse grafik_verisi ekle. Desteklenen tipler: ${GORSEL_TIPLER_LISTESI}`;
+    gorselTalimat = 'Mümkünse grafik_verisi ekle. Desteklenen tipler: ' + GORSEL_TIPLER_LISTESI;
   }
 
-  const prompt = `
-[ROL: MEB MATEMATİK SINAV UZMANI]
+  const promptLines = [
+    '[ROL: MEB MATEMATİK SINAV UZMANI]',
+    '',
+    String(sinif) + '. sınıf için TEK BİR yeni matematik sorusu üret.',
+    'Kazanım: ' + mevcutSoru.kazanimKodu + ': ' + (kazanim?.tanim ?? ''),
+    'Soru tipi: ' + mevcutSoru.tip,
+    'Zorluk: ' + mevcutSoru.zorluk,
+    '',
+    'Önceki sorudan FARKLI bir soru oluştur. Aynı soru veya benzer soru üretme.',
+    'Önceki soru: "' + mevcutSoru.soruMetni + '"',
+    '',
+    gorselTalimat,
+  ];
 
-${sinif}. sınıf için TEK BİR yeni matematik sorusu üret.
-Kazanım: ${mevcutSoru.kazanimKodu}: ${kazanim?.tanim ?? ''}
-Soru tipi: ${mevcutSoru.tip}
-Zorluk: ${mevcutSoru.zorluk}
-
-Önceki sorudan FARKLI bir soru oluştur. Aynı soru veya benzer soru üretme.
-Önceki soru: "${mevcutSoru.soruMetni}"
-
-${gorselTalimat}
-`;
+  const prompt = promptLines.filter((line) => line !== '').join('\n');
 
   const singleSchema = {
     type: 'OBJECT',
