@@ -1,109 +1,78 @@
-
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SubTestResult } from '../../../types';
 
 interface VisualMotorIntegrationTestProps {
     onComplete: (result: SubTestResult) => void;
 }
 
-type Shape = 'circle' | 'square' | 'triangle' | 'star';
+type Shape = 'circle' | 'square' | 'triangle' | 'star' | 'hexagon' | 'pentagon';
+
+interface Question {
+    target: Shape;
+    options: Shape[];
+}
 
 export const VisualMotorIntegrationTest: React.FC<VisualMotorIntegrationTestProps> = ({ onComplete }) => {
-    const [phase, setPhase] = useState<'intro' | 'draw' | 'feedback'>('intro');
+    const [phase, setPhase] = useState<'intro' | 'question' | 'feedback'>('intro');
     const [level, setLevel] = useState(1);
     const [score, setScore] = useState(0);
     const [lives, setLives] = useState(3);
     const [startTime, setStartTime] = useState(0);
     const [reactionTimes, setReactionTimes] = useState<number[]>([]);
-    const [targetShape, setTargetShape] = useState<Shape>('circle');
-    const [canvasRef, setCanvasRef] = useState<HTMLCanvasElement | null>(null);
-    const [isDrawing, setIsDrawing] = useState(false);
-    const [lastPos, setLastPos] = useState<{ x: number; y: number } | null>(null);
+    const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
+    const [selectedOption, setSelectedOption] = useState<Shape | null>(null);
     const maxScoreRef = React.useRef(0);
 
-    const shapes: Shape[] = ['circle', 'square', 'triangle', 'star'];
+    const shapes: Shape[] = ['circle', 'square', 'triangle', 'star', 'hexagon', 'pentagon'];
+
+    const generateQuestion = (currentLevel: number): Question => {
+        const shapeIndex = Math.min(Math.floor((currentLevel - 1) / 2), shapes.length - 1);
+        const target = shapes[shapeIndex];
+        const optionCount = Math.min(4, shapeIndex + 3);
+        const otherShapes = shapes.filter(s => s !== target);
+        const distractorCount = optionCount - 1;
+        const distractors: Shape[] = [];
+
+        while (distractors.length < distractorCount) {
+            const randomShape = otherShapes[Math.floor(Math.random() * otherShapes.length)];
+            if (!distractors.includes(randomShape)) {
+                distractors.push(randomShape);
+            }
+        }
+
+        const options = [...distractors, target];
+        for (let i = options.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [options[i], options[j]] = [options[j], options[i]];
+        }
+
+        return { target, options };
+    };
 
     const startLevel = () => {
         maxScoreRef.current += level * 10;
-        const shapeIndex = Math.min(Math.floor((level - 1) / 2), shapes.length - 1);
-        setTargetShape(shapes[shapeIndex]);
-        setPhase('draw');
+        setCurrentQuestion(generateQuestion(level));
+        setSelectedOption(null);
+        setPhase('question');
         setStartTime(Date.now());
-        setTimeout(() => {
-            evaluateDrawing();
-        }, 10000 + level * 2000);
     };
 
-    const getPos = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-        if (!canvasRef) return null;
-        const rect = canvasRef.getBoundingClientRect();
-        let clientX, clientY;
-        if ('touches' in e) {
-            clientX = e.touches[0].clientX;
-            clientY = e.touches[0].clientY;
-        } else {
-            clientX = e.clientX;
-            clientY = e.clientY;
-        }
-        return {
-            x: clientX - rect.left,
-            y: clientY - rect.top
-        };
+    const handleAnswer = (shape: Shape) => {
+        if (phase !== 'question' || !currentQuestion) return;
+        setSelectedOption(shape);
+        setReactionTimes(prev => [...prev, Date.now() - startTime]);
+        setPhase('feedback');
     };
 
-    const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-        if (phase !== 'draw') return;
-        const pos = getPos(e);
-        if (pos) {
-            setIsDrawing(true);
-            setLastPos(pos);
-            if (reactionTimes.length === 0) {
-                setReactionTimes(prev => [...prev, Date.now() - startTime]);
-            }
-        }
-    };
+    const evaluateAnswer = () => {
+        if (!currentQuestion || !selectedOption) return;
+        const isCorrect = selectedOption === currentQuestion.target;
 
-    const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
-        if (!isDrawing || !canvasRef || !lastPos) return;
-        const pos = getPos(e);
-        if (!pos) return;
-        
-        const ctx = canvasRef.getContext('2d');
-        if (ctx) {
-            ctx.beginPath();
-            ctx.moveTo(lastPos.x, lastPos.y);
-            ctx.lineTo(pos.x, pos.y);
-            ctx.strokeStyle = '#4f46e5';
-            ctx.lineWidth = 4;
-            ctx.lineCap = 'round';
-            ctx.stroke();
-        }
-        setLastPos(pos);
-    };
-
-    const stopDrawing = () => {
-        setIsDrawing(false);
-        setLastPos(null);
-    };
-
-    const evaluateDrawing = () => {
-        const successChance = 0.7 - (level * 0.05);
-        const isCorrect = Math.random() < successChance;
-        
         if (isCorrect) {
             setScore(prev => prev + level * 10);
             setLevel(prev => prev + 1);
         } else {
             setLives(prev => prev - 1);
-        }
-        setPhase('feedback');
-    };
-
-    const clearCanvas = () => {
-        if (!canvasRef) return;
-        const ctx = canvasRef.getContext('2d');
-        if (ctx) {
-            ctx.clearRect(0, 0, canvasRef.width, canvasRef.height);
         }
     };
 
@@ -113,9 +82,13 @@ export const VisualMotorIntegrationTest: React.FC<VisualMotorIntegrationTestProp
             finishTest();
             return;
         }
-        clearCanvas();
-        startLevel();
-    }, [level, lives]);
+        if (phase === 'feedback') {
+            evaluateAnswer();
+            setTimeout(() => {
+                startLevel();
+            }, 1500);
+        }
+    }, [phase, lives]);
 
     const finishTest = () => {
         const avgRT = reactionTimes.length > 0 ? reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length : 0;
@@ -139,20 +112,68 @@ export const VisualMotorIntegrationTest: React.FC<VisualMotorIntegrationTestProp
         circle: 'Daire',
         square: 'Kare',
         triangle: 'Üçgen',
-        star: 'Yıldız'
+        star: 'Yıldız',
+        hexagon: 'Altıgen',
+        pentagon: 'Beşgen'
+    };
+
+    const ShapeIcon = ({ shape, size = 64, color = '#4f46e5' }: { shape: Shape; size?: number; color?: string }) => {
+        const svgSize = size;
+        const strokeWidth = 3;
+
+        switch (shape) {
+            case 'circle':
+                return (
+                    <svg width={svgSize} height={svgSize} viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="40" fill="none" stroke={color} strokeWidth={strokeWidth} />
+                    </svg>
+                );
+            case 'square':
+                return (
+                    <svg width={svgSize} height={svgSize} viewBox="0 0 100 100">
+                        <rect x="15" y="15" width="70" height="70" fill="none" stroke={color} strokeWidth={strokeWidth} />
+                    </svg>
+                );
+            case 'triangle':
+                return (
+                    <svg width={svgSize} height={svgSize} viewBox="0 0 100 100">
+                        <polygon points="50,10 90,90 10,90" fill="none" stroke={color} strokeWidth={strokeWidth} />
+                    </svg>
+                );
+            case 'star':
+                return (
+                    <svg width={svgSize} height={svgSize} viewBox="0 0 100 100">
+                        <polygon points="50,5 61,40 98,40 68,62 79,97 50,75 21,97 32,62 2,40 39,40" fill="none" stroke={color} strokeWidth={strokeWidth} />
+                    </svg>
+                );
+            case 'hexagon':
+                return (
+                    <svg width={svgSize} height={svgSize} viewBox="0 0 100 100">
+                        <polygon points="50,5 93,30 93,70 50,95 7,70 7,30" fill="none" stroke={color} strokeWidth={strokeWidth} />
+                    </svg>
+                );
+            case 'pentagon':
+                return (
+                    <svg width={svgSize} height={svgSize} viewBox="0 0 100 100">
+                        <polygon points="50,5 97,38 79,95 21,95 3,38" fill="none" stroke={color} strokeWidth={strokeWidth} />
+                    </svg>
+                );
+            default:
+                return null;
+        }
     };
 
     if (phase === 'intro') {
         return (
             <div className="flex flex-col items-center justify-center w-full h-full select-none gap-8 animate-in fade-in">
                 <div className="w-20 h-20 rounded-2xl bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center">
-                    <i className="fa-solid fa-palette text-4xl text-orange-500"></i>
+                    <i className="fa-solid fa-shapes text-4xl text-orange-500"></i>
                 </div>
                 <div className="text-center max-w-sm">
                     <h3 className="text-2xl font-black text-zinc-800 dark:text-white mb-3">Görsel-Motor Entegrasyon</h3>
                     <p className="text-zinc-500 text-sm leading-relaxed">
-                        Ekranda gösterilen şekli tuval üzerine çizin.
-                        El-göz koordinasyonunuzu test edeceğiz.
+                        Ekranda gösterilen şekli seçeneklerden bulun ve işaretleyin.
+                        Görsel algı ve şekil tanıma becerilerinizi test edeceğiz.
                     </p>
                 </div>
                 <button
@@ -161,6 +182,7 @@ export const VisualMotorIntegrationTest: React.FC<VisualMotorIntegrationTestProp
                         setLevel(1);
                         setLives(3);
                         setScore(0);
+                        setReactionTimes([]);
                         startLevel();
                     }}
                     className="px-8 py-4 bg-orange-600 hover:bg-orange-500 text-white font-black rounded-2xl shadow-lg transition-all active:scale-95 flex items-center gap-3"
@@ -179,7 +201,9 @@ export const VisualMotorIntegrationTest: React.FC<VisualMotorIntegrationTestProp
             
             <div className="relative z-10">
                 <div className="mb-6 text-center">
-                    <h3 className="text-3xl font-black text-zinc-800 dark:text-white mb-4 bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">Şekli Çiz</h3>
+                    <h3 className="text-3xl font-black text-zinc-800 dark:text-white mb-4 bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
+                        {phase === 'question' ? 'Şekli Bul' : phase === 'feedback' ? (selectedOption === currentQuestion?.target ? 'Harika!' : 'Tekrar Dene!') : ''}
+                    </h3>
                     <div className="flex gap-8 justify-center items-center">
                         <div className="flex items-center gap-3 text-sm font-bold text-zinc-600 dark:text-zinc-400 bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/30">
                             <i className="fa-solid fa-layer-group text-orange-500"></i>
@@ -197,32 +221,40 @@ export const VisualMotorIntegrationTest: React.FC<VisualMotorIntegrationTestProp
                     </div>
                 </div>
 
-                {phase === 'draw' && (
+                {phase === 'question' && currentQuestion && (
                     <>
-                        <div className="text-center mb-4">
-                            <p className="text-xl font-bold text-orange-700 dark:text-orange-300">
-                                {shapeNames[targetShape]} çizin!
-                            </p>
+                        <div className="text-center mb-8">
+                            <p className="text-xl font-bold text-zinc-700 dark:text-zinc-300 mb-4">Hangi şekil bu?</p>
+                            <div className="w-32 h-32 mx-auto bg-white rounded-3xl shadow-xl border-2 border-zinc-200 dark:border-zinc-600 flex items-center justify-center">
+                                <ShapeIcon shape={currentQuestion.target} size={100} color="#4f46e5" />
+                            </div>
                         </div>
-                        <canvas
-                            ref={(ref) => setCanvasRef(ref)}
-                            width={300}
-                            height={300}
-                            className="bg-white dark:bg-zinc-700 rounded-3xl shadow-2xl border-2 border-zinc-200 dark:border-zinc-600 cursor-crosshair"
-                            onMouseDown={startDrawing}
-                            onMouseMove={draw}
-                            onMouseUp={stopDrawing}
-                            onMouseLeave={stopDrawing}
-                            onTouchStart={startDrawing}
-                            onTouchMove={draw}
-                            onTouchEnd={stopDrawing}
-                        />
+                        <div className="grid grid-cols-2 gap-4 w-full max-w-md">
+                            {currentQuestion.options.map((option, index) => (
+                                <button
+                                    key={index}
+                                    onClick={() => handleAnswer(option)}
+                                    className="flex flex-col items-center gap-2 p-4 bg-white dark:bg-zinc-700 rounded-2xl shadow-lg border-2 border-zinc-200 dark:border-zinc-600 hover:border-orange-500 hover:shadow-orange-500/20 transition-all active:scale-95"
+                                >
+                                    <ShapeIcon shape={option} size={64} color="#4f46e5" />
+                                    <span className="text-sm font-bold text-zinc-700 dark:text-zinc-300">{shapeNames[option]}</span>
+                                </button>
+                            ))}
+                        </div>
                     </>
                 )}
 
-                {phase === 'feedback' && (
-                    <div className="text-center">
-                        <div className="text-4xl font-black text-emerald-500 mb-4">Değerlendiriliyor...</div>
+                {phase === 'feedback' && currentQuestion && (
+                    <div className="text-center animate-in zoom-in">
+                        <div className={`text-6xl mb-4 ${selectedOption === currentQuestion.target ? 'text-emerald-500' : 'text-rose-500'}`}>
+                            {selectedOption === currentQuestion.target ? <i className="fa-solid fa-circle-check"></i> : <i className="fa-solid fa-circle-xmark"></i>}
+                        </div>
+                        <p className={`text-2xl font-black mb-2 ${selectedOption === currentQuestion.target ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                            {selectedOption === currentQuestion.target ? 'Doğru!' : 'Yanlış!'}
+                        </p>
+                        <p className="text-zinc-600 dark:text-zinc-400">
+                            Doğru cevap: <span className="font-bold">{shapeNames[currentQuestion.target]}</span>
+                        </p>
                     </div>
                 )}
             </div>
