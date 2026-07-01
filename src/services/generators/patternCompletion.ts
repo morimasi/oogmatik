@@ -47,7 +47,6 @@ ZORUNLU JSON ÇIKTISI FORMATI:
     "activityType": "PATTERN_COMPLETION",
     "title": "Kafayı Çalıştır: Deseni Tamamla",
     "instruction": "Matrislerdeki örüntü kurallarını bozmadan soru işaretli yerlere gelecek parçaları bulun.",
-    "pedagogicalNote": "Bu etkinlik öğrencinin görsel algı, uzamsal akıl yürütme ve ardışık mantık kurma becerilerini geliştirir.",
     "settings": {
         "difficulty": "${difficulty}",
         "patternType": "${patternType}",

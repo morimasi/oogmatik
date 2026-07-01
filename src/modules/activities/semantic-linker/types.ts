@@ -11,7 +11,7 @@ export interface SemanticLinkerItem {
   isNegated: boolean;
   options: SemanticLinkerOption[];
   correctAnswerId: string;
-  pedagogicalNote?: string;
+
 }
 
 

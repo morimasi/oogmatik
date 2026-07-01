@@ -84,7 +84,6 @@ export const generateOfflineFindLetterPair = async (options: GeneratorOptions): 
                 ultraCompact: true,
                 clinicalFocus: 'Visual Scanning & Interference Control'
             },
-            pedagogicalNote: 'Bu etkinlik, benzer harfler (b-d, p-q) arasındaki görsel ayrıştırma becerisini geliştirirken, yoğun çeldiricilerle ketleme kontrolünü (inhibition) en üst düzeye çıkarır.'
         } as any);
     }
     return pages;

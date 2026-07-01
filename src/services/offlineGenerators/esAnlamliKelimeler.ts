@@ -39,7 +39,6 @@ export const generateOfflineEsAnlamliKelimeler = async (
     activityType: ActivityType.ES_ANLAMLI_KELIMELER,
     title: topic ? `EŞ ANLAMLI KELİMELER: ${topic.toUpperCase()}` : 'EŞ ANLAMLI KELİMELER',
     instruction: 'Kelimeleri eşleştir ve cümlelerdeki boşlukları uygun kavramlarla tamamla.',
-    pedagogicalNote: 'Semantik esneklik ve sözel akıcılık becerilerini güçlendirir.',
     settings: { ...options }, // Config'den gelen her şeyi pasla
     content: {
       pairs: selectedPairs.map(p => ({ word: p.w, synonym: p.s })),

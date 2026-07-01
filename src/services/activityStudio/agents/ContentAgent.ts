@@ -40,8 +40,8 @@ export class ContentAgent extends BaseAgent {
             "type": "instruction | text | example | activity_step | key_point",
             "content": "...",
             "metadata": { 
-              "highlight": "Vurgulanacak harf/kelime", 
-              "pedagogicalNote": "Öğretmen için not: Bu içeriğin neden bu şekilde seçildiğinin açıklaması" 
+              "highlight": "Vurgulanacak harf/kelime" 
+
             }
           }
         ]
@@ -49,7 +49,5 @@ export class ContentAgent extends BaseAgent {
     `;
   }
 
-  protected toPedagogicalNote(input: AgentInput): string {
-    return `${input.goal.targetSkills.join(', ')} becerileri icin adimli icerik iskeleleme saglar, ZPD sinirlari korunur.`;
-  }
+
 }

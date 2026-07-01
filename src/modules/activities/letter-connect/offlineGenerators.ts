@@ -34,7 +34,7 @@ export const generateOfflineLETTER_CONNECT = async (options: GeneratorOptions) =
   return {
     instruction: 'Harf Bağlama etkinliğini tamamlayın.',
     items,
-    pedagogicalNote: 'Bu etkinlik Görsel Algı,Fonolojik Farkındalık,Harf Tanıma becerilerini hedefler.',
+
     difficulty,
     totalItems: items.length,
   };

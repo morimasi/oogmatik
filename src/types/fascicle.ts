@@ -9,7 +9,7 @@ export interface FascicleItem {
   content: unknown; // Bileşen renderı için JSON/nesne veya markup
   pageCount: number; // Kaç sayfa kaplayacağı (genelde 1)
   difficulty: FascicleDifficulty;
-  pedagogicalNote?: string;
+
   order: number; // Sıralama indeksi
 }
 

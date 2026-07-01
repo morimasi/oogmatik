@@ -20,14 +20,14 @@ export const generateHARF_BAGLAMAFromAI = async (options: GeneratorOptions) => {
     2. Sağdaki öğeleri ('rightItem') TAMAMEN KARIŞIK sırala! Soldaki sıra ile aynı HİZAYA gelmemelidir! 
     3. ZORLUK 'Kolay' ise: Görsel olarak hiç benzemeyen harflere odaklan. (A, E, M vs.) 'b', 'd', 'p', 'q', 'm', 'n' gibi karışan harfleri KULLANMA.
     4. ZORLUK 'Zor' ise: Özel spesifik harfleri (örn: b-d eşleştirmesi, p-q) zorlamak için aralara yerleştir.
-    5. Öğretmen için detaylı bir 'pedagogicalNote' yaz.
+    
   `;
 
   const schema = {
     type: 'OBJECT',
     properties: {
       instruction: { type: 'STRING', description: "Öğrenciye yönelik samimi yönerge." },
-      pedagogicalNote: { type: 'STRING', description: "Klinik uzman veya öğretmen için tavsiye notu." },
+
       items: {
         type: 'ARRAY',
         items: {
@@ -41,7 +41,7 @@ export const generateHARF_BAGLAMAFromAI = async (options: GeneratorOptions) => {
         }
       }
     },
-    required: ['instruction', 'pedagogicalNote', 'items']
+    required: ['instruction', 'items']
   };
 
   const result = await generateWithSchema(prompt, schema) as Record<string, unknown>;

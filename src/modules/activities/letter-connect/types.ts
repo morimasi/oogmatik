@@ -5,7 +5,7 @@ import { BaseActivityData, Difficulty } from '../../../types/common';
  */
 export interface LetterConnectData extends BaseActivityData {
   items: LetterConnectItem[];
-  pedagogicalNote: string;
+
 }
 
 export interface LetterConnectItem {

@@ -67,7 +67,6 @@ PEDAGOJİK HEDEF:
 {
   "title": "Gizemli Denklemler",
   "instruction": "Nesnelerin değerini bularak soru işaretini cevapla.",
-  "pedagogicalNote": "Öğrencinin görsel sembolleri sayılarla eşleştirme ve mantıksal çıkarım yapma becerisi hedeflenir.",
   "puzzles": [
     {
       "objects": [
@@ -96,7 +95,6 @@ KURALLAR:
     properties: {
       title: { type: 'STRING', description: 'Etkinlik başlığı' },
       instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' },
-      pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' },
       puzzles: {
         type: 'ARRAY', description: 'Bulmaca dizisi',
         items: {
@@ -142,7 +140,6 @@ KURALLAR:
         }
       }
     },
-    required: ['title', 'instruction', 'puzzles', 'pedagogicalNote'],
   };
 
   const result = await generateWithSchema(prompt, schema) as unknown as Record<string, unknown>;
@@ -152,7 +149,6 @@ KURALLAR:
     activityType: ActivityType.MATH_PUZZLE,
     title: (result.title as string) || 'Matematik Bulmacaları',
     instruction: (result.instruction as string) || 'Denklemleri çöz, gizli sayıları bul.',
-    pedagogicalNote: (result.pedagogicalNote as string) || '',
     settings: {
       difficulty,
       itemCount,
@@ -274,7 +270,6 @@ export const generateMathPuzzleOffline = (options: GeneratorOptions) => {
     activityType: ActivityType.MATH_PUZZLE,
     title: 'Matematik Bulmacaları',
     instruction: 'Nesnelerin değerini bularak soru işaretini cevapla.',
-    pedagogicalNote: 'Görsel sembollerle cebirsel düşünme ve mantıksal çıkarım becerisi geliştirilir.',
     settings: { difficulty, itemCount, puzzleType: 'visual', operationType, numberRange: `${min}-${max}`, fastMode: true },
     puzzles,
     content: { puzzles },

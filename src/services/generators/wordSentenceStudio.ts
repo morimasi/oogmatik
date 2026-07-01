@@ -61,7 +61,6 @@ export const generateFillBlanks = async (config: GenerationConfig): Promise<Fill
           }
         }
       },
-      pedagogicalNote: { type: 'STRING', description: 'Öğretmene pedagojik not' }
     }
   };
 
@@ -117,7 +116,6 @@ export const generateMultipleChoiceVerbal = async (config: GenerationConfig): Pr
           }
         }
       },
-      pedagogicalNote: { type: 'STRING', description: 'Öğretmene pedagojik not' }
     }
   };
 
@@ -161,7 +159,6 @@ export const generateWordCompletion = async (config: GenerationConfig): Promise<
           }
         }
       },
-      pedagogicalNote: { type: 'STRING', description: 'Öğretmene pedagojik not' }
     }
   };
 
@@ -204,7 +201,6 @@ export const generateMixedSentence = async (config: GenerationConfig): Promise<M
           }
         }
       },
-      pedagogicalNote: { type: 'STRING', description: 'Öğretmene pedagojik not' }
     }
   };
 
@@ -248,7 +244,6 @@ export const generateAntonyms = async (config: GenerationConfig): Promise<Antony
           }
         }
       },
-      pedagogicalNote: { type: 'STRING', description: 'Öğretmene pedagojik not' }
     }
   };
 

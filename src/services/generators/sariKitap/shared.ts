@@ -41,7 +41,6 @@ STİL REHBERİ (BURSADİSLEKSİ HIZLI OKUMA):
   "instructions": "Öğrenciye yönelik net talimat",
   "targetSkills": ["Geliştirilen beceriler"],
   "rawText": "Konuya tam uyumlu, benzersiz ve zengin metin",
-  "pedagogicalNote": "Öğretmene bu özel içeriğin faydalarını açıklayan 1-2 cümlelik profesyonel not"
 }`;
 
 function getReferenceExample(type: SariKitapActivityType): string {

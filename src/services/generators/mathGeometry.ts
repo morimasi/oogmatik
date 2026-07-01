@@ -47,7 +47,6 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
             properties: {
                 title: { type: 'STRING', description: 'Etkinlik başlığı' },
                 instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' },
-                pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' },
                 correctCount: { type: 'INTEGER', description: 'Hedef şeklin doğru sayısı' },
                 settings: {
                     type: 'OBJECT', description: 'Etkinlik ayarları',

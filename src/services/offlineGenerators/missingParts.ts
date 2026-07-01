@@ -56,7 +56,6 @@ export const generateOfflineMissingParts = async (
     activityType: ActivityType.MISSING_PARTS,
     title: `EKSİK PARÇALARI TAMAMLA: ${topic.toUpperCase()}`,
     instruction: 'Cümlelerdeki boşlukları anlam bütünlüğüne göre uygun kelimelerle doldur.',
-    pedagogicalNote: 'Okuduğunu anlama, bağlamsal ipuçlarını değerlendirme ve kelime bilgisini ölçer.',
     settings: { ...options },
     content: {
       items: shuffle(items),

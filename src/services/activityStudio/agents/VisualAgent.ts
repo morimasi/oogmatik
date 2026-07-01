@@ -50,7 +50,5 @@ export class VisualAgent extends BaseAgent {
     `;
   }
 
-  protected toPedagogicalNote(): string {
-    return 'Düşük kontrastlı glassmorphism tasarımlar, DEHB ve disleksi grubunda odaklanmayı artırır ve bilişsel yükü azaltır.';
-  }
+
 }

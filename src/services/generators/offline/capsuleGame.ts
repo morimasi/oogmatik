@@ -125,7 +125,6 @@ export const generateOfflineCapsuleGame = async (options: GeneratorOptions): Pro
     activities.push({
       title: `Kapsül Oyunu (${size}x${size}) - ${opInstruction[operation] || 'TOPLAMA'}`,
       instruction: `Tablodaki boşlukları uygun sayılarla doldurun. Kapsül içindeki sayılar ${opInstruction[operation] || 'TOPLANDIĞINDA'} kapsülün köşesindeki hedef sayıya ulaşmalıdır. Her satır ve sütun toplamı kenardaki sayılara eşit olmalıdır.`,
-      pedagogicalNote: 'Dört işlem, gruplama ve mantıksal akıl yürütme becerilerini geliştirir.',
       puzzles: [
         {
           id: 'capsule_main',

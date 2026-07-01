@@ -127,7 +127,7 @@ YANIT FORMATI — GEÇERLİ JSON:
 {
   "title": "${topic} — Okuma Anlama Çalışması",
   "content": "TÜM görevleri, soruları, tabloları, yönergeleri içeren Markdown. # H1 başlıkla başla.",
-  "pedagogicalNote": "ZORUNLU (min 100 karakter): Bu etkinliğin geliştirdiği bilişsel beceriler, disleksi desteği mekanizmaları, öğretmenin dikkat etmesi gereken noktalar ve MEB kazanım ilişkisi."
+
 }`;
 
   return prompt;

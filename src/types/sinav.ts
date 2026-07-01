@@ -70,7 +70,7 @@ export interface Sinav {
   olusturmaTarihi: string;
   olusturanKullanici: string;
   cevapAnahtari: CevapAnahtari;
-  pedagogicalNote?: string;
+
 }
 
 // Cevap Anahtarı

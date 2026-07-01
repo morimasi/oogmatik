@@ -378,7 +378,6 @@ export async function generateOfflineMissingParts(
   // BÖLÜM 3: Kelime ve Harf Farkındalığı
   builder.addSupportingDrill('🔍 BÖLÜM 3: Kelime Dedektifi (Eksik Harfler)', {
     items: words.map((wg, i) => `${i + 1}. ${wg.w}  (İpucu: ${wg.h})  →  ________________`),
-    pedagogicalNote: 'Kelimedeki eksik harfleri tamamlayarak yazım ve görsel dikkat becerilerini güçlendirir.'
   });
 
   builder.addSupportingDrill('Yaratıcı Tamamlama', {

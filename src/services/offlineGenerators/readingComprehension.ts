@@ -293,7 +293,6 @@ export const generateOfflineStoryAnalysis = async (options: GeneratorOptions): P
         return {
             title: 'Kapsamlı Hikaye Analizi (Ultra Pro)',
             instruction: "Hikayeyi dikkatlice oku ve aşağıdaki analiz bölümlerini doldur.",
-            pedagogicalNote: "Bu çalışma öğrencinin çıkarım yapma, ana fikri kavrama ve karakter-mekan ilişkisini kurma becerilerini geliştirir.",
             content: {
                 title,
                 story,
@@ -344,7 +343,6 @@ export const generateOfflineStorySequencing = async (options: GeneratorOptions):
         return {
             title: `Olay Sıralama: ${seq.title}`,
             instruction: "Olayları oluş sırasına göre (1-4) numaralandırarak dizin.",
-            pedagogicalNote: "Kronolojik/zamansal düşünme becerisi.",
             content: {
                 title: seq.title,
                 panels: shuffle(panels),

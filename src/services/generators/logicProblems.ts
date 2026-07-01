@@ -34,7 +34,6 @@ export const generateNumberPatternFromAI = async (options: GeneratorOptions): Pr
     if (patternType === 'complex' || difficulty === 'Zor') patternRules = "İki aşamalı kurallar (x2 +1) veya Fibonacci benzeri diziler.";
     if (difficulty === 'Uzman') patternRules = "Karmaşık diziler, karesel artışlar veya asal sayı dizileri.";
     const prompt = `"${difficulty}" zorluk seviyesinde, ${itemCount} adet Sayı Örüntüsü oluştur. Kural: ${patternRules}. Her örüntü mantıksal bir dizi sayı ve sonunda '?' içermeli. Cevabı (answer) belirt. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet çalışma sayfası verisi üret.`;
-    const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, imagePrompt: { type: 'STRING', description: 'Görsel üretim promptu (İngilizce)' }, patterns: { type: 'ARRAY', description: 'Sayı örüntüleri dizisi', items: { type: 'OBJECT', properties: { sequence: { type: 'STRING', description: 'Sayı dizisi (örn: 2,4,6,?)' }, answer: { type: 'STRING', description: 'Doğru cevap' } }, required: ['sequence', 'answer'] } } }, required: ['title', 'instruction', 'patterns', 'pedagogicalNote', 'imagePrompt'] };
     const schema = { type: 'ARRAY', items: singleSchema };
     const rawResult = await generateWithSchema(prompt, schema);
     let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
@@ -52,7 +51,6 @@ export const generateShapeNumberPatternFromAI = async (options: GeneratorOptions
     // ...
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde Şekilli Sayı Örüntüsü (Shape Number Pattern) oluştur. Üçgenlerin köşelerindeki sayılarla (veya merkezindeki) bir matematiksel ilişki kur. Örn: Üst sayı = (Sol alt + Sağ alt) * 2 veya benzeri mantıklı bir kural. Bir şekildeki sayı '?' olsun. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
-    const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, imagePrompt: { type: 'STRING', description: 'Görsel üretim promptu (İngilizce)' }, patterns: { type: 'ARRAY', description: 'Şekilli örüntüler', items: { type: 'OBJECT', properties: { shapes: { type: 'ARRAY', description: 'Şekil listesi', items: { type: 'OBJECT', properties: { type: { type: 'STRING', description: 'Şekil türü', enum: ['triangle'] }, numbers: { type: 'ARRAY', description: 'Sayı listesi', items: { type: 'STRING' } } }, required: ["type", "numbers"] } } }, required: ["shapes"] } } }, required: ["title", "patterns", "instruction", "pedagogicalNote", "imagePrompt"] };
     const schema = { type: 'ARRAY', items: singleSchema };
     
     const rawResult = await generateWithSchema(prompt, schema);
@@ -71,7 +69,6 @@ export const generateThematicOddOneOutFromAI = async (options: GeneratorOptions)
     // ...
     const { topic, difficulty, worksheetCount } = options;
     const prompt = `'${topic}' temalı, "${difficulty}" seviyesinde "Tematik Farklı Olanı Bul" etkinliği. Her satırda 4 kelime/kavram olsun. 3'ü temaya uygun, 1'i farklı (semantik olarak). Her kelime için **İngilizce** 'imagePrompt' oluştur. Stil: "Cute colorful icon set style, flat vector". Ana görsel (imagePrompt) tema ile ilgili zengin bir illüstrasyon olsun. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
-    const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, prompt: { type: 'STRING', description: 'AI talimat metni' }, instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, imagePrompt: { type: 'STRING', description: 'Görsel üretim promptu (İngilizce)' }, theme: { type: 'STRING', description: 'Tema adı' }, rows: { type: 'ARRAY', description: 'Kavram satırları', items: { type: 'OBJECT', properties: { words: { type: 'ARRAY', description: 'Kelime ve görsel çiftleri', items: { type: 'OBJECT', properties: { text: { type: 'STRING', description: 'İçerik metni' }, imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' } }, required: ["text", "imagePrompt"] } }, oddWord: { type: 'STRING', description: 'Farklı olan kelime' } }, required: ["words", "oddWord"] } }, sentencePrompt: { type: 'STRING', description: 'Cümle kurma yönergesi' } }, required: ["title", "prompt", "theme", "rows", "sentencePrompt", "instruction", "pedagogicalNote", "imagePrompt"] };
     const schema = { type: 'ARRAY', items: singleSchema };
     
     const rawResult = await generateWithSchema(prompt, schema);
@@ -114,13 +111,11 @@ export const generatePunctuationMazeFromAI = async (options: GeneratorOptions): 
             title: { type: 'STRING', description: 'Etkinlik başlığı' },
             prompt: { type: 'STRING', description: 'AI talimat metni' },
             instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' },
-            pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' },
             imagePrompt: { type: 'STRING', description: 'Görsel üretim promptu (İngilizce)' },
             punctuationMark: { type: 'STRING', description: 'Noktalama işareti' },
             correctSentences: { type: 'ARRAY', description: 'Doğru cümle listesi', items: { type: 'STRING' } },
             incorrectSentences: { type: 'ARRAY', description: 'Yanlış cümle listesi', items: { type: 'STRING' } }
         },
-        required: ["title", "prompt", "punctuationMark", "correctSentences", "incorrectSentences", "instruction", "pedagogicalNote", "imagePrompt"]
     };
 
     const schema = { type: 'ARRAY', items: singleSchema };
@@ -160,7 +155,6 @@ export const generatePunctuationMazeFromAI = async (options: GeneratorOptions): 
             title: data.title,
             prompt: data.prompt,
             instruction: data.instruction,
-            pedagogicalNote: data.pedagogicalNote,
             imagePrompt: data.imagePrompt,
             punctuationMark: data.punctuationMark || ',',
             grid,
@@ -173,7 +167,6 @@ export const generateThematicOddOneOutSentenceFromAI = async (options: Generator
     // ...
     const { topic, difficulty, worksheetCount } = options;
     const prompt = `'${topic}' temalı, "${difficulty}" seviyesinde "Farklı Olanla Cümle Kur" etkinliği. 5 satır oluştur. Her satırda biri hariç diğerleri temaya uyan kelimeler olsun. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
-    const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, prompt: { type: 'STRING', description: 'AI talimat metni' }, instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, imagePrompt: { type: 'STRING', description: 'Görsel üretim promptu (İngilizce)' }, rows: { type: 'ARRAY', description: 'Kelime satırları', items: { type: 'OBJECT', properties: { words: { type: 'ARRAY', description: 'Kelime listesi', items: { type: 'STRING' } }, oddWord: { type: 'STRING', description: 'Farklı olan kelime' } }, required: ["words", "oddWord"] } }, sentencePrompt: { type: 'STRING', description: 'Cümle kurma yönergesi' } }, required: ["title", "prompt", "rows", "sentencePrompt", "instruction", "pedagogicalNote", "imagePrompt"] };
     const schema = { type: 'ARRAY', items: singleSchema };
     
     const rawResult = await generateWithSchema(prompt, schema);
@@ -192,7 +185,6 @@ export const generateColumnOddOneOutSentenceFromAI = async (options: GeneratorOp
     // ...
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde "Sütunda Farklı Olanı Bul" etkinliği. 4 sütun oluştur. Her sütunda anlamsal olarak uyumsuz bir kelime olsun. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
-    const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, prompt: { type: 'STRING', description: 'AI talimat metni' }, instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, imagePrompt: { type: 'STRING', description: 'Görsel üretim promptu (İngilizce)' }, columns: { type: 'ARRAY', description: 'Sütun satırları', items: { type: 'OBJECT', properties: { words: { type: 'ARRAY', description: 'Kelime listesi', items: { type: 'STRING' } }, oddWord: { type: 'STRING', description: 'Farklı olan kelime' } }, required: ["words", "oddWord"] } }, sentencePrompt: { type: 'STRING', description: 'Cümle kurma yönergesi' } }, required: ["title", "prompt", "columns", "sentencePrompt", "instruction", "pedagogicalNote", "imagePrompt"] };
     const schema = { type: 'ARRAY', items: singleSchema };
     
     const rawResult = await generateWithSchema(prompt, schema);
@@ -211,7 +203,6 @@ export const generatePunctuationPhoneNumberFromAI = async (options: GeneratorOpt
     // ...
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde "Noktalama Telefonu" bulmacası. 7 adet ipucu ver. Her ipucu bir noktalama işareti kuralını veya sayısını işaret etsin ve bir rakama karşılık gelsin. Örn: "Cümle sonuna konan nokta sayısı = 3". ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
-    const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, prompt: { type: 'STRING', description: 'AI talimat metni' }, instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, imagePrompt: { type: 'STRING', description: 'Görsel üretim promptu (İngilizce)' }, clues: { type: 'ARRAY', description: 'İpucu dizisi', items: { type: 'OBJECT', properties: { id: { type: 'INTEGER', description: 'Benzersiz kimlik numarası' }, text: { type: 'STRING', description: 'İçerik metni' } }, required: ["id", "text"] } }, solution: { type: 'ARRAY', description: 'Çözüm dizisi', items: { type: 'OBJECT', properties: { punctuationMark: { type: 'STRING', description: 'Noktalama işareti' }, number: { type: 'INTEGER', description: 'Rakam değeri' } }, required: ["punctuationMark", "number"] } } }, required: ["title", "prompt", "instruction", "clues", "solution", "pedagogicalNote", "imagePrompt"] };
     const schema = { type: 'ARRAY', items: singleSchema };
     
     const rawResult = await generateWithSchema(prompt, schema);
@@ -231,7 +222,6 @@ export const generatePunctuationPhoneNumberFromAI = async (options: GeneratorOpt
 export const generateArithmeticConnectFromAI = async (options: GeneratorOptions): Promise<ArithmeticConnectData[]> => {
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde "İşlem Bağlamaca". 10-12 adet aritmetik işlem (veya sonuç sayı) oluştur. Aynı sonuca çıkan işlemleri eşleştirmek üzere gruplandır. Görsel olarak sayıları birbirine bağlayan çizgiler hayal et. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
-    const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, prompt: { type: 'STRING', description: 'AI talimat metni' }, instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, imagePrompt: { type: 'STRING', description: 'Görsel üretim promptu (İngilizce)' }, example: { type: 'STRING', description: 'Örnek gösterim' }, expressions: { type: 'ARRAY', description: 'İşlem ifadeleri', items: { type: 'OBJECT', properties: { text: { type: 'STRING', description: 'İçerik metni' }, value: { type: 'INTEGER', description: 'Sayısal değer' }, group: { type: 'INTEGER', description: 'Grup numarası' }, x: { type: 'NUMBER', description: 'Yatay konum (0-100)' }, y: { type: 'NUMBER', description: 'Dikey konum (0-100)' } }, required: ["text", "value", "group", "x", "y"] } } }, required: ["title", "prompt", "example", "expressions", "instruction", "pedagogicalNote", "imagePrompt"] };
     const schema = { type: 'ARRAY', items: singleSchema };
     
     const rawResult = await generateWithSchema(prompt, schema);
@@ -249,7 +239,6 @@ export const generateArithmeticConnectFromAI = async (options: GeneratorOptions)
 export const generateRomanArabicMatchConnectFromAI = async (options: GeneratorOptions): Promise<RomanArabicMatchConnectData[]> => {
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde Romen ve Arap rakamlarını eşleştirme oyunu. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
-    const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, prompt: { type: 'STRING', description: 'AI talimat metni' }, instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, imagePrompt: { type: 'STRING', description: 'Görsel üretim promptu (İngilizce)' }, gridDim: { type: 'INTEGER', description: 'Izgara boyutu' }, points: { type: 'ARRAY', description: 'Bağlantı noktaları', items: { type: 'OBJECT', properties: { label: { type: 'STRING', description: 'Nokta etiketi' }, pairId: { type: 'INTEGER', description: 'Eşleştirme grup ID' }, x: { type: 'NUMBER', description: 'Yatay konum (0-100)' }, y: { type: 'NUMBER', description: 'Dikey konum (0-100)' } }, required: ["label", "pairId", "x", "y"] } } }, required: ["title", "prompt", "gridDim", "points", "instruction", "pedagogicalNote", "imagePrompt"] };
     const schema = { type: 'ARRAY', items: singleSchema };
     
     const rawResult = await generateWithSchema(prompt, schema);
@@ -267,7 +256,6 @@ export const generateRomanArabicMatchConnectFromAI = async (options: GeneratorOp
 export const generateWeightConnectFromAI = async (options: GeneratorOptions): Promise<WeightConnectData[]> => {
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde Ağırlık Eşleştirme. Farklı birimlerdeki (kg, g) eşit ağırlıkları eşleştir. Görseller için **İngilizce** 'imagePrompt' oluştur (tartı, meyve, sebze vb.). Stil: "Flat icon" veya "Vector". ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
-    const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, prompt: { type: 'STRING', description: 'AI talimat metni' }, instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, imagePrompt: { type: 'STRING', description: 'Görsel üretim promptu (İngilizce)' }, gridDim: { type: 'INTEGER', description: 'Izgara boyutu' }, points: { type: 'ARRAY', description: 'Ağırlık noktaları', items: { type: 'OBJECT', properties: { label: { type: 'STRING', description: 'Nokta etiketi' }, pairId: { type: 'INTEGER', description: 'Eşleştirme grup ID' }, x: { type: 'NUMBER', description: 'Yatay konum (0-100)' }, y: { type: 'NUMBER', description: 'Dikey konum (0-100)' }, imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' } }, required: ["label", "pairId", "x", "y", "imagePrompt"] } } }, required: ["title", "prompt", "gridDim", "points", "instruction", "pedagogicalNote", "imagePrompt"] };
     const schema = { type: 'ARRAY', items: singleSchema };
     
     const rawResult = await generateWithSchema(prompt, schema);
@@ -285,7 +273,6 @@ export const generateWeightConnectFromAI = async (options: GeneratorOptions): Pr
 export const generateLengthConnectFromAI = async (options: GeneratorOptions): Promise<LengthConnectData[]> => {
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde Uzunluk Eşleştirme. Farklı birimlerdeki (m, cm, km) eşit uzunlukları eşleştir. Görseller için **İngilizce** 'imagePrompt' (cetvel, metre, yol vb.). ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
-    const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, prompt: { type: 'STRING', description: 'AI talimat metni' }, instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, imagePrompt: { type: 'STRING', description: 'Görsel üretim promptu (İngilizce)' }, gridDim: { type: 'INTEGER', description: 'Izgara boyutu' }, points: { type: 'ARRAY', description: 'Uzunluk noktaları', items: { type: 'OBJECT', properties: { label: { type: 'STRING', description: 'Nokta etiketi' }, pairId: { type: 'INTEGER', description: 'Eşleştirme grup ID' }, x: { type: 'NUMBER', description: 'Yatay konum (0-100)' }, y: { type: 'NUMBER', description: 'Dikey konum (0-100)' }, imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' } }, required: ["label", "pairId", "x", "y", "imagePrompt"] } } }, required: ["title", "prompt", "gridDim", "points", "instruction", "pedagogicalNote", "imagePrompt"] };
     const schema = { type: 'ARRAY', items: singleSchema };
     
     const rawResult = await generateWithSchema(prompt, schema);
@@ -303,7 +290,6 @@ export const generateLengthConnectFromAI = async (options: GeneratorOptions): Pr
 export const generateVisualNumberPatternFromAI = async (options: GeneratorOptions): Promise<VisualNumberPatternData[]> => {
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde Görsel Sayı Örüntüsü. Sayıların rengi, boyutu ve değeri bir kurala göre değişsin. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
-    const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, prompt: { type: 'STRING', description: 'AI talimat metni' }, instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, imagePrompt: { type: 'STRING', description: 'Görsel üretim promptu (İngilizce)' }, puzzles: { type: 'ARRAY', description: 'Görsel bulmacalar', items: { type: 'OBJECT', properties: { items: { type: 'ARRAY', description: 'Örüntü öğeleri', items: { type: 'OBJECT', properties: { number: { type: 'INTEGER', description: 'Sayı değeri' }, color: { type: 'STRING', description: 'Renk kodu (hex)' }, size: { type: 'NUMBER', description: 'Boyut katsayısı' } }, required: ["number", "color", "size"] } }, rule: { type: 'STRING', description: 'Kural açıklaması' }, answer: { type: 'INTEGER', description: 'Doğru cevap' } }, required: ["items", "rule", "answer"] } } }, required: ["title", "prompt", "puzzles", "instruction", "pedagogicalNote", "imagePrompt"] };
     const schema = { type: 'ARRAY', items: singleSchema };
     
     const rawResult = await generateWithSchema(prompt, schema);
@@ -321,7 +307,6 @@ export const generateVisualNumberPatternFromAI = async (options: GeneratorOption
 export const generateLogicGridPuzzleFromAI = async (options: GeneratorOptions): Promise<LogicGridPuzzleData[]> => {
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde Mantık Tablosu (Logic Grid Puzzle). Kişiler, nesneler ve özellikleri içeren ipuçları ver. Nesneler için **İngilizce** 'imagePrompt' oluştur. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
-    const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, prompt: { type: 'STRING', description: 'AI talimat metni' }, instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, imagePrompt: { type: 'STRING', description: 'Görsel üretim promptu (İngilizce)' }, clues: { type: 'ARRAY', description: 'İpucu listesi', items: { type: 'STRING' } }, people: { type: 'ARRAY', description: 'Kişi listesi', items: { type: 'STRING' } }, categories: { type: 'ARRAY', description: 'Kategori listesi', items: { type: 'OBJECT', properties: { title: { type: 'STRING', description: 'Kategori başlığı' }, items: { type: 'ARRAY', description: 'Kategori öğeleri', items: { type: 'OBJECT', properties: { name: { type: 'STRING', description: 'Öğe adı' }, imageDescription: { type: 'STRING', description: 'Görsel açıklaması' }, imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' } }, required: ["name", "imageDescription", "imagePrompt"] } } }, required: ["title", "items"] } } }, required: ["title", "prompt", "clues", "people", "categories", "instruction", "pedagogicalNote", "imagePrompt"] };
     const schema = { type: 'ARRAY', items: singleSchema };
     
     const rawResult = await generateWithSchema(prompt, schema);
@@ -353,7 +338,6 @@ export const generateAbcConnectFromAI = async (options: GeneratorOptions): Promi
     Kural: Her sembolün ızgara üzerinde bir başlangıç ve bir bitiş noktası olmalı.
     ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
     
-    const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING' }, instruction: { type: 'STRING' }, pedagogicalNote: { type: 'STRING' }, gridDim: { type: 'INTEGER' }, variant: { type: 'STRING', enum: ['roman', 'case', 'dots', 'math'] }, paths: { type: 'ARRAY', items: { type: 'OBJECT', properties: { id: { type: 'STRING' }, start: { type: 'OBJECT', properties: { x: { type: 'INTEGER' }, y: { type: 'INTEGER' } } }, end: { type: 'OBJECT', properties: { x: { type: 'INTEGER' }, y: { type: 'INTEGER' } } }, value: { type: 'STRING' }, matchValue: { type: 'STRING' } } } } }, required: ["title", "instruction", "gridDim", "paths"] };
     const schema = { type: 'ARRAY', items: singleSchema };
     
     const rawResult = await generateWithSchema(prompt, schema);
@@ -379,7 +363,6 @@ export const generateMagicPyramidFromAI = async (options: GeneratorOptions): Pro
     Kural 2: Piramit ${layers} katmanlı olmalı.
     ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
 
-    const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, pyramids: { type: 'ARRAY', description: 'Piramitler', items: { type: 'OBJECT', properties: { layers: { type: 'INTEGER' }, apex: { type: 'INTEGER' }, step: { type: 'INTEGER' }, grid: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'INTEGER' } } }, correctPath: { type: 'ARRAY', items: { type: 'INTEGER' } } }, required: ["layers", "apex", "step", "grid", "correctPath"] } } }, required: ["title", "instruction", "pyramids"] };
     const schema = { type: 'ARRAY', items: singleSchema };
     
     const rawResult = await generateWithSchema(prompt, schema);
@@ -416,7 +399,6 @@ export const generateNumberCapsuleFromAI = async (options: GeneratorOptions): Pr
         properties: { 
             title: { type: 'STRING', description: 'Etkinlik başlığı' }, 
             instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, 
-            pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, 
             grid: { type: 'ARRAY', description: 'Izgara hücre değerleri', items: { type: 'ARRAY', items: { type: 'INTEGER', nullable: true } } }, 
             rowTargets: { type: 'ARRAY', description: 'Satır hedef değerleri', items: { type: 'INTEGER' } }, 
             colTargets: { type: 'ARRAY', description: 'Sütun hedef değerleri', items: { type: 'INTEGER' } }, 
@@ -476,7 +458,6 @@ export const generateOddEvenSudokuFromAI = async (options: GeneratorOptions): Pr
     Kural 2: oddEvenMask dizisindeki 'odd' değerleri için sadece TEK, 'even' değerleri için sadece ÇİFT sayılar gelmelidir. 
     ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
 
-    const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, puzzles: { type: 'ARRAY', description: 'Sudoku bulmacaları', items: { type: 'OBJECT', properties: { size: { type: 'INTEGER', description: 'Izgara boyutu' }, grid: { type: 'ARRAY', description: 'Izgara hücre değerleri', items: { type: 'ARRAY', items: { type: 'INTEGER', nullable: true } } }, oddEvenMask: { type: 'ARRAY', description: 'Tek/çift maskesi', items: { type: 'ARRAY', items: { type: 'STRING', enum: ['odd', 'even', null], nullable: true } } } }, required: ["size", "grid", "oddEvenMask"] } } }, required: ["title", "instruction", "puzzles"] };
     const schema = { type: 'ARRAY', items: singleSchema };
     
     const rawResult = await generateWithSchema(prompt, schema);
@@ -500,7 +481,6 @@ export const generateOddEvenSudokuFromAI = async (options: GeneratorOptions): Pr
 export const generateFutoshikiFromAI = async (options: GeneratorOptions): Promise<FutoshikiData[]> => {
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde "Futoşhiki" bulmacası. Büyüktür/Küçüktür işaretlerine göre rakamları yerleştir. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
-    const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, puzzles: { type: 'ARRAY', description: 'Futoshiki bulmacaları', items: { type: 'OBJECT', properties: { size: { type: 'INTEGER', description: 'Izgara boyutu' }, grid: { type: 'ARRAY', description: 'Izgara hücre değerleri', items: { type: 'ARRAY', items: { type: 'INTEGER', nullable: true } } }, constraints: { type: 'ARRAY', description: 'Kısıtlama kuralları', items: { type: 'OBJECT', properties: { r1: { type: 'INTEGER', description: 'Başlangıç satırı' }, c1: { type: 'INTEGER', description: 'Başlangıç sütunu' }, r2: { type: 'INTEGER', description: 'Bitiş satırı' }, c2: { type: 'INTEGER', description: 'Bitiş sütunu' }, relation: { type: 'STRING', description: 'İlişki işareti', enum: ['<', '>'] } } } } }, required: ["size", "grid"] } } }, required: ["title", "instruction", "puzzles"] };
     const schema = { type: 'ARRAY', items: singleSchema };
     
     const rawResult = await generateWithSchema(prompt, schema);
@@ -518,7 +498,6 @@ export const generateFutoshikiFromAI = async (options: GeneratorOptions): Promis
 export const generateKendokuFromAI = async (options: GeneratorOptions): Promise<KendokuData[]> => {
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde "Kendoku" (Can-Can) bulmacası. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
-    const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, puzzles: { type: 'ARRAY', description: 'Kendoku bulmacaları', items: { type: 'OBJECT', properties: { size: { type: 'INTEGER', description: 'Izgara boyutu' }, grid: { type: 'ARRAY', description: 'Izgara hücre değerleri', items: { type: 'ARRAY', items: { type: 'INTEGER', nullable: true } } }, cages: { type: 'ARRAY', description: 'Kafes grupları', items: { type: 'OBJECT', properties: { target: { type: 'INTEGER', description: 'Hedef değer' }, op: { type: 'STRING', description: 'İşlem türü' }, cells: { type: 'ARRAY', description: 'Hücre koordinatları', items: { type: 'OBJECT', properties: { r: { type: 'INTEGER', description: 'Satır indeksi' }, c: { type: 'INTEGER', description: 'Sütun indeksi' } } } } } } } }, required: ["size", "grid", "cages"] } } }, required: ["title", "instruction", "puzzles"] };
     const schema = { type: 'ARRAY', items: singleSchema };
     
     const rawResult = await generateWithSchema(prompt, schema);
@@ -536,7 +515,6 @@ export const generateKendokuFromAI = async (options: GeneratorOptions): Promise<
 export const generateNumberPyramidFromAI = async (options: GeneratorOptions): Promise<NumberPyramidData[]> => {
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde "Sayı Piramidi". Alt iki kutucuğun toplamı üsttekini verecek şekilde pyramid üret. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
-    const singleSchema = { type: 'OBJECT', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, pedagogicalNote: { type: 'STRING', description: 'Öğretmen için pedagojik not' }, pyramids: { type: 'ARRAY', description: 'Sayı piramitleri', items: { type: 'OBJECT', properties: { rows: { type: 'ARRAY', description: 'Piramit satırları', items: { type: 'ARRAY', items: { type: 'INTEGER', nullable: true } } } }, required: ["rows"] } } }, required: ["title", "instruction", "pyramids"] };
     const schema = { type: 'ARRAY', items: singleSchema };
     
     const rawResult = await generateWithSchema(prompt, schema);

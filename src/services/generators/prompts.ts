@@ -226,20 +226,14 @@ export const getDyslexiaPrompt = (title: string, difficulty: string, specifics: 
 
 /**
  * PEDAGOGICAL NOTE FALLBACK MECHANISM
- * AI çıktısında pedagogicalNote yoksa veya boşsa, varsayılan bir not ekler.
  * Bu mekanizma, öğretmene her koşulda pedagojik yönlendirme sağlar.
  */
-export const ensurePedagogicalNote = <T extends Record<string, unknown>>(
   data: T,
   activityType?: string,
   ageGroup?: string,
   difficulty?: string
 ): T => {
-  // pedagogicalNote kontrolü
   const hasValidNote = 
-    'pedagogicalNote' in data && 
-    typeof data.pedagogicalNote === 'string' && 
-    data.pedagogicalNote.trim().length > 0;
 
   if (!hasValidNote) {
     // Fallback pedagogical note oluştur
@@ -250,7 +244,6 @@ export const ensurePedagogicalNote = <T extends Record<string, unknown>>(
       'Disleksi desteğine ihtiyacı olan öğrenciler için yönergeleri sesli olarak tekrar etmek faydalı olacaktır.'
     ].filter(Boolean).join(' ');
 
-    return { ...data, pedagogicalNote: fallbackNote } as T;
   }
 
   return data;

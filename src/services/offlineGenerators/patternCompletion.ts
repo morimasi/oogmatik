@@ -176,7 +176,6 @@ export const generateOfflinePatternCompletion = async (
       activityType: 'PATTERN_COMPLETION' as any,
       title: 'Kafayı Çalıştır: Deseni Tamamla',
       instruction: 'Matristeki örüntü kuralını bozmadan soru işaretli yere gelecek parçayı bulun.',
-      pedagogicalNote: 'Bu etkinlik öğrencinin görsel algı, uzamsal akıl yürütme ve ardışık mantık kurma becerilerini geliştirir.',
       settings: {
         difficulty,
         patternType,

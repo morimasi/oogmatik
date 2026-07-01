@@ -170,7 +170,6 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
         pages.push({
             title: "Matematiksel Mantık Bulmacası",
             instruction: "Tablodaki nesnelerin sayısal değerlerini denklemleri çözerek bul ve son işlemi tamamla!",
-            pedagogicalNote: "Bu çalışma, cebirsel düşüncenin temelini oluşturan sembolik temsil ve denklem çözme becerilerini geliştirir.",
             puzzles
         });
     }
@@ -296,7 +295,6 @@ export const generateOfflineNumberPathLogic = async (options: GeneratorOptions):
         pages.push({ 
             title: "Ultra Sembolik İşlem Zinciri", 
             instruction: "Sembollerin kurallarını keşfet ve işlem zincirlerini adım adım çözerek sonuca ulaş.", 
-            pedagogicalNote: "Çok adımlı sembolik işlemler, çalışma belleğini ve ardışık işlem becerilerini güçlendirir. Zenginleştirilmiş kombinasyonlar zihinsel esnekliği artırır.",
             legend, 
             chains 
         });

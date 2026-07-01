@@ -116,7 +116,7 @@ YANIT FORMATI — GEÇERLİ JSON:
 {
   "title": "${topic} - Hece ve Ses Olayları",
   "content": "Tüm görevleri içeren Markdown bloğu. # H1 başlıkla başla. A4'ü tamamen doldur.",
-  "pedagogicalNote": "ZORUNLU: Bu etkinliğin fonolojik farkındalık, heceleme ve ses olayları becerilerini nasıl geliştirdiğini, ${densityLabel} yerleşimin neden seçildiğini ve öğretmenin dikkat etmesi gereken noktaları açıkla (en az 100 karakter)."
+
 }
 `;
 

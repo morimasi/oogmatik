@@ -107,7 +107,7 @@ YANIT FORMATI — GEÇERLİ JSON:
 {
   "title": "${topic} - Mantık ve Muhakeme",
   "content": "Tüm görevleri içeren Markdown bloğu. # H1 başlıkla başla. A4'ü tamamen doldur.",
-  "pedagogicalNote": "ZORUNLU: Bu etkinliğin bilişsel gelişim, mantık muhakeme becerilerini nasıl geliştirdiğini, ${densityLabel} yerleşimin neden seçildiğini ve öğretmenin dikkat etmesi gereken noktaları açıkla (en az 100 karakter)."
+
 }
 `;
 

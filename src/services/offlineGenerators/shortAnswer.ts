@@ -34,7 +34,6 @@ export const generateOfflineShortAnswer = async (
     activityType: ActivityType.SHORT_ANSWER,
     title: topic.toUpperCase() + ": KISA CEVAPLI SORULAR",
     instruction: "Aşağıdaki soruları dikkatlice okuyup verilen boşluklara kısa ve net cevaplar yazın.",
-    pedagogicalNote: "Okuduğunu anlama, bilgiyi geri çağırma ve yazılı ifade becerilerini ölçer.",
     settings: { ...options },
     content: {
       questions: questions.map((q, idx) => ({

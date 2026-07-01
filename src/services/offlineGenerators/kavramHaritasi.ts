@@ -67,7 +67,6 @@ export const generateOfflineKavramHaritasi = async (
     activityType: ActivityType.KAVRAM_HARITASI,
     title: `INFOGRAPHIC: ${topic.toUpperCase()}`,
     instruction: 'Aşağıdaki hiyerarşiyi inceleyerek boş kalan alanları kavram havuzundan tamamlayın.',
-    pedagogicalNote: 'Semantik ağ oluşturma ve hiyerarşik sınıflandırma becerisini geliştirir.',
     settings: { ...options }, 
     content: {
       topic: topic,

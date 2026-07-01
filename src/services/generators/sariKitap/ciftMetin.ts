@@ -87,7 +87,6 @@ export const generateCiftMetinFromAI = async (config: CiftMetinConfig): Promise<
             },
             interleaveMode: { type: 'STRING', description: 'Metin karıştırma modu', enum: ['kelime', 'satir', 'paragraf'] },
             interleaveRatio: { type: 'INTEGER', description: 'Karışım oranı (yüzde)' },
-            pedagogicalNote: { type: 'STRING', description: 'Etkinliğin pedagojik amacı' }
         },
         required: ['title', 'instruction', 'sourceA', 'sourceB', 'interleaveMode']
     };

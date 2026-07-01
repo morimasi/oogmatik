@@ -85,7 +85,6 @@ export const generateOfflineLetterVisualMatching = async (options: GeneratorOpti
         return {
             title: "🎨 Harf-Görsel Eşleme (Ultra Premium)",
             instruction: "Harfleri, o harfle başlayan varlıkların görselleri ile doğru şekilde eşleştirin. Kelimeyi yüksek sesle söyleyerek ilk harfine odaklanın.",
-            pedagogicalNote: 'Bu çalışma, fonem-grafem ilişkisini görsel-işitsel ipuçlarıyla pekiştirerek öğrencinin harf farkındalığını artırır.',
             pairs,
             settings: {
                 fontFamily: fontFamily || 'Lexend',

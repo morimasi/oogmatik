@@ -27,7 +27,7 @@ export const useKelimeCumleGenerator = () => {
         return {
             title: config.title || "Yeni Etkinlik",
             instructions: getInstructions(config.type),
-            pedagogicalNote: getPedagogicalNote(config.type),
+
             items: selectedItems,
             activityType: config.type,
             difficulty: config.difficulty,
@@ -79,17 +79,6 @@ function getInstructions(type: KelimeCumleActivityType): string {
     }
 }
 
-function getPedagogicalNote(type: KelimeCumleActivityType): string {
-    switch (type) {
-        case 'bosluk_doldurma': return 'Bağlamdan anlam çıkarma ve kelime dağarcığını geliştirme hedeflenmektedir.';
-        case 'test': return 'Okuduğunu anlama ve seçenekler arasında eleme yapabilme becerisini ölçer.';
-        case 'kelime_tamamlama': return 'Fonolojik farkındalık ve harf-ses ilişkisini güçlendirmek amaçlanır.';
-        case 'karisik_cumle': return 'Cümle yapısı farkındalığı ve sözdizimi becerilerini geliştirir.';
-        case 'zit_anlam': return 'Kavramsal düşünme ve kelime ilişkilerini kavrama becerisini destekler.';
-        default: return '';
-    }
-}
-
 function buildPrompt(config: KelimeCumleConfig): string {
     const difficultyRules = {
         'Başlangıç': '~60 kelime, kısa ve basit cümleler.',
@@ -117,7 +106,7 @@ ${exampleStr}
 KURALLAR:
 1. JSON formatında yanıt ver. Başka hiçbir açıklama ekleme.
 2. Pedagojik olarak disleksi ve öğrenme güçlüğü çeken çocuklara uygun, sade ve net bir dil kullan. Tanı koyucu ("disleksisi var" gibi) ifadeler asla kullanma.
-3. Her zaman "pedagogicalNote" alanı ekle.
+
 4. "items" dizisi üretilen etkinlik maddelerini içermelidir.
 5. ZORLUK ARTIŞI: Seviyeler arasında PROGRESİF (3x) artış olmalıdır. İleri ve Uzman seviyeleri sayfayı tamamen dolduracak kadar yoğun içerik içermelidir.
 6. Gerçek hayattan, somut ve çocukların ZPD (Yakınsal Gelişim Alanı) seviyesine uygun örnekler seç.
@@ -126,7 +115,7 @@ KURALLAR:
 {
   "title": "string",
   "instructions": "string",
-  "pedagogicalNote": "string",
+
   "items": [ ... ]
 }
 

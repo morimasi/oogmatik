@@ -884,7 +884,6 @@ Eğer bir kazanım görsel bir veri gerektiriyorsa (Veri İşleme ünitelerindek
 `;
   }
 
-  prompt += `Ayrıca JSON çıktısına en az 100 karakterlik genel bir "pedagogicalNote" ve sınav için bir "baslik" alanı eklemeyi unutma.
 `;
 
   return prompt;
@@ -1046,9 +1045,7 @@ const MATH_EXAM_SCHEMA = {
       },
     },
     baslik: { type: 'STRING' },
-    pedagogicalNote: { type: 'STRING' },
   },
-  required: ['questions', 'baslik', 'pedagogicalNote'],
 };
 
 // ─── Ana Generasyon Fonksiyonu ────────────────────────────────
@@ -1086,13 +1083,8 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
       unknown
     >;
 
-    // pedagogicalNote kontrolü
     if (
-      !aiResponse.pedagogicalNote ||
-      typeof aiResponse.pedagogicalNote !== 'string' ||
-      (aiResponse.pedagogicalNote as unknown as string).length < 100
     ) {
-      aiResponse.pedagogicalNote =
         `Bu sınav ${settings.sinif}. sınıf Matematik dersi için ${settings.secilenKazanimlar.join(', ')} ` +
         `kazanımlarını ölçmektedir. Başarı Anı Mimarisi ile ilk iki soru öğrencinin motivasyonunu artırmak için ` +
         `kolay tutulmuştur. Öğretmen geri bildiriminde öğrencinin güçlü yönlerini vurgulaması önerilir.`;
@@ -1195,7 +1187,6 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
       tahminiSure,
       olusturmaTarihi: new Date().toISOString(),
       olusturanKullanici: 'system',
-      // pedagogicalNote: aiResponse.pedagogicalNote as unknown as string,
       cevapAnahtari,
     };
 

@@ -52,7 +52,7 @@ export const generateOfflineHARF_BAGLAMA = async (options: GeneratorOptions) => 
     title: 'Harf Bağlama Etkinliği',
     instruction: 'Noktaları birleştirerek büyük harfleri küçük harflerle eşleştirin.',
     items,
-    pedagogicalNote: 'Görsel tarama, el-göz koordinasyonu ve büyük-küçük harf algısını eşzamanlı geliştiren disleksi standartlarına uygun olarak tasarlanmıştır.',
+
     difficulty,
     totalItems: items.length,
   };

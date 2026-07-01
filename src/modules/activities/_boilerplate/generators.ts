@@ -30,7 +30,7 @@ export const generateBoilerplateOffline = async (options: GeneratorOptions): Pro
     return {
         instruction: 'Aşağıdaki etkinliği tamamlayın.',
         items,
-        pedagogicalNote: 'Bu etkinlik temel becerileri hedefler. Çocuğun dikkat süresine göre mola verin.',
+
         difficulty: difficulty as BoilerplateData['difficulty'],
         totalItems: items.length,
     };

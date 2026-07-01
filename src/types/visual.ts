@@ -367,7 +367,7 @@ export interface DirectionalCodeReadingData extends BaseActivityData {
             densePacking: boolean;
             premiumStyling: boolean;
         };
-        pedagogicalNote?: string;
+
         visualHints?: {
             startIcon: string;
             targetIcon: string;

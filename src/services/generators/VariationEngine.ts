@@ -116,7 +116,6 @@ export class VariationEngine {
         title: '',
         content,
         instruction: '',
-        pedagogicalNote: '',
       });
 
       const qualities = {

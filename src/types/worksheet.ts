@@ -40,5 +40,5 @@ export interface CompositeWorksheet {
   createdAt: string;
   updatedAt: string;
   createdBy?: string;
-  pedagogicalNote?: string;
+
 }

@@ -67,7 +67,6 @@ export interface SariKitapBaseConfig {
   targetSkills: string[];
   typography: SariKitapTypography;
   pageNumber: number; // Sayfa numarası (dinamik)
-  pedagogicalNote?: string;
   seed?: string;       // Benzersizlik için rastgele anahtar
   isUnique?: boolean;  // Her seferinde yeni içerik zorlaması
 }
@@ -82,7 +81,6 @@ const SariKitapBaseConfigSchema = z.object({
   targetSkills: z.array(z.string()).min(1),
   typography: TypographySchema,
   pageNumber: z.number().min(1).max(999).default(1),
-  pedagogicalNote: z.string().optional(),
   seed: z.string().optional(),
   isUnique: z.boolean().optional().default(true),
 });
@@ -269,7 +267,6 @@ export interface SariKitapGeneratedContent {
   questionsB?: Array<{ q: string; a: string }>;
   wordBlocks?: string[][];
   memoryData?: MemoryPhaseData;
-  pedagogicalNote?: string;
   generatedAt: string;
   model: 'gemini-2.5-flash';
   tokenUsage?: { input: number; output: number };

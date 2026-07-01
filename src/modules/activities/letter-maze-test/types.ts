@@ -5,7 +5,7 @@ import { BaseActivityData } from '../../../types/core';
  */
 export interface LetterMazeTestData extends BaseActivityData {
   items: LetterMazeTestItem[];
-  pedagogicalNote: string;
+
 }
 
 export interface LetterMazeTestItem {

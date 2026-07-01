@@ -76,7 +76,6 @@ export const generateOfflineMathMemoryCards = async (options: GeneratorOptions):
         pages.push({
             title: "Gelişmiş Matematik Hafıza Kartları",
             instruction: "Kartları dış çerçevelerinden kesin. Ters çevirip eşlerini bularak hafıza oyununu oynayın.",
-            pedagogicalNote: "Çoklu temsil (sayı, görsel, işlem, metin) eşleştirmesi matematiksel esnekliği ve çalışma belleğini güçlendirir.",
             settings: { showNumbers: true, difficulty: difficulty as string, gridCols: 4, cardCount: cards.length, variant: difficulty as string || 'Orta' },
             cards: shuffle(cards)
         });

@@ -58,7 +58,5 @@ export class IdeationAgent extends BaseAgent {
     `;
   }
 
-  protected toPedagogicalNote(): string {
-    return 'Ilk fikirler ogrenci guvenini artiracak sekilde kolaydan baslatilir, sarmal model uygulanir.';
-  }
+
 }

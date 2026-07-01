@@ -57,7 +57,7 @@ export interface ZitAnlamItem {
 export interface KelimeCumleGeneratedContent {
     title: string;
     instructions: string;
-    pedagogicalNote?: string;
+
     items: any[]; // Modüle göre tipi değişir
     activityType: KelimeCumleActivityType;
     difficulty?: KelimeCumleDifficulty;

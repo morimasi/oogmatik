@@ -11,7 +11,7 @@ KURALLAR:
 1. Öğrencinin yaşına, profiline ve okuma veya dikkat süresine tamamen uyumlu ol.
 2. Ekranda ('cognitiveLoadParams.maxConcurrentObjects') değerini ASLA aşma.
 3. Çıktı geçerli bir JSON objesi olmak ZORUNDADIR.
-4. 'pedagogicalNote' alanını MUTLAKA doldur. Eğitimciye "Neden bu süreleri/renkleri seçtin?" açıklamasını net bir Türkçe ile yapmalısın.
+
 5. Disleksi için çok yüksek kontrasttan (siyah/beyaz) kaçın, pastel ağırlıklı bir 'colorPalette' kullan. DEHB için ise uyarıcı renkleri kısıtla, dikkat çekici sadece 1 odak rengi kullan.
 `;
 
@@ -20,7 +20,7 @@ const GEMINI_ANIMATION_SCHEMA = {
   type: 'OBJECT',
   properties: {
     title: { type: 'STRING' },
-    pedagogicalNote: { type: 'STRING' },
+
     cognitiveLoadParams: {
       type: 'OBJECT',
       properties: {
@@ -61,7 +61,7 @@ const GEMINI_ANIMATION_SCHEMA = {
       },
     },
   },
-  required: ['title', 'pedagogicalNote', 'cognitiveLoadParams', 'timeline'],
+    required: ['title', 'cognitiveLoadParams', 'timeline'],
 };
 
 export class AnimationService {

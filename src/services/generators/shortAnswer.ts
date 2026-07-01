@@ -19,7 +19,6 @@ KURAL 1: Veri Yapısı (JSON)
   "activityType": "SHORT_ANSWER",
   "title": "${topic} - Soru Bankası",
   "instruction": "Soruları dikkatle oku ve kutucuklara cevaplarını yaz.",
-  "pedagogicalNote": "Bilgiyi analiz etme ve kısa yazılı ifade yetkinliği odaklıdır.",
   "content": {
     "questions": [
       { "id": "1", "text": "Soru cümlesi?", "answer": "Doğru cevap", "hint": "Küçük bir ipucu", "points": 10 }

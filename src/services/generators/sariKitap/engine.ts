@@ -40,7 +40,6 @@ export async function generateSariKitapContent(
         properties: {
             title: { type: 'STRING' },
             rawText: { type: 'STRING' },
-            pedagogicalNote: { type: 'STRING' },
             instructions: { type: 'STRING' },
             targetSkills: { type: 'ARRAY', items: { type: 'STRING' } },
             sourceTexts: { type: 'OBJECT' },

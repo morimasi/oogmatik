@@ -16,7 +16,7 @@ export class IntegrationAgent extends BaseAgent {
       
       [SENTEZ, ENTEGRASYON VE DOĞRULAMA PRENSİPLERİ]
       1. Bütünsel Uyum (DNA): Görsel (Visual), İçerik (Content) ve Akış (Flow) birbirini mükemmel şekilde tamamlamalıdır. Birbiriyle çelişen veya bağımsız hiçbir veri kalmamalıdır.
-      2. Pedagojik Derinlik (Zorunlu): 'pedagogicalNote' alanında, bu etkinliğin nöro-bilimsel dayanağını (örn: "Sol angular gyrus ve temporo-parietal bölge aktivasyonu ile harf-ses kodlamasını hızlandırmayı hedefler") derinlemesine açıkla.
+      2. Pedagojik Derinlik (Zorunlu): Bu etkinliğin nöro-bilimsel dayanağını (örn: "Sol angular gyrus ve temporo-parietal bölge aktivasyonu ile harf-ses kodlamasını hızlandırmayı hedefler") derinlemesine açıkla.
       3. Otomatik Plan & Dashboard Entegrasyonu: Oluşturulan aktivitenin, öğrenci dashboard'undaki takvim akışında tek tıkla nasıl çalıştırılacağına ve bittiği an nasıl otomatik tamamlandı işaretleneceğine dair entegrasyon mantığını belirle.
       4. UI Entegrasyonu (Glassmorphism): Görsel hiyerarşinin (layout, renkler, border-radius, fontlar) React stüdyolarımızda nasıl render edileceğine dair teknik notu 'renderInstructions' alanına ekle.
       
@@ -45,14 +45,12 @@ export class IntegrationAgent extends BaseAgent {
             "metrics": [...],
             "successCriteria": [...]
           },
-          "pedagogicalNote": "Nöro-pedagojik, derin bilimsel açıklama ve öğretmene rehberlik notu",
+
           "renderInstructions": "Frontend/React geliştirme ekibimiz için bileşen renderlama ve veritabanı senkronizasyon talimatları"
         }
       }
     `;
   }
 
-  protected toPedagogicalNote(): string {
-    return 'Tüm uzman ajanların sentezlendiği birleşik çıktı, öğretmenlerimize tutarlı, bütünsel ve bilimsel temeli kanıtlanmış bir seans akışı sunar.';
-  }
+
 }

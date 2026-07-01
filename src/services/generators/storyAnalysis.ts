@@ -105,7 +105,6 @@ JSON FORMATI:
 {
   "title": "Hikaye Analizi",
   "instruction": "Metni dikkatlice oku ve analiz bölümlerini tamamla.",
-  "pedagogicalNote": "Bu çalışma öğrencinin çıkarım yapma, ana fikri kavrama ve karakter-mekan ilişkisini kurma becerilerini geliştirir.",
   "imagePrompt": "Hikayeyi anlatan disleksi dostu, yumuşak pastel renkli çocuk kitabı tarzında illüstrasyon",
   "content": {
     "title": "Hikayenin Başlığı",
@@ -139,7 +138,6 @@ NOT: answer alanları MUTLAKA boş string "" olsun. Öğrenci kendi cevaplasın.
     properties: {
       title: { type: 'STRING' },
       instruction: { type: 'STRING' },
-      pedagogicalNote: { type: 'STRING' },
       imagePrompt: { type: 'STRING' },
       content: {
         type: 'OBJECT',
@@ -230,7 +228,6 @@ NOT: answer alanları MUTLAKA boş string "" olsun. Öğrenci kendi cevaplasın.
     activityType: ActivityType.STORY_ANALYSIS,
     title: (result.title as string) || 'Hikaye Analizi',
     instruction: (result.instruction as string) || 'Metni oku ve analiz bölümlerini tamamla.',
-    pedagogicalNote: (result.pedagogicalNote as string) || '',
     imagePrompt: (result.imagePrompt as string) || '',
     settings: {
       difficulty,

@@ -7,7 +7,7 @@
 export interface BoilerplateData {
     instruction: string;
     items: BoilerplateItem[];
-    pedagogicalNote: string;
+
     difficulty: 'Kolay' | 'Orta' | 'Zor';
     totalItems: number;
 }

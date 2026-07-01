@@ -84,7 +84,6 @@ export const generateOfflineMoneyCounting = async (options: GeneratorOptions): P
         results.push({
             title: "Paralarımız Atölyesi",
             instruction: "Cüzdandaki madeni ve kağıt paraları sayarak toplam miktarı bulun.",
-            pedagogicalNote: "Günlük yaşam becerilerini destekler, zihinden toplama ve ondalık sayıları kavramaya yardımcı olur.",
             puzzles
         });
     }

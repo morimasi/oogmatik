@@ -86,7 +86,6 @@ export const generateOfflineClockReading = async (options: GeneratorOptions): Pr
     results.push({
       title: 'Saat Okuma Atölyesi',
       instruction,
-      pedagogicalNote: 'Zaman algısı, analog-dijital dönüşüm ve ritmik sayma becerilerini destekler.',
       variant,
       subVariant,
       clocks,

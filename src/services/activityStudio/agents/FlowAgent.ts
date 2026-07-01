@@ -45,7 +45,5 @@ export class FlowAgent extends BaseAgent {
     `;
   }
 
-  protected toPedagogicalNote(): string {
-    return 'ZPD ve DEHB dostu mikro-akis, seans icindeki dikkat dagilmalarini ve stres katsayisini minimize eder.';
-  }
+
 }

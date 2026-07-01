@@ -87,7 +87,7 @@ export interface ActivityMetadata {
     sourceBlueprint?: string;
     /** MEB müfredat kazanım kodu */
     curriculumCode?: string;
-    pedagogicalNote?: string;
+
 }
 
 /** Onay bilgileri */

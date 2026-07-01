@@ -30,7 +30,7 @@ export const generateSemanticLinkerAI = async (
               }
             },
             correctAnswerId: { type: "STRING" },
-            pedagogicalNote: { type: "STRING" }
+
           }
         }
       }
@@ -69,7 +69,7 @@ export const generateSemanticLinkerOffline = (count: number = 5): SemanticLinker
           { id: 'c', label: 'Zürafa', isCorrect: true }
         ],
         correctAnswerId: 'c',
-        pedagogicalNote: 'Karakteristik özellik eşleşmesi.'
+
       },
       {
         id: 'off-2',
@@ -81,7 +81,7 @@ export const generateSemanticLinkerOffline = (count: number = 5): SemanticLinker
           { id: 'c', label: 'Duş', isCorrect: false }
         ],
         correctAnswerId: 'b',
-        pedagogicalNote: 'Kategori dışı olanı bulma (Olumsuzlama).'
+
       }
     ].slice(0, count)
   };

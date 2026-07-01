@@ -14,7 +14,6 @@ interface SayiDedektifiData {
   activityType: ActivityType;
   title: string;
   instruction: string;
-  pedagogicalNote: string;
   riddles: SayiDedektifiRiddle[];
   settings: GeneratorOptions;
 }
@@ -127,7 +126,6 @@ export const generateOfflineSayiDedektifi = async (
       activityType: ActivityType.NUMBER_SENSE,
       title: 'Sayı Dedektifi Macerası',
       instruction: 'Aşağıdaki ipuçlarını incele ve her gizli sayıyı bulup kutucuğa yaz.',
-      pedagogicalNote: 'Bu etkinlik; sayı hissi, basamak kavramı ve mantıksal eleme becerilerini geliştirir. Ardışık ipuçlarını sentezlemek çalışma belleğini destekler.',
       riddles,
       settings: options,
     });

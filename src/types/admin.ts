@@ -155,7 +155,7 @@ export interface ActivityDraft {
     targetSkills?: string[];
     learningObjectives?: string[];
     curriculumCode?: string;
-    pedagogicalNote?: string;
+
   };
   templateId?: string;
   rejectionReason?: string;

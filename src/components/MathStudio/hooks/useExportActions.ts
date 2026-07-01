@@ -33,7 +33,7 @@ export const useExportActions = (deps: ExportDeps) => {
             instruction: "Aşağıdaki matematik problemlerini çözün.",
             targetSkills: [],
             learningObjectives: [],
-            pedagogicalNote: 'Matematik egzersizi',
+
         } as any;
     }, [deps.mode, deps.drillConfig, deps.problemConfig, deps.pageConfig, deps.generatedDrills, deps.generatedProblems]);
 

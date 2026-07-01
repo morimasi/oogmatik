@@ -52,7 +52,5 @@ export class EvaluationAgent extends BaseAgent {
     `;
   }
 
-  protected toPedagogicalNote(): string {
-    return 'SMART kriterli değerlendirmeler, öğrencilerin bilişsel gelişimlerinin adım adım izlenebilmesini ve BEP planlarının güncel kalmasını sağlar.';
-  }
+
 }

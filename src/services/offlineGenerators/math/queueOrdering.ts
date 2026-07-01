@@ -172,6 +172,5 @@ export const generateOfflineQueueOrdering = async (options: GeneratorOptions): P
         showPositionNumbers,
         showAnswers,
         problems,
-        pedagogicalNote: 'Sıralama becerisi, günlük yaşamda yön algısı ve mantıksal çıkarım yeteneğini geliştirir.',
     };
 };

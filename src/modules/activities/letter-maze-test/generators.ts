@@ -30,7 +30,7 @@ export const generateLETTER_MAZE_TESTFromAI = async (options: GeneratorOptions) 
     type: 'OBJECT',
     properties: {
       instruction: { type: 'STRING' },
-      pedagogicalNote: { type: 'STRING' },
+
       items: {
         type: 'ARRAY',
         items: {
@@ -42,7 +42,7 @@ export const generateLETTER_MAZE_TESTFromAI = async (options: GeneratorOptions) 
         }
       }
     },
-    required: ['instruction', 'items', 'pedagogicalNote']
+    required: ['instruction', 'items']
   };
 
   return await generateWithSchema(prompt, schema);
