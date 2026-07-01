@@ -1208,11 +1208,13 @@ export const regenerateSingleQuestion = async (
   const sinif = settings.sinif ?? 5;
 
   const gorselGereksinim = kazanimGorselBelirle(mevcutSoru.kazanimKodu);
-  const gorselTalimat = gorselGereksinim
-    ? `Bu kazanım görsel GEREKTİRİR. grafik_verisi ZORUNLU:\n  tip="${gorselGereksinim.zorunluGorsel}" → ${gorselGereksinim.aciklama}`
-    : settings.gorselVeriEklensinMi
-      ? `Mümkünse grafik_verisi ekle. Desteklenen tipler: ${GORSEL_TIPLER_LISTESI}`
-      : '';
+  let gorselTalimat = '';
+
+  if (gorselGereksinim) {
+    gorselTalimat = `Bu kazanım görsel GEREKTİRİR. grafik_verisi ZORUNLU:\n  tip="${gorselGereksinim.zorunluGorsel}" → ${gorselGereksinim.aciklama}`;
+  } else if (settings.gorselVeriEklensinMi) {
+    gorselTalimat = `Mümkünse grafik_verisi ekle. Desteklenen tipler: ${GORSEL_TIPLER_LISTESI}`;
+  }
 
   const prompt = `
 [ROL: MEB MATEMATİK SINAV UZMANI]
