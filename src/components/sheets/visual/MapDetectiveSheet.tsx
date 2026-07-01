@@ -1,10 +1,10 @@
 // @ts-ignore
-import React from 'react';
+import React, { useRef, useLayoutEffect, useState, useCallback } from 'react';
 // @ts-ignore
 import * as _React from 'react';
 import { MapInstructionData } from '../../../types';
 import { PedagogicalHeader } from '../common';
-import { EditableElement, EditableText } from '../../Editable';
+import { EditableText } from '../../Editable';
 import { TurkeyMapSVG } from './TurkeyMapSVG';
 
 const CompassRose = () => (
@@ -48,154 +48,201 @@ const MapMarker = ({ type }: { type: string }) => {
 };
 
 export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
+    const contentRef = useRef<HTMLDivElement>(null);
+    const [scale, setScale] = useState(1);
+
+    const measureAndScale = useCallback(() => {
+        const el = contentRef.current;
+        if (!el) return;
+
+        const parent = el.parentElement;
+        if (!parent) return;
+
+        const availableHeight = parent.clientHeight;
+        const contentHeight = el.scrollHeight;
+
+        if (contentHeight > availableHeight && availableHeight > 50) {
+            const s = Math.max(0.35, availableHeight / contentHeight - 0.01);
+            setScale(s);
+        } else {
+            setScale(1);
+        }
+    }, []);
+
+    useLayoutEffect(() => {
+        measureAndScale();
+        document.fonts?.ready?.then(measureAndScale);
+        const timer = setTimeout(measureAndScale, 400);
+
+        const ro = new ResizeObserver(measureAndScale);
+        const el = contentRef.current?.parentElement;
+        if (el) ro.observe(el);
+
+        return () => {
+            clearTimeout(timer);
+            ro.disconnect();
+        };
+    }, [data.instructions, data.title, measureAndScale]);
+
     // Öncelik: Kullanıcı tarafından yüklenen harita görseli > Wikimedia Fallback
     const isCustomMap = !!data.imageBase64;
     const mapSource = data.imageBase64 || "https://upload.wikimedia.org/wikipedia/commons/1/12/Turkey_provinces_blank_map.svg";
-
-    // Eğer özel bir harita ise koordinatları orantılamak gerekebilir (0-1000 range varsayılıyor)
     const _isRegionFocused = data.cities && data.cities.length < 50;
 
     return (
-        <div className="flex flex-col h-full  bg-white p-2 print:p-0 font-sans text-black overflow-visible">
-            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <div className="flex flex-col bg-white font-sans text-black print:p-0"
+            style={{
+                overflow: 'hidden',
+                height: 'var(--page-h, 297mm)',
+                padding: '6px',
+            }}>
+            <div
+                ref={contentRef}
+                style={{
+                    transform: `scale(${scale})`,
+                    transformOrigin: 'top left',
+                    width: scale < 1 ? `${100 / scale}%` : '100%',
+                }}
+            >
+                <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
 
-            {/* HARİTA KANVASI */}
-            <div className="relative w-full aspect-[1000/500] bg-white border-[6px] border-zinc-900 rounded-[3.5rem] overflow-hidden shadow-2xl mb-10 print:mb-4 group min-h-[450px] print:min-h-0 print:border-4 print:rounded-3xl">
+                {/* HARİTA KANVASI */}
+                <div className="relative w-full aspect-[1000/500] bg-white border-[4px] border-zinc-900 rounded-[2rem] overflow-hidden shadow-lg mb-4 print:mb-2 group print:border-[3px] print:rounded-xl" style={{ minHeight: '180px' }}>
 
-                {/* Zemin Harita Katmanı — padding YOK, tam inset-0 */}
-                <div className="absolute inset-0 w-full h-full  bg-slate-50 z-10 flex items-center justify-center">
-                    {isCustomMap ? (
-                        <img
-                            src={mapSource}
-                            alt="Özel Harita"
-                            className="w-full h-full  object-cover transition-all duration-700 absolute inset-0"
-                        />
-                    ) : (
-                        <TurkeyMapSVG
-                            emphasizedRegion={data.emphasizedRegion || 'all'}
-                            showRegionLabels={true}
-                            width="100%"
-                            height="100%"
-                            className="w-full h-full  absolute inset-0 transition-all duration-700"
-                        />
-                    )}
+                    {/* Zemin Harita Katmanı */}
+                    <div className="absolute inset-0 w-full h-full bg-slate-50 z-10 flex items-center justify-center">
+                        {isCustomMap ? (
+                            <img
+                                src={mapSource}
+                                alt="Özel Harita"
+                                className="w-full h-full object-cover absolute inset-0"
+                            />
+                        ) : (
+                            <TurkeyMapSVG
+                                emphasizedRegion={data.emphasizedRegion || 'all'}
+                                showRegionLabels={true}
+                                width="100%"
+                                height="100%"
+                                className="w-full h-full absolute inset-0"
+                            />
+                        )}
 
-                    {/* Konumsal Overlay — harita ile AYNI wrapper içinde, aynı koordinat sistemi */}
-                    <svg
-                        viewBox="0 0 1000 500"
-                        preserveAspectRatio="xMidYMid meet"
-                        className="w-full h-full  absolute inset-0 z-20 pointer-events-none"
-                        style={{ top: 0, left: 0, position: 'absolute' }}
-                    >
-                        <style dangerouslySetInnerHTML={{
-                            __html: `
+                        <svg
+                            viewBox="0 0 1000 500"
+                            preserveAspectRatio="xMidYMid meet"
+                            className="w-full h-full absolute inset-0 z-20 pointer-events-none"
+                            style={{ top: 0, left: 0, position: 'absolute' }}
+                        >
+                            <style dangerouslySetInnerHTML={{
+                                __html: `
                             @media print {
                                 .print-grid-line { stroke: rgba(0,0,0,0.4) !important; stroke-width: 2.5px !important; }
                                 .print-grid-text { fill: rgba(0,0,0,0.8) !important; font-weight: 900 !important; }
                             }
                         ` }} />
 
-                        {/* GRID SİSTEMİ ÇİZİMİ */}
-                        {data.settings?.useGridSystem && (() => {
-                            const cols = data.gridConfig?.cols || 10;
-                            const rows = data.gridConfig?.rows || 5;
-                            const colWidth = 1000 / cols;
-                            const rowHeight = 500 / rows;
-                            const gridLines = [];
+                            {(data.settings?.useGridSystem) && (() => {
+                                const cols = data.gridConfig?.cols || 10;
+                                const rows = data.gridConfig?.rows || 5;
+                                const colWidth = 1000 / cols;
+                                const rowHeight = 500 / rows;
+                                const gridLines = [];
 
-                            for (let i = 0; i <= cols; i++) {
-                                gridLines.push(<line key={`v${i}`} x1={i * colWidth} y1={0} x2={i * colWidth} y2={500} stroke="rgba(0,0,0,0.15)" strokeWidth="2" strokeDasharray="5,5" className="print-grid-line" />);
-                                if (i < cols) {
-                                    gridLines.push(<text key={`c${i}`} x={i * colWidth + colWidth / 2} y={20} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle" className="print-grid-text">{String.fromCharCode(65 + i)}</text>);
-                                    gridLines.push(<text key={`c${i}_b`} x={i * colWidth + colWidth / 2} y={490} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle" className="print-grid-text">{String.fromCharCode(65 + i)}</text>);
+                                for (let i = 0; i <= cols; i++) {
+                                    gridLines.push(<line key={`v${i}`} x1={i * colWidth} y1={0} x2={i * colWidth} y2={500} stroke="rgba(0,0,0,0.15)" strokeWidth="2" strokeDasharray="5,5" className="print-grid-line" />);
+                                    if (i < cols) {
+                                        gridLines.push(<text key={`c${i}`} x={i * colWidth + colWidth / 2} y={20} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle" className="print-grid-text">{String.fromCharCode(65 + i)}</text>);
+                                        gridLines.push(<text key={`c${i}_b`} x={i * colWidth + colWidth / 2} y={490} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle" className="print-grid-text">{String.fromCharCode(65 + i)}</text>);
+                                    }
                                 }
-                            }
 
-                            for (let i = 0; i <= rows; i++) {
-                                gridLines.push(<line key={`h${i}`} x1={0} y1={i * rowHeight} x2={1000} y2={i * rowHeight} stroke="rgba(0,0,0,0.15)" strokeWidth="2" strokeDasharray="5,5" className="print-grid-line" />);
-                                if (i < rows) {
-                                    gridLines.push(<text key={`r${i}`} x={20} y={i * rowHeight + rowHeight / 2 + 5} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle" className="print-grid-text">{i + 1}</text>);
-                                    gridLines.push(<text key={`r${i}_r`} x={980} y={i * rowHeight + rowHeight / 2 + 5} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle" className="print-grid-text">{i + 1}</text>);
+                                for (let i = 0; i <= rows; i++) {
+                                    gridLines.push(<line key={`h${i}`} x1={0} y1={i * rowHeight} x2={1000} y2={i * rowHeight} stroke="rgba(0,0,0,0.15)" strokeWidth="2" strokeDasharray="5,5" className="print-grid-line" />);
+                                    if (i < rows) {
+                                        gridLines.push(<text key={`r${i}`} x={20} y={i * rowHeight + rowHeight / 2 + 5} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle" className="print-grid-text">{i + 1}</text>);
+                                        gridLines.push(<text key={`r${i}_r`} x={980} y={i * rowHeight + rowHeight / 2 + 5} fontSize="14" fontWeight="bold" fill="rgba(0,0,0,0.4)" textAnchor="middle" className="print-grid-text">{i + 1}</text>);
+                                    }
                                 }
-                            }
-                            return gridLines;
-                        })()}
+                                return gridLines;
+                            })()}
 
-                        {(data.cities || []).map((city) => (
-                            <g key={city.id} transform={`translate(${city.x}, ${city.y})`}>
-                                <MapMarker type={data.settings?.markerStyle || 'circle'} />
-                                {data.settings?.showCityNames !== false && (
-                                    <text
-                                        y="-14"
-                                        textAnchor="middle"
-                                        fontSize="11"
-                                        fontWeight="900"
-                                        className="fill-zinc-900 font-sans tracking-tight"
-                                        style={{
-                                            paintOrder: 'stroke',
-                                            stroke: 'white',
-                                            strokeWidth: '4px',
-                                            strokeLinejoin: 'round'
-                                        }}
-                                    >
-                                        {city.name}
-                                    </text>
-                                )}
-                            </g>
-                        ))}
-                    </svg>
+                            {(data.cities || []).map((city) => (
+                                <g key={city.id} transform={`translate(${city.x}, ${city.y})`}>
+                                    <MapMarker type={data.settings?.markerStyle || 'circle'} />
+                                    {data.settings?.showCityNames !== false && (
+                                        <text
+                                            y="-14"
+                                            textAnchor="middle"
+                                            fontSize="11"
+                                            fontWeight="900"
+                                            className="fill-zinc-900 font-sans tracking-tight"
+                                            style={{
+                                                paintOrder: 'stroke',
+                                                stroke: 'white',
+                                                strokeWidth: '4px',
+                                                strokeLinejoin: 'round'
+                                            }}
+                                        >
+                                            {city.name}
+                                        </text>
+                                    )}
+                                </g>
+                            ))}
+                        </svg>
+                    </div>
+
+                    {/* Pusula & Araçlar Overlay */}
+                    {data.settings?.includeCompass !== false && (
+                        <div className="absolute bottom-3 right-4 flex items-end gap-4 z-30 no-print">
+                            <CompassRose />
+                        </div>
+                    )}
+
+                    {/* Manuel Harita Modu Rozeti */}
+                    {isCustomMap && (
+                        <div className="absolute top-3 right-4 bg-indigo-600 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg border-2 border-white z-40">
+                            <i className="fa-solid fa-wand-magic-sparkles mr-1"></i>AI Analiz Aktif
+                        </div>
+                    )}
                 </div>
 
-                {/* Pusula & Araçlar Overlay */}
-                {data.settings?.includeCompass !== false && (
-                    <div className="absolute bottom-8 right-10 flex items-end gap-10 print:gap-3 print:gap-4 print:gap-1 print:p-4 print:p-1 z-30 no-print">
-                        <CompassRose />
-                    </div>
-                )}
-
-                {/* Manuel Harita Modu Rozeti */}
-                {isCustomMap && (
-                    <div className="absolute top-8 print:p-3 right-10 bg-indigo-600 text-white px-4 print:px-1 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl border-2 border-white z-40 animate-in fade-in">
-                        <i className="fa-solid fa-wand-magic-sparkles mr-2"></i>AI Analiz Aktif
-                    </div>
-                )}
-            </div>
-
-            {/* YÖNERGE LİSTESİ */}
-            <div className="grid grid-cols-1 print:grid-cols-2 md:grid-cols-2 gap-x-10 print:gap-x-4 gap-y-6 print:gap-y-2 p-8 print:p-4 bg-zinc-50 rounded-[4rem] print:rounded-2xl border-2 border-zinc-100 shadow-inner">
-                {(data.instructions || []).map((inst, i) => (
-                    <EditableElement key={i} className="flex items-start gap-5 print:gap-2 p-5 print:p-2 bg-white rounded-[2rem] print:rounded-xl border border-zinc-200 shadow-sm hover:border-indigo-500 hover:shadow-indigo-100 transition-all group cursor-default">
-                        <div className="w-10 h-10 print:w-8 print:h-8 rounded-2xl print:rounded-xl bg-zinc-900 text-white flex items-center justify-center text-sm print:text-xs font-black shrink-0 shadow-lg group-hover:scale-110 group-hover:bg-indigo-600 transition-all">
-                            {i + 1}
+                {/* YÖNERGE LİSTESİ — kompakt */}
+                <div className="grid grid-cols-1 print:grid-cols-2 md:grid-cols-2 gap-x-6 gap-y-2 p-4 print:p-3 bg-zinc-50 rounded-[2rem] print:rounded-xl border border-zinc-100">
+                    {(data.instructions || []).map((inst, i) => (
+                        <div key={i} className="flex items-start gap-3 p-3 print:p-2 bg-white rounded-xl print:rounded-lg border border-zinc-200 shadow-sm">
+                            <div className="w-7 h-7 print:w-6 print:h-6 rounded-lg bg-zinc-900 text-white flex items-center justify-center text-xs print:text-[10px] font-black shrink-0 shadow">
+                                {i + 1}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-[13px] print:text-[11px] font-bold text-zinc-800 leading-snug">
+                                    <EditableText value={inst} tag="span" />
+                                </p>
+                            </div>
+                            <div className="w-6 h-6 rounded-lg border-2 border-zinc-200 shrink-0 mt-0.5 cursor-pointer hover:bg-emerald-500 hover:border-emerald-600 transition-all flex items-center justify-center group/check no-print">
+                                <i className="fa-solid fa-check text-white opacity-0 group-hover/check:opacity-100 text-[10px]"></i>
+                            </div>
                         </div>
-                        <div className="flex-1 pt-0.5">
-                            <p className="text-[15px] print:text-sm font-bold text-zinc-800 leading-snug tracking-tight">
-                                <EditableText value={inst} tag="span" />
-                            </p>
-                        </div>
-                        <div className="w-9 h-9 rounded-2xl border-[3px] border-zinc-100 shrink-0 mt-0.5 cursor-pointer hover:bg-emerald-500 hover:border-emerald-600 transition-all shadow-inner flex items-center justify-center group/check no-print">
-                            <i className="fa-solid fa-check text-white opacity-0 group-hover/check:opacity-100 text-base"></i>
-                        </div>
-                    </EditableElement>
-                ))}
-            </div>
-
-            <div className="mt-auto pt-10 print:pt-2 flex justify-between items-center px-10 print:px-4 border-t border-zinc-100 opacity-30 print:opacity-50">
-                <div className="flex gap-12 print:gap-3 print:gap-4 print:gap-1">
-                    <div className="flex flex-col">
-                        <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">Sistem</span>
-                        <span className="text-[11px] font-bold text-zinc-800 uppercase">Manuel Görsel Entegrasyonu</span>
-                    </div>
-                    <div className="flex flex-col">
-                        <span className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.2em]">Motor</span>
-                        <span className="text-[11px] font-bold text-indigo-600 uppercase">Multimodal AI Vizyon</span>
-                    </div>
+                    ))}
                 </div>
-                <div className="flex flex-col items-end">
-                    <p className="text-[8px] text-zinc-400 font-bold uppercase tracking-[0.5em] mb-1 text-right">Bursa Disleksi EduMind • Uzman Serisi</p>
-                    <div className="flex gap-4 print:gap-1">
-                        <i className="fa-solid fa-map-location-dot"></i>
-                        <i className="fa-solid fa-brain"></i>
+
+                {/* Footer — kompakt */}
+                <div className="mt-4 pt-3 flex justify-between items-center px-4 border-t border-zinc-100 opacity-40 print:opacity-50">
+                    <div className="flex gap-6 print:gap-3">
+                        <div className="flex flex-col">
+                            <span className="text-[8px] font-black text-zinc-400 uppercase tracking-[0.2em]">Sistem</span>
+                            <span className="text-[10px] font-bold text-zinc-800 uppercase">Manuel Görsel Entegrasyonu</span>
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[8px] font-black text-zinc-400 uppercase tracking-[0.2em]">Motor</span>
+                            <span className="text-[10px] font-bold text-indigo-600 uppercase">Multimodal AI Vizyon</span>
+                        </div>
+                    </div>
+                    <div className="flex flex-col items-end">
+                        <p className="text-[7px] text-zinc-400 font-bold uppercase tracking-[0.5em] text-right">Bursa Disleksi EduMind • Uzman Serisi</p>
+                        <div className="flex gap-3 print:gap-1">
+                            <i className="fa-solid fa-map-location-dot"></i>
+                            <i className="fa-solid fa-brain"></i>
+                        </div>
                     </div>
                 </div>
             </div>
