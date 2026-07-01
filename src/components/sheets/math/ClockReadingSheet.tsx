@@ -108,7 +108,7 @@ export const ClockReadingSheet = ({ data }: { data: ClockReadingData }) => {
 
   return (
     <div className="flex flex-col bg-white font-['Lexend'] min-h-[297mm] p-4 print:p-3">
-      <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+      <PedagogicalHeader title={data.title} instruction={data.instruction} data={data} />
 
       <div className="flex-1 grid gap-2 mt-2" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
         {clocks.map((clock, i) => (

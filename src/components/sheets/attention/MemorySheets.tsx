@@ -23,7 +23,7 @@ const ScoreTable = ({ rows = 1 }: { rows?: number }) => (
 export const WordMemorySheet = ({ data }: { data: WordMemoryData }) => (
     <div className="w-full font-lexend">
         <div className="min-h-[500px] flex flex-col">
-            <PedagogicalHeader title={data.title} instruction="1. AŞAMA: Kelimeleri ezberle." note={data.pedagogicalNote} data={data} />
+            <PedagogicalHeader title={data.title} instruction="1. AŞAMA: Kelimeleri ezberle." data={data} />
             <div className="flex-1 flex items-center justify-center">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6 print:gap-2 w-full max-w-2xl">
                     {(data.wordsToMemorize || []).map((word, i) => (
@@ -52,7 +52,7 @@ export const WordMemorySheet = ({ data }: { data: WordMemoryData }) => (
 export const VisualMemorySheet = ({ data }: { data: VisualMemoryData }) => (
     <div className="w-full font-lexend">
         <div className="min-h-[500px] flex flex-col">
-            <PedagogicalHeader title={data.title} instruction="Görselleri ve yerlerini ezberle." note={data.pedagogicalNote} data={data} />
+            <PedagogicalHeader title={data.title} instruction="Görselleri ve yerlerini ezberle." data={data} />
             <div className="grid grid-cols-3 md:grid-cols-4 gap-6 print:gap-2 mt-8 print:mt-2">
                 {(data.itemsToMemorize || []).map((item, i) => (
                     <div key={i} className="aspect-square border-2 border-black rounded-2xl p-2 bg-white shadow-sm">
@@ -79,7 +79,7 @@ export const VisualMemorySheet = ({ data }: { data: VisualMemoryData }) => (
 export const CharacterMemorySheet = ({ data }: { data: CharacterMemoryData }) => (
     <div className="w-full font-lexend">
         <div className="min-h-[500px] flex flex-col">
-            <PedagogicalHeader title={data.title} instruction="Bu karakterleri ve özelliklerini iyi ezberle." note={data.pedagogicalNote} data={data} />
+            <PedagogicalHeader title={data.title} instruction="Bu karakterleri ve özelliklerini iyi ezberle." data={data} />
             <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-8 print:gap-2 print:gap-3 print:p-3 items-center justify-center p-4 print:p-1">
                 {(data.charactersToMemorize || []).map((char, index) => (
                     <EditableElement key={index} className="flex flex-col items-center bg-white border-2 border-black p-4 print:p-1 rounded-3xl aspect-square justify-center shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]">
@@ -109,7 +109,7 @@ export const ColorWheelSheet = ({ data }: { data: ColorWheelMemoryData }) => {
     const radius = 110; const center = 150;
     return (
         <div className="w-full font-lexend">
-            <PedagogicalHeader title={data.title} instruction="Renkleri ve nesneleri ezberle." note={data.pedagogicalNote} data={data} />
+            <PedagogicalHeader title={data.title} instruction="Renkleri ve nesneleri ezberle." data={data} />
             <div className="flex items-center justify-center py-12 print:py-3">
                 <svg viewBox="0 0 300 300" className="w-80 h-80 overflow-visible drop-shadow-2xl">
                     {items.map((item, i) => {
@@ -135,7 +135,7 @@ export const ColorWheelSheet = ({ data }: { data: ColorWheelMemoryData }) => {
 
 export const ImageComprehensionSheet = ({ data }: { data: ImageComprehensionData }) => (
     <div className="w-full font-lexend">
-        <PedagogicalHeader title={data.title} instruction="Metni oku ve sahneyi zihninde canlandır." note={data.pedagogicalNote} data={data} />
+        <PedagogicalHeader title={data.title} instruction="Metni oku ve sahneyi zihninde canlandır." data={data} />
         <div className="p-10 print:p-3 print:p-4 print:p-1 bg-indigo-50/30 border-2 border-indigo-100 rounded-[3rem] text-2xl font-medium leading-relaxed font-dyslexic text-zinc-800 text-center my-12 print:my-3 italic">
             <EditableText value={data.sceneDescription} tag="div" />
         </div>

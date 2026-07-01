@@ -40,7 +40,7 @@ const EquationRow = ({ eq, objects, fontSize = "text-xl" }: { eq: { leftSide: an
 
 export const MathPuzzleSheet = ({ data }: { data: MathPuzzleData }) => (
     <div className="flex flex-col h-full  font-lexend text-black bg-white">
-        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
+        <PedagogicalHeader title={data?.title} instruction={data?.instruction} data={data} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-2 print:gap-3 print:p-3 mt-4 print:mt-1 flex-1 content-start">
             {(data?.puzzles || []).map((puzzle, index) => (
@@ -108,7 +108,7 @@ export const MathPuzzleSheet = ({ data }: { data: MathPuzzleData }) => (
 
 export const RealLifeMathProblemsSheet = ({ data }: { data: RealLifeProblemData }) => (
     <div className="flex flex-col">
-        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
+        <PedagogicalHeader title={data?.title} instruction={data?.instruction} data={data} />
         <div className="space-y-10">
             {(data?.problems || []).map((problem, index) => (
                 <EditableElement key={index} className="border-b-2 border-black pb-8 print:pb-2 break-inside-avoid item-card flex flex-col gap-2">
@@ -135,7 +135,7 @@ export const RealLifeMathProblemsSheet = ({ data }: { data: RealLifeProblemData 
 
 export const NumberPatternSheet = ({ data }: { data: NumberPatternData }) => (
     <div className="flex flex-col">
-        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
+        <PedagogicalHeader title={data?.title} instruction={data?.instruction} data={data} />
         <div className="space-y-4 mt-4 print:mt-1">
             {(data?.patterns || []).map((pattern, index) => (
                 <EditableElement key={index} className="flex items-center gap-6 print:gap-2 p-6 print:p-2 border-2 border-zinc-100 bg-white rounded-2xl break-inside-avoid shadow-sm hover:border-indigo-200 transition-colors">
@@ -150,7 +150,7 @@ export const NumberPatternSheet = ({ data }: { data: NumberPatternData }) => (
 
 export const LogicGridPuzzleSheet = ({ data }: { data: LogicGridPuzzleData }) => (
     <div className="flex flex-col">
-        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
+        <PedagogicalHeader title={data?.title} instruction={data?.instruction} data={data} />
         <div className="flex flex-col gap-8 print:gap-2 print:gap-3 print:p-3">
             <EditableElement className="text-base border-4 border-zinc-800 p-6 print:p-2 bg-zinc-50 rounded-3xl shadow-inner">
                 <h4 className="font-black text-xs uppercase tracking-widest text-indigo-600 mb-4 print:mb-1 flex items-center gap-2"><i className="fa-solid fa-lightbulb"></i> İpuçlarını Takip Et</h4>

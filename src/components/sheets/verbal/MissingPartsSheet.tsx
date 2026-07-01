@@ -11,7 +11,6 @@ export const MissingPartsSheet: React.FC<{ data: MissingPartsData }> = ({ data }
             <PedagogicalHeader 
                 title={content.title} 
                 instruction={data.instruction || "Metindeki boşlukları uygun kelimelerle doldurun."} 
-                note={data.pedagogicalNote} 
             />
 
             {settings?.showWordBank && content.wordBank && content.wordBank.words.length > 0 && (

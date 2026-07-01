@@ -50,8 +50,6 @@ export const LayoutModule = ({
   onClose,
 }: LayoutModuleProps) => {
   const paperSizeStore = usePaperSizeStore();
-  const showPedagogicalNote = useUIStore((state) => state.styleSettings.showPedagogicalNote);
-  const updateStyleSettings = useUIStore((state) => state.updateStyleSettings);
   
   if (!isOpen) return null;
 
@@ -164,19 +162,6 @@ export const LayoutModule = ({
             ))}
           </div>
        </div>
-
-      {/* Öğretmen Notu Gösterimi */}
-      <div className="bg-gradient-to-br from-amber-500/5 to-orange-500/5 rounded-2xl p-3 border border-amber-500/10 shadow-sm mb-4">
-        <Toggle
-          label="Öğretmen / Pedagojik Notu Göster"
-          icon="fa-graduation-cap"
-          checked={showPedagogicalNote}
-          onChange={(v: boolean) => updateStyleSettings({ showPedagogicalNote: v })}
-        />
-        <p className="text-[9px] text-[var(--text-muted)] mt-2 font-medium leading-relaxed italic">
-          Yazdırma önizlemesinde ve PDF çıktısında pedagojik notun görünürlüğünü kontrol eder.
-        </p>
-      </div>
 
       {/* Akıllı Paketler */}
       <div className="bg-indigo-600/5 p-3 rounded-2xl border border-indigo-500/20 mb-4">

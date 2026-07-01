@@ -61,7 +61,7 @@ export const MathMemoryCardsSheet = ({ data }: { data: MathMemoryCardsData }) =>
         <div className="flex flex-col h-full font-lexend p-2 bg-white">
             <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
-                    <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+                    <PedagogicalHeader title={data.title} instruction={data.instruction} data={data} />
                 </div>
                 {fastMode && (
                     <span className="text-[7px] font-black uppercase tracking-wider text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded-full border border-emerald-200 shrink-0 mt-1">

@@ -8,7 +8,7 @@ import { EditableElement, EditableText } from '../../Editable';
 
 export const BurdonTestSheet = ({ data }: { data: LetterGridTestData }) => (
     <div className="h-full  flex flex-col font-lexend p-2">
-        <PedagogicalHeader title="BURDON DİKKAT TESTİ" instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title="BURDON DİKKAT TESTİ" instruction={data.instruction} />
         <div className="flex-1 bg-white border-2 border-zinc-100 rounded-3xl p-8 print:p-2 print:p-3 font-mono text-xl leading-[3rem] tracking-[0.5em] text-justify select-none shadow-inner mt-4 print:mt-1">
             {(data.grid || []).map((row: string[], i: number) => (
                 <div key={i} className="flex items-center border-b border-zinc-50 pb-1">
@@ -22,7 +22,7 @@ export const BurdonTestSheet = ({ data }: { data: LetterGridTestData }) => (
 
 export const ChaoticNumberSearchSheet = ({ data }: { data: ChaoticNumberSearchData }) => (
     <div className="relative h-full  flex flex-col w-full font-lexend p-2">
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} data={data} />
         <div className="flex-1 relative border-4 border-zinc-900 rounded-[3rem] overflow-hidden bg-white min-h-[600px] shadow-2xl mt-4 print:mt-1">
             <div className="absolute top-0 left-0 w-full bg-zinc-900 text-white p-3 flex justify-center gap-4 print:gap-1 flex-wrap z-10 border-b-4 border-black">
                 <span className="font-bold text-xs self-center uppercase tracking-widest">Aranacak Sayılar:</span>
@@ -46,7 +46,7 @@ export const ChaoticNumberSearchSheet = ({ data }: { data: ChaoticNumberSearchDa
 
 export const NumberSearchSheet = ({ data }: { data: NumberSearchData }) => (
     <div className="h-full  flex flex-col font-lexend p-2">
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} />
         <div className="flex-1 flex flex-wrap gap-4 print:gap-1 justify-center p-10 print:p-3 print:p-4 print:p-1 border-4 border-zinc-900 rounded-[3rem] bg-white shadow-xl mt-6 print:mt-2">
             {(data.numbers || []).map((n: number | string, i: number) => (
                 <div key={i} className="w-12 h-12 flex items-center justify-center border-2 border-zinc-100 rounded-xl font-black text-lg hover:border-indigo-50 hover:bg-indigo-50 transition-all cursor-default">
@@ -59,7 +59,7 @@ export const NumberSearchSheet = ({ data }: { data: NumberSearchData }) => (
 
 export const FindDuplicateSheet = ({ data }: { data: FindDuplicateData }) => (
     <div className="font-lexend p-2">
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} />
         <div className="space-y-4 mt-6 print:mt-2">
             {(data.rows || []).map((row: string[], i: number) => (
                 <EditableElement key={i} className="flex justify-between items-center p-4 print:p-1 border-2 border-zinc-900 rounded-2xl bg-white shadow-sm break-inside-avoid group hover:border-indigo-50 transition-all">
@@ -75,7 +75,7 @@ export const FindDuplicateSheet = ({ data }: { data: FindDuplicateData }) => (
 
 export const LetterGridTestSheet = ({ data }: { data: LetterGridTestData }) => (
     <div className="font-lexend p-2">
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} />
         <div className="bg-white border-[3px] border-zinc-900 p-8 print:p-2 print:p-3 rounded-[2.5rem] shadow-sm mt-6 print:mt-2">
             <div className="font-mono text-lg leading-[3rem] tracking-[0.8em] text-center select-none text-zinc-900">
                 {(data.grid || []).map((row: string[], i: number) => (
@@ -88,7 +88,7 @@ export const LetterGridTestSheet = ({ data }: { data: LetterGridTestData }) => (
 
 export const TargetSearchSheet = ({ data }: { data: TargetSearchData }) => (
     <div className="font-lexend p-2">
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} />
         <div className="bg-white border-[3px] border-zinc-900 p-10 print:p-3 print:p-4 print:p-1 rounded-[3rem] text-zinc-900 font-mono text-2xl tracking-[1em] text-center leading-[3.5rem] shadow-sm mt-6 print:mt-2">
             {(data.grid || []).map((row: string[], i: number) => (
                 <div key={i} className="hover:bg-zinc-50 transition-colors">{row.join('')}</div>
@@ -105,7 +105,7 @@ export const TargetSearchSheet = ({ data }: { data: TargetSearchData }) => (
 
 export const AttentionDevelopmentSheet = ({ data }: { data: AttentionDevelopmentData }) => (
     <div className="space-y-8 font-lexend p-2">
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-2 print:gap-3 print:p-3 mt-6 print:mt-2">
             {(data.puzzles || []).map((p: any, i: number) => (
                 <div key={i} className="bg-white border-[3px] border-zinc-900 rounded-[2.5rem] p-8 print:p-2 print:p-3 shadow-sm break-inside-avoid group hover:border-indigo-50 transition-all">
@@ -136,7 +136,7 @@ export const AttentionDevelopmentSheet = ({ data }: { data: AttentionDevelopment
 
 export const AttentionFocusSheet = ({ data }: { data: AttentionFocusData }) => (
     <div className="font-lexend p-2">
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-2 print:gap-3 print:p-3 mt-6 print:mt-2">
             {(data.puzzles || []).map((puzzle: any, i: number) => (
                 <div key={i} className="bg-white border-[3px] border-zinc-900 rounded-[2.5rem] p-8 print:p-2 print:p-3 shadow-sm break-inside-avoid flex flex-col group hover:border-indigo-50 transition-all">

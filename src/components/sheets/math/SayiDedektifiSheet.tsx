@@ -41,7 +41,6 @@ export const SayiDedektifiSheet: React.FC<{ data?: Partial<SayiDedektifiData> }>
     <PedagogicalHeader
       title={d.title || 'Sayı Dedektifi Macerası'}
       instruction={d.instruction || 'İpuçlarını takip et, gizli sayıları bul!'}
-      note={d.pedagogicalNote}
     />
     
     <div className="grid grid-cols-2 gap-4 mt-4 print:gap-3">

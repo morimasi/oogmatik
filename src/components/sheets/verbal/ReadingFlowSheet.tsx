@@ -9,7 +9,6 @@ export const ReadingFlowSheet = ({ data }: { data: ReadingFlowData }) => (
     <PedagogicalHeader
       title={data.title}
       instruction="Metni önce heceleyerek, sonra akıcı bir şekilde oku."
-      note={data.pedagogicalNote}
     />
     <div className="mt-10 print:mt-3 p-12 print:p-3 print:p-4 print:p-1 bg-zinc-50 border-4 border-zinc-100 rounded-[3.5rem] shadow-inner flex flex-col justify-center overflow-hidden">
       {(data.text?.paragraphs || []).map((p, pIdx) => (

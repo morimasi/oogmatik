@@ -21,7 +21,6 @@ export const StoryAnalysisSheet: React.FC<{ data: StoryAnalysisData; settings?: 
             <PedagogicalHeader 
                 title={content.title || 'Hikaye Analizi'} 
                 instruction={data.instruction || 'Hikayeyi derinlemesine analiz et.'} 
-                note={data.pedagogicalNote} 
             />
 
             {/* Hikaye Metni */}

@@ -15,7 +15,6 @@ export const MorphologyMatrixSheet = ({ data }: { data: MorphologyMatrixData }) 
           data?.instruction ||
           'Aşağıdaki kök kelimelere uygun ekleri getirerek yeni kelimeler türetin.'
         }
-        note={data?.pedagogicalNote}
       />
 
       <div

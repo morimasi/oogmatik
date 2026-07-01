@@ -6,7 +6,7 @@ import { EditableElement, EditableText } from '../../Editable';
 
 export const RealLifeMathProblemsSheet = ({ data }: { data: RealLifeProblemData }) => (
     <div className="flex flex-col font-lexend">
-        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
+        <PedagogicalHeader title={data?.title} instruction={data?.instruction} data={data} />
         <div className="space-y-10 mt-6 print:mt-2">
             {(data?.problems || []).map((problem, index) => (
                 <EditableElement key={index} className="border-b-2 border-zinc-100 pb-8 print:pb-2 break-inside-avoid flex flex-col gap-4 print:gap-1 group">

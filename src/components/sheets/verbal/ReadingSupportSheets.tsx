@@ -7,7 +7,7 @@ import { EditableElement, EditableText } from '../../Editable';
 
 export const ReadingFlowSheet = ({ data }: { data: ReadingFlowData }) => (
     <div className="flex flex-col font-lexend p-2">
-        <PedagogicalHeader title={data.title} instruction="Metni önce heceleyerek, sonra akıcı bir şekilde oku." note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction="Metni önce heceleyerek, sonra akıcı bir şekilde oku." />
         <div className="mt-10 print:mt-3 p-12 print:p-3 print:p-4 print:p-1 bg-zinc-50 border-4 border-zinc-100 rounded-[3.5rem] shadow-inner flex-1 flex flex-col justify-center">
             {(data.text?.paragraphs || []).map((p: any, pIdx: number) => (
                 <div key={pIdx} className="mb-8 print:mb-2 last:mb-0">
@@ -26,7 +26,7 @@ export const ReadingFlowSheet = ({ data }: { data: ReadingFlowData }) => (
 
 export const PhonologicalAwarenessSheet = ({ data }: { data: PhonologicalAwarenessData }) => (
     <div className="flex flex-col font-lexend p-2">
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} />
         <div className="space-y-6 mt-8 print:mt-2">
             {(data.exercises || []).map((ex: any, i: number) => (
                 <div key={i} className="p-8 print:p-2 print:p-3 bg-white border-[3px] border-zinc-900 rounded-[2.5rem] flex justify-between items-center group hover:bg-zinc-50 transition-all shadow-sm">
@@ -50,7 +50,6 @@ export const RapidNamingSheet = ({ data }: { data: RapidNamingData }) => {
             <PedagogicalHeader
                 title={data.title || "HIZLI İSİMLENDİRME (RAN)"}
                 instruction={data.instruction || "Öğeleri soldan sağa, mümkün olduğunca hızlı ve hatasız bir şekilde isimlendirin."}
-                note={data.pedagogicalNote}
             />
 
             <div className={`mt-8 print:mt-2 flex-1 content-start ${isRows ? 'flex flex-col gap-6 print:gap-2' : 'grid grid-cols-1 gap-4 print:gap-1'}`}>
@@ -100,7 +99,7 @@ export const RapidNamingSheet = ({ data }: { data: RapidNamingData }) => {
 
 export const LetterDiscriminationSheet = ({ data }: { data: LetterDiscriminationData }) => (
     <div className="flex flex-col font-lexend p-2">
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} />
         <div className="mt-6 print:mt-2 text-center mb-8 print:mb-2">
             <div className="inline-flex gap-4 print:gap-1 p-4 print:p-1 bg-zinc-900 rounded-[2rem] border-4 border-white shadow-2xl">
                 <span className="text-xs font-black text-indigo-400 self-center mr-2 uppercase tracking-widest">Hedefler:</span>
@@ -126,7 +125,6 @@ export const MirrorLettersSheet = ({ data }: { data: MirrorLettersData }) => {
             <PedagogicalHeader
                 title={data.title || "AYNA HARFLER AYRIŞTIRMA"}
                 instruction={data.instruction || `Hedef harf çiftini (${data.targetPair}) dikkatlice inceleyin ve farklı olanları işaretleyin.`}
-                note={data.pedagogicalNote}
             />
 
             <div className="mt-8 print:mt-2 text-center mb-10 print:mb-3 print:mb-4 print:mb-1">
@@ -181,7 +179,7 @@ export const MirrorLettersSheet = ({ data }: { data: MirrorLettersData }) => {
 
 export const SyllableTrainSheet = ({ data }: { data: SyllableTrainData }) => (
     <div className="flex flex-col font-lexend p-2">
-        <PedagogicalHeader title={data.title} instruction="Heceleri birleştirerek lokomotifin arkasındaki vagonları tamamla." note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction="Heceleri birleştirerek lokomotifin arkasındaki vagonları tamamla." />
         <div className="space-y-12 mt-10 print:mt-3 flex-1 content-start">
             {(data.trains || []).map((train: any, i: number) => (
                 <div key={i} className="flex items-center gap-3 overflow-x-auto pb-6 print:pb-2 scrollbar-hide break-inside-avoid">
@@ -211,7 +209,6 @@ export const VisualTrackingLinesSheet = ({ data }: { data: VisualTrackingLineDat
             <PedagogicalHeader
                 title={data.title || "GÖRSEL İZLEME MATRİSİ"}
                 instruction={data.instruction || "Çizgileri gözünüzle takip edin ve başlangıçtaki harf/sayı ile bitişteki kutucuğu eşleştirin."}
-                note={data.pedagogicalNote}
             />
 
             <div className="mt-8 print:mt-2 flex-1 relative bg-zinc-50 border-4 border-zinc-100 rounded-[4rem] p-10 print:p-3 print:p-4 print:p-1 shadow-inner group overflow-hidden">
@@ -288,7 +285,7 @@ export const VisualTrackingLinesSheet = ({ data }: { data: VisualTrackingLineDat
 
 export const BackwardSpellingSheet = ({ data }: { data: BackwardSpellingData }) => (
     <div className="flex flex-col font-lexend p-2">
-        <PedagogicalHeader title={data.title} instruction="Kelimeleri son harfinden başlayarak geriye doğru yaz." note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction="Kelimeleri son harfinden başlayarak geriye doğru yaz." />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-2 print:gap-3 print:p-3 mt-10 print:mt-3 flex-1 content-start">
             {(data.items || []).map((item: any, i: number) => (
                 <EditableElement key={i} className="p-8 print:p-2 print:p-3 border-[3px] border-zinc-900 rounded-[2.5rem] bg-white shadow-sm flex flex-col gap-5 print:gap-1 group hover:border-indigo-500 transition-all break-inside-avoid">
@@ -304,7 +301,7 @@ export const BackwardSpellingSheet = ({ data }: { data: BackwardSpellingData }) 
 
 export const CodeReadingSheet = ({ data }: { data: CodeReadingData }) => (
     <div className="flex flex-col font-lexend p-2">
-        <PedagogicalHeader title={data.title} instruction="Sembollerin karşılığı olan harfleri kullanarak şifreli kelimeleri çöz." note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction="Sembollerin karşılığı olan harfleri kullanarak şifreli kelimeleri çöz." />
         <div className="bg-zinc-900 p-8 print:p-2 print:p-3 rounded-[3.5rem] border-4 border-white shadow-2xl mb-12 print:mb-3 mt-6 print:mt-2 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 print:p-1 opacity-5 rotate-12"><i className="fa-solid fa-key text-[8rem]"></i></div>
             <h4 className="text-[11px] font-black uppercase text-indigo-400 mb-6 print:mb-2 tracking-[0.4em] flex items-center gap-3"><i className="fa-solid fa-lock-open"></i> ŞİFRE ANAHTARI</h4>
@@ -336,7 +333,7 @@ export const CodeReadingSheet = ({ data }: { data: CodeReadingData }) => (
 
 export const AttentionToQuestionSheet = ({ data }: { data: AttentionToQuestionData }) => (
     <div className="flex flex-col font-lexend p-2">
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} />
         <div className="flex-1 mt-6 print:mt-2 flex flex-col justify-center">
             {data.subType === 'letter-cancellation' && data.grid && (
                 <div className="space-y-8">
@@ -355,7 +352,7 @@ export const AttentionToQuestionSheet = ({ data }: { data: AttentionToQuestionDa
 
 export const HandwritingPracticeSheet = ({ data }: { data: HandwritingPracticeData }) => (
     <div className="flex flex-col font-lexend p-2">
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} />
         <div className="space-y-16 mt-12 print:mt-3 flex-1">
             {(data.lines || []).map((line: any, i: number) => (
                 <div key={i} className="flex gap-8 print:gap-2 print:gap-3 print:p-3 items-start break-inside-avoid group">

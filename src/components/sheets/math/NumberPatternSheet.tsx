@@ -6,7 +6,7 @@ import { EditableElement, EditableText } from '../../Editable';
 
 export const NumberPatternSheet = ({ data }: { data: NumberPatternData }) => (
     <div className="flex flex-col">
-        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
+        <PedagogicalHeader title={data?.title} instruction={data?.instruction} data={data} />
         <div className="space-y-4 mt-4 print:mt-1">
             {(data?.patterns || []).map((pattern, index) => (
                 <EditableElement key={index} className="flex items-center gap-6 print:gap-2 p-6 print:p-2 border-2 border-zinc-100 bg-white rounded-2xl break-inside-avoid shadow-sm hover:border-indigo-200 transition-colors">

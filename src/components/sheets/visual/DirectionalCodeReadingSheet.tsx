@@ -22,7 +22,6 @@ export const DirectionalCodeReadingSheet: React.FC<{ data: DirectionalCodeReadin
       <PedagogicalHeader
         title={(data as any)?.title || (content as any)?.title || 'ŞİFRE VE ROTA MATRİSİ'}
         instruction={(data as any)?.instruction || (content as any)?.instruction || 'Yönerge kutusundaki kodları analiz et, rotayı zihninde canlandır ve bitiş noktasına ulaş.'}
-        note={(data as any)?.pedagogicalNote || (content as any)?.pedagogicalNote}
       />
 
       <div className={`flex-1 grid ${isMulti ? 'grid-cols-2 mt-2 gap-6 print:gap-4' : 'grid-cols-1 mt-4 max-w-4xl mx-auto w-full gap-6'} content-start h-full print:max-h-full`}>

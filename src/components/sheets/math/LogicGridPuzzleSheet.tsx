@@ -6,7 +6,7 @@ import { EditableElement, EditableText } from '../../Editable';
 
 export const LogicGridPuzzleSheet = ({ data }: { data: LogicGridPuzzleData }) => (
     <div className="flex flex-col font-lexend">
-        <PedagogicalHeader title={data?.title} instruction={data?.instruction} note={data?.pedagogicalNote} data={data} />
+        <PedagogicalHeader title={data?.title} instruction={data?.instruction} data={data} />
         <div className="flex flex-col gap-10 print:gap-3 print:gap-4 print:gap-1 print:p-4 print:p-1 mt-4 print:mt-1">
             <EditableElement className="text-base border-[3px] border-zinc-900 p-8 print:p-2 print:p-3 bg-zinc-50 rounded-[3rem] shadow-sm">
                 <h4 className="font-black text-[10px] uppercase tracking-[0.4em] text-indigo-600 mb-6 print:mb-2 flex items-center gap-3">

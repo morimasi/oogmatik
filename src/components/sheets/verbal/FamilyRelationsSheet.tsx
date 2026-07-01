@@ -11,7 +11,6 @@ export const FamilyRelationsSheet = ({ data }: { data: FamilyRelationsData }) =>
       <PedagogicalHeader
         title={data.title}
         instruction={data.instruction}
-        note={data.pedagogicalNote}
       />
 
       <div className="flex flex-col gap-10 print:gap-3 print:gap-4 print:gap-1 print:p-4 print:p-1 mt-6 print:mt-2">

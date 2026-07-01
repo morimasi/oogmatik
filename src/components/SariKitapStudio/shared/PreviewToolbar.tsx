@@ -1,6 +1,5 @@
 import React from 'react';
 import { useSariKitapStore } from '../../../store/useSariKitapStore';
-import { useUIStore } from '../../../store/useUIStore';
 
 interface PreviewToolbarProps {
     onPrint: () => void;
@@ -28,9 +27,6 @@ export const PreviewToolbar = ({
         toggleGrid,
         generatedContent 
     } = useSariKitapStore();
-    const showPedagogicalNote = useUIStore((state) => state.styleSettings.showPedagogicalNote);
-    const updateStyleSettings = useUIStore((state) => state.updateStyleSettings);
-
     return (
         <div className="flex items-center justify-between w-full p-2 mb-6 rounded-2xl shadow-xl z-30" style={{ backgroundColor: 'var(--surface-glass)', backdropFilter: 'blur(20px)', border: '1px solid var(--border-color)' }}>
             <div className="flex items-center gap-2 px-2">
@@ -122,13 +118,6 @@ export const PreviewToolbar = ({
                     title="Izgara Göster/Gizle"
                 >
                     #
-                </button>
-                <button
-                    className={`sk-btn sk-btn-icon ${showPedagogicalNote ? 'active' : ''}`}
-                    onClick={() => updateStyleSettings({ showPedagogicalNote: !showPedagogicalNote })}
-                    title={showPedagogicalNote ? 'Öğretmen Notunu Gizle' : 'Öğretmen Notunu Göster'}
-                >
-                    <i className="fa-solid fa-graduation-cap"></i>
                 </button>
             </div>
 

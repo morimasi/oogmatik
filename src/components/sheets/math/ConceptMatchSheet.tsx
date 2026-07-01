@@ -6,7 +6,7 @@ import { EditableText } from '../../Editable';
 
 export const ConceptMatchSheet = ({ data }: { data: ConceptMatchData }) => (
     <div className="font-lexend p-2">
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} />
         <div className="space-y-6 mt-10 print:mt-3 max-w-4xl mx-auto">
             {(data.pairs || []).map((pair, idx) => (
                 <div key={idx} className="flex items-center justify-between p-6 print:p-2 bg-white rounded-3xl border-[3px] border-zinc-900 shadow-sm break-inside-avoid group hover:border-indigo-50 transition-all">

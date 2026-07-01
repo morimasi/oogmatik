@@ -30,7 +30,6 @@ export const EsAnlamliKelimelerSheet: React.FC<Props> = ({ data }) => {
         <PedagogicalHeader
           title={activity.title || 'EŞ ANLAMLI KELİMELER'}
           instruction={activity.instruction || 'Her kelimenin eş anlamlılarını incele ve cümleyi tamamla.'}
-          note={activity.pedagogicalNote}
         />
 
         <div className={`grid ${colsClass} gap-3 print:gap-2 flex-1 content-start`}>
@@ -122,7 +121,6 @@ export const EsAnlamliKelimelerSheet: React.FC<Props> = ({ data }) => {
       <PedagogicalHeader
         title={activity.title || 'EŞ ANLAMLI KELİMELER'}
         instruction={activity.instruction || 'Her kelimenin eş anlamlılarını incele.'}
-        note={activity.pedagogicalNote}
       />
       <div className="flex flex-col gap-2 mt-3">
         {items.map((item, idx) => (

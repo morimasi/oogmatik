@@ -113,7 +113,7 @@ export const MapDetectiveSheet = ({ data }: { data: MapInstructionData }) => {
                     width: scale < 1 ? `${100 / scale}%` : '100%',
                 }}
             >
-                <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+                <PedagogicalHeader title={data.title} instruction={data.instruction} />
 
                 {/* HARİTA KANVASI */}
                 <div className="relative w-full aspect-[1000/500] bg-white border-[4px] border-zinc-900 rounded-[2rem] overflow-hidden shadow-lg mb-4 print:mb-2 group print:border-[3px] print:rounded-xl" style={{ minHeight: '180px' }}>

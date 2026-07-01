@@ -34,7 +34,6 @@ export const SynonymAntonymMatchSheet = React.memo(({ data }: { data: any }) => 
       <PedagogicalHeader
         title={data.title || 'EŞ ANLAMLI KELİMELER'}
         instruction={data.instruction || 'Kelimeleri anlamdaşları ile eşleştir ve cümleleri tamamla.'}
-        note={data.pedagogicalNote}
       />
 
       <div className="flex-1 flex flex-col gap-8 print:gap-4 mt-6">

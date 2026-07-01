@@ -11,7 +11,6 @@ export const StorySequencingSheet: React.FC<{ data: StorySequencingData }> = ({ 
             <PedagogicalHeader 
                 title={content.title} 
                 instruction={data.instruction || "Olayları oluş sırasına göre numaralandırın."} 
-                note={data.pedagogicalNote} 
             />
 
             {content.transitionWords && content.transitionWords.length > 0 && (

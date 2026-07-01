@@ -55,7 +55,6 @@ export const Toolbar = ({
 }: ToolbarProps) => {
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
   const { isEditorOpen, setEditorOpen } = useA4EditorStore();
-  const showPedagogicalNote = useUIStore((state) => state.styleSettings.showPedagogicalNote);
   const updateStyleSettings = useUIStore((state) => state.updateStyleSettings);
 
   const updateSetting = (key: keyof StyleSettings, value: any) => {
@@ -189,20 +188,6 @@ export const Toolbar = ({
 
       {/* SAĞ GRUP: Aksiyonlar & Çıktı */}
       <div className="flex items-center gap-2">
-        {/* Pedagojik Not Hızlı Anahtarı */}
-        <button
-          className={`h-9 px-4 rounded-xl flex items-center justify-center gap-2 font-bold text-[11px] uppercase tracking-wider transition-all ${
-            showPedagogicalNote
-              ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30 shadow-lg shadow-amber-500/10'
-              : 'bg-transparent hover:bg-zinc-800/50 text-zinc-300 border border-zinc-700/50'
-          }`}
-          onClick={() => updateStyleSettings({ showPedagogicalNote: !showPedagogicalNote })}
-          title={showPedagogicalNote ? 'Öğretmen Notunu Gizle' : 'Öğretmen Notunu Göster'}
-        >
-          <i className="fa-solid fa-graduation-cap"></i>
-          <span className="hidden sm:inline">Öğretmen Notu</span>
-        </button>
-
         {isCurriculumMode && onCompleteCurriculumTask && (
             <button
                 onClick={onCompleteCurriculumTask}

@@ -71,7 +71,7 @@ export const AlgorithmSheet = ({ data }: { data: AlgorithmData }) => {
 
     return (
         <div className="h-full  flex flex-col text-black font-lexend p-2 overflow-visible">
-            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+            <PedagogicalHeader title={data.title} instruction={data.instruction} data={data} />
 
             <div className="mb-12 print:mb-3 p-10 print:p-3 print:p-4 print:p-1 bg-zinc-900 text-white rounded-[4rem] shadow-2xl relative overflow-hidden border-4 border-white ring-2 ring-zinc-100">
                 <div className="absolute top-0 right-0 p-8 print:p-2 print:p-3 opacity-10 rotate-12 -translate-y-4 translate-x-4"><i className="fa-solid fa-microchip text-[12rem]"></i></div>

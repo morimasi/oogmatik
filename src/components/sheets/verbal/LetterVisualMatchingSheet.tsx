@@ -8,7 +8,6 @@ export const LetterVisualMatchingSheet = ({ data }: { data: LetterVisualMatching
     <PedagogicalHeader
       title={data.title}
       instruction={data.instruction}
-      note={data.pedagogicalNote}
     />
     <div className="grid grid-cols-2 gap-6 print:gap-2 mt-8 print:mt-2">
       {(data.pairs || []).map((pair, idx) => (

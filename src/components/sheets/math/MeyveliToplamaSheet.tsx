@@ -35,7 +35,6 @@ export const MeyveliToplamaSheet: React.FC<{ data: MeyveliToplamaData }> = ({ da
       <PedagogicalHeader
         title={data.title || 'Meyveli Matematik Bulmacası'}
         instruction={data.instruction || 'Satır ve sütunlardaki toplamları kullanarak her meyvenin değerini bulunuz.'}
-        note={data.pedagogicalNote}
       />
 
       <div className={getGridContainerClass()}>

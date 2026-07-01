@@ -7,7 +7,7 @@ import { EditableElement, EditableText } from '../../Editable';
 export const NumberPathLogicSheet = ({ data }: { data: NumberPathLogicData }) => {
     return (
         <div className="flex flex-col h-full font-lexend p-2 text-black bg-white overflow-visible">
-            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+            <PedagogicalHeader title={data.title} instruction={data.instruction} data={data} />
 
             {/* LEJANT (Legend) - Premium Card Style */}
             <div className="mt-2 print:mt-1 mb-4 print:mb-2 bg-zinc-900 text-white p-4 print:p-2 rounded-[2rem] shadow-xl border-4 border-white flex justify-around items-center break-inside-avoid relative overflow-hidden">

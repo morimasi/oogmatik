@@ -42,7 +42,6 @@ export const ReadingPyramidSheet = ({ data, settings: globalSettings }: { data: 
       <PedagogicalHeader
         title={data.title}
         instruction={data.instruction}
-        note={data.pedagogicalNote}
       />
 
       <div className={`grid ${gridClass} ${gapClass} content-start flex-grow overflow-visible`}>

@@ -56,7 +56,7 @@ export const CapsuleGameSheet = ({ data, settings: _settings }: { data: NumberCa
 
   return (
     <div className={`flex flex-col ${theme.bg} ${theme.textColor || 'text-black'} font-['Lexend'] min-h-[297mm] p-4 print:p-3 transition-colors duration-500`}>
-      <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+      <PedagogicalHeader title={data.title} instruction={data.instruction} data={data} />
 
       {/* Legend */}
       <div className="flex flex-wrap gap-2 items-center mb-2 text-[8px] font-bold text-zinc-500">

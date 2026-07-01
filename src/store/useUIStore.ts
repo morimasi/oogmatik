@@ -42,7 +42,6 @@ const initialStyleSettings: StyleSettings = {
   fontWeight: 'normal',
   fontStyle: 'normal',
   visualStyle: 'card',
-  showPedagogicalNote: false,
   showAnswers: false,
   showClues: false,
   showMascot: false,

@@ -18,7 +18,6 @@ export const EsAnlamliKelimelerSheet: React.FC<{ data: EsAnlamliKelimelerData }>
     <PedagogicalHeader
       title={data.title || 'Eş Anlamlı Kelimeler'}
       instruction={data.instruction || 'Eş anlamlıları bul!'}
-      note={data.pedagogicalNote}
     />
     <div className="mt-8 grid grid-cols-2 gap-4">
       {data.pairs?.map((pair, i) => (

@@ -1,7 +1,6 @@
 // @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import { ShapeType, BaseActivityData } from '../../types';
-import { useUIStore } from '../../store/useUIStore';
 
 // --- KLİNİK RENK PALETİ ---
 export const CLINICAL_COLORS = {
@@ -40,16 +39,12 @@ export const PedagogicalHeader = React.memo(
   ({
     title,
     instruction,
-    note,
     data,
   }: {
     title?: string;
     instruction?: string;
-    note?: string;
     data?: BaseActivityData;
   }) => {
-    const showPedagogicalNote = useUIStore((state) => state.styleSettings.showPedagogicalNote);
-
     return (
       <div className="pedagogical-header mb-2 w-full border-b-2 border-zinc-900 pb-1 print:mb-0.5 print:pb-0.5 print:border-b">
         <div className="flex items-start justify-between gap-6 print:gap-1">
@@ -74,12 +69,6 @@ export const PedagogicalHeader = React.memo(
             </div>
           )}
         </div>
-        {showPedagogicalNote && note && (
-          <p className="note mt-1 text-[10px] text-zinc-500 font-medium leading-relaxed max-w-3xl print:mt-0.5 print:text-[9px] print:leading-tight">
-            <i className="fa-solid fa-graduation-cap mr-2"></i>
-            {note}
-          </p>
-        )}
       </div>
     );
   }

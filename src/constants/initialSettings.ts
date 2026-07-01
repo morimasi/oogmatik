@@ -14,7 +14,6 @@ export const initialStyleSettings: StyleSettings = {
   fontWeight: 'normal',
   fontStyle: 'normal',
   visualStyle: 'card',
-  showPedagogicalNote: false,
   showMascot: false,
   showStudentInfo: true,
   showTitle: true,

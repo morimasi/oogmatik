@@ -19,7 +19,6 @@ export const FindLetterPairSheet = ({ data }: { data: FindLetterPairData }) => {
       <PedagogicalHeader
         title={data.title}
         instruction={data.instruction}
-        note={data.pedagogicalNote}
       />
 
       <div className={`grid ${gridColsClass} gap-x-12 gap-y-16 mt-8 print:mt-2 content-start`}>

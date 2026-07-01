@@ -9,7 +9,6 @@ export const FamilyLogicSheet = ({ data }: { data: FamilyLogicTestData }) => {
       <PedagogicalHeader
         title={data.title}
         instruction={data.instruction}
-        note={data.pedagogicalNote}
       />
 
       <div className="flex flex-col gap-4 print:gap-1 mt-6 print:mt-2 content-start max-w-4xl mx-auto w-full">

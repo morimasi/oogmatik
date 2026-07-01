@@ -9,7 +9,7 @@ export const HiddenPasswordGridSheet = ({ data }: { data: HiddenPasswordGridData
 
     return (
         <div className="w-full h-full  flex flex-col bg-white p-2 font-lexend">
-            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+            <PedagogicalHeader title={data.title} instruction={data.instruction} />
             <div className={`grid ${gridColsClass} gap-x-10 gap-y-12 mt-8 print:mt-2 flex-1 content-start`}>
                 {(data.grids || []).map((item, idx) => (
                     <div key={idx} className="flex flex-col items-center break-inside-avoid group">
@@ -44,7 +44,7 @@ export const HiddenPasswordGridSheet = ({ data }: { data: HiddenPasswordGridData
 
 export const AnagramSheet = ({ data }: { data: AnagramsData }) => (
     <div className="flex flex-col h-full  bg-white font-lexend p-2">
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} />
         <div className="grid grid-cols-2 md:grid-cols-3 gap-8 print:gap-2 print:gap-3 print:p-3 mt-10 print:mt-3 flex-1 content-start">
             {(data.anagrams || []).map((item, i) => (
                 <EditableElement key={i} className="flex flex-col gap-4 print:gap-1 p-6 print:p-2 border-[3px] border-zinc-900 rounded-[2.5rem] bg-white shadow-sm hover:shadow-xl transition-all break-inside-avoid group">
@@ -71,7 +71,6 @@ export const WordSearchSheet = ({ data }: { data: WordSearchData }) => {
             <PedagogicalHeader
                 title={data?.title || "KELİME BULMACA & GÖRSEL TARAMA"}
                 instruction={data?.instruction || "Aşağıdaki harf yığınının içine gizlenmiş kelimeleri bulun."}
-                note={data?.pedagogicalNote}
             />
 
             {/* KELIME BANDI — Üst Satır */}
@@ -158,7 +157,6 @@ export const CrosswordSheet = ({ data }: { data: CrosswordData }) => {
             <PedagogicalHeader
                 title={data?.title || "KARE BULMACA & SÖZEL BELLEK"}
                 instruction={data?.instruction || "Aşağıdaki ipuçlarını takip ederek bulmacayı doldurun."}
-                note={data?.pedagogicalNote}
             />
 
             <div className="flex flex-col gap-10 print:gap-3 print:gap-4 print:gap-1 print:p-4 print:p-1 mt-10 print:mt-3 flex-1 pb-10 print:pb-3">

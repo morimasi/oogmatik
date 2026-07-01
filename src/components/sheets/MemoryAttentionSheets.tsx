@@ -42,7 +42,7 @@ export const WordMemorySheet = ({ data }: { data: WordMemoryData }) => {
         <div className="w-full">
             {/* PAGE 1: MEMORIZE */}
             <div className="flex flex-col min-h-[500px] relative">
-                <PedagogicalHeader title={data.title} instruction="1. AŞAMA: Kelimeleri dikkatlice oku ve ezberle." note={data.pedagogicalNote} data={data} />
+                <PedagogicalHeader title={data.title} instruction="1. AŞAMA: Kelimeleri dikkatlice oku ve ezberle." data={data} />
 
                 <div className="flex-1 flex flex-col items-center justify-center">
                     <div className="bg-white border-4 border-black rounded-3xl p-8 print:p-2 print:p-3 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] max-w-2xl w-full text-center">
@@ -85,7 +85,7 @@ export const VisualMemorySheet = ({ data }: { data: VisualMemoryData }) => {
         <div className="w-full">
             {/* PAGE 1: MEMORIZE */}
             <div className="flex flex-col min-h-[500px] relative">
-                <PedagogicalHeader title={data.title} instruction="1. AŞAMA: Görselleri dikkatlice incele ve yerlerini ezberle." note={data.pedagogicalNote} data={data} />
+                <PedagogicalHeader title={data.title} instruction="1. AŞAMA: Görselleri dikkatlice incele ve yerlerini ezberle." data={data} />
 
                 <div className="flex-1 flex flex-col items-center justify-center">
                     <div className="grid grid-cols-3 md:grid-cols-4 gap-6 print:gap-2 w-full max-w-3xl">
@@ -133,7 +133,7 @@ export const CharacterMemorySheet = ({ data }: { data: CharacterMemoryData }) =>
         <div className="w-full">
             {/* PAGE 1 */}
             <div className="flex flex-col min-h-[500px] relative">
-                <PedagogicalHeader title={data.title} instruction="Bu karakterleri ve özelliklerini iyi ezberle." note={data.pedagogicalNote} data={data} />
+                <PedagogicalHeader title={data.title} instruction="Bu karakterleri ve özelliklerini iyi ezberle." data={data} />
 
                 <div className="flex-1 grid grid-cols-2 md:grid-cols-3 gap-8 print:gap-2 print:gap-3 print:p-3 items-center justify-center p-4 print:p-1">
                     {(data.charactersToMemorize || []).map((char, index) => (
@@ -176,7 +176,7 @@ export const ColorWheelSheet = ({ data }: { data: ColorWheelMemoryData }) => {
         <div className="w-full">
             {/* PAGE 1 */}
             <div className="flex flex-col min-h-[500px] relative">
-                <PedagogicalHeader title={data.title} instruction="Renk çemberindeki nesnelerin yerini ve rengini ezberle." note={data.pedagogicalNote} data={data} />
+                <PedagogicalHeader title={data.title} instruction="Renk çemberindeki nesnelerin yerini ve rengini ezberle." data={data} />
 
                 <div className="flex-1 flex items-center justify-center">
                     <EditableElement className="relative w-[300px] h-[300px]">
@@ -244,7 +244,7 @@ export const ImageComprehensionSheet = ({ data }: { data: ImageComprehensionData
     <div className="w-full">
         {/* Page 1 */}
         <div className="min-h-[500px] flex flex-col">
-            <PedagogicalHeader title={data.title} instruction="Metni oku ve sahneyi zihninde canlandır." note={data.pedagogicalNote} data={data} />
+            <PedagogicalHeader title={data.title} instruction="Metni oku ve sahneyi zihninde canlandır." data={data} />
 
             <div className="flex-1 flex items-center justify-center p-8 print:p-2 print:p-3">
                 <div className="bg-white p-8 print:p-2 print:p-3 border-4 border-black rounded-3xl shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] text-2xl font-medium leading-loose max-w-2xl text-center font-dyslexic text-black">
@@ -275,7 +275,7 @@ export const ImageComprehensionSheet = ({ data }: { data: ImageComprehensionData
 
 export const BurdonTestSheet = ({ data }: { data: LetterGridTestData }) => (
     <div className="w-full h-full ">
-        <PedagogicalHeader title="BURDON DİKKAT TESTİ" instruction={data.instruction || "Sırasıyla a, b, d, g harflerinin altını çizin."} note={data.pedagogicalNote} data={data} />
+        <PedagogicalHeader title="BURDON DİKKAT TESTİ" instruction={data.instruction || "Sırasıyla a, b, d, g harflerinin altını çizin."} data={data} />
 
         <div className="bg-white border-2 border-black rounded-lg p-1">
             {/* Standard Burdon Layout: Blocks of 10/20 chars lines */}
@@ -317,7 +317,7 @@ export const BurdonTestSheet = ({ data }: { data: LetterGridTestData }) => (
 
 export const ChaoticNumberSearchSheet = ({ data }: { data: ChaoticNumberSearchData }) => (
     <div className="relative h-full  flex flex-col w-full">
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} data={data} />
 
         <div className="flex-1 relative border-4 border-black rounded-3xl overflow-hidden bg-white min-h-[600px] shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
             {/* Target List on Top */}
@@ -369,7 +369,7 @@ export const ChaoticNumberSearchSheet = ({ data }: { data: ChaoticNumberSearchDa
 export const StroopTestSheet = ({ data }: { data: StroopTestData }) => (
     <div className="flex flex-col h-full  justify-between">
         <div className="shrink-0 mb-6 print:mb-2">
-            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+            <PedagogicalHeader title={data.title} instruction={data.instruction} data={data} />
         </div>
 
         {/* Main Content: High density grid for A4 filling */}
@@ -417,7 +417,7 @@ export const StroopTestSheet = ({ data }: { data: StroopTestData }) => (
 // Standard sheets reuse common layouts but with StudentInfoStrip added
 const StandardSheet = ({ data, children }: { data: any, children: any }) => (
     <div>
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} data={data} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} data={data} />
         {children}
         <ScoreTable rows={1} />
     </div>
@@ -503,7 +503,7 @@ export const TargetSearchSheet = ({ data }: { data: TargetSearchData }) => (
 export const AttentionDevelopmentSheet = ({ data }: { data: AttentionDevelopmentData }) => {
     return (
         <div>
-            <PedagogicalHeader title={data.title} instruction={data.instruction || "Yönergeleri takip et ve doğru sayıyı bul."} note={data.pedagogicalNote} data={data} />
+            <PedagogicalHeader title={data.title} instruction={data.instruction || "Yönergeleri takip et ve doğru sayıyı bul."} data={data} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-2 print:gap-3 print:p-3">
                 {(data.puzzles || []).map((puzzle, i) => (
                     <EditableElement key={i} className="bg-white dark:bg-zinc-800 border-2 border-zinc-300 dark:border-zinc-600 rounded-xl p-5 print:p-1 shadow-sm break-inside-avoid flex flex-col h-full ">
@@ -551,7 +551,7 @@ export const AttentionDevelopmentSheet = ({ data }: { data: AttentionDevelopment
 export const AttentionFocusSheet = ({ data }: { data: AttentionFocusData }) => {
     return (
         <div>
-            <PedagogicalHeader title={data.title} instruction={data.instruction || "İpuçlarını oku ve doğru cevabı bul."} note={data.pedagogicalNote} data={data} />
+            <PedagogicalHeader title={data.title} instruction={data.instruction || "İpuçlarını oku ve doğru cevabı bul."} data={data} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-2 print:gap-3 print:p-3">
                 {(data.puzzles || []).map((puzzle, i) => (
                     <EditableElement key={i} className="bg-white dark:bg-zinc-800 border-2 border-zinc-400 dark:border-zinc-500 rounded-xl p-5 print:p-1 shadow-md break-inside-avoid flex flex-col h-full  relative">

@@ -16,7 +16,6 @@ export const NumberLogicRiddleSheet = ({ data }: { data: NumberLogicRiddleData }
             <PedagogicalHeader
                 title={data.title || "Sayısal Mantık Bilmeceleri"}
                 instruction={data.instruction || "Bilmeceleri çöz, doğru şıkkı işaretle ve sonuçları topla!"}
-                note={data.pedagogicalNote}
             />
 
             <div className={`grid ${gridCols} gap-x-6 gap-y-8 mt-2 flex-1 content-start`}>

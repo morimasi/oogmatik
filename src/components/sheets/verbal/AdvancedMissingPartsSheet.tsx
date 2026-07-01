@@ -14,7 +14,6 @@ export const AdvancedMissingPartsSheet: React.FC<{ data: any }> = React.memo(({ 
       <PedagogicalHeader
         title={data.title || content.title || 'EKSİK PARÇALARI TAMAMLA'}
         instruction={data.instruction || content.instruction || 'Cümlelerdeki boşlukları anlam bütünlüğüne uygun şekilde doldurun.'}
-        note={data.pedagogicalNote || content.pedagogicalNote}
       />
 
       <div className="flex-1 flex flex-col gap-8 print:gap-4 mt-6">

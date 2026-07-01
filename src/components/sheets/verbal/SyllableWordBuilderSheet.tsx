@@ -8,7 +8,6 @@ export const SyllableWordBuilderSheet = ({ data }: { data: SyllableWordBuilderDa
     <PedagogicalHeader
       title={data.title}
       instruction={data.instruction}
-      note={data.pedagogicalNote}
       data={data}
     />
 

@@ -128,7 +128,6 @@ export const KavramHaritasiSheet: React.FC<Props> = ({ data }) => {
       <PedagogicalHeader
         title={activity.title || 'KAVRAM HARİTASI'}
         instruction={activity.instruction || 'Boş kutulara uygun kavramları yazarak haritayı tamamla.'}
-        note={activity.pedagogicalNote}
       />
 
       <div className="flex-1 flex items-center justify-center bg-zinc-50 rounded-2xl border border-zinc-200 overflow-hidden">

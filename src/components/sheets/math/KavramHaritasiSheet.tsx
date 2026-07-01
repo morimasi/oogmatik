@@ -23,7 +23,6 @@ export const KavramHaritasiSheet: React.FC<{ data: KavramHaritasiData }> = ({ da
       <PedagogicalHeader
         title={data.title || 'Kavram Haritası'}
         instruction={data.instruction || 'Haritayı tamamla!'}
-        note={data.pedagogicalNote}
       />
       <div className="mt-12 relative min-h-[500px] flex justify-center">
         {/* Merkez */}

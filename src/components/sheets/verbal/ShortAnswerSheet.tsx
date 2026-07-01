@@ -16,7 +16,6 @@ export const ShortAnswerSheet = React.memo(({ data }: { data: any }) => {
       <PedagogicalHeader
         title={data.title || content.title || 'KISA CEVAPLI SORULAR'}
         instruction={data.instruction || content.instruction || 'Soruları dikkatle okuyun ve cevapları boşluklara yazın.'}
-        note={data.pedagogicalNote || content.pedagogicalNote}
       />
 
       <div className="flex-1 flex flex-col gap-6 print:gap-3 mt-6">

@@ -46,7 +46,7 @@ export const MoneyCountingSheet = ({ data }: { data: MoneyCountingData }) => {
     
     return (
         <div className="flex flex-col h-full font-lexend p-2 bg-white">
-            <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+            <PedagogicalHeader title={data.title} instruction={data.instruction} />
             <div className={`grid ${gridCols} gap-2 print:gap-1 mt-2 flex-1 content-start w-full max-w-full mx-auto`}>
                 {(data.puzzles || []).map((puzzle, idx) => (
                     <div key={idx} className="p-2 print:p-1 bg-white border-[2px] border-zinc-900 rounded-[1.5rem] flex flex-col gap-2 print:gap-1 break-inside-avoid shadow-sm group hover:border-indigo-200 transition-all relative">

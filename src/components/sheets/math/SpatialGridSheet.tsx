@@ -6,7 +6,7 @@ import { EditableText } from '../../Editable';
 
 export const SpatialGridSheet = ({ data }: { data: SpatialGridData }) => (
     <div className="font-lexend p-2">
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} />
         <div className="grid grid-cols-1 gap-12 print:gap-3 print:gap-4 print:gap-1 mt-10 print:mt-3 justify-items-center">
             {(data.tasks || []).map((task, idx) => (
                 <div key={idx} className="w-full flex flex-col items-center break-inside-avoid">

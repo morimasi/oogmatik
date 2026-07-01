@@ -73,7 +73,6 @@ export const BoxMathSheet: React.FC<{ data: BoxMathData }> = ({ data }) => {
       <PedagogicalHeader
         title={data.title}
         instruction={data.instruction}
-        note={data.pedagogicalNote}
       />
 
       <div className={`grid ${sz.grid} mt-4`}>

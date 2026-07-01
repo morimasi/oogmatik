@@ -105,7 +105,6 @@ const Worksheet = ({ activityType, data, settings, studentProfile, showQR }: Wor
       '--grid-columns': `repeat(${userCols}, minmax(0, 1fr))`,
       '--display-title': settings.showTitle ? 'block' : 'none',
       '--display-instruction': settings.showInstruction ? 'block' : 'none',
-      '--display-pedagogical-note': settings.showPedagogicalNote ? 'block' : 'none',
       '--display-image': settings.showImage ? 'block' : 'none',
       '--worksheet-is-compact': settings.compact ? '1' : '0',
     } as unknown as React.CSSProperties;

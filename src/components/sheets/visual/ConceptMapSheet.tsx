@@ -42,7 +42,6 @@ export const ConceptMapSheet: React.FC<{ data: any }> = React.memo(({ data }) =>
       <PedagogicalHeader
         title={data.title || 'KAVRAM HARİTASI İNFOGRAFİĞİ'}
         instruction={data.instruction || 'Hiyerarşiyi takip ederek eksik kavramları tamamlayın.'}
-        note={data.pedagogicalNote}
       />
 
       {/* ANA ŞEMA BÖLÜMÜ */}

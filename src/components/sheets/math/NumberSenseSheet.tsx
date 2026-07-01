@@ -6,7 +6,7 @@ import { EditableText } from '../../Editable';
 
 export const NumberSenseSheet = ({ data }: { data: NumberSenseData }) => (
     <div className="flex flex-col font-lexend p-2 bg-white">
-        <PedagogicalHeader title={data.title} instruction={data.instruction} note={data.pedagogicalNote} />
+        <PedagogicalHeader title={data.title} instruction={data.instruction} />
         <div className="space-y-12 mt-10 print:mt-3">
             {(data.exercises || []).map((ex, i) => (
                 <div key={i} className="p-10 print:p-3 print:p-4 print:p-1 border-[3px] border-zinc-900 rounded-[3rem] break-inside-avoid group">

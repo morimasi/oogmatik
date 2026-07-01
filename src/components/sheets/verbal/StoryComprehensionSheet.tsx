@@ -81,7 +81,6 @@ export const StoryComprehensionSheet = ({ data }: { data: InteractiveStoryData }
                 <PedagogicalHeader 
                     title={data?.title || "Okuma Anlama"} 
                     instruction={data?.instruction || "Hikayeyi en az 3 kez oku."} 
-                    note={data?.pedagogicalNote} 
                 />
             </div>
             <div className="flex flex-col items-center ml-6 bg-zinc-900 text-white p-3 rounded-2xl shadow-lg">

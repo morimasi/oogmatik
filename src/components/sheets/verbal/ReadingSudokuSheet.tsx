@@ -14,7 +14,6 @@ export const ReadingSudokuSheet = ({ data }: { data: ReadingSudokuData }) => {
         <PedagogicalHeader
           title={data.title}
           instruction={data.instruction}
-          note={data.pedagogicalNote}
         />
       </div>
 
