@@ -1095,7 +1095,7 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
     }
 
     const sorular: MatSoru[] = rawQuestions.map((q, index) => ({
-      id: q.id || `mat-q-${Date.now()}-${index}`,
+      id: q.id || "mat-q-" + Date.now() + "-" + index,
       tip: q.soru_tipi || q.tip || 'coktan_secmeli',
       zorluk:
         q.seviye === 'temel'
@@ -1136,12 +1136,12 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
 
       // Kritik hatalar varsa uyarı ekle (ama sınavı durma, kullanıcıya raporla)
       if (!validation.isValid && validation.errors.length > 0) {
-        logWarn(`[GÖRSEL UYUMSUZLUK] Soru ${i + 1} (${sorular[i].id}):`, validation.errors as unknown as unknown as unknown as Record<string, unknown>);
+        logWarn("[GÖRSEL UYUMSUZLUK] Soru " + (i + 1) + " (" + sorular[i].id + "):", validation.errors as unknown as unknown as unknown as Record<string, unknown>);
       }
     }
 
     // Sınav geneli validation raporu
-    const examValidationReport = generateExamValidationReport(sorular, `mat-exam-${Date.now()}`);
+    const examValidationReport = generateExamValidationReport(sorular, "mat-exam-" + Date.now());
 
     // Eğer kritik hatalar çoksa (>%30 soru) uyarı ver ama devam et
     const kritikHataYuzdesi =
@@ -1236,7 +1236,7 @@ ${gorselTalimat}
 
   const rawResult = (await callGeminiDirect(prompt, singleSchema)) as Record<string, unknown>;
   const result: MatSoru = {
-    id: `mat-q-${Date.now()}-${soruIndex}`,
+    id: "mat-q-" + Date.now() + "-" + soruIndex,
     tip: rawResult.soru_tipi || rawResult.tip || 'coktan_secmeli',
     zorluk:
       rawResult.seviye === 'temel'
@@ -1264,3 +1264,6 @@ ${gorselTalimat}
 export const generateMatSinavFromAI = async (options: any) => {
   return await generateMathExam(options as Record<string, unknown>);
 };
+
+
+
