@@ -1083,13 +1083,6 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
       unknown
     >;
 
-    if (
-    ) {
-        `Bu sınav ${settings.sinif}. sınıf Matematik dersi için ${settings.secilenKazanimlar.join(', ')} ` +
-        `kazanımlarını ölçmektedir. Başarı Anı Mimarisi ile ilk iki soru öğrencinin motivasyonunu artırmak için ` +
-        `kolay tutulmuştur. Öğretmen geri bildiriminde öğrencinin güçlü yönlerini vurgulaması önerilir.`;
-    }
-
     const rawQuestions = (aiResponse.questions || aiResponse.sorular || []) as unknown[];
     if (!Array.isArray(rawQuestions) || rawQuestions.length === 0) {
       throw new AppError(
