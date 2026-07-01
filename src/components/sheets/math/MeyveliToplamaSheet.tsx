@@ -8,7 +8,6 @@ interface MeyveliToplamaData {
   activityType: ActivityType;
   title: string;
   instruction: string;
-  pedagogicalNote: string;
   grid: { 
     fruits: string[]; 
     gridIndices: number[][]; 

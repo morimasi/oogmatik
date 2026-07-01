@@ -9,7 +9,6 @@ interface SayiDedektifiData {
   activityType: ActivityType;
   title: string;
   instruction: string;
-  pedagogicalNote: string;
   riddles: {
     id: string;
     mysteryNumber: number;
@@ -22,13 +21,13 @@ export const SayiDedektifiSheet: React.FC<{ data?: Partial<SayiDedektifiData> }>
   // Resolve a robust content object using PremiumBlockBuilder to support chained API safely
   const effectiveData: SayiDedektifiData = React.useMemo(() => {
     // If full data provided, use as is
-    if (data && (data.title || data.instruction || data.pedagogicalNote || (data.riddles && data.riddles.length > 0))) {
+    if (data && (data.title || data.instruction || (data.riddles && data.riddles.length > 0))) {
       return data as SayiDedektifiData;
     }
     const builder = new PremiumBlockBuilder()
       .addPremiumHeader((data as any)?.title || 'Sayı Dedektifi Macerası')
       .setInstruction((data as any)?.instruction || 'İpuçlarını takip et, gizli sayıları bul!')
-      .addPedagogicalNote((data as any)?.pedagogicalNote || 'Pedagojik not: güvenli ve kapsayıcı öğrenme.')
+
     if (data && (data as any).riddles) {
       for (const r of (data as any).riddles) builder.addRiddle(r as any);
     }

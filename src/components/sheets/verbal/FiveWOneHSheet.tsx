@@ -117,20 +117,6 @@ export const FiveWOneHSheet: React.FC<Props> = ({ data }) => {
                 </div>
             </div>
 
-            {/* PEDAGOJİK NOT - Ultra Compact */}
-            {data.pedagogicalNote && (
-                <div className="mt-4 pt-3 border-t border-slate-100 print:mt-2">
-                    <div className="bg-amber-50/30 rounded-lg p-2 border border-amber-100 print:bg-transparent print:border-none print:p-0">
-                        <div className="flex items-center gap-1 mb-1">
-                            <i className="fa-solid fa-graduation-cap text-[8px] text-amber-600"></i>
-                            <span className="text-[8px] font-black text-amber-800 uppercase tracking-tighter">Pedagojik Not:</span>
-                        </div>
-                        <p className="text-[9px] print:text-[8px] leading-relaxed text-slate-500 font-medium italic">
-                            {data.pedagogicalNote}
-                        </p>
-                    </div>
-                </div>
-            )}
 
             {/* MARKA VE TELİF FOOTER - Compact */}
             <footer className="mt-3 pt-2 flex justify-between items-center text-[8px] font-black text-slate-300 uppercase tracking-[0.2em] relative z-10">

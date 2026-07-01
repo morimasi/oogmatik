@@ -5,7 +5,6 @@ import { PedagogicalHeader } from '../common';
 interface KavramHaritasiSheetData {
   title?: string;
   instruction?: string;
-  pedagogicalNote?: string;
   nodes?: KavramHaritasiNode[];
   edges?: KavramHaritasiEdge[];
   examples?: string[];

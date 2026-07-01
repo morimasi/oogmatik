@@ -10,7 +10,6 @@ interface LetterConnectSheetProps {
   data: {
     instruction?: string;
     items?: LetterConnectItem[];
-    pedagogicalNote?: string;
     difficulty?: string;
   };
 }
@@ -27,7 +26,7 @@ interface LetterConnectItem {
 }
 
 export const LetterConnectSheet: React.FC<LetterConnectSheetProps> = ({ data }) => {
-  const { instruction, items = [], pedagogicalNote, difficulty = 'Orta' } = data;
+  const { instruction, items = [], difficulty = 'Orta' } = data;
 
   return (
     <div
@@ -77,13 +76,6 @@ export const LetterConnectSheet: React.FC<LetterConnectSheetProps> = ({ data }) 
         ))}
       </div>
 
-      {/* Pedagojik Not (Öğretmen İçin) */}
-      {pedagogicalNote && (
-        <div className="mt-4 pt-2 border-t border-dashed border-zinc-200 text-[8px] text-zinc-400 italic">
-          <i className="fa-solid fa-chalkboard-user mr-1" />
-          {pedagogicalNote}
-        </div>
-      )}
     </div>
   );
 };

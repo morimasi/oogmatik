@@ -126,17 +126,6 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
         ))}
       </div>
 
-      {/* Pedagojik Not — Yazdırmada gizle */}
-      {sinav.pedagogicalNote && !isPrinting && (
-        <div className="mt-6 border-2 border-emerald-200 bg-emerald-50 rounded-xl p-4" style={{ breakInside: 'avoid' }}>
-          <h3 className="text-sm font-bold text-emerald-800 mb-2 flex items-center gap-1">
-            <span>👨‍🏫</span> Öğretmenin Dikkatine
-          </h3>
-          <p className="text-sm text-emerald-900 leading-relaxed" style={{ fontFamily }}>
-            {sinav.pedagogicalNote}
-          </p>
-        </div>
-      )}
       {/* Yazdırma için özel CSS — compact layout + sayfa bölünmez soru kartları */}
       {isPrinting && (
         <style>{`

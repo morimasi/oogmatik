@@ -8,7 +8,6 @@ interface GizemliSayilarData {
   activityType: ActivityType;
   title: string;
   instruction: string;
-  pedagogicalNote: string;
   riddles: {
     id: string;
     mysteryNumber: number;

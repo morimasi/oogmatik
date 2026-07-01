@@ -214,7 +214,7 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
       pageCount: Math.ceil((aktifSinav.sorular?.length || 1) / 4), // Soru sayısına göre tahmini sayfa
       order: items.length,
       content: { ...aktifSinav, printConfig },
-      pedagogicalNote: 'Sınav Stüdyosu\'ndan eklendi.'
+
     });
     showSuccess('Kitapçığa eklendi!');
   };

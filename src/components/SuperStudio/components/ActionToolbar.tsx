@@ -40,7 +40,7 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
           title: (firstPage.title as string) || 'Adsız Etkinlik',
           instruction: (firstPage.instruction as string) || 'Aşağıdaki etkinliği dikkatlice tamamlayalım.',
           content: firstPage.content,
-          pedagogicalNote: (firstPage.pedagogicalNote as string) || '',
+
         },
       ];
 
@@ -89,7 +89,7 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
                  pageCount: generatedContents.length,
                  order: items.length,
                  content: { content: generatedContents },
-                 pedagogicalNote: 'Süper Türkçe Stüdyosu\'ndan eklendi.'
+
              });
              addToast('Fasiküle başarıyla eklendi!', 'success');
          }}

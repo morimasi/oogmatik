@@ -84,7 +84,6 @@ export const SortableItem: React.FC<SortableItemProps> = ({ id, item, onRemove, 
             </span>
           </div>
         </div>
-        </div>
 
         <div className="flex items-center gap-1 ml-2">
           <button

@@ -32,13 +32,6 @@ export const ReadingStroopSheet = ({ data }: { data: ReadingStroopData }) => {
         </span>
       </div>
 
-      {data.pedagogicalNote && (
-        <div className="mx-2 mt-1.5 mb-0.5 p-1.5 bg-amber-50 rounded-lg border border-amber-100 print:hidden">
-          <p className="text-[7px] text-amber-700 leading-tight">
-            <span className="font-black">Not:</span> {data.pedagogicalNote}
-          </p>
-        </div>
-      )}
 
       <div className="flex-1 px-2 py-3 print:py-1 print:px-1">
         <div

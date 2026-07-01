@@ -151,14 +151,6 @@ export const MathPuzzleSheet: React.FC<Props> = ({ data, settings: globalSetting
                 </div>
             </div>
 
-            {/* Pedagogical Note */}
-            {data?.pedagogicalNote && (
-                <div className={`mx-3 ${compact ? 'mt-1 mb-1.5' : 'mt-1.5 mb-2'} p-1.5 bg-amber-50 rounded-lg border border-amber-100`}>
-                    <p className={`text-amber-700 leading-tight ${compact ? 'text-[7px] print:text-[6px]' : 'text-[8px] print:text-[7px]'}`}>
-                        <span className="font-black">📝 Not:</span> {data.pedagogicalNote}
-                    </p>
-                </div>
-            )}
 
             {/* Bulmaca Grid */}
             <div className={`grid ${gridCols} ${compact ? 'gap-1.5 print:gap-1' : 'gap-2 print:gap-1.5'} ${compact ? 'mt-1.5' : 'mt-2'} flex-1 content-start px-3 print:px-2`}>

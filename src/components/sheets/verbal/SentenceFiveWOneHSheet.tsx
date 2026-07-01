@@ -109,18 +109,6 @@ export const SentenceFiveWOneHSheet: React.FC<Props> = ({ data }) => {
         ))}
       </div>
 
-      {/* Footer Pedagojik Not - Ultra Compact */}
-      {data.pedagogicalNote && (
-        <div className="mt-auto pt-2 flex items-center justify-between border-t border-zinc-100 opacity-60">
-            <p className="text-[8px] font-medium italic text-zinc-500 max-w-[300px]">
-                <span className="font-bold not-italic">Uzman:</span> {data.pedagogicalNote as string}
-            </p>
-            <div className="flex items-center gap-1">
-                <div className="w-4 h-4 bg-zinc-100 rounded flex items-center justify-center text-[8px]">⚙️</div>
-                <span className="text-[8px] font-black uppercase tracking-widest text-zinc-400">bdmind AI</span>
-            </div>
-        </div>
-      )}
     </div>
   );
 };

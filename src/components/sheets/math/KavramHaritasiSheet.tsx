@@ -8,7 +8,6 @@ interface KavramHaritasiData {
   activityType: ActivityType;
   title: string;
   instruction: string;
-  pedagogicalNote: string;
   nodes: { id: string; label: string; level: number; isEmpty: boolean }[];
   edges: { from: string; to: string }[];
   settings: Record<string, unknown>;

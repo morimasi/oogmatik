@@ -8,7 +8,6 @@ interface EsAnlamliKelimelerData {
   activityType: ActivityType;
   title: string;
   instruction: string;
-  pedagogicalNote: string;
   pairs: { word: string; synonyms: string[] }[];
   settings: Record<string, unknown>;
 }

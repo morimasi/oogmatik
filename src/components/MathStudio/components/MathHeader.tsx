@@ -110,8 +110,7 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
                             config: activeConfig,
                             pageConfig,
                             items: activeItems
-                        },
-
+                        }
                     });
                     toast.success('Fasiküle eklendi!');
                 }}

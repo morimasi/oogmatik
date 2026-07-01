@@ -6,7 +6,7 @@ interface HarfBaglamaSheetProps {
 }
 
 export const HarfBaglamaSheet: React.FC<HarfBaglamaSheetProps> = ({ data }) => {
-  const { instruction, items = [], pedagogicalNote, difficulty = 'Orta' } = data;
+  const { instruction, items = [], difficulty = 'Orta' } = data;
 
   return (
     <div className="w-full font-lexend p-[1cm] text-[12px] leading-[1.6] text-[#1a1a2e] bg-white rounded-3xl shadow-sm border border-slate-100 min-h-[900px] flex flex-col">
@@ -79,18 +79,6 @@ export const HarfBaglamaSheet: React.FC<HarfBaglamaSheetProps> = ({ data }) => {
         </div>
       </div>
 
-      {/* Premium Alt Bilgi (Pedagojik Not) */}
-      {pedagogicalNote && (
-        <div className="mt-auto pt-6 border-t border-slate-100">
-          <div className="flex items-start gap-2 text-[9px] text-slate-400/80 font-medium pb-2">
-            <i className="fa-solid fa-microscope mt-0.5 text-indigo-300" />
-            <p className="leading-snug max-w-3xl">
-              <strong className="text-slate-500 uppercase tracking-wider mr-1">Klinik Not:</strong>
-              {pedagogicalNote}
-            </p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
