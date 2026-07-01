@@ -1147,10 +1147,10 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
     const kritikHataYuzdesi =
       (examValidationReport.invalidQuestions / examValidationReport.totalQuestions) * 100;
     if (kritikHataYuzdesi > 30) {
-      logWarn(
-        "[KLİNİK PROTOKOL UYARISI] Sınavın %" + kritikHataYuzdesi.toFixed(0) + '"'inde görsel-metin uyumsuzluğu var. " + 
-          "Ortalama pedagojik skor: " + examValidationReport.averagePedagogicalScore + "/100"
-      );
+        logWarn(
+          "[KLİNİK PROTOKOL UYARISI] Sınavın %" + kritikHataYuzdesi.toFixed(0) + "'inde görsel-metin uyumsuzluğu var. " + 
+            "Ortalama pedagojik skor: " + examValidationReport.averagePedagogicalScore + "/100"
+        );
     }
 
     // Cevap anahtarı
@@ -1172,7 +1172,7 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
     const sinav: MatSinav = {
       id: "mat-exam-" + Date.now(),
       baslik:
-        (aiResponse.baslik as unknown as string) || " + settings.sinif + ". Sınıf Matematik Değerlendirme Sınavı",
+        (aiResponse.baslik as unknown as string) || settings.sinif + ". Sınıf Matematik Değerlendirme Sınavı",
       sinif: settings.sinif,
       secilenKazanimlar: settings.secilenKazanimlar,
       sorular,
