@@ -29,7 +29,7 @@ export const generateSemanticLinkerAI = async (
                 }
               }
             },
-            correctAnswerId: { type: "STRING" },
+            correctAnswerId: { type: "STRING" }
 
           }
         }

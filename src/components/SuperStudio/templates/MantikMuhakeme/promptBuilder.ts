@@ -106,7 +106,7 @@ A4 DOLU SAYFA KURALI (ZORUNLU):
 YANIT FORMATI — GEÇERLİ JSON:
 {
   "title": "${topic} - Mantık ve Muhakeme",
-  "content": "Tüm görevleri içeren Markdown bloğu. # H1 başlıkla başla. A4'ü tamamen doldur.",
+  "content": "Tüm görevleri içeren Markdown bloğu. # H1 başlıkla başla. A4'ü tamamen doldur."
 
 }
 `;
