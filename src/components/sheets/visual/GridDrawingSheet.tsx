@@ -11,10 +11,8 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
     const isStacked = settings?.layout === 'stacked' || gridDim >= 10;
     const gridType = settings?.gridType || 'dots';
     
-    // Layout logic: 2 ve daha fazla için grid mod (yan yana)
-    // 2 görev: 1 satır 2 sütun
-    // 4 görev: 2 satır 2 sütun
-    const isGridMode = puzzleCount >= 2;
+    // Layout logic: Tüm görevler TEK SÜTUN alt alta (2, 3, 4 görevler için)
+    const isGridMode = false; // Artık grid mod yok, hep tek sütun
 
     // A4 Baskı Alanı Optimizasyonu (Kullanılabilir Ortalama Alan: Yükseklik 840px, Genişlik 700px)
     const usableHeight = 840;
@@ -22,21 +20,13 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
 
     let calcCell = 24;
     
-    if (isGridMode) {
-        // Grid mod: 2 sütun
-        // 2 görev: 1 satır, her satırda 2 görev (her görevde 2 ızgara)
-        // 4 görev: 2 satır, her satırda 2 görev (her görevde 2 ızgara)
-        const rowCount = Math.ceil(puzzleCount / 2);
-        calcCell = Math.floor((usableHeight / (rowCount * 1.5)) / (gridDim + 1.5));
-        const limitW = Math.floor((usableWidth / 4) / (gridDim + 2)); // 2 görev, her görevde 2 ızgara
-        calcCell = Math.min(calcCell, limitW);
-    } else if (isStacked) {
-        // Tek sütun alt alta puzzle
+    if (isStacked) {
+        // Tek sütun alt alta puzzle (yüksek ızgaralar için)
         calcCell = Math.floor((usableHeight / (puzzleCount * 2)) / (gridDim + 1.2));
         const limitW = Math.floor(usableWidth / (gridDim + 2));
         calcCell = Math.min(calcCell, limitW);
     } else {
-        // Yan yana (Referans // Uygulama)
+        // Yan yana (Referans // Uygulama) tek sütun alt alta
         calcCell = Math.floor((usableHeight / puzzleCount) / (gridDim + 1.5));
         const limitW = Math.floor((usableWidth / 2) / (gridDim + 2));
         calcCell = Math.min(calcCell, limitW);
@@ -123,7 +113,7 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
 
             <div className={`
                 flex-1 grid gap-4 print:gap-2 p-6 print:p-2 items-center justify-center content-center
-                ${isGridMode ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}
+                grid-cols-1
             `}>
                 {(data?.drawings || []).map((drawing, index) => (
                     <div
