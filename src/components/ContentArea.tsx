@@ -310,6 +310,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             activityType={activityType}
             isCurriculumMode={!!activeCurriculumSession}
             onCompleteCurriculumTask={onCompleteCurriculumActivity}
+            isActivityGenerated={processedData.length > 0 && !isLoading}
           />
         )}
       </div>

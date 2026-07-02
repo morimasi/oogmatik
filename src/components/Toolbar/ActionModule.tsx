@@ -14,6 +14,7 @@ interface ActionModuleProps {
   onSave: () => void;
   onAssign?: () => void;
   onShare?: () => void;
+  onFeedback?: () => void;
   worksheetData?: WorksheetData;
   activityType?: string;
 }
@@ -23,6 +24,7 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
   onSave,
   onAssign,
   onShare,
+  onFeedback,
   worksheetData,
   activityType,
 }) => {
@@ -182,6 +184,14 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
             onClick={handleAddToFascicle}
             colorClass="text-fuchsia-500"
         />
+        {onFeedback && (
+            <IconButton 
+                icon="fa-comment-dots" 
+                title="Geri Bildirim Gönder" 
+                onClick={onFeedback}
+                colorClass="text-purple-500"
+            />
+        )}
       </div>
     </div>
   );
