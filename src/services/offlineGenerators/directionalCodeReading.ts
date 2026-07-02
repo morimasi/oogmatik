@@ -6,18 +6,18 @@ export const generateOfflineDirectionalCodeReading = async (
   options: GeneratorOptions
 ): Promise<DirectionalCodeReadingData> => {
   const difficulty = options.difficulty || 'Orta';
-  const gridSize = options.gridSize || (difficulty === 'Zor' ? 10 : 8); 
-  const puzzleCount = options.puzzleCount || (difficulty === 'Zor' ? 4 : (difficulty === 'Orta' ? 2 : 1));
-  const codeLength = options.codeLength || 15;
-  const obstacleDensity = options.obstacleDensity ?? 20;
+  const gridSize = options.gridSize || (difficulty === 'Zor' ? 8 : difficulty === 'Orta' ? 7 : 6); // Daha kompakt ızgaralar
+  const puzzleCount = options.puzzleCount || (difficulty === 'Zor' ? 4 : difficulty === 'Orta' ? 2 : 1);
+  const codeLength = options.codeLength || (difficulty === 'Zor' ? 18 : difficulty === 'Orta' ? 14 : 10);
+  const obstacleDensity = options.obstacleDensity ?? (difficulty === 'Zor' ? 25 : difficulty === 'Orta' ? 20 : 15);
   const cipherType = options.cipherType || 'arrows';
 
   const themes = [
-    { intro: '🚀 Uzay istasyonuna acil kargo ulaştırın!', name: 'Uzay Lojistiği', icon: '🚀', obstacleIcon: '☄️', color: '#8B5CF6' },
-    { intro: '🕵️ Gizli ajanı güvenli bölgeye yönlendirin!', name: 'Gizli Operasyon', icon: '🕵️', obstacleIcon: '🚧', color: '#EF4444' },
-    { intro: '💎 Define avcısını hazineye ulaştırın!', name: 'Hazine Macerası', icon: '💎', obstacleIcon: '🕸️', color: '#F59E0B' },
-    { intro: '🏥 Acil durum hastaneye ulaşın!', name: 'Acil Yardım', icon: '🏥', obstacleIcon: '🅿️', color: '#10B981' },
-    { intro: '🔬 Laboratuvardan numuneyi güvenli alana taşıyın!', name: 'Bilimsel Görev', icon: '🔬', obstacleIcon: '⚠️', color: '#3B82F6' }
+    { intro: '🚀 Uzay istasyonuna acil kargo!', name: 'Uzay Lojistiği', icon: '🚀', obstacleIcon: '☄️', color: '#8B5CF6' },
+    { intro: '🕵️ Gizli ajanı güvenli bölgeye!', name: 'Gizli Operasyon', icon: '🕵️', obstacleIcon: '🚧', color: '#EF4444' },
+    { intro: '💎 Define avcısını hazineye!', name: 'Hazine Macerası', icon: '💎', obstacleIcon: '🕸️', color: '#F59E0B' },
+    { intro: '🏥 Acil durum hastaneye!', name: 'Acil Yardım', icon: '🏥', obstacleIcon: '🅿️', color: '#10B981' },
+    { intro: '🔬 Laboratuvardan numune!', name: 'Bilimsel Görev', icon: '🔬', obstacleIcon: '⚠️', color: '#3B82F6' }
   ];
 
   const directions = [
@@ -135,10 +135,14 @@ export const generateOfflineDirectionalCodeReading = async (
 
   return {
     title: 'ŞİFRE VE ROTA MATRİSİ',
-    instruction: 'Başlangıç noktasından itibaren şifreli yönergeyi takip et ve doğru rotayı çiz.',
+    instruction: 'Başlangıçtan şifreli adımları takip ederek hedefe ulaş!',
     settings: {
       difficulty, gridSize, puzzleCount, codeLength, obstacleDensity, cipherType,
-      aestheticMode: options.aestheticMode || 'ultra-compact'
+      aestheticMode: options.aestheticMode || 'ultra-compact',
+      pageFormat: 'A4',
+      margins: { top: 15, bottom: 15, left: 12, right: 12 },
+      maxFontSize: 12,
+      minFontSize: 8
     },
     puzzles
   } as any;
