@@ -2,10 +2,11 @@
 import { GeneratorOptions, CodeReadingData, AttentionToQuestionData, AttentionDevelopmentData, AttentionFocusData, ReadingFlowData, LetterDiscriminationData, RapidNamingData, PhonologicalAwarenessData, MirrorLettersData, SyllableTrainData, VisualTrackingLineData, BackwardSpellingData, HandwritingPracticeData, RealLifeProblemData, LetterVisualMatchingData, SyllableMasterLabData, MorphologyMatrixData, ReadingPyramidData } from '../../types';
 import { getRandomItems, shuffle, getRandomInt, TR_VOCAB, turkishAlphabet, COLORS, syllabifyWord, getWordsForDifficulty, SHAPE_TYPES, VISUALLY_SIMILAR_CHARS, EMOJI_MAP } from './helpers';
 
-// COMPREHENSIVE SYLLABLE MASTER LAB (OFFLINE)
+// COMPREHENSIVE SYLLABLE MASTER LAB (OFFLINE) - PREMIUM COMPACT MODE
 export const generateOfflineSyllableMasterLab = async (options: GeneratorOptions): Promise<SyllableMasterLabData[]> => {
     const { worksheetCount = 1, difficulty = 'Orta', itemCount, topic, variant = 'split', case: letterCase, syllableRange = '2-3' } = options;
-    const count = itemCount || 32;
+    // Premium kompakt sayfa doluluğu: zorluğa göre öğe sayısı
+    const count = itemCount || (difficulty === 'Zor' ? 40 : difficulty === 'Orta' ? 35 : 30);
 
     const [minSyllables, maxSyllables] = syllableRange.split('-').map(Number);
 
@@ -51,7 +52,14 @@ export const generateOfflineSyllableMasterLab = async (options: GeneratorOptions
             title: "Hece Ustası Laboratuvarı",
             instruction: "Hece çalışmasını yönergeye göre tamamlayın.",
             mode: variant as any,
-            items
+            items,
+            settings: {
+                aestheticMode: 'ultra-compact',
+                pageFormat: 'A4',
+                margins: { top: 15, bottom: 15, left: 12, right: 12 },
+                gridCols: 5,
+                difficulty: difficulty
+            }
         };
     });
 };

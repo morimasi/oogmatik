@@ -16,21 +16,21 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
     return (
       <EditableElement
         key={idx}
-        className="flex flex-col gap-1 p-2 border border-zinc-800 rounded-xl bg-white group hover:border-indigo-500 transition-all shadow-sm break-inside-avoid relative overflow-hidden"
+        className="flex flex-col gap-0.5 p-1.5 border border-zinc-200 rounded-lg bg-white group hover:border-indigo-400 transition-all shadow-xs break-inside-avoid relative overflow-hidden"
       >
         <div className="flex-1">
           {isSplit && (
-            <div className="flex flex-col gap-1">
-              <h4 className="text-base font-black tracking-wider text-zinc-800 uppercase text-center">
+            <div className="flex flex-col gap-0.5">
+              <h4 className="text-sm print:text-xs font-black tracking-wider text-zinc-800 uppercase text-center">
                 {item.word}
               </h4>
-              <div className="flex gap-1 justify-center">
+              <div className="flex gap-0.5 justify-center">
                 {item.syllables?.map((_: any, sIdx: number) => (
                   <div
                     key={sIdx}
-                    className="w-8 h-6 border border-zinc-800 rounded-md flex items-center justify-center bg-zinc-50"
+                    className="w-7 h-5 border border-zinc-300 rounded flex items-center justify-center bg-zinc-50/70"
                   >
-                    <div className="w-3 h-0.5 bg-zinc-300"></div>
+                    <div className="w-2.5 h-0.5 bg-zinc-400"></div>
                   </div>
                 ))}
               </div>
@@ -38,26 +38,26 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
           )}
 
           {isCombine && (
-            <div className="flex flex-col items-center gap-1">
+            <div className="flex flex-col items-center gap-0.5">
               <div className="flex gap-0.5 flex-wrap justify-center">
                 {item.syllables?.map((s: any, sIdx: number) => {
                   const textVal = typeof s === 'object' && s !== null ? s.value || s.text || '' : s;
                   return (
                     <div
                       key={sIdx}
-                      className="px-2.5 py-0.5 bg-zinc-800 text-white rounded-md font-black text-xs uppercase"
+                      className="px-1.5 py-0.5 bg-zinc-800 text-white rounded font-black text-[10px] print:text-[8px] uppercase"
                     >
                       <EditableText value={textVal} tag="span" />
                     </div>
                   );
                 })}
               </div>
-              <div className="w-full h-6 border-b border-dashed border-zinc-300 bg-zinc-50 rounded-t-md"></div>
+              <div className="w-full h-5 border-b border-dashed border-zinc-300 bg-zinc-50 rounded-t"></div>
             </div>
           )}
 
           {isRainbow && (
-            <div className="flex items-center justify-center gap-1 flex-wrap py-0.5">
+            <div className="flex items-center justify-center gap-0.5 flex-wrap py-0.5">
               {item.syllables?.map((s: any, sIdx: number) => {
                 const colors = ['#be123c', '#1d4ed8', '#047857', '#b45309', '#6d28d9', '#0e7490'];
                 const color = colors[sIdx % colors.length];
@@ -65,10 +65,10 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
                 return (
                   <div
                     key={sIdx}
-                    className="px-2 py-1 rounded-md border-2 flex items-center justify-center min-w-[30px]"
+                    className="px-1.5 py-0.5 rounded border flex items-center justify-center min-w-[28px]"
                     style={{ backgroundColor: `${color}10`, borderColor: color }}
                   >
-                    <span className="text-xs font-black uppercase" style={{ color: color }}>
+                    <span className="text-[10px] print:text-[9px] font-black uppercase" style={{ color: color }}>
                       <EditableText value={textVal} tag="span" />
                     </span>
                   </div>
@@ -78,7 +78,7 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
           )}
 
           {isScrambled && (
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-0.5">
               <div className="flex gap-0.5 flex-wrap justify-center">
                 {item.scrambledIndices?.map((origIdx: number) => {
                   const syl = item.syllables[origIdx];
@@ -87,18 +87,18 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
                   return (
                     <div
                       key={origIdx}
-                      className="px-2 py-0.5 bg-white border border-zinc-400 rounded-full font-bold text-[10px] text-zinc-700 shadow-sm uppercase"
+                      className="px-1.5 py-0.5 bg-white border border-zinc-300 rounded-full font-bold text-[9px] print:text-[8px] text-zinc-700 shadow-xs uppercase"
                     >
                       {textVal}
                     </div>
                   );
                 })}
               </div>
-              <div className="flex gap-1 px-1">
+              <div className="flex gap-0.5 px-0.5">
                 {item.syllables?.map((_: any, i: number) => (
                   <div
                     key={i}
-                    className="flex-1 h-6 border-b border-zinc-800 bg-zinc-50/50"
+                    className="flex-1 h-5 border-b border-zinc-300 bg-zinc-50/50"
                   ></div>
                 ))}
               </div>
@@ -110,21 +110,23 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
   };
 
   return (
-    <div className="flex flex-col bg-white font-lexend p-3 print:p-2 overflow-visible min-h-[297mm]">
+    <div className="flex flex-col bg-white font-['Lexend'] text-zinc-900 relative overflow-visible w-full h-full print:w-[210mm] print:h-[297mm] print:overflow-hidden px-[12mm] py-[15mm] professional-worksheet">
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 opacity-100"></div>
+
       <PedagogicalHeader
         title={data.title}
         instruction={data.instruction}
       />
-      <div className="flex flex-col mt-4 print:mt-2">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 print:gap-1.5 content-start">
+      <div className="flex flex-col mt-3 print:mt-2 flex-1">
+        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 print:gap-1.5 content-start">
           {items.map((item, i) => renderItem(item, i))}
         </div>
       </div>
-      <div className="mt-auto pt-4 print:pt-2 border-t border-zinc-200 flex justify-between items-center opacity-30">
-        <p className="text-[7px] text-zinc-500 font-bold uppercase tracking-[0.4em]">
-          Bursa Disleksi EduMind
+      <div className="mt-auto pt-2 print:pt-1 border-t border-zinc-200 flex justify-between items-center opacity-60">
+        <p className="text-[6.5px] print:text-[6px] text-zinc-500 font-black uppercase tracking-[0.4em]">
+          Bursa Disleksi EduMind • Hece Ustası
         </p>
-        <i className="fa-solid fa-spell-check text-zinc-300 text-sm"></i>
+        <i className="fa-solid fa-spell-check text-zinc-400 text-xs"></i>
       </div>
     </div>
   );
