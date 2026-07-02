@@ -1,5 +1,9 @@
 import { BaseActivityData } from '../../../types';
 
+export type HarfBaglamaMode = 'standard' | 'girl';
+export type HarfBaglamaCategory = 'egitim' | 'genel' | 'mesleki' | 'hayvanlar' | 'meyveler' | 'sebzeler' | 'oyuncaklar';
+export type HarfBaglamaDifficulty = 'Kolay' | 'Orta' | 'Zor';
+
 export interface HarfBaglamaDataItem {
   id: string;
   leftItem: string;
@@ -8,5 +12,11 @@ export interface HarfBaglamaDataItem {
 
 export interface HarfBaglamaData extends BaseActivityData {
   items: HarfBaglamaDataItem[];
-  difficulty?: string;
+  difficulty: HarfBaglamaDifficulty;
+  mode: HarfBaglamaMode;
+  category: HarfBaglamaCategory;
+  itemCount: number;
+  fontSize: number;
+  primaryColor: string;
+  secondaryColor: string;
 }
