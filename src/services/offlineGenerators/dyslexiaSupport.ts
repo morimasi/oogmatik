@@ -49,8 +49,10 @@ export const generateOfflineSyllableMasterLab = async (options: GeneratorOptions
         });
 
         return {
-            title: "Hece Ustası Laboratuvarı",
-            instruction: "Hece çalışmasını yönergeye göre tamamlayın.",
+            title: variant === 'scrambled' ? "Hece Ustası Laboratuvarı • Karışık Hece" : "Hece Ustası Laboratuvarı",
+            instruction: variant === 'scrambled' 
+              ? "Karışık heceleri doğru sırayla yerine yerleştirin ve kelimeyi oluşturun." 
+              : "Hece çalışmasını yönergeye göre tamamlayın.",
             mode: variant as any,
             items,
             settings: {

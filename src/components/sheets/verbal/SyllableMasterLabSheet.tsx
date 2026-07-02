@@ -115,7 +115,10 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
 
       <PedagogicalHeader
         title={data.title}
-        instruction={data.instruction}
+        instruction={mode === 'scrambled' 
+          ? "Karışık heceleri doğru sırayla yerine yerleştirin ve kelimeyi oluşturun." 
+          : data.instruction
+        }
       />
       <div className="flex flex-col mt-3 print:mt-2 flex-1">
         <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 print:gap-1.5 content-start">
@@ -124,7 +127,7 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
       </div>
       <div className="mt-auto pt-2 print:pt-1 border-t border-zinc-200 flex justify-between items-center opacity-60">
         <p className="text-[6.5px] print:text-[6px] text-zinc-500 font-black uppercase tracking-[0.4em]">
-          Bursa Disleksi EduMind • Hece Ustası
+          Bursa Disleksi EduMind • Hece Ustası {mode === 'scrambled' && '• Karışık'}
         </p>
         <i className="fa-solid fa-spell-check text-zinc-400 text-xs"></i>
       </div>

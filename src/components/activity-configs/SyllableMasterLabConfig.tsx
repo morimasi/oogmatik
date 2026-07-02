@@ -24,7 +24,8 @@ export const SyllableMasterLabConfig: React.FC<{ options: GeneratorOptions; onCh
                     options={[
                         { value: 'split', label: 'Ayır' },
                         { value: 'combine', label: 'Birleştir' },
-                        { value: 'rainbow', label: 'Gökkuşağı' }
+                        { value: 'rainbow', label: 'Gökkuşağı' },
+                        { value: 'scrambled', label: 'Karışık Hece' }
                     ]} 
                 />
                 <CompactToggleGroup 
