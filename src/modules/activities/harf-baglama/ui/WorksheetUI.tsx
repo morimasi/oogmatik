@@ -14,7 +14,7 @@ export const HarfBaglamaSheet: React.FC<HarfBaglamaSheetProps> = ({ data }) => {
     fontSize = 10,
     primaryColor = '#4f46e5',
     secondaryColor = '#ec4899'
-  } = data;
+  } = data || {};
 
   // Kızlım modu için renkler
   const isGirlMode = mode === 'girl';

@@ -7,13 +7,13 @@ interface HarfBaglamaConfigProps {
 }
 
 export const HarfBaglamaConfig: React.FC<HarfBaglamaConfigProps> = ({ value, onChange }) => {
-  const mode = (value.mode as HarfBaglamaMode) || 'standard';
-  const category = (value.category as HarfBaglamaCategory) || 'genel';
-  const difficulty = (value.difficulty as HarfBaglamaDifficulty) || 'Orta';
-  const itemCount = (value.itemCount as number) || 10;
-  const fontSize = (value.fontSize as number) || 10;
-  const primaryColor = (value.primaryColor as string) || '#4f46e5';
-  const secondaryColor = (value.secondaryColor as string) || '#ec4899';
+  const mode = (value?.mode as HarfBaglamaMode) || 'standard';
+  const category = (value?.category as HarfBaglamaCategory) || 'genel';
+  const difficulty = (value?.difficulty as HarfBaglamaDifficulty) || 'Orta';
+  const itemCount = Number(value?.itemCount) || 10;
+  const fontSize = Number(value?.fontSize) || 10;
+  const primaryColor = (value?.primaryColor as string) || '#4f46e5';
+  const secondaryColor = (value?.secondaryColor as string) || '#ec4899';
 
   return (
     <div className="space-y-5 p-5 bg-zinc-900/40 backdrop-blur-xl rounded-3xl border border-zinc-800/50">
