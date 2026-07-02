@@ -85,6 +85,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.INFOGRAPHIC_SENTENCE_BUILDER,
       ActivityType.INFOGRAPHIC_SHORT_ANSWER,
       ActivityType.LETTER_CONNECT,
+      ActivityType.HARF_BAGLAMA,
       ActivityType.KELIME_CUMLE,
       ActivityType.SINAV,
       ActivityType.SARI_KITAP_STUDIO,
