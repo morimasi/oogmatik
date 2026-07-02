@@ -62,31 +62,34 @@ export const WordSearchSheet = ({ data }: { data: WordSearchData }) => {
     const settings = data?.settings;
     const isUltraDense = settings?.layout === 'ultra_dense';
 
-    // Grid Boyutu Dinamik Hesaplama
+    // Grid Boyutu Dinamik Hesaplama (Daha kompakt, özellikle print için)
     const gridLen = data.grid.length;
-    const cellSize = isUltraDense ? Math.min(32, Math.floor(450 / gridLen)) : Math.min(42, Math.floor(550 / gridLen));
+    const cellSize = isUltraDense 
+        ? Math.min(24, Math.floor(380 / gridLen)) 
+        : Math.min(36, Math.floor(480 / gridLen));
+    const printCellSize = Math.min(20, Math.floor(320 / gridLen)); // Print için ekstra küçük
 
     return (
-        <div className="flex flex-col h-full  bg-white font-sans text-black overflow-visible professional-worksheet">
+        <div className="flex flex-col h-full bg-white font-lexend text-black overflow-visible professional-worksheet">
             <PedagogicalHeader
-                title={data?.title || "KELİME BULMACA & GÖRSEL TARAMA"}
+                title={data?.title || "KELİME BULMACA"}
                 instruction={data?.instruction || "Aşağıdaki harf yığınının içine gizlenmiş kelimeleri bulun."}
             />
 
-            {/* KELIME BANDI — Üst Satır */}
-            <div className="w-full bg-zinc-900 rounded-[2rem] p-4 flex flex-wrap gap-2 mt-3 mb-4 print:mb-2">
+            {/* KELIME BANDI — Üst Satır (Kompakt) */}
+            <div className="w-full bg-zinc-900 rounded-[1.5rem] p-2 print:p-1 flex flex-wrap gap-1 mt-1 mb-2 print:mb-1">
                 {data.words.map((w, i) => (
-                    <span key={i} className="px-3 py-1 bg-zinc-800 border border-zinc-700 rounded-full text-white text-[11px] font-black uppercase tracking-wider flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 shrink-0"></span>
+                    <span key={i} className="px-2 py-0.5 bg-zinc-800 border border-zinc-700 rounded-full text-white text-[9px] print:text-[7px] font-bold uppercase tracking-wide flex items-center gap-1">
+                        <span className="w-1 h-1 rounded-full bg-indigo-400 shrink-0"></span>
                         {w}
                     </span>
                 ))}
             </div>
 
-            <div className={`flex flex-col mt-2 print:mt-1 items-center flex-1 pb-6 print:pb-2`}>
-                {/* Bulmaca Alanı - Premium Frame */}
+            <div className={`flex flex-col mt-1 print:mt-0 items-center flex-1 pb-2 print:pb-1`}>
+                {/* Bulmaca Alanı - Premium Frame (Kompakt) */}
                 <div className="flex justify-center">
-                    <div className="border-[6px] border-zinc-900 bg-white p-2 rounded-[2rem] shadow-2xl shrink-0 ring-8 ring-zinc-50 transform hover:scale-[1.01] transition-transform">
+                    <div className="border-[4px] print:border-[2px] border-zinc-900 bg-white p-1 print:p-0.5 rounded-[1.5rem] shadow-xl shrink-0 ring-4 ring-zinc-50 transform hover:scale-[1.01] transition-transform">
                         <table className="border-collapse mx-auto font-mono">
                             <tbody>
                                 {data.grid.map((row, r) => (
@@ -94,8 +97,11 @@ export const WordSearchSheet = ({ data }: { data: WordSearchData }) => {
                                         {row.map((cell, c) => (
                                             <td
                                                 key={c}
-                                                style={{ width: cellSize, height: cellSize }}
-                                                className="border border-zinc-100 text-center font-black text-xl uppercase text-zinc-900 cursor-default select-none hover:bg-indigo-50 transition-colors"
+                                                style={{ 
+                                                    width: cellSize, 
+                                                    height: cellSize 
+                                                }}
+                                                className="border border-zinc-200 text-center font-black text-lg print:text-sm uppercase text-zinc-900 cursor-default select-none hover:bg-indigo-50 transition-colors"
                                             >
                                                 <EditableText value={String(cell)} tag="span" />
                                             </td>
@@ -108,34 +114,32 @@ export const WordSearchSheet = ({ data }: { data: WordSearchData }) => {
                 </div>
 
                 {settings?.showClinicalNotes && data.clinicalMeta && (
-                    <div className="w-full mt-4 print:mt-2 p-4 print:p-2 bg-zinc-50 rounded-[2rem] border-2 border-zinc-100 text-[9px] font-bold text-zinc-400 uppercase tracking-widest leading-relaxed shadow-inner flex gap-6 flex-wrap">
+                    <div className="w-full mt-2 print:mt-1 p-2 print:p-1 bg-zinc-50 rounded-[1rem] border border-zinc-200 text-[8px] print:text-[6px] font-bold text-zinc-400 uppercase tracking-widest leading-relaxed flex gap-3 flex-wrap">
                         <div className="flex gap-1">
-                            <span>Kesişim İndeksi:</span>
+                            <span>Kesişim:</span>
                             <span className="text-zinc-900">{data.clinicalMeta.intersections}</span>
                         </div>
                         <div className="flex gap-1">
-                            <span className="flex items-center gap-1">Ters Dizilim <i className="fa-solid fa-arrows-left-right text-[7px] text-rose-400"></i></span>
-                            <span className="text-zinc-900">{data.clinicalMeta.reversals} Adet</span>
+                            <span className="flex items-center gap-1">Ters <i className="fa-solid fa-arrows-left-right text-[6px] text-rose-400"></i></span>
+                            <span className="text-zinc-900">{data.clinicalMeta.reversals}</span>
                         </div>
                         <div className="flex gap-1">
-                            <span className="flex items-center gap-1">Leksikal Yoğunluk <i className="fa-solid fa-chart-area text-[7px] text-indigo-400"></i></span>
+                            <span className="flex items-center gap-1">Yoğunluk <i className="fa-solid fa-chart-area text-[6px] text-indigo-400"></i></span>
                             <span className="text-zinc-900">%{Math.round(data.clinicalMeta.density * 100)}</span>
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* Footer Protokolü */}
-            <div className="mt-auto p-6 print:p-2 bg-zinc-900 text-white rounded-t-[3rem] border-x-4 border-t-4 border-white flex justify-between items-center shadow-2xl mx-1">
-                <div className="flex gap-10 print:gap-3 print:gap-4 print:gap-1 print:p-4 print:p-1">
-                    <div className="flex flex-col">
-                        <span className="text-[7px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-1">PROGRAM</span>
-                        <span className="text-xs font-black uppercase">Oküler Tarama & Görsel Dikkat</span>
-                    </div>
+            {/* Footer Protokolü (Kompakt) */}
+            <div className="mt-auto p-2 print:p-1 bg-zinc-900 text-white rounded-t-[1.5rem] border-x-2 border-t-2 border-white flex justify-between items-center shadow-xl mx-0.5">
+                <div className="flex flex-col">
+                    <span className="text-[6px] print:text-[5px] font-black text-indigo-400 uppercase tracking-[0.2em]">PROGRAM</span>
+                    <span className="text-[10px] print:text-[7px] font-bold uppercase">Oküler Tarama</span>
                 </div>
-                <div className="flex items-center gap-3 opacity-60">
-                    <span className="text-[8px] font-bold tracking-[0.2em]">SÖZEL ARAMA BATARYASI v3.2</span>
-                    <i className="fa-solid fa-i-cursor text-indigo-400 text-xs shadow-glow"></i>
+                <div className="flex items-center gap-1 opacity-60">
+                    <span className="text-[7px] print:text-[5px] font-bold tracking-[0.15em]">SÖZEL ARAMA v3.2</span>
+                    <i className="fa-solid fa-i-cursor text-indigo-400 text-xs print:text-[10px]"></i>
                 </div>
             </div>
         </div>

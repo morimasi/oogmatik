@@ -251,6 +251,26 @@
     letter-spacing: 0.1em !important;
   }
 
+  /* Professional Worksheet (WordSearchSheet) - Premium A4 Compact */
+  .professional-worksheet {
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  .professional-worksheet table {
+    margin: 0 auto !important;
+    border-spacing: 0 !important;
+  }
+
+  .professional-worksheet .bg-zinc-900 {
+    padding: 2mm !important;
+    margin: 1mm 0 !important;
+    border-radius: 4mm !important;
+  }
+
   /* Find the Difference / Visual Activities */
   .visual-activity-container {
     page-break-inside: avoid !important;
