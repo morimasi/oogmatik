@@ -188,7 +188,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       useToastStore.getState().error(`Atama başlatılamadı: ${message}`);
     }
   };
-  const { isEditMode, setEditMode, zoomScale, setZoomScale } = useAppStore();
+  const { zoomScale, setZoomScale } = useAppStore();
 
 
   // Scroller container ref
@@ -297,20 +297,16 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         {currentView === 'generator' && activityType && (processedData.length > 0 || isLoading) && (
           <Toolbar
             settings={styleSettings}
-            onSettingsChange={onStyleChange}
             onSave={() => onSave('Etkinlik', activityType, processedData)}
             onAssign={handleAssign}
             onFeedback={onFeedback}
             onShare={() => setIsShareModalOpen(true)}
             onTogglePreview={toggleZenMode}
             isPreviewMode={zenMode}
-            onToggleEdit={() => setEditMode(!isEditMode)}
-            isEditMode={isEditMode}
             worksheetData={processedData}
             activityType={activityType}
             isCurriculumMode={!!activeCurriculumSession}
             onCompleteCurriculumTask={onCompleteCurriculumActivity}
-            isActivityGenerated={processedData.length > 0 && !isLoading}
           />
         )}
       </div>
