@@ -11,8 +11,10 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
     const isStacked = settings?.layout === 'stacked' || gridDim >= 10;
     const gridType = settings?.gridType || 'dots';
     
-    // Layout logic: 1 ve 2 için alt alta (stacked), 4 için 2x2 grid
-    const isGridMode = puzzleCount > 2;
+    // Layout logic: 2 ve daha fazla için grid mod (yan yana)
+    // 2 görev: 1 satır 2 sütun
+    // 4 görev: 2 satır 2 sütun
+    const isGridMode = puzzleCount >= 2;
 
     // A4 Baskı Alanı Optimizasyonu (Kullanılabilir Ortalama Alan: Yükseklik 840px, Genişlik 700px)
     const usableHeight = 840;
@@ -21,9 +23,12 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
     let calcCell = 24;
     
     if (isGridMode) {
-        // 2x2 mod: Dikeyde 4 ızgara (2 box alt alta, içlerinde 2şer ızgara)
-        calcCell = Math.floor((usableHeight / 4) / (gridDim + 1.5));
-        const limitW = Math.floor((usableWidth / 2) / (gridDim + 2));
+        // Grid mod: 2 sütun
+        // 2 görev: 1 satır, her satırda 2 görev (her görevde 2 ızgara)
+        // 4 görev: 2 satır, her satırda 2 görev (her görevde 2 ızgara)
+        const rowCount = Math.ceil(puzzleCount / 2);
+        calcCell = Math.floor((usableHeight / (rowCount * 1.5)) / (gridDim + 1.5));
+        const limitW = Math.floor((usableWidth / 4) / (gridDim + 2)); // 2 görev, her görevde 2 ızgara
         calcCell = Math.min(calcCell, limitW);
     } else if (isStacked) {
         // Tek sütun alt alta puzzle
@@ -118,23 +123,21 @@ export const GridDrawingSheet = ({ data }: { data: GridDrawingData }) => {
 
             <div className={`
                 flex-1 grid gap-4 print:gap-2 p-6 print:p-2 items-center justify-center content-center
-                ${isGridMode ? 'grid-cols-2' : 'grid-cols-1'}
+                ${isGridMode ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}
             `}>
                 {(data?.drawings || []).map((drawing, index) => (
                     <div
                         key={index}
-                        className={`
+                        className="
                             relative flex items-center justify-center p-3 print:p-1 border-[1.5px] border-zinc-100 rounded-[2rem] bg-zinc-50/20 break-inside-avoid w-full group overflow-hidden
-                            ${(isStacked || isGridMode) ? 'flex-col gap-4 print:gap-1' : 'flex-row gap-6 print:gap-2'}
-                        `}
+                            flex-row gap-6 print:gap-2
+                        "
                     >
                         {renderGrid(drawing.lines, `REFERANS`, true)}
 
-                        {!(isStacked || isGridMode) && (
-                            <div className="flex flex-col items-center opacity-10 group-hover:opacity-30 transition-opacity">
-                                <i className="fa-solid fa-chevron-right text-2xl text-zinc-400"></i>
-                            </div>
-                        )}
+                        <div className="flex flex-col items-center opacity-10 group-hover:opacity-30 transition-opacity">
+                            <i className="fa-solid fa-chevron-right text-2xl text-zinc-400"></i>
+                        </div>
 
                         {renderGrid(null, `UYGULAMA`, false)}
                     </div>
