@@ -33,6 +33,8 @@ import { MissingPartsConfig } from './MissingPartsConfig';
 import { AdvancedMissingPartsConfig } from './AdvancedMissingPartsConfig';
 import { QueueOrderingConfig } from './QueueOrderingConfig';
 import { SymmetryDrawingConfig } from './SymmetryDrawingConfig';
+import { LetterConnectConfig } from '../../modules/activities/letter-connect/ui/ConfigPanel';
+import { HarfBaglamaConfig } from '../../modules/activities/harf-baglama/ui/ConfigPanel';
 
 import { FiveWOneHConfig } from './FiveWOneHConfig';
 import { ColorfulSyllableReadingConfig } from './ColorfulSyllableReadingConfig';
@@ -84,6 +86,8 @@ export const ActivityConfigRegistry: Record<string, unknown> = {
   [ActivityType.FUTOSHIKI]: FutoshikiConfig,
   [ActivityType.ABC_CONNECT]: AbcConnectConfig,
   [ActivityType.SYMMETRY_DRAWING]: SymmetryDrawingConfig,
+  [ActivityType.LETTER_CONNECT]: LetterConnectConfig,
+  [ActivityType.HARF_BAGLAMA]: HarfBaglamaConfig,
 
   [ActivityType.FIVE_W_ONE_H]: FiveWOneHConfig,
   [ActivityType.COLORFUL_SYLLABLE_READING]: ColorfulSyllableReadingConfig,
@@ -120,4 +124,3 @@ export { SymmetryDrawingConfig } from './SymmetryDrawingConfig';
 
 // AUTONOM_CONFIG_EXPORTS_START
 // AUTONOM_CONFIG_EXPORTS_END
-

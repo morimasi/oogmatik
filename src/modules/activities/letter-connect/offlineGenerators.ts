@@ -1,52 +1,73 @@
 import { GeneratorOptions } from '../../../types/core';
-import { LetterConnectItem } from './types';
+import { LetterConnectDataItem, LetterConnectMode, LetterConnectCategory, LetterConnectDifficulty } from './types';
 
 /**
  * Harf Bağlama — Offline (Hızlı Mod) Üretici
- * Otonom scaffold tarafından üretildi.
  */
+function shuffle<T>(array: T[]): T[] {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 export const generateOfflineLETTER_CONNECT = async (options: GeneratorOptions) => {
-  const difficulty = (options.difficulty as string) || 'Orta';
-  const count = (options.count as number) || 10;
+  const difficulty = (options.difficulty as LetterConnectDifficulty) || 'Orta';
+  const itemCount = Number((options as any).itemCount || (options as any).count) || 10;
+  const mode = (options.mode as LetterConnectMode) || 'standard';
+  const category = (options.category as LetterConnectCategory) || 'genel';
+  const fontSize = Number((options as any).fontSize) || 10;
+  const primaryColor = (options.primaryColor as string) || '#4f46e5';
+  const secondaryColor = (options.secondaryColor as string) || '#ec4899';
 
-  const difficultyMap: Record<string, { itemCount: number; complexity: number }> = {
-    'Kolay': { itemCount: Math.min(count, 6), complexity: 1 },
-    'Orta': { itemCount: count, complexity: 2 },
-    'Zor': { itemCount: Math.max(count, 12), complexity: 3 },
-  };
+  const alphabet = 'ABCDEFGHIJKLMNOPRSTUVYZXWQ';
+  const lowerAlphabet = 'abcdefghijklmnoprstuvyzxwq';
 
-  const config = difficultyMap[difficulty as string] || difficultyMap['Orta'];
-  const items: LetterConnectItem[] = [];
+  // Zorluk seviyesine göre harf havuzu seçimi
+  let poolSize = itemCount;
+  if (difficulty === 'Kolay') poolSize = Math.min(itemCount, 10);
+  else if (difficulty === 'Zor') poolSize = Math.max(itemCount, 12);
 
-  for (let i = 0; i < config.itemCount; i++) {
-    items.push({
-      id: `item-${i + 1}`,
-
-      leftItem: generateDefaultstring(i, config.complexity),
-
-      rightItem: generateDefaultstring(i, config.complexity),
-
-      matchType: generateDefaultstring(i, config.complexity),
-
-    });
+  // Havuz oluştur
+  const selectedIndices: number[] = [];
+  while (selectedIndices.length < poolSize) {
+    const rand = Math.floor(Math.random() * alphabet.length);
+    if (!selectedIndices.includes(rand)) {
+      selectedIndices.push(rand);
+    }
   }
 
-  return {
-    instruction: 'Harf Bağlama etkinliğini tamamlayın.',
-    items,
+  const leftItems = selectedIndices.map(i => alphabet[i]);
+  const rightItems = selectedIndices.map(i => lowerAlphabet[i]);
 
+  // Sağ sütunu karıştırarak eşleşmeleri boz
+  const shuffledRight = shuffle(rightItems);
+
+  const items: LetterConnectDataItem[] = leftItems.map((leftItem, idx) => ({
+    id: `item-${idx + 1}`,
+    leftItem,
+    rightItem: shuffledRight[idx],
+  }));
+
+  const isGirlMode = mode === 'girl';
+  const instruction = isGirlMode
+    ? 'Prenseslik dünyasında büyük harfleri küçük harflerle sihirli çizgilerle birleştir!'
+    : 'Noktaları birleştirerek büyük harfleri küçük harflerle eşleştirin.';
+  const title = isGirlMode ? 'Prenses Harf Bağlama' : 'Harf Bağlama';
+
+  return {
+    title,
+    instruction,
+    items,
     difficulty,
+    mode,
+    category,
+    itemCount,
+    fontSize,
+    primaryColor,
+    secondaryColor,
     totalItems: items.length,
   };
 };
-
-// Yardımcı: Varsayılan değer üretici
-function generateDefaultstring(index: number, _complexity: number): string {
-  return `Öğe ${index + 1}`;
-}
-function generateDefaultnumber(index: number, complexity: number): number {
-  return (index + 1) * complexity;
-}
-function generateDefaultboolean(_index: number, _complexity: number): boolean {
-  return Math.random() > 0.5;
-}

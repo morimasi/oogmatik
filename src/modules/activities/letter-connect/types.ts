@@ -1,16 +1,22 @@
-import { BaseActivityData, Difficulty } from '../../../types/common';
+import { BaseActivityData } from '../../../types/common';
 
-/**
- * Harf Bağlama Etkinliği Veri Yapısı
- */
-export interface LetterConnectData extends BaseActivityData {
-  items: LetterConnectItem[];
+export type LetterConnectMode = 'standard' | 'girl';
+export type LetterConnectCategory = 'egitim' | 'genel' | 'mesleki' | 'hayvanlar' | 'meyveler' | 'sebzeler' | 'oyuncaklar';
+export type LetterConnectDifficulty = 'Kolay' | 'Orta' | 'Zor';
 
+export interface LetterConnectDataItem {
+  id: string;
+  leftItem: string;
+  rightItem: string;
 }
 
-export interface LetterConnectItem {
-  id: string;
-  leftItem?: string;
-  rightItem?: string;
-  matchType?: string;
+export interface LetterConnectData extends BaseActivityData {
+  items: LetterConnectDataItem[];
+  difficulty: LetterConnectDifficulty;
+  mode: LetterConnectMode;
+  category: LetterConnectCategory;
+  itemCount: number;
+  fontSize: number;
+  primaryColor: string;
+  secondaryColor: string;
 }
