@@ -33,7 +33,7 @@ const VERB_WORDS = ["BAK", "GÖR", "KOŞ", "DUR", "AL", "VER", "OKU", "YAZ", "ZI
 const MIRROR_WORDS = ["BALIK", "DALGA", "POLAT", "OLUK", "BABA", "DADA", "KASA", "MASA"];
 
 export const generateOfflineReadingSudoku = async (options: GeneratorOptions): Promise<ReadingSudokuData[]> => {
-    const { worksheetCount, difficulty, variant = 'letters', gridSize = 4 } = options;
+    const { worksheetCount, difficulty, variant = 'letters', gridSize = difficulty === 'Zor' ? 6 : difficulty === 'Orta' ? 5 : 4 } = options;
     const meta = getOfflineMetadata(ActivityType.READING_SUDOKU);
 
     const letterPool = shuffle(['B', 'D', 'P', 'Q', 'M', 'N', 'U', 'Ü', 'A', 'E', 'I', 'İ']);
@@ -54,7 +54,7 @@ export const generateOfflineReadingSudoku = async (options: GeneratorOptions): P
 
         return {
             title: "Dil ve Mantık Sudokusu",
-            instruction: "Tablodaki her satır, her sütun ve her kalın çizgili bölgede semboller sadece BİR KEZ bulunmalıdır. Boşlukları doldur!",
+            instruction: "Başlangıç noktalarından şifreli adımları takip ederek hedefe ulaş!",
             targetSkills: meta.targetSkills,
             grid: mappedGrid,
             solution: solution,
@@ -62,7 +62,10 @@ export const generateOfflineReadingSudoku = async (options: GeneratorOptions): P
             settings: {
                 size: gridSize,
                 variant: variant as any,
-                fontFamily: options.fontFamily || 'OpenDyslexic'
+                fontFamily: options.fontFamily || 'OpenDyslexic',
+                aestheticMode: 'ultra-compact',
+                pageFormat: 'A4',
+                margins: { top: 15, bottom: 15, left: 12, right: 12 }
             }
         };
     });
