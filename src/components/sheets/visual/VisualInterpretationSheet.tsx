@@ -26,11 +26,11 @@ export const VisualInterpretationSheet: React.FC<VisualInterpretationSheetProps>
   const instructionText = activity.instruction || "Aşağıdaki cümleleri resme göre okuyup cevapla. Cümle Doğruysa (D) yanlışsa (Y) harfi koy.";
 
   return (
-    <div className="w-full flex flex-col p-12 print:p-8 min-h-[297mm] bg-white font-['Lexend'] text-zinc-900 overflow-hidden relative">
+    <div className="w-full flex flex-col p-4 print:p-3 min-h-[297mm] bg-white font-['Lexend'] text-zinc-900 overflow-hidden relative">
       
       {/* 1. GÖRSEL ALANI */}
-      <div className="w-full flex justify-center mb-6 mt-4">
-        <div className="w-full h-[450px] print:h-[400px] border-[4px] border-black rounded-[2.5rem] overflow-hidden shadow-[8px_8px_0px_#e4e4e7]">
+      <div className="w-full flex justify-center mb-3 mt-1">
+        <div className="w-full h-[320px] print:h-[300px] border-2 border-zinc-900 rounded-2xl overflow-hidden shadow-lg">
           <ImageDisplay
             prompt={imagePrompt}
             base64={imageBase64}
@@ -39,26 +39,26 @@ export const VisualInterpretationSheet: React.FC<VisualInterpretationSheetProps>
         </div>
       </div>
 
-      {/* 2. KIRMIZI YÖNERGE METNİ */}
-      <div className="w-full text-center mb-8">
-        <h2 className="text-xl print:text-lg font-bold text-rose-600">
+      {/* 2. YÖNERGE METNİ */}
+      <div className="w-full text-center mb-4">
+        <h2 className="text-base print:text-sm font-bold text-rose-600">
           <EditableText value={instructionText} tag="span" />
         </h2>
       </div>
 
       {/* 3. D/Y CÜMLE LİSTESİ */}
-      <div className="flex flex-col gap-7 flex-1 px-4 mt-2">
+      <div className="flex flex-col gap-3 flex-1 px-2 mt-1">
         {questions.map((q: Record<string, unknown>, idx: number) => {
           const text = recursiveSafeText(q.q || q.questionText || q.text);
           return (
-            <div key={idx} className="flex items-center gap-6 w-full">
+            <div key={idx} className="flex items-center gap-4 w-full">
               {/* Boş parantez alanı */}
-              <div className="text-2xl font-black text-black shrink-0 whitespace-nowrap">
-                ( <span className="w-8 inline-block"></span> )
+              <div className="text-lg print:text-base font-black text-zinc-900 shrink-0 whitespace-nowrap">
+                ( <span className="w-6 inline-block"></span> )
               </div>
               
               {/* Cümle */}
-              <div className="text-xl font-medium leading-relaxed pl-2 border-b-2 border-dotted border-zinc-300 flex-1 pb-1">
+              <div className="text-base print:text-sm font-medium leading-relaxed pl-1 border-b border-dotted border-zinc-300 flex-1 pb-0.5">
                 <EditableText value={text} tag="span" />
               </div>
             </div>

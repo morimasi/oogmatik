@@ -39,45 +39,42 @@ export const ShapeCountingSheet = ({
   return (
     <div
       className={`
-      flex flex-col h-full bg-white font-['Lexend'] text-zinc-900 overflow-hidden relative p-10 print:p-6 min-h-[210mm] ${isLandscape ? 'landscape' : 'min-h-[297mm]'}
+      flex flex-col h-full bg-white font-['Lexend'] text-zinc-900 overflow-hidden relative p-4 print:p-3 min-h-[210mm] ${isLandscape ? 'landscape' : 'min-h-[297mm]'}
       ${isPremium ? 'premium-mode bg-slate-50/20' : 'bg-white'}
     `}
     >
       <div className="flex flex-col gap-0.5 mb-1">
-        <h1 className="text-lg font-black uppercase tracking-tighter text-zinc-900 leading-none">
-          {data.title || 'FİGÜR-ZEMİN & SEÇİCİ DİKKAT'}
+        <h1 className="text-base print:text-sm font-black uppercase tracking-tighter text-zinc-900 leading-none">
+          {data.title || 'KAÇ TANE ÜÇGEN VAR?'}
         </h1>
-        <p className="text-[9px] font-medium text-zinc-500 leading-tight">
+        <p className="text-[8px] print:text-[7px] font-medium text-zinc-500 leading-tight">
           {data.instruction || 'Karmaşık görsel sahadaki hedef şekilleri bulun ve toplam sayısını ilgili kutucuğa yazın.'}
         </p>
       </div>
 
       {/* 1. HEDEF VİZÖRÜ (Aranan Şekil) */}
       <div
-        className={`flex justify-center ${isSingle ? 'mt-2 mb-2 print:mt-1 print:mb-1' : 'mt-1 mb-1'}`}
+        className={`flex justify-center ${isSingle ? 'mt-1 mb-1 print:mt-0.5 print:mb-0.5' : 'mt-0.5 mb-0.5'}`}
       >
         <div
           className={`
-            relative px-4 print:px-3 py-2 print:py-1 rounded-xl flex items-center gap-4 print:gap-3 shadow-sm border-2 border-zinc-900 bg-white group hover:scale-[1.01] transition-all duration-500
+            relative px-3 print:px-2 py-1 print:py-0.5 rounded-lg flex items-center gap-3 print:gap-2 shadow-sm border border-zinc-900 bg-white group hover:scale-[1.01] transition-all duration-500
             ${isPremium ? 'ring-2 ring-indigo-50/50' : ''}
         `}
         >
-          {/* Dekoratif Scanner Çizgisi */}
-          <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-amber-400 to-transparent animate-scan"></div>
-
           <div className="flex flex-col">
-            <span className="text-[7px] font-black uppercase tracking-[0.3em] text-amber-500 mb-0.5 leading-none">
+            <span className="text-[6px] print:text-[5px] font-black uppercase tracking-[0.25em] text-amber-500 mb-0.5 leading-none">
               HEDEF
             </span>
-            <span className="text-lg print:text-base font-black uppercase tracking-tighter leading-none">
+            <span className="text-base print:text-xs font-black uppercase tracking-tighter leading-none">
               {settings?.targetShape?.toUpperCase() || 'ÜÇGEN'}
             </span>
           </div>
 
-          <div className="w-10 h-10 print:w-8 print:h-8 bg-zinc-900 rounded-lg flex items-center justify-center p-2 shadow-lg border border-zinc-100 transform -rotate-3 group-hover:rotate-0 transition-transform">
+          <div className="w-8 h-8 print:w-6 print:h-6 bg-zinc-900 rounded-md flex items-center justify-center p-1 shadow-md border border-zinc-100 transform -rotate-3 group-hover:rotate-0 transition-transform">
             <svg
               viewBox="-50 -50 100 100"
-              className="w-full h-full fill-amber-400 drop-shadow-[0_0_10px_rgba(251,191,36,0.6)]"
+              className="w-full h-full fill-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]"
             >
               <path d={SHAPE_PATHS[settings?.targetShape || 'triangle']} />
             </svg>
@@ -86,25 +83,25 @@ export const ShapeCountingSheet = ({
       </div>
 
       <div
-        className={`grid ${gridCols} gap-4 print:gap-2 mt-2 flex-1 content-stretch items-stretch pb-4 print:pb-2`}
+        className={`grid ${gridCols} gap-2 print:gap-1.5 mt-1 flex-1 content-stretch items-stretch pb-2 print:pb-1`}
       >
         {sections.map((section, idx) => (
           <EditableElement
             key={idx}
             className={`
-                flex flex-col border-2 relative break-inside-avoid transition-all duration-500 group overflow-hidden
+                flex flex-col border relative break-inside-avoid transition-all duration-500 group overflow-hidden
                 ${
                   isPremium
-                    ? 'bg-white/80 backdrop-blur-sm border-zinc-900 rounded-3xl shadow-sm'
-                    : 'bg-white border-zinc-900 rounded-3xl shadow-sm'
+                    ? 'bg-white/80 backdrop-blur-sm border-zinc-900 rounded-2xl shadow-sm'
+                    : 'bg-white border-zinc-900 rounded-2xl shadow-sm'
                 }
-                ${isSingle ? 'flex-1 p-4' : 'p-4 print:p-2'}
+                ${isSingle ? 'flex-1 p-3 print:p-2' : 'p-3 print:p-1.5'}
             `}
           >
             {/* Bölüm Başlığı */}
             <div
               className={`
-                absolute top-0 left-0 px-8 print:px-4 py-2.5 print:py-1.5 rounded-br-[2.5rem] font-black text-[10px] uppercase tracking-widest z-10 shadow-sm border-r-2 border-b-2 border-zinc-900
+                absolute top-0 left-0 px-6 print:px-3 py-1.5 print:py-0.5 rounded-br-xl font-black text-[9px] print:text-[7px] uppercase tracking-widest z-10 shadow-sm border-r border-b border-zinc-900
                 ${isPremium ? 'bg-zinc-900 text-white' : 'bg-indigo-600 text-white'}
             `}
             >
@@ -114,7 +111,7 @@ export const ShapeCountingSheet = ({
             {/* Arama Alanı */}
             <div
               className={`
-                relative border-2 border-zinc-100 rounded-2xl bg-zinc-50/20 overflow-hidden search-field-container mb-4 print:mb-2 shadow-inner group/field
+                relative border border-zinc-100 rounded-xl bg-zinc-50/20 overflow-hidden search-field-container mb-2 print:mb-1 shadow-inner group/field mt-6
                 ${isSingle ? 'flex-1' : 'aspect-square'}
               `}
               style={{ overflow: 'hidden' }}
@@ -163,50 +160,50 @@ export const ShapeCountingSheet = ({
             </div>
 
             {/* Cevap Paneli */}
-            <div className="flex items-center justify-between px-4">
-              <div className="flex items-center gap-6">
+            <div className="flex items-center justify-between px-2 print:px-1.5">
+              <div className="flex items-center gap-4 print:gap-2">
                 <div className="flex flex-col">
-                  <span className="text-[11px] font-black text-zinc-900 uppercase tracking-tight leading-none">
-                    TOPLAM SKOR
+                  <span className="text-[9px] print:text-[7px] font-black text-zinc-900 uppercase tracking-tight leading-none">
+                    TOPLAM
                   </span>
-                  <span className="text-[9px] font-bold text-zinc-400 tracking-widest mt-1 uppercase">
-                    HEDEF SAYISI
+                  <span className="text-[8px] print:text-[6px] font-bold text-zinc-400 tracking-widest mt-0.5 uppercase">
+                    SAYISI
                   </span>
                 </div>
                 <div
                   className={`
-                    w-24 h-18 border-[3px] bg-white rounded-3xl flex items-center justify-center shadow-lg transform group-hover:-rotate-3 transition-transform
-                    ${isPremium ? 'border-zinc-900 ring-4 ring-indigo-50' : 'border-indigo-600'}
+                    w-16 h-12 border-2 bg-white rounded-2xl flex items-center justify-center shadow-md transform group-hover:-rotate-3 transition-transform
+                    ${isPremium ? 'border-zinc-900 ring-2 ring-indigo-50' : 'border-indigo-600'}
                 `}
                 >
                   <EditableText
                     value=""
                     tag="div"
                     placeholder="?"
-                    className="font-black text-4xl text-zinc-900"
+                    className="font-black text-2xl print:text-xl text-zinc-900"
                   />
                 </div>
               </div>
 
               {settings?.showClinicalNotes && section.clinicalMeta && (
-                <div className="text-right flex flex-col items-end gap-2">
-                  <div className="flex items-center gap-3">
-                    <span className="text-[9px] font-black uppercase text-zinc-400 tracking-tighter">
-                      BİLİŞSEL YÜK
+                <div className="text-right flex flex-col items-end gap-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[7px] print:text-[6px] font-black uppercase text-zinc-400 tracking-tighter">
+                      YÜK
                     </span>
-                    <div className="flex gap-1">
+                    <div className="flex gap-0.5">
                       {[...Array(5)].map((_, i) => (
                         <div
                           key={i}
-                          className={`w-1.5 h-4 rounded-full ${i < Math.round(section.clinicalMeta!.figureGroundComplexity / 2) ? 'bg-indigo-500' : 'bg-zinc-100 shadow-inner'}`}
+                          className={`w-1 h-2.5 rounded-full ${i < Math.round(section.clinicalMeta!.figureGroundComplexity / 2) ? 'bg-indigo-500' : 'bg-zinc-100 shadow-inner'}`}
                         ></div>
                       ))}
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <i className="fa-solid fa-layer-group text-amber-500 text-[10px]"></i>
-                    <span className="text-[9px] font-black uppercase text-amber-600">
-                      ÖRTÜŞME: %{Math.round(section.clinicalMeta.overlappingRatio * 100)}
+                  <div className="flex items-center gap-2">
+                    <i className="fa-solid fa-layer-group text-amber-500 text-[8px]"></i>
+                    <span className="text-[7px] print:text-[6px] font-black uppercase text-amber-600">
+                      %{Math.round(section.clinicalMeta.overlappingRatio * 100)}
                     </span>
                   </div>
                 </div>
@@ -214,7 +211,7 @@ export const ShapeCountingSheet = ({
             </div>
 
             {/* Hidden Solution */}
-            <div className="absolute top-10 right-10 opacity-0 group-hover:opacity-10 transition-opacity rotate-180 text-[10px] font-black select-none pointer-events-none text-zinc-900">
+            <div className="absolute top-8 right-6 opacity-0 group-hover:opacity-10 transition-opacity rotate-180 text-[9px] font-black select-none pointer-events-none text-zinc-900">
               {section.correctCount}
             </div>
           </EditableElement>
@@ -224,46 +221,38 @@ export const ShapeCountingSheet = ({
       {/* KLİNİK PROTOKOL FOOTER */}
       <div
         className={`
-        mt-2 p-4 print:p-3 rounded-2xl border-2 border-zinc-900 flex justify-between items-center shadow-sm relative overflow-hidden
+        mt-1 p-2 print:p-1.5 rounded-xl border border-zinc-900 flex justify-between items-center shadow-sm relative overflow-hidden
         ${isPremium ? 'bg-zinc-900 text-white' : 'bg-white text-zinc-900'}
       `}
       >
-        {/* Dekoratif Işık Efekti */}
-        <div className="absolute -top-20 -left-20 w-40 h-40 bg-indigo-500 rounded-full blur-[100px] opacity-20"></div>
-
-        <div className="flex gap-12 items-center relative z-10">
+        <div className="flex gap-8 items-center relative z-10">
           <div className="flex flex-col">
-            <span className="text-[10px] font-black text-amber-500 uppercase tracking-[0.4em] mb-1">
-              KLİNİK ANALİZ PROTOKOLÜ
+            <span className="text-[8px] print:text-[6px] font-black text-amber-500 uppercase tracking-[0.35em] mb-0.5">
+              PROTOKOL
             </span>
             <span
-              className={`text-sm font-black uppercase tracking-tight ${isPremium ? 'text-white' : 'text-zinc-900'}`}
+              className={`text-xs print:text-[9px] font-black uppercase tracking-tight ${isPremium ? 'text-white' : 'text-zinc-900'}`}
             >
-              Görsel Ayrıştırma & Detay Odaklı Dikkat
+              Görsel Ayrıştırma
             </span>
           </div>
         </div>
 
-        <div className="flex items-center gap-6 relative z-10">
+        <div className="flex items-center gap-4 relative z-10">
           <div className="text-right">
-            <span className="block text-[8px] font-black text-zinc-500 uppercase tracking-widest leading-none mb-1">
-              CİHAZ / ENGİNE
+            <span className="block text-[6px] print:text-[5px] font-black text-zinc-500 uppercase tracking-widest leading-none mb-0.5">
+              BDMIND
             </span>
-            <span className="text-[10px] font-black tracking-tighter uppercase">
-              bdmind Vision v3.8.2
+            <span className="text-[8px] print:text-[6px] font-black tracking-tighter uppercase">
+              v3.8
             </span>
           </div>
           <div
-            className={`w-12 h-12 rounded-2xl flex items-center justify-center border-2 border-zinc-900 shadow-xl transform rotate-12 transition-transform hover:rotate-0`}
+            className={`w-8 h-8 rounded-xl flex items-center justify-center border border-zinc-900 shadow-md transform rotate-12 transition-transform hover:rotate-0`}
           >
-            <i className="fa-solid fa-crosshairs text-amber-500 text-xl"></i>
+            <i className="fa-solid fa-crosshairs text-amber-500 text-base"></i>
           </div>
         </div>
-      </div>
-
-      {/* FOOTER LABEL */}
-      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[7px] font-black text-zinc-200 uppercase tracking-[0.5em]">
-        ANTIGRAVITY // EXPERIMENTAL VISUAL SUITE 2026
       </div>
     </div>
   );
