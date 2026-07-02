@@ -1,5 +1,5 @@
 /* src/styles/theme-print.css */
-/* Print-Optimized Theme - PDF/Print Fidelity */
+/* Print-Optimized Theme - Premium Compact A4 Formatting */
 
 @media print {
   /* === Global Print Optimizations === */
@@ -40,6 +40,10 @@
   body {
     background: white !important;
     color: black !important;
+    font-family: 'Lexend', 'Inter', 'Times New Roman', serif !important;
+    line-height: 1.4 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   /* Remove all glass effects */
@@ -82,161 +86,218 @@
     display: none !important;
   }
 
-  /* === Optimize Typography for Print === */
-
-  body {
-    font-family: 'Lexend', 'Georgia', serif !important;
-    /* font-size ve line-height zorlaması kaldırıldı — etkinliklerin kendi değerleri korunsun */
+  /* === Page Setup - Premium Compact Margins === */
+  @page {
+    size: A4 portrait;
+    margin: 8mm !important;
   }
 
-  h1, h2, h3 {
-    /* font-size zorlaması kaldırıldı — etkinliklerin orijinal boyutları korunsun */
-    page-break-after: avoid;
+  /* === Optimize Typography for Compact Premium Printing === */
+  h1, h2, h3, h4 {
+    font-family: 'Lexend', 'Inter', sans-serif !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+    margin: 0.2em 0 0.3em !important;
+  }
+
+  h1 { font-size: 18pt !important; }
+  h2 { font-size: 14pt !important; }
+  h3 { font-size: 12pt !important; }
+  h4 { font-size: 11pt !important; }
+
+  p, span, li {
+    font-size: 10pt !important;
+    line-height: 1.3 !important;
   }
 
   p {
-    orphans: 3;
-    widows: 3;
+    orphans: 2;
+    widows: 2;
+    margin: 0.3em 0 !important;
   }
 
-  /* === Page Break Control === */
+  /* === Page Break Control - Premium Rules === */
 
   .page-break-before {
-    page-break-before: always;
+    page-break-before: always !important;
   }
 
   .page-break-after {
-    page-break-after: always;
+    page-break-after: always !important;
   }
 
   .page-break-avoid {
-    page-break-inside: avoid;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
   /* Avoid breaking inside these elements */
   pre,
   blockquote,
-  tr,
   img,
   .worksheet-item,
-  .activity-card {
-    page-break-inside: avoid;
+  .activity-card,
+  .worksheet-section,
+  .question-container {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
-  /* === Link Handling === */
-  /* URL gösterimi kaldırıldı — etkinliklerde gereksiz metin çıkmasını önler */
-  a[href]:after {
-    content: none;
-  }
-
-  /* === Table Optimization === */
+  /* === Table & Grid Handling - Special Rules === */
 
   table {
     border-collapse: collapse;
     width: 100%;
-  }
-
-  th,
-  td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
+    page-break-inside: auto !important;
+    break-inside: auto !important;
   }
 
   thead {
-    display: table-header-group; /* Repeat on each page */
+    display: table-header-group !important;
+  }
+
+  tr {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  th, td {
+    border: 1px solid #999999;
+    padding: 3mm !important;
+    font-size: 9pt !important;
+  }
+
+  /* Grid Layout Handling - Avoid breaking grid cells */
+  .grid, [class*='grid-cols'] {
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+  }
+
+  /* Individual grid cells - avoid breaking */
+  .grid-item, [class*='grid-cols'] > * {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* === Link Handling === */
+  a[href]:after {
+    content: none;
   }
 
   /* === Color Adjustments === */
-
-  /* Convert colored backgrounds to light gray */
-  .accent-bg,
-  .highlight-bg {
+  .accent-bg, .highlight-bg {
     background: #f5f5f5 !important;
     color: #000000 !important;
   }
 
-  /* Ensure sufficient contrast */
-  .text-light,
-  .text-white {
+  .text-light, .text-white {
     color: #000000 !important;
   }
 
   /* === Images === */
-
   img {
     max-width: 100% !important;
-    page-break-inside: avoid;
+    height: auto !important;
+    page-break-inside: avoid !important;
   }
 
-  /* === Margins & Spacing === */
-
-  @page {
-    margin: 5mm !important;
-    size: A4;
-  }
-
-  /* Adjust margins for print */
-  .container,
-  .content-area {
+  /* === Compact Layout - Minimal Spacing === */
+  .container, .content-area {
     width: 100% !important;
     max-width: none !important;
     margin: 0 !important;
     padding: 0 !important;
   }
+
+  /* Premium Worksheet Specific Styling */
+  .premium-worksheet {
+    width: 100% !important;
+    padding: 0 !important;
+  }
+
+  .worksheet-header {
+    margin-bottom: 4mm !important;
+    padding-bottom: 2mm !important;
+    border-bottom: 1px solid #ddd !important;
+  }
+
+  .activity-instruction {
+    font-size: 10pt !important;
+    margin-bottom: 3mm !important;
+    line-height: 1.3 !important;
+  }
+
+  /* Pedagogical Note - Compact but Visible */
+  .pedagogical-note {
+    background-color: #f9f9f9 !important;
+    border: 1px dashed #ccc !important;
+    padding: 3mm !important;
+    margin-top: 4mm !important;
+    font-size: 9pt !important;
+  }
+
+  /* Grid Drawing / Symmetry Activities */
+  .drawing-grid, .symmetry-grid {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Word Search / Finding Activities */
+  .word-search-grid {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    font-family: 'Lexend', monospace !important;
+    font-size: 11pt !important;
+    letter-spacing: 0.1em !important;
+  }
+
+  /* Find the Difference / Visual Activities */
+  .visual-activity-container {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Multiple Column Layout Support */
+  .two-column-print {
+    column-count: 2 !important;
+    column-gap: 8mm !important;
+  }
+
+  .column-break-before {
+    break-before: column !important;
+  }
 }
 
 /* === PDF Export Mode (Preserve Theme) === */
-
 body.pdf-export-mode {
-  /* A4 dimensions */
   width: 210mm;
-  height: 297mm;
-  margin: 0;
-  padding: 15mm;
-
-  /* Allow theme colors in PDF */
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 8mm;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
+  box-sizing: border-box;
+}
 
-  /* But disable effects that won't render */
-  * {
-    box-shadow: none !important;
-    text-shadow: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-  }
-
-  /* Simplify borders */
-  .glass-panel,
-  .glass-layer-1,
-  .glass-layer-2,
-  .glass-layer-3 {
-    border: 1px solid currentColor !important;
-    opacity: 0.8;
-  }
+body.pdf-export-mode * {
+  box-shadow: none !important;
+  text-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 /* === Preserve Specific Theme Colors in PDF === */
-
 body.pdf-export-mode.preserve-theme {
-  /* Theme colors will be maintained */
   background: hsl(var(--bg-h), var(--bg-s), var(--bg-l)) !important;
   color: var(--text-primary) !important;
 }
 
 body.pdf-export-mode.preserve-theme .glass-panel {
-  background: hsla(
-    var(--accent-h),
-    var(--accent-s),
-    var(--accent-l),
-    0.1
-  ) !important;
+  background: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.1) !important;
   border-color: hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.3) !important;
 }
 
 /* === Black & White Print Mode === */
-
 @media print and (monochrome) {
   * {
     color: black !important;
@@ -244,9 +305,7 @@ body.pdf-export-mode.preserve-theme .glass-panel {
     border-color: black !important;
   }
 
-  /* Ensure visibility of important elements */
-  .accent-element,
-  .highlight {
+  .accent-element, .highlight {
     border: 2px solid black !important;
   }
 }

@@ -1,6 +1,7 @@
 /**
  * bdmind Print Engine — CSS Enjeksiyon Modülü
  * @page kuralları, Print Lock CSS ve yazdırma moduna geçiş yönetimi.
+ * Premium Compact A4 Formatlama ile güncellendi.
  */
 
 import type { PaperSize } from './types';
@@ -22,7 +23,7 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
         : paperSize;
   const dims = PAPER_DIMENSIONS[paperSize];
   const styleText = `
-    @page { size: ${pageSize}; margin: 5mm !important; }
+    @page { size: ${pageSize}; margin: 8mm !important; }
     @media print {
       html, body {
         width: 100% !important;
@@ -30,6 +31,10 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
         margin: 0 !important;
         padding: 0 !important;
         background: #fff !important;
+        font-family: 'Lexend', 'Inter', 'Times New Roman', serif !important;
+        line-height: 1.4 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
 
       body.printing-mode > *:not(#print-overlay) {
@@ -58,34 +63,35 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
       }
 
       body.printing-mode #print-overlay .worksheet-page,
-        body.printing-mode #print-overlay .print-page,
-        body.printing-mode #print-overlay .universal-mode-canvas,
-        body.printing-mode #print-overlay .a4-page {
-          width: 100% !important;
-          max-width: 100% !important;
-          min-height: 100% !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          box-sizing: border-box !important;
-          box-shadow: none !important;
-          break-inside: auto !important;
-          page-break-inside: auto !important;
-          page-break-after: always !important;
-          break-after: page !important;
-        }
-        body.printing-mode #print-overlay .print-exact {
-          width: 100% !important;
-          max-width: 100% !important;
-          min-height: 100% !important;
-          margin: 0 !important;
-          padding: 0 !important;
-          box-sizing: border-box !important;
-          box-shadow: none !important;
-          break-inside: auto !important;
-          page-break-inside: auto !important;
-          page-break-after: avoid !important;
-          break-after: avoid !important;
-        }
+      body.printing-mode #print-overlay .print-page,
+      body.printing-mode #print-overlay .universal-mode-canvas,
+      body.printing-mode #print-overlay .a4-page {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+        box-shadow: none !important;
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+        page-break-after: always !important;
+        break-after: page !important;
+      }
+
+      body.printing-mode #print-overlay .print-exact {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+        box-shadow: none !important;
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+      }
 
       body.printing-mode #print-overlay .print-page {
         overflow: visible !important;
@@ -100,6 +106,44 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
         print-color-adjust: exact !important;
         -webkit-print-color-adjust: exact !important;
       }
+
+      /* === Table & Grid Handling - Premium Rules === */
+      table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+      }
+      thead { display: table-header-group !important; }
+      tr { page-break-inside: avoid !important; break-inside: avoid !important; }
+      th, td {
+        border: 1px solid #999 !important;
+        padding: 3mm !important;
+        font-size: 9pt !important;
+      }
+
+      /* Grid Layout Handling */
+      .grid, [class*='grid-cols'] {
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+      }
+      .grid-item, [class*='grid-cols'] > * {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+
+      /* Typography Optimization */
+      h1, h2, h3, h4 {
+        font-family: 'Lexend', 'Inter', sans-serif !important;
+        page-break-after: avoid !important;
+        page-break-inside: avoid !important;
+        margin: 0.2em 0 0.3em !important;
+      }
+      h1 { font-size: 18pt !important; }
+      h2 { font-size: 14pt !important; }
+      h3 { font-size: 12pt !important; }
+      h4 { font-size: 11pt !important; }
+      p, span, li { font-size: 10pt !important; line-height: 1.3 !important; }
     }
   `;
 
@@ -115,6 +159,7 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
 /**
  * Overlay yazdırma için ek CSS güvenlik duvarı enjekte eder.
  * Tailwind responsive gridleri kağıtta kilitler (Print Lock).
+ * Premium Compact A4 ayarlarıyla güncellendi.
  */
 export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): HTMLStyleElement => {
   const CORE_STYLE_ID = 'bdmind-print-core-styles';
@@ -127,7 +172,7 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
   }
 
   styleEl.textContent = `
-    @page { size: ${paperSize} ${isLandscape ? 'landscape' : 'portrait'}; margin: 5mm !important; }
+    @page { size: ${paperSize} ${isLandscape ? 'landscape' : 'portrait'}; margin: 8mm !important; }
     @media print {
       body > *:not(#print-overlay) {
         display: none !important;
@@ -186,7 +231,7 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
       .lg\\:flex-row { flex-direction: row !important; }
 
       @page { 
-        margin: 5mm !important; 
+        margin: 8mm !important; 
         size: auto; 
       }
       
@@ -196,7 +241,8 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
         text-rendering: optimizeLegibility !important;
-        line-height: inherit !important; /* Global 1.6 zorlaması kaldırıldı */
+        line-height: 1.4 !important; /* Premium compact line-height */
+        font-family: 'Lexend', 'Inter', 'Times New Roman', serif !important;
       }
 
       /* Kâğıt kenarlarında güvenlik boşluğu (Tarayıcı marjının yerini alan padding) */
@@ -262,11 +308,75 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
       }
 
 
-      /* Performans: Baskıda ağır animasyonları devredışı bırak */
+      /* Performans: Baskıda ağır animasyonları devre dışı bırak */
       .backdrop-blur-xl, .backdrop-blur-md {
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
         background: white !important;
+      }
+
+      /* === Premium Compact Typography === */
+      h1, h2, h3, h4 {
+        font-family: 'Lexend', 'Inter', sans-serif !important;
+        page-break-after: avoid !important;
+        page-break-inside: avoid !important;
+        margin: 0.2em 0 0.3em !important;
+      }
+      h1 { font-size: 18pt !important; }
+      h2 { font-size: 14pt !important; }
+      h3 { font-size: 12pt !important; }
+      h4 { font-size: 11pt !important; }
+      p, span, li {
+        font-size: 10pt !important;
+        line-height: 1.3 !important;
+        margin: 0.3em 0 !important;
+      }
+
+      /* === Table & Grid Special Rules === */
+      table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+      }
+      thead { display: table-header-group !important; }
+      tr { page-break-inside: avoid !important; break-inside: avoid !important; }
+      th, td {
+        border: 1px solid #999 !important;
+        padding: 3mm !important;
+        font-size: 9pt !important;
+      }
+      .grid, [class*='grid-cols'] {
+        page-break-inside: auto !important;
+        break-inside: auto !important;
+      }
+      .grid-item, [class*='grid-cols'] > * {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+
+      /* === Activity-Specific Styling === */
+      .word-search-grid {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+        font-family: 'Lexend', monospace !important;
+        font-size: 11pt !important;
+        letter-spacing: 0.1em !important;
+      }
+      .drawing-grid, .symmetry-grid {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+      .visual-activity-container {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+      .pedagogical-note {
+        background-color: #f9f9f9 !important;
+        border: 1px dashed #ccc !important;
+        padding: 3mm !important;
+        margin-top: 4mm !important;
+        font-size: 9pt !important;
       }
     }
   `;
