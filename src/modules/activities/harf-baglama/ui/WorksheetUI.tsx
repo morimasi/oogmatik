@@ -10,14 +10,14 @@ export const HarfBaglamaSheet: React.FC<HarfBaglamaSheetProps> = ({ data }) => {
     instruction,
     items = [],
     difficulty = 'Orta',
-    mode = 'standard',
+    activityMode = 'standard',
     fontSize = 10,
     primaryColor = '#4f46e5',
     secondaryColor = '#ec4899'
   } = data || {};
 
   // Kızlım modu için renkler
-  const isGirlMode = mode === 'girl';
+  const isGirlMode = activityMode === 'girl';
   const headerGradient = isGirlMode
     ? 'from-pink-400 via-purple-400 to-indigo-400'
     : 'from-indigo-500 via-purple-500 to-pink-500';

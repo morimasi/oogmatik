@@ -202,6 +202,28 @@ export const getDefaultOptionsForActivity = (
         showPositionNumbers: true,
         iconStyle: 'emoji',
       };
+    case ActivityType.LETTER_CONNECT:
+      return {
+        ...base,
+        itemCount: 10,
+        difficulty: 'Orta',
+        activityMode: 'standard',
+        category: 'genel',
+        fontSize: 10,
+        primaryColor: '#4f46e5',
+        secondaryColor: '#ec4899'
+      };
+    case ActivityType.HARF_BAGLAMA:
+      return {
+        ...base,
+        itemCount: 10,
+        difficulty: 'Orta',
+        activityMode: 'standard',
+        category: 'genel',
+        fontSize: 10,
+        primaryColor: '#4f46e5',
+        secondaryColor: '#ec4899'
+      };
     default:
       return base;
   }

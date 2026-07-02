@@ -2,18 +2,18 @@ import React from 'react';
 import { LetterConnectMode, LetterConnectCategory, LetterConnectDifficulty } from '../types';
 
 interface LetterConnectConfigProps {
-  value: Record<string, unknown>;
+  options: Record<string, unknown>;
   onChange: (key: string, val: unknown) => void;
 }
 
-export const LetterConnectConfig: React.FC<LetterConnectConfigProps> = ({ value, onChange }) => {
-  const mode = (value?.mode as LetterConnectMode) || 'standard';
-  const category = (value?.category as LetterConnectCategory) || 'genel';
-  const difficulty = (value?.difficulty as LetterConnectDifficulty) || 'Orta';
-  const itemCount = Number(value?.itemCount) || 10;
-  const fontSize = Number(value?.fontSize) || 10;
-  const primaryColor = (value?.primaryColor as string) || '#4f46e5';
-  const secondaryColor = (value?.secondaryColor as string) || '#ec4899';
+export const LetterConnectConfig: React.FC<LetterConnectConfigProps> = ({ options, onChange }) => {
+  const activityMode = (options?.activityMode as LetterConnectMode) || 'standard';
+  const category = (options?.category as LetterConnectCategory) || 'genel';
+  const difficulty = (options?.difficulty as LetterConnectDifficulty) || 'Orta';
+  const itemCount = Number(options?.itemCount) || 10;
+  const fontSize = Number(options?.fontSize) || 10;
+  const primaryColor = (options?.primaryColor as string) || '#4f46e5';
+  const secondaryColor = (options?.secondaryColor as string) || '#ec4899';
 
   return (
     <div className="space-y-5 p-5 bg-zinc-900/40 backdrop-blur-xl rounded-3xl border border-zinc-800/50">
@@ -30,9 +30,9 @@ export const LetterConnectConfig: React.FC<LetterConnectConfigProps> = ({ value,
         </label>
         <div className="grid grid-cols-2 gap-2">
           <button
-            onClick={() => onChange('mode', 'standard')}
+            onClick={() => onChange('activityMode', 'standard')}
             className={`px-3 py-2 rounded-xl text-xs font-bold transition-all duration-200 border-2 ${
-              mode === 'standard'
+              activityMode === 'standard'
                 ? 'bg-indigo-500/20 border-indigo-500 text-indigo-300'
                 : 'bg-zinc-800/50 border-zinc-700 text-zinc-400 hover:bg-zinc-800'
             }`}
@@ -41,9 +41,9 @@ export const LetterConnectConfig: React.FC<LetterConnectConfigProps> = ({ value,
             Standart
           </button>
           <button
-            onClick={() => onChange('mode', 'girl')}
+            onClick={() => onChange('activityMode', 'girl')}
             className={`px-3 py-2 rounded-xl text-xs font-bold transition-all duration-200 border-2 ${
-              mode === 'girl'
+              activityMode === 'girl'
                 ? 'bg-pink-500/20 border-pink-500 text-pink-300'
                 : 'bg-zinc-800/50 border-zinc-700 text-zinc-400 hover:bg-zinc-800'
             }`}

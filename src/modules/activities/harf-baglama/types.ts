@@ -13,7 +13,7 @@ export interface HarfBaglamaDataItem {
 export interface HarfBaglamaData extends BaseActivityData {
   items: HarfBaglamaDataItem[];
   difficulty: HarfBaglamaDifficulty;
-  mode: HarfBaglamaMode;
+  activityMode: HarfBaglamaMode;
   category: HarfBaglamaCategory;
   itemCount: number;
   fontSize: number;

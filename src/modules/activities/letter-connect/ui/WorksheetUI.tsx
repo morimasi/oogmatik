@@ -19,14 +19,14 @@ export const LetterConnectSheet: React.FC<LetterConnectSheetProps> = ({ data }) 
     instruction,
     items = [],
     difficulty = 'Orta',
-    mode = 'standard',
+    activityMode = 'standard',
     fontSize = 10,
     primaryColor = '#4f46e5',
     secondaryColor = '#ec4899'
   } = data || {};
 
   // Kızlım modu için renkler
-  const isGirlMode = mode === 'girl';
+  const isGirlMode = activityMode === 'girl';
   const iconColor = isGirlMode ? '#ec4899' : primaryColor;
 
   return (

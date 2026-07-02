@@ -9,13 +9,13 @@ import { HarfBaglamaMode, HarfBaglamaCategory, HarfBaglamaDifficulty } from './t
 export const generateHARF_BAGLAMAFromAI = async (options: GeneratorOptions) => {
   const difficulty = (options.difficulty as HarfBaglamaDifficulty) || 'Orta';
   const itemCount = Number((options as any).itemCount) || 10;
-  const mode = (options.mode as HarfBaglamaMode) || 'standard';
+  const activityMode = ((options as any).activityMode as HarfBaglamaMode) || 'standard';
   const category = (options.category as HarfBaglamaCategory) || 'genel';
   const fontSize = Number((options as any).fontSize) || 10;
   const primaryColor = (options.primaryColor as string) || '#4f46e5';
   const secondaryColor = (options.secondaryColor as string) || '#ec4899';
 
-  const isGirlMode = mode === 'girl';
+  const isGirlMode = activityMode === 'girl';
   const title = isGirlMode ? 'Prenses Harf Bağlama (Yapay Zeka)' : 'Harf Bağlama Etkinliği (Yapay Zeka)';
 
   const prompt = `
@@ -61,7 +61,7 @@ export const generateHARF_BAGLAMAFromAI = async (options: GeneratorOptions) => {
     instruction: result.instruction,
     items: result.items,
     difficulty,
-    mode,
+    activityMode,
     category,
     itemCount,
     fontSize,

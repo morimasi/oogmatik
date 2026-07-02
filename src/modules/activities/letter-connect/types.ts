@@ -13,7 +13,7 @@ export interface LetterConnectDataItem {
 export interface LetterConnectData extends BaseActivityData {
   items: LetterConnectDataItem[];
   difficulty: LetterConnectDifficulty;
-  mode: LetterConnectMode;
+  activityMode: LetterConnectMode;
   category: LetterConnectCategory;
   itemCount: number;
   fontSize: number;

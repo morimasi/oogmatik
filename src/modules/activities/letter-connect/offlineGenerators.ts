@@ -16,7 +16,7 @@ function shuffle<T>(array: T[]): T[] {
 export const generateOfflineLETTER_CONNECT = async (options: GeneratorOptions) => {
   const difficulty = (options.difficulty as LetterConnectDifficulty) || 'Orta';
   const itemCount = Number((options as any).itemCount || (options as any).count) || 10;
-  const mode = (options.mode as LetterConnectMode) || 'standard';
+  const activityMode = ((options as any).activityMode as LetterConnectMode) || 'standard';
   const category = (options.category as LetterConnectCategory) || 'genel';
   const fontSize = Number((options as any).fontSize) || 10;
   const primaryColor = (options.primaryColor as string) || '#4f46e5';
@@ -51,7 +51,7 @@ export const generateOfflineLETTER_CONNECT = async (options: GeneratorOptions) =
     rightItem: shuffledRight[idx],
   }));
 
-  const isGirlMode = mode === 'girl';
+  const isGirlMode = activityMode === 'girl';
   const instruction = isGirlMode
     ? 'Prenseslik dünyasında büyük harfleri küçük harflerle sihirli çizgilerle birleştir!'
     : 'Noktaları birleştirerek büyük harfleri küçük harflerle eşleştirin.';
@@ -62,7 +62,7 @@ export const generateOfflineLETTER_CONNECT = async (options: GeneratorOptions) =
     instruction,
     items,
     difficulty,
-    mode,
+    activityMode,
     category,
     itemCount,
     fontSize,
