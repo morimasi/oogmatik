@@ -72,10 +72,12 @@ export const generateOfflineReadingSudoku = async (options: GeneratorOptions): P
 };
 
 export const generateOfflineSynonymAntonymMatch = async (options: GeneratorOptions): Promise<any> => {
-    const { difficulty = 'Orta', itemCount = 8, variant = 'mixed' } = options;
+    const { difficulty = 'Orta', itemCount, variant = 'mixed' } = options;
+    // Premium kompakt ayarlama
+    const count = itemCount || (difficulty === 'Zor' ? 10 : difficulty === 'Orta' ? 9 : 8);
 
     const pool = variant === 'synonym' ? TR_VOCAB.synonyms : variant === 'antonym' ? TR_VOCAB.antonyms : shuffle([...TR_VOCAB.synonyms, ...TR_VOCAB.antonyms]);
-    const selection = shuffle(pool).slice(0, itemCount);
+    const selection = shuffle(pool).slice(0, count);
 
     const pairs = selection.map(item => ({
         source: item.word,
@@ -85,26 +87,29 @@ export const generateOfflineSynonymAntonymMatch = async (options: GeneratorOptio
 
     const title = variant === 'synonym' ? 'Eş Anlamlı Kelimeler' : variant === 'antonym' ? 'Zıt Anlamlı Kelimeler' : 'Eş ve Zıt Anlamlar';
 
-    const builder = new WorksheetBuilder(ActivityType.SYNONYM_ANTONYM_MATCH, title)
-        .addPremiumHeader()
-        .addPrimaryActivity('match_columns', {
-            leftTitle: 'Kelime',
-            rightTitle: 'Anlamdaşı/Zıttı',
-            pairs: shuffle(pairs.map(p => ({ left: p.source, right: p.target })))
-        });
-
     // Destekleyici alıştırma: Cümle tamamlama
     const drillSentences = [
         { text: "Bugün hava çok _______. (Sıcak zıt anlamlısı)", target: "Soğuk" },
-        { text: "En sevdiğim _______ bugün geliyor. (Konuk eş anlamlısı)", target: "Misafir" }
+        { text: "En sevdiğim _______ bugün geliyor. (Konuk eş anlamlısı)", target: "Misafir" },
+        { text: "Bu soru çok _______. (Zor eş anlamlısı)", target: "Zor" },
+        { text: "Lütfen daha _______ konuş. (Sessiz eş anlamlısı)", target: "Sessiz" }
     ];
 
-    builder.addSupportingDrill('Cümle Tamamlama', {
+    return [{
+        title,
+        instruction: 'Kelimeleri anlamdaşları ile eşleştir ve cümleleri tamamla.',
+        mode: variant,
+        pairs,
         sentences: drillSentences,
-        instruction: 'Parantez içindeki ipuçlarına göre boşlukları doldurun.'
-    });
-
-    return [builder.addSuccessIndicator().build()];
+        insight: { title: 'Dil Bilgisi', text: 'Türkçe kelime haznesi, farklı dillerden gelen ancak aynı anlamı taşıyan zengin sözcük çiftlerine sahiptir.' },
+        settings: {
+            aestheticMode: 'ultra-compact',
+            pageFormat: 'A4',
+            margins: { top: 15, bottom: 15, left: 12, right: 12 },
+            difficulty: difficulty,
+            itemCount: count
+        }
+    }];
 };
 
 export const generateOfflineReadingStroop = async (options: GeneratorOptions): Promise<ReadingStroopData[]> => {
