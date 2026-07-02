@@ -142,17 +142,84 @@ export const generateOfflineFamilyLogicTest = async (options: GeneratorOptions):
 };
 
 export const generateOfflineSyllableWordBuilder = async (options: GeneratorOptions): Promise<SyllableWordBuilderData[]> => {
-    const { worksheetCount = 1, _difficulty, _itemCount = 4 } = options as Record<string, unknown>;
-    const words = [
-        { word: "ARABA", syllables: ["A", "RA", "BA"], img: "car" },
-        { word: "KİTAP", syllables: ["Kİ", "TAP"], img: "book" },
-        { word: "ELMA", syllables: ["EL", "MA"], img: "apple" },
-        { word: "GÜNEŞ", syllables: ["GÜ", "NEŞ"], img: "sun" }
-    ];
-    return Array.from({ length: (worksheetCount as number) || 1 }, () => ({
-        title: "Hece Dedektifi",
-        instruction: "Karışık verilen heceleri birleştirerek görsele uygun kelimeyi oluştur.",
-        words: words.map((w, i) => ({ id: i, targetWord: w.word, syllables: w.syllables, imagePrompt: w.img })),
-        syllableBank: shuffle(words.flatMap(w => w.syllables))
-    }));
+    const { worksheetCount = 1, difficulty = 'Orta', itemCount = 6, topic = 'animals', syllableRange = '2-3' } = options;
+    
+    // Premium Kelime Havuzu (Konu ve Hece Yoğunluğuna Göre)
+    const WORD_POOLS = {
+        animals: [
+            { word: "KEDİ", syllables: ["KE", "Dİ"], img: "cute cat" },
+            { word: "KÖPEK", syllables: ["KÖ", "PEK"], img: "friendly dog" },
+            { word: "KUŞ", syllables: ["KUŞ"], img: "colorful bird" },
+            { word: "TAVUK", syllables: ["TA", "VUK"], img: "chicken" },
+            { word: "KOYUN", syllables: ["KO", "YUN"], img: "sheep" },
+            { word: "İNEK", syllables: ["İ", "NEK"], img: "cow" },
+            { word: "AT", syllables: ["AT"], img: "horse" },
+            { word: "FİL", syllables: ["FİL"], img: "elephant" }
+        ],
+        fruits: [
+            { word: "ELMA", syllables: ["EL", "MA"], img: "red apple" },
+            { word: "ARMUT", syllables: ["AR", "MUT"], img: "pear" },
+            { word: "KİRAZ", syllables: ["Kİ", "RAZ"], img: "cherries" },
+            { word: "ÇİLEK", syllables: ["Çİ", "LEK"], img: "strawberry" },
+            { word: "PORTAKAL", syllables: ["POR", "TA", "KAL"], img: "orange" },
+            { word: "MUZ", syllables: ["MUZ"], img: "banana" },
+            { word: "ÜZÜM", syllables: ["Ü", "ZÜM"], img: "grapes" },
+            { word: "KAVUN", syllables: ["KA", "VUN"], img: "melon" }
+        ],
+        school: [
+            { word: "KİTAP", syllables: ["Kİ", "TAP"], img: "book" },
+            { word: "KALEM", syllables: ["KA", "LEM"], img: "pencil" },
+            { word: "MASA", syllables: ["MA", "SA"], img: "school desk" },
+            { word: "SINIF", syllables: ["Sİ", "NİF"], img: "classroom" },
+            { word: "DEFTAR", syllables: ["DEF", "TAR"], img: "notebook" },
+            { word: "BOYA", syllables: ["BO", "YA"], img: "crayons" },
+            { word: "OKUL", syllables: ["O", "KUL"], img: "school building" },
+            { word: "ÖĞRETMEN", syllables: ["ÖĞ", "RET", "MEN"], img: "teacher" }
+        ],
+        nature: [
+            { word: "GÜNEŞ", syllables: ["GÜ", "NEŞ"], img: "sun" },
+            { word: "YILDIZ", syllables: ["YIL", "DIZ"], img: "star" },
+            { word: "AY", syllables: ["AY"], img: "moon" },
+            { word: "ÇİÇEK", syllables: ["Çİ", "ÇEK"], img: "flower" },
+            { word: "AĞAÇ", syllables: ["A", "ĞAÇ"], img: "tree" },
+            { word: "DENİZ", syllables: ["DE", "NİZ"], img: "sea" },
+            { word: "DAĞ", syllables: ["DAĞ"], img: "mountain" },
+            { word: "YAĞMUR", syllables: ["YAĞ", "MUR"], img: "rain" }
+        ]
+    };
+
+    const [minSyl, maxSyl] = syllableRange.split('-').map(Number);
+    const selectedPool = WORD_POOLS[topic as keyof typeof WORD_POOLS] || WORD_POOLS.animals;
+    
+    // Hece sayısına göre filtrele
+    const filteredWords = selectedPool.filter(w => w.syllables.length >= minSyl && w.syllables.length <= maxSyl);
+    
+    // Dolu dolu A4 için kelime sayısı
+    const finalItemCount = itemCount || (difficulty === 'Zor' ? 8 : difficulty === 'Orta' ? 6 : 4);
+    
+    return Array.from({ length: worksheetCount || 1 }, () => {
+        const selectedWords = getRandomItems(filteredWords, finalItemCount);
+        const syllableBank = shuffle(selectedWords.flatMap(w => w.syllables));
+        
+        return {
+            title: "Hece Dedektifi: Premium Pro",
+            instruction: "Hece havuzundaki harf gruplarını birleştirerek görsellere uygun kelimeleri oluştur. Her kelime için doğru heceleri yerleştir.",
+            words: selectedWords.map((w, i) => ({ 
+                id: i, 
+                targetWord: w.word, 
+                syllables: w.syllables, 
+                imagePrompt: w.img 
+            })),
+            syllableBank,
+            settings: {
+                aestheticMode: 'ultra-compact',
+                pageFormat: 'A4',
+                margins: { top: 15, bottom: 15, left: 12, right: 12 },
+                difficulty,
+                topic,
+                syllableRange,
+                itemCount: finalItemCount
+            }
+        };
+    });
 };
