@@ -31,16 +31,39 @@ export const VerbalComprehensionTest: React.FC<VerbalComprehensionTestProps> = (
         { word: 'açık', options: ['kapalı', 'karanlık', 'aydınlık', 'güzel'], correct: 'kapalı' },
         { word: 'yukarı', options: ['aşağı', 'sağ', 'sol', 'ön'], correct: 'aşağı' },
         { word: 'doğru', options: ['yanlış', 'iyi', 'kötü', 'güzel'], correct: 'yanlış' },
-        { word: 'eski', options: ['yeni', 'modern', 'eski', 'klasik'], correct: 'yeni' },
+        { word: 'eski', options: ['yeni', 'modern', 'klasik', 'antika'], correct: 'yeni' },
         { word: 'güçlü', options: ['zayıf', 'hızlı', 'yavaş', 'uzun'], correct: 'zayıf' },
-        { word: 'doluluk', options: ['boşluk', 'kalabalık', 'az', 'çok'], correct: 'boşluk' }
+        { word: 'doluluk', options: ['boşluk', 'kalabalık', 'azlık', 'çokluk'], correct: 'boşluk' },
+        { word: 'sert', options: ['katı', 'yumuşak', 'sıcak', 'dayanıklı'], correct: 'yumuşak' },
+        { word: 'ince', options: ['küçük', 'dar', 'kalın', 'hafif'], correct: 'kalın' },
+        { word: 'kolay', options: ['basit', 'ağır', 'karmaşık', 'zor'], correct: 'zor' },
+        { word: 'tembel', options: ['yavaş', 'çalışkan', 'güçsüz', 'tembel'], correct: 'çalışkan' },
+        { word: 'karanlık', options: ['loş', 'aydınlık', 'parlak', 'koyu'], correct: 'aydınlık' },
+        { word: 'dar', options: ['küçük', 'kısa', 'geniş', 'rahat'], correct: 'geniş' },
+        { word: 'fakir', options: ['cimri', 'güçlü', 'zengin', 'büyük'], correct: 'zengin' },
+        { word: 'sakin', options: ['huzurlu', 'sessiz', 'gürültülü', 'rahat'], correct: 'gürültülü' },
+        { word: 'yaşlı', options: ['yeni', 'eski', 'taze', 'genç'], correct: 'genç' },
+        { word: 'kaba', options: ['sert', 'nazik', 'küstah', 'yumuşak'], correct: 'nazik' },
+        { word: 'derin', options: ['yüksek', 'alçak', 'sığ', 'geniş'], correct: 'sığ' },
+        { word: 'berrak', options: ['temiz', 'bulanık', 'duru', 'parlak'], correct: 'bulanık' },
+        { word: 'cesur', options: ['korkak', 'atak', 'güçlü', 'hırslı'], correct: 'korkak' },
+        { word: 'cömert', options: ['bonkör', 'cimri', 'eli açık', 'yardımsever'], correct: 'cimri' },
     ];
+
+    const shuffleOptions = (opts: string[]): string[] => {
+        const copy = [...opts];
+        for (let i = copy.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+    };
 
     const generateQuestion = () => {
         maxScoreRef.current += level * 10;
         const idx = Math.floor(Math.random() * questions.length);
         const q = questions[idx];
-        setCurrentQuestion(q);
+        setCurrentQuestion({ ...q, options: shuffleOptions(q.options) });
         setPhase('question');
         setStartTime(Date.now());
     };

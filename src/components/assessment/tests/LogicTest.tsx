@@ -89,12 +89,58 @@ const questions: LogicQuestion[] = [
         rule: 'Azalan Desen',
         difficulty: 'hard',
         hint: 'Yukarı üçgenler satır satır azalıyor'
-    }
+    },
+    {
+        id: 9,
+        grid: [['3', '6', '9'], ['12', '15', '18'], ['21', '?', '27']],
+        options: ['23', '24', '22'],
+        answer: '24',
+        rule: 'Üçer Artış',
+        difficulty: 'medium',
+        hint: 'Sayılar üçer üçer artıyor'
+    },
+    {
+        id: 10,
+        grid: [['A', 'B', 'C'], ['D', 'E', 'F'], ['G', 'H', '?']],
+        options: ['I', 'J', 'K'],
+        answer: 'I',
+        rule: 'Alfabetik Sıra',
+        difficulty: 'easy',
+        hint: 'Harfler alfabetik sırayla devam ediyor'
+    },
+    {
+        id: 11,
+        grid: [['1', '1', '2'], ['3', '5', '8'], ['13', '21', '?']],
+        options: ['34', '29', '44'],
+        answer: '34',
+        rule: 'Fibonacci Dizisi',
+        difficulty: 'hard',
+        hint: 'Her sayı kendinden önceki iki sayının toplamı'
+    },
+    {
+        id: 12,
+        grid: [['64', '32', '16'], ['8', '4', '2'], ['1', '0.5', '?']],
+        options: ['0.25', '0.75', '0.125'],
+        answer: '0.25',
+        rule: 'Yarıya Bölme',
+        difficulty: 'hard',
+        hint: 'Her sayı bir öncekinin yarısı'
+    },
+    {
+        id: 13,
+        grid: [['⬜', '⬜', '⬜'], ['⬜', '⬛', '⬜'], ['⬜', '⬜', '?']],
+        options: ['⬛', '⬜', '🔲'],
+        answer: '⬛',
+        rule: 'Merkezdeki Desen',
+        difficulty: 'hard',
+        hint: 'Her satır ve sütundaki siyahların sayısı eşit'
+    },
 ];
 
 export const LogicTest: React.FC<LogicTestProps> = ({ onComplete }) => {
     const [phase, setPhase] = useState<'intro' | 'running'>('intro');
     const [qIndex, setQIndex] = useState(0);
+    const [shuffledOptions, setShuffledOptions] = useState<string[]>([]);
     // FIX: Race condition önlemi — score'u ref ile takip et
     const scoreRef = useRef(0);
     const [scoreDisplay, setScoreDisplay] = useState(0);
@@ -104,6 +150,21 @@ export const LogicTest: React.FC<LogicTestProps> = ({ onComplete }) => {
     const startTimeRef = useRef(Date.now());
     const reactionTimes = useRef<number[]>([]);
     const questionStartTime = useRef(Date.now());
+
+    const shuffleArray = <T,>(arr: T[]): T[] => {
+        const copy = [...arr];
+        for (let i = copy.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+    };
+
+    React.useEffect(() => {
+        if (phase === 'running' && questions[qIndex]) {
+            setShuffledOptions(shuffleArray(questions[qIndex].options));
+        }
+    }, [qIndex, phase]);
 
     const handleShowHint = () => {
         setShowHint(true);
@@ -236,7 +297,7 @@ export const LogicTest: React.FC<LogicTestProps> = ({ onComplete }) => {
 
             {/* Seçenekler */}
             <div className="flex gap-5 mb-4">
-                {currentQ.options.map((opt, i) => {
+                {shuffledOptions.map((opt, i) => {
                     const isSelected = selectedAnswer === opt;
                     const isCorrect = opt === currentQ.answer;
                     let borderColor = "border-zinc-200 dark:border-zinc-700";
