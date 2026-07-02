@@ -38,13 +38,13 @@ export const ReadingPyramidSheet = ({ data, settings: globalSettings }: { data: 
   const fontSizeClass = fontMap[settings?.fontSize || 'medium'] || fontMap.medium;
 
   return (
-    <div className={`flex flex-col bg-white ${isCompact ? 'p-2' : 'p-4'} font-lexend text-black overflow-hidden h-full`}>
+    <div className={`flex flex-col bg-white p-3 print:p-2 font-lexend text-black overflow-hidden h-full min-h-[297mm]`}>
       <PedagogicalHeader
         title={data.title}
         instruction={data.instruction}
       />
 
-      <div className={`grid ${gridClass} ${gapClass} content-start flex-grow overflow-visible`}>
+      <div className={`grid ${gridClass} gap-4 print:gap-2 mt-3 print:mt-2 content-start flex-grow overflow-visible`}>
         {(data.pyramids || []).map((pyramid: any, pIdx: number) => {
             // Renkli modda her piramit farklı renk alabilir veya seçilen rengi kullanır
             const palette = settings?.colorPalette === 'colorful' 
@@ -52,21 +52,21 @@ export const ReadingPyramidSheet = ({ data, settings: globalSettings }: { data: 
                 : currentPalette;
 
             return (
-                <EditableElement key={pIdx} className={`flex flex-col items-center break-inside-avoid border-2 ${palette.border} rounded-[2rem] ${isCompact ? 'p-2' : 'p-6'} shadow-sm bg-white`}>
-                    <div className={`${palette.header} text-white px-6 py-1.5 rounded-full font-black text-[10px] uppercase tracking-widest mb-4 shadow-md`}>
+                <EditableElement key={pIdx} className={`flex flex-col items-center break-inside-avoid border ${palette.border} rounded-xl p-3 print:p-1.5 shadow-sm bg-white`}>
+                    <div className={`${palette.header} text-white px-4 py-0.5 rounded-full font-black text-[8px] uppercase tracking-widest mb-3 shadow-md`}>
                         <EditableText value={pyramid.title} tag="span" />
                     </div>
 
-                    <div className={`flex flex-col items-center ${isCompact ? 'gap-0.5' : 'gap-1.5'} w-full`}>
+                    <div className={`flex flex-col items-center gap-0.5 print:gap-0.3 w-full`}>
                         {pyramid.levels.map((line: string, lIdx: number) => {
                             const isLast = lIdx === pyramid.levels.length - 1;
                             return (
                                 <div
                                     key={lIdx}
                                     className={`
-                                        py-1 px-4 rounded-xl text-center border transition-all hover:bg-zinc-50
+                                        py-0.5 px-3 rounded-lg text-center border transition-all hover:bg-zinc-50
                                         ${isLast ? palette.bg + ' ' + palette.border + ' shadow-inner font-black' : 'bg-white border-transparent'}
-                                        w-fit min-w-[30%]
+                                        w-fit min-w-[25%]
                                     `}
                                 >
                                     <p className={`${fontSizeClass} ${isLast ? palette.text : 'text-zinc-600'} leading-snug tracking-tight`}>
@@ -81,15 +81,15 @@ export const ReadingPyramidSheet = ({ data, settings: globalSettings }: { data: 
         })}
       </div>
 
-      <div className="mt-4 pt-4 border-t border-zinc-100 flex justify-between items-center px-4 opacity-40">
-        <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
-            <p className="text-[8px] text-zinc-400 font-black uppercase tracking-[0.3em]">
+      <div className="mt-auto pt-3 border-t border-zinc-200 flex justify-between items-center px-2 opacity-35">
+        <div className="flex items-center gap-1.5">
+            <span className="w-1 h-1 rounded-full bg-indigo-400"></span>
+            <p className="text-[7px] text-zinc-400 font-black uppercase tracking-[0.25em]">
                 {data.difficulty} Seviye • {settings?.pyramidHeight} Basamak
             </p>
         </div>
-        <p className="text-[7px] text-zinc-300 font-bold italic">
-            bdmind Premium • Akıcı Okuma Serisi
+        <p className="text-[6px] text-zinc-300 font-bold italic">
+            bdmind • Akıcı Okuma
         </p>
       </div>
     </div>
