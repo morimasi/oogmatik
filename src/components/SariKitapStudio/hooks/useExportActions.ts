@@ -36,17 +36,23 @@ export function useExportActions() {
       const h2cModule = await import('html2canvas');
       const html2canvas = h2cModule.default || h2cModule;
 
-      const canvas = await (html2canvas as any)(element, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-      });
+      const origWrite = document.write.bind(document);
+      document.write = (() => {}) as typeof document.write;
+      try {
+        const canvas = await (html2canvas as any)(element, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff',
+        });
 
-      const link = document.createElement('a');
-      link.download = `${options.filename ?? 'bursadisleksi-hizli-okuma'}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
+        const link = document.createElement('a');
+        link.download = `${options.filename ?? 'bursadisleksi-hizli-okuma'}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      } finally {
+        document.write = origWrite;
+      }
     } catch (error: unknown) {
       throw new Error(`PNG export hatası: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`);
     }

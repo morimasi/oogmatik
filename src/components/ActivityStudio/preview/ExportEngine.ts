@@ -201,6 +201,8 @@ export async function exportStudioOutput(request: ExportRequestExtended | Export
       `;
       container.textContent = ext.title;
       document.body.appendChild(container);
+      const origWrite = document.write.bind(document);
+      document.write = (() => {}) as typeof document.write;
       try {
         const canvas = await html2canvas.default(container, {
           useCORS: true,
@@ -214,6 +216,7 @@ export async function exportStudioOutput(request: ExportRequestExtended | Export
           }, 'image/png');
         });
       } finally {
+        document.write = origWrite;
         document.body.removeChild(container);
       }
     }

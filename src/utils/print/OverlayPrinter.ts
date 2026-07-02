@@ -305,45 +305,53 @@ export const captureAndPrint = async (
     const html2canvas = html2canvasModule.default || html2canvasModule;
     const dataUrls: string[] = [];
 
-    for (const page of pages) {
-      const restoreScales = stripScalesAndTransforms(page);
-      const restorePixels = pixelLockElement(page);
+    // html2canvas'ın document.write() violation'ını önle
+    const origWrite = document.write.bind(document);
+    document.write = (() => {}) as typeof document.write;
 
-      await new Promise<void>((r) => requestAnimationFrame(() => r()));
+    try {
+      for (const page of pages) {
+        const restoreScales = stripScalesAndTransforms(page);
+        const restorePixels = pixelLockElement(page);
 
-      const canvas = await html2canvas(page, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: false,
-        logging: false,
-        backgroundColor: '#ffffff',
-        foreignObjectRendering: false,
-        windowWidth: page.scrollWidth,
-        windowHeight: page.scrollHeight,
-        width: page.offsetWidth,
-        height: page.offsetHeight,
-        x: 0,
-        y: 0,
-        onclone: (_clonedDoc: Document, clonedEl: HTMLElement) => {
-          onCloneForCapture(_clonedDoc);
-          clonedEl.style.transform = 'none';
-          clonedEl.style.zoom = '1';
-        },
-        ignoreElements: (el: Element) => {
-          const htmlEl = el as HTMLElement;
-          return (
-            htmlEl.classList?.contains('resize-handle') ||
-            htmlEl.classList?.contains('action-button') ||
-            htmlEl.classList?.contains('no-print') ||
-            htmlEl.hasAttribute?.('data-design-only')
-          );
-        },
-      });
+        await new Promise<void>((r) => requestAnimationFrame(() => r()));
 
-      restorePixels();
-      restoreScales();
+        const canvas = await html2canvas(page, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: false,
+          logging: false,
+          backgroundColor: '#ffffff',
+          foreignObjectRendering: false,
+          windowWidth: page.scrollWidth,
+          windowHeight: page.scrollHeight,
+          width: page.offsetWidth,
+          height: page.offsetHeight,
+          x: 0,
+          y: 0,
+          onclone: (_clonedDoc: Document, clonedEl: HTMLElement) => {
+            onCloneForCapture(_clonedDoc);
+            clonedEl.style.transform = 'none';
+            clonedEl.style.zoom = '1';
+          },
+          ignoreElements: (el: Element) => {
+            const htmlEl = el as HTMLElement;
+            return (
+              htmlEl.classList?.contains('resize-handle') ||
+              htmlEl.classList?.contains('action-button') ||
+              htmlEl.classList?.contains('no-print') ||
+              htmlEl.hasAttribute?.('data-design-only')
+            );
+          },
+        });
 
-      dataUrls.push(canvas.toDataURL('image/png', 1.0));
+        restorePixels();
+        restoreScales();
+
+        dataUrls.push(canvas.toDataURL('image/png', 1.0));
+      }
+    } finally {
+      document.write = origWrite;
     }
 
     // 4. Yazdırmayı Başlat (Overlay Üzerinden)

@@ -2,16 +2,22 @@ import type { AdStudioTarget } from '../types/adStudio';
 
 export async function captureElementAsDataUrl(element: HTMLElement): Promise<string> {
   const html2canvas = (await import('html2canvas')).default;
-  const canvas = await html2canvas(element, {
-    backgroundColor: '#0f0a2e',
-    scale: 2,
-    useCORS: false,
-    allowTaint: true,
-    logging: false,
-    width: 400,
-    height: 300,
-  });
-  return canvas.toDataURL('image/jpeg', 0.85);
+  const origWrite = document.write.bind(document);
+  document.write = (() => {}) as typeof document.write;
+  try {
+    const canvas = await html2canvas(element, {
+      backgroundColor: '#0f0a2e',
+      scale: 2,
+      useCORS: false,
+      allowTaint: true,
+      logging: false,
+      width: 400,
+      height: 300,
+    });
+    return canvas.toDataURL('image/jpeg', 0.85);
+  } finally {
+    document.write = origWrite;
+  }
 }
 
 const MODULE_COLORS: Record<AdStudioTarget, string> = {

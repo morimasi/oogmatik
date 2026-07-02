@@ -31,26 +31,32 @@ async function exportAsPng(_worksheet: Worksheet): Promise<string> {
   const { default: html2canvas } = await import('html2canvas');
   const el = document.getElementById('worksheet-preview-root');
   if (!el) throw new AppError('Önizleme elementi bulunamadı. Lütfen önizleme panelini açın.', 'INTERNAL_ERROR', 500);
-  const canvas = await html2canvas(el, {
-    scale: 2,
-    useCORS: true,
-    allowTaint: true,
-    logging: false,
-    backgroundColor: '#ffffff',
-    windowWidth: document.documentElement.offsetWidth,
-    windowHeight: document.documentElement.offsetHeight,
-    onclone: (clonedDoc: Document) => {
-      try {
-        document.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
-          clonedDoc.head.appendChild(link.cloneNode(true));
-        });
-        document.querySelectorAll('style').forEach((style) => {
-          clonedDoc.head.appendChild(style.cloneNode(true));
-        });
-      } catch { /* devam et */ }
-    },
-  });
-  return canvas.toDataURL('image/png');
+  const origWrite = document.write.bind(document);
+  document.write = (() => {}) as typeof document.write;
+  try {
+    const canvas = await html2canvas(el, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      logging: false,
+      backgroundColor: '#ffffff',
+      windowWidth: document.documentElement.offsetWidth,
+      windowHeight: document.documentElement.offsetHeight,
+      onclone: (clonedDoc: Document) => {
+        try {
+          document.querySelectorAll('link[rel="stylesheet"]').forEach((link) => {
+            clonedDoc.head.appendChild(link.cloneNode(true));
+          });
+          document.querySelectorAll('style').forEach((style) => {
+            clonedDoc.head.appendChild(style.cloneNode(true));
+          });
+        } catch { /* devam et */ }
+      },
+    });
+    return canvas.toDataURL('image/png');
+  } finally {
+    document.write = origWrite;
+  }
 }
 
 function exportAsJson(worksheet: Worksheet): string {

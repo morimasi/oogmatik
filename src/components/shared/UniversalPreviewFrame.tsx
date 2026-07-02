@@ -159,6 +159,8 @@ export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
       document.body.offsetHeight;
       await new Promise<void>((r) => requestAnimationFrame(() => r()));
 
+      const origWrite = document.write.bind(document);
+      document.write = (() => {}) as typeof document.write;
       const canvas = await html2canvas(target, {
         scale: 2,
         useCORS: true,
@@ -188,6 +190,7 @@ export const UniversalPreviewFrame: React.FC<UniversalPreviewFrameProps> = ({
           }
         },
       });
+      document.write = origWrite;
 
       // ADIM 3: Geri yükle
       for (const b of pixelBackups) {

@@ -281,6 +281,7 @@ export const hideUIElements = (): (() => void) => {
 /**
  * Tek bir sayfa elemanını html2canvas ile yakalar.
  * Pixel lock, scale strip ve onClone dahil tüm hazırlıkları yapar.
+ * document.write violation'ını önlemek için geçici override uygular.
  */
 export const capturePage = async (
   page: HTMLElement,
@@ -295,40 +296,47 @@ export const capturePage = async (
   // Layout'un yeniden hesaplanmasını bekle
   await new Promise<void>((r) => requestAnimationFrame(() => r()));
 
-  const canvas = await html2canvas(page, {
-    scale,
-    useCORS: true,
-    allowTaint: false,
-    logging: false,
-    backgroundColor: '#ffffff',
-    foreignObjectRendering: false,
-    windowWidth: page.scrollWidth,
-    windowHeight: page.scrollHeight,
-    width: page.offsetWidth,
-    height: page.offsetHeight,
-    x: 0,
-    y: 0,
-    removeContainer: true,
-    onclone: (_clonedDoc: Document, clonedEl: HTMLElement) => {
-      onCloneForCapture(_clonedDoc);
-      clonedEl.style.transform = 'none';
-      clonedEl.style.zoom = '1';
-    },
-    ignoreElements: (el) => {
-      const htmlEl = el as HTMLElement;
-      return (
-        htmlEl.classList?.contains('resize-handle') ||
-        htmlEl.classList?.contains('action-button') ||
-        htmlEl.classList?.contains('no-print') ||
-        htmlEl.hasAttribute?.('data-design-only')
-      );
-    },
-  });
+  // html2canvas'ın document.write() violation'ını önle
+  const origWrite = document.write.bind(document);
+  document.write = (() => {}) as typeof document.write;
 
-  restorePixels();
-  restoreScales();
+  try {
+    const canvas = await html2canvas(page, {
+      scale,
+      useCORS: true,
+      allowTaint: false,
+      logging: false,
+      backgroundColor: '#ffffff',
+      foreignObjectRendering: false,
+      windowWidth: page.scrollWidth,
+      windowHeight: page.scrollHeight,
+      width: page.offsetWidth,
+      height: page.offsetHeight,
+      x: 0,
+      y: 0,
+      removeContainer: true,
+      onclone: (_clonedDoc: Document, clonedEl: HTMLElement) => {
+        onCloneForCapture(_clonedDoc);
+        clonedEl.style.transform = 'none';
+        clonedEl.style.zoom = '1';
+      },
+      ignoreElements: (el) => {
+        const htmlEl = el as HTMLElement;
+        return (
+          htmlEl.classList?.contains('resize-handle') ||
+          htmlEl.classList?.contains('action-button') ||
+          htmlEl.classList?.contains('no-print') ||
+          htmlEl.hasAttribute?.('data-design-only')
+        );
+      },
+    });
 
-  return canvas;
+    return canvas;
+  } finally {
+    document.write = origWrite;
+    restorePixels();
+    restoreScales();
+  }
 };
 
 /**
