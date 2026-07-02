@@ -271,6 +271,9 @@ export interface MorphologyMatrixData extends BaseActivityData {
     fontScale: number;
     isProfessionalMode: boolean;
     showClinicalNotes?: boolean;
+    aestheticMode?: string;
+    pageFormat?: string;
+    margins?: { top: number; bottom: number; left: number; right: number };
   };
   items: {
     root: string;
@@ -680,6 +683,10 @@ export interface HiddenPasswordGridData extends BaseActivityData {
     itemCount: number;
     cellStyle: string;
     letterCase: string;
+    aestheticMode?: string;
+    pageFormat?: string;
+    margins?: { top: number; bottom: number; left: number; right: number };
+    difficulty?: string;
   };
   grids: {
     targetLetter: string;

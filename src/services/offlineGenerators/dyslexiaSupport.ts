@@ -176,7 +176,7 @@ export const generateOfflineLetterDiscrimination = async (options: GeneratorOpti
 // MORPHOLOGY MATRIX (Morfolojik Kelime İnşaatı)
 export const generateOfflineMorphologyMatrix = async (options: GeneratorOptions): Promise<MorphologyMatrixData[]> => {
     const { worksheetCount, difficulty, itemCount } = options;
-    const count = itemCount || 10;
+    const count = itemCount || (difficulty === 'Zor' ? 8 : difficulty === 'Orta' ? 7 : 6);
 
     // Seviyeye Göre Veri Setleri
     const DATA_SETS = {
@@ -235,10 +235,20 @@ export const generateOfflineMorphologyMatrix = async (options: GeneratorOptions)
         }
 
         return {
-            title: "Morfim Matrisi (Kelime İnşaatı)",
+            title: "Morfolojik Kelime İnşaatı (Premium)",
             instruction: "Kök kelimeyi uygun ekle birleştir ve yeni kelimeyi yaz.",
             items: shuffle(items),
-            difficulty
+            difficulty,
+            settings: {
+                aestheticMode: 'ultra-compact',
+                pageFormat: 'A4',
+                margins: { top: 15, bottom: 15, left: 12, right: 12 },
+                layout: count > 4 ? 'grid_2x1' : 'single',
+                difficulty: difficulty === 'Başlangıç' ? 'beginner' : difficulty === 'Orta' ? 'intermediate' : difficulty === 'Zor' ? 'expert' : 'clinical',
+                fontScale: 1,
+                isProfessionalMode: true,
+                showClinicalNotes: false
+            }
         };
     });
 };

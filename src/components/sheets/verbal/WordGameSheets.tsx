@@ -4,25 +4,27 @@ import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
 
 export const HiddenPasswordGridSheet = ({ data }: { data: HiddenPasswordGridData }) => {
-    const { gridSize = 5, itemCount = 9, cellStyle = 'square' } = data.settings || {};
-    const gridColsClass = itemCount <= 3 ? "grid-cols-1" : itemCount <= 6 ? "grid-cols-2" : "grid-cols-3";
+    const { gridSize = 5, itemCount = 6, cellStyle = 'square' } = data.settings || {};
+    const gridColsClass = itemCount <= 2 ? "grid-cols-2" : itemCount <= 4 ? "grid-cols-2" : "grid-cols-3";
 
     return (
-        <div className="w-full h-full  flex flex-col bg-white p-2 font-lexend">
+        <div className="w-full h-full flex flex-col bg-white font-['Lexend'] text-zinc-900 relative overflow-hidden professional-worksheet print:w-[210mm] print:h-[297mm] px-[12mm] py-[15mm]">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-600 via-rose-500 to-purple-600 opacity-100"></div>
+            
             <PedagogicalHeader title={data.title} instruction={data.instruction} />
-            <div className={`grid ${gridColsClass} gap-x-10 gap-y-12 mt-8 print:mt-2 flex-1 content-start`}>
+            <div className={`grid ${gridColsClass} gap-x-5 gap-y-6 mt-3 print:mt-2 flex-1 content-start`}>
                 {(data.grids || []).map((item, idx) => (
                     <div key={idx} className="flex flex-col items-center break-inside-avoid group">
-                        <div className="w-14 h-14 rounded-2xl border-[3px] border-zinc-900 flex items-center justify-center font-black text-3xl bg-zinc-100 shadow-lg ring-8 ring-zinc-50 mb-6 print:mb-2 group-hover:scale-110 transition-transform">
+                        <div className="w-11 h-11 print:w-9 print:h-9 rounded-xl border-[2.5px] border-zinc-900 flex items-center justify-center font-black text-2xl print:text-xl bg-zinc-100 shadow-md ring-6 ring-zinc-50 mb-4 print:mb-1.5 group-hover:scale-110 transition-transform">
                             <EditableText value={item.targetLetter} tag="span" />
                         </div>
-                        <div className={`bg-white shadow-xl transition-all border-[4px] border-zinc-900 ${cellStyle === 'rounded' ? 'rounded-[2rem] p-2' : ''}`}>
+                        <div className={`bg-white shadow-lg transition-all border-[3px] border-zinc-900 ${cellStyle === 'rounded' ? 'rounded-[1.5rem] p-1.5' : ''}`}>
                             <table className="border-collapse">
                                 <tbody>
                                     {item.grid.map((row, rIdx) => (
                                         <tr key={rIdx}>
                                             {row.map((cell, cIdx) => (
-                                                <td key={cIdx} className={`text-center font-mono font-black border border-zinc-300 w-12 h-12 text-2xl text-zinc-900 ${cellStyle === 'rounded' ? 'rounded-xl m-0.5 bg-zinc-50/50' : ''}`}>
+                                                <td key={cIdx} className={`text-center font-mono font-black border border-zinc-300 w-10 print:w-8 h-10 print:h-8 text-xl print:text-sm text-zinc-900 ${cellStyle === 'rounded' ? 'rounded-xl m-0.5 bg-zinc-50/50' : ''}`}>
                                                     <EditableText value={cell} tag="span" />
                                                 </td>
                                             ))}
@@ -31,9 +33,9 @@ export const HiddenPasswordGridSheet = ({ data }: { data: HiddenPasswordGridData
                                 </tbody>
                             </table>
                         </div>
-                        <div className="mt-8 print:mt-2 w-full max-w-[200px]">
-                            <p className="text-[9px] font-black text-zinc-400 uppercase tracking-[0.3em] text-center mb-1">ŞİFREYİ ÇÖZ</p>
-                            <div className="h-10 border-b-4 border-indigo-600 border-dashed bg-indigo-50/20 rounded-t-xl"></div>
+                        <div className="mt-5 print:mt-1.5 w-full max-w-[180px]">
+                            <p className="text-[7px] font-black text-zinc-400 uppercase tracking-[0.3em] text-center mb-0.5">ŞİFRE</p>
+                            <div className="h-8 print:h-6 border-b-3 border-indigo-600 border-dashed bg-indigo-50/20 rounded-t-lg"></div>
                         </div>
                     </div>
                 ))}

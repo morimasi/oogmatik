@@ -18,30 +18,34 @@ const _DIR_DIAG_DL = { x: -1, y: 1 };
 
 export const generateOfflineHiddenPasswordGrid = async (options: GeneratorOptions): Promise<HiddenPasswordGridData[]> => {
     // ... (HiddenPasswordGrid mantığı şimdilik aynı kalabilir, sadece kare kullanıyor olabilir, ileride güncellenebilir)
-    const { topic, difficulty = 'Orta', worksheetCount = 1, gridSize = 5, itemCount = 6, case: letterCase } = options;
+    const { topic, difficulty = 'Orta', worksheetCount = 1, gridSize, itemCount, case: letterCase } = options;
     const results: HiddenPasswordGridData[] = [];
+
+    // Premium A4 uyumlu ayarlar: daha küçük grid ve daha fazla satır
+    const finalGridSize = gridSize || (difficulty === 'Zor' ? 6 : 5);
+    const finalItemCount = itemCount || (difficulty === 'Zor' ? 8 : 6);
 
     for (let p = 0; p < worksheetCount; p++) {
         const grids = [];
         const words = getWordsForDifficulty(difficulty, topic || 'Rastgele');
 
-        for (let i = 0; i < itemCount; i++) {
+        for (let i = 0; i < finalItemCount; i++) {
             const word = getRandomItems(words, 1)[0];
             let distractor = turkishAlphabet[getRandomInt(0, turkishAlphabet.length - 1)];
             while (word.includes(distractor)) {
                 distractor = turkishAlphabet[getRandomInt(0, turkishAlphabet.length - 1)];
             }
 
-            const grid = Array.from({ length: gridSize }, () => Array(gridSize).fill(distractor));
+            const grid = Array.from({ length: finalGridSize }, () => Array(finalGridSize).fill(distractor));
             const positions = new Set<number>();
             while (positions.size < word.length) {
-                positions.add(getRandomInt(0, gridSize * gridSize - 1));
+                positions.add(getRandomInt(0, finalGridSize * finalGridSize - 1));
             }
             const sortedPos = Array.from(positions).sort((a, b) => a - b);
 
             sortedPos.forEach((pos, idx) => {
-                const r = Math.floor(pos / gridSize);
-                const c = pos % gridSize;
+                const r = Math.floor(pos / finalGridSize);
+                const c = pos % finalGridSize;
                 grid[r][c] = word[idx];
             });
 
@@ -59,14 +63,18 @@ export const generateOfflineHiddenPasswordGrid = async (options: GeneratorOption
             const meta = getOfflineMetadata(ActivityType.HIDDEN_PASSWORD_GRID);
 
             results.push({
-                title: "Gizli Şifre Matrisi",
+                title: "Gizli Şifre Matrisi (Premium)",
                 instruction: "Kutuların içindeki farklı harfleri sırasıyla bularak gizli kelimeyi oluştur.",
                 targetSkills: meta.targetSkills,
                 settings: {
-                gridSize,
-                itemCount,
+                gridSize: finalGridSize,
+                itemCount: finalItemCount,
                 cellStyle: (options.variant as 'square' | 'minimal' | 'rounded') || 'square',
-                letterCase: letterCase || 'upper'
+                letterCase: letterCase || 'upper',
+                aestheticMode: 'ultra-compact',
+                pageFormat: 'A4',
+                margins: { top: 15, bottom: 15, left: 12, right: 12 },
+                difficulty
             },
             grids
         });
