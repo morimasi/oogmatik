@@ -578,7 +578,7 @@ export const generateSuperStudioContent = async (
       for (const tpl of templates) {
         await new Promise((resolve) => setTimeout(resolve, 200));
 
-        const templateSettings = settings[tpl] || {};
+        const templateSettings = (settings[tpl] || {}) as Record<string, unknown>;
         const content = generateOfflineSuperStudioTemplate(tpl, templateSettings, grade, topic, difficulty);
         
         // Başlık belirleme
@@ -627,7 +627,7 @@ export const generateSuperStudioContent = async (
 
     if (cacheService) {
       for (const tpl of templates) {
-        const templateSettings = settings[tpl] || {};
+        const templateSettings = (settings[tpl] || {}) as Record<string, unknown>;
         const cacheKey = generateCacheKey(tpl, templateSettings, grade, difficulty);
 
         try {
@@ -652,7 +652,7 @@ export const generateSuperStudioContent = async (
 
     // Cache'te olmayanlar için API çağrısı yap
     const promises = remainingTemplates.map(async (tpl) => {
-      const templateSettings = settings[tpl] || {};
+      const templateSettings = (settings[tpl] || {}) as Record<string, unknown>;
       const prompt = buildPromptForTemplate(
         tpl,
         templateSettings,
