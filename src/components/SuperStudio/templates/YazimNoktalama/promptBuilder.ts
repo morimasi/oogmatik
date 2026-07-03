@@ -118,7 +118,12 @@ A4 DOLU SAYFA KURALI (ZORUNLU):
 YANIT FORMATI — GEÇERLİ JSON:
 {
   "title": "${topic} - Yazım ve Noktalama",
-  "content": "Tüm görevleri içeren Markdown bloğu. # H1 başlıkla başla. A4'ü tamamen doldur.",
+  "rules": ["Kural 1: Büyük harf kullanımı...", "Kural 2: ..."],
+  "exercises": [
+    { "instruction": "Aşağıdaki cümledeki noktalama hatasını bulun.", "sentence": "Hatalı cümle", "corrected": "Doğru cümle" },
+    { "instruction": "Yazım yanlışını düzeltin.", "sentence": "Hatalı cümle", "corrected": "Doğru cümle" }
+  ]
+
 }
 `;
 

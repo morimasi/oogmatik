@@ -126,7 +126,11 @@ PAGINATION:
 YANIT FORMATI — GEÇERLİ JSON:
 {
   "title": "${topic} — Okuma Anlama Çalışması",
-  "content": "TÜM görevleri, soruları, tabloları, yönergeleri içeren Markdown. # H1 başlıkla başla."
+  "text": "SADECE okuma metni, Markdown formatında, paragraflı, görsel sembollerle.",
+  "questions": [
+    { "question": "1. soru metni?", "answer": "Doğru cevap" },
+    { "question": "2. soru metni?", "answer": "Doğru cevap" }
+  ]
 
 }`;
 

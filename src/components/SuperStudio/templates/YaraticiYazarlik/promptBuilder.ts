@@ -122,7 +122,15 @@ A4 DOLU SAYFA KURALI (ZORUNLU):
 YANIT FORMATI — GEÇERLİ JSON:
 {
   "title": "${topic} - Yaratıcı Yazarlık Stüdyosu",
-  "content": "Tüm görevleri içeren Markdown bloğu. # H1 başlıkla başla. A4'ü tamamen doldur.",
+  "storyDice": [
+    { "icon": "🏠", "label": "Eski bir ev" },
+    { "icon": "🐱", "label": "Konuşan bir kedi" }
+  ],
+  "writingPrompts": [
+    { "prompt": "Yazma promptu metni", "wordBank": ["kelime1", "kelime2"] },
+    { "prompt": "İkinci yazma promptu", "wordBank": ["kelime3", "kelime4"] }
+  ]
+
 }
 `;
 

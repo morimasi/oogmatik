@@ -113,7 +113,15 @@ A4 DOLU SAYFA KURALI (ZORUNLU):
 YANIT FORMATI — GEÇERLİ JSON:
 {
   "title": "${topic} - Söz Varlığı Çalışması",
-  "content": "Tüm görevleri içeren Markdown bloğu. # H1 başlıkla başla. A4'ü tamamen doldur.",
+  "items": [
+    { "expression": "Göz atmak", "type": "deyim", "meaning": "Kısaca bakmak", "example": "Kitaba göz attı." },
+    { "expression": "Damlaya damlaya göl olur.", "type": "atasozu", "meaning": "Küçük birikimler büyür.", "example": "Her gün para biriktirdi, damlaya damlaya göl oldu." }
+  ],
+  "matchingPairs": [
+    { "left": "Göz atmak", "right": "Kısaca bakmak" },
+    { "left": "Dil dökmek", "right": "İkna etmeye çalışmak" }
+  ]
+
 }
 `;
 

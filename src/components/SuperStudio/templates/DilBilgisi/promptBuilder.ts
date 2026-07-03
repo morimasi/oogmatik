@@ -118,7 +118,12 @@ A4 DOLU SAYFA KURALI (ZORUNLU):
 YANIT FORMATI — GEÇERLİ JSON:
 {
   "title": "${topic} - Harf Farkındalığı Çalışması",
-  "content": "Tüm görevleri içeren Markdown bloğu. # H1 başlıkla başla. A4'ü tamamen doldur."
+  "topic": "Konu başlığı (ör: Ünsüz Yumuşaması)",
+  "rules": ["Kural 1 açıklaması", "Kural 2 açıklaması"],
+  "exercises": [
+    { "question": "1. alıştırma sorusu?", "answer": "Doğru cevap" },
+    { "question": "2. alıştırma sorusu?", "answer": "Doğru cevap" }
+  ]
 
 }
 `;

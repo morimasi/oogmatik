@@ -115,7 +115,13 @@ A4 DOLU SAYFA KURALI (ZORUNLU):
 YANIT FORMATI — GEÇERLİ JSON:
 {
   "title": "${topic} - Hece ve Ses Olayları",
-  "content": "Tüm görevleri içeren Markdown bloğu. # H1 başlıkla başla. A4'ü tamamen doldur."
+  "rules": ["Heceleme kuralı: Her hecede bir ünlü harf bulunur.", "Ünsüz yumuşaması: p-ç-t-k → b-c-d-g"],
+
+  "words": [
+    { "word": "Kitaplık", "syllables": ["Ki", "tap", "lık"], "soundEvent": "" },
+    { "word": "Kitabı", "syllables": ["Ki", "ta", "bı"], "soundEvent": "yumusama" },
+    { "word": "Sokakta", "syllables": ["So", "kak", "ta"], "soundEvent": "sertlesme" }
+  ]
 
 }
 `;

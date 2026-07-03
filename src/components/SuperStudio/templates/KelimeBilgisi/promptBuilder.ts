@@ -139,7 +139,22 @@ A4 DOLU SAYFA KURALI (ZORUNLU):
 YANIT FORMATI — GEÇERLİ JSON:
 {
   "title": "${topic} - Kelime Bilgisi Çalışması",
-  "content": "Tüm görevleri içeren Markdown bloğu. # H1 başlıkla başla. A4'ü tamamen doldur."
+  "wordSets": [
+    {
+      "type": "es-anlamli",
+      "pairs": [
+        { "word": "cevap", "pair": "yanıt", "example": "Sorunun cevabını/yanıtını buldu." },
+        { "word": "siyah", "pair": "kara", "example": "Siyah/kara bulutlar toplandı." }
+      ]
+    },
+    {
+      "type": "zit-anlamli",
+      "pairs": [
+        { "word": "uzun", "pair": "kısa", "example": "Uzun değil kısa bir yol." },
+        { "word": "büyük", "pair": "küçük", "example": "Büyük evin yanında küçük bir kulübe." }
+      ]
+    }
+  ]
 
 }
 `;
