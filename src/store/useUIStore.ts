@@ -5,7 +5,6 @@ import { UiSettings, StyleSettings, AppTheme } from '../types';
 export interface UIStoreState {
   theme: AppTheme;
   sidebarWidth: number;
-  zenMode: boolean;
   isSidebarOpen: boolean;
   isTourActive: boolean;
   uiSettings: UiSettings;
@@ -15,7 +14,6 @@ export interface UIStoreState {
   // Actions
   setTheme: (theme: AppTheme) => void;
   setSidebarWidth: (width: number) => void;
-  setZenMode: (enabled: boolean) => void;
   setIsSidebarOpen: (isOpen: boolean) => void;
   setIsTourActive: (isActive: boolean) => void;
   updateUiSettings: (settings: Partial<UiSettings>) => void;
@@ -56,10 +54,6 @@ const initialStyleSettings: StyleSettings = {
   letterSpacing: 0,
   wordSpacing: 2,
   paragraphSpacing: 24,
-  focusMode: false,
-  rulerColor: '#6366f1',
-  rulerHeight: 80,
-  maskOpacity: 0.4,
   footerText: '',
 };
 
@@ -83,7 +77,6 @@ export const useUIStore = create<UIStoreState>()(
     (set) => ({
       theme: 'anthracite' as AppTheme,
       sidebarWidth: 320,
-      zenMode: false,
       isSidebarOpen: false,
       isTourActive: false,
       uiSettings: initialUiSettings,
@@ -92,7 +85,6 @@ export const useUIStore = create<UIStoreState>()(
 
       setTheme: (theme) => set({ theme }),
       setSidebarWidth: (sidebarWidth) => set({ sidebarWidth }),
-      setZenMode: (zenMode) => set({ zenMode }),
       setIsSidebarOpen: (isSidebarOpen) => set({ isSidebarOpen }),
       setIsTourActive: (isTourActive) => set({ isTourActive }),
       updateUiSettings: (newSettings) =>

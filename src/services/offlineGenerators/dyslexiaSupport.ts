@@ -5,13 +5,13 @@ import { getRandomItems, shuffle, getRandomInt, TR_VOCAB, turkishAlphabet, COLOR
 // COMPREHENSIVE SYLLABLE MASTER LAB (OFFLINE) - PREMIUM COMPACT MODE
 export const generateOfflineSyllableMasterLab = async (options: GeneratorOptions): Promise<SyllableMasterLabData[]> => {
     const { worksheetCount = 1, difficulty = 'Orta', itemCount, topic, variant = 'split', case: letterCase, syllableRange = '2-3' } = options;
-    // Premium kompakt sayfa doluluğu: zorluğa göre öğe sayısı
+    const gridCols = (options.gridCols || 5) as number;
     const count = itemCount || (difficulty === 'Zor' ? 40 : difficulty === 'Orta' ? 35 : 30);
 
     const [minSyllables, maxSyllables] = syllableRange.split('-').map(Number);
 
     return Array.from({ length: worksheetCount ?? 1 }, () => {
-        const pool = getWordsForDifficulty(difficulty || 'Orta', topic || 'animals');
+        const pool = getWordsForDifficulty(difficulty || 'Orta', topic || 'karma');
         const filteredPool = pool.filter(word => {
             const sylCount = syllabifyWord(word).length;
             return sylCount >= minSyllables && sylCount <= maxSyllables;
@@ -49,7 +49,7 @@ export const generateOfflineSyllableMasterLab = async (options: GeneratorOptions
         });
 
         return {
-            title: variant === 'scrambled' ? "Hece Ustası Laboratuvarı • Karışık Hece" : "Hece Ustası Laboratuvarı",
+            title: variant === 'scrambled' ? "Hece Ustası • Karışık Hece" : "Hece Ustası",
             instruction: variant === 'scrambled' 
               ? "Karışık heceleri doğru sırayla yerine yerleştirin ve kelimeyi oluşturun." 
               : "Hece çalışmasını yönergeye göre tamamlayın.",
@@ -58,22 +58,25 @@ export const generateOfflineSyllableMasterLab = async (options: GeneratorOptions
             settings: {
                 aestheticMode: 'ultra-compact',
                 pageFormat: 'A4',
-                margins: { top: 15, bottom: 15, left: 12, right: 12 },
-                gridCols: 5,
+                margins: { top: 10, bottom: 10, left: 8, right: 8 },
+                gridCols,
                 difficulty: difficulty
             }
         };
     });
 };
 
-// HARF-GÖRSEL EŞLEME (FIX: Missing generator added)
+// HARF-GÖRSEL EŞLEME (Premium)
 export const generateOfflineLetterVisualMatching = async (options: GeneratorOptions): Promise<LetterVisualMatchingData[]> => {
     const { worksheetCount = 1, itemCount, case: letterCase, fontFamily, difficulty = 'Orta' } = options;
-    
-    // Premium Dolu Dolu A4: Daha fazla eşleştirme (grid_3x4 veya 4x4)
     const count = itemCount || (difficulty === 'Zor' ? 16 : 12);
+    const selectedAffixes = (options as any).selectedAffixTypes as string[] | undefined;
+    const _imageStyle = (options as any).imageStyle as string | undefined;
+    const columnLayout = (options as any).columnLayout as string | undefined;
+    const showTracing = (options as any).showTracing as boolean | undefined;
+    const topic = options.topic || 'default';
 
-    const letterMap: Record<string, string> = {
+    const defaultLetterMap: Record<string, string> = {
         'A': 'Araba', 'B': 'Balık', 'C': 'Civciv', 'Ç': 'Çilek', 'D': 'Dondurma',
         'E': 'Elma', 'F': 'Fil', 'G': 'Güneş', 'H': 'Havuç', 'I': 'Irmak',
         'İ': 'İnek', 'K': 'Kedi', 'L': 'Limon', 'M': 'Maymun', 'N': 'Nar',
@@ -82,6 +85,17 @@ export const generateOfflineLetterVisualMatching = async (options: GeneratorOpti
         'Y': 'Yıldız', 'Z': 'Zürafa'
     };
 
+    const topicMaps: Record<string, Record<string, string>> = {
+        animals: { 'A': 'At', 'B': 'Balık', 'C': 'Ceylan', 'D': 'Deve', 'F': 'Fil', 'K': 'Kedi', 'M': 'Maymun', 'Z': 'Zebra' },
+        fruits_veggies: { 'A': 'Armut', 'B': 'Brokoli', 'Ç': 'Çilek', 'E': 'Elma', 'K': 'Kiraz', 'M': 'Muz', 'P': 'Portakal', 'Ü': 'Üzüm' },
+        default: defaultLetterMap,
+    };
+
+    const letterMap = topicMaps[topic] || defaultLetterMap;
+
+    const colsMap: Record<string, number> = { '2-col': 2, '3-col': 3, '4-col': 4 };
+    const gridCols = colsMap[columnLayout || '3-col'] || 3;
+
     return Array.from({ length: worksheetCount ?? 1 }, () => {
         const alphabet = Object.keys(letterMap).filter(l => l !== 'Ğ');
         const selectedLetters = getRandomItems(alphabet, count);
@@ -89,19 +103,18 @@ export const generateOfflineLetterVisualMatching = async (options: GeneratorOpti
         const pairs = selectedLetters.map(letter => ({
             letter: letterCase === 'lower' ? letter.toLocaleLowerCase('tr') : letter,
             word: letterMap[letter],
-            imagePrompt: `${letterMap[letter]} high-contrast vector icon, simple educational style, solid background`
+            imagePrompt: `${letterMap[letter]} simple educational vector icon, solid background`
         }));
 
         return {
-            title: "🎨 Harf-Görsel Eşleme (Ultra Premium)",
-            instruction: "Harfleri, o harfle başlayan varlıkların görselleri ile doğru şekilde eşleştirin. Kelimeyi yüksek sesle söyleyerek ilk harfine odaklanın.",
+            title: "Harf-Görsel Eşleme",
+            instruction: "Harfleri, o harfle başlayan varlıkların görselleri ile doğru şekilde eşleştirin.",
             pairs,
             settings: {
                 fontFamily: fontFamily || 'Lexend',
                 letterCase: letterCase || 'upper',
-                showTracing: true,
-                gridCols: count > 12 ? 4 : 3,
-                layoutMode: 'ultra-full'
+                showTracing: showTracing !== false,
+                gridCols,
             }
         } as any;
     });
@@ -176,7 +189,7 @@ export const generateOfflineLetterDiscrimination = async (options: GeneratorOpti
 // MORPHOLOGY MATRIX (Morfolojik Kelime İnşaatı)
 export const generateOfflineMorphologyMatrix = async (options: GeneratorOptions): Promise<MorphologyMatrixData[]> => {
     const { worksheetCount, difficulty, itemCount } = options;
-    const count = itemCount || (difficulty === 'Zor' ? 8 : difficulty === 'Orta' ? 7 : 6);
+    const count = itemCount || (difficulty === 'Zor' ? 12 : difficulty === 'Orta' ? 10 : 8);
 
     // Seviyeye Göre Veri Setleri
     const DATA_SETS = {
@@ -242,8 +255,8 @@ export const generateOfflineMorphologyMatrix = async (options: GeneratorOptions)
             settings: {
                 aestheticMode: 'ultra-compact',
                 pageFormat: 'A4',
-                margins: { top: 15, bottom: 15, left: 12, right: 12 },
-                layout: count > 4 ? 'grid_2x1' : 'single',
+                margins: { top: 10, bottom: 10, left: 8, right: 8 },
+                layout: ((options as any).layout || 'grid_2x1') as 'single' | 'grid_2x1',
                 difficulty: difficulty === 'Başlangıç' ? 'beginner' : difficulty === 'Orta' ? 'intermediate' : difficulty === 'Zor' ? 'expert' : 'clinical',
                 fontScale: 1,
                 isProfessionalMode: true,

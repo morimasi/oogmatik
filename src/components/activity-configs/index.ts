@@ -49,6 +49,7 @@ import { BrainTeasersConfig } from './BrainTeasersConfig';
 import { KavramHaritasiConfig } from './KavramHaritasiConfig';
 import { EsAnlamliKelimelerConfig } from './EsAnlamliKelimelerConfig';
 import { BoxMathConfig } from './BoxMathConfig';
+import { LetterVisualMatchingConfig } from './LetterVisualMatchingConfig';
 
 
 import { 
@@ -112,6 +113,7 @@ export const ActivityConfigRegistry: Record<string, unknown> = {
   [ActivityType.ODD_EVEN_SUDOKU]: OddEvenSudokuConfig,
   [ActivityType.MAGIC_PYRAMID]: MagicPyramidConfig,
   [ActivityType.CAPSULE_GAME]: CapsuleGameConfig,
+  [ActivityType.LETTER_VISUAL_MATCHING]: LetterVisualMatchingConfig,
   // AUTONOM_CONFIG_REGISTRY_START
   // AUTONOM_CONFIG_REGISTRY_END
 };

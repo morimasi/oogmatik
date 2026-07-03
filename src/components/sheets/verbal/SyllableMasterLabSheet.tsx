@@ -16,12 +16,12 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
     return (
       <EditableElement
         key={idx}
-        className="flex flex-col gap-0.5 p-1.5 border border-zinc-200 rounded-lg bg-white group hover:border-indigo-400 transition-all shadow-xs break-inside-avoid relative overflow-hidden"
+        className="flex flex-col gap-0.5 p-1 print:p-0.5 border border-zinc-200 rounded-lg bg-white group hover:border-indigo-400 transition-all shadow-xs break-inside-avoid relative overflow-hidden"
       >
         <div className="flex-1">
           {isSplit && (
             <div className="flex flex-col gap-0.5">
-              <h4 className="text-sm print:text-xs font-black tracking-wider text-zinc-800 uppercase text-center">
+              <h4 className="text-[11px] print:text-[9px] font-black tracking-wider text-zinc-800 uppercase text-center">
                 {item.word}
               </h4>
               <div className="flex gap-0.5 justify-center">
@@ -45,7 +45,7 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
                   return (
                     <div
                       key={sIdx}
-                      className="px-1.5 py-0.5 bg-zinc-800 text-white rounded font-black text-[10px] print:text-[8px] uppercase"
+                      className="px-1 py-0.5 bg-zinc-800 text-white rounded font-black text-[9px] print:text-[7px] uppercase"
                     >
                       <EditableText value={textVal} tag="span" />
                     </div>
@@ -110,8 +110,8 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
   };
 
   return (
-    <div className="flex flex-col bg-white font-['Lexend'] text-zinc-900 relative overflow-visible w-full h-full print:w-[210mm] print:h-[297mm] print:overflow-hidden px-[12mm] py-[15mm] professional-worksheet">
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 opacity-100"></div>
+    <div className="flex flex-col bg-white font-['Lexend'] text-zinc-900 relative overflow-visible w-full h-full print:w-[210mm] print:h-[297mm] print:overflow-hidden px-[8mm] py-[10mm] professional-worksheet">
+      <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 opacity-100"></div>
 
       <PedagogicalHeader
         title={data.title}
@@ -120,16 +120,16 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
           : data.instruction
         }
       />
-      <div className="flex flex-col mt-3 print:mt-2 flex-1">
-        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 print:gap-1.5 content-start">
+      <div className="flex flex-col mt-2 print:mt-1 flex-1">
+        <div className="grid grid-cols-5 print:grid-cols-6 gap-1.5 print:gap-1 content-start">
           {items.map((item, i) => renderItem(item, i))}
         </div>
       </div>
-      <div className="mt-auto pt-2 print:pt-1 border-t border-zinc-200 flex justify-between items-center opacity-60">
-        <p className="text-[6.5px] print:text-[6px] text-zinc-500 font-black uppercase tracking-[0.4em]">
+      <div className="mt-auto pt-1.5 print:pt-1 border-t border-zinc-200 flex justify-between items-center opacity-60">
+        <p className="text-[5.5px] print:text-[5px] text-zinc-500 font-black uppercase tracking-[0.3em]">
           Bursa Disleksi EduMind • Hece Ustası {mode === 'scrambled' && '• Karışık'}
         </p>
-        <i className="fa-solid fa-spell-check text-zinc-400 text-xs"></i>
+        <i className="fa-solid fa-spell-check text-zinc-400 text-[10px]"></i>
       </div>
     </div>
   );

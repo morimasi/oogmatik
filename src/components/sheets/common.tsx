@@ -566,7 +566,6 @@ export const ImageDisplay = React.memo(
     return (
       <div
         className={`relative overflow-hidden rounded-2xl bg-zinc-50 border border-zinc-200 shadow-sm ${className}`}
-        style={{ minHeight: '140px' }}
       >
         {useInlineSvg ? (
           <PremiumPlaceholder />

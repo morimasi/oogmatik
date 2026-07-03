@@ -205,8 +205,6 @@ const AppContent = () => {
     setTheme,
     sidebarWidth,
     setSidebarWidth,
-    zenMode,
-    setZenMode,
     isSidebarOpen,
     setIsSidebarOpen,
     isTourActive,
@@ -516,7 +514,7 @@ const AppContent = () => {
         <div
           style={{
             width:
-              isAdvancedScreeningOpen || zenMode || ['assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students', 'curriculum', 'screening', 'reading-studio', 'math-studio', 'super-turkce', 'infographic-studio', 'activity-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'sari-kitap-studio', 'kelime-cumle-studio', 'fascicle-studio', 'ocr'].includes(currentView)
+              isAdvancedScreeningOpen || ['assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students', 'curriculum', 'screening', 'reading-studio', 'math-studio', 'super-turkce', 'infographic-studio', 'activity-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'sari-kitap-studio', 'kelime-cumle-studio', 'fascicle-studio', 'ocr'].includes(currentView)
                 ? 0
                 : (currentView === 'generator' && selectedActivity) ? 296 : 250,
           }}
@@ -575,8 +573,6 @@ const AppContent = () => {
               onOpenAuth={() => setIsAuthModalOpen(true)}
               onSelectActivity={handleSelectActivity}
               studentProfile={studentProfile}
-              zenMode={zenMode}
-              toggleZenMode={() => setZenMode(!zenMode)}
               activeCurriculumSession={activeCurriculumSession}
               onCompleteCurriculumActivity={handleCompleteCurriculumActivity}
             />

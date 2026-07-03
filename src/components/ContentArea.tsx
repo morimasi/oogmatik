@@ -51,8 +51,6 @@ interface ContentAreaProps {
   onOpenAuth: () => void;
   onSelectActivity?: (activityType: ActivityType) => void;
   studentProfile?: StudentProfile | null;
-  zenMode: boolean;
-  toggleZenMode: () => void;
   activeCurriculumSession?: {
     planId: string;
     day: number;
@@ -102,8 +100,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   onOpenAuth,
   onSelectActivity,
   studentProfile: _studentProfile,
-  zenMode,
-  toggleZenMode,
   activeCurriculumSession,
   onCompleteCurriculumActivity,
 }) => {
@@ -288,7 +284,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
     <main className="flex-1 flex flex-col h-full bg-[var(--bg-primary)] overflow-hidden">
       {/* TOOLBAR */}
       <div
-        className={`shrink-0 bg-[var(--bg-paper)] border-b border-[var(--border-color)] p-4 z-40 shadow-sm relative transition-all duration-300 ${zenMode ? 'hidden' : ''}`}
+        className="shrink-0 bg-[var(--bg-paper)] border-b border-[var(--border-color)] p-4 z-40 shadow-sm relative transition-all duration-300"
       >
         <div className="flex justify-between items-center">
           {/* Breadcrumb kaldırıldı */}
@@ -301,8 +297,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
             onAssign={handleAssign}
             onFeedback={onFeedback}
             onShare={() => setIsShareModalOpen(true)}
-            onTogglePreview={toggleZenMode}
-            isPreviewMode={zenMode}
             worksheetData={processedData}
             activityType={activityType}
             isCurriculumMode={!!activeCurriculumSession}
@@ -315,7 +309,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         {/* VIEWPORT - THE DESK SURFACE */}
         <div
           ref={scrollContainerRef}
-          className={`flex-1 relative overflow-hidden transition-colors duration-500 ${zenMode ? 'viewport-surface-zen' : 'viewport-surface'}`}
+          className="flex-1 relative overflow-hidden transition-colors duration-500 viewport-surface"
         >
           {/* justify-start and items-start for fixed top anchoring */}
           <div className="w-full h-full flex flex-col items-center justify-start py-0">

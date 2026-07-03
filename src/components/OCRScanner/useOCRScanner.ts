@@ -42,10 +42,6 @@ export const PREVIEW_SETTINGS: StyleSettings = {
   smartPagination: true,
   wordSpacing: 2,
   paragraphSpacing: 24,
-  rulerHeight: 80,
-  focusMode: false,
-  rulerColor: '#6366f1',
-  maskOpacity: 0.4,
   footerText: '',
 };
 

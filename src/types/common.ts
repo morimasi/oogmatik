@@ -27,10 +27,6 @@ export interface StyleSettings {
     letterSpacing: number;
     wordSpacing: number;
     paragraphSpacing: number;
-    focusMode: boolean;
-    rulerColor: string;
-    rulerHeight: number;
-    maskOpacity: number;
     compact?: boolean;
     title?: string;
     paperTexture?: 'none' | 'ruled' | 'grid' | 'dotted' | 'parchment' | 'sepia' | 'saman';

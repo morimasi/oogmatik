@@ -168,7 +168,7 @@ export const AppHeader = ({
 }: AppHeaderProps) => {
     const { user, logout } = useAuthStore();
     const { isAdmin, canAccess } = useRBAC();
-    const { setIsSidebarOpen, zenMode, showConnect, toggleConnect, unreadMessageCount, setUnreadMessageCount, styleSettings, updateStyleSettings } = useUIStore();
+    const { setIsSidebarOpen, showConnect, toggleConnect, unreadMessageCount, setUnreadMessageCount, styleSettings, updateStyleSettings } = useUIStore();
     const { currentView, setCurrentView, addHistoryView, setSelectedActivity, setWorksheetData, setActiveCurriculumSession: _setSession } = useWorksheetStore();
     const { activeStudent } = useStudentStore();
 
@@ -198,7 +198,7 @@ export const AppHeader = ({
 
     return (
         <header
-            className={`relative bg-[var(--bg-paper)] border-b border-[var(--border-color)] shadow-xl z-[90] transition-all duration-500 font-['Lexend'] ${zenMode ? '-mt-24 opacity-0 pointer-events-none' : 'mt-0 opacity-100'}`}
+            className="relative bg-[var(--bg-paper)] border-b border-[var(--border-color)] shadow-xl z-[90] transition-all duration-500 font-['Lexend'] mt-0 opacity-100"
         >
             <div className="w-full px-6 md:px-8 py-4 flex items-center gap-3 md:gap-4">
                 <div className="flex min-w-0 flex-1 items-center justify-start gap-4 md:gap-6">

@@ -1,7 +1,6 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo } from 'react';
 import { ActivityType, WorksheetData, StyleSettings, StudentProfile, OverlayItem } from '../types';
-import { getBorderCSS } from './VisualAssets';
-import { EditableElement, EditableText, useEditable } from './Editable';
+import { useEditable } from './Editable';
 import { ErrorBoundary } from './ErrorBoundary';
 import { SheetRenderer } from './SheetRenderer';
 
@@ -13,73 +12,6 @@ interface WorksheetProps {
   overlayItems?: OverlayItem[];
   showQR?: boolean;
 }
-
-const _ReadingRuler = ({ settings }: { settings: StyleSettings }) => {
-  const [y, setY] = useState(200);
-  const [isHovering, setIsHovering] = useState(false);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!settings.focusMode) return;
-      const worksheet = document.querySelector('.worksheet-page');
-      if (worksheet) {
-        const rect = worksheet.getBoundingClientRect();
-        const relativeY = e.clientY - rect.top;
-
-        // Lerp benzeri yumuşak geçiş için doğrudan set edebiliriz veya CSS transition kullanabiliriz
-        setY(relativeY);
-        setIsHovering(true);
-      }
-    };
-    const handleMouseLeave = () => setIsHovering(false);
-
-    window.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseleave', handleMouseLeave);
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseleave', handleMouseLeave);
-    };
-  }, [settings.focusMode]);
-
-  if (!settings.focusMode) return null;
-
-  const rulerHeight = settings.rulerHeight || 80;
-
-  return (
-    <div
-      className={`absolute inset-0 pointer-events-none z-[100] no-print transition-opacity duration-300 ${isHovering ? 'opacity-100' : 'opacity-0'}`}
-    >
-      {/* Top Mask */}
-      <div
-        className="absolute top-0 left-0 w-full bg-black transition-all duration-150 ease-out"
-        style={{ height: `${y - rulerHeight / 2}px`, opacity: settings.maskOpacity || 0.4 }}
-      />
-      {/* The Ruler - Spotlight Effect */}
-      <div
-        className="absolute left-0 w-full border-y-2 transition-all duration-150 ease-out flex items-center justify-center"
-        style={{
-          top: `${y - rulerHeight / 2}px`,
-          height: `${rulerHeight}px`,
-          borderColor: settings.rulerColor || '#6366f1',
-          backgroundColor: `${settings.rulerColor || '#6366f1'}10`,
-          boxShadow: `0 0 40px ${settings.rulerColor || '#6366f1'}20`,
-        }}
-      >
-        <div
-          className="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest text-white shadow-lg"
-          style={{ backgroundColor: settings.rulerColor || '#6366f1' }}
-        >
-          Odak Alanı
-        </div>
-      </div>
-      {/* Bottom Mask */}
-      <div
-        className="absolute bottom-0 left-0 w-full bg-black transition-all duration-150 ease-out"
-        style={{ top: `${y + rulerHeight / 2}px`, opacity: settings.maskOpacity || 0.4 }}
-      />
-    </div>
-  );
-};
 
 const Worksheet = ({ activityType, data, settings, studentProfile, showQR }: WorksheetProps) => {
   const { isEditMode } = useEditable();

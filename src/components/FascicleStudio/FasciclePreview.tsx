@@ -310,10 +310,6 @@ export const FasciclePreview: React.FC = () => {
                              letterSpacing: 0,
                              wordSpacing: 0,
                              paragraphSpacing: 0,
-                             focusMode: false,
-                             rulerColor: '#e2e8f0',
-                             rulerHeight: 0,
-                             maskOpacity: 0,
                              ...dynamicSettings
                            } as StyleSettings}
                          />

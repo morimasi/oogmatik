@@ -90,7 +90,6 @@ const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) =>
     'production' as 'production' | 'library' | 'styling' | 'content' | 'archive'
   );
   const [canvasScale, setCanvasScale] = useState(0.85);
-  const [isFocusMode, setIsFocusMode] = useState(false);
 
   const handleGenerate = async () => {
     setIsLoading(true);
@@ -267,8 +266,7 @@ const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) =>
       className="h-full flex flex-col overflow-hidden absolute inset-0 z-50 font-lexend"
       style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
     >
-      {!isFocusMode && (
-        <header
+      <header
           className="h-16 flex justify-between items-center px-6 shrink-0 z-50 shadow-sm"
           style={{ backgroundColor: 'var(--bg-paper)', borderBottom: '1px solid var(--border-color)' }}
         >
@@ -343,12 +341,10 @@ const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) =>
               <i className="fa-solid fa-layer-group"></i>
             </button>
           </div>
-        </header>
-      )}
+      </header>
 
       <div className="flex-1 flex overflow-hidden">
-        {!isFocusMode && (
-          <aside
+        <aside
             className="w-80 flex flex-col overflow-hidden shadow-2xl z-40"
             style={{ backgroundColor: 'var(--bg-paper)', borderRight: '1px solid var(--border-color)' }}
           >
@@ -435,8 +431,7 @@ const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) =>
                 {isLoading ? 'BEKLEYİN...' : 'SINAVI OLUŞTUR'}
               </button>
             </div>
-          </aside>
-        )}
+        </aside>
 
         <main className="flex-1 overflow-auto p-12 custom-scrollbar flex flex-col items-center relative" style={{ backgroundColor: 'var(--bg-primary)' }}>
           <div
@@ -465,14 +460,6 @@ const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) =>
                 <i className="fa-solid fa-plus text-xs"></i>
               </button>
               <div className="w-px h-4" style={{ backgroundColor: 'var(--border-color)' }}></div>
-              <button
-                onClick={() => setIsFocusMode(!isFocusMode)}
-                className={`text-[10px] uppercase tracking-widest px-3 py-1 font-black rounded-lg transition-colors border ${isFocusMode ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-primary)]'}`}
-                title={isFocusMode ? 'Odaktan Çık' : 'Odak Modu'}
-              >
-                <i className={`fa-solid ${isFocusMode ? 'fa-compress' : 'fa-expand'} mr-2`}></i>
-                {isFocusMode ? 'ODAKTAN ÇIK' : 'ODAK MODU'}
-              </button>
             </div>
           </div>
 

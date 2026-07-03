@@ -1,6 +1,5 @@
 import React from 'react';
 import { ActivityType, StyleSettings, WorksheetData } from '../types';
-import { IconButton } from './Toolbar/ToolbarShared';
 import { ActionModule } from './Toolbar/ActionModule';
 
 interface ToolbarProps {
@@ -9,8 +8,6 @@ interface ToolbarProps {
   onAssign?: () => void;
   onShare?: () => void;
   onFeedback?: () => void;
-  isPreviewMode?: boolean;
-  onTogglePreview?: () => void;
   isCurriculumMode?: boolean;
   onCompleteCurriculumTask?: () => void;
   worksheetData?: WorksheetData;
@@ -23,8 +20,6 @@ export const Toolbar = ({
   onAssign,
   onShare,
   onFeedback,
-  isPreviewMode,
-  onTogglePreview,
   isCurriculumMode,
   onCompleteCurriculumTask,
   worksheetData,
@@ -32,16 +27,6 @@ export const Toolbar = ({
 }: ToolbarProps) => {
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 px-2 md:px-4 py-1.5 select-none relative z-[60] bg-[var(--surface-glass)]/30 backdrop-blur-md border-b border-[var(--border-color)]">
-      <div className="flex items-center gap-1.5 md:gap-2.5">
-        <IconButton
-          icon={isPreviewMode ? "fa-eye-slash" : "fa-expand"}
-          title={isPreviewMode ? "Odak Modundan Çık" : "Odak Modu (ESC)"}
-          active={isPreviewMode}
-          onClick={onTogglePreview}
-          colorClass={isPreviewMode ? 'text-amber-600' : 'text-slate-500'}
-        />
-      </div>
-
       <div className="flex items-center gap-2">
         {isCurriculumMode && onCompleteCurriculumTask && (
             <button

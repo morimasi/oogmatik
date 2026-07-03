@@ -47,51 +47,43 @@ export const ColorfulSyllableReadingSheet = ({ data }: Props) => {
     };
 
     return (
-        <div className="w-full h-full p-3 print:p-2 flex flex-col bg-white overflow-hidden text-zinc-900 min-h-[297mm]">
-            {/* ETKİNLİK BAŞLIĞI */}
-            <div className="flex justify-between items-center border-b border-rose-400 pb-2 print:pb-0.5 mb-4 print:mb-1.5">
+        <div className="w-full h-full p-2 print:p-1.5 flex flex-col bg-white overflow-hidden text-zinc-900">
+            <div className="flex justify-between items-center border-b border-rose-400 pb-1.5 print:pb-1 mb-2 print:mb-1">
                 <div>
-                    <h1 className="text-2xl print:text-lg font-black text-rose-900 tracking-tighter uppercase">{data.content?.title || "Okuma Egzersizi"}</h1>
-                    <p className="text-xs print:text-[10px] font-bold text-rose-500/70 mt-0.5 uppercase tracking-widest">{data.settings?.topic} • Renkli Hece Okuma</p>
+                    <h1 className="text-lg print:text-base font-black text-rose-900 tracking-tighter uppercase">{data.content?.title || "Okuma Egzersizi"}</h1>
+                    <p className="text-[9px] print:text-[8px] font-bold text-rose-500/70 uppercase tracking-widest">{data.settings?.topic} • Renkli Hece</p>
                 </div>
-                <div className="text-right flex flex-col gap-1.5">
-                    <div className="px-3 print:px-1 py-1.5 bg-rose-50 border border-rose-200 rounded-lg">
-                        <span className="text-[7px] font-black tracking-widest text-rose-400 block mb-0.5">HEDEF WPM</span>
-                        <span className="text-lg font-black text-rose-600">{wpmTarget} <span className="text-xs">Kelime/Dk.</span></span>
+                <div className="text-right">
+                    <div className="px-2 print:px-1 py-1 bg-rose-50 border border-rose-200 rounded-lg">
+                        <span className="text-[6px] font-black tracking-widest text-rose-400 block">HEDEF WPM</span>
+                        <span className="text-sm font-black text-rose-600">{wpmTarget} <span className="text-[9px]">K/Dk</span></span>
                     </div>
                 </div>
             </div>
 
-            <div className="flex-1 flex flex-col items-center justify-start mt-3 print:mt-1 px-4 print:px-2">
+            <div className="flex-1 flex flex-col items-center justify-start mt-1.5 print:mt-1 px-2 print:px-1">
                 {data.content?.paragraphs?.map((paragraph: any, pIdx: number) => (
-                    <div key={pIdx} className="mb-6 print:mb-2 w-full text-justify" style={{ lineHeight: '2.5' }}>
+                    <div key={pIdx} className="mb-2 print:mb-1 w-full text-justify" style={{ lineHeight: paragraph.syllabified?.length > 10 ? '1.9' : '2.5' }}>
                         {paragraph.syllabified?.map((wordObj: any, wIdx: number) => renderWord(wordObj, wIdx))}
                     </div>
                 ))}
             </div>
 
-            {/* Okuma Paneli / Form Alt Bilgisi */}
-            <div className="w-full mt-auto mb-4 print:mb-1.5 p-3 print:p-1.5 bg-zinc-50 border border-dashed border-zinc-300 rounded-xl flex items-center justify-between page-break-inside-avoid">
-                <div className="flex items-center gap-3 print:gap-1">
-                    <div className="w-10 h-10 bg-white border border-zinc-200 rounded-full flex items-center justify-center text-zinc-400">
-                        <i className="fa-solid fa-stopwatch text-base"></i>
+            <div className="w-full mt-auto mb-1.5 print:mb-1 p-1.5 print:p-1 bg-zinc-50 border border-dashed border-zinc-300 rounded-lg flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-white border border-zinc-200 rounded-full flex items-center justify-center text-zinc-400">
+                        <i className="fa-solid fa-stopwatch text-sm"></i>
                     </div>
                     <div>
-                        <div className="text-[8px] font-black text-zinc-400 uppercase tracking-widest">Performans Kaydı</div>
-                        <div className="text-sm font-black text-zinc-700">Bitirme Süreniz: ............ sn</div>
+                        <div className="text-[7px] font-black text-zinc-400 uppercase">Bitirme Süreniz: ............ sn</div>
                     </div>
                 </div>
-
-                <div className="flex flex-col gap-1.5 items-end">
-                    <div className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">Okunan Kelime Sayısı: ...........</div>
-                    <div className="text-[7px] font-black text-zinc-400 uppercase tracking-widest">Hatalı Kelime: ...........</div>
-                </div>
+                <div className="text-[6px] font-black text-zinc-400 uppercase">Kelime: ........... Hata: ...........</div>
             </div>
 
-            {/* FOOTER */}
-            <div className="pt-2 print:pt-0.5 border-t border-zinc-200 flex justify-between items-center text-[7px] font-black text-slate-400 uppercase tracking-widest">
-                <span>Neuro-bdmind Özel Eğitim Teknolojileri</span>
-                <span>Modül: Renkli Hece • Zorluk: {data.settings?.difficulty?.toUpperCase() || 'ORTA'}</span>
+            <div className="pt-1.5 print:pt-0.5 border-t border-zinc-200 flex justify-between items-center text-[6px] font-black text-slate-400 uppercase">
+                <span>Neuro-bdmind</span>
+                <span>Renkli Hece • {data.settings?.difficulty?.toUpperCase() || 'ORTA'}</span>
             </div>
         </div>
     );
