@@ -12,6 +12,7 @@ export interface GenerationParams {
 }
 
 export type GenerationStep = 'idle' | 'prompt' | 'api' | 'processing' | 'saving' | 'done';
+export type WizardStep = 'settings' | 'templates' | 'preview';
 
 export interface GenerationHistoryEntry {
   id: string;
@@ -35,6 +36,9 @@ interface SuperStudioState {
   topic: string;
   difficulty: SuperStudioDifficulty;
   generationMode: GenerationMode;
+
+  // Wizard
+  wizardStep: WizardStep;
 
   // Generation Params (motor.md Phase 1.1)
   generationParams: GenerationParams;
@@ -61,6 +65,9 @@ interface SuperStudioState {
   setTopic: (topic: string) => void;
   setDifficulty: (diff: SuperStudioDifficulty) => void;
   setGenerationMode: (mode: GenerationMode) => void;
+  setWizardStep: (step: WizardStep) => void;
+  goNextWizardStep: () => void;
+  goPrevWizardStep: () => void;
 
   setGenerationParams: (params: Partial<GenerationParams>) => void;
 
@@ -87,6 +94,7 @@ const initialState = {
   topic: '',
   difficulty: 'Orta' as SuperStudioDifficulty,
   generationMode: 'ai' as GenerationMode,
+  wizardStep: 'settings' as WizardStep,
   generationParams: {
     temperature: 0.7,
     topP: 0.9,
@@ -112,6 +120,23 @@ export const useSuperStudioStore = create<SuperStudioState>()((set, get) => ({
   setTopic: (topic: string) => set({ topic }),
   setDifficulty: (diff: SuperStudioDifficulty) => set({ difficulty: diff }),
   setGenerationMode: (mode: GenerationMode) => set({ generationMode: mode }),
+  setWizardStep: (step: WizardStep) => set({ wizardStep: step }),
+
+  goNextWizardStep: () =>
+    set((state) => {
+      const steps: WizardStep[] = ['settings', 'templates', 'preview'];
+      const idx = steps.indexOf(state.wizardStep);
+      if (idx < steps.length - 1) return { wizardStep: steps[idx + 1] };
+      return {};
+    }),
+
+  goPrevWizardStep: () =>
+    set((state) => {
+      const steps: WizardStep[] = ['settings', 'templates', 'preview'];
+      const idx = steps.indexOf(state.wizardStep);
+      if (idx > 0) return { wizardStep: steps[idx - 1] };
+      return {};
+    }),
 
   setGenerationParams: (params: Partial<GenerationParams>) =>
     set((state) => ({

@@ -122,7 +122,7 @@ GÖREV BLOKLARI YAPISI (${settings.taskCount} GÖREV):
     prompt += `${wordsForTask} kelime içerir. Her kelime numaralı ve cevap alanlı.\n`;
   }
 
-  if (settings.hizliSettings.includeAnswerKey || settings.aiSettings.includeExamples) {
+  if (settings.hizliSettings.includeAnswerKey || settings.aiSettings.includeAnswerKey) {
     prompt += `
 CEVAP ANAHTARI: Tüm görevlerin sonunda "📋 CEVAP ANAHTARI" başlığıyla doğru cevapları listele.
 `;

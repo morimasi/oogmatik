@@ -3,6 +3,7 @@ import {
   GenerationMode,
   SuperStudioDifficulty,
   GeneratedContentPayload,
+  PageData,
 } from '../../types/superStudio';
 import { AppError } from '../../utils/AppError';
 import { generateWithSchema } from '../geminiClient.js';
@@ -592,6 +593,16 @@ export const generateSuperStudioContent = async (
             'hece-ses': '🔊 Hece & Ses',
             'kelime-bilgisi': '🔍 Kelime Bilgisi'
         };
+        const instructionMap: Record<string, string> = {
+            'okuma-anlama': 'Aşağıdaki metni dikkatlice oku ve soruları cevapla.',
+            'dil-bilgisi': 'Kuralları incele ve alıştırmaları yap.',
+            'mantik-muhakeme': 'Problemleri dikkatlice oku ve doğru cevabı bul.',
+            'yaratici-yazarlik': 'Yönergeleri takip ederek yazma çalışmalarını tamamla.',
+            'yazim-noktalama': 'Yazım ve noktalama kurallarına göre düzeltmeleri yap.',
+            'soz-varligi': 'Deyim, atasözü ve mecaz ifadeleri öğren.',
+            'hece-ses': 'Heceleme ve ses olayları çalışmalarını yap.',
+            'kelime-bilgisi': 'Kelime çiftlerini eşleştir ve cümlelerde kullan.'
+        };
 
         results.push({
           id: `gen-${Date.now()}-${tpl}`,
@@ -600,6 +611,7 @@ export const generateSuperStudioContent = async (
             {
               title: `${titleMap[tpl] || tpl.toUpperCase()} — ${topic || 'Genel Çalışma'}`,
               content: content,
+              instruction: instructionMap[tpl] || 'Aşağıdaki etkinliği dikkatlice tamamlayalım.',
             },
           ],
           createdAt: Date.now(),
@@ -637,7 +649,7 @@ export const generateSuperStudioContent = async (
             cachedResults.push({
               id: `cache-${Date.now()}-${tpl}`,
               templateId: (cachedPayload.templateId as string) || tpl,
-              pages: (cachedPayload.pages as Record<string, unknown>[]) || [],
+              pages: (cachedPayload.pages as PageData[]) || [],
               createdAt: (cachedPayload.createdAt as number) || Date.now(),
               fromCache: true,
             });
@@ -681,7 +693,7 @@ export const generateSuperStudioContent = async (
 
         const content = formatContentForA4(tpl, aiResponse);
 
-        // Başlık çekme mantığı (aiResponse.title yoksa content'in ilk satırını dene)
+        // Baslik cekme mantigi (aiResponse.title yoksa content'in ilk satirini dene)
         let title = aiResponse.title || '';
         if (!title && content) {
           const firstLine = content.split('\n')[0].replace(/[#*]/g, '').trim();
@@ -690,6 +702,17 @@ export const generateSuperStudioContent = async (
           title = `${tpl.replace('-', ' ').toUpperCase()} Etkinliği`;
         }
 
+        const instructionMap: Record<string, string> = {
+            'okuma-anlama': 'Aşağıdaki metni dikkatlice oku ve soruları cevapla.',
+            'dil-bilgisi': 'Kuralları incele ve alıştırmaları yap.',
+            'mantik-muhakeme': 'Problemleri dikkatlice oku ve doğru cevabı bul.',
+            'yaratici-yazarlik': 'Yönergeleri takip ederek yazma çalışmalarını tamamla.',
+            'yazim-noktalama': 'Yazım ve noktalama kurallarına göre düzeltmeleri yap.',
+            'soz-varligi': 'Deyim, atasözü ve mecaz ifadeleri öğren.',
+            'hece-ses': 'Heceleme ve ses olayları çalışmalarını yap.',
+            'kelime-bilgisi': 'Kelime çiftlerini eşleştir ve cümlelerde kullan.'
+        };
+
         const payload: GeneratedContentPayload = {
           id: `gen-${Date.now()}-${tpl}`,
           templateId: tpl,
@@ -697,6 +720,7 @@ export const generateSuperStudioContent = async (
             {
               title,
               content: content,
+              instruction: instructionMap[tpl] || 'Aşağıdaki etkinliği dikkatlice tamamlayalım.',
             },
           ],
           createdAt: Date.now(),

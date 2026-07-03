@@ -7,6 +7,7 @@ export interface KelimeBilgisiSettings {
     includeExamples: boolean;
     includeMnemonics: boolean;
     themeBased: boolean;
+    includeAnswerKey: boolean;
   };
   hizliSettings: {
     templateStyle: 'match-card' | 'fill-blank' | 'word-web' | 'bingo';

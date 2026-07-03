@@ -12,6 +12,7 @@ export const DEFAULT_SETTINGS: KelimeBilgisiSettings = {
     includeExamples: true,
     includeMnemonics: true,
     themeBased: true,
+    includeAnswerKey: true,
   },
   hizliSettings: {
     templateStyle: 'match-card',

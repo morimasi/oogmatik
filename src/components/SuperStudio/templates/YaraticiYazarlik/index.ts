@@ -1,8 +1,9 @@
+import type { YaraticiYazarlikSettings } from './types';
 export { default as Settings } from './Settings';
 export { default as promptBuilder } from './promptBuilder';
 export * from './types';
 
-export const DEFAULT_SETTINGS = {
+export const DEFAULT_SETTINGS: YaraticiYazarlikSettings = {
   storyDiceCount: 4,
   clozeFormat: 'fiil' as const,
   emotionRadar: true,

@@ -29,7 +29,7 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
 
     try {
       const content = generatedContents[0];
-      const firstPage = content?.pages?.[0] as Record<string, unknown> | undefined;
+      const firstPage = content?.pages?.[0];
 
       if (!firstPage) {
         addToast('Kaydedilecek veri bulunamadı.', 'error');
@@ -40,8 +40,8 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
         {
           id: content.id,
           type: content.templateId,
-          title: (firstPage.title as string) || 'Adsız Etkinlik',
-          instruction: (firstPage.instruction as string) || 'Aşağıdaki etkinliği dikkatlice tamamlayalım.',
+          title: firstPage.title || 'Adsız Etkinlik',
+          instruction: firstPage.instruction || 'Aşağıdaki etkinliği dikkatlice tamamlayalım.',
           content: firstPage.content,
 
         },
@@ -49,7 +49,7 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
 
       await worksheetService.saveWorksheet(
         user.id,
-        (firstPage.title as string) || 'Adsız Etkinlik',
+        firstPage.title || 'Adsız Etkinlik',
         content.templateId as ActivityType,
         worksheetData,
         'fa-solid fa-wand-magic-sparkles',

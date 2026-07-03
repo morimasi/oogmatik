@@ -12,6 +12,12 @@ import { logInfo, logError, logWarn } from '../../utils/logger.js';
 interface SuperStudioProps {
 }
 
+const WIZARD_STEPS = [
+  { key: 'settings' as const, label: 'Amaç', icon: 'fa-bullseye' },
+  { key: 'templates' as const, label: 'Şablonlar', icon: 'fa-layer-group' },
+  { key: 'preview' as const, label: 'Önizleme', icon: 'fa-eye' },
+];
+
 export const SuperStudio: React.FC<SuperStudioProps> = () => {
   const {
     isGenerating,
@@ -25,12 +31,16 @@ export const SuperStudio: React.FC<SuperStudioProps> = () => {
     generationProgress,
     generationStep,
     generationHistory,
+    wizardStep,
     addGeneratedContent,
     clearGeneratedContents,
     setIsGenerating,
     setGenerationProgress,
     setGenerationStep,
     setCurrentTemplate,
+    setWizardStep,
+    goNextWizardStep,
+    goPrevWizardStep,
     addToHistory,
   } = useSuperStudioStore();
   const { show: addToast } = useToastStore();
@@ -94,6 +104,7 @@ export const SuperStudio: React.FC<SuperStudioProps> = () => {
 
       setGenerationStep('done');
       setGenerationProgress(100);
+      setWizardStep('preview');
       addToast(`${total} sayfa başarıyla üretildi!`, 'success');
     } catch (error: any) {
       logError('Üretim hatası:', error);
@@ -103,7 +114,7 @@ export const SuperStudio: React.FC<SuperStudioProps> = () => {
     } finally {
       setIsGenerating(false);
     }
-  }, [selectedTemplates, templateSettings, grade, topic, difficulty, studentId, generationParams, addToast, setIsGenerating, clearGeneratedContents, addGeneratedContent, setGenerationProgress, setGenerationStep, setCurrentTemplate, addToHistory]);
+  }, [selectedTemplates, templateSettings, grade, topic, difficulty, studentId, generationParams, addToast, setIsGenerating, clearGeneratedContents, addGeneratedContent, setGenerationProgress, setGenerationStep, setCurrentTemplate, addToHistory, setWizardStep]);
 
   // Keyboard shortcuts - motor.md Faz 3.2
   useEffect(() => {
@@ -147,6 +158,36 @@ export const SuperStudio: React.FC<SuperStudioProps> = () => {
             <span className="bg-slate-800/50 px-1.5 py-0.5 rounded ml-1">Esc</span>
             <span className="text-slate-600">İptal</span>
           </div>
+        </div>
+
+        {/* Wizard Step Indicator */}
+        <div className="flex border-b border-[var(--border-color)] bg-[var(--bg-primary)]/50">
+          {WIZARD_STEPS.map((step, idx) => {
+            const stepKeys = WIZARD_STEPS.map(s => s.key);
+            const currentIdx = stepKeys.indexOf(wizardStep);
+            const isActive = step.key === wizardStep;
+            const isDone = idx < currentIdx;
+            return (
+              <button
+                key={step.key}
+                onClick={() => {
+                  if (idx <= currentIdx + 1 && !isGenerating) setWizardStep(step.key);
+                }}
+                disabled={isGenerating}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 text-[10px] font-bold uppercase tracking-wider transition-all ${
+                  isDone
+                    ? 'text-emerald-400 bg-emerald-900/10'
+                    : isActive
+                      ? 'text-teal-300 bg-teal-900/10 border-b-2 border-teal-400'
+                      : 'text-slate-600 hover:text-slate-400'
+                }`}
+              >
+                <i className={`fa-solid ${step.icon} ${isActive ? 'fa-beat' : ''}`}></i>
+                <span>{step.label}</span>
+                {isDone && <i className="fa-solid fa-check text-[8px] ml-0.5"></i>}
+              </button>
+            );
+          })}
         </div>
 
         <div className="flex-1 overflow-y-auto w-full custom-scrollbar">
@@ -206,34 +247,107 @@ export const SuperStudio: React.FC<SuperStudioProps> = () => {
               </div>
             )}
 
-            {/* Ana Ayarlar */}
-            <MainSettingsPanel />
+            {/* Adım 1: Amaç Ayarları */}
+            {wizardStep === 'settings' && (
+              <MainSettingsPanel />
+            )}
 
-            {/* Şablon Seçimi */}
-            <div className="border-t border-[var(--border-color)] pt-8">
-              <TemplateMenu />
-            </div>
+            {/* Adım 1 → 2 geçiş butonu */}
+            {wizardStep === 'settings' && (
+              <div className="flex justify-end">
+                <button
+                  onClick={() => {
+                    if (!topic.trim()) {
+                      addToast('Lütfen bir konu başlığı girin.', 'warning');
+                      return;
+                    }
+                    goNextWizardStep();
+                  }}
+                  className="px-6 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold rounded-xl text-xs tracking-wider transition-all flex items-center gap-2"
+                >
+                  <span>Şablon Seçimine Geç</span>
+                  <i className="fa-solid fa-arrow-right"></i>
+                </button>
+              </div>
+            )}
 
-            {/* Seçilen Şablonların Ayarları */}
-            <div className="border-t border-[var(--border-color)] pt-8">
-              <ConfiguratorCascade />
-            </div>
+            {/* Adım 2: Şablon Seçimi + Ayarlar */}
+            {wizardStep === 'templates' && (
+              <>
+                <TemplateMenu />
+                <div className="border-t border-[var(--border-color)] pt-8">
+                  <ConfiguratorCascade />
+                </div>
+              </>
+            )}
+
+            {/* Adım 2 navigasyon */}
+            {wizardStep === 'templates' && (
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={goPrevWizardStep}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition-all flex items-center gap-2"
+                >
+                  <i className="fa-solid fa-arrow-left"></i>
+                  <span>Geri</span>
+                </button>
+                <button
+                  onClick={() => {
+                    if (selectedTemplates.length === 0) {
+                      addToast('En az bir şablon seçmelisiniz.', 'warning');
+                      return;
+                    }
+                    goNextWizardStep();
+                  }}
+                  className="px-6 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold rounded-xl text-xs tracking-wider transition-all flex items-center gap-2"
+                >
+                  <span>Önizlemeye Geç</span>
+                  <i className="fa-solid fa-arrow-right"></i>
+                </button>
+              </div>
+            )}
+
+            {/* Adım 3: Önizleme (sadece navigasyon, A4 sağ panelde) */}
+            {wizardStep === 'preview' && (
+              <div className="space-y-4">
+                <div className="bg-emerald-900/20 border border-emerald-700/40 rounded-xl p-4">
+                  <div className="flex items-center gap-3">
+                    <i className="fa-solid fa-check-circle text-emerald-400 text-lg"></i>
+                    <div>
+                      <p className="text-sm font-bold text-emerald-300">İçerikler Hazır</p>
+                      <p className="text-xs text-slate-400">
+                        {selectedTemplates.length} şablon üretildi. Sağ panelde önizleyebilir, kaydedebilir veya yazdırabilirsiniz.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={goPrevWizardStep}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition-all flex items-center gap-2"
+                >
+                  <i className="fa-solid fa-arrow-left"></i>
+                  <span>Ayarlara Dön</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* ÜRET BUTONU (Sabit Alt Kısım) */}
-        <div className="p-6 bg-[var(--bg-paper)] border-t border-[var(--border-color)] shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.1)]">
-          <button
-            onClick={handleGenerate}
-            disabled={isGenerating || selectedTemplates.length === 0}
-            className={`w-full py-4 bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white font-black rounded-2xl text-[10px] uppercase tracking-[0.2em] transition-all shadow-lg shadow-[var(--accent-muted)] flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none ${isGenerating ? 'animate-pulse' : ''}`}
-          >
-            <i
-              className={`fa-solid ${isGenerating ? 'fa-circle-notch fa-spin' : 'fa-wand-magic-sparkles'}`}
-            ></i>
-            {isGenerating ? 'AI İçerik Üretiyor...' : '🚀 AI ile Şablonları Üret'}
-          </button>
-        </div>
+        {/* ÜRET BUTONU (Sabit Alt Kısım) — sadece templates adımında */}
+        {wizardStep !== 'preview' && (
+          <div className="p-6 bg-[var(--bg-paper)] border-t border-[var(--border-color)] shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.1)]">
+            <button
+              onClick={handleGenerate}
+              disabled={isGenerating || selectedTemplates.length === 0}
+              className={`w-full py-4 bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white font-black rounded-2xl text-[10px] uppercase tracking-[0.2em] transition-all shadow-lg shadow-[var(--accent-muted)] flex items-center justify-center gap-3 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none ${isGenerating ? 'animate-pulse' : ''}`}
+            >
+              <i
+                className={`fa-solid ${isGenerating ? 'fa-circle-notch fa-spin' : 'fa-wand-magic-sparkles'}`}
+              ></i>
+              {isGenerating ? 'AI İçerik Üretiyor...' : '🚀 AI ile Şablonları Üret'}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Sağ Panel: A4 Önizleme ve Operasyonlar */}

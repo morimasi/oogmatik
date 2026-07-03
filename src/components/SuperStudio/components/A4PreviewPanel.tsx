@@ -3,6 +3,7 @@ import { ActionToolbar } from './ActionToolbar';
 import { useSuperStudioStore } from '../../../store/useSuperStudioStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MarkdownRenderer } from '../../Common/MarkdownRenderer';
+import { getTemplateById } from '../templates/registry';
 
 interface A4PreviewPanelProps {
 }
@@ -11,14 +12,15 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
   const { generatedContents, isGenerating } = useSuperStudioStore();
   const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [showAllPages, setShowAllPages] = useState(false);
+  const [showGallery, setShowGallery] = useState(false);
 
   // Tüm sayfaları hesapla
   const allPages = useMemo(() => {
     if (generatedContents.length === 0) return [];
 
     return generatedContents.flatMap((content) => {
-      const firstPage = content.pages[0] as Record<string, unknown> | undefined;
-      const rawContent = (firstPage?.content as string) || '';
+      const firstPage = content.pages[0];
+      const rawContent = firstPage?.content || '';
       const pages: string[] = rawContent
         .split(/===SAYFA_SONU===/i)
         .filter((p: string) => p.trim().length > 0);
@@ -26,11 +28,12 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
 
       return safePages.map((pageContent: string, subIndex: number) => ({
         content: pageContent,
-        title: (firstPage?.title as string) || '',
+        title: firstPage?.title || '',
         id: `${content.id}-chunk-${subIndex}`,
         pageNumber: subIndex + 1,
         totalPages: safePages.length,
         contentId: content.id,
+        templateId: content.templateId,
       }));
     });
   }, [generatedContents]);
@@ -80,7 +83,7 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
         </div>
 
         {/* Sayfa Navigasyonu */}
-        {totalPages > 1 && !showAllPages && (
+        {totalPages > 1 && !showAllPages && !showGallery && (
           <div className="flex items-center gap-2">
             <button
               onClick={prevPage}
@@ -111,20 +114,35 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
             </button>
 
             <button
-              onClick={() => setShowAllPages(!showAllPages)}
+              onClick={() => { setShowAllPages(true); setShowGallery(false); }}
               className="ml-2 px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white text-sm font-medium transition-colors"
             >
-              {showAllPages ? 'Tek Sayfa' : 'Tümünü Göster'}
+              Tümünü Göster
             </button>
           </div>
         )}
 
-        {totalPages > 1 && showAllPages && (
+        {totalPages > 1 && showAllPages && !showGallery && (
           <button
             onClick={() => setShowAllPages(false)}
             className="px-3 py-1 bg-slate-800 hover:bg-slate-700 rounded-lg text-slate-400 hover:text-white text-sm font-medium transition-colors"
           >
             Sayfa Görünümü
+          </button>
+        )}
+
+        {/* Galeri toggle — her zaman görünür */}
+        {generatedContents.length > 0 && (
+          <button
+            onClick={() => setShowGallery(!showGallery)}
+            className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+              showGallery
+                ? 'bg-teal-600 text-white'
+                : 'bg-slate-800 text-slate-400 hover:text-white'
+            }`}
+          >
+            <i className="fa-solid fa-grid-2 mr-1.5"></i>
+            {showGallery ? 'Gizle' : 'Galeri'}
           </button>
         )}
 
@@ -136,6 +154,70 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
         <AnimatePresence mode="wait">
           {isGenerating ? (
             <LogoLoadingAnimation />
+          ) : showGallery && generatedContents.length > 0 ? (
+            <motion.div
+              key="gallery"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="w-full max-w-5xl"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {generatedContents.map((content) => {
+                  const tplDef = getTemplateById(content.templateId);
+                  const excerpt = content.pages[0]?.content
+                    .replace(/[#*_`]/g, '')
+                    .split('\n')
+                    .filter(l => l.trim())
+                    .slice(0, 3)
+                    .join(' ')
+                    .substring(0, 120) || 'İçerik hazır';
+                  const pageCount = content.pages.length;
+
+                  return (
+                    <motion.div
+                      key={content.id}
+                      whileHover={{ scale: 1.02, y: -4 }}
+                      onClick={() => {
+                        const idx = allPages.findIndex(p => p.contentId === content.id);
+                        if (idx >= 0) {
+                          setCurrentPageIndex(idx);
+                          setShowGallery(false);
+                          setShowAllPages(false);
+                        }
+                      }}
+                      className="bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-5 cursor-pointer hover:border-teal-500/40 hover:bg-slate-700/60 transition-all group"
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500/20 to-indigo-500/20 flex items-center justify-center text-lg">
+                            <i className={tplDef?.icon || 'fa-solid fa-file'}></i>
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-bold text-slate-200 group-hover:text-teal-300 transition-colors">
+                              {tplDef?.title || content.templateId}
+                            </h3>
+                            <p className="text-[10px] text-slate-500">
+                              {pageCount} sayfa
+                            </p>
+                          </div>
+                        </div>
+                        <span className="text-[10px] text-slate-600 bg-slate-900/50 px-2 py-0.5 rounded-full">
+                          #{pageCount}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-400 leading-relaxed line-clamp-3">
+                        {excerpt}
+                      </p>
+                      <div className="mt-3 flex items-center gap-2 text-[10px] text-teal-500/60 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <i className="fa-solid fa-eye text-xs"></i>
+                        <span>İncele</span>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </motion.div>
           ) : totalPages === 0 ? (
             <motion.div
               key="empty"

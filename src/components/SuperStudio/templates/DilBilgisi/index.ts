@@ -1,8 +1,9 @@
+import type { DilBilgisiSettings } from './types';
 export { default as Settings } from './Settings';
 export { default as promptBuilder } from './promptBuilder';
 export * from './types';
 
-export const DEFAULT_SETTINGS = {
+export const DEFAULT_SETTINGS: DilBilgisiSettings = {
   targetDistractors: 'b-d',
   gridSize: '5x5',
   syllableSimulation: true,

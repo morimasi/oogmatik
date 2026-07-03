@@ -48,7 +48,7 @@ export const ConfiguratorCascade: React.FC = () => {
                 setGenerationProgress(Math.round(((i + 0.5) / total) * 80));
 
                 for (const res of batchResults) {
-                    const contentStr = res.pages?.[0]?.content as string || '';
+                    const contentStr = res.pages?.[0]?.content || '';
                     const quality = assessContentQuality(contentStr, { grade, difficulty });
                     setQualityScores(prev => ({ ...prev, [res.id]: quality.overall }));
 

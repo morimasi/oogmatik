@@ -8,10 +8,18 @@ export interface TemplateDefinition {
   category: string;
 }
 
+export interface PageData {
+  title: string;
+  content: string;
+  instruction?: string;
+  pageNumber?: number;
+  totalPages?: number;
+}
+
 export interface GeneratedContentPayload {
   id: string;
   templateId: string;
-  pages: Record<string, unknown>[]; // A4 sayfa datalarını tutacak
+  pages: PageData[];
   createdAt: number;
   fromCache?: boolean; // Cache'ten geldi mi?
 }

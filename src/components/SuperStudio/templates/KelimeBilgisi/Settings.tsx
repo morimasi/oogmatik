@@ -150,6 +150,7 @@ export const KelimeBilgisiSettingsPanel: React.FC<TemplateSettingsProps<KelimeBi
               { key: 'includeExamples', label: 'Cümle Örnekleri' },
               { key: 'includeMnemonics', label: 'Mnemonik İpuçları' },
               { key: 'themeBased', label: 'Tematik Gruplama' },
+              { key: 'includeAnswerKey', label: 'Cevap Anahtarı' },
             ].map(({ key, label }) => (
               <label
                 key={key}
