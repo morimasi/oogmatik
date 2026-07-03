@@ -18,24 +18,17 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
   const allPages = useMemo(() => {
     if (generatedContents.length === 0) return [];
 
-    return generatedContents.flatMap((content) => {
-      const firstPage = content.pages[0];
-      const rawContent = firstPage?.content || '';
-      const pages: string[] = rawContent
-        .split(/===SAYFA_SONU===/i)
-        .filter((p: string) => p.trim().length > 0);
-      const safePages: string[] = pages.length > 0 ? pages : ['[İçerik Bulunamadı]'];
-
-      return safePages.map((pageContent: string, subIndex: number) => ({
-        content: pageContent,
-        title: firstPage?.title || '',
-        id: `${content.id}-chunk-${subIndex}`,
+    return generatedContents.flatMap((content) =>
+      content.pages.map((page, subIndex) => ({
+        content: page.content,
+        title: page.title || '',
+        id: `${content.id}-page-${subIndex}`,
         pageNumber: subIndex + 1,
-        totalPages: safePages.length,
+        totalPages: content.pages.length,
         contentId: content.id,
         templateId: content.templateId,
-      }));
-    });
+      }))
+    );
   }, [generatedContents]);
 
   const totalPages = allPages.length;

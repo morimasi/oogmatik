@@ -9,6 +9,37 @@ import { AppError } from '../../utils/AppError';
 import { generateWithSchema } from '../geminiClient.js';
 import { generateOfflineSuperStudioTemplate } from './superOfflineEngine';
 
+const CHARS_PER_PAGE = 3000;
+
+const splitContentIntoPages = (content: string, title: string, instruction: string): PageData[] => {
+  const chunks = content.split(/===SAYFA_SONU===/i).filter((c) => c.trim().length > 0);
+  if (chunks.length === 0) {
+    return [{ title, content, instruction }];
+  }
+  if (chunks.length > 1) {
+    return chunks.map((chunk, i) => ({
+      title: i === 0 ? title : `${title} (devam)`,
+      content: chunk.trim(),
+      instruction,
+    }));
+  }
+  const paragraphs = chunks[0].split(/\n\n+/).filter((p) => p.trim().length > 0);
+  let accumulated = '';
+  const forcedPages: PageData[] = [];
+  for (const para of paragraphs) {
+    if (accumulated.length + para.length > CHARS_PER_PAGE && accumulated.length > 500) {
+      forcedPages.push({ title: forcedPages.length === 0 ? title : `${title} (devam)`, content: accumulated.trim(), instruction });
+      accumulated = para + '\n\n';
+    } else {
+      accumulated += para + '\n\n';
+    }
+  }
+  if (accumulated.trim()) {
+    forcedPages.push({ title: forcedPages.length === 0 ? title : `${title} (devam)`, content: accumulated.trim(), instruction });
+  }
+  return forcedPages;
+};
+
 interface GenerateParams {
   templates: string[];
   settings: Record<string, unknown>;
@@ -607,13 +638,11 @@ export const generateSuperStudioContent = async (
         results.push({
           id: `gen-${Date.now()}-${tpl}`,
           templateId: tpl,
-          pages: [
-            {
-              title: `${titleMap[tpl] || tpl.toUpperCase()} — ${topic || 'Genel Çalışma'}`,
-              content: content,
-              instruction: instructionMap[tpl] || 'Aşağıdaki etkinliği dikkatlice tamamlayalım.',
-            },
-          ],
+          pages: splitContentIntoPages(
+            content,
+            `${titleMap[tpl] || tpl.toUpperCase()} — ${topic || 'Genel Çalışma'}`,
+            instructionMap[tpl] || 'Aşağıdaki etkinliği dikkatlice tamamlayalım.'
+          ),
           createdAt: Date.now(),
         });
       }
@@ -716,13 +745,11 @@ export const generateSuperStudioContent = async (
         const payload: GeneratedContentPayload = {
           id: `gen-${Date.now()}-${tpl}`,
           templateId: tpl,
-          pages: [
-            {
-              title,
-              content: content,
-              instruction: instructionMap[tpl] || 'Aşağıdaki etkinliği dikkatlice tamamlayalım.',
-            },
-          ],
+          pages: splitContentIntoPages(
+            content,
+            title,
+            instructionMap[tpl] || 'Aşağıdaki etkinliği dikkatlice tamamlayalım.'
+          ),
           createdAt: Date.now(),
         };
 
