@@ -68,12 +68,8 @@ export const generateOfflineSyllableMasterLab = async (options: GeneratorOptions
 
 // HARF-GÖRSEL EŞLEME (Premium)
 export const generateOfflineLetterVisualMatching = async (options: GeneratorOptions): Promise<LetterVisualMatchingData[]> => {
-    const { worksheetCount = 1, itemCount, case: letterCase, fontFamily, difficulty = 'Orta' } = options;
+    const { worksheetCount = 1, itemCount, case: letterCase, fontFamily, difficulty = 'Orta', imageStyle: _imageStyle, columnLayout, showTracing } = options;
     const count = itemCount || (difficulty === 'Zor' ? 16 : 12);
-    const selectedAffixes = (options as any).selectedAffixTypes as string[] | undefined;
-    const _imageStyle = (options as any).imageStyle as string | undefined;
-    const columnLayout = (options as any).columnLayout as string | undefined;
-    const showTracing = (options as any).showTracing as boolean | undefined;
     const topic = options.topic || 'default';
 
     const defaultLetterMap: Record<string, string> = {
@@ -256,7 +252,7 @@ export const generateOfflineMorphologyMatrix = async (options: GeneratorOptions)
                 aestheticMode: 'ultra-compact',
                 pageFormat: 'A4',
                 margins: { top: 10, bottom: 10, left: 8, right: 8 },
-                layout: ((options as any).layout || 'grid_2x1') as 'single' | 'grid_2x1',
+                layout: (options.layout === 'grid_2x1' ? 'grid_2x1' : 'single') as 'single' | 'grid_2x1',
                 difficulty: difficulty === 'Başlangıç' ? 'beginner' : difficulty === 'Orta' ? 'intermediate' : difficulty === 'Zor' ? 'expert' : 'clinical',
                 fontScale: 1,
                 isProfessionalMode: true,

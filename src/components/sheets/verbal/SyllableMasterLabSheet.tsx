@@ -5,6 +5,7 @@ import { EditableElement, EditableText } from '../../Editable';
 
 export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }) => {
   const { mode, items = [] } = data;
+  const gridCols = data.settings?.gridCols || 5;
 
   const renderItem = (item: any, idx: number) => {
     const isSplit = mode === 'split';
@@ -121,7 +122,7 @@ export const SyllableMasterLabSheet = ({ data }: { data: SyllableMasterLabData }
         }
       />
       <div className="flex flex-col mt-2 print:mt-1 flex-1">
-        <div className="grid grid-cols-5 print:grid-cols-6 gap-1.5 print:gap-1 content-start">
+        <div className="grid gap-1.5 print:gap-1 content-start" style={{ gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))` }}>
           {items.map((item, i) => renderItem(item, i))}
         </div>
       </div>

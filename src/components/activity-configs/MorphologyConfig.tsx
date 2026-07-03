@@ -3,7 +3,7 @@ import { GeneratorOptions } from '../../types';
 
 export const MorphologyConfig: React.FC<{ options: GeneratorOptions; onChange: (k: keyof GeneratorOptions, v: unknown) => void }> = ({ options, onChange }) => {
     const affixTypes = ['çekim', 'yapım', 'ses_olayları'];
-    const selectedAffixes = (options as any).selectedAffixTypes || ['çekim'];
+    const selectedAffixes = options.selectedAffixTypes || ['çekim'];
 
     const toggleAffix = (val: string) => {
         const current = new Set(selectedAffixes as string[]);
@@ -66,8 +66,8 @@ export const MorphologyConfig: React.FC<{ options: GeneratorOptions; onChange: (
 
             <div className="space-y-3">
                 <div className="flex items-center gap-2 p-3 bg-white rounded-xl border border-zinc-200">
-                    <input type="checkbox" id="showSuffixBuilding" checked={(options as any).showSuffixBuilding !== false}
-                        onChange={(e) => onChange('showSuffixBuilding' as keyof GeneratorOptions, e.target.checked)}
+                    <input type="checkbox" id="showSuffixBuilding" checked={options.showSuffixBuilding !== false}
+                        onChange={(e) => onChange('showSuffixBuilding', e.target.checked)}
                         className="w-4 h-4 rounded text-indigo-600" />
                     <label htmlFor="showSuffixBuilding" className="text-[10px] font-bold text-zinc-700">Ek Yapımını Göster</label>
                 </div>
@@ -88,7 +88,7 @@ export const MorphologyConfig: React.FC<{ options: GeneratorOptions; onChange: (
                         { v: 'single', l: '1 Sütun' },
                         { v: 'grid_2x1', l: '2 Sütun' }
                     ].map(t => (
-                        <button key={t.v} onClick={() => onChange('layout' as keyof GeneratorOptions, t.v)}
+                        <button key={t.v} onClick={() => onChange('layout', t.v)}
                             className={`flex-1 py-2 text-[10px] font-black rounded-xl border-2 transition-all ${(options.layout || 'grid_2x1') === t.v ? 'bg-indigo-600 text-white border-indigo-600 shadow' : 'bg-white text-zinc-500 border-zinc-200'}`}>
                             {t.l}
                         </button>

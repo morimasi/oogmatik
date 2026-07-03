@@ -179,7 +179,7 @@ export interface GeneratorOptions {
   depth?: number;
   branchCount?: number;
   fillRatio?: number;
-  layout?: 'radial' | 'tree' | 'horizontal' | 'vertical' | 'ultra_full' | 'ultra_dense';
+  layout?: 'radial' | 'tree' | 'horizontal' | 'vertical' | 'ultra_full' | 'ultra_dense' | 'single' | 'grid_2x1';
   nodeStyle?: 'rounded' | 'sharp' | 'circle';
   edgeStyle?: 'straight' | 'curved' | 'orthogonal';
   includeExamples?: boolean;
@@ -219,7 +219,13 @@ export interface GeneratorOptions {
   compactLayout?: boolean;
   useIcons?: boolean;
   showReadingRuler?: boolean;
-  
+
+  // Harf-Görsel Eşleme & Morfoloji & Hece
+  showTracing?: boolean;
+  imageStyle?: 'colorful' | 'bw' | 'outline';
+  selectedAffixTypes?: string[];
+  showSuffixBuilding?: boolean;
+
   // Eksik Parçaları Tamamlama
   blankType?: 'word' | 'phrase' | 'sentence' | 'number';
   blankCount?: number;
@@ -237,7 +243,7 @@ export interface GeneratorOptions {
   includeTimer?: boolean;
   showProgress?: boolean;
   lineHeight?: 'tight' | 'normal' | 'relaxed';
-  columnLayout?: 'single' | 'two-column';
+  columnLayout?: 'single' | 'two-column' | '2-col' | '3-col' | '4-col';
   maxParagraphsPerPage?: number;
   
   // Resim Yorumlama Analiz

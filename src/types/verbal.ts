@@ -197,6 +197,13 @@ export interface SyllableMasterLabItem {
 export interface SyllableMasterLabData extends BaseActivityData {
   mode: 'split' | 'combine' | 'complete' | 'rainbow' | 'scrambled';
   items: SyllableMasterLabItem[];
+  settings?: {
+    aestheticMode?: string;
+    pageFormat?: string;
+    margins?: { top: number; bottom: number; left: number; right: number };
+    gridCols?: number;
+    difficulty?: string;
+  };
 }
 
 export interface LetterVisualMatchingData extends BaseActivityData {

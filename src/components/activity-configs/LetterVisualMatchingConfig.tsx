@@ -36,8 +36,8 @@ export const LetterVisualMatchingConfig: React.FC<{ options: GeneratorOptions; o
 
                 <ToggleGroup
                     label="Görsel Stil"
-                    selected={(options as any).imageStyle || 'colorful'}
-                    onChange={(v) => onChange('imageStyle' as keyof GeneratorOptions, v)}
+                    selected={options.imageStyle || 'colorful'}
+                    onChange={(v) => onChange('imageStyle', v)}
                     options={[
                         { value: 'colorful', label: 'Renkli' },
                         { value: 'bw', label: 'BW' },
@@ -46,16 +46,16 @@ export const LetterVisualMatchingConfig: React.FC<{ options: GeneratorOptions; o
                 />
 
                 <div className="flex items-center gap-2 p-2 bg-white rounded-xl border border-zinc-200">
-                    <input type="checkbox" id="showTracing" checked={(options as any).showTracing !== false}
-                        onChange={(e) => onChange('showTracing' as keyof GeneratorOptions, e.target.checked)}
+                    <input type="checkbox" id="showTracing" checked={options.showTracing !== false}
+                        onChange={(e) => onChange('showTracing', e.target.checked)}
                         className="w-4 h-4 rounded text-indigo-600" />
                     <label htmlFor="showTracing" className="text-[10px] font-bold text-zinc-700">İzleme Çizgisi Göster</label>
                 </div>
 
                 <ToggleGroup
                     label="Sütun Düzeni"
-                    selected={(options as any).columnLayout || '3-col'}
-                    onChange={(v) => onChange('columnLayout' as keyof GeneratorOptions, v)}
+                    selected={options.columnLayout || '3-col'}
+                    onChange={(v) => onChange('columnLayout', v)}
                     options={[
                         { value: '2-col', label: '2 Sütun' },
                         { value: '3-col', label: '3 Sütun' },
