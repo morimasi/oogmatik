@@ -147,8 +147,8 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
     return content;
   }
 
-  // dilbilgisi: konu başlığı + kurallar + alıştırmalar
-  if (templateId === 'dilbilgisi') {
+  // dil-bilgisi: konu başlığı + kurallar + alıştırmalar
+  if (templateId === 'dil-bilgisi') {
     const topic: string = aiResponse.topic || '';
     const rules: unknown = aiResponse.rules;
     const exercises: unknown = aiResponse.exercises;
@@ -172,22 +172,6 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
         content += `\n${i + 1}. ${q}\n   Cevap: ${a}\n`;
       });
     }
-    return content;
-  }
-
-  // mantik-muhakeme: problem listesi (soru + ipucu opsiyonel + cevap)
-  if (templateId === 'mantik-muhakeme') {
-    const problems: unknown = aiResponse.problems;
-    if (!Array.isArray(problems) || problems.length === 0) {
-      return '[Problemler üretilemedi — AI yanıtında problem bulunamadı]';
-    }
-    let content = '';
-    (problems as unknown[]).forEach((p: any, i: number) => {
-      const q: string = p?.question || '[Problem metni eksik]';
-      content += `\n${i + 1}. ${q}\n`;
-      if (p?.hint) content += `   İpucu: ${p.hint}\n`;
-      if (p?.answer) content += `   Cevap: ${p.answer}\n`;
-    });
     return content;
   }
 
@@ -282,9 +266,12 @@ export const generateSuperStudioContent = async (
         try {
           const cached = await cacheService.get(cacheKey);
           if (cached) {
+            const cachedPayload = cached as Record<string, unknown>;
             cachedResults.push({
-              ...(cached as Record<string, unknown>),
               id: `cache-${Date.now()}-${tpl}`,
+              templateId: (cachedPayload.templateId as string) || tpl,
+              pages: (cachedPayload.pages as Record<string, unknown>[]) || [],
+              createdAt: (cachedPayload.createdAt as number) || Date.now(),
               fromCache: true,
             });
             remainingTemplates = remainingTemplates.filter((t) => t !== tpl);
@@ -352,7 +339,7 @@ export const generateSuperStudioContent = async (
         if (cacheService) {
           const cacheKey = generateCacheKey(tpl, templateSettings, grade, difficulty);
           try {
-            await cacheService.set(cacheKey, payload as Record<string, unknown>);
+            await cacheService.set(cacheKey, { ...payload } as Record<string, unknown>);
             logInfo(`[Super Türkçe] Cache yazıldı: ${tpl}`);
           } catch (e) {
             logWarn(`[Super Türkçe] Cache yazma hatası (${tpl}):`, { error: String(e) });

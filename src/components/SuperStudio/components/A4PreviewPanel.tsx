@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { useState, useMemo, useEffect } from 'react';
 import { ActionToolbar } from './ActionToolbar';
 import { useSuperStudioStore } from '../../../store/useSuperStudioStore';
@@ -18,15 +17,16 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
     if (generatedContents.length === 0) return [];
 
     return generatedContents.flatMap((content) => {
-      const rawContent = content.pages[0]?.content || '';
-      const pages = rawContent
+      const firstPage = content.pages[0] as Record<string, unknown> | undefined;
+      const rawContent = (firstPage?.content as string) || '';
+      const pages: string[] = rawContent
         .split(/===SAYFA_SONU===/i)
-        .filter((p) => p.trim().length > 0);
-      const safePages = pages.length > 0 ? pages : ['[İçerik Bulunamadı]'];
+        .filter((p: string) => p.trim().length > 0);
+      const safePages: string[] = pages.length > 0 ? pages : ['[İçerik Bulunamadı]'];
 
-      return safePages.map((pageContent, subIndex) => ({
+      return safePages.map((pageContent: string, subIndex: number) => ({
         content: pageContent,
-        title: content.pages[0].title,
+        title: (firstPage?.title as string) || '',
         id: `${content.id}-chunk-${subIndex}`,
         pageNumber: subIndex + 1,
         totalPages: safePages.length,

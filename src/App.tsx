@@ -635,7 +635,7 @@ const AppContent = () => {
                       </ProtectedRoute>
                     )}
                     {currentView === 'super-turkce' && (
-                      <ProtectedRoute module="super-studio" onBack={handleGoBack}>
+                      <ProtectedRoute module="super-turkce" onBack={handleGoBack}>
                         <SuperStudio />
                       </ProtectedRoute>
                     )}
