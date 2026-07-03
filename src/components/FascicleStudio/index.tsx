@@ -40,10 +40,13 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
   const handleDownloadPdf = async () => {
     try {
         setIsPrinting(true);
-        toast.loading('PDF dosyası hazırlanıyor ve indiriliyor...', { id: 'print-toast' });
+        toast.loading('PDF dosyası hazırlanıyor...', { id: 'print-toast' });
         await printService.generatePdf('#fascicle-print-container', metadata.title || 'Ozel_Egitim_Fasikulu', {
             action: 'download',
-            quality: 'high'
+            quality: 'high',
+            onProgress: (percent: number, message: string) => {
+                toast.loading(`PDF hazırlanıyor: %${percent} — ${message}`, { id: 'print-toast' });
+            }
         });
         toast.success('PDF indirme işlemi tamamlandı!', { id: 'print-toast' });
     } catch (error) {

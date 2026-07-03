@@ -9,6 +9,7 @@ export type { PaperSize, PdfQuality, PrintOptions, PaperMargins, PaperDimensions
 
 // Modülleri import et
 import type { PaperSize, PrintOptions } from './types';
+import { PAPER_DIMENSIONS } from './constants';
 import { print, captureAndPrint } from './OverlayPrinter';
 import { generateRealPdf } from './PDFGenerator';
 
@@ -38,10 +39,86 @@ export const printService = {
 
   /**
    * Premium Pagination Engine — Uzun içerikleri A4 sayfalarına böler.
-   * Şu an CSS tabanlı page-break ile yönetiliyor; gelecekte DOM bölme eklenecek.
+   * Her root elementi alır, A4 yüksekliğini (297mm ≈ 1123px) aşan içeriği
+   * birden çok sayfaya bölerek döndürür.
    */
-  paginateContent: async (roots: HTMLElement[], _paperSize: PaperSize): Promise<HTMLElement[]> => {
-    return roots;
+  paginateContent: async (roots: HTMLElement[], paperSize: PaperSize = 'A4'): Promise<HTMLElement[]> => {
+    const dims = PAPER_DIMENSIONS[paperSize] || PAPER_DIMENSIONS.A4;
+    const pxPerMm = 96 / 25.4;
+    const heightMm = parseFloat(dims.height);
+    const widthMm = parseFloat(dims.width);
+    const pageHeightPx = heightMm * pxPerMm;
+    const marginPx = 8 * pxPerMm;
+    const contentHeightPx = pageHeightPx - marginPx * 2;
+
+    const result: HTMLElement[] = [];
+
+    for (const root of roots) {
+      const clone = root.cloneNode(true) as HTMLElement;
+      clone.style.position = 'fixed';
+      clone.style.left = '-9999px';
+      clone.style.top = '0';
+      clone.style.width = `${widthMm * pxPerMm}px`;
+      clone.style.height = 'auto';
+      clone.style.overflow = 'visible';
+      clone.style.visibility = 'hidden';
+      clone.style.display = 'block';
+      clone.style.padding = `${marginPx}px`;
+      document.body.appendChild(clone);
+
+      const totalHeight = clone.scrollHeight;
+
+      if (totalHeight <= contentHeightPx) {
+        document.body.removeChild(clone);
+        result.push(root);
+        continue;
+      }
+
+      const children = Array.from(clone.children);
+      let currentPage = document.createElement('div');
+      currentPage.className = root.className;
+      currentPage.style.cssText = root.style.cssText;
+      currentPage.style.width = `${widthMm * pxPerMm}px`;
+      currentPage.style.height = `${pageHeightPx}px`;
+      currentPage.style.overflow = 'hidden';
+      currentPage.style.padding = `${marginPx}px`;
+      currentPage.style.boxSizing = 'border-box';
+
+      let currentHeight = 0;
+
+      for (const child of children) {
+        const childClone = child.cloneNode(true) as HTMLElement;
+        currentPage.appendChild(childClone);
+        document.body.appendChild(currentPage);
+        const pageRealHeight = currentPage.scrollHeight;
+        document.body.removeChild(currentPage);
+
+        if (pageRealHeight > contentHeightPx && currentHeight > 0) {
+          currentPage.removeChild(childClone);
+          result.push(currentPage);
+
+          currentPage = document.createElement('div');
+          currentPage.className = root.className;
+          currentPage.style.cssText = root.style.cssText;
+          currentPage.style.width = `${widthMm * pxPerMm}px`;
+          currentPage.style.height = `${pageHeightPx}px`;
+          currentPage.style.overflow = 'hidden';
+          currentPage.style.padding = `${marginPx}px`;
+          currentPage.style.boxSizing = 'border-box';
+          currentPage.appendChild(childClone);
+          currentHeight = 0;
+        }
+        currentHeight = pageRealHeight;
+      }
+
+      if (currentPage.children.length > 0) {
+        result.push(currentPage);
+      }
+
+      document.body.removeChild(clone);
+    }
+
+    return result;
   },
 
   /**

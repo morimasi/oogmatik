@@ -271,49 +271,51 @@ export const FasciclePreview: React.FC = () => {
                        </div>
                     </div>
 
-                    <div className="w-[210mm] min-h-[297mm] mx-auto shrink-0 shadow-2xl mb-12 bg-white relative print-exact border border-[var(--border-color)]">
+                    <div className="w-[210mm] h-[297mm] mx-auto shrink-0 shadow-2xl mb-12 bg-white relative print-exact worksheet-page overflow-hidden border border-[var(--border-color)]">
                       {metadata.watermarkSettings?.enabled && renderWatermark(metadata.watermarkSettings)}
-                      <Suspense fallback={
-                        <div className="w-[21cm] h-[29.7cm] flex items-center justify-center bg-white">
-                          <div className="animate-spin rounded-full h-12 w-12" style={{ borderBottomColor: 'var(--accent-color)', borderLeftColor: 'transparent', borderRightColor: 'transparent', borderTopColor: 'transparent', borderWidth: '3px' }}></div>
-                        </div>
-                      }>
-                         <SheetRenderer 
-                           data={item.content as SingleWorksheetData} 
-                           activityType={item.type as ActivityType} 
-                           settings={{
-                             fontSize: '1rem',
-                             lineHeight: 1.6,
-                             scale: 1,
-                             borderColor: '#e2e8f0',
-                             borderWidth: 1,
-                             margin: 10,
-                             columns: defaultColumns,
-                             gap: 20,
-                             orientation: 'portrait',
-                             themeBorder: 'none',
-                             contentAlign: 'left',
-                             fontWeight: 'normal',
-                             fontStyle: 'normal',
-                              visualStyle: 'minimal',
-                              showMascot: false,
-                             showStudentInfo: false,
-                             showTitle: true,
-                             showInstruction: true,
-                             showImage: true,
-                             showFooter: true,
-                             showAnswers: false,
-                             showClues: false,
-                             footerText: `Fasikül Sayfası • bdmind Education`,
-                             smartPagination: true,
-                             fontFamily: 'Lexend',
-                             letterSpacing: 0,
-                             wordSpacing: 0,
-                             paragraphSpacing: 0,
-                             ...dynamicSettings
-                           } as StyleSettings}
-                         />
-                      </Suspense>
+                      <div className="p-[8mm] h-full flex flex-col">
+                        <Suspense fallback={
+                          <div className="w-full h-full flex items-center justify-center bg-white">
+                            <div className="animate-spin rounded-full h-12 w-12" style={{ borderBottomColor: 'var(--accent-color)', borderLeftColor: 'transparent', borderRightColor: 'transparent', borderTopColor: 'transparent', borderWidth: '3px' }}></div>
+                          </div>
+                        }>
+                          <SheetRenderer 
+                            data={item.content as SingleWorksheetData} 
+                            activityType={item.type as ActivityType} 
+                            settings={{
+                              fontSize: '1rem',
+                              lineHeight: 1.6,
+                              scale: 1,
+                              borderColor: '#e2e8f0',
+                              borderWidth: 1,
+                              margin: 10,
+                              columns: defaultColumns,
+                              gap: 20,
+                              orientation: 'portrait',
+                              themeBorder: 'none',
+                              contentAlign: 'left',
+                              fontWeight: 'normal',
+                              fontStyle: 'normal',
+                               visualStyle: 'minimal',
+                               showMascot: false,
+                              showStudentInfo: false,
+                              showTitle: true,
+                              showInstruction: true,
+                              showImage: true,
+                              showFooter: true,
+                              showAnswers: false,
+                              showClues: false,
+                              footerText: `Fasikül Sayfası • bdmind Education`,
+                              smartPagination: true,
+                              fontFamily: 'Lexend',
+                              letterSpacing: 0,
+                              wordSpacing: 0,
+                              paragraphSpacing: 0,
+                              ...dynamicSettings
+                            } as StyleSettings}
+                          />
+                        </Suspense>
+                      </div>
                     </div>
                  </div>
                );

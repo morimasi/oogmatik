@@ -68,29 +68,33 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
       body.printing-mode #print-overlay .a4-page {
         width: 100% !important;
         max-width: 100% !important;
-        min-height: 100% !important;
+        height: 297mm !important;
+        min-height: 297mm !important;
         margin: 0 !important;
-        padding: 0 !important;
+        padding: 8mm !important;
         box-sizing: border-box !important;
         box-shadow: none !important;
         break-inside: auto !important;
         page-break-inside: auto !important;
         page-break-after: always !important;
         break-after: page !important;
+        overflow: hidden !important;
       }
 
       body.printing-mode #print-overlay .print-exact {
         width: 100% !important;
         max-width: 100% !important;
-        min-height: auto !important;
+        height: 297mm !important;
+        min-height: 297mm !important;
         margin: 0 !important;
-        padding: 0 !important;
+        padding: 8mm !important;
         box-sizing: border-box !important;
         box-shadow: none !important;
         break-inside: auto !important;
         page-break-inside: auto !important;
-        page-break-after: avoid !important;
-        break-after: avoid !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        overflow: hidden !important;
       }
 
       body.printing-mode #print-overlay .print-page {
@@ -232,7 +236,7 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
 
       @page { 
         margin: 8mm !important; 
-        size: auto; 
+        size: A4 portrait;
       }
       
       html, body {
@@ -248,6 +252,7 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
       /* Kâğıt kenarlarında güvenlik boşluğu (Tarayıcı marjının yerini alan padding) */
       .print-page, .worksheet-page, .a4-page {
         margin: 0 !important;
+        padding: 8mm !important;
         box-sizing: border-box !important;
         box-shadow: none !important;
         border: none !important;
@@ -256,19 +261,22 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
         background: white !important;
         display: block !important;
         position: relative !important;
-        overflow: visible !important;
+        overflow: hidden !important;
+        height: 297mm !important;
       }
       .print-exact {
         margin: 0 !important;
+        padding: 8mm !important;
         box-sizing: border-box !important;
         box-shadow: none !important;
         border: none !important;
-        page-break-after: avoid !important;
-        break-after: avoid !important;
+        page-break-after: always !important;
+        break-after: page !important;
         background: white !important;
         display: block !important;
         position: relative !important;
-        overflow: visible !important;
+        overflow: hidden !important;
+        height: 297mm !important;
       }
 
       /* Sayfa başı zorunlu boşluk kalkanı (Minimal 0.5cm ayarı için azaltıldı) */

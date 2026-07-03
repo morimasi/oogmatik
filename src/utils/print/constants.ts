@@ -16,7 +16,7 @@ export const PAPER_DIMENSIONS: Record<PaperSize, PaperDimensions> = {
 
 /** Kağıt boyutu → kenar boşlukları */
 export const PAPER_MARGINS: Record<PaperSize, PaperMargins> = {
-  A4: { top: '5mm', bottom: '5mm', left: '5mm', right: '5mm' },
+  A4: { top: '8mm', bottom: '8mm', left: '8mm', right: '8mm' },
   Letter: { top: '12mm', bottom: '12mm' },
   Legal: { top: '15mm', bottom: '15mm' },
   Extreme_Yatay: { top: '5mm', bottom: '5mm', left: '5mm', right: '5mm' },

@@ -50,7 +50,7 @@ export const FascicleCoverPage: React.FC<FascicleCoverPageProps> = ({ settings, 
 
   return (
     <div 
-      className={`print-exact relative flex flex-col justify-between p-16 shadow-2xl rounded-tr-3xl rounded-br-3xl mx-auto overflow-hidden print:w-[210mm] print:h-[297mm] print:shadow-none print:m-0 w-full aspect-[210/297] box-border ${getThemeClasses()} page-break-after`}
+      className={`print-exact worksheet-page relative flex flex-col justify-between p-[8mm] shadow-2xl mx-auto overflow-hidden w-[210mm] h-[297mm] box-border ${getThemeClasses()}`}
       style={{
         boxSizing: 'border-box'
       }}

@@ -374,7 +374,7 @@
     /* Print Dialog Margin/Size - Kompakt yapı için 5mm olarak güncellendi */
     @page {
       size: A4 portrait;
-      margin: 5mm !important;
+      margin: 8mm !important;
     }
 
     /* bdmind Layout Gizlemeleri */
