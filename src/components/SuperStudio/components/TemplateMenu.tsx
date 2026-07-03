@@ -25,7 +25,7 @@ export const TemplateMenu: React.FC = () => {
                                 }`}
                         >
                             <span className="mr-3 text-lg">
-                                <i className={`fa-solid ${tpl.icon}`}></i>
+                                <i className={tpl.icon}></i>
                             </span>
                             <div className="flex-1 flex flex-col">
                                 <span className="font-medium text-sm">{tpl.title}</span>

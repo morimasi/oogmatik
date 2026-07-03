@@ -1,5 +1,5 @@
 
-import { getWordsForDifficulty, getRandomItems, shuffle, syllabifyWord } from '../offlineGenerators/helpers';
+import { getWordsForDifficulty, syllabifyWord } from '../offlineGenerators/helpers';
 import { SuperStudioDifficulty } from '../../types/superStudio';
 
 /**
@@ -9,6 +9,7 @@ import { SuperStudioDifficulty } from '../../types/superStudio';
 
 export const generateOfflineSuperStudioTemplate = (
   templateId: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   settings: any,
   grade: string | null,
   topic: string,

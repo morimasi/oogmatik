@@ -39,7 +39,7 @@ const simpleHash = (str: string): string => {
  */
 const generateCacheKey = (
   templateId: string,
-  settings: any,
+  settings: Record<string, unknown>,
   grade: string | null,
   difficulty: SuperStudioDifficulty
 ): string => {

@@ -3,7 +3,7 @@ export { default as promptBuilder } from './promptBuilder';
 export * from './types';
 
 export const DEFAULT_SETTINGS = {
-  cognitiveLoadLimit: 10,
+  cognitiveLoadLimit: 8,
   chunkingEnabled: true,
   visualScaffolding: true,
   typographicHighlight: true,

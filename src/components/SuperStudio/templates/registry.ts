@@ -34,10 +34,6 @@ export interface SuperTemplateDefinition<T = any> {
 // MODÜLER İTHALAT (DIRECTORY-BASED IMPORTS)
 // ------------------------------------------------------------
 
-// ------------------------------------------------------------
-// MODÜLER İTHALAT (DIRECTORY-BASED IMPORTS)
-// ------------------------------------------------------------
-
 import { DEFAULT_SETTINGS as OkumaAnlamaDefaults, Settings as OkumaAnlamaSettings, promptBuilder as OkumaAnlamaPrompt } from './OkumaAnlama';
 import { DEFAULT_SETTINGS as DilBilgisiDefaults, Settings as DilBilgisiSettings, promptBuilder as DilBilgisiPrompt } from './DilBilgisi';
 import { DEFAULT_SETTINGS as MantikMuhakemeDefaults, Settings as MantikMuhakemeSettings, promptBuilder as MantikMuhakemePrompt } from './MantikMuhakeme';

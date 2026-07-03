@@ -5,6 +5,7 @@ import { useAuthStore } from '../../../store/useAuthStore';
 import { useToastStore } from '../../../store/useToastStore';
 import { printService } from '../../../utils/printService';
 import { SingleWorksheetData, ActivityType } from '../../../types';
+import { getTemplateById } from '../templates/registry';
 
 import { logInfo, logError, logWarn } from '../../../utils/logger.js';
 import { useFascicleStore } from '../../../store/useFascicleStore';
@@ -13,9 +14,11 @@ interface ActionToolbarProps {
 }
 
 export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
-  const { generatedContents, isGenerating } = useSuperStudioStore();
+  const { generatedContents, isGenerating, selectedTemplates, difficulty } = useSuperStudioStore();
   const { user } = useAuthStore();
   const { show: addToast } = useToastStore();
+
+  const firstTemplateDef = selectedTemplates.length > 0 ? getTemplateById(selectedTemplates[0]) : null;
 
   const handleSave = async () => {
     if (!user) {
@@ -50,7 +53,7 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
         content.templateId as ActivityType,
         worksheetData,
         'fa-solid fa-wand-magic-sparkles',
-        { id: 'reading-comprehension', title: 'Okuduğunu Anlama' },
+        { id: content.templateId, title: firstTemplateDef?.title || 'Süper Türkçe Etkinliği' },
       );
       addToast('Çalışma başarıyla buluta kaydedildi.', 'success');
     } catch (error) {
@@ -60,7 +63,7 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
   };
 
   const handlePrint = () => {
-    const targetSelector = '.super-reading-preview-area';
+    const targetSelector = '.a4-page';
     printService.generateRealPdf(targetSelector, 'Super_Turkce_Etkinlik', {
       paperSize: 'A4',
       quality: 'high',
@@ -81,16 +84,16 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
        
        <button
          onClick={() => {
-             const { addItem, items } = useFascicleStore.getState();
-             addItem({
-                 id: crypto.randomUUID(),
-                 type: ActivityType.SUPER_STUDIO,
-                 difficulty: 'Orta',
-                 pageCount: generatedContents.length,
-                 order: items.length,
-                 content: { content: generatedContents },
+              const { addItem, items } = useFascicleStore.getState();
+              addItem({
+                  id: crypto.randomUUID(),
+                  type: ActivityType.SUPER_STUDIO,
+                  difficulty: difficulty || 'Orta',
+                  pageCount: generatedContents.length,
+                  order: items.length,
+                  content: { content: generatedContents },
 
-             });
+              });
              addToast('Fasiküle başarıyla eklendi!', 'success');
          }}
          disabled={isGenerating || generatedContents.length === 0}

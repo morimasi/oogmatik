@@ -6,3 +6,4 @@ export * from './YaraticiYazarlik/types';
 export * from './YazimNoktalama/types';
 export * from './SozVarligi/types';
 export * from './HeceSes/types';
+export * from './KelimeBilgisi/types';
