@@ -122,6 +122,7 @@ const FascicleStudio = lazy(() =>
 
 
 import { LoadingSpinner } from './components/shared/LoadingSpinner';
+import { BrandedLoadingAnimation } from './components/shared/BrandedLoadingAnimation';
 import { Modal } from './components/shared/Modal';
 import { initialStyleSettings } from './constants/initialSettings';
 import { tourSteps } from './constants/tourSteps';
@@ -440,7 +441,7 @@ const AppContent = () => {
 
   // FAZ 5: Mandatory Authentication Gate
   if (authStore.isLoading) {
-    return <LoadingSpinner />;
+    return <BrandedLoadingAnimation size="fullpage" title="bdmind Hazırlanıyor" messages={["Güvenli bağlantı kuruluyor...", "Profiliniz yükleniyor...", "Tercihleriniz ayarlanıyor..."]} />;
   }
 
   if (!authStore.user) {
