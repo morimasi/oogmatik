@@ -395,7 +395,7 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAutoGenerateWorkb
     if (view === 'running') {
         if (isGenerating) {
             return (
-                <div className="fixed inset-0 z-50 bg-zinc-50 dark:bg-zinc-900 flex flex-col items-center justify-center gap-6">
+                <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6">
                     <BrandedLoadingAnimation
                         size="large"
                         title="AI Rapor Hazırlanıyor"

@@ -322,7 +322,6 @@ const ContentArea: React.FC<ContentAreaProps> = ({
                       size="medium"
                       title="AI İçerik Hazırlıyor"
                       messages={["Etkinlik yapılandırılıyor...", "Bilişsel yük ayarlanıyor...", "Pedagojik katmanlar oluşturuluyor...", "İçerik optimize ediliyor...", "Disleksi dostu format uygulanıyor..."]}
-                      className="bg-white/80 backdrop-blur-sm rounded-3xl border border-slate-100 shadow-xl p-8"
                     />
                   </div>
                 )}

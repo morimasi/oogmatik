@@ -74,7 +74,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
   // activity null/undefined kontrolü
   if (!activity) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-[var(--bg-primary)]">
+      <div className="flex-1 flex flex-col items-center justify-center p-8">
         <BrandedLoadingAnimation size="small" title="Etkinlik Verileri Yükleniyor" messages={["Etkinlik yapılandırılıyor..."]} />
       </div>
     );

@@ -144,7 +144,7 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
       </div>
 
       {/* A4 Canvas Area */}
-      <div className="flex-1 overflow-y-auto bg-slate-950/50 p-12 flex flex-col items-center custom-scrollbar pb-32 space-y-12">
+      <div className="flex-1 overflow-y-auto p-12 flex flex-col items-center custom-scrollbar pb-32 space-y-12">
         <AnimatePresence mode="wait">
           {isGenerating ? (
             <BrandedLoadingAnimation

@@ -343,7 +343,7 @@ const Sidebar = ({
                 activeCurriculumSession={activeCurriculumSession}
               />
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center p-8 bg-[var(--bg-primary)]">
+              <div className="flex-1 flex flex-col items-center justify-center p-8">
                 <BrandedLoadingAnimation size="small" title="Hazırlanıyor" messages={["Etkinlik yükleniyor..."]} />
               </div>
             )
