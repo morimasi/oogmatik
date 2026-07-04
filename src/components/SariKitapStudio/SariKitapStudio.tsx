@@ -17,6 +17,7 @@ import { worksheetService } from '../../services/worksheetService';
 import { ActivityType } from '../../types/activity';
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
 import { ShareModal } from '../ShareModal';
+import { BrandedLoadingAnimation } from '../shared/BrandedLoadingAnimation';
 
 import './SariKitapStudio.css';
 
@@ -270,6 +271,15 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook, initialData }: SariKita
                                 <Renderer config={config} content={generatedContent} />
                             </ErrorBoundary>
                         </A4PreviewShell>
+                    ) : isGenerating ? (
+                        <div className="flex items-center justify-center w-full h-full min-h-[500px]">
+                            <BrandedLoadingAnimation
+                                size="medium"
+                                title="İçerik Üretiliyor"
+                                messages={["Format hazırlanıyor...", "İçerik oluşturuluyor...", "Görsel düzenleniyor..."]}
+                                className="bg-white/80 backdrop-blur-sm rounded-3xl border border-slate-100 shadow-xl p-8"
+                            />
+                        </div>
                     ) : (
                         <div className="sk-empty-state">
                             <div className="sk-empty-state-icon">📒</div>

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { TargetProfile, OutputFormat } from '../../types/creativeStudio';
 import { TargetProfileSelector } from './components/TargetProfileSelector';
 import { OutputFormatPicker } from './components/OutputFormatPicker';
+import { BrandedLoadingAnimation } from '../shared/BrandedLoadingAnimation';
 
 interface ControlPaneProps {
     difficulty: string;
@@ -190,16 +191,11 @@ export const ControlPane: React.FC<ControlPaneProps> = ({
             <div className="mt-8 space-y-4">
                 <div className="h-20 flex flex-col items-center justify-center text-center">
                     {(isProcessing || isAnalyzing) ? (
-                        <div className="flex flex-col items-center gap-3 animate-in fade-in">
-                            <div className="flex items-center gap-2">
-                                <div className="w-1.5 h-1.5 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                                <div className="w-1.5 h-1.5 bg-accent rounded-full animate-bounce" style={{ animationDelay: '200ms' }}></div>
-                                <div className="w-1.5 h-1.5 bg-accent rounded-full animate-bounce" style={{ animationDelay: '400ms' }}></div>
-                            </div>
-                            <p className="text-[10px] font-black text-accent/70 uppercase tracking-[0.2em] px-6 leading-tight">
-                                {isAnalyzing ? "REFERANS DNA ANALİZ EDİLİYOR..." : statusMessage}
-                            </p>
-                        </div>
+                        <BrandedLoadingAnimation
+                            size="small"
+                            title={isAnalyzing ? "Referans DNA Analiz Ediliyor" : (statusMessage || "İçerik Üretiliyor")}
+                            messages={["Desen analiz ediliyor...", "Öğeler optimize ediliyor...", "Görsel düzenleniyor..."]}
+                        />
                     ) : (
                         status && <div className="px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
                             <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">{status}</p>

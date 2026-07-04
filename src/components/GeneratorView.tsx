@@ -10,6 +10,7 @@ import { DIFFICULTY_OPTIONS } from '../constants';
 import { useStudentStore } from '../store/useStudentStore';
 import { useActivitySettings } from '../hooks/useActivitySettings';
 import { getActivityConfigComponent } from '../registry';
+import { BrandedLoadingAnimation } from './shared/BrandedLoadingAnimation';
 
 interface GeneratorViewProps {
   activity: Activity;
@@ -73,11 +74,8 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
   // activity null/undefined kontrolü
   if (!activity) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-[var(--bg-primary)]">
-        <i className="fa-solid fa-circle-notch fa-spin text-2xl text-[var(--accent-color)] mb-4"></i>
-        <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">
-          Etkinlik Verileri Yükleniyor...
-        </p>
+      <div className="flex-1 flex flex-col items-center justify-center p-8 bg-[var(--bg-primary)]">
+        <BrandedLoadingAnimation size="small" title="Etkinlik Verileri Yükleniyor" messages={["Etkinlik yapılandırılıyor..."]} />
       </div>
     );
   }

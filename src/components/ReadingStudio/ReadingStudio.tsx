@@ -18,6 +18,7 @@ import { worksheetService } from '../../services/worksheetService';
 import { toast } from 'react-hot-toast';
 import { useAuthStore } from '../../store/useAuthStore';
 import { ActivityType } from '../../types/activity';
+import { BrandedLoadingAnimation } from '../shared/BrandedLoadingAnimation';
 interface ReadingStudioInnerProps {
   onBack: () => void;
   initialData?: any;
@@ -468,8 +469,19 @@ const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) =>
             className="origin-top transition-all relative"
             style={{ transform: `scale(${canvasScale})` }}
           >
+            {isLoading ? (
+              <div className="flex items-center justify-center w-full h-full min-h-[600px]">
+                <BrandedLoadingAnimation
+                  size="medium"
+                  title="Hikaye Üretiliyor"
+                  messages={["Karakterler oluşturuluyor...", "Hikaye kurgulanıyor...", "Görsel öğeler ekleniyor...", "Metin düzenleniyor..."]}
+                  className="bg-white/80 backdrop-blur-sm rounded-3xl border border-slate-100 shadow-xl p-8"
+                />
+              </div>
+            ) : (
             <ReadingStudioContentRenderer layout={layout} storyData={storyData} />
-            {!storyData && (!layout || layout.length === 0) && (
+            )}
+            {!isLoading && !storyData && (!layout || layout.length === 0) && (
               <div className="absolute inset-0 flex flex-col items-center justify-center text-[var(--text-muted)] pointer-events-none opacity-10 bg-[var(--bg-secondary)]/50">
                 <i className="fa-solid fa-wand-magic-sparkles text-9xl mb-8"></i>
                 <p className="text-2xl font-black uppercase tracking-[0.3em]">Boş Tuval</p>

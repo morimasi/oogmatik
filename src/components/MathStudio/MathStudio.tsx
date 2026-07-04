@@ -21,7 +21,7 @@ import { DrillCanvas } from './components/DrillCanvas';
 import { ProblemCanvas } from './components/ProblemCanvas';
 import { AnswerKeyPage } from './components/AnswerKeyPage';
 import { ToastContainer, useToast } from './components/Toast';
-
+import { BrandedLoadingAnimation } from '../shared/BrandedLoadingAnimation';
 // Panels
 import { StudentPanel } from './panels/StudentPanel';
 import { PageSettingsPanel } from './panels/PageSettingsPanel';
@@ -268,6 +268,16 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, initialData }) =
                     )}
 
                     {mode === 'problem_ai' && (
+                        problem.isGenerating && (!problem.generatedProblems || problem.generatedProblems.length === 0) ? (
+                          <div className="flex items-center justify-center w-full h-full min-h-[400px]">
+                            <BrandedLoadingAnimation
+                              size="medium"
+                              title="Soru Üretiliyor"
+                              messages={["Problemler oluşturuluyor...", "Cevap anahtarı hesaplanıyor...", "Görsel öğeler ekleniyor..."]}
+                              className="bg-white/80 backdrop-blur-sm rounded-3xl border border-slate-100 shadow-xl p-8"
+                            />
+                          </div>
+                        ) : (
                         <ProblemCanvas
                             problemConfig={problem.problemConfig}
                             pageConfig={pageConfig}
@@ -276,6 +286,7 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, initialData }) =
                             instruction={problem.instruction}
                             studentName={selectedStudentName}
                         />
+                        )
                     )}
 
                     {/* Answer Key Page (if enabled) */}
