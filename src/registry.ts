@@ -164,6 +164,70 @@ export const getDefaultOptionsForActivity = (
       };
     case ActivityType.BOX_MATH:
       return { ...base, itemCount: 12, variant: 'reverse' };
+    case ActivityType.READING_PYRAMID:
+      return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', textLength: 'kısa' };
+    case ActivityType.READING_SUDOKU:
+      return { ...base, mode: 'ai', itemCount: 4, difficulty: 'Orta', gridSize: 3 };
+    case ActivityType.LETTER_VISUAL_MATCHING:
+      return { ...base, mode: 'ai', itemCount: 8, difficulty: 'Başlangıç' };
+    case ActivityType.READING_STROOP:
+      return { ...base, mode: 'ai', itemCount: 10, difficulty: 'Orta', variant: 'color_word' };
+    case ActivityType.SYNONYM_ANTONYM_MATCH:
+      return { ...base, mode: 'ai', itemCount: 8, difficulty: 'Orta' };
+    case ActivityType.MORPHOLOGY_MATRIX:
+      return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', gridSize: 4 };
+    case ActivityType.HIDDEN_PASSWORD_GRID:
+      return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', gridSize: 6 };
+    case ActivityType.FAMILY_RELATIONS:
+      return { ...base, mode: 'ai', itemCount: 8, difficulty: 'Orta', familySize: 'nuclear' };
+    case ActivityType.FAMILY_LOGIC_TEST:
+      return { ...base, mode: 'ai', itemCount: 5, difficulty: 'Orta' };
+    case ActivityType.STORY_ANALYSIS:
+      return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', textLength: 'orta' };
+    case ActivityType.STORY_SEQUENCING:
+      return { ...base, mode: 'ai', itemCount: 5, difficulty: 'Orta' };
+    case ActivityType.MISSING_PARTS:
+      return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', textLength: 'kısa', missingType: 'word' };
+    case ActivityType.MAP_INSTRUCTION:
+      return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', gridSize: 5 };
+    case ActivityType.DIRECTIONAL_TRACKING:
+      return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', gridSize: 6 };
+    case ActivityType.FIND_THE_DIFFERENCE:
+      return { ...base, mode: 'ai', itemCount: 5, difficulty: 'Orta' };
+    case ActivityType.GRID_DRAWING:
+      return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', gridSize: 4 };
+    case ActivityType.SYMMETRY_DRAWING:
+      return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', gridSize: 4 };
+    case ActivityType.SHAPE_COUNTING:
+      return { ...base, mode: 'ai', itemCount: 8, difficulty: 'Orta' };
+    case ActivityType.WORD_SEARCH:
+      return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', gridSize: 10, wordCount: 8 };
+    case ActivityType.VISUAL_ODD_ONE_OUT:
+      return { ...base, mode: 'ai', itemCount: 6, difficulty: 'Orta' };
+    case ActivityType.SYLLABLE_WORD_BUILDER:
+      return { ...base, mode: 'ai', itemCount: 8, difficulty: 'Orta' };
+    case ActivityType.REAL_LIFE_MATH_PROBLEMS:
+      return { ...base, mode: 'ai', itemCount: 5, difficulty: 'Orta', topic: 'günlük_hayat' };
+    case ActivityType.NUMBER_PATTERN:
+      return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', gridSize: 4 };
+    case ActivityType.KENDOKU:
+      return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', gridSize: 4 };
+    case ActivityType.NUMBER_PYRAMID:
+      return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', pyramidHeight: 5 };
+    case ActivityType.MATH_PUZZLE:
+      return { ...base, mode: 'ai', itemCount: 5, difficulty: 'Orta' };
+    case ActivityType.NUMBER_PATH_LOGIC:
+      return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', gridSize: 5 };
+    case ActivityType.CLOCK_READING:
+      return { ...base, mode: 'ai', itemCount: 8, difficulty: 'Orta', clockType: 'analog' };
+    case ActivityType.MONEY_COUNTING:
+      return { ...base, mode: 'ai', itemCount: 6, difficulty: 'Orta', currency: 'TRY' };
+    case ActivityType.MATH_MEMORY_CARDS:
+      return { ...base, mode: 'ai', itemCount: 8, difficulty: 'Orta', operationType: 'addition' };
+    case ActivityType.STORY_COMPREHENSION:
+      return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', textLength: 'kısa', topic: 'Genel' };
+    case ActivityType.SINAV:
+      return { ...base, mode: 'ai', itemCount: 10, difficulty: 'Orta' };
     case ActivityType.SENTENCE_5W1H:
       return {
         ...base,

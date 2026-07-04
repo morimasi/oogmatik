@@ -50,6 +50,12 @@ import { KavramHaritasiConfig } from './KavramHaritasiConfig';
 import { EsAnlamliKelimelerConfig } from './EsAnlamliKelimelerConfig';
 import { BoxMathConfig } from './BoxMathConfig';
 import { LetterVisualMatchingConfig } from './LetterVisualMatchingConfig';
+import { InfographicShortAnswerConfig } from './InfographicShortAnswerConfig';
+import { SyllableWordBuilderConfig } from './SyllableWordBuilderConfig';
+import { RealLifeMathConfig } from './RealLifeMathConfig';
+import { NumberPatternConfig } from './NumberPatternConfig';
+import { KendokuConfig } from './KendokuConfig';
+import { NumberPyramidConfig } from './NumberPyramidConfig';
 
 
 import { 
@@ -114,6 +120,12 @@ export const ActivityConfigRegistry: Record<string, unknown> = {
   [ActivityType.MAGIC_PYRAMID]: MagicPyramidConfig,
   [ActivityType.CAPSULE_GAME]: CapsuleGameConfig,
   [ActivityType.LETTER_VISUAL_MATCHING]: LetterVisualMatchingConfig,
+  [ActivityType.INFOGRAPHIC_SHORT_ANSWER]: InfographicShortAnswerConfig,
+  [ActivityType.SYLLABLE_WORD_BUILDER]: SyllableWordBuilderConfig,
+  [ActivityType.REAL_LIFE_MATH_PROBLEMS]: RealLifeMathConfig,
+  [ActivityType.NUMBER_PATTERN]: NumberPatternConfig,
+  [ActivityType.KENDOKU]: KendokuConfig,
+  [ActivityType.NUMBER_PYRAMID]: NumberPyramidConfig,
   // AUTONOM_CONFIG_REGISTRY_START
   // AUTONOM_CONFIG_REGISTRY_END
 };

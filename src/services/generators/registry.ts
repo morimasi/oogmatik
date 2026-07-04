@@ -286,6 +286,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineFindTheDifference,
   },
   [ActivityType.VISUAL_ODD_ONE_OUT]: {
+    ai: withAI(ActivityType.VISUAL_ODD_ONE_OUT),
     offline: offlineGenerators.generateOfflineVisualOddOneOut,
   },
   [ActivityType.GRID_DRAWING]: {
@@ -451,7 +452,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineQueueOrdering,
   },
   [ActivityType.INFOGRAPHIC_SHORT_ANSWER]: {
-
+    ai: withAI(ActivityType.INFOGRAPHIC_SHORT_ANSWER),
     offline: (options: GeneratorOptions) => offlineGenerators.generateOfflineFallback(ActivityType.INFOGRAPHIC_SHORT_ANSWER, options),
   },
   [ActivityType.SINAV]: {

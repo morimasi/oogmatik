@@ -339,6 +339,41 @@ export const ACTIVITIES: Activity[] = [
     icon: 'fa-solid fa-list-ol',
     defaultStyle: { columns: 1 },
   },
+  {
+    id: ActivityType.STORY_COMPREHENSION,
+    title: 'Hikaye Kavrama',
+    description: 'Okunan hikayeyi anlama, karakterleri tanıma ve olay örgüsünü çözümleme çalışması.',
+    icon: 'fa-solid fa-book-open',
+    defaultStyle: { columns: 1 },
+  },
+  {
+    id: ActivityType.REAL_LIFE_MATH_PROBLEMS,
+    title: 'Gerçek Hayat Matematiği',
+    description: 'Günlük hayattan alınmış pratik matematik problemleriyle işlemsel düşünme becerilerini geliştirme.',
+    icon: 'fa-solid fa-calculator',
+    defaultStyle: { columns: 1 },
+  },
+  {
+    id: ActivityType.NUMBER_PATTERN,
+    title: 'Sayı Örüntüleri',
+    description: 'Sayısal dizilerdeki kuralı bularak eksik terimleri tamamlama ve örüntü oluşturma.',
+    icon: 'fa-solid fa-chart-line',
+    defaultStyle: { columns: 1 },
+  },
+  {
+    id: ActivityType.KENDOKU,
+    title: 'Kendoku (İşlem Blokları)',
+    description: 'Her bloktaki işlemi kullanarak ızgarayı sayılarla doldurma, mantıksal akıl yürütme oyunu.',
+    icon: 'fa-solid fa-border-all',
+    defaultStyle: { columns: 2 },
+  },
+  {
+    id: ActivityType.NUMBER_PYRAMID,
+    title: 'Sayı Piramidi',
+    description: 'Alt bloklardaki sayıları toplayarak/çıkararak piramidi tamamlama, ters işlem ve örüntü çalışması.',
+    icon: 'fa-solid fa-pyramid',
+    defaultStyle: { columns: 1 },
+  },
   // ── İNFOGRAFİK STÜDYOSU v3 — 96 Premium Aktivite (Gruplandırılmış Kayıtlar) ──
   {
     id: ActivityType.INFOGRAPHIC_CONCEPT_MAP,

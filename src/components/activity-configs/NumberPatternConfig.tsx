@@ -8,23 +8,20 @@ const Section = ({ title, children }: { title: string; children?: React.ReactNod
   </div>
 );
 
-export const SyllableWordBuilderConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: string, v: unknown) => void }) => {
+export const NumberPatternConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: string, v: unknown) => void }) => {
   return (
     <div className="space-y-4 animate-in fade-in duration-300">
-      <Section title="Soru Miktarı">
-        <div className="space-y-2">
-          <div className="flex justify-between items-center">
-            <span className="text-[10px] font-bold text-zinc-500 uppercase">Kelime Sayısı</span>
-            <span className="text-xs font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">{options.itemCount || 8}</span>
-          </div>
-          <input type="range" min="4" max="20" step="1" value={options.itemCount || 8}
-            onChange={(e) => onChange('itemCount', parseInt(e.target.value))}
-            className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-600" />
+      <Section title="Izgara Boyutu">
+        <div className="grid grid-cols-2 gap-2">
+          {[{ v: '3', l: '3×3' }, { v: '4', l: '4×4' }, { v: '5', l: '5×5' }].map(opt => (
+            <button key={opt.v} onClick={() => onChange('gridSize', parseInt(opt.v))}
+              className={`py-2 px-1 rounded-xl text-[10px] font-bold border transition-all ${(options.gridSize || 4) === parseInt(opt.v) ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white dark:bg-zinc-800 text-zinc-500 border-zinc-200 dark:border-zinc-700'}`}>{opt.l}</button>
+          ))}
         </div>
       </Section>
       <Section title="Zorluk">
-        <div className="grid grid-cols-2 gap-2">
-          {[{ v: 'Başlangıç', l: '2 Heceli' }, { v: 'Orta', l: '3 Heceli' }, { v: 'Zor', l: '4+ Heceli' }].map(opt => (
+        <div className="grid grid-cols-3 gap-2">
+          {[{ v: 'Başlangıç', l: 'Kolay' }, { v: 'Orta', l: 'Orta' }, { v: 'Zor', l: 'Zor' }].map(opt => (
             <button key={opt.v} onClick={() => onChange('difficulty', opt.v)}
               className={`py-2 px-1 rounded-xl text-[10px] font-bold border transition-all ${options.difficulty === opt.v ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white dark:bg-zinc-800 text-zinc-500 border-zinc-200 dark:border-zinc-700'}`}>{opt.l}</button>
           ))}
