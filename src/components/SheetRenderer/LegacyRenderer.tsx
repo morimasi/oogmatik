@@ -480,9 +480,29 @@ export function renderLegacySheet(
     case ActivityType.STORY_ANALYSIS:
       renderedSheet = <StoryAnalysisSheet data={activeData as unknown as unknown as unknown as unknown as StoryAnalysisData} />;
       break;
-    case ActivityType.STORY_SEQUENCING:
-      renderedSheet = <StorySequencingSheet data={activeData as unknown as unknown as unknown as unknown as StorySequencingData} />;
+    case ActivityType.STORY_SEQUENCING: {
+      const ssd = activeData as Record<string, unknown>;
+      const items = Array.isArray(ssd.items) ? (ssd.items as Array<Record<string, unknown>>) : [];
+      const panels = items.map((item, i) => ({
+        id: `panel_${i}`,
+        text: item.text || '',
+        imagePrompt: item.imagePrompt as string | undefined,
+      }));
+      renderedSheet = (
+        <StorySequencingSheet
+          data={{
+            ...ssd,
+            content: {
+              title: ssd.title || 'Olay Sıralama',
+              panels,
+              transitionWords: [],
+              fullStory: '',
+            },
+          } as Record<string, unknown>}
+        />
+      );
       break;
+    }
     case ActivityType.MISSING_PARTS:
       renderedSheet = <AdvancedMissingPartsSheet data={activeData as unknown as unknown as unknown as unknown as MissingPartsData} />;
       break;

@@ -286,7 +286,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineFindTheDifference,
   },
   [ActivityType.VISUAL_ODD_ONE_OUT]: {
-    ai: withAI(ActivityType.VISUAL_ODD_ONE_OUT),
+    ai: aiGenerators.generateVisualOddOneOutFromAI,
     offline: offlineGenerators.generateOfflineVisualOddOneOut,
   },
   [ActivityType.GRID_DRAWING]: {

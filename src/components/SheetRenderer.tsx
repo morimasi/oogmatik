@@ -139,7 +139,18 @@ export const SheetRenderer = React.memo(
     }
 
     if (activityType === ActivityType.KAVRAM_HARITASI) {
-      return withWrapper(<KavramHaritasiSheet data={resolvedData as unknown as any} />);
+      const kd = resolvedData as Record<string, unknown>;
+      const content = kd.content as Record<string, unknown> | undefined;
+      return withWrapper(
+        <KavramHaritasiSheet
+          data={{
+            ...kd,
+            nodes: content?.nodes || kd.nodes || [],
+            edges: content?.edges || kd.edges || [],
+            examples: content?.wordBank || kd.examples || [],
+          } as Record<string, unknown>}
+        />
+      );
     }
 
     if (activityType === ActivityType.ES_ANLAMLI_KELIMELER) {
