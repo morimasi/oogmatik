@@ -1,5 +1,6 @@
 import React from 'react';
 import { Curriculum, Difficulty } from '../types';
+import { BrandedLoadingAnimation } from './shared/BrandedLoadingAnimation';
 import { ShareModal } from './ShareModal';
 import { useCurriculumState } from './CurriculumView/useCurriculumState';
 import { CurriculumHeader } from './CurriculumView/CurriculumHeader';
@@ -33,17 +34,17 @@ export const CurriculumView: React.FC<CurriculumViewProps> = ({ onBack, onStartC
     const renderWizard = () => {
         if (loading) {
             return (
-                <div className="flex flex-col items-center justify-center py-20">
-                    <div className="w-24 h-24 relative mb-8">
-                        <div className="absolute inset-0 border-8 border-indigo-100 rounded-full"></div>
-                        <div className="absolute inset-0 border-8 border-indigo-600 rounded-full border-t-transparent animate-spin"></div>
-                        <div className="absolute inset-0 flex items-center justify-center text-indigo-600">
-                            <i className="fa-solid fa-wand-magic-sparkles text-3xl"></i>
-                        </div>
-                    </div>
-                    <h3 className="text-2xl font-black text-zinc-800 dark:text-white mb-2 text-center">Nöro-Pedagogik Analiz Yapılıyor...</h3>
-                    <p className="text-zinc-500 text-center max-w-sm">AI, öğrencinin zayıf yönlerini sarmal öğrenme modeliyle {planDuration} günlük bir rotaya dönüştürüyor.</p>
-                </div>
+                <BrandedLoadingAnimation
+                    size="large"
+                    title="Nöro-Pedagogik Analiz Yapılıyor"
+                    messages={[
+                        'Öğrenme profili analiz ediliyor...',
+                        'Zayıf yönler sarmal öğrenme modeliyle eşleştiriliyor...',
+                        `${planDuration} günlük rota oluşturuluyor...`,
+                        'Sinaptik bağlantılar inşa ediliyor...',
+                        'BEP hedefleri SMART formatına dönüştürülüyor...',
+                    ]}
+                />
             );
         }
 

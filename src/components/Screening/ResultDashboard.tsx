@@ -1,5 +1,6 @@
 import { FC, useEffect, useState, useRef } from 'react';
 import { ScreeningResult, EvaluationCategory } from '../../types/screening';
+import { BrandedLoadingAnimation } from '../shared/BrandedLoadingAnimation';
 import { SavedAssessment, AssessmentReport } from '../../types';
 import { CATEGORY_LABELS } from '../../data/screeningQuestions';
 import { RadarChart } from '../RadarChart';
@@ -379,10 +380,16 @@ export const ResultDashboard: FC<Props> = ({
         </h3>
 
         {loadingAi ? (
-          <div className="flex flex-col items-center py-12 text-[var(--accent-color)]">
-            <i className="fa-solid fa-circle-notch fa-spin text-3xl mb-4"></i>
-            <p className="animate-pulse font-bold">Veriler analiz ediliyor ve rapor yazılıyor...</p>
-          </div>
+          <BrandedLoadingAnimation
+            size="medium"
+            title="Uzman Görüşü Analiz Ediliyor"
+            messages={[
+              'Veriler analiz ediliyor...',
+              'Rapor yazılıyor...',
+              'Bilişsel profil çıkarılıyor...',
+              'Öneriler hazırlanıyor...',
+            ]}
+          />
         ) : aiAnalysis ? (
           <div className="space-y-4 relative z-10">
             <div className="prose prose-indigo max-w-none text-sm text-[var(--text-primary)] leading-relaxed bg-[var(--bg-paper)]/50 p-4 rounded-xl border border-[var(--border-color)] shadow-sm">

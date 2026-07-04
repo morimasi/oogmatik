@@ -24,40 +24,44 @@ interface BrandedLoadingAnimationProps {
 const SIZE_CONFIG = {
   small: {
     logoSize: 'h-10 w-auto',
-    ringOuter: 'w-16 h-16 border-2',
-    ringInner: 'w-12 h-12 border-[1.5px]',
+    ringOuter: 'w-16 h-16 border-[3px]',
+    ringInner: 'w-11 h-11 border-[2px]',
     titleSize: 'text-base',
     messageSize: 'text-xs',
     progressWidth: 'w-32',
-    containerClass: 'py-6 gap-6',
+    containerClass: 'py-6 gap-5',
   },
   medium: {
     logoSize: 'h-12 w-auto',
-    ringOuter: 'w-20 h-20 border-[2.5px]',
-    ringInner: 'w-14 h-14 border-2',
+    ringOuter: 'w-20 h-20 border-[3px]',
+    ringInner: 'w-14 h-14 border-[2.5px]',
     titleSize: 'text-lg',
     messageSize: 'text-xs',
     progressWidth: 'w-40',
-    containerClass: 'py-8 gap-8',
+    containerClass: 'py-8 gap-6',
   },
   large: {
-    logoSize: 'h-14 w-auto',
-    ringOuter: 'w-28 h-28 border-[3px]',
-    ringInner: 'w-20 h-20 border-2',
+    logoSize: 'h-16 w-auto',
+    ringOuter: 'w-28 h-28 border-[4px]',
+    ringInner: 'w-20 h-20 border-[3px]',
     titleSize: 'text-2xl',
     messageSize: 'text-sm',
     progressWidth: 'w-48',
-    containerClass: 'py-10 gap-10',
+    containerClass: 'py-10 gap-8',
   },
   fullpage: {
-    logoSize: 'h-14 w-auto',
-    ringOuter: 'w-28 h-28 border-[3px]',
-    ringInner: 'w-20 h-20 border-2',
+    logoSize: 'h-16 w-auto',
+    ringOuter: 'w-28 h-28 border-[4px]',
+    ringInner: 'w-20 h-20 border-[3px]',
     titleSize: 'text-2xl',
     messageSize: 'text-sm',
     progressWidth: 'w-48',
-    containerClass: 'py-10 gap-10',
+    containerClass: 'py-10 gap-8',
   },
+};
+
+const textShadowStyle = {
+  textShadow: '0 2px 8px rgba(0,0,0,0.25), 0 1px 3px rgba(0,0,0,0.15)',
 };
 
 export const BrandedLoadingAnimation: React.FC<BrandedLoadingAnimationProps> = ({
@@ -72,7 +76,7 @@ export const BrandedLoadingAnimation: React.FC<BrandedLoadingAnimationProps> = (
   useEffect(() => {
     const interval = setInterval(() => {
       setMsgIndex((prev) => (prev + 1) % messages.length);
-    }, 3000);
+    }, 3500);
     return () => clearInterval(interval);
   }, [messages.length]);
 
@@ -80,33 +84,53 @@ export const BrandedLoadingAnimation: React.FC<BrandedLoadingAnimationProps> = (
     <div
       className={`relative flex flex-col items-center justify-center ${config.containerClass} ${className}`}
     >
-      {/* Dönen halka katmanları */}
-      <div className="relative z-10 flex flex-col items-center gap-10">
+      <motion.div
+        className="relative z-10 flex flex-col items-center gap-10"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+      >
         {/* Logo + Spinner */}
-        <div className="relative">
-          {/* Dış dönen halka */}
-          <div className={`${config.ringOuter} rounded-full border-teal-500/20`}></div>
-          <div className={`${config.ringOuter} rounded-full border-transparent border-t-teal-400 border-r-indigo-400 animate-spin absolute inset-0`}></div>
-
-          {/* İç dönen halka (ters yön) */}
+        <motion.div
+          className="relative"
+          animate={{ scale: [1, 1.03, 1] }}
+          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          {/* Dış dönen halka (yavaş, ana renkler) */}
+          <div className={`${config.ringOuter} rounded-full border-white/10`}></div>
           <div
-            className={`${config.ringInner} rounded-full border-transparent border-b-cyan-400 border-l-emerald-400 animate-spin absolute inset-0 m-auto`}
-            style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}
+            className={`${config.ringOuter} rounded-full border-transparent border-t-teal-300 border-r-indigo-400 animate-spin absolute inset-0`}
+            style={{ filter: 'drop-shadow(0 0 6px rgba(45,212,191,0.35))', animationDuration: '2s' }}
+          ></div>
+
+          {/* Orta dönen halka (ters yön, hızlı) */}
+          <div
+            className={`${config.ringInner} rounded-full border-transparent border-b-cyan-300 border-l-emerald-400 animate-spin absolute inset-0 m-auto`}
+            style={{
+              animationDirection: 'reverse',
+              animationDuration: '1.2s',
+              filter: 'drop-shadow(0 0 8px rgba(52,211,153,0.3))',
+            }}
           ></div>
 
           {/* Logo */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <img
+            <motion.img
               src="/assets/logo.png"
               alt="Bursa Disleksi"
-              className={`${config.logoSize} object-contain animate-breathing-logo`}
+              className={`${config.logoSize} object-contain`}
+              animate={{ opacity: [0.85, 1, 0.85] }}
+              transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
             />
           </div>
-        </div>
+        </motion.div>
 
         {/* Metin alanı */}
-        <div className="text-center space-y-3">
-          <p className={`text-teal-400 font-bold ${config.titleSize} tracking-tight`}>
+        <div className="text-center space-y-2">
+          <p
+            className={`text-white font-black ${config.titleSize} tracking-tight`}
+            style={textShadowStyle}
+          >
             {title}
           </p>
 
@@ -118,8 +142,9 @@ export const BrandedLoadingAnimation: React.FC<BrandedLoadingAnimationProps> = (
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -16 }}
-                transition={{ duration: 0.3 }}
-                className={`text-slate-400 ${config.messageSize} font-medium`}
+                transition={{ duration: 0.35, ease: 'easeOut' }}
+                className={`text-white/70 ${config.messageSize} font-semibold tracking-wide`}
+                style={textShadowStyle}
               >
                 {messages[msgIndex]}
               </motion.p>
@@ -128,14 +153,15 @@ export const BrandedLoadingAnimation: React.FC<BrandedLoadingAnimationProps> = (
         </div>
 
         {/* İlerleme göstergesi */}
-        <div className={`${config.progressWidth} h-0.5 bg-slate-800 rounded-full overflow-hidden`}>
+        <div className={`${config.progressWidth} h-1 bg-white/10 rounded-full overflow-hidden`}>
           <motion.div
-            className="h-full bg-gradient-to-r from-teal-400 via-emerald-400 to-indigo-400"
+            className="h-full rounded-full bg-gradient-to-r from-teal-400 via-emerald-400 to-indigo-400"
             animate={{ x: ['-100%', '200%'] }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ filter: 'drop-shadow(0 0 4px rgba(45,212,191,0.4))' }}
           />
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

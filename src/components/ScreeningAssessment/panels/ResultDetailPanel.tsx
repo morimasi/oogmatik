@@ -10,6 +10,7 @@ import { generateWithSchema } from '../../../services/geminiClient';
 import type { AIAnalysisResult } from '../services/assessmentEngineService';
 import type { EvaluationCategory, ScreeningResult } from '../../../types/screening';
 import { ShareModal } from '../../ShareModal';
+import { BrandedLoadingAnimation } from '../../shared/BrandedLoadingAnimation';
 import {
   buildProfessionalAssessmentPrompt,
   buildProfessionalAssessmentReport,
@@ -239,10 +240,15 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
         )}
 
         {loadingAi ? (
-          <div className="flex flex-col items-center py-8 text-[var(--accent-color)]">
-            <div className="w-6 h-6 border-2 border-[var(--accent-color)] border-t-transparent rounded-full animate-spin mb-3" />
-            <p className="text-xs font-bold animate-pulse">Veriler analiz ediliyor...</p>
-          </div>
+          <BrandedLoadingAnimation
+            size="small"
+            title="Veriler Analiz Ediliyor"
+            messages={[
+              'AI analiz yapıyor...',
+              'Rapor hazırlanıyor...',
+              'Öneriler oluşturuluyor...',
+            ]}
+          />
         ) : aiError ? (
           <div className="text-center py-6">
             <p className="text-rose-500 text-xs font-bold mb-3">Analiz oluşturulamadı.</p>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AdvancedStudent } from '../../../types/student-advanced';
 import { RadarChart } from '../../RadarChart';
 import { aiStudentService } from '../../../services/aiStudentService';
+import { BrandedLoadingAnimation } from '../../shared/BrandedLoadingAnimation';
 
 import { logInfo, logError, logWarn } from '../../../utils/logger.js';
 export const AIInsightsModule: React.FC<{ student: AdvancedStudent }> = ({ student }) => {
@@ -28,7 +29,7 @@ export const AIInsightsModule: React.FC<{ student: AdvancedStudent }> = ({ stude
   if (loading) {
     return (
       <div className="p-8 flex items-center justify-center h-full">
-        <i className="fa-solid fa-spinner fa-spin text-4xl text-indigo-500"></i>
+        <BrandedLoadingAnimation size="medium" />
       </div>
     );
   }
