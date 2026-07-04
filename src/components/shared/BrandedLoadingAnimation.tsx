@@ -60,10 +60,6 @@ const SIZE_CONFIG = {
   },
 };
 
-const textShadowStyle = {
-  textShadow: '0 2px 8px rgba(0,0,0,0.25), 0 1px 3px rgba(0,0,0,0.15)',
-};
-
 export const BrandedLoadingAnimation: React.FC<BrandedLoadingAnimationProps> = ({
   title = 'İçerikler Üretiliyor',
   messages = DEFAULT_MESSAGES,
@@ -96,20 +92,27 @@ export const BrandedLoadingAnimation: React.FC<BrandedLoadingAnimationProps> = (
           animate={{ scale: [1, 1.03, 1] }}
           transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
         >
-          {/* Dış dönen halka (yavaş, ana renkler) */}
-          <div className={`${config.ringOuter} rounded-full border-white/10`}></div>
+          {/* Dış dönen halka */}
+          <div className={`${config.ringOuter} rounded-full`} style={{ borderColor: 'var(--border-color)' }}></div>
           <div
-            className={`${config.ringOuter} rounded-full border-transparent border-t-teal-300 border-r-indigo-400 animate-spin absolute inset-0`}
-            style={{ filter: 'drop-shadow(0 0 6px rgba(45,212,191,0.35))', animationDuration: '2s' }}
+            className={`${config.ringOuter} rounded-full border-transparent animate-spin absolute inset-0`}
+            style={{
+              borderTopColor: 'var(--accent-color)',
+              borderRightColor: 'var(--accent-hover)',
+              filter: 'drop-shadow(0 0 6px hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.3))',
+              animationDuration: '2s',
+            }}
           ></div>
 
-          {/* Orta dönen halka (ters yön, hızlı) */}
+          {/* İç dönen halka (ters yön) */}
           <div
-            className={`${config.ringInner} rounded-full border-transparent border-b-cyan-300 border-l-emerald-400 animate-spin absolute inset-0 m-auto`}
+            className={`${config.ringInner} rounded-full border-transparent animate-spin absolute inset-0 m-auto`}
             style={{
+              borderBottomColor: 'var(--accent-muted)',
+              borderLeftColor: 'var(--accent-color)',
               animationDirection: 'reverse',
               animationDuration: '1.2s',
-              filter: 'drop-shadow(0 0 8px rgba(52,211,153,0.3))',
+              filter: 'drop-shadow(0 0 8px hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.2))',
             }}
           ></div>
 
@@ -128,8 +131,8 @@ export const BrandedLoadingAnimation: React.FC<BrandedLoadingAnimationProps> = (
         {/* Metin alanı */}
         <div className="text-center space-y-2">
           <p
-            className={`text-white font-black ${config.titleSize} tracking-tight`}
-            style={textShadowStyle}
+            className={`font-black ${config.titleSize} tracking-tight`}
+            style={{ color: 'var(--text-primary)' }}
           >
             {title}
           </p>
@@ -143,8 +146,8 @@ export const BrandedLoadingAnimation: React.FC<BrandedLoadingAnimationProps> = (
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -16 }}
                 transition={{ duration: 0.35, ease: 'easeOut' }}
-                className={`text-white/70 ${config.messageSize} font-semibold tracking-wide`}
-                style={textShadowStyle}
+                className={`font-semibold tracking-wide ${config.messageSize}`}
+                style={{ color: 'var(--text-secondary)' }}
               >
                 {messages[msgIndex]}
               </motion.p>
@@ -153,12 +156,18 @@ export const BrandedLoadingAnimation: React.FC<BrandedLoadingAnimationProps> = (
         </div>
 
         {/* İlerleme göstergesi */}
-        <div className={`${config.progressWidth} h-1 bg-white/10 rounded-full overflow-hidden`}>
+        <div
+          className={`${config.progressWidth} h-1 rounded-full overflow-hidden`}
+          style={{ backgroundColor: 'var(--border-color)' }}
+        >
           <motion.div
-            className="h-full rounded-full bg-gradient-to-r from-teal-400 via-emerald-400 to-indigo-400"
+            className="h-full rounded-full"
             animate={{ x: ['-100%', '200%'] }}
             transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
-            style={{ filter: 'drop-shadow(0 0 4px rgba(45,212,191,0.4))' }}
+            style={{
+              background: 'linear-gradient(to right, var(--accent-color), var(--accent-hover))',
+              filter: 'drop-shadow(0 0 4px hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.35))',
+            }}
           />
         </div>
       </motion.div>
