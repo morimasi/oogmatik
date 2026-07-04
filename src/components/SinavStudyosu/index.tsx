@@ -12,6 +12,7 @@ import { SoruAyarlari } from './SoruAyarlari';
 import { SinavOnizleme } from './SinavOnizleme';
 import { CevapAnahtariComponent } from './CevapAnahtari';
 import { AppError } from '../../utils/AppError';
+import { BrandedLoadingAnimation } from '../shared/BrandedLoadingAnimation';
 import { worksheetService } from '../../services/worksheetService';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useStudentStore } from '../../store/useStudentStore';
@@ -562,7 +563,16 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
           {/* İçerik */}
           <div ref={printRef} className="flex-1 overflow-y-auto custom-scrollbar bg-[var(--bg-secondary)]/30">
             <div className="p-8 lg:p-12 min-h-full flex justify-center">
-              {aktifSinav ? (
+              {isGenerating ? (
+                <div className="flex items-center justify-center w-full">
+                  <BrandedLoadingAnimation
+                    size="medium"
+                    title="Sınav Üretiliyor"
+                    messages={["Sorular oluşturuluyor...", "Cevap anahtarı hazırlanıyor...", "MEB formatı uygulanıyor..."]}
+                    className="bg-[var(--bg-paper)]/50 backdrop-blur-xl rounded-3xl border border-[var(--border-color)] shadow-xl p-8"
+                  />
+                </div>
+              ) : aktifSinav ? (
                 <div className="anim-fade-in w-full max-w-[900px]">
                   {activeTab === 'onizleme' ? (
                     <div className="shadow-[0_20px_50px_-12px_rgba(0,0,0,0.15)] rounded-2xl overflow-hidden ring-1 ring-white/60">

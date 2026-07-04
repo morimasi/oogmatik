@@ -13,6 +13,7 @@ import { MatSoruAyarlari } from './MatSoruAyarlari';
 import { MatSinavOnizleme } from './MatSinavOnizleme';
 import { MatCevapAnahtariComponent } from './MatCevapAnahtari';
 import { AppError } from '../../utils/AppError';
+import { BrandedLoadingAnimation } from '../shared/BrandedLoadingAnimation';
 import type { MatSoru, MatSinav, MatCevapAnahtari } from '../../types/matSinav';
 import { renderToString } from 'react-dom/server';
 import { printService } from '../../utils/printService';
@@ -516,7 +517,16 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ initialData 
                     {/* İçerik */}
                     <div className="flex-1 overflow-y-auto custom-scrollbar bg-[var(--bg-secondary)]/30">
                         <div className="p-8 lg:p-12 min-h-full flex justify-center">
-                            {activeTab === 'gecmis' ? (
+                            {isGenerating ? (
+                                <div className="flex items-center justify-center w-full">
+                                    <BrandedLoadingAnimation
+                                        size="medium"
+                                        title="Matematik Sınavı Üretiliyor"
+                                        messages={["Sorular oluşturuluyor...", "Problemler hazırlanıyor...", "Cevap anahtarı hesaplanıyor..."]}
+                                        className="bg-[var(--bg-paper)]/50 backdrop-blur-xl rounded-3xl border border-[var(--border-color)] shadow-xl p-8"
+                                    />
+                                </div>
+                            ) : activeTab === 'gecmis' ? (
                                 /* Geçmiş */
                                 <div className="max-w-[800px] w-full mx-auto anim-fade-in">
                                     <h2 className="text-lg font-black text-[var(--text-primary)] mb-6 flex items-center gap-3">📋 Sınav Geçmişi</h2>
