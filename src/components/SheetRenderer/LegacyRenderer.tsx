@@ -510,11 +510,27 @@ export function renderLegacySheet(
     case ActivityType.PATTERN_COMPLETION:
       renderedSheet = <PatternCompletionSheet data={activeData as Record<string, unknown>} settings={settings} />;
       break;
-    case ActivityType.FIND_THE_DIFFERENCE:
+    case ActivityType.FIND_THE_DIFFERENCE: {
+      const ftd = activeData as Record<string, unknown>;
       renderedSheet = (
-        <FindTheDifferenceSheet data={activeData as unknown as unknown as unknown as unknown as FindTheDifferenceData} settings={settings} />
+        <FindTheDifferenceSheet
+          data={{
+            ...ftd,
+            puzzles: Array.isArray(ftd.gridA)
+              ? [{
+                  gridA: ftd.gridA as string[][],
+                  gridB: (ftd.gridB || ftd.gridA) as string[][],
+                  diffCount: (ftd.diffCount as number) || 0,
+                  title: (ftd.title as string) || '',
+                  clinicalMeta: (Array.isArray(ftd.rows) ? (ftd.rows as Record<string, unknown>[])[0]?.clinicalMeta : {}) || {},
+                }]
+              : (ftd.puzzles || []),
+          } as Record<string, unknown>}
+          settings={settings}
+        />
       );
       break;
+    }
     case ActivityType.VISUAL_ODD_ONE_OUT:
       renderedSheet = (
         <VisualOddOneOutSheet data={activeData as unknown as unknown as unknown as unknown as VisualOddOneOutData} settings={settings} />
