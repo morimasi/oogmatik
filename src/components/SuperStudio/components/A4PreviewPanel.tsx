@@ -4,6 +4,7 @@ import { useSuperStudioStore } from '../../../store/useSuperStudioStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MarkdownRenderer } from '../../Common/MarkdownRenderer';
 import { getTemplateById } from '../templates/registry';
+import { BrandedLoadingAnimation } from '../../shared/BrandedLoadingAnimation';
 
 interface A4PreviewPanelProps {
 }
@@ -146,7 +147,10 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
       <div className="flex-1 overflow-y-auto bg-slate-950/50 p-12 flex flex-col items-center custom-scrollbar pb-32 space-y-12">
         <AnimatePresence mode="wait">
           {isGenerating ? (
-            <LogoLoadingAnimation />
+            <BrandedLoadingAnimation
+              size="fullpage"
+              className="w-[210mm] min-h-[297mm] bg-slate-900/80 border border-slate-700/50 shadow-2xl rounded-2xl overflow-hidden"
+            />
           ) : showGallery && generatedContents.length > 0 ? (
             <motion.div
               key="gallery"
@@ -267,105 +271,6 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
         </AnimatePresence>
       </div>
     </div>
-  );
-};
-
-// Logo Loading Animation Component
-const THINKING_MESSAGES = [
-  "Bilişsel Yük Filtreleniyor...",
-  "Pedagojik Katmanlar Oluşturuluyor...",
-  "Sinaptik Bağlantılar İnşa Ediliyor...",
-  "Öğrenme Hedefleri Analiz Ediliyor...",
-  "Görsel Öğeler Optimize Ediliyor...",
-  "İçerikler Dokunuyor...",
-  "Disleksi Dostu Format Uygulanıyor...",
-  "ZPD Seviyesi Ayarlanıyor...",
-];
-
-const LogoLoadingAnimation: React.FC = () => {
-  const [msgIndex, setMsgIndex] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setMsgIndex((prev) => (prev + 1) % THINKING_MESSAGES.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    <motion.div
-      key="generating"
-      initial={{ opacity: 0, y: 40 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      className="w-[210mm] min-h-[297mm] bg-slate-900/80 border border-slate-700/50 shadow-2xl relative flex flex-col items-center justify-center rounded-2xl overflow-hidden"
-    >
-      {/* Gradient arka plan */}
-      <div className="absolute inset-0 bg-gradient-to-br from-teal-500/8 via-transparent to-indigo-500/12"></div>
-
-      {/* Dönen halka katmanları */}
-      <div className="relative z-10 flex flex-col items-center gap-10">
-        {/* Logo + Spinner */}
-        <div className="relative">
-          {/* Dış dönen halka */}
-          <div className="w-28 h-28 rounded-full border-[3px] border-teal-500/20"></div>
-          <div className="w-28 h-28 rounded-full border-[3px] border-transparent border-t-teal-400 border-r-indigo-400 animate-spin absolute inset-0"></div>
-
-          {/* İç dönen halka (ters yön) */}
-          <div className="w-20 h-20 rounded-full border-2 border-transparent border-b-cyan-400 border-l-emerald-400 animate-spin absolute inset-0 m-auto"
-               style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}
-          ></div>
-
-          {/* Logo */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <img
-              src="/assets/logo.png"
-              alt="Bursa Disleksi"
-              className="h-14 w-auto object-contain animate-breathing-logo"
-            />
-          </div>
-        </div>
-
-        {/* Metin alanı */}
-        <div className="text-center space-y-4">
-          <p className="text-teal-400 font-bold text-2xl tracking-tight">
-            İçerikler Üretiliyor
-          </p>
-
-          {/* Döngülü mesaj */}
-          <div className="h-6 overflow-hidden">
-            <motion.p
-              key={msgIndex}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ duration: 0.4 }}
-              className="text-slate-400 text-sm font-medium"
-            >
-              {THINKING_MESSAGES[msgIndex]}
-            </motion.p>
-          </div>
-        </div>
-
-        {/* İlerleme göstergesi */}
-        <div className="w-48 h-0.5 bg-slate-800 rounded-full overflow-hidden">
-          <motion.div
-            className="h-full bg-gradient-to-r from-teal-400 via-emerald-400 to-indigo-400"
-            animate={{
-              x: ['-100%', '200%'],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: 'linear',
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Parlaklık efekti */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-teal-500/8 rounded-full blur-3xl animate-pulse-slow pointer-events-none"></div>
-    </motion.div>
   );
 };
 

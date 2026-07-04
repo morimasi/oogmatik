@@ -17,6 +17,7 @@ import { TemplateLibrary } from './components/TemplateLibrary';
 import { MediaLibrary } from './components/MediaLibrary';
 import { ExportPanel } from './components/ExportPanel';
 import { ModulePreview } from './components/ModulePreview';
+import { BrandedLoadingAnimation } from '../shared/BrandedLoadingAnimation';
 
 type Panel = 'studio' | 'history' | 'campaigns' | 'templates' | 'media' | 'brand';
 
@@ -158,8 +159,7 @@ export const AdStudio: React.FC = () => {
             </div>
             {generator.isGenerating ? (
               <div className="flex flex-col items-center justify-center h-64 gap-4">
-                <i className="fa-solid fa-circle-notch fa-spin text-4xl text-indigo-500" />
-                <span className="text-sm text-zinc-400 font-medium">Reklam içeriği üretiliyor...</span>
+                <BrandedLoadingAnimation size="small" />
               </div>
             ) : generator.error ? (
               <div className="flex flex-col items-center justify-center h-64 gap-3">

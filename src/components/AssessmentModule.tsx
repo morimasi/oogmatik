@@ -10,6 +10,7 @@ import { generateAssessmentReport } from '../services/assessmentGenerator';
 import { ACTIVITIES } from '../constants';
 import { logInfo, logError, logWarn } from '../utils/logger.js';
 import { useToastStore } from '../store/useToastStore';
+import { BrandedLoadingAnimation } from './shared/BrandedLoadingAnimation';
 
 interface AssessmentModuleProps {
     onBack: () => void;
@@ -395,11 +396,11 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAutoGenerateWorkb
         if (isGenerating) {
             return (
                 <div className="fixed inset-0 z-50 bg-zinc-50 dark:bg-zinc-900 flex flex-col items-center justify-center gap-6">
-                    <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                    <div className="text-center">
-                        <h3 className="text-xl font-black text-zinc-800 dark:text-white mb-2">AI Rapor Hazırlanıyor...</h3>
-                        <p className="text-sm text-zinc-500">Gemini test verilerini analiz ediyor.</p>
-                    </div>
+                    <BrandedLoadingAnimation
+                        size="large"
+                        title="AI Rapor Hazırlanıyor"
+                        messages={["Gemini test verilerini analiz ediyor...", "Bilişsel profiller oluşturuluyor...", "Rapor hazırlanıyor..."]}
+                    />
                 </div>
             );
         }

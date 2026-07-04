@@ -5,6 +5,7 @@ import { useToastStore } from '../../store/useToastStore';
 import { WizardContainer } from './wizard/WizardContainer';
 import { usePedagogicGates } from './hooks/usePedagogicGates';
 import { ActivityType } from '../../types';
+import { BrandedLoadingAnimation } from '../shared/BrandedLoadingAnimation';
 
 interface ActivityStudioProps {
   onBack: () => void;
@@ -59,9 +60,11 @@ export const ActivityStudio: React.FC<ActivityStudioProps> = ({ onBack }) => {
         </div>
 
         {isGenerating && (
-          <div className="mb-6 rounded-2xl border border-[var(--accent-color)]/30 bg-[var(--accent-muted)] px-6 py-4 text-xs font-black uppercase tracking-widest text-[var(--accent-color)] animate-pulse">
-            <i className="fa-solid fa-circle-notch fa-spin mr-3"></i>
-            AI içerik üretimi devam ediyor...
+          <div className="mb-6">
+            <BrandedLoadingAnimation
+              size="small"
+              className="rounded-2xl border border-[var(--accent-color)]/30 bg-[var(--bg-paper)] shadow-lg"
+            />
           </div>
         )}
 
