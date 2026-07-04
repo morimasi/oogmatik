@@ -569,7 +569,6 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
                     size="medium"
                     title="Sınav Üretiliyor"
                     messages={["Sorular oluşturuluyor...", "Cevap anahtarı hazırlanıyor...", "MEB formatı uygulanıyor..."]}
-                    className="bg-[var(--bg-paper)]/50 backdrop-blur-xl rounded-3xl border border-[var(--border-color)] shadow-xl p-8"
                   />
                 </div>
               ) : aktifSinav ? (

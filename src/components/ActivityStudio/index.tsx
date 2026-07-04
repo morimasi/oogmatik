@@ -63,7 +63,6 @@ export const ActivityStudio: React.FC<ActivityStudioProps> = ({ onBack }) => {
           <div className="mb-6">
             <BrandedLoadingAnimation
               size="small"
-              className="rounded-2xl border border-[var(--accent-color)]/30 bg-[var(--bg-paper)] shadow-lg"
             />
           </div>
         )}

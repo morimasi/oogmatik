@@ -149,7 +149,7 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
           {isGenerating ? (
             <BrandedLoadingAnimation
               size="fullpage"
-              className="w-[210mm] min-h-[297mm] bg-slate-900/80 border border-slate-700/50 shadow-2xl rounded-2xl overflow-hidden"
+              className="w-[210mm] min-h-[297mm] rounded-2xl overflow-hidden"
             />
           ) : showGallery && generatedContents.length > 0 ? (
             <motion.div

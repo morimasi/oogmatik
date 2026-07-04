@@ -270,11 +270,10 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, initialData }) =
                     {mode === 'problem_ai' && (
                         problem.isGenerating && (!problem.generatedProblems || problem.generatedProblems.length === 0) ? (
                           <div className="flex items-center justify-center w-full h-full min-h-[400px]">
-                            <BrandedLoadingAnimation
+                              <BrandedLoadingAnimation
                               size="medium"
                               title="Soru Üretiliyor"
                               messages={["Problemler oluşturuluyor...", "Cevap anahtarı hesaplanıyor...", "Görsel öğeler ekleniyor..."]}
-                              className="bg-white/80 backdrop-blur-sm rounded-3xl border border-slate-100 shadow-xl p-8"
                             />
                           </div>
                         ) : (

@@ -523,7 +523,6 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ initialData 
                                         size="medium"
                                         title="Matematik Sınavı Üretiliyor"
                                         messages={["Sorular oluşturuluyor...", "Problemler hazırlanıyor...", "Cevap anahtarı hesaplanıyor..."]}
-                                        className="bg-[var(--bg-paper)]/50 backdrop-blur-xl rounded-3xl border border-[var(--border-color)] shadow-xl p-8"
                                     />
                                 </div>
                             ) : activeTab === 'gecmis' ? (

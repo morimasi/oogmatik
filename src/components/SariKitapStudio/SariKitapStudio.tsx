@@ -277,7 +277,6 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook, initialData }: SariKita
                                 size="medium"
                                 title="İçerik Üretiliyor"
                                 messages={["Format hazırlanıyor...", "İçerik oluşturuluyor...", "Görsel düzenleniyor..."]}
-                                className="bg-white/80 backdrop-blur-sm rounded-3xl border border-slate-100 shadow-xl p-8"
                             />
                         </div>
                     ) : (

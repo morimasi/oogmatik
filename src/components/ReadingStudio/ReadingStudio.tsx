@@ -475,7 +475,6 @@ const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) =>
                   size="medium"
                   title="Hikaye Üretiliyor"
                   messages={["Karakterler oluşturuluyor...", "Hikaye kurgulanıyor...", "Görsel öğeler ekleniyor...", "Metin düzenleniyor..."]}
-                  className="bg-white/80 backdrop-blur-sm rounded-3xl border border-slate-100 shadow-xl p-8"
                 />
               </div>
             ) : (

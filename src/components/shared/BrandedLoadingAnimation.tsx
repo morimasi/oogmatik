@@ -29,7 +29,6 @@ const SIZE_CONFIG = {
     titleSize: 'text-base',
     messageSize: 'text-xs',
     progressWidth: 'w-32',
-    blurSize: 'w-32 h-32',
     containerClass: 'py-6 gap-6',
   },
   medium: {
@@ -39,7 +38,6 @@ const SIZE_CONFIG = {
     titleSize: 'text-lg',
     messageSize: 'text-xs',
     progressWidth: 'w-40',
-    blurSize: 'w-48 h-48',
     containerClass: 'py-8 gap-8',
   },
   large: {
@@ -49,7 +47,6 @@ const SIZE_CONFIG = {
     titleSize: 'text-2xl',
     messageSize: 'text-sm',
     progressWidth: 'w-48',
-    blurSize: 'w-64 h-64',
     containerClass: 'py-10 gap-10',
   },
   fullpage: {
@@ -59,7 +56,6 @@ const SIZE_CONFIG = {
     titleSize: 'text-2xl',
     messageSize: 'text-sm',
     progressWidth: 'w-48',
-    blurSize: 'w-64 h-64',
     containerClass: 'py-10 gap-10',
   },
 };
@@ -84,9 +80,6 @@ export const BrandedLoadingAnimation: React.FC<BrandedLoadingAnimationProps> = (
     <div
       className={`relative flex flex-col items-center justify-center ${config.containerClass} ${className}`}
     >
-      {/* Gradient arka plan */}
-      <div className="absolute inset-0 bg-gradient-to-br from-teal-500/8 via-transparent to-indigo-500/12 rounded-2xl pointer-events-none" />
-
       {/* Dönen halka katmanları */}
       <div className="relative z-10 flex flex-col items-center gap-10">
         {/* Logo + Spinner */}
@@ -143,9 +136,6 @@ export const BrandedLoadingAnimation: React.FC<BrandedLoadingAnimationProps> = (
           />
         </div>
       </div>
-
-      {/* Parlaklık efekti */}
-      <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${config.blurSize} bg-teal-500/8 rounded-full blur-3xl animate-pulse-slow pointer-events-none`} />
     </div>
   );
 };
