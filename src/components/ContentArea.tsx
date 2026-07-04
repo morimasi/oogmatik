@@ -19,6 +19,7 @@ import { SharedWorksheetsView } from './SharedWorksheetsView';
 import { useAuthStore } from '../store/useAuthStore';
 import { ACTIVITIES } from '../constants';
 import { SkeletonLoader } from './SkeletonLoader';
+import { BrandedLoadingAnimation } from './shared/BrandedLoadingAnimation';
 import { FavoritesSection } from './FavoritesSection';
 import { ShareModal } from './ShareModal';
 import { ProtectedRoute } from './ProtectedRoute';
@@ -317,10 +318,12 @@ const ContentArea: React.FC<ContentAreaProps> = ({
               <>
                 {isLoading && (
                   <div className="flex flex-col items-center justify-center py-40 w-full animate-in fade-in">
-                    <SkeletonLoader />
-                    <p className="mt-6 font-black text-indigo-600 animate-pulse uppercase tracking-[0.3em]">
-                      AI Hazırlıyor...
-                    </p>
+                    <BrandedLoadingAnimation
+                      size="medium"
+                      title="AI İçerik Hazırlıyor"
+                      messages={["Etkinlik yapılandırılıyor...", "Bilişsel yük ayarlanıyor...", "Pedagojik katmanlar oluşturuluyor...", "İçerik optimize ediliyor...", "Disleksi dostu format uygulanıyor..."]}
+                      className="bg-white/80 backdrop-blur-sm rounded-3xl border border-slate-100 shadow-xl p-8"
+                    />
                   </div>
                 )}
 

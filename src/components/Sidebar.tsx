@@ -22,6 +22,7 @@ import { useStudentStore } from '../store/useStudentStore';
 import { useRBAC } from '../hooks/useRBAC';
 import { PermissionModule } from '../types/rbac-advanced';
 import { logError } from '../utils/logger.js';
+import { BrandedLoadingAnimation } from './shared/BrandedLoadingAnimation';
 import './PremiumPopupStyles.css';
 
 interface StudioItem {
@@ -342,9 +343,8 @@ const Sidebar = ({
                 activeCurriculumSession={activeCurriculumSession}
               />
             ) : (
-              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-[var(--bg-primary)]">
-                <i className="fa-solid fa-circle-notch fa-spin text-2xl text-[var(--accent-color)] mb-4"></i>
-                <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest leading-none">Hazırlanıyor</p>
+              <div className="flex-1 flex flex-col items-center justify-center p-8 bg-[var(--bg-primary)]">
+                <BrandedLoadingAnimation size="small" title="Hazırlanıyor" messages={["Etkinlik yükleniyor..."]} />
               </div>
             )
           ) : (
