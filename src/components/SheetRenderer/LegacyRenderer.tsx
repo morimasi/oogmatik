@@ -122,7 +122,7 @@ export function renderLegacySheet(
       break;
     case ActivityType.NUMBER_PATTERN:
       renderedSheet = (
-        <NumberPatternSheet data={activeData as unknown as unknown as unknown as unknown as NumberPatternData} settings={settings} />
+        <NumberPatternSheet data={(activeData.content || activeData) as unknown as unknown as unknown as unknown as NumberPatternData} settings={settings} />
       );
       break;
     case ActivityType.REAL_LIFE_MATH_PROBLEMS:
@@ -140,17 +140,17 @@ export function renderLegacySheet(
       break;
     case ActivityType.FUTOSHIKI:
       renderedSheet = (
-        <FutoshikiSheet data={activeData as unknown as unknown as unknown as unknown as FutoshikiData} settings={settings} />
+        <FutoshikiSheet data={(activeData.content || activeData) as unknown as unknown as unknown as unknown as FutoshikiData} settings={settings} />
       );
       break;
     case ActivityType.KENDOKU:
       renderedSheet = (
-        <KendokuSheet data={activeData as unknown as unknown as unknown as unknown as KendokuData} settings={settings} />
+        <KendokuSheet data={(activeData.content || activeData) as unknown as unknown as unknown as unknown as KendokuData} settings={settings} />
       );
       break;
     case ActivityType.NUMBER_PYRAMID:
       renderedSheet = (
-        <NumberPyramidSheet data={activeData as unknown as unknown as unknown as unknown as NumberPyramidData} settings={settings} />
+        <NumberPyramidSheet data={(activeData.content || activeData) as unknown as unknown as unknown as unknown as NumberPyramidData} settings={settings} />
       );
       break;
     case ActivityType.ODD_ONE_OUT:
@@ -226,7 +226,7 @@ export function renderLegacySheet(
       break;
     case ActivityType.MAGIC_PYRAMID:
       renderedSheet = (
-        <MagicPyramidSheet data={activeData as unknown as unknown as unknown as unknown as MagicPyramidData} settings={settings} />
+        <MagicPyramidSheet data={(activeData.content || activeData) as unknown as unknown as unknown as unknown as MagicPyramidData} settings={settings} />
       );
       break;
     case ActivityType.CAPSULE_GAME:
@@ -236,28 +236,28 @@ export function renderLegacySheet(
       break;
     case ActivityType.WORD_MEMORY:
       renderedSheet = (
-        <WordMemorySheet data={activeData as unknown as unknown as unknown as unknown as WordMemoryData} settings={settings} />
+        <WordMemorySheet data={(activeData.content || activeData) as unknown as unknown as unknown as unknown as WordMemoryData} settings={settings} />
       );
       break;
     case ActivityType.VISUAL_MEMORY:
       renderedSheet = (
-        <VisualMemorySheet data={activeData as unknown as unknown as unknown as unknown as VisualMemoryData} settings={settings} />
+        <VisualMemorySheet data={(activeData.content || activeData) as unknown as unknown as unknown as unknown as VisualMemoryData} settings={settings} />
       );
       break;
     case ActivityType.CHARACTER_MEMORY:
       renderedSheet = (
-        <CharacterMemorySheet data={activeData as unknown as unknown as unknown as unknown as CharacterMemoryData} settings={settings} />
+        <CharacterMemorySheet data={(activeData.content || activeData) as unknown as unknown as unknown as unknown as CharacterMemoryData} settings={settings} />
       );
       break;
     case ActivityType.COLOR_WHEEL_MEMORY:
       renderedSheet = (
-        <ColorWheelSheet data={activeData as unknown as unknown as unknown as unknown as ColorWheelMemoryData} settings={settings} />
+        <ColorWheelSheet data={(activeData.content || activeData) as unknown as unknown as unknown as unknown as ColorWheelMemoryData} settings={settings} />
       );
       break;
     case ActivityType.IMAGE_COMPREHENSION:
       renderedSheet = (
         <ImageComprehensionSheet
-          data={activeData as unknown as unknown as unknown as unknown as ImageComprehensionData}
+          data={(activeData.content || activeData) as unknown as unknown as unknown as unknown as ImageComprehensionData}
           settings={settings}
         />
       );
@@ -389,69 +389,69 @@ export function renderLegacySheet(
     case ActivityType.PHONOLOGICAL_AWARENESS:
       renderedSheet = (
         <PhonologicalAwarenessSheet
-          data={activeData as unknown as unknown as unknown as unknown as PhonologicalAwarenessData}
+          data={(activeData.content || activeData) as unknown as unknown as unknown as unknown as PhonologicalAwarenessData}
           settings={settings}
         />
       );
       break;
     case ActivityType.RAPID_NAMING:
       renderedSheet = (
-        <RapidNamingSheet data={activeData as unknown as unknown as unknown as unknown as RapidNamingData} settings={settings} />
+        <RapidNamingSheet data={(activeData.content || activeData) as unknown as unknown as unknown as unknown as RapidNamingData} settings={settings} />
       );
       break;
     case ActivityType.LETTER_DISCRIMINATION:
       renderedSheet = (
         <LetterDiscriminationSheet
-          data={activeData as unknown as unknown as unknown as unknown as LetterDiscriminationData}
+          data={(activeData.content || activeData) as unknown as unknown as unknown as unknown as LetterDiscriminationData}
           settings={settings}
         />
       );
       break;
     case ActivityType.MIRROR_LETTERS:
       renderedSheet = (
-        <MirrorLettersSheet data={activeData as unknown as unknown as unknown as unknown as MirrorLettersData} settings={settings} />
+        <MirrorLettersSheet data={(activeData.content || activeData) as unknown as unknown as unknown as unknown as MirrorLettersData} settings={settings} />
       );
       break;
     case ActivityType.SYLLABLE_TRAIN:
       renderedSheet = (
-        <SyllableTrainSheet data={activeData as unknown as unknown as unknown as unknown as SyllableTrainData} settings={settings} />
+        <SyllableTrainSheet data={(activeData.content || activeData) as unknown as unknown as unknown as unknown as SyllableTrainData} settings={settings} />
       );
       break;
     case ActivityType.VISUAL_TRACKING_LINES:
       renderedSheet = (
-        <VisualTrackingLinesSheet data={activeData as unknown as unknown as unknown as unknown as VisualTrackingLineData} settings={settings} />
+        <VisualTrackingLinesSheet data={(activeData.content || activeData) as unknown as unknown as unknown as unknown as VisualTrackingLineData} settings={settings} />
       );
       break;
     case ActivityType.BACKWARD_SPELLING:
       renderedSheet = (
-        <BackwardSpellingSheet data={activeData as unknown as unknown as unknown as unknown as BackwardSpellingData} settings={settings} />
+        <BackwardSpellingSheet data={(activeData.content || activeData) as unknown as unknown as unknown as unknown as BackwardSpellingData} settings={settings} />
       );
       break;
     case ActivityType.CODE_READING:
       renderedSheet = (
-        <CodeReadingSheet data={activeData as unknown as unknown as unknown as unknown as CodeReadingData} settings={settings} />
+        <CodeReadingSheet data={(activeData.content || activeData) as unknown as unknown as unknown as unknown as CodeReadingData} settings={settings} />
       );
       break;
     case ActivityType.ATTENTION_TO_QUESTION:
       renderedSheet = (
-        <AttentionToQuestionSheet data={activeData as unknown as unknown as unknown as unknown as AttentionToQuestionData} settings={settings} />
+        <AttentionToQuestionSheet data={(activeData.content || activeData) as unknown as unknown as unknown as unknown as AttentionToQuestionData} settings={settings} />
       );
       break;
     case ActivityType.HANDWRITING_PRACTICE:
       renderedSheet = (
-        <HandwritingPracticeSheet data={activeData as unknown as unknown as unknown as unknown as HandwritingPracticeData} settings={settings} />
+        <HandwritingPracticeSheet data={(activeData.content || activeData) as unknown as unknown as unknown as unknown as HandwritingPracticeData} settings={settings} />
       );
       break;
     case ActivityType.MAP_INSTRUCTION:
       renderedSheet = (
-        <MapDetectiveSheet data={activeData as unknown as unknown as unknown as unknown as MapInstructionData} settings={settings} />
+        <MapDetectiveSheet data={(activeData.content || activeData) as unknown as unknown as unknown as unknown as MapInstructionData} settings={settings} />
       );
       break;
     case ActivityType.FIVE_W_ONE_H:
       renderedSheet = <FiveWOneHSheet data={activeData as Record<string, unknown>} settings={settings} />;
       break;
     case ActivityType.SENTENCE_5W1H:
-      renderedSheet = <SentenceFiveWOneHSheet data={activeData as Record<string, unknown>} />;
+      renderedSheet = <SentenceFiveWOneHSheet data={(activeData.content || activeData) as Record<string, unknown>} />;
       break;
     case ActivityType.STORY_COMPREHENSION: {
       const sd = activeData as Record<string, unknown>;
@@ -522,10 +522,10 @@ export function renderLegacySheet(
       renderedSheet = <FinancialMarketSheet data={activeData as Record<string, unknown>} settings={settings} />;
       break;
     case ActivityType.DIRECTIONAL_CODE_READING:
-      renderedSheet = <DirectionalCodeReadingSheet data={activeData as Record<string, unknown>} settings={settings} />;
+      renderedSheet = <DirectionalCodeReadingSheet data={(activeData.content || activeData) as Record<string, unknown>} settings={settings} />;
       break;
     case ActivityType.LOGIC_ERROR_HUNTER:
-      renderedSheet = <LogicErrorHunterSheet data={activeData as Record<string, unknown>} settings={settings} />;
+      renderedSheet = <LogicErrorHunterSheet data={(activeData.content || activeData) as Record<string, unknown>} settings={settings} />;
       break;
     case ActivityType.PATTERN_COMPLETION:
       renderedSheet = <PatternCompletionSheet data={activeData as Record<string, unknown>} settings={settings} />;
