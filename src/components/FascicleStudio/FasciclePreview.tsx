@@ -1,4 +1,4 @@
-import React, { Suspense, useState, useCallback } from 'react';
+import React, { Suspense, useState, useCallback, useMemo } from 'react';
 import { useFascicleStore } from '../../store/useFascicleStore';
 import { useFascicleTemplateStore, SavedFascicleTemplate } from '../../store/useFascicleTemplateStore';
 import { Eye, Smartphone, Monitor, Info, LayoutTemplate, BookTemplate, Save, Trash2, Check, Loader2, X, Droplets } from 'lucide-react';
@@ -10,6 +10,7 @@ import { FascicleWatermarkSettingsModal } from './FascicleWatermarkSettingsModal
 import { useStudentStore } from '../../store/useStudentStore';
 import { v4 as uuidv4 } from 'uuid';
 import toast from 'react-hot-toast';
+import { normalizeFascicleContent, getFasciclePageCount } from '../../utils/fascicleContentNormalizer';
 
 const renderWatermark = (ws: WatermarkSettings) => {
   if (ws.type === 'image') {
@@ -246,16 +247,17 @@ export const FasciclePreview: React.FC = () => {
 
              {/* İçerik Sayfaları (Items) */}
              {items.length > 0 ? items.map((item, index) => {
-               const contentObj = (item.content as any) || {};
                const isExam = item.type === ActivityType.SINAV || item.type === ActivityType.MAT_SINAV;
                const defaultColumns = isExam ? 2 : 1;
-               
+
+               const normalized = normalizeFascicleContent(item, defaultColumns);
+
                const dynamicSettings = {
                  columns: defaultColumns,
-                 ...(contentObj.settings || {}),
-                 ...(contentObj.printConfig || {}),
-                 ...(contentObj.config || {}),
-                 ...(contentObj.styleSettings || {})
+                 ...((item.content as any)?.printConfig || {}),
+                 ...(isExam ? {} : ((item.content as any)?.settings || {})),
+                 ...(isExam ? {} : ((item.content as any)?.config || {})),
+                 ...(isExam ? {} : ((item.content as any)?.styleSettings || {})),
                };
 
                return (
@@ -280,8 +282,9 @@ export const FasciclePreview: React.FC = () => {
                           </div>
                         }>
                           <SheetRenderer 
-                            data={item.content as SingleWorksheetData} 
-                            activityType={item.type as ActivityType} 
+                            data={normalized.data}
+                            activityType={normalized.activityType}
+                            hideWrapper={true}
                             settings={{
                               fontSize: '1rem',
                               lineHeight: 1.6,
