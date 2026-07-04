@@ -269,8 +269,8 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     ai: aiGenerators.generateKavramHaritasiFromAI,
     offline: offlineGenerators.generateOfflineKavramHaritasi,
   },
-  [ActivityType.ES_ANLAMLI_KELIMELER]: {
-    ai: (options) => aiGenerators.generateSmartFallbackAI(ActivityType.ES_ANLAMLI_KELIMELER, options),
+[ActivityType.ES_ANLAMLI_KELIMELER]: {
+    ai: aiGenerators.generateEsAnlamliKelimelerFromAI,
     offline: offlineGenerators.generateOfflineEsAnlamliKelimeler,
   },
   [ActivityType.DIRECTIONAL_CODE_READING]: {
@@ -452,7 +452,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineQueueOrdering,
   },
   [ActivityType.INFOGRAPHIC_SHORT_ANSWER]: {
-    ai: withAI(ActivityType.INFOGRAPHIC_SHORT_ANSWER),
+    ai: aiGenerators.generateShortAnswerFromAI,
     offline: (options: GeneratorOptions) => offlineGenerators.generateOfflineFallback(ActivityType.INFOGRAPHIC_SHORT_ANSWER, options),
   },
   [ActivityType.SINAV]: {

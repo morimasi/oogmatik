@@ -7,36 +7,47 @@ export const generateEsAnlamliKelimelerFromAI = async (
   const opts = options as unknown as Record<string, unknown>;
   const topic = (opts.topic as string) || 'Genel Türkçe';
   const difficulty = options.difficulty || 'Orta';
+  const wordCount = (opts.wordCount as number) || 6;
 
   const prompt = `
-İsim: Dil Bilgisi Profesörü & Bulmaca Tasarımcısı
-Görev: "${topic}" temalı, disleksi dostu bir "Eş Anlamlı Kelimeler: Bağlama" etkinliği üret.
+Görev: "${topic}" temalı, disleksi dostu bir "Eş Anlamlı Kelimeler" etkinliği üret.
 
-KURAL 1: Veri Yapısı (JSON)
+VERİ YAPISI (JSON):
 {
-  "id": "eak_ai_v2",
   "activityType": "ES_ANLAMLI_KELIMELER",
   "title": "${topic} - Anlam Yolculuğu",
-  "instruction": "Kelimeleri anlamdaşları ile eşleştir ve cümleleri uygun kelimelerle tamamla.",
-  "content": {
-    "pairs": [
-      { "word": "Kavram1", "synonym": "Anlamdaş1" }
-    ],
-    "leftColumn": ["Kavram1", "Kavram2", "Kavram3"],
-    "rightColumn": ["Anlamdaş2", "Anlamdaş1", "Anlamdaş3"],
-    "fillInTheBlanks": [
-       { "sentence": "Cümle yapısı (boşluklu)", "answer": "eş anlamlısı" }
-    ],
-    "insight": {
-       "title": "Kısa Bilgi",
-       "text": "Kelime kökeni veya ilginç bir kullanım notu."
+  "instruction": "Her kelimenin eş anlamlılarını incele ve cümleyi tamamla.",
+  "settings": {
+    "layout": "card_grid",
+    "wordCount": ${wordCount},
+    "includeAntonyms": true,
+    "includeExamples": true,
+    "includeEtymology": false,
+    "topic": "${topic}"
+  },
+  "items": [
+    {
+      "id": "eak_1",
+      "sourceWord": "örnek_kelime",
+      "synonyms": ["anlamdaş1", "anlamdaş2"],
+      "antonym": "zıt_anlam",
+      "exampleSentence": "Cümle _______ ile tamamlanır.",
+      "correctAnswer": "doğru_cevap",
+      "emoji": "🌸",
+      "etymologyNote": "Köken bilgisi (opsiyonel)",
+      "usageContext": "Resmi | Günlük | Edebi"
     }
-  }
+  ]
 }
 
-KURAL 2: Zorluk Seviyesi (${difficulty})
-- Kelimeler birbirine çok benzememeli (zıt anlamlılar ile karıştırma riski minimizasyonu).
+ZORLUK: ${difficulty}
 - ${difficulty === 'Zor' ? 'Akademik ve edebi kelimeler seç.' : 'Basit ve günlük kelimeler seç.'}
+- Tam ${wordCount} adet item üret.
+- Her item'in sourceWord benzersiz olsun.
+- exampleSentence içinde doğru cevabın yerine _______(6 alt çizgi) koy.
+- usageContext: "Resmi", "Günlük" veya "Edebi" değerlerinden birini kullan.
+- emoji: kelimeyle ilgili bir emoji seç.
+- etymologyNote: sadece ilginç bir köken varsa ekle, yoksa boş string bırak.
 
 ZORUNLU: Sadece JSON döndür.
   `;

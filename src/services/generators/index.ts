@@ -31,6 +31,7 @@ export * from './sinavGenerator';
 export * from './mathSinavGenerator';
 export * from './kavramHaritasi';
 export * from './esAnlamliKelimeler';
+export * from './shortAnswer';
 export * from './core/SmartFallbackGenerator';
 export * from './sentenceFiveWOneH';
 export * from './storyAnalysis';

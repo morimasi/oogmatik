@@ -605,6 +605,61 @@ export function renderLegacySheet(
       renderedSheet = <VisualInterpretationSheet data={activeData as Record<string, unknown>} settings={settings} />;
       break;
 
+    case ActivityType.SEMANTIC_LINKER: {
+      const sl = activeData as Record<string, unknown>;
+      const items = Array.isArray(sl.items) ? (sl.items as Array<Record<string, unknown>>) : [];
+      renderedSheet = (
+        <div className="w-full h-full p-4 print:p-2 flex flex-col bg-white font-['Lexend'] text-zinc-900">
+          <div className="text-center pb-2 print:pb-1 border-b-2 border-dashed border-zinc-200 shrink-0">
+            <h1 className="text-2xl print:text-lg font-black text-zinc-800 uppercase tracking-tight">
+              {sl.title || 'Anlamsal İlişki Kurma'}
+            </h1>
+            {sl.instruction && (
+              <p className="text-[10px] print:text-[8px] text-zinc-500 font-medium mt-1">
+                {sl.instruction}
+              </p>
+            )}
+          </div>
+          <div className={`grid ${items.length > 6 ? 'grid-cols-2' : 'grid-cols-1'} gap-3 print:gap-2 flex-1 content-start mt-3`}>
+            {items.map((item, idx) => {
+              const isNegated = Boolean(item.isNegated);
+              const options = Array.isArray(item.options) ? (item.options as Array<Record<string, unknown>>) : [];
+              return (
+                <div key={item.id || idx} className="rounded-xl border-2 border-zinc-100 bg-white p-3 print:p-2 shadow-sm hover:border-indigo-200 hover:shadow-md transition-all break-inside-avoid">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="w-6 h-6 rounded-lg bg-zinc-900 text-white flex items-center justify-center text-[10px] font-black">
+                      {idx + 1}
+                    </span>
+                    <span className={`text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full ${isNegated ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                      {isNegated ? 'DEĞİLDİR' : 'İLİŞKİLİDİR'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] print:text-[9px] font-extrabold leading-snug text-zinc-800 mb-2">
+                    {item.targetWord}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {options.map((opt, oi) => (
+                      <button
+                        key={opt.id || oi}
+                        className={`px-2 py-1 text-[9px] font-bold rounded-full border transition-all ${
+                          opt.isCorrect
+                            ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                            : 'bg-zinc-50 border-zinc-200 text-zinc-700 hover:border-indigo-300'
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+      break;
+    }
+
     case ActivityType.KAVRAM_HARITASI:
       renderedSheet = <ConceptMapSheet data={activeData} />;
       break;
