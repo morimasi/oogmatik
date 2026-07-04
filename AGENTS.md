@@ -192,3 +192,32 @@ Güncel kütüphane dokümantasyonu için prompt'a `use context7` ekle.
 
 **bdmind stack için sık kullanılan ID'ler:** `/facebook/react` | `/firebase/firebase-js-sdk` | `/colinhacks/zod` | `/vitejs/vite`
 
+---
+
+## 📋 Session Progress — Blank Page / Rendering Audit
+
+### Goal
+Find and fix all activities across 4 categories (Görsel & Mekansal, Okuduğunu Anlama, Okuma & Dil, Matematik & Mantık) whose AI generator output can't be rendered by any SheetRenderer path, producing blank white pages.
+
+### Completed
+- **BrandedLoadingAnimation** — premium theme-aware fully transparent spinner; replaces all 16 locations
+- **FascicleContentNormalizer** — normalizes content shapes for fascicle preview
+- **Generator audit** — 78 activities analyzed; 2 critical gaps fixed (VISUAL_ODD_ONE_OUT, INFOGRAPHIC_SHORT_ANSWER with `withAI()`); 5 missing ACTIVITIES entries added; ~32 default options added; 6 new config components
+- **LegacyRenderer wiring** — `STORY_COMPREHENSION` (maps StoryData → InteractiveStoryData with defaults) and `KENDOKU` (uses KendokuSheet = FutoshikiSheet) both added
+
+### Remaining (accessible from UI, not yet fixed)
+- **SEMANTIC_LINKER** — accessible from sidebar; generator returns `{ instruction, items }` where `items` get picked up by UnifiedContentRenderer's `rawBlocksRaw` but aren't proper WorksheetBlocks → blank-ish output. Needs LegacyRenderer entry or modern-layout wrapper.
+
+### Not User-Accessible (hidden from sidebar)
+- PUNCTUATION_MAZE, FIND_IDENTICAL_WORD, THEMATIC_ODD_ONE_OUT — have generators but no ACTIVITIES entry; not urgent
+- PROVERB_* (5 types), WORDS_IN_STORY, STORY_CREATION_PROMPT — stubs returning `[]`; no ACTIVITIES entry; not urgent
+
+### Rendering Pipeline Reference
+- `Sidebar` → `ActivityService.generate()` → registry generator → `ContentArea` (paginate via `paginationService`) → `UniversalWorksheetWrapper` → `SheetRenderer` (route by `activityType`)
+- `SheetRenderer` order: special cases → modern layout (`layoutArchitecture.blocks`) → `LegacyRenderer` → default `UnifiedContentRenderer`
+- Custom generators (non-`withAI()`) produce domain data (`puzzles`, `rows`, `items`, etc.) that must either match a `LegacyRenderer` entry or produce modern layout data
+- `withAI()` generators always produce modern layout via `SmartFallbackGenerator` + `WorksheetBuilder.build()`
+
+### Build
+- `npm run build` passes (no TS regressions beyond pre-existing errors in FascicleActivityPicker, FascicleSidebar, FascicleTemplatesModal, ScreeningAssessment)
+

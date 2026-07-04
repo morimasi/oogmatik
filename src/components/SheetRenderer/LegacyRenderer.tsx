@@ -9,6 +9,7 @@ import { RealLifeMathProblemsSheet } from '../sheets/math/RealLifeMathProblemsSh
 import { LogicGridPuzzleSheet } from '../sheets/math/LogicGridPuzzleSheet';
 import { FutoshikiSheet } from '../sheets/math/FutoshikiSheet';
 import { NumberPyramidSheet } from '../sheets/math/NumberPyramidSheet';
+import { KendokuSheet } from '../sheets/MathLogicSheets';
 import { OddOneOutSheet } from '../sheets/math/OddOneOutSheet';
 import { NumberLogicRiddleSheet } from '../sheets/math/NumberLogicRiddleSheet';
 import { NumberPathLogicSheet } from '../sheets/math/NumberPathLogicSheet';
@@ -42,6 +43,7 @@ import {
   LetterGridTestSheet,
   TargetSearchSheet,
 } from '../sheets/attention/AttentionSheets';
+import { StoryComprehensionSheet } from '../sheets/verbal/StoryComprehensionSheet';
 import { StoryAnalysisSheet } from '../sheets/verbal/StoryAnalysisSheet';
 import { StorySequencingSheet } from '../sheets/verbal/StorySequencingSheet';
 import { AdvancedMissingPartsSheet } from '../sheets/verbal/AdvancedMissingPartsSheet';
@@ -139,6 +141,11 @@ export function renderLegacySheet(
     case ActivityType.FUTOSHIKI:
       renderedSheet = (
         <FutoshikiSheet data={activeData as unknown as unknown as unknown as unknown as FutoshikiData} settings={settings} />
+      );
+      break;
+    case ActivityType.KENDOKU:
+      renderedSheet = (
+        <KendokuSheet data={activeData as unknown as unknown as unknown as unknown as KendokuData} settings={settings} />
       );
       break;
     case ActivityType.NUMBER_PYRAMID:
@@ -446,6 +453,30 @@ export function renderLegacySheet(
     case ActivityType.SENTENCE_5W1H:
       renderedSheet = <SentenceFiveWOneHSheet data={activeData as Record<string, unknown>} />;
       break;
+    case ActivityType.STORY_COMPREHENSION: {
+      const sd = activeData as Record<string, unknown>;
+      renderedSheet = (
+        <StoryComprehensionSheet
+          data={{
+            ...sd,
+            syllabifiedStory: sd.story || '',
+            fiveW1H: (sd as Record<string, unknown>).fiveW1H || [],
+            trueFalse: Array.isArray((sd as Record<string, unknown>).questions)
+              ? ((sd as Record<string, unknown>).questions as Array<Record<string, unknown>>).filter((q) => q.type === 'true-false')
+              : [],
+            multipleChoice: Array.isArray((sd as Record<string, unknown>).questions)
+              ? ((sd as Record<string, unknown>).questions as Array<Record<string, unknown>>).filter((q) => q.type === 'multiple-choice')
+              : [],
+            fillBlanks: Array.isArray((sd as Record<string, unknown>).questions)
+              ? ((sd as Record<string, unknown>).questions as Array<Record<string, unknown>>).filter((q) => q.type === 'open-ended')
+              : [],
+            logicQuestions: [],
+            inferenceQuestions: [],
+          } as Record<string, unknown>}
+        />
+      );
+      break;
+    }
     case ActivityType.STORY_ANALYSIS:
       renderedSheet = <StoryAnalysisSheet data={activeData as unknown as unknown as unknown as unknown as StoryAnalysisData} />;
       break;
