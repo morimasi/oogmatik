@@ -52,7 +52,7 @@ export class WorksheetBuilder {
    */
   public addPrimaryActivity(type: string, content: any): this {
     this.blocks.push({
-      type: type as string,
+      type: type as any,
       content: content,
       weight: 10
     });
@@ -64,13 +64,13 @@ export class WorksheetBuilder {
    */
   public addSupportingDrill(title: string, content: any, type: string = 'question'): this {
     this.blocks.push({
-        type: 'text',
-        content: `### 🌟 Destekleyici Alıştırma: ${title}`,
-        style: { fontWeight: 'black', fontSize: 14, color: '#4f46e5' },
-        weight: 20
+      type: 'text',
+      content: `### 🌟 Destekleyici Alıştırma: ${title}`,
+      style: { fontWeight: 'black', fontSize: 14, color: '#4f46e5' },
+      weight: 20
     });
     this.blocks.push({
-      type: type as string,
+      type: type as any,
       content: content,
       style: { backgroundColor: '#fefce8', borderRadius: 12 },
       weight: 21

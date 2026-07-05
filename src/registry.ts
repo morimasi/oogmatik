@@ -273,7 +273,7 @@ export const getDefaultOptionsForActivity = (
         difficulty: 'Orta',
         activityMode: 'standard',
         category: 'genel',
-        fontSize: 10,
+        fontSize: 'medium',
         primaryColor: '#4f46e5',
         secondaryColor: '#ec4899'
       };
@@ -284,7 +284,7 @@ export const getDefaultOptionsForActivity = (
         difficulty: 'Orta',
         activityMode: 'standard',
         category: 'genel',
-        fontSize: 10,
+        fontSize: 'medium',
         primaryColor: '#4f46e5',
         secondaryColor: '#ec4899'
       };

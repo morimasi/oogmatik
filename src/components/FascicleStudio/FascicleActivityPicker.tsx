@@ -63,7 +63,7 @@ export const FascicleActivityPicker: React.FC<FascicleActivityPickerProps> = ({ 
 
       logInfo(`[Fascicle] Activity added: ${type}`);
     } catch (error) {
-      logError(`[Fascicle] Failed to generate ${type}:`, error);
+      logError(error instanceof Error ? error : String(error), { context: `[Fascicle] Failed to generate ${type}` });
       // Add a placeholder item even on failure
       addItem({
         id: uuidv4(),
@@ -110,11 +110,10 @@ export const FascicleActivityPicker: React.FC<FascicleActivityPickerProps> = ({ 
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2.5 ${
-                  selectedCategory === cat.id
+                className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center gap-2.5 ${selectedCategory === cat.id
                     ? 'bg-[var(--accent-color)] text-white shadow-md'
                     : 'text-[var(--text-secondary)] hover:bg-[var(--bg-paper)] hover:text-[var(--text-primary)]'
-                }`}
+                  }`}
               >
                 <i className={`${cat.icon} text-sm`} />
                 <span className="truncate">{cat.title}</span>

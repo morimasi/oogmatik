@@ -33,7 +33,8 @@ export const CapsuleGameSheet = ({ data, settings: _settings }: { data: NumberCa
       gridBg: 'bg-slate-50/50',
       cellBorder: 'border-slate-200',
       headerText: 'text-indigo-900',
-      accent: 'indigo'
+      accent: 'indigo',
+      textColor: 'text-black'
     },
     galaxy: {
       bg: 'bg-slate-950',
@@ -48,7 +49,8 @@ export const CapsuleGameSheet = ({ data, settings: _settings }: { data: NumberCa
       gridBg: 'bg-orange-100/20',
       cellBorder: 'border-stone-300',
       headerText: 'text-stone-800',
-      accent: 'amber'
+      accent: 'amber',
+      textColor: 'text-black'
     }
   };
 

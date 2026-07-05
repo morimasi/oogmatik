@@ -68,7 +68,7 @@ export const FascicleSidebar: React.FC = () => {
         try {
           result = await mapping.ai(options);
         } catch (aiError) {
-          logError(`Regeneration AI failed for ${item.type}:`, aiError);
+          logError(aiError instanceof Error ? aiError : String(aiError), { context: `Regeneration AI failed for ${item.type}` });
           if (mapping.offline) {
             result = await mapping.offline(options);
           } else {
@@ -88,7 +88,7 @@ export const FascicleSidebar: React.FC = () => {
 
       toast.success(`${item.type} başarıyla yeniden üretildi!`, { id: `regen-${item.id}` });
     } catch (error) {
-      logError(`Regeneration failed for ${item.type}:`, error);
+      logError(error instanceof Error ? error : String(error), { context: `Regeneration failed for ${item.type}` });
       toast.error(`Yeniden üretim başarısız: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`, { id: `regen-${item.id}` });
     } finally {
       setRegeneratingId(null);
@@ -171,26 +171,26 @@ export const FascicleSidebar: React.FC = () => {
       </div>
 
       <div className="p-4 bg-[var(--bg-secondary)] border-t border-[var(--border-color)]">
-         <div className="flex justify-between items-center text-xs text-[var(--text-muted)]">
-           <span>Toplam Sayfa:</span>
-           <span className="font-bold text-[var(--text-primary)] text-sm">{items.reduce((acc, curr) => acc + curr.pageCount, 0)} sf</span>
-         </div>
-         <div className="mt-3 p-3 glass-layer-1 rounded-[var(--radius-premium)] flex flex-col items-start">
-            <p className="text-[11px] text-[var(--text-secondary)] mb-2 leading-tight">
-              <span style={{ color: 'var(--accent-color)' }}>AI Asistan:</span> Etkinlik havuzundan seçim yapın, içerik otomatik üretilip eklenecek.
-            </p>
-            <button
-               onClick={() => setIsActivityPickerOpen(true)}
-               className="w-full font-semibold py-1.5 px-3 rounded-lg flex items-center justify-center transition-all text-xs gap-2"
-               style={{
-                 background: 'var(--accent-color)',
-                 color: '#ffffff'
-               }}
-            >
-               <Sparkles size={14} />
-               Etkinlik Ekle & Üret
-            </button>
-         </div>
+        <div className="flex justify-between items-center text-xs text-[var(--text-muted)]">
+          <span>Toplam Sayfa:</span>
+          <span className="font-bold text-[var(--text-primary)] text-sm">{items.reduce((acc, curr) => acc + curr.pageCount, 0)} sf</span>
+        </div>
+        <div className="mt-3 p-3 glass-layer-1 rounded-[var(--radius-premium)] flex flex-col items-start">
+          <p className="text-[11px] text-[var(--text-secondary)] mb-2 leading-tight">
+            <span style={{ color: 'var(--accent-color)' }}>AI Asistan:</span> Etkinlik havuzundan seçim yapın, içerik otomatik üretilip eklenecek.
+          </p>
+          <button
+            onClick={() => setIsActivityPickerOpen(true)}
+            className="w-full font-semibold py-1.5 px-3 rounded-lg flex items-center justify-center transition-all text-xs gap-2"
+            style={{
+              background: 'var(--accent-color)',
+              color: '#ffffff'
+            }}
+          >
+            <Sparkles size={14} />
+            Etkinlik Ekle & Üret
+          </button>
+        </div>
       </div>
     </div>
   );

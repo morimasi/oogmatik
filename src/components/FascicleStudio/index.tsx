@@ -22,111 +22,111 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
   const { currentFascicleId, metadata, items, undo, redo, past, future } = useFascicleStore();
   const { user } = useAuthStore();
   const { setIsAssignModalOpen } = useAssignmentStore();
-  
+
   const [isPrinting, setIsPrinting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [savedFascicleId, setSavedFascicleId] = useState<string | null>(null);
-  
+
   const [isActivityPickerOpen, setIsActivityPickerOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
 
   useEffect(() => {
     if (currentFascicleId) {
-       fascicleService.autoSaveDraft(currentFascicleId, { metadata, items }).catch(err => logError('AutoSave failed', err));
+      fascicleService.autoSaveDraft(currentFascicleId, { metadata, items }, user?.id || 'anonymous').catch(err => logError(err instanceof Error ? err : String(err), { context: 'AutoSave failed' }));
     }
-  }, [items, metadata, currentFascicleId]);
+  }, [items, metadata, currentFascicleId, user?.id]);
 
   const handleDownloadPdf = async () => {
     try {
-        setIsPrinting(true);
-        toast.loading('PDF dosyası hazırlanıyor...', { id: 'print-toast' });
-        await printService.generatePdf('#fascicle-print-container', metadata.title || 'Ozel_Egitim_Fasikulu', {
-            action: 'download',
-            quality: 'high',
-            onProgress: (percent: number, message: string) => {
-                toast.loading(`PDF hazırlanıyor: %${percent} — ${message}`, { id: 'print-toast' });
-            }
-        });
-        toast.success('PDF indirme işlemi tamamlandı!', { id: 'print-toast' });
+      setIsPrinting(true);
+      toast.loading('PDF dosyası hazırlanıyor...', { id: 'print-toast' });
+      await printService.generatePdf('#fascicle-print-container', metadata.title || 'Ozel_Egitim_Fasikulu', {
+        action: 'download',
+        quality: 'high',
+        onProgress: (percent: number, message: string) => {
+          toast.loading(`PDF hazırlanıyor: %${percent} — ${message}`, { id: 'print-toast' });
+        }
+      });
+      toast.success('PDF indirme işlemi tamamlandı!', { id: 'print-toast' });
     } catch (error) {
-        logError(error as Error, { context: 'Fasikül PDF olarak indirilemedi' });
-        toast.error('PDF işlemi başlatılamadı. Lütfen tekrar deneyin.', { id: 'print-toast' });
+      logError(error as Error, { context: 'Fasikül PDF olarak indirilemedi' });
+      toast.error('PDF işlemi başlatılamadı. Lütfen tekrar deneyin.', { id: 'print-toast' });
     } finally {
-        setIsPrinting(false);
+      setIsPrinting(false);
     }
   };
 
   const handlePrint = async () => {
     try {
-        setIsPrinting(true);
-        toast.loading('Yazdırma modülü hazırlanıyor...', { id: 'print-toast' });
-        await printService.captureAndPrint('#fascicle-print-container', metadata.title || 'Ozel_Egitim_Fasikulu', 'print');
-        toast.success('Yazdırma sırasına eklendi!', { id: 'print-toast' });
+      setIsPrinting(true);
+      toast.loading('Yazdırma modülü hazırlanıyor...', { id: 'print-toast' });
+      await printService.captureAndPrint('#fascicle-print-container', metadata.title || 'Ozel_Egitim_Fasikulu', 'print');
+      toast.success('Yazdırma sırasına eklendi!', { id: 'print-toast' });
     } catch (error) {
-        logError(error as Error, { context: 'Fasikül yazdırılamadı' });
-        toast.error('Yazdırma işlemi başlatılamadı. Lütfen tekrar deneyin.', { id: 'print-toast' });
+      logError(error as Error, { context: 'Fasikül yazdırılamadı' });
+      toast.error('Yazdırma işlemi başlatılamadı. Lütfen tekrar deneyin.', { id: 'print-toast' });
     } finally {
-        setIsPrinting(false);
+      setIsPrinting(false);
     }
   };
 
   const handleSaveArchive = async (silent = false): Promise<string | null> => {
     if (!user) {
-        if (!silent) toast.error('Kaydetmek için giriş yapmalısınız.');
-        return null;
+      if (!silent) toast.error('Kaydetmek için giriş yapmalısınız.');
+      return null;
     }
-    
+
     // Zaten kaydedilmiş ise tekrar tekrar kaydetmemek için önceki id'yi dönebiliriz.
     // Ancak güncellemeleri de kaydetmek istiyorsak yeni kayıt atar.
     // Şimdilik yeniden kaybediyoruz.
     try {
-        setIsSaving(true);
-        if (!silent) toast.loading('Dijital Arşive kaydediliyor...', { id: 'save-toast' });
-        
-        const saved = await worksheetService.saveWorksheet(
-            user.id,
-            metadata.title || 'İsimsiz Fasikül',
-            ActivityType.FASCICLE,
-            [{ metadata, items }] as any,
-            'fa-solid fa-layer-group',
-            { id: 'fascicles', title: 'Fasiküller' }
-        );
-        
-        setSavedFascicleId(saved.id);
-        
-        if (!silent) toast.success('Fasikül başarıyla Arşive kaydedildi!', { id: 'save-toast' });
-        return saved.id;
+      setIsSaving(true);
+      if (!silent) toast.loading('Dijital Arşive kaydediliyor...', { id: 'save-toast' });
+
+      const saved = await worksheetService.saveWorksheet(
+        user.id,
+        metadata.title || 'İsimsiz Fasikül',
+        ActivityType.FASCICLE,
+        [{ metadata, items }] as any,
+        'fa-solid fa-layer-group',
+        { id: 'fascicles', title: 'Fasiküller' }
+      );
+
+      setSavedFascicleId(saved.id);
+
+      if (!silent) toast.success('Fasikül başarıyla Arşive kaydedildi!', { id: 'save-toast' });
+      return saved.id;
     } catch (error) {
-        logError(error as Error, { context: 'Fasikül arşive kaydedilemedi' });
-        if (!silent) toast.error('Kaydetme işlemi başarısız oldu.', { id: 'save-toast' });
-        return null;
+      logError(error as Error, { context: 'Fasikül arşive kaydedilemedi' });
+      if (!silent) toast.error('Kaydetme işlemi başarısız oldu.', { id: 'save-toast' });
+      return null;
     } finally {
-        setIsSaving(false);
+      setIsSaving(false);
     }
   };
 
   const handleAssignStudent = async () => {
     let id = savedFascicleId;
     if (!id) {
-       id = await handleSaveArchive(true);
+      id = await handleSaveArchive(true);
     }
     if (id) {
-       setIsAssignModalOpen(true, id);
+      setIsAssignModalOpen(true, id);
     } else {
-       toast.error("Öğrenciye atamadan önce doküman oluşturulamadı.");
+      toast.error("Öğrenciye atamadan önce doküman oluşturulamadı.");
     }
   };
 
   const handleShareBtnClick = async () => {
     let id = savedFascicleId;
     if (!id) {
-       id = await handleSaveArchive(true);
+      id = await handleSaveArchive(true);
     }
     if (id) {
-       setIsShareModalOpen(true);
+      setIsShareModalOpen(true);
     } else {
-       toast.error("Paylaşımdan önce doküman oluşturulamadı.");
+      toast.error("Paylaşımdan önce doküman oluşturulamadı.");
     }
   };
 
@@ -134,24 +134,24 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
     if (!savedFascicleId || !user) return;
     setIsSharing(true);
     try {
-        await worksheetService.shareWorksheet(
-            savedFascicleId,
-            user.id,
-            (user as { displayName?: string }).displayName || user.name || '',
-            receiverIds
-        );
-        
-        // Gerekirse message / not özelliğini entegre etmek için bir toast gösterebiliriz.
-        if (message && message.trim().length > 0) {
-           toast.success("Paylaşım ve ilişikli notunuz başarıyla gönderildi!");
-        } else {
-           toast.success("Fasikül başarıyla paylaşıldı!");
-        }
-        setIsShareModalOpen(false);
+      await worksheetService.shareWorksheet(
+        savedFascicleId,
+        user.id,
+        (user as { displayName?: string }).displayName || user.name || '',
+        receiverIds
+      );
+
+      // Gerekirse message / not özelliğini entegre etmek için bir toast gösterebiliriz.
+      if (message && message.trim().length > 0) {
+        toast.success("Paylaşım ve ilişikli notunuz başarıyla gönderildi!");
+      } else {
+        toast.success("Fasikül başarıyla paylaşıldı!");
+      }
+      setIsShareModalOpen(false);
     } catch (error) {
-        toast.error("Paylaşım gönderilirken bir hata oluştu.");
+      toast.error("Paylaşım gönderilirken bir hata oluştu.");
     } finally {
-        setIsSharing(false);
+      setIsSharing(false);
     }
   };
 
@@ -166,16 +166,16 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
 
         <div className="flex items-center space-x-2 xl:space-x-3">
           <div className="flex items-center bg-[var(--bg-paper)] rounded-[var(--radius-premium)] p-1 border border-[var(--border-color)] mr-1">
-            <button 
-              onClick={undo} 
+            <button
+              onClick={undo}
               disabled={past.length === 0}
               className={`p-1.5 rounded-md transition-colors ${past.length > 0 ? 'hover:bg-[var(--bg-secondary)] text-[var(--text-primary)]' : 'text-[var(--text-muted)] cursor-not-allowed'}`}
               title="Geri Al"
             >
               <Undo size={16} />
             </button>
-            <button 
-              onClick={redo} 
+            <button
+              onClick={redo}
               disabled={future.length === 0}
               className={`p-1.5 rounded-md transition-colors ${future.length > 0 ? 'hover:bg-[var(--bg-secondary)] text-[var(--text-primary)]' : 'text-[var(--text-muted)] cursor-not-allowed'}`}
               title="İleri Sar"
@@ -183,57 +183,57 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
               <Redo size={16} />
             </button>
           </div>
-          
-          <button 
-             onClick={() => handleSaveArchive(false)}
-             disabled={isSaving || items.length === 0}
-             className="btn-accent-glow flex items-center px-3 py-2 bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-[var(--radius-premium)] hover:bg-[var(--bg-secondary)] transition disabled:opacity-50 text-sm font-medium">
-             <Save size={16} className="mr-2 text-emerald-500" /> {isSaving ? 'Kaydediliyor...' : 'Arşive Kaydet'}
-          </button>
-          
-          <button 
-             onClick={handleAssignStudent}
-             disabled={items.length === 0 || isSaving}
-             className="btn-accent-glow flex items-center px-3 py-2 bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-[var(--radius-premium)] hover:bg-[var(--bg-secondary)] transition disabled:opacity-50 text-sm font-medium">
-             <UserPlus size={16} className="mr-2 text-[var(--accent-color)]" /> Öğrenciye Ata
+
+          <button
+            onClick={() => handleSaveArchive(false)}
+            disabled={isSaving || items.length === 0}
+            className="btn-accent-glow flex items-center px-3 py-2 bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-[var(--radius-premium)] hover:bg-[var(--bg-secondary)] transition disabled:opacity-50 text-sm font-medium">
+            <Save size={16} className="mr-2 text-emerald-500" /> {isSaving ? 'Kaydediliyor...' : 'Arşive Kaydet'}
           </button>
 
-          <button 
-             onClick={handleShareBtnClick}
-             disabled={items.length === 0 || isSaving}
-             className="btn-accent-glow flex items-center px-3 py-2 bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-[var(--radius-premium)] hover:bg-[var(--bg-secondary)] transition disabled:opacity-50 text-sm font-medium">
-             <Share2 size={16} className="mr-2" style={{ color: 'var(--accent-color)' }} /> Paylaş
+          <button
+            onClick={handleAssignStudent}
+            disabled={items.length === 0 || isSaving}
+            className="btn-accent-glow flex items-center px-3 py-2 bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-[var(--radius-premium)] hover:bg-[var(--bg-secondary)] transition disabled:opacity-50 text-sm font-medium">
+            <UserPlus size={16} className="mr-2 text-[var(--accent-color)]" /> Öğrenciye Ata
+          </button>
+
+          <button
+            onClick={handleShareBtnClick}
+            disabled={items.length === 0 || isSaving}
+            className="btn-accent-glow flex items-center px-3 py-2 bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-[var(--radius-premium)] hover:bg-[var(--bg-secondary)] transition disabled:opacity-50 text-sm font-medium">
+            <Share2 size={16} className="mr-2" style={{ color: 'var(--accent-color)' }} /> Paylaş
           </button>
 
           <div className="w-px h-6 bg-[var(--border-color)] mx-1"></div>
 
-          <button 
-             onClick={() => setIsActivityPickerOpen(true)}
-             className="btn-accent-glow flex items-center px-3 py-2 bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-[var(--radius-premium)] hover:bg-[var(--bg-secondary)] transition text-sm font-medium"
-             style={{ boxShadow: '0 0 20px var(--accent-muted)' }}>
-             <Sparkles size={16} className="mr-2" style={{ color: 'var(--accent-color)' }} /> Etkinlik Havuzu
+          <button
+            onClick={() => setIsActivityPickerOpen(true)}
+            className="btn-accent-glow flex items-center px-3 py-2 bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-[var(--radius-premium)] hover:bg-[var(--bg-secondary)] transition text-sm font-medium"
+            style={{ boxShadow: '0 0 20px var(--accent-muted)' }}>
+            <Sparkles size={16} className="mr-2" style={{ color: 'var(--accent-color)' }} /> Etkinlik Havuzu
           </button>
-          
-          <button 
-             onClick={handlePrint}
-             disabled={items.length === 0 || isPrinting}
-             className="btn-accent-glow flex items-center px-4 py-2 bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-[var(--radius-premium)] hover:bg-[var(--bg-secondary)] transition text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">
-             <Printer size={16} className="mr-2 text-[var(--text-secondary)]" /> Yazdır
+
+          <button
+            onClick={handlePrint}
+            disabled={items.length === 0 || isPrinting}
+            className="btn-accent-glow flex items-center px-4 py-2 bg-[var(--bg-paper)] text-[var(--text-primary)] border border-[var(--border-color)] rounded-[var(--radius-premium)] hover:bg-[var(--bg-secondary)] transition text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+            <Printer size={16} className="mr-2 text-[var(--text-secondary)]" /> Yazdır
           </button>
-          
-          <button 
-             onClick={handleDownloadPdf}
-             disabled={items.length === 0 || isPrinting}
-             className="flex items-center px-5 py-2 rounded-[var(--radius-premium)] font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-             style={{
-               background: 'linear-gradient(135deg, var(--accent-color), var(--accent-hover))',
-               color: '#ffffff',
-               boxShadow: '0 4px 16px var(--accent-muted)'
-             }}
-             onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 24px var(--accent-muted)'}
-             onMouseLeave={e => e.currentTarget.style.boxShadow = '0 4px 16px var(--accent-muted)'}
+
+          <button
+            onClick={handleDownloadPdf}
+            disabled={items.length === 0 || isPrinting}
+            className="flex items-center px-5 py-2 rounded-[var(--radius-premium)] font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            style={{
+              background: 'linear-gradient(135deg, var(--accent-color), var(--accent-hover))',
+              color: '#ffffff',
+              boxShadow: '0 4px 16px var(--accent-muted)'
+            }}
+            onMouseEnter={e => e.currentTarget.style.boxShadow = '0 8px 24px var(--accent-muted)'}
+            onMouseLeave={e => e.currentTarget.style.boxShadow = '0 4px 16px var(--accent-muted)'}
           >
-             <FileDown size={18} className="mr-2" /> {isPrinting ? 'Hazırlanıyor...' : 'PDF İndir'}
+            <FileDown size={18} className="mr-2" /> {isPrinting ? 'Hazırlanıyor...' : 'PDF İndir'}
           </button>
         </div>
       </div>
@@ -242,29 +242,29 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
       <div className="flex flex-1 overflow-hidden">
         {/* Left Panel: Content Organizer (Drag & Drop) */}
         <div className="w-1/3 max-w-sm border-r border-[var(--border-color)] bg-[var(--bg-secondary)] overflow-y-auto custom-scrollbar">
-           <FascicleSidebar />
+          <FascicleSidebar />
         </div>
 
         {/* Right Panel: Live PDF Preview */}
         <div className="flex-1 overflow-auto viewport-surface flex justify-center p-8 custom-scrollbar relative">
-           <FasciclePreview />
+          <FasciclePreview />
         </div>
       </div>
-      
-      <FascicleActivityPicker 
-        isOpen={isActivityPickerOpen} 
-        onClose={() => setIsActivityPickerOpen(false)} 
+
+      <FascicleActivityPicker
+        isOpen={isActivityPickerOpen}
+        onClose={() => setIsActivityPickerOpen(false)}
       />
 
       {/* Paylaşım Modalı */}
       <ShareModal
-          isOpen={isShareModalOpen}
-          onClose={() => setIsShareModalOpen(false)}
-          onShare={onConfirmShare}
-          worksheetId={savedFascicleId || undefined}
-          worksheetTitle={metadata.title || 'Fasikül'}
-          isSending={isSharing}
-          showPermissionSelector={true}
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        onShare={onConfirmShare}
+        worksheetId={savedFascicleId || undefined}
+        worksheetTitle={metadata.title || 'Fasikül'}
+        isSending={isSharing}
+        showPermissionSelector={true}
       />
     </div>
   );

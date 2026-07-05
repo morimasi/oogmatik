@@ -40,9 +40,8 @@ export class DynamicActivityFactory {
                 const m = await import(`../../modules/activities/${slug}/ui/WorksheetUI`);
                 return { default: m.default };
             } catch (e) {
-                // Fallback UI or Error view
-                const Fallback = await import('../../components/SheetRenderer');
-                return { default: (Fallback as { default: React.ComponentType<unknown> }).default || Fallback };
+                const Fallback = await import('../../components/SheetRenderer') as any;
+                return { default: Fallback.default || Fallback.SheetRenderer || Fallback };
             }
         });
     }

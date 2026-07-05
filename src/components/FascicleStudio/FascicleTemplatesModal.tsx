@@ -45,21 +45,21 @@ export const FascicleTemplatesModal: React.FC<FascicleTemplatesModalProps> = ({ 
   if (!isOpen) return null;
 
   const handleApplyTemplate = (templateId: string) => {
-    toast.info('Şablon içerikleri henüz hazır değil. Çok yakında eklenecek.');
+    toast('Şablon içerikleri henüz hazır değil. Çok yakında eklenecek.');
     onClose();
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ backgroundColor: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}>
       <div className="rounded-[var(--radius-premium)] w-full max-w-4xl flex flex-col max-h-[85vh] overflow-hidden" style={{ backgroundColor: 'var(--bg-paper)', border: '1px solid var(--border-color)' }}>
-        
+
         {/* Header */}
         <div className="p-6 border-b border-[var(--border-color)] flex justify-between items-center bg-[var(--bg-paper)]/50">
           <div>
             <h2 className="text-2xl font-bold text-[var(--text-primary)]">Fasikül Şablonları</h2>
             <p className="text-sm text-[var(--text-muted)] mt-1">Önceden tasarlanmış hazır uzman paketleri ile tek tıkla fasikül oluşturun.</p>
           </div>
-          <button 
+          <button
             onClick={onClose}
             className="studio-icon-btn p-2 rounded-xl"
           >
@@ -71,7 +71,7 @@ export const FascicleTemplatesModal: React.FC<FascicleTemplatesModalProps> = ({ 
         <div className="p-8 overflow-y-auto custom-scrollbar flex-1" style={{ backgroundColor: 'var(--bg-secondary)' }}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {TEMPLATES.map(template => (
-              <div 
+              <div
                 key={template.id}
                 onClick={() => handleApplyTemplate(template.id)}
                 className="card-glow group p-6 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-[var(--radius-premium)] cursor-pointer transition-all flex flex-col relative overflow-hidden"

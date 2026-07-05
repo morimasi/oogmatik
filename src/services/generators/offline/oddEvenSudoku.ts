@@ -3,7 +3,7 @@ import { OddEvenSudokuData, GeneratorOptions } from '../../../types';
 export const generateOfflineOddEvenSudoku = async (options: GeneratorOptions): Promise<OddEvenSudokuData[]> => {
     const { difficulty, worksheetCount } = options;
     const customSettings = (options as any).oddEvenSudoku || {};
-    
+
     let size = customSettings.gridSize || 4;
     if (!customSettings.gridSize) {
         if (difficulty === 'Zor' || difficulty === 'Uzman') size = 6;
@@ -94,7 +94,7 @@ export const generateOfflineOddEvenSudoku = async (options: GeneratorOptions): P
                 aestheticMode: customSettings.aestheticMode || 'standard',
                 showPositionNumbers: customSettings.showPositionNumbers ?? true
             }
-        });
+        } as any);
     }
 
     return activities;

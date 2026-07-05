@@ -39,7 +39,7 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
   } = useScreeningStore();
   const toast = useToastStore();
   const { currentScreening, handleSaveScreening, handleDownloadReport, handlePrintReport, handleShareResults, handleShareScreeningResult } =
-    useScreeningAssessment({});
+    useScreeningAssessment();
 
   useEffect(() => {
     setIsAdvancedScreeningOpen(true);
@@ -105,7 +105,7 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
                 onClick={onClose}
                 className="w-7 h-7 rounded-lg bg-[var(--surface-elevated)] hover:bg-[var(--surface-glass)] text-[var(--text-primary)] border border-[var(--border-color)] flex items-center justify-center transition-all duration-200 hover:scale-105"
               >
-                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6L6 18M6 6l12 12" /></svg>
               </button>
             )}
           </div>
@@ -122,11 +122,10 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
                   <button
                     key={tab.id}
                     onClick={() => setActiveView(tab.id)}
-                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-[10px] font-bold transition-all duration-200 ${
-                      isActive
+                    className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 text-[10px] font-bold transition-all duration-200 ${isActive
                         ? 'bg-[var(--bg-paper)] text-[var(--text-primary)] border-b-2 border-[var(--accent-color)] shadow-sm'
                         : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)] hover:bg-[var(--surface-glass)]'
-                    }`}
+                      }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
                     {tab.label}
@@ -240,9 +239,9 @@ const ScreeningFormWrapper: React.FC<{
           respondent: 'teacher',
         }}
         onBack={onBack}
-        onSelectActivity={() => {}}
+        onSelectActivity={() => { }}
         onResult={handleResult}
-        onGeneratePlan={onGeneratePlan || (() => {})}
+        onGeneratePlan={onGeneratePlan || (() => { })}
       />
     </React.Suspense>
   );

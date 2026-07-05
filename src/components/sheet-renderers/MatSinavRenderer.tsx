@@ -1,10 +1,10 @@
 import React from 'react';
 import { MatSinavOnizleme } from '../MatSinavStudyosu/MatSinavOnizleme';
-import { CollectionItem, WorkbookSettings } from '../../types';
+import { CollectionItem } from '../../types';
 
 interface MatSinavRendererProps {
     data: any;
-    settings: WorkbookSettings;
+    settings: any;
 }
 
 export const MatSinavRenderer: React.FC<MatSinavRendererProps> = ({ data, settings }) => {
@@ -22,12 +22,12 @@ export const MatSinavRenderer: React.FC<MatSinavRendererProps> = ({ data, settin
 
     return (
         <div className="mat-sinav-workbook-wrapper w-full bg-white">
-            <MatSinavOnizleme 
-                sinav={sinavObj} 
-                config={printConfig} 
+            <MatSinavOnizleme
+                sinav={sinavObj}
+                config={printConfig}
                 isPrinting={true}
-                onUpdateSoru={() => {}} // Workbook'ta editleme kapalı
-                onRefreshSoru={() => {}}
+                onUpdateSoru={() => { }} // Workbook'ta editleme kapalı
+                onRefreshSoru={() => { }}
                 refreshingIndex={null}
             />
         </div>

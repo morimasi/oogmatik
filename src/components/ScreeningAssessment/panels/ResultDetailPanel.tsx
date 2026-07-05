@@ -32,7 +32,7 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
     handleShareScreeningResult,
     isSaving,
     getScoreColor,
-  } = useScreeningAssessment({});
+  } = useScreeningAssessment();
 
   const [aiAnalysis, setAiAnalysis] = useState<AIAnalysisResult | null>(null);
   const [loadingAi, setLoadingAi] = useState(false);

@@ -61,7 +61,7 @@ const GEMINI_ANIMATION_SCHEMA = {
       },
     },
   },
-    required: ['title', 'cognitiveLoadParams', 'timeline'],
+  required: ['title', 'cognitiveLoadParams', 'timeline'],
 };
 
 export class AnimationService {
@@ -93,7 +93,7 @@ export class AnimationService {
       // Dışarıdan component tarafına giderken Zod parse (schemas.ts içinden) kullanılabilir.
       return data as AnimationPayloadType;
     } catch (error: unknown) {
-      logError('AnimationService Hatası:', error instanceof Error ? error : String(error));
+      logError(error instanceof Error ? error : String(error), { context: 'AnimationService Hatası' });
       throw new AppError(
         'Animasyon senaryosu oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.',
         'ANIMATION_GENERATION_FAILED',

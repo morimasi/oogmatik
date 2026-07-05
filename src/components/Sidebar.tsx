@@ -232,7 +232,7 @@ const Sidebar = ({
         dynamicActs.forEach((da) => {
           if (!mergedActivities.find((ex) => ex.id === da.id)) {
             mergedActivities.push({
-              id: da.id as unknown as string,
+              id: da.id as unknown as ActivityType,
               title: da.title,
               description: da.description,
               icon: da.icon,
@@ -247,7 +247,7 @@ const Sidebar = ({
             activities: [
               ...new Set([
                 ...cat.activities,
-                ...dynamicActs.filter((da) => da.category === cat.id).map((da) => da.id as unknown as string),
+                ...dynamicActs.filter((da) => da.category === cat.id).map((da) => da.id as unknown as ActivityType),
               ]),
             ],
           }))
@@ -267,8 +267,8 @@ const Sidebar = ({
 
     // Otomatik Öğrenci Aktifleştirme (Active Student Awareness)
     const finalOptions = {
-        ...options,
-        studentContext: activeStudent || options.studentContext
+      ...options,
+      studentContext: activeStudent || options.studentContext
     };
 
     try {
