@@ -1,0 +1,31 @@
+src/components/FascicleStudio/FascicleActivityPicker.tsx(66,58): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/FascicleStudio/FascicleSidebar.tsx(71,64): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/FascicleStudio/FascicleSidebar.tsx(91,57): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/components/FascicleStudio/FascicleTemplatesModal.tsx(48,11): error TS2339: Property 'info' does not exist on type '{ (message: Message, opts?: Partial<Pick<Toast, "id" | "style" | "icon" | "className" | "duration" | "position" | "ariaProps" | "iconTheme" | "toasterId" | "removeDelay">> | undefined): string; ... 8 more ...; promise<T>(promise: Promise<...> | (() => Promise<...>), msgs: { ...; }, opts?: DefaultToastOptions | undef...'.
+src/components/FascicleStudio/index.tsx(36,24): error TS2554: Expected 3 arguments, but got 2.
+src/components/ScreeningAssessment/index.tsx(42,28): error TS2554: Expected 0 arguments, but got 1.
+src/components/ScreeningAssessment/panels/ResultDetailPanel.tsx(35,30): error TS2554: Expected 0 arguments, but got 1.
+src/components/sheet-renderers/MatSinavRenderer.tsx(3,26): error TS2305: Module '"../../types"' has no exported member 'WorkbookSettings'.
+src/components/sheet-renderers/SinavRenderer.tsx(3,26): error TS2305: Module '"../../types"' has no exported member 'WorkbookSettings'.
+src/components/sheets/math/CapsuleGameSheet.tsx(58,56): error TS2339: Property 'textColor' does not exist on type '{ bg: string; gridBg: string; cellBorder: string; headerText: string; accent: string; } | { bg: string; gridBg: string; cellBorder: string; headerText: string; accent: string; textColor: string; } | { ...; }'.
+  Property 'textColor' does not exist on type '{ bg: string; gridBg: string; cellBorder: string; headerText: string; accent: string; }'.
+src/components/sheets/visual/DirectionalTrackingSheet.tsx(60,18): error TS18048: 'puzzle.steps' is possibly 'undefined'.
+src/components/Sidebar.tsx(235,15): error TS2322: Type 'string' is not assignable to type 'ActivityType'.
+src/components/Sidebar.tsx(244,23): error TS2345: Argument of type '(prev: ActivityCategory[]) => { activities: string[]; id: string; title: string; description: string; icon: string; }[]' is not assignable to parameter of type 'SetStateAction<ActivityCategory[]>'.
+  Type '(prev: ActivityCategory[]) => { activities: string[]; id: string; title: string; description: string; icon: string; }[]' is not assignable to type '(prevState: ActivityCategory[]) => ActivityCategory[]'.
+    Type '{ activities: string[]; id: string; title: string; description: string; icon: string; }[]' is not assignable to type 'ActivityCategory[]'.
+      Type '{ activities: string[]; id: string; title: string; description: string; icon: string; }' is not assignable to type 'ActivityCategory'.
+        Types of property 'activities' are incompatible.
+          Type 'string[]' is not assignable to type 'ActivityType[]'.
+            Type 'string' is not assignable to type 'ActivityType'.
+src/registry.ts(276,9): error TS2322: Type 'number' is not assignable to type '"medium" | "small" | "large" | "xl" | undefined'.
+src/registry.ts(287,9): error TS2322: Type 'number' is not assignable to type '"medium" | "small" | "large" | "xl" | undefined'.
+src/services/animationService.ts(96,44): error TS2345: Argument of type 'string | Error' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+  Type 'string' is not assignable to type 'Record<string, unknown>'.
+src/services/generators/brainTeasers.ts(83,5): error TS2322: Type 'Record<string, unknown>[]' is not assignable to type 'WorksheetData'.
+  Type 'Record<string, unknown>' is missing the following properties from type 'SingleWorksheetData': title, instruction
+src/services/generators/core/WorksheetBuilder.ts(55,7): error TS2322: Type 'string' is not assignable to type '"grid" | "header" | "text" | "table" | "svg_shape" | "dual_column" | "image" | "question" | "logic_card" | "footer_validation" | "cloze_test" | "categorical_sorting" | "match_columns" | "visual_clue_card" | "neuro_marker"'.
+src/services/generators/core/WorksheetBuilder.ts(73,7): error TS2322: Type 'string' is not assignable to type '"grid" | "header" | "text" | "table" | "svg_shape" | "dual_column" | "image" | "question" | "logic_card" | "footer_validation" | "cloze_test" | "categorical_sorting" | "match_columns" | "visual_clue_card" | "neuro_marker"'.
+src/services/generators/DynamicActivityFactory.ts(45,36): error TS2352: Conversion of type 'typeof import("C:/Users/Administrator/Yeni klas\u00F6r/oogmatik/src/components/SheetRenderer")' to type '{ default: ComponentType<unknown>; }' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Property 'default' is missing in type 'typeof import("C:/Users/Administrator/Yeni klas\u00F6r/oogmatik/src/components/SheetRenderer")' but required in type '{ default: ComponentType<unknown>; }'.
+src/services/generators/offline/oddEvenSudoku.ts(91,13): error TS2353: Object literal may only specify known properties, and 'settings' does not exist in type 'OddEvenSudokuData'.
