@@ -120,7 +120,7 @@ export const generateOfflineBrainTeasers = async (options: GeneratorOptions): Pr
         ...puzzle,
         id: `p${i + 1}`,
         difficulty_stars: getRandomInt(1, 3),
-        hint: customSettings.showHints ? puzzle.hint : undefined
+        hint: customSettings.showHints !== false ? puzzle.hint : ''
       }))
     });
   }

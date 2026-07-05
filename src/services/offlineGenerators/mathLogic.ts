@@ -135,15 +135,15 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
 
     const makeFinalQuestion = (objs: typeof objects, vals: { a: number; b: number; c: number }, opType: string): { question: string; answer: number } => {
         const { a, b, c } = vals;
-        const patterns: { q: string; a: number }[] = [
-            { q: `${objs[0].name} + ${objs[1].name} + ${objs[2].name} = ?`, a: a + b + c },
-            { q: `${objs[0].name} + ${objs[1].name} - ${objs[2].name} = ?`, a: Math.max(a + b - c, 1) },
-            { q: `${objs[0].name} × 2 + ${objs[1].name} = ?`, a: a * 2 + b },
-            { q: `${objs[0].name} + ${objs[1].name} × 2 = ?`, a: a + b * 2 }
+        const patterns: { question: string; answer: number }[] = [
+            { question: `${objs[0].name} + ${objs[1].name} + ${objs[2].name} = ?`, answer: a + b + c },
+            { question: `${objs[0].name} + ${objs[1].name} - ${objs[2].name} = ?`, answer: Math.max(a + b - c, 1) },
+            { question: `${objs[0].name} × 2 + ${objs[1].name} = ?`, answer: a * 2 + b },
+            { question: `${objs[0].name} + ${objs[1].name} × 2 = ?`, answer: a + b * 2 }
         ];
 
         if (opType === 'add') return patterns[0];
-        if (opType === 'mult') return { q: `${objs[0].name} × ${objs[1].name} = ?`, a: a * b };
+        if (opType === 'mult') return { question: `${objs[0].name} × ${objs[1].name} = ?`, answer: a * b };
 
         return patterns[getRandomInt(0, patterns.length - 1)];
     };
@@ -181,14 +181,14 @@ export const generateOfflineMathPuzzle = async (options: GeneratorOptions): Prom
  */
 export const generateOfflineNumberLogicRiddles = async (options: GeneratorOptions): Promise<NumberLogicRiddleData[]> => {
     const customSettings = (options as any).numberLogicRiddles || {};
-    const { 
-        worksheetCount = 1, 
-        numberRange = '1-50', 
-        itemCount = customSettings.itemCount || 6, 
-        gridSize = customSettings.gridSize || 3, 
-        _difficulty 
+    const {
+        worksheetCount = 1,
+        numberRange = '1-50',
+        itemCount = customSettings.itemCount || 6,
+        gridSize = customSettings.gridSize || 3,
+        _difficulty
     } = options as Record<string, unknown>;
-    
+
     const pages: NumberLogicRiddleData[] = [];
 
     let [min, max] = (numberRange as string).split('-').map(Number);
@@ -201,11 +201,11 @@ export const generateOfflineNumberLogicRiddles = async (options: GeneratorOption
         for (let i = 0; i < ((itemCount as number) || 0); i++) {
             const target = getRandomInt(min, max);
             total += target;
-            
+
             const tens = Math.floor(target / 10);
             const units = target % 10;
             const sum = tens + units;
-            
+
             const pool = [
                 { text: `Ben bir ${target % 2 === 0 ? 'ÇİFT' : 'TEK'} sayıyım.`, icon: 'fa-binary', type: 'parity' },
                 { text: `Rakamlarımın toplamı ${sum}'dir.`, icon: 'fa-plus', type: 'digits' },
@@ -218,12 +218,12 @@ export const generateOfflineNumberLogicRiddles = async (options: GeneratorOption
             ];
 
             const selectedHints = shuffle(pool).slice(0, (gridSize as number) || 3);
-            while(selectedHints.length < ((gridSize as number) || 3)) {
+            while (selectedHints.length < ((gridSize as number) || 3)) {
                 selectedHints.push({ text: `Ben ${target} sayısına yakın bir yerdeyim.`, icon: 'fa-location-dot', type: 'arithmetic' as any });
             }
 
             const distractors = new Set<string>();
-            while(distractors.size < 3) {
+            while (distractors.size < 3) {
                 const d = getRandomInt(min, max);
                 if (d !== target) distractors.add(String(d));
             }
@@ -232,8 +232,8 @@ export const generateOfflineNumberLogicRiddles = async (options: GeneratorOption
                 id: `puzzle-${i}`,
                 riddle: selectedHints.map(h => h.text).join(' '),
                 riddleParts: selectedHints as any,
-                boxes: Array.from({length: 5}, () => [getRandomInt(min, max), getRandomInt(min, max)]),
-                visualDistraction: customSettings.showVisualDistraction !== false ? Array.from({length: 8}, () => getRandomInt(min, max)) : [],
+                boxes: Array.from({ length: 5 }, () => [getRandomInt(min, max), getRandomInt(min, max)]),
+                visualDistraction: customSettings.showVisualDistraction !== false ? Array.from({ length: 8 }, () => getRandomInt(min, max)) : [],
                 options: shuffle([String(target), ...Array.from(distractors)]),
                 answer: String(target),
                 answerValue: target
@@ -281,7 +281,7 @@ export const generateOfflineNumberPathLogic = async (options: GeneratorOptions):
                 if (leg.operation === '+') stepVal += leg.value;
                 else if (leg.operation === '-') stepVal -= leg.value;
                 else if (leg.operation === '*') stepVal *= leg.value;
-                
+
                 if (stepVal < 0) {
                     stepVal = currentVal + leg.value;
                     steps.push({ symbol: leg.symbol, expectedValue: stepVal, fallbackOperation: '+' });
@@ -292,11 +292,11 @@ export const generateOfflineNumberPathLogic = async (options: GeneratorOptions):
             }
             return { startNumber, steps };
         });
-        pages.push({ 
-            title: "Ultra Sembolik İşlem Zinciri", 
-            instruction: "Sembollerin kurallarını keşfet ve işlem zincirlerini adım adım çözerek sonuca ulaş.", 
-            legend, 
-            chains 
+        pages.push({
+            title: "Ultra Sembolik İşlem Zinciri",
+            instruction: "Sembollerin kurallarını keşfet ve işlem zincirlerini adım adım çözerek sonuca ulaş.",
+            legend,
+            chains
         });
     }
     return pages;

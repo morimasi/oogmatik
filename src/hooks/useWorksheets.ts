@@ -59,7 +59,7 @@ export const useGetUserWorksheets = ({
                 });
 
                 const result = await safeFetch<ApiResponse<{ items: SavedWorksheet[]; count: number; page: number; pageSize: number }>>(
-                    `/api/worksheets?${params}`, 
+                    `/api/worksheets?${params}`,
                     {
                         method: 'GET',
                         headers: getAuthHeaders(userId, userRole),
@@ -74,7 +74,7 @@ export const useGetUserWorksheets = ({
             } catch (error: unknown) {
                 const errMessage = error instanceof AppError ? error.userMessage : (error instanceof Error ? error.message : 'Çalışma sayfaları yükleme başarısız');
                 const errCode = error instanceof AppError ? error.code : 'FETCH_ERROR';
-                logError('useGetUserWorksheets error', error);
+                logError(error instanceof Error ? error : String(error), { context: 'useGetUserWorksheets' });
                 setState({
                     data: null,
                     loading: false,
@@ -126,7 +126,7 @@ export const useGetWorksheet = (
             } catch (error: unknown) {
                 const errMessage = error instanceof AppError ? error.userMessage : (error instanceof Error ? error.message : 'Çalışma sayfası yükleme başarısız');
                 const errCode = error instanceof AppError ? error.code : 'FETCH_ERROR';
-                logError('useGetWorksheet error', error);
+                logError(error instanceof Error ? error : String(error), { context: 'useGetWorksheet' });
                 setState({
                     data: null,
                     loading: false,
@@ -177,7 +177,7 @@ export const useCreateWorksheet = (userId: string, userRole: string) => {
             } catch (error: unknown) {
                 const errorMessage = error instanceof AppError ? error.userMessage : (error instanceof Error ? error.message : 'Çalışma sayfası oluşturma başarısız');
                 const errorCode = error instanceof AppError ? error.code : 'CREATE_ERROR';
-                logError('useCreateWorksheet error', error);
+                logError(error instanceof Error ? error : String(error), { context: 'useCreateWorksheet' });
                 const errorState = {
                     message: errorMessage,
                     code: errorCode,
@@ -227,7 +227,7 @@ export const useUpdateWorksheet = (userId: string, userRole: string) => {
             } catch (error: unknown) {
                 const errorMessage = error instanceof AppError ? error.userMessage : (error instanceof Error ? error.message : 'Çalışma sayfası güncelleme başarısız');
                 const errorCode = error instanceof AppError ? error.code : 'UPDATE_ERROR';
-                logError('useUpdateWorksheet error', error);
+                logError(error instanceof Error ? error : String(error), { context: 'useUpdateWorksheet' });
                 const errorState = {
                     message: errorMessage,
                     code: errorCode,
@@ -270,7 +270,7 @@ export const useDeleteWorksheet = (userId: string, userRole: string) => {
             } catch (error: unknown) {
                 const errorMessage = error instanceof AppError ? error.userMessage : (error instanceof Error ? error.message : 'Çalışma sayfası silme başarısız');
                 const errorCode = error instanceof AppError ? error.code : 'DELETE_ERROR';
-                logError('useDeleteWorksheet error', error);
+                logError(error instanceof Error ? error : String(error), { context: 'useDeleteWorksheet' });
                 const errorState = {
                     message: errorMessage,
                     code: errorCode,
@@ -313,7 +313,7 @@ export const useShareWorksheet = (userId: string, userRole: string) => {
             } catch (error: unknown) {
                 const errorMessage = error instanceof AppError ? error.userMessage : (error instanceof Error ? error.message : 'Paylaşma başarısız');
                 const errorCode = error instanceof AppError ? error.code : 'SHARE_ERROR';
-                logError('useShareWorksheet error', error);
+                logError(error instanceof Error ? error : String(error), { context: 'useShareWorksheet' });
                 const errorState = {
                     message: errorMessage,
                     code: errorCode,
@@ -357,7 +357,7 @@ export const useGetSharedWorksheets = ({
                 });
 
                 const result = await safeFetch<ApiResponse<{ items: SavedWorksheet[]; count: number; page: number; pageSize: number }>>(
-                    `/api/worksheets/shared/with-me?${params}`, 
+                    `/api/worksheets/shared/with-me?${params}`,
                     {
                         method: 'GET',
                         headers: getAuthHeaders(userId, userRole),
@@ -372,7 +372,7 @@ export const useGetSharedWorksheets = ({
             } catch (error: unknown) {
                 const errMessage = error instanceof AppError ? error.userMessage : (error instanceof Error ? error.message : 'Paylaşılan çalışma sayfaları yükleme başarısız');
                 const errCode = error instanceof AppError ? error.code : 'FETCH_ERROR';
-                logError('useGetSharedWorksheets error', error);
+                logError(error instanceof Error ? error : String(error), { context: 'useGetSharedWorksheets' });
                 setState({
                     data: null,
                     loading: false,

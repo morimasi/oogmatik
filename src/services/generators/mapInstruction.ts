@@ -174,16 +174,19 @@ export const generateMapInstructionFromAI = async (options: GeneratorOptions): P
 
     const cityPool = getCityPoolForMapType(mapType);
 
-    const processedData = items.map(item => ({
-        ...item,
-        cities: cityPool,
-        settings: {
-            ...(item as any).settings,
-            mapType,
-            showCityNames: (item as any).settings?.showCityNames ?? true,
-            markerStyle: (item as any).settings?.markerStyle || 'circle',
-        }
-    })) as unknown as MapInstructionData[];
+    const processedData = items.map(item => {
+        const itemObj = (typeof item === 'object' && item !== null) ? item as Record<string, unknown> : {};
+        return {
+            ...itemObj,
+            cities: cityPool,
+            settings: {
+                ...(itemObj as any).settings,
+                mapType,
+                showCityNames: (itemObj as any).settings?.showCityNames ?? true,
+                markerStyle: (itemObj as any).settings?.markerStyle || 'circle',
+            }
+        };
+    }) as unknown as MapInstructionData[];
 
     return processedData;
 };

@@ -10,124 +10,6 @@ import {
 } from '../../types.js';
 import { generateMazePath } from '../offlineGenerators/helpers.js';
 
-const singleSchema = {
-    type: 'OBJECT',
-    properties: {
-        title: { type: 'STRING' },
-        instruction: { type: 'STRING' },
-        pedagogicalNote: { type: 'STRING' },
-        patterns: {
-            type: 'ARRAY',
-            items: {
-                type: 'OBJECT',
-                properties: {
-                    sequence: { type: 'ARRAY', items: { type: 'STRING' } },
-                    answer: { type: 'STRING' },
-                    rule: { type: 'STRING' },
-                    mysteryNumber: { type: 'INTEGER' },
-                    clues: { type: 'ARRAY', items: { type: 'OBJECT', properties: { id: { type: 'STRING' }, text: { type: 'STRING' }, icon: { type: 'STRING' } } } },
-                    options: { type: 'ARRAY', items: { type: 'INTEGER' } }
-                }
-            }
-        },
-        rows: {
-            type: 'ARRAY',
-            items: {
-                type: 'OBJECT',
-                properties: {
-                    items: { type: 'ARRAY', items: { type: 'STRING' } },
-                    answer: { type: 'STRING' },
-                    reason: { type: 'STRING' },
-                    imagePrompt: { type: 'STRING' },
-                    words: { type: 'ARRAY', items: { type: 'STRING' } }
-                }
-            }
-        },
-        columns: {
-            type: 'ARRAY',
-            items: {
-                type: 'OBJECT',
-                properties: {
-                    items: { type: 'ARRAY', items: { type: 'STRING' } },
-                    answer: { type: 'STRING' }
-                }
-            }
-        },
-        clues: {
-            type: 'ARRAY',
-            items: {
-                type: 'OBJECT',
-                properties: {
-                    text: { type: 'STRING' },
-                    digit: { type: 'INTEGER' }
-                }
-            }
-        },
-        solution: { type: 'ARRAY', items: { type: 'INTEGER' } },
-        expressions: {
-            type: 'ARRAY',
-            items: {
-                type: 'OBJECT',
-                properties: {
-                    left: { type: 'STRING' },
-                    right: { type: 'STRING' },
-                    value: { type: 'INTEGER' }
-                }
-            }
-        },
-        points: {
-            type: 'ARRAY',
-            items: {
-                type: 'OBJECT',
-                properties: {
-                    left: { type: 'STRING' },
-                    right: { type: 'STRING' },
-                    value: { type: 'STRING' }
-                }
-            }
-        },
-        puzzles: {
-            type: 'ARRAY',
-            items: {
-                type: 'OBJECT',
-                properties: {
-                    sequence: { type: 'ARRAY', items: { type: 'INTEGER' } },
-                    answer: { type: 'INTEGER' },
-                    rule: { type: 'STRING' },
-                    styles: { type: 'ARRAY', items: { type: 'OBJECT', properties: { color: { type: 'STRING' }, size: { type: 'STRING' } } } }
-                }
-            }
-        },
-        people: { type: 'ARRAY', items: { type: 'STRING' } },
-        categories: { type: 'ARRAY', items: { type: 'STRING' } },
-        gridDim: { type: 'INTEGER' },
-        variant: { type: 'STRING' },
-        paths: {
-            type: 'ARRAY',
-            items: {
-                type: 'OBJECT',
-                properties: {
-                    id: { type: 'STRING' },
-                    start: { type: 'OBJECT', properties: { x: { type: 'INTEGER' }, y: { type: 'INTEGER' } } },
-                    end: { type: 'OBJECT', properties: { x: { type: 'INTEGER' }, y: { type: 'INTEGER' } } },
-                    value: { type: 'STRING' }
-                }
-            }
-        },
-        pyramids: {
-            type: 'ARRAY',
-            items: {
-                type: 'OBJECT',
-                properties: {
-                    rows: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'INTEGER', nullable: true } } },
-                    correctPath: { type: 'ARRAY', items: { type: 'INTEGER' } }
-                }
-            }
-        },
-        theme: { type: 'STRING' }
-    }
-};
-
 const PEDAGOGICAL_PROMPT = `
 ÜST DÜZEY EĞİTİM İÇERİĞİ OLUŞTURMA YÖNERGESİ (PREMIUM KALİTE):
 1.  **Rol:** Sen, "Özel Eğitim ve Üstün Yetenekliler" için materyal hazırlayan uzman bir pedagogsun.
@@ -170,7 +52,7 @@ export const generateShapeNumberPatternFromAI = async (options: GeneratorOptions
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde Şekilli Sayı Örüntüsü (Shape Number Pattern) oluştur. Üçgenlerin köşelerindeki sayılarla (veya merkezindeki) bir matematiksel ilişki kur. Örn: Üst sayı = (Sol alt + Sağ alt) * 2 veya benzeri mantıklı bir kural. Bir şekildeki sayı '?' olsun. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
     const schema = { type: 'ARRAY', items: singleSchema };
-
+    
     const rawResult = await generateWithSchema(prompt, schema);
     let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
     if (!Array.isArray(result)) result = [result];
@@ -188,7 +70,7 @@ export const generateThematicOddOneOutFromAI = async (options: GeneratorOptions)
     const { topic, difficulty, worksheetCount } = options;
     const prompt = `'${topic}' temalı, "${difficulty}" seviyesinde "Tematik Farklı Olanı Bul" etkinliği. Her satırda 4 kelime/kavram olsun. 3'ü temaya uygun, 1'i farklı (semantik olarak). Her kelime için **İngilizce** 'imagePrompt' oluştur. Stil: "Cute colorful icon set style, flat vector". Ana görsel (imagePrompt) tema ile ilgili zengin bir illüstrasyon olsun. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
     const schema = { type: 'ARRAY', items: singleSchema };
-
+    
     const rawResult = await generateWithSchema(prompt, schema);
     let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
     if (!Array.isArray(result)) result = [result];
@@ -286,7 +168,7 @@ export const generateThematicOddOneOutSentenceFromAI = async (options: Generator
     const { topic, difficulty, worksheetCount } = options;
     const prompt = `'${topic}' temalı, "${difficulty}" seviyesinde "Farklı Olanla Cümle Kur" etkinliği. 5 satır oluştur. Her satırda biri hariç diğerleri temaya uyan kelimeler olsun. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
     const schema = { type: 'ARRAY', items: singleSchema };
-
+    
     const rawResult = await generateWithSchema(prompt, schema);
     let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
     if (!Array.isArray(result)) result = [result];
@@ -304,7 +186,7 @@ export const generateColumnOddOneOutSentenceFromAI = async (options: GeneratorOp
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde "Sütunda Farklı Olanı Bul" etkinliği. 4 sütun oluştur. Her sütunda anlamsal olarak uyumsuz bir kelime olsun. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
     const schema = { type: 'ARRAY', items: singleSchema };
-
+    
     const rawResult = await generateWithSchema(prompt, schema);
     let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
     if (!Array.isArray(result)) result = [result];
@@ -322,7 +204,7 @@ export const generatePunctuationPhoneNumberFromAI = async (options: GeneratorOpt
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde "Noktalama Telefonu" bulmacası. 7 adet ipucu ver. Her ipucu bir noktalama işareti kuralını veya sayısını işaret etsin ve bir rakama karşılık gelsin. Örn: "Cümle sonuna konan nokta sayısı = 3". ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
     const schema = { type: 'ARRAY', items: singleSchema };
-
+    
     const rawResult = await generateWithSchema(prompt, schema);
     let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
     if (!Array.isArray(result)) result = [result];
@@ -341,7 +223,7 @@ export const generateArithmeticConnectFromAI = async (options: GeneratorOptions)
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde "İşlem Bağlamaca". 10-12 adet aritmetik işlem (veya sonuç sayı) oluştur. Aynı sonuca çıkan işlemleri eşleştirmek üzere gruplandır. Görsel olarak sayıları birbirine bağlayan çizgiler hayal et. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
     const schema = { type: 'ARRAY', items: singleSchema };
-
+    
     const rawResult = await generateWithSchema(prompt, schema);
     let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
     if (!Array.isArray(result)) result = [result];
@@ -358,7 +240,7 @@ export const generateRomanArabicMatchConnectFromAI = async (options: GeneratorOp
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde Romen ve Arap rakamlarını eşleştirme oyunu. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
     const schema = { type: 'ARRAY', items: singleSchema };
-
+    
     const rawResult = await generateWithSchema(prompt, schema);
     let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
     if (!Array.isArray(result)) result = [result];
@@ -375,7 +257,7 @@ export const generateWeightConnectFromAI = async (options: GeneratorOptions): Pr
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde Ağırlık Eşleştirme. Farklı birimlerdeki (kg, g) eşit ağırlıkları eşleştir. Görseller için **İngilizce** 'imagePrompt' oluştur (tartı, meyve, sebze vb.). Stil: "Flat icon" veya "Vector". ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
     const schema = { type: 'ARRAY', items: singleSchema };
-
+    
     const rawResult = await generateWithSchema(prompt, schema);
     let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
     if (!Array.isArray(result)) result = [result];
@@ -392,7 +274,7 @@ export const generateLengthConnectFromAI = async (options: GeneratorOptions): Pr
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde Uzunluk Eşleştirme. Farklı birimlerdeki (m, cm, km) eşit uzunlukları eşleştir. Görseller için **İngilizce** 'imagePrompt' (cetvel, metre, yol vb.). ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
     const schema = { type: 'ARRAY', items: singleSchema };
-
+    
     const rawResult = await generateWithSchema(prompt, schema);
     let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
     if (!Array.isArray(result)) result = [result];
@@ -409,7 +291,7 @@ export const generateVisualNumberPatternFromAI = async (options: GeneratorOption
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde Görsel Sayı Örüntüsü. Sayıların rengi, boyutu ve değeri bir kurala göre değişsin. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
     const schema = { type: 'ARRAY', items: singleSchema };
-
+    
     const rawResult = await generateWithSchema(prompt, schema);
     let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
     if (!Array.isArray(result)) result = [result];
@@ -426,7 +308,7 @@ export const generateLogicGridPuzzleFromAI = async (options: GeneratorOptions): 
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde Mantık Tablosu (Logic Grid Puzzle). Kişiler, nesneler ve özellikleri içeren ipuçları ver. Nesneler için **İngilizce** 'imagePrompt' oluştur. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
     const schema = { type: 'ARRAY', items: singleSchema };
-
+    
     const rawResult = await generateWithSchema(prompt, schema);
     let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
     if (!Array.isArray(result)) result = [result];
@@ -445,19 +327,19 @@ export const generateAbcConnectFromAI = async (options: GeneratorOptions): Promi
     const customSettings = (options as any).abcConnect || {};
     const size = customSettings.gridSize || 5;
     const variant = customSettings.variant || 'roman';
-
-    const variantDesc = variant === 'roman' ? 'Romen rakamları ile eşleştirme' :
-        variant === 'case' ? 'Büyük/küçük harf eşleştirme' :
-            variant === 'dots' ? 'Nokta sayıları ile eşleştirme' :
-                'Basit toplama işlemleri ile eşleştirme';
+    
+    const variantDesc = variant === 'roman' ? 'Romen rakamları ile eşleştirme' : 
+                        variant === 'case' ? 'Büyük/küçük harf eşleştirme' : 
+                        variant === 'dots' ? 'Nokta sayıları ile eşleştirme' : 
+                        'Basit toplama işlemleri ile eşleştirme';
 
     const prompt = `"${difficulty}" seviyesinde ${size}x${size} boyutunda "ABC Bağlama" (ABC Connect) üret. 
     Varyant: ${variantDesc}.
     Kural: Her sembolün ızgara üzerinde bir başlangıç ve bir bitiş noktası olmalı.
     ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
-
+    
     const schema = { type: 'ARRAY', items: singleSchema };
-
+    
     const rawResult = await generateWithSchema(prompt, schema);
     let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
     if (!Array.isArray(result)) result = [result];
@@ -482,7 +364,7 @@ export const generateMagicPyramidFromAI = async (options: GeneratorOptions): Pro
     ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
 
     const schema = { type: 'ARRAY', items: singleSchema };
-
+    
     const rawResult = await generateWithSchema(prompt, schema);
     let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
     if (!Array.isArray(result)) result = [result];
@@ -512,42 +394,42 @@ export const generateNumberCapsuleFromAI = async (options: GeneratorOptions): Pr
     Kural 3: Sayı havuzu olarak ${setCondition} kullan.
     ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
 
-    const singleSchema = {
-        type: 'OBJECT',
-        properties: {
-            title: { type: 'STRING', description: 'Etkinlik başlığı' },
-            instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' },
-            grid: { type: 'ARRAY', description: 'Izgara hücre değerleri', items: { type: 'ARRAY', items: { type: 'INTEGER', nullable: true } } },
-            rowTargets: { type: 'ARRAY', description: 'Satır hedef değerleri', items: { type: 'INTEGER' } },
-            colTargets: { type: 'ARRAY', description: 'Sütun hedef değerleri', items: { type: 'INTEGER' } },
-            capsules: {
-                type: 'ARRAY',
-                description: 'Kapsül dizisi',
-                items: {
-                    type: 'OBJECT',
-                    properties: {
-                        id: { type: 'STRING', description: 'Benzersiz kimlik (örn: "15+", "4x")' },
-                        target: { type: 'INTEGER', description: 'Hedef değer' },
-                        cells: {
-                            type: 'ARRAY',
-                            description: 'Hücre koordinatları',
-                            items: {
-                                type: 'OBJECT',
-                                properties: {
-                                    x: { type: 'INTEGER', description: 'Sütun indeksi' },
-                                    y: { type: 'INTEGER', description: 'Satır indeksi' }
-                                }
-                            }
-                        }
-                    },
-                    required: ["id", "target", "cells"]
-                }
-            }
-        },
-        required: ["title", "instruction", "grid", "capsules"]
+    const singleSchema = { 
+        type: 'OBJECT', 
+        properties: { 
+            title: { type: 'STRING', description: 'Etkinlik başlığı' }, 
+            instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' }, 
+            grid: { type: 'ARRAY', description: 'Izgara hücre değerleri', items: { type: 'ARRAY', items: { type: 'INTEGER', nullable: true } } }, 
+            rowTargets: { type: 'ARRAY', description: 'Satır hedef değerleri', items: { type: 'INTEGER' } }, 
+            colTargets: { type: 'ARRAY', description: 'Sütun hedef değerleri', items: { type: 'INTEGER' } }, 
+            capsules: { 
+                type: 'ARRAY', 
+                description: 'Kapsül dizisi', 
+                items: { 
+                    type: 'OBJECT', 
+                    properties: { 
+                        id: { type: 'STRING', description: 'Benzersiz kimlik (örn: "15+", "4x")' }, 
+                        target: { type: 'INTEGER', description: 'Hedef değer' }, 
+                        cells: { 
+                            type: 'ARRAY', 
+                            description: 'Hücre koordinatları', 
+                            items: { 
+                                type: 'OBJECT', 
+                                properties: { 
+                                    x: { type: 'INTEGER', description: 'Sütun indeksi' }, 
+                                    y: { type: 'INTEGER', description: 'Satır indeksi' } 
+                                } 
+                            } 
+                        } 
+                    }, 
+                    required: ["id", "target", "cells"] 
+                } 
+            } 
+        }, 
+        required: ["title", "instruction", "grid", "capsules"] 
     };
     const schema = { type: 'ARRAY', items: singleSchema };
-
+    
     const rawResult = await generateWithSchema(prompt, schema);
     let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
     if (!Array.isArray(result)) result = [result];
@@ -577,7 +459,7 @@ export const generateOddEvenSudokuFromAI = async (options: GeneratorOptions): Pr
     ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
 
     const schema = { type: 'ARRAY', items: singleSchema };
-
+    
     const rawResult = await generateWithSchema(prompt, schema);
     let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
     if (!Array.isArray(result)) result = [result];
@@ -600,7 +482,7 @@ export const generateFutoshikiFromAI = async (options: GeneratorOptions): Promis
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde "Futoşhiki" bulmacası. Büyüktür/Küçüktür işaretlerine göre rakamları yerleştir. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
     const schema = { type: 'ARRAY', items: singleSchema };
-
+    
     const rawResult = await generateWithSchema(prompt, schema);
     let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
     if (!Array.isArray(result)) result = [result];
@@ -617,7 +499,7 @@ export const generateKendokuFromAI = async (options: GeneratorOptions): Promise<
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde "Kendoku" (Can-Can) bulmacası. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
     const schema = { type: 'ARRAY', items: singleSchema };
-
+    
     const rawResult = await generateWithSchema(prompt, schema);
     let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
     if (!Array.isArray(result)) result = [result];
@@ -634,7 +516,7 @@ export const generateNumberPyramidFromAI = async (options: GeneratorOptions): Pr
     const { difficulty, worksheetCount } = options;
     const prompt = `"${difficulty}" seviyesinde "Sayı Piramidi". Alt iki kutucuğun toplamı üsttekini verecek şekilde pyramid üret. ${PEDAGOGICAL_PROMPT} ${worksheetCount} adet üret.`;
     const schema = { type: 'ARRAY', items: singleSchema };
-
+    
     const rawResult = await generateWithSchema(prompt, schema);
     let result: any[] = Array.isArray(rawResult) ? rawResult : ((rawResult as any)?.items || (rawResult as any)?.data || [rawResult]);
     if (!Array.isArray(result)) result = [result];

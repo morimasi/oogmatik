@@ -1,22 +1,4 @@
 import React from 'react';
-import { ActivityType } from '../../../types/activity';
-import { PedagogicalHeader } from '../common';
-import { EditableElement, EditableText } from '../../Editable';
-
-interface GizemliSayilarData {
-  id: string;
-  activityType: ActivityType;
-  title: string;
-  instruction: string;
-  riddles: {
-    id: string;
-    mysteryNumber: number;
-    clues: { id: string; text: string; type: string }[];
-  }[];
-  settings: Record<string, unknown>;
-}
-
-import React from 'react';
 import { NumberLogicRiddleData } from '../../../types/math';
 import { PedagogicalHeader } from '../common';
 import { EditableElement, EditableText } from '../../Editable';
@@ -59,7 +41,7 @@ export const GizemliSayilarSheet: React.FC<{ data: NumberLogicRiddleData }> = ({
   };
 
   const style = themeStyles[aestheticMode] || themeStyles.standard;
-  
+
   // Choose layout based on number of puzzles
   const getGridClass = () => {
     if (puzzles.length >= 8) return 'grid grid-cols-2 gap-4 mt-6';
@@ -85,20 +67,20 @@ export const GizemliSayilarSheet: React.FC<{ data: NumberLogicRiddleData }> = ({
 
             {/* Visual Distraction Layer */}
             {puzzle.visualDistraction && puzzle.visualDistraction.length > 0 && (
-                <div className="absolute inset-0 opacity-[0.03] pointer-events-none select-none flex flex-wrap gap-4 p-4 overflow-hidden">
-                    {puzzle.visualDistraction.map((num, idx) => (
-                        <span key={idx} className="text-4xl font-black">{num}</span>
-                    ))}
-                </div>
+              <div className="absolute inset-0 opacity-[0.03] pointer-events-none select-none flex flex-wrap gap-4 p-4 overflow-hidden">
+                {puzzle.visualDistraction.map((num, idx) => (
+                  <span key={idx} className="text-4xl font-black">{num}</span>
+                ))}
+              </div>
             )}
-            
+
             <div className="flex-1 space-y-4 mt-8 relative z-10">
               {(puzzle.riddleParts || []).map((part, cIdx) => (
                 <div key={cIdx} className="flex items-start gap-4">
                   {showIcons && (
-                      <div className={`w-8 h-8 ${aestheticMode === 'neon' || aestheticMode === 'cyber' ? 'bg-white/5' : 'bg-white'} rounded-xl shadow-sm border border-black/5 flex items-center justify-center shrink-0`}>
-                        <i className={`fa-solid ${part.icon || 'fa-magnifying-glass'} ${style.iconColor} text-sm`}></i>
-                      </div>
+                    <div className={`w-8 h-8 ${aestheticMode === 'neon' || aestheticMode === 'cyber' ? 'bg-white/5' : 'bg-white'} rounded-xl shadow-sm border border-black/5 flex items-center justify-center shrink-0`}>
+                      <i className={`fa-solid ${part.icon || 'fa-magnifying-glass'} ${style.iconColor} text-sm`}></i>
+                    </div>
                   )}
                   <p className="text-[13px] font-bold leading-snug pt-1">
                     {part.text}
@@ -109,13 +91,13 @@ export const GizemliSayilarSheet: React.FC<{ data: NumberLogicRiddleData }> = ({
 
             {/* Options */}
             {puzzle.options && (
-                <div className="mt-6 flex flex-wrap gap-2 justify-center relative z-10">
-                    {puzzle.options.map((opt, oIdx) => (
-                        <div key={oIdx} className={`px-3 py-1 rounded-lg border-2 ${aestheticMode === 'neon' || aestheticMode === 'cyber' ? 'border-white/10 bg-white/5' : 'border-zinc-200 bg-white'} text-[10px] font-black opacity-40`}>
-                            {opt}
-                        </div>
-                    ))}
-                </div>
+              <div className="mt-6 flex flex-wrap gap-2 justify-center relative z-10">
+                {puzzle.options.map((opt, oIdx) => (
+                  <div key={oIdx} className={`px-3 py-1 rounded-lg border-2 ${aestheticMode === 'neon' || aestheticMode === 'cyber' ? 'border-white/10 bg-white/5' : 'border-zinc-200 bg-white'} text-[10px] font-black opacity-40`}>
+                    {opt}
+                  </div>
+                ))}
+              </div>
             )}
 
             <div className="mt-6 pt-4 border-t-2 border-dashed border-black/10 flex justify-between items-center relative z-10">

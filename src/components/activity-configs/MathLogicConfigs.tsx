@@ -1,4 +1,5 @@
 import React from 'react';
+import { GeneratorOptions } from '../../types';
 
 interface Props {
   options: GeneratorOptions;
@@ -7,7 +8,7 @@ interface Props {
 
 export const OddEvenSudokuConfig: React.FC<Props> = ({ options, onChange }) => {
   const o = (options as any).oddEvenSudoku || {};
-  
+
   const update = (updates: Record<string, unknown>) => {
     onChange('oddEvenSudoku' as any, { ...o, ...updates });
   };
@@ -123,11 +124,10 @@ export const CapsuleGameConfig: React.FC<Props> = ({ options, onChange }) => {
               <button
                 key={op.id}
                 onClick={() => update({ operation: op.id })}
-                className={`flex-1 flex flex-col items-center py-2 px-1 rounded-xl border-2 transition-all ${
-                  (o.operation || 'addition') === op.id 
-                  ? 'bg-emerald-500 border-emerald-500 text-white shadow-md' 
-                  : 'bg-white border-zinc-100 text-zinc-400 hover:border-emerald-200'
-                }`}
+                className={`flex-1 flex flex-col items-center py-2 px-1 rounded-xl border-2 transition-all ${(o.operation || 'addition') === op.id
+                    ? 'bg-emerald-500 border-emerald-500 text-white shadow-md'
+                    : 'bg-white border-zinc-100 text-zinc-400 hover:border-emerald-200'
+                  }`}
               >
                 <i className={`fa-solid fa-${op.icon} text-sm mb-1`}></i>
                 <span className="text-[9px] font-bold">{op.label}</span>
@@ -148,11 +148,10 @@ export const CapsuleGameConfig: React.FC<Props> = ({ options, onChange }) => {
             <button
               key={theme.id}
               onClick={() => update({ aestheticMode: theme.id })}
-              className={`py-2 px-1 rounded-lg text-[10px] font-black uppercase border-2 transition-all ${
-                (o.aestheticMode || 'crystal') === theme.id 
-                ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200 scale-105' 
-                : 'bg-white border-zinc-100 text-zinc-400 hover:border-emerald-200'
-              }`}
+              className={`py-2 px-1 rounded-lg text-[10px] font-black uppercase border-2 transition-all ${(o.aestheticMode || 'crystal') === theme.id
+                  ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200 scale-105'
+                  : 'bg-white border-zinc-100 text-zinc-400 hover:border-emerald-200'
+                }`}
             >
               {theme.label}
             </button>
@@ -216,11 +215,10 @@ export const MagicPyramidConfig: React.FC<Props> = ({ options, onChange }) => {
             <button
               key={t}
               onClick={() => update({ theme: t })}
-              className={`flex-1 py-3 rounded-xl border-2 font-black text-[10px] uppercase transition-all ${
-                (o.theme || 'classic') === t
-                ? 'bg-amber-500 border-amber-500 text-white shadow-lg'
-                : 'bg-zinc-50 border-zinc-100 text-zinc-400'
-              }`}
+              className={`flex-1 py-3 rounded-xl border-2 font-black text-[10px] uppercase transition-all ${(o.theme || 'classic') === t
+                  ? 'bg-amber-500 border-amber-500 text-white shadow-lg'
+                  : 'bg-zinc-50 border-zinc-100 text-zinc-400'
+                }`}
             >
               {t === 'classic' ? 'Kum' : t === 'forest' ? 'Orman' : t === 'desert' ? 'Güneş' : 'Buz'}
             </button>

@@ -1,5 +1,5 @@
 import { generateCreativeMultimodal } from '../geminiClient.js';
-import { WorksheetData } from '../../types/core.js';
+import { WorksheetData, SingleWorksheetData } from '../../types/core.js';
 import { logError, logInfo } from '../../utils/logger.js';
 import { assessContentQuality } from '../../utils/contentQuality.js';
 
@@ -60,9 +60,9 @@ export class VariationEngine {
         temperature: params?.temperature ?? 0.1,
       });
 
-      return result as Record<string, unknown>;
+      return result as unknown as { easy: WorksheetData; hard: WorksheetData; visualSupport: WorksheetData; };
     } catch (e) {
-      logError('VariationEngine error', e as unknown as Record<string, unknown>);
+      logError(e instanceof Error ? e : String(e));
       throw e;
     }
   }
@@ -112,11 +112,11 @@ export class VariationEngine {
       });
 
       const data = result as Record<string, string>;
-      const rawContent = (content: string): WorksheetData => ({
+      const rawContent = (content: string): WorksheetData => ([{
         title: '',
         content,
         instruction: '',
-      });
+      }] as unknown as SingleWorksheetData[]);
 
       const qualities = {
         easy: assessContentQuality(data.easy || '').overall,
@@ -135,7 +135,7 @@ export class VariationEngine {
         qualities,
       };
     } catch (e) {
-      logError('[VariationEngine] Tüm zorluk varyasyon hatası:', e as Record<string, unknown>);
+      logError(e instanceof Error ? e : String(e));
       throw e;
     }
   }

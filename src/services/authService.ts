@@ -1,10 +1,10 @@
 import { AppError } from '../utils/AppError';
 
 import { auth, db } from './firebaseClient.js';
-import { 
-    signInWithEmailAndPassword, 
-    createUserWithEmailAndPassword, 
-    signOut, 
+import {
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    signOut,
     updateProfile as updateAuthProfile,
     GoogleAuthProvider,
     getAuth,
@@ -24,27 +24,27 @@ const SUPER_ADMIN_EMAIL = import.meta.env.VITE_SUPER_ADMIN_EMAIL || 'morimasi@gm
 const mapDbUserToAppUser = (docData: Record<string, unknown>, uid: string, email: string): User => {
     const d = docData;
     const role = email === SUPER_ADMIN_EMAIL ? 'superadmin' : ((d.role as string) || 'teacher');
-    
+
     return {
         id: uid,
         email: email,
         name: (d.name as string) || email?.split('@')[0] || 'Kullanıcı',
-        role: role,
+        role: role as UserRole,
         avatar: (d.avatar as string) || `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
         createdAt: (d.createdAt as string) || new Date().toISOString(),
         lastLogin: (d.lastLogin as string) || new Date().toISOString(),
         worksheetCount: (d.worksheetCount as number) || 0,
-        status: (d.status as string) || 'active',
-        subscriptionPlan: (d.subscriptionPlan as string) || 'free',
+        status: ((d.status as string) || 'active') as UserStatus,
+        subscriptionPlan: ((d.subscriptionPlan as string) || 'free') as 'free' | 'pro',
         favorites: (d.favorites as string[]) || [],
-        lastActiveActivity: d.lastActiveActivity as string | undefined,
+        lastActiveActivity: d.lastActiveActivity as { id: string; title: string; date: string } | undefined,
         profession: (d.profession as string) || '',
         institution: (d.institution as string) || '',
         phone: (d.phone as string) || '',
         bio: (d.bio as string) || '',
-        pedagogySettings: d.pedagogySettings as Record<string, unknown> | undefined,
-        aiAssistantSettings: d.aiAssistantSettings as Record<string, unknown> | undefined,
-        notificationSettings: d.notificationSettings as Record<string, unknown> | undefined
+        pedagogySettings: d.pedagogySettings as User['pedagogySettings'],
+        aiAssistantSettings: d.aiAssistantSettings as User['aiAssistantSettings'],
+        notificationSettings: d.notificationSettings as User['notificationSettings']
     };
 };
 
@@ -83,7 +83,7 @@ export const authService = {
                 message: errMsg,
                 email: email
             });
-            
+
             if (errCode === 'auth/operation-not-allowed') {
                 throw new AppError("Sistem Hatası: Email/Şifre girişi Firebase Console üzerinden etkinleştirilmemiş. Lütfen 'Authentication > Sign-in method' altından aktif edin.", 'INTERNAL_ERROR', 500);
             }
@@ -138,12 +138,12 @@ export const authService = {
         } catch (error: unknown) {
             const errMsg = error instanceof Error ? error.message : String(error);
             const errCode = error && typeof error === 'object' && 'code' in error ? String((error as { code: string }).code) : undefined;
-            logError("Google login error:", { code: errCode, message: errMsg });
-            
+            logError(error instanceof Error ? error : String(error), { context: "Google login error", code: errCode, message: errMsg });
+
             if (errCode === 'auth/popup-closed-by-user' || errCode === 'auth/cancelled') {
                 throw new AppError("Giriş işlemi sizin tarafınızdan iptal edildi.", 'CANCELLED', 400);
             }
-            
+
             throw new AppError(`Google ile giriş yapılamadı: ${errMsg}`, 'INTERNAL_ERROR', 500);
         }
     },
@@ -151,12 +151,12 @@ export const authService = {
         try {
             const { getRedirectResult } = await import("firebase/auth");
             const result = await getRedirectResult(auth);
-            
+
             if (!result) {
                 logInfo("No redirect result found.");
                 return null;
             }
-            
+
             logInfo(`Redirect result found for user: ${result.user.email || 'unknown'}`);
             const user = result.user;
             const userDocRef = doc(db, "users", user.uid);
@@ -188,7 +188,7 @@ export const authService = {
                 return mapDbUserToAppUser(userDocSnap.data(), user.uid, user.email!);
             }
         } catch (error: unknown) {
-            logError("Handle redirect result error:", error instanceof Error ? error : String(error));
+            logError(error instanceof Error ? error : String(error), { context: "Handle redirect result error" });
             return null;
         }
     },
@@ -227,7 +227,7 @@ export const authService = {
         } catch (error: unknown) {
             const errMsg = error instanceof Error ? error.message : String(error);
             const errCode = error && typeof error === 'object' && 'code' in error ? String((error as { code: string }).code) : undefined;
-            logError("Register error:", error instanceof Error ? error : String(error));
+            logError(error instanceof Error ? error : String(error), { context: "Register error" });
             if (errCode === 'auth/email-already-in-use') throw new AppError("Bu e-posta adresi zaten kayıtlı.", 'INTERNAL_ERROR', 500);
             throw new AppError("Kayıt hatası: " + errMsg, 'INTERNAL_ERROR', 500);
         }
@@ -308,7 +308,7 @@ export const authService = {
                 }
             });
         } catch (e: unknown) {
-            logError("Failed to record activity generation for user", e instanceof Error ? e : String(e));
+            logError(e instanceof Error ? e : String(e), { context: "Failed to record activity generation for user" });
         }
     },
 
@@ -340,7 +340,7 @@ export const authService = {
             });
             return users;
         } catch (error: unknown) {
-            logError("Get contacts error:", error instanceof Error ? error : String(error));
+            logError(error instanceof Error ? error : String(error), { context: "Get contacts error" });
             return [];
         }
     },
@@ -352,13 +352,13 @@ export const authService = {
             // Biz batch olarak yapalım.
             const batches = [];
             const results: User[] = [];
-            
+
             for (let i = 0; i < userIds.length; i += 10) {
                 const batchIds = userIds.slice(i, i + 10);
                 const q = query(collection(db, "users"), firestore.where(firestore.documentId(), "in", batchIds));
                 batches.push(getDocs(q));
             }
-            
+
             const snapshots = await Promise.all(batches);
             snapshots.forEach((snapshot: firestore.QuerySnapshot<firestore.DocumentData>) => {
                 snapshot.forEach((doc: firestore.QueryDocumentSnapshot<firestore.DocumentData>) => {
@@ -366,10 +366,10 @@ export const authService = {
                     results.push(mapDbUserToAppUser(data, doc.id, data.email as string));
                 });
             });
-            
+
             return results;
         } catch (error: unknown) {
-            logError("Get multiple users error:", error instanceof Error ? error : String(error));
+            logError(error instanceof Error ? error : String(error), { context: "Get multiple users error" });
             return [];
         }
     },
@@ -387,7 +387,7 @@ export const authService = {
             });
             return { users: users, count: users.length };
         } catch (error: unknown) {
-            logError("Get all users error:", error instanceof Error ? error : String(error));
+            logError(error instanceof Error ? error : String(error), { context: "Get all users error" });
             return { users: [], count: 0 };
         }
     },
