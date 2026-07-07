@@ -182,39 +182,56 @@ export function toAppError(
 
   let result: AppError;
 
-  // Firebase Authentication hatası (plain object veya Error olabilir)
-  if (typeof error === 'object' && error !== null && 'code' in error) {
+  // Standart Error nesnesi (FirebaseError de Error'dan türemiştir)
+  if (error instanceof Error) {
     const code = (error as any).code;
 
-    if (
-      code === 'auth/invalid-credential' ||
-      code === 'auth/user-not-found' ||
-      code === 'auth/wrong-password'
-    ) {
-      result = new AuthenticationError('E-posta veya şifre hatalı.');
-    } else if (code === 'auth/email-already-in-use') {
-      result = new ValidationError('Bu e-posta adresi zaten kayıtlı.');
-    } else if (code === 'auth/weak-password') {
-      result = new ValidationError('Şifre en az 6 karakter olmalıdır.');
-    } else if (code === 'auth/network-request-failed') {
-      result = new NetworkError('Sunucuya ulaşılamadı.');
-    } else {
-      result = new InternalServerError(defaultMessage || 'Kimlik doğrulama hatası');
-      result.code = defaultCode || 'AUTH_ERROR';
+    // Firebase Auth hataları
+    if (code && code.startsWith('auth/')) {
+      if (
+        code === 'auth/invalid-credential' ||
+        code === 'auth/user-not-found' ||
+        code === 'auth/wrong-password'
+      ) {
+        result = new AuthenticationError('E-posta veya şifre hatalı.');
+      } else if (code === 'auth/email-already-in-use') {
+        result = new ValidationError('Bu e-posta adresi zaten kayıtlı.');
+      } else if (code === 'auth/weak-password') {
+        result = new ValidationError('Şifre en az 6 karakter olmalıdır.');
+      } else if (code === 'auth/network-request-failed') {
+        result = new NetworkError('Sunucuya ulaşılamadı.');
+      } else {
+        result = new AuthenticationError(defaultMessage || 'Kimlik doğrulama hatası.');
+      }
     }
-  }
-  // Standart Error nesnesi
-  else if (error instanceof Error) {
+    // Firebase Firestore hataları
+    else if (code && code.startsWith('firestore/')) {
+      if (code === 'firestore/permission-denied') {
+        result = new AuthorizationError('Veritabanı erişim izniniz yok. Yönetici ile iletişime geçin.');
+      } else if (code === 'firestore/unavailable') {
+        result = new NetworkError('Veritabanı şu anda kullanılamıyor.');
+      } else if (code === 'firestore/deadline-exceeded') {
+        result = new TimeoutError('Veritabanı');
+      } else if (code === 'firestore/quota-exceeded') {
+        result = new QuotaExceededError('Veritabanı kotası dolmuştur.');
+      } else if (code === 'firestore/failed-precondition') {
+        result = new ConflictError('İşlem çakışması oluştu. Lütfen yeniden deneyiniz.');
+      } else if (code === 'firestore/invalid-argument') {
+        result = new ValidationError('Geçersiz veri gönderildi.');
+      } else {
+        result = new DatabaseError(defaultMessage || `Veritabanı hatası: ${code}`);
+      }
+    }
     // Network hatası
-    if (error.message.includes('fetch') || error.message.includes('network')) {
+    else if (error.message.includes('fetch') || error.message.includes('network')) {
       result = new NetworkError();
     }
     // Timeout
     else if (error.message.includes('timeout')) {
       result = new TimeoutError();
     }
-    // Firestore hatası
-    else if (error.message.includes('PERMISSION_DENIED')) {
+    // Firestore PERMISSION_DENIED (mesaj bazlı, eski sürümler için)
+    else if (error.message.includes('PERMISSION_DENIED') || error.message.includes('permission-denied')) {
       result = new AuthorizationError();
     }
     // Default: Generic error
@@ -227,6 +244,23 @@ export function toAppError(
       }
       result = new InternalServerError(defaultMessage || (isDev ? error.message : undefined));
       if (defaultCode) result.code = defaultCode;
+    }
+  }
+  // Plain object with code (non-Error Firebase objects)
+  else if (typeof error === 'object' && error !== null && 'code' in error) {
+    const code = (error as any).code;
+
+    if (code && code.startsWith('auth/')) {
+      result = new AuthenticationError(defaultMessage || 'Kimlik doğrulama hatası.');
+    } else if (code && code.startsWith('firestore/')) {
+      if (code === 'firestore/permission-denied') {
+        result = new AuthorizationError('Veritabanı erişim izniniz yok.');
+      } else {
+        result = new DatabaseError(defaultMessage || `Veritabanı hatası: ${code}`);
+      }
+    } else {
+      result = new InternalServerError(defaultMessage || 'Bilinmeyen hata oluştu.');
+      result.code = defaultCode || 'UNKNOWN_ERROR';
     }
   }
   // String hata

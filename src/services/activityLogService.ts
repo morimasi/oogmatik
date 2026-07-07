@@ -1,6 +1,7 @@
 import { db } from './firebaseClient';
 import { collection, addDoc, getDocs, query, where } from 'firebase/firestore';
 import { TeacherActivityType } from '../types/teacher';
+import { logError } from '../utils/logger';
 
 export const activityLogService = {
   logActivity: async (
@@ -21,8 +22,8 @@ export const activityLogService = {
         metadata: metadata || {},
         createdAt: new Date().toISOString(),
       });
-    } catch {
-      // Silently fail — activity logging must never block the main flow
+    } catch (e) {
+      logError('Aktivite logu kaydedilemedi', { error: e instanceof Error ? e.message : String(e) });
     }
   },
 
@@ -41,7 +42,8 @@ export const activityLogService = {
       });
       activities.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       return { activities, typeCounts };
-    } catch {
+    } catch (e) {
+      logError('Aktivite logları okunamadı', { error: e instanceof Error ? e.message : String(e) });
       return { activities: [], typeCounts: {} };
     }
   },
