@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle, Search, Users, Calendar } from 'lucide-react';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../../services/firebaseClient';
 import { useAssignmentStore } from '../../store/useAssignmentStore';
 import { useStudentStore } from '../../store/useStudentStore';
 import { useAuthStore } from '../../store/useAuthStore';
@@ -68,16 +70,24 @@ export const AssignModal: React.FC = () => {
     if (!user?.id) return;
 
     setIsSubmitting(true);
+    const studentIds = Array.from(selectedStudents);
     const success = await createAssignment({
-      studentIds: Array.from(selectedStudents),
+      studentIds,
       worksheetId: activeWorksheetId,
       dueDate: dueDate || undefined
     }, user.id);
 
-    setIsSubmitting(false);
     if (success) {
+      // Worksheet'in Materyaller sekmesinde gorunmesi icin studentId ata
+      try {
+        const wsRef = doc(db, 'saved_worksheets', activeWorksheetId);
+        await updateDoc(wsRef, { studentId: studentIds[0] });
+      } catch {
+        // Onemsiz hata - atama zaten basarili
+      }
       setIsAssignModalOpen(false);
     }
+    setIsSubmitting(false);
   };
 
   return (

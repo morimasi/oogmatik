@@ -176,7 +176,8 @@ export const ResultDashboard: FC<Props> = ({
         data.gender,
         data.age,
         data.grade,
-        data.report
+        data.report,
+        data.studentId
       );
       setIsSaved(true);
       alert('Rapor başarıyla arşivinize kaydedildi.');
