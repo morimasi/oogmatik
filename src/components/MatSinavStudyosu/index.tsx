@@ -220,6 +220,10 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ initialData 
                 }],
                 'fa-solid fa-square-root-variable',
                 { id: 'math-logic', title: 'Matematik & Mantık' },
+                undefined,
+                undefined,
+                activeStudent?.id,
+                activeStudent?.name
             );
             setSavedExamDocId(saved.id);
             showSuccess('Sınav kaydedildi!');

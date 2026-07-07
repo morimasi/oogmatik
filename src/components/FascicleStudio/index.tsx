@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useFascicleStore } from '../../store/useFascicleStore';
 import { useAuthStore } from '../../store/useAuthStore';
+import { useStudentStore } from '../../store/useStudentStore';
 import { useAssignmentStore } from '../../store/useAssignmentStore';
 import { FascicleSidebar } from './FascicleSidebar';
 import { FasciclePreview } from './FasciclePreview';
@@ -21,6 +22,7 @@ interface FascicleStudioProps {
 export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
   const { currentFascicleId, metadata, items, undo, redo, past, future } = useFascicleStore();
   const { user } = useAuthStore();
+  const { activeStudent } = useStudentStore();
   const { setIsAssignModalOpen } = useAssignmentStore();
 
   const [isPrinting, setIsPrinting] = useState(false);
@@ -90,7 +92,11 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
         ActivityType.FASCICLE,
         [{ metadata, items }] as any,
         'fa-solid fa-layer-group',
-        { id: 'fascicles', title: 'Fasiküller' }
+        { id: 'fascicles', title: 'Fasiküller' },
+        undefined,
+        undefined,
+        activeStudent?.id,
+        activeStudent?.name
       );
 
       setSavedFascicleId(saved.id);

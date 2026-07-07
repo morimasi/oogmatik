@@ -239,6 +239,10 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
         }],
         'fa-solid fa-file-lines',
         { id: 'reading-comprehension', title: 'Okuduğunu Anlama' },
+        undefined,
+        undefined,
+        activeStudent?.id,
+        activeStudent?.name
       );
       setSavedExamDocId(saved.id);
       showSuccess('Sınav kaydedildi!');

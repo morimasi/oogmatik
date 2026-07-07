@@ -126,6 +126,10 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
                 worksheetData,
                 activityInfo.icon || 'fa-solid fa-file',
                 { id: 'reading-verbal', title: 'Okuma & Dil' },
+                undefined,
+                undefined,
+                activeStudent?.id,
+                activeStudent?.name
             );
 
             if (onSaveToArchive) {

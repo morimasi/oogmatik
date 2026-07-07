@@ -468,7 +468,11 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
           selectedCatalogType as ActivityType,
           [],
           meta?.icon || 'fa-solid fa-puzzle-piece',
-          cat ? { id: cat.id, title: cat.title } : { id: 'uncategorized', title: 'Kategorisiz' }
+          cat ? { id: cat.id, title: cat.title } : { id: 'uncategorized', title: 'Kategorisiz' },
+          undefined,
+          undefined,
+          studentId,
+          ''
         );
         finalWorksheetId = saved.id;
       } catch {

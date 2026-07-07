@@ -119,7 +119,11 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook, initialData }: SariKita
                     }
                 }],
                 '📒',
-                { id: 'reading-verbal', title: 'Okuma & Dil' }
+                { id: 'reading-verbal', title: 'Okuma & Dil' },
+                undefined,
+                undefined,
+                activeStudent?.id,
+                activeStudent?.name
             );
             toast.success('Etkinlik başarıyla kaydedildi!');
         } catch (err: unknown) {
@@ -157,7 +161,11 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook, initialData }: SariKita
                     }
                 }],
                 '📒',
-                { id: 'reading-verbal', title: 'Okuma & Dil' }
+                { id: 'reading-verbal', title: 'Okuma & Dil' },
+                undefined,
+                undefined,
+                activeStudent?.id,
+                activeStudent?.name
             );
 
             // Kaydedilen çalışmayı yetkilendirerek paylaş

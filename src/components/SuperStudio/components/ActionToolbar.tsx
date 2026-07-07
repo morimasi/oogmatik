@@ -2,6 +2,7 @@ import React from 'react';
 import { useSuperStudioStore } from '../../../store/useSuperStudioStore';
 import { worksheetService } from '../../../services/worksheetService';
 import { useAuthStore } from '../../../store/useAuthStore';
+import { useStudentStore } from '../../../store/useStudentStore';
 import { useToastStore } from '../../../store/useToastStore';
 import { printService } from '../../../utils/printService';
 import { SingleWorksheetData, ActivityType } from '../../../types';
@@ -16,6 +17,7 @@ interface ActionToolbarProps {
 export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
   const { generatedContents, isGenerating, selectedTemplates, difficulty } = useSuperStudioStore();
   const { user } = useAuthStore();
+  const { activeStudent } = useStudentStore();
   const { show: addToast } = useToastStore();
 
   const firstTemplateDef = selectedTemplates.length > 0 ? getTemplateById(selectedTemplates[0]) : null;
@@ -54,6 +56,10 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
         worksheetData,
         'fa-solid fa-wand-magic-sparkles',
         { id: content.templateId, title: firstTemplateDef?.title || 'Süper Türkçe Etkinliği' },
+        undefined,
+        undefined,
+        activeStudent?.id,
+        activeStudent?.name
       );
       addToast('Çalışma başarıyla buluta kaydedildi.', 'success');
     } catch (error) {

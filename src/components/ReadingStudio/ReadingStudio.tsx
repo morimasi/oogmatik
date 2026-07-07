@@ -254,7 +254,11 @@ const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) =>
         ActivityType.STORY_COMPREHENSION,
         [workbookData],
         'fa-solid fa-book-open',
-        { id: 'reading-comprehension', title: 'Okuduğunu Anlama' }
+        { id: 'reading-comprehension', title: 'Okuduğunu Anlama' },
+        undefined,
+        undefined,
+        activeStudent?.id || globalActiveStudent?.id,
+        activeStudent?.name || globalActiveStudent?.name
       );
       toast.success('Çalışmanız başarıyla arşive kaydedildi.');
     } catch (_e) {
