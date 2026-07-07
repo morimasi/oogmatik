@@ -154,11 +154,20 @@ export const useStudentStore = create<StudentState>()((set, get) => ({
   },
 
   updateStudent: async (id: string, updates: Partial<Student>) => {
-    // updates direkt db'ye aktarılsın (advanced fieldlar kaybolmasın)
-    await updateDoc(doc(db, 'students', id), updates as any);
+    try {
+      await updateDoc(doc(db, 'students', id), updates as any);
+    } catch (error) {
+      logError(toAppError(error), { context: 'updateStudent Hatası' });
+      throw error;
+    }
   },
 
   deleteStudent: async (id: string) => {
-    await deleteDoc(doc(db, 'students', id));
+    try {
+      await deleteDoc(doc(db, 'students', id));
+    } catch (error) {
+      logError(toAppError(error), { context: 'deleteStudent Hatası' });
+      throw error;
+    }
   },
 }));

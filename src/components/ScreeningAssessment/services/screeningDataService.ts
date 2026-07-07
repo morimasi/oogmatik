@@ -4,6 +4,7 @@ import { useToastStore } from '../../../store/useToastStore';
 import { db } from '../../../services/firebaseClient';
 import { collection, addDoc, query, where, getDocs, doc, deleteDoc, updateDoc } from "firebase/firestore";
 import { useAuthStore } from '../../../store/useAuthStore';
+import { logError } from '../../../utils/logger';
 
 const API_BASE = '/api/screening';
 
@@ -13,7 +14,8 @@ export const screeningDataService = {
       const response = await fetch(`${API_BASE}/student/${studentId}`);
       if (!response.ok) throw new Error('Geçmiş alınamadı');
       return await response.json();
-    } catch {
+    } catch (e) {
+      logError('Öğrenci tarama geçmişi alınamadı', { error: e instanceof Error ? e.message : String(e), context: 'fetchStudentHistory' });
       return [];
     }
   },
@@ -34,7 +36,8 @@ export const screeningDataService = {
       const response = await fetch(`${API_BASE}/all?${params}`);
       if (!response.ok) throw new Error('Sonuçlar alınamadı');
       return await response.json();
-    } catch {
+    } catch (e) {
+      logError('Tarama sonuçları alınamadı', { error: e instanceof Error ? e.message : String(e), context: 'fetchAll' });
       return [];
     }
   },
@@ -124,7 +127,8 @@ export const screeningDataService = {
       const docRef = await addDoc(collection(db, "saved_screenings"), payload);
       useToastStore.getState().success('Tarama başarıyla kaydedildi.');
       return docRef.id;
-    } catch {
+    } catch (e) {
+      logError('Tarama Firestore\'a kaydedilemedi', { error: e instanceof Error ? e.message : String(e), context: 'saveResultToFirestore' });
       useToastStore.getState().error('Tarama kaydedilemedi.');
       return null;
     }
@@ -142,7 +146,8 @@ export const screeningDataService = {
         items.push({ ...data, id: docSnap.id, date: data?.date ? new Date(data.date) : new Date() } as ScreeningResult);
       });
       return items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    } catch {
+    } catch (e) {
+      logError('Kullanıcı tarama kayıtları okunamadı', { error: e instanceof Error ? e.message : String(e), context: 'getUserScreeningsFromFirestore' });
       return [];
     }
   },
@@ -151,7 +156,8 @@ export const screeningDataService = {
     try {
       await deleteDoc(doc(db, "saved_screenings", id));
       return true;
-    } catch {
+    } catch (e) {
+      logError('Tarama silinemedi', { error: e instanceof Error ? e.message : String(e), context: 'deleteScreeningFromFirestore' });
       return false;
     }
   },
@@ -160,7 +166,8 @@ export const screeningDataService = {
     try {
       await updateDoc(doc(db, "saved_screenings", id), updates as Record<string, unknown>);
       return true;
-    } catch {
+    } catch (e) {
+      logError('Tarama güncellenemedi', { error: e instanceof Error ? e.message : String(e), context: 'updateScreeningInFirestore' });
       return false;
     }
   },

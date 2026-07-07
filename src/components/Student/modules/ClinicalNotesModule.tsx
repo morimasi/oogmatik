@@ -3,6 +3,7 @@ import { collection, query, where, onSnapshot, addDoc, Timestamp, deleteDoc, doc
 import { db } from '../../../services/firebaseClient';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { ClinicalNote } from './studentDashboardData';
+import { logError } from '../../../utils/logger';
 
 interface ClinicalNotesModuleProps {
   studentId: string;
@@ -46,6 +47,7 @@ export const ClinicalNotesModule = ({ studentId, studentName }: { studentId: str
       setAllNotes(notes);
       setLoading(false);
     }, (err: Error) => {
+      logError('Klinik notlar dinlenemedi', { error: err.message, context: 'ClinicalNotesModule-onSnapshot' });
       setError('Notlar yüklenemedi: ' + err.message);
       setLoading(false);
     });
@@ -124,6 +126,7 @@ export const ClinicalNotesModule = ({ studentId, studentName }: { studentId: str
       setNewNote({ category: 'progress', title: '', content: '', tags: '', priority: 'medium' });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Kayıt hatası';
+      logError('Klinik not kaydedilemedi', { error: msg, context: 'ClinicalNotesModule-save' });
       setError(msg);
     } finally {
       setSaving(false);
@@ -136,7 +139,9 @@ export const ClinicalNotesModule = ({ studentId, studentName }: { studentId: str
       await deleteDoc(doc(db, 'clinical_notes', id));
       if (selectedNote?.id === id) setSelectedNote(null);
     } catch (err: unknown) {
-      setError('Not silinemedi: ' + (err instanceof Error ? err.message : String(err)));
+      const msg = 'Not silinemedi: ' + (err instanceof Error ? err.message : String(err));
+      logError('Klinik not silinemedi', { error: err instanceof Error ? err.message : String(err), context: 'ClinicalNotesModule-delete' });
+      setError(msg);
     }
   };
 

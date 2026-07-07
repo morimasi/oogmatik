@@ -17,7 +17,7 @@ import {
 import { assignmentService } from '../services/assignmentService';
 import { useToastStore } from './useToastStore';
 
-import { AppError } from '../utils/AppError.js';
+import { AppError, toAppError } from '../utils/AppError.js';
 import { logError } from '../utils/logger.js';
 interface AssignmentState {
   assignments: ActivityAssignment[];
@@ -64,7 +64,7 @@ export const useAssignmentStore = create<AssignmentState>()((set) => ({
       });
       set({ assignments: assignmentList, isLoading: false });
     }, (error: Error) => {
-      logError("Assignment listener error:", { message: error.message });
+      logError(toAppError(error), { context: 'fetchTeacherAssignments listener' });
       set({ isLoading: false });
     });
   },
@@ -84,7 +84,7 @@ export const useAssignmentStore = create<AssignmentState>()((set) => ({
       });
       set({ assignments: assignmentList, isLoading: false });
     }, (error: Error) => {
-      logError("Assignment listener error:", { message: error.message });
+      logError(toAppError(error), { context: 'fetchStudentAssignments listener' });
       set({ isLoading: false });
     });
   },
@@ -98,12 +98,8 @@ export const useAssignmentStore = create<AssignmentState>()((set) => ({
       return true;
     } catch (error: unknown) {
       set({ isLoading: false });
-      const appError = error instanceof AppError ? error : new AppError(
-        'Assignment creation failed',
-        'ASSIGNMENT_CREATE_ERROR',
-        500,
-        { originalError: error }
-      );
+      const appError = toAppError(error, 'Atama oluşturulamadı', 'ASSIGNMENT_CREATE_ERROR');
+      logError(appError, { context: 'createAssignment' });
       useToastStore.getState().error(appError.userMessage || "Atama sırasında bir hata oluştu.");
       return false;
     }
@@ -117,12 +113,8 @@ export const useAssignmentStore = create<AssignmentState>()((set) => ({
       return true;
     } catch (error: unknown) {
       set({ isLoading: false });
-      const appError = error instanceof AppError ? error : new AppError(
-        'Assignment update failed',
-        'ASSIGNMENT_UPDATE_ERROR',
-        500,
-        { originalError: error }
-      );
+      const appError = toAppError(error, 'Atama güncellenemedi', 'ASSIGNMENT_UPDATE_ERROR');
+      logError(appError, { context: 'updateAssignment' });
       useToastStore.getState().error(appError.userMessage || "Güncelleme sırasında bir hata oluştu.");
       return false;
     }
@@ -136,12 +128,8 @@ export const useAssignmentStore = create<AssignmentState>()((set) => ({
       return true;
     } catch (error: unknown) {
       set({ isLoading: false });
-      const appError = error instanceof AppError ? error : new AppError(
-        'Assignment deletion failed',
-        'DELETE_ASSIGNMENT_ERROR',
-        500,
-        { originalError: error }
-      );
+      const appError = toAppError(error, 'Atama silinemedi', 'DELETE_ASSIGNMENT_ERROR');
+      logError(appError, { context: 'deleteAssignment' });
       useToastStore.getState().error(appError.userMessage || "Atama silinirken bir hata oluştu.");
       return false;
     }

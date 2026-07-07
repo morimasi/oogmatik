@@ -8,6 +8,7 @@ import { useStudentStore } from '../../store/useStudentStore';
 import { useAuthStore } from '../../store/useAuthStore';
 import { Student } from '../../types';
 import { useToastStore } from '../../store/useToastStore';
+import { logError } from '../../utils/logger';
 
 export const AssignModal: React.FC = () => {
   const { isAssignModalOpen, activeWorksheetId, setIsAssignModalOpen, createAssignment } = useAssignmentStore();
@@ -82,8 +83,8 @@ export const AssignModal: React.FC = () => {
       try {
         const wsRef = doc(db, 'saved_worksheets', activeWorksheetId);
         await updateDoc(wsRef, { studentId: studentIds[0] });
-      } catch {
-        // Onemsiz hata - atama zaten basarili
+      } catch (e) {
+        logError('Worksheet studentId güncellenemedi', { error: e instanceof Error ? e.message : String(e), context: 'AssignModal' });
       }
       setIsAssignModalOpen(false);
     }

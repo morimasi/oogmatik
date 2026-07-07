@@ -3,6 +3,7 @@ import { collection, query, where, getDocs, getDoc, doc, updateDoc, arrayUnion, 
 import { authService } from './authService';
 import { assessmentService } from './assessmentService';
 import { activityLogService } from './activityLogService';
+import { logError } from '../utils/logger';
 import { User } from '../types';
 import type { Student } from '../types/student';
 import { TeacherListItem, TeacherDetail, TeacherAnalytics, TeacherActivity, TeacherActivityType, TeacherStudentSummary } from '../types/teacher';
@@ -46,8 +47,8 @@ export const teacherService = {
 
             const plansSnap = await getDocs(query(collection(db, 'saved_curriculums'), where('userId', '==', t.id)));
             planCount = plansSnap.size;
-          } catch {
-            // Silently handle per-teacher fetch errors
+          } catch (e) {
+            logError('Öğretmen verileri alınamadı', { error: e instanceof Error ? e.message : String(e), context: 'getAllTeachers-inner' });
           }
 
           return {
@@ -70,7 +71,8 @@ export const teacherService = {
       );
 
       return items.sort((a, b) => b.studentCount - a.studentCount);
-    } catch {
+    } catch (e) {
+      logError('Öğretmen listesi alınamadı', { error: e instanceof Error ? e.message : String(e), context: 'getAllTeachers' });
       return [];
     }
   },
@@ -274,7 +276,8 @@ export const teacherService = {
       const docSnap = await getDoc(doc(db, col, targetId));
       if (!docSnap.exists()) return null;
       return { id: docSnap.id, ...docSnap.data() };
-    } catch {
+    } catch (e) {
+      logError('Aktivite önizleme alınamadı', { error: e instanceof Error ? e.message : String(e), context: 'getActivityPreview' });
       return null;
     }
   },
@@ -284,7 +287,8 @@ export const teacherService = {
       const docSnap = await getDoc(doc(db, 'students', studentId));
       if (!docSnap.exists()) return null;
       return { id: docSnap.id, ...docSnap.data() };
-    } catch {
+    } catch (e) {
+      logError('Öğrenci önizleme alınamadı', { error: e instanceof Error ? e.message : String(e), context: 'getStudentPreview' });
       return null;
     }
   },
@@ -293,7 +297,8 @@ export const teacherService = {
     try {
       const snap = await getDocs(collection(db, 'students'));
       return snap.docs.map(d => ({ id: d.id, ...d.data() } as Student));
-    } catch {
+    } catch (e) {
+      logError('Öğrenci listesi alınamadı', { error: e instanceof Error ? e.message : String(e), context: 'getAllStudents' });
       return [];
     }
   },

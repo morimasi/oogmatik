@@ -260,7 +260,8 @@ export const messageService = {
       );
       const snapshot = await getDocs(q);
       return snapshot.docs.map(docToIMessage);
-    } catch {
+    } catch (e) {
+      console.error('Silinen mesajlar okunamadı:', e);
       return [];
     }
   },

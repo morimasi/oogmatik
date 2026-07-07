@@ -4,6 +4,7 @@ import { db } from '../../../services/firebaseClient';
 import { SavedWorksheet } from '../../../types';
 import { useToastStore } from '../../../store/useToastStore';
 import { getMaterialCategories, MaterialCategory } from './studentDashboardData';
+import { logError } from '../../../utils/logger';
 
 interface MaterialsModuleProps {
   studentId: string;
@@ -68,6 +69,7 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
       await deleteDoc(doc(db, 'saved_worksheets', ws.id));
       useToastStore.getState().success('Materyal silindi', 3000);
     } catch (err) {
+      logError('Materyal silinemedi', { error: err instanceof Error ? err.message : String(err), context: 'MaterialsModule-delete' });
       useToastStore.getState().error('Silme hatası: ' + (err instanceof Error ? err.message : String(err)));
     }
   };

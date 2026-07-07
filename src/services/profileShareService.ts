@@ -1,5 +1,6 @@
 import { db } from './firebaseClient';
 import { collection, addDoc, query, where, getDocs, doc, deleteDoc, updateDoc, Timestamp } from 'firebase/firestore';
+import { logError } from '../utils/logger';
 
 export type SharedModuleType = 'overview' | 'reports' | 'analysis' | 'plans';
 export type SharePermission = 'view' | 'edit';
@@ -27,7 +28,8 @@ export const profileShareService = {
         createdAt: Timestamp.now().toDate().toISOString(),
       });
       return docRef.id;
-    } catch {
+    } catch (e) {
+      logError('Paylaşım oluşturulamadı', { error: e instanceof Error ? e.message : String(e), context: 'shareModule' });
       return null;
     }
   },
@@ -38,7 +40,8 @@ export const profileShareService = {
       const snapshot = await getDocs(q);
       return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as SharedContent))
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    } catch {
+    } catch (e) {
+      logError('Paylaşılan içerikler okunamadı', { error: e instanceof Error ? e.message : String(e), context: 'getSharedWithMe' });
       return [];
     }
   },
@@ -49,7 +52,8 @@ export const profileShareService = {
       const snapshot = await getDocs(q);
       return snapshot.docs.map(d => ({ id: d.id, ...d.data() } as SharedContent))
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    } catch {
+    } catch (e) {
+      logError('Paylaşılan içerikler okunamadı', { error: e instanceof Error ? e.message : String(e), context: 'getMySharedContent' });
       return [];
     }
   },
@@ -58,7 +62,8 @@ export const profileShareService = {
     try {
       await deleteDoc(doc(db, COLLECTION, shareId));
       return true;
-    } catch {
+    } catch (e) {
+      logError('Paylaşım silinemedi', { error: e instanceof Error ? e.message : String(e), context: 'removeShare' });
       return false;
     }
   },
@@ -69,7 +74,8 @@ export const profileShareService = {
         readAt: Timestamp.now().toDate().toISOString(),
       });
       return true;
-    } catch {
+    } catch (e) {
+      logError('Okundu bilgisi güncellenemedi', { error: e instanceof Error ? e.message : String(e), context: 'markAsRead' });
       return false;
     }
   },

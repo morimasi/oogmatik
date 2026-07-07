@@ -3,6 +3,7 @@ import { Curriculum, CurriculumActivityStatus, Student } from '../types.js';
 import type { Difficulty } from '../types/common.js';
 import { ACTIVITIES } from '../constants.js';
 import { db } from './firebaseClient.js';
+import { logError } from '../utils/logger.js';
 import { 
     collection, 
     addDoc, 
@@ -153,6 +154,7 @@ export const curriculumService = {
             });
             return items.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
         } catch (_e) {
+            logError('Müfredatlar okunamadı', { error: _e instanceof Error ? _e.message : String(_e), context: 'getUserCurriculums' });
             return [];
         }
     },
@@ -168,6 +170,7 @@ export const curriculumService = {
             });
             return items.sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime());
         } catch (_e) {
+            logError('Öğrenci müfredatları okunamadı', { error: _e instanceof Error ? _e.message : String(_e), context: 'getCurriculumsByStudent' });
             return [];
         }
     },

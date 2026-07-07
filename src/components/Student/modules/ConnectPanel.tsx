@@ -96,7 +96,7 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
                 if (msg.senderId !== currentUser.id) {
                     const readBy: string[] = (msg as any).readBy || [];
                     if (!readBy.includes(currentUser.id)) {
-                        messagingService.markAsRead(msg.id!, currentUser.id).catch(() => {});
+                        messagingService.markAsRead(msg.id!, currentUser.id).catch((e) => logError('Mesaj okundu işaretlenemedi', { error: e instanceof Error ? e.message : String(e) }));
                     }
                 }
             });

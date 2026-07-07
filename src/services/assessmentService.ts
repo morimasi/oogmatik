@@ -19,17 +19,22 @@ export const assessmentService = {
         report: AssessmentReport,
         studentId?: string
     ): Promise<void> => {
-        const payload = {
-            userId,
-            studentId: studentId || null,
-            studentName: studentName || 'Öğrenci',
-            gender: gender || 'Erkek',
-            age: age || 7,
-            grade: grade || '1. Sınıf',
-            report: JSON.parse(JSON.stringify(report)),
-            createdAt: new Date().toISOString()
-        };
-        await addDoc(collection(db, "saved_assessments"), payload);
+        try {
+            const payload = {
+                userId,
+                studentId: studentId || null,
+                studentName: studentName || 'Öğrenci',
+                gender: gender || 'Erkek',
+                age: age || 7,
+                grade: grade || '1. Sınıf',
+                report: JSON.parse(JSON.stringify(report)),
+                createdAt: new Date().toISOString()
+            };
+            await addDoc(collection(db, "saved_assessments"), payload);
+        } catch (error) {
+            logError('Değerlendirme kaydedilemedi', { error: error instanceof Error ? error.message : String(error), context: 'saveAssessment' });
+            throw error;
+        }
     },
 
     getUserAssessments: async (userId: string): Promise<SavedAssessment[]> => {
@@ -97,34 +102,44 @@ export const assessmentService = {
     },
 
     deleteAssessment: async (assessmentId: string, userId: string): Promise<void> => {
-        const ref = doc(db, 'saved_assessments', assessmentId);
-        const snap = await getDoc(ref);
-        if (!snap.exists()) {
-            throw new Error('Kayıt bulunamadı.');
+        try {
+            const ref = doc(db, 'saved_assessments', assessmentId);
+            const snap = await getDoc(ref);
+            if (!snap.exists()) {
+                throw new Error('Kayıt bulunamadı.');
+            }
+            const data = snap.data() as { userId?: string };
+            if (data.userId !== userId) {
+                throw new AuthorizationError('Bu raporu silme izniniz yok.');
+            }
+            await deleteDoc(ref);
+        } catch (error) {
+            logError('Değerlendirme silinemedi', { error: error instanceof Error ? error.message : String(error), context: 'deleteAssessment' });
+            throw error;
         }
-        const data = snap.data() as { userId?: string };
-        if (data.userId !== userId) {
-            throw new AuthorizationError('Bu raporu silme izniniz yok.');
-        }
-        await deleteDoc(ref);
     },
 
     shareAssessment: async (assessment: SavedAssessment, senderId: string, senderName: string, receiverId: string, permission?: string, message?: string): Promise<void> => {
-        const payload = {
-            userId: senderId,
-            studentName: assessment.studentName,
-            gender: assessment.gender,
-            age: assessment.age,
-            grade: assessment.grade,
-            report: JSON.parse(JSON.stringify(assessment.report)),
-            sharedBy: senderId,
-            sharedByName: senderName || 'Anonim',
-            sharedWith: receiverId,
-            permission: permission || 'view',
-            message: message || '',
-            createdAt: new Date().toISOString()
-        };
-        await addDoc(collection(db, "saved_assessments"), payload);
+        try {
+            const payload = {
+                userId: senderId,
+                studentName: assessment.studentName,
+                gender: assessment.gender,
+                age: assessment.age,
+                grade: assessment.grade,
+                report: JSON.parse(JSON.stringify(assessment.report)),
+                sharedBy: senderId,
+                sharedByName: senderName || 'Anonim',
+                sharedWith: receiverId,
+                permission: permission || 'view',
+                message: message || '',
+                createdAt: new Date().toISOString()
+            };
+            await addDoc(collection(db, "saved_assessments"), payload);
+        } catch (error) {
+            logError('Değerlendirme paylaşılamadı', { error: error instanceof Error ? error.message : String(error), context: 'shareAssessment' });
+            throw error;
+        }
     },
 
     getSharedAssessments: async (userId: string): Promise<SavedAssessment[]> => {
