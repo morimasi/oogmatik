@@ -230,7 +230,7 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
           <i className="fa-solid fa-chevron-right text-[var(--text-muted)] text-[9px] ml-auto"></i>
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-          {allWorksheets.slice(0, 6).map((ws: SavedWorksheet) => (
+          {[...allWorksheets].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 6).map((ws: SavedWorksheet) => (
             <div key={ws.id} className="flex items-center gap-2 p-2 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border-color)]/50 hover:border-[var(--accent-color)]/30 transition-all">
               <div className="w-7 h-7 bg-[var(--accent-muted)] text-[var(--accent-color)] rounded-lg flex items-center justify-center shrink-0">
                 <i className={`fa-solid ${ws.icon} text-[9px]`}></i>

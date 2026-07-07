@@ -391,7 +391,10 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
                   return (
                     <button
                       key={s.id}
-                      onClick={() => setSelectedStudentId(s.id)}
+                      onClick={() => {
+                        setSelectedStudentId(s.id);
+                        setActiveStudent(s);
+                      }}
                       className={`w-full flex items-center gap-3 p-2.5 rounded-2xl transition-all text-left group relative overflow-hidden ${isActive ? 'bg-[var(--bg-paper)] shadow-lg border border-[var(--border-color)] ring-1 ring-[var(--accent-color)]/20 shadow-indigo-500/5' : 'hover:bg-[var(--bg-secondary)] border border-transparent'}`}
                     >
                       <div className="relative shrink-0">
