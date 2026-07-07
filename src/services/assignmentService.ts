@@ -8,6 +8,7 @@ import {
   query, 
   where, 
   updateDoc, 
+  deleteDoc,
   writeBatch,
   Timestamp 
 } from './firebaseClient';
@@ -57,7 +58,7 @@ export const assignmentService = {
         assignments.push(assignment);
       }
 
-      await batch.commit().catch(err => {
+      await batch.commit().catch((err: any) => {
         throw new DatabaseError("Atamalar kaydedilirken bir hata oluştu.", err);
       });
 
@@ -77,11 +78,11 @@ export const assignmentService = {
         where("assignedBy", "==", teacherId)
       );
       
-      const querySnapshot = await getDocs(q).catch(err => {
+      const querySnapshot = await getDocs(q).catch((err: any) => {
         throw new DatabaseError("Atamalar yüklenirken hata oluştu.", err);
       });
 
-      return querySnapshot.docs.map(doc => doc.data() as ActivityAssignment);
+      return querySnapshot.docs.map((doc: any) => doc.data() as ActivityAssignment);
     }) as (...args: unknown[]) => Promise<unknown>,
     'Atamalar getirilemedi',
     'FETCH_TEACHER_ASSIGNMENTS_ERROR'
@@ -97,11 +98,11 @@ export const assignmentService = {
         where("studentId", "==", studentId)
       );
       
-      const querySnapshot = await getDocs(q).catch(err => {
+      const querySnapshot = await getDocs(q).catch((err: any) => {
         throw new DatabaseError("Atamalar yüklenirken hata oluştu.", err);
       });
 
-      return querySnapshot.docs.map(doc => doc.data() as ActivityAssignment);
+      return querySnapshot.docs.map((doc: any) => doc.data() as ActivityAssignment);
     }) as (...args: unknown[]) => Promise<unknown>,
     'Atamalar getirilemedi',
     'FETCH_STUDENT_ASSIGNMENTS_ERROR'
@@ -136,11 +137,29 @@ export const assignmentService = {
         }
       });
 
-      await updateDoc(docRef, updateData).catch((err) => {
+      await updateDoc(docRef, updateData).catch((err: any) => {
          throw new DatabaseError("Atama güncellenirken bir veritabanı hatası oluştu.", err);
       });
     }) as (...args: unknown[]) => Promise<unknown>,
     'Atama güncellenemedi',
     'UPDATE_ASSIGNMENT_ERROR'
+  ),
+
+  /**
+   * Atamayı siler.
+   */
+  deleteAssignment: wrapAsync(
+    (async (assignmentId: string): Promise<void> => {
+      if (!assignmentId) {
+        throw new ValidationError("Atama ID'si eksik.");
+      }
+      
+      const docRef = doc(db, COLLECTION_NAME, assignmentId);
+      await deleteDoc(docRef).catch((err: any) => {
+        throw new DatabaseError("Atama silinirken bir donanım/veritabanı hatası oluştu", err);
+      });
+    }) as (...args: unknown[]) => Promise<unknown>,
+    'Atama silinemedi',
+    'DELETE_ASSIGNMENT_ERROR'
   )
 };

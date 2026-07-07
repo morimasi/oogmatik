@@ -12,15 +12,19 @@ export interface ActivityAssignment {
   
   // Eğitmen notları ve öğrenci skoru (KVKK Kuralları uyarınca gizli tutulmalı)
   score?: number; 
+  teacherNotes?: string; 
 }
 
 export interface CreateAssignmentPayload {
   worksheetId: string;
   studentIds: string[]; // Toplu atama yapabilmek için array
   dueDate?: string;
+  teacherNotes?: string;
 }
 
 export interface AssignmentUpdatePayload {
   status?: AssignmentStatus;
   score?: number;
+  dueDate?: string;
+  teacherNotes?: string;
 }

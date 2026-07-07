@@ -131,7 +131,7 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
       setLoadingDetails(true);
       
       // Cleanup previous listeners
-      realtimeUnsubs.current.forEach(unsub => {
+      realtimeUnsubs.current.forEach((unsub: any) => {
         try { unsub(); } catch (e) { logError(toAppError(e), { context: 'unsub cleanup' }); }
       });
       realtimeUnsubs.current = [];
@@ -144,8 +144,8 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
         // 2. Real-time Worksheets Listener
         const qWorksheets = query(collection(db, "saved_worksheets"), where("studentId", "==", selectedStudentId));
         const unsubWorksheets = onSnapshot(qWorksheets, {
-          next: (snapshot) => {
-            const ws = snapshot.docs.map((doc) => {
+          next: (snapshot: any) => {
+            const ws = snapshot.docs.map((doc: any) => {
               const raw = doc.data() as any;
               if (typeof raw.worksheetData === 'string') { try { raw.worksheetData = JSON.parse(raw.worksheetData); } catch { raw.worksheetData = []; } }
               return { id: doc.id, ...raw } as SavedWorksheet;
@@ -153,7 +153,7 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
             setStudentWorksheets(ws);
             setLoadingDetails(false);
           },
-          error: (err) => {
+          error: (err: any) => {
             logError(toAppError(err), { context: 'Worksheets listener error' });
             setLoadingDetails(false);
           }
@@ -163,22 +163,22 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
         // 3. Real-time Assessments (Reports) Listener
         const qAssessments = query(collection(db, "saved_assessments"), where("studentId", "==", selectedStudentId));
         const unsubAssessments = onSnapshot(qAssessments, {
-          next: (snapshot) => {
-            const as = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+          next: (snapshot: any) => {
+            const as = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as any));
             setStudentAssessments(as);
           },
-          error: (err) => logError(toAppError(err), { context: 'Assessments listener error' })
+          error: (err: any) => logError(toAppError(err), { context: 'Assessments listener error' })
         });
         realtimeUnsubs.current.push(unsubAssessments);
 
         // 4. Real-time Curriculums (Plans) Listener
         const qCurriculums = query(collection(db, "saved_curriculums"), where("studentId", "==", selectedStudentId));
         const unsubCurriculums = onSnapshot(qCurriculums, {
-          next: (snapshot) => {
-            const cr = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+          next: (snapshot: any) => {
+            const cr = snapshot.docs.map((doc: any) => ({ id: doc.id, ...doc.data() } as any));
             setStudentCurriculums(cr);
           },
-          error: (err) => logError(toAppError(err), { context: 'Curriculums listener error' })
+          error: (err: any) => logError(toAppError(err), { context: 'Curriculums listener error' })
         });
         realtimeUnsubs.current.push(unsubCurriculums);
 
@@ -593,6 +593,7 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
                     studentId={selectedStudent.id}
                     assignments={assignments}
                     onUpdateAssignment={updateAssignment}
+                    onLoadMaterial={onLoadMaterial}
                   />
                 </div>
               )}

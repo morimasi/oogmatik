@@ -13,6 +13,7 @@ interface AssignmentsModuleProps {
   studentId: string;
   assignments: ActivityAssignment[];
   onUpdateAssignment?: (id: string, updates: Partial<ActivityAssignment>) => void;
+  onLoadMaterial?: (worksheet: any) => void;
 }
 
 type FilterStatus = 'all' | 'pending' | 'in_progress' | 'completed';
@@ -22,6 +23,7 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
   studentId,
   assignments,
   onUpdateAssignment,
+  onLoadMaterial,
 }) => {
   const allAssignments = assignments;
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
@@ -30,7 +32,15 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
   const [selectedAssignment, setSelectedAssignment] = useState<ActivityAssignment | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showNewAssignModal, setShowNewAssignModal] = useState(false);
+  
+  // Premium Edit Modal States
   const [editScore, setEditScore] = useState<number | undefined>(undefined);
+  const [editStatus, setEditStatus] = useState<ActivityAssignment["status"]>('pending');
+  const [editDueDate, setEditDueDate] = useState<string>('');
+  const [editTeacherNotes, setEditTeacherNotes] = useState<string>('');
+  
+  const { user } = useAuthStore();
+  const { deleteAssignment } = useAssignmentStore();
 
   const filtered = useMemo(() => {
     let result = [...allAssignments];
@@ -57,7 +67,7 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
     return result;
   }, [allAssignments, filterStatus, sortBy, searchQuery]);
 
-  const statusCounts = useMemo(() => ({
+  const statusCounts: Record<FilterStatus, number> = useMemo(() => ({
     all: allAssignments.length,
     pending: allAssignments.filter(a => a.status === 'pending').length,
     in_progress: allAssignments.filter(a => a.status === 'in_progress').length,
@@ -67,7 +77,11 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
   const handleSaveEdit = () => {
     if (selectedAssignment && onUpdateAssignment) {
       const updates: Partial<ActivityAssignment> = {};
-      if (editScore !== undefined && editScore !== selectedAssignment.score) updates.score = editScore;
+      if (editScore !== selectedAssignment.score) updates.score = editScore;
+      if (editStatus !== selectedAssignment.status) updates.status = editStatus;
+      if (editDueDate !== (selectedAssignment.dueDate || '')) updates.dueDate = editDueDate;
+      if (editTeacherNotes !== (selectedAssignment.teacherNotes || '')) updates.teacherNotes = editTeacherNotes;
+      
       if (Object.keys(updates).length > 0) {
         onUpdateAssignment(selectedAssignment.id, updates);
       }
@@ -79,7 +93,28 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
   const handleOpenEdit = (assignment: ActivityAssignment) => {
     setSelectedAssignment(assignment);
     setEditScore(assignment.score);
+    setEditStatus(assignment.status);
+    setEditDueDate(assignment.dueDate || '');
+    setEditTeacherNotes(assignment.teacherNotes || '');
     setShowEditModal(true);
+  };
+
+  const handleOpenAssignmentInStudio = async (assignment: ActivityAssignment) => {
+    if (!onLoadMaterial || !user) return;
+    try {
+      const loadingToast = useToastStore.getState().loading("İçerik yükleniyor...");
+      const worksheet = await worksheetService.getWorksheetById(assignment.worksheetId, user.id);
+      useToastStore.getState().dismiss(loadingToast);
+      if (worksheet) {
+         onLoadMaterial(worksheet);
+      } else {
+         throw new Error("Worksheet not found");
+      }
+    } catch (e) {
+      useToastStore.getState().error("İçerik bulunamadı veya silinmiş. Bu öksüz atama sistemden kaldırılıyor.");
+      // Auto-delete orphaned assignment logic based on User Feedback constraint
+      deleteAssignment(assignment.id);
+    }
   };
 
   const handlePrint = () => { window.print(); };
@@ -155,7 +190,7 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
         </div>
         <select
           value={sortBy}
-          onChange={e => setSortBy(e.target.value as SortBy)}
+          onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSortBy(e.target.value as SortBy)}
           className="px-2 py-1.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg text-[8px] font-bold text-[var(--text-secondary)] outline-none cursor-pointer"
         >
           <option value="dueDate">Teslim Tarihi</option>
@@ -210,6 +245,9 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
                 </div>
               </div>
               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button onClick={() => handleOpenAssignmentInStudio(a)} className="w-6 h-6 rounded-md bg-[var(--text-primary)]/5 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-all" title="İçeriği Aç">
+                  <i className="fa-solid fa-up-right-from-square text-[8px]"></i>
+                </button>
                 <button onClick={() => handleOpenEdit(a)} className="w-6 h-6 rounded-md bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all" title="Düzenle">
                   <i className="fa-solid fa-pen text-[8px]"></i>
                 </button>
@@ -230,33 +268,94 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
         )}
       </div>
 
-      {/* Edit Modal */}
+      {/* Premium Edit Modal (Dark Glassmorphism) */}
       {showEditModal && selectedAssignment && (
-        <div className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[var(--bg-paper)] rounded-2xl shadow-2xl w-full max-w-md border border-[var(--border-color)]">
-            <div className="p-4 border-b border-[var(--border-color)] flex justify-between items-center">
-              <h3 className="font-bold text-sm text-[var(--text-primary)] uppercase">Atama Düzenle</h3>
-              <button onClick={() => setShowEditModal(false)} className="w-6 h-6 rounded-full hover:bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)]">
-                <i className="fa-solid fa-times text-[9px]"></i>
+        <div className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-[var(--bg-paper)] rounded-3xl shadow-2xl w-full max-w-lg border border-white/10 flex flex-col font-['Inter']">
+            
+            <div className="p-5 border-b border-white/5 flex justify-between items-center relative overflow-hidden rounded-t-3xl bg-gradient-to-r from-transparent via-white/5 to-transparent">
+              <h3 className="font-black text-sm text-[var(--text-primary)] uppercase tracking-widest z-10 flex items-center gap-2">
+                <i className="fa-solid fa-sliders text-[var(--accent-color)]"></i> 
+                Atama Panosu
+              </h3>
+              <button onClick={() => setShowEditModal(false)} className="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center text-[var(--text-muted)] transition-all z-10">
+                <i className="fa-solid fa-times text-[10px]"></i>
               </button>
             </div>
-            <div className="p-4 space-y-4">
-              <div>
-                <label className="block text-[8px] font-bold text-[var(--text-muted)] uppercase mb-1.5">Skor</label>
+            
+            <div className="p-6 space-y-6 flex-1 overflow-y-auto custom-scrollbar">
+              
+              {/* STATUS SELECTOR: SEGMENTED CONTROL */}
+              <div className="space-y-2">
+                <label className="block text-[9px] font-black tracking-widest text-[var(--text-muted)] uppercase">İlerleme Durumu</label>
+                <div className="flex bg-[var(--bg-secondary)] p-1 rounded-xl">
+                  {([
+                    { id: 'pending', label: 'Bekliyor', icon: 'fa-hourglass' },
+                    { id: 'in_progress', label: 'Devam Ediyor', icon: 'fa-spinner' },
+                    { id: 'completed', label: 'Tamamlandı', icon: 'fa-check-double' }
+                  ] as const).map(option => (
+                    <button
+                      key={option.id}
+                      onClick={() => setEditStatus(option.id)}
+                      className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${editStatus === option.id ? 'bg-[var(--bg-paper)] shadow-md text-[var(--text-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
+                    >
+                      <i className={`fa-solid ${option.icon} ${editStatus === option.id ? (option.id==='completed'?'text-emerald-500':option.id==='in_progress'?'text-amber-500':'text-blue-500') : ''}`}></i>
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* DATE PICKER */}
+              <div className="space-y-2">
+                <label className="block text-[9px] font-black tracking-widest text-[var(--text-muted)] uppercase mt-1">Hedef Tarih (dueDate)</label>
                 <input
-                  type="number"
-                  min={0}
-                  max={100}
-                  value={editScore ?? ''}
-                  onChange={e => setEditScore(e.target.value ? Number(e.target.value) : undefined)}
-                  className="w-full p-2.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[9px] outline-none focus:ring-1 focus:ring-[var(--accent-color)]/50 text-[var(--text-primary)]"
+                  type="date"
+                  value={editDueDate}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditDueDate(e.target.value)}
+                  className="w-full p-3 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[11px] font-medium outline-none focus:ring-1 focus:ring-[var(--accent-color)]/50 text-[var(--text-primary)] custom-date-input"
                 />
               </div>
+
+              {/* PREMIUM SCORE SLIDER */}
+              <div className="space-y-2">
+                 <div className="flex justify-between items-center mb-1">
+                    <label className="block text-[9px] font-black tracking-widest text-[var(--text-muted)] uppercase">Başarı Skoru</label>
+                    <span className={`text-[11px] font-black ${editScore && editScore >= 80 ? 'text-emerald-500' : editScore && editScore >= 60 ? 'text-amber-500' : editScore !== undefined ? 'text-rose-500' : 'text-[var(--text-muted)]'}`}>
+                      {editScore !== undefined ? `${editScore}%` : 'Belirsiz'}
+                    </span>
+                 </div>
+                 <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value={editScore ?? 0}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditScore(Number(e.target.value))}
+                    className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)]"
+                 />
+              </div>
+              
+              {/* CLINICAL/TEACHER NOTES AREA */}
+              <div className="space-y-2">
+                 <label className="block text-[9px] font-black tracking-widest text-[var(--text-muted)] uppercase flex justify-between">
+                    <span>Eğitmen/Klinik Notu</span>
+                    <span className="opacity-50 font-medium font-['Lexend'] text-[8px] lowercase">Sadece siz (ve yetkililer) görebilir</span>
+                 </label>
+                 <textarea
+                    rows={4}
+                    value={editTeacherNotes}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEditTeacherNotes(e.target.value)}
+                    placeholder="Pedagojik gözlemler, öğrencinin tutumu vb..."
+                    className="w-full p-3 bg-[var(--bg-secondary)] font-['Lexend'] border border-[var(--border-color)] rounded-xl text-xs font-normal outline-none focus:ring-1 focus:ring-[var(--accent-color)]/50 text-[var(--text-primary)] placeholder-[var(--text-muted)]/50 resize-y"
+                 />
+              </div>
+
             </div>
-            <div className="p-4 border-t border-[var(--border-color)] flex justify-end gap-2">
-              <button onClick={() => setShowEditModal(false)} className="px-4 py-2 text-[var(--text-muted)] font-bold text-[9px] rounded-lg hover:bg-[var(--bg-secondary)] transition-all">İptal</button>
-              <button onClick={handleSaveEdit} className="px-4 py-2 bg-[var(--accent-color)] text-white font-bold text-[9px] rounded-lg hover:opacity-90 transition-all flex items-center gap-1.5">
-                <i className="fa-solid fa-save text-[8px]"></i> Kaydet
+            <div className="p-5 border-t border-white/5 flex justify-end gap-3 rounded-b-3xl bg-[var(--bg-secondary)]/30">
+              <button onClick={() => setShowEditModal(false)} className="px-5 py-2.5 text-[var(--text-muted)] font-bold text-[10px] tracking-wider uppercase rounded-xl hover:bg-white/5 transition-all">İptal Edelim</button>
+              <button onClick={handleSaveEdit} className="px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-black tracking-widest uppercase text-[10px] rounded-xl hover:opacity-90 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 shadow-lg shadow-indigo-500/20">
+                <i className="fa-solid fa-save text-[11px]"></i> Kaydet
               </button>
             </div>
           </div>
@@ -290,10 +389,10 @@ const STUDIO_ACTIVITY_MAP: Record<string, ActivityType> = {
 const NON_ASSIGNABLE_STUDIOS = new Set(['screening', 'curriculum', 'guide', 'tour', 'help', 'about', 'developer']);
 
 function getActivityMeta(type: ActivityType | string) {
-  return ACTIVITIES.find(a => a.id === type) || null;
+  return ACTIVITIES.find((a: any) => a.id === type) || null;
 }
 function getCategoryForActivity(type: ActivityType | string) {
-  return ACTIVITY_CATEGORIES.find(c => (c.activities as unknown as string[]).includes(type as string)) || null;
+  return ACTIVITY_CATEGORIES.find((c: any) => (c.activities as unknown as string[]).includes(type as string)) || null;
 }
 
 const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; studentId: string }> = ({ isOpen, onClose, studentId }) => {

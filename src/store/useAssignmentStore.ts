@@ -33,6 +33,7 @@ interface AssignmentState {
   fetchStudentAssignments: (studentId: string) => () => void;
   createAssignment: (payload: CreateAssignmentPayload, assignedBy: string) => Promise<boolean>;
   updateAssignment: (id: string, updates: AssignmentUpdatePayload) => Promise<boolean>;
+  deleteAssignment: (id: string) => Promise<boolean>;
 }
 
 export const useAssignmentStore = create<AssignmentState>()((set) => ({
@@ -123,6 +124,25 @@ export const useAssignmentStore = create<AssignmentState>()((set) => ({
         { originalError: error }
       );
       useToastStore.getState().error(appError.userMessage || "Güncelleme sırasında bir hata oluştu.");
+      return false;
+    }
+  },
+  
+  deleteAssignment: async (id: string) => {
+    set({ isLoading: true });
+    try {
+      await assignmentService.deleteAssignment(id);
+      set({ isLoading: false });
+      return true;
+    } catch (error: unknown) {
+      set({ isLoading: false });
+      const appError = error instanceof AppError ? error : new AppError(
+        'Assignment deletion failed',
+        'DELETE_ASSIGNMENT_ERROR',
+        500,
+        { originalError: error }
+      );
+      useToastStore.getState().error(appError.userMessage || "Atama silinirken bir hata oluştu.");
       return false;
     }
   },
