@@ -7,11 +7,11 @@ export const generateDirectionalCodeReadingFromAI = async (
   options: GeneratorOptions
 ): Promise<DirectionalCodeReadingData> => {
   const difficulty = options.difficulty || 'Orta';
-  const gridSize = options.gridSize || 10;
-  const obstacleDensity = options.obstacleDensity || 25;
+  const gridSize = options.gridSize || 8;
+  const obstacleDensity = options.obstacleDensity || 20;
   const cipherType = options.cipherType || 'arrows';
-  const puzzleCount = 1;
-  const aestheticMode = (options as Record<string, unknown>).aestheticMode || 'ultra-premium';
+  const puzzleCount = options.puzzleCount || 3;
+  const aestheticMode = (options as Record<string, unknown>).aestheticMode || 'standard';
   const codeLength = options.codeLength || 15;
   const student = options.studentContext;
 
@@ -19,31 +19,32 @@ export const generateDirectionalCodeReadingFromAI = async (
 ${PEDAGOGICAL_BASE}
 ${CLINICAL_DIAGNOSTIC_GUIDE}
 
-GÖREV: [🚀 ULTRA PREMIUM YÖNSEL İZ SÜRME - TEKİL & DEVASA A4 LABİRENT]
+GÖREV: [🚀 ULTRA PREMIUM YÖNSEL İZ SÜRME - ŞİFRE VE ROTA MATRİSİ]
 
 PARAMETRELER:
 - Zorluk: ${difficulty}
-- Izgara: ${gridSize}x${gridSize}
+- Izgara Boyutu: ${gridSize}x${gridSize}
 - Engel Yoğunluğu: %${obstacleDensity}
 - Şifreleme Türü: ${cipherType}
 - Estetik Stil: ${aestheticMode}
-- Bulmaca Sayısı: 1 (KESİNLİKLE sadece 1 adet devasa görev üret)
-- HEDEF ŞİFRE UZUNLUĞU: ${codeLength} adım (TAM OLARAK ${codeLength} adımlık bir rota oluşturulmalı)
-${student ? `Öğrenci Senaryosu: ${student.interests?.join(', ')} temalı derinlemesine bir görev kurgula.` : ''}
+- Bulmaca Sayısı (puzzleCount): ${puzzleCount} (KESİNLİKLE puzzles dizisinde tam olarak ${puzzleCount} adet bağımsız bulmaca üret)
+- HEDEF ŞİFRE UZUNLUĞU: ${codeLength} adım (Bulmaca başına TAM OLARAK ${codeLength} adımlık bir rota oluşturulmalı)
+${student ? `Öğrenci Senaryosu: ${student.interests?.join(', ')} temalı görev kurgula.` : ''}
 
 🎯 ULTRA PREMIUM KURALLAR:
-1. [KRİTİK]: Sayfanın tamamını kaplayacak, karmaşık ve TAM OLARAK ${codeLength} adımlık TEK BİR puzzle oluştur.
+1. [KRİTİK]: puzzles dizisinde tam olarak ${puzzleCount} adet bağımsız görev oluştur.
 2. Grid boyutu ${gridSize}x${gridSize} olmalı ve her hücreyi stratejik olarak doldur.
 3. [GEÇERLİ ROTA]: Başlangıçtan hedefe giden ve TAM OLARAK ${codeLength} adımdan oluşan bir rota kurgula. instructions dizisindeki her bir eleman bir adım grubunu temsil eder. count değerlerinin toplamı ${codeLength} OLMALIDIR.
 4. Talimatları (instructions) net ama zorlayıcı tut.
 5. Görsel ikonlar ve tema hikayesini (storyIntro) sayfa geneline yay.
 6. "clinicalMeta": { planningComplexity: "High", visualScanRequirement: "Intense" } gibi veriler ekle.
-7. instructions dizisi şu şekilde olmalı: [ { step: 1, count: 3, direction: "right" }, { step: 2, count: 2, direction: "down" }, ... ] - count değerlerinin toplamı ${codeLength}'e eşit olmalıdır.
+7. instructions dizisindeki her bir adımda "arrow" (yön oku sembolü örn: ➡️, ⬅️, ⬇️, ⬆️) ve "coord" (hedef hücre koordinat kodu örn: A3 veya B5) alanları KESİNLİKLE doğru şekilde doldurulmalıdır.
+8. count değerlerinin toplamı ${codeLength}'e eşit olmalıdır.
 
 Aşağıdaki JSON formatında (DirectionalCodeReadingData) çıktı ver:
 - id: "directional_code_premium"
 - activityType: "DIRECTIONAL_CODE_READING"
-- settings: { "difficulty", "gridSize", "cipherType", "aestheticMode", "codeLength": ${codeLength} }
+- settings: { "difficulty", "gridSize", "cipherType", "aestheticMode", "codeLength": ${codeLength}, "puzzleCount": ${puzzleCount} }
 - content: { "title", "storyIntro", "puzzles": [...] }
 `;
 
@@ -59,7 +60,8 @@ Aşağıdaki JSON formatında (DirectionalCodeReadingData) çıktı ver:
           gridSize: { type: 'INTEGER' },
           cipherType: { type: 'STRING' },
           aestheticMode: { type: 'STRING' },
-          codeLength: { type: 'INTEGER' }
+          codeLength: { type: 'INTEGER' },
+          puzzleCount: { type: 'INTEGER' }
         }
       },
       content: {
@@ -99,6 +101,8 @@ Aşağıdaki JSON formatında (DirectionalCodeReadingData) çıktı ver:
                       step: { type: 'INTEGER' },
                       count: { type: 'INTEGER' },
                       direction: { type: 'STRING' },
+                      arrow: { type: 'STRING', description: 'Yön oku sembolü (➡️, ⬅️, ⬇️, ⬆️)' },
+                      coord: { type: 'STRING', description: 'Hücre koordinat kodu örn: A3 veya B5' },
                       label: { type: 'STRING' }
                     }
                   }

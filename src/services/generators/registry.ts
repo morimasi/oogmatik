@@ -304,7 +304,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineSymmetryDrawing,
   },
   [ActivityType.WORD_SEARCH]: {
-    ai: withAI(ActivityType.WORD_SEARCH),
+    ai: aiGenerators.generateWordSearchFromAI,
     offline: offlineGenerators.generateOfflineWordSearch,
   },
   [ActivityType.SHAPE_COUNTING]: {
