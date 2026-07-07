@@ -128,13 +128,10 @@ export const useWorksheetManager = (
 
         if (item.studentProfile) {
             setStudentProfile(item.studentProfile);
-            if (item.studentId) {
-                const s = students.find((x: { id: string }) => x.id === item.studentId);
-                if (s) setActiveStudent(s);
-            }
-        } else {
-            setStudentProfile(null);
-            setActiveStudent(null);
+        }
+        if (item.studentId) {
+            const s = students.find((x: { id: string }) => x.id === item.studentId);
+            if (s) setActiveStudent(s);
         }
         navigateTo('generator');
         setIsSidebarExpanded(true);
