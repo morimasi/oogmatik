@@ -189,7 +189,7 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
     }
     
     return () => {
-      realtimeUnsubs.current.forEach(unsub => {
+      realtimeUnsubs.current.forEach((unsub: () => void) => {
         try { unsub(); } catch (e) { logError(toAppError(e), { context: 'unsub return cleanup' }); }
       });
       realtimeUnsubs.current = [];
