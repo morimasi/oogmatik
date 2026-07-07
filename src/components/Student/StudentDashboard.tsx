@@ -118,12 +118,19 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
   // Real-time listener unsubscriptions
   const realtimeUnsubs = useRef<Array<() => void>>([]);
 
-  // Initial Load Logic
+  // Bidirectional sync: activeStudent <-> selectedStudentId
   useEffect(() => {
     if (activeStudent?.id && !selectedStudentId) {
       setSelectedStudentId(activeStudent.id);
     }
   }, [activeStudent?.id]);
+
+  useEffect(() => {
+    if (selectedStudentId && selectedStudentId !== activeStudent?.id) {
+      const s = students.find((x: Student) => x.id === selectedStudentId);
+      if (s) setActiveStudent(s);
+    }
+  }, [selectedStudentId, activeStudent?.id, students]);
 
   // Load Student Specific Data when selected in REAL-TIME
   useEffect(() => {

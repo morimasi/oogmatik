@@ -18,7 +18,8 @@ export const AnalyticsModule: React.FC<AnalyticsModuleProps> = ({
 
   const scoreKeys = Array.from(new Set(allAssessments.flatMap((a: SavedAssessment) => Object.keys(a.report.scores))));
 
-  const trendData = allAssessments
+  // Chart: ascending (oldest→newest, left→right)
+  const trendData = [...allAssessments]
     .sort((a: SavedAssessment, b: SavedAssessment) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
     .map((a: SavedAssessment) => {
       const dataPoint: any = {
@@ -30,8 +31,12 @@ export const AnalyticsModule: React.FC<AnalyticsModuleProps> = ({
       return dataPoint;
     });
 
-  const latestAssessment = allAssessments[0];
-  const firstAssessment = allAssessments[allAssessments.length - 1];
+  // List & improvement: descending (newest first)
+  const sortedDesc = [...allAssessments]
+    .sort((a: SavedAssessment, b: SavedAssessment) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  const latestAssessment = sortedDesc[0];  // NEWEST
+  const firstAssessment = sortedDesc[sortedDesc.length - 1];  // OLDEST
 
   const getImprovement = (key: keyof typeof latestAssessment.report.scores) => {
     if (!firstAssessment) return 0;
@@ -138,7 +143,7 @@ export const AnalyticsModule: React.FC<AnalyticsModuleProps> = ({
       {/* Assessment History */}
       <div className="space-y-2">
         <h4 className="font-bold text-xs text-[var(--text-primary)] uppercase tracking-tight">Değerlendirme Geçmişi</h4>
-        {allAssessments.map((a: SavedAssessment, i: number) => (
+        {sortedDesc.map((a: SavedAssessment, i: number) => (
           <div
             key={a.id}
             className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl p-3 transition-all hover:border-[var(--accent-color)]/30 cursor-pointer group"
