@@ -106,22 +106,27 @@ export const useStudentStore = create<StudentState>()((set, get) => ({
 
     let lastOwn: QuerySnapshot<DocumentData> | null = null;
     let lastAssigned: QuerySnapshot<DocumentData> | null = null;
+    let ownError = false;
+    let assignedError = false;
 
     const mergeAndSet = () => {
-      if (!lastOwn || !lastAssigned) return;
-      const studentList = buildStudentList(lastOwn, lastAssigned);
+      const snapshots: QuerySnapshot<DocumentData>[] = [];
+      if (lastOwn) snapshots.push(lastOwn);
+      if (lastAssigned) snapshots.push(lastAssigned);
+      if (snapshots.length === 0) return;
+      const studentList = buildStudentList(...snapshots);
       set({ students: studentList, isLoading: false });
       const { activeStudent } = get();
       if (activeStudent && !studentList.find((s: Student) => s.id === activeStudent.id)) set({ activeStudent: null });
     };
 
     const unsubOwn = onSnapshot(qOwn, {
-      next: (snap) => { lastOwn = snap; mergeAndSet(); },
-      error: (err) => { logError(toAppError(err), { context: 'fetchStudents own Error' }); set({ isLoading: false }); }
+      next: (snap) => { lastOwn = snap; ownError = false; mergeAndSet(); },
+      error: (err) => { ownError = true; logError(toAppError(err), { context: 'fetchStudents own Error' }); if (assignedError || lastAssigned) set({ isLoading: false }); }
     });
     const unsubAssigned = onSnapshot(qAssigned, {
-      next: (snap) => { lastAssigned = snap; mergeAndSet(); },
-      error: (err) => { logError(toAppError(err), { context: 'fetchStudents assigned Error' }); set({ isLoading: false }); }
+      next: (snap) => { lastAssigned = snap; assignedError = false; mergeAndSet(); },
+      error: (err) => { assignedError = true; logError(toAppError(err), { context: 'fetchStudents assigned Error' }); if (ownError || lastOwn) set({ isLoading: false }); }
     });
 
     return () => { unsubOwn(); unsubAssigned(); };
@@ -134,6 +139,7 @@ export const useStudentStore = create<StudentState>()((set, get) => ({
       const tempStudent = {
         id: 'temp',
         teacherId,
+        assignedTeachers: [teacherId],
         createdAt: new Date().toISOString(),
         ...sanitized,
       } as Student;
