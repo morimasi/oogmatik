@@ -59,8 +59,8 @@ export const useAssignmentStore = create<AssignmentState>()((set) => ({
 
     return onSnapshot(q, (snapshot: QuerySnapshot<DocumentData>) => {
       const assignmentList: ActivityAssignment[] = [];
-      snapshot.forEach((doc: any) => {
-        assignmentList.push(doc.data() as ActivityAssignment);
+      snapshot.forEach((docSnap: any) => {
+        assignmentList.push({ id: docSnap.id, ...docSnap.data() } as ActivityAssignment);
       });
       set({ assignments: assignmentList, isLoading: false });
     }, (error: Error) => {
@@ -79,8 +79,8 @@ export const useAssignmentStore = create<AssignmentState>()((set) => ({
 
     return onSnapshot(q, (snapshot: QuerySnapshot<DocumentData>) => {
       const assignmentList: ActivityAssignment[] = [];
-      snapshot.forEach((doc: any) => {
-        assignmentList.push(doc.data() as ActivityAssignment);
+      snapshot.forEach((docSnap: any) => {
+        assignmentList.push({ id: docSnap.id, ...docSnap.data() } as ActivityAssignment);
       });
       set({ assignments: assignmentList, isLoading: false });
     }, (error: Error) => {
