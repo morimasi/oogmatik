@@ -1,9 +1,9 @@
 import React, { useState, useMemo } from 'react';
-import { doc, deleteDoc } from 'firebase/firestore';
+import { doc, deleteDoc, updateDoc, query, collection, where, getDocs } from 'firebase/firestore';
 import { db } from '../../../services/firebaseClient';
 import { SavedWorksheet, SavedAssessment } from '../../../types';
 import { useToastStore } from '../../../store/useToastStore';
-import { getMaterialCategories, MaterialCategory } from './studentDashboardData';
+import { getMaterialCategories } from './studentDashboardData';
 import { logError } from '../../../utils/logger';
 
 type MaterialItem = (SavedWorksheet & { type: 'worksheet' }) | (SavedAssessment & { type: 'assessment' });
@@ -21,6 +21,8 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
   assessments,
   onLoadMaterial,
 }) => {
+  const [isFixing, setIsFixing] = useState(false);
+  
   console.log(`[MaterialsModule] Alınan veriler:`, { 
     studentId, 
     worksheetsCount: worksheets.length, 
@@ -29,10 +31,62 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
     assessments
   });
   const allItems: MaterialItem[] = useMemo(() => [
-    ...worksheets.map(ws => ({ ...ws, type: 'worksheet' })),
-    ...assessments.map(a => ({ ...a, type: 'assessment' }))
+    ...worksheets.map(ws => ({ ...ws, type: 'worksheet' } as const)),
+    ...assessments.map(a => ({ ...a, type: 'assessment' } as const))
   ], [worksheets, assessments]);
   console.log(`[MaterialsModule] allItems:`, allItems);
+
+  // Eksik studentId ve studentName alanlarını düzeltmek için fonksiyon
+  const fixMissingStudentFields = async () => {
+    if (!studentId) return;
+    setIsFixing(true);
+
+    try {
+      // Tüm saved_worksheets belgelerini çek (studentProfile.name ve studentName ile filtreleyerek)
+      // Önce tüm worksheets'i kontrol edelim ve studentId'si olmayanları bulalım
+      const worksheetsToFix = worksheets.filter(ws => !ws.studentId || !ws.studentName);
+      
+      for (const ws of worksheetsToFix) {
+        const docRef = doc(db, 'saved_worksheets', ws.id);
+        const studentName = ws.studentName || ws.studentProfile?.name || '';
+        
+        await updateDoc(docRef, {
+          studentId: studentId,
+          studentName: studentName
+        });
+        console.log(`[MaterialsModule] Belge düzeltildi: ${ws.id} - studentId: ${studentId}, studentName: ${studentName}`);
+      }
+
+      // Ayrıca studentName'e göre eşleşen belgeleri de kontrol edelim
+      const studentNameFromWorksheet = worksheets.length > 0 ? 
+        (worksheets[0].studentName || worksheets[0].studentProfile?.name) : '';
+      
+      if (studentNameFromWorksheet) {
+        const q = query(
+          collection(db, 'saved_worksheets'), 
+          where('studentName', '==', studentNameFromWorksheet)
+        );
+        const querySnapshot = await getDocs(q);
+        
+        for (const docSnap of querySnapshot.docs) {
+          const data = docSnap.data() as any;
+          if (!data.studentId) {
+            await updateDoc(doc(db, 'saved_worksheets', docSnap.id), {
+              studentId: studentId
+            });
+            console.log(`[MaterialsModule] Ek belge düzeltildi: ${docSnap.id} - studentId eklendi`);
+          }
+        }
+      }
+
+      alert('Eksik alanlar başarıyla düzeltildi! Sayfayı yenileyin.');
+    } catch (error) {
+      console.error('[MaterialsModule] Düzeltme hatası:', error);
+      alert('Düzeltme yapılırken bir hata oluştu. Lütfen tekrar deneyin.');
+    } finally {
+      setIsFixing(false);
+    }
+  };
 
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -44,6 +98,23 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
 
   const filtered = useMemo(() => {
     let result = [...allItems];
+    console.log(`[MaterialsModule] Filtrelenmeden önce allItems (${allItems.length}):`, allItems.map(item => {
+      const details: any = { 
+        id: item.id, 
+        type: item.type, 
+        createdAt: item.createdAt 
+      };
+      if (item.type === 'worksheet') {
+        details.name = item.name;
+        details.studentId = item.studentId;
+        details.category = item.category;
+        details.activityType = item.activityType;
+      } else {
+        details.studentName = item.studentName;
+      }
+      return details;
+    }));
+    
     if (activeCategory !== 'all') {
       result = result.filter(item => {
         if (item.type === 'worksheet') {
@@ -61,6 +132,9 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
         return name.toLowerCase().includes(searchQuery.toLowerCase()) || category.toLowerCase().includes(searchQuery.toLowerCase());
       });
     }
+    
+    console.log(`[MaterialsModule] Filtrelendikten sonra result (${result.length}):`, result.map(item => ({ id: item.id, type: item.type, name: 'name' in item ? item.name : 'N/A' })));
+    
     return result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [allItems, activeCategory, searchQuery]);
 
@@ -128,6 +202,15 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
           </p>
         </div>
         <div className="flex items-center gap-1.5">
+          {/* Eksik alanları düzeltme butonu */}
+          <button
+            onClick={fixMissingStudentFields}
+            disabled={isFixing}
+            className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white rounded-lg text-[9px] font-bold flex items-center gap-1.5 transition-all"
+          >
+            <i className={`fa-solid ${isFixing ? 'fa-spinner fa-spin' : 'fa-wrench'}`}></i>
+            {isFixing ? 'Düzeltiliyor...' : 'Eksikleri Düzelt'}
+          </button>
           <div className="flex bg-[var(--bg-secondary)] p-0.5 rounded-lg">
             <button onClick={() => setViewMode('grid')} className={`w-7 h-7 rounded-md flex items-center justify-center text-[9px] transition-all ${viewMode === 'grid' ? 'bg-[var(--bg-paper)] text-[var(--accent-color)] shadow-sm' : 'text-[var(--text-muted)]'}`}>
               <i className="fa-solid fa-grid-2"></i>

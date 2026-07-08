@@ -155,10 +155,11 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
             console.log(`[StudentDashboard] saved_worksheets için ${selectedStudentId} id'li öğrenciye ait ${snapshot.docs.length} belge bulundu`);
             const ws = snapshot.docs.map((doc: any) => {
               const raw = doc.data() as any;
-              console.log(`[StudentDashboard] saved_worksheet belge verisi:`, { id: doc.id, ...raw });
+              console.log(`[StudentDashboard] saved_worksheet belge (${doc.id}) tam verisi:`, JSON.stringify(raw, null, 2));
               if (typeof raw.worksheetData === 'string') { try { raw.worksheetData = JSON.parse(raw.worksheetData); } catch { raw.worksheetData = []; } }
               return { id: doc.id, ...raw } as SavedWorksheet;
             });
+            console.log(`[StudentDashboard] İşlenmiş worksheets dizisi:`, ws);
             setStudentWorksheets(ws);
             setLoadingDetails(false);
           },
