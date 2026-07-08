@@ -1,4 +1,6 @@
 import React, { useState, useMemo } from 'react';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '../../../services/firebaseClient';
 import { ActivityAssignment } from '../../../types/assignment';
 import { ActivityType } from '../../../types/activity';
 import { useAuthStore } from '../../../store/useAuthStore';
@@ -11,6 +13,7 @@ import { worksheetService } from '../../../services/worksheetService';
 
 interface AssignmentsModuleProps {
   studentId: string;
+  studentName?: string;
   assignments: ActivityAssignment[];
   onUpdateAssignment?: (id: string, updates: Partial<ActivityAssignment>) => void;
   onLoadMaterial?: (worksheet: any) => void;
@@ -21,6 +24,7 @@ type SortBy = 'dueDate' | 'assignedAt' | 'score' | 'status';
 
 export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
   studentId,
+  studentName,
   assignments,
   onUpdateAssignment,
   onLoadMaterial,
@@ -102,9 +106,7 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
   const handleOpenAssignmentInStudio = async (assignment: ActivityAssignment) => {
     if (!onLoadMaterial || !user) return;
     try {
-      const loadingToast = useToastStore.getState().loading("İçerik yükleniyor...");
       const worksheet = await worksheetService.getWorksheetById(assignment.worksheetId, user.id);
-      useToastStore.getState().dismiss(loadingToast);
       if (worksheet) {
          onLoadMaterial(worksheet);
       } else {
@@ -366,7 +368,8 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
       <NewAssignmentModal 
         isOpen={showNewAssignModal} 
         onClose={() => setShowNewAssignModal(false)} 
-        studentId={studentId} 
+        studentId={studentId}
+        studentName={studentName}
       />
     </div>
   );
@@ -395,7 +398,7 @@ function getCategoryForActivity(type: ActivityType | string) {
   return ACTIVITY_CATEGORIES.find((c: any) => (c.activities as unknown as string[]).includes(type as string)) || null;
 }
 
-const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; studentId: string }> = ({ isOpen, onClose, studentId }) => {
+const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; studentId: string; studentName?: string }> = ({ isOpen, onClose, studentId, studentName }) => {
   const { user } = useAuthStore();
   const { createAssignment, isLoading: isCreating } = useAssignmentStore();
   const worksheetsData = useGetUserWorksheets({
@@ -472,11 +475,26 @@ const NewAssignmentModal: React.FC<{ isOpen: boolean; onClose: () => void; stude
           undefined,
           undefined,
           studentId,
-          ''
+          studentName || ''
         );
         finalWorksheetId = saved.id;
       } catch {
         useToastStore.getState().error('Etkinlik kaydedilemedi. Lütfen tekrar deneyin.');
+        setIsSaving(false);
+        return;
+      }
+      setIsSaving(false);
+    } else if (activeTab === 'archive' && selectedWorksheetId) {
+      // When from archive: update existing worksheet to link to student
+      setIsSaving(true);
+      try {
+        const docRef = doc(db, 'saved_worksheets', selectedWorksheetId);
+        await updateDoc(docRef, {
+          studentId: studentId,
+          studentName: studentName || ''
+        });
+      } catch {
+        useToastStore.getState().error('Etkinlik öğrenciyle ilişkilendirilemedi. Lütfen tekrar deneyin.');
         setIsSaving(false);
         return;
       }

@@ -1,44 +1,60 @@
 import React, { useState, useMemo } from 'react';
 import { doc, deleteDoc } from 'firebase/firestore';
 import { db } from '../../../services/firebaseClient';
-import { SavedWorksheet } from '../../../types';
+import { SavedWorksheet, SavedAssessment } from '../../../types';
 import { useToastStore } from '../../../store/useToastStore';
 import { getMaterialCategories, MaterialCategory } from './studentDashboardData';
 import { logError } from '../../../utils/logger';
 
+type MaterialItem = (SavedWorksheet & { type: 'worksheet' }) | (SavedAssessment & { type: 'assessment' });
+
 interface MaterialsModuleProps {
   studentId: string;
   worksheets: SavedWorksheet[];
+  assessments: SavedAssessment[];
   onLoadMaterial?: (ws: SavedWorksheet) => void;
 }
 
 export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
   studentId,
   worksheets,
+  assessments,
   onLoadMaterial,
 }) => {
-  const allWorksheets = worksheets;
+  const allItems: MaterialItem[] = useMemo(() => [
+    ...worksheets.map(ws => ({ ...ws, type: 'worksheet' as const })),
+    ...assessments.map(a => ({ ...a, type: 'assessment' as const }))
+  ], [worksheets, assessments]);
+
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
-  const [showPreview, setShowPreview] = useState<SavedWorksheet | null>(null);
+  const [showPreview, setShowPreview] = useState<MaterialItem | null>(null);
 
-  const categories = useMemo(() => getMaterialCategories(allWorksheets), [allWorksheets]);
+  const categories = useMemo(() => getMaterialCategories(worksheets), [worksheets]);
 
   const filtered = useMemo(() => {
-    let result = [...allWorksheets];
+    let result = [...allItems];
     if (activeCategory !== 'all') {
-      result = result.filter((ws: SavedWorksheet) => (ws.category?.title || 'Genel').toLowerCase() === activeCategory.toLowerCase());
+      result = result.filter(item => {
+        if (item.type === 'worksheet') {
+          return (item.category?.title || 'Genel').toLowerCase() === activeCategory.toLowerCase();
+        } else {
+          // For assessments, show if category is 'Analizler' or similar
+          return activeCategory.toLowerCase().includes('analiz') || activeCategory.toLowerCase().includes('rapor');
+        }
+      });
     }
     if (searchQuery) {
-      result = result.filter((ws: SavedWorksheet) =>
-        ws.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (ws.category?.title || '').toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      result = result.filter(item => {
+        const name = item.type === 'worksheet' ? item.name : `${item.studentName} Değerlendirme Raporu`;
+        const category = item.type === 'worksheet' ? (item.category?.title || '') : 'Analizler';
+        return name.toLowerCase().includes(searchQuery.toLowerCase()) || category.toLowerCase().includes(searchQuery.toLowerCase());
+      });
     }
-    return result.sort((a: SavedWorksheet, b: SavedWorksheet) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-  }, [allWorksheets, activeCategory, searchQuery]);
+    return result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [allItems, activeCategory, searchQuery]);
 
   const toggleFavorite = (id: string) => {
     setFavorites(prev => {
@@ -53,25 +69,44 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
     if (showPreview) window.print();
   };
 
-  const handleDownload = (ws: SavedWorksheet) => {
-    const blob = new Blob([JSON.stringify(ws, null, 2)], { type: 'application/json' });
+  const handleDownload = (item: MaterialItem) => {
+    const blob = new Blob([JSON.stringify(item, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${ws.name.replace(/\s+/g, '_')}.json`;
+    const name = item.type === 'worksheet' ? item.name : `${item.studentName}_Değerlendirme_Raporu`;
+    a.download = `${name.replace(/\s+/g, '_')}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
-  const handleDelete = async (ws: SavedWorksheet) => {
-    if (!confirm(`"${ws.name}" materyalini silmek istediğinize emin misiniz?`)) return;
+  const handleDelete = async (item: MaterialItem) => {
+    const name = item.type === 'worksheet' ? item.name : `${item.studentName} Değerlendirme Raporu`;
+    if (!confirm(`"${name}" materyalini silmek istediğinize emin misiniz?`)) return;
     try {
-      await deleteDoc(doc(db, 'saved_worksheets', ws.id));
+      const collectionName = item.type === 'worksheet' ? 'saved_worksheets' : 'saved_assessments';
+      await deleteDoc(doc(db, collectionName, item.id));
       useToastStore.getState().success('Materyal silindi', 3000);
     } catch (err) {
       logError('Materyal silinemedi', { error: err instanceof Error ? err.message : String(err), context: 'MaterialsModule-delete' });
       useToastStore.getState().error('Silme hatası: ' + (err instanceof Error ? err.message : String(err)));
     }
+  };
+
+  const getItemName = (item: MaterialItem) => {
+    return item.type === 'worksheet' ? item.name : `${item.studentName} Değerlendirme Raporu`;
+  };
+
+  const getItemCategory = (item: MaterialItem) => {
+    return item.type === 'worksheet' ? (item.category?.title || 'Genel') : 'Analizler';
+  };
+
+  const getItemIcon = (item: MaterialItem) => {
+    return item.type === 'worksheet' ? item.icon : 'fa-chart-line';
+  };
+
+  const getItemActivityType = (item: MaterialItem) => {
+    return item.type === 'worksheet' ? item.activityType : 'Değerlendirme';
   };
 
   return (
@@ -81,7 +116,7 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
         <div>
           <h3 className="font-bold text-sm tracking-tight text-[var(--text-primary)] uppercase">Materyaller</h3>
           <p className="text-[10px] font-medium text-[var(--text-muted)] uppercase tracking-widest mt-0.5">
-            {allWorksheets.length} materyal • {categories.length} kategori
+            {allItems.length} materyal • {categories.length + 1} kategori
           </p>
         </div>
         <div className="flex items-center gap-1.5">
@@ -114,7 +149,7 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
           onClick={() => setActiveCategory('all')}
           className={`px-3 py-1.5 rounded-full text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap transition-all ${activeCategory === 'all' ? 'bg-[var(--accent-color)] text-white shadow-lg shadow-[var(--accent-color)]/20' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)] border border-[var(--border-color)] hover:border-[var(--accent-color)]/50'}`}
         >
-          Tümü ({allWorksheets.length})
+          Tümü ({allItems.length})
         </button>
         {categories.map(cat => (
           <button
@@ -126,27 +161,34 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
             {cat.label} ({cat.count})
           </button>
         ))}
+        <button
+          onClick={() => setActiveCategory('Analizler')}
+          className={`px-3 py-1.5 rounded-full text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-1.5 ${activeCategory === 'Analizler' ? 'bg-[var(--accent-color)] text-white shadow-lg shadow-[var(--accent-color)]/20' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)] border border-[var(--border-color)] hover:border-[var(--accent-color)]/50'}`}
+        >
+          <i className="fa-solid fa-chart-line text-[9px]"></i>
+          Analizler ({assessments.length})
+        </button>
       </div>
 
       {/* Materials Grid/List */}
       {viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {filtered.map(ws => (
-            <div key={ws.id} className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl overflow-hidden transition-all hover:border-[var(--accent-color)]/30 hover:shadow-lg group">
+          {filtered.map(item => (
+            <div key={item.id} className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl overflow-hidden transition-all hover:border-[var(--accent-color)]/30 hover:shadow-lg group">
               {/* Card Header */}
               <div className="p-3 pb-0">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2.5">
                     <div className="w-10 h-10 bg-[var(--accent-muted)] text-[var(--accent-color)] rounded-xl flex items-center justify-center group-hover:bg-[var(--accent-color)] group-hover:text-white transition-all">
-                      <i className={`fa-solid ${ws.icon} text-sm`}></i>
+                      <i className={`fa-solid ${getItemIcon(item)} text-sm`}></i>
                     </div>
                     <div className="min-w-0">
-                      <h4 className="font-bold text-xs text-[var(--text-primary)] uppercase truncate leading-tight">{ws.name}</h4>
-                      <span className="text-[9px] font-medium text-[var(--text-muted)]">{ws.category?.title || 'Genel'}</span>
+                      <h4 className="font-bold text-xs text-[var(--text-primary)] uppercase truncate leading-tight">{getItemName(item)}</h4>
+                      <span className="text-[9px] font-medium text-[var(--text-muted)]">{getItemCategory(item)}</span>
                     </div>
                   </div>
-                  <button onClick={() => toggleFavorite(ws.id)} className={`w-6 h-6 rounded-md flex items-center justify-center transition-all ${favorites.has(ws.id) ? 'text-amber-500 bg-amber-500/10' : 'text-[var(--text-muted)] opacity-0 group-hover:opacity-100 hover:text-amber-500'}`} title="Favorilere Ekle">
-                    <i className={`fa-${favorites.has(ws.id) ? 'solid' : 'regular'} fa-star text-[11px]`}></i>
+                  <button onClick={() => toggleFavorite(item.id)} className={`w-6 h-6 rounded-md flex items-center justify-center transition-all ${favorites.has(item.id) ? 'text-amber-500 bg-amber-500/10' : 'text-[var(--text-muted)] opacity-0 group-hover:opacity-100 hover:text-amber-500'}`} title="Favorilere Ekle">
+                    <i className={`fa-${favorites.has(item.id) ? 'solid' : 'regular'} fa-star text-[11px]`}></i>
                   </button>
                 </div>
               </div>
@@ -154,20 +196,22 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
               {/* Card Body */}
               <div className="p-3 pt-2">
                 <div className="flex items-center justify-between text-[9px] text-[var(--text-muted)] font-medium mb-2">
-                  <span><i className="fa-solid fa-calendar mr-1"></i>{new Date(ws.createdAt).toLocaleDateString('tr-TR')}</span>
-                  <span className="uppercase">{ws.activityType}</span>
+                  <span><i className="fa-solid fa-calendar mr-1"></i>{new Date(item.createdAt).toLocaleDateString('tr-TR')}</span>
+                  <span className="uppercase">{getItemActivityType(item)}</span>
                 </div>
                 <div className="flex gap-1.5">
-                  <button onClick={() => onLoadMaterial?.(ws)} className="flex-1 py-1.5 bg-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-lg text-[9px] font-medium uppercase hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all flex items-center justify-center gap-1">
-                    <i className="fa-solid fa-eye text-[9px]"></i> Önizle
-                  </button>
-                  <button onClick={() => { setShowPreview(ws); }} className="flex-1 py-1.5 bg-[var(--accent-color)] text-white rounded-lg text-[9px] font-medium uppercase hover:opacity-90 transition-all flex items-center justify-center gap-1">
+                  {item.type === 'worksheet' && (
+                    <button onClick={() => onLoadMaterial?.(item)} className="flex-1 py-1.5 bg-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-lg text-[9px] font-medium uppercase hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all flex items-center justify-center gap-1">
+                      <i className="fa-solid fa-eye text-[9px]"></i> Önizle
+                    </button>
+                  )}
+                  <button onClick={() => { setShowPreview(item); }} className="flex-1 py-1.5 bg-[var(--accent-color)] text-white rounded-lg text-[9px] font-medium uppercase hover:opacity-90 transition-all flex items-center justify-center gap-1">
                     <i className="fa-solid fa-info-circle text-[9px]"></i> Bilgi
                   </button>
-                  <button onClick={() => handleDownload(ws)} className="w-7 py-1.5 bg-[var(--bg-secondary)] text-[var(--text-muted)] rounded-lg text-[9px] font-medium hover:text-[var(--accent-color)] transition-all flex items-center justify-center">
+                  <button onClick={() => handleDownload(item)} className="w-7 py-1.5 bg-[var(--bg-secondary)] text-[var(--text-muted)] rounded-lg text-[9px] font-medium hover:text-[var(--accent-color)] transition-all flex items-center justify-center">
                     <i className="fa-solid fa-download text-[9px]"></i>
                   </button>
-                  <button onClick={() => handleDelete(ws)} className="w-7 py-1.5 bg-[var(--bg-secondary)] text-[var(--text-muted)] rounded-lg text-[9px] font-medium hover:text-red-500 transition-all flex items-center justify-center">
+                  <button onClick={() => handleDelete(item)} className="w-7 py-1.5 bg-[var(--bg-secondary)] text-[var(--text-muted)] rounded-lg text-[9px] font-medium hover:text-red-500 transition-all flex items-center justify-center">
                     <i className="fa-solid fa-trash-can text-[9px]"></i>
                   </button>
                 </div>
@@ -177,32 +221,34 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
         </div>
       ) : (
         <div className="space-y-2">
-          {filtered.map(ws => (
-            <div key={ws.id} className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl p-3 transition-all hover:border-[var(--accent-color)]/30 group flex items-center gap-3">
+          {filtered.map(item => (
+            <div key={item.id} className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl p-3 transition-all hover:border-[var(--accent-color)]/30 group flex items-center gap-3">
               <div className="w-10 h-10 bg-[var(--accent-muted)] text-[var(--accent-color)] rounded-xl flex items-center justify-center group-hover:bg-[var(--accent-color)] group-hover:text-white transition-all shrink-0">
-                <i className={`fa-solid ${ws.icon} text-sm`}></i>
+                <i className={`fa-solid ${getItemIcon(item)} text-sm`}></i>
               </div>
               <div className="flex-1 min-w-0">
-                <h4 className="font-bold text-xs text-[var(--text-primary)] uppercase truncate">{ws.name}</h4>
+                <h4 className="font-bold text-xs text-[var(--text-primary)] uppercase truncate">{getItemName(item)}</h4>
                 <div className="flex items-center gap-3 mt-0.5">
-                  <span className="text-[9px] font-medium text-[var(--text-muted)]">{ws.category?.title}</span>
-                  <span className="text-[9px] text-[var(--text-muted)]">{new Date(ws.createdAt).toLocaleDateString('tr-TR')}</span>
+                  <span className="text-[9px] font-medium text-[var(--text-muted)]">{getItemCategory(item)}</span>
+                  <span className="text-[9px] text-[var(--text-muted)]">{new Date(item.createdAt).toLocaleDateString('tr-TR')}</span>
                 </div>
               </div>
               <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={() => toggleFavorite(ws.id)} className={`w-6 h-6 rounded-md flex items-center justify-center transition-all ${favorites.has(ws.id) ? 'text-amber-500' : 'text-[var(--text-muted)] hover:text-amber-500'}`}>
-                  <i className={`fa-${favorites.has(ws.id) ? 'solid' : 'regular'} fa-star text-[10px]`}></i>
+                <button onClick={() => toggleFavorite(item.id)} className={`w-6 h-6 rounded-md flex items-center justify-center transition-all ${favorites.has(item.id) ? 'text-amber-500' : 'text-[var(--text-muted)] hover:text-amber-500'}`}>
+                  <i className={`fa-${favorites.has(item.id) ? 'solid' : 'regular'} fa-star text-[10px]`}></i>
                 </button>
-                <button onClick={() => onLoadMaterial?.(ws)} className="w-6 h-6 rounded-md bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all">
-                  <i className="fa-solid fa-eye text-[10px]"></i>
-                </button>
-                <button onClick={() => { setShowPreview(ws); }} className="w-6 h-6 rounded-md bg-[var(--accent-color)] flex items-center justify-center text-white transition-all">
+                {item.type === 'worksheet' && (
+                  <button onClick={() => onLoadMaterial?.(item)} className="w-6 h-6 rounded-md bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all">
+                    <i className="fa-solid fa-eye text-[10px]"></i>
+                  </button>
+                )}
+                <button onClick={() => { setShowPreview(item); }} className="w-6 h-6 rounded-md bg-[var(--accent-color)] flex items-center justify-center text-white transition-all">
                   <i className="fa-solid fa-info-circle text-[10px]"></i>
                 </button>
-                <button onClick={() => handleDownload(ws)} className="w-6 h-6 rounded-md bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all">
+                <button onClick={() => handleDownload(item)} className="w-6 h-6 rounded-md bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-all">
                   <i className="fa-solid fa-download text-[10px]"></i>
                 </button>
-                <button onClick={() => handleDelete(ws)} className="w-6 h-6 rounded-md bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] hover:text-red-500 transition-all">
+                <button onClick={() => handleDelete(item)} className="w-6 h-6 rounded-md bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)] hover:text-red-500 transition-all">
                   <i className="fa-solid fa-trash-can text-[10px]"></i>
                 </button>
               </div>
@@ -225,14 +271,14 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
             <div className="p-4 border-b border-[var(--border-color)] flex justify-between items-center">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 bg-[var(--accent-muted)] text-[var(--accent-color)] rounded-lg flex items-center justify-center">
-                  <i className={`fa-solid ${showPreview.icon} text-sm`}></i>
+                  <i className={`fa-solid ${getItemIcon(showPreview)} text-sm`}></i>
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm text-[var(--text-primary)] uppercase">{showPreview.name}</h3>
-                  <p className="text-[9px] text-[var(--text-muted)]">{showPreview.category?.title}</p>
+                  <h3 className="font-bold text-sm text-[var(--text-primary)] uppercase">{getItemName(showPreview)}</h3>
+                  <p className="text-[9px] text-[var(--text-muted)]">{getItemCategory(showPreview)}</p>
                 </div>
               </div>
-              <button onClick={() => setShowPreview(null)} className="w-6 h-6 rounded-full hover:bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)]">
+              <button onClick={() => setShowPreview(null)} className="w-8 h-8 rounded-full hover:bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--text-muted)]">
                 <i className="fa-solid fa-times text-[11px]"></i>
               </button>
             </div>
@@ -244,14 +290,20 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
                     <p className="text-[11px] font-bold text-[var(--text-primary)] mt-1">{new Date(showPreview.createdAt).toLocaleDateString('tr-TR')}</p>
                   </div>
                   <div className="p-3 bg-[var(--bg-secondary)] rounded-xl">
-                    <span className="text-[9px] font-medium text-[var(--text-muted)] uppercase">Aktivite Türü</span>
-                    <p className="text-[11px] font-bold text-[var(--text-primary)] mt-1 uppercase">{showPreview.activityType}</p>
+                    <span className="text-[9px] font-medium text-[var(--text-muted)] uppercase">Tür</span>
+                    <p className="text-[11px] font-bold text-[var(--text-primary)] mt-1 uppercase">{getItemActivityType(showPreview)}</p>
                   </div>
                 </div>
                 <div className="p-3 bg-[var(--bg-secondary)] rounded-xl">
                   <span className="text-[9px] font-medium text-[var(--text-muted)] uppercase">Kategori</span>
-                  <p className="text-[11px] font-bold text-[var(--text-primary)] mt-1">{showPreview.category?.title || 'Genel'}</p>
+                  <p className="text-[11px] font-bold text-[var(--text-primary)] mt-1">{getItemCategory(showPreview)}</p>
                 </div>
+                {showPreview.type === 'assessment' && (
+                  <div className="p-3 bg-[var(--bg-secondary)] rounded-xl">
+                    <span className="text-[9px] font-medium text-[var(--text-muted)] uppercase">Öğrenci</span>
+                    <p className="text-[11px] font-bold text-[var(--text-primary)] mt-1">{showPreview.studentName}</p>
+                  </div>
+                )}
               </div>
             </div>
             <div className="p-4 border-t border-[var(--border-color)] flex gap-2">
@@ -261,9 +313,11 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
               <button onClick={() => handleDownload(showPreview)} className="flex-1 py-2 bg-[var(--bg-secondary)] text-[var(--text-secondary)] rounded-xl text-[10px] font-medium uppercase hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all flex items-center justify-center gap-1.5">
                 <i className="fa-solid fa-download text-[10px]"></i> İndir
               </button>
-              <button onClick={() => { onLoadMaterial?.(showPreview); setShowPreview(null); }} className="flex-1 py-2 bg-[var(--accent-color)] text-white rounded-xl text-[10px] font-medium uppercase hover:opacity-90 transition-all flex items-center justify-center gap-1.5">
-                <i className="fa-solid fa-arrow-right text-[10px]"></i> Etkinliğe Git
-              </button>
+              {showPreview.type === 'worksheet' && (
+                <button onClick={() => { onLoadMaterial?.(showPreview); setShowPreview(null); }} className="flex-1 py-2 bg-[var(--accent-color)] text-white rounded-xl text-[10px] font-medium uppercase hover:opacity-90 transition-all flex items-center justify-center gap-1.5">
+                  <i className="fa-solid fa-arrow-right text-[10px]"></i> Etkinliğe Git
+                </button>
+              )}
               <button onClick={() => { handleDelete(showPreview); setShowPreview(null); }} className="w-9 py-2 bg-red-500/10 text-red-500 rounded-xl text-[10px] font-medium uppercase hover:bg-red-500/20 transition-all flex items-center justify-center">
                 <i className="fa-solid fa-trash-can text-[10px]"></i>
               </button>

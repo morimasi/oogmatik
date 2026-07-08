@@ -601,6 +601,7 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <AssignmentsModule
                     studentId={selectedStudent.id}
+                    studentName={selectedStudent.name}
                     assignments={assignments}
                     onUpdateAssignment={updateAssignment}
                     onLoadMaterial={onLoadMaterial}
@@ -613,6 +614,7 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
                   <MaterialsModule
                     studentId={selectedStudent.id}
                     worksheets={studentWorksheets}
+                    assessments={studentAssessments}
                     onLoadMaterial={onLoadMaterial}
                   />
                 </div>
