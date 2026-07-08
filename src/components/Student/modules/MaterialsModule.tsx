@@ -21,10 +21,18 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
   assessments,
   onLoadMaterial,
 }) => {
+  console.log(`[MaterialsModule] Alınan veriler:`, { 
+    studentId, 
+    worksheetsCount: worksheets.length, 
+    assessmentsCount: assessments.length,
+    worksheets,
+    assessments
+  });
   const allItems: MaterialItem[] = useMemo(() => [
-    ...worksheets.map(ws => ({ ...ws, type: 'worksheet' as const })),
-    ...assessments.map(a => ({ ...a, type: 'assessment' as const }))
+    ...worksheets.map(ws => ({ ...ws, type: 'worksheet' })),
+    ...assessments.map(a => ({ ...a, type: 'assessment' }))
   ], [worksheets, assessments]);
+  console.log(`[MaterialsModule] allItems:`, allItems);
 
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
