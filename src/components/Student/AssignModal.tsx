@@ -24,11 +24,11 @@ export const AssignModal: React.FC = () => {
   // Sadece öğretmen kendi öğrencilerini listeler
   useEffect(() => {
     if (user?.id && isAssignModalOpen) {
-      const isAdmin = (user as any).role === 'superadmin' || (user as any).role === 'admin';
+      const isAdmin = user.role === 'superadmin' || user.role === 'admin';
       const unsubscribe = fetchStudents(user.id, isAdmin);
       return () => unsubscribe();
     }
-  }, [user?.id, fetchStudents, isAssignModalOpen]);
+  }, [user?.id, user?.role, fetchStudents, isAssignModalOpen]);
 
   // Modal kapandığında state temizle
   useEffect(() => {

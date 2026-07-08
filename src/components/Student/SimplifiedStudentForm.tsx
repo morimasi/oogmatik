@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import type { Student } from '../../types/student';
+import type { Student } from '../../types';
 
 interface SimplifiedStudentFormProps {
   onSave: (student: Partial<Student>) => void;

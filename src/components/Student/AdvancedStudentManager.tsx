@@ -10,12 +10,11 @@ import { AcademicModule } from './modules/AcademicModule';
 import { PortfolioModule } from './modules/PortfolioModule';
 import { BehaviorModule } from './modules/BehaviorModule';
 import { SettingsModule } from './modules/SettingsModule';
-import { StudentSelector } from './StudentSelector';
 import { AIInsightsModule } from './modules/AIInsightsModule';
 import { useRBAC } from '../../hooks/useRBAC';
 import { PermissionModule } from '../../types/rbac-advanced';
 
-import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { logError } from '../../utils/logger.js';
 // Icons mapping for sub-modules
 const MODULE_ICONS = {
   overview: 'fa-chart-pie',

@@ -1,17 +1,15 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState } from 'react';
 import { AdvancedStudent, IEPGoal, IEPPlan } from '../../../types/student-advanced';
 import { RadarChart } from '../../RadarChart';
-import { LineChart } from '../../LineChart';
 import { logInfo, logError } from '../../../utils/logger.js';
 import { aiStudentService, CognitiveProfileResult } from '../../../services/aiStudentService';
 
-interface AIInsight {
-    type: 'strength' | 'weakness' | 'opportunity' | 'threat';
-    category: 'cognitive' | 'academic' | 'emotional';
-    title: string;
-    description: string;
-    confidence: number;
-    source: string[];
+interface SuggestedGoal {
+  title: string;
+  description: string;
+  category?: string;
+  successCriteria?: string;
+  priority?: string;
 }
 
 interface PredictionModel {
@@ -33,19 +31,19 @@ export const IEPModule: React.FC<IEPModuleProps> = ({ student, onUpdate }) => {
     const [aiResult, setAiResult] = useState<CognitiveProfileResult | null>(null);
     const [goals, setGoals] = useState<IEPGoal[]>(student.iep?.goals || []);
 
-    const handleApplySuggestedGoal = (suggested: any) => {
+    const handleApplySuggestedGoal = (suggested: SuggestedGoal) => {
         const newIEPGoal: IEPGoal = {
             id: crypto.randomUUID(),
             title: suggested.title,
             description: suggested.description,
-            category: (suggested.category as any) || 'academic',
+            category: (suggested.category as IEPGoal['category']) || 'academic',
             status: 'not_started',
             progress: 0,
             baseline: { description: 'AI Tarafından Önerildi', measurementDate: new Date().toISOString(), measurementMethod: 'observation' },
             shortTermObjective: suggested.description,
             successCriteria: suggested.successCriteria || 'Kriterlenmedi',
             targetDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(), // +90 days default
-            priority: suggested.priority || 'medium',
+            priority: (suggested.priority as IEPGoal['priority']) || 'medium',
             strategies: [],
             resources: [],
             evaluationMethod: 'observation',

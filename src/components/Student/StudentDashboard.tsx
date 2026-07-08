@@ -4,14 +4,8 @@ import { db } from '../../services/firebaseClient';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useStudentStore } from '../../store/useStudentStore';
 import { Student, SavedWorksheet, SavedAssessment, Curriculum, AdvancedStudent } from '../../types';
-import { ActivityAssignment } from '../../types/assignment';
-import { worksheetService } from '../../services/worksheetService';
-import { assessmentService } from '../../services/assessmentService';
-import { curriculumService } from '../../services/curriculumService';
-import { assignmentService } from '../../services/assignmentService';
 import { useAssignmentStore } from '../../store/useAssignmentStore';
 import { useToastStore } from '../../store/useToastStore';
-import { ACTIVITIES } from '../../constants';
 
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
 import { toAppError } from '../../utils/AppError.js';
@@ -152,14 +146,14 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
         const qWorksheets = query(collection(db, "saved_worksheets"), where("studentId", "==", selectedStudentId));
         const unsubWorksheets = onSnapshot(qWorksheets, {
           next: (snapshot: any) => {
-            console.log(`[StudentDashboard] saved_worksheets için ${selectedStudentId} id'li öğrenciye ait ${snapshot.docs.length} belge bulundu`);
+            logInfo(`[StudentDashboard] saved_worksheets için ${selectedStudentId} id'li öğrenciye ait ${snapshot.docs.length} belge bulundu`);
             const ws = snapshot.docs.map((doc: any) => {
               const raw = doc.data() as any;
-              console.log(`[StudentDashboard] saved_worksheet belge (${doc.id}) tam verisi:`, JSON.stringify(raw, null, 2));
+              logInfo(`[StudentDashboard] saved_worksheet belge (${doc.id}) tam verisi:`, { data: raw });
               if (typeof raw.worksheetData === 'string') { try { raw.worksheetData = JSON.parse(raw.worksheetData); } catch { raw.worksheetData = []; } }
               return { id: doc.id, ...raw } as SavedWorksheet;
             });
-            console.log(`[StudentDashboard] İşlenmiş worksheets dizisi:`, ws);
+            logInfo(`[StudentDashboard] İşlenmiş worksheets dizisi:`, { worksheets: ws });
             setStudentWorksheets(ws);
             setLoadingDetails(false);
           },
@@ -174,11 +168,11 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
         const qAssessments = query(collection(db, "saved_assessments"), where("studentId", "==", selectedStudentId));
         const unsubAssessments = onSnapshot(qAssessments, {
           next: (snapshot: any) => {
-            console.log(`[StudentDashboard] saved_assessments için ${selectedStudentId} id'li öğrenciye ait ${snapshot.docs.length} belge bulundu`);
+            logInfo(`[StudentDashboard] saved_assessments için ${selectedStudentId} id'li öğrenciye ait ${snapshot.docs.length} belge bulundu`);
             const as = snapshot.docs.map((doc: any) => {
               const raw = doc.data() as any;
-              console.log(`[StudentDashboard] saved_assessment belge verisi:`, { id: doc.id, ...raw });
-              return { id: doc.id, ...raw } as any;
+              logInfo(`[StudentDashboard] saved_assessment belge verisi:`, { id: doc.id, ...raw });
+              return { id: doc.id, ...raw } as SavedAssessment;
             });
             setStudentAssessments(as);
           },
