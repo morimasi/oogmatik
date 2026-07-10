@@ -102,7 +102,11 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, initialData }) =
             const s = students.find((x: Student) => x.id === sid);
             if (s) {
                 problem.setProblemConfig(prev => ({ ...prev, studentName: s.name }));
+                // Global store'u da güncelle ki diğer bileşenler de aynı öğrenciyi kullansın
+                useStudentStore.getState().setActiveStudent(s);
             }
+        } else {
+            useStudentStore.getState().setActiveStudent(null);
         }
     };
 

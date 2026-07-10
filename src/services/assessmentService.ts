@@ -7,6 +7,7 @@ import { generateOfflineAdaptiveQuestions } from './offlineGenerators/assessment
 import { shuffle } from './offlineGenerators/helpers';
 
 import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { useStudentStore } from '../store/useStudentStore.js';
 const { collection, addDoc, query, where, getDocs, doc, getDoc, deleteDoc } = firestore;
 
 export const assessmentService = {
@@ -20,10 +21,13 @@ export const assessmentService = {
         studentId?: string
     ): Promise<void> => {
         try {
+            const { activeStudent } = useStudentStore.getState();
+            const finalStudentId = studentId || activeStudent?.id || null;
+            const finalStudentName = studentName || activeStudent?.name || 'Öğrenci';
             const payload = {
                 userId,
-                studentId: studentId || null,
-                studentName: studentName || 'Öğrenci',
+                studentId: finalStudentId,
+                studentName: finalStudentName,
                 gender: gender || 'Erkek',
                 age: age || 7,
                 grade: grade || '1. Sınıf',

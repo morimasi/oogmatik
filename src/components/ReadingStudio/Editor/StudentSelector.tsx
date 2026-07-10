@@ -5,13 +5,14 @@ import { useReadingStore } from '../../../store/useReadingStore';
 import type { Student } from '../../../types/student';
 
 export const StudentSelector = () => {
-    const { students } = useStudentStore();
+    const { students, setActiveStudent: setGlobalActiveStudent } = useStudentStore();
     const { activeStudent, setActiveStudent, config, setConfig } = useReadingStore();
 
     const handleSelect = (studentId: string) => {
         const student = students.find((s: Student) => s.id === studentId);
         if (student) {
             setActiveStudent(student);
+            setGlobalActiveStudent(student);
             setConfig({
                 ...config,
                 studentId: student.id,
@@ -27,6 +28,7 @@ export const StudentSelector = () => {
             });
         } else {
             setActiveStudent(null);
+            setGlobalActiveStudent(null);
             setConfig({ ...config, studentId: undefined, studentName: '', studentProfile: undefined });
         }
     };
