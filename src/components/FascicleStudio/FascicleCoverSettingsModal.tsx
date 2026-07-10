@@ -9,19 +9,19 @@ interface FascicleCoverSettingsModalProps {
 }
 
 const THEMES = [
-  { id: 'modern', label: 'Eğitim Modern', desc: 'Minimal köşeler ve degredeler' },
-  { id: 'playful', label: 'Canlı & Neşeli', desc: 'Renkli lekeler ve enerjik yapı' },
-  { id: 'geometric', label: 'Geometrik Çizgiler', desc: 'Keskin hatlar ve profesyonel' },
-  { id: 'elegant', label: 'Elegant Sade', desc: 'Sakin çerçeve ve klasik zerafet' }
+  { id: 'clouds', label: 'Rüya Gibi', desc: 'Pastel bulutlar, yıldızlar ve huzurlu atmosfer' },
+  { id: 'doodles', label: 'Neşeli Çizgiler', desc: 'Renkli benekler, çizgiler ve eğlenceli dokunuşlar' },
+  { id: 'garden', label: 'Doğa Bahçesi', desc: 'Yapraklar, dalgalı çizgiler ve doğal sıcaklık' },
+  { id: 'dots', label: 'Eğlenceli Benekler', desc: 'Nokta desenleri, daireler ve modern pastel' }
 ] as const;
 
 const COLORS = [
-  { id: 'indigo', name: 'İndigo' },
-  { id: 'blue', name: 'Mavi' },
-  { id: 'emerald', name: 'Zümrüt' },
-  { id: 'rose', name: 'Pembe' },
-  { id: 'amber', name: 'Kehribar' },
-  { id: 'violet', name: 'Mor' }
+  { id: 'lavender', name: 'Lavanta' },
+  { id: 'mint', name: 'Nane' },
+  { id: 'peach', name: 'Şeftali' },
+  { id: 'blush', name: 'Pembe' },
+  { id: 'sky', name: 'Gökyüzü' },
+  { id: 'buttercup', name: 'Çiçek' }
 ];
 
 export const FascicleCoverSettingsModal: React.FC<FascicleCoverSettingsModalProps> = ({ isOpen, onClose }) => {
@@ -33,8 +33,8 @@ export const FascicleCoverSettingsModal: React.FC<FascicleCoverSettingsModalProp
     enabled: true,
     title: metadata.title,
     subtitle: 'Kişiselleştirilmiş Öğrenme Materyali',
-    themeStyle: 'modern',
-    primaryColor: 'indigo',
+    themeStyle: 'clouds',
+    primaryColor: 'lavender',
     showStudentLine: true,
     schoolName: 'Oogmatik Eğitim Platformu'
   };

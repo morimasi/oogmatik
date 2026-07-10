@@ -245,8 +245,8 @@ export const FasciclePreview: React.FC = () => {
                  enabled: true,
                  title: metadata.title,
                  subtitle: 'Kişiselleştirilmiş Öğrenme Materyali',
-                 themeStyle: 'modern',
-                 primaryColor: 'indigo',
+                 themeStyle: 'clouds',
+                 primaryColor: 'lavender',
                  showStudentLine: true,
                  schoolName: 'Oogmatik Eğitim Platformu'
                }} student={activeStudent} fascicleTitle={metadata.title} watermarkSettings={metadata.watermarkSettings} />

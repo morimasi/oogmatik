@@ -45,8 +45,8 @@ const initialMetadata: FascicleMetadata = {
     enabled: true,
     title: 'Özel Eğitim Fasikülü',
     subtitle: 'Kişiselleştirilmiş Öğrenme Materyali',
-    themeStyle: 'modern',
-    primaryColor: 'indigo',
+    themeStyle: 'clouds',
+    primaryColor: 'lavender',
     showStudentLine: true,
     schoolName: 'Oogmatik Eğitim Platformu'
   },
