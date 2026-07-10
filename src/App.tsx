@@ -530,6 +530,10 @@ const AppContent = () => {
             setError={setError}
             isLoading={isLoading}
             onAddToHistory={addToHistory}
+            onSaveWorksheet={async (activityType, data) => {
+              const title = ACTIVITIES.find(a => a.id === activityType)?.title || 'Etkinlik';
+              await addSavedWorksheet(title, activityType, data);
+            }}
             onOpenOCR={() => handleOpenStudio('ocr')}
             onOpenCurriculum={() => handleOpenStudio('curriculum')}
             onOpenReadingStudio={() => handleOpenStudio('reading-studio')}

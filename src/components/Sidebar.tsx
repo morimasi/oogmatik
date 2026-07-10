@@ -62,6 +62,7 @@ interface SidebarProps {
   activeCurriculumSession?: ActiveCurriculumSession | null;
   width?: number;
   onWidthChange?: (width: number) => void;
+  onSaveWorksheet?: (activityType: ActivityType, data: WorksheetData) => Promise<void>;
 }
 
 const Sidebar = ({
@@ -89,6 +90,7 @@ const Sidebar = ({
   onOpenKelimeCumleStudio,
   onOpenFascicleStudio,
   activeCurriculumSession,
+  onSaveWorksheet,
 }: SidebarProps) => {
   const [allActivities, setAllActivities] = useState<Activity[]>(ACTIVITIES);
   const [categories, setCategories] = useState<ActivityCategory[]>(ACTIVITY_CATEGORIES);
@@ -297,6 +299,9 @@ const Sidebar = ({
         setWorksheetData(result);
         onAddToHistory(selectedActivity, result);
         statsService.incrementUsage(selectedActivity).catch(console.error);
+        if (activeStudent && onSaveWorksheet) {
+          onSaveWorksheet(selectedActivity, result).catch(console.error);
+        }
       }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : String(e));
