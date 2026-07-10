@@ -10,49 +10,150 @@ interface FascicleCoverPageProps {
   watermarkSettings?: WatermarkSettings;
 }
 
+const COLOR_PALETTE: Record<string, {
+  primary: string;
+  primaryLight: string;
+  primaryDark: string;
+  accent: string;
+  gradientFrom: string;
+  gradientVia: string;
+  gradientTo: string;
+  blobColor: string;
+  borderColor: string;
+  textAccent: string;
+  glassBg: string;
+  glassBorder: string;
+}> = {
+  indigo: {
+    primary: '#4f46e5',
+    primaryLight: '#eef2ff',
+    primaryDark: '#3730a3',
+    accent: '#818cf8',
+    gradientFrom: '#eef2ff',
+    gradientVia: '#e0e7ff',
+    gradientTo: '#ffffff',
+    blobColor: 'rgba(99,102,241,0.12)',
+    borderColor: '#4f46e5',
+    textAccent: '#4f46e5',
+    glassBg: 'rgba(255,255,255,0.75)',
+    glassBorder: 'rgba(79,70,229,0.15)',
+  },
+  blue: {
+    primary: '#2563eb',
+    primaryLight: '#eff6ff',
+    primaryDark: '#1e40af',
+    accent: '#60a5fa',
+    gradientFrom: '#eff6ff',
+    gradientVia: '#dbeafe',
+    gradientTo: '#ffffff',
+    blobColor: 'rgba(37,99,235,0.12)',
+    borderColor: '#2563eb',
+    textAccent: '#2563eb',
+    glassBg: 'rgba(255,255,255,0.75)',
+    glassBorder: 'rgba(37,99,235,0.15)',
+  },
+  emerald: {
+    primary: '#059669',
+    primaryLight: '#ecfdf5',
+    primaryDark: '#047857',
+    accent: '#34d399',
+    gradientFrom: '#ecfdf5',
+    gradientVia: '#d1fae5',
+    gradientTo: '#ffffff',
+    blobColor: 'rgba(5,150,105,0.12)',
+    borderColor: '#059669',
+    textAccent: '#059669',
+    glassBg: 'rgba(255,255,255,0.75)',
+    glassBorder: 'rgba(5,150,105,0.15)',
+  },
+  rose: {
+    primary: '#e11d48',
+    primaryLight: '#fff1f2',
+    primaryDark: '#be123c',
+    accent: '#fb7185',
+    gradientFrom: '#fff1f2',
+    gradientVia: '#ffe4e6',
+    gradientTo: '#ffffff',
+    blobColor: 'rgba(225,29,72,0.12)',
+    borderColor: '#e11d48',
+    textAccent: '#e11d48',
+    glassBg: 'rgba(255,255,255,0.75)',
+    glassBorder: 'rgba(225,29,72,0.15)',
+  },
+  amber: {
+    primary: '#d97706',
+    primaryLight: '#fffbeb',
+    primaryDark: '#b45309',
+    accent: '#fbbf24',
+    gradientFrom: '#fffbeb',
+    gradientVia: '#fef3c7',
+    gradientTo: '#ffffff',
+    blobColor: 'rgba(217,119,6,0.12)',
+    borderColor: '#d97706',
+    textAccent: '#d97706',
+    glassBg: 'rgba(255,255,255,0.75)',
+    glassBorder: 'rgba(217,119,6,0.15)',
+  },
+  violet: {
+    primary: '#7c3aed',
+    primaryLight: '#f5f3ff',
+    primaryDark: '#6d28d9',
+    accent: '#a78bfa',
+    gradientFrom: '#f5f3ff',
+    gradientVia: '#ede9fe',
+    gradientTo: '#ffffff',
+    blobColor: 'rgba(124,58,237,0.12)',
+    borderColor: '#7c3aed',
+    textAccent: '#7c3aed',
+    glassBg: 'rgba(255,255,255,0.75)',
+    glassBorder: 'rgba(124,58,237,0.15)',
+  },
+};
+
+const THEME_STYLES: Record<string, React.CSSProperties> = {
+  modern: {
+    background: 'linear-gradient(135deg, var(--gradient-from) 0%, var(--gradient-via) 50%, var(--gradient-to) 100%)',
+  },
+  playful: {
+    background: 'linear-gradient(135deg, #fef3c7 0%, #fce7f3 30%, #dbeafe 60%, #fef3c7 100%)',
+  },
+  elegant: {
+    background: '#fdfbf7',
+    border: '12px solid #2c3e50',
+  },
+  geometric: {
+    background: '#ffffff',
+  },
+};
+
 export const FascicleCoverPage: React.FC<FascicleCoverPageProps> = ({ settings, student, fascicleTitle, watermarkSettings }) => {
   if (!settings.enabled) return null;
 
-  const getThemeClasses = () => {
-    switch (settings.themeStyle) {
-      case 'playful':
-        return 'bg-gradient-to-br from-yellow-100 via-green-100 to-blue-100';
-      case 'elegant':
-        return 'bg-[#fdfbf7] border-[12px] border-[#2c3e50]';
-      case 'geometric':
-        return 'bg-white relative overflow-hidden';
-      case 'modern':
-      default:
-        return `bg-gradient-to-br from-${settings.primaryColor}-50 to-white`;
-    }
-  };
+  const colors = COLOR_PALETTE[settings.primaryColor] || COLOR_PALETTE.indigo;
 
-  const COLOR_LIGHT_BG: Record<string, string> = {
-    indigo: 'bg-indigo-200/40',
-    blue: 'bg-blue-200/40',
-    emerald: 'bg-emerald-200/40',
-    rose: 'bg-rose-200/40',
-    amber: 'bg-amber-200/40',
-    violet: 'bg-violet-200/40',
-  };
-
-  const getColorClass = (type: 'text' | 'bg' | 'border') => {
-    const colorMap: Record<string, Record<string, string>> = {
-      indigo: { text: 'text-indigo-600', bg: 'bg-indigo-600', border: 'border-indigo-600' },
-      blue: { text: 'text-blue-600', bg: 'bg-blue-600', border: 'border-blue-600' },
-      emerald: { text: 'text-emerald-600', bg: 'bg-emerald-600', border: 'border-emerald-600' },
-      rose: { text: 'text-rose-600', bg: 'bg-rose-600', border: 'border-rose-600' },
-      amber: { text: 'text-amber-600', bg: 'bg-amber-600', border: 'border-amber-600' },
-      violet: { text: 'text-violet-600', bg: 'bg-violet-600', border: 'border-violet-600' },
-    };
-    return colorMap[settings.primaryColor]?.[type] || colorMap.indigo[type];
-  };
+  const themeStyle: React.CSSProperties = {
+    ...THEME_STYLES[settings.themeStyle] || THEME_STYLES.modern,
+    '--gradient-from': colors.gradientFrom,
+    '--gradient-via': colors.gradientVia,
+    '--gradient-to': colors.gradientTo,
+    '--primary-color': colors.primary,
+    '--primary-light': colors.primaryLight,
+    '--primary-dark': colors.primaryDark,
+    '--accent-color': colors.accent,
+    '--blob-color': colors.blobColor,
+    '--border-color-primary': colors.borderColor,
+    '--text-accent': colors.textAccent,
+    '--glass-bg': colors.glassBg,
+    '--glass-border': colors.glassBorder,
+  } as React.CSSProperties;
 
   return (
-    <div 
-      className={`print-exact worksheet-page relative flex flex-col justify-between p-[8mm] shadow-2xl mx-auto overflow-hidden w-[210mm] h-[297mm] box-border ${getThemeClasses()}`}
+    <div
+      className="print-exact worksheet-page relative flex flex-col justify-between p-0 mx-auto overflow-hidden w-[210mm] h-[297mm] box-border"
       style={{
-        boxSizing: 'border-box'
+        ...themeStyle,
+        boxSizing: 'border-box',
+        fontFamily: 'Lexend, sans-serif',
       }}
     >
       {/* Watermark */}
@@ -79,92 +180,205 @@ export const FascicleCoverPage: React.FC<FascicleCoverPageProps> = ({ settings, 
         )
       )}
 
-      {/* Decorative Elements */}
+      {/* Decorative Background Elements */}
       {settings.themeStyle === 'modern' && (
         <>
-          <div className={`absolute top-0 right-0 w-64 h-64 ${COLOR_LIGHT_BG[settings.primaryColor] || 'bg-indigo-200/40'} rounded-full blur-3xl opacity-30 -z-10`} />
-          <div className={`absolute bottom-0 left-0 w-80 h-80 ${COLOR_LIGHT_BG[settings.primaryColor] || 'bg-indigo-200/30'} rounded-full blur-3xl opacity-30 -z-10`} />
-        </>
-      )}
-
-      {settings.themeStyle === 'geometric' && (
-        <>
-          <div className={`absolute -top-20 -right-20 w-96 h-96 border-[40px] ${getColorClass('border')} opacity-10 rounded-full`} />
-          <div className={`absolute top-40 -left-10 w-32 h-32 ${getColorClass('bg')} opacity-10 rotate-45`} />
-          <div className={`absolute -bottom-20 right-20 w-64 h-64 border-[24px] ${getColorClass('border')} opacity-10 rounded-full`} />
+          <div className="absolute top-0 right-0 w-72 h-72 rounded-full blur-3xl opacity-20 -z-10" style={{ background: colors.blobColor }} />
+          <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full blur-3xl opacity-20 -z-10" style={{ background: colors.blobColor }} />
+          <div className="absolute top-1/3 -left-20 w-48 h-48 rounded-full blur-2xl opacity-10 -z-10" style={{ background: colors.accent }} />
         </>
       )}
 
       {settings.themeStyle === 'playful' && (
         <>
-          <div className="absolute top-10 right-20 w-16 h-16 bg-pink-300 rounded-full mix-blend-multiply filter blur-sm opacity-70 animate-blob" />
-          <div className="absolute top-20 right-10 w-16 h-16 bg-yellow-300 rounded-full mix-blend-multiply filter blur-sm opacity-70 animate-blob animation-delay-2000" />
-          <div className="absolute bottom-20 left-20 w-24 h-24 bg-purple-300 rounded-full mix-blend-multiply filter blur-sm opacity-70 animate-blob" />
+          <div className="absolute top-16 right-24 w-20 h-20 rounded-full mix-blend-multiply filter blur-sm opacity-60" style={{ background: '#f9a8d4' }} />
+          <div className="absolute top-28 right-12 w-16 h-16 rounded-full mix-blend-multiply filter blur-sm opacity-60" style={{ background: '#fde68a' }} />
+          <div className="absolute bottom-24 left-24 w-28 h-28 rounded-full mix-blend-multiply filter blur-sm opacity-60" style={{ background: '#c4b5fd' }} />
+          <div className="absolute top-1/2 left-1/4 w-12 h-12 rounded-full mix-blend-multiply filter blur-sm opacity-40" style={{ background: '#a7f3d0' }} />
         </>
       )}
 
-      {/* Header section */}
-      <div className="relative z-10 flex flex-col items-center pt-4">
-        <div className={`w-24 h-24 rounded-2xl flex items-center justify-center mb-4 bg-white border-2 ${getColorClass('border')} print:shadow-none shadow-lg overflow-hidden p-2`}>
-          <DyslexiaLogo className="w-full h-full" />
-        </div>
-        {settings.schoolName && (
-          <h2 className="text-lg font-bold text-gray-500 uppercase tracking-[0.2em] text-center mb-1">
-            {settings.schoolName}
-          </h2>
-        )}
-        <div className={`w-16 h-0.5 mt-3 rounded-full ${getColorClass('bg')}`} />
-      </div>
+      {settings.themeStyle === 'geometric' && (
+        <>
+          <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full opacity-8" style={{ border: `40px solid ${colors.borderColor}`, opacity: 0.08 }} />
+          <div className="absolute top-44 -left-12 w-36 h-36 opacity-8" style={{ background: colors.primary, opacity: 0.08, transform: 'rotate(45deg)' }} />
+          <div className="absolute -bottom-24 right-16 w-72 h-72 rounded-full opacity-8" style={{ border: `24px solid ${colors.borderColor}`, opacity: 0.08 }} />
+          <div className="absolute bottom-1/3 right-1/4 w-16 h-16 opacity-6" style={{ background: colors.primary, opacity: 0.06, transform: 'rotate(15deg)' }} />
+        </>
+      )}
 
-      {/* BDMIND Branding */}
-      <div className="relative z-10 flex flex-col items-center justify-center text-center my-auto pt-8 pb-8">
-        <h1 className="text-[4rem] leading-[1] font-black text-gray-800 drop-shadow-sm" style={{ fontFamily: 'Lexend, sans-serif', letterSpacing: '-0.02em' }}>
-          BDMIND
-        </h1>
-        <div className={`w-20 h-1 my-4 rounded-full ${getColorClass('bg')}`} />
-        <h2 className="text-lg font-black text-gray-500 uppercase tracking-[0.35em]">
-          EDU-TECH PLATFORM
-        </h2>
-        <h3 className={`text-sm font-bold mt-6 italic ${getColorClass('text')} opacity-70 uppercase tracking-widest`}>
-          {settings.subtitle || 'Kişiselleştirilmiş Eğitim Materyali'}
-        </h3>
-        {fascicleTitle && fascicleTitle !== 'İsimsiz Fasikül' && (
-          <div className="mt-6 px-8 py-3 rounded-2xl" style={{ backgroundColor: 'var(--accent-muted, rgba(99,102,241,0.08))', border: '1px solid var(--accent-muted, rgba(99,102,241,0.15))' }}>
-            <span className="text-base font-bold text-gray-700">{fascicleTitle}</span>
+      {settings.themeStyle === 'elegant' && (
+        <>
+          <div className="absolute top-0 left-0 right-0 h-1" style={{ background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)` }} />
+          <div className="absolute bottom-0 left-0 right-0 h-1" style={{ background: `linear-gradient(90deg, transparent, ${colors.primary}, transparent)` }} />
+          <div className="absolute top-24 bottom-24 left-12 w-px" style={{ background: `linear-gradient(180deg, transparent, ${colors.primary}33, transparent)` }} />
+          <div className="absolute top-24 bottom-24 right-12 w-px" style={{ background: `linear-gradient(180deg, transparent, ${colors.primary}33, transparent)` }} />
+          <div className="absolute top-1/3 left-1/2 w-32 h-32 rounded-full border opacity-5" style={{ border: `2px solid ${colors.primary}`, transform: 'translateX(-50%)' }} />
+        </>
+      )}
+
+      {/* Main Content */}
+      <div className="relative z-10 flex flex-col h-full p-[8mm]">
+        {/* TOP SECTION: Logo + School */}
+        <div className="flex flex-col items-center pt-4">
+          <div
+            className="w-20 h-20 rounded-2xl flex items-center justify-center mb-3 bg-white shadow-lg overflow-hidden p-2"
+            style={{ border: `2px solid ${colors.borderColor}` }}
+          >
+            <DyslexiaLogo className="w-full h-full" />
           </div>
-        )}
-      </div>
+          {settings.schoolName && (
+            <h2 className="text-xs font-bold tracking-[0.25em] text-center mb-2" style={{ color: colors.primary }}>
+              {settings.schoolName}
+            </h2>
+          )}
+          <div className="w-12 h-0.5 rounded-full" style={{ background: colors.primary }} />
+        </div>
 
-      {/* Student & Footer Section */}
-      <div className="relative z-10 mt-auto bg-white/70 backdrop-blur-sm p-8 rounded-3xl border border-white/50 shadow-lg print:shadow-none print:border-gray-300">
-        <div className="flex justify-between items-end">
-          {settings.showStudentLine && (
-            <div className="flex-1">
-              <div className="mb-6">
-                <span className="block text-sm font-bold tracking-widest text-gray-400 uppercase mb-2">Öğrenci Adı Soyadı</span>
-                <div className="text-2xl font-black text-gray-800 border-b-2 border-dashed border-gray-400 pb-1 mr-12 min-h-[36px]">
-                  {student ? student.name : ''}
-                </div>
-              </div>
-              <div>
-                <span className="block text-sm font-bold tracking-widest text-gray-400 uppercase mb-2">Sınıfı / Grubu</span>
-                <div className="text-xl text-gray-700 font-bold border-b-2 border-dashed border-gray-400 pb-1 mr-24 min-h-[32px]">
-                  {student?.grade ? `${student.grade}. Sınıf` : ''}
-                </div>
-              </div>
+        {/* CENTER SECTION: Branding + Title */}
+        <div className="flex-1 flex flex-col items-center justify-center text-center px-4">
+          {/* Premium Badge */}
+          <div
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-bold uppercase tracking-[0.15em] mb-6"
+            style={{
+              background: `linear-gradient(135deg, ${colors.primary}15, ${colors.accent}20)`,
+              border: `1px solid ${colors.borderColor}25`,
+              color: colors.primary,
+            }}
+          >
+            <span style={{ color: colors.primary }}>✦</span>
+            Premium Eğitim Materyali
+            <span style={{ color: colors.primary }}>✦</span>
+          </div>
+
+          {/* Main Title */}
+          <h1
+            className="text-[3.2rem] leading-[1.1] font-black tracking-[-0.03em] mb-2"
+            style={{
+              color: '#1e293b',
+              fontFamily: 'Lexend, sans-serif',
+            }}
+          >
+            {settings.title || 'Özel Eğitim Fasikülü'}
+          </h1>
+
+          {/* Decorative Divider */}
+          <div className="flex items-center gap-3 my-3">
+            <div className="w-12 h-px" style={{ background: `linear-gradient(90deg, transparent, ${colors.primary})` }} />
+            <div className="w-2 h-2 rounded-full" style={{ background: colors.primary }} />
+            <div className="w-12 h-px" style={{ background: `linear-gradient(90deg, ${colors.primary}, transparent)` }} />
+          </div>
+
+          {/* Subtitle */}
+          {settings.subtitle && (
+            <h3
+              className="text-sm font-semibold tracking-[0.15em] uppercase mb-4"
+              style={{ color: colors.textAccent, opacity: 0.7 }}
+            >
+              {settings.subtitle}
+            </h3>
+          )}
+
+          {/* BDMIND Brand */}
+          <div className="mt-2 mb-4">
+            <span
+              className="text-[2.8rem] font-black tracking-[-0.04em]"
+              style={{
+                background: `linear-gradient(135deg, ${colors.primaryDark}, ${colors.primary})`,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                fontFamily: 'Lexend, sans-serif',
+              }}
+            >
+              BDMIND
+            </span>
+            <div className="text-[9px] font-bold tracking-[0.4em] mt-1" style={{ color: colors.textAccent, opacity: 0.5 }}>
+              EDU-TECH PLATFORM
+            </div>
+          </div>
+
+          {/* Fascicle Title Badge */}
+          {fascicleTitle && fascicleTitle !== 'İsimsiz Fasikül' && (
+            <div
+              className="mt-3 px-6 py-2 rounded-xl text-sm font-bold"
+              style={{
+                background: colors.glassBg,
+                border: `1px solid ${colors.glassBorder}`,
+                color: '#334155',
+                backdropFilter: 'blur(8px)',
+              }}
+            >
+              {fascicleTitle}
             </div>
           )}
-          
-          <div className="text-right flex flex-col items-end">
-             <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 bg-white shadow-md border-2 ${getColorClass('border')} print:shadow-none`}>
-                <i className={`fa-solid fa-qrcode text-2xl ${getColorClass('text')}`} />
-             </div>
-             <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">
-               Düzenlenme Tarihi
-             </div>
-             <div className="text-lg font-black text-gray-700">
-               {settings.date || new Date().toLocaleDateString('tr-TR')}
-             </div>
+        </div>
+
+        {/* BOTTOM SECTION: Student Info + Date */}
+        <div
+          className="rounded-2xl p-5 border shadow-sm"
+          style={{
+            background: colors.glassBg,
+            borderColor: colors.glassBorder,
+            backdropFilter: 'blur(8px)',
+          }}
+        >
+          <div className="flex justify-between items-end">
+            {settings.showStudentLine && (
+              <div className="flex-1 min-w-0">
+                <div className="mb-4">
+                  <span className="block text-[10px] font-bold tracking-[0.2em] uppercase mb-1.5" style={{ color: colors.textAccent, opacity: 0.6 }}>
+                    Öğrenci Adı Soyadı
+                  </span>
+                  <div
+                    className="text-xl font-black pb-1 min-h-[30px]"
+                    style={{
+                      color: '#1e293b',
+                      borderBottom: `2px dashed ${colors.borderColor}40`,
+                      fontFamily: 'Lexend, sans-serif',
+                    }}
+                  >
+                    {student ? student.name : ''}
+                  </div>
+                </div>
+                <div>
+                  <span className="block text-[10px] font-bold tracking-[0.2em] uppercase mb-1.5" style={{ color: colors.textAccent, opacity: 0.6 }}>
+                    Sınıfı / Grubu
+                  </span>
+                  <div
+                    className="text-base font-bold pb-1 min-h-[26px]"
+                    style={{
+                      color: '#475569',
+                      borderBottom: `2px dashed ${colors.borderColor}40`,
+                      fontFamily: 'Lexend, sans-serif',
+                    }}
+                  >
+                    {student?.grade ? `${student.grade}. Sınıf` : ''}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="text-right flex flex-col items-end shrink-0" style={{ marginLeft: settings.showStudentLine ? '1rem' : '0' }}>
+              <div
+                className="w-14 h-14 rounded-full flex items-center justify-center mb-3 bg-white shadow-md"
+                style={{ border: `2px solid ${colors.borderColor}` }}
+              >
+                <i className="fa-solid fa-qrcode text-xl" style={{ color: colors.textAccent }} />
+              </div>
+              <div className="text-[9px] font-bold tracking-[0.15em]" style={{ color: colors.textAccent, opacity: 0.5 }}>
+                Düzenlenme Tarihi
+              </div>
+              <div
+                className="text-sm font-black mt-0.5"
+                style={{
+                  color: '#334155',
+                  fontFamily: 'Lexend, sans-serif',
+                }}
+              >
+                {settings.date || new Date().toLocaleDateString('tr-TR')}
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useFascicleStore } from '../../store/useFascicleStore';
 import { CoverPageSettings } from '../../types/fascicle';
-import { X, Palette, Type, LayoutTemplate } from 'lucide-react';
+import { X, Palette, Type, LayoutTemplate, Calendar } from 'lucide-react';
 
 interface FascicleCoverSettingsModalProps {
   isOpen: boolean;
@@ -97,6 +97,14 @@ export const FascicleCoverSettingsModal: React.FC<FascicleCoverSettingsModalProp
                    <label className="block text-xs text-[var(--text-muted)] mb-1">Kurum / Okul Adı</label>
                    <input type="text" value={currentSettings.schoolName || ''} onChange={e => handleChange('schoolName', e.target.value)}
                     className="w-full bg-[var(--bg-inset)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-[var(--radius-premium)] px-4 py-3 transition-all" />
+                </div>
+                <div>
+                   <label className="block text-xs text-[var(--text-muted)] mb-1">Tarih (Boş bırakılırsa bugünün tarihi)</label>
+                   <div className="relative">
+                     <Calendar size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
+                     <input type="date" value={currentSettings.date || ''} onChange={e => handleChange('date', e.target.value)}
+                      className="w-full bg-[var(--bg-inset)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-[var(--radius-premium)] pl-10 pr-4 py-3 transition-all" />
+                   </div>
                 </div>
               </div>
             </div>

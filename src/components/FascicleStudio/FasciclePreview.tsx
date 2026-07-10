@@ -240,10 +240,16 @@ export const FasciclePreview: React.FC = () => {
       {/* A4 Paper Mockup Scroll Area */}
       <div className={`flex-1 overflow-y-auto custom-scrollbar flex flex-col items-center pb-20 transition-transform duration-300 origin-top ${viewState === 'mobile' ? 'scale-[0.85]' : 'scale-100'}`}>
          <div id="fascicle-print-container" className="w-full flex flex-col items-center">
-             {/* Kapak Sayfası */}
-              {metadata.coverPageSettings && (
-                <FascicleCoverPage settings={metadata.coverPageSettings} student={activeStudent} fascicleTitle={metadata.title} watermarkSettings={metadata.watermarkSettings} />
-              )}
+              {/* Kapak Sayfası */}
+               <FascicleCoverPage settings={metadata.coverPageSettings || {
+                 enabled: true,
+                 title: metadata.title,
+                 subtitle: 'Kişiselleştirilmiş Öğrenme Materyali',
+                 themeStyle: 'modern',
+                 primaryColor: 'indigo',
+                 showStudentLine: true,
+                 schoolName: 'Oogmatik Eğitim Platformu'
+               }} student={activeStudent} fascicleTitle={metadata.title} watermarkSettings={metadata.watermarkSettings} />
 
              {/* İçerik Sayfaları (Items) */}
              {items.length > 0 ? items.map((item, index) => {
