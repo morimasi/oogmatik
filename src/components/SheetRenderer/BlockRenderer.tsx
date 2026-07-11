@@ -55,17 +55,23 @@ export const BlockRenderer = React.memo(({ block }: { block: WorksheetBlock }) =
 
     case 'grid': {
       const cells = content.cells || content.items || content.data || [];
-      const cols = content.cols || content.columns || 4;
+      const cols = Math.max(content.cols || content.columns || 4, 1);
+      const colWidth = `calc(${100 / cols}% - ${(cols - 1) * 0.5 / cols}rem)`;
       return (
         <div className="block-svg-shape flex justify-center mb-4 print:mb-2 break-inside-avoid print:break-inside-avoid">
           <div
-            className="block-grid-container grid gap-2 border-4 border-black p-4 print:p-2 bg-zinc-50 rounded-2xl"
-            style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}
+            className="block-grid-container flex flex-wrap gap-2 border-4 border-black p-4 print:p-2 bg-zinc-50 rounded-2xl justify-center"
           >
             {cells.map((cell: any, i: number) => (
               <div
                 key={i}
-                className="block-grid-cell w-12 h-12 border-2 border-zinc-300 bg-white rounded-lg flex items-center justify-center font-black text-xl"
+                className="block-grid-cell border-2 border-zinc-300 bg-white rounded-lg flex items-center justify-center font-black text-xl"
+                style={{
+                  width: colWidth,
+                  aspectRatio: '1 / 1',
+                  maxWidth: '6rem',
+                  minWidth: '2rem',
+                }}
               >
                 <EditableText value={recursiveSafeText(cell)} tag="span" />
               </div>

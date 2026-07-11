@@ -307,7 +307,7 @@ export const capturePage = async (
       allowTaint: false,
       logging: false,
       backgroundColor: '#ffffff',
-      foreignObjectRendering: false,
+      foreignObjectRendering: true,
       windowWidth: page.scrollWidth,
       windowHeight: page.scrollHeight,
       width: page.offsetWidth,
