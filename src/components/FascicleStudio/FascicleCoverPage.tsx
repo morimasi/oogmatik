@@ -328,7 +328,7 @@ export const FascicleCoverPage: React.FC<FascicleCoverPageProps> = ({ settings, 
               <div className="w-full h-full rounded-[28px] bg-white" />
             </div>
             <div
-              className="w-24 h-24 rounded-[28px] flex items-center justify-center bg-white shadow-md overflow-hidden p-3 relative"
+              className="w-36 h-36 rounded-[28px] flex items-center justify-center bg-white shadow-md overflow-hidden p-2 relative"
               style={{
                 border: `3px solid ${palette.primary}30`,
                 boxShadow: `0 8px 24px ${palette.glow}, 0 0 0 3px ${palette.gold}15`,
