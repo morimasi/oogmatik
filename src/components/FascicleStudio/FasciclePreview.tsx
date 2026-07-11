@@ -11,7 +11,6 @@ import { FascicleCoverPage } from './FascicleCoverPage';
 import { FascicleWatermarkSettingsModal } from './FascicleWatermarkSettingsModal';
 import { useStudentStore } from '../../store/useStudentStore';
 import { v4 as uuidv4 } from 'uuid';
-import toast from 'react-hot-toast';
 import { normalizeFascicleContent, getFasciclePageCount } from '../../utils/fascicleContentNormalizer';
 
 const renderWatermark = (ws: WatermarkSettings) => {
@@ -50,6 +49,7 @@ export const FasciclePreview: React.FC = () => {
   const [showSaveConfirm, setShowSaveConfirm] = useState(false);
   const [templateName, setTemplateName] = useState('');
   const [showWatermarkSettings, setShowWatermarkSettings] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
 
   const handleSaveAsTemplate = useCallback(() => {
     if (items.length === 0) {
@@ -185,8 +185,7 @@ export const FasciclePreview: React.FC = () => {
                   toast.error('Fasikülde içerik bulunamadı.');
                   return;
                 }
-                const btn = document.activeElement as HTMLElement;
-                if (btn) btn.style.opacity = '0.5';
+                setAiLoading(true);
                 try {
                   const suggestion = await fascicleAIEngine.generateCoverDesign(metadata, items);
                   const cs = metadata.coverPageSettings;
@@ -203,13 +202,19 @@ export const FasciclePreview: React.FC = () => {
                 } catch {
                   toast.error('AI kapak oluşturulamadı.');
                 } finally {
-                  if (btn) btn.style.opacity = '1';
+                  setAiLoading(false);
                 }
               }}
-              className="studio-icon-btn p-1.5 rounded-lg text-[var(--text-muted)] hover:text-purple-400"
-              title="AI ile Kapak Oluştur (içeriğe göre)"
+              disabled={aiLoading || items.length === 0}
+              className="studio-icon-btn p-1.5 rounded-lg transition-all"
+              style={{
+                color: aiLoading || items.length === 0 ? 'var(--bg-inset)' : 'var(--text-muted)',
+                opacity: aiLoading || items.length === 0 ? 0.4 : 1,
+                cursor: aiLoading || items.length === 0 ? 'not-allowed' : 'pointer',
+              }}
+              title={items.length === 0 ? 'Önce fasiküle aktivite ekleyin' : 'AI ile Kapak Oluştur (içeriğe göre)'}
             >
-              <Sparkles size={16} />
+              <Sparkles size={16} className={aiLoading ? 'animate-spin' : ''} />
             </button>
 
             {/* Watermark Settings */}

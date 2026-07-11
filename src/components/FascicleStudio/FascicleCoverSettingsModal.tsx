@@ -182,7 +182,7 @@ export const FascicleCoverSettingsModal: React.FC<FascicleCoverSettingsModalProp
             <div className="h-px" style={{ backgroundColor: 'var(--border-color)' }} />
 
             <div className="space-y-4">
-               <label className="flex items-center gap-3 cursor-pointer group">
+               <label className="flex items-center gap-3 cursor-pointer group" onClick={() => handleChange('showStudentLine', !currentSettings.showStudentLine)}>
                   <div className="w-6 h-6 rounded flex items-center justify-center transition-colors"
                     style={{
                       backgroundColor: currentSettings.showStudentLine ? 'var(--accent-color)' : 'var(--bg-paper)',
@@ -204,16 +204,18 @@ export const FascicleCoverSettingsModal: React.FC<FascicleCoverSettingsModalProp
         <div className="p-4 border-t border-[var(--border-color)] bg-[var(--bg-secondary)]/50 flex items-center justify-between">
           <button
             onClick={handleAiGenerate}
-            disabled={aiLoading}
+            disabled={aiLoading || items.length === 0}
+            title={items.length === 0 ? 'Önce fasiküle aktivite ekleyin' : 'AI ile kapak tasarımı oluştur'}
             className="flex items-center gap-2 px-4 py-2 font-bold rounded-[var(--radius-premium)] transition-all text-sm"
             style={{
-              background: aiLoading ? 'var(--bg-inset)' : 'linear-gradient(135deg, #8b5cf6, #a78bfa)',
-              color: aiLoading ? 'var(--text-muted)' : '#ffffff',
-              opacity: aiLoading ? 0.6 : 1,
+              background: aiLoading || items.length === 0 ? 'var(--bg-inset)' : 'linear-gradient(135deg, #8b5cf6, #a78bfa)',
+              color: aiLoading || items.length === 0 ? 'var(--text-muted)' : '#ffffff',
+              opacity: aiLoading || items.length === 0 ? 0.6 : 1,
+              cursor: aiLoading || items.length === 0 ? 'not-allowed' : 'pointer',
             }}
           >
             <Sparkles size={16} className={aiLoading ? 'animate-spin' : ''} />
-            {aiLoading ? 'Oluşturuluyor...' : 'AI ile Kapak Oluştur'}
+            {aiLoading ? 'Oluşturuluyor...' : items.length === 0 ? 'Aktivite Ekleyin' : 'AI ile Kapak Oluştur'}
           </button>
           <button onClick={onClose} className="px-6 py-2 font-bold rounded-[var(--radius-premium)] transition-all" style={{ backgroundColor: 'var(--accent-color)', color: '#ffffff' }}>
              Uygula ve Kapat
