@@ -27,11 +27,19 @@ export interface CoverPageSettings {
   enabled: boolean;
   title: string;
   subtitle?: string;
-  themeStyle: 'modern' | 'playful' | 'elegant' | 'geometric';
+  themeStyle: 'clouds' | 'doodles' | 'garden' | 'dots';
   primaryColor: string;
   showStudentLine: boolean;
   schoolName?: string;
   date?: string;
+  customSvgDecorations?: string;
+}
+
+export interface AiCoverSuggestion {
+  themeStyle: 'clouds' | 'doodles' | 'garden' | 'dots';
+  primaryColor: string;
+  subtitle: string;
+  svgDecorations: string;
 }
 
 export interface FascicleMetadata {

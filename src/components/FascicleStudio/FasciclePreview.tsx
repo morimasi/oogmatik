@@ -1,7 +1,9 @@
 import React, { Suspense, useState, useCallback, useMemo } from 'react';
 import { useFascicleStore } from '../../store/useFascicleStore';
 import { useFascicleTemplateStore, SavedFascicleTemplate } from '../../store/useFascicleTemplateStore';
-import { Eye, Smartphone, Monitor, Info, LayoutTemplate, BookTemplate, Save, Trash2, Check, Loader2, X, Droplets } from 'lucide-react';
+import { Eye, Smartphone, Monitor, Info, LayoutTemplate, BookTemplate, Save, Trash2, Check, Loader2, X, Droplets, Sparkles } from 'lucide-react';
+import { fascicleAIEngine } from '../../services/fascicleAIEngine';
+import toast from 'react-hot-toast';
 import { SheetRenderer } from '../SheetRenderer';
 import { ActivityType, SingleWorksheetData, StyleSettings } from '../../types';
 import { WatermarkSettings } from '../../types/fascicle';
@@ -175,6 +177,40 @@ export const FasciclePreview: React.FC = () => {
                 </>
               )}
             </div>
+
+            {/* AI Cover Generation */}
+            <button
+              onClick={async () => {
+                if (items.length === 0) {
+                  toast.error('Fasikülde içerik bulunamadı.');
+                  return;
+                }
+                const btn = document.activeElement as HTMLElement;
+                if (btn) btn.style.opacity = '0.5';
+                try {
+                  const suggestion = await fascicleAIEngine.generateCoverDesign(metadata, items);
+                  const cs = metadata.coverPageSettings;
+                  useFascicleStore.getState().updateMetadata({
+                    coverPageSettings: {
+                      ...(cs || { enabled: true, title: metadata.title, showStudentLine: true }),
+                      themeStyle: suggestion.themeStyle,
+                      primaryColor: suggestion.primaryColor,
+                      subtitle: suggestion.subtitle,
+                      customSvgDecorations: suggestion.svgDecorations,
+                    }
+                  });
+                  toast.success('AI kapağı oluşturdu!');
+                } catch {
+                  toast.error('AI kapak oluşturulamadı.');
+                } finally {
+                  if (btn) btn.style.opacity = '1';
+                }
+              }}
+              className="studio-icon-btn p-1.5 rounded-lg text-[var(--text-muted)] hover:text-purple-400"
+              title="AI ile Kapak Oluştur (içeriğe göre)"
+            >
+              <Sparkles size={16} />
+            </button>
 
             {/* Watermark Settings */}
             <button

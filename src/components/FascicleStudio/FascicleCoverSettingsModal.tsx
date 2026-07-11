@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useFascicleStore } from '../../store/useFascicleStore';
 import { CoverPageSettings } from '../../types/fascicle';
-import { X, Palette, Type, LayoutTemplate, Calendar } from 'lucide-react';
+import { X, Palette, Type, LayoutTemplate, Calendar, Sparkles } from 'lucide-react';
+import { fascicleAIEngine } from '../../services/fascicleAIEngine';
+import toast from 'react-hot-toast';
 
 interface FascicleCoverSettingsModalProps {
   isOpen: boolean;
@@ -25,7 +27,8 @@ const COLORS = [
 ];
 
 export const FascicleCoverSettingsModal: React.FC<FascicleCoverSettingsModalProps> = ({ isOpen, onClose }) => {
-  const { metadata, updateMetadata } = useFascicleStore();
+  const { metadata, updateMetadata, items } = useFascicleStore();
+  const [aiLoading, setAiLoading] = useState(false);
 
   if (!isOpen) return null;
 
@@ -46,6 +49,31 @@ export const FascicleCoverSettingsModal: React.FC<FascicleCoverSettingsModalProp
         [key]: value
       }
     });
+  };
+
+  const handleAiGenerate = async () => {
+    if (items.length === 0) {
+      toast.error('Fasikülde içerik bulunamadı. Önce aktivite ekleyin.');
+      return;
+    }
+    setAiLoading(true);
+    try {
+      const suggestion = await fascicleAIEngine.generateCoverDesign(metadata, items);
+      updateMetadata({
+        coverPageSettings: {
+          ...currentSettings,
+          themeStyle: suggestion.themeStyle,
+          primaryColor: suggestion.primaryColor,
+          subtitle: suggestion.subtitle,
+          customSvgDecorations: suggestion.svgDecorations,
+        }
+      });
+      toast.success('AI kapağı başarıyla oluşturdu!');
+    } catch (e) {
+      toast.error('AI kapak oluşturulamadı, varsayılan kullanılıyor.');
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   return (
@@ -173,7 +201,20 @@ export const FascicleCoverSettingsModal: React.FC<FascicleCoverSettingsModalProp
 
         </div>
 
-        <div className="p-4 border-t border-[var(--border-color)] bg-[var(--bg-secondary)]/50 flex justify-end">
+        <div className="p-4 border-t border-[var(--border-color)] bg-[var(--bg-secondary)]/50 flex items-center justify-between">
+          <button
+            onClick={handleAiGenerate}
+            disabled={aiLoading}
+            className="flex items-center gap-2 px-4 py-2 font-bold rounded-[var(--radius-premium)] transition-all text-sm"
+            style={{
+              background: aiLoading ? 'var(--bg-inset)' : 'linear-gradient(135deg, #8b5cf6, #a78bfa)',
+              color: aiLoading ? 'var(--text-muted)' : '#ffffff',
+              opacity: aiLoading ? 0.6 : 1,
+            }}
+          >
+            <Sparkles size={16} className={aiLoading ? 'animate-spin' : ''} />
+            {aiLoading ? 'Oluşturuluyor...' : 'AI ile Kapak Oluştur'}
+          </button>
           <button onClick={onClose} className="px-6 py-2 font-bold rounded-[var(--radius-premium)] transition-all" style={{ backgroundColor: 'var(--accent-color)', color: '#ffffff' }}>
              Uygula ve Kapat
           </button>

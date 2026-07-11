@@ -1,9 +1,10 @@
 import { 
   FascicleItem, 
   FascicleMetadata, 
-  FascicleAiSuggestionRequest 
+  FascicleAiSuggestionRequest,
+  AiCoverSuggestion
 } from '../types/fascicle';
-import { generateWithSchema } from './geminiClient';
+import { generateWithSchema, generateSvgCode } from './geminiClient';
 import { logError } from '../utils/errorHandler';
 import { AppError } from '../utils/AppError';
 
@@ -137,6 +138,133 @@ class FascicleAIEngine {
     } catch(error) {
        logError(error, { context: "AI Executive Summary Hatası" });
        return 'Bu fasikül, öğrencinin bireysel becerilerini olumlu yönde desteklemek ve geliştirmek için özel bir seçki ile hazırlanmıştır.';
+    }
+  }
+
+  /**
+   * Fasikül içeriğini analiz ederek AI ile kapak tasarımı önerisi üretir.
+   * Tema, renk paleti, alt başlık ve özel SVG dekorasyonları belirler.
+   */
+  public async generateCoverDesign(metadata: FascicleMetadata, items: FascicleItem[]): Promise<AiCoverSuggestion> {
+    const activitySummary = items.map(i => ({
+      type: i.type,
+      difficulty: i.difficulty,
+    }));
+
+    const themeOptions = [
+      { id: 'clouds', label: 'Rüya Gibi (Dreamy Clouds) — yumuşak bulutlar, pastel, huzurlu' },
+      { id: 'doodles', label: 'Neşeli Çizgiler (Playful Doodles) — benekler, çizgiler, enerjik' },
+      { id: 'garden', label: 'Doğa Bahçesi (Nature Garden) — yapraklar, dalgalar, doğal' },
+      { id: 'dots', label: 'Eğlenceli Benekler (Creative Dots) — nokta desenleri, daireler' },
+    ];
+
+    const colorOptions = [
+      { id: 'lavender', label: 'Lavanta (yumuşak mor)' },
+      { id: 'mint', label: 'Nane (ferah yeşil)' },
+      { id: 'peach', label: 'Şeftali (sıcak turuncu)' },
+      { id: 'blush', label: 'Pembe (tatlı pembe)' },
+      { id: 'sky', label: 'Gökyüzü (açık mavi)' },
+      { id: 'buttercup', label: 'Çiçek (güneş sarısı)' },
+    ];
+
+    const prompt = `
+      Sen bir Eğitim Tasarım Uzmanısın (Elif Yıldız). 
+      Bir fasikül için en uygun kapak tasarımını seçiyorsun.
+
+      FASİKÜL BİLGİLERİ:
+      Başlık: "${metadata.title}"
+      Açıklama: "${metadata.description || 'Belirtilmemiş'}"
+      Yaş Grubu: ${metadata.targetAgeGroup}
+      Tahmini Süre: ${metadata.estimatedDurationMin} dakika
+
+      İÇERİK AKTİVİTELERİ:
+      ${JSON.stringify(activitySummary, null, 2)}
+      ${items.length} adet aktivite bulunuyor.
+
+      GÖREV:
+      1. İçerik türüne ve zorluk dağılımına EN UYGUN temayı seç.
+      2. EN UYGUN renk paletini seç.
+      3. İçerikle ilgili yaratıcı bir alt başlık (subtitle) yaz (maksimum 50 karakter, Türkçe).
+      4. Kısaca neden bu tema ve rengi seçtiğini açıkla.
+
+      Tema seçenekleri: ${JSON.stringify(themeOptions)}
+      Renk seçenekleri: ${JSON.stringify(colorOptions)}
+    `;
+
+    const schema = {
+      type: 'OBJECT',
+      properties: {
+        themeStyle: {
+          type: 'STRING',
+          description: 'Seçilen tema ID: clouds, doodles, garden, veya dots',
+          enum: ['clouds', 'doodles', 'garden', 'dots'],
+        },
+        primaryColor: {
+          type: 'STRING',
+          description: 'Seçilen renk ID: lavender, mint, peach, blush, sky, veya buttercup',
+          enum: ['lavender', 'mint', 'peach', 'blush', 'sky', 'buttercup'],
+        },
+        subtitle: {
+          type: 'STRING',
+          description: 'İçerikle ilgili yaratıcı alt başlık (maks 50 karakter, Türkçe)',
+        },
+        reasoning: {
+          type: 'STRING',
+          description: 'Kısaca neden bu seçimlerin yapıldığına dair açıklama',
+        }
+      },
+      required: ['themeStyle', 'primaryColor', 'subtitle', 'reasoning']
+    };
+
+    try {
+      const result = await generateWithSchema(prompt, schema) as {
+        themeStyle: string;
+        primaryColor: string;
+        subtitle: string;
+        reasoning: string;
+      };
+
+      const themeStyle = (['clouds', 'doodles', 'garden', 'dots'].includes(result.themeStyle) ? result.themeStyle : 'clouds') as AiCoverSuggestion['themeStyle'];
+      const primaryColor = (['lavender', 'mint', 'peach', 'blush', 'sky', 'buttercup'].includes(result.primaryColor) ? result.primaryColor : 'lavender');
+
+      const activityTypes = items.map(i => i.type).join(', ');
+      const svgPrompt = `
+        Özel eğitim fasikülü için içerikle uyumlu bir SVG dekorasyon seti tasarla.
+        Fasikül içeriği: ${metadata.title} — ${result.subtitle}
+        Aktivite türleri: ${activityTypes}
+        
+        Şu temada dekoratif SVG öğeleri oluştur: ${themeStyle}
+        Renk paleti: ${primaryColor} (pastel ton)
+        
+        İstediğim SVG'ler:
+        1. Dekoratif bir arka plan deseni (dots, stars, veya organik şekiller)
+        2. 2-3 adet küçük dekoratif ikon/şekil (içerik türüne uygun: kitap, yıldız, kalp, çiçek, rakam, harf vb.)
+        
+        Tüm SVG'ler tek bir <svg> etiketi içinde, viewBox="0 0 800 600", pastel renklerde, şeffaf arka planlı olsun.
+        SADECE geçerli SVG kodu döndür, başka hiçbir şey yazma.
+      `;
+
+      let svgDecorations = '';
+      try {
+        svgDecorations = await generateSvgCode(svgPrompt);
+      } catch {
+        svgDecorations = '';
+      }
+
+      return {
+        themeStyle,
+        primaryColor,
+        subtitle: result.subtitle || metadata.title,
+        svgDecorations,
+      };
+    } catch (error) {
+      logError(error, { context: "AI Cover Generation Hatası" });
+      return {
+        themeStyle: 'clouds',
+        primaryColor: 'lavender',
+        subtitle: metadata.title || 'Özel Eğitim Fasikülü',
+        svgDecorations: '',
+      };
     }
   }
 }
