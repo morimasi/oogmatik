@@ -25,10 +25,12 @@ export const generateAssessmentReport = async (profile: AssessmentProfile): Prom
     }
 
     const prompt = `
-[ROL: Klinik Nöropsikolog + Özel Eğitim ve Ölçme-Değerlendirme Uzmanı]
+[ROL: Klinik Nöropsikolog + Özel Eğitim ve Ölçme-Değerlendirme Uzmanı] [DEPLOY: 2025_07_v6]
+[PLATFORM: bdmind — Dashboard analitik, BEP entegrasyonu ve dijital arşiv ile uyumlu]
 
 GÖREV: Aşağıdaki öğrencinin bilişsel değerlendirme verilerini DSM-5 ve ICD-11 kriterleriyle bağlantılı olarak analiz et. 
 Hem uzman hem de ebeveyn/öğretmen için anlaşılır, somut ve uygulanabilir bulgular üret.
+Öneriler bdmind stüdyolarındaki aktivitelerle eşleştirilmelidir.
 
 ÖĞRENCİ PROFİLİ:
   Ad: ${profile.studentName}
@@ -43,13 +45,13 @@ ${profile.observations.map(o => `  • ${o}`).join('\n')}
 ANALİZ TALİMATLARI:
 1. overallSummary: 3-4 cümlelik uzman klinik özet. Öğrencinin genel bilişsel profilini, risk alanlarını ve güçlü yönlerini belirt. Net, ölçüm tabanlı dil kullan.
 2. scores: Her bilişsel alandaki tahmini performans puanı (0-100). Test verilerine dayalı hesapla.
-3. chartData: Radar grafiği için etiket-değer çiftleri. En az 4 bil alan ekle.
+3. chartData: Radar grafiği için etiket-değer çiftleri. En az 4 alan ekle.
 4. analysis.strengths: %75+ performans gösteren alanlarda kanıt tabanlı güçlü yönler. Her madde somut olsun.
-5. analysis.weaknesses: %65 altı alanlarda pedagojik destek önerileri. "Desteklenmeli" değil "Önerilen müdahale:" formatında yaz.
+5. analysis.weaknesses: %65 altı alanlarda pedagojik destek önerileri. "Önerilen müdahale:" formatında yaz ve bdmind stüdyosuyla eşleştir.
 6. analysis.errorAnalysis: Hata tiplerini bilişsel kökenlerine göre analiz et (reversal, dikkat kayması, impulsivite, fonolojik güçlük vb.).
-7. roadmap: Öncelikli 5 aktivite önerisi. activityId Türkçe değil İngilizce büyük harf (ör: VISUAL_MEMORY, STROOP_TEST, PHONOLOGICAL_AWARENESS). Frequency: "Haftada X kez" formatında.
+7. roadmap: Öncelikli 5 aktivite önerisi. activityId bdmind stüdyolarıyla eşleşmeli: SARI_KITAP_PENCERE, MATH_FUTOSHIKI, STROOP_TEST, PHONOLOGICAL_AWARENESS, VISUAL_MEMORY vb. Frequency: "Haftada X kez" formatında.
 
-UYARI: Tanı koymaktan kaçın. "Risk göstergesi", "dikkat edilmesi önerilir" gibi dikkatli ifadeler kullan.
+UYARI: Tanı koymaktan kaçın. "Risk göstergesi", "dikkat edilmesi önerilir" gibi ifadeler kullan. "Disleksisi var" YERİNE "okuma desteğine ihtiyaç duyan öğrenci".
 DILE getir: Türkçe, profesyonel, net.
 `;
 

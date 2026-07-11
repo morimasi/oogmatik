@@ -15,14 +15,23 @@ class FascicleAIEngine {
    */
   public async getSmartSuggestions(request: FascicleAiSuggestionRequest): Promise<string[]> {
     const prompt = `
-      Sen bir Nöro-Pedagojik Eğitim Uzmanısın (Elif Yıldız rolündesin).
+      Sen bir Nöro-Pedagojik Eğitim Uzmanısın (Elif Yıldız rolündesin). [DEPLOY: 2025_07_v6]
+      bdmind platformu: 10 modüllü AI eğitim sistemi (Süper Türkçe, Matematik, Sarı Kitap, Kelime Cümle, Görsel Stüdyo, Dikkat Stüdyosu, Fasikül, Dijital Arşiv, BEP, Dashboard).
+      
       Öğrenci Profili: ${request.studentProfile}
       Yaş Grubu: ${request.studentAge}
       Şu an Fasikülde: ${request.currentItemCount} sayfa var.
       Öğrencinin Zayıf Olduğu Gözlemlenen Alanlar: ${request.weakTopics.join(', ')}
       
-      Bu durumdaki bir çocuğa fasiküle eklemek üzere 3 farklı eğitim/aktivite "başlığı veya türü" öner (Örnek: 'Geometrik Desen Seçiciliği Testi', '2 Heceli Okuma Parçası').
-      Kısa, net tavsiyeler olsun.
+      Bu durumdaki bir çocuğa fasiküle eklemek üzere 3 farklı eğitim/aktivite "başlığı veya türü" öner. Mevcut stüdyolardaki aktivite türlerini kullan:
+      - Türkçe: okuma parçası, 5N1K, dil bilgisi, morfoloji, yazma
+      - Matematik: görsel problem, Futoshiki, Sudoku, şekil sayma, işlem
+      - Sarı Kitap: Pencere, Nokta, Köprü, Bellek, Çift Metin, Hızlı Okuma
+      - Kelime: boşluk doldurma, karışık cümle, zıt/eş anlamlı
+      - Görsel: desen tamamlama, fark bulma, yönsel iz
+      - Dikkat: Stroop, görsel/işitsel dikkat, seçici dikkat
+      
+      Kısa, net, eyleme dökülebilir tavsiyeler olsun. Örn: 'Geometrik Desen Seçiciliği Testi (Görsel Stüdyo)', '2 Heceli Okuma Parçası (Sarı Kitap - Pencere Tekniği)'.
     `;
 
     const schema = {
@@ -63,10 +72,12 @@ class FascicleAIEngine {
     }));
 
     const prompt = `
-      Elimde bir eğitim fasikülü sayfaları listesi var. Özel eğitimde "Başarı Hissi" yaşatmak (Self-Efficacy)
+      Elimde bir bdmind eğitim fasikülü sayfaları listesi var. Özel eğitimde "Başarı Hissi" yaşatmak (Self-Efficacy)
       için önce kolay ve motivesi yüksek, sonlara doğru kompleks sayfalar yerleştirilmelidir.
       
-      Aşağıdaki sayfaları en kolayı ilk sıraya gecelek şekilde, pedagojik sıralamaya sok ve sadece 
+      Kullanılabilir zorluk seviyeleri: Başlangıç (güven inşası), Orta (beceri gelişimi), İleri (pekiştirme), Uzman (mastery).
+      
+      Aşağıdaki sayfaları en kolayı ilk sıraya gelecek şekilde, pedagojik sıralamaya sok ve sadece 
       yeni düzene göre "id" dizisini ver.
       
       Mevcut Sayfalar JSON:
@@ -110,15 +121,15 @@ class FascicleAIEngine {
     }));
 
     const prompt = `
-      Fasikül Bilgileri:
+      bdmind Fasikül Özet Raporu:
       Başlık: ${metadata.title}
       Yaş Grubu: ${metadata.targetAgeGroup}
       Süre: ${metadata.estimatedDurationMin} dakika.
       İçerik Özetleri: ${JSON.stringify(summaryInfoItems)}
       
-      Bu fasikül, özel eğitim öğrencisine verilecektir. 
-      Veliye ve uygulama öğretmenine yönelik samimi, etiketlemeden uzak, motive edici 1 paragraflık "Yönetici Özeti" (Executive Summary) yaz. 
-      Disleksi/DEHB gibi kelimeler kullanma "öğrenme süreci, dikkat gelişimi" gibi sözcükler seç.
+      Bu fasikül, özel eğitim öğrencisine verilecektir. bdmind platformunda hazırlanmıştır.
+      Veliye ve uygulama öğretmenine yönelik samimi, etiketlemeden uzak, motive edici 1 paragraflık "Yönetici Özeti" (Executive Summary) yaz.
+      Tanı koyucu dil KULLANMA: "öğrenme süreci, dikkat gelişimi, beceri inşası" gibi sözcükler seç. Öğrencinin güçlü yönlerine vurgu yap.
     `;
 
     const schema = {
@@ -168,8 +179,9 @@ class FascicleAIEngine {
     ];
 
     const prompt = `
-      Sen bir Eğitim Tasarım Uzmanısın (Elif Yıldız). 
-      Bir fasikül için en uygun kapak tasarımını seçiyorsun.
+      Sen bir Eğitim Tasarım Uzmanısın (Elif Yıldız). [DEPLOY: 2025_07_v6]
+      bdmind platformu için fasikül kapak tasarımı seçiyorsun. Kapaklar A4 formatında basılır (html2canvas + foreignObjectRendering).
+      Logo 144x144px (w-36 h-36) yer alır. Öğrenci bilgi alanı (ad, sınıf, tarih) ve filigran bulunur.
 
       FASİKÜL BİLGİLERİ:
       Başlık: "${metadata.title}"

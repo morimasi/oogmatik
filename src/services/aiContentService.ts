@@ -94,9 +94,10 @@ export const aiContentService = {
         : 'Öğrenci profili belirtilmemiş, genel içerik üretilecek.';
 
       const prompt = `
-[ROL: Uzman Eğitim İçerik Geliştirici ve Disleksi Uzmanı]
+[ROL: Uzman Eğitim İçerik Geliştirici ve Disleksi Uzmanı] [DEPLOY: 2025_07_v6]
+[PLATFORM: bdmind — 10 modüllü AI eğitim sistemi]
 
-GÖREV: ${activityTitle} etkinliği türü için disleksi dostu, eğitimsel olarak etkili ve yaşına uygun alıştırmalar, sorular ve içerik üret.
+GÖREV: ${activityTitle} etkinliği türü için disleksi dostu, eğitimsel olarak etkili ve yaşına uygun alıştırmalar, sorular ve içerik üret. İçerik A4 baskıya (html2canvas) ve dijital arşive uygun olmalıdır.
 
 ${studentContext}
 İstenen Özellikler:
@@ -130,10 +131,13 @@ Her öğe için:
 }
 
 UYARI: 
-- Sadece disleksi dostu içerik üret (net talimatlar, yüksek kontrast, minimale görsel yük)
-- Yaş ve sınıf seviyesine uygun dil kullan
-- Karmaşık yönergelerden kaçın, basit ve net talimatlar ver
+- Sadece disleksi dostu içerik üret (net talimatlar, yüksek kontrast, minimal görsel yük)
+- Yaş ve sınıf seviyesine uygun dil kullan (5-7: max 2 hece, 8-10: max 3 hece, 11-13: karmaşık, 14+: akademik)
+- Karmaşık yönergelerden kaçın, basit ve net talimatlar ver (max 12 kelime/cümle)
+- b-d, p-q karışıklığına duyarlı kelime seçimi yap
 - Görsel öğeler kullanılıyorsa, disleksi dostu olacak şekilde tasarla
+- Scaffolding: zor kavramlar için kısa hatırlatıcı bilgi notu ekle
+- Tanı koyucu dil KESİNLİKLE KULLANMA
 - JSON formatında sadece geçerli veri döndür, ek açıklama verme
 `;
 

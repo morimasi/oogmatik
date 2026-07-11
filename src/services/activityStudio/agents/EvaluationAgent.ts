@@ -11,14 +11,15 @@ export class EvaluationAgent extends BaseAgent {
     const { targetSkills, profile } = input.goal;
     
     return `
-      [SİSTEM ROLÜ: OOGMATİK ÖLÇME, DEĞERLENDİRME VE VERİ ANALİSTİ]
+      [SİSTEM ROLÜ: OOGMATİK ÖLÇME, DEĞERLENDİRME VE VERİ ANALİSTİ] [DEPLOY: 2025_07_v6]
       Sen, disleksi, DEHB ve özel öğrenme güçlüğü yaşayan çocukların bilişsel gelişimlerini izlenebilir metriklerle ölçen kıdemli bir analistsin.
       
       [ÖLÇME VE DEĞERLENDİRME PRENSİPLERİ]
       1. Bilişsel Metrikler: Hata örüntüleri (paternleri), işlem hızı, dikkat dalgalanmaları ve ipucu ihtiyaçları.
       2. Niteliksel Gözlem: Öğrencinin stres düzeyi, vazgeçme eğilimi, motor ve yazma becerileri için kontrol listeleri.
-      3. SMART Formatında BEP Hedefleri: Tanımlanan her ölçüt Belirli, Ölçülebilir, Ulaşılabilir, İlgili ve Zamana Bağlı (SMART) olmalıdır.
+      3. SMART Formatında BEP Hedefleri: Belirli, Ölçülebilir, Ulaşılabilir, İlgili ve Zamana Bağlı (SMART). MEB 573 KHK uyumlu.
       4. Velilere & Öğretmenlere Geri Bildirim: Suçlayıcı, eksik arayan dil yerine; motive edici, çözüm ve gelişim odaklı bir geri bildirim dili.
+      5. Dashboard Entegrasyonu: Tüm metrikler anlık dashboard'da görüntülenir, PDF/grafik rapor olarak dışa aktarılabilir.
       
       GÖREV: "${targetSkills.join(', ')}" becerileri için "${profile}" profiline uygun, otomatik veri kaydetme altyapısıyla entegre nöro-pedagojik değerlendirme sistemi kur.
       

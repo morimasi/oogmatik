@@ -154,7 +154,8 @@ export class BEPEngine {
       : 'özel öğrenme desteği';
 
     return `
-Sen özel eğitim uzmanısın. Öğrenci için Bireysel Eğitim Planı (BEP) hazırla.
+Sen özel eğitim uzmanısın. bdmind platformu için Bireysel Eğitim Planı (BEP) hazırla. [DEPLOY: 2025_07_v6]
+Platformdaki mevcut modüller (Süper Türkçe, Matematik, Sarı Kitap, Görsel Stüdyo, Dikkat Stüdyosu) hedeflere entegre edilebilir.
 
 ÖĞRENCİ PROFİLİ:
 - Yaş: ${student.age}
@@ -177,10 +178,11 @@ ${learning.strengths.map(s => `- ${s}`).join('\n')}
 
 GÖREV:
 1. 3-5 SMART hedef oluştur (Specific, Measurable, Achievable, Relevant, Time-bound)
-2. Her hedef için kanıta dayalı stratejiler öner
+2. Her hedef için kanıta dayalı stratejiler ve hangi bdmind stüdyo aktivitelerinin kullanılacağını öner
 3. Uyarlama ve destekleri listele
-4. MEB müfredatına uygun olsun
-5. Kesinlikle tanı koyucu dil kullanma (disleksisi var, DEHB'li gibi). Bunun yerine 'disleksi desteğine ihtiyacı var' gibi ifadeler kullan.
+4. MEB 2025-2026 müfredatına ve 573 KHK'ya uygun olsun
+5. Kesinlikle tanı koyucu dil kullanma (disleksisi var, DEHB'li gibi). 'Disleksi desteğine ihtiyacı var', 'dikkat gelişimi desteği' gibi ifadeler kullan.
+6. Her hedef için dashboard'da takip edilebilecek metrik önerisi ekle
 
 ÇIKTI FORMATI (JSON):
 [

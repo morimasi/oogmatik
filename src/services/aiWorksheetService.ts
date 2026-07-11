@@ -98,7 +98,8 @@ export const aiWorksheetService = {
 
     // Step 1: Generate base worksheet content
     const worksheetPrompt = `
-[GÖREV: Zeki Çalışma Kâğıdı Üretimi]
+[GÖREV: Zeki Çalışma Kâğıdı Üretimi] [DEPLOY: 2025_07_v6]
+[PLATFORM: bdmind — Aktivite stüdyoları: Süper Türkçe, Matematik, Sarı Kitap, Kelime Cümle, Görsel Stüdyo, Dikkat Stüdyosu]
 
 ÖĞRENCİ PROFİLİ:
 - İsim: ${params.student.name}
@@ -114,13 +115,16 @@ PARAMETRELER:
 - Aktivite Tipleri: ${params.activityTypes.join(', ')}
 - Öğrenme Hedefleri: ${params.learningObjectives.join(', ')}
 
-Yukarıdaki parametrelere göre kişiselleştirilmiş, disleksi-dostu bir çalışma kâğıdı üret.
+Yukarıdaki parametrelere göre kişiselleştirilmiş, disleksi-dostu bir çalışma kâğıdı üret. Çıktı fasikül sistemine entegre edilecek ve A4 PDF olarak basılabilecektir (html2canvas + foreignObjectRendering).
 
 STANDARTLAR:
 ✓ İlk aktivite kolay olmalı (güven inşası)
 ✓ Lexend font kullan
 ✓ Geniş satır aralığı
-✓ Açık talimatlar
+✓ Açık talimatlar (max 12 kelime/cümle)
+✓ b-d, p-q karışıklığına duyarlı
+✓ Scaffolding: zor kavramlar için bilgi notu
+✓ Tanı koyucu dil KESİNLİKLE KULLANMA
 
 YANIT FORMATI (JSON):
 {
@@ -289,7 +293,8 @@ YANIT FORMATI (JSON):
     count: number = 5
   ): Promise<SmartWorksheetSuggestion[]> => {
     const prompt = `
-[GÖREV: Akıllı Çalışma Kâğıdı Önerileri]
+[GÖREV: Akıllı Çalışma Kâğıdı Önerileri] [DEPLOY: 2025_07_v6]
+[PLATFORM: bdmind — 10 modül: Süper Türkçe, Matematik, Sarı Kitap, Kelime Cümle, Görsel Stüdyo, Dikkat Stüdyosu, Fasikül, Dijital Arşiv, BEP, Dashboard]
 
 ÖĞRENCİ PROFİLİ:
 ${JSON.stringify({
@@ -301,16 +306,18 @@ ${JSON.stringify({
       weaknesses: student.weaknesses
     }, null, 2)}
 
-Bu öğrenci için ${count} adet kişiselleştirilmiş çalışma kâğıdı önerisi oluştur.
+Bu öğrenci için ${count} adet kişiselleştirilmiş çalışma kâğıdı önerisi oluştur. Öneriler bdmind stüdyolarındaki mevcut aktivite türlerine dayanmalıdır.
 
 Her öneri şunları içermeli:
 - Açık başlık ve açıklama
+- Hangi bdmind stüdyosuna ait olduğu
 - Tahmini zorluk seviyesi
 - Tahmini süre
 - Önerilen aktivite tipleri
 - Pedagojik gerekçe
 - Beklenen faydalar
 - Önkoşullar
+- Dijital arşive kaydedilip kaydedilemeyeceği
 
 YANIT FORMATI (JSON):
 {
@@ -318,6 +325,7 @@ YANIT FORMATI (JSON):
     {
       "title": "Başlık",
       "description": "Açıklama",
+      "studio": "super-turkce | math-studio | sari-kitap | kelime-cumle | gorsel-studio | dikkat-studio",
       "estimatedDifficulty": "Kolay | Orta | Zor",
       "estimatedDuration": number,
       "recommendedActivities": ["activity-type-1"],
@@ -365,7 +373,8 @@ YANIT FORMATI (JSON):
     student: Student
   ): Promise<{ optimized: WorksheetData; changes: string[]; improvements: string[] }> => {
     const prompt = `
-[GÖREV: Çalışma Kâğıdı Optimizasyonu]
+[GÖREV: Çalışma Kâğıdı Optimizasyonu] [DEPLOY: 2025_07_v6]
+[PLATFORM: bdmind — Fasikül sistemi ve A4 baskı motoru (html2canvas + foreignObjectRendering) ile uyumlu]
 
 MEVCUT ÇALIŞMA KÂĞIDI:
 ${JSON.stringify(worksheet, null, 2)}
@@ -378,14 +387,15 @@ ${JSON.stringify({
       weaknesses: student.weaknesses
     }, null, 2)}
 
-Çalışma kâğıdını bu öğrenci için optimize et.
+Çalışma kâğıdını bu öğrenci için optimize et. Optimizasyon sonucu fasiküle eklenebilir ve A4 PDF olarak basılabilir olmalıdır.
 
 ODAKLANILACAK ALANLAR:
-- Aktivite sıralaması (kolay → zor)
-- Talimat netliği
-- Görsel destek
-- Zaman dağılımı
-- Disleksi uyumluluğu
+- Aktivite sıralaması (kolay → orta → zor, spiral learning)
+- Talimat netliği (max 12 kelime/cümle)
+- Görsel destek (minimal, pastel renk paleti)
+- Zaman dağılımı (DEHB: max 5-7 dk odaklanma blokları)
+- Disleksi uyumluluğu (Lexend, b-d duyarlılığı, geniş satır aralığı)
+- Tanı koyucu dil kullanımını kaldır
 
 YANIT FORMATI (JSON):
 {
@@ -432,18 +442,20 @@ YANIT FORMATI (JSON):
     adaptiveLevels: Array<{ trigger: string; adjustment: string }>;
   }> => {
     const prompt = `
-[GÖREV: Adaptif Çalışma Kâğıdı Üretimi]
+[GÖREV: Adaptif Çalışma Kâğıdı Üretimi] [DEPLOY: 2025_07_v6]
+[PLATFORM: bdmind — Dashboard entegrasyonu, anlık veri takibi ve dijital arşiv ile uyumlu]
 
 PARAMETRELER:
 ${JSON.stringify(params, null, 2)}
 
-Öğrenci performansına göre kendini ayarlayan bir çalışma kâğıdı oluştur.
+Öğrenci performansına göre kendini ayarlayan bir çalışma kâğıdı oluştur. Adaptif seviyeler dashboard'da takip edilebilir metriklerle eşleşmelidir.
 
 HER AKTİVİTE İÇİN:
-- 3 seviye zorluk (kolay/orta/zor)
-- Geçiş kriterleri
-- Destek ipuçları
+- 3 seviye zorluk (kolay/orta/zor) — spiral learning prensibi
+- Geçiş kriterleri (örn: "3 doğru üst üste → zorlaştır", "2 yanlış üst üste → kolaylaştır")
+- Destek ipuçları (scaffolding)
 - Alternatif sorular
+- Cognitive load yönetimi (max 5-7 dk bloklar)
 
 YANIT FORMATI (JSON):
 {
