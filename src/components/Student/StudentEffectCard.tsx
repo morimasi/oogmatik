@@ -1,0 +1,122 @@
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Edit, Trash2, CheckCircle } from 'lucide-react';
+import { Student } from '../../types';
+import { useStudentStore } from '../../store/useStudentStore';
+import { useToastStore } from '../../store/useToastStore';
+import { logError } from '../../utils/logger';
+
+/**
+ * Premium editable card for an effective student.
+ * Uses dark glassmorphism styling and Ant Design modal for edit.
+ */
+export const StudentEffectCard: React.FC<{ student: Student }> = ({ student }) => {
+  const { updateStudent, deleteStudent } = useStudentStore();
+  const toast = useToastStore();
+  const [isEditOpen, setEditOpen] = useState(false);
+
+  const openEdit = () => setEditOpen(true);
+  const closeEdit = () => setEditOpen(false);
+
+  const handleDelete = async () => {
+    if (!student.id) return;
+    if (!window.confirm('Bu öğrenciyi ve tüm verilerini silmek istediğinize emin misiniz?')) return;
+    try {
+      await deleteStudent(student.id);
+      toast.success('Öğrenci silindi', 2000);
+    } catch (e) {
+      logError('Student delete failed', { error: e });
+      toast.error('Silme hatası', 3000);
+    }
+  };
+
+  const handleFinish = async (values: any) => {
+    try {
+      await updateStudent(student.id, values);
+      toast.success('Öğrenci güncellendi', 2000);
+      closeEdit();
+    } catch (e) {
+      logError('Student update failed', { error: e });
+      toast.error('Güncelleme hatası', 3000);
+    }
+  };
+
+  return (
+    <div className="bg-[var(--bg-paper)]/30 backdrop-blur-sm border border-[var(--border-color)] rounded-2xl p-4 shadow-lg hover:shadow-xl transition-shadow flex flex-col space-y-3">
+      <div className="flex items-center justify-between">
+        <h3 className="text-lg font-bold text-[var(--text-primary)]">{student.name}</h3>
+        <div className="flex gap-2">
+          <button type="button" onClick={openEdit} className="p-2 text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-colors">
+            <Edit size={16} />
+          </button>
+          <button type="button" onClick={handleDelete} className="p-2 text-red-500 hover:text-red-600 transition-colors">
+            <Trash2 size={16} />
+          </button>
+        </div>
+      </div>
+      <div className="text-sm text-[var(--text-muted)]">
+        <p>Yaş: {student.age}</p>
+        <p>Sınıf: {student.grade}</p>
+        {student.diagnosis?.[0] && (
+          <p className="text-emerald-500">{student.diagnosis[0]}</p>
+        )}
+      </div>
+
+      {/* Edit Modal */}
+      {/* Custom Edit Modal */}
+      <AnimatePresence>
+        {isEditOpen && (
+          <motion.div
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeEdit}
+          >
+            <motion.div
+              className="bg-[var(--bg-paper)] w-full max-w-lg rounded-2xl p-6 shadow-xl"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={e => e.stopPropagation()}
+            >
+              <h3 className="text-xl font-bold mb-4">Öğrenci Düzenle</h3>
+              <form onSubmit={e => { e.preventDefault(); handleFinish(Object.fromEntries(new FormData(e.currentTarget)) ); }} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">Ad Soyad</label>
+                  <input name="name" defaultValue={student.name} required className="w-full p-2 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Yaş</label>
+                  <input type="number" name="age" defaultValue={student.age} min={1} max={30} required className="w-full p-2 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Sınıf</label>
+                  <select name="grade" defaultValue={student.grade} className="w-full p-2 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded">
+                    {['Okul Öncesi','1. Sınıf','2. Sınıf','3. Sınıf','4. Sınıf','5. Sınıf','6. Sınıf','7. Sınıf','8. Sınıf','Lise Hazırlık','9. Sınıf'].map(g => (
+                      <option key={g} value={g}>{g}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Tanı / Özel Durum (virgüllerle ayrılmış)</label>
+                  <input name="diagnosis" defaultValue={student.diagnosis?.join(', ')} placeholder="Disleksi, DEHB" className="w-full p-2 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Notlar</label>
+                  <textarea name="notes" defaultValue={student.notes} rows={3} className="w-full p-2 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded" />
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <button type="button" onClick={closeEdit} className="px-4 py-2 bg-gray-500 text-white rounded">İptal</button>
+                  <button type="submit" className="px-4 py-2 bg-[var(--accent-color)] text-white rounded flex items-center gap-2">
+                    <CheckCircle size={14} /> Kaydet
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};

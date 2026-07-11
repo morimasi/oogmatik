@@ -12,6 +12,7 @@ import { toAppError } from '../../utils/AppError.js';
 
 // Module imports
 import { DashboardModule } from './modules/DashboardModule';
+import { StudentEffectCard } from './StudentEffectCard';
 import { AssignmentsModule } from './modules/AssignmentsModule';
 import { MaterialsModule } from './modules/MaterialsModule';
 import { AnalyticsModule } from './modules/AnalyticsModule';
@@ -394,47 +395,11 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
               <div className="space-y-1.5">
                 {groupedStudents[groupKey].map((s: Student) => {
                   if (!s || !s.id) return null;
-                  const isActive = selectedStudentId === s.id;
-                  const isCurrentActive = activeStudent?.id === s.id;
-
                   return (
-                    <button
+                    <StudentEffectCard
                       key={s.id}
-                      onClick={() => {
-                        setSelectedStudentId(s.id);
-                        setActiveStudent(s);
-                      }}
-                      className={`w-full flex items-center gap-3 p-2.5 rounded-2xl transition-all text-left group relative overflow-hidden ${isActive ? 'bg-[var(--bg-paper)] shadow-lg border border-[var(--border-color)] ring-1 ring-[var(--accent-color)]/20 shadow-indigo-500/5' : 'hover:bg-[var(--bg-secondary)] border border-transparent'}`}
-                    >
-                      <div className="relative shrink-0">
-                        <img
-                          src={s.avatar}
-                          className={`w-10 h-10 rounded-xl bg-[var(--bg-secondary)] object-cover transition-transform group-hover:scale-105 ${isActive ? 'ring-2 ring-[var(--accent-color)] ring-offset-2 ring-offset-[var(--bg-paper)]' : ''}`}
-                          alt={s.name}
-                        />
-                        {isCurrentActive && (
-                          <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[var(--bg-paper)] animate-pulse shadow-lg"></div>
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4
-                          className={`font-black text-xs truncate tracking-tight uppercase ${isActive ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}
-                        >
-                          {s.name}
-                        </h4>
-                        <div className="flex items-center gap-2 mt-0.5 opacity-80">
-                          <span
-                            className={`text-[8px] font-black px-1.5 py-0.25 rounded-md ${isActive ? 'bg-[var(--accent-muted)] text-[var(--accent-color)]' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)]'}`}
-                          >
-                            {s.grade}
-                          </span>
-                          <span className="text-[8px] font-black uppercase text-[var(--text-muted)]">{s.age} Yaş</span>
-                        </div>
-                      </div>
-                      {isActive && (
-                        <i className="fa-solid fa-chevron-right text-[var(--accent-color)] text-[10px]"></i>
-                      )}
-                    </button>
+                      student={s}
+                    />
                   );
                 })}
               </div>
