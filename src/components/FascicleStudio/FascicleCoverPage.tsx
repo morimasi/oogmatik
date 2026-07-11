@@ -1,7 +1,7 @@
 import React from 'react';
 import { CoverPageSettings, WatermarkSettings } from '../../types/fascicle';
 import { Student } from '../../types';
-import DyslexiaLogo from '../DyslexiaLogo';
+
 
 interface FascicleCoverPageProps {
   settings: CoverPageSettings;
@@ -334,7 +334,7 @@ export const FascicleCoverPage: React.FC<FascicleCoverPageProps> = ({ settings, 
                 boxShadow: `0 8px 24px ${palette.glow}, 0 0 0 3px ${palette.gold}15`,
               }}
             >
-              <DyslexiaLogo className="w-full h-full" />
+              <img src="/assets/logo.png" alt="Bursa Disleksi Logo" className="w-full h-full object-contain" />
             </div>
           </div>
           {settings.schoolName && (
