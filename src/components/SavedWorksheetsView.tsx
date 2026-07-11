@@ -1,14 +1,9 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Search,
-  ArrowLeft,
-  Layers,
-  Trash2,
-  Eye,
-  ChevronDown,
-  Filter,
-  FileText,
+  Search, ArrowLeft, Layers, Trash2, Eye, ChevronDown, Filter, FileText,
+  Share2, Printer, Download, AlertTriangle, CheckCircle, XCircle, ArrowUpDown,
+  Calendar, Type, Sparkles, ExternalLink, Loader2, Grid3X3
 } from 'lucide-react';
 import { SavedWorksheet, SavedAssessment, Curriculum } from '../types';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
@@ -19,18 +14,9 @@ import { assessmentService } from '../services/assessmentService';
 import { curriculumService } from '../services/curriculumService';
 import { ShareModal } from './ShareModal';
 import { FeedbackModal } from './FeedbackModal';
-import { 
-  Share2, 
-  Printer, 
-  Download, 
-  AlertTriangle, 
-  Edit3,
-  CheckCircle,
-  XCircle
-} from 'lucide-react';
 import { cn } from '../utils/tailwindUtils';
 
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logError } from '../utils/logger.js';
 interface SavedWorksheetsViewProps {
     onLoad: (item: SavedWorksheet | SavedAssessment | Curriculum) => void;
     onBack: () => void;
@@ -178,6 +164,12 @@ const MaterialCard = ({ item, onLoad, onDelete, onShare, onReport, onPrint, isRe
                                     </div>
                                     <button onClick={(e) => handleActionClick(e, () => onLoad?.(item))} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[11px] font-bold text-[var(--text-primary)] hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all group/btn">
                                         <div className="w-6 h-6 rounded-lg bg-indigo-500/10 flex items-center justify-center group-hover/btn:bg-[var(--accent-color)] group-hover/btn:text-white transition-colors">
+                                            <ExternalLink className="w-3.5 h-3.5" />
+                                        </div>
+                                        Modülde Aç
+                                    </button>
+                                    <button onClick={(e) => handleActionClick(e, () => onLoad?.(item))} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[11px] font-bold text-[var(--text-primary)] hover:bg-[var(--accent-muted)] hover:text-[var(--accent-color)] transition-all group/btn">
+                                        <div className="w-6 h-6 rounded-lg bg-zinc-500/10 flex items-center justify-center group-hover/btn:bg-[var(--accent-color)] group-hover/btn:text-white transition-colors">
                                             <Eye className="w-3.5 h-3.5" />
                                         </div>
                                         İncele & Düzenle
@@ -187,12 +179,6 @@ const MaterialCard = ({ item, onLoad, onDelete, onShare, onReport, onPrint, isRe
                                             <Share2 className="w-3.5 h-3.5" />
                                         </div>
                                         Paylaş (Link/Öğrenci)
-                                    </button>
-                                    <button onClick={(e) => handleActionClick(e, () => onPrint?.(item))} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[11px] font-bold text-[var(--text-primary)] hover:bg-emerald-500/10 hover:text-emerald-600 transition-all group/btn">
-                                        <div className="w-6 h-6 rounded-lg bg-emerald-500/10 flex items-center justify-center group-hover/btn:bg-emerald-500 group-hover/btn:text-white transition-colors">
-                                            <Printer className="w-3.5 h-3.5" />
-                                        </div>
-                                        Yazdır & PDF İndir
                                     </button>
                                     <div className="my-1.5 h-px bg-[var(--border-color)]/60" />
                                     <button onClick={(e) => handleActionClick(e, () => onReport?.(item))} className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[11px] font-bold text-amber-600 hover:bg-amber-500/10 transition-all group/btn">
@@ -227,6 +213,12 @@ const MaterialCard = ({ item, onLoad, onDelete, onShare, onReport, onPrint, isRe
                         ? 'Çalışma Kitapçığı'
                         : categoryDef?.title || item.category?.title || 'Genel materyal'}
                     </span>
+                    {item.activityType && (
+                      <span className="ml-auto flex items-center gap-1 rounded-lg border border-[var(--accent-color)]/15 bg-[var(--accent-muted)] px-2 py-0.5 text-[8px] font-bold text-[var(--accent-color)] opacity-0 group-hover:opacity-100 transition-opacity">
+                        <ExternalLink className="h-2.5 w-2.5" />
+                        Aç
+                      </span>
+                    )}
                 </div>
                 <h3 className="font-lexend mb-2 line-clamp-2 text-[15px] font-black leading-snug text-[var(--text-primary)] group-hover:text-[var(--accent-color)] transition-colors">
                     {item.name}
@@ -352,6 +344,40 @@ const PlanCard = ({ item, onLoad, onDelete, isReadOnly }: any) => {
 
 // --- Main View ---
 
+// --- Premium Confirm Dialog ---
+const ConfirmDialog = ({ isOpen, title, message, onConfirm, onCancel, confirmLabel = 'Sil', isDestructive = true }: {
+  isOpen: boolean; title: string; message: string; onConfirm: () => void; onCancel: () => void;
+  confirmLabel?: string; isDestructive?: boolean;
+}) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={onCancel}>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-sm rounded-2xl border border-[var(--border-color)] bg-[var(--bg-paper)] p-6 shadow-2xl"
+      >
+        <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-rose-500/15 text-rose-500">
+          <AlertTriangle className="h-6 w-6" />
+        </div>
+        <h3 className="mb-1 text-lg font-bold text-[var(--text-primary)]">{title}</h3>
+        <p className="mb-6 text-sm text-[var(--text-secondary)]">{message}</p>
+        <div className="flex justify-end gap-3">
+          <button onClick={onCancel} className="rounded-xl border border-[var(--border-color)] px-5 py-2.5 text-xs font-bold text-[var(--text-primary)] transition-colors hover:bg-[var(--bg-secondary)]">
+            İptal
+          </button>
+          <button onClick={onConfirm} className="rounded-xl bg-rose-500 px-5 py-2.5 text-xs font-bold text-white transition-colors hover:bg-rose-600">
+            {confirmLabel}
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
 export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad, onBack, targetUserId }) => {
     const toast = useToastStore();
     const { user } = useAuthStore();
@@ -365,13 +391,17 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
 
     const [loading, setLoading] = useState(true);
     const [loadingMore, setLoadingMore] = useState(false);
+    const [filterLoading, setFilterLoading] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
+    const [sortBy, setSortBy] = useState<'date' | 'name'>('date');
+    const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+    const [confirmDelete, setConfirmDelete] = useState<{ id: string; type: 'materials' | 'reports' | 'plans' } | null>(null);
 
-    const [shareModal, setShareModal] = useState({ isOpen: false, item: null as unknown as SavedWorksheet | null });
-    const [feedbackModal, setFeedbackModal] = useState({ isOpen: false, item: null as unknown as SavedWorksheet | null });
+    const [shareModal, setShareModal] = useState<{ isOpen: boolean; item: SavedWorksheet | null }>({ isOpen: false, item: null });
+    const [feedbackModal, setFeedbackModal] = useState<{ isOpen: boolean; item: SavedWorksheet | null }>({ isOpen: false, item: null });
 
     const effectiveUserId = targetUserId || user?.id;
     const isReadOnly = !!targetUserId && targetUserId !== user?.id;
@@ -396,7 +426,10 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
     }, [effectiveUserId, activeTab, debouncedSearchQuery, activeCategory]);
 
     const loadData = async (pageNum: number) => {
-        if (pageNum === 0) setLoading(true);
+        if (pageNum === 0) {
+            setLoading(true);
+            if (page > 0 || worksheets.length > 0) setFilterLoading(true);
+        }
         else setLoadingMore(true);
 
         try {
@@ -422,6 +455,7 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
         } finally {
             setLoading(false);
             setLoadingMore(false);
+            setFilterLoading(false);
         }
     };
 
@@ -431,9 +465,10 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
         loadData(nextPage);
     };
 
-    const handleDelete = async (id: string, type: 'materials' | 'reports' | 'plans') => {
-        if (isReadOnly || !confirm("Silmek istediğinize emin misiniz?")) return;
-
+    const handleDeleteConfirm = async () => {
+        if (!confirmDelete || isReadOnly) return;
+        const { id, type } = confirmDelete;
+        setConfirmDelete(null);
         try {
             if (type === 'materials') {
                 if (!effectiveUserId) return;
@@ -459,22 +494,31 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
 
     const filteredItems = useMemo(() => {
         const query = debouncedSearchQuery.toLowerCase();
+        let items: any[];
         if (activeTab === 'materials') {
-            return worksheets.filter(item => item && (item.name || '').toLowerCase().includes(query));
+            items = worksheets.filter(item => item && (item.name || '').toLowerCase().includes(query));
+        } else if (activeTab === 'reports') {
+            items = assessments.filter(item => item && (item.studentName || '').toLowerCase().includes(query));
+        } else if (activeTab === 'plans') {
+            items = plans.filter(item => item && (item.studentName || '').toLowerCase().includes(query));
+        } else {
+            items = [];
         }
-        if (activeTab === 'reports') {
-            return assessments.filter(item => item && (item.studentName || '').toLowerCase().includes(query));
-        }
-        if (activeTab === 'plans') {
-            return plans.filter(item => item && (item.studentName || '').toLowerCase().includes(query));
-        }
-        return [];
-    }, [activeTab, debouncedSearchQuery, worksheets, assessments, plans]);
+        return items.sort((a, b) => {
+            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+            const nameA = (a.name || a.studentName || '').toLowerCase();
+            const nameB = (b.name || b.studentName || '').toLowerCase();
+            const dir = sortDir === 'desc' ? -1 : 1;
+            if (sortBy === 'date') return (dateA - dateB) * dir;
+            return nameA.localeCompare(nameB) * dir;
+        });
+    }, [activeTab, debouncedSearchQuery, worksheets, assessments, plans, sortBy, sortDir]);
 
     const tabs = [
         { id: 'materials' as const, label: 'Materyaller', icon: Layers, count: materialsTotal },
         { id: 'reports' as const, label: 'Raporlar', icon: FileText, count: assessments.length },
-        { id: 'plans' as const, label: 'Eğitim Planları', icon: Search, count: plans.length },
+        { id: 'plans' as const, label: 'Eğitim Planları', icon: Grid3X3, count: plans.length },
     ];
 
     if (!effectiveUserId && !loading) {
@@ -642,8 +686,39 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
                             />
                         </div>
                     </div>
+
+                    {activeTab === 'materials' && (
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          onClick={() => { setSortBy(sortBy === 'date' ? 'name' : 'date'); }}
+                          className="flex items-center gap-1.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-paper)] px-3 py-2.5 text-[10px] font-bold text-[var(--text-muted)] transition-all hover:border-[var(--accent-color)]/30 hover:text-[var(--text-primary)]"
+                          title="Sıralama ölçütü"
+                        >
+                          {sortBy === 'date' ? <Calendar className="h-3.5 w-3.5" /> : <Type className="h-3.5 w-3.5" />}
+                          {sortBy === 'date' ? 'Tarih' : 'İsim'}
+                        </button>
+                        <button
+                          onClick={() => setSortDir(sortDir === 'desc' ? 'asc' : 'desc')}
+                          className="flex items-center gap-1.5 rounded-xl border border-[var(--border-color)] bg-[var(--bg-paper)] px-3 py-2.5 text-[10px] font-bold text-[var(--text-muted)] transition-all hover:border-[var(--accent-color)]/30 hover:text-[var(--text-primary)]"
+                          title="Sıralama yönü"
+                        >
+                          <ArrowUpDown className="h-3.5 w-3.5" />
+                          {sortDir === 'desc' ? 'Önce Yeni' : 'Önce Eski'}
+                        </button>
+                      </div>
+                    )}
                 </div>
 
+                {filterLoading && (
+                  <div className="h-0.5 w-full overflow-hidden bg-[var(--border-color)]/30">
+                    <motion.div
+                      className="h-full bg-gradient-to-r from-[var(--accent-color)] via-indigo-500 to-[var(--accent-color)]"
+                      initial={{ x: '-100%' }}
+                      animate={{ x: '100%' }}
+                      transition={{ repeat: Infinity, duration: 1.2, ease: 'linear' }}
+                    />
+                  </div>
+                )}
                 <div className="custom-scrollbar flex flex-1 overflow-y-auto px-6 pb-8 pt-4 md:px-8">
                     {loading ? (
                         <div className="flex h-full flex-col items-center justify-center space-y-4">
@@ -676,33 +751,33 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
                                 className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
                             >
                                 <AnimatePresence mode='popLayout'>
-                                    {activeTab === 'materials' && filteredItems.map((item) => (
+                                    {activeTab === 'materials' && filteredItems.map((item: any) => (
                                         <MaterialCard 
                                             key={item.id} 
                                             item={item} 
                                             onLoad={onLoad} 
-                                            onDelete={(id: string) => handleDelete(id, 'materials')} 
+                                            onDelete={(id: string) => setConfirmDelete({ id, type: 'materials' })} 
                                             onShare={(item: any) => setShareModal({ isOpen: true, item })}
                                             onReport={(item: any) => setFeedbackModal({ isOpen: true, item })}
-                                            onPrint={() => onLoad(item)} // Print triggers generic load, user can print from viewer
+                                            onPrint={(item: any) => window.open(`/api/print/${item.id}`, '_blank') || onLoad(item)}
                                             isReadOnly={isReadOnly} 
                                         />
                                     ))}
-                                    {activeTab === 'reports' && filteredItems.map((item) => (
+                                    {activeTab === 'reports' && filteredItems.map((item: any) => (
                                         <ReportCard 
                                             key={item.id} 
                                             item={item} 
                                             onLoad={onLoad} 
-                                            onDelete={(id: string) => handleDelete(id, 'reports')} 
+                                            onDelete={(id: string) => setConfirmDelete({ id, type: 'reports' })} 
                                             isReadOnly={isReadOnly} 
                                         />
                                     ))}
-                                    {activeTab === 'plans' && filteredItems.map((item) => (
+                                    {activeTab === 'plans' && filteredItems.map((item: any) => (
                                         <PlanCard 
                                             key={item.id} 
                                             item={item} 
                                             onLoad={onLoad} 
-                                            onDelete={(id: string) => handleDelete(id, 'plans')} 
+                                            onDelete={(id: string) => setConfirmDelete({ id, type: 'plans' })} 
                                             isReadOnly={isReadOnly} 
                                         />
                                     ))}
@@ -766,6 +841,15 @@ export const SavedWorksheetsView: React.FC<SavedWorksheetsViewProps> = ({ onLoad
                     )}
                 </div>
             </div>
+
+            <ConfirmDialog
+                isOpen={!!confirmDelete}
+                title="Öğeyi Sil"
+                message="Bu öğeyi arşivden kaldırmak istediğinize emin misiniz? Bu işlem geri alınamaz."
+                confirmLabel="Arşivden Kaldır"
+                onConfirm={handleDeleteConfirm}
+                onCancel={() => setConfirmDelete(null)}
+            />
 
             <div className="pointer-events-none absolute bottom-6 right-6 z-20 hidden md:block">
                 <div className="pointer-events-none flex items-center gap-3 rounded-2xl border border-[var(--border-color)] bg-[var(--bg-paper)]/92 px-5 py-2.5 shadow-lg backdrop-blur-xl">
