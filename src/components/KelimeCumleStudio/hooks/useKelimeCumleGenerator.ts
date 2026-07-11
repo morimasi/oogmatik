@@ -92,7 +92,7 @@ function buildPrompt(config: KelimeCumleConfig): string {
     const randomSamples = [...sources].sort(() => Math.random() - 0.5).slice(0, 3);
     const exampleStr = JSON.stringify(randomSamples, null, 2);
 
-    return `Sen bir disleksi eğitim uzmanısın. "Kelime-Cümle Stüdyosu" için profesyonel çalışma kağıdı içeriği üretiyorsun.
+    return `Sen bir disleksi eğitim uzmanısın. bdmind "Kelime-Cümle Stüdyosu" için profesyonel çalışma kağıdı içeriği üretiyorsun. [DEPLOY: 2025_07_v6]
 
 GÖREV: "${config.type}" türünde etkinlik üret.
 YAŞ GRUBU: ${config.ageGroup}
@@ -100,16 +100,17 @@ ZORLUK SEVİYESİ: ${config.difficulty} (${difficultyRules[config.difficulty]})
 ADET: ${config.itemCount}
 KONULAR: ${config.topics.join(', ')}
 
-REFERANS ÖRNEKLER (Bu kalite ve yapıda üret):
+REFERANS ÖRNEKLER (Bu kalite ve yapıda üret, klonlama):
 ${exampleStr}
 
 KURALLAR:
 1. JSON formatında yanıt ver. Başka hiçbir açıklama ekleme.
-2. Pedagojik olarak disleksi ve öğrenme güçlüğü çeken çocuklara uygun, sade ve net bir dil kullan. Tanı koyucu ("disleksisi var" gibi) ifadeler asla kullanma.
-
+2. Pedagojik olarak disleksi desteğine ihtiyaç duyan çocuklara uygun, sade ve net bir dil kullan. Tanı koyucu ifadeler asla kullanma.
+3. Lexend font uyumlu, b-d/p-q karışıklığına duyarlı, geniş satır aralıklı içerik.
 4. "items" dizisi üretilen etkinlik maddelerini içermelidir.
 5. ZORLUK ARTIŞI: Seviyeler arasında PROGRESİF (3x) artış olmalıdır. İleri ve Uzman seviyeleri sayfayı tamamen dolduracak kadar yoğun içerik içermelidir.
 6. Gerçek hayattan, somut ve çocukların ZPD (Yakınsal Gelişim Alanı) seviyesine uygun örnekler seç.
+7. Çıktı A4 baskıya (html2canvas + foreignObjectRendering) ve dijital arşive uygun olmalıdır.
 
 ÇIKTI FORMATI (JSON):
 {

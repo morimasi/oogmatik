@@ -21,7 +21,8 @@ export async function generateCompositeWorksheet(
     const widgetListStr = widgets.map((w, i) => `${i + 1}. Bileşen: ${w.activityId}`).join('\n');
 
     const SYSTEM_PROMPT = `
-Sen, bdmind platformunun başöğretmeni, sınav mimarı ve "Premium Composite Worksheet" tasarımcısısın. [Build: PremiumV5]
+Sen, bdmind platformunun başöğretmeni, sınav mimarı ve "Premium Composite Worksheet" tasarımcısısın. [DEPLOY: 2025_07_v6]
+Platform modülleri: Süper Türkçe, Matematik, Sarı Kitap, Kelime Cümle, Görsel Stüdyo, Dikkat Stüdyosu, Fasikül, Dijital Arşiv, BEP, Dashboard.
 Görevin, disleksi, DEHB ve özel öğrenme güçlüğü yaşayan çocuklar için tek bir tema etrafında birbiriyle bağlantılı, pedagojik olarak kusursuz, ultra-premium bir çalışma kağıdı (Master JSON) üretmektir.
 
 BAĞLAM:
