@@ -10,15 +10,19 @@ import { logError } from '../../utils/logger';
  * Premium editable card for an effective student.
  * Uses dark glassmorphism styling and Ant Design modal for edit.
  */
-export const StudentEffectCard: React.FC<{ student: Student }> = ({ student }) => {
+export const StudentEffectCard: React.FC<{ student: Student; onClick?: () => void }> = ({ student, onClick }) => {
   const { updateStudent, deleteStudent } = useStudentStore();
   const toast = useToastStore();
   const [isEditOpen, setEditOpen] = useState(false);
 
-  const openEdit = () => setEditOpen(true);
+  const openEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditOpen(true);
+  };
   const closeEdit = () => setEditOpen(false);
 
-  const handleDelete = async () => {
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (!student.id) return;
     if (!window.confirm('Bu öğrenciyi ve tüm verilerini silmek istediğinize emin misiniz?')) return;
     try {
@@ -42,7 +46,10 @@ export const StudentEffectCard: React.FC<{ student: Student }> = ({ student }) =
   };
 
   return (
-    <div className="bg-[var(--bg-paper)]/30 backdrop-blur-sm border border-[var(--border-color)] rounded-2xl p-4 shadow-lg hover:shadow-xl transition-shadow flex flex-col space-y-3">
+    <div
+      className={`bg-[var(--bg-paper)]/30 backdrop-blur-md border border-[var(--border-color)] rounded-2xl p-4 shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col space-y-3 ${onClick ? 'cursor-pointer hover:-translate-y-1 hover:border-[var(--accent-color)]/50 hover:bg-[var(--bg-paper)]/50' : ''}`}
+      onClick={onClick}
+    >
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-bold text-[var(--text-primary)]">{student.name}</h3>
         <div className="flex gap-2">
@@ -81,7 +88,7 @@ export const StudentEffectCard: React.FC<{ student: Student }> = ({ student }) =
               onClick={e => e.stopPropagation()}
             >
               <h3 className="text-xl font-bold mb-4">Öğrenci Düzenle</h3>
-              <form onSubmit={e => { e.preventDefault(); handleFinish(Object.fromEntries(new FormData(e.currentTarget)) ); }} className="space-y-4">
+              <form onSubmit={e => { e.preventDefault(); handleFinish(Object.fromEntries(new FormData(e.currentTarget))); }} className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Ad Soyad</label>
                   <input name="name" defaultValue={student.name} required className="w-full p-2 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded" />
@@ -93,14 +100,14 @@ export const StudentEffectCard: React.FC<{ student: Student }> = ({ student }) =
                 <div>
                   <label className="block text-sm font-medium mb-1">Sınıf</label>
                   <select name="grade" defaultValue={student.grade} className="w-full p-2 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded">
-                    {['Okul Öncesi','1. Sınıf','2. Sınıf','3. Sınıf','4. Sınıf','5. Sınıf','6. Sınıf','7. Sınıf','8. Sınıf','Lise Hazırlık','9. Sınıf'].map(g => (
+                    {['Okul Öncesi', '1. Sınıf', '2. Sınıf', '3. Sınıf', '4. Sınıf', '5. Sınıf', '6. Sınıf', '7. Sınıf', '8. Sınıf', 'Lise Hazırlık', '9. Sınıf'].map(g => (
                       <option key={g} value={g}>{g}</option>
                     ))}
                   </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Tanı / Özel Durum (virgüllerle ayrılmış)</label>
-                  <input name="diagnosis" defaultValue={student.diagnosis?.join(', ')} placeholder="Disleksi, DEHB" className="w-full p-2 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded" />
+                  <input name="diagnosis" defaultValue={Array.isArray(student.diagnosis) ? student.diagnosis.join(', ') : (student.diagnosis || '')} placeholder="Disleksi, DEHB" className="w-full p-2 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Notlar</label>

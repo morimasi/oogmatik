@@ -98,7 +98,7 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
   const [studentAssessments, setStudentAssessments] = useState<SavedAssessment[]>([]);
   const [studentCurriculums, setStudentCurriculums] = useState<Curriculum[]>([]);
   const [loadingDetails, setLoadingDetails] = useState(false);
-  
+
   // Assignment Store
   const { assignments, fetchStudentAssignments, updateAssignment } = useAssignmentStore();
 
@@ -131,7 +131,7 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
   useEffect(() => {
     if (selectedStudentId) {
       setLoadingDetails(true);
-      
+
       // Cleanup previous listeners
       realtimeUnsubs.current.forEach((unsub: any) => {
         try { unsub(); } catch (e) { logError(toAppError(e), { context: 'unsub cleanup' }); }
@@ -197,7 +197,7 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
         setLoadingDetails(false);
       }
     }
-    
+
     return () => {
       realtimeUnsubs.current.forEach((unsub: () => void) => {
         try { unsub(); } catch (e) { logError(toAppError(e), { context: 'unsub return cleanup' }); }
@@ -399,6 +399,7 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
                     <StudentEffectCard
                       key={s.id}
                       student={s}
+                      onClick={() => setSelectedStudentId(s.id)}
                     />
                   );
                 })}
@@ -478,7 +479,7 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
               </h1>
               <div className="flex flex-wrap items-center gap-1.5 opacity-80">
                 <span className="text-[7px] font-black uppercase text-[var(--text-muted)] bg-[var(--bg-secondary)]/80 px-2 py-0.5 rounded border border-[var(--border-color)]">
-                   {selectedStudent.grade}
+                  {selectedStudent.grade}
                 </span>
                 {selectedStudent.diagnosis[0] && (
                   <span className="text-[7px] font-black uppercase text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/10">
@@ -495,11 +496,10 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
                 setActiveStudent?.(selectedStudent);
                 useToastStore.getState().success(`${selectedStudent.name} başarıyla aktif edildi.`, 2000);
               }}
-              className={`flex-1 md:flex-none px-4 py-2 rounded-xl font-black text-[9px] tracking-widest transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 uppercase ${
-                activeStudent?.id === selectedStudent.id 
-                  ? 'bg-emerald-500 text-white shadow-emerald-500/20' 
+              className={`flex-1 md:flex-none px-4 py-2 rounded-xl font-black text-[9px] tracking-widest transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2 uppercase ${activeStudent?.id === selectedStudent.id
+                  ? 'bg-emerald-500 text-white shadow-emerald-500/20'
                   : 'bg-[var(--accent-color)] text-white shadow-indigo-500/20 hover:scale-105'
-              }`}
+                }`}
             >
               <i className={`fa-solid ${activeStudent?.id === selectedStudent.id ? 'fa-check' : 'fa-play'} text-[8px]`}></i>
               {activeStudent?.id === selectedStudent.id ? 'AKTİF' : 'AKTİFLEŞTİR'}
