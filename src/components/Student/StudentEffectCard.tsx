@@ -60,43 +60,29 @@ export const StudentEffectCard: React.FC<{ student: Student; onClick?: () => voi
     <>
       <div
         onClick={onClick}
-        className={`group flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150
-          bg-transparent border-transparent
-          ${onClick ? 'cursor-pointer hover:bg-[var(--accent-color)]/8 hover:border-[var(--border-color)]/80' : ''}
+        className={`group flex items-center px-2 py-[3px] transition-colors duration-100
+          ${onClick ? 'cursor-pointer hover:bg-[var(--accent-color)]/10 rounded-md' : ''}
         `}
       >
-        {/* Avatar */}
-        <div className="flex-shrink-0 w-6 h-6 rounded-md bg-gradient-to-br from-[var(--accent-color)]/60 to-[var(--accent-color)]/20 flex items-center justify-center text-[9px] font-bold text-white">
-          {initials}
-        </div>
-
-        {/* İsim — tam görünür, kesme yok */}
-        <span className="flex-1 text-[12.5px] font-medium text-[var(--text-primary)] select-none">
+        {/* İsim — tam, kırpmasız, tek satır */}
+        <span className="flex-1 text-[12px] font-medium text-[var(--text-primary)] whitespace-nowrap overflow-hidden" style={{ textOverflow: 'clip' }}>
           {student.name}
         </span>
 
-        {/* Sınıf badge + yaş — sağ taraf */}
-        <span className="text-[10px] text-[var(--text-muted)] whitespace-nowrap opacity-60">
-          {student.grade} · {student.age}y
+        {/* Meta sağ taraf */}
+        <span className="text-[10px] text-[var(--text-muted)] whitespace-nowrap opacity-50 ml-2 flex-shrink-0">
+          {student.grade}
         </span>
 
-        {/* Aksiyon ikonlar — hover'da */}
-        <div className="flex items-center gap-0 opacity-0 group-hover:opacity-100 transition-opacity duration-100">
-          <button
-            type="button"
-            onClick={openEdit}
-            title="Düzenle"
-            className="p-1 rounded text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-colors"
-          >
-            <Edit size={11} />
+        {/* Aksiyon ikonlar — sadece hover */}
+        <div className="flex items-center ml-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-100 flex-shrink-0">
+          <button type="button" onClick={openEdit} title="Düzenle"
+            className="p-0.5 text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-colors">
+            <Edit size={10} />
           </button>
-          <button
-            type="button"
-            onClick={handleDelete}
-            title="Sil"
-            className="p-1 rounded text-[var(--text-muted)] hover:text-red-500 transition-colors"
-          >
-            <Trash2 size={11} />
+          <button type="button" onClick={handleDelete} title="Sil"
+            className="p-0.5 text-[var(--text-muted)] hover:text-red-500 transition-colors">
+            <Trash2 size={10} />
           </button>
         </div>
       </div>
