@@ -20,6 +20,8 @@ interface AuthState {
     updateUser: (updates: Partial<User>) => Promise<void>;
 }
 
+let snapshotUnsub: (() => void) | null = null;
+
 export const useAuthStore = create<AuthState>()(
     persist<AuthState>(
         (set, get) => ({
@@ -28,61 +30,38 @@ export const useAuthStore = create<AuthState>()(
 
             initialize: () => {
                 const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
+                    // Clean up any existing snapshot listener
+                    if (snapshotUnsub) {
+                        snapshotUnsub();
+                        snapshotUnsub = null;
+                    }
+
                     if (firebaseUser) {
-                        try {
-                            const currentUser = await authService.getCurrentUser();
-                            if (currentUser) {
-                                set({ user: currentUser, isLoading: false });
-                            } else {
-                                // Kritik hata: Firestore okunamadı ama auth var. Güvenli fallback.
-                                console.warn("Firestore'dan kullanıcı okunamadı, fallback nesnesi oluşturuluyor.");
-                                const safeUser: User = {
-                                    id: firebaseUser.uid,
-                                    email: firebaseUser.email || '',
-                                    name: firebaseUser.displayName || 'Kullanıcı',
-                                    role: 'teacher',
-                                    avatar: firebaseUser.photoURL || `https://api.dicebear.com/7.x/avataaars/svg?seed=${firebaseUser.email}`,
-                                    createdAt: new Date().toISOString(),
-                                    lastLogin: new Date().toISOString(),
-                                    worksheetCount: 0,
-                                    status: 'active',
-                                    subscriptionPlan: 'free',
-                                    favorites: [],
-                                    profession: '',
-                                    institution: '',
-                                    phone: '',
-                                    bio: ''
-                                };
-                                set({ user: safeUser, isLoading: false });
+                        set({ isLoading: true });
+                        snapshotUnsub = authService.subscribeToCurrentUser(
+                            firebaseUser.uid,
+                            firebaseUser.email || '',
+                            (updatedUser) => {
+                                if (updatedUser) {
+                                    set({ user: updatedUser, isLoading: false });
+                                } else {
+                                    // Belge yoksa boş döndür (fallback yapısı daha evvel get'de idi, abone sildiğimizde null)
+                                    set({ user: null, isLoading: false });
+                                }
                             }
-                        } catch (error) {
-                            logError(toAppError(error), { context: 'onAuthStateChanged currentUser hatası' });
-                            // Fallback nesnesi
-                            const fallbackUser: User = {
-                                id: firebaseUser.uid,
-                                email: firebaseUser.email || '',
-                                name: firebaseUser.displayName || 'Kullanıcı',
-                                role: 'teacher',
-                                avatar: firebaseUser.photoURL || '',
-                                createdAt: new Date().toISOString(),
-                                lastLogin: new Date().toISOString(),
-                                worksheetCount: 0,
-                                status: 'active',
-                                subscriptionPlan: 'free',
-                                favorites: [],
-                                profession: '',
-                                institution: '',
-                                phone: '',
-                                bio: ''
-                            };
-                            set({ user: fallbackUser, isLoading: false });
-                        }
+                        );
                     } else {
                         // Çıkış yapılmışsa
                         set({ user: null, isLoading: false });
                     }
                 });
-                return unsubscribe;
+                return () => {
+                    unsubscribe();
+                    if (snapshotUnsub) {
+                        snapshotUnsub();
+                        snapshotUnsub = null;
+                    }
+                };
             },
 
             login: async (email: string, pass: string) => {

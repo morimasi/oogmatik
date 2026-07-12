@@ -273,6 +273,21 @@ export const authService = {
         }
     },
 
+    subscribeToCurrentUser: (uid: string, email: string, callback: (user: User | null) => void): (() => void) => {
+        const userDocRef = doc(db, "users", uid);
+
+        return firestore.onSnapshot(userDocRef, (docSnap: firestore.DocumentSnapshot<firestore.DocumentData>) => {
+            if (docSnap.exists()) {
+                const userObj = mapDbUserToAppUser(docSnap.data(), uid, email);
+                callback(userObj);
+            } else {
+                callback(null);
+            }
+        }, (error: unknown) => {
+            logError("User subscription error:", { detail: String(error) });
+        });
+    },
+
     updateProfile: async (userId: string, updates: Partial<User>): Promise<User> => {
         const userDocRef = doc(db, "users", userId);
 
