@@ -60,54 +60,43 @@ export const StudentEffectCard: React.FC<{ student: Student; onClick?: () => voi
     <>
       <div
         onClick={onClick}
-        className={`group relative flex items-center gap-3 px-3 py-2 rounded-xl border transition-all duration-200
-          bg-[var(--bg-paper)]/20 backdrop-blur-sm border-[var(--border-color)]/60
-          ${onClick ? 'cursor-pointer hover:bg-[var(--accent-color)]/10 hover:border-[var(--accent-color)]/40' : ''}
+        className={`group flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg border transition-all duration-150
+          bg-transparent border-transparent
+          ${onClick ? 'cursor-pointer hover:bg-[var(--accent-color)]/8 hover:border-[var(--border-color)]/80' : ''}
         `}
       >
         {/* Avatar */}
-        <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--accent-color)]/70 to-[var(--accent-color)]/30 flex items-center justify-center text-xs font-bold text-white shadow-sm">
+        <div className="flex-shrink-0 w-6 h-6 rounded-md bg-gradient-to-br from-[var(--accent-color)]/60 to-[var(--accent-color)]/20 flex items-center justify-center text-[9px] font-bold text-white">
           {initials}
         </div>
 
-        {/* Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold text-[var(--text-primary)] truncate leading-tight">
-              {student.name}
-            </span>
-            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-[var(--bg-secondary)] text-[var(--text-muted)] whitespace-nowrap">
-              {student.grade}
-            </span>
-          </div>
-          <div className="flex items-center gap-2 mt-0.5">
-            <span className="text-[11px] text-[var(--text-muted)]">{student.age} yaş</span>
-            {diagnosisText && (
-              <>
-                <span className="text-[var(--text-muted)] opacity-40 text-[10px]">•</span>
-                <span className="text-[11px] text-emerald-500/80 truncate">{diagnosisText}</span>
-              </>
-            )}
-          </div>
-        </div>
+        {/* İsim — tam görünür, kesme yok */}
+        <span className="flex-1 text-[12.5px] font-medium text-[var(--text-primary)] select-none">
+          {student.name}
+        </span>
 
-        {/* Actions — sadece hover'da görünür */}
-        <div className="flex-shrink-0 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+        {/* Sınıf badge + yaş — sağ taraf */}
+        <span className="text-[10px] text-[var(--text-muted)] whitespace-nowrap opacity-60">
+          {student.grade} · {student.age}y
+        </span>
+
+        {/* Aksiyon ikonlar — hover'da */}
+        <div className="flex items-center gap-0 opacity-0 group-hover:opacity-100 transition-opacity duration-100">
           <button
             type="button"
             onClick={openEdit}
             title="Düzenle"
-            className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--accent-color)] hover:bg-[var(--accent-color)]/10 transition-all"
+            className="p-1 rounded text-[var(--text-muted)] hover:text-[var(--accent-color)] transition-colors"
           >
-            <Edit size={13} />
+            <Edit size={11} />
           </button>
           <button
             type="button"
             onClick={handleDelete}
             title="Sil"
-            className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-red-500 hover:bg-red-500/10 transition-all"
+            className="p-1 rounded text-[var(--text-muted)] hover:text-red-500 transition-colors"
           >
-            <Trash2 size={13} />
+            <Trash2 size={11} />
           </button>
         </div>
       </div>
