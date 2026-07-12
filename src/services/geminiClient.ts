@@ -152,10 +152,10 @@ TALİMAT: Bu üretimde KESİNLİKLE daha önceki desenlerden kaçın. Yaratıcı
   }
 
   if (activeStudent) {
-    const diagStr = activeStudent.diagnosis && activeStudent.diagnosis.length > 0
+    const diagStr = activeStudent.diagnosis && Array.isArray(activeStudent.diagnosis) && activeStudent.diagnosis.length > 0
       ? activeStudent.diagnosis.join(', ')
-      : 'Genel Öğrenme Güçlüğü (Tanısız)';
-      
+      : (typeof activeStudent.diagnosis === 'string' && activeStudent.diagnosis ? activeStudent.diagnosis : 'Genel Öğrenme Güçlüğü (Tanısız)');
+
     finalPrompt += `
 
 ======================================
@@ -226,12 +226,12 @@ Tüm içeriği bu spesifik bağlama göre optimize et!`;
     } catch (error: unknown) {
       lastError = error;
       const errorMsg = error instanceof Error ? error.message : String(error);
-      
+
       // Hata tipleri: Rate limit (429), High Demand/Service Unavailable (503), Gateway Timeout (504)
-      const isRetryable = 
-        errorMsg.includes('quota') || 
-        errorMsg.includes('429') || 
-        errorMsg.includes('503') || 
+      const isRetryable =
+        errorMsg.includes('quota') ||
+        errorMsg.includes('429') ||
+        errorMsg.includes('503') ||
         errorMsg.includes('demand') ||
         errorMsg.includes('overloaded') ||
         errorMsg.includes('504');
