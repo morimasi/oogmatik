@@ -273,7 +273,12 @@ export const authService = {
         }
     },
 
-    subscribeToCurrentUser: (uid: string, email: string, callback: (user: User | null) => void): (() => void) => {
+    subscribeToCurrentUser: (
+        uid: string,
+        email: string,
+        callback: (user: User | null) => void,
+        onError?: (error: unknown) => void
+    ): (() => void) => {
         const userDocRef = doc(db, "users", uid);
 
         return firestore.onSnapshot(userDocRef, (docSnap: firestore.DocumentSnapshot<firestore.DocumentData>) => {
@@ -285,6 +290,9 @@ export const authService = {
             }
         }, (error: unknown) => {
             logError("User subscription error:", { detail: String(error) });
+            if (onError) {
+                onError(error);
+            }
         });
     },
 

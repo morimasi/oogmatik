@@ -48,6 +48,11 @@ export const useAuthStore = create<AuthState>()(
                                     // Belge yoksa boş döndür (fallback yapısı daha evvel get'de idi, abone sildiğimizde null)
                                     set({ user: null, isLoading: false });
                                 }
+                            },
+                            (error) => {
+                                // Hata durumunda isLoading kilidini kaldırıp logluyoruz
+                                set({ isLoading: false });
+                                logError("Firestore onSnapshot subscription failed:", { error });
                             }
                         );
                     } else {
