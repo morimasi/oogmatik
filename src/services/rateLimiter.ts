@@ -54,13 +54,24 @@ export type LimitKey = keyof typeof RATE_LIMIT_PRESETS['free'];
 export type UserTier = 'free' | 'pro' | 'admin';
 
 /**
+ * Safe tier normalizer to prevent TypeError crashes when custom roles (e.g. 'teacher', 'parent') are passed as tier
+ */
+const normalizeTier = (tier: string | undefined): UserTier => {
+    if (!tier) return 'free';
+    if (tier === 'admin') return 'admin';
+    if (tier === 'pro' || tier === 'teacher' || tier === 'parent') return 'pro';
+    if (tier === 'free') return 'free';
+    return (tier in RATE_LIMIT_PRESETS) ? (tier as UserTier) : 'free';
+};
+
+/**
  * UserQuota Service (Persistent Rate Limiting)
  * Firestore tabanlı, sayfa yenilense de korunan kota yönetimi.
  */
 export class UserQuotaService {
     private static instance: UserQuotaService;
 
-    private constructor() {}
+    private constructor() { }
 
     public static getInstance(): UserQuotaService {
         if (!UserQuotaService.instance) {
@@ -80,7 +91,8 @@ export class UserQuotaService {
     ): Promise<{ allowed: boolean; remaining: number; resetAfterMs: number }> {
         if (!userId) return { allowed: true, remaining: 999, resetAfterMs: 0 };
 
-        const config = RATE_LIMIT_PRESETS[tier][limitKey];
+        const safeTier = normalizeTier(tier);
+        const config = RATE_LIMIT_PRESETS[safeTier]?.[limitKey] || RATE_LIMIT_PRESETS.free.apiQuery;
         const quotaRef = doc(db, 'user_quotas', `${userId}_${limitKey}`);
         const now = Date.now();
 
@@ -187,8 +199,9 @@ export class RateLimiter {
      * Get current status of user's quota
      */
     async getStatus(userId: string, tier: UserTier = 'free', limitKey: LimitKey = 'apiGeneration'): Promise<{ remaining: number; total: number; resetAfterMs: number; allowed: boolean }> {
-        const config = RATE_LIMIT_PRESETS[tier][limitKey];
-        const result = await quotaService.checkAndConsume(userId, tier, limitKey, 0); // cost=0 for check only
+        const safeTier = normalizeTier(tier);
+        const config = RATE_LIMIT_PRESETS[safeTier]?.[limitKey] || RATE_LIMIT_PRESETS.free.apiGeneration;
+        const result = await quotaService.checkAndConsume(userId, safeTier, limitKey, 0); // cost=0 for check only
         return {
             remaining: result.remaining,
             total: config.tokens,
@@ -214,5 +227,5 @@ export class RateLimiter {
 
 export const quotaService = UserQuotaService.getInstance();
 export const rateLimiter = new RateLimiter();
-export const enforceRateLimit = (userId: string, tier: UserTier, limitKey: LimitKey, cost: number = 1) => 
+export const enforceRateLimit = (userId: string, tier: UserTier, limitKey: LimitKey, cost: number = 1) =>
     quotaService.enforce(userId, tier, limitKey, cost);

@@ -81,17 +81,27 @@ export function worksheetMatchesArchiveCategory(sheet: SavedWorksheet, categoryI
 
 const _MAX_ARCHIVE_ROWS = 2800;
 
+const normalizeCategory = (cat: unknown): { id: string; title: string } => {
+    if (cat && typeof cat === 'object' && 'id' in cat) {
+        return cat as { id: string; title: string };
+    }
+    if (typeof cat === 'string' && cat) {
+        return { id: cat, title: cat };
+    }
+    return { id: 'uncategorized', title: 'Kategorisiz' };
+};
+
 const mapDbToWorksheet = (docData: firestore.DocumentData, id: string): SavedWorksheet => ({
     id: id,
-    userId: docData.userId as string,
+    userId: (docData.userId as string) || '',
     studentId: docData.studentId as string | undefined,
     studentName: docData.studentName as string | undefined,
-    name: docData.name as string,
+    name: (docData.name as string) || 'Adsız Etkinlik',
     activityType: docData.activityType as ActivityType,
     worksheetData: deserializeData(docData.worksheetData),
-    createdAt: docData.createdAt as string,
-    icon: docData.icon as string || 'fa-solid fa-file',
-    category: docData.category as { id: string; title: string } || { id: 'uncategorized', title: 'Kategorisiz' },
+    createdAt: (docData.createdAt as string) || new Date().toISOString(),
+    icon: (docData.icon as string) || 'fa-solid fa-file',
+    category: normalizeCategory(docData.category),
     sharedBy: docData.sharedBy as string | undefined,
     sharedByName: docData.sharedByName as string | undefined,
     sharedWith: docData.sharedWith as string | string[] | undefined,
@@ -208,11 +218,11 @@ export const worksheetService = {
 
             const total = filtered.length;
             const sliced = filtered.slice(page * pageSize, (page + 1) * pageSize);
-            
-            logInfo(' getUserWorksheets başarıyla yüklendi', { 
-                userId, 
-                count: sliced.length, 
-                total 
+
+            logInfo(' getUserWorksheets başarıyla yüklendi', {
+                userId,
+                count: sliced.length,
+                total
             });
 
             return { items: sliced, total, count: total };
@@ -224,7 +234,7 @@ export const worksheetService = {
                 logWarn('Firestore indeksi eksik! İndeks oluşturulana kadar basit sorgu kullanılacak.');
                 // Try one more time with zero ordering (Firestore will return in arbitrary order, we sort in memory)
                 try {
-                     const fallbackQ = query(
+                    const fallbackQ = query(
                         collection(db, 'saved_worksheets'),
                         where('userId', '==', userId)
                     );
@@ -232,15 +242,15 @@ export const worksheetService = {
                     const fallbackRows: SavedWorksheet[] = [];
                     snap.forEach((d: firestore.QueryDocumentSnapshot<firestore.DocumentData>) => fallbackRows.push(mapDbToWorksheet(d.data(), d.id)));
                     fallbackRows.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-                    
+
                     const filtered = categoryId && categoryId !== 'all'
                         ? fallbackRows.filter((s) => worksheetMatchesArchiveCategory(s, categoryId))
                         : fallbackRows;
 
-                    return { 
-                        items: filtered.slice(page * pageSize, (page + 1) * pageSize), 
-                        total: filtered.length, 
-                        count: filtered.length 
+                    return {
+                        items: filtered.slice(page * pageSize, (page + 1) * pageSize),
+                        total: filtered.length,
+                        count: filtered.length
                     };
                 } catch (fallbackError) {
                     logError('Fallback query also failed', { error: fallbackError });
