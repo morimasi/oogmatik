@@ -296,7 +296,22 @@ export const teacherService = {
   getAllStudents: async (): Promise<Student[]> => {
     try {
       const snap = await getDocs(collection(db, 'students'));
-      return snap.docs.map(d => ({ id: d.id, ...d.data() } as Student));
+      return snap.docs.map(d => {
+        const data = d.data() as Record<string, unknown>;
+        return {
+          id: d.id,
+          ...data,
+          // Normalize array fields — Firestore legacy records may have stored these as strings
+          diagnosis: Array.isArray(data.diagnosis)
+            ? (data.diagnosis as string[])
+            : typeof data.diagnosis === 'string' && data.diagnosis
+              ? [data.diagnosis]
+              : [],
+          interests: Array.isArray(data.interests) ? (data.interests as string[]) : [],
+          strengths: Array.isArray(data.strengths) ? (data.strengths as string[]) : [],
+          weaknesses: Array.isArray(data.weaknesses) ? (data.weaknesses as string[]) : [],
+        } as unknown as Student;
+      });
     } catch (e) {
       logError('Öğrenci listesi alınamadı', { error: e instanceof Error ? e.message : String(e), context: 'getAllStudents' });
       return [];

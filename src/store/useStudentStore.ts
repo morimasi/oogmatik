@@ -78,8 +78,17 @@ export const useStudentStore = create<StudentState>()((set, get) => ({
             id: doc.id,
             teacherId: data.teacherId || '',
             createdAt: data.createdAt || new Date().toISOString(),
-            ...baseSanitized,
             ...data,
+            // baseSanitized MUST come last: normalizes array fields (diagnosis, interests…)
+            // that Firestore may have stored as strings in legacy records.
+            diagnosis: Array.isArray(data.diagnosis)
+              ? (data.diagnosis as string[])
+              : typeof data.diagnosis === 'string' && data.diagnosis
+                ? [data.diagnosis]
+                : [],
+            interests: Array.isArray(data.interests) ? (data.interests as string[]) : [],
+            strengths: Array.isArray(data.strengths) ? (data.strengths as string[]) : [],
+            weaknesses: Array.isArray(data.weaknesses) ? (data.weaknesses as string[]) : [],
           } as Student;
           if (isLegacy) completeStudent = createAdvancedStudent(completeStudent) as Student;
           studentList.push(completeStudent);
@@ -135,7 +144,7 @@ export const useStudentStore = create<StudentState>()((set, get) => ({
   addStudent: async (teacherId: string, studentData: unknown) => {
     try {
       const sanitized = sanitizeBaseStudent(studentData);
-      
+
       const tempStudent = {
         id: 'temp',
         teacherId,

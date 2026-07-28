@@ -34,7 +34,7 @@ export const StudentsModule: React.FC<StudentsModuleProps> = ({
   const { students, isLoading: studentsLoading, fetchStudents, addStudent, updateStudent, deleteStudent, setActiveStudent: setActiveStudentInStore } = useStudentStore();
   const { user } = useAuthStore();
   const { success, error } = useToastStore();
-  
+
   // Yeni özellikler için state
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -49,11 +49,14 @@ export const StudentsModule: React.FC<StudentsModuleProps> = ({
     }
   }, [user?.id, fetchStudents, user?.role]);
 
-  const filteredStudents = students.filter((student: Student) =>
-    student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    student.grade.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    student.diagnosis.some((d: string) => d.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredStudents = students.filter((student: Student) => {
+    const diag: string[] = Array.isArray(student.diagnosis) ? student.diagnosis : [];
+    return (
+      student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.grade.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      diag.some((d: string) => d.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+  });
 
   const handleSaveStudent = async (studentData: Partial<Student>) => {
     try {
@@ -202,20 +205,24 @@ export const StudentsModule: React.FC<StudentsModuleProps> = ({
                     <h4 className="text-sm font-black" style={{ color: 'var(--text-primary)' }}>{student.name}</h4>
                     <p className="text-xs font-bold" style={{ color: 'var(--text-muted)' }}>{student.grade}</p>
                     <div className="flex flex-wrap gap-1.5 mt-1">
-                      {student.diagnosis.slice(0, 3).map((d: string) => (
-                        <span
-                          key={d}
-                          className="px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-widest"
-                          style={{ backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)' }}
-                        >
-                          {d}
-                        </span>
-                      ))}
-                      {student.diagnosis.length > 3 && (
-                        <span className="px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
-                          +{student.diagnosis.length - 3}
-                        </span>
-                      )}
+                      {(() => {
+                        const diag: string[] = Array.isArray(student.diagnosis) ? student.diagnosis : []; return (<>
+                          {diag.slice(0, 3).map((d: string) => (
+                            <span
+                              key={d}
+                              className="px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-widest"
+                              style={{ backgroundColor: 'var(--accent-muted)', color: 'var(--accent-color)' }}
+                            >
+                              {d}
+                            </span>
+                          ))}
+                          {diag.length > 3 && (
+                            <span className="px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                              +{diag.length - 3}
+                            </span>
+                          )}
+                        </>);
+                      })()}
                     </div>
                   </div>
                 </div>
