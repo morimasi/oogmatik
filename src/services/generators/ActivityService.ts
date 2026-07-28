@@ -3,6 +3,8 @@ import { GeneratorOptions, ActivityType } from '../../types';
 import { GeneratorMode, IActivityGenerator } from './core/types';
 import { GenericActivityGenerator } from './core/GenericActivityGenerator';
 import { ACTIVITY_GENERATOR_REGISTRY } from './registry';
+import * as aiGenerators from './index';
+import * as offlineGenerators from '../offlineGenerators/index';
 import mapDynamicIdToActivityType from '../../utils/dynamicIdMappings';
 
 
@@ -45,7 +47,7 @@ export class ActivityService {
         // 1. Manuel kayıtlı jeneratörleri (registry.ts) işle
         for (const [type, mapping] of Object.entries(ACTIVITY_GENERATOR_REGISTRY)) {
             const activityType = type as unknown as ActivityType;
-            
+
             const generator = new GenericActivityGenerator(
                 DEFAULT_MODE,
                 mapping.ai,
@@ -59,7 +61,7 @@ export class ActivityService {
         Object.values(ActivityType).forEach((type) => {
             const activityType = type as unknown as ActivityType;
             if (activityType.startsWith('INFOGRAPHIC_') && !this.generators.has(activityType)) {
-                
+
                 const generator = new GenericActivityGenerator<any>(
                     DEFAULT_MODE,
                     async (options) => {
@@ -85,6 +87,23 @@ export class ActivityService {
                         }
 
                         return await generateOfflineInfographic(activityType, options);
+                    }
+                );
+                this.generators.set(activityType, generator);
+            }
+        });
+
+        // 3. Genel kayıt: Geriye kalan tüm ActivityType enum değerleri için otomatik akıllı fallback tanımla
+        Object.values(ActivityType).forEach((type) => {
+            const activityType = type as unknown as ActivityType;
+            if (!this.generators.has(activityType)) {
+                const generator = new GenericActivityGenerator<any>(
+                    DEFAULT_MODE,
+                    async (options) => {
+                        return await aiGenerators.generateSmartFallbackAI(activityType, options);
+                    },
+                    async (options) => {
+                        return await offlineGenerators.generateOfflineFallback(activityType, options);
                     }
                 );
                 this.generators.set(activityType, generator);
@@ -127,7 +146,7 @@ export class ActivityService {
         // Jeneratör bulunamadıysa, fallback mekanizmasını dene
         if (!generator) {
             logWarn(`No generator found for activity type: ${type}. Attempting fallback...`);
-            
+
             // Bilinmeyen tipler için GenericActivityGenerator ile fallback dene
             const fallbackMode = _mode ?? this.defaultMode;
             const fallbackGenerator = new GenericActivityGenerator(
@@ -147,7 +166,7 @@ export class ActivityService {
                     );
                 }
             );
-            
+
             generator = fallbackGenerator;
             logWarn(`Using fallback generator for activity type: ${type}`);
         }
@@ -168,19 +187,19 @@ export class ActivityService {
             logInfo(`[ActivityService] Large batch detected (${itemCount}). Processing in PARALLEL sub-batches...`);
             const BATCH_SIZE = 5;
             const batches = Math.ceil(itemCount / BATCH_SIZE);
-            
+
             // Create all batch promises for parallel execution
             const batchPromises = Array.from({ length: batches }, async (_, i) => {
                 const subItemCount = Math.min(BATCH_SIZE, itemCount - (i * BATCH_SIZE));
                 const subOptions = { ...options, itemCount: subItemCount };
-                
+
                 logInfo(`[ActivityService] Batch ${i + 1}/${batches} starting (${subItemCount} items)...`);
                 return await generator.generate(subOptions);
             });
-            
+
             // Execute all batches in parallel (7-10x faster)
             const batchResults = await Promise.all(batchPromises);
-            
+
             // Flatten results
             safeData = batchResults.flat().filter(Boolean);
         } else {

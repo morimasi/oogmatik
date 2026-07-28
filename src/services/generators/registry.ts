@@ -35,6 +35,14 @@ export const getGeneratorMapping = async (type: ActivityType): Promise<Generator
   const staticMapping = ACTIVITY_GENERATOR_REGISTRY[type];
   if (staticMapping) return staticMapping;
 
+  // 2. Dinamik / Akıllı Fallback mapping
+  if (type) {
+    return {
+      ai: withAI(type),
+      offline: withOffline(type),
+    };
+  }
+
   return null;
 };
 
@@ -269,7 +277,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     ai: aiGenerators.generateKavramHaritasiFromAI,
     offline: offlineGenerators.generateOfflineKavramHaritasi,
   },
-[ActivityType.ES_ANLAMLI_KELIMELER]: {
+  [ActivityType.ES_ANLAMLI_KELIMELER]: {
     ai: aiGenerators.generateEsAnlamliKelimelerFromAI,
     offline: offlineGenerators.generateOfflineEsAnlamliKelimeler,
   },
@@ -517,6 +525,50 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     ai: generateLETTER_CONNECTFromAI,
     offline: generateOfflineLETTER_CONNECT,
   },
+
+  // 6. DİĞER & EKSİKSİZ YAPILANDIRILMIŞ AKTİVİTELER
+  [ActivityType.WORKBOOK]: { ai: withAI(ActivityType.WORKBOOK), offline: withOffline(ActivityType.WORKBOOK) },
+  [ActivityType.SHORT_ANSWER]: { ai: aiGenerators.generateShortAnswerFromAI, offline: withOffline(ActivityType.SHORT_ANSWER) },
+  [ActivityType.PREMIUM_STUDIO]: { ai: withAI(ActivityType.PREMIUM_STUDIO), offline: withOffline(ActivityType.PREMIUM_STUDIO) },
+  [ActivityType.SUPER_STUDIO]: { ai: withAI(ActivityType.SUPER_STUDIO), offline: withOffline(ActivityType.SUPER_STUDIO) },
+  [ActivityType.ACTIVITY_STUDIO]: { ai: withAI(ActivityType.ACTIVITY_STUDIO), offline: withOffline(ActivityType.ACTIVITY_STUDIO) },
+  [ActivityType.KELIME_CUMLE]: { ai: withAI(ActivityType.KELIME_CUMLE), offline: withOffline(ActivityType.KELIME_CUMLE) },
+  [ActivityType.CURRICULUM]: { ai: withAI(ActivityType.CURRICULUM), offline: withOffline(ActivityType.CURRICULUM) },
+  [ActivityType.FASCICLE]: { ai: withAI(ActivityType.FASCICLE), offline: withOffline(ActivityType.FASCICLE) },
+  [ActivityType.MATH_GEOMETRY]: { ai: withAI(ActivityType.MATH_GEOMETRY), offline: withOffline(ActivityType.MATH_GEOMETRY) },
+  [ActivityType.GRAMMAR_EXERCISE]: { ai: withAI(ActivityType.GRAMMAR_EXERCISE), offline: withOffline(ActivityType.GRAMMAR_EXERCISE) },
+  [ActivityType.VOCABULARY_BUILDING]: { ai: withAI(ActivityType.VOCABULARY_BUILDING), offline: withOffline(ActivityType.VOCABULARY_BUILDING) },
+  [ActivityType.LOGIC_PUZZLE]: { ai: withAI(ActivityType.LOGIC_PUZZLE), offline: withOffline(ActivityType.LOGIC_PUZZLE) },
+  [ActivityType.PATTERN_RECOGNITION]: { ai: withAI(ActivityType.PATTERN_RECOGNITION), offline: withOffline(ActivityType.PATTERN_RECOGNITION) },
+  [ActivityType.VISUAL_PERCEPTION]: { ai: withAI(ActivityType.VISUAL_PERCEPTION), offline: withOffline(ActivityType.VISUAL_PERCEPTION) },
+  [ActivityType.DYSLEXIA_SYLLABLE_BREAK]: { ai: withAI(ActivityType.DYSLEXIA_SYLLABLE_BREAK), offline: withOffline(ActivityType.DYSLEXIA_SYLLABLE_BREAK) },
+  [ActivityType.DYSLEXIA_WORD_RECOGNITION]: { ai: withAI(ActivityType.DYSLEXIA_WORD_RECOGNITION), offline: withOffline(ActivityType.DYSLEXIA_WORD_RECOGNITION) },
+  [ActivityType.DYSLEXIA_SUPPORT]: { ai: withAI(ActivityType.DYSLEXIA_SUPPORT), offline: withOffline(ActivityType.DYSLEXIA_SUPPORT) },
+  [ActivityType.ANAGRAM_PUZZLE]: { ai: withAI(ActivityType.ANAGRAM_PUZZLE), offline: withOffline(ActivityType.ANAGRAM_PUZZLE) },
+  [ActivityType.DYSCALCULIA_NUMBER_SENSE]: { ai: withAI(ActivityType.DYSCALCULIA_NUMBER_SENSE), offline: withOffline(ActivityType.DYSCALCULIA_NUMBER_SENSE) },
+  [ActivityType.DYSCALCULIA_MAGNITUDE_COMPARISON]: { ai: withAI(ActivityType.DYSCALCULIA_MAGNITUDE_COMPARISON), offline: withOffline(ActivityType.DYSCALCULIA_MAGNITUDE_COMPARISON) },
+  [ActivityType.MEMORY_GAME]: { ai: withAI(ActivityType.MEMORY_GAME), offline: withOffline(ActivityType.MEMORY_GAME) },
+  [ActivityType.QUICK_RECALL]: { ai: withAI(ActivityType.QUICK_RECALL), offline: withOffline(ActivityType.QUICK_RECALL) },
+  [ActivityType.MATH_ALGEBRA]: { ai: withAI(ActivityType.MATH_ALGEBRA), offline: withOffline(ActivityType.MATH_ALGEBRA) },
+  [ActivityType.TEXT_ANALYSIS]: { ai: withAI(ActivityType.TEXT_ANALYSIS), offline: withOffline(ActivityType.TEXT_ANALYSIS) },
+  [ActivityType.SCIENCE_EXPERIMENT]: { ai: withAI(ActivityType.SCIENCE_EXPERIMENT), offline: withOffline(ActivityType.SCIENCE_EXPERIMENT) },
+  [ActivityType.LOGIC_REASONING]: { ai: withAI(ActivityType.LOGIC_REASONING), offline: withOffline(ActivityType.LOGIC_REASONING) },
+  [ActivityType.SPELLING_PRACTICE]: { ai: withAI(ActivityType.SPELLING_PRACTICE), offline: withOffline(ActivityType.SPELLING_PRACTICE) },
+  [ActivityType.WRITING_PROMPT]: { ai: withAI(ActivityType.WRITING_PROMPT), offline: withOffline(ActivityType.WRITING_PROMPT) },
+  [ActivityType.DIAGNOSTIC_TEST]: { ai: withAI(ActivityType.DIAGNOSTIC_TEST), offline: withOffline(ActivityType.DIAGNOSTIC_TEST) },
+  [ActivityType.SKILL_ASSESSMENT]: { ai: withAI(ActivityType.SKILL_ASSESSMENT), offline: withOffline(ActivityType.SKILL_ASSESSMENT) },
+  [ActivityType.PROGRESS_MONITORING]: { ai: withAI(ActivityType.PROGRESS_MONITORING), offline: withOffline(ActivityType.PROGRESS_MONITORING) },
+  [ActivityType.SELF_ASSESSMENT]: { ai: withAI(ActivityType.SELF_ASSESSMENT), offline: withOffline(ActivityType.SELF_ASSESSMENT) },
+  [ActivityType.CREATIVE_WRITING]: { ai: withAI(ActivityType.CREATIVE_WRITING), offline: withOffline(ActivityType.CREATIVE_WRITING) },
+  [ActivityType.STORY_STARTER]: { ai: withAI(ActivityType.STORY_STARTER), offline: withOffline(ActivityType.STORY_STARTER) },
+  [ActivityType.DRAWING_EXERCISE]: { ai: withAI(ActivityType.DRAWING_EXERCISE), offline: withOffline(ActivityType.DRAWING_EXERCISE) },
+  [ActivityType.COLLAGE_ACTIVITY]: { ai: withAI(ActivityType.COLLAGE_ACTIVITY), offline: withOffline(ActivityType.COLLAGE_ACTIVITY) },
+  [ActivityType.REFLECTION_PROMPT]: { ai: withAI(ActivityType.REFLECTION_PROMPT), offline: withOffline(ActivityType.REFLECTION_PROMPT) },
+  [ActivityType.OBSERVATION_TASK]: { ai: withAI(ActivityType.OBSERVATION_TASK), offline: withOffline(ActivityType.OBSERVATION_TASK) },
+  [ActivityType.HISTORY_TIMELINE]: { ai: withAI(ActivityType.HISTORY_TIMELINE), offline: withOffline(ActivityType.HISTORY_TIMELINE) },
+  [ActivityType.MAP_READING]: { ai: withAI(ActivityType.MAP_READING), offline: withOffline(ActivityType.MAP_READING) },
+  [ActivityType.GOAL_SETTING]: { ai: withAI(ActivityType.GOAL_SETTING), offline: withOffline(ActivityType.GOAL_SETTING) },
+  [ActivityType.SARI_KITAP_STUDIO]: { ai: withAI(ActivityType.SARI_KITAP_STUDIO), offline: withOffline(ActivityType.SARI_KITAP_STUDIO) },
 
   // AUTONOM_REGISTRY_START
   // AUTONOM_REGISTRY_END
