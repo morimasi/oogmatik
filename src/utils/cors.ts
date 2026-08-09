@@ -22,10 +22,12 @@ const ALLOWED_ORIGINS = [
   'https://www.bdmind.com',
   'https://bdmind.vercel.app',
   'https://bdmin.vercel.app',
+  'https://oogmatik.vercel.app',
 
   // Preview deployments (Vercel pattern)
   /^https:\/\/bdmind.*\.vercel\.app$/,
   /^https:\/\/bdmin.*\.vercel\.app$/,
+  /^https:\/\/oogmatik.*\.vercel\.app$/,
 
   // Development
   'http://localhost:5173',     // Vite default
@@ -66,7 +68,7 @@ loadExtraOriginsFromEnv();
  * Vercel preview deployment pattern matcher
  * Örnek: https://bdmind-git-feature-user.vercel.app
  */
-const VERCEL_PREVIEW_PATTERN = /^https:\/\/(bdmind|bdmin).*\.vercel\.app$/;
+const VERCEL_PREVIEW_PATTERN = /^https:\/\/(bdmind|bdmin|oogmatik).*\.vercel\.app$/;
 
 /**
  * Origin'in izin verilen listede olup olmadığını kontrol eder

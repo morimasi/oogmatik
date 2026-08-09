@@ -52,6 +52,7 @@ describe('CORS Validation System', () => {
       expect(isAllowedOrigin('https://www.bdmind.com')).toBe(true);
       expect(isAllowedOrigin('https://bdmind.vercel.app')).toBe(true);
       expect(isAllowedOrigin('https://bdmin.vercel.app')).toBe(true);
+      expect(isAllowedOrigin('https://oogmatik.vercel.app')).toBe(true);
     });
 
     it('localhost development kabul edilir', () => {
@@ -64,6 +65,7 @@ describe('CORS Validation System', () => {
       expect(isAllowedOrigin('https://bdmind-abc123-def456.vercel.app')).toBe(true);
       expect(isAllowedOrigin('https://bdmind-git-feature-user.vercel.app')).toBe(true);
       expect(isAllowedOrigin('https://bdmin-git-feature-user.vercel.app')).toBe(true);
+      expect(isAllowedOrigin('https://oogmatik-git-main-user.vercel.app')).toBe(true);
     });
 
     it('Google IDX pattern kabul edilir', () => {
