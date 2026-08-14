@@ -4,6 +4,7 @@ import { ActivityType } from '../../types/activity';
 export interface ActivityMetadata {
     targetSkills: string[];
     description: string;
+    pedagogicalNote?: string;
 }
 
 const METADATA_MAP: Partial<Record<ActivityType, ActivityMetadata>> = {

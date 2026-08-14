@@ -14,6 +14,7 @@ export interface PageData {
   instruction?: string;
   pageNumber?: number;
   totalPages?: number;
+  pedagogicalNote?: string;
 }
 
 export interface GeneratedContentPayload {

@@ -71,7 +71,6 @@ export interface TemplateSection {
 
 // ─── Metadata ────────────────────────────────────────────────────────────
 
-/** Etkinlik metadata'sı — her üretimde zorunlu */
 export interface ActivityMetadata {
     title: string;
     subject: string;
@@ -87,7 +86,8 @@ export interface ActivityMetadata {
     sourceBlueprint?: string;
     /** MEB müfredat kazanım kodu */
     curriculumCode?: string;
-
+    /** Pedagojik ZPD Analizi ve Rehberlik Notu */
+    pedagogicalNote?: string;
 }
 
 /** Onay bilgileri */
