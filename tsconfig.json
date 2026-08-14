@@ -29,13 +29,12 @@
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
-    "api/**/*.ts",
-    "tests/**/*.ts"
+    "api/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     "dist",
-    "tests/e2e",
+    "tests",
     "src_old"
   ]
 }
