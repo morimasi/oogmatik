@@ -23,7 +23,7 @@ export const generateColorfulSyllableReadingFromAI = async (options: GeneratorOp
     }
 
     const basePrompt = `
-Sen Özel Eğitim (Disleksi) ve Okuma Hızı (WPM) uzmanı bir öğretmensin.
+Sen Özel Eğitim (Disleksi) ve Okuma Hızı (WPM) uzmanı bir öğretmensin (Elif Yıldız Pedagoji Standartları).
 Öğrencinin okuma hızını (WPM Hedefi: ${wpmTarget} kelime/dakika) destekleyecek ve "Renkli Hece/Vurgulu Okuma" mantığına göre analiz edilmiş harika bir okuma metni (Hikaye/Bilgi) üreteceksin. 
 
 ⚠️ KRİTİK: HER ÜRETİMDE FARKLI METİN ÜRET!
@@ -40,10 +40,8 @@ ${studentInstruction}
 GÖREV:
 1. Belirlenen konu, zorluk ve uzunluğa uygun, yazım ve noktalama işaretleri kusursuz bir metin hazırla.
 2. Bu metni paragraflara böl.
-3. Her paragraf için, metindeki HER BİR KELİMEYİ (noktalama işaretleri dahil ederek) tek tek hecelerine veya vurgu parçalarına ayır. 
-   - Not: "vowels_only" seçildiyse: harfleri ayır, sesli harfleri ayrı parçala.
-   - "syllables" seçildiyse (Varsayılan): Türkçe heceleme kurallarına göre hecele (Örn: "araba" -> ["a", "ra", "ba"]).
-   - "words" seçildiyse: kelimeyi tek parça bırak ["araba"].
+3. Her paragraf için, metindeki HER BİR KELİMEYİ (noktalama işaretleri dahil ederek) tek tek hecelerine veya vurgu parçalarına ayır.
+4. "pedagogicalNote" alanına disleksi eğitimi veren öğretmene özel 1-2 cümlelik rehberlik notu ekle.
 
 AŞAĞIDAKİ JSON FORMATINDA DÖNÜŞ YAP (Başka hiçbir açıklama ekleme):
 
@@ -51,6 +49,7 @@ AŞAĞIDAKİ JSON FORMATINDA DÖNÜŞ YAP (Başka hiçbir açıklama ekleme):
     "id": "color_syll",
     "activityType": "COLORFUL_SYLLABLE_READING",
     "title": "Renkli Hece Okuma - ${topic}",
+    "pedagogicalNote": "Disleksik bireylerde fonolojik farkındalığı artırmak için hece renklerinin kontrastlı takip edilmesi önerilir.",
     "settings": {
         "difficulty": "${difficulty}",
         "topic": "${topic}",
@@ -67,7 +66,7 @@ AŞAĞIDAKİ JSON FORMATINDA DÖNÜŞ YAP (Başka hiçbir açıklama ekleme):
                 "syllabified": [
                     {
                         "word": "OrijinalKelime",
-                        "parts": ["O", "ri", "ji", "nal", "Ke", "li", "me"] // Vurgu türüne göre ayrılmış dizi
+                        "parts": ["O", "ri", "ji", "nal", "Ke", "li", "me"]
                     }
                 ]
             }
@@ -78,7 +77,7 @@ AŞAĞIDAKİ JSON FORMATINDA DÖNÜŞ YAP (Başka hiçbir açıklama ekleme):
 
     const parsedData = await generateCreativeMultimodal({
         prompt: basePrompt,
-        temperature: 0.6, // Dilbilgisi tutarlılığı için biraz düşük tutulur
+        temperature: 0.6,
     });
 
     return parsedData as unknown as ColorfulSyllableReadingData;

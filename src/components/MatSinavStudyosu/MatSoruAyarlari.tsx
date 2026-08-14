@@ -25,7 +25,7 @@ export const MatSoruAyarlari: React.FC<MatSoruAyarlariProps> = ({
     onSoruDagilimiChange,
     onAyarlarChange,
 }) => {
-    const toplamSoru = Object.values(ayarlar.soruDagilimi).reduce((a, b) => a + b, 0);
+    const toplamSoru = (Object.values(ayarlar.soruDagilimi) as number[]).reduce((a: number, b: number) => a + b, 0);
 
     return (
         <div className="space-y-4">
@@ -193,7 +193,7 @@ export const MatSoruAyarlari: React.FC<MatSoruAyarlariProps> = ({
                     <input
                         type="text"
                         value={ayarlar.ozelKonu || ''}
-                        onChange={(e) => onAyarlarChange({ ozelKonu: e.target.value || undefined })}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onAyarlarChange({ ozelKonu: e.target.value || undefined })}
                         placeholder="Örn: Uzay, Market, Mevsimler..."
                         className="w-full px-4 py-3 bg-white border border-[var(--border-color)] rounded-2xl text-[13px] font-medium outline-none transition-all duration-200 focus:border-accent focus:ring-4 focus:ring-accent/5 placeholder:text-[var(--text-muted)] opacity-70"
                     />
@@ -203,7 +203,7 @@ export const MatSoruAyarlari: React.FC<MatSoruAyarlariProps> = ({
                 <div className="relative group pt-2">
                     <textarea
                         value={ayarlar.ozelTalimatlar || ''}
-                        onChange={(e) => onAyarlarChange({ ozelTalimatlar: e.target.value || undefined })}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => onAyarlarChange({ ozelTalimatlar: e.target.value || undefined })}
                         placeholder="Yapay zekaya ek notunuz..."
                         rows={2}
                         className="w-full px-4 py-3 bg-white border border-[var(--border-color)] rounded-2xl text-[13px] font-medium outline-none transition-all duration-200 focus:border-accent focus:ring-4 focus:ring-accent/5 placeholder:text-[var(--text-muted)] opacity-70 resize-none"
