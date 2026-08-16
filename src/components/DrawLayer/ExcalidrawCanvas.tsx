@@ -19,7 +19,7 @@ export const ExcalidrawCanvas: React.FC<ExcalidrawCanvasProps> = ({
 }) => {
     return (
         <div
-            className={`relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border border-[var(--border-color)] ${className}`}
+            className={`relative w-full h-full rounded-2xl overflow-hidden shadow-2xl border border-[var(--border-color)] bg-transparent ${className}`}
             style={{ height, width }}
         >
             <Suspense
