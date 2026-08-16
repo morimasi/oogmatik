@@ -4,6 +4,7 @@ import { useCreativeStore } from '../../store/useCreativeStore';
 import { SheetRenderer } from '../SheetRenderer';
 import { BlockRenderer } from '../SheetRenderer/BlockRenderer';
 import { A4_WIDTH_PX, A4_HEIGHT_PX } from '../../utils/layoutConstants';
+import { ExcalidrawCanvas } from '../DrawLayer/ExcalidrawCanvas';
 
 interface DraggableItemProps {
   item: LayoutItem;
@@ -366,15 +367,31 @@ export const UniversalCanvas = ({ settings }: { settings?: any }) => {
 
   const marqueeStyle = isMarqueeSelecting
     ? {
-        left: Math.min(marqueeStart.x, marqueeEnd.x),
-        top: Math.min(marqueeStart.y, marqueeEnd.y),
-        width: Math.abs(marqueeEnd.x - marqueeStart.x),
-        height: Math.abs(marqueeEnd.y - marqueeStart.y),
-      }
+      left: Math.min(marqueeStart.x, marqueeEnd.x),
+      top: Math.min(marqueeStart.y, marqueeEnd.y),
+      width: Math.abs(marqueeEnd.x - marqueeStart.x),
+      height: Math.abs(marqueeEnd.y - marqueeStart.y),
+    }
     : null;
 
+  const [drawMode, setDrawMode] = useState(false);
+
   return (
-    <div className="flex flex-col gap-8 w-full items-center pb-20">
+    <div className="flex flex-col gap-8 w-full items-center pb-20 relative">
+      {/* Excalidraw Çizim Modu Aç/Kapat Butonu */}
+      <div className="sticky top-4 z-50 flex items-center gap-2 bg-[var(--bg-paper)]/80 backdrop-blur-md px-4 py-2 rounded-2xl border border-[var(--border-color)] shadow-xl">
+        <button
+          onClick={() => setDrawMode(!drawMode)}
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${drawMode
+            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/30'
+            : 'bg-[var(--bg-secondary)] text-[var(--text-primary)] hover:bg-[var(--border-color)]'
+            }`}
+        >
+          <i className={`fa-solid ${drawMode ? 'fa-pen-slash' : 'fa-pen-ruler'}`} />
+          {drawMode ? 'Çizim Modunu Kapat' : 'Çizim / Karalama Modu (Excalidraw)'}
+        </button>
+      </div>
+
       <style>{`
                 .design-grid {
                     background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
@@ -404,6 +421,13 @@ export const UniversalCanvas = ({ settings }: { settings?: any }) => {
                 {renderItemContent(item)}
               </DraggableItem>
             ))}
+
+            {/* Excalidraw Transparent Overlay Layer */}
+            {drawMode && (
+              <div className="absolute inset-0 z-40 bg-transparent">
+                <ExcalidrawCanvas isReadOnly={false} />
+              </div>
+            )}
 
             {/* Marquee Selection Box */}
             {isMarqueeSelecting && marqueeStyle && (
