@@ -162,6 +162,7 @@ export const OperationCardHorizontal: React.FC<OperationCardProps> = ({
   showText,
   themeConfig,
   index,
+  showAnswer = false,
 }) => {
   const paper = PAPER_THEMES[themeConfig.paperTheme];
   const numStr = NUMBERING_STYLES[themeConfig.numberingStyle].format(index + 1);
@@ -214,7 +215,9 @@ export const OperationCardHorizontal: React.FC<OperationCardProps> = ({
       )}
 
       <span style={{ color: paper.accent }}>=</span>
-      <span className="min-w-[60px] border-b-4 border-dashed h-[1.1em] inline-block shadow-inner" style={{ borderColor: `${paper.accent}40` }}></span>
+      <span className="min-w-[60px] border-b-4 border-dashed h-[1.1em] inline-flex items-center justify-center shadow-inner" style={{ borderColor: `${paper.accent}40` }}>
+        {showAnswer && <span style={{ color: paper.text }}>{op.answer}</span>}
+      </span>
       {op.remainder !== undefined && (
         <span className="text-[0.5em] ml-1 opacity-30" style={{ color: paper.text }}>(K:...)</span>
       )}
