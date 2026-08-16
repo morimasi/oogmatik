@@ -14,6 +14,8 @@ interface A4EditorState {
   setGridSize: (size: number) => void;
   blocks: ContentBlock[];
   addBlock: (block: ContentBlock) => void;
+  excalidrawElements: readonly unknown[];
+  setExcalidrawElements: (elements: readonly unknown[]) => void;
 }
 
 export const useA4EditorStore = create<A4EditorState>()((set, get) => ({
@@ -33,4 +35,7 @@ export const useA4EditorStore = create<A4EditorState>()((set, get) => ({
     set((state) => ({
       blocks: [...state.blocks, { ...block, id: block.id || crypto.randomUUID() }],
     })),
+  excalidrawElements: [],
+  setExcalidrawElements: (elements: readonly unknown[]) =>
+    set({ excalidrawElements: elements }),
 }));

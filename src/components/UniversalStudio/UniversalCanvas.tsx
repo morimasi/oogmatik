@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { LayoutItem } from '../../types';
 import { useCreativeStore } from '../../store/useCreativeStore';
+import { useA4EditorStore } from '../../store/useA4EditorStore';
 import { SheetRenderer } from '../SheetRenderer';
 import { BlockRenderer } from '../SheetRenderer/BlockRenderer';
 import { A4_WIDTH_PX, A4_HEIGHT_PX } from '../../utils/layoutConstants';
@@ -251,6 +252,7 @@ const DraggableItem = ({ item, children, canvasWidth }: DraggableItemProps) => {
 
 export const UniversalCanvas = ({ settings }: { settings?: any }) => {
   const { layout, designMode, clearSelection } = useCreativeStore();
+  const { excalidrawElements, setExcalidrawElements } = useA4EditorStore();
   const canvasRef = useRef<HTMLDivElement>(null);
   const [isMarqueeSelecting, setIsMarqueeSelecting] = useState(false);
   const [marqueeStart, setMarqueeStart] = useState({ x: 0, y: 0 });
@@ -425,7 +427,11 @@ export const UniversalCanvas = ({ settings }: { settings?: any }) => {
             {/* Excalidraw Transparent Overlay Layer */}
             {drawMode && (
               <div className="absolute inset-0 z-40 bg-transparent">
-                <ExcalidrawCanvas isReadOnly={false} />
+                <ExcalidrawCanvas
+                  initialElements={excalidrawElements}
+                  onChange={(elements) => setExcalidrawElements(elements)}
+                  isReadOnly={false}
+                />
               </div>
             )}
 
