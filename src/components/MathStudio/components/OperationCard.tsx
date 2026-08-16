@@ -13,12 +13,13 @@ interface OperationCardProps {
   showText: boolean;
   themeConfig: ThemeConfig;
   index: number;
+  showAnswer?: boolean;
 }
 
 const getCardStyle = (themeConfig: ThemeConfig, borderStyle: BorderStyle) => {
   const paper = PAPER_THEMES[themeConfig.paperTheme];
   const border = BORDER_STYLES[borderStyle];
-  
+
   return {
     border: border.css !== 'none' ? `${border.css} ${paper.border}40` : 'none',
     borderRadius: border.radius || '0',
@@ -35,6 +36,7 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
   showText,
   themeConfig,
   index,
+  showAnswer = false,
 }) => {
   const paper = PAPER_THEMES[themeConfig.paperTheme];
   const numStr = NUMBERING_STYLES[themeConfig.numberingStyle].format(index + 1);
@@ -43,17 +45,17 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
     return (
       <div
         className="flex font-mono font-bold leading-none break-inside-avoid relative group"
-        style={{ 
+        style={{
           fontSize: `${fontSize}px`,
           fontWeight: fontWeight,
           ...getCardStyle(themeConfig, themeConfig.borderStyle)
         }}
       >
         {themeConfig.numberingStyle !== 'none' && (
-          <div 
+          <div
             className="absolute -left-9 -top-4 flex items-center justify-center w-7 h-7 rounded-full text-[0.35em] font-sans font-black shadow-sm transition-all duration-300 group-hover:scale-110"
-            style={{ 
-              backgroundColor: paper.secondary, 
+            style={{
+              backgroundColor: paper.secondary,
               color: paper.text,
               border: `1.5px solid ${paper.accent}40`,
               boxShadow: `0 3px 6px ${paper.accent}15`
@@ -71,7 +73,7 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
           <div className="w-full border-b-4 my-2" style={{ borderColor: paper.border }}></div>
           {/* Answer box (stylized) */}
           <div className="w-full h-[1.3em] border-2 border-dashed rounded-lg bg-white/50 flex items-center justify-center shadow-inner" style={{ borderColor: `${paper.accent}40` }}>
-            <span className="text-transparent select-none">{op.answer}</span>
+            <span className={showAnswer ? 'text-zinc-900' : 'text-transparent select-none'}>{op.answer}</span>
           </div>
         </div>
       </div>
@@ -84,16 +86,16 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
   return (
     <div
       className="flex flex-col items-end font-mono font-bold leading-none break-inside-avoid relative group"
-      style={{ 
+      style={{
         fontSize: `${fontSize}px`,
         ...getCardStyle(themeConfig, themeConfig.borderStyle)
       }}
     >
       {themeConfig.numberingStyle !== 'none' && (
-        <div 
+        <div
           className="absolute -left-9 -top-4 flex items-center justify-center w-7 h-7 rounded-full text-[0.35em] font-sans font-black shadow-sm transition-all duration-300 group-hover:scale-110"
-          style={{ 
-            backgroundColor: paper.secondary, 
+          style={{
+            backgroundColor: paper.secondary,
             color: paper.text,
             border: `1.5px solid ${paper.accent}40`,
             boxShadow: `0 3px 6px ${paper.accent}15`
@@ -102,7 +104,7 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
           {numStr}
         </div>
       )}
-      
+
       <div className="flex items-center gap-2">
         <span style={{ color: paper.text }}>{op.num1}</span>
         {showText && (
@@ -144,9 +146,9 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
       )}
 
       <div className="w-full h-[1.3em] border-2 border-dashed rounded-lg bg-white/50 flex items-center justify-end px-2 shadow-inner" style={{ borderColor: `${paper.accent}40` }}>
-        <span className="text-transparent select-none">{op.answer}</span>
+        <span className={showAnswer ? 'text-zinc-900' : 'text-transparent select-none'}>{op.answer}</span>
       </div>
-      
+
       {op.remainder !== undefined && <span className="text-[0.4em] opacity-30 mt-1" style={{ color: paper.text }}>Kalan: ...</span>}
       <div className={`${isMultiplication ? 'h-6' : 'h-3'} w-full`}></div>
     </div>
@@ -167,25 +169,25 @@ export const OperationCardHorizontal: React.FC<OperationCardProps> = ({
   return (
     <div
       className="flex flex-wrap items-center gap-3 font-mono font-bold break-inside-avoid relative group"
-      style={{ 
+      style={{
         fontSize: `${fontSize}px`,
         fontWeight: fontWeight,
         ...getCardStyle(themeConfig, themeConfig.borderStyle)
       }}
     >
-        {themeConfig.numberingStyle !== 'none' && (
-          <div 
-            className="absolute -left-8 -top-3 flex items-center justify-center w-6 h-6 rounded-full text-[0.35em] font-sans font-black shadow-sm transition-all duration-300 group-hover:scale-110"
-            style={{ 
-              backgroundColor: paper.secondary, 
-              color: paper.text,
-              border: `1px solid ${paper.accent}40`,
-              boxShadow: `0 2px 4px ${paper.accent}10`
-            }}
-          >
-            {numStr}
-          </div>
-        )}
+      {themeConfig.numberingStyle !== 'none' && (
+        <div
+          className="absolute -left-8 -top-3 flex items-center justify-center w-6 h-6 rounded-full text-[0.35em] font-sans font-black shadow-sm transition-all duration-300 group-hover:scale-110"
+          style={{
+            backgroundColor: paper.secondary,
+            color: paper.text,
+            border: `1px solid ${paper.accent}40`,
+            boxShadow: `0 2px 4px ${paper.accent}10`
+          }}
+        >
+          {numStr}
+        </div>
+      )}
       <div className="flex flex-col items-center">
         <span style={{ color: paper.text }}>{op.num1}</span>
         {showText && (
