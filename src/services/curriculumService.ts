@@ -4,15 +4,15 @@ import type { Difficulty } from '../types/common.js';
 import { ACTIVITIES } from '../constants.js';
 import { db } from './firebaseClient.js';
 import { logError } from '../utils/logger.js';
-import { 
-    collection, 
-    addDoc, 
-    query, 
-    where, 
-    getDocs, 
-    doc, 
-    deleteDoc, 
-    updateDoc, 
+import {
+    collection,
+    addDoc,
+    query,
+    where,
+    getDocs,
+    doc,
+    deleteDoc,
+    updateDoc,
     getDoc,
     QueryDocumentSnapshot
 } from "firebase/firestore";
@@ -93,24 +93,33 @@ export const curriculumService = {
             required: ['goals', 'note', 'schedule']
         };
 
-        const result = await generateWithSchema(prompt, schema) as Record<string, unknown>;
+        const result = (await generateWithSchema(prompt, schema)) as Record<string, unknown>;
 
-        const schedule = (result.schedule as Array<Record<string, unknown>>).map((day: Record<string, unknown>) => ({
-            ...day,
-            day: day.day as number,
-            focus: day.focus as string,
-            isCompleted: false,
-            activities: (day.activities as Array<Record<string, unknown>>).map((act: Record<string, unknown>) => ({
-                ...act,
-                id: uuidv4(),
-                activityId: act.activityId as string,
-                title: act.title as string,
-                duration: act.duration as number,
-                goal: act.goal as string,
-                difficultyLevel: act.difficultyLevel as Difficulty,
-                status: 'pending' as CurriculumActivityStatus
-            }))
-        }));
+        const rawSchedule = Array.isArray(result?.schedule) ? result.schedule : [];
+        const rawGoals = Array.isArray(result?.goals) ? (result.goals as string[]) : [];
+        const rawNote = typeof result?.note === 'string' ? result.note : 'Plan başarıyla oluşturuldu.';
+
+        const schedule = rawSchedule.map((dayObj: unknown) => {
+            const day = (dayObj && typeof dayObj === 'object') ? (dayObj as Record<string, unknown>) : {};
+            const rawActs = Array.isArray(day.activities) ? day.activities : [];
+            return {
+                day: typeof day.day === 'number' ? day.day : 1,
+                focus: typeof day.focus === 'string' ? day.focus : 'Bilişsel Destek',
+                isCompleted: false,
+                activities: rawActs.map((actObj: unknown) => {
+                    const act = (actObj && typeof actObj === 'object') ? (actObj as Record<string, unknown>) : {};
+                    return {
+                        id: uuidv4(),
+                        activityId: typeof act.activityId === 'string' ? act.activityId : 'dyslexia-word-builder',
+                        title: typeof act.title === 'string' ? act.title : 'Destek Etkinliği',
+                        duration: typeof act.duration === 'number' ? act.duration : 15,
+                        goal: typeof act.goal === 'string' ? act.goal : 'Bilişsel Beceriyi Geliştirme',
+                        difficultyLevel: (['Easy', 'Medium', 'Hard'].includes(String(act.difficultyLevel)) ? act.difficultyLevel : 'Medium') as Difficulty,
+                        status: 'pending' as CurriculumActivityStatus
+                    };
+                })
+            };
+        });
 
         return {
             id: uuidv4(),
@@ -119,9 +128,9 @@ export const curriculumService = {
             grade: student.grade || '',
             startDate: new Date().toISOString(),
             durationDays,
-            goals: result.goals as string[],
+            goals: rawGoals.length > 0 ? rawGoals : ['Bilişsel Becerileri Güçlendirme'],
             schedule: schedule,
-            note: result.note as string,
+            note: rawNote,
             interests: student.interests || [],
             weaknesses: student.weaknesses || []
         };
@@ -196,7 +205,7 @@ export const curriculumService = {
         const data = docSnap.data() as Curriculum;
         const newSchedule = data.schedule.map(d => {
             if (d.day === day) {
-                const updatedActivities = d.activities.map(a => 
+                const updatedActivities = d.activities.map(a =>
                     a.id === activityId ? { ...a, status } : a
                 );
                 return {
