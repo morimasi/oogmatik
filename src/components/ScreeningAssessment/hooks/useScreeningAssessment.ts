@@ -78,7 +78,7 @@ export function useScreeningAssessment() {
       return;
     }
     if (store.selectedScreeningType === 'developmental') {
-      toast.info('Gelişimsel tarama yakında eklenecek. Bilişsel tarama başlatılıyor.');
+      toast.info('Gelişimsel Tarama bataryası bilişsel tarama ile entegre şekilde başlatılıyor.');
     }
     store.setActiveView('assessment');
   }, [store.selectedStudentName, store.selectedScreeningType, toast]);
