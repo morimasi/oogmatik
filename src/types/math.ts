@@ -476,8 +476,9 @@ export interface FinancialMarketItem {
   id: string;
   name: string; // Örn: Elma, Süt, Oyuncak Araba
   price: number;
-  category: 'food' | 'toy' | 'book' | 'clothes';
+  category: 'food' | 'toy' | 'book' | 'clothes' | 'stationery' | 'bakery';
   icon: string; // FontAwesome class
+  unit?: string;
 }
 
 export interface FinancialMarketData extends BaseActivityData {
@@ -486,6 +487,9 @@ export interface FinancialMarketData extends BaseActivityData {
     currency: 'TRY' | 'USD' | 'EUR';
     useCents: boolean;
     budgetLimit: number;
+    marketTheme?: 'grocery' | 'stationery' | 'bakery' | 'toy_store';
+    taskCount?: number;
+    enableDiscounts?: boolean;
   };
   content: {
     title: string;
@@ -494,10 +498,13 @@ export interface FinancialMarketData extends BaseActivityData {
     shelves: FinancialMarketItem[]; // Marketteki tüm ürünler
     tasks: {
       id: string;
+      customerName?: string;
       instruction: string; // Örn: "2 tane süt ve 1 elma alırsan kaç lira ödersin?"
       cart: { itemId: string; quantity: number }[]; // Sepetteki ürünler
+      givenMoney?: number;
       expectedTotal: number;
       expectedChange: number; // Para üstü
+      discountAmount?: number;
     }[];
   };
 }
