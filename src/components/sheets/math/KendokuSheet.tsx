@@ -67,6 +67,7 @@ export const KendokuSheet = ({ data }: { data: any }) => {
                                 {Array.from({ length: size }).map((_, r) =>
                                     Array.from({ length: size }).map((_, c) => {
                                         const cageInfo = cellCageMap[`${r}_${c}`];
+                                        const hintVal = puz.initialGrid ? puz.initialGrid[r]?.[c] : null;
                                         return (
                                             <div
                                                 key={`${r}_${c}`}
@@ -77,6 +78,10 @@ export const KendokuSheet = ({ data }: { data: any }) => {
                                                     <span className="absolute top-0.5 left-1 text-[8px] print:text-[7px] font-extrabold text-purple-600 leading-none">
                                                         {cageInfo.target}{cageInfo.op}
                                                     </span>
+                                                )}
+                                                {/* Hint value if present */}
+                                                {hintVal !== null && hintVal !== undefined && (
+                                                    <span className="text-purple-600 font-black text-base">{hintVal}</span>
                                                 )}
                                             </div>
                                         );

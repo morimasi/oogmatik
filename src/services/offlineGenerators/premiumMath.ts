@@ -485,11 +485,19 @@ export async function generateOfflinePremiumKendoku(
   options: GeneratorOptions
 ): Promise<SingleWorksheetData> {
   const { difficulty = 'Orta', customSettings } = options;
-  const settings = (customSettings as any) || {};
+  const settings = (customSettings as any)?.kendoku || (customSettings as any) || {};
 
   const size = settings.gridSize || options.gridSize || (difficulty === 'Zor' ? 5 : difficulty === 'Orta' ? 4 : 3);
-  const puzzleCount = settings.puzzleCount || options.puzzleCount || (size === 5 ? 2 : 4);
-  const operations = settings.operations || ['+', '-'];
+  const puzzleCount = settings.puzzleCount || options.puzzleCount || (size >= 5 ? 2 : 4);
+
+  // Determine available operations
+  const operationSet = settings.operationSet || 'add_sub';
+  let operations = ['+'];
+  if (operationSet === 'add_sub') operations = ['+', '-'];
+  if (operationSet === 'all_ops') operations = ['+', '-', '×', '÷'];
+
+  const hintRatio = settings.hintRatio !== undefined ? settings.hintRatio : 15;
+  const showOperators = settings.showOperators !== false;
 
   const puzzles = [];
 
@@ -519,18 +527,18 @@ export async function generateOfflinePremiumKendoku(
         const cageCells: Array<[number, number]> = [[r, c]];
         visited[r][c] = true;
 
-        // Try to add neighboring cell to cage (size 2 or 3)
+        // Neighboring cell logic
         const neighbors: Array<[number, number]> = [];
         if (r + 1 < size && !visited[r + 1][c]) neighbors.push([r + 1, c]);
         if (c + 1 < size && !visited[r][c + 1]) neighbors.push([r, c + 1]);
 
-        if (neighbors.length > 0 && Math.random() > 0.3) {
+        if (neighbors.length > 0 && Math.random() > 0.25) {
           const next = neighbors[getRandomInt(0, neighbors.length - 1)];
           cageCells.push(next);
           visited[next[0]][next[1]] = true;
         }
 
-        // Calculate target and op
+        // Calculate target and operator
         const vals = cageCells.map(([cr, cc]) => latinSquare[cr][cc]);
         let op = operations[getRandomInt(0, operations.length - 1)] || '+';
         let target = 0;
@@ -542,27 +550,38 @@ export async function generateOfflinePremiumKendoku(
           target = vals.reduce((acc, v) => acc + v, 0);
         } else if (op === '-') {
           target = Math.abs(vals[0] - vals[1]);
-        } else if (op === '×' || op === '*') {
-          op = '×';
+        } else if (op === '×') {
           target = vals.reduce((acc, v) => acc * v, 1);
-        } else {
-          op = '+';
-          target = vals.reduce((acc, v) => acc + v, 0);
+        } else if (op === '÷') {
+          const maxVal = Math.max(vals[0], vals[1]);
+          const minVal = Math.min(vals[0], vals[1]);
+          if (maxVal % minVal === 0) {
+            target = maxVal / minVal;
+          } else {
+            op = '+';
+            target = vals[0] + vals[1];
+          }
         }
 
         cages.push({
           id: `c_${r}_${c}`,
           cells: cageCells,
           target,
-          op
+          op: showOperators ? op : ''
         });
       }
     }
+
+    // Pre-filled hint cells based on hintRatio
+    const initialGrid = latinSquare.map((row) =>
+      row.map((val) => (Math.random() * 100 < hintRatio ? val : null))
+    );
 
     puzzles.push({
       id: `puz_${pIdx + 1}`,
       size,
       solution: latinSquare,
+      initialGrid,
       cages
     });
   }
@@ -576,7 +595,8 @@ export async function generateOfflinePremiumKendoku(
     ...builder.build(),
     puzzles,
     gridSize: size,
-    puzzleCount
+    puzzleCount,
+    showOperators
   };
 }
 
