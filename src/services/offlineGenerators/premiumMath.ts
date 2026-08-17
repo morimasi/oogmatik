@@ -17,7 +17,7 @@ export async function generateOfflinePremiumMathPuzzle(
 ): Promise<SingleWorksheetData> {
   const { difficulty = 'Orta', itemCount = 2 } = options;
   const count = Math.max(1, Math.min(6, itemCount || 2));
-  
+
   const objectPool = [
     { name: 'Elma', icon: '🍎' }, { name: 'Armut', icon: '🍐' }, { name: 'Muz', icon: '🍌' },
     { name: 'Portakal', icon: '🍊' }, { name: 'Çilek', icon: '🍓' }, { name: 'Üzüm', icon: '🍇' },
@@ -30,32 +30,32 @@ export async function generateOfflinePremiumMathPuzzle(
     const v1 = getRandomInt(1, difficulty === 'Zor' ? 15 : 10);
     const v2 = getRandomInt(1, difficulty === 'Zor' ? 10 : 8);
     const v3 = getRandomInt(1, difficulty === 'Zor' ? 8 : 5);
-    
+
     selectedObjects[0].value = v1;
     selectedObjects[1].value = v2;
     selectedObjects[2].value = v3;
 
     const equations = [
-      { 
-        leftSide: [{ objectName: selectedObjects[0].name, multiplier: 1 }, { objectName: selectedObjects[0].name, multiplier: 1 }], 
-        rightSide: v1 + v1 
+      {
+        leftSide: [{ objectName: selectedObjects[0].name, multiplier: 1 }, { objectName: selectedObjects[0].name, multiplier: 1 }],
+        rightSide: v1 + v1
       },
-      { 
-        leftSide: [{ objectName: selectedObjects[0].name, multiplier: 1 }, { objectName: selectedObjects[1].name, multiplier: 1 }], 
-        rightSide: v1 + v2 
+      {
+        leftSide: [{ objectName: selectedObjects[0].name, multiplier: 1 }, { objectName: selectedObjects[1].name, multiplier: 1 }],
+        rightSide: v1 + v2
       },
-      { 
-        leftSide: [{ objectName: selectedObjects[1].name, multiplier: 1 }, { objectName: selectedObjects[2].name, multiplier: 1 }], 
-        rightSide: v2 + v3 
+      {
+        leftSide: [{ objectName: selectedObjects[1].name, multiplier: 1 }, { objectName: selectedObjects[2].name, multiplier: 1 }],
+        rightSide: v2 + v3
       }
     ];
 
     return {
       id: `p_${pIdx + 1}`,
-      objects: selectedObjects.map(o => ({ 
-        name: o.name, 
-        imagePrompt: `minimalist ${o.name} icon, vector art style`, 
-        value: o.value 
+      objects: selectedObjects.map(o => ({
+        name: o.name,
+        imagePrompt: `minimalist ${o.name} icon, vector art style`,
+        value: o.value
       })),
       equations: equations,
       finalQuestion: `${selectedObjects[0].name} + ${selectedObjects[2].name}`,
@@ -170,76 +170,92 @@ export async function generateOfflinePremiumMoneyCounting(
 export async function generateOfflinePremiumNumberPattern(
   options: GeneratorOptions
 ): Promise<SingleWorksheetData> {
-  const { difficulty = 'Orta' } = options;
+  const { difficulty = 'Orta', customSettings } = options;
+  const settings = (customSettings as any) || {};
 
-  const patterns: { sequence: (number | null)[]; rule: string }[] = [];
-  const maxVal = difficulty === 'Zor' ? 100 : difficulty === 'Orta' ? 50 : 20;
+  const patternKind = settings.patternKind || options.patternKind || 'mixed'; // 'addition' | 'subtraction' | 'multiplication' | 'fibonacci' | 'mixed'
+  const problemCount = options.problemCount || settings.problemCount || 8;
+  const showRuleClue = settings.showRuleClue !== false;
 
-  // +N desenleri
-  for (let i = 0; i < 3; i++) {
-    const step = getRandomInt(2, difficulty === 'Zor' ? 7 : 4);
-    const start = getRandomInt(1, 10);
-    const seq = Array.from({ length: 7 }, (_, j) => start + step * j);
-    const hideIdx = [getRandomInt(2, 4), getRandomInt(5, 6)];
-    patterns.push({
-      sequence: seq.map((v, idx) => hideIdx.includes(idx) ? null : v),
-      rule: `+${step}`
-    });
-  }
+  const patterns: Array<{
+    id: string;
+    sequence: Array<number | null>;
+    fullSequence: number[];
+    missingIndices: number[];
+    answer: number;
+    ruleDescription: string;
+    ruleType: string;
+  }> = [];
 
-  // ×N desenleri
-  for (let i = 0; i < 2; i++) {
-    const mult = getRandomInt(2, 3);
-    const start = getRandomInt(1, 4);
-    const seq = Array.from({ length: 6 }, (_, j) => start * Math.pow(mult, j));
-    const hideIdx = [getRandomInt(2, 3), getRandomInt(4, 5)];
-    patterns.push({
-      sequence: seq.map((v, idx) => hideIdx.includes(idx) ? null : v),
-      rule: `×${mult}`
-    });
-  }
+  const typesToGenerate = patternKind === 'mixed'
+    ? ['add', 'subtract', 'multiply', 'add', 'subtract', 'fibonacci', 'add', 'multiply']
+    : [patternKind];
 
-  // -N desenleri
-  for (let i = 0; i < 2; i++) {
-    const step = getRandomInt(3, 6);
-    const start = getRandomInt(40, maxVal);
-    const seq = Array.from({ length: 7 }, (_, j) => start - step * j).filter(v => v > 0);
-    if (seq.length >= 5) {
-      const hideIdx = [getRandomInt(1, 2), getRandomInt(3, seq.length - 1)];
-      patterns.push({
-        sequence: seq.map((v, idx) => hideIdx.includes(idx) ? null : v),
-        rule: `-${step}`
-      });
+  for (let i = 0; i < problemCount; i++) {
+    const currentType = typesToGenerate[i % typesToGenerate.length];
+    let fullSeq: number[] = [];
+    let ruleText = '';
+    let answerVal = 0;
+
+    if (currentType === 'add') {
+      const step = difficulty === 'Zor' ? getRandomInt(5, 12) : getRandomInt(2, 6);
+      const start = getRandomInt(1, 20);
+      fullSeq = Array.from({ length: 7 }, (_, j) => start + step * j);
+      ruleText = `Her adımda +${step} ekleniyor`;
+    } else if (currentType === 'subtract') {
+      const step = difficulty === 'Zor' ? getRandomInt(4, 9) : getRandomInt(2, 5);
+      const start = getRandomInt(50, 99);
+      fullSeq = Array.from({ length: 7 }, (_, j) => start - step * j);
+      ruleText = `Her adımda -${step} eksiliyor`;
+    } else if (currentType === 'multiply') {
+      const mult = difficulty === 'Zor' ? 3 : 2;
+      const start = getRandomInt(1, 4);
+      fullSeq = Array.from({ length: 6 }, (_, j) => start * Math.pow(mult, j));
+      ruleText = `Her adım ×${mult} ile çarpılıyor`;
+    } else if (currentType === 'fibonacci') {
+      const a = getRandomInt(1, 3);
+      const b = getRandomInt(2, 4);
+      fullSeq = [a, b];
+      for (let j = 2; j < 7; j++) {
+        fullSeq.push(fullSeq[j - 1] + fullSeq[j - 2]);
+      }
+      ruleText = 'Son iki sayının toplamı';
+    } else {
+      const step = getRandomInt(3, 7);
+      const start = getRandomInt(5, 15);
+      fullSeq = Array.from({ length: 7 }, (_, j) => start + step * j);
+      ruleText = `Her adımda +${step}`;
     }
+
+    // Pick 1 or 2 missing positions for single unique solution
+    const missingIdx = getRandomInt(2, fullSeq.length - 2);
+    answerVal = fullSeq[missingIdx];
+
+    const displaySeq = fullSeq.map((val, idx) => (idx === missingIdx ? null : val));
+
+    patterns.push({
+      id: `p-${i + 1}`,
+      sequence: displaySeq,
+      fullSequence: fullSeq,
+      missingIndices: [missingIdx],
+      answer: answerVal,
+      ruleDescription: ruleText,
+      ruleType: currentType
+    });
   }
 
-  // Fibonacci benzeri
-  const fibStart = [getRandomInt(1, 3), getRandomInt(2, 5)];
-  const fib = [fibStart[0], fibStart[1]];
-  for (let i = 2; i < 7; i++) fib.push(fib[i - 1] + fib[i - 2]);
-  patterns.push({
-    sequence: fib.map((v, idx) => [3, 5].includes(idx) ? null : v),
-    rule: 'Önceki iki sayının toplamı'
-  });
-
-  const builder = new WorksheetBuilder(ActivityType.NUMBER_PATTERN, 'Sayı Örüntüleri')
+  const builder = new WorksheetBuilder(ActivityType.NUMBER_PATTERN, 'Sayı Örüntüleri & Dizisel Mantık')
     .addPremiumHeader()
-    .setInstruction('Her dizideki kuralı bul ve "?" olan yerlere doğru sayıyı yaz.')
-    .addPrimaryActivity('table', {
-      title: '🔢 Sayı Dizileri — Boşlukları Doldur',
-      headers: ['#', 'Dizi', 'Kural'],
-      rows: patterns.slice(0, 10).map((p, i) => [
-        `${i + 1}`,
-        p.sequence.map(v => v !== null ? String(v) : '___').join(', '),
-        '____________'
-      ])
-    })
-    .addSupportingDrill('Kendi Dizini Oluştur', {
-      text: 'Bir kural seç ve 6 sayılık bir dizi yaz:',
-      inputs: ['Kural: ____________', 'Dizi: ___, ___, ___, ___, ___, ___']
-    });
+    .setInstruction('Sayı dizilerindeki mantıksal örüntü kuralını keşfet ve boş bırakılan kutucuklara doğru sayıları yaz.')
+    .addSuccessIndicator();
 
-  return builder.addSuccessIndicator().build();
+  return {
+    ...builder.build(),
+    patterns,
+    showRuleClue,
+    difficulty,
+    problemCount
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════
