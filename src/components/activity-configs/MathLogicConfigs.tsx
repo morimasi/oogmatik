@@ -76,8 +76,10 @@ export const CapsuleGameConfig: React.FC<Props> = ({ options, onChange }) => {
   return (
     <div className="space-y-6 p-4">
       <div className="pb-3 border-b border-zinc-100">
-        <h4 className="font-black text-emerald-900 uppercase tracking-tight text-lg">Kapsül Oyunu</h4>
-        <p className="text-[10px] text-zinc-500 font-medium">Bölge toplamları ve matris mantığı</p>
+        <h4 className="font-black text-emerald-900 uppercase tracking-tight text-lg flex items-center gap-2">
+          <i className="fa-solid fa-capsules text-emerald-500"></i> Kapsül Oyunu Pro
+        </h4>
+        <p className="text-[10px] text-zinc-500 font-medium">Bölge matrisleri, 4 temel işlem ve A4 tam dolgu bulmacaları</p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -88,14 +90,27 @@ export const CapsuleGameConfig: React.FC<Props> = ({ options, onChange }) => {
             onChange={(e) => update({ gridSize: Number(e.target.value) })}
             className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl p-2.5 text-sm font-bold focus:border-emerald-500 transition-colors"
           >
-            <option value={3}>3x3 (Başlangıç)</option>
-            <option value={4}>4x4 (Orta Seviye)</option>
-            <option value={5}>5x5 (Zorlu)</option>
-            <option value={7}>7x7 (İleri Düzey)</option>
-            <option value={10}>10x10 (Profesyonel)</option>
+            <option value={3}>3x3 (Mini - Kolay)</option>
+            <option value={4}>4x4 (Standart - Orta)</option>
+            <option value={5}>5x5 (Zorlu - İleri)</option>
           </select>
         </div>
 
+        <div>
+          <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">A4 Bulmaca Sayısı</label>
+          <select
+            value={(o.puzzleCount as number) || 2}
+            onChange={(e) => update({ puzzleCount: Number(e.target.value) })}
+            className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl p-2.5 text-sm font-bold focus:border-emerald-500 transition-colors"
+          >
+            <option value={1}>1 Büyük Bulmaca (Tek)</option>
+            <option value={2}>2 Bulmaca (Standart Dolgu)</option>
+            <option value={4}>4 Bulmaca (Tam Kompakt A4)</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Sayı Seti</label>
           <select
@@ -109,51 +124,45 @@ export const CapsuleGameConfig: React.FC<Props> = ({ options, onChange }) => {
             <option value="prime">Asal Sayılar</option>
           </select>
         </div>
-      </div>
 
-      <div className="grid grid-cols-1 gap-4">
         <div>
-          <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">İşlem Seti</label>
-          <div className="flex gap-2">
-            {[
-              { id: 'addition', label: 'Toplama', icon: 'plus' },
-              { id: 'subtraction', label: 'Çıkarma', icon: 'minus' },
-              { id: 'multiplication', label: 'Çarpma', icon: 'xmark' },
-              { id: 'division', label: 'Bölme', icon: 'divide' }
-            ].map(op => (
-              <button
-                key={op.id}
-                onClick={() => update({ operation: op.id })}
-                className={`flex-1 flex flex-col items-center py-2 px-1 rounded-xl border-2 transition-all ${(o.operation || 'addition') === op.id
-                  ? 'bg-emerald-500 border-emerald-500 text-white shadow-md'
-                  : 'bg-white border-zinc-100 text-zinc-400 hover:border-emerald-200'
-                  }`}
-              >
-                <i className={`fa-solid fa-${op.icon} text-sm mb-1`}></i>
-                <span className="text-[9px] font-bold">{op.label}</span>
-              </button>
-            ))}
-          </div>
+          <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">İşlem Türü</label>
+          <select
+            value={(o.operation as string) || 'addition'}
+            onChange={(e) => update({ operation: e.target.value })}
+            className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl p-2.5 text-sm font-bold focus:border-emerald-500 transition-colors"
+          >
+            <option value="addition">Toplama (+)</option>
+            <option value="subtraction">Çıkarma (-)</option>
+            <option value="multiplication">Çarpma (×)</option>
+            <option value="division">Bölme (÷)</option>
+          </select>
         </div>
       </div>
 
       <div className="p-4 bg-emerald-50/50 rounded-2xl border border-emerald-100/50">
-        <h5 className="text-[10px] font-black text-emerald-800 uppercase mb-3 tracking-widest">Tema Modları</h5>
+        <h5 className="text-[10px] font-black text-emerald-800 uppercase mb-3 tracking-widest flex items-center gap-1.5">
+          <i className="fa-solid fa-palette"></i> Ultra Premium Tema Modları
+        </h5>
         <div className="grid grid-cols-3 gap-2">
           {[
-            { id: 'crystal', label: 'Kristal' },
-            { id: 'galaxy', label: 'Galaksi' },
-            { id: 'antique', label: 'Antik' }
+            { id: 'crystal', label: 'Kristal', color: 'bg-indigo-600' },
+            { id: 'galaxy', label: 'Galaksi', color: 'bg-purple-600' },
+            { id: 'antique', label: 'Antik', color: 'bg-amber-700' },
+            { id: 'neon', label: 'Neon', color: 'bg-emerald-500' },
+            { id: 'cyber', label: 'Siber', color: 'bg-cyan-500' },
+            { id: 'forest', label: 'Orman', color: 'bg-emerald-700' },
           ].map(theme => (
             <button
               key={theme.id}
               onClick={() => update({ aestheticMode: theme.id })}
-              className={`py-2 px-1 rounded-lg text-[10px] font-black uppercase border-2 transition-all ${(o.aestheticMode || 'crystal') === theme.id
-                ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200 scale-105'
-                : 'bg-white border-zinc-100 text-zinc-400 hover:border-emerald-200'
+              className={`py-2 px-2 rounded-xl text-[10px] font-black uppercase border-2 flex items-center justify-center gap-1.5 transition-all ${(o.aestheticMode || 'crystal') === theme.id
+                ? `${theme.color} border-transparent text-white shadow-md scale-105`
+                : 'bg-white border-zinc-200 text-zinc-600 hover:border-emerald-300'
                 }`}
             >
-              {theme.label}
+              <span className={`w-2 h-2 rounded-full ${theme.color}`}></span>
+              <span>{theme.label}</span>
             </button>
           ))}
         </div>
