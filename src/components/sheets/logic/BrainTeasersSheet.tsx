@@ -1,18 +1,21 @@
 import React from 'react';
 import { WorksheetData, StyleSettings } from '../../../types';
+import { PedagogicalHeader } from '../common';
 
 interface BrainTeasersSheetProps {
   data: WorksheetData;
   settings: StyleSettings;
 }
 
-type CategoryKey = 'Dil' | 'Mantık' | 'Sayı' | 'Görsel';
+type CategoryKey = 'Dil' | 'Mantık' | 'Sayı' | 'Görsel' | 'Şifre' | 'Kibrit';
 
-const CATEGORY_STYLE: Record<CategoryKey, { bg: string; border: string; badge: string }> = {
-  'Dil':    { bg: 'bg-purple-50', border: 'border-purple-200', badge: 'bg-purple-500' },
-  'Mantık': { bg: 'bg-blue-50',   border: 'border-blue-200',   badge: 'bg-blue-500'   },
-  'Sayı':   { bg: 'bg-emerald-50', border: 'border-emerald-200', badge: 'bg-emerald-500' },
-  'Görsel': { bg: 'bg-amber-50',  border: 'border-amber-200',  badge: 'bg-amber-500'  },
+const CATEGORY_STYLE: Record<CategoryKey, { bg: string; border: string; badge: string; icon: string }> = {
+  'Dil': { bg: 'bg-purple-50/60', border: 'border-purple-200', badge: 'bg-purple-600 text-white', icon: 'fa-solid fa-language' },
+  'Mantık': { bg: 'bg-blue-50/60', border: 'border-blue-200', badge: 'bg-blue-600 text-white', icon: 'fa-solid fa-brain' },
+  'Sayı': { bg: 'bg-emerald-50/60', border: 'border-emerald-200', badge: 'bg-emerald-600 text-white', icon: 'fa-solid fa-arrow-down-1-9' },
+  'Görsel': { bg: 'bg-amber-50/60', border: 'border-amber-200', badge: 'bg-amber-600 text-white', icon: 'fa-solid fa-eye' },
+  'Kibrit': { bg: 'bg-orange-50/60', border: 'border-orange-200', badge: 'bg-orange-600 text-white', icon: 'fa-solid fa-fire-flame-curved' },
+  'Şifre': { bg: 'bg-rose-50/60', border: 'border-rose-200', badge: 'bg-rose-600 text-white', icon: 'fa-solid fa-key' },
 };
 
 const DEFAULT_STYLE = CATEGORY_STYLE['Mantık'];
@@ -20,7 +23,7 @@ const DEFAULT_STYLE = CATEGORY_STYLE['Mantık'];
 interface Puzzle {
   id?: string;
   type?: string;
-  category?: string;
+  category?: CategoryKey;
   difficulty_stars?: number;
   q: string;
   hint?: string;
@@ -30,58 +33,36 @@ interface Puzzle {
 
 function renderStars(count: number): React.ReactNode {
   return Array.from({ length: 3 }, (_, i) => (
-    <span key={i} className={i < count ? 'text-amber-400' : 'text-zinc-300'}>
-      {i < count ? '★' : '☆'}
+    <span key={i} className={i < count ? 'text-amber-400 font-black' : 'text-zinc-300'}>
+      ★
     </span>
   ));
 }
 
 export const BrainTeasersSheet: React.FC<BrainTeasersSheetProps> = ({ data, settings }) => {
   if (!data) return null;
-  
-  // Normalize data (can be single object or array)
+
   const activity = Array.isArray(data) ? data[0] : data;
   if (!activity) return null;
 
-  const blocks = (activity.layoutArchitecture as { blocks?: { type: string; content: unknown }[] })?.blocks || [];
-  const puzzlesBlock = blocks.find((b) => b.type === 'puzzles');
-  const puzzles: Puzzle[] = (
-    (activity.puzzles as Puzzle[] | undefined) ||
-    ((puzzlesBlock?.content as { items?: Puzzle[] } | undefined)?.items) ||
-    []
-  );
+  const puzzles: Puzzle[] = (activity as any).puzzles || [];
+  const layoutCols = (activity as any).settings?.layoutCols || (puzzles.length > 8 ? 3 : 2);
+
+  const gridColsClass = layoutCols === 3 ? 'grid-cols-3' : 'grid-cols-2';
 
   return (
     <div
-      className="w-full h-full flex flex-col gap-2 print:gap-1 p-4 print:p-0"
-      style={{ fontFamily: settings.fontFamily }}
+      className="w-full flex flex-col font-['Lexend'] min-h-[297mm] p-4 print:p-2 bg-white transition-all duration-300"
+      style={{ fontFamily: settings?.fontFamily || 'Lexend' }}
     >
-      {/* Header */}
-      {settings.showTitle && (
-        <div className="text-center pb-2 print:pb-1 border-b-2 border-dashed border-zinc-200 shrink-0">
-          <div className="flex items-center justify-center gap-3 mb-1">
-             <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600 shadow-sm">
-                <i className="fa-solid fa-brain text-xl"></i>
-             </div>
-             <div>
-                <h1
-                  className="text-2xl print:text-lg font-black text-zinc-800 uppercase tracking-tight leading-none"
-                  style={{ color: settings.borderColor }}
-                >
-                  {(activity.title as string) || 'Kafayı Çalıştır'}
-                </h1>
-                {settings.showInstruction && (
-                  <p className="text-[10px] print:text-[8px] text-zinc-500 font-medium mt-1">
-                    {(activity.instruction as string) || ''}
-                  </p>
-                )}
-             </div>
-          </div>
-        </div>
-      )}
+      <PedagogicalHeader
+        title={(activity.title as string) || 'Kafayı Çalıştır: Zeka Atölyesi'}
+        instruction={(activity.instruction as string) || 'Zekanı konuştur! Bilmeceleri çöz ve mantık bulmacalarını aydınlat.'}
+        data={activity}
+      />
 
-      {/* Puzzles Grid — 2 or 3 columns based on count, dense */}
-      <div className={`grid ${puzzles.length > 10 ? 'grid-cols-3' : 'grid-cols-2'} gap-2 print:gap-1 flex-1 content-start mt-2`}>
+      {/* PUZZLES GRID */}
+      <div className={`grid ${gridColsClass} gap-3 print:gap-1.5 flex-1 my-2 content-start items-stretch`}>
         {puzzles.map((puzzle, idx) => {
           const cat = (puzzle.category || 'Mantık') as CategoryKey;
           const style = CATEGORY_STYLE[cat] ?? DEFAULT_STYLE;
@@ -90,36 +71,38 @@ export const BrainTeasersSheet: React.FC<BrainTeasersSheetProps> = ({ data, sett
           return (
             <div
               key={puzzle.id || idx}
-              className={`rounded-lg border-[1.5px] ${style.bg} ${style.border} overflow-hidden flex flex-col h-full shadow-sm`}
+              className={`rounded-2xl border-2 ${style.bg} ${style.border} p-3 print:p-2 flex flex-col justify-between shadow-2xs relative overflow-hidden`}
             >
               {/* Card Header */}
-              <div className={`flex items-center justify-between px-2 py-0.5 print:px-1.5 print:py-0 ${style.badge} bg-opacity-10 shrink-0 border-b ${style.border}`}>
-                <div className="flex items-center gap-1">
-                  <span className={`text-[7px] print:text-[6px] font-black uppercase tracking-widest text-white px-1.5 py-0 rounded-full ${style.badge}`}>
+              <div className="flex items-center justify-between border-b border-zinc-200/60 pb-1.5 mb-1.5">
+                <div className="flex items-center gap-1.5">
+                  <span className={`text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center gap-1 ${style.badge}`}>
+                    <i className={`${style.icon} text-[8px]`}></i>
                     {cat}
                   </span>
-                  <span className="text-[8px] print:text-[6px] leading-none">{renderStars(stars)}</span>
+                  <span className="text-[9px] tracking-tighter leading-none">{renderStars(stars)}</span>
                 </div>
-                <span className="text-[8px] print:text-[6px] font-black text-zinc-400">#{idx + 1}</span>
+                <span className="text-[9px] font-black text-zinc-400 uppercase">Soru #{idx + 1}</span>
               </div>
 
-              {/* Card Body */}
-              <div className="px-2 py-1.5 print:px-1.5 print:py-0.5 flex flex-col flex-1 gap-0.5 justify-between">
-                <div>
-                   {/* Question */}
-                   <p
-                     className="text-xs print:text-[9.5px] font-bold text-zinc-800 leading-[1.1]"
-                     style={{ lineHeight: 1.1 }}
-                   >
-                     {puzzle.q}
-                   </p>
-                </div>
+              {/* Question Body */}
+              <div className="flex-1 flex flex-col justify-between gap-2">
+                <p className="text-xs print:text-[10px] font-extrabold text-zinc-800 leading-snug">
+                  {puzzle.q}
+                </p>
 
-                <div className="mt-auto flex flex-col gap-0.5 shrink-0 pt-0.5 border-t border-zinc-100/50">
-                  {/* Answer line */}
-                  <div className="flex items-center gap-1">
-                    <span className="text-[7px] print:text-[6px] font-bold text-zinc-300 uppercase tracking-wider whitespace-nowrap">Cevap:</span>
-                    <div className="flex-1 border-b border-dashed border-zinc-200"></div>
+                {puzzle.hint && (
+                  <div className="flex items-center gap-1 text-[8.5px] font-bold text-indigo-700 bg-indigo-50/80 px-2 py-0.5 rounded-md border border-indigo-100">
+                    <i className="fa-solid fa-lightbulb text-amber-500 text-[9px]"></i>
+                    <span>İpucu: {puzzle.hint}</span>
+                  </div>
+                )}
+
+                {/* Answer Area */}
+                <div className="pt-1 border-t border-dashed border-zinc-300/80 mt-auto">
+                  <div className="flex justify-between items-center text-[9px]">
+                    <span className="font-extrabold text-zinc-400 uppercase tracking-wider text-[8px]">Çözüm Notun:</span>
+                    <div className="w-24 print:w-20 h-5 bg-white border border-zinc-300 rounded-md shadow-2xs"></div>
                   </div>
                 </div>
               </div>
@@ -128,11 +111,26 @@ export const BrainTeasersSheet: React.FC<BrainTeasersSheetProps> = ({ data, sett
         })}
       </div>
 
-      {/* Footer summary */}
-      <div className="pt-1.5 print:pt-0.5 border-t border-zinc-100 text-center shrink-0">
-        <span className="text-[10px] print:text-[8px] text-zinc-400 font-bold uppercase tracking-widest">
-          bdmind Zeka Atölyesi • Toplam {puzzles.length} Görev
-        </span>
+      {/* CLINICAL FOOTER */}
+      <div className="mt-auto pt-2 grid grid-cols-4 gap-2 px-3 pb-3 rounded-2xl bg-zinc-900 text-white">
+        <div className="col-span-1 flex flex-col justify-center">
+          <span className="text-[8px] font-black uppercase leading-tight text-zinc-400">
+            ZİHİNSEL PERFORMANS &<br />YANAL DÜŞÜNME ATÖLYESİ
+          </span>
+        </div>
+        {[
+          { label: 'HEDEF SÜRE', val: '12:00', unit: 'dk' },
+          { label: 'ÇÖZÜLEN', val: '___', unit: 'Soru' },
+          { label: 'BAŞARI PUANI', val: '___', unit: 'p' },
+        ].map((item) => (
+          <div key={item.label} className="bg-white/10 border border-white/10 rounded-lg p-1.5 flex flex-col justify-between">
+            <span className="text-[7px] font-black text-zinc-400 uppercase">{item.label}</span>
+            <div className="flex items-end gap-0.5">
+              <span className="text-xs font-black text-white">{item.val}</span>
+              <span className="text-[6px] font-bold text-zinc-400 mb-0.5">{item.unit}</span>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
