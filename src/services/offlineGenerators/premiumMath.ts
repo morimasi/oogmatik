@@ -264,40 +264,79 @@ export async function generateOfflinePremiumNumberPattern(
 export async function generateOfflinePremiumNumberPyramid(
   options: GeneratorOptions
 ): Promise<SingleWorksheetData> {
-  const { difficulty = 'Orta' } = options;
-  const baseSize = difficulty === 'Zor' ? 5 : difficulty === 'Orta' ? 4 : 3;
-  const maxBase = difficulty === 'Zor' ? 15 : 10;
+  const { difficulty = 'Orta', customSettings } = options;
+  const settings = (customSettings as any) || {};
 
-  const pyramids = Array.from({ length: 4 }, () => {
-    const base = Array.from({ length: baseSize }, () => getRandomInt(1, maxBase));
-    const rows: (number | null)[][] = [base];
+  const baseSize = settings.pyramidHeight || options.pyramidHeight || (difficulty === 'Zor' ? 5 : difficulty === 'Orta' ? 4 : 3);
+  const puzzleCount = settings.puzzleCount || options.puzzleCount || (baseSize >= 5 ? 2 : 4);
+  const operation = settings.operation || 'addition'; // 'addition' | 'subtraction' | 'multiplication'
+
+  const maxBase = difficulty === 'Zor' ? 12 : difficulty === 'Orta' ? 8 : 5;
+
+  const pyramids = Array.from({ length: puzzleCount }, (_, pIdx) => {
+    let base: number[] = [];
+    if (operation === 'subtraction') {
+      base = Array.from({ length: baseSize }, () => getRandomInt(10, 30)).sort((a, b) => b - a);
+    } else if (operation === 'multiplication') {
+      base = Array.from({ length: baseSize }, () => getRandomInt(2, 4));
+    } else {
+      base = Array.from({ length: baseSize }, () => getRandomInt(1, maxBase));
+    }
+
+    const fullRows: number[][] = [base];
     let current = [...base];
+
     while (current.length > 1) {
-      const next = [];
-      for (let i = 0; i < current.length - 1; i++) next.push(current[i] + current[i + 1]);
-      rows.push(next);
+      const next: number[] = [];
+      for (let i = 0; i < current.length - 1; i++) {
+        if (operation === 'subtraction') {
+          next.push(Math.abs(current[i] - current[i + 1]));
+        } else if (operation === 'multiplication') {
+          next.push(current[i] * current[i + 1]);
+        } else {
+          next.push(current[i] + current[i + 1]);
+        }
+      }
+      fullRows.push(next);
       current = next;
     }
-    // Rastgele bazı hücreleri gizle (%40)
-    return rows.map(row => row.map(val => Math.random() > 0.4 ? val : null));
+
+    // Mask strategy for single unique solution
+    // We reveal enough cells so that every unrevealed cell can be computed directly
+    const displayRows: (number | null)[][] = fullRows.map((row, rIdx) => {
+      if (rIdx === 0) {
+        // Tabanda bazılarını gizle
+        return row.map((val, cIdx) => (cIdx % 2 === 0 ? val : null));
+      } else if (rIdx === fullRows.length - 1) {
+        // En tepeyi göster veya gizle
+        return row.map(() => (Math.random() > 0.5 ? row[0] : null));
+      } else {
+        return row.map((val, cIdx) => ((rIdx + cIdx) % 2 === 1 ? val : null));
+      }
+    });
+
+    return {
+      id: `pyr_${pIdx + 1}`,
+      size: baseSize,
+      operation,
+      fullRows,
+      displayRows: displayRows.reverse(), // Top to bottom order for UI
+      solutionTop: fullRows[fullRows.length - 1][0]
+    };
   });
 
   const builder = new WorksheetBuilder(ActivityType.NUMBER_PYRAMID, 'Sayı Piramitleri')
     .addPremiumHeader()
-    .setInstruction('Kural: Üstteki kutu = altındaki iki kutunun toplamı. Boş kutuları doldur.')
-    .addPrimaryActivity('grid', {
-      title: '🔺 Toplama Piramitleri',
-      pyramids: pyramids.map((p, idx) => ({
-        id: idx + 1,
-        rows: p.reverse().map(row => row.map(v => v !== null ? String(v) : '?'))
-      }))
-    })
-    .addSupportingDrill('Ters Piramit (Fark)', {
-      text: 'Bu sefer kural: Üstteki = alttaki ikisinin FARKI. Doldur!',
-      pyramid: [[null], [12, null], [null, 5, 3]]
-    });
+    .setInstruction('Kural: Üstteki kutu = altındaki komşu iki kutunun işlem sonucuna eşittir. Boş kutuları tamamla.')
+    .addSuccessIndicator();
 
-  return builder.addSuccessIndicator().build();
+  return {
+    ...builder.build(),
+    pyramids,
+    baseSize,
+    puzzleCount,
+    operation
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════
