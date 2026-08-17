@@ -5,7 +5,7 @@ import { EditableText } from '../../Editable';
 
 export const MagicPyramidSheet = ({ data }: { data: MagicPyramidData }) => {
     const theme = data.theme || 'classic';
-    
+
     const themeStyles: Record<string, { bg: string; card: string; apex: string; cell: string; accent: string; icon: string }> = {
         classic: {
             bg: 'bg-white',
@@ -44,38 +44,39 @@ export const MagicPyramidSheet = ({ data }: { data: MagicPyramidData }) => {
     const style = themeStyles[theme] || themeStyles.classic;
 
     return (
-        <div className={`w-full flex flex-col gap-6 print:gap-1 p-4 print:p-1 ${style.bg} transition-all duration-300`}>
+        <div className={`w-full flex flex-col gap-4 print:gap-1 p-3 print:p-0.5 ${style.bg} transition-all duration-300`}>
             <PedagogicalHeader
                 title={data.title}
-                instruction={data.instruction || "En üstte verilen sayıdan başlayarak, ritmik sayma kurallarına uyarak aşağı doğru ilerleyin."}
+                instruction={data.instruction || "En üstte verilen sayıdan başlayarak, kurallara uyarak aşağı doğru ilerleyin."}
                 data={data}
             />
 
-            <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8 print:gap-4 print:p-1">
+            <div className={`w-full grid ${data.pyramids.length >= 6 ? 'grid-cols-2 md:grid-cols-3 print:grid-cols-3' : 'grid-cols-1 md:grid-cols-2 print:grid-cols-2'} gap-4 print:gap-2 print:p-0.5`}>
                 {data.pyramids.map((pyramid, pIndex) => (
-                    <div key={pIndex} className={`flex flex-col items-center rounded-[2rem] p-6 print:p-2 border-2 ${style.card} shadow-sm`}>
-                        <div className={`mb-6 print:mb-2 px-4 py-1.5 ${style.accent} rounded-full font-black text-xs flex items-center gap-2 shadow-sm uppercase tracking-wider`}>
+                    <div key={pIndex} className={`flex flex-col items-center rounded-2xl p-4 print:p-1.5 border-2 ${style.card} shadow-sm relative overflow-hidden`}>
+                        <div className={`mb-3 print:mb-1 px-3 py-1 ${style.accent} rounded-full font-black text-[10px] flex items-center gap-1.5 shadow-sm uppercase tracking-wider`}>
                             <i className={`fa-solid ${style.icon}`}></i>
                             {data.instructionPrefix || `${pyramid.step}'er ritmik sayma`}
                         </div>
 
-                        <div className="flex flex-col items-center gap-1 print:gap-0.5" style={{ transform: 'scale(1)', transformOrigin: 'top center' }}>
+                        <div className="flex flex-col items-center gap-1 print:gap-0.5 w-full justify-center">
                             {pyramid.grid.map((row, rIndex) => (
-                                <div key={rIndex} className="flex justify-center gap-1 print:gap-0.5">
+                                <div key={rIndex} className="flex justify-center gap-1 print:gap-0.5 w-full">
                                     {row.map((cellValue, cIndex) => {
                                         const isApex = rIndex === 0;
-                                        // 6 katmanlıda daireler daha küçük olmalı ki sığsın
-                                        const sizeClass = pyramid.layers >= 6 
-                                            ? "w-9 h-9 print:w-8 print:h-8 text-sm" 
-                                            : "w-11 h-11 print:w-10 print:h-10 text-base";
+                                        const isHint = pyramid.hints?.some(h => h.row === rIndex && h.col === cIndex);
+                                        // Katman sayısına ve kompakt moda göre hücre boyutlarını otomatik ölçeklendir
+                                        const sizeClass = pyramid.layers >= 6
+                                            ? "w-8 h-8 print:w-7 print:h-7 text-xs"
+                                            : (data.pyramids.length >= 6 ? "w-9 h-9 print:w-7.5 print:h-7.5 text-xs" : "w-10 h-10 print:w-9 print:h-9 text-sm");
 
                                         return (
                                             <div
                                                 key={cIndex}
                                                 className={`
                                                     ${sizeClass} rounded-full flex items-center justify-center
-                                                    font-black shadow-md border-2 transition-all hover:scale-110
-                                                    ${isApex ? style.apex : style.cell}
+                                                    font-black shadow-sm border-2 transition-all
+                                                    ${isApex ? style.apex : (isHint ? 'bg-amber-100 text-amber-900 border-amber-400 font-black ring-2 ring-amber-300/50' : style.cell)}
                                                 `}
                                             >
                                                 {cellValue}

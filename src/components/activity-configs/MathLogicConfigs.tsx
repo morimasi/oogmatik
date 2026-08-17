@@ -125,8 +125,8 @@ export const CapsuleGameConfig: React.FC<Props> = ({ options, onChange }) => {
                 key={op.id}
                 onClick={() => update({ operation: op.id })}
                 className={`flex-1 flex flex-col items-center py-2 px-1 rounded-xl border-2 transition-all ${(o.operation || 'addition') === op.id
-                    ? 'bg-emerald-500 border-emerald-500 text-white shadow-md'
-                    : 'bg-white border-zinc-100 text-zinc-400 hover:border-emerald-200'
+                  ? 'bg-emerald-500 border-emerald-500 text-white shadow-md'
+                  : 'bg-white border-zinc-100 text-zinc-400 hover:border-emerald-200'
                   }`}
               >
                 <i className={`fa-solid fa-${op.icon} text-sm mb-1`}></i>
@@ -149,8 +149,8 @@ export const CapsuleGameConfig: React.FC<Props> = ({ options, onChange }) => {
               key={theme.id}
               onClick={() => update({ aestheticMode: theme.id })}
               className={`py-2 px-1 rounded-lg text-[10px] font-black uppercase border-2 transition-all ${(o.aestheticMode || 'crystal') === theme.id
-                  ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200 scale-105'
-                  : 'bg-white border-zinc-100 text-zinc-400 hover:border-emerald-200'
+                ? 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-200 scale-105'
+                : 'bg-white border-zinc-100 text-zinc-400 hover:border-emerald-200'
                 }`}
             >
               {theme.label}
@@ -172,8 +172,36 @@ export const MagicPyramidConfig: React.FC<Props> = ({ options, onChange }) => {
   return (
     <div className="space-y-6 p-4">
       <div className="pb-3 border-b border-zinc-100">
-        <h4 className="font-black text-amber-900 uppercase tracking-tight text-lg">Sihirli Piramit</h4>
-        <p className="text-[10px] text-zinc-500 font-medium">Ritmik sayma ve görsel takip labirenti</p>
+        <h4 className="font-black text-amber-900 uppercase tracking-tight text-lg flex items-center gap-2">
+          <i className="fa-solid fa-pyramid text-amber-500"></i> Sihirli Piramit Pro
+        </h4>
+        <p className="text-[10px] text-zinc-500 font-medium">Ultra premium ritmik sayma, toplama, çarpma ve mantık piramidi</p>
+      </div>
+
+      {/* Etkinlik Modu */}
+      <div>
+        <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Piramit Mantık Modu</label>
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { id: 'rhythmic', label: 'Ritmik Sayma', icon: 'arrow-down-1-9' },
+            { id: 'addition', label: 'Toplama Piramidi', icon: 'plus' },
+            { id: 'multiplication', label: 'Çarpma / Kat', icon: 'xmark' },
+            { id: 'prime', label: 'Asal Sayı Yolu', icon: 'shield-halved' },
+            { id: 'even_odd', label: 'Çift Sayı Yolu', icon: 'hashtag' },
+          ].map((mode) => (
+            <button
+              key={mode.id}
+              onClick={() => update({ mode: mode.id })}
+              className={`p-2.5 rounded-xl border-2 font-bold text-xs flex items-center gap-2 transition-all ${(o.mode || 'rhythmic') === mode.id
+                ? 'bg-amber-500 border-amber-500 text-white shadow-md shadow-amber-200'
+                : 'bg-zinc-50 border-zinc-100 text-zinc-600 hover:border-amber-200'
+                }`}
+            >
+              <i className={`fa-solid fa-${mode.icon} text-sm`}></i>
+              <span>{mode.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -191,21 +219,56 @@ export const MagicPyramidConfig: React.FC<Props> = ({ options, onChange }) => {
           </select>
         </div>
 
-        <div>
-          <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Sayma Adımı</label>
-          <select
-            value={(o.step as number) || 2}
-            onChange={(e) => update({ step: Number(e.target.value) })}
-            className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl p-2.5 text-sm font-bold focus:border-amber-500 transition-colors"
-          >
-            <option value={1}>1'er sayma</option>
-            <option value={2}>2'şer sayma</option>
-            <option value={3}>3'er sayma</option>
-            <option value={4}>4'er sayma</option>
-            <option value={5}>5'er sayma</option>
-            <option value={10}>10'ar sayma</option>
-          </select>
-        </div>
+        {(o.mode || 'rhythmic') === 'rhythmic' && (
+          <div>
+            <label className="block text-[10px] font-black text-zinc-400 uppercase mb-2">Sayma Adımı</label>
+            <select
+              value={(o.step as number) || 2}
+              onChange={(e) => update({ step: Number(e.target.value) })}
+              className="w-full bg-zinc-50 border-2 border-zinc-100 rounded-xl p-2.5 text-sm font-bold focus:border-amber-500 transition-colors"
+            >
+              <option value={1}>1'er sayma</option>
+              <option value={2}>2'şer sayma</option>
+              <option value={3}>3'er sayma</option>
+              <option value={4}>4'er sayma</option>
+              <option value={5}>5'er sayma</option>
+              <option value={6}>6'şar sayma</option>
+              <option value={7}>7'şer sayma</option>
+              <option value={8}>8'er sayma</option>
+              <option value={9}>9'ar sayma</option>
+              <option value={10}>10'ar sayma</option>
+            </select>
+          </div>
+        )}
+      </div>
+
+      {/* Toggles */}
+      <div className="space-y-3 pt-2">
+        <label className="flex items-center gap-3 p-3 bg-amber-50/50 rounded-xl cursor-pointer border border-amber-100/50 hover:bg-amber-50 transition-colors">
+          <input
+            type="checkbox"
+            checked={Boolean(o.showHints ?? true)}
+            onChange={(e) => update({ showHints: e.target.checked })}
+            className="w-5 h-5 rounded text-amber-600 focus:ring-amber-500 border-zinc-300"
+          />
+          <span className="text-sm font-bold text-amber-950">
+            İpucu İpuçlarını Göster
+            <span className="block text-[10px] text-amber-600 font-normal">Başlangıç ve kilit sayı noktalarını vurgular.</span>
+          </span>
+        </label>
+
+        <label className="flex items-center gap-3 p-3 bg-amber-50/50 rounded-xl cursor-pointer border border-amber-100/50 hover:bg-amber-50 transition-colors">
+          <input
+            type="checkbox"
+            checked={Boolean(o.compactLayout ?? true)}
+            onChange={(e) => update({ compactLayout: e.target.checked })}
+            className="w-5 h-5 rounded text-amber-600 focus:ring-amber-500 border-zinc-300"
+          />
+          <span className="text-sm font-bold text-amber-950">
+            A4 Tam Dolgu (Kompakt Ultra Yerleşim)
+            <span className="block text-[10px] text-amber-600 font-normal">Kâğıdı 4-6 piramitle boşluksuz ve sıfır taşmayla doldurur.</span>
+          </span>
+        </label>
       </div>
 
       <div>
@@ -216,8 +279,8 @@ export const MagicPyramidConfig: React.FC<Props> = ({ options, onChange }) => {
               key={t}
               onClick={() => update({ theme: t })}
               className={`flex-1 py-3 rounded-xl border-2 font-black text-[10px] uppercase transition-all ${(o.theme || 'classic') === t
-                  ? 'bg-amber-500 border-amber-500 text-white shadow-lg'
-                  : 'bg-zinc-50 border-zinc-100 text-zinc-400'
+                ? 'bg-amber-500 border-amber-500 text-white shadow-lg'
+                : 'bg-zinc-50 border-zinc-100 text-zinc-400'
                 }`}
             >
               {t === 'classic' ? 'Kum' : t === 'forest' ? 'Orman' : t === 'desert' ? 'Güneş' : 'Buz'}

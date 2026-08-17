@@ -93,12 +93,12 @@ export interface NumberCapsuleData extends BaseActivityData {
   grid?: (number | null)[][];
   rowTargets?: number[];
   colTargets?: number[];
-    settings?: {
-      difficulty?: string;
-      gridSize?: number;
-      operation?: 'addition' | 'subtraction' | 'multiplication' | 'division';
-      aestheticMode?: 'standard' | 'premium' | 'space' | 'hazine' | 'ultra-compact' | 'crystal' | 'galaxy' | 'antique';
-    };
+  settings?: {
+    difficulty?: string;
+    gridSize?: number;
+    operation?: 'addition' | 'subtraction' | 'multiplication' | 'division';
+    aestheticMode?: 'standard' | 'premium' | 'space' | 'hazine' | 'ultra-compact' | 'crystal' | 'galaxy' | 'antique';
+  };
 }
 
 export interface OddEvenSudokuData extends BaseActivityData {
@@ -290,8 +290,8 @@ export interface MathProblemConfig {
   numberRange: string;
   problemStyle: 'simple' | 'story' | 'logic';
   complexity: '1-step' | '2-step' | 'multi-step';
-  problemTypes: ('standard' | 'fill-in' | 'true-false' | 'comparison')[]; 
-  generateImages: boolean; 
+  problemTypes: ('standard' | 'fill-in' | 'true-false' | 'comparison')[];
+  generateImages: boolean;
   fontWeight: number;
   autoFillPage: boolean;
   bepGoals?: string[];
@@ -425,9 +425,14 @@ export interface MagicPyramidData extends BaseActivityData {
     step: number;
     grid: number[][];
     correctPath: number[];
+    hints?: { row: number; col: number }[];
+    operationType?: 'rhythmic' | 'addition' | 'multiplication' | 'prime' | 'even_odd';
   }[];
   instructionPrefix?: string;
   theme?: string;
+  mode?: 'rhythmic' | 'addition' | 'multiplication' | 'prime' | 'even_odd';
+  showHints?: boolean;
+  compactLayout?: boolean;
 }
 
 export interface ApartmentResident {
