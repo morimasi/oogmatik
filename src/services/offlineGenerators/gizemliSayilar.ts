@@ -1,16 +1,27 @@
 import { GeneratorOptions } from '../../types';
 import { ActivityType } from '../../types/activity';
 
+interface Clue {
+  id: string;
+  text: string;
+  type: string;
+  icon: string;
+}
+
+interface Puzzle {
+  id: string;
+  mysteryNumber: number;
+  riddleParts: Clue[];
+  options: number[];
+  visualDistraction?: number[];
+}
+
 interface GizemliSayilarData {
   id: string;
   activityType: ActivityType;
   title: string;
   instruction: string;
-  riddles: {
-    id: string;
-    mysteryNumber: number;
-    clues: { id: string; text: string; type: string }[];
-  }[];
+  puzzles: Puzzle[];
   settings: GeneratorOptions;
 }
 
@@ -19,170 +30,136 @@ function getRandomInt(min: number, max: number): number {
 }
 
 function isPrime(num: number): boolean {
+  if (num <= 1) return false;
   for (let i = 2, s = Math.sqrt(num); i <= s; i++) {
     if (num % i === 0) return false;
   }
-  return num > 1;
+  return true;
 }
 
-function generateClues(
-  number: number,
-  opts: {
-    clueCount: number;
-    operationTypes?: string[];
-    includeDigitClue: boolean;
-    difficulty: string;
-  }
-): { id: string; text: string; type: string }[] {
-  let availableClues: { type: string; text: string }[] = [];
-  const num = number;
+// Generate clues that GUARANTEE a unique target number solution
+function generateDeterministicClues(
+  target: number,
+  minRange: number,
+  maxRange: number
+): { text: string; type: string; icon: string }[] {
+  const clues: { text: string; type: string; icon: string }[] = [];
 
-  // Range clue
-  const rangeMargin = opts.difficulty === 'Başlangıç' ? 10 : opts.difficulty === 'Orta' ? 25 : 50;
-  const minBound = Math.max(1, num - getRandomInt(2, rangeMargin));
-  const maxBound = num + getRandomInt(2, rangeMargin);
-  availableClues.push({
-    text: `Sayı ${minBound} ile ${maxBound} arasındadır.`,
+  // 1. Range clue
+  const lower = Math.max(minRange, target - getRandomInt(5, 15));
+  const upper = Math.min(maxRange, target + getRandomInt(5, 15));
+  clues.push({
+    text: `Sayı ${lower} ile ${upper} arasındadır.`,
     type: 'range',
+    icon: 'fa-arrows-left-right'
   });
 
-  // Parity clue
-  availableClues.push({
-    text: num % 2 === 0 ? 'Çift bir sayıdır.' : 'Tek bir sayıdır.',
+  // 2. Parity clue
+  const isEven = target % 2 === 0;
+  clues.push({
+    text: isEven ? 'Çift bir sayıdır.' : 'Tek bir sayıdır.',
     type: 'parity',
+    icon: 'fa-scale-balanced'
   });
 
-  // Digit sum clue
-  if (opts.includeDigitClue && num >= 10) {
-    const digitSum = String(num)
-      .split('')
-      .reduce((a, b) => a + Number(b), 0);
-    availableClues.push({
-      text: `Rakamları toplamı ${digitSum}'dır.`,
-      type: 'digit',
+  // 3. Digit sum or relation clue
+  const str = String(target);
+  if (target >= 10) {
+    const sum = str.split('').reduce((acc, d) => acc + Number(d), 0);
+    clues.push({
+      text: `Rakamları toplamı ${sum}'dır.`,
+      type: 'digit_sum',
+      icon: 'fa-calculator'
     });
-    
-    // Basamak ilişkisi (Zor ve iki veya üç basamaklı ise)
-    if (opts.difficulty === 'Zor' && num >= 10 && num <= 999) {
-      const strNum = String(num);
-      const units = Number(strNum[strNum.length - 1]);
-      const tens = Number(strNum[strNum.length - 2]);
-      if (units > tens) {
-        availableClues.push({ text: `Birler basamağı onlar basamağından ${units - tens} büyüktür.`, type: 'digit_relation' });
-      } else if (tens > units) {
-        availableClues.push({ text: `Onlar basamağı birler basamağından ${tens - units} büyüktür.`, type: 'digit_relation' });
-      } else {
-        availableClues.push({ text: `Onlar ve birler basamağı birbirine eşittir.`, type: 'digit_relation' });
-      }
-    }
   }
 
-  // Prime clue
-  if (opts.difficulty === 'Zor') {
-    if (isPrime(num)) {
-      availableClues.push({ text: 'Bu sayı bir asal sayıdır.', type: 'prime' });
-    } else {
-      // availableClues.push({ text: 'Bu sayı asal değildir.', type: 'prime' }); // Maybe too vague
-    }
+  // 4. Divisibility or Prime clue
+  if (isPrime(target)) {
+    clues.push({
+      text: 'Bu sayı bir asal sayıdır.',
+      type: 'prime',
+      icon: 'fa-award'
+    });
+  } else if (target % 5 === 0) {
+    clues.push({
+      text: "5'in tam katıdır.",
+      type: 'multiple',
+      icon: 'fa-percent'
+    });
+  } else if (target % 3 === 0) {
+    clues.push({
+      text: "3'e kalansız bölünür.",
+      type: 'multiple',
+      icon: 'fa-layer-group'
+    });
+  } else {
+    clues.push({
+      text: `${target % 10}'a bölündüğünde kalan sıfırdır veya ${target % 2 === 0 ? '2' : '1'} ile biter.`,
+      type: 'unit_digit',
+      icon: 'fa-fingerprint'
+    });
   }
 
-  // Factor / Multiple clue
-  if (opts.difficulty !== 'Başlangıç') {
-    const factors: number[] = [];
-    for (let i = 2; i <= Math.min(10, num / 2); i++) {
-      if (num % i === 0) factors.push(i);
-    }
-    if (factors.length > 0) {
-      const factor = factors[getRandomInt(0, factors.length - 1)];
-      availableClues.push({
-        text: `${factor}'in katıdır (veya ${factor}'e kalansız bölünür).`,
-        type: 'operation',
-      });
-    } else if (num % 5 === 0) {
-      availableClues.push({ text: '5\'in katıdır.', type: 'operation' });
-    } else if (num % 10 === 0) {
-      availableClues.push({ text: '10\'un katıdır.', type: 'operation' });
-    }
-  }
-
-  // Shuffle clues except range which should ideally be first
-  const rangeClue = availableClues.find(c => c.type === 'range');
-  let otherClues = availableClues.filter(c => c.type !== 'range');
-  
-  // Fisher-Yates shuffle for other clues
-  for (let i = otherClues.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [otherClues[i], otherClues[j]] = [otherClues[j], otherClues[i]];
-  }
-
-  let finalClues = rangeClue ? [rangeClue, ...otherClues] : otherClues;
-  
-  // Trim to clueCount
-  finalClues = finalClues.slice(0, opts.clueCount);
-
-  return finalClues.map((c, i) => ({
-    id: `c${i+1}`,
-    text: c.text,
-    type: c.type
-  }));
+  return clues;
 }
 
 export const generateOfflineGizemliSayilar = async (
   options: GeneratorOptions
 ): Promise<GizemliSayilarData[]> => {
-  const opts = options;
-  const {
-    worksheetCount = 1,
-    difficulty = 'Orta',
-    numberRange = [10, 100] as [number, number],
-    clueCount = 3,
-    operationTypes = ['topla', 'cikar'],
-    includeMultiStep = false,
-    includeModular = false,
-    includeDigitClue = true,
-    itemsPerPage = 6,
-  } = opts;
+  const opts = options || {};
+  const gizemliSettings = (opts as any).numberLogicRiddles || {};
 
-  const numItems = Number(itemsPerPage) || 6;
-  const minRange = Number(numberRange[0]) || 10;
-  const maxRange = Number(numberRange[1]) || 100;
+  const worksheetCount = opts.worksheetCount || 1;
+  const itemCount = gizemliSettings.itemCount || opts.itemCount || 6;
+  const minRange = 10;
+  const maxRange = opts.difficulty === 'Zor' ? 200 : opts.difficulty === 'Kolay' ? 50 : 100;
+
   const pages: GizemliSayilarData[] = [];
 
-  for (let i = 0; i < worksheetCount; i++) {
-    const riddles = [];
+  for (let w = 0; w < worksheetCount; w++) {
+    const puzzles: Puzzle[] = [];
     const usedNumbers = new Set<number>();
 
-    for (let p = 0; p < numItems; p++) {
-      let mysteryNumber = getRandomInt(minRange, maxRange);
-      // Try to avoid duplicates if possible
+    for (let p = 0; p < itemCount; p++) {
+      let target = getRandomInt(minRange, maxRange);
       let attempts = 0;
-      while (usedNumbers.has(mysteryNumber) && attempts < 20) {
-        mysteryNumber = getRandomInt(minRange, maxRange);
+      while (usedNumbers.has(target) && attempts < 30) {
+        target = getRandomInt(minRange, maxRange);
         attempts++;
       }
-      usedNumbers.add(mysteryNumber);
+      usedNumbers.add(target);
 
-      const clues = generateClues(mysteryNumber, {
-        clueCount,
-        operationTypes,
-        includeDigitClue,
-        difficulty,
-      });
+      const rawClues = generateDeterministicClues(target, minRange, maxRange);
+      const riddleParts: Clue[] = rawClues.map((c, i) => ({
+        id: `c_${i + 1}`,
+        text: c.text,
+        type: c.type,
+        icon: c.icon
+      }));
 
-      riddles.push({
-        id: `riddle_${p}`,
-        mysteryNumber,
-        clues,
+      // Distractor choices for UI (3 distractors + 1 correct)
+      const distractors = new Set<number>([target]);
+      while (distractors.size < 4) {
+        const fake = target + getRandomInt(-10, 10);
+        if (fake >= minRange && fake <= maxRange) distractors.add(fake);
+      }
+
+      puzzles.push({
+        id: `puz_${p + 1}`,
+        mysteryNumber: target,
+        riddleParts,
+        options: Array.from(distractors).sort((a, b) => a - b),
+        visualDistraction: [target + 2, target - 3, target + 5]
       });
     }
 
     pages.push({
-      id: `gizemli_${Date.now()}_${i}`,
+      id: `gizemli_${Date.now()}_${w}`,
       activityType: ActivityType.NUMBER_LOGIC_RIDDLES,
       title: 'Gizemli Sayılar: İpuçlarını Takip Et!',
-      instruction: 'Aşağıdaki ipuçlarını dikkatlice oku ve her kutudaki gizemli sayıyı bul.',
-      riddles,
-      settings: opts,
+      instruction: 'Aşağıdaki ipuçlarını dikkatlice incele ve tek cevabı olan gizemli sayıyı bul.',
+      puzzles,
+      settings: opts
     });
   }
 

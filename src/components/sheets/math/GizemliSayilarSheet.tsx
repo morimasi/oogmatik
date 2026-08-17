@@ -1,124 +1,100 @@
 import React from 'react';
-import { NumberLogicRiddleData } from '../../../types/math';
 import { PedagogicalHeader } from '../common';
-import { EditableElement, EditableText } from '../../Editable';
 
-export const GizemliSayilarSheet: React.FC<{ data: NumberLogicRiddleData }> = ({ data }) => {
-  const puzzles = data.puzzles || [];
-  const settings = data.settings || {};
-  const aestheticMode = settings.aestheticMode || 'standard';
-  const showIcons = settings.showIcons !== false;
+export const GizemliSayilarSheet: React.FC<{ data: any }> = ({ data }) => {
+  const contentData = data?.content || data;
+  const targetData = Array.isArray(contentData) ? (contentData[0] || {}) : (contentData || {});
+  const puzzles = targetData.puzzles || [];
+  const title = targetData.title || 'Gizemli Sayılar: İpuçlarını Takip Et!';
+  const instruction = targetData.instruction || 'Aşağıdaki ipuçlarını dikkatlice incele ve tek cevabı olan gizemli sayıyı bul.';
 
-  const themeStyles: Record<string, { bg: string; card: string; accent: string; textColor: string; iconColor: string }> = {
-    standard: {
-      bg: 'bg-white',
-      card: 'bg-zinc-50 border-zinc-100',
-      accent: 'bg-indigo-500',
-      textColor: 'text-zinc-800',
-      iconColor: 'text-indigo-600'
-    },
-    detective: {
-      bg: 'bg-stone-50',
-      card: 'bg-stone-100/50 border-stone-200',
-      accent: 'bg-amber-700',
-      textColor: 'text-stone-900',
-      iconColor: 'text-amber-800'
-    },
-    neon: {
-      bg: 'bg-slate-900',
-      card: 'bg-slate-800/40 border-indigo-500/30',
-      accent: 'bg-fuchsia-500',
-      textColor: 'text-white',
-      iconColor: 'text-cyan-400'
-    },
-    cyber: {
-      bg: 'bg-zinc-950',
-      card: 'bg-zinc-900 border-emerald-500/20',
-      accent: 'bg-emerald-500',
-      textColor: 'text-emerald-50',
-      iconColor: 'text-emerald-400'
-    }
-  };
-
-  const style = themeStyles[aestheticMode] || themeStyles.standard;
-
-  // Choose layout based on number of puzzles
-  const getGridClass = () => {
-    if (puzzles.length >= 8) return 'grid grid-cols-2 gap-4 mt-6';
-    if (puzzles.length >= 6) return 'grid grid-cols-2 gap-6 mt-6';
-    return 'grid grid-cols-1 md:grid-cols-2 gap-8 mt-8';
-  };
+  if (!puzzles || !Array.isArray(puzzles) || puzzles.length === 0) {
+    return (
+      <div className="p-8 text-center text-zinc-400 font-['Lexend']">
+        <p className="text-sm font-bold">Gizemli sayılar verisi bulunamadı.</p>
+      </div>
+    );
+  }
 
   return (
-    <div className={`flex flex-col ${style.bg} p-8 ${style.textColor} font-lexend min-h-[1123px] transition-colors duration-500`}>
+    <div className="w-full flex flex-col font-['Lexend'] min-h-[297mm] p-4 print:p-2 bg-white transition-all duration-300">
       <PedagogicalHeader
-        title={data.title || 'Gizemli Sayılar'}
-        instruction={data.instruction || 'İpuçlarını dikkatlice oku ve her kutudaki gizemli sayıyı bul!'}
-        data={data}
+        title={title}
+        instruction={instruction}
+        data={targetData}
       />
 
-      <div className={getGridClass()}>
-        {puzzles.map((puzzle, index) => (
-          <div key={puzzle.id} className={`flex flex-col ${style.card} rounded-[2rem] border-2 p-6 shadow-xl relative overflow-hidden group hover:scale-[1.02] transition-transform`}>
-            {/* Index Badge */}
-            <div className={`absolute top-0 left-0 w-12 h-12 ${style.accent} text-white flex items-center justify-center font-black text-lg rounded-br-[1.5rem] shadow-lg`}>
-              #{index + 1}
-            </div>
+      {/* PUZZLES GRID */}
+      <div className="grid grid-cols-2 gap-4 print:gap-2 flex-1 my-2 content-start items-center justify-items-center">
+        {puzzles.map((puzzle: any, idx: number) => {
+          const clues = puzzle.riddleParts || puzzle.clues || [];
 
-            {/* Visual Distraction Layer */}
-            {puzzle.visualDistraction && puzzle.visualDistraction.length > 0 && (
-              <div className="absolute inset-0 opacity-[0.03] pointer-events-none select-none flex flex-wrap gap-4 p-4 overflow-hidden">
-                {puzzle.visualDistraction.map((num, idx) => (
-                  <span key={idx} className="text-4xl font-black">{num}</span>
-                ))}
-              </div>
-            )}
-
-            <div className="flex-1 space-y-4 mt-8 relative z-10">
-              {(puzzle.riddleParts || []).map((part, cIdx) => (
-                <div key={cIdx} className="flex items-start gap-4">
-                  {showIcons && (
-                    <div className={`w-8 h-8 ${aestheticMode === 'neon' || aestheticMode === 'cyber' ? 'bg-white/5' : 'bg-white'} rounded-xl shadow-sm border border-black/5 flex items-center justify-center shrink-0`}>
-                      <i className={`fa-solid ${part.icon || 'fa-magnifying-glass'} ${style.iconColor} text-sm`}></i>
-                    </div>
-                  )}
-                  <p className="text-[13px] font-bold leading-snug pt-1">
-                    {part.text}
-                  </p>
+          return (
+            <div
+              key={puzzle.id || idx}
+              className="rounded-3xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50/30 to-white p-4 print:p-2 flex flex-col justify-between shadow-2xs w-full max-w-[130mm]"
+            >
+              {/* Header Label */}
+              <div className="w-full flex items-center justify-between border-b border-indigo-100 pb-2 mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-indigo-600 text-white font-black text-[10px] flex items-center justify-center shadow-2xs">
+                    {idx + 1}
+                  </span>
+                  <span className="text-xs font-black uppercase text-indigo-900 tracking-wider">
+                    Gizemli Sayı #{idx + 1}
+                  </span>
                 </div>
-              ))}
-            </div>
+                <span className="text-[9px] font-bold text-indigo-700 bg-indigo-100/80 px-2 py-0.5 rounded-md">
+                  Dedektif İpucu İzi
+                </span>
+              </div>
 
-            {/* Options */}
-            {puzzle.options && (
-              <div className="mt-6 flex flex-wrap gap-2 justify-center relative z-10">
-                {puzzle.options.map((opt, oIdx) => (
-                  <div key={oIdx} className={`px-3 py-1 rounded-lg border-2 ${aestheticMode === 'neon' || aestheticMode === 'cyber' ? 'border-white/10 bg-white/5' : 'border-zinc-200 bg-white'} text-[10px] font-black opacity-40`}>
-                    {opt}
+              {/* Clues List */}
+              <div className="space-y-2 my-2 flex-1">
+                {clues.map((clue: any, cIdx: number) => (
+                  <div key={clue.id || cIdx} className="flex items-center gap-2.5 bg-white p-2 rounded-xl border border-indigo-100 shadow-2xs">
+                    <div className="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs shrink-0 font-bold">
+                      <i className={`fa-solid ${clue.icon || 'fa-magnifying-glass'}`}></i>
+                    </div>
+                    <span className="text-[11px] print:text-[10px] font-bold text-zinc-800 leading-snug">
+                      {clue.text}
+                    </span>
                   </div>
                 ))}
               </div>
-            )}
 
-            <div className="mt-6 pt-4 border-t-2 border-dashed border-black/10 flex justify-between items-center relative z-10">
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-50">Gizemli Sayı</span>
-              <div className={`w-24 h-12 ${aestheticMode === 'neon' || aestheticMode === 'cyber' ? 'bg-white/5' : 'bg-white'} border-2 ${style.accent.replace('bg-', 'border-')} rounded-2xl flex items-center justify-center shadow-inner`}>
-                <span className={`${style.iconColor} font-black text-xl`}>?</span>
+              {/* Mystery Number Box */}
+              <div className="mt-3 pt-2 border-t border-dashed border-indigo-200 flex items-center justify-between">
+                <span className="text-[9px] font-black uppercase tracking-wider text-indigo-400">Bulunan Gizemli Sayı:</span>
+                <div className="w-16 h-8 rounded-xl border-2 border-dashed border-indigo-400 bg-indigo-50 flex items-center justify-center font-black text-indigo-600 text-sm">
+                  ?
+                </div>
               </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* CLINICAL FOOTER */}
+      <div className="mt-auto pt-2 grid grid-cols-4 gap-2 px-3 pb-3 rounded-2xl bg-zinc-900 text-white">
+        <div className="col-span-1 flex flex-col justify-center">
+          <span className="text-[8px] font-black uppercase leading-tight text-zinc-400">
+            GİZEMLİ SAYILAR &<br />SAYISAL MUHAKEME
+          </span>
+        </div>
+        {[
+          { label: 'HEDEF SÜRE', val: '08:00', unit: 'dk' },
+          { label: 'ÇÖZÜLEN', val: '___', unit: 'Sayı' },
+          { label: 'PERFORMANS', val: '___', unit: 'p' },
+        ].map((item) => (
+          <div key={item.label} className="bg-white/10 border border-white/10 rounded-lg p-1.5 flex flex-col justify-between">
+            <span className="text-[7px] font-black text-zinc-400 uppercase">{item.label}</span>
+            <div className="flex items-end gap-0.5">
+              <span className="text-xs font-black text-white">{item.val}</span>
+              <span className="text-[6px] font-bold text-zinc-400 mb-0.5">{item.unit}</span>
             </div>
           </div>
         ))}
-      </div>
-
-      {/* Footer */}
-      <div className="mt-auto pt-8 border-t border-black/5 flex justify-between items-center opacity-30">
-        <div className="flex items-center gap-3">
-          <i className={`fa-solid fa-user-secret text-2xl ${style.iconColor}`}></i>
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-widest">Neuro-bdmind Sayısal Muhakeme</p>
-            <p className="text-[8px] font-medium">Bilişsel Çıkarım ve Sayı Hissi Atölyesi</p>
-          </div>
-        </div>
       </div>
     </div>
   );
