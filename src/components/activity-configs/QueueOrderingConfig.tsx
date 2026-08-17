@@ -1,35 +1,6 @@
 import React from 'react';
 import { GeneratorOptions } from '../../types';
 
-interface ToggleOption {
-    value: unknown;
-    label: string;
-}
-
-interface ToggleGroupProps {
-    label: string;
-    selected: unknown;
-    onChange: (val: unknown) => void;
-    options: ToggleOption[];
-}
-
-const CompactToggleGroup = ({ label, selected, onChange, options }: ToggleGroupProps) => (
-    <div className="space-y-1 mt-4">
-        <label className="text-[10px] font-black text-[var(--text-secondary)] uppercase block">{label}</label>
-        <div className="flex bg-[var(--bg-secondary)] p-1 rounded-lg border border-[var(--border-color)]">
-            {options.map((opt, idx) => (
-                <button 
-                    key={idx} 
-                    onClick={() => onChange(opt.value)} 
-                    className={`flex-1 py-1.5 text-[10px] font-black rounded-md transition-all ${selected === opt.value ? 'bg-[var(--bg-paper)] shadow-md text-[var(--accent-color)] border border-[var(--border-color)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-glass)]'}`}
-                >
-                    {opt.label}
-                </button>
-            ))}
-        </div>
-    </div>
-);
-
 interface ConfigProps {
     options: GeneratorOptions;
     onChange: (key: keyof GeneratorOptions, value: unknown) => void;
@@ -40,104 +11,85 @@ export const QueueOrderingConfig = ({ options, onChange }: ConfigProps) => {
 
     const update = (key: string, val: unknown) => {
         onChange('queueOrdering' as any, { ...o, [key]: val });
-        onChange(key as any, val); // fallback for top-level access
+        onChange(key as any, val);
     };
+
+    const problemCount = o.problemCount || options.problemCount || 6;
 
     return (
         <div className="space-y-4 animate-in fade-in duration-300">
-            {/* Lokasyon ve Tema */}
-            <div className="p-4 bg-[var(--surface-glass)] rounded-[2rem] border border-[var(--border-color)]">
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                        <label className="text-[10px] font-black text-[var(--text-secondary)] uppercase block">Senaryo Mekanı</label>
+            <div className="p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-[2rem] border border-indigo-100 dark:border-indigo-800/30">
+                <h4 className="text-xs font-black text-indigo-900 dark:text-indigo-300 uppercase tracking-widest mb-3">
+                    <i className="fa-solid fa-users-line mr-1 text-indigo-600"></i> Sıralama Becerisi Ayarları
+                </h4>
+
+                <div className="grid grid-cols-2 gap-3">
+                    {/* Mekan Seçimi */}
+                    <div>
+                        <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">
+                            Senaryo Mekanı
+                        </label>
                         <select
                             value={o.locationType || options.locationType || 'school'}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => update('locationType', e.target.value)}
-                            className="w-full p-2 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl text-[11px] font-bold text-[var(--text-primary)] outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]"
+                            onChange={(e) => update('locationType', e.target.value)}
+                            className="w-full bg-white dark:bg-zinc-800 border border-indigo-200 dark:border-zinc-700 rounded-xl p-2 text-xs font-bold text-zinc-800 dark:text-zinc-200 focus:ring-2 focus:ring-indigo-500"
                         >
-                            <option value="school">Okul / Kantin</option>
-                            <option value="bus">Otobüs / Durak</option>
-                            <option value="market">Market / Kasa</option>
-                            <option value="hospital">Hastane / Eczane</option>
-                            <option value="cinema">Sinema / Tiyatro</option>
-                            <option value="library">Kütüphane</option>
+                            <option value="school">Okul / Kantin / Yemekhane</option>
+                            <option value="bus">Otobüs Durağı / Turnike</option>
+                            <option value="market">Market / Fırın / Kasalar</option>
+                            <option value="amusement">Lunapark / Tren / Gişe</option>
                         </select>
                     </div>
 
-                    <div className="space-y-1">
-                        <label className="text-[10px] font-black text-[var(--text-secondary)] uppercase block">Görsel Tema</label>
+                    {/* Zorluk */}
+                    <div>
+                        <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">
+                            Zorluk Seviyesi
+                        </label>
                         <select
-                            value={o.theme || options.theme || 'indigo'}
-                            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => update('theme', e.target.value)}
-                            className="w-full p-2 bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl text-[11px] font-bold text-[var(--text-primary)] outline-none focus:border-[var(--accent-color)] focus:ring-1 focus:ring-[var(--accent-color)]"
+                            value={options.difficulty || 'medium'}
+                            onChange={(e) => onChange('difficulty', e.target.value)}
+                            className="w-full bg-white dark:bg-zinc-800 border border-indigo-200 dark:border-zinc-700 rounded-xl p-2 text-xs font-bold text-zinc-800 dark:text-zinc-200 focus:ring-2 focus:ring-indigo-500"
                         >
-                            <option value="indigo">Gece Mavisi</option>
-                            <option value="emerald">Zümrüt Yeşil</option>
-                            <option value="amber">Kehribar</option>
-                            <option value="rose">Gül Kurusu</option>
-                            <option value="blue">Deniz Mavisi</option>
+                            <option value="easy">Kolay (Hemen önü/arkası)</option>
+                            <option value="medium">Orta (Sondan sıra / Ortada olma)</option>
+                            <option value="hard">Zor (Çoklu yön ipucu zinciri)</option>
                         </select>
                     </div>
+                </div>
+
+                {/* Soru Sayısı Slider */}
+                <div className="mt-4">
+                    <div className="flex justify-between items-center text-[10px] font-bold text-zinc-500 uppercase mb-1">
+                        <span>A4 Soru Miktarı</span>
+                        <span className="text-indigo-600 font-black">{problemCount} Soru</span>
+                    </div>
+                    <input
+                        type="range"
+                        min={2}
+                        max={8}
+                        step={2}
+                        value={problemCount}
+                        onChange={(e) => update('problemCount', parseInt(e.target.value))}
+                        className="w-full accent-indigo-600 h-1.5 bg-zinc-200 rounded-lg cursor-pointer"
+                    />
                 </div>
             </div>
 
-            {/* Ölçeklendirme */}
-            <div className="p-5 bg-[var(--bg-paper)] rounded-[2.5rem] border border-[var(--border-color)] shadow-sm">
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                        <label className="text-[10px] font-black text-[var(--accent-color)] uppercase block">Soru Sayısı</label>
-                        <input
-                            type="number"
-                            min={1}
-                            max={10}
-                            value={o.problemCount || options.problemCount || 4}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => update('problemCount', parseInt(e.target.value))}
-                            className="w-full p-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl text-xs font-black text-[var(--text-primary)] outline-none focus:border-[var(--accent-color)]"
-                        />
+            {/* İpuçları & Görsel Karakter Ayarları */}
+            <div className="space-y-2">
+                <div
+                    className="flex items-center justify-between p-3 bg-zinc-50 dark:bg-zinc-800/60 rounded-xl border border-zinc-200 dark:border-zinc-700 cursor-pointer"
+                    onClick={() => update('showVisualClues', o.showVisualClues === false ? true : false)}
+                >
+                    <div className="flex flex-col">
+                        <span className="text-xs font-bold text-zinc-700 dark:text-zinc-300">Görsel Kuyruk Treni Şeması</span>
+                        <span className="text-[9px] text-zinc-400">Kişileri A4 kartı üstünde şematik çiz</span>
                     </div>
-                    <div className="space-y-1">
-                        <label className="text-[10px] font-black text-[var(--accent-color)] uppercase block">Max Sıra Boyu</label>
-                        <input
-                            type="number"
-                            min={3}
-                            max={15}
-                            value={o.maxQueueSize || options.maxQueueSize || 10}
-                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => update('maxQueueSize', parseInt(e.target.value))}
-                            className="w-full p-2 bg-[var(--bg-primary)] border border-[var(--border-color)] rounded-xl text-xs font-black text-[var(--text-primary)] outline-none focus:border-[var(--accent-color)]"
-                        />
+                    <div className={`w-10 h-5 rounded-full relative transition-colors ${o.showVisualClues !== false ? 'bg-indigo-600' : 'bg-zinc-300'}`}>
+                        <div className={`w-3.5 h-3.5 bg-white rounded-full absolute top-0.75 transition-transform ${o.showVisualClues !== false ? 'left-5.5' : 'left-0.75'}`} />
                     </div>
                 </div>
-
-                <div className="mt-5 space-y-4">
-                    <div className="flex items-center justify-between group cursor-pointer" onClick={() => update('showVisualClues', (o.showVisualClues ?? options.showVisualClues) !== false ? false : true)}>
-                        <label className="text-[10px] font-bold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] uppercase transition-colors cursor-pointer">Görsel İpuçları Göster</label>
-                        <button
-                            className={`w-10 h-5 rounded-full transition-colors relative ${(o.showVisualClues ?? options.showVisualClues) !== false ? 'bg-[var(--accent-color)]' : 'bg-[var(--border-color)]/70'}`}
-                        >
-                            <div className={`w-3 h-3 rounded-full bg-white absolute top-1 transition-transform ${(o.showVisualClues ?? options.showVisualClues) !== false ? 'left-6 shadow-md' : 'left-1'}`} />
-                        </button>
-                    </div>
-
-                    <div className="flex items-center justify-between group cursor-pointer" onClick={() => update('showPositionNumbers', (o.showPositionNumbers ?? options.showPositionNumbers) !== false ? false : true)}>
-                        <label className="text-[10px] font-bold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] uppercase transition-colors cursor-pointer">Sıra Numaralarını Göster</label>
-                        <button
-                            className={`w-10 h-5 rounded-full transition-colors relative ${(o.showPositionNumbers ?? options.showPositionNumbers) !== false ? 'bg-[var(--accent-color)]' : 'bg-[var(--border-color)]/70'}`}
-                        >
-                            <div className={`w-3 h-3 rounded-full bg-white absolute top-1 transition-transform ${(o.showPositionNumbers ?? options.showPositionNumbers) !== false ? 'left-6 shadow-md' : 'left-1'}`} />
-                        </button>
-                    </div>
-                </div>
-
-                <CompactToggleGroup
-                    label="İkon Stili"
-                    selected={o.iconStyle || options.iconStyle || 'emoji'}
-                    onChange={(v: unknown) => update('iconStyle', v as string)}
-                    options={[
-                        { value: 'emoji', label: 'Emoji' },
-                        { value: 'avatar', label: 'Profil' },
-                        { value: 'minimal', label: 'Minimal' }
-                    ]}
-                />
             </div>
         </div>
     );
