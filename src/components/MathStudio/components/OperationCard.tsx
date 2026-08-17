@@ -73,7 +73,7 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
           <div className="w-full border-b-4 my-2" style={{ borderColor: paper.border }}></div>
           {/* Answer box (stylized) */}
           <div className="w-full h-[1.3em] border-2 border-dashed rounded-lg bg-white/50 flex items-center justify-center shadow-inner" style={{ borderColor: `${paper.accent}40` }}>
-            <span className={showAnswer ? 'text-zinc-900' : 'text-transparent select-none'}>{op.answer}</span>
+            {showAnswer && <span className="text-zinc-900">{op.answer}</span>}
           </div>
         </div>
       </div>
@@ -146,7 +146,7 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
       )}
 
       <div className="w-full h-[1.3em] border-2 border-dashed rounded-lg bg-white/50 flex items-center justify-end px-2 shadow-inner" style={{ borderColor: `${paper.accent}40` }}>
-        <span className={showAnswer ? 'text-zinc-900' : 'text-transparent select-none'}>{op.answer}</span>
+        {showAnswer && <span className="text-zinc-900">{op.answer}</span>}
       </div>
 
       {op.remainder !== undefined && <span className="text-[0.4em] opacity-30 mt-1" style={{ color: paper.text }}>Kalan: ...</span>}
