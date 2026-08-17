@@ -439,7 +439,18 @@ export interface ApartmentResident {
   id: string; // Örn: R1, R2
   floor: number;
   room: number;
-  variables: Record<string, string>; // Örn: { "name": "Ali", "color": "Kırmızı", "pet": "Kedi" }
+  variables: Record<string, string>; // Örn: { "name": "Ali", "color": "Kırmızı", "pet": "Kedi", "job": "Mühendis" }
+}
+
+export interface ApartmentLogicPuzzleItem {
+  id: string;
+  buildingName: string;
+  buildingTheme?: 'modern' | 'classic' | 'colorful' | 'vintage';
+  floorsCount: number;
+  roomsPerFloor: number;
+  variableTypes: string[];
+  residents: ApartmentResident[];
+  clues: string[];
 }
 
 export interface ApartmentLogicData extends BaseActivityData {
@@ -449,6 +460,8 @@ export interface ApartmentLogicData extends BaseActivityData {
     apartmentRoomsPerFloor: number;
     variableCount: number;
     negativeClues: boolean;
+    buildingTheme?: 'modern' | 'classic' | 'colorful' | 'vintage';
+    puzzleCount?: number;
   };
   content: {
     title: string;
@@ -456,6 +469,7 @@ export interface ApartmentLogicData extends BaseActivityData {
     residents: ApartmentResident[];
     clues: string[];
   };
+  puzzles?: ApartmentLogicPuzzleItem[];
 }
 
 export interface FinancialMarketItem {

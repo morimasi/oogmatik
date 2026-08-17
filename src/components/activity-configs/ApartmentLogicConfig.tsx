@@ -36,8 +36,8 @@ export const ApartmentLogicConfig: React.FC<ConfigProps> = ({ options, onChange 
         <div className="space-y-4 animate-in fade-in duration-300">
             <div className="p-4 bg-orange-50/50 dark:bg-orange-900/10 rounded-[2rem] border border-orange-100 dark:border-orange-800/30">
 
-                <div className="flex gap-4">
-                    <div className="flex-1 space-y-1">
+                <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
                         <label className="text-[10px] font-bold text-zinc-500 uppercase block">Kat Sayısı</label>
                         <select
                             value={options.apartmentFloors || 2}
@@ -45,51 +45,86 @@ export const ApartmentLogicConfig: React.FC<ConfigProps> = ({ options, onChange 
                             className="w-full p-2 bg-white border border-orange-200 rounded-xl text-sm font-bold outline-none focus:border-orange-500"
                         >
                             <option value={1}>1 Kat (Müstakil)</option>
-                            <option value={2}>2 Kat</option>
-                            <option value={3}>3 Kat</option>
+                            <option value={2}>2 Kat (Standart)</option>
+                            <option value={3}>3 Kat (Zorlu)</option>
+                            <option value={4}>4 Kat (Gelişmiş Rezidans)</option>
                         </select>
                     </div>
 
-                    <div className="flex-1 space-y-1">
+                    <div className="space-y-1">
                         <label className="text-[10px] font-bold text-zinc-500 uppercase block">Kattaki Daire</label>
                         <select
                             value={options.apartmentRoomsPerFloor || 3}
                             onChange={e => onChange('apartmentRoomsPerFloor', parseInt(e.target.value))}
                             className="w-full p-2 bg-white border border-orange-200 rounded-xl text-sm font-bold outline-none focus:border-orange-500"
                         >
-                            <option value={2}>2 Daire</option>
-                            <option value={3}>3 Daire</option>
-                            <option value={4}>4 Daire</option>
+                            <option value={2}>2 Daire (Geniş)</option>
+                            <option value={3}>3 Daire (Standart)</option>
+                            <option value={4}>4 Daire (Kompakt)</option>
                         </select>
                     </div>
                 </div>
 
-                <div className="mt-4 p-3 bg-white/50 border border-orange-200/50 rounded-xl flex items-center justify-between">
-                    <div>
-                        <div className="text-sm font-black text-orange-800">Toplam Hane: {(options.apartmentFloors || 2) * (options.apartmentRoomsPerFloor || 3)}</div>
-                        <div className="text-[9px] font-bold text-zinc-500 uppercase">SVG Apartman Şablonunda Çizilecek</div>
+                <div className="grid grid-cols-2 gap-4 mt-3">
+                    <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase block">Mimari Bina Teması</label>
+                        <select
+                            value={(options as any).buildingTheme || 'modern'}
+                            onChange={e => onChange('buildingTheme' as any, e.target.value)}
+                            className="w-full p-2 bg-white border border-orange-200 rounded-xl text-sm font-bold outline-none focus:border-orange-500"
+                        >
+                            <option value="modern">Modern Cam (Sky)</option>
+                            <option value="classic">Klasik Tuğla (Amber)</option>
+                            <option value="colorful">Renkli Konutlar (Emerald)</option>
+                            <option value="vintage">Antik Ahşap (Stone)</option>
+                        </select>
                     </div>
-                    <i className="fa-solid fa-building text-2xl text-orange-200"></i>
+
+                    <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase block">A4 Bulmaca Sayısı</label>
+                        <select
+                            value={(options as any).puzzleCount || 1}
+                            onChange={e => onChange('puzzleCount' as any, parseInt(e.target.value))}
+                            className="w-full p-2 bg-white border border-orange-200 rounded-xl text-sm font-bold outline-none focus:border-orange-500"
+                        >
+                            <option value={1}>1 Büyük Bina (Tam Detaylı)</option>
+                            <option value={2}>2 Bina (A4 Kompakt Tam Dolgu)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div className="mt-4 p-3 bg-white/60 border border-orange-200/50 rounded-xl flex items-center justify-between shadow-xs">
+                    <div>
+                        <div className="text-sm font-black text-orange-900">
+                            Bina Hanesi: {(options.apartmentFloors || 2) * (options.apartmentRoomsPerFloor || 3)} Daire
+                        </div>
+                        <div className="text-[9px] font-bold text-zinc-500 uppercase">SVG Vektörel Kat Mimarisi</div>
+                    </div>
+                    <i className="fa-solid fa-building text-2xl text-orange-400"></i>
                 </div>
             </div>
 
             <div className="p-5 bg-zinc-50 dark:bg-zinc-800 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 shadow-inner">
                 <CompactToggleGroup
-                    label="Değişken Karmaşıklığı (Her Dairedeki Özellik)"
+                    label="Daire İçi Değişken Tipi (Karmaşıklık)"
                     selected={options.variableCount || 2}
                     onChange={(v: unknown) => onChange('variableCount', v as number)}
                     options={[
                         { value: 1, label: 'Sadece İsim (1D)' },
-                        { value: 2, label: 'İsim + Meslek/Hayvan (2D)' },
-                        { value: 3, label: 'İsim + Meslek + Hayvan (3D ZOR)' }
+                        { value: 2, label: 'İsim + Hayvan (2D)' },
+                        { value: 3, label: 'İsim + Hayvan + Meslek (3D)' },
+                        { value: 4, label: 'İsim + Hayvan + Meslek + Renk (4D)' }
                     ]}
                 />
 
-                <div className="mt-4 flex items-center justify-between">
-                    <label className="text-[10px] font-bold text-zinc-500 uppercase">Negatif İpuçları İçer ("-değildir")</label>
+                <div className="mt-4 flex items-center justify-between pt-2 border-t border-zinc-200/40">
+                    <div className="flex flex-col">
+                        <label className="text-[10px] font-bold text-zinc-600 uppercase">Olumsuz İpuçları ("-değildir / -oturmamaktadır")</label>
+                        <span className="text-[9px] text-zinc-400">Çıkarım yapma ve analitik mantık becerisini artırır</span>
+                    </div>
                     <button
                         onClick={() => onChange('negativeClues', !options.negativeClues)}
-                        className={`w-12 h-6 rounded-full transition-colors relative ${options.negativeClues ? 'bg-orange-500' : 'bg-zinc-300'}`}
+                        className={`w-12 h-6 rounded-full transition-colors relative shrink-0 ${options.negativeClues ? 'bg-orange-500' : 'bg-zinc-300'}`}
                     >
                         <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-transform ${options.negativeClues ? 'left-7' : 'left-1'}`} />
                     </button>
