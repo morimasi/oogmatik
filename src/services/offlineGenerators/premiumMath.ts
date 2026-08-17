@@ -440,47 +440,105 @@ export async function generateOfflinePremiumEstimation(
 }
 
 // ═══════════════════════════════════════════════════════════════
-// KENDOKU
+// KENDOKU (İŞLEM BLOKLARI)
 // ═══════════════════════════════════════════════════════════════
 export async function generateOfflinePremiumKendoku(
   options: GeneratorOptions
 ): Promise<SingleWorksheetData> {
-  // 4x4 kendoku: basit yapı
-  const solutions4: number[][] = [
-    [1, 2, 3, 4],
-    [3, 4, 1, 2],
-    [2, 3, 4, 1],
-    [4, 1, 2, 3]
-  ];
+  const { difficulty = 'Orta', customSettings } = options;
+  const settings = (customSettings as any) || {};
 
-  // Kafesleri tanımla
-  const cages4 = [
-    { cells: ['0,0', '0,1'], target: 3, op: '+' },
-    { cells: ['0,2', '0,3'], target: 7, op: '+' },
-    { cells: ['1,0', '1,1'], target: 7, op: '+' },
-    { cells: ['1,2', '2,2'], target: 5, op: '+' },
-    { cells: ['1,3', '2,3'], target: 3, op: '+' },
-    { cells: ['2,0', '3,0'], target: 6, op: '+' },
-    { cells: ['2,1', '3,1'], target: 4, op: '+' },
-    { cells: ['3,2', '3,3'], target: 5, op: '+' },
-  ];
+  const size = settings.gridSize || options.gridSize || (difficulty === 'Zor' ? 5 : difficulty === 'Orta' ? 4 : 3);
+  const puzzleCount = settings.puzzleCount || options.puzzleCount || (size === 5 ? 2 : 4);
+  const operations = settings.operations || ['+', '-'];
 
-  // Bazı hücreleri göster (%30)
-  const shown4 = solutions4.map(row => row.map(v => Math.random() > 0.7 ? v : null));
+  const puzzles = [];
+
+  for (let pIdx = 0; pIdx < puzzleCount; pIdx++) {
+    // Generate Latin Square of size N
+    const baseRow = Array.from({ length: size }, (_, i) => i + 1);
+    const latinSquare: number[][] = [];
+    for (let r = 0; r < size; r++) {
+      const shift = (r + pIdx) % size;
+      latinSquare.push([...baseRow.slice(shift), ...baseRow.slice(0, shift)]);
+    }
+
+    // Partition grid into cages
+    const cages: Array<{
+      id: string;
+      cells: Array<[number, number]>;
+      target: number;
+      op: string;
+    }> = [];
+
+    const visited = Array.from({ length: size }, () => Array(size).fill(false));
+
+    for (let r = 0; r < size; r++) {
+      for (let c = 0; c < size; c++) {
+        if (visited[r][c]) continue;
+
+        const cageCells: Array<[number, number]> = [[r, c]];
+        visited[r][c] = true;
+
+        // Try to add neighboring cell to cage (size 2 or 3)
+        const neighbors: Array<[number, number]> = [];
+        if (r + 1 < size && !visited[r + 1][c]) neighbors.push([r + 1, c]);
+        if (c + 1 < size && !visited[r][c + 1]) neighbors.push([r, c + 1]);
+
+        if (neighbors.length > 0 && Math.random() > 0.3) {
+          const next = neighbors[getRandomInt(0, neighbors.length - 1)];
+          cageCells.push(next);
+          visited[next[0]][next[1]] = true;
+        }
+
+        // Calculate target and op
+        const vals = cageCells.map(([cr, cc]) => latinSquare[cr][cc]);
+        let op = operations[getRandomInt(0, operations.length - 1)] || '+';
+        let target = 0;
+
+        if (cageCells.length === 1) {
+          op = '';
+          target = vals[0];
+        } else if (op === '+') {
+          target = vals.reduce((acc, v) => acc + v, 0);
+        } else if (op === '-') {
+          target = Math.abs(vals[0] - vals[1]);
+        } else if (op === '×' || op === '*') {
+          op = '×';
+          target = vals.reduce((acc, v) => acc * v, 1);
+        } else {
+          op = '+';
+          target = vals.reduce((acc, v) => acc + v, 0);
+        }
+
+        cages.push({
+          id: `c_${r}_${c}`,
+          cells: cageCells,
+          target,
+          op
+        });
+      }
+    }
+
+    puzzles.push({
+      id: `puz_${pIdx + 1}`,
+      size,
+      solution: latinSquare,
+      cages
+    });
+  }
 
   const builder = new WorksheetBuilder(ActivityType.KENDOKU, 'Kendoku Bulmacaları')
     .addPremiumHeader()
-    .setInstruction('Kural: Her satır ve sütunda 1-4 arası sayılar birer kez bulunur. Kafes toplamları verilmiştir.')
-    .addPrimaryActivity('grid', {
-      title: '🧩 Kendoku 4×4',
-      matrix: shown4.map(row => row.map(v => v !== null ? String(v) : '')),
-      cages: cages4
-    })
-    .addSupportingDrill('İpucu Rehberi', {
-      text: 'Hangi kafesle başlamalısın?\n1. En az hücreli kafesin toplamına bak.\n2. Satır/sütun bilgisini kullan.\n3. Olasılığı azalt, sonra doldur.'
-    });
+    .setInstruction('Her satır ve sütunda 1-N arası sayılar birer kez bulunur. Kafeslerdeki işlem sonuçlarına göre boşlukları doldur.')
+    .addSuccessIndicator();
 
-  return builder.addSuccessIndicator().build();
+  return {
+    ...builder.build(),
+    puzzles,
+    gridSize: size,
+    puzzleCount
+  };
 }
 
 // ═══════════════════════════════════════════════════════════════

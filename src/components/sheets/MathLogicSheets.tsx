@@ -276,7 +276,7 @@ export const OddEvenSudokuSheet = FutoshikiSheet;
 export const RomanNumeralStarHuntSheet = SimpleVisualList;
 export const RoundingConnectSheet = SimpleVisualList;
 export const RomanNumeralMultiplicationSheet = SimpleVisualList;
-export const KendokuSheet = FutoshikiSheet;
+export { KendokuSheet } from './math/KendokuSheet';
 export const MultiplicationWheelSheet = SimpleVisualList;
 export const TargetNumberSheet = SimpleVisualList;
 export const ShapeSudokuSheet = FutoshikiSheet;
