@@ -169,11 +169,11 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   },
   [ActivityType.MATH_BASIC_OPERATIONS]: {
     ai: withAI(ActivityType.MATH_BASIC_OPERATIONS),
-    offline: withOffline(ActivityType.MATH_BASIC_OPERATIONS),
+    offline: offlineGenerators.generateOfflineBasicOperations,
   },
   [ActivityType.MATH_WORD_PROBLEMS]: {
     ai: withAI(ActivityType.MATH_WORD_PROBLEMS),
-    offline: withOffline(ActivityType.MATH_WORD_PROBLEMS),
+    offline: offlineGenerators.generateOfflineMathWordProblems,
   },
   [ActivityType.ABC_CONNECT]: {
     ai: aiGenerators.generateAbcConnectFromAI,

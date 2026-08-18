@@ -33,6 +33,7 @@ export * from './heceParkuru';
 export * from './fallback';
 export * from './premiumReading';
 export * from './premiumMath';
+export * from './additionalMath';
 export * from './premiumVisual';
 export * from './premiumPuzzles';
 export * from './gizemliSayilar';

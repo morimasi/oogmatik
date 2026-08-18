@@ -75,7 +75,26 @@ export const SheetRenderer = React.memo(
       return val;
     };
 
-    const resolvedData = unwrapExam(activeData);
+    let resolvedData = unwrapExam(activeData);
+
+    // WorksheetBuilder Normalization for Legacy Sheets
+    if (resolvedData && (resolvedData as any).content && Array.isArray((resolvedData as any).content)) {
+      const contentArr = (resolvedData as any).content;
+      if (contentArr.length > 0 && typeof contentArr[0] === 'object' && 'type' in contentArr[0]) {
+        const headerBlock = contentArr.find((b: any) => Boolean(b) && typeof b === 'object' && (b.type === 'premium_header' || b.type === 'header'));
+        const mainBlock = contentArr.find((b: any) => Boolean(b) && typeof b === 'object' && b.type !== 'premium_header' && b.type !== 'success_indicator' && b.content);
+
+        if (mainBlock) {
+          resolvedData = {
+            ...(resolvedData as Record<string, unknown>),
+            ...(mainBlock.content || {}),
+            title: headerBlock?.content?.title || (resolvedData as any).title || '',
+            instruction: headerBlock?.content?.instruction || (resolvedData as any).instruction || ''
+          };
+        }
+      }
+    }
+
 
     const isLandscape = settings?.orientation === 'landscape';
     const pageClass = `worksheet-page print-page shadow-2xl mb-8 ${isLandscape ? 'landscape' : ''}`;
