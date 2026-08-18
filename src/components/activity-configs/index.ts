@@ -10,7 +10,6 @@ import { ClockReadingConfig } from './ClockReadingConfig';
 import { AlgorithmConfig } from './AlgorithmConfig';
 import { VisualPerceptionConfig } from './VisualPerceptionConfig';
 import { HiddenPasswordConfig } from './HiddenPasswordConfig';
-import { MathLogicRiddleConfig } from './MathLogicRiddleConfig';
 import { FinancialMathConfig } from './FinancialMathConfig';
 import { StoryStudioConfig } from './StoryStudioConfig';
 import { FamilyLogicConfig } from './FamilyLogicConfig';

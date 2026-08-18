@@ -11,7 +11,6 @@ import { FutoshikiSheet } from '../sheets/math/FutoshikiSheet';
 import { NumberPyramidSheet } from '../sheets/math/NumberPyramidSheet';
 import { KendokuSheet } from '../sheets/MathLogicSheets';
 import { OddOneOutSheet } from '../sheets/math/OddOneOutSheet';
-import { NumberLogicRiddleSheet } from '../sheets/math/NumberLogicRiddleSheet';
 import { GizemliSayilarSheet } from '../sheets/math/GizemliSayilarSheet';
 import { NumberPathLogicSheet } from '../sheets/math/NumberPathLogicSheet';
 import { VisualArithmeticSheet } from '../sheets/math/VisualArithmeticSheet';
