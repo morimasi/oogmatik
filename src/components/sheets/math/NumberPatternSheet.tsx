@@ -5,7 +5,9 @@ import { PedagogicalHeader } from '../common';
 export const NumberPatternSheet = ({ data }: { data: any }) => {
     const contentData = data?.content || data;
     const targetData = Array.isArray(contentData) ? (contentData[0] || {}) : (contentData || {});
-    const { patterns, title, instruction, difficulty, showRuleClue } = targetData;
+    const patterns = targetData.patterns || data?.patterns || (Array.isArray(data) ? data : []);
+    const title = targetData.title || data?.title || 'Sayı Örüntüleri & Dizisel Mantık';
+    const instruction = targetData.instruction || data?.instruction || 'Sayı dizilerindeki kuralı keşfet ve soru işaretli kutucuklara doğru sayıları yaz.';
 
     if (!patterns || !Array.isArray(patterns) || patterns.length === 0) {
         return (
@@ -18,8 +20,8 @@ export const NumberPatternSheet = ({ data }: { data: any }) => {
     return (
         <div className="w-full flex flex-col font-['Lexend'] min-h-[297mm] p-4 print:p-2 bg-white transition-all duration-300">
             <PedagogicalHeader
-                title={title || 'Sayı Örüntüleri & Dizisel Mantık'}
-                instruction={instruction || 'Sayı dizilerindeki kuralı keşfet ve soru işaretli kutucuklara doğru sayıları yaz.'}
+                title={title}
+                instruction={instruction}
                 data={targetData}
             />
 
@@ -52,8 +54,8 @@ export const NumberPatternSheet = ({ data }: { data: any }) => {
                                     <div key={sIdx} className="flex items-center gap-1">
                                         <div
                                             className={`w-9 h-10 print:w-8 print:h-9 rounded-xl border-2 flex items-center justify-center font-black text-xs print:text-[11px] shadow-2xs transition-all ${val === null
-                                                    ? 'border-dashed border-amber-400 bg-amber-50 text-amber-600 font-extrabold animate-pulse'
-                                                    : 'border-indigo-200 bg-white text-indigo-950'
+                                                ? 'border-dashed border-amber-400 bg-amber-50 text-amber-600 font-extrabold animate-pulse'
+                                                : 'border-indigo-200 bg-white text-indigo-950'
                                                 }`}
                                         >
                                             {val === null ? '?' : val}

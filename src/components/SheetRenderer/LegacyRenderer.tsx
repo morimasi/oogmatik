@@ -122,7 +122,7 @@ export function renderLegacySheet(
       break;
     case ActivityType.NUMBER_PATTERN:
       renderedSheet = (
-        <NumberPatternSheet data={(activeData.content || activeData) as unknown as unknown as unknown as unknown as NumberPatternData} settings={settings} />
+        <NumberPatternSheet data={activeData} settings={settings} />
       );
       break;
     case ActivityType.REAL_LIFE_MATH_PROBLEMS:
@@ -538,12 +538,12 @@ export function renderLegacySheet(
             ...ftd,
             puzzles: Array.isArray(ftd.gridA)
               ? [{
-                  gridA: ftd.gridA as string[][],
-                  gridB: (ftd.gridB || ftd.gridA) as string[][],
-                  diffCount: (ftd.diffCount as number) || 0,
-                  title: (ftd.title as string) || '',
-                  clinicalMeta: (Array.isArray(ftd.rows) ? (ftd.rows as Record<string, unknown>[])[0]?.clinicalMeta : {}) || {},
-                }]
+                gridA: ftd.gridA as string[][],
+                gridB: (ftd.gridB || ftd.gridA) as string[][],
+                diffCount: (ftd.diffCount as number) || 0,
+                title: (ftd.title as string) || '',
+                clinicalMeta: (Array.isArray(ftd.rows) ? (ftd.rows as Record<string, unknown>[])[0]?.clinicalMeta : {}) || {},
+              }]
               : (ftd.puzzles || []),
           } as Record<string, unknown>}
           settings={settings}
@@ -641,11 +641,10 @@ export function renderLegacySheet(
                     {options.map((opt, oi) => (
                       <button
                         key={opt.id || oi}
-                        className={`px-2 py-1 text-[9px] font-bold rounded-full border transition-all ${
-                          opt.isCorrect
+                        className={`px-2 py-1 text-[9px] font-bold rounded-full border transition-all ${opt.isCorrect
                             ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
                             : 'bg-zinc-50 border-zinc-200 text-zinc-700 hover:border-indigo-300'
-                        }`}
+                          }`}
                       >
                         {opt.label}
                       </button>
