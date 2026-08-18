@@ -209,7 +209,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   },
   [ActivityType.NUMBER_LOGIC_RIDDLES]: {
     ai: aiGenerators.generateNumberLogicRiddlesFromAI,
-    offline: offlineGenerators.generateOfflineNumberLogicRiddles,
+    offline: offlineGenerators.generateOfflineGizemliSayilar,
   },
   [ActivityType.MATH_PUZZLE]: {
     ai: aiGenerators.generateMathPuzzleFromAI,
