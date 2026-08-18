@@ -38,6 +38,8 @@ export * from './premiumPuzzles';
 export * from './gizemliSayilar';
 export * from './meyveliToplama';
 export * from './sayiDedektifi';
+export * from './sariKitap';
+export * from './letterMazeTest';
 export * from './kavramHaritasi';
 export * from './esAnlamliKelimeler';
 export * from './sentenceFiveWOneH';

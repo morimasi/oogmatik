@@ -126,7 +126,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   },
   [ActivityType.LETTER_MAZE_TEST]: {
     ai: withAI(ActivityType.LETTER_MAZE_TEST),
-    offline: withOffline(ActivityType.LETTER_MAZE_TEST),
+    offline: offlineGenerators.generateOfflineLetterMazeTest,
   },
 
   [ActivityType.MIRROR_LETTERS]: {
@@ -463,6 +463,14 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     ai: aiGenerators.generateShortAnswerFromAI,
     offline: (options: GeneratorOptions) => offlineGenerators.generateOfflineFallback(ActivityType.INFOGRAPHIC_SHORT_ANSWER, options),
   },
+  [ActivityType.INFOGRAPHIC_CONCEPT_MAP]: {
+    ai: withAI(ActivityType.INFOGRAPHIC_CONCEPT_MAP),
+    offline: withOffline(ActivityType.INFOGRAPHIC_CONCEPT_MAP),
+  },
+  [ActivityType.INFOGRAPHIC_5W1H_BOARD]: {
+    ai: withAI(ActivityType.INFOGRAPHIC_5W1H_BOARD),
+    offline: withOffline(ActivityType.INFOGRAPHIC_5W1H_BOARD),
+  },
   [ActivityType.SINAV]: {
     ai: aiGenerators.generateSinavFromAI,
     offline: offlineGenerators.generateOfflineSinav,
@@ -568,7 +576,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   [ActivityType.HISTORY_TIMELINE]: { ai: withAI(ActivityType.HISTORY_TIMELINE), offline: withOffline(ActivityType.HISTORY_TIMELINE) },
   [ActivityType.MAP_READING]: { ai: withAI(ActivityType.MAP_READING), offline: withOffline(ActivityType.MAP_READING) },
   [ActivityType.GOAL_SETTING]: { ai: withAI(ActivityType.GOAL_SETTING), offline: withOffline(ActivityType.GOAL_SETTING) },
-  [ActivityType.SARI_KITAP_STUDIO]: { ai: withAI(ActivityType.SARI_KITAP_STUDIO), offline: withOffline(ActivityType.SARI_KITAP_STUDIO) },
+  [ActivityType.SARI_KITAP_STUDIO]: { ai: withAI(ActivityType.SARI_KITAP_STUDIO), offline: offlineGenerators.generateOfflineSariKitapStudio },
 
   // AUTONOM_REGISTRY_START
   // AUTONOM_REGISTRY_END

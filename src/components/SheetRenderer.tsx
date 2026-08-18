@@ -19,6 +19,7 @@ import { BrainTeasersSheet } from './sheets/logic/BrainTeasersSheet';
 import { KavramHaritasiSheet } from './sheets/verbal/KavramHaritasiSheet';
 import { EsAnlamliKelimelerSheet } from './sheets/verbal/EsAnlamliKelimelerSheet';
 import { GizemliSayilarSheet } from './sheets/math/GizemliSayilarSheet';
+import { LetterMazeTestSheet } from './sheets/visual/LetterMazeTestSheet';
 import { InfographicRenderer } from './sheet-renderers/InfographicRenderer';
 import { ExamRenderer } from './sheet-renderers/ExamRenderer';
 import { KelimeCumleRenderer } from './sheet-renderers/KelimeCumleRenderer';
@@ -158,6 +159,10 @@ export const SheetRenderer = React.memo(
       return withWrapper(<EsAnlamliKelimelerSheet data={resolvedData as unknown as any} />);
     }
 
+    if (activityType === ActivityType.LETTER_MAZE_TEST) {
+      return withWrapper(<LetterMazeTestSheet data={resolvedData as unknown as any} settings={settings} />);
+    }
+
     if (activityType === ActivityType.NUMBER_LOGIC_RIDDLES) {
       return withWrapper(<GizemliSayilarSheet data={resolvedData as unknown as any} settings={settings} />);
     }
@@ -166,7 +171,12 @@ export const SheetRenderer = React.memo(
       return withWrapper(<ShortAnswerSheet data={((resolvedData as Record<string, unknown>).content || resolvedData) as unknown as any} />);
     }
 
-    if (activityType === ActivityType.INFOGRAPHIC_STUDIO && resolvedData) {
+    if (
+      (activityType === ActivityType.INFOGRAPHIC_STUDIO ||
+        activityType === ActivityType.INFOGRAPHIC_CONCEPT_MAP ||
+        activityType === ActivityType.INFOGRAPHIC_5W1H_BOARD) &&
+      resolvedData
+    ) {
       return withWrapper(<InfographicRenderer data={resolvedData as unknown as any} settings={settings} />);
     }
 

@@ -55,7 +55,11 @@ import { RealLifeMathConfig } from './RealLifeMathConfig';
 import { NumberPatternConfig } from './NumberPatternConfig';
 import { KendokuConfig } from './KendokuConfig';
 import { NumberPyramidConfig } from './NumberPyramidConfig';
-
+import { SemanticLinkerConfig } from './SemanticLinkerConfig';
+import { SariKitapStudioConfig } from './SariKitapStudioConfig';
+import { LetterMazeTestConfig } from './LetterMazeTestConfig';
+import { InfographicConceptMapConfig } from './InfographicConceptMapConfig';
+import { Infographic5W1HBoardConfig } from './Infographic5W1HBoardConfig';
 
 import {
   OddEvenSudokuConfig,
@@ -127,6 +131,11 @@ export const ActivityConfigRegistry: Record<string, unknown> = {
   [ActivityType.NUMBER_PATTERN]: NumberPatternConfig,
   [ActivityType.KENDOKU]: KendokuConfig,
   [ActivityType.NUMBER_PYRAMID]: NumberPyramidConfig,
+  [ActivityType.SEMANTIC_LINKER]: SemanticLinkerConfig,
+  [ActivityType.SARI_KITAP_STUDIO]: SariKitapStudioConfig,
+  [ActivityType.LETTER_MAZE_TEST]: LetterMazeTestConfig,
+  [ActivityType.INFOGRAPHIC_CONCEPT_MAP]: InfographicConceptMapConfig,
+  [ActivityType.INFOGRAPHIC_5W1H_BOARD]: Infographic5W1HBoardConfig,
   // AUTONOM_CONFIG_REGISTRY_START
   // AUTONOM_CONFIG_REGISTRY_END
 };
