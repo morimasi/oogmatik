@@ -24,13 +24,17 @@ export const generateAlgorithmGeneratorFromAI = async (options: GeneratorOptions
     - Disleksi/Diskalkuli profiline uygun olarak sayısal ifadeler somutlaştırılmalıdır.
     
     ÇIKTI: Sadece JSON döndür.
+    
+    [KRİTİK]: Döndürülen JSON, 'pedagogicalNote' isimli öğretmen geri bildirim notunu kesinlikle içermelidir.
     `;
 
-    const schema = {
+const schema = {
         type: 'ARRAY',
         items: {
             type: 'OBJECT',
             properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
                 title: { type: 'STRING', description: 'Algoritma başlığı' },
                 instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
                 challenge: { type: 'STRING', description: "Algoritmanın çözdüğü temel problem/senaryo" },
@@ -44,7 +48,7 @@ export const generateAlgorithmGeneratorFromAI = async (options: GeneratorOptions
                             type: { type: 'STRING', description: 'Adım türü', enum: ['start', 'process', 'decision', 'input', 'output', 'end'] },
                             text: { type: 'STRING', description: "Adımın eylem cümlesi" }
                         },
-                        required: ['id', 'type', 'text']
+                        required: ['pedagogicalNote', 'id', 'type', 'text']
                     }
                 }
             },

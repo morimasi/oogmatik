@@ -72,11 +72,15 @@ export const generateFromRichPrompt = async (
     ${options.isExactClone ? "2. ORİJİNAL VERİLERİN, KELİMELERİN VE SAYILARIN TAMAMINI KESİNTİSİZ KORU. 'content' OBJELERİNİ EKSİKSİZ DOLDUR." : "2. Mevcut çeldirici mantığını (reversal, omission vb.) yeni verilere uyarla."}
     3. Üretimden önce mimarinin yapısal bütünlüğünü 4000 token bütçesiyle düşün.
     4. layoutArchitecture.cols değerini orijinal sayfa düzenine göre belirle (1 veya 2).
+    
+    [KRİTİK]: Döndürülen JSON, 'pedagogicalNote' isimli öğretmen geri bildirim notunu kesinlikle içermelidir.
     `;
 
-    const schema = {
+const schema = {
         type: 'OBJECT',
         properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
             title: { type: 'STRING' },
             instruction: { type: 'STRING' },
             layoutArchitecture: {
@@ -237,7 +241,7 @@ export const generateFromRichPrompt = async (
                                 },
                                 weight: { type: 'INTEGER' }
                             },
-                            required: ['type', 'content']
+                            required: ['pedagogicalNote', 'type', 'content']
                         }
                     }
                 },

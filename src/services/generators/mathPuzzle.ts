@@ -88,11 +88,15 @@ KURALLAR:
 4. FINAL SORU (finalQuestion): Denklemlerde çözülen nesne değerlerini kullanarak YENİ bir işlem olmalı. Örn: denklemler "Elma=5, Armut=3" dediyse final soru "2×Elma + 3×Armut" veya "Elma×Armut" gibi denklemlerde GÖRÜNMEYEN yeni bir kombinasyon olmalı. "Elma+Armut" gibi direkt değer toplama olmamalı.
 5. Nesne isimleri Türkçe ve ${ageGroup} yaşa uygun olsun.
 6. imagePrompt İngilizce, minimalist, beyaz arka plan.
-`;
 
-  const schema = {
+    [KRİTİK]: Döndürülen JSON, 'pedagogicalNote' isimli öğretmen geri bildirim notunu kesinlikle içermelidir.
+    `;
+
+const schema = {
     type: 'OBJECT',
     properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
       title: { type: 'STRING', description: 'Etkinlik başlığı' },
       instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' },
       puzzles: {
@@ -109,7 +113,7 @@ KURALLAR:
                   imagePrompt: { type: 'STRING', description: 'Görsel üretim promptu (İngilizce)' },
                   value: { type: 'NUMBER', description: 'Nesnenin sayısal değeri' }
                 },
-                required: ['name', 'imagePrompt', 'value']
+                required: ['pedagogicalNote', 'name', 'imagePrompt', 'value']
               }
             },
             equations: {

@@ -85,11 +85,15 @@ export const generateMathProblemsAI = async (config: MathProblemConfig) => {
         }
       ]
     }
+    
+    [KRİTİK]: Döndürülen JSON, 'pedagogicalNote' isimli öğretmen geri bildirim notunu kesinlikle içermelidir.
     `;
 
-    const schema = {
+const schema = {
         type: 'OBJECT',
         properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
             instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' },
             problems: {
                 type: 'ARRAY', description: 'Matematik problemleri dizisi',
@@ -105,7 +109,7 @@ export const generateMathProblemsAI = async (config: MathProblemConfig) => {
                         options: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Şık seçenekleri' },
                         steps: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Çözüm adımları' }
                     },
-                    required: ['text', 'answer', 'operationHint', 'type']
+                    required: ['pedagogicalNote', 'text', 'answer', 'operationHint', 'type']
                 }
             }
         },

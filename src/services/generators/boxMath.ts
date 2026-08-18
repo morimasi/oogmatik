@@ -43,11 +43,15 @@ export const generateBoxMathFromAI = async (options: GeneratorOptions) => {
         }
       ]
     }
+    
+    [KRİTİK]: Döndürülen JSON, 'pedagogicalNote' isimli öğretmen geri bildirim notunu kesinlikle içermelidir.
     `;
 
-  const schema = {
+const schema = {
     type: 'OBJECT',
     properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
       instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
       problems: {
         type: 'ARRAY', description: 'Kutu problemleri dizisi',
@@ -59,7 +63,7 @@ export const generateBoxMathFromAI = async (options: GeneratorOptions) => {
             givenValue: { type: 'NUMBER', description: 'Verilen kutu değeri' },
             answer: { type: 'NUMBER', description: 'Doğru cevap' },
           },
-          required: ['expression', 'answer'],
+          required: ['pedagogicalNote', 'expression', 'answer'],
         },
       },
     },

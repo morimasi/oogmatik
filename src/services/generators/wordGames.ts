@@ -29,13 +29,17 @@ export const generateHiddenPasswordGridFromAI = async (options: GeneratorOptions
     
     ${PEDAGOGICAL_PROMPT}
     ${worksheetCount} adet çalışma sayfası üret.
+    
+    [KRİTİK]: Döndürülen JSON, 'pedagogicalNote' isimli öğretmen geri bildirim notunu kesinlikle içermelidir.
     `;
 
-    const schema = {
+const schema = {
         type: 'ARRAY',
         items: {
             type: 'OBJECT',
             properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
                 title: { type: 'STRING' },
                 instruction: { type: 'STRING' },
                 settings: {
@@ -56,7 +60,7 @@ export const generateHiddenPasswordGridFromAI = async (options: GeneratorOptions
                             hiddenWord: { type: 'STRING' },
                             grid: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } } }
                         },
-                        required: ['targetLetter', 'hiddenWord', 'grid']
+                        required: ['pedagogicalNote', 'targetLetter', 'hiddenWord', 'grid']
                     }
                 }
             },

@@ -18,15 +18,19 @@ export const analyzeReferenceFiles = async (files: MultimodalFile[], _currentPro
     
     [ÇIKTI FORMATI: BLUEPRINT_V1.0]
     Yeni bir Gemini isteği için MASTER PROMPT oluştur. Bu prompt, 'layoutArchitecture' yapısını mükemmel şekilde tarif etmeli.
+    
+    [KRİTİK]: Döndürülen JSON, 'pedagogicalNote' isimli öğretmen geri bildirim notunu kesinlikle içermelidir.
     `;
 
-  const schema = {
+const schema = {
     type: 'OBJECT',
     properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
       analysis: { type: 'STRING' },
       blueprintPrompt: { type: 'STRING' }
     },
-    required: ['analysis', 'blueprintPrompt']
+    required: ['pedagogicalNote', 'analysis', 'blueprintPrompt']
   };
 
   // Fix: Removed 'useFlash' property from the generateCreativeMultimodal call as it is not part of the defined type
@@ -122,11 +126,15 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
       ÖRNEK CONTENT: {"text": "Aşağıdaki kelimeleri okuyun.", "style": "bold"}
       
     DİKKAT: content objesini asla boş bırakma. Seçtiğin 'type' değerine uygun örnek içeriği çoğaltıp detaylandırarak üret.
+    
+    [KRİTİK]: Döndürülen JSON, 'pedagogicalNote' isimli öğretmen geri bildirim notunu kesinlikle içermelidir.
     `;
 
-  const schema = {
+const schema = {
     type: 'OBJECT',
     properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
       title: { type: 'STRING' },
       instruction: { type: 'STRING' },
       layoutArchitecture: {
@@ -150,7 +158,7 @@ export const generateCreativeStudioActivity = async (enrichedPrompt: string, opt
                 content: { type: 'STRING', description: 'Block content JSON: for header: { text }, for text: { paragraphs: string[] }, for grid: { cells: string[][] }, for table: { headers: string[], rows: string[][] }, for logic_card: { premise: string, options: string[], correctIndex: number }, for image: { url: string, alt: string }, for cloze_test: { text: string, blanks: { key: string, answer: string }[] }, for categorical_sorting: { categories: { name: string, items: string[] }[] }, for match_columns: { left: string[], right: string[], pairs: number[][] }, for visual_clue_card: { image: string, hint: string }, for neuro_marker: { type: string }' },
                 weight: { type: 'INTEGER' }
               },
-              required: ['type', 'content']
+              required: ['pedagogicalNote', 'type', 'content']
             }
           }
         },

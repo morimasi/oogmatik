@@ -33,6 +33,8 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
         items: {
             type: 'OBJECT',
             properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
                 title: { type: 'STRING', description: 'Etkinlik başlığı' },
                 instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' },
                 sumTarget: { type: 'INTEGER', description: 'Toplam hedef değeri' },
@@ -53,7 +55,7 @@ export const generateNumberLogicRiddlesFromAI = async (options: GeneratorOptions
                                         icon: { type: 'STRING', description: "FontAwesome ikon kodu (örn: fa-microchip, fa-dna)" },
                                         type: { type: 'STRING', description: 'İpucu matematik türü', enum: ['parity', 'digits', 'comparison', 'arithmetic', 'range'] }
                                     },
-                                    required: ['text', 'icon', 'type']
+                                    required: ['pedagogicalNote', 'text', 'icon', 'type']
                                 }
                             },
                             visualDistraction: { type: 'ARRAY', items: { type: 'INTEGER' }, description: "Arka plan için 5-6 adet rastgele sayı." },

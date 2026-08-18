@@ -36,11 +36,15 @@ export const generateFillBlanks = async (config: GenerationConfig): Promise<Fill
     5. Disleksi dostu, somut ve görselleştirilebilir cümleler kur.
     
     FORMAT: Sadece JSON döndür.
-  `;
+  
+    [KRİTİK]: Döndürülen JSON, 'pedagogicalNote' isimli öğretmen geri bildirim notunu kesinlikle içermelidir.
+    `;
 
-  const schema = {
+const schema = {
     type: 'OBJECT',
     properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
       settings: { type: 'OBJECT', description: 'Activity settings', properties: { compactLayout: { type: 'BOOLEAN', description: 'Dar yerleşim' }, fontSize: { type: 'STRING', enum: ['small', 'medium', 'large'], description: 'Yazı boyutu' }, showWordBank: { type: 'BOOLEAN', description: 'Kelime bankası göster' }, maxAttempts: { type: 'INTEGER', description: 'Maksimum deneme' }, hintEnabled: { type: 'BOOLEAN', description: 'İpucu aktif' }, randomizeOrder: { type: 'BOOLEAN', description: 'Rastgele sırala' } } },
       content: {
         type: 'OBJECT',
@@ -92,11 +96,15 @@ export const generateMultipleChoiceVerbal = async (config: GenerationConfig): Pr
     - Seviye: ${config.difficulty}, Yaş: ${config.ageGroup}.
     - Çeldiriciler (distractors) öğrencinin kafasını karıştırmayacak ama bilişsel bir ayrım yapmasını sağlayacak nitelikte olmalı.
     - Sorular kelime bilgisi, eş anlam, zıt anlam veya cümle tamamlama odaklı olabilir.
-  `;
+  
+    [KRİTİK]: Döndürülen JSON, 'pedagogicalNote' isimli öğretmen geri bildirim notunu kesinlikle içermelidir.
+    `;
 
-  const schema = {
+const schema = {
     type: 'OBJECT',
     properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
       content: {
         type: 'OBJECT',
         properties: {
@@ -141,11 +149,15 @@ export const generateWordCompletion = async (config: GenerationConfig): Promise<
     - Kelimelerin içinden 1 veya 2 harfi çıkart ve yerine alt çizgi (_) koy (Örn: El_a).
     - Çıkartılan harfler fonetik olarak kritik olmalı (b/d karışıklığı, sesli harf takibi vb. odaklı).
     - Her kelime için görsel bir ipucu (imagePrompt) tanımla.
-  `;
+  
+    [KRİTİK]: Döndürülen JSON, 'pedagogicalNote' isimli öğretmen geri bildirim notunu kesinlikle içermelidir.
+    `;
 
-  const schema = {
+const schema = {
     type: 'OBJECT',
     properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
       content: { type: 'OBJECT', description: 'İçerik başlık ve yönerge', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, instruction: { type: 'STRING', description: 'Öğrenci yönergesi' } } },
       items: {
         type: 'ARRAY',
@@ -184,11 +196,15 @@ export const generateMixedSentence = async (config: GenerationConfig): Promise<M
     - Kelimeler anlamlı bir cümle oluşturacak şekilde rastgele karıştırılmalı.
     - Cümleler öğrencinin seviyesine (${config.difficulty}) göre 3-7 kelime arası olmalı.
     - Her cümle için bir ipucu kelimesi (clueWord) verilebilir.
-  `;
+  
+    [KRİTİK]: Döndürülen JSON, 'pedagogicalNote' isimli öğretmen geri bildirim notunu kesinlikle içermelidir.
+    `;
 
-  const schema = {
+const schema = {
     type: 'OBJECT',
     properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
       content: { type: 'OBJECT', description: 'İçerik başlık ve yönerge', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, instruction: { type: 'STRING', description: 'Öğrenci yönergesi' } } },
       items: {
         type: 'ARRAY',
@@ -226,11 +242,15 @@ export const generateAntonyms = async (config: GenerationConfig): Promise<Antony
     - Sadece zıt anlamlara odaklan.
     - Kelimeler günlük hayattan ve müfredatla uyumlu olmalı.
     - Her madde için kelimenin geçtiği bir örnek cümle (contextSentence) oluştur.
-  `;
+  
+    [KRİTİK]: Döndürülen JSON, 'pedagogicalNote' isimli öğretmen geri bildirim notunu kesinlikle içermelidir.
+    `;
 
-  const schema = {
+const schema = {
     type: 'OBJECT',
     properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
       content: { type: 'OBJECT', description: 'İçerik başlık ve yönerge', properties: { title: { type: 'STRING', description: 'Etkinlik başlığı' }, instruction: { type: 'STRING', description: 'Öğrenci yönergesi' } } },
       items: {
         type: 'ARRAY',

@@ -189,6 +189,8 @@ export const generateFindTheDifferenceFromAI = async (
   const singleSchema = {
     type: 'OBJECT',
     properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
       title: { type: 'STRING', description: 'Etkinlik başlığı' },
       instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' },
       settings: {
@@ -224,7 +226,7 @@ export const generateFindTheDifferenceFromAI = async (
               }
             }
           },
-          required: ['gridA', 'gridB', 'diffCount', 'title']
+          required: ['pedagogicalNote', 'gridA', 'gridB', 'diffCount', 'title']
         }
       }
     },

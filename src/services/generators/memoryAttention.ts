@@ -83,10 +83,12 @@ export const generateVisualMemoryFromAI = async (options: GeneratorOptions): Pro
     const itemSchema = {
         type: 'OBJECT',
         properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
             description: { type: 'STRING', description: 'Nesne tanımı (Türkçe)' },
             imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' }
         },
-        required: ['description', 'imagePrompt']
+        required: ['pedagogicalNote', 'description', 'imagePrompt']
     };
     const singleSchema = {
         type: 'OBJECT',
@@ -121,6 +123,8 @@ export const generateNumberSearchFromAI = async (options: GeneratorOptions): Pro
     const singleSchema = {
         type: 'OBJECT',
         properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
             title: { type: 'STRING', description: 'Etkinlik başlığı' },
             instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
             imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' },
@@ -129,7 +133,7 @@ export const generateNumberSearchFromAI = async (options: GeneratorOptions): Pro
                 type: 'OBJECT',
                 description: 'Sayı aralığı',
                 properties: { start: { type: 'INTEGER', description: 'Başlangıç' }, end: { type: 'INTEGER', description: 'Bitiş' } },
-                required: ['start', 'end']
+                required: ['pedagogicalNote', 'start', 'end']
             }
         },
         required: ['title', 'numbers', 'range', 'instruction', 'imagePrompt']
@@ -153,12 +157,14 @@ export const generateFindTheDuplicateInRowFromAI = async (options: GeneratorOpti
     const singleSchema = {
         type: 'OBJECT',
         properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
             title: { type: 'STRING', description: 'Etkinlik başlığı' },
             instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
             imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' },
             rows: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } }, description: 'Karakter satırları (her satırda tekrar var)' }
         },
-        required: ['title', 'rows', 'instruction', 'imagePrompt']
+        required: ['pedagogicalNote', 'title', 'rows', 'instruction', 'imagePrompt']
     };
     const schema = { type: 'ARRAY', description: 'İkili bul sayfaları', items: singleSchema };
     
@@ -184,13 +190,15 @@ export const generateLetterGridTestFromAI = async (options: GeneratorOptions): P
     const singleSchema = {
         type: 'OBJECT',
         properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
             title: { type: 'STRING', description: 'Etkinlik başlığı' },
             instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
             imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' },
             grid: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } }, description: 'Harf ızgarası' },
             targetLetters: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Bulunacak harfler' }
         },
-        required: ['title', 'grid', 'targetLetters', 'instruction', 'imagePrompt']
+        required: ['pedagogicalNote', 'title', 'grid', 'targetLetters', 'instruction', 'imagePrompt']
     };
     const schema = { type: 'ARRAY', description: 'Harf ızgarası sayfaları', items: singleSchema };
     
@@ -214,6 +222,8 @@ export const generateTargetSearchFromAI = async (options: GeneratorOptions): Pro
     const singleSchema = {
         type: 'OBJECT',
         properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
             title: { type: 'STRING', description: 'Etkinlik başlığı' },
             instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
             imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' },
@@ -221,7 +231,7 @@ export const generateTargetSearchFromAI = async (options: GeneratorOptions): Pro
             target: { type: 'STRING', description: 'Hedef karakter' },
             distractor: { type: 'STRING', description: 'Çeldirici karakter' }
         },
-        required: ['title', 'grid', 'target', 'distractor', 'instruction', 'imagePrompt']
+        required: ['pedagogicalNote', 'title', 'grid', 'target', 'distractor', 'instruction', 'imagePrompt']
     };
     const schema = { type: 'ARRAY', description: 'Hedef karakter avı sayfaları', items: singleSchema };
     
@@ -247,6 +257,8 @@ export const generateColorWheelMemoryFromAI = async (options: GeneratorOptions):
     const singleSchema = {
         type: 'OBJECT',
         properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
             title: { type: 'STRING', description: 'Etkinlik başlığı' },
             instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
             imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' },
@@ -262,7 +274,7 @@ export const generateColorWheelMemoryFromAI = async (options: GeneratorOptions):
                         color: { type: 'STRING', description: 'Renk değeri (hex/css)' },
                         imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' }
                     },
-                    required: ["name", "color", "imagePrompt"]
+                    required: ['pedagogicalNote', "name", "color", "imagePrompt"]
                 }
             }
         },
@@ -292,6 +304,8 @@ export const generateImageComprehensionFromAI = async (options: GeneratorOptions
     const singleSchema = {
         type: 'OBJECT',
         properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
             title: { type: 'STRING', description: 'Etkinlik başlığı' },
             instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
             imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' },
@@ -300,7 +314,7 @@ export const generateImageComprehensionFromAI = async (options: GeneratorOptions
             sceneDescription: { type: 'STRING', description: 'Sahne betimlemesi (Türkçe)' },
             questions: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Resimle ilgili sorular' }
         },
-        required: ["title", "memorizeTitle", "testTitle", "sceneDescription", "imagePrompt", "questions", 'instruction']
+        required: ['pedagogicalNote', "title", "memorizeTitle", "testTitle", "sceneDescription", "imagePrompt", "questions", 'instruction']
     };
     const schema = { type: 'ARRAY', description: 'Resim anlama sayfaları', items: singleSchema };
     
@@ -335,6 +349,8 @@ export const generateCharacterMemoryFromAI = async (options: GeneratorOptions): 
     const singleSchema = {
         type: 'OBJECT',
         properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
             title: { type: 'STRING', description: 'Etkinlik başlığı' },
             instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
             imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' },
@@ -349,7 +365,7 @@ export const generateCharacterMemoryFromAI = async (options: GeneratorOptions): 
                         description: { type: 'STRING', description: 'Karakter tanımı' },
                         imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' }
                     },
-                    required: ["description", "imagePrompt"]
+                    required: ['pedagogicalNote', "description", "imagePrompt"]
                 }
             },
             testCharacters: {
@@ -391,6 +407,8 @@ export const generateStroopTestFromAI = async (options: GeneratorOptions): Promi
     const singleSchema = {
         type: 'OBJECT',
         properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
             title: { type: 'STRING', description: 'Etkinlik başlığı' },
             instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
             imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' },
@@ -400,7 +418,7 @@ export const generateStroopTestFromAI = async (options: GeneratorOptions): Promi
                 items: {
                     type: 'OBJECT',
                     properties: { text: { type: 'STRING', description: 'Renk adı metni' }, color: { type: 'STRING', description: 'Yazı rengi (çelişen)' } },
-                    required: ["text", "color"]
+                    required: ['pedagogicalNote', "text", "color"]
                 }
             }
         },
@@ -424,6 +442,8 @@ export const generateChaoticNumberSearchFromAI = async (options: GeneratorOption
     const singleSchema = {
         type: 'OBJECT',
         properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
             title: { type: 'STRING', description: 'Etkinlik başlığı' },
             instruction: { type: 'STRING', description: 'Öğrenci yönergesi' },
             imagePrompt: { type: 'STRING', description: 'Görsel prompt (İngilizce)' },
@@ -440,7 +460,7 @@ export const generateChaoticNumberSearchFromAI = async (options: GeneratorOption
                         rotation: { type: 'NUMBER', description: 'Dönüş açısı (derece)' },
                         color: { type: 'STRING', description: 'Renk (hex/css)' }
                     },
-                    required: ["value", "x", "y", "size", "color"]
+                    required: ['pedagogicalNote', "value", "x", "y", "size", "color"]
                 }
             },
             range: { type: 'OBJECT', description: 'Sayı aralığı', properties: { start: { type: 'INTEGER', description: 'Başlangıç' }, end: { type: 'INTEGER', description: 'Bitiş' } }, required: ["start", "end"] }

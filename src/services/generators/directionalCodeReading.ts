@@ -46,11 +46,15 @@ Aşağıdaki JSON formatında (DirectionalCodeReadingData) çıktı ver:
 - activityType: "DIRECTIONAL_CODE_READING"
 - settings: { "difficulty", "gridSize", "cipherType", "aestheticMode", "codeLength": ${codeLength}, "puzzleCount": ${puzzleCount} }
 - content: { "title", "storyIntro", "puzzles": [...] }
-`;
 
-  const schema = {
+    [KRİTİK]: Döndürülen JSON, 'pedagogicalNote' isimli öğretmen geri bildirim notunu kesinlikle içermelidir.
+    `;
+
+const schema = {
     type: 'OBJECT',
     properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
       id: { type: 'STRING' },
       activityType: { type: 'STRING' },
       settings: {
@@ -115,7 +119,7 @@ Aşağıdaki JSON formatında (DirectionalCodeReadingData) çıktı ver:
                     }
                 }
               },
-              required: ['id', 'grid', 'instructions']
+              required: ['pedagogicalNote', 'id', 'grid', 'instructions']
             }
           }
         },

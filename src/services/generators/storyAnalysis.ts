@@ -131,11 +131,15 @@ JSON FORMATI:
 }
 
 NOT: answer alanları MUTLAKA boş string "" olsun. Öğrenci kendi cevaplasın.
-`;
 
-  const schema = {
+    [KRİTİK]: Döndürülen JSON, 'pedagogicalNote' isimli öğretmen geri bildirim notunu kesinlikle içermelidir.
+    `;
+
+const schema = {
     type: 'OBJECT',
     properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
       title: { type: 'STRING' },
       instruction: { type: 'STRING' },
       imagePrompt: { type: 'STRING' },
@@ -196,7 +200,7 @@ NOT: answer alanları MUTLAKA boş string "" olsun. Öğrenci kendi cevaplasın.
         }
       }
     },
-    required: ['title', 'instruction', 'content', 'questions']
+    required: ['pedagogicalNote', 'title', 'instruction', 'content', 'questions']
   };
 
   const result = await generateCreativeMultimodal({ prompt, schema }) as unknown as Record<string, unknown>;

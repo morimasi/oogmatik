@@ -38,6 +38,8 @@ export async function generateSariKitapContent(
     const schema = {
         type: 'OBJECT',
         properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
             title: { type: 'STRING' },
             rawText: { type: 'STRING' },
             instructions: { type: 'STRING' },
@@ -46,7 +48,7 @@ export async function generateSariKitapContent(
             wordBlocks: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } } },
             memoryData: { type: 'OBJECT' }
         },
-        required: ['title']
+        required: ['pedagogicalNote', 'title']
     };
 
     // Use the robust geminiClient instead of direct fetch

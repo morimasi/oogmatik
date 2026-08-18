@@ -38,13 +38,17 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
     ÇIKTI BİLGİSİ:
     - correctCount: Hedef şeklin tam adedi.
     - searchField: Nesne listesi (x, y, type, color, rotation, size).
+    
+    [KRİTİK]: Döndürülen JSON, 'pedagogicalNote' isimli öğretmen geri bildirim notunu kesinlikle içermelidir.
     `;
 
-    const schema = {
+const schema = {
         type: 'ARRAY',
         items: {
             type: 'OBJECT',
             properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
                 title: { type: 'STRING', description: 'Etkinlik başlığı' },
                 instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' },
                 correctCount: { type: 'INTEGER', description: 'Hedef şeklin doğru sayısı' },
@@ -72,7 +76,7 @@ export const generateShapeCountingFromAI = async (options: GeneratorOptions): Pr
                             x: { type: 'NUMBER', description: 'Yatay konum (0-100)' },
                             y: { type: 'NUMBER', description: 'Dikey konum (0-100)' }
                         },
-                        required: ['type', 'color', 'x', 'y']
+                        required: ['pedagogicalNote', 'type', 'color', 'x', 'y']
                     }
                 },
                 clinicalMeta: {

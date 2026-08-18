@@ -34,6 +34,8 @@ export const generateMathMemoryCardsFromAI = async (options: GeneratorOptions): 
         items: {
             type: 'OBJECT',
             properties: {
+                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
+
                 title: { type: 'STRING', description: 'Etkinlik başlığı' },
                 instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' },
                 cards: {
@@ -48,7 +50,7 @@ export const generateMathMemoryCardsFromAI = async (options: GeneratorOptions): 
                             visualType: { type: 'STRING', description: 'Görsel stil tipi', nullable: true },
                             numValue: { type: 'NUMBER', description: 'Sayısal değer' }
                         },
-                        required: ['id', 'pairId', 'type', 'content', 'numValue']
+                        required: ['pedagogicalNote', 'id', 'pairId', 'type', 'content', 'numValue']
                     }
                 }
             },
