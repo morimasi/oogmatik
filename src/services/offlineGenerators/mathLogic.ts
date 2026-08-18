@@ -1,5 +1,5 @@
 
-import { GeneratorOptions, NumberPathLogicData, NumberLogicRiddleData, MathPuzzleData } from '../../types';
+import { GeneratorOptions, NumberPathLogicData, MathPuzzleData } from '../../types';
 import { shuffle, getRandomInt, getRandomItems } from './helpers';
 
 /**
