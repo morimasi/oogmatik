@@ -23,9 +23,9 @@ Gereksinim Duyulan Dosyalar:
 6. `index.ts` — Barrel export
 
 ## Kural 2: Görsel Standart (Ultra Premium A4)
-- **WorksheetUI.tsx:** Lexend font, 0.5cm margin, compact grid/matris yapısı
-- Her soruda `visualHint` alanı zorunlu
-- `pedagogicalNote` alanı öğretmen için görünür
+- **Çıktı Standartları**: Lexend font, min %85 sayfa doluluğu, max 24px (1.5rem) padding ve 8px (0.5rem) soru arası boşluk (gap) kesinlikle uygulanmalıdır. (`activity-change-checklist.md` BÖLÜM B standartlarına tam uyum).
+- **Renk Teması**: İlgili kategoriye uygun renk paleti (örneğin Mat & Mantık için Indigo) kullanılmalıdır.
+- **Zorunlu Alanlar**: Her soruda `visualHint` ve `pedagogicalNote` alanı zorunludur.
 
 ## Kural 3: Pedagojik ve Zorluk Ayarları (ConfigPanel)
 - 3 zorluk seviyesi: Kolay, Orta, Zor
