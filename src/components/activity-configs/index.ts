@@ -58,11 +58,13 @@ import { KendokuConfig } from './KendokuConfig';
 import { NumberPyramidConfig } from './NumberPyramidConfig';
 
 
-import { 
-  OddEvenSudokuConfig, 
-  MagicPyramidConfig, 
-  CapsuleGameConfig 
+import {
+  OddEvenSudokuConfig,
+  MagicPyramidConfig,
+  CapsuleGameConfig
 } from './MathLogicConfigs';
+
+import { GizemliSayilarConfig } from './GizemliSayilarConfig';
 
 export const ActivityConfigRegistry: Record<string, unknown> = {
   [ActivityType.MATH_MEMORY_CARDS]: MathMemoryCardsConfig,
@@ -76,7 +78,7 @@ export const ActivityConfigRegistry: Record<string, unknown> = {
   [ActivityType.ALGORITHM_GENERATOR]: AlgorithmConfig,
   [ActivityType.VISUAL_ODD_ONE_OUT]: VisualPerceptionConfig,
   [ActivityType.HIDDEN_PASSWORD_GRID]: HiddenPasswordConfig,
-  [ActivityType.NUMBER_LOGIC_RIDDLES]: MathLogicRiddleConfig,
+  [ActivityType.NUMBER_LOGIC_RIDDLES]: GizemliSayilarConfig,
   [ActivityType.MONEY_COUNTING]: FinancialMathConfig,
   [ActivityType.STORY_COMPREHENSION]: StoryStudioConfig,
   [ActivityType.FAMILY_LOGIC_TEST]: FamilyLogicConfig,
@@ -115,7 +117,7 @@ export const ActivityConfigRegistry: Record<string, unknown> = {
   [ActivityType.MISSING_PARTS]: AdvancedMissingPartsConfig,
 
   [ActivityType.QUEUE_ORDERING]: QueueOrderingConfig,
-  
+
   [ActivityType.ODD_EVEN_SUDOKU]: OddEvenSudokuConfig,
   [ActivityType.MAGIC_PYRAMID]: MagicPyramidConfig,
   [ActivityType.CAPSULE_GAME]: CapsuleGameConfig,

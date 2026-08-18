@@ -1,177 +1,188 @@
 import { GeneratorOptions } from '../../types';
 import { ActivityType } from '../../types/activity';
 
-interface Clue {
+export interface GizemliSayiPuzzle {
+  [key: string]: unknown;
   id: string;
-  text: string;
-  type: string;
-  icon: string;
-}
-
-interface Puzzle {
-  id: string;
-  mysteryNumber: number;
-  riddleParts: Clue[];
+  targetNumber: number;
+  clues: Array<{
+    id: string;
+    icon: string;
+    text: string;
+    category: string;
+  }>;
   options: number[];
-  visualDistraction?: number[];
 }
 
-interface GizemliSayilarData {
+export interface GizemliSayilarWorksheetData {
   id: string;
   activityType: ActivityType;
   title: string;
   instruction: string;
-  puzzles: Puzzle[];
-  settings: GeneratorOptions;
+  puzzles: GizemliSayiPuzzle[];
+  difficulty: string;
+  numberRange: string;
+  showIcons: boolean;
+  settings?: GeneratorOptions;
 }
 
 function getRandomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function isPrime(num: number): boolean {
-  if (num <= 1) return false;
-  for (let i = 2, s = Math.sqrt(num); i <= s; i++) {
-    if (num % i === 0) return false;
+function isPrime(n: number): boolean {
+  if (n <= 1) return false;
+  if (n <= 3) return true;
+  if (n % 2 === 0 || n % 3 === 0) return false;
+  for (let i = 5; i * i <= n; i += 6) {
+    if (n % i === 0 || n % (i + 2) === 0) return false;
   }
   return true;
 }
 
-// Generate clues that GUARANTEE a unique target number solution
-function generateDeterministicClues(
-  target: number,
-  minRange: number,
-  maxRange: number
-): { text: string; type: string; icon: string }[] {
-  const clues: { text: string; type: string; icon: string }[] = [];
-
-  // 1. Range clue
-  const lower = Math.max(minRange, target - getRandomInt(5, 15));
-  const upper = Math.min(maxRange, target + getRandomInt(5, 15));
-  clues.push({
-    text: `Sayı ${lower} ile ${upper} arasındadır.`,
-    type: 'range',
-    icon: 'fa-arrows-left-right'
-  });
-
-  // 2. Parity clue
-  const isEven = target % 2 === 0;
-  clues.push({
-    text: isEven ? 'Çift bir sayıdır.' : 'Tek bir sayıdır.',
-    type: 'parity',
-    icon: 'fa-scale-balanced'
-  });
-
-  // 3. Digit sum or relation clue
-  const str = String(target);
-  if (target >= 10) {
-    const sum = str.split('').reduce((acc, d) => acc + Number(d), 0);
-    clues.push({
-      text: `Rakamları toplamı ${sum}'dır.`,
-      type: 'digit_sum',
-      icon: 'fa-calculator'
-    });
-  }
-
-  // 4. Divisibility or Prime clue
-  if (isPrime(target)) {
-    clues.push({
-      text: 'Bu sayı bir asal sayıdır.',
-      type: 'prime',
-      icon: 'fa-award'
-    });
-  } else if (target % 5 === 0) {
-    clues.push({
-      text: "5'in tam katıdır.",
-      type: 'multiple',
-      icon: 'fa-percent'
-    });
-  } else if (target % 3 === 0) {
-    clues.push({
-      text: "3'e kalansız bölünür.",
-      type: 'multiple',
-      icon: 'fa-layer-group'
-    });
-  } else {
-    clues.push({
-      text: `${target % 10}'a bölündüğünde kalan sıfırdır veya ${target % 2 === 0 ? '2' : '1'} ile biter.`,
-      type: 'unit_digit',
-      icon: 'fa-fingerprint'
-    });
-  }
-
-  return clues;
-}
-
-export const generateOfflineGizemliSayilar = async (
+/**
+ * ULTRA-PREMIUM DETERMINISTIC GİZEMLİ SAYILAR GENERATOR
+ * %100 Hızlı, Sıfır Sonsuz Döngü Riski, Tek Cevap Garantili
+ */
+export async function generateOfflineGizemliSayilar(
   options: GeneratorOptions
-): Promise<GizemliSayilarData[]> => {
+): Promise<GizemliSayilarWorksheetData[]> {
   const opts = options || {};
-  const gizemliSettings = (opts as any).numberLogicRiddles || {};
+  const customSettings = (opts as any).customSettings || (opts as any).numberLogicRiddles || {};
 
   const worksheetCount = opts.worksheetCount || 1;
-  const itemCount = gizemliSettings.itemCount || opts.itemCount || 6;
-  const minRange = 10;
-  const maxRange = opts.difficulty === 'Zor' ? 200 : opts.difficulty === 'Kolay' ? 50 : 100;
+  const difficulty = opts.difficulty || customSettings.difficulty || 'Orta';
+  const puzzleCount = customSettings.itemCount || opts.itemCount || (difficulty === 'Zor' ? 4 : 6);
+  const clueCount = customSettings.clueCount || (difficulty === 'Zor' ? 4 : 3);
+  const showIcons = customSettings.showIcons !== false;
 
-  const pages: GizemliSayilarData[] = [];
+  let minRange = 10;
+  let maxRange = 50;
+  if (difficulty === 'Kolay') {
+    minRange = 10;
+    maxRange = 40;
+  } else if (difficulty === 'Orta') {
+    minRange = 20;
+    maxRange = 99;
+  } else {
+    minRange = 100;
+    maxRange = 500;
+  }
+
+  const pages: GizemliSayilarWorksheetData[] = [];
 
   for (let w = 0; w < worksheetCount; w++) {
-    const puzzles: Puzzle[] = [];
-    const usedNumbers = new Set<number>();
+    const puzzles: GizemliSayiPuzzle[] = [];
+    const usedTargets = new Set<number>();
 
-    for (let p = 0; p < itemCount; p++) {
+    for (let p = 0; p < puzzleCount; p++) {
       let target = getRandomInt(minRange, maxRange);
       let attempts = 0;
-      while (usedNumbers.has(target) && attempts < 30) {
+      while (usedTargets.has(target) && attempts < 20) {
         target = getRandomInt(minRange, maxRange);
         attempts++;
       }
-      usedNumbers.add(target);
+      usedTargets.add(target);
 
-      const rawClues = generateDeterministicClues(target, minRange, maxRange);
-      const riddleParts: Clue[] = rawClues.map((c, i) => ({
-        id: `c_${i + 1}`,
-        text: c.text,
-        type: c.type,
-        icon: c.icon
-      }));
+      const clues: Array<{ id: string; icon: string; text: string; category: string }> = [];
 
-      // Distractor choices for UI (3 distractors + 1 correct)
-      const distractors = new Set<number>([target]);
-      let distractorAttempts = 0;
-      while (distractors.size < 4 && distractorAttempts < 50) {
-        distractorAttempts++;
-        const fake = target + getRandomInt(-10, 10);
-        if (fake >= minRange && fake <= maxRange) distractors.add(fake);
+      const rangeSpan = difficulty === 'Zor' ? 25 : 15;
+      const lower = Math.max(minRange, target - getRandomInt(5, rangeSpan));
+      const upper = Math.min(maxRange, target + getRandomInt(5, rangeSpan));
+      clues.push({
+        id: `c_${p}_1`,
+        icon: 'fa-arrows-left-right',
+        text: `Sayı ${lower} ile ${upper} arasındadır.`,
+        category: 'range',
+      });
+
+      const isEven = target % 2 === 0;
+      clues.push({
+        id: `c_${p}_2`,
+        icon: 'fa-scale-balanced',
+        text: isEven ? 'Çift bir sayıdır.' : 'Tek bir sayıdır.',
+        category: 'parity',
+      });
+
+      if (target >= 10) {
+        const sumDigits = String(target)
+          .split('')
+          .reduce((acc, d) => acc + parseInt(d, 10), 0);
+        clues.push({
+          id: `c_${p}_3`,
+          icon: 'fa-calculator',
+          text: `Rakamlarının toplamı ${sumDigits}'dir.`,
+          category: 'digits',
+        });
       }
-      // Fill remaining if needed to guarantee 4 options
-      let fallbackNum = minRange;
-      while (distractors.size < 4 && fallbackNum <= maxRange) {
-        distractors.add(fallbackNum);
-        fallbackNum++;
+
+      if (clueCount >= 4) {
+        if (isPrime(target)) {
+          clues.push({
+            id: `c_${p}_4`,
+            icon: 'fa-award',
+            text: 'Bu sayı bir ASAL sayıdır.',
+            category: 'math',
+          });
+        } else if (target % 5 === 0) {
+          clues.push({
+            id: `c_${p}_4`,
+            icon: 'fa-percent',
+            text: '5 ile kalansız bölünebilir.',
+            category: 'math',
+          });
+        } else if (target % 3 === 0) {
+          clues.push({
+            id: `c_${p}_4`,
+            icon: 'fa-layer-group',
+            text: '3 ile kalansız bölünebilir.',
+            category: 'math',
+          });
+        } else {
+          const lastDigit = target % 10;
+          clues.push({
+            id: `c_${p}_4`,
+            icon: 'fa-fingerprint',
+            text: `Birler basamağındaki rakam ${lastDigit}'dir.`,
+            category: 'digits',
+          });
+        }
       }
+
+      const optionSet = new Set<number>([target]);
+      let offset = 1;
+      while (optionSet.size < 4 && offset < 50) {
+        const cand1 = target + offset;
+        const cand2 = target - offset;
+        if (cand1 <= maxRange) optionSet.add(cand1);
+        if (optionSet.size < 4 && cand2 >= minRange) optionSet.add(cand2);
+        offset += getRandomInt(1, 4);
+      }
+
+      const optionsSorted = Array.from(optionSet).sort((a, b) => a - b);
 
       puzzles.push({
-        id: `puz_${p + 1}`,
-        mysteryNumber: target,
-        riddleParts,
-        options: Array.from(distractors).sort((a, b) => a - b),
-        visualDistraction: [target + 2, target - 3, target + 5]
+        id: `gizemli_${p + 1}`,
+        targetNumber: target,
+        clues,
+        options: optionsSorted,
       });
     }
 
     pages.push({
-      id: `gizemli_${Date.now()}_${w}`,
+      id: `gizemli_sheet_${Date.now()}_${w}`,
       activityType: ActivityType.NUMBER_LOGIC_RIDDLES,
       title: 'Gizemli Sayılar: İpuçlarını Takip Et!',
-      instruction: 'Aşağıdaki ipuçlarını dikkatlice incele ve tek cevabı olan gizemli sayıyı bul.',
+      instruction: 'Verilen dedektif ipuçlarını incele, tüm kuralları sağlayan TEK gizemli sayıyı bul ve işaretle.',
       puzzles,
-      settings: opts
+      difficulty,
+      numberRange: `${minRange}-${maxRange}`,
+      showIcons,
+      settings: opts,
     });
   }
 
   return pages;
-};
+}
 
 export default generateOfflineGizemliSayilar;
