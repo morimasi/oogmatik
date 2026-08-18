@@ -223,7 +223,9 @@ export const generateOfflineNumberLogicRiddles = async (options: GeneratorOption
             }
 
             const distractors = new Set<string>();
-            while (distractors.size < 3) {
+            let distractorAttempts = 0;
+            while (distractors.size < 3 && distractorAttempts < 50) {
+                distractorAttempts++;
                 const d = getRandomInt(min, max);
                 if (d !== target) distractors.add(String(d));
             }

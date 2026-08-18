@@ -139,9 +139,17 @@ export const generateOfflineGizemliSayilar = async (
 
       // Distractor choices for UI (3 distractors + 1 correct)
       const distractors = new Set<number>([target]);
-      while (distractors.size < 4) {
+      let distractorAttempts = 0;
+      while (distractors.size < 4 && distractorAttempts < 50) {
+        distractorAttempts++;
         const fake = target + getRandomInt(-10, 10);
         if (fake >= minRange && fake <= maxRange) distractors.add(fake);
+      }
+      // Fill remaining if needed to guarantee 4 options
+      let fallbackNum = minRange;
+      while (distractors.size < 4 && fallbackNum <= maxRange) {
+        distractors.add(fallbackNum);
+        fallbackNum++;
       }
 
       puzzles.push({

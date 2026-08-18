@@ -12,6 +12,7 @@ import { NumberPyramidSheet } from '../sheets/math/NumberPyramidSheet';
 import { KendokuSheet } from '../sheets/MathLogicSheets';
 import { OddOneOutSheet } from '../sheets/math/OddOneOutSheet';
 import { NumberLogicRiddleSheet } from '../sheets/math/NumberLogicRiddleSheet';
+import { GizemliSayilarSheet } from '../sheets/math/GizemliSayilarSheet';
 import { NumberPathLogicSheet } from '../sheets/math/NumberPathLogicSheet';
 import { VisualArithmeticSheet } from '../sheets/math/VisualArithmeticSheet';
 import { ClockReadingSheet } from '../sheets/math/ClockReadingSheet';
@@ -165,8 +166,8 @@ export function renderLegacySheet(
       break;
     case ActivityType.NUMBER_LOGIC_RIDDLES:
       renderedSheet = (
-        <NumberLogicRiddleSheet
-          data={data as unknown as unknown as unknown as unknown as NumberLogicRiddleData}
+        <GizemliSayilarSheet
+          data={data}
           settings={settings}
         />
       );
