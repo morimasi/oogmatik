@@ -18,6 +18,7 @@ import { VisualInterpretationSheet } from './sheets/visual/VisualInterpretationS
 import { BrainTeasersSheet } from './sheets/logic/BrainTeasersSheet';
 import { KavramHaritasiSheet } from './sheets/verbal/KavramHaritasiSheet';
 import { EsAnlamliKelimelerSheet } from './sheets/verbal/EsAnlamliKelimelerSheet';
+import { GizemliSayilarSheet } from './sheets/math/GizemliSayilarSheet';
 import { InfographicRenderer } from './sheet-renderers/InfographicRenderer';
 import { ExamRenderer } from './sheet-renderers/ExamRenderer';
 import { KelimeCumleRenderer } from './sheet-renderers/KelimeCumleRenderer';
@@ -155,6 +156,10 @@ export const SheetRenderer = React.memo(
 
     if (activityType === ActivityType.ES_ANLAMLI_KELIMELER) {
       return withWrapper(<EsAnlamliKelimelerSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.NUMBER_LOGIC_RIDDLES) {
+      return withWrapper(<GizemliSayilarSheet data={resolvedData as unknown as any} settings={settings} />);
     }
 
     if (activityType === ActivityType.INFOGRAPHIC_SHORT_ANSWER) {
