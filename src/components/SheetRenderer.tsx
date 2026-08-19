@@ -87,9 +87,9 @@ export const SheetRenderer = React.memo(
         if (mainBlock) {
           resolvedData = {
             ...(resolvedData as Record<string, unknown>),
-            ...(mainBlock.content || {}),
-            title: headerBlock?.content?.title || (resolvedData as any).title || '',
-            instruction: headerBlock?.content?.instruction || (resolvedData as any).instruction || ''
+            ...(mainBlock?.content || {}),
+            title: headerBlock?.content?.title || (resolvedData as any)?.title || '',
+            instruction: headerBlock?.content?.instruction || (resolvedData as any)?.instruction || ''
           };
         }
       }
