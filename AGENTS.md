@@ -214,6 +214,16 @@ Find and fix all activities across 4 categories (Görsel & Mekansal, Okuduğunu 
   - **STORY_ANALYSIS**: `StoryAnalysisSheet`'e `content.vocabulary` (Sözlükçe) bölümü eklendi
   - **SENTENCE_5W1H**: `sentenceFiveWOneH.ts` zorluk cast yalanı kaldırıldı (DIFFICULTY_MAP); `aiContentService.ts` title map'ine 5 eksik etkinlik eklendi
 - **Doğrulama**: `tsc --noEmit` 0 hata, `npm run build` başarılı; `tests/okudugunuAnlamaOfflineSmoke.test.ts` (4 test: logicErrorHunter/fiveWOneH/shortAnswer/missingParts offline şekil kontrolleri) geçiyor
+- **2. tur doğrulama + ek düzeltmeler (OpenCode):**
+  - **MISSING_PARTS**: `AdvancedMissingPartsSheet` paragraphs formatında cevabı "İPUCU: Cevap: X" olarak sızdıran bug kapatıldı (öğrenci sayfasında cevap görünmüyor); AI generator (`advancedMissingParts.ts`) `content.items` doğrulaması + normalizasyon + AppError eklendi (bozuk AI çıktısı → boş sayfa riski kapatıldı)
+  - **INFOGRAPHIC_SHORT_ANSWER**: `SheetRenderer.tsx:636` artık content yerine TÜM data + settings geçiyor (title/instruction/lineStyle/includeHints/includePoints kaybı düzeldi); offline generator `shortAnswerData.ts` zengin havuzunu (4 konu × 8 soru) + topic alias'ları kullanıyor ('Genel Kültür'→'Genel Kültür' vb., sessiz 'Bilim' düşmesi bitti); AI generator doğrulama + settings eklendi
+  - **STORY_ANALYSIS**: `pedagogicalNote` artık generator çıktısında + sheet'te "Öğretmen Notu" olarak render ediliyor; SheetRenderer/LegacyRenderer settings prop'unu geçiyor (compactLayout/showReadingRuler/useIcons artık etkili); difficultyConfig 'Çok Kolay'/'Kolay'/'Uzman' anahtarları eklendi (sessiz 'orta' düşmesi bitti); offline `{character}` placeholder'ları chosenValues ile çözülüyor
+  - **SENTENCE_5W1H**: sheet'te `data.items` ve `item.questions` null-guard'ları (çökme riski kapandı); `Sentence5W1HItem.sentence` tipi eklendi
+  - **FIVE_W_ONE_H**: sheet null-guard'ları; AI prompt'unda `"A) "` ön ekli şıklar düzeltildi (sheet harf balonuyla çift "A) A)" oluyordu)
+  - **LOGIC_ERROR_HUNTER**: AI generator `content.story/errors` doğrulaması + normalizasyon + AppError eklendi
+  - **VISUAL_INTERPRETATION**: sheet artık ÇSS (şıklar) ve açık uçlu/5N1K (yazma alanı) soru tiplerini render ediyor (yalnızca D/Y değil); konu slug'ları Türkçe etiketlere çevriliyor; `generateImage=false` iken görsel API çağrısı yapılmıyor; AI çıktı doğrulaması eklendi
+  - **STORY_COMPREHENSION**: `QUESTION_TYPES`'a '5n1k' + 'open-ended' eklendi (rozet/renk); 5N1K prompt örneği şema ile tutarlı (bireysel tipler); 'fill' dalı `q.question` fallback'i
+  - **Doğrulama**: `tsc --noEmit` 0 hata, `npm run build` başarılı; tam test koşusu değişiklik öncesiyle aynı (150 başarısızlık Firebase PERMISSION_DENIED — ortam kaynaklı, önceden mevcut)
 
 ### Remaining (accessible from UI, not yet fixed)
 - **SEMANTIC_LINKER** — accessible from sidebar; generator returns `{ instruction, items }` where `items` get picked up by UnifiedContentRenderer's `rawBlocksRaw` but aren't proper WorksheetBlocks → blank-ish output. Needs LegacyRenderer entry or modern-layout wrapper.
