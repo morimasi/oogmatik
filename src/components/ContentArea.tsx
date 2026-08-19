@@ -194,7 +194,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   const processedData = React.useMemo(() => {
     if (!worksheetData) return [];
 
-    const safeData = [...worksheetData];
+    const safeData = Array.isArray(worksheetData) ? [...worksheetData] : [worksheetData];
 
     // Assign IDs to blocks if they don't have one, to allow editor selection
     safeData.forEach((ws) => {
@@ -408,7 +408,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         <A4EditorPanel worksheetData={worksheetData} setWorksheetData={setWorksheetData} />
       </div>
 
-{currentView === 'assessment' && (
+      {currentView === 'assessment' && (
         <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
           <React.Suspense
             fallback={
@@ -425,7 +425,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         </div>
       )}
 
-       {currentView === 'mat-sinav-studyosu' && (
+      {currentView === 'mat-sinav-studyosu' && (
         <div className="absolute inset-0 bg-white dark:bg-zinc-900 z-[60] overflow-y-auto">
           <React.Suspense
             fallback={
@@ -439,7 +439,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
         </div>
       )}
 
-      
+
       <ShareModal
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
