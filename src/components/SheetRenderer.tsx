@@ -31,6 +31,28 @@ import { ShortAnswerSheet } from './sheets/verbal/ShortAnswerSheet';
 import { BasicOperationsSheet } from './sheets/math/BasicOperationsSheet';
 import { MathWordProblemsSheet } from './sheets/math/MathWordProblemsSheet';
 import { NumberPyramidSheet } from './sheets/math/NumberPyramidSheet';
+import { NumberPatternSheet } from './sheets/math/NumberPatternSheet';
+import { RealLifeMathProblemsSheet } from './sheets/math/RealLifeMathProblemsSheet';
+import { LogicGridPuzzleSheet } from './sheets/math/LogicGridPuzzleSheet';
+import { FutoshikiSheet } from './sheets/math/FutoshikiSheet';
+import { MathPuzzleSheet } from './sheets/math/MathPuzzleSheet';
+import { OddOneOutSheet } from './sheets/math/OddOneOutSheet';
+import { NumberPathLogicSheet } from './sheets/math/NumberPathLogicSheet';
+import { VisualArithmeticSheet } from './sheets/math/VisualArithmeticSheet';
+import { ClockReadingSheet } from './sheets/math/ClockReadingSheet';
+import { NumberSenseSheet } from './sheets/math/NumberSenseSheet';
+import { MoneyCountingSheet } from './sheets/math/MoneyCountingSheet';
+import { MathMemoryCardsSheet } from './sheets/math/MathMemoryCardsSheet';
+import { SpatialGridSheet } from './sheets/math/SpatialGridSheet';
+import { ConceptMatchSheet } from './sheets/math/ConceptMatchSheet';
+import { EstimationSheet } from './sheets/math/EstimationSheet';
+import { AbcConnectSheet } from './sheets/math/AbcConnectSheet';
+import { OddEvenSudokuSheet } from './sheets/math/OddEvenSudokuSheet';
+import { MagicPyramidSheet } from './sheets/math/MagicPyramidSheet';
+import { CapsuleGameSheet } from './sheets/math/CapsuleGameSheet';
+import { ApartmentLogicSheet } from './sheets/math/ApartmentLogicSheet';
+import { FinancialMarketSheet } from './sheets/math/FinancialMarketSheet';
+import { BoxMathSheet } from './sheets/math/BoxMathSheet';
 
 import { UnifiedContentRenderer } from './SheetRenderer/UnifiedContentRenderer';
 import { renderLegacySheet } from './SheetRenderer/LegacyRenderer';
@@ -151,21 +173,103 @@ export const SheetRenderer = React.memo(
     }
 
     if (activityType === ActivityType.MATH_BASIC_OPERATIONS && resolvedData) {
-      return withWrapper(
-        <BasicOperationsSheet data={resolvedData as unknown as any} />
-      );
+      return withWrapper(<BasicOperationsSheet data={resolvedData as unknown as any} />);
     }
 
     if (activityType === ActivityType.MATH_WORD_PROBLEMS && resolvedData) {
-      return withWrapper(
-        <MathWordProblemsSheet data={resolvedData as unknown as any} />
-      );
+      return withWrapper(<MathWordProblemsSheet data={resolvedData as unknown as any} />);
     }
 
     if (activityType === ActivityType.NUMBER_PYRAMID && resolvedData) {
-      return withWrapper(
-        <NumberPyramidSheet data={resolvedData as unknown as any} />
-      );
+      return withWrapper(<NumberPyramidSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.NUMBER_PATTERN && resolvedData) {
+      return withWrapper(<NumberPatternSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.REAL_LIFE_MATH_PROBLEMS && resolvedData) {
+      return withWrapper(<RealLifeMathProblemsSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.LOGIC_GRID_PUZZLE && resolvedData) {
+      return withWrapper(<LogicGridPuzzleSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.FUTOSHIKI && resolvedData) {
+      return withWrapper(<FutoshikiSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.MATH_PUZZLE && resolvedData) {
+      return withWrapper(<MathPuzzleSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.ODD_ONE_OUT && resolvedData) {
+      return withWrapper(<OddOneOutSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.NUMBER_PATH_LOGIC && resolvedData) {
+      return withWrapper(<NumberPathLogicSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.VISUAL_ARITHMETIC && resolvedData) {
+      return withWrapper(<VisualArithmeticSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.CLOCK_READING && resolvedData) {
+      return withWrapper(<ClockReadingSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.NUMBER_SENSE && resolvedData) {
+      return withWrapper(<NumberSenseSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.MONEY_COUNTING && resolvedData) {
+      return withWrapper(<MoneyCountingSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.MATH_MEMORY_CARDS && resolvedData) {
+      return withWrapper(<MathMemoryCardsSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.SPATIAL_GRID && resolvedData) {
+      return withWrapper(<SpatialGridSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.CONCEPT_MATCH && resolvedData) {
+      return withWrapper(<ConceptMatchSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.ESTIMATION && resolvedData) {
+      return withWrapper(<EstimationSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.ABC_CONNECT && resolvedData) {
+      return withWrapper(<AbcConnectSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.ODD_EVEN_SUDOKU && resolvedData) {
+      return withWrapper(<OddEvenSudokuSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.MAGIC_PYRAMID && resolvedData) {
+      return withWrapper(<MagicPyramidSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.CAPSULE_GAME && resolvedData) {
+      return withWrapper(<CapsuleGameSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.APARTMENT_LOGIC_PUZZLE && resolvedData) {
+      return withWrapper(<ApartmentLogicSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.FINANCIAL_MARKET_CALCULATOR && resolvedData) {
+      return withWrapper(<FinancialMarketSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.BOX_MATH && resolvedData) {
+      return withWrapper(<BoxMathSheet data={resolvedData as unknown as any} />);
     }
 
     if (activityType === ActivityType.VISUAL_INTERPRETATION) {
