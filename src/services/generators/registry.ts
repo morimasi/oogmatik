@@ -259,8 +259,8 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineAlgorithmGenerator,
   },
   [ActivityType.AI_WORKSHEET_CONVERTER]: {
-    ai: withAI(ActivityType.AI_WORKSHEET_CONVERTER),
-    offline: withOffline(ActivityType.AI_WORKSHEET_CONVERTER),
+    ai: (options) => aiGenerators.generateSmartFallbackAI(ActivityType.AI_WORKSHEET_CONVERTER, options),
+    offline: (options) => offlineGenerators.generateOfflineFallback(ActivityType.AI_WORKSHEET_CONVERTER, options),
   },
   [ActivityType.HIDDEN_PASSWORD_GRID]: {
     ai: aiGenerators.generateHiddenPasswordGridFromAI,
@@ -297,7 +297,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineVisualOddOneOut,
   },
   [ActivityType.GRID_DRAWING]: {
-    ai: withAI(ActivityType.GRID_DRAWING),
+    ai: offlineGenerators.generateOfflineGridDrawing,
     offline: offlineGenerators.generateOfflineGridDrawing,
   },
   [ActivityType.SEMANTIC_LINKER]: {
@@ -305,9 +305,8 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: (opt: any) => Promise.resolve(generateSemanticLinkerOffline(opt.count)),
   },
 
-
   [ActivityType.SYMMETRY_DRAWING]: {
-    ai: withAI(ActivityType.SYMMETRY_DRAWING),
+    ai: offlineGenerators.generateOfflineSymmetryDrawing,
     offline: offlineGenerators.generateOfflineSymmetryDrawing,
   },
   [ActivityType.WORD_SEARCH]: {
@@ -319,15 +318,15 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineShapeCounting,
   },
   [ActivityType.DIRECTIONAL_TRACKING]: {
-    ai: withAI(ActivityType.DIRECTIONAL_TRACKING),
+    ai: offlineGenerators.generateOfflineDirectionalTracking,
     offline: offlineGenerators.generateOfflineDirectionalTracking,
   },
   [ActivityType.VISUAL_TRACKING_LINES]: {
-    ai: withAI(ActivityType.VISUAL_TRACKING_LINES),
+    ai: offlineGenerators.generateOfflineVisualTrackingLines,
     offline: offlineGenerators.generateOfflineVisualTrackingLines,
   },
   [ActivityType.ATTENTION_TO_QUESTION]: {
-    ai: withAI(ActivityType.ATTENTION_TO_QUESTION),
+    ai: offlineGenerators.generateOfflineAttentionToQuestion,
     offline: offlineGenerators.generateOfflineAttentionToQuestion,
   },
   [ActivityType.WORD_MEMORY]: {
