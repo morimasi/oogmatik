@@ -205,10 +205,10 @@ export class ActivityService {
         } else {
             // Normal üretim (tek seferde)
             const data = await generator.generate(options);
-            safeData = data ? (Array.isArray(data) ? data : [data]) : [];
+            safeData = data;
         }
 
-        // UI'ın (özellikle useInfographicGenerate hook'unun) beklediği ApiResponse formatında sarmala
+        // UI'ın beklediği ApiResponse formatında sarmala
         return {
             success: true,
             data: safeData,

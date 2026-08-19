@@ -293,14 +293,23 @@ const Sidebar = ({
           finalOptions,
           options.mode === 'ai' ? GeneratorMode.AI : GeneratorMode.OFFLINE
         );
-        result = response.data;
+        // response.data ApiResponse içindedir. Eğer bir array ise ve ilk eleman tekil bir worksheet objesiyse veya array ise düzgünce extract et.
+        if (response && response.success) {
+          result = response.data;
+        } else if (response && response.data) {
+          result = response.data;
+        }
       }
       if (result) {
-        setWorksheetData(result);
-        onAddToHistory(selectedActivity, result);
+        // Eğer result [ [ {...} ] ] veya [ {...} ] şeklinde bir array ise ve içindekiler worksheet ise normalizasyon
+        const finalWorksheetData = Array.isArray(result) && result.length === 1 && Array.isArray(result[0])
+          ? result[0]
+          : result;
+        setWorksheetData(finalWorksheetData);
+        onAddToHistory(selectedActivity, finalWorksheetData);
         statsService.incrementUsage(selectedActivity).catch(console.error);
         if (activeStudent && onSaveWorksheet) {
-          onSaveWorksheet(selectedActivity, result).catch(console.error);
+          onSaveWorksheet(selectedActivity, finalWorksheetData).catch(console.error);
         }
       }
     } catch (e: unknown) {
