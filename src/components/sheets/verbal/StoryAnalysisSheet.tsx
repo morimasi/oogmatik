@@ -3,24 +3,26 @@ import { StoryAnalysisData } from '../../../types';
 import { PedagogicalHeader, ReadingRuler, ImageDisplay } from '../common';
 
 export const StoryAnalysisSheet: React.FC<{ data: StoryAnalysisData; settings?: Record<string, unknown> }> = ({ data, settings }) => {
-    const content = data.content;
+    const rawData = data as any;
+    const resolvedData = rawData?.data || rawData;
+    const content = resolvedData?.content || rawData?.content;
     const compact = (settings?.compactLayout as boolean) ?? false;
 
-    if (!content) {
-        return <div className="p-8 text-center text-zinc-400">İçerik yüklenemedi.</div>;
+    if (!content || !content.story) {
+        return <div className="p-8 text-center text-zinc-400 font-bold">Hikaye Analizi İçeriği Hazırlanıyor...</div>;
     }
 
     const analysis = content.analysis || {};
     const characters = analysis.characters || [];
     const setting = analysis.setting || { place: '', time: '', description: '' };
-    const questions = data.questions || [];
+    const questions = rawData.questions || resolvedData.questions || content.questions || [];
 
     return (
         <div className={`flex flex-col h-full bg-white relative font-lexend p-3 print:p-2 min-h-[297mm]`}>
             <ReadingRuler />
-            <PedagogicalHeader 
-                title={content.title || 'Hikaye Analizi'} 
-                instruction={data.instruction || 'Hikayeyi derinlemesine analiz et.'} 
+            <PedagogicalHeader
+                title={content.title || 'Hikaye Analizi'}
+                instruction={data.instruction || 'Hikayeyi derinlemesine analiz et.'}
             />
 
             {/* Hikaye Metni */}
@@ -34,10 +36,10 @@ export const StoryAnalysisSheet: React.FC<{ data: StoryAnalysisData; settings?: 
                 {characters.length > 0 && (
                     <div className={`p-2.5 print:p-1.5 bg-rose-50 rounded-lg border border-rose-100`}>
                         <h4 className={`text-[8px] font-black text-rose-600 uppercase mb-1.5`}>
-                             Karakterler
+                            Karakterler
                         </h4>
                         <div className="space-y-0.5">
-                            {characters.map((c, i) => (
+                            {characters.map((c: any, i: number) => (
                                 <div key={i} className="flex flex-col">
                                     <span className={`text-xs print:text-[10px] font-bold`}>{c.name}</span>
                                     <span className={`text-[8px] print:text-[7px] text-zinc-500 italic`}>{c.traits?.join(', ')}</span>
@@ -88,7 +90,7 @@ export const StoryAnalysisSheet: React.FC<{ data: StoryAnalysisData; settings?: 
                 <div className="space-y-1.5">
                     <h4 className={`text-[8px] font-black text-zinc-800 uppercase border-b border-zinc-800 pb-0.5`}>Analitik Sorular</h4>
                     <div className={`grid grid-cols-2 gap-1.5 print:gap-1`}>
-                        {questions.map((q, i) => (
+                        {questions.map((q: any, i: number) => (
                             <div key={i} className={`text-xs print:text-[10px]`}>
                                 <p className="font-bold mb-0.5">{i + 1}. {q.question}</p>
                                 <div className={`border-b border-dashed border-zinc-200 h-5 w-full mt-0.5`}></div>
