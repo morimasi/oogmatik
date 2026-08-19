@@ -45,7 +45,7 @@ async function runMathTest() {
             const unwrapped = Array.isArray(result) ? result[0] : result;
 
             // İçerik dizisini kontrol et
-            const items = unwrapped?.items || unwrapped?.questions || unwrapped?.exercises || unwrapped?.content || unwrapped?.puzzles || unwrapped?.clocks || unwrapped?.steps || unwrapped?.grid || unwrapped?.cells || unwrapped?.cards || unwrapped?.paths || unwrapped?.rungs || unwrapped?.sequences || unwrapped?.levels || unwrapped?.numbers || unwrapped?.problems || unwrapped?.riddles || unwrapped?.pyramids || unwrapped?.wordProblems || unwrapped?.pyramidLayers;
+            const items = unwrapped?.items || unwrapped?.questions || unwrapped?.exercises || unwrapped?.content || unwrapped?.puzzles || unwrapped?.clocks || unwrapped?.steps || unwrapped?.grid || unwrapped?.cells || unwrapped?.cards || unwrapped?.paths || unwrapped?.rungs || unwrapped?.sequences || unwrapped?.levels || unwrapped?.numbers || unwrapped?.problems || unwrapped?.riddles || unwrapped?.pyramids || unwrapped?.wordProblems || unwrapped?.pyramidLayers || unwrapped?.patterns || unwrapped?.blocks || unwrapped?.layoutArchitecture?.blocks;
             const hasContent = (Array.isArray(items) && items.length > 0) || (typeof items === 'object' && items !== null);
 
             if (hasContent) {

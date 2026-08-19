@@ -97,7 +97,9 @@ async function runAllTest() {
                 unwrapped?.sequences || unwrapped?.levels || unwrapped?.numbers || unwrapped?.problems ||
                 unwrapped?.riddles || unwrapped?.pyramids || unwrapped?.wordProblems || unwrapped?.pyramidLayers ||
                 unwrapped?.trains || unwrapped?.pairs || unwrapped?.words || unwrapped?.rows ||
-                unwrapped?.text || unwrapped?.exercises || unwrapped?.codesToSolve || unwrapped?.blocks || unwrapped?.layoutArchitecture?.blocks;
+                unwrapped?.text || unwrapped?.exercises || unwrapped?.codesToSolve || unwrapped?.blocks ||
+                unwrapped?.drawings || unwrapped?.wordsToMemorize || unwrapped?.itemsToMemorize ||
+                unwrapped?.charactersToMemorize || unwrapped?.sections || unwrapped?.layoutArchitecture?.blocks;
 
             const hasContent = (Array.isArray(items) && items.length > 0) || (typeof items === 'object' && items !== null);
 

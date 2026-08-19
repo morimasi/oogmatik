@@ -194,21 +194,29 @@ const ContentArea: React.FC<ContentAreaProps> = ({
   const processedData = React.useMemo(() => {
     if (!worksheetData) return [];
 
-    const safeData = Array.isArray(worksheetData) ? [...worksheetData] : [worksheetData];
+    const safeData = Array.isArray(worksheetData)
+      ? worksheetData.filter(Boolean)
+      : worksheetData
+        ? [worksheetData]
+        : [];
 
     // Assign IDs to blocks if they don't have one, to allow editor selection
     safeData.forEach((ws) => {
-      const blocks: WorksheetBlock[] = ws.layoutArchitecture?.blocks || ws.blocks || [];
-      blocks.forEach((block, idx) => {
-        if (!block.id)
-          block.id = `block_${Date.now()}_${idx}_${Math.random().toString(36).substr(2, 5)}`;
-      });
+      if (ws && typeof ws === 'object') {
+        const blocks: WorksheetBlock[] = ws.layoutArchitecture?.blocks || ws.blocks || [];
+        if (Array.isArray(blocks)) {
+          blocks.forEach((block, idx) => {
+            if (block && typeof block === 'object' && !block.id)
+              block.id = `block_${Date.now()}_${idx}_${Math.random().toString(36).substr(2, 5)}`;
+          });
+        }
+      }
     });
 
     const isRichContent =
       activityType === ActivityType.AI_WORKSHEET_CONVERTER ||
       activityType === ActivityType.OCR_CONTENT ||
-      safeData.some((d) => d.sections);
+      safeData.some((d) => d && typeof d === 'object' && Array.isArray(d.sections));
 
     if (activityType && !isRichContent) {
       const paged = paginationService.process(safeData, activityType, styleSettings);

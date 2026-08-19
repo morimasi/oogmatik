@@ -43,6 +43,7 @@ import {
   HiddenPasswordGridSheet,
   CrosswordSheet,
 } from './sheets/verbal/WordGameSheets';
+import { MissingPartsSheet } from './sheets/verbal/MissingPartsSheet';
 import {
   SyllableMasterLabSheet,
   ReadingSudokuSheet,
@@ -391,6 +392,10 @@ export const SheetRenderer = React.memo(
 
     if (activityType === ActivityType.FIVE_W_ONE_H && resolvedData) {
       return withWrapper(<FiveWOneHSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.MISSING_PARTS && resolvedData) {
+      return withWrapper(<MissingPartsSheet data={resolvedData as unknown as any} />);
     }
 
     if (activityType === ActivityType.COLORFUL_SYLLABLE_READING && resolvedData) {
