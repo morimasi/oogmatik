@@ -3,11 +3,14 @@ import React from 'react';
 import { PedagogicalHeader } from '../common';
 
 export const NumberPatternSheet = ({ data }: { data: any }) => {
-    const contentData = data?.content || data;
-    const targetData = Array.isArray(contentData) ? (contentData[0] || {}) : (contentData || {});
-    const patterns = targetData.patterns || data?.patterns || (Array.isArray(data) ? data : []);
-    const title = targetData.title || data?.title || 'Sayı Örüntüleri & Dizisel Mantık';
-    const instruction = targetData.instruction || data?.instruction || 'Sayı dizilerindeki kuralı keşfet ve soru işaretli kutucuklara doğru sayıları yaz.';
+    const rawData = data as any;
+    const resolvedData = rawData?.data || rawData;
+    const content = resolvedData?.content || rawData?.content || rawData;
+    const targetData = Array.isArray(content) ? (content[0] || {}) : (content || {});
+
+    const title = resolvedData.title || rawData.title || targetData.title || 'Sayı Örüntüleri & Dizisel Mantık';
+    const instruction = resolvedData.instruction || rawData.instruction || targetData.instruction || 'Sayı dizilerindeki kuralı keşfet ve soru işaretli kutucuklara doğru sayıları yaz.';
+    const patterns = resolvedData.patterns || rawData.patterns || targetData.patterns || (Array.isArray(resolvedData) ? resolvedData : []);
 
     if (!patterns || !Array.isArray(patterns) || patterns.length === 0) {
         return (
