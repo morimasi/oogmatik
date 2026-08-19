@@ -21,7 +21,7 @@ description: Bir etkinlik modülünde değişiklik yapılırken uyulması ZORUNL
 
 ### A2. AI Jeneratör (AI Modu)
 - **Dosya**: `src/services/generators/<etkinlikAdi>.ts` veya ilgili AI dosyası
-- **İşlem**: AI prompt fonksiyonunu güncelle (yoksa `withAI()` fallback kullanılabilir)
+- **İşlem**: AI prompt fonksiyonunu OFFLINE GENERATORE GÖRE PREMIUIM SEKIDLE güncelle.
 - **Kurallar**:
   - ✅ Prompt, `pedagogicalNote` alanını zorunlu olarak ürettirmeli.
   - ✅ JSON çıktı şeması, offline jeneratörün döndürdüğü yapıyla uyumlu olmalı.

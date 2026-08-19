@@ -26,6 +26,7 @@ export * from './assessment';
 export * from './visualInterpretation';
 export * from './boxMath';
 export * from './brainTeasers';
+export * from './mathAIGenerators';
 
 export * from './sinavGenerator';
 export * from './mathSinavGenerator';

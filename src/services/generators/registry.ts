@@ -168,11 +168,11 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflinePremiumNumberPattern,
   },
   [ActivityType.MATH_BASIC_OPERATIONS]: {
-    ai: withAI(ActivityType.MATH_BASIC_OPERATIONS),
+    ai: aiGenerators.generateBasicOperationsFromAI,
     offline: offlineGenerators.generateOfflineBasicOperations,
   },
   [ActivityType.MATH_WORD_PROBLEMS]: {
-    ai: withAI(ActivityType.MATH_WORD_PROBLEMS),
+    ai: aiGenerators.generateMathWordProblemsFromAI,
     offline: offlineGenerators.generateOfflineMathWordProblems,
   },
   [ActivityType.ABC_CONNECT]: {
@@ -216,11 +216,11 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflinePremiumMathPuzzle,
   },
   [ActivityType.CLOCK_READING]: {
-    ai: withAI(ActivityType.CLOCK_READING),
+    ai: aiGenerators.generateClockReadingFromAI,
     offline: offlineGenerators.generateOfflineClockReading,
   },
   [ActivityType.MONEY_COUNTING]: {
-    ai: withAI(ActivityType.MONEY_COUNTING),
+    ai: aiGenerators.generateMoneyCountingFromAI,
     offline: offlineGenerators.generateOfflineMoneyCounting,
   },
   [ActivityType.MATH_MEMORY_CARDS]: {
@@ -228,15 +228,15 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineMathMemoryCards,
   },
   [ActivityType.NUMBER_PATH_LOGIC]: {
-    ai: withAI(ActivityType.NUMBER_PATH_LOGIC),
+    ai: aiGenerators.generateNumberPathLogicFromAI,
     offline: offlineGenerators.generateOfflineNumberPathLogic,
   },
   [ActivityType.VISUAL_ARITHMETIC]: {
-    ai: withAI(ActivityType.VISUAL_ARITHMETIC),
+    ai: aiGenerators.generateVisualArithmeticFromAI,
     offline: offlineGenerators.generateOfflineVisualArithmetic,
   },
   [ActivityType.NUMBER_SENSE]: {
-    ai: withAI(ActivityType.NUMBER_SENSE),
+    ai: aiGenerators.generateNumberSenseFromAI,
     offline: offlineGenerators.generateOfflineNumberSense,
   },
   [ActivityType.FINANCIAL_MARKET_CALCULATOR]: {
@@ -480,7 +480,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineMatSinav,
   },
   [ActivityType.REAL_LIFE_MATH_PROBLEMS]: {
-    ai: withAI(ActivityType.REAL_LIFE_MATH_PROBLEMS),
+    ai: aiGenerators.generateRealLifeMathProblemsFromAI,
     offline: offlineGenerators.generateOfflinePremiumRealLifeMath,
   },
   [ActivityType.ATTENTION_DEVELOPMENT]: {
@@ -508,11 +508,11 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflinePremiumConceptMatch,
   },
   [ActivityType.ESTIMATION]: {
-    ai: withAI(ActivityType.ESTIMATION),
+    ai: aiGenerators.generateEstimationFromAI,
     offline: offlineGenerators.generateOfflinePremiumEstimation,
   },
   [ActivityType.SPATIAL_GRID]: {
-    ai: withAI(ActivityType.SPATIAL_GRID),
+    ai: aiGenerators.generateSpatialGridFromAI,
     offline: offlineGenerators.generateOfflinePremiumSpatialGrid,
   },
   [ActivityType.DOT_PAINTING]: {
@@ -520,7 +520,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflinePremiumDotPainting,
   },
   [ActivityType.SHAPE_SUDOKU]: {
-    ai: withAI(ActivityType.SHAPE_SUDOKU),
+    ai: aiGenerators.generateShapeSudokuFromAI,
     offline: offlineGenerators.generateOfflinePremiumShapeSudoku,
   },
 
