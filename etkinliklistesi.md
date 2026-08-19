@@ -101,4 +101,4 @@
 ---
 
 ## ⚙️ Teknik Üretim Mimarisi
-Tüm etkinlikler **Gemini 2.5 Flash (`gemini-2.5-flash`)** AI altyapısı ve internetsiz yedekleme sağlayan **Offline Jeneratör Motorları** ile çift katmanlı olarak beslenir. `SheetRenderer.tsx` içindeki **Evrensel Akıllı Unwrapper** sayesinde tüm içerikler A4 kağıt standartlarına, disleksi dostu Lexend tipografisine ve baskı düzenine tam uyumlu şekilde işlenir.
+Tüm etkinlikler **Gemini 2.5 Flash (`gemini-2.5-flash`)** AI altyapısı ve internetsiz yedekleme sağlayan **Offline Jeneratör Motorları** ile çift katmanlı olarak beslenir. `SheetRenderer.tsx` içindeki **Evrensel Akıllı Unwrapper** sayesinde tüm içerikler A4 kağıt standartlarına, disleksi dostu Lexend tipografisine ve baskı düzenine tam uyumlu şekilde eksiksiz tüm içerik bileşenleri ile birlikte işlenir.

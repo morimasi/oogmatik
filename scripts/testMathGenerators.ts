@@ -34,8 +34,14 @@ async function runMathTest() {
                 continue;
             }
 
-            const generator = mapping.offline || mapping.ai;
-            const result = await generator({ difficulty: 'Orta', itemCount: 10, worksheetCount: 1 });
+            const options = { difficulty: 'Orta', itemCount: 10, worksheetCount: 1 };
+            let result;
+            if (mapping.offline) {
+                result = await mapping.offline(options);
+            } else if (mapping.ai) {
+                result = await mapping.ai(options);
+            }
+
             const unwrapped = Array.isArray(result) ? result[0] : result;
 
             // İçerik dizisini kontrol et
