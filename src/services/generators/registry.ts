@@ -213,7 +213,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   },
   [ActivityType.MATH_PUZZLE]: {
     ai: aiGenerators.generateMathPuzzleFromAI,
-    offline: async (options) => aiGenerators.generateMathPuzzleOffline(options),
+    offline: offlineGenerators.generateOfflinePremiumMathPuzzle,
   },
   [ActivityType.CLOCK_READING]: {
     ai: withAI(ActivityType.CLOCK_READING),

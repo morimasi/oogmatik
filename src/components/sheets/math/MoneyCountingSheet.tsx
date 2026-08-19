@@ -20,7 +20,7 @@ const MONEY_CONFIG: Record<number, { bg: string, border: string, text: string, t
 
 const MoneyIcon = ({ value }: { value: number }) => {
     const config = MONEY_CONFIG[value] || { bg: 'bg-zinc-100', border: 'border-zinc-400', text: 'text-zinc-800', type: 'note' };
-    
+
     if (config.type === 'coin') {
         return (
             <div className={`w-9 h-9 rounded-full ${config.bg} border-[2px] ${config.border} flex flex-col items-center justify-center font-black ${config.text} shadow-sm relative shrink-0 transform hover:rotate-12 transition-transform`}>
@@ -30,7 +30,7 @@ const MoneyIcon = ({ value }: { value: number }) => {
             </div>
         );
     }
-    
+
     return (
         <div className={`w-14 h-7 ${config.bg} border-[1.5px] ${config.border} rounded-sm flex items-center justify-center gap-1 font-black ${config.text} shadow-sm relative shrink-0 transform hover:-rotate-2 transition-transform overflow-hidden`}>
             <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle,_currentColor_1px,_transparent_1px)] bg-[length:4px_4px]"></div>
@@ -41,24 +41,27 @@ const MoneyIcon = ({ value }: { value: number }) => {
 };
 
 export const MoneyCountingSheet = ({ data }: { data: MoneyCountingData }) => {
-    const itemCount = data.puzzles?.length || 8;
+    const rawData = data as any;
+    const resolvedData = rawData?.data || rawData;
+    const puzzles = resolvedData.puzzles || rawData.puzzles || rawData.content?.puzzles || [];
+    const itemCount = puzzles.length || 8;
     const gridCols = 'grid-cols-2';
-    
+
     return (
         <div className="flex flex-col h-full font-lexend p-2 bg-white">
             <PedagogicalHeader title={data.title} instruction={data.instruction} />
             <div className={`grid ${gridCols} gap-2 print:gap-1 mt-2 flex-1 content-start w-full max-w-full mx-auto`}>
-                {(data.puzzles || []).map((puzzle, idx) => (
+                {puzzles.map((puzzle: any, idx: number) => (
                     <div key={idx} className="p-2 print:p-1 bg-white border-[2px] border-zinc-900 rounded-[1.5rem] flex flex-col gap-2 print:gap-1 break-inside-avoid shadow-sm group hover:border-indigo-200 transition-all relative">
                         <div className="absolute top-1 left-1 w-5 h-5 bg-zinc-900 text-white rounded-full flex items-center justify-center font-black text-[8px] z-10 shadow-sm">{idx + 1}</div>
                         <div className="flex flex-wrap gap-1 print:gap-0.5 items-center justify-center p-2 print:p-1 bg-zinc-50 rounded-xl border border-dashed border-zinc-200 shadow-inner min-h-[90px]">
-                            {puzzle.notes?.map((n, ni) => Array.from({ length: n.count }).map((_, i) => <MoneyIcon key={`n-${ni}-${i}`} value={n.value} />))}
-                            {puzzle.coins?.map((c, ci) => Array.from({ length: c.count }).map((_, i) => <MoneyIcon key={`c-${ci}-${i}`} value={c.value} />))}
+                            {puzzle.notes?.map((n: any, ni: number) => Array.from({ length: n.count }).map((_, i) => <MoneyIcon key={`n-${ni}-${i}`} value={n.value} />))}
+                            {puzzle.coins?.map((c: any, ci: number) => Array.from({ length: c.count }).map((_, i) => <MoneyIcon key={`c-${ci}-${i}`} value={c.value} />))}
                         </div>
                         <div className="flex flex-col items-center gap-1.5 print:gap-1">
                             <p className="text-[9px] font-black text-zinc-800 text-center uppercase tracking-tight"><EditableText value={puzzle.question} tag="span" /></p>
                             <div className="flex flex-wrap justify-center gap-1 print:gap-0.5 w-full">
-                                {puzzle.options.map((opt, i) => (
+                                {puzzle.options?.map((opt: any, i: number) => (
                                     <div key={i} className="px-2 py-1 border border-zinc-900 rounded-lg font-black text-[9px] hover:bg-zinc-900 hover:text-white transition-all cursor-pointer shadow-sm text-center flex-1 min-w-[45%]">
                                         <EditableText value={opt.replace(' TL', '')} tag="span" /> <span className="text-[6px]">TL</span>
                                     </div>

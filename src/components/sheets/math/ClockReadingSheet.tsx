@@ -90,10 +90,12 @@ const OptionClock = ({ hour, minute, selected, onSelect, showNumbers, showTicks,
 );
 
 export const ClockReadingSheet = ({ data }: { data: ClockReadingData }) => {
-  const variant = data.variant || 'analog-to-digital';
-  const subVariant = data.subVariant || 'standard';
-  const settings = data.settings || {};
-  const clocks = data.clocks || [];
+  const rawData = data as any;
+  const resolvedData = rawData?.data || rawData;
+  const variant = resolvedData.variant || rawData.variant || 'analog-to-digital';
+  const subVariant = resolvedData.subVariant || rawData.subVariant || 'standard';
+  const settings = resolvedData.settings || rawData.settings || {};
+  const clocks = resolvedData.clocks || rawData.clocks || [];
   const clockCount = clocks.length;
   const cols = clockCount > 12 ? 4 : clockCount > 8 ? 3 : 2;
 
@@ -111,7 +113,7 @@ export const ClockReadingSheet = ({ data }: { data: ClockReadingData }) => {
       <PedagogicalHeader title={data.title} instruction={data.instruction} data={data} />
 
       <div className="flex-1 grid gap-2 mt-2" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
-        {clocks.map((clock, i) => (
+        {clocks.map((clock: any, i: number) => (
           <div
             key={i}
             className="flex flex-col items-center gap-1.5 p-2.5 print:p-2 border-2 border-zinc-800 rounded-2xl bg-white break-inside-avoid group relative"
@@ -172,7 +174,7 @@ export const ClockReadingSheet = ({ data }: { data: ClockReadingData }) => {
                 </div>
                 {clock.options && clock.options.length > 0 && (
                   <div className="grid grid-cols-2 gap-1 w-full mt-1">
-                    {clock.options.map((opt, oi) => {
+                    {clock.options.map((opt: any, oi: number) => {
                       const [h, m] = opt.split(':').map(Number);
                       const isCorrect = h === clock.hour && m === clock.minute;
                       return (
