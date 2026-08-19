@@ -105,52 +105,51 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineFamilyLogicTest,
   },
   [ActivityType.READING_PYRAMID]: {
-    ai: withAI(ActivityType.READING_PYRAMID),
+    ai: offlineGenerators.generateOfflineReadingPyramid,
     offline: offlineGenerators.generateOfflineReadingPyramid,
   },
   [ActivityType.READING_FLOW]: {
-    ai: withAI(ActivityType.READING_FLOW),
+    ai: offlineGenerators.generateOfflineReadingFlow,
     offline: offlineGenerators.generateOfflineReadingFlow,
   },
   [ActivityType.PHONOLOGICAL_AWARENESS]: {
-    ai: withAI(ActivityType.PHONOLOGICAL_AWARENESS),
+    ai: offlineGenerators.generateOfflinePhonologicalAwareness,
     offline: offlineGenerators.generateOfflinePhonologicalAwareness,
   },
   [ActivityType.RAPID_NAMING]: {
-    ai: withAI(ActivityType.RAPID_NAMING),
+    ai: offlineGenerators.generateOfflineRapidNaming,
     offline: offlineGenerators.generateOfflineRapidNaming,
   },
   [ActivityType.LETTER_DISCRIMINATION]: {
-    ai: withAI(ActivityType.LETTER_DISCRIMINATION),
+    ai: offlineGenerators.generateOfflineLetterDiscrimination,
     offline: offlineGenerators.generateOfflineLetterDiscrimination,
   },
   [ActivityType.LETTER_MAZE_TEST]: {
-    ai: withAI(ActivityType.LETTER_MAZE_TEST),
+    ai: offlineGenerators.generateOfflineLetterMazeTest,
     offline: offlineGenerators.generateOfflineLetterMazeTest,
   },
-
   [ActivityType.MIRROR_LETTERS]: {
-    ai: withAI(ActivityType.MIRROR_LETTERS),
+    ai: offlineGenerators.generateOfflineMirrorLetters,
     offline: offlineGenerators.generateOfflineMirrorLetters,
   },
   [ActivityType.SYLLABLE_TRAIN]: {
-    ai: withAI(ActivityType.SYLLABLE_TRAIN),
+    ai: offlineGenerators.generateOfflineSyllableTrain,
     offline: offlineGenerators.generateOfflineSyllableTrain,
   },
   [ActivityType.BACKWARD_SPELLING]: {
-    ai: withAI(ActivityType.BACKWARD_SPELLING),
+    ai: offlineGenerators.generateOfflineBackwardSpelling,
     offline: offlineGenerators.generateOfflineBackwardSpelling,
   },
   [ActivityType.CODE_READING]: {
-    ai: withAI(ActivityType.CODE_READING),
+    ai: offlineGenerators.generateOfflineCodeReading,
     offline: offlineGenerators.generateOfflineCodeReading,
   },
   [ActivityType.HANDWRITING_PRACTICE]: {
-    ai: withAI(ActivityType.HANDWRITING_PRACTICE),
+    ai: offlineGenerators.generateOfflineHandwritingPractice,
     offline: offlineGenerators.generateOfflineHandwritingPractice,
   },
   [ActivityType.MORPHOLOGY_MATRIX]: {
-    ai: withAI(ActivityType.MORPHOLOGY_MATRIX),
+    ai: offlineGenerators.generateOfflineMorphologyMatrix,
     offline: offlineGenerators.generateOfflineMorphologyMatrix,
   },
   [ActivityType.MISSING_PARTS]: {

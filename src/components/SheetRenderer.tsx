@@ -169,20 +169,41 @@ export const SheetRenderer = React.memo(
 
     let resolvedData = unwrapExam(activeData);
 
-    // WorksheetBuilder Normalization for Legacy Sheets
-    if (resolvedData && (resolvedData as any).content && Array.isArray((resolvedData as any).content)) {
-      const contentArr = (resolvedData as any).content;
-      if (contentArr.length > 0 && typeof contentArr[0] === 'object' && 'type' in contentArr[0]) {
+    // Evrensel Akıllı Data Normalizer & Unwrapper:
+    // WorksheetBuilder veya farklı jeneratör sarmallarından items, questions, exercises, pairs vb. verileri kök seviyeye çıkarır.
+    if (resolvedData && typeof resolvedData === 'object') {
+      const rd = resolvedData as Record<string, any>;
+      const rawContent = rd.content || rd.data || rd.items;
+
+      // 1. WorksheetBuilder blok yapısını çözme
+      if (Array.isArray(rd.content)) {
+        const contentArr = rd.content;
         const headerBlock = contentArr.find((b: any) => Boolean(b) && typeof b === 'object' && (b.type === 'premium_header' || b.type === 'header'));
-        const mainBlock = contentArr.find((b: any) => Boolean(b) && typeof b === 'object' && b.type !== 'premium_header' && b.type !== 'success_indicator' && b.content);
+        const mainBlock = contentArr.find((b: any) => Boolean(b) && typeof b === 'object' && b.type !== 'premium_header' && b.type !== 'success_indicator' && (b.content || b.items || b.questions || b.data));
 
         if (mainBlock) {
+          const innerContent = mainBlock.content || mainBlock.data || mainBlock;
+          const extractedArray =
+            (typeof innerContent === 'object' && (innerContent.items || innerContent.questions || innerContent.exercises || innerContent.pairs || innerContent.words || innerContent.puzzles || innerContent.rows || innerContent.cards || innerContent.pyramids)) ||
+            (Array.isArray(innerContent) ? innerContent : null);
+
           resolvedData = {
-            ...(resolvedData as Record<string, unknown>),
-            ...(mainBlock?.content || {}),
-            title: headerBlock?.content?.title || (resolvedData as any)?.title || '',
-            instruction: headerBlock?.content?.instruction || (resolvedData as any)?.instruction || ''
+            ...rd,
+            ...(typeof innerContent === 'object' ? innerContent : {}),
+            items: extractedArray || rd.items || (Array.isArray(innerContent) ? innerContent : []),
+            title: headerBlock?.content?.title || rd.title || mainBlock?.title || '',
+            instruction: headerBlock?.content?.instruction || rd.instruction || mainBlock?.instruction || ''
           };
+        }
+      }
+
+      // 2. Doğrudan sarmalanmış nesneler için fallback normalizasyonu
+      const currentRd = resolvedData as Record<string, any>;
+      if (!currentRd.items && !currentRd.questions && !currentRd.exercises && !currentRd.pairs && !currentRd.words && !currentRd.puzzles && !currentRd.rows && !currentRd.pyramids) {
+        if (Array.isArray(currentRd.content)) {
+          currentRd.items = currentRd.content;
+        } else if (currentRd.content && typeof currentRd.content === 'object') {
+          Object.assign(currentRd, currentRd.content);
         }
       }
     }
