@@ -29,6 +29,45 @@ import { SuperStudioRenderer } from './sheet-renderers/SuperStudioRenderer';
 import { SariKitapRenderer } from './sheet-renderers/SariKitapRenderer';
 import { ShortAnswerSheet } from './sheets/verbal/ShortAnswerSheet';
 import { BasicOperationsSheet } from './sheets/math/BasicOperationsSheet';
+import { StoryComprehensionSheet } from './sheets/verbal/StoryComprehensionSheet';
+import { StoryAnalysisSheet } from './sheets/verbal/StoryAnalysisSheet';
+import { StorySequencingSheet } from './sheets/verbal/StorySequencingSheet';
+import { SentenceFiveWOneHSheet } from './sheets/verbal/SentenceFiveWOneHSheet';
+import { FiveWOneHSheet } from './sheets/verbal/FiveWOneHSheet';
+import { ColorfulSyllableReadingSheet } from './sheets/verbal/ColorfulSyllableReadingSheet';
+import { FamilyTreeMatrixSheet } from './sheets/verbal/FamilyTreeMatrixSheet';
+import { LogicErrorHunterSheet } from './sheets/verbal/LogicErrorHunterSheet';
+import {
+  AnagramSheet,
+  WordSearchSheet,
+  HiddenPasswordGridSheet,
+  CrosswordSheet,
+} from './sheets/verbal/WordGameSheets';
+import {
+  SyllableMasterLabSheet,
+  ReadingSudokuSheet,
+  ReadingStroopSheet,
+  SynonymAntonymMatchSheet,
+  SyllableWordBuilderSheet,
+  LetterVisualMatchingSheet,
+  FamilyLogicSheet,
+  FamilyRelationsSheet,
+  FindLetterPairSheet,
+  MorphologyMatrixSheet,
+  ReadingPyramidSheet,
+} from './sheets/verbal/ReadingSheets';
+import {
+  PhonologicalAwarenessSheet,
+  RapidNamingSheet,
+  LetterDiscriminationSheet,
+  MirrorLettersSheet,
+  SyllableTrainSheet,
+  VisualTrackingLinesSheet,
+  BackwardSpellingSheet,
+  CodeReadingSheet,
+  AttentionToQuestionSheet,
+  HandwritingPracticeSheet,
+} from './sheets/verbal/ReadingSupportSheets';
 import { MathWordProblemsSheet } from './sheets/math/MathWordProblemsSheet';
 import { NumberPyramidSheet } from './sheets/math/NumberPyramidSheet';
 import { NumberPatternSheet } from './sheets/math/NumberPatternSheet';
@@ -270,6 +309,135 @@ export const SheetRenderer = React.memo(
 
     if (activityType === ActivityType.BOX_MATH && resolvedData) {
       return withWrapper(<BoxMathSheet data={resolvedData as unknown as any} />);
+    }
+
+    // ── OKUMA & DİL BECERİLERİ ETKİNLİKLERİ ──
+    if (activityType === ActivityType.STORY_ANALYSIS && resolvedData) {
+      return withWrapper(<StoryAnalysisSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.STORY_SEQUENCING && resolvedData) {
+      return withWrapper(<StorySequencingSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.SENTENCE_5W1H && resolvedData) {
+      return withWrapper(<SentenceFiveWOneHSheet data={resolvedData as unknown as any} />);
+    }
+
+    if ((activityType === ActivityType.ANAGRAM || activityType === ActivityType.ANAGRAM_PUZZLE) && resolvedData) {
+      return withWrapper(<AnagramSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.WORD_SEARCH && resolvedData) {
+      return withWrapper(<WordSearchSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.HIDDEN_PASSWORD_GRID && resolvedData) {
+      return withWrapper(<HiddenPasswordGridSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.CROSSWORD && resolvedData) {
+      return withWrapper(<CrosswordSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.FIVE_W_ONE_H && resolvedData) {
+      return withWrapper(<FiveWOneHSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.COLORFUL_SYLLABLE_READING && resolvedData) {
+      return withWrapper(<ColorfulSyllableReadingSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.FAMILY_TREE_MATRIX && resolvedData) {
+      return withWrapper(<FamilyTreeMatrixSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.LOGIC_ERROR_HUNTER && resolvedData) {
+      return withWrapper(<LogicErrorHunterSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.SYLLABLE_MASTER_LAB && resolvedData) {
+      return withWrapper(<SyllableMasterLabSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.READING_SUDOKU && resolvedData) {
+      return withWrapper(<ReadingSudokuSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.READING_STROOP && resolvedData) {
+      return withWrapper(<ReadingStroopSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.SYNONYM_ANTONYM_MATCH && resolvedData) {
+      return withWrapper(<SynonymAntonymMatchSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.SYLLABLE_WORD_BUILDER && resolvedData) {
+      return withWrapper(<SyllableWordBuilderSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.LETTER_VISUAL_MATCHING && resolvedData) {
+      return withWrapper(<LetterVisualMatchingSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.FAMILY_LOGIC_TEST && resolvedData) {
+      return withWrapper(<FamilyLogicSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.FAMILY_RELATIONS && resolvedData) {
+      return withWrapper(<FamilyRelationsSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.FIND_LETTER_PAIR && resolvedData) {
+      return withWrapper(<FindLetterPairSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.MORPHOLOGY_MATRIX && resolvedData) {
+      return withWrapper(<MorphologyMatrixSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.READING_PYRAMID && resolvedData) {
+      return withWrapper(<ReadingPyramidSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.PHONOLOGICAL_AWARENESS && resolvedData) {
+      return withWrapper(<PhonologicalAwarenessSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.RAPID_NAMING && resolvedData) {
+      return withWrapper(<RapidNamingSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.LETTER_DISCRIMINATION && resolvedData) {
+      return withWrapper(<LetterDiscriminationSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.MIRROR_LETTERS && resolvedData) {
+      return withWrapper(<MirrorLettersSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.SYLLABLE_TRAIN && resolvedData) {
+      return withWrapper(<SyllableTrainSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.VISUAL_TRACKING_LINES && resolvedData) {
+      return withWrapper(<VisualTrackingLinesSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.BACKWARD_SPELLING && resolvedData) {
+      return withWrapper(<BackwardSpellingSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.CODE_READING && resolvedData) {
+      return withWrapper(<CodeReadingSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.ATTENTION_TO_QUESTION && resolvedData) {
+      return withWrapper(<AttentionToQuestionSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.HANDWRITING_PRACTICE && resolvedData) {
+      return withWrapper(<HandwritingPracticeSheet data={resolvedData as unknown as any} />);
     }
 
     if (activityType === ActivityType.VISUAL_INTERPRETATION) {
