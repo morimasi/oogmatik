@@ -28,6 +28,8 @@ import { MathStudioRenderer } from './sheet-renderers/MathStudioRenderer';
 import { SuperStudioRenderer } from './sheet-renderers/SuperStudioRenderer';
 import { SariKitapRenderer } from './sheet-renderers/SariKitapRenderer';
 import { ShortAnswerSheet } from './sheets/verbal/ShortAnswerSheet';
+import { BasicOperationsSheet } from './sheets/math/BasicOperationsSheet';
+import { MathWordProblemsSheet } from './sheets/math/MathWordProblemsSheet';
 
 import { UnifiedContentRenderer } from './SheetRenderer/UnifiedContentRenderer';
 import { renderLegacySheet } from './SheetRenderer/LegacyRenderer';
@@ -145,6 +147,18 @@ export const SheetRenderer = React.memo(
 
     if (activityType === ActivityType.KELIME_CUMLE && resolvedData) {
       return withWrapper(<KelimeCumleRenderer data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.MATH_BASIC_OPERATIONS && resolvedData) {
+      return withWrapper(
+        <BasicOperationsSheet data={resolvedData as unknown as any} />
+      );
+    }
+
+    if (activityType === ActivityType.MATH_WORD_PROBLEMS && resolvedData) {
+      return withWrapper(
+        <MathWordProblemsSheet data={resolvedData as unknown as any} />
+      );
     }
 
     if (activityType === ActivityType.VISUAL_INTERPRETATION) {
