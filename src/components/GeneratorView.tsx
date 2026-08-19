@@ -51,7 +51,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
   activeCurriculumSession,
 }) => {
   const { students, activeStudent, setActiveStudent } = useStudentStore();
-  const { options, updateOption } = useActivitySettings(activity?.id ?? '');
+  const { options, updateOption, setAllOptions } = useActivitySettings(activity?.id ?? '');
 
   // MÜFREDAT SEANSI AKTİFSE PARAMETRELERİ OTOMATİK AYARLA
   useEffect(() => {
@@ -80,9 +80,13 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
     );
   }
 
-  const handleChange = (key: keyof GeneratorOptions, value: unknown) => {
+  const handleChange = (key: keyof GeneratorOptions | GeneratorOptions, value?: unknown) => {
+    if (key && typeof key === 'object') {
+      setAllOptions({ ...options, ...(key as GeneratorOptions) });
+      return;
+    }
     if (activeCurriculumSession && (key === 'difficulty' || key === 'topic')) return; // Müfredat modunda kilitli
-    updateOption(key, value);
+    updateOption(key as keyof GeneratorOptions, value);
   };
 
   // OTOMATİK ÜRETİM (Anında Etki İçin)
@@ -108,7 +112,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
     }
   };
 
-  const ConfigComponent: React.ComponentType<{ options: GeneratorOptions; onChange: (key: keyof GeneratorOptions, value: unknown) => void }> = (getActivityConfigComponent(activity.id) as React.ComponentType<{ options: GeneratorOptions; onChange: (key: keyof GeneratorOptions, value: unknown) => void }> | undefined) || DefaultActivityConfig;
+  const ConfigComponent: React.ComponentType<{ options: GeneratorOptions; settings?: GeneratorOptions; onChange: (key: keyof GeneratorOptions | GeneratorOptions, value?: unknown) => void }> = (getActivityConfigComponent(activity.id) as React.ComponentType<{ options: GeneratorOptions; settings?: GeneratorOptions; onChange: (key: keyof GeneratorOptions | GeneratorOptions, value?: unknown) => void }> | undefined) || DefaultActivityConfig;
 
   return (
     <div className="flex flex-col h-full bg-[var(--bg-paper)] border-r border-[var(--border-color)] shadow-xl overflow-hidden w-full transition-all duration-300">
@@ -224,7 +228,7 @@ export const GeneratorView: React.FC<GeneratorViewProps> = ({
           <h4 className="text-[9px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-2 flex items-center gap-1.5">
             <i className="fa-solid fa-wrench"></i> Özel Ayarlar
           </h4>
-          <ConfigComponent options={options} onChange={handleChange} />
+          <ConfigComponent options={options} settings={options} onChange={handleChange} />
         </div>
       </div>
 
