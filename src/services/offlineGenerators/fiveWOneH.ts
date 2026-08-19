@@ -1,10 +1,26 @@
 import { GeneratorOptions, FiveWOneHData } from '../../types';
 import { FIVE_W_ONE_H_LIBRARY } from './data/fiveWOneHLibrary';
 
+const DIFFICULTY_MAP: Record<string, string> = {
+  '1-2': 'çok kolay',
+  'çok kolay': 'çok kolay',
+  'Çok Kolay': 'çok kolay',
+  '3-4': 'kolay',
+  'kolay': 'kolay',
+  'Kolay': 'kolay',
+  '5-6': 'orta',
+  'Orta': 'orta',
+  'orta': 'orta',
+  '7-8': 'zor',
+  'Zor': 'zor',
+  'zor': 'zor'
+};
+
 export const generateOfflineFiveWOneH = async (options: GeneratorOptions): Promise<FiveWOneHData[]> => {
-    const { worksheetCount = 1, difficulty = 'orta' } = options;
+    const { worksheetCount = 1 } = options;
     const student = options.studentContext;
     const ageGroup = student?.age ? (student.age <= 7 ? '5-7' : student.age <= 10 ? '8-10' : student.age <= 13 ? '11-13' : '14+') : null;
+    const difficulty = DIFFICULTY_MAP[options.difficulty || 'orta'] || 'orta';
 
     // Kütüphaneden uygun hikayeleri filtrele
     let filteredPool = FIVE_W_ONE_H_LIBRARY.filter(entry => {
@@ -50,7 +66,7 @@ export const generateOfflineFiveWOneH = async (options: GeneratorOptions): Promi
             },
             questions: entry.questions,
             settings: {
-                difficulty: entry.difficulty as any,
+                difficulty: entry.difficulty,
                 topic: entry.title,
                 textLength: entry.text.length > 300 ? 'uzun' : entry.text.length > 150 ? 'orta' : 'kısa',
                 syllableColoring: !!options.syllableColoring,

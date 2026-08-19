@@ -2,10 +2,10 @@ import React from 'react';
 import { PedagogicalHeader } from '../common';
 import { Lightbulb, CheckCircle2, ShieldQuestion, BrainCircuit, Award } from 'lucide-react';
 
-export const ShortAnswerSheet = React.memo(({ data }: { data: any }) => {
-  const content = data.content || (data as any);
+export const ShortAnswerSheet = React.memo(({ data, settings: settingsProp }: { data: any; settings?: Record<string, unknown> | undefined }) => {
+  const content = data?.content || (data as any);
   const questions = content.questions || [];
-  const settings = data.settings || {};
+  const settings = settingsProp || data?.settings || {};
   const insight = content.insight || { title: 'BİLGİ', text: 'Cevapları kısa, öz ve net bir şekilde yazmaya özen gösterin.' };
 
   const lineStyle = settings.lineStyle || 'single';

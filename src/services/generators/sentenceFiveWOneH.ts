@@ -7,6 +7,21 @@ import { AppError } from '../../utils/AppError';
  * Cümlede 5N1K etkinliği için AI tabanlı içerik üreticisi.
  * Ultra profesyonel ve pedagojik standartlara uygun cümleler üretir.
  */
+const DIFFICULTY_MAP: Record<string, 'çok kolay' | 'kolay' | 'orta' | 'zor'> = {
+  '1-2': 'çok kolay',
+  'çok kolay': 'çok kolay',
+  'Çok Kolay': 'çok kolay',
+  '3-4': 'kolay',
+  'kolay': 'kolay',
+  'Kolay': 'kolay',
+  '5-6': 'orta',
+  'Orta': 'orta',
+  'orta': 'orta',
+  '7-8': 'zor',
+  'Zor': 'zor',
+  'zor': 'zor'
+};
+
 export const generateSentenceFiveWOneHFromAI = async (
   options: GeneratorOptions
 ): Promise<Sentence5W1HData> => {
@@ -76,7 +91,7 @@ export const generateSentenceFiveWOneHFromAI = async (
       instruction: 'Aşağıdaki cümleleri okuyunuz ve ilgili 5N1K sorularını cevaplayınız.',
       items: (result as Record<string, unknown>).items as unknown as Sentence5W1HItem[],
       settings: {
-        difficulty: difficulty as 'kolay' | 'orta' | 'zor' | 'çok kolay',
+        difficulty: DIFFICULTY_MAP[difficulty] || 'orta',
         topic: options.topic || 'Genel',
         itemCount: itemCount as unknown as number,
         showIcons: options.useIcons !== false,

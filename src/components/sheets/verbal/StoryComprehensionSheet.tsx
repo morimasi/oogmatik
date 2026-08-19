@@ -41,7 +41,7 @@ const PrintQuestionBlock = ({ title, questions, type, icon }: { title: string, q
                         ) : type === 'fill' ? (
                             <div className="p-3 bg-indigo-50/50 rounded-xl border-l-4 border-indigo-400">
                                 <p className="leading-loose font-medium italic">
-                                    {q.sentence.split('........').map((part: string, idx: number, arr: any[]) => (
+                                    {(q.sentence || q.question || '').split('........').map((part: string, idx: number, arr: any[]) => (
                                         <React.Fragment key={idx}>
                                             {part}
                                             {idx < arr.length - 1 && (
@@ -50,6 +50,12 @@ const PrintQuestionBlock = ({ title, questions, type, icon }: { title: string, q
                                         </React.Fragment>
                                     ))}
                                 </p>
+                            </div>
+                        ) : type === 'creative' ? (
+                            <div className="p-4 bg-amber-50 rounded-xl border-2 border-dashed border-amber-300">
+                                <p className="font-bold mb-2 text-amber-900"><i className="fa-solid fa-lightbulb text-amber-500 mr-2"></i>Yaratıcı Görev</p>
+                                <p className="font-medium text-amber-900/80 leading-relaxed">{q.question}</p>
+                                <div className="border-b-2 border-dashed border-amber-200 h-8 w-full mt-4"></div>
                             </div>
                         ) : (
                             <div>
@@ -112,11 +118,15 @@ export const StoryComprehensionSheet = ({ data }: { data: InteractiveStoryData }
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 print:gap-3 print:gap-4 print:gap-1 print:p-4 print:p-1">
             <div className="space-y-8">
                 <PrintQuestionBlock title="5N 1K Analizi" questions={data.fiveW1H} type="open" icon="fa-magnifying-glass" />
+                <PrintQuestionBlock title="Açık Uçlu Sorular" questions={data.fillBlanks} type="open" icon="fa-pen-nib" />
                 <PrintQuestionBlock title="Sözlükçe" questions={data.vocabulary?.map(v => ({ question: `${v.word}: ${v.definition}` })) || []} type="list" icon="fa-spell-check" />
             </div>
             <div className="space-y-8">
                 <PrintQuestionBlock title="Doğru mu Yanlış mı?" questions={data.trueFalse} type="true-false" icon="fa-check-double" />
                 <PrintQuestionBlock title="Anlama Testi" questions={data.multipleChoice} type="multiple-choice" icon="fa-list-ol" />
+                {data.creativeTask && (
+                    <PrintQuestionBlock title="Yaratıcı Görev" questions={[{ question: data.creativeTask }]} type="creative" icon="fa-lightbulb" />
+                )}
             </div>
         </div>
     </div>

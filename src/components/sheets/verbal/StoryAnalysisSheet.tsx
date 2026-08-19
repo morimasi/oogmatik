@@ -6,7 +6,10 @@ export const StoryAnalysisSheet: React.FC<{ data: StoryAnalysisData; settings?: 
     const rawData = data as any;
     const resolvedData = rawData?.data || rawData;
     const content = resolvedData?.content || rawData?.content;
-    const compact = (settings?.compactLayout as boolean) ?? false;
+    const compact = (settings?.compactLayout as boolean) ?? (resolvedData?.settings?.compactLayout as boolean) ?? false;
+    const showReadingRuler = (settings?.showReadingRuler as boolean) ?? (resolvedData?.settings?.showReadingRuler as boolean) ?? false;
+    const useIcons = (settings?.useIcons as boolean) ?? (resolvedData?.settings?.useIcons as boolean) ?? true;
+    const pedagogicalNote = (resolvedData?.pedagogicalNote as string) || '';
 
     if (!content || !content.story) {
         return <div className="p-8 text-center text-zinc-400 font-bold">Hikaye Analizi İçeriği Hazırlanıyor...</div>;
@@ -18,8 +21,8 @@ export const StoryAnalysisSheet: React.FC<{ data: StoryAnalysisData; settings?: 
     const questions = rawData.questions || resolvedData.questions || content.questions || [];
 
     return (
-        <div className={`flex flex-col h-full bg-white relative font-lexend p-3 print:p-2 min-h-[297mm]`}>
-            <ReadingRuler />
+        <div className={`flex flex-col h-full bg-white relative font-lexend p-3 print:p-2 min-h-[297mm] ${compact ? 'compact-spacing' : ''}`}>
+            {showReadingRuler && <ReadingRuler />}
             <PedagogicalHeader
                 title={content.title || 'Hikaye Analizi'}
                 instruction={data.instruction || 'Hikayeyi derinlemesine analiz et.'}
@@ -85,6 +88,21 @@ export const StoryAnalysisSheet: React.FC<{ data: StoryAnalysisData; settings?: 
                 </div>
             </div>
 
+            {/* Sözlükçe */}
+            {Array.isArray(content.vocabulary) && content.vocabulary.length > 0 && (
+                <div className="mb-2.5 print:mb-1.5">
+                    <h4 className="text-[8px] font-black text-zinc-800 uppercase border-b border-zinc-800 pb-0.5 mb-1">Sözlükçe</h4>
+                    <div className="grid grid-cols-2 gap-1.5 print:gap-1">
+                        {content.vocabulary.map((v: any, i: number) => (
+                            <div key={i} className="text-xs print:text-[10px]">
+                                <p className="font-bold">{v.word}</p>
+                                <p className="text-zinc-500 italic leading-tight">{v.definition}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {/* Sorular */}
             {questions.length > 0 && (
                 <div className="space-y-1.5">
@@ -105,6 +123,18 @@ export const StoryAnalysisSheet: React.FC<{ data: StoryAnalysisData; settings?: 
                 <span>Hikaye Analizi • Ultra Pro</span>
                 <span>{analysis.mainIdea ? `Ana Fikir: ${analysis.mainIdea}` : 'Ana Fikir: ................'}</span>
             </div>
+
+            {/* Öğretmen Notu (pedagogicalNote) */}
+            {pedagogicalNote && (
+                <div className={`mt-1.5 print:mt-1 p-2 bg-emerald-50/60 rounded-lg border border-emerald-200`}>
+                    <h5 className={`text-[7px] font-black text-emerald-700 uppercase tracking-widest mb-0.5`}>
+                        Öğretmen Notu
+                    </h5>
+                    <p className={`text-[8px] print:text-[7px] text-emerald-900/80 italic leading-relaxed`}>
+                        {pedagogicalNote}
+                    </p>
+                </div>
+            )}
         </div>
     );
 };

@@ -204,6 +204,16 @@ Find and fix all activities across 4 categories (Görsel & Mekansal, Okuduğunu 
 - **FascicleContentNormalizer** — normalizes content shapes for fascicle preview
 - **Generator audit** — 78 activities analyzed; 2 critical gaps fixed (VISUAL_ODD_ONE_OUT, INFOGRAPHIC_SHORT_ANSWER with `withAI()`); 5 missing ACTIVITIES entries added; ~32 default options added; 6 new config components
 - **LegacyRenderer wiring** — `STORY_COMPREHENSION` (maps StoryData → InteractiveStoryData with defaults) and `KENDOKU` (uses KendokuSheet = FutoshikiSheet) both added
+- **Okuduğunu Anlama 8 etkinlik tam denetim + düzeltme (generators/offline/config/sheet/print):**
+  - **MISSING_PARTS**: SheetRenderer rotası `AdvancedMissingPartsSheet`'e çevrildi (hem `items` hem `paragraphs` şeklini normalize eder); `offlineGenerators/index.ts`'e `missingParts.ts` export edildi; `premiumReading.ts:295` çakışan `generateOfflineMissingParts` → `generateOfflinePremiumMissingParts` rename; registry default `missingType` → `blankType`; config map zengin `MissingPartsConfig`'e bağlandı
+  - **INFOGRAPHIC_SHORT_ANSWER**: registry offline → `offlineGenerators.generateOfflineShortAnswer` (boş sayfa düzeldi); `shortAnswer.ts` (offline+AI) artık `itemCount || itemCountShort` ve `options.activityType` kullanıyor; `ActivityService.generate` tüm generator'lara `options.activityType` enjekte ediyor
+  - **LOGIC_ERROR_HUNTER**: offline generator `LogicErrorHunterData` şekline uygun yeniden yazıldı (content.story + errors[{id, faultyWordOrPhrase, correction, explanation}], difficulty/absurdityDegree/errorCount opsiyonları)
+  - **STORY_COMPREHENSION**: `StoryComprehensionSheet`'e açık uçlu sorular (fillBlanks) + creativeTask bölümleri eklendi; 'fill' dalı `q.sentence` eksikken çakılma riski düzeltildi; generator `StoryStudioConfig` opsiyonlarını (genre, tone, include5N1K, focusVocabulary, includeCreativeTask) + fiveW1H şemasını üretiyor
+  - **FIVE_W_ONE_H**: offline zorluk eşlemesi ('1-2'→çok kolay, '3-4'→kolay, '5-6'→orta, '7-8'→zor + case-insensitive) — filtre artık asla boş dönmüyor
+  - **VISUAL_INTERPRETATION**: AI generator `itemCountVisual || itemCount`, `visualInterpretationStyle`, `visualComplexityLevel` okuyor; soru tipi prompt'a işleniyor
+  - **STORY_ANALYSIS**: `StoryAnalysisSheet`'e `content.vocabulary` (Sözlükçe) bölümü eklendi
+  - **SENTENCE_5W1H**: `sentenceFiveWOneH.ts` zorluk cast yalanı kaldırıldı (DIFFICULTY_MAP); `aiContentService.ts` title map'ine 5 eksik etkinlik eklendi
+- **Doğrulama**: `tsc --noEmit` 0 hata, `npm run build` başarılı; `tests/okudugunuAnlamaOfflineSmoke.test.ts` (4 test: logicErrorHunter/fiveWOneH/shortAnswer/missingParts offline şekil kontrolleri) geçiyor
 
 ### Remaining (accessible from UI, not yet fixed)
 - **SEMANTIC_LINKER** — accessible from sidebar; generator returns `{ instruction, items }` where `items` get picked up by UnifiedContentRenderer's `rawBlocksRaw` but aren't proper WorksheetBlocks → blank-ish output. Needs LegacyRenderer entry or modern-layout wrapper.

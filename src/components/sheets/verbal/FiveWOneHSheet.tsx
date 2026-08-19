@@ -8,6 +8,8 @@ interface Props {
 export const FiveWOneHSheet: React.FC<Props> = ({ data }) => {
     // Uygulanan disleksi dostu fontlar
     const fontFamily = data.settings?.fontFamily || 'Lexend';
+    const paragraphs = Array.isArray(data.content?.paragraphs) ? data.content.paragraphs : [];
+    const questions = Array.isArray(data.questions) ? data.questions : [];
 
     return (
         <div className="w-full h-full p-6 print:p-4 flex flex-col bg-white overflow-hidden text-zinc-800 border-none relative" style={{ fontFamily }}>
@@ -60,7 +62,7 @@ export const FiveWOneHSheet: React.FC<Props> = ({ data }) => {
                     </div>
 
                     <article className="space-y-3 text-justify px-1 leading-[1.6] print:leading-[1.5]">
-                        {data.content.paragraphs.map((para, i) => (
+                        {paragraphs.map((para, i) => (
                             <p key={i} className="text-lg print:text-base font-medium text-slate-700 indent-6 first-letter:text-2xl first-letter:font-black first-letter:text-indigo-600 first-letter:mr-1">
                                 {para}
                             </p>
@@ -81,7 +83,7 @@ export const FiveWOneHSheet: React.FC<Props> = ({ data }) => {
                     </div>
 
                     <div className="grid grid-cols-2 gap-x-8 gap-y-6 print:gap-x-6 print:gap-y-4 flex-1 px-2 print:px-0">
-                        {data.questions.map((q, idx) => (
+                        {questions.map((q, idx) => (
                             <div key={q.id || idx} className="flex flex-col gap-1.5 relative group page-break-inside-avoid">
                                 {/* Soru Numarası Rozeti - KALDIRILDI */}
                                 

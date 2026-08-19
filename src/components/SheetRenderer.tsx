@@ -29,7 +29,6 @@ import { SuperStudioRenderer } from './sheet-renderers/SuperStudioRenderer';
 import { SariKitapRenderer } from './sheet-renderers/SariKitapRenderer';
 import { ShortAnswerSheet } from './sheets/verbal/ShortAnswerSheet';
 import { BasicOperationsSheet } from './sheets/math/BasicOperationsSheet';
-import { StoryComprehensionSheet } from './sheets/verbal/StoryComprehensionSheet';
 import { StoryAnalysisSheet } from './sheets/verbal/StoryAnalysisSheet';
 import { StorySequencingSheet } from './sheets/verbal/StorySequencingSheet';
 import { SentenceFiveWOneHSheet } from './sheets/verbal/SentenceFiveWOneHSheet';
@@ -43,7 +42,7 @@ import {
   HiddenPasswordGridSheet,
   CrosswordSheet,
 } from './sheets/verbal/WordGameSheets';
-import { MissingPartsSheet } from './sheets/verbal/MissingPartsSheet';
+import { AdvancedMissingPartsSheet } from './sheets/verbal/AdvancedMissingPartsSheet';
 import {
   SyllableMasterLabSheet,
   ReadingSudokuSheet,
@@ -363,7 +362,7 @@ export const SheetRenderer = React.memo(
 
     // ── OKUMA & DİL BECERİLERİ ETKİNLİKLERİ ──
     if (activityType === ActivityType.STORY_ANALYSIS && resolvedData) {
-      return withWrapper(<StoryAnalysisSheet data={resolvedData as unknown as any} />);
+      return withWrapper(<StoryAnalysisSheet data={resolvedData as unknown as any} settings={settings || {} as unknown as any} />);
     }
 
     if (activityType === ActivityType.STORY_SEQUENCING && resolvedData) {
@@ -395,7 +394,7 @@ export const SheetRenderer = React.memo(
     }
 
     if (activityType === ActivityType.MISSING_PARTS && resolvedData) {
-      return withWrapper(<MissingPartsSheet data={resolvedData as unknown as any} />);
+      return withWrapper(<AdvancedMissingPartsSheet data={resolvedData as unknown as any} />);
     }
 
     if (activityType === ActivityType.COLORFUL_SYLLABLE_READING && resolvedData) {
@@ -632,7 +631,12 @@ export const SheetRenderer = React.memo(
     }
 
     if (activityType === ActivityType.INFOGRAPHIC_SHORT_ANSWER) {
-      return withWrapper(<ShortAnswerSheet data={((resolvedData as Record<string, unknown>).content || resolvedData) as unknown as any} />);
+      return withWrapper(
+        <ShortAnswerSheet
+          data={resolvedData as unknown as any}
+          settings={(resolvedData as Record<string, unknown>)?.settings as unknown as Record<string, unknown> | undefined}
+        />
+      );
     }
 
     if (

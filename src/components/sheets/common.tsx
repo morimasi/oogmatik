@@ -19,6 +19,8 @@ export const QUESTION_TYPES: Record<string, { label: string; color: string }> = 
   what: { label: 'NE?', color: '#ef4444' },
   why: { label: 'NİYE?', color: '#8b5cf6' },
   how: { label: 'NASIL?', color: '#ec4899' },
+  '5n1k': { label: '5N1K', color: '#0d9488' },
+  'open-ended': { label: 'AÇIK UÇLU', color: '#6366f1' },
 };
 
 const SHAPE_PATHS: Record<string, string> = {

@@ -319,11 +319,17 @@ export const generateOfflineStoryAnalysis = async (options: GeneratorOptions): P
                     subThemes: ['Dostluk', 'Cesaret', 'Yardımlaşma']
                 }
             },
-            questions: template.questions.map((q: any) => ({
-                type: 'open-ended',
-                question: q.q,
-                answer: ''
-            }))
+            questions: template.questions.map((q: any) => {
+                let qText = q.q;
+                Object.keys(chosenValues).forEach(key => {
+                    qText = qText.replace(new RegExp(`{${key}}`, 'g'), chosenValues[key]);
+                });
+                return {
+                    type: 'open-ended',
+                    question: qText,
+                    answer: ''
+                };
+            })
         };
     });
 };

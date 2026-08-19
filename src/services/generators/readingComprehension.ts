@@ -213,7 +213,13 @@ export const generateReadingStroopFromAI = async (options: GeneratorOptions): Pr
 };
 
 export const generateStoryComprehensionFromAI = async (options: GeneratorOptions): Promise<StoryData[]> => {
-    const { topic, difficulty, worksheetCount } = options as Record<string, unknown>;
+    const opts = options as unknown as Record<string, unknown>;
+    const { topic, difficulty, worksheetCount } = opts;
+    const genre = (opts.genre as string) || 'macera';
+    const tone = (opts.tone as string) || 'neşeli';
+    const include5N1K = (opts.include5N1K as boolean) ?? true;
+    const focusVocabulary = (opts.focusVocabulary as boolean) ?? true;
+    const includeCreativeTask = (opts.includeCreativeTask as boolean) ?? true;
 
     // UNIQUE CONTENT GENERATION
     const generationSeed = Date.now() + Math.random();
@@ -225,7 +231,7 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
             : '200+ kelime. Betimlemeler, sebep-sonuç ilişkileri.';
 
     const prompt = `
-    "${topic}" konusunda, ${difficulty} seviyesinde (${constraints}) özgün bir hikaye yaz.
+    "${topic}" konusunda, "${genre}" türünde, "${tone}" tonunda, ${difficulty} seviyesinde (${constraints}) özgün bir hikaye yaz.
     
     ⚠️ KRİTİK: HER ÜRETİMDE TAMAMEN FARKLI HİKAYE!
     - Rastgelelik tohumu: ${generationSeed}
@@ -233,12 +239,13 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
     - Her üretimde yeni kelimeler, yeni sorular, yeni görevler
     
     EKSTRA GÖREVLER (JSON ÇIKTISINDA ZORUNLU):
-    1. **vocabulary:** Hikayeden ${difficulty === 'Başlangıç' ? '3' : '4'} adet "öğrenilmesi gereken" veya "zor" kelime seç ve kısa, child-friendly tanımlarını yaz.
-    2. **creativeTask:** Öğrencinin hikayeyle ilgili yapabileceği bir çizim veya kısa yazma görevi ver.
+    ${focusVocabulary ? `1. **vocabulary:** Hikayeden ${difficulty === 'Başlangıç' ? '3' : '4'} adet "öğrenilmesi gereken" veya "zor" kelime seç ve kısa, child-friendly tanımlarını yaz.` : '1. **vocabulary:** Boş dizi ([]) döndür.'}
+    ${includeCreativeTask ? `2. **creativeTask:** Öğrencinin hikayeyle ilgili yapabileceği bir çizim veya kısa yazma görevi ver.` : '2. **creativeTask:** Boş string ("") döndür.'}
     3. **questions:** 
        - 2 adet Çoktan Seçmeli (4 şıklı).
        - 1 adet Doğru/Yanlış.
        - 1 adet Açık Uçlu (Yorum/Çıkarım).
+    ${include5N1K ? `4. **fiveW1H:** Hikayeye dayalı 5N1K soruları üret. Her biri: { type: 'kim' | 'ne' | 'nerede' | 'ne zaman' | 'neden' | 'nasıl', question: 'Soru?', answer: 'Kısa cevap' } — 6 farklı tipten 6 soru olmalı.` : ''}
     
     GÖRSEL PROMPT: Hikayenin en can alıcı sahnesini betimleyen, çocuklar için uygun, renkli, "storybook illustration" tarzında İngilizce bir prompt yaz.
     
@@ -267,6 +274,20 @@ export const generateStoryComprehensionFromAI = async (options: GeneratorOptions
                 }
             },
             creativeTask: { type: 'STRING', description: 'Yaratıcı görev yönergesi' },
+            fiveW1H: {
+                type: 'ARRAY',
+                nullable: true,
+                description: '5N1K soruları (Ne, Nerede, Ne Zaman, Kim, Neden, Nasıl)',
+                items: {
+                    type: 'OBJECT',
+                    properties: {
+                        type: { type: 'STRING', description: '5N1K tipi (kim, ne, nerede, ne zaman, neden, nasıl)' },
+                        question: { type: 'STRING', description: 'Soru metni' },
+                        answer: { type: 'STRING', description: 'Kısa cevap' }
+                    },
+                    required: ['type', 'question', 'answer']
+                }
+            },
             questions: {
                 type: 'ARRAY',
                 description: 'Okuduğunu anlama soruları',

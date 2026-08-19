@@ -187,7 +187,7 @@ export const getDefaultOptionsForActivity = (
     case ActivityType.STORY_SEQUENCING:
       return { ...base, mode: 'ai', itemCount: 5, difficulty: 'Orta' };
     case ActivityType.MISSING_PARTS:
-      return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', textLength: 'kısa', missingType: 'word' };
+      return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', textLength: 'kısa', blankType: 'word' };
     case ActivityType.MAP_INSTRUCTION:
       return { ...base, mode: 'ai', itemCount: 1, difficulty: 'Orta', gridSize: 5 };
     case ActivityType.DIRECTIONAL_TRACKING:

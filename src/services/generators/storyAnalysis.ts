@@ -43,12 +43,15 @@ export const generateStoryAnalysisFromAI = async (options: GeneratorOptions) => 
 
   // Zorluk seviyesine göre sınıf seviyesi eşleştirmesi
   const difficultyConfig: Record<string, { gradeMin: number; gradeMax: number; storyLength: string; vocabularyCount: number; questionCount: number }> = {
+    'Çok Kolay': { gradeMin: 1, gradeMax: 2, storyLength: 'kısa', vocabularyCount: 3, questionCount: 3 },
     'çok kolay': { gradeMin: 1, gradeMax: 2, storyLength: 'kısa', vocabularyCount: 3, questionCount: 3 },
+    'Kolay': { gradeMin: 2, gradeMax: 3, storyLength: 'kısa', vocabularyCount: 4, questionCount: 4 },
     'kolay': { gradeMin: 2, gradeMax: 3, storyLength: 'kısa', vocabularyCount: 4, questionCount: 4 },
     'Orta': { gradeMin: 3, gradeMax: 5, storyLength: 'orta', vocabularyCount: 5, questionCount: 5 },
     'orta': { gradeMin: 3, gradeMax: 5, storyLength: 'orta', vocabularyCount: 5, questionCount: 5 },
     'Zor': { gradeMin: 5, gradeMax: 7, storyLength: 'uzun', vocabularyCount: 7, questionCount: 7 },
     'zor': { gradeMin: 5, gradeMax: 7, storyLength: 'uzun', vocabularyCount: 7, questionCount: 7 },
+    'Uzman': { gradeMin: 7, gradeMax: 8, storyLength: 'çok uzun', vocabularyCount: 10, questionCount: 10 },
     'uzman': { gradeMin: 7, gradeMax: 8, storyLength: 'çok uzun', vocabularyCount: 10, questionCount: 10 }
   };
 
@@ -230,6 +233,7 @@ const schema = {
   return {
     id: `story_analysis_${Date.now()}`,
     activityType: ActivityType.STORY_ANALYSIS,
+    pedagogicalNote: (result.pedagogicalNote as string) || '',
     title: (result.title as string) || 'Hikaye Analizi',
     instruction: (result.instruction as string) || 'Metni oku ve analiz bölümlerini tamamla.',
     imagePrompt: (result.imagePrompt as string) || '',

@@ -459,7 +459,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   },
   [ActivityType.INFOGRAPHIC_SHORT_ANSWER]: {
     ai: aiGenerators.generateShortAnswerFromAI,
-    offline: (options: GeneratorOptions) => offlineGenerators.generateOfflineFallback(ActivityType.INFOGRAPHIC_SHORT_ANSWER, options),
+    offline: offlineGenerators.generateOfflineShortAnswer,
   },
   [ActivityType.INFOGRAPHIC_CONCEPT_MAP]: {
     ai: withAI(ActivityType.INFOGRAPHIC_CONCEPT_MAP),

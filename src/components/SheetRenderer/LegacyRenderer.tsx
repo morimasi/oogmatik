@@ -483,7 +483,7 @@ export function renderLegacySheet(
       break;
     }
     case ActivityType.STORY_ANALYSIS:
-      renderedSheet = <StoryAnalysisSheet data={data as unknown as unknown as unknown as unknown as StoryAnalysisData} />;
+      renderedSheet = <StoryAnalysisSheet data={data as unknown as unknown as unknown as unknown as StoryAnalysisData} settings={settings} />;
       break;
     case ActivityType.STORY_SEQUENCING: {
       const ssd = data as Record<string, unknown>;

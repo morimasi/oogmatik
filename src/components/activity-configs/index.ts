@@ -117,7 +117,7 @@ export const ActivityConfigRegistry: Record<string, unknown> = {
   [ActivityType.SENTENCE_5W1H]: SentenceFiveWOneHConfig,
   [ActivityType.STORY_ANALYSIS]: StoryAnalysisConfig,
   [ActivityType.STORY_SEQUENCING]: StorySequencingConfig,
-  [ActivityType.MISSING_PARTS]: AdvancedMissingPartsConfig,
+  [ActivityType.MISSING_PARTS]: MissingPartsConfig,
 
   [ActivityType.QUEUE_ORDERING]: QueueOrderingConfig,
 

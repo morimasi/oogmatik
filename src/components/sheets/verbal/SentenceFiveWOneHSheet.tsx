@@ -72,27 +72,29 @@ export const SentenceFiveWOneHSheet: React.FC<Props> = ({ data }) => {
 
       {/* Cümle Kartları - Ultra Compact High Density */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-        {data.items.map((item, idx) => (
-          <div key={item.id || idx} className="p-2 bg-white border border-zinc-200 rounded-lg relative overflow-hidden group hover:border-indigo-300 transition-colors">
+        {(data.items || []).map((item, idx) => {
+          const questions = Array.isArray(item?.questions) ? item.questions : [];
+          return (
+          <div key={item?.id || idx} className="p-2 bg-white border border-zinc-200 rounded-lg relative overflow-hidden group hover:border-indigo-300 transition-colors">
             {/* Index Badge - KALDIRILDI */}
             
             {/* Cümle - Compact */}
             <div className="mb-2 px-2 py-1.5 bg-zinc-50 rounded-lg border border-zinc-100 border-l-2 border-l-indigo-500">
                 <p className="text-[10px] font-bold text-zinc-800 leading-snug">
-                    {item.sentence as string}
+                    {item?.sentence as string}
                 </p>
             </div>
 
             {/* 5N1K Soru Listesi - Ultra Compact */}
-            <div className={`grid ${item.questions.length > 3 ? 'grid-cols-2' : 'grid-cols-1'} gap-x-2 gap-y-1.5`}>
-              {item.questions.map((q, qIdx) => (
+            <div className={`grid ${questions.length > 3 ? 'grid-cols-2' : 'grid-cols-1'} gap-x-2 gap-y-1.5`}>
+              {questions.map((q, qIdx) => (
                 <div key={qIdx} className="flex flex-col gap-0.5">
                   <div className="flex items-center flex-wrap gap-1 px-0.5">
                       {getIcon(q.type)}
                       <span className="text-[8px] font-black text-zinc-400 uppercase tracking-tighter shrink-0">
                           {getLabel(q.type)}
                       </span>
-                      {((data.settings?.showPredicate) || (data as any).showPredicate) && item.predicate && (
+                      {((data.settings?.showPredicate) || (data as any).showPredicate) && item?.predicate && (
                         <span className="text-[7px] font-bold text-indigo-400 bg-indigo-50 px-1 py-0.5 rounded border border-indigo-100/50">
                            → {item.predicate as string}
                         </span>
@@ -106,7 +108,8 @@ export const SentenceFiveWOneHSheet: React.FC<Props> = ({ data }) => {
               ))}
             </div>
           </div>
-        ))}
+          );
+        })}
       </div>
 
     </div>

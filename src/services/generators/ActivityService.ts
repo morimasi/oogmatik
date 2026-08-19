@@ -175,6 +175,8 @@ export class ActivityService {
         if (_mode) {
             options.mode = _mode === GeneratorMode.AI ? 'ai' : 'fast';
         }
+        // Jeneratörlerin doğru activityType üretmesi için options'a enjekte et
+        (options as Record<string, unknown>).activityType = activeType;
 
         // [v5 BATCH PROCESSING - PARALLEL]
         // Eğer AI modu aktifse ve itemCount > 10 ise, 5'erli paketler halinde PARALEL üret

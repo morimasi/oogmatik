@@ -85,7 +85,7 @@ Lütfen çıktını AŞAĞIDAKİ JSON YAPISINDA ve GEÇERLİ BİR FORMATTA ver (
             "type": "who",
             "questionText": "...",
             "answerType": "multiple_choice",
-            "options": ["A) ...", "B) ...", "C) ..."],
+            "options": ["Şık metni 1", "Şık metni 2", "Şık metni 3"],
             "correctAnswer": "..."
         }
     ]

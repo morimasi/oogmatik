@@ -75,6 +75,11 @@ export const aiContentService = {
       [ActivityType.VISUAL_INTERPRETATION]: 'Resim Yorumlama ve Analiz',
       [ActivityType.BRAIN_TEASERS]: 'Kafayı Çalıştır (Zeka Oyunları)',
       [ActivityType.BOX_MATH]: 'Kutularla Matematik',
+      [ActivityType.SENTENCE_5W1H]: 'Cümlede 5N1K',
+      [ActivityType.STORY_ANALYSIS]: 'Hikaye Analizi (Ultra Pro)',
+      [ActivityType.MISSING_PARTS]: 'Eksik Parçaları Tamamlama',
+      [ActivityType.STORY_COMPREHENSION]: 'Hikaye Kavrama',
+      [ActivityType.INFOGRAPHIC_SHORT_ANSWER]: 'Kısa Cevaplı Sorular (Premium)',
     };
 
     const activityTitle = activities[activityType] || 'Bilinmeyen Etkinlik';

@@ -1,5 +1,6 @@
 import { generateCreativeMultimodal } from '../geminiClient';
 import { GeneratorOptions } from '../../types/core';
+import { AppError } from '../../utils/AppError';
 
 export const generateShortAnswerFromAI = async (
   options: GeneratorOptions
@@ -7,7 +8,8 @@ export const generateShortAnswerFromAI = async (
   const opts = options as unknown as Record<string, unknown>;
   const topic = (opts.topic as string) || 'Genel Kültür';
   const difficulty = options.difficulty || 'Orta';
-  const count = (opts.itemCountShort as number) || 8;
+  const count = (opts.itemCount as number) || (opts.itemCountShort as number) || 8;
+  const activityType = (opts.activityType as string) || 'SHORT_ANSWER';
 
   const prompt = `
 Uzman: Eğitim Teknoloğu & Soru Hazırlama Uzmanı
@@ -16,7 +18,7 @@ Görev: "${topic}" temalı, "${difficulty}" zorluk seviyesinde ${count} adet kı
 KURAL 1: Veri Yapısı (JSON)
 {
   "id": "sa_ai_v2",
-  "activityType": "SHORT_ANSWER",
+  "activityType": "${activityType}",
   "title": "${topic} - Soru Bankası",
   "instruction": "Soruları dikkatle oku ve kutucuklara cevaplarını yaz.",
   "content": {
@@ -42,5 +44,25 @@ ZORUNLU: Sadece JSON döndür.
     temperature: 0.6,
   });
 
-  return parsedData;
+  const data = parsedData as unknown as Record<string, unknown>;
+  const content = data?.content as Record<string, unknown> | undefined;
+
+  if (!content || !Array.isArray(content.questions) || content.questions.length === 0) {
+    throw new AppError('Kısa Cevaplı Sorular AI çıktısı geçersiz (content.questions eksik).', 'GENERATION_FAILED', 500);
+  }
+
+  return {
+    id: (data.id as string) || `sa_ai_${Date.now()}`,
+    activityType: activityType,
+    title: (data.title as string) || `${topic} - Soru Bankası`,
+    instruction: (data.instruction as string) || 'Soruları dikkatle oku ve kutucuklara cevaplarını yaz.',
+    settings: { ...options, topic },
+    content: {
+      questions: content.questions,
+      insight: content.insight || {
+        title: 'Bunu Biliyor musun?',
+        text: 'Soru konusu ile ilgili ilginç bir kısa bilgi.'
+      }
+    }
+  };
 };

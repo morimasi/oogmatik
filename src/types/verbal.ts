@@ -703,6 +703,7 @@ export interface HiddenPasswordGridData extends BaseActivityData {
 }
 
 export interface LogicErrorHunterData extends BaseActivityData {
+  activityType?: string;
   settings?: {
     difficulty: 'çok kolay' | 'kolay' | 'orta' | 'zor';
     absurdityDegree: 'minimal' | 'obvious' | 'surreal';
@@ -713,9 +714,9 @@ export interface LogicErrorHunterData extends BaseActivityData {
     story: string; // Hataları barındıran uzun paragraf (Hatalı kelimelerin indekslerini tutabilmek veya özel işaretleyici ile sarabilmek için). Örn: "Güneş **gece** doğar." Ancak sadece düz metin olarak verilsin, biz UI'da vurgulamayacağız, çocuk kendisi bulacak.
     errors: {
       id: string;
-      faultyWordOrPhrase: string; // Metin içindeki absürt kelime (örn: "gece")
-      correction: string; // Doğrusu ne olmalıydı (örn: "sabah")
-      explanation: string; // Neden mantıksız (örn: "Güneş gündüzleri doğduğu için gece doğması mantıksızdır.")
+      faultyWordOrPhrase: string; // Metin içindeki absürt kelime (Örn: "gece")
+      correction: string; // Doğrusu ne olmalıydı (Örn: "sabah")
+      explanation: string; // Neden mantıksız (Örn: "Güneş gündüzleri doğduğu için gece doğması mantıksızdır.")
     }[];
   };
 }
@@ -749,6 +750,7 @@ export interface FiveWOneHData extends SingleWorksheetData {
 export interface Sentence5W1HItem {
   [key: string]: unknown;
   id: string;
+  sentence: string;
   predicate?: string;
   questions: {
     type: 'who' | 'what' | 'where' | 'when' | 'how' | 'why';

@@ -11,12 +11,13 @@ export const AdvancedMissingPartsSheet: React.FC<{ data: any }> = React.memo(({ 
     const rawItems = content.items || content.paragraphs || [];
 
     // Normalizasyon: paragraphs formatını items formatına çevir
+    // NOT: Cevap kesinlikle ipucuna sızdırılmaz — öğrenci kendi bulur.
     const items = rawItems.map((it: any, idx: number) => {
         if (it.parts && Array.isArray(it.parts)) {
             const fullText = it.parts.map((p: any) => p.isBlank ? '...........' : p.text).join('');
             return {
                 text: fullText,
-                hint: it.parts.find((p: any) => p.isBlank)?.answer ? `Cevap: ${it.parts.find((p: any) => p.isBlank)?.answer}` : undefined
+                hint: undefined
             };
         }
         return it;

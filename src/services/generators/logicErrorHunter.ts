@@ -1,6 +1,7 @@
 import { generateCreativeMultimodal } from '../geminiClient';
 import { GeneratorOptions } from '../../types/core';
 import { LogicErrorHunterData } from '../../types/verbal';
+import { AppError } from '../../utils/AppError';
 
 export const generateLogicErrorHunterFromAI = async (
   options: GeneratorOptions
@@ -88,5 +89,27 @@ TASARIM KURALLARI:
     temperature: 0.8, // Hikaye üretimi için yaratıcılığı artırıyoruz ama formatı koruması lazım
   });
 
-  return parsedData as unknown as LogicErrorHunterData;
+  const data = parsedData as unknown as Record<string, unknown>;
+  const content = data?.content as Record<string, unknown> | undefined;
+
+  if (!content || !content.story || !Array.isArray(content.errors) || content.errors.length === 0) {
+    throw new AppError('Mantık Hataları AI çıktısı geçersiz (content.story/errors eksik).', 'GENERATION_FAILED', 500);
+  }
+
+  const aiSettings = data?.settings as Record<string, unknown> | undefined;
+
+  return {
+    title: (data.title as string) || 'Mantık Hatası Avcısı',
+    instruction: (data.instruction as string) || "Aşağıdaki metinlerde bazı 'saçma' veya 'mantıksız' durumlar var. Bunları bul, altını çiz ve doğrusunu yaz.",
+    settings: {
+      difficulty: (aiSettings?.difficulty as 'çok kolay' | 'kolay' | 'orta' | 'zor') || difficulty,
+      absurdityDegree: (aiSettings?.absurdityDegree as 'minimal' | 'obvious' | 'surreal') || absurdityDegree,
+      errorCount: Array.isArray(content.errors) ? content.errors.length : errorCount
+    },
+    content: {
+      title: (content.title as string) || (data.title as string) || 'Mantık Hatası Avcısı',
+      story: content.story as string,
+      errors: content.errors as LogicErrorHunterData['content']['errors']
+    }
+  };
 };

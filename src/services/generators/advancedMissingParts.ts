@@ -1,5 +1,6 @@
 import { generateCreativeMultimodal } from '../geminiClient';
 import { GeneratorOptions } from '../../types/core';
+import { AppError } from '../../utils/AppError';
 
 export const generateAdvancedMissingPartsFromAI = async (
   options: GeneratorOptions
@@ -43,5 +44,32 @@ ZORUNLU: Sadece JSON döndür.
     temperature: 0.5,
   });
 
-  return parsedData;
+  const data = parsedData as unknown as Record<string, unknown>;
+  const content = data?.content as Record<string, unknown> | undefined;
+
+  if (!content || !Array.isArray(content.items)) {
+    throw new AppError('Eksik Parçalar AI çıktısı geçersiz (content.items eksik).', 'GENERATION_FAILED', 500);
+  }
+
+  return {
+    id: (data.id as string) || `amp_ai_${Date.now()}`,
+    activityType: 'MISSING_PARTS',
+    title: (data.title as string) || `${topic} - Eksik Parçaları Tamamla`,
+    instruction: (data.instruction as string) || 'Cümlelerdeki boşlukları anlam bütünlüğünü bozmayacak şekilde tamamla.',
+    settings: {
+      difficulty,
+      blankType,
+      showWordBank: true,
+      topic,
+    },
+    content: {
+      title: (data.title as string) || `${topic} - Eksik Parçaları Tamamla`,
+      items: content.items,
+      wordBank: Array.isArray(content.wordBank) ? content.wordBank : [],
+      insight: content.insight || {
+        title: 'İpucu',
+        text: 'Eksik parçayı bulmak için cümlenin genel akışına bak.'
+      }
+    }
+  };
 };

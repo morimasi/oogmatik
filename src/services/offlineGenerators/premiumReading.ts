@@ -292,7 +292,7 @@ export async function generateOfflinePremiumFamilyLogicTest(
 // ═══════════════════════════════════════════════════════════════
 // EKSİK PARÇALARI TAMAMLAMA (MISSING_PARTS) - ULTRA PRO PREMIUM
 // ═══════════════════════════════════════════════════════════════
-export async function generateOfflineMissingParts(
+export async function generateOfflinePremiumMissingParts(
   options: GeneratorOptions
 ): Promise<SingleWorksheetData> {
   const { difficulty = 'Orta', topic = 'Genel' } = options;
