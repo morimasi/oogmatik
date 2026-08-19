@@ -30,6 +30,7 @@ import { SariKitapRenderer } from './sheet-renderers/SariKitapRenderer';
 import { ShortAnswerSheet } from './sheets/verbal/ShortAnswerSheet';
 import { BasicOperationsSheet } from './sheets/math/BasicOperationsSheet';
 import { MathWordProblemsSheet } from './sheets/math/MathWordProblemsSheet';
+import { NumberPyramidSheet } from './sheets/math/NumberPyramidSheet';
 
 import { UnifiedContentRenderer } from './SheetRenderer/UnifiedContentRenderer';
 import { renderLegacySheet } from './SheetRenderer/LegacyRenderer';
@@ -158,6 +159,12 @@ export const SheetRenderer = React.memo(
     if (activityType === ActivityType.MATH_WORD_PROBLEMS && resolvedData) {
       return withWrapper(
         <MathWordProblemsSheet data={resolvedData as unknown as any} />
+      );
+    }
+
+    if (activityType === ActivityType.NUMBER_PYRAMID && resolvedData) {
+      return withWrapper(
+        <NumberPyramidSheet data={resolvedData as unknown as any} />
       );
     }
 
