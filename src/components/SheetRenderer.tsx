@@ -68,6 +68,34 @@ import {
   AttentionToQuestionSheet,
   HandwritingPracticeSheet,
 } from './sheets/verbal/ReadingSupportSheets';
+import {
+  WordMemorySheet,
+  VisualMemorySheet,
+  CharacterMemorySheet,
+  ColorWheelSheet,
+  ImageComprehensionSheet,
+} from './sheets/attention/MemorySheets';
+import { StroopTestSheet } from './sheets/attention/StroopTestSheet';
+import {
+  BurdonTestSheet,
+  NumberSearchSheet,
+  AttentionDevelopmentSheet,
+  ChaoticNumberSearchSheet,
+  AttentionFocusSheet,
+  FindDuplicateSheet,
+  LetterGridTestSheet,
+  TargetSearchSheet,
+} from './sheets/attention/AttentionSheets';
+import { DirectionalCodeReadingSheet } from './sheets/visual/DirectionalCodeReadingSheet';
+import { MapDetectiveSheet } from './sheets/visual/MapDetectiveSheet';
+import { FindTheDifferenceSheet } from './sheets/visual/FindTheDifferenceSheet';
+import { VisualOddOneOutSheet } from './sheets/visual/VisualOddOneOutSheet';
+import { PatternCompletionSheet } from './sheets/visual/PatternCompletionSheet';
+import { GridDrawingSheet } from './sheets/visual/GridDrawingSheet';
+import { SymmetryDrawingSheet } from './sheets/visual/SymmetryDrawingSheet';
+import { ShapeCountingSheet } from './sheets/visual/ShapeCountingSheet';
+import { DirectionalTrackingSheet } from './sheets/visual/DirectionalTrackingSheet';
+import { AlgorithmSheet } from './sheets/logic/AlgorithmSheet';
 import { MathWordProblemsSheet } from './sheets/math/MathWordProblemsSheet';
 import { NumberPyramidSheet } from './sheets/math/NumberPyramidSheet';
 import { NumberPatternSheet } from './sheets/math/NumberPatternSheet';
@@ -438,6 +466,104 @@ export const SheetRenderer = React.memo(
 
     if (activityType === ActivityType.HANDWRITING_PRACTICE && resolvedData) {
       return withWrapper(<HandwritingPracticeSheet data={resolvedData as unknown as any} />);
+    }
+
+    // ── GÖRSEL & MEKANSAL BİLGİ ETKİNLİKLERİ ──
+    if (activityType === ActivityType.DIRECTIONAL_CODE_READING && resolvedData) {
+      return withWrapper(<DirectionalCodeReadingSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.MAP_INSTRUCTION && resolvedData) {
+      return withWrapper(<MapDetectiveSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.FIND_THE_DIFFERENCE && resolvedData) {
+      return withWrapper(<FindTheDifferenceSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.VISUAL_ODD_ONE_OUT && resolvedData) {
+      return withWrapper(<VisualOddOneOutSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.PATTERN_COMPLETION && resolvedData) {
+      return withWrapper(<PatternCompletionSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.GRID_DRAWING && resolvedData) {
+      return withWrapper(<GridDrawingSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.SYMMETRY_DRAWING && resolvedData) {
+      return withWrapper(<SymmetryDrawingSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.SHAPE_COUNTING && resolvedData) {
+      return withWrapper(<ShapeCountingSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.DIRECTIONAL_TRACKING && resolvedData) {
+      return withWrapper(<DirectionalTrackingSheet data={resolvedData as unknown as any} />);
+    }
+
+    // ── DİKKAT & HAFIZA ETKİNLİKLERİ ──
+    if (activityType === ActivityType.WORD_MEMORY && resolvedData) {
+      return withWrapper(<WordMemorySheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.VISUAL_MEMORY && resolvedData) {
+      return withWrapper(<VisualMemorySheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.CHARACTER_MEMORY && resolvedData) {
+      return withWrapper(<CharacterMemorySheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.COLOR_WHEEL_MEMORY && resolvedData) {
+      return withWrapper(<ColorWheelSheet data={resolvedData as unknown as any} />);
+    }
+
+    if ((activityType === ActivityType.IMAGE_COMPREHRENSION || (activityType as any) === 'IMAGE_COMPREHENSION') && resolvedData) {
+      return withWrapper(<ImageComprehensionSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.STROOP_TEST && resolvedData) {
+      return withWrapper(<StroopTestSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.BURDON_TEST && resolvedData) {
+      return withWrapper(<BurdonTestSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.LETTER_GRID_TEST && resolvedData) {
+      return withWrapper(<LetterGridTestSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.NUMBER_SEARCH && resolvedData) {
+      return withWrapper(<NumberSearchSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.CHAOTIC_NUMBER_SEARCH && resolvedData) {
+      return withWrapper(<ChaoticNumberSearchSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.ATTENTION_DEVELOPMENT && resolvedData) {
+      return withWrapper(<AttentionDevelopmentSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.ATTENTION_FOCUS && resolvedData) {
+      return withWrapper(<AttentionFocusSheet data={resolvedData as unknown as any} />);
+    }
+
+    if ((activityType as any) === 'FIND_DUPLICATE' && resolvedData) {
+      return withWrapper(<FindDuplicateSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.TARGET_SEARCH && resolvedData) {
+      return withWrapper(<TargetSearchSheet data={resolvedData as unknown as any} />);
+    }
+
+    if (activityType === ActivityType.ALGORITHM_GENERATOR && resolvedData) {
+      return withWrapper(<AlgorithmSheet data={resolvedData as unknown as any} />);
     }
 
     if (activityType === ActivityType.VISUAL_INTERPRETATION) {
