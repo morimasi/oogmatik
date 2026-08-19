@@ -28,15 +28,21 @@ class LayoutEngine {
   findSpace(w: number, h: number): { page: number; x: number; y: number } {
     let currentPage = 0;
 
-    while (true) {
+    // Güvenlik sınırı: öğe sayfaya sığmazsa while(true) sonsuza dönerdi (donma).
+    // Öğe canvas alanını aşarsa zorla kendi sayfasına yerleştir.
+    const maxPages = 1000;
+    const forcedW = Math.min(w, this.canvasWidth - this.padding * 2);
+    const forcedH = Math.min(h, this.canvasHeight - this.padding * 2);
+
+    while (currentPage < maxPages) {
       let bestY = this.padding;
       let bestX = this.padding;
       let found = false;
 
       // Yukarıdan aşağıya (10px adımlarla) ve Soldan sağa (10px adımlarla) tara
-      for (let y = this.padding; y <= this.canvasHeight - this.padding - h; y += 10) {
-        for (let x = this.padding; x <= this.canvasWidth - this.padding - w; x += 10) {
-          const candidate: Rect = { x, y, w, h };
+      for (let y = this.padding; y <= this.canvasHeight - this.padding - forcedH; y += 10) {
+        for (let x = this.padding; x <= this.canvasWidth - this.padding - forcedW; x += 10) {
+          const candidate: Rect = { x, y, w: forcedW, h: forcedH };
 
           const isOccupied = this.occupiedSpaces
             .filter((s) => s.page === currentPage)
@@ -53,13 +59,17 @@ class LayoutEngine {
       }
 
       if (found) {
-        this.occupiedSpaces.push({ page: currentPage, rect: { x: bestX, y: bestY, w, h } });
+        this.occupiedSpaces.push({ page: currentPage, rect: { x: bestX, y: bestY, w: forcedW, h: forcedH } });
         return { page: currentPage, x: bestX, y: bestY };
       } else {
         // Bu sayfada yer yoksa bir sonraki sayfaya geç
         currentPage++;
       }
     }
+
+    // Asla ulaşılmamalı; son çare: yeni bir sayfaya sığdırılmış boyutla yerleştir
+    this.occupiedSpaces.push({ page: currentPage, rect: { x: this.padding, y: this.padding, w: forcedW, h: forcedH } });
+    return { page: currentPage, x: this.padding, y: this.padding };
   }
 
   // Basit çakışma (AABB) kontrolü

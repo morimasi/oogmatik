@@ -7,8 +7,7 @@ import { logInfo, logWarn } from "../utils/logger.js";
 // @ts-ignore — same as above; all Firestore symbols imported in one block to cover the full statement
 import {
   initializeFirestore,
-  persistentLocalCache,
-  persistentMultipleTabManager,
+  memoryLocalCache,
   collection,
   doc,
   getDoc,
@@ -79,12 +78,14 @@ if (isDev) {
 
 /**
  * Modern Firestore Initialization
- * WebChannel streaming (400 Bad Request) hatalarını önlemek için yapılandırıldı.
- * Not: Çoklu sekme desteği için persistentMultipleTabManager etkinleştirildi.
+ * Not: IndexedDB persistence (persistentLocalCache) kapatıldı — SDK 11.x'te
+ * bozuk/bloom filter önbelleği uygulamayı donduran sonsuz re-query döngüsüne
+ * yol açıyordu ("BloomFilter error" + Promise.then sonsuz zinciri).
+ * Bellek cache kullanılıyor: çevrimdışı kalıcılık kritik değil, donma riski elendi.
+ * experimentalForceLongPolling kaldırıldı — modern SDK otomatik algılama kullanır.
  */
 export const db = initializeFirestore(app, {
-  localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
-  experimentalForceLongPolling: true
+  localCache: memoryLocalCache()
 });
 
 export const storage = getStorage(app);

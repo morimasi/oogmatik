@@ -107,9 +107,27 @@ export const generateOfflineSayiDedektifi = async (
     const riddles: SayiDedektifiRiddle[] = [];
     const usedNumbers = new Set<number>();
 
+    let mysteryNumber: number; // let instead of const to allow reassignment in guard loop
     while (riddles.length < itemCount) {
-      const mysteryNumber = getRandomInt(min, max);
-      if (usedNumbers.has(mysteryNumber)) continue;
+      mysteryNumber = getRandomInt(min, max);
+      if (usedNumbers.has(mysteryNumber)) {
+        // tüm sayılar kullanılmışsa ve hala eksikse (min-max aralığı çok dar olursa),
+        // sonsuz döngüyü engellemek için deneme sayısını sınırla
+        let attempts = 0;
+        while (usedNumbers.has(mysteryNumber) && attempts < 20) {
+          mysteryNumber = getRandomInt(min, max);
+          attempts++;
+        }
+        if (usedNumbers.has(mysteryNumber)) {
+          // yine de çakılıysa, kullanılmayan ilk sayıyı bul (varsa)
+          for (let n = min; n <= max && riddles.length < itemCount; n++) {
+            if (!usedNumbers.has(n)) {
+              mysteryNumber = n;
+              break;
+            }
+          }
+        }
+      }
       
       usedNumbers.add(mysteryNumber);
       const clues = generateAdvancedClues(mysteryNumber, difficulty, clueCount);

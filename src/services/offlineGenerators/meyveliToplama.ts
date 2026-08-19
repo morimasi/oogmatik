@@ -85,6 +85,28 @@ export const generateOfflineMeyveliToplama = async (
         if (!usedValues.has(val)) {
           usedValues.add(val);
           fruitValues.push(val);
+        } else {
+          // tüm değerler kullanılmışsa ve hala eksikse (aralık çok dar olursa),
+          // sonsuz döngüyü engellemek için deneme sayısını sınırla
+          let attempts = 0;
+          while (attempts < 20) {
+            const newVal = getRandomInt(minVal, maxVal);
+            if (!usedValues.has(newVal)) {
+              usedValues.add(newVal);
+              fruitValues.push(newVal);
+              break;
+            }
+            attempts++;
+          }
+          if (fruitValues.length < fruitCount) {
+            // yine de çakılıysa, minVal'dan başlayarak kullanılmayan ilk değeri bul
+            for (let v = minVal; v <= maxVal && fruitValues.length < fruitCount; v++) {
+              if (!usedValues.has(v)) {
+                fruitValues.push(v);
+                break;
+              }
+            }
+          }
         }
       }
 
