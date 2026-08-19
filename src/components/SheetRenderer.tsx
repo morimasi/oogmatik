@@ -184,7 +184,7 @@ export const SheetRenderer = React.memo(
         if (mainBlock) {
           const innerContent = mainBlock.content || mainBlock.data || mainBlock;
           const extractedArray =
-            (typeof innerContent === 'object' && (innerContent.items || innerContent.questions || innerContent.exercises || innerContent.pairs || innerContent.words || innerContent.puzzles || innerContent.rows || innerContent.cards || innerContent.pyramids)) ||
+            (typeof innerContent === 'object' && (innerContent.items || innerContent.questions || innerContent.exercises || innerContent.pairs || innerContent.words || innerContent.puzzles || innerContent.rows || innerContent.cards || innerContent.pyramids || innerContent.clocks || innerContent.steps || innerContent.grid || innerContent.cells || innerContent.paths || innerContent.rungs || innerContent.sequences || innerContent.levels || innerContent.numbers || innerContent.problems || innerContent.riddles || innerContent.wordProblems || innerContent.pyramidLayers || innerContent.blocks || innerContent.layoutArchitecture?.blocks)) ||
             (Array.isArray(innerContent) ? innerContent : null);
 
           resolvedData = {
