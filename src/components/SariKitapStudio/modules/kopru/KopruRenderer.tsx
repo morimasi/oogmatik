@@ -24,28 +24,30 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
     const bThickness = c.bridgeThickness ?? 3;
     const bColor = c.bridgeColor ?? '#18181b';
     const bridgeStyle = c.bridgeStyle || 'yay';
-    
+
     // Satır aralığı — görseldeki gibi ferah
     const rowGap = '4rem';
+
+    const bHeight = c.bridgeHeight ?? 18;
 
     const renderBridge = () => {
         if (bridgeStyle === 'düz') {
             return (
-                <svg width="100%" height="24" viewBox="0 0 100 24" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
-                    <line x1="0" y1="20" x2="100" y2="20" stroke={bColor} strokeWidth={bThickness} vectorEffect="non-scaling-stroke" />
+                <svg width="100%" height={bHeight} viewBox={`0 0 100 ${bHeight}`} preserveAspectRatio="none" style={{ overflow: 'visible' }}>
+                    <line x1="0" y1={bHeight - 2} x2="100" y2={bHeight - 2} stroke={bColor} strokeWidth={bThickness} vectorEffect="non-scaling-stroke" />
                 </svg>
             );
         } else if (bridgeStyle === 'noktalı') {
             return (
-                <svg width="100%" height="24" viewBox="0 0 100 24" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
-                    <path d="M 0,24 Q 50,0 100,24" fill="none" stroke={bColor} strokeWidth={bThickness} strokeDasharray="4,4" vectorEffect="non-scaling-stroke" strokeLinecap="round" />
+                <svg width="100%" height={bHeight} viewBox={`0 0 100 ${bHeight}`} preserveAspectRatio="none" style={{ overflow: 'visible' }}>
+                    <path d={`M 0,${bHeight - 2} Q 50,2 100,${bHeight - 2}`} fill="none" stroke={bColor} strokeWidth={bThickness} strokeDasharray="4,4" vectorEffect="non-scaling-stroke" strokeLinecap="round" />
                 </svg>
             );
         } else {
-            // Varsayılan yay stili
+            // Varsayılan kavisli üst yarım yay stili (M 0,h Q 50,0 100,h - Gerçek Köprü Kemeri)
             return (
-                <svg width="100%" height="24" viewBox="0 0 100 24" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
-                    <path d="M 0,24 Q 50,0 100,24" fill="none" stroke={bColor} strokeWidth={bThickness} vectorEffect="non-scaling-stroke" strokeLinecap="round" />
+                <svg width="100%" height={bHeight} viewBox={`0 0 100 ${bHeight}`} preserveAspectRatio="none" style={{ overflow: 'visible' }}>
+                    <path d={`M 0,${bHeight - 2} Q 50,2 100,${bHeight - 2}`} fill="none" stroke={bColor} strokeWidth={bThickness} vectorEffect="non-scaling-stroke" strokeLinecap="round" />
                 </svg>
             );
         }
@@ -53,9 +55,9 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
 
     return (
         <div className="sk-renderer-kopru" style={{
-            padding: '2rem 1rem 4rem 1rem', 
-            display: 'flex', 
-            flexDirection: 'column', 
+            padding: '2rem 1rem 4rem 1rem',
+            display: 'flex',
+            flexDirection: 'column',
             width: '100%',
             height: '100%',
             color: '#18181b',
@@ -65,8 +67,8 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
         }}>
             {/* ═══ İÇERİK ═══ */}
             <div style={{
-                flex: 1, 
-                display: 'flex', 
+                flex: 1,
+                display: 'flex',
                 flexDirection: 'column',
                 gap: rowGap,
                 zIndex: 1
@@ -77,49 +79,50 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
                     if (words.length === 0) return null;
 
                     return (
-                        <div key={ri} style={{ 
-                            display: 'flex', 
-                            flexDirection: 'row', 
-                            flexWrap: 'wrap', 
-                            alignItems: 'flex-end', 
+                        <div key={ri} style={{
+                            display: 'flex',
+                            flexDirection: 'row',
+                            flexWrap: 'wrap',
+                            alignItems: 'flex-end',
                             width: '100%',
-                            rowGap: '2.5rem' 
+                            rowGap: '2.5rem'
                         }}>
                             {words.map((s, si) => {
                                 if (!s || s.syllable.trim() === '') return null;
                                 return (
-                                <React.Fragment key={`w-${si}`}>
-                                    <div style={{
-                                        fontSize: `${fontSizePx}px`,
-                                        fontWeight: 400,
-                                        lineHeight: '1.2',
-                                        paddingBottom: '2px', 
-                                        whiteSpace: 'nowrap'
-                                    }}>
-                                        {s.syllable}
-                                    </div>
-
-                                    {si < words.length - 1 && (
+                                    <React.Fragment key={`w-${si}`}>
                                         <div style={{
-                                            width: `${c.bridgeWidth ?? 50}px`,
-                                            display: 'flex',
-                                            alignItems: 'flex-end',
-                                            padding: '0 4px', 
-                                            marginBottom: '8px' 
+                                            fontSize: `${fontSizePx}px`,
+                                            fontWeight: 400,
+                                            lineHeight: '1.2',
+                                            paddingBottom: '2px',
+                                            whiteSpace: 'nowrap'
                                         }}>
-                                            {renderBridge()}
+                                            {s.syllable}
                                         </div>
-                                    )}
-                                </React.Fragment>
-                            )})}
+
+                                        {si < words.length - 1 && (
+                                            <div style={{
+                                                width: `${c.bridgeWidth ?? 50}px`,
+                                                display: 'flex',
+                                                alignItems: 'flex-end',
+                                                padding: '0 4px',
+                                                marginBottom: '8px'
+                                            }}>
+                                                {renderBridge()}
+                                            </div>
+                                        )}
+                                    </React.Fragment>
+                                )
+                            })}
                         </div>
                     );
                 })}
             </div>
 
-         </div>
-     );
- });
+        </div>
+    );
+});
 KopruRenderer.displayName = 'KopruRenderer';
 
 
