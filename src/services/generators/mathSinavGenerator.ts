@@ -770,125 +770,140 @@ const buildMathExamPrompt = (settings: MatSinavAyarlari): string => {
 
   promptParts.push(
     'Görevin, 2025 yılı itibarıyla yürürlükte olan Türkiye Millî Eğitim Bakanlığı Matematik dersi öğretim programına (müfredata) sadık kalarak, belirtilen sınıf, üniteler ve kazanımlara uygun, ' +
-      toplamSoru +
-      ' adet soru üretmektir. Üreteceğin tüm sorular SADECE aşağıdaki kazanım(lar)ı hedeflemelidir.\n\n' +
-      'Sınıf: ' +
-      sinif +
-      '\n' +
-      'Üniteler: ' +
-      uniteler +
-      '\n' +
-      'İlgili Kazanımlar:\n' +
-      kazanimBilgileri +
-      '\n\n' +
-      'Lütfen çıktı olarak sadece soruları içeren bir JSON nesnesi döndür. Her soru aşağıdaki genel kurallara uymalıdır:\n' +
-      '1. Soru Kökü: Soru kökü öğrencinin günlük yaşamından bir durum içermeli; soyut, kuramsal ya da üst düzey terimlerden kaçınılmalıdır. Her soru özgün ve çeşitli olmalıdır.\n' +
-      '2. Seviye Belirleme: Sorunun zorluk seviyesini ("seviye" alanı) belirtilen kazanım metnine ve MEB yeni nesil soru standartlarına göre ata:\n' +
-      '   - Kazanımda "sayar, yazar, tanır" gibi ifadeler varsa seviye "temel" olmalıdır.\n' +
-      '   - Kazanımda "ilişkilendirir, model oluşturur, tahmin eder" gibi ifadeler varsa seviye "orta" olmalıdır.\n' +
-      '   - Kazanımda "çoklu adımlı problemler, strateji geliştirir, geneller" varsa veya soru karmaşık bir Yeni Nesil mantık sorusu ise seviye "ileri" olmalıdır.\n' +
-      '3. Çözüm Anahtarı: "cozum_anahtari" alanı, bir öğretmenin konuyu kısaca açıklayabileceği 1-2 cümlelik net bir açıklama içermelidir.\n' +
-      '4. Pedagojik Alanlar: "gercek_yasam_baglantisi": Bu kazanımın günlük yaşamdaki önemini veya kullanımını velilerin de anlayabileceği net, tek cümlelik bir açıklama ile belirt.\n' +
-      '5. Dil ve Üslup: Türkçe imla ve noktalama kurallarına uyulmalıdır. Matematiksel semboller doğru kullanılmalıdır (örn: ½ yerine "1/2").\n'
+    toplamSoru +
+    ' adet soru üretmektir. Üreteceğin tüm sorular SADECE aşağıdaki kazanım(lar)ı hedeflemelidir.\n\n' +
+    'Sınıf: ' +
+    sinif +
+    '\n' +
+    'Üniteler: ' +
+    uniteler +
+    '\n' +
+    'İlgili Kazanımlar:\n' +
+    kazanimBilgileri +
+    '\n\n' +
+    'Lütfen çıktı olarak sadece soruları içeren bir JSON nesnesi döndür. Her soru aşağıdaki genel kurallara uymalıdır:\n' +
+    '1. Soru Kökü: Soru kökü öğrencinin günlük yaşamından bir durum içermeli; soyut, kuramsal ya da üst düzey terimlerden kaçınılmalıdır. Her soru özgün ve çeşitli olmalıdır.\n' +
+    '2. Seviye Belirleme: Sorunun zorluk seviyesini ("seviye" alanı) belirtilen kazanım metnine ve MEB yeni nesil soru standartlarına göre ata:\n' +
+    '   - Kazanımda "sayar, yazar, tanır" gibi ifadeler varsa seviye "temel" olmalıdır.\n' +
+    '   - Kazanımda "ilişkilendirir, model oluşturur, tahmin eder" gibi ifadeler varsa seviye "orta" olmalıdır.\n' +
+    '   - Kazanımda "çoklu adımlı problemler, strateji geliştirir, geneller" varsa veya soru karmaşık bir Yeni Nesil mantık sorusu ise seviye "ileri" olmalıdır.\n' +
+    '3. Çözüm Anahtarı: "cozum_anahtari" alanı, bir öğretmenin konuyu kısaca açıklayabileceği 1-2 cümlelik net bir açıklama içermelidir.\n' +
+    '4. Pedagojik Alanlar: "gercek_yasam_baglantisi": Bu kazanımın günlük yaşamdaki önemini veya kullanımını velilerin de anlayabileceği net, tek cümlelik bir açıklama ile belirt.\n' +
+    '5. Dil ve Üslup: Türkçe imla ve noktalama kurallarına uyulmalıdır. Matematiksel semboller doğru kullanılmalıdır (örn: ½ yerine "1/2").\n'
   );
 
   if (settings.isLgsMode) {
     promptParts.push(
       '\n🚨 LGS YENİ NESİL DENEME MODU AKTİF (8. SINIF DÜZEYİ) 🚨\n' +
-        'Türkiye Cumhuriyeti MEB Liselere Geçiş Sistemi (LGS) standardında, "Tamamen Yeni Nesil" soru kökleriyle ' +
-        toplamSoru +
-        ' adet ÇOKTAN SEÇMELİ soru hazırla.\n' +
-        'KURALLAR:\n' +
-        '1. Basit işlem veya doğrudan formül sorusu YASAKTIR. Tüm sorular hikayeleştirilmiş, tablo/grafik içeren, okuduğunu anlamaya dayalı ve en az 3 basamaklı mantık yürütme gerektiren yapıda olmalıdır.\n' +
-        '2. Soru köklerinde günlük hayat problemleri, bilimsel makale kesitleri, oyun kuralları, şifreleme mantıkları veya mimari/mühendislik senaryoları kullanılmalıdır.\n' +
-        '3. Seçenekler LGS çeldirici mantığına göre tasarlanmalı, en ufak bir işlem hatasında ulaşılabilecek değerler çeldirici olarak şıklara eklenmelidir (A, B, C, D).\n' +
-        '4. Grafik veya tablo GEREKTİREN soruların sayısı yüksek tutulmalı ve bu görseller "grafik_verisi" alanı ile JSON içerisinde verilmelidir.\n'
+      'Türkiye Cumhuriyeti MEB Liselere Geçiş Sistemi (LGS) standardında, "Tamamen Yeni Nesil" soru kökleriyle ' +
+      toplamSoru +
+      ' adet ÇOKTAN SEÇMELİ soru hazırla.\n' +
+      'KURALLAR:\n' +
+      '1. Basit işlem veya doğrudan formül sorusu YASAKTIR. Tüm sorular hikayeleştirilmiş, tablo/grafik içeren, okuduğunu anlamaya dayalı ve en az 3 basamaklı mantık yürütme gerektiren yapıda olmalıdır.\n' +
+      '2. Soru köklerinde günlük hayat problemleri, bilimsel makale kesitleri, oyun kuralları, şifreleme mantıkları veya mimari/mühendislik senaryoları kullanılmalıdır.\n' +
+      '3. Seçenekler LGS çeldirici mantığına göre tasarlanmalı, en ufak bir işlem hatasında ulaşılabilecek değerler çeldirici olarak şıklara eklenmelidir (A, B, C, D).\n' +
+      '4. Grafik veya tablo GEREKTİREN soruların sayısı yüksek tutulmalı ve bu görseller "grafik_verisi" alanı ile JSON içerisinde verilmelidir.\n'
     );
   } else if (sinif >= 6) {
     promptParts.push(
       '\nÖZEL SINAV SİSTEMİ KURALI (YENİ NESİL / LGS TARZI):\n' +
-        'Günümüz MEB sınav sisteminin (özellikle LGS ve örnek soruların) çıkmış sorularını inceleyerek, soruları "Yeni Nesil Soru" formatında hazırla.\n' +
-        '- Sorular okuduğunu anlama, mantıksal akıl yürütme, tablo/grafik yorumlama ve günlük hayat problemlerini çözme becerilerini ölçmelidir.\n' +
-        '- Soru kökleri hikayeleştirilmiş, gerçek yaşam senaryolarına dayanan, analitik düşünmeyi gerektiren yapıda olmalıdır.\n' +
-        '- Sadece işlem becerisi değil, aynı zamanda problem kurma ve modelleme becerisi de test edilmelidir.\n'
+      'Günümüz MEB sınav sisteminin (özellikle LGS ve örnek soruların) çıkmış sorularını inceleyerek, soruları "Yeni Nesil Soru" formatında hazırla.\n' +
+      '- Sorular okuduğunu anlama, mantıksal akıl yürütme, tablo/grafik yorumlama ve günlük hayat problemlerini çözme becerilerini ölçmelidir.\n' +
+      '- Soru kökleri hikayeleştirilmiş, gerçek yaşam senaryolarına dayanan, analitik düşünmeyi gerektiren yapıda olmalıdır.\n' +
+      '- Sadece işlem becerisi değil, aynı zamanda problem kurma ve modelleme becerisi de test edilmelidir.\n'
     );
   }
 
   promptParts.push(
     '\nÖNEMLİ GÖRSEL VERİ KURALI (GRAFİK/ŞEKİL):\n' +
-      'Eğer bir kazanım görsel bir veri gerektiriyorsa (Veri İşleme ünitelerindeki tablolar/grafikler veya Geometri ünitelerindeki şekiller gibi), soru metnini ("soru_metni" alanı) bu görseli içermeyecek şekilde sade tutmalısın. Bunun yerine, görselin verilerini JSON formatında "grafik_verisi" adlı ayrı bir alana eklemelisin. ASCII-tabanlı, metin formatında görseller KESİNLİKLE OLUŞTURMA.\n\n' +
-      '"grafik_verisi" alanı aşağıdaki yapılardan birinde olmalıdır:\n\n' +
-      '1. VERİ İŞLEME GRAFİKLERİ:\n' +
-      '   - "tip": \'siklik_tablosu\', \'nesne_grafigi\', \'sutun_grafigi\'.\n' +
-      '   - "baslik": Grafik için kısa bir başlık.\n' +
-      '   - "veri": Bir dizi (array) olmalıdır. Her eleman KESİNLİKLE {"etiket": "Elma", "deger": 8} şeklinde olmalı ve "deger" (sayısal) alanı MUTLAKA bulunmalıdır. "deger" alanı asla eksik olamaz!\n' +
-      '   - **ÖNEMLİ TUTARLILIK KURALI**: "soru_metni" içinde eğer grafikteki verilerin TOPLAMI (örn: "Sınıfta toplam 30 öğrenci var") veya tamamı belirtilmişse, "veri" dizisindeki "deger" alanlarının aritmetik TOPLAMI soru metnindeki toplam ile BİREBİR EŞİT olmalıdır. (18 != 30 hatası kesinlikle yapılmamalıdır!)\n' +
-      '   - "nesne": (Sadece \'nesne_grafigi\' için) Veri elemanına eklenecek sembol. örn: "🍎".\n' +
-      '   - "not": (İsteğe bağlı) Grafik altında gösterilecek not.\n\n' +
-      '2. GEOMETRİ ŞEKİLLERİ VE KAVRAMLARI:\n' +
-      '   - "tip": \'ucgen\', \'dik_ucgen\', \'dikdortgen\', \'kare\', \'cokgen\', \'daire\', \'kup\', \'silindir\', \'koni\', \'piramit\', \'dikdortgenler_prizmasi\', \'dogru_parcasi\', \'isin\', \'dogru\', \'paralel_dogrular\', \'kesisen_dogrular\', \'dik_kesisen_dogrular\'.\n' +
-      '   - "baslik": Şekil/kavram için bir başlık (örn: "ABC Üçgeni").\n' +
-      '   - "veri": Bir dizi (array) olmalıdır. Her eleman şeklin bir özelliğini tanımlar.\n' +
-      '     **ÖNEMLİ TUTARLILIK KURALI: "soru_metni" içinde bahsedilen harf/isimler (örn: AB doğru parçası) ile "grafik_verisi" içindeki etiketler (örn: "A Köşesi") BİREBİR AYNI OLMALIDIR.**\n' +
-      '   - "not": (İsteğe bağlı) Şekille ilgili ek bilgi.\n\n' +
-      '3. KOORDİNAT DÖNÜŞÜM GRAFİĞİ (Yansıma / Öteleme / Döndürme):\n' +
-      '   - "tip": \'koordinat_donusum\'\n' +
-      '   - "baslik": Ör. "Koordinat Dönüşümü"\n' +
-      '   - "veri": Her dönüşüm adımının noktası. x/y koordinatları ZORUNLU.\n' +
-      '     Sıra önemlidir: [Orijinal nokta, Yansıma sonrası, Öteleme sonrası, ...]\n' +
-      '     Etiketler: "A", "A\'", "A\'\'" şeklinde asal işaretleri kullan\n' +
-      '   - "ozellikler.yansımaEkseni": Yansıma gerçekleştirildiyse \'x\', \'y\' veya \'y=x\' vb.\n' +
-      '   - "ozellikler.otelemeVektoru": Öteleme gerçekleştirildiyse {"dx": 1, "dy": -4}\n' +
-      '   - ÖNEMLİ: Tüm koordinatlar soru metnindeki değerlerle BİREBİR eşleşmeli.\n' +
-      '   - ÖRNEK (y eksenine yansıma + öteleme):\n' +
-      '     Soru: "A(-3, 5) noktası önce y eksenine göre yansıtılıyor (→ A\'), ardından 1 birim sağa\n' +
-      '            4 birim aşağı ötelen iyor (→ A\'\'). A\'\' koordinatları nedir?"\n' +
-      '     → grafik_verisi: {\n' +
-      '         "tip": "koordinat_donusum",\n' +
-      '         "baslik": "Koordinat Dönüşümü",\n' +
-      '         "veri": [\n' +
-      '           {"etiket": "A",   "x": -3, "y": 5},\n' +
-      '           {"etiket": "A\'",  "x": 3,  "y": 5},\n' +
-      '           {"etiket": "A\'\'", "x": 4,  "y": 1}\n' +
-      '         ],\n' +
-      '         "ozellikler": {\n' +
-      '           "yansimaEkseni": "y",\n' +
-      '           "otelemeVektoru": {"dx": 1, "dy": -4}\n' +
-      '         }\n' +
-      '       }\n'
+    'Eğer bir kazanım görsel bir veri gerektiriyorsa (Veri İşleme ünitelerindeki tablolar/grafikler veya Geometri ünitelerindeki şekiller gibi), soru metnini ("soru_metni" alanı) bu görseli içermeyecek şekilde sade tutmalısın. Bunun yerine, görselin verilerini JSON formatında "grafik_verisi" adlı ayrı bir alana eklemelisin. ASCII-tabanlı, metin formatında görseller KESİNLİKLE OLUŞTURMA.\n\n' +
+    '"grafik_verisi" alanı aşağıdaki yapılardan birinde olmalıdır:\n\n' +
+    '1. VERİ İŞLEME GRAFİKLERİ:\n' +
+    '   - "tip": \'siklik_tablosu\', \'nesne_grafigi\', \'sutun_grafigi\'.\n' +
+    '   - "baslik": Grafik için kısa bir başlık.\n' +
+    '   - "veri": Bir dizi (array) olmalıdır. Her eleman KESİNLİKLE {"etiket": "Elma", "deger": 8} şeklinde olmalı ve "deger" (sayısal) alanı MUTLAKA bulunmalıdır. "deger" alanı asla eksik olamaz!\n' +
+    '   - **ÖNEMLİ TUTARLILIK KURALI**: "soru_metni" içinde eğer grafikteki verilerin TOPLAMI (örn: "Sınıfta toplam 30 öğrenci var") veya tamamı belirtilmişse, "veri" dizisindeki "deger" alanlarının aritmetik TOPLAMI soru metnindeki toplam ile BİREBİR EŞİT olmalıdır. (18 != 30 hatası kesinlikle yapılmamalıdır!)\n' +
+    '   - "nesne": (Sadece \'nesne_grafigi\' için) Veri elemanına eklenecek sembol. örn: "🍎".\n' +
+    '   - "not": (İsteğe bağlı) Grafik altında gösterilecek not.\n\n' +
+    '2. GEOMETRİ ŞEKİLLERİ VE KAVRAMLARI:\n' +
+    '   - "tip": \'ucgen\', \'dik_ucgen\', \'dikdortgen\', \'kare\', \'cokgen\', \'daire\', \'kup\', \'silindir\', \'koni\', \'piramit\', \'dikdortgenler_prizmasi\', \'dogru_parcasi\', \'isin\', \'dogru\', \'paralel_dogrular\', \'kesisen_dogrular\', \'dik_kesisen_dogrular\'.\n' +
+    '   - "baslik": Şekil/kavram için bir başlık (örn: "ABC Üçgeni").\n' +
+    '   - "veri": Bir dizi (array) olmalıdır. Her eleman şeklin bir özelliğini tanımlar.\n' +
+    '     **ÖNEMLİ TUTARLILIK KURALI: "soru_metni" içinde bahsedilen harf/isimler (örn: AB doğru parçası) ile "grafik_verisi" içindeki etiketler (örn: "A Köşesi") BİREBİR AYNI OLMALIDIR.**\n' +
+    '   - "not": (İsteğe bağlı) Şekille ilgili ek bilgi.\n\n' +
+    '3. KOORDİNAT DÖNÜŞÜM GRAFİĞİ (Yansıma / Öteleme / Döndürme):\n' +
+    '   - "tip": \'koordinat_donusum\'\n' +
+    '   - "baslik": Ör. "Koordinat Dönüşümü"\n' +
+    '   - "veri": Her dönüşüm adımının noktası. x/y koordinatları ZORUNLU.\n' +
+    '     Sıra önemlidir: [Orijinal nokta, Yansıma sonrası, Öteleme sonrası, ...]\n' +
+    '     Etiketler: "A", "A\'", "A\'\'" şeklinde asal işaretleri kullan\n' +
+    '   - "ozellikler.yansımaEkseni": Yansıma gerçekleştirildiyse \'x\', \'y\' veya \'y=x\' vb.\n' +
+    '   - "ozellikler.otelemeVektoru": Öteleme gerçekleştirildiyse {"dx": 1, "dy": -4}\n' +
+    '   - ÖNEMLİ: Tüm koordinatlar soru metnindeki değerlerle BİREBİR eşleşmeli.\n' +
+    '   - ÖRNEK (y eksenine yansıma + öteleme):\n' +
+    '     Soru: "A(-3, 5) noktası önce y eksenine göre yansıtılıyor (→ A\'), ardından 1 birim sağa\n' +
+    '            4 birim aşağı ötelen iyor (→ A\'\'). A\'\' koordinatları nedir?"\n' +
+    '     → grafik_verisi: {\n' +
+    '         "tip": "koordinat_donusum",\n' +
+    '         "baslik": "Koordinat Dönüşümü",\n' +
+    '         "veri": [\n' +
+    '           {"etiket": "A",   "x": -3, "y": 5},\n' +
+    '           {"etiket": "A\'",  "x": 3,  "y": 5},\n' +
+    '           {"etiket": "A\'\'", "x": 4,  "y": 1}\n' +
+    '         ],\n' +
+    '         "ozellikler": {\n' +
+    '           "yansimaEkseni": "y",\n' +
+    '           "otelemeVektoru": {"dx": 1, "dy": -4}\n' +
+    '         }\n' +
+    '       }\n'
+  );
+
+  // ─── SORU TİPİ DAĞILIM TALİMATI ───────────────────────────────
+  const tipDagilimi: string[] = [];
+  if (settings.soruDagilimi.coktan_secmeli > 0) tipDagilimi.push(settings.soruDagilimi.coktan_secmeli + ' adet Çoktan Seçmeli (soru_tipi: "coktan_secmeli") — 4 şıklı (A-B-C-D)');
+  if (settings.soruDagilimi.dogru_yanlis > 0) tipDagilimi.push(settings.soruDagilimi.dogru_yanlis + ' adet Doğru/Yanlış (soru_tipi: "dogru_yanlis") — ifade doğruluğu');
+  if (settings.soruDagilimi.bosluk_doldurma > 0) tipDagilimi.push(settings.soruDagilimi.bosluk_doldurma + ' adet Boşluk Doldurma (soru_tipi: "bosluk_doldurma") — eksik değeri bul');
+  if (settings.soruDagilimi.acik_uclu > 0) tipDagilimi.push(settings.soruDagilimi.acik_uclu + ' adet Açık Uçlu (soru_tipi: "acik_uclu") — çözüm göster');
+
+  promptParts.push(
+    '\n🎯 SORU TİPİ DAĞILIMI (ZORUNLU — BİREBİR UYULMALI):\n' +
+    'Aşağıdaki soru tipi dağılımına BİREBİR uymalısın. Her sorunun "soru_tipi" JSON alanı doğru atanmalıdır:\n' +
+    tipDagilimi.join('\n') + '\n' +
+    'Toplam: ' + toplamSoru + ' soru.\n' +
+    'ÖNEMLİ: Soruları SIRASYLA bu tiplerde üret. Önce çoktan seçmeliler, sonra doğru/yanlışlar, sonra boşluk doldurmalar, en son açık uçlular.\n'
   );
 
   if (settings.islemSayisi) {
     promptParts.push(
       '\nÖNEMLİ PROBLEM TİPİ KURALI:\n' +
-        'Üreteceğin her soru, ilgili kazanımın doğası elverdiği sürece, tam olarak ' +
-        settings.islemSayisi +
-        ' adet matematiksel işlem gerektirmelidir. Bu kural, özellikle problem çözme becerisini ölçen kazanımlar için geçerlidir. Çözüm adımları net ve mantıksal olmalıdır.\n'
+      'Üreteceğin her soru, ilgili kazanımın doğası elverdiği sürece, tam olarak ' +
+      settings.islemSayisi +
+      ' adet matematiksel işlem gerektirmelidir. Bu kural, özellikle problem çözme becerisini ölçen kazanımlar için geçerlidir. Çözüm adımları net ve mantıksal olmalıdır.\n'
     );
   }
 
   if (settings.soruDagilimi.coktan_secmeli > 0) {
     promptParts.push(
       '\n**Soru Tipi: Çoktan Seçmeli**\n' +
-        '- 1 doğru cevap ve 3 mantıklı yanlış seçenek (çeldirici) olmalıdır. Çeldiriciler öğrencilerin sık yaptığı hataları veya kavram yanılgılarını yansıtmalıdır.\n' +
-        '- Doğru cevabın yeri şıklar arasında rastgele dağıtılmalıdır.\n' +
-        '- "yanlis_secenek_tipleri": Her bir yanlış seçeneğin hangi bilişsel hatayı hedeflediğini bir dizi (array) içinde belirt.\n'
+      '- 1 doğru cevap ve 3 mantıklı yanlış seçenek (çeldirici) olmalıdır. Çeldiriciler öğrencilerin sık yaptığı hataları veya kavram yanılgılarını yansıtmalıdır.\n' +
+      '- Doğru cevabın yeri şıklar arasında rastgele dağıtılmalıdır.\n' +
+      '- "yanlis_secenek_tipleri": Her bir yanlış seçeneğin hangi bilişsel hatayı hedeflediğini bir dizi (array) içinde belirt.\n'
     );
   }
 
   if (settings.soruDagilimi.bosluk_doldurma > 0) {
     promptParts.push(
       '\n**Soru Tipi: Boşluk Doldurma**\n' +
-        '- "soru_metni" içindeki boşluk \'___\' ile belirtilmelidir.\n' +
-        '- "dogru_cevap" alanı, boşluğu dolduracak doğru kelimeyi veya sayıyı içermelidir.\n'
+      '- "soru_metni" içindeki boşluk \'___\' ile belirtilmelidir.\n' +
+      '- "dogru_cevap" alanı, boşluğu dolduracak doğru kelimeyi veya sayıyı içermelidir.\n'
     );
   }
 
   if (settings.soruDagilimi.dogru_yanlis > 0) {
     promptParts.push(
       '\n**Soru Tipi: Doğru/Yanlış**\n' +
-        '- Her soru bir ifade olmalıdır.\n' +
-        '- "dogru_cevap" alanı, ifadenin doğruluğunu belirtmek için "Doğru" veya "Yanlış" metnini içermelidir.\n'
+      '- Her soru bir ifade olmalıdır.\n' +
+      '- "dogru_cevap" alanı, ifadenin doğruluğunu belirtmek için "Doğru" veya "Yanlış" metnini içermelidir.\n'
     );
   }
 
@@ -1130,6 +1145,34 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
       };
     });
 
+    // ─── Soru tipini dağılıma göre düzelt (post-processing) ─────
+    const tipSiralama: string[] = [];
+    for (let i = 0; i < settings.soruDagilimi.coktan_secmeli; i++) tipSiralama.push('coktan_secmeli');
+    for (let i = 0; i < settings.soruDagilimi.dogru_yanlis; i++) tipSiralama.push('dogru_yanlis');
+    for (let i = 0; i < settings.soruDagilimi.bosluk_doldurma; i++) tipSiralama.push('bosluk_doldurma');
+    for (let i = 0; i < settings.soruDagilimi.acik_uclu; i++) tipSiralama.push('acik_uclu');
+
+    // AI doğru soru tipi atadıysa koru, atamazsa override et
+    sorular.forEach((soru, i) => {
+      if (i < tipSiralama.length) {
+        soru.tip = tipSiralama[i];
+      }
+    });
+
+    // Doğru/Yanlış ve Boşluk Doldurma soruları için şık bilgisini temizle
+    sorular.forEach((soru) => {
+      if (soru.tip === 'dogru_yanlis') {
+        soru.secenekler = undefined;
+        // Doğru cevap "Doğru" veya "Yanlış" olmalı
+        const cevap = soru.dogruCevap.toLowerCase().trim();
+        if (cevap !== 'doğru' && cevap !== 'yanlış' && cevap !== 'dogru' && cevap !== 'yanlis') {
+          soru.dogruCevap = 'Doğru'; // Varsayılan
+        }
+      } else if (soru.tip === 'bosluk_doldurma' || soru.tip === 'acik_uclu') {
+        soru.secenekler = undefined;
+      }
+    });
+
     // Başarı Anı Mimarisi
     if (settings.zorlukSeviyesi === 'Otomatik' && sorular.length >= 2) {
       sorular[0].zorluk = 'Kolay';
@@ -1160,10 +1203,10 @@ export const generateMathExam = async (settings: MatSinavAyarlari): Promise<MatS
     const kritikHataYuzdesi =
       (examValidationReport.invalidQuestions / examValidationReport.totalQuestions) * 100;
     if (kritikHataYuzdesi > 30) {
-        logWarn(
-          "[KLİNİK PROTOKOL UYARISI] Sınavın %" + kritikHataYuzdesi.toFixed(0) + "'inde görsel-metin uyumsuzluğu var. " + 
-            "Ortalama pedagojik skor: " + examValidationReport.averagePedagogicalScore + "/100"
-        );
+      logWarn(
+        "[KLİNİK PROTOKOL UYARISI] Sınavın %" + kritikHataYuzdesi.toFixed(0) + "'inde görsel-metin uyumsuzluğu var. " +
+        "Ortalama pedagojik skor: " + examValidationReport.averagePedagogicalScore + "/100"
+      );
     }
 
     // Cevap anahtarı

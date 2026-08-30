@@ -65,8 +65,8 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 export const auth = getAuth(app);
 
-const isDev = (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') || 
-              (typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.MODE === 'development');
+const isDev = (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') ||
+  (typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.MODE === 'development');
 
 // Development mode domain check
 if (isDev) {
@@ -82,10 +82,13 @@ if (isDev) {
  * bozuk/bloom filter önbelleği uygulamayı donduran sonsuz re-query döngüsüne
  * yol açıyordu ("BloomFilter error" + Promise.then sonsuz zinciri).
  * Bellek cache kullanılıyor: çevrimdışı kalıcılık kritik değil, donma riski elendi.
- * experimentalForceLongPolling kaldırıldı — modern SDK otomatik algılama kullanır.
+ * experimentalForceLongPolling: WebChannel transport 400 hatası (Listen/Write stream)
+ * nedeniyle yeniden etkinleştirildi — Firestore 12.17.0 ile WebSocket stabilitesi
+ * bazı ortamlarda sorunlu olabiliyor.
  */
 export const db = initializeFirestore(app, {
-  localCache: memoryLocalCache()
+  localCache: memoryLocalCache(),
+  experimentalForceLongPolling: true,
 });
 
 export const storage = getStorage(app);
