@@ -122,12 +122,19 @@ JSON FORMATI:
       "resolution": "",
       "subThemes": ["Tema 1", "Tema 2"]
     },
+    "storyMap": {
+      "giris": "Hikayenin giriş bölümü özeti",
+      "gelisme": "Hikayenin gelişme bölümü özeti",
+      "doruk": "Hikayenin doruk noktası",
+      "cozum": "Hikayedeki çözüm",
+      "sonuc": "Hikayenin sonucu"
+    },
     "vocabulary": [
       { "word": "Kelime", "definition": "Açıklama" }
     ]
   },
   "questions": [
-    { "type": "open-ended", "question": "Metinle ilgili soru?", "answer": "" },
+    { "type": "thematic", "question": "Tematik soru?", "answer": "" },
     { "type": "inference", "question": "Çıkarım sorusu?", "answer": "" },
     { "type": "creative", "question": "Yaratıcı soru?", "answer": "" }
   ]
@@ -138,11 +145,10 @@ NOT: answer alanları MUTLAKA boş string "" olsun. Öğrenci kendi cevaplasın.
     [KRİTİK]: Döndürülen JSON, 'pedagogicalNote' isimli öğretmen geri bildirim notunu kesinlikle içermelidir.
     `;
 
-const schema = {
+  const schema = {
     type: 'OBJECT',
     properties: {
-                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
-
+      pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
       title: { type: 'STRING' },
       instruction: { type: 'STRING' },
       imagePrompt: { type: 'STRING' },
@@ -179,6 +185,17 @@ const schema = {
               subThemes: { type: 'ARRAY', items: { type: 'STRING' } }
             }
           },
+          storyMap: {
+            type: 'OBJECT',
+            description: 'Hikaye Haritası — Giriş, Gelişme, Doruk, Çözüm, Sonuç bölümleri',
+            properties: {
+              giris: { type: 'STRING', description: 'Hikayenin giriş bölümü özeti' },
+              gelisme: { type: 'STRING', description: 'Hikayenin gelişme bölümü özeti' },
+              doruk: { type: 'STRING', description: 'Hikayenin doruk noktası' },
+              cozum: { type: 'STRING', description: 'Hikayedeki çözüm' },
+              sonuc: { type: 'STRING', description: 'Hikayenin sonucu' }
+            }
+          },
           vocabulary: {
             type: 'ARRAY',
             items: {
@@ -196,7 +213,7 @@ const schema = {
         items: {
           type: 'OBJECT',
           properties: {
-            type: { type: 'STRING' },
+            type: { type: 'STRING', description: 'Soru tipi: thematic, inference, creative, open-ended' },
             question: { type: 'STRING' },
             answer: { type: 'STRING' }
           }
