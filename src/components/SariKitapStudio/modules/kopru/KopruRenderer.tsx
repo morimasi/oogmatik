@@ -53,6 +53,9 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
         }
     };
 
+    // Karakter sayısını piksel genişliğine dönüştürme (örneğin 2 karakter ~ 32px, 3 karakter ~ 48px, 4 karakter ~ 64px)
+    const bWidthPx = Math.max(24, (c.bridgeWidth ?? 3) * 16);
+
     return (
         <div className="sk-renderer-kopru" style={{
             padding: '2rem 1rem 4rem 1rem',
@@ -103,11 +106,13 @@ export const KopruRenderer: React.FC<RendererProps> = React.memo(({ config, cont
 
                                         {si < words.length - 1 && (
                                             <div style={{
-                                                width: `${c.bridgeWidth ?? 50}px`,
+                                                width: `${bWidthPx}px`,
+                                                height: `${bHeight}px`,
                                                 display: 'flex',
                                                 alignItems: 'flex-end',
-                                                padding: '0 4px',
-                                                marginBottom: '8px'
+                                                padding: '0 2px',
+                                                marginBottom: '4px',
+                                                flexShrink: 0
                                             }}>
                                                 {renderBridge()}
                                             </div>
