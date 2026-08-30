@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { 
-    KelimeCumleConfig, 
-    KelimeCumleGeneratedContent, 
-    KelimeCumleActivityType 
+import {
+    KelimeCumleConfig,
+    KelimeCumleGeneratedContent,
+    KelimeCumleActivityType
 } from '../../types/kelimeCumle';
 import { KELIME_CUMLE_REGISTRY } from './registry';
 import { useKelimeCumleGenerator } from './hooks/useKelimeCumleGenerator';
@@ -73,11 +73,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
         }
     };
 
-    useEffect(() => {
-        if (generationMode === 'offline') {
-            handleGenerate();
-        }
-    }, [config.type, config.difficulty, config.ageGroup, config.itemCount, generationMode]);
+    // OTOMATİK ÜRETİM ENGELLENDİ: Etkinlikler sadece kullanıcı 'Oluştur / Üret' butonuna bastığında üretilir.
 
     const showToast = (msg: string) => {
         setToastMsg(msg);
@@ -99,14 +95,14 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
         }
 
         try {
-            const name = `${config.type === 'bosluk_doldurma' ? 'Boşluk Doldurma' : 
-                           config.type === 'test' ? 'Çoktan Seçmeli' : 
-                           config.type === 'kelime_tamamlama' ? 'Kelime Tamamlama' : 
-                           config.type === 'karisik_cumle' ? 'Karışık Cümle' : 
-                           'Zıt Anlam'} - ${new Date().toLocaleDateString('tr-TR')}`;
-            
+            const name = `${config.type === 'bosluk_doldurma' ? 'Boşluk Doldurma' :
+                config.type === 'test' ? 'Çoktan Seçmeli' :
+                    config.type === 'kelime_tamamlama' ? 'Kelime Tamamlama' :
+                        config.type === 'karisik_cumle' ? 'Karışık Cümle' :
+                            'Zıt Anlam'} - ${new Date().toLocaleDateString('tr-TR')}`;
+
             const activityType = ActivityType.KELIME_CUMLE;
-            
+
             const worksheetData = [{
                 id: `kc-${Date.now()}`,
                 type: activityType,
@@ -118,7 +114,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
                 settings: content.settings || {},
                 createdAt: new Date().toISOString()
             }];
-            
+
             await worksheetService.saveWorksheet(
                 user.id,
                 name,
@@ -180,7 +176,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
                     {toastMsg}
                 </div>
             )}
-            
+
             <div className="kc-premium-bg">
                 <div className="kc-bg-orb orb-1"></div>
                 <div className="kc-bg-orb orb-2"></div>
@@ -197,7 +193,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
                     </div>
 
                     <div className="kc-sidebar-scrollable custom-scrollbar">
-                        <TypeSelectorPanel 
+                        <TypeSelectorPanel
                             types={Object.entries(KELIME_CUMLE_REGISTRY).map(([key, val]) => ({
                                 id: key,
                                 title: val.title,
@@ -219,7 +215,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
                             }}
                         />
 
-                        <CommonConfigPanel 
+                        <CommonConfigPanel
                             config={config}
                             generationMode={generationMode}
                             onConfigChange={(updates) => setConfig(prev => ({ ...prev, ...updates }))}
@@ -256,7 +252,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
                                 📚 <span>Fasiküle Ekle</span>
                             </button>
                         </div>
-                        
+
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--bg-tertiary)', padding: '2px 8px', borderRadius: '10px', border: '1px solid var(--border-subtle)' }}>
                             <button onClick={() => setScale(prev => Math.max(0.4, prev - 0.1))} className="kc-zoom-btn">➖</button>
                             <span style={{ fontSize: '0.75rem', fontWeight: 700, minWidth: '35px', textAlign: 'center' }}>%{Math.round(scale * 100)}</span>
@@ -271,7 +267,7 @@ const KelimeCumleStudio: React.FC<KelimeCumleStudioProps> = ({ onBack, onSaveToA
                             <div className="kc-a4-wrapper" style={{ transform: `scale(${scale})`, transformOrigin: 'top center' }}>
                                 {contentChunks.length > 0 ? (
                                     contentChunks.map((chunk, idx) => (
-                                        <A4CompactRenderer 
+                                        <A4CompactRenderer
                                             key={idx}
                                             typography={{
                                                 fontSize: config.fontSize || 22,
