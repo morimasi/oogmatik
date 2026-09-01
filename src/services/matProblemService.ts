@@ -121,31 +121,15 @@ const createOfflineProblemSeti = (settings: MatProblemAyarlari): MatProblemSeti 
     };
 };
 
+import { getMebMufredatBySinif } from '../constants/mebMathCurriculum';
+
 // ─── Müfredat Helper Fonksiyonu ──────────────────────────────────
 export const getMatMufredatBySinif = (sinif: number) => {
+    const mufredat = getMebMufredatBySinif(sinif);
+    if (mufredat) return mufredat;
     return {
         sinif,
-        uniteler: [
-            {
-                id: `unite-${sinif}-1`,
-                baslik: `${sinif}. Sınıf 1. Ünite: Sayılar ve İşlemler`,
-                ogrenmeAlani: 'sayilar-islemler' as const,
-                kazanimlar: [
-                    { kod: `M.${sinif}.1.1.1`, tanim: 'Doğal sayılarla dört işlem problemlerini çözer.' },
-                    { kod: `M.${sinif}.1.1.2`, tanim: 'Kesirlerle toplama ve çıkarma işlemlerini içeren problemleri çözer.' },
-                    { kod: `M.${sinif}.1.1.3`, tanim: 'Ondalık gösterimlerle ilgili gerçek yaşam problemlerini çözer.' },
-                ],
-            },
-            {
-                id: `unite-${sinif}-2`,
-                baslik: `${sinif}. Sınıf 2. Ünite: Geometri ve Ölçme`,
-                ogrenmeAlani: 'geometri' as const,
-                kazanimlar: [
-                    { kod: `M.${sinif}.2.1.1`, tanim: 'Çevre ve alan hesaplama gerektiren problemleri çözer.' },
-                    { kod: `M.${sinif}.2.1.2`, tanim: 'Zaman ve para ölçme birimleriyle ilgili gerçek yaşam senaryolarını analiz eder.' },
-                ],
-            },
-        ],
+        uniteler: [],
     };
 };
 

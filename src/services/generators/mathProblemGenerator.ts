@@ -12,13 +12,25 @@ import type {
     MatProblemCevapAnahtari,
 } from '../../types/matProblem';
 
+import { getMebMufredatBySinif } from '../../constants/mebMathCurriculum';
+
 // ─── Prompt Builder ───────────────────────────────────────────
 const buildMathProblemPrompt = (settings: MatProblemAyarlari): string => {
     const sinif = settings.sinif ?? 5;
     const problemSayisi = settings.problemSayisi ?? 5;
 
-    const kazanimBilgileri = settings.secilenKazanimlar
-        .map((kod) => `- ${kod}`)
+    const mufredat = getMebMufredatBySinif(sinif);
+    const tumKazanimlarMap = new Map<string, string>();
+    if (mufredat) {
+        mufredat.uniteler.forEach((u) => {
+            u.kazanimlar.forEach((k) => {
+                tumKazanimlarMap.set(k.kod, `📌 [${k.kod}] ${k.tanim}`);
+            });
+        });
+    }
+
+    const kazanimDetaylari = settings.secilenKazanimlar
+        .map((kod) => tumKazanimlarMap.get(kod) || `📌 [${kod}]`)
         .join('\n');
 
     // Her üretimde tamamen benzersiz senaryolar ve sayılar oluşturulmasını sağlayan tohum
@@ -34,6 +46,7 @@ const buildMathProblemPrompt = (settings: MatProblemAyarlari): string => {
         ' adet AÇIK UÇLU MATEMATİK PROBLEMİ üretmektir.\n\n' +
         '🚨 KULLANICI AYARLARI VE ZORUNLU UYUM TALİMATLARI 🚨\n' +
         '- Sınıf Seviyesi: ' + sinif + '. Sınıf\n' +
+        (kazanimDetaylari ? '\n🎯 KAZANIM KISITI (%100 BİREBİR KAZANIM UYUMU ZORUNLUDUR):\n' + kazanimDetaylari + '\nÜretilecek her problem SADECE VE SADECE yukarıdaki kazanımların matematiksel mantığına, işlem seviyesine ve soru tipine dayalı olmalıdır.\n\n' : '\n') +
         '- Tercih Edilen Şema Tipi: "' + settings.semaTipiTercihi + '"\n' +
         '  (Eğer "otomatik" seçilmişse: Problemin mantığına en uygun şema tipini [kutu-modeli, sayı-doğrusu, kesir-blokları, geometrik-sekil, zaman-tüneli, para-matrisi, tablo, grafik, denklem-şeması, parça-bütün, oran-orantı] sen OTOMATİK BELİRLE ve "semaTipi" alanına yaz!)\n' +
         '  (Geometri konularında [geometrik-sekil] seç ve şekil detaylarını [geometriDetayi] objesinde tanımla!)\n' +
@@ -49,8 +62,7 @@ const buildMathProblemPrompt = (settings: MatProblemAyarlari): string => {
         '- HER PROBLEM TAZE, BENZERSİZ VE DAHA ÖNCE HİÇ KULLANILMASI GÖRÜLMEMİŞ İSİMLER, RAKAMLAR VE KURGULAR İÇERMELİDİR.\n\n' +
         '⚠️ ÖNEMLİ: ÇOKTAN SEÇMELİ ŞIKLAR (A, B, C, D) KESİNLİKLE ÜRETME!\n' +
         '⚠️ ÖNEMLİ: SADECE RAKAMLARIN OLDUĞU DÜMDÜZ İŞLEM SORULARI ÜRETME!\n' +
-        '⚠️ ÖNEMLİ: Her problem MUTLAKA ilgi çekici bir gerçek yaşam senaryosu barındırmalıdır.\n\n' +
-        (kazanimBilgileri ? 'İlgili Kazanımlar:\n' + kazanimBilgileri + '\n\n' : '\n')
+        '⚠️ ÖNEMLİ: Her problem MUTLAKA ilgi çekici bir gerçek yaşam senaryosu barındırmalıdır.\n\n'
     );
 
     if (settings.ozelKonu) {
