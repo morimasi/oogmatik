@@ -16,40 +16,49 @@ import { generateMathProblems } from './generators/mathProblemGenerator';
 const createOfflineProblem = (id: number, sinif: number): MatProblem => {
     const sablonlar = [
         {
-            soruMetni: 'Ayşe market alışverişinde kilosu 18 TL olan domatesin 3 kg\'ını ve kilosu 12 TL olan salatalığın 2 kg\'ını almıştır. Ayşe kasaya toplam kaç TL ödeyecektir?',
+            soruMetni: 'Yukarıdaki fiyat tablosuna göre; Ayşe market alışverişinde kilosu 18 TL olan domatesin 3 kg\'ını ve kilosu 12 TL olan salatalığın 2 kg\'ını almıştır. Ayşe kasaya toplam kaç TL ödeyecektir?',
             verilenler: ['Domates kilosu: 18 TL', 'Alınan domates: 3 kg', 'Salatalık kilosu: 12 TL', 'Alınan salatalık: 2 kg'],
             istenenler: 'Toplam ödenecek tutar',
             cozumAdimlari: ['1. Adım: Domates tutarı = 18 × 3 = 54 TL', '2. Adım: Salatalık tutarı = 12 × 2 = 24 TL', '3. Adım: Toplam = 54 + 24 = 78 TL'],
             dogruCevap: '78 TL',
             gercekYasamBaglantisi: 'Markette alışveriş yaparken toplam ücret hesaplama becerisi kazandırır.',
             zorluk: 'Kolay' as const,
+            semaTipi: 'tablo' as any,
+            semaVerisi: { etiketler: { taban: '18 TL', yukseklik: '12 TL' } },
+            tabloVerisi: { baslik: 'Market Fiyat Listesi', sutunlar: ['Ürün', 'Birim Fiyat', 'Alınan Miktar'], satirData: [['Domates', '18 TL', '3 kg'], ['Salatalık', '12 TL', '2 kg']] }
         },
         {
-            soruMetni: 'Bir bahçenin uzun kenarı 15 m, kısa kenarı 8 m\'dir. Bahçenin etrafına tel çit çekilecektir. Kaç metre tel gereklidir?',
+            soruMetni: 'Yukarıdaki dikdörtgen plana sahip bahçenin uzun kenarı 15 m, kısa kenarı 8 m\'dir. Bahçenin etrafına tel çit çekilecektir. Kaç metre tel gereklidir?',
             verilenler: ['Uzun kenar: 15 m', 'Kısa kenar: 8 m'],
             istenenler: 'Bahçenin çevresi (gereken tel uzunluğu)',
             cozumAdimlari: ['1. Adım: Çevre = 2 × (uzun kenar + kısa kenar)', '2. Adım: Çevre = 2 × (15 + 8) = 2 × 23 = 46 m'],
             dogruCevap: '46 m',
             gercekYasamBaglantisi: 'Bahçe çevre hesabı, günlük hayatta çit ve bordür yapımında kullanılır.',
             zorluk: 'Orta' as const,
+            semaTipi: 'geometrik-sekil' as any,
+            semaVerisi: { sekilTipi: 'dikdortgen', etiketler: { taban: '15 m', yukseklik: '8 m' } }
         },
         {
-            soruMetni: 'Bir otobüs durağı A noktasından B noktasına 45 dakikada, B noktasından C noktasına 1 saat 15 dakikada ulaşmaktadır. A noktasından saat 08:30\'da kalkan otobüs, C noktasına saat kaçta varır?',
+            soruMetni: 'Aşağıda verilen zaman doğrusuna göre bir otobüs A noktasından B noktasına 45 dakikada, B noktasından C noktasına 1 saat 15 dakikada ulaşmaktadır. A noktasından saat 08:30\'da kalkan otobüs, C noktasına saat kaçta varır?',
             verilenler: ['A→B süresi: 45 dakika', 'B→C süresi: 1 saat 15 dakika', 'Kalkış saati: 08:30'],
             istenenler: 'C noktasına varış saati',
             cozumAdimlari: ['1. Adım: Toplam süre = 45 dk + 1 sa 15 dk = 2 saat', '2. Adım: Varış saati = 08:30 + 2 saat = 10:30'],
             dogruCevap: '10:30',
             gercekYasamBaglantisi: 'Toplu taşımada saat ve zaman hesabı yapma becerisi kazandırır.',
             zorluk: 'Orta' as const,
+            semaTipi: 'zaman-tüneli' as any,
+            semaVerisi: { zamanAkisi: { baslangic: '08:30', bitis: '10:30', gecenSure: '2 saat' } }
         },
         {
-            soruMetni: 'Bir sınıfta 36 öğrenci vardır. Öğrencilerin 1/4\'ü basketbol, 1/3\'ü futbol, kalanı da voleybol oynamaktadır. Voleybol oynayan kaç öğrenci vardır?',
+            soruMetni: 'Yukarıdaki kesir şeridinde verilen 36 öğrencilik sınıfta öğrencilerin 1/4\'ü basketbol, 1/3\'ü futbol, kalanı da voleybol oynamaktadır. Voleybol oynayan kaç öğrenci vardır?',
             verilenler: ['Toplam öğrenci: 36', 'Basketbol: 1/4', 'Futbol: 1/3'],
             istenenler: 'Voleybol oynayan öğrenci sayısı',
             cozumAdimlari: ['1. Adım: Basketbol = 36 × 1/4 = 9', '2. Adım: Futbol = 36 × 1/3 = 12', '3. Adım: Voleybol = 36 - 9 - 12 = 15'],
             dogruCevap: '15 öğrenci',
             gercekYasamBaglantisi: 'Kesir ve toplam ilişkisini günlük yaşamda kullanma becerisi kazandırır.',
             zorluk: 'Zor' as const,
+            semaTipi: 'kesir-blokları' as any,
+            semaVerisi: { kesirOrani: { pay: 7, paydaya: 12, etiket: '7/12 Kalan Voleybol' } }
         },
         {
             soruMetni: 'Emre, harçlığının 2/5\'ini kitap, 1/4\'ünü defter almak için harcamıştır. Kalan 14 TL\'si bir cüzdan aldıktan sonra elinde yalnızca 2 TL kalmıştır. Cüzdan kaç TL\'dir?',
@@ -59,6 +68,8 @@ const createOfflineProblem = (id: number, sinif: number): MatProblem => {
             dogruCevap: '12 TL',
             gercekYasamBaglantisi: 'Harçlık yönetimi ve bütçe planlama becerisi kazandırır.',
             zorluk: 'Zor' as const,
+            semaTipi: 'oran-orantı' as any,
+            semaVerisi: { etiketler: { taban: '40 TL Harçlık', yukseklik: '14 TL Kalan' } }
         },
     ];
 
@@ -68,7 +79,6 @@ const createOfflineProblem = (id: number, sinif: number): MatProblem => {
         ...sablon,
         kazanimKodu: `M.${sinif}.1.${(id % 3) + 1}`,
         sinif,
-        semaTipi: 'yok' as const,
         kategori: 'gercek-yasam' as const,
         puan: 10,
         tahminiSure: 120,

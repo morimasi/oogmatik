@@ -12,7 +12,23 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
 
     // ─── Akıllı Otomatik Şema Seçimi ─────────────────
     let mode = '';
-    if (lw.includes('daire grafiği') || (lw.includes('grafik') && lw.includes('açı'))) mode = 'ikili-grafik';
+    const st = (problem.semaTipi || '').toString().toLowerCase();
+
+    if (st.includes('tablo')) mode = 'tablo';
+    else if (st.includes('geometrik') || st.includes('sekil')) mode = 'geometrik';
+    else if (st.includes('zaman')) mode = 'saat';
+    else if (st.includes('kesir')) mode = 'kesir-serit';
+    else if (st.includes('oranti') || st.includes('oran')) mode = 'orant';
+    else if (st.includes('grafik')) mode = 'ikili-grafik';
+    else if (st.includes('pisagor')) mode = 'pisagor';
+    else if (st.includes('cebir')) mode = 'cebir-karo';
+    else if (st.includes('venn')) mode = 'venn';
+    else if (st.includes('asal')) mode = 'asal-agac';
+    else if (st.includes('yuzde')) mode = 'yuzde';
+    else if (st.includes('oruntu')) mode = 'oruntu';
+    else if (st.includes('taban')) mode = 'taban-blok';
+    else if (st.includes('dogru') || st.includes('esitsizlik')) mode = 'sayi-dogru';
+    else if (lw.includes('daire grafiği') || (lw.includes('grafik') && lw.includes('açı'))) mode = 'ikili-grafik';
     else if (lw.includes('pisagor') || (lw.includes('dik üçgen') && lw.includes('hipotenüs'))) mode = 'pisagor';
     else if (lw.includes('eşitsizlik') || lw.includes('küçüktür') || lw.includes('büyüktür')) mode = 'esitsizlik';
     else if (lw.includes('eğim') || lw.includes('rampa') || lw.includes('koordinat düzlemi')) mode = 'egim';
@@ -40,7 +56,7 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
     else if (sinif === 1) mode = 'nesne-say';
     else if (sinif === 2) mode = 'taban-blok';
     else if (sinif >= 6 && sinif <= 8) mode = 'sayi-dogru';
-    else mode = 'kutu';
+    else mode = 'geometrik';
 
     const sv = (problem.semaVerisi || {}) as Record<string, unknown>;
     const tv = (problem as unknown as Record<string, unknown>).tabloVerisi as Record<string, unknown> | undefined;
