@@ -12,7 +12,7 @@ import { ACTIVITY_CATEGORIES } from '../constants';
 
 // ─── Yetki Eylemleri ─────────────────────────────────────────────
 
-export type PermissionAction = 
+export type PermissionAction =
   | 'view'       // Görebilir
   | 'create'     // Oluşturabilir
   | 'edit'       // Düzenleyebilir
@@ -28,6 +28,7 @@ export type PermissionModule =
   | 'math-studio'
   | 'sinav-studyosu'
   | 'mat-sinav-studyosu'
+  | 'mat-problem-studyosu'
   | 'super-turkce'
   | 'screening'
   | 'curriculum'
@@ -62,6 +63,7 @@ export const MODULE_LABELS: Record<PermissionModule, string> = {
   'math-studio': 'Matematik Stüdyosu',
   'sinav-studyosu': 'Sınav Stüdyosu',
   'mat-sinav-studyosu': 'Matematik Sınav Stüdyosu',
+  'mat-problem-studyosu': 'Matematik Problem Stüdyosu',
   'super-turkce': 'Süper Türkçe Stüdyosu',
   'screening': 'Tarama & Analiz',
   'curriculum': 'Plan & Müfredat',
@@ -222,11 +224,11 @@ export const buildDefaultRBAC = (): RBACSettings => {
     actions,
     categoryPermissions: includeCategories && mod === 'activity-studio'
       ? ACTIVITY_CATEGORIES.map(cat => ({
-          categoryId: cat.id,
-          categoryTitle: cat.title,
-          enabled: true,
-          allowedRoles: ['superadmin', 'admin', 'teacher'] as UserRole[]
-        }))
+        categoryId: cat.id,
+        categoryTitle: cat.title,
+        enabled: true,
+        allowedRoles: ['superadmin', 'admin', 'teacher'] as UserRole[]
+      }))
       : undefined
   });
 

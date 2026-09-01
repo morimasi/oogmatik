@@ -256,6 +256,11 @@ export const SheetRenderer = React.memo(
       }
     }
 
+    if (activityType === ActivityType.MAT_PROBLEM) {
+      const MatProblemRendererLazy = lazy(() => import('./sheet-renderers/MatProblemRenderer').then(m => ({ default: m.MatProblemRenderer })));
+      return withWrapper(<MatProblemRendererLazy data={resolvedData} settings={settings} />);
+    }
+
     if (activityType === ActivityType.KELIME_CUMLE && resolvedData) {
       return withWrapper(<KelimeCumleRenderer data={resolvedData as unknown as any} />);
     }

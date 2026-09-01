@@ -75,6 +75,13 @@ export const STUDIO_GROUPS: StudioGroup[] = [
                 color: 'text-blue-600',
                 actionType: 'callback'
             },
+            {
+                id: 'mat-problem-studyosu',
+                label: 'Matematik Problem Stüdyosu',
+                icon: 'fa-square-root-variable',
+                color: 'text-cyan-500',
+                actionType: 'callback'
+            },
         ],
     },
     {

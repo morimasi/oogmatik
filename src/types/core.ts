@@ -196,7 +196,7 @@ export interface GeneratorOptions {
   passageLength?: 'short' | 'medium' | 'long';
   includeMultipleChoice?: boolean;
   targetSkills?: string[];
-  
+
   // Hikaye Analizi Ultra Pro
   ageGroup?: '5-7' | '8-10' | '11-13' | '14+';
   gradeLevel?: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
@@ -245,7 +245,7 @@ export interface GeneratorOptions {
   lineHeight?: 'tight' | 'normal' | 'relaxed';
   columnLayout?: 'single' | 'two-column' | '2-col' | '3-col' | '4-col';
   maxParagraphsPerPage?: number;
-  
+
   // Resim Yorumlama Analiz
   itemCountVisual?: number;
   visualInterpretationStyle?: 'true_false' | 'multiple_choice' | 'open_ended' | 'mixed';
@@ -255,7 +255,7 @@ export interface GeneratorOptions {
   visualComplexityLevel?: 'simple' | 'medium' | 'complex' | 'ultra';
   includeAnswerKey?: boolean;
   includeObservationNotes?: boolean;
-  
+
   // Kısa Cevaplı Sorular (Premium)
   itemCountShort?: number;
   questionType?: 'open_ended' | 'fill_in_blank' | 'two_choice' | 'mixed' | 'visual_analysis' | 'scenario_based' | 'creative_thinking';
@@ -278,7 +278,7 @@ export interface GeneratorOptions {
   simpleWords?: boolean;
   isElementaryMode?: boolean;
   vocabularySupport?: boolean;
-  
+
   // Ek aktivite config özellikleri
   selectedCategories?: string[];
   showHints?: boolean;
@@ -397,6 +397,7 @@ export type View =
   | 'super-turkce'
   | 'sinav-studyosu'
   | 'mat-sinav-studyosu'
+  | 'mat-problem-studyosu'
   | 'sari-kitap-studio'
   | 'kelime-cumle-studio'
   | 'messages'

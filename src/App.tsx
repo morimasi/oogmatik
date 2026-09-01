@@ -110,6 +110,9 @@ const SinavStudyosu = lazy(() =>
 const MatSinavStudyosu = lazy(() =>
   import('./components/MatSinavStudyosu').then((module) => ({ default: module.MatSinavStudyosu }))
 );
+const MatProblemStudyosu = lazy(() =>
+  import('./components/MatProblemStudyosu').then((module) => ({ default: module.MatProblemStudyosu }))
+);
 const SariKitapStudio = lazy(() =>
   import('./components/SariKitapStudio').then((module) => ({ default: module.SariKitapStudio }))
 );
@@ -543,6 +546,7 @@ const AppContent = () => {
             onOpenScreening={() => handleOpenStudio('screening')}
             onOpenSinavStudyosu={() => handleOpenStudio('sinav-studyosu')}
             onOpenMatSinavStudyosu={() => handleOpenStudio('mat-sinav-studyosu')}
+            onOpenMatProblemStudyosu={() => handleOpenStudio('mat-problem-studyosu')}
             onOpenSariKitapStudio={() => handleOpenStudio('sari-kitap-studio')}
             onOpenKelimeCumleStudio={() => handleOpenStudio('kelime-cumle-studio')}
             onOpenFascicleStudio={() => handleOpenStudio('fascicle-studio')}
@@ -704,7 +708,14 @@ const AppContent = () => {
                     )}
                     {currentView === 'mat-sinav-studyosu' && (
                       <ProtectedRoute module="math-studio" onBack={handleGoBack}>
-                        <MatSinavStudyosu 
+                        <MatSinavStudyosu
+                          initialData={studioData}
+                        />
+                      </ProtectedRoute>
+                    )}
+                    {currentView === 'mat-problem-studyosu' && (
+                      <ProtectedRoute module="mat-problem-studyosu" onBack={handleGoBack}>
+                        <MatProblemStudyosu
                           initialData={studioData}
                         />
                       </ProtectedRoute>
@@ -935,11 +946,11 @@ const AppContent = () => {
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="fixed right-0 top-[88px] bottom-0 w-[410px] z-[1000] shadow-[-20px_0_50px_rgba(0,0,0,0.5)]"
           >
-            <ConnectPanel 
+            <ConnectPanel
               student={activeStudent || { id: 'global', name: 'Genel Kanallar' } as any}
-              currentUser={{ 
-                id: authStore.user?.id || 'guest', 
-                name: authStore.user?.name || 'Misafir', 
+              currentUser={{
+                id: authStore.user?.id || 'guest',
+                name: authStore.user?.name || 'Misafir',
                 role: (authStore.user?.role === 'admin' ? 'admin' : 'teacher') as any
               }}
               onClose={() => setShowConnect(false)}

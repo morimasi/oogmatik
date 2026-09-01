@@ -56,6 +56,7 @@ interface SidebarProps {
   onOpenScreening?: () => void;
   onOpenSinavStudyosu?: () => void;
   onOpenMatSinavStudyosu?: () => void;
+  onOpenMatProblemStudyosu?: () => void;
   onOpenSariKitapStudio?: () => void;
   onOpenKelimeCumleStudio?: () => void;
   onOpenFascicleStudio?: () => void;
@@ -86,6 +87,7 @@ const Sidebar = ({
   onOpenActivityStudio,
   onOpenSinavStudyosu,
   onOpenMatSinavStudyosu,
+  onOpenMatProblemStudyosu,
   onOpenSariKitapStudio,
   onOpenKelimeCumleStudio,
   onOpenFascicleStudio,
@@ -113,6 +115,7 @@ const Sidebar = ({
       'super-turkce': () => typeof onOpenSuperTurkce === 'function' && onOpenSuperTurkce(),
       'sinav-studyosu': () => typeof onOpenSinavStudyosu === 'function' && onOpenSinavStudyosu(),
       'mat-sinav-studyosu': () => typeof onOpenMatSinavStudyosu === 'function' && onOpenMatSinavStudyosu(),
+      'mat-problem-studyosu': () => typeof onOpenMatProblemStudyosu === 'function' && onOpenMatProblemStudyosu(),
       'sari-kitap-studio': () => typeof onOpenSariKitapStudio === 'function' && onOpenSariKitapStudio(),
       'kelime-cumle-studio': () => typeof onOpenKelimeCumleStudio === 'function' && onOpenKelimeCumleStudio(),
       'fascicle-studio': () => typeof onOpenFascicleStudio === 'function' && onOpenFascicleStudio(),

@@ -18,6 +18,7 @@ export const VIEWS: Record<string, View> = {
   SUPER_TURKCE: 'super-turkce',
   SINAV_STUDYOSU: 'sinav-studyosu',
   MAT_SINAV_STUDYOSU: 'mat-sinav-studyosu',
+  MAT_PROBLEM_STUDYOSU: 'mat-problem-studyosu',
   SARI_KITAP_STUDIO: 'sari-kitap-studio',
   KELIME_CUMLE_STUDIO: 'kelime-cumle-studio',
   MESSAGES: 'messages',

@@ -108,6 +108,7 @@ export enum ActivityType {
   BOX_MATH = 'BOX_MATH',
   SINAV = 'SINAV',
   MAT_SINAV = 'MAT_SINAV',
+  MAT_PROBLEM = 'MAT_PROBLEM',
   QUEUE_ORDERING = 'QUEUE_ORDERING',
   /** @deprecated Kaldırıldı — super-turkce modülü silindi (b6df8d74) */
   SUPER_TURKCE_MATCHING = 'SUPER_TURKCE_MATCHING',
