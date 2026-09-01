@@ -43,26 +43,40 @@ const buildMathProblemPrompt = (settings: MatProblemAyarlari): string => {
     parts.push(
         'Görevin, 2025 yılı itibarıyla yürürlükte olan Türkiye Millî Eğitim Bakanlığı Matematik dersi öğretim programına (müfredata) sadık kalarak, belirtilen sınıf, üniteler ve kazanımlara uygun, ' +
         problemSayisi +
-        ' adet AÇIK UÇLU MATEMATİK PROBLEMİ üretmektir.\n\n' +
+        ' adet GEREKİRSE HEM GÖRSEL VE ŞEMA ODAKLI HEM DE SADE YENİ NESİL AÇIK UÇLU MATEMATİK PROBLEMİ üret, 
+        BU SEÇİMİ PROBLEMİN İÇERİĞİNE GÖRE VE KULLANICININ SEÇİMİNE GÖRE OTOMATİK OLARAK BELİRLEYİP üretmektir.\n\n' +
         '🚨 KULLANICI AYARLARI VE ZORUNLU UYUM TALİMATLARI 🚨\n' +
         '- Sınıf Seviyesi: ' + sinif + '. Sınıf\n' +
         (kazanimDetaylari ? '\n🎯 KAZANIM KISITI (%100 BİREBİR KAZANIM UYUMU ZORUNLUDUR):\n' + kazanimDetaylari + '\nÜretilecek her problem SADECE VE SADECE yukarıdaki kazanımların matematiksel mantığına, işlem seviyesine ve soru tipine dayalı olmalıdır.\n\n' : '\n') +
         '- Tercih Edilen Şema Tipi: "' + settings.semaTipiTercihi + '"\n' +
-        '  (Eğer "otomatik" seçilmişse: Problemin mantığına en uygun şema tipini [kutu-modeli, sayı-doğrusu, kesir-blokları, geometrik-sekil, zaman-tüneli, para-matrisi, tablo, grafik, denklem-şeması, parça-bütün, oran-orantı] sen OTOMATİK BELİRLE ve "semaTipi" alanına yaz!)\n' +
-        '  (Geometri konularında [geometrik-sekil] seç ve şekil detaylarını [geometriDetayi] objesinde tanımla!)\n' +
         '- Problem Kategorisi: "' + settings.kategori + '"\n' +
         '- Zorluk Seviyesi: "' + settings.zorlukSeviyesi + '"\n' +
         '- Verilenler/İstenenler Kutusu: ' + (settings.verilenlerGosterilsinMi ? 'EVET (Doldurulacak)' : 'HAYIR') + '\n' +
         '- Çözüm Kutusu: ' + (settings.cozumKutusuGosterilsinMi ? 'EVET' : 'HAYIR') + '\n' +
-        '- Görsel Veri/Grafik Talebi: ' + (settings.gorselVeriEklensinMi ? 'EVET (Grafik/Tablo verisini ekle)' : 'HAYIR') + '\n' +
         '- LGS Yeni Nesil Modu: ' + (settings.isLgsMode ? 'AKTİF (PISA/LGS Mantık Sorusu)' : 'PASİF') + '\n\n' +
+        '🚨 KRİTİK ŞEMA VE GÖRSEL KURGUSU KURALLARI (VERY IMPORTANT) 🚨\n' +
+        '1. HER PROBLEM ŞEMA / GÖRSEL TEMELLİ OLMALIDIR: Soru metni doğrudan çizilecek şemaya veya grafiğe atıf yapmalıdır!\n' +
+        '   Örnek İfadeler: "Yukarıda verilen dik üçgen modeline göre...", "Verilen daire ve sütun grafiğindeki üretim verilerine göre...", "Verilen cebirsel karolarla oluşturulan alan modeline göre..."\n' +
+        '2. OTOMATİK UYGUN ŞEMA SEÇİMİ: Her problem için sınıf ve kazanıma en uygun "semaTipi" değerini seç:\n' +
+        '   - 1. Sınıf: nesne-sayma-matrisi, sayı-doğrusu, geometrik-sekil, zaman-tüneli\n' +
+        '   - 2. Sınıf: onluk-taban-bloklari, matris-çarpanlar, kesir-blokları\n' +
+        '   - 3. Sınıf: birim-kesir-seridi, dogru-isin-parca, birim-kareli-zemin, çetele-tablosu\n' +
+        '   - 4. Sınıf: iletki-aciolcer, ondalik-izgara, tam-sayili-kesir, sütun-grafigi\n' +
+        '   - 5. Sınıf: sekil-oruntu-adimlari, yuzde-izgara, prizma-3d, paralelkenar-yamuk\n' +
+        '   - 6. Sınıf: asal-carpan-agaci, venn-semasi, tamsayi-mutlak-dogru, tumler-butunler-aci\n' +
+        '   - 7. Sınıf: paralel-kesen-acilar, rasyonel-sayi-dogrusu, oranti-grafigi, daire-dilimi, terazi-denklem\n' +
+        '   - 8. Sınıf (LGS): lgs-ikili-grafik, cebirsel-karo, cisim-acinimi, egim-koordinat, ebob-ekok-fayans, pisagor-ucgen, benzerlik-ucgen, esitsizlik-dogrusu, olasilik-cark\n' +
+        '3. BİREBİR ŞEMA VE VERİ UYUMU: Soru metnindeki tüm sayılar, kenarlar, açılar ve isimler "semaVerisi", "tabloVerisi" veya "grafikVerisi" objelerine EKSİKSİZ aktarılmalıdır.\n' +
+        '4. ZORLUK SEVİYESİ ENTEGRASYONU:\n' +
+        '   - Kolay: Doğrudan görselden veri okuma veya tek adımlı işlem.\n' +
+        '   - Orta: Görsel verisini kullanarak 2 adımlı mantıksal işlem yapma.\n' +
+        '   - Zor (LGS): Çift görsel dönüşümü (ör. sütun grafiğinden daire grafiğine geçiş) veya geometrik alan-özdeşlik modelleme.\n\n' +
         '🚨 KRİTİK BENZERSİZLİK VE ORİJİNALİLK KURALI 🚨\n' +
-        '- Benzersizlik Tohumu (Random Seed): ' + randomSeed + '\n' +
+        '- Benzersizlik Tohumu: ' + randomSeed + '\n' +
         '- İlham Teması: "' + secilenKurgu + '"\n' +
-        '- HER PROBLEM TAZE, BENZERSİZ VE DAHA ÖNCE HİÇ KULLANILMASI GÖRÜLMEMİŞ İSİMLER, RAKAMLAR VE KURGULAR İÇERMELİDİR.\n\n' +
+        '- HER PROBLEM TAZE, BENZERSİZ VE DAHA ÖNCE HİÇ GÖRÜLMEMİŞ İSİMLER, RAKAMLAR VE KURGULAR İÇERMELİDİR.\n\n' +
         '⚠️ ÖNEMLİ: ÇOKTAN SEÇMELİ ŞIKLAR (A, B, C, D) KESİNLİKLE ÜRETME!\n' +
-        '⚠️ ÖNEMLİ: SADECE RAKAMLARIN OLDUĞU DÜMDÜZ İŞLEM SORULARI ÜRETME!\n' +
-        '⚠️ ÖNEMLİ: Her problem MUTLAKA ilgi çekici bir gerçek yaşam senaryosu barındırmalıdır.\n\n'
+        '⚠️ ÖNEMLİ: SADECE RAKAMLARIN OLDUĞU DÜMDÜZ İŞLEM SORULARI ÜRETME!\n'
     );
 
     if (settings.ozelKonu) {
