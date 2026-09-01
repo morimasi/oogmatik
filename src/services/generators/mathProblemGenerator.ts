@@ -141,19 +141,47 @@ const PROBLEM_SCHEMA = {
                     gercekYasamBaglantisi: { type: 'STRING', description: 'Gerçek yaşam bağlantısı açıklaması' },
                     zorluk: { type: 'STRING', description: 'Kolay, Orta veya Zor' },
                     kazanimKodu: { type: 'STRING', description: 'MEB kazanım kodu, ör: M.5.1.1.2' },
-                    semaTipi: { type: 'STRING', description: 'kutu-modeli, sayı-doğrusu, tablo, grafik, denklem-şeması, çizim-alanı, parça-bütün, oran-orantı, kesir-blokları, geometrik-sekil, zaman-tüneli, para-matrisi, yok' },
+                    semaTipi: { type: 'STRING', description: 'kutu-modeli, sayı-doğrusu, tablo, grafik, denklem-şeması, çizim-alanı, parça-bütün, oran-orantı, kesir-blokları, geometrik-sekil, zaman-tüneli, para-matrisi' },
                     semaVerisi: {
                         type: 'OBJECT',
                         description: 'Soru metnindeki sayısal veriler ve etiketlerle %100 birebir uyuşan şema verisi',
                         properties: {
-                            sekilTipi: { type: 'STRING', description: 'dik-ucgen, dikdortgen, kare, cember, paralelkenar vb.' },
-                            etiketler: { type: 'OBJECT', description: 'Kenar, açı ve isim etiketleri, ör: {"taban": "12 cm", "yukseklik": "5 cm", "hipotenus": "13 cm"}' },
+                            sekilTipi: { type: 'STRING', description: 'dik-ucgen, dikdortgen, kare, cember, aci, yamuk, paralelkenar vb.' },
+                            etiketler: { type: 'OBJECT', description: 'Kenar, açı ve isim etiketleri, ör: {"taban": "12 cm", "yukseklik": "5 cm", "hipotenus": "13 cm", "aci": "90°"}' },
                             kesirOrani: { type: 'OBJECT', properties: { pay: { type: 'NUMBER' }, paydaya: { type: 'NUMBER' }, etiket: { type: 'STRING' } } },
                             zamanAkisi: { type: 'OBJECT', properties: { baslangic: { type: 'STRING' }, bitis: { type: 'STRING' }, gecenSure: { type: 'STRING' } } },
                             paraMatrisi: { type: 'OBJECT', properties: { verilen: { type: 'STRING' }, tutar: { type: 'STRING' }, paraUstu: { type: 'STRING' } } },
                             kutuModeli: { type: 'OBJECT', properties: { parcaA: { type: 'STRING' }, parcaB: { type: 'STRING' }, toplam: { type: 'STRING' } } },
                             denklemSol: { type: 'STRING' },
                             denklemSag: { type: 'STRING' },
+                        }
+                    },
+                    tabloVerisi: {
+                        type: 'OBJECT',
+                        description: 'Problemde tablo varsa tablo başlık ve satır verileri',
+                        properties: {
+                            baslik: { type: 'STRING' },
+                            sutunlar: { type: 'ARRAY', items: { type: 'STRING' } },
+                            satirData: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } } }
+                        }
+                    },
+                    grafikVerisi: {
+                        type: 'OBJECT',
+                        description: 'Problemde grafik varsa sütun/pasta grafiği verileri',
+                        properties: {
+                            tip: { type: 'STRING' },
+                            baslik: { type: 'STRING' },
+                            veriler: {
+                                type: 'ARRAY',
+                                items: {
+                                    type: 'OBJECT',
+                                    properties: {
+                                        etiket: { type: 'STRING' },
+                                        deger: { type: 'NUMBER' },
+                                        renk: { type: 'STRING' }
+                                    }
+                                }
+                            }
                         }
                     },
                     puan: { type: 'NUMBER', description: 'Puan değeri' },
@@ -191,6 +219,8 @@ export const generateMathProblems = async (settings: MatProblemAyarlari): Promis
         sinif,
         unite_adi: (p.unite_adi as string) || undefined,
         semaTipi: ((p.semaTipi as string) || 'yok') as MatProblem['semaTipi'],
+        semaVerisi: p.semaVerisi as MatProblem['semaVerisi'],
+        tabloVerisi: p.tabloVerisi,
         kategori: settings.kategori || 'gercek-yasam',
         grafikVerisi: p.grafikVerisi as MatProblem['grafikVerisi'],
         puan: (p.puan as number) || 10,
