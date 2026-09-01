@@ -1,6 +1,7 @@
 import { useAuthStore } from '../store/useAuthStore';
 import { useStudentStore } from '../store/useStudentStore';
 import { useWorksheetStore } from '../store/useWorksheetStore';
+import { useMatProblemStore } from '../store/useMatProblemStore';
 import { useToastStore } from '../store/useToastStore';
 import { useUIStore } from '../store/useUIStore';
 import { useFascicleStore } from '../store/useFascicleStore';
@@ -83,17 +84,28 @@ export const useWorksheetManager = (
             [ActivityType.KELIME_CUMLE]: 'kelime-cumle-studio',
             [ActivityType.PREMIUM_STUDIO]: 'activity-studio',
             [ActivityType.INFOGRAPHIC_STUDIO]: 'infographic-studio',
-            [ActivityType.FASCICLE]: 'fascicle-studio'
+            [ActivityType.FASCICLE]: 'fascicle-studio',
+            'mat-problem': 'mat-problem-studyosu',
+            [ActivityType.MAT_PROBLEM]: 'mat-problem-studyosu',
         };
 
         const targetView = studioViews[item.activityType];
 
         if (targetView) {
-            let wd = item.worksheetData;
+            let wd = item.worksheetData || item.content;
             if (typeof wd === 'string') { try { wd = JSON.parse(wd); } catch { wd = []; } }
             // Stüdyolarda worksheetData genellikle array içindeki ilk objedir (isMathStudio: true vb.)
             const studioPayload = Array.isArray(wd) ? wd[0] : wd;
-            
+
+            if (item.activityType === 'mat-problem' || item.activityType === ActivityType.MAT_PROBLEM) {
+                if (studioPayload) {
+                    useMatProblemStore.getState().setAktifProblemSeti(studioPayload);
+                }
+                navigateTo('mat-problem-studyosu');
+                setIsSidebarExpanded(true);
+                return;
+            }
+
             if (item.activityType === ActivityType.FASCICLE) {
                 useFascicleStore.getState().setFascicle({
                     id: item.originalWorksheetId || item.id,
