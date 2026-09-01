@@ -518,7 +518,7 @@ const AppContent = () => {
         <div
           style={{
             width:
-              isAdvancedScreeningOpen || ['assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students', 'curriculum', 'screening', 'reading-studio', 'math-studio', 'super-turkce', 'infographic-studio', 'activity-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'sari-kitap-studio', 'kelime-cumle-studio', 'fascicle-studio', 'ocr'].includes(currentView)
+              isAdvancedScreeningOpen || ['assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students', 'curriculum', 'screening', 'reading-studio', 'math-studio', 'super-turkce', 'infographic-studio', 'activity-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'mat-problem-studyosu', 'sari-kitap-studio', 'kelime-cumle-studio', 'fascicle-studio', 'ocr'].includes(currentView)
                 ? 0
                 : (currentView === 'generator' && selectedActivity) ? 296 : 250,
           }}
@@ -602,6 +602,7 @@ const AppContent = () => {
               'screening',
               'sinav-studyosu',
               'mat-sinav-studyosu',
+              'mat-problem-studyosu',
               'sari-kitap-studio',
               'kelime-cumle-studio',
               'fascicle-studio',

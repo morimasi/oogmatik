@@ -99,7 +99,7 @@ export const MODULE_CATEGORIES: { id: string; label: string; modules: Permission
   {
     id: 'central-studios',
     label: 'Merkezi & Alan Stüdyoları',
-    modules: ['activity-studio', 'reading-studio', 'math-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'super-turkce']
+    modules: ['activity-studio', 'reading-studio', 'math-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'mat-problem-studyosu', 'super-turkce']
   },
   {
     id: 'assessment-studios',
@@ -188,7 +188,7 @@ export interface RBACSettings {
 export const buildDefaultRBAC = (): RBACSettings => {
   const centralStudios: PermissionModule[] = [
     'activity-studio', 'reading-studio', 'math-studio',
-    'sinav-studyosu', 'mat-sinav-studyosu', 'super-turkce'
+    'sinav-studyosu', 'mat-sinav-studyosu', 'mat-problem-studyosu', 'super-turkce'
   ];
 
   const assessmentStudios: PermissionModule[] = [

@@ -142,23 +142,25 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
     return (
         <div className="flex flex-col h-full bg-gradient-to-br from-zinc-950 via-zinc-900 to-cyan-950 text-white overflow-hidden">
             {/* ═══ ÜST BAR ═══ */}
-            <div className="flex items-center justify-between px-4 py-2 bg-zinc-900/80 backdrop-blur-xl border-b border-cyan-800/30 print:hidden">
-                <div className="flex items-center gap-2">
-                    <span className="text-lg">📐</span>
-                    <h1 className="text-sm font-bold text-cyan-300">Matematik Problem Stüdyosu</h1>
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between px-4 py-2 bg-zinc-900/80 backdrop-blur-xl border-b border-cyan-800/30 print:hidden gap-2 md:gap-0">
+                <div className="flex items-center gap-2 w-full md:w-auto justify-between md:justify-start">
+                    <div className="flex items-center gap-2">
+                        <span className="text-lg">📐</span>
+                        <h1 className="text-sm font-bold text-cyan-300">Matematik Problem Stüdyosu</h1>
+                    </div>
                     {aktifProblemSeti && (
-                        <span className="bg-cyan-800/40 text-cyan-200 text-[10px] font-bold px-2 py-0.5 rounded-full ml-2">
+                        <span className="bg-cyan-800/40 text-cyan-200 text-[10px] font-bold px-2 py-0.5 rounded-full ml-auto md:ml-2 whitespace-nowrap">
                             {aktifProblemSeti.problemler.length} Problem
                         </span>
                     )}
                 </div>
 
                 {/* Araç Çubuğu */}
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 w-full md:w-auto overflow-x-auto pb-1 md:pb-0 scrollbar-hide">
                     <FmtBtn active={activeTab === 'onizleme'} onClick={() => setActiveTab('onizleme')} title="Önizleme">👁️ Önizleme</FmtBtn>
                     <FmtBtn onClick={() => aktifProblemSeti && setShowCevapAnahtari(true)} title="Cevap Anahtarı">✓ Cevap Anahtarı</FmtBtn>
                     <FmtBtn active={activeTab === 'gecmis'} onClick={() => setActiveTab('gecmis')} title="Geçmiş">📋 Geçmiş ({problemGecmisi.length})</FmtBtn>
-                    <div className="w-px h-5 bg-zinc-700 mx-1" />
+                    <div className="w-px h-5 bg-zinc-700 mx-1 flex-shrink-0" />
                     <FmtBtn onClick={handleSave} title="Kaydet">💾 Kaydet</FmtBtn>
                     <FmtBtn onClick={handleShare} title="Paylaş">🔗 Paylaş</FmtBtn>
                     <FmtBtn onClick={() => aktifProblemSeti && setShowStudentSelector(true)} title="Öğrenciye Ata">👤 Öğrenciye Ata</FmtBtn>
@@ -180,24 +182,24 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
             )}
 
             {/* ═══ ANA İÇERİK ═══ */}
-            <div className="flex flex-1 overflow-hidden">
+            <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
                 {/* SOL PANEL — Ayarlar */}
-                <div className="w-[380px] flex-shrink-0 flex flex-col border-r border-cyan-900/30 bg-zinc-900/50 overflow-y-auto print:hidden">
+                <div className={`w-full md:w-[380px] flex-shrink-0 flex-col border-r border-cyan-900/30 bg-zinc-900/50 overflow-y-auto print:hidden ${activeTab === 'onizleme' ? 'hidden md:flex' : 'flex'}`}>
                     {/* Sekmeler */}
-                    <div className="flex border-b border-zinc-800 px-2 pt-2">
+                    <div className="flex justify-around md:justify-start border-b border-zinc-800 px-2 pt-2">
                         {[
                             { id: 'ayarlar' as TabType, label: '⚙️ Ayarlar', },
                             { id: 'onizleme' as TabType, label: '👁️ Önizleme', },
                             { id: 'gecmis' as TabType, label: '📋 Geçmiş', },
                         ].map((t) => (
-                            <button key={t.id} onClick={() => setActiveTab(t.id)} className={`px-3 py-2 text-xs font-bold transition-all border-b-2 ${activeTab === t.id ? 'border-cyan-500 text-cyan-300' : 'border-transparent text-zinc-500 hover:text-white'}`}>
+                            <button key={t.id} onClick={() => setActiveTab(t.id)} className={`px-4 md:px-3 py-3 md:py-2 text-xs font-bold transition-all border-b-2 ${activeTab === t.id ? 'border-cyan-500 text-cyan-300' : 'border-transparent text-zinc-500 hover:text-white'}`}>
                                 {t.label}
                             </button>
                         ))}
                     </div>
 
                     {/* Tab İçerikleri — Sol Panel */}
-                    <div className="flex-1 overflow-y-auto p-3">
+                    <div className="flex-1 overflow-y-auto p-4 md:p-3">
                         {activeTab === 'ayarlar' && (
                             <>
                                 <MatProblemKazanimPicker
@@ -215,7 +217,7 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
                                 <button
                                     disabled={isGenerating || !ayarlar.sinif}
                                     onClick={handleGenerate}
-                                    className={`w-full mt-4 py-3 rounded-xl font-bold text-sm transition-all ${isGenerating ? 'bg-zinc-700 text-zinc-500 cursor-wait' : 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:shadow-lg hover:shadow-cyan-500/25 active:scale-[0.98]'}`}
+                                    className={`w-full mt-4 py-4 md:py-3 rounded-xl font-bold text-sm transition-all ${isGenerating ? 'bg-zinc-700 text-zinc-500 cursor-wait' : 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:shadow-lg hover:shadow-cyan-500/25 active:scale-[0.98]'}`}
                                 >
                                     {isGenerating ? '⏳ Problemler Üretiliyor...' : '🚀 Problemleri Oluştur'}
                                 </button>
@@ -223,7 +225,7 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
                         )}
 
                         {activeTab === 'gecmis' && (
-                            <div className="space-y-2">
+                            <div className="space-y-4 md:space-y-2">
                                 <div className="flex justify-between items-center mb-2">
                                     <h3 className="text-xs font-bold text-zinc-400">Üretim Geçmişi</h3>
                                     {problemGecmisi.length > 0 && (
@@ -240,7 +242,7 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
                                                     <h4 className="text-xs font-bold text-white">{ps.baslik}</h4>
                                                     <p className="text-[10px] text-zinc-500 mt-0.5">{ps.problemler.length} problem • {new Date(ps.olusturmaTarihi).toLocaleDateString('tr-TR')}</p>
                                                 </div>
-                                                <button onClick={(e) => { e.stopPropagation(); removeProblemGecmisi(ps.id); }} className="text-zinc-600 hover:text-red-400 text-xs">✕</button>
+                                                <button onClick={(e) => { e.stopPropagation(); removeProblemGecmisi(ps.id); }} className="text-zinc-600 hover:text-red-400 text-xs p-2 -mr-2 -mt-2">✕</button>
                                             </div>
                                         </div>
                                     ))
@@ -251,9 +253,9 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
                 </div>
 
                 {/* SAĞ PANEL — Önizleme */}
-                <div className="flex-1 flex flex-col overflow-hidden print:w-full print:bg-white print:overflow-visible">
+                <div className={`flex-1 flex-col overflow-hidden print:w-full print:bg-white print:overflow-visible ${activeTab === 'onizleme' ? 'flex' : 'hidden md:flex'}`}>
                     {/* Dizgi Araç Çubuğu */}
-                    <div className="flex items-center gap-3 px-4 py-2 bg-zinc-900/60 border-b border-zinc-800/50 flex-shrink-0 print:hidden">
+                    <div className="flex items-center gap-2 md:gap-3 px-2 md:px-4 py-2 bg-zinc-900/60 border-b border-zinc-800/50 flex-shrink-0 print:hidden w-full overflow-x-auto scrollbar-hide">
                         {/* Font */}
                         <div className="flex items-center gap-1">
                             <span className="text-[10px] text-zinc-500 mr-1">Tasarım</span>
@@ -291,7 +293,7 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
                     </div>
 
                     {/* Önizleme Alanı */}
-                    <div className="flex-1 overflow-y-auto bg-zinc-800/30 flex justify-center py-6 print:py-0 print:m-0 print:bg-white print:block print:overflow-visible">
+                    <div className="flex-1 overflow-auto bg-zinc-800/30 flex justify-center md:justify-center py-6 print:py-0 print:m-0 print:bg-white print:block print:overflow-visible touch-pan-x touch-pan-y">
                         {aktifProblemSeti ? (
                             <div id="mat-problem-print-target">
                                 <div id="mat-problem-print-inner">

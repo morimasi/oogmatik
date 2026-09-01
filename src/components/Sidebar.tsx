@@ -130,6 +130,7 @@ const Sidebar = ({
       'math': 'math-studio',
       'sinav-studyosu': 'sinav-studyosu',
       'mat-sinav-studyosu': 'math-studio',
+      'mat-problem-studyosu': 'mat-problem-studyosu',
       'super-turkce': 'super-turkce',
       'activity-studio': 'activity-studio',
       'infographic-studio': 'infographic-studio',
