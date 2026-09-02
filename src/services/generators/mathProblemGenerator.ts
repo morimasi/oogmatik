@@ -61,7 +61,11 @@ const buildMathProblemPrompt = (settings: MatProblemAyarlari): string => {
         '   - Ortaokul & LGS (5-8. Sınıf): birim-kareli-zemin, paralelkenar-yamuk, terazi-denklem, iletki-aciolcer, lgs-ikili-grafik, lgs-alan-modeli, lgs-egim-koordinat, lgs-3d-acinim, lgs-ebob-ekok, lgs-karekok-uslu, lgs-pisagor-ucgen, yok\n' +
         '3. ÇOKLU ALT SORU DESTEĞİ: Özellikle Tablo ve Grafik sorularında tek bir görsele bağlı 2-5 adet alt soru ("altSorular": ["1. En çok sevilen meyve hangisidir?", "2. Toplam kaç öğrenci vardır?"]) ve bunların cevaplarını ("altCevaplar": ["Çilek", "32 öğrenci"]) üret!\n' +
         '4. NESNE GRAFİĞİ LEJANTİ VE İLKOKUL ŞEMALARI: "semaVerisi": {"lejantNotu": "Not: Her resim 3 adet oyunu göstermektedir.", "nesneGrafikData": [{"kategori": "Ayıcık", "adet": 7, "simge": "🧸"}], "ceteleData": {"Kiraz": 10}, "etiketler": {"taban": "15 cm", "yukseklik": "8 cm", "aci": "65°"}} verisini aktar.\n' +
-        '5. BİREBİR ŞEMA VE VERİ UYUMU: Soru metnindeki tüm sayılar ve veriler "semaVerisi", "tabloVerisi" veya "grafikVerisi" objelerine EKSİKSİZ aktarılmalıdır.\n\n' +
+        '🚨 100% GÖRSEL VERİ BİREBİR UYUM ZORUNLULUĞU (VERY CRITICAL) 🚨\n' +
+        '1. Ürettiğin hikayedeki/sorudaki TÜM verileri, eşya/meyve/canlı isimlerini, sayıları, etiketleri ve birimleri "semaVerisi", "tabloVerisi" veya "grafikVerisi" alanlarına BİREBİR AYNEN AKTARACAKSIN.\n' +
+        '2. Soruda "Akvaryumdaki balıklar: 5 Japon balığı, 3 Vatoz" geçiyorsa, "semaVerisi" içinde "ceteleData": {"Japon Balığı": 5, "Vatoz": 3} olacak. ASLA sorudaki hikayeden bağımsız rastgele meyve/eşya ismi yazma!\n' +
+        '3. Sorudaki ölçüler 15 cm ve 8 cm ise "etiketler": {"taban": "15 cm", "yukseklik": "8 cm"} olacak.\n' +
+        '4. Soru metnindeki nesnelere uygun emojiyi "nesneGrafikData" içerisindeki "simge" alanına koy (Örn: Elma: 🍎, Kitap: 📚, Araba: 🚗, Balık: 🐟, Top: ⚽).\n\n' +
         '🚨 KRİTİK BENZERSİZLİK VE ORİJİNALİLK KURALI 🚨\n' +
         '- Benzersizlik Tohumu: ' + randomSeed + '\n' +
         '- İlham Teması: "' + secilenKurgu + '"\n' +
@@ -204,7 +208,7 @@ export const generateMathProblems = async (settings: MatProblemAyarlari): Promis
     const sinif = settings.sinif ?? 5;
 
     const result = await generateWithSchema(prompt, PROBLEM_SCHEMA, {
-        temperature: 0.75,
+        temperature: 0.25,
     });
 
     const parsed = typeof result === 'string' ? JSON.parse(result) : result;

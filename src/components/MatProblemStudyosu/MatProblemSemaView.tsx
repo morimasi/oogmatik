@@ -116,6 +116,89 @@ const SvgBadgeText: React.FC<{
     );
 };
 
+/**
+ * Akıllı Metin Veri Ayrıştırıcısı — Soru metni ve verilenlerden kategorileri, sayıları ve emojileri çıkarır.
+ * Artık kod tabanında Kiraz/Armut gibi sabit mock veri kullanılmaz!
+ */
+const getEmojiForWord = (word: string): string => {
+    const w = word.toLowerCase();
+    if (w.includes('elma')) return '🍎';
+    if (w.includes('armut')) return '🍐';
+    if (w.includes('çilek') || w.includes('cilek')) return '🍓';
+    if (w.includes('kiraz')) return '🍒';
+    if (w.includes('muz')) return '🍌';
+    if (w.includes('portakal')) return '🍊';
+    if (w.includes('karpuz')) return '🍉';
+    if (w.includes('erik') || w.includes('üzüm')) return '🍇';
+    if (w.includes('kitap') || w.includes('roman') || w.includes('hikaye') || w.includes('masal')) return '📚';
+    if (w.includes('kalem')) return '✏️';
+    if (w.includes('silgi')) return '🧼';
+    if (w.includes('defter')) return '📓';
+    if (w.includes('balık') || w.includes('balik')) return '🐟';
+    if (w.includes('kuş') || w.includes('kus')) return '🐦';
+    if (w.includes('kedi')) return '🐱';
+    if (w.includes('köpek') || w.includes('kopek')) return '🐶';
+    if (w.includes('tavşan')) return '🐰';
+    if (w.includes('top') || w.includes('futbol') || w.includes('basket')) return '⚽';
+    if (w.includes('araba') || w.includes('otobüs') || w.includes('taşıt')) return '🚗';
+    if (w.includes('uçak')) return '✈️';
+    if (w.includes('oyuncak') || w.includes('ayı') || w.includes('ayıcık')) return '🧸';
+    if (w.includes('robot')) return '🤖';
+    if (w.includes('bebek')) return '🪆';
+    if (w.includes('ağaç') || w.includes('fidan') || w.includes('çiçek')) return '🌳';
+    if (w.includes('öğrenci') || w.includes('kız') || w.includes('erkek')) return '🧑‍🎓';
+    return '📊';
+};
+
+const parseDataFromProblemText = (text: string, verilenler?: string[]): Record<string, number> => {
+    const result: Record<string, number> = {};
+    const fullText = [text, ...(verilenler || [])].join(' ');
+
+    const colonRegex = /([A-Za-zÇĞİÖŞÜa-zçğıöşü\s]+):\s*(\d+)/g;
+    let match;
+    while ((match = colonRegex.exec(fullText)) !== null) {
+        const cat = match[1].trim();
+        const val = parseInt(match[2], 10);
+        if (cat.length > 1 && !isNaN(val) && val > 0 && cat.length < 25) {
+            result[cat] = val;
+        }
+    }
+
+    if (Object.keys(result).length >= 2) return result;
+
+    const numWordRegex = /(\d+)\s*(?:adet|tane|kg|m|cm|litre|sayısı|kutu)?\s*([A-Za-zÇĞİÖŞÜa-zçğıöşü]{3,20})/gi;
+    while ((match = numWordRegex.exec(fullText)) !== null) {
+        const val = parseInt(match[1], 10);
+        const cat = match[2].trim();
+        const ignoreWords = ['gün', 'saat', 'dakika', 'lira', 'tl', 'adım', 'soru', 'sayı', 'fark', 'toplam', 'tane', 'adet'];
+        if (!ignoreWords.includes(cat.toLowerCase()) && !isNaN(val) && val > 0 && val < 500) {
+            const formattedCat = cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase();
+            if (!result[formattedCat]) {
+                result[formattedCat] = val;
+            }
+        }
+    }
+
+    if (Object.keys(result).length >= 2) return result;
+
+    if (verilenler && verilenler.length > 0) {
+        verilenler.forEach((v, idx) => {
+            const nums = v.match(/\d+/g);
+            if (nums && nums.length > 0) {
+                const cleanName = v.replace(/\d+/g, '').replace(/[^\w\sÇĞİÖŞÜçğıöşü]/gi, '').trim() || `Öğe ${idx + 1}`;
+                result[cleanName.slice(0, 15)] = parseInt(nums[0], 10);
+            }
+        });
+    }
+
+    if (Object.keys(result).length === 0) {
+        result['1. Veri Grubu'] = 8;
+        result['2. Veri Grubu'] = 12;
+    }
+
+    return result;
+};
+
 export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
     const text = problem.soruMetni || '';
     const given = problem.verilenler || [];
@@ -184,6 +267,9 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
     const sv = (problem.semaVerisi || {}) as Record<string, unknown>;
     const tv = (problem as unknown as Record<string, unknown>).tabloVerisi as Record<string, unknown> | undefined;
 
+    // Metinden dinamik ayrıştırılan veri (Artık kod tabanında sabit Kiraz/Armut kullanılmaz!)
+    const parsedTextData = parseDataFromProblemText(text, problem.verilenler);
+
     // Etiketlerin Akıllı Temizliği
     const etiket = (sv.etiketler || {}) as Record<string, string>;
     const tabanL = cleanLabel(etiket.taban || given[0], 'a');
@@ -204,17 +290,12 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
 
     // ─── 1. MEB ÇETELE TABLOSU ──────────────────────────────────
     if (mode === 'cetele-tablosu') {
-        const ceteleData = (sv.ceteleData as Record<string, number>) || {
-            Kiraz: 10,
-            Armut: 7,
-            Çilek: 13,
-            Karpuz: 7,
-        };
+        const ceteleData = (sv.ceteleData as Record<string, number>) || parsedTextData;
 
         return wrap('MEB Çetele Tablosu', (
             <div className="w-full max-w-[260px]">
                 <div className="bg-amber-400 text-slate-900 font-extrabold text-[10px] text-center py-1 rounded-t-lg border border-amber-500">
-                    Çetele Tablosu: Sevilen Öğeler
+                    Çetele Tablosu: Problem Verileri
                 </div>
                 <table className="w-full text-[9px] border-collapse border border-slate-300">
                     <thead>
@@ -242,17 +323,12 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
 
     // ─── 2. MEB SIKLIK TABLOSU ──────────────────────────────────
     if (mode === 'siklik-tablosu') {
-        const siklikData = (sv.ceteleData as Record<string, number>) || {
-            Japon: 8,
-            'Papağan Balığı': 14,
-            Vatoz: 2,
-            'Sarı Prenses': 16,
-        };
+        const siklikData = (sv.ceteleData as Record<string, number>) || parsedTextData;
 
         return wrap('MEB Sıklık Tablosu', (
             <div className="w-full max-w-[260px]">
                 <div className="bg-emerald-500 text-white font-extrabold text-[10px] text-center py-1 rounded-t-lg border border-emerald-600">
-                    Sıklık Tablosu: Veri Sayıları
+                    Sıklık Tablosu: Problem Verileri
                 </div>
                 <table className="w-full text-[9px] border-collapse border border-slate-300">
                     <thead>
@@ -280,13 +356,13 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
 
     // ─── 3. MEB NESNE VE ŞEKİL GRAFİĞİ ─────────────────────────
     if (mode === 'nesne-grafigi') {
-        const rawNesneData = (sv.nesneGrafikData as { kategori: string; adet: number; simge?: string }[]) || [
-            { kategori: 'Ayıcık', adet: 7, simge: '🧸' },
-            { kategori: 'Bebek', adet: 5, simge: '🪆' },
-            { kategori: 'Robot', adet: 9, simge: '🤖' },
-            { kategori: 'Uçak', adet: 6, simge: '✈️' },
-        ];
-        const lejant = (sv.lejantNotu as string) || 'Not: Her nesne 3 adet ögeyi belirtmektedir.';
+        const rawNesneData = (sv.nesneGrafikData as { kategori: string; adet: number; simge?: string }[]) ||
+            Object.entries(parsedTextData).map(([kat, val]) => ({
+                kategori: kat,
+                adet: val,
+                simge: getEmojiForWord(kat),
+            }));
+        const lejant = (sv.lejantNotu as string) || 'Not: Her nesne 1 adet ögeyi belirtmektedir.';
 
         return wrap('MEB Nesne & Şekil Grafiği', (
             <div className="w-full max-w-[270px] flex flex-col items-center">
