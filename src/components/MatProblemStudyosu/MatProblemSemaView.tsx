@@ -15,7 +15,6 @@ const cleanLabel = (val?: unknown, fallback = '?'): string => {
     // Eğer zaten kısa bir etiket ise (örn: "15 m", "70°", "x", "a", "12 TL") direkt dön
     if (str.length <= 12 && !str.includes('\n')) return str;
 
-    // Uzun paragraf içerisinden sayı + birim veya açı bulmaya çalış
     const angleMatch = str.match(/(\d+)\s*(°|derece)/i);
     if (angleMatch) return `${angleMatch[1]}°`;
 
@@ -25,11 +24,48 @@ const cleanLabel = (val?: unknown, fallback = '?'): string => {
     const numMatch = str.match(/\b\d+(?:[.,]\d+)?\b/);
     if (numMatch) return numMatch[0];
 
-    // İki kelimelik kısa ifade ise kısalt
     const words = str.split(/\s+/);
     if (words.length <= 2 && str.length <= 15) return str;
 
     return fallback;
+};
+
+/**
+ * Çetele Çizgisi Komponenti — 5'li dikey ve yatay çetele grupları çizer
+ */
+const RenderCeteleGroup: React.FC<{ count: number }> = ({ count }) => {
+    const fullGroups = Math.floor(count / 5);
+    const remainder = count % 5;
+
+    return (
+        <div className="flex items-center gap-2">
+            {Array.from({ length: fullGroups }).map((_, gi) => (
+                <svg key={gi} viewBox="0 0 28 22" className="w-7 h-5">
+                    <line x1="4" y1="3" x2="4" y2="19" stroke="#1e293b" strokeWidth="2" strokeLinecap="round" />
+                    <line x1="9" y1="3" x2="9" y2="19" stroke="#1e293b" strokeWidth="2" strokeLinecap="round" />
+                    <line x1="14" y1="3" x2="14" y2="19" stroke="#1e293b" strokeWidth="2" strokeLinecap="round" />
+                    <line x1="19" y1="3" x2="19" y2="19" stroke="#1e293b" strokeWidth="2" strokeLinecap="round" />
+                    <line x1="2" y1="18" x2="22" y2="4" stroke="#e11d48" strokeWidth="2.5" strokeLinecap="round" />
+                </svg>
+            ))}
+            {remainder > 0 && (
+                <svg viewBox="0 0 28 22" className="w-7 h-5">
+                    {Array.from({ length: remainder }).map((_, ri) => (
+                        <line
+                            key={ri}
+                            x1={4 + ri * 5}
+                            y1="3"
+                            x2={4 + ri * 5}
+                            y2="19"
+                            stroke="#1e293b"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                        />
+                    ))}
+                </svg>
+            )}
+        </div>
+    );
 };
 
 /**
@@ -86,11 +122,20 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
     const lw = text.toLowerCase();
     const sinif = problem.sinif || 5;
 
-    // ─── Akıllı Otomatik Şema Seçimi ─────────────────
-    let mode = '';
     const st = (problem.semaTipi || '').toString().toLowerCase();
 
-    if (st.includes('tablo')) mode = 'tablo';
+    // 🚨 Şema Yoksa Hiçbir Şey Render Etme! (Görsel Zorunluluğu Yoktur)
+    if (st === 'yok' || st === 'yoktur' || st === 'none') {
+        return null;
+    }
+
+    // ─── Akıllı Otomatik Şema Seçimi ─────────────────
+    let mode = '';
+    if (st.includes('cetele') || st.includes('çetele')) mode = 'cetele-tablosu';
+    else if (st.includes('siklik') || st.includes('sıklık')) mode = 'siklik-tablosu';
+    else if (st.includes('nesne-grafigi') || st.includes('nesne_grafigi')) mode = 'nesne-grafigi';
+    else if (st.includes('nesne-izgarasi') || st.includes('izgara')) mode = 'nesne-izgarasi';
+    else if (st.includes('tablo')) mode = 'tablo';
     else if (st.includes('geometrik') || st.includes('sekil')) mode = 'geometrik';
     else if (st.includes('zaman')) mode = 'saat';
     else if (st.includes('kesir')) mode = 'kesir-serit';
@@ -104,6 +149,9 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
     else if (st.includes('oruntu')) mode = 'oruntu';
     else if (st.includes('taban')) mode = 'taban-blok';
     else if (st.includes('dogru') || st.includes('esitsizlik')) mode = 'sayi-dogru';
+    else if (lw.includes('çetele tablosu')) mode = 'cetele-tablosu';
+    else if (lw.includes('sıklık tablosu')) mode = 'siklik-tablosu';
+    else if (lw.includes('nesne grafiği') || lw.includes('şekil grafiği')) mode = 'nesne-grafigi';
     else if (lw.includes('daire grafiği') || (lw.includes('grafik') && lw.includes('açı'))) mode = 'ikili-grafik';
     else if (lw.includes('pisagor') || (lw.includes('dik üçgen') && lw.includes('hipotenüs'))) mode = 'pisagor';
     else if (lw.includes('eşitsizlik') || lw.includes('küçüktür') || lw.includes('büyüktür')) mode = 'esitsizlik';
@@ -130,8 +178,7 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
     else if (lw.includes('dikdörtgen') || lw.includes('kare') || lw.includes('üçgen') || lw.includes('çember') || lw.includes('daire') || lw.includes('yamuk') || lw.includes('paralelkenar')) mode = 'geometrik';
     else if (lw.includes('saat') || lw.includes('zaman')) mode = 'saat';
     else if (sinif === 1) mode = 'nesne-say';
-    else if (sinif === 2) mode = 'taban-blok';
-    else if (sinif >= 6 && sinif <= 8) mode = 'sayi-dogru';
+    else if (sinif === 2) mode = 'cetele-tablosu';
     else mode = 'geometrik';
 
     const sv = (problem.semaVerisi || {}) as Record<string, unknown>;
@@ -155,7 +202,148 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
         </div>
     );
 
-    // ── RENDER BLOKLARI ────────────────────────────────────────
+    // ─── 1. MEB ÇETELE TABLOSU ──────────────────────────────────
+    if (mode === 'cetele-tablosu') {
+        const ceteleData = (sv.ceteleData as Record<string, number>) || {
+            Kiraz: 10,
+            Armut: 7,
+            Çilek: 13,
+            Karpuz: 7,
+        };
+
+        return wrap('MEB Çetele Tablosu', (
+            <div className="w-full max-w-[260px]">
+                <div className="bg-amber-400 text-slate-900 font-extrabold text-[10px] text-center py-1 rounded-t-lg border border-amber-500">
+                    Çetele Tablosu: Sevilen Öğeler
+                </div>
+                <table className="w-full text-[9px] border-collapse border border-slate-300">
+                    <thead>
+                        <tr className="bg-amber-100 text-amber-900 font-bold border-b border-slate-300">
+                            <th className="p-1 border-r border-slate-300 text-left pl-2">Kategori</th>
+                            <th className="p-1 text-center">Çetele Sayısı</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {Object.entries(ceteleData).map(([kat, val], idx) => (
+                            <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
+                                <td className="p-1.5 font-extrabold text-slate-700 border-r border-b border-slate-200 pl-2">
+                                    {kat}
+                                </td>
+                                <td className="p-1.5 border-b border-slate-200 flex justify-center">
+                                    <RenderCeteleGroup count={val} />
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        ));
+    }
+
+    // ─── 2. MEB SIKLIK TABLOSU ──────────────────────────────────
+    if (mode === 'siklik-tablosu') {
+        const siklikData = (sv.ceteleData as Record<string, number>) || {
+            Japon: 8,
+            'Papağan Balığı': 14,
+            Vatoz: 2,
+            'Sarı Prenses': 16,
+        };
+
+        return wrap('MEB Sıklık Tablosu', (
+            <div className="w-full max-w-[260px]">
+                <div className="bg-emerald-500 text-white font-extrabold text-[10px] text-center py-1 rounded-t-lg border border-emerald-600">
+                    Sıklık Tablosu: Veri Sayıları
+                </div>
+                <table className="w-full text-[9px] border-collapse border border-slate-300">
+                    <thead>
+                        <tr className="bg-emerald-100 text-emerald-950 font-bold border-b border-slate-300">
+                            <th className="p-1 border-r border-slate-300 text-left pl-2">Tür / Eleman</th>
+                            <th className="p-1 text-center">Sayı</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {Object.entries(siklikData).map(([kat, val], idx) => (
+                            <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
+                                <td className="p-1.5 font-bold text-slate-700 border-r border-b border-slate-200 pl-2">
+                                    {kat}
+                                </td>
+                                <td className="p-1.5 border-b border-slate-200 text-center font-extrabold text-emerald-700 text-xs">
+                                    {val}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        ));
+    }
+
+    // ─── 3. MEB NESNE VE ŞEKİL GRAFİĞİ ─────────────────────────
+    if (mode === 'nesne-grafigi') {
+        const rawNesneData = (sv.nesneGrafikData as { kategori: string; adet: number; simge?: string }[]) || [
+            { kategori: 'Ayıcık', adet: 7, simge: '🧸' },
+            { kategori: 'Bebek', adet: 5, simge: '🪆' },
+            { kategori: 'Robot', adet: 9, simge: '🤖' },
+            { kategori: 'Uçak', adet: 6, simge: '✈️' },
+        ];
+        const lejant = (sv.lejantNotu as string) || 'Not: Her nesne 3 adet ögeyi belirtmektedir.';
+
+        return wrap('MEB Nesne & Şekil Grafiği', (
+            <div className="w-full max-w-[270px] flex flex-col items-center">
+                <div className="w-full border-2 border-emerald-500 rounded-lg overflow-hidden bg-emerald-50/40">
+                    <div className="bg-emerald-600 text-white font-extrabold text-[9px] text-center py-1">
+                        Sınıftaki Nesne Dağılımı Grafiği
+                    </div>
+                    <table className="w-full text-[9px] border-collapse">
+                        <tbody>
+                            {rawNesneData.map((item, idx) => (
+                                <tr key={idx} className="border-b border-emerald-100 last:border-b-0">
+                                    <td className="p-1.5 font-extrabold text-slate-700 border-r border-emerald-200 w-1/3 bg-white pl-2">
+                                        {item.kategori}
+                                    </td>
+                                    <td className="p-1.5 bg-white">
+                                        <div className="flex flex-wrap gap-1 items-center">
+                                            {Array.from({ length: item.adet }).map((_, iconIdx) => (
+                                                <span key={iconIdx} className="text-sm select-none">
+                                                    {item.simge || '🧸'}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                    <div className="bg-rose-50 border-t border-rose-200 text-rose-800 text-[8px] font-bold p-1 text-center">
+                        📌 {lejant}
+                    </div>
+                </div>
+            </div>
+        ));
+    }
+
+    // ─── 4. MEB KARMA NESNE IZGARASI (SAYMA KUTUSU) ──────────────
+    if (mode === 'nesne-izgarasi') {
+        const shapes = ['▲', '■', '●', '▬'];
+        const colors = ['text-amber-500', 'text-cyan-600', 'text-emerald-500', 'text-rose-500'];
+
+        return wrap('Geometrik Şekil Izgarası (Sayma Kümesi)', (
+            <div className="w-full max-w-[250px] border-2 border-dashed border-amber-300 bg-amber-50/50 p-2 rounded-lg flex flex-col items-center">
+                <div className="grid grid-cols-6 gap-2 my-1">
+                    {Array.from({ length: 24 }).map((_, idx) => (
+                        <span key={idx} className={`text-base font-black ${colors[idx % colors.length]}`}>
+                            {shapes[idx % shapes.length]}
+                        </span>
+                    ))}
+                </div>
+                <span className="text-[8px] font-bold text-amber-800 mt-1">
+                    Yukarıdaki şekilleri sayarak tablonuzu doldurunuz.
+                </span>
+            </div>
+        ));
+    }
+
+    // ─── RENDER DİĞER LGS & MEB ŞEMALARI ──────────────────────────
 
     if (mode === 'ikili-grafik') return wrap('Veri Analizi — Sütun & Daire Grafiği', (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-[260px]">
@@ -290,20 +478,13 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
 
     if (mode === 'paralel-acilar') return wrap(`Paralel Doğrular ve Kesen (d₁ // d₂)`, (
         <svg viewBox="0 0 200 90" className="w-full max-w-[230px] h-auto">
-            {/* Paralel Doğrular */}
             <line x1="15" y1="26" x2="185" y2="26" stroke="#0284c7" strokeWidth="2.5" />
             <line x1="15" y1="68" x2="185" y2="68" stroke="#0284c7" strokeWidth="2.5" />
-            {/* Kesen Doğru */}
             <line x1="45" y1="84" x2="155" y2="10" stroke="#e11d48" strokeWidth="2" />
-
-            {/* Doğru İsimleri */}
             <text x="190" y="29" fontSize="8" fontWeight="bold" fill="#0284c7">d₁</text>
             <text x="190" y="71" fontSize="8" fontWeight="bold" fill="#0284c7">d₂</text>
-
-            {/* Açı Yayları ve Temiz Rozetler (Metinler çizgiye basmaz!) */}
             <path d="M 125,26 A 14 14 0 0 0 135,16" fill="none" stroke="#e11d48" strokeWidth="1.5" />
             <SvgBadgeText x={144} y={15} text={`α (${aciL})`} fill="#e11d48" bgFill="#fff1f2" />
-
             <path d="M 75,68 A 14 14 0 0 0 85,58" fill="none" stroke="#e11d48" strokeWidth="1.5" />
             <SvgBadgeText x={96} y={57} text={`β (${aciL})`} fill="#e11d48" bgFill="#fff1f2" />
         </svg>
@@ -471,19 +652,12 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
 
     if (mode === 'prizma') return wrap('Dikdörtgenler Prizması — 3D Şematik Görünüm', (
         <svg viewBox="0 0 170 100" className="w-full max-w-[210px] h-auto">
-            {/* Ön Yüz */}
             <polygon points="30,75 110,75 110,30 30,30" fill="#e0f2fe" fillOpacity="0.8" stroke="#0284c7" strokeWidth="2" />
-            {/* Yan Yüz */}
             <polygon points="110,30 145,12 145,57 110,75" fill="#bae6fd" fillOpacity="0.8" stroke="#0284c7" strokeWidth="2" />
-            {/* Üst Yüz */}
             <polygon points="30,30 65,12 145,12 110,30" fill="#93c5fd" fillOpacity="0.8" stroke="#0284c7" strokeWidth="2" />
-
-            {/* Kesikli İç Çizgiler */}
             <line x1="30" y1="75" x2="65" y2="57" stroke="#94a3b8" strokeWidth="1" strokeDasharray="3,2" />
             <line x1="65" y1="57" x2="145" y2="57" stroke="#94a3b8" strokeWidth="1" strokeDasharray="3,2" />
             <line x1="65" y1="57" x2="65" y2="12" stroke="#94a3b8" strokeWidth="1" strokeDasharray="3,2" />
-
-            {/* Temiz Rozet Metinleri (Kutunun üstüne çakışmaz!) */}
             <SvgBadgeText x={70} y={85} text={`En: ${tabanL}`} fill="#0369a1" />
             <SvgBadgeText x={152} y={35} text={`Boy: ${yuksL}`} fill="#0369a1" />
             <SvgBadgeText x={20} y={52} text="Yükseklik: h" fill="#0369a1" textAnchor="end" />

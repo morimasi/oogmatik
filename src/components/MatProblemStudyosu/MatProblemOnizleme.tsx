@@ -67,6 +67,25 @@ export const MatProblemOnizleme: React.FC<MatProblemOnizlemeProps> = ({ problemS
                         {/* Dinamik Gerçek SVG Şekil, Tablo ve Grafik Motoru */}
                         <MatProblemSemaView problem={problem} />
 
+                        {/* Alt Sorular (Çoklu Soru Formatı) */}
+                        {problem.altSorular && problem.altSorular.length > 0 && (
+                            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px', marginBottom: '10px' }}>
+                                <div style={{ fontSize: '8px', fontWeight: 800, color: '#0369a1', textTransform: 'uppercase', marginBottom: '6px' }}>
+                                    ❓ Görsele Ait Alt Sorular
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                    {problem.altSorular.map((altSoru, altIdx) => (
+                                        <div key={altIdx} style={{ fontSize: '10px', fontWeight: 600, color: '#334155', display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
+                                            <span style={{ background: '#0284c7', color: 'white', fontSize: '9px', fontWeight: 800, padding: '1px 6px', borderRadius: '4px', whiteSpace: 'nowrap' }}>
+                                                {String.fromCharCode(97 + altIdx)})
+                                            </span>
+                                            <span style={{ flex: 1 }}>{altSoru}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         {/* Verilenler & İstenenler Kutusu */}
                         <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
                             <div style={{ flex: 1, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '8px' }}>

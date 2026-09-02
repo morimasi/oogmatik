@@ -54,22 +54,13 @@ const buildMathProblemPrompt = (settings: MatProblemAyarlari): string => {
         '- Çözüm Kutusu: ' + (settings.cozumKutusuGosterilsinMi ? 'EVET' : 'HAYIR') + '\n' +
         '- LGS Yeni Nesil Modu: ' + (settings.isLgsMode ? 'AKTİF (PISA/LGS Mantık Sorusu)' : 'PASİF') + '\n\n' +
         '🚨 KRİTİK ŞEMA VE GÖRSEL KURGUSU KURALLARI (VERY IMPORTANT) 🚨\n' +
-        '1. HER PROBLEM ŞEMA / GÖRSEL TEMELLİ OLMALIDIR: Soru metni doğrudan çizilecek şemaya veya grafiğe atıf yapmalıdır!\n' +
-        '   Örnek İfadeler: "Yukarıda verilen dik üçgen modeline göre...", "Verilen daire ve sütun grafiğindeki üretim verilerine göre...", "Verilen cebirsel karolarla oluşturulan alan modeline göre..."\n' +
-        '2. OTOMATİK UYGUN ŞEMA SEÇİMİ: Her problem için sınıf ve kazanıma en uygun "semaTipi" değerini seç:\n' +
-        '   - 1. Sınıf: nesne-sayma-matrisi, sayı-doğrusu, geometrik-sekil, zaman-tüneli\n' +
-        '   - 2. Sınıf: onluk-taban-bloklari, matris-çarpanlar, kesir-blokları\n' +
-        '   - 3. Sınıf: birim-kesir-seridi, dogru-isin-parca, birim-kareli-zemin, çetele-tablosu\n' +
-        '   - 4. Sınıf: iletki-aciolcer, ondalik-izgara, tam-sayili-kesir, sütun-grafigi\n' +
-        '   - 5. Sınıf: sekil-oruntu-adimlari, yuzde-izgara, prizma-3d, paralelkenar-yamuk\n' +
-        '   - 6. Sınıf: asal-carpan-agaci, venn-semasi, tamsayi-mutlak-dogru, tumler-butunler-aci\n' +
-        '   - 7. Sınıf: paralel-kesen-acilar, rasyonel-sayi-dogrusu, oranti-grafigi, daire-dilimi, terazi-denklem\n' +
-        '   - 8. Sınıf (LGS): lgs-ikili-grafik, cebirsel-karo, cisim-acinimi, egim-koordinat, ebob-ekok-fayans, pisagor-ucgen, benzerlik-ucgen, esitsizlik-dogrusu, olasilik-cark\n' +
-        '3. BİREBİR ŞEMA VE VERİ UYUMU: Soru metnindeki tüm sayılar, kenarlar, açılar ve isimler "semaVerisi", "tabloVerisi" veya "grafikVerisi" objelerine EKSİKSİZ aktarılmalıdır.\n' +
-        '4. ZORLUK SEVİYESİ ENTEGRASYONU:\n' +
-        '   - Kolay: Doğrudan görselden veri okuma veya tek adımlı işlem.\n' +
-        '   - Orta: Görsel verisini kullanarak 2 adımlı mantıksal işlem yapma.\n' +
-        '   - Zor (LGS): Çift görsel dönüşümü (ör. sütun grafiğinden daire grafiğine geçiş) veya geometrik alan-özdeşlik modelleme.\n\n' +
+        '1. ŞEMA ZORUNLULUĞU ESNEKLİĞİ: Her problemde şema/görsel çıkmak ZORUNDA DEĞİLDİR. Eğer soru sözel veya zihinsel mantık problemi ise "semaTipi": "yok" seç!\n' +
+        '2. GÖRSELLİ VE ŞEMALI SORULAR: Soru bir tablo, grafik veya geometrik şekil gerektiriyorsa soru metninde görsele atıf yap ("Aşağıdaki çetele tablosuna göre...", "Yukarıda verilen dik üçgene göre...") ve uygun "semaTipi" seç:\n' +
+        '   - Çetele / Sıklık / Nesne Grafiği: "cetele-tablosu", "siklik-tablosu", "nesne-grafigi", "nesne-izgarasi"\n' +
+        '   - Sınıf Seviyesine Göre: 1-2. Sınıf: cetele-tablosu, nesne-grafigi, sayi-dogrusu | 3-5. Sınıf: siklik-tablosu, kesir-bloklari, yuzde-izgara, prizma-3d | 6-8. Sınıf (LGS): lgs-ikili-grafik, lgs-alan-modeli, lgs-egim-koordinat, lgs-3d-acinim, lgs-ebob-ekok, lgs-karekok-uslu, lgs-pisagor-ucgen, yok\n' +
+        '3. ÇOKLU ALT SORU DESTEĞİ: Özellikle Tablo ve Grafik sorularında tek bir görsele bağlı 2-5 adet alt soru ("altSorular": ["1. En çok sevilen meyve hangisidir?", "2. Toplam kaç öğrenci vardır?"]) ve bunların cevaplarını ("altCevaplar": ["Çilek", "32 öğrenci"]) üret!\n' +
+        '4. NESNE GRAFİĞİ LEJANTİ: Nesne grafiklerinde "semaVerisi": {"lejantNotu": "Not: Her resim 3 adet oyuncağı göstermektedir.", "nesneGrafikData": [{"kategori": "Ayıcık", "adet": 7, "simge": "🧸"}]} verisini aktar.\n' +
+        '5. BİREBİR ŞEMA VE VERİ UYUMU: Soru metnindeki tüm sayılar ve veriler "semaVerisi", "tabloVerisi" veya "grafikVerisi" objelerine EKSİKSİZ aktarılmalıdır.\n\n' +
         '🚨 KRİTİK BENZERSİZLİK VE ORİJİNALİLK KURALI 🚨\n' +
         '- Benzersizlik Tohumu: ' + randomSeed + '\n' +
         '- İlham Teması: "' + secilenKurgu + '"\n' +
@@ -89,26 +80,16 @@ const buildMathProblemPrompt = (settings: MatProblemAyarlari): string => {
     parts.push(
         '\nPROBLEM KURALLARI:\n' +
         '1. Her problem günlük yaşamdan taze ve özgün bir senaryo/hikaye İÇERMELİDİR.\n' +
-        '2. Her problem için "verilenler" (problem metninden çıkarılan somut bilgiler) listesi verilmelidir.\n' +
-        '3. Her problem için "istenenler" (çözülmesi istenen) açıkça belirtilmelidir.\n' +
-        '4. Her problem için adım adım "cozumAdimlari" detaylı ve açıklayıcı yazılmalıdır.\n' +
-        '5. Zorluk seviyesi: ' + (settings.zorlukSeviyesi === 'Otomatik' ? 'Karma (Kolay, Orta, Zor)' : settings.zorlukSeviyesi) + '\n'
+        '2. Her problem için "verilenler" ve "istenenler" açıklanmalıdır.\n' +
+        '3. Her problem için adım adım "cozumAdimlari" detaylı yazılmalıdır.\n' +
+        '4. Zorluk seviyesi: ' + (settings.zorlukSeviyesi === 'Otomatik' ? 'Karma (Kolay, Orta, Zor)' : settings.zorlukSeviyesi) + '\n'
     );
 
     if (settings.isLgsMode) {
         parts.push(
             '\n🚨 LGS YENİ NESİL PROBLEM MODU AKTİF 🚨\n' +
             'Tüm problemler LGS/PISA standardında beceri temelli, çok adımlı mantık yürütme gerektiren açık uçlu problemler olmalıdır.\n' +
-            'Tablo, grafik veya şema içeren problemlere öncelik ver.\n'
-        );
-    }
-
-    if (settings.gorselVeriEklensinMi) {
-        parts.push(
-            '\nGrafik/şekil gerektiren problem varsa "grafikVerisi" alanını JSON içinde ver:\n' +
-            '- "tip": grafik türü (sutun_grafigi, pasta_grafigi, tablo, ucgen, dikdortgen vb.)\n' +
-            '- "baslik": başlık\n' +
-            '- "veri": [{etiket, deger}] dizisi\n'
+            'Çiftli grafik, cebirsel alan modeli veya rampa eğimi içeren problemlere ağırlık ver.\n'
         );
     }
 
@@ -118,15 +99,17 @@ const buildMathProblemPrompt = (settings: MatProblemAyarlari): string => {
         '  "pedagogicalNote": "Öğretmen için eğitsel amaç açıklaması",\n' +
         '  "problemler": [\n' +
         '    {\n' +
-        '      "soruMetni": "Gerçek yaşam senaryolu problem metni...",\n' +
-        '      "verilenler": ["Elma kilosu: 25 TL", "Alınan miktar: 3 kg"],\n' +
-        '      "istenenler": "Toplam ödenecek tutar",\n' +
-        '      "cozumAdimlari": ["1. Adım: ...", "2. Adım: ..."],\n' +
-        '      "dogruCevap": "75 TL",\n' +
-        '      "gercekYasamBaglantisi": "Markette alışveriş yaparken...",\n' +
-        '      "zorluk": "Kolay",\n' +
-        '      "kazanimKodu": "M.5.1.1.2",\n' +
-        '      "semaTipi": "kutu-modeli",\n' +
+        '      "soruMetni": "Aşağıdaki sıklık tablosuna göre soruları cevaplayalım...",\n' +
+        '      "verilenler": ["Akvaryumdaki balık sayıları tablosu"],\n' +
+        '      "istenenler": "Tablodaki verilere dayalı alt soruların çözümü",\n' +
+        '      "altSorular": ["1. En çok bulunan balık hangisidir?", "2. Japon balıklarının sayısı vatözlerin kaç katıdır?"],\n' +
+        '      "altCevaplar": ["Sarı Prenses (16)", "4 katıdır (8 / 2 = 4)"],\n' +
+        '      "cozumAdimlari": ["1. Adım: Tablodan sayıları oku", "2. Adım: Oranlama yap"],\n' +
+        '      "dogruCevap": "1) Sarı Prenses, 2) 4 katı",\n' +
+        '      "gercekYasamBaglantisi": "Akvaryum ve canlı sayılarını kategorize etme...",\n' +
+        '      "zorluk": "Orta",\n' +
+        '      "kazanimKodu": "M.2.4.1.1",\n' +
+        '      "semaTipi": "siklik-tablosu",\n' +
         '      "puan": 10,\n' +
         '      "tahminiSure": 120\n' +
         '    }\n  ]\n}\n```\n' +
@@ -140,38 +123,47 @@ const buildMathProblemPrompt = (settings: MatProblemAyarlari): string => {
 const PROBLEM_SCHEMA = {
     type: 'OBJECT',
     properties: {
-        pedagogicalNote: { type: 'STRING', description: 'Öğretmen için eğitsel amaç ve disleksi/DEHB öğrenciye faydası üzerine pedagojik not' },
+        pedagogicalNote: { type: 'STRING', description: 'Öğretmen için eğitsel amaç notu' },
         problemler: {
             type: 'ARRAY',
             items: {
                 type: 'OBJECT',
                 properties: {
                     soruMetni: { type: 'STRING', description: 'Gerçek yaşam senaryolu açık uçlu problem metni' },
-                    verilenler: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Problemdeki verilen bilgilerin listesi' },
-                    istenenler: { type: 'STRING', description: 'Öğrenciden istenen' },
-                    cozumAdimlari: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Adım adım çözüm açıklamaları' },
-                    dogruCevap: { type: 'STRING', description: 'Problemin doğru cevabı' },
-                    gercekYasamBaglantisi: { type: 'STRING', description: 'Gerçek yaşam bağlantısı açıklaması' },
-                    zorluk: { type: 'STRING', description: 'Kolay, Orta veya Zor' },
-                    kazanimKodu: { type: 'STRING', description: 'MEB kazanım kodu, ör: M.5.1.1.2' },
-                    semaTipi: { type: 'STRING', description: 'kutu-modeli, sayı-doğrusu, tablo, grafik, denklem-şeması, çizim-alanı, parça-bütün, oran-orantı, kesir-blokları, geometrik-sekil, zaman-tüneli, para-matrisi' },
+                    verilenler: { type: 'ARRAY', items: { type: 'STRING' } },
+                    istenenler: { type: 'STRING' },
+                    altSorular: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Tek şemaya bağlı 1-5 adet alt soru' },
+                    altCevaplar: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Alt soruların doğru yanıtları' },
+                    cozumAdimlari: { type: 'ARRAY', items: { type: 'STRING' } },
+                    dogruCevap: { type: 'STRING' },
+                    gercekYasamBaglantisi: { type: 'STRING' },
+                    zorluk: { type: 'STRING' },
+                    kazanimKodu: { type: 'STRING' },
+                    semaTipi: { type: 'STRING', description: 'cetele-tablosu, siklik-tablosu, nesne-grafigi, nesne-izgarasi, lgs-ikili-grafik, lgs-alan-modeli, lgs-egim-koordinat, lgs-3d-acinim, lgs-ebob-ekok, lgs-karekok-uslu, lgs-pisagor-ucgen, kutu-modeli, sayi-dogrusu, yok vb.' },
                     semaVerisi: {
                         type: 'OBJECT',
-                        description: 'Soru metnindeki sayısal veriler ve etiketlerle %100 birebir uyuşan şema verisi',
                         properties: {
-                            sekilTipi: { type: 'STRING', description: 'dik-ucgen, dikdortgen, kare, cember, aci, yamuk, paralelkenar vb.' },
-                            etiketler: { type: 'OBJECT', description: 'Kenar, açı ve isim etiketleri, ör: {"taban": "12 cm", "yukseklik": "5 cm", "hipotenus": "13 cm", "aci": "90°"}' },
-                            kesirOrani: { type: 'OBJECT', properties: { pay: { type: 'NUMBER' }, paydaya: { type: 'NUMBER' }, etiket: { type: 'STRING' } } },
-                            zamanAkisi: { type: 'OBJECT', properties: { baslangic: { type: 'STRING' }, bitis: { type: 'STRING' }, gecenSure: { type: 'STRING' } } },
-                            paraMatrisi: { type: 'OBJECT', properties: { verilen: { type: 'STRING' }, tutar: { type: 'STRING' }, paraUstu: { type: 'STRING' } } },
-                            kutuModeli: { type: 'OBJECT', properties: { parcaA: { type: 'STRING' }, parcaB: { type: 'STRING' }, toplam: { type: 'STRING' } } },
-                            denklemSol: { type: 'STRING' },
-                            denklemSag: { type: 'STRING' },
+                            sekilTipi: { type: 'STRING' },
+                            etiketler: { type: 'OBJECT' },
+                            lejantNotu: { type: 'STRING', description: 'Not: Her resim 3 adet oyunu temsil eder vb.' },
+                            ceteleData: { type: 'OBJECT', description: '{"Kiraz": 10, "Armut": 7, "Çilek": 13}' },
+                            nesneGrafikData: {
+                                type: 'ARRAY',
+                                items: {
+                                    type: 'OBJECT',
+                                    properties: {
+                                        kategori: { type: 'STRING' },
+                                        adet: { type: 'NUMBER' },
+                                        simge: { type: 'STRING' }
+                                    }
+                                }
+                            },
+                            kesirOrani: { type: 'OBJECT', properties: { pay: { type: 'NUMBER' }, paydaya: { type: 'NUMBER' } } },
+                            zamanAkisi: { type: 'OBJECT', properties: { baslangic: { type: 'STRING' }, bitis: { type: 'STRING' } } },
                         }
                     },
                     tabloVerisi: {
                         type: 'OBJECT',
-                        description: 'Problemde tablo varsa tablo başlık ve satır verileri',
                         properties: {
                             baslik: { type: 'STRING' },
                             sutunlar: { type: 'ARRAY', items: { type: 'STRING' } },
@@ -180,7 +172,6 @@ const PROBLEM_SCHEMA = {
                     },
                     grafikVerisi: {
                         type: 'OBJECT',
-                        description: 'Problemde grafik varsa sütun/pasta grafiği verileri',
                         properties: {
                             tip: { type: 'STRING' },
                             baslik: { type: 'STRING' },
@@ -197,8 +188,8 @@ const PROBLEM_SCHEMA = {
                             }
                         }
                     },
-                    puan: { type: 'NUMBER', description: 'Puan değeri' },
-                    tahminiSure: { type: 'NUMBER', description: 'Tahmini çözüm süresi (saniye)' },
+                    puan: { type: 'NUMBER' },
+                    tahminiSure: { type: 'NUMBER' },
                 }
             }
         }
@@ -223,6 +214,8 @@ export const generateMathProblems = async (settings: MatProblemAyarlari): Promis
         soruMetni: (p.soruMetni as string) || (p.soru_metni as string) || '',
         verilenler: Array.isArray(p.verilenler) ? p.verilenler as string[] : [],
         istenenler: (p.istenenler as string) || '',
+        altSorular: Array.isArray(p.altSorular) ? p.altSorular as string[] : undefined,
+        altCevaplar: Array.isArray(p.altCevaplar) ? p.altCevaplar as string[] : undefined,
         cozumAdimlari: Array.isArray(p.cozumAdimlari) ? p.cozumAdimlari as string[] : [],
         dogruCevap: (p.dogruCevap as string) || (p.dogru_cevap as string) || '',
         gercekYasamBaglantisi: (p.gercekYasamBaglantisi as string) || (p.gercek_yasam_baglantisi as string) || '',
@@ -233,7 +226,7 @@ export const generateMathProblems = async (settings: MatProblemAyarlari): Promis
         unite_adi: (p.unite_adi as string) || undefined,
         semaTipi: ((p.semaTipi as string) || 'yok') as MatProblem['semaTipi'],
         semaVerisi: p.semaVerisi as MatProblem['semaVerisi'],
-        tabloVerisi: p.tabloVerisi,
+        tabloVerisi: p.tabloVerisi as MatProblemSeti['problemler'][0]['tabloVerisi'],
         kategori: settings.kategori || 'gercek-yasam',
         grafikVerisi: p.grafikVerisi as MatProblem['grafikVerisi'],
         puan: (p.puan as number) || 10,

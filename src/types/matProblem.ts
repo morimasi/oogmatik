@@ -25,6 +25,18 @@ export type ProblemSemaTipi =
     | 'geometrik-sekil'
     | 'zaman-tüneli'
     | 'para-matrisi'
+    | 'cetele-tablosu'
+    | 'siklik-tablosu'
+    | 'nesne-grafigi'
+    | 'nesne-izgarasi'
+    | 'grafik-tamamlama'
+    | 'lgs-ikili-grafik'
+    | 'lgs-alan-modeli'
+    | 'lgs-egim-koordinat'
+    | 'lgs-3d-acinim'
+    | 'lgs-ebob-ekok'
+    | 'lgs-karekok-uslu'
+    | 'lgs-pisagor-ucgen'
     | 'yok';
 
 // ─── Problem Kategorisi ───────────────────────────────────────
@@ -61,6 +73,8 @@ export interface MatProblem {
     istenenler: string;
     cozumAdimlari: string[];
     dogruCevap: string;
+    altSorular?: string[];
+    altCevaplar?: string[];
     gercekYasamBaglantisi: string;
     zorluk: MatZorluk;
     kazanimKodu: string;
@@ -78,6 +92,14 @@ export interface MatProblem {
         denklemSol?: string;
         denklemSag?: string;
         grafikSutunlari?: { etiket: string; deger: number }[];
+        lejantNotu?: string;
+        ceteleData?: Record<string, number>;
+        nesneGrafikData?: { kategori: string; adet: number; simge?: string }[];
+    };
+    tabloVerisi?: {
+        baslik?: string;
+        sutunlar?: string[];
+        satirData?: string[][];
     };
     kategori: ProblemKategorisi;
     grafikVerisi?: GrafikVerisi;
