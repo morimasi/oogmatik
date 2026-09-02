@@ -7,6 +7,20 @@ interface Props { problem: MatProblem; }
  * Akıllı Metin Temizleyici — SVG içine uzun paragraf girmesini engeller.
  * Sadece sayı, birim, kısa sembol veya açı değerlerini ayıklar.
  */
+/**
+ * Türkçe karakterleri İngilizce karşılıklarına normalize eder.
+ * Şema tipi eşleştirmeleri tip tanımındaki gerçek değerlerle
+ * (ç, ğ, ı, ö, ş, ü) çalışsın diye kullanılır.
+ */
+const normalizeTurkish = (str: string): string =>
+    str
+        .replace(/ç/g, 'c').replace(/Ç/g, 'C')
+        .replace(/ğ/g, 'g').replace(/Ğ/g, 'G')
+        .replace(/ı/g, 'i').replace(/I/g, 'I')
+        .replace(/ö/g, 'o').replace(/Ö/g, 'O')
+        .replace(/ş/g, 's').replace(/Ş/g, 'S')
+        .replace(/ü/g, 'u').replace(/Ü/g, 'U');
+
 const cleanLabel = (val?: unknown, fallback = '?'): string => {
     if (!val || typeof val !== 'string') return fallback;
     const str = val.trim();
@@ -203,74 +217,84 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
     const text = problem.soruMetni || '';
     const given = problem.verilenler || [];
     const lw = text.toLowerCase();
+    const nlw = normalizeTurkish(lw);
     const sinif = problem.sinif || 5;
 
     const st = (problem.semaTipi || '').toString().toLowerCase();
+    const nst = normalizeTurkish(st);
 
     // 🚨 Şema Yoksa Hiçbir Şey Render Etme! (Görsel Zorunluluğu Yoktur)
-    if (st === 'yok' || st === 'yoktur' || st === 'none') {
+    if (nst === 'yok' || nst === 'yoktur' || nst === 'none') {
         return null;
     }
 
     // ─── Akıllı Otomatik Şema ve Mod Tespiti (MEB & LGS Taksonomisi) ─────────────────
     let mode = '';
-    if (st.includes('cetele') || st.includes('çetele')) mode = 'cetele-tablosu';
-    else if (st.includes('siklik') || st.includes('sıklık')) mode = 'siklik-tablosu';
-    else if (st.includes('nesne-grafigi') || st.includes('nesne_grafigi') || st.includes('sekil-grafigi')) mode = 'nesne-grafigi';
-    else if (st.includes('nesne-izgarasi') || st.includes('izgara') || st.includes('kutu-modeli')) mode = 'nesne-izgarasi';
-    else if (st.includes('terazi') || st.includes('denklem-semasi')) mode = 'terazi';
-    else if (st.includes('abakus') || st.includes('basamak')) mode = 'abakus-basamak';
-    else if (st.includes('cetvel') || st.includes('olcme')) mode = 'cetvel-olcme';
-    else if (st.includes('birim-kare') || st.includes('kareli-zemin') || st.includes('grid')) mode = 'birim-kareli-zemin';
-    else if (st.includes('iletki') || st.includes('aciolcer')) mode = 'iletki-aciolcer';
-    else if (st.includes('paralelkenar') || st.includes('yamuk')) mode = 'paralelkenar-yamuk';
-    else if (st.includes('egim') || st.includes('koordinat') || st.includes('lgs-egim')) mode = 'egim';
-    else if (st.includes('acinim') || st.includes('3d') || st.includes('prizma-acinim')) mode = 'acinim';
-    else if (st.includes('cebir') || st.includes('karo') || st.includes('alan-modeli') || st.includes('lgs-alan')) mode = 'cebir-karo';
-    else if (st.includes('benzerlik') || st.includes('eslik')) mode = 'benzerlik';
-    else if (st.includes('paralel')) mode = 'paralel-acilar';
-    else if (st.includes('dilim') || st.includes('daire-dilim')) mode = 'daire-dilim';
-    else if (st.includes('olasilik') || st.includes('cark')) mode = 'olasilik';
-    else if (st.includes('venn') || st.includes('kume')) mode = 'venn';
-    else if (st.includes('asal') || st.includes('ebob') || st.includes('ekok') || st.includes('lgs-ebob')) mode = 'asal-agac';
-    else if (st.includes('yuzde') || st.includes('lgs-karekok')) mode = 'yuzde';
-    else if (st.includes('oruntu') || st.includes('oruntu-blok')) mode = 'oruntu';
-    else if (st.includes('taban-blok') || st.includes('onluk')) mode = 'taban-blok';
-    else if (st.includes('dogru') || st.includes('esitsizlik') || st.includes('sayı-doğrusu')) mode = 'sayi-dogru';
-    else if (st.includes('kesir-bloklari') || st.includes('kesir-pastasi') || st.includes('kesir')) mode = 'kesir-serit';
-    else if (st.includes('prizma') || st.includes('hacim')) mode = 'prizma';
-    else if (st.includes('para') || st.includes('para-matrisi')) mode = 'para-matrisi';
-    else if (st.includes('tablo')) mode = 'tablo';
-    else if (st.includes('geometrik') || st.includes('sekil') || st.includes('geometrik-sekil')) mode = 'geometrik';
-    else if (st.includes('zaman') || st.includes('saat') || st.includes('zaman-tuneli')) mode = 'saat';
-    else if (st.includes('oranti') || st.includes('oran') || st.includes('oran-oranti')) mode = 'orant';
-    else if (st.includes('grafik') || st.includes('lgs-ikili-grafik')) mode = 'ikili-grafik';
-    else if (st.includes('pisagor') || st.includes('lgs-pisagor-ucgen')) mode = 'pisagor';
-    else if (lw.includes('çetele tablosu')) mode = 'cetele-tablosu';
-    else if (lw.includes('sıklık tablosu')) mode = 'siklik-tablosu';
-    else if (lw.includes('nesne grafiği') || lw.includes('şekil grafiği')) mode = 'nesne-grafigi';
-    else if (lw.includes('daire grafiği') || (lw.includes('grafik') && lw.includes('açı'))) mode = 'ikili-grafik';
-    else if (lw.includes('pisagor') || (lw.includes('dik üçgen') && lw.includes('hipotenüs'))) mode = 'pisagor';
-    else if (lw.includes('eşitsizlik') || lw.includes('küçüktür') || lw.includes('büyüktür')) mode = 'sayi-dogru';
-    else if (lw.includes('eğim') || lw.includes('rampa') || lw.includes('koordinat düzlemi')) mode = 'egim';
-    else if (lw.includes('silindir') || lw.includes('açınım') || lw.includes('piramit')) mode = 'acinim';
-    else if (lw.includes('cebirsel') && (lw.includes('özdeşlik') || lw.includes('(a') || lw.includes('kare'))) mode = 'cebir-karo';
-    else if (lw.includes('benzerlik') || (lw.includes('eşlik') && lw.includes('üçgen'))) mode = 'benzerlik';
-    else if (lw.includes('paralel') && (lw.includes('kesen') || lw.includes('iç ters') || lw.includes('açı'))) mode = 'paralel-acilar';
-    else if (lw.includes('daire dilimi') || lw.includes('yay uzunluğu')) mode = 'daire-dilim';
-    else if (lw.includes('terazi') || lw.includes('kefe') || lw.includes('dengede')) mode = 'terazi';
-    else if (lw.includes('olasılık') || lw.includes('bilye') || lw.includes('çark')) mode = 'olasilik';
-    else if (lw.includes('venn') || lw.includes('küme') || lw.includes('kesişim')) mode = 'venn';
-    else if (lw.includes('asal çarpan') || lw.includes('çarpan ağacı') || lw.includes('ebob') || lw.includes('ekok')) mode = 'asal-agac';
-    else if (lw.includes('yüzde') || lw.includes('%')) mode = 'yuzde';
-    else if (lw.includes('örüntü') || lw.includes('adım')) mode = 'oruntu';
-    else if (lw.includes('onluk') && lw.includes('birlik')) mode = 'taban-blok';
-    else if (lw.includes('birim kesir') || (lw.includes('kesir') && sinif <= 4)) mode = 'kesir-serit';
-    else if (lw.includes('ondalık')) mode = 'ondalik';
-    else if (lw.includes('orantı') || lw.includes('doğru orantı') || lw.includes('ters orantı')) mode = 'orant';
-    else if (lw.includes('rasyonel') || lw.includes('tam sayı') || lw.includes('mutlak değer')) mode = 'sayi-dogru';
-    else if (lw.includes('dikdörtgen') || lw.includes('kare') || lw.includes('üçgen') || lw.includes('çember') || lw.includes('daire') || lw.includes('yamuk') || lw.includes('paralelkenar')) mode = 'geometrik';
-    else if (lw.includes('saat') || lw.includes('zaman')) mode = 'saat';
+    if (nst.includes('cetele')) mode = 'cetele-tablosu';
+    else if (nst.includes('siklik') || nst.includes('siklik')) mode = 'siklik-tablosu';
+    else if (nst.includes('nesne-grafigi') || nst.includes('nesne_grafigi') || nst.includes('sekil-grafigi')) mode = 'nesne-grafigi';
+    else if (nst.includes('kutu-modeli')) mode = 'kutu-modeli';
+    else if (nst.includes('nesne-izgarasi') || nst.includes('izgara')) mode = 'nesne-izgarasi';
+    else if (nst.includes('terazi') || nst.includes('denklem-semasi')) mode = 'terazi';
+    else if (nst.includes('abakus') || nst.includes('basamak')) mode = 'abakus-basamak';
+    else if (nst.includes('cetvel') || nst.includes('olcme')) mode = 'cetvel-olcme';
+    else if (nst.includes('birim-kare') || nst.includes('kareli-zemin') || nst.includes('grid')) mode = 'birim-kareli-zemin';
+    else if (nst.includes('iletki') || nst.includes('aciolcer')) mode = 'iletki-aciolcer';
+    else if (nst.includes('paralelkenar') || nst.includes('yamuk')) mode = 'paralelkenar-yamuk';
+    else if (nst.includes('egim') || nst.includes('koordinat') || nst.includes('lgs-egim')) mode = 'egim';
+    else if (nst.includes('acinim') || nst.includes('3d') || nst.includes('prizma-acinim')) mode = 'acinim';
+    else if (nst.includes('cebir') || nst.includes('karo') || nst.includes('alan-modeli') || nst.includes('lgs-alan')) mode = 'cebir-karo';
+    else if (nst.includes('benzerlik') || nst.includes('eslik')) mode = 'benzerlik';
+    else if (nst.includes('paralel')) mode = 'paralel-acilar';
+    else if (nst.includes('dilim') || nst.includes('daire-dilim')) mode = 'daire-dilim';
+    else if (nst.includes('olasilik') || nst.includes('cark')) mode = 'olasilik';
+    else if (nst.includes('parca-butun') || nst.includes('parca') || nst.includes('butun')) mode = 'venn';
+    else if (nst.includes('venn') || nst.includes('kume')) mode = 'venn';
+    else if (nst.includes('asal') || nst.includes('ebob') || nst.includes('ekok') || nst.includes('lgs-ebob')) mode = 'asal-agac';
+    else if (nst.includes('yuzde')) mode = 'yuzde';
+    else if (nst.includes('karekok') || nst.includes('uslu')) mode = 'karekok-uslu';
+    else if (nst.includes('oruntu') || nst.includes('oruntu-blok')) mode = 'oruntu';
+    else if (nst.includes('taban-blok') || nst.includes('onluk')) mode = 'taban-blok';
+    else if (nst.includes('esitsizlik')) mode = 'esitsizlik';
+    else if (nst.includes('dogru') || nst.includes('sayi-dogru')) mode = 'sayi-dogru';
+    else if (nst.includes('kesir-bloklari') || nst.includes('kesir-pastasi')) mode = 'kesir-pastasi';
+    else if (nst.includes('kesir')) mode = 'kesir-serit';
+    else if (nst.includes('prizma') || nst.includes('hacim')) mode = 'prizma';
+    else if (nst.includes('para') || nst.includes('para-matrisi')) mode = 'para-matrisi';
+    else if (nst.includes('tablo')) mode = 'tablo';
+    else if (nst.includes('geometrik') || nst.includes('sekil') || nst.includes('geometrik-sekil')) mode = 'geometrik';
+    else if (nst.includes('zaman') || nst.includes('saat') || nst.includes('zaman-tuneli')) mode = 'saat';
+    else if (nst.includes('oranti') || nst.includes('oran') || nst.includes('oran-oranti')) mode = 'orant';
+    else if (nst.includes('lgs-ikili-grafik')) mode = 'ikili-grafik';
+    else if (nst.includes('grafik-tamamlama')) mode = 'grafik-tamamlama';
+    else if (nst.includes('grafik')) mode = 'tekli-grafik';
+    else if (nst.includes('pisagor') || nst.includes('lgs-pisagor-ucgen')) mode = 'pisagor';
+    else if (nst.includes('cizim-alani') || nst.includes('cizim')) mode = 'cizim-alani';
+    else if (nlw.includes('cetele tablosu')) mode = 'cetele-tablosu';
+    else if (nlw.includes('siklik tablosu')) mode = 'siklik-tablosu';
+    else if (nlw.includes('nesne grafigi') || nlw.includes('sekil grafigi')) mode = 'nesne-grafigi';
+    else if (nlw.includes('daire grafigi') || (nlw.includes('grafik') && nlw.includes('aci'))) mode = 'ikili-grafik';
+    else if (nlw.includes('pisagor') || (nlw.includes('dik ucgen') && nlw.includes('hipotenus'))) mode = 'pisagor';
+    else if (nlw.includes('esitsizlik') || nlw.includes('kucuktur') || nlw.includes('buyuktur')) mode = 'esitsizlik';
+    else if (nlw.includes('egim') || nlw.includes('rampa') || nlw.includes('koordinat duzlemi')) mode = 'egim';
+    else if (nlw.includes('silindir') || nlw.includes('acinim') || nlw.includes('piramit')) mode = 'acinim';
+    else if (nlw.includes('cebirsel') && (nlw.includes('ozdeslik') || nlw.includes('(a') || nlw.includes('kare'))) mode = 'cebir-karo';
+    else if (nlw.includes('benzerlik') || (nlw.includes('eslik') && nlw.includes('ucgen'))) mode = 'benzerlik';
+    else if (nlw.includes('paralel') && (nlw.includes('kesen') || nlw.includes('ic ters') || nlw.includes('aci'))) mode = 'paralel-acilar';
+    else if (nlw.includes('daire dilimi') || nlw.includes('yay uzunlugu')) mode = 'daire-dilim';
+    else if (nlw.includes('terazi') || nlw.includes('kefe') || nlw.includes('dengede')) mode = 'terazi';
+    else if (nlw.includes('olasilik') || nlw.includes('bilye') || nlw.includes('cark')) mode = 'olasilik';
+    else if (nlw.includes('venn') || nlw.includes('kume') || nlw.includes('kesisim')) mode = 'venn';
+    else if (nlw.includes('asal carpan') || nlw.includes('carpan agaci') || nlw.includes('ebob') || nlw.includes('ekok')) mode = 'asal-agac';
+    else if (nlw.includes('yuzde') || nlw.includes('%')) mode = 'yuzde';
+    else if (nlw.includes('oruntu') || nlw.includes('adim')) mode = 'oruntu';
+    else if (nlw.includes('onluk') && nlw.includes('birlik')) mode = 'taban-blok';
+    else if (nlw.includes('birim kesir') || (nlw.includes('kesir') && sinif <= 4)) mode = 'kesir-serit';
+    else if (nlw.includes('ondalik')) mode = 'ondalik';
+    else if (nlw.includes('oranti') || nlw.includes('dogru oranti') || nlw.includes('ters oranti')) mode = 'orant';
+    else if (nlw.includes('rasyonel') || nlw.includes('tam sayi') || nlw.includes('mutlak deger')) mode = 'sayi-dogru';
+    else if (nlw.includes('dikdortgen') || nlw.includes('kare') || nlw.includes('ucgen') || nlw.includes('cember') || nlw.includes('daire') || nlw.includes('yamuk') || nlw.includes('paralelkenar')) mode = 'geometrik';
+    else if (nlw.includes('saat') || nlw.includes('zaman')) mode = 'saat';
     else {
         // Belirgin bir şema isteği veya kazanımı yoksa şema çizme!
         return null;
@@ -441,6 +465,118 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
 
     // ─── RENDER DİĞER LGS & MEB ŞEMALARI ──────────────────────────
 
+    if (mode === 'tekli-grafik') {
+        const grafikData = (sv.grafikSutunlari as { etiket: string; deger: number }[]) ||
+            Object.entries(parsedTextData).map(([etiket, deger]) => ({ etiket: etiket.slice(0, 8), deger }));
+        const maxVal = Math.max(1, ...grafikData.map((d) => d.deger));
+        const barCount = grafikData.length || 1;
+        const chartW = 220;
+        const chartH = 100;
+        const padL = 30;
+        const padB = 22;
+        const plotW = chartW - padL - 10;
+        const plotH = chartH - padB - 10;
+        const barW = Math.min(32, plotW / (barCount * 1.4));
+        const gap = (plotW - barW * barCount) / (barCount + 1);
+
+        return wrap('Veri Analizi — Sütun Grafiği', (
+            <svg viewBox={`0 0 ${chartW} ${chartH}`} className="w-full max-w-[240px] h-auto">
+                <line x1={padL} y1="8" x2={padL} y2={chartH - padB} stroke="#94a3b8" strokeWidth="1.5" />
+                <line x1={padL} y1={chartH - padB} x2={chartW - 8} y2={chartH - padB} stroke="#94a3b8" strokeWidth="1.5" />
+                {grafikData.map((d, i) => {
+                    const h = (d.deger / maxVal) * plotH;
+                    const x = padL + gap + i * (barW + gap);
+                    const y = chartH - padB - h;
+                    const colors = ['#0284c7', '#0d9488', '#f59e0b', '#e11d48', '#8b5cf6', '#10b981'];
+                    return (
+                        <g key={i}>
+                            <rect x={x} y={y} width={barW} height={h} fill={colors[i % colors.length]} rx="2" />
+                            <SvgBadgeText x={x + barW / 2} y={y - 4} text={String(d.deger)} fontSize={7} fill={colors[i % colors.length]} />
+                            <text x={x + barW / 2} y={chartH - padB + 10} fontSize="7" fontWeight="bold" fill="#475569" textAnchor="middle">{d.etiket}</text>
+                        </g>
+                    );
+                })}
+            </svg>
+        ));
+    }
+
+    if (mode === 'kutu-modeli') {
+        const kutu = (sv.kutuModeli as { parcaA?: string; parcaB?: string; toplam?: string }) || {};
+        const aLabel = cleanLabel(kutu.parcaA || given[0], 'A');
+        const bLabel = cleanLabel(kutu.parcaB || given[1], 'B');
+        const totalLabel = cleanLabel(kutu.toplam || given[2], 'Toplam');
+        return wrap('Singapur Kutu Modeli — Parça & Bütün', (
+            <svg viewBox="0 0 220 75" className="w-full max-w-[250px] h-auto">
+                <rect x="10" y="25" width="95" height="32" fill="#bae6fd" stroke="#0284c7" strokeWidth="2" rx="3" />
+                <rect x="115" y="25" width="95" height="32" fill="#a7f3d0" stroke="#059669" strokeWidth="2" rx="3" />
+                <line x1="10" y1="20" x2="210" y2="20" stroke="#334155" strokeWidth="1.5" strokeDasharray="4,2" />
+                <SvgBadgeText x={57} y={41} text={aLabel} fill="#0369a1" />
+                <SvgBadgeText x={162} y={41} text={bLabel} fill="#047857" />
+                <SvgBadgeText x={110} y={12} text={totalLabel} fill="#0f172a" />
+            </svg>
+        ));
+    }
+
+    if (mode === 'karekok-uslu') {
+        const kokEtiketler = (sv.etiketler || {}) as Record<string, string>;
+        const deger = cleanLabel(kokEtiketler['deger'] || given[0], '√20');
+        const yaklasik = cleanLabel(kokEtiketler['yaklasik'] || given[1], '4,47');
+        return wrap('Karekök & Üslü Sayı Doğrusu', (
+            <svg viewBox="0 0 260 55" className="w-full max-w-[280px] h-auto">
+                <line x1="15" y1="28" x2="245" y2="28" stroke="#64748b" strokeWidth="2" />
+                <polygon points="245,28 238,24 238,32" fill="#64748b" />
+                {[0, 1, 2, 3, 4, 5].map((n, i) => (
+                    <g key={n}>
+                        <line x1={25 + i * 40} y1="23" x2={25 + i * 40} y2="33" stroke="#94a3b8" strokeWidth="1.5" />
+                        <text x={25 + i * 40} y="45" fontSize="8" fontWeight="bold" fill="#475569" textAnchor="middle">{n}</text>
+                    </g>
+                ))}
+                <circle cx="104" cy="28" r="5" fill="#0284c7" stroke="#ffffff" strokeWidth="1.5" />
+                <SvgBadgeText x={104} y={14} text={`${deger} ≈ ${yaklasik}`} fill="#0284c7" bgFill="#e0f2fe" />
+            </svg>
+        ));
+    }
+
+    if (mode === 'grafik-tamamlama') {
+        const grafikData = (sv.grafikSutunlari as { etiket: string; deger: number }[]) ||
+            Object.entries(parsedTextData).map(([etiket, deger]) => ({ etiket: etiket.slice(0, 6), deger }));
+        const partial = grafikData.slice(0, 3);
+        return wrap('Grafik Tamamlama — Eksik Sütunları Doldur', (
+            <svg viewBox="0 0 200 95" className="w-full max-w-[230px] h-auto">
+                <line x1="25" y1="10" x2="25" y2="70" stroke="#94a3b8" strokeWidth="1.5" />
+                <line x1="25" y1="70" x2="185" y2="70" stroke="#94a3b8" strokeWidth="1.5" />
+                {partial.map((d, i) => {
+                    const x = 40 + i * 48;
+                    return (
+                        <g key={i}>
+                            <rect x={x} y={70 - d.deger} width="28" height={d.deger} fill="#0284c7" rx="2" />
+                            <SvgBadgeText x={x + 14} y={62 - d.deger} text={String(d.deger)} fontSize={7} fill="#0284c7" />
+                            <text x={x + 14} y={80} fontSize="7" fontWeight="bold" fill="#475569" textAnchor="middle">{d.etiket}</text>
+                        </g>
+                    );
+                })}
+                <g>
+                    <rect x={136} y="35" width="28" height="35" fill="#f1f5f9" stroke="#f59e0b" strokeWidth="2" strokeDasharray="4,3" rx="2" />
+                    <text x="150" y="55" fontSize="10" fontWeight="bold" fill="#f59e0b" textAnchor="middle">?</text>
+                    <text x="150" y="80" fontSize="7" fontWeight="bold" fill="#475569" textAnchor="middle">Eksik</text>
+                </g>
+            </svg>
+        ));
+    }
+
+    if (mode === 'cizim-alani') return wrap('Kareli Çizim Alanı — Modelleme Yap', (
+        <svg viewBox="0 0 180 110" className="w-full max-w-[200px] h-auto">
+            <defs>
+                <pattern id="cizim-grid" width="15" height="15" patternUnits="userSpaceOnUse">
+                    <path d="M 15 0 L 0 0 0 15" fill="none" stroke="#cbd5e1" strokeWidth="1" />
+                </pattern>
+            </defs>
+            <rect width="180" height="110" fill="url(#cizim-grid)" />
+            <rect x="10" y="10" width="160" height="90" fill="none" stroke="#94a3b8" strokeWidth="2" strokeDasharray="4,3" rx="4" />
+            <text x="90" y="60" fontSize="10" fontWeight="bold" fill="#94a3b8" textAnchor="middle">Çözümünüzü buraya çiziniz</text>
+        </svg>
+    ));
+
     if (mode === 'ikili-grafik') return wrap('Veri Analizi — Sütun & Daire Grafiği', (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-[260px]">
             <div className="flex flex-col items-center">
@@ -520,7 +656,7 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
     ));
 
     if (mode === 'acinim') {
-        const isSil = lw.includes('silindir');
+        const isSil = nlw.includes('silindir');
         return wrap(isSil ? 'Silindir Açınımı' : 'Kare Dik Piramit Açınımı', (
             isSil ? (
                 <svg viewBox="0 0 180 110" className="w-full max-w-[210px] h-auto">
@@ -897,9 +1033,9 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
     }
 
     // ─── GEOMETRİK VARSAYILAN ŞEKİL ────────────────────────
-    const hasCember = lw.includes('çember') || lw.includes('daire');
-    const hasKare = lw.includes('kare') && !lw.includes('dikdörtgen');
-    const hasYamuk = lw.includes('yamuk');
+    const hasCember = nlw.includes('cember') || nlw.includes('daire');
+    const hasKare = nlw.includes('kare') && !nlw.includes('dikdortgen');
+    const hasYamuk = nlw.includes('yamuk');
 
     return wrap('Geometrik Şekil Modeli', (
         <svg viewBox="0 0 180 95" className="w-full max-w-[210px] h-auto">

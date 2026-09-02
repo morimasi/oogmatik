@@ -51,7 +51,7 @@ const defaultAyarlar: MatProblemAyarlari = {
     ozelTalimatlar: undefined,
     ozelKonu: undefined,
     kategori: 'gercek-yasam',
-    semaTipiTercihi: 'yok',
+    semaTipiTercihi: 'otomatik',
     verilenlerGosterilsinMi: true,
     cozumKutusuGosterilsinMi: true,
     isLgsMode: false,

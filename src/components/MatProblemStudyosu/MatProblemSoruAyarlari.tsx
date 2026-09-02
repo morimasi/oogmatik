@@ -21,19 +21,40 @@ const kategoriler: { value: ProblemKategorisi; label: string; icon: string }[] =
 
 const semaSecenekleri: { value: ProblemSemaTipi; label: string; desc: string; icon: string }[] = [
     { value: 'otomatik', label: '🤖 Otomatik (AI Akıllı Seçim)', desc: 'AI, problem türüne göre en uygun şema/görseli otomatik belirler', icon: '✨' },
-    { value: 'kutu-modeli', label: 'Singapur Kutu Modeli', desc: 'Parça-bütün ve kat ilişkisi kutu şeması', icon: '📦' },
-    { value: 'sayı-doğrusu', label: 'Sayı Doğrusu Modeli', desc: 'Adımlı ve yönlü sayı çizgisi', icon: '📏' },
-    { value: 'kesir-blokları', label: 'Kesir Şeriti & Blok Şeması', desc: 'Bütün, yarım, çeyrek kesir alanı', icon: '🧩' },
-    { value: 'geometrik-sekil', label: 'Geometri & Koordinat Şeması', desc: 'Çevre, alan, açı ve şekil çizimi', icon: '📐' },
-    { value: 'zaman-tüneli', label: 'Zaman Çizelgesi & Kadran', desc: 'Saat, süre ve kronolojik zaman akışı', icon: '⏳' },
-    { value: 'para-matrisi', label: 'Bütçe & Banknot Şeması', desc: 'TL, kuruş ve para üstü matrisi', icon: '🪙' },
-    { value: 'tablo', label: 'Veri & Karşılaştırma Tablosu', desc: 'Çetele ve sıklık tablosu', icon: '📊' },
-    { value: 'grafik', label: 'Sütun / Çizgi Grafiği', desc: 'Görsel istatistik grafiği', icon: '📈' },
-    { value: 'denklem-şeması', label: 'Bilinmeyenli Denge Terazisi', desc: 'Denklem ve eşitlik terazisi', icon: '⚖️' },
-    { value: 'çizim-alanı', label: 'Öğrenci Kareli Çizim Alanı', desc: 'Çözüm ve modelleme ızgarası', icon: '🎨' },
-    { value: 'parça-bütün', label: 'Venn & Küme Ağacı', desc: 'Kümeler ve ilişki şeması', icon: '⭕' },
-    { value: 'oran-orantı', label: 'Oran Çarkı & Kat Şeması', desc: 'Doğru ve ters orantı tablosu', icon: '🔄' },
-    { value: 'yok', label: 'Şema Yok', desc: 'Metin tabanlı açık uçlu problem', icon: '📝' },
+    { value: 'kutu-modeli', label: '📦 Singapur Kutu Modeli', desc: 'Parça-bütün ve kat ilişkisi kutu şeması', icon: '📦' },
+    { value: 'sayı-doğrusu', label: '📏 Sayı Doğrusu Modeli', desc: 'Adımlı ve yönlü sayı çizgisi', icon: '📏' },
+    { value: 'kesir-blokları', label: '🧩 Kesir Şeriti & Blok Şeması', desc: 'Bütün, yarım, çeyrek kesir alanı', icon: '🧩' },
+    { value: 'kesir-pastasi', label: '🥧 Kesir Pastası Modeli', desc: 'Daire dilimi kesir modeli', icon: '🥧' },
+    { value: 'geometrik-sekil', label: '📐 Geometri & Koordinat Şeması', desc: 'Çevre, alan, açı ve şekil çizimi', icon: '📐' },
+    { value: 'zaman-tüneli', label: '⏳ Zaman Çizelgesi & Kadran', desc: 'Saat, süre ve kronolojik zaman akışı', icon: '⏳' },
+    { value: 'para-matrisi', label: '🪙 Bütçe & Banknot Şeması', desc: 'TL, kuruş ve para üstü matrisi', icon: '🪙' },
+    { value: 'tablo', label: '📋 Veri & Karşılaştırma Tablosu', desc: 'Veri tablosu ve karşılaştırma', icon: '📋' },
+    { value: 'cetele-tablosu', label: '✏️ Çetele Tablosu', desc: 'Veri toplama ve çetele sayma tablosu', icon: '✏️' },
+    { value: 'siklik-tablosu', label: '📊 Sıklık Tablosu', desc: 'Frekans tablosu ve yorumlama', icon: '📊' },
+    { value: 'nesne-grafigi', label: '🧸 Nesne / Şekil Grafiği', desc: 'Emojili nesne grafiği ve lejant', icon: '🧸' },
+    { value: 'nesne-izgarasi', label: '🔲 Nesne Izgarası', desc: 'Sayma kutusu ve şekil ızgarası', icon: '🔲' },
+    { value: 'grafik', label: '📈 Sütun / Çizgi Grafiği', desc: 'Görsel istatistik grafiği', icon: '📈' },
+    { value: 'grafik-tamamlama', label: '✏️ Grafik Tamamlama', desc: 'Eksik sütunları tamamlama', icon: '✏️' },
+    { value: 'denklem-şeması', label: '⚖️ Bilinmeyenli Denge Terazisi', desc: 'Denklem ve eşitlik terazisi', icon: '⚖️' },
+    { value: 'terazi-denklem', label: '⚖️ Terazi Denklem Modeli', desc: 'Kefeli terazi denge şeması', icon: '⚖️' },
+    { value: 'çizim-alanı', label: '🎨 Öğrenci Kareli Çizim Alanı', desc: 'Çözüm ve modelleme ızgarası', icon: '🎨' },
+    { value: 'parça-bütün', label: '⭕ Venn & Küme Ağacı', desc: 'Kümeler ve ilişki şeması', icon: '⭕' },
+    { value: 'oran-orantı', label: '🔄 Oran Çarkı & Kat Şeması', desc: 'Doğru ve ters orantı tablosu', icon: '🔄' },
+    { value: 'abakus-basamak', label: '🔢 Abaküs & Basamak Değeri', desc: 'Basamak değeri ve abaküs modeli', icon: '🔢' },
+    { value: 'cetvel-olcme', label: '📐 Cetvel & Uzunluk Ölçümü', desc: 'Ölçekli cetvel ve uzunluk', icon: '📐' },
+    { value: 'oruntu-blok', label: '🔷 Şekil Örüntüsü', desc: 'Adım adım blok örüntüsü', icon: '🔷' },
+    { value: 'birim-kareli-zemin', label: '⬜ Birim Kareli Zemin', desc: 'Kareli kağıtta alan/çevre', icon: '⬜' },
+    { value: 'paralelkenar-yamuk', label: '📏 Paralelkenar / Yamuk', desc: 'Yükseklik ve alan şeması', icon: '📏' },
+    { value: 'iletki-aciolcer', label: '📐 İletki / Açıölçer', desc: 'Açı ölçümü ve iletki modeli', icon: '📐' },
+    { value: 'saat-zaman', label: '🕐 Saat & Zaman Kadranı', desc: 'Akrep/yelkovan ve zaman', icon: '🕐' },
+    { value: 'lgs-ikili-grafik', label: '📊 LGS İkili Grafik', desc: 'Sütun + daire grafiği analizi', icon: '📊' },
+    { value: 'lgs-alan-modeli', label: '🟦 LGS Cebirsel Alan Modeli', desc: 'Özdeşlik ve kare modeli', icon: '🟦' },
+    { value: 'lgs-egim-koordinat', label: '📉 LGS Eğim & Koordinat', desc: 'Rampa, eğim ve koordinat düzlemi', icon: '📉' },
+    { value: 'lgs-3d-acinim', label: '🧊 LGS 3D Açınım', desc: 'Silindir/piramit açınımı', icon: '🧊' },
+    { value: 'lgs-ebob-ekok', label: '🔢 LGS EBOB-EKOK', desc: 'Asal çarpan ağacı ve EBOB-EKOK', icon: '🔢' },
+    { value: 'lgs-karekok-uslu', label: '√ LGS Karekök & Üslü', desc: 'Karekök ve üslü sayı doğrusu', icon: '√' },
+    { value: 'lgs-pisagor-ucgen', label: '📐 LGS Pisagor Üçgeni', desc: 'Dik üçgen ve hipotenüs', icon: '📐' },
+    { value: 'yok', label: '📝 Şema Yok', desc: 'Metin tabanlı açık uçlu problem', icon: '📝' },
 ];
 
 export const MatProblemSoruAyarlari: React.FC<MatProblemSoruAyarlariProps> = ({ ayarlar, onAyarlarChange }) => {
@@ -124,7 +145,7 @@ export const MatProblemSoruAyarlari: React.FC<MatProblemSoruAyarlariProps> = ({ 
                     <label className="text-[9px] font-bold text-[var(--text-secondary)] uppercase tracking-wider">
                         Şema & Görselleştirme Tercihi
                     </label>
-                    <span className="text-[9px] font-semibold text-cyan-400">14 Profesyonel Şema</span>
+                    <span className="text-[9px] font-semibold text-cyan-400">{semaSecenekleri.length - 1} Profesyonel Şema</span>
                 </div>
                 <select
                     value={ayarlar.semaTipiTercihi}

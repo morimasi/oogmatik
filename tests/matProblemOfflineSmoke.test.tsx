@@ -1,9 +1,13 @@
 /**
  * MatProblemStudyosu — Offline Generator & Auto-Answer Merger Smoke Test
+ * @vitest-environment jsdom
  */
 
 import { describe, it, expect } from 'vitest';
+import { render } from '@testing-library/react';
 import { generateOfflineMatProblemSeti } from '../src/services/offlineGenerators/mathProblemOffline';
+import { MatProblemSemaView } from '../src/components/MatProblemStudyosu/MatProblemSemaView';
+import type { MatProblem } from '../src/types/matProblem';
 
 describe('MatProblem Offline Generator', () => {
     it('1-8. sınıf için en az 3 problem üretir (default 5)', () => {
@@ -96,5 +100,62 @@ describe('MatProblem Offline Generator', () => {
         // En az bir problem Zor olmalı (rotasyon)
         const zorSayisi = set.problemler.filter((p) => p.zorluk === 'Zor').length;
         expect(zorSayisi).toBeGreaterThan(0);
+    });
+
+    it('Offline generator tarafından üretilen her semaTipi MatProblemSemaView tarafından render edilebiliyor', () => {
+        const set = generateOfflineMatProblemSeti({
+            sinif: 5,
+            secilenUniteler: [],
+            secilenKazanimlar: [],
+            problemSayisi: 10,
+            zorlukSeviyesi: 'Otomatik',
+            gorselVeriEklensinMi: false,
+            kategori: 'gercek-yasam',
+            semaTipiTercihi: 'otomatik',
+            verilenlerGosterilsinMi: true,
+            cozumKutusuGosterilsinMi: true,
+        });
+
+        for (const p of set.problemler) {
+            if (p.semaTipi === 'yok') continue;
+            const { container } = render(<MatProblemSemaView problem={p} />);
+            expect(container.innerHTML.trim().length).toBeGreaterThan(0);
+        }
+    });
+
+    it('Türkçe karakterli semaTipi değerleri de doğru şekilde render ediliyor', () => {
+        const base: MatProblem = {
+            id: 'test-1',
+            soruMetni: 'Test problemi metni',
+            verilenler: ['Veri 1: 5', 'Veri 2: 8'],
+            istenenler: 'Sonucu bulunuz.',
+            cozumAdimlari: ['Adım 1', 'Adım 2'],
+            dogruCevap: '13',
+            gercekYasamBaglantisi: 'Test',
+            zorluk: 'Orta',
+            kazanimKodu: 'M.5.1.1.1',
+            kazanimMetni: 'Test kazanımı',
+            sinif: 5,
+            semaTipi: 'yok',
+            kategori: 'gercek-yasam',
+            puan: 10,
+            tahminiSure: 120,
+        };
+
+        const turkishTypes: MatProblem['semaTipi'][] = [
+            'sayı-doğrusu',
+            'denklem-şeması',
+            'çizim-alanı',
+            'parça-bütün',
+            'kesir-blokları',
+            'zaman-tüneli',
+            'oran-orantı',
+        ];
+
+        for (const semaTipi of turkishTypes) {
+            const problem = { ...base, semaTipi };
+            const { container } = render(<MatProblemSemaView problem={problem} />);
+            expect(container.innerHTML.trim().length, `semaTipi "${semaTipi}" render edilemedi`).toBeGreaterThan(0);
+        }
     });
 });

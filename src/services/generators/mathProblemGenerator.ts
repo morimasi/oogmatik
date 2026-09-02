@@ -150,7 +150,7 @@ const PROBLEM_SCHEMA = {
                     zorluk: { type: 'STRING' },
                     kazanimKodu: { type: 'STRING' },
                     kazanimMetni: { type: 'STRING', description: 'MEB kazanım açıklaması (öğretmen/veli bilgi kartı için zorunlu)' },
-                    semaTipi: { type: 'STRING', description: 'cetele-tablosu, siklik-tablosu, nesne-grafigi, nesne-izgarasi, lgs-ikili-grafik, lgs-alan-modeli, lgs-egim-koordinat, lgs-3d-acinim, lgs-ebob-ekok, lgs-karekok-uslu, lgs-pisagor-ucgen, kutu-modeli, sayi-dogrusu, yok vb.' },
+                    semaTipi: { type: 'STRING', description: 'cetele-tablosu, siklik-tablosu, nesne-grafigi, nesne-izgarasi, kutu-modeli, sayi-dogrusu, denklem-semasi, cizim-alani, parca-butun, oran-oranti, kesir-bloklari, geometrik-sekil, zaman-tuneli, para-matrisi, grafik, grafik-tamamlama, kesir-pastasi, saat-zaman, abakus-basamak, cetvel-olcme, oruntu-blok, birim-kareli-zemin, paralelkenar-yamuk, terazi-denklem, iletki-aciolcer, lgs-ikili-grafik, lgs-alan-modeli, lgs-egim-koordinat, lgs-3d-acinim, lgs-ebob-ekok, lgs-karekok-uslu, lgs-pisagor-ucgen, yok. NOT: Kullanici tercihi otomatik ise sen en uygununu sec, yok ise sadece yok kullan.' },
                     semaVerisi: {
                         type: 'OBJECT',
                         properties: {
