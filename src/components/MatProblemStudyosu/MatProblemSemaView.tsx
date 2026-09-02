@@ -218,26 +218,39 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
     else if (st.includes('siklik') || st.includes('sıklık')) mode = 'siklik-tablosu';
     else if (st.includes('nesne-grafigi') || st.includes('nesne_grafigi')) mode = 'nesne-grafigi';
     else if (st.includes('nesne-izgarasi') || st.includes('izgara')) mode = 'nesne-izgarasi';
+    else if (st.includes('terazi')) mode = 'terazi';
+    else if (st.includes('abakus') || st.includes('basamak')) mode = 'abakus-basamak';
+    else if (st.includes('cetvel') || st.includes('olcme')) mode = 'cetvel-olcme';
+    else if (st.includes('birim-kare') || st.includes('kareli-zemin') || st.includes('grid')) mode = 'birim-kareli-zemin';
+    else if (st.includes('iletki') || st.includes('aciolcer')) mode = 'iletki-aciolcer';
+    else if (st.includes('paralelkenar') || st.includes('yamuk')) mode = 'paralelkenar-yamuk';
+    else if (st.includes('egim') || st.includes('koordinat')) mode = 'egim';
+    else if (st.includes('acinim') || st.includes('3d')) mode = 'acinim';
+    else if (st.includes('cebir') || st.includes('karo') || st.includes('alan-modeli')) mode = 'cebir-karo';
+    else if (st.includes('benzerlik') || st.includes('eslik')) mode = 'benzerlik';
+    else if (st.includes('paralel')) mode = 'paralel-acilar';
+    else if (st.includes('dilim') || st.includes('daire-dilim')) mode = 'daire-dilim';
+    else if (st.includes('olasilik') || st.includes('cark')) mode = 'olasilik';
+    else if (st.includes('venn') || st.includes('kume')) mode = 'venn';
+    else if (st.includes('asal') || st.includes('ebob') || st.includes('ekok')) mode = 'asal-agac';
+    else if (st.includes('yuzde')) mode = 'yuzde';
+    else if (st.includes('oruntu')) mode = 'oruntu';
+    else if (st.includes('taban-blok') || st.includes('onluk')) mode = 'taban-blok';
+    else if (st.includes('dogru') || st.includes('esitsizlik')) mode = 'sayi-dogru';
+    else if (st.includes('kesir')) mode = 'kesir-serit';
+    else if (st.includes('prizma') || st.includes('hacim')) mode = 'prizma';
     else if (st.includes('tablo')) mode = 'tablo';
     else if (st.includes('geometrik') || st.includes('sekil')) mode = 'geometrik';
-    else if (st.includes('zaman')) mode = 'saat';
-    else if (st.includes('kesir')) mode = 'kesir-serit';
+    else if (st.includes('zaman') || st.includes('saat')) mode = 'saat';
     else if (st.includes('oranti') || st.includes('oran')) mode = 'orant';
     else if (st.includes('grafik')) mode = 'ikili-grafik';
     else if (st.includes('pisagor')) mode = 'pisagor';
-    else if (st.includes('cebir')) mode = 'cebir-karo';
-    else if (st.includes('venn')) mode = 'venn';
-    else if (st.includes('asal')) mode = 'asal-agac';
-    else if (st.includes('yuzde')) mode = 'yuzde';
-    else if (st.includes('oruntu')) mode = 'oruntu';
-    else if (st.includes('taban')) mode = 'taban-blok';
-    else if (st.includes('dogru') || st.includes('esitsizlik')) mode = 'sayi-dogru';
     else if (lw.includes('çetele tablosu')) mode = 'cetele-tablosu';
     else if (lw.includes('sıklık tablosu')) mode = 'siklik-tablosu';
     else if (lw.includes('nesne grafiği') || lw.includes('şekil grafiği')) mode = 'nesne-grafigi';
     else if (lw.includes('daire grafiği') || (lw.includes('grafik') && lw.includes('açı'))) mode = 'ikili-grafik';
     else if (lw.includes('pisagor') || (lw.includes('dik üçgen') && lw.includes('hipotenüs'))) mode = 'pisagor';
-    else if (lw.includes('eşitsizlik') || lw.includes('küçüktür') || lw.includes('büyüktür')) mode = 'esitsizlik';
+    else if (lw.includes('eşitsizlik') || lw.includes('küçüktür') || lw.includes('büyüktür')) mode = 'sayi-dogru';
     else if (lw.includes('eğim') || lw.includes('rampa') || lw.includes('koordinat düzlemi')) mode = 'egim';
     else if (lw.includes('silindir') || lw.includes('açınım') || lw.includes('piramit')) mode = 'acinim';
     else if (lw.includes('cebirsel') && (lw.includes('özdeşlik') || lw.includes('(a') || lw.includes('kare'))) mode = 'cebir-karo';
@@ -252,17 +265,15 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
     else if (lw.includes('örüntü') || lw.includes('adım')) mode = 'oruntu';
     else if (lw.includes('onluk') && lw.includes('birlik')) mode = 'taban-blok';
     else if (lw.includes('birim kesir') || (lw.includes('kesir') && sinif <= 4)) mode = 'kesir-serit';
-    else if (lw.includes('ondalık') || lw.includes('yüzde')) mode = 'ondalik';
+    else if (lw.includes('ondalık')) mode = 'ondalik';
     else if (lw.includes('orantı') || lw.includes('doğru orantı') || lw.includes('ters orantı')) mode = 'orant';
     else if (lw.includes('rasyonel') || lw.includes('tam sayı') || lw.includes('mutlak değer')) mode = 'sayi-dogru';
-    else if (lw.includes('ışın') || lw.includes('doğru parçası') || lw.includes('ışın çizgisi')) mode = 'dogru-isin';
-    else if (lw.includes('prizma') || lw.includes('hacim') || lw.includes('görünüm') || lw.includes('yüzey alanı')) mode = 'prizma';
-    else if (lw.includes('tablo') || lw.includes('çetele') || lw.includes('sıklık')) mode = 'tablo';
     else if (lw.includes('dikdörtgen') || lw.includes('kare') || lw.includes('üçgen') || lw.includes('çember') || lw.includes('daire') || lw.includes('yamuk') || lw.includes('paralelkenar')) mode = 'geometrik';
     else if (lw.includes('saat') || lw.includes('zaman')) mode = 'saat';
-    else if (sinif === 1) mode = 'nesne-say';
-    else if (sinif === 2) mode = 'cetele-tablosu';
-    else mode = 'geometrik';
+    else {
+        // Belirgin bir şema isteği veya kazanımı yoksa şema çizme!
+        return null;
+    }
 
     const sv = (problem.semaVerisi || {}) as Record<string, unknown>;
     const tv = (problem as unknown as Record<string, unknown>).tabloVerisi as Record<string, unknown> | undefined;
@@ -577,16 +588,20 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
         </svg>
     ));
 
-    if (mode === 'terazi') return wrap('Denklem — İki Kefeli Terazi Dengesi', (
-        <svg viewBox="0 0 210 85" className="w-full max-w-[240px] h-auto">
-            <polygon points="105,48 92,75 118,75" fill="#475569" />
-            <line x1="20" y1="48" x2="190" y2="48" stroke="#334155" strokeWidth="3" />
-            <path d="M 20,48 L 10,65 L 60,65 Z" fill="#e0f2fe" stroke="#0284c7" strokeWidth="1.5" />
-            <path d="M 190,48 L 160,65 L 210,65 Z" fill="#e0f2fe" stroke="#0284c7" strokeWidth="1.5" />
-            <SvgBadgeText x={35} y={60} text={cleanLabel(given[0], '2x + 5')} fill="#0369a1" />
-            <SvgBadgeText x={185} y={60} text={cleanLabel(given[1], '25 kg')} fill="#0369a1" />
-        </svg>
-    ));
+    if (mode === 'terazi') {
+        const leftExpr = given[0] || (Object.keys(parsedTextData)[0] ? `${Object.keys(parsedTextData)[0]}: ${Object.values(parsedTextData)[0]}` : 'Sol Kefe');
+        const rightExpr = given[1] || (Object.keys(parsedTextData)[1] ? `${Object.keys(parsedTextData)[1]}: ${Object.values(parsedTextData)[1]}` : 'Sağ Kefe');
+        return wrap('Denklem — İki Kefeli Terazi Dengesi', (
+            <svg viewBox="0 0 210 85" className="w-full max-w-[240px] h-auto">
+                <polygon points="105,48 92,75 118,75" fill="#475569" />
+                <line x1="20" y1="48" x2="190" y2="48" stroke="#334155" strokeWidth="3" />
+                <path d="M 20,48 L 10,65 L 60,65 Z" fill="#e0f2fe" stroke="#0284c7" strokeWidth="1.5" />
+                <path d="M 190,48 L 160,65 L 210,65 Z" fill="#e0f2fe" stroke="#0284c7" strokeWidth="1.5" />
+                <SvgBadgeText x={35} y={60} text={cleanLabel(leftExpr, 'Sol Kefe')} fill="#0369a1" />
+                <SvgBadgeText x={185} y={60} text={cleanLabel(rightExpr, 'Sağ Kefe')} fill="#0369a1" />
+            </svg>
+        ));
+    }
 
     if (mode === 'olasilik') return wrap('Olasılık — Şans Çarkı', (
         <svg viewBox="0 0 110 110" className="w-full max-w-[130px] h-auto">
@@ -610,35 +625,42 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
         </svg>
     ));
 
-    if (mode === 'asal-agac') return wrap('Asal Çarpan Ağacı', (
-        <svg viewBox="0 0 170 105" className="w-full max-w-[190px] h-auto">
-            <circle cx="85" cy="18" r="14" fill="#38bdf8" stroke="#0284c7" strokeWidth="1.5" />
-            <text x="85" y="22" fontSize="9" fontWeight="bold" fill="#ffffff" textAnchor="middle">36</text>
-            <line x1="75" y1="28" x2="48" y2="50" stroke="#94a3b8" strokeWidth="1.5" />
-            <line x1="95" y1="28" x2="122" y2="50" stroke="#94a3b8" strokeWidth="1.5" />
-            <circle cx="48" cy="58" r="12" fill="#a7f3d0" stroke="#059669" strokeWidth="1.5" />
-            <text x="48" y="62" fontSize="9" fontWeight="bold" fill="#047857" textAnchor="middle">2</text>
-            <circle cx="122" cy="58" r="12" fill="#e0f2fe" stroke="#0284c7" strokeWidth="1.5" />
-            <text x="122" y="62" fontSize="9" fontWeight="bold" fill="#0369a1" textAnchor="middle">18</text>
-            <line x1="122" y1="70" x2="102" y2="90" stroke="#94a3b8" strokeWidth="1.5" />
-            <line x1="122" y1="70" x2="142" y2="90" stroke="#94a3b8" strokeWidth="1.5" />
-            <circle cx="102" cy="96" r="9" fill="#a7f3d0" stroke="#059669" strokeWidth="1.5" />
-            <text x="102" y="99" fontSize="8" fontWeight="bold" fill="#047857" textAnchor="middle">2</text>
-            <circle cx="142" cy="96" r="9" fill="#fef08a" stroke="#ca8a04" strokeWidth="1.5" />
-            <text x="142" y="99" fontSize="8" fontWeight="bold" fill="#854d0e" textAnchor="middle">9</text>
-        </svg>
-    ));
+    if (mode === 'asal-agac') {
+        const targetNum = Object.values(parsedTextData)[0] || 36;
+        return wrap(`Asal Çarpan Ağacı (${targetNum})`, (
+            <svg viewBox="0 0 170 105" className="w-full max-w-[190px] h-auto">
+                <circle cx="85" cy="18" r="14" fill="#38bdf8" stroke="#0284c7" strokeWidth="1.5" />
+                <text x="85" y="22" fontSize="9" fontWeight="bold" fill="#ffffff" textAnchor="middle">{targetNum}</text>
+                <line x1="75" y1="28" x2="48" y2="50" stroke="#94a3b8" strokeWidth="1.5" />
+                <line x1="95" y1="28" x2="122" y2="50" stroke="#94a3b8" strokeWidth="1.5" />
+                <circle cx="48" cy="58" r="12" fill="#a7f3d0" stroke="#059669" strokeWidth="1.5" />
+                <text x="48" y="62" fontSize="9" fontWeight="bold" fill="#047857" textAnchor="middle">2</text>
+                <circle cx="122" cy="58" r="12" fill="#e0f2fe" stroke="#0284c7" strokeWidth="1.5" />
+                <text x="122" y="62" fontSize="9" fontWeight="bold" fill="#0369a1" textAnchor="middle">{Math.round(targetNum / 2)}</text>
+                <line x1="122" y1="70" x2="102" y2="90" stroke="#94a3b8" strokeWidth="1.5" />
+                <line x1="122" y1="70" x2="142" y2="90" stroke="#94a3b8" strokeWidth="1.5" />
+                <circle cx="102" cy="96" r="9" fill="#a7f3d0" stroke="#059669" strokeWidth="1.5" />
+                <text x="102" y="99" fontSize="8" fontWeight="bold" fill="#047857" textAnchor="middle">2</text>
+                <circle cx="142" cy="96" r="9" fill="#fef08a" stroke="#ca8a04" strokeWidth="1.5" />
+                <text x="142" y="99" fontSize="8" fontWeight="bold" fill="#854d0e" textAnchor="middle">{Math.round(targetNum / 4)}</text>
+            </svg>
+        ));
+    }
 
-    if (mode === 'yuzde') return wrap('Yüzde (%) Modeli', (
-        <div className="flex flex-col items-center gap-1 w-full max-w-[200px]">
-            <div className="grid grid-cols-10 gap-0.5 w-full max-w-[160px]">
-                {Array.from({ length: 100 }).map((_, i) => (
-                    <div key={i} className={`aspect-square rounded-px border ${i < 35 ? 'bg-cyan-500 border-cyan-700' : 'bg-slate-100 border-slate-200'}`} />
-                ))}
+    if (mode === 'yuzde') {
+        const yuzdeMatch = text.match(/%\s*(\d+)/) || text.match(/(\d+)\s*%/);
+        const val = yuzdeMatch ? Math.min(parseInt(yuzdeMatch[1], 10), 100) : (Object.values(parsedTextData)[0] || 35);
+        return wrap(`Yüzde (%) Modeli — %${val}`, (
+            <div className="flex flex-col items-center gap-1 w-full max-w-[200px]">
+                <div className="grid grid-cols-10 gap-0.5 w-full max-w-[160px]">
+                    {Array.from({ length: 100 }).map((_, i) => (
+                        <div key={i} className={`aspect-square rounded-px border ${i < val ? 'bg-cyan-500 border-cyan-700' : 'bg-slate-100 border-slate-200'}`} />
+                    ))}
+                </div>
+                <span className="text-[9px] font-extrabold text-cyan-700">%{val} = {val}/100</span>
             </div>
-            <span className="text-[9px] font-extrabold text-cyan-700">%35 = 35/100</span>
-        </div>
-    ));
+        ));
+    }
 
     if (mode === 'oruntu') return wrap('Şekil Örüntüsü — Adım Adım', (
         <div className="flex items-center justify-around w-full max-w-[220px]">
@@ -677,8 +699,12 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
     ));
 
     if (mode === 'kesir-serit') {
-        const pay = 3;
-        const payda = 5;
+        const kesirMatch = text.match(/(\d+)\/(\d+)/) || text.match(/(\d+)\s*bölü\s*(\d+)/i);
+        const rawPay = kesirMatch ? parseInt(kesirMatch[1], 10) : 3;
+        const rawPayda = kesirMatch ? parseInt(kesirMatch[2], 10) : 5;
+        const payda = Math.max(rawPayda, rawPay, 1);
+        const pay = Math.min(rawPay, payda);
+
         return wrap(`Kesir Modeli — ${pay}/${payda}`, (
             <div className="flex border-2 border-cyan-600 rounded-lg overflow-hidden w-full max-w-[180px] h-7">
                 {Array.from({ length: payda }).map((_, i) => (
@@ -690,16 +716,23 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
         ));
     }
 
-    if (mode === 'ondalik') return wrap('Ondalık Gösterim — 100\'lük Izgara', (
-        <div className="flex flex-col items-center gap-1 w-full max-w-[190px]">
-            <div className="grid grid-cols-10 gap-0.5 border-2 border-blue-400 p-0.5 rounded w-full max-w-[150px]">
-                {Array.from({ length: 100 }).map((_, i) => (
-                    <div key={i} className={`aspect-square rounded-px ${i < 47 ? 'bg-blue-500' : 'bg-slate-100'}`} />
-                ))}
+    if (mode === 'ondalik') {
+        const floatMatch = text.match(/\b\d+[,.]\d+\b/);
+        const rawVal = floatMatch ? floatMatch[0].replace(',', '.') : '0.47';
+        const num = parseFloat(rawVal) || 0.47;
+        const squareCount = Math.min(Math.round(num * 100), 100);
+
+        return wrap(`Ondalık Gösterim — ${rawVal}`, (
+            <div className="flex flex-col items-center gap-1 w-full max-w-[190px]">
+                <div className="grid grid-cols-10 gap-0.5 border-2 border-blue-400 p-0.5 rounded w-full max-w-[150px]">
+                    {Array.from({ length: 100 }).map((_, i) => (
+                        <div key={i} className={`aspect-square rounded-px ${i < squareCount ? 'bg-blue-500' : 'bg-slate-100'}`} />
+                    ))}
+                </div>
+                <span className="text-[9px] font-bold text-blue-600">{rawVal}</span>
             </div>
-            <span className="text-[9px] font-bold text-blue-600">0.47 = 47/100</span>
-        </div>
-    ));
+        ));
+    }
 
     if (mode === 'orant') return wrap('Orantı Grafiği — Doğru Orantı (y = k·x)', (
         <svg viewBox="0 0 170 95" className="w-full max-w-[210px] h-auto">
@@ -726,21 +759,29 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
         </svg>
     ));
 
-    if (mode === 'abakus-basamak') return wrap('Abaküs & Basamak Değeri', (
-        <svg viewBox="0 0 170 95" className="w-full max-w-[200px] h-auto">
-            <rect x="15" y="70" width="140" height="15" fill="#475569" rx="3" />
-            <line x1="45" y1="20" x2="45" y2="70" stroke="#94a3b8" strokeWidth="2.5" />
-            <line x1="85" y1="20" x2="85" y2="70" stroke="#94a3b8" strokeWidth="2.5" />
-            <line x1="125" y1="20" x2="125" y2="70" stroke="#94a3b8" strokeWidth="2.5" />
-            <text x="45" y="81" fontSize="8" fontWeight="extrabold" fill="#ffffff" textAnchor="middle">Yüzlük</text>
-            <text x="85" y="81" fontSize="8" fontWeight="extrabold" fill="#ffffff" textAnchor="middle">Onluk</text>
-            <text x="125" y="81" fontSize="8" fontWeight="extrabold" fill="#ffffff" textAnchor="middle">Birlik</text>
-            {[1, 2, 3].map(i => <circle key={i} cx="45" cy={70 - i * 11} r="5" fill="#0284c7" />)}
-            {[1, 2, 3, 4].map(i => <circle key={i} cx="85" cy={70 - i * 11} r="5" fill="#e11d48" />)}
-            {[1, 2, 3, 4, 5].map(i => <circle key={i} cx="125" cy={70 - i * 11} r="5" fill="#10b981" />)}
-            <SvgBadgeText x={85} y={10} text="Sayı: 345" fill="#0369a1" />
-        </svg>
-    ));
+    if (mode === 'abakus-basamak') {
+        const numMatch = text.match(/\b\d{3}\b/) || Object.values(parsedTextData)[0]?.toString().match(/\b\d{3}\b/);
+        const val = numMatch ? parseInt(numMatch[0], 10) : (Object.values(parsedTextData)[0] || 345);
+        const yuzluk = Math.floor(val / 100) % 10 || 3;
+        const onluk = Math.floor((val % 100) / 10) || 4;
+        const birlik = val % 10 || 5;
+
+        return wrap(`Abaküs & Basamak Değeri (${val})`, (
+            <svg viewBox="0 0 170 95" className="w-full max-w-[200px] h-auto">
+                <rect x="15" y="70" width="140" height="15" fill="#475569" rx="3" />
+                <line x1="45" y1="20" x2="45" y2="70" stroke="#94a3b8" strokeWidth="2.5" />
+                <line x1="85" y1="20" x2="85" y2="70" stroke="#94a3b8" strokeWidth="2.5" />
+                <line x1="125" y1="20" x2="125" y2="70" stroke="#94a3b8" strokeWidth="2.5" />
+                <text x="45" y="81" fontSize="8" fontWeight="extrabold" fill="#ffffff" textAnchor="middle">Yüzlük</text>
+                <text x="85" y="81" fontSize="8" fontWeight="extrabold" fill="#ffffff" textAnchor="middle">Onluk</text>
+                <text x="125" y="81" fontSize="8" fontWeight="extrabold" fill="#ffffff" textAnchor="middle">Birlik</text>
+                {Array.from({ length: yuzluk }).map((_, i) => <circle key={i} cx="45" cy={70 - (i + 1) * 10} r="4.5" fill="#0284c7" />)}
+                {Array.from({ length: onluk }).map((_, i) => <circle key={i} cx="85" cy={70 - (i + 1) * 10} r="4.5" fill="#e11d48" />)}
+                {Array.from({ length: birlik }).map((_, i) => <circle key={i} cx="125" cy={70 - (i + 1) * 10} r="4.5" fill="#10b981" />)}
+                <SvgBadgeText x={85} y={10} text={`Sayı: ${val}`} fill="#0369a1" />
+            </svg>
+        ));
+    }
 
     if (mode === 'cetvel-olcme') return wrap('Ölçekli Cetvel & Uzunluk Ölçümü', (
         <svg viewBox="0 0 210 65" className="w-full max-w-[240px] h-auto">
