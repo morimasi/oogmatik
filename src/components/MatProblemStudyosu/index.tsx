@@ -10,6 +10,7 @@ import { MatProblemOnizleme } from './MatProblemOnizleme';
 import { MatProblemSoruAyarlari } from './MatProblemSoruAyarlari';
 import { MatProblemKazanimPicker } from './MatProblemKazanimPicker';
 import { MatProblemCevapAnahtari } from './MatProblemCevapAnahtari';
+import { MatProblemLoadingOverlay } from './MatProblemLoadingOverlay';
 import { useFascicleStore } from '../../store/useFascicleStore';
 import { useStudentStore } from '../../store/useStudentStore';
 import { worksheetService } from '../../services/worksheetService';
@@ -28,8 +29,8 @@ const FmtBtn: React.FC<{ active?: boolean; onClick: () => void; children: React.
         onClick={onClick}
         title={title}
         className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all border ${active
-                ? 'bg-cyan-600 border-cyan-500 text-white shadow-sm'
-                : 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-paper)] hover:text-[var(--text-primary)]'
+            ? 'bg-cyan-600 border-cyan-500 text-white shadow-sm'
+            : 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-secondary)] hover:bg-[var(--bg-paper)] hover:text-[var(--text-primary)]'
             }`}
     >
         {children}
@@ -259,6 +260,9 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
 
     return (
         <div className="flex flex-col h-full bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-300 overflow-hidden">
+            {/* AI Canlı Animasyonlu Yükleme Ekranı Overlay */}
+            <MatProblemLoadingOverlay isVisible={isGenerating} sinif={ayarlar.sinif} kategori={ayarlar.kategori} />
+
             {/* ═══ ÜST BAR ═══ */}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between px-4 py-2 bg-[var(--bg-paper)] border-b border-[var(--border-color)] print:hidden gap-2 md:gap-0">
                 <div className="flex items-center gap-2 w-full md:w-auto justify-between md:justify-start">
@@ -314,8 +318,8 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
                                 key={t.id}
                                 onClick={() => setActiveTab(t.id)}
                                 className={`px-4 md:px-3 py-2.5 text-xs font-bold transition-all border-b-2 ${activeTab === t.id
-                                        ? 'border-cyan-500 text-cyan-500 font-extrabold'
-                                        : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]'
+                                    ? 'border-cyan-500 text-cyan-500 font-extrabold'
+                                    : 'border-transparent text-[var(--text-muted)] hover:text-[var(--text-primary)]'
                                     }`}
                             >
                                 {t.label}
@@ -343,8 +347,8 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
                                     disabled={isGenerating || !ayarlar.sinif}
                                     onClick={handleGenerate}
                                     className={`w-full mt-4 py-3 rounded-xl font-bold text-sm transition-all shadow-md ${isGenerating
-                                            ? 'bg-zinc-700 text-zinc-400 cursor-wait'
-                                            : 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:shadow-cyan-600/30 active:scale-[0.98]'
+                                        ? 'bg-zinc-700 text-zinc-400 cursor-wait'
+                                        : 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:shadow-cyan-600/30 active:scale-[0.98]'
                                         }`}
                                 >
                                     {isGenerating ? '⏳ Problemler Üretiliyor...' : '🚀 Problemleri Oluştur'}
@@ -505,8 +509,8 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
                                         <label
                                             key={student.id}
                                             className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer transition-all ${isSelected
-                                                    ? 'bg-cyan-500/20 border-cyan-500/60 text-[var(--text-primary)]'
-                                                    : 'bg-[var(--bg-secondary)]/50 border-[var(--border-color)] text-[var(--text-secondary)] hover:border-cyan-500/30'
+                                                ? 'bg-cyan-500/20 border-cyan-500/60 text-[var(--text-primary)]'
+                                                : 'bg-[var(--bg-secondary)]/50 border-[var(--border-color)] text-[var(--text-secondary)] hover:border-cyan-500/30'
                                                 }`}
                                         >
                                             <div className="flex items-center gap-2.5">
@@ -610,8 +614,8 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
                                                     key={c.id}
                                                     onClick={() => setSelectedUserIds(prev => isSelected ? prev.filter(i => i !== c.id) : [...prev, c.id])}
                                                     className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer transition-all ${isSelected
-                                                            ? 'bg-cyan-500/20 border-cyan-500/60 text-[var(--text-primary)]'
-                                                            : 'bg-[var(--bg-secondary)]/50 border-[var(--border-color)] text-[var(--text-secondary)] hover:border-cyan-500/30'
+                                                        ? 'bg-cyan-500/20 border-cyan-500/60 text-[var(--text-primary)]'
+                                                        : 'bg-[var(--bg-secondary)]/50 border-[var(--border-color)] text-[var(--text-secondary)] hover:border-cyan-500/30'
                                                         }`}
                                                 >
                                                     <div className="flex items-center gap-2.5">
