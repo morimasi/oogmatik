@@ -53,19 +53,23 @@ const buildMathProblemPrompt = (settings: MatProblemAyarlari): string => {
         '- Verilenler/İstenenler Kutusu: ' + (settings.verilenlerGosterilsinMi ? 'EVET (Doldurulacak)' : 'HAYIR') + '\n' +
         '- Çözüm Kutusu: ' + (settings.cozumKutusuGosterilsinMi ? 'EVET' : 'HAYIR') + '\n' +
         '- LGS Yeni Nesil Modu: ' + (settings.isLgsMode ? 'AKTİF (PISA/LGS Mantık Sorusu)' : 'PASİF') + '\n\n' +
-        '🚨 KRİTİK ŞEMA VE GÖRSEL KURGUSU KURALLARI (VERY IMPORTANT) 🚨\n' +
-        '1. ŞEMA ZORUNLULUĞU ESNEKLİĞİ: Her problemde şema/görsel çıkmak ZORUNDA DEĞİLDİR. Eğer soru sözel veya zihinsel mantık problemi ise "semaTipi": "yok" seç!\n' +
-        '2. GÖRSELLİ VE ŞEMALI SORULAR: Soru bir tablo, grafik veya geometrik şekil gerektiriyorsa soru metninde görsele atıf yap ("Aşağıdaki çetele tablosuna göre...", "Yukarıda verilen dik üçgene göre...") ve uygun "semaTipi" seç:\n' +
-        '   - Çetele / Sıklık / Nesne Grafiği: "cetele-tablosu", "siklik-tablosu", "nesne-grafigi", "nesne-izgarasi"\n' +
-        '   - İlkokul (1-4. Sınıf): kesir-pastasi, saat-zaman, para-matrisi, abakus-basamak, cetvel-olcme, oruntu-blok, cetele-tablosu, siklik-tablosu, nesne-grafigi, nesne-izgarasi, sayi-dogrusu\n' +
-        '   - Ortaokul & LGS (5-8. Sınıf): birim-kareli-zemin, paralelkenar-yamuk, terazi-denklem, iletki-aciolcer, lgs-ikili-grafik, lgs-alan-modeli, lgs-egim-koordinat, lgs-3d-acinim, lgs-ebob-ekok, lgs-karekok-uslu, lgs-pisagor-ucgen, yok\n' +
-        '3. ÇOKLU ALT SORU DESTEĞİ: Özellikle Tablo ve Grafik sorularında tek bir görsele bağlı 2-5 adet alt soru ("altSorular": ["1. En çok sevilen meyve hangisidir?", "2. Toplam kaç öğrenci vardır?"]) ve bunların cevaplarını ("altCevaplar": ["Çilek", "32 öğrenci"]) üret!\n' +
-        '4. NESNE GRAFİĞİ LEJANTİ VE İLKOKUL ŞEMALARI: "semaVerisi": {"lejantNotu": "Not: Her resim 3 adet oyunu göstermektedir.", "nesneGrafikData": [{"kategori": "Ayıcık", "adet": 7, "simge": "🧸"}], "ceteleData": {"Kiraz": 10}, "etiketler": {"taban": "15 cm", "yukseklik": "8 cm", "aci": "65°"}} verisini aktar.\n' +
-        '🚨 100% GÖRSEL VERİ BİREBİR UYUM ZORUNLULUĞU (VERY CRITICAL) 🚨\n' +
-        '1. Ürettiğin hikayedeki/sorudaki TÜM verileri, eşya/meyve/canlı isimlerini, sayıları, etiketleri ve birimleri "semaVerisi", "tabloVerisi" veya "grafikVerisi" alanlarına BİREBİR AYNEN AKTARACAKSIN.\n' +
-        '2. Soruda "Akvaryumdaki balıklar: 5 Japon balığı, 3 Vatoz" geçiyorsa, "semaVerisi" içinde "ceteleData": {"Japon Balığı": 5, "Vatoz": 3} olacak. ASLA sorudaki hikayeden bağımsız rastgele meyve/eşya ismi yazma!\n' +
-        '3. Sorudaki ölçüler 15 cm ve 8 cm ise "etiketler": {"taban": "15 cm", "yukseklik": "8 cm"} olacak.\n' +
-        '4. Soru metnindeki nesnelere uygun emojiyi "nesneGrafikData" içerisindeki "simge" alanına koy (Örn: Elma: 🍎, Kitap: 📚, Araba: 🚗, Balık: 🐟, Top: ⚽).\n\n' +
+        '🚨 AKILLI OTOMATİK ŞEMA VE GÖRSEL TAKSONOMİSİ (VERY IMPORTANT - MANDATORY) 🚨\n' +
+        '1. SÖZEL / ZİHİNSEL PROBLEMLER: Soru sadece metin ve hikayeden oluşuyorsa "semaTipi": "yok" seç!\n' +
+        '2. İLKOKUL ŞEMA SEÇİM TAKSONOMİSİ (1-4. Sınıf):\n' +
+        '   - Nesne & Şekil Sayma: "nesne-grafigi", "nesne-izgarasi" (Örn: Sınıftaki oyuncaklar, meyveler)\n' +
+        '   - Veri Toplama: "cetele-tablosu", "siklik-tablosu" (Örn: Çetele ve sıklık tablosu okuma/tamamlama)\n' +
+        '   - Sayı & İşlem: "abakus-basamak" (basamak değeri), "taban-blok" (onluk/birlik), "cetvel-olcme" (uzunluk ölçme)\n' +
+        '   - Kesir & Zaman: "kesir-pastasi" (daire kesir), "kesir-serit" (şerit model), "saat-zaman" (akrep/yelkovan), "oruntu-blok" (örüntüler)\n' +
+        '3. ORTAOKUL & LGS ŞEMA SEÇİM TAKSONOMİSİ (5-8. Sınıf):\n' +
+        '   - Denklem & Cebir: "terazi-denklem" (kefeli terazi), "cebir-karo" (özdeşlik/kare model), "lgs-egim-koordinat" (rampa/eğim/koordinat)\n' +
+        '   - Geometri & Ölçme: "iletki-aciolcer" (açı ölçümü), "paralelkenar-yamuk" (yükseklik/alan), "birim-kareli-zemin" (kareli kağıtta alan/çevre), "lgs-3d-acinim" (silindir/piramit açınımı), "lgs-pisagor-ucgen" (dik üçgen/hipotenüs)\n' +
+        '   - Veri Analizi & Sayı Teorisi: "lgs-ikili-grafik" (sütun + daire grafiği), "venn" (küme kesişim), "asal-agac" (çarpan ağacı/EBOB-EKOK), "yuzde" (100\'lük ızgara/yüzde), "sayi-dogrusu" (eşitsizlik/rasyonel)\n' +
+        '4. ÇOKLU ALT SORU DESTEĞİ: Özellikle Tablo ve Grafik sorularında tek bir görsele bağlı 2-5 adet alt soru ("altSorular": ["1. En çok sevilen meyve hangisidir?", "2. Toplam kaç öğrenci vardır?"]) ve bunların cevaplarını ("altCevaplar": ["Çilek", "32 öğrenci"]) üret!\n' +
+        '5. NESNE GRAFİĞİ LEJANTI VE BİREBİR VERİ EŞLEŞTİRME:\n' +
+        '   - "semaVerisi": {"lejantNotu": "Not: Her resim 3 adet oyunu göstermektedir.", "nesneGrafikData": [{"kategori": "Ayıcık", "adet": 7, "simge": "🧸"}], "ceteleData": {"Balık": 10}, "etiketler": {"taban": "15 cm", "yukseklik": "8 cm", "aci": "65°"}} verisini eksiksiz aktar.\n' +
+        '🚨 100% GÖRSEL VERİ BİREBİR UYUM ZORUNLULUĞU 🚨\n' +
+        '1. Ürettiğin hikayedeki TÜM verileri, eşya/meyve/canlı isimlerini, sayıları ve etiketleri "semaVerisi", "tabloVerisi" veya "grafikVerisi" alanlarına BİREBİR AYNEN AKTARACAKSIN.\n' +
+        '2. Soruda geçen nesneye uygun emojiyi "simge" alanına koy (Örn: Elma: 🍎, Kitap: 📚, Araba: 🚗, Balık: 🐟, Top: ⚽).\n\n' +
         '🚨 KRİTİK BENZERSİZLİK VE ORİJİNALİLK KURALI 🚨\n' +
         '- Benzersizlik Tohumu: ' + randomSeed + '\n' +
         '- İlham Teması: "' + secilenKurgu + '"\n' +

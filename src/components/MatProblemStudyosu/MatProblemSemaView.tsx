@@ -212,39 +212,40 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
         return null;
     }
 
-    // ─── Akıllı Otomatik Şema Seçimi ─────────────────
+    // ─── Akıllı Otomatik Şema ve Mod Tespiti (MEB & LGS Taksonomisi) ─────────────────
     let mode = '';
     if (st.includes('cetele') || st.includes('çetele')) mode = 'cetele-tablosu';
     else if (st.includes('siklik') || st.includes('sıklık')) mode = 'siklik-tablosu';
-    else if (st.includes('nesne-grafigi') || st.includes('nesne_grafigi')) mode = 'nesne-grafigi';
-    else if (st.includes('nesne-izgarasi') || st.includes('izgara')) mode = 'nesne-izgarasi';
-    else if (st.includes('terazi')) mode = 'terazi';
+    else if (st.includes('nesne-grafigi') || st.includes('nesne_grafigi') || st.includes('sekil-grafigi')) mode = 'nesne-grafigi';
+    else if (st.includes('nesne-izgarasi') || st.includes('izgara') || st.includes('kutu-modeli')) mode = 'nesne-izgarasi';
+    else if (st.includes('terazi') || st.includes('denklem-semasi')) mode = 'terazi';
     else if (st.includes('abakus') || st.includes('basamak')) mode = 'abakus-basamak';
     else if (st.includes('cetvel') || st.includes('olcme')) mode = 'cetvel-olcme';
     else if (st.includes('birim-kare') || st.includes('kareli-zemin') || st.includes('grid')) mode = 'birim-kareli-zemin';
     else if (st.includes('iletki') || st.includes('aciolcer')) mode = 'iletki-aciolcer';
     else if (st.includes('paralelkenar') || st.includes('yamuk')) mode = 'paralelkenar-yamuk';
-    else if (st.includes('egim') || st.includes('koordinat')) mode = 'egim';
-    else if (st.includes('acinim') || st.includes('3d')) mode = 'acinim';
-    else if (st.includes('cebir') || st.includes('karo') || st.includes('alan-modeli')) mode = 'cebir-karo';
+    else if (st.includes('egim') || st.includes('koordinat') || st.includes('lgs-egim')) mode = 'egim';
+    else if (st.includes('acinim') || st.includes('3d') || st.includes('prizma-acinim')) mode = 'acinim';
+    else if (st.includes('cebir') || st.includes('karo') || st.includes('alan-modeli') || st.includes('lgs-alan')) mode = 'cebir-karo';
     else if (st.includes('benzerlik') || st.includes('eslik')) mode = 'benzerlik';
     else if (st.includes('paralel')) mode = 'paralel-acilar';
     else if (st.includes('dilim') || st.includes('daire-dilim')) mode = 'daire-dilim';
     else if (st.includes('olasilik') || st.includes('cark')) mode = 'olasilik';
     else if (st.includes('venn') || st.includes('kume')) mode = 'venn';
-    else if (st.includes('asal') || st.includes('ebob') || st.includes('ekok')) mode = 'asal-agac';
-    else if (st.includes('yuzde')) mode = 'yuzde';
-    else if (st.includes('oruntu')) mode = 'oruntu';
+    else if (st.includes('asal') || st.includes('ebob') || st.includes('ekok') || st.includes('lgs-ebob')) mode = 'asal-agac';
+    else if (st.includes('yuzde') || st.includes('lgs-karekok')) mode = 'yuzde';
+    else if (st.includes('oruntu') || st.includes('oruntu-blok')) mode = 'oruntu';
     else if (st.includes('taban-blok') || st.includes('onluk')) mode = 'taban-blok';
-    else if (st.includes('dogru') || st.includes('esitsizlik')) mode = 'sayi-dogru';
-    else if (st.includes('kesir')) mode = 'kesir-serit';
+    else if (st.includes('dogru') || st.includes('esitsizlik') || st.includes('sayı-doğrusu')) mode = 'sayi-dogru';
+    else if (st.includes('kesir-bloklari') || st.includes('kesir-pastasi') || st.includes('kesir')) mode = 'kesir-serit';
     else if (st.includes('prizma') || st.includes('hacim')) mode = 'prizma';
+    else if (st.includes('para') || st.includes('para-matrisi')) mode = 'para-matrisi';
     else if (st.includes('tablo')) mode = 'tablo';
-    else if (st.includes('geometrik') || st.includes('sekil')) mode = 'geometrik';
-    else if (st.includes('zaman') || st.includes('saat')) mode = 'saat';
-    else if (st.includes('oranti') || st.includes('oran')) mode = 'orant';
-    else if (st.includes('grafik')) mode = 'ikili-grafik';
-    else if (st.includes('pisagor')) mode = 'pisagor';
+    else if (st.includes('geometrik') || st.includes('sekil') || st.includes('geometrik-sekil')) mode = 'geometrik';
+    else if (st.includes('zaman') || st.includes('saat') || st.includes('zaman-tuneli')) mode = 'saat';
+    else if (st.includes('oranti') || st.includes('oran') || st.includes('oran-oranti')) mode = 'orant';
+    else if (st.includes('grafik') || st.includes('lgs-ikili-grafik')) mode = 'ikili-grafik';
+    else if (st.includes('pisagor') || st.includes('lgs-pisagor-ucgen')) mode = 'pisagor';
     else if (lw.includes('çetele tablosu')) mode = 'cetele-tablosu';
     else if (lw.includes('sıklık tablosu')) mode = 'siklik-tablosu';
     else if (lw.includes('nesne grafiği') || lw.includes('şekil grafiği')) mode = 'nesne-grafigi';
@@ -287,11 +288,19 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
     const yuksL = cleanLabel(etiket.yukseklik || given[1], 'h');
     const aciL = cleanLabel(etiket.aci || given[2], '70°');
 
+    const getBadgeTitle = (m: string): string => {
+        if (m.startsWith('lgs-') || m === 'pisagor' || m === 'egim' || m === 'acinim' || m === 'ikili-grafik') return 'LGS / PISA Yeni Nesil Görsel';
+        if (m === 'terazi' || m === 'cebir-karo' || m === 'asal-agac' || m === 'venn' || m === 'sayi-dogru') return 'Cebir & Mantık Modeli';
+        if (m === 'cetele-tablosu' || m === 'siklik-tablosu' || m === 'nesne-grafigi' || m === 'nesne-izgarasi') return 'MEB Veri Toplama Tablosu';
+        if (m === 'abakus-basamak' || m === 'kesir-pastasi' || m === 'kesir-serit' || m === 'saat' || m === 'cetvel-olcme' || m === 'taban-blok') return 'İlkokul Kavramsal Şema';
+        return 'MEB 2024-2025 Standart Görsel';
+    };
+
     const wrap = (title: string, children: React.ReactNode) => (
         <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 my-2 shadow-sm print:break-inside-avoid w-full max-w-full overflow-hidden">
             <div className="text-[9px] font-extrabold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
                 <span>📐 {title}</span>
-                <span className="text-[8px] font-bold text-slate-400">MEB / LGS Standart Görsel</span>
+                <span className="text-[8px] font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-200">{getBadgeTitle(mode)}</span>
             </div>
             <div className="flex flex-col items-center justify-center bg-white p-2 rounded-lg border border-slate-100 w-full overflow-hidden">
                 {children}
@@ -852,6 +861,19 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
             <SvgBadgeText x={152} y={35} text={`Boy: ${yuksL}`} fill="#0369a1" />
             <SvgBadgeText x={20} y={52} text="Yükseklik: h" fill="#0369a1" textAnchor="end" />
         </svg>
+    ));
+
+    if (mode === 'para-matrisi') return wrap('Para Matrisi & Alışveriş Hesabı', (
+        <div className="flex flex-col items-center gap-1.5 w-full max-w-[210px] bg-amber-50/60 p-2 rounded-lg border border-amber-200">
+            <div className="flex items-center justify-between w-full text-[9px] font-bold text-amber-900 px-1">
+                <span>💵 Verilen Para: {cleanLabel(given[0], '50 TL')}</span>
+                <span>🏷️ Tutar: {cleanLabel(given[1], '32 TL')}</span>
+            </div>
+            <div className="w-full border-t border-dashed border-amber-300 my-0.5" />
+            <div className="flex items-center justify-center gap-1 bg-amber-500 text-white font-extrabold text-[10px] px-3 py-1 rounded-md shadow-xs">
+                <span>💰 Para Üstü: {cleanLabel(given[2], '18 TL')}</span>
+            </div>
+        </div>
     ));
 
     if (mode === 'tablo') {
