@@ -148,7 +148,10 @@ export const generateMatProblemSeti = async (settings: MatProblemAyarlari): Prom
     try {
         return await generateMathProblems(settings);
     } catch (error: unknown) {
-        console.warn('Gemini API başarısız, fallback olarak offline problemler kullanılıyor:', error);
-        return createOfflineProblemSeti(settings);
+        const message = error instanceof Error ? error.message : String(error);
+        console.warn('Gemini API başarısız, fallback olarak zengin offline problemler kullanılıyor:', message);
+        // Yeni nesil offline üretici: sınıfa özel ≥6 şablon + MEB kazanım uyumu
+        const { generateOfflineMatProblemSeti } = await import('./offlineGenerators/mathProblemOffline');
+        return generateOfflineMatProblemSeti(settings);
     }
 };

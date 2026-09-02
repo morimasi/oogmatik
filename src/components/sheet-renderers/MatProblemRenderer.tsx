@@ -1,13 +1,13 @@
 import React from 'react';
 import { MatProblemOnizleme } from '../MatProblemStudyosu/MatProblemOnizleme';
-import type { MatProblemSeti, ProblemDizgiAyarlari } from '../../types/matProblem';
+import type { MatProblemSeti, ProblemDizgiAyarlari, MatProblemAyarlari } from '../../types/matProblem';
 
 interface MatProblemRendererProps {
     data: unknown;
     settings?: unknown;
 }
 
-export const MatProblemRenderer: React.FC<MatProblemRendererProps> = ({ data }) => {
+export const MatProblemRenderer: React.FC<MatProblemRendererProps> = ({ data, settings }) => {
     const activeData = Array.isArray(data) ? data[0] : data;
     const problemSetiObj: MatProblemSeti | null = activeData?.data?.[0] || activeData?.data || activeData;
     const dizgiAyarlari: ProblemDizgiAyarlari = problemSetiObj?.dizgiAyarlari || activeData?.dizgiAyarlari || {
@@ -18,6 +18,24 @@ export const MatProblemRenderer: React.FC<MatProblemRendererProps> = ({ data }) 
         metinHizalama: 'left',
         satirAraligi: 'normal',
     };
+
+    // `settings` içinden ayar bayrakları (kutu görünürlüğü vb.) çıkar
+    // Universal aktivite sisteminden gelen settings buraya prop olarak akıyor
+    const ayarlarFromSettings = (settings as Partial<MatProblemAyarlari>) || {};
+    const ayarlar: MatProblemAyarlari | undefined = problemSetiObj
+        ? {
+              sinif: problemSetiObj.sinif ?? null,
+              secilenUniteler: [],
+              secilenKazanimlar: problemSetiObj.secilenKazanimlar ?? [],
+              problemSayisi: problemSetiObj.problemler.length,
+              zorlukSeviyesi: 'Otomatik',
+              gorselVeriEklensinMi: false,
+              kategori: 'gercek-yasam',
+              semaTipiTercihi: 'otomatik',
+              verilenlerGosterilsinMi: ayarlarFromSettings.verilenlerGosterilsinMi ?? true,
+              cozumKutusuGosterilsinMi: ayarlarFromSettings.cozumKutusuGosterilsinMi ?? true,
+          }
+        : undefined;
 
     if (!problemSetiObj || !problemSetiObj.problemler || !Array.isArray(problemSetiObj.problemler)) {
         return (
@@ -32,6 +50,7 @@ export const MatProblemRenderer: React.FC<MatProblemRendererProps> = ({ data }) 
             <MatProblemOnizleme
                 problemSeti={problemSetiObj}
                 dizgiAyarlari={dizgiAyarlari}
+                ayarlar={ayarlar}
                 isPrinting={true}
             />
         </div>

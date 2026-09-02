@@ -452,6 +452,7 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
                                     <MatProblemOnizleme
                                         problemSeti={aktifProblemSeti}
                                         dizgiAyarlari={dizgiAyarlari}
+                                        ayarlar={ayarlar}
                                     />
                                 </div>
                             </div>

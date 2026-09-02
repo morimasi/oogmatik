@@ -118,6 +118,7 @@ const buildMathProblemPrompt = (settings: MatProblemAyarlari): string => {
         '      "gercekYasamBaglantisi": "Akvaryum ve canlı sayılarını kategorize etme...",\n' +
         '      "zorluk": "Orta",\n' +
         '      "kazanimKodu": "M.2.4.1.1",\n' +
+        '      "kazanimMetni": "Sıklık tablosu veya çetele tablosu oluşturur; yorumlar.",\n' +
         '      "semaTipi": "siklik-tablosu",\n' +
         '      "puan": 10,\n' +
         '      "tahminiSure": 120\n' +
@@ -148,6 +149,7 @@ const PROBLEM_SCHEMA = {
                     gercekYasamBaglantisi: { type: 'STRING' },
                     zorluk: { type: 'STRING' },
                     kazanimKodu: { type: 'STRING' },
+                    kazanimMetni: { type: 'STRING', description: 'MEB kazanım açıklaması (öğretmen/veli bilgi kartı için zorunlu)' },
                     semaTipi: { type: 'STRING', description: 'cetele-tablosu, siklik-tablosu, nesne-grafigi, nesne-izgarasi, lgs-ikili-grafik, lgs-alan-modeli, lgs-egim-koordinat, lgs-3d-acinim, lgs-ebob-ekok, lgs-karekok-uslu, lgs-pisagor-ucgen, kutu-modeli, sayi-dogrusu, yok vb.' },
                     semaVerisi: {
                         type: 'OBJECT',
@@ -218,29 +220,51 @@ export const generateMathProblems = async (settings: MatProblemAyarlari): Promis
     const parsed = typeof result === 'string' ? JSON.parse(result) : result;
     const rawProblemler = parsed?.problemler || parsed?.data?.problemler || [];
 
-    const problemler: MatProblem[] = rawProblemler.map((p: Record<string, unknown>, i: number) => ({
-        id: `problem-${Date.now()}-${i}`,
-        soruMetni: (p.soruMetni as string) || (p.soru_metni as string) || '',
-        verilenler: Array.isArray(p.verilenler) ? p.verilenler as string[] : [],
-        istenenler: (p.istenenler as string) || '',
-        altSorular: Array.isArray(p.altSorular) ? p.altSorular as string[] : undefined,
-        altCevaplar: Array.isArray(p.altCevaplar) ? p.altCevaplar as string[] : undefined,
-        cozumAdimlari: Array.isArray(p.cozumAdimlari) ? p.cozumAdimlari as string[] : [],
-        dogruCevap: (p.dogruCevap as string) || (p.dogru_cevap as string) || '',
-        gercekYasamBaglantisi: (p.gercekYasamBaglantisi as string) || (p.gercek_yasam_baglantisi as string) || '',
-        zorluk: ((p.zorluk as string) || 'Orta') as 'Kolay' | 'Orta' | 'Zor',
-        kazanimKodu: (p.kazanimKodu as string) || (p.kazanim_kodu as string) || `M.${sinif}.1.1`,
-        kazanimMetni: (p.kazanimMetni as string) || undefined,
-        sinif,
-        unite_adi: (p.unite_adi as string) || undefined,
-        semaTipi: ((p.semaTipi as string) || 'yok') as MatProblem['semaTipi'],
-        semaVerisi: p.semaVerisi as MatProblem['semaVerisi'],
-        tabloVerisi: p.tabloVerisi as MatProblemSeti['problemler'][0]['tabloVerisi'],
-        kategori: settings.kategori || 'gercek-yasam',
-        grafikVerisi: p.grafikVerisi as MatProblem['grafikVerisi'],
-        puan: (p.puan as number) || 10,
-        tahminiSure: (p.tahminiSure as number) || 120,
-    }));
+    const problemler: MatProblem[] = rawProblemler.map((p: Record<string, unknown>, i: number) => {
+        // ─── Otomatik Cevap Birleştirici ─────────────────────────────
+        // altSorular varsa ve dogruCevap boşsa ya da sadece etiket gibi kısa
+        // görünüyorsa, altCevaplar'ı çok satırlı string olarak birleştir.
+        const altSorular = Array.isArray(p.altSorular) ? p.altSorular as string[] : undefined;
+        const altCevaplar = Array.isArray(p.altCevaplar) ? p.altCevaplar as string[] : undefined;
+        const rawDogruCevap = ((p.dogruCevap as string) || (p.dogru_cevap as string) || '').trim();
+
+        let dogruCevap = rawDogruCevap;
+        if (altSorular && altCevaplar && altCevaplar.length > 0) {
+            const altCevapJoined = altCevaplar
+                .map((c, idx) => `${String.fromCharCode(97 + idx)}) ${c}`)
+                .join('  |  ');
+            const looksLikeLabel = rawDogruCevap.length === 0
+                || /^\d+\)\s/.test(rawDogruCevap)  // "1) 2) 3)" gibi sadece etiket
+                || (rawDogruCevap.length < altCevaplar.join('').length / 2);
+            if (looksLikeLabel) {
+                dogruCevap = altCevapJoined;
+            }
+        }
+
+        return {
+            id: `problem-${Date.now()}-${i}`,
+            soruMetni: (p.soruMetni as string) || (p.soru_metni as string) || '',
+            verilenler: Array.isArray(p.verilenler) ? p.verilenler as string[] : [],
+            istenenler: (p.istenenler as string) || '',
+            altSorular,
+            altCevaplar,
+            cozumAdimlari: Array.isArray(p.cozumAdimlari) ? p.cozumAdimlari as string[] : [],
+            dogruCevap,
+            gercekYasamBaglantisi: (p.gercekYasamBaglantisi as string) || (p.gercek_yasam_baglantisi as string) || '',
+            zorluk: ((p.zorluk as string) || 'Orta') as 'Kolay' | 'Orta' | 'Zor',
+            kazanimKodu: (p.kazanimKodu as string) || (p.kazanim_kodu as string) || `M.${sinif}.1.1`,
+            kazanimMetni: (p.kazanimMetni as string) || undefined,
+            sinif,
+            unite_adi: (p.unite_adi as string) || undefined,
+            semaTipi: ((p.semaTipi as string) || 'yok') as MatProblem['semaTipi'],
+            semaVerisi: p.semaVerisi as MatProblem['semaVerisi'],
+            tabloVerisi: p.tabloVerisi as MatProblemSeti['problemler'][0]['tabloVerisi'],
+            kategori: settings.kategori || 'gercek-yasam',
+            grafikVerisi: p.grafikVerisi as MatProblem['grafikVerisi'],
+            puan: (p.puan as number) || 10,
+            tahminiSure: (p.tahminiSure as number) || 120,
+        };
+    });
 
     const toplamPuan = problemler.reduce((sum, p) => sum + p.puan, 0);
     const toplamSure = problemler.reduce((sum, p) => sum + p.tahminiSure, 0);
@@ -282,4 +306,24 @@ export const generateMathProblems = async (settings: MatProblemAyarlari): Promis
 // ─── Registry Export ───────────────────────────────────────────
 export const generateMatProblemFromAI = async (options: MatProblemAyarlari | Record<string, unknown>) => {
     return await generateMathProblems(options as MatProblemAyarlari);
+};
+
+export const generateMatProblemFromOptions = async (options: Record<string, unknown>): Promise<MatProblemSeti> => {
+    const settings: MatProblemAyarlari = {
+        sinif: typeof options.sinif === 'number' ? options.sinif : (typeof options.grade === 'number' ? options.grade : 5),
+        secilenUniteler: Array.isArray(options.secilenUniteler) ? (options.secilenUniteler as string[]) : [],
+        secilenKazanimlar: Array.isArray(options.secilenKazanimlar) ? (options.secilenKazanimlar as string[]) : [],
+        problemSayisi: typeof options.problemSayisi === 'number' ? options.problemSayisi : (typeof options.itemCount === 'number' ? options.itemCount : 5),
+        zorlukSeviyesi: typeof options.zorlukSeviyesi === 'string' ? options.zorlukSeviyesi as MatProblemAyarlari['zorlukSeviyesi'] : 'Orta',
+        gorselVeriEklensinMi: typeof options.gorselVeriEklensinMi === 'boolean' ? options.gorselVeriEklensinMi : true,
+        ozelTalimatlar: typeof options.ozelTalimatlar === 'string' ? options.ozelTalimatlar : undefined,
+        ozelKonu: typeof options.ozelKonu === 'string' ? options.ozelKonu : undefined,
+        kategori: typeof options.kategori === 'string' ? options.kategori as MatProblemAyarlari['kategori'] : 'gercek-yasam',
+        semaTipiTercihi: typeof options.semaTipiTercihi === 'string' ? options.semaTipiTercihi as MatProblemAyarlari['semaTipiTercihi'] : 'otomatik',
+        verilenlerGosterilsinMi: typeof options.verilenlerGosterilsinMi === 'boolean' ? options.verilenlerGosterilsinMi : true,
+        cozumKutusuGosterilsinMi: typeof options.cozumKutusuGosterilsinMi === 'boolean' ? options.cozumKutusuGosterilsinMi : true,
+        isLgsMode: typeof options.isLgsMode === 'boolean' ? options.isLgsMode : false,
+    };
+
+    return generateMathProblems(settings);
 };

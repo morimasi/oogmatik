@@ -2,6 +2,9 @@ import { ActivityType } from '../../types/activity';
 import { GeneratorOptions } from '../../types/core';
 import * as aiGenerators from './index';
 import * as offlineGenerators from '../offlineGenerators/index';
+import { generateMatProblemFromAI } from './mathProblemGenerator';
+import { generateMatProblemSeti } from '../matProblemService';
+import type { MatProblemSeti } from '../../types/matProblem';
 
 
 import * as sariKitapGenerators from './sariKitap/index';
@@ -476,6 +479,10 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   [ActivityType.MAT_SINAV]: {
     ai: aiGenerators.generateMatSinavFromAI,
     offline: offlineGenerators.generateOfflineMatSinav,
+  },
+  [ActivityType.MAT_PROBLEM]: {
+    ai: aiGenerators.generateMatProblemFromAI,
+    offline: generateMatProblemSeti as unknown as (options: GeneratorOptions) => Promise<MatProblemSeti>,
   },
   [ActivityType.REAL_LIFE_MATH_PROBLEMS]: {
     ai: aiGenerators.generateRealLifeMathProblemsFromAI,
