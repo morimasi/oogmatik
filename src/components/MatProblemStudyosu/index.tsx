@@ -10,7 +10,7 @@ import { MatProblemOnizleme } from './MatProblemOnizleme';
 import { MatProblemSoruAyarlari } from './MatProblemSoruAyarlari';
 import { MatProblemKazanimPicker } from './MatProblemKazanimPicker';
 import { MatProblemCevapAnahtari } from './MatProblemCevapAnahtari';
-import { MatProblemLoadingOverlay } from './MatProblemLoadingOverlay';
+import { BrandedLoadingAnimation } from '../shared/BrandedLoadingAnimation';
 import { useFascicleStore } from '../../store/useFascicleStore';
 import { useStudentStore } from '../../store/useStudentStore';
 import { worksheetService } from '../../services/worksheetService';
@@ -23,6 +23,14 @@ import type { MatProblemSeti, ProblemDizgiAyarlari } from '../../types/matProble
 import type { User, Student } from '../../types';
 
 type TabType = 'ayarlar' | 'onizleme' | 'cevap' | 'gecmis';
+
+const MATH_LOADING_MESSAGES = [
+    'MEB 2024-2025 Müfredatı & Sınıf Kazanımları Analiz Ediliyor...',
+    'LGS & Beceri Temelli Açık Uçlu Senaryo Kurgulanıyor...',
+    'Vektörel SVG Şemalar & Grafik Verileri Çiziliyor...',
+    'Çözüm Adımları & Cevap Anahtarı Hesaplanıyor...',
+    'Lexend Tipografisi & A4 Dizgisi Uygulanıyor...',
+];
 
 const FmtBtn: React.FC<{ active?: boolean; onClick: () => void; children: React.ReactNode; title?: string }> = ({ active, onClick, children, title }) => (
     <button
@@ -90,13 +98,13 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
     const handleGenerate = async () => {
         if (!ayarlar.sinif) { showError('Lütfen sınıf seviyesini seçin.'); return; }
         setIsGenerating(true);
+        setActiveTab('onizleme');
         setErrorMsg('');
         try {
             const result = await generateMatProblemSeti(ayarlar);
             result.dizgiAyarlari = dizgiAyarlari;
             setAktifProblemSeti(result);
             addProblemGecmisi(result);
-            setActiveTab('onizleme');
             showSuccess(`${result.problemler.length} problem başarıyla oluşturuldu!`);
         } catch (err: unknown) {
             showError('Problem üretirken hata oluştu. Tekrar deneyin.');
@@ -260,9 +268,6 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
 
     return (
         <div className="flex flex-col h-full bg-[var(--bg-primary)] text-[var(--text-primary)] transition-colors duration-300 overflow-hidden">
-            {/* AI Canlı Animasyonlu Yükleme Ekranı Overlay */}
-            <MatProblemLoadingOverlay isVisible={isGenerating} sinif={ayarlar.sinif} kategori={ayarlar.kategori} />
-
             {/* ═══ ÜST BAR ═══ */}
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between px-4 py-2 bg-[var(--bg-paper)] border-b border-[var(--border-color)] print:hidden gap-2 md:gap-0">
                 <div className="flex items-center gap-2 w-full md:w-auto justify-between md:justify-start">
@@ -433,7 +438,15 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
 
                     {/* Önizleme Alanı */}
                     <div className="flex-1 overflow-auto bg-[var(--bg-primary)]/50 flex justify-center md:justify-center py-6 print:py-0 print:m-0 print:bg-white print:block print:overflow-visible touch-pan-x touch-pan-y">
-                        {aktifProblemSeti ? (
+                        {isGenerating ? (
+                            <div className="flex flex-col items-center justify-center p-8 min-h-[450px] w-full animate-in fade-in">
+                                <BrandedLoadingAnimation
+                                    size="large"
+                                    title="Matematik Problemleri Üretiliyor"
+                                    messages={MATH_LOADING_MESSAGES}
+                                />
+                            </div>
+                        ) : aktifProblemSeti ? (
                             <div id="mat-problem-print-target">
                                 <div id="mat-problem-print-inner">
                                     <MatProblemOnizleme
