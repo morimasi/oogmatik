@@ -54,8 +54,8 @@ export const MatProblemSoruAyarlari: React.FC<MatProblemSoruAyarlariProps> = ({ 
                                     key={n}
                                     onClick={() => onAyarlarChange({ problemSayisi: n })}
                                     className={`py-1 rounded-lg text-xs font-bold transition-all border ${isSelected
-                                            ? 'bg-cyan-600 border-cyan-500 text-white shadow-sm'
-                                            : 'bg-[var(--bg-paper)] border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                                        ? 'bg-cyan-600 border-cyan-500 text-white shadow-sm'
+                                        : 'bg-[var(--bg-paper)] border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                                         }`}
                                 >
                                     {n}
@@ -78,8 +78,8 @@ export const MatProblemSoruAyarlari: React.FC<MatProblemSoruAyarlariProps> = ({ 
                                     key={z}
                                     onClick={() => onAyarlarChange({ zorlukSeviyesi: z })}
                                     className={`py-0.5 px-1 rounded-lg text-[10px] font-bold transition-all border truncate ${isSelected
-                                            ? 'bg-cyan-600 border-cyan-500 text-white shadow-sm'
-                                            : 'bg-[var(--bg-paper)] border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                                        ? 'bg-cyan-600 border-cyan-500 text-white shadow-sm'
+                                        : 'bg-[var(--bg-paper)] border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
                                         }`}
                                 >
                                     {z}
@@ -103,8 +103,8 @@ export const MatProblemSoruAyarlari: React.FC<MatProblemSoruAyarlariProps> = ({ 
                                 key={k.value}
                                 onClick={() => onAyarlarChange({ kategori: k.value })}
                                 className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between transition-all border ${isSelected
-                                        ? 'bg-cyan-600/20 border-cyan-500/60 text-cyan-400 font-bold shadow-sm'
-                                        : 'bg-[var(--bg-paper)]/80 border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-cyan-500/30'
+                                    ? 'bg-cyan-600/20 border-cyan-500/60 text-cyan-400 font-bold shadow-sm'
+                                    : 'bg-[var(--bg-paper)]/80 border-[var(--border-color)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:border-cyan-500/30'
                                     }`}
                             >
                                 <span className="flex items-center gap-2">
