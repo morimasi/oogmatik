@@ -650,6 +650,79 @@ export const MatProblemSemaView: React.FC<Props> = ({ problem }) => {
         </svg>
     ));
 
+    if (mode === 'abakus-basamak') return wrap('Abaküs & Basamak Değeri', (
+        <svg viewBox="0 0 170 95" className="w-full max-w-[200px] h-auto">
+            <rect x="15" y="70" width="140" height="15" fill="#475569" rx="3" />
+            <line x1="45" y1="20" x2="45" y2="70" stroke="#94a3b8" strokeWidth="2.5" />
+            <line x1="85" y1="20" x2="85" y2="70" stroke="#94a3b8" strokeWidth="2.5" />
+            <line x1="125" y1="20" x2="125" y2="70" stroke="#94a3b8" strokeWidth="2.5" />
+            <text x="45" y="81" fontSize="8" fontWeight="extrabold" fill="#ffffff" textAnchor="middle">Yüzlük</text>
+            <text x="85" y="81" fontSize="8" fontWeight="extrabold" fill="#ffffff" textAnchor="middle">Onluk</text>
+            <text x="125" y="81" fontSize="8" fontWeight="extrabold" fill="#ffffff" textAnchor="middle">Birlik</text>
+            {[1, 2, 3].map(i => <circle key={i} cx="45" cy={70 - i * 11} r="5" fill="#0284c7" />)}
+            {[1, 2, 3, 4].map(i => <circle key={i} cx="85" cy={70 - i * 11} r="5" fill="#e11d48" />)}
+            {[1, 2, 3, 4, 5].map(i => <circle key={i} cx="125" cy={70 - i * 11} r="5" fill="#10b981" />)}
+            <SvgBadgeText x={85} y={10} text="Sayı: 345" fill="#0369a1" />
+        </svg>
+    ));
+
+    if (mode === 'cetvel-olcme') return wrap('Ölçekli Cetvel & Uzunluk Ölçümü', (
+        <svg viewBox="0 0 210 65" className="w-full max-w-[240px] h-auto">
+            <rect x="10" y="20" width="190" height="35" fill="#fef08a" stroke="#ca8a04" strokeWidth="2" rx="3" />
+            {Array.from({ length: 11 }).map((_, i) => (
+                <g key={i}>
+                    <line x1={15 + i * 18} y1="20" x2={15 + i * 18} y2="34" stroke="#854d0e" strokeWidth="1.5" />
+                    <text x={15 + i * 18} y="47" fontSize="7" fontWeight="bold" fill="#854d0e" textAnchor="middle">{i}</text>
+                </g>
+            ))}
+            <rect x="15" y="8" width="108" height="10" fill="#0284c7" rx="2" />
+            <SvgBadgeText x={69} y={4} text={`Kalem = ${cleanLabel(given[0], '6 cm')}`} fill="#0284c7" fontSize={7} />
+        </svg>
+    ));
+
+    if (mode === 'birim-kareli-zemin') return wrap('Birim Kareli Zemin Üzerinde Alan', (
+        <svg viewBox="0 0 160 110" className="w-full max-w-[200px] h-auto">
+            <defs>
+                <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#cbd5e1" strokeWidth="1" />
+                </pattern>
+            </defs>
+            <rect width="160" height="110" fill="url(#grid)" />
+            <polygon points="20,20 120,20 100,80 40,80" fill="#0284c7" fillOpacity="0.3" stroke="#0284c7" strokeWidth="2.5" />
+            <SvgBadgeText x={70} y={50} text="Alan: ? birimkare" fill="#0284c7" />
+        </svg>
+    ));
+
+    if (mode === 'paralelkenar-yamuk') return wrap('Paralelkenar / Yamuk Yükseklik Şeması', (
+        <svg viewBox="0 0 190 95" className="w-full max-w-[220px] h-auto">
+            <polygon points="35,75 165,75 135,20 65,20" fill="#e0f2fe" stroke="#0284c7" strokeWidth="2" />
+            <line x1="65" y1="20" x2="65" y2="75" stroke="#e11d48" strokeWidth="1.5" strokeDasharray="3,2" />
+            <SvgBadgeText x={100} y={85} text={`Taban a = ${tabanL}`} fill="#0369a1" />
+            <SvgBadgeText x={100} y={12} text={`Üst Taban b = ${yuksL}`} fill="#0369a1" />
+            <SvgBadgeText x={55} y={48} text="h" fill="#e11d48" textAnchor="end" />
+        </svg>
+    ));
+
+    if (mode === 'iletki-aciolcer') return wrap('İletki / Açıölçer ile Açı Ölçümü', (
+        <svg viewBox="0 0 180 100" className="w-full max-w-[210px] h-auto">
+            <path d="M 20,80 A 70 70 0 0 1 160,80 Z" fill="#f1f5f9" stroke="#64748b" strokeWidth="2" />
+            <line x1="90" y1="80" x2="160" y2="80" stroke="#0f172a" strokeWidth="2" />
+            <line x1="90" y1="80" x2="139" y2="31" stroke="#e11d48" strokeWidth="2.5" />
+            <circle cx="90" cy="80" r="3" fill="#0f172a" />
+            <SvgBadgeText x={115} y={55} text={`Açı = ${aciL}`} fill="#e11d48" bgFill="#fff1f2" />
+        </svg>
+    ));
+
+    if (mode === 'kesir-pastasi') return wrap('Kesir Modeli (Daire Dilimi Pastası)', (
+        <svg viewBox="0 0 120 110" className="w-full max-w-[140px] h-auto">
+            <circle cx="60" cy="55" r="42" fill="#e2e8f0" stroke="#475569" strokeWidth="2" />
+            <path d="M 60,55 L 60,13 A 42 42 0 0 1 102,55 Z" fill="#0284c7" />
+            <path d="M 60,55 L 102,55 A 42 42 0 0 1 60,97 Z" fill="#0284c7" />
+            <circle cx="60" cy="55" r="3" fill="#ffffff" />
+            <SvgBadgeText x={60} y={55} text="2/4" fill="#0284c7" />
+        </svg>
+    ));
+
     if (mode === 'prizma') return wrap('Dikdörtgenler Prizması — 3D Şematik Görünüm', (
         <svg viewBox="0 0 170 100" className="w-full max-w-[210px] h-auto">
             <polygon points="30,75 110,75 110,30 30,30" fill="#e0f2fe" fillOpacity="0.8" stroke="#0284c7" strokeWidth="2" />

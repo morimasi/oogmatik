@@ -57,9 +57,10 @@ const buildMathProblemPrompt = (settings: MatProblemAyarlari): string => {
         '1. ŞEMA ZORUNLULUĞU ESNEKLİĞİ: Her problemde şema/görsel çıkmak ZORUNDA DEĞİLDİR. Eğer soru sözel veya zihinsel mantık problemi ise "semaTipi": "yok" seç!\n' +
         '2. GÖRSELLİ VE ŞEMALI SORULAR: Soru bir tablo, grafik veya geometrik şekil gerektiriyorsa soru metninde görsele atıf yap ("Aşağıdaki çetele tablosuna göre...", "Yukarıda verilen dik üçgene göre...") ve uygun "semaTipi" seç:\n' +
         '   - Çetele / Sıklık / Nesne Grafiği: "cetele-tablosu", "siklik-tablosu", "nesne-grafigi", "nesne-izgarasi"\n' +
-        '   - Sınıf Seviyesine Göre: 1-2. Sınıf: cetele-tablosu, nesne-grafigi, sayi-dogrusu | 3-5. Sınıf: siklik-tablosu, kesir-bloklari, yuzde-izgara, prizma-3d | 6-8. Sınıf (LGS): lgs-ikili-grafik, lgs-alan-modeli, lgs-egim-koordinat, lgs-3d-acinim, lgs-ebob-ekok, lgs-karekok-uslu, lgs-pisagor-ucgen, yok\n' +
+        '   - İlkokul (1-4. Sınıf): kesir-pastasi, saat-zaman, para-matrisi, abakus-basamak, cetvel-olcme, oruntu-blok, cetele-tablosu, siklik-tablosu, nesne-grafigi, nesne-izgarasi, sayi-dogrusu\n' +
+        '   - Ortaokul & LGS (5-8. Sınıf): birim-kareli-zemin, paralelkenar-yamuk, terazi-denklem, iletki-aciolcer, lgs-ikili-grafik, lgs-alan-modeli, lgs-egim-koordinat, lgs-3d-acinim, lgs-ebob-ekok, lgs-karekok-uslu, lgs-pisagor-ucgen, yok\n' +
         '3. ÇOKLU ALT SORU DESTEĞİ: Özellikle Tablo ve Grafik sorularında tek bir görsele bağlı 2-5 adet alt soru ("altSorular": ["1. En çok sevilen meyve hangisidir?", "2. Toplam kaç öğrenci vardır?"]) ve bunların cevaplarını ("altCevaplar": ["Çilek", "32 öğrenci"]) üret!\n' +
-        '4. NESNE GRAFİĞİ LEJANTİ: Nesne grafiklerinde "semaVerisi": {"lejantNotu": "Not: Her resim 3 adet oyuncağı göstermektedir.", "nesneGrafikData": [{"kategori": "Ayıcık", "adet": 7, "simge": "🧸"}]} verisini aktar.\n' +
+        '4. NESNE GRAFİĞİ LEJANTİ VE İLKOKUL ŞEMALARI: "semaVerisi": {"lejantNotu": "Not: Her resim 3 adet oyunu göstermektedir.", "nesneGrafikData": [{"kategori": "Ayıcık", "adet": 7, "simge": "🧸"}], "ceteleData": {"Kiraz": 10}, "etiketler": {"taban": "15 cm", "yukseklik": "8 cm", "aci": "65°"}} verisini aktar.\n' +
         '5. BİREBİR ŞEMA VE VERİ UYUMU: Soru metnindeki tüm sayılar ve veriler "semaVerisi", "tabloVerisi" veya "grafikVerisi" objelerine EKSİKSİZ aktarılmalıdır.\n\n' +
         '🚨 KRİTİK BENZERSİZLİK VE ORİJİNALİLK KURALI 🚨\n' +
         '- Benzersizlik Tohumu: ' + randomSeed + '\n' +
