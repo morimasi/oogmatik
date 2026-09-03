@@ -25,6 +25,7 @@ export const ComponentLibrary = () => {
         newLayout[index] = newLayout[index - 1];
         newLayout[index - 1] = temp;
         setLayout(newLayout);
+        recalculateLayout();
     };
 
     const moveDown = (index: number) => {
@@ -34,6 +35,7 @@ export const ComponentLibrary = () => {
         newLayout[index] = newLayout[index + 1];
         newLayout[index + 1] = temp;
         setLayout(newLayout);
+        recalculateLayout();
     };
     // Reorder layout based on drag source and target instanceIds
     const reorderLayout = (sourceId: string, targetId: string) => {

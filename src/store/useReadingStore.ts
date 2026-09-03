@@ -124,39 +124,36 @@ export const useReadingStore = create<ReadingState>()((set, get) => ({
 
   recalculateLayout: () => {
     set((state) => {
-      let currentY = 20;
-      let currentPage = 0;
-
-      // Kullanıcının mevcut layout dizilimindeki sırasını koru veya sıralama indeksine göre dize
+      let pageCounter = 0;
       const sortedItems = [...state.layout];
-
       const updatedLayout = sortedItems.map((item) => {
         if (!item.isVisible) return item;
-
-        const margin = (item.id === 'header' || item.id === 'pedagogical_goals') ? 0 : 28;
-        const h = Number(item.style?.h) || 120;
-
-        // Eğer mevcut A4 sayfa yüksekliği (1122px) aşıldıysa sonraki sayfaya aktar
-        if (currentY + h > A4_HEIGHT_PX - 40) {
-          currentPage++;
-          currentY = 20;
+        const isHeaderOrGoal = item.id === 'header' || item.id === 'pedagogical_goals';
+        if (isHeaderOrGoal) {
+          return {
+            ...item,
+            pageIndex: 0,
+            style: {
+              ...item.style,
+              y: 20,
+              x: 20,
+              w: 754,
+            },
+          };
         }
-
         const newItem = {
           ...item,
-          pageIndex: currentPage,
+          pageIndex: pageCounter,
           style: {
             ...item.style,
-            y: currentY,
-            x: 20, // A4 Sol hizalamasını sabitle
-            w: 754  // A4 Genişliğini standart yap
-          }
+            y: 20,
+            x: 20,
+            w: 754,
+          },
         };
-
-        currentY += h + margin;
+        pageCounter++;
         return newItem;
       });
-
       return { layout: updatedLayout };
     });
   },
