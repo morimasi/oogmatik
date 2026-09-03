@@ -140,7 +140,7 @@ const DraggableItem = ({
         position: 'relative',
         width: '100%',
         height: 'auto',
-        minHeight: item.style.h ? `${item.style.h}px` : 'auto',
+        minHeight: 'auto',
         marginBottom: '28px', // 2 satır tipografik boşluk (28px)
         padding: '0 20px',
         boxSizing: 'border-box',
@@ -189,7 +189,7 @@ export const ReadingStudioContentRenderer = ({
     if (item.id === 'header') {
       const data = item.specificData || { title: 'HİKAYE', subtitle: '' };
       return (
-        <div className="h-full flex flex-col justify-end border-b-2 border-zinc-900 pb-2" style={boxStyle}>
+        <div className="flex flex-col justify-end border-b-2 border-zinc-900 pb-2" style={boxStyle}>
           <h1 className="font-black uppercase leading-none tracking-tight" style={{ fontSize: '2.5em' }}>
             {data.title}
           </h1>
@@ -222,7 +222,7 @@ export const ReadingStudioContentRenderer = ({
     if (item.id === '5n1k') {
       const questions = Array.isArray(item.specificData?.questions) ? item.specificData.questions : [];
       return (
-        <div className="flex flex-col h-full bg-zinc-50/50 rounded-2xl border border-zinc-200" style={boxStyle}>
+        <div className="flex flex-col bg-zinc-50/50 rounded-2xl border border-zinc-200" style={boxStyle}>
           <h4 className="font-black text-[11px] uppercase mb-4 text-accent border-b border-accent/20 pb-1">
             <i className="fa-solid fa-circle-question mr-2"></i>
             5N 1K - Okuduğunu Anlama Analizi
@@ -246,7 +246,7 @@ export const ReadingStudioContentRenderer = ({
     if (item.id === 'vocabulary') {
       const words = Array.isArray(item.specificData?.words) ? item.specificData.words : [];
       return (
-        <div className="flex flex-col h-full bg-amber-50/30 rounded-2xl border border-amber-200/50" style={boxStyle}>
+        <div className="flex flex-col bg-amber-50/30 rounded-2xl border border-amber-200/50" style={boxStyle}>
           <h4 className="font-black text-[11px] uppercase mb-3 text-amber-700">
             <i className="fa-solid fa-spell-check mr-2"></i>
             Sözlükçe (Yeni Kelimeler)
