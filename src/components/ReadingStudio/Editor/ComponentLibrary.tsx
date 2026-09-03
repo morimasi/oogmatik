@@ -2,7 +2,7 @@ import React from 'react';
 import { useReadingStore } from '../../../store/useReadingStore';
 
 export const ComponentLibrary = () => {
-    const { layout, toggleVisibility, setLayout } = useReadingStore();
+    const { layout, toggleVisibility, setLayout, recalculateLayout } = useReadingStore();
 
     // Sabit ikonlar ve renkler
     const componentMeta: Record<string, { icon: string; color: string }> = {
@@ -35,6 +35,32 @@ export const ComponentLibrary = () => {
         newLayout[index + 1] = temp;
         setLayout(newLayout);
     };
+    // Reorder layout based on drag source and target instanceIds
+    const reorderLayout = (sourceId: string, targetId: string) => {
+        const sourceIdx = layout.findIndex((i) => i.instanceId === sourceId);
+        const targetIdx = layout.findIndex((i) => i.instanceId === targetId);
+        if (sourceIdx === -1 || targetIdx === -1) return;
+        const newLayout = [...layout];
+        const [moved] = newLayout.splice(sourceIdx, 1);
+        newLayout.splice(targetIdx, 0, moved);
+        setLayout(newLayout);
+    };
+
+    const handleDragStart = (e: React.DragEvent<HTMLDivElement>, id: string) => {
+        e.dataTransfer.setData('text/plain', id);
+    };
+
+    const handleDrop = (e: React.DragEvent<HTMLDivElement>, id: string) => {
+        e.preventDefault();
+        const sourceId = e.dataTransfer.getData('text/plain');
+        if (sourceId && sourceId !== id) {
+            reorderLayout(sourceId, id);
+        }
+    };
+
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+    };
 
     return (
         <div className="space-y-6">
@@ -51,9 +77,13 @@ export const ComponentLibrary = () => {
                 {layout.map((item, index) => (
                     <div
                         key={item.instanceId}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, item.instanceId)}
+                        onDragOver={handleDragOver}
+                        onDrop={(e) => handleDrop(e, item.instanceId)}
                         className={`group flex items-center gap-3 p-2.5 rounded-xl transition-all border-2 relative overflow-hidden ${item.isVisible
-                                ? 'bg-zinc-800/50 border-emerald-500/50 shadow-lg shadow-emerald-500/5'
-                                : 'bg-zinc-900 border-zinc-800 opacity-60 hover:opacity-100 hover:border-zinc-700'
+                            ? 'bg-zinc-800/50 border-emerald-500/50 shadow-lg shadow-emerald-500/5'
+                            : 'bg-zinc-900 border-zinc-800 opacity-60 hover:opacity-100 hover:border-zinc-700'
                             }`}
                     >
                         {/* Status Indicator */}
