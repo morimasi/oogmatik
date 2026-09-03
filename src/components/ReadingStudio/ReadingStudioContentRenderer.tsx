@@ -100,31 +100,52 @@ const DraggableItem = ({
 
   const isSelected = selectedId === item.instanceId;
 
+  // ─── TASARIM MODU: absolute konumlandırma (sürükle-bırak) ────────
+  if (designMode) {
+    return (
+      <div
+        className={`absolute group transition-shadow cursor-move ring-accent/20 ${isSelected ? 'ring-2 ring-accent shadow-2xl z-50' : ''}`}
+        style={{
+          left: item.style.x,
+          top: item.style.y,
+          width: item.style.w,
+          height: item.style.h,
+          transform: `rotate(${item.style.rotation || 0}deg)`,
+          zIndex: item.style.zIndex,
+        }}
+        onMouseDown={handleMouseDown}
+      >
+        {isSelected && (
+          <>
+            <div className="absolute -top-10 left-0 bg-accent text-white text-[8px] font-black px-3 py-1.5 rounded-lg shadow-xl uppercase tracking-widest flex items-center gap-2 z-50 animate-in fade-in slide-in-from-bottom-2">
+              <i className="fa-solid fa-arrows-up-down-left-right"></i>
+              {item.label}
+            </div>
+            <div className="resize-handle absolute -right-1.5 -bottom-1.5 w-4 h-4 bg-white border-2 border-accent rounded-md shadow-lg cursor-nwse-resize z-50 flex items-center justify-center">
+              <div className="w-1 h-1 bg-accent rounded-full"></div>
+            </div>
+            <div className="absolute inset-0 ring-2 ring-accent ring-offset-2 pointer-events-none"></div>
+          </>
+        )}
+        {children}
+      </div>
+    );
+  }
+
+  // ─── NORMAL / YAZDIRMA MODU: relative akış (çakışmasız dikey sıra) ──
   return (
     <div
-      className={`absolute group transition-shadow ${designMode ? 'cursor-move ring-accent/20' : ''} ${isSelected && designMode ? 'ring-2 ring-accent shadow-2xl z-50' : ''}`}
+      className="group transition-shadow"
       style={{
-        left: item.style.x,
-        top: item.style.y,
-        width: item.style.w,
-        height: item.style.h,
-        transform: `rotate(${item.style.rotation || 0}deg)`,
-        zIndex: item.style.zIndex,
+        position: 'relative',
+        width: '100%',
+        minHeight: item.style.h || 'auto',
+        marginBottom: '28px', // 2 satır tipografik boşluk
+        padding: '0 20px',
+        boxSizing: 'border-box',
       }}
       onMouseDown={handleMouseDown}
     >
-      {designMode && isSelected && (
-        <>
-          <div className="absolute -top-10 left-0 bg-accent text-white text-[8px] font-black px-3 py-1.5 rounded-lg shadow-xl uppercase tracking-widest flex items-center gap-2 z-50 animate-in fade-in slide-in-from-bottom-2">
-            <i className="fa-solid fa-arrows-up-down-left-right"></i>
-            {item.label}
-          </div>
-          <div className="resize-handle absolute -right-1.5 -bottom-1.5 w-4 h-4 bg-white border-2 border-accent rounded-md shadow-lg cursor-nwse-resize z-50 flex items-center justify-center">
-            <div className="w-1 h-1 bg-accent rounded-full"></div>
-          </div>
-          <div className="absolute inset-0 ring-2 ring-accent ring-offset-2 pointer-events-none"></div>
-        </>
-      )}
       {children}
     </div>
   );
@@ -405,11 +426,19 @@ export const ReadingStudioContentRenderer = ({
           return (
             <div
               key={pageIndex}
-              className={`a4-page worksheet-page relative bg-white text-black shadow-[0_0_50px_rgba(0,0,0,0.3)] origin-top transition-all ${designMode ? 'design-grid' : ''} ${isLandscape ? 'landscape' : ''}`}
-              style={{ width: canvasWidth, minHeight: canvasHeight, padding: 0 }}
+              className={`a4-page worksheet-page bg-white text-black shadow-[0_0_50px_rgba(0,0,0,0.3)] origin-top transition-all ${designMode ? 'design-grid relative' : ''} ${isLandscape ? 'landscape' : ''}`}
+              style={{
+                width: canvasWidth,
+                minHeight: canvasHeight,
+                padding: designMode ? 0 : '20px 0',
+                position: 'relative',
+                display: designMode ? 'block' : 'flex',
+                flexDirection: designMode ? undefined : 'column',
+                overflow: designMode ? undefined : 'hidden',
+              }}
             >
-              <div className="absolute inset-0 flex flex-col pointer-events-none">
-                {/* Page Number Indicator */}
+              {/* Sayfa Numarası Göstergesi */}
+              <div className="absolute inset-0 flex flex-col pointer-events-none" style={{ zIndex: 0 }}>
                 <div className="absolute bottom-6 right-8 text-[10px] font-black text-zinc-300 uppercase tracking-widest">
                   P. {pageIndex + 1}
                 </div>
@@ -417,9 +446,7 @@ export const ReadingStudioContentRenderer = ({
 
               {pageItems.map((item: any) => (
                 <DraggableItem key={item.instanceId} item={item} canvasWidth={canvasWidth}>
-                  <div style={{ marginBottom: '28px' }}>
-                    {renderItemContent(item)}
-                  </div>
+                  {renderItemContent(item)}
                 </DraggableItem>
               ))}
             </div>
