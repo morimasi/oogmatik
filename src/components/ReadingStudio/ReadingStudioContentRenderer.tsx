@@ -1,30 +1,30 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { ImageDisplay } from '../sheets/common';
 import { InteractiveStoryData, LayoutItem } from '../../types';
 import { useReadingStore } from '../../store/useReadingStore';
 import { A4_WIDTH_PX, A4_HEIGHT_PX } from '../../utils/layoutConstants';
+import { ContentEditor } from './Editor/ContentEditor';
 
 const DraggableItem = ({
   item,
   children,
   canvasWidth,
+  onEdit,
 }: {
   item: any;
   children: any;
   key?: any;
   canvasWidth: number;
+  onEdit?: (item: any) => void;
 }) => {
-  const { designMode, updateComponent, setSelectedId, selectedId, layout, setLayout } =
+  const { designMode, setSelectedId, selectedId, layout, setLayout } =
     useReadingStore();
   const isDragging = useRef(false);
   const startPos = useRef({ x: 0, y: 0 });
   const initialLayout = useRef<LayoutItem[]>([]);
 
   const handleMouseDown = (e: any) => {
-    // 1. Tıklanan bileşeni her halükarda seç (İçerik/Stil düzenleme için odaklan)
     setSelectedId(item.instanceId);
-
-    // 2. Eğer sürükle/bırak (tasarım) modunda değilse, gerisini çalıştırma
     if (!designMode) return;
 
     const isResizeHandle = e.target.closest('.resize-handle');
@@ -100,53 +100,32 @@ const DraggableItem = ({
 
   const isSelected = selectedId === item.instanceId;
 
-  // ─── TASARIM MODU: absolute konumlandırma (sürükle-bırak) ────────
-  if (designMode) {
-    return (
-      <div
-        className={`absolute group transition-shadow cursor-move ring-accent/20 ${isSelected ? 'ring-2 ring-accent shadow-2xl z-50' : ''}`}
-        style={{
-          left: item.style.x,
-          top: item.style.y,
-          width: item.style.w,
-          height: item.style.h,
-          transform: `rotate(${item.style.rotation || 0}deg)`,
-          zIndex: item.style.zIndex,
-        }}
-        onMouseDown={handleMouseDown}
-      >
-        {isSelected && (
-          <>
-            <div className="absolute -top-10 left-0 bg-accent text-white text-[8px] font-black px-3 py-1.5 rounded-lg shadow-xl uppercase tracking-widest flex items-center gap-2 z-50 animate-in fade-in slide-in-from-bottom-2">
-              <i className="fa-solid fa-arrows-up-down-left-right"></i>
-              {item.label}
-            </div>
-            <div className="resize-handle absolute -right-1.5 -bottom-1.5 w-4 h-4 bg-white border-2 border-accent rounded-md shadow-lg cursor-nwse-resize z-50 flex items-center justify-center">
-              <div className="w-1 h-1 bg-accent rounded-full"></div>
-            </div>
-            <div className="absolute inset-0 ring-2 ring-accent ring-offset-2 pointer-events-none"></div>
-          </>
-        )}
-        {children}
-      </div>
-    );
-  }
-
-  // ─── NORMAL / YAZDIRMA MODU: relative akış (çakışmasız dikey sıra) ──
   return (
     <div
-      className="group transition-shadow"
+      className={`absolute group transition-shadow cursor-move ring-accent/20 ${isSelected ? 'ring-2 ring-accent shadow-2xl z-50' : ''}`}
       style={{
-        position: 'relative',
-        width: '100%',
-        height: 'auto',
-        minHeight: 'auto',
-        marginBottom: '28px', // 2 satır tipografik boşluk (28px)
-        padding: '0 20px',
-        boxSizing: 'border-box',
+        left: item.style.x,
+        top: item.style.y,
+        width: item.style.w,
+        height: item.style.h,
+        transform: `rotate(${item.style.rotation || 0}deg)`,
+        zIndex: item.style.zIndex,
       }}
       onMouseDown={handleMouseDown}
+      onDoubleClick={() => onEdit?.(item)}
     >
+      {isSelected && (
+        <>
+          <div className="absolute -top-10 left-0 bg-accent text-white text-[8px] font-black px-3 py-1.5 rounded-lg shadow-xl uppercase tracking-widest flex items-center gap-2 z-50 animate-in fade-in slide-in-from-bottom-2">
+            <i className="fa-solid fa-arrows-up-down-left-right"></i>
+            {item.label}
+          </div>
+          <div className="resize-handle absolute -right-1.5 -bottom-1.5 w-4 h-4 bg-white border-2 border-accent rounded-md shadow-lg cursor-nwse-resize z-50 flex items-center justify-center">
+            <div className="w-1 h-1 bg-accent rounded-full"></div>
+          </div>
+          <div className="absolute inset-0 ring-2 ring-accent ring-offset-2 pointer-events-none"></div>
+        </>
+      )}
       {children}
     </div>
   );
@@ -162,6 +141,8 @@ export const ReadingStudioContentRenderer = ({
   settings?: any;
 }) => {
   const { designMode } = useReadingStore();
+  const [editingItem, setEditingItem] = useState<any>(null);
+
   if (!layout || !Array.isArray(layout)) return null;
 
   const isLandscape = settings?.orientation === 'landscape';
@@ -185,7 +166,6 @@ export const ReadingStudioContentRenderer = ({
       textAlign: (s.textAlign as any) || 'left',
     };
 
-    // 1. HEADER
     if (item.id === 'header') {
       const data = item.specificData || { title: 'HİKAYE', subtitle: '' };
       return (
@@ -206,7 +186,6 @@ export const ReadingStudioContentRenderer = ({
       );
     }
 
-    // 2. STORY BLOCK
     if (item.id === 'story_block') {
       const data = item.specificData || { text: '' };
       return (
@@ -218,7 +197,6 @@ export const ReadingStudioContentRenderer = ({
       );
     }
 
-    // 3. 5N1K ANALYSIS
     if (item.id === '5n1k') {
       const questions = Array.isArray(item.specificData?.questions) ? item.specificData.questions : [];
       return (
@@ -242,7 +220,6 @@ export const ReadingStudioContentRenderer = ({
       );
     }
 
-    // 4. VOCABULARY
     if (item.id === 'vocabulary') {
       const words = Array.isArray(item.specificData?.words) ? item.specificData.words : [];
       return (
@@ -263,7 +240,6 @@ export const ReadingStudioContentRenderer = ({
       );
     }
 
-    // 5. PEDAGOGICAL GOALS
     if (item.id === 'pedagogical_goals') {
       const data = item.specificData || { note: '', goals: [] };
       return (
@@ -284,7 +260,6 @@ export const ReadingStudioContentRenderer = ({
       );
     }
 
-    // 6. TEST QUESTIONS
     if (item.id === 'test_questions') {
       const questions = Array.isArray(item.specificData?.questions) ? item.specificData.questions : [];
       return (
@@ -317,7 +292,6 @@ export const ReadingStudioContentRenderer = ({
       );
     }
 
-    // 7. LOGIC PROBLEMS
     if (item.id === 'logic_problem') {
       const puzzle = item.specificData?.puzzle;
       return (
@@ -340,7 +314,6 @@ export const ReadingStudioContentRenderer = ({
       );
     }
 
-    // 8. SYLLABLE TRAIN (Vagon Tasarımı)
     if (item.id === 'syllable_train') {
       const words = Array.isArray(item.specificData?.words) ? item.specificData.words : [];
       return (
@@ -352,24 +325,20 @@ export const ReadingStudioContentRenderer = ({
           <div className="flex flex-wrap gap-x-12 gap-y-8 justify-start">
             {words.map((w: any, i: number) => (
               <div key={i} className="flex items-end gap-0.5">
-                {/* Locomotive Placeholder (Simplified) */}
                 <div className="w-10 h-10 bg-cyan-600 rounded-l-lg flex flex-col justify-center items-center text-white relative">
                   <i className="fa-solid fa-steam-symbol text-[10px] absolute -top-4"></i>
                   <i className="fa-solid fa-train text-xs"></i>
                 </div>
-                {/* Syllable Wagons */}
                 {(Array.isArray(w.syllables) ? w.syllables : []).map((syl: string, sylIdx: number) => (
                   <div key={sylIdx} className="w-12 h-10 border-2 border-cyan-700 border-l-0 bg-white flex items-center justify-center font-black text-sm relative group overflow-hidden">
                     {(syl || '').toUpperCase()}
                     <div className="absolute bottom-0 h-1 bg-cyan-700/20 w-full"></div>
-                    {/* Wheels */}
                     <div className="absolute -bottom-1 w-[120%] flex justify-around px-1">
                       <div className="w-2.5 h-2.5 rounded-full bg-zinc-900 border-2 border-white"></div>
                       <div className="w-2.5 h-2.5 rounded-full bg-zinc-900 border-2 border-white"></div>
                     </div>
                   </div>
                 ))}
-                {/* Empty Wagon for Practice */}
                 <div className="w-12 h-10 border-2 border-dashed border-cyan-300 border-l-0 bg-zinc-50 flex items-center justify-center text-cyan-200">
                   ?
                 </div>
@@ -380,7 +349,6 @@ export const ReadingStudioContentRenderer = ({
       );
     }
 
-    // 9. CREATIVE AREA
     if (item.id === 'creative_area') {
       const data = item.specificData || { prompt: '' };
       return (
@@ -399,7 +367,6 @@ export const ReadingStudioContentRenderer = ({
       );
     }
 
-    // 10. NOTES AREA
     if (item.id === 'note_area') {
       return (
         <div className="h-full flex flex-col bg-yellow-50/50 rounded-2xl border border-yellow-200 p-4" style={boxStyle}>
@@ -417,43 +384,56 @@ export const ReadingStudioContentRenderer = ({
   };
 
   return (
-    <div className="flex flex-col gap-8 w-full items-center">
-      {Array.from({ length: Math.max(1, ...layout.map((l: any) => (l.pageIndex || 0) + 1)) }).map(
-        (_, pageIndex) => {
-          const pageItems = layout.filter(
-            (l: any) => l.isVisible && (l.pageIndex || 0) === pageIndex
-          );
+    <>
+      <div className="flex flex-col gap-8 w-full items-center">
+        {Array.from({ length: Math.max(1, ...layout.map((l: any) => (l.pageIndex || 0) + 1)) }).map(
+          (_, pageIndex) => {
+            const pageItems = layout.filter(
+              (l: any) => l.isVisible && (l.pageIndex || 0) === pageIndex
+            );
 
-          return (
-            <div
-              key={pageIndex}
-              className={`a4-page worksheet-page bg-white text-black shadow-[0_0_50px_rgba(0,0,0,0.3)] origin-top transition-all ${designMode ? 'design-grid relative' : ''} ${isLandscape ? 'landscape' : ''}`}
-              style={{
-                width: canvasWidth,
-                minHeight: canvasHeight,
-                padding: designMode ? 0 : '20px 0',
-                position: 'relative',
-                display: designMode ? 'block' : 'flex',
-                flexDirection: designMode ? undefined : 'column',
-                overflow: designMode ? undefined : 'hidden',
-              }}
-            >
-              {/* Sayfa Numarası Göstergesi */}
-              <div className="absolute inset-0 flex flex-col pointer-events-none" style={{ zIndex: 0 }}>
-                <div className="absolute bottom-6 right-8 text-[10px] font-black text-zinc-300 uppercase tracking-widest">
-                  P. {pageIndex + 1}
+            return (
+              <div
+                key={pageIndex}
+                className={`a4-page worksheet-page bg-white text-black shadow-[0_0_50px_rgba(0,0,0,0.3)] origin-top transition-all ${designMode ? 'design-grid relative' : ''} ${isLandscape ? 'landscape' : ''}`}
+                style={{
+                  width: canvasWidth,
+                  minHeight: canvasHeight,
+                  padding: designMode ? 0 : '20px 0',
+                  position: 'relative',
+                  display: designMode ? 'block' : 'flex',
+                  flexDirection: designMode ? undefined : 'column',
+                  overflow: designMode ? undefined : 'hidden',
+                }}
+              >
+                <div className="absolute inset-0 flex flex-col pointer-events-none" style={{ zIndex: 0 }}>
+                  <div className="absolute bottom-6 right-8 text-[10px] font-black text-zinc-300 uppercase tracking-widest">
+                    P. {pageIndex + 1}
+                  </div>
                 </div>
-              </div>
 
-              {pageItems.map((item: any) => (
-                <DraggableItem key={item.instanceId} item={item} canvasWidth={canvasWidth}>
-                  {renderItemContent(item)}
-                </DraggableItem>
-              ))}
-            </div>
-          );
-        }
+                {pageItems.map((item: any) => (
+                  <DraggableItem
+                    key={item.instanceId}
+                    item={item}
+                    canvasWidth={canvasWidth}
+                    onEdit={(itm) => setEditingItem(itm)}
+                  >
+                    {renderItemContent(item)}
+                  </DraggableItem>
+                ))}
+              </div>
+            );
+          }
+        )}
+      </div>
+      {editingItem && (
+        <ContentEditor
+          item={editingItem}
+          open={true}
+          onClose={() => setEditingItem(null)}
+        />
       )}
-    </div>
+    </>
   );
 };
