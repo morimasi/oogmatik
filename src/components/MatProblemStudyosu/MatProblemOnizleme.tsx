@@ -35,12 +35,19 @@ export const MatProblemOnizleme: React.FC<MatProblemOnizlemeProps> = ({
     const verilenlerGoster = ayarlar?.verilenlerGosterilsinMi ?? true;
     const cozumKutusuGoster = ayarlar?.cozumKutusuGosterilsinMi ?? true;
 
+    const getFontFamily = (font: string) => {
+        if (font === 'OpenDyslexic') return '"OpenDyslexic", "Lexend", sans-serif';
+        if (font === 'Times New Roman') return '"Times New Roman", Times, serif';
+        if (font === 'Inter') return 'Inter, sans-serif';
+        return 'Lexend, sans-serif';
+    };
+
     const style: React.CSSProperties = {
-        fontFamily: dizgiAyarlari.fontAilesi === 'Times New Roman' ? '"Times New Roman", Times, serif' : dizgiAyarlari.fontAilesi === 'Inter' ? 'Inter, sans-serif' : 'Lexend, sans-serif',
-        fontSize: fontSizeMap[dizgiAyarlari.fontBoyutu] || '11px',
-        lineHeight: lineHeightMap[dizgiAyarlari.satirAraligi] || '1.6',
-        textAlign: dizgiAyarlari.metinHizalama || 'left',
-        padding: paddingMap[dizgiAyarlari.kenarBoslugu] || '18mm',
+        fontFamily: getFontFamily(dizgiAyarlari?.fontAilesi || 'Lexend'),
+        fontSize: fontSizeMap[dizgiAyarlari?.fontBoyutu || '11pt'] || '11px',
+        lineHeight: lineHeightMap[dizgiAyarlari?.satirAraligi || 'normal'] || '1.6',
+        textAlign: dizgiAyarlari?.metinHizalama || 'left',
+        padding: paddingMap[dizgiAyarlari?.kenarBoslugu || 'orta'] || '18mm',
     };
 
     const isDouble = dizgiAyarlari.sutunDuzeni === 'cift';

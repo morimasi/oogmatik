@@ -347,6 +347,8 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
                                 <MatProblemSoruAyarlari
                                     ayarlar={ayarlar}
                                     onAyarlarChange={setAyarlar}
+                                    dizgiAyarlari={dizgiAyarlari}
+                                    onDizgiAyarlariChange={setDizgiAyarlari}
                                 />
                                 <button
                                     disabled={isGenerating || !ayarlar.sinif}
@@ -408,9 +410,9 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
                     <div className="flex items-center gap-2 md:gap-3 px-3 py-2 bg-[var(--bg-paper)] border-b border-[var(--border-color)] flex-shrink-0 print:hidden w-full overflow-x-auto scrollbar-hide">
                         <div className="flex items-center gap-1">
                             <span className="text-[10px] font-bold text-[var(--text-muted)] mr-1 uppercase">Tasarım</span>
-                            {(['Lexend', 'Inter', 'Times New Roman'] as const).map((f) => (
+                            {(['Lexend', 'OpenDyslexic', 'Inter', 'Times New Roman'] as const).map((f) => (
                                 <FmtBtn key={f} active={dizgiAyarlari.fontAilesi === f} onClick={() => updateDizgi('fontAilesi', f)}>
-                                    {f === 'Times New Roman' ? 'Times' : f}
+                                    {f === 'Times New Roman' ? 'Times' : f === 'OpenDyslexic' ? 'Dyslexic' : f}
                                 </FmtBtn>
                             ))}
                         </div>

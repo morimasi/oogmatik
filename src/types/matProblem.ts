@@ -18,7 +18,7 @@ export type ProblemKategorisi =
     | 'cok-adimli';
 
 // ─── Font Ayarları ────────────────────────────────────────────
-export type ProblemFontAilesi = 'Lexend' | 'Inter' | 'Times New Roman';
+export type ProblemFontAilesi = 'Lexend' | 'OpenDyslexic' | 'Inter' | 'Times New Roman';
 export type ProblemFontBoyutu = '9pt' | '10pt' | '11pt' | '12pt';
 export type ProblemKenarBoslugu = 'dar' | 'orta' | 'genis';
 export type ProblemSutunDuzeni = 'tek' | 'cift';

@@ -109,7 +109,7 @@ export const useMatProblemStore = create<MatProblemStoreState>((set, get) => ({
         set((s) => ({ ayarlar: { ...s.ayarlar, secilenKazanimlar: kazanimlar } })),
 
     setProblemSayisi: (sayi: number) =>
-        set((s) => ({ ayarlar: { ...s.ayarlar, problemSayisi: Math.max(1, Math.min(20, sayi)) } })),
+        set((s) => ({ ayarlar: { ...s.ayarlar, problemSayisi: Math.max(1, Math.min(50, sayi)) } })),
 
     setDizgiAyarlari: (partial: Partial<ProblemDizgiAyarlari>) =>
         set((s) => ({ dizgiAyarlari: { ...s.dizgiAyarlari, ...partial } })),

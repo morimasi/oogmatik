@@ -42,9 +42,9 @@ const buildMathProblemPrompt = (settings: MatProblemAyarlari): string => {
 
     parts.push(
         'Görevin, 2025 yılı itibarıyla yürürlükte olan Türkiye Millî Eğitim Bakanlığı Matematik dersi öğretim programına (müfredata) sadık kalarak, belirtilen sınıf, üniteler ve kazanımlara uygun, ' +
-        problemSayisi +
-        ' adet SADE YENİ NESİL AÇIK UÇLU MATEMATİK PROBLEMİ üret, ' +
+        'TAM OLARAK ' + problemSayisi + ' ADET SADE YENİ NESİL AÇIK UÇLU MATEMATİK PROBLEMİ üret, ' +
         '🚨 KULLANICI AYARLARI VE ZORUNLU UYUM TALİMATLARI 🚨\n' +
+        '- İSTENEN PROBLEM SAYISI: TAM ' + problemSayisi + ' ADET (ZORUNLU: JSON dizisindeki "problemler" listesinde tam olarak ' + problemSayisi + ' adet problem nesnesi bulunmalıdır! Ne 1 eksik, ne 1 fazla!)\n' +
         '- Sınıf Seviyesi: ' + sinif + '. Sınıf\n' +
         (kazanimDetaylari ? '\n🎯 KAZANIM KISITI (%100 BİREBİR KAZANIM UYUMU ZORUNLUDUR):\n' + kazanimDetaylari + '\nÜretilecek her problem SADECE VE SADECE yukarıdaki kazanımların matematiksel mantığına, işlem seviyesine ve soru tipine dayalı olmalıdır.\n\n' : '\n') +
         '- Problem Kategorisi: "' + settings.kategori + '"\n' +
