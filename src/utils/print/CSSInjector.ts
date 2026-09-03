@@ -68,23 +68,25 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
       body.printing-mode #print-overlay .a4-page {
         width: 100% !important;
         max-width: 100% !important;
-        height: 297mm !important;
-        min-height: 297mm !important;
+        height: 100% !important;
+        min-height: auto !important;
         margin: 0 !important;
-        padding: 8mm !important;
+        padding: 0 !important;
         box-sizing: border-box !important;
         box-shadow: none !important;
+        border: none !important;
         break-inside: avoid !important;
         page-break-inside: avoid !important;
-        page-break-after: always !important;
-        break-after: page !important;
         overflow: hidden !important;
       }
 
-      body.printing-mode #print-overlay .bdmind-print-wrapper:last-child .worksheet-page,
-      body.printing-mode #print-overlay .bdmind-print-wrapper:last-child .print-page,
-      body.printing-mode #print-overlay .bdmind-print-wrapper:last-child .universal-mode-canvas,
-      body.printing-mode #print-overlay .bdmind-print-wrapper:last-child .a4-page {
+      body.printing-mode #print-overlay .bdmind-print-wrapper {
+        page-break-after: always !important;
+        break-after: page !important;
+        height: auto !important;
+      }
+
+      body.printing-mode #print-overlay .bdmind-print-wrapper:last-child {
         page-break-after: auto !important;
         break-after: auto !important;
       }
@@ -273,21 +275,22 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
       /* Kâğıt kenarlarında güvenlik boşluğu (Tarayıcı marjının yerini alan padding) */
       .print-page, .worksheet-page, .a4-page {
         margin: 0 !important;
-        padding: 8mm !important;
+        padding: 0 !important;
         box-sizing: border-box !important;
         box-shadow: none !important;
         border: none !important;
-        page-break-after: always !important;
-        break-after: page !important;
         background: white !important;
         display: block !important;
         position: relative !important;
         overflow: hidden !important;
-        height: 297mm !important;
+        height: 100% !important;
+        min-height: auto !important;
       }
-      .bdmind-print-wrapper:last-child .print-page,
-      .bdmind-print-wrapper:last-child .worksheet-page,
-      .bdmind-print-wrapper:last-child .a4-page {
+      .bdmind-print-wrapper {
+        page-break-after: always !important;
+        break-after: page !important;
+      }
+      .bdmind-print-wrapper:last-child {
         page-break-after: auto !important;
         break-after: auto !important;
       }
