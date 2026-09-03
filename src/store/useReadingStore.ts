@@ -124,7 +124,6 @@ export const useReadingStore = create<ReadingState>()((set, get) => ({
 
   recalculateLayout: () => {
     set((state) => {
-      const margin = 28; // Her bileşen arasında 2 satır metin yüksekliğine denk gelen dinamik boşluk (28px)
       let currentY = 20;
       let currentPage = 0;
 
@@ -134,6 +133,7 @@ export const useReadingStore = create<ReadingState>()((set, get) => ({
       const updatedLayout = sortedItems.map((item) => {
         if (!item.isVisible) return item;
 
+        const margin = (item.id === 'header' || item.id === 'pedagogical_goals') ? 0 : 28;
         const h = Number(item.style?.h) || 120;
 
         // Eğer mevcut A4 sayfa yüksekliği (1122px) aşıldıysa sonraki sayfaya aktar
