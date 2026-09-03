@@ -19,6 +19,9 @@ import { toast } from 'react-hot-toast';
 import { useAuthStore } from '../../store/useAuthStore';
 import { ActivityType } from '../../types/activity';
 import { BrandedLoadingAnimation } from '../shared/BrandedLoadingAnimation';
+import { db } from '../../services/firebaseClient';
+import { collection, addDoc, getDocs, query, where } from 'firebase/firestore';
+
 interface ReadingStudioInnerProps {
   onBack: () => void;
   initialData?: any;
@@ -52,7 +55,7 @@ const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) =>
       setActiveStudent(globalActiveStudent);
       const student = globalActiveStudent;
       setStoryData(null); // Reset existing story
-      
+
       // Update config based on global active student
       const newConfig = {
         ...config,
@@ -63,27 +66,27 @@ const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) =>
       };
       // Note: We'd ideally also sync studentProfile but config mapping is studio-specific
       (newConfig as any).studentProfile = {
-          diagnosis: student.diagnosis,
-          interests: student.interests,
-          strengths: student.strengths,
-          weaknesses: student.weaknesses
+        diagnosis: student.diagnosis,
+        interests: student.interests,
+        strengths: student.strengths,
+        weaknesses: student.weaknesses
       };
-      
+
       useReadingStore.getState().setConfig(newConfig);
     }
   }, [globalActiveStudent]);
-  
+
   // --- INITIAL DATA LOAD (HYDRATION) ---
   useEffect(() => {
     if (initialData) {
-        const data = initialData.content || initialData;
-        
-        if (data.config) useReadingStore.getState().setConfig(data.config);
-        if (data.storyData) setStoryData(data.storyData);
-        if (data.layout) setLayout(data.layout);
-        
-        // Final recalculation to ensure A4 fits correctly
-        setTimeout(() => recalculateLayout(), 150);
+      const data = initialData.content || initialData;
+
+      if (data.config) useReadingStore.getState().setConfig(data.config);
+      if (data.storyData) setStoryData(data.storyData);
+      if (data.layout) setLayout(data.layout);
+
+      // Final recalculation to ensure A4 fits correctly
+      setTimeout(() => recalculateLayout(), 150);
     }
   }, [initialData]);
 
@@ -152,8 +155,8 @@ const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) =>
         instanceId: getInstId('ped'),
         isVisible: false,
         pageIndex: 0,
-        specificData: { 
-            goals: (result as any).pedagogicalGoals 
+        specificData: {
+          goals: (result as any).pedagogicalGoals
         },
         style: { h: 180, fontSize: 12, fontFamily: 'Lexend', backgroundColor: '#ecfdf5', borderColor: '#10b981', borderWidth: 1, borderStyle: 'solid', borderRadius: 12, padding: 15 } as any
       });
@@ -225,6 +228,75 @@ const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) =>
     }
   };
 
+  // --- ÖĞRENCİYE ATA VE PAYLAŞ MODALLARI STATE ---
+  const [showStudentSelectorModal, setShowStudentSelectorModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [students, setStudents] = useState<any[]>([]);
+  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
+  const [isAssigning, setIsAssigning] = useState(false);
+  const [shareLink, setShareLink] = useState('');
+
+  // Öğrencileri yükle
+  useEffect(() => {
+    const fetchStudents = async () => {
+      if (!user) return;
+      try {
+        const q = query(collection(db, 'students'), where('teacherId', '==', user.id));
+        const snap = await getDocs(q);
+        const list: any[] = [];
+        snap.forEach(doc => list.push({ id: doc.id, ...doc.data() }));
+        setStudents(list);
+      } catch (e) {
+        logError(e as any);
+      }
+    };
+    fetchStudents();
+  }, [user]);
+
+  const handleShare = () => {
+    if (!storyData) {
+      toast.error('Lütfen önce bir çalışma oluşturun.');
+      return;
+    }
+    const currentUrl = window.location.href;
+    setShareLink(currentUrl);
+    setShowShareModal(true);
+  };
+
+  const handleConfirmAssignment = async () => {
+    if (!storyData) return;
+    if (selectedStudentIds.length === 0) {
+      toast.error('Lütfen en az bir öğrenci seçin.');
+      return;
+    }
+    setIsAssigning(true);
+    try {
+      const selectedStudents = students.filter(s => selectedStudentIds.includes(s.id));
+      const studentNames = selectedStudents.map(s => s.name);
+
+      for (const student of selectedStudents) {
+        await addDoc(collection(db, 'assigned_materials'), {
+          studentId: student.id,
+          studentName: student.name,
+          teacherId: user?.id || 'anonymous',
+          materialTitle: storyData.title || config.topic || 'Okuma Çalışması',
+          activityType: 'story-comprehension',
+          content: { storyData, config, layout },
+          assignedAt: new Date().toISOString(),
+          status: 'pending',
+        });
+      }
+
+      toast.success(`Çalışma "${studentNames.join(', ')}" isimli öğrencilere başarıyla atandı!`);
+      setShowStudentSelectorModal(false);
+      setSelectedStudentIds([]);
+    } catch (err: any) {
+      toast.error(`Atama sırasında hata oluştu: ${err.message || 'Bilinmeyen hata'}`);
+    } finally {
+      setIsAssigning(false);
+    }
+  };
+
   const handlePrint = async (action: 'print' | 'download') => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 50));
@@ -272,170 +344,211 @@ const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) =>
       style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}
     >
       <header
-          className="h-16 flex justify-between items-center px-6 shrink-0 z-50 shadow-sm"
-          style={{ backgroundColor: 'var(--bg-paper)', borderBottom: '1px solid var(--border-color)' }}
-        >
-          <div className="flex items-center gap-4">
-            <button
-              onClick={onBack}
-              className="w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-[var(--border-color)] bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)]"
-              style={{ color: 'var(--text-muted)' }}
-            >
-              <i className="fa-solid fa-arrow-left"></i>
-            </button>
-            <div className="flex flex-col">
-              <h2 className="text-sm font-black flex items-center gap-2 tracking-tight uppercase italic" style={{ color: 'var(--text-primary)' }}>
-                bdmind <span className="not-italic" style={{ color: 'var(--accent-color)' }}>Reading Studio Pro</span>
-              </h2>
-              {storyData && (
-                <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
-                  {storyData.title}
-                </span>
-              )}
-            </div>
+        className="h-16 flex justify-between items-center px-6 shrink-0 z-50 shadow-sm"
+        style={{ backgroundColor: 'var(--bg-paper)', borderBottom: '1px solid var(--border-color)' }}
+      >
+        <div className="flex items-center gap-4">
+          <button
+            onClick={onBack}
+            className="w-10 h-10 rounded-xl flex items-center justify-center transition-all border border-[var(--border-color)] bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)]"
+            style={{ color: 'var(--text-muted)' }}
+          >
+            <i className="fa-solid fa-arrow-left"></i>
+          </button>
+          <div className="flex flex-col">
+            <h2 className="text-sm font-black flex items-center gap-2 tracking-tight uppercase italic" style={{ color: 'var(--text-primary)' }}>
+              bdmind <span className="not-italic" style={{ color: 'var(--accent-color)' }}>Reading Studio Pro</span>
+            </h2>
+            {storyData && (
+              <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>
+                {storyData.title}
+              </span>
+            )}
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex rounded-xl p-0.5" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
-              <button
-                disabled={!canUndo}
-                onClick={undo}
-                className="studio-icon-btn w-10 h-10 rounded-lg flex items-center justify-center font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30"
-              >
-                <i className="fa-solid fa-rotate-left"></i>
-              </button>
-              <button
-                disabled={!canRedo}
-                onClick={redo}
-                className="studio-icon-btn w-10 h-10 rounded-lg flex items-center justify-center font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30"
-              >
-                <i className="fa-solid fa-rotate-right"></i>
-              </button>
-            </div>
-            <div className="w-px h-6 mx-2" style={{ backgroundColor: 'var(--border-color)' }}></div>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex rounded-xl p-0.5" style={{ backgroundColor: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
             <button
-              onClick={() => handlePrint('print')}
-              className="studio-icon-btn w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-[var(--text-primary)]"
-              title="Yazdır"
+              disabled={!canUndo}
+              onClick={undo}
+              className="studio-icon-btn w-9 h-9 rounded-lg flex items-center justify-center font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30"
+              title="Geri Al"
             >
-              <i className="fa-solid fa-print"></i>
+              <i className="fa-solid fa-rotate-left text-xs"></i>
             </button>
             <button
-              onClick={handleSave}
-              className="studio-icon-btn w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--accent-color)] border border-[var(--accent-color)] text-white shadow-lg shadow-[var(--accent-muted)] hover:opacity-90"
-              title="Arşive Kaydet"
+              disabled={!canRedo}
+              onClick={redo}
+              className="studio-icon-btn w-9 h-9 rounded-lg flex items-center justify-center font-bold text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30"
+              title="İleri Al"
             >
-              <i className="fa-solid fa-floppy-disk"></i>
+              <i className="fa-solid fa-rotate-right text-xs"></i>
             </button>
-            <button
-              onClick={() => {
-                const { addItem, items } = useFascicleStore.getState();
-                addItem({
-                  id: crypto.randomUUID(),
-                  type: ActivityType.STORY_COMPREHENSION,
-                  difficulty: 'Orta',
-                  pageCount: storyData ? 1 : 0,
-                  order: items.length,
-                  content: { storyData, config, layout },
+          </div>
 
-                });
-                toast.success('Fasiküle başarıyla eklendi!');
-              }}
-              className="studio-icon-btn w-10 h-10 rounded-xl flex items-center justify-center bg-fuchsia-600 border border-fuchsia-600 text-white shadow-lg hover:opacity-90"
-              title="Fasiküle Ekle"
-            >
-              <i className="fa-solid fa-layer-group"></i>
-            </button>
-          </div>
+          <div className="w-px h-6 mx-1" style={{ backgroundColor: 'var(--border-color)' }}></div>
+
+          {/* 👤 Öğrenciye Ata */}
+          <button
+            onClick={() => {
+              if (!storyData) {
+                toast.error('Lütfen önce bir okuma hikayesi veya çalışma oluşturun.');
+                return;
+              }
+              setShowStudentSelectorModal(true);
+            }}
+            className="px-3 py-2 rounded-xl flex items-center gap-1.5 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 font-bold text-xs hover:bg-cyan-500 hover:text-white transition-all shadow-sm"
+            title="Öğrenciye Ata"
+          >
+            <i className="fa-solid fa-user-plus"></i>
+            <span>Öğrenciye Ata</span>
+          </button>
+
+          {/* 🔗 Paylaş */}
+          <button
+            onClick={handleShare}
+            className="px-3 py-2 rounded-xl flex items-center gap-1.5 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-bold text-xs hover:bg-indigo-500 hover:text-white transition-all shadow-sm"
+            title="Bağlantıyı Veya Kullanıcılarla Paylaş"
+          >
+            <i className="fa-solid fa-share-nodes"></i>
+            <span>Paylaş</span>
+          </button>
+
+          {/* 💾 Arşive Kaydet */}
+          <button
+            onClick={handleSave}
+            className="px-3 py-2 rounded-xl flex items-center gap-1.5 bg-[var(--accent-color)] text-white font-bold text-xs shadow-md hover:opacity-90 transition-all"
+            title="Arşive Kaydet"
+          >
+            <i className="fa-solid fa-floppy-disk"></i>
+            <span>Kaydet</span>
+          </button>
+
+          {/* 📚 Kitapçığa (Fasiküle) Ekle */}
+          <button
+            onClick={() => {
+              if (!storyData) {
+                toast.error('Lütfen önce bir okuma metni oluşturun.');
+                return;
+              }
+              const { addItem, items } = useFascicleStore.getState();
+              addItem({
+                id: crypto.randomUUID(),
+                type: ActivityType.STORY_COMPREHENSION,
+                difficulty: 'Orta',
+                pageCount: storyData ? 1 : 0,
+                order: items.length,
+                content: { storyData, config, layout },
+              });
+              toast.success('Fasiküle başarıyla eklendi!');
+            }}
+            className="px-3 py-2 rounded-xl flex items-center gap-1.5 bg-fuchsia-600 text-white font-bold text-xs shadow-md hover:opacity-90 transition-all"
+            title="Fasiküle / Kitapçığa Ekle"
+          >
+            <i className="fa-solid fa-layer-group"></i>
+            <span>Fasiküle Ekle</span>
+          </button>
+
+          {/* 🖨️ PDF - Yazdır */}
+          <button
+            onClick={() => handlePrint('print')}
+            className="px-3 py-2 rounded-xl flex items-center gap-1.5 bg-emerald-600 text-white font-bold text-xs shadow-md hover:opacity-90 transition-all"
+            title="PDF Olarak Yazdır"
+          >
+            <i className="fa-solid fa-print"></i>
+            <span>Yazdır</span>
+          </button>
+        </div>
       </header>
 
       <div className="flex-1 flex overflow-hidden">
         <aside
-            className="w-80 flex flex-col overflow-hidden shadow-2xl z-40"
-            style={{ backgroundColor: 'var(--bg-paper)', borderRight: '1px solid var(--border-color)' }}
+          className="w-80 flex flex-col overflow-hidden shadow-2xl z-40"
+          style={{ backgroundColor: 'var(--bg-paper)', borderRight: '1px solid var(--border-color)' }}
+        >
+          <div className="p-4" style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
+            <StudentSelector />
+          </div>
+
+          <div
+            className="flex shrink-0 overflow-x-auto custom-scrollbar"
+            style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-paper)' }}
           >
-            <div className="p-4" style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)' }}>
-              <StudentSelector />
-            </div>
-
-            <div
-              className="flex shrink-0 overflow-x-auto custom-scrollbar"
-              style={{ borderBottom: '1px solid var(--border-color)', backgroundColor: 'var(--bg-paper)' }}
+            <button
+              onClick={() => setSidebarTab('production')}
+              className={`flex-1 min-w-[70px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2`}
+              style={{
+                color: sidebarTab === 'production' ? 'var(--accent-color)' : 'var(--text-muted)',
+                borderBottomColor: sidebarTab === 'production' ? 'var(--accent-color)' : 'transparent',
+                backgroundColor: sidebarTab === 'production' ? 'var(--accent-muted)' : 'transparent',
+              }}
             >
-              <button
-                onClick={() => setSidebarTab('production')}
-                className={`flex-1 min-w-[70px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2`}
-                style={{
-                  color: sidebarTab === 'production' ? 'var(--accent-color)' : 'var(--text-muted)',
-                  borderBottomColor: sidebarTab === 'production' ? 'var(--accent-color)' : 'transparent',
-                  backgroundColor: sidebarTab === 'production' ? 'var(--accent-muted)' : 'transparent',
-                }}
-              >
-                Üretim
-              </button>
-              <button
-                onClick={() => setSidebarTab('library')}
-                className={`flex-1 min-w-[80px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2`}
-                style={{
-                  color: sidebarTab === 'library' ? 'var(--accent-color)' : 'var(--text-muted)',
-                  borderBottomColor: sidebarTab === 'library' ? 'var(--accent-color)' : 'transparent',
-                  backgroundColor: sidebarTab === 'library' ? 'var(--accent-muted)' : 'transparent',
-                }}
-              >
-                Bileşenler
-              </button>
-              <button
-                onClick={() => setSidebarTab('content')}
-                className={`flex-1 min-w-[70px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2`}
-                style={{
-                  color: sidebarTab === 'content' ? 'var(--accent-color)' : 'var(--text-muted)',
-                  borderBottomColor: sidebarTab === 'content' ? 'var(--accent-color)' : 'transparent',
-                  backgroundColor: sidebarTab === 'content' ? 'var(--accent-muted)' : 'transparent',
-                }}
-              >
-                İçerik
-              </button>
-              <button
-                onClick={() => setSidebarTab('styling')}
-                className={`flex-1 min-w-[60px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2`}
-                style={{
-                  color: sidebarTab === 'styling' ? 'var(--accent-color)' : 'var(--text-muted)',
-                  borderBottomColor: sidebarTab === 'styling' ? 'var(--accent-color)' : 'transparent',
-                  backgroundColor: sidebarTab === 'styling' ? 'var(--accent-muted)' : 'transparent',
-                }}
-              >
-                Stil
-              </button>
-              <button
-                onClick={() => setSidebarTab('archive')}
-                className={`flex-1 min-w-[60px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2`}
-                style={{
-                  color: sidebarTab === 'archive' ? 'var(--accent-color)' : 'var(--text-muted)',
-                  borderBottomColor: sidebarTab === 'archive' ? 'var(--accent-color)' : 'transparent',
-                  backgroundColor: sidebarTab === 'archive' ? 'var(--accent-muted)' : 'transparent',
-                }}
-              >
-                Arşiv
-              </button>
-            </div>
+              Üretim
+            </button>
+            <button
+              onClick={() => setSidebarTab('library')}
+              className={`flex-1 min-w-[80px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2`}
+              style={{
+                color: sidebarTab === 'library' ? 'var(--accent-color)' : 'var(--text-muted)',
+                borderBottomColor: sidebarTab === 'library' ? 'var(--accent-color)' : 'transparent',
+                backgroundColor: sidebarTab === 'library' ? 'var(--accent-muted)' : 'transparent',
+              }}
+            >
+              Bileşenler
+            </button>
+            <button
+              onClick={() => setSidebarTab('content')}
+              className={`flex-1 min-w-[70px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2`}
+              style={{
+                color: sidebarTab === 'content' ? 'var(--accent-color)' : 'var(--text-muted)',
+                borderBottomColor: sidebarTab === 'content' ? 'var(--accent-color)' : 'transparent',
+                backgroundColor: sidebarTab === 'content' ? 'var(--accent-muted)' : 'transparent',
+              }}
+            >
+              İçerik
+            </button>
+            <button
+              onClick={() => setSidebarTab('styling')}
+              className={`flex-1 min-w-[60px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2`}
+              style={{
+                color: sidebarTab === 'styling' ? 'var(--accent-color)' : 'var(--text-muted)',
+                borderBottomColor: sidebarTab === 'styling' ? 'var(--accent-color)' : 'transparent',
+                backgroundColor: sidebarTab === 'styling' ? 'var(--accent-muted)' : 'transparent',
+              }}
+            >
+              Stil
+            </button>
+            <button
+              onClick={() => setSidebarTab('archive')}
+              className={`flex-1 min-w-[60px] pt-4 pb-3 text-[10px] font-black uppercase tracking-widest transition-all border-b-2`}
+              style={{
+                color: sidebarTab === 'archive' ? 'var(--accent-color)' : 'var(--text-muted)',
+                borderBottomColor: sidebarTab === 'archive' ? 'var(--accent-color)' : 'transparent',
+                backgroundColor: sidebarTab === 'archive' ? 'var(--accent-muted)' : 'transparent',
+              }}
+            >
+              Arşiv
+            </button>
+          </div>
 
-            <div className="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-8">
-              {sidebarTab === 'production' && <AIProductionPanel />}
-              {sidebarTab === 'library' && <ComponentLibrary />}
-              {sidebarTab === 'content' && <ContentPanel />}
-              {sidebarTab === 'styling' && <StylePanel />}
-              {sidebarTab === 'archive' && <ArchivePanel />}
-            </div>
+          <div className="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-8">
+            {sidebarTab === 'production' && <AIProductionPanel />}
+            {sidebarTab === 'library' && <ComponentLibrary />}
+            {sidebarTab === 'content' && <ContentPanel />}
+            {sidebarTab === 'styling' && <StylePanel />}
+            {sidebarTab === 'archive' && <ArchivePanel />}
+          </div>
 
-            <div className="p-4 bg-[var(--bg-paper)] border-t border-[var(--border-color)] shrink-0 z-10 w-full relative mt-auto shadow-2xl">
-              <button
-                onClick={handleGenerate}
-                disabled={isLoading}
-                className="w-full py-4 bg-[var(--accent-color)] text-white font-black rounded-xl text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-[var(--accent-muted)] hover:opacity-90 hover:scale-105 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                {isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
-                {isLoading ? 'BEKLEYİN...' : 'SINAVI OLUŞTUR'}
-              </button>
-            </div>
+          <div className="p-4 bg-[var(--bg-paper)] border-t border-[var(--border-color)] shrink-0 z-10 w-full relative mt-auto shadow-2xl">
+            <button
+              onClick={handleGenerate}
+              disabled={isLoading}
+              className="w-full py-4 bg-[var(--accent-color)] text-white font-black rounded-xl text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-[var(--accent-muted)] hover:opacity-90 hover:scale-105 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {isLoading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-wand-magic-sparkles"></i>}
+              {isLoading ? 'BEKLEYİN...' : 'SINAVI OLUŞTUR'}
+            </button>
+          </div>
         </aside>
 
         <main className="flex-1 overflow-auto p-12 custom-scrollbar flex flex-col items-center relative" style={{ backgroundColor: 'var(--bg-primary)' }}>
@@ -482,7 +595,7 @@ const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) =>
                 />
               </div>
             ) : (
-            <ReadingStudioContentRenderer layout={layout} storyData={storyData} />
+              <ReadingStudioContentRenderer layout={layout} storyData={storyData} />
             )}
             {!isLoading && !storyData && (!layout || layout.length === 0) && (
               <div className="absolute inset-0 flex flex-col items-center justify-center text-[var(--text-muted)] pointer-events-none opacity-10 bg-[var(--bg-secondary)]/50">
@@ -496,6 +609,129 @@ const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) =>
           </div>
         </main>
       </div>
+
+      {/* ═══ MODALLAR ═══ */}
+      {/* 👤 Öğrenciye Ata Modalı */}
+      {showStudentSelectorModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowStudentSelectorModal(false)}>
+          <div className="bg-[var(--bg-paper)] rounded-2xl p-6 w-full max-w-md border border-[var(--border-color)] shadow-2xl flex flex-col max-h-[85vh]" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center pb-3 border-b border-[var(--border-color)]">
+              <div>
+                <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
+                  👤 Öğrencilere Okuma Çalışması Ata
+                </h3>
+                <p className="text-[10px] text-[var(--text-secondary)] mt-0.5">Seçtiğiniz öğrencilerin paneline gönderilir</p>
+              </div>
+              <button onClick={() => setShowStudentSelectorModal(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] font-bold text-base">✕</button>
+            </div>
+
+            {/* Öğrenci Listesi */}
+            <div className="flex-1 overflow-y-auto space-y-2 my-4 pr-1 custom-scrollbar min-h-[180px]">
+              {students.length === 0 ? (
+                <div className="text-center py-8 text-[var(--text-muted)] space-y-2">
+                  <p className="text-xs">Sistemde henüz kayıtlı öğrenciniz bulunamadı.</p>
+                  <button
+                    onClick={() => {
+                      const demoId = 'demo-student-1';
+                      setSelectedStudentIds(prev => prev.includes(demoId) ? prev.filter(i => i !== demoId) : [...prev, demoId]);
+                    }}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-colors ${selectedStudentIds.includes('demo-student-1') ? 'bg-cyan-600 border-cyan-500 text-white' : 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-secondary)]'}`}
+                  >
+                    + Demo Öğrenci Seç
+                  </button>
+                </div>
+              ) : (
+                students.map((student: any) => {
+                  const isSelected = selectedStudentIds.includes(student.id);
+                  return (
+                    <div
+                      key={student.id}
+                      onClick={() => setSelectedStudentIds(prev => isSelected ? prev.filter(i => i !== student.id) : [...prev, student.id])}
+                      className={`p-3 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${isSelected ? 'bg-cyan-500/10 border-cyan-500 text-cyan-400' : 'bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-primary)] hover:border-cyan-500/50'}`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-cyan-600/20 text-cyan-400 flex items-center justify-center font-bold text-xs">
+                          {student.name ? student.name[0] : 'Ö'}
+                        </div>
+                        <div>
+                          <div className="text-xs font-bold">{student.name}</div>
+                          <div className="text-[10px] text-[var(--text-muted)]">{student.grade || 'Sınıf Belirtilmedi'}</div>
+                        </div>
+                      </div>
+                      <div className={`w-5 h-5 rounded-md border flex items-center justify-center text-xs font-bold ${isSelected ? 'bg-cyan-500 border-cyan-500 text-white' : 'border-[var(--border-color)]'}`}>
+                        {isSelected && '✓'}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Butonlar */}
+            <div className="flex gap-2 pt-3 border-t border-[var(--border-color)]">
+              <button
+                onClick={() => setShowStudentSelectorModal(false)}
+                className="flex-1 py-2.5 rounded-xl border border-[var(--border-color)] text-xs font-bold text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]"
+              >
+                İptal
+              </button>
+              <button
+                disabled={isAssigning || selectedStudentIds.length === 0}
+                onClick={handleConfirmAssignment}
+                className="flex-1 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold disabled:opacity-40 transition-colors flex items-center justify-center gap-2"
+              >
+                {isAssigning ? '⏳ Atanıyor...' : `🚀 Öğrencilere Ata (${selectedStudentIds.length})`}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 🔗 Paylaş Modalı */}
+      {showShareModal && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setShowShareModal(false)}>
+          <div className="bg-[var(--bg-paper)] rounded-2xl p-6 w-full max-w-md border border-[var(--border-color)] shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center pb-3 border-b border-[var(--border-color)]">
+              <h3 className="text-sm font-bold text-[var(--text-primary)] flex items-center gap-2">
+                🔗 Çalışmayı Paylaş
+              </h3>
+              <button onClick={() => setShowShareModal(false)} className="text-[var(--text-muted)] hover:text-[var(--text-primary)] font-bold text-base">✕</button>
+            </div>
+
+            <div className="py-4 space-y-3">
+              <p className="text-xs text-[var(--text-secondary)] leading-relaxed">
+                Bu okuma çalışmasının bağlantısını kopyalayarak zümre öğretmenlerinizle veya velilerinizle doğrudan paylaşabilirsiniz:
+              </p>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  readOnly
+                  value={shareLink}
+                  className="flex-1 bg-[var(--bg-secondary)] text-[var(--text-primary)] text-xs rounded-xl px-3 py-2 border border-[var(--border-color)] outline-none"
+                />
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(shareLink);
+                    toast.success('Bağlantı panoya kopyalandı!');
+                  }}
+                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl transition-colors"
+                >
+                  Kopyala
+                </button>
+              </div>
+            </div>
+
+            <div className="pt-3 border-t border-[var(--border-color)] flex justify-end">
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="px-5 py-2 bg-[var(--bg-secondary)] text-[var(--text-primary)] font-bold text-xs rounded-xl border border-[var(--border-color)]"
+              >
+                Kapat
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
