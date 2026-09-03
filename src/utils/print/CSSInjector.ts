@@ -74,11 +74,19 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
         padding: 8mm !important;
         box-sizing: border-box !important;
         box-shadow: none !important;
-        break-inside: auto !important;
-        page-break-inside: auto !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
         page-break-after: always !important;
         break-after: page !important;
         overflow: hidden !important;
+      }
+
+      body.printing-mode #print-overlay .bdmind-print-wrapper:last-child .worksheet-page,
+      body.printing-mode #print-overlay .bdmind-print-wrapper:last-child .print-page,
+      body.printing-mode #print-overlay .bdmind-print-wrapper:last-child .universal-mode-canvas,
+      body.printing-mode #print-overlay .bdmind-print-wrapper:last-child .a4-page {
+        page-break-after: auto !important;
+        break-after: auto !important;
       }
 
       body.printing-mode #print-overlay .print-exact {
@@ -263,6 +271,12 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
         position: relative !important;
         overflow: hidden !important;
         height: 297mm !important;
+      }
+      .bdmind-print-wrapper:last-child .print-page,
+      .bdmind-print-wrapper:last-child .worksheet-page,
+      .bdmind-print-wrapper:last-child .a4-page {
+        page-break-after: auto !important;
+        break-after: auto !important;
       }
       .print-exact {
         margin: 0 !important;
