@@ -68,21 +68,21 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
       body.printing-mode #print-overlay .a4-page {
         width: 100% !important;
         max-width: 100% !important;
-        height: 100% !important;
-        min-height: auto !important;
+        height: auto !important;
+        min-height: 0 !important;
         margin: 0 !important;
         padding: 0 !important;
         box-sizing: border-box !important;
         box-shadow: none !important;
         border: none !important;
-        break-inside: avoid !important;
-        page-break-inside: avoid !important;
-        overflow: hidden !important;
+        break-inside: auto !important;
+        page-break-inside: auto !important;
+        overflow: visible !important;
       }
 
       body.printing-mode #print-overlay .bdmind-print-wrapper {
-        page-break-after: always !important;
-        break-after: page !important;
+        page-break-after: auto !important;
+        break-after: auto !important;
         height: auto !important;
       }
 
@@ -282,13 +282,13 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
         background: white !important;
         display: block !important;
         position: relative !important;
-        overflow: hidden !important;
-        height: 100% !important;
+        overflow: visible !important;
+        height: auto !important;
         min-height: auto !important;
       }
       .bdmind-print-wrapper {
-        page-break-after: always !important;
-        break-after: page !important;
+        page-break-after: auto !important;
+        break-after: auto !important;
       }
       .bdmind-print-wrapper:last-child {
         page-break-after: auto !important;
