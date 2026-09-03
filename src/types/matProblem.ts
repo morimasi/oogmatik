@@ -10,49 +10,10 @@ import type { MatOgrenmeAlani, MatKazanim, MatUnite, MatSinifMufredati, GrafikVe
 // Re-export ortak tipleri (müfredat yapısı aynı kalır)
 export type { MatOgrenmeAlani, MatKazanim, MatUnite, MatSinifMufredati, GrafikVerisi, MatZorluk };
 
-// ─── Problem Şema Türleri ─────────────────────────────────────
-export type ProblemSemaTipi =
-    | 'otomatik'
-    | 'kutu-modeli'
-    | 'sayı-doğrusu'
-    | 'tablo'
-    | 'grafik'
-    | 'denklem-şeması'
-    | 'çizim-alanı'
-    | 'parça-bütün'
-    | 'oran-orantı'
-    | 'kesir-blokları'
-    | 'geometrik-sekil'
-    | 'zaman-tüneli'
-    | 'para-matrisi'
-    | 'cetele-tablosu'
-    | 'siklik-tablosu'
-    | 'nesne-grafigi'
-    | 'nesne-izgarasi'
-    | 'grafik-tamamlama'
-    | 'kesir-pastasi'
-    | 'saat-zaman'
-    | 'abakus-basamak'
-    | 'cetvel-olcme'
-    | 'oruntu-blok'
-    | 'birim-kareli-zemin'
-    | 'paralelkenar-yamuk'
-    | 'terazi-denklem'
-    | 'iletki-aciolcer'
-    | 'lgs-ikili-grafik'
-    | 'lgs-alan-modeli'
-    | 'lgs-egim-koordinat'
-    | 'lgs-3d-acinim'
-    | 'lgs-ebob-ekok'
-    | 'lgs-karekok-uslu'
-    | 'lgs-pisagor-ucgen'
-    | 'yok';
-
 // ─── Problem Kategorisi ───────────────────────────────────────
 export type ProblemKategorisi =
     | 'gercek-yasam'
     | 'beceri-temelli'
-    | 'sema-destekli'
     | 'lgs-pisa'
     | 'cok-adimli';
 
@@ -90,28 +51,7 @@ export interface MatProblem {
     kazanimMetni?: string;
     sinif?: number;
     unite_adi?: string;
-    semaTipi: ProblemSemaTipi;
-    semaVerisi?: {
-        sekilTipi?: string;
-        etiketler?: Record<string, string>;
-        kesirOrani?: { pay: number; paydaya: number; etiket?: string };
-        zamanAkisi?: { baslangic: string; bitis: string; gecenSure?: string };
-        paraMatrisi?: { verilen: string; tutar: string; paraUstu: string };
-        kutuModeli?: { parcaA: string; parcaB: string; toplam: string };
-        denklemSol?: string;
-        denklemSag?: string;
-        grafikSutunlari?: { etiket: string; deger: number }[];
-        lejantNotu?: string;
-        ceteleData?: Record<string, number>;
-        nesneGrafikData?: { kategori: string; adet: number; simge?: string }[];
-    };
-    tabloVerisi?: {
-        baslik?: string;
-        sutunlar?: string[];
-        satirData?: string[][];
-    };
     kategori: ProblemKategorisi;
-    grafikVerisi?: GrafikVerisi;
     puan: number;
     tahminiSure: number; // saniye
     isDuzenlenmisMi?: boolean;
@@ -152,11 +92,9 @@ export interface MatProblemAyarlari {
     secilenKazanimlar: string[];
     problemSayisi: number;
     zorlukSeviyesi: 'Otomatik' | 'Kolay' | 'Orta' | 'Zor';
-    gorselVeriEklensinMi: boolean;
     ozelTalimatlar?: string;
     ozelKonu?: string;
     kategori: ProblemKategorisi;
-    semaTipiTercihi: ProblemSemaTipi;
     verilenlerGosterilsinMi: boolean;
     cozumKutusuGosterilsinMi: boolean;
     isLgsMode?: boolean;

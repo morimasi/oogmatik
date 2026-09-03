@@ -1,28 +1,35 @@
 /**
- * MatProblemStudyosu — Offline Generator & Auto-Answer Merger Smoke Test
+ * MatProblemStudyosu — Offline Generator Smoke Test (v2 — Sema-Free)
+ *
+ * v2 değişiklikler:
+ *  - `MatProblemSemaView` artık yok; sema render testleri kaldırıldı.
+ *  - `semaTipi` tipi olmadığı için tip uyumu testi kaldırıldı.
+ *  - Problemler artık **tamamen metin tabanlı** (sema/görsel yok).
+ *  - `gorselVeriEklensinMi` / `semaTipiTercihi` ayar alanları kaldırıldığı
+ *    için yeni ayar imzası kullanılıyor.
+ *
  * @vitest-environment jsdom
  */
 
 import { describe, it, expect } from 'vitest';
-import { render } from '@testing-library/react';
 import { generateOfflineMatProblemSeti } from '../src/services/offlineGenerators/mathProblemOffline';
-import { MatProblemSemaView } from '../src/components/MatProblemStudyosu/MatProblemSemaView';
-import type { MatProblem } from '../src/types/matProblem';
 
-describe('MatProblem Offline Generator', () => {
+describe('MatProblem Offline Generator (sema-free)', () => {
+    const baseAyarlar = {
+        secilenUniteler: [],
+        secilenKazanimlar: [],
+        zorlukSeviyesi: 'Otomatik' as const,
+        kategori: 'gercek-yasam' as const,
+        verilenlerGosterilsinMi: true,
+        cozumKutusuGosterilsinMi: true,
+    };
+
     it('1-8. sınıf için en az 3 problem üretir (default 5)', () => {
         for (const sinif of [1, 2, 3, 4, 5, 6, 7, 8]) {
             const set = generateOfflineMatProblemSeti({
+                ...baseAyarlar,
                 sinif,
-                secilenUniteler: [],
-                secilenKazanimlar: [],
                 problemSayisi: 5,
-                zorlukSeviyesi: 'Otomatik',
-                gorselVeriEklensinMi: false,
-                kategori: 'gercek-yasam',
-                semaTipiTercihi: 'otomatik',
-                verilenlerGosterilsinMi: true,
-                cozumKutusuGosterilsinMi: true,
             });
 
             expect(set.problemler.length).toBeGreaterThanOrEqual(3);
@@ -35,45 +42,28 @@ describe('MatProblem Offline Generator', () => {
         }
     });
 
-    it('Sema tipleri MatProblemSemaView renderer listesiyle uyumlu', () => {
-        const supportedTypes = new Set([
-            'yok',
-            'cetele-tablosu', 'siklik-tablosu', 'nesne-grafigi', 'nesne-izgarasi',
-            'kutu-modeli', 'sayı-doğrusu', 'kesir-pastasi', 'saat-zaman', 'abakus-basamak',
-            'cetvel-olcme', 'oruntu-blok', 'birim-kareli-zemin', 'paralelkenar-yamuk',
-            'terazi-denklem', 'iletki-aciolcer', 'lgs-ikili-grafik', 'lgs-alan-modeli',
-            'lgs-egim-koordinat', 'lgs-3d-acinim', 'lgs-ebob-ekok', 'lgs-karekok-uslu',
-            'lgs-pisagor-ucgen', 'grafik',
-        ]);
+    it('Problem metinleri "yukarıdaki tabloya/grafiğe/şemaya bakınız" gibi görsel atıf içermez', () => {
         const set = generateOfflineMatProblemSeti({
+            ...baseAyarlar,
             sinif: 5,
-            secilenUniteler: [],
-            secilenKazanimlar: [],
             problemSayisi: 10,
-            zorlukSeviyesi: 'Otomatik',
-            gorselVeriEklensinMi: false,
-            kategori: 'gercek-yasam',
-            semaTipiTercihi: 'otomatik',
-            verilenlerGosterilsinMi: true,
-            cozumKutusuGosterilsinMi: true,
         });
         for (const p of set.problemler) {
-            expect(supportedTypes.has(p.semaTipi)).toBe(true);
+            const text = (p.soruMetni || '').toLocaleLowerCase('tr-TR');
+            expect(text, `soruMetni görsel atıf içeriyor: "${p.soruMetni}"`).not.toMatch(
+                /yukarıdaki (tablo|grafik|şema|şekil|çizim|nesne)/
+            );
+            expect(text, `soruMetni görsel atıf içeriyor: "${p.soruMetni}"`).not.toMatch(
+                /aşağıdaki (tablo|grafik|şema|şekil|çizim)/
+            );
         }
     });
 
     it('Cevap anahtarı her problem için doldurulmuş', () => {
         const set = generateOfflineMatProblemSeti({
+            ...baseAyarlar,
             sinif: 3,
-            secilenUniteler: [],
-            secilenKazanimlar: [],
             problemSayisi: 5,
-            zorlukSeviyesi: 'Otomatik',
-            gorselVeriEklensinMi: false,
-            kategori: 'gercek-yasam',
-            semaTipiTercihi: 'otomatik',
-            verilenlerGosterilsinMi: true,
-            cozumKutusuGosterilsinMi: true,
         });
         expect(set.cevapAnahtari.problemler.length).toBe(set.problemler.length);
         for (let i = 0; i < set.problemler.length; i++) {
@@ -86,76 +76,38 @@ describe('MatProblem Offline Generator', () => {
 
     it('Kullanıcı zorluk seviyesi seçtiyse onu uygular', () => {
         const set = generateOfflineMatProblemSeti({
+            ...baseAyarlar,
             sinif: 4,
-            secilenUniteler: [],
-            secilenKazanimlar: [],
             problemSayisi: 5,
             zorlukSeviyesi: 'Zor',
-            gorselVeriEklensinMi: false,
-            kategori: 'gercek-yasam',
-            semaTipiTercihi: 'otomatik',
-            verilenlerGosterilsinMi: true,
-            cozumKutusuGosterilsinMi: true,
         });
         // En az bir problem Zor olmalı (rotasyon)
         const zorSayisi = set.problemler.filter((p) => p.zorluk === 'Zor').length;
         expect(zorSayisi).toBeGreaterThan(0);
     });
 
-    it('Offline generator tarafından üretilen her semaTipi MatProblemSemaView tarafından render edilebiliyor', () => {
+    it('Problemler MatProblem tipine uyumlu (sema alanları yok)', () => {
         const set = generateOfflineMatProblemSeti({
+            ...baseAyarlar,
             sinif: 5,
-            secilenUniteler: [],
-            secilenKazanimlar: [],
-            problemSayisi: 10,
-            zorlukSeviyesi: 'Otomatik',
-            gorselVeriEklensinMi: false,
-            kategori: 'gercek-yasam',
-            semaTipiTercihi: 'otomatik',
-            verilenlerGosterilsinMi: true,
-            cozumKutusuGosterilsinMi: true,
+            problemSayisi: 3,
         });
-
         for (const p of set.problemler) {
-            if (p.semaTipi === 'yok') continue;
-            const { container } = render(<MatProblemSemaView problem={p} />);
-            expect(container.innerHTML.trim().length).toBeGreaterThan(0);
-        }
-    });
-
-    it('Türkçe karakterli semaTipi değerleri de doğru şekilde render ediliyor', () => {
-        const base: MatProblem = {
-            id: 'test-1',
-            soruMetni: 'Test problemi metni',
-            verilenler: ['Veri 1: 5', 'Veri 2: 8'],
-            istenenler: 'Sonucu bulunuz.',
-            cozumAdimlari: ['Adım 1', 'Adım 2'],
-            dogruCevap: '13',
-            gercekYasamBaglantisi: 'Test',
-            zorluk: 'Orta',
-            kazanimKodu: 'M.5.1.1.1',
-            kazanimMetni: 'Test kazanımı',
-            sinif: 5,
-            semaTipi: 'yok',
-            kategori: 'gercek-yasam',
-            puan: 10,
-            tahminiSure: 120,
-        };
-
-        const turkishTypes: MatProblem['semaTipi'][] = [
-            'sayı-doğrusu',
-            'denklem-şeması',
-            'çizim-alanı',
-            'parça-bütün',
-            'kesir-blokları',
-            'zaman-tüneli',
-            'oran-orantı',
-        ];
-
-        for (const semaTipi of turkishTypes) {
-            const problem = { ...base, semaTipi };
-            const { container } = render(<MatProblemSemaView problem={problem} />);
-            expect(container.innerHTML.trim().length, `semaTipi "${semaTipi}" render edilemedi`).toBeGreaterThan(0);
+            // sema-related alanlar kaldırıldı; type guard ile kontrol
+            expect(p).not.toHaveProperty('semaTipi');
+            expect(p).not.toHaveProperty('semaVerisi');
+            expect(p).not.toHaveProperty('tabloVerisi');
+            expect(p).not.toHaveProperty('grafikVerisi');
+            // Zorunlu alanlar hâlâ yerinde
+            expect(typeof p.soruMetni).toBe('string');
+            expect(Array.isArray(p.verilenler)).toBe(true);
+            expect(typeof p.istenenler).toBe('string');
+            expect(Array.isArray(p.cozumAdimlari)).toBe(true);
+            expect(typeof p.dogruCevap).toBe('string');
+            expect(typeof p.gercekYasamBaglantisi).toBe('string');
+            expect(typeof p.kazanimKodu).toBe('string');
+            expect(typeof p.kategori).toBe('string');
+            expect(typeof p.puan).toBe('number');
         }
     });
 });

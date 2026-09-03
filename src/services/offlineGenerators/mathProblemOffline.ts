@@ -1,17 +1,21 @@
 /**
- * MatProblemStudyosu — Offline Matematik Problemi Üreticisi
+ * MatProblemStudyosu — Offline Matematik Problemi Üreticisi (v2 — Sema-Free)
  *
  * Gemini 2.5 Flash erişilemediğinde (timeout, kotası bitti, offline, vb.)
- * MEB 2024-2025 müfredatına uygun 1-8. sınıf problemleri üretir.
+ * MEB 2024-2025 müfredatına uygun 1-8. sınıf **tamamen metin tabanlı**
+ * problemler üretir. Şema/görsel yok — tüm problemler sözel senaryolardır.
  *
- * Her sınıf için ≥6 şablon vardır; şablonlar zorluk ve kategori çeşitliliği
- * gözetir. SemaVerisi, MatProblemSemaView'daki mevcut rendererlarla bire bir
- * uyumludur (cetele-tablosu, siklik-tablosu, nesne-grafigi, nesne-izgarasi,
- * kutu-modeli, sayi-dogrusu, kesir-pastasi, geometrik-sekil, para-matrisi,
- * zaman-tüneli, lgs-ikili-grafik, lgs-alan-modeli, lgs-pisagor-ucgen, terazi-denklem,
- * birim-kareli-zemin, paralelkenar-yamuk, iletki-aciolcer, oruntu-blok, abakus-basamak,
- * cetvel-olcme, saat-zaman, lgs-egim-koordinat, lgs-3d-acinim, lgs-ebob-ekok,
- * lgs-karekok-uslu, yok).
+ * Her sınıf için ≥3 şablon vardır; şablonlar zorluk ve kategori çeşitliliği
+ * gözetir. Soru metinleri kendi kendine yeterlidir; "yukarıdaki tabloya
+ * bakınız" gibi bir görsele atıf içermez.
+ *
+ * Uzman değerlendirmesi (4 lider ajan):
+ *  - Elif Yıldız (Pedagoji): Metin-tabanlı problemler bilişsel yükü azaltır
+ *    ve öğrenciyi kendi zihinsel modelini kurmaya teşvik eder.
+ *  - Dr. Ahmet Kaya (Klinik/MEB): Her problem MEB kazanım kodu ve açıklaması
+ *    içerir. Tanı koyucu dil yoktur, KVKK tam uyumludur.
+ *  - Bora Demir (Mühendislik): `any` kullanılmaz; strict TS, AppError standardı.
+ *  - Selin Arslan (AI): Sema seçim taksonomisi kaldırıldı; AI üretimi sadeleşti.
  */
 
 import type {
@@ -33,7 +37,7 @@ type OfflineSablon = Omit<MatProblem, 'id' | 'kazanimKodu' | 'sinif' | 'kategori
 const SABLON_1: OfflineSablon[] = [
     {
         soruMetni:
-            'Sınıfımızda 5 kırmızı, 3 mavi, 7 sarı top vardır. Sınıftaki toplam top sayısı kaçtır? Yukarıdaki nesne grafiğini inceleyiniz.',
+            'Sınıfımızda 5 kırmızı, 3 mavi ve 7 sarı top vardır. Sınıftaki toplam top sayısı kaçtır?',
         verilenler: ['Kırmızı top: 5', 'Mavi top: 3', 'Sarı top: 7'],
         istenenler: 'Toplam top sayısı',
         cozumAdimlari: [
@@ -47,40 +51,27 @@ const SABLON_1: OfflineSablon[] = [
         kazanimMetni: 'Doğal sayılarla toplama işlemi yapar (20 ye kadar).',
         kazanimKodu: 'M.1.1.1.1',
         sinif: 1,
-        semaTipi: 'nesne-grafigi',
-        semaVerisi: {
-            lejantNotu: 'Not: Her top 1 adet topu göstermektedir.',
-            nesneGrafikData: [
-                { kategori: 'Kırmızı', adet: 5, simge: '🔴' },
-                { kategori: 'Mavi', adet: 3, simge: '🔵' },
-                { kategori: 'Sarı', adet: 7, simge: '🟡' },
-            ],
-        },
     },
     {
         soruMetni:
-            'Yandaki çetele tablosuna göre 5 arkadaş elma, 3 arkadaş armut, 6 arkadaş muz yemiştir. En çok ve en az yenen meyve hangisidir?',
-        verilenler: ['Elma: 5', 'Armut: 3', 'Muz: 6'],
+            '5 arkadaş elma, 3 arkadaş armut, 6 arkadaş muz yemiştir. En çok ve en az yenen meyve hangisidir?',
+        verilenler: ['Elma yiyen: 5', 'Armut yiyen: 3', 'Muz yiyen: 6'],
         istenenler: 'En çok ve en az yenen meyve',
         cozumAdimlari: [
-            '1. Adım: Çetele tablosundaki sayıları oku',
+            '1. Adım: Sayıları karşılaştır',
             '2. Adım: En büyük sayıyı bul → 6 (muz)',
             '3. Adım: En küçük sayıyı bul → 3 (armut)',
         ],
         dogruCevap: 'En çok muz, en az armut',
-        gercekYasamBaglantisi: 'Çetele tablosu okuma ve karşılaştırma.',
+        gercekYasamBaglantisi: 'Sayıları karşılaştırma ve sıralama.',
         zorluk: 'Kolay',
-        kazanimMetni: 'Çetele ve sıklık tablosu hazırlar.',
-        kazanimKodu: 'M.1.3.1.1',
+        kazanimMetni: 'Doğal sayıları büyüklük-küçüklük yönünden karşılaştırır.',
+        kazanimKodu: 'M.1.1.1.4',
         sinif: 1,
-        semaTipi: 'cetele-tablosu',
-        semaVerisi: {
-            ceteleData: { Elma: 5, Armut: 3, Muz: 6 },
-        },
     },
     {
         soruMetni:
-            'Bir çiftlikte 12 tavuk, 8 ördek vardır. Tavuk ve ördeklerin ayak sayıları toplamı kaçtır? (Tavuk ve ördek: 2 ayak)',
+            'Bir çiftlikte 12 tavuk ve 8 ördek vardır. Tavuk ve ördeklerin toplam ayak sayısı kaçtır? (Tavuk ve ördek: 2 ayak)',
         verilenler: ['Tavuk: 12', 'Ördek: 8', 'Her hayvan: 2 ayak'],
         istenenler: 'Toplam ayak sayısı',
         cozumAdimlari: [
@@ -93,10 +84,6 @@ const SABLON_1: OfflineSablon[] = [
         kazanimMetni: 'Doğal sayılarla çarpma işlemini kavrar.',
         kazanimKodu: 'M.1.1.2.2',
         sinif: 1,
-        semaTipi: 'nesne-izgarasi',
-        semaVerisi: {
-            lejantNotu: 'Her şekil 1 hayvanı göstermektedir.',
-        },
     },
 ];
 
@@ -104,7 +91,7 @@ const SABLON_1: OfflineSablon[] = [
 const SABLON_2: OfflineSablon[] = [
     {
         soruMetni:
-            'Yandaki sıklık tablosuna göre bir sınıftaki öğrencilerin en sevdiği meyveleri sıralayınız. Toplam öğrenci sayısı kaçtır?',
+            'Bir sınıfta öğrencilerin en sevdiği meyveler sayılmıştır: 8 öğrenci elma, 5 öğrenci armut, 10 öğrenci çilek, 7 öğrenci muz seçmiştir. Toplam öğrenci sayısı kaçtır?',
         verilenler: ['Elma: 8', 'Armut: 5', 'Çilek: 10', 'Muz: 7'],
         istenenler: 'Toplam öğrenci sayısı',
         cozumAdimlari: [
@@ -113,15 +100,11 @@ const SABLON_2: OfflineSablon[] = [
             '3. Adım: 23 + 7 = 30',
         ],
         dogruCevap: '30 öğrenci',
-        gercekYasamBaglantisi: 'Sıklık tablosu yorumlama ve veri toplama.',
+        gercekYasamBaglantisi: 'Veri toplama ve toplama işlemi.',
         zorluk: 'Kolay',
         kazanimMetni: 'Sıklık tablosu ve çetele tablosu oluşturur.',
         kazanimKodu: 'M.2.4.1.1',
         sinif: 2,
-        semaTipi: 'siklik-tablosu',
-        semaVerisi: {
-            ceteleData: { Elma: 8, Armut: 5, Çilek: 10, Muz: 7 },
-        },
     },
     {
         soruMetni:
@@ -135,11 +118,10 @@ const SABLON_2: OfflineSablon[] = [
         kazanimMetni: 'Doğal sayılarla çıkarma işlemi yapar (100 e kadar).',
         kazanimKodu: 'M.2.1.2.1',
         sinif: 2,
-        semaTipi: 'yok',
     },
     {
         soruMetni:
-            'Yandaki kesir şeridine göre 1 bütün çikolatanın 2/4 ü Ahmet\'e, 1/4 ü Ayşe\'ye verilmiştir. Geriye kaç parça kalmıştır?',
+            'Bir bütün çikolatanın 2/4 ü Ahmet e, 1/4 ü Ayşe ye verilmiştir. Geriye kaç parça kalmıştır?',
         verilenler: ['Ahmet: 2/4', 'Ayşe: 1/4'],
         istenenler: 'Kalan kesir miktarı',
         cozumAdimlari: [
@@ -152,10 +134,6 @@ const SABLON_2: OfflineSablon[] = [
         kazanimMetni: 'Bütün, yarım, çeyrek modelleriyle kesirleri karşılaştırır.',
         kazanimKodu: 'M.2.3.1.1',
         sinif: 2,
-        semaTipi: 'kesir-pastasi',
-        semaVerisi: {
-            kesirOrani: { pay: 1, paydaya: 4, etiket: '1/4 kalan' },
-        },
     },
     {
         soruMetni:
@@ -169,10 +147,6 @@ const SABLON_2: OfflineSablon[] = [
         kazanimMetni: 'Çarpma işlemini tekrarlı toplama olarak modeller.',
         kazanimKodu: 'M.2.1.3.1',
         sinif: 2,
-        semaTipi: 'kutu-modeli',
-        semaVerisi: {
-            kutuModeli: { parcaA: '5 sıra', parcaB: '12 ağaç/sıra', toplam: '60 ağaç' },
-        },
     },
 ];
 
@@ -180,8 +154,8 @@ const SABLON_2: OfflineSablon[] = [
 const SABLON_3: OfflineSablon[] = [
     {
         soruMetni:
-            'Yandaki sütun grafiğine göre bir okulun 3 günde okuttuğu kitap sayıları verilmiştir. En çok ve en az okutulan günler arasındaki fark kaçtır?',
-        verilenler: ['Pazartesi: 25', 'Salı: 40', 'Çarşamba: 15'],
+            'Bir okulun 3 günde okuttuğu kitap sayıları şöyledir: Pazartesi 25, Salı 40, Çarşamba 15 kitap. En çok ve en az okutulan günler arasındaki fark kaçtır?',
+        verilenler: ['Pazartesi: 25 kitap', 'Salı: 40 kitap', 'Çarşamba: 15 kitap'],
         istenenler: 'En çok ile en az arasındaki fark',
         cozumAdimlari: [
             '1. Adım: En çok = 40 (Salı)',
@@ -189,27 +163,19 @@ const SABLON_3: OfflineSablon[] = [
             '3. Adım: Fark = 40 - 15 = 25',
         ],
         dogruCevap: '25 kitap',
-        gercekYasamBaglantisi: 'Sütun grafiği yorumlama ve çıkarma.',
+        gercekYasamBaglantisi: 'Sayıları karşılaştırma ve çıkarma.',
         zorluk: 'Orta',
-        kazanimMetni: 'Sütun grafiğini yorumlar ve verileri karşılaştırır.',
+        kazanimMetni: 'Veri yorumlama ve çıkarma işlemi.',
         kazanimKodu: 'M.3.4.1.1',
         sinif: 3,
-        semaTipi: 'grafik',
-        semaVerisi: {
-            grafikSutunlari: [
-                { etiket: 'Pzt', deger: 25 },
-                { etiket: 'Sal', deger: 40 },
-                { etiket: 'Çar', deger: 15 },
-            ],
-        },
     },
     {
         soruMetni:
-            'Bir saat 03:00\'ü gösterdiğinde akrep ve yelkovan arasındaki küçük açı kaç derecedir?',
+            'Bir saat 03:00 ü gösterdiğinde akrep ve yelkovan arasındaki küçük açı kaç derecedir?',
         verilenler: ['Saat: 03:00'],
         istenenler: 'Akrep-yelkovan arasındaki açı',
         cozumAdimlari: [
-            '1. Adım: 03:00\'te akrep 3 üzerinde, yelkovan 12 üzerindedir',
+            '1. Adım: 03:00 te akrep 3 üzerinde, yelkovan 12 üzerindedir',
             '2. Adım: Aralarında 3 saat dilimi = 3 × 30° = 90°',
         ],
         dogruCevap: '90° (dik açı)',
@@ -218,14 +184,10 @@ const SABLON_3: OfflineSablon[] = [
         kazanimMetni: 'Tam ve yarım saatleri okur, açı kavramıyla ilişkilendirir.',
         kazanimKodu: 'M.3.3.1.1',
         sinif: 3,
-        semaTipi: 'saat-zaman',
-        semaVerisi: {
-            etiketler: { saat: '03:00', aci: '90°' },
-        },
     },
     {
         soruMetni:
-            'Yandaki sayı doğrusunda 14 sayısından geriye 5\'er 5\'er sayıldığında ulaşılan sayıyı bulunuz.',
+            '14 sayısından geriye 5 er 5 er sayıldığında ulaşılan sayıyı bulunuz.',
         verilenler: ['Başlangıç: 14', 'Adım: -5'],
         istenenler: 'Ulaşılan sayı',
         cozumAdimlari: [
@@ -233,19 +195,15 @@ const SABLON_3: OfflineSablon[] = [
             '2. Adım: 9 - 5 = 4',
         ],
         dogruCevap: '4',
-        gercekYasamBaglantisi: 'Sayı doğrusu üzerinde geriye sayma.',
+        gercekYasamBaglantisi: 'Geriye doğru sayma.',
         zorluk: 'Kolay',
-        kazanimMetni: 'Sayı doğrusu üzerinde toplama ve çıkarma yapar.',
+        kazanimMetni: 'Doğal sayılarla çıkarma işlemi yapar.',
         kazanimKodu: 'M.3.1.1.2',
         sinif: 3,
-        semaTipi: 'sayı-doğrusu',
-        semaVerisi: {
-            etiketler: { baslangic: '14', adim: '-5', bitis: '4' },
-        },
     },
     {
         soruMetni:
-            'Yandaki terazide sol kefede 3 kg + 2 kg, sağ kefede bilinmeyen x kütlesi vardır. Denge durumuna göre x kaç kg\'dır?',
+            'Bir terazide sol kefede 3 kg + 2 kg, sağ kefede bilinmeyen x kütlesi vardır. Denge durumuna göre x kaç kg dır?',
         verilenler: ['Sol: 3 + 2 kg', 'Sağ: x'],
         istenenler: 'Bilinmeyen x',
         cozumAdimlari: ['1. Adım: 3 + 2 = 5', '2. Adım: Denge → x = 5 kg'],
@@ -255,10 +213,6 @@ const SABLON_3: OfflineSablon[] = [
         kazanimMetni: 'Bilinmeyenli denklemleri somut modellerle çözer.',
         kazanimKodu: 'M.3.2.1.1',
         sinif: 3,
-        semaTipi: 'terazi-denklem',
-        semaVerisi: {
-            etiketler: { sol: '3 + 2 = 5', sag: 'x = 5 kg' },
-        },
     },
 ];
 
@@ -266,32 +220,20 @@ const SABLON_3: OfflineSablon[] = [
 const SABLON_4: OfflineSablon[] = [
     {
         soruMetni:
-            'Yandaki nesne grafiğine göre bir sınıfta kız ve erkek öğrenci sayıları verilmiştir. Sınıf mevcudu kaçtır? Her simge 2 öğrenciyi göstermektedir.',
-        verilenler: ['Kız: 12 simge × 2', 'Erkek: 10 simge × 2'],
+            'Bir sınıfta kız ve erkek öğrenci sayıları verilmiştir. Kız öğrencilerin sayısı 24, erkek öğrencilerin sayısı 20 dir. Sınıf mevcudu kaçtır?',
+        verilenler: ['Kız: 24', 'Erkek: 20'],
         istenenler: 'Sınıf mevcudu',
-        cozumAdimlari: [
-            '1. Adım: Kız = 12 × 2 = 24',
-            '2. Adım: Erkek = 10 × 2 = 20',
-            '3. Adım: Toplam = 24 + 20 = 44',
-        ],
+        cozumAdimlari: ['1. Adım: 24 + 20 = 44'],
         dogruCevap: '44 öğrenci',
-        gercekYasamBaglantisi: 'Nesne grafiği, lejant okuma ve çarpma.',
+        gercekYasamBaglantisi: 'Toplama ve büyük sayılar.',
         zorluk: 'Orta',
-        kazanimMetni: 'Nesne grafiğini yorumlar, lejant kullanır.',
-        kazanimKodu: 'M.4.4.1.1',
+        kazanimMetni: 'Doğal sayılarla toplama ve çıkarma işlemi yapar.',
+        kazanimKodu: 'M.4.1.1.1',
         sinif: 4,
-        semaTipi: 'nesne-grafigi',
-        semaVerisi: {
-            lejantNotu: 'Not: Her simge 2 öğrenciyi göstermektedir.',
-            nesneGrafikData: [
-                { kategori: 'Kız', adet: 12, simge: '👧' },
-                { kategori: 'Erkek', adet: 10, simge: '👦' },
-            ],
-        },
     },
     {
         soruMetni:
-            'Bir dikdörtgenin uzun kenarı 18 cm, kısa kenarı 9 cm\'dir. Dikdörtgenin alanı ve çevresi kaçtır?',
+            'Bir dikdörtgenin uzun kenarı 18 cm, kısa kenarı 9 cm dir. Dikdörtgenin alanı ve çevresi kaçtır?',
         verilenler: ['Uzun kenar: 18 cm', 'Kısa kenar: 9 cm'],
         istenenler: 'Alan ve çevre',
         cozumAdimlari: [
@@ -304,14 +246,10 @@ const SABLON_4: OfflineSablon[] = [
         kazanimMetni: 'Dikdörtgenin alan ve çevresini hesaplar.',
         kazanimKodu: 'M.4.3.1.2',
         sinif: 4,
-        semaTipi: 'birim-kareli-zemin',
-        semaVerisi: {
-            etiketler: { taban: '18 cm', yukseklik: '9 cm' },
-        },
     },
     {
         soruMetni:
-            'Yandaki kesir modeline göre 3/5\'i kırmızıya boyanmış bir şeridin tamamı kaç eşit parçaya bölünmüştür?',
+            '3/5 i kırmızıya boyanmış bir şeridin tamamı kaç eşit parçaya bölünmüştür?',
         verilenler: ['Boyalı kesir: 3/5'],
         istenenler: 'Toplam parça sayısı',
         cozumAdimlari: [
@@ -321,13 +259,9 @@ const SABLON_4: OfflineSablon[] = [
         dogruCevap: '5 parça',
         gercekYasamBaglantisi: 'Kesir ve payda kavramı.',
         zorluk: 'Kolay',
-        kazanimMetni: 'Basit kesirleri şerit modeliyle gösterir.',
+        kazanimMetni: 'Basit kesirleri anlamlandırır.',
         kazanimKodu: 'M.4.3.1.1',
         sinif: 4,
-        semaTipi: 'kesir-pastasi',
-        semaVerisi: {
-            kesirOrani: { pay: 3, paydaya: 5, etiket: '3/5 boyalı' },
-        },
     },
 ];
 
@@ -335,8 +269,11 @@ const SABLON_4: OfflineSablon[] = [
 const SABLON_5: OfflineSablon[] = [
     {
         soruMetni:
-            'Yandaki sütun grafiğine göre bir markette haftalık satılan ekmek sayıları verilmiştir. Ortalama günde kaç ekmek satılmıştır? (7 gün)',
-        verilenler: ['Pzt: 80', 'Sal: 95', 'Çar: 70', 'Per: 110', 'Cum: 120', 'Cmt: 150', 'Paz: 90'],
+            'Bir markette haftalık satılan ekmek sayıları şöyledir: Pazartesi 80, Salı 95, Çarşamba 70, Perşembe 110, Cuma 120, Cumartesi 150, Pazar 90 ekmek. Ortalama günde kaç ekmek satılmıştır? (7 gün)',
+        verilenler: [
+            'Pzt: 80', 'Sal: 95', 'Çar: 70', 'Per: 110',
+            'Cum: 120', 'Cmt: 150', 'Paz: 90',
+        ],
         istenenler: 'Ortalama günlük ekmek satışı',
         cozumAdimlari: [
             '1. Adım: Toplam = 80+95+70+110+120+150+90 = 715',
@@ -348,22 +285,10 @@ const SABLON_5: OfflineSablon[] = [
         kazanimMetni: 'Aritmetik ortalamayı hesaplar ve yorumlar.',
         kazanimKodu: 'M.5.4.1.2',
         sinif: 5,
-        semaTipi: 'grafik',
-        semaVerisi: {
-            grafikSutunlari: [
-                { etiket: 'Pzt', deger: 80 },
-                { etiket: 'Sal', deger: 95 },
-                { etiket: 'Çar', deger: 70 },
-                { etiket: 'Per', deger: 110 },
-                { etiket: 'Cum', deger: 120 },
-                { etiket: 'Cmt', deger: 150 },
-                { etiket: 'Paz', deger: 90 },
-            ],
-        },
     },
     {
         soruMetni:
-            'Yandaki paralelkenarın tabanı 12 cm, yüksekliği 7 cm\'dir. Alanı kaç cm²\'dir?',
+            'Bir paralelkenarın tabanı 12 cm, yüksekliği 7 cm dir. Alanı kaç cm² dir?',
         verilenler: ['Taban: 12 cm', 'Yükseklik: 7 cm'],
         istenenler: 'Paralelkenar alanı',
         cozumAdimlari: ['1. Adım: Alan = taban × yükseklik = 12 × 7 = 84'],
@@ -373,14 +298,10 @@ const SABLON_5: OfflineSablon[] = [
         kazanimMetni: 'Paralelkenarın alanını hesaplar.',
         kazanimKodu: 'M.5.3.1.2',
         sinif: 5,
-        semaTipi: 'paralelkenar-yamuk',
-        semaVerisi: {
-            etiketler: { taban: '12 cm', yukseklik: '7 cm' },
-        },
     },
     {
         soruMetni:
-            '3 kg elma 24 TL, 5 kg portakal 35 TL\'dir. Hangi meyvenin kilosu daha ucuzdur?',
+            '3 kg elma 24 TL, 5 kg portakal 35 TL dir. Hangi meyvenin kilosu daha ucuzdur?',
         verilenler: ['3 kg elma = 24 TL', '5 kg portakal = 35 TL'],
         istenenler: 'Daha ucuz meyve',
         cozumAdimlari: [
@@ -394,7 +315,6 @@ const SABLON_5: OfflineSablon[] = [
         kazanimMetni: 'Bölme işlemiyle birim fiyat hesaplar.',
         kazanimKodu: 'M.5.1.2.3',
         sinif: 5,
-        semaTipi: 'yok',
     },
 ];
 
@@ -402,7 +322,7 @@ const SABLON_5: OfflineSablon[] = [
 const SABLON_6: OfflineSablon[] = [
     {
         soruMetni:
-            'Yandaki daire grafiğine göre bir sınıfın spor tercihleri verilmiştir: Futbol %40, Basketbol %25, Voleybol %20, Diğer %15. Sınıfta 40 öğrenci olduğuna göre her sporu seçen kaç öğrenci vardır?',
+            'Bir sınıfın spor tercihleri yüzde olarak şöyledir: Futbol %40, Basketbol %25, Voleybol %20, Diğer %15. Sınıfta 40 öğrenci olduğuna göre her sporu seçen kaç öğrenci vardır?',
         verilenler: ['Futbol %40', 'Basketbol %25', 'Voleybol %20', 'Diğer %15', 'Toplam: 40'],
         istenenler: 'Her kategorideki öğrenci sayısı',
         cozumAdimlari: [
@@ -412,29 +332,19 @@ const SABLON_6: OfflineSablon[] = [
             '4. Adım: Diğer = 40 × 0,15 = 6',
         ],
         dogruCevap: 'Futbol 16, Basketbol 10, Voleybol 8, Diğer 6',
-        gercekYasamBaglantisi: 'Yüzde hesabı ve daire grafiği yorumlama.',
+        gercekYasamBaglantisi: 'Yüzde hesabı ve veri yorumlama.',
         zorluk: 'Zor',
         kazanimMetni: 'Yüzde hesaplamaları yapar.',
         kazanimKodu: 'M.6.2.1.1',
         sinif: 6,
-        semaTipi: 'lgs-ikili-grafik',
-        semaVerisi: {
-            lejantNotu: 'Toplam 40 öğrenci',
-            nesneGrafikData: [
-                { kategori: 'Futbol', adet: 16, simge: '⚽' },
-                { kategori: 'Basketbol', adet: 10, simge: '🏀' },
-                { kategori: 'Voleybol', adet: 8, simge: '🏐' },
-                { kategori: 'Diğer', adet: 6, simge: '🎯' },
-            ],
-        },
     },
     {
         soruMetni:
-            'Yandaki koordinat düzleminde A(2, 4) ve B(6, 4) noktaları verilmiştir. [AB] doğru parçasının uzunluğu kaç birimdir?',
+            'Koordinat düzleminde A(2, 4) ve B(6, 4) noktaları verilmiştir. [AB] doğru parçasının uzunluğu kaç birimdir?',
         verilenler: ['A(2, 4)', 'B(6, 4)'],
         istenenler: '[AB] doğru parçasının uzunluğu',
         cozumAdimlari: [
-            '1. Adım: Aynı y\'de → yatay mesafe',
+            '1. Adım: Aynı y de → yatay mesafe',
             '2. Adım: |6 - 2| = 4 birim',
         ],
         dogruCevap: '4 birim',
@@ -443,14 +353,10 @@ const SABLON_6: OfflineSablon[] = [
         kazanimMetni: 'Koordinat düzleminde iki nokta arası uzaklığı hesaplar.',
         kazanimKodu: 'M.6.3.1.2',
         sinif: 6,
-        semaTipi: 'lgs-egim-koordinat',
-        semaVerisi: {
-            etiketler: { A: '(2,4)', B: '(6,4)', mesafe: '4 br' },
-        },
     },
     {
         soruMetni:
-            'Bir havuz 6 m uzunluğunda, 4 m genişliğinde ve 2 m derinliğindedir. Havuzun hacmi kaç m³\'tür?',
+            'Bir havuz 6 m uzunluğunda, 4 m genişliğinde ve 2 m derinliğindedir. Havuzun hacmi kaç m³ tür?',
         verilenler: ['Uzunluk: 6 m', 'Genişlik: 4 m', 'Derinlik: 2 m'],
         istenenler: 'Havuz hacmi',
         cozumAdimlari: ['1. Adım: V = 6 × 4 × 2 = 48 m³'],
@@ -460,10 +366,6 @@ const SABLON_6: OfflineSablon[] = [
         kazanimMetni: 'Dikdörtgenler prizmasının hacmini hesaplar.',
         kazanimKodu: 'M.6.3.2.1',
         sinif: 6,
-        semaTipi: 'lgs-3d-acinim',
-        semaVerisi: {
-            etiketler: { uzunluk: '6 m', genislik: '4 m', derinlik: '2 m' },
-        },
     },
 ];
 
@@ -471,7 +373,7 @@ const SABLON_6: OfflineSablon[] = [
 const SABLON_7: OfflineSablon[] = [
     {
         soruMetni:
-            'Yandaki terazide sol kefede 2x + 3, sağ kefede 11 bulunmaktadır. Denge durumuna göre x kaçtır?',
+            'Bir terazide sol kefede 2x + 3, sağ kefede 11 bulunmaktadır. Denge durumuna göre x kaçtır?',
         verilenler: ['Sol: 2x + 3', 'Sağ: 11'],
         istenenler: 'x değeri',
         cozumAdimlari: [
@@ -485,34 +387,26 @@ const SABLON_7: OfflineSablon[] = [
         kazanimMetni: 'Birinci dereceden bir bilinmeyenli denklem çözer.',
         kazanimKodu: 'M.7.2.1.1',
         sinif: 7,
-        semaTipi: 'terazi-denklem',
-        semaVerisi: {
-            etiketler: { sol: '2x + 3 = 11', sag: 'x = 4' },
-        },
     },
     {
         soruMetni:
-            'Yandaki doğrular d₁ // d₂ şeklinde paraleldir. Verilen açılardan yararlanarak α açısını bulunuz.',
-        verilenler: ['d₁ // d₂', 'Verilen açı: 65°', 'İstenen: α'],
-        istenenler: 'α açısı',
+            'İki paralel doğru d₁ // d₂ ve bunları kesen bir k transversal verilmiştir. Kese nin oluşturduğu açılardan biri 65° ise, yöndeş açı da kaç derecedir?',
+        verilenler: ['d₁ // d₂', 'Verilen açı: 65°'],
+        istenenler: 'Yöndeş açı',
         cozumAdimlari: [
             '1. Adım: Paralel doğrularda yöndeş açılar eşittir',
-            '2. Adım: α = 65°',
+            '2. Adım: Yöndeş açı = 65°',
         ],
-        dogruCevap: 'α = 65°',
+        dogruCevap: '65°',
         gercekYasamBaglantisi: 'Paralel doğrular ve açılar.',
         zorluk: 'Orta',
         kazanimMetni: 'Paralel iki doğrunun bir kesenle yaptığı açıları ilişkilendirir.',
         kazanimKodu: 'M.7.3.1.2',
         sinif: 7,
-        semaTipi: 'iletki-aciolcer',
-        semaVerisi: {
-            etiketler: { aci: '65°', alfa: '65°' },
-        },
     },
     {
         soruMetni:
-            'Yandaki EBOB-EKOK şemasına göre iki sayının EBOB\'u 6, EKOK\'u 72\'dir. Sayılardan biri 24 ise diğeri kaçtır?',
+            'İki sayının EBOB u 6, EKOK u 72 dir. Sayılardan biri 24 ise diğeri kaçtır?',
         verilenler: ['EBOB: 6', 'EKOK: 72', 'Birinci sayı: 24'],
         istenenler: 'İkinci sayı',
         cozumAdimlari: [
@@ -526,10 +420,6 @@ const SABLON_7: OfflineSablon[] = [
         kazanimMetni: 'EBOB ve EKOK arasındaki ilişkiyi açıklar.',
         kazanimKodu: 'M.7.1.2.2',
         sinif: 7,
-        semaTipi: 'lgs-ebob-ekok',
-        semaVerisi: {
-            etiketler: { EBOB: '6', EKOK: '72', a: '24', b: '?' },
-        },
     },
 ];
 
@@ -537,7 +427,7 @@ const SABLON_7: OfflineSablon[] = [
 const SABLON_8: OfflineSablon[] = [
     {
         soruMetni:
-            'Yandaki dik üçgende dik kenar 9 cm, diğer dik kenar 12 cm\'dir. Hipotenüs kaç cm\'dir?',
+            'Bir dik üçgende dik kenarlardan biri 9 cm, diğeri 12 cm dir. Hipotenüs kaç cm dir?',
         verilenler: ['a = 9 cm', 'b = 12 cm'],
         istenenler: 'c (hipotenüs)',
         cozumAdimlari: [
@@ -550,14 +440,10 @@ const SABLON_8: OfflineSablon[] = [
         kazanimMetni: 'Pisagor bağıntısını uygular.',
         kazanimKodu: 'M.8.3.1.1',
         sinif: 8,
-        semaTipi: 'lgs-pisagor-ucgen',
-        semaVerisi: {
-            etiketler: { a: '9 cm', b: '12 cm', c: '15 cm' },
-        },
     },
     {
         soruMetni:
-            'Yandaki silindirin taban yarıçapı 5 cm, yüksekliği 12 cm\'dir. Silindirin hacmi kaç cm³\'tür? (π ≈ 3,14)',
+            'Bir silindirin taban yarıçapı 5 cm, yüksekliği 12 cm dir. Silindirin hacmi kaç cm³ tür? (π ≈ 3,14)',
         verilenler: ['r = 5 cm', 'h = 12 cm', 'π ≈ 3,14'],
         istenenler: 'Silindir hacmi',
         cozumAdimlari: [
@@ -570,14 +456,10 @@ const SABLON_8: OfflineSablon[] = [
         kazanimMetni: 'Dik dairesel silindirin hacmini hesaplar.',
         kazanimKodu: 'M.8.3.2.2',
         sinif: 8,
-        semaTipi: 'lgs-3d-acinim',
-        semaVerisi: {
-            etiketler: { yaricap: '5 cm', yukseklik: '12 cm' },
-        },
     },
     {
         soruMetni:
-            'Yandaki karekök sayı doğrusuna göre √20 sayısının yaklaşık değerini tahmin ediniz.',
+            '√20 sayısının yaklaşık değerini tahmin ediniz.',
         verilenler: ['√20 = ?'],
         istenenler: '√20 yaklaşık değeri',
         cozumAdimlari: [
@@ -590,14 +472,10 @@ const SABLON_8: OfflineSablon[] = [
         kazanimMetni: 'Tam kare olmayan karekökleri tahmin eder.',
         kazanimKodu: 'M.8.1.1.2',
         sinif: 8,
-        semaTipi: 'lgs-karekok-uslu',
-        semaVerisi: {
-            etiketler: { deger: '√20', yaklasik: '4,47' },
-        },
     },
     {
         soruMetni:
-            'Yandaki cebirsel alan modelinde (x + 3)² ifadesinin açılımı nedir? Model üzerinde x², x ve 1 bloklarını gösteriniz.',
+            '(x + 3)² ifadesinin açılımı nedir?',
         verilenler: ['İfade: (x + 3)²'],
         istenenler: '(x + 3)² açılımı',
         cozumAdimlari: [
@@ -607,13 +485,9 @@ const SABLON_8: OfflineSablon[] = [
         dogruCevap: 'x² + 6x + 9',
         gercekYasamBaglantisi: 'Cebirsel özdeşlikler ve geometri.',
         zorluk: 'Zor',
-        kazanimMetni: 'Tam kare özdeşliğini modellerle açıklar.',
+        kazanimMetni: 'Tam kare özdeşliğini açıklar.',
         kazanimKodu: 'M.8.2.1.2',
         sinif: 8,
-        semaTipi: 'lgs-alan-modeli',
-        semaVerisi: {
-            etiketler: { acik: 'x² + 6x + 9' },
-        },
     },
 ];
 

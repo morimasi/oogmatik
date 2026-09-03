@@ -43,33 +43,15 @@ const buildMathProblemPrompt = (settings: MatProblemAyarlari): string => {
     parts.push(
         'Görevin, 2025 yılı itibarıyla yürürlükte olan Türkiye Millî Eğitim Bakanlığı Matematik dersi öğretim programına (müfredata) sadık kalarak, belirtilen sınıf, üniteler ve kazanımlara uygun, ' +
         problemSayisi +
-        ' adet GEREKİRSE HEM GÖRSEL VE ŞEMA ODAKLI HEM DE SADE YENİ NESİL AÇIK UÇLU MATEMATİK PROBLEMİ üret, ' +
+        ' adet SADE YENİ NESİL AÇIK UÇLU MATEMATİK PROBLEMİ üret, ' +
         '🚨 KULLANICI AYARLARI VE ZORUNLU UYUM TALİMATLARI 🚨\n' +
         '- Sınıf Seviyesi: ' + sinif + '. Sınıf\n' +
         (kazanimDetaylari ? '\n🎯 KAZANIM KISITI (%100 BİREBİR KAZANIM UYUMU ZORUNLUDUR):\n' + kazanimDetaylari + '\nÜretilecek her problem SADECE VE SADECE yukarıdaki kazanımların matematiksel mantığına, işlem seviyesine ve soru tipine dayalı olmalıdır.\n\n' : '\n') +
-        '- Tercih Edilen Şema Tipi: "' + settings.semaTipiTercihi + '"\n' +
         '- Problem Kategorisi: "' + settings.kategori + '"\n' +
         '- Zorluk Seviyesi: "' + settings.zorlukSeviyesi + '"\n' +
         '- Verilenler/İstenenler Kutusu: ' + (settings.verilenlerGosterilsinMi ? 'EVET (Doldurulacak)' : 'HAYIR') + '\n' +
         '- Çözüm Kutusu: ' + (settings.cozumKutusuGosterilsinMi ? 'EVET' : 'HAYIR') + '\n' +
         '- LGS Yeni Nesil Modu: ' + (settings.isLgsMode ? 'AKTİF (PISA/LGS Mantık Sorusu)' : 'PASİF') + '\n\n' +
-        '🚨 AKILLI OTOMATİK ŞEMA VE GÖRSEL TAKSONOMİSİ (VERY IMPORTANT - MANDATORY) 🚨\n' +
-        '1. SÖZEL / ZİHİNSEL PROBLEMLER: Soru sadece metin ve hikayeden oluşuyorsa "semaTipi": "yok" seç!\n' +
-        '2. İLKOKUL ŞEMA SEÇİM TAKSONOMİSİ (1-4. Sınıf):\n' +
-        '   - Nesne & Şekil Sayma: "nesne-grafigi", "nesne-izgarasi" (Örn: Sınıftaki oyuncaklar, meyveler)\n' +
-        '   - Veri Toplama: "cetele-tablosu", "siklik-tablosu" (Örn: Çetele ve sıklık tablosu okuma/tamamlama)\n' +
-        '   - Sayı & İşlem: "abakus-basamak" (basamak değeri), "taban-blok" (onluk/birlik), "cetvel-olcme" (uzunluk ölçme)\n' +
-        '   - Kesir & Zaman: "kesir-pastasi" (daire kesir), "kesir-serit" (şerit model), "saat-zaman" (akrep/yelkovan), "oruntu-blok" (örüntüler)\n' +
-        '3. ORTAOKUL & LGS ŞEMA SEÇİM TAKSONOMİSİ (5-8. Sınıf):\n' +
-        '   - Denklem & Cebir: "terazi-denklem" (kefeli terazi), "cebir-karo" (özdeşlik/kare model), "lgs-egim-koordinat" (rampa/eğim/koordinat)\n' +
-        '   - Geometri & Ölçme: "iletki-aciolcer" (açı ölçümü), "paralelkenar-yamuk" (yükseklik/alan), "birim-kareli-zemin" (kareli kağıtta alan/çevre), "lgs-3d-acinim" (silindir/piramit açınımı), "lgs-pisagor-ucgen" (dik üçgen/hipotenüs)\n' +
-        '   - Veri Analizi & Sayı Teorisi: "lgs-ikili-grafik" (sütun + daire grafiği), "venn" (küme kesişim), "asal-agac" (çarpan ağacı/EBOB-EKOK), "yuzde" (100\'lük ızgara/yüzde), "sayi-dogrusu" (eşitsizlik/rasyonel)\n' +
-        '4. ÇOKLU ALT SORU DESTEĞİ: Özellikle Tablo ve Grafik sorularında tek bir görsele bağlı 2-5 adet alt soru ("altSorular": ["1. En çok sevilen meyve hangisidir?", "2. Toplam kaç öğrenci vardır?"]) ve bunların cevaplarını ("altCevaplar": ["Çilek", "32 öğrenci"]) üret!\n' +
-        '5. NESNE GRAFİĞİ LEJANTI VE BİREBİR VERİ EŞLEŞTİRME:\n' +
-        '   - "semaVerisi": {"lejantNotu": "Not: Her resim 3 adet oyunu göstermektedir.", "nesneGrafikData": [{"kategori": "Ayıcık", "adet": 7, "simge": "🧸"}], "ceteleData": {"Balık": 10}, "etiketler": {"taban": "15 cm", "yukseklik": "8 cm", "aci": "65°"}} verisini eksiksiz aktar.\n' +
-        '🚨 100% GÖRSEL VERİ BİREBİR UYUM ZORUNLULUĞU 🚨\n' +
-        '1. Ürettiğin hikayedeki TÜM verileri, eşya/meyve/canlı isimlerini, sayıları ve etiketleri "semaVerisi", "tabloVerisi" veya "grafikVerisi" alanlarına BİREBİR AYNEN AKTARACAKSIN.\n' +
-        '2. Soruda geçen nesneye uygun emojiyi "simge" alanına koy (Örn: Elma: 🍎, Kitap: 📚, Araba: 🚗, Balık: 🐟, Top: ⚽).\n\n' +
         '🚨 KRİTİK BENZERSİZLİK VE ORİJİNALİLK KURALI 🚨\n' +
         '- Benzersizlik Tohumu: ' + randomSeed + '\n' +
         '- İlham Teması: "' + secilenKurgu + '"\n' +
@@ -98,7 +80,7 @@ const buildMathProblemPrompt = (settings: MatProblemAyarlari): string => {
         parts.push(
             '\n🚨 LGS YENİ NESİL PROBLEM MODU AKTİF 🚨\n' +
             'Tüm problemler LGS/PISA standardında beceri temelli, çok adımlı mantık yürütme gerektiren açık uçlu problemler olmalıdır.\n' +
-            'Çiftli grafik, cebirsel alan modeli veya rampa eğimi içeren problemlere ağırlık ver.\n'
+            'Çok adımlı mantık yürütme ve beceri temelli problemlere ağırlık ver.\n'
         );
     }
 
@@ -108,8 +90,8 @@ const buildMathProblemPrompt = (settings: MatProblemAyarlari): string => {
         '  "pedagogicalNote": "Öğretmen için eğitsel amaç açıklaması",\n' +
         '  "problemler": [\n' +
         '    {\n' +
-        '      "soruMetni": "Aşağıdaki sıklık tablosuna göre soruları cevaplayalım...",\n' +
-        '      "verilenler": ["Akvaryumdaki balık sayıları tablosu"],\n' +
+        '      "soruMetni": "Aşağıdaki senaryoya göre problemi çözünüz...",\n' +
+        '      "verilenler": ["Akvaryumdaki balık sayıları"],\n' +
         '      "istenenler": "Tablodaki verilere dayalı alt soruların çözümü",\n' +
         '      "altSorular": ["1. En çok bulunan balık hangisidir?", "2. Japon balıklarının sayısı vatözlerin kaç katıdır?"],\n' +
         '      "altCevaplar": ["Sarı Prenses (16)", "4 katıdır (8 / 2 = 4)"],\n' +
@@ -119,7 +101,6 @@ const buildMathProblemPrompt = (settings: MatProblemAyarlari): string => {
         '      "zorluk": "Orta",\n' +
         '      "kazanimKodu": "M.2.4.1.1",\n' +
         '      "kazanimMetni": "Sıklık tablosu veya çetele tablosu oluşturur; yorumlar.",\n' +
-        '      "semaTipi": "siklik-tablosu",\n' +
         '      "puan": 10,\n' +
         '      "tahminiSure": 120\n' +
         '    }\n  ]\n}\n```\n' +
@@ -142,7 +123,7 @@ const PROBLEM_SCHEMA = {
                     soruMetni: { type: 'STRING', description: 'Gerçek yaşam senaryolu açık uçlu problem metni' },
                     verilenler: { type: 'ARRAY', items: { type: 'STRING' } },
                     istenenler: { type: 'STRING' },
-                    altSorular: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Tek şemaya bağlı 1-5 adet alt soru' },
+                    altSorular: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Tek probleme bağlı 1-5 adet alt soru' },
                     altCevaplar: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Alt soruların doğru yanıtları' },
                     cozumAdimlari: { type: 'ARRAY', items: { type: 'STRING' } },
                     dogruCevap: { type: 'STRING' },
@@ -150,55 +131,6 @@ const PROBLEM_SCHEMA = {
                     zorluk: { type: 'STRING' },
                     kazanimKodu: { type: 'STRING' },
                     kazanimMetni: { type: 'STRING', description: 'MEB kazanım açıklaması (öğretmen/veli bilgi kartı için zorunlu)' },
-                    semaTipi: { type: 'STRING', description: 'cetele-tablosu, siklik-tablosu, nesne-grafigi, nesne-izgarasi, kutu-modeli, sayi-dogrusu, denklem-semasi, cizim-alani, parca-butun, oran-oranti, kesir-bloklari, geometrik-sekil, zaman-tuneli, para-matrisi, grafik, grafik-tamamlama, kesir-pastasi, saat-zaman, abakus-basamak, cetvel-olcme, oruntu-blok, birim-kareli-zemin, paralelkenar-yamuk, terazi-denklem, iletki-aciolcer, lgs-ikili-grafik, lgs-alan-modeli, lgs-egim-koordinat, lgs-3d-acinim, lgs-ebob-ekok, lgs-karekok-uslu, lgs-pisagor-ucgen, yok. NOT: Kullanici tercihi otomatik ise sen en uygununu sec, yok ise sadece yok kullan.' },
-                    semaVerisi: {
-                        type: 'OBJECT',
-                        properties: {
-                            sekilTipi: { type: 'STRING' },
-                            etiketler: { type: 'OBJECT' },
-                            lejantNotu: { type: 'STRING', description: 'Not: Her resim 3 adet oyunu temsil eder vb.' },
-                            ceteleData: { type: 'OBJECT', description: '{"Kiraz": 10, "Armut": 7, "Çilek": 13}' },
-                            nesneGrafikData: {
-                                type: 'ARRAY',
-                                items: {
-                                    type: 'OBJECT',
-                                    properties: {
-                                        kategori: { type: 'STRING' },
-                                        adet: { type: 'NUMBER' },
-                                        simge: { type: 'STRING' }
-                                    }
-                                }
-                            },
-                            kesirOrani: { type: 'OBJECT', properties: { pay: { type: 'NUMBER' }, paydaya: { type: 'NUMBER' } } },
-                            zamanAkisi: { type: 'OBJECT', properties: { baslangic: { type: 'STRING' }, bitis: { type: 'STRING' } } },
-                        }
-                    },
-                    tabloVerisi: {
-                        type: 'OBJECT',
-                        properties: {
-                            baslik: { type: 'STRING' },
-                            sutunlar: { type: 'ARRAY', items: { type: 'STRING' } },
-                            satirData: { type: 'ARRAY', items: { type: 'ARRAY', items: { type: 'STRING' } } }
-                        }
-                    },
-                    grafikVerisi: {
-                        type: 'OBJECT',
-                        properties: {
-                            tip: { type: 'STRING' },
-                            baslik: { type: 'STRING' },
-                            veriler: {
-                                type: 'ARRAY',
-                                items: {
-                                    type: 'OBJECT',
-                                    properties: {
-                                        etiket: { type: 'STRING' },
-                                        deger: { type: 'NUMBER' },
-                                        renk: { type: 'STRING' }
-                                    }
-                                }
-                            }
-                        }
-                    },
                     puan: { type: 'NUMBER' },
                     tahminiSure: { type: 'NUMBER' },
                 }
@@ -256,11 +188,7 @@ export const generateMathProblems = async (settings: MatProblemAyarlari): Promis
             kazanimMetni: (p.kazanimMetni as string) || undefined,
             sinif,
             unite_adi: (p.unite_adi as string) || undefined,
-            semaTipi: ((p.semaTipi as string) || 'yok') as MatProblem['semaTipi'],
-            semaVerisi: p.semaVerisi as MatProblem['semaVerisi'],
-            tabloVerisi: p.tabloVerisi as MatProblemSeti['problemler'][0]['tabloVerisi'],
             kategori: settings.kategori || 'gercek-yasam',
-            grafikVerisi: p.grafikVerisi as MatProblem['grafikVerisi'],
             puan: (p.puan as number) || 10,
             tahminiSure: (p.tahminiSure as number) || 120,
         };
@@ -315,11 +243,9 @@ export const generateMatProblemFromOptions = async (options: Record<string, unkn
         secilenKazanimlar: Array.isArray(options.secilenKazanimlar) ? (options.secilenKazanimlar as string[]) : [],
         problemSayisi: typeof options.problemSayisi === 'number' ? options.problemSayisi : (typeof options.itemCount === 'number' ? options.itemCount : 5),
         zorlukSeviyesi: typeof options.zorlukSeviyesi === 'string' ? options.zorlukSeviyesi as MatProblemAyarlari['zorlukSeviyesi'] : 'Orta',
-        gorselVeriEklensinMi: typeof options.gorselVeriEklensinMi === 'boolean' ? options.gorselVeriEklensinMi : true,
         ozelTalimatlar: typeof options.ozelTalimatlar === 'string' ? options.ozelTalimatlar : undefined,
         ozelKonu: typeof options.ozelKonu === 'string' ? options.ozelKonu : undefined,
         kategori: typeof options.kategori === 'string' ? options.kategori as MatProblemAyarlari['kategori'] : 'gercek-yasam',
-        semaTipiTercihi: typeof options.semaTipiTercihi === 'string' ? options.semaTipiTercihi as MatProblemAyarlari['semaTipiTercihi'] : 'otomatik',
         verilenlerGosterilsinMi: typeof options.verilenlerGosterilsinMi === 'boolean' ? options.verilenlerGosterilsinMi : true,
         cozumKutusuGosterilsinMi: typeof options.cozumKutusuGosterilsinMi === 'boolean' ? options.cozumKutusuGosterilsinMi : true,
         isLgsMode: typeof options.isLgsMode === 'boolean' ? options.isLgsMode : false,

@@ -29,9 +29,7 @@ export const MatProblemRenderer: React.FC<MatProblemRendererProps> = ({ data, se
               secilenKazanimlar: problemSetiObj.secilenKazanimlar ?? [],
               problemSayisi: problemSetiObj.problemler.length,
               zorlukSeviyesi: 'Otomatik',
-              gorselVeriEklensinMi: false,
               kategori: 'gercek-yasam',
-              semaTipiTercihi: 'otomatik',
               verilenlerGosterilsinMi: ayarlarFromSettings.verilenlerGosterilsinMi ?? true,
               cozumKutusuGosterilsinMi: ayarlarFromSettings.cozumKutusuGosterilsinMi ?? true,
           }

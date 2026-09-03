@@ -13,7 +13,6 @@
 
 import React from 'react';
 import type { MatProblemSeti, ProblemDizgiAyarlari, MatProblemAyarlari } from '../../types/matProblem';
-import { MatProblemSemaView } from './MatProblemSemaView';
 
 interface MatProblemOnizlemeProps {
     problemSeti: MatProblemSeti;
@@ -112,9 +111,6 @@ export const MatProblemOnizleme: React.FC<MatProblemOnizlemeProps> = ({
                             <p style={{ margin: '0 0 8px 0', fontWeight: 500 }}>
                                 {problem.soruMetni}
                             </p>
-
-                            {/* Dinamik Gerçek SVG Şekil, Tablo ve Grafik Motoru */}
-                            <MatProblemSemaView problem={problem} />
 
                             {/* Alt Sorular (Çoklu Soru Formatı) */}
                             {problem.altSorular && problem.altSorular.length > 0 && (
