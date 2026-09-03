@@ -220,6 +220,27 @@ const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) =>
       setTimeout(() => recalculateLayout(), 50);
       setSelectedId(null);
       setDesignMode(false);
+
+      // --- ÜRETİLEN İÇERİĞİ OTOMATİK ARŞİVE & VERİTABANINA SENKRONİZE ET ---
+      try {
+        const projectData = {
+          id: `proj_${Date.now()}`,
+          title: storyData?.title || config.topic || 'Okuma Çalışması',
+          date: new Date().toISOString(),
+          layoutCount: items.filter(i => i.isVisible).length,
+          config,
+          storyData,
+          layout: items,
+        };
+
+        const existingArchiveData = localStorage.getItem('reading_studio_archive');
+        const archive = existingArchiveData ? JSON.parse(existingArchiveData) : [];
+        archive.unshift(projectData);
+        localStorage.setItem('reading_studio_archive', JSON.stringify(archive.slice(0, 50)));
+        window.dispatchEvent(new Event('reading_studio_saved'));
+      } catch (archErr) {
+        logError(archErr as any);
+      }
     } catch (e) {
       logError(e as any);
       alert('Hata oluştu. Lütfen tekrar deneyin.');
