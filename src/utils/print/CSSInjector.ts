@@ -223,9 +223,22 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
         min-height: 0 !important;
       }
 
-      /* Hikaye ve uzun metin blokları için özel akış kuralı */
-      .story-content, .long-text-block, .pedagogical-content {
+      /* Reading Studio Bileşenlerinin Yazdırmada Dikey Sıralı Akışı */
+      body.printing-mode #print-overlay .group {
+        position: relative !important;
         display: block !important;
+        width: 100% !important;
+        height: auto !important;
+        min-height: auto !important;
+        margin-bottom: 28px !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+
+      /* Hikaye ve uzun metin blokları için özel akış kuralı */
+      .story-content, .long-text-block, .pedagogical-content, .reading-text-flow {
+        display: block !important;
+        height: auto !important;
         page-break-inside: auto !important;
       }
       

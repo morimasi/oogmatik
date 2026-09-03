@@ -139,8 +139,9 @@ const DraggableItem = ({
       style={{
         position: 'relative',
         width: '100%',
-        minHeight: item.style.h || 'auto',
-        marginBottom: '28px', // 2 satır tipografik boşluk
+        height: 'auto',
+        minHeight: item.style.h ? `${item.style.h}px` : 'auto',
+        marginBottom: '28px', // 2 satır tipografik boşluk (28px)
         padding: '0 20px',
         boxSizing: 'border-box',
       }}
