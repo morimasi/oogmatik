@@ -123,7 +123,7 @@ export const MatProblemOnizleme: React.FC<MatProblemOnizlemeProps> = ({
                             {problem.altSorular && problem.altSorular.length > 0 && (
                                 <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px', marginBottom: '10px' }}>
                                     <div style={{ fontSize: '8px', fontWeight: 800, color: '#0369a1', textTransform: 'uppercase', marginBottom: '6px' }}>
-                                        ❓ Görsele Ait Alt Sorular
+                                        ❓ Çıkarım Soruları
                                     </div>
                                     <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                                         {problem.altSorular.map((altSoru, altIdx) => (
