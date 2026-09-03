@@ -173,11 +173,11 @@ export const ReadingStudioContentRenderer = ({
           </h1>
           <div className="flex justify-between items-center mt-2">
             <span className="font-bold text-[10px] uppercase tracking-widest opacity-60">
-                {data.subtitle}
+              {data.subtitle}
             </span>
             <div className="flex gap-4">
-                <span className="text-[10px] border-b border-black font-bold">İsim: ...............................</span>
-                <span className="text-[10px] border-b border-black font-bold">Tarih: ..../..../20....</span>
+              <span className="text-[10px] border-b border-black font-bold">İsim: ...............................</span>
+              <span className="text-[10px] border-b border-black font-bold">Tarih: ..../..../20....</span>
             </div>
           </div>
         </div>
@@ -245,150 +245,150 @@ export const ReadingStudioContentRenderer = ({
     if (item.id === 'pedagogical_goals') {
       const data = item.specificData || { note: '', goals: [] };
       return (
-          <div className="flex flex-col h-full bg-emerald-50/50 rounded-2xl border border-emerald-200" style={boxStyle}>
-               <h4 className="font-black text-[11px] uppercase mb-2 text-emerald-800">
-                   <i className="fa-solid fa-brain mr-2"></i>
-                   Pedagojik Not ve Hedefler
-               </h4>
-               <p className="text-[11px] leading-relaxed italic opacity-80 mb-3">{data.note || '-'}</p>
-               <div className="flex flex-wrap gap-2">
-                    {(Array.isArray(data.goals) ? data.goals : []).map((g: string, i: number) => (
-                        <span key={i} className="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[9px] font-black uppercase">
-                            # {g}
-                        </span>
-                    ))}
-               </div>
+        <div className="flex flex-col h-full bg-emerald-50/50 rounded-2xl border border-emerald-200" style={boxStyle}>
+          <h4 className="font-black text-[11px] uppercase mb-2 text-emerald-800">
+            <i className="fa-solid fa-brain mr-2"></i>
+            Pedagojik Not ve Hedefler
+          </h4>
+          <p className="text-[11px] leading-relaxed italic opacity-80 mb-3">{data.note || '-'}</p>
+          <div className="flex flex-wrap gap-2">
+            {(Array.isArray(data.goals) ? data.goals : []).map((g: string, i: number) => (
+              <span key={i} className="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[9px] font-black uppercase">
+                # {g}
+              </span>
+            ))}
           </div>
+        </div>
       );
     }
 
     // 6. TEST QUESTIONS
     if (item.id === 'test_questions') {
-        const questions = Array.isArray(item.specificData?.questions) ? item.specificData.questions : [];
-        return (
-            <div className="flex flex-col h-full" style={boxStyle}>
-                 <h4 className="font-black text-[11px] uppercase mb-4 text-indigo-700 border-b border-indigo-100 pb-1">
-                     <i className="fa-solid fa-list-check mr-2"></i>
-                     Konu Değerlendirme Testi
-                 </h4>
-                 <div className="space-y-6">
-                    {questions.map((q: any, i: number) => (
-                        <div key={i} className="flex flex-col gap-2">
-                             <div className="flex gap-3">
-                                <span className="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-black text-xs shrink-0">{i+1}</span>
-                                <p className="font-bold text-[14px] leading-snug">{q.question}</p>
-                             </div>
-                             <div className="grid grid-cols-2 gap-x-8 gap-y-2 ml-9">
-                                {(Array.isArray(q.options) ? q.options : []).map((opt: string, optIdx: number) => (
-                                    <div key={optIdx} className="flex items-center gap-2">
-                                        <div className="w-5 h-5 rounded-full border border-zinc-300 flex items-center justify-center text-[10px] font-bold">
-                                            {String.fromCharCode(65 + optIdx)}
-                                        </div>
-                                        <span className="text-[12px] opacity-80">{opt}</span>
-                                    </div>
-                                ))}
-                             </div>
-                        </div>
-                    ))}
-                 </div>
-            </div>
-        );
+      const questions = Array.isArray(item.specificData?.questions) ? item.specificData.questions : [];
+      return (
+        <div className="flex flex-col h-full" style={boxStyle}>
+          <h4 className="font-black text-[11px] uppercase mb-4 text-indigo-700 border-b border-indigo-100 pb-1">
+            <i className="fa-solid fa-list-check mr-2"></i>
+            Konu Değerlendirme Testi
+          </h4>
+          <div className="space-y-6">
+            {questions.map((q: any, i: number) => (
+              <div key={i} className="flex flex-col gap-2">
+                <div className="flex gap-3">
+                  <span className="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-black text-xs shrink-0">{i + 1}</span>
+                  <p className="font-bold text-[14px] leading-snug">{q.question}</p>
+                </div>
+                <div className="grid grid-cols-2 gap-x-8 gap-y-2 ml-9">
+                  {(Array.isArray(q.options) ? q.options : []).map((opt: string, optIdx: number) => (
+                    <div key={optIdx} className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-full border border-zinc-300 flex items-center justify-center text-[10px] font-bold">
+                        {String.fromCharCode(65 + optIdx)}
+                      </div>
+                      <span className="text-[12px] opacity-80">{opt}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
     }
 
     // 7. LOGIC PROBLEMS
     if (item.id === 'logic_problem') {
-        const puzzle = item.specificData?.puzzle;
-        return (
-            <div className="flex flex-col h-full bg-orange-50/50 rounded-2xl border border-orange-200" style={boxStyle}>
-                 <h4 className="font-black text-[11px] uppercase mb-3 text-orange-800">
-                     <i className="fa-solid fa-puzzle-piece mr-2"></i>
-                     Muhakeme ve Mantık Sorusu
-                 </h4>
-                 {puzzle ? (
-                     <div className="flex flex-col gap-3">
-                         <p className="font-bold text-[14px] bg-white p-3 rounded-xl border border-orange-100 shadow-sm leading-relaxed">
-                            {puzzle.question}
-                         </p>
-                         <div className="h-10 border-b border-orange-300 border-dashed opacity-50"></div>
-                     </div>
-                 ) : (
-                     <p className="text-xs italic opacity-40">Mantık sorusu hazırlanıyor...</p>
-                 )}
+      const puzzle = item.specificData?.puzzle;
+      return (
+        <div className="flex flex-col h-full bg-orange-50/50 rounded-2xl border border-orange-200" style={boxStyle}>
+          <h4 className="font-black text-[11px] uppercase mb-3 text-orange-800">
+            <i className="fa-solid fa-puzzle-piece mr-2"></i>
+            Muhakeme ve Mantık Sorusu
+          </h4>
+          {puzzle ? (
+            <div className="flex flex-col gap-3">
+              <p className="font-bold text-[14px] bg-white p-3 rounded-xl border border-orange-100 shadow-sm leading-relaxed">
+                {puzzle.question}
+              </p>
+              <div className="h-10 border-b border-orange-300 border-dashed opacity-50"></div>
             </div>
-        );
+          ) : (
+            <p className="text-xs italic opacity-40">Mantık sorusu hazırlanıyor...</p>
+          )}
+        </div>
+      );
     }
 
     // 8. SYLLABLE TRAIN (Vagon Tasarımı)
     if (item.id === 'syllable_train') {
-        const words = Array.isArray(item.specificData?.words) ? item.specificData.words : [];
-        return (
-            <div className="flex flex-col h-full" style={boxStyle}>
-                 <h4 className="font-black text-[11px] uppercase mb-4 text-cyan-700">
-                     <i className="fa-solid fa-train mr-2"></i>
-                     Hecelerle Tren Yolculuğu (5-10 Kelime)
-                 </h4>
-                 <div className="flex flex-wrap gap-x-12 gap-y-8 justify-start">
-                    {words.map((w: any, i: number) => (
-                        <div key={i} className="flex items-end gap-0.5">
-                             {/* Locomotive Placeholder (Simplified) */}
-                             <div className="w-10 h-10 bg-cyan-600 rounded-l-lg flex flex-col justify-center items-center text-white relative">
-                                 <i className="fa-solid fa-steam-symbol text-[10px] absolute -top-4"></i>
-                                 <i className="fa-solid fa-train text-xs"></i>
-                             </div>
-                             {/* Syllable Wagons */}
-                             {(Array.isArray(w.syllables) ? w.syllables : []).map((syl: string, sylIdx: number) => (
-                                 <div key={sylIdx} className="w-12 h-10 border-2 border-cyan-700 border-l-0 bg-white flex items-center justify-center font-black text-sm relative group overflow-hidden">
-                                    {(syl || '').toUpperCase()}
-                                    <div className="absolute bottom-0 h-1 bg-cyan-700/20 w-full"></div>
-                                    {/* Wheels */}
-                                    <div className="absolute -bottom-1 w-[120%] flex justify-around px-1">
-                                        <div className="w-2.5 h-2.5 rounded-full bg-zinc-900 border-2 border-white"></div>
-                                        <div className="w-2.5 h-2.5 rounded-full bg-zinc-900 border-2 border-white"></div>
-                                    </div>
-                                 </div>
-                             ))}
-                             {/* Empty Wagon for Practice */}
-                             <div className="w-12 h-10 border-2 border-dashed border-cyan-300 border-l-0 bg-zinc-50 flex items-center justify-center text-cyan-200">
-                                 ?
-                             </div>
-                        </div>
-                    ))}
-                 </div>
-            </div>
-        );
+      const words = Array.isArray(item.specificData?.words) ? item.specificData.words : [];
+      return (
+        <div className="flex flex-col h-full" style={boxStyle}>
+          <h4 className="font-black text-[11px] uppercase mb-4 text-cyan-700">
+            <i className="fa-solid fa-train mr-2"></i>
+            Hecelerle Tren Yolculuğu (5-10 Kelime)
+          </h4>
+          <div className="flex flex-wrap gap-x-12 gap-y-8 justify-start">
+            {words.map((w: any, i: number) => (
+              <div key={i} className="flex items-end gap-0.5">
+                {/* Locomotive Placeholder (Simplified) */}
+                <div className="w-10 h-10 bg-cyan-600 rounded-l-lg flex flex-col justify-center items-center text-white relative">
+                  <i className="fa-solid fa-steam-symbol text-[10px] absolute -top-4"></i>
+                  <i className="fa-solid fa-train text-xs"></i>
+                </div>
+                {/* Syllable Wagons */}
+                {(Array.isArray(w.syllables) ? w.syllables : []).map((syl: string, sylIdx: number) => (
+                  <div key={sylIdx} className="w-12 h-10 border-2 border-cyan-700 border-l-0 bg-white flex items-center justify-center font-black text-sm relative group overflow-hidden">
+                    {(syl || '').toUpperCase()}
+                    <div className="absolute bottom-0 h-1 bg-cyan-700/20 w-full"></div>
+                    {/* Wheels */}
+                    <div className="absolute -bottom-1 w-[120%] flex justify-around px-1">
+                      <div className="w-2.5 h-2.5 rounded-full bg-zinc-900 border-2 border-white"></div>
+                      <div className="w-2.5 h-2.5 rounded-full bg-zinc-900 border-2 border-white"></div>
+                    </div>
+                  </div>
+                ))}
+                {/* Empty Wagon for Practice */}
+                <div className="w-12 h-10 border-2 border-dashed border-cyan-300 border-l-0 bg-zinc-50 flex items-center justify-center text-cyan-200">
+                  ?
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
     }
 
     // 9. CREATIVE AREA
     if (item.id === 'creative_area') {
-        const data = item.specificData || { prompt: '' };
-        return (
-            <div className="h-full flex flex-col rounded-3xl border-2 border-dashed border-zinc-200 p-6 relative" style={boxStyle}>
-                 <div className="absolute -top-3 left-8 px-4 bg-white font-black text-[11px] uppercase tracking-widest text-zinc-400">
-                     <i className="fa-solid fa-palette mr-2"></i>
-                     Düşün ve Tasarla (Yaratıcı Alan)
-                 </div>
-                 <p className="font-bold text-[13px] leading-relaxed text-zinc-600 mb-6 italic">
-                    "{data.prompt}"
-                 </p>
-                 <div className="flex-1 rounded-2xl border-2 border-zinc-100 bg-zinc-50/20 flex items-center justify-center group">
-                      <i className="fa-solid fa-pencil text-4xl text-zinc-100 group-hover:scale-110 transition-transform"></i>
-                 </div>
-            </div>
-        );
+      const data = item.specificData || { prompt: '' };
+      return (
+        <div className="h-full flex flex-col rounded-3xl border-2 border-dashed border-zinc-200 p-6 relative" style={boxStyle}>
+          <div className="absolute -top-3 left-8 px-4 bg-white font-black text-[11px] uppercase tracking-widest text-zinc-400">
+            <i className="fa-solid fa-palette mr-2"></i>
+            Düşün ve Tasarla (Yaratıcı Alan)
+          </div>
+          <p className="font-bold text-[13px] leading-relaxed text-zinc-600 mb-6 italic">
+            "{data.prompt}"
+          </p>
+          <div className="flex-1 rounded-2xl border-2 border-zinc-100 bg-zinc-50/20 flex items-center justify-center group">
+            <i className="fa-solid fa-pencil text-4xl text-zinc-100 group-hover:scale-110 transition-transform"></i>
+          </div>
+        </div>
+      );
     }
 
     // 10. NOTES AREA
     if (item.id === 'note_area') {
-        return (
-            <div className="h-full flex flex-col bg-yellow-50/50 rounded-2xl border border-yellow-200 p-4" style={boxStyle}>
-                <h4 className="font-black text-[9px] uppercase mb-2 text-yellow-800 opacity-60">Gözlem ve Değerlendirme Notları</h4>
-                <div className="flex-1 space-y-2">
-                    {[1, 2, 3].map(i => (
-                        <div key={i} className="h-6 border-b border-yellow-200"></div>
-                    ))}
-                </div>
-            </div>
-        );
+      return (
+        <div className="h-full flex flex-col bg-yellow-50/50 rounded-2xl border border-yellow-200 p-4" style={boxStyle}>
+          <h4 className="font-black text-[9px] uppercase mb-2 text-yellow-800 opacity-60">Gözlem ve Değerlendirme Notları</h4>
+          <div className="flex-1 space-y-2">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="h-6 border-b border-yellow-200"></div>
+            ))}
+          </div>
+        </div>
+      );
     }
 
     return <div style={boxStyle}>{item.label}</div>;
@@ -409,15 +409,17 @@ export const ReadingStudioContentRenderer = ({
               style={{ width: canvasWidth, minHeight: canvasHeight, padding: 0 }}
             >
               <div className="absolute inset-0 flex flex-col pointer-events-none">
-                 {/* Page Number Indicator */}
-                 <div className="absolute bottom-6 right-8 text-[10px] font-black text-zinc-300 uppercase tracking-widest">
-                    P. {pageIndex + 1}
-                 </div>
+                {/* Page Number Indicator */}
+                <div className="absolute bottom-6 right-8 text-[10px] font-black text-zinc-300 uppercase tracking-widest">
+                  P. {pageIndex + 1}
+                </div>
               </div>
-              
+
               {pageItems.map((item: any) => (
                 <DraggableItem key={item.instanceId} item={item} canvasWidth={canvasWidth}>
-                  {renderItemContent(item)}
+                  <div style={{ marginBottom: '28px' }}>
+                    {renderItemContent(item)}
+                  </div>
                 </DraggableItem>
               ))}
             </div>

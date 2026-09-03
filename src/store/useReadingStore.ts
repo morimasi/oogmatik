@@ -124,30 +124,19 @@ export const useReadingStore = create<ReadingState>()((set, get) => ({
 
   recalculateLayout: () => {
     set((state) => {
-      const margin = 30;
+      const margin = 28; // Her bileşen arasında 2 satır metin yüksekliğine denk gelen dinamik boşluk (28px)
       let currentY = 20;
       let currentPage = 0;
-      const sortedItems = [...state.layout].sort((a, b) => {
-         // Id bazlı sabit sıra (User'ın istediği sıra)
-         const orderIndex: Record<string, number> = {
-            'header': 0,
-            'story_block': 1,
-            '5n1k': 2,
-            'vocabulary': 3,
-            'pedagogical_goals': 4,
-            'test_questions': 5,
-            'logic_problem': 6,
-            'syllable_train': 7,
-            'creative_area': 8,
-            'note_area': 9
-         };
-         return (orderIndex[a.id] ?? 99) - (orderIndex[b.id] ?? 99);
-      });
+
+      // Kullanıcının mevcut layout dizilimindeki sırasını koru veya sıralama indeksine göre dize
+      const sortedItems = [...state.layout];
 
       const updatedLayout = sortedItems.map((item) => {
         if (!item.isVisible) return item;
 
-        const h = Number(item.style.h) || 100;
+        const h = Number(item.style?.h) || 120;
+
+        // Eğer mevcut A4 sayfa yüksekliği (1122px) aşıldıysa sonraki sayfaya aktar
         if (currentY + h > A4_HEIGHT_PX - 40) {
           currentPage++;
           currentY = 20;
@@ -159,8 +148,8 @@ export const useReadingStore = create<ReadingState>()((set, get) => ({
           style: {
             ...item.style,
             y: currentY,
-            x: 20, // Reset X to standard
-            w: 754  // Reset W to standard width
+            x: 20, // A4 Sol hizalamasını sabitle
+            w: 754  // A4 Genişliğini standart yap
           }
         };
 
@@ -210,7 +199,7 @@ export const useReadingStore = create<ReadingState>()((set, get) => ({
       layout: [...state.layout, newComp],
       selectedId: newComp.instanceId,
     }));
-    
+
     recalculateLayout();
   },
 
