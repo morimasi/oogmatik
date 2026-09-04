@@ -24,18 +24,18 @@ import { logInfo, logError, logWarn } from '../../utils/logger.js';
 type TabType = 'onizleme' | 'cevap-anahtari';
 
 const SectionHeader: React.FC<{ icon: string; title: string; badge?: string; isOpen: boolean; onToggle: () => void; }> = ({ icon, title, badge, isOpen, onToggle }) => (
-  <button onClick={onToggle} className="w-full flex items-center justify-between px-5 py-4 bg-transparent hover:bg-accent/5 transition-all duration-300 group rounded-xl">
-    <div className="flex items-center gap-3">
-      <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-500 ${isOpen ? 'bg-accent text-white shadow-lg shadow-accent/20 rotate-6' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)] group-hover:bg-accent/10 group-hover:text-accent group-hover:rotate-3'}`}>
-        <span className="text-lg">{icon}</span>
+  <button onClick={onToggle} className="w-full flex items-center justify-between px-3.5 py-2.5 bg-transparent hover:bg-accent/5 transition-all duration-300 group rounded-xl">
+    <div className="flex items-center gap-2.5">
+      <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-sm transition-all duration-300 ${isOpen ? 'bg-accent text-white shadow-xs shadow-accent/20' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)] group-hover:bg-accent/10 group-hover:text-accent'}`}>
+        <span>{icon}</span>
       </div>
-      <div className="flex flex-col items-start">
-        <span className={`text-[13px] font-bold tracking-tight transition-colors ${isOpen ? 'text-accent' : 'text-[var(--text-muted)] group-hover:text-accent'}`}>{title}</span>
-        {badge && <span className="text-[9px] font-bold text-accent/70 uppercase tracking-widest mt-0.5">{badge}</span>}
+      <div className="flex flex-col items-start text-left">
+        <span className={`text-xs font-bold tracking-tight transition-colors ${isOpen ? 'text-accent' : 'text-[var(--text-primary)] group-hover:text-accent'}`}>{title}</span>
+        {badge && <span className="text-[9px] font-bold text-accent/80 uppercase tracking-wider">{badge}</span>}
       </div>
     </div>
-    <span className={`text-[var(--text-muted)] transition-all duration-500 ${isOpen ? 'rotate-180 text-accent' : 'group-hover:text-accent/70'}`}>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-sm"><path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+    <span className={`text-[var(--text-muted)] text-xs transition-all duration-300 ${isOpen ? 'rotate-180 text-accent' : 'group-hover:text-accent/70'}`}>
+      ▼
     </span>
   </button>
 );
@@ -108,7 +108,7 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
       const dataObj = initialData.content || initialData;
       // In exams, the actual exam object is usually in data[0] or content.data[0]
       const exam = dataObj.data?.[0] || dataObj.content?.[0] || (Array.isArray(dataObj) ? dataObj[0] : null);
-      
+
       if (exam) {
         setAktifSinav(exam);
         if (dataObj.printConfig) setPrintConfig(dataObj.printConfig);
@@ -503,15 +503,15 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
                 <span className="text-base">📚</span><span className="hidden sm:inline">Kitapçık</span>
               </button>
               <div className="w-px h-8 bg-[var(--border-color)] mx-2 self-center opacity-40"></div>
-              <button 
-                onClick={handlePrint} 
+              <button
+                onClick={handlePrint}
                 disabled={!aktifSinav || isDownloading}
                 className="toolbar-btn bg-[var(--text-primary)] text-[var(--bg-primary)] border-none shadow-lg hover:bg-black hover:translate-y-[-2px]"
               >
                 <i className="fa-solid fa-print"></i> <span className="hidden sm:inline">Yazdır</span>
               </button>
-              <button 
-                onClick={handleDownload} 
+              <button
+                onClick={handleDownload}
                 disabled={!aktifSinav || isDownloading}
                 className="toolbar-btn bg-rose-600 text-[var(--bg-primary)] border-none shadow-lg shadow-rose-100 hover:bg-rose-700 hover:translate-y-[-2px]"
               >
