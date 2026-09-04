@@ -14,6 +14,7 @@ export const useProblemGenerator = (initialStudentName: string, pageMargin: numb
     });
     const [generatedProblems, setGeneratedProblems] = useState<MathProblem[]>([]);
     const [instruction, setInstruction] = useState<string>('');
+    const [pedagogicalNote, setPedagogicalNote] = useState<string>('');
     const [isGenerating, setIsGenerating] = useState(false);
 
     const toggleProblemOp = useCallback((op: string) => {
@@ -38,13 +39,13 @@ export const useProblemGenerator = (initialStudentName: string, pageMargin: numb
         setIsGenerating(true);
         try {
             // If autoFillPage is ON, dynamically calculate the count based on A4 capacity
-            const effectiveCount = problemConfig.autoFillPage 
+            const effectiveCount = problemConfig.autoFillPage
                 ? calculateItemsPerPage(problemConfig, pageMargin)
                 : problemConfig.count;
 
             const finalConfig = { ...problemConfig, count: effectiveCount };
 
-            const result = await generateMathProblemsAI(finalConfig) as { problems?: any[]; instruction?: string };
+            const result = await generateMathProblemsAI(finalConfig) as { problems?: any[]; instruction?: string; pedagogicalNote?: string };
             const mapped = (result.problems || []).map((p: any, i: number) => ({
                 id: `p-${Date.now()}-${i}`,
                 text: p.text || "Soru metni yüklenemedi.",
@@ -52,11 +53,13 @@ export const useProblemGenerator = (initialStudentName: string, pageMargin: numb
                 operationHint: p.operationHint,
                 type: p.type || 'standard',
                 imagePrompt: p.imagePrompt,
+                svgCode: p.svgCode,
                 options: p.options || [],
                 steps: p.steps || [],
             }));
             setGeneratedProblems(mapped);
             setInstruction(result.instruction || '');
+            setPedagogicalNote(result.pedagogicalNote || '');
             return { success: true };
         } catch (e) {
             logError(e instanceof Error ? e : String(e));
@@ -73,6 +76,8 @@ export const useProblemGenerator = (initialStudentName: string, pageMargin: numb
         setGeneratedProblems,
         instruction,
         setInstruction,
+        pedagogicalNote,
+        setPedagogicalNote,
         isGenerating,
         toggleProblemOp,
         toggleProblemType,

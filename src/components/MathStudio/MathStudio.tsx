@@ -62,7 +62,10 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, initialData }) =
         pageConfig,
         generatedDrills: drill.generatedDrills,
         generatedProblems: problem.generatedProblems,
-    });
+        themeConfig,
+        instruction: problem.instruction,
+        pedagogicalNote: problem.pedagogicalNote,
+    } as any);
 
     // --- SYNC ---
     useEffect(() => {
@@ -77,11 +80,11 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, initialData }) =
         if (initialData) {
             // Support both direct and nested structure
             const data = initialData.content || initialData;
-            
+
             if (data.mode) setMode(data.mode);
             if (data.pageConfig) setPageConfig(data.pageConfig);
             if (data.themeConfig) setThemeConfig(data.themeConfig);
-            
+
             const items = data.items || data.drills || data.problems;
 
             if (data.mode === 'drill' && data.config) {
@@ -273,22 +276,23 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, initialData }) =
 
                     {mode === 'problem_ai' && (
                         problem.isGenerating && (!problem.generatedProblems || problem.generatedProblems.length === 0) ? (
-                          <div className="flex items-center justify-center w-full h-full min-h-[400px]">
-                              <BrandedLoadingAnimation
-                              size="medium"
-                              title="Soru Üretiliyor"
-                              messages={["Problemler oluşturuluyor...", "Cevap anahtarı hesaplanıyor...", "Görsel öğeler ekleniyor..."]}
-                            />
-                          </div>
+                            <div className="flex items-center justify-center w-full h-full min-h-[400px]">
+                                <BrandedLoadingAnimation
+                                    size="medium"
+                                    title="Soru Üretiliyor"
+                                    messages={["Problemler oluşturuluyor...", "Cevap anahtarı hesaplanıyor...", "Görsel öğeler ekleniyor..."]}
+                                />
+                            </div>
                         ) : (
-                        <ProblemCanvas
-                            problemConfig={problem.problemConfig}
-                            pageConfig={pageConfig}
-                            themeConfig={themeConfig}
-                            generatedProblems={problem.generatedProblems}
-                            instruction={problem.instruction}
-                            studentName={selectedStudentName}
-                        />
+                            <ProblemCanvas
+                                problemConfig={problem.problemConfig}
+                                pageConfig={pageConfig}
+                                themeConfig={themeConfig}
+                                generatedProblems={problem.generatedProblems}
+                                instruction={problem.instruction}
+                                pedagogicalNote={problem.pedagogicalNote}
+                                studentName={selectedStudentName}
+                            />
                         )
                     )}
 

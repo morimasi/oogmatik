@@ -27,15 +27,16 @@ export const useExportActions = (deps: ExportDeps) => {
             mode: deps.mode,
             config: deps.mode === 'drill' ? deps.drillConfig : deps.problemConfig,
             pageConfig: deps.pageConfig,
+            themeConfig: (deps as any).themeConfig || {},
             items: deps.mode === 'drill' ? deps.generatedDrills : deps.generatedProblems,
             isMathStudio: true,
             title: deps.pageConfig.title,
-            instruction: "Aşağıdaki matematik problemlerini çözün.",
-            targetSkills: [],
-            learningObjectives: [],
-
+            instruction: (deps as any).instruction || "Aşağıdaki matematik problemlerini çözün.",
+            pedagogicalNote: (deps as any).pedagogicalNote,
+            targetSkills: ['Matematiksel Düşünme', 'Problem Çözme', 'Diskalkuli Desteği'],
+            learningObjectives: ['Aritmetik İşlemler', 'Anlama ve Uygulama'],
         } as any;
-    }, [deps.mode, deps.drillConfig, deps.problemConfig, deps.pageConfig, deps.generatedDrills, deps.generatedProblems]);
+    }, [deps.mode, deps.drillConfig, deps.problemConfig, deps.pageConfig, deps.generatedDrills, deps.generatedProblems, (deps as any).themeConfig, (deps as any).instruction, (deps as any).pedagogicalNote]);
 
     const handleSave = useCallback(async (studentId?: string): Promise<{ success: boolean; error?: string }> => {
         if (!deps.userId) return { success: false, error: "Kaydetmek için giriş yapmalısınız." };

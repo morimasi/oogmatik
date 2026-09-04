@@ -22,7 +22,9 @@ export const MathStudioRenderer: React.FC<MathStudioRendererProps> = ({ data, se
   const pageConfig = (item.pageConfig || item.content?.pageConfig) as MathPageConfig;
   const items = item.items || item.content?.items || [];
 
-  const themeConfig: ThemeConfig = DEFAULT_THEME_CONFIG;
+  const themeConfig: ThemeConfig = item.themeConfig || item.content?.themeConfig || DEFAULT_THEME_CONFIG;
+  const instruction = item.instruction || item.content?.instruction;
+  const pedagogicalNote = item.pedagogicalNote || item.content?.pedagogicalNote;
 
   if (mode === 'drill') {
     return (
@@ -42,7 +44,8 @@ export const MathStudioRenderer: React.FC<MathStudioRendererProps> = ({ data, se
       pageConfig={pageConfig}
       themeConfig={themeConfig}
       generatedProblems={items}
-      instruction={data.instruction}
+      instruction={instruction}
+      pedagogicalNote={pedagogicalNote}
       studentName={settings?.studentName}
     />
   );

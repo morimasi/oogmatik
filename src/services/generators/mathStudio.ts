@@ -1,4 +1,3 @@
-
 import { generateWithSchema } from '../geminiClient.js';
 import { MathProblemConfig } from '../../types/math.js';
 
@@ -71,29 +70,27 @@ export const generateMathProblemsAI = async (config: MathProblemConfig) => {
 
     ÇIKTI FORMATI (JSON):
     {
-      "instruction": "Tüm bu problemler için genel, motive edici, giriş niteliğinde tek bir Türkçe yönerge/talimat cümlesi yaz (örn: 'Uzay mekiği kalkışa hazırlanıyor! Gerekli güvenlik şifrelerini hesaplayarak Astronot Ali'ye yardım et.')",
+      "pedagogicalNote": "Öğretmen için not...",
+      "instruction": "Tüm bu problemler için genel, motive edici, giriş niteliğinde tek bir Türkçe yönerge/talimat cümlesi yaz.",
       "problems": [
         {
           "text": "Problem metni buraya...",
           "answer": "Sadece sayısal cevap (örn: 15, D/Y, veya <)",
           "operationHint": "Hangi işlemin yapılacağı (örn: 5 ile 3'ü topla)",
           "type": "standard",
-          ${config.generateImages ? '"imagePrompt": "A simple flat illustration of 3 apples on a table", // Ingilizce' : ''}
-          "svgCode": "<svg viewBox=\\"0 0 400 300\\" width=\\"100%\\" xmlns=\\"http://www.w3.org/2000/svg\\">...</svg>", // Veya boş string ""
+          ${config.generateImages ? '"imagePrompt": "A simple flat illustration of 3 apples on a table",' : ''}
+          "svgCode": "<svg viewBox=\\"0 0 400 300\\" width=\\"100%\\" xmlns=\\"http://www.w3.org/2000/svg\\">...</svg>",
           "options": [],
           "steps": ["Adım 1: ...", "Adım 2: ..."]
         }
       ]
     }
-    
-    [KRİTİK]: Döndürülen JSON, 'pedagogicalNote' isimli öğretmen geri bildirim notunu kesinlikle içermelidir.
     `;
 
-const schema = {
+    const schema = {
         type: 'OBJECT',
         properties: {
-                 pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
-
+            pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB/Diskalkuli) faydası üzerine pedagojik not' },
             instruction: { type: 'STRING', description: 'Öğrenciye yönelik yönerge' },
             problems: {
                 type: 'ARRAY', description: 'Matematik problemleri dizisi',
@@ -109,13 +106,12 @@ const schema = {
                         options: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Şık seçenekleri' },
                         steps: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Çözüm adımları' }
                     },
-                    required: ['pedagogicalNote', 'text', 'answer', 'operationHint', 'type']
+                    required: ['text', 'answer', 'operationHint', 'type']
                 }
             }
         },
-        required: ['instruction', 'problems']
+        required: ['pedagogicalNote', 'instruction', 'problems']
     };
 
-    // Fix: Using stable gemini-3-flash for maximum speed and cost efficiency
     return await generateWithSchema(prompt, schema);
 };
