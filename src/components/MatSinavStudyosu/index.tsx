@@ -35,18 +35,18 @@ const FmtBtn: React.FC<{ active: boolean; onClick: () => void; children: React.R
 );
 
 const SectionHeader: React.FC<{ icon: string; title: string; badge?: string; isOpen: boolean; onToggle: () => void; }> = ({ icon, title, badge, isOpen, onToggle }) => (
-    <button onClick={onToggle} className="w-full flex items-center justify-between px-5 py-4 bg-transparent hover:bg-accent/5 transition-all duration-300 group rounded-xl">
-        <div className="flex items-center gap-3">
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-500 ${isOpen ? 'bg-accent text-white shadow-lg shadow-accent/20 rotate-6' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)] group-hover:bg-accent/20 group-hover:text-accent group-hover:rotate-3'}`}>
-                <span className="text-lg">{icon}</span>
+    <button onClick={onToggle} className="w-full flex items-center justify-between px-3.5 py-2.5 bg-transparent hover:bg-accent/5 transition-all duration-300 group rounded-xl">
+        <div className="flex items-center gap-2.5">
+            <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-sm transition-all duration-300 ${isOpen ? 'bg-accent text-white shadow-xs shadow-accent/20' : 'bg-[var(--bg-secondary)] text-[var(--text-muted)] group-hover:bg-accent/10 group-hover:text-accent'}`}>
+                <span>{icon}</span>
             </div>
             <div className="flex flex-col items-start text-left">
-                <span className={`text-[13px] font-bold tracking-tight transition-colors ${isOpen ? 'text-accent' : 'text-[var(--text-muted)] group-hover:text-accent'}`}>{title}</span>
-                {badge && <span className="text-[9px] font-bold text-accent/70 uppercase tracking-widest mt-0.5">{badge}</span>}
+                <span className={`text-xs font-bold tracking-tight transition-colors ${isOpen ? 'text-accent' : 'text-[var(--text-primary)] group-hover:text-accent'}`}>{title}</span>
+                {badge && <span className="text-[9px] font-bold text-accent/80 uppercase tracking-wider">{badge}</span>}
             </div>
         </div>
-        <span className={`text-[var(--text-muted)] transition-all duration-500 ${isOpen ? 'rotate-180 text-accent' : 'group-hover:text-accent/70'}`}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="drop-shadow-sm"><path d="M6 9L12 15L18 9" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        <span className={`text-[var(--text-muted)] text-xs transition-all duration-300 ${isOpen ? 'rotate-180 text-accent' : 'group-hover:text-accent/70'}`}>
+            ▼
         </span>
     </button>
 );
@@ -597,13 +597,13 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ initialData 
             {aktifSinav && (
                 <div id="mat-sinav-print-target" className="hidden">
                     <div id="mat-sinav-print-inner">
-                        <MatSinavOnizleme 
-                            sinav={aktifSinav} 
-                            onUpdateSoru={handleUpdateSoru} 
-                            onRefreshSoru={handleRefreshSoru} 
-                            refreshingIndex={null} 
-                            config={printConfig} 
-                            isPrinting={true} 
+                        <MatSinavOnizleme
+                            sinav={aktifSinav}
+                            onUpdateSoru={handleUpdateSoru}
+                            onRefreshSoru={handleRefreshSoru}
+                            refreshingIndex={null}
+                            config={printConfig}
+                            isPrinting={true}
                         />
                     </div>
                     {/* Yazdırma CSS — sayfa bölünmez sorular + compact A4 */}
