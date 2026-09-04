@@ -48,11 +48,10 @@ export const SoruCard: React.FC<SoruCardProps> = ({
               return (
                 <div
                   key={idx}
-                  className={`flex items-start gap-2 px-3 py-1.5 rounded-lg border transition-colors ${
-                    isCorrect && !isPrinting 
-                      ? 'bg-emerald-50 border-emerald-300' 
+                  className={`flex items-start gap-2 px-3 py-1.5 rounded-lg border transition-colors ${isCorrect && !isPrinting
+                      ? 'bg-emerald-50 border-emerald-300'
                       : (isPrinting ? 'bg-transparent border-transparent p-0' : 'bg-gray-50 border-gray-200')
-                  }`}
+                    }`}
                   style={textStyle}
                 >
                   <span className={`font-bold flex-shrink-0 ${isCorrect && !isPrinting ? 'text-emerald-700' : 'text-black'}`}>
@@ -72,12 +71,12 @@ export const SoruCard: React.FC<SoruCardProps> = ({
           <div className="mt-3 space-y-2">
             <div className="flex gap-8 px-3">
               <div className="flex items-center gap-1">
-                 <span style={{ ...textStyle, color: '#000' }}>( ) Doğru</span>
-                 {isCorrectDY === 'Doğru' && isPrinting && <span className="text-black font-black">✓</span>}
+                <span style={{ ...textStyle, color: '#000' }}>( ) Doğru</span>
+                {isCorrectDY === 'Doğru' && isPrinting && <span className="text-black font-black">✓</span>}
               </div>
               <div className="flex items-center gap-1">
-                 <span style={{ ...textStyle, color: '#000' }}>( ) Yanlış</span>
-                 {isCorrectDY === 'Yanlış' && isPrinting && <span className="text-black font-black">✓</span>}
+                <span style={{ ...textStyle, color: '#000' }}>( ) Yanlış</span>
+                {isCorrectDY === 'Yanlış' && isPrinting && <span className="text-black font-black">✓</span>}
               </div>
             </div>
             {!isPrinting && (
@@ -98,11 +97,11 @@ export const SoruCard: React.FC<SoruCardProps> = ({
         return (
           <div className="mt-3 px-3">
             {isPrinting ? (
-                <div className="mt-1 border-b border-dashed border-gray-400 w-full h-5 relative">
-                   {showAnswer && (
-                     <span className="absolute bottom-0 left-2 text-[10pt] font-bold text-black">{soru.dogruCevap}</span>
-                   )}
-                </div>
+              <div className="mt-1 border-b border-dashed border-gray-400 w-full h-5 relative">
+                {showAnswer && (
+                  <span className="absolute bottom-0 left-2 text-[10pt] font-bold text-black">{soru.dogruCevap}</span>
+                )}
+              </div>
             ) : (
               <>
                 <span style={{ ...textStyle, color: '#555' }}>Cevap: </span>
@@ -140,31 +139,30 @@ export const SoruCard: React.FC<SoruCardProps> = ({
 
   return (
     <div
-      className={`bg-white transition-all ${
-        isPrinting 
-          ? 'border-none p-0' 
-          : 'border border-gray-200 rounded-xl p-5 shadow-sm'
-      }`}
-      style={{ color: '#111', backgroundColor: '#ffffff', breakInside: 'avoid' }}
+      className={`transition-all ${isPrinting
+          ? 'bg-white border-none p-0 text-black'
+          : 'bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl p-5 shadow-2xs text-[var(--text-primary)]'
+        }`}
+      style={{ breakInside: 'avoid' }}
     >
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
           <span
-            className="font-black text-black"
+            className={`font-black ${isPrinting ? 'text-black' : 'text-[var(--text-primary)]'}`}
             style={{ fontSize: `calc(${fontSizePt} + 2pt)` }}
           >
             {soruNo})
           </span>
           {!isPrinting && (
-            <span className="text-[10px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+            <span className="text-[10px] text-[var(--text-muted)] bg-[var(--bg-secondary)] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
               {getSoruTipiLabel()}
             </span>
           )}
         </div>
         <div className="flex items-center gap-3">
           {!isPrinting && <ZorlukGostergesi zorluk={soru.zorluk} className="zorluk-badge" />}
-          <span className={`text-[13px] font-bold border-b-2 border-dashed pb-0.5 ${isPrinting ? 'text-black border-black/10' : 'text-zinc-600 border-zinc-100'}`}>
+          <span className={`text-[13px] font-bold border-b-2 border-dashed pb-0.5 ${isPrinting ? 'text-black border-black/10' : 'text-[var(--text-muted)] border-[var(--border-color)]'}`}>
             ({soru.puan} Puan)
           </span>
         </div>
@@ -172,8 +170,8 @@ export const SoruCard: React.FC<SoruCardProps> = ({
 
       {/* Soru Metni */}
       <div
-        className="leading-relaxed font-medium mb-4"
-        style={{ ...textStyle, color: '#000', lineHeight: 1.7 }}
+        className={`leading-relaxed font-medium mb-4 ${isPrinting ? 'text-black' : 'text-[var(--text-primary)]'}`}
+        style={{ ...textStyle, color: isPrinting ? '#000' : 'var(--text-primary)', lineHeight: 1.7 }}
       >
         {soru.soruMetni}
       </div>
@@ -183,11 +181,11 @@ export const SoruCard: React.FC<SoruCardProps> = ({
 
       {/* Kazanım kodu - Yazdırmada Gizle */}
       {!isPrinting && (
-        <div className="mt-4 pt-2 border-t border-gray-100 flex items-center justify-between">
+        <div className="mt-4 pt-2 border-t border-[var(--border-color)]/60 flex items-center justify-between">
           <span className="text-[10px] font-mono text-accent bg-accent/10 px-2 py-0.5 rounded">
             {soru.kazanimKodu}
           </span>
-          <span className="text-[10px] text-gray-400 font-medium">Tahmini Süre: {Math.ceil(soru.tahminiSure / 60)} dk</span>
+          <span className="text-[10px] text-[var(--text-muted)] font-medium">Tahmini Süre: {Math.ceil(soru.tahminiSure / 60)} dk</span>
         </div>
       )}
     </div>
