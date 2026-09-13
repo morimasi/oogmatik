@@ -22,12 +22,36 @@ if (typeof window !== 'undefined') {
     originalError.apply(console, args as []);
   };
 
+  // Modern Chunk Loading Retry Strategy (Vercel deployment chunk invalidation protection)
+  const reloadOnChunkError = (errorMessage: string) => {
+    if (
+      errorMessage.includes('Failed to fetch dynamically imported module') ||
+      errorMessage.includes('Failed to load module script') ||
+      errorMessage.includes('Expected a JavaScript-or-Wasm module script') ||
+      errorMessage.includes('MIME type of "text/html"')
+    ) {
+      const storageKey = 'bdmind_chunk_reload_count';
+      const reloadCount = parseInt(sessionStorage.getItem(storageKey) || '0', 10);
+      if (reloadCount < 2) {
+        sessionStorage.setItem(storageKey, (reloadCount + 1).toString());
+        window.location.reload();
+      }
+    }
+  };
+
+  window.addEventListener('error', (event) => {
+    const message = event?.message || event?.error?.message || '';
+    reloadOnChunkError(String(message));
+  });
+
   window.addEventListener('unhandledrejection', (event) => {
     const reason = event?.reason as { message?: string } | undefined;
     const msg = reason?.message || String(reason || '');
     if (msg.includes("Failed to obtain primary lease") || msg.includes('Backfill Indexes')) {
       event.preventDefault();
+      return;
     }
+    reloadOnChunkError(msg);
   });
 }
 
