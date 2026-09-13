@@ -44,11 +44,10 @@ export const AdminStudentManagement: React.FC = () => {
   const handleEditSave = async (data: Partial<Student>) => {
     if (!editTarget) return;
     try {
-      await adminService.updateUserStatus(editTarget.id, 'active');
-      await teacherService.getAllStudents();
-      toast.success(`"${editTarget.name}" güncellendi.`);
+      await useStudentStore.getState().updateStudent(editTarget.id, data);
+      toast.success(`"${data.name || editTarget.name}" güncellendi.`);
       setEditTarget(null);
-      loadStudents();
+      await loadStudents();
     } catch {
       toast.error('Güncelleme başarısız.');
     }
@@ -57,10 +56,10 @@ export const AdminStudentManagement: React.FC = () => {
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
     try {
-      await adminService.deleteUser(deleteTarget.id);
+      await useStudentStore.getState().deleteStudent(deleteTarget.id);
       toast.success(`"${deleteTarget.name}" silindi.`);
       setDeleteTarget(null);
-      loadStudents();
+      await loadStudents();
     } catch {
       toast.error('Silme işlemi başarısız.');
     }

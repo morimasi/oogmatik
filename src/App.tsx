@@ -100,8 +100,8 @@ const StudentDashboard = lazy(() =>
   }))
 );
 const ScreeningModule = lazy(() =>
-  import('./components/Screening/ScreeningModule').then((module) => ({
-    default: module.ScreeningModule,
+  import('./components/ScreeningAssessment').then((module) => ({
+    default: module.ScreeningAssessment,
   }))
 );
 const SinavStudyosu = lazy(() =>
@@ -693,9 +693,8 @@ const AppContent = () => {
                     {currentView === 'screening' && (
                       <ProtectedRoute module="screening" onBack={handleGoBack}>
                         <ScreeningModule
-                          onBack={handleGoBack}
-                          onSelectActivity={handleSelectActivity}
-                          onAddToWorkbook={(data: unknown) => handleAddToWorkbookGeneral(data as Record<string, unknown>)}
+                          onClose={handleGoBack}
+                          userRole={(user?.role as 'teacher' | 'admin' | 'parent') || 'teacher'}
                           onGeneratePlan={(n: string, a: number, w: string[], c?: string) =>
                             handleGeneratePlanFromScreening(n, a, w, c)
                           }

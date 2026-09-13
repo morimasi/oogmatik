@@ -6,6 +6,7 @@ import { printService, PaperSize } from '../../utils/printService';
 import { ExportProgressModal } from '../ExportProgressModal';
 import { useToastStore } from '../../store/useToastStore';
 import { useFascicleStore } from '../../store/useFascicleStore';
+import { useA4EditorStore } from '../../store/useA4EditorStore';
 import { logError } from '../../utils/logger.js';
 import { snapshotService } from '../../utils/snapshotService';
 
@@ -183,6 +184,16 @@ export const ActionModule: React.FC<ActionModuleProps> = ({
             title="Fasiküle Ekle" 
             onClick={handleAddToFascicle}
             colorClass="text-fuchsia-500"
+        />
+        <IconButton 
+            icon="fa-pen-ruler" 
+            title={useA4EditorStore.getState().isEditorOpen ? "A4 Tasarımcısını Kapat" : "A4 Tasarımcısını Aç"} 
+            onClick={() => {
+              const current = useA4EditorStore.getState().isEditorOpen;
+              useA4EditorStore.getState().setEditorOpen(!current);
+            }}
+            active={useA4EditorStore((state) => state.isEditorOpen)}
+            colorClass="text-indigo-500"
         />
         {onFeedback && (
             <IconButton 

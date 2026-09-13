@@ -18,6 +18,7 @@ import { MaterialsModule } from './modules/MaterialsModule';
 import { AnalyticsModule } from './modules/AnalyticsModule';
 import { AcademicPlanModule } from './modules/AcademicPlanModule';
 import { ClinicalNotesModule } from './modules/ClinicalNotesModule';
+import { IEPModule } from './modules/IEPModule';
 // Define constants used in the component
 const grades = [
   'Okul Öncesi',
@@ -43,7 +44,7 @@ const diagnosisOptions = [
   'Dil ve Konuşma Güçlüğü',
 ];
 
-type TabType = 'overview' | 'assignments' | 'materials' | 'analytics' | 'plans' | 'notes' | 'settings';
+type TabType = 'overview' | 'assignments' | 'materials' | 'analytics' | 'plans' | 'iep' | 'notes' | 'settings';
 type GroupingMode = 'all' | 'grade' | 'age';
 type FormTab = 'identity' | 'academic' | 'parent';
 
@@ -530,6 +531,7 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
             { id: 'materials', label: 'Materyaller', icon: 'fa-scroll' },
             { id: 'analytics', label: 'Analiz', icon: 'fa-brain-circuit' },
             { id: 'plans', label: 'Akademik Plan', icon: 'fa-calendar-lines-pen' },
+            { id: 'iep', label: 'BEP / IEP', icon: 'fa-hands-holding-child' },
             { id: 'notes', label: 'Klinik Notlar', icon: 'fa-notes-medical' },
           ].map((tab) => (
             <button
@@ -603,6 +605,21 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
                     curriculums={studentCurriculums}
                     onRefresh={() => loadStudentData(selectedStudent.id)}
                     onStartCurriculumActivity={onStartCurriculumActivity}
+                  />
+                </div>
+              )}
+
+              {activeTab === 'iep' && (
+                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <IEPModule
+                    student={{
+                      ...selectedStudent,
+                      iep: (selectedStudent as any).iep || { goals: [], status: 'draft' },
+                    } as AdvancedStudent}
+                    onUpdate={(updatedIEP) => {
+                      updateStudent(selectedStudent.id, { iep: updatedIEP } as any);
+                      useToastStore.getState().success('BEP planı başarıyla güncellendi.');
+                    }}
                   />
                 </div>
               )}
