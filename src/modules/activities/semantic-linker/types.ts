@@ -16,6 +16,9 @@ export interface SemanticLinkerItem {
 
 
 export interface SemanticLinkerData {
+  title?: string;
   instruction: string;
   items: SemanticLinkerItem[];
+  pedagogicalNote?: string;
+  difficulty?: string;
 }

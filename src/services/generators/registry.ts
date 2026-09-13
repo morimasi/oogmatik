@@ -304,8 +304,8 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
     offline: offlineGenerators.generateOfflineGridDrawing,
   },
   [ActivityType.SEMANTIC_LINKER]: {
-    ai: (opt: any) => generateSemanticLinkerAI(opt.prompt, opt.count),
-    offline: (opt: any) => Promise.resolve(generateSemanticLinkerOffline(opt.count)),
+    ai: (opt: any) => generateSemanticLinkerAI(opt.prompt || '', opt.itemCount || opt.count || 6),
+    offline: (opt: any) => Promise.resolve(generateSemanticLinkerOffline(opt.itemCount || opt.count || 6)),
   },
 
   [ActivityType.SYMMETRY_DRAWING]: {

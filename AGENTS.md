@@ -223,10 +223,11 @@ Find and fix all activities across 4 categories (Görsel & Mekansal, Okuduğunu 
   - **LOGIC_ERROR_HUNTER**: AI generator `content.story/errors` doğrulaması + normalizasyon + AppError eklendi
   - **VISUAL_INTERPRETATION**: sheet artık ÇSS (şıklar) ve açık uçlu/5N1K (yazma alanı) soru tiplerini render ediyor (yalnızca D/Y değil); konu slug'ları Türkçe etiketlere çevriliyor; `generateImage=false` iken görsel API çağrısı yapılmıyor; AI çıktı doğrulaması eklendi
   - **STORY_COMPREHENSION**: `QUESTION_TYPES`'a '5n1k' + 'open-ended' eklendi (rozet/renk); 5N1K prompt örneği şema ile tutarlı (bireysel tipler); 'fill' dalı `q.question` fallback'i
-  - **Doğrulama**: `tsc --noEmit` 0 hata, `npm run build` başarılı; tam test koşusu değişiklik öncesiyle aynı (150 başarısızlık Firebase PERMISSION_DENIED — ortam kaynaklı, önceden mevcut)
+  - **SEMANTIC_LINKER**: `ACTIVITY_CATEGORIES` Okuma & Dil kategorisine eklendi (önceden hiçbir kategoride yoktu); `SemanticLinkerSheet.tsx` disleksi dostu temiz A4 bileşeni yazıldı ve `LegacyRenderer`'a bağlandı; öğrenci kâğıdında cevabı yeşille ifşa eden bug düzeltildi; offline generator 18 zengin kavram çiftiyle donatıldı; AI jeneratörüne fallback ve `pedagogicalNote` eklendi; `tests/semanticLinkerSmoke.test.ts` (2 test) yazıldı ve geçti.
+- **Doğrulama**: `tsc --noEmit` 0 hata, `npm run build` başarılı; `tests/semanticLinkerSmoke.test.ts` ve `tests/okudugunuAnlamaOfflineSmoke.test.ts` geçiyor.
 
 ### Remaining (accessible from UI, not yet fixed)
-- **SEMANTIC_LINKER** — accessible from sidebar; generator returns `{ instruction, items }` where `items` get picked up by UnifiedContentRenderer's `rawBlocksRaw` but aren't proper WorksheetBlocks → blank-ish output. Needs LegacyRenderer entry or modern-layout wrapper.
+- *Tüm arayüzden erişilebilir 4 kategori etkinliği başarıyla denetlendi ve onarıldı.*
 
 ### Not User-Accessible (hidden from sidebar)
 - PUNCTUATION_MAZE, FIND_IDENTICAL_WORD, THEMATIC_ODD_ONE_OUT — have generators but no ACTIVITIES entry; not urgent
