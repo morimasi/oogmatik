@@ -13,7 +13,7 @@ import type { UserCredential } from "firebase/auth";
 import * as firestore from "firebase/firestore";
 import { User, UserRole, UserStatus, ActivityType } from '../types.js';
 
-import { logInfo, logError } from '../utils/logger.js';
+import { logInfo, logError, logWarn } from '../utils/logger.js';
 import { activityLogService } from './activityLogService';
 const { doc, getDoc, setDoc, updateDoc, collection, getDocs, query, orderBy, limit, deleteDoc, increment, where } = firestore;
 
@@ -128,12 +128,31 @@ export const authService = {
             const provider = new GoogleAuthProvider();
             provider.setCustomParameters({ prompt: 'select_account' });
 
-            const { signInWithPopup } = await import("firebase/auth");
+            const { signInWithPopup, signInWithRedirect } = await import("firebase/auth");
 
-            // Sadece Popup kullan (Redirect Vercel'da çerez/domain sorunlarına yol açar)
-            const result = await signInWithPopup(auth, provider);
-            if (result?.user) {
-                await authService._handleGoogleUser(result.user);
+            try {
+                // Öncellikle Popup dene
+                const result = await signInWithPopup(auth, provider);
+                if (result?.user) {
+                    await authService._handleGoogleUser(result.user);
+                }
+            } catch (popupErr: unknown) {
+                const errCode = popupErr && typeof popupErr === 'object' && 'code' in popupErr ? String((popupErr as { code: string }).code) : undefined;
+                const errMsg = popupErr instanceof Error ? popupErr.message : String(popupErr);
+
+                // COOP / Popup blocked / Closed by user durumlarında Redirect ile fallback yap
+                if (
+                    errCode === 'auth/popup-blocked' ||
+                    errCode === 'auth/popup-closed-by-user' ||
+                    errCode === 'auth/cancelled-popup-request' ||
+                    errMsg.includes('Cross-Origin-Opener-Policy') ||
+                    errMsg.includes('Database is closing/hidden')
+                ) {
+                    logWarn("Popup engellendi veya kapatıldı, Redirect yöntemi deneniyor...", { errCode, errMsg });
+                    await signInWithRedirect(auth, provider);
+                    return;
+                }
+                throw popupErr;
             }
         } catch (error: unknown) {
             const errMsg = error instanceof Error ? error.message : String(error);
@@ -141,7 +160,7 @@ export const authService = {
             logError(error instanceof Error ? error : String(error), { context: "Google login error", code: errCode, message: errMsg });
 
             if (errCode === 'auth/popup-closed-by-user' || errCode === 'auth/cancelled') {
-                throw new AppError("Giriş işlemi sizin tarafınızdan iptal edildi.", 'CANCELLED', 400);
+                throw new AppError("Giriş işlemi iptal edildi.", 'CANCELLED', 400);
             }
 
             throw new AppError(`Google ile giriş yapılamadı: ${errMsg}`, 'INTERNAL_ERROR', 500);
