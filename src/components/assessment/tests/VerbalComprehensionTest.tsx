@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { SubTestResult } from '../../../types';
 
 interface VerbalComprehensionTestProps {
     onComplete: (result: SubTestResult) => void;
+    studentAge?: number;
 }
 
 interface Question {
@@ -12,7 +12,34 @@ interface Question {
     correct: string;
 }
 
-export const VerbalComprehensionTest: React.FC<VerbalComprehensionTestProps> = ({ onComplete }) => {
+const QUESTIONS_BANK: Question[] = [
+    { word: 'büyük', options: ['küçük', 'uzun', 'kısa', 'geniş'], correct: 'küçük' },
+    { word: 'sıcak', options: ['soğuk', 'ılık', 'güzel', 'kötü'], correct: 'soğuk' },
+    { word: 'hızlı', options: ['yavaş', 'uzun', 'kısa', 'yüksek'], correct: 'yavaş' },
+    { word: 'mutlu', options: ['üzgün', 'korkmuş', 'öfkeli', 'şaşkın'], correct: 'üzgün' },
+    { word: 'açık', options: ['kapalı', 'karanlık', 'aydınlık', 'güzel'], correct: 'kapalı' },
+    { word: 'yukarı', options: ['aşağı', 'sağ', 'sol', 'ön'], correct: 'aşağı' },
+    { word: 'doğru', options: ['yanlış', 'iyi', 'kötü', 'güzel'], correct: 'yanlış' },
+    { word: 'eski', options: ['yeni', 'modern', 'klasik', 'antika'], correct: 'yeni' },
+    { word: 'güçlü', options: ['zayıf', 'hızlı', 'yavaş', 'uzun'], correct: 'zayıf' },
+    { word: 'doluluk', options: ['boşluk', 'kalabalık', 'azlık', 'çokluk'], correct: 'boşluk' },
+    { word: 'sert', options: ['katı', 'yumuşak', 'sıcak', 'dayanıklı'], correct: 'yumuşak' },
+    { word: 'ince', options: ['küçük', 'dar', 'kalın', 'hafif'], correct: 'kalın' },
+    { word: 'kolay', options: ['basit', 'ağır', 'karmaşık', 'zor'], correct: 'zor' },
+    { word: 'tembel', options: ['yavaş', 'çalışkan', 'güçsüz', 'sakin'], correct: 'çalışkan' },
+    { word: 'karanlık', options: ['loş', 'aydınlık', 'parlak', 'koyu'], correct: 'aydınlık' },
+    { word: 'dar', options: ['küçük', 'kısa', 'geniş', 'rahat'], correct: 'geniş' },
+    { word: 'fakir', options: ['cimri', 'güçlü', 'zengin', 'büyük'], correct: 'zengin' },
+    { word: 'sakin', options: ['huzurlu', 'sessiz', 'gürültülü', 'rahat'], correct: 'gürültülü' },
+    { word: 'yaşlı', options: ['yeni', 'eski', 'taze', 'genç'], correct: 'genç' },
+    { word: 'kaba', options: ['sert', 'nazik', 'küstah', 'yumuşak'], correct: 'nazik' },
+    { word: 'derin', options: ['yüksek', 'alçak', 'sığ', 'geniş'], correct: 'sığ' },
+    { word: 'berrak', options: ['temiz', 'bulanık', 'duru', 'parlak'], correct: 'bulanık' },
+    { word: 'cesur', options: ['korkak', 'atak', 'güçlü', 'hırslı'], correct: 'korkak' },
+    { word: 'cömert', options: ['bonkör', 'cimri', 'eli açık', 'yardımsever'], correct: 'cimri' },
+];
+
+export const VerbalComprehensionTest: React.FC<VerbalComprehensionTestProps> = ({ onComplete, studentAge = 7 }) => {
     const [phase, setPhase] = useState<'intro' | 'question' | 'feedback'>('intro');
     const [level, setLevel] = useState(1);
     const [score, setScore] = useState(0);
@@ -20,35 +47,8 @@ export const VerbalComprehensionTest: React.FC<VerbalComprehensionTestProps> = (
     const [startTime, setStartTime] = useState(0);
     const [reactionTimes, setReactionTimes] = useState<number[]>([]);
     const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
-    const [lastWasCorrect, setLastWasCorrect] = useState<boolean | null>(null);
+    const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
     const maxScoreRef = React.useRef(0);
-
-    const questions: Question[] = [
-        { word: 'büyük', options: ['küçük', 'uzun', 'kısa', 'geniş'], correct: 'küçük' },
-        { word: 'sıcak', options: ['soğuk', 'ılık', 'güzel', 'kötü'], correct: 'soğuk' },
-        { word: 'hızlı', options: ['yavaş', 'uzun', 'kısa', 'yüksek'], correct: 'yavaş' },
-        { word: 'mutlu', options: ['üzgün', 'korkmuş', 'öfkeli', 'şaşkın'], correct: 'üzgün' },
-        { word: 'açık', options: ['kapalı', 'karanlık', 'aydınlık', 'güzel'], correct: 'kapalı' },
-        { word: 'yukarı', options: ['aşağı', 'sağ', 'sol', 'ön'], correct: 'aşağı' },
-        { word: 'doğru', options: ['yanlış', 'iyi', 'kötü', 'güzel'], correct: 'yanlış' },
-        { word: 'eski', options: ['yeni', 'modern', 'klasik', 'antika'], correct: 'yeni' },
-        { word: 'güçlü', options: ['zayıf', 'hızlı', 'yavaş', 'uzun'], correct: 'zayıf' },
-        { word: 'doluluk', options: ['boşluk', 'kalabalık', 'azlık', 'çokluk'], correct: 'boşluk' },
-        { word: 'sert', options: ['katı', 'yumuşak', 'sıcak', 'dayanıklı'], correct: 'yumuşak' },
-        { word: 'ince', options: ['küçük', 'dar', 'kalın', 'hafif'], correct: 'kalın' },
-        { word: 'kolay', options: ['basit', 'ağır', 'karmaşık', 'zor'], correct: 'zor' },
-        { word: 'tembel', options: ['yavaş', 'çalışkan', 'güçsüz', 'tembel'], correct: 'çalışkan' },
-        { word: 'karanlık', options: ['loş', 'aydınlık', 'parlak', 'koyu'], correct: 'aydınlık' },
-        { word: 'dar', options: ['küçük', 'kısa', 'geniş', 'rahat'], correct: 'geniş' },
-        { word: 'fakir', options: ['cimri', 'güçlü', 'zengin', 'büyük'], correct: 'zengin' },
-        { word: 'sakin', options: ['huzurlu', 'sessiz', 'gürültülü', 'rahat'], correct: 'gürültülü' },
-        { word: 'yaşlı', options: ['yeni', 'eski', 'taze', 'genç'], correct: 'genç' },
-        { word: 'kaba', options: ['sert', 'nazik', 'küstah', 'yumuşak'], correct: 'nazik' },
-        { word: 'derin', options: ['yüksek', 'alçak', 'sığ', 'geniş'], correct: 'sığ' },
-        { word: 'berrak', options: ['temiz', 'bulanık', 'duru', 'parlak'], correct: 'bulanık' },
-        { word: 'cesur', options: ['korkak', 'atak', 'güçlü', 'hırslı'], correct: 'korkak' },
-        { word: 'cömert', options: ['bonkör', 'cimri', 'eli açık', 'yardımsever'], correct: 'cimri' },
-    ];
 
     const shuffleOptions = (opts: string[]): string[] => {
         const copy = [...opts];
@@ -61,28 +61,27 @@ export const VerbalComprehensionTest: React.FC<VerbalComprehensionTestProps> = (
 
     const generateQuestion = () => {
         maxScoreRef.current += level * 10;
-        const idx = Math.floor(Math.random() * questions.length);
-        const q = questions[idx];
-        setCurrentQuestion({ ...q, options: shuffleOptions(q.options) });
+        const availablePool = QUESTIONS_BANK.slice(0, Math.min(QUESTIONS_BANK.length, level * 3 + 3));
+        const idx = Math.floor(Math.random() * availablePool.length);
+        const q = availablePool[idx];
+        
+        const optionCount = studentAge <= 7 ? 3 : 4;
+        const shuffled = shuffleOptions(q.options);
+        const filteredOptions = shuffled.includes(q.correct) 
+          ? shuffled.slice(0, optionCount) 
+          : [q.correct, ...shuffled.slice(0, optionCount - 1)];
+
+        setCurrentQuestion({ ...q, options: shuffleOptions(filteredOptions) });
+        setSelectedAnswer(null);
         setPhase('question');
         setStartTime(Date.now());
     };
 
     const handleAnswer = (answer: string) => {
         if (!currentQuestion || phase !== 'question') return;
-        const isCorrect = answer === currentQuestion.correct;
-        setLastWasCorrect(isCorrect);
-        setPhase('feedback');
+        setSelectedAnswer(answer);
         setReactionTimes(prev => [...prev, Date.now() - startTime]);
-
-        setTimeout(() => {
-            if (isCorrect) {
-                setScore(prev => prev + level * 10);
-                setLevel(prev => prev + 1);
-            } else {
-                setLives(prev => prev - 1);
-            }
-        }, 1500);
+        setPhase('feedback');
     };
 
     useEffect(() => {
@@ -91,8 +90,21 @@ export const VerbalComprehensionTest: React.FC<VerbalComprehensionTestProps> = (
             finishTest();
             return;
         }
-        generateQuestion();
-    }, [level, lives]);
+        if (phase === 'feedback') {
+            const isCorrect = selectedAnswer === currentQuestion?.correct;
+            if (isCorrect) {
+                setScore(prev => prev + level * 10);
+                setLevel(prev => prev + 1);
+            } else {
+                setLives(prev => prev - 1);
+            }
+
+            const timer = setTimeout(() => {
+                generateQuestion();
+            }, 1200);
+            return () => clearTimeout(timer);
+        }
+    }, [phase, lives]);
 
     const finishTest = () => {
         const avgRT = reactionTimes.length > 0 ? reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length : 0;
@@ -114,15 +126,14 @@ export const VerbalComprehensionTest: React.FC<VerbalComprehensionTestProps> = (
 
     if (phase === 'intro') {
         return (
-            <div className="flex flex-col items-center justify-center w-full h-full select-none gap-8 animate-in fade-in">
-                <div className="w-20 h-20 rounded-2xl bg-rose-100 dark:bg-rose-900/40 flex items-center justify-center">
-                    <i className="fa-solid fa-book text-4xl text-rose-500"></i>
+            <div className="flex flex-col items-center justify-center w-full h-full select-none gap-6 p-6 text-center">
+                <div className="w-20 h-20 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+                    <i className="fa-solid fa-book-open text-3xl text-indigo-500"></i>
                 </div>
-                <div className="text-center max-w-sm">
-                    <h3 className="text-2xl font-black text-zinc-800 dark:text-white mb-3">Sözel Kavrama</h3>
-                    <p className="text-zinc-500 text-sm leading-relaxed">
-                        Verilen kelimenin zıt anlamlısını bul.
-                        Her seviyede sorular zorlaşır.
+                <div className="max-w-md">
+                    <h3 className="text-xl font-black text-[var(--text-primary)] mb-2">Sözel Kavrama</h3>
+                    <p className="text-xs font-medium text-[var(--text-secondary)] leading-relaxed">
+                        Verilen kelimenin zıt (karşıt) anlamlısını bulun.
                     </p>
                 </div>
                 <button
@@ -131,9 +142,10 @@ export const VerbalComprehensionTest: React.FC<VerbalComprehensionTestProps> = (
                         setLevel(1);
                         setLives(3);
                         setScore(0);
+                        setReactionTimes([]);
                         generateQuestion();
                     }}
-                    className="px-8 py-4 bg-rose-600 hover:bg-rose-500 text-white font-black rounded-2xl shadow-lg transition-all active:scale-95 flex items-center gap-3"
+                    className="px-8 py-3.5 bg-[var(--accent-color)] hover:bg-[var(--accent-hover)] text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-lg transition-all active:scale-95 flex items-center gap-2"
                 >
                     <i className="fa-solid fa-play"></i> Teste Başla
                 </button>
@@ -142,62 +154,62 @@ export const VerbalComprehensionTest: React.FC<VerbalComprehensionTestProps> = (
     }
 
     return (
-        <div className="flex flex-col items-center justify-center w-full h-full select-none relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-rose-50 via-pink-50 to-fuchsia-50 dark:from-rose-900/20 dark:via-pink-900/20 dark:to-fuchsia-900/20" />
-            <div className="absolute top-0 right-0 w-96 h-96 bg-rose-400 rounded-full blur-3xl opacity-10 -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-96 h-96 bg-pink-400 rounded-full blur-3xl opacity-10 translate-y-1/2 -translate-x-1/2" />
-            
-            <div className="relative z-10">
-                <div className="mb-8 text-center">
-                    <h3 className="text-3xl font-black text-zinc-800 dark:text-white mb-4 bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">Zıt Anlamlıyı Bul</h3>
-                    <div className="flex gap-8 justify-center items-center">
-                        <div className="flex items-center gap-3 text-sm font-bold text-zinc-600 dark:text-zinc-400 bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/30">
-                            <i className="fa-solid fa-layer-group text-rose-500"></i>
-                            <span>Seviye {level}</span>
+        <div className="flex flex-col items-center justify-between w-full h-full p-4 select-none relative overflow-y-auto">
+            {/* Header Status */}
+            <div className="w-full bg-[var(--bg-paper)] p-3 rounded-2xl border border-[var(--border-color)] flex items-center justify-between shadow-sm mb-4 shrink-0">
+                <div className="flex items-center gap-3">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[var(--text-muted)]">
+                        Soru {level}
+                    </span>
+                    <span className="text-xs font-black text-[var(--accent-color)]">
+                        {score} Puan
+                    </span>
+                </div>
+                <div className="flex gap-1.5">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                        <i key={i} className={`fa-solid fa-heart text-sm ${i < lives ? 'text-rose-500' : 'text-zinc-300 dark:text-zinc-700'}`}></i>
+                    ))}
+                </div>
+            </div>
+
+            {/* Question Display */}
+            {phase === 'question' && currentQuestion && (
+                <div className="flex-1 flex flex-col items-center justify-center w-full my-auto space-y-6">
+                    <div className="text-center">
+                        <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest mb-2">Zıt Anlamlısını Bul</p>
+                        <div className="px-8 py-4 bg-[var(--bg-paper)] rounded-2xl shadow-md border-2 border-[var(--accent-color)]/30 text-2xl font-black text-[var(--text-primary)]">
+                            "{currentQuestion.word}"
                         </div>
-                        <div className="flex items-center gap-3 text-sm font-bold text-zinc-600 dark:text-zinc-400 bg-white/50 dark:bg-zinc-800/50 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/30">
-                            <i className="fa-solid fa-star text-yellow-500"></i>
-                            <span>{score} puan</span>
-                        </div>
-                        <div className="flex gap-2">
-                            {Array.from({ length: 3 }).map((_, i) => (
-                                <i key={i} className={`fa-solid fa-heart text-lg ${i < lives ? 'text-red-500' : 'text-zinc-300'}`}></i>
-                            ))}
-                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-md">
+                        {currentQuestion.options.map((option, index) => (
+                            <button
+                                key={index}
+                                onClick={() => handleAnswer(option)}
+                                className="p-4 bg-[var(--bg-paper)] hover:bg-[var(--surface-glass)] text-[var(--text-primary)] font-bold text-sm rounded-xl border border-[var(--border-color)] hover:border-[var(--accent-color)] transition-all active:scale-95 text-center"
+                            >
+                                {option}
+                            </button>
+                        ))}
                     </div>
                 </div>
+            )}
 
-                {phase === 'question' && currentQuestion && (
-                    <>
-                        <div className="text-center mb-8">
-                            <p className="text-4xl font-black text-zinc-800 dark:text-white mb-2">{currentQuestion.word}</p>
-                            <p className="text-lg text-zinc-600 dark:text-zinc-400">Bu kelimenin zıt anlamlısı hangisi?</p>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            {currentQuestion.options.map((opt, i) => (
-                                <button
-                                    key={i}
-                                    onClick={() => handleAnswer(opt)}
-                                    className="w-40 h-20 rounded-2xl bg-white dark:bg-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-600 text-lg font-bold text-zinc-700 dark:text-zinc-200 shadow-xl transition-all active:scale-95 border-2 border-zinc-200 dark:border-zinc-600"
-                                >
-                                    {opt}
-                                </button>
-                            ))}
-                        </div>
-                    </>
-                )}
-
-                {phase === 'feedback' && currentQuestion && (
-                    <div className="text-center">
-                        <div className={`text-4xl font-black mb-4 ${lastWasCorrect ? 'text-emerald-500' : 'text-red-500'}`}>
-                            {lastWasCorrect ? 'Harika! Doğru!' : 'Hatalı!'}
-                        </div>
-                        <div className="text-lg text-zinc-600 dark:text-zinc-400">
-                            Doğru cevap: <span className="font-bold text-rose-600">{currentQuestion.correct}</span>
-                        </div>
+            {/* Feedback Display */}
+            {phase === 'feedback' && currentQuestion && (
+                <div className="flex-1 flex flex-col items-center justify-center my-auto text-center space-y-3">
+                    <div className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl ${selectedAnswer === currentQuestion.correct ? 'bg-emerald-500/10 text-emerald-500' : 'bg-rose-500/10 text-rose-500'}`}>
+                        <i className={`fa-solid ${selectedAnswer === currentQuestion.correct ? 'fa-check' : 'fa-xmark'}`}></i>
                     </div>
-                )}
-            </div>
+                    <p className={`text-base font-black ${selectedAnswer === currentQuestion.correct ? 'text-emerald-500' : 'text-rose-500'}`}>
+                        {selectedAnswer === currentQuestion.correct ? 'Tebrikler, Doğru!' : 'Hatalı Yanıt'}
+                    </p>
+                    <p className="text-xs text-[var(--text-muted)] font-medium">
+                        "{currentQuestion.word}" zıt anlamlısı: <span className="font-bold text-[var(--text-primary)]">{currentQuestion.correct}</span>
+                    </p>
+                </div>
+            )}
         </div>
     );
 };
