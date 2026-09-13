@@ -28,7 +28,8 @@ Bu projede AI ajanları, Google Antigravity ve Gemini CLI ile **tam senkronize**
 - **Ultra-Premium Standartlar**: Her çıktı; görsel, pedagojik ve teknik açıdan projenin "Hata Toleransı Sıfır" kuralına göre denetlenir.
 - **Sistem Bilinci**: Ajanlar, [MODULE_KNOWLEDGE.md](file:///c:/Users/Administrator/Desktop/bdmind/.claude/MODULE_KNOWLEDGE.md) belgesini kullanarak uygulamanın her dosyasını, fonksiyonunu ve modülünü derinlemesine tanır.
 
-### 👥 Ordinaryüs Sürü Kadrosu & Görev Dağılımı v3
+### 👥 Ordinaryüs Sürü Kadrosu & Görev Dağılımı v4
+- **Core AGI Coder (Prof. Dr. Arda Yılmaz)**: AGI seviyesi otonom yazılım, tüm kod dilleri, refactoring ve kusursuz mimari.
 - **Ideation (Prof. Dr. Selen Uçar)**: Stratejik nöro-pedagoji, sinaptik bağ ve sarmal öğrenme.
 - **Content (Dr. Deniz Yılmaz)**: Disleksi dostu, ZPD uyumlu yüksek kaliteli metin üretimi.
 - **Visual (Emre Tan)**: Bilişsel yükü sıfırlayan Glassmorphism UI/UX mimarisi.
