@@ -81,9 +81,13 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
       }
 
       body.printing-mode #print-overlay .bdmind-print-wrapper {
-        page-break-after: auto !important;
-        break-after: auto !important;
+        page-break-after: always !important;
+        break-after: page !important;
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
         height: auto !important;
+        position: relative !important;
+        clear: both !important;
       }
 
       body.printing-mode #print-overlay .bdmind-print-wrapper:last-child {
@@ -94,17 +98,15 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
       body.printing-mode #print-overlay .print-exact {
         width: 100% !important;
         max-width: 100% !important;
-        height: 297mm !important;
-        min-height: 297mm !important;
+        height: auto !important;
+        min-height: 280mm !important;
         margin: 0 !important;
-        padding: 8mm !important;
+        padding: 4mm !important;
         box-sizing: border-box !important;
         box-shadow: none !important;
-        break-inside: auto !important;
-        page-break-inside: auto !important;
-        page-break-after: always !important;
-        break-after: page !important;
-        overflow: hidden !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        overflow: visible !important;
       }
 
       body.printing-mode #print-overlay .print-page {
