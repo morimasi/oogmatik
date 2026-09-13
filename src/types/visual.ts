@@ -310,13 +310,33 @@ export interface StarHuntData extends BaseActivityData {
 
 export interface AlgorithmStep {
     id: number;
-    type: 'start' | 'process' | 'decision' | 'input' | 'output' | 'end';
+    type: 'start' | 'process' | 'decision' | 'input' | 'output' | 'end' | 'loop' | 'parallel';
     text: string;
+    subSteps?: string[];
+    hint?: string;
+    timeEstimate?: number;
+    yesPath?: string;
+    noPath?: string;
+    cognitiveLoad?: 'low' | 'medium' | 'high';
+}
+
+export interface AlgorithmLegendItem {
+    type: string;
+    label: string;
+    color: string;
+    shape: string;
 }
 
 export interface AlgorithmData extends BaseActivityData {
     challenge: string;
     steps: AlgorithmStep[];
+    algorithmType?: 'lineer' | 'dallanmalı' | 'döngüsel' | 'paralel';
+    category?: 'günlük_yaşam' | 'matematik' | 'fen' | 'sosyal' | 'teknoloji';
+    legendItems?: AlgorithmLegendItem[];
+    totalEstimatedTime?: number;
+    progressCheckpoints?: string[];
+    colorTheme?: 'varsayılan' | 'okyanus' | 'orman' | 'şeker';
+    pedagogicalNote?: string;
 }
 
 export interface DirectionalCodeReadingData extends BaseActivityData {

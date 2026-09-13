@@ -104,15 +104,21 @@ export const print = async (
   const pages: HTMLElement[] = [];
   const selectorText = PAGE_SELECTORS.join(',');
 
-  roots.forEach((root) => {
-    if (root.matches(selectorText)) {
-      pages.push(root);
-    } else {
-      const nested = Array.from(root.querySelectorAll(selectorText)) as HTMLElement[];
-      if (nested.length > 0) pages.push(...nested);
-      else pages.push(root);
-    }
-  });
+  if (roots.length === 0) {
+    // Fallback: Eğer verilen seçici bulunamadıysa container içindeki tüm print-exact/worksheet-page sayfalarını topla
+    const fallbackRoots = Array.from(document.querySelectorAll('.worksheet-page, .print-exact')) as HTMLElement[];
+    pages.push(...fallbackRoots);
+  } else {
+    roots.forEach((root) => {
+      if (root.matches(selectorText)) {
+        pages.push(root);
+      } else {
+        const nested = Array.from(root.querySelectorAll(selectorText)) as HTMLElement[];
+        if (nested.length > 0) pages.push(...nested);
+        else pages.push(root);
+      }
+    });
+  }
 
   if (pages.length === 0) {
     try {
