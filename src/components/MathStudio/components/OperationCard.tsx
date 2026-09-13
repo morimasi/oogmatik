@@ -149,7 +149,11 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
         {showAnswer && <span className="text-zinc-900">{op.answer}</span>}
       </div>
 
-      {op.remainder !== undefined && <span className="text-[0.4em] opacity-30 mt-1" style={{ color: paper.text }}>Kalan: ...</span>}
+      {op.remainder !== undefined && op.remainder > 0 && (
+        <span className="text-[0.4em] opacity-50 mt-1 font-sans font-bold" style={{ color: paper.accent }}>
+          Kalan: {op.remainder}
+        </span>
+      )}
       <div className={`${isMultiplication ? 'h-6' : 'h-3'} w-full`}></div>
     </div>
   );
@@ -218,8 +222,10 @@ export const OperationCardHorizontal: React.FC<OperationCardProps> = ({
       <span className="min-w-[60px] border-b-4 border-dashed h-[1.1em] inline-flex items-center justify-center shadow-inner" style={{ borderColor: `${paper.accent}40` }}>
         {showAnswer && <span style={{ color: paper.text }}>{op.answer}</span>}
       </span>
-      {op.remainder !== undefined && (
-        <span className="text-[0.5em] ml-1 opacity-30" style={{ color: paper.text }}>(K:...)</span>
+      {op.remainder !== undefined && op.remainder > 0 && (
+        <span className="text-[0.5em] ml-1 opacity-60 font-sans font-bold" style={{ color: paper.accent }}>
+          (K:{op.remainder})
+        </span>
       )}
     </div>
   );

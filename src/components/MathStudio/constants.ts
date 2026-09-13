@@ -60,6 +60,8 @@ export const DEFAULT_PROBLEM_CONFIG = {
   generateImages: false,
   fontWeight: 400,
   autoFillPage: true,
+  ageGroup: '8-10',
+  learningProfile: 'dyslexia',
 };
 
 // Default page config

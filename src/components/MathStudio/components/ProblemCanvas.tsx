@@ -58,7 +58,7 @@ export const ProblemCanvas: React.FC<ProblemCanvasProps> = ({
                         themeConfig={themeConfig}
                     >
                         {pageIdx === 0 && pedagogicalNote && (
-                            <div className="mb-4 p-3 bg-purple-500/10 border-l-4 border-purple-500 rounded-r-lg shadow-sm print:hidden">
+                            <div className="mb-4 p-3 bg-purple-500/10 border-l-4 border-purple-500 rounded-r-lg shadow-sm">
                                 <p className="text-purple-700 font-bold text-xs flex items-center gap-2">
                                     <i className="fa-solid fa-graduation-cap"></i>
                                     <span>Pedagojik Not (Öğretmen / Veli):</span>

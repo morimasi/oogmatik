@@ -65,7 +65,7 @@ export const MathStudio: React.FC<MathStudioProps> = ({ onBack, initialData }) =
         themeConfig,
         instruction: problem.instruction,
         pedagogicalNote: problem.pedagogicalNote,
-    } as any);
+    });
 
     // --- SYNC ---
     useEffect(() => {

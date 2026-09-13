@@ -295,6 +295,8 @@ export interface MathProblemConfig {
   fontWeight: number;
   autoFillPage: boolean;
   bepGoals?: string[];
+  ageGroup?: string;
+  learningProfile?: string;
 }
 
 export interface LogicGridPuzzleData extends BaseActivityData {

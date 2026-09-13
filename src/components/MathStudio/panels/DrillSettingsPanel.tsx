@@ -258,6 +258,22 @@ export const DrillSettingsPanel: React.FC<DrillSettingsPanelProps> = ({
 
         <div>
           <label className="block text-[9px] text-zinc-500 mb-1.5 font-bold uppercase flex justify-between">
+            <span>Soru Aralık Boşluğu ({drillConfig.gap}px)</span>
+            <span className="text-accent">{drillConfig.gap}px</span>
+          </label>
+          <input
+            type="range"
+            min="4"
+            max="40"
+            step="2"
+            value={drillConfig.gap}
+            onChange={(e) => setDrillConfig({ ...drillConfig, gap: Number(e.target.value) })}
+            className="w-full h-1.5 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-accent"
+          />
+        </div>
+
+        <div>
+          <label className="block text-[9px] text-zinc-500 mb-1.5 font-bold uppercase flex justify-between">
             <span>Yazı Tipi Kalınlığı</span>
             <span className="text-accent">{drillConfig.fontWeight}</span>
           </label>

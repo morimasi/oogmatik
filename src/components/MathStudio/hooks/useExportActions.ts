@@ -5,8 +5,10 @@ import { printService } from '../../../utils/printService';
 import { worksheetService } from '../../../services/worksheetService';
 import { MathMode, MathDrillConfig, MathProblemConfig, MathPageConfig, MathOperation, MathProblem } from '../../../types/math';
 import { ActivityType } from '../../../types';
+import { ThemeConfig } from '../constants';
 
-import { logInfo, logError, logWarn } from '../../../utils/logger.js';
+import { logError } from '../../../utils/logger.js';
+
 interface ExportDeps {
     userId?: string;
     userName?: string;
@@ -16,6 +18,10 @@ interface ExportDeps {
     pageConfig: MathPageConfig;
     generatedDrills: MathOperation[];
     generatedProblems: MathProblem[];
+    // Tam tip güvenliği — artık (deps as any) yok
+    themeConfig?: ThemeConfig;
+    instruction?: string;
+    pedagogicalNote?: string;
 }
 
 export const useExportActions = (deps: ExportDeps) => {
@@ -27,16 +33,16 @@ export const useExportActions = (deps: ExportDeps) => {
             mode: deps.mode,
             config: deps.mode === 'drill' ? deps.drillConfig : deps.problemConfig,
             pageConfig: deps.pageConfig,
-            themeConfig: (deps as any).themeConfig || {},
+            themeConfig: deps.themeConfig ?? {},
             items: deps.mode === 'drill' ? deps.generatedDrills : deps.generatedProblems,
             isMathStudio: true,
             title: deps.pageConfig.title,
-            instruction: (deps as any).instruction || "Aşağıdaki matematik problemlerini çözün.",
-            pedagogicalNote: (deps as any).pedagogicalNote,
+            instruction: deps.instruction ?? 'Aşağıdaki matematik problemlerini çözün.',
+            pedagogicalNote: deps.pedagogicalNote,
             targetSkills: ['Matematiksel Düşünme', 'Problem Çözme', 'Diskalkuli Desteği'],
             learningObjectives: ['Aritmetik İşlemler', 'Anlama ve Uygulama'],
-        } as any;
-    }, [deps.mode, deps.drillConfig, deps.problemConfig, deps.pageConfig, deps.generatedDrills, deps.generatedProblems, (deps as any).themeConfig, (deps as any).instruction, (deps as any).pedagogicalNote]);
+        };
+    }, [deps.mode, deps.drillConfig, deps.problemConfig, deps.pageConfig, deps.generatedDrills, deps.generatedProblems, deps.themeConfig, deps.instruction, deps.pedagogicalNote]);
 
     const handleSave = useCallback(async (studentId?: string): Promise<{ success: boolean; error?: string }> => {
         if (!deps.userId) return { success: false, error: "Kaydetmek için giriş yapmalısınız." };

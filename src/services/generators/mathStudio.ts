@@ -37,6 +37,8 @@ export const generateMathProblemsAI = async (config: MathProblemConfig) => {
     - **Konu/Tema:** ${config.topic || 'Günlük Yaşam'}.
     - **Soru Tipleri:** ${problemTypesText} (Bu soru formatlarını karışık kullan).
     - **Öğrenci Adı:** ${config.studentName || 'Öğrenci'}.
+    - **Yaş Grubu / Seviye:** ${config.ageGroup || '8-10 Yaş'}.
+    - **Özel Öğrenme Profili:** ${config.learningProfile || 'Disleksi & Diskalkuli'}.
     - **Konu Başlıkları:** SADECE ${selectedOpsText}. (Başka işlem kullanma!)
     - **Sayı Aralığı:** ${config.numberRange} (Sonuçlar ve ara işlemler bu aralıkta kalmalı).
     - **Zorluk Seviyesi:** ${config.difficulty} (Bu seviyeye kesinlikle uy!)

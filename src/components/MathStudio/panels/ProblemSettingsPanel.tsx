@@ -120,6 +120,54 @@ export const ProblemSettingsPanel: React.FC<ProblemSettingsPanelProps> = ({
                     </div>
                 </div>
 
+                {/* Grid: Age Group + Learning Profile */}
+                <div className="grid grid-cols-2 gap-3">
+                    <div>
+                        <label className="text-[9px] font-bold text-white/70 uppercase mb-1.5 block">Yaş Grubu</label>
+                        <select 
+                            value={problemConfig.ageGroup || '8-10'} 
+                            onChange={e => setProblemConfig({ ...problemConfig, ageGroup: e.target.value })} 
+                            className="w-full p-2.5 bg-black/40 border border-white/10 rounded-lg text-xs text-white outline-none font-bold"
+                        >
+                            <option value="5-7">5-7 Yaş (Okul Öncesi/1.Sınıf)</option>
+                            <option value="8-10">8-10 Yaş (2-4. Sınıf)</option>
+                            <option value="11-13">11-13 Yaş (Ortaokul)</option>
+                            <option value="14+">14+ Yaş (Lise/Yetişkin)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label className="text-[9px] font-bold text-white/70 uppercase mb-1.5 block">Özel Eğitim Destek</label>
+                        <select 
+                            value={problemConfig.learningProfile || 'dyslexia'} 
+                            onChange={e => setProblemConfig({ ...problemConfig, learningProfile: e.target.value })} 
+                            className="w-full p-2.5 bg-black/40 border border-white/10 rounded-lg text-xs text-white outline-none font-bold"
+                        >
+                            <option value="dyslexia">Disleksi (Görsel Desteği)</option>
+                            <option value="dyscalculia">Diskalkuli (Adım Adım)</option>
+                            <option value="adhd">DEHB (Kısa & Motive Edici)</option>
+                            <option value="mixed">Karma Destek (Genel)</option>
+                        </select>
+                    </div>
+                </div>
+
+                {/* BEP Goals */}
+                <div>
+                    <label className="text-[9px] font-bold text-white/70 uppercase mb-1.5 block flex justify-between">
+                        <span>BEP Hedefleri (Opsiyonel)</span>
+                        <span className="text-[8px] text-white/40">Virgülle ayırın</span>
+                    </label>
+                    <input
+                        type="text"
+                        value={problemConfig.bepGoals?.join(', ') || ''}
+                        onChange={e => setProblemConfig({ 
+                            ...problemConfig, 
+                            bepGoals: e.target.value ? e.target.value.split(',').map(s => s.trim()) : [] 
+                        })}
+                        className="w-full p-2.5 bg-black/40 border border-white/10 rounded-lg text-xs text-white placeholder-white/30 outline-none focus:ring-1 focus:ring-white/50"
+                        placeholder="Örn: 2 basamaklı eldeli toplama yapar, İşlem adımlarını açıklar"
+                    />
+                </div>
+
                 {/* Difficulty Focus */}
                 <div>
                     <label className="text-[9px] font-bold text-white/70 uppercase mb-1.5 block">Pedagojik Zorluk Kalibrasyonu</label>
