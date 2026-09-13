@@ -18,25 +18,55 @@ import { v4 as uuidv4 } from 'uuid';
 import { normalizeFascicleContent, getFasciclePageCount } from '../../utils/fascicleContentNormalizer';
 
 const renderWatermark = (ws: WatermarkSettings) => {
+  const opacityVal = Math.max(0.01, (ws.opacity || 5) / 100);
   if (ws.type === 'image') {
     return (
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 overflow-hidden p-12" style={{ transform: `rotate(${ws.rotation || 0}deg)` }}>
-        <img src={ws.imageUrl || "/assets/logo.png"} alt="Watermark Logo" className="max-w-[70%] max-h-[70%] object-contain" style={{ opacity: ws.opacity / 100 }} />
+      <div
+        className="watermark-container absolute inset-0 flex items-center justify-center pointer-events-none z-[15] overflow-hidden p-12"
+        style={{
+          transform: `rotate(${ws.rotation || 0}deg)`,
+          opacity: opacityVal,
+          WebkitPrintColorAdjust: 'exact',
+          printColorAdjust: 'exact',
+        }}
+      >
+        <img
+          src={ws.imageUrl || "/assets/logo.png"}
+          alt="Watermark Logo"
+          className="max-w-[70%] max-h-[70%] object-contain"
+          style={{
+            opacity: opacityVal,
+            WebkitPrintColorAdjust: 'exact',
+            printColorAdjust: 'exact',
+          }}
+        />
       </div>
     );
   }
   return (
-    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 overflow-hidden" style={{ transform: `rotate(${ws.rotation}deg)` }}>
-      <span style={{
-        fontSize: `${ws.fontSize}px`,
-        color: ws.color,
-        opacity: ws.opacity / 100,
-        fontWeight: 700,
-        letterSpacing: '0.1em',
-        textTransform: 'uppercase',
-        userSelect: 'none',
-        fontFamily: 'Lexend, sans-serif',
-      }}>
+    <div
+      className="watermark-container absolute inset-0 flex items-center justify-center pointer-events-none z-[15] overflow-hidden"
+      style={{
+        transform: `rotate(${ws.rotation || -45}deg)`,
+        opacity: opacityVal,
+        WebkitPrintColorAdjust: 'exact',
+        printColorAdjust: 'exact',
+      }}
+    >
+      <span
+        style={{
+          fontSize: `${ws.fontSize || 48}px`,
+          color: ws.color || '#cbd5e1',
+          opacity: opacityVal,
+          fontWeight: 800,
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          userSelect: 'none',
+          fontFamily: 'Lexend, sans-serif',
+          WebkitPrintColorAdjust: 'exact',
+          printColorAdjust: 'exact',
+        }}
+      >
         {ws.text}
       </span>
     </div>

@@ -267,21 +267,50 @@ export const FascicleCoverPage: React.FC<FascicleCoverPageProps> = ({ settings, 
       {/* Watermark */}
       {watermarkSettings?.enabled && (
         watermarkSettings.type === 'image' ? (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden p-12" style={{ opacity: watermarkSettings.opacity / 100 }}>
-            <img src="/assets/logo.png" alt="" className="w-full h-full object-contain" />
+          <div
+            className="watermark-container absolute inset-0 flex items-center justify-center pointer-events-none z-[15] overflow-hidden p-12"
+            style={{
+              transform: `rotate(${watermarkSettings.rotation || 0}deg)`,
+              opacity: Math.max(0.01, watermarkSettings.opacity / 100),
+              WebkitPrintColorAdjust: 'exact',
+              printColorAdjust: 'exact',
+            }}
+          >
+            <img
+              src={watermarkSettings.imageUrl || "/assets/logo.png"}
+              alt="Watermark Logo"
+              className="max-w-[70%] max-h-[70%] object-contain"
+              style={{
+                opacity: Math.max(0.01, watermarkSettings.opacity / 100),
+                WebkitPrintColorAdjust: 'exact',
+                printColorAdjust: 'exact',
+              }}
+            />
           </div>
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden" style={{ transform: `rotate(${watermarkSettings.rotation}deg)` }}>
-            <span style={{
-              fontSize: `${watermarkSettings.fontSize}px`,
-              color: watermarkSettings.color,
-              opacity: watermarkSettings.opacity / 100,
-              fontWeight: 700,
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              userSelect: 'none',
-              fontFamily: 'Lexend, sans-serif',
-            }}>
+          <div
+            className="watermark-container absolute inset-0 flex items-center justify-center pointer-events-none z-[15] overflow-hidden"
+            style={{
+              transform: `rotate(${watermarkSettings.rotation || -45}deg)`,
+              opacity: Math.max(0.01, watermarkSettings.opacity / 100),
+              WebkitPrintColorAdjust: 'exact',
+              printColorAdjust: 'exact',
+            }}
+          >
+            <span
+              style={{
+                fontSize: `${watermarkSettings.fontSize || 48}px`,
+                color: watermarkSettings.color || '#cbd5e1',
+                opacity: Math.max(0.01, watermarkSettings.opacity / 100),
+                fontWeight: 800,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                userSelect: 'none',
+                fontFamily: 'Lexend, sans-serif',
+                WebkitPrintColorAdjust: 'exact',
+                printColorAdjust: 'exact',
+              }}
+            >
               {watermarkSettings.text}
             </span>
           </div>

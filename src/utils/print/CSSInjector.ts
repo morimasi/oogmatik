@@ -123,6 +123,23 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
         -webkit-print-color-adjust: exact !important;
       }
 
+      /* Filigran / Watermark Yazdırma Koruma Kuralları */
+      body.printing-mode #print-overlay .watermark-container {
+        display: flex !important;
+        visibility: visible !important;
+        print-color-adjust: exact !important;
+        -webkit-print-color-adjust: exact !important;
+        pointer-events: none !important;
+        z-index: 15 !important;
+      }
+      body.printing-mode #print-overlay .watermark-container img,
+      body.printing-mode #print-overlay .watermark-container span {
+        display: inline-block !important;
+        visibility: visible !important;
+        print-color-adjust: exact !important;
+        -webkit-print-color-adjust: exact !important;
+      }
+
       /* === Table & Grid Handling - Premium Rules === */
       table {
         border-collapse: collapse !important;
