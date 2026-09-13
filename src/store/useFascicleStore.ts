@@ -48,7 +48,10 @@ const initialMetadata: FascicleMetadata = {
     themeStyle: 'clouds',
     primaryColor: 'lavender',
     showStudentLine: true,
-    schoolName: 'Oogmatik Eğitim Platformu'
+    schoolName: 'Oogmatik Eğitim Platformu',
+    showTableOfContents: true,
+    showSummaryPage: true,
+    summaryNote: 'Bu fasikül, öğrencinin özel öğrenme gereksinimleri gözetilerek nöro-pedagojik yaklaşımla hazırlanmıştır.'
   },
   watermarkSettings: {
     enabled: false,

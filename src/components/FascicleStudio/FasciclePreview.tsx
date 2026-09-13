@@ -8,6 +8,8 @@ import { SheetRenderer } from '../SheetRenderer';
 import { ActivityType, SingleWorksheetData, StyleSettings } from '../../types';
 import { WatermarkSettings } from '../../types/fascicle';
 import { FascicleCoverPage } from './FascicleCoverPage';
+import { FascicleTableOfContentsPage } from './FascicleTableOfContentsPage';
+import { FascicleExecutiveSummaryPage } from './FascicleExecutiveSummaryPage';
 import { FascicleWatermarkSettingsModal } from './FascicleWatermarkSettingsModal';
 import { useStudentStore } from '../../store/useStudentStore';
 import { v4 as uuidv4 } from 'uuid';
@@ -51,25 +53,48 @@ export const FasciclePreview: React.FC = () => {
   const [showWatermarkSettings, setShowWatermarkSettings] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
 
+  // Dinamik Toplam Sayfa ve Numaralandırma Hesabı
+  const coverSettings = metadata.coverPageSettings || {
+    enabled: true,
+    title: metadata.title,
+    subtitle: 'Kişiselleştirilmiş Öğrenme Materyali',
+    themeStyle: 'clouds',
+    primaryColor: 'lavender',
+    showStudentLine: true,
+    schoolName: 'Oogmatik Eğitim Platformu',
+    showTableOfContents: true,
+    showSummaryPage: true,
+  };
+
+  const isCoverActive = coverSettings.enabled !== false;
+  const isTocActive = isCoverActive && coverSettings.showTableOfContents !== false;
+  const isSummaryActive = isCoverActive && coverSettings.showSummaryPage !== false;
+
+  let totalContentPages = items.reduce((sum, item) => sum + (item.pageCount || 1), 0);
+  let grandTotalPages = (isCoverActive ? 1 : 0) + (isTocActive ? 1 : 0) + totalContentPages + (isSummaryActive ? 1 : 0);
+
+  // Akıllı Başlangıç Numarası Hesabı
+  let runningPageCounter = (isCoverActive ? 1 : 0) + (isTocActive ? 1 : 0);
+
   const handleSaveAsTemplate = useCallback(() => {
     if (items.length === 0) {
       toast.error('Kaydedilecek içerik bulunamadı.');
       return;
     }
     const name = templateName.trim() || `${metadata.title || 'Fasikül'} Şablonu`;
-    const desc = `${items.length} aktivite, ${items.reduce((s, i) => s + i.pageCount, 0)} sayfa`;
+    const desc = `${items.length} aktivite, ${grandTotalPages} sayfa`;
     saveTemplate({
       title: name,
       description: desc,
       metadata: { ...metadata },
       items: JSON.parse(JSON.stringify(items)),
-      pageCount: items.reduce((s, i) => s + i.pageCount, 0),
+      pageCount: grandTotalPages,
       activityCount: items.length,
     });
     toast.success('Fasikül şablon olarak kaydedildi!');
     setShowSaveConfirm(false);
     setTemplateName('');
-  }, [items, metadata, saveTemplate, templateName]);
+  }, [items, metadata, saveTemplate, templateName, grandTotalPages]);
 
   const handleLoadTemplate = useCallback((tpl: SavedFascicleTemplate) => {
     const freshItems = tpl.items.map(item => ({
@@ -281,107 +306,134 @@ export const FasciclePreview: React.FC = () => {
       {/* A4 Paper Mockup Scroll Area */}
       <div className={`flex-1 overflow-y-auto custom-scrollbar flex flex-col items-center pb-20 transition-transform duration-300 origin-top ${viewState === 'mobile' ? 'scale-[0.85]' : 'scale-100'}`}>
          <div id="fascicle-print-container" className="w-full flex flex-col items-center">
-              {/* Kapak Sayfası */}
-               <FascicleCoverPage settings={metadata.coverPageSettings || {
-                 enabled: true,
-                 title: metadata.title,
-                 subtitle: 'Kişiselleştirilmiş Öğrenme Materyali',
-                 themeStyle: 'clouds',
-                 primaryColor: 'lavender',
-                 showStudentLine: true,
-                 schoolName: 'Oogmatik Eğitim Platformu'
-               }} student={activeStudent} fascicleTitle={metadata.title} watermarkSettings={metadata.watermarkSettings} />
+              {/* 1. SAYFA: Kapak Sayfası */}
+              {isCoverActive && (
+                <FascicleCoverPage 
+                  settings={coverSettings} 
+                  student={activeStudent} 
+                  fascicleTitle={metadata.title} 
+                  watermarkSettings={metadata.watermarkSettings} 
+                />
+              )}
 
-             {/* İçerik Sayfaları (Items) */}
-             {items.length > 0 ? items.map((item, index) => {
-               const isExam = item.type === ActivityType.SINAV || item.type === ActivityType.MAT_SINAV;
-               const defaultColumns = isExam ? 2 : 1;
+              {/* 2. SAYFA: Dinamik İçindekiler Sayfası */}
+              {isTocActive && (
+                <FascicleTableOfContentsPage 
+                  items={items} 
+                  metadata={metadata} 
+                  student={activeStudent} 
+                />
+              )}
 
-               const normalized = normalizeFascicleContent(item, defaultColumns);
+              {/* İÇERİK SAYFALARI (Items) */}
+              {items.length > 0 ? items.map((item, index) => {
+                const isExam = item.type === ActivityType.SINAV || item.type === ActivityType.MAT_SINAV;
+                const defaultColumns = isExam ? 2 : 1;
 
-               const dynamicSettings = {
-                 columns: defaultColumns,
-                 ...((item.content as any)?.printConfig || {}),
-                 ...(isExam ? {} : ((item.content as any)?.settings || {})),
-                 ...(isExam ? {} : ((item.content as any)?.config || {})),
-                 ...(isExam ? {} : ((item.content as any)?.styleSettings || {})),
-               };
+                const normalized = normalizeFascicleContent(item, defaultColumns);
 
-               return (
-                 <div key={item.id} className="relative group/page">
-                    <div className="absolute -left-48 top-0 w-40 h-full no-print hidden xl:flex flex-col gap-4 py-4 pointer-events-none">
-                       <div className="glass-layer-3 p-4 rounded-2xl pointer-events-auto">
-                          <span className="text-[9px] font-black uppercase tracking-widest block mb-1" style={{ color: 'var(--accent-color)' }}>Sayfa {index + 2}</span>
-                          <h4 className="text-xs font-bold text-[var(--text-primary)] leading-tight">{item.type.replace(/-/g, ' ').toUpperCase()}</h4>
-                          <div className="mt-2 flex items-center gap-1.5">
-                             <span className={`w-1.5 h-1.5 rounded-full ${item.difficulty === 'Zor' ? 'bg-red-500' : item.difficulty === 'Orta' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-                             <span className="text-[10px] text-[var(--text-muted)]">{item.difficulty} Seviye</span>
-                          </div>
-                       </div>
-                    </div>
+                runningPageCounter += 1;
+                const currentPageNumber = runningPageCounter;
 
-                    <div className="w-[210mm] h-[297mm] mx-auto shrink-0 shadow-2xl mb-12 bg-white relative print-exact worksheet-page overflow-hidden border border-[var(--border-color)]">
-                      {metadata.watermarkSettings?.enabled && renderWatermark(metadata.watermarkSettings)}
-                      <div className="p-[8mm] h-full flex flex-col">
-                        <Suspense fallback={
-                          <div className="w-full h-full flex items-center justify-center bg-white">
-                            <div className="animate-spin rounded-full h-12 w-12" style={{ borderBottomColor: 'var(--accent-color)', borderLeftColor: 'transparent', borderRightColor: 'transparent', borderTopColor: 'transparent', borderWidth: '3px' }}></div>
-                          </div>
-                        }>
-                          <SheetRenderer 
-                            data={normalized.data}
-                            activityType={normalized.activityType}
-                            hideWrapper={true}
-                            settings={{
-                              fontSize: '1rem',
-                              lineHeight: 1.6,
-                              scale: 1,
-                              borderColor: '#e2e8f0',
-                              borderWidth: 1,
-                              margin: 10,
-                              columns: defaultColumns,
-                              gap: 20,
-                              orientation: 'portrait',
-                              themeBorder: 'none',
-                              contentAlign: 'left',
-                              fontWeight: 'normal',
-                              fontStyle: 'normal',
+                const dynamicSettings = {
+                  columns: defaultColumns,
+                  ...((item.content as any)?.printConfig || {}),
+                  ...(isExam ? {} : ((item.content as any)?.settings || {})),
+                  ...(isExam ? {} : ((item.content as any)?.config || {})),
+                  ...(isExam ? {} : ((item.content as any)?.styleSettings || {})),
+                };
+
+                return (
+                  <div key={item.id} className="relative group/page">
+                     <div className="absolute -left-48 top-0 w-40 h-full no-print hidden xl:flex flex-col gap-4 py-4 pointer-events-none">
+                        <div className="glass-layer-3 p-4 rounded-2xl pointer-events-auto">
+                           <span className="text-[9px] font-black uppercase tracking-widest block mb-1" style={{ color: 'var(--accent-color)' }}>Sayfa {currentPageNumber} / {grandTotalPages}</span>
+                           <h4 className="text-xs font-bold text-[var(--text-primary)] leading-tight">{item.type.replace(/-/g, ' ').toUpperCase()}</h4>
+                           <div className="mt-2 flex items-center gap-1.5">
+                              <span className={`w-1.5 h-1.5 rounded-full ${item.difficulty === 'Zor' ? 'bg-red-500' : item.difficulty === 'Orta' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
+                              <span className="text-[10px] text-[var(--text-muted)]">{item.difficulty} Seviye</span>
+                           </div>
+                        </div>
+                     </div>
+
+                     <div className="w-[210mm] h-[297mm] mx-auto shrink-0 shadow-2xl mb-12 bg-white relative print-exact worksheet-page overflow-hidden border border-[var(--border-color)] flex flex-col justify-between">
+                       {metadata.watermarkSettings?.enabled && renderWatermark(metadata.watermarkSettings)}
+                       <div className="p-[8mm] flex-1 flex flex-col">
+                         <Suspense fallback={
+                           <div className="w-full h-full flex items-center justify-center bg-white">
+                             <div className="animate-spin rounded-full h-12 w-12" style={{ borderBottomColor: 'var(--accent-color)', borderLeftColor: 'transparent', borderRightColor: 'transparent', borderTopColor: 'transparent', borderWidth: '3px' }}></div>
+                           </div>
+                         }>
+                           <SheetRenderer 
+                             data={normalized.data}
+                             activityType={normalized.activityType}
+                             hideWrapper={true}
+                             settings={{
+                               fontSize: '1rem',
+                               lineHeight: 1.6,
+                               scale: 1,
+                               borderColor: '#e2e8f0',
+                               borderWidth: 1,
+                               margin: 10,
+                               columns: defaultColumns,
+                               gap: 20,
+                               orientation: 'portrait',
+                               themeBorder: 'none',
+                               contentAlign: 'left',
+                               fontWeight: 'normal',
+                               fontStyle: 'normal',
                                visualStyle: 'minimal',
                                showMascot: false,
-                              showStudentInfo: false,
-                              showTitle: true,
-                              showInstruction: true,
-                              showImage: true,
-                              showFooter: true,
-                              showAnswers: false,
-                              showClues: false,
-                              footerText: `Fasikül Sayfası • bdmind Education`,
-                              smartPagination: true,
-                              fontFamily: 'Lexend',
-                              letterSpacing: 0,
-                              wordSpacing: 0,
-                              paragraphSpacing: 0,
-                              ...dynamicSettings
-                            } as StyleSettings}
-                          />
-                        </Suspense>
-                      </div>
+                               showStudentInfo: false,
+                               showTitle: true,
+                               showInstruction: true,
+                               showImage: true,
+                               showFooter: true,
+                               showAnswers: false,
+                               showClues: false,
+                               footerText: `${metadata.title || 'Fasikül'} • Sayfa ${currentPageNumber} / ${grandTotalPages}`,
+                               smartPagination: true,
+                               fontFamily: 'Lexend',
+                               letterSpacing: 0,
+                               wordSpacing: 0,
+                               paragraphSpacing: 0,
+                               ...dynamicSettings
+                             } as StyleSettings}
+                           />
+                         </Suspense>
+                       </div>
+                       
+                       {/* Universal Fasikül Footer Band */}
+                       <div className="px-6 py-2 border-t border-zinc-100 flex justify-between items-center text-[9px] font-bold text-zinc-400 uppercase tracking-widest bg-white z-20">
+                         <span>{metadata.title || 'bdmind Special Education'}</span>
+                         <span>Sayfa {currentPageNumber} / {grandTotalPages}</span>
+                       </div>
+                     </div>
+                  </div>
+                );
+              }) : (
+                 <div className="glass-layer-3 p-12 rounded-[var(--radius-premium)] text-center max-w-md mt-12 no-print">
+                    <div className="w-20 h-20 bg-[var(--bg-paper)] rounded-2xl flex items-center justify-center mx-auto mb-6 text-[var(--text-muted)]">
+                       <LayoutTemplate size={40} />
                     </div>
+                    <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">Fasikülünüz Henüz Boş</h3>
+                    <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
+                       Matematik, Okuma veya Sınav stüdyolarından içerik ekleyerek disleksi dostu bir fasikül oluşturmaya başlayın.
+                    </p>
                  </div>
-               );
-             }) : (
-                <div className="glass-layer-3 p-12 rounded-[var(--radius-premium)] text-center max-w-md mt-12 no-print">
-                   <div className="w-20 h-20 bg-[var(--bg-paper)] rounded-2xl flex items-center justify-center mx-auto mb-6 text-[var(--text-muted)]">
-                      <LayoutTemplate size={40} />
-                   </div>
-                   <h3 className="text-xl font-bold text-[var(--text-primary)] mb-2">Fasikülünüz Henüz Boş</h3>
-                   <p className="text-[var(--text-secondary)] text-sm leading-relaxed">
-                      Matematik, Okuma veya Sınav stüdyolarından içerik ekleyerek disleksi dostu bir fasikül oluşturmaya başlayın.
-                   </p>
-                </div>
-             )}
-         </div>
-      </div>
+              )}
+
+              {/* SON SAYFA: Gelişim Raporu & Değerlendirme Sayfası */}
+              {isSummaryActive && items.length > 0 && (
+                <FascicleExecutiveSummaryPage
+                  items={items}
+                  metadata={metadata}
+                  student={activeStudent}
+                  totalPages={grandTotalPages}
+                />
+              )}
+          </div>
+       </div>
 
       <FascicleWatermarkSettingsModal
         isOpen={showWatermarkSettings}

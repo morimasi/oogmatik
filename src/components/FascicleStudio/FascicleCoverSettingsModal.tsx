@@ -195,6 +195,34 @@ export const FascicleCoverSettingsModal: React.FC<FascicleCoverSettingsModalProp
                     <span className="text-[10px] text-[var(--text-muted)]">Öğrencinin adını yazabileceği "Adı Soyadı / Sınıfı" çizgi alanı.</span>
                   </div>
                </label>
+
+               <label className="flex items-center gap-3 cursor-pointer group" onClick={() => handleChange('showTableOfContents', currentSettings.showTableOfContents === false)}>
+                  <div className="w-6 h-6 rounded flex items-center justify-center transition-colors"
+                    style={{
+                      backgroundColor: currentSettings.showTableOfContents !== false ? 'var(--accent-color)' : 'var(--bg-paper)',
+                      border: currentSettings.showTableOfContents !== false ? 'none' : '1px solid var(--border-color)'
+                    }}>
+                     {currentSettings.showTableOfContents !== false && <i className="fa-solid fa-check text-white text-xs" />}
+                  </div>
+                  <div>
+                    <span className="text-[var(--text-primary)] font-medium block text-sm">Otomatik İçindekiler Sayfası Eklesin</span>
+                    <span className="text-[10px] text-[var(--text-muted)]">Kapak sonrasında tüm aktivitelerin sayfa ve hedef listesini içeren A4 rehber.</span>
+                  </div>
+               </label>
+
+               <label className="flex items-center gap-3 cursor-pointer group" onClick={() => handleChange('showSummaryPage', currentSettings.showSummaryPage === false)}>
+                  <div className="w-6 h-6 rounded flex items-center justify-center transition-colors"
+                    style={{
+                      backgroundColor: currentSettings.showSummaryPage !== false ? 'var(--accent-color)' : 'var(--bg-paper)',
+                      border: currentSettings.showSummaryPage !== false ? 'none' : '1px solid var(--border-color)'
+                    }}>
+                     {currentSettings.showSummaryPage !== false && <i className="fa-solid fa-check text-white text-xs" />}
+                  </div>
+                  <div>
+                    <span className="text-[var(--text-primary)] font-medium block text-sm">Fasikül Sonu Gelişim & Değerlendirme Sayfası</span>
+                    <span className="text-[10px] text-[var(--text-muted)]">Fasikülün en sonuna öğretmen değerlendirme notu ve gelişim çetelesi ekler.</span>
+                  </div>
+               </label>
             </div>
 
           </div>

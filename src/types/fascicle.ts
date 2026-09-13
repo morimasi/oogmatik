@@ -33,6 +33,9 @@ export interface CoverPageSettings {
   schoolName?: string;
   date?: string;
   customSvgDecorations?: string;
+  showTableOfContents?: boolean; // Otomatik İçindekiler Sayfası
+  showSummaryPage?: boolean;     // Fasikül Sonu Gelişim & Değerlendirme Sayfası
+  summaryNote?: string;          // Özel öğretmen/veli notu
 }
 
 export interface AiCoverSuggestion {
