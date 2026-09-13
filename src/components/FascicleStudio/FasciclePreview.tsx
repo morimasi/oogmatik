@@ -10,6 +10,8 @@ import { WatermarkSettings } from '../../types/fascicle';
 import { FascicleCoverPage } from './FascicleCoverPage';
 import { FascicleTableOfContentsPage } from './FascicleTableOfContentsPage';
 import { FascicleExecutiveSummaryPage } from './FascicleExecutiveSummaryPage';
+import { FasciclePageStyleToolbar } from './FasciclePageStyleToolbar';
+import { FascicleMultiPageRenderer } from './FascicleMultiPageRenderer';
 import { FascicleWatermarkSettingsModal } from './FascicleWatermarkSettingsModal';
 import { useStudentStore } from '../../store/useStudentStore';
 import { v4 as uuidv4 } from 'uuid';
@@ -122,6 +124,9 @@ export const FasciclePreview: React.FC = () => {
 
   return (
     <div className="w-full max-w-4xl h-full flex flex-col">
+      {/* Word-Style Toolbar & Preview Header */}
+      <FasciclePageStyleToolbar />
+
       {/* Preview Toolbar */}
        <div className="glass-layer-2 flex justify-between items-center px-4 py-3 mb-6 rounded-[var(--radius-premium)] no-print relative z-20">
          <div className="flex items-center text-[var(--text-secondary)]">
@@ -325,91 +330,21 @@ export const FasciclePreview: React.FC = () => {
                 />
               )}
 
-              {/* İÇERİK SAYFALARI (Items) */}
+              {/* İÇERİK SAYFALARI (Items) - FascicleMultiPageRenderer ile Esnek Kırılım */}
               {items.length > 0 ? items.map((item, index) => {
-                const isExam = item.type === ActivityType.SINAV || item.type === ActivityType.MAT_SINAV;
-                const defaultColumns = isExam ? 2 : 1;
-
-                const normalized = normalizeFascicleContent(item, defaultColumns);
-
                 runningPageCounter += 1;
                 const currentPageNumber = runningPageCounter;
 
-                const dynamicSettings = {
-                  columns: defaultColumns,
-                  ...((item.content as any)?.printConfig || {}),
-                  ...(isExam ? {} : ((item.content as any)?.settings || {})),
-                  ...(isExam ? {} : ((item.content as any)?.config || {})),
-                  ...(isExam ? {} : ((item.content as any)?.styleSettings || {})),
-                };
-
                 return (
-                  <div key={item.id} className="relative group/page">
-                     <div className="absolute -left-48 top-0 w-40 h-full no-print hidden xl:flex flex-col gap-4 py-4 pointer-events-none">
-                        <div className="glass-layer-3 p-4 rounded-2xl pointer-events-auto">
-                           <span className="text-[9px] font-black uppercase tracking-widest block mb-1" style={{ color: 'var(--accent-color)' }}>Sayfa {currentPageNumber} / {grandTotalPages}</span>
-                           <h4 className="text-xs font-bold text-[var(--text-primary)] leading-tight">{item.type.replace(/-/g, ' ').toUpperCase()}</h4>
-                           <div className="mt-2 flex items-center gap-1.5">
-                              <span className={`w-1.5 h-1.5 rounded-full ${item.difficulty === 'Zor' ? 'bg-red-500' : item.difficulty === 'Orta' ? 'bg-amber-500' : 'bg-emerald-500'}`} />
-                              <span className="text-[10px] text-[var(--text-muted)]">{item.difficulty} Seviye</span>
-                           </div>
-                        </div>
-                     </div>
-
-                     <div className="w-[210mm] h-[297mm] mx-auto shrink-0 shadow-2xl mb-12 bg-white relative print-exact worksheet-page overflow-hidden border border-[var(--border-color)] flex flex-col justify-between">
-                       {metadata.watermarkSettings?.enabled && renderWatermark(metadata.watermarkSettings)}
-                       <div className="p-[8mm] flex-1 flex flex-col">
-                         <Suspense fallback={
-                           <div className="w-full h-full flex items-center justify-center bg-white">
-                             <div className="animate-spin rounded-full h-12 w-12" style={{ borderBottomColor: 'var(--accent-color)', borderLeftColor: 'transparent', borderRightColor: 'transparent', borderTopColor: 'transparent', borderWidth: '3px' }}></div>
-                           </div>
-                         }>
-                           <SheetRenderer 
-                             data={normalized.data}
-                             activityType={normalized.activityType}
-                             hideWrapper={true}
-                             settings={{
-                               fontSize: '1rem',
-                               lineHeight: 1.6,
-                               scale: 1,
-                               borderColor: '#e2e8f0',
-                               borderWidth: 1,
-                               margin: 10,
-                               columns: defaultColumns,
-                               gap: 20,
-                               orientation: 'portrait',
-                               themeBorder: 'none',
-                               contentAlign: 'left',
-                               fontWeight: 'normal',
-                               fontStyle: 'normal',
-                               visualStyle: 'minimal',
-                               showMascot: false,
-                               showStudentInfo: false,
-                               showTitle: true,
-                               showInstruction: true,
-                               showImage: true,
-                               showFooter: true,
-                               showAnswers: false,
-                               showClues: false,
-                               footerText: `${metadata.title || 'Fasikül'} • Sayfa ${currentPageNumber} / ${grandTotalPages}`,
-                               smartPagination: true,
-                               fontFamily: 'Lexend',
-                               letterSpacing: 0,
-                               wordSpacing: 0,
-                               paragraphSpacing: 0,
-                               ...dynamicSettings
-                             } as StyleSettings}
-                           />
-                         </Suspense>
-                       </div>
-                       
-                       {/* Universal Fasikül Footer Band */}
-                       <div className="px-6 py-2 border-t border-zinc-100 flex justify-between items-center text-[9px] font-bold text-zinc-400 uppercase tracking-widest bg-white z-20">
-                         <span>{metadata.title || 'bdmind Special Education'}</span>
-                         <span>Sayfa {currentPageNumber} / {grandTotalPages}</span>
-                       </div>
-                     </div>
-                  </div>
+                  <FascicleMultiPageRenderer
+                    key={item.id || index}
+                    item={item}
+                    itemIndex={index}
+                    metadata={metadata}
+                    startPageNumber={currentPageNumber}
+                    grandTotalPages={grandTotalPages}
+                    renderWatermark={renderWatermark}
+                  />
                 );
               }) : (
                  <div className="glass-layer-3 p-12 rounded-[var(--radius-premium)] text-center max-w-md mt-12 no-print">

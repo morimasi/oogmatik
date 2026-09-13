@@ -45,6 +45,13 @@ export interface AiCoverSuggestion {
   svgDecorations: string;
 }
 
+export interface FasciclePageSettings {
+  margin: 'narrow' | 'normal' | 'wide'; // 4mm, 8mm, 15mm
+  paperColor: 'white' | 'sepia' | 'yellow' | 'cream' | 'karne'; // Kâğıt teması / Disleksi sarısı
+  fontScale: number; // 80, 90, 100, 110, 120 (yüzde)
+  orientation: 'portrait' | 'landscape';
+}
+
 export interface FascicleMetadata {
   title: string;
   description?: string;
@@ -56,6 +63,7 @@ export interface FascicleMetadata {
   watermarkText?: string;
   watermarkSettings?: WatermarkSettings;
   coverPageSettings?: CoverPageSettings;
+  pageSettings?: FasciclePageSettings; // Word tarzı canlı kâğıt ve sayfa ayarları
 }
 
 export interface FascicleDocument {

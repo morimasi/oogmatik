@@ -25,6 +25,7 @@ interface FascicleState {
   setItems: (items: FascicleItem[]) => void;
   selectItem: (itemId: string | null) => void;
   toggleExpandItem: (itemId: string | null) => void;
+  addBlankPage: (afterIndex?: number) => void;
   
   // Undo/Redo
   undo: () => void;
@@ -61,6 +62,12 @@ const initialMetadata: FascicleMetadata = {
     color: '#cbd5e1',
     fontSize: 48,
     rotation: -45
+  },
+  pageSettings: {
+    margin: 'normal',
+    paperColor: 'white',
+    fontScale: 100,
+    orientation: 'portrait'
   }
 };
 
@@ -156,6 +163,37 @@ export const useFascicleStore = create<FascicleState>()(
           past: [...past.slice(-29), { items, metadata }],
           future: [],
           items: newItems
+        });
+      },
+
+      addBlankPage: (afterIndex) => {
+        const { items, metadata, past } = get();
+        const blankItem: FascicleItem = {
+          id: `blank-page-${Date.now()}`,
+          type: 'blank_page',
+          pageCount: 1,
+          difficulty: 'Kolay',
+          order: afterIndex !== undefined ? afterIndex + 1 : items.length,
+          content: {
+            title: 'Boş Not & Çizim Sayfası',
+            instruction: 'Bu sayfa serbest çalışma, not alma ve çizim için ayrılmıştır.',
+            items: []
+          }
+        };
+
+        const newItems = Array.from(items);
+        if (afterIndex !== undefined && afterIndex >= 0 && afterIndex < items.length) {
+          newItems.splice(afterIndex + 1, 0, blankItem);
+        } else {
+          newItems.push(blankItem);
+        }
+
+        const reordered = newItems.map((item, idx) => ({ ...item, order: idx }));
+
+        set({
+          past: [...past.slice(-29), { items, metadata }],
+          future: [],
+          items: reordered
         });
       },
 
