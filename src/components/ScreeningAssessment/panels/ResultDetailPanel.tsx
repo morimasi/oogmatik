@@ -16,6 +16,7 @@ import {
   buildProfessionalAssessmentReport,
   buildStudentProfileContext,
 } from '../services/professionalAssessmentService';
+import { PrintableScreeningReport } from '../components/shared/PrintableScreeningReport';
 
 interface ResultDetailPanelProps {
   onGeneratePlan?: (studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => void;
@@ -71,21 +72,41 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
       };
 
       const professionalPrompt = buildProfessionalAssessmentPrompt(currentScreening, studentContext);
-      const professionalReportData = buildProfessionalAssessmentReport(currentScreening, studentContext);
-      setProfessionalReport(professionalReportData);
+      const fallbackReport = buildProfessionalAssessmentReport(currentScreening, studentContext);
+      setProfessionalReport(fallbackReport);
 
       if (typeof professionalPrompt === 'string' && professionalPrompt.length > 0) {
-        void generateWithSchema(professionalPrompt, {
-          type: 'OBJECT',
-          properties: {
-            summary: { type: 'STRING' },
-            recommendations: { type: 'ARRAY', items: { type: 'STRING' } },
-            cautions: { type: 'ARRAY', items: { type: 'STRING' } },
-            strengths: { type: 'ARRAY', items: { type: 'STRING' } },
-            bePGoals: { type: 'ARRAY', items: { type: 'STRING' } },
-          },
-          required: ['summary', 'recommendations', 'cautions', 'strengths', 'bePGoals'],
-        });
+        try {
+          const aiProResult = (await generateWithSchema(professionalPrompt, {
+            type: 'OBJECT',
+            properties: {
+              summary: { type: 'STRING' },
+              recommendations: { type: 'ARRAY', items: { type: 'STRING' } },
+              cautions: { type: 'ARRAY', items: { type: 'STRING' } },
+              strengths: { type: 'ARRAY', items: { type: 'STRING' } },
+              bePGoals: { type: 'ARRAY', items: { type: 'STRING' } },
+            },
+            required: ['summary', 'recommendations', 'cautions', 'strengths', 'bePGoals'],
+          })) as {
+            summary?: string;
+            recommendations?: string[];
+            cautions?: string[];
+            strengths?: string[];
+            bePGoals?: string[];
+          };
+
+          if (aiProResult && Array.isArray(aiProResult.bePGoals) && aiProResult.bePGoals.length > 0) {
+            setProfessionalReport({
+              summary: aiProResult.summary || fallbackReport.summary,
+              recommendations: aiProResult.recommendations || fallbackReport.recommendations,
+              cautions: aiProResult.cautions || fallbackReport.cautions,
+              strengths: aiProResult.strengths || fallbackReport.strengths,
+              bePGoals: aiProResult.bePGoals || fallbackReport.bePGoals,
+            });
+          }
+        } catch {
+          // Gemini özel profesyonel şemada hata alırsa güvenli fallbackReport kullanılır
+        }
       }
     } catch {
       setAiError(true);
@@ -338,45 +359,12 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
         worksheetTitle={`Tarama Raporu: ${currentScreening.studentName}`}
       />
 
-      <div id="printable-report" className="hidden" aria-hidden="true">
-        <div className="print-page bg-white text-black p-8 font-sans" style={{ width: '210mm', minHeight: '297mm' }}>
-          <header className="mb-8">
-            <h1 className="text-3xl font-black uppercase">Tarama Sonuç Raporu</h1>
-            <p className="text-sm text-zinc-500 mt-2">{currentScreening.studentName} · {new Date(currentScreening.generatedAt).toLocaleDateString('tr-TR')}</p>
-          </header>
-          <section className="mb-6">
-            <h2 className="text-lg font-bold mb-2">Genel Değerlendirme</h2>
-            <p className="text-sm leading-relaxed text-zinc-700">Bu rapor, öğrenciye ait tarama sonuçlarının özetini ve önerileri içerir. Klinik tanı yerine geçmez.</p>
-          </section>
-          <section className="mb-6">
-            <h3 className="text-base font-bold mb-3">Özet Skorlar</h3>
-            <table className="w-full text-sm border-collapse border border-zinc-300">
-              <thead>
-                <tr className="bg-zinc-100">
-                  <th className="p-3 text-left">Alan</th>
-                  <th className="p-3 text-right">Risk</th>
-                  <th className="p-3 text-right">Skor</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(Object.keys(currentScreening.categoryScores) as EvaluationCategory[]).map((category) => {
-                  const score = currentScreening.categoryScores[category];
-                  return (
-                    <tr key={category} className="border-t border-zinc-200">
-                      <td className="p-3 text-left font-bold">{CATEGORY_LABELS[category] || category}</td>
-                      <td className="p-3 text-right">{score.riskLabel}</td>
-                      <td className="p-3 text-right">%{score.score}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </section>
-          <section>
-            <h3 className="text-base font-bold mb-3">AI Analiz Özeti</h3>
-            <p className="text-sm leading-relaxed text-zinc-700">{aiAnalysis?.letter || 'AI analizi henüz hazır değil.'}</p>
-          </section>
-        </div>
+      <div className="sr-only print:not-sr-only print:block">
+        <PrintableScreeningReport
+          screening={currentScreening}
+          aiAnalysis={aiAnalysis}
+          professionalReport={professionalReport}
+        />
       </div>
     </div>
   );

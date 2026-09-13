@@ -12,8 +12,10 @@ import { SCREENING_TABS } from './constants';
 import { ReportActions } from './components/shared/ReportActions';
 import { screeningDataService } from './services/screeningDataService';
 import { CognitiveTestPanel } from './components/CognitiveTests/CognitiveTestPanel';
+import { convertSubTestsToScreeningResult } from './services/cognitiveBatteryAdapter';
 import { useToastStore } from '../../store/useToastStore';
 import type { ScreeningResult } from '../../types/screening';
+import type { SubTestResult } from '../../types';
 
 interface ScreeningAssessmentProps {
   onClose: () => void;
@@ -34,8 +36,10 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
     setScreeningData,
     setCurrentScreening,
     selectedStudentName,
+    selectedStudentId,
     selectedStudentAge,
     selectedStudentGrade,
+    selectedStudentConcerns,
   } = useScreeningStore();
   const toast = useToastStore();
   const { currentScreening, handleSaveScreening, handleDownloadReport, handlePrintReport, handleShareResults, handleShareScreeningResult } =
@@ -169,11 +173,18 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
                   studentName={selectedStudentName || 'Öğrenci'}
                   studentAge={selectedStudentAge}
                   studentGrade={selectedStudentGrade}
-                  studentConcerns={[]}
+                  studentConcerns={selectedStudentConcerns}
                   onBack={() => setActiveView('new-screening')}
-                  onComplete={() => {
-                    toast.success('İnteraktif bilişsel batarya tamamlandı.');
-                    setActiveView('dashboard');
+                  onComplete={async (subTestResults: SubTestResult[]) => {
+                    toast.success('İnteraktif bilişsel batarya tamamlandı, sonuçlar analiz ediliyor.');
+                    const synthesizedResult = convertSubTestsToScreeningResult(subTestResults, {
+                      studentName: selectedStudentName || 'Öğrenci',
+                      studentId: selectedStudentId,
+                      age: selectedStudentAge,
+                      grade: selectedStudentGrade,
+                      concerns: selectedStudentConcerns,
+                    });
+                    await handleResultReady(synthesizedResult);
                   }}
                 />
               ) : (

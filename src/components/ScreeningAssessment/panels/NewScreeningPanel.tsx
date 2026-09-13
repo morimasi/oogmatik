@@ -14,6 +14,9 @@ export const NewScreeningPanel: React.FC = () => {
     setSelectedStudentId,
     setSelectedStudentAge,
     setSelectedStudentGrade,
+    setSelectedStudentConcerns,
+    setSelectedStudentStrengths,
+    setSelectedStudentDiagnosis,
     setSelectedScreeningType,
     handleStartScreening,
     setActiveView,
@@ -25,12 +28,20 @@ export const NewScreeningPanel: React.FC = () => {
   const handleStudentSelect = (id: string) => {
     if (id === 'manual') {
       setSelectedStudentId(null);
+      setSelectedStudentConcerns([]);
+      setSelectedStudentStrengths([]);
+      setSelectedStudentDiagnosis([]);
       return;
     }
     const student = students.find((s: any) => s.id === id);
     if (student) {
       setSelectedStudentName(student.name);
       setSelectedStudentId(student.id);
+      if (student.age) setSelectedStudentAge(Number(student.age));
+      if (student.grade) setSelectedStudentGrade(String(student.grade));
+      setSelectedStudentConcerns(student.weaknesses || []);
+      setSelectedStudentStrengths(student.strengths || []);
+      setSelectedStudentDiagnosis(student.diagnosis || []);
     }
   };
 
