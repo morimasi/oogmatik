@@ -93,6 +93,37 @@ export const PlansModule: React.FC<PlansModuleProps> = ({ data, onNavigateToCurr
     }
   }, [curriculums, success, error, refreshData]);
 
+  // BEP hedefi durum döngüsü: not_started → in_progress → completed → not_started
+  const BEP_STATUS_CYCLE: Record<string, string> = {
+    not_started: 'in_progress',
+    in_progress: 'completed',
+    completed: 'not_started',
+  };
+  const BEP_STATUS_ICONS: Record<string, string> = {
+    not_started: 'fa-circle-dot',
+    in_progress: 'fa-circle-half-stroke',
+    completed: 'fa-circle-check',
+  };
+  const BEP_STATUS_TITLES: Record<string, string> = {
+    not_started: 'Başlanmadı — tıkla: Devam Ediyor',
+    in_progress: 'Devam Ediyor — tıkla: Tamamlandı',
+    completed: 'Tamamlandı — tıkla: Sıfırla',
+  };
+
+  const handleGoalStatusCycle = useCallback(async (planId: string, goalIdx: number, currentStatus: string) => {
+    const nextStatus = BEP_STATUS_CYCLE[currentStatus] ?? 'in_progress';
+    try {
+      const plan = curriculums.find((p: Record<string, unknown>) => p.id === planId);
+      const goals = [...((plan?.bepGoals as Array<Record<string, unknown>>) || [])];
+      goals[goalIdx] = { ...goals[goalIdx], progress: nextStatus };
+      await curriculumService.updateCurriculum(planId, { bepGoals: goals } as Record<string, unknown>);
+      success(`Hedef durumu güncellendi.`);
+      refreshData();
+    } catch {
+      error('Durum güncellenemedi.');
+    }
+  }, [curriculums, success, error, refreshData]);
+
   const handleDeleteConfirm = useCallback(async () => {
     if (!deletePlan) return;
     const planId = deletePlan.id as string;
@@ -258,9 +289,15 @@ export const PlansModule: React.FC<PlansModuleProps> = ({ data, onNavigateToCurr
                   {bepGoals.length > 0 && (isExpanded ? bepGoals : bepGoals.slice(0, 2)).map((goal, idx) => {
                     const gStatus = (goal.progress as string) ?? 'not_started';
                     const gCfg = BEP_PROGRESS[gStatus] ?? BEP_PROGRESS['not_started'];
+                    const gIcon = BEP_STATUS_ICONS[gStatus] ?? 'fa-circle-dot';
+                    const gTitle = BEP_STATUS_TITLES[gStatus] ?? '';
                     return (
                       <div key={idx} className="flex items-start gap-2 group">
-                        <i className={`fa-solid fa-circle-dot text-[10px] mt-0.5 ${gCfg.color}`} />
+                        <button
+                          onClick={() => handleGoalStatusCycle(planId, idx, gStatus)}
+                          title={gTitle}
+                          className={`fa-solid ${gIcon} text-[11px] mt-0.5 ${gCfg.color} hover:scale-125 active:scale-95 transition-transform cursor-pointer flex-shrink-0`}
+                        />
                         <span className="text-[10px] font-bold text-[var(--text-muted)] leading-relaxed flex-1">{goal.objective as string}</span>
                         <button onClick={() => handleDeleteGoal(planId, idx)} className="w-5 h-5 flex items-center justify-center text-zinc-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 shrink-0">
                           <i className="fa-solid fa-xmark text-[9px]" />

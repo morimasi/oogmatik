@@ -1,10 +1,12 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { ProfileData } from '../../../types/profile';
 import { SavedAssessment } from '../../../types';
 import { AssessmentReportViewer } from '../../AssessmentReportViewer';
 import { RadarChart } from '../../RadarChart';
 import { SectionHeader } from '../components/shared/SectionHeader';
 import { BentoCard } from '../components/shared/BentoCard';
+import { useFirestoreNotes } from '../hooks/useFirestoreNotes';
+import { AssessmentHistoryPanel } from '../components/AssessmentHistoryPanel';
 
 type SortKey = 'date' | 'score' | 'student';
 
@@ -34,27 +36,20 @@ export const AnalysisModule: React.FC<AnalysisModuleProps> = ({ data, onShare })
   const [selectedAssessment, setSelectedAssessment] = useState<SavedAssessment | null>(null);
   const [sortBy, setSortBy] = useState<SortKey>('date');
   const [filterStudent, setFilterStudent] = useState('');
-  const [analysisNotes, setAnalysisNotes] = useState<string[]>(() => {
-    try { return JSON.parse(localStorage.getItem('analysis_notes') || '[]'); }
-    catch { return []; }
-  });
+  const { notes: analysisNotes, addNote: fsAddNote, editNote: fsEditNote, deleteNote: fsDeleteNote } = useFirestoreNotes('analysis');
   const [newAnalysisNote, setNewAnalysisNote] = useState('');
   const [editingNoteIdx, setEditingNoteIdx] = useState<number | null>(null);
   const [editingNoteText, setEditingNoteText] = useState('');
 
-  useEffect(() => {
-    localStorage.setItem('analysis_notes', JSON.stringify(analysisNotes));
-  }, [analysisNotes]);
-
   const addAnalysisNote = useCallback(() => {
     if (!newAnalysisNote.trim()) return;
-    setAnalysisNotes(prev => [...prev, newAnalysisNote.trim()]);
+    fsAddNote(newAnalysisNote.trim());
     setNewAnalysisNote('');
-  }, [newAnalysisNote]);
+  }, [newAnalysisNote, fsAddNote]);
 
   const deleteAnalysisNote = useCallback((idx: number) => {
-    setAnalysisNotes(prev => prev.filter((_, i) => i !== idx));
-  }, []);
+    fsDeleteNote(idx);
+  }, [fsDeleteNote]);
 
   const startEditAnalysisNote = useCallback((idx: number) => {
     setEditingNoteIdx(idx);
@@ -63,10 +58,10 @@ export const AnalysisModule: React.FC<AnalysisModuleProps> = ({ data, onShare })
 
   const saveEditAnalysisNote = useCallback(() => {
     if (editingNoteIdx === null || !editingNoteText.trim()) return;
-    setAnalysisNotes(prev => prev.map((n, i) => i === editingNoteIdx ? editingNoteText.trim() : n));
+    fsEditNote(editingNoteIdx, editingNoteText.trim());
     setEditingNoteIdx(null);
     setEditingNoteText('');
-  }, [editingNoteIdx, editingNoteText]);
+  }, [editingNoteIdx, editingNoteText, fsEditNote]);
 
   const [savedViews, setSavedViews] = useState<Array<{ name: string; sortBy: SortKey; filterStudent: string }>>(() => {
     try { return JSON.parse(localStorage.getItem('analysis_saved_views') || '[]'); }
@@ -75,9 +70,8 @@ export const AnalysisModule: React.FC<AnalysisModuleProps> = ({ data, onShare })
   const [viewName, setViewName] = useState('');
   const [showSaveView, setShowSaveView] = useState(false);
 
-  useEffect(() => {
-    localStorage.setItem('analysis_saved_views', JSON.stringify(savedViews));
-  }, [savedViews]);
+  // savedViews localStorage'da kalmaya devam ediyor (oturum tercihi)
+
 
   const saveCurrentView = useCallback(() => {
     if (!viewName.trim()) return;
@@ -144,7 +138,9 @@ export const AnalysisModule: React.FC<AnalysisModuleProps> = ({ data, onShare })
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="flex flex-col lg:flex-row gap-6 animate-in fade-in duration-500 min-h-0">
+      {/* SOL: Analiz içeriği */}
+      <div className="flex-1 lg:max-w-[calc(100%-22rem)] space-y-6 min-w-0">
       {/* Radar Özet */}
       {averageScores && (
         <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
@@ -389,6 +385,17 @@ export const AnalysisModule: React.FC<AnalysisModuleProps> = ({ data, onShare })
           </div>
         </div>
       )}
+      </div>{/* SOL div kapanışı */}
+
+      {/* SAĞ: AssessmentHistoryPanel — ultra-premium geçmiş paneli */}
+      <div className="lg:w-80 xl:w-96 flex-shrink-0 lg:sticky lg:top-0 lg:self-start lg:max-h-[calc(100vh-200px)]">
+        <AssessmentHistoryPanel
+          assessments={assessments}
+          onRefresh={() => data.refreshData?.()}
+          onSelectActivity={undefined}
+          onAutoGenerateWorkbook={undefined}
+        />
+      </div>
     </div>
   );
-};
+};

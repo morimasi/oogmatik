@@ -1,5 +1,5 @@
 import { db } from './firebaseClient';
-import { collection, addDoc, query, where, getDocs, doc, deleteDoc, updateDoc, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, query, where, getDocs, doc, deleteDoc, updateDoc, onSnapshot, Timestamp, type Unsubscribe } from 'firebase/firestore';
 import { logError } from '../utils/logger';
 
 export type SharedModuleType = 'overview' | 'reports' | 'analysis' | 'plans';
@@ -46,6 +46,25 @@ export const profileShareService = {
     }
   },
 
+  /**
+   * Realtime onSnapshot tabanlı abonelik — yeni paylaşımlar anlık gelir.
+   * Dönen fonksiyon çağrıldığında abonelik iptal edilir (cleanup).
+   */
+  subscribeToSharedWithMe(
+    userId: string,
+    onUpdate: (items: SharedContent[]) => void,
+  ): Unsubscribe {
+    const q = query(collection(db, COLLECTION), where('recipientId', '==', userId));
+    return onSnapshot(q, (snapshot) => {
+      const items = snapshot.docs
+        .map(d => ({ id: d.id, ...d.data() } as SharedContent))
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      onUpdate(items);
+    }, (err) => {
+      logError('Paylaşım aboneliği hatası', { error: err.message, context: 'subscribeToSharedWithMe' });
+    });
+  },
+
   async getMySharedContent(ownerId: string): Promise<SharedContent[]> {
     try {
       const q = query(collection(db, COLLECTION), where('ownerId', '==', ownerId));
@@ -80,3 +99,4 @@ export const profileShareService = {
     }
   },
 };
+

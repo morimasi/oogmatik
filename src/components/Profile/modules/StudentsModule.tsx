@@ -37,9 +37,19 @@ export const StudentsModule: React.FC<StudentsModuleProps> = ({
 
   // Yeni özellikler için state
   const [searchQuery, setSearchQuery] = useState('');
+  const [diagFilter, setDiagFilter] = useState<string>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+
+  // Tanı rozet filtre seçenekleri
+  const DIAG_FILTERS: { id: string; label: string; icon: string; color: string; activeColor: string }[] = [
+    { id: 'all', label: 'Tümü', icon: 'fa-users', color: 'bg-[var(--bg-secondary)] text-[var(--text-muted)] border-[var(--border-color)]', activeColor: 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/20' },
+    { id: 'dyslexia', label: 'Disleksi', icon: 'fa-book-open-reader', color: 'bg-[var(--bg-secondary)] text-[var(--text-muted)] border-[var(--border-color)]', activeColor: 'bg-blue-600 text-white border-blue-600 shadow-md shadow-blue-600/20' },
+    { id: 'dyscalculia', label: 'Diskalkuli', icon: 'fa-calculator', color: 'bg-[var(--bg-secondary)] text-[var(--text-muted)] border-[var(--border-color)]', activeColor: 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/20' },
+    { id: 'adhd', label: 'DEHB', icon: 'fa-bolt', color: 'bg-[var(--bg-secondary)] text-[var(--text-muted)] border-[var(--border-color)]', activeColor: 'bg-amber-500 text-white border-amber-500 shadow-md shadow-amber-500/20' },
+    { id: 'mixed', label: 'Karma', icon: 'fa-layer-group', color: 'bg-[var(--bg-secondary)] text-[var(--text-muted)] border-[var(--border-color)]', activeColor: 'bg-purple-600 text-white border-purple-600 shadow-md shadow-purple-600/20' },
+  ];
 
   useEffect(() => {
     if (user?.id) {
@@ -51,12 +61,21 @@ export const StudentsModule: React.FC<StudentsModuleProps> = ({
 
   const filteredStudents = students.filter((student: Student) => {
     const diag: string[] = Array.isArray(student.diagnosis) ? student.diagnosis : [];
-    return (
+    const profile: string = ((student as unknown) as Record<string, unknown>)['learningProfile'] as string ?? '';
+    // Metin arama
+    const matchesSearch = (
       student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       student.grade.toLowerCase().includes(searchQuery.toLowerCase()) ||
       diag.some((d: string) => d.toLowerCase().includes(searchQuery.toLowerCase()))
     );
+    // Rozet filtresi
+    const matchesDiag = diagFilter === 'all' || (
+      diag.some((d: string) => d.toLowerCase().includes(diagFilter)) ||
+      profile.toLowerCase().includes(diagFilter)
+    );
+    return matchesSearch && matchesDiag;
   });
+
 
   const handleSaveStudent = async (studentData: Partial<Student>) => {
     try {
@@ -169,6 +188,41 @@ export const StudentsModule: React.FC<StudentsModuleProps> = ({
             className="w-full pl-12 pr-4 py-3 rounded-2xl border-2 outline-none transition-colors"
             style={{ backgroundColor: 'var(--surface-elevated)', borderColor: 'var(--border-color)', color: 'var(--text-primary)' }}
           />
+        </div>
+
+        {/* Tanı Rozet Filtresi */}
+        <div className="flex flex-wrap gap-2">
+          {DIAG_FILTERS.map((f) => (
+            <button
+              key={f.id}
+              onClick={() => setDiagFilter(f.id)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border transition-all hover:scale-105 active:scale-95 ${
+                diagFilter === f.id ? f.activeColor : f.color
+              }`}
+            >
+              <i className={`fa-solid ${f.icon} text-[9px]`} />
+              {f.label}
+              {f.id !== 'all' && (
+                <span className={`ml-0.5 px-1.5 py-0.5 rounded-md text-[8px] font-black ${
+                  diagFilter === f.id ? 'bg-white/20' : 'bg-[var(--bg-paper)]'
+                }`}>
+                  {students.filter((s: Student) => {
+                    const d = Array.isArray(s.diagnosis) ? s.diagnosis : [];
+                    const p = ((s as unknown) as Record<string, unknown>)['learningProfile'] as string ?? '';
+                    return d.some((x: string) => x.toLowerCase().includes(f.id)) || p.toLowerCase().includes(f.id);
+                  }).length}
+                </span>
+              )}
+            </button>
+          ))}
+          {(diagFilter !== 'all' || searchQuery) && (
+            <button
+              onClick={() => { setDiagFilter('all'); setSearchQuery(''); }}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border border-rose-300 text-rose-500 bg-rose-50 dark:bg-rose-900/10 dark:border-rose-800 hover:scale-105 transition-all"
+            >
+              <i className="fa-solid fa-xmark text-[9px]" /> Temizle
+            </button>
+          )}
         </div>
 
         {/* Öğrenci Listesi */}

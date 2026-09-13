@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { profileShareService, SharedContent, SharedModuleType, SharePermission } from '../../../services/profileShareService';
+import { useToastStore } from '../../../store/useToastStore';
 
 interface UseProfileShareReturn {
   sharedItems: SharedContent[];
@@ -8,26 +9,47 @@ interface UseProfileShareReturn {
   shareModule: (recipientId: string, moduleType: SharedModuleType, permission: SharePermission, contentId?: string, message?: string) => Promise<boolean>;
   removeShare: (shareId: string) => Promise<boolean>;
   markAsRead: (shareId: string) => Promise<boolean>;
-  refreshSharedItems: () => Promise<void>;
+  refreshSharedItems: () => void;
   unreadCount: number;
 }
 
 export const useProfileShare = (): UseProfileShareReturn => {
   const { user } = useAuthStore();
+  const { info } = useToastStore();
   const [sharedItems, setSharedItems] = useState<SharedContent[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  const refreshSharedItems = useCallback(async () => {
-    if (!user) return;
-    setLoading(true);
-    const items = await profileShareService.getSharedWithMe(user.id);
-    setSharedItems(items);
-    setLoading(false);
-  }, [user]);
+  const [loading, setLoading] = useState(true);
+  const prevCountRef = useRef<number | null>(null);
 
   useEffect(() => {
-    refreshSharedItems();
-  }, [refreshSharedItems]);
+    if (!user?.id) { setLoading(false); return; }
+    setLoading(true);
+
+    const unsub = profileShareService.subscribeToSharedWithMe(user.id, (items) => {
+      setSharedItems(items);
+      setLoading(false);
+
+      // İlk yüklemede referans sayısını kaydet
+      if (prevCountRef.current === null) {
+        prevCountRef.current = items.filter(s => !s.readAt).length;
+        return;
+      }
+
+      // Yeni okunmamış paylaşım gelirse toast bildir
+      const newUnread = items.filter(s => !s.readAt).length;
+      if (newUnread > (prevCountRef.current ?? 0)) {
+        const newest = items.find(s => !s.readAt);
+        if (newest) {
+          info(`📩 ${newest.ownerName} yeni bir içerik paylaştı.`);
+        }
+      }
+      prevCountRef.current = newUnread;
+    });
+
+    return () => { unsub(); };
+  }, [user?.id, info]);
+
+  // refreshSharedItems: onSnapshot zaten canlı — geriye dönük compat için no-op
+  const refreshSharedItems = useCallback(() => { /* onSnapshot aktif, yenileme gerekmiyor */ }, []);
 
   const shareModule = useCallback(async (
     recipientId: string,

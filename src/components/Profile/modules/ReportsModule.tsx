@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { ProfileData } from '../../../types/profile';
 import { SavedAssessment } from '../../../types';
 import { StatCard } from '../components/shared/StatCard';
@@ -7,6 +7,8 @@ import { logError } from '../../../utils/errorHandler';
 import { assessmentService } from '../../../services/assessmentService';
 import { useAuthStore } from '../../../store/useAuthStore';
 import { useToastStore } from '../../../store/useToastStore';
+import { printService } from '../../../utils/printService';
+import { useFirestoreNotes } from '../hooks/useFirestoreNotes';
 
 interface ReportsModuleProps {
   data: ProfileData;
@@ -17,34 +19,39 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({ data, onShare }) =
   const { assessments: rawAssessments, worksheets, loading, refreshData } = data;
   const assessments = rawAssessments as unknown as SavedAssessment[];
   const { user } = useAuthStore();
-  const { success, error } = useToastStore();
+  const { success, error, info } = useToastStore();
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [anonymize, setAnonymize] = useState(true);
   const [exporting, setExporting] = useState(false);
-  const [reportNotes, setReportNotes] = useState<Record<string, string>>(() => {
-    try { return JSON.parse(localStorage.getItem('report_notes') || '{}'); }
-    catch { return {}; }
-  });
+  // Rapor notları artık Firestore'da senkronize
+  const { notes: reportNotesArr } = useFirestoreNotes('reports');
+  // key→value yapısı için: "assessmentId::not metni" formatı
+  const reportNotes: Record<string, string> = Object.fromEntries(
+    reportNotesArr
+      .filter(n => n.includes('::'))
+      .map(n => { const [id, ...rest] = n.split('::'); return [id, rest.join('::')]; })
+  );
+  const { addNote: fsAddReportNote, deleteNote: fsDeleteReportNote } = useFirestoreNotes('reports');
   const [expandedNote, setExpandedNote] = useState<string | null>(null);
   const [noteText, setNoteText] = useState('');
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  useEffect(() => {
-    localStorage.setItem('report_notes', JSON.stringify(reportNotes));
-  }, [reportNotes]);
-
   const saveNote = useCallback((assessmentId: string) => {
     if (!noteText.trim()) return;
-    setReportNotes(prev => ({ ...prev, [assessmentId]: noteText.trim() }));
+    // Mevcut notu güncelle: önce eski kaydı sil, yenisini ekle
+    const existingIdx = reportNotesArr.findIndex(n => n.startsWith(`${assessmentId}::`));
+    if (existingIdx >= 0) fsDeleteReportNote(existingIdx);
+    fsAddReportNote(`${assessmentId}::${noteText.trim()}`);
     setExpandedNote(null);
     setNoteText('');
-  }, [noteText]);
+    success('Rapor notu kaydedildi.');
+  }, [noteText, success, reportNotesArr, fsAddReportNote, fsDeleteReportNote]);
 
   const deleteNote = useCallback((assessmentId: string) => {
-    const newNotes = { ...reportNotes };
-    delete newNotes[assessmentId];
-    setReportNotes(newNotes);
-  }, [reportNotes]);
+    const idx = reportNotesArr.findIndex(n => n.startsWith(`${assessmentId}::`));
+    if (idx >= 0) fsDeleteReportNote(idx);
+    success('Rapor notu silindi.');
+  }, [reportNotesArr, fsDeleteReportNote, success]);
 
   const handleDelete = useCallback(async (assessmentId: string) => {
     if (!user) return;
@@ -91,11 +98,55 @@ export const ReportsModule: React.FC<ReportsModuleProps> = ({ data, onShare }) =
   const handleBulkExport = async () => {
     if (selectedIds.size === 0) return;
     setExporting(true);
+    info(`${selectedIds.size} adet rapor PDF olarak indiriliyor...`);
     try {
-      // PDF export logic placeholder — bağlanacak
-      await new Promise(resolve => setTimeout(resolve, 800));
+      const selectedAssessments = assessments.filter(a => selectedIds.has(a.id));
+      for (const assessment of selectedAssessments) {
+        const displayName = anonymize ? 'Anonim_Ogrenci' : (assessment.studentName || 'Ogrenci').replace(/\s+/g, '_');
+        const fileName = `bdmind_Rapor_${displayName}_${new Date(assessment.createdAt).toISOString().slice(0, 10)}`;
+        
+        // Geçici DOM elemanı oluşturup yazdırma motoruna gönder
+        const container = document.createElement('div');
+        container.id = `temp-report-export-${assessment.id}`;
+        container.style.position = 'fixed';
+        container.style.left = '-9999px';
+        container.style.top = '-9999px';
+        container.innerHTML = `
+          <div style="padding: 30px; font-family: sans-serif; background: #fff; color: #111; width: 210mm;">
+            <h1 style="font-size: 20px; font-weight: 900; margin-bottom: 5px;">bdmind Değerlendirme Raporu</h1>
+            <p style="font-size: 12px; color: #666; margin-bottom: 20px;">Öğrenci: ${anonymize ? 'Anonim Öğrenci' : assessment.studentName} · Tarih: ${new Date(assessment.createdAt).toLocaleDateString('tr-TR')}</p>
+            <div style="margin-bottom: 20px; padding: 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;">
+              <h3 style="font-size: 14px; font-weight: 800; margin-bottom: 10px;">Özet Değerlendirme</h3>
+              <p style="font-size: 12px; line-height: 1.6;">${assessment.report.overallSummary || 'Tarama detayları başarıyla kaydedildi.'}</p>
+            </div>
+            <h3 style="font-size: 14px; font-weight: 800; margin-bottom: 10px;">Skorlar</h3>
+            <table style="width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px;">
+              <thead>
+                <tr style="background: #f1f5f9; text-align: left;">
+                  <th style="padding: 8px; border: 1px solid #cbd5e1;">Alan</th>
+                  <th style="padding: 8px; border: 1px solid #cbd5e1;">Skor</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${Object.entries(assessment.report.scores || {}).map(([key, val]) => `
+                  <tr>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1; font-weight: bold;">${key.toUpperCase()}</td>
+                    <td style="padding: 8px; border: 1px solid #cbd5e1;">%${val}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+        document.body.appendChild(container);
+        
+        await printService.generatePdf(`#${container.id}`, fileName, { action: 'download' });
+        document.body.removeChild(container);
+      }
+      success(`${selectedIds.size} adet rapor başarıyla indirildi.`);
     } catch (e) {
       logError(e instanceof Error ? e : new Error(String(e)), { context: 'ReportsModule.bulkExport' });
+      error('PDF indirme sırasında bir hata oluştu.');
     } finally {
       setExporting(false);
     }

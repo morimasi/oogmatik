@@ -1,9 +1,10 @@
-import React, { useMemo, useState, useEffect, useCallback } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { ProfileData } from '../../../types/profile';
 import { Student, SavedWorksheet } from '../../../types';
 import { BentoCard } from '../components/shared/BentoCard';
 import { StatCard } from '../components/shared/StatCard';
 import { LineChart, DataPoint } from '../../LineChart';
+import { useFirestoreNotes } from '../hooks/useFirestoreNotes';
 
 interface OverviewModuleProps {
   data: ProfileData;
@@ -22,27 +23,20 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({
   onShare,
 }) => {
   const { stats, performanceTrends, worksheets, assessments, loading } = data;
-  const [notes, setNotes] = useState<string[]>(() => {
-    try { return JSON.parse(localStorage.getItem('overview_notes') || '[]'); }
-    catch { return []; }
-  });
+  const { notes, addNote: fsAddNote, editNote: fsEditNote, deleteNote: fsDeleteNote } = useFirestoreNotes('overview');
   const [newNote, setNewNote] = useState('');
   const [editingNoteIdx, setEditingNoteIdx] = useState<number | null>(null);
   const [editingNoteText, setEditingNoteText] = useState('');
 
-  useEffect(() => {
-    localStorage.setItem('overview_notes', JSON.stringify(notes));
-  }, [notes]);
-
   const addNote = useCallback(() => {
     if (!newNote.trim()) return;
-    setNotes(prev => [...prev, newNote.trim()]);
+    fsAddNote(newNote.trim());
     setNewNote('');
-  }, [newNote]);
+  }, [newNote, fsAddNote]);
 
   const deleteNote = useCallback((idx: number) => {
-    setNotes(prev => prev.filter((_, i) => i !== idx));
-  }, []);
+    fsDeleteNote(idx);
+  }, [fsDeleteNote]);
 
   const startEditNote = useCallback((idx: number) => {
     setEditingNoteIdx(idx);
@@ -51,10 +45,10 @@ export const OverviewModule: React.FC<OverviewModuleProps> = ({
 
   const saveEditNote = useCallback(() => {
     if (editingNoteIdx === null || !editingNoteText.trim()) return;
-    setNotes(prev => prev.map((n, i) => i === editingNoteIdx ? editingNoteText.trim() : n));
+    fsEditNote(editingNoteIdx, editingNoteText.trim());
     setEditingNoteIdx(null);
     setEditingNoteText('');
-  }, [editingNoteIdx, editingNoteText]);
+  }, [editingNoteIdx, editingNoteText, fsEditNote]);
 
   const studentScore = useMemo(() => {
     if (!activeStudent || assessments.length === 0) return null;

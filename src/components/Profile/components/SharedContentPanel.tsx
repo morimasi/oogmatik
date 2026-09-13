@@ -101,7 +101,7 @@ export const SharedContentPanel: React.FC<SharedContentPanelProps> = ({
                   </p>
                   {item.message && (
                     <p className="text-[10px] font-medium text-[var(--text-muted)] mt-1 italic bg-[var(--bg-secondary)] px-2 py-1 rounded-lg inline-block">
-                      "{item.message}"
+                      &ldquo;{item.message}&rdquo;
                     </p>
                   )}
                 </div>

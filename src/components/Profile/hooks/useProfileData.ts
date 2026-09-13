@@ -9,10 +9,15 @@ import { AppError } from '../../../utils/AppError';
 import { logError } from '../../../utils/errorHandler';
 import { ProfileData } from '../../../types/profile';
 
-const calculateStreak = (activityLogs: any[]): number => {
+const calculateStreak = (activityLogs: unknown[]): number => {
   if (!activityLogs.length) return 0;
   const sorted = [...activityLogs]
-    .map(log => new Date(log.timestamp?.toDate?.() || log.timestamp || log.createdAt))
+    .map(log => {
+      const l = log as Record<string, unknown>;
+      const ts = l['timestamp'] as { toDate?: () => Date } | string | undefined;
+      const raw = typeof ts === 'object' && ts?.toDate ? ts.toDate() : (ts ?? l['createdAt']);
+      return new Date(raw as string);
+    })
     .sort((a, b) => b.getTime() - a.getTime());
 
   let streak = 1;
@@ -80,7 +85,7 @@ export const useProfileData = (targetUser?: User): ProfileData => {
       .reverse()
       .map((a: SavedAssessment) => ({
         date: a.createdAt,
-        puan: a.report.scores.attention || 0,
+        score: a.report.scores.attention || 0,
       }));
   }, [assessments]);
 
