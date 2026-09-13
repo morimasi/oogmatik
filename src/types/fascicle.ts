@@ -17,6 +17,7 @@ export interface WatermarkSettings {
   enabled: boolean;
   type: 'text' | 'image';
   text: string;
+  imageUrl?: string; // Özel logo / filigran resmi yükleme URL'si
   opacity: number;
   color: string;
   fontSize: number;

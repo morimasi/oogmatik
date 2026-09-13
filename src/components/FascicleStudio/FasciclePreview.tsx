@@ -20,8 +20,8 @@ import { normalizeFascicleContent, getFasciclePageCount } from '../../utils/fasc
 const renderWatermark = (ws: WatermarkSettings) => {
   if (ws.type === 'image') {
     return (
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 overflow-hidden p-12" style={{ opacity: ws.opacity / 100 }}>
-        <img src="/assets/logo.png" alt="" className="w-full h-full object-contain" />
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 overflow-hidden p-12" style={{ transform: `rotate(${ws.rotation || 0}deg)` }}>
+        <img src={ws.imageUrl || "/assets/logo.png"} alt="Watermark Logo" className="max-w-[70%] max-h-[70%] object-contain" style={{ opacity: ws.opacity / 100 }} />
       </div>
     );
   }

@@ -77,24 +77,37 @@ export const FascicleWatermarkSettingsModal: React.FC<Props> = ({ isOpen, onClos
                     borderColor: settings.type === 'image' ? 'var(--accent-color)' : 'var(--border-color)',
                     color: settings.type === 'image' ? 'var(--accent-color)' : 'var(--text-muted)'
                   }}>
-                  Logo
+                  Logo / Resim
                 </button>
               </div>
             </div>
 
-            {settings.type === 'text' && (
+            {settings.type === 'text' ? (
               <>
                 <div>
-                  <label className="block text-xs text-[var(--text-muted)] mb-1">Filigran Metni</label>
+                  <div className="flex justify-between items-center mb-1">
+                    <label className="block text-xs text-[var(--text-muted)]">Filigran Metni</label>
+                    <div className="flex gap-1 text-[10px]">
+                      {['TASLAK', 'BİZİM OKUL', 'GİZLİ', 'bdmind'].map((preset) => (
+                        <button
+                          key={preset}
+                          onClick={() => handleChange('text', preset)}
+                          className="px-1.5 py-0.5 rounded bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:text-[var(--accent-color)] border border-[var(--border-color)]"
+                        >
+                          {preset}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   <input type="text" value={settings.text} onChange={e => handleChange('text', e.target.value)}
-                    className="w-full bg-[var(--bg-inset)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-[var(--radius-premium)] px-4 py-3 transition-all" />
+                    className="w-full bg-[var(--bg-inset)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-[var(--radius-premium)] px-4 py-3 transition-all font-bold" />
                 </div>
                 <div>
                   <label className="block text-xs text-[var(--text-muted)] mb-1">Yazı Rengi</label>
                   <div className="flex gap-2">
-                    {['#cbd5e1', '#94a3b8', '#64748b', '#475569', '#000000', '#ef4444', '#3b82f6', '#10b981'].map(c => (
+                    {['#cbd5e1', '#94a3b8', '#64748b', '#475569', '#000000', '#ef4444', '#3b82f6', '#10b981', '#8b5cf6'].map(c => (
                       <button key={c} onClick={() => handleChange('color', c)}
-                        className="w-8 h-8 rounded-full border-2 transition-all"
+                        className="w-7 h-7 rounded-full border-2 transition-all"
                         style={{
                           backgroundColor: c,
                           borderColor: settings.color === c ? 'var(--accent-color)' : 'transparent'
@@ -105,20 +118,40 @@ export const FascicleWatermarkSettingsModal: React.FC<Props> = ({ isOpen, onClos
                 <div>
                   <label className="block text-xs text-[var(--text-muted)] mb-1">Yazı Boyutu: {settings.fontSize}px</label>
                   <input type="range" min="16" max="120" value={settings.fontSize} onChange={e => handleChange('fontSize', parseInt(e.target.value))}
-                    className="w-full" />
-                </div>
-                <div>
-                  <label className="block text-xs text-[var(--text-muted)] mb-1">Dönüş Açısı: {settings.rotation}°</label>
-                  <input type="range" min="-90" max="90" value={settings.rotation} onChange={e => handleChange('rotation', parseInt(e.target.value))}
-                    className="w-full" />
+                    className="w-full accent-[var(--accent-color)]" />
                 </div>
               </>
+            ) : (
+              <div className="space-y-3">
+                <label className="block text-xs text-[var(--text-muted)]">Logo Resim Adresi (URL) veya Görsel Seçimi</label>
+                <input
+                  type="text"
+                  placeholder="https://... veya Varsayılan Logo"
+                  value={settings.imageUrl || ''}
+                  onChange={e => handleChange('imageUrl', e.target.value)}
+                  className="w-full bg-[var(--bg-inset)] border border-[var(--border-color)] text-[var(--text-primary)] rounded-[var(--radius-premium)] px-4 py-2.5 text-xs transition-all"
+                />
+                <div className="flex gap-2 text-xs">
+                  <button
+                    onClick={() => handleChange('imageUrl', '/assets/logo.png')}
+                    className="px-3 py-1.5 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-primary)] hover:border-[var(--accent-color)] font-medium"
+                  >
+                    Varsayılan bdmind Logosu
+                  </button>
+                </div>
+              </div>
             )}
 
             <div>
-              <label className="block text-xs text-[var(--text-muted)] mb-1">Opaklık: {settings.opacity}%</label>
-              <input type="range" min="1" max="30" value={settings.opacity} onChange={e => handleChange('opacity', parseInt(e.target.value))}
-                className="w-full" />
+              <label className="block text-xs text-[var(--text-muted)] mb-1">Dönüş Açısı: {settings.rotation}°</label>
+              <input type="range" min="-90" max="90" value={settings.rotation} onChange={e => handleChange('rotation', parseInt(e.target.value))}
+                className="w-full accent-[var(--accent-color)]" />
+            </div>
+
+            <div>
+              <label className="block text-xs text-[var(--text-muted)] mb-1">Opaklık (Saydamlık): %{settings.opacity}</label>
+              <input type="range" min="1" max="40" value={settings.opacity} onChange={e => handleChange('opacity', parseInt(e.target.value))}
+                className="w-full accent-[var(--accent-color)]" />
             </div>
           </div>
         </div>
