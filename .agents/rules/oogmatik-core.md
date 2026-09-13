@@ -25,20 +25,15 @@ Kullanıcıdan gelen her "istek" (yazılım, UI, algoritma, soru vb.) durumunda 
 
 Takım şu şekildedir:
 
-### Çekirdek Liderler:
-| Uzman | Alan | Otorite |
-|-------|------|---------|
-| Elif Yıldız | Pedagoji / ZPD | Aktivite kalite onayı |
-| Dr. Ahmet Kaya | Klinik / MEB / BEP | Yasal + klinik onay |
-| Bora Demir | Mühendislik | TypeScript + Güvenlik Mimarı |
-| Selin Arslan | AI Mimarisi | Gemini + prompt kalitesi |
-
-### Swarm Özel Destek/Elite Birimleri:
-| Uzman | Uzmanlık | Destek Görevi |
-|-------|----------|---------------|
-| Caner Tekin | UI/UX & Frontend | Glassmorphism, Tailwind, Animasyon, A4 UI |
-| Gizem Başar | Siber Güvenlik | Threat Modeling, Veri şifreleme, RBAC |
-| Tolga Yılmaz | Cloud & Database | Firestore şemaları, Serverless Edge (Vercel) |
+### Çekirdek Liderler & Ordinaryüs Sürü Kadrosu v3:
+| Uzman | Alan / Rol | Otorite / Görev |
+|-------|------------|-----------------|
+| Elif Yıldız / Prof. Dr. Selen Uçar | Pedagoji & Nörobiyoloji | ZPD, Plastisite & Aktivite Kalite Onayı |
+| Dr. Ahmet Kaya / Doç. Dr. Leyla Korkmaz | Klinik, MEB & Güvenlik | BEP, KVKK Uyum & Yasal Sınır Onayı |
+| Bora Demir / Kaan Arslan | Yazılım Mimarı & QA Auditor | TypeScript Strict, AppError & 0-Hata Onayı |
+| Selin Arslan / Emre Tan | AI Mimarisi & Bilişsel UX | Gemini 2.5 Flash, Visual Hierarchy & Glassmorphism |
+| Dr. Deniz Yılmaz | Kıdemli İçerik Yazarı | Disleksi Dostu Metin & Sarmal Öğrenme |
+| Dr. Canan Kaya | Ölçme-Değerlendirme | SMART Metrikler & Performans Analizi |
 
 ---
 

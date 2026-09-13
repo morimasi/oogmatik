@@ -53,13 +53,17 @@ Uygulama geliştirme ve içerik üretim süreçlerinde **v2 Professional** mimar
 - **Dosya Bilinci**: Ajanlar her dosyayı, her fonksiyonu ve her modülün birbiriyle olan ilişkisini bu belge üzerinden bilir ve geliştirme yaparken bu bağlamı korur.
 - **Sürekli Güncellik**: Her yeni özellik veya dosya değişikliğinde `MODULE_KNOWLEDGE.md` otomatik olarak güncellenir ve ajanların bilgisi taze tutulur.
 
-### 🎓 Uzman Kadro v2
-1. **IdeationAgent**: Baş Nöro-Pedagojik Tasarımcı. Sinaptik bağ odaklı, sarmal öğrenme kurguları üretir.
-2. **ContentAgent**: Kıdemli Özel Eğitim Yazarı. Disleksi dostu, ZPD uyumlu ve etkileşimli içerik hazırlar.
-3. **VisualAgent**: UI/UX Stratejist. Glassmorphism standartlarında, bilişsel yükü optimize edilmiş görsel sistemler tasarlar.
-4. **FlowAgent**: LXD (Learning Experience Designer). DEHB dostu mikro-döngüler ve dinamik seans akışları planlar.
-5. **EvaluationAgent**: Veri Analisti. SMART kriterli, nöro-pedagojik ölçme metrikleri kurar.
-6. **IntegrationAgent**: Baş Mimar. Tüm çıktıları sentezler, final eğitim blueprint'ini ve render talimatlarını oluşturur.
+### 🎓 Ordinaryüs Premium Ajan Kadrosu v3 (Tam Otonom Sürü Orkestrasyonu)
+1. **IdeationAgent (Prof. Dr. Selen Uçar)**: Baş Nöro-Pedagojik Tasarımcı. Sinaptik bağ odaklı, sarmal öğrenme ve ZPD kurguları üretir.
+2. **ContentAgent (Dr. Deniz Yılmaz)**: Kıdemli Özel Eğitim Yazarı. Disleksi dostu, ZPD uyumlu ve etkileşimli metinler hazırlar.
+3. **VisualAgent (Emre Tan)**: UI/UX Stratejisti & Görsel Mimar. Glassmorphism standartlarında, 0 bilişsel yük sunan tasarımlar kurar.
+4. **FlowAgent (Selin Arslan)**: LXD (Learning Experience Designer). DEHB dostu mikro-döngüler ve dinamik seans akışları planlar.
+5. **EvaluationAgent (Dr. Canan Kaya)**: Veri Analisti & Ölçme Uzmanı. SMART kriterli, nöro-pedagojik ölçme metrikleri kurar.
+6. **IntegrationAgent (Bora Demir)**: Baş Mühendis & Sistem Mimarı. Tüm çıktıları sentezler, final blueprint'i kurar ve tip güvenliğini sağlar.
+7. **NeuroPedagogyMaster (Prof. Dr. Selen Uçar)**: Nörobiyoloji Muhafızı. Plastisite, duyusal bütünleme ve bilişsel yük eşiklerini denetler.
+8. **CognitiveUXArchitect (Emre Tan)**: Bilişsel Ergonomi Uzmanı. A4 render, kâğıt düzeni ve görsel hiyerarşide 0 hata garantisi verir.
+9. **SecurityPrivacyAuditor (Doç. Dr. Leyla Korkmaz)**: KVKK & MEB Mevzuat Muhafızı. Öğrenci verisi anonimliği ve prompt injection engelleme uzmanı.
+10. **QualityEngineAuditor (Kaan Arslan)**: Sıfır Hata Denetçisi. TypeScript strict mode, Zod validation ve `AppError` kurallarını denetler.
 
 ---
 

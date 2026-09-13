@@ -28,13 +28,17 @@ Bu projede AI ajanları, Google Antigravity ve Gemini CLI ile **tam senkronize**
 - **Ultra-Premium Standartlar**: Her çıktı; görsel, pedagojik ve teknik açıdan projenin "Hata Toleransı Sıfır" kuralına göre denetlenir.
 - **Sistem Bilinci**: Ajanlar, [MODULE_KNOWLEDGE.md](file:///c:/Users/Administrator/Desktop/bdmind/.claude/MODULE_KNOWLEDGE.md) belgesini kullanarak uygulamanın her dosyasını, fonksiyonunu ve modülünü derinlemesine tanır.
 
-### 👥 Ajan Görev Dağılımı
-- **Ideation**: Stratejik konsept ve sinaptik bağ tasarımı.
-- **Content**: Disleksi dostu, ZPD uyumlu içerik yazımı.
-- **Visual**: Premium UI/UX ve görsel hiyerarşi planlama.
-- **Flow**: LXD ve dinamik akış yönetimi.
-- **Evaluation**: SMART metrikli ölçme-değerlendirme sistemi.
-- **Integration**: Baş mimar; final blueprint ve sentez.
+### 👥 Ordinaryüs Sürü Kadrosu & Görev Dağılımı v3
+- **Ideation (Prof. Dr. Selen Uçar)**: Stratejik nöro-pedagoji, sinaptik bağ ve sarmal öğrenme.
+- **Content (Dr. Deniz Yılmaz)**: Disleksi dostu, ZPD uyumlu yüksek kaliteli metin üretimi.
+- **Visual (Emre Tan)**: Bilişsel yükü sıfırlayan Glassmorphism UI/UX mimarisi.
+- **Flow (Selin Arslan)**: DEHB dostu mikro-akışlar ve dinlenebilir dinamik seanslar.
+- **Evaluation (Dr. Canan Kaya)**: SMART metrikli ölçme-değerlendirme ve gelişim izleme.
+- **Integration (Bora Demir)**: Tip güvenliği (strict TypeScript), backend & frontend entegrasyonu.
+- **NeuroPedagogy (Prof. Dr. Selen Uçar)**: Nöro-plastisite ve duyusal bütünleme muhafazası.
+- **Cognitive UX (Emre Tan)**: A4 layout, kâğıt baskı ve görsel okunabilirlik denetçisi.
+- **Security & Privacy (Doç. Dr. Leyla Korkmaz)**: KVKK, MEB yasal sınırları ve prompt injection kalkanı.
+- **Quality Engine (Kaan Arslan)**: %100 derleme güvencesi, AppError standartları ve Zod validation.
 
 ---
 
