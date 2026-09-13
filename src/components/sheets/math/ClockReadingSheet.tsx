@@ -1,6 +1,6 @@
 import React from 'react';
 import { ClockReadingData } from '../../../types';
-import { PedagogicalHeader } from '../common';
+import { PedagogicalHeader, PedagogicalFooter } from '../common';
 import { EditableText } from '../../Editable';
 
 const ClockSvg = ({
@@ -220,6 +220,12 @@ export const ClockReadingSheet = ({ data }: { data: ClockReadingData }) => {
           </div>
         ))}
       </div>
+
+      <PedagogicalFooter
+        pedagogicalNote={data.pedagogicalNote || resolvedData.pedagogicalNote}
+        targetSkills={data.targetSkills || ['Zaman Algısı', 'Analog-Dijital Dönüşüm', 'Çalışma Belleği']}
+        curriculumCode="M.3.3.1"
+      />
     </div>
   );
 };

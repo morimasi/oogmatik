@@ -595,5 +595,48 @@ export const ImageDisplay = React.memo(
   }
 );
 
+export const TeacherNoteCard: React.FC<{ note?: string; className?: string }> = ({ note, className = '' }) => {
+  if (!note) return null;
+  return (
+    <div className={`p-2.5 rounded-xl border border-indigo-200/80 bg-gradient-to-r from-indigo-50/70 to-purple-50/70 ${className}`}>
+      <div className="flex items-center gap-1.5 mb-1">
+        <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse"></span>
+        <span className="text-[9px] font-black text-indigo-950 uppercase tracking-widest font-['Lexend']">
+          Öğretmen ve Uzman Notu
+        </span>
+      </div>
+      <p className="text-[9px] text-indigo-900/90 leading-relaxed italic font-['Lexend']">
+        {note}
+      </p>
+    </div>
+  );
+};
 
-
+export const PedagogicalFooter: React.FC<{
+  targetSkills?: string[];
+  pedagogicalNote?: string;
+  curriculumCode?: string;
+  className?: string;
+}> = ({ targetSkills, pedagogicalNote, curriculumCode, className = '' }) => {
+  return (
+    <div className={`mt-auto pt-2 border-t border-zinc-200 flex flex-col gap-1.5 ${className}`}>
+      {pedagogicalNote && <TeacherNoteCard note={pedagogicalNote} />}
+      <div className="flex justify-between items-center text-[8px] font-bold text-zinc-500 uppercase tracking-wider font-['Lexend']">
+        <div className="flex items-center gap-2">
+          <span className="text-zinc-400">bdmind • Özel Eğitim Materyali</span>
+          {curriculumCode && (
+            <span className="bg-zinc-100 text-zinc-600 px-1.5 py-0.5 rounded border border-zinc-200">
+              MEB: {curriculumCode}
+            </span>
+          )}
+        </div>
+        {targetSkills && targetSkills.length > 0 && (
+          <div className="flex items-center gap-1">
+            <span className="text-zinc-400">Bilişsel Hedef:</span>
+            <span className="text-indigo-600 font-extrabold">{targetSkills.slice(0, 3).join(', ')}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
