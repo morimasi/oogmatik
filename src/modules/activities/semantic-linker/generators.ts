@@ -314,7 +314,7 @@ export const generateSemanticLinkerAI = async (
       difficulty: 'Orta',
     };
   } catch (err) {
-    logWarn('[SemanticLinkerAI] AI generation failed, using offline fallback', err);
+    logWarn('[SemanticLinkerAI] AI generation failed, using offline fallback', { error: String(err) });
     return generateSemanticLinkerOffline(safeCount);
   }
 };

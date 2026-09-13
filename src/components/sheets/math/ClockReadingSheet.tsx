@@ -222,7 +222,7 @@ export const ClockReadingSheet = ({ data }: { data: ClockReadingData }) => {
       </div>
 
       <PedagogicalFooter
-        pedagogicalNote={data.pedagogicalNote || resolvedData.pedagogicalNote}
+        pedagogicalNote={(data as any)?.pedagogicalNote || resolvedData?.pedagogicalNote}
         targetSkills={data.targetSkills || ['Zaman Algısı', 'Analog-Dijital Dönüşüm', 'Çalışma Belleği']}
         curriculumCode="M.3.3.1"
       />
