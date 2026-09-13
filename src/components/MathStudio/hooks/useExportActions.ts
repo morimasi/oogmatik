@@ -34,7 +34,7 @@ export const useExportActions = (deps: ExportDeps) => {
             config: deps.mode === 'drill' ? deps.drillConfig : deps.problemConfig,
             pageConfig: deps.pageConfig,
             themeConfig: deps.themeConfig ?? {},
-            items: deps.mode === 'drill' ? deps.generatedDrills : deps.generatedProblems,
+            items: (deps.mode === 'drill' ? deps.generatedDrills : deps.generatedProblems) as unknown as Record<string, unknown>[],
             isMathStudio: true,
             title: deps.pageConfig.title,
             instruction: deps.instruction ?? 'Aşağıdaki matematik problemlerini çözün.',

@@ -118,10 +118,10 @@ export const estimateItemHeight = (config: MathDrillConfig | MathProblemConfig):
 export const calculateItemsPerPage = (config: MathDrillConfig | MathProblemConfig, pageMargin: number): number => {
   const usableHeight = A4_HEIGHT_PX - HEADER_HEIGHT - FOOTER_HEIGHT - pageMargin * 2;
   const itemH = estimateItemHeight(config);
-  const gapY = config.gap || (('problemStyle' in config) ? 24 : 12);
+  const gapY = ('gap' in config ? config.gap : undefined) || (('problemStyle' in config) ? 24 : 12);
 
   const rows = Math.floor(usableHeight / (itemH + gapY));
-  const cols = config.cols || 1;
+  const cols = ('cols' in config ? config.cols : undefined) || 1;
 
   const totalItems = Math.max(1, rows * cols);
   return Math.max(1, Math.floor(totalItems * 0.95));
