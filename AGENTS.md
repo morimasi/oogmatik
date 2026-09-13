@@ -224,10 +224,17 @@ Find and fix all activities across 4 categories (Görsel & Mekansal, Okuduğunu 
   - **VISUAL_INTERPRETATION**: sheet artık ÇSS (şıklar) ve açık uçlu/5N1K (yazma alanı) soru tiplerini render ediyor (yalnızca D/Y değil); konu slug'ları Türkçe etiketlere çevriliyor; `generateImage=false` iken görsel API çağrısı yapılmıyor; AI çıktı doğrulaması eklendi
   - **STORY_COMPREHENSION**: `QUESTION_TYPES`'a '5n1k' + 'open-ended' eklendi (rozet/renk); 5N1K prompt örneği şema ile tutarlı (bireysel tipler); 'fill' dalı `q.question` fallback'i
   - **SEMANTIC_LINKER**: `ACTIVITY_CATEGORIES` Okuma & Dil kategorisine eklendi (önceden hiçbir kategoride yoktu); `SemanticLinkerSheet.tsx` disleksi dostu temiz A4 bileşeni yazıldı ve `LegacyRenderer`'a bağlandı; öğrenci kâğıdında cevabı yeşille ifşa eden bug düzeltildi; offline generator 18 zengin kavram çiftiyle donatıldı; AI jeneratörüne fallback ve `pedagogicalNote` eklendi; `tests/semanticLinkerSmoke.test.ts` (2 test) yazıldı ve geçti.
-- **Doğrulama**: `tsc --noEmit` 0 hata, `npm run build` başarılı; `tests/semanticLinkerSmoke.test.ts` ve `tests/okudugunuAnlamaOfflineSmoke.test.ts` geçiyor.
+- **Global Kategori ve Yönlendirme Bütünlüğü (Faz 1 & Faz 2)**:
+  - 4 yetim aktivite (`ALGORITHM_GENERATOR` → math-logic, `STORY_SEQUENCING` → reading-comprehension, `INFOGRAPHIC_5W1H_BOARD` → reading-comprehension, `LETTER_MAZE_TEST` → reading-verbal) `src/constants.ts` içine eklendi; 65 aktivitenin 65'i de kategorize edildi.
+  - `src/constants.ts` dosyasındaki döngüsel import kırıldı (`./types/activity`).
+  - `SheetRenderer.tsx` tüm `INFOGRAPHIC_*` türlerini `InfographicRenderer`'a bağladı.
+  - `registry.ts`'te `SHORT_ANSWER`, `INFOGRAPHIC_CONCEPT_MAP` ve `INFOGRAPHIC_5W1H_BOARD` zengin offline jeneratörlere bağlandı.
+  - `generateOfflineFallback` placeholder metni yerine 4 bölümlü zengin pedagojik A4 blokları üretecek şekilde yeniden yazıldı.
+  - `tests/categoryWiringSmoke.test.ts` (5 test) eklendi; toplam 11 duman testi (smoke test) başarıyla geçiyor.
+- **Doğrulama**: `tsc --noEmit` 0 hata, `npm run build` başarılı; tüm smoke testler geçiyor.
 
 ### Remaining (accessible from UI, not yet fixed)
-- *Tüm arayüzden erişilebilir 4 kategori etkinliği başarıyla denetlendi ve onarıldı.*
+- *Tüm 65 arayüz aktivitesi eksiksiz kategorize edilmiş, render yönlendirmesi ve offline jeneratörleri tamamlanmıştır.*
 
 ### Not User-Accessible (hidden from sidebar)
 - PUNCTUATION_MAZE, FIND_IDENTICAL_WORD, THEMATIC_ODD_ONE_OUT — have generators but no ACTIVITIES entry; not urgent

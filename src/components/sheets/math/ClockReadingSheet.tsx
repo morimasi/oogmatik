@@ -177,10 +177,15 @@ export const ClockReadingSheet = ({ data }: { data: ClockReadingData }) => {
                     {clock.options.map((opt: any, oi: number) => {
                       const [h, m] = opt.split(':').map(Number);
                       const isCorrect = h === clock.hour && m === clock.minute;
+                      const showAnswerKey = Boolean(settings?.showAnswerKey);
                       return (
                         <div
                           key={oi}
-                          className={`p-1 rounded-lg border-2 transition-all ${isCorrect ? 'border-emerald-500 bg-emerald-50' : 'border-zinc-200 bg-white'}`}
+                          className={`p-1 rounded-lg border-2 transition-all ${
+                            showAnswerKey && isCorrect
+                              ? 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-200'
+                              : 'border-zinc-200 bg-white hover:border-indigo-300'
+                          }`}
                         >
                           <ClockSvg hour={h || 0} minute={m || 0} showNumbers={showNumbers} showTicks={showTicks} size={52} />
                         </div>

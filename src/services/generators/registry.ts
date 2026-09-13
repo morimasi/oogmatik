@@ -466,11 +466,11 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
   },
   [ActivityType.INFOGRAPHIC_CONCEPT_MAP]: {
     ai: withAI(ActivityType.INFOGRAPHIC_CONCEPT_MAP),
-    offline: withOffline(ActivityType.INFOGRAPHIC_CONCEPT_MAP),
+    offline: offlineGenerators.generateOfflineKavramHaritasi,
   },
   [ActivityType.INFOGRAPHIC_5W1H_BOARD]: {
     ai: withAI(ActivityType.INFOGRAPHIC_5W1H_BOARD),
-    offline: withOffline(ActivityType.INFOGRAPHIC_5W1H_BOARD),
+    offline: offlineGenerators.generateOfflineFiveWOneH,
   },
   [ActivityType.SINAV]: {
     ai: aiGenerators.generateSinavFromAI,
@@ -541,7 +541,7 @@ export const ACTIVITY_GENERATOR_REGISTRY: Partial<Record<ActivityType, Generator
 
   // 6. DİĞER & EKSİKSİZ YAPILANDIRILMIŞ AKTİVİTELER
   [ActivityType.WORKBOOK]: { ai: withAI(ActivityType.WORKBOOK), offline: withOffline(ActivityType.WORKBOOK) },
-  [ActivityType.SHORT_ANSWER]: { ai: aiGenerators.generateShortAnswerFromAI, offline: withOffline(ActivityType.SHORT_ANSWER) },
+  [ActivityType.SHORT_ANSWER]: { ai: aiGenerators.generateShortAnswerFromAI, offline: offlineGenerators.generateOfflineShortAnswer },
   [ActivityType.PREMIUM_STUDIO]: { ai: withAI(ActivityType.PREMIUM_STUDIO), offline: withOffline(ActivityType.PREMIUM_STUDIO) },
   [ActivityType.SUPER_STUDIO]: { ai: withAI(ActivityType.SUPER_STUDIO), offline: withOffline(ActivityType.SUPER_STUDIO) },
   [ActivityType.ACTIVITY_STUDIO]: { ai: withAI(ActivityType.ACTIVITY_STUDIO), offline: withOffline(ActivityType.ACTIVITY_STUDIO) },

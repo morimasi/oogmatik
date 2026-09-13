@@ -646,8 +646,9 @@ export const SheetRenderer = React.memo(
 
     if (
       (activityType === ActivityType.INFOGRAPHIC_STUDIO ||
-        activityType === ActivityType.INFOGRAPHIC_CONCEPT_MAP ||
-        activityType === ActivityType.INFOGRAPHIC_5W1H_BOARD) &&
+        (activityType &&
+          String(activityType).startsWith('INFOGRAPHIC_') &&
+          activityType !== ActivityType.INFOGRAPHIC_SHORT_ANSWER)) &&
       resolvedData
     ) {
       return withWrapper(<InfographicRenderer data={resolvedData as unknown as any} settings={settings} />);

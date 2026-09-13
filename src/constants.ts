@@ -1,4 +1,4 @@
-import { ActivityCategory, ActivityType } from './types';
+import { ActivityCategory, ActivityType } from './types/activity';
 
 // Difficulty Levels
 export const DIFFICULTY_OPTIONS = [
@@ -50,7 +50,9 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.STORY_COMPREHENSION,
       ActivityType.STORY_ANALYSIS,
       ActivityType.MISSING_PARTS,
+      ActivityType.STORY_SEQUENCING,
       // İnfografik Eklentileri
+      ActivityType.INFOGRAPHIC_5W1H_BOARD,
       ActivityType.INFOGRAPHIC_STORY_MAP,
       ActivityType.INFOGRAPHIC_CHARACTER_ANALYSIS,
       ActivityType.PREMIUM_STUDIO, // Süper Türkçe Stüdyosu
@@ -87,6 +89,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
       ActivityType.LETTER_CONNECT,
       ActivityType.HARF_BAGLAMA,
       ActivityType.SEMANTIC_LINKER,
+      ActivityType.LETTER_MAZE_TEST,
       ActivityType.KELIME_CUMLE,
       ActivityType.SINAV,
       ActivityType.SARI_KITAP_STUDIO,
@@ -100,6 +103,7 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
     activities: [
       ActivityType.FINANCIAL_MARKET_CALCULATOR,
       ActivityType.BRAIN_TEASERS,
+      ActivityType.ALGORITHM_GENERATOR,
       ActivityType.APARTMENT_LOGIC_PUZZLE,
       ActivityType.NUMBER_LOGIC_RIDDLES,
       ActivityType.REAL_LIFE_MATH_PROBLEMS,
