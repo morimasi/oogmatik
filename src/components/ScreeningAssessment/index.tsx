@@ -17,6 +17,8 @@ import { useToastStore } from '../../store/useToastStore';
 import type { ScreeningResult } from '../../types/screening';
 import type { SubTestResult } from '../../types';
 
+import { PrintableScreeningReport } from './components/shared/PrintableScreeningReport';
+
 interface ScreeningAssessmentProps {
   onClose: () => void;
   userRole: 'teacher' | 'admin' | 'parent';
@@ -42,8 +44,10 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
     selectedStudentConcerns,
   } = useScreeningStore();
   const toast = useToastStore();
-  const { currentScreening, handleSaveScreening, handleDownloadReport, handlePrintReport, handleShareResults, handleShareScreeningResult } =
+  const { currentScreening, screeningData, handleSaveScreening, handleDownloadReport, handlePrintReport, handleShareResults, handleShareScreeningResult } =
     useScreeningAssessment();
+
+  const reportScreening = currentScreening || (screeningData && screeningData.length > 0 ? screeningData[0] : null);
 
   useEffect(() => {
     setIsAdvancedScreeningOpen(true);
@@ -99,7 +103,7 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
               <ReportActions
                 onSave={handleSaveScreening}
                 onDownload={() => handleDownloadReport(currentScreening)}
-                onPrint={handlePrintReport}
+                onPrint={() => handlePrintReport(currentScreening)}
                 onShare={() => handleShareResults(currentScreening.id)}
                 onClose={onClose}
               />
@@ -213,6 +217,28 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
           </span>
         </div>
       </motion.div>
+
+      {/* Off-screen Printable Report Container (Always measurable, 100% full content capture) */}
+      {reportScreening && (
+        <div style={{ position: 'fixed', left: '-9999px', top: '0', width: '210mm', opacity: 1, pointerEvents: 'none', zIndex: -100 }}>
+          <PrintableScreeningReport
+            screening={reportScreening}
+            aiAnalysis={{
+              letter: reportScreening.aiAnalysis || 'Tarama sonuçları ve gelişim düzeyi değerlendirildi.',
+              strengths: reportScreening.strengths || [],
+              weaknesses: reportScreening.weaknesses || [],
+              actionSteps: reportScreening.recommendations || [],
+            }}
+            professionalReport={{
+              summary: reportScreening.aiAnalysis || 'Gelişim alanları belirlendi.',
+              recommendations: reportScreening.recommendations || [],
+              cautions: reportScreening.weaknesses || [],
+              strengths: reportScreening.strengths || [],
+              bePGoals: reportScreening.recommendations || [],
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 };

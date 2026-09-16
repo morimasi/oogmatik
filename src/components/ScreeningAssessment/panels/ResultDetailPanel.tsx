@@ -358,14 +358,6 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
         }}
         worksheetTitle={`Tarama Raporu: ${currentScreening.studentName}`}
       />
-
-      <div className="sr-only print:not-sr-only print:block">
-        <PrintableScreeningReport
-          screening={currentScreening}
-          aiAnalysis={aiAnalysis}
-          professionalReport={professionalReport}
-        />
-      </div>
     </div>
   );
 };

@@ -230,32 +230,41 @@ export function useScreeningAssessment() {
 
   const handleDownloadReport = useCallback(async (data: ScreeningResult) => {
     try {
-      toast.info('Rapor indiriliyor...');
+      toast.info('Rapor PDF olarak hazırlanıyor...');
       store.setCurrentScreening(data);
+      // State ve DOM güncellenmesi için kısa bir bekleme
+      await new Promise((resolve) => setTimeout(resolve, 200));
 
-      const targetEl = document.querySelector('#printable-report');
-      if (targetEl) {
-        await printService.generatePdf('#printable-report', `Disleksi_Tarama_${data.studentName}`, { action: 'download' });
+      const blob = await printService.generatePdf('#printable-report', `Disleksi_Tarama_${data.studentName}`, {
+        action: 'download',
+        paperSize: 'A4',
+        quality: 'high',
+      });
+
+      if (blob) {
+        toast.success('Tarama raporu PDF olarak indirildi.');
       } else {
-        // If not in DOM, switch view briefly or trigger download via JSON report summary
-        const summaryText = `Bursa Disleksi EduMind - Tarama Raporu\nÖğrenci: ${data.studentName} (${data.age} yaş, ${data.grade})\nTarih: ${new Date(data.date).toLocaleDateString('tr-TR')}\nGenel Skor: %${data.overallScore}\nRisk Seviyesi: ${data.riskLevel}\nAnaliz: ${data.aiAnalysis || 'N/A'}`;
-        const blob = new Blob([summaryText], { type: 'text/plain;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Tarama_Raporu_${data.studentName}.txt`;
-        a.click();
-        URL.revokeObjectURL(url);
-        toast.success('Rapor metni indirildi.');
+        toast.error('PDF üretilemedi.');
       }
-    } catch {
-      window.print();
+    } catch (error) {
+      toast.error('PDF üretilirken bir hata oluştu.');
     }
   }, [toast, store]);
 
-  const handlePrintReport = useCallback(() => {
-    window.print();
-  }, []);
+  const handlePrintReport = useCallback(async (data?: ScreeningResult) => {
+    try {
+      const targetData = data || store.currentScreening;
+      if (targetData) {
+        store.setCurrentScreening(targetData);
+      }
+      toast.info('Baskı hazırlanıyor...');
+      await new Promise((resolve) => setTimeout(resolve, 200));
+
+      await printService.print('#printable-report', 'A4');
+    } catch (error) {
+      window.print();
+    }
+  }, [toast, store]);
 
   const getScoreColor = (score: number): string => {
     if (score >= 70) return 'text-rose-500';

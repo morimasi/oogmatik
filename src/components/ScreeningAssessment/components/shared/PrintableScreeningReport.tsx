@@ -23,10 +23,17 @@ export const PrintableScreeningReport: React.FC<PrintableScreeningReportProps> =
   return (
     <div
       id="printable-report"
-      className="bg-white text-zinc-900 font-lexend p-10 max-w-[210mm] mx-auto print:p-6 print:max-w-none print:w-full print:m-0"
+      className="printable-screening-report print-exact worksheet-page a4-page bg-white text-zinc-900 font-lexend p-8 max-w-[210mm] mx-auto print:p-6 print:max-w-none print:w-full print:m-0"
       style={{
         WebkitPrintColorAdjust: 'exact',
+        printColorAdjust: 'exact',
         colorAdjust: 'exact',
+        backgroundColor: '#ffffff',
+        color: '#18181b',
+        width: '210mm',
+        minHeight: '297mm',
+        boxSizing: 'border-box',
+        display: 'block',
       }}
     >
       {/* Kurumsal Başlık */}
