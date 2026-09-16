@@ -28,12 +28,23 @@ const SCORE_COLORS: Record<typeof SCORE_KEYS[number], string> = {
 interface AnalysisModuleProps {
   data: ProfileData;
   onShare?: () => void;
+  targetAssessmentId?: string | null;
 }
 
-export const AnalysisModule: React.FC<AnalysisModuleProps> = ({ data, onShare }) => {
+export const AnalysisModule: React.FC<AnalysisModuleProps> = ({ data, onShare, targetAssessmentId }) => {
   const { loading } = data;
   const assessments = data.assessments as unknown as SavedAssessment[];
   const [selectedAssessment, setSelectedAssessment] = useState<SavedAssessment | null>(null);
+
+  // Dışarıdan veya paylaşımlardan hedef bir değerlendirme ID'si geldiyse otomatik aç
+  React.useEffect(() => {
+    if (targetAssessmentId && assessments.length > 0) {
+      const found = assessments.find(a => a.id === targetAssessmentId);
+      if (found) {
+        setSelectedAssessment(found);
+      }
+    }
+  }, [targetAssessmentId, assessments]);
   const [sortBy, setSortBy] = useState<SortKey>('date');
   const [filterStudent, setFilterStudent] = useState('');
   const { notes: analysisNotes, addNote: fsAddNote, editNote: fsEditNote, deleteNote: fsDeleteNote } = useFirestoreNotes('analysis');

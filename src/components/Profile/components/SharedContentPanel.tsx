@@ -18,7 +18,7 @@ interface SharedContentPanelProps {
   items: SharedContent[];
   worksheets?: SavedWorksheet[];
   loading: boolean;
-  onOpenModule: (moduleType: SharedContent['moduleType']) => void;
+  onOpenModule: (moduleType: SharedContent['moduleType'], contentId?: string) => void;
   onLoadWorksheet?: (ws: SavedWorksheet) => void;
   onRemoveShare: (shareId: string) => Promise<boolean>;
   onMarkAsRead?: (shareId: string) => Promise<boolean>;
@@ -73,7 +73,7 @@ export const SharedContentPanel: React.FC<SharedContentPanelProps> = ({
                 key={item.id}
                 onClick={() => {
                   if (item.id && isUnread) onMarkAsRead?.(item.id);
-                  onOpenModule(item.moduleType);
+                  onOpenModule(item.moduleType, item.contentId);
                 }}
                 className={`relative flex items-center gap-4 p-5 rounded-2xl border-2 transition-all cursor-pointer hover:scale-[1.01] active:scale-[0.99] ${isUnread
                   ? 'bg-indigo-50 dark:bg-indigo-900/10 border-indigo-200 dark:border-indigo-800'

@@ -47,6 +47,7 @@ export const Profile: React.FC<ProfileProps> = ({
   onNavigateToCurriculum,
 }) => {
   const [activeTab, setActiveTab] = useState<ProfileTabId>('overview');
+  const [targetAssessmentId, setTargetAssessmentId] = useState<string | null>(null);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [sharingModule, setSharingModule] = useState<SharedModuleType>('overview');
   const [isSharing, setIsSharing] = useState(false);
@@ -102,6 +103,7 @@ export const Profile: React.FC<ProfileProps> = ({
           <AnalysisModule
             data={data}
             onShare={() => { setSharingModule('analysis'); setShareModalOpen(true); }}
+            targetAssessmentId={targetAssessmentId}
           />
         );
       case 'plans':
@@ -125,7 +127,10 @@ export const Profile: React.FC<ProfileProps> = ({
             items={sharedItems}
             worksheets={sharedWorksheets}
             loading={false}
-            onOpenModule={(moduleType) => setActiveTab(moduleType as ProfileTabId)}
+            onOpenModule={(moduleType, contentId) => {
+              if (contentId) setTargetAssessmentId(contentId);
+              setActiveTab(moduleType as ProfileTabId);
+            }}
             onLoadWorksheet={onLoadSaved}
             onRemoveShare={removeShare}
             onMarkAsRead={markAsRead}

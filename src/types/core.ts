@@ -500,6 +500,7 @@ export interface SavedAssessment {
   sharedByName?: string;
   sharedWith?: string | string[];
   originalAssessmentId?: string;
+  isArchived?: boolean;
 }
 
 export interface AssessmentReport {
