@@ -66,7 +66,7 @@ export const AnalyticsPanel: React.FC = () => {
             Bilişsel Alan Ortalamaları
           </h3>
           <div className="space-y-4">
-            {(Object.keys(analytics.categoryAverages) as EvaluationCategory[]).map((cat) => {
+            {(Object.keys(analytics?.categoryAverages || {}) as EvaluationCategory[]).map((cat) => {
               const score = analytics.categoryAverages[cat];
               const isLow = score < 50;
               const isMid = score >= 50 && score < 70;

@@ -292,8 +292,8 @@ export const screeningDataService = {
     results.forEach((r) => {
       riskDistribution[r.riskLevel] = (riskDistribution[r.riskLevel] || 0) + 1;
 
-      (Object.keys(r.categoryScores) as EvaluationCategory[]).forEach((cat) => {
-        const data = r.categoryScores[cat];
+      (Object.keys(r?.categoryScores || {}) as EvaluationCategory[]).forEach((cat) => {
+        const data = r.categoryScores?.[cat];
         if (data) {
           if (!categoryTotals[cat]) categoryTotals[cat] = { sum: 0, count: 0 };
           categoryTotals[cat]!.sum += data.score;
@@ -303,7 +303,7 @@ export const screeningDataService = {
     });
 
     const categoryAverages = {} as Record<EvaluationCategory, number>;
-    (Object.keys(categoryTotals) as EvaluationCategory[]).forEach((cat) => {
+    (Object.keys(categoryTotals || {}) as EvaluationCategory[]).forEach((cat) => {
       const t = categoryTotals[cat]!;
       categoryAverages[cat] = Math.round(t.sum / t.count);
     });

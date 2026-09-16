@@ -93,7 +93,7 @@ export const PrintableScreeningReport: React.FC<PrintableScreeningReportProps> =
             </tr>
           </thead>
           <tbody className="divide-y divide-zinc-200">
-            {(Object.keys(screening.categoryScores) as EvaluationCategory[]).map((cat) => {
+            {(Object.keys(screening?.categoryScores || {}) as EvaluationCategory[]).map((cat) => {
               const data = screening.categoryScores[cat];
               if (!data) return null;
               const isHigh = data.riskLevel === 'high';

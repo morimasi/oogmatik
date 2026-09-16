@@ -123,10 +123,10 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
     );
   }
 
-  const chartData = (Object.keys(currentScreening.categoryScores) as EvaluationCategory[]).map(
+  const chartData = (Object.keys(currentScreening?.categoryScores || {}) as EvaluationCategory[]).map(
     (key) => ({
       label: CATEGORY_LABELS[key] || key,
-      value: currentScreening.categoryScores[key]?.score ?? 0,
+      value: currentScreening.categoryScores?.[key]?.score ?? 0,
     })
   );
 
@@ -179,7 +179,7 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
         </div>
 
         <div className="space-y-2.5">
-          {(Object.keys(currentScreening.categoryScores) as EvaluationCategory[]).map(
+          {(Object.keys(currentScreening?.categoryScores || {}) as EvaluationCategory[]).map(
             (cat, i) => {
               const data = currentScreening.categoryScores[cat];
               if (!data) return null;

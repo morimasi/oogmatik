@@ -8,14 +8,14 @@ export interface AIAnalysisResult {
 
 export const assessmentEngineService = {
   buildAnalysisPrompt(result: ScreeningResult): string {
-    const riskSummary = (Object.keys(result.categoryScores) as EvaluationCategory[])
+    const riskSummary = (Object.keys(result?.categoryScores || {}) as EvaluationCategory[])
       .map((cat) => {
         const data = result.categoryScores[cat];
         return `${CATEGORY_LABELS[cat]}: %${data.score} (${data.riskLabel})`;
       })
       .join('\n');
 
-    const findings = (Object.keys(result.categoryScores) as EvaluationCategory[])
+    const findings = (Object.keys(result?.categoryScores || {}) as EvaluationCategory[])
       .flatMap((cat) => result.categoryScores[cat]?.findings ?? []);
 
     return `

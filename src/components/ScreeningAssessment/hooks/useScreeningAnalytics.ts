@@ -14,7 +14,7 @@ export function useScreeningAnalytics() {
 
   const categoryChartData = useMemo(() => {
     if (!analytics) return [];
-    return (Object.keys(analytics.categoryAverages) as EvaluationCategory[]).map(
+    return (Object.keys(analytics?.categoryAverages || {}) as EvaluationCategory[]).map(
       (cat) => ({
         label: CATEGORY_LABELS[cat] || cat,
         value: analytics.categoryAverages[cat],
