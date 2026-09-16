@@ -31,13 +31,13 @@ const mapScreeningToSavedAssessment = (screening: ScreeningResult, authUserId: s
     createdAt: new Date().toISOString(),
     report: {
       overallSummary: screening.aiAnalysis || 'Tarama sonuçları kaydedildi.',
-      scores: Object.entries(screening.categoryScores).reduce(
-        (acc, [key, value]) => ({ ...acc, [key]: value.score }),
+      scores: Object.entries(screening.categoryScores || {}).reduce(
+        (acc, [key, value]) => ({ ...acc, [key]: value?.score ?? 0 }),
         {} as Record<string, number>
       ),
-      chartData: Object.entries(screening.categoryScores).map(([key, value]) => ({
+      chartData: Object.entries(screening.categoryScores || {}).map(([key, value]) => ({
         label: key,
-        value: value.score,
+        value: value?.score ?? 0,
         fullMark: 100,
       })),
       analysis: {

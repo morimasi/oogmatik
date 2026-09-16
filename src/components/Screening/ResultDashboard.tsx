@@ -43,9 +43,9 @@ export const ResultDashboard: FC<Props> = ({
   const [savedId, _setSavedId] = useState<string | null>(null);
 
   // Prepare Chart Data
-  const chartData = Object.entries(result.categoryScores).map(([key, data]) => ({
+  const chartData = Object.entries(result.categoryScores || {}).map(([key, data]) => ({
     label: CATEGORY_LABELS[key] || key,
-    value: data.score,
+    value: data?.score ?? 0,
   }));
 
   useEffect(() => {
@@ -55,10 +55,10 @@ export const ResultDashboard: FC<Props> = ({
   const generateAiAdvice = async () => {
     setLoadingAi(true);
     try {
-      const riskSummary = Object.entries(result.categoryScores)
+      const riskSummary = Object.entries(result.categoryScores || {})
         .map(
           ([cat, data]) =>
-            `${CATEGORY_LABELS[cat]}: %${data.score} (${data.riskLabel})`
+            `${CATEGORY_LABELS[cat]}: %${data?.score ?? 0} (${data?.riskLabel ?? ''})`
         )
         .join('\n');
 
@@ -123,8 +123,8 @@ export const ResultDashboard: FC<Props> = ({
     // Convert ScreeningResult to AssessmentReport format for storage compatibility
     const reportData: AssessmentReport = {
       overallSummary: aiAnalysis?.letter || 'Analiz bekleniyor...',
-      scores: Object.entries(result.categoryScores).reduce(
-        (acc, [k, v]) => ({ ...acc, [k]: v.score }),
+      scores: Object.entries(result.categoryScores || {}).reduce(
+        (acc, [k, v]) => ({ ...acc, [k]: v?.score ?? 0 }),
         {}
       ),
       chartData: chartData.map((c) => ({ ...c, fullMark: 100 })),
@@ -237,7 +237,7 @@ export const ResultDashboard: FC<Props> = ({
       const weaknesses: string[] = [];
       const diagnosisDetails: string[] = [];
 
-      Object.entries(result.categoryScores).forEach(([key, val]: [string, any]) => {
+      Object.entries(result.categoryScores || {}).forEach(([key, val]: [string, any]) => {
         // Sadece yüksek ve orta riskli alanları al
         if (val.riskLevel === 'high' || val.riskLevel === 'moderate') {
           // Kategori ismini ekle
@@ -349,7 +349,7 @@ export const ResultDashboard: FC<Props> = ({
 
         {/* Categories */}
         <div className="space-y-4">
-          {Object.entries(result.categoryScores).map(([cat, data]) => (
+          {Object.entries(result.categoryScores || {}).map(([cat, data]) => (
             <div
               key={cat}
               className={`p-4 rounded-xl border-l-4 ${data.color === 'red' ? 'border-rose-500' : data.color === 'yellow' ? 'border-amber-500' : 'border-emerald-500'} bg-[var(--bg-paper)] border border-[var(--border-color)] shadow-sm flex justify-between items-center transition-transform hover:scale-[1.01]`}
@@ -473,7 +473,7 @@ export const ResultDashboard: FC<Props> = ({
                 </tr>
               </thead>
               <tbody>
-                {Object.entries(result.categoryScores).map(([cat, data], i) => (
+                {Object.entries(result.categoryScores || {}).map(([cat, data], i) => (
                   <tr key={cat} className={i % 2 === 0 ? 'bg-white' : 'bg-zinc-50'}>
                     <td className="p-3 border-r border-zinc-200 font-bold">
                       {CATEGORY_LABELS[cat]}

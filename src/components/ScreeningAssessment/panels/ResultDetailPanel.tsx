@@ -65,8 +65,8 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
         age: currentScreening.age,
         grade: currentScreening.grade,
         strengths: currentScreening.strengths ?? [],
-        concerns: Object.entries(currentScreening.categoryScores)
-          .filter(([, value]) => value.riskLevel === 'high' || value.riskLevel === 'moderate')
+        concerns: Object.entries(currentScreening.categoryScores || {})
+          .filter(([, value]) => value?.riskLevel === 'high' || value?.riskLevel === 'moderate')
           .map(([key]) => key),
         supportContext: 'sessiz çalışma alanı ve kısa, tekrarlı destek oturumları',
       };
@@ -215,8 +215,8 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
                 age: currentScreening.age,
                 grade: currentScreening.grade,
                 strengths: professionalReport.strengths,
-                concerns: Object.entries(currentScreening.categoryScores)
-                  .filter(([, value]) => value.riskLevel === 'high' || value.riskLevel === 'moderate')
+                concerns: Object.entries(currentScreening.categoryScores || {})
+                  .filter(([, value]) => value?.riskLevel === 'high' || value?.riskLevel === 'moderate')
                   .map(([key]) => key),
                 supportContext: 'sessiz çalışma alanı ve kısa, tekrarlı destek oturumları',
               })}</p>
@@ -324,8 +324,8 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
             onClick={() => {
               const weaknesses: string[] = [];
               const diagnosisDetails: string[] = [];
-              Object.entries(currentScreening.categoryScores).forEach(([key, val]: [string, any]) => {
-                if (val.riskLevel === 'high' || val.riskLevel === 'moderate') {
+              Object.entries(currentScreening.categoryScores || {}).forEach(([key, val]: [string, any]) => {
+                if (val?.riskLevel === 'high' || val?.riskLevel === 'moderate') {
                   weaknesses.push(key);
                   if (val.findings && val.findings.length > 0) {
                     diagnosisDetails.push(`${key}: ${val.findings.join(', ')}`);
