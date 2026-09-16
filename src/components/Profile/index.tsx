@@ -55,7 +55,7 @@ export const Profile: React.FC<ProfileProps> = ({
   const { setActiveStudent: setActiveStudentInStore } = useStudentStore();
   const { canAccess, role } = useRBAC();
   const { shareModule } = useProfileShare();
-  const { unifiedItems, loading: hubLoading, unreadCount: hubUnreadCount, markAsRead: markHubRead, removeShare: removeHubShare } = useSharedContentHub();
+  const { unifiedItems, loading: hubLoading, unreadCount: hubUnreadCount, markAsRead: markHubRead, removeShare: removeHubShare, refresh: refreshHub } = useSharedContentHub();
 
   const tabPermissions: Record<ProfileTabId, PermissionModule | null> = {
     overview: null,
@@ -188,7 +188,7 @@ export const Profile: React.FC<ProfileProps> = ({
           }
           setIsSharing(false);
           setShareModalOpen(false);
-          refreshSharedItems();
+          refreshHub();
         }}
         isSending={isSharing}
         showPermissionSelector

@@ -142,15 +142,15 @@ export const useSharedContentHub = () => {
     }
   }, []);
 
-  const removeShare = useCallback(async (id: string, type: UnifiedSharedItem['type']) => {
+  const removeShare = useCallback(async (id: string, type: UnifiedSharedItem['type']): Promise<boolean> => {
     if (type === 'module') {
       const ok = await profileShareService.removeShare(id);
       if (ok) setModuleItems(prev => prev.filter(m => m.id !== id));
-      return ok;
+      return !!ok;
     } else if (type === 'worksheet' && user?.id) {
-      const ok = await worksheetService.deleteWorksheet(id, user.id);
-      if (ok) setWorksheets(prev => prev.filter(w => w.id !== id));
-      return ok;
+      await worksheetService.deleteWorksheet(id, user.id);
+      setWorksheets(prev => prev.filter(w => w.id !== id));
+      return true;
     }
     return false;
   }, [user?.id]);
