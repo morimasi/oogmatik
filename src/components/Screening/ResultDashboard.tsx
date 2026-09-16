@@ -299,6 +299,22 @@ export const ResultDashboard: FC<Props> = ({
             <i className="fa-solid fa-print"></i> Yazdır
           </button>
           <button
+            onClick={async () => {
+              try {
+                await printService.generatePdf('#printable-report', `Disleksi_Tarama_${result.studentName}`, {
+                  action: 'download',
+                  paperSize: 'A4',
+                  quality: 'high',
+                });
+              } catch (e) {
+                alert('PDF indirme başarısız oldu.');
+              }
+            }}
+            className="px-4 py-2 bg-[var(--bg-secondary)] hover:bg-[var(--surface-elevated)] text-[var(--text-primary)] rounded-xl font-bold text-xs flex items-center gap-2 transition-all border border-[var(--border-color)]"
+          >
+            <i className="fa-solid fa-file-pdf text-rose-500"></i> PDF İndir
+          </button>
+          <button
             onClick={() => setIsSharing(true)}
             disabled={!user}
             className="px-4 py-2 bg-[var(--bg-secondary)] hover:bg-[var(--surface-elevated)] text-[var(--text-primary)] rounded-xl font-bold text-xs flex items-center gap-2 transition-all border border-[var(--border-color)] disabled:opacity-50"
@@ -421,8 +437,19 @@ export const ResultDashboard: FC<Props> = ({
         )}
       </div>
 
-      {/* --- HIDDEN PRINT TEMPLATE (A4 Optimized) --- */}
-      <div id="printable-report" className="hidden">
+      {/* --- PRINT TEMPLATE (A4 Optimized, Off-screen so always measurable) --- */}
+      <div
+        id="printable-report"
+        style={{
+          position: 'fixed',
+          left: '-9999px',
+          top: '0',
+          width: '210mm',
+          opacity: 1,
+          pointerEvents: 'none',
+          zIndex: -100,
+        }}
+      >
         {/* Page 1: Overview */}
         <div className="print-page relative bg-white h-[297mm] w-[210mm] p-12 flex flex-col font-sans text-black">
           <div className="flex justify-between items-end border-b-4 border-black pb-6 mb-8">
