@@ -18,6 +18,7 @@ import { useProfileShare } from './hooks/useProfileShare';
 import { ShareModal } from '../ShareModal';
 import { SharedModuleType } from '../../services/profileShareService';
 import { useSharedWorksheets } from './hooks/useSharedWorksheets';
+import { useSharedContentHub } from './hooks/useSharedContentHub';
 
 interface ProfileProps {
   data: ProfileData;
@@ -53,8 +54,8 @@ export const Profile: React.FC<ProfileProps> = ({
   const [isSharing, setIsSharing] = useState(false);
   const { setActiveStudent: setActiveStudentInStore } = useStudentStore();
   const { canAccess, role } = useRBAC();
-  const { sharedItems, unreadCount, shareModule, removeShare, markAsRead, refreshSharedItems } = useProfileShare();
-  const { worksheets: sharedWorksheets } = useSharedWorksheets();
+  const { shareModule } = useProfileShare();
+  const { unifiedItems, loading: hubLoading, unreadCount: hubUnreadCount, markAsRead: markHubRead, removeShare: removeHubShare } = useSharedContentHub();
 
   const tabPermissions: Record<ProfileTabId, PermissionModule | null> = {
     overview: null,
@@ -124,16 +125,15 @@ export const Profile: React.FC<ProfileProps> = ({
       case 'shared':
         return (
           <SharedContentPanel
-            items={sharedItems}
-            worksheets={sharedWorksheets}
-            loading={false}
+            items={unifiedItems}
+            loading={hubLoading}
             onOpenModule={(moduleType, contentId) => {
               if (contentId) setTargetAssessmentId(contentId);
               setActiveTab(moduleType as ProfileTabId);
             }}
             onLoadWorksheet={onLoadSaved}
-            onRemoveShare={removeShare}
-            onMarkAsRead={markAsRead}
+            onRemoveShare={removeHubShare}
+            onMarkAsRead={markHubRead}
           />
         );
       case 'settings':
@@ -167,7 +167,7 @@ export const Profile: React.FC<ProfileProps> = ({
           activeTab={activeTab}
           onTabChange={setActiveTab}
           allowedTabs={allowedTabs}
-          unreadCount={unreadCount}
+          unreadCount={hubUnreadCount}
         />
       </div>
 
