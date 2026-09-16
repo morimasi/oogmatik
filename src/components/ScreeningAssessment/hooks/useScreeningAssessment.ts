@@ -63,14 +63,36 @@ export function useScreeningAssessment() {
     });
   }, []);
 
-  const filteredData = store.screeningData.filter((item: ScreeningResult) => {
-    const matchesSearch = item.studentName
-      .toLowerCase()
-      .includes(store.searchQuery.toLowerCase());
-    const matchesFilter =
-      store.filterStatus === 'all' || item.status === store.filterStatus;
-    return matchesSearch && matchesFilter;
-  });
+  // Comprehensive Filter & Sort Logic
+  const filteredData = store.screeningData
+    .filter((item: ScreeningResult) => {
+      const query = store.searchQuery.trim().toLowerCase();
+      const matchesSearch =
+        !query ||
+        item.studentName.toLowerCase().includes(query) ||
+        (item.studentId && item.studentId.toLowerCase().includes(query));
+
+      const matchesStatus =
+        store.filterStatus === 'all' || item.status === store.filterStatus;
+
+      const matchesRisk =
+        store.filterRiskLevel === 'all' || item.riskLevel === store.filterRiskLevel;
+
+      return matchesSearch && matchesStatus && matchesRisk;
+    })
+    .sort((a: ScreeningResult, b: ScreeningResult) => {
+      switch (store.sortBy) {
+        case 'oldest':
+          return new Date(a.date).getTime() - new Date(b.date).getTime();
+        case 'score_desc':
+          return b.overallScore - a.overallScore;
+        case 'score_asc':
+          return a.overallScore - b.overallScore;
+        case 'newest':
+        default:
+          return new Date(b.date).getTime() - new Date(a.date).getTime();
+      }
+    });
 
   const handleStartScreening = useCallback(() => {
     if (!store.selectedStudentName.trim()) {
@@ -104,13 +126,11 @@ export function useScreeningAssessment() {
     const ok = await screeningDataService.updateScreeningInFirestore(id, { status: 'archived' });
     if (ok) {
       store.archiveScreening(id);
-      const updated = await screeningDataService.getUserScreeningsFromFirestore();
-      store.setScreeningData(updated.length > 0 ? updated : (import.meta.env.DEV ? screeningDataService.getMockData() : []));
       toast.success('Tarama arşive taşındı.');
     } else {
       toast.error('Arşivleme başarısız.');
     }
-  }, [toast]);
+  }, [toast, store]);
 
   const handleDeleteScreening = useCallback(async (id: string) => {
     const ok = await screeningDataService.deleteScreeningFromFirestore(id);
@@ -120,10 +140,61 @@ export function useScreeningAssessment() {
     } else {
       toast.error('Silme başarısız.');
     }
+  }, [toast, store]);
+
+  const handleBulkArchive = useCallback(async (ids: string[]) => {
+    if (!ids.length) return;
+    await Promise.all(ids.map((id) => screeningDataService.updateScreeningInFirestore(id, { status: 'archived' })));
+    ids.forEach((id) => store.archiveScreening(id));
+    toast.success(`${ids.length} kayıt arşivlendi.`);
+  }, [toast, store]);
+
+  const handleBulkDelete = useCallback(async (ids: string[]) => {
+    if (!ids.length) return;
+    await Promise.all(ids.map((id) => screeningDataService.deleteScreeningFromFirestore(id)));
+    ids.forEach((id) => store.deleteScreening(id));
+    toast.success(`${ids.length} kayıt silindi.`);
+  }, [toast, store]);
+
+  const handleExportJSON = useCallback((items: ScreeningResult[]) => {
+    if (!items.length) return;
+    const jsonStr = JSON.stringify(items, null, 2);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bdmind_tarama_kayitlari_${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`${items.length} kayıt JSON olarak indirildi.`);
+  }, [toast]);
+
+  const handleExportCSV = useCallback((items: ScreeningResult[]) => {
+    if (!items.length) return;
+    const headers = ['ID', 'Öğrenci Adı', 'Yaş', 'Sınıf', 'Tarih', 'Genel Skor', 'Risk Seviyesi', 'Durum'];
+    const rows = items.map((i) => [
+      i.id,
+      `"${i.studentName}"`,
+      i.age,
+      `"${i.grade}"`,
+      new Date(i.date).toLocaleDateString('tr-TR'),
+      i.overallScore,
+      i.riskLevel,
+      i.status,
+    ]);
+    const csvContent = '\uFEFF' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bdmind_tarama_kayitlari_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`${items.length} kayıt CSV olarak indirildi.`);
   }, [toast]);
 
   const handleShareResults = useCallback((id: string) => {
-    const url = `${window.location.origin}/screening/${id}`;
+    const url = `${window.location.origin}/#screening-${id}`;
     navigator.clipboard.writeText(url).then(() => {
       toast.success('Paylaşım bağlantısı panoya kopyalandı.');
     }).catch(() => {
@@ -159,19 +230,34 @@ export function useScreeningAssessment() {
 
   const handleDownloadReport = useCallback(async (data: ScreeningResult) => {
     try {
-      toast.info('Rapor hazırlanıyor...');
-      await printService.generatePdf('#printable-report', `Disleksi_Tarama_${data.studentName}`, { action: 'download' });
+      toast.info('Rapor indiriliyor...');
+      store.setCurrentScreening(data);
+
+      const targetEl = document.querySelector('#printable-report');
+      if (targetEl) {
+        await printService.generatePdf('#printable-report', `Disleksi_Tarama_${data.studentName}`, { action: 'download' });
+      } else {
+        // If not in DOM, switch view briefly or trigger download via JSON report summary
+        const summaryText = `Bursa Disleksi EduMind - Tarama Raporu\nÖğrenci: ${data.studentName} (${data.age} yaş, ${data.grade})\nTarih: ${new Date(data.date).toLocaleDateString('tr-TR')}\nGenel Skor: %${data.overallScore}\nRisk Seviyesi: ${data.riskLevel}\nAnaliz: ${data.aiAnalysis || 'N/A'}`;
+        const blob = new Blob([summaryText], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Tarama_Raporu_${data.studentName}.txt`;
+        a.click();
+        URL.revokeObjectURL(url);
+        toast.success('Rapor metni indirildi.');
+      }
     } catch {
       window.print();
     }
-  }, [toast]);
+  }, [toast, store]);
 
   const handlePrintReport = useCallback(() => {
     window.print();
   }, []);
 
   const getScoreColor = (score: number): string => {
-    // Yüksek skor = yüksek risk (semptom sıklığı)
     if (score >= 70) return 'text-rose-500';
     if (score >= 50) return 'text-amber-500';
     return 'text-emerald-500';
@@ -203,7 +289,15 @@ export function useScreeningAssessment() {
   const handleOpenScreeningDetail = useCallback((screening: ScreeningResult) => {
     store.setCurrentScreening(screening);
     store.setActiveView('result-detail');
-  }, []);
+  }, [store]);
+
+  const handleResetFilters = useCallback(() => {
+    store.setSearchQuery('');
+    store.setFilterStatus('all');
+    store.setFilterRiskLevel('all');
+    store.setSortBy('newest');
+    toast.info('Filtreler sıfırlandı.');
+  }, [store, toast]);
 
   return {
     ...store,
@@ -213,12 +307,17 @@ export function useScreeningAssessment() {
     handleSaveScreening,
     handleArchiveScreening,
     handleDeleteScreening,
+    handleBulkArchive,
+    handleBulkDelete,
+    handleExportJSON,
+    handleExportCSV,
     handleShareResults,
     handleShareScreeningResult,
     handleDownloadReport,
     handlePrintReport,
     handleGeneratePlan,
     handleOpenScreeningDetail,
+    handleResetFilters,
     getScoreColor,
     getRiskBadgeClasses,
     getStatusBadgeClasses,

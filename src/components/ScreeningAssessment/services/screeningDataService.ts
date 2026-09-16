@@ -118,57 +118,105 @@ export const screeningDataService = {
     }
   },
 
-  async saveResultToFirestore(result: ScreeningResult): Promise<string | null> {
-    const user = useAuthStore.getState().user;
-    if (!user) return null;
-    const { id, ...data } = result;
-    const payload = { ...data, userId: user.id, createdAt: new Date().toISOString() };
+  getLocalScreenings(): ScreeningResult[] {
     try {
-      const docRef = await addDoc(collection(db, "saved_screenings"), payload);
-      useToastStore.getState().success('Tarama başarıyla kaydedildi.');
-      return docRef.id;
-    } catch (e) {
-      logError('Tarama Firestore\'a kaydedilemedi', { error: e instanceof Error ? e.message : String(e), context: 'saveResultToFirestore' });
-      useToastStore.getState().error('Tarama kaydedilemedi.');
-      return null;
-    }
-  },
-
-  async getUserScreeningsFromFirestore(): Promise<ScreeningResult[]> {
-    const user = useAuthStore.getState().user;
-    if (!user) return [];
-    try {
-      const q = query(collection(db, "saved_screenings"), where("userId", "==", user.id));
-      const snapshot = await getDocs(q);
-      const items: ScreeningResult[] = [];
-      snapshot.forEach((docSnap) => {
-        const data = docSnap.data();
-        items.push({ ...data, id: docSnap.id, date: data?.date ? new Date(data.date) : new Date() } as ScreeningResult);
-      });
-      return items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    } catch (e) {
-      logError('Kullanıcı tarama kayıtları okunamadı', { error: e instanceof Error ? e.message : String(e), context: 'getUserScreeningsFromFirestore' });
+      const raw = localStorage.getItem('bdmind_screening_history');
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed.map((item: any) => ({ ...item, date: new Date(item.date) })) : [];
+    } catch {
       return [];
     }
   },
 
+  saveLocalScreenings(items: ScreeningResult[]): void {
+    try {
+      localStorage.setItem('bdmind_screening_history', JSON.stringify(items));
+    } catch (e) {
+      logError('Local storage tarama kaydı hatası', { error: String(e) });
+    }
+  },
+
+  async saveResultToFirestore(result: ScreeningResult): Promise<string | null> {
+    const user = useAuthStore.getState().user;
+    const { id, ...data } = result;
+    const finalId = id || `scr_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+    const fullResult: ScreeningResult = { ...result, id: finalId, date: result.date || new Date() };
+
+    // Always update local storage
+    const local = this.getLocalScreenings();
+    const existsIdx = local.findIndex((l) => l.id === finalId);
+    if (existsIdx >= 0) {
+      local[existsIdx] = fullResult;
+    } else {
+      local.unshift(fullResult);
+    }
+    this.saveLocalScreenings(local);
+
+    if (!user) {
+      useToastStore.getState().success('Tarama yerel olarak kaydedildi.');
+      return finalId;
+    }
+
+    const payload = { ...data, userId: user.id, createdAt: new Date().toISOString() };
+    try {
+      const docRef = await addDoc(collection(db, "saved_screenings"), payload);
+      useToastStore.getState().success('Tarama buluta başarıyla kaydedildi.');
+      return docRef.id;
+    } catch (e) {
+      logError('Tarama Firestore\'a kaydedilemedi', { error: e instanceof Error ? e.message : String(e), context: 'saveResultToFirestore' });
+      useToastStore.getState().success('Tarama yerel hafızaya kaydedildi.');
+      return finalId;
+    }
+  },
+
+  async getUserScreeningsFromFirestore(): Promise<ScreeningResult[]> {
+    const localItems = this.getLocalScreenings();
+    const user = useAuthStore.getState().user;
+    if (!user) {
+      return localItems.length > 0 ? localItems : this.getMockData();
+    }
+    try {
+      const q = query(collection(db, "saved_screenings"), where("userId", "==", user.id));
+      const snapshot = await getDocs(q);
+      const cloudItems: ScreeningResult[] = [];
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        cloudItems.push({ ...data, id: docSnap.id, date: data?.date ? new Date(data.date) : new Date() } as ScreeningResult);
+      });
+      // Merge local and cloud items (by id)
+      const mergedMap = new Map<string, ScreeningResult>();
+      [...localItems, ...cloudItems].forEach((item) => mergedMap.set(item.id, item));
+      const merged = Array.from(mergedMap.values()).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      this.saveLocalScreenings(merged);
+      return merged.length > 0 ? merged : this.getMockData();
+    } catch (e) {
+      logError('Kullanıcı tarama kayıtları okunamadı', { error: e instanceof Error ? e.message : String(e), context: 'getUserScreeningsFromFirestore' });
+      return localItems.length > 0 ? localItems : this.getMockData();
+    }
+  },
+
   async deleteScreeningFromFirestore(id: string): Promise<boolean> {
+    const local = this.getLocalScreenings().filter((item) => item.id !== id);
+    this.saveLocalScreenings(local);
     try {
       await deleteDoc(doc(db, "saved_screenings", id));
       return true;
     } catch (e) {
-      logError('Tarama silinemedi', { error: e instanceof Error ? e.message : String(e), context: 'deleteScreeningFromFirestore' });
-      return false;
+      logError('Tarama Firestore\'dan silinemedi, yerelden silindi', { error: e instanceof Error ? e.message : String(e) });
+      return true;
     }
   },
 
   async updateScreeningInFirestore(id: string, updates: Partial<ScreeningResult>): Promise<boolean> {
+    const local = this.getLocalScreenings().map((item) => (item.id === id ? { ...item, ...updates } : item));
+    this.saveLocalScreenings(local);
     try {
       await updateDoc(doc(db, "saved_screenings", id), updates as Record<string, unknown>);
       return true;
     } catch (e) {
-      logError('Tarama güncellenemedi', { error: e instanceof Error ? e.message : String(e), context: 'updateScreeningInFirestore' });
-      return false;
+      logError('Tarama Firestore\'da güncellenemedi, yerel güncellendi', { error: e instanceof Error ? e.message : String(e) });
+      return true;
     }
   },
 

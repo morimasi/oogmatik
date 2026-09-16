@@ -93,10 +93,11 @@ export class UserQuotaService {
 
         const safeTier = normalizeTier(tier);
         const config = RATE_LIMIT_PRESETS[safeTier]?.[limitKey] || RATE_LIMIT_PRESETS.free.apiQuery;
-        const quotaRef = doc(db, 'user_quotas', `${userId}_${limitKey}`);
         const now = Date.now();
 
         try {
+            if (!db) throw new Error('Firebase DB is not initialized');
+            const quotaRef = doc(db, 'user_quotas', `${userId}_${limitKey}`);
             const docSnap = await getDoc(quotaRef);
             let bucket: TokenBucket;
 

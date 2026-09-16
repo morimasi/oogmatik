@@ -10,6 +10,8 @@ export type ScreeningView =
   | 'result-detail';
 
 export type ScreeningFilterStatus = 'all' | 'completed' | 'pending' | 'archived';
+export type ScreeningFilterRiskLevel = 'all' | 'high' | 'medium' | 'low';
+export type ScreeningSortBy = 'newest' | 'oldest' | 'score_desc' | 'score_asc';
 
 export type ScreeningType = 'cognitive' | 'developmental';
 
@@ -31,6 +33,8 @@ export interface ScreeningState {
   selectedStudents: string[];
   searchQuery: string;
   filterStatus: ScreeningFilterStatus;
+  filterRiskLevel: ScreeningFilterRiskLevel;
+  sortBy: ScreeningSortBy;
   selectedScreeningType: ScreeningType;
   selectedStudentName: string;
   selectedStudentId: string | null;
@@ -50,6 +54,8 @@ export interface ScreeningActions {
   setCurrentScreening: (screening: ScreeningResult | null) => void;
   setSearchQuery: (query: string) => void;
   setFilterStatus: (status: ScreeningFilterStatus) => void;
+  setFilterRiskLevel: (level: ScreeningFilterRiskLevel) => void;
+  setSortBy: (sort: ScreeningSortBy) => void;
   setSelectedScreeningType: (type: ScreeningType) => void;
   setSelectedStudentName: (name: string) => void;
   setSelectedStudentId: (id: string | null) => void;

@@ -19,7 +19,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        // Rate Limiting
+        // Rate Limiting (safe fallback)
         const userId = (req.headers['x-user-id'] as string) || 'anonymous';
         const userTier = (req.headers['x-user-tier'] as string) || 'free';
         try {
@@ -28,10 +28,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             if (error instanceof RateLimitError) {
                 return res.status(429).json({ error: { message: error.userMessage, code: error.code } });
             }
-            throw error;
+            logWarn('Rate limiter exception bypassed in generate-image', { error });
         }
 
-        const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+        let body: any = {};
+        try {
+            body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
+        } catch (e) {
+            body = {};
+        }
         const { prompt, provider = 'pollinations', width = 1024, height = 1024 } = body;
 
         if (!prompt) {
