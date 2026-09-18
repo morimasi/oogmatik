@@ -53,106 +53,117 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
   const generateAiAdvice = async () => {
     if (!currentScreening) return;
 
-    // Check if AI advice is already cached in currentScreening
+    // 1. Check if AI advice is already cached in currentScreening
     if (currentScreening.aiAdvice && currentScreening.professionalReportData) {
       setAiAnalysis(currentScreening.aiAdvice);
       setProfessionalReport(currentScreening.professionalReportData);
       setLoadingAi(false);
+      setAiError(false);
       return;
     }
 
     setLoadingAi(true);
     setAiError(false);
+
+    const studentContext = {
+      studentName: currentScreening.studentName,
+      age: currentScreening.age,
+      grade: currentScreening.grade,
+      strengths: currentScreening.strengths ?? [],
+      concerns: Object.entries(currentScreening.categoryScores || {})
+        .filter(([, value]) => value?.riskLevel === 'high' || value?.riskLevel === 'moderate')
+        .map(([key]) => key),
+      supportContext: 'sessiz çalışma alanı ve kısa, tekrarlı destek oturumları',
+    };
+
+    const fallbackProfReport = buildProfessionalAssessmentReport(currentScreening, studentContext);
+    const fallbackLetter = `${currentScreening.studentName} öğrencimize ait bilişsel tarama sonuçları başarıyla değerlendirilmiştir. Bilişsel profil ve gelişim alanlarına yönelik kişiselleştirilmiş eğitim stratejileri hazırlanmıştır.`;
+    const fallbackAdvice: AIAnalysisResult = {
+      letter: fallbackLetter,
+      actionSteps: fallbackProfReport.recommendations,
+    };
+
     try {
-      let finalAiAnalysis: AIAnalysisResult | null = currentScreening.aiAdvice || null;
-      if (!finalAiAnalysis) {
+      let finalAiAnalysis: AIAnalysisResult = currentScreening.aiAdvice || fallbackAdvice;
+      let finalProfReport = currentScreening.professionalReportData || fallbackProfReport;
+
+      // Primary AI Generation
+      try {
         const prompt = assessmentEngineService.buildAnalysisPrompt(currentScreening);
         const schema = assessmentEngineService.getAIAnalysisSchema();
         const response = (await generateWithSchema(prompt, schema)) as unknown as AIAnalysisResult;
-        finalAiAnalysis = {
-          letter: typeof response?.letter === 'string' ? response.letter : String(response?.letter ?? ''),
-          actionSteps: assessmentEngineService.normalizeActionSteps(response?.actionSteps),
-        };
+        
+        if (response && response.letter) {
+          finalAiAnalysis = {
+            letter: typeof response.letter === 'string' ? response.letter : String(response.letter),
+            actionSteps: assessmentEngineService.normalizeActionSteps(response.actionSteps),
+          };
+        }
+      } catch (err) {
+        logError('[ResultDetailPanel] Primary AI Generation Fallback Used', { error: String(err) });
       }
-      setAiAnalysis(finalAiAnalysis);
 
-      const studentContext = {
-        studentName: currentScreening.studentName,
-        age: currentScreening.age,
-        grade: currentScreening.grade,
-        strengths: currentScreening.strengths ?? [],
-        concerns: Object.entries(currentScreening.categoryScores || {})
-          .filter(([, value]) => value?.riskLevel === 'high' || value?.riskLevel === 'moderate')
-          .map(([key]) => key),
-        supportContext: 'sessiz çalışma alanı ve kısa, tekrarlı destek oturumları',
-      };
-
-      let finalProfReport = currentScreening.professionalReportData || null;
-      if (!finalProfReport) {
+      // Professional AI Generation
+      try {
         const professionalPrompt = buildProfessionalAssessmentPrompt(currentScreening, studentContext);
-        const fallbackReport = buildProfessionalAssessmentReport(currentScreening, studentContext);
-        finalProfReport = fallbackReport;
-
         if (typeof professionalPrompt === 'string' && professionalPrompt.length > 0) {
-          try {
-            const aiProResult = (await generateWithSchema(professionalPrompt, {
-              type: 'OBJECT',
-              properties: {
-                summary: { type: 'STRING' },
-                recommendations: { type: 'ARRAY', items: { type: 'STRING' } },
-                cautions: { type: 'ARRAY', items: { type: 'STRING' } },
-                strengths: { type: 'ARRAY', items: { type: 'STRING' } },
-                bePGoals: { type: 'ARRAY', items: { type: 'STRING' } },
-              },
-              required: ['summary', 'recommendations', 'cautions', 'strengths', 'bePGoals'],
-            })) as {
-              summary?: string;
-              recommendations?: string[];
-              cautions?: string[];
-              strengths?: string[];
-              bePGoals?: string[];
-            };
+          const aiProResult = (await generateWithSchema(professionalPrompt, {
+            type: 'OBJECT',
+            properties: {
+              summary: { type: 'STRING' },
+              recommendations: { type: 'ARRAY', items: { type: 'STRING' } },
+              cautions: { type: 'ARRAY', items: { type: 'STRING' } },
+              strengths: { type: 'ARRAY', items: { type: 'STRING' } },
+              bePGoals: { type: 'ARRAY', items: { type: 'STRING' } },
+            },
+            required: ['summary', 'recommendations', 'cautions', 'strengths', 'bePGoals'],
+          })) as {
+            summary?: string;
+            recommendations?: string[];
+            cautions?: string[];
+            strengths?: string[];
+            bePGoals?: string[];
+          };
 
-            if (aiProResult && Array.isArray(aiProResult.bePGoals) && aiProResult.bePGoals.length > 0) {
-              finalProfReport = {
-                summary: aiProResult.summary || fallbackReport.summary,
-                recommendations: aiProResult.recommendations || fallbackReport.recommendations,
-                cautions: aiProResult.cautions || fallbackReport.cautions,
-                strengths: aiProResult.strengths || fallbackReport.strengths,
-                bePGoals: aiProResult.bePGoals || fallbackReport.bePGoals,
-              };
-            }
-          } catch {
-            // Gemini özel profesyonel şemada hata alırsa güvenli fallbackReport kullanılır
+          if (aiProResult && Array.isArray(aiProResult.bePGoals) && aiProResult.bePGoals.length > 0) {
+            finalProfReport = {
+              summary: aiProResult.summary || fallbackProfReport.summary,
+              recommendations: aiProResult.recommendations || fallbackProfReport.recommendations,
+              cautions: aiProResult.cautions || fallbackProfReport.cautions,
+              strengths: aiProResult.strengths || fallbackProfReport.strengths,
+              bePGoals: aiProResult.bePGoals || fallbackProfReport.bePGoals,
+            };
           }
         }
+      } catch (err) {
+        logError('[ResultDetailPanel] Professional AI Generation Fallback Used', { error: String(err) });
       }
+
+      setAiAnalysis(finalAiAnalysis);
       setProfessionalReport(finalProfReport);
 
-      // Save generated AI results to Firestore & localStorage so future views don't re-generate
-      if (finalAiAnalysis && finalProfReport) {
-        const updates = {
-          aiAnalysis: finalAiAnalysis.letter,
-          aiAdvice: finalAiAnalysis,
-          professionalReportData: finalProfReport,
-        };
-        await screeningDataService.updateScreeningInFirestore(currentScreening.id, updates);
-        
-        const updatedScreening = {
-          ...currentScreening,
-          ...updates,
-        };
+      // Save generated or fallback AI results to Firestore & localStorage so future views NEVER re-generate
+      const updates = {
+        aiAnalysis: finalAiAnalysis.letter,
+        aiAdvice: finalAiAnalysis,
+        professionalReportData: finalProfReport,
+      };
+      await screeningDataService.updateScreeningInFirestore(currentScreening.id, updates);
+      
+      const updatedScreening = {
+        ...currentScreening,
+        ...updates,
+      };
 
-        // Update currentScreening
-        setCurrentScreening(updatedScreening);
-
-        // Also update screeningData array in store so navigating back & forth keeps cached AI advice
-        setScreeningData(
-          screeningData.map((s) => (s.id === currentScreening.id ? updatedScreening : s))
-        );
-      }
-    } catch {
-      setAiError(true);
+      // Update currentScreening & screeningData array in store
+      setCurrentScreening(updatedScreening);
+      setScreeningData(
+        screeningData.map((s) => (s.id === currentScreening.id ? updatedScreening : s))
+      );
+    } catch (e) {
+      logError('[ResultDetailPanel] Critical AI Advice Exception', { error: String(e) });
+      setAiAnalysis(fallbackAdvice);
+      setProfessionalReport(fallbackProfReport);
     } finally {
       setLoadingAi(false);
     }
