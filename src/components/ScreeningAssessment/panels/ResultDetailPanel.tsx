@@ -25,6 +25,7 @@ interface ResultDetailPanelProps {
 export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGeneratePlan }) => {
   const {
     currentScreening,
+    setCurrentScreening,
     setActiveView,
     handleSaveScreening,
     handleDownloadReport,
@@ -128,10 +129,16 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
 
       // Save generated AI results to Firestore & localStorage so future views don't re-generate
       if (finalAiAnalysis && finalProfReport) {
-        await screeningDataService.updateScreeningInFirestore(currentScreening.id, {
+        const updates = {
           aiAnalysis: finalAiAnalysis.letter,
           aiAdvice: finalAiAnalysis,
           professionalReportData: finalProfReport,
+        };
+        await screeningDataService.updateScreeningInFirestore(currentScreening.id, updates);
+        // Also update Zustand store so state stays synchronized instantly
+        setCurrentScreening({
+          ...currentScreening,
+          ...updates,
         });
       }
     } catch {
