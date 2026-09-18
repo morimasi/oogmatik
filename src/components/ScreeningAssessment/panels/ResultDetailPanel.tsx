@@ -26,6 +26,8 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
   const {
     currentScreening,
     setCurrentScreening,
+    screeningData,
+    setScreeningData,
     setActiveView,
     handleSaveScreening,
     handleDownloadReport,
@@ -135,11 +137,19 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
           professionalReportData: finalProfReport,
         };
         await screeningDataService.updateScreeningInFirestore(currentScreening.id, updates);
-        // Also update Zustand store so state stays synchronized instantly
-        setCurrentScreening({
+        
+        const updatedScreening = {
           ...currentScreening,
           ...updates,
-        });
+        };
+
+        // Update currentScreening
+        setCurrentScreening(updatedScreening);
+
+        // Also update screeningData array in store so navigating back & forth keeps cached AI advice
+        setScreeningData(
+          screeningData.map((s) => (s.id === currentScreening.id ? updatedScreening : s))
+        );
       }
     } catch {
       setAiError(true);
