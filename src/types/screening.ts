@@ -47,6 +47,17 @@ export interface ScreeningResult {
     auditory: number;
   };
   aiAnalysis?: string;
+  aiAdvice?: {
+    letter: string;
+    actionSteps: string[];
+  };
+  professionalReportData?: {
+    summary: string;
+    recommendations: string[];
+    cautions: string[];
+    strengths: string[];
+    bePGoals: string[];
+  };
   generatedAt: string;
   respondentRole: 'parent' | 'teacher';
 }

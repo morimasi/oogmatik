@@ -49,16 +49,29 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
 
   const generateAiAdvice = async () => {
     if (!currentScreening) return;
+
+    // Check if AI advice is already cached in currentScreening
+    if (currentScreening.aiAdvice && currentScreening.professionalReportData) {
+      setAiAnalysis(currentScreening.aiAdvice);
+      setProfessionalReport(currentScreening.professionalReportData);
+      setLoadingAi(false);
+      return;
+    }
+
     setLoadingAi(true);
     setAiError(false);
     try {
-      const prompt = assessmentEngineService.buildAnalysisPrompt(currentScreening);
-      const schema = assessmentEngineService.getAIAnalysisSchema();
-      const response = (await generateWithSchema(prompt, schema)) as unknown as AIAnalysisResult;
-      setAiAnalysis({
-        letter: typeof response?.letter === 'string' ? response.letter : String(response?.letter ?? ''),
-        actionSteps: assessmentEngineService.normalizeActionSteps(response?.actionSteps),
-      });
+      let finalAiAnalysis: AIAnalysisResult | null = currentScreening.aiAdvice || null;
+      if (!finalAiAnalysis) {
+        const prompt = assessmentEngineService.buildAnalysisPrompt(currentScreening);
+        const schema = assessmentEngineService.getAIAnalysisSchema();
+        const response = (await generateWithSchema(prompt, schema)) as unknown as AIAnalysisResult;
+        finalAiAnalysis = {
+          letter: typeof response?.letter === 'string' ? response.letter : String(response?.letter ?? ''),
+          actionSteps: assessmentEngineService.normalizeActionSteps(response?.actionSteps),
+        };
+      }
+      setAiAnalysis(finalAiAnalysis);
 
       const studentContext = {
         studentName: currentScreening.studentName,
@@ -71,42 +84,55 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
         supportContext: 'sessiz çalışma alanı ve kısa, tekrarlı destek oturumları',
       };
 
-      const professionalPrompt = buildProfessionalAssessmentPrompt(currentScreening, studentContext);
-      const fallbackReport = buildProfessionalAssessmentReport(currentScreening, studentContext);
-      setProfessionalReport(fallbackReport);
+      let finalProfReport = currentScreening.professionalReportData || null;
+      if (!finalProfReport) {
+        const professionalPrompt = buildProfessionalAssessmentPrompt(currentScreening, studentContext);
+        const fallbackReport = buildProfessionalAssessmentReport(currentScreening, studentContext);
+        finalProfReport = fallbackReport;
 
-      if (typeof professionalPrompt === 'string' && professionalPrompt.length > 0) {
-        try {
-          const aiProResult = (await generateWithSchema(professionalPrompt, {
-            type: 'OBJECT',
-            properties: {
-              summary: { type: 'STRING' },
-              recommendations: { type: 'ARRAY', items: { type: 'STRING' } },
-              cautions: { type: 'ARRAY', items: { type: 'STRING' } },
-              strengths: { type: 'ARRAY', items: { type: 'STRING' } },
-              bePGoals: { type: 'ARRAY', items: { type: 'STRING' } },
-            },
-            required: ['summary', 'recommendations', 'cautions', 'strengths', 'bePGoals'],
-          })) as {
-            summary?: string;
-            recommendations?: string[];
-            cautions?: string[];
-            strengths?: string[];
-            bePGoals?: string[];
-          };
+        if (typeof professionalPrompt === 'string' && professionalPrompt.length > 0) {
+          try {
+            const aiProResult = (await generateWithSchema(professionalPrompt, {
+              type: 'OBJECT',
+              properties: {
+                summary: { type: 'STRING' },
+                recommendations: { type: 'ARRAY', items: { type: 'STRING' } },
+                cautions: { type: 'ARRAY', items: { type: 'STRING' } },
+                strengths: { type: 'ARRAY', items: { type: 'STRING' } },
+                bePGoals: { type: 'ARRAY', items: { type: 'STRING' } },
+              },
+              required: ['summary', 'recommendations', 'cautions', 'strengths', 'bePGoals'],
+            })) as {
+              summary?: string;
+              recommendations?: string[];
+              cautions?: string[];
+              strengths?: string[];
+              bePGoals?: string[];
+            };
 
-          if (aiProResult && Array.isArray(aiProResult.bePGoals) && aiProResult.bePGoals.length > 0) {
-            setProfessionalReport({
-              summary: aiProResult.summary || fallbackReport.summary,
-              recommendations: aiProResult.recommendations || fallbackReport.recommendations,
-              cautions: aiProResult.cautions || fallbackReport.cautions,
-              strengths: aiProResult.strengths || fallbackReport.strengths,
-              bePGoals: aiProResult.bePGoals || fallbackReport.bePGoals,
-            });
+            if (aiProResult && Array.isArray(aiProResult.bePGoals) && aiProResult.bePGoals.length > 0) {
+              finalProfReport = {
+                summary: aiProResult.summary || fallbackReport.summary,
+                recommendations: aiProResult.recommendations || fallbackReport.recommendations,
+                cautions: aiProResult.cautions || fallbackReport.cautions,
+                strengths: aiProResult.strengths || fallbackReport.strengths,
+                bePGoals: aiProResult.bePGoals || fallbackReport.bePGoals,
+              };
+            }
+          } catch {
+            // Gemini özel profesyonel şemada hata alırsa güvenli fallbackReport kullanılır
           }
-        } catch {
-          // Gemini özel profesyonel şemada hata alırsa güvenli fallbackReport kullanılır
         }
+      }
+      setProfessionalReport(finalProfReport);
+
+      // Save generated AI results to Firestore & localStorage so future views don't re-generate
+      if (finalAiAnalysis && finalProfReport) {
+        await screeningDataService.updateScreeningInFirestore(currentScreening.id, {
+          aiAnalysis: finalAiAnalysis.letter,
+          aiAdvice: finalAiAnalysis,
+          professionalReportData: finalProfReport,
+        });
       }
     } catch {
       setAiError(true);

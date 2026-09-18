@@ -50,9 +50,15 @@ export const ResultDashboard: FC<Props> = ({
 
   useEffect(() => {
     generateAiAdvice();
-  }, []);
+  }, [result?.id]);
 
   const generateAiAdvice = async () => {
+    if (result.aiAdvice) {
+      setAiAnalysis(result.aiAdvice);
+      setLoadingAi(false);
+      return;
+    }
+
     setLoadingAi(true);
     try {
       const riskSummary = Object.entries(result.categoryScores || {})
@@ -108,10 +114,19 @@ export const ResultDashboard: FC<Props> = ({
           })
         : [];
 
-      setAiAnalysis({
+      const newAnalysis = {
         letter: typeof response?.letter === 'string' ? response.letter : String(response?.letter ?? ''),
         actionSteps: normalizedActionSteps,
-      });
+      };
+
+      setAiAnalysis(newAnalysis);
+
+      if (result.id) {
+        await screeningDataService.updateScreeningInFirestore(result.id, {
+          aiAnalysis: newAnalysis.letter,
+          aiAdvice: newAnalysis,
+        });
+      }
     } catch (e: unknown) {
       logError('AI Error', { error: e instanceof Error ? e.message : String(e) });
     } finally {
