@@ -6,7 +6,7 @@
   "devCommand": "npm run dev",
   "functions": {
     "api/generate.ts": {
-      "maxDuration": 300
+      "maxDuration": 60
     }
   },
   "headers": [
