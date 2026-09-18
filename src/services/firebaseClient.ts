@@ -1,7 +1,7 @@
 // @ts-ignore — Firebase ESM package uses `exports` field; suppressed for Vite's moduleResolution:node
 import { initializeApp, getApp, getApps } from "firebase/app";
 // @ts-ignore — same as above
-import { getAuth } from "firebase/auth";
+import { initializeAuth, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence, getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 import { logInfo, logWarn } from "../utils/logger.js";
 // @ts-ignore — same as above; all Firestore symbols imported in one block to cover the full statement
@@ -63,7 +63,15 @@ const firebaseConfig = {
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
-export const auth = getAuth(app);
+export const auth = (() => {
+  try {
+    return initializeAuth(app, {
+      persistence: [browserLocalPersistence, browserSessionPersistence, inMemoryPersistence]
+    });
+  } catch (_e) {
+    return getAuth(app);
+  }
+})();
 
 const isDev = (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') ||
   (typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.MODE === 'development');
