@@ -17,6 +17,7 @@ import {
   buildStudentProfileContext,
 } from '../services/professionalAssessmentService';
 import { PrintableScreeningReport } from '../components/shared/PrintableScreeningReport';
+import { logError } from '../../../utils/logger';
 
 interface ResultDetailPanelProps {
   onGeneratePlan?: (studentName: string, age: number, weaknesses: string[], diagnosisContext?: string) => void;
