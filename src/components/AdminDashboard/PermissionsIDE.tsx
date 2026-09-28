@@ -37,6 +37,18 @@ import { UserRole } from '../../types/user';
 import { useToastStore } from '../../store/useToastStore';
 import { ACTIVITY_CATEGORIES } from '../../constants';
 import { ActivityType } from '../../types/activity';
+import { getActivityTurkishName } from '../../utils/activityTurkishNames';
+
+const ACTION_LABELS: Record<PermissionAction, string> = {
+  view: 'Görüntüle',
+  create: 'Oluştur',
+  edit: 'Düzenle',
+  delete: 'Sil',
+  manage: 'Yönet',
+  approve: 'Onayla',
+  export: 'Dışa Aktar',
+  assign: 'Ata'
+};
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   'central-studios': <Layout size={16} />,
@@ -432,7 +444,7 @@ export const AdminPermissionsIDE: React.FC = () => {
                                                 {action === 'create' && <Plus size={9} className="inline mr-1" />}
                                                 {action === 'edit' && <Edit3 size={9} className="inline mr-1" />}
                                                 {action === 'delete' && <Trash2 size={9} className="inline mr-1" />}
-                                                {action}
+                                                {ACTION_LABELS[action] || action}
                                               </button>
                                             );
                                           })}
@@ -493,7 +505,7 @@ export const AdminPermissionsIDE: React.FC = () => {
                                                               <div className={`w-2.5 h-2.5 rounded-full flex items-center justify-center transition-all ${isActEnabled ? 'bg-emerald-500' : 'bg-zinc-700'}`}>
                                                                 {isActEnabled && <Check size={6} className="text-white" />}
                                                               </div>
-                                                              <span className="text-[8px] font-bold uppercase tracking-tighter truncate flex-1 group-hover/act:text-white transition-colors">{actType.replace(/_/g, ' ')}</span>
+                                                              <span className="text-[8px] font-bold uppercase tracking-tighter truncate flex-1 group-hover/act:text-white transition-colors">{getActivityTurkishName(actType)}</span>
                                                             </button>
                                                           );
                                                         })}
