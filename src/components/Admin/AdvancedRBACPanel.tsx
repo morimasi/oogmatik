@@ -12,6 +12,7 @@ import { rbacService } from '../../services/rbacService';
 import { UserRole } from '../../types/user';
 import { ActivityType } from '../../types/activity';
 import { ACTIVITY_CATEGORIES, ACTIVITIES } from '../../constants';
+import { getActivityTurkishName, getActivityTurkishCode } from '../../utils/activityTurkishNames';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useToastStore } from '../../store/useToastStore';
 import { motion } from 'framer-motion';
@@ -362,10 +363,10 @@ export const AdvancedRBACPanel: React.FC = () => {
                               }`}
                             >
                               <div className="flex flex-col gap-0.5 overflow-hidden">
-                                <span className="text-[11px] font-bold text-gray-200 tracking-tight leading-none truncate w-full" title={ACTIVITIES.find(a => a.id === actType)?.title || actType}>
-                                  {ACTIVITIES.find(a => a.id === actType)?.title || actType.replace(/_/g, ' ')}
+                                <span className="text-[11px] font-bold text-gray-200 tracking-tight leading-none truncate w-full" title={getActivityTurkishName(actType)}>
+                                  {getActivityTurkishName(actType)}
                                 </span>
-                                <span className="text-[8px] text-gray-500 font-medium tracking-widest uppercase truncate">{actType}</span>
+                                <span className="text-[8px] text-gray-500 font-medium tracking-widest uppercase truncate">{getActivityTurkishCode(actType)}</span>
                               </div>
 
                               <button
