@@ -3,6 +3,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { RBACSettings, buildDefaultRBAC, PermissionModule, PermissionAction, ALL_MODULES } from '../types/rbac-advanced';
 import { UserRole } from '../types/user';
 import { ActivityType } from '../types/activity';
+import { ACTIVITY_CATEGORIES } from '../constants';
 import { logError, logInfo, logWarn } from '../utils/logger.js';
 
 const DEFAULT_RBAC_SETTINGS = buildDefaultRBAC();
@@ -190,16 +191,29 @@ class RBACService {
     const rolePerms = this.getSettings().roles.find(r => r.role === role);
     if (!rolePerms) return false;
 
+    // Tüm modüllerdeki kategori izinlerini kontrol et
     for (const module of rolePerms.modules) {
-      if (module.categoryPermissions) {
-        for (const catPerm of module.categoryPermissions) {
-          if (catPerm.activityOverrides) {
-            const actPerm = catPerm.activityOverrides.find(a => a.activityType === activityType);
-            if (actPerm && actPerm.enabled && actPerm.allowedRoles.includes(role)) {
-              return true;
-            }
+      if (!module.categoryPermissions) continue;
+
+      for (const catPerm of module.categoryPermissions) {
+        // Bu kategoriye rol erişimi var mı?
+        if (!catPerm.enabled || !catPerm.allowedRoles.includes(role)) continue;
+
+        // Aktivite bu kategoride mi? (ACTIVITY_CATEGORIES'den kontrol)
+        const category = ACTIVITY_CATEGORIES.find(c => c.id === catPerm.categoryId);
+        if (!category || !category.activities.includes(activityType)) continue;
+
+        // Override var mı?
+        if (catPerm.activityOverrides) {
+          const actPerm = catPerm.activityOverrides.find(a => a.activityType === activityType);
+          if (actPerm) {
+            // Override bulundu → override'a göre karar ver
+            return actPerm.enabled && actPerm.allowedRoles.includes(role);
           }
         }
+
+        // Override yok → kategorinin iznini miras al (kategori zaten enabled+role dahil)
+        return true;
       }
     }
     return false;

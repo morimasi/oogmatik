@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Activity, ActivityType } from '../types';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../constants';
+import { useRBAC } from '../hooks/useRBAC';
 
 interface GlobalSearchProps {
   onSelectActivity: (activityType: ActivityType) => void;
@@ -13,6 +14,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ onSelectActivity }) => {
   const [debouncedQuery, setDebouncedQuery] = useState(''); // Debounce state
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const { canAccessActivity } = useRBAC();
 
   // Debounce logic
   useEffect(() => {
@@ -35,6 +37,8 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ onSelectActivity }) => {
     const uniqueResults = new Map<ActivityType, Activity>();
 
     ACTIVITIES.forEach(activity => {
+      if (!canAccessActivity(activity.id)) return;
+
       const matchTitle = activity.title.toLocaleLowerCase('tr').includes(lowerCaseQuery);
       const matchDescription = activity.description.toLocaleLowerCase('tr').includes(lowerCaseQuery);
       
@@ -44,7 +48,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ onSelectActivity }) => {
     });
 
     return Array.from(uniqueResults.values());
-  }, [debouncedQuery]);
+  }, [debouncedQuery, canAccessActivity]);
 
   // Handle click outside to close
   useEffect(() => {

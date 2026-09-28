@@ -102,6 +102,7 @@ export const AdvancedRBACPanel: React.FC = () => {
   };
 
   // Update activity permission (Syncs across all modules)
+  // activityOverrides undefined ise otomatik oluşturur
   const updateActivityPermission = (activityType: ActivityType, enabled: boolean) => {
     const newSettings = { ...settings };
     const roleIndex = newSettings.roles.findIndex(r => r.role === selectedRole);
@@ -111,19 +112,34 @@ export const AdvancedRBACPanel: React.FC = () => {
       for (const module of newSettings.roles[roleIndex].modules) {
         if (module.categoryPermissions) {
           for (const catPerm of module.categoryPermissions) {
-            if (catPerm.activityOverrides) {
-              const actIndex = catPerm.activityOverrides.findIndex(a => a.activityType === activityType);
-              if (actIndex >= 0) {
-                const act = catPerm.activityOverrides[actIndex];
-                act.enabled = enabled;
-                if (!enabled) {
-                  act.allowedRoles = act.allowedRoles.filter(r => r !== selectedRole);
-                } else if (!act.allowedRoles.includes(selectedRole)) {
-                  act.allowedRoles.push(selectedRole);
-                }
-                updated = true;
-              }
+            // Bu kategoride bu aktivite var mı kontrol et
+            const category = ACTIVITY_CATEGORIES.find(c => c.id === catPerm.categoryId);
+            if (!category || !category.activities.includes(activityType)) continue;
+
+            // activityOverrides yoksa oluştur
+            if (!catPerm.activityOverrides) {
+              catPerm.activityOverrides = [];
             }
+
+            const actIndex = catPerm.activityOverrides.findIndex(a => a.activityType === activityType);
+            if (actIndex >= 0) {
+              // Mevcut override'ı güncelle
+              const act = catPerm.activityOverrides[actIndex];
+              act.enabled = enabled;
+              if (!enabled) {
+                act.allowedRoles = act.allowedRoles.filter(r => r !== selectedRole);
+              } else if (!act.allowedRoles.includes(selectedRole)) {
+                act.allowedRoles.push(selectedRole);
+              }
+            } else {
+              // Yeni override oluştur
+              catPerm.activityOverrides.push({
+                activityType,
+                enabled,
+                allowedRoles: enabled ? [selectedRole] : []
+              });
+            }
+            updated = true;
           }
         }
       }
