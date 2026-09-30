@@ -656,7 +656,7 @@ export const generateSuperStudioContent = async (
 
     try {
       // Dynamic import ile cacheService'i al (browser'da IndexedDB, test'te mock)
-      const module = await import('../cacheService.js');
+      const module = await import('../cacheService');
       cacheService = module.cacheService;
     } catch (e) {
       // Cache servisi yüklenemezse (Node/SSR) sessizce devam et
