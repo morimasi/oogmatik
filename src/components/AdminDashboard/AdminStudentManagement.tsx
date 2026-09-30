@@ -20,7 +20,7 @@ export const AdminStudentManagement: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const toast = useToastStore();
   const { setActiveStudent } = useStudentStore();
-  const { setCurrentView } = useWorksheetStore();
+  const { setCurrentView, addHistoryView, currentView } = useWorksheetStore();
 
   const loadStudents = async () => {
     setLoading(true);
@@ -38,6 +38,7 @@ export const AdminStudentManagement: React.FC = () => {
 
   const handleViewDashboard = (student: Student) => {
     setActiveStudent(student);
+    addHistoryView(currentView);
     setCurrentView('students');
   };
 
