@@ -167,10 +167,17 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAutoGenerateWorkb
                 studentName,
                 age: studentAge,
                 grade: activeStudent?.grade || 'Belirtilmemiş',
+                diagnosis: activeStudent?.diagnosis || [],
+                strengths: activeStudent?.strengths || [],
+                weaknesses: activeStudent?.weaknesses || [],
+                notes: observations.notes,
                 observations: [
                     `Kaygı: ${observations.anxietyLevel}`,
                     `Dikkat Süresi: ${observations.attentionSpan}`,
                     `Motor Beceriler: ${observations.motorSkills}`,
+                    `İşbirliği: ${observations.cooperationLevel || 'cooperative'}`,
+                    `Yorulma İndeksi: ${observations.fatigueIndex || 'normal'}`,
+                    `Hüsran Toleransı: ${observations.frustrationTolerance || 'high'}`,
                     observations.notes ? `Not: ${observations.notes}` : ''
                 ].filter(Boolean),
                 testResults: Object.fromEntries(

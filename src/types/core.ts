@@ -554,6 +554,10 @@ export interface AssessmentProfile {
   studentName: string;
   age: number;
   grade: string;
+  diagnosis?: string[];
+  strengths?: string[];
+  weaknesses?: string[];
+  notes?: string;
   observations: string[];
   testResults?: Record<string, { name: string; accuracy: number }>;
   errorPatterns?: Record<string, number>;

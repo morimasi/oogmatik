@@ -24,18 +24,25 @@ export const generateAssessmentReport = async (profile: AssessmentProfile): Prom
         }
     }
 
+    const diagnosisBlock = profile.diagnosis && profile.diagnosis.length > 0 ? `  Tanı/Özel Eğitim Durumu: ${profile.diagnosis.join(', ')}` : '  Tanı/Özel Eğitim Durumu: Yok (Standart gelişim takibi)';
+    const strengthsBlock = profile.strengths && profile.strengths.length > 0 ? `  Öğrencinin Güçlü Yönleri: ${profile.strengths.join(', ')}` : '';
+    const weaknessesBlock = profile.weaknesses && profile.weaknesses.length > 0 ? `  Öğrencinin İhtiyaç Duyduğu Destek Alanları: ${profile.weaknesses.join(', ')}` : '';
+
     const prompt = `
 [ROL: Klinik Nöropsikolog + Özel Eğitim ve Ölçme-Değerlendirme Uzmanı] [DEPLOY: 2025_07_v6]
 [PLATFORM: bdmind — Dashboard analitik, BEP entegrasyonu ve dijital arşiv ile uyumlu]
 
-GÖREV: Aşağıdaki öğrencinin bilişsel değerlendirme verilerini DSM-5 ve ICD-11 kriterleriyle bağlantılı olarak analiz et. 
+GÖREV: Aşağıdaki öğrencinin bilişsel değerlendirme verilerini, tanı durumunu ve test çıktılarını DSM-5 / ICD-11 kriterleriyle bağlantılı olarak analiz et. 
 Hem uzman hem de ebeveyn/öğretmen için anlaşılır, somut ve uygulanabilir bulgular üret.
 Öneriler bdmind stüdyolarındaki aktivitelerle eşleştirilmelidir.
 
-ÖĞRENCİ PROFİLİ:
+ÖĞRENCİ PROFİLİ VE GİRDİ BAĞLAMI:
   Ad: ${profile.studentName}
   Yaş: ${profile.age}
   Sınıf: ${profile.grade}
+${diagnosisBlock}
+${strengthsBlock}
+${weaknessesBlock}
 
 ${testResultsBlock}${errorBlock}
 
