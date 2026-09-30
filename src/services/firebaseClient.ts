@@ -66,9 +66,11 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 export const auth = getAuth(app);
 
 // Safe persistence configuration (localStorage)
-setPersistence(auth, browserLocalPersistence).catch((err) => {
-  logWarn("Firebase setPersistence warning:", err);
-});
+if (typeof window !== 'undefined') {
+  setPersistence(auth, browserLocalPersistence).catch((err) => {
+    logWarn("Firebase setPersistence warning:", err);
+  });
+}
 
 const isDev = (typeof process !== 'undefined' && process.env.NODE_ENV === 'development') ||
   (typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.MODE === 'development');

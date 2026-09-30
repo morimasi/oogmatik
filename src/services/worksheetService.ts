@@ -175,23 +175,23 @@ export const worksheetService = {
         categoryId?: string
     ): Promise<{ items: SavedWorksheet[]; total: number; count: number | null }> => {
         try {
-            // First try with orderBy (requires index)
-            let qRef;
+            let querySnapshot: firestore.QuerySnapshot<firestore.DocumentData>;
             try {
-                qRef = query(
+                const qRef = query(
                     collection(db, 'saved_worksheets'),
                     where('userId', '==', userId),
                     orderBy('createdAt', 'desc')
                 );
+                querySnapshot = await getDocs(qRef);
             } catch (e) {
-                // If query construction fails, fallback to simple filtering
-                qRef = query(
+                logWarn('Firestore getUserWorksheets orderBy failed (missing index?), falling back to simple query', { error: e });
+                const fallbackQ = query(
                     collection(db, 'saved_worksheets'),
                     where('userId', '==', userId)
                 );
+                querySnapshot = await getDocs(fallbackQ);
             }
 
-            const querySnapshot = await getDocs(qRef);
             const rows: SavedWorksheet[] = [];
             querySnapshot.forEach((d: firestore.QueryDocumentSnapshot<firestore.DocumentData>) => {
                 const data = d.data();
