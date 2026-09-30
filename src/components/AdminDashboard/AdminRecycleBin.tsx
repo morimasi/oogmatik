@@ -27,9 +27,18 @@ export const AdminRecycleBin: React.FC = () => {
     }
   }, [toast]);
 
+  // Gerçek zamanlı Firestore listener — veritabanı değiştiğinde anında güncelle
   useEffect(() => {
-    loadRecycleBin();
-  }, [loadRecycleBin]);
+    setLoading(true);
+    const unsubscribe = recycleBinService.subscribeToRecycleBin((updatedItems) => {
+      setItems(updatedItems);
+      setLoading(false);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   const handleRestore = async (item: RecycleBinItem) => {
     setRestoringId(item.id);

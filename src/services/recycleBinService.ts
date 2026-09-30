@@ -2,19 +2,58 @@ import { db } from './firebaseClient.js';
 import * as firestore from 'firebase/firestore';
 import { RecycleBinItem } from '../types/admin.js';
 import { AppError } from '../utils/AppError.js';
-import { logError } from '../utils/logger.js';
+import { logError, logInfo } from '../utils/logger.js';
 
-const { collection, doc, getDocs, setDoc, updateDoc, deleteDoc, getDoc, query, orderBy, where } = firestore;
+const { collection, doc, getDocs, setDoc, deleteDoc, getDoc, query, orderBy, onSnapshot } = firestore;
 
 const RECYCLE_COLLECTION = 'recycle_bin';
 
-// Mock in-memory store fallback if Firestore network/permission fails
+// Local cache for offline resilience
 let localRecycleBinStore: RecycleBinItem[] = [];
+
+// Active listener unsubscribe function
+let activeUnsubscribe: (() => void) | null = null;
 
 export const recycleBinService = {
   /**
-    * Bir öğretmeni tüm verileri ve ilişkili öğrencileri ile birlikte güvenle yedekleyip arşivler / soft-delete yapar.
-    */
+   * Gerçek zamanlı Firestore listener başlatır.
+   * UI bileşeni mount olduğunda çağrılır, unmount'ta dönen unsubscribe fonksiyonu çağrılır.
+   */
+  subscribeToRecycleBin: (onUpdate: (items: RecycleBinItem[]) => void): (() => void) => {
+    // Önceki listener'ı temizle
+    if (activeUnsubscribe) {
+      activeUnsubscribe();
+      activeUnsubscribe = null;
+    }
+
+    try {
+      const q = query(collection(db, RECYCLE_COLLECTION), orderBy('deletedAt', 'desc'));
+      const unsubscribe = onSnapshot(q, 
+        (snapshot) => {
+          const items = snapshot.docs.map(d => ({ ...d.data(), id: d.id } as RecycleBinItem));
+          localRecycleBinStore = items;
+          onUpdate(items);
+        },
+        (error) => {
+          logError(error instanceof Error ? error : String(error), { source: 'subscribeToRecycleBin' });
+          // Fallback: local store'dan ver
+          onUpdate(localRecycleBinStore);
+        }
+      );
+
+      activeUnsubscribe = unsubscribe;
+      return unsubscribe;
+    } catch (error) {
+      logError(error instanceof Error ? error : String(error), { source: 'subscribeToRecycleBin.init' });
+      // Fallback
+      onUpdate(localRecycleBinStore);
+      return () => {};
+    }
+  },
+
+  /**
+   * Bir öğretmeni tüm verileri ve ilişkili öğrencileri ile birlikte güvenle yedekleyip arşivler / soft-delete yapar.
+   */
   archiveTeacher: async (teacherId: string, deletedBy = 'Admin System'): Promise<RecycleBinItem> => {
     try {
       const userRef = doc(db, 'users', teacherId);
@@ -27,12 +66,16 @@ export const recycleBinService = {
       const userData = userSnap.data();
 
       // İlişkili öğrencileri çek
-      const studentsSnap = await getDocs(query(collection(db, 'students'), where('teacherId', '==', teacherId)));
+      const studentsSnap = await getDocs(query(collection(db, 'students'), firestore.where('teacherId', '==', teacherId)));
       const studentsData = studentsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
       // İlişkili değerlendirmeleri çek
-      const assessmentsSnap = await getDocs(query(collection(db, 'saved_assessments'), where('userId', '==', teacherId)));
+      const assessmentsSnap = await getDocs(query(collection(db, 'saved_assessments'), firestore.where('userId', '==', teacherId)));
       const assessmentsData = assessmentsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      // İlişkili çalışma kâğıtlarını çek
+      const worksheetsSnap = await getDocs(query(collection(db, 'worksheets'), firestore.where('userId', '==', teacherId)));
+      const worksheetsData = worksheetsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
       const backupId = `rec_teacher_${teacherId}_${Date.now()}`;
       const backupItem: RecycleBinItem = {
@@ -47,29 +90,31 @@ export const recycleBinService = {
         deletedBy,
         status: 'archived',
         originalData: {
-          user: userData,
+          user: { ...userData, id: teacherId },
           students: studentsData,
-          assessments: assessmentsData
+          assessments: assessmentsData,
+          worksheets: worksheetsData,
         }
       };
 
-      // Firestore'a kaydet
+      // Firestore'a yedek kaydet
       await setDoc(doc(db, RECYCLE_COLLECTION, backupId), backupItem);
-      localRecycleBinStore = [backupItem, ...localRecycleBinStore.filter(i => i.id !== backupId)];
 
-      // Kullanıcının statüsünü 'archived' yap
-      await updateDoc(userRef, { status: 'archived', updatedAt: new Date().toISOString() });
+      // Kullanıcının statüsünü 'archived' yap (soft-delete)
+      await firestore.updateDoc(userRef, { status: 'archived', updatedAt: new Date().toISOString() });
 
+      logInfo(`Öğretmen arşivlendi: ${userData.name} (${teacherId})`);
       return backupItem;
     } catch (error) {
+      if (error instanceof AppError) throw error;
       logError(error instanceof Error ? error : String(error), { source: 'archiveTeacher', teacherId });
       throw new AppError('Öğretmen arşivlenirken hata oluştu.', 'INTERNAL_ERROR', 500);
     }
   },
 
   /**
-    * Bir öğrenciyi tüm gelişim, değerlendirme ve BEP verileriyle birlikte yedekleyip arşivler.
-    */
+   * Bir öğrenciyi tüm gelişim, değerlendirme ve BEP verileriyle birlikte yedekleyip arşivler.
+   */
   archiveStudent: async (studentId: string, deletedBy = 'Admin System'): Promise<RecycleBinItem> => {
     try {
       const studentRef = doc(db, 'students', studentId);
@@ -82,8 +127,12 @@ export const recycleBinService = {
       const studentData = studentSnap.data();
 
       // Değerlendirmelerini çek
-      const assessmentsSnap = await getDocs(query(collection(db, 'saved_assessments'), where('studentId', '==', studentId)));
+      const assessmentsSnap = await getDocs(query(collection(db, 'saved_assessments'), firestore.where('studentId', '==', studentId)));
       const assessmentsData = assessmentsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      // BEP hedeflerini çek
+      const bepSnap = await getDocs(query(collection(db, 'bep_goals'), firestore.where('studentId', '==', studentId)));
+      const bepData = bepSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
       const backupId = `rec_student_${studentId}_${Date.now()}`;
       const backupItem: RecycleBinItem = {
@@ -98,38 +147,35 @@ export const recycleBinService = {
         deletedBy,
         status: 'archived',
         originalData: {
-          student: studentData,
-          assessments: assessmentsData
+          student: { ...studentData, id: studentId },
+          assessments: assessmentsData,
+          bepGoals: bepData,
         }
       };
 
       await setDoc(doc(db, RECYCLE_COLLECTION, backupId), backupItem);
-      localRecycleBinStore = [backupItem, ...localRecycleBinStore.filter(i => i.id !== backupId)];
 
-      // Öğrenci statüsünü 'archived' yap
-      await updateDoc(studentRef, { status: 'archived', updatedAt: new Date().toISOString() });
+      // Öğrenci statüsünü 'archived' yap (soft-delete)
+      await firestore.updateDoc(studentRef, { status: 'archived', updatedAt: new Date().toISOString() });
 
+      logInfo(`Öğrenci arşivlendi: ${studentData.name} (${studentId})`);
       return backupItem;
     } catch (error) {
+      if (error instanceof AppError) throw error;
       logError(error instanceof Error ? error : String(error), { source: 'archiveStudent', studentId });
       throw new AppError('Öğrenci arşivlenirken hata oluştu.', 'INTERNAL_ERROR', 500);
     }
   },
 
   /**
-    * Geri dönüşüm kutusundaki tüm arşivlenmiş kayıtları getirir.
-    */
+   * Geri dönüşüm kutusundaki tüm arşivlenmiş kayıtları getirir.
+   */
   getAllRecycleBinItems: async (): Promise<RecycleBinItem[]> => {
     try {
       const snapshot = await getDocs(query(collection(db, RECYCLE_COLLECTION), orderBy('deletedAt', 'desc')));
-      const items = snapshot.docs.map(d => d.data() as RecycleBinItem);
-      
-      // Birleştir (Firestore + localStore)
-      const combinedMap = new Map<string, RecycleBinItem>();
-      localRecycleBinStore.forEach(item => combinedMap.set(item.id, item));
-      items.forEach(item => combinedMap.set(item.id, item));
-
-      return Array.from(combinedMap.values()).sort((a, b) => new Date(b.deletedAt).getTime() - new Date(a.deletedAt).getTime());
+      const items = snapshot.docs.map(d => ({ ...d.data(), id: d.id } as RecycleBinItem));
+      localRecycleBinStore = items;
+      return items;
     } catch (error) {
       logError(error instanceof Error ? error : String(error), { source: 'getAllRecycleBinItems' });
       return localRecycleBinStore;
@@ -137,18 +183,19 @@ export const recycleBinService = {
   },
 
   /**
-    * Silinen / Arşivlenen bir öğretmeni veya öğrenciyi tüm ilişkili verileriyle GERİ YÜKLER.
-    */
+   * Silinen / Arşivlenen bir öğretmeni veya öğrenciyi tüm ilişkili verileriyle GERİ YÜKLER.
+   * setDoc (merge) kullanır — belge silinmiş olsa bile yeniden oluşturur.
+   */
   restoreItem: async (backupId: string): Promise<boolean> => {
     try {
       const backupRef = doc(db, RECYCLE_COLLECTION, backupId);
-      let backupSnap = await getDoc(backupRef);
+      const backupSnap = await getDoc(backupRef);
       let backupItem: RecycleBinItem | null = null;
 
       if (backupSnap.exists()) {
         backupItem = backupSnap.data() as RecycleBinItem;
       } else {
-        backupItem = localRecycleBinStore.find(i => i.id === backupId) || null;
+        backupItem = localRecycleBinStore.find(i => i.id === backupId) ?? null;
       }
 
       if (!backupItem) {
@@ -156,62 +203,115 @@ export const recycleBinService = {
       }
 
       if (backupItem.entityType === 'teacher') {
-        const userRef = doc(db, 'users', backupItem.originalId);
-        await updateDoc(userRef, { status: 'active', updatedAt: new Date().toISOString() });
+        // Öğretmen verilerini geri yükle
+        const originalUser = backupItem.originalData?.user;
+        if (originalUser) {
+          const userId = backupItem.originalId;
+          // setDoc (merge) ile belgeyi yeniden oluştur veya güncelle
+          await setDoc(doc(db, 'users', userId), {
+            ...originalUser,
+            status: 'active',
+            updatedAt: new Date().toISOString(),
+            restoredAt: new Date().toISOString(),
+          }, { merge: true });
+        }
 
         // İlgili öğrencileri de aktif yap
         if (backupItem.originalData?.students) {
           for (const s of backupItem.originalData.students) {
-            const stRef = doc(db, 'students', s.id);
-            await updateDoc(stRef, { status: 'active' }).catch(() => {});
+            await setDoc(doc(db, 'students', s.id), {
+              ...s,
+              status: 'active',
+              updatedAt: new Date().toISOString(),
+            }, { merge: true }).catch(() => {});
           }
         }
+
+        logInfo(`Öğretmen geri yüklendi: ${backupItem.name} (${backupItem.originalId})`);
       } else if (backupItem.entityType === 'student') {
-        const studentRef = doc(db, 'students', backupItem.originalId);
-        await updateDoc(studentRef, { status: 'active', updatedAt: new Date().toISOString() });
+        // Öğrenci verilerini geri yükle
+        const originalStudent = backupItem.originalData?.student;
+        if (originalStudent) {
+          const studentId = backupItem.originalId;
+          await setDoc(doc(db, 'students', studentId), {
+            ...originalStudent,
+            status: 'active',
+            updatedAt: new Date().toISOString(),
+            restoredAt: new Date().toISOString(),
+          }, { merge: true });
+        }
+
+        // BEP hedeflerini geri yükle
+        if (backupItem.originalData?.bepGoals) {
+          for (const bep of backupItem.originalData.bepGoals) {
+            await setDoc(doc(db, 'bep_goals', bep.id), bep, { merge: true }).catch(() => {});
+          }
+        }
+
+        logInfo(`Öğrenci geri yüklendi: ${backupItem.name} (${backupItem.originalId})`);
       }
 
-      // Recycle bin kaydını sil
+      // Recycle bin kaydını sil (geri yükleme tamamlandı)
       await deleteDoc(backupRef).catch(() => {});
       localRecycleBinStore = localRecycleBinStore.filter(i => i.id !== backupId);
 
       return true;
     } catch (error) {
+      if (error instanceof AppError) throw error;
       logError(error instanceof Error ? error : String(error), { source: 'restoreItem', backupId });
       throw new AppError('Kayıt geri yüklenirken hata oluştu.', 'INTERNAL_ERROR', 500);
     }
   },
 
   /**
-    * Bir yedek kaydını kalıcı olarak sistemden siler.
-    */
+   * Bir yedek kaydını kalıcı olarak sistemden siler.
+   */
   permanentlyDeleteItem: async (backupId: string): Promise<boolean> => {
     try {
       const backupRef = doc(db, RECYCLE_COLLECTION, backupId);
-      let backupSnap = await getDoc(backupRef);
+      const backupSnap = await getDoc(backupRef);
       let backupItem: RecycleBinItem | null = null;
 
       if (backupSnap.exists()) {
         backupItem = backupSnap.data() as RecycleBinItem;
       } else {
-        backupItem = localRecycleBinStore.find(i => i.id === backupId) || null;
+        backupItem = localRecycleBinStore.find(i => i.id === backupId) ?? null;
       }
 
       if (backupItem) {
+        // Orijinal kaydı da kalıcı olarak sil
         if (backupItem.entityType === 'teacher') {
           await deleteDoc(doc(db, 'users', backupItem.originalId)).catch(() => {});
+          // İlişkili öğrencileri de sil
+          if (backupItem.originalData?.students) {
+            for (const s of backupItem.originalData.students) {
+              await deleteDoc(doc(db, 'students', s.id)).catch(() => {});
+            }
+          }
         } else if (backupItem.entityType === 'student') {
           await deleteDoc(doc(db, 'students', backupItem.originalId)).catch(() => {});
         }
       }
 
+      // Yedek kaydını sil
       await deleteDoc(backupRef).catch(() => {});
       localRecycleBinStore = localRecycleBinStore.filter(i => i.id !== backupId);
 
+      logInfo(`Kalıcı silme: ${backupItem?.name ?? backupId}`);
       return true;
     } catch (error) {
       logError(error instanceof Error ? error : String(error), { source: 'permanentlyDeleteItem', backupId });
       throw new AppError('Kalıcı silme esnasında hata oluştu.', 'INTERNAL_ERROR', 500);
+    }
+  },
+
+  /**
+   * Listener'ı temizle
+   */
+  unsubscribe: () => {
+    if (activeUnsubscribe) {
+      activeUnsubscribe();
+      activeUnsubscribe = null;
     }
   }
 };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Users, 
@@ -19,14 +19,19 @@ import {
   CircleCheck as CheckCircle2,
   AlertCircle,
   Clock,
-  Archive as ArchiveIconUI
+  Archive as ArchiveIconUI,
+  Pencil
 } from 'lucide-react';
 import { UserStatus, UserRole } from '../../types';
 import { authService } from '../../services/authService';
 import { adminService } from '../../services/adminService';
 import { emailService } from '../../services/emailService';
+import { recycleBinService } from '../../services/recycleBinService';
 import { UserFilter, ManagedUser } from '../../types/admin';
 import { useToastStore } from '../../store/useToastStore';
+import { TeacherEditModal } from './teachers/TeacherEditModal';
+import { db } from '../../services/firebaseClient';
+import * as firestore from 'firebase/firestore';
 
 const ROLE_LABELS: Record<UserRole, string> = {
   admin: 'Admin',
@@ -52,7 +57,7 @@ const ROLE_COLORS: Record<UserRole, string> = {
 
 /**
  * AdminUserManagement — Premium User Operations Center
- * Deep integration with RBAC and Dark Glassmorphism Design
+ * Deep integration with RBAC, RecycleBin, Real-time Firestore & Dark Glassmorphism Design
  */
 export const AdminUserManagement: React.FC = () => {
   const [users, setUsers] = useState<ManagedUser[]>([]);
@@ -64,29 +69,70 @@ export const AdminUserManagement: React.FC = () => {
     sortBy: 'newest'
   });
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [editingUser, setEditingUser] = useState<ManagedUser | null>(null);
+  const [archivingId, setArchivingId] = useState<string | null>(null);
   const toast = useToastStore();
 
   const SUPER_ADMIN_EMAIL = 'morimasi@gmail.com';
 
+  // Gerçek zamanlı Firestore listener
   useEffect(() => {
-    loadUsers();
+    const q = firestore.query(
+      firestore.collection(db, 'users'),
+      firestore.orderBy('createdAt', 'desc'),
+      firestore.limit(500)
+    );
+
+    const unsubscribe = firestore.onSnapshot(q,
+      (snapshot) => {
+        const userData = snapshot.docs.map(d => {
+          const data = d.data();
+          return {
+            id: d.id,
+            email: data.email || '',
+            role: data.role || 'teacher',
+            status: data.status || 'active',
+            name: data.name || 'İsimsiz',
+            avatar: data.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name || 'U')}&background=6366f1&color=fff`,
+            lastLogin: data.lastLogin || '',
+            createdAt: data.createdAt || '',
+            worksheetCount: data.worksheetCount || 0,
+            exportCount: data.exportCount || 0,
+            subscriptionPlan: data.subscriptionPlan || 'free',
+          } as ManagedUser;
+        });
+        setUsers(userData);
+        setLoading(false);
+      },
+      (error) => {
+        console.error('Firestore user listener error:', error);
+        // Fallback: tek seferlik yükleme
+        loadUsersFallback();
+      }
+    );
+
     // Menü dışına tıklanınca kapat
     const closeMenu = () => setOpenMenuId(null);
     window.addEventListener('click', closeMenu);
-    return () => window.removeEventListener('click', closeMenu);
+
+    return () => {
+      unsubscribe();
+      window.removeEventListener('click', closeMenu);
+    };
   }, []);
 
-  const loadUsers = async () => {
+  // Fallback: listener başarısız olursa tek seferlik yükleme
+  const loadUsersFallback = useCallback(async () => {
     setLoading(true);
     try {
       const { users: data } = await authService.getAllUsers(0, 500);
       setUsers(data as unknown as ManagedUser[]);
-    } catch (e) {
+    } catch {
       toast.error('Kullanıcı listesi alınamadı');
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   const filteredUsers = useMemo(() => {
     return users.filter(user => {
@@ -121,9 +167,10 @@ export const AdminUserManagement: React.FC = () => {
     
     try {
       await adminService.updateUserRole(userId, newRole);
+      // Gerçek zamanlı listener otomatik güncelleyecek, ama anında UI yansıması için:
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: newRole } : u));
       toast.success(`${user?.name} rolü ${ROLE_LABELS[newRole]} olarak güncellendi.`);
-    } catch (e) {
+    } catch {
       toast.error('Rol güncelleme hatası');
     }
   };
@@ -152,24 +199,35 @@ export const AdminUserManagement: React.FC = () => {
       } else {
         toast.success(newStatus === 'active' ? 'Hesap aktifleştirildi.' : 'Hesap askıya alındı.');
       }
-    } catch (e) {
+    } catch {
       toast.error('Durum güncelleme hatası');
     }
   };
 
-  const handleDeleteUser = async (user: ManagedUser) => {
+  /**
+   * Silme yerine recycleBinService ile güvenli arşivleme yap.
+   * Tüm veriler yedeklenip geri dönüşüm kutusuna gönderilir.
+   */
+  const handleArchiveAndDelete = async (user: ManagedUser) => {
     if (user.email === SUPER_ADMIN_EMAIL) {
       toast.error('Super Admin silinemez!');
       return;
     }
-    if (!confirm(`${user.name} kullanıcısını kalıcı olarak silmek istediğinize emin misiniz?`)) return;
+    if (!confirm(`${user.name} kullanıcısını arşivlemek ve geri dönüşüm kutusuna göndermek istediğinize emin misiniz?\n\nTüm verileri yedeklenecek ve gerektiğinde geri yüklenebilecektir.`)) return;
 
+    setArchivingId(user.id);
     try {
-      await adminService.deleteUser(user.id);
-      setUsers(prev => prev.filter(u => u.id !== user.id));
-      toast.success('Kullanıcı başarıyla silindi.');
-    } catch (e) {
-      toast.error('Kullanıcı silinirken hata oluştu.');
+      if (user.role === 'student') {
+        await recycleBinService.archiveStudent(user.id, 'Admin');
+      } else {
+        await recycleBinService.archiveTeacher(user.id, 'Admin');
+      }
+      // Gerçek zamanlı listener arşivlenmiş kullanıcıyı otomatik olarak listeden düşürecek
+      toast.success(`${user.name} güvenle arşivlendi. Geri dönüşüm kutusundan geri yükleyebilirsiniz.`);
+    } catch {
+      toast.error('Arşivleme sırasında hata oluştu.');
+    } finally {
+      setArchivingId(null);
     }
   };
 
@@ -185,7 +243,7 @@ export const AdminUserManagement: React.FC = () => {
       await adminService.updateUserStatus(userId, newStatus);
       setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: newStatus as any } : u));
       toast.success(isArchived ? 'Kullanıcı arşivden çıkarıldı.' : 'Kullanıcı arşivlendi.');
-    } catch (e) {
+    } catch {
       toast.error('Arşivleme işlemi başarısız.');
     }
   };
@@ -237,7 +295,7 @@ export const AdminUserManagement: React.FC = () => {
           </div>
 
           <button 
-            onClick={loadUsers}
+            onClick={loadUsersFallback}
             className="p-3 bg-white/50 dark:bg-white/5 border border-white/5 rounded-2xl text-zinc-500 hover:text-indigo-500 transition-colors"
           >
             <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
@@ -273,6 +331,7 @@ export const AdminUserManagement: React.FC = () => {
                   {filteredUsers.map((user, idx) => {
                     const isSuperAdmin = user.email === SUPER_ADMIN_EMAIL;
                     const isUserArchived = user.status === 'archived';
+                    const isArchiving = archivingId === user.id;
 
                     return (
                       <motion.tr 
@@ -380,12 +439,16 @@ export const AdminUserManagement: React.FC = () => {
                                 initial={{ opacity: 0, scale: 0.95, y: 10, x: -10 }}
                                 animate={{ opacity: 1, scale: 1, y: 0, x: 0 }}
                                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                                className="absolute right-8 top-full mt-2 w-48 bg-white dark:bg-[#121212] border border-zinc-200 dark:border-white/10 rounded-2xl shadow-2xl z-[100] overflow-hidden backdrop-blur-xl"
+                                className="absolute right-8 top-full mt-2 w-52 bg-white dark:bg-[#121212] border border-zinc-200 dark:border-white/10 rounded-2xl shadow-2xl z-[100] overflow-hidden backdrop-blur-xl"
                                 onClick={(e) => e.stopPropagation()}
                               >
                                 <div className="p-2 space-y-1">
-                                  <button onClick={() => {toast.info("Düzenleme özelliği yakında!"); setOpenMenuId(null);}} className="w-full flex items-center gap-3 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-600 dark:text-zinc-400 hover:bg-indigo-500/10 hover:text-indigo-500 rounded-xl transition-all">
-                                    <Search size={14} /> Bilgileri Görüntüle
+                                  {/* Profil Düzenleme Modalı Aç */}
+                                  <button 
+                                    onClick={() => { setEditingUser(user); setOpenMenuId(null); }} 
+                                    className="w-full flex items-center gap-3 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-600 dark:text-zinc-400 hover:bg-indigo-500/10 hover:text-indigo-500 rounded-xl transition-all"
+                                  >
+                                    <Pencil size={14} /> Profili Düzenle
                                   </button>
                                   <button onClick={() => {handleStatusChange(user.id, user.status); setOpenMenuId(null);}} className="w-full flex items-center gap-3 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-zinc-600 dark:text-zinc-400 hover:bg-amber-500/10 hover:text-amber-500 rounded-xl transition-all">
                                     {user.status === 'suspended' ? <Unlock size={14} /> : <Lock size={14} />}
@@ -396,8 +459,12 @@ export const AdminUserManagement: React.FC = () => {
                                     {isUserArchived ? 'Arşivden Çıkar' : 'Arşive Gönder'}
                                   </button>
                                   <div className="h-px bg-zinc-100 dark:bg-white/5 my-1" />
-                                  <button onClick={() => {handleDeleteUser(user); setOpenMenuId(null);}} className="w-full flex items-center gap-3 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all">
-                                    <UserX size={14} /> Kaydı Tamamen Sil
+                                  <button 
+                                    onClick={() => {handleArchiveAndDelete(user); setOpenMenuId(null);}} 
+                                    disabled={isArchiving}
+                                    className="w-full flex items-center gap-3 px-3 py-2 text-[10px] font-black uppercase tracking-widest text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all disabled:opacity-50"
+                                  >
+                                    <UserX size={14} /> {isArchiving ? 'Yedekleniyor...' : 'Yedekle & Sil'}
                                   </button>
                                 </div>
                               </motion.div>
@@ -415,12 +482,27 @@ export const AdminUserManagement: React.FC = () => {
       </div>
       
       <div className="flex items-center justify-between px-6 py-4 bg-black/10 rounded-[2rem] border border-white/5 backdrop-blur-xl">
-        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Veritabanında kayıtlı <span className="text-indigo-500">{users.length}</span> kullanıcıdan <span className="text-white">{filteredUsers.length}</span> tanesi gösteriliyor.</p>
+        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Veritabanında kayıtlı <span className="text-indigo-500">{users.length}</span> kullanıcıdan <span className="text-white">{filteredUsers.length}</span> tanesi gösteriliyor.
+          <span className="ml-2 text-emerald-500">● Canlı Senkronize</span>
+        </p>
         <div className="flex items-center gap-2">
            <button className="w-8 h-8 rounded-lg flex items-center justify-center bg-zinc-800 text-zinc-500 border border-white/5 hover:bg-zinc-700 transition-colors">1</button>
            <button className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-600 hover:text-white transition-colors">2</button>
         </div>
       </div>
+
+      {/* Profil Düzenleme Modalı */}
+      {editingUser && (
+        <TeacherEditModal
+          teacher={editingUser as any}
+          isOpen={!!editingUser}
+          onClose={() => setEditingUser(null)}
+          onSuccess={() => {
+            setEditingUser(null);
+            // Gerçek zamanlı listener otomatik güncelleyecek
+          }}
+        />
+      )}
     </div>
   );
 };

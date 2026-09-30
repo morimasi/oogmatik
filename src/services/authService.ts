@@ -330,6 +330,7 @@ export const authService = {
         if (updates.pedagogySettings) dbUpdates.pedagogySettings = updates.pedagogySettings;
         if (updates.aiAssistantSettings) dbUpdates.aiAssistantSettings = updates.aiAssistantSettings;
         if (updates.notificationSettings) dbUpdates.notificationSettings = updates.notificationSettings;
+        if (updates.subscriptionPlan) dbUpdates.subscriptionPlan = updates.subscriptionPlan;
 
         await updateDoc(userDocRef, dbUpdates as any);
 

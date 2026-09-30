@@ -42,14 +42,13 @@ export const TeacherEditModal: React.FC<TeacherEditModalProps> = ({
       await adminService.updateUserRole(teacher.id, formData.role as any);
       await adminService.updateUserStatus(teacher.id, formData.status as any);
 
-      // Profil bilgilerini güncelleme
-      await authService.updateUserProfile(teacher.id, {
+      // Profil bilgilerini güncelleme (authService.updateProfile kullan)
+      await authService.updateProfile(teacher.id, {
         name: formData.name,
-        email: formData.email,
         phone: formData.phone,
         profession: formData.profession,
         institution: formData.institution,
-        subscriptionPlan: formData.subscriptionPlan,
+        subscriptionPlan: formData.subscriptionPlan as 'free' | 'pro',
       });
 
       toast.success(`${formData.name} profil bilgileri başarıyla güncellendi.`);
