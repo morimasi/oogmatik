@@ -82,7 +82,20 @@ export const AssessmentEngine: React.FC<AssessmentEngineProps> = ({
         case 'visual_motor_integration':
             return <VisualMotorIntegrationTest onComplete={onComplete} studentAge={studentAge} />;
         case 'verbal_comprehension':
-            return <VerbalComprehensionTest onComplete={onComplete} studentAge={studentAge} />;
+            return (
+                <VerbalComprehensionTest
+                    onComplete={onComplete}
+                    studentAge={studentAge}
+                    studentProfile={{
+                        studentName,
+                        age: studentAge,
+                        grade: studentGrade,
+                        diagnosis: studentDiagnosis,
+                        strengths: studentStrengths,
+                        weaknesses: studentWeaknesses,
+                    }}
+                />
+            );
         default:
             return (
                 <div className="flex flex-col items-center justify-center w-full h-full gap-8 text-center relative overflow-hidden">
