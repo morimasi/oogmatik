@@ -441,7 +441,16 @@ export const AssessmentModule = ({ onBack, onSelectActivity, onAutoGenerateWorkb
 
                 <div className="flex-1 flex overflow-hidden">
                     <div className="flex-1 relative bg-zinc-50 dark:bg-zinc-900 p-4 flex items-center justify-center overflow-auto">
-                        <AssessmentEngine domain={currentDomainId} onComplete={handleTestComplete} />
+                        <AssessmentEngine
+                            domain={currentDomainId}
+                            onComplete={handleTestComplete}
+                            studentName={studentName}
+                            studentAge={studentAge}
+                            studentGrade={activeStudent?.grade || '1. Sınıf'}
+                            studentDiagnosis={activeStudent?.diagnosis || []}
+                            studentStrengths={activeStudent?.strengths || []}
+                            studentWeaknesses={activeStudent?.weaknesses || []}
+                        />
                     </div>
                     <div className="w-72 bg-white dark:bg-zinc-800 border-l border-zinc-200 dark:border-zinc-700 p-5 flex flex-col overflow-y-auto flex-shrink-0">
                         <h4 className="font-black text-zinc-400 uppercase tracking-widest text-[10px] mb-5 flex items-center gap-2">

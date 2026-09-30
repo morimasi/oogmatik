@@ -1,8 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { SubTestResult } from '../../../types';
+import type { DomainAdaptiveParameters } from '../services/cognitiveAdaptiveService';
 
 interface VisualSearchTestProps {
     onComplete: (result: SubTestResult) => void;
+    adaptiveParams?: DomainAdaptiveParameters;
 }
 
 interface LevelConfig {
@@ -13,13 +15,6 @@ interface LevelConfig {
     targetCount: number;
     title: string;
 }
-
-const LEVEL_CONFIGS: LevelConfig[] = [
-    { level: 1, gridSize: 5, targetChar: 'b', distractorChars: ['d', 'p', 'q'], targetCount: 4, title: 'b Harfini Bul' },
-    { level: 2, gridSize: 6, targetChar: 'E', distractorChars: ['F', 'B', 'P', '3'], targetCount: 5, title: 'E Harfini Bul' },
-    { level: 3, gridSize: 8, targetChar: 'M', distractorChars: ['N', 'W', 'V', 'U'], targetCount: 6, title: 'M Harfini Bul' },
-    { level: 4, gridSize: 10, targetChar: '6', distractorChars: ['9', '8', '0', '5'], targetCount: 8, title: '6 Sayısını Bul' }
-];
 
 // Fisher-Yates (Knuth) Shuffle Algoritması - Tam Güvenilir Karıştırma
 function shuffleArray<T>(array: T[]): T[] {
@@ -39,7 +34,32 @@ interface GridCell {
     isError: boolean;
 }
 
-export const VisualSearchTest: React.FC<VisualSearchTestProps> = ({ onComplete }) => {
+// Farklı zorluk seviyelerine ve tanı dinamiklerine göre benzersiz harf havuzları
+const LEVEL_PRESETS: Record<string, LevelConfig[]> = {
+    // 1-2. Seviye / Disleksi & DEHB dostu sade ve ferah havuz
+    easy: [
+        { level: 1, gridSize: 4, targetChar: '★', distractorChars: ['▲', '●', '■'], targetCount: 3, title: 'Yıldızları Bul' },
+        { level: 2, gridSize: 5, targetChar: 'A', distractorChars: ['O', 'U', 'I'], targetCount: 4, title: 'A Harfini Bul' },
+        { level: 3, gridSize: 5, targetChar: 'b', distractorChars: ['d', 'p'], targetCount: 4, title: 'b Harfini Bul' },
+        { level: 4, gridSize: 6, targetChar: '7', distractorChars: ['1', '4', '2'], targetCount: 5, title: '7 Sayısını Bul' }
+    ],
+    // 3. Seviye / Standart bilişsel tarama
+    medium: [
+        { level: 1, gridSize: 5, targetChar: 'b', distractorChars: ['d', 'p', 'q'], targetCount: 4, title: 'b Harfini Bul' },
+        { level: 2, gridSize: 6, targetChar: 'E', distractorChars: ['F', 'B', 'P', '3'], targetCount: 5, title: 'E Harfini Bul' },
+        { level: 3, gridSize: 7, targetChar: 'M', distractorChars: ['N', 'W', 'V', 'U'], targetCount: 6, title: 'M Harfini Bul' },
+        { level: 4, gridSize: 8, targetChar: '6', distractorChars: ['9', '8', '0', '5'], targetCount: 7, title: '6 Sayısını Bul' }
+    ],
+    // 4-5. Seviye / İleri düzey & ayırt edici tarama
+    hard: [
+        { level: 1, gridSize: 6, targetChar: 'bd', distractorChars: ['db', 'pb', 'qp'], targetCount: 5, title: 'bd Çiftini Bul' },
+        { level: 2, gridSize: 8, targetChar: 'E', distractorChars: ['F', 'B', 'P', '3', '8'], targetCount: 6, title: 'E Harfini Bul' },
+        { level: 3, gridSize: 9, targetChar: 'O', distractorChars: ['Q', 'D', '0', 'C'], targetCount: 8, title: 'O Harfini Bul' },
+        { level: 4, gridSize: 10, targetChar: 's', distractorChars: ['z', '5', 'e', 'c'], targetCount: 10, title: 's Harfini Bul' }
+    ]
+};
+
+export const VisualSearchTest: React.FC<VisualSearchTestProps> = ({ onComplete, adaptiveParams }) => {
     const [phase, setPhase] = useState<'intro' | 'play' | 'feedback' | 'done'>('intro');
     const [levelIdx, setLevelIdx] = useState(0);
     const [showHint, setShowHint] = useState(false);
@@ -53,7 +73,15 @@ export const VisualSearchTest: React.FC<VisualSearchTestProps> = ({ onComplete }
     const startTime = useRef(0);
     const levelStartTime = useRef(0);
 
-    const config = LEVEL_CONFIGS[levelIdx] || LEVEL_CONFIGS[0];
+    // Öğrenci profiline göre belirlenmiş seviye yapılandırması
+    const levelConfigs = useMemo(() => {
+        if (!adaptiveParams) return LEVEL_PRESETS.medium;
+        if (adaptiveParams.complexityScore <= 2) return LEVEL_PRESETS.easy;
+        if (adaptiveParams.complexityScore >= 4) return LEVEL_PRESETS.hard;
+        return LEVEL_PRESETS.medium;
+    }, [adaptiveParams]);
+
+    const config = levelConfigs[levelIdx] || levelConfigs[0];
 
     const handleShowHint = () => {
         if (phase !== 'play') return;
@@ -62,7 +90,7 @@ export const VisualSearchTest: React.FC<VisualSearchTestProps> = ({ onComplete }
     };
 
     const generateGrid = (currentLevelIdx: number) => {
-        const currentConfig = LEVEL_CONFIGS[currentLevelIdx] || LEVEL_CONFIGS[0];
+        const currentConfig = levelConfigs[currentLevelIdx] || levelConfigs[0];
         const totalCells = currentConfig.gridSize * currentConfig.gridSize;
         const newGrid: GridCell[] = [];
 
@@ -73,7 +101,7 @@ export const VisualSearchTest: React.FC<VisualSearchTestProps> = ({ onComplete }
         // 1. Kesin olarak targetCount adet HEDEF harf ekle
         for (let i = 0; i < currentConfig.targetCount; i++) {
             newGrid.push({
-                id: `target_${i}_${Date.now()}`,
+                id: `target_${i}_${Date.now()}_${Math.random()}`,
                 char: currentConfig.targetChar,
                 isTarget: true,
                 isFound: false,
@@ -86,7 +114,7 @@ export const VisualSearchTest: React.FC<VisualSearchTestProps> = ({ onComplete }
         for (let i = 0; i < remaining; i++) {
             const randomDistractor = safeDistractors[Math.floor(Math.random() * safeDistractors.length)];
             newGrid.push({
-                id: `dist_${i}_${Date.now()}`,
+                id: `dist_${i}_${Date.now()}_${Math.random()}`,
                 char: randomDistractor,
                 isTarget: false,
                 isFound: false,
@@ -117,78 +145,68 @@ export const VisualSearchTest: React.FC<VisualSearchTestProps> = ({ onComplete }
         startLevel(0);
     };
 
-    const handleClick = (cellIndex: number) => {
-        if (phase !== 'play') return;
+    const handleCellClick = (cell: GridCell) => {
+        if (phase !== 'play' || cell.isFound) return;
 
-        const cell = grid[cellIndex];
-        if (cell.isFound || cell.isError) return; // Zaten tıklandıysa etkileşimi engelle
+        const reactionTime = Date.now() - levelStartTime.current;
+        totalReactionTime.current += reactionTime;
 
-        const newGrid = [...grid];
-
-        // Kesin Karşılaştırma: hem isTarget hem de char eşleşmesi doğrulanır
-        if (cell.isTarget || cell.char === config.targetChar) {
-            newGrid[cellIndex].isFound = true;
-            const newFound = foundCount + 1;
-            setFoundCount(newFound);
+        if (cell.isTarget) {
             totalCorrect.current += 1;
-            setGrid(newGrid);
+            const newFoundCount = foundCount + 1;
+            setFoundCount(newFoundCount);
 
-            // Tüm hedefler bulundu mu?
-            if (newFound >= config.targetCount) {
-                totalReactionTime.current += (Date.now() - levelStartTime.current);
+            setGrid(prev => prev.map(c =>
+                c.id === cell.id ? { ...c, isFound: true } : c
+            ));
+
+            if (newFoundCount >= config.targetCount) {
                 setPhase('feedback');
                 setTimeout(() => {
-                    if (levelIdx + 1 < LEVEL_CONFIGS.length) {
+                    if (levelIdx + 1 < levelConfigs.length) {
                         const next = levelIdx + 1;
                         setLevelIdx(next);
                         startLevel(next);
                     } else {
-                        finish();
+                        finishTest();
                     }
-                }, 1400);
+                }, 1200);
             }
         } else {
-            // Hatalı tıklama (Çeldiriciye basıldı)
-            newGrid[cellIndex].isError = true;
-            setErrors(prev => prev + 1);
             totalErrors.current += 1;
-            setGrid(newGrid);
+            setErrors(prev => prev + 1);
 
-            // Çok fazla hata yapılırsa seviye sonlandırılır
-            if (errors + 1 >= 5) {
-                totalReactionTime.current += (Date.now() - levelStartTime.current);
-                setPhase('feedback');
-                setTimeout(() => {
-                    if (levelIdx + 1 < LEVEL_CONFIGS.length) {
-                        const next = levelIdx + 1;
-                        setLevelIdx(next);
-                        startLevel(next);
-                    } else {
-                        finish();
-                    }
-                }, 1400);
-            }
+            setGrid(prev => prev.map(c =>
+                c.id === cell.id ? { ...c, isError: true } : c
+            ));
+
+            setTimeout(() => {
+                setGrid(prev => prev.map(c =>
+                    c.id === cell.id ? { ...c, isError: false } : c
+                ));
+            }, 600);
         }
     };
 
-    const finish = () => {
+    const finishTest = () => {
         setPhase('done');
-        const maxScore = LEVEL_CONFIGS.reduce((acc, curr) => acc + curr.targetCount, 0);
+        const totalItemsExpected = levelConfigs.reduce((acc, c) => acc + c.targetCount, 0);
+        const accuracy = totalItemsExpected > 0
+            ? Math.max(0, Math.min(100, Math.round(((totalCorrect.current - totalErrors.current * 0.5) / totalItemsExpected) * 100)))
+            : 80;
 
-        let finalScore = totalCorrect.current - Math.floor(totalErrors.current / 2);
-        if (finalScore < 0) finalScore = 0;
-
-        const accuracy = maxScore > 0 ? (finalScore / maxScore) * 100 : 0;
-        const avgReactionTime = Math.round(totalReactionTime.current / LEVEL_CONFIGS.length);
+        const avgReactionTime = (totalCorrect.current + totalErrors.current) > 0
+            ? Math.round(totalReactionTime.current / (totalCorrect.current + totalErrors.current))
+            : 850;
 
         onComplete({
             testId: 'visual_search',
             name: 'Görsel Arama',
-            score: Math.round(accuracy),
+            score: accuracy,
             rawScore: totalCorrect.current,
-            totalItems: maxScore,
+            totalItems: totalItemsExpected,
             avgReactionTime: avgReactionTime,
-            accuracy: Math.round(accuracy),
+            accuracy: accuracy,
             status: 'completed',
             timestamp: Date.now()
         });
@@ -196,7 +214,7 @@ export const VisualSearchTest: React.FC<VisualSearchTestProps> = ({ onComplete }
 
     if (phase === 'intro') {
         return (
-            <div className="flex flex-col items-center justify-center w-full h-full gap-8 animate-in fade-in select-none relative overflow-hidden p-6">
+            <div className="flex flex-col items-center justify-center w-full h-full gap-8 animate-in fade-in select-none relative overflow-hidden p-6 font-['Lexend']">
                 <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-amber-950/30 dark:via-orange-950/30 dark:to-yellow-950/30" />
                 <div className="absolute top-0 right-0 w-96 h-96 bg-amber-400 rounded-full blur-3xl opacity-15 -translate-y-1/2 translate-x-1/2" />
                 <div className="absolute bottom-0 left-0 w-96 h-96 bg-orange-400 rounded-full blur-3xl opacity-15 translate-y-1/2 -translate-x-1/2" />
@@ -208,10 +226,15 @@ export const VisualSearchTest: React.FC<VisualSearchTestProps> = ({ onComplete }
                 </div>
 
                 <div className="relative z-10 text-center max-w-md">
-                    <h3 className="text-4xl font-black text-zinc-900 dark:text-white mb-4 bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+                    <h3 className="text-3xl sm:text-4xl font-black text-zinc-900 dark:text-white mb-3">
                         Görsel Arama Testi
                     </h3>
-                    <p className="text-zinc-600 dark:text-zinc-300 text-base leading-relaxed font-medium">
+                    {adaptiveParams && (
+                        <span className="inline-block px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 mb-3">
+                            {adaptiveParams.supportNote}
+                        </span>
+                    )}
+                    <p className="text-zinc-600 dark:text-zinc-300 text-sm sm:text-base leading-relaxed font-medium">
                         Izgara içinde belirtilen <span className="font-black text-amber-600 bg-amber-100 dark:bg-amber-900/50 px-2 py-0.5 rounded-lg">Hedef Karakteri</span> bulun ve tıklayın. Benzer çeldiricilere dikkat edin!
                     </p>
                 </div>
@@ -230,10 +253,10 @@ export const VisualSearchTest: React.FC<VisualSearchTestProps> = ({ onComplete }
                 <div className="relative z-10">
                     <button
                         onClick={handleStart}
-                        className="group px-10 py-5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-black rounded-3xl shadow-2xl shadow-amber-500/30 transition-all duration-300 flex items-center gap-4 transform hover:scale-105 active:scale-95 cursor-pointer"
+                        className="group px-8 sm:px-10 py-4 sm:py-5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-black rounded-3xl shadow-2xl shadow-amber-500/30 transition-all duration-300 flex items-center gap-4 transform hover:scale-105 active:scale-95 cursor-pointer text-base sm:text-lg"
                     >
                         <i className="fa-solid fa-play text-xl group-hover:rotate-12 transition-transform"></i>
-                        <span className="text-lg">Teste Başla</span>
+                        <span>Teste Başla</span>
                     </button>
                 </div>
             </div>
@@ -243,73 +266,79 @@ export const VisualSearchTest: React.FC<VisualSearchTestProps> = ({ onComplete }
     if (phase === 'done') return null;
 
     return (
-        <div className="flex flex-col items-center justify-center w-full h-full max-w-3xl mx-auto select-none gap-5 relative p-4 overflow-hidden">
+        <div className="flex flex-col items-center justify-center w-full h-full max-w-3xl mx-auto select-none gap-5 relative p-4 overflow-hidden font-['Lexend']">
             <div className="absolute inset-0 bg-gradient-to-br from-amber-50/80 via-orange-50/50 to-yellow-50/80 dark:from-amber-950/20 dark:via-orange-950/20 dark:to-yellow-950/20" />
 
             {/* İpucu Kutusu */}
             {showHint && phase === 'play' && (
-                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top-2 duration-300">
-                    <div className="bg-gradient-to-r from-amber-600 to-orange-600 text-white px-6 py-3 rounded-2xl shadow-2xl border border-white/20 flex items-center gap-3">
-                        <i className="fa-solid fa-lightbulb text-yellow-300 text-lg animate-bounce"></i>
-                        <span className="text-xs font-bold">
-                            Izgarada tam {config.targetCount} adet "{config.targetChar}" var!
-                        </span>
-                    </div>
+                <div className="relative z-20 w-full max-w-md bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+                    <i className="fa-solid fa-lightbulb text-amber-500 text-lg"></i>
+                    <p className="text-xs font-medium text-amber-700 dark:text-amber-300">
+                        İpucu: '{config.targetChar}' karakterine odaklan. Satır satır soldan sağa tarayarak ilerle!
+                    </p>
                 </div>
             )}
 
-            <div className="relative z-10 w-full flex flex-col items-center gap-5">
-                {/* Üst Panel */}
+            <div className="relative z-10 w-full flex flex-col items-center gap-4">
+                {/* Üst Bilgi Barı */}
                 <div className="w-full flex justify-between items-center bg-white/80 dark:bg-zinc-800/80 backdrop-blur-md p-4 sm:p-5 rounded-3xl border border-amber-200/50 dark:border-zinc-700 shadow-xl">
-                    <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg border border-white/20">
-                            <span className="text-white font-black text-3xl font-mono">{config.targetChar}</span>
+                    <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl flex items-center justify-center text-white text-2xl font-black shadow-md">
+                            {config.targetChar}
                         </div>
                         <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">ARANAN HEDEF</p>
-                            <p className="text-base sm:text-lg font-bold text-zinc-800 dark:text-zinc-100">
-                                "{config.targetChar}" Bul ({foundCount} / {config.targetCount})
+                            <p className="text-[10px] font-black uppercase tracking-widest text-amber-500">HEDEF</p>
+                            <p className="text-sm sm:text-base font-bold text-zinc-800 dark:text-zinc-100">
+                                '{config.targetChar}' Karakterini Bul
                             </p>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4 sm:gap-6">
+                    <div className="flex items-center gap-5 sm:gap-8">
                         <div className="text-center">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-red-400">Hatalar</p>
-                            <p className="text-xl font-black text-red-500">{errors}</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-amber-400">Seviye</p>
+                            <p className="text-xl font-black text-zinc-800 dark:text-white">{config.level} / {levelConfigs.length}</p>
                         </div>
                         <div className="text-center">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-amber-500">Seviye</p>
-                            <p className="text-xl font-black text-zinc-800 dark:text-white">{config.level} / {LEVEL_CONFIGS.length}</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Bulunan</p>
+                            <p className="text-xl font-black text-emerald-500">{foundCount} / {config.targetCount}</p>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-rose-400">Hata</p>
+                            <p className="text-xl font-black text-rose-500">{errors}</p>
                         </div>
                         <button
                             onClick={handleShowHint}
-                            disabled={phase !== 'play'}
-                            className="px-3 py-2 bg-amber-100 dark:bg-amber-900/40 hover:bg-amber-200 text-amber-700 dark:text-amber-300 rounded-xl font-bold text-xs transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+                            className="w-10 h-10 rounded-2xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 flex items-center justify-center transition-colors shadow-sm"
+                            title="İpucu Al"
                         >
                             <i className="fa-solid fa-lightbulb"></i>
-                            <span className="hidden sm:inline">İpucu</span>
                         </button>
                     </div>
                 </div>
 
-                {/* Grid */}
+                {/* Grid Alanı */}
                 {phase === 'play' && (
                     <div
-                        className="grid gap-2 p-5 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-[2.5rem] shadow-2xl border border-amber-200/40 dark:border-zinc-800 animate-in zoom-in-95 duration-300 max-h-[60vh] overflow-auto"
-                        style={{ gridTemplateColumns: `repeat(${config.gridSize}, minmax(0, 1fr))` }}
+                        className="grid gap-2 p-4 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md rounded-[2.5rem] shadow-2xl border border-amber-200/50 dark:border-zinc-800 animate-in zoom-in-95 duration-300"
+                        style={{
+                            gridTemplateColumns: `repeat(${config.gridSize}, minmax(0, 1fr))`,
+                            width: `${Math.min(420, config.gridSize * 50)}px`,
+                            height: `${Math.min(420, config.gridSize * 50)}px`,
+                        }}
                     >
-                        {grid.map((cell, idx) => (
+                        {grid.map((cell) => (
                             <button
-                                key={`${cell.id}_${idx}`}
-                                onClick={() => handleClick(idx)}
+                                key={cell.id}
+                                onClick={() => handleCellClick(cell)}
+                                disabled={cell.isFound}
                                 className={`
-                                    w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 flex items-center justify-center rounded-xl text-base sm:text-lg md:text-xl font-black font-mono transition-all duration-200 transform cursor-pointer select-none
+                                    w-full h-full flex items-center justify-center rounded-xl text-lg sm:text-xl font-black transition-all duration-200 select-none cursor-pointer
                                     ${cell.isFound
-                                        ? 'bg-gradient-to-br from-amber-500 to-orange-500 text-white scale-90 shadow-inner opacity-60'
+                                        ? 'bg-emerald-500 text-white scale-95 shadow-md shadow-emerald-500/20'
                                         : cell.isError
-                                            ? 'bg-gradient-to-br from-red-500 to-rose-600 text-white animate-pulse shadow-md'
-                                            : 'bg-zinc-50 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-100 hover:bg-amber-100 dark:hover:bg-amber-900/40 active:scale-95 border-2 border-zinc-200 dark:border-zinc-700 hover:border-amber-400 hover:shadow-md'
+                                            ? 'bg-rose-500 text-white animate-shake'
+                                            : 'bg-zinc-100 hover:bg-amber-50 dark:bg-zinc-800 dark:hover:bg-amber-950/30 text-zinc-700 dark:text-zinc-300 hover:text-amber-600 dark:hover:text-amber-400 hover:scale-105 active:scale-95 border border-zinc-200/60 dark:border-zinc-700/60 shadow-xs'
                                     }
                                 `}
                             >
@@ -319,16 +348,16 @@ export const VisualSearchTest: React.FC<VisualSearchTestProps> = ({ onComplete }
                     </div>
                 )}
 
-                {/* Feedback */}
+                {/* Geri Bildirim */}
                 {phase === 'feedback' && (
-                    <div className="flex flex-col items-center justify-center py-12 animate-in slide-in-from-bottom-4">
-                        <div className={`w-20 h-20 rounded-full flex items-center justify-center text-4xl mb-4 shadow-xl ${errors >= 5 ? 'bg-gradient-to-br from-red-500 to-rose-600 text-white' : 'bg-gradient-to-br from-emerald-500 to-green-600 text-white'}`}>
-                            <i className={`fa-solid ${errors >= 5 ? 'fa-xmark' : 'fa-check'} animate-bounce`}></i>
+                    <div className="flex flex-col items-center justify-center py-10 animate-in slide-in-from-bottom-4">
+                        <div className="w-16 h-16 rounded-full bg-emerald-500 text-white flex items-center justify-center text-3xl mb-3 shadow-xl">
+                            <i className="fa-solid fa-check animate-bounce"></i>
                         </div>
                         <h3 className="text-2xl font-black text-zinc-800 dark:text-zinc-100 mb-1">
-                            {errors >= 5 ? 'Seviye Tamamlanamadı' : 'Tebrikler! Tüm Hedefler Bulundu'}
+                            Harika! Tüm Hedefleri Buldun
                         </h3>
-                        <p className="text-zinc-500 font-bold text-sm">Sonraki seviyeye geçiliyor...</p>
+                        <p className="text-zinc-500 text-xs">Sonraki seviyeye geçiliyor...</p>
                     </div>
                 )}
             </div>

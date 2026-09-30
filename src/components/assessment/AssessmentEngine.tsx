@@ -2,6 +2,7 @@
 import React from 'react';
 import { CognitiveDomain, SubTestResult } from '../../types';
 import { getAdaptiveAssessmentConfig, getAssessmentTestVariation } from '../ScreeningAssessment/services/professionalAssessmentService';
+import { calculateDomainAdaptiveParameters } from './services/cognitiveAdaptiveService';
 import { MatrixMemoryTest } from './tests/MatrixMemoryTest';
 import { StroopInteractiveTest } from './tests/StroopInteractiveTest';
 import { RapidNamingTest } from './tests/RapidNamingTest';
@@ -21,6 +22,9 @@ interface AssessmentEngineProps {
     studentAge?: number;
     studentGrade?: string;
     studentConcerns?: string[];
+    studentDiagnosis?: string[];
+    studentStrengths?: string[];
+    studentWeaknesses?: string[];
 }
 
 export const AssessmentEngine: React.FC<AssessmentEngineProps> = ({
@@ -30,6 +34,9 @@ export const AssessmentEngine: React.FC<AssessmentEngineProps> = ({
     studentAge = 7,
     studentGrade = '1. Sınıf',
     studentConcerns = [],
+    studentDiagnosis = [],
+    studentStrengths = [],
+    studentWeaknesses = [],
 }) => {
     const variation = getAssessmentTestVariation(domain, {
         studentName,
@@ -44,6 +51,15 @@ export const AssessmentEngine: React.FC<AssessmentEngineProps> = ({
         concerns: studentConcerns,
     });
 
+    const adaptiveParams = calculateDomainAdaptiveParameters(domain, {
+        studentName,
+        age: studentAge,
+        grade: studentGrade,
+        diagnosis: studentDiagnosis.length > 0 ? studentDiagnosis : studentConcerns,
+        strengths: studentStrengths,
+        weaknesses: studentWeaknesses,
+    });
+
     switch (domain) {
         case 'visual_spatial_memory':
             return <MatrixMemoryTest onComplete={onComplete} />;
@@ -56,7 +72,7 @@ export const AssessmentEngine: React.FC<AssessmentEngineProps> = ({
         case 'phonological_loop':
             return <PhonologicalLoopTest onComplete={onComplete} />;
         case 'visual_search':
-            return <VisualSearchTest onComplete={onComplete} />;
+            return <VisualSearchTest onComplete={onComplete} adaptiveParams={adaptiveParams} />;
         case 'working_memory':
             return <WorkingMemoryTest onComplete={onComplete} />;
         case 'planning':
