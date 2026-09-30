@@ -16,13 +16,13 @@ interface ToggleGroupProps {
 
 const CompactToggleGroup = ({ label, selected, onChange, options }: ToggleGroupProps) => (
     <div className="space-y-1">
-        <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block tracking-wider">{label}</label>
-        <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl border border-zinc-200 dark:border-zinc-700">
+        <label className="text-[10px] font-bold text-[var(--text-muted)] text-[var(--text-primary)] uppercase block tracking-wider">{label}</label>
+        <div className="flex bg-zinc-100 bg-[var(--bg-secondary)] p-1 rounded-xl border border-[var(--border-color)] border-[var(--border-color)]">
             {options.map((opt: ToggleOption, idx: number) => (
                 <button
                     key={idx}
                     onClick={() => onChange(opt.value)}
-                    className={`flex-1 py-2 text-[10px] font-black rounded-lg transition-all ${selected === opt.value ? 'bg-white dark:bg-zinc-600 shadow-md text-cyan-600 dark:text-cyan-200' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'}`}
+                    className={`flex-1 py-2 text-[10px] font-black rounded-lg transition-all ${selected === opt.value ? 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] shadow-md text-cyan-600 dark:text-cyan-200' : 'text-[var(--text-muted)] hover:text-[var(--text-muted)] dark:hover:text-[var(--text-secondary)]'}`}
                 >
                     {opt.label}
                 </button>
@@ -56,7 +56,7 @@ export const AbcConnectConfig = ({ options, onChange }: { options: GeneratorOpti
                 />
             </div>
 
-            <div className="p-5 bg-zinc-50 dark:bg-zinc-800/50 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 space-y-5 shadow-inner">
+            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)] space-y-5 shadow-inner">
                 <CompactToggleGroup
                     label="IZGARA BOYUTU"
                     selected={options.gridSize || o.gridSize || 5}
@@ -82,7 +82,7 @@ export const AbcConnectConfig = ({ options, onChange }: { options: GeneratorOpti
             </div>
 
             <div className="px-4 text-center">
-                <p className="text-[10px] text-zinc-400 italic leading-relaxed">
+                <p className="text-[10px] text-[var(--text-muted)] italic leading-relaxed">
                     "İşlem" modunda öğrenci toplama yaparak eşleştirme yapar.
                 </p>
             </div>

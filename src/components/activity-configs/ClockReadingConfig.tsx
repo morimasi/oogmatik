@@ -46,7 +46,7 @@ export const ClockReadingConfig = ({ options, onChange }: { options: GeneratorOp
       <div className="p-5 bg-gradient-to-br from-amber-50 to-orange-50/50 dark:from-amber-900/10 dark:to-amber-800/5 rounded-[2rem] border border-amber-200/70 dark:border-amber-700/30 shadow-sm">
         <div className="flex items-center gap-2 mb-4 pb-3 border-b border-amber-200/50 dark:border-amber-700/30">
           <div className="w-7 h-7 rounded-lg bg-amber-500 flex items-center justify-center">
-            <i className="fa-solid fa-gear text-white text-xs"></i>
+            <i className="fa-solid fa-gear text-[var(--text-primary)] text-xs"></i>
           </div>
           <span className="text-[9px] font-black text-amber-700 dark:text-amber-400 uppercase tracking-widest">
             Çalışma Tipi
@@ -66,17 +66,17 @@ export const ClockReadingConfig = ({ options, onChange }: { options: GeneratorOp
                 className={`relative flex flex-col items-center gap-1.5 p-3 rounded-xl text-xs font-bold border-2 transition-all ${
                   isActive
                     ? 'border-amber-500 bg-amber-100/80 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 shadow-md'
-                    : 'border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800/50 text-zinc-500 hover:border-amber-300'
+                    : 'border-[var(--border-color)] border-[var(--border-color)] bg-[var(--bg-paper)] bg-[var(--bg-secondary)] text-[var(--text-muted)] hover:border-amber-300'
                 }`}
               >
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isActive ? 'bg-amber-500 text-white' : 'bg-zinc-100 dark:bg-zinc-700 text-zinc-400'}`}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isActive ? 'bg-amber-500 text-[var(--text-primary)]' : 'bg-zinc-100 bg-[var(--bg-secondary)] text-[var(--text-muted)]'}`}>
                   <i className={`fa-solid ${meta.icon} text-sm`}></i>
                 </div>
                 <span className="text-[9px] font-black leading-tight text-center">{meta.label}</span>
-                <span className="text-[7px] font-medium text-zinc-400 dark:text-zinc-500 text-center leading-tight">{meta.desc}</span>
+                <span className="text-[7px] font-medium text-[var(--text-muted)] text-[var(--text-primary)] text-center leading-tight">{meta.desc}</span>
                 {isActive && (
                   <div className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-amber-500 rounded-full flex items-center justify-center shadow-sm">
-                    <i className="fa-solid fa-check text-white text-[6px]"></i>
+                    <i className="fa-solid fa-check text-[var(--text-primary)] text-[6px]"></i>
                   </div>
                 )}
               </button>
@@ -85,7 +85,7 @@ export const ClockReadingConfig = ({ options, onChange }: { options: GeneratorOp
         </div>
 
         {/* Sub-variant selection */}
-        <div className="mt-3 p-3 bg-white/70 dark:bg-zinc-800/50 rounded-xl border border-amber-200/50 dark:border-amber-700/30">
+        <div className="mt-3 p-3 bg-white/70 bg-[var(--bg-secondary)] rounded-xl border border-amber-200/50 dark:border-amber-700/30">
           <span className="text-[8px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-wider block mb-2">
             Alt Seçenek
           </span>
@@ -96,8 +96,8 @@ export const ClockReadingConfig = ({ options, onChange }: { options: GeneratorOp
                 onClick={() => onChange('subVariant', sub.v)}
                 className={`flex-1 py-1.5 rounded-lg text-[8px] font-bold border transition-all ${
                   subVariant === sub.v
-                    ? 'bg-amber-500 text-white border-amber-500 shadow-sm'
-                    : 'bg-white dark:bg-zinc-700 text-zinc-500 dark:text-zinc-400 border-zinc-200 dark:border-zinc-600'
+                    ? 'bg-amber-500 text-[var(--text-primary)] border-amber-500 shadow-sm'
+                    : 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] text-[var(--text-muted)] text-[var(--text-primary)] border-[var(--border-color)] border-[var(--border-color)]'
                 }`}
               >
                 {sub.l}
@@ -121,11 +121,11 @@ export const ClockReadingConfig = ({ options, onChange }: { options: GeneratorOp
                 className={`p-2 rounded-xl text-[8px] font-bold border transition-all text-center ${
                   isOn
                     ? 'bg-amber-500/10 border-amber-400 text-amber-700 dark:text-amber-300'
-                    : 'bg-white dark:bg-zinc-800/50 border-zinc-200 dark:border-zinc-700 text-zinc-400'
+                    : 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border-[var(--border-color)] border-[var(--border-color)] text-[var(--text-muted)]'
                 }`}
               >
                 <span className="block">{item.l}</span>
-                <span className="text-[6px] font-medium text-zinc-400 hidden">{item.d}</span>
+                <span className="text-[6px] font-medium text-[var(--text-muted)] hidden">{item.d}</span>
               </button>
             );
           })}
@@ -133,8 +133,8 @@ export const ClockReadingConfig = ({ options, onChange }: { options: GeneratorOp
       </div>
 
       {/* Hassasiyet */}
-      <div className="p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-[2rem] border border-indigo-100 dark:border-indigo-800/30">
-        <label className="text-[10px] font-black text-indigo-600 uppercase mb-3 block text-center">Hassasiyet (Zorluk)</label>
+      <div className="p-4 bg-[var(--accent-muted)] dark:bg-[var(--accent-muted)] rounded-[2rem] border border-[var(--border-color)] dark:border-indigo-800/30">
+        <label className="text-[10px] font-black text-[var(--accent-color)] uppercase mb-3 block text-center">Hassasiyet (Zorluk)</label>
         <div className="grid grid-cols-2 gap-2">
           {[
             { v: '30-min', l: '30 Dakika' },
@@ -147,8 +147,8 @@ export const ClockReadingConfig = ({ options, onChange }: { options: GeneratorOp
               onClick={() => onChange('precision', t.v)}
               className={`w-full py-2 rounded-xl text-[10px] font-black border transition-all ${
                 ((options as Record<string, unknown>).precision || '15-min') === t.v
-                  ? 'bg-indigo-500 text-white border-indigo-500 shadow-sm'
-                  : 'bg-white dark:bg-zinc-800 text-zinc-500 border-zinc-200 dark:border-zinc-700'
+                  ? 'bg-[var(--accent-color)] text-[var(--text-primary)] border-[var(--accent-color)] shadow-sm'
+                  : 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] text-[var(--text-muted)] border-[var(--border-color)] border-[var(--border-color)]'
               }`}
             >
               {t.l}
@@ -158,8 +158,8 @@ export const ClockReadingConfig = ({ options, onChange }: { options: GeneratorOp
       </div>
 
       {/* Saat Sayısı */}
-      <div className="p-4 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-[2rem] border border-emerald-100 dark:border-emerald-800/30">
-        <label className="text-[10px] font-black text-emerald-600 uppercase mb-3 block text-center">Saat Sayısı</label>
+      <div className="p-4 bg-[var(--accent-muted)] dark:bg-emerald-900/10 rounded-[2rem] border border-[var(--border-color)] dark:border-emerald-800/30">
+        <label className="text-[10px] font-black text-[var(--accent-color)] uppercase mb-3 block text-center">Saat Sayısı</label>
         <div className="flex gap-2">
           {[8, 12, 16].map((count) => (
             <button
@@ -167,8 +167,8 @@ export const ClockReadingConfig = ({ options, onChange }: { options: GeneratorOp
               onClick={() => onChange('itemCount', count)}
               className={`flex-1 py-2 rounded-xl text-xs font-black border transition-all ${
                 (options.itemCount || 12) === count
-                  ? 'bg-emerald-500 text-white border-emerald-500 shadow-sm'
-                  : 'bg-white dark:bg-zinc-800 text-zinc-500 border-zinc-200 dark:border-zinc-700'
+                  ? 'bg-emerald-500 text-[var(--text-primary)] border-emerald-500 shadow-sm'
+                  : 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] text-[var(--text-muted)] border-[var(--border-color)] border-[var(--border-color)]'
               }`}
             >
               {count}
@@ -178,21 +178,21 @@ export const ClockReadingConfig = ({ options, onChange }: { options: GeneratorOp
       </div>
 
       {/* Kadran Detayları */}
-      <div className="p-5 bg-zinc-50 dark:bg-zinc-800 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 space-y-3">
-        <h4 className="text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2">Kadran Detayları</h4>
+      <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)] space-y-3">
+        <h4 className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest mb-2">Kadran Detayları</h4>
         {[
           { k: 'showNumbers', l: 'Rakamları Göster' },
           { k: 'showTicks', l: 'Dakika Çizgileri' },
           { k: 'is24Hour', l: '24 Saat Formatı' },
         ].map((item) => (
           <div key={item.k} className="flex items-center justify-between">
-            <span className="text-[10px] font-bold text-zinc-600 dark:text-zinc-300">{item.l}</span>
+            <span className="text-[10px] font-bold text-[var(--text-muted)] text-[var(--text-primary)]">{item.l}</span>
             <div
-              className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${(options as Record<string, unknown>)[item.k] !== false ? 'bg-indigo-600' : 'bg-zinc-300 dark:bg-zinc-600'}`}
+              className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${(options as Record<string, unknown>)[item.k] !== false ? 'bg-[var(--accent-color)]' : 'bg-zinc-300 bg-[var(--bg-secondary)]'}`}
               onClick={() => onChange(item.k, (options as Record<string, unknown>)[item.k] === false)}
             >
               <div
-                className={`absolute top-0.5 w-3 h-3 bg-white rounded-full transition-all ${(options as Record<string, unknown>)[item.k] !== false ? 'left-4.5' : 'left-0.5'}`}
+                className={`absolute top-0.5 w-3 h-3 bg-[var(--bg-paper)] rounded-full transition-all ${(options as Record<string, unknown>)[item.k] !== false ? 'left-4.5' : 'left-0.5'}`}
               ></div>
             </div>
           </div>

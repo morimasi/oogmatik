@@ -3,11 +3,11 @@ import { GeneratorOptions } from '../../types';
 
 const ToggleGroup = ({ label, selected, onChange, options }: { label: string; selected: string; onChange: (v: string) => void; options: { value: string; label: string }[] }) => (
     <div className="space-y-1">
-        <label className="text-[10px] font-bold text-zinc-500 uppercase block">{label}</label>
-        <div className="flex bg-zinc-100 p-1 rounded-lg border border-zinc-200">
+        <label className="text-[10px] font-bold text-[var(--text-muted)] uppercase block">{label}</label>
+        <div className="flex bg-zinc-100 p-1 rounded-lg border border-[var(--border-color)]">
             {options.map(opt => (
                 <button key={opt.value} onClick={() => onChange(opt.value)}
-                    className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-white shadow-sm text-indigo-600' : 'text-zinc-500 hover:text-zinc-700'}`}>
+                    className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-[var(--bg-paper)] shadow-sm text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-zinc-700'}`}>
                     {opt.label}
                 </button>
             ))}
@@ -18,10 +18,10 @@ const ToggleGroup = ({ label, selected, onChange, options }: { label: string; se
 export const SyllableMasterLabConfig: React.FC<{ options: GeneratorOptions; onChange: (k: keyof GeneratorOptions, v: unknown) => void }> = ({ options, onChange }) => {
     return (
         <div className="space-y-4 animate-in fade-in duration-300">
-            <div className="p-4 bg-purple-50/50 rounded-[2rem] border border-purple-100 space-y-4">
+            <div className="p-4 bg-[var(--accent-muted)]/50 rounded-[2rem] border border-[var(--border-color)] space-y-4">
                 <div className="flex items-center gap-2 mb-1">
                     <i className="fa-solid fa-sliders text-purple-500 text-sm"></i>
-                    <span className="text-[10px] font-black text-purple-600 uppercase tracking-widest">Çalışma Modu</span>
+                    <span className="text-[10px] font-black text-[var(--accent-color)] uppercase tracking-widest">Çalışma Modu</span>
                 </div>
                 <ToggleGroup
                     label="Mod"
@@ -73,15 +73,15 @@ export const SyllableMasterLabConfig: React.FC<{ options: GeneratorOptions; onCh
                 />
             </div>
 
-            <div className="p-4 bg-zinc-50 rounded-[2.5rem] border border-zinc-100 space-y-3">
+            <div className="p-4 bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] space-y-3">
                 <div className="flex items-center gap-2">
-                    <i className="fa-solid fa-table text-zinc-500 text-sm"></i>
-                    <span className="text-[10px] font-black text-zinc-600 uppercase tracking-widest">Sütun Sayısı</span>
+                    <i className="fa-solid fa-table text-[var(--text-muted)] text-sm"></i>
+                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Sütun Sayısı</span>
                 </div>
                 <div className="flex gap-2">
                     {[4, 5, 6].map(n => (
                         <button key={n} onClick={() => onChange('gridCols' as keyof GeneratorOptions, n)}
-                            className={`flex-1 py-2 text-xs font-black rounded-xl border-2 transition-all ${(options.gridCols || 5) === n ? 'bg-purple-500 border-purple-500 text-white shadow-lg' : 'bg-white text-zinc-500 border-zinc-200'}`}>
+                            className={`flex-1 py-2 text-xs font-black rounded-xl border-2 transition-all ${(options.gridCols || 5) === n ? 'bg-[var(--accent-muted)]0 border-purple-500 text-[var(--text-primary)] shadow-lg' : 'bg-[var(--bg-paper)] text-[var(--text-muted)] border-[var(--border-color)]'}`}>
                             {n} Sütun
                         </button>
                     ))}
@@ -92,7 +92,7 @@ export const SyllableMasterLabConfig: React.FC<{ options: GeneratorOptions; onCh
                     <div className="flex gap-1.5">
                         {[12, 24, 32, 40].map(n => (
                             <button key={n} onClick={() => onChange('itemCount', n)}
-                                className={`flex-1 py-2 text-xs font-black rounded-xl border-2 transition-all ${options.itemCount === n ? 'bg-amber-500 border-amber-500 text-white shadow-lg' : 'bg-white border-zinc-200 text-zinc-500'}`}>
+                                className={`flex-1 py-2 text-xs font-black rounded-xl border-2 transition-all ${options.itemCount === n ? 'bg-amber-500 border-amber-500 text-[var(--text-primary)] shadow-lg' : 'bg-[var(--bg-paper)] border-[var(--border-color)] text-[var(--text-muted)]'}`}>
                                 {n}
                             </button>
                         ))}

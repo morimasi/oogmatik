@@ -3,10 +3,10 @@ import { GeneratorOptions } from '../../types';
 
 const CompactToggleGroup = ({ label, selected, onChange, options }: { label: string; selected: string; onChange: (v: string) => void; options: { value: string; label: string }[] }) => (
     <div className="space-y-1 mt-4">
-        <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block">{label}</label>
-        <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
+        <label className="text-[10px] font-bold text-[var(--text-muted)] text-[var(--text-primary)] uppercase block">{label}</label>
+        <div className="flex bg-zinc-100 bg-[var(--bg-secondary)] p-1 rounded-lg border border-[var(--border-color)] border-[var(--border-color)]">
             {options.map((opt: { value: string; label: string }) => (
-                <button key={opt.value} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-white dark:bg-zinc-600 shadow-sm text-fuchsia-600 dark:text-fuchsia-300' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}>
+                <button key={opt.value} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] shadow-sm text-fuchsia-600 dark:text-fuchsia-300' : 'text-[var(--text-muted)] hover:text-zinc-700 dark:hover:text-[var(--text-secondary)]'}`}>
                     {opt.label}
                 </button>
             ))}
@@ -40,7 +40,7 @@ export const LogicErrorHunterConfig: React.FC<ConfigProps> = ({ options, onChang
 
                 <div className="mt-5 space-y-4">
                     <div>
-                        <div className="flex justify-between items-center text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase">
+                        <div className="flex justify-between items-center text-[10px] font-bold text-[var(--text-muted)] text-[var(--text-primary)] uppercase">
                             <span>Metin İçindeki Hata Sayısı (Uzunluğu Etkiler)</span>
                             <span className="text-fuchsia-600 font-black">{options.errorCount || 3} HATA</span>
                         </div>
@@ -48,9 +48,9 @@ export const LogicErrorHunterConfig: React.FC<ConfigProps> = ({ options, onChang
                             type="range" min={1} max={7} step={1}
                             value={options.errorCount || 3}
                             onChange={e => onChange('errorCount', parseInt(e.target.value))}
-                            className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-fuchsia-600 mt-2"
+                            className="w-full h-1.5 bg-zinc-200 bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-fuchsia-600 mt-2"
                         />
-                        <p className="text-[9px] text-zinc-400 mt-2 leading-relaxed">Daha fazla hata talebi, hikayenin daha uzun olmasını gerektirecektir.</p>
+                        <p className="text-[9px] text-[var(--text-muted)] mt-2 leading-relaxed">Daha fazla hata talebi, hikayenin daha uzun olmasını gerektirecektir.</p>
                     </div>
                 </div>
             </div>

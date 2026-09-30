@@ -54,27 +54,27 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
     return (
         <div className="space-y-5 animate-in fade-in duration-300">
             {/* Manuel Harita Yükleme */}
-            <div className="p-4 bg-indigo-900/20 rounded-[2rem] border border-indigo-500/30">
-                <label className="text-[10px] font-black text-indigo-400 uppercase mb-3 block text-center tracking-widest">
+            <div className="p-4 bg-indigo-900/20 rounded-[2rem] border border-[var(--accent-color)]/30">
+                <label className="text-[10px] font-black text-[var(--accent-color)] uppercase mb-3 block text-center tracking-widest">
                     <i className="fa-solid fa-upload mr-2"></i>Özel Harita / Kroki
                 </label>
 
                 <div
                     onClick={() => fileInputRef.current?.click()}
-                    className="w-full aspect-video border-2 border-dashed border-indigo-500/40 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-indigo-500/10 transition-all group overflow-hidden"
+                    className="w-full aspect-video border-2 border-dashed border-[var(--accent-color)]/40 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:bg-[var(--accent-color)]/10 transition-all group overflow-hidden"
                 >
                     {options.customInput ? (
                         <div className="relative w-full h-full">
                             <img src={options.customInput} className="w-full h-full object-cover" alt="Custom Map" />
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                <span className="text-[10px] font-bold text-white">DEĞİŞTİR</span>
+                                <span className="text-[10px] font-bold text-[var(--text-primary)]">DEĞİŞTİR</span>
                             </div>
                         </div>
                     ) : (
                         <>
-                            <i className="fa-solid fa-map-location-dot text-2xl text-indigo-500/40 mb-2 group-hover:scale-110 transition-transform"></i>
-                            <span className="text-[10px] font-bold text-zinc-500 text-center px-4">Görsel Yükle (JPG/PNG)</span>
-                            <span className="text-[8px] text-zinc-600 mt-1">veya standart Türkiye haritası kullanılır</span>
+                            <i className="fa-solid fa-map-location-dot text-2xl text-[var(--accent-color)]/40 mb-2 group-hover:scale-110 transition-transform"></i>
+                            <span className="text-[10px] font-bold text-[var(--text-muted)] text-center px-4">Görsel Yükle (JPG/PNG)</span>
+                            <span className="text-[8px] text-[var(--text-muted)] mt-1">veya standart Türkiye haritası kullanılır</span>
                         </>
                     )}
                 </div>
@@ -104,7 +104,7 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                     )}
                 </label>
 
-                <div className={`relative w-full aspect-[2/1] bg-black/20 rounded-xl overflow-hidden border border-zinc-800/50 ${options.customInput ? 'opacity-30 pointer-events-none' : ''}`}>
+                <div className={`relative w-full aspect-[2/1] bg-black/20 rounded-xl overflow-hidden border border-[var(--border-color)] ${options.customInput ? 'opacity-30 pointer-events-none' : ''}`}>
                     <TurkeyMapSVG
                         emphasizedRegion={options.emphasizedRegion || 'all'}
                         interactive={!options.customInput}
@@ -135,11 +135,11 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                                 key={qt.value}
                                 onClick={() => toggleQuestionType(qt.value)}
                                 className={`w-full py-2.5 px-4 rounded-xl text-left flex items-center gap-3 transition-all border ${isActive
-                                    ? 'bg-violet-600/15 border-violet-500/40 text-violet-300'
-                                    : 'bg-zinc-800/50 border-zinc-700/50 text-zinc-500 hover:border-violet-500/30'
+                                    ? 'bg-[var(--accent-color)]/15 border-violet-500/40 text-violet-300'
+                                    : 'bg-[var(--bg-paper)]/50 border-[var(--border-color)] text-[var(--text-muted)] hover:border-violet-500/30'
                                     }`}
                             >
-                                <i className={`fa-solid ${qt.icon} text-xs ${isActive ? 'text-violet-400' : 'text-zinc-600'}`}></i>
+                                <i className={`fa-solid ${qt.icon} text-xs ${isActive ? 'text-violet-400' : 'text-[var(--text-muted)]'}`}></i>
                                 <div className="flex-1">
                                     <span className="text-[10px] font-black uppercase">{qt.label}</span>
                                     <span className="text-[8px] ml-2 opacity-60">{qt.desc}</span>
@@ -152,8 +152,8 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
             </div>
 
             {/* Zorluk Kademesi */}
-            <div className="p-5 bg-zinc-800/50 rounded-[2.5rem] border border-zinc-700/50 space-y-4">
-                <label className="text-[10px] font-black text-zinc-400 uppercase block text-center tracking-widest">
+            <div className="p-5 bg-[var(--bg-paper)]/50 rounded-[2.5rem] border border-[var(--border-color)] space-y-4">
+                <label className="text-[10px] font-black text-[var(--text-muted)] uppercase block text-center tracking-widest">
                     <i className="fa-solid fa-gauge-high mr-2"></i>Klinik Zorluk Kademesi
                 </label>
                 <div className="space-y-2">
@@ -162,41 +162,41 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                             key={d.value}
                             onClick={() => onChange('difficulty', d.value)}
                             className={`w-full py-3 px-4 rounded-xl flex items-center justify-between transition-all border ${options.difficulty === d.value
-                                ? `bg-${d.color}-600/15 border-${d.color}-500/40 text-white shadow-lg`
-                                : 'bg-zinc-900/50 border-zinc-700/30 text-zinc-500 hover:border-zinc-500'
+                                ? `bg-${d.color}-600/15 border-${d.color}-500/40 text-[var(--text-primary)] shadow-lg`
+                                : 'bg-[var(--bg-inset)]/50 border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--border-color)]'
                                 }`}
                         >
                             <div className="flex items-center gap-3">
-                                <span className={`text-[11px] font-black ${options.difficulty === d.value ? `text-${d.color}-400` : 'text-zinc-600'}`}>{d.label}</span>
+                                <span className={`text-[11px] font-black ${options.difficulty === d.value ? `text-${d.color}-400` : 'text-[var(--text-muted)]'}`}>{d.label}</span>
                                 <span className="text-[10px] font-bold">{d.desc}</span>
                             </div>
-                            {options.difficulty === d.value && <i className="fa-solid fa-circle-check text-emerald-400 text-sm"></i>}
+                            {options.difficulty === d.value && <i className="fa-solid fa-circle-check text-[var(--accent-color)] text-sm"></i>}
                         </button>
                     ))}
                 </div>
 
                 {/* Şehir İsimleri Toggle */}
-                <div className="flex items-center justify-between px-2 pt-3 border-t border-zinc-700/30">
-                    <span className="text-[10px] font-black text-zinc-400 uppercase">Şehir İsimleri</span>
+                <div className="flex items-center justify-between px-2 pt-3 border-t border-[var(--border-color)]">
+                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase">Şehir İsimleri</span>
                     <div
-                        className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${options.showCityNames !== false ? 'bg-indigo-600' : 'bg-zinc-600'}`}
+                        className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${options.showCityNames !== false ? 'bg-[var(--accent-color)]' : 'bg-zinc-600'}`}
                         onClick={() => onChange('showCityNames', options.showCityNames === false)}
                     >
-                        <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow ${options.showCityNames !== false ? 'left-5' : 'left-0.5'}`}></div>
+                        <div className={`absolute top-0.5 w-4 h-4 bg-[var(--bg-paper)] rounded-full transition-all shadow ${options.showCityNames !== false ? 'left-5' : 'left-0.5'}`}></div>
                     </div>
                 </div>
 
                 {/* İşaretçi Stili */}
                 <div className="flex items-center justify-between px-2">
-                    <span className="text-[10px] font-black text-zinc-400 uppercase">İşaretçi</span>
+                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase">İşaretçi</span>
                     <div className="flex gap-1.5">
                         {(['circle', 'star', 'target', 'dot', 'none'] as const).map(ms => (
                             <button
                                 key={ms}
                                 onClick={() => onChange('markerStyle', ms)}
                                 className={`w-8 h-8 rounded-lg flex items-center justify-center text-[10px] transition-all ${(options.markerStyle || 'circle') === ms
-                                    ? 'bg-indigo-600 text-white'
-                                    : 'bg-zinc-800 text-zinc-500'
+                                    ? 'bg-[var(--accent-color)] text-[var(--text-primary)]'
+                                    : 'bg-[var(--bg-paper)] text-[var(--text-muted)]'
                                     }`}
                                 title={ms}
                             >
@@ -211,11 +211,11 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                 </div>
 
                 {/* Harita Tipi */}
-                <div className="flex items-center justify-between px-2 pt-3 border-t border-zinc-700/30">
-                    <span className="text-[10px] font-black text-zinc-400 uppercase">Harita Tipi</span>
+                <div className="flex items-center justify-between px-2 pt-3 border-t border-[var(--border-color)]">
+                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase">Harita Tipi</span>
                     <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
                         {(['turkey', 'world', 'treasure'] as const).map(type => (
-                            <button key={type} onClick={() => onChange('mapType', type)} className={`flex-1 py-1 text-[10px] font-bold rounded-md ${options.mapType === type ? 'bg-white shadow-sm text-sky-600' : 'text-slate-500'}`}>
+                            <button key={type} onClick={() => onChange('mapType', type)} className={`flex-1 py-1 text-[10px] font-bold rounded-md ${options.mapType === type ? 'bg-[var(--bg-paper)] shadow-sm text-sky-600' : 'text-slate-500'}`}>
                                 {type === 'turkey' ? 'Türkiye' : type === 'world' ? 'Dünya' : 'Hazine'}
                             </button>
                         ))}
@@ -223,24 +223,24 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                 </div>
 
                 {/* Pusula Eklensin mi? */}
-                <div className="mt-4 pt-4 border-t border-zinc-700/30 flex justify-between items-center">
-                    <span className="text-[10px] font-black text-zinc-400 uppercase"><i className="fa-solid fa-compass text-sky-500 mr-2"></i> Pusula Eklensin mi?</span>
+                <div className="mt-4 pt-4 border-t border-[var(--border-color)] flex justify-between items-center">
+                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase"><i className="fa-solid fa-compass text-sky-500 mr-2"></i> Pusula Eklensin mi?</span>
                     <div
-                        className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${options.includeCompass ? 'bg-indigo-600' : 'bg-zinc-600'}`}
+                        className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${options.includeCompass ? 'bg-[var(--accent-color)]' : 'bg-zinc-600'}`}
                         onClick={() => onChange('includeCompass', !options.includeCompass)}
                     >
-                        <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow ${options.includeCompass ? 'left-5' : 'left-0.5'}`}></div>
+                        <div className={`absolute top-0.5 w-4 h-4 bg-[var(--bg-paper)] rounded-full transition-all shadow ${options.includeCompass ? 'left-5' : 'left-0.5'}`}></div>
                     </div>
                 </div>
 
                 {/* Koordinat Izgarası (Grid) Açılsın mı? */}
-                <div className="mt-4 pt-4 border-t border-zinc-700/30 flex justify-between items-center">
-                    <span className="text-[10px] font-black text-zinc-400 uppercase"><i className="fa-solid fa-border-all text-sky-500 mr-2"></i> Koordinat Izgarası (Grid) Açılsın mı?</span>
+                <div className="mt-4 pt-4 border-t border-[var(--border-color)] flex justify-between items-center">
+                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase"><i className="fa-solid fa-border-all text-sky-500 mr-2"></i> Koordinat Izgarası (Grid) Açılsın mı?</span>
                     <div
-                        className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${options.useGridSystem ? 'bg-indigo-600' : 'bg-zinc-600'}`}
+                        className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${options.useGridSystem ? 'bg-[var(--accent-color)]' : 'bg-zinc-600'}`}
                         onClick={() => onChange('useGridSystem', !options.useGridSystem)}
                     >
-                        <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-all shadow ${options.useGridSystem ? 'left-5' : 'left-0.5'}`}></div>
+                        <div className={`absolute top-0.5 w-4 h-4 bg-[var(--bg-paper)] rounded-full transition-all shadow ${options.useGridSystem ? 'left-5' : 'left-0.5'}`}></div>
                     </div>
                 </div>
             </div>

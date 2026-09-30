@@ -15,13 +15,13 @@ interface CompactToggleGroupProps {
 
 const CompactToggleGroup: React.FC<CompactToggleGroupProps> = ({ label, selected, onChange, options }) => (
     <div className="space-y-1">
-        <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block">{label}</label>
-        <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
+        <label className="text-[10px] font-bold text-[var(--text-muted)] text-[var(--text-primary)] uppercase block">{label}</label>
+        <div className="flex bg-zinc-100 bg-[var(--bg-secondary)] p-1 rounded-lg border border-[var(--border-color)] border-[var(--border-color)]">
             {options.map((opt) => (
                 <button
                     key={opt.value}
                     onClick={() => onChange(opt.value)}
-                    className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-white dark:bg-zinc-600 shadow-sm text-indigo-600 dark:text-indigo-300' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}
+                    className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] shadow-sm text-[var(--accent-color)] dark:text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-zinc-700 dark:hover:text-[var(--text-secondary)]'}`}
                 >
                     {opt.label}
                 </button>
@@ -49,28 +49,28 @@ export const StorySequencingConfig: React.FC<ConfigProps> = ({ options, onChange
                         value={options.topic || ''}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('topic', e.target.value)}
                         placeholder="Örn: Yemek tarifi, Tohumun büyümesi, Sabah rutini..."
-                        className="w-full p-4 bg-white dark:bg-zinc-800 border-2 border-amber-100 dark:border-zinc-700 rounded-2xl text-sm font-bold outline-none focus:border-amber-500 dark:text-zinc-100 placeholder-zinc-400 shadow-inner"
+                        className="w-full p-4 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border-2 border-amber-100 border-[var(--border-color)] rounded-2xl text-sm font-bold outline-none focus:border-amber-500 text-[var(--text-primary)] placeholder-zinc-400 shadow-inner"
                     />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-zinc-500 uppercase block">Panel Sayısı</label>
+                        <label className="text-[10px] font-bold text-[var(--text-muted)] uppercase block">Panel Sayısı</label>
                         <input
                             type="number"
                             min={3}
                             max={8}
                             value={((options as Record<string, unknown>).panelCount as number) || 4}
                             onChange={(e) => onChange('panelCount', parseInt(e.target.value))}
-                            className="w-full p-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold"
+                            className="w-full p-3 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-xl text-xs font-bold"
                         />
                     </div>
                     <div className="space-y-1">
-                        <label className="text-[10px] font-bold text-zinc-500 uppercase block">Zorluk Seviyesi</label>
+                        <label className="text-[10px] font-bold text-[var(--text-muted)] uppercase block">Zorluk Seviyesi</label>
                         <select
                             value={options.difficulty || 'Orta'}
                             onChange={(e) => onChange('difficulty', e.target.value)}
-                            className="w-full p-3 bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold"
+                            className="w-full p-3 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-xl text-xs font-bold"
                         >
                             <option value="Kolay">Temel (3-4 Adım)</option>
                             <option value="Orta">Standart (5-6 Adım)</option>
@@ -80,25 +80,25 @@ export const StorySequencingConfig: React.FC<ConfigProps> = ({ options, onChange
                 </div>
             </div>
 
-            <div className="p-5 bg-zinc-50 dark:bg-zinc-800 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 space-y-5 shadow-inner">
+            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)] space-y-5 shadow-inner">
                 <div className="flex items-center justify-between p-3 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-800/20">
                     <div className="flex flex-col">
                         <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase">Geçiş Kelimeleri</span>
-                        <span className="text-[9px] text-zinc-500">Önce, sonra, daha sonra gibi ipuçlarını ekler.</span>
+                        <span className="text-[9px] text-[var(--text-muted)]">Önce, sonra, daha sonra gibi ipuçlarını ekler.</span>
                     </div>
                     <button
                         onClick={() => onChange('showTransitionWords', !(options as Record<string, unknown>).showTransitionWords)}
-                        className={`px-4 py-1.5 rounded-xl text-[9px] font-black transition-all ${(options as Record<string, unknown>).showTransitionWords ? 'bg-amber-500 text-white shadow-md' : 'bg-zinc-200 text-zinc-500'}`}
+                        className={`px-4 py-1.5 rounded-xl text-[9px] font-black transition-all ${(options as Record<string, unknown>).showTransitionWords ? 'bg-amber-500 text-[var(--text-primary)] shadow-md' : 'bg-zinc-200 text-[var(--text-muted)]'}`}
                     >
                         {(options as Record<string, unknown>).showTransitionWords ? 'AKTİF' : 'PASİF'}
                     </button>
                 </div>
 
                 <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block">Görselleştirme</label>
+                    <label className="text-[10px] font-bold text-[var(--text-muted)] text-[var(--text-primary)] uppercase block">Görselleştirme</label>
                     <select
                         value={options.visualStyle || 'cards'}
-                        className="w-full p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold"
+                        className="w-full p-3 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-xl text-xs font-bold"
                     >
                         <option value="cards">Sıralama Kartları</option>
                         <option value="comic">Çizgi Roman Akışı</option>
@@ -109,38 +109,38 @@ export const StorySequencingConfig: React.FC<ConfigProps> = ({ options, onChange
                 <div className="space-y-4 pt-2 border-t border-amber-100 dark:border-amber-900/30">
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                            <span className="text-[11px] font-bold text-zinc-700 dark:text-zinc-200">Kompakt Akış (A4)</span>
-                            <span className="text-[10px] text-zinc-500">Maksimum panel yoğunluğu sağlar.</span>
+                            <span className="text-[11px] font-bold text-zinc-700 text-[var(--text-primary)]">Kompakt Akış (A4)</span>
+                            <span className="text-[10px] text-[var(--text-muted)]">Maksimum panel yoğunluğu sağlar.</span>
                         </div>
                         <button 
                             onClick={() => onChange('compact', !(options as Record<string, unknown>).compact)}
                             className={`w-12 h-6 rounded-full transition-all relative ${(options as Record<string, unknown>).compact ? 'bg-amber-500' : 'bg-zinc-300'}`}
                         >
-                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${(options as Record<string, unknown>).compact ? 'left-7' : 'left-1'}`} />
+                            <div className={`absolute top-1 w-4 h-4 bg-[var(--bg-paper)] rounded-full transition-all ${(options as Record<string, unknown>).compact ? 'left-7' : 'left-1'}`} />
                         </button>
                     </div>
 
                     <div className="flex items-center justify-between">
                         <div className="flex flex-col">
-                            <span className="text-[11px] font-bold text-zinc-700 dark:text-zinc-200">Yardımcı Görseller</span>
-                            <span className="text-[10px] text-zinc-500">Adımlara göre AI görseli üretir.</span>
+                            <span className="text-[11px] font-bold text-zinc-700 text-[var(--text-primary)]">Yardımcı Görseller</span>
+                            <span className="text-[10px] text-[var(--text-muted)]">Adımlara göre AI görseli üretir.</span>
                         </div>
                         <button 
                             onClick={() => onChange('useIcons', !options.useIcons)}
                             className={`w-12 h-6 rounded-full transition-all relative ${options.useIcons ? 'bg-amber-500' : 'bg-zinc-300'}`}
                         >
-                            <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${options.useIcons ? 'left-7' : 'left-1'}`} />
+                            <div className={`absolute top-1 w-4 h-4 bg-[var(--bg-paper)] rounded-full transition-all ${options.useIcons ? 'left-7' : 'left-1'}`} />
                         </button>
                     </div>
                 </div>
 
                 <div className="flex items-center gap-3 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-[1.5rem] border border-amber-100 dark:border-amber-800/30">
-                    <div className="w-8 h-8 bg-amber-500 rounded-xl flex items-center justify-center text-white shadow-lg">
+                    <div className="w-8 h-8 bg-amber-500 rounded-xl flex items-center justify-center text-[var(--text-primary)] shadow-lg">
                         <i className="fa-solid fa-list-ol text-xs"></i>
                     </div>
                     <div className="flex flex-col">
                         <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-tighter">Ultra Pro Sıralama</span>
-                        <span className="text-[9px] text-zinc-500 dark:text-zinc-400">Mantıksal akış ve kronoloji uzmanı.</span>
+                        <span className="text-[9px] text-[var(--text-muted)] text-[var(--text-primary)]">Mantıksal akış ve kronoloji uzmanı.</span>
                     </div>
                 </div>
             </div>

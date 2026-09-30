@@ -4,10 +4,10 @@ import { GeneratorOptions } from '../../types';
 
 const CompactToggleGroup = ({ label, selected, onChange, options }: { label: string; selected: string | number; onChange: (v: string | number) => void; options: { value: string | number; label: string }[] }) => (
     <div className="space-y-1">
-        <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block">{label}</label>
-        <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
+        <label className="text-[10px] font-bold text-[var(--text-muted)] text-[var(--text-primary)] uppercase block">{label}</label>
+        <div className="flex bg-zinc-100 bg-[var(--bg-secondary)] p-1 rounded-lg border border-[var(--border-color)] border-[var(--border-color)]">
             {options.map((opt) => (
-                <button key={String(opt.value)} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-white dark:bg-zinc-600 shadow-sm text-indigo-600 dark:text-indigo-300' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}>{opt.label}</button>
+                <button key={String(opt.value)} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] shadow-sm text-[var(--accent-color)] dark:text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-zinc-700 dark:hover:text-[var(--text-secondary)]'}`}>{opt.label}</button>
             ))}
         </div>
     </div>
@@ -16,7 +16,7 @@ const CompactToggleGroup = ({ label, selected, onChange, options }: { label: str
 export const ReadingSudokuConfig: React.FC<{ options: GeneratorOptions; onChange: (k: keyof GeneratorOptions, v: unknown) => void }> = ({ options, onChange }) => {
     return (
         <div className="space-y-5 animate-in fade-in duration-300">
-            <div className="p-4 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-[2rem] border border-emerald-100 dark:border-emerald-800/30">
+            <div className="p-4 bg-[var(--accent-muted)] dark:bg-emerald-900/10 rounded-[2rem] border border-[var(--border-color)] dark:border-emerald-800/30">
                 <CompactToggleGroup 
                     label="İçerik Türü" 
                     selected={options.variant || 'letters'} 
@@ -29,7 +29,7 @@ export const ReadingSudokuConfig: React.FC<{ options: GeneratorOptions; onChange
                 />
             </div>
 
-            <div className="p-5 bg-zinc-50 dark:bg-zinc-800 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 space-y-4 shadow-inner">
+            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)] space-y-4 shadow-inner">
                 <CompactToggleGroup 
                     label="Izgara Boyutu" 
                     selected={options.gridSize || 4} 
@@ -41,7 +41,7 @@ export const ReadingSudokuConfig: React.FC<{ options: GeneratorOptions; onChange
                     ]} 
                 />
                 <div className="pt-2">
-                    <p className="text-[9px] text-zinc-400 italic leading-tight text-center">
+                    <p className="text-[9px] text-[var(--text-muted)] italic leading-tight text-center">
                         "Görsel" modunda yapay zeka sembolik piktogramlar seçer.
                     </p>
                 </div>

@@ -32,11 +32,11 @@ export const SariKitapStudioConfig: React.FC<SariKitapStudioConfigProps> = ({
 
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-xs font-semibold text-gray-600 mb-2">Modül Seçimi</label>
+                        <label className="block text-xs font-semibold text-[var(--text-muted)] mb-2">Modül Seçimi</label>
                         <select
                             value={custom.moduleType || 'pencere'}
                             onChange={(e) => updateCustom('moduleType', e.target.value)}
-                            className="w-full bg-white border border-gray-300 rounded-lg py-2 px-3 text-sm focus:ring-2 focus:ring-orange-500"
+                            className="w-full bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg py-2 px-3 text-sm focus:ring-2 focus:ring-orange-500"
                         >
                             <option value="pencere">Johari Penceresi Deneyimi</option>
                             <option value="nokta">Odak - Noktalar</option>

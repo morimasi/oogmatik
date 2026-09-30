@@ -28,13 +28,13 @@ export const NumberPyramidConfig = ({ options, onChange }: ConfigProps) => {
         <div className="grid grid-cols-2 gap-3">
           {/* Piramit Yüksekliği */}
           <div>
-            <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">
+            <label className="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1">
               Katman Yüksekliği
             </label>
             <select
               value={pyramidHeight}
               onChange={(e) => update('pyramidHeight', parseInt(e.target.value))}
-              className="w-full bg-white dark:bg-zinc-800 border border-amber-200 dark:border-zinc-700 rounded-xl p-2 text-xs font-bold text-zinc-800 dark:text-zinc-200 focus:ring-2 focus:ring-amber-500"
+              className="w-full bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-amber-200 border-[var(--border-color)] rounded-xl p-2 text-xs font-bold text-zinc-800 text-[var(--text-primary)] focus:ring-2 focus:ring-amber-500"
             >
               <option value={3}>3 Katlı Piramit</option>
               <option value={4}>4 Katlı Piramit</option>
@@ -44,13 +44,13 @@ export const NumberPyramidConfig = ({ options, onChange }: ConfigProps) => {
 
           {/* İşlem Türü */}
           <div>
-            <label className="block text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">
+            <label className="block text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1">
               Piramit İşlem Kuralı
             </label>
             <select
               value={operation}
               onChange={(e) => update('operation', e.target.value)}
-              className="w-full bg-white dark:bg-zinc-800 border border-amber-200 dark:border-zinc-700 rounded-xl p-2 text-xs font-bold text-zinc-800 dark:text-zinc-200 focus:ring-2 focus:ring-amber-500"
+              className="w-full bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-amber-200 border-[var(--border-color)] rounded-xl p-2 text-xs font-bold text-zinc-800 text-[var(--text-primary)] focus:ring-2 focus:ring-amber-500"
             >
               <option value="addition">Toplama (+)</option>
               <option value="subtraction">Fark / Çıkarma (-)</option>
@@ -61,7 +61,7 @@ export const NumberPyramidConfig = ({ options, onChange }: ConfigProps) => {
 
         {/* Bulmaca Adedi Slider */}
         <div className="mt-4">
-          <div className="flex justify-between items-center text-[10px] font-bold text-zinc-500 uppercase mb-1">
+          <div className="flex justify-between items-center text-[10px] font-bold text-[var(--text-muted)] uppercase mb-1">
             <span>A4 Piramit Miktarı</span>
             <span className="text-amber-600 font-black">{puzzleCount} Piramit</span>
           </div>

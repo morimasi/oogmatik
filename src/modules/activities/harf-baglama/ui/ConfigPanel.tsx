@@ -16,15 +16,15 @@ export const HarfBaglamaConfig: React.FC<HarfBaglamaConfigProps> = ({ options, o
   const secondaryColor = (options?.secondaryColor as string) || '#ec4899';
 
   return (
-    <div className="space-y-5 p-5 bg-zinc-900/40 backdrop-blur-xl rounded-3xl border border-zinc-800/50">
-      <h3 className="text-xs font-black text-zinc-400 uppercase tracking-widest flex items-center gap-2">
-        <i className="fa-solid fa-link text-indigo-400" />
+    <div className="space-y-5 p-5 bg-[var(--bg-inset)]/40 backdrop-blur-xl rounded-3xl border border-[var(--border-color)]">
+      <h3 className="text-xs font-black text-[var(--text-muted)] uppercase tracking-widest flex items-center gap-2">
+        <i className="fa-solid fa-link text-[var(--accent-color)]" />
         Harf Bağlama Etkinliği Ayarları
       </h3>
 
       {/* Mod Seçimi (Kızlım / Standart) */}
       <div className="space-y-2">
-        <label className="text-[10px] font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
+        <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider flex items-center gap-2">
           <i className="fa-solid fa-palette" />
           Etkinlik Modu
         </label>
@@ -33,8 +33,8 @@ export const HarfBaglamaConfig: React.FC<HarfBaglamaConfigProps> = ({ options, o
             onClick={() => onChange('activityMode', 'standard')}
             className={`px-3 py-2 rounded-xl text-xs font-bold transition-all duration-200 border-2 ${
               activityMode === 'standard'
-                ? 'bg-indigo-500/20 border-indigo-500 text-indigo-300'
-                : 'bg-zinc-800/50 border-zinc-700 text-zinc-400 hover:bg-zinc-800'
+                ? 'bg-[var(--accent-color)]/20 border-indigo-500 text-[var(--accent-color)]'
+                : 'bg-[var(--bg-paper)]/50 border-[var(--border-color)] text-[var(--text-muted)] hover:bg-[var(--bg-paper)]'
             }`}
           >
             <i className="fa-solid fa-cube mr-1" />
@@ -45,7 +45,7 @@ export const HarfBaglamaConfig: React.FC<HarfBaglamaConfigProps> = ({ options, o
             className={`px-3 py-2 rounded-xl text-xs font-bold transition-all duration-200 border-2 ${
               activityMode === 'girl'
                 ? 'bg-pink-500/20 border-pink-500 text-pink-300'
-                : 'bg-zinc-800/50 border-zinc-700 text-zinc-400 hover:bg-zinc-800'
+                : 'bg-[var(--bg-paper)]/50 border-[var(--border-color)] text-[var(--text-muted)] hover:bg-[var(--bg-paper)]'
             }`}
           >
             <i className="fa-solid fa-crown mr-1" />
@@ -56,7 +56,7 @@ export const HarfBaglamaConfig: React.FC<HarfBaglamaConfigProps> = ({ options, o
 
       {/* Zorluk Seviyesi */}
       <div className="space-y-2">
-        <label className="text-[10px] font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
+        <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider flex items-center gap-2">
           <i className="fa-solid fa-signal" />
           Zorluk Seviyesi
         </label>
@@ -68,7 +68,7 @@ export const HarfBaglamaConfig: React.FC<HarfBaglamaConfigProps> = ({ options, o
               className={`px-3 py-2 rounded-xl text-xs font-bold transition-all duration-200 border-2 ${
                 difficulty === level
                   ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300'
-                  : 'bg-zinc-800/50 border-zinc-700 text-zinc-400 hover:bg-zinc-800'
+                  : 'bg-[var(--bg-paper)]/50 border-[var(--border-color)] text-[var(--text-muted)] hover:bg-[var(--bg-paper)]'
               }`}
             >
               {level}
@@ -79,14 +79,14 @@ export const HarfBaglamaConfig: React.FC<HarfBaglamaConfigProps> = ({ options, o
 
       {/* Kategori Seçimi */}
       <div className="space-y-2">
-        <label className="text-[10px] font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
+        <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider flex items-center gap-2">
           <i className="fa-solid fa-folder-open" />
           İçerik Kategorisi
         </label>
         <select
           value={category}
           onChange={(e) => onChange('category', e.target.value as HarfBaglamaCategory)}
-          className="w-full px-3 py-2 rounded-xl bg-zinc-800/50 border border-zinc-700 text-zinc-300 text-xs font-medium focus:outline-none focus:border-indigo-500 transition-colors"
+          className="w-full px-3 py-2 rounded-xl bg-[var(--bg-paper)]/50 border border-[var(--border-color)] text-[var(--text-secondary)] text-xs font-medium focus:outline-none focus:border-indigo-500 transition-colors"
         >
           <option value="egitim">Eğitim</option>
           <option value="genel">Genel Kültür</option>
@@ -101,11 +101,11 @@ export const HarfBaglamaConfig: React.FC<HarfBaglamaConfigProps> = ({ options, o
       {/* Öğe Sayısı */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <label className="text-[10px] font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
+          <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider flex items-center gap-2">
             <i className="fa-solid fa-list-ol" />
             Öğe Sayısı
           </label>
-          <span className="text-[10px] font-black text-indigo-400">{itemCount}</span>
+          <span className="text-[10px] font-black text-[var(--accent-color)]">{itemCount}</span>
         </div>
         <input
           type="range"
@@ -114,18 +114,18 @@ export const HarfBaglamaConfig: React.FC<HarfBaglamaConfigProps> = ({ options, o
           step="1"
           value={itemCount}
           onChange={(e) => onChange('itemCount', parseInt(e.target.value))}
-          className="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+          className="w-full h-2 bg-[var(--surface-elevated)] rounded-lg appearance-none cursor-pointer accent-indigo-500"
         />
       </div>
 
       {/* Font Boyutu */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <label className="text-[10px] font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-2">
+          <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider flex items-center gap-2">
             <i className="fa-solid fa-text-height" />
             Font Boyutu (pt)
           </label>
-          <span className="text-[10px] font-black text-indigo-400">{fontSize}</span>
+          <span className="text-[10px] font-black text-[var(--accent-color)]">{fontSize}</span>
         </div>
         <input
           type="range"
@@ -134,19 +134,19 @@ export const HarfBaglamaConfig: React.FC<HarfBaglamaConfigProps> = ({ options, o
           step="0.5"
           value={fontSize}
           onChange={(e) => onChange('fontSize', parseFloat(e.target.value))}
-          className="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+          className="w-full h-2 bg-[var(--surface-elevated)] rounded-lg appearance-none cursor-pointer accent-indigo-500"
         />
       </div>
 
       {/* Renk Ayarları */}
-      <div className="space-y-3 pt-3 border-t border-zinc-800/50">
-        <h4 className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-2">
+      <div className="space-y-3 pt-3 border-t border-[var(--border-color)]">
+        <h4 className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider flex items-center gap-2">
           <i className="fa-solid fa-paint-roller" />
           Görsel Ayarlar
         </h4>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
-            <label className="text-[9px] font-bold text-zinc-500">Ana Renk</label>
+            <label className="text-[9px] font-bold text-[var(--text-muted)]">Ana Renk</label>
             <input
               type="color"
               value={primaryColor}
@@ -155,7 +155,7 @@ export const HarfBaglamaConfig: React.FC<HarfBaglamaConfigProps> = ({ options, o
             />
           </div>
           <div className="space-y-1">
-            <label className="text-[9px] font-bold text-zinc-500">İkincil Renk</label>
+            <label className="text-[9px] font-bold text-[var(--text-muted)]">İkincil Renk</label>
             <input
               type="color"
               value={secondaryColor}
@@ -166,8 +166,8 @@ export const HarfBaglamaConfig: React.FC<HarfBaglamaConfigProps> = ({ options, o
         </div>
       </div>
 
-      <div className="pt-2 border-t border-zinc-800/50">
-        <p className="text-[9px] text-zinc-600 italic">
+      <div className="pt-2 border-t border-[var(--border-color)]">
+        <p className="text-[9px] text-[var(--text-muted)] italic">
           Zorluk ve içerik ayarları üretim kalitesini doğrudan etkiler.
         </p>
       </div>

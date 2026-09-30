@@ -23,7 +23,7 @@ export const AdvancedMissingPartsConfig = ({
             onClick={() => onChange(opt.value)}
             className={`flex-1 py-2 px-2 text-[10px] font-bold rounded-lg transition-all ${
               selected === opt.value
-                ? 'bg-[var(--accent-color)] text-white shadow-md scale-[1.02]'
+                ? 'bg-[var(--accent-color)] text-[var(--text-primary)] shadow-md scale-[1.02]'
                 : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-glass)]'
             }`}
           >
@@ -41,7 +41,7 @@ export const AdvancedMissingPartsConfig = ({
           <div className="p-4 bg-[var(--accent-muted)] border-b border-[var(--accent-color)]/10">
               <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-2xl bg-[var(--accent-color)] flex items-center justify-center shadow-lg">
-                      <i className="fa-solid fa-pen-nib text-white text-xl"></i>
+                      <i className="fa-solid fa-pen-nib text-[var(--text-primary)] text-xl"></i>
                   </div>
                   <div>
                       <h4 className="text-xs font-black text-[var(--text-primary)] uppercase tracking-tight">DİL BİLGİSİ STÜDYOSU</h4>

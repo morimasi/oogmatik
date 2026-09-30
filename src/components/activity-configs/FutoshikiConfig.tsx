@@ -4,13 +4,13 @@ import { GeneratorOptions } from '../../types';
 
 const CompactToggleGroup = ({ label, selected, onChange, options }: { label: string; selected: unknown; onChange: (val: unknown) => void; options: { value: unknown; label: string }[] }) => (
     <div className="space-y-1">
-        <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block tracking-wider">{label}</label>
-        <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl border border-zinc-200 dark:border-zinc-700">
+        <label className="text-[10px] font-bold text-[var(--text-muted)] text-[var(--text-primary)] uppercase block tracking-wider">{label}</label>
+        <div className="flex bg-zinc-100 bg-[var(--bg-secondary)] p-1 rounded-xl border border-[var(--border-color)] border-[var(--border-color)]">
             {options.map((opt: { value: unknown; label: string }, idx: number) => (
                 <button
                     key={idx}
                     onClick={() => onChange(opt.value)}
-                    className={`flex-1 py-2 text-[10px] font-black rounded-lg transition-all ${selected === opt.value ? 'bg-white dark:bg-zinc-600 shadow-md text-indigo-600 dark:text-indigo-200' : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'}`}
+                    className={`flex-1 py-2 text-[10px] font-black rounded-lg transition-all ${selected === opt.value ? 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] shadow-md text-[var(--accent-color)] dark:text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-[var(--text-muted)] dark:hover:text-[var(--text-secondary)]'}`}
                 >
                     {opt.label}
                 </button>
@@ -22,7 +22,7 @@ const CompactToggleGroup = ({ label, selected, onChange, options }: { label: str
 export const FutoshikiConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: keyof GeneratorOptions, v: unknown) => void }) => {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
-            <div className="p-5 bg-indigo-50/30 dark:bg-indigo-900/10 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-800/30 shadow-sm">
+            <div className="p-5 bg-[var(--accent-muted)]/30 dark:bg-[var(--accent-muted)] rounded-[2.5rem] border border-[var(--border-color)] dark:border-indigo-800/30 shadow-sm">
                 <CompactToggleGroup
                     label="Izgara Boyutu (Zorluk Etkisi)"
                     selected={options.gridSize || 4}
@@ -36,7 +36,7 @@ export const FutoshikiConfig = ({ options, onChange }: { options: GeneratorOptio
                 />
             </div>
 
-            <div className="p-5 bg-zinc-50 dark:bg-zinc-800/50 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 space-y-5 shadow-inner">
+            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)] space-y-5 shadow-inner">
                 <CompactToggleGroup
                     label="İşaret Yoğunluğu"
                     selected={options.density || 'medium'}
@@ -61,7 +61,7 @@ export const FutoshikiConfig = ({ options, onChange }: { options: GeneratorOptio
             </div>
 
             <div className="px-4">
-                <p className="text-[10px] text-zinc-400 italic leading-relaxed text-center">
+                <p className="text-[10px] text-[var(--text-muted)] italic leading-relaxed text-center">
                     Futoşhiki'de ultra profesyonel modda, 7x7 boyutunda mantıksal kısıtlar maksimum seviyeye çıkarılır.
                 </p>
             </div>

@@ -27,7 +27,7 @@ const ToggleGroup = ({
           onClick={() => onChange(opt.value)}
           className={`flex-1 py-1.5 px-2 text-[10px] font-bold rounded-lg transition-all duration-200 flex items-center justify-center gap-1 ${
             selected === opt.value
-              ? 'bg-[var(--accent-color)] text-white shadow-md'
+              ? 'bg-[var(--accent-color)] text-[var(--text-primary)] shadow-md'
               : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-elevated)]'
           }`}
         >
@@ -109,7 +109,7 @@ const ToggleSwitch = ({
       }`}
     >
       <span
-        className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all duration-200 ${
+        className={`absolute top-0.5 w-4 h-4 bg-[var(--bg-paper)] rounded-full shadow transition-all duration-200 ${
           checked ? 'left-5' : 'left-0.5'
         }`}
       />

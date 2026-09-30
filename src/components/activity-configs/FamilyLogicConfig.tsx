@@ -16,7 +16,7 @@ export const FamilyLogicConfig = ({ options, onChange }: { options: GeneratorOpt
                         <button
                             key={t.v}
                             onClick={() => onChange('variant', t.v)}
-                            className={`w-full py-2.5 rounded-xl text-xs font-black border transition-all ${options.variant === t.v ? 'bg-rose-600 text-white border-rose-600 shadow-md' : 'bg-white dark:bg-zinc-800 text-zinc-500 border-zinc-200 dark:border-zinc-700'}`}
+                            className={`w-full py-2.5 rounded-xl text-xs font-black border transition-all ${options.variant === t.v ? 'bg-rose-600 text-[var(--text-primary)] border-rose-600 shadow-md' : 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] text-[var(--text-muted)] border-[var(--border-color)] border-[var(--border-color)]'}`}
                         >
                             {t.l}
                         </button>
@@ -24,11 +24,11 @@ export const FamilyLogicConfig = ({ options, onChange }: { options: GeneratorOpt
                 </div>
             </div>
 
-            <div className="p-5 bg-zinc-50 dark:bg-zinc-800 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700">
+            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)]">
                 <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-zinc-500 uppercase block">Soru Sayısı</label>
-                    <input type="range" min={4} max={12} value={options.itemCount || 8} onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('itemCount', parseInt(e.target.value))} className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-lg appearance-none accent-rose-500" />
-                    <div className="flex justify-between text-[9px] text-zinc-400 font-bold mt-1"><span>Az</span><span>Yoğun</span></div>
+                    <label className="text-[10px] font-bold text-[var(--text-muted)] uppercase block">Soru Sayısı</label>
+                    <input type="range" min={4} max={12} value={options.itemCount || 8} onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('itemCount', parseInt(e.target.value))} className="w-full h-1.5 bg-zinc-200 bg-[var(--bg-secondary)] rounded-lg appearance-none accent-rose-500" />
+                    <div className="flex justify-between text-[9px] text-[var(--text-muted)] font-bold mt-1"><span>Az</span><span>Yoğun</span></div>
                 </div>
             </div>
         </div>

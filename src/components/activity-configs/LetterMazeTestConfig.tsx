@@ -32,11 +32,11 @@ export const LetterMazeTestConfig: React.FC<LetterMazeTestConfigProps> = ({
 
                 <div className="space-y-4">
                     <div>
-                        <label className="block text-xs font-semibold text-gray-600 mb-2">Zorluk Seviyesi</label>
+                        <label className="block text-xs font-semibold text-[var(--text-muted)] mb-2">Zorluk Seviyesi</label>
                         <select
                             value={custom.difficulty || 'Orta'}
                             onChange={(e) => updateCustom('difficulty', e.target.value)}
-                            className="w-full bg-white border border-gray-300 rounded-lg py-2 px-3 text-sm focus:ring-2 focus:ring-teal-500"
+                            className="w-full bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg py-2 px-3 text-sm focus:ring-2 focus:ring-teal-500"
                         >
                             <option value="Kolay">Kolay</option>
                             <option value="Orta">Orta</option>
@@ -44,11 +44,11 @@ export const LetterMazeTestConfig: React.FC<LetterMazeTestConfigProps> = ({
                         </select>
                     </div>
                     <div>
-                        <label className="block text-xs font-semibold text-gray-600 mb-2">Labirent Boyutu</label>
+                        <label className="block text-xs font-semibold text-[var(--text-muted)] mb-2">Labirent Boyutu</label>
                         <select
                             value={custom.gridSize || '5x5'}
                             onChange={(e) => updateCustom('gridSize', e.target.value)}
-                            className="w-full bg-white border border-gray-300 rounded-lg py-2 px-3 text-sm focus:ring-2 focus:ring-teal-500"
+                            className="w-full bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg py-2 px-3 text-sm focus:ring-2 focus:ring-teal-500"
                         >
                             <option value="4x4">Küçük (4x4)</option>
                             <option value="5x5">Standart (5x5)</option>

@@ -5,8 +5,8 @@ import { GeneratorOptions } from '../../types';
 export const NumberPathLogicConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: string, v: unknown) => void }) => {
     return (
         <div className="space-y-5 animate-in fade-in duration-300">
-            <div className="p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-[2rem] border border-indigo-100 dark:border-indigo-800/30">
-                <label className="text-[10px] font-black text-indigo-600 uppercase mb-3 block text-center tracking-widest">Zincir Uzunluğu</label>
+            <div className="p-4 bg-[var(--accent-muted)] dark:bg-[var(--accent-muted)] rounded-[2rem] border border-[var(--border-color)] dark:border-indigo-800/30">
+                <label className="text-[10px] font-black text-[var(--accent-color)] uppercase mb-3 block text-center tracking-widest">Zincir Uzunluğu</label>
                 <div className="grid grid-cols-2 gap-2">
                     {[
                         { v: 2, l: 'Kısa (2 Adım)' },
@@ -17,7 +17,7 @@ export const NumberPathLogicConfig = ({ options, onChange }: { options: Generato
                         <button
                             key={t.v}
                             onClick={() => onChange('codeLength', t.v)}
-                            className={`py-2 px-1 rounded-xl text-[9px] font-black border transition-all ${options.codeLength === t.v ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-white dark:bg-zinc-800 text-zinc-500 border-zinc-200 dark:border-zinc-700'}`}
+                            className={`py-2 px-1 rounded-xl text-[9px] font-black border transition-all ${options.codeLength === t.v ? 'bg-[var(--accent-color)] text-[var(--text-primary)] border-indigo-600 shadow-md' : 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] text-[var(--text-muted)] border-[var(--border-color)] border-[var(--border-color)]'}`}
                         >
                             {t.l}
                         </button>
@@ -25,13 +25,13 @@ export const NumberPathLogicConfig = ({ options, onChange }: { options: Generato
                 </div>
             </div>
 
-            <div className="p-5 bg-zinc-50 dark:bg-zinc-800 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 space-y-4">
+            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)] space-y-4">
                 <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-zinc-500 uppercase block">İşlem Çeşitliliği</label>
+                    <label className="text-[10px] font-bold text-[var(--text-muted)] uppercase block">İşlem Çeşitliliği</label>
                     <select
                         value={options.difficulty}
                         onChange={e => onChange('difficulty', e.target.value)}
-                        className="w-full p-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-lg text-xs font-bold outline-none focus:border-indigo-500"
+                        className="w-full p-2 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-lg text-xs font-bold outline-none focus:border-[var(--accent-color)]"
                     >
                         <option value="Başlangıç">Sadece Toplama/Çıkarma (1-10)</option>
                         <option value="Orta">Dört İşlem Karışık (1-20)</option>
@@ -41,10 +41,10 @@ export const NumberPathLogicConfig = ({ options, onChange }: { options: Generato
                 </div>
 
                 <div className="flex items-center justify-between p-1">
-                    <span className="text-[10px] font-black text-zinc-400 uppercase">Soru Sayısı</span>
+                    <span className="text-[10px] font-black text-[var(--text-muted)] uppercase">Soru Sayısı</span>
                     <div className="flex gap-2">
                         {[6, 8, 10].map(n => (
-                            <button key={n} onClick={() => onChange('itemCount', n)} className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs transition-colors ${options.itemCount === n ? 'bg-zinc-900 text-white' : 'bg-zinc-100 text-zinc-500'}`}>
+                            <button key={n} onClick={() => onChange('itemCount', n)} className={`w-8 h-8 rounded-lg flex items-center justify-center font-black text-xs transition-colors ${options.itemCount === n ? 'bg-[var(--bg-inset)] text-[var(--text-primary)]' : 'bg-zinc-100 text-[var(--text-muted)]'}`}>
                                 {n}
                             </button>
                         ))}

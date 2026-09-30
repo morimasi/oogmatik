@@ -11,18 +11,18 @@ export const SayiDedektifiConfig: React.FC<Props> = ({ options, onChange }) => {
 
   return (
     <div className="space-y-5 p-4">
-      <div className="pb-3 border-b border-zinc-200">
+      <div className="pb-3 border-b border-[var(--border-color)]">
         <h4 className="font-bold text-zinc-800">Sayı Dedektifi</h4>
-        <p className="text-xs text-zinc-500">İpuçlarını takip ederek sayıyı bul</p>
+        <p className="text-xs text-[var(--text-muted)]">İpuçlarını takip ederek sayıyı bul</p>
       </div>
       <div>
-        <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Zorluk</label>
+        <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2">Zorluk</label>
         <select
           value={(dedek.difficulty as string) || 'Orta'}
           onChange={(e) =>
             onChange({ ...opts, sayiDedektifi: { ...dedek, difficulty: e.target.value } })
           }
-          className="w-full p-2 border-2 border-zinc-200 rounded-lg text-sm font-bold outline-none focus:border-indigo-500"
+          className="w-full p-2 border-2 border-[var(--border-color)] rounded-lg text-sm font-bold outline-none focus:border-[var(--accent-color)]"
         >
           <option value="Başlangıç">Başlangıç (1-20)</option>
           <option value="Orta">Orta (10-100)</option>
@@ -31,13 +31,13 @@ export const SayiDedektifiConfig: React.FC<Props> = ({ options, onChange }) => {
       </div>
 
       <div>
-        <label className="block text-xs font-bold text-zinc-500 uppercase mb-2">Bulmaca Sayısı (Sayfa Başı)</label>
+        <label className="block text-xs font-bold text-[var(--text-muted)] uppercase mb-2">Bulmaca Sayısı (Sayfa Başı)</label>
         <select
           value={(opts.puzzleCount as number) || 6}
           onChange={(e) =>
             onChange({ ...opts, puzzleCount: parseInt(e.target.value) })
           }
-          className="w-full p-2 border-2 border-zinc-200 rounded-lg text-sm font-bold outline-none focus:border-indigo-500"
+          className="w-full p-2 border-2 border-[var(--border-color)] rounded-lg text-sm font-bold outline-none focus:border-[var(--accent-color)]"
         >
           <option value={4}>4 Kart (Daha Geniş)</option>
           <option value={6}>6 Kart (Kompakt)</option>

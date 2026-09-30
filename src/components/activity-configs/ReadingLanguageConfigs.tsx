@@ -9,7 +9,7 @@ export const SynonymAntonymConfig: React.FC<Props> = ({ options, onChange }) => 
   const o = (options?.['synonymAntonym'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Eş/Zıt Anlamlı</h4>
       </div>
       <div>
@@ -33,7 +33,7 @@ export const LetterVisualMatchingConfig: React.FC<Props> = ({ options, onChange 
   const o = (options?.['letterVisualMatching'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Harf Eşleştirme</h4>
       </div>
       <div>
@@ -54,7 +54,7 @@ export const SyllableWordBuilderConfig: React.FC<Props> = ({ options, onChange }
   const o = (options?.['syllableWordBuilder'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">HECE + KELİME</h4>
       </div>
       <div>
@@ -81,7 +81,7 @@ export const ReadingFlowConfig: React.FC<Props> = ({ options, onChange }) => {
   const o = (options?.['readingFlow'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Okuma Akışı</h4>
       </div>
       <div>
@@ -106,7 +106,7 @@ export const PhonologicalAwarenessConfig: React.FC<Props> = ({ options, onChange
   const o = (options?.['phonologicalAwareness'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Fonolojik Farkındalık</h4>
       </div>
       <div>
@@ -131,7 +131,7 @@ export const RapidNamingConfig: React.FC<Props> = ({ options, onChange }) => {
   const o = (options?.['rapidNaming'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Hızlı Adlandırma</h4>
       </div>
       <div>
@@ -155,7 +155,7 @@ export const LetterDiscriminationConfig: React.FC<Props> = ({ options, onChange 
   const o = (options?.['letterDiscrimination'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Harf Ayrımı</h4>
       </div>
       <div>
@@ -176,7 +176,7 @@ export const MirrorLettersConfig: React.FC<Props> = ({ options, onChange }) => {
   const o = (options?.['mirrorLetters'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Ayna Harfleri</h4>
       </div>
       <div>
@@ -197,7 +197,7 @@ export const SyllableTrainConfig: React.FC<Props> = ({ options, onChange }) => {
   const o = (options?.['syllableTrain'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">HECE TRENİ</h4>
       </div>
       <div>
@@ -224,7 +224,7 @@ export const BackwardSpellingConfig: React.FC<Props> = ({ options, onChange }) =
   const o = (options?.['backwardSpelling'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Ters Yazım</h4>
       </div>
       <div>
@@ -248,7 +248,7 @@ export const CodeReadingConfig: React.FC<Props> = ({ options, onChange }) => {
   const o = (options?.['codeReading'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Kod Okuma</h4>
       </div>
       <div>
@@ -273,7 +273,7 @@ export const HandwritingPracticeConfig: React.FC<Props> = ({ options, onChange }
   const o = (options?.['handwritingPractice'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">El Yazısı</h4>
       </div>
       <div>
@@ -300,7 +300,7 @@ export const MissingPartsConfig: React.FC<Props> = ({ options, onChange }) => {
   const o = (options?.['missingParts'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Eksik Parçalar</h4>
       </div>
       <div>
@@ -324,7 +324,7 @@ export const StoryComprehensionConfig: React.FC<Props> = ({ options, onChange })
   const o = (options?.['storyComprehension'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Hikaye Anlama</h4>
       </div>
       <div>
@@ -349,7 +349,7 @@ export const StoryAnalysisConfig: React.FC<Props> = ({ options, onChange }) => {
   const o = (options?.['storyAnalysis'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Hikaye Analizi</h4>
       </div>
       <div>
@@ -374,7 +374,7 @@ export const StoryCreationConfig: React.FC<Props> = ({ options, onChange }) => {
   const o = (options?.['storyCreation'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Hikaye Oluşturma</h4>
       </div>
       <div>
@@ -399,7 +399,7 @@ export const WordsInStoryConfig: React.FC<Props> = ({ options, onChange }) => {
   const o = (options?.['wordsInStory'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Hikayedeki Kelimeler</h4>
       </div>
       <div>
@@ -424,7 +424,7 @@ export const StorySequencingConfig: React.FC<Props> = ({ options, onChange }) =>
   const o = (options?.['storySequencing'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Olay Sıralama</h4>
       </div>
       <div>
@@ -448,7 +448,7 @@ export const ProverbConfig: React.FC<Props> = ({ options, onChange }) => {
   const o = (options?.['proverb'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Atasözü</h4>
       </div>
       <div>

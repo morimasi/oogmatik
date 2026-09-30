@@ -3,11 +3,11 @@ import { GeneratorOptions } from '../../types';
 
 const ToggleGroup = ({ label, selected, onChange, options }: { label: string; selected: string; onChange: (v: string) => void; options: { value: string; label: string }[] }) => (
     <div className="space-y-1">
-        <label className="text-[10px] font-bold text-zinc-500 uppercase block">{label}</label>
-        <div className="flex bg-zinc-100 p-1 rounded-lg border border-zinc-200">
+        <label className="text-[10px] font-bold text-[var(--text-muted)] uppercase block">{label}</label>
+        <div className="flex bg-zinc-100 p-1 rounded-lg border border-[var(--border-color)]">
             {options.map(opt => (
                 <button key={opt.value} onClick={() => onChange(opt.value)}
-                    className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-white shadow-sm text-indigo-600' : 'text-zinc-500 hover:text-zinc-700'}`}>
+                    className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-[var(--bg-paper)] shadow-sm text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-zinc-700'}`}>
                     {opt.label}
                 </button>
             ))}
@@ -45,10 +45,10 @@ export const LetterVisualMatchingConfig: React.FC<{ options: GeneratorOptions; o
                     ]}
                 />
 
-                <div className="flex items-center gap-2 p-2 bg-white rounded-xl border border-zinc-200">
+                <div className="flex items-center gap-2 p-2 bg-[var(--bg-paper)] rounded-xl border border-[var(--border-color)]">
                     <input type="checkbox" id="showTracing" checked={options.showTracing !== false}
                         onChange={(e) => onChange('showTracing', e.target.checked)}
-                        className="w-4 h-4 rounded text-indigo-600" />
+                        className="w-4 h-4 rounded text-[var(--accent-color)]" />
                     <label htmlFor="showTracing" className="text-[10px] font-bold text-zinc-700">İzleme Çizgisi Göster</label>
                 </div>
 
@@ -64,12 +64,12 @@ export const LetterVisualMatchingConfig: React.FC<{ options: GeneratorOptions; o
                 />
             </div>
 
-            <div className="p-4 bg-zinc-50 rounded-[2.5rem] border border-zinc-100">
-                <label className="text-[10px] font-black text-zinc-600 uppercase mb-2 block text-center">Çift Sayısı</label>
+            <div className="p-4 bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)]">
+                <label className="text-[10px] font-black text-[var(--text-muted)] uppercase mb-2 block text-center">Çift Sayısı</label>
                 <div className="flex gap-1.5">
                     {[8, 12, 16, 20].map(n => (
                         <button key={n} onClick={() => onChange('itemCount', n)}
-                            className={`flex-1 py-2 text-xs font-black rounded-xl border-2 transition-all ${options.itemCount === n ? 'bg-violet-500 border-violet-500 text-white shadow-lg' : 'bg-white border-zinc-200 text-zinc-500'}`}>
+                            className={`flex-1 py-2 text-xs font-black rounded-xl border-2 transition-all ${options.itemCount === n ? 'bg-violet-500 border-violet-500 text-[var(--text-primary)] shadow-lg' : 'bg-[var(--bg-paper)] border-[var(--border-color)] text-[var(--text-muted)]'}`}>
                             {n}
                         </button>
                     ))}

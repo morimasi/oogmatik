@@ -624,6 +624,36 @@
 }
 
 /* ----------------------------------------------------------------
+ * GLOBAL INPUT & CONFIG ELEMANLARI TEMA UYUMU (FAZ 6)
+ * ---------------------------------------------------------------- */
+select,
+.config-select {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+select option {
+  background-color: var(--bg-paper);
+  color: var(--text-primary);
+}
+
+input[type="range"] {
+  accent-color: var(--accent-color);
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--accent-color);
+}
+
+.config-focus:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+
+/* ----------------------------------------------------------------
  * STÜDİO KONTROL BUTONLARI — Tema uyumlu ikon butonları
  * ReadingStudio, MathStudio için ortak stil
  * ---------------------------------------------------------------- */

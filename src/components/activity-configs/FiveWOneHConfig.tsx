@@ -15,10 +15,10 @@ interface CompactToggleGroupProps {
 
 const CompactToggleGroup: React.FC<CompactToggleGroupProps> = ({ label, selected, onChange, options }) => (
     <div className="space-y-1">
-        <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block">{label}</label>
-        <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg border border-zinc-200 dark:border-zinc-700">
+        <label className="text-[10px] font-bold text-[var(--text-muted)] text-[var(--text-primary)] uppercase block">{label}</label>
+        <div className="flex bg-zinc-100 bg-[var(--bg-secondary)] p-1 rounded-lg border border-[var(--border-color)] border-[var(--border-color)]">
             {options.map((opt, idx) => (
-                <button key={idx} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-white dark:bg-zinc-600 shadow-sm text-indigo-600 dark:text-indigo-300' : 'text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300'}`}>
+                <button key={idx} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] shadow-sm text-[var(--accent-color)] dark:text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-zinc-700 dark:hover:text-[var(--text-secondary)]'}`}>
                     {opt.label}
                 </button>
             ))}
@@ -34,15 +34,15 @@ interface ConfigProps {
 export const FiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChange }) => {
     return (
         <div className="space-y-5 animate-in fade-in duration-300">
-            <div className="p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-[2rem] border border-indigo-100 dark:border-indigo-800/30 space-y-4">
+            <div className="p-4 bg-[var(--accent-muted)] dark:bg-[var(--accent-muted)] rounded-[2rem] border border-[var(--border-color)] dark:border-indigo-800/30 space-y-4">
                 <div>
-                    <label className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-2 block">Özel İlgi Alanı / Tema</label>
+                    <label className="text-[10px] font-black text-[var(--accent-color)] dark:text-[var(--accent-color)] uppercase tracking-widest mb-2 block">Özel İlgi Alanı / Tema</label>
                     <input
                         type="text"
                         value={options.topic || ''}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('topic', e.target.value)}
                         placeholder="Örn: Uzay, Dinozorlar, Futbol..."
-                        className="w-full p-4 bg-white dark:bg-zinc-800 border-2 border-indigo-100 dark:border-zinc-700 rounded-2xl text-sm font-bold outline-none focus:border-indigo-500 dark:text-zinc-100 placeholder-zinc-400 shadow-inner"
+                        className="w-full p-4 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border-2 border-[var(--border-color)] border-[var(--border-color)] rounded-2xl text-sm font-bold outline-none focus:border-[var(--accent-color)] text-[var(--text-primary)] placeholder-zinc-400 shadow-inner"
                     />
                 </div>
 
@@ -74,7 +74,7 @@ export const FiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChange }) =>
                 />
             </div>
 
-            <div className="p-5 bg-zinc-50 dark:bg-zinc-800 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 space-y-5 shadow-inner">
+            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)] space-y-5 shadow-inner">
 
                 <CompactToggleGroup
                     label="Zorluk Seviyesi"
@@ -110,32 +110,32 @@ export const FiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChange }) =>
                 />
 
                 <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block">Ultra Premium Deneyim</label>
-                    <div className="flex bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden cursor-pointer" onClick={() => onChange('premiumMode', !options.premiumMode)}>
-                        <div className={`flex-1 p-3 text-center text-xs font-black transition-all ${options.premiumMode ? 'bg-amber-500 text-white' : 'text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}>
+                    <label className="text-[10px] font-bold text-[var(--text-muted)] text-[var(--text-primary)] uppercase block">Ultra Premium Deneyim</label>
+                    <div className="flex bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-xl overflow-hidden cursor-pointer" onClick={() => onChange('premiumMode', !options.premiumMode)}>
+                        <div className={`flex-1 p-3 text-center text-xs font-black transition-all ${options.premiumMode ? 'bg-amber-500 text-[var(--text-primary)]' : 'text-[var(--text-muted)] hover:bg-zinc-100 dark:hover:bg-[var(--bg-paper)]'}`}>
                             {options.premiumMode ? 'Açık' : 'Kapalı'}
                         </div>
                     </div>
                 </div>
 
                 <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block">Renkli Hece Boyama</label>
-                    <div className="flex bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden cursor-pointer" onClick={() => onChange('syllableColoring', !options.syllableColoring)}>
-                        <div className={`flex-1 p-3 text-center text-xs font-black transition-all ${options.syllableColoring ? 'bg-indigo-500 text-white' : 'text-zinc-400 hover:bg-zinc-100'}`}>
+                    <label className="text-[10px] font-bold text-[var(--text-muted)] text-[var(--text-primary)] uppercase block">Renkli Hece Boyama</label>
+                    <div className="flex bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-xl overflow-hidden cursor-pointer" onClick={() => onChange('syllableColoring', !options.syllableColoring)}>
+                        <div className={`flex-1 p-3 text-center text-xs font-black transition-all ${options.syllableColoring ? 'bg-[var(--accent-color)] text-[var(--text-primary)]' : 'text-[var(--text-muted)] hover:bg-zinc-100'}`}>
                             Aktif (Di-kkat)
                         </div>
-                        <div className={`flex-1 p-3 text-center text-xs font-black transition-all ${!options.syllableColoring ? 'bg-zinc-500 text-white' : 'text-zinc-400 hover:bg-zinc-100'}`}>
+                        <div className={`flex-1 p-3 text-center text-xs font-black transition-all ${!options.syllableColoring ? 'bg-[var(--bg-secondary)]0 text-[var(--text-primary)]' : 'text-[var(--text-muted)] hover:bg-zinc-100'}`}>
                             Pasif (Normal)
                         </div>
                     </div>
                 </div>
 
                 <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase block">Font Konfigürasyonu</label>
+                    <label className="text-[10px] font-bold text-[var(--text-muted)] text-[var(--text-primary)] uppercase block">Font Konfigürasyonu</label>
                     <select
                         value={options.fontFamily || 'Comic Sans MS'}
                         onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange('fontFamily', e.target.value)}
-                        className="w-full p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold outline-none focus:border-indigo-500 dark:text-zinc-200"
+                        className="w-full p-3 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-xl text-xs font-bold outline-none focus:border-[var(--accent-color)] text-[var(--text-primary)]"
                     >
                         <option value="Comic Sans MS">Comic Sans (Disleksi Dostu)</option>
                         <option value="Arial">Arial (Klasik)</option>

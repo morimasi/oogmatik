@@ -23,7 +23,7 @@ export const ShortAnswerConfig = ({
             onClick={() => onChange(opt.value)}
             className={`flex-1 py-1.5 px-2 text-[10px] font-bold rounded-lg transition-all ${
               selected === opt.value
-                ? 'bg-[var(--accent-color)] text-white shadow-md'
+                ? 'bg-[var(--accent-color)] text-[var(--text-primary)] shadow-md'
                 : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-glass)]'
             }`}
           >
@@ -40,7 +40,7 @@ export const ShortAnswerConfig = ({
           <div className="p-4 bg-[var(--accent-muted)] border-b border-[var(--accent-color)]/10">
               <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-2xl bg-[var(--accent-color)] flex items-center justify-center shadow-lg">
-                      <i className="fa-solid fa-graduation-cap text-white text-xl"></i>
+                      <i className="fa-solid fa-graduation-cap text-[var(--text-primary)] text-xl"></i>
                   </div>
                   <div>
                       <h4 className="text-xs font-black text-[var(--text-primary)] uppercase tracking-tight">SINAV STÜDYOSU</h4>
@@ -137,8 +137,8 @@ export const ShortAnswerConfig = ({
                             opts[item.key] !== false ? 'bg-[var(--accent-color)] border-[var(--accent-color)] shadow-lg' : 'bg-[var(--surface-glass)] border-[var(--border-color)]'
                          }`}
                        >
-                           <i className={`fa-solid ${item.icon} text-[10px] ${opts[item.key] !== false ? 'text-white' : 'text-[var(--text-muted)]'}`}></i>
-                           <span className={`text-[10px] font-black uppercase tracking-tight ${opts[item.key] !== false ? 'text-white' : 'text-[var(--text-secondary)]'}`}>
+                           <i className={`fa-solid ${item.icon} text-[10px] ${opts[item.key] !== false ? 'text-[var(--text-primary)]' : 'text-[var(--text-muted)]'}`}></i>
+                           <span className={`text-[10px] font-black uppercase tracking-tight ${opts[item.key] !== false ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'}`}>
                                {item.label}
                            </span>
                        </button>

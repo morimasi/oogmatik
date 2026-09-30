@@ -13,7 +13,7 @@ export const BoxMathConfig: React.FC<Props> = ({ options, onChange }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Mod Seçimi */}
         <div className="space-y-3">
-          <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+          <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">
             Çalışma Türü
           </label>
           <div className="grid grid-cols-2 gap-2">
@@ -34,7 +34,7 @@ export const BoxMathConfig: React.FC<Props> = ({ options, onChange }) => {
               <button
                 key={v.id}
                 onClick={() => onChange('variant', v.id)}
-                className={`flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all ${options.variant === v.id ? 'border-indigo-500 bg-indigo-50 text-indigo-600 shadow-sm' : 'border-zinc-100 bg-white text-zinc-400 hover:border-zinc-200'}`}
+                className={`flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all ${options.variant === v.id ? 'border-[var(--accent-color)] bg-[var(--accent-muted)] text-[var(--accent-color)] shadow-sm' : 'border-[var(--border-color)] bg-[var(--bg-paper)] text-[var(--text-muted)] hover:border-[var(--border-color)]'}`}
               >
                 <i className={`fa-solid ${v.icon} text-lg`}></i>
                 <div className="text-center">
@@ -48,10 +48,10 @@ export const BoxMathConfig: React.FC<Props> = ({ options, onChange }) => {
 
         {/* Soru Sayısı */}
         <div className="space-y-3">
-          <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">
+          <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">
             Soru Kapasitesi
           </label>
-          <div className="bg-white p-4 rounded-2xl border border-zinc-100 shadow-sm">
+          <div className="bg-[var(--bg-paper)] p-4 rounded-2xl border border-[var(--border-color)] shadow-sm">
             <input
               type="range"
               min="6"
@@ -62,25 +62,25 @@ export const BoxMathConfig: React.FC<Props> = ({ options, onChange }) => {
               className="w-full h-2 bg-zinc-100 rounded-lg appearance-none cursor-pointer accent-indigo-500"
             />
             <div className="flex justify-between mt-2">
-              <span className="text-[10px] font-black text-zinc-300">6</span>
-              <span className="text-xs font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-lg">
+              <span className="text-[10px] font-black text-[var(--text-secondary)]">6</span>
+              <span className="text-xs font-black text-[var(--accent-color)] bg-[var(--accent-muted)] px-2 py-0.5 rounded-lg">
                 {options.itemCount}
               </span>
-              <span className="text-[10px] font-black text-zinc-300">24</span>
+              <span className="text-[10px] font-black text-[var(--text-secondary)]">24</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Zorluk ve Sayı Aralığı */}
-      <div className="p-4 bg-zinc-50 rounded-[2rem] border border-zinc-200 space-y-4">
+      <div className="p-4 bg-[var(--bg-secondary)] rounded-[2rem] border border-[var(--border-color)] space-y-4">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-indigo-500 text-white flex items-center justify-center text-xs shadow-lg">
+          <div className="w-8 h-8 rounded-full bg-[var(--accent-color)] text-[var(--text-primary)] flex items-center justify-center text-xs shadow-lg">
             <i className="fa-solid fa-gauge-high"></i>
           </div>
           <div>
             <h4 className="text-xs font-black text-zinc-800 uppercase">Bilişsel Seviye</h4>
-            <p className="text-[9px] font-bold text-zinc-400 leading-none">
+            <p className="text-[9px] font-bold text-[var(--text-muted)] leading-none">
               İşlem karmaşıklığını belirle
             </p>
           </div>
@@ -91,7 +91,7 @@ export const BoxMathConfig: React.FC<Props> = ({ options, onChange }) => {
             <button
               key={d}
               onClick={() => onChange('difficulty', d as unknown)}
-              className={`py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border-2 transition-all ${options.difficulty === d ? 'border-zinc-900 bg-zinc-900 text-white shadow-md' : 'border-white bg-white text-zinc-400 hover:border-zinc-200'}`}
+              className={`py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border-2 transition-all ${options.difficulty === d ? 'border-[var(--border-color)] bg-[var(--bg-inset)] text-[var(--text-primary)] shadow-md' : 'border-white bg-[var(--bg-paper)] text-[var(--text-muted)] hover:border-[var(--border-color)]'}`}
             >
               {d}
             </button>
@@ -100,14 +100,14 @@ export const BoxMathConfig: React.FC<Props> = ({ options, onChange }) => {
       </div>
 
       {/* Punto Ayarı */}
-      <div className="p-4 bg-zinc-50 rounded-[2rem] border border-zinc-200 space-y-4">
+      <div className="p-4 bg-[var(--bg-secondary)] rounded-[2rem] border border-[var(--border-color)] space-y-4">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-violet-500 text-white flex items-center justify-center text-xs shadow-lg">
+          <div className="w-8 h-8 rounded-full bg-violet-500 text-[var(--text-primary)] flex items-center justify-center text-xs shadow-lg">
             <i className="fa-solid fa-text-height"></i>
           </div>
           <div>
             <h4 className="text-xs font-black text-zinc-800 uppercase">Punto (Yazı Boyutu)</h4>
-            <p className="text-[9px] font-bold text-zinc-400 leading-none">
+            <p className="text-[9px] font-bold text-[var(--text-muted)] leading-none">
               Kutu ve ifade büyüklüğünü ayarla
             </p>
           </div>
@@ -122,7 +122,7 @@ export const BoxMathConfig: React.FC<Props> = ({ options, onChange }) => {
             <button
               key={v.id}
               onClick={() => onChange('fontSizePreference', v.id as unknown)}
-              className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border-2 transition-all ${(options.fontSizePreference ?? 'medium') === v.id ? 'border-violet-500 bg-violet-50 text-violet-600 shadow-sm' : 'border-zinc-100 bg-white text-zinc-400 hover:border-zinc-200'}`}
+              className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border-2 transition-all ${(options.fontSizePreference ?? 'medium') === v.id ? 'border-violet-500 bg-violet-50 text-violet-600 shadow-sm' : 'border-[var(--border-color)] bg-[var(--bg-paper)] text-[var(--text-muted)] hover:border-[var(--border-color)]'}`}
             >
               <i className={`fa-solid ${v.icon} ${v.id === 'small' ? 'text-sm' : v.id === 'large' ? 'text-xl' : 'text-base'}`}></i>
               <div className="text-center">

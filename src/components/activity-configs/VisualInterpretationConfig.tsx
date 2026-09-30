@@ -25,7 +25,7 @@ export const VisualInterpretationConfig: React.FC<VisualInterpretationConfigProp
           <select
             value={options.topic || 'daily_life'}
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange('topic', e.target.value)}
-            className="w-full p-4 bg-white dark:bg-zinc-800 border-2 border-violet-100 dark:border-zinc-700 rounded-2xl text-sm font-bold outline-none focus:border-violet-500 dark:text-zinc-100"
+            className="w-full p-4 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border-2 border-violet-100 border-[var(--border-color)] rounded-2xl text-sm font-bold outline-none focus:border-violet-500 text-[var(--text-primary)]"
           >
             <option value="daily_life">Günlük Yaşam (Ev, Okul, Park)</option>
             <option value="nature">Doğa ve Hayvanlar</option>
@@ -40,11 +40,11 @@ export const VisualInterpretationConfig: React.FC<VisualInterpretationConfigProp
 
         <div className="grid grid-cols-3 gap-3">
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-zinc-500 uppercase block">Zorluk</label>
+            <label className="text-[10px] font-bold text-[var(--text-muted)] uppercase block">Zorluk</label>
             <select
               value={options.difficulty || 'Orta'}
               onChange={(e) => onChange('difficulty', e.target.value)}
-              className="w-full p-2.5 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-xs font-bold"
+              className="w-full p-2.5 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-xl text-xs font-bold"
             >
               <option value="çok kolay">Çok Kolay</option>
               <option value="kolay">Kolay</option>
@@ -54,11 +54,11 @@ export const VisualInterpretationConfig: React.FC<VisualInterpretationConfigProp
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-zinc-500 uppercase block">Yaş</label>
+            <label className="text-[10px] font-bold text-[var(--text-muted)] uppercase block">Yaş</label>
             <select
               value={options.ageGroup || '8-10'}
               onChange={(e) => onChange('ageGroup', e.target.value)}
-              className="w-full p-2.5 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-xs font-bold"
+              className="w-full p-2.5 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-xl text-xs font-bold"
             >
               <option value="5-7">5-7</option>
               <option value="8-10">8-10</option>
@@ -67,11 +67,11 @@ export const VisualInterpretationConfig: React.FC<VisualInterpretationConfigProp
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-zinc-500 uppercase block">Sınıf</label>
+            <label className="text-[10px] font-bold text-[var(--text-muted)] uppercase block">Sınıf</label>
             <select
               value={options.gradeLevel || 3}
               onChange={(e) => onChange('gradeLevel', parseInt(e.target.value))}
-              className="w-full p-2.5 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-xs font-bold"
+              className="w-full p-2.5 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-xl text-xs font-bold"
             >
               {[1, 2, 3, 4, 5, 6, 7, 8].map(grade => (
                 <option key={grade} value={grade}>{grade}. Sınıf</option>
@@ -82,10 +82,10 @@ export const VisualInterpretationConfig: React.FC<VisualInterpretationConfigProp
       </div>
 
       {/* ÜRETİM MODU */}
-      <div className="p-4 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-[2rem] border border-indigo-100 dark:border-indigo-800/30 space-y-3">
+      <div className="p-4 bg-[var(--accent-muted)] dark:bg-[var(--accent-muted)] rounded-[2rem] border border-[var(--border-color)] dark:border-indigo-800/30 space-y-3">
         <div className="flex items-center gap-2 mb-1">
-          <i className="fa-solid fa-bolt text-indigo-500 text-sm"></i>
-          <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Üretim Modu</span>
+          <i className="fa-solid fa-bolt text-[var(--accent-color)] text-sm"></i>
+          <span className="text-[10px] font-black text-[var(--accent-color)] dark:text-[var(--accent-color)] uppercase tracking-widest">Üretim Modu</span>
         </div>
         <CompactToggleGroup
           label="Mod Seçimi"
@@ -99,7 +99,7 @@ export const VisualInterpretationConfig: React.FC<VisualInterpretationConfigProp
       </div>
 
       {/* GÖRSEL VE SORU AYARLARI */}
-      <div className="p-5 bg-zinc-50 dark:bg-zinc-800 rounded-[2.5rem] border border-zinc-100 dark:border-zinc-700 space-y-5 shadow-inner">
+      <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)] space-y-5 shadow-inner">
         <div className="flex items-center gap-2">
           <i className="fa-solid fa-image text-violet-500 text-sm"></i>
           <span className="text-[10px] font-black text-violet-600 dark:text-violet-400 uppercase tracking-widest">Görsel Ayarları</span>
@@ -107,11 +107,11 @@ export const VisualInterpretationConfig: React.FC<VisualInterpretationConfigProp
         
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-zinc-500 uppercase block">Görsel Stili</label>
+            <label className="text-[10px] font-bold text-[var(--text-muted)] uppercase block">Görsel Stili</label>
             <select
               value={options.visualStyle || 'illustration'}
               onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange('visualStyle', e.target.value)}
-              className="w-full p-2.5 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-[10px] font-bold"
+              className="w-full p-2.5 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-xl text-[10px] font-bold"
             >
               <option value="illustration">Çizim (İllüstrasyon)</option>
               <option value="cartoon">Karikatür</option>
@@ -120,11 +120,11 @@ export const VisualInterpretationConfig: React.FC<VisualInterpretationConfigProp
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-zinc-500 uppercase block">Görsel Karmaşıklığı</label>
+            <label className="text-[10px] font-bold text-[var(--text-muted)] uppercase block">Görsel Karmaşıklığı</label>
             <select
               value={options.visualComplexityLevel || 'medium'}
               onChange={(e) => onChange('visualComplexityLevel', e.target.value)}
-              className="w-full p-2.5 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-[10px] font-bold"
+              className="w-full p-2.5 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-xl text-[10px] font-bold"
             >
               <option value="simple">Basit</option>
               <option value="medium">Orta</option>
@@ -134,19 +134,19 @@ export const VisualInterpretationConfig: React.FC<VisualInterpretationConfigProp
           </div>
         </div>
 
-        <div className="space-y-3 pt-3 border-t border-zinc-200 dark:border-zinc-700">
+        <div className="space-y-3 pt-3 border-t border-[var(--border-color)] border-[var(--border-color)]">
           <div className="flex items-center gap-2">
-            <i className="fa-solid fa-question-circle text-emerald-500 text-sm"></i>
-            <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Soru Ayarları</span>
+            <i className="fa-solid fa-question-circle text-[var(--accent-color)] text-sm"></i>
+            <span className="text-[10px] font-black text-[var(--accent-color)] dark:text-[var(--accent-color)] uppercase tracking-widest">Soru Ayarları</span>
           </div>
           
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-zinc-500 uppercase block">Soru Tipi</label>
+              <label className="text-[10px] font-bold text-[var(--text-muted)] uppercase block">Soru Tipi</label>
               <select
                 value={options.visualInterpretationStyle || 'mixed'}
                 onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange('visualInterpretationStyle', e.target.value as unknown as string)}
-                className="w-full p-2.5 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-[10px] font-bold"
+                className="w-full p-2.5 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-xl text-[10px] font-bold"
               >
                 <option value="mixed">Karışık (Önerilen)</option>
                 <option value="true_false">Doğru / Yanlış</option>
@@ -156,14 +156,14 @@ export const VisualInterpretationConfig: React.FC<VisualInterpretationConfigProp
               </select>
             </div>
             <div className="space-y-1">
-              <label className="text-[10px] font-bold text-zinc-500 uppercase block">Soru Sayısı</label>
+              <label className="text-[10px] font-bold text-[var(--text-muted)] uppercase block">Soru Sayısı</label>
               <input
                 type="number"
                 min="3"
                 max="15"
                 value={options.itemCountVisual || 5}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('itemCountVisual', parseInt(e.target.value))}
-                className="w-full p-2.5 bg-white dark:bg-zinc-700 border border-zinc-200 dark:border-zinc-600 rounded-xl text-[10px] font-bold"
+                className="w-full p-2.5 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-xl text-[10px] font-bold"
               />
             </div>
           </div>
@@ -174,20 +174,20 @@ export const VisualInterpretationConfig: React.FC<VisualInterpretationConfigProp
               { key: 'includeInferentialVisualQuestions', label: 'Çıkarım' },
               { key: 'includeCreativeVisualQuestions', label: 'Yaratıcı' }
             ].map(({ key, label }) => (
-              <label key={key} className="flex items-center gap-2 p-2 bg-white dark:bg-zinc-700 rounded-lg cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-colors">
+              <label key={key} className="flex items-center gap-2 p-2 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] rounded-lg cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-900/10 transition-colors">
                 <input
                   type="checkbox"
                   checked={options[key as keyof GeneratorOptions] !== false}
                   onChange={(e) => onChange(key as keyof GeneratorOptions, e.target.checked)}
-                  className="w-3.5 h-3.5 rounded text-emerald-600 border-zinc-300"
+                  className="w-3.5 h-3.5 rounded text-[var(--accent-color)] border-[var(--border-color)]"
                 />
-                <span className="text-[9px] font-bold text-zinc-600 dark:text-zinc-300">{label}</span>
+                <span className="text-[9px] font-bold text-[var(--text-muted)] text-[var(--text-primary)]">{label}</span>
               </label>
             ))}
           </div>
         </div>
 
-        <div className="space-y-3 pt-3 border-t border-zinc-200 dark:border-zinc-700">
+        <div className="space-y-3 pt-3 border-t border-[var(--border-color)] border-[var(--border-color)]">
           <div className="flex items-center gap-2">
             <i className="fa-solid fa-palette text-amber-500 text-sm"></i>
             <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Görsel & Düzen</span>
@@ -202,28 +202,28 @@ export const VisualInterpretationConfig: React.FC<VisualInterpretationConfigProp
               { key: 'includeObservationNotes', label: 'Gözlem Notları' },
               { key: 'syllableColoring', label: 'Hece Renklendirme' }
             ].map(({ key, label }) => (
-              <label key={key} className="flex items-center gap-3 p-3 bg-white dark:bg-zinc-700 rounded-xl cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-colors border border-zinc-200 dark:border-zinc-600">
+              <label key={key} className="flex items-center gap-3 p-3 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] rounded-xl cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-colors border border-[var(--border-color)] border-[var(--border-color)]">
                 <input
                   type="checkbox"
                   checked={options[key as keyof GeneratorOptions] !== false}
                   onChange={(e) => onChange(key as keyof GeneratorOptions, e.target.checked)}
-                  className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 border-zinc-300"
+                  className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 border-[var(--border-color)]"
                 />
-                <span className="text-[10px] font-bold text-zinc-700 dark:text-zinc-200">{label}</span>
+                <span className="text-[10px] font-bold text-zinc-700 text-[var(--text-primary)]">{label}</span>
               </label>
             ))}
           </div>
         </div>
 
         <div className="flex items-center gap-3 p-4 bg-gradient-to-r from-violet-50 to-indigo-50 dark:from-violet-900/20 dark:to-indigo-900/20 rounded-[1.5rem] border border-violet-100 dark:border-violet-800/30">
-          <div className="w-8 h-8 bg-gradient-to-r from-violet-500 to-indigo-500 rounded-xl flex items-center justify-center text-white shadow-lg">
+          <div className="w-8 h-8 bg-gradient-to-r from-violet-500 to-indigo-500 rounded-xl flex items-center justify-center text-[var(--text-primary)] shadow-lg">
             <i className="fa-solid fa-eye text-xs"></i>
           </div>
           <div className="flex flex-col">
             <span className="text-[10px] font-black text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600 dark:from-violet-400 dark:to-indigo-400 uppercase tracking-tighter">
               Ultra Pro Görsel Analiz
             </span>
-            <span className="text-[9px] text-zinc-500 dark:text-zinc-400">
+            <span className="text-[9px] text-[var(--text-muted)] text-[var(--text-primary)]">
               Görsel algı ve yorumlama becerileri. Tamamen özelleştirilebilir.
             </span>
           </div>

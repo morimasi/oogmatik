@@ -9,7 +9,7 @@ export const VisualOddOneOutConfig: React.FC<Props> = ({ options, onChange }) =>
   const o = (options?.['visualOddOneOut'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Görsel Farklı Olanı Bul</h4>
       </div>
       <div>
@@ -33,7 +33,7 @@ export const GridDrawingConfig: React.FC<Props> = ({ options, onChange }) => {
   const o = (options?.['gridDrawing'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Grid Çizim</h4>
       </div>
       <div>
@@ -59,7 +59,7 @@ export const VisualTrackingLinesConfig: React.FC<Props> = ({ options, onChange }
   const o = (options?.['visualTrackingLines'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Görsel İzleme Çizgileri</h4>
       </div>
       <div>
@@ -86,7 +86,7 @@ export const AttentionToQuestionConfig: React.FC<Props> = ({ options, onChange }
   const o = (options?.['attentionToQuestion'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Soruya Dikkat</h4>
       </div>
       <div>
@@ -113,7 +113,7 @@ export const WordMemoryConfig: React.FC<Props> = ({ options, onChange }) => {
   const o = (options?.['wordMemory'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Kelime Hafızası</h4>
       </div>
       <div>
@@ -137,7 +137,7 @@ export const VisualMemoryConfig: React.FC<Props> = ({ options, onChange }) => {
   const o = (options?.['visualMemory'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Görsel Hafıza</h4>
       </div>
       <div>
@@ -161,7 +161,7 @@ export const CharacterMemoryConfig: React.FC<Props> = ({ options, onChange }) =>
   const o = (options?.['characterMemory'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Karakter Hafızası</h4>
       </div>
       <div>
@@ -185,7 +185,7 @@ export const ColorWheelMemoryConfig: React.FC<Props> = ({ options, onChange }) =
   const o = (options?.['colorWheelMemory'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Renk Çemberi Hafızası</h4>
       </div>
       <div>
@@ -209,7 +209,7 @@ export const ImageComprehensionConfig: React.FC<Props> = ({ options, onChange })
   const o = (options?.['imageComprehension'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Görsel Anlama</h4>
       </div>
       <div>
@@ -234,7 +234,7 @@ export const StroopTestConfig: React.FC<Props> = ({ options, onChange }) => {
   const o = (options?.['stroopTest'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Stroop Testi</h4>
       </div>
       <div>
@@ -258,7 +258,7 @@ export const BurdonTestConfig: React.FC<Props> = ({ options, onChange }) => {
   const o = (options?.['burdonTest'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Burdon Testi</h4>
       </div>
       <div>
@@ -282,7 +282,7 @@ export const NumberSearchConfig: React.FC<Props> = ({ options, onChange }) => {
   const o = (options?.['numberSearch'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Sayı Arama</h4>
       </div>
       <div>
@@ -307,7 +307,7 @@ export const ChaoticNumberSearchConfig: React.FC<Props> = ({ options, onChange }
   const o = (options?.['chaoticNumberSearch'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Kaotik Sayı Arama</h4>
       </div>
       <div>
@@ -332,7 +332,7 @@ export const FindIdenticalWordConfig: React.FC<Props> = ({ options, onChange }) 
   const o = (options?.['findIdenticalWord'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Aynı Kelimeyi Bul</h4>
       </div>
       <div>
@@ -356,7 +356,7 @@ export const LetterGridTestConfig: React.FC<Props> = ({ options, onChange }) => 
   const o = (options?.['letterGridTest'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Harf Grid Testi</h4>
       </div>
       <div>
@@ -381,7 +381,7 @@ export const TargetSearchConfig: React.FC<Props> = ({ options, onChange }) => {
   const o = (options?.['targetSearch'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Hedef Arama</h4>
       </div>
       <div>
@@ -405,7 +405,7 @@ export const VisualInterpretationConfig: React.FC<Props> = ({ options, onChange 
   const o = (options?.['visualInterpretation'] || {}) as Record<string, unknown>;
   return (
     <div className="space-y-4 p-4">
-      <div className="pb-2 border-b border-zinc-200">
+      <div className="pb-2 border-b border-[var(--border-color)]">
         <h4 className="font-bold">Görsel Yorumlama</h4>
       </div>
       <div>
