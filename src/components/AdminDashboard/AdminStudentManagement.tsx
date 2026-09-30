@@ -270,23 +270,26 @@ export const AdminStudentManagement: React.FC = () => {
         </div>
       )}
 
-      {/* Silme Onay Modalı */}
+      {/* Geri Dönüşüm Kutusu Onay Modalı */}
       {deleteTarget && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={() => setDeleteTarget(null)}>
           <div className="bg-white dark:bg-zinc-900 w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden border border-white/10 p-8 text-center" onClick={e => e.stopPropagation()}>
-            <div className="w-16 h-16 mx-auto mb-6 bg-red-100 dark:bg-red-900/20 rounded-[1.5rem] flex items-center justify-center">
-              <Trash2 className="w-7 h-7 text-red-500" />
+            <div className="w-16 h-16 mx-auto mb-6 bg-amber-100 dark:bg-amber-900/20 rounded-[1.5rem] flex items-center justify-center">
+              <Trash2 className="w-7 h-7 text-amber-500" />
             </div>
-            <h3 className="text-lg font-black text-zinc-800 dark:text-zinc-100 mb-2">Öğrenciyi Sil</h3>
-            <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 mb-8">
-              <strong className="text-zinc-800 dark:text-zinc-200">{deleteTarget.name}</strong> adlı öğrenciyi ve tüm verilerini kalıcı olarak silmek istediğinize emin misiniz? Bu işlem geri alınamaz.
+            <h3 className="text-lg font-black text-zinc-800 dark:text-zinc-100 mb-2">Öğrenciyi Arşivle</h3>
+            <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400 mb-2">
+              <strong className="text-zinc-800 dark:text-zinc-200">{deleteTarget.name}</strong> adlı öğrenci ve tüm verileri (değerlendirmeler, BEP hedefleri) güvenle yedeklenecek.
+            </p>
+            <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mb-8 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl px-3 py-2">
+              ✓ Veriler silinmez — Geri Dönüşüm Kutusu'ndan geri yüklenebilir
             </p>
             <div className="flex gap-3 justify-center">
               <button onClick={() => setDeleteTarget(null)} className="px-8 py-3 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-zinc-200 transition-all">
                 İptal
               </button>
-              <button onClick={handleDeleteConfirm} className="px-8 py-3 bg-red-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-600 transition-all shadow-lg shadow-red-500/20">
-                Sil
+              <button onClick={handleDeleteConfirm} className="px-8 py-3 bg-amber-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-600 transition-all shadow-lg shadow-amber-500/20">
+                Arşivle & Yedekle
               </button>
             </div>
           </div>

@@ -177,9 +177,16 @@ export const useStudentStore = create<StudentState>()((set, get) => ({
     }
   },
 
-  deleteStudent: async (id: string) => {
+  deleteStudent: async (id: string, deletedBy = 'Admin') => {
     try {
-      await deleteDoc(doc(db, 'students', id));
+      // Hard-delete yerine güvenli arşivleme — tüm veriler recycle_bin'e yedeklenir
+      const { recycleBinService } = await import('../services/recycleBinService');
+      await recycleBinService.archiveStudent(id, deletedBy);
+      // Store'dan çıkar (Zustand set ile)
+      set((state) => ({
+        students: state.students.filter((s) => s.id !== id),
+        activeStudent: state.activeStudent?.id === id ? null : state.activeStudent,
+      }));
     } catch (error) {
       logError(toAppError(error), { context: 'deleteStudent Hatası' });
       throw error;

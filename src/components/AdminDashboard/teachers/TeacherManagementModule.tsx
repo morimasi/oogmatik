@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Shield, AlertTriangle, CheckCircle, XCircle, Calendar, Mail, Star, Box, ChevronRight, Settings, UserCheck, RefreshCw, Trash2, Clock, Lock, Unlock, Eye, EyeOff } from 'lucide-react';
 import { TeacherDetail } from '../../../types/teacher';
 import { adminService } from '../../../services/adminService';
+import { recycleBinService } from '../../../services/recycleBinService';
 import { useToastStore } from '../../../store/useToastStore';
 
 interface TeacherManagementModuleProps {
@@ -51,12 +52,13 @@ export const TeacherManagementModule: React.FC<TeacherManagementModuleProps> = (
   const handleDeleteAccount = useCallback(async () => {
     setDeleting(true);
     try {
-      await adminService.updateUserStatus(t.user.id, 'deleted');
-      toast.success(`${t.user.name} hesabı silindi.`);
+      // status='deleted' yerine güvenli arşivleme: tüm veriler recycle_bin'e yedeklenir
+      await recycleBinService.archiveTeacher(t.user.id, 'Admin Tehlike Bölgesi');
+      toast.success(`${t.user.name} hesabı yedeklenerek Geri Dönüşüm Kutusu'na arşivlendi. Gerektiğinde geri yüklenebilir.`);
       onUpdate();
       setShowDeleteConfirm(false);
     } catch {
-      toast.error('Hesap silinemedi.');
+      toast.error('Hesap arşivlenirken hata oluştu. Lütfen tekrar deneyin.');
     } finally {
       setDeleting(false);
     }
@@ -201,12 +203,11 @@ export const TeacherManagementModule: React.FC<TeacherManagementModuleProps> = (
             </div>
             <div>
               <h3 className="text-[10px] font-black text-rose-500 uppercase tracking-[0.15em]">Tehlike Bölgesi</h3>
-              <p className="text-[8px] font-bold text-[var(--text-muted)]">Geri alınamaz işlemler</p>
+              <p className="text-[8px] font-bold text-[var(--text-muted)]">Hesap arşivlenir, veriler korunur</p>
             </div>
           </div>
           <p className="text-[10px] font-bold text-[var(--text-muted)] mb-5 leading-relaxed">
-            Öğretmen hesabını silmek geri alınamaz. Hesap silindiğinde kullanıcı platforma giriş yapamaz. 
-            Öğrenci verileri, değerlendirmeler ve planlar korunur ancak hesaba erişim kalıcı olarak kapatılır.
+            Öğretmen hesabını arşivlediğinizde kullanıcı platforma giriş yapamaz. Tüm öğrenci verileri, değerlendirmeler ve planlar <span className="text-emerald-500 font-black">Geri Dönüşüm Kutusu'nda güvenle saklanır</span> ve gerektiğinde geri yüklenebilir.
           </p>
           {!isSuper ? (
             !showDeleteConfirm ? (
@@ -214,12 +215,12 @@ export const TeacherManagementModule: React.FC<TeacherManagementModuleProps> = (
                 onClick={() => setShowDeleteConfirm(true)}
                 className="px-6 py-3 bg-transparent border-2 border-rose-500 text-rose-500 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-500 hover:text-white transition-all inline-flex items-center gap-2"
               >
-                <Trash2 className="w-3.5 h-3.5" /> Hesabı Kalıcı Olarak Sil
+                <Trash2 className="w-3.5 h-3.5" /> Yedekle & Arşivle
               </button>
             ) : (
               <div className="p-4 bg-rose-50 dark:bg-rose-900/20 rounded-2xl border border-rose-200 dark:border-rose-800 space-y-3">
                 <p className="text-[10px] font-bold text-rose-600 dark:text-rose-400 flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4" /> Bu işlem geri alınamaz! Emin misiniz?
+                  <AlertTriangle className="w-4 h-4" /> Hesap arşivlenecek. Tüm veriler yedeklenecek. Emin misiniz?
                 </p>
                 <div className="flex gap-2">
                   <button onClick={() => setShowDeleteConfirm(false)} className="flex-1 py-2.5 bg-[var(--bg-secondary)] text-[var(--text-primary)] rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-[var(--bg-hover)] transition-all">
@@ -231,7 +232,7 @@ export const TeacherManagementModule: React.FC<TeacherManagementModuleProps> = (
                     className="flex-1 py-2.5 bg-gradient-to-r from-rose-600 to-pink-700 text-white rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg shadow-rose-600/20 hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-60 flex items-center justify-center gap-2"
                   >
                     {deleting ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
-                    {deleting ? 'Siliniyor...' : 'Evet, Kalıcı Olarak Sil'}
+                    {deleting ? 'Arşivleniyor...' : 'Evet, Yedekle & Arşivle'}
                   </button>
                 </div>
               </div>
