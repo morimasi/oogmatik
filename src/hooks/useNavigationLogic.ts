@@ -11,6 +11,8 @@ export const useNavigationLogic = (
         setCurrentView,
         addHistoryView,
         popHistoryView,
+        addForwardView,
+        popForwardView,
         activeCurriculumSession,
         setActiveCurriculumSession,
         resetGeneratorContext,
@@ -32,9 +34,18 @@ export const useNavigationLogic = (
         }
         const prevView = popHistoryView();
         if (prevView) {
+            addForwardView(currentView);
             setCurrentView(prevView);
         } else {
             setCurrentView('generator');
+        }
+    };
+
+    const handleGoForward = () => {
+        const nextView = popForwardView();
+        if (nextView) {
+            addHistoryView(currentView, false);
+            setCurrentView(nextView);
         }
     };
 
@@ -61,6 +72,7 @@ export const useNavigationLogic = (
     return {
         navigateTo,
         handleGoBack,
+        handleGoForward,
         handleOpenStudio,
         handleGeneratePlanFromScreening,
     };

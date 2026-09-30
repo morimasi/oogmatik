@@ -4,6 +4,7 @@ import { ActivityType, WorksheetData, ActiveCurriculumSession, View } from '../t
 export interface WorksheetStoreState {
   currentView: View;
   viewHistory: View[];
+  forwardHistory: View[];
   selectedActivity: ActivityType | null;
   worksheetData: WorksheetData | null;
   activeCurriculumSession: ActiveCurriculumSession | null;
@@ -15,8 +16,11 @@ export interface WorksheetStoreState {
 
   // Actions
   setCurrentView: (view: View) => void;
-  addHistoryView: (view: View) => void;
+  addHistoryView: (view: View, clearForward?: boolean) => void;
   popHistoryView: () => View | undefined;
+  addForwardView: (view: View) => void;
+  popForwardView: () => View | undefined;
+  clearForwardHistory: () => void;
   setSelectedActivity: (activity: ActivityType | null) => void;
   setWorksheetData: (data: WorksheetData | null) => void;
   setStudioData: (data: any | null) => void;
@@ -30,6 +34,7 @@ export interface WorksheetStoreState {
 export const useWorksheetStore = create<WorksheetStoreState>((set: any, get: any) => ({
   currentView: 'generator',
   viewHistory: [],
+  forwardHistory: [],
   selectedActivity: null,
   worksheetData: null,
   studioData: null,
@@ -40,8 +45,14 @@ export const useWorksheetStore = create<WorksheetStoreState>((set: any, get: any
   error: null,
 
   setCurrentView: (view: View) => set({ currentView: view }),
-  addHistoryView: (view: View) =>
-    set((state: WorksheetStoreState) => ({ viewHistory: [...state.viewHistory, view] })),
+  addHistoryView: (view: View, clearForward = true) =>
+    set((state: WorksheetStoreState) => {
+      const updated = [...state.viewHistory, view];
+      const capped = updated.length > 5 ? updated.slice(updated.length - 5) : updated;
+      return clearForward
+        ? { viewHistory: capped, forwardHistory: [] }
+        : { viewHistory: capped };
+    }),
   popHistoryView: () => {
     const state = get();
     if (state.viewHistory.length === 0) return undefined;
@@ -50,6 +61,21 @@ export const useWorksheetStore = create<WorksheetStoreState>((set: any, get: any
     set({ viewHistory: newHistory });
     return lastView;
   },
+  addForwardView: (view: View) =>
+    set((state: WorksheetStoreState) => {
+      const updated = [...state.forwardHistory, view];
+      const capped = updated.length > 5 ? updated.slice(updated.length - 5) : updated;
+      return { forwardHistory: capped };
+    }),
+  popForwardView: () => {
+    const state = get();
+    if (state.forwardHistory.length === 0) return undefined;
+    const newForward = [...state.forwardHistory];
+    const nextView = newForward.pop();
+    set({ forwardHistory: newForward });
+    return nextView;
+  },
+  clearForwardHistory: () => set({ forwardHistory: [] }),
   setSelectedActivity: (activity: ActivityType | null) => set({ selectedActivity: activity }),
   setWorksheetData: (data: WorksheetData | null) => set({ worksheetData: data }),
   setStudioData: (data: any | null) => set({ studioData: data }),
