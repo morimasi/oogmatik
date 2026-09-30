@@ -25,6 +25,7 @@ import { AdminContentEngine } from './AdminContentEngine';
 import { AdStudio } from '../AdStudio';
 import TeacherManagement from './TeacherManagement';
 import { AdminStudentManagement } from './AdminStudentManagement';
+import { AdminRecycleBin } from './AdminRecycleBin';
 import { AuditLog } from './AuditLog';
 import { feedbackService } from '../../services/feedbackService';
 
@@ -84,6 +85,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
       'permissions',
       'ad_studio',
       'audit_log',
+      'recycle_bin',
     ];
     return saved && validTabs.includes(saved) ? saved : 'dashboard';
   });
@@ -191,6 +193,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
           <NavButton active={activeTab === 'teachers'} label="Öğretmenler" icon="fa-chalkboard-user" onClick={() => setActiveTab('teachers')} />
           <NavButton active={activeTab === 'students'} label="Öğrenciler" icon="fa-user-graduate" onClick={() => setActiveTab('students')} />
           <NavButton active={activeTab === 'permissions'} label="Yetki Matrisi" icon="fa-lock" onClick={() => setActiveTab('permissions')} />
+          <NavButton active={activeTab === 'recycle_bin'} label="Geri Dönüşüm Kutusu" icon="fa-trash-arrow-up" onClick={() => setActiveTab('recycle_bin')} />
           <NavButton active={activeTab === 'audit_log'} label="Denetim Kaydı" icon="fa-clipboard-list" onClick={() => setActiveTab('audit_log')} />
 
           <p className="px-4 mt-6 mb-2 text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">İçerik Motoru</p>
@@ -233,6 +236,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
               {activeTab === 'permissions' && 'Yetkilendirme (RBAC)'}
               {activeTab === 'audit_log' && 'Denetim Kaydı'}
               {activeTab === 'ad_studio' && 'Reklam Stüdyosu'}
+              {activeTab === 'recycle_bin' && 'Geri Dönüşüm Kutusu & Arşiv'}
             </h1>
             <span className="px-2 py-0.5 rounded bg-[var(--bg-secondary)] text-[10px] font-mono text-[var(--text-muted)] border border-[var(--border-color)]">v1.3.0</span>
           </div>
@@ -261,6 +265,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
               {activeTab === 'permissions' && <AdminPermissionsIDE />}
               {activeTab === 'audit_log' && <AuditLog />}
               {activeTab === 'ad_studio' && <AdStudio />}
+              {activeTab === 'recycle_bin' && <AdminRecycleBin />}
             </React.Suspense>
           </div>
         </div>

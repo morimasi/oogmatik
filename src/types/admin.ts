@@ -17,7 +17,25 @@ export type AdminTab =
   | 'permissions'
   | 'content_engine'
   | 'ad_studio'
-  | 'audit_log';
+  | 'audit_log'
+  | 'recycle_bin';
+
+export interface RecycleBinItem {
+  id: string;
+  originalId: string;
+  entityType: 'teacher' | 'student';
+  name: string;
+  email?: string;
+  avatar?: string;
+  diagnosis?: string[];
+  grade?: string;
+  age?: number;
+  role?: string;
+  deletedAt: string;
+  deletedBy: string;
+  originalData: any;
+  status: 'archived' | 'deleted';
+}
 
 export interface ContentEngineMetrics {
   totalTemplates: number;
