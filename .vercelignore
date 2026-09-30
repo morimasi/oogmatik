@@ -1,8 +1,10 @@
 # Vercel Ignore File - Speed up deployment build context
-tests/
-docs/
-my-agent/
-tmp/
+# NOT: Desenler köke sabitlenmiştir (/). Aksi halde "tests/" gibi desenler
+# src/components/assessment/tests/ gibi uygulama kodunu da hariç tutar ve build kırılır.
+/tests/
+/docs/
+/my-agent/
+/tmp/
 .claude/
 .cursor/
 .agents/
@@ -16,3 +18,5 @@ tmp/
 !README.md
 *.log
 *.txt
+# public/ altındaki varlıklar Vite tarafından dist'e kopyalanır → her zaman build context'inde kalmalı.
+!/public/**

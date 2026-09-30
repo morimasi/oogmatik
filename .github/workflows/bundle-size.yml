@@ -24,6 +24,12 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      # Vercel, .vercelignore'ı gitignore semantiğiyle uygular. Köke sabitlenmemiş
+      # bir desen (örn. "tests/") src altındaki klasörleri de dışlayıp deploy build'ini
+      # kırabilir. Bağımlılık kurulmadan, hızlı başarısız olsun diye erken çalıştırılır.
+      - name: Verify Vercel build context (.vercelignore)
+        run: npm run check:vercelignore
+
       - name: Install dependencies
         run: npm ci
 
