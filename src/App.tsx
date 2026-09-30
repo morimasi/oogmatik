@@ -201,6 +201,7 @@ const AppContent = () => {
     setStudioData,
     resetGeneratorContext,
     viewHistory,
+    forwardHistory,
   } = useWorksheetStore();
 
   const [loadedCurriculum, setLoadedCurriculum] = useState(null as Curriculum | null);
@@ -273,7 +274,7 @@ const AppContent = () => {
     };
   }, []);
   const [styleSettings, setStyleSettings] = useState(initialStyleSettings as StyleSettings);
-  const { navigateTo, handleGoBack, handleOpenStudio, handleGeneratePlanFromScreening } = useNavigationLogic(
+  const { navigateTo, handleGoBack, handleGoForward, handleOpenStudio, handleGeneratePlanFromScreening } = useNavigationLogic(
     setScreeningPlanData,
     setIsAdvancedScreeningOpen
   );
@@ -509,6 +510,8 @@ const AppContent = () => {
         onOpenStudio={handleOpenStudio}
         onGoBack={handleGoBack}
         canGoBack={viewHistory.length > 0}
+        onGoForward={handleGoForward}
+        canGoForward={forwardHistory.length > 0}
       />
 
       <div className="flex flex-1 overflow-hidden relative">
