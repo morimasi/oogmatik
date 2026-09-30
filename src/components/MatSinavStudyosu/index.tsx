@@ -94,7 +94,14 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ initialData 
         }
     }, [initialData]);
 
-    const [activeTab, setActiveTab] = useState<TabType>('onizleme');
+    const [activeTab, setActiveTab] = useState<TabType>(() => {
+        const saved = localStorage.getItem('mat_sinav_studyosu_active_tab') as TabType | null;
+        return saved || 'onizleme';
+    });
+
+    useEffect(() => {
+        localStorage.setItem('mat_sinav_studyosu_active_tab', activeTab);
+    }, [activeTab]);
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [refreshingIndex, setRefreshingIndex] = useState<number | null>(null);

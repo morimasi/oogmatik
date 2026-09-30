@@ -64,8 +64,14 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
       delete (window as any).studentDashboardDefaultTab;
       return defaultTab;
     }
-    return 'overview';
+    const saved = localStorage.getItem('student_dashboard_active_tab');
+    const validTabs: TabType[] = ['overview', 'assignments', 'materials', 'analytics', 'plans', 'iep', 'notes', 'settings'];
+    return saved && validTabs.includes(saved as TabType) ? (saved as TabType) : 'overview';
   });
+
+  useEffect(() => {
+    localStorage.setItem('student_dashboard_active_tab', activeTab);
+  }, [activeTab]);
 
   // UI State
   const [groupingMode, setGroupingMode] = useState<GroupingMode>('all');

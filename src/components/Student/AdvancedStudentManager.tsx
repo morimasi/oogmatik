@@ -130,7 +130,14 @@ export const AdvancedStudentManager: React.FC<{
   onLoadMaterial?: (ws: any) => void;
 }> = ({ onBack, onLoadMaterial }) => {
   const { activeStudent, students, setActiveStudent, updateStudent } = useStudentStore();
-  const [selectedModule, setSelectedModule] = useState('overview');
+  const [selectedModule, setSelectedModule] = useState(() => {
+    const saved = localStorage.getItem('advanced_student_active_module');
+    return saved || 'overview';
+  });
+
+  React.useEffect(() => {
+    localStorage.setItem('advanced_student_active_module', selectedModule);
+  }, [selectedModule]);
   const { canAccess } = useRBAC();
 
   const modulePermissions: Record<string, PermissionModule | null> = {

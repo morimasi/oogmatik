@@ -47,7 +47,15 @@ export const Profile: React.FC<ProfileProps> = ({
   onOpenSettingsModal,
   onNavigateToCurriculum,
 }) => {
-  const [activeTab, setActiveTab] = useState<ProfileTabId>('overview');
+  const [activeTab, setActiveTab] = useState<ProfileTabId>(() => {
+    const saved = localStorage.getItem('profile_active_tab') as ProfileTabId | null;
+    const validTabs: ProfileTabId[] = ['overview', 'students', 'analysis', 'plans', 'reports', 'settings', 'ai_insights'];
+    return saved && validTabs.includes(saved) ? saved : 'overview';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('profile_active_tab', activeTab);
+  }, [activeTab]);
   const [targetAssessmentId, setTargetAssessmentId] = useState<string | null>(null);
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [sharingModule, setSharingModule] = useState<SharedModuleType>('overview');

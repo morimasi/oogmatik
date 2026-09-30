@@ -117,7 +117,14 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
     }
   }, [initialData]);
 
-  const [activeTab, setActiveTab] = useState<TabType>('onizleme');
+  const [activeTab, setActiveTab] = useState<TabType>(() => {
+    const saved = localStorage.getItem('sinav_studyosu_active_tab') as TabType | null;
+    return saved || 'onizleme';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('sinav_studyosu_active_tab', activeTab);
+  }, [activeTab]);
   const [error, setError] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);

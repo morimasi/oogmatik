@@ -59,7 +59,14 @@ export const MatProblemStudyosu: React.FC<MatProblemStudyosuProps> = ({ initialD
     const { user } = useAuthStore();
     const { students, fetchStudents } = useStudentStore();
 
-    const [activeTab, setActiveTab] = useState<TabType>('ayarlar');
+    const [activeTab, setActiveTab] = useState<TabType>(() => {
+        const saved = localStorage.getItem('mat_problem_studyosu_active_tab') as TabType | null;
+        return saved || 'ayarlar';
+    });
+
+    useEffect(() => {
+        localStorage.setItem('mat_problem_studyosu_active_tab', activeTab);
+    }, [activeTab]);
     const [showCevapAnahtari, setShowCevapAnahtari] = useState(false);
 
     // Modal State'leri
