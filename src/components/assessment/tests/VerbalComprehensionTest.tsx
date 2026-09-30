@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { SubTestResult } from '../../../types';
-import { generateAIAssessmentContent, AIGeneratedTestItems } from '../../../services/aiAssessmentGenerator';
-import { CognitiveProfileMetrics } from '../services/cognitiveAdaptiveService';
+import type { CognitiveProfileMetrics } from '../services/cognitiveAdaptiveService';
+import { useAdaptiveContent } from '../services/useAdaptiveContent';
+import { generateVerbalItems, type VerbalItem } from '../services/adaptiveTestContent';
+import type { AIGeneratedTestItems } from '../../../services/aiAssessmentGenerator';
 
 interface VerbalComprehensionTestProps {
     onComplete: (result: SubTestResult) => void;
@@ -9,37 +11,52 @@ interface VerbalComprehensionTestProps {
     studentProfile?: CognitiveProfileMetrics;
 }
 
-interface Question {
-    word: string;
-    options: string[];
-    correct: string;
-}
+const FALLBACK_PROFILE: CognitiveProfileMetrics = {
+    studentName: 'Öğrenci',
+    age: 8,
+    grade: '2. Sınıf',
+    diagnosis: [],
+    strengths: [],
+    weaknesses: [],
+};
 
-const DEFAULT_QUESTIONS: Question[] = [
-    { word: 'büyük', options: ['küçük', 'uzun', 'kısa', 'geniş'], correct: 'küçük' },
-    { word: 'sıcak', options: ['soğuk', 'ılık', 'güzel', 'kötü'], correct: 'soğuk' },
-    { word: 'hızlı', options: ['yavaş', 'uzun', 'kısa', 'yüksek'], correct: 'yavaş' },
-    { word: 'mutlu', options: ['üzgün', 'korkmuş', 'öfkeli', 'şaşkın'], correct: 'üzgün' },
-    { word: 'açık', options: ['kapalı', 'karanlık', 'aydınlık', 'güzel'], correct: 'kapalı' },
-    { word: 'yukarı', options: ['aşağı', 'sağ', 'sol', 'ön'], correct: 'aşağı' },
-];
+/** AI çıktısını güvenli biçimde VerbalItem[] tipine dönüştürür. */
+const mapAiToVerbalItems = (ai: AIGeneratedTestItems): VerbalItem[] | null => {
+    try {
+        const items: VerbalItem[] = [];
+        ai.items.forEach((raw: any) => {
+            if (!raw || typeof raw.word !== 'string' || !Array.isArray(raw.options) || typeof raw.correct !== 'string') return;
+            const options = Array.from(new Set<string>(raw.options.map(String)));
+            if (options.length < 3 || !options.includes(raw.correct)) return;
+            items.push({ word: raw.word, options: options.slice(0, 4), correct: raw.correct });
+        });
+        return items.length >= 4 ? items : null;
+    } catch {
+        return null;
+    }
+};
 
 export const VerbalComprehensionTest: React.FC<VerbalComprehensionTestProps> = ({
     onComplete,
-    studentAge = 7,
     studentProfile
 }) => {
-    const [phase, setPhase] = useState<'intro' | 'loading' | 'question' | 'feedback'>('intro');
+    const profile = studentProfile ?? FALLBACK_PROFILE;
+    const { items, meta, loading, regenerate } = useAdaptiveContent<VerbalItem[]>({
+        domain: 'verbal_comprehension',
+        profile,
+        buildLocal: (params, rng) => generateVerbalItems(params, rng),
+        mapAi: (ai) => mapAiToVerbalItems(ai),
+    });
+
+    const [phase, setPhase] = useState<'intro' | 'question' | 'feedback'>('intro');
     const [level, setLevel] = useState(1);
     const [score, setScore] = useState(0);
     const [lives, setLives] = useState(3);
     const [startTime, setStartTime] = useState(0);
     const [reactionTimes, setReactionTimes] = useState<number[]>([]);
-    const [questions, setQuestions] = useState<Question[]>(DEFAULT_QUESTIONS);
-    const [currentQuestion, setCurrentQuestion] = useState<Question | null>(null);
+    const [currentQuestion, setCurrentQuestion] = useState<VerbalItem | null>(null);
     const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
-    const [aiMeta, setAiMeta] = useState<{ label?: string; guidance?: string }>({});
-    const maxScoreRef = React.useRef(0);
+    const maxScoreRef = useRef(0);
 
     const shuffleOptions = (opts: string[]): string[] => {
         const copy = [...opts];
@@ -51,24 +68,19 @@ export const VerbalComprehensionTest: React.FC<VerbalComprehensionTestProps> = (
     };
 
     const handleStart = async () => {
-        if (studentProfile) {
-            setPhase('loading');
-            const aiData = await generateAIAssessmentContent('verbal_comprehension', studentProfile);
-            if (aiData && aiData.items && aiData.items.length > 0) {
-                setQuestions(aiData.items);
-                setAiMeta({
-                    label: aiData.adaptiveDifficultyLabel,
-                    guidance: aiData.pedagogicalGuidance
-                });
-            }
-        }
+        await regenerate();
+        maxScoreRef.current = 0;
+        setLevel(1);
+        setLives(3);
+        setScore(0);
+        setReactionTimes([]);
         startLevel(1);
     };
 
     const startLevel = (nextLevel: number) => {
         maxScoreRef.current += nextLevel * 10;
-        const qIdx = (nextLevel - 1) % questions.length;
-        const q = questions[qIdx];
+        const qIdx = (nextLevel - 1) % Math.max(1, items.length);
+        const q = items[qIdx];
         if (q) {
             setCurrentQuestion({
                 ...q,
@@ -93,7 +105,7 @@ export const VerbalComprehensionTest: React.FC<VerbalComprehensionTestProps> = (
         setTimeout(() => {
             if (isCorrect) {
                 setScore(prev => prev + level * 10);
-                if (level < questions.length && lives > 0) {
+                if (level < items.length && lives > 0) {
                     const nxt = level + 1;
                     setLevel(nxt);
                     startLevel(nxt);
@@ -103,7 +115,7 @@ export const VerbalComprehensionTest: React.FC<VerbalComprehensionTestProps> = (
             } else {
                 const nextLives = lives - 1;
                 setLives(nextLives);
-                if (nextLives <= 0 || level >= questions.length) {
+                if (nextLives <= 0 || level >= items.length) {
                     finishTest(score, level);
                 } else {
                     const nxt = level + 1;
@@ -152,28 +164,22 @@ export const VerbalComprehensionTest: React.FC<VerbalComprehensionTestProps> = (
                     <p className="text-zinc-600 dark:text-zinc-300 text-sm leading-relaxed font-medium">
                         Verilen kelimenin <span className="font-black text-emerald-600">karşıt (zıt) anlamlısını</span> seçin.
                     </p>
+                    <p className="text-xs font-bold text-emerald-500 mt-3">
+                        {meta.source === 'ai' ? 'AI destekli' : 'Profile göre ölçeklenmiş'} · {meta.difficultyLabel}
+                    </p>
                 </div>
 
                 <button
                     onClick={handleStart}
-                    className="px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all"
+                    disabled={loading}
+                    className="px-8 py-4 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black rounded-2xl shadow-xl hover:scale-105 active:scale-95 disabled:opacity-60 disabled:hover:scale-100 transition-all flex items-center gap-3"
                 >
-                    Teste Başla
+                    {loading ? (
+                        <><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Sorular Üretiliyor...</>
+                    ) : (
+                        'Teste Başla'
+                    )}
                 </button>
-            </div>
-        );
-    }
-
-    if (phase === 'loading') {
-        return (
-            <div className="flex flex-col items-center justify-center w-full h-full gap-4 text-center animate-in fade-in font-['Lexend']">
-                <div className="w-16 h-16 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-                <h4 className="font-black text-base text-zinc-800 dark:text-zinc-100">
-                    Gemini 2.5 Flash Kişiselleştirilmiş Soruları Üretiyor...
-                </h4>
-                <p className="text-xs text-zinc-500 max-w-xs">
-                    Öğrenci profili ve tanı geçmişine özel nöropsikolojik kelime seti hazırlanıyor.
-                </p>
             </div>
         );
     }
@@ -204,10 +210,10 @@ export const VerbalComprehensionTest: React.FC<VerbalComprehensionTestProps> = (
             </div>
 
             {/* AI Meta Bilgi Kartı */}
-            {aiMeta.label && (
+            {meta.source === 'ai' && (
                 <div className="w-full bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800/50 p-3 rounded-2xl text-xs text-emerald-800 dark:text-emerald-300">
-                    <p className="font-black">🤖 AI Zorluk Uyarısı: {aiMeta.label}</p>
-                    {aiMeta.guidance && <p className="text-[11px] opacity-90 mt-0.5">{aiMeta.guidance}</p>}
+                    <p className="font-black">🤖 AI Zorluk Uyarısı: {meta.difficultyLabel}</p>
+                    {meta.guidance && <p className="text-[11px] opacity-90 mt-0.5">{meta.guidance}</p>}
                 </div>
             )}
 

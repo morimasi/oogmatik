@@ -1,143 +1,61 @@
-
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { SubTestResult } from '../../../types';
+import type { CognitiveProfileMetrics } from '../services/cognitiveAdaptiveService';
+import { useAdaptiveContent } from '../services/useAdaptiveContent';
+import { generateLogicItems, type LogicItem } from '../services/adaptiveTestContent';
+import type { AIGeneratedTestItems } from '../../../services/aiAssessmentGenerator';
 
 interface LogicTestProps {
     onComplete: (result: SubTestResult) => void;
+    studentProfile?: CognitiveProfileMetrics;
 }
 
-interface LogicQuestion {
-    id: number;
-    grid: string[][];
-    options: string[];
-    answer: string;
-    rule: string;
-    difficulty: 'easy' | 'medium' | 'hard';
-    hint?: string;
-}
+const FALLBACK_PROFILE: CognitiveProfileMetrics = {
+    studentName: 'Öğrenci',
+    age: 8,
+    grade: '2. Sınıf',
+    diagnosis: [],
+    strengths: [],
+    weaknesses: [],
+};
 
-// Genişletilmiş soru bankası
-const questions: LogicQuestion[] = [
-    {
-        id: 1,
-        grid: [['⬛', '⬛', '⬛'], ['⬛', '⬛', '⬛'], ['⬛', '⬛', '?']],
-        options: ['⬜', '⬛', '🔴'],
-        answer: '⬛',
-        rule: 'Desen Tekrarı',
-        difficulty: 'easy',
-        hint: 'Tüm kareler aynı renk'
-    },
-    {
-        id: 2,
-        grid: [['⬆️', '➡️'], ['⬇️', '?']],
-        options: ['⬅️', '↗️', '⬆️'],
-        answer: '⬅️',
-        rule: 'Saat Yönünde Döndürme',
-        difficulty: 'medium',
-        hint: 'Oklar saat yönünde döner'
-    },
-    {
-        id: 3,
-        grid: [['1', '2'], ['3', '?']],
-        options: ['4', '5', '1'],
-        answer: '4',
-        rule: 'Sıralama',
-        difficulty: 'easy',
-        hint: 'Sayılar sırayla artıyor'
-    },
-    {
-        id: 4,
-        grid: [['🔴', '🔵'], ['🔵', '?']],
-        options: ['🔴', '🔵', '🟢'],
-        answer: '🔴',
-        rule: 'Diyagonal Desen',
-        difficulty: 'medium',
-        hint: 'Köşegen boyunca renk eşleşiyor'
-    },
-    {
-        id: 5,
-        grid: [['🔷', '🔷', '🔷'], ['🔷', '🔶', '🔷'], ['🔷', '🔷', '?']],
-        options: ['🔷', '🔶', '⬛'],
-        answer: '🔷',
-        rule: 'Simetri',
-        difficulty: 'medium',
-        hint: 'Merkez farklı, köşeler aynı'
-    },
-    {
-        id: 6,
-        grid: [['2', '4', '8'], ['3', '6', '12'], ['4', '8', '?']],
-        options: ['14', '16', '12'],
-        answer: '16',
-        rule: 'İkiye Katlama',
-        difficulty: 'hard',
-        hint: 'Her satırda sayılar ikiye katlanıyor'
-    },
-    {
-        id: 7,
-        grid: [['🌑', '🌒', '🌓'], ['🌔', '🌕', '🌖'], ['🌗', '🌘', '?']],
-        options: ['🌑', '🌕', '🌙'],
-        answer: '🌑',
-        rule: 'Döngüsel Sıra',
-        difficulty: 'hard',
-        hint: 'Ay evreleri döngüsel devam eder'
-    },
-    {
-        id: 8,
-        grid: [['🔺', '🔺', '🔻'], ['🔺', '🔻', '🔻'], ['🔻', '🔻', '?']],
-        options: ['🔺', '🔻', '🔷'],
-        answer: '🔻',
-        rule: 'Azalan Desen',
-        difficulty: 'hard',
-        hint: 'Yukarı üçgenler satır satır azalıyor'
-    },
-    {
-        id: 9,
-        grid: [['3', '6', '9'], ['12', '15', '18'], ['21', '?', '27']],
-        options: ['23', '24', '22'],
-        answer: '24',
-        rule: 'Üçer Artış',
-        difficulty: 'medium',
-        hint: 'Sayılar üçer üçer artıyor'
-    },
-    {
-        id: 10,
-        grid: [['A', 'B', 'C'], ['D', 'E', 'F'], ['G', 'H', '?']],
-        options: ['I', 'J', 'K'],
-        answer: 'I',
-        rule: 'Alfabetik Sıra',
-        difficulty: 'easy',
-        hint: 'Harfler alfabetik sırayla devam ediyor'
-    },
-    {
-        id: 11,
-        grid: [['1', '1', '2'], ['3', '5', '8'], ['13', '21', '?']],
-        options: ['34', '29', '44'],
-        answer: '34',
-        rule: 'Fibonacci Dizisi',
-        difficulty: 'hard',
-        hint: 'Her sayı kendinden önceki iki sayının toplamı'
-    },
-    {
-        id: 12,
-        grid: [['64', '32', '16'], ['8', '4', '2'], ['1', '0.5', '?']],
-        options: ['0.25', '0.75', '0.125'],
-        answer: '0.25',
-        rule: 'Yarıya Bölme',
-        difficulty: 'hard',
-        hint: 'Her sayı bir öncekinin yarısı'
-    },
-    {
-        id: 13,
-        grid: [['⬜', '⬜', '⬜'], ['⬜', '⬛', '⬜'], ['⬜', '⬜', '?']],
-        options: ['⬛', '⬜', '🔲'],
-        answer: '⬛',
-        rule: 'Merkezdeki Desen',
-        difficulty: 'hard',
-        hint: 'Her satır ve sütundaki siyahların sayısı eşit'
-    },
-];
+/** AI çıktısını güvenli biçimde LogicItem[] tipine dönüştürür. */
+const mapAiToLogicItems = (ai: AIGeneratedTestItems): LogicItem[] | null => {
+    try {
+        const items: LogicItem[] = [];
+        ai.items.forEach((raw: any, idx: number) => {
+            if (!raw || !Array.isArray(raw.grid) || !Array.isArray(raw.options) || typeof raw.answer !== 'string') return;
+            const options: string[] = raw.options.map(String);
+            if (!options.includes(raw.answer)) return;
+            const difficulty = raw.difficulty === 'easy' || raw.difficulty === 'medium' || raw.difficulty === 'hard'
+                ? raw.difficulty
+                : 'medium';
+            items.push({
+                id: idx + 1,
+                grid: raw.grid.map((row: unknown[]) => row.map(String)),
+                options,
+                answer: raw.answer,
+                rule: typeof raw.rule === 'string' ? raw.rule : 'Örüntü',
+                difficulty,
+                hint: typeof raw.hint === 'string' ? raw.hint : 'Örüntüyü dikkatle incele.',
+            });
+        });
+        return items.length >= 4 ? items : null;
+    } catch {
+        return null;
+    }
+};
 
-export const LogicTest: React.FC<LogicTestProps> = ({ onComplete }) => {
+export const LogicTest: React.FC<LogicTestProps> = ({ onComplete, studentProfile }) => {
+    const profile = studentProfile ?? FALLBACK_PROFILE;
+
+    const { items, meta, loading, regenerate } = useAdaptiveContent<LogicItem[]>({
+        domain: 'logical_reasoning',
+        profile,
+        buildLocal: (params, rng) => generateLogicItems(params, rng),
+        mapAi: (ai) => mapAiToLogicItems(ai),
+    });
+
     const [phase, setPhase] = useState<'intro' | 'running'>('intro');
     const [qIndex, setQIndex] = useState(0);
     const [shuffledOptions, setShuffledOptions] = useState<string[]>([]);
@@ -160,19 +78,29 @@ export const LogicTest: React.FC<LogicTestProps> = ({ onComplete }) => {
         return copy;
     };
 
-    React.useEffect(() => {
-        if (phase === 'running' && questions[qIndex]) {
-            setShuffledOptions(shuffleArray(questions[qIndex].options));
+    useEffect(() => {
+        if (phase === 'running' && items[qIndex]) {
+            setShuffledOptions(shuffleArray(items[qIndex].options));
         }
-    }, [qIndex, phase]);
+    }, [qIndex, phase, items]);
 
     const handleShowHint = () => {
         setShowHint(true);
         setTimeout(() => setShowHint(false), 3000); // 3 saniye sonra kaybolur
     };
 
+    const handleStart = async () => {
+        await regenerate();
+        startTimeRef.current = Date.now();
+        questionStartTime.current = Date.now();
+        scoreRef.current = 0;
+        setScoreDisplay(0);
+        setQIndex(0);
+        setPhase('running');
+    };
+
     const handleAnswer = (val: string) => {
-        if (showFeedback) return;
+        if (showFeedback || !items[qIndex]) return;
 
         const rt = Date.now() - questionStartTime.current;
         reactionTimes.current.push(rt);
@@ -180,8 +108,7 @@ export const LogicTest: React.FC<LogicTestProps> = ({ onComplete }) => {
         setSelectedAnswer(val);
         setShowFeedback(true);
 
-        // FIX: newScore'u doğrudan hesapla ve argüman olarak ilet
-        const isCorrect = val === questions[qIndex].answer;
+        const isCorrect = val === items[qIndex].answer;
         const newScore = isCorrect ? scoreRef.current + 1 : scoreRef.current;
         if (isCorrect) {
             scoreRef.current = newScore;
@@ -193,35 +120,41 @@ export const LogicTest: React.FC<LogicTestProps> = ({ onComplete }) => {
             setShowHint(false); // Soru değiştiğinde ipucu sıfırlansın
             setSelectedAnswer(null);
 
-            if (qIndex < questions.length - 1) {
+            if (qIndex < items.length - 1) {
                 setQIndex(q => q + 1);
                 questionStartTime.current = Date.now();
             } else {
-                // FIX: scoreRef.current kullan — state'in commit olmasını bekleme
                 finishWithScore(newScore);
             }
         }, 1000);
     };
 
     const finishWithScore = (finalScore: number) => {
-        const _totalTime = Date.now() - startTimeRef.current;
         const avgRT = reactionTimes.current.length > 0
             ? reactionTimes.current.reduce((a, b) => a + b, 0) / reactionTimes.current.length
             : 0;
-        const accuracy = (finalScore / questions.length) * 100;
+        const accuracy = (finalScore / Math.max(1, items.length)) * 100;
 
         onComplete({
             testId: 'logical_reasoning',
             name: 'Mantıksal Muhakeme',
             score: Math.round(accuracy),
             rawScore: finalScore,
-            totalItems: questions.length,
+            totalItems: items.length,
             avgReactionTime: Math.round(avgRT),
             accuracy: Math.round(accuracy),
             status: 'completed',
             timestamp: Date.now()
         });
     };
+
+    const counts = items.reduce(
+        (acc, q) => {
+            acc[q.difficulty] += 1;
+            return acc;
+        },
+        { easy: 0, medium: 0, hard: 0 } as Record<string, number>
+    );
 
     if (phase === 'intro') {
         return (
@@ -233,26 +166,36 @@ export const LogicTest: React.FC<LogicTestProps> = ({ onComplete }) => {
                     <h3 className="text-2xl font-black text-zinc-800 dark:text-white mb-3">Mantıksal Muhakeme</h3>
                     <p className="text-zinc-500 text-sm leading-relaxed">
                         Matristeki <span className="font-bold text-amber-600">deseni</span> bul ve soru işaretinin yerine
-                        gelmesi gereken şekli seç. {questions.length} soru var.
+                        gelmesi gereken şekli seç. {items.length} soru var.
+                    </p>
+                    <p className="text-xs text-amber-600 dark:text-amber-400 mt-3 font-bold">
+                        <i className="fa-solid fa-wand-magic-sparkles mr-1"></i>
+                        {meta.source === 'ai' ? 'AI destekli' : 'Profile göre ölçeklenmiş'} · {meta.difficultyLabel}
                     </p>
                 </div>
                 <div className="flex gap-4 text-xs text-zinc-400">
-                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full font-bold">Kolay × 2</span>
-                    <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full font-bold">Orta × 3</span>
-                    <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full font-bold">Zor × 3</span>
+                    <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full font-bold">Kolay × {counts.easy}</span>
+                    <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full font-bold">Orta × {counts.medium}</span>
+                    <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full font-bold">Zor × {counts.hard}</span>
                 </div>
                 <button
-                    onClick={() => { startTimeRef.current = Date.now(); questionStartTime.current = Date.now(); scoreRef.current = 0; setPhase('running'); }}
-                    className="px-8 py-4 bg-amber-500 hover:bg-amber-400 text-white font-black rounded-2xl shadow-lg transition-all active:scale-95 flex items-center gap-3"
+                    onClick={handleStart}
+                    disabled={loading}
+                    className="px-8 py-4 bg-amber-500 hover:bg-amber-400 disabled:opacity-60 text-white font-black rounded-2xl shadow-lg transition-all active:scale-95 flex items-center gap-3"
                 >
-                    <i className="fa-solid fa-play"></i> Teste Başla
+                    {loading ? (
+                        <><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Sorular Üretiliyor...</>
+                    ) : (
+                        <><i className="fa-solid fa-play"></i> Teste Başla</>
+                    )}
                 </button>
             </div>
         );
     }
 
-    const currentQ = questions[qIndex];
-    const gridCols = currentQ.grid[0].length;
+    const currentQ = items[qIndex];
+    if (!currentQ) return null;
+    const gridCols = currentQ.grid[0]?.length || 3;
 
     return (
         <div className="flex flex-col items-center justify-center w-full h-full max-w-xl mx-auto select-none relative">
@@ -260,7 +203,7 @@ export const LogicTest: React.FC<LogicTestProps> = ({ onComplete }) => {
             <div className="text-center mb-6 w-full">
                 <div className="flex items-center justify-between px-2 mb-2">
                     <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">
-                        Soru {qIndex + 1} / {questions.length}
+                        Soru {qIndex + 1} / {items.length}
                     </span>
                     <span className={`text-xs px-2 py-1 rounded-full font-bold ${currentQ.difficulty === 'easy' ? 'bg-green-100 text-green-700' :
                             currentQ.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-700' :
@@ -272,7 +215,7 @@ export const LogicTest: React.FC<LogicTestProps> = ({ onComplete }) => {
                 <div className="w-full h-1.5 bg-zinc-200 rounded-full overflow-hidden">
                     <div
                         className="h-full bg-amber-500 rounded-full transition-all duration-500"
-                        style={{ width: `${((qIndex) / questions.length) * 100}%` }}
+                        style={{ width: `${((qIndex) / items.length) * 100}%` }}
                     />
                 </div>
             </div>

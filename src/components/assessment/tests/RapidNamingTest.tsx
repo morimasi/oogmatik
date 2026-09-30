@@ -1,12 +1,15 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { SubTestResult } from '../../../types';
 import type { AdaptiveAssessmentConfig, TestVariation } from '../../ScreeningAssessment/services/professionalAssessmentService';
+import type { DomainAdaptiveParameters } from '../services/cognitiveAdaptiveService';
+import { calculateAdaptiveScaling } from '../services/adaptiveTestContent';
 
 interface RapidNamingTestProps {
     onComplete: (result: SubTestResult) => void;
     variation?: TestVariation;
     adaptiveConfig?: AdaptiveAssessmentConfig;
+    adaptiveParams?: DomainAdaptiveParameters;
 }
 
 // Premium FontAwesome ikonları + isim etiketi
@@ -18,13 +21,20 @@ const OBJECTS = [
     { emoji: '🐟', name: 'BALIK', icon: 'fa-fish', color: 'text-cyan-500', bgGradient: 'from-cyan-400 to-cyan-600' }
 ];
 
-const GRID_SIZE = 20;
+const DEFAULT_TRIALS = 20;
 
 export const RapidNamingTest = ({
     onComplete,
     variation,
     adaptiveConfig,
+    adaptiveParams,
 }: RapidNamingTestProps) => {
+    const scaling = useMemo(() => calculateAdaptiveScaling(adaptiveParams), [adaptiveParams]);
+    // Profil zorluğuna göre ızgara büyüklüğü; yaş bazlı adaptiveConfig bir üst sınır olarak kullanılır.
+    const gridSize = adaptiveConfig?.trialCount
+        ? Math.min(scaling.rapidNamingTrials, adaptiveConfig.trialCount)
+        : scaling.rapidNamingTrials || DEFAULT_TRIALS;
+
     const [phase, setPhase] = useState<'intro' | 'running' | 'done'>('intro');
     const [items, setItems] = useState<typeof OBJECTS[0][]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
@@ -44,7 +54,7 @@ export const RapidNamingTest = ({
     const startTest = () => {
         // Karıştırılmış grid oluştur (her nesne eşit dağılımda)
         const grid: typeof OBJECTS[0][] = [];
-        for (let i = 0; i < GRID_SIZE; i++) {
+        for (let i = 0; i < gridSize; i++) {
             grid.push(OBJECTS[Math.floor(Math.random() * OBJECTS.length)]);
         }
         // Arka arkaya aynı nesne olmamasını sağla
@@ -89,7 +99,7 @@ export const RapidNamingTest = ({
 
     const finish = (finalErrors: number) => {
         const totalTime = Date.now() - startTimeRef.current;
-        const avgSpeed = totalTime / GRID_SIZE;
+        const avgSpeed = totalTime / gridSize;
 
         // Standart RAN hızı: çocuklar için ~800-1200ms/nesne
         let score = 100;
@@ -103,9 +113,9 @@ export const RapidNamingTest = ({
             name: 'Hızlı İsimlendirme (RAN)',
             score: Math.max(0, Math.round(score)),
             rawScore: totalTime,
-            totalItems: GRID_SIZE,
+            totalItems: gridSize,
             avgReactionTime: Math.round(avgSpeed),
-            accuracy: Math.round(((GRID_SIZE - finalErrors) / GRID_SIZE) * 100),
+            accuracy: Math.round(((gridSize - finalErrors) / gridSize) * 100),
             status: 'completed',
             timestamp: Date.now()
         });
@@ -200,7 +210,7 @@ export const RapidNamingTest = ({
                         <div className="flex items-center gap-2">
                             <span className="text-lg">{currentIndex}</span>
                             <span className="text-zinc-400">/</span>
-                            <span>{GRID_SIZE}</span>
+                            <span>{gridSize}</span>
                             <span className="text-xs bg-cyan-100 dark:bg-cyan-900/50 text-cyan-700 dark:text-cyan-300 px-2 py-1 rounded-full">tamamlandı</span>
                         </div>
                     </div>
@@ -275,7 +285,7 @@ export const RapidNamingTest = ({
                 <div className="mt-8 w-80 h-3 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden shadow-inner">
                     <div
                         className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-500 shadow-lg"
-                        style={{ width: `${(currentIndex / GRID_SIZE) * 100}%` }}
+                        style={{ width: `${(currentIndex / gridSize) * 100}%` }}
                     />
                 </div>
             </div>

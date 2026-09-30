@@ -1,8 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { SubTestResult } from '../../../types';
+import type { DomainAdaptiveParameters } from '../services/cognitiveAdaptiveService';
+import { calculateAdaptiveScaling } from '../services/adaptiveTestContent';
 
 interface PlanningTestProps {
     onComplete: (result: SubTestResult) => void;
+    adaptiveParams?: DomainAdaptiveParameters;
 }
 
 type BallColor = 'red' | 'blue' | 'yellow';
@@ -130,7 +133,11 @@ const LEVELS: LevelTask[] = [
     }
 ];
 
-export const PlanningTest: React.FC<PlanningTestProps> = ({ onComplete }) => {
+export const PlanningTest: React.FC<PlanningTestProps> = ({ onComplete, adaptiveParams }) => {
+    const scaling = useMemo(() => calculateAdaptiveScaling(adaptiveParams), [adaptiveParams]);
+    // Düşük profilli öğrenciler ısınma seviyelerinden başlar; ileri profiller doğrudan zora geçer.
+    const activeLevels = useMemo(() => LEVELS.slice(scaling.planningStartLevel), [scaling.planningStartLevel]);
+
     const [phase, setPhase] = useState<'intro' | 'play' | 'feedback' | 'done'>('intro');
     const [levelIdx, setLevelIdx] = useState(0);
     const [pegs, setPegs] = useState<PegState[]>([]);
@@ -144,11 +151,11 @@ export const PlanningTest: React.FC<PlanningTestProps> = ({ onComplete }) => {
     const reactionTimesRef = useRef<number[]>([]);
     const totalMovesHistoryRef = useRef<number[]>([]);
 
-    const currentLevel = LEVELS[levelIdx] || LEVELS[0];
+    const currentLevel = activeLevels[levelIdx] || activeLevels[0];
 
     // Seviye başlatma
     const initLevel = (index: number) => {
-        const lvl = LEVELS[index] || LEVELS[0];
+        const lvl = activeLevels[index] || activeLevels[0];
         setPegs(JSON.parse(JSON.stringify(lvl.initialPegs)));
         setSelectedPegIdx(null);
         setMoves(0);
@@ -252,7 +259,7 @@ export const PlanningTest: React.FC<PlanningTestProps> = ({ onComplete }) => {
             setPhase('feedback');
 
             setTimeout(() => {
-                if (levelIdx + 1 < LEVELS.length) {
+                if (levelIdx + 1 < activeLevels.length) {
                     const nextIdx = levelIdx + 1;
                     setLevelIdx(nextIdx);
                     initLevel(nextIdx);
@@ -283,7 +290,7 @@ export const PlanningTest: React.FC<PlanningTestProps> = ({ onComplete }) => {
             name: 'Planlama (Londra Kulesi)',
             score: avgScore,
             rawScore: avgScore,
-            totalItems: LEVELS.length,
+            totalItems: activeLevels.length,
             avgReactionTime: avgRT,
             accuracy: avgScore,
             status: 'completed',
@@ -314,6 +321,9 @@ export const PlanningTest: React.FC<PlanningTestProps> = ({ onComplete }) => {
                     </h3>
                     <p className="text-zinc-600 dark:text-zinc-300 text-sm sm:text-base leading-relaxed font-medium">
                         Renkli topları çubuklar arasında taşıyarak, <span className="font-black text-indigo-600 dark:text-indigo-400">hedef modeldeki</span> dizilimi en az hamleyle oluştur!
+                    </p>
+                    <p className="text-xs font-bold text-indigo-500 mt-3">
+                        <i className="fa-solid fa-sliders mr-1"></i> {activeLevels.length} seviye · profil zorluğu: {scaling.band}
                     </p>
                 </div>
 
@@ -471,7 +481,7 @@ export const PlanningTest: React.FC<PlanningTestProps> = ({ onComplete }) => {
                         <div className="text-center">
                             <p className="text-[9px] font-black uppercase tracking-widest text-zinc-400">Seviye</p>
                             <p className="text-base sm:text-lg font-black text-zinc-800 dark:text-white">
-                                {currentLevel.id} / {LEVELS.length}
+                                {levelIdx + 1} / {activeLevels.length}
                             </p>
                         </div>
                         <div className="text-center">

@@ -1,8 +1,7 @@
-
-import React from 'react';
+import React, { useMemo } from 'react';
 import { CognitiveDomain, SubTestResult } from '../../types';
 import { getAdaptiveAssessmentConfig, getAssessmentTestVariation } from '../ScreeningAssessment/services/professionalAssessmentService';
-import { calculateDomainAdaptiveParameters } from './services/cognitiveAdaptiveService';
+import { calculateDomainAdaptiveParameters, type CognitiveProfileMetrics } from './services/cognitiveAdaptiveService';
 import { MatrixMemoryTest } from './tests/MatrixMemoryTest';
 import { StroopInteractiveTest } from './tests/StroopInteractiveTest';
 import { RapidNamingTest } from './tests/RapidNamingTest';
@@ -38,12 +37,34 @@ export const AssessmentEngine: React.FC<AssessmentEngineProps> = ({
     studentStrengths = [],
     studentWeaknesses = [],
 }) => {
+    // Profil objesi tek noktada üretilir; her test aynı kaynaktan beslenir.
+    const studentProfile: CognitiveProfileMetrics = useMemo(
+        () => ({
+            studentName,
+            age: studentAge,
+            grade: studentGrade,
+            diagnosis: studentDiagnosis.length > 0 ? studentDiagnosis : studentConcerns,
+            strengths: studentStrengths,
+            weaknesses: studentWeaknesses,
+        }),
+        [
+            studentName,
+            studentAge,
+            studentGrade,
+            studentDiagnosis.join('|'),
+            studentConcerns.join('|'),
+            studentStrengths.join('|'),
+            studentWeaknesses.join('|'),
+        ]
+    );
+
     const variation = getAssessmentTestVariation(domain, {
         studentName,
         age: studentAge,
         grade: studentGrade,
         concerns: studentConcerns,
     });
+
     const adaptiveConfig = getAdaptiveAssessmentConfig(domain, {
         studentName,
         age: studentAge,
@@ -51,49 +72,54 @@ export const AssessmentEngine: React.FC<AssessmentEngineProps> = ({
         concerns: studentConcerns,
     });
 
-    const adaptiveParams = calculateDomainAdaptiveParameters(domain, {
-        studentName,
-        age: studentAge,
-        grade: studentGrade,
-        diagnosis: studentDiagnosis.length > 0 ? studentDiagnosis : studentConcerns,
-        strengths: studentStrengths,
-        weaknesses: studentWeaknesses,
-    });
+    // Profil ve alan sabit kaldığı sürece aynı parametre nesnesi korunur;
+    // böylece yan panel gözlemleri gibi yeniden render'lar test içeriğini bozmaz.
+    const adaptiveParams = useMemo(
+        () => calculateDomainAdaptiveParameters(domain, studentProfile),
+        [domain, studentProfile]
+    );
 
     switch (domain) {
         case 'visual_spatial_memory':
-            return <MatrixMemoryTest onComplete={onComplete} />;
+            return <MatrixMemoryTest onComplete={onComplete} adaptiveParams={adaptiveParams} />;
         case 'selective_attention':
-            return <StroopInteractiveTest onComplete={onComplete} variation={variation} adaptiveConfig={adaptiveConfig} />;
+            return (
+                <StroopInteractiveTest
+                    onComplete={onComplete}
+                    variation={variation}
+                    adaptiveConfig={adaptiveConfig}
+                    adaptiveParams={adaptiveParams}
+                />
+            );
         case 'processing_speed':
-            return <RapidNamingTest onComplete={onComplete} variation={variation} adaptiveConfig={adaptiveConfig} />;
+            return (
+                <RapidNamingTest
+                    onComplete={onComplete}
+                    variation={variation}
+                    adaptiveConfig={adaptiveConfig}
+                    adaptiveParams={adaptiveParams}
+                />
+            );
         case 'logical_reasoning':
-            return <LogicTest onComplete={onComplete} />;
+            return <LogicTest onComplete={onComplete} studentProfile={studentProfile} />;
         case 'phonological_loop':
-            return <PhonologicalLoopTest onComplete={onComplete} />;
+            return <PhonologicalLoopTest onComplete={onComplete} studentProfile={studentProfile} />;
         case 'visual_search':
             return <VisualSearchTest onComplete={onComplete} adaptiveParams={adaptiveParams} />;
         case 'working_memory':
-            return <WorkingMemoryTest onComplete={onComplete} />;
+            return <WorkingMemoryTest onComplete={onComplete} adaptiveParams={adaptiveParams} />;
         case 'planning':
-            return <PlanningTest onComplete={onComplete} />;
+            return <PlanningTest onComplete={onComplete} adaptiveParams={adaptiveParams} />;
         case 'auditory_processing':
-            return <AuditoryProcessingTest onComplete={onComplete} />;
+            return <AuditoryProcessingTest onComplete={onComplete} studentProfile={studentProfile} />;
         case 'visual_motor_integration':
-            return <VisualMotorIntegrationTest onComplete={onComplete} studentAge={studentAge} />;
+            return <VisualMotorIntegrationTest onComplete={onComplete} studentAge={studentAge} adaptiveParams={adaptiveParams} />;
         case 'verbal_comprehension':
             return (
                 <VerbalComprehensionTest
                     onComplete={onComplete}
                     studentAge={studentAge}
-                    studentProfile={{
-                        studentName,
-                        age: studentAge,
-                        grade: studentGrade,
-                        diagnosis: studentDiagnosis,
-                        strengths: studentStrengths,
-                        weaknesses: studentWeaknesses,
-                    }}
+                    studentProfile={studentProfile}
                 />
             );
         default:
@@ -103,7 +129,7 @@ export const AssessmentEngine: React.FC<AssessmentEngineProps> = ({
                     <div className="absolute inset-0 bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 dark:from-red-900/20 dark:via-orange-900/20 dark:to-amber-900/20" />
                     <div className="absolute top-0 right-0 w-96 h-96 bg-red-400 rounded-full blur-3xl opacity-10 -translate-y-1/2 translate-x-1/2" />
                     <div className="absolute bottom-0 left-0 w-96 h-96 bg-orange-400 rounded-full blur-3xl opacity-10 translate-y-1/2 -translate-x-1/2" />
-                    
+
                     <div className="relative z-10">
                         <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-red-500 to-orange-500 shadow-2xl shadow-red-500/30 flex items-center justify-center backdrop-blur-sm border border-white/20 animate-pulse">
                             <i className="fa-solid fa-triangle-exclamation text-3xl text-white"></i>

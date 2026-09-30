@@ -1,43 +1,46 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { SubTestResult } from '../../../types';
+import type { CognitiveProfileMetrics } from '../services/cognitiveAdaptiveService';
+import { useAdaptiveContent } from '../services/useAdaptiveContent';
+import { generatePhonologicalSequences, type PhonologicalSequence, type SequenceType } from '../services/adaptiveTestContent';
+import type { AIGeneratedTestItems } from '../../../services/aiAssessmentGenerator';
 
 interface PhonologicalLoopTestProps {
     onComplete: (result: SubTestResult) => void;
+    studentProfile?: CognitiveProfileMetrics;
 }
 
-// Türkçe hece/kelime dizileri — zorluk artar
-const SEQUENCES: { items: string[]; level: number; type: 'syllable' | 'word' | 'digit' | 'reverse' | 'letter' | 'mixed' }[] = [
-    // Seviye 1 — 2'li hece
-    { items: ['ba', 'ma'], level: 1, type: 'syllable' },
-    { items: ['ta', 'li'], level: 1, type: 'syllable' },
-    // Seviye 2 — 3'lü hece
-    { items: ['ka', 'ra', 'su'], level: 2, type: 'syllable' },
-    { items: ['bi', 'le', 'gi'], level: 2, type: 'syllable' },
-    // Seviye 3 — 4'lü hece
-    { items: ['da', 'ni', 'la', 'su'], level: 3, type: 'syllable' },
-    { items: ['me', 'le', 'di', 'ya'], level: 3, type: 'syllable' },
-    // Seviye 4 — 3'lü kelime
-    { items: ['elma', 'top', 'kedi'], level: 4, type: 'word' },
-    { items: ['araba', 'ev', 'ağaç'], level: 4, type: 'word' },
-    // Seviye 5 — 4'lü kelime
-    { items: ['masa', 'kalem', 'kitap', 'defter'], level: 5, type: 'word' },
-    { items: ['güneş', 'ay', 'bulut', 'yıldız'], level: 5, type: 'word' },
-    // Seviye 6 — 5'li rakam dizisi
-    { items: ['3', '7', '1', '9', '4'], level: 6, type: 'digit' },
-    { items: ['8', '2', '6', '4', '1'], level: 6, type: 'digit' },
-    // Seviye 7 — 4'lü harf dizisi
-    { items: ['A', 'K', 'M', 'T'], level: 7, type: 'letter' },
-    { items: ['B', 'D', 'G', 'L'], level: 7, type: 'letter' },
-    // Seviye 8 — 3'lü ters sıra (geri doğru tekrar)
-    { items: ['top', 'ev', 'kuş'], level: 8, type: 'reverse' },
-    { items: ['yol', 'göl', 'dağ'], level: 8, type: 'reverse' },
-    // Seviye 9 — 4'lü ters sıra
-    { items: ['deniz', 'ateş', 'rüzgar', 'toprak'], level: 9, type: 'reverse' },
-    // Seviye 10 — 5'li karışık (rakam + hece)
-    { items: ['5', 'ba', '2', 'ki', '7'], level: 10, type: 'mixed' },
-    { items: ['ma', '3', 'li', '8', 'de'], level: 10, type: 'mixed' }
-];
+const FALLBACK_PROFILE: CognitiveProfileMetrics = {
+    studentName: 'Öğrenci',
+    age: 8,
+    grade: '2. Sınıf',
+    diagnosis: [],
+    strengths: [],
+    weaknesses: [],
+};
+
+const SEQUENCE_TYPES: SequenceType[] = ['syllable', 'word', 'digit', 'reverse', 'letter', 'mixed'];
+
+/** AI çıktısını güvenli biçimde PhonologicalSequence[] tipine dönüştürür. */
+const mapAiToSequences = (ai: AIGeneratedTestItems): PhonologicalSequence[] | null => {
+    try {
+        const sequences: PhonologicalSequence[] = [];
+        ai.items.forEach((raw: any, idx: number) => {
+            if (!raw || !Array.isArray(raw.items) || raw.items.length < 2) return;
+            const type: SequenceType = SEQUENCE_TYPES.includes(raw.type) ? raw.type : 'word';
+            sequences.push({
+                items: raw.items.map(String),
+                level: typeof raw.level === 'number' ? raw.level : idx + 1,
+                type,
+            });
+        });
+        return sequences.length >= 4 ? sequences : null;
+    } catch {
+        return null;
+    }
+};
+
 
 type AnswerStatus = {
     item: string;
@@ -45,7 +48,15 @@ type AnswerStatus = {
     userInput: string;
 };
 
-export const PhonologicalLoopTest: React.FC<PhonologicalLoopTestProps> = ({ onComplete }) => {
+export const PhonologicalLoopTest: React.FC<PhonologicalLoopTestProps> = ({ onComplete, studentProfile }) => {
+    const profile = studentProfile ?? FALLBACK_PROFILE;
+    const { items: sequences, meta, loading, regenerate } = useAdaptiveContent<PhonologicalSequence[]>({
+        domain: 'phonological_loop',
+        profile,
+        buildLocal: (params, rng) => generatePhonologicalSequences(params, rng),
+        mapAi: (ai) => mapAiToSequences(ai),
+    });
+
     const [phase, setPhase] = useState<'intro' | 'show' | 'recall' | 'feedback' | 'done'>('intro');
     const [seqIndex, setSeqIndex] = useState(0);
     const [showHint, setShowHint] = useState(false);
@@ -58,7 +69,7 @@ export const PhonologicalLoopTest: React.FC<PhonologicalLoopTestProps> = ({ onCo
     const reactionTimes = useRef<number[]>([]);
     const recallStartTime = useRef(0);
 
-    const currentSeq = SEQUENCES[seqIndex];
+    const currentSeq = sequences[seqIndex];
 
     const handleShowHint = () => {
         if (phase !== 'recall') return;
@@ -130,7 +141,7 @@ export const PhonologicalLoopTest: React.FC<PhonologicalLoopTestProps> = ({ onCo
 
             setTimeout(() => {
                 const nextIdx = seqIndex + 1;
-                if (nextIdx >= SEQUENCES.length || (lives - (allCorrect ? 0 : 1)) <= 0) {
+                if (nextIdx >= sequences.length || (lives - (allCorrect ? 0 : 1)) <= 0) {
                     finish();
                 } else {
                     setSeqIndex(nextIdx);
@@ -168,7 +179,7 @@ export const PhonologicalLoopTest: React.FC<PhonologicalLoopTestProps> = ({ onCo
     const options = React.useMemo(() => {
         return [...currentSeq.items].sort(() => Math.random() - 0.5);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [seqIndex]);
+    }, [seqIndex, sequences]);
 
     if (phase === 'intro') {
         return (
@@ -190,11 +201,23 @@ export const PhonologicalLoopTest: React.FC<PhonologicalLoopTestProps> = ({ onCo
                     <div className="text-zinc-300">→</div>
                     <div className="flex items-center gap-1"><i className="fa-solid fa-hand-pointer text-rose-400"></i> Aynı Sırayla Seç</div>
                 </div>
+                <p className="text-xs font-bold text-rose-500">
+                    <i className="fa-solid fa-wand-magic-sparkles mr-1"></i>
+                    {meta.source === 'ai' ? 'AI destekli' : 'Profile göre ölçeklenmiş'} · {meta.difficultyLabel}
+                </p>
                 <button
-                    onClick={() => { totalCorrect.current = 0; totalItems.current = 0; reactionTimes.current = []; startShowSequence(); }}
-                    className="px-8 py-4 bg-rose-600 hover:bg-rose-500 text-white font-black rounded-2xl shadow-lg transition-all active:scale-95 flex items-center gap-3"
+                    onClick={async () => {
+                        totalCorrect.current = 0; totalItems.current = 0; reactionTimes.current = [];
+                        setSeqIndex(0); setLives(3); setFeedbackResults([]); setSelectedItems([]);
+                        await regenerate();
+                        startShowSequence();
+                    }}
+                    disabled={loading}
+                    className="px-8 py-4 bg-rose-600 hover:bg-rose-500 disabled:opacity-60 text-white font-black rounded-2xl shadow-lg transition-all active:scale-95 flex items-center gap-3"
                 >
-                    <i className="fa-solid fa-play"></i> Teste Başla
+                    {loading
+                        ? <><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Diziler Hazırlanıyor...</>
+                        : <><i className="fa-solid fa-play"></i> Teste Başla</>}
                 </button>
             </div>
         );
@@ -238,7 +261,7 @@ export const PhonologicalLoopTest: React.FC<PhonologicalLoopTestProps> = ({ onCo
 
                 {/* İlerleme */}
                 <div className="w-48 h-1.5 bg-zinc-200 rounded-full overflow-hidden mx-auto">
-                    <div className="h-full bg-rose-500 rounded-full transition-all" style={{ width: `${(seqIndex / SEQUENCES.length) * 100}%` }} />
+                    <div className="h-full bg-rose-500 rounded-full transition-all" style={{ width: `${(seqIndex / Math.max(1, sequences.length)) * 100}%` }} />
                 </div>
             </div>
 

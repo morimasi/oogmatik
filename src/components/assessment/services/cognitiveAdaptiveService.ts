@@ -1,5 +1,3 @@
-import { Student } from '../../../types';
-
 export interface CognitiveProfileMetrics {
     studentName: string;
     age: number;
@@ -12,6 +10,25 @@ export interface CognitiveProfileMetrics {
 }
 
 export type CognitiveDifficultyLevel = 'very_easy' | 'easy' | 'medium' | 'hard' | 'adaptive_expert';
+
+const difficultyMap: Record<number, CognitiveDifficultyLevel> = {
+    1: 'very_easy',
+    2: 'easy',
+    3: 'medium',
+    4: 'hard',
+    5: 'adaptive_expert'
+};
+
+/** Zorluk puanını (1-5) insan-okur Türkçe etikete çevirir. */
+export function difficultyForProfile(complexityScore: number): string {
+    switch (Math.max(1, Math.min(5, complexityScore))) {
+        case 1: return 'Çok Kolay';
+        case 2: return 'Kolay';
+        case 3: return 'Orta';
+        case 4: return 'İleri';
+        default: return 'Uzman';
+    }
+}
 
 export interface DomainAdaptiveParameters {
     difficultyLevel: CognitiveDifficultyLevel;
@@ -126,14 +143,6 @@ export function calculateDomainAdaptiveParameters(
         default:
             break;
     }
-
-    const difficultyMap: Record<number, CognitiveDifficultyLevel> = {
-        1: 'very_easy',
-        2: 'easy',
-        3: 'medium',
-        4: 'hard',
-        5: 'adaptive_expert'
-    };
 
     const difficultyLevel = difficultyMap[domainScore] || 'medium';
 

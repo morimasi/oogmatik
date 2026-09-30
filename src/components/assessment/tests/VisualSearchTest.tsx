@@ -1,19 +1,11 @@
 import React, { useState, useRef, useMemo } from 'react';
 import { SubTestResult } from '../../../types';
 import type { DomainAdaptiveParameters } from '../services/cognitiveAdaptiveService';
+import { createRng, generateVisualSearchLevels, type VisualSearchLevel } from '../services/adaptiveTestContent';
 
 interface VisualSearchTestProps {
     onComplete: (result: SubTestResult) => void;
     adaptiveParams?: DomainAdaptiveParameters;
-}
-
-interface LevelConfig {
-    level: number;
-    gridSize: number;
-    targetChar: string;
-    distractorChars: string[];
-    targetCount: number;
-    title: string;
 }
 
 // Fisher-Yates (Knuth) Shuffle Algoritması - Tam Güvenilir Karıştırma
@@ -34,32 +26,11 @@ interface GridCell {
     isError: boolean;
 }
 
-// Farklı zorluk seviyelerine ve tanı dinamiklerine göre benzersiz harf havuzları
-const LEVEL_PRESETS: Record<string, LevelConfig[]> = {
-    // 1-2. Seviye / Disleksi & DEHB dostu sade ve ferah havuz
-    easy: [
-        { level: 1, gridSize: 4, targetChar: '★', distractorChars: ['▲', '●', '■'], targetCount: 3, title: 'Yıldızları Bul' },
-        { level: 2, gridSize: 5, targetChar: 'A', distractorChars: ['O', 'U', 'I'], targetCount: 4, title: 'A Harfini Bul' },
-        { level: 3, gridSize: 5, targetChar: 'b', distractorChars: ['d', 'p'], targetCount: 4, title: 'b Harfini Bul' },
-        { level: 4, gridSize: 6, targetChar: '7', distractorChars: ['1', '4', '2'], targetCount: 5, title: '7 Sayısını Bul' }
-    ],
-    // 3. Seviye / Standart bilişsel tarama
-    medium: [
-        { level: 1, gridSize: 5, targetChar: 'b', distractorChars: ['d', 'p', 'q'], targetCount: 4, title: 'b Harfini Bul' },
-        { level: 2, gridSize: 6, targetChar: 'E', distractorChars: ['F', 'B', 'P', '3'], targetCount: 5, title: 'E Harfini Bul' },
-        { level: 3, gridSize: 7, targetChar: 'M', distractorChars: ['N', 'W', 'V', 'U'], targetCount: 6, title: 'M Harfini Bul' },
-        { level: 4, gridSize: 8, targetChar: '6', distractorChars: ['9', '8', '0', '5'], targetCount: 7, title: '6 Sayısını Bul' }
-    ],
-    // 4-5. Seviye / İleri düzey & ayırt edici tarama
-    hard: [
-        { level: 1, gridSize: 6, targetChar: 'bd', distractorChars: ['db', 'pb', 'qp'], targetCount: 5, title: 'bd Çiftini Bul' },
-        { level: 2, gridSize: 8, targetChar: 'E', distractorChars: ['F', 'B', 'P', '3', '8'], targetCount: 6, title: 'E Harfini Bul' },
-        { level: 3, gridSize: 9, targetChar: 'O', distractorChars: ['Q', 'D', '0', 'C'], targetCount: 8, title: 'O Harfini Bul' },
-        { level: 4, gridSize: 10, targetChar: 's', distractorChars: ['z', '5', 'e', 'c'], targetCount: 10, title: 's Harfini Bul' }
-    ]
-};
+
 
 export const VisualSearchTest: React.FC<VisualSearchTestProps> = ({ onComplete, adaptiveParams }) => {
+    // Her uygulamada hedef/çeldirici kümeleri farklı olsun diye oturuma özel bir tuz kullanılır.
+    const mountNonce = useRef(`${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`);
     const [phase, setPhase] = useState<'intro' | 'play' | 'feedback' | 'done'>('intro');
     const [levelIdx, setLevelIdx] = useState(0);
     const [showHint, setShowHint] = useState(false);
@@ -73,12 +44,10 @@ export const VisualSearchTest: React.FC<VisualSearchTestProps> = ({ onComplete, 
     const startTime = useRef(0);
     const levelStartTime = useRef(0);
 
-    // Öğrenci profiline göre belirlenmiş seviye yapılandırması
-    const levelConfigs = useMemo(() => {
-        if (!adaptiveParams) return LEVEL_PRESETS.medium;
-        if (adaptiveParams.complexityScore <= 2) return LEVEL_PRESETS.easy;
-        if (adaptiveParams.complexityScore >= 4) return LEVEL_PRESETS.hard;
-        return LEVEL_PRESETS.medium;
+    // Öğrenci profiline göre ölçeklenmiş, her uygulamada farklı hedef/çeldirici seçen yapılandırma
+    const levelConfigs = useMemo<VisualSearchLevel[]>(() => {
+        const seed = `visual_search|${adaptiveParams?.seedSalt ?? ''}|${mountNonce.current}`;
+        return generateVisualSearchLevels(adaptiveParams, createRng(seed));
     }, [adaptiveParams]);
 
     const config = levelConfigs[levelIdx] || levelConfigs[0];

@@ -1,12 +1,15 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { SubTestResult } from '../../../types';
 import type { AdaptiveAssessmentConfig, TestVariation } from '../../ScreeningAssessment/services/professionalAssessmentService';
+import type { DomainAdaptiveParameters } from '../services/cognitiveAdaptiveService';
+import { calculateAdaptiveScaling } from '../services/adaptiveTestContent';
 
 interface StroopInteractiveTestProps {
     onComplete: (result: SubTestResult) => void;
     variation?: TestVariation;
     adaptiveConfig?: AdaptiveAssessmentConfig;
+    adaptiveParams?: DomainAdaptiveParameters;
 }
 
 interface TrialResult {
@@ -15,7 +18,7 @@ interface TrialResult {
     reactionTime: number;
 }
 
-const TOTAL_TRIALS = 16;
+const BASE_TRIALS = 16;
 
 const colors = [
     { name: 'KIRMIZI', hex: '#ef4444', pattern: 'bg-red-500' },
@@ -28,7 +31,14 @@ export const StroopInteractiveTest: React.FC<StroopInteractiveTestProps> = ({
     onComplete,
     variation,
     adaptiveConfig,
+    adaptiveParams,
 }) => {
+    const scaling = useMemo(() => calculateAdaptiveScaling(adaptiveParams), [adaptiveParams]);
+    // Profil zorluğuna göre deneme sayısı; yaş bazlı adaptiveConfig bir üst sınır olarak kullanılır.
+    const totalTrials = adaptiveConfig?.trialCount
+        ? Math.min(scaling.stroopTrials, adaptiveConfig.trialCount)
+        : scaling.stroopTrials || BASE_TRIALS;
+
     const [phase, setPhase] = useState<'intro' | 'running' | 'done'>('intro');
     // FIX: trial sayacını ayrı bir ref'le takip ederek stale closure sorununu önle
     const trialCountRef = useRef(0);
@@ -54,7 +64,8 @@ export const StroopInteractiveTest: React.FC<StroopInteractiveTestProps> = ({
     const generateNextStimulus = () => {
         const textObj = colors[Math.floor(Math.random() * colors.length)];
         let colorObj = textObj;
-        const isCongruent = Math.random() >= 0.65; // %35 congruent, %65 incongruent
+        // Uyumsuz (incongruent) oranı profile göre ölçeklenir; destek ihtiyacı olan profillerde azaltılır.
+        const isCongruent = Math.random() >= scaling.stroopIncongruentRatio;
 
         if (!isCongruent) {
             const others = colors.filter(c => c.name !== textObj.name);
@@ -74,7 +85,7 @@ export const StroopInteractiveTest: React.FC<StroopInteractiveTestProps> = ({
     // FIX: useEffect ile trialCount takibi — stale closure'ı önler
     useEffect(() => {
         if (phase !== 'running') return;
-        if (trialCountRef.current >= TOTAL_TRIALS) {
+        if (trialCountRef.current >= totalTrials) {
             finishTest();
             return;
         }
@@ -105,7 +116,7 @@ export const StroopInteractiveTest: React.FC<StroopInteractiveTestProps> = ({
     const finishTest = () => {
         const results = trialResults.current;
         const correct = results.filter(r => r.isCorrect).length;
-        const accuracy = (correct / TOTAL_TRIALS) * 100;
+        const accuracy = (correct / totalTrials) * 100;
         const avgRT = results.reduce((s, r) => s + r.reactionTime, 0) / results.length;
 
         // Stroop Interference Effect: incongruent RT - congruent RT
@@ -141,7 +152,7 @@ export const StroopInteractiveTest: React.FC<StroopInteractiveTestProps> = ({
             name: 'Stroop - Seçici Dikkat',
             score: Math.max(0, Math.min(100, Math.round(score))),
             rawScore: correct,
-            totalItems: TOTAL_TRIALS,
+            totalItems: totalTrials,
             avgReactionTime: Math.round(avgRT),
             accuracy: Math.round(accuracy),
             status: 'completed',
@@ -199,7 +210,7 @@ export const StroopInteractiveTest: React.FC<StroopInteractiveTestProps> = ({
         </div>
     );
 
-    const progress = (trialCountRef.current / TOTAL_TRIALS) * 100;
+    const progress = (trialCountRef.current / totalTrials) * 100;
 
     return (
         <div className="flex flex-col items-center justify-center w-full h-full max-w-2xl mx-auto select-none relative">
@@ -242,9 +253,9 @@ export const StroopInteractiveTest: React.FC<StroopInteractiveTestProps> = ({
                         </button>
                     </div>
                     <div className="flex items-center justify-between text-sm font-bold text-zinc-500 dark:text-zinc-400 mb-3">
-                        <span>{trialCountRef.current} / {TOTAL_TRIALS}</span>
+                        <span>{trialCountRef.current} / {totalTrials}</span>
                         <span className="text-xs px-3 py-1 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 rounded-full">
-                            {Math.round((trialCountRef.current / TOTAL_TRIALS) * 100)}%
+                            {Math.round((trialCountRef.current / totalTrials) * 100)}%
                         </span>
                     </div>
                     <div className="text-left mb-3 text-sm text-zinc-500 dark:text-zinc-400">

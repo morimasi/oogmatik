@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { SubTestResult } from '../../../types';
+import type { DomainAdaptiveParameters } from '../services/cognitiveAdaptiveService';
+import { calculateAdaptiveScaling } from '../services/adaptiveTestContent';
 
 interface VisualMotorIntegrationTestProps {
     onComplete: (result: SubTestResult) => void;
     studentAge?: number;
+    adaptiveParams?: DomainAdaptiveParameters;
 }
 
 type Shape = 'circle' | 'square' | 'triangle' | 'star' | 'hexagon' | 'pentagon';
@@ -13,7 +16,8 @@ interface Question {
     options: Shape[];
 }
 
-export const VisualMotorIntegrationTest: React.FC<VisualMotorIntegrationTestProps> = ({ onComplete, studentAge = 7 }) => {
+export const VisualMotorIntegrationTest: React.FC<VisualMotorIntegrationTestProps> = ({ onComplete, studentAge = 7, adaptiveParams }) => {
+    const scaling = useMemo(() => calculateAdaptiveScaling(adaptiveParams), [adaptiveParams]);
     const [phase, setPhase] = useState<'intro' | 'question' | 'feedback'>('intro');
     const [level, setLevel] = useState(1);
     const [score, setScore] = useState(0);
@@ -32,7 +36,10 @@ export const VisualMotorIntegrationTest: React.FC<VisualMotorIntegrationTestProp
         const target = activeShapes[Math.floor(Math.random() * activeShapes.length)];
         
         const isYounger = studentAge <= 7;
-        const optionCount = isYounger ? Math.min(3, activeShapes.length) : Math.min(4, activeShapes.length);
+        const desiredOptions = isYounger
+            ? Math.min(3, scaling.visualMotorOptionCount)
+            : scaling.visualMotorOptionCount;
+        const optionCount = Math.min(desiredOptions, activeShapes.length);
         const otherShapes = activeShapes.filter(s => s !== target);
         const distractors: Shape[] = [];
 

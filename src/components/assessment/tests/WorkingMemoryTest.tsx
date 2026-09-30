@@ -1,12 +1,16 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { SubTestResult } from '../../../types';
+import type { DomainAdaptiveParameters } from '../services/cognitiveAdaptiveService';
+import { calculateAdaptiveScaling } from '../services/adaptiveTestContent';
 
 interface WorkingMemoryTestProps {
     onComplete: (result: SubTestResult) => void;
+    adaptiveParams?: DomainAdaptiveParameters;
 }
 
-export const WorkingMemoryTest: React.FC<WorkingMemoryTestProps> = ({ onComplete }) => {
+export const WorkingMemoryTest: React.FC<WorkingMemoryTestProps> = ({ onComplete, adaptiveParams }) => {
+    const scaling = useMemo(() => calculateAdaptiveScaling(adaptiveParams), [adaptiveParams]);
     const [phase, setPhase] = useState<'intro' | 'show' | 'input' | 'feedback'>('intro');
     const [level, setLevel] = useState(1);
     const [sequence, setSequence] = useState<number[]>([]);
@@ -27,7 +31,7 @@ export const WorkingMemoryTest: React.FC<WorkingMemoryTestProps> = ({ onComplete
     };
 
     const startLevel = () => {
-        const seqLength = 3 + Math.floor(level / 2);
+        const seqLength = scaling.workingMemoryStart + Math.floor(level / 2);
         maxScoreRef.current += level * 10;
         const newSequence = generateSequence(seqLength);
         setSequence(newSequence);
@@ -36,7 +40,7 @@ export const WorkingMemoryTest: React.FC<WorkingMemoryTestProps> = ({ onComplete
         setTimeout(() => {
             setPhase('input');
             setStartTime(Date.now());
-        }, seqLength * 800);
+        }, Math.round(seqLength * 800 * scaling.timeMultiplier));
     };
 
     const handleNumberClick = (num: number) => {
@@ -102,6 +106,9 @@ export const WorkingMemoryTest: React.FC<WorkingMemoryTestProps> = ({ onComplete
                     <p className="text-zinc-500 text-sm leading-relaxed">
                         Ekranda gösterilen sayı dizisini hatırla ve tersten yaz.
                         Her seviyede dizi uzunluğu artar.
+                    </p>
+                    <p className="text-xs font-bold text-emerald-500 mt-3">
+                        <i className="fa-solid fa-sliders mr-1"></i> Başlangıç dizi uzunluğu: {scaling.workingMemoryStart}
                     </p>
                 </div>
                 <button

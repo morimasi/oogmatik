@@ -1,12 +1,16 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { SubTestResult } from '../../../types';
+import type { DomainAdaptiveParameters } from '../services/cognitiveAdaptiveService';
+import { calculateAdaptiveScaling } from '../services/adaptiveTestContent';
 
 interface MatrixMemoryTestProps {
     onComplete: (result: SubTestResult) => void;
+    adaptiveParams?: DomainAdaptiveParameters;
 }
 
-export const MatrixMemoryTest: React.FC<MatrixMemoryTestProps> = ({ onComplete }) => {
+export const MatrixMemoryTest: React.FC<MatrixMemoryTestProps> = ({ onComplete, adaptiveParams }) => {
+    const scaling = useMemo(() => calculateAdaptiveScaling(adaptiveParams), [adaptiveParams]);
     const [level, setLevel] = useState(1);
     const [phase, setPhase] = useState<'intro' | 'preview' | 'recall' | 'feedback'>('intro');
     const [gridSize, setGridSize] = useState(3);
@@ -31,10 +35,15 @@ export const MatrixMemoryTest: React.FC<MatrixMemoryTestProps> = ({ onComplete }
     const generateLevel = (currentLevel: number, currentLives: number) => {
         if (currentLives <= 0) return; // finishTest zaten çağrılacak
 
-        const size = currentLevel < 3 ? 3 : (currentLevel < 6 ? 4 : 5);
+        const baseSize = scaling.memoryGridStart;
+        const size = currentLevel < 3
+            ? baseSize
+            : currentLevel < 6
+                ? Math.min(6, baseSize + 1)
+                : Math.min(6, baseSize + 2);
         setGridSize(size);
 
-        const count = Math.min(size * size - 1, 2 + Math.floor(currentLevel / 2));
+        const count = Math.min(size * size - 1, scaling.memoryTargetsStart + Math.floor(currentLevel / 2));
 
         // FIX: Bu seviyenin maksimum skoru kaydet
         maxScoreRef.current += currentLevel * 10;
@@ -50,7 +59,7 @@ export const MatrixMemoryTest: React.FC<MatrixMemoryTestProps> = ({ onComplete }
         // Önce preview phase'ine geç ve mavi kareleri göster
         setPhase('preview');
         
-        const showTime = Math.max(1500, 3000 - (currentLevel * 200)); // Daha uzun gösterim süresi
+        const showTime = Math.max(1200, scaling.showTimeMs - (currentLevel * 180)); // Profile göre ölçekli gösterim süresi
         const timer = setTimeout(() => {
             setPhase('recall');
             setStartTime(Date.now());
@@ -145,6 +154,9 @@ export const MatrixMemoryTest: React.FC<MatrixMemoryTestProps> = ({ onComplete }
                     <p className="text-zinc-500 text-sm leading-relaxed">
                         Hangi kareler <span className="font-bold text-indigo-600">mavi</span> olduğunu hatırla, sonra aynı karelere dokun.
                         Her seviyede kare sayısı artar.
+                    </p>
+                    <p className="text-xs font-bold text-indigo-500 mt-3">
+                        <i className="fa-solid fa-sliders mr-1"></i> Profil seviyesi: {scaling.band} ({scaling.complexityScore}/5)
                     </p>
                 </div>
                 <div className="flex gap-6 text-sm text-zinc-500">

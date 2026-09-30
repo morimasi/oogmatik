@@ -1,12 +1,51 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { SubTestResult } from '../../../types';
+import type { CognitiveProfileMetrics } from '../services/cognitiveAdaptiveService';
+import { useAdaptiveContent } from '../services/useAdaptiveContent';
+import { generateAuditoryItems, type AuditoryItem } from '../services/adaptiveTestContent';
+import type { AIGeneratedTestItems } from '../../../services/aiAssessmentGenerator';
 
 interface AuditoryProcessingTestProps {
     onComplete: (result: SubTestResult) => void;
+    studentProfile?: CognitiveProfileMetrics;
 }
 
-export const AuditoryProcessingTest: React.FC<AuditoryProcessingTestProps> = ({ onComplete }) => {
+const FALLBACK_PROFILE: CognitiveProfileMetrics = {
+    studentName: 'Öğrenci',
+    age: 8,
+    grade: '2. Sınıf',
+    diagnosis: [],
+    strengths: [],
+    weaknesses: [],
+};
+
+/** AI çıktısını güvenli biçimde AuditoryItem[] tipine dönüştürür. */
+const mapAiToAuditoryItems = (ai: AIGeneratedTestItems): AuditoryItem[] | null => {
+    try {
+        const items: AuditoryItem[] = [];
+        ai.items.forEach((raw: any) => {
+            if (!raw || typeof raw.targetWord !== 'string' || !Array.isArray(raw.options)) return;
+            const options = Array.from(new Set<string>(raw.options.map(String)));
+            if (options.length < 3 || !options.includes(raw.targetWord)) return;
+            items.push({ targetWord: raw.targetWord, options: options.slice(0, 4) });
+        });
+        return items.length >= 4 ? items : null;
+    } catch {
+        return null;
+    }
+};
+
+export const AuditoryProcessingTest: React.FC<AuditoryProcessingTestProps> = ({ onComplete, studentProfile }) => {
+    const profile = studentProfile ?? FALLBACK_PROFILE;
+    const { items, meta, loading, regenerate } = useAdaptiveContent<AuditoryItem[]>({
+        domain: 'auditory_processing',
+        profile,
+        buildLocal: (params, rng) => generateAuditoryItems(params, rng, profile.age),
+        mapAi: (ai) => mapAiToAuditoryItems(ai),
+    });
+    const itemsRef = useRef(items);
+    itemsRef.current = items;
     const [phase, setPhase] = useState<'intro' | 'listen' | 'respond' | 'feedback'>('intro');
     const [level, setLevel] = useState(1);
     const [score, setScore] = useState(0);
@@ -19,12 +58,6 @@ export const AuditoryProcessingTest: React.FC<AuditoryProcessingTestProps> = ({ 
     const maxScoreRef = React.useRef(0);
     const audioContextRef = useRef<AudioContext | null>(null);
 
-    const wordList = [
-        'elma', 'armut', 'kiraz', 'portakal', 'muz', 'çilek', 'üzüm', 'şeftali',
-        'kedi', 'köpek', 'kuş', 'balık', 'tavşan', 'fare', 'aslan', 'fil',
-        'ev', 'okul', 'park', 'kütüphane', 'hastane', 'market', 'sinema', 'spor salonu'
-    ];
-
     const playWord = (word: string) => {
         if (!('speechSynthesis' in window)) return;
         const utterance = new SpeechSynthesisUtterance(word);
@@ -35,18 +68,14 @@ export const AuditoryProcessingTest: React.FC<AuditoryProcessingTestProps> = ({ 
 
     const generateLevel = () => {
         maxScoreRef.current += level * 10;
-        const targetIdx = Math.floor(Math.random() * wordList.length);
-        const target = wordList[targetIdx];
+        const pool = itemsRef.current;
+        const item = pool[(level - 1) % Math.max(1, pool.length)];
+        const target = item?.targetWord ?? 'elma';
         setCurrentWord(target);
 
-        const opts = [target];
-        while (opts.length < 4) {
-            const randomIdx = Math.floor(Math.random() * wordList.length);
-            const randomWord = wordList[randomIdx];
-            if (!opts.includes(randomWord)) {
-                opts.push(randomWord);
-            }
-        }
+        const opts = item && item.options.length >= 3
+            ? [...item.options]
+            : [target, 'armut', 'kedi', 'ev'];
         setOptions(opts.sort(() => Math.random() - 0.5));
 
         setPhase('listen');
@@ -113,18 +142,26 @@ export const AuditoryProcessingTest: React.FC<AuditoryProcessingTestProps> = ({ 
                         Sesli söylenen kelimeyi dinle ve doğru seçeneği işaretle.
                         Her seviyede hız artar.
                     </p>
+                    <p className="text-xs font-bold text-blue-500 mt-3">
+                        <i className="fa-solid fa-wand-magic-sparkles mr-1"></i>
+                        {meta.source === 'ai' ? 'AI destekli' : 'Profile göre ölçeklenmiş'} · {meta.difficultyLabel}
+                    </p>
                 </div>
                 <button
-                    onClick={() => {
+                    onClick={async () => {
                         maxScoreRef.current = 0;
                         setLevel(1);
                         setLives(3);
                         setScore(0);
+                        await regenerate();
                         generateLevel();
                     }}
-                    className="px-8 py-4 bg-blue-600 hover:bg-blue-500 text-white font-black rounded-2xl shadow-lg transition-all active:scale-95 flex items-center gap-3"
+                    disabled={loading}
+                    className="px-8 py-4 bg-blue-600 hover:bg-blue-500 disabled:opacity-60 text-white font-black rounded-2xl shadow-lg transition-all active:scale-95 flex items-center gap-3"
                 >
-                    <i className="fa-solid fa-play"></i> Teste Başla
+                    {loading
+                        ? <><div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Kelimeler Hazırlanıyor...</>
+                        : <><i className="fa-solid fa-play"></i> Teste Başla</>}
                 </button>
             </div>
         );
