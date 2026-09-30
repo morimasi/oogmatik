@@ -1,0 +1,18 @@
+# Vercel Ignore File - Speed up deployment build context
+tests/
+docs/
+my-agent/
+tmp/
+.claude/
+.cursor/
+.agents/
+.idx/
+.Jules/
+.verdent/
+.vscode/
+.zed/
+.freebuff/
+*.md
+!README.md
+*.log
+*.txt
