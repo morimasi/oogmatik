@@ -18,6 +18,8 @@ interface AppHeaderProps {
     onOpenKelimeCumleStudio?: () => void;
     onOpenFascicleStudio?: () => void;
     activeCurriculumSession?: any | null;
+    onGoBack?: () => void;
+    canGoBack?: boolean;
 }
 
 /** Yalnızca DESTEK menüsü — ultra kompakt, tema token’ları */
@@ -165,11 +167,13 @@ export const AppHeader = ({
     onOpenKelimeCumleStudio,
     onOpenFascicleStudio,
     activeCurriculumSession,
+    onGoBack,
+    canGoBack = false,
 }: AppHeaderProps) => {
     const { user, logout } = useAuthStore();
     const { isAdmin, canAccess } = useRBAC();
     const { setIsSidebarOpen, showConnect, toggleConnect, unreadMessageCount, setUnreadMessageCount, styleSettings, updateStyleSettings } = useUIStore();
-    const { currentView, setCurrentView, addHistoryView, setSelectedActivity, setWorksheetData, setActiveCurriculumSession: _setSession } = useWorksheetStore();
+    const { currentView, setCurrentView, addHistoryView, viewHistory, setSelectedActivity, setWorksheetData, setActiveCurriculumSession: _setSession } = useWorksheetStore();
     const { activeStudent } = useStudentStore();
 
     useEffect(() => {
@@ -210,6 +214,22 @@ export const AppHeader = ({
                     >
                         <i className="fa-solid fa-bars-staggered fa-lg"></i>
                     </button>
+
+                    <AnimatePresence>
+                        {canGoBack && (
+                            <motion.button
+                                initial={{ opacity: 0, x: -10, scale: 0.9 }}
+                                animate={{ opacity: 1, x: 0, scale: 1 }}
+                                exit={{ opacity: 0, x: -10, scale: 0.9 }}
+                                transition={{ duration: 0.2 }}
+                                onClick={onGoBack}
+                                className="group flex items-center justify-center w-10 h-10 rounded-xl bg-[var(--bg-secondary)] hover:bg-[var(--bg-paper)] border border-[var(--border-color)] hover:border-[var(--accent-color)]/50 shadow-[0_1px_0_rgba(255,255,255,0.04)_inset] hover:shadow-md transition-all duration-300 active:scale-95"
+                                title="Geri Dön"
+                            >
+                                <i className="fa-solid fa-arrow-left text-[var(--text-secondary)] group-hover:text-[var(--accent-color)] transition-colors text-base"></i>
+                            </motion.button>
+                        )}
+                    </AnimatePresence>
 
                     <button
                         id="tour-logo"

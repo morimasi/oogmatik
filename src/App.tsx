@@ -200,6 +200,7 @@ const AppContent = () => {
     studioData,
     setStudioData,
     resetGeneratorContext,
+    viewHistory,
   } = useWorksheetStore();
 
   const [loadedCurriculum, setLoadedCurriculum] = useState(null as Curriculum | null);
@@ -506,6 +507,8 @@ const AppContent = () => {
         onOpenAuth={() => setIsAuthModalOpen(true)}
         onSelectActivity={handleSelectActivity}
         onOpenStudio={handleOpenStudio}
+        onGoBack={handleGoBack}
+        canGoBack={viewHistory.length > 0}
       />
 
       <div className="flex flex-1 overflow-hidden relative">
