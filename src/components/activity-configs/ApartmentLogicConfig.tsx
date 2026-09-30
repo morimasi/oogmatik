@@ -16,9 +16,9 @@ interface ToggleGroupProps {
 const CompactToggleGroup = ({ label, selected, onChange, options }: ToggleGroupProps) => (
     <div className="space-y-1 mt-4">
         <label className="text-[10px] font-bold text-[var(--text-muted)] text-[var(--text-primary)] uppercase block">{label}</label>
-        <div className="flex bg-zinc-100 bg-[var(--bg-secondary)] p-1 rounded-lg border border-[var(--border-color)] border-[var(--border-color)]">
+        <div className="flex bg-[var(--bg-secondary)] p-1 rounded-lg border border-[var(--border-color)]">
             {options.map((opt, idx) => (
-                <button key={idx} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] shadow-sm text-[var(--accent-color)] dark:text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-zinc-700 dark:hover:text-[var(--text-secondary)]'}`}>
+                <button key={idx} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] shadow-sm text-[var(--accent-color)] dark:text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] dark:hover:text-[var(--text-secondary)]'}`}>
                     {opt.label}
                 </button>
             ))}
@@ -104,7 +104,7 @@ export const ApartmentLogicConfig: React.FC<ConfigProps> = ({ options, onChange 
                 </div>
             </div>
 
-            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)] shadow-inner">
+            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] shadow-inner">
                 <CompactToggleGroup
                     label="Daire İçi Değişken Tipi (Karmaşıklık)"
                     selected={options.variableCount || 2}
@@ -124,7 +124,7 @@ export const ApartmentLogicConfig: React.FC<ConfigProps> = ({ options, onChange 
                     </div>
                     <button
                         onClick={() => onChange('negativeClues', !options.negativeClues)}
-                        className={`w-12 h-6 rounded-full transition-colors relative shrink-0 ${options.negativeClues ? 'bg-orange-500' : 'bg-zinc-300'}`}
+                        className={`w-12 h-6 rounded-full transition-colors relative shrink-0 ${options.negativeClues ? 'bg-orange-500' : 'bg-[var(--surface-elevated)]'}`}
                     >
                         <div className={`w-4 h-4 rounded-full bg-[var(--bg-paper)] absolute top-1 transition-transform ${options.negativeClues ? 'left-7' : 'left-1'}`} />
                     </button>

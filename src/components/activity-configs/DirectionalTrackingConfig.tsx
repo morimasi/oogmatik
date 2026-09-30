@@ -13,8 +13,8 @@ export const DirectionalTrackingConfig: React.FC<{
   return (
     <div className="space-y-4 animate-in fade-in duration-300">
       {/* Sayfa Yapısı Konfigürasyonu */}
-      <div className="p-5 bg-[var(--accent-muted)]/30 dark:bg-[var(--accent-muted)] rounded-[2.5rem] border border-[var(--border-color)] dark:border-indigo-800/30 space-y-5">
-        <div className="flex items-center gap-3 border-b border-[var(--border-color)] dark:border-indigo-800/20 pb-3">
+      <div className="p-5 bg-[var(--accent-muted)]/30 dark:bg-[var(--accent-muted)] rounded-[2.5rem] border border-[var(--border-color)] dark:border-[var(--accent-color)] space-y-5">
+        <div className="flex items-center gap-3 border-b border-[var(--border-color)] dark:border-[var(--accent-color)] pb-3">
           <div className="w-8 h-8 rounded-xl bg-[var(--accent-color)] text-[var(--text-primary)] flex items-center justify-center text-xs">
             <i className="fa-solid fa-layer-group"></i>
           </div>
@@ -32,7 +32,7 @@ export const DirectionalTrackingConfig: React.FC<{
                         <button
                             key={num}
                             onClick={() => onChange('itemCount', num)}
-                            className={`flex-1 py-2 rounded-xl text-[10px] font-black transition-all border-2 ${itemCount === num ? 'bg-[var(--accent-color)] border-indigo-600 text-[var(--text-primary)] shadow-md' : 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border-[var(--border-color)] border-[var(--border-color)] text-[var(--text-muted)]'}`}
+                            className={`flex-1 py-2 rounded-xl text-[10px] font-black transition-all border-2 ${itemCount === num ? 'bg-[var(--accent-color)] border-[var(--accent-color)] text-[var(--text-primary)] shadow-md' : 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-muted)]'}`}
                         >
                             {num === 4 ? 'GRID' : num}
                         </button>
@@ -47,7 +47,7 @@ export const DirectionalTrackingConfig: React.FC<{
                 <select 
                     value={options.difficulty || 'Orta'}
                     onChange={(e) => onChange('difficulty', e.target.value)}
-                    className="w-full p-2 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border-2 border-[var(--border-color)] border-[var(--border-color)] rounded-xl text-[10px] font-black uppercase text-[var(--text-muted)] focus:border-[var(--accent-color)] outline-none"
+                    className="w-full p-2 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border-2 border-[var(--border-color)] rounded-xl text-[10px] font-black uppercase text-[var(--text-muted)] focus:border-[var(--accent-color)] outline-none"
                 >
                     {['Başlangıç', 'Orta', 'Zor', 'Uzman'].map(d => <option key={d} value={d}>{d}</option>)}
                 </select>
@@ -67,7 +67,7 @@ export const DirectionalTrackingConfig: React.FC<{
                   onChange('gridRows', parseInt(e.target.value));
                   onChange('gridCols', parseInt(e.target.value));
               }}
-              className="w-full h-1.5 bg-zinc-200 bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-emerald-600"
+              className="w-full h-1.5 bg-[var(--surface-elevated)] bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-emerald-600"
             />
           </div>
           <div className="space-y-2">
@@ -79,14 +79,14 @@ export const DirectionalTrackingConfig: React.FC<{
               type="range" min="3" max="15"
               value={currentLength}
               onChange={e => onChange('codeLength', parseInt(e.target.value))}
-              className="w-full h-1.5 bg-zinc-200 bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-amber-600"
+              className="w-full h-1.5 bg-[var(--surface-elevated)] bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-amber-600"
             />
           </div>
         </div>
       </div>
 
       {/* Görsel Temalar */}
-      <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)] space-y-4">
+      <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] space-y-4">
         <label className="text-[10px] font-black text-[var(--text-muted)] uppercase block tracking-widest text-center">Görsel Stil ve Hikayeleştirme</label>
         <div className="grid grid-cols-2 gap-2">
             {[
@@ -109,7 +109,7 @@ export const DirectionalTrackingConfig: React.FC<{
         </div>
       </div>
 
-      <div className="p-4 bg-indigo-900 text-[var(--text-primary)] rounded-2xl flex items-center justify-between group overflow-hidden relative">
+      <div className="p-4 bg-[var(--accent-color)] text-[var(--text-primary)] rounded-2xl flex items-center justify-between group overflow-hidden relative">
           <div className="relative z-10">
               <p className="text-[11px] font-black uppercase tracking-tight">V2 Professional</p>
               <p className="text-[8px] font-bold text-[var(--accent-color)] uppercase opacity-70">A4 Algoritmik Yerleşim Aktif</p>

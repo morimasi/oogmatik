@@ -4,9 +4,9 @@ import { GeneratorOptions } from '../../types';
 const CompactToggleGroup = ({ label, selected, onChange, options }: { label: string; selected: string; onChange: (v: string) => void; options: { value: string; label: string }[] }) => (
     <div className="space-y-1 mt-4">
         <label className="text-[10px] font-bold text-[var(--text-muted)] text-[var(--text-primary)] uppercase block">{label}</label>
-        <div className="flex bg-zinc-100 bg-[var(--bg-secondary)] p-1 rounded-lg border border-[var(--border-color)] border-[var(--border-color)]">
+        <div className="flex bg-[var(--bg-secondary)] p-1 rounded-lg border border-[var(--border-color)]">
             {options.map((opt: { value: string; label: string }) => (
-                <button key={opt.value} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] shadow-sm text-[var(--accent-color)] dark:text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-zinc-700 dark:hover:text-[var(--text-secondary)]'}`}>
+                <button key={opt.value} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] shadow-sm text-[var(--accent-color)] dark:text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] dark:hover:text-[var(--text-secondary)]'}`}>
                     {opt.label}
                 </button>
             ))}
@@ -69,19 +69,19 @@ export const FinancialMarketConfig: React.FC<ConfigProps> = ({ options, onChange
 
                 <div className="mt-4 flex items-center justify-between p-3 bg-[var(--bg-paper)] border border-lime-200 rounded-xl">
                     <div>
-                        <label className="text-xs font-bold text-zinc-700 block">Kuruş / Cent Kullanımı</label>
+                        <label className="text-xs font-bold text-[var(--text-muted)] block">Kuruş / Cent Kullanımı</label>
                         <p className="text-[9px] text-[var(--text-muted)]">Ondalıklı alışveriş fiyatları (Örn: 15.50 ₺)</p>
                     </div>
                     <button
                         onClick={() => onChange('useCents', !options.useCents)}
-                        className={`w-12 h-6 rounded-full transition-colors relative shrink-0 ${options.useCents ? 'bg-lime-500' : 'bg-zinc-300'}`}
+                        className={`w-12 h-6 rounded-full transition-colors relative shrink-0 ${options.useCents ? 'bg-lime-500' : 'bg-[var(--surface-elevated)]'}`}
                     >
                         <div className={`w-4 h-4 rounded-full bg-[var(--bg-paper)] absolute top-1 transition-transform ${options.useCents ? 'left-7' : 'left-1'}`} />
                     </button>
                 </div>
             </div>
 
-            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)] shadow-inner space-y-4">
+            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] shadow-inner space-y-4">
                 <div>
                     <div className="flex justify-between items-center text-[10px] font-bold text-[var(--text-muted)] text-[var(--text-primary)] uppercase">
                         <span>Maksimum Bütçe Sınırı</span>
@@ -91,7 +91,7 @@ export const FinancialMarketConfig: React.FC<ConfigProps> = ({ options, onChange
                         type="range" min={50} max={1000} step={50}
                         value={options.budgetLimit || 100}
                         onChange={e => onChange('budgetLimit', parseInt(e.target.value))}
-                        className="w-full h-1.5 bg-zinc-200 bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-lime-600 mt-2"
+                        className="w-full h-1.5 bg-[var(--surface-elevated)] bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-lime-600 mt-2"
                     />
                 </div>
 
@@ -102,7 +102,7 @@ export const FinancialMarketConfig: React.FC<ConfigProps> = ({ options, onChange
                     </div>
                     <button
                         onClick={() => onChange('enableDiscounts' as any, !(options as any).enableDiscounts)}
-                        className={`w-12 h-6 rounded-full transition-colors relative shrink-0 ${(options as any).enableDiscounts ? 'bg-lime-500' : 'bg-zinc-300'}`}
+                        className={`w-12 h-6 rounded-full transition-colors relative shrink-0 ${(options as any).enableDiscounts ? 'bg-lime-500' : 'bg-[var(--surface-elevated)]'}`}
                     >
                         <div className={`w-4 h-4 rounded-full bg-[var(--bg-paper)] absolute top-1 transition-transform ${(options as any).enableDiscounts ? 'left-7' : 'left-1'}`} />
                     </button>

@@ -273,7 +273,7 @@ export const ConfigCheckbox: React.FC<ConfigCheckboxProps> = ({ checked, onChang
                     : 'border-[var(--border-color)] bg-[var(--bg-secondary)]'
             }`}
         >
-            {checked && <i className="fa-solid fa-check text-[var(--text-primary)] text-[9px]" />}
+            {checked && <i className="fa-solid fa-check text-white text-[9px]" />}
         </div>
         <div>
             <span className="text-[11px] font-bold text-[var(--text-primary)] group-hover:text-[var(--accent-color)] transition-colors">

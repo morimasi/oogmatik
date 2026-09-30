@@ -5,7 +5,7 @@ import { GeneratorOptions } from '../../types';
 const CompactToggleGroup = ({ label, selected, onChange, options }: { label: string; selected: unknown; onChange: (val: unknown) => void; options: { value: unknown; label: string }[] }) => (
     <div className="space-y-1">
         <label className="text-[10px] font-bold text-[var(--text-muted)] text-[var(--text-primary)] uppercase block tracking-wider">{label}</label>
-        <div className="flex bg-zinc-100 bg-[var(--bg-secondary)] p-1 rounded-xl border border-[var(--border-color)] border-[var(--border-color)]">
+        <div className="flex bg-[var(--bg-secondary)] p-1 rounded-xl border border-[var(--border-color)]">
             {options.map((opt: { value: unknown; label: string }, idx: number) => (
                 <button
                     key={idx}
@@ -22,7 +22,7 @@ const CompactToggleGroup = ({ label, selected, onChange, options }: { label: str
 export const FutoshikiConfig = ({ options, onChange }: { options: GeneratorOptions; onChange: (k: keyof GeneratorOptions, v: unknown) => void }) => {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
-            <div className="p-5 bg-[var(--accent-muted)]/30 dark:bg-[var(--accent-muted)] rounded-[2.5rem] border border-[var(--border-color)] dark:border-indigo-800/30 shadow-sm">
+            <div className="p-5 bg-[var(--accent-muted)]/30 dark:bg-[var(--accent-muted)] rounded-[2.5rem] border border-[var(--border-color)] dark:border-[var(--accent-color)] shadow-sm">
                 <CompactToggleGroup
                     label="Izgara Boyutu (Zorluk Etkisi)"
                     selected={options.gridSize || 4}
@@ -36,7 +36,7 @@ export const FutoshikiConfig = ({ options, onChange }: { options: GeneratorOptio
                 />
             </div>
 
-            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)] space-y-5 shadow-inner">
+            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] space-y-5 shadow-inner">
                 <CompactToggleGroup
                     label="İşaret Yoğunluğu"
                     selected={options.density || 'medium'}

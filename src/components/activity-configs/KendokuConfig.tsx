@@ -40,7 +40,7 @@ export const KendokuConfig = ({ options, onChange }: ConfigProps) => {
             <select
               value={gridSize}
               onChange={(e) => update('gridSize', parseInt(e.target.value))}
-              className="w-full bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-purple-200 border-[var(--border-color)] rounded-xl p-2 text-xs font-bold text-zinc-800 text-[var(--text-primary)] focus:ring-2 focus:ring-purple-500"
+              className="w-full bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-purple-200 border-[var(--border-color)] rounded-xl p-2 text-xs font-bold text-[var(--text-muted)] text-[var(--text-primary)] focus:ring-2 focus:ring-purple-500"
             >
               <option value={3}>3×3 (Kolay - 1..3)</option>
               <option value={4}>4×4 (Standart - 1..4)</option>
@@ -56,7 +56,7 @@ export const KendokuConfig = ({ options, onChange }: ConfigProps) => {
             <select
               value={operationSet}
               onChange={(e) => update('operationSet', e.target.value)}
-              className="w-full bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-purple-200 border-[var(--border-color)] rounded-xl p-2 text-xs font-bold text-zinc-800 text-[var(--text-primary)] focus:ring-2 focus:ring-purple-500"
+              className="w-full bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-purple-200 border-[var(--border-color)] rounded-xl p-2 text-xs font-bold text-[var(--text-muted)] text-[var(--text-primary)] focus:ring-2 focus:ring-purple-500"
             >
               <option value="add_only">Sadece Toplama (+)</option>
               <option value="add_sub">Toplama & Çıkarma (+, -)</option>
@@ -74,7 +74,7 @@ export const KendokuConfig = ({ options, onChange }: ConfigProps) => {
             <select
               value={cageComplexity}
               onChange={(e) => update('cageComplexity', e.target.value)}
-              className="w-full bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-purple-200 border-[var(--border-color)] rounded-xl p-2 text-xs font-bold text-zinc-800 text-[var(--text-primary)] focus:ring-2 focus:ring-purple-500"
+              className="w-full bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-purple-200 border-[var(--border-color)] rounded-xl p-2 text-xs font-bold text-[var(--text-muted)] text-[var(--text-primary)] focus:ring-2 focus:ring-purple-500"
             >
               <option value="simple">Basit 2'li Bloklar</option>
               <option value="medium">Karma (2'li & 3'lü Bloklar)</option>
@@ -89,7 +89,7 @@ export const KendokuConfig = ({ options, onChange }: ConfigProps) => {
             <select
               value={hintRatio}
               onChange={(e) => update('hintRatio', parseInt(e.target.value))}
-              className="w-full bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-purple-200 border-[var(--border-color)] rounded-xl p-2 text-xs font-bold text-zinc-800 text-[var(--text-primary)] focus:ring-2 focus:ring-purple-500"
+              className="w-full bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-purple-200 border-[var(--border-color)] rounded-xl p-2 text-xs font-bold text-[var(--text-muted)] text-[var(--text-primary)] focus:ring-2 focus:ring-purple-500"
             >
               <option value={0}>%0 (Hiç İpucu Rakam Yok)</option>
               <option value={15}>%15 İpucu Rakam Açık</option>
@@ -99,8 +99,8 @@ export const KendokuConfig = ({ options, onChange }: ConfigProps) => {
         </div>
 
         {/* 3. ROW: TOGGLES */}
-        <div className="flex items-center justify-between p-2.5 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-color)] border-[var(--border-color)]">
-          <span className="text-[11px] font-bold text-zinc-700 text-[var(--text-primary)]">
+        <div className="flex items-center justify-between p-2.5 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] rounded-xl border border-[var(--border-color)]">
+          <span className="text-[11px] font-bold text-[var(--text-primary)]">
             Kafes Operatör Sembolünü Göster (+, -, ×, ÷)
           </span>
           <input
@@ -124,7 +124,7 @@ export const KendokuConfig = ({ options, onChange }: ConfigProps) => {
             step={1}
             value={puzzleCount}
             onChange={(e) => update('puzzleCount', parseInt(e.target.value))}
-            className="w-full accent-purple-600 h-1.5 bg-zinc-200 rounded-lg cursor-pointer"
+            className="w-full accent-purple-600 h-1.5 bg-[var(--surface-elevated)] rounded-lg cursor-pointer"
           />
         </div>
       </div>

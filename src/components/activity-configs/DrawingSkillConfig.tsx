@@ -15,7 +15,7 @@ export const DrawingSkillConfig = ({ options, onChange }: { options: GeneratorOp
                         <button
                             key={n}
                             onClick={() => onChange('gridSize', n)}
-                            className={`py-3 text-[10px] font-black rounded-xl border-2 transition-all ${options.gridSize === n ? 'bg-[var(--accent-color)] border-indigo-600 text-[var(--text-primary)] shadow-lg scale-105' : 'bg-[var(--bg-paper)] border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--border-color)]'}`}
+                            className={`py-3 text-[10px] font-black rounded-xl border-2 transition-all ${options.gridSize === n ? 'bg-[var(--accent-color)] border-[var(--accent-color)] text-[var(--text-primary)] shadow-lg scale-105' : 'bg-[var(--bg-paper)] border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--border-color)]'}`}
                         >
                             {n}x{n}
                         </button>
@@ -41,8 +41,8 @@ export const DrawingSkillConfig = ({ options, onChange }: { options: GeneratorOp
             </div>
 
             {/* Diğer Ayarlar */}
-            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)] space-y-5">
-                <div className="flex items-center justify-between bg-[var(--bg-paper)] bg-[var(--bg-secondary)] p-3 rounded-2xl border border-[var(--border-color)] border-[var(--border-color)]">
+            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] space-y-5">
+                <div className="flex items-center justify-between bg-[var(--bg-paper)] bg-[var(--bg-secondary)] p-3 rounded-2xl border border-[var(--border-color)]">
                     <div className="flex flex-col">
                         <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest leading-none">Koordinat Sistemi</span>
                         <span className="text-[8px] font-bold text-[var(--text-muted)] mt-1 uppercase">A-B-C / 1-2-3 Rehberi</span>
@@ -54,7 +54,7 @@ export const DrawingSkillConfig = ({ options, onChange }: { options: GeneratorOp
                             onChange={e => onChange('showCoordinates', e.target.checked)}
                             className="sr-only peer"
                         />
-                        <div className="w-10 h-5 bg-zinc-200 peer-focus:outline-none rounded-full peer bg-[var(--bg-secondary)] peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[var(--bg-paper)] after:border-[var(--border-color)] after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-[var(--border-color)] peer-checked:bg-[var(--accent-color)]"></div>
+                        <div className="w-10 h-5 bg-[var(--surface-elevated)] peer-focus:outline-none rounded-full peer bg-[var(--bg-secondary)] peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[var(--bg-paper)] after:border-[var(--border-color)] after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-[var(--border-color)] peer-checked:bg-[var(--accent-color)]"></div>
                     </label>
                 </div>
 
@@ -64,7 +64,7 @@ export const DrawingSkillConfig = ({ options, onChange }: { options: GeneratorOp
                         <select
                             value={options.concept || 'copy'}
                             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => onChange('concept', e.target.value)}
-                            className="w-full p-3 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-xl text-[10px] font-black uppercase outline-none focus:border-[var(--accent-color)] transition-colors"
+                            className="w-full p-3 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[10px] font-black uppercase outline-none focus:border-[var(--accent-color)] transition-colors"
                         >
                             <option value="copy">Birebir Kopyalama</option>
                             <option value="mirror_v">Dikey Simetri (Ayna Efekti)</option>
@@ -86,7 +86,7 @@ export const DrawingSkillConfig = ({ options, onChange }: { options: GeneratorOp
                         <p className="text-[7px] font-bold text-[var(--accent-color)] uppercase opacity-70 mt-1">Görsel-Motor Entegrasyon Odaklı</p>
                     </div>
                 </div>
-                <div className="h-6 w-[1.5px] bg-indigo-800 hidden sm:block"></div>
+                <div className="h-6 w-[1.5px] bg-[var(--accent-color)] hidden sm:block"></div>
                 <div className="hidden sm:block text-right">
                     <span className="text-[6px] font-black text-[var(--accent-color)] uppercase block">Stabilizasyon</span>
                     <span className="text-[9px] font-black">AKTİF</span>

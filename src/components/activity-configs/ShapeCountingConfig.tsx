@@ -30,11 +30,11 @@ export const ShapeCountingConfig: React.FC<{ options: GeneratorOptions; onChange
                 </div>
             </div>
 
-            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)] space-y-6">
+            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] space-y-6">
                 {/* Yerleşim Tipi */}
                 <div className="space-y-3">
                     <label className="text-[10px] font-bold text-[var(--text-muted)] uppercase">Yerleşim Mimarisi</label>
-                    <div className="flex bg-zinc-200 bg-[var(--bg-secondary)] rounded-xl p-1">
+                    <div className="flex bg-[var(--surface-elevated)] bg-[var(--bg-secondary)] rounded-xl p-1">
                         {[
                             { v: 'standard', l: 'Grid (Düzenli)' },
                             { v: 'mixed', l: 'Kaotik (Karma)' }
@@ -60,12 +60,12 @@ export const ShapeCountingConfig: React.FC<{ options: GeneratorOptions; onChange
                         type="range" min={5} max={50} step={1}
                         value={options.itemCount || 24} 
                         onChange={e => onChange('itemCount', parseInt(e.target.value))} 
-                        className="w-full h-1.5 bg-zinc-200 bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-amber-500" 
+                        className="w-full h-1.5 bg-[var(--surface-elevated)] bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-amber-500" 
                     />
                 </div>
 
                 {/* Gelişmiş Ayarlar */}
-                <div className="pt-4 border-t border-[var(--border-color)] border-[var(--border-color)] space-y-5">
+                <div className="pt-4 border-t border-[var(--border-color)] space-y-5">
                     <div className="flex items-center justify-between">
                         <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest cursor-pointer flex items-center gap-3">
                             <div className="relative">
@@ -75,7 +75,7 @@ export const ShapeCountingConfig: React.FC<{ options: GeneratorOptions; onChange
                                     onChange={e => onChange('overlapping', e.target.checked)} 
                                     className="sr-only" 
                                 />
-                                <div className={`w-10 h-5 rounded-full transition-colors ${(options as Record<string, unknown>).overlapping !== false ? 'bg-amber-500' : 'bg-zinc-300'}`}></div>
+                                <div className={`w-10 h-5 rounded-full transition-colors ${(options as Record<string, unknown>).overlapping !== false ? 'bg-amber-500' : 'bg-[var(--surface-elevated)]'}`}></div>
                                 <div className={`absolute top-1 left-1 w-3 h-3 bg-[var(--bg-paper)] rounded-full transition-transform ${(options as Record<string, unknown>).overlapping !== false ? 'translate-x-5' : ''}`}></div>
                             </div>
                             Nesneler Üst Üste Binmeli mi?
@@ -89,7 +89,7 @@ export const ShapeCountingConfig: React.FC<{ options: GeneratorOptions; onChange
                                 <button
                                     key={style}
                                     onClick={() => onChange('aestheticMode', style)}
-                                    className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all border-2 ${((options as Record<string, unknown>).aestheticMode) === style ? 'bg-amber-500 border-amber-500 text-[var(--text-primary)] shadow-md' : 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border-[var(--border-color)] border-[var(--border-color)] text-[var(--text-muted)]'}`}
+                                    className={`flex-1 py-1.5 rounded-lg text-[9px] font-black uppercase transition-all border-2 ${((options as Record<string, unknown>).aestheticMode) === style ? 'bg-amber-500 border-amber-500 text-[var(--text-primary)] shadow-md' : 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-muted)]'}`}
                                 >
                                     {style}
                                 </button>
@@ -102,7 +102,7 @@ export const ShapeCountingConfig: React.FC<{ options: GeneratorOptions; onChange
                         <select
                             value={options.layout || 'single'}
                             onChange={e => onChange('layout', e.target.value)}
-                            className="w-full p-2 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-xl text-[10px] font-bold outline-none"
+                            className="w-full p-2 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[10px] font-bold outline-none"
                         >
                             <option value="single">Standart (Tam Sayfa)</option>
                             <option value="grid_2x1">2'li Kompakt (Dikey)</option>

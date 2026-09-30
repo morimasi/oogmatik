@@ -2,7 +2,7 @@ import React from 'react';
 import { GeneratorOptions } from '../../types';
 
 const Section = ({ title, children }: { title: string; children?: React.ReactNode }) => (
-  <div className="p-4 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] border-[var(--border-color)] mb-4">
+  <div className="p-4 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] mb-4">
     <h4 className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-3">{title}</h4>
     <div className="space-y-4">{children}</div>
   </div>
@@ -19,7 +19,7 @@ export const InfographicShortAnswerConfig = ({ options, onChange }: { options: G
           </div>
           <input type="range" min="4" max="30" step="1" value={options.itemCount || 12}
             onChange={(e) => onChange('itemCount', parseInt(e.target.value))}
-            className="w-full h-1.5 bg-zinc-200 bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-indigo-600" />
+            className="w-full h-1.5 bg-[var(--surface-elevated)] bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)]" />
         </div>
         <div className="space-y-2">
           <div className="flex justify-between items-center">
@@ -28,7 +28,7 @@ export const InfographicShortAnswerConfig = ({ options, onChange }: { options: G
           </div>
           <input type="text" value={options.topic as string || 'Genel Kültür'}
             onChange={(e) => onChange('topic', e.target.value)}
-            className="w-full px-3 py-2 rounded-xl text-xs bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] text-zinc-700 text-[var(--text-primary)]" />
+            className="w-full px-3 py-2 rounded-xl text-xs bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] text-[var(--text-primary)]" />
         </div>
       </Section>
       <Section title="Görünüm">
@@ -37,7 +37,7 @@ export const InfographicShortAnswerConfig = ({ options, onChange }: { options: G
             { v: 'small', l: 'Küçük' }, { v: 'medium', l: 'Orta' }, { v: 'large', l: 'Büyük' }
           ].map(opt => (
             <button key={opt.v} onClick={() => onChange('fontSize', opt.v)}
-              className={`py-2 px-1 rounded-xl text-[10px] font-bold border transition-all ${(options.fontSize as string) === opt.v ? 'bg-[var(--accent-color)] text-[var(--text-primary)] border-indigo-600' : 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] text-[var(--text-muted)] border-[var(--border-color)] border-[var(--border-color)]'}`}>{opt.l}</button>
+              className={`py-2 px-1 rounded-xl text-[10px] font-bold border transition-all ${(options.fontSize as string) === opt.v ? 'bg-[var(--accent-color)] text-[var(--text-primary)] border-[var(--accent-color)]' : 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] text-[var(--text-muted)] border-[var(--border-color)]'}`}>{opt.l}</button>
           ))}
         </div>
       </Section>

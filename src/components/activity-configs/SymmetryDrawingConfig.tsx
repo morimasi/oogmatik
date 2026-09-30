@@ -30,7 +30,7 @@ export const SymmetryDrawingConfig = ({ options, onChange }: { options: Generato
                             <button
                                 key={count}
                                 onClick={() => onChange('puzzleCount', count)}
-                                className={`flex-1 py-2 rounded-xl border-2 font-black text-[10px] transition-all ${options.puzzleCount === count ? 'bg-[var(--accent-color)] border-indigo-600 text-[var(--text-primary)] shadow-md' : 'bg-[var(--bg-paper)] border-[var(--border-color)] text-[var(--text-muted)]'}`}
+                                className={`flex-1 py-2 rounded-xl border-2 font-black text-[10px] transition-all ${options.puzzleCount === count ? 'bg-[var(--accent-color)] border-[var(--accent-color)] text-[var(--text-primary)] shadow-md' : 'bg-[var(--bg-paper)] border-[var(--border-color)] text-[var(--text-muted)]'}`}
                             >
                                 {count} {count === 1 ? 'Görev' : 'Görev'}
                             </button>
@@ -40,7 +40,7 @@ export const SymmetryDrawingConfig = ({ options, onChange }: { options: Generato
             </div>
 
             {/* Simetri Ekseni Ayarları */}
-            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)] space-y-5">
+            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] space-y-5">
                 <div className="space-y-3">
                     <label className="text-[10px] font-black text-[var(--text-muted)] uppercase block tracking-widest pl-1">Simetri Ekseni (Yön)</label>
                     <div className="grid grid-cols-2 gap-2">
@@ -80,7 +80,7 @@ export const SymmetryDrawingConfig = ({ options, onChange }: { options: Generato
                     </div>
                 </div>
 
-                <div className="h-px bg-zinc-200 bg-[var(--bg-secondary)] mx-2"></div>
+                <div className="h-px bg-[var(--surface-elevated)] bg-[var(--bg-secondary)] mx-2"></div>
 
                 <div className="flex items-center justify-between px-1">
                     <div className="flex flex-col">
@@ -94,7 +94,7 @@ export const SymmetryDrawingConfig = ({ options, onChange }: { options: Generato
                             onChange={e => onChange('showGhostPoints', e.target.checked)}
                             className="sr-only peer"
                         />
-                        <div className="w-10 h-5 bg-zinc-200 peer-focus:outline-none rounded-full peer bg-[var(--bg-secondary)] peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[var(--bg-paper)] after:border-[var(--border-color)] after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-[var(--border-color)] peer-checked:bg-rose-600"></div>
+                        <div className="w-10 h-5 bg-[var(--surface-elevated)] peer-focus:outline-none rounded-full peer bg-[var(--bg-secondary)] peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[var(--bg-paper)] after:border-[var(--border-color)] after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-[var(--border-color)] peer-checked:bg-rose-600"></div>
                     </label>
                 </div>
             </div>

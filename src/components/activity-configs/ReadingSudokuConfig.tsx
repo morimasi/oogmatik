@@ -5,9 +5,9 @@ import { GeneratorOptions } from '../../types';
 const CompactToggleGroup = ({ label, selected, onChange, options }: { label: string; selected: string | number; onChange: (v: string | number) => void; options: { value: string | number; label: string }[] }) => (
     <div className="space-y-1">
         <label className="text-[10px] font-bold text-[var(--text-muted)] text-[var(--text-primary)] uppercase block">{label}</label>
-        <div className="flex bg-zinc-100 bg-[var(--bg-secondary)] p-1 rounded-lg border border-[var(--border-color)] border-[var(--border-color)]">
+        <div className="flex bg-[var(--bg-secondary)] p-1 rounded-lg border border-[var(--border-color)]">
             {options.map((opt) => (
-                <button key={String(opt.value)} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] shadow-sm text-[var(--accent-color)] dark:text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-zinc-700 dark:hover:text-[var(--text-secondary)]'}`}>{opt.label}</button>
+                <button key={String(opt.value)} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] shadow-sm text-[var(--accent-color)] dark:text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] dark:hover:text-[var(--text-secondary)]'}`}>{opt.label}</button>
             ))}
         </div>
     </div>
@@ -29,7 +29,7 @@ export const ReadingSudokuConfig: React.FC<{ options: GeneratorOptions; onChange
                 />
             </div>
 
-            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)] space-y-4 shadow-inner">
+            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] space-y-4 shadow-inner">
                 <CompactToggleGroup 
                     label="Izgara Boyutu" 
                     selected={options.gridSize || 4} 

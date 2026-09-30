@@ -18,7 +18,7 @@ export const ReadingPyramidConfig: React.FC<{ options: GeneratorOptions; onChang
                             <button
                                 key={t.v}
                                 onClick={() => onChange('pyramidHeight', t.v)}
-                                className={`py-3 px-2 rounded-2xl text-[10px] font-black border transition-all duration-300 hover:scale-[1.02] active:scale-95 ${options.pyramidHeight === t.v ? 'bg-[var(--accent-color)] text-[var(--text-primary)] border-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.4)]' : 'bg-white/5 text-[var(--text-muted)] border-white/5 hover:bg-white/10'}`}
+                                className={`py-3 px-2 rounded-2xl text-[10px] font-black border transition-all duration-300 hover:scale-[1.02] active:scale-95 ${options.pyramidHeight === t.v ? 'bg-[var(--accent-color)] text-[var(--text-primary)] border-[var(--accent-color)] shadow-[0_0_20px_rgba(99,102,241,0.4)]' : 'bg-white/5 text-[var(--text-muted)] border-white/5 hover:bg-white/10'}`}
                             >
                                 {t.l}
                             </button>
@@ -49,7 +49,7 @@ export const ReadingPyramidConfig: React.FC<{ options: GeneratorOptions; onChang
                             { id: 'rose', color: 'bg-rose-500' },
                             { id: 'emerald', color: 'bg-emerald-500' },
                             { id: 'amber', color: 'bg-amber-500' },
-                            { id: 'slate', color: 'bg-slate-500' },
+                            { id: 'slate', color: 'bg-[var(--surface-elevated)]' },
                             { id: 'colorful', color: 'bg-gradient-to-tr from-indigo-500 via-rose-500 to-amber-500' }
                         ].map(p => (
                             <button

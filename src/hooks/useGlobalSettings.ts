@@ -8,6 +8,8 @@ const DARK_THEMES: AppTheme[] = [
     'anthracite-gold',
     'anthracite-cyber',
     'oled-black',
+    'ocean',
+    'nature',
 ];
 
 const isDarkTheme = (t: AppTheme): boolean =>

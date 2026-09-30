@@ -12,7 +12,7 @@ export const MeyveliToplamaConfig: React.FC<Props> = ({ options, onChange }) => 
   return (
     <div className="space-y-5 p-4">
       <div className="pb-3 border-b border-[var(--border-color)]">
-        <h4 className="font-bold text-zinc-800">Meyveli Matematik</h4>
+        <h4 className="font-bold text-[var(--text-muted)]">Meyveli Matematik</h4>
         <p className="text-xs text-[var(--text-muted)]">Satır ve sütun toplamlarından meyve değerlerini bul</p>
       </div>
 

@@ -54,7 +54,7 @@ export const OddEvenSudokuConfig: React.FC<Props> = ({ options, onChange }) => {
             type="checkbox"
             checked={Boolean(o.showPositionNumbers ?? true)}
             onChange={(e) => update({ showPositionNumbers: e.target.checked })}
-            className="w-5 h-5 rounded text-[var(--accent-color)] focus:ring-indigo-500 border-[var(--border-color)]"
+            className="w-5 h-5 rounded text-[var(--accent-color)] focus:ring-[var(--accent-color)] border-[var(--border-color)]"
           />
           <span className="text-sm font-bold text-[var(--accent-color)]">
             Klavuz Numaraları Göster

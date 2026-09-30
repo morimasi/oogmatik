@@ -31,7 +31,7 @@ export const GizemliSayilarConfig: React.FC<GizemliSayilarConfigProps> = ({
             <i className="fa-solid fa-user-secret text-sm"></i>
           </div>
           <div>
-            <h4 className="text-xs font-black text-zinc-800">Gizemli Sayılar Ayarları</h4>
+            <h4 className="text-xs font-black text-[var(--text-muted)]">Gizemli Sayılar Ayarları</h4>
             <p className="text-[10px] text-[var(--text-muted)] font-medium">Dedektif İpuçları & Sayısal Muhakeme</p>
           </div>
         </div>
@@ -43,7 +43,7 @@ export const GizemliSayilarConfig: React.FC<GizemliSayilarConfigProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {/* Zorluk Seviyesi */}
         <div className="flex flex-col gap-1.5 bg-[var(--bg-paper)] p-3 rounded-xl border border-[var(--border-color)] shadow-2xs">
-          <label className="text-[11px] font-black text-zinc-700 flex items-center justify-between">
+          <label className="text-[11px] font-black text-[var(--text-muted)] flex items-center justify-between">
             <span>Zorluk Seviyesi</span>
             <span className="text-[9px] font-normal text-[var(--text-muted)]">Sayı Aralığı</span>
           </label>
@@ -60,7 +60,7 @@ export const GizemliSayilarConfig: React.FC<GizemliSayilarConfigProps> = ({
 
         {/* A4 Bulmaca Adedi */}
         <div className="flex flex-col gap-1.5 bg-[var(--bg-paper)] p-3 rounded-xl border border-[var(--border-color)] shadow-2xs">
-          <label className="text-[11px] font-black text-zinc-700 flex items-center justify-between">
+          <label className="text-[11px] font-black text-[var(--text-muted)] flex items-center justify-between">
             <span>A4 Soru Miktarı</span>
             <span className="text-xs font-black text-amber-600">
               {custom.itemCount || (settings.difficulty === 'Zor' ? 4 : 6)} Soru
@@ -73,13 +73,13 @@ export const GizemliSayilarConfig: React.FC<GizemliSayilarConfigProps> = ({
             step={2}
             value={custom.itemCount || (settings.difficulty === 'Zor' ? 4 : 6)}
             onChange={(e) => updateCustom('itemCount', parseInt(e.target.value, 10))}
-            className="w-full accent-amber-500 h-1.5 bg-zinc-100 rounded-lg cursor-pointer"
+            className="w-full accent-amber-500 h-1.5 bg-[var(--surface-elevated)] rounded-lg cursor-pointer"
           />
         </div>
 
         {/* İpucu Sayısı */}
         <div className="flex flex-col gap-1.5 bg-[var(--bg-paper)] p-3 rounded-xl border border-[var(--border-color)] shadow-2xs">
-          <label className="text-[11px] font-black text-zinc-700 flex items-center justify-between">
+          <label className="text-[11px] font-black text-[var(--text-muted)] flex items-center justify-between">
             <span>İpucu Karmaşıklığı</span>
             <span className="text-[9px] font-normal text-[var(--text-muted)]">Kart Başına</span>
           </label>
@@ -96,13 +96,13 @@ export const GizemliSayilarConfig: React.FC<GizemliSayilarConfigProps> = ({
         {/* Simgeleri Göster */}
         <div className="flex items-center justify-between bg-[var(--bg-paper)] p-3 rounded-xl border border-[var(--border-color)] shadow-2xs">
           <div>
-            <span className="text-[11px] font-black text-zinc-700 block">İpucu İkonları</span>
+            <span className="text-[11px] font-black text-[var(--text-muted)] block">İpucu İkonları</span>
             <span className="text-[9px] text-[var(--text-muted)] font-medium">Görsel destek ekler</span>
           </div>
           <button
             type="button"
             onClick={() => updateCustom('showIcons', custom.showIcons === false ? true : false)}
-            className={`w-11 h-6 rounded-full transition-colors relative p-0.5 ${custom.showIcons !== false ? 'bg-amber-500' : 'bg-zinc-300'
+            className={`w-11 h-6 rounded-full transition-colors relative p-0.5 ${custom.showIcons !== false ? 'bg-amber-500' : 'bg-[var(--surface-elevated)]'
               }`}
           >
             <div

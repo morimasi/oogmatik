@@ -31,7 +31,7 @@ export const BrainTeasersConfig: React.FC<BrainTeasersConfigProps> = ({ options,
 
   return (
     <div className="space-y-5 animate-in fade-in duration-300">
-      <div className="p-4 bg-[var(--accent-muted)] dark:bg-[var(--accent-muted)] rounded-[2rem] border border-[var(--border-color)] dark:border-indigo-800/30">
+      <div className="p-4 bg-[var(--accent-muted)] dark:bg-[var(--accent-muted)] rounded-[2rem] border border-[var(--border-color)] dark:border-[var(--accent-color)]">
         <h4 className="text-xs font-black text-[var(--accent-color)] dark:text-[var(--accent-color)] uppercase tracking-widest mb-3">
           <i className="fa-solid fa-brain mr-1 text-[var(--accent-color)]"></i> Zeka Atölyesi Ayarları
         </h4>
@@ -45,7 +45,7 @@ export const BrainTeasersConfig: React.FC<BrainTeasersConfigProps> = ({ options,
             <select
               value={o.layoutCols || 2}
               onChange={(e) => update({ layoutCols: parseInt(e.target.value) })}
-              className="w-full bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-indigo-200 border-[var(--border-color)] rounded-xl p-2 text-xs font-bold focus:ring-2 focus:ring-indigo-500"
+              className="w-full bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--accent-color)] border-[var(--border-color)] rounded-xl p-2 text-xs font-bold focus:ring-2 focus:ring-[var(--accent-color)]"
             >
               <option value={2}>2 Kolon (Büyük Okunaklı Kartlar)</option>
               <option value={3}>3 Kolon (Kompakt Zengin Dolgu)</option>
@@ -60,7 +60,7 @@ export const BrainTeasersConfig: React.FC<BrainTeasersConfigProps> = ({ options,
             <select
               value={options.difficulty || 'Orta'}
               onChange={(e) => onChange('difficulty', e.target.value)}
-              className="w-full bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-indigo-200 border-[var(--border-color)] rounded-xl p-2 text-xs font-bold focus:ring-2 focus:ring-indigo-500"
+              className="w-full bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--accent-color)] border-[var(--border-color)] rounded-xl p-2 text-xs font-bold focus:ring-2 focus:ring-[var(--accent-color)]"
             >
               <option value="Başlangıç">Başlangıç (Kolay)</option>
               <option value="Orta">Orta (Düşündürücü)</option>
@@ -82,7 +82,7 @@ export const BrainTeasersConfig: React.FC<BrainTeasersConfigProps> = ({ options,
             step={2}
             value={puzzleCount}
             onChange={(e) => update({ puzzleCount: parseInt(e.target.value) })}
-            className="w-full accent-indigo-600 h-1.5 bg-zinc-200 rounded-lg cursor-pointer"
+            className="w-full accent-[var(--accent-color)] h-1.5 bg-[var(--surface-elevated)] rounded-lg cursor-pointer"
           />
         </div>
       </div>
@@ -97,8 +97,8 @@ export const BrainTeasersConfig: React.FC<BrainTeasersConfigProps> = ({ options,
             <label
               key={cat}
               className={`flex items-center justify-center gap-1.5 p-2 rounded-xl border transition-all cursor-pointer text-xs font-bold ${selectedCategories.includes(cat)
-                  ? 'bg-[var(--accent-color)] text-[var(--text-primary)] border-indigo-600 shadow-xs'
-                  : 'bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] text-[var(--text-muted)] border-[var(--border-color)] border-[var(--border-color)]'
+                  ? 'bg-[var(--accent-color)] text-[var(--text-primary)] border-[var(--accent-color)] shadow-xs'
+                  : 'bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] text-[var(--text-muted)] border-[var(--border-color)]'
                 }`}
             >
               <input
@@ -114,14 +114,14 @@ export const BrainTeasersConfig: React.FC<BrainTeasersConfigProps> = ({ options,
       </div>
 
       {/* İpucu Göster */}
-      <div className="flex items-center justify-between p-3 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] border-[var(--border-color)]">
+      <div className="flex items-center justify-between p-3 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)]">
         <div className="flex flex-col">
-          <span className="text-xs font-bold text-zinc-700 text-[var(--text-primary)]">İpuçlarını Karta Ekle</span>
+          <span className="text-xs font-bold text-[var(--text-primary)]">İpuçlarını Karta Ekle</span>
           <span className="text-[9px] text-[var(--text-muted)]">Çözüme rehberlik eden ipucu satırı</span>
         </div>
         <button
           onClick={() => update({ showHints: !o.showHints })}
-          className={`w-12 h-6 rounded-full transition-colors relative shrink-0 ${o.showHints !== false ? 'bg-[var(--accent-color)]' : 'bg-zinc-300'}`}
+          className={`w-12 h-6 rounded-full transition-colors relative shrink-0 ${o.showHints !== false ? 'bg-[var(--accent-color)]' : 'bg-[var(--surface-elevated)]'}`}
         >
           <div className={`w-4 h-4 rounded-full bg-[var(--bg-paper)] absolute top-1 transition-transform ${o.showHints !== false ? 'left-7' : 'left-1'}`} />
         </button>

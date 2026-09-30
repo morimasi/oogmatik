@@ -36,7 +36,7 @@ export const SemanticLinkerConfig: React.FC<SemanticLinkerConfigProps> = ({
                         <select
                             value={custom.difficulty || 'Orta'}
                             onChange={(e) => updateCustom('difficulty', e.target.value)}
-                            className="w-full bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg py-2 px-3 text-sm focus:ring-2 focus:ring-indigo-500"
+                            className="w-full bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-lg py-2 px-3 text-sm focus:ring-2 focus:ring-[var(--accent-color)]"
                         >
                             <option value="Kolay">Kolay</option>
                             <option value="Orta">Orta</option>

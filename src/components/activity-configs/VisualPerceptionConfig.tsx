@@ -28,7 +28,7 @@ export const VisualPerceptionConfig: React.FC<{ options: GeneratorOptions; onCha
             </div>
 
             {/* Sayfa Yapısı Konfigürasyonu */}
-            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)] space-y-5">
+            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] space-y-5">
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <div className="flex justify-between items-center text-[9px] font-black text-[var(--text-muted)] uppercase tracking-widest px-1">
@@ -39,7 +39,7 @@ export const VisualPerceptionConfig: React.FC<{ options: GeneratorOptions; onCha
                             type="range" min="4" max="25"
                             value={(options as any).rowCount || 14}
                             onChange={e => onChange('rowCount' as any, parseInt(e.target.value))}
-                            className="w-full h-1.5 bg-zinc-200 bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                            className="w-full h-1.5 bg-[var(--surface-elevated)] bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)]"
                         />
                     </div>
                     <div className="space-y-2">
@@ -51,7 +51,7 @@ export const VisualPerceptionConfig: React.FC<{ options: GeneratorOptions; onCha
                             type="range" min="4" max="10"
                             value={options.itemCount || 6}
                             onChange={e => onChange('itemCount', parseInt(e.target.value))}
-                            className="w-full h-1.5 bg-zinc-200 bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-emerald-600"
+                            className="w-full h-1.5 bg-[var(--surface-elevated)] bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-emerald-600"
                         />
                     </div>
                 </div>
@@ -59,13 +59,13 @@ export const VisualPerceptionConfig: React.FC<{ options: GeneratorOptions; onCha
                 <div className="space-y-3">
                     <div className="flex justify-between items-center text-[10px] font-black text-[var(--accent-color)] uppercase tracking-widest">
                         <span><i className="fa-solid fa-brain mr-1"></i> Bilişsel Yük</span>
-                        <span className="bg-indigo-100 dark:bg-indigo-900/30 px-2 py-0.5 rounded-full text-[9px]">{options.cognitiveLoad || 5} / 10</span>
+                        <span className="bg-[var(--accent-color)] dark:bg-[var(--accent-color)] px-2 py-0.5 rounded-full text-[9px]">{options.cognitiveLoad || 5} / 10</span>
                     </div>
                     <input
                         type="range" min="1" max="10"
                         value={options.cognitiveLoad || 5}
                         onChange={e => onChange('cognitiveLoad', parseInt(e.target.value))}
-                        className="w-full h-1.5 bg-zinc-200 bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                        className="w-full h-1.5 bg-[var(--surface-elevated)] bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)]"
                     />
                 </div>
 
@@ -86,7 +86,7 @@ export const VisualPerceptionConfig: React.FC<{ options: GeneratorOptions; onCha
                     </div>
                 </div>
 
-                <div className="pt-2 border-t border-[var(--border-color)] border-[var(--border-color)] space-y-4">
+                <div className="pt-2 border-t border-[var(--border-color)] space-y-4">
                     <div>
                         <label className="text-[10px] font-black text-[var(--text-muted)] uppercase mb-2 block tracking-widest">Görsel Stil</label>
                         <div className="flex gap-2">
@@ -94,7 +94,7 @@ export const VisualPerceptionConfig: React.FC<{ options: GeneratorOptions; onCha
                                 <button
                                     key={style}
                                     onClick={() => onChange('aestheticMode', style)}
-                                    className={`flex-1 py-2 rounded-xl text-[9px] font-black uppercase transition-all border-2 ${((options as Record<string, unknown>).aestheticMode || 'premium') === style ? 'bg-[var(--accent-color)] border-indigo-600 text-[var(--text-primary)] shadow-md' : 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border-[var(--border-color)] border-[var(--border-color)] text-[var(--text-muted)]'}`}
+                                    className={`flex-1 py-2 rounded-xl text-[9px] font-black uppercase transition-all border-2 ${((options as Record<string, unknown>).aestheticMode || 'premium') === style ? 'bg-[var(--accent-color)] border-[var(--accent-color)] text-[var(--text-primary)] shadow-md' : 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-muted)]'}`}
                                 >
                                     {style}
                                 </button>
@@ -102,7 +102,7 @@ export const VisualPerceptionConfig: React.FC<{ options: GeneratorOptions; onCha
                         </div>
                     </div>
 
-                    <div className="flex justify-between items-center bg-[var(--bg-paper)] bg-[var(--bg-secondary)] p-3 rounded-2xl border border-[var(--border-color)] border-[var(--border-color)]">
+                    <div className="flex justify-between items-center bg-[var(--bg-paper)] bg-[var(--bg-secondary)] p-3 rounded-2xl border border-[var(--border-color)]">
                         <span className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest">Klinik Metrikler</span>
                         <label className="relative inline-flex items-center cursor-pointer">
                             <input
@@ -111,7 +111,7 @@ export const VisualPerceptionConfig: React.FC<{ options: GeneratorOptions; onCha
                                 onChange={e => onChange('includeClinicalNotes', e.target.checked)}
                                 className="sr-only peer"
                             />
-                            <div className="w-9 h-5 bg-zinc-200 peer-focus:outline-none rounded-full peer bg-[var(--bg-secondary)] peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[var(--bg-paper)] after:border-[var(--border-color)] after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-[var(--border-color)] peer-checked:bg-[var(--accent-color)]"></div>
+                            <div className="w-9 h-5 bg-[var(--surface-elevated)] peer-focus:outline-none rounded-full peer bg-[var(--bg-secondary)] peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[var(--bg-paper)] after:border-[var(--border-color)] after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-[var(--border-color)] peer-checked:bg-[var(--accent-color)]"></div>
                         </label>
                     </div>
                 </div>

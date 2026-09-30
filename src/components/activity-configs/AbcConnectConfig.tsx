@@ -17,7 +17,7 @@ interface ToggleGroupProps {
 const CompactToggleGroup = ({ label, selected, onChange, options }: ToggleGroupProps) => (
     <div className="space-y-1">
         <label className="text-[10px] font-bold text-[var(--text-muted)] text-[var(--text-primary)] uppercase block tracking-wider">{label}</label>
-        <div className="flex bg-zinc-100 bg-[var(--bg-secondary)] p-1 rounded-xl border border-[var(--border-color)] border-[var(--border-color)]">
+        <div className="flex bg-[var(--bg-secondary)] p-1 rounded-xl border border-[var(--border-color)]">
             {options.map((opt: ToggleOption, idx: number) => (
                 <button
                     key={idx}
@@ -56,7 +56,7 @@ export const AbcConnectConfig = ({ options, onChange }: { options: GeneratorOpti
                 />
             </div>
 
-            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)] space-y-5 shadow-inner">
+            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] space-y-5 shadow-inner">
                 <CompactToggleGroup
                     label="IZGARA BOYUTU"
                     selected={options.gridSize || o.gridSize || 5}

@@ -18,7 +18,7 @@ export const FindDifferenceConfig = ({ options, onChange }: { options: Generator
                             <button
                                 key={n}
                                 onClick={() => onChange('gridSize', n)}
-                                className={`py-2 text-[10px] font-black rounded-xl border-2 transition-all ${options.gridSize === n || (!options.gridSize && n === 5) ? 'bg-[var(--accent-color)] border-indigo-600 text-[var(--text-primary)] shadow-lg' : 'bg-[var(--bg-paper)] border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--border-color)]'}`}
+                                className={`py-2 text-[10px] font-black rounded-xl border-2 transition-all ${options.gridSize === n || (!options.gridSize && n === 5) ? 'bg-[var(--accent-color)] border-[var(--accent-color)] text-[var(--text-primary)] shadow-lg' : 'bg-[var(--bg-paper)] border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--border-color)]'}`}
                             >
                                 {n}x{n}
                             </button>
@@ -40,7 +40,7 @@ export const FindDifferenceConfig = ({ options, onChange }: { options: Generator
             </div>
 
             {/* Uyaran Kategorisi */}
-            <div className="p-5 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)] space-y-5">
+            <div className="p-5 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] space-y-5">
                 <div className="space-y-3">
                     <label className="text-[10px] font-black text-[var(--text-muted)] uppercase block tracking-widest pl-1 text-center">Uyaran Kategorisi (Fark Tipi)</label>
                     <div className="grid grid-cols-2 gap-2">
@@ -81,7 +81,7 @@ export const FindDifferenceConfig = ({ options, onChange }: { options: Generator
                     </div>
                 </div>
 
-                <div className="h-px bg-zinc-100 bg-[var(--bg-secondary)] mx-2"></div>
+                <div className="h-px bg-[var(--bg-secondary)] mx-2"></div>
 
                 {/* Akıllı A4 Bilgi */}
                 <div className="p-4 bg-[var(--accent-muted)] rounded-2xl flex items-center gap-4 border border-[var(--border-color)] relative overflow-hidden group">

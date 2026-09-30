@@ -12,7 +12,7 @@ interface MathPuzzleConfigProps {
 const MiniSelect = ({ label, value, onChange, options: opts }: { label: string; value: string; onChange: (v: string) => void; options: { value: string; label: string }[] }) => (
     <div className="space-y-0.5">
         <label className="text-[9px] font-bold text-[var(--text-muted)] uppercase block tracking-wider">{label}</label>
-        <select value={value} onChange={e => onChange(e.target.value)} className="w-full p-2 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-xl text-[11px] font-bold outline-none focus:ring-1 focus:ring-indigo-500/30 focus:border-[var(--accent-color)] transition-all text-[var(--text-primary)]">
+        <select value={value} onChange={e => onChange(e.target.value)} className="w-full p-2 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[11px] font-bold outline-none focus:ring-1 focus:ring-[var(--accent-color)]/30 focus:border-[var(--accent-color)] transition-all text-[var(--text-primary)]">
             {opts.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
         </select>
     </div>
@@ -21,13 +21,13 @@ const MiniSelect = ({ label, value, onChange, options: opts }: { label: string; 
 const MiniToggle = ({ label, value, onChange, icon }: { label: string; value: boolean; onChange: (v: boolean) => void; icon: string }) => (
     <button
         onClick={() => onChange(!value)}
-        className={`flex items-center justify-between w-full p-2 rounded-xl border transition-all text-left ${value ? 'bg-[var(--accent-color)]/10 border-[var(--accent-color)]/30 text-[var(--accent-color)] dark:text-[var(--accent-color)]' : 'bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] border-[var(--border-color)] border-[var(--border-color)] text-[var(--text-muted)]'}`}
+        className={`flex items-center justify-between w-full p-2 rounded-xl border transition-all text-left ${value ? 'bg-[var(--accent-color)]/10 border-[var(--accent-color)]/30 text-[var(--accent-color)] dark:text-[var(--accent-color)]' : 'bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] border-[var(--border-color)] text-[var(--text-muted)]'}`}
     >
         <span className="text-[10px] font-bold flex items-center gap-1.5">
             <span className="text-xs">{icon}</span>
             {label}
         </span>
-        <div className={`w-7 h-3.5 rounded-full relative transition-colors ${value ? 'bg-[var(--accent-color)]' : 'bg-zinc-300 bg-[var(--bg-secondary)]'}`}>
+        <div className={`w-7 h-3.5 rounded-full relative transition-colors ${value ? 'bg-[var(--accent-color)]' : 'bg-[var(--surface-elevated)] bg-[var(--bg-secondary)]'}`}>
             <div className={`absolute top-0.5 w-2.5 h-2.5 rounded-full bg-[var(--bg-paper)] shadow-sm transition-all ${value ? 'left-4' : 'left-0.5'}`} />
         </div>
     </button>
@@ -36,7 +36,7 @@ const MiniToggle = ({ label, value, onChange, icon }: { label: string; value: bo
 const DensitySelector = ({ value, onChange }: { value: number; onChange: (v: number) => void }) => (
     <div className="space-y-1">
         <label className="text-[9px] font-bold text-[var(--text-muted)] uppercase block tracking-wider">Sayfa Doluluğu</label>
-        <div className="flex gap-1 p-0.5 bg-zinc-100 bg-[var(--bg-secondary)] rounded-lg">
+        <div className="flex gap-1 p-0.5 bg-[var(--bg-secondary)] rounded-lg">
             {[4, 6, 8, 10, 12].map(n => (
                 <button
                     key={n}
@@ -66,7 +66,7 @@ export const MathPuzzleConfig: React.FC<MathPuzzleConfigProps> = ({ options, onC
                             <span className="text-base">✨</span>
                             AI Üretim Modu
                         </span>
-                        <div className={`w-9 h-5 rounded-full relative transition-colors ${aiMode ? 'bg-violet-500' : 'bg-zinc-300'}`}>
+                        <div className={`w-9 h-5 rounded-full relative transition-colors ${aiMode ? 'bg-violet-500' : 'bg-[var(--surface-elevated)]'}`}>
                             <div className={`absolute top-1 w-3 h-3 rounded-full bg-[var(--bg-paper)] shadow transition-all ${aiMode ? 'left-5' : 'left-1'}`} />
                         </div>
                     </button>
@@ -79,7 +79,7 @@ export const MathPuzzleConfig: React.FC<MathPuzzleConfigProps> = ({ options, onC
             )}
 
             {/* Ana Ayarlar - Kompakt Grid */}
-            <div className="grid grid-cols-2 gap-2 p-3 bg-[var(--bg-secondary)]/50 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)] border-[var(--border-color)]">
+            <div className="grid grid-cols-2 gap-2 p-3 bg-[var(--bg-secondary)]/50 bg-[var(--bg-secondary)] rounded-2xl border border-[var(--border-color)]">
                 <MiniSelect
                     label="Bulmaca Türü"
                     value={(opts.puzzleType as string) || 'visual'}
@@ -164,7 +164,7 @@ export const MathPuzzleConfig: React.FC<MathPuzzleConfigProps> = ({ options, onC
             </div>
 
             {/* Bilgi */}
-            <div className="p-2.5 bg-[var(--accent-color)]/5 dark:bg-indigo-400/5 rounded-xl border border-[var(--border-color)] dark:border-indigo-900/30 text-center">
+            <div className="p-2.5 bg-[var(--accent-color)]/5 dark:bg-[var(--accent-color)] rounded-xl border border-[var(--border-color)] dark:border-[var(--accent-color)] text-center">
                 <p className="text-[9px] text-[var(--text-muted)] italic">
                     {(opts.itemCount as number) || 6} bulmaca · {(opts.puzzleType as string) === 'mixed' ? 'Karma' : (opts.puzzleType as string) || 'Görsel'} · {(opts.operationType as string) || 'mixed'}
                 </p>

@@ -54,7 +54,7 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
     return (
         <div className="space-y-5 animate-in fade-in duration-300">
             {/* Manuel Harita Yükleme */}
-            <div className="p-4 bg-indigo-900/20 rounded-[2rem] border border-[var(--accent-color)]/30">
+            <div className="p-4 bg-[var(--accent-color)] rounded-[2rem] border border-[var(--accent-color)]/30">
                 <label className="text-[10px] font-black text-[var(--accent-color)] uppercase mb-3 block text-center tracking-widest">
                     <i className="fa-solid fa-upload mr-2"></i>Özel Harita / Kroki
                 </label>
@@ -179,7 +179,7 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                 <div className="flex items-center justify-between px-2 pt-3 border-t border-[var(--border-color)]">
                     <span className="text-[10px] font-black text-[var(--text-muted)] uppercase">Şehir İsimleri</span>
                     <div
-                        className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${options.showCityNames !== false ? 'bg-[var(--accent-color)]' : 'bg-zinc-600'}`}
+                        className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${options.showCityNames !== false ? 'bg-[var(--accent-color)]' : 'bg-[var(--surface-elevated)]'}`}
                         onClick={() => onChange('showCityNames', options.showCityNames === false)}
                     >
                         <div className={`absolute top-0.5 w-4 h-4 bg-[var(--bg-paper)] rounded-full transition-all shadow ${options.showCityNames !== false ? 'left-5' : 'left-0.5'}`}></div>
@@ -213,9 +213,9 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                 {/* Harita Tipi */}
                 <div className="flex items-center justify-between px-2 pt-3 border-t border-[var(--border-color)]">
                     <span className="text-[10px] font-black text-[var(--text-muted)] uppercase">Harita Tipi</span>
-                    <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+                    <div className="flex bg-[var(--surface-elevated)] dark:bg-[var(--surface-elevated)] p-1 rounded-lg">
                         {(['turkey', 'world', 'treasure'] as const).map(type => (
-                            <button key={type} onClick={() => onChange('mapType', type)} className={`flex-1 py-1 text-[10px] font-bold rounded-md ${options.mapType === type ? 'bg-[var(--bg-paper)] shadow-sm text-sky-600' : 'text-slate-500'}`}>
+                            <button key={type} onClick={() => onChange('mapType', type)} className={`flex-1 py-1 text-[10px] font-bold rounded-md ${options.mapType === type ? 'bg-[var(--bg-paper)] shadow-sm text-sky-600' : 'text-[var(--text-muted)]'}`}>
                                 {type === 'turkey' ? 'Türkiye' : type === 'world' ? 'Dünya' : 'Hazine'}
                             </button>
                         ))}
@@ -226,7 +226,7 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                 <div className="mt-4 pt-4 border-t border-[var(--border-color)] flex justify-between items-center">
                     <span className="text-[10px] font-black text-[var(--text-muted)] uppercase"><i className="fa-solid fa-compass text-sky-500 mr-2"></i> Pusula Eklensin mi?</span>
                     <div
-                        className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${options.includeCompass ? 'bg-[var(--accent-color)]' : 'bg-zinc-600'}`}
+                        className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${options.includeCompass ? 'bg-[var(--accent-color)]' : 'bg-[var(--surface-elevated)]'}`}
                         onClick={() => onChange('includeCompass', !options.includeCompass)}
                     >
                         <div className={`absolute top-0.5 w-4 h-4 bg-[var(--bg-paper)] rounded-full transition-all shadow ${options.includeCompass ? 'left-5' : 'left-0.5'}`}></div>
@@ -237,7 +237,7 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                 <div className="mt-4 pt-4 border-t border-[var(--border-color)] flex justify-between items-center">
                     <span className="text-[10px] font-black text-[var(--text-muted)] uppercase"><i className="fa-solid fa-border-all text-sky-500 mr-2"></i> Koordinat Izgarası (Grid) Açılsın mı?</span>
                     <div
-                        className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${options.useGridSystem ? 'bg-[var(--accent-color)]' : 'bg-zinc-600'}`}
+                        className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors ${options.useGridSystem ? 'bg-[var(--accent-color)]' : 'bg-[var(--surface-elevated)]'}`}
                         onClick={() => onChange('useGridSystem', !options.useGridSystem)}
                     >
                         <div className={`absolute top-0.5 w-4 h-4 bg-[var(--bg-paper)] rounded-full transition-all shadow ${options.useGridSystem ? 'left-5' : 'left-0.5'}`}></div>

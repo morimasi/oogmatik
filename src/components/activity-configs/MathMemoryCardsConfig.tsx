@@ -8,14 +8,14 @@ const CompactSlider = ({ label, value, onChange, min, max, icon, unit = '' }: { 
             <span className="flex items-center gap-1">{icon && <i className={`fa-solid ${icon}`}></i>}{label}</span>
             <span className="text-[var(--accent-color)] font-black">{value}{unit}</span>
         </div>
-        <input type="range" min={min} max={max} value={value} onChange={e => onChange(parseInt(e.target.value))} className="w-full h-1.5 bg-zinc-200 bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-indigo-600" />
+        <input type="range" min={min} max={max} value={value} onChange={e => onChange(parseInt(e.target.value))} className="w-full h-1.5 bg-[var(--surface-elevated)] bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)]" />
     </div>
 );
 
 const CheckboxTile = ({ label, checked, onChange, icon }: { label: string; checked: boolean; onChange: (v: boolean) => void; icon?: string }) => (
     <button
         onClick={() => onChange(!checked)}
-        className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all ${checked ? 'bg-[var(--accent-muted)] border-indigo-600 text-[var(--accent-color)] dark:bg-indigo-900/20' : 'bg-[var(--bg-paper)] border-[var(--border-color)] text-[var(--text-muted)] bg-[var(--bg-secondary)] border-[var(--border-color)]'}`}
+        className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all ${checked ? 'bg-[var(--accent-muted)] border-[var(--accent-color)] text-[var(--accent-color)] dark:bg-[var(--accent-color)]' : 'bg-[var(--bg-paper)] border-[var(--border-color)] text-[var(--text-muted)] bg-[var(--bg-secondary)] border-[var(--border-color)]'}`}
     >
         <i className={`fa-solid ${icon} text-lg mb-1`}></i>
         <span className="text-[9px] font-black uppercase">{label}</span>
@@ -32,7 +32,7 @@ export const MathMemoryCardsConfig = ({ options, onChange }: { options: Generato
     return (
         <div className="space-y-5 animate-in fade-in duration-300">
             {/* Eşleştirme Modu */}
-            <div className="p-4 bg-[var(--accent-muted)] dark:bg-[var(--accent-muted)] rounded-[2rem] border border-[var(--border-color)] dark:border-indigo-800/30">
+            <div className="p-4 bg-[var(--accent-muted)] dark:bg-[var(--accent-muted)] rounded-[2rem] border border-[var(--border-color)] dark:border-[var(--accent-color)]">
                 <label className="text-[10px] font-black text-[var(--accent-color)] uppercase mb-3 block text-center">Eşleştirme Mantığı</label>
                 <div className="grid grid-cols-1 gap-2">
                     {[
@@ -43,7 +43,7 @@ export const MathMemoryCardsConfig = ({ options, onChange }: { options: Generato
                         <button
                             key={t.v}
                             onClick={() => onChange('variant', t.v)}
-                            className={`flex items-center gap-3 p-3 rounded-xl text-[11px] font-black border transition-all ${options.variant === t.v ? 'bg-[var(--accent-color)] text-[var(--text-primary)] border-indigo-600 shadow-md' : 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] text-[var(--text-muted)] border-[var(--border-color)] border-[var(--border-color)]'}`}
+                            className={`flex items-center gap-3 p-3 rounded-xl text-[11px] font-black border transition-all ${options.variant === t.v ? 'bg-[var(--accent-color)] text-[var(--text-primary)] border-[var(--accent-color)] shadow-md' : 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] text-[var(--text-muted)] border-[var(--border-color)]'}`}
                         >
                             <i className={`fa-solid ${t.icon}`}></i>
                             {t.l}
@@ -64,7 +64,7 @@ export const MathMemoryCardsConfig = ({ options, onChange }: { options: Generato
             </div>
 
             {/* Kart & Görsel Ayarları */}
-            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)] space-y-5 shadow-inner">
+            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] space-y-5 shadow-inner">
                 <CompactSlider
                     label="Kart Sayısı"
                     value={options.itemCount || 16}
@@ -89,7 +89,7 @@ export const MathMemoryCardsConfig = ({ options, onChange }: { options: Generato
 
                 <div className="flex items-center justify-between p-1">
                     <span className="text-[10px] font-black text-[var(--text-muted)] uppercase">Kontrol Kodlarını Göster</span>
-                    <div className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${options.showNumbers !== false ? 'bg-[var(--accent-color)]' : 'bg-zinc-300'}`} onClick={() => onChange('showNumbers', options.showNumbers === false)}>
+                    <div className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${options.showNumbers !== false ? 'bg-[var(--accent-color)]' : 'bg-[var(--surface-elevated)]'}`} onClick={() => onChange('showNumbers', options.showNumbers === false)}>
                         <div className={`absolute top-0.5 w-3 h-3 bg-[var(--bg-paper)] rounded-full transition-all ${options.showNumbers !== false ? 'left-4.5' : 'left-0.5'}`}></div>
                     </div>
                 </div>
@@ -97,7 +97,7 @@ export const MathMemoryCardsConfig = ({ options, onChange }: { options: Generato
                 <div className="flex items-center justify-between p-1">
                     <span className="text-[10px] font-black text-[var(--text-muted)] uppercase flex items-center gap-1">⚡ Hızlı Mod</span>
                     <div
-                        className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${(options.fastMode as boolean) ? 'bg-emerald-500' : 'bg-zinc-300'}`}
+                        className={`w-8 h-4 rounded-full relative cursor-pointer transition-colors ${(options.fastMode as boolean) ? 'bg-emerald-500' : 'bg-[var(--surface-elevated)]'}`}
                         onClick={() => onChange('fastMode', !(options.fastMode as boolean))}
                     >
                         <div className={`absolute top-0.5 w-3 h-3 bg-[var(--bg-paper)] rounded-full transition-all ${(options.fastMode as boolean) ? 'left-4.5' : 'left-0.5'}`}></div>

@@ -27,7 +27,7 @@ export const StoryAnalysisConfig: React.FC<ConfigProps> = ({ options, onChange }
                         value={options.topic || ''}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('topic', e.target.value)}
                         placeholder="Örn: Uzay yolculuğu, Krallık macerası, Köpekler..."
-                        className="w-full p-4 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border-2 border-[var(--border-color)] border-[var(--border-color)] rounded-2xl text-sm font-bold outline-none focus:border-emerald-500 text-[var(--text-primary)] placeholder-zinc-400 shadow-inner"
+                        className="w-full p-4 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border-2 border-[var(--border-color)] rounded-2xl text-sm font-bold outline-none focus:border-emerald-500 text-[var(--text-primary)] placeholder-zinc-400 shadow-inner"
                     />
                 </div>
 
@@ -37,7 +37,7 @@ export const StoryAnalysisConfig: React.FC<ConfigProps> = ({ options, onChange }
                         <select
                             value={options.difficulty || 'Orta'}
                             onChange={(e) => onChange('difficulty', e.target.value)}
-                            className="w-full p-2.5 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-xl text-xs font-bold"
+                            className="w-full p-2.5 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-xs font-bold"
                         >
                             <option value="çok kolay">Çok Kolay</option>
                             <option value="kolay">Kolay</option>
@@ -51,7 +51,7 @@ export const StoryAnalysisConfig: React.FC<ConfigProps> = ({ options, onChange }
                         <select
                             value={options.ageGroup || '8-10'}
                             onChange={(e) => onChange('ageGroup', e.target.value)}
-                            className="w-full p-2.5 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-xl text-xs font-bold"
+                            className="w-full p-2.5 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-xs font-bold"
                         >
                             <option value="5-7">5-7</option>
                             <option value="8-10">8-10</option>
@@ -64,7 +64,7 @@ export const StoryAnalysisConfig: React.FC<ConfigProps> = ({ options, onChange }
                         <select
                             value={options.gradeLevel || 3}
                             onChange={(e) => onChange('gradeLevel', parseInt(e.target.value))}
-                            className="w-full p-2.5 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-xl text-xs font-bold"
+                            className="w-full p-2.5 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-xs font-bold"
                         >
                             {[1, 2, 3, 4, 5, 6, 7, 8].map(grade => (
                                 <option key={grade} value={grade}>{grade}. Sınıf</option>
@@ -75,7 +75,7 @@ export const StoryAnalysisConfig: React.FC<ConfigProps> = ({ options, onChange }
             </div>
 
             {/* ÜRETİM MODU */}
-            <div className="p-4 bg-[var(--accent-muted)] dark:bg-[var(--accent-muted)] rounded-[2rem] border border-[var(--border-color)] dark:border-indigo-800/30 space-y-3">
+            <div className="p-4 bg-[var(--accent-muted)] dark:bg-[var(--accent-muted)] rounded-[2rem] border border-[var(--border-color)] dark:border-[var(--accent-color)] space-y-3">
                 <div className="flex items-center gap-2 mb-1">
                     <i className="fa-solid fa-bolt text-[var(--accent-color)] text-sm"></i>
                     <span className="text-[10px] font-black text-[var(--accent-color)] dark:text-[var(--accent-color)] uppercase tracking-widest">Üretim Modu</span>
@@ -92,7 +92,7 @@ export const StoryAnalysisConfig: React.FC<ConfigProps> = ({ options, onChange }
             </div>
 
             {/* ANALİZ AYARLARI */}
-            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)] space-y-5 shadow-inner">
+            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] space-y-5 shadow-inner">
                 <div className="flex items-center gap-2">
                     <i className="fa-solid fa-magnifying-glass text-[var(--accent-color)] text-sm"></i>
                     <span className="text-[10px] font-black text-[var(--accent-color)] dark:text-[var(--accent-color)] uppercase tracking-widest">Analiz Ayarları</span>
@@ -104,7 +104,7 @@ export const StoryAnalysisConfig: React.FC<ConfigProps> = ({ options, onChange }
                         <select
                             value={options.analysisDepth || 'detaylı'}
                             onChange={(e) => onChange('analysisDepth', e.target.value)}
-                            className="w-full p-2.5 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-xl text-[10px] font-bold"
+                            className="w-full p-2.5 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[10px] font-bold"
                         >
                             <option value="temel">Temel</option>
                             <option value="detaylı">Detaylı</option>
@@ -138,7 +138,7 @@ export const StoryAnalysisConfig: React.FC<ConfigProps> = ({ options, onChange }
                     </div>
                 </div>
 
-                <div className="space-y-3 pt-3 border-t border-[var(--border-color)] border-[var(--border-color)]">
+                <div className="space-y-3 pt-3 border-t border-[var(--border-color)]">
                     <div className="flex items-center gap-2">
                         <i className="fa-solid fa-book-open text-[var(--accent-color)] text-sm"></i>
                         <span className="text-[10px] font-black text-[var(--accent-color)] dark:text-[var(--accent-color)] uppercase tracking-widest">Metin Ayarları</span>
@@ -150,7 +150,7 @@ export const StoryAnalysisConfig: React.FC<ConfigProps> = ({ options, onChange }
                             <select
                                 value={options.storyLength || 'orta'}
                                 onChange={(e) => onChange('storyLength', e.target.value)}
-                                className="w-full p-2.5 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-xl text-[10px] font-bold"
+                                className="w-full p-2.5 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[10px] font-bold"
                             >
                                 <option value="kısa">Kısa</option>
                                 <option value="orta">Orta</option>
@@ -166,7 +166,7 @@ export const StoryAnalysisConfig: React.FC<ConfigProps> = ({ options, onChange }
                                 max={15}
                                 value={options.questionCount || 8}
                                 onChange={(e) => onChange('questionCount', parseInt(e.target.value))}
-                                className="w-full p-2.5 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-xl text-[10px] font-bold"
+                                className="w-full p-2.5 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-[10px] font-bold"
                             />
                         </div>
                     </div>
@@ -177,7 +177,7 @@ export const StoryAnalysisConfig: React.FC<ConfigProps> = ({ options, onChange }
                             <select
                                 value={options.vocabularyLevel || 'orta'}
                                 onChange={(e) => onChange('vocabularyLevel', e.target.value)}
-                                className="w-full p-2 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-lg text-[9px] font-bold"
+                                className="w-full p-2 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg text-[9px] font-bold"
                             >
                                 <option value="basit">Basit</option>
                                 <option value="orta">Orta</option>
@@ -190,7 +190,7 @@ export const StoryAnalysisConfig: React.FC<ConfigProps> = ({ options, onChange }
                             <select
                                 value={options.sentenceComplexity || 'birleşik'}
                                 onChange={(e) => onChange('sentenceComplexity', e.target.value)}
-                                className="w-full p-2 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-lg text-[9px] font-bold"
+                                className="w-full p-2 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg text-[9px] font-bold"
                             >
                                 <option value="basit">Basit</option>
                                 <option value="birleşik">Birleşik</option>
@@ -200,7 +200,7 @@ export const StoryAnalysisConfig: React.FC<ConfigProps> = ({ options, onChange }
                     </div>
                 </div>
 
-                <div className="space-y-3 pt-3 border-t border-[var(--border-color)] border-[var(--border-color)]">
+                <div className="space-y-3 pt-3 border-t border-[var(--border-color)]">
                     <div className="flex items-center gap-2">
                         <i className="fa-solid fa-palette text-amber-500 text-sm"></i>
                         <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Görsel & Düzen</span>
@@ -213,14 +213,14 @@ export const StoryAnalysisConfig: React.FC<ConfigProps> = ({ options, onChange }
                             { key: 'showReadingRuler', label: 'Okuma Cetveli' },
                             { key: 'syllableColoring', label: 'Hece Renklendirme' }
                         ].map(({ key, label }) => (
-                            <label key={key} className="flex items-center gap-3 p-3 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] rounded-xl cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-colors border border-[var(--border-color)] border-[var(--border-color)]">
+                            <label key={key} className="flex items-center gap-3 p-3 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] rounded-xl cursor-pointer hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-colors border border-[var(--border-color)]">
                                 <input
                                     type="checkbox"
                                     checked={options[key as keyof GeneratorOptions] !== false}
                                     onChange={(e) => onChange(key as keyof GeneratorOptions, e.target.checked)}
                                     className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500 border-[var(--border-color)]"
                                 />
-                                <span className="text-[10px] font-bold text-zinc-700 text-[var(--text-primary)]">{label}</span>
+                                <span className="text-[10px] font-bold text-[var(--text-primary)]">{label}</span>
                             </label>
                         ))}
                     </div>

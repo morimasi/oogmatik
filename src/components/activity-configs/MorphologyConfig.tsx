@@ -27,7 +27,7 @@ export const MorphologyConfig: React.FC<{ options: GeneratorOptions; onChange: (
                         { v: 'Uzman', l: 'Ses Olayları' }
                     ].map(t => (
                         <button key={t.v} onClick={() => onChange('difficulty', t.v)}
-                            className={`py-2 px-1 rounded-xl text-[9px] font-black border transition-all ${options.difficulty === t.v ? 'bg-[var(--accent-color)] text-[var(--text-primary)] border-indigo-600 shadow-md' : 'bg-[var(--bg-paper)] text-[var(--text-muted)] border-[var(--border-color)]'}`}>
+                            className={`py-2 px-1 rounded-xl text-[9px] font-black border transition-all ${options.difficulty === t.v ? 'bg-[var(--accent-color)] text-[var(--text-primary)] border-[var(--accent-color)] shadow-md' : 'bg-[var(--bg-paper)] text-[var(--text-muted)] border-[var(--border-color)]'}`}>
                             {t.l}
                         </button>
                     ))}
@@ -69,7 +69,7 @@ export const MorphologyConfig: React.FC<{ options: GeneratorOptions; onChange: (
                     <input type="checkbox" id="showSuffixBuilding" checked={options.showSuffixBuilding !== false}
                         onChange={(e) => onChange('showSuffixBuilding', e.target.checked)}
                         className="w-4 h-4 rounded text-[var(--accent-color)]" />
-                    <label htmlFor="showSuffixBuilding" className="text-[10px] font-bold text-zinc-700">Ek Yapımını Göster</label>
+                    <label htmlFor="showSuffixBuilding" className="text-[10px] font-bold text-[var(--text-muted)]">Ek Yapımını Göster</label>
                 </div>
 
                 <div className="p-3 bg-[var(--bg-secondary)] rounded-[1.5rem] border border-[var(--border-color)]">
@@ -80,7 +80,7 @@ export const MorphologyConfig: React.FC<{ options: GeneratorOptions; onChange: (
                     <input type="range" min={8} max={16}
                         value={options.itemCount || 10}
                         onChange={e => onChange('itemCount', parseInt(e.target.value))}
-                        className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none accent-indigo-600" />
+                        className="w-full h-1.5 bg-[var(--surface-elevated)] rounded-lg appearance-none accent-[var(--accent-color)]" />
                 </div>
 
                 <div className="flex gap-2">
@@ -89,7 +89,7 @@ export const MorphologyConfig: React.FC<{ options: GeneratorOptions; onChange: (
                         { v: 'grid_2x1', l: '2 Sütun' }
                     ].map(t => (
                         <button key={t.v} onClick={() => onChange('layout', t.v)}
-                            className={`flex-1 py-2 text-[10px] font-black rounded-xl border-2 transition-all ${(options.layout || 'grid_2x1') === t.v ? 'bg-[var(--accent-color)] text-[var(--text-primary)] border-indigo-600 shadow' : 'bg-[var(--bg-paper)] text-[var(--text-muted)] border-[var(--border-color)]'}`}>
+                            className={`flex-1 py-2 text-[10px] font-black rounded-xl border-2 transition-all ${(options.layout || 'grid_2x1') === t.v ? 'bg-[var(--accent-color)] text-[var(--text-primary)] border-[var(--accent-color)] shadow' : 'bg-[var(--bg-paper)] text-[var(--text-muted)] border-[var(--border-color)]'}`}>
                             {t.l}
                         </button>
                     ))}

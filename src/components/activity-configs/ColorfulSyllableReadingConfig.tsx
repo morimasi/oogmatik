@@ -4,9 +4,9 @@ import { GeneratorOptions } from '../../types';
 const CompactToggleGroup = ({ label, selected, onChange, options }: { label: string; selected: string; onChange: (v: string) => void; options: { value: string; label: string }[] }) => (
     <div className="space-y-1">
         <label className="text-[10px] font-bold text-[var(--text-muted)] text-[var(--text-primary)] uppercase block">{label}</label>
-        <div className="flex bg-zinc-100 bg-[var(--bg-secondary)] p-1 rounded-lg border border-[var(--border-color)] border-[var(--border-color)]">
+        <div className="flex bg-[var(--bg-secondary)] p-1 rounded-lg border border-[var(--border-color)]">
             {options.map((opt: { value: string; label: string }) => (
-                <button key={opt.value} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] shadow-sm text-[var(--accent-color)] dark:text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-zinc-700 dark:hover:text-[var(--text-secondary)]'}`}>
+                <button key={opt.value} onClick={() => onChange(opt.value)} className={`flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all ${selected === opt.value ? 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] shadow-sm text-[var(--accent-color)] dark:text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] dark:hover:text-[var(--text-secondary)]'}`}>
                     {opt.label}
                 </button>
             ))}
@@ -46,7 +46,7 @@ export const ColorfulSyllableReadingConfig: React.FC<ConfigProps> = ({ options, 
                 />
             </div>
 
-            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)] space-y-5 shadow-inner">
+            <div className="p-5 bg-[var(--bg-secondary)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] space-y-5 shadow-inner">
 
                 <div className="space-y-1">
                     <div className="flex justify-between items-center text-[10px] font-bold text-[var(--text-muted)] text-[var(--text-primary)] uppercase">
@@ -57,7 +57,7 @@ export const ColorfulSyllableReadingConfig: React.FC<ConfigProps> = ({ options, 
                         type="range" min={20} max={160} step={10}
                         value={options.wpmTarget || 60}
                         onChange={e => onChange('wpmTarget', parseInt(e.target.value))}
-                        className="w-full h-1.5 bg-zinc-200 bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-rose-600"
+                        className="w-full h-1.5 bg-[var(--surface-elevated)] bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-rose-600"
                     />
                 </div>
 
@@ -66,7 +66,7 @@ export const ColorfulSyllableReadingConfig: React.FC<ConfigProps> = ({ options, 
                     <select
                         value={options.highlightType || 'syllables'}
                         onChange={e => onChange('highlightType', e.target.value)}
-                        className="w-full p-3 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] border-[var(--border-color)] rounded-xl text-xs font-bold outline-none focus:border-rose-500 text-[var(--text-primary)]"
+                        className="w-full p-3 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-xs font-bold outline-none focus:border-rose-500 text-[var(--text-primary)]"
                     >
                         <option value="syllables">Hece Hece Boyama (Di-kkat)</option>
                         <option value="vowels_only">Sadece Sesli Harfler (dİkkAt)</option>

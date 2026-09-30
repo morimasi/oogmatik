@@ -12,7 +12,7 @@ export const SayiDedektifiConfig: React.FC<Props> = ({ options, onChange }) => {
   return (
     <div className="space-y-5 p-4">
       <div className="pb-3 border-b border-[var(--border-color)]">
-        <h4 className="font-bold text-zinc-800">Sayı Dedektifi</h4>
+        <h4 className="font-bold text-[var(--text-muted)]">Sayı Dedektifi</h4>
         <p className="text-xs text-[var(--text-muted)]">İpuçlarını takip ederek sayıyı bul</p>
       </div>
       <div>

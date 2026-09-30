@@ -59,7 +59,7 @@ export const BoxMathConfig: React.FC<Props> = ({ options, onChange }) => {
               step="2"
               value={options.itemCount}
               onChange={(e) => onChange('itemCount', parseInt(e.target.value))}
-              className="w-full h-2 bg-zinc-100 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+              className="w-full h-2 bg-[var(--surface-elevated)] rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)]"
             />
             <div className="flex justify-between mt-2">
               <span className="text-[10px] font-black text-[var(--text-secondary)]">6</span>
@@ -79,7 +79,7 @@ export const BoxMathConfig: React.FC<Props> = ({ options, onChange }) => {
             <i className="fa-solid fa-gauge-high"></i>
           </div>
           <div>
-            <h4 className="text-xs font-black text-zinc-800 uppercase">Bilişsel Seviye</h4>
+            <h4 className="text-xs font-black text-[var(--text-muted)] uppercase">Bilişsel Seviye</h4>
             <p className="text-[9px] font-bold text-[var(--text-muted)] leading-none">
               İşlem karmaşıklığını belirle
             </p>
@@ -106,7 +106,7 @@ export const BoxMathConfig: React.FC<Props> = ({ options, onChange }) => {
             <i className="fa-solid fa-text-height"></i>
           </div>
           <div>
-            <h4 className="text-xs font-black text-zinc-800 uppercase">Punto (Yazı Boyutu)</h4>
+            <h4 className="text-xs font-black text-[var(--text-muted)] uppercase">Punto (Yazı Boyutu)</h4>
             <p className="text-[9px] font-bold text-[var(--text-muted)] leading-none">
               Kutu ve ifade büyüklüğünü ayarla
             </p>

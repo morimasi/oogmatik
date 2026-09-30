@@ -4,12 +4,12 @@ import { GeneratorOptions } from '../../types';
 const CompactToggleGroup = ({ label, selected, onChange, options }: { label: string; selected: string; onChange: (v: string) => void; options: { value: string; label: string }[] }) => (
     <div className="space-y-1 mt-4">
         <label className="text-[10px] font-black text-[var(--text-muted)] uppercase block tracking-widest">{label}</label>
-        <div className="flex bg-zinc-100 bg-[var(--bg-secondary)] p-1 rounded-xl border border-[var(--border-color)] border-[var(--border-color)]">
+        <div className="flex bg-[var(--bg-secondary)] p-1 rounded-xl border border-[var(--border-color)]">
             {options.map((opt: { value: string; label: string }) => (
                 <button
                     key={opt.value}
                     onClick={() => onChange(opt.value)}
-                    className={`flex-1 py-2 text-[10px] font-black rounded-lg transition-all ${selected === opt.value ? 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] shadow-sm text-[var(--accent-color)] dark:text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-zinc-700 dark:hover:text-[var(--text-secondary)]'}`}
+                    className={`flex-1 py-2 text-[10px] font-black rounded-lg transition-all ${selected === opt.value ? 'bg-[var(--bg-paper)] bg-[var(--bg-secondary)] shadow-sm text-[var(--accent-color)] dark:text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)] dark:hover:text-[var(--text-secondary)]'}`}
                 >
                     {opt.label}
                 </button>
@@ -26,14 +26,14 @@ interface ConfigProps {
 export const DirectionalCodeReadingConfig: React.FC<ConfigProps> = ({ options, onChange }) => {
     return (
         <div className="space-y-6 animate-in fade-in duration-500 font-['Lexend']">
-            <div className="p-6 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] border-[var(--border-color)] shadow-sm">
+            <div className="p-6 bg-[var(--bg-paper)] bg-[var(--bg-secondary)] rounded-[2.5rem] border border-[var(--border-color)] shadow-sm">
                 <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-2xl bg-[var(--accent-muted)] dark:bg-indigo-900/20 text-[var(--accent-color)] flex items-center justify-center shadow-inner">
+                        <div className="w-10 h-10 rounded-2xl bg-[var(--accent-muted)] dark:bg-[var(--accent-color)] text-[var(--accent-color)] flex items-center justify-center shadow-inner">
                             <i className="fa-solid fa-map-location-dot"></i>
                         </div>
                         <div>
-                            <h4 className="text-xs font-black text-zinc-900 dark:text-[var(--text-primary)] uppercase tracking-tighter">Rota & Algoritma</h4>
+                            <h4 className="text-xs font-black text-[var(--text-muted)] dark:text-[var(--text-primary)] uppercase tracking-tighter">Rota & Algoritma</h4>
                             <p className="text-[8px] font-bold text-[var(--text-muted)] uppercase tracking-widest">Premium Yapılandırma</p>
                         </div>
                     </div>
@@ -67,7 +67,7 @@ export const DirectionalCodeReadingConfig: React.FC<ConfigProps> = ({ options, o
                                     className={`py-2 text-[9px] font-black rounded-xl border-2 transition-all ${
                                         ((options as Record<string, unknown>).aestheticMode || 'standard') === style.id
                                             ? 'border-[var(--accent-color)] bg-[var(--accent-muted)] text-[var(--accent-color)] dark:bg-[var(--accent-muted)] dark:text-[var(--accent-color)]'
-                                            : 'border-[var(--border-color)] border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--border-color)]'
+                                            : 'border-[var(--border-color)] text-[var(--text-muted)] hover:border-[var(--border-color)]'
                                     }`}
                                 >
                                     {style.label}
@@ -86,7 +86,7 @@ export const DirectionalCodeReadingConfig: React.FC<ConfigProps> = ({ options, o
                                 type="range" min={3} max={10} step={1}
                                 value={options.gridSize || 8}
                                 onChange={e => onChange('gridSize', parseInt(e.target.value))}
-                                className="w-full h-1.5 bg-zinc-100 bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                                className="w-full h-1.5 bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)]"
                             />
                         </div>
 
@@ -99,7 +99,7 @@ export const DirectionalCodeReadingConfig: React.FC<ConfigProps> = ({ options, o
                                 type="range" min={1} max={4} step={1}
                                 value={options.puzzleCount || 3}
                                 onChange={e => onChange('puzzleCount', parseInt(e.target.value))}
-                                className="w-full h-1.5 bg-zinc-100 bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                                className="w-full h-1.5 bg-[var(--bg-secondary)] rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)]"
                             />
                         </div>
 
@@ -120,7 +120,7 @@ export const DirectionalCodeReadingConfig: React.FC<ConfigProps> = ({ options, o
                                     type="range" min={5} max={50} step={1}
                                     value={options.codeLength || 15}
                                     onChange={e => onChange('codeLength', parseInt(e.target.value))}
-                                    className="w-full h-2 bg-gradient-to-r from-emerald-200 via-indigo-200 to-rose-200 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                                    className="w-full h-2 bg-gradient-to-r from-emerald-200 via-indigo-200 to-rose-200 rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)]"
                                 />
                                 <div className="flex justify-between text-[8px] text-[var(--text-muted)] font-bold mt-1">
                                     <span className="text-[var(--accent-color)]">🟢 Kolay</span>
@@ -148,7 +148,7 @@ export const DirectionalCodeReadingConfig: React.FC<ConfigProps> = ({ options, o
                             <button
                                 onClick={() => onChange('compactMode' as any, !(options as Record<string, unknown>).compactMode)}
                                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                                    (options as Record<string, unknown>).compactMode !== false ? 'bg-purple-600' : 'bg-zinc-300 bg-[var(--bg-secondary)]'
+                                    (options as Record<string, unknown>).compactMode !== false ? 'bg-purple-600' : 'bg-[var(--surface-elevated)] bg-[var(--bg-secondary)]'
                                 }`}
                             >
                                 <span
@@ -163,7 +163,7 @@ export const DirectionalCodeReadingConfig: React.FC<ConfigProps> = ({ options, o
                         </p>
                     </div>
 
-                    <div className="p-4 bg-[var(--accent-muted)] dark:bg-[var(--accent-muted)] rounded-2xl border border-[var(--border-color)] dark:border-indigo-800/30">
+                    <div className="p-4 bg-[var(--accent-muted)] dark:bg-[var(--accent-muted)] rounded-2xl border border-[var(--border-color)] dark:border-[var(--accent-color)]">
                         <div className="flex justify-between items-center text-[9px] font-black text-[var(--accent-color)] uppercase tracking-widest mb-2">
                             <span>Bilişsel Yük (Engel): % {options.obstacleDensity || 20}</span>
                         </div>
@@ -171,7 +171,7 @@ export const DirectionalCodeReadingConfig: React.FC<ConfigProps> = ({ options, o
                             type="range" min={0} max={60} step={10}
                             value={options.obstacleDensity || 20}
                             onChange={e => onChange('obstacleDensity', parseInt(e.target.value))}
-                            className="w-full h-1.5 bg-indigo-200/50 dark:bg-indigo-700/50 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+                            className="w-full h-1.5 bg-[var(--accent-color)] dark:bg-[var(--accent-color)] rounded-lg appearance-none cursor-pointer accent-[var(--accent-color)]"
                         />
                     </div>
                 </div>
