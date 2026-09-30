@@ -327,6 +327,8 @@ export interface ActiveCurriculumSession {
   studentId?: string;
   difficulty: Difficulty;
   goal: string;
+  originTab?: string;
+  originPlanTab?: string;
 }
 
 export interface SavedWorksheet {

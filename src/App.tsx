@@ -343,7 +343,9 @@ const AppContent = () => {
     title: string,
     difficulty: Difficulty,
     goal: string,
-    studentId?: string
+    studentId?: string,
+    originTab?: string,
+    originPlanTab?: string
   ) => {
     setActiveCurriculumSession({
       planId,
@@ -354,6 +356,8 @@ const AppContent = () => {
       studentId,
       difficulty,
       goal,
+      originTab: originTab || 'plans',
+      originPlanTab: originPlanTab || 'schedule',
     });
     if (studentId) {
       const s = students.find((x: { id: string }) => x.id === studentId);

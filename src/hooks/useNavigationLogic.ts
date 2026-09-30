@@ -28,7 +28,21 @@ export const useNavigationLogic = (
 
     const handleGoBack = () => {
         if (currentView === 'generator' && activeCurriculumSession) {
+            const session = activeCurriculumSession;
             setActiveCurriculumSession(null);
+            if (session.originTab) {
+                try {
+                    localStorage.setItem('student_dashboard_active_tab', session.originTab);
+                    (window as any).studentDashboardDefaultTab = session.originTab;
+                    if (session.originPlanTab) {
+                        (window as any).academicPlanDefaultTab = session.originPlanTab;
+                    }
+                } catch {
+                    // ignore
+                }
+                navigateTo('students');
+                return;
+            }
             navigateTo('curriculum');
             return;
         }

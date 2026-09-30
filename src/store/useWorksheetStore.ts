@@ -48,7 +48,7 @@ export const useWorksheetStore = create<WorksheetStoreState>((set: any, get: any
   addHistoryView: (view: View, clearForward = true) =>
     set((state: WorksheetStoreState) => {
       const updated = [...state.viewHistory, view];
-      const capped = updated.length > 5 ? updated.slice(updated.length - 5) : updated;
+      const capped = updated.length > 10 ? updated.slice(updated.length - 10) : updated;
       return clearForward
         ? { viewHistory: capped, forwardHistory: [] }
         : { viewHistory: capped };
@@ -64,7 +64,7 @@ export const useWorksheetStore = create<WorksheetStoreState>((set: any, get: any
   addForwardView: (view: View) =>
     set((state: WorksheetStoreState) => {
       const updated = [...state.forwardHistory, view];
-      const capped = updated.length > 5 ? updated.slice(updated.length - 5) : updated;
+      const capped = updated.length > 10 ? updated.slice(updated.length - 10) : updated;
       return { forwardHistory: capped };
     }),
   popForwardView: () => {

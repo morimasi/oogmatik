@@ -114,7 +114,9 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
         activity.title,
         activity.difficultyLevel || 'Medium',
         activity.goal || '',
-        activePlan.studentId || undefined
+        activePlan.studentId || undefined,
+        'plans',
+        activePlanTab || 'schedule'
       );
       toast.success(`${activity.title} Aktivitesi Başlatılıyor...`);
     } else {
