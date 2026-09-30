@@ -25,6 +25,19 @@ vi.mock('firebase/firestore', () => ({
 
 vi.mock('../src/services/firebaseClient', () => ({
   db: {},
+  doc: vi.fn(),
+  getDoc: vi.fn(),
+  setDoc: vi.fn(),
+  updateDoc: vi.fn(),
+  deleteDoc: vi.fn(),
+  collection: vi.fn(),
+  query: vi.fn(),
+  where: vi.fn(),
+  getDocs: vi.fn(),
+  addDoc: vi.fn(),
+  Timestamp: {
+    now: () => ({ seconds: Date.now() / 1000, nanoseconds: 0 }),
+  },
 }));
 
 vi.mock('../src/utils/cors', () => ({
