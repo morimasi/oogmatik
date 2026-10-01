@@ -83,7 +83,7 @@ const sendToSentryHttp = (errorLog: Record<string, unknown>): void => {
 /**
  * LOGGING: Centralized error logging
  */
-export const logError = (error: unknown, context?: Record<string, unknown>) => {
+export const logError = (error: unknown, context?: Record<string, unknown>): Record<string, unknown> => {
   const appError = toAppError(error);
   
   // Safely get JSON representation
@@ -124,12 +124,22 @@ export const logError = (error: unknown, context?: Record<string, unknown>) => {
     console.groupEnd();
   }
 
-  // External reporting
+  // External reporting (reporter hatası uygulamayı bozmamalı)
   if (_externalReporter) {
-    _externalReporter(errorLog);
+    try {
+      _externalReporter(errorLog);
+    } catch {
+      // Reporter çöktüyse sessizce yut — monitoring hatası uygulama akışını bozmaz
+    }
   } else {
-    sendToSentryHttp(errorLog);
+    try {
+      sendToSentryHttp(errorLog);
+    } catch {
+      // no-op
+    }
   }
+
+  return errorLog;
 };
 
 /**

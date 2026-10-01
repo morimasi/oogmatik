@@ -34,6 +34,7 @@ const MODULE_COLORS: Record<AdStudioTarget, string> = {
   permissions: '#a21caf',
   content_engine: '#d946ef',
   ad_studio: '#6366f1',
+  recycle_bin: '#f59e0b',
   audit_log: '#475569',
   math_studio: '#f59e0b',
   reading_studio: '#10b981',

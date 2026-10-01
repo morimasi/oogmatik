@@ -115,7 +115,7 @@ Detaylı rapor için: ${shareUrl}`;
         attachment: {
           id: `att_${screening.id}`,
           name: `Tarama_Raporu_${screening.studentName}.pdf`,
-          type: 'document',
+          type: 'file',
           url: shareUrl,
         }
       });

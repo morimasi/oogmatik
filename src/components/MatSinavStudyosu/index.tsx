@@ -4,7 +4,7 @@
  * Tamamen bağımsız modül — mevcut SinavStudyosu'na dokunmaz
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMatSinavStore } from '../../store/useMatSinavStore';
 import { useStudentStore } from '../../store/useStudentStore';
 import { generateMatExam, refreshSingleQuestion } from '../../services/matSinavService';
