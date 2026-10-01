@@ -4,6 +4,10 @@ import { CATEGORY_LABELS } from '../../../data/screeningQuestions';
 export interface AIAnalysisResult {
   letter: string;
   actionSteps: string[];
+  /** Güçlü yönler (opsiyonel — raporlarda gösterilir) */
+  strengths?: string[];
+  /** Zayıf yönler (opsiyonel — raporlarda gösterilir) */
+  weaknesses?: string[];
 }
 
 export const assessmentEngineService = {

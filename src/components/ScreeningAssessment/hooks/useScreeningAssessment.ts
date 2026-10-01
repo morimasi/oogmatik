@@ -235,17 +235,13 @@ export function useScreeningAssessment() {
       // State ve DOM güncellenmesi için kısa bir bekleme
       await new Promise((resolve) => setTimeout(resolve, 200));
 
-      const blob = await printService.generatePdf('#printable-report', `Disleksi_Tarama_${data.studentName}`, {
+      printService.generatePdf('#printable-report', `Disleksi_Tarama_${data.studentName}`, {
         action: 'download',
         paperSize: 'A4',
         quality: 'high',
       });
 
-      if (blob) {
-        toast.success('Tarama raporu PDF olarak indirildi.');
-      } else {
-        toast.error('PDF üretilemedi.');
-      }
+      toast.success('Tarama raporu PDF olarak indirildi.');
     } catch (error) {
       toast.error('PDF üretilirken bir hata oluştu.');
     }

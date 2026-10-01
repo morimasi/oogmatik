@@ -6,6 +6,7 @@ import { ReportActions } from '../components/shared/ReportActions';
 import { RadarChart } from '../../RadarChart';
 import { CATEGORY_LABELS } from '../../../data/screeningQuestions';
 import { assessmentEngineService } from '../services/assessmentEngineService';
+import { screeningDataService } from '../services/screeningDataService';
 import { generateWithSchema } from '../../../services/geminiClient';
 import type { AIAnalysisResult } from '../services/assessmentEngineService';
 import type { EvaluationCategory, ScreeningResult } from '../../../types/screening';
