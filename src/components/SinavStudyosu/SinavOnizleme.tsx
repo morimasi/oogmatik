@@ -50,9 +50,8 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
           <h2 className="text-xl font-extrabold mb-3 text-white" style={{ fontFamily }}>
             {sinav.baslik}
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
             {[
-              { label: 'Sınıf', val: `${sinav.sinif}. Sınıf` },
               { label: 'Toplam Soru', val: `${sinav.sorular.length} soru` },
               { label: 'Toplam Puan', val: `${sinav.toplamPuan} puan` },
               { label: 'Süre', val: `~${Math.ceil(sinav.tahminiSure / 60)} dk` },
@@ -68,7 +67,6 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
         <div className="sinav-print-header" style={{ textAlign: 'center', marginBottom: '12px', borderBottom: '1px solid #000', paddingBottom: '6px' }}>
           <h1 style={{ fontSize: '18px', fontWeight: '900', textTransform: 'uppercase', marginBottom: '4px' }}>{sinav.baslik}</h1>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', fontSize: '11px', fontWeight: 'bold' }}>
-            <span>SINIF: {sinav.sinif}</span>
             <span>TOPLAM SORU: {sinav.sorular.length}</span>
             <span>SÜRE: {Math.ceil(sinav.tahminiSure / 60)} DK</span>
           </div>

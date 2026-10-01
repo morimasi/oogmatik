@@ -1,5 +1,6 @@
 import React from 'react';
 import { FiveWOneHData } from '../../../types';
+import { QUESTION_TYPES } from '../common';
 
 interface Props {
     data: FiveWOneHData;
@@ -85,7 +86,13 @@ export const FiveWOneHSheet: React.FC<Props> = ({ data }) => {
                     <div className="grid grid-cols-2 gap-x-8 gap-y-6 print:gap-x-6 print:gap-y-4 flex-1 px-2 print:px-0">
                         {questions.map((q, idx) => (
                             <div key={q.id || idx} className="flex flex-col gap-1.5 relative group page-break-inside-avoid">
-                                {/* Soru Numarası Rozeti - KALDIRILDI */}
+                                {/* Soru Tipi Rozeti */}
+                                {q.type && QUESTION_TYPES[q.type] && (
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-widest"
+                                        style={{ backgroundColor: QUESTION_TYPES[q.type].color + '20', color: QUESTION_TYPES[q.type].color }}>
+                                        {QUESTION_TYPES[q.type].label}
+                                    </span>
+                                )}
                                 
                                 <h3 className="text-[15px] print:text-[13px] font-bold text-slate-900 leading-snug">
                                     {q.questionText}
