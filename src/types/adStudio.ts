@@ -42,7 +42,6 @@ export const AD_TARGET_LABELS: Record<AdStudioTarget, string> = {
   ad_studio: 'Reklam Stüdyosu',
   recycle_bin: 'Geri Dönüşüm ve Silinen Veri Mimarisi',
   audit_log: 'Denetim Kayıtları',
-  recycle_bin: 'Çöp Kutusu',
   all_modules: 'Tüm Modüller',
 };
 
@@ -69,7 +68,6 @@ export const AD_TARGET_DESCRIPTIONS: Record<AdStudioTarget, string> = {
   ad_studio: 'Ürün ve hizmet tanıtımı için AI destekli reklam ve pazarlama içerikleri üretir.',
   recycle_bin: 'Silinen öğretmen ve öğrenci verilerinin güvenli arşivlenmesi ve geri yükleme yönetimi. KVKK uyumlu soft-delete mimarisi.',
   audit_log: 'Sistem denetim ve güvenlik log kayıtları.',
-  recycle_bin: 'Silinen öğretmen ve öğrenci kayıtlarının arşivlendiği ve geri yüklenebildiği alan.',
   all_modules: 'bdmind platformunun tüm modülleri ve özellikleri.',
 };
 

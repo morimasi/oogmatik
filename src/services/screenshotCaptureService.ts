@@ -43,7 +43,6 @@ const MODULE_COLORS: Record<AdStudioTarget, string> = {
   sari_kitap: '#f97316',
   infographic_studio: '#06b6d4',
   super_studio: '#8b5cf6',
-  recycle_bin: '#6b7280',
   all_modules: '#6366f1',
 };
 
