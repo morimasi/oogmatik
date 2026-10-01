@@ -434,11 +434,39 @@ export const validateOrThrow = (validationResult: {
  * Pedagojik anahtar kelimeler
  */
 export const PEDAGOGICAL_KEYWORDS = [
-  'ZPD', 'Bilişsel Yük', 'Scaffolding', 'Disleksi', 'DEHB', 'Özel Öğrenme Güçlüğü',
-  'Mekansal Algı', 'Sıralı Düşünme', 'Problem Çözme', 'Dikkat', 'Hafıza', 'İşlem Hızı',
-  'Fonetik Farkındalık', 'Okuma Akıcılığı', 'Anlama Becerisi', 'Matematiksel Düşünme',
-  'Görsel Algı', 'İşitsel İşleme', 'Motor Beceriler', 'El-Göz Koordinasyonu',
-  'Planlama', 'Organizasyon', 'Öz Düzenleme', 'Esnek Düşünme', 'Çalışma Belleği'
+  'ZPD', 'Bilişsel Yük', 'Scaffolding', 'Scaffold', 'Disleksi', 'DEHB', 'Özel Öğrenme Güçlüğü',
+  'Mekansal Algı', 'Sıralı Düşünme', 'Problem Çözme', 'Dikkat', 'Hafıza', 'Bellek', 'İşlem Hızı',
+  'Fonetik Farkındalık', 'Fonolojik Farkındalık', 'Fonolojik', 'Okuma', 'Okuma Akıcılığı', 'Anlama Becerisi', 'Matematiksel Düşünme',
+  'Görsel Algı', 'Görsel', 'İşitsel İşleme', 'Motor Beceriler', 'El-Göz Koordinasyonu',
+  'Planlama', 'Organizasyon', 'Öz Düzenleme', 'Esnek Düşünme', 'Çalışma Belleği',
+  // Küçük harfli çekirdek terimler (dış bağlantılar ve test uyumu için)
+  'fonolojik', 'bellek', 'görsel', 'dikkat', 'okuma'
 ] as const;
 
 export type PedagogicalKeyword = typeof PEDAGOGICAL_KEYWORDS[number];
+
+/**
+ * PedagogicalNoteSchema — Pedagojik not kalite doğrulayıcı
+ *
+ * Elif Yıldız (Pedagoji): Her AI aktivitesinde pedagogicalNote zorunludur.
+ * Kurallar:
+ * 1. Minimum 80 karakter (yüzeysel notları eler)
+ * 2. En az bir pedagojik anahtar kelime içermeli (hedef beceri belirtmeli)
+ * 3. Keyword eşleşmesi case-insensitive yapılır
+ */
+export const PedagogicalNoteSchema = z
+  .string()
+  .min(1, 'Pedagojik not boş olamaz')
+  .refine((note) => note.trim().length >= 80, {
+    message: 'Pedagojik not en az 80 karakter olmalıdır (mevcut pedagojik gerekçeyi açıklamalı)',
+  })
+  .refine(
+    (note) => {
+      const lower = note.toLocaleLowerCase('tr');
+      return PEDAGOGICAL_KEYWORDS.some((kw) => lower.includes(kw.toLocaleLowerCase('tr')));
+    },
+    {
+      message:
+        'Pedagojik not en az bir hedef beceri terimi içermelidir (örn: fonolojik farkındalık, çalışma belleği, görsel algı)',
+    }
+  );
