@@ -4,7 +4,7 @@
  * Tamamen bağımsız modül — mevcut SinavStudyosu'na dokunmaz
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMatSinavStore } from '../../store/useMatSinavStore';
 import { useStudentStore } from '../../store/useStudentStore';
 import { generateMatExam, refreshSingleQuestion } from '../../services/matSinavService';
@@ -75,7 +75,7 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ initialData 
     const { activeStudent } = useStudentStore();
 
     // --- SYNC WITH GLOBAL STUDENT ---
-    React.useEffect(() => {
+    useEffect(() => {
         if (activeStudent) {
             const grade = parseInt(activeStudent.grade?.replace('. Sınıf', '') || '1');
             if (!isNaN(grade)) {
@@ -85,7 +85,7 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ initialData 
     }, [activeStudent]);
 
     // --- INITIAL DATA LOAD ---
-    React.useEffect(() => {
+    useEffect(() => {
         if (initialData && Array.isArray(initialData.data) && initialData.data[0]) {
             const exam = initialData.data[0];
             setAktifSinav(exam);

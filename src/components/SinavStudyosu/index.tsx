@@ -2,7 +2,7 @@
  * Sınav Stüdyosu — Format Toolbar + Bağımsız Scroll + Accordion Sol Blok
  */
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useSinavStore } from '../../store/useSinavStore';
 import { printService } from '../../utils/printService';
 import { generateExamViaAPI } from '../../services/sinavService';
@@ -93,7 +93,7 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
   const { activeStudent } = useStudentStore();
 
   // --- SYNC WITH GLOBAL STUDENT ---
-  React.useEffect(() => {
+  useEffect(() => {
     if (activeStudent) {
       const grade = parseInt(activeStudent.grade?.replace('. Sınıf', '') || '1');
       if (!isNaN(grade)) {
@@ -103,7 +103,7 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
   }, [activeStudent]);
 
   // --- INITIAL DATA LOAD (HYDRATION) ---
-  React.useEffect(() => {
+  useEffect(() => {
     if (initialData) {
       const dataObj = initialData.content || initialData;
       // In exams, the actual exam object is usually in data[0] or content.data[0]

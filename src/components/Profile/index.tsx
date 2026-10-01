@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ProfileData } from '../../types/profile';
 import { Student, SavedWorksheet, AppTheme, UiSettings } from '../../types';
 import { ProfileTabId, PROFILE_TABS } from './constants';
@@ -49,7 +49,7 @@ export const Profile: React.FC<ProfileProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<ProfileTabId>(() => {
     const saved = localStorage.getItem('profile_active_tab') as ProfileTabId | null;
-    const validTabs: ProfileTabId[] = ['overview', 'students', 'analysis', 'plans', 'reports', 'settings', 'ai_insights'];
+    const validTabs: ProfileTabId[] = ['overview', 'students', 'analysis', 'plans', 'reports', 'settings', 'shared'];
     return saved && validTabs.includes(saved) ? saved : 'overview';
   });
 

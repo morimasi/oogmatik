@@ -11,6 +11,7 @@ import type { AIAnalysisResult } from '../services/assessmentEngineService';
 import type { EvaluationCategory, ScreeningResult } from '../../../types/screening';
 import { ShareModal } from '../../ShareModal';
 import { BrandedLoadingAnimation } from '../../shared/BrandedLoadingAnimation';
+import { screeningDataService } from '../services/screeningDataService';
 import {
   buildProfessionalAssessmentPrompt,
   buildProfessionalAssessmentReport,

@@ -8,6 +8,7 @@ import { generateWithSchema } from '../../services/geminiClient.js';
 import { printService } from '../../utils/printService';
 import { useAuthStore } from '../../store/useAuthStore';
 import { assessmentService } from '../../services/assessmentService';
+import { screeningDataService } from '../ScreeningAssessment/services/screeningDataService';
 import { ShareModal } from '../ShareModal';
 import { useStudentStore } from '../../store/useStudentStore';
 
