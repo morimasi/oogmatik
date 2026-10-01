@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../../services/firebaseClient';
 import { ActivityAssignment } from '../../../types/assignment';
@@ -10,6 +10,8 @@ import { useToastStore } from '../../../store/useToastStore';
 import { ACTIVITIES, ACTIVITY_CATEGORIES } from '../../../constants';
 import { STUDIO_GROUPS } from '../../../constants/studios';
 import { worksheetService } from '../../../services/worksheetService';
+import { SavedWorksheet } from '../../../types';
+import { useStudentStore } from '../../../store/useStudentStore';
 
 interface AssignmentsModuleProps {
   studentId: string;
@@ -19,8 +21,46 @@ interface AssignmentsModuleProps {
   onLoadMaterial?: (worksheet: any) => void;
 }
 
-type FilterStatus = 'all' | 'pending' | 'in_progress' | 'completed';
-type SortBy = 'dueDate' | 'assignedAt' | 'score' | 'status';
+type FilterStatus = 'hepsi' | 'bekliyor' | 'devam_ediyor' | 'tamamlandi' | 'terkedi';
+type SortBy = 'teslimTarihi' | 'atamaTarihi' | 'skor' | 'durum';
+
+const STATUS_MAP: Record<string, FilterStatus> = {
+  'pending': 'bekliyor',
+  'in_progress': 'devam_ediyor',
+  'completed': 'tamamlandi',
+  'abandoned': 'terkedi',
+};
+
+const STATUS_LABELS: Record<FilterStatus, string> = {
+  hepsi: 'Hepsi',
+  bekliyor: 'Bekliyor',
+  devam_ediyor: 'Devam Ediyor',
+  tamamlandi: 'Tamamlandı',
+  terkedi: 'Terk Edildi',
+};
+
+const STATUS_BADGE_STYLE: Record<FilterStatus, string> = {
+  hepsi: '',
+  bekliyor: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
+  devam_ediyor: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
+  tamamlandi: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
+  terkedi: 'bg-rose-500/10 text-rose-500 border-rose-500/20',
+};
+
+const STATUS_ICON: Record<FilterStatus, string> = {
+  hepsi: '',
+  bekliyor: 'fa-clock',
+  devam_ediyor: 'fa-spinner fa-spin',
+  tamamlandi: 'fa-check-double',
+  terkedi: 'fa-xmark-circle',
+};
+
+interface AssignmentWithWorksheet extends ActivityAssignment {
+  worksheetTitle: string;
+  worksheetActivityType: string;
+  worksheetCategory: string;
+  worksheetIcon: string;
+}
 
 export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
   studentId,
@@ -30,8 +70,8 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
   onLoadMaterial,
 }) => {
   const allAssignments = assignments;
-  const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
-  const [sortBy, setSortBy] = useState<SortBy>('dueDate');
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>('hepsi');
+  const [sortBy, setSortBy] = useState<SortBy>('teslimTarihi');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedAssignment, setSelectedAssignment] = useState<ActivityAssignment | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -45,37 +85,113 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
   
   const { user } = useAuthStore();
   const { deleteAssignment } = useAssignmentStore();
+  const { students } = useStudentStore();
+  
+  // Worksheet detaylarını cache'lemek için state
+  const [worksheetCache, setWorksheetCache] = useState<Record<string, AssignmentWithWorksheet>>({});
+  const [loadingCache, setLoadingCache] = useState(false);
+
+  // Assignment'lar için worksheet detaylarını getir
+  useEffect(() => {
+    if (allAssignments.length === 0) return;
+    
+    const fetchWorksheetDetails = async () => {
+      setLoadingCache(true);
+      const cache: Record<string, AssignmentWithWorksheet> = {};
+      
+      for (const assignment of allAssignments) {
+        if (worksheetCache[assignment.worksheetId]) {
+          cache[assignment.worksheetId] = worksheetCache[assignment.worksheetId];
+          continue;
+        }
+        
+        try {
+          if (user) {
+            const worksheet = await worksheetService.getWorksheetById(assignment.worksheetId, user.id);
+            if (worksheet) {
+              const meta = ACTIVITIES.find(a => a.id === worksheet.activityType);
+              const cat = ACTIVITY_CATEGORIES.find(c => (c.activities as unknown as string[]).includes(worksheet.activityType as string));
+              cache[assignment.worksheetId] = {
+                ...assignment,
+                worksheetTitle: worksheet.name || 'İsimsiz Etkinlik',
+                worksheetActivityType: meta?.title || worksheet.activityType,
+                worksheetCategory: cat?.title || 'Genel',
+                worksheetIcon: meta?.icon || 'fa-puzzle-piece',
+              };
+            } else {
+              cache[assignment.worksheetId] = {
+                ...assignment,
+                worksheetTitle: 'Etkinlik Bulunamadı',
+                worksheetActivityType: 'Bilinmiyor',
+                worksheetCategory: 'Genel',
+                worksheetIcon: 'fa-question-circle',
+              };
+            }
+          }
+        } catch (e) {
+          cache[assignment.worksheetId] = {
+            ...assignment,
+            worksheetTitle: 'Yüklenemedi',
+            worksheetActivityType: 'Bilinmiyor',
+            worksheetCategory: 'Genel',
+            worksheetIcon: 'fa-exclamation-triangle',
+          };
+        }
+      }
+      
+      setWorksheetCache(cache);
+      setLoadingCache(false);
+    };
+    
+    fetchWorksheetDetails();
+  }, [allAssignments, user, worksheetCache]);
+
+  // Filtrelenmiş ve zenginleştirilmiş assignment listesi
+  const enrichedAssignments = useMemo(() => {
+    return allAssignments.map(a => worksheetCache[a.worksheetId] || {
+      ...a,
+      worksheetTitle: 'Yükleniyor...',
+      worksheetActivityType: '',
+      worksheetCategory: '',
+      worksheetIcon: 'fa-spinner fa-spin',
+    });
+  }, [allAssignments, worksheetCache]);
 
   const filtered = useMemo(() => {
-    let result = [...allAssignments];
-    if (filterStatus !== 'all') {
-      result = result.filter((a: ActivityAssignment) => a.status === filterStatus);
+    let result = [...enrichedAssignments];
+    if (filterStatus !== 'hepsi') {
+      result = result.filter((a: AssignmentWithWorksheet) => STATUS_MAP[a.status] === filterStatus);
     }
     if (searchQuery) {
-      result = result.filter((a: ActivityAssignment) =>
-        a.worksheetId.toLowerCase().includes(searchQuery.toLowerCase())
+      const q = searchQuery.toLowerCase();
+      result = result.filter((a: AssignmentWithWorksheet) =>
+        a.worksheetTitle.toLowerCase().includes(q) ||
+        a.worksheetActivityType.toLowerCase().includes(q) ||
+        a.worksheetCategory.toLowerCase().includes(q) ||
+        a.worksheetId.toLowerCase().includes(q)
       );
     }
     result.sort((a, b) => {
       switch (sortBy) {
-        case 'dueDate': return new Date(a.dueDate || '2099-01-01').getTime() - new Date(b.dueDate || '2099-01-01').getTime();
-        case 'assignedAt': return new Date(b.assignedAt).getTime() - new Date(a.assignedAt).getTime();
-        case 'score': return (b.score || 0) - (a.score || 0);
-        case 'status': {
-          const order = { pending: 0, in_progress: 1, completed: 2, abandoned: 3 };
+        case 'teslimTarihi': return new Date(a.dueDate || '2099-01-01').getTime() - new Date(b.dueDate || '2099-01-01').getTime();
+        case 'atamaTarihi': return new Date(b.assignedAt).getTime() - new Date(a.assignedAt).getTime();
+        case 'skor': return (b.score || 0) - (a.score || 0);
+        case 'durum': {
+          const order: Record<string, number> = { pending: 0, in_progress: 1, completed: 2, abandoned: 3 };
           return (order[a.status] || 0) - (order[b.status] || 0);
         }
         default: return 0;
       }
     });
     return result;
-  }, [allAssignments, filterStatus, sortBy, searchQuery]);
+  }, [enrichedAssignments, filterStatus, sortBy, searchQuery]);
 
-  const statusCounts: Record<FilterStatus, number> = useMemo(() => ({
-    all: allAssignments.length,
-    pending: allAssignments.filter(a => a.status === 'pending').length,
-    in_progress: allAssignments.filter(a => a.status === 'in_progress').length,
-    completed: allAssignments.filter(a => a.status === 'completed').length,
+  const statusCounts = useMemo(() => ({
+    hepsi: allAssignments.length,
+    bekliyor: allAssignments.filter(a => a.status === 'pending').length,
+    devam_ediyor: allAssignments.filter(a => a.status === 'in_progress').length,
+    tamamlandi: allAssignments.filter(a => a.status === 'completed').length,
+    terkedi: allAssignments.filter(a => a.status === 'abandoned').length,
   }), [allAssignments]);
 
   const handleSaveEdit = () => {
@@ -140,19 +256,8 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
   };
 
   const statusBadge = (status: string) => {
-    const map: Record<string, string> = {
-      completed: 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20',
-      in_progress: 'bg-amber-500/10 text-amber-500 border-amber-500/20',
-      pending: 'bg-blue-500/10 text-blue-500 border-blue-500/20',
-      abandoned: 'bg-rose-500/10 text-rose-500 border-rose-500/20',
-    };
-    const label: Record<string, string> = {
-      completed: 'Tamamlandı',
-      in_progress: 'Devam Ediyor',
-      pending: 'Bekliyor',
-      abandoned: 'Terke',
-    };
-    return <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border ${map[status] || ''}`}>{label[status] || status}</span>;
+    const statusKey = STATUS_MAP[status] || 'bekliyor';
+    return <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border ${STATUS_BADGE_STYLE[statusKey] || ''}`}>{STATUS_LABELS[statusKey] || status}</span>;
   };
 
   return (
@@ -195,38 +300,41 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSortBy(e.target.value as SortBy)}
           className="px-2 py-1.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-lg text-[8px] font-bold text-[var(--text-secondary)] outline-none cursor-pointer"
         >
-          <option value="dueDate">Teslim Tarihi</option>
-          <option value="assignedAt">Atama Tarihi</option>
-          <option value="score">Skor</option>
-          <option value="status">Durum</option>
+          <option value="teslimTarihi">Teslim Tarihi</option>
+          <option value="atamaTarihi">Atama Tarihi</option>
+          <option value="skor">Skor</option>
+          <option value="durum">Durum</option>
         </select>
       </div>
 
       {/* Status Tabs */}
       <div className="flex bg-[var(--bg-secondary)] p-0.5 rounded-lg">
-        {([['all', 'Tümü'], ['pending', 'Bekleyen'], ['in_progress', 'Devam Eden'], ['completed', 'Tamamlanan']] as [FilterStatus, string][]).map(([key, label]) => (
+        {(['hepsi', 'bekliyor', 'devam_ediyor', 'tamamlandi'] as FilterStatus[]).map((key) => (
           <button
             key={key}
             onClick={() => setFilterStatus(key)}
             className={`flex-1 py-1.5 text-[9px] font-bold uppercase tracking-wider rounded-md transition-all flex items-center justify-center gap-1.5 ${filterStatus === key ? 'bg-[var(--bg-paper)] shadow-sm text-[var(--accent-color)]' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
           >
-            {label} <span className="opacity-60">({statusCounts[key]})</span>
+            {STATUS_LABELS[key]} <span className="opacity-60">({statusCounts[key]})</span>
           </button>
         ))}
       </div>
 
       {/* Assignment List */}
       <div className="space-y-2">
-        {filtered.map((a: ActivityAssignment) => (
+        {filtered.map((a: AssignmentWithWorksheet) => (
           <div key={a.id} className="bg-[var(--bg-paper)] border border-[var(--border-color)] rounded-xl p-3 transition-all hover:border-[var(--accent-color)]/30 group">
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-2.5 min-w-0 flex-1">
                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${a.status === 'completed' ? 'bg-emerald-500/10 text-emerald-500' : a.status === 'in_progress' ? 'bg-amber-500/10 text-amber-500' : 'bg-blue-500/10 text-blue-500'}`}>
-                  <i className={`fa-solid ${a.status === 'completed' ? 'fa-check-double' : a.status === 'in_progress' ? 'fa-spinner fa-spin' : 'fa-clock'} text-xs`}></i>
+                  <i className={`fa-solid ${STATUS_ICON[STATUS_MAP[a.status] || 'bekliyor']} text-xs`}></i>
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h4 className="font-bold text-xs text-[var(--text-primary)] uppercase">#{a.worksheetId.slice(0, 6)}</h4>
+                    <div className="flex items-center gap-1.5">
+                      <i className={`fa-solid ${a.worksheetIcon} text-[9px] text-[var(--accent-color)]`}></i>
+                      <h4 className="font-bold text-xs text-[var(--text-primary)] leading-tight truncate max-w-[200px]">{a.worksheetTitle}</h4>
+                    </div>
                     {statusBadge(a.status)}
                     {a.score !== undefined && (
                       <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${a.score >= 80 ? 'bg-emerald-500/10 text-emerald-500' : a.score >= 60 ? 'bg-amber-500/10 text-amber-500' : 'bg-rose-500/10 text-rose-500'}`}>
@@ -234,7 +342,15 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
                       </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-3 mt-1.5">
+                  <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+                    <span className="text-[9px] text-[var(--text-muted)] font-medium">
+                      <i className="fa-solid fa-tag mr-1"></i>
+                      {a.worksheetActivityType}
+                    </span>
+                    <span className="text-[9px] text-[var(--text-muted)] font-medium">
+                      <i className="fa-solid fa-folder mr-1"></i>
+                      {a.worksheetCategory}
+                    </span>
                     <span className="text-[9px] text-[var(--text-muted)] font-medium">
                       <i className="fa-solid fa-calendar mr-1"></i>
                       {a.dueDate ? new Date(a.dueDate).toLocaleDateString('tr-TR') : 'Süresiz'}
@@ -291,20 +407,21 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
               <div className="space-y-2">
                 <label className="block text-[9px] font-black tracking-widest text-[var(--text-muted)] uppercase">İlerleme Durumu</label>
                 <div className="flex bg-[var(--bg-secondary)] p-1 rounded-xl">
-                  {([
-                    { id: 'pending', label: 'Bekliyor', icon: 'fa-hourglass' },
-                    { id: 'in_progress', label: 'Devam Ediyor', icon: 'fa-spinner' },
-                    { id: 'completed', label: 'Tamamlandı', icon: 'fa-check-double' }
-                  ] as const).map(option => (
-                    <button
-                      key={option.id}
-                      onClick={() => setEditStatus(option.id)}
-                      className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${editStatus === option.id ? 'bg-[var(--bg-paper)] shadow-md text-[var(--text-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
-                    >
-                      <i className={`fa-solid ${option.icon} ${editStatus === option.id ? (option.id==='completed'?'text-emerald-500':option.id==='in_progress'?'text-amber-500':'text-blue-500') : ''}`}></i>
-                      {option.label}
-                    </button>
-                  ))}
+                  {(['pending', 'in_progress', 'completed'] as const).map(optionId => {
+                    const label = STATUS_LABELS[STATUS_MAP[optionId] || 'bekliyor'];
+                    const icon = STATUS_ICON[STATUS_MAP[optionId] || 'bekliyor'];
+                    const color = optionId === 'completed' ? 'text-emerald-500' : optionId === 'in_progress' ? 'text-amber-500' : 'text-blue-500';
+                    return (
+                      <button
+                        key={optionId}
+                        onClick={() => setEditStatus(optionId)}
+                        className={`flex-1 py-2 text-[10px] font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${editStatus === optionId ? 'bg-[var(--bg-paper)] shadow-md text-[var(--text-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-secondary)]'}`}
+                      >
+                        <i className={`fa-solid ${icon} ${editStatus === optionId ? color : ''}`}></i>
+                        {label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
