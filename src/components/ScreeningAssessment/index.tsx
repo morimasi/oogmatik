@@ -225,8 +225,6 @@ export const ScreeningAssessment: React.FC<ScreeningAssessmentProps> = ({
             screening={reportScreening}
             aiAnalysis={{
               letter: reportScreening.aiAnalysis || 'Tarama sonuçları ve gelişim düzeyi değerlendirildi.',
-              strengths: reportScreening.strengths || [],
-              weaknesses: reportScreening.weaknesses || [],
               actionSteps: reportScreening.recommendations || [],
             }}
             professionalReport={{

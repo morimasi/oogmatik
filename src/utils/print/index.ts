@@ -129,13 +129,13 @@ export const printService = {
     elementSelector: string,
     title: string = 'EduMind_Etkinlik',
     options?: PrintOptions
-  ) => {
+  ): Promise<Blob | null> => {
     try {
       const paperSize: PaperSize = options?.paperSize ?? 'A4';
       const action = options?.action ?? 'print';
 
       if (action === 'download') {
-        await generateRealPdf(elementSelector, title, {
+        return await generateRealPdf(elementSelector, title, {
           paperSize,
           quality: options?.quality ?? 'high',
           onProgress: options?.onProgress,
@@ -154,9 +154,11 @@ export const printService = {
       if (currentUser) {
         activityLogService.logActivity(currentUser.uid, 'export', 'PDF Dışa Aktarma', title, elementSelector);
       }
+      return null;
     } catch (error) {
       logError('PDF Generation Error:', typeof error === 'object' && error !== null && !Array.isArray(error) ? error as Record<string, unknown> : undefined);
       document.body.classList.remove('printing-mode');
+      return null;
     }
   },
 };
