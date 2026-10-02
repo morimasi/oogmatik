@@ -44,7 +44,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({
       success: false,
-      error: { message: 'Method Not Allowed', code: 'METHOD_NOT_ALLOWED' },
+      error: { message: 'Bu istek yöntemine izin verilmiyor.', code: 'METHOD_NOT_ALLOWED' },
       timestamp: new Date().toISOString()
     });
   }

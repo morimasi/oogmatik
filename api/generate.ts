@@ -18,6 +18,8 @@ import {
 } from '../src/utils/promptSecurity.js';
 import { corsMiddleware } from '../src/utils/cors.js';
 import { tryRepairJson } from '../src/utils/jsonRepair.js';
+import { withTurkishContentPolicy } from '../src/utils/turkishContentPolicy.js';
+import { findLikelyEnglishUserFacingText } from '../src/utils/turkishOutputValidation.js';
 
 // JSON onarım kodu src/utils/jsonRepair.ts dosyasına aktarıldı.
 
@@ -203,6 +205,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         if (schema) {
           combinedPrompt += '\n\n[ZORUNLU JSON YAPISI (ZORUNLU ŞEMA)]:\nAşağıdaki JSON şemasına ve anahtar kelimelerine HARFİYEN UYMALISIN. Çıktı sadece geçerli bir JSON olmalı.\n' + JSON.stringify(schema, null, 2);
         }
+        combinedPrompt = withTurkishContentPolicy(combinedPrompt);
 
         // Text prompt
         contents[0].parts.push({ text: combinedPrompt });
@@ -272,8 +275,34 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     res.setHeader('X-Prompt-Security', 'validated');
     try {
       const parsed = tryRepairJson(result.text);
+      const untranslatedPaths = findLikelyEnglishUserFacingText(parsed);
+      if (untranslatedPaths.length > 0) {
+        return handleError(
+          res,
+          new AppError(
+            'Üretilen içerikte Türkçe olmayan metin bulundu. Lütfen yeniden deneyin.',
+            'TURKISH_CONTENT_VALIDATION_FAILED',
+            502,
+            { fields: untranslatedPaths },
+            true
+          )
+        );
+      }
       return res.status(200).json(parsed);
     } catch {
+      const untranslatedPaths = findLikelyEnglishUserFacingText(result.text);
+      if (untranslatedPaths.length > 0) {
+        return handleError(
+          res,
+          new AppError(
+            'Üretilen içerikte Türkçe olmayan metin bulundu. Lütfen yeniden deneyin.',
+            'TURKISH_CONTENT_VALIDATION_FAILED',
+            502,
+            { fields: untranslatedPaths },
+            true
+          )
+        );
+      }
       return res.status(200).json({ text: result.text });
     }
   } catch (error: unknown) {

@@ -532,7 +532,7 @@ export function StudentDashboard({ onBack, onLoadMaterial, onStartCurriculumActi
         {/* Tabs - Glassmorphic Compact */}
         <div className="flex border-b border-[var(--border-color)] bg-[var(--bg-paper)]/50 backdrop-blur-md px-6 gap-6 overflow-x-auto shrink-0 sticky top-0 z-20 no-scrollbar">
           {[
-            { id: 'overview', label: 'Dashboard', icon: 'fa-grid-2' },
+            { id: 'overview', label: 'Genel Bakış', icon: 'fa-grid-2' },
             { id: 'assignments', label: 'Atamalar', icon: 'fa-tasks' },
             { id: 'materials', label: 'Materyaller', icon: 'fa-scroll' },
             { id: 'analytics', label: 'Analiz', icon: 'fa-brain-circuit' },

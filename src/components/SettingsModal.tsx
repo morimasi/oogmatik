@@ -28,18 +28,18 @@ const THEME_GROUPS: { label: string; themes: ThemeEntry[] }[] = [
   {
     label: 'Karanlık',
     themes: [
-      { id: 'anthracite', name: 'Anthracite', color: '#121214', accent: '#6366f1', desc: 'Profesyonel' },
-      { id: 'dark', name: 'Obsidian Deep', color: '#09090B', accent: '#818CF8', desc: 'Derin' },
-      { id: 'space', name: 'Deep Space', color: '#020617', accent: '#38bdf8', desc: 'Sonsuz' },
-      { id: 'anthracite-gold', name: 'Imperial Stone', color: '#1C1917', accent: '#F59E0B', desc: 'Prestijli' },
-      { id: 'anthracite-cyber', name: 'Cyber Punk', color: '#020202', accent: '#F43F5E', desc: 'Dinamik' },
-      { id: 'oled-black', name: 'OLED Black', color: '#000000', accent: '#3B82F6', desc: 'OLED', premium: true },
+      { id: 'anthracite', name: 'Antrasit', color: '#121214', accent: '#6366f1', desc: 'Profesyonel' },
+      { id: 'dark', name: 'Derin Obsidyen', color: '#09090B', accent: '#818CF8', desc: 'Derin' },
+      { id: 'space', name: 'Derin Uzay', color: '#020617', accent: '#38bdf8', desc: 'Sonsuz' },
+      { id: 'anthracite-gold', name: 'İmparatorluk Taşı', color: '#1C1917', accent: '#F59E0B', desc: 'Prestijli' },
+      { id: 'anthracite-cyber', name: 'Siber Punk', color: '#020202', accent: '#F43F5E', desc: 'Dinamik' },
+      { id: 'oled-black', name: 'OLED Siyah', color: '#000000', accent: '#3B82F6', desc: 'OLED', premium: true },
     ],
   },
   {
     label: 'Açık',
     themes: [
-      { id: 'light', name: 'Milk & Honey', color: '#F8FAFC', accent: '#4F46E5', desc: 'Ferah' },
+      { id: 'light', name: 'Süt ve Bal', color: '#F8FAFC', accent: '#4F46E5', desc: 'Ferah' },
       { id: 'light-warm', name: 'Sıcak Amber', color: '#FFFAF5', accent: '#F59E0B', desc: 'Samimi', premium: true },
       { id: 'light-cool', name: 'Gök Mavisi', color: '#F0F9FF', accent: '#0284C7', desc: 'Ferah', premium: true },
       { id: 'light-rose', name: 'Yumuşak Gül', color: '#FFF5F7', accent: '#E11D48', desc: 'Zarif', premium: true },
@@ -50,8 +50,8 @@ const THEME_GROUPS: { label: string; themes: ThemeEntry[] }[] = [
   {
     label: 'Doğa',
     themes: [
-      { id: 'ocean', name: 'Nordic Mist', color: '#082F49', accent: '#38BDF8', desc: 'Huzurlu' },
-      { id: 'nature', name: 'Emerald Forest', color: '#052E16', accent: '#4ADE80', desc: 'Doğal' },
+      { id: 'ocean', name: 'Kuzey Esintisi', color: '#082F49', accent: '#38BDF8', desc: 'Huzurlu' },
+      { id: 'nature', name: 'Zümrüt Ormanı', color: '#052E16', accent: '#4ADE80', desc: 'Doğal' },
     ],
   },
   {
@@ -71,11 +71,11 @@ const FONTS: { id: string; name: string; desc: string }[] = [
 ];
 
 const FONT_WEIGHTS: { id: UiSettings['fontWeight']; label: string; value: string }[] = [
-  { id: 'thin', label: 'Thin', value: '300' },
+  { id: 'thin', label: 'İnce', value: '300' },
   { id: 'normal', label: 'Normal', value: '400' },
-  { id: 'medium', label: 'Medium', value: '500' },
-  { id: 'bold', label: 'Bold', value: '700' },
-  { id: 'black', label: 'Black', value: '900' },
+  { id: 'medium', label: 'Orta', value: '500' },
+  { id: 'bold', label: 'Kalın', value: '700' },
+  { id: 'black', label: 'Ekstra Kalın', value: '900' },
 ];
 
 const BORDER_RADII: { id: NonNullable<UiSettings['borderRadius']>; label: string; preview: string }[] = [

@@ -180,7 +180,7 @@ export const TeacherEditModal: React.FC<TeacherEditModalProps> = ({
                   className="w-full px-4 py-2.5 bg-[var(--bg-secondary)] border border-[var(--border-color)] rounded-xl text-xs font-bold outline-none focus:ring-2 focus:ring-indigo-500/20"
                 >
                   <option value="free">Ücretsiz Plan (Free)</option>
-                  <option value="pro">Sınırsız Pro (PRO Teacher)</option>
+                  <option value="pro">Sınırsız Pro Öğretmen</option>
                 </select>
               </div>
 

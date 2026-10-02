@@ -95,7 +95,7 @@ export const VisualMemorySheet = ({ data }: { data: VisualMemoryData }) => {
                                 {item.imageBase64 ? (
                                     <ImageDisplay base64={item.imageBase64} description={item.description} className="w-full h-full  object-contain" />
                                 ) : (
-                                    <span className="text-4xl">{item.imagePrompt || item.description.charAt(0)}</span>
+                                    <span className="text-4xl">{item.description.charAt(0)}</span>
                                 )}
                             </EditableElement>
                         ))}
@@ -116,7 +116,7 @@ export const VisualMemorySheet = ({ data }: { data: VisualMemoryData }) => {
                                 {item.imageBase64 ? (
                                     <ImageDisplay base64={item.imageBase64} description={item.description} className="w-3/4 h-3/4 object-contain opacity-50 grayscale" />
                                 ) : (
-                                    <span className="text-3xl opacity-50 grayscale">{item.imagePrompt || item.description.charAt(0)}</span>
+                                    <span className="text-3xl opacity-50 grayscale">{item.description.charAt(0)}</span>
                                 )}
                             </div>
                         ))}
@@ -199,7 +199,7 @@ export const ColorWheelSheet = ({ data }: { data: ColorWheelMemoryData }) => {
                                     <g key={i}>
                                         <path d={`M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 0 1 ${x2} ${y2} Z`} fill={item.color} stroke="black" strokeWidth="2" />
                                         <text x={tx} y={ty} textAnchor="middle" dominantBaseline="middle" fontSize="24" fill="white" stroke="black" strokeWidth="0.5" fontWeight="bold">
-                                            {item.imagePrompt || item.name[0]}
+                                            {item.name[0]}
                                         </text>
                                     </g>
                                 );
@@ -595,7 +595,6 @@ export const AttentionFocusSheet = ({ data }: { data: AttentionFocusData }) => {
         </div>
     );
 };
-
 
 
 

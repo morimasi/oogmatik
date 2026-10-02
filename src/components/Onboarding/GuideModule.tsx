@@ -17,10 +17,10 @@ export const GuideModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       description: 'Platforma hızlı giriş',
       color: 'indigo',
       items: [
-        { title: 'Dashboard\'a Giriş', desc: 'Ana panel navigasyonu, sol menü ve hızlı erişim butonları' },
+        { title: 'Ana Kontrol Paneline Giriş', desc: 'Ana panel gezinmesi, sol menü ve hızlı erişim düğmeleri' },
         { title: 'Öğrenci Profili Oluşturma', desc: 'Yeni öğrenci ekleme, yaş grubu ve öğrenme profili belirleme' },
         { title: 'İlk Etkinlik Üretimi', desc: 'AI ile 30 saniyede kişiselleştirilmiş çalışma kağıdı oluşturma' },
-        { title: 'PDF Export & Yazdırma', desc: 'A4 çıktı alma, kompakt düzen ve yazıcı ayarları' }
+        { title: 'PDF Dışa Aktarma ve Yazdırma', desc: 'A4 çıktısı alma, sıkı düzen ve yazıcı ayarları' }
       ]
     },
     {
@@ -41,8 +41,8 @@ export const GuideModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       description: 'İçerik organizasyonu',
       color: 'emerald',
       items: [
-        { title: 'Workbook Oluşturma', desc: 'Birden fazla aktiviteyi tek defterde birleştirme' },
-        { title: 'Sıralama & Düzenleme', desc: 'Drag-and-drop ile aktivite sıralama' },
+        { title: 'Çalışma Defteri Oluşturma', desc: 'Birden fazla etkinliği tek defterde birleştirme' },
+        { title: 'Sıralama ve Düzenleme', desc: 'Sürükleyip bırakarak etkinlikleri sıralama' },
         { title: 'Paylaşım', desc: 'Defteri diğer öğretmenlerle paylaşma' },
         { title: 'Şablon Kullanımı', desc: 'Hazır şablonlardan hızlı başlangıç' }
       ]
@@ -56,7 +56,7 @@ export const GuideModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         { title: 'Öğrenci İlerleme Paneli', desc: 'Tamamlanan aktiviteler ve başarı oranları' },
         { title: 'Bilişsel Değerlendirme', desc: 'Disleksi tarama testi ve radar grafik analizi' },
         { title: 'BEP Hedefleri', desc: 'Bireysel eğitim planı hedef takibi' },
-        { title: 'Rapor Export', desc: 'PDF rapor oluşturma ve veliye gönderme' }
+        { title: 'Raporu Dışa Aktarma', desc: 'PDF raporu oluşturma ve veliye gönderme' }
       ]
     },
     {
@@ -67,8 +67,8 @@ export const GuideModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       items: [
         { title: 'Klavye Kısayolları', desc: 'Ctrl+K: Arama, Ctrl+N: Yeni etkinlik, Ctrl+P: Yazdır' },
         { title: 'Hızlı Üretim', desc: 'Ayarları kaydet, sonraki üretimde otomatik uygula' },
-        { title: 'Toplu İşlem', desc: 'Birden fazla aktiviteyi aynı anda üret ve dışa aktar' },
-        { title: 'Offline Mod', desc: 'İnternet olmadan önceden üretilmiş içeriklere erişim' }
+        { title: 'Toplu İşlem', desc: 'Birden fazla etkinliği aynı anda üret ve dışa aktar' },
+        { title: 'Çevrimdışı Kullanım', desc: 'İnternet olmadan önceden üretilmiş içeriklere erişim' }
       ]
     }
   ];

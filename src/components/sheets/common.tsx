@@ -17,7 +17,7 @@ export const QUESTION_TYPES: Record<string, { label: string; color: string }> = 
   where: { label: 'NEREDE?', color: '#10b981' },
   when: { label: 'NE ZAMAN?', color: '#f59e0b' },
   what: { label: 'NE?', color: '#ef4444' },
-  why: { label: 'NİYE?', color: '#8b5cf6' },
+  why: { label: 'NEDEN?', color: '#8b5cf6' },
   how: { label: 'NASIL?', color: '#ec4899' },
   '5n1k': { label: '5N1K', color: '#0d9488' },
   'open-ended': { label: 'AÇIK UÇLU', color: '#6366f1' },

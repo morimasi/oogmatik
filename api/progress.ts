@@ -50,7 +50,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
       return res.status(201).json({ success: true, message: 'İlerleme kaydedildi', timestamp: new Date().toISOString() });
 
     } else {
-      return res.status(405).json({ error: { message: 'Method Not Allowed', code: 'METHOD_NOT_ALLOWED' } });
+      return res.status(405).json({ error: { message: 'Bu istek yöntemine izin verilmiyor.', code: 'METHOD_NOT_ALLOWED' } });
     }
   } catch (error) {
     const appError = toAppError(error);

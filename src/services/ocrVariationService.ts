@@ -11,6 +11,8 @@ import { retryWithBackoff } from '../utils/errorHandler.js';
 import { logError } from '../utils/logger.js';
 import { analyzeImage } from './geminiClient.js';
 import { tryRepairJson } from '../utils/jsonRepair.js';
+import { withTurkishContentPolicy } from '../utils/turkishContentPolicy.js';
+import { findLikelyEnglishUserFacingText } from '../utils/turkishOutputValidation.js';
 import type {
   OCRResult,
   SingleWorksheetData,
@@ -49,7 +51,7 @@ const callGeminiDirect = async (prompt: string): Promise<unknown> => {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }]
+      contents: [{ role: 'user', parts: [{ text: withTurkishContentPolicy(prompt) }] }]
     }),
   });
 
@@ -65,7 +67,14 @@ const callGeminiDirect = async (prompt: string): Promise<unknown> => {
   if (!text) throw new InternalServerError('Gemini boş yanıt döndürdü (varyasyon).');
 
   // JSON repair - centralized
-  return tryRepairJson(text);
+  const parsed = tryRepairJson(text);
+  const untranslatedPaths = findLikelyEnglishUserFacingText(parsed);
+  if (untranslatedPaths.length > 0) {
+    throw new InternalServerError(
+      `Üretilen varyasyonda Türkçe olmayan metin bulundu (${untranslatedPaths.join(', ')}). Lütfen yeniden deneyin.`
+    );
+  }
+  return parsed;
 };
 
 // ─── TYPE DEFINITIONS ────────────────────────────────────────────────────

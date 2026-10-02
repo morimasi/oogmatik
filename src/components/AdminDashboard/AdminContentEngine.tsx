@@ -16,7 +16,7 @@ const MOCK_METRICS: ContentEngineMetrics = {
 const MOCK_LOGS: GenerationLogEntry[] = [
   { id: 'gen_001', activityType: 'Okuma Anlama', promptId: 'prompt_reading', status: 'success', duration: 890, tokensUsed: 320, createdAt: new Date().toISOString() },
   { id: 'gen_002', activityType: 'Matematik Bulmaca', promptId: 'prompt_math', status: 'success', duration: 1240, tokensUsed: 480, createdAt: new Date(Date.now() - 60000).toISOString() },
-  { id: 'gen_003', activityType: 'Hece Çalışması', promptId: 'prompt_syllable', status: 'error', duration: 3200, tokensUsed: 0, createdAt: new Date(Date.now() - 120000).toISOString(), errorMessage: 'Rate limit exceeded' },
+  { id: 'gen_003', activityType: 'Hece Çalışması', promptId: 'prompt_syllable', status: 'error', duration: 3200, tokensUsed: 0, createdAt: new Date(Date.now() - 120000).toISOString(), errorMessage: 'İstek sınırı aşıldı' },
   { id: 'gen_004', activityType: 'Görsel Algı', promptId: 'prompt_visual', status: 'success', duration: 1100, tokensUsed: 410, createdAt: new Date(Date.now() - 180000).toISOString() },
   { id: 'gen_005', activityType: '5N1K', promptId: 'prompt_5w1h', status: 'pending', duration: 0, tokensUsed: 0, createdAt: new Date(Date.now() - 300000).toISOString() },
 ];
@@ -208,14 +208,14 @@ export const AdminContentEngine: React.FC = () => {
           {[
             { label: 'AI Servisi', status: 'operational', latency: '210ms', uptime: '99.9%' },
             { label: 'Firebase', status: 'operational', latency: '45ms', uptime: '100%' },
-            { label: 'Rate Limiter', status: 'operational', latency: '2ms', uptime: '99.8%' },
+            { label: 'İstek Sınırlandırıcı', status: 'operational', latency: '2ms', uptime: '99.8%' },
           ].map((svc, i) => (
             <div key={i} className="p-5 rounded-2xl bg-white/50 dark:bg-black/30 border border-zinc-200 dark:border-white/5">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-bold text-zinc-800 dark:text-zinc-200 uppercase tracking-tight">{svc.label}</span>
                 <span className="flex items-center gap-1.5 text-[10px] font-black text-emerald-500 uppercase">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                  {svc.status}
+                  {svc.status === 'operational' ? 'Çalışıyor' : 'Kontrol Gerekli'}
                 </span>
               </div>
               <div className="flex gap-4">

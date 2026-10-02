@@ -114,7 +114,7 @@ const rawLibraryItems: RawLibraryItem[] = [
   {
     id: 'advanced-dyslexia-006',
     slug: 'ella-ai-masal-yaraticisi',
-    title: 'Ella-Story: Kendi Hikayeni Yarat',
+    title: 'Ella\'nın Hikâyesi: Kendi Hikâyeni Yarat',
     shortDescription: 'Öğrencinin emoji ile seçtiği karakterleri kullanarak sadece b, d, p, q sesleriyle zengin, yapay zeka tarafından yaratılmış interaktif öyküler.',
     activityType: ActivityType.STORY_COMPREHENSION,
     category: 'okuma-akiciligi',

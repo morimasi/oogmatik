@@ -378,7 +378,7 @@ const ReadingStudioInner = ({ onBack, initialData }: ReadingStudioInnerProps) =>
           </button>
           <div className="flex flex-col">
             <h2 className="text-sm font-black flex items-center gap-2 tracking-tight uppercase italic" style={{ color: 'var(--text-primary)' }}>
-              bdmind <span className="not-italic" style={{ color: 'var(--accent-color)' }}>Reading Studio Pro</span>
+              bdmind <span className="not-italic" style={{ color: 'var(--accent-color)' }}>Okuma Stüdyosu Pro</span>
             </h2>
             {storyData && (
               <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>

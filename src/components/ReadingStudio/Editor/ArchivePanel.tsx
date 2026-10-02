@@ -146,7 +146,7 @@ export const ArchivePanel = () => {
                                 </span>
                                 {project.isFirestore && (
                                     <span className="text-[8px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded font-black uppercase">
-                                        Bulut Sync
+                                        Bulut Senkronizasyonu
                                     </span>
                                 )}
                             </div>

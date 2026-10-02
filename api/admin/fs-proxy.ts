@@ -38,7 +38,7 @@ function resolveSafePath(workspaceRoot: string, relativePath: string) {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ success: false, error: { message: 'Method Not Allowed', code: 'METHOD_NOT_ALLOWED' } });
+    return res.status(405).json({ success: false, error: { message: 'Bu istek yöntemine izin verilmiyor.', code: 'METHOD_NOT_ALLOWED' } });
   }
 
   try {

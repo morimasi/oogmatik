@@ -10,6 +10,8 @@ import type { SinavAyarlari, Soru, Sinav, CevapAnahtari } from '../../types/sina
 import { getKazanimByCode } from '../../data/meb-turkce-kazanim.js';
 import { AppError } from '../../utils/AppError.js';
 import { PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts.js';
+import { withTurkishContentPolicy } from '../../utils/turkishContentPolicy.js';
+import { findLikelyEnglishUserFacingText } from '../../utils/turkishOutputValidation.js';
 
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
 const MASTER_MODEL = 'gemini-2.5-flash';
@@ -88,7 +90,7 @@ export const callGeminiDirect = async (prompt: string, schema: object): Promise<
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${MASTER_MODEL}:generateContent?key=${apiKey}`;
 
   const body = {
-    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    contents: [{ role: 'user', parts: [{ text: withTurkishContentPolicy(prompt) }] }],
     generationConfig: {
       responseMimeType: 'application/json',
       responseSchema: schema,
@@ -130,9 +132,9 @@ export const callGeminiDirect = async (prompt: string, schema: object): Promise<
     );
   }
 
-  // JSON parse — responseMimeType: application/json olduğundan direkt parse
+  let parsed: unknown;
   try {
-    return JSON.parse(responseValue);
+    parsed = JSON.parse(responseValue);
   } catch {
     // Bazen markdown sarmalayabilir
     const cleaned = responseValue
@@ -141,8 +143,20 @@ export const callGeminiDirect = async (prompt: string, schema: object): Promise<
       .replace(/^```\s*/m, '')
       .replace(/```\s*$/m, '')
       .trim();
-    return JSON.parse(cleaned);
+    parsed = JSON.parse(cleaned);
   }
+
+  const untranslatedPaths = findLikelyEnglishUserFacingText(parsed);
+  if (untranslatedPaths.length > 0) {
+    throw new AppError(
+      'Üretilen sınavda Türkçe olmayan metin bulundu. Lütfen yeniden deneyin.',
+      'TURKISH_CONTENT_VALIDATION_FAILED',
+      502,
+      { fields: untranslatedPaths },
+      true
+    );
+  }
+  return parsed;
 };
 
 /**
@@ -199,6 +213,8 @@ ${settings.ozelKonu ? `[TEMA]\nTüm sorular "${settings.ozelKonu}" teması etraf
 - Boşluk doldurma: 5 puan, ~60 saniye
 - Açık uçlu: 10 puan, ~300 saniye
 
+[TÜRKÇE ÇIKTI]
+Sınav başlığı, soru metinleri, seçenekler ve cevaplar dahil öğrenciye gösterilecek tüm doğal dil içeriklerini Türkiye Türkçesinde üret. Şema anahtarları ve kazanım kodları sabit kalmalıdır.
 `;
 };
 

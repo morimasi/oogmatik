@@ -206,7 +206,7 @@ export const ProblemSettingsPanel: React.FC<ProblemSettingsPanelProps> = ({
             <label className="flex items-center gap-3 p-4 bg-zinc-900 rounded-xl cursor-pointer border border-zinc-800 hover:border-accent/50 transition-colors">
                 <input type="checkbox" checked={problemConfig.generateImages} onChange={e => setProblemConfig({ ...problemConfig, generateImages: e.target.checked })} className="w-5 h-5 rounded text-accent focus:ring-accent/5 bg-black border-zinc-700" />
                 <div className="flex flex-col">
-                    <span className="text-sm font-bold text-zinc-300">İngilizce Görsel Desteği (imagePrompt)</span>
+                    <span className="text-sm font-bold text-zinc-300">Görsel Oluşturma Yönergesi</span>
                     <span className="text-[10px] text-zinc-500">Kapak görselleri veya ipucu için DALL-E tarzı komut üret</span>
                 </div>
             </label>

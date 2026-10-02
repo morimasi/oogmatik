@@ -49,7 +49,7 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({ settings, onCh
                     : 'bg-white/5 text-zinc-500 border border-white/5 hover:text-zinc-300'
                 }`}
               >
-                {lang === 'tr' ? 'Türkçe' : 'English'}
+                {lang === 'tr' ? 'Türkçe' : 'İngilizce'}
               </button>
             ))}
           </div>

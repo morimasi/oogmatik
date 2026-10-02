@@ -10,6 +10,8 @@ import { RateLimiter } from '../../src/services/rateLimiter.js';
 import { RateLimitError, AppError, InternalServerError } from '../../src/utils/AppError.js';
 import { logError } from '../../src/utils/errorHandler.js';
 import { tryRepairJson } from '../../src/utils/jsonRepair.js';
+import { withTurkishContentPolicy } from '../../src/utils/turkishContentPolicy.js';
+import { findLikelyEnglishUserFacingText } from '../../src/utils/turkishOutputValidation.js';
 
 const MASTER_MODEL = 'gemini-2.5-flash';
 const rateLimiter = new RateLimiter();
@@ -67,7 +69,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     }
 
     if (req.method !== 'POST') {
-        res.status(405).json({ success: false, error: { message: 'Method not allowed', code: 'METHOD_NOT_ALLOWED' } });
+        res.status(405).json({ success: false, error: { message: 'Bu istek yöntemine izin verilmiyor.', code: 'METHOD_NOT_ALLOWED' } });
         return;
     }
 
@@ -106,7 +108,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
         const sourcePdfRef = body.sourcePdfReference as string | undefined;
 
         // Security check
-        const prompt = buildPrompt(config, sourcePdfRef);
+        const prompt = withTurkishContentPolicy(buildPrompt(config, sourcePdfRef));
         if (!validatePromptSecurity(prompt)) {
             res.status(400).json({
                 success: false,
@@ -158,6 +160,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
 
         // Repair and parse JSON
         const parsed = tryRepairJson(rawText);
+        const untranslatedPaths = findLikelyEnglishUserFacingText(parsed);
+        if (untranslatedPaths.length > 0) {
+            throw new AppError(
+                'Üretilen içerikte Türkçe olmayan metin bulundu. Lütfen yeniden deneyin.',
+                'TURKISH_CONTENT_VALIDATION_FAILED',
+                502,
+                { fields: untranslatedPaths },
+                true
+            );
+        }
 
         res.status(200).json({
             success: true,

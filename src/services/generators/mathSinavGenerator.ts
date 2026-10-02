@@ -19,6 +19,8 @@ import { getMatKazanimByCode } from '../../data/meb-matematik-kazanim';
 import { AppError } from '../../utils/AppError';
 import { getVisualPromptsForKazanimlar } from './mathVisualPromptLibrary';
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
+import { withTurkishContentPolicy } from '../../utils/turkishContentPolicy.js';
+import { findLikelyEnglishUserFacingText } from '../../utils/turkishOutputValidation.js';
 import {
   validateQuestionVisualConsistency,
   generateExamValidationReport,
@@ -522,7 +524,7 @@ const callGeminiDirect = async (prompt: string, schema: object): Promise<unknown
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${MASTER_MODEL}:generateContent?key=${apiKey}`;
 
   const body = {
-    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+    contents: [{ role: 'user', parts: [{ text: withTurkishContentPolicy(prompt) }] }],
     generationConfig: {
       responseMimeType: 'application/json',
       responseSchema: schema,
@@ -561,8 +563,9 @@ const callGeminiDirect = async (prompt: string, schema: object): Promise<unknown
     throw new AppError('Gemini boş yanıt döndürdü.', 'GEMINI_EMPTY_RESPONSE', 502, undefined, true);
   }
 
+  let parsed: unknown;
   try {
-    return JSON.parse(rawText);
+    parsed = JSON.parse(rawText);
   } catch {
     const cleaned = rawText
       .replace(/[\u200B-\u200D\uFEFF]/g, '')
@@ -570,8 +573,20 @@ const callGeminiDirect = async (prompt: string, schema: object): Promise<unknown
       .replace(/^```\s*/m, '')
       .replace(/```\s*$/m, '')
       .trim();
-    return JSON.parse(cleaned);
+    parsed = JSON.parse(cleaned);
   }
+
+  const untranslatedPaths = findLikelyEnglishUserFacingText(parsed);
+  if (untranslatedPaths.length > 0) {
+    throw new AppError(
+      'Üretilen matematik sınavında Türkçe olmayan metin bulundu. Lütfen yeniden deneyin.',
+      'TURKISH_CONTENT_VALIDATION_FAILED',
+      502,
+      { fields: untranslatedPaths },
+      true
+    );
+  }
+  return parsed;
 };
 
 // ─── Görsel-Metin Uyumluluk Doğrulama ─────────────────────────
@@ -1331,6 +1346,5 @@ export const regenerateSingleQuestion = async (
 export const generateMatSinavFromAI = async (options: MatSinavAyarlari | Record<string, unknown>) => {
   return await generateMathExam(options as MatSinavAyarlari);
 };
-
 
 

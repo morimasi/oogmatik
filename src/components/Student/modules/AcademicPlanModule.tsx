@@ -112,7 +112,7 @@ export const AcademicPlanModule: React.FC<AcademicPlanModuleProps> = ({
         activity.activityId,
         activePlan.studentName,
         activity.title,
-        activity.difficultyLevel || 'Medium',
+        activity.difficultyLevel || 'Orta',
         activity.goal || '',
         activePlan.studentId || undefined,
         'plans',

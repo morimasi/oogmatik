@@ -40,11 +40,11 @@ export const ProblemCard: React.FC<ProblemCardProps> = ({ problem, showSolutionB
                         <EditableText value={problem.text} tag="span" />
                     </p>
 
-                    {/* AI Generated Image Indicator (Simulation/Placeholder) */}
+                    {/* Image prompts are model-only instructions and must not appear as worksheet text. */}
                     {problem.imagePrompt && (
                         <div className="mt-2 text-xs text-accent bg-accent/10 border border-accent/30 p-2 rounded flex items-center gap-2">
                             <i className="fa-solid fa-image"></i>
-                            <span className="italic">Görsel İpucu: {problem.imagePrompt}</span>
+                            <span className="italic">Görsel destek yönergesi hazır.</span>
                         </div>
                     )}
 

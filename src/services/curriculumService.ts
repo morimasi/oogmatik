@@ -4,6 +4,7 @@ import type { Difficulty } from '../types/common.js';
 import { ACTIVITIES } from '../constants.js';
 import { db } from './firebaseClient.js';
 import { logError } from '../utils/logger.js';
+import { getTurkishDifficultyLabel } from '../utils/turkishDisplay.js';
 import {
     collection,
     addDoc,
@@ -114,7 +115,7 @@ export const curriculumService = {
                         title: typeof act.title === 'string' ? act.title : 'Destek Etkinliği',
                         duration: typeof act.duration === 'number' ? act.duration : 15,
                         goal: typeof act.goal === 'string' ? act.goal : 'Bilişsel Beceriyi Geliştirme',
-                        difficultyLevel: (['Easy', 'Medium', 'Hard'].includes(String(act.difficultyLevel)) ? act.difficultyLevel : 'Medium') as Difficulty,
+                        difficultyLevel: getTurkishDifficultyLabel(act.difficultyLevel),
                         status: 'pending' as CurriculumActivityStatus
                     };
                 })

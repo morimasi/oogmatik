@@ -34,9 +34,10 @@ export class VariationEngine {
     const prompt = `
       [GÖREV]
       Aşağıdaki orijinal aktiviteyi temel alarak 3 farklı varyasyon üret:
-      1. EASY: Daha basit dil, daha az seçenek, daha fazla ipucu.
+      1. EASY: Daha basit Türkçe, daha az seçenek, daha fazla ipucu.
       2. HARD: Daha karmaşık mantık, daha fazla çeldirici, derin çıkarım gereksinimi.
-      3. VISUAL_SUPPORT: Metinleri minimize et, her şeyi görsel referanslarla veya imgelemlerle açıkla.
+      3. VISUAL_SUPPORT: Türkçe metinleri kısalt, her şeyi görsel referanslarla veya imgelemlerle açıkla.
+      Tüm öğrenciye gösterilen doğal dil içeriği Türkiye Türkçesinde olmalıdır. Şema anahtarları sabit kalmalıdır.
       
       [ORİJİNAL AKTİVİTE]
       ${JSON.stringify(originalActivity)}
@@ -51,9 +52,9 @@ export class VariationEngine {
         schema: {
           type: 'OBJECT',
           properties: {
-            easy: { type: 'STRING', description: 'Easy difficulty variant: mirror the original activity structure but simplify all questions/items. Fill every content field completely. Return as JSON string.' },
-            hard: { type: 'STRING', description: 'Hard difficulty variant: mirror the original activity structure but increase complexity. Fill every content field completely. Return as JSON string.' },
-            visualSupport: { type: 'STRING', description: 'Visual support variant: mirror the original activity structure but replace text with visual/imagery descriptions. Fill every content field completely. Return as JSON string.' }
+            easy: { type: 'STRING', description: 'Kolay zorluk varyasyonu: etkinlik yapısını koru, tüm soruları ve içerik alanlarını Türkçe ve daha basit üret. JSON dizgesi olarak döndür.' },
+            hard: { type: 'STRING', description: 'Zor zorluk varyasyonu: etkinlik yapısını koru, karmaşıklığı artır ve tüm içerik alanlarını Türkçe üret. JSON dizgesi olarak döndür.' },
+            visualSupport: { type: 'STRING', description: 'Görsel destek varyasyonu: etkinlik yapısını koru, Türkçe metni kısalt ve görsel betimlemeler kullan. JSON dizgesi olarak döndür.' }
           },
           required: ['easy', 'hard', 'visualSupport']
         },
@@ -75,10 +76,11 @@ export class VariationEngine {
     const prompt = `
       [GÖREV]
       Aşağıdaki içeriği temel alarak 4 farklı zorluk seviyesinde varyasyon üret:
-      1. EASY: En basit dil, bol ipucu, kısa cümleler.
-      2. MEDIUM: Normal zorluk, dengeli dil.
+      1. EASY: En basit Türkçe, bol ipucu, kısa cümleler.
+      2. MEDIUM: Orta zorluk, dengeli Türkçe.
       3. HARD: Karmaşık yapılar, çıkarım gerektiren sorular.
-      4. VISUAL_SUPPORT: Görsel odaklı, minimum metin.
+      4. VISUAL_SUPPORT: Görsel odaklı, kısa Türkçe metin.
+      Tüm öğrenciye gösterilen doğal dil içeriği Türkiye Türkçesinde olmalıdır. Şema anahtarları sabit kalmalıdır.
       
       Her varyasyon tam ve bağımsız bir aktivite olmalıdır.
       

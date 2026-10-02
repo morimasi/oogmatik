@@ -33,6 +33,8 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
 
     const prompt = `
     [ROL: DİSLEKSİ MÜDAHALE UZMANI & ÖDÜLLÜ ÇOCUK YAZARI]
+
+    DİL KURALI: Başlık, hikâye, 5N1K soruları ve yanıtları, kelime açıklamaları, pedagojik hedefler, test soruları ve seçenekleri, mantık soruları ve yaratıcı görev dahil öğrenciye gösterilen tüm metinleri doğal Türkiye Türkçesinde yaz. Şema anahtarları ve enum değerleri sabit kalabilir. Yalnızca kullanıcıya gösterilmeyen imagePrompt alanı İngilizce olabilir.
     
     ⚠️ ÖNEMLİ: HER ÜRETİMDE BENZERSİZ İÇERİK OLUŞTUR!
     - Aynı hikaye, aynı kelimeler, aynı sorular ASLA tekrar etmesin
@@ -72,7 +74,7 @@ export const generateInteractiveStory = async (config: ReadingStudioConfig): Pro
             genre: { type: 'STRING', description: 'Tür (masal/macera/bilim)' },
             gradeLevel: { type: 'STRING', description: 'Sınıf seviyesi' },
             pedagogicalGoals: { type: 'ARRAY', items: { type: 'STRING' }, description: 'Bilişsel hedefler listesi' },
-            imagePrompt: { type: 'STRING', description: 'Sahne görseli promptu (İngilizce)' },
+            imagePrompt: { type: 'STRING', description: 'Yalnızca görsel üretimi için İngilizce sahne istemi; kullanıcıya gösterilmez' },
             creativePrompt: { type: 'STRING', description: 'Yaratıcı yazma/çizme yönergesi' },
             vocabulary: {
                 type: 'ARRAY',

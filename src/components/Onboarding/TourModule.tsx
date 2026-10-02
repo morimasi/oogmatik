@@ -8,7 +8,7 @@ export const TourModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const steps = [
     {
       icon: Layout,
-      title: 'Ana Panel (Dashboard)',
+      title: 'Ana Kontrol Paneli',
       description: 'Tüm modüllerinize tek noktadan erişim',
       details: [
         'Sol menü: Stüdyolar, Defterler, Raporlar ve Ayarlar',
@@ -16,7 +16,7 @@ export const TourModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         'Bildirimler: Yeni güncellemeler ve AI tamamlamaları',
         'Arama çubuğu: Ctrl+K ile anında erişim'
       ],
-      tip: 'Dashboard\'u sık kullandığınız modüllere göre özelleştirebilirsiniz.'
+      tip: 'Ana kontrol panelini sık kullandığınız modüllere göre özelleştirebilirsiniz.'
     },
     {
       icon: Sparkles,
@@ -47,10 +47,10 @@ export const TourModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       title: 'Çalışma Defteri',
       description: 'Aktiviteleri birleştir ve düzenle',
       details: [
-        'Workbook oluştur: Birden fazla aktiviteyi bir araya getir',
-        'Sıralama: Drag-and-drop ile aktivite düzeni',
+        'Çalışma defteri oluştur: Birden fazla etkinliği bir araya getir',
+        'Sıralama: Sürükleyip bırakarak etkinlikleri düzenle',
         'Şablonlar: Hazır şablonlardan hızlı başlangıç',
-        'Export: PDF olarak indir veya yazdır'
+        'Dışa aktar: PDF olarak indir veya yazdır'
       ],
       tip: 'Defterleri diğer öğretmenlerle paylaşarak işbirliği yapın.'
     },
@@ -74,7 +74,7 @@ export const TourModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         'Profil ayarları: Hesap bilgileri ve tercihler',
         'Bildirimler: E-posta ve platform içi ayarlar',
         'API entegrasyonları: MEB ve okul sistemleri',
-        'Veri yönetimi: Export, import ve yedekleme'
+        'Veri yönetimi: Dışa aktarma, içe aktarma ve yedekleme'
       ],
       tip: 'Tema ve dil tercihlerinizi burada özelleştirebilirsiniz.'
     }

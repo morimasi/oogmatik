@@ -131,7 +131,7 @@ export const StylePanel = () => {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                    <label className="text-[9px] font-bold text-zinc-500 uppercase px-1">Köşe Karakteri (Radius)</label>
+                    <label className="text-[9px] font-bold text-zinc-500 uppercase px-1">Köşe Yuvarlaklığı</label>
                     <input
                         type="range" min="0" max="40"
                         value={s.borderRadius}
@@ -179,7 +179,7 @@ export const StylePanel = () => {
                         />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                        <label className="text-[9px] font-bold text-zinc-500 uppercase px-1">Gölge (Shadow)</label>
+                        <label className="text-[9px] font-bold text-zinc-500 uppercase px-1">Gölge</label>
                         <select
                             value={s.boxShadow || 'none'}
                             onChange={(e: any) => updateStyle({ boxShadow: e.target.value })}

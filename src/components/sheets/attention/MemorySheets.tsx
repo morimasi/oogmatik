@@ -122,7 +122,7 @@ export const ColorWheelSheet = ({ data }: { data: ColorWheelMemoryData }) => {
                         return (
                             <g key={i}>
                                 <path d={`M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 0 1 ${x2} ${y2} Z`} fill={item.color} stroke="white" strokeWidth="3" />
-                                <text x={center + (radius * 0.7) * Math.cos(((angle + (360 / items.length) / 2) - 90) * Math.PI / 180)} y={center + (radius * 0.7) * Math.sin(((angle + (360 / items.length) / 2) - 90) * Math.PI / 180)} textAnchor="middle" fontSize="20" fill="white" stroke="black" strokeWidth="0.5" fontWeight="bold">{item.imagePrompt?.substring(0, 2)}</text>
+                                <text x={center + (radius * 0.7) * Math.cos(((angle + (360 / items.length) / 2) - 90) * Math.PI / 180)} y={center + (radius * 0.7) * Math.sin(((angle + (360 / items.length) / 2) - 90) * Math.PI / 180)} textAnchor="middle" fontSize="20" fill="white" stroke="black" strokeWidth="0.5" fontWeight="bold">{item.name.slice(0, 2)}</text>
                             </g>
                         );
                     })}
@@ -149,7 +149,6 @@ export const ImageComprehensionSheet = ({ data }: { data: ImageComprehensionData
         </div>
     </div>
 );
-
 
 
 

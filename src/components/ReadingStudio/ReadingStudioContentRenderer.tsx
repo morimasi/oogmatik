@@ -3,6 +3,7 @@ import { LayoutItem } from '../../types';
 import { useReadingStore } from '../../store/useReadingStore';
 import { A4_WIDTH_PX, A4_HEIGHT_PX } from '../../utils/layoutConstants';
 import { ContentEditor } from './Editor/ContentEditor';
+import { getTurkishQuestionLabel } from '../../utils/turkishDisplay';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Component Item Renderer
@@ -70,13 +71,13 @@ const renderItemContent = (
       <div className="flex flex-col bg-zinc-50/50 rounded-2xl border border-zinc-200" style={baseStyle}>
         <h4 className="font-black text-[12px] uppercase mb-4 text-accent border-b border-accent/20 pb-1.5 flex items-center gap-2">
           <i className="fa-solid fa-circle-question" />
-          <span>5N 1K — Okuduğunu Anlama Analizi</span>
+          <span>5N1K — Okuduğunu Anlama Analizi</span>
         </h4>
         <div className="grid grid-cols-2 gap-x-8 gap-y-5 reading-studio-grid" data-reading-studio="true">
           {questions.map((q, idx) => (
             <div key={idx} className="flex flex-col gap-1.5">
               <span className="text-[10px] font-black opacity-50 uppercase tracking-tighter">
-                {q.type?.toUpperCase() || '-'}
+                {getTurkishQuestionLabel(q.type)}
               </span>
               <p className="text-[13px] font-bold leading-snug">{q.question || '-'}</p>
               <div className="h-6 border-b border-zinc-300 border-dashed mt-1" />
