@@ -6,7 +6,9 @@ export const KelimeBilgisiSettingsPanel: React.FC<TemplateSettingsProps<KelimeBi
   settings,
   onChange,
 }) => {
-  const wordTypesList = [
+  type KelimeBilgisiWordType = KelimeBilgisiSettings['wordTypes'][number];
+
+  const wordTypesList: { id: KelimeBilgisiWordType; label: string; icon: string; color: string }[] = [
     { id: 'es-anlamli', label: 'Eş Anlamlı', icon: '🔄', color: 'blue' },
     { id: 'zit-anlamli', label: 'Zıt Anlamlı', icon: '⚡', color: 'red' },
     { id: 'es-sesli', label: 'Eş Sesli', icon: '🎵', color: 'green' },
@@ -19,11 +21,11 @@ export const KelimeBilgisiSettingsPanel: React.FC<TemplateSettingsProps<KelimeBi
     { id: 'bingo', label: 'Bingo', icon: '🎱' },
   ];
 
-  const toggleWordType = (typeId: string) => {
+  const toggleWordType = (typeId: KelimeBilgisiWordType) => {
     const currentTypes = settings.wordTypes || [];
-    const newTypes = currentTypes.includes(typeId as any)
+    const newTypes = currentTypes.includes(typeId)
       ? currentTypes.filter((t) => t !== typeId)
-      : [...currentTypes, typeId as any];
+      : [...currentTypes, typeId];
     onChange({ wordTypes: newTypes });
   };
 
@@ -87,7 +89,7 @@ export const KelimeBilgisiSettingsPanel: React.FC<TemplateSettingsProps<KelimeBi
               key={type.id}
               onClick={() => toggleWordType(type.id)}
               className={`p-2 rounded-lg border transition-all ${
-                settings.wordTypes?.includes(type.id as any)
+                settings.wordTypes?.includes(type.id)
                   ? 'bg-accent/20 border-accent text-white'
                   : 'bg-slate-800 border-slate-700 text-slate-400'
               }`}

@@ -1,6 +1,25 @@
 export type GenerationMode = 'fast' | 'ai';
 export type SuperStudioDifficulty = 'Kolay' | 'Orta' | 'Zor';
 
+/** AI üretim parametreleri — motor.md Phase 1.1 (Selin Arslan: Gemini 2.5 Flash sabit) */
+export interface SuperStudioGenerationParams {
+  temperature: number;
+  topP: number;
+  thinkingBudget: number;
+}
+
+export const SUPER_STUDIO_PARAM_DEFAULTS: SuperStudioGenerationParams = {
+  temperature: 0.7,
+  topP: 0.9,
+  thinkingBudget: 2048,
+};
+
+export const SUPER_STUDIO_PARAM_LIMITS = {
+  temperature: { min: 0, max: 1 },
+  topP: { min: 0, max: 1 },
+  thinkingBudget: { min: 0, max: 8192 },
+} as const;
+
 export interface TemplateDefinition {
   id: string;
   title: string;

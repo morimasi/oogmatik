@@ -4,6 +4,8 @@ import { generateSuperStudioContent } from '../../../services/generators/superSt
 import { getTemplateById } from '../templates';
 import { assessContentQuality } from '../../../utils/contentQuality';
 import { optimizePrompt } from '../../../utils/promptOptimizer';
+import { useToastStore } from '../../../store/useToastStore';
+import type { GeneratedContentPayload } from '../../../types/superStudio';
 
 import { logInfo, logError, logWarn } from '../../../utils/logger.js';
 
@@ -18,16 +20,22 @@ export const ConfiguratorCascade: React.FC = () => {
 
     const [showAdvanced, setShowAdvanced] = useState(false);
     const [qualityScores, setQualityScores] = useState<Record<string, number>>({});
+    const { show: showToast } = useToastStore();
 
     const handleGenerate = async () => {
+        if (selectedTemplates.length === 0) {
+            showToast('Lütfen önce en az bir şablon seçin.', 'warning');
+            return;
+        }
         setIsGenerating(true);
         clearGeneratedContents();
+        setQualityScores({});
         setGenerationProgress(0);
         setGenerationStep('prompt');
 
         try {
             const total = selectedTemplates.length;
-            const results = [];
+            const results: GeneratedContentPayload[] = [];
             for (let i = 0; i < total; i++) {
                 const tpl = selectedTemplates[i];
                 setCurrentTemplate(tpl);
@@ -42,6 +50,9 @@ export const ConfiguratorCascade: React.FC = () => {
                     topic,
                     difficulty,
                     studentId,
+                    temperature: generationParams.temperature,
+                    topP: generationParams.topP,
+                    thinkingBudget: generationParams.thinkingBudget,
                 });
 
                 setGenerationStep('processing');
@@ -51,6 +62,14 @@ export const ConfiguratorCascade: React.FC = () => {
                     const contentStr = res.pages?.[0]?.content || '';
                     const quality = assessContentQuality(contentStr, { grade, difficulty });
                     setQualityScores(prev => ({ ...prev, [res.id]: quality.overall }));
+
+                    // Boş / anlamsız içerik önizlemeye düşmez (boş-sayfa koruması)
+                    const hasContent = res.pages?.some((p) =>
+                        typeof p.content === 'string' && p.content.trim().length > 0
+                    ) ?? false;
+                    if (!hasContent) {
+                        continue;
+                    }
 
                     if (quality.overall >= 50) {
                         results.push(res);
@@ -78,10 +97,18 @@ export const ConfiguratorCascade: React.FC = () => {
 
             setGenerationStep('done');
             setGenerationProgress(100);
+            setCurrentTemplate('');
+            if (results.length === 0) {
+                showToast('Üretim tamamlandı ancak gösterilecek içerik oluşmadı. Tekrar deneyin.', 'warning');
+            } else {
+                showToast(`${results.length} içerik başarıyla üretildi.`, 'success');
+            }
         } catch (error) {
             logError(error instanceof Error ? error : String(error));
             setGenerationStep('idle');
             setGenerationProgress(0);
+            setCurrentTemplate('');
+            showToast('Üretim sırasında bir hata oluştu. Tekrar deneyin.', 'error');
         } finally {
             setIsGenerating(false);
         }
@@ -123,7 +150,7 @@ export const ConfiguratorCascade: React.FC = () => {
                             <SettingsComponent
                                 templateId={templateId}
                                 settings={currentSettings}
-                                onChange={(payload: any) => setTemplateSetting(templateId, payload)}
+                                onChange={(payload: unknown) => setTemplateSetting(templateId, payload)}
                             />
                         </div>
                     </div>
@@ -230,11 +257,12 @@ export const ConfiguratorCascade: React.FC = () => {
 
             <button
                 onClick={handleGenerate}
-                disabled={isGenerating}
-                className={`w-full mt-4 text-white font-medium py-3 rounded-xl shadow-lg transition-all flex justify-center items-center ${isGenerating ? 'bg-slate-700 cursor-not-allowed text-slate-400' : 'bg-accent hover:bg-accent/90 shadow-accent/20'
+                disabled={isGenerating || selectedTemplates.length === 0}
+                title={selectedTemplates.length === 0 ? 'Üretmek için önce şablon seçin' : 'Seçili şablonları üret'}
+                className={`w-full mt-4 text-white font-medium py-3 rounded-xl shadow-lg transition-all flex justify-center items-center ${isGenerating || selectedTemplates.length === 0 ? 'bg-slate-700 cursor-not-allowed text-slate-400' : 'bg-accent hover:bg-accent/90 shadow-accent/20'
                     }`}
             >
-                <span>{isGenerating ? 'İçerikler Sistematik Olarak Üretiliyor...' : 'İçerikleri Üret (Batch Mod)'}</span>
+                <span>{isGenerating ? 'İçerikler Sistematik Olarak Üretiliyor...' : selectedTemplates.length === 0 ? 'Üretmek İçin Şablon Seçin' : `İçerikleri Üret (${selectedTemplates.length} Şablon)`}</span>
                 {!isGenerating && <span className="ml-2">✨</span>}
             </button>
         </div>

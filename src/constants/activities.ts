@@ -1,4 +1,5 @@
-import { Activity, ActivityType } from '../types';
+import type { Activity } from '../types/activity';
+import { ActivityType } from '../types/activity';
 
 // Activities List
 export const ACTIVITIES: Activity[] = [

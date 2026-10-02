@@ -16,6 +16,15 @@ vi.mock('../src/services/cacheService', () => ({
   cacheService: mockCacheService,
 }));
 
+// Mock logger (üretim kodunda console.* yasak; loglar logger üzerinden)
+vi.mock('../src/utils/logger', () => ({
+  logInfo: vi.fn(),
+  logWarn: vi.fn(),
+  logError: vi.fn(),
+}));
+
+import { logInfo, logWarn } from '../src/utils/logger';
+
 import { generateWithSchema } from '../src/services/geminiClient';
 
 describe('Super Türkçe Generator - Cache Integration', () => {
@@ -122,8 +131,6 @@ describe('Super Türkçe Generator - Cache Integration', () => {
       // Cache hit simülasyonu
       mockCacheService.get.mockResolvedValueOnce(cachedContent);
 
-      const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-
       const result = await generateSuperStudioContent({
         templates: ['okuma-anlama'],
         settings: {},
@@ -143,12 +150,10 @@ describe('Super Türkçe Generator - Cache Integration', () => {
       // API çağrılmamalı (cache hit)
       expect(generateWithSchema).not.toHaveBeenCalled();
 
-      // Cache hit logu
-      expect(consoleLogSpy).toHaveBeenCalledWith(
+      // Cache hit logu (logger üzerinden)
+      expect(vi.mocked(logInfo)).toHaveBeenCalledWith(
         expect.stringContaining('[Super Türkçe] Cache hit: okuma-anlama')
       );
-
-      consoleLogSpy.mockRestore();
     });
 
     it('should handle partial cache hit (some templates cached, some not)', async () => {
@@ -195,8 +200,6 @@ describe('Super Türkçe Generator - Cache Integration', () => {
     it('should call API and write to cache on cache miss', async () => {
       mockCacheService.get.mockResolvedValue(null); // Cache miss
 
-      const consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-
       await generateSuperStudioContent({
         templates: ['okuma-anlama'],
         settings: {},
@@ -223,12 +226,10 @@ describe('Super Türkçe Generator - Cache Integration', () => {
       expect(cachedData).toHaveProperty('pages');
       expect(cachedData).toHaveProperty('createdAt');
 
-      // Cache yazma logu
-      expect(consoleLogSpy).toHaveBeenCalledWith(
+      // Cache yazma logu (logger üzerinden)
+      expect(vi.mocked(logInfo)).toHaveBeenCalledWith(
         expect.stringContaining('[Super Türkçe] Cache yazıldı')
       );
-
-      consoleLogSpy.mockRestore();
     });
   });
 
@@ -236,8 +237,6 @@ describe('Super Türkçe Generator - Cache Integration', () => {
     it('should continue generation when cache.get fails', async () => {
       // Cache okuma hatası
       mockCacheService.get.mockRejectedValue(new Error('IndexedDB error'));
-
-      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       const result = await generateSuperStudioContent({
         templates: ['okuma-anlama'],
@@ -253,21 +252,17 @@ describe('Super Türkçe Generator - Cache Integration', () => {
       expect(result).toHaveLength(1);
       expect(generateWithSchema).toHaveBeenCalledTimes(1);
 
-      // Hata loglanmalı
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
+      // Hata loglanmalı (logger üzerinden)
+      expect(vi.mocked(logWarn)).toHaveBeenCalledWith(
         expect.stringContaining('[Super Türkçe] Cache okuma hatası'),
-        expect.any(Error)
+        expect.objectContaining({ error: expect.any(Error) })
       );
-
-      consoleWarnSpy.mockRestore();
     });
 
     it('should continue generation when cache.set fails', async () => {
       mockCacheService.get.mockResolvedValue(null);
       // Cache yazma hatası
       mockCacheService.set.mockRejectedValue(new Error('Quota exceeded'));
-
-      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       const result = await generateSuperStudioContent({
         templates: ['okuma-anlama'],
@@ -282,13 +277,11 @@ describe('Super Türkçe Generator - Cache Integration', () => {
       // Üretim başarılı olmalı (cache yazma hatası engellememeli)
       expect(result).toHaveLength(1);
 
-      // Hata loglanmalı
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
+      // Hata loglanmalı (logger üzerinden)
+      expect(vi.mocked(logWarn)).toHaveBeenCalledWith(
         expect.stringContaining('[Super Türkçe] Cache yazma hatası'),
-        expect.any(Error)
+        expect.objectContaining({ error: expect.any(Error) })
       );
-
-      consoleWarnSpy.mockRestore();
     });
 
     it('should handle cacheService import failure', async () => {

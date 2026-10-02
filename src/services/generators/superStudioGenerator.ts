@@ -4,12 +4,106 @@ import {
   SuperStudioDifficulty,
   GeneratedContentPayload,
   PageData,
+  SuperStudioGenerationParams,
+  SUPER_STUDIO_PARAM_DEFAULTS,
+  SUPER_STUDIO_PARAM_LIMITS,
 } from '../../types/superStudio';
 import { AppError } from '../../utils/AppError';
 import { generateWithSchema } from '../geminiClient.js';
 import { generateOfflineSuperStudioTemplate } from './superOfflineEngine';
 
 const CHARS_PER_PAGE = 3000;
+
+/** Prompt injection koruması: kullanıcı girdisini max 2000 karaktere indirger ve tehlikeli kalıpları temizler. */
+export const sanitizeSuperStudioTopic = (topic: string | null | undefined): string => {
+  if (typeof topic !== 'string') return 'Genel';
+  const truncated = topic.slice(0, 2000);
+  return truncated
+    .replace(/<script[\s\S]*?<\/script\s*>/gi, '')
+    .replace(/javascript\s*:/gi, '')
+    .replace(/[<>]/g, '')
+    .trim() || 'Genel';
+};
+
+const clampNumber = (value: unknown, min: number, max: number, fallback: number): number => {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return fallback;
+  return Math.min(max, Math.max(min, value));
+};
+
+/** AI parametrelerini güvenli aralığa indirger (defense in depth: store + generator). */
+export const clampSuperStudioParams = (
+  params: Partial<SuperStudioGenerationParams> | undefined
+): SuperStudioGenerationParams => ({
+  temperature: clampNumber(
+    params?.temperature,
+    SUPER_STUDIO_PARAM_LIMITS.temperature.min,
+    SUPER_STUDIO_PARAM_LIMITS.temperature.max,
+    SUPER_STUDIO_PARAM_DEFAULTS.temperature
+  ),
+  topP: clampNumber(
+    params?.topP,
+    SUPER_STUDIO_PARAM_LIMITS.topP.min,
+    SUPER_STUDIO_PARAM_LIMITS.topP.max,
+    SUPER_STUDIO_PARAM_DEFAULTS.topP
+  ),
+  thinkingBudget: Math.round(
+    clampNumber(
+      params?.thinkingBudget,
+      SUPER_STUDIO_PARAM_LIMITS.thinkingBudget.min,
+      SUPER_STUDIO_PARAM_LIMITS.thinkingBudget.max,
+      SUPER_STUDIO_PARAM_DEFAULTS.thinkingBudget
+    )
+  ),
+});
+
+/** Şablon id'lerindeki tire farklarını normalize eder (örn: 'dilbilgisi' → 'dil-bilgisi'). */
+const normalizeTemplateId = (templateId: string): string => {
+  const compact = templateId.replace(/-/g, '').toLowerCase();
+  const aliasMap: Record<string, string> = {
+    dilbilgisi: 'dil-bilgisi',
+    okumaanlama: 'okuma-anlama',
+    mantikmuhakeme: 'mantik-muhakeme',
+    yaraticyazarlik: 'yaratici-yazarlik',
+    yazimnoktalama: 'yazim-noktalama',
+    sozvarligi: 'soz-varligi',
+    heceses: 'hece-ses',
+    kelimebilgisi: 'kelime-bilgisi',
+  };
+  return aliasMap[compact] ?? templateId;
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+const asStringArray = (value: unknown): string[] =>
+  Array.isArray(value) ? value.filter((v): v is string => typeof v === 'string') : [];
+
+/**
+ * AI yanıtında pedagogicalNote zorunluluğunu denetler (Elif Yıldız kuralı).
+ * Eksik/geçersizse AppError fırlatır — ilgili şablon "başarısız" sayılır.
+ */
+export const extractPedagogicalNote = (aiResponse: unknown, templateId: string): string => {
+  if (!isRecord(aiResponse)) {
+    throw new AppError(
+      `AI yanıtı geçersiz olduğu için öğretmen notu üretilemedi (${templateId}).`,
+      'VALIDATION_FAILED',
+      500,
+      { templateId },
+      true
+    );
+  }
+  const note = aiResponse.pedagogicalNote;
+  if (typeof note !== 'string' || note.trim().length < 10) {
+    throw new AppError(
+      `AI yanıtında öğretmen notu (pedagogicalNote) eksik (${templateId}).`,
+      'VALIDATION_FAILED',
+      500,
+      { templateId },
+      true
+    );
+  }
+  return note.trim();
+};
 
 const splitContentIntoPages = (content: string, title: string, instruction: string): PageData[] => {
   const chunks = content.split(/===SAYFA_SONU===/i).filter((c) => c.trim().length > 0);
@@ -95,7 +189,7 @@ import {
  */
 const buildPromptForTemplate = (
   templateId: string,
-  settings: any,
+  settings: Record<string, unknown>,
   grade: string | null,
   topic: string,
   difficulty: SuperStudioDifficulty,
@@ -112,9 +206,12 @@ const buildPromptForTemplate = (
     return `[Hata] Şablon prompt motoru yüklenemedi: ${templateId}. Lütfen yöneticiye bildirin.`;
   }
 
+  // Prompt injection koruması: kullanıcı girdisi sanitize edilir (max 2000 karakter)
+  const safeTopic = sanitizeSuperStudioTopic(topic) || 'Doğayı ve Uzayı Keşfediyorum';
+
   // Yeni modüler prompt builder'ı çağır
   return templateDef.promptBuilder({
-    topic: topic || 'Doğayı ve Uzayı Keşfediyorum',
+    topic: safeTopic,
     difficulty,
     grade,
     settings,
@@ -126,10 +223,12 @@ const buildPromptForTemplate = (
  * Şablon tipine göre Gemini API şeması oluşturur
  * Yeni nesil modüler yapıda tüm şablonlar zengin Markdown + SVG döndürür.
  */
-const buildSchemaForTemplate = (templateId: string): any => {
+const buildSchemaForTemplate = (templateId: string): Record<string, unknown> => {
   const titleDesc = 'Etkinliğin ilgi çekici başlığı';
+  // Tire varyantlarını normalize et ('dilbilgisi' → 'dil-bilgisi')
+  const normalizedId = normalizeTemplateId(templateId);
 
-  if (templateId === 'okuma-anlama') {
+  if (normalizedId === 'okuma-anlama') {
     return {
       type: 'OBJECT',
       properties: {
@@ -152,7 +251,7 @@ const buildSchemaForTemplate = (templateId: string): any => {
     };
   }
 
-  if (templateId === 'dil-bilgisi') {
+  if (normalizedId === 'dil-bilgisi') {
     return {
       type: 'OBJECT',
       properties: {
@@ -180,7 +279,7 @@ const buildSchemaForTemplate = (templateId: string): any => {
     };
   }
 
-  if (templateId === 'mantik-muhakeme') {
+  if (normalizedId === 'mantik-muhakeme') {
     return {
       type: 'OBJECT',
       properties: {
@@ -204,7 +303,7 @@ const buildSchemaForTemplate = (templateId: string): any => {
   }
 
   // yaratici-yazarlik: yazma promptları + hikaye zarları + kelime bankası
-  if (templateId === 'yaratici-yazarlik') {
+  if (normalizedId === 'yaratici-yazarlik') {
     return {
       type: 'OBJECT',
       properties: {
@@ -239,7 +338,7 @@ const buildSchemaForTemplate = (templateId: string): any => {
   }
 
   // yazim-noktalama: kurallar + egzersizler
-  if (templateId === 'yazim-noktalama') {
+  if (normalizedId === 'yazim-noktalama') {
     return {
       type: 'OBJECT',
       properties: {
@@ -268,7 +367,7 @@ const buildSchemaForTemplate = (templateId: string): any => {
   }
 
   // soz-varligi: deyim/atasözü listesi + eşleştirme
-  if (templateId === 'soz-varligi') {
+  if (normalizedId === 'soz-varligi') {
     return {
       type: 'OBJECT',
       properties: {
@@ -305,7 +404,7 @@ const buildSchemaForTemplate = (templateId: string): any => {
   }
 
   // hece-ses: ses olayları + kelimeler
-  if (templateId === 'hece-ses') {
+  if (normalizedId === 'hece-ses') {
     return {
       type: 'OBJECT',
       properties: {
@@ -334,7 +433,7 @@ const buildSchemaForTemplate = (templateId: string): any => {
   }
 
   // kelime-bilgisi: eş/zıt/eş sesli kelime çiftleri
-  if (templateId === 'kelime-bilgisi') {
+  if (normalizedId === 'kelime-bilgisi') {
     return {
       type: 'OBJECT',
       properties: {
@@ -367,6 +466,16 @@ const buildSchemaForTemplate = (templateId: string): any => {
       required: ['title', 'wordSets'],
     };
   }
+
+  // Bilinmeyen şablon id'leri için genel şema (formatContentForA4'ün generic dalıyla eşleşir)
+  return {
+    type: 'OBJECT',
+    properties: {
+      title: { type: 'STRING', description: titleDesc },
+      content: { type: 'STRING', description: 'Etkinlik içeriği (Markdown formatında)' },
+    },
+    required: ['title', 'content'],
+  };
 };
 
 const CONTENT_FALLBACK = '[İçerik üretilemedi]';
@@ -375,21 +484,32 @@ const CONTENT_FALLBACK = '[İçerik üretilemedi]';
  * AI yanıtını A4 içeriğine dönüştürür — şablon tipine göre alanları birleştirir.
  * Fallback: Eğer AI şemayı es geçip düz metin / content alanı döndürürse bunu yakala.
  */
-const formatContentForA4 = (templateId: string, aiResponse: any): string => {
+const formatContentForA4 = (templateId: string, aiResponse: unknown): string => {
   if (!aiResponse) return CONTENT_FALLBACK;
+  if (!isRecord(aiResponse)) {
+    return typeof aiResponse === 'string' ? aiResponse : CONTENT_FALLBACK;
+  }
+  const normalizedId = normalizeTemplateId(templateId);
+  const str = (key: string): string => {
+    const v: unknown = aiResponse[key];
+    return typeof v === 'string' ? v : '';
+  };
 
   // okuma-anlama: metin + soru/cevap listesi (structured schema)
-  if (templateId === 'okuma-anlama') {
-    const text: string = aiResponse.text || '';
+  if (normalizedId === 'okuma-anlama') {
+    const text: string = str('text');
     const questions: unknown = aiResponse.questions;
     let content = text;
     if (!Array.isArray(questions) || questions.length === 0) {
       content += '\n\n[Sorular üretilemedi — AI yanıtında sorular bulunamadı]';
     } else {
       content += '\n\n## Sorular\n';
-      (questions as unknown[]).forEach((q: any, i: number) => {
-        const questionText: string = q?.question || '[Soru metni eksik]';
-        const answerText: string = q?.answer || '[Cevap eksik]';
+      questions.forEach((q: unknown, i: number) => {
+        const qRec = isRecord(q) ? q : {};
+        const questionText: string =
+          typeof qRec.question === 'string' && qRec.question ? qRec.question : '[Soru metni eksik]';
+        const answerText: string =
+          typeof qRec.answer === 'string' && qRec.answer ? qRec.answer : '[Cevap eksik]';
         content += `\n${i + 1}. ${questionText}\n   Cevap: ${answerText}\n`;
       });
     }
@@ -397,8 +517,8 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
   }
 
   // dil-bilgisi: konu başlığı + kurallar + alıştırmalar (structured schema)
-  if (templateId === 'dil-bilgisi') {
-    const topic: string = aiResponse.topic || '';
+  if (normalizedId === 'dil-bilgisi') {
+    const topic: string = str('topic');
     const rules: unknown = aiResponse.rules;
     const exercises: unknown = aiResponse.exercises;
     let content = topic ? `## ${topic}\n\n` : '';
@@ -406,8 +526,8 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
       content += '[Kurallar üretilemedi]\n\n';
     } else {
       content += '### Kurallar\n';
-      (rules as unknown[]).forEach((rule: any) => {
-        content += `- ${rule || '[Kural eksik]'}\n`;
+      rules.forEach((rule: unknown) => {
+        content += `- ${typeof rule === 'string' && rule ? rule : '[Kural eksik]'}\n`;
       });
       content += '\n';
     }
@@ -415,9 +535,12 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
       content += '[Alıştırmalar üretilemedi]';
     } else {
       content += '### Alıştırmalar\n';
-      (exercises as unknown[]).forEach((ex: any, i: number) => {
-        const q: string = ex?.question || '[Alıştırma metni eksik]';
-        const a: string = ex?.answer || '[Cevap eksik]';
+      exercises.forEach((ex: unknown, i: number) => {
+        const exRec = isRecord(ex) ? ex : {};
+        const q: string =
+          typeof exRec.question === 'string' && exRec.question ? exRec.question : '[Alıştırma metni eksik]';
+        const a: string =
+          typeof exRec.answer === 'string' && exRec.answer ? exRec.answer : '[Cevap eksik]';
         content += `\n${i + 1}. ${q}\n   Cevap: ${a}\n`;
       });
     }
@@ -425,39 +548,46 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
   }
 
   // mantik-muhakeme: problem listesi (soru + ipucu opsiyonel + cevap)
-  if (templateId === 'mantik-muhakeme') {
+  if (normalizedId === 'mantik-muhakeme') {
     const problems: unknown = aiResponse.problems;
     if (!Array.isArray(problems) || problems.length === 0) {
       return '[Problemler üretilemedi — AI yanıtında problem bulunamadı]';
     }
     let content = '';
-    (problems as unknown[]).forEach((p: any, i: number) => {
-      const q: string = p?.question || '[Problem metni eksik]';
+    problems.forEach((p: unknown, i: number) => {
+      const pRec = isRecord(p) ? p : {};
+      const q: string =
+        typeof pRec.question === 'string' && pRec.question ? pRec.question : '[Problem metni eksik]';
       content += `\n${i + 1}. ${q}\n`;
-      if (p?.hint) content += `   İpucu: ${p.hint}\n`;
-      if (p?.answer) content += `   Cevap: ${p.answer}\n`;
+      if (typeof pRec.hint === 'string' && pRec.hint) content += `   İpucu: ${pRec.hint}\n`;
+      if (typeof pRec.answer === 'string' && pRec.answer) content += `   Cevap: ${pRec.answer}\n`;
     });
     return content;
   }
 
   // yaratici-yazarlik: hikaye zarları + yazma promptları
-  if (templateId === 'yaratici-yazarlik') {
+  if (normalizedId === 'yaratici-yazarlik') {
     const storyDice: unknown = aiResponse.storyDice;
     const writingPrompts: unknown = aiResponse.writingPrompts;
     let content = '';
     if (Array.isArray(storyDice) && storyDice.length > 0) {
       content += '### 🎲 Hikaye Zarları\n\n';
-      (storyDice as any[]).forEach((die: any, i: number) => {
-        content += `**Zar ${i + 1}:** ${die.icon || ''} ${die.label || ''}\n\n`;
+      storyDice.forEach((die: unknown, i: number) => {
+        const dieRec = isRecord(die) ? die : {};
+        const icon = typeof dieRec.icon === 'string' ? dieRec.icon : '';
+        const label = typeof dieRec.label === 'string' ? dieRec.label : '';
+        content += `**Zar ${i + 1}:** ${icon} ${label}\n\n`;
       });
       content += 'Bu zarları kullanarak bir hikaye oluşturun.\n\n';
     }
     if (Array.isArray(writingPrompts) && writingPrompts.length > 0) {
       content += '### ✍️ Yazma Promptları\n\n';
-      (writingPrompts as any[]).forEach((wp: any, i: number) => {
-        content += `**${i + 1}.** ${wp.prompt || '[Prompt eksik]'}\n`;
-        if (Array.isArray(wp.wordBank) && wp.wordBank.length > 0) {
-          content += `   📚 Kelime Bankası: ${wp.wordBank.join(', ')}\n`;
+      writingPrompts.forEach((wp: unknown, i: number) => {
+        const wpRec = isRecord(wp) ? wp : {};
+        const prompt = typeof wpRec.prompt === 'string' && wpRec.prompt ? wpRec.prompt : '[Prompt eksik]';
+        content += `**${i + 1}.** ${prompt}\n`;
+        if (Array.isArray(wpRec.wordBank) && wpRec.wordBank.length > 0) {
+          content += `   📚 Kelime Bankası: ${asStringArray(wpRec.wordBank).join(', ')}\n`;
         }
         content += '\n   Cevap: ________________________________________\n\n';
       });
@@ -466,48 +596,62 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
   }
 
   // yazim-noktalama: kurallar + düzeltme egzersizleri
-  if (templateId === 'yazim-noktalama') {
+  if (normalizedId === 'yazim-noktalama') {
     const rules: unknown = aiResponse.rules;
     const exercises: unknown = aiResponse.exercises;
     let content = '';
     if (Array.isArray(rules) && rules.length > 0) {
       content += '### 📌 Kurallar\n\n';
-      (rules as string[]).forEach((rule: string) => {
+      asStringArray(rules).forEach((rule: string) => {
         content += `- ${rule}\n`;
       });
       content += '\n';
     }
     if (Array.isArray(exercises) && exercises.length > 0) {
       content += '### ✏️ Düzeltme Egzersizleri\n\n';
-      (exercises as any[]).forEach((ex: any, i: number) => {
-        if (ex.instruction) content += `**Yönerge:** ${ex.instruction}\n\n`;
-        content += `**${i + 1}.** ${ex.sentence || '[Cümle eksik]'}\n`;
-        content += `   Doğrusu: ${ex.corrected || '[Düzeltme eksik]'}\n\n`;
+      exercises.forEach((ex: unknown, i: number) => {
+        const exRec = isRecord(ex) ? ex : {};
+        const instruction = typeof exRec.instruction === 'string' ? exRec.instruction : '';
+        const sentence =
+          typeof exRec.sentence === 'string' && exRec.sentence ? exRec.sentence : '[Cümle eksik]';
+        const corrected =
+          typeof exRec.corrected === 'string' && exRec.corrected ? exRec.corrected : '[Düzeltme eksik]';
+        if (instruction) content += `**Yönerge:** ${instruction}\n\n`;
+        content += `**${i + 1}.** ${sentence}\n`;
+        content += `   Doğrusu: ${corrected}\n\n`;
       });
     }
     return content || '[Yazım/noktalama etkinliği üretilemedi]';
   }
 
   // soz-varligi: deyim/atasözü listesi + eşleştirme
-  if (templateId === 'soz-varligi') {
+  if (normalizedId === 'soz-varligi') {
     const items: unknown = aiResponse.items;
     const matchingPairs: unknown = aiResponse.matchingPairs;
     let content = '';
     if (Array.isArray(items) && items.length > 0) {
       content += '### 📖 Deyim ve Atasözleri\n\n';
-      (items as any[]).forEach((item: any, i: number) => {
-        const typeLabel = item.type === 'atasozu' ? 'Atasözü' : item.type === 'mecaz' ? 'Mecaz' : 'Deyim';
-        content += `**${i + 1}. ${item.expression}** (${typeLabel})\n`;
-        content += `   Anlamı: ${item.meaning || '[Anlam eksik]'}\n`;
-        if (item.example) content += `   Örnek: ${item.example}\n`;
+      items.forEach((item: unknown, i: number) => {
+        const itemRec = isRecord(item) ? item : {};
+        const kind = typeof itemRec.type === 'string' ? itemRec.type : '';
+        const expression = typeof itemRec.expression === 'string' ? itemRec.expression : '';
+        const meaning = typeof itemRec.meaning === 'string' ? itemRec.meaning : '[Anlam eksik]';
+        const example = typeof itemRec.example === 'string' ? itemRec.example : '';
+        const typeLabel = kind === 'atasozu' ? 'Atasözü' : kind === 'mecaz' ? 'Mecaz' : 'Deyim';
+        content += `**${i + 1}. ${expression}** (${typeLabel})\n`;
+        content += `   Anlamı: ${meaning}\n`;
+        if (example) content += `   Örnek: ${example}\n`;
         content += '\n';
       });
     }
     if (Array.isArray(matchingPairs) && matchingPairs.length > 0) {
       content += '### 🔗 Eşleştirme\n\n';
       content += '| İfade | Anlamı |\n| :--- | :--- |\n';
-      (matchingPairs as any[]).forEach((pair: any) => {
-        content += `| ${pair.left || ''} | ${pair.right || ''} |\n`;
+      matchingPairs.forEach((pair: unknown) => {
+        const pairRec = isRecord(pair) ? pair : {};
+        const left = typeof pairRec.left === 'string' ? pairRec.left : '';
+        const right = typeof pairRec.right === 'string' ? pairRec.right : '';
+        content += `| ${left} | ${right} |\n`;
       });
       content += '\n(Yukarıdaki ifadeleri anlamlarıyla eşleştirin.)\n';
     }
@@ -515,13 +659,13 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
   }
 
   // hece-ses: ses olayı kuralları + heceleme kelimeleri
-  if (templateId === 'hece-ses') {
+  if (normalizedId === 'hece-ses') {
     const rules: unknown = aiResponse.rules;
     const words: unknown = aiResponse.words;
     let content = '';
     if (Array.isArray(rules) && rules.length > 0) {
       content += '### 📌 Ses Olayı Kuralları\n\n';
-      (rules as string[]).forEach((rule: string) => {
+      asStringArray(rules).forEach((rule: string) => {
         content += `- ${rule}\n`;
       });
       content += '\n';
@@ -529,11 +673,14 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
     if (Array.isArray(words) && words.length > 0) {
       content += '### 🔤 Heceleme ve Ses Olayları\n\n';
       content += '| Kelime | Heceler | Ses Olayı |\n| :--- | :--- | :--- |\n';
-      (words as any[]).forEach((w: any) => {
-        const syls = Array.isArray(w.syllables) ? w.syllables.join('-') : '';
+      words.forEach((w: unknown) => {
+        const wRec = isRecord(w) ? w : {};
+        const word = typeof wRec.word === 'string' ? wRec.word : '';
+        const syls = Array.isArray(wRec.syllables) ? asStringArray(wRec.syllables).join('-') : '';
+        const soundEvent = typeof wRec.soundEvent === 'string' ? wRec.soundEvent : '';
         const eventMap: Record<string, string> = { yumusama: 'Ünsüz Yumuşaması', sertlesme: 'Ünsüz Benzeşmesi', 'ses-dusmesi': 'Ses Düşmesi' };
-        const eventLabel = eventMap[w.soundEvent] || w.soundEvent || '';
-        content += `| ${w.word} | ${syls} | ${eventLabel} |\n`;
+        const eventLabel = eventMap[soundEvent] || soundEvent || '';
+        content += `| ${word} | ${syls} | ${eventLabel} |\n`;
       });
       content += '\nTabloyu inceleyerek ses olaylarını ve hece yapılarını öğrenin.\n';
     }
@@ -541,21 +688,27 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
   }
 
   // kelime-bilgisi: eş/zıt/eş sesli kelime grupları
-  if (templateId === 'kelime-bilgisi') {
+  if (normalizedId === 'kelime-bilgisi') {
     const wordSets: unknown = aiResponse.wordSets;
     if (!Array.isArray(wordSets) || wordSets.length === 0) {
       return '[Kelime bilgisi etkinliği üretilemedi]';
     }
     let content = '';
-    (wordSets as any[]).forEach((ws: any) => {
-      const typeLabel = ws.type === 'es-anlamli' ? 'Eş Anlamlı Kelimeler'
-        : ws.type === 'zit-anlamli' ? 'Zıt Anlamlı Kelimeler'
+    wordSets.forEach((ws: unknown) => {
+      const wsRec = isRecord(ws) ? ws : {};
+      const wsType = typeof wsRec.type === 'string' ? wsRec.type : '';
+      const typeLabel = wsType === 'es-anlamli' ? 'Eş Anlamlı Kelimeler'
+        : wsType === 'zit-anlamli' ? 'Zıt Anlamlı Kelimeler'
         : 'Eş Sesli Kelimeler';
       content += `### ${typeLabel}\n\n`;
-      if (Array.isArray(ws.pairs)) {
+      if (Array.isArray(wsRec.pairs)) {
         content += '| Kelime | Karşılığı | Örnek Cümle |\n| :--- | :--- | :--- |\n';
-        (ws.pairs as any[]).forEach((p: any) => {
-          content += `| ${p.word} | ${p.pair} | ${p.example || ''} |\n`;
+        wsRec.pairs.forEach((p: unknown) => {
+          const pRec = isRecord(p) ? p : {};
+          const word = typeof pRec.word === 'string' ? pRec.word : '';
+          const pair = typeof pRec.pair === 'string' ? pRec.pair : '';
+          const example = typeof pRec.example === 'string' ? pRec.example : '';
+          content += `| ${word} | ${pair} | ${example} |\n`;
         });
         content += '\n';
       }
@@ -564,21 +717,21 @@ const formatContentForA4 = (templateId: string, aiResponse: any): string => {
   }
 
   // Generic schema (content alanı var)
-  if (aiResponse.content) {
-    if (typeof aiResponse.content === 'string') {
-      return aiResponse.content;
-    }
-    if (typeof aiResponse.content === 'object' && !Array.isArray(aiResponse.content)) {
-      return aiResponse.content.content || aiResponse.content.text || JSON.stringify(aiResponse.content, null, 2);
-    }
-    return String(aiResponse.content);
+  const genericContent: unknown = aiResponse.content;
+  if (typeof genericContent === 'string') {
+    return genericContent;
+  }
+  if (isRecord(genericContent)) {
+    const nested: unknown = genericContent.content ?? genericContent.text;
+    return typeof nested === 'string' ? nested : JSON.stringify(genericContent, null, 2);
+  }
+  if (Array.isArray(genericContent)) {
+    return String(genericContent);
   }
 
   // Fallback 1: Proxy'den gelen ham metin (text alanı)
-  if (aiResponse.text) return aiResponse.text;
-
-  // Fallback 2: Obje komple string ise (nadiren)
-  if (typeof aiResponse === 'string') return aiResponse;
+  const fallbackText = str('text');
+  if (fallbackText) return fallbackText;
 
   return CONTENT_FALLBACK;
 };
@@ -591,7 +744,17 @@ export const generateSuperStudioContent = async (
   params: GenerateParams
 ): Promise<GeneratedContentPayload[]> => {
   try {
-    const { templates, settings, mode, grade, topic, difficulty, studentId, temperature, topP, thinkingBudget } = params;
+    const { templates, settings, mode, grade, topic, difficulty, studentId } = params;
+
+    // AI parametreleri: güvenli aralığa indirgenir ve Gemini çağrısına gerçekten uygulanır
+    const aiParams = clampSuperStudioParams({
+      temperature: params.temperature,
+      topP: params.topP,
+      thinkingBudget: params.thinkingBudget,
+    });
+
+    // Prompt injection koruması: kullanıcı girdisi tek noktadan sanitize edilir
+    const safeTopic = sanitizeSuperStudioTopic(topic);
 
     if (!templates || templates.length === 0) {
       throw new AppError(
@@ -605,44 +768,61 @@ export const generateSuperStudioContent = async (
 
     const results: GeneratedContentPayload[] = [];
 
+    // Offline öğretmen notu (hızlı modda pedagogicalNote zorunluluğunu korur)
+    const OFFLINE_PEDAGOGICAL_NOTE =
+      'Disleksi desteğine ihtiyacı olan öğrenciler için hazırlandı: yönergeleri sesli okuyun, ' +
+      'her görevde önce kolay maddeden başlayarak güven inşa edin ve öğrencinin hızında ilerleyin.';
+
+    const titleMap: Record<string, string> = {
+        'okuma-anlama': '📚 Okuma Anlama',
+        'dil-bilgisi': '🔤 Dil Bilgisi',
+        'mantik-muhakeme': '🧩 Mantık & Muhakeme',
+        'yaratici-yazarlik': '✍️ Yaratıcı Yazarlık',
+        'yazim-noktalama': '📍 Yazım & Noktalama',
+        'soz-varligi': '📖 Söz Varlığı',
+        'hece-ses': '🔊 Hece & Ses',
+        'kelime-bilgisi': '🔍 Kelime Bilgisi'
+    };
+    const instructionMap: Record<string, string> = {
+        'okuma-anlama': 'Aşağıdaki metni dikkatlice oku ve soruları cevapla.',
+        'dil-bilgisi': 'Kuralları incele ve alıştırmaları yap.',
+        'mantik-muhakeme': 'Problemleri dikkatlice oku ve doğru cevabı bul.',
+        'yaratici-yazarlik': 'Yönergeleri takip ederek yazma çalışmalarını tamamla.',
+        'yazim-noktalama': 'Yazım ve noktalama kurallarına göre düzeltmeleri yap.',
+        'soz-varligi': 'Deyim, atasözü ve mecaz ifadeleri öğren.',
+        'hece-ses': 'Heceleme ve ses olayları çalışmalarını yap.',
+        'kelime-bilgisi': 'Kelime çiftlerini eşleştir ve cümlelerde kullan.'
+    };
+    const titleFor = (tpl: string): string =>
+      titleMap[normalizeTemplateId(tpl)] ?? titleMap[tpl] ?? tpl.toUpperCase();
+    const instructionFor = (tpl: string): string =>
+      instructionMap[normalizeTemplateId(tpl)] ??
+      instructionMap[tpl] ??
+      'Aşağıdaki etkinliği dikkatlice tamamlayalım.';
+
     // Fast mode: Offline/Premium üretim (Premium, Pedagojik ve Dolu Dolu A4)
     if (mode === 'fast') {
       for (const tpl of templates) {
         await new Promise((resolve) => setTimeout(resolve, 200));
 
-        const templateSettings = (settings[tpl] || {}) as Record<string, unknown>;
-        const content = generateOfflineSuperStudioTemplate(tpl, templateSettings, grade, topic, difficulty);
-        
-        // Başlık belirleme
-        const titleMap: Record<string, string> = {
-            'okuma-anlama': '📚 Okuma Anlama',
-            'dil-bilgisi': '🔤 Dil Bilgisi',
-            'mantik-muhakeme': '🧩 Mantık & Muhakeme',
-            'yaratici-yazarlik': '✍️ Yaratıcı Yazarlık',
-            'yazim-noktalama': '📍 Yazım & Noktalama',
-            'soz-varligi': '📖 Söz Varlığı',
-            'hece-ses': '🔊 Hece & Ses',
-            'kelime-bilgisi': '🔍 Kelime Bilgisi'
-        };
-        const instructionMap: Record<string, string> = {
-            'okuma-anlama': 'Aşağıdaki metni dikkatlice oku ve soruları cevapla.',
-            'dil-bilgisi': 'Kuralları incele ve alıştırmaları yap.',
-            'mantik-muhakeme': 'Problemleri dikkatlice oku ve doğru cevabı bul.',
-            'yaratici-yazarlik': 'Yönergeleri takip ederek yazma çalışmalarını tamamla.',
-            'yazim-noktalama': 'Yazım ve noktalama kurallarına göre düzeltmeleri yap.',
-            'soz-varligi': 'Deyim, atasözü ve mecaz ifadeleri öğren.',
-            'hece-ses': 'Heceleme ve ses olayları çalışmalarını yap.',
-            'kelime-bilgisi': 'Kelime çiftlerini eşleştir ve cümlelerde kullan.'
-        };
+        const templateSettings = isRecord(settings[tpl])
+          ? (settings[tpl] as Record<string, unknown>)
+          : {};
+        const offlineContent = generateOfflineSuperStudioTemplate(tpl, templateSettings, grade, safeTopic, difficulty);
+
+        // Hızlı mod işaretçisi: ilk sayfada görünür kalır (boş-sayfa/test ayırt edici)
+        const content = `[HIZLI MOD — Offline Üretim]\n\n${offlineContent}`;
+
+        const pages = splitContentIntoPages(
+          content,
+          `${titleFor(tpl)} — ${safeTopic || 'Genel Çalışma'}`,
+          instructionFor(tpl)
+        ).map((p) => ({ ...p, pedagogicalNote: OFFLINE_PEDAGOGICAL_NOTE }));
 
         results.push({
           id: `gen-${Date.now()}-${tpl}`,
           templateId: tpl,
-          pages: splitContentIntoPages(
-            content,
-            `${titleMap[tpl] || tpl.toUpperCase()} — ${topic || 'Genel Çalışma'}`,
-            instructionMap[tpl] || 'Aşağıdaki etkinliği dikkatlice tamamlayalım.'
-          ),
+          pages,
           createdAt: Date.now(),
         });
       }
@@ -650,17 +830,36 @@ export const generateSuperStudioContent = async (
     }
 
     // AI mode: Gemini ile gerçek içerik üretimi (paralel batch optimizasyonu + cache)
+    // Model sabiti: gemini-2.5-flash (geminiClient.MASTER_MODEL) — değiştirilmedi.
 
     // Cache servisi (IndexedDB tabanlı, opsiyonel — hata durumunda üretim devam eder)
-    let cacheService: any = null;
+    interface SuperStudioCacheLike {
+      get: (key: string) => Promise<unknown>;
+      set: (key: string, value: Record<string, unknown>) => Promise<unknown>;
+    }
+    let cacheService: SuperStudioCacheLike | null = null;
 
     try {
       // Dynamic import ile cacheService'i al (browser'da IndexedDB, test'te mock)
-      const module = await import('../cacheService');
-      cacheService = module.cacheService;
-    } catch (e) {
+      const cacheModule = (await import('../cacheService')) as unknown as Record<string, unknown>;
+      const candidate: unknown = cacheModule.cacheService;
+      if (
+        isRecord(candidate) &&
+        typeof candidate.get === 'function' &&
+        typeof candidate.set === 'function'
+      ) {
+        cacheService = candidate as unknown as SuperStudioCacheLike;
+      }
+    } catch {
       // Cache servisi yüklenemezse (Node/SSR) sessizce devam et
     }
+
+    const isPageDataArray = (value: unknown): value is PageData[] =>
+      Array.isArray(value) &&
+      value.every(
+        (p): p is PageData =>
+          isRecord(p) && typeof p.title === 'string' && typeof p.content === 'string'
+      );
 
     // Cache'ten kontrol et
     const cachedResults: GeneratedContentPayload[] = [];
@@ -668,50 +867,53 @@ export const generateSuperStudioContent = async (
 
     if (cacheService) {
       for (const tpl of templates) {
-        const templateSettings = (settings[tpl] || {}) as Record<string, unknown>;
+        const templateSettings = isRecord(settings[tpl])
+          ? (settings[tpl] as Record<string, unknown>)
+          : {};
         const cacheKey = generateCacheKey(tpl, templateSettings, grade, difficulty);
 
         try {
-          const cached = await cacheService.get(cacheKey);
-          if (cached) {
-            const cachedPayload = cached as Record<string, unknown>;
+          const cached: unknown = await cacheService.get(cacheKey);
+          if (isRecord(cached)) {
             cachedResults.push({
               id: `cache-${Date.now()}-${tpl}`,
-              templateId: (cachedPayload.templateId as string) || tpl,
-              pages: (cachedPayload.pages as PageData[]) || [],
-              createdAt: (cachedPayload.createdAt as number) || Date.now(),
+              templateId: typeof cached.templateId === 'string' ? cached.templateId : tpl,
+              pages: isPageDataArray(cached.pages) ? cached.pages : [],
+              createdAt: typeof cached.createdAt === 'number' ? cached.createdAt : Date.now(),
               fromCache: true,
             });
             remainingTemplates = remainingTemplates.filter((t) => t !== tpl);
             logInfo(`[Super Türkçe] Cache hit: ${tpl}`);
           }
-        } catch (e) {
-          logWarn(`[Super Türkçe] Cache okuma hatası (${tpl}):`, { error: String(e) });
+        } catch (e: unknown) {
+          logWarn(`[Super Türkçe] Cache okuma hatası (${tpl}):`, { error: e });
         }
       }
     }
 
     // Cache'te olmayanlar için API çağrısı yap
     const promises = remainingTemplates.map(async (tpl) => {
-      const templateSettings = (settings[tpl] || {}) as Record<string, unknown>;
+      const templateSettings = isRecord(settings[tpl])
+        ? (settings[tpl] as Record<string, unknown>)
+        : {};
       const prompt = buildPromptForTemplate(
         tpl,
         templateSettings,
         grade,
-        topic,
+        safeTopic,
         difficulty,
         studentId
       );
       const schema = buildSchemaForTemplate(tpl);
 
       try {
-        logInfo(`[Super Türkçe] Calling API for: ${tpl}`, { temperature, topP, thinkingBudget });
-        const aiResponse = await generateWithSchema(prompt, schema, { temperature, topP, thinkingBudget });
+        logInfo(`[Super Türkçe] Calling API for: ${tpl}`, { ...aiParams });
+        const aiResponse: unknown = await generateWithSchema(prompt, schema, { ...aiParams });
         logInfo(
           `[Super Türkçe] API response for ${tpl}:`,
-          { 
-            type: typeof aiResponse, 
-            keys: aiResponse ? Object.keys(aiResponse) : 'null' 
+          {
+            type: typeof aiResponse,
+            keys: isRecord(aiResponse) ? Object.keys(aiResponse) : 'null'
           }
         );
 
@@ -720,10 +922,14 @@ export const generateSuperStudioContent = async (
           throw new AppError('AI yanıtı boş döndü', 'INTERNAL_ERROR', 500);
         }
 
+        // pedagogicalNote zorunlu: eksikse bu şablon başarısız sayılır
+        const pedagogicalNote = extractPedagogicalNote(aiResponse, tpl);
+
         const content = formatContentForA4(tpl, aiResponse);
 
         // Baslik cekme mantigi (aiResponse.title yoksa content'in ilk satirini dene)
-        let title = aiResponse.title || '';
+        const responseTitle: unknown = isRecord(aiResponse) ? aiResponse.title : undefined;
+        let title = typeof responseTitle === 'string' ? responseTitle : '';
         if (!title && content) {
           const firstLine = content.split('\n')[0].replace(/[#*]/g, '').trim();
           title = firstLine.substring(0, 50) || `${tpl.replace('-', ' ').toUpperCase()} Etkinliği`;
@@ -731,25 +937,16 @@ export const generateSuperStudioContent = async (
           title = `${tpl.replace('-', ' ').toUpperCase()} Etkinliği`;
         }
 
-        const instructionMap: Record<string, string> = {
-            'okuma-anlama': 'Aşağıdaki metni dikkatlice oku ve soruları cevapla.',
-            'dil-bilgisi': 'Kuralları incele ve alıştırmaları yap.',
-            'mantik-muhakeme': 'Problemleri dikkatlice oku ve doğru cevabı bul.',
-            'yaratici-yazarlik': 'Yönergeleri takip ederek yazma çalışmalarını tamamla.',
-            'yazim-noktalama': 'Yazım ve noktalama kurallarına göre düzeltmeleri yap.',
-            'soz-varligi': 'Deyim, atasözü ve mecaz ifadeleri öğren.',
-            'hece-ses': 'Heceleme ve ses olayları çalışmalarını yap.',
-            'kelime-bilgisi': 'Kelime çiftlerini eşleştir ve cümlelerde kullan.'
-        };
+        const pages = splitContentIntoPages(
+          content,
+          title,
+          instructionFor(tpl)
+        ).map((p) => ({ ...p, pedagogicalNote }));
 
         const payload: GeneratedContentPayload = {
           id: `gen-${Date.now()}-${tpl}`,
           templateId: tpl,
-          pages: splitContentIntoPages(
-            content,
-            title,
-            instructionMap[tpl] || 'Aşağıdaki etkinliği dikkatlice tamamlayalım.'
-          ),
+          pages,
           createdAt: Date.now(),
         };
 
@@ -759,8 +956,8 @@ export const generateSuperStudioContent = async (
           try {
             await cacheService.set(cacheKey, { ...payload } as Record<string, unknown>);
             logInfo(`[Super Türkçe] Cache yazıldı: ${tpl}`);
-          } catch (e) {
-            logWarn(`[Super Türkçe] Cache yazma hatası (${tpl}):`, { error: String(e) });
+          } catch (e: unknown) {
+            logWarn(`[Super Türkçe] Cache yazma hatası (${tpl}):`, { error: e });
           }
         }
 
@@ -802,7 +999,10 @@ export const generateSuperStudioContent = async (
     if (failures.length > 0) {
       const failureDetails = failures.map((f) => {
         if (f.status === 'rejected') {
-          return { type: 'rejected', reason: f.reason?.message || String(f.reason) };
+          const reason: unknown = f.reason;
+          const reasonMessage =
+            reason instanceof Error ? reason.message : String(reason);
+          return { type: 'rejected', reason: reasonMessage };
         }
         return { type: 'failed', templateId: f.value?.templateId, success: f.value?.success };
       });

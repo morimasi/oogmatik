@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Student } from '../types';
+import type { Student, StudentProfile } from '../types/student';
 import { db } from '../services/firebaseClient';
 import {
   collection,
@@ -14,7 +14,7 @@ import {
   DocumentData,
   // @ts-ignore
 } from 'firebase/firestore';
-import { StudentProfile, StudentAIProfile } from '../types';
+import type { StudentAIProfile } from '../types/student-advanced';
 import { logError } from '../utils/logger';
 import { toAppError } from '../utils/AppError';
 import { createAdvancedStudent, AdvancedStudent } from '../types/student-advanced';

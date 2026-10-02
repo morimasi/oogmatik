@@ -3,7 +3,7 @@ import { useSuperStudioStore } from '../../../store/useSuperStudioStore';
 import { SuperStudioDifficulty, GenerationMode } from '../../../types/superStudio';
 
 export const MainSettingsPanel: React.FC = () => {
-    const { grade, topic, difficulty, generationMode, setGrade, setTopic, setDifficulty, setGenerationMode } = useSuperStudioStore();
+    const { grade, topic, difficulty, generationMode, generationParams, setGrade, setTopic, setDifficulty, setGenerationMode, setGenerationParams } = useSuperStudioStore();
 
     return (
         <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50 shadow-sm relative w-full">
@@ -70,6 +70,72 @@ export const MainSettingsPanel: React.FC = () => {
                         >
                             ✨ AI Mod (Gemini)
                         </button>
+                    </div>
+                </div>
+
+                {/* AI Üretim Parametreleri (motor.md Phase 1.1) — store'daki generationMode/generationParams değerleri üretime aktarılır */}
+                <div className="border-t border-slate-700/60 pt-4 space-y-4">
+                    <div>
+                        <label className="flex justify-between text-xs text-slate-400 mb-1">
+                            <span>Sıcaklık — Temperature (Yaratıcılık)</span>
+                            <span className="font-mono text-teal-400">{generationParams.temperature.toFixed(2)}</span>
+                        </label>
+                        <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.05"
+                            value={generationParams.temperature}
+                            onChange={(e) => setGenerationParams({ temperature: parseFloat(e.target.value) })}
+                            className="w-full accent-teal-500"
+                            aria-label="Sıcaklık"
+                        />
+                        <div className="flex justify-between text-[10px] text-slate-600 mt-0.5">
+                            <span>Kesin (0)</span>
+                            <span>Yaratıcı (1)</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="flex justify-between text-xs text-slate-400 mb-1">
+                            <span>Top-P (Çeşitlilik)</span>
+                            <span className="font-mono text-teal-400">{generationParams.topP.toFixed(2)}</span>
+                        </label>
+                        <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.05"
+                            value={generationParams.topP}
+                            onChange={(e) => setGenerationParams({ topP: parseFloat(e.target.value) })}
+                            className="w-full accent-teal-500"
+                            aria-label="Top-P"
+                        />
+                        <div className="flex justify-between text-[10px] text-slate-600 mt-0.5">
+                            <span>Odaklı (0)</span>
+                            <span>Çeşitli (1)</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="flex justify-between text-xs text-slate-400 mb-1">
+                            <span>Düşünme Bütçesi (Thinking Budget)</span>
+                            <span className="font-mono text-teal-400">{generationParams.thinkingBudget}</span>
+                        </label>
+                        <input
+                            type="range"
+                            min="0"
+                            max="8192"
+                            step="256"
+                            value={generationParams.thinkingBudget}
+                            onChange={(e) => setGenerationParams({ thinkingBudget: parseInt(e.target.value, 10) })}
+                            className="w-full accent-teal-500"
+                            aria-label="Düşünme Bütçesi"
+                        />
+                        <div className="flex justify-between text-[10px] text-slate-600 mt-0.5">
+                            <span>Hızlı</span>
+                            <span>Derin</span>
+                        </div>
                     </div>
                 </div>
             </div>

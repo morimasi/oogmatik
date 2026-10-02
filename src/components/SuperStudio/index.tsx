@@ -6,6 +6,7 @@ import { A4PreviewPanel } from './components/A4PreviewPanel';
 import { useSuperStudioStore } from '../../store/useSuperStudioStore';
 import { useToastStore } from '../../store/useToastStore';
 import { generateSuperStudioContent } from '../../services/generators/superStudioGenerator';
+import { AppError } from '../../utils/AppError';
 
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
 
@@ -27,7 +28,9 @@ export const SuperStudio: React.FC<SuperStudioProps> = () => {
     topic,
     difficulty,
     studentId,
+    generationMode,
     generationParams,
+    generatedContents,
     generationProgress,
     generationStep,
     generationHistory,
@@ -62,6 +65,7 @@ export const SuperStudio: React.FC<SuperStudioProps> = () => {
 
     try {
       const total = selectedTemplates.length;
+      let producedCount = 0;
 
       for (let i = 0; i < total; i++) {
         const tpl = selectedTemplates[i];
@@ -69,20 +73,33 @@ export const SuperStudio: React.FC<SuperStudioProps> = () => {
         setGenerationStep('api');
         setGenerationProgress(Math.round(((i) / total) * 70));
 
+        // Store'daki üretim modu + AI parametreleri generator'e aktarılır.
+        // fast → çevrimdışı motora (superOfflineEngine), ai → Gemini 2.5 Flash'a yönlenir.
         const results = await generateSuperStudioContent({
           templates: [tpl],
           settings: templateSettings,
-          mode: 'ai',
+          mode: generationMode,
           grade,
           topic: topic || 'Genel',
           difficulty,
           studentId: studentId || null,
+          temperature: generationParams.temperature,
+          topP: generationParams.topP,
+          thinkingBudget: generationParams.thinkingBudget,
         });
 
         setGenerationStep('processing');
         setGenerationProgress(Math.round(((i + 0.5) / total) * 90));
 
-        results.forEach((content) => {
+        // Boş / içeriksiz sayfalar preview'a düşmez (boş-sayfa koruması)
+        const validResults = results.filter((content) =>
+          content.pages?.some((p) =>
+            typeof p.content === 'string' && p.content.trim().length > 0
+          ) ?? false
+        );
+
+        validResults.forEach((content) => {
+          producedCount += 1;
           addGeneratedContent(content);
           addToHistory({
             id: content.id,
@@ -104,17 +121,29 @@ export const SuperStudio: React.FC<SuperStudioProps> = () => {
 
       setGenerationStep('done');
       setGenerationProgress(100);
+
+      // Üretim başarısız/boş dönerse preview adımına geçilmez — kullanıcı takılı kalmaz
+      if (producedCount === 0) {
+        addToast('Üretim tamamlandı ancak gösterilecek içerik oluşmadı. Ayarları kontrol edip tekrar deneyin.', 'error');
+        setGenerationStep('idle');
+        setGenerationProgress(0);
+        return;
+      }
+
       setWizardStep('preview');
-      addToast(`${total} sayfa başarıyla üretildi!`, 'success');
-    } catch (error: any) {
-      logError('Üretim hatası:', error);
-      addToast(error?.userMessage || 'AI üretim başarısız. Tekrar deneyin.', 'error');
+      addToast(`${producedCount} sayfa başarıyla üretildi!`, 'success');
+    } catch (error: unknown) {
+      logError(error instanceof Error ? error : String(error));
+      const userMessage = error instanceof AppError
+        ? error.userMessage
+        : 'AI üretim başarısız. Tekrar deneyin.';
+      addToast(userMessage, 'error');
       setGenerationStep('idle');
       setGenerationProgress(0);
     } finally {
       setIsGenerating(false);
     }
-  }, [selectedTemplates, templateSettings, grade, topic, difficulty, studentId, generationParams, addToast, setIsGenerating, clearGeneratedContents, addGeneratedContent, setGenerationProgress, setGenerationStep, setCurrentTemplate, addToHistory, setWizardStep]);
+  }, [selectedTemplates, templateSettings, grade, topic, difficulty, studentId, generationMode, generationParams, addToast, setIsGenerating, clearGeneratedContents, addGeneratedContent, setGenerationProgress, setGenerationStep, setCurrentTemplate, addToHistory, setWizardStep]);
 
   // Keyboard shortcuts - motor.md Faz 3.2
   useEffect(() => {
@@ -171,7 +200,14 @@ export const SuperStudio: React.FC<SuperStudioProps> = () => {
               <button
                 key={step.key}
                 onClick={() => {
-                  if (idx <= currentIdx + 1 && !isGenerating) setWizardStep(step.key);
+                  if (isGenerating) return;
+                  if (idx > currentIdx + 1) return;
+                  // Boş-sayfa koruması: içerik yokken preview adımına geçilemez
+                  if (step.key === 'preview' && generatedContents.length === 0) {
+                    addToast('Önce şablonları üretmelisiniz. Önizlenecek içerik yok.', 'warning');
+                    return;
+                  }
+                  setWizardStep(step.key);
                 }}
                 disabled={isGenerating}
                 className={`flex-1 flex items-center justify-center gap-2 py-3 text-[10px] font-bold uppercase tracking-wider transition-all ${
@@ -297,6 +333,11 @@ export const SuperStudio: React.FC<SuperStudioProps> = () => {
                       addToast('En az bir şablon seçmelisiniz.', 'warning');
                       return;
                     }
+                    // Boş-sayfa koruması: üretim yapılmadan preview'a geçilemez
+                    if (generatedContents.length === 0) {
+                      addToast('Önce şablonları üretmelisiniz. Önizlenecek içerik yok.', 'warning');
+                      return;
+                    }
                     goNextWizardStep();
                   }}
                   className="px-6 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold rounded-xl text-xs tracking-wider transition-all flex items-center gap-2"
@@ -316,7 +357,7 @@ export const SuperStudio: React.FC<SuperStudioProps> = () => {
                     <div>
                       <p className="text-sm font-bold text-emerald-300">İçerikler Hazır</p>
                       <p className="text-xs text-slate-400">
-                        {selectedTemplates.length} şablon üretildi. Sağ panelde önizleyebilir, kaydedebilir veya yazdırabilirsiniz.
+                        {generatedContents.length} içerik üretildi. Sağ panelde önizleyebilir, kaydedebilir veya yazdırabilirsiniz.
                       </p>
                     </div>
                   </div>

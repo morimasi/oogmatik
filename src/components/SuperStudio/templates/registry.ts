@@ -5,13 +5,13 @@ import type { SuperStudioDifficulty } from '../../../types/superStudio';
 // GLOBAL TYPES (MİMARİ ALTYAPI)
 // ------------------------------------------------------------
 
-export interface TemplateSettingsProps<T = any> {
+export interface TemplateSettingsProps<T = unknown> {
     templateId: string;
     settings: T;
     onChange: (payload: Partial<T>) => void;
 }
 
-export interface IPromptBuilderContext<T = any> {
+export interface IPromptBuilderContext<T = unknown> {
     topic: string;
     studentName?: string;
     grade?: string | null;
@@ -19,15 +19,59 @@ export interface IPromptBuilderContext<T = any> {
     settings: T;
 }
 
-export interface SuperTemplateDefinition<T = any> {
+export interface SuperTemplateDefinition<T = unknown> {
     id: string;
     title: string;
     category: string;
     description: string;
     icon: string;             // FontAwesome referansı
     defaultSettings: T;       // Şablonun standart ayarları
-    component: React.FC<TemplateSettingsProps<T>>; 
+    component: React.FC<TemplateSettingsProps<T>>;
     promptBuilder: (context: IPromptBuilderContext<T>) => string;
+}
+
+// ------------------------------------------------------------
+// TİP DARALTICILAR + ADAPTÖRLER (any KULLANILMAZ)
+// ------------------------------------------------------------
+
+/** Bilinmeyen değeri kayıt olarak daraltır. */
+export function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null;
+}
+
+/**
+ * Tipe özgü ayar bileşenini registry'nin `unknown` tabanlı imzasına uyarlar.
+ * Bileşen kendi tipiyle (`TemplateSettingsProps<KendiTipi>`) yazılmaya devam eder;
+ * daraltma `unknown` üzerinden güvenli cast ile yapılır.
+ */
+export function adaptSettingsComponent<T>(
+    component: React.FC<TemplateSettingsProps<T>>,
+): React.FC<TemplateSettingsProps<unknown>> {
+    const Adapted: React.FC<TemplateSettingsProps<unknown>> = ({
+        templateId,
+        settings,
+        onChange,
+    }) => {
+        const narrowSettings = settings as T;
+        const narrowOnChange = (payload: Partial<T>): void => {
+            // Partial<T> (tüm alanlar opsiyonel) `{}` öğesine atanabilir.
+            onChange(payload);
+        };
+        return component({ templateId, settings: narrowSettings, onChange: narrowOnChange });
+    };
+    return Adapted;
+}
+
+/**
+ * Tipe özgü promptBuilder fonksiyonunu registry'nin `unknown` tabanlı
+ * imzasına uyarlar. `settings` alanı `unknown` üzerinden güvenli şekilde daraltılır.
+ */
+export function adaptPromptBuilder<T>(
+    builder: (context: IPromptBuilderContext<T>) => string,
+): (context: IPromptBuilderContext<unknown>) => string {
+    return (context: IPromptBuilderContext<unknown>): string => {
+        return builder({ ...context, settings: context.settings as T });
+    };
 }
 
 // ------------------------------------------------------------
@@ -47,7 +91,7 @@ import { DEFAULT_SETTINGS as KelimeBilgisiDefaults, Settings as KelimeBilgisiSet
 // REGISTRY: TÜM ŞABLONLARIN DEPOSU
 // ------------------------------------------------------------
 
-export const SUPER_STUDIO_REGISTRY: SuperTemplateDefinition[] = [
+export const SUPER_STUDIO_REGISTRY: SuperTemplateDefinition<unknown>[] = [
     {
         id: 'okuma-anlama',
         title: 'Okuma Anlama',
@@ -55,8 +99,8 @@ export const SUPER_STUDIO_REGISTRY: SuperTemplateDefinition[] = [
         description: 'Bilişsel yükü filtrelenmiş, disleksi dostu okuma metinleri ve 5N1K soruları.',
         icon: 'fa-solid fa-book-open-reader',
         defaultSettings: OkumaAnlamaDefaults,
-        component: OkumaAnlamaSettings as any,
-        promptBuilder: OkumaAnlamaPrompt as any
+        component: adaptSettingsComponent(OkumaAnlamaSettings),
+        promptBuilder: adaptPromptBuilder(OkumaAnlamaPrompt)
     },
     {
         id: 'dil-bilgisi',
@@ -65,8 +109,8 @@ export const SUPER_STUDIO_REGISTRY: SuperTemplateDefinition[] = [
         description: 'Ayna harfler (b/d, p/q) ve harf farkındalığı odaklı dil bilgisi çalışmaları.',
         icon: 'fa-solid fa-spell-check',
         defaultSettings: DilBilgisiDefaults,
-        component: DilBilgisiSettings as any,
-        promptBuilder: DilBilgisiPrompt as any
+        component: adaptSettingsComponent(DilBilgisiSettings),
+        promptBuilder: adaptPromptBuilder(DilBilgisiPrompt)
     },
     {
         id: 'mantik-muhakeme',
@@ -75,8 +119,8 @@ export const SUPER_STUDIO_REGISTRY: SuperTemplateDefinition[] = [
         description: 'Sıralama, sözel matris ve dedektiflik oyunlarıyla üst düzey mantık becerileri.',
         icon: 'fa-solid fa-puzzle-piece',
         defaultSettings: MantikMuhakemeDefaults,
-        component: MantikMuhakemeSettings as any,
-        promptBuilder: MantikMuhakemePrompt as any
+        component: adaptSettingsComponent(MantikMuhakemeSettings),
+        promptBuilder: adaptPromptBuilder(MantikMuhakemePrompt)
     },
     {
         id: 'yaratici-yazarlik',
@@ -85,8 +129,8 @@ export const SUPER_STUDIO_REGISTRY: SuperTemplateDefinition[] = [
         description: 'Hikaye zarları ve duygu radarı ile eğlenceli, oyunlaştırılmış yazma stüdyosu.',
         icon: 'fa-solid fa-pen-nib',
         defaultSettings: YaraticiYazarlikDefaults,
-        component: YaraticiYazarlikSettings as any,
-        promptBuilder: YaraticiYazarlikPrompt as any
+        component: adaptSettingsComponent(YaraticiYazarlikSettings),
+        promptBuilder: adaptPromptBuilder(YaraticiYazarlikPrompt)
     },
     {
         id: 'yazim-noktalama',
@@ -95,8 +139,8 @@ export const SUPER_STUDIO_REGISTRY: SuperTemplateDefinition[] = [
         description: 'Hata dedektifi ve kural hatırlatıcılar ile noktalama işaretlerini ustalıkla öğrenme.',
         icon: 'fa-solid fa-quote-right',
         defaultSettings: YazimNoktalamaDefaults,
-        component: YazimNoktalamaSettings as any,
-        promptBuilder: YazimNoktalamaPrompt as any
+        component: adaptSettingsComponent(YazimNoktalamaSettings),
+        promptBuilder: adaptPromptBuilder(YazimNoktalamaPrompt)
     },
     {
         id: 'soz-varligi',
@@ -105,8 +149,8 @@ export const SUPER_STUDIO_REGISTRY: SuperTemplateDefinition[] = [
         description: 'Görsel analoji ve bağlam temelli deyim/atasözü farkındalık çalışmaları.',
         icon: 'fa-solid fa-language',
         defaultSettings: SozVarligiDefaults,
-        component: SozVarligiSettings as any,
-        promptBuilder: SozVarligiPrompt as any
+        component: adaptSettingsComponent(SozVarligiSettings),
+        promptBuilder: adaptPromptBuilder(SozVarligiPrompt)
     },
     {
         id: 'hece-ses',
@@ -115,8 +159,8 @@ export const SUPER_STUDIO_REGISTRY: SuperTemplateDefinition[] = [
         description: 'Fonolojik farkındalık, heceleme kuralları ve ses olaylarını kavrama stüdyosu.',
         icon: 'fa-solid fa-wave-square',
         defaultSettings: HeceSesDefaults,
-        component: HeceSesSettings as any,
-        promptBuilder: HeceSesPrompt as any
+        component: adaptSettingsComponent(HeceSesSettings),
+        promptBuilder: adaptPromptBuilder(HeceSesPrompt)
     },
     {
         id: 'kelime-bilgisi',
@@ -125,11 +169,11 @@ export const SUPER_STUDIO_REGISTRY: SuperTemplateDefinition[] = [
         description: 'Eş anlamlı, zıt anlamlı ve eş sesli kelimeler ile kelime dağarcığı geliştirme stüdyosu.',
         icon: 'fa-solid fa-spell-check',
         defaultSettings: KelimeBilgisiDefaults,
-        component: KelimeBilgisiSettings as any,
-        promptBuilder: KelimeBilgisiPrompt as any
+        component: adaptSettingsComponent(KelimeBilgisiSettings),
+        promptBuilder: adaptPromptBuilder(KelimeBilgisiPrompt)
     }
 ];
 
-export const getTemplateById = (id: string) => {
+export const getTemplateById = (id: string): SuperTemplateDefinition<unknown> | undefined => {
     return SUPER_STUDIO_REGISTRY.find(t => t.id === id);
 };

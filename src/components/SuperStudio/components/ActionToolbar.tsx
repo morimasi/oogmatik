@@ -5,7 +5,8 @@ import { useAuthStore } from '../../../store/useAuthStore';
 import { useStudentStore } from '../../../store/useStudentStore';
 import { useToastStore } from '../../../store/useToastStore';
 import { printService } from '../../../utils/printService';
-import { SingleWorksheetData, ActivityType } from '../../../types';
+import { ActivityType } from '../../../types/activity';
+import type { SingleWorksheetData } from '../../../types/core';
 import { getTemplateById } from '../templates/registry';
 
 import { logInfo, logError, logWarn } from '../../../utils/logger.js';
@@ -22,12 +23,20 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
 
   const firstTemplateDef = selectedTemplates.length > 0 ? getTemplateById(selectedTemplates[0]) : null;
 
+  const hasRenderableOutput = generatedContents.some((c) =>
+    Array.isArray(c.pages) &&
+    c.pages.some((p) => typeof p.content === 'string' && p.content.trim().length > 0)
+  );
+
   const handleSave = async () => {
     if (!user) {
       addToast('Kaydetmek için giriş yapmalısınız.', 'error');
       return;
     }
-    if (generatedContents.length === 0) return;
+    if (generatedContents.length === 0 || !hasRenderableOutput) {
+      addToast('Kaydedilecek içerik bulunamadı. Önce içerik üretin.', 'warning');
+      return;
+    }
 
     try {
       const content = generatedContents[0];
@@ -68,19 +77,36 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
     }
   };
 
-  const handlePrint = () => {
-    const targetSelector = '.a4-page';
-    printService.generateRealPdf(targetSelector, 'Super_Turkce_Etkinlik', {
-      paperSize: 'A4',
-      quality: 'high',
-    });
+  const handlePrint = async () => {
+    // Boş-sayfa koruması: yazdırılabilir içerik yoksa PDF motoruna düşme
+    if (generatedContents.length === 0 || !hasRenderableOutput) {
+      addToast('Yazdırılacak içerik bulunamadı. Önce içerik üretin.', 'warning');
+      return;
+    }
+    // Galeri / boş durumda `.a4-page` DOM'da olmaz — gerçek DOM ile eşleşme kontrolü
+    const printable = document.querySelector('.a4-page');
+    if (!printable) {
+      addToast('Yazdırma için önce "Sayfa Görünümü"ne geçin (Galeri modunda PDF alınamaz).', 'warning');
+      return;
+    }
+    try {
+      const targetSelector = '.a4-page';
+      await printService.generateRealPdf(targetSelector, 'Super_Turkce_Etkinlik', {
+        paperSize: 'A4',
+        quality: 'high',
+      });
+      addToast('PDF başarıyla oluşturuldu.', 'success');
+    } catch (error) {
+      logError(error instanceof Error ? error : String(error), { context: 'Yazdırma hatası' });
+      addToast('PDF oluşturulurken bir hata oluştu.', 'error');
+    }
   };
 
   return (
     <div className="flex gap-3">
       <button
          onClick={handleSave}
-         disabled={isGenerating || generatedContents.length === 0}
+         disabled={isGenerating || !hasRenderableOutput}
          className="px-4 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold transition-all border border-slate-700/50 flex items-center gap-2 backdrop-blur-md hover:scale-105 active:scale-95 disabled:opacity-30 disabled:pointer-events-none shadow-sm"
          title="Sisteme Kaydet veya Arşivle"
        >
@@ -88,8 +114,12 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
          <span className="hidden sm:inline">Kaydet</span>
        </button>
        
-       <button
-         onClick={() => {
+        <button
+          onClick={() => {
+              if (!hasRenderableOutput) {
+                addToast('Fasiküle eklenecek içerik bulunamadı.', 'warning');
+                return;
+              }
               const { addItem, items } = useFascicleStore.getState();
               addItem({
                   id: crypto.randomUUID(),
@@ -101,8 +131,8 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
 
               });
              addToast('Fasiküle başarıyla eklendi!', 'success');
-         }}
-         disabled={isGenerating || generatedContents.length === 0}
+          }}
+          disabled={isGenerating || !hasRenderableOutput}
          className="px-4 py-2 bg-fuchsia-600/80 hover:bg-fuchsia-600 text-white rounded-xl text-xs font-semibold transition-all border border-fuchsia-500/50 flex items-center gap-2 backdrop-blur-md hover:scale-105 active:scale-95 disabled:opacity-30 disabled:pointer-events-none shadow-sm"
          title="Fasiküle Ekle"
        >
@@ -112,7 +142,7 @@ export const ActionToolbar: React.FC<ActionToolbarProps> = () => {
 
       <button
         onClick={handlePrint}
-        disabled={isGenerating || generatedContents.length === 0}
+        disabled={isGenerating || !hasRenderableOutput}
         className="px-5 py-2 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-bold rounded-xl text-xs transition-all shadow-lg shadow-teal-500/20 flex items-center gap-2 hover:scale-105 active:scale-95 disabled:opacity-30 disabled:pointer-events-none"
         title="A4 Olarak Yazdır veya PDF İndir"
       >

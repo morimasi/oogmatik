@@ -3,13 +3,44 @@ import {
   GenerationMode,
   SuperStudioDifficulty,
   GeneratedContentPayload,
+  SuperStudioGenerationParams,
+  SUPER_STUDIO_PARAM_DEFAULTS,
+  SUPER_STUDIO_PARAM_LIMITS,
 } from '../types/superStudio';
 
-export interface GenerationParams {
-  temperature: number;
-  topP: number;
-  thinkingBudget: number;
-}
+export type GenerationParams = SuperStudioGenerationParams;
+
+const clampParam = (value: number, min: number, max: number, fallback: number): number => {
+  if (typeof value !== 'number' || !Number.isFinite(value)) return fallback;
+  return Math.min(max, Math.max(min, value));
+};
+
+/** UI'dan gelen AI parametrelerini güvenli aralığa indirger (0-1 / 0-8192). */
+export const clampGenerationParams = (
+  current: GenerationParams,
+  patch: Partial<GenerationParams>
+): GenerationParams => ({
+  temperature: clampParam(
+    patch.temperature ?? current.temperature,
+    SUPER_STUDIO_PARAM_LIMITS.temperature.min,
+    SUPER_STUDIO_PARAM_LIMITS.temperature.max,
+    SUPER_STUDIO_PARAM_DEFAULTS.temperature
+  ),
+  topP: clampParam(
+    patch.topP ?? current.topP,
+    SUPER_STUDIO_PARAM_LIMITS.topP.min,
+    SUPER_STUDIO_PARAM_LIMITS.topP.max,
+    SUPER_STUDIO_PARAM_DEFAULTS.topP
+  ),
+  thinkingBudget: Math.round(
+    clampParam(
+      patch.thinkingBudget ?? current.thinkingBudget,
+      SUPER_STUDIO_PARAM_LIMITS.thinkingBudget.min,
+      SUPER_STUDIO_PARAM_LIMITS.thinkingBudget.max,
+      SUPER_STUDIO_PARAM_DEFAULTS.thinkingBudget
+    )
+  ),
+});
 
 export type GenerationStep = 'idle' | 'prompt' | 'api' | 'processing' | 'saving' | 'done';
 export type WizardStep = 'settings' | 'templates' | 'preview';
@@ -120,27 +151,35 @@ export const useSuperStudioStore = create<SuperStudioState>()((set, get) => ({
   setTopic: (topic: string) => set({ topic }),
   setDifficulty: (diff: SuperStudioDifficulty) => set({ difficulty: diff }),
   setGenerationMode: (mode: GenerationMode) => set({ generationMode: mode }),
-  setWizardStep: (step: WizardStep) => set({ wizardStep: step }),
+  setWizardStep: (step: WizardStep) =>
+    set((state) => {
+      // Boş-sayfa koruması: içerik yokken preview adımına geçilemez
+      if (step === 'preview' && state.generatedContents.length === 0) return {};
+      return { wizardStep: step };
+    }),
 
   goNextWizardStep: () =>
     set((state) => {
       const steps: WizardStep[] = ['settings', 'templates', 'preview'];
       const idx = steps.indexOf(state.wizardStep);
-      if (idx < steps.length - 1) return { wizardStep: steps[idx + 1] };
-      return {};
+      if (idx < 0 || idx >= steps.length - 1) return {};
+      const next = steps[idx + 1];
+      // Boş-sayfa koruması: içerik yokken preview adımına geçilemez
+      if (next === 'preview' && state.generatedContents.length === 0) return {};
+      return { wizardStep: next };
     }),
 
   goPrevWizardStep: () =>
     set((state) => {
       const steps: WizardStep[] = ['settings', 'templates', 'preview'];
       const idx = steps.indexOf(state.wizardStep);
-      if (idx > 0) return { wizardStep: steps[idx - 1] };
-      return {};
+      if (idx <= 0) return {};
+      return { wizardStep: steps[idx - 1] };
     }),
 
   setGenerationParams: (params: Partial<GenerationParams>) =>
     set((state) => ({
-      generationParams: { ...state.generationParams, ...params },
+      generationParams: clampGenerationParams(state.generationParams, params),
     })),
 
   toggleTemplate: (templateId: string) =>
@@ -155,26 +194,38 @@ export const useSuperStudioStore = create<SuperStudioState>()((set, get) => ({
         };
       } else {
         const templateDef = SUPER_STUDIO_REGISTRY.find((t) => t.id === templateId);
+        const defaults: Record<string, unknown> =
+          typeof templateDef?.defaultSettings === 'object' && templateDef.defaultSettings !== null
+            ? (templateDef.defaultSettings as Record<string, unknown>)
+            : {};
         return {
           selectedTemplates: [...state.selectedTemplates, templateId],
           templateSettings: {
             ...state.templateSettings,
-            [templateId]: templateDef ? { ...templateDef.defaultSettings } : {},
+            [templateId]: { ...defaults },
           },
         };
       }
     }),
 
   setTemplateSetting: (templateId: string, payload: unknown) =>
-    set((state) => ({
-      templateSettings: {
-        ...state.templateSettings,
-        [templateId]: {
-          ...(state.templateSettings[templateId] as Record<string, unknown> || {}),
-          ...(payload as Record<string, unknown>),
+    set((state) => {
+      const current: unknown = state.templateSettings[templateId];
+      const currentSettings: Record<string, unknown> =
+        typeof current === 'object' && current !== null
+          ? (current as Record<string, unknown>)
+          : {};
+      const patch: Record<string, unknown> =
+        typeof payload === 'object' && payload !== null
+          ? (payload as Record<string, unknown>)
+          : {};
+      return {
+        templateSettings: {
+          ...state.templateSettings,
+          [templateId]: { ...currentSettings, ...patch },
         },
-      },
-    })),
+      };
+    }),
 
   addGeneratedContent: (content: GeneratedContentPayload) =>
     set((state) => ({

@@ -15,6 +15,15 @@ vi.mock('../src/services/cacheService', () => ({
   },
 }));
 
+// Mock logger (üretim kodunda console.* yasak; loglar logger üzerinden)
+vi.mock('../src/utils/logger', () => ({
+  logInfo: vi.fn(),
+  logWarn: vi.fn(),
+  logError: vi.fn(),
+}));
+
+import { logError } from '../src/utils/logger';
+
 import { generateWithSchema } from '../src/services/geminiClient';
 
 describe('Super Türkçe Generator - Batch Optimization', () => {
@@ -105,9 +114,7 @@ describe('Super Türkçe Generator - Batch Optimization', () => {
         });
       });
 
-      // Console.error'u mockla
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
+      // Hata logger üzerinden loglanmalı
       const result = await generateSuperStudioContent({
         templates: ['okuma-anlama', 'dilbilgisi', 'mantik-muhakeme'],
         settings: {},
@@ -126,18 +133,14 @@ describe('Super Türkçe Generator - Batch Optimization', () => {
       const templateIds = result.map((r) => r.templateId).sort();
       expect(templateIds).toEqual(['mantik-muhakeme', 'okuma-anlama']);
 
-      // Hata loglanmalı
-      expect(consoleErrorSpy).toHaveBeenCalled();
-
-      consoleErrorSpy.mockRestore();
+      // Hata logger üzerinden loglanmalı
+      expect(vi.mocked(logError)).toHaveBeenCalled();
     });
 
     it('should throw error when all templates fail', async () => {
       vi.mocked(generateWithSchema).mockRejectedValue(
         new AppError('Tüm istekler başarısız', 'AI_ERROR', 500, undefined, true)
       );
-
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       await expect(
         generateSuperStudioContent({
@@ -151,7 +154,7 @@ describe('Super Türkçe Generator - Batch Optimization', () => {
         })
       ).rejects.toThrow('Tüm şablonlar için üretim başarısız oldu');
 
-      consoleErrorSpy.mockRestore();
+      expect(vi.mocked(logError)).toHaveBeenCalled();
     });
   });
 
@@ -169,8 +172,6 @@ describe('Super Türkçe Generator - Batch Optimization', () => {
         });
       });
 
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
       await generateSuperStudioContent({
         templates: ['okuma-anlama', 'dilbilgisi'],
         settings: {},
@@ -181,14 +182,17 @@ describe('Super Türkçe Generator - Batch Optimization', () => {
         topic: 'Test Topic',
       });
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
+      expect(vi.mocked(logError)).toHaveBeenCalledWith(
         expect.stringContaining('[Super Türkçe]'),
-        expect.any(Array)
+        expect.objectContaining({ failures: expect.any(Array) })
       );
 
-      expect(consoleErrorSpy.mock.calls[0][0]).toContain('1/2 şablon başarısız');
-
-      consoleErrorSpy.mockRestore();
+      const logCalls = vi.mocked(logError).mock.calls;
+      expect(
+        logCalls.some(
+          (c) => typeof c[0] === 'string' && (c[0] as string).includes('1/2 şablon başarısız')
+        )
+      ).toBe(true);
     });
   });
 

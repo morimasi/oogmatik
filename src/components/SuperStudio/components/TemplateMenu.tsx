@@ -4,12 +4,18 @@ import { SUPER_STUDIO_REGISTRY } from '../templates/registry';
 
 export const TemplateMenu: React.FC = () => {
     const { selectedTemplates, toggleTemplate } = useSuperStudioStore();
+    const selectedCount = selectedTemplates.length;
 
     return (
         <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50 shadow-sm relative w-full">
             <h2 className="text-lg font-medium text-slate-200 mb-4 flex items-center">
                 <span className="w-1.5 h-5 bg-accent rounded-full mr-2"></span>
                 Şablon Ekle (Çoklu Seçim)
+                {selectedCount > 0 && (
+                    <span className="ml-2 bg-accent/15 text-accent px-2.5 py-0.5 rounded-full text-[10px] font-bold border border-accent/30">
+                        {selectedCount} seçili
+                    </span>
+                )}
             </h2>
 
             <div className="grid grid-cols-1 gap-2">
@@ -19,6 +25,8 @@ export const TemplateMenu: React.FC = () => {
                         <button
                             key={tpl.id}
                             onClick={() => toggleTemplate(tpl.id)}
+                            aria-pressed={isSelected}
+                            title={isSelected ? `${tpl.title} seçimini kaldır (ayarları da temizlenir)` : `${tpl.title} şablonunu seç`}
                             className={`flex items-center text-left w-full px-3 py-2.5 rounded-lg border transition-all duration-200 ${isSelected
                                 ? 'bg-accent/10 border-accent/40 text-accent/90'
                                 : 'bg-slate-900/50 border-slate-700/50 text-slate-300 hover:border-slate-600 hover:bg-slate-800'

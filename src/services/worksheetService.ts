@@ -5,7 +5,10 @@
 
 import { db } from './firebaseClient.js';
 import * as firestore from "firebase/firestore";
-import { SavedWorksheet, SingleWorksheetData, ActivityType, StyleSettings, StudentProfile, CollectionItem } from '../types.js';
+import { ActivityType } from '../types/activity.js';
+import type { SavedWorksheet, SingleWorksheetData, CollectionItem } from '../types/core.js';
+import type { StyleSettings } from '../types/common.js';
+import type { StudentProfile } from '../types/student.js';
 import { ACTIVITY_CATEGORIES } from '../constants.js';
 import { AppError, NotFoundError, AuthorizationError, DatabaseError, InternalServerError, toAppError } from '../utils/AppError.js';
 import { logError as reportError, retryWithBackoff, withTimeout } from '../utils/errorHandler.js';

@@ -5,22 +5,47 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MarkdownRenderer } from '../../Common/MarkdownRenderer';
 import { getTemplateById } from '../templates/registry';
 import { BrandedLoadingAnimation } from '../../shared/BrandedLoadingAnimation';
+import type { GeneratedContentPayload, PageData } from '../../../types/superStudio';
 
 interface A4PreviewPanelProps {
 }
 
-export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
-  const { generatedContents, isGenerating } = useSuperStudioStore();
-  const [currentPageIndex, setCurrentPageIndex] = useState(0);
-  const [showAllPages, setShowAllPages] = useState(false);
-  const [showGallery, setShowGallery] = useState(false);
+export interface PreviewPage {
+  content: string;
+  title: string;
+  id: string;
+  pageNumber: number;
+  totalPages: number;
+  contentId: string;
+  templateId: string;
+  pedagogicalNote?: string;
+}
 
-  // Tüm sayfaları hesapla
-  const allPages = useMemo(() => {
-    if (generatedContents.length === 0) return [];
+/** Sayfa indeksini [0, total-1] aralığına kelepçeler (taşma koruması). */
+export const clampPageIndex = (index: number, total: number): number => {
+  if (!Number.isFinite(index) || total <= 0) return 0;
+  const floored = Math.floor(index);
+  if (floored < 0) return 0;
+  if (floored > total - 1) return total - 1;
+  return floored;
+};
 
-    return generatedContents.flatMap((content) =>
-      content.pages.map((page, subIndex) => ({
+/** Boş içerikli payload'ları eleyerek render edilebilir sayfa var mı? (boş-sayfa koruması) */
+export const hasRenderablePages = (contents: GeneratedContentPayload[]): boolean => {
+  return contents.some((c) =>
+    Array.isArray(c.pages) &&
+    c.pages.some((p) => typeof p.content === 'string' && p.content.trim().length > 0)
+  );
+};
+
+/** İçeriği boş sayfaları atlayarak düz sayfa listesi üretir. */
+export const flattenPreviewPages = (contents: GeneratedContentPayload[]): PreviewPage[] => {
+  if (!Array.isArray(contents) || contents.length === 0) return [];
+  return contents.flatMap((content) => {
+    if (!content || !Array.isArray(content.pages)) return [];
+    return content.pages
+      .filter((page) => typeof page.content === 'string' && page.content.trim().length > 0)
+      .map((page, subIndex) => ({
         content: page.content,
         title: page.title || '',
         id: `${content.id}-page-${subIndex}`,
@@ -28,12 +53,37 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
         totalPages: content.pages.length,
         contentId: content.id,
         templateId: content.templateId,
-      }))
-    );
-  }, [generatedContents]);
+        pedagogicalNote: page.pedagogicalNote,
+      }));
+  });
+};
+
+export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
+  const { generatedContents, isGenerating } = useSuperStudioStore();
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
+  const [showAllPages, setShowAllPages] = useState(false);
+  const [showGallery, setShowGallery] = useState(false);
+
+  // Tüm sayfaları hesapla (boş içerikler elenir — boş preview'a düşme koruması)
+  const allPages = useMemo(() => flattenPreviewPages(generatedContents), [generatedContents]);
 
   const totalPages = allPages.length;
-  const currentPage = allPages[currentPageIndex];
+  const safePageIndex = clampPageIndex(currentPageIndex, totalPages);
+  const currentPage = totalPages > 0 ? allPages[safePageIndex] : undefined;
+
+  // Sayfa indeks taşması koruması: içerik değişince indeksi kelepçele/sıfırla
+  useEffect(() => {
+    if (totalPages === 0) {
+      if (currentPageIndex !== 0) setCurrentPageIndex(0);
+      if (showAllPages) setShowAllPages(false);
+      if (showGallery) setShowGallery(false);
+      return;
+    }
+    if (currentPageIndex !== safePageIndex) {
+      setCurrentPageIndex(safePageIndex);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [totalPages]);
 
   const nextPage = () => {
     if (currentPageIndex < totalPages - 1) {
@@ -48,9 +98,8 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
   };
 
   const goToPage = (index: number) => {
-    if (index >= 0 && index < totalPages) {
-      setCurrentPageIndex(index);
-    }
+    if (!Number.isFinite(index)) return;
+    setCurrentPageIndex(clampPageIndex(index, totalPages));
   };
 
   return (
@@ -81,7 +130,8 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={prevPage}
-              disabled={currentPageIndex === 0}
+              disabled={safePageIndex === 0}
+              aria-label="Önceki sayfa"
               className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-slate-400 hover:text-white transition-colors"
             >
               <i className="fa-solid fa-chevron-left text-sm"></i>
@@ -92,8 +142,9 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
                 type="number"
                 min="1"
                 max={totalPages}
-                value={currentPageIndex + 1}
-                onChange={(e) => goToPage(parseInt(e.target.value) - 1)}
+                value={safePageIndex + 1}
+                onChange={(e) => goToPage(parseInt(e.target.value, 10) - 1)}
+                aria-label="Sayfa numarası"
                 className="w-12 text-center bg-transparent text-slate-300 text-sm font-medium focus:outline-none"
               />
               <span className="text-slate-500 text-sm">/ {totalPages}</span>
@@ -101,7 +152,8 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
 
             <button
               onClick={nextPage}
-              disabled={currentPageIndex === totalPages - 1}
+              disabled={safePageIndex === totalPages - 1}
+              aria-label="Sonraki sayfa"
               className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-slate-400 hover:text-white transition-colors"
             >
               <i className="fa-solid fa-chevron-right text-sm"></i>
@@ -162,7 +214,10 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {generatedContents.map((content) => {
                   const tplDef = getTemplateById(content.templateId);
-                  const excerpt = content.pages[0]?.content
+                  const firstContent = typeof content.pages[0]?.content === 'string'
+                    ? (content.pages[0] as PageData).content
+                    : '';
+                  const excerpt = firstContent
                     .replace(/[#*_`]/g, '')
                     .split('\n')
                     .filter(l => l.trim())
@@ -183,7 +238,7 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
                           setShowAllPages(false);
                         }
                       }}
-                      className="bg-slate-800/60 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-5 cursor-pointer hover:border-teal-500/40 hover:bg-slate-700/60 transition-all group"
+                      className="bg-slate-800/60 backdrop-blur-xl border border-slate-700/50 rounded-[2.5rem] p-5 cursor-pointer hover:border-teal-500/40 hover:bg-slate-700/60 transition-all group font-lexend text-left"
                     >
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
@@ -203,7 +258,7 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
                           #{pageCount}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-400 leading-relaxed line-clamp-3">
+                      <p className="text-xs text-slate-400 text-left leading-loose line-clamp-3">
                         {excerpt}
                       </p>
                       <div className="mt-3 flex items-center gap-2 text-[10px] text-teal-500/60 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -215,13 +270,13 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
                 })}
               </div>
             </motion.div>
-          ) : totalPages === 0 ? (
+          ) : totalPages === 0 || !currentPage ? (
             <motion.div
               key="empty"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="w-[210mm] min-h-[297mm] bg-white shadow-2xl relative flex flex-col items-center justify-center p-8 text-slate-800 font-lexend rounded-sm"
+              className="w-[210mm] min-h-[297mm] bg-white shadow-2xl relative flex flex-col items-center justify-center p-8 text-slate-800 font-lexend rounded-sm text-left leading-loose"
             >
               <div className="text-center space-y-6 max-w-md">
                 <div className="text-6xl grayscale opacity-20">📄</div>
@@ -246,7 +301,8 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
               {allPages.map((page, index) => (
                 <div
                   key={page.id}
-                  className="w-[210mm] min-h-[297mm] bg-white shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] relative p-16 text-slate-800 font-lexend print:shadow-none print:m-0 print:p-0 print:w-full print:min-h-0 page-break-after-always overflow-hidden flex flex-col a4-page"
+                  style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}
+                  className="w-[210mm] min-h-[297mm] bg-white shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] relative p-16 text-slate-800 font-lexend text-left leading-loose print:shadow-none print:m-0 print:p-0 print:w-full print:min-h-0 page-break-after-always overflow-hidden flex flex-col a4-page"
                 >
                   <PageContent page={page} index={index} />
                 </div>
@@ -255,7 +311,7 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
           ) : (
             // Tek sayfa görünümü
             <motion.div
-              key={`page-${currentPageIndex}`}
+              key={`page-${safePageIndex}`}
               initial={{ opacity: 0, scale: 0.98, y: 50 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{
@@ -263,9 +319,10 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
                 type: 'spring',
                 damping: 20,
               }}
-              className="w-[210mm] min-h-[297mm] bg-white shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] relative p-16 text-slate-800 font-lexend print:shadow-none print:m-0 print:p-0 print:w-full print:min-h-0 page-break-after-always overflow-hidden flex flex-col a4-page"
+              style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}
+              className="w-[210mm] min-h-[297mm] bg-white shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] relative p-16 text-slate-800 font-lexend text-left leading-loose print:shadow-none print:m-0 print:p-0 print:w-full print:min-h-0 page-break-after-always overflow-hidden flex flex-col a4-page"
             >
-              <PageContent page={currentPage} index={currentPageIndex} />
+              <PageContent page={currentPage} index={safePageIndex} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -275,7 +332,8 @@ export const A4PreviewPanel: React.FC<A4PreviewPanelProps> = () => {
 };
 
 // Page Content Component
-const PageContent: React.FC<{ page: any; index: number }> = ({ page, index }) => {
+// KVKK: Bu kartta öğrenci adı / tanı / skor YAZILMAZ — yalnızca boş doldurma alanları bulunur.
+const PageContent: React.FC<{ page: PreviewPage | undefined; index: number }> = ({ page, index }) => {
   if (!page) return null;
 
   return (
@@ -315,11 +373,11 @@ const PageContent: React.FC<{ page: any; index: number }> = ({ page, index }) =>
         )}
       </div>
 
-      {/* Content Body */}
-      <div className="flex-1 relative">
+      {/* Content Body — disleksi dostu: sol hizalı, geniş satır aralığı, iki yana yaslama yok */}
+      <div className="flex-1 relative text-left">
         <MarkdownRenderer
           content={page.content}
-          className="text-lg leading-relaxed text-slate-800"
+          className="text-lg leading-loose text-left text-slate-800"
         />
       </div>
 
@@ -336,11 +394,11 @@ const PageContent: React.FC<{ page: any; index: number }> = ({ page, index }) =>
                 <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center text-teal-600 text-lg shrink-0">
                   <i className="fa-solid fa-graduation-cap"></i>
                 </div>
-                <div className="space-y-1">
+                <div className="space-y-1 text-left">
                   <span className="font-bold text-slate-800 block">
                     Stratejik Uygulama Notu:
                   </span>
-                  Pedagogical note will be displayed here.
+                  {page.pedagogicalNote || 'Bu etkinlik disleksi dostu ilkelerle hazırlandı: kısa yönergeler, bol beyaz alan ve kolay başlangıç görevi ile güven inşası hedeflendi.'}
                 </div>
               </div>
             </div>

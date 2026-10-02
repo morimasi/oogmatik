@@ -1,53 +1,114 @@
 
 import { getWordsForDifficulty, syllabifyWord } from '../offlineGenerators/helpers';
-import { SuperStudioDifficulty } from '../../types/superStudio';
+import { SuperStudioDifficulty, GeneratedContentPayload, PageData } from '../../types/superStudio';
 
 /**
  * Super Turkce Sablonlari icin Premium Çevrimdışı (Offline) Üretici Motoru
  * AI beklemeden, pedagojik ve "dolu dolu" A4 icerigi uretir.
+ * KVKK: Bu motor öğrenci adı / tanı / skor yazmaz — anonim içerik üretir.
  */
+
+type OfflineSettings = Record<string, unknown>;
+
+const asSettings = (settings: unknown): OfflineSettings => {
+  if (typeof settings === 'object' && settings !== null && !Array.isArray(settings)) {
+    return settings as OfflineSettings;
+  }
+  return {};
+};
+
+const asString = (value: unknown, fallback: string): string => {
+  return typeof value === 'string' && value.trim().length > 0 ? value : fallback;
+};
+
+/** Öğretmen notu eki — her offline çıktının sonunda pedagojik gerekçe bulunur. */
+const TEACHER_NOTE_FOOTER =
+  `\n\n---\n\n> **Öğretmen Notu:** Bu etkinlik disleksi dostu ilkelerle hazırlandı ` +
+  `(geniş satır aralığı, sol hizalı metin, kısa yönergeler). ` +
+  `İlk görev bilinçli olarak kolay tutuldu; öğrencinin güven kazanması amaçlandı.\n`;
+
+const withTeacherNote = (md: string): string => {
+  const trimmed = md.trim();
+  if (trimmed.length === 0) return trimmed;
+  return `${trimmed}${TEACHER_NOTE_FOOTER}`;
+};
 
 export const generateOfflineSuperStudioTemplate = (
   templateId: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  settings: any,
+  settings: unknown,
   grade: string | null,
   topic: string,
   difficulty: SuperStudioDifficulty
 ): string => {
-  const currentTopic = topic || 'Genel Kavramlar';
-  const currentGrade = grade || 'İlkokul';
-  
-  // Baslik ve Meta Bilgisi
-  let content = `# ${currentTopic.toUpperCase()} — ETKİNLİK DÜNYASI\n`;
-  content += `> **Sınıf:** ${currentGrade} | **Zorluk:** ${difficulty} | **Mod:** Hızlı Üretim (Offline)\n\n`;
-  content += `===SAYFA_SONU===\n\n`; // İlk sayfa kapak gibi ama dolu olacak
+  const safeSettings = asSettings(settings);
+  const currentTopic = topic && topic.trim().length > 0 ? topic.trim() : 'Genel Kavramlar';
 
   switch (templateId) {
     case 'okuma-anlama':
-      return generateOkumaAnlamaOffline(settings, currentTopic, difficulty);
+      return withTeacherNote(generateOkumaAnlamaOffline(safeSettings, currentTopic, difficulty));
     case 'dil-bilgisi':
-      return generateDilBilgisiOffline(settings, currentTopic, difficulty);
+      return withTeacherNote(generateDilBilgisiOffline(safeSettings, currentTopic, difficulty));
     case 'mantik-muhakeme':
-      return generateMantikMuhakemeOffline(settings, currentTopic, difficulty);
+      return withTeacherNote(generateMantikMuhakemeOffline(safeSettings, currentTopic, difficulty));
     case 'yaratici-yazarlik':
-      return generateYaraticiYazarlikOffline(settings, currentTopic, difficulty);
+      return withTeacherNote(generateYaraticiYazarlikOffline(safeSettings, currentTopic, difficulty));
     case 'yazim-noktalama':
-      return generateYazimNoktalamaOffline(settings, currentTopic, difficulty);
+      return withTeacherNote(generateYazimNoktalamaOffline(safeSettings, currentTopic, difficulty));
     case 'soz-varligi':
-      return generateSozVarligiOffline(settings, currentTopic, difficulty);
+      return withTeacherNote(generateSozVarligiOffline(safeSettings, currentTopic, difficulty));
     case 'hece-ses':
-      return generateHeceSesOffline(settings, currentTopic, difficulty);
+      return withTeacherNote(generateHeceSesOffline(safeSettings, currentTopic, difficulty));
     case 'kelime-bilgisi':
-      return generateKelimeBilgisiOffline(settings, currentTopic, difficulty);
+      return withTeacherNote(generateKelimeBilgisiOffline(safeSettings, currentTopic, difficulty));
     default:
-      return `# ${templateId.toUpperCase()} Etkinliği\n\nBu şablon için offline içerik henüz hazırlanıyor.`;
+      return withTeacherNote(generateGenericOffline(templateId, currentTopic, difficulty));
   }
+};
+
+/**
+ * Offline markdown çıktısını GeneratedContentPayload şemasına sarar.
+ * Boş / anlamsız içerik geçerse güvenli zengin varsayılan üretilir (boş sayfa koruması).
+ */
+export const buildOfflinePayload = (
+  templateId: string,
+  markdown: unknown,
+  title: string,
+  instruction: string
+): GeneratedContentPayload => {
+  const raw = typeof markdown === 'string' ? markdown.trim() : '';
+  const safeContent = raw.length > 0 ? raw : withTeacherNote(generateGenericOffline(templateId, 'Genel Çalışma', 'Orta'));
+  const safeTitle = title.trim().length > 0 ? title : 'Etkinlik Çalışması';
+  const pages: PageData[] = safeContent.split(/===SAYFA_SONU===/i)
+    .map((chunk) => chunk.trim())
+    .filter((chunk) => chunk.length > 0)
+    .map((chunk, i) => ({
+      title: i === 0 ? safeTitle : `${safeTitle} (devam)`,
+      content: chunk,
+      instruction,
+      pageNumber: i + 1,
+      pedagogicalNote: 'Disleksi dostu düzen: sol hizalı, geniş satır aralıklı metin; ilk görev kolay tutuldu.',
+    }));
+  const finalPages: PageData[] = pages.length > 0
+    ? pages.map((p, i) => ({ ...p, totalPages: pages.length, pageNumber: p.pageNumber ?? i + 1 }))
+    : [{
+        title: safeTitle,
+        content: safeContent,
+        instruction,
+        pageNumber: 1,
+        totalPages: 1,
+        pedagogicalNote: 'Disleksi dostu düzen: sol hizalı, geniş satır aralıklı metin; ilk görev kolay tutuldu.',
+      }];
+  return {
+    id: `offline-${Date.now()}-${templateId}`,
+    templateId,
+    pages: finalPages,
+    createdAt: Date.now(),
+  };
 };
 
 // --- YARDIMCI JENERATÖRLER ---
 
-function generateOkumaAnlamaOffline(settings: any, topic: string, difficulty: string): string {
+function generateOkumaAnlamaOffline(settings: OfflineSettings, topic: string, difficulty: string): string {
   const words = getWordsForDifficulty(difficulty as string, 'animals');
   const story = `Dün sabah erkenden ${words[0]} ile ${words[1]} ormana gitmişler. Orada çok güzel bir ${words[2]} görmüşler. Birdenbire karşılarına bir ${words[3]} çıkmış. Hep birlikte çok eğlenmişler ama akşam olunca eve dönmeleri gerekmiş. Bu harika macerayı hiç unutmamışlar.`;
   
@@ -73,9 +134,10 @@ function generateOkumaAnlamaOffline(settings: any, topic: string, difficulty: st
   return md;
 }
 
-function generateDilBilgisiOffline(settings: any, topic: string, difficulty: string): string {
-  const target = settings.targetDistractors || 'b-d';
-  const letters = target.split('-');
+function generateDilBilgisiOffline(settings: OfflineSettings, topic: string, difficulty: string): string {
+  const target = asString(settings.targetDistractors, 'b-d');
+  const parts = target.split('-').filter((p) => p.trim().length > 0);
+  const letters = [parts[0] ?? 'b', parts[1] ?? 'd'];
   
   let md = `# 🔤 ${topic} - DİL BİLGİSİ STÜDYOSU\n\n`;
   md += `### 📌 GÖREV 1: Harf Dedektifi\n`;
@@ -96,7 +158,7 @@ function generateDilBilgisiOffline(settings: any, topic: string, difficulty: str
   return md;
 }
 
-function generateMantikMuhakemeOffline(settings: any, topic: string, difficulty: string): string {
+function generateMantikMuhakemeOffline(_settings: OfflineSettings, topic: string, _difficulty: string): string {
   let md = `# 🧩 ${topic} - MANTIK VE MUHAKEME\n\n`;
   md += `### 📌 GÖREV 1: Sıralama Oyunu\n`;
   md += `Aşağıdaki olayları oluş sırasına göre numaralandırın (1-4).\n\n`;
@@ -113,7 +175,7 @@ function generateMantikMuhakemeOffline(settings: any, topic: string, difficulty:
   return md;
 }
 
-function generateYaraticiYazarlikOffline(settings: any, topic: string, difficulty: string): string {
+function generateYaraticiYazarlikOffline(_settings: OfflineSettings, topic: string, _difficulty: string): string {
   let md = `# ✍️ ${topic} - YARATICI YAZARLIK\n\n`;
   md += `### 📌 GÖREV 1: Hikaye Başlatıcı\n`;
   md += `"Bir gün sabah uyandığımda ellerimin maviye boyandığını gördüm..."\n\n`;
@@ -130,7 +192,7 @@ function generateYaraticiYazarlikOffline(settings: any, topic: string, difficult
   return md;
 }
 
-function generateYazimNoktalamaOffline(settings: any, topic: string, difficulty: string): string {
+function generateYazimNoktalamaOffline(_settings: OfflineSettings, topic: string, _difficulty: string): string {
   let md = `# 📍 ${topic} - YAZIM VE NOKTALAMA\n\n`;
   md += `### 📌 GÖREV 1: Noktalama Dedektifi\n`;
   md += `Aşağıdaki cümlelerde parantez içine uygun noktalama işaretlerini koyun.\n\n`;
@@ -147,7 +209,7 @@ function generateYazimNoktalamaOffline(settings: any, topic: string, difficulty:
   return md;
 }
 
-function generateSozVarligiOffline(settings: any, topic: string, difficulty: string): string {
+function generateSozVarligiOffline(_settings: OfflineSettings, topic: string, _difficulty: string): string {
   let md = `# 📖 ${topic} - SÖZ VARLIĞI (DEYİMLER)\n\n`;
   md += `### 📌 GÖREV 1: Deyim Eşleştirme\n`;
   md += `Deyimleri anlamları ile eşleştirin.\n\n`;
@@ -164,7 +226,7 @@ function generateSozVarligiOffline(settings: any, topic: string, difficulty: str
   return md;
 }
 
-function generateHeceSesOffline(settings: any, topic: string, difficulty: string): string {
+function generateHeceSesOffline(_settings: OfflineSettings, topic: string, _difficulty: string): string {
   let md = `# 🔊 ${topic} - HECE VE SES OLAYLARI\n\n`;
   md += `### 📌 GÖREV 1: Ünlü/Ünsüz Ayrımı\n`;
   md += `Aşağıdaki kelimelerdeki ünlü harfleri yuvarlak içine al.\n\n`;
@@ -179,7 +241,7 @@ function generateHeceSesOffline(settings: any, topic: string, difficulty: string
   return md;
 }
 
-function generateKelimeBilgisiOffline(settings: any, topic: string, difficulty: string): string {
+function generateKelimeBilgisiOffline(_settings: OfflineSettings, topic: string, _difficulty: string): string {
   let md = `# 🔍 ${topic} - KELİME BİLGİSİ\n\n`;
   md += `### 📌 GÖREV 1: Eş Anlamlılarını Bul\n`;
   md += `1. Cevap → __________\n2. Siyah → __________\n3. Mektep → __________\n4. Hediye → __________\n\n`;
@@ -192,5 +254,26 @@ function generateKelimeBilgisiOffline(settings: any, topic: string, difficulty: 
   md += `- **L - U - K - O** → __________\n`;
   md += `- **M - E - L - K - A** → __________\n`;
 
+  return md;
+}
+
+/** Bilinmeyen şablonlar için zengin pedagojik varsayılan (placeholder metin yasak). */
+function generateGenericOffline(templateId: string, topic: string, difficulty: string): string {
+  const label = templateId.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  let md = `# 📚 ${topic} - ${label}\n\n`;
+  md += `> **Zorluk:** ${difficulty} | **Yönerge:** Her görevi sırayla ve sakin bir tempoda tamamla.\n\n`;
+  md += `### 📌 GÖREV 1: Isınma (Kolay Başlangıç)\n`;
+  md += `Aşağıdaki kelimeleri sesli oku ve her birini bir cümlede kullan.\n\n`;
+  md += `**okul - kitap - arkadaş - bahçe**\n\n`;
+  md += `1. ________________________________________________\n`;
+  md += `2. ________________________________________________\n\n`;
+  md += `### 📌 GÖREV 2: ${topic} Keşfi\n`;
+  md += `"${topic}" konusunda bildiklerini üç maddeyle yaz.\n\n`;
+  md += `1. ________________________________________________\n`;
+  md += `2. ________________________________________________\n`;
+  md += `3. ________________________________________________\n\n`;
+  md += `### 📌 GÖREV 3: Kendini Değerlendir\n`;
+  md += `Bugünkü çalışmada en iyi yaptığın şeyi işaretle.\n\n`;
+  md += `⭐ Dikkatli okudum    ⭐ Cevaplarımı kontrol ettim    ⭐ Vazgeçmedim\n`;
   return md;
 }

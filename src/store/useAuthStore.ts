@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { User } from '../types';
+import type { User } from '../types/user';
 import { authService } from '../services/authService';
 import { auth } from '../services/firebaseClient';
 // @ts-ignore
