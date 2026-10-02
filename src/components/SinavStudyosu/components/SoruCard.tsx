@@ -119,7 +119,7 @@ export const SoruCard: React.FC<SoruCardProps> = ({
       case 'acik-uclu':
         return (
           <div className="mt-3 px-3">
-            <div className={`space-y-${isPrinting ? '4' : '3'} mt-1`}>
+            <div className={isPrinting ? 'space-y-4 mt-1' : 'space-y-3 mt-1'}>
               {[0, 1, 2, 3].map((i) => (
                 <div key={i} className="border-b border-gray-300 h-6" />
               ))}
@@ -171,7 +171,7 @@ export const SoruCard: React.FC<SoruCardProps> = ({
       {/* Soru Metni */}
       <div
         className={`leading-relaxed font-medium mb-4 ${isPrinting ? 'text-black' : 'text-[var(--text-primary)]'}`}
-        style={{ ...textStyle, color: isPrinting ? '#000' : 'var(--text-primary)', lineHeight: 1.7 }}
+        style={{ ...textStyle, color: isPrinting ? '#000' : 'var(--text-primary)', lineHeight: 1.7, textAlign: 'left' }}
       >
         {soru.soruMetni}
       </div>

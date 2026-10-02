@@ -6,7 +6,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSinavStore } from '../../store/useSinavStore';
 import { printService } from '../../utils/printService';
 import { generateExamViaAPI } from '../../services/sinavService';
-import { PrintConfig, DEFAULT_PRINT_CONFIG } from '../../types/sinav';
+import { PrintConfig, DEFAULT_PRINT_CONFIG, normalizePrintConfig, isSinav } from '../../types/sinav';
 import { KazanimPicker } from './KazanimPicker';
 import { SoruAyarlari } from './SoruAyarlari';
 import { SinavOnizleme } from './SinavOnizleme';
@@ -18,7 +18,7 @@ import { useAuthStore } from '../../store/useAuthStore';
 import { useStudentStore } from '../../store/useStudentStore';
 import { useFascicleStore } from '../../store/useFascicleStore';
 import { ActivityType } from '../../types';
-import type { Soru, CevapAnahtari } from '../../types/sinav';
+import type { Student } from '../../types/student';
 
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
 type TabType = 'onizleme' | 'cevap-anahtari';
@@ -72,8 +72,14 @@ const FmtBtn: React.FC<{
 );
 
 interface SinavStudyosuProps {
-  initialData?: any;
+  initialData?: unknown;
 }
+
+/** unknown hydration girdisinden güvenli kayıt çıkarır (any yasak). */
+const asRecord = (value: unknown): Record<string, unknown> | null =>
+  typeof value === 'object' && value !== null && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : null;
 
 export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => {
   const {
@@ -104,16 +110,23 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
 
   // --- INITIAL DATA LOAD (HYDRATION) ---
   useEffect(() => {
-    if (initialData) {
-      const dataObj = initialData.content || initialData;
-      // In exams, the actual exam object is usually in data[0] or content.data[0]
-      const exam = dataObj.data?.[0] || dataObj.content?.[0] || (Array.isArray(dataObj) ? dataObj[0] : null);
+    if (!initialData) return;
+    const root = asRecord(initialData);
+    const dataObj = asRecord(root?.content) ?? root ?? asRecord(initialData);
+    // Sınav nesnesi genelde data[0], content[0] veya dizi kökündedir
+    const candidates: unknown[] = [];
+    if (dataObj) {
+      if (Array.isArray(dataObj.data)) candidates.push(...(dataObj.data as unknown[]));
+      if (Array.isArray(dataObj.content)) candidates.push(...(dataObj.content as unknown[]));
+    }
+    if (Array.isArray(initialData)) candidates.push(...(initialData as unknown[]));
 
-      if (exam) {
-        setAktifSinav(exam);
-        if (dataObj.printConfig) setPrintConfig(dataObj.printConfig);
-        setActiveTab('onizleme');
-      }
+    const exam = candidates.find(isSinav) ?? null;
+
+    if (exam) {
+      setAktifSinav(exam);
+      if (dataObj && 'printConfig' in dataObj) setPrintConfig(normalizePrintConfig(dataObj.printConfig));
+      setActiveTab('onizleme');
     }
   }, [initialData]);
 
@@ -191,8 +204,8 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
         quality: 'high'
       });
       showSuccess('PDF indirildi!');
-    } catch (error: any) {
-      logError('İndirme hatası:', error);
+    } catch (error: unknown) {
+      logError('İndirme hatası:', { hata: error instanceof Error ? error.message : 'Bilinmeyen hata' });
       setError('PDF oluşturulurken bir hata oluştu.');
     } finally {
       setIsDownloading(false);
@@ -204,8 +217,8 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
     setIsDownloading(true);
     try {
       await printService.generatePdf('#sinav-print-target', aktifSinav.baslik, { action: 'print' });
-    } catch (error: any) {
-      logError('Yazdırma hatası:', error);
+    } catch (error: unknown) {
+      logError('Yazdırma hatası:', { hata: error instanceof Error ? error.message : 'Bilinmeyen hata' });
       setError('Yazdırma başlatılamadı.');
     } finally {
       setIsDownloading(false);
@@ -274,7 +287,11 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
     setIsSharing(true);
     try {
       const user = useAuthStore.getState().user;
-      await worksheetService.shareWorksheet(savedExamDocId, user?.id || '', (user as any)?.displayName || '', shareUserId.trim());
+      const displayName =
+        user && typeof user === 'object' && 'displayName' in user && typeof user.displayName === 'string'
+          ? user.displayName
+          : '';
+      await worksheetService.shareWorksheet(savedExamDocId, user?.id || '', displayName, shareUserId.trim());
       showSuccess('Sınav paylaşıldı!');
       setShowShareModal(false);
       setShareUserId('');
@@ -441,7 +458,7 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
               <div className={`transition-all duration-500 ease-in-out ${openSections.ayarlar ? 'max-h-none opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
                 <div className="px-5 pb-5 pt-1">
                   {ayarlar.secilenKazanimlar.length > 0 ? (
-                    <SoruAyarlari ayarlar={ayarlar} onSoruDagilimiChange={setSoruDagilimi} onOzelKonuChange={(k) => setAyarlar({ ozelKonu: k })} />
+                    <SoruAyarlari ayarlar={ayarlar} onSoruDagilimiChange={setSoruDagilimi} onOzelKonuChange={(k) => setAyarlar({ ozelKonu: k })} printConfig={printConfig} onPrintConfigChange={updateConfig} />
                   ) : (
                     <div className="flex flex-col items-center justify-center py-8 border-2 border-dashed border-[var(--border-color)]/50 rounded-2xl bg-[var(--bg-primary)]">
                       <div className="w-12 h-12 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center mb-3 text-2xl opacity-40">🎯</div>
@@ -590,7 +607,7 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
                     </div>
                   ) : (
                     <div className="bg-[var(--bg-paper)]/90 backdrop-blur-xl rounded-3xl p-8 shadow-xl border border-[var(--border-color)]">
-                      <CevapAnahtariComponent cevapAnahtari={aktifSinav.cevapAnahtari} sinavBaslik={aktifSinav.baslik} />
+                      <CevapAnahtariComponent cevapAnahtari={aktifSinav.cevapAnahtari} sinavBaslik={aktifSinav.baslik} config={printConfig} />
                     </div>
                   )}
                 </div>
@@ -621,7 +638,7 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
               <p className="text-sm text-[var(--text-muted)]">Henüz öğrenci eklenmemiş. Lütfen önce öğrenci ekleyin.</p>
             ) : (
               <div className="space-y-2 max-h-80 overflow-y-auto">
-                {useStudentStore.getState().students.map((s: any) => (
+                {useStudentStore.getState().students.map((s: Student) => (
                   <button
                     key={s.id}
                     onClick={() => handleAssignToStudent(s.id, s.name)}

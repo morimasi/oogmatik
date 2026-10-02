@@ -100,17 +100,25 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
         {isPrinting && <span className="ml-auto">Puan: ________ / {sinav.toplamPuan}</span>}
       </div>
 
-      {/* Sorular - Grid Yapısı */}
-      <div 
-        className="sorular-container" 
-        style={{ 
-          display: 'grid',
-          gridTemplateColumns: columnsCount > 1 ? `repeat(${columnsCount}, 1fr)` : '1fr',
-          gap: isPrinting ? '4mm' : questionGap
+      {/* Sorular - Akışkan çok sütunlu dizilim (masonry benzeri) */}
+      <div
+        className="sorular-container"
+        style={{
+          columnCount: columnsCount,
+          columnGap: isPrinting ? '4mm' : questionGap,
+          columnFill: 'balance',
         }}
       >
         {sinav.sorular.map((soru, index) => (
-          <div key={soru.id} className="sinav-soru-wrapper">
+          <div
+            key={soru.id}
+            className="sinav-soru-wrapper"
+            style={{
+              breakInside: 'avoid',
+              marginBottom: isPrinting ? '3mm' : `${config?.questionSpacingMm ?? 8}mm`,
+              overflowWrap: 'break-word',
+            }}
+          >
             <SoruCard
               soru={soru}
               soruNo={index + 1}
@@ -134,9 +142,10 @@ export const SinavOnizleme: React.FC<SinavOnizlemeProps> = ({
           .sinav-onizleme.is-printing .sinav-soru-wrapper {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
+            margin-bottom: 3mm !important;
           }
           .sinav-onizleme.is-printing .sorular-container {
-            gap: 3mm !important;
+            column-gap: 4mm !important;
           }
           .sinav-onizleme.is-printing .sinav-print-header {
             margin-bottom: 6px !important;

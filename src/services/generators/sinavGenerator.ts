@@ -308,6 +308,12 @@ export const generateExam = async (settings: SinavAyarlari): Promise<Sinav> => {
     const toplamPuan = aiResponse.sorular.reduce((sum: number, s: any) => sum + (s.puan || 5), 0);
     const tahminiSure = aiResponse.sorular.reduce((sum: number, s: any) => sum + (s.tahminiSure || 90), 0);
 
+    // pedagogicalNote: AI yanıtında varsa kullan, yoksa kazanımlardan üret (min 100 karakter).
+    const aiNote = typeof aiResponse.pedagogicalNote === 'string' ? aiResponse.pedagogicalNote.trim() : '';
+    const pedagogicalNote = aiNote.length >= 100
+      ? aiNote
+      : `Bu sınav ${settings.secilenKazanimlar.join(', ')} kazanımlarını ölçmektedir. İlk sorular kolay seviyede tutularak öğrencinin güven kazanması amaçlanmıştır. Disleksi desteğine ihtiyacı olan öğrenciler için sade dil ve geniş satır aralığı kullanılmıştır.`;
+
     const sinav: Sinav = {
       id: `exam-${Date.now()}`,
       baslik: aiResponse.baslik || `${settings.sinif}. Sınıf Türkçe Değerlendirme Sınavı`,
@@ -318,7 +324,8 @@ export const generateExam = async (settings: SinavAyarlari): Promise<Sinav> => {
       tahminiSure,
       olusturmaTarihi: new Date().toISOString(),
       olusturanKullanici: 'system',
-      cevapAnahtari
+      cevapAnahtari,
+      pedagogicalNote
     };
 
     return sinav;

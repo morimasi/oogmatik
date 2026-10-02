@@ -3,18 +3,27 @@
  */
 
 import React from 'react';
-import { SinavAyarlari } from '../../types/sinav';
+import {
+  SinavAyarlari,
+  PrintConfig,
+  MIN_QUESTION_SPACING_MM,
+  MAX_QUESTION_SPACING_MM,
+} from '../../types/sinav';
 
 interface SoruAyarlariProps {
   ayarlar: SinavAyarlari;
   onSoruDagilimiChange: (tip: keyof SinavAyarlari['soruDagilimi'], sayi: number) => void;
   onOzelKonuChange: (konu: string) => void;
+  printConfig?: PrintConfig;
+  onPrintConfigChange?: <K extends keyof PrintConfig>(key: K, value: PrintConfig[K]) => void;
 }
 
 export const SoruAyarlari: React.FC<SoruAyarlariProps> = ({
   ayarlar,
   onSoruDagilimiChange,
-  onOzelKonuChange
+  onOzelKonuChange,
+  printConfig,
+  onPrintConfigChange
 }) => {
   const toplamSoru =
     ayarlar.soruDagilimi['coktan-secmeli'] +
@@ -110,6 +119,48 @@ export const SoruAyarlari: React.FC<SoruAyarlariProps> = ({
           ))}
         </div>
       </div>
+
+      {/* Sayfa Düzeni (Kompakt: sütun + soru aralığı — SinavOnizleme'ye PrintConfig ile akar) */}
+      {printConfig && onPrintConfigChange && (
+        <div className="space-y-1.5 pt-1">
+          <span className="text-[10px] font-black uppercase tracking-wider text-[var(--text-muted)] opacity-80 px-1">Sayfa Düzeni</span>
+          <div className="bg-[var(--bg-paper)]/80 backdrop-blur-md rounded-xl px-3 py-2.5 border border-[var(--border-color)]/60 space-y-2.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-bold text-[var(--text-primary)]">Sütun</span>
+              <div className="flex items-center gap-1 bg-[var(--bg-secondary)] p-0.5 rounded-lg border border-[var(--border-color)]/40" role="group" aria-label="Sütun sayısı">
+                {([1, 2] as const).map((col) => (
+                  <button
+                    key={col}
+                    type="button"
+                    onClick={() => onPrintConfigChange('columns', col)}
+                    aria-pressed={printConfig.columns === col}
+                    className={`px-2.5 h-6 rounded-md text-[11px] font-black transition-all ${printConfig.columns === col ? 'bg-accent text-white shadow-xs' : 'text-[var(--text-muted)] hover:text-accent hover:bg-[var(--bg-paper)]'}`}
+                  >
+                    {col}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <label htmlFor="soru-araligi" className="text-[11px] font-bold text-[var(--text-primary)]">Soru aralığı</label>
+                <span className="text-[10px] font-black text-accent bg-accent/10 px-2 py-0.5 rounded-full">{printConfig.questionSpacingMm} mm</span>
+              </div>
+              <input
+                id="soru-araligi"
+                type="range"
+                min={MIN_QUESTION_SPACING_MM}
+                max={MAX_QUESTION_SPACING_MM}
+                step={1}
+                value={printConfig.questionSpacingMm}
+                onChange={(e) => onPrintConfigChange('questionSpacingMm', Number(e.target.value))}
+                className="w-full accent-[var(--accent)]"
+                aria-valuetext={`${printConfig.questionSpacingMm} milimetre`}
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Özel Konu/Tema (Compact Input) */}
       <div className="space-y-1 pt-1">
