@@ -838,7 +838,7 @@ const AppContent = () => {
                 </div>
                 <h3 className="text-3xl font-black text-white tracking-tighter uppercase italic">OOGMATİK <span className="text-[var(--accent-color)]">PREMIUM</span></h3>
               </div>
-              <p className="text-white/50 text-[10px] font-black uppercase tracking-[0.5em]">Future of Special Education Architecture</p>
+              <p className="text-white/50 text-[10px] font-black uppercase tracking-[0.5em]">Özel Eğitim Mimarisi'nin Geleceği</p>
             </div>
           </motion.div>
 

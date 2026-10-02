@@ -168,7 +168,7 @@ export const ContentPanel = () => {
             {/* Default basic editor for unsupported types or adding a simple text prop */}
             {!['header', 'story_block', 'vocabulary', '5n1k', 'questions', 'questions_test', 'logic_problem'].includes(selectedItem.id) && (
                 <div className="p-4 bg-zinc-900 border border-zinc-700/50 rounded-xl">
-                    <p className="text-xs text-zinc-400 italic">Bu bileşen için özel içerik editörü bulunmuyor veya içerik metni yok.</p>
+                    <p className="text-xs text-zinc-400 italic">Bu bileşen için özel içerik düzenleyicisi bulunmuyor veya içerik metni yok.</p>
                 </div>
             )}
         </div>

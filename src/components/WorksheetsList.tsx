@@ -77,7 +77,7 @@ export const WorksheetsList: React.FC<WorksheetsListProps> = ({ userId, userRole
         setSelectedWorksheets((prev) => prev.filter((id) => id !== worksheetId));
         // Refetch worksheets
       } catch (error) {
-        logError('Delete error:', error);
+        logError('Silme hatası:', error);
       }
     }
   };
@@ -88,7 +88,7 @@ export const WorksheetsList: React.FC<WorksheetsListProps> = ({ userId, userRole
       await shareWorksheet(worksheetId, recipientId, userName);
       window.alert('Çalışma başarıyla paylaşıldı!');
     } catch (error) {
-      logError('Share error:', error);
+      logError('Paylaşma hatası:', error);
     }
   };
 

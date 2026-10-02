@@ -79,7 +79,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }: AuthMod
         onClose();
       }
     } catch (err: unknown) {
-      logError('Auth operation failed:', { error: err instanceof Error ? err.message : String(err) });
+      logError('Kimlik doğrulama işlemi başarısız:', { error: err instanceof Error ? err.message : String(err) });
       if (isMounted.current) {
         const errorMessage = err instanceof Error ? err.message : String(err);
         // Translate common Firebase/Supabase errors
@@ -128,7 +128,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }: AuthMod
         onClose();
       }
     } catch (err: unknown) {
-      logError('Google login failed:', { error: err instanceof Error ? err.message : String(err) });
+      logError('Google ile giriş başarısız:', { error: err instanceof Error ? err.message : String(err) });
       if (isMounted.current) {
         setError(err instanceof Error ? err.message : String(err));
       }

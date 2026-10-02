@@ -211,24 +211,24 @@ export function validateApprovalMetadata(
   // — status tutarlılığı —
   if (approval.status === 'fully_approved') {
     if (!ca?.approved) {
-      errors.push('Status "fully_approved" ama clinicalApproval.approved=false.');
+      errors.push('Status "fully_approved" ancak clinicalApproval.approved=false.');
     }
     if (!pa?.approved) {
-      errors.push('Status "fully_approved" ama pedagogicalApproval.approved=false.');
+      errors.push('Status "fully_approved" ancak pedagogicalApproval.approved=false.');
     }
   }
 
   if (approval.status === 'clinical_approved' && !ca?.approved) {
-    errors.push('Status "clinical_approved" ama clinicalApproval.approved=false.');
+    errors.push('Status "clinical_approved" ancak clinicalApproval.approved=false.');
   }
 
   if (approval.status === 'pedagogical_approved' && !pa?.approved) {
-    errors.push('Status "pedagogical_approved" ama pedagogicalApproval.approved=false.');
+    errors.push('Status "pedagogical_approved" ancak pedagogicalApproval.approved=false.');
   }
 
   if (approval.status === 'rejected') {
     if (ca?.approved && pa?.approved) {
-      errors.push('Status "rejected" ama her iki onay da true — tutarsızlık.');
+      errors.push('Status "rejected" ancak her iki onay da true — tutarsızlık.');
     }
   }
 

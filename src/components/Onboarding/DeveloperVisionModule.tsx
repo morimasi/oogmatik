@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 export const DeveloperVisionModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const techStack = [
     { category: 'Frontend', items: [
-      { icon: Code, name: 'React 18 + TypeScript', desc: 'Strict mode, tip güvenliği' },
+      { icon: Code, name: 'React 18 + TypeScript', desc: 'Katı mod, tip güvenliği' },
       { icon: Zap, name: 'Vite', desc: 'Hızlı build, HMR' },
       { icon: Layers, name: 'Tailwind + Framer Motion', desc: 'Glassmorphism UI, animasyonlar' }
     ]},
@@ -16,14 +16,14 @@ export const DeveloperVisionModule: React.FC<{ onClose: () => void }> = ({ onClo
     ]},
     { category: 'Güvenlik & Kalite', items: [
       { icon: Shield, name: 'Zod Validation', desc: 'Tip güvenli doğrulama' },
-      { icon: GitBranch, name: 'Vitest', desc: 'Unit test, coverage' },
+      { icon: GitBranch, name: 'Vitest', desc: 'Birim testi, kapsam' },
       { icon: Terminal, name: 'ESLint + Prettier', desc: 'Kod standardizasyonu' }
     ]}
   ];
 
   const principles = [
     'Her içerik gerçek bir çocuğa ulaşır — hata toleransı sıfır',
-    'Disleksi dostu tasarım: Lexend font, geniş satır aralığı',
+    'Disleksi dostu tasarım: Lexend yazı tipi, geniş satır aralığı',
     'KVKK uyumlu veri yönetimi — öğrenci gizliliği öncelikli',
     'MEB Özel Eğitim Yönetmeliği ve 573 KHK uyumlu içerik',
     'Tanı koyucu dil yasak — destek odaklı yaklaşım'

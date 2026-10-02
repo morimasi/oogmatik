@@ -13,7 +13,7 @@ interface ComponentDefinition {
 const COMPONENT_DEFINITIONS: ComponentDefinition[] = [
   {
     type: 'header',
-    label: 'Başlık (Header)',
+    label: 'Başlık',
     icon: 'fa-heading',
     description: 'Ana başlık veya bölüm başlığı.',
     defaultContent: { text: 'YENİ BAŞLIK' },

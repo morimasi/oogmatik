@@ -37,7 +37,7 @@ export const GridDrawingConfig: React.FC<Props> = ({ options, onChange }) => {
         <h4 className="font-bold">Grid Çizim</h4>
       </div>
       <div>
-        <label className="block text-xs font-bold mb-2">Grid Boyutu</label>
+        <label className="block text-xs font-bold mb-2">Izgara Boyutu</label>
         <select
           value={(o.gridSize as number) || 10}
           onChange={(e) =>
@@ -286,7 +286,7 @@ export const NumberSearchConfig: React.FC<Props> = ({ options, onChange }) => {
         <h4 className="font-bold">Sayı Arama</h4>
       </div>
       <div>
-        <label className="block text-xs font-bold mb-2">Grid Boyutu</label>
+        <label className="block text-xs font-bold mb-2">Izgara Boyutu</label>
         <select
           value={(o.gridSize as number) || 10}
           onChange={(e) =>
@@ -357,10 +357,10 @@ export const LetterGridTestConfig: React.FC<Props> = ({ options, onChange }) => 
   return (
     <div className="space-y-4 p-4">
       <div className="pb-2 border-b border-[var(--border-color)]">
-        <h4 className="font-bold">Harf Grid Testi</h4>
+        <h4 className="font-bold">Harf Izgarası Testi</h4>
       </div>
       <div>
-        <label className="block text-xs font-bold mb-2">Grid Boyutu</label>
+        <label className="block text-xs font-bold mb-2">Izgara Boyutu</label>
         <select
           value={(o.gridSize as number) || 8}
           onChange={(e) =>

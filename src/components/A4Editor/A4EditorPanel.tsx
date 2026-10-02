@@ -166,7 +166,7 @@ export const A4EditorPanel = ({
         </label>
         {snapToGrid && (
           <div className="flex items-center gap-2 font-bold">
-            Grid (px):
+            Izgara (px):
             <input
               type="number"
               value={gridSize}

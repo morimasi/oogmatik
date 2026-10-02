@@ -133,3 +133,6 @@ Thumbs.db
 
 # Superpowers git worktrees
 .worktrees/
+
+# Geçici çalışma araçları
+tmp/

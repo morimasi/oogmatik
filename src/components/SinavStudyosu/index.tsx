@@ -533,7 +533,7 @@ export const SinavStudyosu: React.FC<SinavStudyosuProps> = ({ initialData }) => 
             <div className="flex-none bg-accent/5 backdrop-blur-3xl border-b border-accent/10 px-6 py-2.5 flex flex-wrap items-center gap-x-8 gap-y-3 z-0 anim-slide-in shadow-[inset_0_8px_16px_-8px_rgba(0,0,0,0.05)]">
               <div className="flex items-center gap-2 bg-[var(--bg-paper)]/50 p-1 rounded-2xl border border-[var(--border-color)] shadow-sm backdrop-blur-md">
                 <span className="text-[9px] text-accent/70 font-black uppercase tracking-widest pl-2 pr-1">Tasarım</span>
-                <FmtBtn active={printConfig.fontFamily === 'helvetica'} onClick={() => updateConfig('fontFamily', 'helvetica')} title="Inter Fontu">Inter</FmtBtn>
+                <FmtBtn active={printConfig.fontFamily === 'helvetica'} onClick={() => updateConfig('fontFamily', 'helvetica')} title="Inter Yazı Tipi">Inter</FmtBtn>
                 <FmtBtn active={printConfig.fontFamily === 'times'} onClick={() => updateConfig('fontFamily', 'times')} title="Times New Roman">Times</FmtBtn>
                 <div className="w-px h-5 bg-accent/20 mx-1"></div>
                 {([9, 10, 11, 12] as const).map((s) => (

@@ -65,7 +65,7 @@ export const ReadingPyramidConfig: React.FC<{ options: GeneratorOptions; onChang
                 {/* Font ve Yerleşim */}
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="text-[10px] font-black text-[var(--text-muted)] uppercase mb-3 block tracking-[0.1em]">Font Boyutu</label>
+                        <label className="text-[10px] font-black text-[var(--text-muted)] uppercase mb-3 block tracking-[0.1em]">Yazı Tipi Boyutu</label>
                         <select
                             value={(options.fontSize as string) || 'medium'}
                             onChange={e => onChange('fontSize', e.target.value)}

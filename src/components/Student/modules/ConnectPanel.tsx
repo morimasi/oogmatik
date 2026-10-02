@@ -155,7 +155,7 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
 
             await messagingService.sendMessage(params);
         } catch (error) {
-            logError("Message send failed:", { error });
+            logError("Mesaj gönderilemedi:", { error });
         } finally {
             setIsSending(false);
         }
@@ -187,7 +187,7 @@ export const ConnectPanel: React.FC<ConnectPanelProps> = ({ student, currentUser
             setMessages(prev => prev.filter(m => m.id !== id));
             await messagingService.deleteMessage(id);
         } catch (error) {
-            logError("Delete failed:", { error });
+            logError("Silinemedi:", { error });
         }
     };
 

@@ -23,7 +23,7 @@ const IMAGE_MODES = [
     { value: 'cartoon', label: 'Pedagojik İllüstrasyon (Yumuşak)' },
     { value: 'realistic', label: 'Gerçekçi Fotoğraf (Vivid)' },
     { value: 'schematic', label: 'Şematik & Teknik Çizim' },
-    { value: 'lineart', label: 'Boyama Sayfası (Line Art)' },
+    { value: 'lineart', label: 'Boyama Sayfası (Çizgi Çizim)' },
 ];
 
 const TOGGLE_FEATURES = [
@@ -63,7 +63,7 @@ export const AIControlSettings: React.FC<AIControlSettingsProps> = () => {
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3 relative z-10">
                     <StatCard value="0.72s" label="Avg Latency" icon="fa-bolt" color="text-indigo-600" />
-                    <StatCard value="99.8%" label="Success Rate" icon="fa-chart-line" color="text-emerald-500" />
+                    <StatCard value="99.8%" label="Başarı Oranı" icon="fa-chart-line" color="text-emerald-500" />
                     <StatCard value="1.2M" label="Context Win" icon="fa-database" color="text-indigo-600" />
                     <StatCard value="Legend" label="Reputation" icon="fa-star" color="text-purple-600" />
                 </div>

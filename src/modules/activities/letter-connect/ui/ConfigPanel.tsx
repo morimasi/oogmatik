@@ -123,7 +123,8 @@ export const LetterConnectConfig: React.FC<LetterConnectConfigProps> = ({ option
         <div className="flex items-center justify-between">
           <label className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider flex items-center gap-2">
             <i className="fa-solid fa-text-height" />
-            Font Boyutu (pt)
+            
+            Yazı Tipi Boyutu (pt)
           </label>
           <span className="text-[10px] font-black text-[var(--accent-color)]">{fontSize}</span>
         </div>

@@ -40,7 +40,7 @@ export const preloadFontsForCapture = async (): Promise<void> => {
       );
     });
   } catch (e) {
-    logWarn('[CaptureEngine] Font ön-yükleme uyarısı:', typeof e === 'object' && e !== null && !Array.isArray(e) ? e as Record<string, unknown> : undefined);
+    logWarn('[CaptureEngine] Yazı tipi ön-yükleme uyarısı:', typeof e === 'object' && e !== null && !Array.isArray(e) ? e as Record<string, unknown> : undefined);
   }
 };
 

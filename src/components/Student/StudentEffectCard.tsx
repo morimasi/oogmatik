@@ -29,7 +29,7 @@ export const StudentEffectCard: React.FC<{ student: Student; onClick?: () => voi
       await deleteStudent(student.id);
       toast.success('Öğrenci silindi', 2000);
     } catch (e) {
-      logError('Student delete failed', { error: e });
+      logError('Öğrenci silinemedi', { error: e });
       toast.error('Silme hatası', 3000);
     }
   };
@@ -40,7 +40,7 @@ export const StudentEffectCard: React.FC<{ student: Student; onClick?: () => voi
       toast.success('Öğrenci güncellendi', 2000);
       closeEdit();
     } catch (e) {
-      logError('Student update failed', { error: e });
+      logError('Öğrenci güncellenemedi', { error: e });
       toast.error('Güncelleme hatası', 3000);
     }
   };

@@ -55,7 +55,7 @@ export const FeedbackModal = ({ isOpen, onClose, activityType, activityTitle }: 
       }, 3000);
 
     } catch (err) {
-      logError("Feedback send error:", err);
+      logError("Geri bildirim gönderileme hatası:", err);
       alert("Bir hata oluştu. Lütfen daha sonra tekrar deneyin.");
       setIsSending(false);
     }

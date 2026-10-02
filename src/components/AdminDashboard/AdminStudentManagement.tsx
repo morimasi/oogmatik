@@ -136,7 +136,7 @@ export const AdminStudentManagement: React.FC = () => {
                             onClick={(e) => { e.stopPropagation(); setOpenMenuId(null); handleViewDashboard(s); }}
                             className="w-full flex items-center gap-3 px-4 py-2.5 text-[10px] font-bold text-zinc-700 dark:text-zinc-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors text-left"
                           >
-                            <Gauge className="w-3.5 h-3.5 text-indigo-500" /> Dashboard'a Git
+                            <Gauge className="w-3.5 h-3.5 text-indigo-500" />  Panele Git
                           </button>
                           <button
                             onClick={(e) => { e.stopPropagation(); setOpenMenuId(null); setEditTarget(s); }}

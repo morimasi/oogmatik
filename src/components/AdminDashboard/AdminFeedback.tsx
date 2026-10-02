@@ -24,7 +24,7 @@ export const AdminFeedback = () => {
             const { feedbacks: data } = await feedbackService.getAllFeedbacks(0, 100);
             setFeedbacks(data);
         } catch (error) {
-            logError("Feedbacks load failed", { error });
+            logError("Geri bildirimler yüklenemedi", { error });
         } finally {
             setLoading(false);
         }
@@ -52,7 +52,7 @@ export const AdminFeedback = () => {
             setSelectedFeedback(prev => prev ? { ...prev, adminReply: replyText, status: updatedStatus } : null);
             setReplyText('');
         } catch (error) {
-            logError("Reply failed", { error });
+            logError("Yanıt gönderilemedi", { error });
         } finally {
             setIsSubmittingReply(false);
         }

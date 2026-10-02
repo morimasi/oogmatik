@@ -232,7 +232,7 @@ export const CrosswordSheet = ({ data }: { data: CrosswordData }) => {
                             </div>
                             <div className="flex flex-col">
                                 <span className="text-[8px] font-black text-zinc-400 uppercase tracking-widest mb-1">Leksikal Zorluk</span>
-                                <span className="text-xs font-black text-indigo-600">{data.clinicalMeta.clueComplexity}/10 Level</span>
+                                <span className="text-xs font-black text-indigo-600">{data.clinicalMeta.clueComplexity}/10 Seviye</span>
                             </div>
                         </div>
                         <div className="text-right">

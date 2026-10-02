@@ -490,7 +490,7 @@ export const MatSinavStudyosu: React.FC<MatSinavStudyosuProps> = ({ initialData 
                         <div className="flex-none bg-[var(--bg-paper)]/40 backdrop-blur-3xl border-b border-[var(--border-color)]/10 px-6 py-2 flex flex-wrap items-center gap-x-6 gap-y-2 z-10 anim-slide-in shadow-[inset_0_-8px_16px_-8px_rgba(0,0,0,0.02)] h-12">
                             <div className="flex items-center gap-1 bg-white/20 p-1 rounded-[8px] border border-white/40 shadow-sm backdrop-blur-xl">
                                 <span className="text-[7.5px] text-[var(--text-muted)] font-black uppercase tracking-[0.2em] px-2 border-r border-[var(--border-color)]/20 mr-1">Tasarım</span>
-                                <FmtBtn active={printConfig.fontFamily === 'helvetica'} onClick={() => updateConfig('fontFamily', 'helvetica')} title="Inter Fontu">Inter</FmtBtn>
+                                <FmtBtn active={printConfig.fontFamily === 'helvetica'} onClick={() => updateConfig('fontFamily', 'helvetica')} title="Inter Yazı Tipi">Inter</FmtBtn>
                                 <FmtBtn active={printConfig.fontFamily === 'times'} onClick={() => updateConfig('fontFamily', 'times')} title="Times New Roman">Times</FmtBtn>
                                 <div className="w-[1px] h-4 bg-[var(--border-color)]/20 mx-1"></div>
                                 {([9, 10, 11, 12] as const).map((s) => (

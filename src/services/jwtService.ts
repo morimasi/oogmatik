@@ -90,7 +90,7 @@ export class JWTService {
                 throw new AppError('Token has expired', 'INTERNAL_ERROR', 500);
             }
             if (error instanceof Error && error.name === 'JsonWebTokenError') {
-                throw new AppError('Invalid token', 'INTERNAL_ERROR', 500);
+                throw new AppError('Geçersiz oturum belirteci', 'INTERNAL_ERROR', 500);
             }
             throw new AppError('Token verification failed', 'INTERNAL_ERROR', 500);
         }
@@ -363,7 +363,7 @@ export const validateTokenHandler = async (req: any, res: any) => {
             },
         });
         } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : 'Invalid token';
+            const message = error instanceof Error ? error.message : 'Geçersiz oturum belirteci';
             return res.status(401).json({
                 success: false,
                 message,

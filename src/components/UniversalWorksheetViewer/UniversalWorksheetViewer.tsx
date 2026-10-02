@@ -203,7 +203,7 @@ export const UniversalWorksheetViewer: React.FC<UniversalWorksheetViewerProps> =
       className={styles.viewer}
       onKeyDown={handleKeyDown}
       role="application"
-      aria-label="Çalışma kağıdı editörü"
+      aria-label="Çalışma sayfası düzenleyicisi"
     >
       {/* ── Toolbar ── */}
       <div className={styles.toolbar} role="toolbar" aria-label="Düzenleyici araç çubuğu">

@@ -129,7 +129,7 @@ export const ResultDashboard: FC<Props> = ({
         });
       }
     } catch (e: unknown) {
-      logError('AI Error', { error: e instanceof Error ? e.message : String(e) });
+      logError('AI Hatası', { error: e instanceof Error ? e.message : String(e) });
     } finally {
       setLoadingAi(false);
     }
@@ -198,7 +198,7 @@ export const ResultDashboard: FC<Props> = ({
       setIsSaved(true);
       alert('Rapor başarıyla arşivinize kaydedildi.');
     } catch (e: unknown) {
-      logError('Save Error', { error: e instanceof Error ? e.message : String(e) });
+      logError('Kaydetme Hatası', { error: e instanceof Error ? e.message : String(e) });
       alert('Kaydetme hatası.');
     } finally {
       setIsSaving(false);

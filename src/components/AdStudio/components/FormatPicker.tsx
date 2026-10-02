@@ -10,12 +10,12 @@ interface FormatPickerProps {
 
 const FORMAT_OPTIONS: { key: AdFormat; label: string; desc: string; icon: string }[] = [
   { key: 'storyboard', label: 'Storyboard', desc: 'Sahne-sahne görsel senaryo', icon: 'fa-clapperboard' },
-  { key: 'video_script', label: 'Video Script', desc: 'Tam video senaryo metni', icon: 'fa-scroll' },
+  { key: 'video_script', label: 'Video Senaryosu', desc: 'Tam video senaryo metni', icon: 'fa-scroll' },
   { key: 'social_media', label: 'Sosyal Medya', desc: 'Instagram, LinkedIn, X postu', icon: 'fa-hashtag' },
   { key: 'email', label: 'E-posta', desc: 'Kampanya e-posta metni', icon: 'fa-envelope' },
   { key: 'press_release', label: 'Basın Bülteni', desc: 'Resmi basın açıklaması', icon: 'fa-newspaper' },
   { key: 'brochure', label: 'Broşür', desc: 'Tanıtım broşür metni', icon: 'fa-book-open' },
-  { key: 'web_copy', label: 'Web Metni', desc: 'Landing page ve ürün açıklaması', icon: 'fa-globe' },
+  { key: 'web_copy', label: 'Web Metni', desc: 'Açılış sayfası ve ürün açıklaması', icon: 'fa-globe' },
 ];
 
 export const FormatPicker: React.FC<FormatPickerProps> = ({ format, duration, onFormatChange, onDurationChange }) => {

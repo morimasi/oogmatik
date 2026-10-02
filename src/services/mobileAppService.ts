@@ -196,7 +196,7 @@ export class MobileAppService {
       });
     } catch (error) {
       const appError = new AppError(
-        'Push notification gönderilemedi',
+        'Anlık bildirim gönderilemedi',
         'PUSH_SEND_FAILED',
         500,
         { error: error instanceof Error ? error.message : String(error) }

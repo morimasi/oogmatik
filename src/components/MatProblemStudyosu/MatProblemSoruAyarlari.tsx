@@ -140,7 +140,8 @@ export const MatProblemSoruAyarlari: React.FC<MatProblemSoruAyarlariProps> = ({
                         {/* Font Ailesi */}
                         <div>
                             <label className="block text-[8px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">
-                                Font Ailesi
+                                
+                                Yazı Tipi Ailesi
                             </label>
                             <select
                                 value={dizgiAyarlari.fontAilesi}
@@ -157,7 +158,8 @@ export const MatProblemSoruAyarlari: React.FC<MatProblemSoruAyarlariProps> = ({
                         {/* Font Boyutu */}
                         <div>
                             <label className="block text-[8px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-1">
-                                Font Boyutu
+                                
+                                Yazı Tipi Boyutu
                             </label>
                             <select
                                 value={dizgiAyarlari.fontBoyutu}

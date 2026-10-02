@@ -109,7 +109,7 @@ export const CommonConfigPanel: React.FC<CommonConfigPanelProps> = ({
                             
                             {/* Font Boyutu */}
                             <div>
-                                <label className="kc-label">Font Boyutu: {config.fontSize}pt</label>
+                                <label className="kc-label">Yazı Tipi Boyutu: {config.fontSize}pt</label>
                                 <input 
                                     type="range" 
                                     min="14" 

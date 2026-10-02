@@ -67,7 +67,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
       setVideoState('done');
     } catch (err: unknown) {
       if (err instanceof DOMException && err.name === 'AbortError') return;
-      const msg = err instanceof Error ? err.message : 'Video olusturulamadi';
+      const msg = err instanceof Error ? err.message : 'Video oluşturulamadı';
       setVideoError(msg);
       setVideoState('error');
     }
@@ -137,7 +137,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({ output, screenshot }
         </div>
       )}
       {videoState === 'error' && (
-        <p className="text-[10px] text-red-400">{videoError || 'Video olusturulamadi'}</p>
+        <p className="text-[10px] text-red-400">{videoError || 'Video oluşturulamadı'}</p>
       )}
     </div>
   );

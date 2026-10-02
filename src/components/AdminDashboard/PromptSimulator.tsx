@@ -63,7 +63,7 @@ export const PromptSimulator = ({ prompt }: { prompt: PromptTemplate }) => {
         try {
             // AdminService.testPrompt artık gerçek API çağırıyor
             const aiResponse = await adminService.testPrompt(prompt, variables);
-            logger.info("AI Response received", { responseType: typeof aiResponse });
+            logger.info("AI yanıtı alındı", { responseType: typeof aiResponse });
 
             // Gelen veri WorksheetData formatında mı? Değilse uyaralım
             if (!aiResponse || typeof aiResponse !== 'object') {

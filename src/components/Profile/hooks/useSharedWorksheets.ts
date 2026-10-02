@@ -23,7 +23,7 @@ export const useSharedWorksheets = () => {
             setWorksheets(items);
             setError(null);
         } catch (err) {
-            logError('Error fetching shared worksheets:', { error: err instanceof Error ? err.message : String(err) });
+            logError('Paylaşılan çalışma sayfaları alınırken hata:', { error: err instanceof Error ? err.message : String(err) });
             setError(err instanceof Error ? err : new Error('Bilinmeyen bir hata oluştu'));
         } finally {
             setLoading(false);

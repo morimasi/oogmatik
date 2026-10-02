@@ -16,7 +16,7 @@ if (typeof window !== 'undefined') {
   const originalError = console.error;
   console.error = (...args: unknown[]) => {
     const first = args[0];
-    if (typeof first === 'string' && first.includes("Failed to obtain primary lease for action 'Backfill Indexes'")) {
+    if (typeof first === 'string' && first.includes("'Backfill Indexes' eylemi için birincil kiralama alınamadı")) {
       return;
     }
     originalError.apply(console, args as []);
@@ -25,10 +25,10 @@ if (typeof window !== 'undefined') {
   // Modern Chunk Loading Retry Strategy (Vercel deployment chunk invalidation protection)
   const reloadOnChunkError = (errorMessage: string) => {
     if (
-      errorMessage.includes('Failed to fetch dynamically imported module') ||
-      errorMessage.includes('Failed to load module script') ||
+      errorMessage.includes('Dinamik olarak içe aktarılan modül alınamadı') ||
+      errorMessage.includes('Modül betiği yüklenemedi') ||
       errorMessage.includes('Expected a JavaScript-or-Wasm module script') ||
-      errorMessage.includes('MIME type of "text/html"')
+      errorMessage.includes('"text/html" MIME türü')
     ) {
       const storageKey = 'bdmind_chunk_reload_count';
       const reloadCount = parseInt(sessionStorage.getItem(storageKey) || '0', 10);
@@ -47,7 +47,7 @@ if (typeof window !== 'undefined') {
   window.addEventListener('unhandledrejection', (event) => {
     const reason = event?.reason as { message?: string } | undefined;
     const msg = reason?.message || String(reason || '');
-    if (msg.includes("Failed to obtain primary lease") || msg.includes('Backfill Indexes')) {
+    if (msg.includes("Birincil kiralama alınamadı") || msg.includes('Backfill Indexes')) {
       event.preventDefault();
       return;
     }
@@ -57,7 +57,7 @@ if (typeof window !== 'undefined') {
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
-  throw new AppError("Could not find root element to mount to", 'INTERNAL_ERROR', 500);
+  throw new AppError("Uygulamanın bağlanacağı kök öğe bulunamadı", 'INTERNAL_ERROR', 500);
 }
 
 const root = ReactDOM.createRoot(rootElement);

@@ -32,7 +32,8 @@ export const DilBilgisiSettingsPanel: React.FC<TemplateSettingsProps<DilBilgisiS
 
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
-            Grid Boyutu
+            
+            Izgara Boyutu
           </label>
           <select
             value={settings.gridSize}
@@ -122,7 +123,7 @@ export const DilBilgisiSettingsPanel: React.FC<TemplateSettingsProps<DilBilgisiS
       <div className="grid grid-cols-2 gap-2">
         {[
           { key: 'syllableSimulation', label: 'Heceleme', desc: '[He-ce-le-me] modu', icon: '🔤' },
-          { key: 'camouflageGrid', label: 'Kamuflaj Grid', desc: 'Harfleri gizle', icon: '🔍' },
+          { key: 'camouflageGrid', label: 'Kamuflaj Izgara', desc: 'Harfleri gizle', icon: '🔍' },
           { key: 'hintBox', label: 'İpucu Kutusu', desc: 'Kural hatırlatıcı', icon: '💡' },
           {
             key: 'includeAnswerKey',

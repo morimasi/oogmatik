@@ -124,7 +124,7 @@ export const PDFViewerControls: React.FC<PDFViewerControlsProps> = React.memo(
         <div className={styles.controlsSeparator} aria-hidden="true" />
 
         {/* Zoom controls */}
-        <div className={styles.controlsGroup} role="group" aria-label="Zoom kontrolleri">
+        <div className={styles.controlsGroup} role="group" aria-label="Yakınlaştırma kontrolleri">
           <button
             className={styles.controlButton}
             onClick={onZoomOut}
@@ -139,7 +139,7 @@ export const PDFViewerControls: React.FC<PDFViewerControlsProps> = React.memo(
             className={styles.zoomSelect}
             value={zoom}
             onChange={handleZoomSelect}
-            aria-label="Zoom seviyesi"
+            aria-label="Yakınlaştırma seviyesi"
           >
             {ZOOM_LEVELS.map((level) => (
               <option key={level} value={level}>

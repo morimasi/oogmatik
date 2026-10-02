@@ -39,6 +39,6 @@ export function UniversalStudioProvider({ children }: { children: ReactNode }) {
 
 export const useUniversalStudio = () => {
     const context = useContext(UniversalStudioContext);
-    if (!context) throw new AppError('useUniversalStudio must be used within a UniversalStudioProvider', 'INTERNAL_ERROR', 500);
+    if (!context) throw new AppError('useUniversalStudio, UniversalStudioProvider içinde kullanılmalıdır', 'INTERNAL_ERROR', 500);
     return context;
 };

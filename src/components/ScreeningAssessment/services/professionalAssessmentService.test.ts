@@ -7,7 +7,7 @@ import {
 } from './professionalAssessmentService';
 
 describe('professionalAssessmentService', () => {
-  it('builds a rich student profile context for AI analysis', () => {
+  it('AI analizi için zengin öğrenci profili bağlamı oluşturur', () => {
     const context = buildStudentProfileContext({
       studentName: 'Ela',
       age: 8,
@@ -21,7 +21,7 @@ describe('professionalAssessmentService', () => {
     expect(context).toContain('okuma akıcılığı');
   });
 
-  it('creates a student-aware prompt for the final professional report', () => {
+  it('nihai profesyonel rapor için öğrenci odaklı istem oluşturur', () => {
     const prompt = buildProfessionalAssessmentPrompt({
       studentName: 'Ela',
       age: 8,

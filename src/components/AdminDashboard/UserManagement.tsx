@@ -115,7 +115,7 @@ export const UserManagement: React.FC<UserManagementProps> = ({
       {/* Filters */}
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
         <input
-          placeholder="Ad veya email ara..."
+          placeholder="Ad veya e-posta ara..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={inputStyle}

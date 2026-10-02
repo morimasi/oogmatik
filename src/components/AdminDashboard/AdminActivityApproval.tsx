@@ -16,7 +16,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; 
 
 const SOURCE_FILTERS: { id: ApprovalSourceFilter; label: string }[] = [
   { id: 'all', label: 'Tüm Kaynaklar' },
-  { id: 'activity-studio', label: 'Activity Studio' },
+  { id: 'activity-studio', label: 'Etkinlik Stüdyosu' },
   { id: 'other', label: 'Diğer' },
 ];
 

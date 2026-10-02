@@ -35,7 +35,7 @@ export const FascicleStudio: React.FC<FascicleStudioProps> = ({ onBack }) => {
 
   useEffect(() => {
     if (currentFascicleId) {
-      fascicleService.autoSaveDraft(currentFascicleId, { metadata, items }, user?.id || 'anonymous').catch(err => logError(err instanceof Error ? err : String(err), { context: 'AutoSave failed' }));
+      fascicleService.autoSaveDraft(currentFascicleId, { metadata, items }, user?.id || 'anonymous').catch(err => logError(err instanceof Error ? err : String(err), { context: 'Otomatik kayıt başarısız' }));
     }
   }, [items, metadata, currentFascicleId, user?.id]);
 

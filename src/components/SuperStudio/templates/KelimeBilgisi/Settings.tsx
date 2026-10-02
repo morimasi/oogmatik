@@ -234,7 +234,7 @@ export const KelimeBilgisiSettingsPanel: React.FC<TemplateSettingsProps<KelimeBi
           {[
             { key: 'useColorCoding', label: 'Renk Kodlaması' },
             { key: 'useIcons', label: 'Görsel İkonlar' },
-            { key: 'useFonts', label: 'Font Vurguları' },
+            { key: 'useFonts', label: 'Yazı Tipi Vurguları' },
             { key: 'useGrid', label: 'Tablo/Görünümü' },
           ].map(({ key, label }) => (
             <label

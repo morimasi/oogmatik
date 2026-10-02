@@ -48,7 +48,7 @@ export const StudentsSettings: React.FC<BaseSettingsProps> = ({ data }) => {
         setEditingStudent(null);
       }
     } catch (err) {
-      logError(toAppError(err), { context: 'Öğrenci kaydedilirken hata (Settings)' });
+      logError(toAppError(err), { context: 'Öğrenci kaydedilirken hata' });
       error('Öğrenci kaydedilirken bir hata oluştu!');
     }
   };
@@ -59,7 +59,7 @@ export const StudentsSettings: React.FC<BaseSettingsProps> = ({ data }) => {
       await deleteStudent(studentId);
       success('Öğrenci başarıyla silindi!');
     } catch (err) {
-      logError(toAppError(err), { context: 'Öğrenci silinirken hata (Settings)' });
+      logError(toAppError(err), { context: 'Öğrenci silinirken hata' });
       error('Öğrenci silinirken bir hata oluştu!');
     } finally {
       setIsDeleting(null);

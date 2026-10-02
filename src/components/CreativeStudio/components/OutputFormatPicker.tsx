@@ -10,7 +10,7 @@ interface OutputFormatPickerProps {
 const FORMAT_OPTIONS: { id: OutputFormat; label: string; icon: string; description: string }[] = [
     {
         id: 'bento_grid',
-        label: 'Bento Grid',
+        label: 'Bento Izgara',
         icon: 'fa-table-cells-large',
         description: 'Modern klinik düzen'
     },

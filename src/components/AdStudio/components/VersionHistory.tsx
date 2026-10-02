@@ -39,12 +39,12 @@ export const VersionHistory: React.FC = () => {
         <div className="grid grid-cols-2 gap-4">
           <div className="rounded-xl bg-white/5 border border-white/5 p-4">
             <h4 className="text-[10px] font-bold text-zinc-400 mb-2">Varyasyon A · v{diff.a.version}</h4>
-            <p className="text-[10px] text-zinc-500 mb-2">Ton: {diff.a.tone} · Format: {diff.a.format}</p>
+            <p className="text-[10px] text-zinc-500 mb-2">Ton: {diff.a.tone}    · Biçim: {diff.a.format}</p>
             <p className="text-[10px] text-zinc-300 line-clamp-10">{diff.a.script.slice(0, 300)}...</p>
           </div>
           <div className="rounded-xl bg-white/5 border border-white/5 p-4">
             <h4 className="text-[10px] font-bold text-zinc-400 mb-2">Varyasyon B · v{diff.b.version}</h4>
-            <p className="text-[10px] text-zinc-500 mb-2">Ton: {diff.b.tone} · Format: {diff.b.format}</p>
+            <p className="text-[10px] text-zinc-500 mb-2">Ton: {diff.b.tone}    · Biçim: {diff.b.format}</p>
             <p className="text-[10px] text-zinc-300 line-clamp-10">{diff.b.script.slice(0, 300)}...</p>
           </div>
         </div>

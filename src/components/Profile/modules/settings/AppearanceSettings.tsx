@@ -140,7 +140,7 @@ export const AppearanceSettings: React.FC<AppearanceSettingsProps> = ({
                 <SectionHeader title="Tipografi Kontrolleri" icon="fa-font" />
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                        <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Font Boyutu Ölçeği</label>
+                        <label className="block text-[10px] font-black text-zinc-400 uppercase tracking-widest mb-2 ml-1">Yazı Tipi Boyutu Ölçeği</label>
                         <input
                             type="range"
                             min="0.8"

@@ -125,7 +125,7 @@ export const PageShell: React.FC<PageShellProps> = ({
       >
         <div className="flex items-center gap-2">
            <i className="fa-solid fa-graduation-cap" style={{ color: paper.accent }}></i>
-           <span>Bursa Disleksi EduMind • Math Studio PRO</span>
+           <span>Bursa Disleksi EduMind • Matematik Stüdyosu PRO</span>
         </div>
         <div className="px-3 py-1 rounded-full bg-zinc-100/50" style={{ backgroundColor: paper.secondary }}>
           SAYFA {pageIndex + 1} / {totalPages}

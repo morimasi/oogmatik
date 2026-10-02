@@ -39,7 +39,7 @@ export const useProgressStore = create<ProgressStore>((set) => ({
       set({ snapshot: response.data, isLoading: false });
     } catch (error: unknown) {
       const appError = error instanceof AppError ? error : new AppError(
-        'Unknown error occurred',
+        'Bilinmeyen bir hata oluştu',
         'INTERNAL_ERROR',
         500,
         { originalError: error }

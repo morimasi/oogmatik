@@ -112,7 +112,7 @@ const DesignModeToolbar = () => {
         onClick={deleteSelected}
         disabled={!hasSelection}
         className="px-3 py-2 rounded-lg text-[10px] font-black uppercase tracking-wider bg-red-100 text-red-600 hover:bg-red-200 disabled:opacity-30 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-        title="Sil (Delete)"
+        title="Sil"
       >
         <i className="fa-solid fa-trash"></i>
         Sil

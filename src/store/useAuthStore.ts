@@ -52,7 +52,7 @@ export const useAuthStore = create<AuthState>()(
                             (error) => {
                                 // Hata durumunda isLoading kilidini kaldırıp logluyoruz
                                 set({ isLoading: false });
-                                logError("Firestore onSnapshot subscription failed:", { error });
+                                logError("Firestore onSnapshot aboneliği başarısız:", { error });
                             }
                         );
                     } else {

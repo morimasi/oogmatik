@@ -122,7 +122,7 @@ export const PedagogySettings: React.FC<PedagogySettingsProps> = () => {
                         </h4>
                         <div className="space-y-3">
                             <div className="flex items-center justify-between">
-                                <span className="text-xs font-black text-[var(--text-primary)]">Lexend Font Zorunluluğu</span>
+                                <span className="text-xs font-black text-[var(--text-primary)]">Lexend Yazı Tipi Zorunluluğu</span>
                                 <div className="w-8 h-4 bg-amber-500 rounded-full relative cursor-not-allowed opacity-80" title="Bu ayar değiştirilemez">
                                     <div className="w-2.5 h-2.5 bg-white rounded-full absolute top-[3px] right-1" />
                                 </div>

@@ -42,7 +42,7 @@ export const NoktaConfigPanel = React.memo(({ config, onUpdate }: ConfigPanelPro
             </div>
 
             <div>
-                <label className="sk-label">Font Boyutu ({c.compactFontSize}pt)</label>
+                <label className="sk-label">Yazı Tipi Boyutu ({c.compactFontSize}pt)</label>
                 <input type="range" className="sk-input" style={{ padding: '0.25rem' }} min={12} max={32} step={1} value={c.compactFontSize} onChange={(e: React.ChangeEvent<HTMLInputElement>) => onUpdate?.({ compactFontSize: Number(e.target.value) })} />
             </div>
 

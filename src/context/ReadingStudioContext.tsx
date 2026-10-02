@@ -42,6 +42,6 @@ export function ReadingStudioProvider({ children }: { children: any }) {
 
 export const useReadingStudio = () => {
     const context = useContext(ReadingStudioContext);
-    if (!context) throw new AppError('useReadingStudio must be used within a ReadingStudioProvider', 'INTERNAL_ERROR', 500);
+    if (!context) throw new AppError('useReadingStudio, ReadingStudioProvider içinde kullanılmalıdır', 'INTERNAL_ERROR', 500);
     return context;
 };

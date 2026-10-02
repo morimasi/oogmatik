@@ -106,7 +106,7 @@ export const useStudentStore = create<StudentState>()((set, get) => ({
           const { activeStudent } = get();
           if (activeStudent && !studentList.find((s: Student) => s.id === activeStudent.id)) set({ activeStudent: null });
         },
-        error: (err) => { logError(toAppError(err), { context: 'fetchStudents Error' }); set({ isLoading: false }); }
+        error: (err) => { logError(toAppError(err), { context: 'Öğrenciler alınırken hata' }); set({ isLoading: false }); }
       });
     }
 
@@ -131,11 +131,11 @@ export const useStudentStore = create<StudentState>()((set, get) => ({
 
     const unsubOwn = onSnapshot(qOwn, {
       next: (snap) => { lastOwn = snap; ownError = false; mergeAndSet(); },
-      error: (err) => { ownError = true; logError(toAppError(err), { context: 'fetchStudents own Error' }); if (assignedError || lastAssigned) set({ isLoading: false }); }
+      error: (err) => { ownError = true; logError(toAppError(err), { context: 'Kendi öğrencileri alınırken hata' }); if (assignedError || lastAssigned) set({ isLoading: false }); }
     });
     const unsubAssigned = onSnapshot(qAssigned, {
       next: (snap) => { lastAssigned = snap; assignedError = false; mergeAndSet(); },
-      error: (err) => { assignedError = true; logError(toAppError(err), { context: 'fetchStudents assigned Error' }); if (ownError || lastOwn) set({ isLoading: false }); }
+      error: (err) => { assignedError = true; logError(toAppError(err), { context: 'Atanmış öğrenciler alınırken hata' }); if (ownError || lastOwn) set({ isLoading: false }); }
     });
 
     return () => { unsubOwn(); unsubAssigned(); };

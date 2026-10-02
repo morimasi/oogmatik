@@ -49,7 +49,7 @@ export const MathHeader: React.FC<MathHeaderProps> = ({
 
             <div>
                 <h1 className="font-black text-lg tracking-tight text-white flex items-center gap-2">
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent/70 to-accent">MATH STUDIO</span>
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent/70 to-accent">MATEMATİK STÜDYOSU</span>
                     <span className="bg-zinc-800 text-zinc-500 px-1.5 rounded text-[9px] border border-zinc-700 font-bold uppercase tracking-widest">PRO</span>
                 </h1>
             </div>

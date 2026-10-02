@@ -279,7 +279,7 @@ export const generateSemanticLinkerAI = async (
     const result = rawResult as unknown as SemanticLinkerData;
 
     if (!result || !Array.isArray(result.items) || result.items.length === 0) {
-      logWarn('[SemanticLinkerAI] Invalid or empty items returned by AI. Falling back to offline.');
+      logWarn('[SemanticLinkerAI] AI tarafından geçersiz veya boş öğe döndürüldü. Çevrimdışı moda düşülüyor.');
       return generateSemanticLinkerOffline(safeCount);
     }
 
@@ -314,7 +314,7 @@ export const generateSemanticLinkerAI = async (
       difficulty: 'Orta',
     };
   } catch (err) {
-    logWarn('[SemanticLinkerAI] AI generation failed, using offline fallback', { error: String(err) });
+    logWarn('[SemanticLinkerAI] AI üretimi başarısız, çevrimdışı yedek kullanılıyor', { error: String(err) });
     return generateSemanticLinkerOffline(safeCount);
   }
 };

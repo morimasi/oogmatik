@@ -41,7 +41,7 @@ export const CompactA4LayoutPanel: React.FC<CompactA4LayoutPanelProps> = ({
 
       {/* Items per page selector */}
       <div className="mb-6">
-        <label className="block text-sm font-medium mb-2">Items per Page</label>
+        <label className="block text-sm font-medium mb-2">Sayfa Başına Öğe</label>
         <div className="flex gap-2">
           {[4, 6, 8].map((option) => (
             <button
@@ -64,7 +64,7 @@ export const CompactA4LayoutPanel: React.FC<CompactA4LayoutPanelProps> = ({
 
       {/* Paper size selector */}
       <div className="mb-6">
-        <label className="block text-sm font-medium mb-2">Paper Size</label>
+        <label className="block text-sm font-medium mb-2">Kağıt Boyutu</label>
         <div className="space-y-2">
           {Object.entries(A4_SIZES).map(([key, val]) => (
             <button
@@ -86,8 +86,8 @@ export const CompactA4LayoutPanel: React.FC<CompactA4LayoutPanelProps> = ({
 
       {/* Current settings display */}
       <div className="text-xs text-gray-300 bg-white/5 rounded-lg p-3">
-        <p>Items per page: <strong>{itemsPerPage}</strong></p>
-        <p>Paper size: <strong>{paperSize}</strong></p>
+        <p>Sayfa başına öğe: <strong>{itemsPerPage}</strong></p>
+        <p>Kağıt boyutu: <strong>{paperSize}</strong></p>
         <p className="text-xs mt-2">Preset: {`compact${itemsPerPage}`}</p>
       </div>
     </div>

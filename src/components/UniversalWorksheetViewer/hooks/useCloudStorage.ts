@@ -136,7 +136,7 @@ async function mockListFiles(config: CloudStorageConfig): Promise<CloudFile[]> {
   return [
     {
       id: `file-sample-1`,
-      name: 'Sample Worksheet.pdf',
+      name: 'Örnek Çalışma Sayfası.pdf',
       mimeType: 'application/pdf',
       size: 204800,
       modifiedAt: new Date(Date.now() - 86400000).toISOString(),

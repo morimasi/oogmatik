@@ -155,7 +155,7 @@ const PREMIUM_TEMPLATES: PremiumTemplate[] = [
             hasAnswerKey: true,
         },
         pedagogicalDescription:
-            'Lexend font, geniş satır aralığı ve hece vurgulama ile disleksi dostu okuma metni ve anlama soruları.',
+            'Lexend yazı tipi, geniş satır aralığı ve hece vurgulama ile disleksi dostu okuma metni ve anlama soruları.',
         supportedProfiles: ['dyslexia', 'adhd', 'mixed'],
         tags: ['okuma', 'anlama', 'metin', 'soru'],
     },

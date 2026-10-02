@@ -145,7 +145,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Bilinmeyen hata';
-      logError('Share error:', { error });
+      logError('Paylaşma hatası:', { error });
       useToastStore.getState().error(`Paylaşım başarısız: ${message}`);
     } finally {
       setIsShareSending(false);
@@ -181,7 +181,7 @@ const ContentArea: React.FC<ContentAreaProps> = ({
       }
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Bilinmeyen hata';
-      logError('Assign error:', { error });
+      logError('Atama hatası:', { error });
       useToastStore.getState().error(`Atama başlatılamadı: ${message}`);
     }
   };

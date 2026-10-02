@@ -276,7 +276,7 @@ const SCENARIOS: AlgorithmData[] = [
         ],
         steps: [
             { id: 1, type: 'start', text: 'BAŞLA — Belgen açık.', cognitiveLoad: 'low' },
-            { id: 2, type: 'input', text: 'Ctrl+S tuşlarına birlikte bas.', cognitiveLoad: 'low', hint: 'S = Save (Kaydet) anlamındadır.' },
+            { id: 2, type: 'input', text: 'Ctrl+S tuşlarına birlikte bas.', cognitiveLoad: 'low', hint: 'S = Save (Kaydet) anlamına gelir.' },
             { id: 3, type: 'decision', text: 'Dosya adı soruldu mu?', cognitiveLoad: 'medium', yesPath: 'Anlamlı bir isim yaz', noPath: 'Doğrudan kaydedildi' },
             { id: 4, type: 'process', text: 'Kayıt klasörünü seç (Belgeler önerilir).', cognitiveLoad: 'medium', subSteps: ['Belgeler klasörüne git', 'Ders adına göre klasör seç'] },
             { id: 5, type: 'process', text: '"Kaydet" düğmesine tıkla.', cognitiveLoad: 'low', timeEstimate: 1 },

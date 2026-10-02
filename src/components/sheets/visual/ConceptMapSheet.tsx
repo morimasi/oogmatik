@@ -133,7 +133,7 @@ export const ConceptMapSheet: React.FC<{ data: any }> = React.memo(({ data }) =>
           <div className="flex-[3] bg-indigo-600 rounded-[3.5rem] p-6 print:p-3 text-white flex flex-col justify-between relative overflow-hidden shadow-2xl">
               <div className="absolute top-0 right-0 p-6 opacity-10 rotate-12"><Info size={80} /></div>
               <div className="relative z-10">
-                  <h5 className="text-[10px] font-black uppercase tracking-[0.2em] mb-2 opacity-80">INSIGHT REPORT</h5>
+                  <h5 className="text-[10px] font-black uppercase tracking-[0.2em] mb-2 opacity-80">İÇGÖRÜ RAPORU</h5>
                   <p className="text-xs print:text-[10px] font-medium leading-relaxed italic opacity-95">
                       {insight || "Hiyerarşik veri analizi yapılıyor..."}
                   </p>

@@ -127,7 +127,7 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook, initialData }: SariKita
             );
             toast.success('Etkinlik başarıyla kaydedildi!');
         } catch (err: unknown) {
-            logError('Save error:', { error: err instanceof Error ? err.message : String(err) });
+            logError('Kaydetme hatası:', { error: err instanceof Error ? err.message : String(err) });
             toast.error('Kaydedilirken bir hata oluştu.');
         }
     }, [user, generatedContent, activeType, config, toast]);
@@ -176,7 +176,7 @@ const SariKitapStudioInner = ({ onBack, onAddToWorkbook, initialData }: SariKita
             toast.success('Paylaşım başarıyla gönderildi!');
             setIsShareModalOpen(false);
         } catch (err: unknown) {
-            logError('Share error:', { error: err instanceof Error ? err.message : String(err) });
+            logError('Paylaşma hatası:', { error: err instanceof Error ? err.message : String(err) });
             toast.error('Paylaşırken bir hata oluştu.');
         } finally {
             setIsSharing(false);

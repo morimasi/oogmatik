@@ -22,7 +22,7 @@ export const OddEvenSudokuConfig: React.FC<Props> = ({ options, onChange }) => {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-[10px] font-black text-[var(--text-muted)] uppercase mb-2">Grid Boyutu</label>
+          <label className="block text-[10px] font-black text-[var(--text-muted)] uppercase mb-2">Izgara Boyutu</label>
           <select
             value={(o.gridSize as number) || 4}
             onChange={(e) => update({ gridSize: Number(e.target.value) })}

@@ -144,7 +144,7 @@ export const snapshotService = {
         return true;
       } catch (err: unknown) {
         if (err instanceof Error && err.name === 'AbortError') return false;
-        logError('Share hatası:', typeof err === 'object' && err !== null && !Array.isArray(err) ? err as Record<string, unknown> : undefined);
+        logError('Paylaşma hatası:', typeof err === 'object' && err !== null && !Array.isArray(err) ? err as Record<string, unknown> : undefined);
       }
     }
 

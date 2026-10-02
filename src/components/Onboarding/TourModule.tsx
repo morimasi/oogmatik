@@ -8,7 +8,7 @@ export const TourModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
   const steps = [
     {
       icon: Layout,
-      title: 'Ana Panel (Dashboard)',
+      title: 'Ana Panel',
       description: 'Tüm modüllerinize tek noktadan erişim',
       details: [
         'Sol menü: Stüdyolar, Defterler, Raporlar ve Ayarlar',

@@ -61,7 +61,7 @@ export async function safeFetch<T>(url: string, options?: RequestInit): Promise<
   } catch (error) {
     if (error instanceof AppError) throw error;
     
-    logError('Network Request Failed', { url, error });
+    logError('Ağ isteği başarısız oldu', { url, error });
     
     if (error instanceof SyntaxError) {
       throw new AppError('Sunucudan gelen veri işlenemedi (JSON Hatası).', 'PARSE_ERROR', 500);

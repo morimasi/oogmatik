@@ -88,7 +88,7 @@ export const FascicleMultiPageRenderer: React.FC<FascicleMultiPageRendererProps>
           </div>
 
           <div className="px-6 py-2 border-t border-zinc-100 flex justify-between items-center text-[9px] font-bold text-zinc-400 uppercase tracking-widest bg-white z-20">
-            <span>{metadata.title || 'bdmind Special Education'}</span>
+            <span>{metadata.title || 'bdmind Özel Eğitim'}</span>
             <span>Sayfa {startPageNumber} / {grandTotalPages}</span>
           </div>
         </div>
@@ -171,7 +171,7 @@ export const FascicleMultiPageRenderer: React.FC<FascicleMultiPageRendererProps>
 
         {/* Universal Footer Band */}
         <div className="px-6 py-2 border-t border-zinc-100 flex justify-between items-center text-[9px] font-bold text-zinc-400 uppercase tracking-widest bg-white z-20">
-          <span>{metadata.title || 'bdmind Special Education'}</span>
+          <span>{metadata.title || 'bdmind Özel Eğitim'}</span>
           <span>Sayfa {startPageNumber} / {grandTotalPages}</span>
         </div>
       </div>

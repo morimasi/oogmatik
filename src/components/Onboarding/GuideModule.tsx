@@ -56,7 +56,7 @@ export const GuideModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         { title: 'Öğrenci İlerleme Paneli', desc: 'Tamamlanan aktiviteler ve başarı oranları' },
         { title: 'Bilişsel Değerlendirme', desc: 'Disleksi tarama testi ve radar grafik analizi' },
         { title: 'BEP Hedefleri', desc: 'Bireysel eğitim planı hedef takibi' },
-        { title: 'Rapor Export', desc: 'PDF rapor oluşturma ve veliye gönderme' }
+        { title: 'Rapor Dışa Aktarma', desc: 'PDF rapor oluşturma ve veliye gönderme' }
       ]
     },
     {
@@ -68,7 +68,7 @@ export const GuideModule: React.FC<{ onClose: () => void }> = ({ onClose }) => {
         { title: 'Klavye Kısayolları', desc: 'Ctrl+K: Arama, Ctrl+N: Yeni etkinlik, Ctrl+P: Yazdır' },
         { title: 'Hızlı Üretim', desc: 'Ayarları kaydet, sonraki üretimde otomatik uygula' },
         { title: 'Toplu İşlem', desc: 'Birden fazla aktiviteyi aynı anda üret ve dışa aktar' },
-        { title: 'Offline Mod', desc: 'İnternet olmadan önceden üretilmiş içeriklere erişim' }
+        { title: 'Çevrimdışı Mod', desc: 'İnternet olmadan önceden üretilmiş içeriklere erişim' }
       ]
     }
   ];

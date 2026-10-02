@@ -194,7 +194,7 @@ export const EsAnlamliKelimelerConfig = ({
         />
         
         <ToggleSwitch
-           label="Syllable Coloring"
+           label="Hece Renklendirme"
            description="Heceleri renklendir (Disleksi Dostu)"
            checked={(opts.syllableColoring as boolean) ?? false}
            onChange={(v) => onChange('syllableColoring' as keyof GeneratorOptions, v)}

@@ -226,7 +226,7 @@ export const AssignmentsModule: React.FC<AssignmentsModuleProps> = ({
       if (worksheet) {
          onLoadMaterial(worksheet);
       } else {
-         throw new Error("Worksheet not found");
+         throw new Error("Çalışma sayfası bulunamadı");
       }
     } catch (e) {
       useToastStore.getState().error("İçerik bulunamadı veya silinmiş. Bu öksüz atama sistemden kaldırılıyor.");

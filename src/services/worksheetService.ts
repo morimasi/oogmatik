@@ -162,7 +162,7 @@ export const worksheetService = {
                 worksheetData: data
             };
         } catch (error) {
-            logError("Error saving worksheet", { error });
+            logError("Çalışma sayfası kaydedilemedi", { error });
             throw error;
         }
     },
@@ -271,7 +271,7 @@ export const worksheetService = {
             items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             return items;
         } catch (error) {
-            logError("Error fetching student worksheets", { error });
+            logError("Öğrenci çalışma sayfaları alınamadı", { error });
             return [];
         }
     },

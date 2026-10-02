@@ -117,7 +117,7 @@ export const AdminDashboard = ({ onBack }: AdminDashboardProps) => {
       setStats(statsData);
       setFeedbackCount(feedbackData.feedbacks.filter(f => f.status === 'new').length);
     } catch (e: unknown) {
-      logError('Admin load error', e as Record<string, unknown>);
+      logError('Yönetici yükleme hatası', e as Record<string, unknown>);
     } finally {
       setLoading(false);
     }

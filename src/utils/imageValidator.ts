@@ -276,7 +276,7 @@ export const validateBase64Image = (base64: string): ValidationResult => {
   if (!headerMatch) {
     return {
       valid: false,
-      reason: 'Geçersiz base64 formatı. Data URL header eksik.',
+      reason: 'Geçersiz base64 biçimi. Data URL başlığı eksik.',
       file: new File([], 'unknown'),
       metadata: {
         sizeInMB: base64.length / (1024 * 1024),

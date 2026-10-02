@@ -134,7 +134,7 @@ export const UniversalPropertiesPanel = () => {
                         >
                             <option value="contain">Sığdır (Contain)</option>
                             <option value="cover">Doldur (Cover)</option>
-                            <option value="fill">Esnet (Fill)</option>
+                            <option value="fill">Esnet (Doldur)</option>
                         </select>
                     </div>
                 </div>

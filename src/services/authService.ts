@@ -172,7 +172,7 @@ export const authService = {
             const result = await getRedirectResult(auth);
 
             if (!result) {
-                logInfo("No redirect result found.");
+                logInfo("Yönlendirme sonucu bulunamadı.");
                 return null;
             }
 
