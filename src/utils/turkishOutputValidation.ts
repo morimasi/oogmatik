@@ -17,6 +17,8 @@ const USER_FACING_TEXT_FIELDS = new Set([
   'dogru_cevap',
   'explanation',
   'example',
+  'emailBody',
+  'emailSubject',
   'gercek_yasam_baglantisi',
   'fullStory',
   'genre',
@@ -38,6 +40,9 @@ const USER_FACING_TEXT_FIELDS = new Set([
   'prompt',
   'question',
   'questions',
+  'scenes',
+  'sceneVisual',
+  'sceneVisuals',
   'soru_metni',
   'unite_adi',
   'cozum_anahtari',
@@ -45,21 +50,26 @@ const USER_FACING_TEXT_FIELDS = new Set([
   'soruMetni',
   'sorular',
   'setting',
+  'script',
+  'socialCopy',
   'story',
   'subtitle',
   'targetSkills',
   'text',
   'title',
   'transitionWords',
+  'textOverlay',
   'vocabulary',
   'word',
   'words',
+  'visualDesc',
+  'voiceover',
 ]);
 
 const ENGLISH_FUNCTION_WORDS = new Set([
   'a', 'about', 'after', 'all', 'also', 'an', 'and', 'any', 'are', 'as', 'at',
   'be', 'because', 'been', 'before', 'between', 'both', 'but', 'by', 'can',
-  'could', 'did', 'do', 'does', 'during', 'each', 'few', 'for', 'from', 'had',
+  'could', 'did', 'do', 'does', 'during', 'each', 'every', 'few', 'for', 'from', 'had',
   'has', 'have', 'he', 'her', 'here', 'him', 'his', 'how', 'i', 'if', 'in',
   'into', 'is', 'it', 'its', 'just', 'may', 'me', 'more', 'most', 'much', 'my',
   'no', 'not', 'of', 'off', 'on', 'once', 'only', 'or', 'other', 'our', 'out',
@@ -94,6 +104,10 @@ const collectTextPaths = (value: unknown, path: string, paths: string[]): void =
 
   for (const [key, child] of Object.entries(value)) {
     if (key === 'imagePrompt') continue;
+    if (path.endsWith('sceneVisuals') && /^\d+$/.test(key)) {
+      collectTextPaths(child, `${path}.${key}`, paths);
+      continue;
+    }
     if (!USER_FACING_TEXT_FIELDS.has(key)) continue;
     collectTextPaths(child, path ? `${path}.${key}` : key, paths);
   }

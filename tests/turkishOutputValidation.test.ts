@@ -43,6 +43,29 @@ describe('findLikelyEnglishUserFacingText', () => {
     ]);
   });
 
+  it('checks natural-language fields in generated advertisement results', () => {
+    const result: unknown = {
+      script: 'Our platform helps every child learn through personalized practice.',
+      scenes: [{
+        voiceover: 'Every student can succeed with the right support.',
+        textOverlay: 'Learn at your own pace as you grow',
+        sceneVisual: '<svg><text>This is the best way to learn with your child</text></svg>',
+      }],
+      sceneVisuals: {
+        '1': '<svg><text>This is the best way to learn with your child</text></svg>',
+      },
+      imagePrompt: 'A colorful classroom illustration',
+    };
+
+    expect(findLikelyEnglishUserFacingText(result)).toEqual([
+      'script',
+      'scenes[0].voiceover',
+      'scenes[0].textOverlay',
+      'scenes[0].sceneVisual',
+      'sceneVisuals.1',
+    ]);
+  });
+
   it('accepts Turkish content and leaves technical identifiers untouched', () => {
     const result: unknown = {
       title: 'Ormandaki küçük tilki yeni bir arkadaş arıyor.',

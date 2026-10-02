@@ -128,7 +128,7 @@ export const StylePanel = ({
 
         <div className="flex flex-col gap-1.5">
           <label className="text-[9px] font-bold text-zinc-500 uppercase px-1">
-            Köşe Karakteri (Border Radius)
+            Köşe yuvarlaklığı
           </label>
           <input
             type="range"

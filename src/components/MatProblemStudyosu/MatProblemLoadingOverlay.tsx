@@ -75,7 +75,7 @@ export const MatProblemLoadingOverlay: React.FC<MatProblemLoadingOverlayProps> =
                     <div className="absolute w-16 h-16 rounded-full bg-slate-950 p-2 shadow-[0_0_25px_rgba(6,182,212,0.6)] flex items-center justify-center border border-cyan-500/40">
                         <img
                             src="/assets/logo.png"
-                            alt="Oogmatik AI Logo"
+                            alt="Oogmatik yapay zekâ logosu"
                             className="w-12 h-12 object-contain animate-pulse"
                             onError={(e) => {
                                 // Fallback icon if image path differs

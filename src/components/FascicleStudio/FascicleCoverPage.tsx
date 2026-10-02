@@ -278,7 +278,7 @@ export const FascicleCoverPage: React.FC<FascicleCoverPageProps> = ({ settings, 
           >
             <img
               src={watermarkSettings.imageUrl || "/assets/logo.png"}
-              alt="Watermark Logo"
+              alt="Filigran logosu"
               className="max-w-[70%] max-h-[70%] object-contain"
               style={{
                 opacity: Math.max(0.01, watermarkSettings.opacity / 100),
@@ -363,7 +363,7 @@ export const FascicleCoverPage: React.FC<FascicleCoverPageProps> = ({ settings, 
                 boxShadow: `0 8px 24px ${palette.glow}, 0 0 0 3px ${palette.gold}15`,
               }}
             >
-              <img src="/assets/logo.png" alt="Bursa Disleksi Logo" className="w-full h-full object-contain" />
+              <img src="/assets/logo.png" alt="Bursa Disleksi logosu" className="w-full h-full object-contain" />
             </div>
           </div>
           {settings.schoolName && (

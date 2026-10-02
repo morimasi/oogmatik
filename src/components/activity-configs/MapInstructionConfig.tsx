@@ -65,7 +65,7 @@ export const MapInstructionConfig: React.FC<{ options: GeneratorOptions; onChang
                 >
                     {options.customInput ? (
                         <div className="relative w-full h-full">
-                            <img src={options.customInput} className="w-full h-full object-cover" alt="Custom Map" />
+                            <img src={options.customInput} className="w-full h-full object-cover" alt="Özel harita" />
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                                 <span className="text-[10px] font-bold text-[var(--text-primary)]">DEĞİŞTİR</span>
                             </div>

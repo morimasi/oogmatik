@@ -179,16 +179,16 @@ export const UniversalPropertiesPanel = () => {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                    <label className="text-[9px] font-bold text-zinc-500 uppercase px-1">Köşe (Radius) & Şeffaflık</label>
+                    <label className="text-[9px] font-bold text-zinc-500 uppercase px-1">Köşe yuvarlaklığı ve saydamlık</label>
                     <div className="grid grid-cols-2 gap-3">
                         <input
-                            type="number" min="0" max="100" placeholder="Radius"
+                            type="number" min="0" max="100" placeholder="Köşe yarıçapı"
                             value={s.borderRadius}
                             onChange={(e: any) => updateStyle({ borderRadius: parseInt(e.target.value) })}
                             className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-white"
                         />
                         <input
-                            type="number" step="0.1" min="0" max="1" placeholder="Opacity"
+                            type="number" step="0.1" min="0" max="1" placeholder="Saydamlık"
                             value={s.opacity}
                             onChange={(e: any) => updateStyle({ opacity: parseFloat(e.target.value) })}
                             className="bg-zinc-100 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700/50 rounded-xl p-2.5 text-xs text-zinc-900 dark:text-white"

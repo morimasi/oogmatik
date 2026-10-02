@@ -198,7 +198,7 @@ export const OCRStudio = ({
           <img
             src={images[activeImageIndex]}
             className="w-full rounded-2xl opacity-60 group-hover:opacity-100 transition-opacity duration-700"
-            alt="Source"
+            alt="Kaynak görsel"
           />
           <div className="absolute inset-0 pointer-events-none border-[12px] border-black/20 rounded-[3rem]"></div>
         </div>

@@ -99,8 +99,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
 
     } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to generate image';
+        const errorMessage = error instanceof Error ? error.message : 'Görsel oluşturulamadı.';
         logError('Image Generation Error', { error: errorMessage });
-        return res.status(500).json({ error: 'Failed to generate image', message: errorMessage });
+        return res.status(500).json({
+            error: 'Görsel oluşturulamadı',
+            message: 'Görsel oluşturulurken bir sorun oluştu. Lütfen yeniden deneyin.',
+        });
     }
 }

@@ -52,4 +52,10 @@ describe('JWTService Security', () => {
         expect(decoded.userId).toBe(payload.userId);
         expect(decoded.role).toBe(payload.role);
     });
+
+    it('returns a Turkish message for invalid tokens', () => {
+        process.env.JWT_SECRET = 'test-secret';
+
+        expect(() => JWTService.verifyToken('invalid-token')).toThrow('Oturum bilgisi geçersiz.');
+    });
 });

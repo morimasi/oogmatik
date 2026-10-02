@@ -15,6 +15,7 @@ const VISIBLE_FIELDS = new Set([
   'buttonLabel',
   'emptyMessage',
   'emptyState',
+  'error',
   'buttonText',
   'instruction',
   'question',
@@ -29,7 +30,7 @@ const VISIBLE_FIELDS = new Set([
 ]);
 
 const ENGLISH_UI_WORDS =
-  /\b(?:english|dashboard|success|rate|save|cancel|delete|search|loading|continue|back|next|close|submit|edit|export|import|print|share|settings|profile|home|library|archive|active|inactive|pending|completed|failed|total|average|score|result|download|upload|sync|preview|design|content|style|question|answer|student|teacher|correct|incorrect|retry|remove|clear|select|choose|start|finish|read|write|story|storyboard|instruction|easy|medium|hard|please\s+wait|no\s+results|no\s+data|not\s+found)\b/i;
+  /\b(?:english|dashboard|success|rate|save|cancel|delete|search|loading|continue|back|next|close|submit|edit|export|import|print|share|settings|profile|home|library|archive|active|inactive|pending|completed|failed|total|average|score|result|download|upload|sync|preview|design|content|style|question|answer|student|teacher|correct|incorrect|retry|remove|clear|select|choose|start|finish|read|write|story|storyboard|instruction|easy|medium|hard|watermark|source|qr\s+code|custom\s+map|avatar|density\s+level|font\s+size|line\s+height|margins|radius|opacity|zoom(?:\s+level)?|please\s+wait|no\s+results|no\s+data|not\s+found)\b/i;
 
 const isEnglishCandidate = (value) =>
   ENGLISH_UI_WORDS.test(value.replace(/<[^>]*>/g, ' ').trim());

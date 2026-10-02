@@ -6,6 +6,8 @@ import {
   AdStudioTarget,
   AD_TARGET_DESCRIPTIONS,
 } from '../types/adStudio';
+import { withTurkishContentPolicy } from '../utils/turkishContentPolicy';
+import { findLikelyEnglishUserFacingText } from '../utils/turkishOutputValidation';
 
 const AD_SYSTEM_INSTRUCTION = `Sen bdmind'in kıdemli reklam yazarısın. [DEPLOY: 2025_07_v6]
 bdmind, disleksi, DEHB ve özel öğrenme güçlüğü yaşayan Türk çocukları için AI destekli eğitim platformudur.
@@ -50,7 +52,7 @@ HEDEF KITLE: ${settings.audience.map(a => audienceLabels[a] || a).join(', ')}
 TON: ${settings.tone} (Karışim: ${JSON.stringify(settings.toneMix)})
 FORMAT: ${settings.format}
 SÜRE: ${settings.duration} saniye
-DIL: ${settings.language === 'tr' ? 'Turkce' : 'Ingilizce'}
+DIL: Turkce
 CAGRI METNI: ${settings.callToAction}
 ACILIYET: ${settings.urgency}
 ETIKETLER: ${settings.tags.join(', ')}
@@ -166,9 +168,19 @@ async function callGemini(prompt: string, systemInstruction: string): Promise<Re
 
 export async function generateAd(settings: AdStudioSettings, brandKit: BrandKit): Promise<AdOutput> {
   const prompt = buildPrompt(settings, brandKit);
-  const systemInstr = `${AD_SYSTEM_INSTRUCTION}\n\nFORMAT: ${settings.format}\nHEDEF KITLE: ${settings.audience.join(', ')}\n`;
+  const systemInstr = withTurkishContentPolicy(
+    `${AD_SYSTEM_INSTRUCTION}\n\nReklam metninin kullanıcıya gösterilen tüm bölümlerini Türkçe yaz. FORMAT: ${settings.format}\nHEDEF KITLE: ${settings.audience.join(', ')}\n`
+  );
 
   const result = await callGemini(prompt, systemInstr);
+  const untranslatedPaths = findLikelyEnglishUserFacingText(result);
+  if (untranslatedPaths.length > 0) {
+    throw new AppError(
+      `Reklamda Türkçe olmayan metin bulundu (${untranslatedPaths.join(', ')}). Lütfen yeniden deneyin.`,
+      'TURKISH_CONTENT_VALIDATION_FAILED',
+      502
+    );
+  }
 
   const sceneVisuals = result.sceneVisuals as Record<string, string> | undefined;
   const scenes = Array.isArray(result.scenes) ? result.scenes.map((s: Record<string, unknown>) => ({
@@ -184,13 +196,13 @@ export async function generateAd(settings: AdStudioSettings, brandKit: BrandKit)
   return {
     id: crypto.randomUUID(),
     campaignId: '',
-    title: String(result.title || `${settings.target} - ${settings.format}`),
+    title: String(result.title || 'Yeni reklam'),
     target: settings.target,
     audience: settings.audience,
     tone: settings.tone,
     format: settings.format,
     duration: settings.duration,
-    language: settings.language,
+    language: 'tr',
     brandKitId: settings.brandKitId,
     scenes,
     script: String(result.script || ''),

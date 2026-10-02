@@ -75,7 +75,7 @@ export const AcademicModule: React.FC<AcademicModuleProps> = ({ student, onUpdat
                     <div className="absolute bottom-0 right-0 p-4">
                         <div className="flex -space-x-3">
                             {[1, 2, 3].map(i => (
-                                <img key={i} className="w-8 h-8 rounded-full border-2 border-white dark:border-zinc-900" src={`https://api.dicebear.com/7.x/avataaars/svg?seed=rank${i}`} alt="avatar" />
+                                <img key={i} className="w-8 h-8 rounded-full border-2 border-white dark:border-zinc-900" src={`https://api.dicebear.com/7.x/avataaars/svg?seed=rank${i}`} alt="Sıralama profil görseli" />
                             ))}
                             <div className="w-8 h-8 rounded-full border-2 border-white dark:border-zinc-900 bg-zinc-100 flex items-center justify-center text-[8px] font-bold">+24</div>
                         </div>

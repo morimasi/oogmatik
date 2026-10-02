@@ -111,7 +111,7 @@ export const CompactA4LayoutPanel: React.FC<CompactA4LayoutPanelProps> = ({
         </label>
         <input
           id="compact-density"
-          aria-label="Density Level"
+          aria-label="Yoğunluk düzeyi"
           type="range"
           min={0}
           max={5}
@@ -128,7 +128,7 @@ export const CompactA4LayoutPanel: React.FC<CompactA4LayoutPanelProps> = ({
         </label>
         <input
           id="compact-font"
-          aria-label="Font Size"
+          aria-label="Yazı boyutu"
           type="range"
           min={11}
           max={14}
@@ -148,7 +148,7 @@ export const CompactA4LayoutPanel: React.FC<CompactA4LayoutPanelProps> = ({
         </label>
         <input
           id="compact-line-height"
-          aria-label="Line Height"
+          aria-label="Satır aralığı"
           type="range"
           min={LINE_HEIGHT_OPTIONS[0]}
           max={LINE_HEIGHT_OPTIONS[LINE_HEIGHT_OPTIONS.length - 1]}
@@ -165,7 +165,7 @@ export const CompactA4LayoutPanel: React.FC<CompactA4LayoutPanelProps> = ({
         </label>
         <input
           id="compact-margins"
-          aria-label="Margins"
+          aria-label="Kenar boşlukları"
           type="range"
           min={10}
           max={20}

@@ -9,6 +9,16 @@ describe('English visible-text audit', () => {
       const content = { instruction: 'Read the story and answer the questions.' };
       const localized = <span>Çalışmayı Kaydet</span>;
       const languageOption = <button>English</button>;
+      const image = <img alt="Preview" />;
+      const imageWithLabel = <img alt="Watermark Logo" />;
+      const profile = <img alt="Avatar" />;
+      const controls = <div aria-label="Density Level" title="Zoom level" />;
+      const property = <input placeholder="Radius" />;
+      const styleLabel = <label>Border Radius and opacity</label>;
+      const apiError = {
+        error: 'Failed to generate image',
+        message: 'The image service is not available right now.',
+      };
     `;
 
     expect(collectEnglishVisibleTextCandidates(source, 'fixture.tsx').map(({ text }) => text)).toEqual([
@@ -16,6 +26,15 @@ describe('English visible-text audit', () => {
       'Save',
       'Read the story and answer the questions.',
       'English',
+      'Preview',
+      'Watermark Logo',
+      'Avatar',
+      'Density Level',
+      'Zoom level',
+      'Radius',
+      'Border Radius and opacity',
+      'Failed to generate image',
+      'The image service is not available right now.',
     ]);
   });
 });

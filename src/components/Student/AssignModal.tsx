@@ -172,7 +172,7 @@ export const AssignModal: React.FC = () => {
                       
                       {student.avatar && (
                         <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-slate-700">
-                          <img src={student.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                          <img src={student.avatar} alt="Öğrenci profil görseli" className="w-full h-full object-cover" />
                         </div>
                       )}
                       

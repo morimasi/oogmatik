@@ -32,7 +32,7 @@ const renderWatermark = (ws: WatermarkSettings) => {
       >
         <img
           src={ws.imageUrl || "/assets/logo.png"}
-          alt="Watermark Logo"
+          alt="Filigran logosu"
           className="max-w-[70%] max-h-[70%] object-contain"
           style={{
             opacity: opacityVal,

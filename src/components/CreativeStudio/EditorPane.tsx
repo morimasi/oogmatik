@@ -43,7 +43,7 @@ export const EditorPane: React.FC<EditorPaneProps> = ({
                     {attachedFiles.map((file, idx) => (
                         <div key={idx} className="group relative w-16 h-16 rounded-xl overflow-hidden border border-white/10 bg-zinc-800">
                             {file.mimeType.startsWith('image/') ? (
-                                <img src={file.data} className="w-full h-full object-cover" alt="Preview" />
+                                <img src={file.data} className="w-full h-full object-cover" alt="Önizleme" />
                             ) : (
                                 <div className="w-full h-full flex flex-col items-center justify-center text-rose-500">
                                     <i className="fa-solid fa-file-pdf text-xl"></i>

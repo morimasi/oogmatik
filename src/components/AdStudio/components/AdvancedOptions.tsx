@@ -39,19 +39,12 @@ export const AdvancedOptions: React.FC<AdvancedOptionsProps> = ({ settings, onCh
         <div>
           <label className="text-[9px] font-bold text-zinc-600 uppercase tracking-wider block mb-2">Dil</label>
           <div className="flex gap-1">
-            {(['tr', 'en'] as const).map(lang => (
-              <button
-                key={lang}
-                onClick={() => onChange('language', lang)}
-                className={`flex-1 py-2 rounded-lg text-[11px] font-bold transition-all ${
-                  settings.language === lang
-                    ? 'bg-indigo-500/20 text-indigo-400 border border-indigo-500/30'
-                    : 'bg-white/5 text-zinc-500 border border-white/5 hover:text-zinc-300'
-                }`}
-              >
-                {lang === 'tr' ? 'Türkçe' : 'İngilizce'}
-              </button>
-            ))}
+            <button
+              onClick={() => onChange('language', 'tr')}
+              className="flex-1 py-2 rounded-lg text-[11px] font-bold transition-all bg-indigo-500/20 text-indigo-400 border border-indigo-500/30"
+            >
+              Türkçe
+            </button>
           </div>
         </div>
 

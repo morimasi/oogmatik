@@ -56,7 +56,7 @@ export class JWTService {
             });
         } catch (error: unknown) {
             logError('[JWT] Error generating token', { error });
-            throw new AppError('Token generation failed', 'INTERNAL_ERROR', 500);
+            throw new AppError('Oturum anahtarı oluşturulamadı.', 'INTERNAL_ERROR', 500);
         }
     }
 
@@ -71,7 +71,7 @@ export class JWTService {
             });
         } catch (error: unknown) {
             logError('[JWT] Error generating refresh token', { error });
-            throw new AppError('Refresh token generation failed', 'INTERNAL_ERROR', 500);
+            throw new AppError('Oturum yenileme anahtarı oluşturulamadı.', 'INTERNAL_ERROR', 500);
         }
     }
 
@@ -87,12 +87,12 @@ export class JWTService {
             return decoded;
         } catch (error: unknown) {
             if (error instanceof Error && error.name === 'TokenExpiredError') {
-                throw new AppError('Token has expired', 'INTERNAL_ERROR', 500);
+                throw new AppError('Oturum süresi doldu. Lütfen yeniden giriş yapın.', 'INTERNAL_ERROR', 500);
             }
             if (error instanceof Error && error.name === 'JsonWebTokenError') {
-                throw new AppError('Invalid token', 'INTERNAL_ERROR', 500);
+                throw new AppError('Oturum bilgisi geçersiz.', 'INTERNAL_ERROR', 500);
             }
-            throw new AppError('Token verification failed', 'INTERNAL_ERROR', 500);
+            throw new AppError('Oturum doğrulanamadı.', 'INTERNAL_ERROR', 500);
         }
     }
 
@@ -140,7 +140,7 @@ export class JWTService {
             };
         } catch (error: unknown) {
             logError('[JWT] Error refreshing token', { error });
-            throw new AppError('Token refresh failed', 'INTERNAL_ERROR', 500);
+            throw new AppError('Oturum yenilenemedi.', 'INTERNAL_ERROR', 500);
         }
     }
 }
@@ -170,7 +170,7 @@ export const jwtMiddleware = (req: any, res: any, next: any) => {
         if (!token) {
             return res.status(401).json({
                 error: {
-                    message: 'Missing authentication token',
+                    message: 'Oturum anahtarı eksik.',
                     code: 'AUTH_MISSING',
                 },
             });
@@ -188,7 +188,7 @@ export const jwtMiddleware = (req: any, res: any, next: any) => {
 
         next();
         } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : 'Token verification failed';
+            const message = error instanceof Error ? error.message : 'Oturum doğrulanamadı.';
             logError('[JWT] Token verification middleware error', { error });
             return res.status(401).json({
                 error: {
@@ -234,7 +234,7 @@ export const loginHandler = async (req: any, res: any) => {
         if (!email || !password) {
             return res.status(400).json({
                 error: {
-                    message: 'Email and password required',
+                    message: 'E-posta ve şifre alanları zorunludur.',
                     code: 'VALIDATION_ERROR',
                 },
             });
@@ -277,7 +277,7 @@ export const loginHandler = async (req: any, res: any) => {
             timestamp: new Date().toISOString(),
         });
         } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : 'Login failed';
+            const message = error instanceof Error ? error.message : 'Giriş yapılamadı.';
             return res.status(500).json({
                 error: {
                     message,
@@ -297,7 +297,7 @@ export const refreshTokenHandler = async (req: any, res: any) => {
         if (!refreshToken) {
             return res.status(400).json({
                 error: {
-                    message: 'Refresh token required',
+                    message: 'Oturum yenileme anahtarı zorunludur.',
                     code: 'VALIDATION_ERROR',
                 },
             });
@@ -315,7 +315,7 @@ export const refreshTokenHandler = async (req: any, res: any) => {
             timestamp: new Date().toISOString(),
         });
         } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : 'Token refresh failed';
+            const message = error instanceof Error ? error.message : 'Oturum yenilenemedi.';
             return res.status(401).json({
                 error: {
                     message,
@@ -332,7 +332,7 @@ export const logoutHandler = async (req: any, res: any) => {
     // In production, add token to blacklist or remove from whitelist
     return res.status(200).json({
         success: true,
-        message: 'Logged out successfully',
+        message: 'Oturum başarıyla kapatıldı.',
         timestamp: new Date().toISOString(),
     });
 };
@@ -348,7 +348,7 @@ export const validateTokenHandler = async (req: any, res: any) => {
         if (!token) {
             return res.status(401).json({
                 success: false,
-                message: 'No token provided',
+                message: 'Oturum anahtarı gönderilmedi.',
             });
         }
 
@@ -363,7 +363,7 @@ export const validateTokenHandler = async (req: any, res: any) => {
             },
         });
         } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : 'Invalid token';
+            const message = error instanceof Error ? error.message : 'Oturum bilgisi geçersiz.';
             return res.status(401).json({
                 success: false,
                 message,

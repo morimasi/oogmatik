@@ -208,7 +208,7 @@ export const ShareModal = ({ isOpen, onClose, onShare, worksheetId, worksheetTit
                             <div className="p-5 bg-white rounded-3xl shadow-xl border-4 border-zinc-50 relative group">
                                 <img
                                     src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(worksheetId ? `${window.location.origin}?share=${worksheetId}` : window.location.origin)}`}
-                                    alt="QR Code"
+                                    alt="QR kodu"
                                     className="w-44 h-44 mix-blend-multiply"
                                 />
                                 <div className="absolute inset-0 bg-indigo-600/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity"></div>

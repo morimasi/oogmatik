@@ -26,7 +26,7 @@ export const UserProfileSettings: React.FC<UserProfileSettingsProps> = ({ data }
                             <img
                                 src={profileFields.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(profileFields.name || 'U')}
                                 className="w-full h-full rounded-[2.3rem] object-cover bg-white"
-                                alt="Avatar"
+                                alt="Profil görseli"
                             />
                         </div>
                         <button
