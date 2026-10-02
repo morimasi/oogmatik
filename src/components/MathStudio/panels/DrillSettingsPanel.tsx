@@ -39,7 +39,13 @@ export const DrillSettingsPanel: React.FC<DrillSettingsPanelProps> = ({
   drillConfig,
   setDrillConfig,
   toggleDrillOp,
-}) => (
+}) => {
+  // 3. sayı yalnızca toplama/çıkarma zincirlerinde üretilir (üretici + kart
+  // bu kurala uyar). Çarpma/bölmede seçenek gizlenir.
+  const canUseThirdNumber = drillConfig.selectedOperations.some(
+    (o) => o === 'add' || o === 'sub' || o === 'mixed'
+  );
+  return (
   <div className="p-5 space-y-6 animate-in slide-in-from-left-4">
     {/* Operation Select */}
     <div>
@@ -164,7 +170,9 @@ export const DrillSettingsPanel: React.FC<DrillSettingsPanelProps> = ({
         Gelişmiş
       </h4>
       {[
-        { label: '3. Sayı Ekle (Zincir)', key: 'useThirdNumber' as const },
+        ...(canUseThirdNumber
+          ? [{ label: '3. Sayı Ekle (Zincir)', key: 'useThirdNumber' as const }]
+          : []),
         { label: 'Sayıları Yazıyla Göster', key: 'showTextRepresentation' as const },
         { label: 'Cevap Anahtarı Ekle', key: 'showAnswer' as const },
       ].map((item) => (
@@ -290,4 +298,5 @@ export const DrillSettingsPanel: React.FC<DrillSettingsPanelProps> = ({
       </div>
     </div>
   </div>
-);
+  );
+};

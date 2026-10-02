@@ -47,7 +47,12 @@ export const useDrillGenerator = (pageMargin: number) => {
             const current = prev.selectedOperations;
             const newOps = current.includes(op) ? current.filter(o => o !== op) : [...current, op];
             if (newOps.length === 0) return prev;
-            return { ...prev, selectedOperations: newOps };
+            const next = { ...prev, selectedOperations: newOps };
+            // 3. sayı yalnızca toplama/çıkarma zincirlerinde anlamlıdır.
+            // Çarpma/bölme seçiliyken otomatik kapatılır.
+            const canUseThird = newOps.some(o => o === 'add' || o === 'sub' || o === 'mixed');
+            if (!canUseThird) next.useThirdNumber = false;
+            return next;
         });
     }, []);
 

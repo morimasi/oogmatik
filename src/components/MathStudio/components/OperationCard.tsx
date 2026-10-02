@@ -177,10 +177,14 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
         )}
       </div>
 
+      {/* 2. satır: 3. sayı varsa işaretsiz (tek işaret kuralı — işaret yalnızca
+         en alttaki işlem satırında gösterilir) */}
       <div className="flex items-center gap-2 w-full justify-end relative">
-        <span className="absolute left-0 transform -translate-x-1/2" style={{ color: paper.accent }}>
-          {op.symbol === '*' ? '×' : op.symbol}
-        </span>
+        {op.num3 === undefined && (
+          <span className="absolute left-0 transform -translate-x-1/2" style={{ color: paper.accent }}>
+            {op.symbol === '*' ? '×' : op.symbol}
+          </span>
+        )}
         <span style={{ color: paper.text }}>{op.num2}</span>
         {showText && (
           <span className="text-[0.4em] opacity-40 font-sans font-normal" style={{ color: paper.text }}>
@@ -192,7 +196,7 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
       {op.num3 !== undefined && (
         <div className="flex items-center gap-2 w-full justify-end relative">
           <span className="absolute left-0 transform -translate-x-1/2" style={{ color: paper.accent }}>
-            {op.symbol2 || op.symbol}
+            {(op.symbol2 || op.symbol) === '*' ? '×' : (op.symbol2 || op.symbol)}
           </span>
           <span style={{ color: paper.text }}>{op.num3}</span>
         </div>

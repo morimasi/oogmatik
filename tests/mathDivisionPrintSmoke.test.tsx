@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { OperationCardVertical, OperationCardHorizontal } from '../src/components/MathStudio/components/OperationCard';
 import { DEFAULT_THEME_CONFIG } from '../src/components/MathStudio/constants';
+import { generateMathDrillSet } from '../src/services/offlineGenerators/mathStudio';
 import type { MathOperation } from '../src/types/math';
 
 // Baskı regression kilidi: önizlemede görünüp yazdırmada kaybolan çizgilerin
@@ -84,5 +85,34 @@ describe('Kalanlı bölme gizliliği (öğrenci kartı)', () => {
     expect(html).toContain('div-answer-box');
     expect(html).not.toMatch(/div-answer-box[^>]*border/);
     expect(html).toContain('\u00A0');
+  });
+});
+
+describe('3. sayı kuralları (tek işaret + toplama/çıkarma)', () => {
+  const chainOp: MathOperation = { id: 't-chain', num1: 48, num2: 27, num3: 15, symbol: '+', symbol2: '+', answer: 90 };
+
+  it('3 sayılı dikey kartta işaret tektir ve en alt satırdadır', () => {
+    const html = renderToStaticMarkup(<OperationCardVertical op={chainOp} {...baseProps} />);
+    expect(html).toContain('15');
+    expect(html.match(/\+/g)?.length ?? 0).toBe(1);
+  });
+
+  it("2 sayılı kartta işaret davranışı değişmez (tek '+')", () => {
+    const html = renderToStaticMarkup(<OperationCardVertical op={addOp} {...baseProps} />);
+    expect(html.match(/\+/g)?.length ?? 0).toBe(1);
+  });
+
+  it('çarpma ve bölmede 3. sayı üretilmez', () => {
+    const base = { digit1: 2, digit2: 1, digit3: 1, useThirdNumber: true, allowCarry: true, allowBorrow: true, allowRemainder: true, allowNegative: false };
+    const mults = generateMathDrillSet(20, ['mult'], base);
+    const divs = generateMathDrillSet(20, ['div'], base);
+    expect(mults.every((o) => o.num3 === undefined)).toBe(true);
+    expect(divs.every((o) => o.num3 === undefined)).toBe(true);
+  });
+
+  it('toplamada 3. sayı üretilir', () => {
+    const base = { digit1: 2, digit2: 1, digit3: 1, useThirdNumber: true, allowCarry: true, allowBorrow: true, allowRemainder: true, allowNegative: false };
+    const adds = generateMathDrillSet(20, ['add'], base);
+    expect(adds.every((o) => o.num3 !== undefined)).toBe(true);
   });
 });
