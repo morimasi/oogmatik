@@ -413,6 +413,7 @@
 
     /* Kırılmasını İstemediğimiz Bloklar (Tablo, Soru vb.) */
     .break-inside-avoid,
+    .math-division-card,
     .block-logic-card,
     .block-categorical,
     .block-match,
@@ -423,6 +424,14 @@
       break-inside: avoid !important;
       margin-bottom: 2mm !important;
       /* Bloklar arası print boşluğu */
+    }
+
+    /* Math Studio bölme kartı — ekranda + yazdırmada taşmayı engelle */
+    .math-division-card {
+      max-width: 100% !important;
+      overflow: hidden !important;
+      break-inside: avoid !important;
+      page-break-inside: avoid !important;
     }
 
     /* SVG ve İmaj Taşkınlık Engelleme */

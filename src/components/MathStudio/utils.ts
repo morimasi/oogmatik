@@ -45,9 +45,9 @@ const estimateItemHeightForOp = (op: string, config: MathDrillConfig): number =>
   let lineCount = 4.0; // num1, symbol+num2, separator line, answer box
 
   if (op === 'div') {
-    // Turkish classic division layout: dividend | divisor, quotient below, steps
-    lineCount = 7.0;
-    if (config.digit2 >= 2) lineCount += 2.0; // Multi-digit divisor needs more steps
+    // Kompakt Türk bölme yerleşimi: çizgiler içerik genişliğinde, sabit min-h yok
+    lineCount = 5.0;
+    if (config.digit2 >= 2) lineCount += 1.0; // Çok basamaklı bölen için küçük pay
   } else if (op === 'mult') {
     if (config.digit2 >= 2) {
       lineCount += 3.5; // Multi-digit multiplication: intermediate steps
@@ -67,6 +67,30 @@ const estimateItemHeightForOp = (op: string, config: MathDrillConfig): number =>
   const textExtra = config.showTextRepresentation ? 16 : 0;
   const paddingExtra = 24; // Premium card padding
   return fs * lineCount + textExtra + paddingExtra;
+};
+
+/**
+ * Bölme kartı boyut hesabı — çizgi uzunluğu içerik genişliğine göre (ch birimi).
+ * Kart genişliği 4 sütunluk A4 hücresine (~179px) sığmalı; sabit min-w / w-full yok.
+ */
+export const getDivisionCardLayout = (
+  num1: number,
+  num2: number,
+  answer: number | undefined,
+  fontSize: number,
+): { leftCh: number; rightCh: number; effFontSize: number; leftWidthEm: number; rightWidthEm: number } => {
+  const leftCh = Math.max(String(num1).length, 2);
+  const rightCh = Math.max(String(num2).length, String(answer ?? '').length, 2);
+  const totalCh = leftCh + rightCh;
+  const scaleDown = totalCh > 7 ? 0.82 : totalCh > 5 ? 0.92 : 1;
+  const effFontSize = Math.max(12, Math.round(fontSize * scaleDown));
+  return {
+    leftCh,
+    rightCh,
+    effFontSize,
+    leftWidthEm: leftCh * 0.62 + 0.35,
+    rightWidthEm: rightCh * 0.62 + 0.7,
+  };
 };
 
 /**
