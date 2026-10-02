@@ -42,17 +42,26 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
   const numStr = NUMBERING_STYLES[themeConfig.numberingStyle].format(index + 1);
 
   if (op.symbol === '÷' || op.symbol === '/') {
-    // ── Türk klasik bölme algoritması — taşmayan kompakt yerleşim ──
-    // Sorun: min-w-[3em] + w-full border-b-4 + min-h-[5.5em] pb-8 →
-    // 4 sütunda hücre ~179px iken kart ~300px oluyor, sağdan taşıyor.
-    // Çözüm: çizgi uzunluğu = içerik genişliği (ch birimi), ince çizgi,
-    // kart max-w-full + overflow-hidden, rozet içeride.
+    // ── Türk klasik bölme algoritması — taşmayan + BASKI DOSTU yerleşim ──
+    // Taşma çözümü: çizgi uzunluğu = içerik genişliği (ch birimi), kart
+    // max-w-full + overflow-hidden, rozet içeride.
+    // Baskı çözümü (kök nedenler):
+    //  1) Dikey ayraç eskiden background-div idi → print CSS'i tüm
+    //     background'ları transparent yapar, çizgi baskıda yok olurdu.
+    //     Artık gerçek BORDER (sağ sütunun border-left'i).
+    //  2) Yatay ayraç ayrı boş div idi → artık bölen sayısının border-bottom'ı
+    //     (içerikli elemanın border'ı yükseklik çökmesinden etkilenmez).
+    //  3) Cevap kutusu %25 opak border + sabit height idi → baskıda silikleşir,
+    //     overlay-print height:auto ile çökerdi. Artık opak border + nbsp
+    //     içerik (height:auto olsa bile kutu çökmez).
+    //  4) Karttaki `group` class'ı PrintLock tarafından display:block'e
+    //     çevrilip flex düzeni bozuyordu → kaldırıldı.
     const { leftCh, rightCh, effFontSize, leftWidthEm, rightWidthEm } =
       getDivisionCardLayout(op.num1, op.num2, op.answer, fontSize);
 
     return (
       <div
-        className="math-division-card flex font-mono font-bold break-inside-avoid relative group items-start"
+        className="math-division-card flex font-mono font-bold break-inside-avoid relative items-start"
         style={{
           fontSize: `${effFontSize}px`,
           fontWeight: fontWeight,
@@ -68,11 +77,11 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
       >
         {themeConfig.numberingStyle !== 'none' && (
           <div
-            className="absolute -left-2 -top-3 flex items-center justify-center w-7 h-7 rounded-full text-[0.35em] font-sans font-black shadow-sm transition-all duration-300 group-hover:scale-110"
+            className="absolute -left-2 -top-3 flex items-center justify-center w-7 h-7 rounded-full text-[0.35em] font-sans font-black shadow-sm"
             style={{
               backgroundColor: paper.secondary,
               color: paper.text,
-              border: `1.5px solid ${paper.accent}40`,
+              border: `1.5px solid ${paper.accent}`,
               boxShadow: `0 3px 6px ${paper.accent}15`,
             }}
           >
@@ -82,11 +91,11 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
 
         {/* SOL: bölünen + kısa işlem alanı */}
         <div
-          className="flex flex-col items-end pr-2 pt-1 shrink min-w-0"
+          className="flex flex-col items-end pr-2 pt-1 shrink-0 min-w-0"
           style={{ width: `${leftWidthEm}em`, maxWidth: '55%' }}
         >
           <div style={{ color: paper.text }}>{op.num1}</div>
-          {/* Kısa çalışma çizgisi — bölünen genişliğinde, gereksiz uzatılmaz */}
+          {/* Kısa çalışma çizgisi — border tabanlı, baskıda yaşar */}
           <div
             className="border-b-2 border-dashed mt-1 opacity-40"
             style={{ borderColor: paper.text, width: `${leftCh * 0.62}em`, maxWidth: '100%' }}
@@ -98,29 +107,36 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
           )}
         </div>
 
-        {/* DİKEY AYRAÇ — içeriğe göre uzar, sabit min-h yok */}
+        {/* SAĞ: bölen / bölüm — DİKEY AYRAÇ = border-left (background yok) */}
         <div
-          aria-hidden
-          className="self-stretch shrink-0 mx-0"
-          style={{ width: '2px', minHeight: '2.2em', backgroundColor: paper.border }}
-        />
-
-        {/* SAĞ: bölen / yatay çizgi / bölüm */}
-        <div className="flex flex-col pl-2 pt-1 min-w-0 shrink" style={{ maxWidth: '45%' }}>
-          <div className="text-center" style={{ color: paper.text, width: `${rightWidthEm}em`, maxWidth: '100%' }}>
+          className="flex flex-col pl-2 pt-1 min-w-0 shrink-0"
+          style={{ maxWidth: '45%', borderLeft: `2px solid ${paper.border}` }}
+        >
+          {/* YATAY AYRAÇ = bölenin border-bottom'ı (ayrı boş div yok) */}
+          <div
+            className="div-divisor text-center"
+            style={{
+              color: paper.text,
+              width: `${rightWidthEm}em`,
+              maxWidth: '100%',
+              borderBottom: `2px solid ${paper.border}`,
+              paddingBottom: '0.15em',
+              marginBottom: '0.25em',
+            }}
+          >
             {op.num2}
           </div>
-          {/* Yatay ayraç — bölen/bölüm genişliğinde, w-full değil */}
+          {/* Bölüm yazma kutusu — opak border + nbsp (baskıda silinmez/çökmez) */}
           <div
-            className="border-b-2 my-1"
-            style={{ borderColor: paper.border, width: `${rightWidthEm}em`, maxWidth: '100%' }}
-          />
-          {/* Bölüm yazma kutusu — aynı genişlikte, taşmaz */}
-          <div
-            className="h-[1.3em] border-2 border-dashed rounded-lg bg-white/50 flex items-center justify-center shadow-inner"
-            style={{ borderColor: `${paper.accent}40`, width: `${rightWidthEm}em`, maxWidth: '100%' }}
+            className="div-answer-box min-h-[1.3em] border-2 border-dashed rounded-lg flex items-center justify-center"
+            style={{
+              borderColor: paper.accent,
+              backgroundColor: paper.secondary,
+              width: `${rightWidthEm}em`,
+              maxWidth: '100%',
+            }}
           >
-            {showAnswer && <span className="text-zinc-900">{op.answer}</span>}
+            {showAnswer ? <span className="text-zinc-900">{op.answer}</span> : '\u00A0'}
           </div>
         </div>
       </div>
@@ -132,7 +148,7 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
 
   return (
     <div
-      className="flex flex-col items-end font-mono font-bold leading-none break-inside-avoid relative group min-w-0"
+      className="flex flex-col items-end font-mono font-bold leading-none break-inside-avoid relative min-w-0"
       style={{
         fontSize: `${fontSize}px`,
         maxWidth: '100%',
@@ -143,13 +159,13 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
     >
       {themeConfig.numberingStyle !== 'none' && (
         <div
-          className="absolute -left-2 -top-3 flex items-center justify-center w-7 h-7 rounded-full text-[0.35em] font-sans font-black shadow-sm transition-all duration-300 group-hover:scale-110"
-          style={{
-            backgroundColor: paper.secondary,
-            color: paper.text,
-            border: `1.5px solid ${paper.accent}40`,
-            boxShadow: `0 3px 6px ${paper.accent}15`
-          }}
+          className="absolute -left-2 -top-3 flex items-center justify-center w-7 h-7 rounded-full text-[0.35em] font-sans font-black shadow-sm"
+            style={{
+              backgroundColor: paper.secondary,
+              color: paper.text,
+              border: `1.5px solid ${paper.accent}`,
+              boxShadow: `0 3px 6px ${paper.accent}15`
+            }}
         >
           {numStr}
         </div>
@@ -189,14 +205,14 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
 
       {isMultiDigitMultiplication && (
         <div className="w-full flex flex-col items-end gap-2 mb-2">
-          <div className="h-[1.1em] w-3/4 border-b-2 border-dashed" style={{ borderColor: `${paper.text}20` }}></div>
-          <div className="h-[1.1em] w-full border-b-2 border-dashed" style={{ borderColor: `${paper.text}20` }}></div>
+          <div className="h-[1.1em] w-3/4 border-b-2 border-dashed" style={{ borderColor: paper.text }}></div>
+          <div className="h-[1.1em] w-full border-b-2 border-dashed" style={{ borderColor: paper.text }}></div>
           <div className="w-full border-b-4 my-1" style={{ borderColor: paper.border }}></div>
         </div>
       )}
 
-      <div className="w-full h-[1.3em] border-2 border-dashed rounded-lg bg-white/50 flex items-center justify-end px-2 shadow-inner" style={{ borderColor: `${paper.accent}40` }}>
-        {showAnswer && <span className="text-zinc-900">{op.answer}</span>}
+      <div className="div-answer-box w-full min-h-[1.3em] border-2 border-dashed rounded-lg flex items-center justify-end px-2" style={{ borderColor: paper.accent, backgroundColor: paper.secondary }}>
+        {showAnswer ? <span className="text-zinc-900">{op.answer}</span> : '\u00A0'}
       </div>
 
       {op.remainder !== undefined && op.remainder > 0 && (
@@ -223,7 +239,7 @@ export const OperationCardHorizontal: React.FC<OperationCardProps> = ({
 
   return (
     <div
-      className="flex flex-wrap items-center gap-3 font-mono font-bold break-inside-avoid relative group"
+      className="flex flex-wrap items-center gap-3 font-mono font-bold break-inside-avoid relative"
       style={{
         fontSize: `${fontSize}px`,
         fontWeight: fontWeight,
@@ -232,11 +248,11 @@ export const OperationCardHorizontal: React.FC<OperationCardProps> = ({
     >
       {themeConfig.numberingStyle !== 'none' && (
         <div
-          className="absolute -left-8 -top-3 flex items-center justify-center w-6 h-6 rounded-full text-[0.35em] font-sans font-black shadow-sm transition-all duration-300 group-hover:scale-110"
+          className="absolute -left-2 -top-3 flex items-center justify-center w-6 h-6 rounded-full text-[0.35em] font-sans font-black shadow-sm"
           style={{
             backgroundColor: paper.secondary,
             color: paper.text,
-            border: `1px solid ${paper.accent}40`,
+            border: `1px solid ${paper.accent}`,
             boxShadow: `0 2px 4px ${paper.accent}10`
           }}
         >
@@ -269,8 +285,8 @@ export const OperationCardHorizontal: React.FC<OperationCardProps> = ({
       )}
 
       <span style={{ color: paper.accent }}>=</span>
-      <span className="min-w-[60px] border-b-4 border-dashed h-[1.1em] inline-flex items-center justify-center shadow-inner" style={{ borderColor: `${paper.accent}40` }}>
-        {showAnswer && <span style={{ color: paper.text }}>{op.answer}</span>}
+      <span className="min-w-[60px] border-b-4 border-dashed min-h-[1.1em] inline-flex items-center justify-center" style={{ borderColor: paper.accent }}>
+        {showAnswer ? <span style={{ color: paper.text }}>{op.answer}</span> : '\u00A0'}
       </span>
       {op.remainder !== undefined && op.remainder > 0 && (
         <span className="text-[0.5em] ml-1 opacity-60 font-sans font-bold" style={{ color: paper.accent }}>

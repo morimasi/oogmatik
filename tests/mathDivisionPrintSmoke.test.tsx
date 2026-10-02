@@ -1,0 +1,65 @@
+import { describe, it, expect } from 'vitest';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { OperationCardVertical, OperationCardHorizontal } from '../src/components/MathStudio/components/OperationCard';
+import { DEFAULT_THEME_CONFIG } from '../src/components/MathStudio/constants';
+import type { MathOperation } from '../src/types/math';
+
+// Baskı regression kilidi: önizlemede görünüp yazdırmada kaybolan çizgilerin
+// kök nedenleri (background-div ayraç, şeffaf border, `group` class'ı,
+// boş sabit-height kutu) tekrar giremez.
+const divOp: MathOperation = { id: 't-div', num1: 36, num2: 9, symbol: '÷', answer: 4 };
+const addOp: MathOperation = { id: 't-add', num1: 48, num2: 27, symbol: '+', answer: 75 };
+
+const baseProps = {
+  fontSize: 28,
+  fontWeight: 400,
+  showText: false,
+  themeConfig: DEFAULT_THEME_CONFIG,
+  index: 0,
+} as const;
+
+describe('Bölme kartı baskı dayanıklılığı', () => {
+  const html = renderToStaticMarkup(<OperationCardVertical op={divOp} {...baseProps} />);
+
+  it('dikey ayraç background-div değil, border ile çizilir', () => {
+    // Eski kod: aria-hidden + backgroundColor div'i → print CSS transparent yapar
+    expect(html).not.toContain('aria-hidden');
+    expect(html).toContain('border-left');
+  });
+
+  it('yatay ayraç ayrı boş div değil, bölenin border-bottomıdır', () => {
+    expect(html).toContain('div-divisor');
+    expect(html).toContain('border-bottom');
+  });
+
+  it('border renklerinde şeffaf (8-digit hex) renk yok', () => {
+    // %25 opak border baskı önizlemede görünmezleşir
+    expect(html).not.toMatch(/border[^;]*#[0-9a-fA-F]{8}/);
+  });
+
+  it('cevap kutusu boşken bile çökmez (nbsp içerik)', () => {
+    expect(html).toContain('div-answer-box');
+    expect(html).toContain('\u00A0');
+  });
+
+  it('kartta PrintLock tuzağı olan `group` classı yok', () => {
+    // PrintLock `.group` seçicisini display:block yapar, flex düzeni bozar
+    expect(html).not.toMatch(/class="[^"]*\bgroup\b/);
+  });
+});
+
+describe('Diğer kartlar baskı dayanıklılığı', () => {
+  it('dikey toplama kartı: opak border + nbsp + groupsuz', () => {
+    const html = renderToStaticMarkup(<OperationCardVertical op={addOp} {...baseProps} />);
+    expect(html).not.toMatch(/border[^;]*#[0-9a-fA-F]{8}/);
+    expect(html).toContain('\u00A0');
+    expect(html).not.toMatch(/class="[^"]*\bgroup\b/);
+  });
+
+  it('yatay kart: opak border + nbsp + groupsuz', () => {
+    const html = renderToStaticMarkup(<OperationCardHorizontal op={addOp} {...baseProps} />);
+    expect(html).not.toMatch(/border[^;]*#[0-9a-fA-F]{8}/);
+    expect(html).toContain('\u00A0');
+    expect(html).not.toMatch(/class="[^"]*\bgroup\b/);
+  });
+});
