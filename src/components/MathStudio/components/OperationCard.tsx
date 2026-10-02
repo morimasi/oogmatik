@@ -51,10 +51,11 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
     //     Artık gerçek BORDER (sağ sütunun border-left'i).
     //  2) Yatay ayraç ayrı boş div idi → artık bölen sayısının border-bottom'ı
     //     (içerikli elemanın border'ı yükseklik çökmesinden etkilenmez).
-    //  3) Cevap kutusu %25 opak border + sabit height idi → baskıda silikleşir,
-    //     overlay-print height:auto ile çökerdi. Artık opak border + nbsp
-    //     içerik (height:auto olsa bile kutu çökmez).
-    //  4) Karttaki `group` class'ı PrintLock tarafından display:block'e
+    //  3) Bölüm yazma alanı çerçevesiz boş alandır (kesik çizgi yok) + nbsp
+    //     içerik (height:auto olsa bile alan çökmez, hizalama korunur).
+    //  4) Kalan ipucu öğrenci kartında gösterilmez (cevabı sızdırır);
+    //     kalan bilgisi yalnızca Cevap Anahtarı sayfasındadır.
+    //  5) Karttaki `group` class'ı PrintLock tarafından display:block'e
     //     çevrilip flex düzeni bozuyordu → kaldırıldı.
     const { leftCh, rightCh, effFontSize, leftWidthEm, rightWidthEm } =
       getDivisionCardLayout(op.num1, op.num2, op.answer, fontSize);
@@ -100,11 +101,8 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
             className="border-b-2 border-dashed mt-1 opacity-40"
             style={{ borderColor: paper.text, width: `${leftCh * 0.62}em`, maxWidth: '100%' }}
           />
-          {op.remainder !== undefined && op.remainder > 0 && (
-            <span className="text-[0.38em] opacity-60 mt-1 font-sans font-bold" style={{ color: paper.accent }}>
-              Kalan: {op.remainder}
-            </span>
-          )}
+          {/* NOT: kalan ipucu öğrenci sayfasında gösterilmez (cevabı sızdırır).
+             Kalan bilgisi yalnızca Cevap Anahtarı sayfasındadır. */}
         </div>
 
         {/* SAĞ: bölen / bölüm — DİKEY AYRAÇ = border-left (background yok) */}
@@ -126,12 +124,11 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
           >
             {op.num2}
           </div>
-          {/* Bölüm yazma kutusu — opak border + nbsp (baskıda silinmez/çökmez) */}
+          {/* Bölüm yazma alanı — çerçevesiz boş alan (kesik çizgi yok).
+             Boyut korunur (hizalama bozulmaz), nbsp baskıda çökmeyi engeller. */}
           <div
-            className="div-answer-box min-h-[1.3em] border-2 border-dashed rounded-lg flex items-center justify-center"
+            className="div-answer-box min-h-[1.3em] flex items-center justify-center"
             style={{
-              borderColor: paper.accent,
-              backgroundColor: paper.secondary,
               width: `${rightWidthEm}em`,
               maxWidth: '100%',
             }}
@@ -288,11 +285,8 @@ export const OperationCardHorizontal: React.FC<OperationCardProps> = ({
       <span className="min-w-[60px] border-b-4 border-dashed min-h-[1.1em] inline-flex items-center justify-center" style={{ borderColor: paper.accent }}>
         {showAnswer ? <span style={{ color: paper.text }}>{op.answer}</span> : '\u00A0'}
       </span>
-      {op.remainder !== undefined && op.remainder > 0 && (
-        <span className="text-[0.5em] ml-1 opacity-60 font-sans font-bold" style={{ color: paper.accent }}>
-          (K:{op.remainder})
-        </span>
-      )}
+      {/* NOT: kalan ipucu öğrenci sayfasında gösterilmez (cevabı sızdırır).
+         Kalan bilgisi yalnızca Cevap Anahtarı sayfasındadır. */}
     </div>
   );
 };

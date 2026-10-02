@@ -63,3 +63,26 @@ describe('Diğer kartlar baskı dayanıklılığı', () => {
     expect(html).not.toMatch(/class="[^"]*\bgroup\b/);
   });
 });
+
+describe('Kalanlı bölme gizliliği (öğrenci kartı)', () => {
+  const remOp: MathOperation = { ...divOp, id: 't-rem', num1: 37, num2: 9, answer: 4, remainder: 1 };
+
+  it('dikey bölme kartında kalan ipucu görünmez', () => {
+    const html = renderToStaticMarkup(<OperationCardVertical op={remOp} {...baseProps} />);
+    expect(html).not.toContain('Kalan');
+    expect(html).not.toContain('(K:');
+  });
+
+  it('yatay kartta kalan ipucu görünmez', () => {
+    const html = renderToStaticMarkup(<OperationCardHorizontal op={remOp} {...baseProps} />);
+    expect(html).not.toContain('Kalan');
+    expect(html).not.toContain('(K:');
+  });
+
+  it('bölme cevap alanında kesik çerçeve yok, boş alan korunur', () => {
+    const html = renderToStaticMarkup(<OperationCardVertical op={remOp} {...baseProps} />);
+    expect(html).toContain('div-answer-box');
+    expect(html).not.toMatch(/div-answer-box[^>]*border/);
+    expect(html).toContain('\u00A0');
+  });
+});
