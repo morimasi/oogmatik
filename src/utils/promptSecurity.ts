@@ -578,7 +578,7 @@ export function validatePromptOrThrow(
     const threatSummary = result.threats.map((t) => `${t.category} (${t.level})`).join(', ');
 
     throw new ValidationError(
-      'Guvenlik kontrolunden gecemeyen ifadeler tespit edildi. Lutfen talebinizi yeniden duzenleyin.',
+      'Güvenlik kontrolunden gecemeyen ifadeler tespit edildi. Lütfen talebinizi yeniden duzenleyin.',
       {
         code: 'PROMPT_INJECTION_DETECTED',
         threatCount: result.threats.length,

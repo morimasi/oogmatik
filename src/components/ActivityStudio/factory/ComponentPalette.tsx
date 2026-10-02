@@ -3,9 +3,9 @@ import type { FactoryBlockType } from '@/types/activityStudio';
 
 const BLOCKS: Array<{ type: FactoryBlockType; label: string }> = [
   { type: 'text', label: 'Metin' },
-  { type: 'image', label: 'Gorsel' },
+  { type: 'image', label: 'Görsel' },
   { type: 'quiz', label: 'Soru' },
-  { type: 'timer', label: 'Zamanlayici' },
+  { type: 'timer', label: 'Zamanlayıcı' },
   { type: 'scoring', label: 'Puan' },
   { type: 'qr', label: 'QR' },
   { type: 'watermark', label: 'Filigran' },

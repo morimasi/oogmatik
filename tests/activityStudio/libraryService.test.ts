@@ -12,12 +12,12 @@ describe('activity studio library service', () => {
   it('arama ve target skill filtrelerini birlikte uygular', () => {
     const items = getLibraryActivities({
       search: 'hece',
-      targetSkill: 'fonolojik farkindalik',
+      targetSkill: 'fonolojik farkındalık',
     });
 
     expect(items.length).toBeGreaterThan(0);
     expect(items.every((item) => item.searchIndex.includes('hece'))).toBe(true);
-    expect(items.every((item) => item.targetSkills.includes('fonolojik farkindalik'))).toBe(true);
+    expect(items.every((item) => item.targetSkills.includes('fonolojik farkındalık'))).toBe(true);
   });
 
   it('featured etkinlikleri sira numarasina gore dondurur', () => {

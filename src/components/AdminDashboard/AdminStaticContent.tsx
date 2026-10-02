@@ -84,7 +84,7 @@ export const AdminStaticContent = () => {
     setShowHistory(false);
     setShowDiff(null);
     setHasChanges(true);
-    toast.info('Versiyon editore yuklendi. Kaydetmeniz gerekecek.');
+    toast.info('Versiyon editore yüklendi. Kaydetmeniz gerekecek.');
   };
 
   const handleExport = () => {
@@ -95,7 +95,7 @@ export const AdminStaticContent = () => {
     a.href = url;
     a.download = `${selectedContent.id}_backup.json`;
     a.click();
-    toast.success('Dosya disa aktarildi');
+    toast.success('Dosya dışa aktarıldı');
   };
 
   const handleImportJSON = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -123,7 +123,7 @@ export const AdminStaticContent = () => {
         setHasChanges(true);
         toast.success(`${lines.length} satir CSV'den import edildi`);
       } else {
-        toast.error('CSV dosyasi bos');
+        toast.error('CSV dosyası bos');
       }
     };
     reader.readAsText(file);
@@ -157,7 +157,7 @@ export const AdminStaticContent = () => {
       <div className="w-80 bg-black/40 border-r border-white/5 flex flex-col">
         <div className="p-8 border-b border-white/5 bg-white/5 backdrop-blur-md">
           <h3 className="font-black text-xl text-white mb-1 uppercase tracking-tighter">VERI KAYNAKLARI</h3>
-          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em]">Statik Konfigurasyon</p>
+          <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.3em]">Statik Konfigürasyon</p>
         </div>
 
         <div className="px-4 py-3">
@@ -180,7 +180,7 @@ export const AdminStaticContent = () => {
             </div>
           ) : filteredContents.length === 0 ? (
             <div className="text-center py-12 text-zinc-700 text-[10px] font-black uppercase tracking-widest">
-              {searchQuery ? 'Eslesen kaynak yok' : 'Kaynak bulunamadi'}
+              {searchQuery ? 'Eşleşen kaynak yok' : 'Kaynak bulunamadı'}
             </div>
           ) : (
             filteredContents.map(item => (
@@ -239,7 +239,7 @@ export const AdminStaticContent = () => {
               <div className="flex gap-3">
                 {hasChanges && (
                   <span className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-500 rounded-2xl text-[9px] font-black uppercase tracking-widest border border-amber-500/20 animate-pulse">
-                    <i className="fa-solid fa-circle text-[6px]"></i> Kaydedilmemis Degisiklik
+                    <i className="fa-solid fa-circle text-[6px]"></i>  Kaydedilmemis Değişiklik
                   </span>
                 )}
                 <button onClick={() => setShowHistory(!showHistory)}
@@ -275,7 +275,7 @@ export const AdminStaticContent = () => {
                   className="w-full h-full p-12 pt-16 resize-none outline-none bg-transparent text-emerald-500/80 selection:bg-indigo-500/30 custom-scrollbar-minimal"
                   value={editData}
                   onChange={(e) => { setEditData(e.target.value); setHasChanges(true); }}
-                  placeholder={selectedContent.type === 'list' ? '// Her satira bir veri ekleyin' : '{ "data": [] }'}
+                  placeholder={selectedContent.type === 'list' ? '// Her satıra bir veri ekleyin' : '{ "data": [] }'}
                   spellCheck={false}
                 />
                 <div className="absolute bottom-8 right-8 px-4 py-2 bg-black/80 rounded-xl border border-white/10 text-[10px] font-black text-zinc-500 tracking-widest">
@@ -327,7 +327,7 @@ export const AdminStaticContent = () => {
                             onClick={() => handleRestore(snap)}
                             className="flex-1 py-2 bg-indigo-500/10 text-indigo-400 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-indigo-500 hover:text-white transition-all"
                           >
-                            <i className="fa-solid fa-upload mr-1"></i> Yukle
+                            <i className="fa-solid fa-upload mr-1"></i>  Yükle
                           </button>
                         </div>
 
@@ -353,7 +353,7 @@ export const AdminStaticContent = () => {
                   ) : (
                     <div className="text-center py-24 opacity-20">
                       <i className="fa-solid fa-history text-4xl mb-4"></i>
-                      <p className="text-[10px] font-black uppercase tracking-widest">Gecmis bulunamadi</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest">Geçmiş bulunamadı</p>
                     </div>
                   )}
                 </div>
@@ -366,7 +366,7 @@ export const AdminStaticContent = () => {
               <i className="fa-solid fa-database"></i>
             </div>
             <h4 className="text-xl font-black text-white uppercase tracking-tighter opacity-20">DATA ENGINE</h4>
-            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.3em] mt-2">Duzenlemek icin kaynak secin</p>
+            <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.3em] mt-2">Düzenlemek için kaynak seçin</p>
           </div>
         )}
       </div>

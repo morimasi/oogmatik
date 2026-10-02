@@ -45,7 +45,7 @@ const schema = {
     properties: {
                  pedagogicalNote: { type: 'STRING', description: 'Öğretmen için aktivitenin eğitsel amacı ve özel öğrenme güçlüğü olan öğrenciye (Disleksi/DEHB) faydası üzerine pedagojik not' },
 
-      settings: { type: 'OBJECT', description: 'Activity settings', properties: { compactLayout: { type: 'BOOLEAN', description: 'Dar yerleşim' }, fontSize: { type: 'STRING', enum: ['small', 'medium', 'large'], description: 'Yazı boyutu' }, showWordBank: { type: 'BOOLEAN', description: 'Kelime bankası göster' }, maxAttempts: { type: 'INTEGER', description: 'Maksimum deneme' }, hintEnabled: { type: 'BOOLEAN', description: 'İpucu aktif' }, randomizeOrder: { type: 'BOOLEAN', description: 'Rastgele sırala' } } },
+      settings: { type: 'OBJECT', description: 'Etkinlik ayarları', properties: { compactLayout: { type: 'BOOLEAN', description: 'Dar yerleşim' }, fontSize: { type: 'STRING', enum: ['small', 'medium', 'large'], description: 'Yazı boyutu' }, showWordBank: { type: 'BOOLEAN', description: 'Kelime bankası göster' }, maxAttempts: { type: 'INTEGER', description: 'Maksimum deneme' }, hintEnabled: { type: 'BOOLEAN', description: 'İpucu aktif' }, randomizeOrder: { type: 'BOOLEAN', description: 'Rastgele sırala' } } },
       content: {
         type: 'OBJECT',
         properties: {

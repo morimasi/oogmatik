@@ -280,7 +280,7 @@ const buildSchemaForTemplate = (templateId: string): any => {
             type: 'OBJECT',
             properties: {
               expression: { type: 'STRING', description: 'Deyim, atasözü veya mecaz ifade' },
-              type: { type: 'STRING', description: 'deyim, atasozu veya mecaz' },
+              type: { type: 'STRING', description: 'deyim, atasözü veya mecaz' },
               meaning: { type: 'STRING', description: 'Sade dille anlamı' },
               example: { type: 'STRING', description: 'Örnek cümle içinde kullanımı' },
             },
@@ -345,7 +345,7 @@ const buildSchemaForTemplate = (templateId: string): any => {
           items: {
             type: 'OBJECT',
             properties: {
-              type: { type: 'STRING', description: 'es-anlamli, zit-anlamli veya es-sesli' },
+              type: { type: 'STRING', description: 'es-anlamlı, zit-anlamlı veya es-sesli' },
               pairs: {
                 type: 'ARRAY',
                 description: 'Kelime çiftleri',

@@ -51,9 +51,9 @@ export class VariationEngine {
         schema: {
           type: 'OBJECT',
           properties: {
-            easy: { type: 'STRING', description: 'Easy difficulty variant: mirror the original activity structure but simplify all questions/items. Fill every content field completely. Return as JSON string.' },
-            hard: { type: 'STRING', description: 'Hard difficulty variant: mirror the original activity structure but increase complexity. Fill every content field completely. Return as JSON string.' },
-            visualSupport: { type: 'STRING', description: 'Visual support variant: mirror the original activity structure but replace text with visual/imagery descriptions. Fill every content field completely. Return as JSON string.' }
+            easy: { type: 'STRING', description: 'Kolay zorluk varyantı: etkinliğin özgün yapısını koru ancak tüm soru/öğeleri basitleştir. Her içerik alanını eksiksiz doldur. JSON dizesi olarak döndür.' },
+            hard: { type: 'STRING', description: 'Zor zorluk varyantı: etkinliğin özgün yapısını koru ancak karmaşıklığı artır. Her içerik alanını eksiksiz doldur. JSON dizesi olarak döndür.' },
+            visualSupport: { type: 'STRING', description: 'Görsel destek varyantı: etkinliğin özgün yapısını koru ancak metni görsel/betimleyici açıklamalarla değiştir. Her içerik alanını eksiksiz doldur. JSON dizesi olarak döndür.' }
           },
           required: ['easy', 'hard', 'visualSupport']
         },

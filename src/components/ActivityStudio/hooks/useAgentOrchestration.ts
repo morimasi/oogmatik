@@ -6,7 +6,7 @@ export function useAgentOrchestration() {
 
   const generate = async () => {
     if (!wizardData.goal) {
-      setError('Hedef bilgisi olmadan AI uretimi baslatilamaz.');
+      setError('Hedef bilgisi olmadan AI üretimi baslatilamaz.');
       return null;
     }
 
@@ -15,7 +15,7 @@ export function useAgentOrchestration() {
       setError(null);
       return await generateActivityStudio(wizardData.goal);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'AI orkestrasyonu basarisiz.';
+      const message = error instanceof Error ? error.message : 'AI orkestrasyonu başarısız.';
       setError(message);
       return null;
     } finally {

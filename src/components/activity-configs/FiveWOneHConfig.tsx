@@ -99,7 +99,7 @@ export const FiveWOneHConfig: React.FC<ConfigProps> = ({ options, onChange }) =>
                 />
 
                 <CompactToggleGroup
-                    label="Soru Formati"
+                    label="Soru Formatı"
                     selected={options.questionStyle || 'test_and_open'}
                     onChange={(v: unknown) => onChange('questionStyle', v as string)}
                     options={[

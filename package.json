@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\" --quiet",
     "check:vercelignore": "node scripts/check-vercelignore.mjs",
+    "check:ui-text": "vitest run scripts/check-ui-text.test.ts",
     "format": "prettier --write \"{api,components,context,data,database,hooks,services,types,utils}/**/*.{js,jsx,ts,tsx,css,md}\" \"*.{ts,tsx,json,md}\"",
     "test": "vitest",
     "test:ui": "vitest --ui",

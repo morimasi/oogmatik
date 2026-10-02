@@ -33,11 +33,11 @@ bdmind, disleksi, DEHB ve özel öğrenme güçlüğü yaşayan Türk çocuklar�
 6. Çıktı SADECE geçerli JSON olmalıdır, markdown kullanma`;
 
 function buildPrompt(settings: AdStudioSettings, brandKit: BrandKit): string {
-  const moduleDesc = AD_TARGET_DESCRIPTIONS[settings.target] || 'bdmind egitim platformu';
+  const moduleDesc = AD_TARGET_DESCRIPTIONS[settings.target] || 'bdmind eğitim platformu';
   const audienceLabels: Record<string, string> = {
     teachers: 'Ogretmenler',
     parents: 'Veliler',
-    therapists: 'Ozel Egitim Uzmanlari',
+    therapists: 'Özel Eğitim Uzmanları',
     school_admin: 'Okul Yoneticileri',
     investors: 'Yatirimcilar',
   };
@@ -147,7 +147,7 @@ async function callGemini(prompt: string, systemInstruction: string): Promise<Re
       ? String((data.error as Record<string, unknown>).message || '')
       : String(data.error);
     throw new AppError(
-      errMsg || 'AI servisi hata dondurdu',
+      errMsg || 'AI servisi hata döndürdü',
       'AD_API_ERROR',
       500
     );

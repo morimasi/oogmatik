@@ -306,7 +306,7 @@ export async function generateVideo(
   options: VideoOptions,
 ): Promise<{ webm: Blob; durationMs: number }> {
   if (!output.scenes.length) {
-    throw new Error('Video olusturmak icin en az bir sahne gerekli');
+    throw new Error('Video oluşturmak için en az bir sahne gerekli');
   }
 
   await loadLexendFont();
@@ -338,10 +338,10 @@ export async function generateVideo(
   for (const mt of mimeTypes) {
     if (MediaRecorder.isTypeSupported(mt)) { mimeType = mt; break; }
   }
-  if (!mimeType) throw new Error('Bu tarayici video kaydini desteklemiyor.');
+  if (!mimeType) throw new Error('Bu tarayıcı video kaydını desteklemiyor.');
 
   const stream = canvas.captureStream(fps);
-  if (!stream) throw new Error('Canvas stream olusturulamadi');
+  if (!stream) throw new Error('Canvas stream oluşturulamadı');
   const recorder = new MediaRecorder(stream, { mimeType });
   const chunks: BlobPart[] = [];
   recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
@@ -371,7 +371,7 @@ export async function generateVideo(
     const timeoutMs = Math.max(30000, durationMs * 2);
     const timeoutId = setTimeout(() => {
       recorder.stop();
-      reject(new Error('Video olusturma zaman asimi'));
+      reject(new Error('Video oluşturma zaman aşımı'));
     }, timeoutMs);
 
     recorder.start();
@@ -383,13 +383,13 @@ export async function generateVideo(
     };
     recorder.onerror = () => {
       clearTimeout(timeoutId);
-      reject(new Error('Video kaydi basarisiz'));
+      reject(new Error('Video kaydı başarısız'));
     };
 
     function render(now: number) {
       if (options.signal?.aborted) {
         recorder.stop();
-        reject(new Error('Video olusturma iptal edildi'));
+        reject(new Error('Video oluşturma iptal edildi'));
         return;
       }
 

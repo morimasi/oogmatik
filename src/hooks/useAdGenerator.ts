@@ -42,7 +42,7 @@ export function useAdGenerator() {
       addToHistory(result);
     } catch (err: unknown) {
       if (!mountedRef.current) return;
-      const msg = err instanceof Error ? err.message : 'Reklam uretilemedi';
+      const msg = err instanceof Error ? err.message : 'Reklam üretilemedi';
       setError(msg);
     } finally {
       if (mountedRef.current) setIsGenerating(false);

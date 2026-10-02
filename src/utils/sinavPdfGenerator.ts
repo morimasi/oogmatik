@@ -247,7 +247,7 @@ export const generateExamPDF = (sinav: Sinav, config: PrintConfig = DEFAULT_PRIN
 
   // Tablo başlıkları
   const colWidths = [12, 60, 22, 50];
-  const headers = ['No', 'Dogru Cevap', 'Puan', 'Kazanim'];
+  const headers = ['No', 'Doğru Cevap', 'Puan', 'Kazanim'];
   let cx = M;
   doc.setFont(FF, 'bold');
   doc.setFontSize(FS - 0.5);

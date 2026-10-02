@@ -85,8 +85,8 @@ Konu: ${topic || 'Rastgele'}`;
   const schema = {
     type: 'OBJECT' as const,
     properties: {
-      title: { type: 'STRING' as const, description: 'Activity title, engaging and clear' },
-      instruction: { type: 'STRING' as const, description: 'Step-by-step instruction for the student' },
+      title: { type: 'STRING' as const, description: 'Etkinlik başlığı; ilgi çekici ve anlaşılır' },
+      instruction: { type: 'STRING' as const, description: 'Öğrenci için adım adım yönerge' },
       primaryActivity: {
         type: 'OBJECT' as const,
         properties: {
@@ -98,7 +98,7 @@ Konu: ${topic || 'Rastgele'}`;
       supportingDrill: {
         type: 'OBJECT' as const,
         properties: {
-          title: { type: 'STRING' as const, description: 'Drill title' },
+          title: { type: 'STRING' as const, description: 'Alıştırma başlığı' },
           type: { type: 'STRING' as const, description: 'question, multiple_choice, fill_blank, matching' },
           content: {
             type: 'OBJECT' as const,

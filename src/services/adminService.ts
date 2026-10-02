@@ -163,7 +163,7 @@ export const adminService = {
     },
 
     saveStaticContent: async (item: StaticContentItem, note?: string) => {
-        if (!item || !item.id) throw new AppError("Gecersiz veri.", 'INTERNAL_ERROR', 500);
+        if (!item || !item.id) throw new AppError("Geçersiz veri.", 'INTERNAL_ERROR', 500);
         const oldDoc = await getDoc(doc(db, "config_static_content", item.id));
         const history = item.history || [];
 

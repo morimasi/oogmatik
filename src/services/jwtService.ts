@@ -234,7 +234,7 @@ export const loginHandler = async (req: any, res: any) => {
         if (!email || !password) {
             return res.status(400).json({
                 error: {
-                    message: 'Email and password required',
+                    message: 'E-posta ve şifre gerekli',
                     code: 'VALIDATION_ERROR',
                 },
             });
@@ -297,7 +297,7 @@ export const refreshTokenHandler = async (req: any, res: any) => {
         if (!refreshToken) {
             return res.status(400).json({
                 error: {
-                    message: 'Refresh token required',
+                    message: 'Yenileme belirteci gerekli',
                     code: 'VALIDATION_ERROR',
                 },
             });

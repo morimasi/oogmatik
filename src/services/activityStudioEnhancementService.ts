@@ -53,7 +53,7 @@ export async function enhanceLibraryActivity(request: EnhancementRequest): Promi
       throw err;
     }
 
-    throw new AppError('AI gelistirme islemi basarisiz oldu.', 'AI_ENHANCEMENT_FAILED', 500, { original: err }, true);
+    throw new AppError('AI geliştirme işlemi başarısız oldu.', 'AI_ENHANCEMENT_FAILED', 500, { original: err }, true);
   }
 
   return {

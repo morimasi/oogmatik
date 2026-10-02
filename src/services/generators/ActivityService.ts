@@ -11,8 +11,8 @@ import mapDynamicIdToActivityType from '../../utils/dynamicIdMappings';
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
 
 // Stub functions for dynamic infographic generators
-const generateInfographic = async (_type: ActivityType, _options: GeneratorOptions) => ({ title: 'Infographic', instruction: 'Complete the activity' });
-const generateOfflineInfographic = async (_type: ActivityType, _options: GeneratorOptions) => ({ title: 'Offline Infographic', instruction: 'Complete the activity' });
+const generateInfographic = async (_type: ActivityType, _options: GeneratorOptions) => ({ title: 'İnfografik', instruction: 'Etkinliği tamamla' });
+const generateOfflineInfographic = async (_type: ActivityType, _options: GeneratorOptions) => ({ title: 'Çevrimdışı İnfografik', instruction: 'Etkinliği tamamla' });
 /**
  * Merkezi Aktivite Servisi (Facade / Factory)
  * Tüm aktivite üretim istekleri bu servis üzerinden geçer.

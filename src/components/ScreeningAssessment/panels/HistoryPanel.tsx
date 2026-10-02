@@ -75,7 +75,7 @@ export const HistoryPanel: React.FC = () => {
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[var(--accent-color)] animate-pulse" />
               <span className="text-xs font-bold text-[var(--accent-color)]">
-                {selectedIds.size} kayit seçildi
+                {selectedIds.size}  kayıt seçildi
               </span>
             </div>
 

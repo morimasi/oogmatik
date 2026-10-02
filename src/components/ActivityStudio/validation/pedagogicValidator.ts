@@ -38,9 +38,9 @@ export function validatePedagogicRules(input: PedagogicValidationInput): Pedagog
       errors.push('Ilk 2 madde Kolay olmalidir (basari mimarisi).');
     }
   } else if (input.itemDifficulties.length === 1 && input.itemDifficulties[0] !== 'Kolay') {
-    errors.push('Tek madde varsa Kolay olmalidir.');
+    errors.push('Tek madde varsa Kolay olmalıdır.');
   } else if (input.itemDifficulties.length === 0) {
-    warnings.push('Madde zorluk dagilimi verilmedi.');
+    warnings.push('Madde zorluk dağılımı verilmedi.');
   }
 
   return {

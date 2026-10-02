@@ -327,10 +327,10 @@ export const AdminActivityApproval: React.FC = () => {
 
               {/* Approval Timeline */}
               <div className="mb-6 p-4 rounded-xl bg-white/50 dark:bg-black/30 border border-zinc-200 dark:border-white/5">
-                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-3">Surec</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-zinc-500 mb-3">Süreç</p>
                 <div className="space-y-2">
                   {[
-                    { label: 'Olusturulma', time: selectedDraft.createdAt, icon: 'fa-plus-circle' },
+                    { label: 'Oluşturulma', time: selectedDraft.createdAt, icon: 'fa-plus-circle' },
                     ...(selectedDraft.status === 'approved' && selectedDraft.approvedAt
                       ? [{ label: 'Onaylanma', time: selectedDraft.approvedAt, icon: 'fa-check-circle' }]
                       : []),

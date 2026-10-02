@@ -26,7 +26,7 @@ export function validateContentQuality(input: ContentValidationInput): ContentVa
   }
 
   if (input.steps.length === 0) {
-    errors.push('En az bir adim belirtilmelidir.');
+    errors.push('En az bir adım belirtilmelidir.');
   }
 
   return { valid: errors.length === 0, errors };

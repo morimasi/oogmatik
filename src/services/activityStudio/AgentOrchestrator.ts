@@ -231,7 +231,7 @@ export class AgentOrchestrator {
       };
       return output;
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Ajan calismasi basarisiz oldu.';
+      const message = error instanceof Error ? error.message : 'Ajan çalışması başarısız oldu.';
       statuses[runner.id] = {
         ...statuses[runner.id],
         status: 'error',

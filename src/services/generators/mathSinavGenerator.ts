@@ -303,7 +303,7 @@ function kazanimGorselBelirle(kazanimKodu: string): KazanimGorselGereksinim | nu
   // Sayı doğrusu / Tam sayılar / Rasyonel sayılar
   if (ogrenmeAlani === 'Sayılar ve İşlemler' || ogrenmeAlani === 'Cebir') {
     const tanim_lower = tanim.toLowerCase();
-    if (tanim_lower.includes('sayı doğrusu') || tanim_lower.includes('sayi dogrusu')) {
+    if (tanim_lower.includes('sayı doğrusu') || tanim_lower.includes('sayı doğrusu')) {
       return {
         kazanimKodu,
         kazanimMetni: tanim,
