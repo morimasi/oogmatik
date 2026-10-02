@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { MathOperation } from '../../../types/math';
-import { numberToTurkish } from '../utils';
+import { numberToTurkish, getDivisionCardLayout } from '../utils';
 
 import { ThemeConfig, BORDER_STYLES, NUMBERING_STYLES, PAPER_THEMES, BorderStyle } from '../constants';
 
@@ -42,37 +42,84 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
   const numStr = NUMBERING_STYLES[themeConfig.numberingStyle].format(index + 1);
 
   if (op.symbol === '÷' || op.symbol === '/') {
+    // ── Türk klasik bölme algoritması — taşmayan kompakt yerleşim ──
+    // Sorun: min-w-[3em] + w-full border-b-4 + min-h-[5.5em] pb-8 →
+    // 4 sütunda hücre ~179px iken kart ~300px oluyor, sağdan taşıyor.
+    // Çözüm: çizgi uzunluğu = içerik genişliği (ch birimi), ince çizgi,
+    // kart max-w-full + overflow-hidden, rozet içeride.
+    const { leftCh, rightCh, effFontSize, leftWidthEm, rightWidthEm } =
+      getDivisionCardLayout(op.num1, op.num2, op.answer, fontSize);
+
     return (
       <div
-        className="flex font-mono font-bold leading-none break-inside-avoid relative group"
+        className="math-division-card flex font-mono font-bold break-inside-avoid relative group items-start"
         style={{
-          fontSize: `${fontSize}px`,
+          fontSize: `${effFontSize}px`,
           fontWeight: fontWeight,
-          ...getCardStyle(themeConfig, themeConfig.borderStyle)
+          lineHeight: 1.2,
+          maxWidth: '100%',
+          minWidth: 0,
+          overflow: 'hidden',
+          boxSizing: 'border-box',
+          whiteSpace: 'nowrap',
+          fontVariantNumeric: 'tabular-nums',
+          ...getCardStyle(themeConfig, themeConfig.borderStyle),
         }}
       >
         {themeConfig.numberingStyle !== 'none' && (
           <div
-            className="absolute -left-9 -top-4 flex items-center justify-center w-7 h-7 rounded-full text-[0.35em] font-sans font-black shadow-sm transition-all duration-300 group-hover:scale-110"
+            className="absolute -left-2 -top-3 flex items-center justify-center w-7 h-7 rounded-full text-[0.35em] font-sans font-black shadow-sm transition-all duration-300 group-hover:scale-110"
             style={{
               backgroundColor: paper.secondary,
               color: paper.text,
               border: `1.5px solid ${paper.accent}40`,
-              boxShadow: `0 3px 6px ${paper.accent}15`
+              boxShadow: `0 3px 6px ${paper.accent}15`,
             }}
           >
             {numStr}
           </div>
         )}
 
-        <div className="flex flex-col items-end pr-3 pt-1 border-r-4 min-h-[5.5em] min-w-[3em] pb-8" style={{ borderColor: paper.border }}>
+        {/* SOL: bölünen + kısa işlem alanı */}
+        <div
+          className="flex flex-col items-end pr-2 pt-1 shrink min-w-0"
+          style={{ width: `${leftWidthEm}em`, maxWidth: '55%' }}
+        >
           <div style={{ color: paper.text }}>{op.num1}</div>
+          {/* Kısa çalışma çizgisi — bölünen genişliğinde, gereksiz uzatılmaz */}
+          <div
+            className="border-b-2 border-dashed mt-1 opacity-40"
+            style={{ borderColor: paper.text, width: `${leftCh * 0.62}em`, maxWidth: '100%' }}
+          />
+          {op.remainder !== undefined && op.remainder > 0 && (
+            <span className="text-[0.38em] opacity-60 mt-1 font-sans font-bold" style={{ color: paper.accent }}>
+              Kalan: {op.remainder}
+            </span>
+          )}
         </div>
-        <div className="flex flex-col pl-3 pt-1 min-w-[3em]">
-          <div className="text-center" style={{ color: paper.text }}>{op.num2}</div>
-          <div className="w-full border-b-4 my-2" style={{ borderColor: paper.border }}></div>
-          {/* Answer box (stylized) */}
-          <div className="w-full h-[1.3em] border-2 border-dashed rounded-lg bg-white/50 flex items-center justify-center shadow-inner" style={{ borderColor: `${paper.accent}40` }}>
+
+        {/* DİKEY AYRAÇ — içeriğe göre uzar, sabit min-h yok */}
+        <div
+          aria-hidden
+          className="self-stretch shrink-0 mx-0"
+          style={{ width: '2px', minHeight: '2.2em', backgroundColor: paper.border }}
+        />
+
+        {/* SAĞ: bölen / yatay çizgi / bölüm */}
+        <div className="flex flex-col pl-2 pt-1 min-w-0 shrink" style={{ maxWidth: '45%' }}>
+          <div className="text-center" style={{ color: paper.text, width: `${rightWidthEm}em`, maxWidth: '100%' }}>
+            {op.num2}
+          </div>
+          {/* Yatay ayraç — bölen/bölüm genişliğinde, w-full değil */}
+          <div
+            className="border-b-2 my-1"
+            style={{ borderColor: paper.border, width: `${rightWidthEm}em`, maxWidth: '100%' }}
+          />
+          {/* Bölüm yazma kutusu — aynı genişlikte, taşmaz */}
+          <div
+            className="h-[1.3em] border-2 border-dashed rounded-lg bg-white/50 flex items-center justify-center shadow-inner"
+            style={{ borderColor: `${paper.accent}40`, width: `${rightWidthEm}em`, maxWidth: '100%' }}
+          >
             {showAnswer && <span className="text-zinc-900">{op.answer}</span>}
           </div>
         </div>
@@ -85,15 +132,18 @@ export const OperationCardVertical: React.FC<OperationCardProps> = ({
 
   return (
     <div
-      className="flex flex-col items-end font-mono font-bold leading-none break-inside-avoid relative group"
+      className="flex flex-col items-end font-mono font-bold leading-none break-inside-avoid relative group min-w-0"
       style={{
         fontSize: `${fontSize}px`,
+        maxWidth: '100%',
+        overflow: 'hidden',
+        boxSizing: 'border-box',
         ...getCardStyle(themeConfig, themeConfig.borderStyle)
       }}
     >
       {themeConfig.numberingStyle !== 'none' && (
         <div
-          className="absolute -left-9 -top-4 flex items-center justify-center w-7 h-7 rounded-full text-[0.35em] font-sans font-black shadow-sm transition-all duration-300 group-hover:scale-110"
+          className="absolute -left-2 -top-3 flex items-center justify-center w-7 h-7 rounded-full text-[0.35em] font-sans font-black shadow-sm transition-all duration-300 group-hover:scale-110"
           style={{
             backgroundColor: paper.secondary,
             color: paper.text,

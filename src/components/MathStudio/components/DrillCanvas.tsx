@@ -70,14 +70,14 @@ export const DrillCanvas: React.FC<DrillCanvasProps> = ({
                     themeConfig={themeConfig}
                 >
                     <div
-                        className="grid w-full"
+                        className="grid w-full max-w-full overflow-hidden"
                         style={{
-                            gridTemplateColumns: `repeat(${drillConfig.cols}, 1fr)`,
+                            gridTemplateColumns: `repeat(${drillConfig.cols}, minmax(0, 1fr))`,
                             gap: `${drillConfig.gap}px`,
                         }}
                     >
                         {pageItems.map((op, i) => (
-                            <div key={op.id} className="flex justify-center items-start">
+                            <div key={op.id} className="flex justify-center items-start min-w-0 max-w-full overflow-hidden">
                                 {drillConfig.orientation === 'vertical'
                                     ? <OperationCardVertical
                                         op={op}
