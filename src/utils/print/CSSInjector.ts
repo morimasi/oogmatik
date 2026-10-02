@@ -155,12 +155,12 @@ export const ensurePrintStyle = (paperSize: PaperSize): void => {
         font-size: 9pt !important;
       }
 
-      /* Grid Layout Handling */
+      /* Grid Layout Handling - Reading Studio gridleri sayfa kırılmasına izin ver */
       .grid, [class*='grid-cols'] {
         page-break-inside: auto !important;
         break-inside: auto !important;
       }
-      .grid-item, [class*='grid-cols'] > * {
+      .grid-item, [class*='grid-cols'] > *:not(.reading-studio-grid):not([data-reading-studio]) {
         page-break-inside: avoid !important;
         break-inside: avoid !important;
       }
@@ -244,7 +244,7 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
         min-height: 0 !important;
       }
 
-      /* Reading Studio Bileşenlerinin Yazdırmada Dikey Sıralı Akışı */
+      /* Reading Studio Bileşenlerinin Yazdırmada Dikey Sıralı Akışı - Sayfa Akışına İzin Ver */
       body.printing-mode #print-overlay .group {
         position: relative !important;
         display: block !important;
@@ -252,15 +252,17 @@ export const injectPrintLockCSS = (paperSize: PaperSize, isLandscape: boolean): 
         height: auto !important;
         min-height: auto !important;
         margin-bottom: 28px !important;
-        page-break-inside: avoid !important;
-        break-inside: avoid !important;
+        page-break-inside: auto !important;
+        break-inside: auto !important;
       }
 
       /* Hikaye ve uzun metin blokları için özel akış kuralı */
-      .story-content, .long-text-block, .pedagogical-content, .reading-text-flow {
+      .story-content, .long-text-block, .pedagogical-content, .reading-text-flow,
+      .story-text-block, .worksheet-content-block {
         display: block !important;
         height: auto !important;
         page-break-inside: auto !important;
+        break-inside: auto !important;
       }
       
       /* A4 Daralma Çökmesine Karşı Ana Kalkan (Print Lock):

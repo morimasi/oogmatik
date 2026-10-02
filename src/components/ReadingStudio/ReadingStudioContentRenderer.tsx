@@ -72,9 +72,9 @@ const renderItemContent = (
           <i className="fa-solid fa-circle-question" />
           <span>5N 1K — Okuduğunu Anlama Analizi</span>
         </h4>
-        <div className="grid grid-cols-2 gap-x-8 gap-y-5">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-5 reading-studio-grid" data-reading-studio="true">
           {questions.map((q, idx) => (
-            <div key={idx} className="flex flex-col gap-1.5 break-inside-avoid" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+            <div key={idx} className="flex flex-col gap-1.5">
               <span className="text-[10px] font-black opacity-50 uppercase tracking-tighter">
                 {q.type?.toUpperCase() || '-'}
               </span>
@@ -97,9 +97,9 @@ const renderItemContent = (
           <i className="fa-solid fa-spell-check" />
           <span>Sözlükçe (Yeni Kelimeler)</span>
         </h4>
-        <div className="grid grid-cols-2 gap-x-8 gap-y-3">
+        <div className="grid grid-cols-2 gap-x-8 gap-y-3 reading-studio-grid" data-reading-studio="true">
           {words.map((v, idx) => (
-            <div key={idx} className="text-[12px] flex flex-col break-inside-avoid" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+            <div key={idx} className="text-[12px] flex flex-col">
               <span className="font-black text-amber-900 border-b border-amber-300 w-fit">{v.word}</span>
               <p className="opacity-75 italic text-[11px] mt-0.5">{v.definition}</p>
             </div>
@@ -119,9 +119,9 @@ const renderItemContent = (
           <i className="fa-solid fa-list-check" />
           <span>Konu Değerlendirme Testi</span>
         </h4>
-        <div className="space-y-6">
+        <div className="space-y-6 reading-studio-grid" data-reading-studio="true">
           {questions.map((q, idx) => (
-            <div key={idx} className="flex flex-col gap-2.5 break-inside-avoid" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+            <div key={idx} className="flex flex-col gap-2.5">
               <div className="flex gap-3 items-start">
                 <span className="w-6 h-6 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-black text-xs shrink-0 mt-0.5">
                   {idx + 1}
@@ -193,9 +193,9 @@ const renderItemContent = (
           <i className="fa-solid fa-train" />
           <span>Hecelerle Tren Yolculuğu</span>
         </h4>
-        <div className="flex flex-wrap gap-x-12 gap-y-8 justify-start">
+        <div className="flex flex-wrap gap-x-12 gap-y-8 justify-start reading-studio-grid" data-reading-studio="true">
           {words.map((w: any, i: number) => (
-            <div key={i} className="flex items-end gap-0.5 break-inside-avoid" style={{ pageBreakInside: 'avoid', breakInside: 'avoid' }}>
+            <div key={i} className="flex items-end gap-0.5">
               <div className="w-10 h-10 bg-cyan-600 rounded-l-lg flex flex-col justify-center items-center text-white relative">
                 <i className="fa-solid fa-train text-xs" />
               </div>
