@@ -10,8 +10,6 @@ import './styles/theme-oled.css';
 import './styles/theme-print.css';
 
 // Firebase Firestore "Failed to obtain primary lease for action 'Backfill Indexes'" uyarısı
-// Birden fazla tab açıkken veya tab yenilenirken oluşan bilinen bir SDK uyarısıdır.
-// Fonksiyonelliği etkilemez; sadece konsolda gürültü yaratır. Bastırılıyor.
 if (typeof window !== 'undefined') {
   const originalError = console.error;
   console.error = (...args: unknown[]) => {
@@ -24,20 +22,42 @@ if (typeof window !== 'undefined') {
 
   // Modern Chunk Loading Retry Strategy (Vercel deployment chunk invalidation protection)
   const reloadOnChunkError = (errorMessage: string) => {
+    const lower = (errorMessage || '').toLowerCase();
     if (
-      errorMessage.includes('Dinamik olarak içe aktarılan modül alınamadı') ||
-      errorMessage.includes('Modül betiği yüklenemedi') ||
-      errorMessage.includes('Expected a JavaScript-or-Wasm module script') ||
-      errorMessage.includes('"text/html" MIME türü')
+      lower.includes('failed to fetch dynamically imported module') ||
+      lower.includes('importing a module script failed') ||
+      lower.includes('error loading dynamically imported module') ||
+      lower.includes('dinamik olarak içe aktarılan modül alınamadı') ||
+      lower.includes('modül betiği yüklenemedi') ||
+      lower.includes('expected a javascript-or-wasm module script') ||
+      lower.includes('"text/html" mime') ||
+      lower.includes('mime type') ||
+      lower.includes('loading chunk') ||
+      lower.includes('failed to load resource')
     ) {
       const storageKey = 'bdmind_chunk_reload_count';
-      const reloadCount = parseInt(sessionStorage.getItem(storageKey) || '0', 10);
-      if (reloadCount < 2) {
-        sessionStorage.setItem(storageKey, (reloadCount + 1).toString());
+      const timeKey = 'bdmind_chunk_reload_time';
+      const lastReload = parseInt(sessionStorage.getItem(storageKey) || '0', 10);
+      const lastTime = parseInt(sessionStorage.getItem(timeKey) || '0', 10);
+      const now = Date.now();
+
+      // 15 saniyeden eskiyse sayacı sıfırla, aksi halde en fazla 2 kez yenile
+      const isFresh = now - lastTime < 15000;
+      const count = isFresh ? lastReload : 0;
+
+      if (count < 2) {
+        sessionStorage.setItem(storageKey, (count + 1).toString());
+        sessionStorage.setItem(timeKey, now.toString());
         window.location.reload();
       }
     }
   };
+
+  // Vite'ın resmi dinamik chunk yükleme hatası eventi
+  window.addEventListener('vite:preloadError', (event) => {
+    event.preventDefault();
+    reloadOnChunkError('failed to fetch dynamically imported module');
+  });
 
   window.addEventListener('error', (event) => {
     const message = event?.message || event?.error?.message || '';
