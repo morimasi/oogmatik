@@ -62,7 +62,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     const worksheetId = query.id as string;
 
     // Route to appropriate handler
-    if (method === 'POST' && !query.share) {
+    if (method === 'GET' && (query.sharedWithMe || req.url?.includes('/shared/with-me') || req.url?.includes('sharedWithMe'))) {
+      return await getSharedWithMe(req, res);
+    } else if (method === 'POST' && !query.share) {
       return await createWorksheet(req, res);
     } else if (method === 'GET' && !worksheetId) {
       return await getUserWorksheets(req, res);
@@ -104,7 +106,7 @@ const createWorksheet = async (req: VercelRequest, res: VercelResponse): Promise
     }
 
     // 2. Check permission
-    if (!rbacService.hasPermission(user.role as any, 'activity-studio' as any, 'create' as any)) {
+    if (!rbacService.hasPermission(user.role, 'activity-studio', 'create')) {
       return res.status(403).json({
         error: { message: 'Bu işlem için izniniz yok', code: 'PERMISSION_DENIED' },
       });
@@ -184,7 +186,7 @@ const getUserWorksheets = async (req: VercelRequest, res: VercelResponse): Promi
     }
 
     // 2. Check permission
-    if (!rbacService.hasPermission(user.role as any, 'activity-studio' as any, 'view' as any)) {
+    if (!rbacService.hasPermission(user.role, 'activity-studio', 'view')) {
       return res.status(403).json({
         error: { message: 'Bu işlem için izniniz yok', code: 'PERMISSION_DENIED' },
       });
@@ -247,7 +249,7 @@ const getWorksheet = async (req: VercelRequest, res: VercelResponse): Promise<vo
     }
 
     // 2. Check permission
-    if (!rbacService.hasPermission(user.role as any, 'activity-studio' as any, 'view' as any)) {
+    if (!rbacService.hasPermission(user.role, 'activity-studio', 'view')) {
       return res.status(403).json({
         error: { message: 'Bu işlem için izniniz yok', code: 'PERMISSION_DENIED' },
       });
@@ -297,7 +299,7 @@ const updateWorksheet = async (req: VercelRequest, res: VercelResponse): Promise
     }
 
     // 2. Check permission
-    if (!rbacService.hasPermission(user.role as any, 'activity-studio' as any, 'edit' as any)) {
+    if (!rbacService.hasPermission(user.role, 'activity-studio', 'edit')) {
       return res.status(403).json({
         error: { message: 'Bu işlem için izniniz yok', code: 'PERMISSION_DENIED' },
       });
@@ -349,7 +351,7 @@ const deleteWorksheet = async (req: VercelRequest, res: VercelResponse): Promise
     }
 
     // 2. Check permission
-    if (!rbacService.hasPermission(user.role as any, 'activity-studio' as any, 'delete' as any)) {
+    if (!rbacService.hasPermission(user.role, 'activity-studio', 'delete')) {
       return res.status(403).json({
         error: { message: 'Bu işlem için izniniz yok', code: 'PERMISSION_DENIED' },
       });
@@ -399,7 +401,7 @@ const shareWorksheet = async (req: VercelRequest, res: VercelResponse): Promise<
     }
 
     // 2. Check permission
-    if (!rbacService.hasPermission(user.role as any, 'activity-studio' as any, 'assign' as any)) {
+    if (!rbacService.hasPermission(user.role, 'activity-studio', 'assign')) {
       return res.status(403).json({
         error: { message: 'Bu işlem için izniniz yok', code: 'PERMISSION_DENIED' },
       });
@@ -450,7 +452,7 @@ const getSharedWithMe = async (req: VercelRequest, res: VercelResponse): Promise
     }
 
     // 2. Check permission
-    if (!rbacService.hasPermission(user.role as any, 'activity-studio' as any, 'view' as any)) {
+    if (!rbacService.hasPermission(user.role, 'activity-studio', 'view')) {
       return res.status(403).json({
         error: { message: 'Bu işlem için izniniz yok', code: 'PERMISSION_DENIED' },
       });

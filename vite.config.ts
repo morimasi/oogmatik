@@ -24,17 +24,14 @@ const config: UserConfig & { test?: any } = {
     'process.env.FIREBASE_APP_ID': JSON.stringify(process.env.FIREBASE_APP_ID),
   },
   build: {
-    // Bundle boyutu bütçesi
     chunkSizeWarningLimit: 3000,
     rollupOptions: {
-      output: {
-        // Manuel chunking kaldırıldı — Dairesel bağımlılık ve TDZ hatalarını önlemek için
-        // Vite'ın varsayılan akıllı paketleme stratejisine dönüldü.
-      },
+      output: {},
     },
   },
   test: {
-    exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**'],
+    setupFiles: ['./vitest.setup.ts'],
+    exclude: ['**/node_modules/**', '**/dist/**', '**/e2e/**', '**/.freebuff/**'],
   },
 };
 

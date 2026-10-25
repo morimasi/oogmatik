@@ -39,8 +39,9 @@ service cloud.firestore {
 
       match /{allSubcollections=**} {
         allow read: if isAdmin() || 
-          (isTeacher() && (request.auth.uid in resource.data.assignedTeachers || resource.data.teacherId == request.auth.uid));
-        allow write: if isAdmin() || isTeacher();
+          (isTeacher() && (request.auth.uid in get(/databases/$(database)/documents/students/$(studentId)).data.assignedTeachers || get(/databases/$(database)/documents/students/$(studentId)).data.teacherId == request.auth.uid));
+        allow write: if isAdmin() || 
+          (isTeacher() && (request.auth.uid in get(/databases/$(database)/documents/students/$(studentId)).data.assignedTeachers || get(/databases/$(database)/documents/students/$(studentId)).data.teacherId == request.auth.uid));
       }
     }
 
@@ -147,6 +148,12 @@ service cloud.firestore {
       allow read: if isAdmin() || isTeacher();
       allow create: if isAuthenticated();
       allow update, delete: if isAdmin();
+    }
+
+    // User Rate Limit Quotas (Persistent Rate Limiting)
+    match /user_quotas/{quotaId} {
+      allow read: if isAuthenticated() && (quotaId.matches(request.auth.uid + '.*') || isAdmin());
+      allow write: if isAdmin();
     }
 
     // Global Ayarlar

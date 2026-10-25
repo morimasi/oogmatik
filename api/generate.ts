@@ -264,7 +264,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         return { text };
       },
-      { maxRetries: 1 }
+      { maxRetries: Math.max(apiKeys.length, 3) }
     );
 
     // 6. Success — JSON Repair Engine ile parse et

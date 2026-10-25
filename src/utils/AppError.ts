@@ -72,8 +72,21 @@ export class NotFoundError extends AppError {
 }
 
 export class RateLimitError extends AppError {
-  constructor(message?: string, details?: { retryAfter?: number } ) {
-    const retryAfter = details?.retryAfter || 60;
+  constructor(messageOrRetryAfter?: string | number, details?: { retryAfter?: number }) {
+    let message: string | undefined;
+    let retryAfter = 60;
+
+    if (typeof messageOrRetryAfter === 'number') {
+      retryAfter = messageOrRetryAfter;
+    } else if (typeof messageOrRetryAfter === 'string') {
+      message = messageOrRetryAfter;
+      if (details?.retryAfter !== undefined) {
+        retryAfter = details.retryAfter;
+      }
+    } else if (details?.retryAfter !== undefined) {
+      retryAfter = details.retryAfter;
+    }
+
     super(
       message || `Çok hızlı istek gönderdiniz. ${retryAfter} saniye sonra tekrar deneyiniz.`,
       'RATE_LIMIT_EXCEEDED',
@@ -89,7 +102,7 @@ export class QuotaExceededError extends AppError {
   constructor(message: string = 'Sistem AI kapasitesine ulaşmıştır. Lütfen daha sonra tekrar deneyiniz veya sistem yöneticinize başvurun.') {
     super(
       message,
-      'APAI_QUOTA_EXCEEDED',
+      'API_QUOTA_EXCEEDED',
       403,
       undefined,
       false // Fatura/Quota dolduğu için anında retry işe yaramaz

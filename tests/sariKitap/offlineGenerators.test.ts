@@ -17,7 +17,7 @@ import {
 import {
     generateHizliOkumaOffline,
 } from '../../src/services/offlineGenerators/sariKitap/hizliOkuma.offline';
-import { generateOffline } from '../../src/services/offlineGenerators/sariKitap';
+import { generateOffline } from '../../src/services/offlineGenerators/sariKitap/index';
 import { createDefaultConfig } from '../../src/store/useSariKitapStore';
 import type { SariKitapGeneratedContent, PencereConfig, NoktaConfig, KopruConfig, CiftMetinConfig, BellekConfig, HizliOkumaConfig } from '../../src/types/sariKitap';
 

@@ -23,18 +23,12 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
 }) => {
   const [isFixing, setIsFixing] = useState(false);
   
-  console.log(`[MaterialsModule] Alınan veriler:`, { 
-    studentId, 
-    worksheetsCount: worksheets.length, 
-    assessmentsCount: assessments.length,
-    worksheets,
-    assessments
-  });
+  // info log
   const allItems: MaterialItem[] = useMemo(() => [
     ...worksheets.map(ws => ({ ...ws, type: 'worksheet' } as const)),
     ...assessments.map(a => ({ ...a, type: 'assessment' } as const))
   ], [worksheets, assessments]);
-  console.log(`[MaterialsModule] allItems:`, allItems);
+  // info log
 
   // Eksik studentId ve studentName alanlarını düzeltmek için fonksiyon
   const fixMissingStudentFields = async () => {
@@ -54,7 +48,7 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
           studentId: studentId,
           studentName: studentName
         });
-        console.log(`[MaterialsModule] Belge düzeltildi: ${ws.id} - studentId: ${studentId}, studentName: ${studentName}`);
+        // info log
       }
 
       // Ayrıca studentName'e göre eşleşen belgeleri de kontrol edelim
@@ -74,7 +68,7 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
             await updateDoc(doc(db, 'saved_worksheets', docSnap.id), {
               studentId: studentId
             });
-            console.log(`[MaterialsModule] Ek belge düzeltildi: ${docSnap.id} - studentId eklendi`);
+            // info log
           }
         }
       }
@@ -98,22 +92,7 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
 
   const filtered = useMemo(() => {
     let result = [...allItems];
-    console.log(`[MaterialsModule] Filtrelenmeden önce allItems (${allItems.length}):`, allItems.map(item => {
-      const details: any = { 
-        id: item.id, 
-        type: item.type, 
-        createdAt: item.createdAt 
-      };
-      if (item.type === 'worksheet') {
-        details.name = item.name;
-        details.studentId = item.studentId;
-        details.category = item.category;
-        details.activityType = item.activityType;
-      } else {
-        details.studentName = item.studentName;
-      }
-      return details;
-    }));
+    // Filtrelenmeden once log kaldirildi
     
     if (activeCategory !== 'all') {
       result = result.filter(item => {
@@ -133,7 +112,7 @@ export const MaterialsModule: React.FC<MaterialsModuleProps> = ({
       });
     }
     
-    console.log(`[MaterialsModule] Filtrelendikten sonra result (${result.length}):`, result.map(item => ({ id: item.id, type: item.type, name: 'name' in item ? item.name : 'N/A' })));
+    // info log
     
     return result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [allItems, activeCategory, searchQuery]);

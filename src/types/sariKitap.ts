@@ -249,7 +249,8 @@ export interface MemoryPhaseData {
 export interface SariKitapGeneratedContent {
   title: string;
   instructions: string;
-  instruction?: string; // Bazı generatörler tekil kullanıyor
+  instruction?: string;
+  pedagogicalNote?: string; // Bazı generatörler tekil kullanıyor
   targetSkills: string[];
   rawText: string;
   text?: string;        // Bazı generatörler 'text' kullanıyor

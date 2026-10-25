@@ -1,6 +1,5 @@
 import { AppError } from './AppError.js';
-
-import { logInfo, logError, logWarn } from '../utils/logger.js';
+import { logWarn } from './logger.js';
 
 /**
  * Eksik kapanış parantezlerini sayısal olarak tamamlar.
@@ -40,14 +39,38 @@ export const balanceBraces = (str: string): string => {
 };
 
 /**
- * Kesik JSON'ı son geçerli virgülden keser.
+ * Kesik veya çöp eklenmiş JSON'ı geçerli sınıra kadar keser.
  */
 export const truncateToLastValidEntry = (str: string): string => {
+    // 1. Önce doğrudan geçerli bir JSON parse olabiliyor mu kontrol et
+    try {
+        JSON.parse(str);
+        return str;
+    } catch { /* devam et */ }
+
+    // 2. Sondan geriye doğru geçerli bir kapanış parantezinden ('}' veya ']') itibaren parse edilebiliyor mu bak
+    for (let i = str.length - 1; i >= 0; i--) {
+        const ch = str[i];
+        if (ch === '}' || ch === ']') {
+            const candidate = str.substring(0, i + 1);
+            try {
+                JSON.parse(candidate);
+                return candidate;
+            } catch { /* devam et */ }
+        }
+    }
+
+    // 3. Virgül sınırından kesip balanceBraces ile tamamlamayı dene
     const lastComma = str.lastIndexOf(',');
     if (lastComma > 0) {
         const candidate = str.substring(0, lastComma);
-        return balanceBraces(candidate);
+        const balanced = balanceBraces(candidate);
+        try {
+            JSON.parse(balanced);
+            return balanced;
+        } catch { /* devam et */ }
     }
+
     return balanceBraces(str);
 };
 
@@ -95,13 +118,11 @@ export const tryRepairJson = (jsonStr: string): unknown => {
                 const candidate = cleaned.substring(0, i + 1);
                 try {
                     const result = JSON.parse(candidate);
-                    logWarn(`[jsonRepair] STRATEJİ 4: Sondan tarayarak geçerli JSON bulundu (karakter ${i + 1}/${cleaned.length}).`);
                     return result;
                 } catch { /* ignore */ }
             }
         }
     } catch { /* ignore */ }
 
-    logError('[jsonRepair] JSON Parse tamamen başarısız', { hamMetin: cleaned.substring(0, 500) });
     throw new AppError('AI verisi işlenemedi. JSON formatı bozuk veya yanıt çok kısa.', 'INTERNAL_ERROR', 500);
 };

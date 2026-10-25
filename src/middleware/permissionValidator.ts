@@ -41,9 +41,12 @@ export const extractUserInfo = (req: VercelRequest): {
             }
         }
 
-        // Fallback to custom headers (Secondary Method / Dev)
-        // Not: Production'da JWT zorunlu olması planlanıyor ancak mevcut frontend 
-        // x-user-id/role patternini kullandığı için geçici olarak izin veriyoruz.
+        // Production modunda header fallback engellenir, sadece JWT kabul edilir
+        if (typeof process !== 'undefined' && process.env.NODE_ENV === 'production') {
+            return { userId: null, role: null };
+        }
+
+        // Development modunda fallback
         return {
             userId: userId || null,
             role: role || null,

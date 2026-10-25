@@ -1,38 +1,32 @@
 /**
  * BDMIND - Rate Limiting Service
- * Token Bucket Algorithm - Per-user request limits
+ * Dual Mode: Local memory bucket with optional Firestore synchronization.
+ * Guarantees zero latency and avoids race conditions via local token bucket while
+ * syncing persistent quotas to Firestore.
  */
 
 import { RateLimitError, toAppError } from '../utils/AppError.js';
 import { logError } from '../utils/logger.js';
-import { db, doc, getDoc, setDoc, updateDoc } from './firebaseClient.js';
+import { db, doc, runTransaction } from './firebaseClient.js';
 
-/**
- * Token Bucket: Her user'ın belirli süre içinde yapabileceği request sayısı
- */
 interface TokenBucket {
     tokens: number;           // Mevcut token sayısı
     lastRefill: number;       // Son refill zamanı (timestamp)
+    createdAt?: number;
 }
 
-/**
- * Rate Limit Konfigürasyonu
- */
 export interface RateLimitConfig {
     tokens: number;           // Başlangıç token sayısı
     windowMs: number;         // Zaman penceresi (ms)
 }
 
-/**
- * User tier'larına göre limit - ARTIRILDI (production için)
- */
 const RATE_LIMIT_PRESETS = {
     free: {
-        apiGeneration: { tokens: 50, windowMs: 3600000 },    // 50 req/hour (was 20)
-        apiQuery: { tokens: 200, windowMs: 3600000 },        // 200 req/hour (was 100)
-        worksheetSave: { tokens: 100, windowMs: 3600000 },   // 100/hour (was 50)
-        ocrScan: { tokens: 10, windowMs: 3600000 },          // 10/hour (was 5)
-        apiFsProxy: { tokens: 50, windowMs: 3600000 }        // 50/hour (was 20)
+        apiGeneration: { tokens: 20, windowMs: 3600000 },    // 20 req/hour
+        apiQuery: { tokens: 100, windowMs: 3600000 },        // 100 req/hour
+        worksheetSave: { tokens: 50, windowMs: 3600000 },    // 50/hour
+        ocrScan: { tokens: 5, windowMs: 3600000 },           // 5/hour
+        apiFsProxy: { tokens: 20, windowMs: 3600000 }        // 20/hour
     },
     pro: {
         apiGeneration: { tokens: 200, windowMs: 3600000 },   // 200 req/hour
@@ -53,9 +47,6 @@ const RATE_LIMIT_PRESETS = {
 export type LimitKey = keyof typeof RATE_LIMIT_PRESETS['free'];
 export type UserTier = 'free' | 'pro' | 'admin';
 
-/**
- * Safe tier normalizer to prevent TypeError crashes when custom roles (e.g. 'teacher', 'parent') are passed as tier
- */
 const normalizeTier = (tier: string | undefined): UserTier => {
     if (!tier) return 'free';
     if (tier === 'admin') return 'admin';
@@ -64,10 +55,6 @@ const normalizeTier = (tier: string | undefined): UserTier => {
     return (tier in RATE_LIMIT_PRESETS) ? (tier as UserTier) : 'free';
 };
 
-/**
- * UserQuota Service (Persistent Rate Limiting)
- * Firestore tabanlı, sayfa yenilense de korunan kota yönetimi.
- */
 export class UserQuotaService {
     private static instance: UserQuotaService;
 
@@ -80,82 +67,160 @@ export class UserQuotaService {
         return UserQuotaService.instance;
     }
 
-    /**
-     * Kota kontrolü yap ve harca
-     */
     async checkAndConsume(
         userId: string,
         tier: UserTier,
         limitKey: LimitKey,
         cost: number = 1
     ): Promise<{ allowed: boolean; remaining: number; resetAfterMs: number }> {
-        if (!userId) return { allowed: true, remaining: 999, resetAfterMs: 0 };
-
-        const safeTier = normalizeTier(tier);
-        const config = RATE_LIMIT_PRESETS[safeTier]?.[limitKey] || RATE_LIMIT_PRESETS.free.apiQuery;
-        const now = Date.now();
-
-        try {
-            if (!db) throw new Error('Firebase DB is not initialized');
-            const quotaRef = doc(db, 'user_quotas', `${userId}_${limitKey}`);
-            const docSnap = await getDoc(quotaRef);
-            let bucket: TokenBucket;
-
-            if (!docSnap.exists()) {
-                // Yeni bucket oluştur
-                bucket = {
-                    tokens: config.tokens,
-                    lastRefill: now
-                };
-                await setDoc(quotaRef, bucket);
-            } else {
-                bucket = docSnap.data() as TokenBucket;
-            }
-
-            // Refill tokens
-            this.refillTokens(bucket, config, now);
-
-            // Check if allowed
-            const allowed = bucket.tokens >= cost;
-
-            if (allowed) {
-                bucket.tokens -= cost;
-                await updateDoc(quotaRef, {
-                    tokens: bucket.tokens,
-                    lastRefill: bucket.lastRefill
-                });
-            }
-
-            const remaining = Math.floor(bucket.tokens);
-            const timeSinceRefill = now - bucket.lastRefill;
-            const resetAfterMs = Math.max(0, config.windowMs - timeSinceRefill);
-
-            return { allowed, remaining, resetAfterMs };
-        } catch (error) {
-            logError(toAppError(error), { context: 'Quota check failed' });
-            // Hata durumunda (Firebase kapalı vb.) fallback olarak izin ver
-            return { allowed: true, remaining: 0, resetAfterMs: 0 };
-        }
+        return rateLimiter.checkLimit(userId, tier, limitKey, cost);
     }
 
-    /**
-     * Hızlı kontrol (throw hatası döner)
-     */
     async enforce(
         userId: string,
         tier: UserTier,
         limitKey: LimitKey,
         cost: number = 1
     ): Promise<void> {
-        const { allowed, resetAfterMs } = await this.checkAndConsume(userId, tier, limitKey, cost);
+        return rateLimiter.enforceLimit(userId, tier, limitKey, cost);
+    }
+}
+
+export class RateLimiter {
+    private buckets = new Map<string, Map<LimitKey, TokenBucket>>();
+
+    async check(userId: string, tier: UserTier = 'free', limitKey: LimitKey = 'apiGeneration'): Promise<boolean> {
+        const { allowed } = await this.checkLimit(userId, tier, limitKey);
+        return allowed;
+    }
+
+    async checkLimit(
+        userId: string,
+        tier: UserTier = 'free',
+        limitKey: LimitKey = 'apiGeneration',
+        cost: number = 1
+    ): Promise<{ allowed: boolean; remaining: number; resetAfterMs: number }> {
+        if (!userId) return { allowed: true, remaining: 999, resetAfterMs: 0 };
+
+        const safeTier = normalizeTier(tier);
+        const config = RATE_LIMIT_PRESETS[safeTier]?.[limitKey] || RATE_LIMIT_PRESETS.free.apiQuery;
+        const bucket = this.getOrCreateBucket(userId, limitKey, config);
+
+        this.refillTokens(bucket, config);
+
+        const allowed = bucket.tokens >= cost;
+        if (allowed && cost > 0) {
+            bucket.tokens -= cost;
+        }
+
+        const remaining = Math.floor(bucket.tokens);
+        const timeSinceRefill = Date.now() - bucket.lastRefill;
+        const resetAfterMs = Math.max(0, config.windowMs - timeSinceRefill);
+
+        // Arka planda Firestore transaction sync (isteğe bağlı ve sessiz hata yakalamalı)
+        if (db && typeof (db as any) === 'object' && Object.keys(db).length > 0) {
+            const quotaRef = doc(db, 'user_quotas', `${userId}_${limitKey}`);
+            runTransaction(db, async (transaction) => {
+                transaction.set(quotaRef, {
+                    tokens: remaining,
+                    lastRefill: bucket.lastRefill
+                });
+            }).catch(() => {});
+        }
+
+        return { allowed, remaining, resetAfterMs };
+    }
+
+    async enforceLimit(
+        userId: string,
+        tier: UserTier = 'free',
+        limitKey: LimitKey = 'apiGeneration',
+        cost: number = 1
+    ): Promise<void> {
+        const { allowed, resetAfterMs } = await this.checkLimit(userId, tier, limitKey, cost);
 
         if (!allowed) {
             const resetAfterSec = Math.ceil(resetAfterMs / 1000);
-            throw new RateLimitError(undefined, { retryAfter: resetAfterSec });
+            throw new RateLimitError(resetAfterSec, { retryAfter: resetAfterSec });
         }
     }
 
-    private refillTokens(bucket: TokenBucket, config: RateLimitConfig, now: number): void {
+    getStatus(userId: string, tier: UserTier = 'free', limitKey: LimitKey = 'apiGeneration'): {
+        remaining: number;
+        total: number;
+        resetAfterMs: number;
+        resetsAt: Date;
+        allowed: boolean;
+    } {
+        const safeTier = normalizeTier(tier);
+        const config = RATE_LIMIT_PRESETS[safeTier]?.[limitKey] || RATE_LIMIT_PRESETS.free.apiGeneration;
+        const bucket = this.getOrCreateBucket(userId, limitKey, config);
+
+        this.refillTokens(bucket, config);
+
+        const timeSinceRefill = Date.now() - bucket.lastRefill;
+        const resetAfterMs = Math.max(0, config.windowMs - timeSinceRefill);
+        const resetsAt = new Date(bucket.lastRefill + config.windowMs);
+
+        return {
+            remaining: Math.floor(bucket.tokens),
+            total: config.tokens,
+            resetAfterMs,
+            resetsAt,
+            allowed: bucket.tokens > 0
+        };
+    }
+
+    reset(userId: string, limitKey?: LimitKey): void {
+        if (limitKey) {
+            const userBuckets = this.buckets.get(userId);
+            if (userBuckets) {
+                userBuckets.delete(limitKey);
+            }
+        } else {
+            this.buckets.delete(userId);
+        }
+
+        if (db && typeof (db as any) === 'object' && Object.keys(db).length > 0) {
+            const keysToReset: LimitKey[] = limitKey ? [limitKey] : ['apiGeneration', 'apiQuery', 'worksheetSave', 'ocrScan', 'apiFsProxy'];
+            runTransaction(db, async (transaction) => {
+                for (const key of keysToReset) {
+                    const config = RATE_LIMIT_PRESETS.free[key];
+                    const quotaRef = doc(db, 'user_quotas', `${userId}_${key}`);
+                    transaction.set(quotaRef, {
+                        tokens: config.tokens,
+                        lastRefill: Date.now()
+                    });
+                }
+            }).catch(() => {});
+        }
+    }
+
+    private getOrCreateBucket(
+        userId: string,
+        limitKey: LimitKey,
+        config: RateLimitConfig
+    ): TokenBucket {
+        if (!this.buckets.has(userId)) {
+            this.buckets.set(userId, new Map());
+        }
+
+        const userBuckets = this.buckets.get(userId)!;
+
+        if (!userBuckets.has(limitKey)) {
+            const now = Date.now();
+            userBuckets.set(limitKey, {
+                tokens: config.tokens,
+                lastRefill: now,
+                createdAt: now
+            });
+        }
+
+        return userBuckets.get(limitKey)!;
+    }
+
+    private refillTokens(bucket: TokenBucket, config: RateLimitConfig): void {
+        const now = Date.now();
         const timePassed = now - bucket.lastRefill;
 
         if (timePassed >= config.windowMs) {
@@ -169,64 +234,7 @@ export class UserQuotaService {
     }
 }
 
-/**
- * Legacy support for RateLimiter class name
- * Enhanced with all required methods for test compatibility
- */
-export class RateLimiter {
-    /**
-     * Check if user is allowed to make request
-     */
-    async check(userId: string, tier: UserTier = 'free', limitKey: LimitKey = 'apiGeneration'): Promise<boolean> {
-        const { allowed } = await quotaService.checkAndConsume(userId, tier, limitKey);
-        return allowed;
-    }
-
-    /**
-     * Check limit with detailed response
-     */
-    async checkLimit(userId: string, tier: UserTier = 'free', limitKey: LimitKey = 'apiGeneration', cost: number = 1): Promise<{ allowed: boolean; remaining: number; resetAfterMs: number }> {
-        return await quotaService.checkAndConsume(userId, tier, limitKey, cost);
-    }
-
-    /**
-     * Enforce rate limit (throws error if exceeded)
-     */
-    async enforceLimit(userId: string, tier: UserTier = 'free', limitKey: LimitKey = 'apiGeneration', cost: number = 1): Promise<void> {
-        await quotaService.enforce(userId, tier, limitKey, cost);
-    }
-
-    /**
-     * Get current status of user's quota
-     */
-    async getStatus(userId: string, tier: UserTier = 'free', limitKey: LimitKey = 'apiGeneration'): Promise<{ remaining: number; total: number; resetAfterMs: number; allowed: boolean }> {
-        const safeTier = normalizeTier(tier);
-        const config = RATE_LIMIT_PRESETS[safeTier]?.[limitKey] || RATE_LIMIT_PRESETS.free.apiGeneration;
-        const result = await quotaService.checkAndConsume(userId, safeTier, limitKey, 0); // cost=0 for check only
-        return {
-            remaining: result.remaining,
-            total: config.tokens,
-            resetAfterMs: result.resetAfterMs,
-            allowed: result.allowed
-        };
-    }
-
-    /**
-     * Reset user's quota (admin function)
-     */
-    async reset(userId: string, limitKey: LimitKey = 'apiGeneration'): Promise<void> {
-        // For admin use - reset quota to full
-        const config = RATE_LIMIT_PRESETS.admin[limitKey];
-        const quotaRef = doc(db, 'user_quotas', `${userId}_${limitKey}`);
-        const bucket = {
-            tokens: config.tokens,
-            lastRefill: Date.now()
-        };
-        await setDoc(quotaRef, bucket);
-    }
-}
-
 export const quotaService = UserQuotaService.getInstance();
 export const rateLimiter = new RateLimiter();
 export const enforceRateLimit = (userId: string, tier: UserTier, limitKey: LimitKey, cost: number = 1) =>
-    quotaService.enforce(userId, tier, limitKey, cost);
+    rateLimiter.enforceLimit(userId, tier, limitKey, cost);

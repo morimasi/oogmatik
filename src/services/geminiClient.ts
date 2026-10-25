@@ -110,6 +110,12 @@ export const generateWithGemini = async (prompt: string, systemInstruction?: str
 /**
  * Gemini API çağrısı — Retry logic ve rate limiting ile
  */
+export interface StudentAIContext {
+  name: string;
+  grade: string;
+  diagnosis?: string | string[];
+}
+
 export const generateCreativeMultimodal = async (params: {
   prompt: string;
   schema?: Record<string, unknown>;
@@ -120,6 +126,7 @@ export const generateCreativeMultimodal = async (params: {
   systemInstruction?: string;
   model?: string;
   skipStudentContext?: boolean; // Hız için öğrenci bağlamını ve uniqueness seed'i atlar
+  studentContext?: StudentAIContext; // Doğrudan parametre olarak bağlam enjeksiyonu
 }): Promise<CreativeMultimodalResult> => {
   if (typeof process !== 'undefined' && process.env.NODE_ENV === 'test') {
     if (params.schema) {
@@ -136,7 +143,7 @@ export const generateCreativeMultimodal = async (params: {
     safeModel = MASTER_MODEL;
   }
 
-  const activeStudent = params.skipStudentContext ? null : useStudentStore.getState().activeStudent;
+  const activeStudent = params.skipStudentContext ? null : (params.studentContext || (typeof window !== 'undefined' ? useStudentStore.getState().activeStudent : null));
   let finalPrompt = params.prompt;
 
   // GLOBAL BENZERSİZLİK MEKANİZMASI: Her isteğe rastgele bir tohum ve yaratıcılık talimatı ekle
