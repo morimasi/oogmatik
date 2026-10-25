@@ -405,6 +405,7 @@ export type View =
   | 'messages'
   | 'infographic-studio'
   | 'fascicle-studio'
+  | 'ai-okuma-studio'
   | 'students';
 
 export interface UiSettings {

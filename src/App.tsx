@@ -122,6 +122,9 @@ const KelimeCumleStudio = lazy(() =>
 const FascicleStudio = lazy(() =>
   import('./components/FascicleStudio').then((module) => ({ default: module.default }))
 );
+const LiveReadingStudio = lazy(() =>
+  import('./components/LiveReadingStudio').then((module) => ({ default: module.LiveReadingStudio }))
+);
 
 
 import { LoadingSpinner } from './components/shared/LoadingSpinner';
@@ -528,7 +531,8 @@ const AppContent = () => {
         <div
           style={{
             width:
-              isAdvancedScreeningOpen || ['assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students', 'curriculum', 'screening', 'reading-studio', 'math-studio', 'super-turkce', 'infographic-studio', 'activity-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'mat-problem-studyosu', 'sari-kitap-studio', 'kelime-cumle-studio', 'fascicle-studio', 'ocr'].includes(currentView)
+              isAdvancedScreeningOpen || ['assessment', 'profile', 'admin', 'favorites', 'savedList', 'shared', 'students', 'curriculum', 'screening', 'reading-studio', 'math-studio', 'super-turkce', 'infographic-studio',
+              'activity-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'mat-problem-studyosu', 'sari-kitap-studio', 'kelime-cumle-studio', 'fascicle-studio', 'ai-okuma-studio', 'ocr'].includes(currentView)
                 ? 0
                 : (currentView === 'generator' && selectedActivity) ? 296 : 250,
           }}
@@ -557,6 +561,7 @@ const AppContent = () => {
             onOpenSinavStudyosu={() => handleOpenStudio('sinav-studyosu')}
             onOpenMatSinavStudyosu={() => handleOpenStudio('mat-sinav-studyosu')}
             onOpenMatProblemStudyosu={() => handleOpenStudio('mat-problem-studyosu')}
+            onOpenAiOkumaStudio={() => handleOpenStudio('ai-okuma-studio')}
             onOpenSariKitapStudio={() => handleOpenStudio('sari-kitap-studio')}
             onOpenKelimeCumleStudio={() => handleOpenStudio('kelime-cumle-studio')}
             onOpenFascicleStudio={() => handleOpenStudio('fascicle-studio')}
@@ -757,6 +762,13 @@ const AppContent = () => {
                       <ProtectedRoute module="infographic-studio" onBack={() => navigateTo('generator')}>
                         <React.Suspense fallback={<LoadingPlaceholder />}>
                           <SuperStudio />
+                        </React.Suspense>
+                      </ProtectedRoute>
+                    )}
+                    {currentView === 'ai-okuma-studio' && (
+                      <ProtectedRoute module="ai-okuma" onBack={handleGoBack}>
+                        <React.Suspense fallback={<LoadingPlaceholder />}>
+                          <LiveReadingStudio onBack={handleGoBack} />
                         </React.Suspense>
                       </ProtectedRoute>
                     )}

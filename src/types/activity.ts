@@ -265,6 +265,7 @@ export enum ActivityType {
   GOAL_SETTING = 'GOAL_SETTING',
   INFOGRAPHIC_STUDIO = 'INFOGRAPHIC_STUDIO',
   SARI_KITAP_STUDIO = 'SARI_KITAP_STUDIO',
+  AI_OKUMA_STUDIO = 'AI_OKUMA_STUDIO',
   LETTER_MAZE_TEST = 'letter-maze-test',
   LETTER_CONNECT = 'letter-connect',
   HARF_BAGLAMA = 'HarfBaglama',

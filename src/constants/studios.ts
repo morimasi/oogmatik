@@ -41,6 +41,13 @@ export const STUDIO_GROUPS: StudioGroup[] = [
         title: 'Alan Stüdyoları',
         items: [
             {
+                id: 'ai-okuma-studio',
+                label: 'Canlı AI Okuma Koçu',
+                icon: 'fa-microphone-lines',
+                color: 'text-emerald-400',
+                actionType: 'callback'
+            },
+            {
                 id: 'reading',
                 label: 'Okuma-Anlama Stüdyosu',
                 icon: 'fa-book-open',

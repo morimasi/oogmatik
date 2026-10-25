@@ -25,6 +25,7 @@ export type PermissionAction =
 export type PermissionModule =
   | 'activity-studio'
   | 'reading-studio'
+  | 'ai-okuma'
   | 'math-studio'
   | 'sinav-studyosu'
   | 'mat-sinav-studyosu'
@@ -60,6 +61,7 @@ export type PermissionModule =
 export const MODULE_LABELS: Record<PermissionModule, string> = {
   'activity-studio': 'Etkinlik Havuzu',
   'reading-studio': 'Okuma Stüdyosu',
+  'ai-okuma': 'Canlı AI Okuma Koçu',
   'math-studio': 'Matematik Stüdyosu',
   'sinav-studyosu': 'Sınav Stüdyosu',
   'mat-sinav-studyosu': 'Matematik Sınav Stüdyosu',
@@ -99,7 +101,7 @@ export const MODULE_CATEGORIES: { id: string; label: string; modules: Permission
   {
     id: 'central-studios',
     label: 'Merkezi & Alan Stüdyoları',
-    modules: ['activity-studio', 'reading-studio', 'math-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'mat-problem-studyosu', 'super-turkce']
+    modules: ['activity-studio', 'reading-studio', 'ai-okuma', 'math-studio', 'sinav-studyosu', 'mat-sinav-studyosu', 'mat-problem-studyosu', 'super-turkce']
   },
   {
     id: 'assessment-studios',

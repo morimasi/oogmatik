@@ -81,6 +81,7 @@ export const useWorksheetManager = (
             [ActivityType.MAT_SINAV]: 'mat-sinav-studyosu',
             [ActivityType.SINAV]: 'sinav-studyosu',
             [ActivityType.SARI_KITAP_STUDIO]: 'sari-kitap-studio',
+            [ActivityType.AI_OKUMA_STUDIO]: 'ai-okuma-studio',
             [ActivityType.KELIME_CUMLE]: 'kelime-cumle-studio',
             [ActivityType.PREMIUM_STUDIO]: 'activity-studio',
             [ActivityType.INFOGRAPHIC_STUDIO]: 'infographic-studio',
