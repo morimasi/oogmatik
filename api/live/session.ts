@@ -47,27 +47,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       });
     }
 
-    // Google Gemini 3.8 Live API Canlı Oturum Parametreleri
+    // Google Gemini Canlı Oturum Yapılandırması
+    // KVKK ve Çocuk Biyometrik Veri Güvenliği Protokolü (Doç. Dr. Leyla Korkmaz):
+    // API anahtarı istemciye ASLA ham olarak döndürülmez.
     const sessionConfig = {
-      model: 'models/gemini-2.0-flash-exp', // Canlı çok modlu ses uç noktası
-      generationConfig: {
-        responseModalities: ['audio', 'text'],
-        speechConfig: {
-          voiceConfig: {
-            prebuiltVoiceConfig: {
-              voiceName: 'Puck', // Sıcak, sevecen koç sesi
-            },
+      model: 'models/gemini-2.0-flash-exp',
+      speechConfig: {
+        voiceConfig: {
+          prebuiltVoiceConfig: {
+            voiceName: 'Puck', // Sıcak, çocuk dostu Türkçe koç tonu
           },
         },
       },
+      patienceThresholdSeconds: 3.0,
+      language: 'tr-TR',
     };
 
     return res.status(200).json({
       success: true,
       mode: 'live_cloud',
-      endpoint: `wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key=${apiKey}`,
-      config: sessionConfig,
       sessionToken: `live_tok_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+      config: sessionConfig,
       timestamp: new Date().toISOString(),
     });
   } catch (err: unknown) {

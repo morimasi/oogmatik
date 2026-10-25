@@ -10,7 +10,10 @@ import {
   ChevronRight,
   HelpCircle,
   Award,
-  BookOpen
+  BookOpen,
+  CheckCircle2,
+  XCircle,
+  Volume2
 } from 'lucide-react';
 import { EduMascot, MascotState } from './EduMascot';
 import { AudioWaveform } from './AudioWaveform';
@@ -56,6 +59,10 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
   const [customTitle, setCustomTitle] = useState<string>('');
   const [customText, setCustomText] = useState<string>('');
 
+  // Okuduğunu Anlama Mini Soruları Durumu
+  const [userAnswers, setUserAnswers] = useState<Record<string, number>>({});
+  const [activeModalTab, setActiveModalTab] = useState<'metrics' | 'comprehension'>('metrics');
+
   // Ayarlar
   const [settings, setSettings] = useState<CoachSettings>({
     patienceThresholdSeconds: 3.0,
@@ -92,6 +99,8 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
       onSessionComplete: (metrics) => {
         setIsSessionActive(false);
         setSessionMetrics(metrics);
+        setUserAnswers({});
+        setActiveModalTab('metrics');
         if (timerRef.current) clearInterval(timerRef.current);
         toast.success('Tebrikler! Okuma seansı başarıyla tamamlandı.');
       },
@@ -133,6 +142,7 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
       setCoachMessage('Okuma duraklatıldı. İstediğin zaman tekrar devam edebilirsin.');
     } else {
       setSessionMetrics(null);
+      setUserAnswers({});
       coachRef.current.setPatienceThreshold(settings.patienceThresholdSeconds);
       await coachRef.current.startSession(selectedPassage);
       setIsSessionActive(true);
@@ -170,6 +180,7 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
     setCurrentWordIndex(0);
     setHighlightedSyllable(null);
     setSessionMetrics(null);
+    setUserAnswers({});
     setMascotState('idle');
     setCoachMessage(`"${passage.title}" seçildi. Hazırsan mikrofonu açıp okuyabilirsin.`);
   };
@@ -184,7 +195,8 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
     setCustomText('');
     setCurrentWordIndex(0);
     setSessionMetrics(null);
-    toast.success('Özel okuma metni yüklendi!');
+    setUserAnswers({});
+    toast.success('Özel okuma metni yüklendi ve otomatik hecelendi!');
   };
 
   // Zafer Aydın PDF Karnesini İndir
@@ -209,6 +221,21 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
       metrics: sessionMetrics,
     });
     toast.success('Sesli okuma karnesi A4 PDF olarak indirildi.');
+  };
+
+  // Anlama Sorusu Cevaplama
+  const handleAnswerQuestion = (qId: string, optionIdx: number) => {
+    setUserAnswers((prev) => ({ ...prev, [qId]: optionIdx }));
+    const question = selectedPassage.comprehensionQuestions?.find((q) => q.id === qId);
+    if (!question) return;
+
+    if (optionIdx === question.correctIndex) {
+      setMascotState('celebrating');
+      coachRef.current?.speakVoiceHint('Harika! Doğru cevap.');
+    } else {
+      setMascotState('hinting');
+      coachRef.current?.speakVoiceHint('Neredeyse doğruydu! Hadi ipucunu hatırla.');
+    }
   };
 
   // Dakika:Saniye Formatı
@@ -248,7 +275,7 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
                 CANLI AI OKUMA KOÇU
               </h1>
               <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                v2.0 Live
+                v2.1 Ultra
               </span>
             </div>
             {activeStudent && (
@@ -434,68 +461,148 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md overflow-y-auto"
           >
             <motion.div
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="w-full max-w-lg rounded-[3rem] bg-zinc-950 border border-white/10 p-8 shadow-2xl text-center font-lexend relative"
+              className="w-full max-w-xl rounded-[3rem] bg-zinc-950 border border-white/10 p-6 sm:p-8 shadow-2xl text-center font-lexend relative my-8"
             >
-              <div className="w-20 h-20 rounded-full bg-amber-500/20 border border-amber-400/30 flex items-center justify-center mx-auto mb-4 text-amber-400">
-                <Award className="w-10 h-10" />
+              <div className="w-16 h-16 rounded-full bg-amber-500/20 border border-amber-400/30 flex items-center justify-center mx-auto mb-3 text-amber-400">
+                <Award className="w-8 h-8" />
               </div>
 
-              <h2 className="text-2xl font-black text-white tracking-tight mb-2">
+              <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight mb-1">
                 Harika Bir Seans Tamamlandı!
               </h2>
-              <p className="text-xs text-zinc-400 mb-6">
+              <p className="text-xs text-zinc-400 mb-4">
                 {selectedPassage.title} — {sessionMetrics.gradeLevelEquivalent}
               </p>
 
-              {/* Sonuç Kartları */}
-              <div className="grid grid-cols-2 gap-3 mb-6 text-left">
-                <div className="p-4 rounded-2xl bg-zinc-900 border border-white/5">
-                  <span className="text-[11px] text-zinc-400 block mb-1">Dakikada Doğru Kelime</span>
-                  <span className="text-2xl font-extrabold text-emerald-400">{sessionMetrics.wcpm}</span>
-                  <span className="text-[10px] text-zinc-500 block">WCPM Hızı</span>
+              {/* Sekmeler: Metrikler / Okuduğunu Anlama */}
+              {selectedPassage.comprehensionQuestions && selectedPassage.comprehensionQuestions.length > 0 && (
+                <div className="flex items-center justify-center gap-2 mb-4 p-1 rounded-2xl bg-zinc-900 border border-white/5">
+                  <button
+                    onClick={() => setActiveModalTab('metrics')}
+                    className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition-all ${
+                      activeModalTab === 'metrics'
+                        ? 'bg-indigo-600 text-white shadow-md'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    Akıcılık ve Hız Raporu
+                  </button>
+                  <button
+                    onClick={() => setActiveModalTab('comprehension')}
+                    className={`flex-1 py-1.5 px-3 rounded-xl text-xs font-bold transition-all ${
+                      activeModalTab === 'comprehension'
+                        ? 'bg-indigo-600 text-white shadow-md'
+                        : 'text-zinc-400 hover:text-white'
+                    }`}
+                  >
+                    Okuduğunu Anlama ({selectedPassage.comprehensionQuestions.length} Soru)
+                  </button>
                 </div>
+              )}
 
-                <div className="p-4 rounded-2xl bg-zinc-900 border border-white/5">
-                  <span className="text-[11px] text-zinc-400 block mb-1">Doğruluk Oranı</span>
-                  <span className="text-2xl font-extrabold text-indigo-400">%{sessionMetrics.accuracyPercentage}</span>
-                  <span className="text-[10px] text-zinc-500 block">{sessionMetrics.correctWordsCount}/{sessionMetrics.totalWordsRead} Kelime</span>
+              {activeModalTab === 'metrics' ? (
+                <>
+                  {/* Sonuç Kartları */}
+                  <div className="grid grid-cols-2 gap-2.5 mb-5 text-left">
+                    <div className="p-3.5 rounded-2xl bg-zinc-900 border border-white/5">
+                      <span className="text-[10px] text-zinc-400 block mb-0.5">Dakikada Doğru Kelime</span>
+                      <span className="text-xl sm:text-2xl font-extrabold text-emerald-400">{sessionMetrics.wcpm}</span>
+                      <span className="text-[9px] text-zinc-500 block">WCPM Hızı</span>
+                    </div>
+
+                    <div className="p-3.5 rounded-2xl bg-zinc-900 border border-white/5">
+                      <span className="text-[10px] text-zinc-400 block mb-0.5">Doğruluk Oranı</span>
+                      <span className="text-xl sm:text-2xl font-extrabold text-indigo-400">%{sessionMetrics.accuracyPercentage}</span>
+                      <span className="text-[9px] text-zinc-500 block">{sessionMetrics.correctWordsCount}/{sessionMetrics.totalWordsRead} Kelime</span>
+                    </div>
+
+                    <div className="p-3.5 rounded-2xl bg-zinc-900 border border-white/5">
+                      <span className="text-[10px] text-zinc-400 block mb-0.5">Akıcılık & Prozodi</span>
+                      <span className="text-xl sm:text-2xl font-extrabold text-amber-400">{sessionMetrics.prosodyScore}/100</span>
+                      <span className="text-[9px] text-zinc-500 block">Tonlama Başarısı</span>
+                    </div>
+
+                    <div className="p-3.5 rounded-2xl bg-zinc-900 border border-white/5">
+                      <span className="text-[10px] text-zinc-400 block mb-0.5">Kendi Hatasını Bulma</span>
+                      <span className="text-xl sm:text-2xl font-extrabold text-teal-400">{sessionMetrics.selfCorrectionCount}</span>
+                      <span className="text-[9px] text-zinc-500 block">Öz-Denetim Başarısı</span>
+                    </div>
+                  </div>
+
+                  {/* Pedagojik Özet */}
+                  <p className="text-xs text-zinc-300 bg-white/5 p-3.5 rounded-2xl border border-white/5 mb-5 leading-relaxed text-left">
+                    {sessionMetrics.pedagogicalSummary}
+                  </p>
+                </>
+              ) : (
+                /* Okuduğunu Anlama Mini Soruları */
+                <div className="space-y-4 mb-5 text-left max-h-60 overflow-y-auto pr-1">
+                  {selectedPassage.comprehensionQuestions?.map((q, idx) => {
+                    const selectedIdx = userAnswers[q.id];
+                    const isAnswered = selectedIdx !== undefined;
+                    const isCorrect = isAnswered && selectedIdx === q.correctIndex;
+
+                    return (
+                      <div key={q.id} className="p-3.5 rounded-2xl bg-zinc-900 border border-white/5 space-y-2">
+                        <span className="text-[10px] uppercase font-bold text-indigo-400 tracking-wider">
+                          Soru {idx + 1}
+                        </span>
+                        <p className="text-xs font-semibold text-white">{q.question}</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                          {q.options.map((opt, optIdx) => {
+                            const isChosen = selectedIdx === optIdx;
+                            const isOptionCorrect = optIdx === q.correctIndex;
+
+                            let btnStyle = 'bg-zinc-800/80 border-white/5 text-zinc-300 hover:bg-zinc-800';
+                            if (isAnswered) {
+                              if (isOptionCorrect) {
+                                btnStyle = 'bg-emerald-500/20 border-emerald-400 text-emerald-300 font-bold';
+                              } else if (isChosen) {
+                                btnStyle = 'bg-rose-500/20 border-rose-400 text-rose-300';
+                              }
+                            }
+
+                            return (
+                              <button
+                                key={optIdx}
+                                onClick={() => handleAnswerQuestion(q.id, optIdx)}
+                                className={`text-left p-2.5 rounded-xl border text-xs transition-all flex items-center justify-between ${btnStyle}`}
+                              >
+                                <span>{opt}</span>
+                                {isAnswered && isOptionCorrect && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />}
+                                {isAnswered && isChosen && !isOptionCorrect && <XCircle className="w-3.5 h-3.5 text-rose-400" />}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {isAnswered && (
+                          <p className="text-[10px] text-zinc-400 italic pt-1">
+                            {q.explanation}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-
-                <div className="p-4 rounded-2xl bg-zinc-900 border border-white/5">
-                  <span className="text-[11px] text-zinc-400 block mb-1">Akıcılık & Prozodi</span>
-                  <span className="text-2xl font-extrabold text-amber-400">{sessionMetrics.prosodyScore}/100</span>
-                  <span className="text-[10px] text-zinc-500 block">Tonlama Başarısı</span>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-zinc-900 border border-white/5">
-                  <span className="text-[11px] text-zinc-400 block mb-1">Kendi Hatasını Bulma</span>
-                  <span className="text-2xl font-extrabold text-teal-400">{sessionMetrics.selfCorrectionCount}</span>
-                  <span className="text-[10px] text-zinc-500 block">Öz-Denetim Başarısı</span>
-                </div>
-              </div>
-
-              {/* Pedagojik Özet */}
-              <p className="text-xs text-zinc-300 bg-white/5 p-4 rounded-2xl border border-white/5 mb-6 leading-relaxed">
-                {sessionMetrics.pedagogicalSummary}
-              </p>
+              )}
 
               {/* Butonlar */}
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setSessionMetrics(null)}
-                  className="flex-1 py-3.5 rounded-2xl bg-zinc-800 hover:bg-zinc-700 text-white font-bold text-xs transition-colors"
+                  className="flex-1 py-3 rounded-2xl bg-zinc-800 hover:bg-zinc-700 text-white font-bold text-xs transition-colors"
                 >
                   Tekrar Oku
                 </button>
                 <button
                   onClick={handleExportPdf}
-                  className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:opacity-95 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2"
+                  className="flex-1 py-3 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-400 hover:opacity-95 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2"
                 >
                   <FileDown className="w-4 h-4" />
                   <span>A4 Karne İndir</span>
@@ -523,7 +630,7 @@ export const LiveReadingStudio: React.FC<LiveReadingStudioProps> = ({
             >
               <h3 className="text-lg font-bold mb-1">Özel Okuma Metni Yükle</h3>
               <p className="text-xs text-zinc-400 mb-4">
-                Öğretmen veya veli olarak çocuğa çalıştırmak istediğiniz herhangi bir metni buraya yapıştırabilirsiniz.
+                Öğretmen veya veli olarak çocuğa çalıştırmak istediğiniz herhangi bir metni buraya yapıştırabilirsiniz. TDK kurallarına göre anında hecelerine ayrılacaktır.
               </p>
 
               <div className="space-y-4">

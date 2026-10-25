@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { PhonologicalScoringEngine } from '../src/services/phonological/phonologicalScoringEngine';
-import { SAMPLE_READING_PASSAGES, parseCustomTextToPassage } from '../src/components/LiveReadingStudio/sampleStories';
+import { SAMPLE_READING_PASSAGES, parseCustomTextToPassage, syllabifyTurkishWord } from '../src/components/LiveReadingStudio/sampleStories';
 
 describe('LiveReadingCoach - Fonolojik Ölçme ve Değerlendirme Testleri', () => {
   it('Ayna harf karışıklığını (b/d) doğru tespit etmeli', () => {
@@ -34,8 +34,17 @@ describe('LiveReadingCoach - Fonolojik Ölçme ve Değerlendirme Testleri', () =
     expect(result.code).toBe('SUCCESS_SELF');
   });
 
+  it('Türkçe fonetik heceleme motoru (syllabifyTurkishWord) kelimeleri TDK kurallarıyla hecelemeli', () => {
+    expect(syllabifyTurkishWord('araba').join('-')).toBe('a-ra-ba');
+    expect(syllabifyTurkishWord('balık').join('-')).toBe('ba-lık');
+    expect(syllabifyTurkishWord('öğrenci').join('-')).toBe('öğ-ren-ci');
+    expect(syllabifyTurkishWord('türkçe').join('-')).toBe('türk-çe');
+    expect(syllabifyTurkishWord('altında').join('-')).toBe('al-tın-da');
+    expect(syllabifyTurkishWord('çiçekleri').join('-')).toBe('çi-çek-le-ri');
+  });
+
   it('WCPM ve seans metriklerini doğru matematiksel formülle hesaplamalı', () => {
-    // 60 saniyede 40 kelime okunmuş, 2 hata, 1 kendini düzeltme
+    // 60 saniyede 40 kelime okunmuş, 2 hata, 2 kendini düzeltme
     const metrics = PhonologicalScoringEngine.calculateSessionMetrics({
       durationSeconds: 60,
       totalWordsTarget: 50,
@@ -78,17 +87,20 @@ describe('LiveReadingCoach - Fonolojik Ölçme ve Değerlendirme Testleri', () =
     expect(metrics.recommendations.length).toBeGreaterThan(0);
   });
 
-  it('Örnek metinler eksiksiz ve disleksiye uygun hecelenmiş olmalı', () => {
-    expect(SAMPLE_READING_PASSAGES.length).toBeGreaterThanOrEqual(3);
+  it('Örnek metin kütüphanesi zenginleştirilmiş (6 hikaye) ve anlama sorularına sahip olmalı', () => {
+    expect(SAMPLE_READING_PASSAGES.length).toBe(6);
     const firstStory = SAMPLE_READING_PASSAGES[0];
     expect(firstStory.words.length).toBeGreaterThan(10);
     expect(firstStory.syllabifiedWords.length).toBe(firstStory.words.length);
+    expect(firstStory.comprehensionQuestions).toBeDefined();
+    expect(firstStory.comprehensionQuestions?.length).toBeGreaterThanOrEqual(1);
   });
 
-  it('Öğretmenin girdiği özel metin doğru şekilde ReadingPassage nesnesine dönüştürülmeli', () => {
+  it('Öğretmenin girdiği özel metin dinamik hecelenerek ReadingPassage nesnesine dönüştürülmeli', () => {
     const custom = parseCustomTextToPassage('Piknik Günü', 'Güneş açtı ve çocuklar parka koştu.');
     expect(custom.title).toBe('Piknik Günü');
     expect(custom.words.length).toBe(6);
     expect(custom.words[0]).toBe('Güneş');
+    expect(custom.syllabifiedWords[0].join('-')).toBe('Gü-neş');
   });
 });

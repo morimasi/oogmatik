@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ReadingPassage } from './sampleStories';
 
@@ -21,12 +21,23 @@ export const ReadingRulerStage: React.FC<ReadingRulerStageProps> = ({
   isSyllableColoringActive,
   onWordClick,
 }) => {
-  // Cümle veya satır bazında kelimeleri grupla
   const words = passage.words;
+  const activeWordRef = useRef<HTMLSpanElement | null>(null);
+
+  // Aktif kelime değiştiğinde odağı yumuşakça kaydır (Özellikle uzun metinlerde ve tabletlerde)
+  useEffect(() => {
+    if (activeWordRef.current) {
+      activeWordRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'nearest',
+      });
+    }
+  }, [currentWordIndex]);
 
   return (
-    <div className="relative w-full max-w-4xl mx-auto rounded-[2.5rem] bg-zinc-950/70 border border-white/10 p-8 sm:p-12 shadow-2xl backdrop-blur-2xl transition-all duration-300">
-      {/* Başlık */}
+    <div className="relative w-full max-w-4xl mx-auto rounded-[2.5rem] bg-zinc-950/70 border border-white/10 p-6 sm:p-12 shadow-2xl backdrop-blur-2xl transition-all duration-300">
+      {/* Başlık ve Metin Bilgisi */}
       <div className="flex items-center justify-between pb-6 mb-6 border-b border-white/10">
         <div>
           <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 mb-2">
@@ -35,6 +46,7 @@ export const ReadingRulerStage: React.FC<ReadingRulerStageProps> = ({
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight font-lexend">
             {passage.title}
           </h2>
+          <span className="text-xs text-zinc-400 font-medium">Hedef Kitle: {passage.ageGroup}</span>
         </div>
         <div className="text-right">
           <span className="text-xs text-zinc-400 font-medium block">Zorluk Derecesi</span>
@@ -53,13 +65,12 @@ export const ReadingRulerStage: React.FC<ReadingRulerStageProps> = ({
 
       {/* Metin Alanı (Okuma Sahnesi) */}
       <div
-        className="flex flex-wrap items-center gap-x-3 gap-y-4 font-lexend leading-relaxed select-none transition-all duration-200"
+        className="flex flex-wrap items-center gap-x-3 gap-y-4 font-lexend leading-relaxed select-none transition-all duration-200 max-h-[50vh] overflow-y-auto pr-2 py-2"
         style={{ fontSize: `${fontSize}px` }}
       >
         {words.map((word, index) => {
           const isRead = index < currentWordIndex;
           const isActive = index === currentWordIndex;
-          const isPending = index > currentWordIndex;
 
           // Okuma cetveli aktifken aktif kelimeden çok uzaktaki kelimeleri yarı saydam karart
           const isFarFromActive = isRulerActive && Math.abs(index - currentWordIndex) > 8;
@@ -70,6 +81,7 @@ export const ReadingRulerStage: React.FC<ReadingRulerStageProps> = ({
           return (
             <motion.span
               key={`${word}-${index}`}
+              ref={isActive ? activeWordRef : null}
               onClick={() => onWordClick?.(index)}
               className={`relative cursor-pointer rounded-2xl px-2.5 py-1.5 transition-all duration-200 ${
                 isActive
@@ -85,7 +97,7 @@ export const ReadingRulerStage: React.FC<ReadingRulerStageProps> = ({
             >
               {/* Aktif Kelime İpuçlu Hece Vurgusu */}
               {isActive && highlightedSyllable && (
-                <span className="absolute -top-7 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-rose-500 text-white text-xs font-bold shadow-md animate-bounce whitespace-nowrap">
+                <span className="absolute -top-7 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-rose-500 text-white text-xs font-bold shadow-md animate-bounce whitespace-nowrap z-20">
                   İpucu: {highlightedSyllable}-...
                 </span>
               )}
@@ -109,8 +121,6 @@ export const ReadingRulerStage: React.FC<ReadingRulerStageProps> = ({
                       {syl}
                     </span>
                   ))}
-                  {/* Noktalama işareti varsa koru */}
-                  {word.slice(syllables.join('').length)}
                 </span>
               ) : (
                 <span>{word}</span>
@@ -126,11 +136,11 @@ export const ReadingRulerStage: React.FC<ReadingRulerStageProps> = ({
       </div>
 
       {/* İlerleme Çubuğu */}
-      <div className="mt-10 pt-6 border-t border-white/10 flex items-center justify-between text-xs text-zinc-400 font-medium">
+      <div className="mt-8 pt-6 border-t border-white/10 flex items-center justify-between text-xs text-zinc-400 font-medium">
         <span>
-          İlerleme: {currentWordIndex} / {words.length} kelime
+          İlerleme: <strong className="text-white">{currentWordIndex}</strong> / {words.length} kelime
         </span>
-        <div className="w-48 h-2 bg-zinc-800 rounded-full overflow-hidden">
+        <div className="w-36 sm:w-64 h-2 bg-zinc-800 rounded-full overflow-hidden mx-4">
           <div
             className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-300"
             style={{ width: `${Math.min(100, Math.round((currentWordIndex / words.length) * 100))}%` }}

@@ -1,8 +1,8 @@
 /**
  * BDMIND - LiveReadingCoachService
- * Canlı Sesli Okuma Koçu Orkestratörü (EduMind Dual-Engine)
+ * Canlı Sesli Okuma Koçu Orkestratörü (EduMind Dual-Engine v2.1)
  * 
- * Liderler: Selin Arslan (AI Mimarisi) & Bora Demir (Sistem Mimarı) & Elif Yıldız (Pedagoji)
+ * Liderler: Selin Arslan (AI Mimarisi) & Bora Demir (Sistem Mimarı) & Elif Yıldız (Pedagoji) & Dr. Canan Kaya (Psikometri)
  */
 
 import { AudioCaptureEngine } from './audio/AudioCaptureEngine';
@@ -20,6 +20,39 @@ export interface CoachCallbacks {
   onError?: (error: Error) => void;
 }
 
+/** Türkçe metin normalizasyonu */
+function normalizeTr(s: string): string {
+  return s
+    .trim()
+    .toLocaleLowerCase('tr-TR')
+    .replace(/[.,!?:;"'()\-]/g, '');
+}
+
+/** İki Türkçe kelime arasındaki Levenshtein düzenleme mesafesi */
+function getLevenshteinDistance(a: string, b: string): number {
+  const m = a.length;
+  const n = b.length;
+  const dp: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+
+  for (let i = 0; i <= m; i++) dp[i][0] = i;
+  for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      if (a[i - 1] === b[j - 1]) {
+        dp[i][j] = dp[i - 1][j - 1];
+      } else {
+        dp[i][j] = Math.min(
+          dp[i - 1][j] + 1,     // silme
+          dp[i][j - 1] + 1,     // ekleme
+          dp[i - 1][j - 1] + 1  // değiştirme
+        );
+      }
+    }
+  }
+  return dp[m][n];
+}
+
 export class LiveReadingCoachService {
   private audioEngine: AudioCaptureEngine;
   private currentPassage: ReadingPassage | null = null;
@@ -34,9 +67,16 @@ export class LiveReadingCoachService {
   private patienceThresholdMs = 3000; // Varsayılan 3.0 saniye grace window
   private graceTimer: ReturnType<typeof setTimeout> | null = null;
   private speechSynth: SpeechSynthesis | null = null;
+  private cachedTurkishVoice: SpeechSynthesisVoice | null = null;
+
+  // Koçun kendi sesi konuşurken mikrofondan duyulup kelime atlamasını önleyen eko kilidi
+  private isCoachSpeaking = false;
+  private coachSpeakingReleaseTimer: ReturnType<typeof setTimeout> | null = null;
 
   // Web Speech API tanıma nesnesi (Motor A)
   private recognition: any = null;
+  private isRecognitionRunning = false;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
   private callbacks: CoachCallbacks = {};
 
@@ -47,7 +87,7 @@ export class LiveReadingCoachService {
         this.callbacks.onVolumeChange?.(rms);
       },
       onSilenceDetected: (durationMs) => {
-        if (durationMs > this.patienceThresholdMs && this.isSessionActive) {
+        if (durationMs > this.patienceThresholdMs && this.isSessionActive && !this.isCoachSpeaking) {
           this.triggerScaffoldingHint();
         }
       },
@@ -58,9 +98,26 @@ export class LiveReadingCoachService {
 
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       this.speechSynth = window.speechSynthesis;
+      this.loadTurkishVoices();
+      if (this.speechSynth.onvoiceschanged !== undefined) {
+        this.speechSynth.onvoiceschanged = () => this.loadTurkishVoices();
+      }
     }
 
     this.initSpeechRecognition();
+  }
+
+  private loadTurkishVoices(): void {
+    if (!this.speechSynth) return;
+    try {
+      const voices = this.speechSynth.getVoices();
+      const tr = voices.find((v) => v.lang.toLowerCase().startsWith('tr'));
+      if (tr) {
+        this.cachedTurkishVoice = tr;
+      }
+    } catch {
+      // Sessizce devam et
+    }
   }
 
   public setCallbacks(callbacks: CoachCallbacks): void {
@@ -68,7 +125,7 @@ export class LiveReadingCoachService {
   }
 
   public setPatienceThreshold(seconds: number): void {
-    this.patienceThresholdMs = seconds * 1000;
+    this.patienceThresholdMs = Math.max(1000, seconds * 1000);
   }
 
   private initSpeechRecognition(): void {
@@ -80,59 +137,134 @@ export class LiveReadingCoachService {
       this.recognition.continuous = true;
       this.recognition.interimResults = true;
       this.recognition.lang = 'tr-TR';
+      this.recognition.maxAlternatives = 3;
+
+      this.recognition.onstart = () => {
+        this.isRecognitionRunning = true;
+      };
 
       this.recognition.onresult = (event: any) => {
-        if (!this.isSessionActive || !this.currentPassage) return;
+        // Koç kendi sesini konuşurken veya oturum kapalıyken mikrofon dinleme girdisini yoksay
+        if (!this.isSessionActive || !this.currentPassage || this.isCoachSpeaking) return;
 
         const results = event.results;
         const lastResult = results[results.length - 1];
         if (!lastResult) return;
 
+        // En yüksek güvenilirlikli transkript
         const transcript = lastResult[0]?.transcript?.trim().toLocaleLowerCase('tr-TR') || '';
-        this.processSpokenTranscript(transcript);
+        if (transcript) {
+          this.processSpokenTranscript(transcript);
+        }
       };
 
-      this.recognition.onerror = () => {
-        // Sessizce yut, AudioCaptureEngine ve fallback konuşma devam eder
+      this.recognition.onerror = (event: any) => {
+        const errorType = event?.error;
+        if (errorType === 'not-allowed') {
+          this.callbacks.onError?.(new Error('Mikrofon erişim izni verilmedi. Lütfen tarayıcı ayarlarından mikrofona izin verin.'));
+          return;
+        }
+        // no-speech, network, aborted gibi geçici durumlarda yeniden başlat
+        if (this.isSessionActive) {
+          this.restartRecognitionWithDebounce();
+        }
+      };
+
+      this.recognition.onend = () => {
+        this.isRecognitionRunning = false;
+        // Chromium seans sırasında sessizlikte durduğunda otomatik yeniden bağlan
+        if (this.isSessionActive) {
+          this.restartRecognitionWithDebounce();
+        }
       };
     }
   }
 
+  private restartRecognitionWithDebounce(): void {
+    if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
+    this.reconnectTimer = setTimeout(() => {
+      if (!this.isSessionActive || !this.recognition) return;
+      try {
+        this.recognition.start();
+      } catch {
+        // Zaten çalışıyorsa veya başlatılamadıysa zararsızca devam et
+      }
+    }, 250);
+  }
+
   /**
-   * Çocuğun mikrofondan söylediği metni ekrandaki hedef kelimeyle eşleştirir
+   * Çocuğun mikrofondan söylediği kelimeleri ekrandaki hedef kelimeyle akıllıca eşleştirir.
+   * Teker teker veya akıcı çoklu kelimeleri destekler.
    */
   public processSpokenTranscript(transcript: string): void {
-    if (!this.currentPassage || !this.isSessionActive) return;
+    if (!this.currentPassage || !this.isSessionActive || this.isCoachSpeaking) return;
 
     const words = this.currentPassage.words;
     if (this.currentWordIndex >= words.length) return;
 
     const targetWord = words[this.currentWordIndex];
-    const cleanTarget = targetWord.toLocaleLowerCase('tr-TR').replace(/[.,!?:;"]/g, '');
+    const cleanTarget = normalizeTr(targetWord);
 
-    // Çocuğun son söylediği kelime veya kelimeler içinde hedef var mı?
-    const spokenTokens = transcript.split(/\s+/).filter(Boolean);
-    const lastSpoken = spokenTokens[spokenTokens.length - 1] || '';
+    const spokenTokens = transcript
+      .split(/\s+/)
+      .map((t) => normalizeTr(t))
+      .filter((t) => t.length > 0);
 
-    if (lastSpoken === cleanTarget || transcript.includes(cleanTarget)) {
-      // Doğru Okundu!
+    if (spokenTokens.length === 0) return;
+
+    // 1. Token içinde tam hedef kelime veya fonetik toleranslı eşleşme ara
+    let matchedIndex = -1;
+    for (let i = 0; i < spokenTokens.length; i++) {
+      const token = spokenTokens[i];
+      if (token === cleanTarget) {
+        matchedIndex = i;
+        break;
+      }
+      // 4 harften uzun kelimelerde Levenshtein mesafesi <= 1 toleransı
+      if (cleanTarget.length >= 4 && token.length >= 4 && getLevenshteinDistance(cleanTarget, token) <= 1) {
+        matchedIndex = i;
+        break;
+      }
+    }
+
+    if (matchedIndex !== -1) {
+      // Doğru Okundu! İlerlet
       this.advanceWord();
-    } else if (lastSpoken.length >= 2) {
-      // Olası hata analizi
+
+      // Akıcı okuyucularda sonraki kelime de aynı nefeste söylenmiş mi kontrol et
+      if (matchedIndex + 1 < spokenTokens.length && this.currentWordIndex < words.length) {
+        const nextTarget = normalizeTr(words[this.currentWordIndex]);
+        const nextToken = spokenTokens[matchedIndex + 1];
+        if (nextToken === nextTarget || (nextTarget.length >= 4 && getLevenshteinDistance(nextTarget, nextToken) <= 1)) {
+          this.advanceWord();
+        }
+      }
+      return;
+    }
+
+    // 2. Eşleşme yoksa fonolojik hata analizi yap (çocuğun son söylediği kelime baz alınır)
+    const lastSpoken = spokenTokens[spokenTokens.length - 1];
+    if (lastSpoken && lastSpoken.length >= 2) {
       const errorAnalysis = PhonologicalScoringEngine.classifyReadingError(cleanTarget, lastSpoken);
       if (errorAnalysis.code === 'SUCCESS_SELF') {
         this.selfCorrections++;
         this.advanceWord();
       } else {
-        this.errors.push({
-          id: `err-${Date.now()}`,
-          wordIndex: this.currentWordIndex,
-          targetWord,
-          spokenWord: lastSpoken,
-          errorCode: errorAnalysis.code,
-          explanation: errorAnalysis.explanation,
-          timestampMs: Date.now() - this.sessionStartTime,
-        });
+        // Hata kaydı ekle (aynı kelimeye çok sık hata yazmamak için debounce/filtre)
+        const alreadyRecorded = this.errors.some(
+          (e) => e.wordIndex === this.currentWordIndex && e.spokenWord === lastSpoken
+        );
+        if (!alreadyRecorded) {
+          this.errors.push({
+            id: `err-${Date.now()}`,
+            wordIndex: this.currentWordIndex,
+            targetWord,
+            spokenWord: lastSpoken,
+            errorCode: errorAnalysis.code,
+            explanation: errorAnalysis.explanation,
+            timestampMs: Date.now() - this.sessionStartTime,
+          });
+        }
       }
     }
   }
@@ -148,15 +280,15 @@ export class LiveReadingCoachService {
     this.callbacks.onWordAdvanced?.(this.currentWordIndex);
     this.callbacks.onSyllableHighlighted?.(null);
 
-    // Rastgele hafif olumlu geri bildirim
-    if (this.currentWordIndex % 5 === 0 && this.currentWordIndex < this.currentPassage.words.length) {
+    // Her 5-6 kelimede bir çocuğu bunaltmadan hafif pozitif pekiştireç
+    if (this.currentWordIndex % 6 === 0 && this.currentWordIndex < this.currentPassage.words.length) {
       this.callbacks.onMascotStateChange?.('celebrating');
       this.callbacks.onCoachMessage?.('Harika bir birleştirme! Böyle devam et.');
       setTimeout(() => {
         if (this.isSessionActive) {
           this.callbacks.onMascotStateChange?.('listening');
         }
-      }, 1200);
+      }, 1000);
     } else {
       this.callbacks.onMascotStateChange?.('listening');
     }
@@ -173,7 +305,7 @@ export class LiveReadingCoachService {
    * Çocuk duraksadığında devreye giren 3 Kademeli İskele (Scaffolding)
    */
   private triggerScaffoldingHint(): void {
-    if (!this.currentPassage || !this.isSessionActive) return;
+    if (!this.currentPassage || !this.isSessionActive || this.isCoachSpeaking) return;
     if (this.currentWordIndex >= this.currentPassage.words.length) return;
 
     this.hesitationCount++;
@@ -183,7 +315,7 @@ export class LiveReadingCoachService {
     const syllables = this.currentPassage.syllabifiedWords[this.currentWordIndex] || [currentWord];
     const firstSyllable = syllables[0] || currentWord.slice(0, 2);
 
-    // 1. Kademe: Ekranda ilk heceyi parlat
+    // 1. Kademe: Ekranda ilk heceyi yumuşakça parlat
     this.callbacks.onSyllableHighlighted?.(firstSyllable);
     this.callbacks.onMascotStateChange?.('hinting');
     this.callbacks.onCoachMessage?.(`Hadi birlikte bakalım: "${firstSyllable}-..."`);
@@ -193,29 +325,44 @@ export class LiveReadingCoachService {
   }
 
   /**
-   * Tarayıcı TTS ile dostça Türkçe fısıldama / model olma
+   * Tarayıcı Türkçe TTS ile şefkatli sesli koç fısıldaması / model olma.
+   * Eko kilidi uygulayarak koçun kendi sesini duymasını engeller.
    */
   public speakVoiceHint(text: string): void {
     if (!this.speechSynth) return;
 
     try {
       this.speechSynth.cancel();
+      if (this.coachSpeakingReleaseTimer) clearTimeout(this.coachSpeakingReleaseTimer);
+
+      this.isCoachSpeaking = true;
       const utterance = new SpeechSynthesisUtterance(text);
       utterance.lang = 'tr-TR';
-      utterance.rate = 0.85; // Disleksik çocuk için tane tane ve sakin
-      utterance.pitch = 1.15; // Dost canlısı sıcak çocukça perde
+      utterance.rate = 0.88; // Disleksik çocuk için tane tane ve sakin tempo
+      utterance.pitch = 1.12; // Sıcak, dostça ve sevecen ton
+
+      if (this.cachedTurkishVoice) {
+        utterance.voice = this.cachedTurkishVoice;
+      }
 
       this.callbacks.onMascotStateChange?.('speaking');
 
-      utterance.onend = () => {
-        if (this.isSessionActive) {
-          this.callbacks.onMascotStateChange?.('listening');
-        }
+      const releaseCoachSpeaking = () => {
+        // Yankı kesici gecikme tamponu (350ms)
+        this.coachSpeakingReleaseTimer = setTimeout(() => {
+          this.isCoachSpeaking = false;
+          if (this.isSessionActive) {
+            this.callbacks.onMascotStateChange?.('listening');
+          }
+        }, 350);
       };
+
+      utterance.onend = releaseCoachSpeaking;
+      utterance.onerror = releaseCoachSpeaking;
 
       this.speechSynth.speak(utterance);
     } catch {
-      // TTS hatası durumunda sessizce devam et
+      this.isCoachSpeaking = false;
     }
   }
 
@@ -245,6 +392,7 @@ export class LiveReadingCoachService {
     this.errors = [];
     this.sessionStartTime = Date.now();
     this.isSessionActive = true;
+    this.isCoachSpeaking = false;
 
     try {
       await this.audioEngine.start();
@@ -274,6 +422,8 @@ export class LiveReadingCoachService {
     this.isSessionActive = false;
     this.clearGraceTimer();
     this.audioEngine.stop();
+
+    if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
 
     try {
       this.recognition?.stop();
@@ -307,6 +457,10 @@ export class LiveReadingCoachService {
   public stopSession(): void {
     this.isSessionActive = false;
     this.clearGraceTimer();
+    if (this.reconnectTimer) clearTimeout(this.reconnectTimer);
+    if (this.coachSpeakingReleaseTimer) clearTimeout(this.coachSpeakingReleaseTimer);
+    this.isCoachSpeaking = false;
+
     this.audioEngine.stop();
     try {
       this.recognition?.stop();
