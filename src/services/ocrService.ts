@@ -1,3 +1,4 @@
+import { MODEL_AGENTIC_FLASH } from './geminiClient.js';
 import { AppError, toAppError } from '../utils/AppError.js';
 import { logError, logInfo, logWarn } from '../utils/logger.js';
 import { InternalServerError } from '../utils/AppError.js';
@@ -17,7 +18,7 @@ interface OCRBlueprintRaw extends OCRBlueprint {
     description?: string;
     analysis?: string;
 }
-const MASTER_MODEL = 'gemini-2.5-flash';
+const MASTER_MODEL = MODEL_AGENTIC_FLASH; // gemini-3.8-flash Vision OCR
 
 // ─── DIRECT GEMINI WITH IMAGE (server-side only) ──────────────────────────
 /**

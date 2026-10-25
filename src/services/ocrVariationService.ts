@@ -1,3 +1,4 @@
+import { MODEL_AGENTIC_FLASH } from './geminiClient.js';
 /**
  * BDMIND - OCR Variation Service
  * Blueprint'ten varyasyon üretimi orkestratörü
@@ -31,7 +32,7 @@ import {
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────
 
-const MASTER_MODEL = 'gemini-2.5-flash';
+const MASTER_MODEL = MODEL_AGENTIC_FLASH; // gemini-3.8-flash
 
 // ─── DIRECT GEMINI CALLER (server-side only) ─────────────────────────────
 

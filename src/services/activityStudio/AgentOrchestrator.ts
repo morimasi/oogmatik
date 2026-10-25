@@ -20,7 +20,7 @@ import { VisualAgent } from './agents/VisualAgent.js';
 import type { AgentDependencies } from './agents/types.js';
 
 const defaultConfig: OrchestratorConfig = {
-  model: 'gemini-2.5-flash',
+  model: 'gemini-3.8-flash', // Google Next-Gen Autonomous Agent Model
   maxBatchSize: 5,
   cacheEnabled: true,
   enabledAgents: ['ideation', 'content', 'visual', 'flow', 'evaluation', 'integration'],

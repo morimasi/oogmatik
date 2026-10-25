@@ -11,7 +11,7 @@ import { RateLimitError, AppError, InternalServerError } from '../../src/utils/A
 import { logError } from '../../src/utils/errorHandler.js';
 import { tryRepairJson } from '../../src/utils/jsonRepair.js';
 
-const MASTER_MODEL = 'gemini-2.5-flash';
+const MASTER_MODEL = 'gemini-2.5-flash-lite'; // Katman 1: Ultra Hızlı & Ekonomik
 const rateLimiter = new RateLimiter();
 
 // ─── JSON Repair ────────────────────────────────────────────────

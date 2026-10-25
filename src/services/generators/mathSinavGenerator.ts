@@ -1,3 +1,4 @@
+import { MODEL_PRO_REASONING } from '../geminiClient.js';
 /**
  * MatSinavStudyosu — AI Matematik Sınav Generator
  * MEB 1-8. sınıf matematik sınavı üretimi
@@ -504,7 +505,7 @@ Görsel-metin uyumsuzluğu olan sorular klinik testlerden geçemez ve iptal edil
 `;
 }
 
-const MASTER_MODEL = 'gemini-2.5-flash';
+const MASTER_MODEL = MODEL_PRO_REASONING; // gemini-2.5-pro LGS zekası
 
 // ─── Gemini REST API çağrısı ──────────────────────────────────
 const callGeminiDirect = async (prompt: string, schema: object): Promise<unknown> => {

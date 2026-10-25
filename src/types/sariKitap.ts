@@ -269,7 +269,7 @@ export interface SariKitapGeneratedContent {
   wordBlocks?: string[][];
   memoryData?: MemoryPhaseData;
   generatedAt: string;
-  model: 'gemini-2.5-flash';
+  model: 'gemini-2.5-flash-lite' | 'gemini-3.8-flash' | 'gemini-2.5-flash' | string;
   tokenUsage?: { input: number; output: number };
 }
 

@@ -30,7 +30,7 @@ function expectValidContent(content: SariKitapGeneratedContent) {
     expect(content.heceRows).toBeDefined();
     expect(Array.isArray(content.heceRows)).toBe(true);
     expect(content.generatedAt).toBeTruthy();
-    expect(content.model).toBe('gemini-2.5-flash');
+    expect(['gemini-2.5-flash', 'gemini-2.5-flash-lite']).toContain(content.model);
 }
 
 describe('Pencere Offline Üretici', () => {

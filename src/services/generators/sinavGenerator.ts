@@ -1,3 +1,4 @@
+import { MODEL_PRO_REASONING } from '../geminiClient.js';
 /**
  * Super Türkçe Sınav Stüdyosu - AI Generator
  * MEB kazanım entegreli sınav üretimi
@@ -12,7 +13,7 @@ import { AppError } from '../../utils/AppError.js';
 import { PEDAGOGICAL_BASE, CLINICAL_DIAGNOSTIC_GUIDE } from './prompts.js';
 
 import { logInfo, logError, logWarn } from '../../utils/logger.js';
-const MASTER_MODEL = 'gemini-2.5-flash';
+const MASTER_MODEL = MODEL_PRO_REASONING; // gemini-2.5-pro Sınav zekası
 
 // ─── Doğrudan Gemini REST API çağrısı (Vercel serverless uyumlu) ────────────
 export const callGeminiDirect = async (prompt: string, schema: object): Promise<unknown> => {

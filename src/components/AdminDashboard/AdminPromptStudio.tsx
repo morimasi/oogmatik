@@ -155,7 +155,7 @@ export const AdminPromptStudio = () => {
         updatedAt: new Date().toISOString(),
         version: 1,
         history: [],
-        modelConfig: { temperature: 0.1, modelName: 'gemini-2.5-flash', thinkingBudget: 0 },
+        modelConfig: { temperature: 0.1, modelName: 'gemini-3.8-flash', thinkingBudget: 0 },
       };
     }
     setSelected(p);

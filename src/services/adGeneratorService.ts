@@ -98,7 +98,7 @@ async function callGemini(prompt: string, systemInstruction: string): Promise<Re
     prompt,
     systemInstruction,
     temperature: 0.7,
-    model: 'gemini-2.5-flash',
+    model: 'gemini-3.8-flash',
     schema: {
       type: 'OBJECT',
       properties: {

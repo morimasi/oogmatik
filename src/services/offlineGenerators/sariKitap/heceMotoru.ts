@@ -173,7 +173,7 @@ export function buildGeneratedContent(
         memoryData: extra?.memoryData,
         pedagogicalNote: 'Bu etkinlik, disleksi ve okuma guclugu yasayan ogrencilerin fonolojik farkindalik ve okuma akiciligini gelistirmek uzere yapilandirilmistir.',
         generatedAt: new Date().toISOString(),
-        model: 'gemini-2.5-flash',
+        model: 'gemini-2.5-flash-lite',
     };
 }
 

@@ -87,7 +87,7 @@ export async function generateSariKitapContent(
         wordBlocks: aiData.wordBlocks,
         memoryData: aiData.memoryData,
         generatedAt: new Date().toISOString(),
-        model: 'gemini-2.5-flash',
+        model: 'gemini-2.5-flash-lite',
     };
 
     return content;

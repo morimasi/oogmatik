@@ -7,7 +7,7 @@ export type { Difficulty } from './common';
 
 // ─── AI Model Literal ───────────────────────────────────────────────
 /** Sabit model — değiştirme (Selin Arslan direktifi) */
-export type bdmindModel = 'gemini-2.5-flash';
+export type bdmindModel = 'gemini-3.8-flash' | 'gemini-2.5-flash-lite' | 'gemini-2.5-pro' | 'gemini-2.5-flash';
 
 /** Batch üst limiti — 5'ten büyük count asla tek çağrıda gitmez */
 export type MaxBatchSize = 5;
