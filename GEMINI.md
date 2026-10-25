@@ -14,7 +14,7 @@ AI destekli kişiselleştirilmiş eğitim materyalleri üreten bir EdTech platfo
 - **Hedef Kitle**: 4–8. sınıf öğrencileri, özel eğitim öğretmenleri, veliler
 - **Kritik Kısıt**: Her üretilen içerik gerçek bir çocuğa ulaşır. Hata toleransı = sıfır.
 - **Müfredat**: MEB 2024-2025, LGS/PISA standartları
-- **AI Altyapısı**: Google Gemini 2.5 Flash (`gemini-2.5-flash`)
+- **AI Altyapısı**: En Yeni Nesil Elit Hibrit Google Modelleri (`gemini-3.8-flash` + `gemini-2.5-flash-lite` + `gemini-2.5-pro`)
 
 ---
 
@@ -231,7 +231,7 @@ bdmind/
 | State | Zustand (10 store) |
 | UI | Radix UI, @dnd-kit (drag-and-drop), lucide-react |
 | Backend | Node.js, Vercel Serverless Functions |
-| AI | Google Gemini 2.5 Flash — `gemini-2.5-flash` (sabit — değiştirme) |
+| AI | Google En Yeni Nesil Elit Hibrit (`gemini-3.8-flash` + `gemini-2.5-flash-lite` + `gemini-2.5-pro`) |
 | DB | Firebase/Firestore + IndexedDB (önbellek) |
 | Validation | Zod |
 | Test | Vitest + Playwright (E2E) |
@@ -318,8 +318,10 @@ interface BEPGoal {
   progress: 'not_started' | 'in_progress' | 'achieved';
 }
 
-// Sabit model — değiştirme
-const MASTER_MODEL = 'gemini-2.5-flash';
+// En Yeni Nesil Elit Hibrit Mimari
+const MASTER_MODEL = 'gemini-3.8-flash'; // Katman 2: Ajan Orkestratörü
+const MODEL_FLASH_LITE = 'gemini-2.5-flash-lite'; // Katman 1: Hızlı
+const MODEL_PRO_REASONING = 'gemini-2.5-pro'; // Katman 3: Ağır Akıl Yürütme
 ```
 
 ---

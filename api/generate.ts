@@ -23,7 +23,38 @@ import { tryRepairJson } from '../src/utils/jsonRepair.js';
 
 // Types are imported from @vercel/node above
 
-const MASTER_MODEL = 'gemini-2.5-flash';
+export const MODEL_FLASH_LITE = 'gemini-2.5-flash-lite';
+export const MODEL_AGENTIC_FLASH = 'gemini-3.8-flash';
+export const MODEL_PRO_REASONING = 'gemini-2.5-pro';
+export const MODEL_LEGACY_FLASH = 'gemini-2.5-flash';
+
+export const MASTER_MODEL = MODEL_AGENTIC_FLASH;
+
+const ALLOWED_MODELS = new Set([
+  MODEL_AGENTIC_FLASH,
+  MODEL_FLASH_LITE,
+  MODEL_PRO_REASONING,
+  MODEL_LEGACY_FLASH,
+]);
+
+function resolveOptimalBackendModel(activityType?: string, prompt?: string, requestedModel?: string): string {
+  if (requestedModel && ALLOWED_MODELS.has(requestedModel)) {
+    return requestedModel;
+  }
+  const act = (activityType || '').toUpperCase();
+  if (act.includes('ASSESSMENT') || act.includes('SINAV') || act.includes('BEP') || act.includes('LOGIC') || act.includes('ALGORITHM')) {
+    return MODEL_PRO_REASONING;
+  }
+  if (act.includes('SYLLABLE') || act.includes('HECE') || act.includes('WORD') || act.includes('MAZE') || act.includes('SHORT_ANSWER')) {
+    return MODEL_FLASH_LITE;
+  }
+  if (prompt) {
+    const pLow = prompt.toLowerCase();
+    if (pLow.includes('tarama') || pLow.includes('bep') || pLow.includes('lgs mantık')) return MODEL_PRO_REASONING;
+    if (pLow.includes('hece') || pLow.includes('zıt anlam') || pLow.includes('eş anlam')) return MODEL_FLASH_LITE;
+  }
+  return MODEL_AGENTIC_FLASH;
+}
 
 const SYSTEM_INSTRUCTION = `
 Sen, Bursa Disleksi EduMind (bdmind / oogmatik) platformunun ordinaryüs eğitim mimarı, nöro-pedagoji, grafik sanatları ve baskı sistemleri otoritesisin. [DEPLOY: 2026_SWARM_v6_ELITE]
@@ -108,7 +139,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {
     // 1. Basic Validation
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    const { prompt, schema, image, mimeType, userId, systemInstruction, model } = body;
+    const { prompt, schema, image, mimeType, userId, systemInstruction, model, activityType } = body;
 
     const validation = validateGenerateActivityRequest(body);
     if (!validation.valid) {
@@ -200,10 +231,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // 5. AI Call with Direct REST API (No SDK)
     const result = await retryWithBackoff(
       async () => {
-        let selectedModel = model || MASTER_MODEL;
-        // Eski onbelleklenmis verilerden gelebilecek kullanim disi modelleri engelle
-        if (selectedModel.includes('gemini-2.0') || selectedModel.includes('gemini-1.5') || selectedModel.includes('gemini-3')) {
-          selectedModel = MASTER_MODEL;
+        let selectedModel = model;
+        if (!selectedModel || selectedModel === 'auto' || !ALLOWED_MODELS.has(selectedModel)) {
+          selectedModel = resolveOptimalBackendModel(activityType, prompt, model);
         }
         // Denenecek güncel API anahtarını al
         const apiKey = apiKeys[currentKeyIndex];

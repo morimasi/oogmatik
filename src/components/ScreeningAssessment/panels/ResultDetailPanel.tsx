@@ -7,7 +7,7 @@ import { RadarChart } from '../../RadarChart';
 import { CATEGORY_LABELS } from '../../../data/screeningQuestions';
 import { assessmentEngineService } from '../services/assessmentEngineService';
 import { screeningDataService } from '../services/screeningDataService';
-import { generateWithSchema } from '../../../services/geminiClient';
+import { generateWithSchema, MODEL_PRO_REASONING } from '../../../services/geminiClient';
 import type { AIAnalysisResult } from '../services/assessmentEngineService';
 import type { EvaluationCategory, ScreeningResult } from '../../../types/screening';
 import { ShareModal } from '../../ShareModal';
@@ -93,7 +93,7 @@ export const ResultDetailPanel: React.FC<ResultDetailPanelProps> = ({ onGenerate
       try {
         const prompt = assessmentEngineService.buildAnalysisPrompt(currentScreening);
         const schema = assessmentEngineService.getAIAnalysisSchema();
-        const response = (await generateWithSchema(prompt, schema)) as unknown as AIAnalysisResult;
+        const response = (await generateWithSchema(prompt, schema, { model: MODEL_PRO_REASONING, taskType: 'pro' })) as unknown as AIAnalysisResult;
         
         if (response && response.letter) {
           finalAiAnalysis = {

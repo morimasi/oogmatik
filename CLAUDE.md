@@ -21,7 +21,7 @@ AI destekli kişiselleştirilmiş eğitim materyalleri üreten bir EdTech platfo
 - **Hedef Kitle**: 4–8. sınıf öğrencileri, özel eğitim öğretmenleri, veliler
 - **Kritik Kısıt**: Her üretilen içerik gerçek bir çocuğa ulaşır. Hata toleransı = sıfır.
 - **Müfredat**: MEB 2024-2025, LGS/PISA standartları
-- **AI Altyapısı**: Google Gemini 2.5 Flash (`MASTER_MODEL`), Anthropic Claude (BEP/analiz)
+- **AI Altyapısı**: En Yeni Nesil Elit Hibrit (`gemini-3.8-flash`, `gemini-2.5-flash-lite`, `gemini-2.5-pro`), Anthropic Claude (BEP/analiz)
 
 ---
 

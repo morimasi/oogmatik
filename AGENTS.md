@@ -115,7 +115,7 @@ Her geliştirme ve içerik üretiminde bu 10 Ordinaryüs lider konseyi **birlikt
 
 6. **Selin Arslan** — AI Mimarisi & Generative Orkestrasyon Lideri
    - **Kritik Sorumluluk**: Prompt kalitesi, token maliyeti, hallucination riski ve model kararlılığı nasıl?
-   - **Otorite Alanı**: Model: `gemini-2.5-flash` (sabit), 3 katmanlı JSON repair motoru (`balanceBraces` -> `truncateToValid` -> `JSON.parse`), prompt sanitization, batch generation (>10 aktivite için 5'erli chunk), DEHB dostu 5-7 dk mikro-döngü akışları.
+   - **Otorite Alanı**: Model Mimarisi: **En Yeni Nesil Elit Hibrit** (Katman 1: `gemini-2.5-flash-lite`, Katman 2: `gemini-3.8-flash` varsayılan, Katman 3: `gemini-2.5-pro` klinik derinlik), 3 katmanlı JSON repair motoru (`balanceBraces` -> `truncateToValid` -> `JSON.parse`), prompt sanitization, batch generation (>10 aktivite için 5'erli chunk), DEHB dostu 5-7 dk mikro-döngü akışları.
 
 7. **Emre Tan** — UI/UX Stratejisti & Bilişsel Ergonomi Mimarı
    - **Kritik Sorumluluk**: Arayüz 0 bilişsel yük sunuyor mu? Glassmorphism ve A4 düzen ergonomik mi?

@@ -20,8 +20,115 @@ export interface CreativeMultimodalResult {
 }
 
 
-// Model Seçimi: Gemini 2.5 Flash — Performanslı ve güncel model
-const MASTER_MODEL = 'gemini-2.5-flash';
+// ============================================================================
+// EN YENİ NESİL ELİT HİBRİT AI MODEL MİMARİSİ (Google Next-Gen 2026 Portföyü)
+// ============================================================================
+export const MODEL_FLASH_LITE = 'gemini-2.5-flash-lite'; // Katman 1: Ultra Hızlı & Ekonomik (%50 Trafik, 600ms)
+export const MODEL_AGENTIC_FLASH = 'gemini-3.8-flash';    // Katman 2: En Zeki Flash & Ajan Orkestratörü (%35 Trafik)
+export const MODEL_PRO_REASONING = 'gemini-2.5-pro';      // Katman 3: Ordinaryüs Ağır Akıl Yürütme & Klinik Zekâ (%15 Trafik)
+export const MODEL_LEGACY_FLASH = 'gemini-2.5-flash';     // Geriye Dönük Uyumluluk Fallback
+
+export const MASTER_MODEL = MODEL_AGENTIC_FLASH;
+
+export type EliteHybridModel =
+  | typeof MODEL_FLASH_LITE
+  | typeof MODEL_AGENTIC_FLASH
+  | typeof MODEL_PRO_REASONING
+  | typeof MODEL_LEGACY_FLASH;
+
+// Katman 1 (Flash-Lite) için Hızlı & Hafif Aktivite Tipleri
+const LITE_ACTIVITIES = new Set([
+  'COLORFUL_SYLLABLE',
+  'SYLLABLE_PYRAMID',
+  'HECE_SES',
+  'WORD_GAMES',
+  'WORD_SEARCH',
+  'FIND_IDENTICAL_WORD',
+  'ZIT_ANLAM',
+  'ES_ANLAM',
+  'LETTER_MAZE_TEST',
+  'LETTER_CONNECT',
+  'DIRECTIONAL_CODE_READING',
+  'SHORT_ANSWER',
+  'FILL_IN_BLANKS',
+  'MISSING_PARTS',
+  'SARI_KITAP_PENCERE',
+  'SARI_KITAP_NOKTA',
+  'SARI_KITAP_KOPRU',
+  'speed_reading',
+  'syllable',
+  'vocabulary_flash',
+]);
+
+// Katman 3 (Pro Reasoning) için Yüksek Bilişsel Görevler
+const PRO_ACTIVITIES = new Set([
+  'SCREENING_ASSESSMENT',
+  'ASSESSMENT',
+  'COGNITIVE_TEST',
+  'BEP_GOALS',
+  'CLINICAL_ANALYSIS',
+  'STUDENT_EVALUATION',
+  'MATH_SINAV',
+  'ADVANCED_MATH',
+  'MATH_GEOMETRY',
+  'ALGORITHM_GENERATOR',
+  'LOGIC_PROBLEMS',
+  'APARTMENT_LOGIC',
+  'FAMILY_TREE_MATRIX',
+  'FINANCIAL_MARKET',
+  'ODD_EVEN_SUDOKU',
+  'FUTOSHIKI',
+  'KENDOKU',
+  'LOGIC_ERROR_HUNTER',
+  'deep_assessment',
+  'clinical_report',
+]);
+
+/**
+ * Görev veya aktivite türüne göre en uygun modeli belirleyen akıllı dinamik yönlendirici
+ */
+export function resolveOptimalModel(context?: {
+  activityType?: string;
+  taskType?: 'lite' | 'standard' | 'pro' | 'auto';
+  prompt?: string;
+  requestedModel?: string;
+}): string {
+  if (context?.requestedModel && context.requestedModel !== 'auto') {
+    if (
+      context.requestedModel === MODEL_FLASH_LITE ||
+      context.requestedModel === MODEL_AGENTIC_FLASH ||
+      context.requestedModel === MODEL_PRO_REASONING ||
+      context.requestedModel === MODEL_LEGACY_FLASH
+    ) {
+      return context.requestedModel;
+    }
+  }
+
+  if (context?.taskType === 'lite') return MODEL_FLASH_LITE;
+  if (context?.taskType === 'pro') return MODEL_PRO_REASONING;
+  if (context?.taskType === 'standard') return MODEL_AGENTIC_FLASH;
+
+  const actType = (context?.activityType || '').toUpperCase().trim();
+  if (LITE_ACTIVITIES.has(actType) || LITE_ACTIVITIES.has(context?.activityType || '')) {
+    return MODEL_FLASH_LITE;
+  }
+  if (PRO_ACTIVITIES.has(actType) || PRO_ACTIVITIES.has(context?.activityType || '')) {
+    return MODEL_PRO_REASONING;
+  }
+
+  // Prompt içeriğine göre sezgisel tespit
+  if (context?.prompt) {
+    const pLow = context.prompt.toLowerCase();
+    if (pLow.includes('tarama testi') || pLow.includes('bep hedef') || pLow.includes('klinik değerlendirme') || pLow.includes('lgs mantık')) {
+      return MODEL_PRO_REASONING;
+    }
+    if (pLow.includes('heceleme') || pLow.includes('zıt anlam') || pLow.includes('eş anlam') || pLow.includes('kelime bulmaca')) {
+      return MODEL_FLASH_LITE;
+    }
+  }
+
+  return MODEL_AGENTIC_FLASH;
+}
 
 // Define a simple JSON schema data generator for mocks during tests
 function generateDummyDataFromSchema(schema: Record<string, unknown>): unknown {
@@ -174,7 +281,8 @@ export const generateCreativeMultimodal = async (params: {
   const url = '/api/generate';
 
   let safeModel = params.model || MASTER_MODEL;
-  if (safeModel.includes('gemini-2.0') || safeModel.includes('gemini-3')) {
+  // Eski geçersiz modelleri ayıkla, yeni nesil elit modellere (3.8 Flash, 2.5 Pro, 2.5 Flash-Lite) izin ver
+  if (safeModel.includes('gemini-2.0') || safeModel.includes('gemini-1.5')) {
     safeModel = MASTER_MODEL;
   }
 
@@ -304,9 +412,23 @@ Tüm içeriği bu spesifik bağlama göre optimize et!`;
 export const generateWithSchema = async (
   prompt: string,
   schema: Record<string, unknown>,
-  params?: { temperature?: number; topP?: number; thinkingBudget?: number; skipStudentContext?: boolean }
+  params?: {
+    temperature?: number;
+    topP?: number;
+    thinkingBudget?: number;
+    skipStudentContext?: boolean;
+    model?: string;
+    activityType?: string;
+    taskType?: 'lite' | 'standard' | 'pro' | 'auto';
+  }
 ) => {
-  return await generateCreativeMultimodal({ prompt, schema, ...params });
+  const model = params?.model || resolveOptimalModel({
+    activityType: params?.activityType,
+    taskType: params?.taskType,
+    prompt,
+    requestedModel: params?.model,
+  });
+  return await generateCreativeMultimodal({ prompt, schema, ...params, model });
 };
 
 
@@ -350,7 +472,7 @@ export const generateSvgCode = async (prompt: string): Promise<string> => {
       body: JSON.stringify({
         prompt,
         systemInstruction: systemPrompt,
-        model: MASTER_MODEL,
+        model: MODEL_AGENTIC_FLASH, // Gemini 3.8 Flash vektörel çizim motoru
       }),
     });
 

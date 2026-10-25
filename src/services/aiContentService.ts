@@ -1,4 +1,4 @@
-import { generateWithSchema } from './geminiClient.js';
+import { generateWithSchema, resolveOptimalModel } from './geminiClient.js';
 import { ActivityType, SingleWorksheetData } from '../types.js';
 import { AppError } from '../utils/AppError.js';
 
@@ -177,7 +177,8 @@ UYARI:
         required: ['content'],
       };
 
-      const result = await generateWithSchema(prompt, schema) as { content?: Array<SingleWorksheetData> };
+      const optimalModel = resolveOptimalModel({ activityType });
+      const result = await generateWithSchema(prompt, schema, { model: optimalModel, activityType }) as { content?: Array<SingleWorksheetData> };
       return result.content as Array<SingleWorksheetData>;
     } catch (error) {
       logError(error instanceof Error ? error : String(error));

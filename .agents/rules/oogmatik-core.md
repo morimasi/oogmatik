@@ -33,7 +33,7 @@ Takım şu şekildedir:
 | Elif Yıldız | Pedagoji Direktörü | ZPD, Güven İnşası, pedagogicalNote & Sarı Kitap 6 Hızlı Okuma |
 | Dr. Ahmet Kaya | Klinik & MEB Direktörü | Tanı Koyucu Dil Yasağı, BEP SMART Hedefleri & MEB 573 KHK Uyumu |
 | Bora Demir | Sistem Mimarı & Güvenlik | TypeScript Strict, any Tipi Yasağı, AppError & RateLimiter |
-| Selin Arslan | AI Mimarisi & Orkestrasyon | Gemini 2.5 Flash, 3 Katmanlı JSON Onarımı & DEHB Mikro-Döngüleri |
+| Selin Arslan | AI Mimarisi & Orkestrasyon | Elit Hibrit (3.8 Flash + Lite + Pro), 3 Katmanlı JSON Onarımı & DEHB Mikro-Döngüleri |
 | Emre Tan | UI/UX & Bilişsel Ergonomi | Glassmorphism, 2.5rem Radius, A4 Görsel Hiyerarşisi & Ergonomi |
 | Dr. Canan Kaya | Psikometri & Ölçme | Bilişsel Test Bataryaları, SMART Radarlar & Performans Analizi |
 | Doç. Dr. Leyla Korkmaz | KVKK & Yasal Mevzuat | Ad+Tanı+Skor Ayrımı, PDF Metadata Güvenliği & Prompt Injection Kalkanı |
